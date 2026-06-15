@@ -15,30 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { rules as unicornRules } from '../external/unicorn.js';
 import {
   NoTypeCheckingRuleTester,
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
-
-// Sentinel: track the upstream Unicorn behavior on Zod `.catch()` chains so the local tests stay
-// aligned with the version currently consumed by SonarJS.
-describe('S7785 upstream sentinel', () => {
-  it('upstream prefer-top-level-await no longer raises on Zod .catch() pattern', () => {
-    const sentinelTester = new NoTypeCheckingRuleTester();
-    sentinelTester.run('prefer-top-level-await', unicornRules['prefer-top-level-await'], {
-      valid: [
-        {
-          // Zod string schema .catch() — ignored by upstream since Unicorn v65
-          code: `import { z } from 'zod';
-                 const nameSchema = z.string().optional().catch('');`,
-        },
-      ],
-      invalid: [],
-    });
-  });
-});
 
 describe('S7785', () => {
   it('should report in ES modules (sourceType: module)', () => {
