@@ -1,7 +1,6 @@
-const multer = require('multer');
-const { diskStorage } = require('multer');
-const { randomBytes } = require('crypto');
-const { extname } = require('path');
+import multer, { diskStorage } from 'multer';
+import { randomBytes } from 'node:crypto';
+import { extname } from 'node:path';
 
 const tmpFolder = '/tmp';
 
@@ -32,6 +31,6 @@ const config = {
 };
 
 // multer without limits is not compliant
-const upload = multer({ storage }); // Noncompliant {{Make sure the content length limit is safe here.}}
+const upload = multer({ dest: '/uploads' }); // Noncompliant {{Make sure the content length limit is safe here.}}
 
 const upload_safe = multer(config); // Compliant
