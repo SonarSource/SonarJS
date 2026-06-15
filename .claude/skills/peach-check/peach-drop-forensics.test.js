@@ -98,7 +98,11 @@ test('runDropForensics falls back to the first SARIF candidate with project resu
                 'new',
                 'src/app/features/article/services/comments.service.spec.ts',
               ),
-              createResult('typescript:S5914', 'new', 'src/app/features/profile/services/profile.service.spec.ts'),
+              createResult(
+                'typescript:S5914',
+                'new',
+                'src/app/features/profile/services/profile.service.spec.ts',
+              ),
             ]),
           );
         }
@@ -266,7 +270,11 @@ test('runDropForensics ignores unrelated SARIF results when selecting the DROP c
           return JSON.stringify(
             createSarifRun('js:angular-realworld-example-app', [
               createResult('typescript:S1537', 'absent', 'e2e/error-handling.spec.ts'),
-              createResult('typescript:S2699', 'new', 'src/app/features/article/services/comments.service.spec.ts'),
+              createResult(
+                'typescript:S2699',
+                'new',
+                'src/app/features/article/services/comments.service.spec.ts',
+              ),
             ]),
           );
         }
@@ -375,7 +383,11 @@ test('runDropForensics reports manual review when source head is missing locally
           return JSON.stringify(
             createSarifRun('js:angular-realworld-example-app', [
               createResult('typescript:S1537', 'absent', 'e2e/error-handling.spec.ts'),
-              createResult('typescript:S2699', 'new', 'src/app/features/article/services/comments.service.spec.ts'),
+              createResult(
+                'typescript:S2699',
+                'new',
+                'src/app/features/article/services/comments.service.spec.ts',
+              ),
             ]),
           );
         }
@@ -401,5 +413,8 @@ test('runDropForensics reports manual review when source head is missing locally
   assert.equal(report.project_metadata.resolution_status, 'source_head_sha_unavailable');
   assert.match(report.project_metadata.resolution_error, /not available/i);
   assert.equal(report.diagnosis.id, 'UNCLASSIFIED_DROP');
-  assert.match(report.diagnosis.reasons[0], /source-head-sha/i);
+  assert.equal(
+    report.diagnosis.reasons[0],
+    `Requested source-head-sha ${sourceHeadSha} is not available in /tmp/peachee-js. Review manually after fetching that commit. Test-scope reclassification cannot be confirmed.`,
+  );
 });

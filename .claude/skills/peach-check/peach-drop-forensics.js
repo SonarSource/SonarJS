@@ -19,10 +19,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { execFileSync as nodeExecFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import {
-  parseProjectProperties,
-  readProjectPropertiesForJob,
-} from './peach-project-properties.js';
+import { parseProjectProperties, readProjectPropertiesForJob } from './peach-project-properties.js';
 
 const DEFAULT_TEST_FILE_EXTENSIONS = ['js', 'mjs', 'cjs', 'jsx', 'vue', 'ts', 'mts', 'cts', 'tsx'];
 const SUPPORTED_RULE_PREFIXES = ['javascript:', 'typescript:', 'css:', 'Web:', 'yaml:'];
@@ -126,7 +123,9 @@ function summarizeSarifCandidate(sarifPath, projectKey, readFileSync) {
     projectMatched: run !== undefined,
     resultCount: results.length,
     supportedResultCount: supportedResults.length,
-    countsByBaselineState: countBy(supportedResults, result => normalizeBaselineState(result.baselineState)),
+    countsByBaselineState: countBy(supportedResults, result =>
+      normalizeBaselineState(result.baselineState),
+    ),
     testLikeCountsByBaselineState: countBy(
       supportedResults.filter(result => isTestLikeResult(result)),
       result => normalizeBaselineState(result.baselineState),
@@ -154,7 +153,9 @@ function diagnoseDrop(candidate, projectMetadata) {
     return {
       id: 'NO_PROJECT_DIFFS',
       confidence: 'high',
-      reasons: ['The selected SARIF run contains no differential-validation results for this project.'],
+      reasons: [
+        'The selected SARIF run contains no differential-validation results for this project.',
+      ],
     };
   }
 
@@ -179,7 +180,7 @@ function diagnoseDrop(candidate, projectMetadata) {
       confidence: 'low',
       reasons: [
         onlyTestLikePaths && onlyTestRuleAdditions
-          ? `${projectMetadata.resolutionError ?? 'Project metadata could not be read for this run'}, so test-scope reclassification cannot be confirmed.`
+          ? formatUnconfirmedTestScopeReason(projectMetadata.resolutionError)
           : (projectMetadata.resolutionError ?? 'Project metadata could not be read for this run.'),
       ],
     };
@@ -202,6 +203,17 @@ function diagnoseDrop(candidate, projectMetadata) {
     confidence: 'low',
     reasons: ['The differential-validation summary does not match any known DROP diagnosis.'],
   };
+}
+
+function formatUnconfirmedTestScopeReason(resolutionError) {
+  const reason = resolutionError ?? 'Project metadata could not be read for this run';
+  const trimmedReason = reason.trimEnd();
+
+  if (/[.!?]$/.test(trimmedReason)) {
+    return `${trimmedReason} Test-scope reclassification cannot be confirmed.`;
+  }
+
+  return `${trimmedReason}, so test-scope reclassification cannot be confirmed.`;
 }
 
 function summarizeTopRulesByState(results) {
@@ -313,7 +325,9 @@ function isTestLikeResult(result) {
 
 function isSupportedResult(result) {
   const ruleId = result?.ruleId;
-  return typeof ruleId === 'string' && SUPPORTED_RULE_PREFIXES.some(prefix => ruleId.startsWith(prefix));
+  return (
+    typeof ruleId === 'string' && SUPPORTED_RULE_PREFIXES.some(prefix => ruleId.startsWith(prefix))
+  );
 }
 
 function getResultPath(result) {
@@ -340,7 +354,10 @@ function resolveProjectMetadata(options, runtime) {
     };
   }
 
-  if (options.sourceHeadSha && !isCommitAvailable(options.peacheeRoot, options.sourceHeadSha, runtime.execFileSync)) {
+  if (
+    options.sourceHeadSha &&
+    !isCommitAvailable(options.peacheeRoot, options.sourceHeadSha, runtime.execFileSync)
+  ) {
     return {
       projectKey: options.projectKey,
       projectDir: options.sourceJobName,
@@ -349,8 +366,7 @@ function resolveProjectMetadata(options, runtime) {
       sonarTests: [],
       resolved: false,
       resolutionStatus: 'source_head_sha_unavailable',
-      resolutionError:
-        `Requested source-head-sha ${options.sourceHeadSha} is not available in ${options.peacheeRoot}. Review manually after fetching that commit.`,
+      resolutionError: `Requested source-head-sha ${options.sourceHeadSha} is not available in ${options.peacheeRoot}. Review manually after fetching that commit.`,
     };
   }
 
