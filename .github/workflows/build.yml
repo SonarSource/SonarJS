@@ -90,9 +90,12 @@ jobs:
   populate_npm_cache:
     runs-on: sonar-xs
     name: Populate NPM cache for Linux
-    needs: setup
+    needs: [setup, get_build_number]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: &shared_build_number
+      # Reuse the build number minted once in get_build_number everywhere workflow metadata is configured or promoted.
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     steps: &populate_npm_cache_steps
       - name: Cache NPM dependencies
         id: cache
@@ -193,9 +196,7 @@ jobs:
     needs: [setup, get_build_number, populate_npm_cache, sync_rspec]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    env: &shared_build_number
-      # Reuse the build number minted once in get_build_number across every config-maven caller.
-      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise
@@ -1320,6 +1321,7 @@ jobs:
   promote:
     runs-on: sonar-xs
     needs:
+      - get_build_number
       - build
       - build_win
       - test_js
@@ -1341,6 +1343,7 @@ jobs:
       !failure() && !cancelled() &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise
