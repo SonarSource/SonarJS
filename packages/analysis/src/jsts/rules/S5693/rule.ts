@@ -129,6 +129,14 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
     return;
   }
 
+  // Skip destructured imports of multer sub-functions (e.g., `import { diskStorage } from 'multer'`)
+  if (callExpression.callee.type === 'Identifier') {
+    const fqn = getFullyQualifiedName(context, callExpression.callee);
+    if (fqn && fqn !== MULTER_MODULE) {
+      return;
+    }
+  }
+
   if (callExpression.arguments.length === 0) {
     report(context, callExpression.callee);
     return;
