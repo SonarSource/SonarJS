@@ -15,6 +15,6 @@
   "ruleSpecification": "RSPEC-5362",
   "sqKey": "S5362",
   "scope": "All",
-  "defaultQualityProfiles": [],
-  "quickfix": "unknown"
+  "quickfix": "unknown",
+  "defaultQualityProfiles": []
 }

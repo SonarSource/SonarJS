@@ -16,7 +16,6 @@
   "sqKey": "S1441",
   "scope": "Main",
   "quickfix": "covered",
-  "defaultQualityProfiles": [],
   "status": "deprecated",
   "tags": [],
   "code": {
@@ -28,5 +27,6 @@
   "compatibleLanguages": [
     "js",
     "ts"
-  ]
+  ],
+  "defaultQualityProfiles": []
 }
