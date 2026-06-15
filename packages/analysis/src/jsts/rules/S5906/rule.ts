@@ -30,9 +30,9 @@ import {
   isLengthAccess,
   isNaNExpression,
   isNullLiteral,
-  isPlaywrightLocatorExpression,
   isUndefinedExpression,
   replacement,
+  trackPlaywrightLocators,
   type Suggestion,
 } from './assertion-utils.js';
 import { getCypressSuggestion } from './cypress-suggestions.js';
@@ -81,6 +81,7 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
+      ...(hasPlaywright ? trackPlaywrightLocators(context, playwrightLocators) : {}),
       CallExpression(node: estree.Node) {
         if (node.type !== 'CallExpression') {
           return;
@@ -110,17 +111,6 @@ export const rule: Rule.RuleModule = {
         );
         if (suggestion) {
           report(node, suggestion);
-        }
-      },
-      VariableDeclarator(node: estree.Node) {
-        if (!hasPlaywright || node.type !== 'VariableDeclarator' || !isIdentifier(node.id)) {
-          return;
-        }
-        if (node.init && isPlaywrightLocatorExpression(context, node.init, playwrightLocators)) {
-          const variable = sourceCode.getDeclaredVariables(node)[0];
-          if (variable) {
-            playwrightLocators.add(variable);
-          }
         }
       },
     };
