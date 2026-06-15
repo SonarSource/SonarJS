@@ -47,7 +47,9 @@ function findTestCaseRange(body: estree.BlockStatement): TestCaseRange | null {
     return null;
   }
   let last = body.body.length - 1;
-  while (!isTestOrSuiteStatement(body.body[last])) last--;
+  while (!isTestOrSuiteStatement(body.body[last])) {
+    last--;
+  }
   return { first, last };
 }
 
