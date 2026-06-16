@@ -19,7 +19,7 @@
     "Sonar way",
     "Sonar agentic AI"
   ],
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "LOW"
