@@ -44,10 +44,16 @@ Concrete support for specific generators is provided by detectors registered in 
 
 The new store is intentionally different from the others:
 
-- `generatedSourceStore.processFile()` does nothing during the file walk
-- the real work happens later in `postProcess()`
+- during the file walk, `generatedSourceStore` collects a lightweight project snapshot
+- the detector pass still happens later in `postProcess()`
 
-That split exists because generated-source detection needs metadata from other stores before it can derive anything useful.
+The walk-time snapshot currently includes:
+
+- walked directories
+- walked JS/TS file paths that match the current suffix set
+- a small detector-specific set of preloaded files such as generator config files
+
+That split exists because generated-source detection needs both the walk snapshot and metadata from other stores before it can derive anything useful.
 
 ### 2. Other stores prepare the inputs it depends on
 
@@ -55,15 +61,21 @@ Before `generatedSourceStore.postProcess()` runs:
 
 - `sourceFileStore` has already computed the analyzable source-file set
 - `dependencyManifestStore` has already collected `package.json` files and warmed dependency caches
+- `generatedSourceStore` has already collected its walk snapshot from the same traversal
 
 This is why generated-source detection lives as its own store instead of being folded into file discovery.
 
 ### 3. The store derives project-wide generated-source metadata
 
-When filesystem access is available, `generatedSourceStore.postProcess()` calls:
+In `postProcess()`, `generatedSourceStore` calls:
 
 ```ts
 deriveGeneratedSources(baseDir, dependencyManifestStore.getPackageJsons(), {
+  projectSnapshot: {
+    directories,
+    preloadedFiles,
+    sourceFiles,
+  },
   sourceFileMatcher,
 });
 ```
@@ -78,6 +90,8 @@ deriveGeneratedSources(baseDir, dependencyManifestStore.getPackageJsons(), {
 6. merges the detector outputs into one project-level result
 
 If no detector is registered, the function returns immediately with empty metadata and does not even traverse package metadata.
+
+When a `projectSnapshot` is available, detector helpers resolve config and output existence from that in-memory snapshot first. They fall back to direct filesystem lookups only for paths that are not represented in the snapshot.
 
 ### 4. The store keeps project-derived metadata only
 
@@ -177,7 +191,7 @@ The shared helpers enforce that boundary so one project cannot accidentally clai
 
 ## Shared Helper Responsibilities
 
-The helpers under `packages/analysis/src/jsts/rules/helpers/generated-sources/` exist so detectors can stay small and declarative.
+The helpers under `packages/analysis/src/file-stores/generated-sources/` exist so detectors can stay small and declarative.
 
 ### Evidence helpers
 
@@ -206,6 +220,12 @@ If explicit config flags are present, they win over fallback basenames.
 - watched output paths, even if the target does not exist yet
 
 That last point is intentional. A missing output today may be created tomorrow, and the cache still needs to invalidate when that happens.
+
+When the store already has a walk snapshot, this resolution is mostly in-memory:
+
+- files already present in the snapshot are resolved from `projectSnapshot.sourceFiles`
+- directories already present in the snapshot are expanded from that same source-file snapshot
+- only paths not present in the snapshot fall back to direct filesystem lookup
 
 ### Deterministic merging
 
@@ -297,11 +317,17 @@ store itself.
 
 ### No-filesystem mode
 
-Actual derivation currently requires filesystem access.
+Derivation no longer strictly requires direct filesystem access.
 
-If `canAccessFileSystem` is `false`, `postProcess()` keeps the store empty. The store still tracks its configuration state, but it does not attempt to derive generated-source metadata from partial request payloads alone.
+If `canAccessFileSystem` is `false`, `initFileStores()` simulates a walk from the explicit request files and `generatedSourceStore` derives from that in-memory snapshot.
 
-That is an important current limitation.
+That means request-only derivation works only for files that are actually present in the request, for example:
+
+- `package.json`
+- generator config files
+- generated output files
+
+Files absent from `inputFiles` remain undiscoverable in that mode, so request-only derivation is still partial by construction.
 
 ## Telemetry And Logging
 

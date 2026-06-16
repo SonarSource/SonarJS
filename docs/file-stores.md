@@ -186,7 +186,7 @@ Like `tsconfigs`, this store is intentionally independent from the current set o
 
 ## `generated-sources`
 
-`generated-sources.ts` owns metadata about generated source files.
+`generated-sources/store.ts` owns metadata about generated source files.
 
 See [Generated Source Detection](./generated-sources.md) for the detector pipeline, linter integration, and cache behavior behind this store.
 
@@ -195,6 +195,14 @@ It maintains one project-derived detector cache:
 - generated-file to family mappings
 - config paths used by generated-source detectors
 - watched output paths
+
+During traversal it also collects the temporary inputs needed for derivation:
+
+- walked directories
+- walked JS/TS file paths that match the current suffix set
+- a small detector-specific set of preloaded files
+
+`postProcess()` then turns that snapshot plus dependency-manifest data into the project-derived cache above.
 
 The tagged subset is not cached inside the store. `analyzeProject()` computes it later from the
 current analyzable files via `generatedSourceStore.observeGeneratedSources(...)`.
@@ -235,6 +243,8 @@ The store also depends on:
 `generatedSourceStore` does **not** refresh just because the current analyzable source-file set
 changes. Source-scope properties and explicit request files refresh `sourceFileStore`; the tagged
 generated-file subset is then recomputed at analysis time from `sourceFileStore.getFiles()`.
+
+When filesystem access is unavailable, the store can still derive metadata from the simulated walk over explicit request files, but only for helper/config/output files that were present in that request.
 
 ## `fsEvents`
 

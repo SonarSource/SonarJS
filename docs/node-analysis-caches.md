@@ -142,6 +142,11 @@ Unlike `sourceFileStore`, it is not keyed by the current explicit request conten
 tagged subset and generated-source telemetry are computed later in `analyzeProject()` from
 `sourceFileStore.getFiles()`.
 
+During traversal it also collects a temporary project snapshot made of walked directories,
+walked JS/TS file paths matching the current suffix set, and a small detector-specific set of
+preloaded files. `postProcess()` uses that snapshot together with `dependencyManifestStore` to
+derive the cached metadata.
+
 ## Initialization Flow
 
 All project-style entrypoints go through the same basic sequence:
@@ -204,6 +209,10 @@ That simulated traversal:
 - then feeds the files themselves to `processFile()`
 
 This does not discover helper files that were never provided to the request. What it does provide is a coherent virtual traversal over the explicit request files and their parent directories, so stores that depend on directory callbacks can still keep consistent state in request-only mode.
+
+For `generatedSourceStore`, that means request-only analyses can still derive generated-source
+metadata from the in-memory snapshot, but only for helper/config/output files that were actually
+included in the request.
 
 ## Request Files Are Authoritative
 
