@@ -17,6 +17,7 @@
 export {
   GENERATED_SOURCE_DETECTORS,
   getGeneratedSourceWatchedFilenames,
+  shouldPreloadGeneratedSourcePath,
 } from './detectors/index.js';
 export {
   GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS,

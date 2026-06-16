@@ -23,7 +23,11 @@ import { getDependencies } from '../dependency-manifests/dependencies.js';
 import { getPackageJsonManifests } from '../dependency-manifests/all-in-parent-dirs.js';
 import { parsePackageJson } from '../dependency-manifests/parsed-dependency-files.js';
 import type { DependenciesList } from '../dependency-manifests/resolvers/types.js';
-import type { DerivedGeneratedSources, GeneratedSourceFileMatcher } from './contracts.js';
+import type {
+  DerivedGeneratedSources,
+  GeneratedSourceFileMatcher,
+  GeneratedSourceProjectSnapshot,
+} from './contracts.js';
 import { GENERATED_SOURCE_DETECTORS } from './detectors/index.js';
 import { collectGeneratedSourceTaskInvocations } from './task-invocations.js';
 import { createDerivedGeneratedSources, mergeDerivedGeneratedSources } from './shared.js';
@@ -32,6 +36,7 @@ export async function deriveGeneratedSources(
   baseDir: NormalizedAbsolutePath,
   packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>,
   options?: {
+    projectSnapshot?: GeneratedSourceProjectSnapshot;
     sourceFileMatcher?: GeneratedSourceFileMatcher;
   },
 ): Promise<DerivedGeneratedSources> {
@@ -40,7 +45,7 @@ export async function deriveGeneratedSources(
     return derived;
   }
 
-  const { sourceFileMatcher } = options ?? {};
+  const { projectSnapshot, sourceFileMatcher } = options ?? {};
 
   for (const [packageDir, file] of packageJsons) {
     const packageJson = parsePackageJson(file);
@@ -71,6 +76,7 @@ export async function deriveGeneratedSources(
           packageDir,
           hasDependency: hasGeneratedSourceDependency,
           getDependencies: getGeneratedSourceDependencies,
+          projectSnapshot,
           taskInvocations,
           sourceFileMatcher,
         }),

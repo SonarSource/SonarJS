@@ -213,6 +213,90 @@ describe('generated sources project metadata', () => {
     }
   });
 
+  it('derives GraphQL outputs from a preloaded project snapshot', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'codegen.yml');
+    const generatedDir = joinPaths(baseDir, 'src', 'generated');
+    const generatedFile = joinPaths(generatedDir, 'graphql.ts');
+
+    try {
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          scripts: {
+            graphql: 'graphql-codegen --config ./codegen.yml',
+          },
+        }),
+        {
+          projectSnapshot: {
+            directories: new Set([baseDir, joinPaths(baseDir, 'src'), generatedDir]),
+            preloadedFiles: new Map([
+              [
+                configPath,
+                {
+                  content: `generates:
+  ./src/generated/graphql.ts:
+    plugins:
+      - typescript
+`,
+                  path: configPath,
+                },
+              ],
+            ]),
+            sourceFiles: new Set([generatedFile]),
+          },
+        },
+      );
+
+      expect(derived.familyByFile).toEqual(new Map([[generatedFile, GRAPHQL_CODEGEN_FAMILY]]));
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives OpenAPI outputs from a preloaded project snapshot', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputDir = joinPaths(baseDir, 'src', 'api');
+    const manifestPath = joinPaths(outputDir, '.openapi-generator', 'FILES');
+    const generatedFile = joinPaths(outputDir, 'client.ts');
+
+    try {
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          scripts: {
+            openapi:
+              'openapi-generator-cli generate --generator-name typescript-fetch --output ./src/api',
+          },
+        }),
+        {
+          projectSnapshot: {
+            directories: new Set([
+              baseDir,
+              joinPaths(baseDir, 'src'),
+              outputDir,
+              joinPaths(outputDir, '.openapi-generator'),
+            ]),
+            preloadedFiles: new Map([
+              [
+                manifestPath,
+                {
+                  content: 'client.ts\n',
+                  path: manifestPath,
+                },
+              ],
+            ]),
+            sourceFiles: new Set([generatedFile]),
+          },
+        },
+      );
+
+      expect(derived.familyByFile).toEqual(new Map([[generatedFile, OPENAPI_GENERATOR_FAMILY]]));
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('derives GraphQL outputs from explicit codegen.cts and codegen.mts flags', async () => {
     const cases = [
       {

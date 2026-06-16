@@ -15,11 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { readFile } from 'node:fs/promises';
+import { basename, dirname } from 'node:path/posix';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../../../../shared/src/helpers/files.js';
-import type { GeneratedSourceDetector } from '../contracts.js';
+import type { GeneratedSourceDetector, GeneratedSourceProjectSnapshot } from '../contracts.js';
 import { type ResolvedGeneratedOutputs } from '../detector-api.js';
 import {
   addFamilyFiles,
@@ -43,8 +44,14 @@ const OPENAPI_OUTPUT_FLAGS = ['-o', '--output'];
 
 export const openApiGeneratorDetector = {
   family: OPENAPI_GENERATOR_FAMILY,
+  shouldPreload(filePath: NormalizedAbsolutePath) {
+    return (
+      basename(filePath).toLowerCase() === 'files' &&
+      dirname(filePath).endsWith('/.openapi-generator')
+    );
+  },
 
-  async detect({ baseDir, packageDir, taskInvocations, sourceFileMatcher }) {
+  async detect({ baseDir, packageDir, projectSnapshot, taskInvocations, sourceFileMatcher }) {
     const matchesTaskInvocation = (taskInvocation: TaskInvocation) =>
       taskInvocationInvokesCommand(taskInvocation, 'openapi-generator-cli') &&
       taskInvocation.args[0] === 'generate' &&
@@ -63,6 +70,7 @@ export const openApiGeneratorDetector = {
       baseDir,
       packageDir,
       outputPaths,
+      projectSnapshot,
       sourceFileMatcher,
     );
     const derived = createDerivedGeneratedSources();
@@ -86,6 +94,7 @@ async function resolveOpenApiOutputsFromFilesManifests(
   baseDir: NormalizedAbsolutePath,
   packageDir: NormalizedAbsolutePath,
   outputPaths: Iterable<string>,
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
   sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
 ): Promise<ResolvedGeneratedOutputs> {
   const resolvedOutputs: ResolvedGeneratedOutputs = {
@@ -104,6 +113,7 @@ async function resolveOpenApiOutputsFromFilesManifests(
       resolvedOutputs,
       baseDir,
       resolvedOutputPath,
+      projectSnapshot,
       sourceFileMatcher,
     );
   }
@@ -115,17 +125,20 @@ async function addOpenApiManifestFiles(
   resolvedOutputs: ResolvedGeneratedOutputs,
   baseDir: NormalizedAbsolutePath,
   outputPath: NormalizedAbsolutePath,
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
   sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
 ) {
   resolvedOutputs.watchedOutputPaths.add(outputPath);
 
-  const stats = await safeStat(outputPath);
-  if (!stats?.isDirectory()) {
-    return;
+  if (!projectSnapshot?.directories.has(outputPath)) {
+    const stats = await safeStat(outputPath);
+    if (!stats?.isDirectory()) {
+      return;
+    }
   }
 
   resolvedOutputs.outputDirectories.add(outputPath);
-  const manifestEntries = await readOpenApiFilesManifest(outputPath);
+  const manifestEntries = await readOpenApiFilesManifest(outputPath, projectSnapshot);
   if (!manifestEntries) {
     return;
   }
@@ -136,6 +149,11 @@ async function addOpenApiManifestFiles(
       continue;
     }
 
+    if (projectSnapshot?.sourceFiles.has(resolvedFilePath)) {
+      resolvedOutputs.filePaths.add(resolvedFilePath);
+      continue;
+    }
+
     const fileStats = await safeStat(resolvedFilePath);
     if (fileStats?.isFile()) {
       resolvedOutputs.filePaths.add(resolvedFilePath);
@@ -143,16 +161,31 @@ async function addOpenApiManifestFiles(
   }
 }
 
-async function readOpenApiFilesManifest(outputPath: NormalizedAbsolutePath) {
+async function readOpenApiFilesManifest(
+  outputPath: NormalizedAbsolutePath,
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
+) {
   const manifestPath = normalizeToAbsolutePath(OPENAPI_GENERATOR_FILES_MANIFEST, outputPath);
+  const preloadedFile = projectSnapshot?.preloadedFiles.get(manifestPath);
+
+  if (preloadedFile) {
+    return parseOpenApiFilesManifestContents(
+      typeof preloadedFile.content === 'string'
+        ? preloadedFile.content
+        : preloadedFile.content.toString('utf8'),
+    );
+  }
 
   try {
-    const manifestContents = await readFile(manifestPath, 'utf8');
-    return manifestContents
-      .split(/\r?\n/u)
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
+    return parseOpenApiFilesManifestContents(await readFile(manifestPath, 'utf8'));
   } catch {
     return undefined;
   }
+}
+
+function parseOpenApiFilesManifestContents(manifestContents: string) {
+  return manifestContents
+    .split(/\r?\n/u)
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
 }

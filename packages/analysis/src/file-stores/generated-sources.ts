@@ -18,10 +18,22 @@ import { basename, extname } from 'node:path/posix';
 import type { FileStore } from './store-type.js';
 import { getProjectFileDiscoveryConfigKey, type Configuration } from '../common/configuration.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
-import { type NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
+import {
+  dirnamePath,
+  readFile,
+  type File,
+  type NormalizedAbsolutePath,
+} from '../../../shared/src/helpers/files.js';
 import { dependencyManifestStore } from './dependency-manifests.js';
-import { getGeneratedSourceWatchedFilenames } from '../jsts/rules/helpers/generated-sources/index.js';
-import { isPreloadableDependencyManifestPath } from '../jsts/rules/helpers/dependency-manifests/index.js';
+import {
+  getGeneratedSourceWatchedFilenames,
+  shouldPreloadGeneratedSourcePath,
+} from '../jsts/rules/helpers/generated-sources/index.js';
+import {
+  isPreloadableDependencyManifestPath,
+  PACKAGE_JSON,
+} from '../jsts/rules/helpers/dependency-manifests/index.js';
+import type { GeneratedSourceFileMatcher } from '../jsts/rules/helpers/generated-sources/contracts.js';
 import { deriveGeneratedSources } from '../jsts/rules/helpers/generated-sources/derive.js';
 import {
   createEmptyGeneratedSourcesTelemetry,
@@ -44,6 +56,10 @@ class GeneratedSourceStore implements FileStore {
   private derivedMetadataInitialized = false;
   private derivedFamilyByFile = new Map<NormalizedAbsolutePath, string>();
   private configPaths = new Set<NormalizedAbsolutePath>();
+  private preloadedFiles = new Map<NormalizedAbsolutePath, File>();
+  private sourceFileMatcher: GeneratedSourceFileMatcher | undefined = undefined;
+  private sourceFiles = new Set<NormalizedAbsolutePath>();
+  private walkedDirectories = new Set<NormalizedAbsolutePath>();
   private watchedOutputPaths = new Set<NormalizedAbsolutePath>();
   private lastLoggedGeneratedSourceDetectionKey: string | undefined = undefined;
   private readonly generatedSourceDetectionInfoBaseDirs = new Set<NormalizedAbsolutePath>();
@@ -140,13 +156,30 @@ class GeneratedSourceStore implements FileStore {
     this.canAccessFileSystem = configuration.canAccessFileSystem;
     this.derivedConfigKey = getGeneratedSourceConfigKey(configuration);
     this.projectFileDiscoveryConfigKey = getProjectFileDiscoveryConfigKey(configuration);
+    this.sourceFileMatcher = createConfiguredGeneratedSourceFileMatcher(configuration);
+    this.walkedDirectories.add(configuration.baseDir);
   }
 
-  async processFile(
-    _filename: NormalizedAbsolutePath,
-    _configuration: Configuration,
-  ): Promise<void> {
-    // The detector cache is derived from project metadata during postProcess().
+  async processFile(filename: NormalizedAbsolutePath, configuration: Configuration): Promise<void> {
+    const sourceFileMatcher =
+      this.sourceFileMatcher ?? createConfiguredGeneratedSourceFileMatcher(configuration);
+
+    if (sourceFileMatcher(filename)) {
+      this.sourceFiles.add(filename);
+    }
+
+    if (!shouldPreloadGeneratedSourcePath(filename)) {
+      return;
+    }
+
+    const preloadedFile = await this.preloadGeneratedSourceFile(filename);
+    if (preloadedFile) {
+      this.preloadedFiles.set(filename, preloadedFile);
+    }
+  }
+
+  processDirectory(dir: NormalizedAbsolutePath) {
+    this.walkedDirectories.add(dir);
   }
 
   async postProcess(configuration: Configuration, _inputFiles?: AnalyzableFiles) {
@@ -164,18 +197,20 @@ class GeneratedSourceStore implements FileStore {
       this.setup(configuration);
     }
 
-    const { baseDir, canAccessFileSystem } = this;
-    if (!baseDir || !canAccessFileSystem || this.derivedMetadataInitialized) {
+    const { baseDir } = this;
+    if (!baseDir || this.derivedMetadataInitialized) {
       return;
     }
 
-    const derived = await deriveGeneratedSources(
-      baseDir,
-      dependencyManifestStore.getPackageJsons(),
-      {
-        sourceFileMatcher: createConfiguredGeneratedSourceFileMatcher(configuration),
+    const derived = await deriveGeneratedSources(baseDir, this.getPackageJsons(), {
+      projectSnapshot: {
+        directories: this.walkedDirectories,
+        preloadedFiles: this.preloadedFiles,
+        sourceFiles: this.sourceFiles,
       },
-    );
+      sourceFileMatcher:
+        this.sourceFileMatcher ?? createConfiguredGeneratedSourceFileMatcher(configuration),
+    });
     this.derivedFamilyByFile = new Map(derived.familyByFile);
     this.configPaths = derived.configPaths;
     this.watchedOutputPaths = derived.watchedOutputPaths;
@@ -210,7 +245,38 @@ class GeneratedSourceStore implements FileStore {
   private clearDerivedState() {
     this.derivedFamilyByFile = new Map();
     this.configPaths = new Set();
+    this.preloadedFiles = new Map();
+    this.sourceFileMatcher = undefined;
+    this.sourceFiles = new Set();
+    this.walkedDirectories = new Set();
     this.watchedOutputPaths = new Set();
+  }
+
+  private async preloadGeneratedSourceFile(filename: NormalizedAbsolutePath) {
+    const packageJsonFile =
+      basename(filename).toLowerCase() === PACKAGE_JSON
+        ? this.getPackageJsons().get(dirnamePath(filename))
+        : undefined;
+    if (packageJsonFile) {
+      return packageJsonFile;
+    }
+
+    try {
+      return {
+        content: await readFile(filename),
+        path: filename,
+      } satisfies File;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private getPackageJsons() {
+    try {
+      return dependencyManifestStore.getPackageJsons();
+    } catch {
+      return new Map<NormalizedAbsolutePath, File>();
+    }
   }
 }
 

@@ -18,7 +18,7 @@ import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../../../shared/src/helpers/files.js';
-import type { GeneratedSourceFileMatcher } from './contracts.js';
+import type { GeneratedSourceFileMatcher, GeneratedSourceProjectSnapshot } from './contracts.js';
 import {
   extractFlagValuesFromTokens,
   isDirectory,
@@ -62,6 +62,7 @@ type ResolveConfigPathsOptions = {
   matchesTaskInvocation: TaskInvocationMatcher;
   flags: string[];
   fallbackBasenames: readonly string[];
+  projectSnapshot?: GeneratedSourceProjectSnapshot;
 };
 
 export function hasToolEvidence({
@@ -93,6 +94,7 @@ export async function resolveConfigPaths({
   matchesTaskInvocation,
   flags,
   fallbackBasenames,
+  projectSnapshot,
 }: ResolveConfigPathsOptions) {
   const declaredConfigPaths = resolveDeclaredPathsFromTaskInvocations({
     baseDir,
@@ -106,6 +108,18 @@ export async function resolveConfigPaths({
     return declaredConfigPaths;
   }
 
+  if (projectSnapshot) {
+    const snapshotPaths = resolveExistingSiblingPathsFromSnapshot(
+      packageDir,
+      fallbackBasenames,
+      'file',
+      projectSnapshot,
+    );
+    if (snapshotPaths.size > 0) {
+      return snapshotPaths;
+    }
+  }
+
   return resolveExistingSiblingPaths(packageDir, fallbackBasenames, 'file');
 }
 
@@ -115,6 +129,7 @@ export async function resolveGeneratedOutputsFromLiteralPaths(
   outputPaths: Iterable<string>,
   recursive: boolean,
   sourceFileMatcher?: GeneratedSourceFileMatcher,
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
 ): Promise<ResolvedGeneratedOutputs> {
   const resolvedOutputs: ResolvedGeneratedOutputs = {
     filePaths: new Set<NormalizedAbsolutePath>(),
@@ -137,6 +152,7 @@ export async function resolveGeneratedOutputsFromLiteralPaths(
           resolvedPath,
           recursive,
           sourceFileMatcher,
+          projectSnapshot,
         )
       ) {
         break;
@@ -152,8 +168,22 @@ async function addResolvedGeneratedOutput(
   resolvedPath: NormalizedAbsolutePath,
   recursive: boolean,
   sourceFileMatcher?: GeneratedSourceFileMatcher,
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
 ) {
   resolvedOutputs.watchedOutputPaths.add(resolvedPath);
+  if (projectSnapshot) {
+    const snapshotResolution = resolveGeneratedOutputFromSnapshot(
+      resolvedOutputs,
+      resolvedPath,
+      recursive,
+      sourceFileMatcher,
+      projectSnapshot,
+    );
+    if (snapshotResolution !== undefined) {
+      return snapshotResolution;
+    }
+  }
+
   const stats = await safeStat(resolvedPath);
   if (!stats) {
     return false;
@@ -173,6 +203,38 @@ async function addResolvedGeneratedOutput(
 
   resolvedOutputs.outputDirectories.add(resolvedPath);
   const childFiles = await listSourceFilesInDirectory(resolvedPath, recursive, sourceFileMatcher);
+  for (const childFile of childFiles) {
+    resolvedOutputs.filePaths.add(childFile);
+  }
+  return childFiles.length > 0;
+}
+
+function resolveGeneratedOutputFromSnapshot(
+  resolvedOutputs: ResolvedGeneratedOutputs,
+  resolvedPath: NormalizedAbsolutePath,
+  recursive: boolean,
+  sourceFileMatcher: GeneratedSourceFileMatcher | undefined,
+  projectSnapshot: GeneratedSourceProjectSnapshot,
+) {
+  if (projectSnapshot.sourceFiles.has(resolvedPath)) {
+    if (isSourceFile(resolvedPath, sourceFileMatcher)) {
+      resolvedOutputs.filePaths.add(resolvedPath);
+      return true;
+    }
+    return false;
+  }
+
+  if (!projectSnapshot.directories.has(resolvedPath)) {
+    return undefined;
+  }
+
+  resolvedOutputs.outputDirectories.add(resolvedPath);
+  const childFiles = listSourceFilesInSnapshot(
+    resolvedPath,
+    recursive,
+    sourceFileMatcher,
+    projectSnapshot,
+  );
   for (const childFile of childFiles) {
     resolvedOutputs.filePaths.add(childFile);
   }
@@ -219,4 +281,66 @@ async function resolveExistingSiblingPaths(
   }
 
   return resolvedPaths;
+}
+
+function resolveExistingSiblingPathsFromSnapshot(
+  packageDir: NormalizedAbsolutePath,
+  basenames: readonly string[],
+  kind: ExistingPathKind,
+  projectSnapshot: GeneratedSourceProjectSnapshot,
+) {
+  const resolvedPaths = new Set<NormalizedAbsolutePath>();
+
+  for (const basename of basenames) {
+    const resolvedPath = normalizeToAbsolutePath(basename, packageDir);
+    if (
+      kind === 'file'
+        ? hasFileInSnapshot(resolvedPath, projectSnapshot)
+        : hasDirectoryInSnapshot(resolvedPath, projectSnapshot)
+    ) {
+      resolvedPaths.add(resolvedPath);
+    }
+  }
+
+  return resolvedPaths;
+}
+
+function listSourceFilesInSnapshot(
+  directory: NormalizedAbsolutePath,
+  recursive: boolean,
+  sourceFileMatcher: GeneratedSourceFileMatcher | undefined,
+  projectSnapshot: GeneratedSourceProjectSnapshot,
+) {
+  const childPrefix = `${directory}/`;
+  const sourceFiles: NormalizedAbsolutePath[] = [];
+
+  for (const filePath of projectSnapshot.sourceFiles) {
+    if (!filePath.startsWith(childPrefix)) {
+      continue;
+    }
+
+    if (!recursive && filePath.slice(childPrefix.length).includes('/')) {
+      continue;
+    }
+
+    if (isSourceFile(filePath, sourceFileMatcher)) {
+      sourceFiles.push(filePath);
+    }
+  }
+
+  return sourceFiles;
+}
+
+function hasFileInSnapshot(
+  filePath: NormalizedAbsolutePath,
+  projectSnapshot: GeneratedSourceProjectSnapshot,
+) {
+  return projectSnapshot.preloadedFiles.has(filePath) || projectSnapshot.sourceFiles.has(filePath);
+}
+
+function hasDirectoryInSnapshot(
+  directoryPath: NormalizedAbsolutePath,
+  projectSnapshot: GeneratedSourceProjectSnapshot,
+) {
+  return projectSnapshot.directories.has(directoryPath);
 }
