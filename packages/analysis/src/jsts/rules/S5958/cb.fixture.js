@@ -75,3 +75,22 @@ function notATest() {
   expect(funcThrows).to.throw(Error);
   expect(funcNoThrow).to.not.throw(Error);
 }
+
+
+describe("jest-style hooks", function() {
+  const funcThrows = function () { throw new TypeError('What is this type?'); };
+
+  beforeAll(function() {
+    expect(funcThrows).to.throw();  // Noncompliant {{Assert more concrete exception type or assert the message of exception.}}
+    //                    ^^^^^
+  });
+
+  afterAll(function(done) {
+    try {
+      expect(data).to.match(/some expected string/);
+    } catch (e) {  // Noncompliant {{Either the exception should be passed to "done(e)", or the exception should be tested further.}}
+//           ^
+      done();
+    }
+  });
+});

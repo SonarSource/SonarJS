@@ -25,12 +25,12 @@
   "ruleSpecification": "RSPEC-3800",
   "sqKey": "S3800",
   "scope": "Main",
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
   ]
 }

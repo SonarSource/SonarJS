@@ -26,13 +26,13 @@
   "ruleSpecification": "RSPEC-4144",
   "sqKey": "S4144",
   "scope": "Main",
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "quickfix": "infeasible",
   "compatibleLanguages": [
     "js",
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
   ]
 }

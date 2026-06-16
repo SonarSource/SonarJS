@@ -20,12 +20,12 @@
   "ruleSpecification": "RSPEC-6568",
   "sqKey": "S6568",
   "scope": "Main",
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "quickfix": "covered",
   "compatibleLanguages": [
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
   ]
 }

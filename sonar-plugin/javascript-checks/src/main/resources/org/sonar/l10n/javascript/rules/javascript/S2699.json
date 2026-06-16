@@ -35,13 +35,13 @@
   "ruleSpecification": "RSPEC-2699",
   "sqKey": "S2699",
   "scope": "Tests",
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
   ]
 }

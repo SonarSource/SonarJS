@@ -24,10 +24,10 @@
       "EXP00-J."
     ]
   },
-  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
-  ]
+  ],
+  "defaultQualityProfiles": []
 }
