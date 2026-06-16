@@ -48,37 +48,42 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        const methodName = call.callee.property.name;
+        const property = call.callee.property;
+        const methodName = property.name;
         if (methodName === 'wait' && chainStartsWithCy(call.callee.object)) {
-          reportCypressWait(context, call);
+          reportCypressWait(context, call, property);
         } else if (
           (methodName === 'pause' || methodName === 'debug') &&
           chainStartsWithCy(call.callee.object)
         ) {
-          report(context, call.callee, 'debugPause');
+          report(context, property, 'debugPause');
         } else if (methodName === 'waitForTimeout' && isIdentifier(call.callee.object, 'page')) {
-          report(context, call.callee, 'fixedWait');
+          report(context, property, 'fixedWait');
         } else if (methodName === 'pause' && isIdentifier(call.callee.object, 'page')) {
-          report(context, call.callee, 'debugPause');
+          report(context, property, 'debugPause');
         }
       },
     };
   },
 };
 
-function reportCypressWait(context: Rule.RuleContext, call: estree.CallExpression) {
+function reportCypressWait(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+  reportNode: estree.Node,
+) {
   const [firstArgument] = call.arguments;
   if (!firstArgument) {
     return;
   }
   if (isNumericLiteralOrUnaryNumericLiteral(firstArgument)) {
-    report(context, call.callee, 'fixedWait');
+    report(context, reportNode, 'fixedWait');
     return;
   }
   if (firstArgument.type === 'Identifier') {
     const resolved = getUniqueWriteUsage(context, firstArgument.name, firstArgument);
     if (resolved && isNumericLiteralOrUnaryNumericLiteral(resolved)) {
-      report(context, call.callee, 'fixedWait');
+      report(context, reportNode, 'fixedWait');
     }
   }
 }
