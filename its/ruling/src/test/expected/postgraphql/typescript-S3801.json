@@ -1,9 +1,0 @@
-{
-"postgraphql:src/graphql/schema/collection/createCollectionQueryFieldEntries.ts": [
-96,
-126
-],
-"postgraphql:src/graphql/schema/collection/createCollectionRelationTailGqlFieldEntries.ts": [
-50
-]
-}
