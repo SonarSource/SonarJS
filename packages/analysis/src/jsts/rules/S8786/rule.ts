@@ -34,7 +34,9 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       } catch {
         return;
       }
-      if (reports.some(r => !r.exponential)) {
+      const hasExponential = reports.some(r => r.exponential);
+      const hasNonExponential = reports.some(r => !r.exponential);
+      if (hasNonExponential && !hasExponential) {
         context.report({
           message,
           node: context.node,
