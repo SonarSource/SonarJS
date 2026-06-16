@@ -227,15 +227,23 @@ function getSizeValue(context: Rule.RuleContext, node: estree.Node): number | nu
     const left = getSizeValue(context, node.left);
     const right = getSizeValue(context, node.right);
     if (left != null && right != null) {
+      let result: number | null = null;
       switch (node.operator) {
         case '*':
-          return left * right;
+          result = left * right;
+          break;
         case '+':
-          return left + right;
+          result = left + right;
+          break;
         case '-':
-          return left - right;
+          result = left - right;
+          break;
         case '/':
-          return left / right;
+          result = left / right;
+          break;
+      }
+      if (result != null && Number.isFinite(result)) {
+        return result;
       }
     }
   }
