@@ -1,0 +1,165 @@
+{
+"desktop:app/src/cli/dev-commands-global.ts": [
+3
+],
+"desktop:app/src/lib/highlighter/worker.ts": [
+51,
+83
+],
+"desktop:app/src/lib/logging/main/install.ts": [
+4
+],
+"desktop:app/src/lib/logging/renderer/install.ts": [
+5
+],
+"desktop:app/src/lib/mouse-scroller.ts": [
+38,
+41,
+51
+],
+"desktop:app/src/lib/promise.ts": [
+26,
+45,
+50
+],
+"desktop:app/src/lib/stats/stats-store.ts": [
+428
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+553,
+813
+],
+"desktop:app/src/lib/stores/commit-status-store.ts": [
+186,
+204
+],
+"desktop:app/src/lib/stores/github-user-store.ts": [
+193
+],
+"desktop:app/src/lib/stores/helpers/background-fetcher.ts": [
+64,
+82,
+122
+],
+"desktop:app/src/lib/stores/helpers/branch-pruner.ts": [
+80
+],
+"desktop:app/src/lib/stores/helpers/pull-request-updater.ts": [
+51,
+74
+],
+"desktop:app/src/lib/stores/helpers/repository-indicator-updater.ts": [
+60,
+128
+],
+"desktop:app/src/lib/stores/issues-store.ts": [
+204
+],
+"desktop:app/src/lib/uuid.ts": [
+16,
+16
+],
+"desktop:app/src/ui/app-error.tsx": [
+80,
+91
+],
+"desktop:app/src/ui/app-menu/app-menu.tsx": [
+206,
+213,
+220
+],
+"desktop:app/src/ui/app.tsx": [
+303,
+984,
+985
+],
+"desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx": [
+367
+],
+"desktop:app/src/ui/banners/banner.tsx": [
+41,
+49
+],
+"desktop:app/src/ui/branches/branches-container.tsx": [
+342,
+350,
+445
+],
+"desktop:app/src/ui/changes/no-changes.tsx": [
+693
+],
+"desktop:app/src/ui/dialog/dialog.tsx": [
+201,
+209,
+407,
+415
+],
+"desktop:app/src/ui/diff/seamless-diff-switcher.tsx": [
+293,
+301
+],
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
+214,
+222,
+732
+],
+"desktop:app/src/ui/drag-elements/commit-drag-element.tsx": [
+43,
+56
+],
+"desktop:app/src/ui/history/commit-summary.tsx": [
+156
+],
+"desktop:app/src/ui/history/compare.tsx": [
+504
+],
+"desktop:app/src/ui/index.tsx": [
+217
+],
+"desktop:app/src/ui/install-globals.ts": [
+3
+],
+"desktop:app/src/ui/lib/avatar.tsx": [
+244,
+248
+],
+"desktop:app/src/ui/lib/draggable.tsx": [
+108,
+140
+],
+"desktop:app/src/ui/lib/list/list.tsx": [
+286
+],
+"desktop:app/src/ui/lib/throttled-scheduler.ts": [
+23,
+29
+],
+"desktop:app/src/ui/lib/tooltip.tsx": [
+364,
+436
+],
+"desktop:app/src/ui/relative-time.tsx": [
+71,
+82
+],
+"desktop:app/src/ui/repository.tsx": [
+539,
+543
+],
+"desktop:app/src/ui/tab-bar.tsx": [
+103,
+110
+],
+"desktop:app/src/ui/window/full-screen-info.tsx": [
+106,
+114,
+120,
+128
+],
+"desktop:app/src/ui/window/zoom-info.tsx": [
+48,
+52,
+55,
+60
+]
+}

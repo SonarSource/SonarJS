@@ -1,0 +1,33 @@
+{
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+108,
+109,
+110,
+111,
+112,
+113,
+114,
+422,
+3656
+],
+"p5.js:src/io/files.js": [
+268,
+269,
+1642,
+1643,
+1644,
+1645,
+1646
+],
+"p5.js:src/io/p5.Table.js": [
+883,
+891,
+899
+],
+"p5.js:test/test-reference.html": [
+134
+],
+"p5.js:utils/sample-linter.js": [
+184
+]
+}

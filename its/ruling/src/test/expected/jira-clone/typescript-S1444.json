@@ -1,0 +1,14 @@
+{
+"jira-clone:api/src/entities/Comment.ts": [
+16
+],
+"jira-clone:api/src/entities/Issue.ts": [
+24
+],
+"jira-clone:api/src/entities/Project.ts": [
+17
+],
+"jira-clone:api/src/entities/User.ts": [
+19
+]
+}

@@ -1,0 +1,20 @@
+{
+"console:src/components/Help/Alert.tsx": [
+28
+],
+"console:src/components/Help/Help.tsx": [
+28
+],
+"console:src/components/PopupWrapper/PopupWrapper.tsx": [
+56
+],
+"console:src/views/ProjectRootView/AddModelPopup.tsx": [
+163
+],
+"console:src/views/ProjectRootView/EditModelPopup.tsx": [
+186
+],
+"console:src/views/ProjectSettingsView/ProjectSettingsView.tsx": [
+216
+]
+}

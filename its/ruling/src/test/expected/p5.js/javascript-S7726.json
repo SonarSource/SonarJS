@@ -1,0 +1,35 @@
+{
+"p5.js:Gruntfile.js": [
+96
+],
+"p5.js:docs/preprocessor.js": [
+245
+],
+"p5.js:karma.conf.js": [
+5
+],
+"p5.js:tasks/build/browserify.js": [
+11
+],
+"p5.js:tasks/build/combineModules.js": [
+9
+],
+"p5.js:tasks/build/eslint-samples.js": [
+4
+],
+"p5.js:tasks/release/release-bower.js": [
+6
+],
+"p5.js:tasks/release/release-docs.js": [
+6
+],
+"p5.js:tasks/release/release-github.js": [
+6
+],
+"p5.js:tasks/release/release-p5.js": [
+9
+],
+"p5.js:tasks/test/mocha-chrome.js": [
+12
+]
+}

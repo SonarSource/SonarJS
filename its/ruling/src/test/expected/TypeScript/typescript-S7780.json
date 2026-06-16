@@ -1,0 +1,33 @@
+{
+"TypeScript:scripts/processDiagnosticMessages.ts": [
+101,
+119
+],
+"TypeScript:src/compiler/core.ts": [
+1801
+],
+"TypeScript:src/compiler/utilities.ts": [
+2425,
+2426,
+2427,
+2428,
+2429,
+2430,
+2431,
+2433,
+2434,
+2435,
+2436,
+2461
+],
+"TypeScript:src/server/editorServices.ts": [
+1488,
+1539
+],
+"TypeScript:src/server/session.ts": [
+1151
+],
+"TypeScript:src/services/services.ts": [
+1887
+]
+}

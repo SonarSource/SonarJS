@@ -1,0 +1,11 @@
+{
+"sonar-web:src/main/js/apps/coding-rules/facets-view.js": [
+37
+],
+"sonar-web:src/main/js/apps/issues/facets-view.js": [
+44
+],
+"sonar-web:src/main/js/components/source-viewer/helpers/code-with-issue-locations-helper.js": [
+112
+]
+}

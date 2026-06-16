@@ -1,0 +1,8 @@
+{
+"tailwindcss:src/lib/purgeUnusedStyles.js": [
+52
+],
+"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
+204
+]
+}

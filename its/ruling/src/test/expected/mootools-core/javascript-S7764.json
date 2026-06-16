@@ -1,0 +1,30 @@
+{
+"mootools-core:Grunt/options/options.js": [
+31,
+32
+],
+"mootools-core:Grunt/plugins/karma/syn/post-amd.js": [
+4,
+4,
+5
+],
+"mootools-core:Grunt/plugins/karma/syn/pre-amd.js": [
+4,
+5,
+5
+],
+"mootools-core:Source/Element/Element.js": [
+264,
+324,
+462,
+478,
+990,
+1025,
+1028,
+1029,
+1031
+],
+"mootools-core:Tests/Element/Element.adopt.html": [
+24
+]
+}

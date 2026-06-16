@@ -1,0 +1,13 @@
+{
+"eigen:src/app/store/AuthModel.ts": [
+308,
+595
+],
+"eigen:src/app/store/persistence.tests.ts": [
+214,
+220
+],
+"eigen:src/app/utils/LinkedAccounts/google.ts": [
+64
+]
+}

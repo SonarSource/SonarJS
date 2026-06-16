@@ -1,0 +1,38 @@
+{
+"jshint:scripts/build.js": [
+16
+],
+"jshint:src/cli.js": [
+622
+],
+"jshint:src/jshint.js": [
+109,
+561,
+1514,
+3023,
+4569,
+5307
+],
+"jshint:src/lex.js": [
+112,
+349,
+364,
+583,
+603,
+607,
+1341,
+1743,
+1750,
+1760,
+1789,
+1883
+],
+"jshint:src/scope-manager.js": [
+105,
+308,
+590
+],
+"jshint:src/style.js": [
+47
+]
+}

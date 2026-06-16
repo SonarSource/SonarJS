@@ -1,0 +1,23 @@
+{
+"paper.js:src/basic/Line.js": [
+160
+],
+"paper.js:src/basic/Point.js": [
+354
+],
+"paper.js:src/canvas/BlendMode.js": [
+141,
+142,
+143,
+148,
+149,
+150
+],
+"paper.js:src/style/Color.js": [
+885,
+893
+],
+"paper.js:src/util/Numerical.js": [
+72
+]
+}

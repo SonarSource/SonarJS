@@ -1,0 +1,34 @@
+{
+"eigen:src/app/Components/Bidding/Helpers/FakeNavigator.tsx": [
+6
+],
+"eigen:src/app/Components/Bidding/Screens/CreditCardForm.tsx": [
+29
+],
+"eigen:src/app/Scenes/Collection/Collection.tsx": [
+29
+],
+"eigen:src/app/Scenes/Map/EventEmitter.ts": [
+7
+],
+"eigen:src/app/Scenes/MyBids/helpers/timely.ts": [
+28,
+29,
+30
+],
+"eigen:src/app/navigation/RouteMatcher.ts": [
+9,
+13
+],
+"eigen:src/app/utils/volleyClient.ts": [
+72
+],
+"eigen:src/palette/elements/Autocomplete/AutoSuggest.tsx": [
+80
+],
+"eigen:src/palette/elements/Autocomplete/Autocomplete.ts": [
+11,
+13,
+14
+]
+}

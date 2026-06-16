@@ -1,0 +1,57 @@
+{
+"courselit:apps/web/components/admin/courses/course-editor/group.tsx": [
+284
+],
+"courselit:apps/web/components/admin/courses/course-editor/index.tsx": [
+846
+],
+"courselit:apps/web/components/admin/courses/lesson-editor.tsx": [
+551
+],
+"courselit:apps/web/components/admin/design/menus/links/index.tsx": [
+69
+],
+"courselit:apps/web/components/admin/design/menus/links/navigation-link-item.tsx": [
+293
+],
+"courselit:apps/web/components/admin/media/editor.tsx": [
+235
+],
+"courselit:apps/web/components/admin/media/media-preview.tsx": [
+205
+],
+"courselit:apps/web/components/admin/settings.tsx": [
+771
+],
+"courselit:apps/web/components/admin/users/details.tsx": [
+240
+],
+"courselit:apps/web/components/admin/users/index.tsx": [
+340
+],
+"courselit:apps/web/components/app-toast.tsx": [
+89
+],
+"courselit:apps/web/components/public/checkout/free.tsx": [
+77
+],
+"courselit:apps/web/components/public/items.tsx": [
+100
+],
+"courselit:apps/web/components/public/lesson-viewer.tsx": [
+251
+],
+"courselit:apps/web/lib/user.ts": [
+15,
+16
+],
+"courselit:apps/web/pages/login.tsx": [
+158
+],
+"courselit:apps/web/pages/logout.tsx": [
+39
+],
+"courselit:apps/web/pages/profile/[id].tsx": [
+289
+]
+}

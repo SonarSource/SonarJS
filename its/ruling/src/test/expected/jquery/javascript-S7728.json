@@ -1,0 +1,24 @@
+{
+"jquery:build/release/cdn.js": [
+35,
+96
+],
+"jquery:build/release/dist.js": [
+89,
+94
+],
+"jquery:build/tasks/build.js": [
+82,
+314
+],
+"jquery:build/tasks/dist.js": [
+31,
+56
+],
+"jquery:build/tasks/node_smoke_tests.js": [
+20
+],
+"jquery:build/tasks/testswarm.js": [
+34
+]
+}

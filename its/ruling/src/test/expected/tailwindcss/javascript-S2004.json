@@ -1,0 +1,14 @@
+{
+"tailwindcss:src/lib/substituteResponsiveAtRules.js": [
+66
+],
+"tailwindcss:src/util/createUtilityPlugin.js": [
+24
+],
+"tailwindcss:src/util/generateVariantFunction.js": [
+32
+],
+"tailwindcss:src/util/resolveConfig.js": [
+197
+]
+}

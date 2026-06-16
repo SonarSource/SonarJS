@@ -1,0 +1,11 @@
+{
+"courselit:packages/common-widgets/webpack.config.js": [
+1
+],
+"courselit:packages/rich-text/webpack.config.js": [
+1
+],
+"courselit:packages/widget-buttondown/webpack.config.js": [
+1
+]
+}

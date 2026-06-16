@@ -1,0 +1,13 @@
+{
+"Ghost:core/server/data/importer/handlers/markdown.js": [
+7
+],
+"Ghost:core/test/functional/routes/api/posts_spec.js": [
+1005,
+1005,
+1005
+],
+"Ghost:core/test/unit/apps_spec.js": [
+334
+]
+}

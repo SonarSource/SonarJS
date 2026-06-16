@@ -1,0 +1,18 @@
+{
+"angular.js:benchmarks/repeat-animate-bp/common.js": [
+111
+],
+"angular.js:src/jqLite.js": [
+530,
+537
+],
+"angular.js:src/ng/compile.js": [
+2605
+],
+"angular.js:src/ng/httpBackend.js": [
+211
+],
+"angular.js:src/ngSanitize/sanitize.js": [
+563
+]
+}

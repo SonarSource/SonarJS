@@ -1,0 +1,15 @@
+{
+"Ghost:core/client/app/components/gh-profile-image.js": [
+57
+],
+"Ghost:core/client/app/controllers/posts.js": [
+29,
+29
+],
+"Ghost:core/server/controllers/frontend/fetch-data.js": [
+36
+],
+"Ghost:core/test/utils/fork.js": [
+13
+]
+}

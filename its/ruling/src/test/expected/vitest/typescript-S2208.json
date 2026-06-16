@@ -1,0 +1,104 @@
+{
+"vitest:packages/browser/src/client/client.ts": [
+182
+],
+"vitest:packages/browser/src/client/vite.config.ts": [
+5
+],
+"vitest:packages/expect/src/index.ts": [
+24,
+26,
+27,
+28
+],
+"vitest:packages/mocker/src/node/esmWalker.ts": [
+16
+],
+"vitest:packages/pretty-format/src/plugins/ReactElement.ts": [
+9,
+11
+],
+"vitest:packages/runner/src/index.ts": [
+23
+],
+"vitest:packages/ui/client/composables/index.ts": [
+1
+],
+"vitest:packages/utils/source-map.ts": [
+1
+],
+"vitest:packages/utils/src/display.ts": [
+7
+],
+"vitest:packages/vitest/index.d.cts": [
+1
+],
+"vitest:packages/vitest/src/create/browser/creator.ts": [
+7
+],
+"vitest:packages/vitest/src/integrations/globals.ts": [
+2
+],
+"vitest:packages/vitest/src/integrations/spy.ts": [
+1
+],
+"vitest:packages/vitest/src/node/create.ts": [
+10
+],
+"vitest:packages/vitest/src/node/plugins/index.ts": [
+5
+],
+"vitest:packages/vitest/src/node/plugins/publicConfig.ts": [
+7
+],
+"vitest:packages/vitest/src/node/plugins/utils.ts": [
+8
+],
+"vitest:packages/vitest/src/node/plugins/workspace.ts": [
+7
+],
+"vitest:packages/vitest/src/node/pool.ts": [
+8
+],
+"vitest:packages/vitest/src/node/pools/browser.ts": [
+12
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/reporter.ts": [
+8
+],
+"vitest:packages/vitest/src/node/resolver.ts": [
+8
+],
+"vitest:packages/vitest/src/public/browser.ts": [
+13
+],
+"vitest:packages/vitest/src/public/node.ts": [
+1,
+212
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleRunner.ts": [
+10
+],
+"vitest:packages/vitest/src/runtime/runVmTests.ts": [
+18
+],
+"vitest:packages/vitest/src/runtime/setup-node.ts": [
+8
+],
+"vitest:packages/vitest/src/runtime/worker.ts": [
+6
+],
+"vitest:packages/vitest/src/runtime/workers/base.ts": [
+7
+],
+"vitest:packages/vitest/src/runtime/workers/init.ts": [
+8,
+10
+],
+"vitest:packages/vitest/src/utils/memory-limit.ts": [
+9
+],
+"vitest:packages/ws-client/src/index.ts": [
+9
+]
+}

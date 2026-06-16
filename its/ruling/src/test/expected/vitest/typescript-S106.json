@@ -1,0 +1,143 @@
+{
+"vitest:packages/browser-playwright/src/playwright.ts": [
+496
+],
+"vitest:packages/browser/src/client/tester/dialog.ts": [
+5
+],
+"vitest:packages/browser/src/client/tester/runner.ts": [
+174
+],
+"vitest:packages/browser/src/client/vite.config.ts": [
+58,
+77
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+112
+],
+"vitest:packages/expect/src/utils.ts": [
+59
+],
+"vitest:packages/mocker/src/browser/utils.ts": [
+10
+],
+"vitest:packages/mocker/src/node/dynamicImportPlugin.ts": [
+56
+],
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+97,
+484
+],
+"vitest:packages/mocker/src/node/parsers.ts": [
+66,
+115
+],
+"vitest:packages/runner/src/suite.ts": [
+932
+],
+"vitest:packages/spy/src/index.ts": [
+519
+],
+"vitest:packages/ui/client/components/views/ViewEditor.vue": [
+52,
+343
+],
+"vitest:packages/vitest/src/integrations/env/loader.ts": [
+91
+],
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+282,
+316,
+317,
+318,
+330,
+356,
+357,
+358,
+374,
+375,
+376
+],
+"vitest:packages/vitest/src/node/cli/cli-api.ts": [
+210,
+218,
+223,
+257
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+864
+],
+"vitest:packages/vitest/src/node/core.ts": [
+1541,
+1547,
+1550,
+1553,
+1557
+],
+"vitest:packages/vitest/src/node/pools/rpc.ts": [
+163
+],
+"vitest:packages/vitest/src/node/vite.ts": [
+8,
+9,
+21
+],
+"vitest:packages/vitest/src/public/coverage.ts": [
+3
+],
+"vitest:packages/vitest/src/public/environments.ts": [
+9
+],
+"vitest:packages/vitest/src/public/reporters.ts": [
+31
+],
+"vitest:packages/vitest/src/public/runners.ts": [
+5
+],
+"vitest:packages/vitest/src/public/snapshot.ts": [
+4
+],
+"vitest:packages/vitest/src/public/suite.ts": [
+14
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/nativeModuleMocker.ts": [
+124
+],
+"vitest:packages/vitest/src/runtime/workers/native.ts": [
+92,
+110,
+122
+],
+"vitest:packages/vitest/src/utils/traces.ts": [
+76
+],
+"vitest:packages/web-worker/src/shared-worker.ts": [
+146
+],
+"vitest:packages/web-worker/src/utils.ts": [
+65
+],
+"vitest:packages/web-worker/src/worker.ts": [
+148
+],
+"vitest:scripts/demo-with-label.ts": [
+4,
+5,
+6,
+7,
+8
+],
+"vitest:scripts/explain-types.ts": [
+36,
+46
+],
+"vitest:scripts/publish-ci.ts": [
+36
+],
+"vitest:scripts/release.ts": [
+10,
+20,
+24,
+27
+]
+}

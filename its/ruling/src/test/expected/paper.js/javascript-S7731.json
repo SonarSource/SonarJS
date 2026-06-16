@@ -1,0 +1,15 @@
+{
+"paper.js:src/path/Curve.js": [
+2137
+],
+"paper.js:src/path/PathItem.Boolean.js": [
+174
+],
+"paper.js:src/util/CollisionDetection.js": [
+39,
+79,
+205,
+212,
+261
+]
+}

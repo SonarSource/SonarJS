@@ -1,0 +1,17 @@
+{
+"Ghost:core/client/app/controllers/settings/general.js": [
+59
+],
+"Ghost:core/client/app/routes/application.js": [
+18
+],
+"Ghost:core/server/api/db.js": [
+13
+],
+"Ghost:core/server/helpers/navigation.js": [
+56
+],
+"Ghost:core/test/utils/configUtils.js": [
+5
+]
+}

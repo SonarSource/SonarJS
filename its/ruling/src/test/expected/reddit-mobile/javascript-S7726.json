@@ -1,0 +1,20 @@
+{
+"reddit-mobile:buildTasks/assets.js": [
+3
+],
+"reddit-mobile:buildTasks/clean.js": [
+6
+],
+"reddit-mobile:buildTasks/icons.js": [
+10
+],
+"reddit-mobile:buildTasks/utils/notify.js": [
+9
+],
+"reddit-mobile:buildTasks/watcher.js": [
+6
+],
+"reddit-mobile:test/helpers/buildProps.es6.js": [
+10
+]
+}

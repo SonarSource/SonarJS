@@ -1,0 +1,140 @@
+{
+"TypeScript:scripts/authors.ts": [
+0
+],
+"TypeScript:scripts/errorCheck.ts": [
+0
+],
+"TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
+0
+],
+"TypeScript:scripts/tslint/booleanTriviaRule.ts": [
+0
+],
+"TypeScript:scripts/tslint/nextLineRule.ts": [
+0
+],
+"TypeScript:scripts/tslint/noBomRule.ts": [
+0
+],
+"TypeScript:scripts/tslint/noInOperatorRule.ts": [
+0
+],
+"TypeScript:scripts/tslint/noIncrementDecrementRule.ts": [
+0
+],
+"TypeScript:scripts/tslint/noTypeAssertionWhitespaceRule.ts": [
+0
+],
+"TypeScript:scripts/tslint/objectLiteralSurroundingSpaceRule.ts": [
+0
+],
+"TypeScript:scripts/tslint/typeOperatorSpacingRule.ts": [
+0
+],
+"TypeScript:src/compiler/performance.ts": [
+0
+],
+"TypeScript:src/compiler/types.ts": [
+0
+],
+"TypeScript:src/harness/harness.ts": [
+0
+],
+"TypeScript:src/harness/instrumenter.ts": [
+0
+],
+"TypeScript:src/harness/typeWriter.ts": [
+0
+],
+"TypeScript:src/server/protocol.ts": [
+0
+],
+"TypeScript:src/services/classifier.ts": [
+0
+],
+"TypeScript:src/services/codeFixProvider.ts": [
+0
+],
+"TypeScript:src/services/codefixes/disableJsDiagnostics.ts": [
+0
+],
+"TypeScript:src/services/codefixes/fixAddMissingMember.ts": [
+0
+],
+"TypeScript:src/services/codefixes/fixClassDoesntImplementInheritedAbstractMember.ts": [
+0
+],
+"TypeScript:src/services/codefixes/fixClassIncorrectlyImplementsInterface.ts": [
+0
+],
+"TypeScript:src/services/codefixes/fixClassSuperMustPrecedeThisAccess.ts": [
+0
+],
+"TypeScript:src/services/codefixes/fixConstructorForDerivedNeedSuperCall.ts": [
+0
+],
+"TypeScript:src/services/codefixes/fixExtendsInterfaceBecomesImplements.ts": [
+0
+],
+"TypeScript:src/services/codefixes/fixForgottenThisPropertyAccess.ts": [
+0
+],
+"TypeScript:src/services/codefixes/fixSpelling.ts": [
+0
+],
+"TypeScript:src/services/codefixes/helpers.ts": [
+0
+],
+"TypeScript:src/services/codefixes/importFixes.ts": [
+0
+],
+"TypeScript:src/services/codefixes/unusedIdentifierFixes.ts": [
+0
+],
+"TypeScript:src/services/documentHighlights.ts": [
+0
+],
+"TypeScript:src/services/documentRegistry.ts": [
+0
+],
+"TypeScript:src/services/goToDefinition.ts": [
+0
+],
+"TypeScript:src/services/importTracker.ts": [
+0
+],
+"TypeScript:src/services/jsDoc.ts": [
+0
+],
+"TypeScript:src/services/navigateTo.ts": [
+0
+],
+"TypeScript:src/services/outliningElementsCollector.ts": [
+0
+],
+"TypeScript:src/services/pathCompletions.ts": [
+0
+],
+"TypeScript:src/services/patternMatcher.ts": [
+0
+],
+"TypeScript:src/services/preProcess.ts": [
+0
+],
+"TypeScript:src/services/rename.ts": [
+0
+],
+"TypeScript:src/services/symbolDisplay.ts": [
+0
+],
+"TypeScript:src/services/textChanges.ts": [
+0
+],
+"TypeScript:src/services/transpile.ts": [
+0
+],
+"TypeScript:src/services/types.ts": [
+0
+]
+}

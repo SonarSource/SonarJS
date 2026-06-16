@@ -1,0 +1,14 @@
+{
+"courselit:apps/web/components/admin/courses/course-editor/index.tsx": [
+562
+],
+"courselit:apps/web/components/public/article.tsx": [
+117
+],
+"courselit:apps/web/pages/profile/[id].tsx": [
+216
+],
+"courselit:packages/components-library/src/course-item.tsx": [
+61
+]
+}

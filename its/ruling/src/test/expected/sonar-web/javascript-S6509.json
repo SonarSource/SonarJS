@@ -1,0 +1,11 @@
+{
+"sonar-web:src/main/js/components/common/modals.js": [
+29
+],
+"sonar-web:src/main/js/widgets/old/bubble-chart.js": [
+125
+],
+"sonar-web:src/main/js/widgets/old/pie-chart.js": [
+234
+]
+}

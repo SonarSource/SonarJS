@@ -1,0 +1,12 @@
+{
+"fresh:packages/plugin-vite/tests/fixtures/island_global_name/islands/Map.tsx": [
+4
+],
+"fresh:packages/plugin-vite/tests/fixtures/island_global_name/routes/index.tsx": [
+1
+],
+"fresh:tools/check_docs_lib.ts": [
+264,
+284
+]
+}

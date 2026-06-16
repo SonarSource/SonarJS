@@ -1,0 +1,37 @@
+{
+"angular.js:Gruntfile.js": [
+10
+],
+"angular.js:docs/app/e2e/app.scenario.js": [
+21
+],
+"angular.js:docs/config/processors/keywords.js": [
+4
+],
+"angular.js:lib/browserstack/start_tunnel.js": [
+3,
+4
+],
+"angular.js:lib/grunt/utils.js": [
+3
+],
+"angular.js:lib/grunt/validate-angular-files.js": [
+3,
+4
+],
+"angular.js:lib/versions/version-info.js": [
+3,
+4,
+9
+],
+"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
+5
+],
+"angular.js:scripts/compare-master-to-stable.js": [
+5,
+6
+],
+"angular.js:scripts/docs.angularjs.org-firebase/functions/index.js": [
+4
+]
+}

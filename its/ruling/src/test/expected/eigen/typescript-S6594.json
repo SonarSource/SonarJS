@@ -1,0 +1,18 @@
+{
+"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/helpers.ts": [
+23
+],
+"eigen:src/app/Scenes/MyAccount/MyAccountEditPassword.tsx": [
+62
+],
+"eigen:src/app/Scenes/MyAccount/updateMyUserProfile.ts": [
+55
+],
+"eigen:src/app/navigation/RouteMatcher.ts": [
+15
+],
+"eigen:src/app/navigation/routes.tsx": [
+74,
+82
+]
+}

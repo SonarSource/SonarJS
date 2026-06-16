@@ -1,0 +1,20 @@
+{
+"TypeScript:scripts/ior.ts": [
+80
+],
+"TypeScript:scripts/processDiagnosticMessages.ts": [
+28,
+101,
+119
+],
+"TypeScript:scripts/word2md.ts": [
+315,
+325,
+393,
+394,
+395
+],
+"TypeScript:src/compiler/core.ts": [
+1415
+]
+}

@@ -1,0 +1,54 @@
+{
+"vitest:packages/browser-preview/src/preview.ts": [
+19
+],
+"vitest:packages/browser-webdriverio/src/webdriverio.ts": [
+45
+],
+"vitest:packages/browser/src/client/client.ts": [
+19
+],
+"vitest:packages/browser/src/client/tester/context.ts": [
+511
+],
+"vitest:packages/coverage-istanbul/src/constants.ts": [
+1
+],
+"vitest:packages/runner/src/utils/limit-concurrency.ts": [
+13
+],
+"vitest:packages/ui/client/components/views/ViewModuleGraph.vue": [
+91
+],
+"vitest:packages/ui/client/composables/explorer/tree.ts": [
+23,
+24,
+28
+],
+"vitest:packages/utils/src/constants.ts": [
+39,
+42
+],
+"vitest:packages/utils/src/diff/constants.ts": [
+8
+],
+"vitest:packages/utils/src/display.ts": [
+123
+],
+"vitest:packages/utils/src/offset.ts": [
+1
+],
+"vitest:packages/vitest/src/node/cache/fsModuleCache.ts": [
+120
+],
+"vitest:packages/vitest/src/node/pools/pool.ts": [
+32,
+39
+],
+"vitest:packages/vitest/src/node/watcher.ts": [
+148
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/startVitestModuleRunner.ts": [
+19
+]
+}

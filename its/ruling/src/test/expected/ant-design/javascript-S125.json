@@ -1,0 +1,24 @@
+{
+"ant-design:components/input/__tests__/textarea.test.js": [
+53,
+58
+],
+"ant-design:components/menu/__tests__/index.test.js": [
+78
+],
+"ant-design:components/modal/__tests__/confirm.test.js": [
+26,
+35
+],
+"ant-design:components/popconfirm/__tests__/index.test.js": [
+266
+],
+"ant-design:components/table/__tests__/Table.rowSelection.test.js": [
+900,
+905,
+913
+],
+"ant-design:scripts/css-variable-sync.js": [
+15
+]
+}

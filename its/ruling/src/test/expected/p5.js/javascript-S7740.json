@@ -1,0 +1,89 @@
+{
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+540,
+566,
+759,
+835,
+853,
+1035,
+1050,
+1077,
+1093,
+1374,
+1588,
+1639,
+1689,
+2227,
+2243,
+2335,
+4419,
+4646,
+4693
+],
+"p5.js:lib/addons/p5.sound.js": [
+390,
+437,
+566,
+1802,
+1823,
+1948,
+2715,
+3159,
+3353,
+5538,
+7538,
+10044,
+10067,
+10399,
+10828,
+10900,
+11001,
+11869
+],
+"p5.js:src/core/environment.js": [
+603
+],
+"p5.js:src/core/main.js": [
+263,
+461
+],
+"p5.js:src/core/preload.js": [
+29
+],
+"p5.js:src/dom/dom.js": [
+1776,
+2228
+],
+"p5.js:src/image/loading_displaying.js": [
+68
+],
+"p5.js:src/image/p5.Image.js": [
+643
+],
+"p5.js:src/image/pixels.js": [
+244
+],
+"p5.js:src/io/files.js": [
+152,
+259,
+437,
+685,
+747,
+1241
+],
+"p5.js:src/typography/loading_displaying.js": [
+89
+],
+"p5.js:src/webgl/loading.js": [
+119
+],
+"p5.js:src/webgl/material.js": [
+73
+],
+"p5.js:test/test-reference.html": [
+138
+],
+"p5.js:utils/sample-linter.js": [
+35
+]
+}

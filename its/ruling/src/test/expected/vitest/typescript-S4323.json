@@ -1,0 +1,11 @@
+{
+"vitest:packages/vitest/src/integrations/vi.ts": [
+430
+],
+"vitest:packages/vitest/src/node/reporters/reported-tasks.ts": [
+73
+],
+"vitest:packages/vitest/src/node/resolver.ts": [
+14
+]
+}

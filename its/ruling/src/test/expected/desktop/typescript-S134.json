@@ -1,0 +1,94 @@
+{
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
+223,
+368,
+373,
+434,
+473,
+510,
+515,
+631,
+646
+],
+"desktop:app/src/lib/api.ts": [
+1593,
+1627
+],
+"desktop:app/src/lib/editors/win32.ts": [
+110
+],
+"desktop:app/src/lib/find-account.ts": [
+97
+],
+"desktop:app/src/lib/git/reorder.ts": [
+69,
+88
+],
+"desktop:app/src/lib/git/squash.ts": [
+79,
+98
+],
+"desktop:app/src/lib/progress/from-process.ts": [
+109
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+2878
+],
+"desktop:app/src/lib/stores/helpers/create-tutorial-repository.ts": [
+43
+],
+"desktop:app/src/lib/wrap-rich-text-commit-message.ts": [
+81
+],
+"desktop:app/src/models/app-menu.ts": [
+141,
+275
+],
+"desktop:app/src/models/diff/diff-selection.ts": [
+209
+],
+"desktop:app/src/ui/app.tsx": [
+1022,
+1037,
+1081
+],
+"desktop:app/src/ui/clone-repository/cloneable-repository-filter-list.tsx": [
+92
+],
+"desktop:app/src/ui/diff/diff-helpers.tsx": [
+285
+],
+"desktop:app/src/ui/diff/diff-syntax-mode.ts": [
+212
+],
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
+1347
+],
+"desktop:app/src/ui/diff/text-diff.tsx": [
+898,
+914,
+980
+],
+"desktop:app/src/ui/history/commit-summary.tsx": [
+166
+],
+"desktop:app/src/ui/index.tsx": [
+143,
+147,
+151,
+159,
+163,
+167,
+171
+],
+"desktop:app/src/ui/lib/list/list.tsx": [
+296,
+1077
+],
+"desktop:app/src/ui/lib/path-text.tsx": [
+209
+],
+"desktop:app/src/ui/repositories-list/repositories-list.tsx": [
+90
+]
+}

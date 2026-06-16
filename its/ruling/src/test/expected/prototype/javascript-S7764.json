@@ -1,0 +1,44 @@
+{
+"prototype:ext/update_helper/update_helper.js": [
+14
+],
+"prototype:src/prototype/dom/dom.js": [
+2714
+],
+"prototype:src/prototype/dom/event.js": [
+364,
+383,
+1176,
+1258,
+1274
+],
+"prototype:src/prototype/dom/form.js": [
+415
+],
+"prototype:src/prototype/dom/layout.js": [
+67
+],
+"prototype:src/prototype/lang/function.js": [
+262
+],
+"prototype:src/prototype/prototype.js": [
+80,
+82
+],
+"prototype:test/browser.html": [
+226
+],
+"prototype:test/console.html": [
+14,
+14,
+40,
+40,
+107
+],
+"prototype:test/functional/event.html": [
+100,
+127,
+128,
+271
+]
+}

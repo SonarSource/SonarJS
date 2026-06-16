@@ -1,0 +1,47 @@
+{
+"eigen:scripts/changelog/commitChangelog.js": [
+3
+],
+"eigen:scripts/changelog/generateChangelogSectionTemplate.js": [
+29
+],
+"eigen:scripts/changelog/generatePlatformChangelog.js": [
+12
+],
+"eigen:scripts/check-flags/check-flags.js": [
+6
+],
+"eigen:scripts/detect-secrets.js": [
+10
+],
+"eigen:scripts/doctor.js": [
+11,
+14
+],
+"eigen:scripts/generate-cities-objc.js": [
+4,
+5
+],
+"eigen:scripts/generate-manifest.js": [
+5,
+6,
+7
+],
+"eigen:scripts/preheatGraphQLCache.js": [
+2,
+3,
+4
+],
+"eigen:scripts/set-storybook-environment.js": [
+7
+],
+"eigen:scripts/strictness-migration.js": [
+4,
+6,
+8
+],
+"eigen:scripts/update-metaphysics.js": [
+4,
+5
+]
+}

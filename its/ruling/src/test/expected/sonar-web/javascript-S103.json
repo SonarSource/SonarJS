@@ -1,0 +1,18 @@
+{
+"sonar-web:src/main/js/components/shared/favorite.js": [
+37
+],
+"sonar-web:src/main/js/components/shared/pending-icon.js": [
+8
+],
+"sonar-web:src/main/js/helpers/latinize.js": [
+8,
+56,
+112,
+160,
+188,
+232,
+284,
+324
+]
+}

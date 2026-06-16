@@ -1,0 +1,85 @@
+{
+"vuetify:packages/api-generator/src/types.ts": [
+335,
+367,
+375,
+413,
+421
+],
+"vuetify:packages/api-generator/src/web-types.ts": [
+66,
+78,
+79,
+84,
+120,
+129
+],
+"vuetify:packages/docs/src/components/introduction/EnterpriseForm.vue": [
+181
+],
+"vuetify:packages/vuetify/src/components/VAppBar/VAppBar.tsx": [
+24
+],
+"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
+87
+],
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
+89
+],
+"vuetify:packages/vuetify/src/components/VField/VField.tsx": [
+353
+],
+"vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
+120
+],
+"vuetify:packages/vuetify/src/components/VMenu/VMenu.tsx": [
+27
+],
+"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
+115,
+419
+],
+"vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
+198
+],
+"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
+122
+],
+"vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
+88
+],
+"vuetify:packages/vuetify/src/components/transitions/createTransition.ts": [
+97
+],
+"vuetify:packages/vuetify/src/composables/group.ts": [
+191
+],
+"vuetify:packages/vuetify/src/composables/theme.ts": [
+242
+],
+"vuetify:packages/vuetify/src/directives/touch/index.ts": [
+121
+],
+"vuetify:packages/vuetify/src/iconsets/fa-svg.ts": [
+16
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
+57,
+58
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
+131
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/items.ts": [
+14
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
+73
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/virtual.ts": [
+27
+],
+"vuetify:packages/vuetify/src/locale/adapters/vuetify.ts": [
+63
+]
+}

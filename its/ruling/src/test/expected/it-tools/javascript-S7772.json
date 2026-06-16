@@ -1,0 +1,13 @@
+{
+"it-tools:scripts/create-tool.mjs": [
+1,
+2,
+3
+],
+"it-tools:scripts/getLatestChangelog.mjs": [
+1
+],
+"it-tools:scripts/shared/changelog.mjs": [
+1
+]
+}

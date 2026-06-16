@@ -1,0 +1,61 @@
+{
+"jshint:examples/reporter.js": [
+8
+],
+"jshint:scripts/remove-dev-dependencies.js": [
+20
+],
+"jshint:src/cli.js": [
+394,
+429,
+460,
+496,
+579,
+642,
+661
+],
+"jshint:src/jshint.js": [
+193,
+474,
+509,
+526,
+552,
+3547,
+4299,
+5066,
+5101,
+5198,
+5696,
+6288,
+6386,
+6393,
+6405
+],
+"jshint:src/lex.js": [
+192,
+424
+],
+"jshint:src/reporters/checkstyle.js": [
+30
+],
+"jshint:src/reporters/default.js": [
+11
+],
+"jshint:src/reporters/jslint_xml.js": [
+27
+],
+"jshint:src/reporters/non_error.js": [
+9,
+25,
+36,
+42
+],
+"jshint:src/reporters/unix.js": [
+15
+],
+"jshint:src/scope-manager.js": [
+262,
+427,
+564
+]
+}

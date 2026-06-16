@@ -1,0 +1,11 @@
+{
+"Ghost:core/test/integration/api/api_posts_spec.js": [
+17
+],
+"Ghost:core/test/integration/api/api_tags_spec.js": [
+320
+],
+"Ghost:core/test/integration/model/model_posts_spec.js": [
+40
+]
+}

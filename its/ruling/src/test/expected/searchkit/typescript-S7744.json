@@ -1,0 +1,11 @@
+{
+"searchkit:packages/searchkit-sdk/src/transformers/index.ts": [
+182
+],
+"searchkit:packages/searchkit-sdk/src/transporters/ESClientTransporter.ts": [
+23
+],
+"searchkit:packages/searchkit-sdk/src/transporters/FetchClientTransporter.ts": [
+31
+]
+}

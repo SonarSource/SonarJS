@@ -1,0 +1,103 @@
+{
+"TypeScript:src/compiler/binder.ts": [
+1661
+],
+"TypeScript:src/compiler/checker.ts": [
+872,
+11090,
+14319,
+15428,
+18069,
+20810,
+22139,
+23820
+],
+"TypeScript:src/compiler/core.ts": [
+706,
+1976
+],
+"TypeScript:src/compiler/emitter.ts": [
+160
+],
+"TypeScript:src/compiler/factory.ts": [
+3267
+],
+"TypeScript:src/compiler/moduleNameResolver.ts": [
+371
+],
+"TypeScript:src/compiler/parser.ts": [
+1508,
+1860,
+3313,
+3856,
+4016,
+4069,
+5299,
+5840
+],
+"TypeScript:src/compiler/scanner.ts": [
+623,
+929,
+971,
+1164,
+1645,
+1735
+],
+"TypeScript:src/compiler/sys.ts": [
+249
+],
+"TypeScript:src/compiler/transformers/module/system.ts": [
+343
+],
+"TypeScript:src/harness/fourslash.ts": [
+3151
+],
+"TypeScript:src/harness/harness.ts": [
+429
+],
+"TypeScript:src/harness/rwcRunner.ts": [
+96
+],
+"TypeScript:src/harness/sourceMapRecorder.ts": [
+119
+],
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
+196
+],
+"TypeScript:src/services/classifier.ts": [
+645
+],
+"TypeScript:src/services/completions.ts": [
+1310,
+1354
+],
+"TypeScript:src/services/formatting/formattingScanner.ts": [
+243
+],
+"TypeScript:src/services/jsDoc.ts": [
+173
+],
+"TypeScript:src/services/jsTyping.ts": [
+218
+],
+"TypeScript:src/services/pathCompletions.ts": [
+390
+],
+"TypeScript:src/services/patternMatcher.ts": [
+429
+],
+"TypeScript:src/services/preProcess.ts": [
+306
+],
+"TypeScript:src/services/services.ts": [
+1568,
+1828
+],
+"TypeScript:src/services/symbolDisplay.ts": [
+434
+],
+"TypeScript:src/services/utilities.ts": [
+648,
+675
+]
+}

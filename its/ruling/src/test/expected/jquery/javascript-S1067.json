@@ -1,0 +1,38 @@
+{
+"jquery:src/ajax/jsonp.js": [
+24
+],
+"jquery:src/core.js": [
+422
+],
+"jquery:src/css.js": [
+141
+],
+"jquery:src/css/adjustCSS.js": [
+19
+],
+"jquery:src/effects.js": [
+450,
+453
+],
+"jquery:src/event.js": [
+259,
+494
+],
+"jquery:src/selector.js": [
+162,
+621,
+722,
+749,
+906,
+1260,
+1347,
+1570
+],
+"jquery:src/selector/contains.js": [
+8
+],
+"jquery:src/serialize.js": [
+109
+]
+}

@@ -1,0 +1,18 @@
+{
+"console:src/components/MapProps/MapProps.tsx": [
+7
+],
+"console:src/components/ResizableBox.tsx": [
+9,
+15
+],
+"console:src/components/Tether/Tether.tsx": [
+28
+],
+"console:src/types/gettingStarted.ts": [
+60
+],
+"console:src/views/CLIAuthView/CLIAuthView/CLIAuthView.tsx": [
+52
+]
+}

@@ -1,0 +1,156 @@
+{
+"jquery:Gruntfile.js": [
+174
+],
+"jquery:build/tasks/dist.js": [
+46,
+48,
+48
+],
+"jquery:build/tasks/testswarm.js": [
+20
+],
+"jquery:src/ajax.js": [
+741,
+741,
+741,
+772,
+776
+],
+"jquery:src/ajax/script.js": [
+55,
+55
+],
+"jquery:src/attributes/attr.js": [
+27
+],
+"jquery:src/attributes/prop.js": [
+28
+],
+"jquery:src/core.js": [
+276,
+276,
+289
+],
+"jquery:src/core/init.js": [
+33
+],
+"jquery:src/css.js": [
+42,
+205,
+244,
+360
+],
+"jquery:src/css/adjustCSS.js": [
+16,
+23,
+30
+],
+"jquery:src/css/support.js": [
+27
+],
+"jquery:src/data.js": [
+112
+],
+"jquery:src/data/var/acceptData.js": [
+12
+],
+"jquery:src/deferred.js": [
+232,
+244,
+255,
+278,
+297,
+301,
+301,
+307,
+314
+],
+"jquery:src/dimensions.js": [
+29
+],
+"jquery:src/event.js": [
+738
+],
+"jquery:src/event/trigger.js": [
+27,
+51
+],
+"jquery:src/manipulation.js": [
+39,
+53,
+54,
+212,
+304,
+304,
+313,
+313,
+322,
+322
+],
+"jquery:src/manipulation/wrapMap.js": [
+12
+],
+"jquery:src/offset.js": [
+180
+],
+"jquery:src/selector.js": [
+157,
+163,
+163,
+177,
+183,
+205,
+426,
+516,
+516,
+516,
+520,
+520,
+540,
+543,
+550,
+550,
+551,
+551,
+553,
+553,
+553,
+556,
+565,
+572,
+573,
+590,
+670,
+671,
+945,
+1571
+],
+"jquery:src/selector/contains.js": [
+5
+],
+"jquery:src/traversing.js": [
+51,
+112,
+168
+],
+"jquery:src/traversing/var/dir.js": [
+7
+],
+"jquery:test/data/ajax/unreleasedXHR.html": [
+15
+],
+"jquery:test/data/event/onbeforeunload.html": [
+17
+],
+"jquery:test/data/offset/boxes.html": [
+74
+],
+"jquery:test/data/readywait.html": [
+32
+],
+"jquery:test/delegatetest.html": [
+158,
+203
+]
+}

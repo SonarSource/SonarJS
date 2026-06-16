@@ -1,0 +1,31 @@
+{
+"eigen:src/app/App.tsx": [
+81
+],
+"eigen:src/app/Components/Disappearable.tsx": [
+41
+],
+"eigen:src/app/Components/Home/ArtistRails/ArtistRail.tsx": [
+162
+],
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/ImageZoomView.tsx": [
+176
+],
+"eigen:src/app/Scenes/MyCollection/utils/localArtworkSortAndFilter.ts": [
+157
+],
+"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/SubmitArtwork.tsx": [
+103
+],
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+33,
+34,
+60
+],
+"eigen:src/app/utils/AdminMenu.tsx": [
+444
+],
+"eigen:src/palette/elements/CollapsibleMenuItem/CollapsibleMenuItem.tsx": [
+57
+]
+}

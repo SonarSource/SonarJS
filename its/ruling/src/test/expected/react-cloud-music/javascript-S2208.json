@@ -1,0 +1,60 @@
+{
+"react-cloud-music:src/application/Album/store/index.js": [
+2,
+3
+],
+"react-cloud-music:src/application/Album/store/reducer.js": [
+1
+],
+"react-cloud-music:src/application/Player/store/index.js": [
+2,
+3
+],
+"react-cloud-music:src/application/Player/store/reducer.js": [
+1
+],
+"react-cloud-music:src/application/Recommend/index.jsx": [
+4
+],
+"react-cloud-music:src/application/Recommend/store/actionCreators.js": [
+1
+],
+"react-cloud-music:src/application/Recommend/store/index.js": [
+2,
+3
+],
+"react-cloud-music:src/application/Recommend/store/reducer.js": [
+1
+],
+"react-cloud-music:src/application/Search/store/index.js": [
+2,
+3
+],
+"react-cloud-music:src/application/Search/store/reducer.js": [
+1
+],
+"react-cloud-music:src/application/Singer/store/index.js": [
+2,
+3
+],
+"react-cloud-music:src/application/Singer/store/reducer.js": [
+1
+],
+"react-cloud-music:src/application/Singers/store/index.js": [
+2,
+3
+],
+"react-cloud-music:src/application/Singers/store/reducer.js": [
+1
+],
+"react-cloud-music:src/application/User/Login/index.jsx": [
+4
+],
+"react-cloud-music:src/application/User/Login/store/index.js": [
+2,
+3
+],
+"react-cloud-music:src/application/User/Login/store/reducer.js": [
+1
+]
+}

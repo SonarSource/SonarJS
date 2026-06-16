@@ -1,0 +1,20 @@
+{
+"Ghost:core/client/app/components/gh-trim-focus-input.js": [
+11
+],
+"Ghost:core/client/app/components/modals/upload-image.js": [
+54
+],
+"Ghost:core/client/app/controllers/setup/three.js": [
+57
+],
+"Ghost:core/client/app/utils/ed-image-manager.js": [
+29
+],
+"Ghost:core/server/config/index.js": [
+46
+],
+"Ghost:core/server/permissions/effective.js": [
+39
+]
+}

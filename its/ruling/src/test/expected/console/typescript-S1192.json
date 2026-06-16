@@ -1,0 +1,35 @@
+{
+"console:src/components/Links.tsx": [
+170
+],
+"console:src/views/ActionsView/ActionTrigger.tsx": [
+47
+],
+"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
+357
+],
+"console:src/views/FunctionsView/FunctionPopup/RequestPipeline.tsx": [
+72
+],
+"console:src/views/FunctionsView/FunctionPopup/RequestPipelineFunctionInput.tsx": [
+263
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionConditions.tsx": [
+284
+],
+"console:src/views/RelationsPopup/RelationPopup.tsx": [
+567
+],
+"console:src/views/Settings/PricingColumn.tsx": [
+208,
+209,
+209,
+210,
+211,
+212,
+259
+],
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
+134
+]
+}

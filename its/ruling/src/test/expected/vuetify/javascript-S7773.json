@@ -1,0 +1,24 @@
+{
+"vuetify:packages/docs/src/components/features/ColorPalette.vue": [
+105
+],
+"vuetify:packages/docs/src/examples/scroll/usage.vue": [
+117
+],
+"vuetify:packages/docs/src/examples/v-calendar/misc-drag-and-drop.vue": [
+140
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/prop-allowed-months.vue": [
+23
+],
+"vuetify:packages/docs/src/examples/v-date-picker/event-events.vue": [
+46,
+47
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-allowed-dates.vue": [
+20
+],
+"vuetify:packages/docs/src/examples/v-scroll/usage.vue": [
+115
+]
+}

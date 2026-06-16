@@ -1,0 +1,27 @@
+{
+"vitest:packages/browser/src/node/plugin.ts": [
+436
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+421
+],
+"vitest:packages/vitest/src/node/environments/fetchModule.ts": [
+291
+],
+"vitest:packages/vitest/src/node/plugins/cssEnabler.ts": [
+58
+],
+"vitest:packages/vitest/src/node/plugins/mocks.ts": [
+24
+],
+"vitest:packages/vitest/src/node/reporters/github-actions.ts": [
+99
+],
+"vitest:packages/vitest/src/runtime/console.ts": [
+128,
+167
+],
+"vitest:packages/vitest/src/utils/serialization.ts": [
+19
+]
+}

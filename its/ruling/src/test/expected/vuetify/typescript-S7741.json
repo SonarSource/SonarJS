@@ -1,0 +1,20 @@
+{
+"vuetify:packages/docs/src/components/promoted/Carbon.vue": [
+34
+],
+"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
+161
+],
+"vuetify:packages/vuetify/src/util/animation.ts": [
+44,
+47
+],
+"vuetify:packages/vuetify/src/util/defineComponent.tsx": [
+39,
+40
+],
+"vuetify:packages/vuetify/src/util/helpers.ts": [
+89,
+100
+]
+}

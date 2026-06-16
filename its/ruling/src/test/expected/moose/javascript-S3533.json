@@ -1,0 +1,15 @@
+{
+"moose:nextron.config.js": [
+1,
+2,
+3
+],
+"moose:renderer/next.config.js": [
+1,
+2
+],
+"moose:scripts/notarize.js": [
+1,
+2
+]
+}

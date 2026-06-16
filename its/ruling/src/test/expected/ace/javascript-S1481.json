@@ -1,0 +1,214 @@
+{
+"ace:Makefile.dryice.js": [
+438
+],
+"ace:demo/autoresize.html": [
+36,
+44
+],
+"ace:demo/kitchen-sink/layout.js": [
+55
+],
+"ace:demo/scrollable-page.html": [
+87
+],
+"ace:demo/shadow-dom.html": [
+43
+],
+"ace:demo/static-highlighter.html": [
+63
+],
+"ace:demo/statusbar.html": [
+53
+],
+"ace:doc/build.js": [
+13
+],
+"ace:doc/site/js/main.js": [
+71,
+166,
+184
+],
+"ace:doc/template/resources/javascripts/disqus-ext.js": [
+8
+],
+"ace:doc/template/resources/javascripts/ux.js": [
+46
+],
+"ace:experiments/animate_folding.html": [
+122
+],
+"ace:experiments/dom.html": [
+42,
+78,
+112,
+160,
+211,
+306
+],
+"ace:lib/ace/mode/css/csslint.js": [
+60,
+3336,
+5901
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+2359
+],
+"ace:lib/ace/mode/html_worker.js": [
+35
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+4479
+],
+"ace:lib/ace/mode/jsoniq.js": [
+122,
+138,
+139
+],
+"ace:lib/ace/mode/xml/dom-parser.js": [
+119
+],
+"ace:lib/ace/mode/xml/dom.js": [
+58,
+59,
+60,
+61,
+62,
+63,
+64,
+66,
+69,
+70,
+71,
+72,
+73
+],
+"ace:lib/ace/mode/xml/sax.js": [
+516
+],
+"ace:lib/ace/mode/xml_worker.js": [
+35
+],
+"ace:lib/ace/mode/xquery.js": [
+164,
+180,
+181
+],
+"ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
+1499
+],
+"ace:lib/ace/mode/xquery/xquery_lexer.js": [
+1499
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+1,
+1,
+1,
+4
+],
+"ace:src/edit_session_test.js": [
+439,
+451
+],
+"ace:src/ext/beautify.js": [
+45
+],
+"ace:src/ext/menu_tools/get_editor_keyboard_shortcuts.js": [
+33
+],
+"ace:src/ext/prompt.js": [
+278
+],
+"ace:src/ext/textarea.js": [
+241,
+242
+],
+"ace:src/keyboard/vim_test.js": [
+1438,
+1515,
+1526,
+1537,
+1548
+],
+"ace:src/mode/c_cpp_highlight_rules.js": [
+47
+],
+"ace:src/mode/coldfusion_test.js": [
+20,
+21
+],
+"ace:src/mode/css_test.js": [
+22
+],
+"ace:src/mode/dot.js": [
+27
+],
+"ace:src/mode/folding/drools.js": [
+21
+],
+"ace:src/mode/golang.js": [
+26
+],
+"ace:src/mode/html_test.js": [
+20,
+21
+],
+"ace:src/mode/liquid.js": [
+27
+],
+"ace:src/mode/livescript.js": [
+4
+],
+"ace:src/mode/logiql.js": [
+35,
+62
+],
+"ace:src/mode/lsl.js": [
+33
+],
+"ace:src/mode/mushcode_highlight_rules.js": [
+501
+],
+"ace:src/mode/php_highlight_rules.js": [
+828,
+843,
+873
+],
+"ace:src/mode/razor_highlight_rules.js": [
+115
+],
+"ace:src/mode/red_highlight_rules.js": [
+11
+],
+"ace:src/mode/sac_highlight_rules.js": [
+41
+],
+"ace:src/mode/text.js": [
+167
+],
+"ace:src/mode/twig.js": [
+23
+],
+"ace:src/placeholder_test.js": [
+51
+],
+"ace:src/test/asyncjs/async.js": [
+225
+],
+"ace:src/test/asyncjs/test.js": [
+112
+],
+"ace:src/test/mockrenderer.js": [
+82
+],
+"ace:tool/lib.js": [
+163
+],
+"ace:tool/mode_creator.js": [
+18,
+20
+],
+"ace:tool/perf-test.html": [
+127
+]
+}

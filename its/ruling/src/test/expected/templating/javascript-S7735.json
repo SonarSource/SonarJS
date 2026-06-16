@@ -1,0 +1,8 @@
+{
+"templating:src/lib/load_barrier.js": [
+118
+],
+"templating:test/lib/dom_mocks.js": [
+6
+]
+}

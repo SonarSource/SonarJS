@@ -1,0 +1,11 @@
+{
+"sonar-web:src/main/js/apps/coding-rules/confirm-dialog.js": [
+20
+],
+"sonar-web:src/main/js/apps/overview/components/issues-assignees.js": [
+7
+],
+"sonar-web:src/main/js/components/common/file-upload.js": [
+15
+]
+}

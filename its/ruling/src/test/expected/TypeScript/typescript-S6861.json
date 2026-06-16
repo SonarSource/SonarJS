@@ -1,0 +1,34 @@
+{
+"TypeScript:src/compiler/commandLineParser.ts": [
+635
+],
+"TypeScript:src/compiler/core.ts": [
+1217,
+2224,
+2242
+],
+"TypeScript:src/compiler/sys.ts": [
+99
+],
+"TypeScript:src/compiler/utilities.ts": [
+640,
+641,
+642,
+4400
+],
+"TypeScript:src/harness/harness.ts": [
+68,
+499,
+565,
+589,
+608,
+688,
+705,
+780,
+781,
+874
+],
+"TypeScript:src/services/services.ts": [
+938
+]
+}

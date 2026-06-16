@@ -1,0 +1,25 @@
+{
+"postgraphql:src/graphql/schema/createMutationGqlField.ts": [
+20
+],
+"postgraphql:src/interface/__ideas__/01-new-types.ts": [
+34,
+56
+],
+"postgraphql:src/interface/collection/Collection.ts": [
+19
+],
+"postgraphql:src/interface/collection/CollectionKey.ts": [
+33
+],
+"postgraphql:src/interface/type/BasicObjectType.ts": [
+21,
+71
+],
+"postgraphql:src/interface/type/NamedType.ts": [
+20
+],
+"postgraphql:src/interface/type/ObjectType.ts": [
+38
+]
+}

@@ -1,0 +1,784 @@
+{
+"angular.js:Gruntfile.js": [
+82,
+97,
+117
+],
+"angular.js:benchmarks/animation-bp/app.js": [
+22,
+31,
+38
+],
+"angular.js:benchmarks/bootstrap-compile-bp/app.js": [
+56
+],
+"angular.js:benchmarks/event-delegation-bp/app.js": [
+7,
+17,
+30,
+43
+],
+"angular.js:benchmarks/largetable-bp/app.js": [
+35,
+35,
+46,
+56,
+65,
+75,
+110
+],
+"angular.js:benchmarks/ng-class-bp/app.js": [
+68
+],
+"angular.js:benchmarks/ng-options-bp/app.js": [
+36,
+46,
+55,
+64,
+72,
+82,
+90
+],
+"angular.js:benchmarks/orderby-bp/app.js": [
+26,
+46
+],
+"angular.js:benchmarks/parsed-expressions-bp/app.js": [
+21,
+36,
+70,
+78
+],
+"angular.js:benchmarks/repeat-animate-bp/common.js": [
+34,
+42,
+51,
+62,
+80
+],
+"angular.js:benchmarks/select-ng-value-bp/app.js": [
+45,
+55,
+64,
+73,
+81,
+91,
+99
+],
+"angular.js:docs/app/assets/js/angular-bootstrap/dropdown-toggle.js": [
+114,
+124
+],
+"angular.js:docs/app/assets/js/search-worker.js": [
+44
+],
+"angular.js:docs/app/src/directives.js": [
+26,
+45,
+113,
+118,
+144,
+167
+],
+"angular.js:docs/app/src/errors.js": [
+57
+],
+"angular.js:docs/app/src/examples.js": [
+28,
+199
+],
+"angular.js:docs/app/src/search.js": [
+182
+],
+"angular.js:docs/app/src/tutorials.js": [
+20
+],
+"angular.js:docs/app/test/docsSpec.js": [
+20
+],
+"angular.js:docs/config/index.js": [
+97,
+109,
+132,
+133,
+138,
+139,
+143,
+144
+],
+"angular.js:docs/config/inline-tag-defs/type.js": [
+14
+],
+"angular.js:docs/config/processors/error-docs.js": [
+12
+],
+"angular.js:docs/config/processors/index-page.js": [
+18,
+33
+],
+"angular.js:docs/config/processors/keywords.js": [
+28
+],
+"angular.js:docs/config/processors/pages-data.js": [
+32,
+47,
+106,
+112,
+122,
+131,
+152,
+200
+],
+"angular.js:docs/config/processors/sitemap.js": [
+9
+],
+"angular.js:docs/config/processors/versions-data.js": [
+18,
+109
+],
+"angular.js:docs/config/tag-defs/deprecated.js": [
+8
+],
+"angular.js:docs/config/tag-defs/sortOrder.js": [
+5
+],
+"angular.js:docs/config/tag-defs/tutorial-step.js": [
+5
+],
+"angular.js:lib/browserstack/start_tunnel.js": [
+21,
+29
+],
+"angular.js:lib/grunt/utils.js": [
+13,
+34,
+50,
+83,
+121,
+134,
+172,
+179,
+185,
+224,
+230,
+238,
+276,
+291,
+307
+],
+"angular.js:protractor-jenkins-conf.js": [
+20
+],
+"angular.js:protractor-shared-conf.js": [
+15
+],
+"angular.js:src/AngularPublic.js": [
+132,
+133,
+134,
+135,
+136,
+137,
+139,
+141,
+142,
+143,
+144,
+145,
+146,
+147,
+148,
+149,
+150,
+151,
+152,
+153,
+154,
+155,
+157,
+158
+],
+"angular.js:src/apis.js": [
+47,
+54,
+57,
+64,
+69,
+81
+],
+"angular.js:src/auto/injector.js": [
+719,
+964,
+965,
+968
+],
+"angular.js:src/jqLite.js": [
+580,
+586,
+591,
+648,
+653,
+660,
+664,
+670,
+680,
+712,
+733,
+749,
+932,
+945,
+958,
+968,
+972,
+984,
+993,
+999,
+1003,
+1020,
+1032,
+1037,
+1041,
+1051,
+1062,
+1063,
+1064,
+1065,
+1119,
+1123,
+1127
+],
+"angular.js:src/loader.js": [
+150,
+168,
+178,
+358,
+370
+],
+"angular.js:src/ng/animate.js": [
+74,
+560,
+590,
+622,
+649,
+678,
+707,
+738,
+785
+],
+"angular.js:src/ng/animateRunner.js": [
+98,
+102,
+112,
+128,
+132,
+136,
+140,
+146,
+152,
+159,
+166,
+176
+],
+"angular.js:src/ng/cacheFactory.js": [
+162,
+165,
+191,
+214,
+242,
+259,
+283,
+284
+],
+"angular.js:src/ng/compile.js": [
+1659,
+2136,
+2153,
+2171,
+2192,
+2284,
+2624,
+3010,
+3147,
+3149,
+3150,
+3151,
+3444,
+3881,
+4187
+],
+"angular.js:src/ng/controller.js": [
+149,
+150
+],
+"angular.js:src/ng/directive/a.js": [
+16
+],
+"angular.js:src/ng/directive/attrs.js": [
+388,
+413
+],
+"angular.js:src/ng/directive/form.js": [
+106,
+123,
+150,
+183,
+188,
+214,
+245,
+269,
+292,
+306,
+314,
+351,
+362
+],
+"angular.js:src/ng/directive/input.js": [
+2227,
+2242,
+2245,
+2253,
+2259,
+2357
+],
+"angular.js:src/ng/directive/ngChange.js": [
+74
+],
+"angular.js:src/ng/directive/ngClass.js": [
+16
+],
+"angular.js:src/ng/directive/ngCloak.js": [
+56
+],
+"angular.js:src/ng/directive/ngEventDirs.js": [
+62
+],
+"angular.js:src/ng/directive/ngIf.js": [
+89,
+102
+],
+"angular.js:src/ng/directive/ngInclude.js": [
+195,
+289
+],
+"angular.js:src/ng/directive/ngInit.js": [
+68,
+70
+],
+"angular.js:src/ng/directive/ngList.js": [
+98
+],
+"angular.js:src/ng/directive/ngModel.js": [
+304,
+370,
+375,
+396,
+414,
+434,
+451,
+546,
+564,
+601,
+706,
+727,
+780,
+843,
+850,
+907,
+1023,
+1038,
+1053,
+1059,
+1070,
+1126,
+1129
+],
+"angular.js:src/ng/directive/ngModelOptions.js": [
+27,
+37,
+554
+],
+"angular.js:src/ng/directive/ngOptions.js": [
+333,
+334,
+367,
+395,
+396,
+399
+],
+"angular.js:src/ng/directive/ngPluralize.js": [
+183
+],
+"angular.js:src/ng/directive/ngRef.js": [
+249
+],
+"angular.js:src/ng/directive/ngShowHide.js": [
+209,
+428
+],
+"angular.js:src/ng/directive/ngSwitch.js": [
+148,
+202,
+211,
+221,
+223
+],
+"angular.js:src/ng/directive/script.js": [
+40
+],
+"angular.js:src/ng/directive/select.js": [
+866
+],
+"angular.js:src/ng/directive/validators.js": [
+69,
+180,
+305,
+398
+],
+"angular.js:src/ng/filter/orderBy.js": [
+595,
+596,
+634,
+634,
+671,
+671,
+671
+],
+"angular.js:src/ng/http.js": [
+1324,
+1336,
+1337,
+1486,
+1488,
+1489,
+1490
+],
+"angular.js:src/ng/interpolate.js": [
+348,
+349
+],
+"angular.js:src/ng/jsonpCallbacks.js": [
+36,
+52,
+64,
+75
+],
+"angular.js:src/ng/location.js": [
+357,
+405,
+560,
+626
+],
+"angular.js:src/ng/parse.js": [
+70,
+106,
+110,
+115,
+119,
+125,
+131,
+137,
+143,
+147,
+153,
+167,
+171,
+180,
+213,
+230,
+298,
+311,
+317,
+322,
+326,
+334,
+338,
+350,
+358,
+358,
+358,
+364,
+367,
+372,
+375,
+380,
+384,
+389,
+393,
+398,
+402,
+407,
+411,
+416,
+425,
+463,
+474,
+484,
+492,
+497,
+510,
+513,
+551,
+554,
+560,
+572,
+579,
+583,
+595,
+802,
+865,
+881,
+888,
+898,
+902,
+906,
+1133,
+1142,
+1148,
+1155,
+1159,
+1163,
+1167,
+1183,
+1187,
+1191,
+1195,
+1205,
+1209,
+1214,
+1218,
+1225,
+1234,
+1238,
+1249,
+1257,
+1268,
+1312,
+1363,
+1375,
+1396,
+1424,
+1441,
+1452,
+1463,
+1469,
+1477,
+1485,
+1491,
+1497,
+1503,
+1509,
+1515,
+1522,
+1529,
+1535,
+1541,
+1547,
+1553,
+1559,
+1565,
+1571,
+1572,
+1574,
+1582,
+1582,
+1588,
+1604,
+1610,
+1620,
+1626,
+1646,
+1655,
+1665,
+1732
+],
+"angular.js:src/ng/q.js": [
+320,
+333,
+337
+],
+"angular.js:src/ng/rootScope.js": [
+244,
+397,
+407,
+409,
+463,
+582,
+771,
+939,
+968,
+982,
+1020,
+1083,
+1117,
+1128,
+1131,
+1179,
+1217,
+1257,
+1308,
+1314,
+1316,
+1317,
+1379,
+1384,
+1386
+],
+"angular.js:src/ng/sce.js": [
+460,
+461,
+462
+],
+"angular.js:src/ng/sniffer.js": [
+62,
+79,
+80,
+81
+],
+"angular.js:src/ng/templateRequest.js": [
+96
+],
+"angular.js:src/ng/urlUtils.js": [
+93
+],
+"angular.js:src/ngAnimate/animateCache.js": [
+12,
+25,
+33,
+37,
+42,
+47,
+49,
+49
+],
+"angular.js:src/ngAnimate/animateChildrenDirective.js": [
+83
+],
+"angular.js:src/ngAnimate/animateCss.js": [
+656,
+773,
+955
+],
+"angular.js:src/ngAnimate/animateCssDriver.js": [
+81,
+199
+],
+"angular.js:src/ngAnimate/animateJs.js": [
+78,
+88,
+119,
+122,
+208,
+211
+],
+"angular.js:src/ngAnimate/animateJsDriver.js": [
+13
+],
+"angular.js:src/ngAnimate/animateQueue.js": [
+234,
+238,
+239,
+255,
+273,
+279,
+290,
+412,
+413,
+416,
+417,
+418
+],
+"angular.js:src/ngAnimate/animation.js": [
+124,
+125,
+149,
+150,
+151,
+153,
+154,
+155,
+192,
+335,
+339
+],
+"angular.js:src/ngAnimate/ngAnimateSwap.js": [
+97
+],
+"angular.js:src/ngAnimate/shared.js": [
+352
+],
+"angular.js:src/ngAria/aria.js": [
+205,
+261,
+267,
+359,
+371
+],
+"angular.js:src/ngCookies/cookies.js": [
+105,
+119,
+133,
+149,
+165,
+180
+],
+"angular.js:src/ngMessageFormat/messageFormatService.js": [
+198
+],
+"angular.js:src/ngMessages/messages.js": [
+600,
+739,
+766,
+769,
+794
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+84,
+223,
+238,
+443,
+444,
+445,
+446,
+447,
+602,
+603,
+604,
+995,
+1015,
+1601,
+1814
+],
+"angular.js:src/ngMock/browserTrigger.js": [
+246
+],
+"angular.js:src/ngResource/resource.js": [
+603
+],
+"angular.js:src/ngRoute/directive/ngView.js": [
+187,
+262
+],
+"angular.js:src/ngRoute/route.js": [
+534,
+547,
+577,
+692
+],
+"angular.js:src/ngSanitize/sanitize.js": [
+613,
+636,
+648
+],
+"angular.js:src/ngTouch/directive/ngSwipe.js": [
+122,
+126,
+129
+],
+"angular.js:src/ngTouch/swipe.js": [
+108
+],
+"angular.js:src/routeToRegExp.js": [
+25,
+40
+]
+}

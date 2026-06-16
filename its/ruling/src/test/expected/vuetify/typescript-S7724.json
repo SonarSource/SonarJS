@@ -1,0 +1,173 @@
+{
+"vuetify:packages/vuetify/src/components/VBottomSheet/VBottomSheet.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarDaily.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarMonthly.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarWeekly.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-base.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-intervals.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/times.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/modes/column.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/modes/common.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/modes/index.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/modes/stack.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/events.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/props.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VData/VData.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerHeader.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerMonthTable.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerTitle.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerYears.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/createNativeLocaleFormatter.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/eventHelpers.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/index.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/isDateAllowed.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/monthChange.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/pad.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VOverflowBtn/VOverflowBtn.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VPicker/VPicker.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSkeletonLoader/VSkeletonLoader.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSparkline/helpers/core.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSparkline/helpers/math.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSparkline/helpers/path.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VSpeedDial/VSpeedDial.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepper.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepperContent.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepperStep.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/SelectingTimes.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerClock.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerTitle.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
+2
+],
+"vuetify:packages/vuetify/src/components/VTreeview/util/filterTreeItems.ts": [
+2
+],
+"vuetify:packages/vuetify/src/directives/color/index.ts": [
+2
+],
+"vuetify:packages/vuetify/src/services/goto/index.ts": [
+2
+],
+"vuetify:packages/vuetify/src/services/goto/util.ts": [
+2
+]
+}

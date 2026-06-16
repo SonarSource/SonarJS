@@ -1,0 +1,14 @@
+{
+"ace:lib/ace/mode/javascript/jshint.js": [
+1985
+],
+"ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
+1441
+],
+"ace:lib/ace/mode/xquery/xquery_lexer.js": [
+1441
+],
+"ace:src/ext/elastic_tabstops_lite.js": [
+254
+]
+}

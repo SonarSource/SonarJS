@@ -1,0 +1,34 @@
+{
+"bulma:docs/_javascript/index.js": [
+22,
+32,
+46,
+52
+],
+"bulma:docs/_javascript/klmn.js": [
+38
+],
+"bulma:docs/_javascript/main.js": [
+195,
+216,
+216
+],
+"bulma:docs/lib/bulma.js": [
+30,
+44
+],
+"bulma:docs/lib/index.js": [
+24,
+34,
+48,
+54
+],
+"bulma:docs/lib/klmn.js": [
+40
+],
+"bulma:docs/lib/main.js": [
+197,
+218,
+218
+]
+}

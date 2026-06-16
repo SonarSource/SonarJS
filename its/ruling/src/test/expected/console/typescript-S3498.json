@@ -1,0 +1,59 @@
+{
+"console:src/components/PopupHeader.tsx": [
+122
+],
+"console:src/utils/polyfils.ts": [
+108,
+118
+],
+"console:src/views/AfterSignUpView/AfterSignUpView.tsx": [
+227
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
+433
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionPopupHeader.tsx": [
+126
+],
+"console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopupHeader.tsx": [
+122
+],
+"console:src/views/ProjectSettingsView/CreateRelationHeaderTab.tsx": [
+61
+],
+"console:src/views/RelationsPopup/RelationPopup.tsx": [
+308,
+522,
+533
+],
+"console:src/views/SchemaView/SchemaViewer.tsx": [
+51
+],
+"console:src/views/Settings/Billing/Billing.tsx": [
+230,
+256,
+281,
+394
+],
+"console:src/views/Settings/Billing/ConfirmPricingPlan.tsx": [
+113
+],
+"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
+443
+],
+"console:src/views/Settings/Billing/NodeUsageIndicator.tsx": [
+77
+],
+"console:src/views/Settings/General/ProjectInfo.tsx": [
+327
+],
+"console:src/views/Settings/Team/EmptyRow.tsx": [
+171
+],
+"console:src/views/models/FieldPopup/FieldPopupHeader.tsx": [
+94
+],
+"console:src/views/models/utils.ts": [
+113
+]
+}

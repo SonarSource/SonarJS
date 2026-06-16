@@ -1,0 +1,189 @@
+{
+"p5.js:bench/math/random-fe-off.bench.js": [
+24
+],
+"p5.js:bench/math/random-fe-on.bench.js": [
+24
+],
+"p5.js:docs/preprocessor.js": [
+274
+],
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+668,
+679,
+1290,
+1361,
+2408,
+2543,
+4252,
+4537,
+4610,
+4612,
+4689,
+4851
+],
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
+240
+],
+"p5.js:lib/addons/p5.sound.js": [
+101,
+101,
+102,
+102,
+207,
+207,
+208,
+208,
+210,
+729,
+729,
+730,
+731,
+736,
+813,
+813,
+814,
+814,
+819,
+854,
+854,
+854,
+1002,
+1450,
+1451,
+1701,
+1701,
+1701,
+1701,
+1799,
+1799,
+1800,
+2499,
+2765,
+2780,
+3154,
+5053,
+7512,
+7512,
+7512,
+7513,
+7554,
+7692,
+10041,
+10041,
+10175,
+10175,
+10192,
+10192
+],
+"p5.js:src/core/environment.js": [
+15,
+18,
+454
+],
+"p5.js:src/core/error_helpers.js": [
+362,
+808,
+815
+],
+"p5.js:src/core/init.js": [
+16,
+20,
+20,
+21,
+21
+],
+"p5.js:src/core/main.js": [
+223,
+226,
+226,
+238,
+278,
+284,
+291,
+308,
+323,
+349,
+354,
+395,
+442,
+447,
+541,
+603
+],
+"p5.js:src/core/shim.js": [
+7,
+8,
+9,
+10,
+11,
+12,
+15
+],
+"p5.js:src/core/structure.js": [
+376
+],
+"p5.js:src/dom/dom.js": [
+1022,
+1022,
+1022,
+1022,
+1320,
+1794,
+2167,
+2167,
+2167,
+2167,
+2279,
+2280
+],
+"p5.js:src/events/acceleration.js": [
+643,
+643,
+645,
+647,
+650,
+660,
+733
+],
+"p5.js:src/events/keyboard.js": [
+186,
+226,
+292
+],
+"p5.js:src/events/mouse.js": [
+605,
+689,
+771,
+851,
+920,
+988
+],
+"p5.js:src/events/touch.js": [
+127,
+207,
+284
+],
+"p5.js:src/io/files.js": [
+1185,
+1185,
+1185,
+1884
+],
+"p5.js:src/utilities/time_date.js": [
+89
+],
+"p5.js:src/webgl/loading.js": [
+291
+],
+"p5.js:src/webgl/p5.RendererGL.js": [
+323
+],
+"p5.js:test/test-minified.html": [
+28
+],
+"p5.js:test/test.html": [
+40,
+41
+]
+}

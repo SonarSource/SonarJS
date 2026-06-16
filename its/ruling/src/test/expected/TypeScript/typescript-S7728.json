@@ -1,0 +1,67 @@
+{
+"TypeScript:scripts/authors.ts": [
+62,
+63,
+64,
+108,
+125,
+155,
+162,
+174
+],
+"TypeScript:scripts/createBenchmark.ts": [
+30,
+122
+],
+"TypeScript:scripts/errorCheck.ts": [
+25
+],
+"TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
+117
+],
+"TypeScript:scripts/ior.ts": [
+16,
+23,
+26,
+40,
+88,
+96,
+113
+],
+"TypeScript:src/harness/compilerRunner.ts": [
+102,
+195,
+201
+],
+"TypeScript:src/harness/fourslash.ts": [
+535,
+1490,
+1566,
+3298
+],
+"TypeScript:src/harness/fourslashRunner.ts": [
+52
+],
+"TypeScript:src/harness/harness.ts": [
+1286,
+1300,
+1303,
+1326,
+1342,
+1475,
+1503
+],
+"TypeScript:src/harness/projectsRunner.ts": [
+51,
+56
+],
+"TypeScript:src/harness/test262Runner.ts": [
+113,
+118
+],
+"TypeScript:src/services/formatting/rulesMap.ts": [
+32,
+46,
+47
+]
+}

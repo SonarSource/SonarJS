@@ -1,0 +1,50 @@
+{
+"vitest:packages/browser-playwright/rollup.config.js": [
+10
+],
+"vitest:packages/browser-preview/rollup.config.js": [
+10
+],
+"vitest:packages/browser-webdriverio/rollup.config.js": [
+10
+],
+"vitest:packages/browser/rollup.config.js": [
+10
+],
+"vitest:packages/coverage-istanbul/rollup.config.js": [
+11
+],
+"vitest:packages/coverage-v8/rollup.config.js": [
+10
+],
+"vitest:packages/expect/rollup.config.js": [
+7
+],
+"vitest:packages/mocker/rollup.config.js": [
+10
+],
+"vitest:packages/pretty-format/rollup.config.js": [
+10
+],
+"vitest:packages/runner/rollup.config.js": [
+8
+],
+"vitest:packages/snapshot/rollup.config.js": [
+9
+],
+"vitest:packages/spy/rollup.config.js": [
+7
+],
+"vitest:packages/ui/rollup.config.js": [
+10
+],
+"vitest:packages/utils/rollup.config.js": [
+10
+],
+"vitest:packages/vitest/rollup.config.js": [
+16
+],
+"vitest:packages/web-worker/rollup.config.js": [
+10
+]
+}

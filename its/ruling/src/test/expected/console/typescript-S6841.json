@@ -1,0 +1,19 @@
+{
+"console:src/views/RelationsPopup/ConfirmPopup.tsx": [
+123
+],
+"console:src/views/Settings/Billing/CreditCardBack.tsx": [
+53
+],
+"console:src/views/Settings/Billing/CreditCardFront.tsx": [
+209,
+220,
+231
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+314
+],
+"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
+214
+]
+}

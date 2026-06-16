@@ -1,0 +1,21 @@
+{
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+31
+],
+"fresh:packages/fresh/src/middlewares/csrf_test.ts": [
+20
+],
+"fresh:packages/fresh/src/runtime/client/reviver.ts": [
+346
+],
+"fresh:packages/init/src/init.ts": [
+161,
+749
+],
+"fresh:packages/update/src/update.ts": [
+532
+],
+"fresh:www/components/CodeBlock.tsx": [
+4
+]
+}

@@ -1,0 +1,8 @@
+{
+"jshint:src/reporters/checkstyle.js": [
+69
+],
+"jshint:src/reporters/jslint_xml.js": [
+36
+]
+}

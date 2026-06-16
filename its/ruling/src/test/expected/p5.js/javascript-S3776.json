@@ -1,0 +1,115 @@
+{
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+2340,
+2755,
+2827,
+3153,
+3257,
+3457,
+3579,
+3931,
+4136,
+4716
+],
+"p5.js:lib/addons/p5.sound.js": [
+379,
+428,
+759,
+1353,
+1943,
+2495,
+2589,
+4327,
+5958,
+5993,
+8142,
+10320
+],
+"p5.js:src/color/p5.Color.js": [
+85,
+805
+],
+"p5.js:src/core/error_helpers.js": [
+300
+],
+"p5.js:src/core/main.js": [
+36,
+230,
+431
+],
+"p5.js:src/core/p5.Renderer.js": [
+211
+],
+"p5.js:src/core/p5.Renderer2D.js": [
+279,
+597,
+718
+],
+"p5.js:src/core/rendering.js": [
+51
+],
+"p5.js:src/dom/dom.js": [
+1775,
+2021
+],
+"p5.js:src/events/acceleration.js": [
+642
+],
+"p5.js:src/events/mouse.js": [
+604
+],
+"p5.js:src/image/filters.js": [
+299,
+387,
+522
+],
+"p5.js:src/io/files.js": [
+391,
+442,
+1038,
+1689
+],
+"p5.js:src/typography/p5.Font.js": [
+382,
+704,
+804,
+960
+],
+"p5.js:src/utilities/string_functions.js": [
+205
+],
+"p5.js:src/webgl/3d_primitives.js": [
+308,
+1400,
+1491,
+1580
+],
+"p5.js:src/webgl/interaction.js": [
+49
+],
+"p5.js:src/webgl/light.js": [
+621
+],
+"p5.js:src/webgl/loading.js": [
+181,
+351,
+445
+],
+"p5.js:src/webgl/p5.RendererGL.js": [
+477
+],
+"p5.js:src/webgl/p5.Shader.js": [
+355
+],
+"p5.js:src/webgl/p5.Texture.js": [
+136,
+286
+],
+"p5.js:src/webgl/text.js": [
+61,
+167
+],
+"p5.js:utils/sample-linter.js": [
+134
+]
+}

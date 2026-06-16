@@ -1,0 +1,23 @@
+{
+"moose:renderer/components/FilesList/FilesList.tsx": [
+36,
+37,
+38,
+40,
+85,
+98,
+115
+],
+"moose:renderer/components/TorrentDetails/TorrentDetails.tsx": [
+26,
+27,
+30,
+31,
+33
+],
+"moose:renderer/utils/animations.ts": [
+29,
+48,
+65
+]
+}

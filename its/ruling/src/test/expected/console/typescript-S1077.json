@@ -1,0 +1,18 @@
+{
+"console:src/components/onboarding/OnboardingPopup/OnboardingPopup.tsx": [
+55
+],
+"console:src/views/CLIAuthView/CLIAuthView/Left.tsx": [
+37
+],
+"console:src/views/Integrations/Algolia/AlgoliaHeader.tsx": [
+42
+],
+"console:src/views/ProjectRootView/OnboardSideNav.tsx": [
+95
+],
+"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
+134,
+151
+]
+}

@@ -1,0 +1,14 @@
+{
+"Ghost:core/client/app/app.js": [
+12
+],
+"Ghost:core/client/app/router.js": [
+11
+],
+"Ghost:core/client/app/utils/editor-shortcuts.js": [
+6
+],
+"Ghost:core/client/tests/helpers/resolver.js": [
+4
+]
+}

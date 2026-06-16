@@ -1,0 +1,32 @@
+{
+"angular.js:docs/app/src/errors.js": [
+67
+],
+"angular.js:scripts/compare-master-to-stable.js": [
+16
+],
+"angular.js:src/auto/injector.js": [
+833
+],
+"angular.js:src/ng/compile.js": [
+4006
+],
+"angular.js:src/ng/exceptionHandler.js": [
+50
+],
+"angular.js:src/ng/intervalFactory.js": [
+22
+],
+"angular.js:src/ng/parse.js": [
+717,
+734,
+745,
+750
+],
+"angular.js:src/ng/timeout.js": [
+57
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+1049
+]
+}

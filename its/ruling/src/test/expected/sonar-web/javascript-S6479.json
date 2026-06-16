@@ -1,0 +1,40 @@
+{
+"sonar-web:src/main/js/apps/overview/components/timeline-chart.js": [
+87
+],
+"sonar-web:src/main/js/components/charts/bar-chart.js": [
+40,
+53,
+64
+],
+"sonar-web:src/main/js/components/charts/bubble-chart.js": [
+97,
+112,
+127,
+142,
+177
+],
+"sonar-web:src/main/js/components/charts/donut-chart.js": [
+48
+],
+"sonar-web:src/main/js/components/charts/histogram.js": [
+41,
+54,
+63
+],
+"sonar-web:src/main/js/components/charts/line-chart.js": [
+66,
+79,
+92,
+105
+],
+"sonar-web:src/main/js/components/charts/treemap.js": [
+99
+],
+"sonar-web:src/main/js/components/charts/word-cloud.js": [
+53
+],
+"sonar-web:src/main/js/main/nav/component/component-nav-breadcrumbs.js": [
+12
+]
+}

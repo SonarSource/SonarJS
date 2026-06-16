@@ -1,0 +1,9 @@
+{
+"vitest:packages/spy/src/index.ts": [
+553
+],
+"vitest:packages/vitest/src/integrations/wait.ts": [
+92,
+190
+]
+}

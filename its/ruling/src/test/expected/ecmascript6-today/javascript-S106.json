@@ -1,0 +1,55 @@
+{
+"ecmascript6-today:1-let.js": [
+8,
+17,
+29
+],
+"ecmascript6-today:10-modules/in/main.js": [
+3,
+4
+],
+"ecmascript6-today:10-modules/js/main.js": [
+8,
+9
+],
+"ecmascript6-today:5-map.js": [
+15,
+19,
+20,
+21,
+22,
+23,
+27,
+30,
+31
+],
+"ecmascript6-today:5-set.js": [
+15,
+16,
+17,
+20
+],
+"ecmascript6-today:6-destructuring.js": [
+6,
+10,
+16,
+36
+],
+"ecmascript6-today:7-rest-params/js/rest-spread.js": [
+18,
+22,
+26
+],
+"ecmascript6-today:7-rest-params/rest-spread.js": [
+5,
+11,
+29
+],
+"ecmascript6-today:8-iterators.js": [
+8,
+18,
+25,
+31,
+41
+]
+}

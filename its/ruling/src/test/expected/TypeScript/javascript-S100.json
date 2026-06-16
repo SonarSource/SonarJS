@@ -1,0 +1,38 @@
+{
+"TypeScript:lib/tsc.js": [
+19,
+172,
+189,
+1690,
+1733,
+1868,
+1873,
+1876,
+1878,
+25000,
+53433,
+53441
+],
+"TypeScript:lib/typingsInstaller.js": [
+22,
+29,
+182,
+199,
+1700,
+1743,
+1878,
+1883,
+1886,
+1888,
+7258,
+7553,
+7587,
+7636
+],
+"TypeScript:scripts/mocha-none-reporter.js": [
+19
+],
+"TypeScript:scripts/mocha-parallel.js": [
+261
+]
+}

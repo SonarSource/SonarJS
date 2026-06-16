@@ -1,0 +1,52 @@
+{
+"knockout:src/binding/bindingAttributeSyntax.js": [
+35,
+388
+],
+"knockout:src/binding/defaultBindings/attr.js": [
+5
+],
+"knockout:src/binding/defaultBindings/checked.js": [
+19
+],
+"knockout:src/binding/defaultBindings/ifIfnotWith.js": [
+18
+],
+"knockout:src/binding/defaultBindings/options.js": [
+15
+],
+"knockout:src/binding/defaultBindings/textInput.js": [
+50
+],
+"knockout:src/binding/defaultBindings/value.js": [
+2
+],
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
+36
+],
+"knockout:src/binding/editDetection/compareArrays.js": [
+37
+],
+"knockout:src/binding/expressionRewriting.js": [
+46
+],
+"knockout:src/binding/selectExtensions.js": [
+23
+],
+"knockout:src/subscribables/dependentObservable.js": [
+3
+],
+"knockout:src/subscribables/mappingHelpers.js": [
+23
+],
+"knockout:src/subscribables/observableArray.changeTracking.js": [
+105
+],
+"knockout:src/templating/templating.js": [
+80,
+289
+],
+"knockout:src/utils.js": [
+403
+]
+}

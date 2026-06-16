@@ -1,0 +1,78 @@
+{
+"ace:lib/ace/mode/css/csslint.js": [
+4602
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+3250
+],
+"ace:lib/ace/mode/php/php.js": [
+189,
+189,
+190,
+190,
+192,
+192,
+193,
+193
+],
+"ace:src/ext/beautify.js": [
+241
+],
+"ace:src/lib/bidiutil.js": [
+328
+],
+"ace:src/mode/dot_highlight_rules.js": [
+47
+],
+"ace:src/mode/haml_highlight_rules.js": [
+59
+],
+"ace:src/mode/jade_highlight_rules.js": [
+101
+],
+"ace:src/mode/javascript_highlight_rules.js": [
+188,
+194,
+194
+],
+"ace:src/mode/kotlin_highlight_rules.js": [
+108,
+108,
+108,
+186
+],
+"ace:src/mode/mask_highlight_rules.js": [
+85,
+184
+],
+"ace:src/mode/mips_highlight_rules.js": [
+76
+],
+"ace:src/mode/nsis_highlight_rules.js": [
+60,
+111
+],
+"ace:src/mode/praat_highlight_rules.js": [
+131
+],
+"ace:src/mode/prisma_highlight_rules.js": [
+282,
+282,
+282,
+282
+],
+"ace:src/mode/sparql_highlight_rules.js": [
+77,
+138
+],
+"ace:src/mode/turtle_highlight_rules.js": [
+57
+],
+"ace:src/mode/twig_highlight_rules.js": [
+93
+],
+"ace:src/mode/zeek_highlight_rules.js": [
+49,
+103
+]
+}

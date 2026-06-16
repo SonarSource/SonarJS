@@ -1,0 +1,11 @@
+{
+"vitest:packages/ui/client/composables/explorer/collector.ts": [
+36
+],
+"vitest:packages/vitest/src/node/cli/cli-api.ts": [
+218
+],
+"vitest:packages/vitest/src/node/reporters/renderers/windowedRenderer.ts": [
+67
+]
+}

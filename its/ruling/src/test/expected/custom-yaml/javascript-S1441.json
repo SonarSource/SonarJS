@@ -1,0 +1,44 @@
+{
+"custom-yaml:lambda-block-folded-2.yaml": [
+219,
+219,
+220,
+222,
+222
+],
+"custom-yaml:lambda-block-folded.yaml": [
+110,
+110,
+119,
+119,
+127,
+127,
+139,
+139,
+144,
+148
+],
+"custom-yaml:lambda-block-literal-multi-line.yaml": [
+86,
+92,
+94,
+100,
+105,
+107,
+114,
+115,
+115,
+115,
+116
+],
+"custom-yaml:lambda-block-literal-single-line.yaml": [
+29,
+59
+],
+"custom-yaml:lambda-block-literal.yaml": [
+274,
+276,
+462,
+468
+]
+}

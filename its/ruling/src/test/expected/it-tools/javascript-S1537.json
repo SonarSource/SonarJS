@@ -1,0 +1,24 @@
+{
+"it-tools:scripts/build-locales-files.mjs": [
+30,
+32,
+51,
+52,
+60
+],
+"it-tools:scripts/create-tool.mjs": [
+43,
+61,
+74,
+96
+],
+"it-tools:scripts/release.mjs": [
+31,
+32
+],
+"it-tools:scripts/shared/commits.mjs": [
+15,
+32,
+39
+]
+}

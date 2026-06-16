@@ -1,0 +1,30 @@
+{
+"eigen:src/app/Components/ArtworkGrids/InfiniteScrollArtworksGrid.tests.tsx": [
+99,
+109,
+119,
+129,
+139,
+149,
+159,
+169,
+179,
+189
+],
+"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquirySuccessNotification.tsx": [
+59
+],
+"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
+444,
+610
+],
+"eigen:src/palette/elements/Cards/LargeCard.tsx": [
+26
+],
+"eigen:src/palette/elements/Cards/SmallCard.tsx": [
+31
+],
+"eigen:src/palette/elements/Header/ArtsyLogoHeader.tsx": [
+25
+]
+}

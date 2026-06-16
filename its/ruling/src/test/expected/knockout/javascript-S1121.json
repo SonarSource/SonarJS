@@ -1,0 +1,42 @@
+{
+"knockout:src/binding/defaultBindings/textInput.js": [
+14
+],
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
+99,
+182,
+187,
+194,
+200
+],
+"knockout:src/binding/editDetection/compareArrays.js": [
+6,
+50,
+72,
+77
+],
+"knockout:src/binding/expressionRewriting.js": [
+61,
+119
+],
+"knockout:src/subscribables/dependencyDetection.js": [
+76
+],
+"knockout:src/subscribables/dependentObservable.js": [
+111
+],
+"knockout:src/subscribables/observableArray.changeTracking.js": [
+117
+],
+"knockout:src/subscribables/subscribable.js": [
+26,
+84,
+131
+],
+"knockout:src/tasks.js": [
+43
+],
+"knockout:src/utils.domNodeDisposal.js": [
+45
+]
+}

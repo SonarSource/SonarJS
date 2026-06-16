@@ -1,0 +1,27 @@
+{
+"vitest:packages/mocker/src/node/automock.ts": [
+97,
+101
+],
+"vitest:packages/runner/src/types/tasks.ts": [
+421
+],
+"vitest:packages/snapshot/src/port/utils.ts": [
+55,
+80,
+83,
+90
+],
+"vitest:packages/utils/src/diff/index.ts": [
+285
+],
+"vitest:packages/vitest/src/runtime/vm/commonjs-executor.ts": [
+338,
+342,
+349,
+354,
+367,
+369,
+375
+]
+}

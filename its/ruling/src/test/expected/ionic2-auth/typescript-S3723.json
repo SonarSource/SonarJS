@@ -1,0 +1,19 @@
+{
+"ionic2-auth:app/app.ts": [
+20,
+22,
+23
+],
+"ionic2-auth:app/pages/profile/profile.ts": [
+10,
+36,
+45
+],
+"ionic2-auth:app/pages/quotes/quotes.ts": [
+23,
+33
+],
+"ionic2-auth:app/pages/tabs/tabs.ts": [
+10
+]
+}

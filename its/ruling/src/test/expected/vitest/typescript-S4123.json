@@ -1,0 +1,18 @@
+{
+"vitest:packages/browser/src/client/client.ts": [
+79
+],
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+142
+],
+"vitest:packages/vitest/src/node/core.ts": [
+281,
+293
+],
+"vitest:packages/vitest/src/runtime/rpc.ts": [
+80
+],
+"vitest:packages/vitest/src/runtime/worker.ts": [
+64
+]
+}

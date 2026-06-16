@@ -1,0 +1,19 @@
+{
+"ace:lib/ace/mode/css/csslint.js": [
+3315,
+4639
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+10034
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+18842
+],
+"ace:lib/ace/mode/json/json_parse.js": [
+274,
+335
+],
+"ace:src/keyboard/vim.js": [
+5462
+]
+}

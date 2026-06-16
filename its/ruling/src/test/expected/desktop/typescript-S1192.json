@@ -1,0 +1,86 @@
+{
+"desktop:app/src/highlighter/index.ts": [
+47,
+50,
+65,
+158,
+220,
+339,
+383
+],
+"desktop:app/src/lib/api.ts": [
+1084
+],
+"desktop:app/src/lib/databases/pull-request-database.ts": [
+117
+],
+"desktop:app/src/lib/editors/win32.ts": [
+143,
+179,
+316,
+326,
+349
+],
+"desktop:app/src/lib/git/cherry-pick.ts": [
+171
+],
+"desktop:app/src/lib/git/diff.ts": [
+118,
+120
+],
+"desktop:app/src/lib/git/for-each-ref.ts": [
+28
+],
+"desktop:app/src/lib/git/rebase.ts": [
+96
+],
+"desktop:app/src/lib/menu-update.ts": [
+106,
+110,
+111,
+112,
+113,
+115,
+116,
+117,
+118,
+119,
+120,
+121,
+128,
+135,
+136,
+141
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+4066,
+4067,
+4073
+],
+"desktop:app/src/lib/stores/base-store.ts": [
+7
+],
+"desktop:app/src/main-process/crash-window.ts": [
+86
+],
+"desktop:app/src/ui/app-theme.tsx": [
+61
+],
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
+1207
+],
+"desktop:app/src/ui/diff/text-diff.tsx": [
+558,
+571,
+1124
+],
+"desktop:app/src/ui/lib/list/list.tsx": [
+334
+],
+"desktop:app/src/ui/lib/tooltip.tsx": [
+270
+],
+"desktop:app/src/ui/repository-settings/repository-settings.tsx": [
+114
+]
+}

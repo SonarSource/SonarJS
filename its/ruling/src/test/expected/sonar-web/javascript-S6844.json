@@ -1,0 +1,67 @@
+{
+"sonar-web:src/main/js/apps/background-tasks/stats.js": [
+40,
+62
+],
+"sonar-web:src/main/js/apps/background-tasks/tasks.js": [
+88
+],
+"sonar-web:src/main/js/apps/global-permissions/permission-groups.js": [
+10
+],
+"sonar-web:src/main/js/apps/global-permissions/permission-users.js": [
+10
+],
+"sonar-web:src/main/js/apps/overview/main/components.js": [
+27
+],
+"sonar-web:src/main/js/apps/permission-templates/permission-template-set-defaults.js": [
+26,
+38
+],
+"sonar-web:src/main/js/apps/permission-templates/permission-template.js": [
+77,
+85
+],
+"sonar-web:src/main/js/apps/project-permissions/permissions-footer.js": [
+17
+],
+"sonar-web:src/main/js/apps/project-permissions/project.js": [
+54,
+62
+],
+"sonar-web:src/main/js/components/shared/checkbox.js": [
+35
+],
+"sonar-web:src/main/js/components/shared/favorite.js": [
+45
+],
+"sonar-web:src/main/js/components/shared/list-footer.js": [
+31
+],
+"sonar-web:src/main/js/main/nav/component/component-nav-menu.js": [
+57,
+175
+],
+"sonar-web:src/main/js/main/nav/global/global-nav-menu.js": [
+36,
+127
+],
+"sonar-web:src/main/js/main/nav/global/global-nav-search.js": [
+77
+],
+"sonar-web:src/main/js/main/nav/global/global-nav-user.js": [
+9,
+18,
+28
+],
+"sonar-web:src/main/js/main/nav/global/global-nav.js": [
+45
+],
+"sonar-web:src/main/js/main/nav/settings/settings-nav.js": [
+20,
+32,
+45,
+55
+]
+}

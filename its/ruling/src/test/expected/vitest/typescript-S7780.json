@@ -1,0 +1,74 @@
+{
+"vitest:packages/browser/src/client/tester/expect/utils.ts": [
+134
+],
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+248,
+248
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+410
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+464
+],
+"vitest:packages/pretty-format/src/index.ts": [
+135,
+172
+],
+"vitest:packages/runner/src/utils/tags.ts": [
+264
+],
+"vitest:packages/snapshot/src/port/inlineSnapshot.ts": [
+56,
+202
+],
+"vitest:packages/snapshot/src/port/utils.ts": [
+127
+],
+"vitest:packages/utils/src/constants.ts": [
+40
+],
+"vitest:packages/utils/src/source-map.ts": [
+45
+],
+"vitest:packages/vitest/src/node/ast-collect.ts": [
+543,
+547,
+548,
+549,
+550
+],
+"vitest:packages/vitest/src/node/plugins/cssEnabler.ts": [
+7,
+9
+],
+"vitest:packages/vitest/src/node/plugins/runnerTransform.ts": [
+173
+],
+"vitest:packages/vitest/src/node/pools/browser.ts": [
+183
+],
+"vitest:packages/vitest/src/node/reporters/junit.ts": [
+76,
+77,
+78,
+80,
+82,
+84
+],
+"vitest:packages/vitest/src/node/reporters/tap.ts": [
+13,
+19
+],
+"vitest:packages/vitest/src/runtime/nodejsWorkerLoader.ts": [
+18
+],
+"vitest:packages/vitest/src/runtime/workers/native.ts": [
+17,
+142
+],
+"vitest:packages/vitest/src/utils/base.ts": [
+25
+]
+}

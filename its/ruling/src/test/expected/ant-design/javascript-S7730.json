@@ -1,0 +1,16 @@
+{
+"ant-design:components/_util/__tests__/warning.test.js": [
+33,
+40
+],
+"ant-design:components/notification/__tests__/config.test.js": [
+52
+],
+"ant-design:components/notification/__tests__/index.test.js": [
+82,
+95
+],
+"ant-design:scripts/generate-authors.js": [
+20
+]
+}

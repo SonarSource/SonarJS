@@ -1,0 +1,17 @@
+{
+"desktop:app/src/lib/git/spawn.ts": [
+133
+],
+"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts": [
+257
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+3879
+],
+"desktop:app/src/lib/stores/updates/changes-state.ts": [
+260
+],
+"desktop:app/src/ui/changes/changes-list.tsx": [
+877
+]
+}

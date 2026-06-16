@@ -1,0 +1,52 @@
+{
+"searchkit:docs/src/pages/index.js": [
+192
+],
+"searchkit:examples/next/components/geosearch-examples/Input.jsx": [
+19,
+34,
+35,
+54,
+82
+],
+"searchkit:examples/next/components/geosearch-examples/maps.jsx": [
+50,
+55
+],
+"searchkit:examples/next/components/geosearch-examples/parks.jsx": [
+97,
+121
+],
+"searchkit:examples/next/components/index.jsx": [
+146
+],
+"searchkit:examples/next/components/products.jsx": [
+101
+],
+"searchkit:examples/next/components/sdk-example/index.jsx": [
+121
+],
+"searchkit:examples/next/components/searchkit/Hits.jsx": [
+6,
+22
+],
+"searchkit:examples/next/pages/_app.jsx": [
+9
+],
+"searchkit:examples/next/pages/api/graphql.js": [
+222
+],
+"searchkit:examples/next/pages/graphql/index.jsx": [
+24,
+44
+],
+"searchkit:examples/next/pages/graphql/ssr-example.jsx": [
+11,
+19,
+70
+],
+"searchkit:examples/next/pages/index.jsx": [
+23,
+43
+]
+}

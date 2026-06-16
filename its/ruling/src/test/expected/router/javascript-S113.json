@@ -1,0 +1,41 @@
+{
+"router:examples/directives.js": [
+3
+],
+"router:examples/hello/jsonp.js": [
+16
+],
+"router:examples/http.js": [
+21
+],
+"router:src/activation.js": [
+192
+],
+"router:src/history.js": [
+225
+],
+"router:src/index.js": [
+7
+],
+"router:src/navigationCommand.js": [
+14
+],
+"router:src/navigationContext.js": [
+82
+],
+"router:src/navigationInstruction.js": [
+57
+],
+"router:src/pipeline.js": [
+78
+],
+"router:src/router.js": [
+214
+],
+"router:src/util.js": [
+51
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+4041
+]
+}

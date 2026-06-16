@@ -1,0 +1,62 @@
+{
+"p5.js:lib/addons/p5.sound.js": [
+1087
+],
+"p5.js:src/color/creating_reading.js": [
+326
+],
+"p5.js:src/core/error_helpers.js": [
+400,
+431,
+575
+],
+"p5.js:src/core/p5.Renderer2D.js": [
+315
+],
+"p5.js:src/core/transform.js": [
+362
+],
+"p5.js:src/io/files.js": [
+1510
+],
+"p5.js:src/math/calculation.js": [
+515,
+565
+],
+"p5.js:src/math/p5.Vector.js": [
+204,
+317,
+407,
+1418
+],
+"p5.js:src/math/random.js": [
+139
+],
+"p5.js:src/utilities/conversion.js": [
+39,
+83,
+107,
+141,
+177,
+209,
+240,
+273,
+317
+],
+"p5.js:src/utilities/string_functions.js": [
+187,
+285,
+364,
+442,
+567
+],
+"p5.js:src/webgl/p5.Geometry.js": [
+53
+],
+"p5.js:src/webgl/p5.Matrix.js": [
+13,
+16,
+533,
+570
+]
+}

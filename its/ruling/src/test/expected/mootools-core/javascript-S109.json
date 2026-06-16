@@ -1,0 +1,45 @@
+{
+"mootools-core:Grunt/options/options.js": [
+14
+],
+"mootools-core:Source/Element/Element.js": [
+1121
+],
+"mootools-core:Source/Fx/Fx.CSS.js": [
+141
+],
+"mootools-core:Source/Fx/Fx.Transitions.js": [
+72,
+88,
+95,
+95,
+96,
+96,
+96,
+104,
+104
+],
+"mootools-core:Source/Slick/Slick.Finder.js": [
+24,
+31,
+270,
+502
+],
+"mootools-core:Source/Types/Array.js": [
+150,
+159,
+160,
+162
+],
+"mootools-core:Source/Utilities/JSON.js": [
+35
+],
+"mootools-core:Tests/Fx/Fx.html": [
+128,
+128,
+154,
+154,
+155,
+254
+]
+}

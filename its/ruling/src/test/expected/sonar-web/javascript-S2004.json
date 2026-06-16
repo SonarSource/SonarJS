@@ -1,0 +1,10 @@
+{
+"sonar-web:src/main/js/widgets/old/timeline.js": [
+135
+],
+"sonar-web:test/helpers/test-page.js": [
+60,
+79,
+164
+]
+}

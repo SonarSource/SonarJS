@@ -1,0 +1,11 @@
+{
+"postgraphql:src/index.ts": [
+3,
+6,
+7,
+8
+],
+"postgraphql:src/interface/index.ts": [
+32
+]
+}

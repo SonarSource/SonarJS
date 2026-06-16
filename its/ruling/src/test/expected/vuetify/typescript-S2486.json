@@ -1,0 +1,11 @@
+{
+"vuetify:packages/api-generator/src/index.ts": [
+102
+],
+"vuetify:packages/docs/build/api-plugin.ts": [
+65
+],
+"vuetify:packages/docs/src/store/banners.ts": [
+80
+]
+}

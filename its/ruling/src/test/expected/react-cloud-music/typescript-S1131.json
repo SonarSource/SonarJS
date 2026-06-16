@@ -1,0 +1,38 @@
+{
+"react-cloud-music:ts-music/src/api/config.ts": [
+235,
+239,
+243
+],
+"react-cloud-music:ts-music/src/application/Recommend/index.tsx": [
+53
+],
+"react-cloud-music:ts-music/src/application/Recommend/store/actionCreators.ts": [
+29
+],
+"react-cloud-music:ts-music/src/baseUI/loading-v2/index.tsx": [
+56
+],
+"react-cloud-music:ts-music/src/baseUI/loading/index.tsx": [
+38
+],
+"react-cloud-music:ts-music/src/baseUI/scroll/index.tsx": [
+69,
+70,
+71,
+72,
+73,
+74,
+75
+],
+"react-cloud-music:ts-music/src/components/list/index.tsx": [
+2,
+47
+],
+"react-cloud-music:ts-music/src/components/list/style.ts": [
+20
+],
+"react-cloud-music:ts-music/src/components/slider/index.tsx": [
+47
+]
+}

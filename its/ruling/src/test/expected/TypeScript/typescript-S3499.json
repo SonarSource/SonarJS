@@ -1,0 +1,122 @@
+{
+"TypeScript:src/compiler/checker.ts": [
+76,
+10007,
+23016
+],
+"TypeScript:src/compiler/commandLineParser.ts": [
+1124
+],
+"TypeScript:src/compiler/core.ts": [
+148
+],
+"TypeScript:src/compiler/declarationEmitter.ts": [
+166,
+669,
+684
+],
+"TypeScript:src/compiler/factory.ts": [
+2332,
+2346
+],
+"TypeScript:src/compiler/program.ts": [
+189,
+508,
+863
+],
+"TypeScript:src/compiler/sourcemap.ts": [
+100
+],
+"TypeScript:src/compiler/sys.ts": [
+314
+],
+"TypeScript:src/compiler/transformer.ts": [
+108
+],
+"TypeScript:src/compiler/transformers/destructuring.ts": [
+58,
+148,
+205
+],
+"TypeScript:src/compiler/transformers/generators.ts": [
+2278
+],
+"TypeScript:src/compiler/utilities.ts": [
+2545
+],
+"TypeScript:src/harness/harness.ts": [
+968
+],
+"TypeScript:src/harness/projectsRunner.ts": [
+178,
+238
+],
+"TypeScript:src/server/editorServices.ts": [
+939,
+994,
+1054
+],
+"TypeScript:src/server/server.ts": [
+257,
+396,
+751
+],
+"TypeScript:src/server/session.ts": [
+395,
+709,
+1003
+],
+"TypeScript:src/server/typingsCache.ts": [
+96,
+110
+],
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
+402
+],
+"TypeScript:src/server/utilities.ts": [
+50
+],
+"TypeScript:src/services/completions.ts": [
+71,
+417,
+554
+],
+"TypeScript:src/services/findAllReferences.ts": [
+129,
+144
+],
+"TypeScript:src/services/formatting/formattingScanner.ts": [
+48
+],
+"TypeScript:src/services/importTracker.ts": [
+435
+],
+"TypeScript:src/services/navigateTo.ts": [
+45
+],
+"TypeScript:src/services/navigationBar.ts": [
+111
+],
+"TypeScript:src/services/pathCompletions.ts": [
+462
+],
+"TypeScript:src/services/rename.ts": [
+57
+],
+"TypeScript:src/services/services.ts": [
+1130
+],
+"TypeScript:src/services/signatureHelp.ts": [
+476,
+488
+],
+"TypeScript:src/services/textChanges.ts": [
+510
+],
+"TypeScript:src/services/transpile.ts": [
+118
+],
+"TypeScript:src/services/utilities.ts": [
+1163
+]
+}

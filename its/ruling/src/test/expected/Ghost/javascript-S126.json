@@ -1,0 +1,143 @@
+{
+"Ghost:core/client/app/adapters/embedded-relation-adapter.js": [
+97
+],
+"Ghost:core/client/app/components/gh-dropdown.js": [
+69
+],
+"Ghost:core/client/app/components/gh-navitem-url-input.js": [
+8
+],
+"Ghost:core/client/app/components/gh-spin-button.js": [
+40
+],
+"Ghost:core/client/app/controllers/settings/tags.js": [
+25
+],
+"Ghost:core/client/app/controllers/setup/three.js": [
+226
+],
+"Ghost:core/client/app/mixins/ed-editor-shortcuts.js": [
+68
+],
+"Ghost:core/client/app/mixins/editor-base-controller.js": [
+351
+],
+"Ghost:core/client/app/mixins/validation-engine.js": [
+82
+],
+"Ghost:core/client/app/routes/posts.js": [
+49
+],
+"Ghost:core/client/app/routes/settings/tags.js": [
+58
+],
+"Ghost:core/client/app/routes/team/user.js": [
+30
+],
+"Ghost:core/client/app/utils/document-title.js": [
+30
+],
+"Ghost:core/client/app/utils/ghost-paths.js": [
+45
+],
+"Ghost:core/client/app/validators/invite-user.js": [
+12
+],
+"Ghost:core/client/app/validators/nav-item.js": [
+29
+],
+"Ghost:core/client/app/validators/new-user.js": [
+21
+],
+"Ghost:core/client/app/validators/reset.js": [
+16
+],
+"Ghost:core/client/app/validators/setting.js": [
+42
+],
+"Ghost:core/client/app/validators/tag-settings.js": [
+15
+],
+"Ghost:core/client/app/validators/user.js": [
+17
+],
+"Ghost:core/client/tests/unit/helpers/gh-user-can-admin-test.js": [
+14,
+31,
+48
+],
+"Ghost:core/server/api/index.js": [
+69,
+117
+],
+"Ghost:core/server/api/users.js": [
+205
+],
+"Ghost:core/server/config/url.js": [
+199,
+218
+],
+"Ghost:core/server/controllers/frontend/index.js": [
+182
+],
+"Ghost:core/server/data/import/index.js": [
+36,
+87,
+135
+],
+"Ghost:core/server/data/meta/description.js": [
+18
+],
+"Ghost:core/server/data/meta/next_url.js": [
+14
+],
+"Ghost:core/server/data/meta/schema.js": [
+104
+],
+"Ghost:core/server/data/migration/builder.js": [
+59
+],
+"Ghost:core/server/data/migration/fixtures/permissions/index.js": [
+36
+],
+"Ghost:core/server/data/validation/index.js": [
+152
+],
+"Ghost:core/server/helpers/body_class.js": [
+42
+],
+"Ghost:core/server/helpers/ghost_head.js": [
+55
+],
+"Ghost:core/server/helpers/plural.js": [
+27
+],
+"Ghost:core/server/middleware/auth.js": [
+156
+],
+"Ghost:core/server/models/post.js": [
+345,
+357,
+420,
+427
+],
+"Ghost:core/server/models/role.js": [
+67
+],
+"Ghost:core/server/models/user.js": [
+285
+],
+"Ghost:core/server/permissions/index.js": [
+59,
+75,
+98,
+140,
+176
+],
+"Ghost:core/server/utils/downzero.js": [
+51,
+61,
+74
+]
+}

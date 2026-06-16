@@ -1,0 +1,1252 @@
+{
+"rxjs:src/AsyncSubject.ts": [
+13,
+32
+],
+"rxjs:src/InnerSubscriber.ts": [
+20
+],
+"rxjs:src/MiscJSDoc.ts": [
+190
+],
+"rxjs:src/Notification.ts": [
+21,
+30,
+49,
+49,
+70,
+96,
+97,
+120,
+128
+],
+"rxjs:src/Observable.ts": [
+13,
+30,
+31,
+87,
+89,
+170
+],
+"rxjs:src/Observer.ts": [
+4,
+11,
+18,
+27,
+31,
+33,
+34
+],
+"rxjs:src/Operator.ts": [
+5
+],
+"rxjs:src/OuterSubscriber.ts": [
+16
+],
+"rxjs:src/Subject.ts": [
+36,
+48,
+49,
+66,
+127,
+148
+],
+"rxjs:src/Subscriber.ts": [
+33,
+40,
+45,
+55,
+56,
+71,
+72,
+75,
+106,
+138,
+168,
+172,
+177,
+211,
+252,
+261
+],
+"rxjs:src/Subscription.ts": [
+32,
+53,
+65,
+71,
+220
+],
+"rxjs:src/add/operator/first.ts": [
+5
+],
+"rxjs:src/add/operator/groupBy.ts": [
+5
+],
+"rxjs:src/add/operator/last.ts": [
+5
+],
+"rxjs:src/add/operator/mergeMap.ts": [
+5,
+6
+],
+"rxjs:src/add/operator/mergeMapTo.ts": [
+5,
+6
+],
+"rxjs:src/add/operator/multicast.ts": [
+5
+],
+"rxjs:src/add/operator/publish.ts": [
+5
+],
+"rxjs:src/observable/ArrayLikeObservable.ts": [
+20,
+26,
+42,
+46
+],
+"rxjs:src/observable/ArrayObservable.ts": [
+73,
+75,
+81,
+98,
+102
+],
+"rxjs:src/observable/BoundCallbackObservable.ts": [
+18,
+18,
+19,
+19,
+20,
+20,
+21,
+21,
+22,
+22,
+23,
+23,
+24,
+24,
+25,
+25,
+26,
+26,
+26,
+26,
+27,
+27,
+27,
+27,
+28,
+28,
+28,
+28,
+29,
+29,
+29,
+29,
+30,
+30,
+30,
+30,
+31,
+31,
+31,
+31,
+32,
+32,
+32,
+32,
+33,
+34,
+34,
+178,
+179,
+179,
+180,
+186,
+187,
+201,
+201,
+202,
+218,
+231,
+232,
+240,
+240,
+241,
+256,
+280
+],
+"rxjs:src/observable/BoundNodeCallbackObservable.ts": [
+19,
+19,
+19,
+20,
+20,
+20,
+21,
+21,
+21,
+22,
+22,
+22,
+23,
+23,
+23,
+24,
+24,
+24,
+25,
+25,
+25,
+26,
+27,
+27,
+157,
+158,
+158,
+159,
+165,
+166,
+180,
+180,
+181,
+201,
+218,
+225,
+231,
+231,
+232,
+251,
+274
+],
+"rxjs:src/observable/ConnectableObservable.ts": [
+56,
+75,
+85,
+102,
+105,
+111,
+136,
+142,
+172
+],
+"rxjs:src/observable/ErrorObservable.ts": [
+6,
+7,
+15,
+57,
+66,
+70
+],
+"rxjs:src/observable/ForkJoinObservable.ts": [
+17,
+18,
+35,
+37,
+37,
+39,
+49,
+50,
+51,
+51,
+56,
+56,
+58,
+58,
+64,
+71,
+74,
+87,
+91,
+92,
+104,
+110,
+114,
+115,
+125
+],
+"rxjs:src/observable/FromEventObservable.ts": [
+14,
+22,
+26,
+30,
+34,
+46,
+107,
+154,
+161
+],
+"rxjs:src/observable/FromEventPatternObservable.ts": [
+61,
+62,
+63,
+67,
+68,
+69,
+76,
+78,
+92,
+102,
+102
+],
+"rxjs:src/observable/GenerateObservable.ts": [
+203,
+293
+],
+"rxjs:src/observable/IntervalObservable.ts": [
+51,
+62
+],
+"rxjs:src/observable/IteratorObservable.ts": [
+14,
+16,
+20,
+45,
+48,
+105,
+121,
+137,
+155,
+159
+],
+"rxjs:src/observable/PromiseObservable.ts": [
+123
+],
+"rxjs:src/observable/RangeObservable.ts": [
+49,
+67
+],
+"rxjs:src/observable/ScalarObservable.ts": [
+16,
+30
+],
+"rxjs:src/observable/TimerObservable.ts": [
+65,
+68
+],
+"rxjs:src/observable/combineLatest.ts": [
+23,
+25,
+25,
+28,
+28,
+139,
+139,
+140,
+141,
+143,
+151,
+157
+],
+"rxjs:src/observable/dom/AjaxObservable.ts": [
+11,
+22,
+63,
+64,
+65,
+74,
+82,
+86,
+128,
+224,
+235,
+269,
+305,
+312,
+313,
+314,
+319,
+327,
+331,
+338,
+339,
+340,
+344,
+348,
+373,
+374,
+375,
+399
+],
+"rxjs:src/observable/dom/MiscJSDoc.ts": [
+19,
+61
+],
+"rxjs:src/observable/dom/WebSocketSubject.ts": [
+109,
+123,
+123,
+125
+],
+"rxjs:src/operator/audit.ts": [
+51,
+56,
+59,
+76
+],
+"rxjs:src/operator/auditTime.ts": [
+59
+],
+"rxjs:src/operator/buffer.ts": [
+41,
+47,
+50,
+50,
+60,
+63,
+72,
+74
+],
+"rxjs:src/operator/bufferCount.ts": [
+52,
+62
+],
+"rxjs:src/operator/bufferTime.ts": [
+88,
+88,
+153,
+202,
+202,
+203
+],
+"rxjs:src/operator/bufferToggle.ts": [
+49,
+56,
+59,
+59,
+79,
+92,
+117,
+124,
+151,
+159,
+164
+],
+"rxjs:src/operator/bufferWhen.ts": [
+45,
+51,
+54,
+54,
+64,
+69,
+91,
+93
+],
+"rxjs:src/operator/catch.ts": [
+67,
+76,
+79,
+79,
+90,
+91,
+101,
+103
+],
+"rxjs:src/operator/combineAll.ts": [
+44
+],
+"rxjs:src/operator/combineLatest.ts": [
+71,
+72,
+73,
+74,
+76,
+82,
+91,
+94,
+94,
+106,
+107,
+110,
+114,
+159,
+160
+],
+"rxjs:src/operator/concat.ts": [
+15,
+67,
+79,
+174,
+176
+],
+"rxjs:src/operator/concatAll.ts": [
+59,
+59
+],
+"rxjs:src/operator/count.ts": [
+63,
+63,
+92
+],
+"rxjs:src/operator/debounce.ts": [
+60
+],
+"rxjs:src/operator/debounceTime.ts": [
+62,
+116
+],
+"rxjs:src/operator/defaultIfEmpty.ts": [
+49,
+49
+],
+"rxjs:src/operator/delay.ts": [
+63,
+133
+],
+"rxjs:src/operator/delayWhen.ts": [
+55,
+56,
+65,
+68,
+84,
+88,
+96,
+139,
+163,
+184,
+188
+],
+"rxjs:src/operator/dematerialize.ts": [
+46,
+50,
+51,
+51,
+51,
+61,
+62
+],
+"rxjs:src/operator/distinct.ts": [
+57,
+62,
+65,
+78,
+92
+],
+"rxjs:src/operator/distinctUntilChanged.ts": [
+61,
+84,
+84,
+91,
+100
+],
+"rxjs:src/operator/do.ts": [
+8,
+56,
+63,
+66,
+82,
+102
+],
+"rxjs:src/operator/elementAt.ts": [
+61
+],
+"rxjs:src/operator/every.ts": [
+21,
+27,
+31,
+31,
+46
+],
+"rxjs:src/operator/exhaust.ts": [
+48
+],
+"rxjs:src/operator/exhaustMap.ts": [
+69,
+69,
+137
+],
+"rxjs:src/operator/expand.ts": [
+76,
+76,
+84,
+97,
+114,
+139
+],
+"rxjs:src/operator/filter.ts": [
+9,
+12,
+55,
+61,
+64,
+80,
+88
+],
+"rxjs:src/operator/finally.ts": [
+22
+],
+"rxjs:src/operator/find.ts": [
+8,
+11,
+48,
+52,
+52,
+59,
+62,
+62,
+79,
+83
+],
+"rxjs:src/operator/findIndex.ts": [
+39,
+40,
+40
+],
+"rxjs:src/operator/first.ts": [
+85,
+89,
+89,
+107,
+122,
+134,
+143,
+145,
+153
+],
+"rxjs:src/operator/groupBy.ts": [
+11,
+12,
+13,
+85,
+100,
+104,
+104,
+124,
+158,
+167,
+183,
+229,
+237
+],
+"rxjs:src/operator/ignoreElements.ts": [
+21,
+21
+],
+"rxjs:src/operator/isEmpty.ts": [
+18,
+19,
+19,
+29
+],
+"rxjs:src/operator/last.ts": [
+54,
+58,
+58,
+76,
+100,
+118,
+120
+],
+"rxjs:src/operator/map.ts": [
+38,
+46,
+49,
+49,
+61,
+65,
+73
+],
+"rxjs:src/operator/mapTo.ts": [
+43,
+43
+],
+"rxjs:src/operator/materialize.ts": [
+55,
+55,
+74
+],
+"rxjs:src/operator/merge.ts": [
+21,
+70,
+88,
+150,
+153,
+167
+],
+"rxjs:src/operator/mergeAll.ts": [
+57,
+57,
+64,
+64
+],
+"rxjs:src/operator/mergeMap.ts": [
+79,
+88,
+88
+],
+"rxjs:src/operator/mergeMapTo.ts": [
+65,
+76,
+76,
+153
+],
+"rxjs:src/operator/mergeScan.ts": [
+55,
+55,
+70,
+81,
+97
+],
+"rxjs:src/operator/multicast.ts": [
+46,
+60,
+60
+],
+"rxjs:src/operator/observeOn.ts": [
+64,
+87,
+99,
+109,
+110
+],
+"rxjs:src/operator/onErrorResumeNext.ts": [
+16,
+16,
+17,
+82,
+83,
+84,
+86,
+99,
+99,
+100,
+103,
+104,
+105,
+106,
+109,
+117,
+120,
+120,
+127,
+131,
+131,
+135,
+139
+],
+"rxjs:src/operator/pairwise.ts": [
+45,
+45
+],
+"rxjs:src/operator/partition.ts": [
+46
+],
+"rxjs:src/operator/pluck.ts": [
+38
+],
+"rxjs:src/operator/race.ts": [
+15,
+15,
+45,
+47,
+47,
+52,
+54,
+58,
+62,
+74,
+81
+],
+"rxjs:src/operator/reduce.ts": [
+72,
+72,
+109
+],
+"rxjs:src/operator/repeat.ts": [
+33,
+44
+],
+"rxjs:src/operator/repeatWhen.ts": [
+27,
+27,
+32,
+32,
+35,
+47,
+48,
+53,
+53
+],
+"rxjs:src/operator/retry.ts": [
+31,
+42,
+47
+],
+"rxjs:src/operator/retryWhen.ts": [
+27,
+27,
+32,
+32,
+36,
+48,
+49,
+53,
+53,
+58,
+62
+],
+"rxjs:src/operator/sample.ts": [
+43,
+48,
+51
+],
+"rxjs:src/operator/sampleTime.ts": [
+54,
+88,
+88
+],
+"rxjs:src/operator/scan.ts": [
+65,
+65,
+103
+],
+"rxjs:src/operator/sequenceEqual.ts": [
+70,
+70,
+154
+],
+"rxjs:src/operator/single.ts": [
+33
+],
+"rxjs:src/operator/skip.ts": [
+25
+],
+"rxjs:src/operator/skipLast.ts": [
+50
+],
+"rxjs:src/operator/skipUntil.ts": [
+21,
+26,
+29,
+44,
+45
+],
+"rxjs:src/operator/skipWhile.ts": [
+26
+],
+"rxjs:src/operator/subscribeOn.ts": [
+27
+],
+"rxjs:src/operator/switch.ts": [
+52,
+52,
+56,
+56,
+103
+],
+"rxjs:src/operator/switchMap.ts": [
+71,
+71
+],
+"rxjs:src/operator/switchMapTo.ts": [
+69,
+69,
+89
+],
+"rxjs:src/operator/take.ts": [
+56
+],
+"rxjs:src/operator/takeLast.ts": [
+59
+],
+"rxjs:src/operator/takeUntil.ts": [
+43,
+48,
+51,
+63,
+64
+],
+"rxjs:src/operator/takeWhile.ts": [
+50
+],
+"rxjs:src/operator/throttle.ts": [
+72,
+117
+],
+"rxjs:src/operator/throttleTime.ts": [
+62
+],
+"rxjs:src/operator/timeInterval.ts": [
+28,
+28
+],
+"rxjs:src/operator/timeout.ts": [
+33
+],
+"rxjs:src/operator/timeoutWith.ts": [
+36,
+40,
+59,
+67
+],
+"rxjs:src/operator/timestamp.ts": [
+26,
+26
+],
+"rxjs:src/operator/toArray.ts": [
+15,
+15
+],
+"rxjs:src/operator/toPromise.ts": [
+72,
+73
+],
+"rxjs:src/operator/window.ts": [
+46,
+52,
+55,
+55,
+70,
+79,
+81,
+85,
+85,
+89,
+97
+],
+"rxjs:src/operator/windowCount.ts": [
+65,
+65,
+107
+],
+"rxjs:src/operator/windowTime.ts": [
+116,
+116,
+177,
+201,
+248
+],
+"rxjs:src/operator/windowToggle.ts": [
+56,
+63,
+66,
+66,
+83,
+89,
+104,
+152,
+152,
+154,
+173,
+185,
+191
+],
+"rxjs:src/operator/windowWhen.ts": [
+52,
+57,
+60,
+60,
+70,
+75,
+80,
+82,
+86,
+86,
+90,
+98,
+116
+],
+"rxjs:src/operator/withLatestFrom.ts": [
+20,
+20,
+21,
+22,
+22,
+63,
+63,
+64,
+68,
+73,
+74,
+77,
+77,
+88,
+92,
+93,
+104,
+136,
+137
+],
+"rxjs:src/operator/zip.ts": [
+35,
+35,
+54,
+56,
+56,
+60,
+60,
+94,
+94,
+95,
+104,
+106,
+110,
+110,
+121,
+122,
+123,
+127,
+128,
+134,
+156,
+156,
+156,
+186,
+216,
+217,
+268,
+331,
+338,
+339,
+339
+],
+"rxjs:src/operator/zipAll.ts": [
+10
+],
+"rxjs:src/scheduler/AnimationFrameAction.ts": [
+17,
+17,
+31,
+31
+],
+"rxjs:src/scheduler/AnimationFrameScheduler.ts": [
+5,
+11
+],
+"rxjs:src/scheduler/AsapAction.ts": [
+17,
+17,
+31,
+31
+],
+"rxjs:src/scheduler/AsapScheduler.ts": [
+5,
+11
+],
+"rxjs:src/scheduler/AsyncAction.ts": [
+13,
+71,
+71,
+75,
+75,
+89,
+117,
+119
+],
+"rxjs:src/scheduler/AsyncScheduler.ts": [
+5,
+18,
+20,
+29
+],
+"rxjs:src/scheduler/QueueAction.ts": [
+27,
+33,
+33
+],
+"rxjs:src/scheduler/VirtualTimeScheduler.ts": [
+25,
+25,
+72,
+72,
+80,
+80,
+84
+],
+"rxjs:src/symbol/iterator.ts": [
+3,
+4
+],
+"rxjs:src/symbol/observable.ts": [
+3,
+4
+],
+"rxjs:src/symbol/rxSubscriber.ts": [
+3
+],
+"rxjs:src/testing/ColdObservable.ts": [
+23,
+35
+],
+"rxjs:src/testing/HotObservable.ts": [
+27
+],
+"rxjs:src/testing/TestMessage.ts": [
+5
+],
+"rxjs:src/testing/TestScheduler.ts": [
+14,
+15,
+18,
+18,
+22,
+23,
+26,
+26,
+38,
+38,
+51,
+51,
+61,
+74,
+104,
+104,
+189,
+190,
+201,
+202,
+213
+],
+"rxjs:src/util/AnimationFrame.ts": [
+6
+],
+"rxjs:src/util/ArgumentOutOfRangeError.ts": [
+13,
+14,
+15,
+16
+],
+"rxjs:src/util/EmptyError.ts": [
+13,
+14,
+15,
+16
+],
+"rxjs:src/util/FastMap.ts": [
+9,
+14,
+18,
+18,
+18
+],
+"rxjs:src/util/Immediate.ts": [
+12,
+16,
+22,
+49,
+50,
+53,
+92,
+92,
+94,
+102,
+103,
+108,
+115,
+121,
+133,
+134,
+141,
+146,
+152,
+153,
+158,
+181,
+187,
+193,
+194,
+201,
+220,
+227,
+233
+],
+"rxjs:src/util/MapPolyfill.ts": [
+3,
+4,
+6,
+11,
+11,
+23,
+38
+],
+"rxjs:src/util/ObjectUnsubscribedError.ts": [
+12,
+13,
+14,
+15
+],
+"rxjs:src/util/TimeoutError.ts": [
+10,
+11,
+12,
+13
+],
+"rxjs:src/util/UnsubscriptionError.ts": [
+6,
+8,
+11,
+12,
+13
+],
+"rxjs:src/util/applyMixins.ts": [
+1,
+1
+],
+"rxjs:src/util/assign.ts": [
+16
+],
+"rxjs:src/util/errorObject.ts": [
+2
+],
+"rxjs:src/util/isArray.ts": [
+1
+],
+"rxjs:src/util/isArrayLike.ts": [
+1
+],
+"rxjs:src/util/isDate.ts": [
+1
+],
+"rxjs:src/util/isFunction.ts": [
+1
+],
+"rxjs:src/util/isNumeric.ts": [
+3
+],
+"rxjs:src/util/isObject.ts": [
+1
+],
+"rxjs:src/util/isPromise.ts": [
+1,
+2,
+2
+],
+"rxjs:src/util/isScheduler.ts": [
+2,
+3
+],
+"rxjs:src/util/not.ts": [
+1,
+2,
+3,
+3,
+5,
+6
+],
+"rxjs:src/util/root.ts": [
+1,
+11,
+20
+],
+"rxjs:src/util/subscribeToResult.ts": [
+14,
+17,
+17,
+21,
+29,
+46,
+50,
+52,
+58
+],
+"rxjs:src/util/toSubscriber.ts": [
+7
+],
+"rxjs:src/util/tryCatch.ts": [
+5,
+5,
+16
+]
+}

@@ -1,0 +1,64 @@
+{
+"ocanvas:src/animation.js": [
+229,
+264,
+288,
+289,
+290,
+291
+],
+"ocanvas:src/core.js": [
+85,
+98
+],
+"ocanvas:src/displayobject.js": [
+118,
+364,
+394,
+721,
+732
+],
+"ocanvas:src/displayobjects/ellipse.js": [
+53,
+61
+],
+"ocanvas:src/displayobjects/image.js": [
+42,
+49
+],
+"ocanvas:src/displayobjects/rectangle.js": [
+187
+],
+"ocanvas:src/displayobjects/sprite.js": [
+132,
+133
+],
+"ocanvas:src/displayobjects/text.js": [
+248
+],
+"ocanvas:src/draw.js": [
+161
+],
+"ocanvas:src/events.js": [
+134,
+240
+],
+"ocanvas:src/keyboard.js": [
+72
+],
+"ocanvas:src/mouse.js": [
+214
+],
+"ocanvas:src/style.js": [
+45,
+695,
+696,
+697,
+715,
+716,
+717,
+725,
+726,
+727
+]
+}

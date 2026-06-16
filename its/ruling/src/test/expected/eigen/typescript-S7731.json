@@ -1,0 +1,11 @@
+{
+"eigen:src/app/Components/ArtworkGrids/GenericGrid.tsx": [
+103
+],
+"eigen:src/app/Components/ArtworkGrids/InfiniteScrollArtworksGrid.tsx": [
+276
+],
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/geometry.ts": [
+64
+]
+}

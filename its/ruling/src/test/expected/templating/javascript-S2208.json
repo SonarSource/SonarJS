@@ -1,0 +1,12 @@
+{
+"templating:src/lib/index.js": [
+1,
+2,
+3,
+22
+],
+"templating:src/lib/index_ce_di.js": [
+12,
+13
+]
+}

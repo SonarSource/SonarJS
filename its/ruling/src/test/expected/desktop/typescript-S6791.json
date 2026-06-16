@@ -1,0 +1,107 @@
+{
+"desktop:app/src/ui/app-error.tsx": [
+61
+],
+"desktop:app/src/ui/app-menu/app-menu-bar.tsx": [
+119
+],
+"desktop:app/src/ui/app-menu/app-menu.tsx": [
+340
+],
+"desktop:app/src/ui/app-menu/menu-pane.tsx": [
+158
+],
+"desktop:app/src/ui/branches/branch-list.tsx": [
+167
+],
+"desktop:app/src/ui/branches/pull-request-list.tsx": [
+126
+],
+"desktop:app/src/ui/changes/changes-list.tsx": [
+249
+],
+"desktop:app/src/ui/changes/commit-message.tsx": [
+197
+],
+"desktop:app/src/ui/changes/sidebar.tsx": [
+90
+],
+"desktop:app/src/ui/create-branch/create-branch-dialog.tsx": [
+119
+],
+"desktop:app/src/ui/dialog/dialog.tsx": [
+240
+],
+"desktop:app/src/ui/history/commit-list-item.tsx": [
+82
+],
+"desktop:app/src/ui/history/commit-summary.tsx": [
+261
+],
+"desktop:app/src/ui/history/compare.tsx": [
+88,
+134
+],
+"desktop:app/src/ui/history/selected-commit.tsx": [
+118
+],
+"desktop:app/src/ui/lib/author-input.tsx": [
+488
+],
+"desktop:app/src/ui/lib/checkbox.tsx": [
+51
+],
+"desktop:app/src/ui/lib/filter-list.tsx": [
+191,
+197
+],
+"desktop:app/src/ui/lib/list/list.tsx": [
+767
+],
+"desktop:app/src/ui/lib/path-text.tsx": [
+255
+],
+"desktop:app/src/ui/lib/select.tsx": [
+36
+],
+"desktop:app/src/ui/lib/text-box.tsx": [
+120,
+133
+],
+"desktop:app/src/ui/lib/vertical-segmented-control/vertical-segmented-control.tsx": [
+101,
+111
+],
+"desktop:app/src/ui/preferences/integrations.tsx": [
+36
+],
+"desktop:app/src/ui/preferences/preferences.tsx": [
+131
+],
+"desktop:app/src/ui/publish-repository/publish-repository.tsx": [
+45,
+49
+],
+"desktop:app/src/ui/relative-time.tsx": [
+135,
+141
+],
+"desktop:app/src/ui/repository-settings/repository-settings.tsx": [
+95
+],
+"desktop:app/src/ui/sign-in/sign-in.tsx": [
+54
+],
+"desktop:app/src/ui/tutorial/tutorial-panel.tsx": [
+90
+],
+"desktop:app/src/ui/welcome/welcome.tsx": [
+67
+],
+"desktop:app/src/ui/window/window-controls.tsx": [
+39
+],
+"desktop:app/src/ui/window/zoom-info.tsx": [
+39
+]
+}

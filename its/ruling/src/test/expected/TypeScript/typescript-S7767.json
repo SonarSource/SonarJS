@@ -1,0 +1,52 @@
+{
+"TypeScript:src/compiler/binder.ts": [
+76
+],
+"TypeScript:src/compiler/checker.ts": [
+342
+],
+"TypeScript:src/compiler/emitter.ts": [
+2916
+],
+"TypeScript:src/compiler/factory.ts": [
+3658
+],
+"TypeScript:src/compiler/transformer.ts": [
+35
+],
+"TypeScript:src/compiler/transformers/es2015.ts": [
+9,
+176
+],
+"TypeScript:src/compiler/transformers/es2017.ts": [
+10
+],
+"TypeScript:src/compiler/transformers/esnext.ts": [
+9
+],
+"TypeScript:src/compiler/transformers/ts.ts": [
+14
+],
+"TypeScript:src/compiler/types.ts": [
+432,
+466,
+491,
+2164,
+2432,
+2595,
+2780,
+2906,
+2986,
+3085,
+3584,
+3871,
+3955,
+3997
+],
+"TypeScript:src/compiler/utilities.ts": [
+1954
+],
+"TypeScript:src/harness/runner.ts": [
+127
+]
+}

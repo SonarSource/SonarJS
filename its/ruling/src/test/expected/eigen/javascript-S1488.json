@@ -1,0 +1,11 @@
+{
+"eigen:scripts/check-flags/check-flags.js": [
+24
+],
+"eigen:scripts/detect-secrets.js": [
+47
+],
+"eigen:tslint-rules/useWrappedComponentsRule.js": [
+41
+]
+}

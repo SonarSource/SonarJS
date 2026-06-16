@@ -1,0 +1,15 @@
+{
+"TypeScript:src/compiler/parser.ts": [
+2630,
+3971
+],
+"TypeScript:src/compiler/transformers/es2016.ts": [
+23
+],
+"TypeScript:src/server/builder.ts": [
+382
+],
+"TypeScript:src/services/breakpoints.ts": [
+630
+]
+}

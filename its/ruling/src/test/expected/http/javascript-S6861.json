@@ -1,0 +1,14 @@
+{
+"http:src/IConnection.js": [
+3
+],
+"http:src/IInterceptResolution.js": [
+5
+],
+"http:src/IRequest.js": [
+3
+],
+"http:src/IResponse.js": [
+3
+]
+}

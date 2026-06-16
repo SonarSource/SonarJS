@@ -1,0 +1,18 @@
+{
+"console:src/reducers/databrowser/data.ts": [
+31,
+44,
+105,
+113,
+114
+],
+"console:src/reducers/databrowser/ui.ts": [
+73
+],
+"console:src/reducers/gettingStarted.ts": [
+18
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+624
+]
+}

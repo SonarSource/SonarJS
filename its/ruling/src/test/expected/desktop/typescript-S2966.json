@@ -1,0 +1,60 @@
+{
+"desktop:app/src/lib/databases/repositories-database.ts": [
+158
+],
+"desktop:app/src/lib/shells/shared.ts": [
+71
+],
+"desktop:app/src/lib/shells/win32.ts": [
+458
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+4378
+],
+"desktop:app/src/lib/stores/git-store-cache.ts": [
+30
+],
+"desktop:app/src/lib/stores/issues-store.ts": [
+127,
+137
+],
+"desktop:app/src/lib/stores/repositories-store.ts": [
+122
+],
+"desktop:app/src/main-process/main.ts": [
+751,
+752,
+753,
+756
+],
+"desktop:app/src/models/diff/diff-selection.ts": [
+200
+],
+"desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx": [
+152,
+342,
+343
+],
+"desktop:app/src/ui/changes/sidebar.tsx": [
+397
+],
+"desktop:app/src/ui/diff/code-mirror-host.tsx": [
+155
+],
+"desktop:app/src/ui/history/compare.tsx": [
+337
+],
+"desktop:app/src/ui/index.tsx": [
+353
+],
+"desktop:app/src/ui/lib/author-input.tsx": [
+858
+],
+"desktop:app/webpack.common.ts": [
+190
+],
+"desktop:script/publish.ts": [
+19,
+59
+]
+}

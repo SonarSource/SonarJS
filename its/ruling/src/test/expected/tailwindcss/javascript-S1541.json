@@ -1,0 +1,14 @@
+{
+"tailwindcss:src/index.js": [
+15
+],
+"tailwindcss:src/index.postcss7.js": [
+16
+],
+"tailwindcss:src/lib/evaluateTailwindFunctions.js": [
+33
+],
+"tailwindcss:src/util/parseAnimationValue.js": [
+15
+]
+}

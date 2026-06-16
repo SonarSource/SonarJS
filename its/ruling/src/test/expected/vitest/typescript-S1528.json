@@ -1,0 +1,14 @@
+{
+"vitest:examples/profiling/src/prime-number.ts": [
+26
+],
+"vitest:packages/mocker/src/automocker.ts": [
+21
+],
+"vitest:packages/utils/src/serialize.ts": [
+87
+],
+"vitest:packages/vitest/src/node/reporters/github-actions.ts": [
+126
+]
+}

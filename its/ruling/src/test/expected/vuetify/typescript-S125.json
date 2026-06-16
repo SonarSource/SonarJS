@@ -1,0 +1,56 @@
+{
+"vuetify:packages/api-generator/src/helpers/sass.ts": [
+31
+],
+"vuetify:packages/api-generator/src/types.ts": [
+479,
+483,
+487,
+492,
+498,
+501,
+506,
+514
+],
+"vuetify:packages/docs/build/api-plugin.ts": [
+134
+],
+"vuetify:packages/docs/src/components/api/utils.ts": [
+65,
+71,
+78,
+81,
+89,
+96,
+101,
+106,
+111,
+115
+],
+"vuetify:packages/docs/src/components/app/Toc.vue": [
+140,
+219
+],
+"vuetify:packages/docs/src/components/app/search/Search.vue": [
+165
+],
+"vuetify:packages/docs/src/main.ts": [
+7
+],
+"vuetify:packages/docs/src/util/routes.ts": [
+9
+],
+"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
+120,
+140
+],
+"vuetify:packages/vuetify/src/composables/touch.ts": [
+26
+],
+"vuetify:packages/vuetify/src/util/console.ts": [
+5
+],
+"vuetify:packages/vuetify/test/index.ts": [
+7
+]
+}

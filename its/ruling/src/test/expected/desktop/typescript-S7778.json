@@ -1,0 +1,57 @@
+{
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
+191
+],
+"desktop:app/src/lib/editors/win32.ts": [
+114
+],
+"desktop:app/src/lib/git/core.ts": [
+222,
+227
+],
+"desktop:app/src/lib/markdown-filters/close-keyword-filter.ts": [
+135
+],
+"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts": [
+205
+],
+"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
+86
+],
+"desktop:app/src/lib/markdown-filters/issue-mention-filter.ts": [
+158
+],
+"desktop:app/src/lib/markdown-filters/mention-filter.ts": [
+118
+],
+"desktop:app/src/lib/markdown-filters/team-mention-filter.ts": [
+109
+],
+"desktop:app/src/main-process/menu/build-default-menu.ts": [
+143,
+167
+],
+"desktop:app/src/models/avatar.ts": [
+59
+],
+"desktop:app/src/ui/branches/branch-list-item-context-menu.tsx": [
+30
+],
+"desktop:app/src/ui/donut.tsx": [
+81,
+82,
+91,
+92,
+93,
+94,
+96,
+97,
+98,
+99,
+100
+],
+"desktop:app/src/ui/history/commit-list-item.tsx": [
+322,
+360
+]
+}

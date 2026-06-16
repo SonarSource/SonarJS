@@ -1,0 +1,58 @@
+{
+"http:gulpfile.js": [
+1,
+2,
+3,
+4,
+7,
+54,
+57,
+58
+],
+"http:karma.conf.js": [
+1
+],
+"http:lib/gulp/karma/background.js": [
+1,
+2,
+3,
+4
+],
+"http:lib/gulp/karma/index.js": [
+1,
+15,
+20,
+21
+],
+"http:src/IConnection.js": [
+3,
+4
+],
+"http:src/IInterceptResolution.js": [
+5,
+6
+],
+"http:src/IRequest.js": [
+3,
+4
+],
+"http:src/IResponse.js": [
+3,
+4
+],
+"http:src/Utils.js": [
+3
+],
+"http:test-main.js": [
+2,
+3,
+5
+],
+"http:test/matchers.js": [
+6
+],
+"http:test/mocks/Xhr.js": [
+69,
+90
+]
+}

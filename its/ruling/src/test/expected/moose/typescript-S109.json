@@ -1,0 +1,29 @@
+{
+"moose:main/background.ts": [
+47,
+47
+],
+"moose:main/controllers/delete.ts": [
+16,
+24,
+29
+],
+"moose:main/controllers/subtitles.ts": [
+58,
+90,
+93
+],
+"moose:main/utils/opensubtitle-hash.ts": [
+19,
+22,
+83,
+113
+],
+"moose:main/utils/temp.ts": [
+10
+],
+"moose:renderer/utils/animations.ts": [
+28,
+28
+]
+}

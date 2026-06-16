@@ -1,0 +1,65 @@
+{
+"router:examples/directives.js": [
+0
+],
+"router:examples/hello/jsonp.js": [
+0
+],
+"router:examples/http.js": [
+0
+],
+"router:gulpfile.js": [
+0
+],
+"router:karma.conf.js": [
+0
+],
+"router:read-pkg-url.js": [
+0
+],
+"router:src/activation.js": [
+0
+],
+"router:src/history.js": [
+0
+],
+"router:src/index.js": [
+0
+],
+"router:src/modelBinding.js": [
+0
+],
+"router:src/navigationCommand.js": [
+0
+],
+"router:src/navigationContext.js": [
+0
+],
+"router:src/navigationInstruction.js": [
+0
+],
+"router:src/navigationPlan.js": [
+0
+],
+"router:src/pipeline.js": [
+0
+],
+"router:src/router.js": [
+0
+],
+"router:src/routerConfiguration.js": [
+0
+],
+"router:src/util.js": [
+0
+],
+"router:test-main.js": [
+0
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+0
+],
+"router:third_party/route-recognizer.js": [
+0
+]
+}

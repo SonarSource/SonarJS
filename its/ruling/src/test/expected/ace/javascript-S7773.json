@@ -1,0 +1,204 @@
+{
+"ace:demo/kitchen-sink/demo.js": [
+161,
+168
+],
+"ace:lib/ace/mode/css/csslint.js": [
+4155,
+4156,
+4157,
+4159,
+4160,
+4161,
+4213,
+4214,
+4215,
+4246,
+5646
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+367,
+9164,
+9164,
+10081
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+54,
+60,
+1957,
+2433,
+2434,
+2578,
+2578,
+5004,
+11838,
+11905,
+12204,
+12252,
+12277,
+12302,
+12818,
+17952,
+18887
+],
+"ace:lib/ace/mode/json/json_parse.js": [
+140,
+168,
+169
+],
+"ace:lib/ace/mode/php/php.js": [
+1063
+],
+"ace:lib/ace/mode/xml/sax.js": [
+56
+],
+"ace:lib/ace/mode/xquery.js": [
+139
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+1215,
+1216,
+3212,
+3216,
+3230,
+3239,
+3407,
+3408,
+3409,
+3414,
+3429
+],
+"ace:src/commands/default_commands.js": [
+66
+],
+"ace:src/edit_session.js": [
+944,
+965,
+2439,
+2506
+],
+"ace:src/editor.js": [
+1623,
+1623,
+1623,
+1631,
+2196,
+2220
+],
+"ace:src/ext/elastic_tabstops_lite.js": [
+126,
+135,
+239
+],
+"ace:src/ext/emmet.js": [
+246
+],
+"ace:src/ext/options.js": [
+287,
+354,
+355
+],
+"ace:src/ext/prompt.js": [
+239,
+245,
+251,
+287
+],
+"ace:src/ext/static_highlight.js": [
+171
+],
+"ace:src/ext/whitespace.js": [
+172
+],
+"ace:src/keyboard/emacs.js": [
+223,
+224
+],
+"ace:src/keyboard/textinput.js": [
+586,
+587
+],
+"ace:src/keyboard/textinput_test.js": [
+194,
+195,
+196
+],
+"ace:src/keyboard/vim.js": [
+1927,
+1930,
+3844,
+5823,
+5848,
+6143,
+6144,
+6279
+],
+"ace:src/layer/gutter.js": [
+160,
+393,
+394,
+395,
+396
+],
+"ace:src/lib/keys.js": [
+118,
+124
+],
+"ace:src/lib/useragent.js": [
+48,
+49,
+60,
+62,
+64
+],
+"ace:src/mode/_test/highlight_rules_test.js": [
+358
+],
+"ace:src/mode/folding/coffee_test.js": [
+32,
+43
+],
+"ace:src/mode/markdown.js": [
+38
+],
+"ace:src/mode/yaml_highlight_rules.js": [
+49
+],
+"ace:src/mouse/mouse_handler_test.js": [
+149,
+157,
+162,
+167,
+172
+],
+"ace:src/snippets.js": [
+106
+],
+"ace:src/test/mockdom.js": [
+358,
+391,
+634,
+635
+],
+"ace:src/tokenizer.js": [
+73
+],
+"ace:src/virtual_renderer_test.js": [
+137,
+138
+],
+"ace:tool/perf-test.html": [
+71
+],
+"ace:tool/tmtheme.js": [
+182,
+186,
+204
+],
+"ace:tool/unicode.js": [
+105,
+105,
+147,
+148
+]
+}

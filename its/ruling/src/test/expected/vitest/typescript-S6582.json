@@ -1,0 +1,130 @@
+{
+"vitest:packages/browser/src/client/tester/tester.ts": [
+196
+],
+"vitest:packages/browser/src/client/utils.ts": [
+34
+],
+"vitest:packages/browser/src/node/plugins/pluginContext.ts": [
+100
+],
+"vitest:packages/browser/src/node/projectParent.ts": [
+91
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+979,
+991,
+1022,
+1034
+],
+"vitest:packages/expect/src/jest-utils.ts": [
+378,
+386,
+432
+],
+"vitest:packages/mocker/src/browser/mocker.ts": [
+33,
+42
+],
+"vitest:packages/mocker/src/node/esmWalker.ts": [
+75,
+356
+],
+"vitest:packages/pretty-format/src/plugins/AsymmetricMatcher.ts": [
+93
+],
+"vitest:packages/pretty-format/src/plugins/ReactTestComponent.ts": [
+79
+],
+"vitest:packages/runner/src/fixture.ts": [
+691
+],
+"vitest:packages/runner/src/utils/collect.ts": [
+240
+],
+"vitest:packages/snapshot/src/port/inlineSnapshot.ts": [
+217
+],
+"vitest:packages/snapshot/src/port/state.ts": [
+501,
+520
+],
+"vitest:packages/utils/src/diff/cleanupSemantic.ts": [
+70,
+106
+],
+"vitest:packages/utils/src/serialize.ts": [
+70
+],
+"vitest:packages/vitest/src/integrations/env/loader.ts": [
+73
+],
+"vitest:packages/vitest/src/integrations/env/utils.ts": [
+96
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+1015,
+1036
+],
+"vitest:packages/vitest/src/node/core.ts": [
+781,
+1645,
+1657
+],
+"vitest:packages/vitest/src/node/module-diagnostic.ts": [
+183,
+208,
+336
+],
+"vitest:packages/vitest/src/node/pool.ts": [
+383,
+427
+],
+"vitest:packages/vitest/src/node/pools/pool.ts": [
+257
+],
+"vitest:packages/vitest/src/node/pools/poolRunner.ts": [
+357
+],
+"vitest:packages/vitest/src/node/reporters/renderers/utils.ts": [
+108
+],
+"vitest:packages/vitest/src/node/reporters/reported-tasks.ts": [
+58,
+215
+],
+"vitest:packages/vitest/src/node/reporters/summary.ts": [
+305
+],
+"vitest:packages/vitest/src/node/resolver.ts": [
+200
+],
+"vitest:packages/vitest/src/node/state.ts": [
+81
+],
+"vitest:packages/vitest/src/node/stdin.ts": [
+88,
+102
+],
+"vitest:packages/vitest/src/node/test-run.ts": [
+158
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleMocker.ts": [
+200
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/nativeModuleMocker.ts": [
+189
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/startVitestModuleRunner.ts": [
+159
+],
+"vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
+196
+],
+"vitest:packages/vitest/src/typecheck/typechecker.ts": [
+333
+],
+"vitest:packages/vitest/src/utils/graph.ts": [
+28
+]
+}
