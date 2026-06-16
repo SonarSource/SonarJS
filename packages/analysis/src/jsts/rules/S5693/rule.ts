@@ -222,9 +222,10 @@ function visitAssignment(context: Rule.RuleContext, assignment: estree.Assignmen
 function evaluateBinaryExpression(
   context: Rule.RuleContext,
   node: estree.BinaryExpression,
+  visited: Set<estree.Node>,
 ): number | null {
-  const left = getSizeValue(context, node.left);
-  const right = getSizeValue(context, node.right);
+  const left = getSizeValue(context, node.left, visited);
+  const right = getSizeValue(context, node.right, visited);
   if (left == null || right == null) {
     return null;
   }
@@ -249,10 +250,18 @@ function evaluateBinaryExpression(
   return result != null && Number.isFinite(result) ? result : null;
 }
 
-function getSizeValue(context: Rule.RuleContext, node: estree.Node): number | null {
+function getSizeValue(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  visited: Set<estree.Node> = new Set(),
+): number | null {
+  if (visited.has(node)) {
+    return null;
+  }
+  visited.add(node);
   const resolved = getUniqueWriteUsageOrNode(context, node, true);
   if (resolved !== node) {
-    return getSizeValue(context, resolved);
+    return getSizeValue(context, resolved, visited);
   }
   const literal = getValueOfExpression(context, node, 'Literal');
   if (literal) {
@@ -263,7 +272,7 @@ function getSizeValue(context: Rule.RuleContext, node: estree.Node): number | nu
     }
   }
   if (node.type === 'BinaryExpression') {
-    return evaluateBinaryExpression(context, node);
+    return evaluateBinaryExpression(context, node, visited);
   }
   return null;
 }
