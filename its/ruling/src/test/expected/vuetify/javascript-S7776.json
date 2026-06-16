@@ -1,0 +1,11 @@
+{
+"vuetify:packages/docs/src/examples/v-btn/usage.vue": [
+27
+],
+"vuetify:packages/docs/src/examples/v-chip/usage.vue": [
+33
+],
+"vuetify:scripts/rules/no-render-string-reference.js": [
+1
+]
+}

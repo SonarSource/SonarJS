@@ -1,0 +1,231 @@
+{
+"ace:Makefile.dryice.js": [
+514
+],
+"ace:demo/kitchen-sink/demo.js": [
+116,
+229,
+305
+],
+"ace:demo/kitchen-sink/dev_util.js": [
+22,
+22,
+141,
+142,
+143
+],
+"ace:demo/kitchen-sink/doclist.js": [
+68
+],
+"ace:demo/kitchen-sink/util.js": [
+94
+],
+"ace:demo/scrollable-page.html": [
+125
+],
+"ace:experiments/dom.html": [
+349,
+352
+],
+"ace:lib/ace/mode/css/csslint.js": [
+55
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+2,
+9314
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+923,
+1020,
+1023,
+1302,
+2892,
+2892,
+6813,
+7903,
+9939,
+10843,
+16521,
+16521,
+18104
+],
+"ace:lib/ace/mode/xml/sax.js": [
+63,
+64,
+69,
+69,
+70
+],
+"ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
+59,
+60,
+61,
+72,
+72,
+73,
+73,
+73,
+74,
+1479
+],
+"ace:lib/ace/mode/xquery/xquery_lexer.js": [
+59,
+60,
+61,
+72,
+72,
+73,
+73,
+73,
+74,
+1479
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+1,
+4668,
+4669,
+4670,
+4671,
+4977
+],
+"ace:lib/ace/worker/worker.js": [
+43
+],
+"ace:lib/ace/worker/worker_client.js": [
+227
+],
+"ace:lib/ace/worker/worker_client_v2.js": [
+242
+],
+"ace:lib/ace/worker/worker_v2.js": [
+60,
+61
+],
+"ace:src/autocomplete.js": [
+261
+],
+"ace:src/autocomplete/popup.js": [
+70,
+101
+],
+"ace:src/config.js": [
+126
+],
+"ace:src/edit_session.js": [
+1717,
+1719,
+1795
+],
+"ace:src/edit_session_test.js": [
+866,
+872
+],
+"ace:src/editor.js": [
+2809
+],
+"ace:src/editor_change_document_test.js": [
+65,
+95,
+114
+],
+"ace:src/ext/language_tools.js": [
+94,
+105
+],
+"ace:src/ext/modelist.js": [
+11
+],
+"ace:src/keyboard/emacs.js": [
+97,
+98,
+101
+],
+"ace:src/keyboard/textinput.js": [
+69,
+127,
+155,
+335,
+599
+],
+"ace:src/keyboard/vim.js": [
+91,
+830,
+1185,
+1223,
+1271,
+1522,
+1637,
+1725,
+1794,
+2478,
+2624
+],
+"ace:src/keyboard/vim_test.js": [
+301,
+307
+],
+"ace:src/lib/event.js": [
+33
+],
+"ace:src/mode/folding/markdown.js": [
+57
+],
+"ace:src/mode/mask_highlight_rules.js": [
+62
+],
+"ace:src/mode/text.js": [
+52,
+52,
+93
+],
+"ace:src/mouse/dragdrop_handler.js": [
+102
+],
+"ace:src/mouse/mouse_handler.js": [
+130,
+131,
+132
+],
+"ace:src/mouse/mouse_handler_test.js": [
+42
+],
+"ace:src/mouse/multi_select_handler.js": [
+145
+],
+"ace:src/scrollbar_custom.js": [
+138,
+285
+],
+"ace:src/search.js": [
+272,
+272,
+272
+],
+"ace:src/snippets.js": [
+472,
+886,
+901
+],
+"ace:src/test/asyncjs/async.js": [
+28
+],
+"ace:src/test/mockdom.js": [
+102,
+133
+],
+"ace:tool/mode_creator.js": [
+154,
+217
+],
+"ace:tool/tmlanguage.js": [
+641
+],
+"ace:tool/unicode.js": [
+128,
+129,
+130
+],
+"ace:tool/update_deps.js": [
+135
+]
+}

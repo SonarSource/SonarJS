@@ -1,0 +1,175 @@
+{
+"TypeScript:Gulpfile.ts": [
+72
+],
+"TypeScript:scripts/processDiagnosticMessages.ts": [
+22
+],
+"TypeScript:src/compiler/binder.ts": [
+433,
+1043
+],
+"TypeScript:src/compiler/checker.ts": [
+2337,
+2406,
+2671,
+2737,
+8260,
+9567,
+13293,
+14518,
+17715,
+18364,
+20241,
+20274,
+24366
+],
+"TypeScript:src/compiler/core.ts": [
+621
+],
+"TypeScript:src/compiler/declarationEmitter.ts": [
+1272,
+1430
+],
+"TypeScript:src/compiler/parser.ts": [
+4606,
+6149
+],
+"TypeScript:src/compiler/transformers/generators.ts": [
+1511
+],
+"TypeScript:src/compiler/transformers/ts.ts": [
+2806,
+2818
+],
+"TypeScript:src/compiler/utilities.ts": [
+722,
+1624,
+4636
+],
+"TypeScript:src/harness/fourslash.ts": [
+1805
+],
+"TypeScript:src/harness/harness.ts": [
+1352,
+1641
+],
+"TypeScript:src/harness/loggedIO.ts": [
+233
+],
+"TypeScript:src/harness/runner.ts": [
+180
+],
+"TypeScript:src/server/client.ts": [
+290,
+310
+],
+"TypeScript:src/server/editorServices.ts": [
+218,
+527,
+561,
+620,
+1662
+],
+"TypeScript:src/server/protocol.ts": [
+211,
+219,
+223,
+229
+],
+"TypeScript:src/server/scriptInfo.ts": [
+101
+],
+"TypeScript:src/server/scriptVersionCache.ts": [
+526
+],
+"TypeScript:src/server/server.ts": [
+497
+],
+"TypeScript:src/server/session.ts": [
+980,
+1106,
+1606,
+1611,
+1616,
+1640
+],
+"TypeScript:src/server/typingsCache.ts": [
+63
+],
+"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
+65,
+331
+],
+"TypeScript:src/server/utilities.ts": [
+41
+],
+"TypeScript:src/services/classifier.ts": [
+917,
+921
+],
+"TypeScript:src/services/completions.ts": [
+111,
+690,
+1335
+],
+"TypeScript:src/services/findAllReferences.ts": [
+645
+],
+"TypeScript:src/services/formatting/rules.ts": [
+792
+],
+"TypeScript:src/services/jsDoc.ts": [
+167,
+224
+],
+"TypeScript:src/services/jsTyping.ts": [
+211
+],
+"TypeScript:src/services/navigateTo.ts": [
+185,
+206
+],
+"TypeScript:src/services/patternMatcher.ts": [
+494,
+511,
+553,
+559
+],
+"TypeScript:src/services/services.ts": [
+1809,
+1846,
+1869,
+1894,
+1896,
+1898,
+1901,
+1904,
+1910,
+1912,
+1916,
+1918,
+1930,
+1936,
+1942
+],
+"TypeScript:src/services/shims.ts": [
+595,
+1241,
+1248
+],
+"TypeScript:src/services/signatureHelp.ts": [
+358
+],
+"TypeScript:src/services/symbolDisplay.ts": [
+3,
+90
+],
+"TypeScript:src/services/types.ts": [
+202,
+704
+],
+"TypeScript:src/services/utilities.ts": [
+372
+]
+}

@@ -1,0 +1,8 @@
+{
+"jshint:src/lex.js": [
+397
+],
+"jshint:tests/helpers/browser/index.html": [
+24
+]
+}

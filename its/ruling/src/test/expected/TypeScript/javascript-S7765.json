@@ -1,0 +1,23 @@
+{
+"TypeScript:lib/cancellationToken.js": [
+44
+],
+"TypeScript:lib/tsc.js": [
+1330,
+1552,
+1786,
+5483,
+31250,
+35012,
+49467,
+51789,
+55542
+],
+"TypeScript:lib/typingsInstaller.js": [
+1340,
+1562,
+1796,
+5879,
+6423
+]
+}

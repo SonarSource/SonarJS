@@ -1,0 +1,99 @@
+{
+"vitest:packages/browser/src/node/plugins/pluginContext.ts": [
+19
+],
+"vitest:packages/expect/src/chai-style-assertions.ts": [
+3
+],
+"vitest:packages/expect/src/jest-asymmetric-matchers.ts": [
+443
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+38
+],
+"vitest:packages/expect/src/jest-extend.ts": [
+85,
+93,
+218
+],
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+50
+],
+"vitest:packages/utils/src/diff/cleanupSemantic.ts": [
+68,
+102,
+142,
+192,
+340,
+413,
+567
+],
+"vitest:packages/vitest/src/integrations/snapshot/chai.ts": [
+78
+],
+"vitest:packages/vitest/src/node/ast-collect.ts": [
+145
+],
+"vitest:packages/vitest/src/node/core.ts": [
+319,
+601,
+1006,
+1039,
+1084
+],
+"vitest:packages/vitest/src/node/plugins/coverageTransform.ts": [
+4
+],
+"vitest:packages/vitest/src/node/plugins/cssEnabler.ts": [
+37
+],
+"vitest:packages/vitest/src/node/plugins/index.ts": [
+26,
+32
+],
+"vitest:packages/vitest/src/node/plugins/metaEnvReplacer.ts": [
+8
+],
+"vitest:packages/vitest/src/node/plugins/mocks.ts": [
+11
+],
+"vitest:packages/vitest/src/node/plugins/normalizeURL.ts": [
+11
+],
+"vitest:packages/vitest/src/node/plugins/optimizer.ts": [
+5
+],
+"vitest:packages/vitest/src/node/plugins/runnerTransform.ts": [
+7
+],
+"vitest:packages/vitest/src/node/plugins/vitestResolver.ts": [
+6,
+33
+],
+"vitest:packages/vitest/src/node/plugins/workspace.ts": [
+31
+],
+"vitest:packages/vitest/src/node/reporters/reported-tasks.ts": [
+771
+],
+"vitest:packages/vitest/src/runtime/runners/test.ts": [
+269
+],
+"vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
+248,
+257
+],
+"vitest:packages/vitest/src/typecheck/collect.ts": [
+113
+],
+"vitest:packages/vitest/src/utils/colors.ts": [
+28,
+39,
+41,
+42,
+47
+],
+"vitest:packages/vitest/src/utils/traces.ts": [
+239
+]
+}

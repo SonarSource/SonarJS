@@ -1,0 +1,35 @@
+{
+"ace:src/mode/dot_highlight_rules.js": [
+41
+],
+"ace:src/mode/haskell_cabal_highlight_rules.js": [
+24
+],
+"ace:src/mode/hjson_highlight_rules.js": [
+89
+],
+"ace:src/mode/java_highlight_rules.js": [
+86
+],
+"ace:src/mode/jexl_highlight_rules.js": [
+79
+],
+"ace:src/mode/praat_highlight_rules.js": [
+190,
+218,
+233,
+246
+],
+"ace:src/mode/scrypt_highlight_rules.js": [
+61
+],
+"ace:src/mode/smithy_highlight_rules.js": [
+161
+],
+"ace:src/mode/wollok_highlight_rules.js": [
+53
+],
+"ace:src/mode/zeek_highlight_rules.js": [
+62
+]
+}

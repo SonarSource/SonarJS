@@ -1,0 +1,20 @@
+{
+"vitest:packages/expect/src/types.ts": [
+930
+],
+"vitest:packages/runner/src/types/tasks.ts": [
+148,
+587,
+1450
+],
+"vitest:packages/vitest/src/node/types/browser.ts": [
+54,
+498
+],
+"vitest:packages/vitest/src/public/browser.ts": [
+47
+],
+"vitest:packages/vitest/src/types/general.ts": [
+28
+]
+}

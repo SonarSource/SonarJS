@@ -1,0 +1,23 @@
+{
+"tailwindcss:scripts/compat.js": [
+15,
+16
+],
+"tailwindcss:scripts/rebuildFixtures.js": [
+33
+],
+"tailwindcss:src/lib/purgeUnusedStyles.js": [
+79
+],
+"tailwindcss:src/plugins/fontVariantNumeric.js": [
+6
+],
+"tailwindcss:stubs/defaultConfig.stub.js": [
+224,
+225,
+340,
+341,
+726,
+728
+]
+}

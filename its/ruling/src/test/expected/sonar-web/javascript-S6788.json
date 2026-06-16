@@ -1,0 +1,19 @@
+{
+"sonar-web:src/main/js/components/mixins/resize-mixin.js": [
+19
+],
+"sonar-web:src/main/js/components/mixins/tooltips-mixin.js": [
+16
+],
+"sonar-web:src/main/js/main/nav/component/component-nav.js": [
+37
+],
+"sonar-web:tests/apps/background-tasks-test.js": [
+68
+],
+"sonar-web:tests/apps/system-test.js": [
+15,
+73,
+89
+]
+}

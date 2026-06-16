@@ -1,0 +1,29 @@
+{
+"bulma:docs/_includes/elements/bsa.html": [
+24
+],
+"bulma:docs/_includes/global/native.html": [
+37
+],
+"bulma:docs/_includes/global/scripts.html": [
+11,
+12
+],
+"bulma:docs/_javascript/main.js": [
+261
+],
+"bulma:docs/_scripts/plugins/utils.js": [
+188
+],
+"bulma:docs/lib/bulma.js": [
+64
+],
+"bulma:docs/lib/main.js": [
+60,
+263
+],
+"bulma:test/utils.js": [
+88,
+90
+]
+}

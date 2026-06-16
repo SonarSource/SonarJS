@@ -1,0 +1,233 @@
+{
+"angular.js:benchmarks/largetable-bp/app.js": [
+27,
+29
+],
+"angular.js:benchmarks/orderby-bp/app.js": [
+19
+],
+"angular.js:docs/app/src/errors.js": [
+10,
+39,
+43
+],
+"angular.js:docs/app/src/versions.js": [
+41
+],
+"angular.js:docs/config/processors/keywords.js": [
+60
+],
+"angular.js:docs/config/processors/versions-data.js": [
+116,
+125,
+129,
+135,
+140
+],
+"angular.js:lib/grunt/utils.js": [
+166
+],
+"angular.js:protractor-jenkins-conf.js": [
+24
+],
+"angular.js:protractor-shared-conf.js": [
+19
+],
+"angular.js:src/Angular.js": [
+1149
+],
+"angular.js:src/auto/injector.js": [
+756,
+827,
+917
+],
+"angular.js:src/loader.js": [
+17,
+85
+],
+"angular.js:src/ng/anchorScroll.js": [
+180
+],
+"angular.js:src/ng/animate.js": [
+101,
+116,
+315
+],
+"angular.js:src/ng/animateRunner.js": [
+82
+],
+"angular.js:src/ng/cacheFactory.js": [
+311
+],
+"angular.js:src/ng/compile.js": [
+1459,
+1485,
+2090,
+2316,
+2452,
+2587,
+2613,
+2793,
+3387,
+3472,
+3550,
+3708,
+3715,
+3717,
+3804,
+4005,
+4018
+],
+"angular.js:src/ng/controller.js": [
+163
+],
+"angular.js:src/ng/cookieReader.js": [
+17,
+25
+],
+"angular.js:src/ng/directive/form.js": [
+700
+],
+"angular.js:src/ng/directive/input.js": [
+1576,
+2346
+],
+"angular.js:src/ng/directive/ngClass.js": [
+105,
+123,
+127
+],
+"angular.js:src/ng/directive/ngInclude.js": [
+225
+],
+"angular.js:src/ng/directive/ngModelOptions.js": [
+549
+],
+"angular.js:src/ng/directive/ngOptions.js": [
+307,
+616
+],
+"angular.js:src/ng/directive/ngRepeat.js": [
+437,
+449,
+453,
+457,
+461
+],
+"angular.js:src/ng/directive/ngSwitch.js": [
+155
+],
+"angular.js:src/ng/directive/ngTransclude.js": [
+215
+],
+"angular.js:src/ng/directive/select.js": [
+755,
+840
+],
+"angular.js:src/ng/filter/orderBy.js": [
+638,
+674
+],
+"angular.js:src/ng/http.js": [
+1081,
+1098,
+1425,
+1505,
+1512
+],
+"angular.js:src/ng/interpolate.js": [
+104,
+114
+],
+"angular.js:src/ng/jsonpCallbacks.js": [
+17
+],
+"angular.js:src/ng/location.js": [
+250,
+871
+],
+"angular.js:src/ng/parse.js": [
+1825,
+1931,
+1939,
+1959
+],
+"angular.js:src/ng/q.js": [
+315
+],
+"angular.js:src/ng/rootScope.js": [
+85,
+86,
+103,
+107,
+175,
+1459,
+1465,
+1479
+],
+"angular.js:src/ng/sce.js": [
+252,
+261,
+292,
+293
+],
+"angular.js:src/ngAnimate/animateCss.js": [
+974
+],
+"angular.js:src/ngAnimate/animateCssDriver.js": [
+12,
+41,
+46,
+119,
+153
+],
+"angular.js:src/ngAnimate/animateQueue.js": [
+16,
+54,
+180,
+190,
+216
+],
+"angular.js:src/ngAnimate/animation.js": [
+77,
+270,
+368,
+412
+],
+"angular.js:src/ngAnimate/shared.js": [
+281
+],
+"angular.js:src/ngAria/aria.js": [
+241,
+248
+],
+"angular.js:src/ngMessages/messages.js": [
+559,
+814
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+428,
+1108,
+1474,
+1514,
+2088,
+2165,
+2212,
+2992,
+3024
+],
+"angular.js:src/ngResource/resource.js": [
+692,
+696
+],
+"angular.js:src/ngRoute/route.js": [
+607,
+838
+],
+"angular.js:src/ngSanitize/sanitize.js": [
+567
+],
+"angular.js:src/ngTouch/swipe.js": [
+52
+]
+}

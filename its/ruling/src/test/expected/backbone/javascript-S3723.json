@@ -1,0 +1,40 @@
+{
+"backbone:backbone.js": [
+121,
+192,
+364,
+741,
+939,
+1096,
+1212,
+1446,
+1521,
+1562,
+1622,
+1733,
+1812,
+2037
+],
+"backbone:examples/todos/todos.js": [
+20,
+27,
+62,
+87,
+136,
+157,
+227
+],
+"backbone:karma.conf-sauce.js": [
+35,
+47,
+70,
+84,
+92
+],
+"backbone:karma.conf.js": [
+17,
+50,
+51,
+52
+]
+}

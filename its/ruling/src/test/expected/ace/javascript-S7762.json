@@ -1,0 +1,88 @@
+{
+"ace:experiments/animate_folding.html": [
+210,
+222,
+223,
+224
+],
+"ace:experiments/debug_mem_leak.html": [
+41,
+50
+],
+"ace:experiments/dom.html": [
+47,
+83,
+117,
+165,
+216,
+253,
+311
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+6079
+],
+"ace:lib/ace/mode/xml/dom.js": [
+329,
+350,
+502,
+543,
+1113
+],
+"ace:src/ace_test.js": [
+35,
+52
+],
+"ace:src/autocomplete.js": [
+414,
+435
+],
+"ace:src/ext/code_lens_test.js": [
+33
+],
+"ace:src/ext/menu_tools/overlay_page.js": [
+42
+],
+"ace:src/keyboard/textinput.js": [
+723
+],
+"ace:src/layer/cursor.js": [
+90
+],
+"ace:src/layer/font_metrics.js": [
+142
+],
+"ace:src/layer/marker.js": [
+78
+],
+"ace:src/lib/dom.js": [
+254
+],
+"ace:src/line_widgets.js": [
+78,
+165,
+225
+],
+"ace:src/mouse/dragdrop_handler.js": [
+54
+],
+"ace:src/mouse/mouse_handler_test.js": [
+275
+],
+"ace:src/scrollbar_test.js": [
+47
+],
+"ace:src/split.js": [
+79
+],
+"ace:src/test/mockdom.js": [
+137,
+141,
+146
+],
+"ace:src/tooltip.js": [
+110
+],
+"ace:src/virtual_renderer_test.js": [
+38
+]
+}

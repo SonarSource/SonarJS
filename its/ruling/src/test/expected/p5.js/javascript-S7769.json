@@ -1,0 +1,26 @@
+{
+"p5.js:lib/addons/p5.sound.js": [
+671,
+4690
+],
+"p5.js:src/typography/p5.Font.js": [
+580,
+581
+],
+"p5.js:src/webgl/interaction.js": [
+117,
+124
+],
+"p5.js:src/webgl/light.js": [
+254
+],
+"p5.js:src/webgl/p5.Camera.js": [
+1147,
+1171,
+1178,
+1206
+],
+"p5.js:src/webgl/p5.Matrix.js": [
+577
+]
+}

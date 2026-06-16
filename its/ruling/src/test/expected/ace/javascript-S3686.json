@@ -1,0 +1,14 @@
+{
+"ace:lib/ace/mode/javascript/jshint.js": [
+3362
+],
+"ace:src/keyboard/vim.js": [
+7174
+],
+"ace:src/mouse/mouse_handler_test.js": [
+69
+],
+"ace:src/scrollbar_test.js": [
+60
+]
+}

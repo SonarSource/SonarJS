@@ -1,0 +1,20 @@
+{
+"jquery:src/attributes/prop.js": [
+67
+],
+"jquery:src/css.js": [
+167,
+310,
+311
+],
+"jquery:src/css/support.js": [
+27
+],
+"jquery:src/offset.js": [
+36,
+37
+],
+"jquery:test/delegatetest.html": [
+202
+]
+}

@@ -1,0 +1,19 @@
+{
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerSwatches.tsx": [
+65,
+70
+],
+"vuetify:packages/vuetify/src/components/VRating/VRating.tsx": [
+250
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableGroupHeaderRow.tsx": [
+84
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
+153,
+155
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRow.tsx": [
+44
+]
+}

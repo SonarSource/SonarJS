@@ -1,0 +1,17 @@
+{
+"vitest:packages/browser-playwright/src/playwright.ts": [
+303
+],
+"vitest:packages/browser/src/client/tester/context.ts": [
+153
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+124
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+679
+],
+"vitest:packages/runner/src/suite.ts": [
+585
+]
+}

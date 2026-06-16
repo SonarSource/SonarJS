@@ -1,0 +1,29 @@
+{
+"http:gulpfile.js": [
+59,
+60,
+61,
+62
+],
+"http:lib/gulp/karma/background.js": [
+6
+],
+"http:lib/gulp/karma/index.js": [
+6,
+7,
+8,
+9,
+10,
+13,
+14,
+34,
+35
+],
+"http:src/Utils.js": [
+6
+],
+"http:test/mocks/Xhr.js": [
+70,
+74
+]
+}

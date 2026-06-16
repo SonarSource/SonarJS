@@ -1,0 +1,18 @@
+{
+"vuetify:packages/vuetify/src/components/VField/VField.tsx": [
+193
+],
+"vuetify:packages/vuetify/src/components/VRating/VRating.tsx": [
+125,
+137
+],
+"vuetify:packages/vuetify/src/composables/items.ts": [
+99
+],
+"vuetify:packages/vuetify/src/composables/location.ts": [
+41
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
+51
+]
+}

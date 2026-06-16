@@ -1,0 +1,177 @@
+{
+"ace:Makefile.dryice.js": [
+590
+],
+"ace:lib/ace/mode/php/php.js": [
+192,
+193
+],
+"ace:lib/ace/mode/xml/sax.js": [
+585
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+3173,
+3867
+],
+"ace:src/mode/alda_highlight_rules.js": [
+41
+],
+"ace:src/mode/apex_highlight_rules.js": [
+109,
+112
+],
+"ace:src/mode/asciidoc_highlight_rules.js": [
+62
+],
+"ace:src/mode/c_cpp_highlight_rules.js": [
+54
+],
+"ace:src/mode/coffee.js": [
+42
+],
+"ace:src/mode/coffee_highlight_rules.js": [
+55,
+58,
+125
+],
+"ace:src/mode/crystal_highlight_rules.js": [
+40
+],
+"ace:src/mode/csharp_highlight_rules.js": [
+30
+],
+"ace:src/mode/csound_preprocessor_highlight_rules.js": [
+50
+],
+"ace:src/mode/d_highlight_rules.js": [
+259
+],
+"ace:src/mode/eiffel_highlight_rules.js": [
+30,
+43,
+49,
+52,
+55
+],
+"ace:src/mode/elm_highlight_rules.js": [
+30
+],
+"ace:src/mode/folding/ruby.js": [
+37
+],
+"ace:src/mode/hjson_highlight_rules.js": [
+89
+],
+"ace:src/mode/java_highlight_rules.js": [
+86
+],
+"ace:src/mode/javascript_highlight_rules.js": [
+153,
+188,
+191,
+194
+],
+"ace:src/mode/jexl_highlight_rules.js": [
+79
+],
+"ace:src/mode/kotlin_highlight_rules.js": [
+108,
+236
+],
+"ace:src/mode/latte.js": [
+22
+],
+"ace:src/mode/maze_highlight_rules.js": [
+74,
+96
+],
+"ace:src/mode/mediawiki_highlight_rules.js": [
+290
+],
+"ace:src/mode/mips_highlight_rules.js": [
+29,
+41,
+45
+],
+"ace:src/mode/nsis_highlight_rules.js": [
+13,
+17,
+39,
+43,
+52,
+56
+],
+"ace:src/mode/nunjucks_highlight_rules.js": [
+85
+],
+"ace:src/mode/pig_highlight_rules.js": [
+32,
+46,
+52
+],
+"ace:src/mode/praat_highlight_rules.js": [
+135,
+218,
+233,
+246
+],
+"ace:src/mode/prisma_highlight_rules.js": [
+282
+],
+"ace:src/mode/robot_highlight_rules.js": [
+8,
+8,
+14
+],
+"ace:src/mode/ruby_highlight_rules.js": [
+549,
+565
+],
+"ace:src/mode/rust_highlight_rules.js": [
+190
+],
+"ace:src/mode/sac_highlight_rules.js": [
+48
+],
+"ace:src/mode/scrypt_highlight_rules.js": [
+61,
+87
+],
+"ace:src/mode/sh_highlight_rules.js": [
+200
+],
+"ace:src/mode/smithy_highlight_rules.js": [
+57,
+161
+],
+"ace:src/mode/sparql_highlight_rules.js": [
+54,
+65,
+69
+],
+"ace:src/mode/swift_highlight_rules.js": [
+140,
+143
+],
+"ace:src/mode/wollok_highlight_rules.js": [
+53
+],
+"ace:src/mode/zeek_highlight_rules.js": [
+57,
+62,
+67,
+71
+],
+"ace:src/snippets.js": [
+688
+],
+"ace:src/test/mockdom.js": [
+544
+],
+"ace:tool/lib.js": [
+16
+],
+"ace:tool/regexp_tokenizer.js": [
+35
+]
+}

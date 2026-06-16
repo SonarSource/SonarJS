@@ -1,0 +1,11 @@
+{
+"vitest:examples/fastify/src/index.ts": [
+13
+],
+"vitest:examples/projects/packages/server/src/index.ts": [
+13
+],
+"vitest:scripts/update-contributors.ts": [
+26
+]
+}

@@ -1,0 +1,83 @@
+{
+"p5.js:docs/documented-method.js": [
+12,
+42,
+46
+],
+"p5.js:docs/preprocessor.js": [
+6,
+34,
+128,
+209,
+216,
+229,
+234,
+237,
+240,
+250,
+256
+],
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+13,
+43,
+47
+],
+"p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
+12,
+221
+],
+"p5.js:docs/yuidoc-p5-theme/helpers/helpers_dev.js": [
+13
+],
+"p5.js:docs/yuidoc-p5-theme/helpers/helpers_prod.js": [
+12
+],
+"p5.js:lib/addons/p5.sound.js": [
+2871,
+3165,
+7579,
+10400,
+10405,
+10901,
+12553,
+12683,
+12738
+],
+"p5.js:src/core/error_helpers.js": [
+280,
+298,
+371
+],
+"p5.js:src/core/main.js": [
+462,
+491
+],
+"p5.js:src/core/p5.Renderer2D.js": [
+449,
+468
+],
+"p5.js:src/core/structure.js": [
+392,
+399
+],
+"p5.js:src/dom/dom.js": [
+377,
+2086
+],
+"p5.js:src/webgl/p5.RendererGL.Immediate.js": [
+302
+],
+"p5.js:test/test-reference.html": [
+71,
+125,
+148,
+209,
+220,
+222
+],
+"p5.js:utils/sample-linter.js": [
+15,
+19,
+27
+]
+}

@@ -1,0 +1,27 @@
+{
+"Ghost:core/client/app/controllers/team/user.js": [
+50
+],
+"Ghost:core/client/app/mixins/editor-base-route.js": [
+53
+],
+"Ghost:core/client/app/utils/isNumber.js": [
+6
+],
+"Ghost:core/server/data/migration/fixtures/index.js": [
+349,
+354
+],
+"Ghost:core/server/middleware/auth.js": [
+54
+],
+"Ghost:core/server/models/base/index.js": [
+446
+],
+"Ghost:core/server/permissions/index.js": [
+69
+],
+"Ghost:core/server/update-check.js": [
+97
+]
+}

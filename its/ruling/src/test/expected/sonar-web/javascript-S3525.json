@@ -1,0 +1,68 @@
+{
+"sonar-web:src/main/js/widgets/old/base.js": [
+25,
+34,
+42,
+70,
+74,
+79,
+83
+],
+"sonar-web:src/main/js/widgets/old/histogram.js": [
+18,
+25,
+48,
+71
+],
+"sonar-web:src/main/js/widgets/old/tag-cloud.js": [
+17,
+48,
+65,
+71
+],
+"sonar-web:src/main/js/widgets/old/treemap.js": [
+19,
+27,
+35,
+84,
+91,
+98,
+132,
+144,
+155,
+194,
+199,
+212,
+222,
+228,
+239,
+243,
+269,
+280,
+312,
+336
+],
+"sonar-web:src/main/js/widgets/old/word-cloud.js": [
+16,
+25,
+57
+],
+"sonar-web:test/helpers/test-page.js": [
+10,
+25,
+40,
+55,
+74,
+93,
+105,
+114,
+123,
+132,
+142,
+151,
+160,
+172,
+184,
+196
+]
+}

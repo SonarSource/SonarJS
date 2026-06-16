@@ -1,0 +1,33 @@
+{
+"ace:experiments/dom.html": [
+87,
+95,
+103,
+151,
+186,
+202,
+230,
+239,
+257,
+297,
+315,
+329
+],
+"ace:lib/ace/mode/css/csslint.js": [
+10512,
+10620
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+621,
+733,
+2007,
+15184
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+4350,
+4465
+],
+"ace:src/edit_session_test.js": [
+799
+]
+}

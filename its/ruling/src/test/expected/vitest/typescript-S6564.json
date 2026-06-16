@@ -1,0 +1,11 @@
+{
+"vitest:packages/ui/client/composables/explorer/types.ts": [
+90
+],
+"vitest:packages/vitest/src/node/reporters/json.ts": [
+17
+],
+"vitest:packages/vitest/src/node/types/coverage.ts": [
+14
+]
+}

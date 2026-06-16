@@ -1,0 +1,98 @@
+{
+"vitest:eslint.config.js": [
+0
+],
+"vitest:examples/opentelemetry/otel-browser.js": [
+0
+],
+"vitest:examples/opentelemetry/otel.js": [
+0
+],
+"vitest:packages/browser-playwright/rollup.config.js": [
+0
+],
+"vitest:packages/browser-preview/rollup.config.js": [
+0
+],
+"vitest:packages/browser-webdriverio/rollup.config.js": [
+0
+],
+"vitest:packages/browser/context.js": [
+0
+],
+"vitest:packages/browser/dummy.js": [
+0
+],
+"vitest:packages/browser/rollup.config.js": [
+0
+],
+"vitest:packages/browser/scripts/build-client.js": [
+0
+],
+"vitest:packages/browser/src/client/public/error-catcher.js": [
+0
+],
+"vitest:packages/browser/src/client/public/esm-client-injector.js": [
+0
+],
+"vitest:packages/coverage-istanbul/rollup.config.js": [
+0
+],
+"vitest:packages/coverage-v8/rollup.config.js": [
+0
+],
+"vitest:packages/expect/rollup.config.js": [
+0
+],
+"vitest:packages/mocker/rollup.config.js": [
+0
+],
+"vitest:packages/pretty-format/rollup.config.js": [
+0
+],
+"vitest:packages/runner/rollup.config.js": [
+0
+],
+"vitest:packages/snapshot/rollup.config.js": [
+0
+],
+"vitest:packages/spy/rollup.config.js": [
+0
+],
+"vitest:packages/ui/browser.dev.js": [
+0
+],
+"vitest:packages/ui/client/App.vue": [
+0
+],
+"vitest:packages/ui/rollup.config.js": [
+0
+],
+"vitest:packages/utils/rollup.config.js": [
+0
+],
+"vitest:packages/vitest/browser/context.js": [
+0
+],
+"vitest:packages/vitest/index.cjs": [
+0
+],
+"vitest:packages/vitest/rollup.config.js": [
+0
+],
+"vitest:packages/vitest/suppress-warnings.cjs": [
+0
+],
+"vitest:packages/vitest/vitest.mjs": [
+0
+],
+"vitest:packages/web-worker/rollup.config.js": [
+0
+],
+"vitest:packages/ws-client/rollup.config.js": [
+0
+],
+"vitest:scripts/build-utils.js": [
+0
+]
+}

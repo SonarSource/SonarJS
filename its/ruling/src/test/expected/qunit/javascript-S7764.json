@@ -1,0 +1,47 @@
+{
+"qunit:build/coverage-bridge.js": [
+13,
+13,
+19,
+20,
+20
+],
+"qunit:build/tasks/test-on-node.js": [
+40,
+82
+],
+"qunit:src/cli/run.js": [
+44,
+130
+],
+"qunit:test/amd.html": [
+22
+],
+"qunit:test/autostart.html": [
+12,
+23,
+34,
+35
+],
+"qunit:test/overload.html": [
+9
+],
+"qunit:test/preconfigured.html": [
+8
+],
+"qunit:test/reorderError1.html": [
+15,
+16,
+20,
+40
+],
+"qunit:test/reorderError2.html": [
+15,
+16,
+20,
+37
+],
+"qunit:test/reporter-html/window-onerror-preexisting-handler.html": [
+12
+]
+}

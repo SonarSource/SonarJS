@@ -1,0 +1,12 @@
+{
+"prototype:ext/update_helper/prototype_update_helper.js": [
+384
+],
+"prototype:src/prototype/dom/dom.js": [
+472,
+2718
+],
+"prototype:src/prototype/dom/event.js": [
+387
+]
+}

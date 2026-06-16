@@ -1,0 +1,21 @@
+{
+"vuetify:packages/vuetify/src/composables/theme.ts": [
+132,
+167,
+169
+],
+"vuetify:packages/vuetify/src/composables/touch.ts": [
+14,
+14
+],
+"vuetify:packages/vuetify/src/util/color/APCA.ts": [
+20,
+64,
+81,
+91
+],
+"vuetify:packages/vuetify/src/util/color/transformSRGB.ts": [
+8,
+8
+]
+}

@@ -1,0 +1,42 @@
+{
+"jquery:build/tasks/dist.js": [
+37
+],
+"jquery:src/event.js": [
+252,
+252,
+252
+],
+"jquery:src/event/trigger.js": [
+54,
+54,
+54
+],
+"jquery:src/selector.js": [
+46,
+50,
+56,
+57,
+59,
+63,
+66,
+70,
+74,
+86,
+91,
+92,
+93,
+93,
+99,
+100,
+100,
+113,
+114
+],
+"jquery:src/selector/rbuggyQSA.js": [
+23
+],
+"jquery:src/selector/var/whitespace.js": [
+2
+]
+}

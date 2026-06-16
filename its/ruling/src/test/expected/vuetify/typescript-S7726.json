@@ -1,0 +1,11 @@
+{
+"vuetify:packages/api-generator/src/worker.ts": [
+9
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/sanitizeDateString.ts": [
+5
+],
+"vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
+14
+]
+}

@@ -1,0 +1,78 @@
+{
+"fresh:packages/fresh/src/commands.ts": [
+229
+],
+"fresh:packages/fresh/src/dev/builder.ts": [
+294
+],
+"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
+152,
+338
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+161,
+189
+],
+"fresh:packages/fresh/src/dev/file_transformer_test.ts": [
+37
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
+60,
+90
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+72
+],
+"fresh:packages/fresh/src/jsonify/parse.ts": [
+116,
+130
+],
+"fresh:packages/fresh/src/router.ts": [
+202
+],
+"fresh:packages/fresh/src/runtime/client/preact_hooks_client.ts": [
+127
+],
+"fresh:packages/fresh/src/runtime/client/reviver.ts": [
+154,
+589
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+326,
+400
+],
+"fresh:packages/fresh/src/segments.ts": [
+57
+],
+"fresh:packages/init/src/init.ts": [
+20
+],
+"fresh:packages/plugin-tailwindcss-v3/src/mod.ts": [
+79
+],
+"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
+65,
+363,
+819
+],
+"fresh:packages/plugin-vite/src/plugins/patches/jsx_comment.ts": [
+10
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+87,
+600
+],
+"fresh:packages/update/src/update.ts": [
+605,
+636,
+665
+],
+"fresh:www/islands/TableOfContents.tsx": [
+54,
+58,
+70
+],
+"fresh:www/utils/markdown.ts": [
+114
+]
+}

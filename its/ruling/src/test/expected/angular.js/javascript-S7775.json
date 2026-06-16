@@ -1,0 +1,23 @@
+{
+"angular.js:src/ng/compile.js": [
+2458
+],
+"angular.js:src/ng/directive/ngInclude.js": [
+290
+],
+"angular.js:src/ng/location.js": [
+265
+],
+"angular.js:src/ng/parse.js": [
+242
+],
+"angular.js:src/ng/sanitizeUri.js": [
+76
+],
+"angular.js:src/ng/sce.js": [
+266
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+1112
+]
+}

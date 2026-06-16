@@ -1,0 +1,14 @@
+{
+"eigen:scripts/detect-secrets.js": [
+98,
+102
+],
+"eigen:scripts/preheatGraphQLCache.js": [
+42
+],
+"eigen:scripts/strictness-migration.js": [
+27,
+31,
+44
+]
+}

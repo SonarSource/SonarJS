@@ -1,0 +1,11 @@
+{
+"vitest:examples/profiling/src/prime-number.ts": [
+30
+],
+"vitest:packages/utils/src/nanoid.ts": [
+9
+],
+"vitest:packages/vitest/src/node/cache/fsModuleCache.ts": [
+346
+]
+}

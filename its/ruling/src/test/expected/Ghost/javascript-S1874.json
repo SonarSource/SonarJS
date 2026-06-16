@@ -1,0 +1,21 @@
+{
+"Ghost:core/client/app/services/media-queries.js": [
+37
+],
+"Ghost:core/client/app/utils/ghost-paths.js": [
+18
+],
+"Ghost:core/client/tests/acceptance/settings/tags-test.js": [
+30,
+41
+],
+"Ghost:core/client/tests/unit/controllers/post-settings-menu-test.js": [
+174,
+209,
+265
+],
+"Ghost:core/server/config/url.js": [
+123,
+124
+]
+}

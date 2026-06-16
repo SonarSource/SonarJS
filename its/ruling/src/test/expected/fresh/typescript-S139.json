@@ -1,0 +1,41 @@
+{
+"fresh:packages/fresh/src/middlewares/cors.ts": [
+161
+],
+"fresh:packages/fresh/src/middlewares/csp.ts": [
+71,
+96
+],
+"fresh:packages/fresh/src/middlewares/mod_test.ts": [
+19
+],
+"fresh:packages/fresh/src/runtime/shared_internal.ts": [
+139,
+145
+],
+"fresh:packages/fresh/tests/partials_test.tsx": [
+1416,
+1482
+],
+"fresh:packages/fresh/tests/test_utils.tsx": [
+73
+],
+"fresh:packages/plugin-vite/src/shared.ts": [
+9
+],
+"fresh:packages/plugin-vite/tests/dev_server_test.ts": [
+83
+],
+"fresh:www/routes/_middleware.ts": [
+42
+],
+"fresh:www/utils/ga4.ts": [
+13,
+266,
+267,
+269,
+270,
+271,
+272
+]
+}

@@ -1,0 +1,41 @@
+{
+"fresh:packages/fresh/src/dev/builder.ts": [
+409,
+418
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
+78
+],
+"fresh:packages/fresh/src/middlewares/cors.ts": [
+146,
+187
+],
+"fresh:packages/fresh/src/middlewares/cors_test.ts": [
+64,
+67,
+72,
+78
+],
+"fresh:packages/fresh/src/router.ts": [
+313
+],
+"fresh:packages/plugin-vite/src/mod.ts": [
+261
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+105
+],
+"fresh:packages/plugin-vite/tests/build_test.ts": [
+536
+],
+"fresh:packages/plugin-vite/tests/test_utils.ts": [
+31
+],
+"fresh:www/utils/ga4.ts": [
+230,
+266
+],
+"fresh:www/utils/markdown.ts": [
+164
+]
+}

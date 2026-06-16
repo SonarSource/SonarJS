@@ -1,0 +1,28 @@
+{
+"sonar-web:src/main/js/components/source-viewer/main.js": [
+146
+],
+"sonar-web:test/helpers/test-page.js": [
+13,
+13,
+28,
+43,
+58,
+58,
+77,
+77,
+108,
+108,
+117,
+126,
+136,
+136,
+136,
+145,
+145,
+145,
+163,
+163,
+175
+]
+}

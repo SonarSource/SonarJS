@@ -1,0 +1,20 @@
+{
+"TypeScript:src/compiler/commandLineParser.ts": [
+990
+],
+"TypeScript:src/compiler/tsc.ts": [
+646
+],
+"TypeScript:src/harness/fourslash.ts": [
+3018
+],
+"TypeScript:src/harness/harness.ts": [
+36
+],
+"TypeScript:src/harness/projectsRunner.ts": [
+504
+],
+"TypeScript:src/services/shims.ts": [
+384
+]
+}

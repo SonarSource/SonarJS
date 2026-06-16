@@ -1,0 +1,31 @@
+{
+"vuetify:packages/docs/src/examples/application-layout/layout-information-composable.vue": [
+31
+],
+"vuetify:packages/docs/src/examples/application-layout/layout-information-ref.vue": [
+26
+],
+"vuetify:packages/docs/src/examples/v-chip/slot-icon.vue": [
+74
+],
+"vuetify:packages/docs/src/examples/v-date-picker/event-button-events.vue": [
+64,
+69
+],
+"vuetify:packages/docs/src/examples/v-form/misc-exposed.vue": [
+83
+],
+"vuetify:packages/docs/src/examples/v-form/misc-vee-validate.vue": [
+100
+],
+"vuetify:packages/docs/src/examples/v-form/rules-async.vue": [
+26
+],
+"vuetify:packages/docs/src/examples/v-icon/event-click.vue": [
+33
+],
+"vuetify:packages/docs/src/examples/v-input/event-slot-clicks.vue": [
+31,
+34
+]
+}

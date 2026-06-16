@@ -1,0 +1,21 @@
+{
+"knockout:src/binding/defaultBindings/options.js": [
+100
+],
+"knockout:src/memoization.js": [
+55
+],
+"knockout:src/tasks.js": [
+23
+],
+"knockout:src/utils.domManipulation.js": [
+61,
+90
+],
+"knockout:src/utils.domNodeDisposal.js": [
+88
+],
+"knockout:src/utils.js": [
+592
+]
+}

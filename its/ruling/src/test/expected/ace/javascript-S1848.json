@@ -1,0 +1,23 @@
+{
+"ace:demo/kitchen-sink/demo.js": [
+409
+],
+"ace:src/editor.js": [
+53
+],
+"ace:src/incremental_search_test.js": [
+45
+],
+"ace:src/mouse/mouse_handler.js": [
+16,
+17,
+18
+],
+"ace:src/placeholder_test.js": [
+23,
+40
+],
+"ace:tool/mode_creator.js": [
+38
+]
+}

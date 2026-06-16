@@ -1,0 +1,14 @@
+{
+"Ghost:core/client/app/mixins/validation-engine.js": [
+67
+],
+"Ghost:core/test/integration/api/api_mail_spec.js": [
+7
+],
+"Ghost:core/test/unit/config_spec.js": [
+11
+],
+"Ghost:core/test/utils/fixtures/app/good.js": [
+2
+]
+}

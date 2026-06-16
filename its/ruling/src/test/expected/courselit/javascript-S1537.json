@@ -1,0 +1,144 @@
+{
+"courselit:apps/web/models/Customisation.js": [
+5
+],
+"courselit:apps/web/models/Subscriber.js": [
+8,
+11
+],
+"courselit:apps/web/next.config.js": [
+10,
+13,
+14
+],
+"courselit:packages/common-widgets/webpack.config.js": [
+11,
+18,
+20,
+21,
+22,
+25,
+34,
+35
+],
+"courselit:packages/rich-text/babel.config.js": [
+2
+],
+"courselit:packages/rich-text/src/Decorators/Link.js": [
+14
+],
+"courselit:packages/rich-text/src/Decorators/NormalLink.js": [
+17
+],
+"courselit:packages/rich-text/src/Decorators/Tweet.js": [
+9,
+19,
+20,
+27,
+28,
+66,
+84
+],
+"courselit:packages/rich-text/src/Decorators/YouTube.js": [
+27,
+33,
+37,
+44,
+45,
+71
+],
+"courselit:packages/rich-text/src/Editor.js": [
+8,
+52,
+53,
+65,
+69,
+73,
+76,
+77,
+110,
+121,
+126,
+196,
+201,
+205,
+209,
+213,
+214,
+215,
+224
+],
+"courselit:packages/rich-text/src/EditorWithToolbar.js": [
+212
+],
+"courselit:packages/rich-text/src/Renderers/Blockquote.js": [
+10
+],
+"courselit:packages/rich-text/src/Renderers/Code.js": [
+10
+],
+"courselit:packages/rich-text/src/Renderers/Media.js": [
+42,
+44
+],
+"courselit:packages/rich-text/src/index.js": [
+11,
+40,
+57
+],
+"courselit:packages/rich-text/src/styles.js": [
+10,
+16,
+24,
+28,
+36,
+37,
+42,
+47,
+48,
+58,
+68,
+71,
+72
+],
+"courselit:packages/rich-text/webpack.config.js": [
+12,
+20,
+21,
+25,
+30,
+31,
+32,
+33,
+37,
+39
+],
+"courselit:packages/widget-buttondown/babel.config.js": [
+2
+],
+"courselit:packages/widget-buttondown/src/AdminWidget.js": [
+43,
+150,
+151,
+155
+],
+"courselit:packages/widget-buttondown/src/Widget.js": [
+116,
+120
+],
+"courselit:packages/widget-buttondown/src/index.js": [
+8
+],
+"courselit:packages/widget-buttondown/src/metadata.js": [
+6
+],
+"courselit:packages/widget-buttondown/webpack.config.js": [
+11,
+19,
+20,
+21,
+22,
+30,
+31
+]
+}

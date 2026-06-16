@@ -1,0 +1,17 @@
+{
+"courselit:apps/web/graphql/design/logic.ts": [
+67
+],
+"courselit:apps/web/graphql/users/logic.ts": [
+157
+],
+"courselit:apps/web/pages/api/graph.ts": [
+39
+],
+"courselit:apps/web/services/mail.ts": [
+22
+],
+"courselit:packages/components-library/src/image.tsx": [
+49
+]
+}

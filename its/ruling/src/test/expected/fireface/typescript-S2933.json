@@ -1,0 +1,42 @@
+{
+"fireface:src/app/app.component.ts": [
+15,
+16
+],
+"fireface:src/auth/auth.guard.ts": [
+13,
+13
+],
+"fireface:src/auth/unauth.guard.ts": [
+12,
+12
+],
+"fireface:src/avatar/avatar.component.ts": [
+25
+],
+"fireface:src/common/avatar.service.ts": [
+11,
+12,
+14,
+15,
+17
+],
+"fireface:src/create/create.component.ts": [
+38,
+39,
+40,
+41,
+42,
+43
+],
+"fireface:src/landing/landing.component.ts": [
+15
+],
+"fireface:src/sign-in/sign-in.component.ts": [
+11,
+11
+],
+"fireface:src/storage/storage.component.ts": [
+30
+]
+}

@@ -1,0 +1,36 @@
+{
+"ace:demo/kitchen-sink/demo.js": [
+90
+],
+"ace:demo/kitchen-sink/layout.js": [
+12
+],
+"ace:doc/site/js/main.js": [
+38
+],
+"ace:lib/ace/snippets/jsoniq.snippets.js": [
+1
+],
+"ace:lib/ace/snippets/xquery.snippets.js": [
+1
+],
+"ace:src/mode/fsharp_highlight_rules.js": [
+9
+],
+"ace:src/mode/php_highlight_rules.js": [
+13,
+822,
+837,
+844
+],
+"ace:src/occur.js": [
+145
+],
+"ace:tool/add_mode.js": [
+34
+],
+"ace:tool/regexp_tokenizer_test.js": [
+17,
+26
+]
+}

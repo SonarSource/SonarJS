@@ -1,0 +1,12 @@
+{
+"console:src/utils/utils.ts": [
+10
+],
+"console:src/views/ProjectRootView/AddProjectPopup.tsx": [
+66,
+67
+],
+"console:src/views/models/DatabrowserView/LoadingCell.tsx": [
+25
+]
+}

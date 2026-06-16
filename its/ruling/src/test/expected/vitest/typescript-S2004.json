@@ -1,0 +1,53 @@
+{
+"vitest:packages/browser/src/client/tester/locators/index.ts": [
+147,
+148
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+329,
+351
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+74,
+1102,
+1106,
+1116,
+1175,
+1188,
+1192
+],
+"vitest:packages/expect/src/jest-extend.ts": [
+107,
+179
+],
+"vitest:packages/mocker/src/node/interceptorPlugin.ts": [
+63,
+89,
+92
+],
+"vitest:packages/runner/src/suite.ts": [
+686,
+691,
+696,
+699,
+728,
+781,
+786,
+791,
+794,
+824
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.spec.ts": [
+16
+],
+"vitest:packages/vitest/src/integrations/chai/poll.ts": [
+109,
+182,
+197,
+201,
+205
+],
+"vitest:packages/web-worker/src/worker.ts": [
+133
+]
+}

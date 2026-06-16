@@ -1,0 +1,8 @@
+{
+"it-tools:playwright.config.ts": [
+12
+],
+"it-tools:src/tools/otp-code-generator-and-validator/otp.service.ts": [
+30
+]
+}

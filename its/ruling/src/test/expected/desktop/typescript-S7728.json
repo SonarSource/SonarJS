@@ -1,0 +1,109 @@
+{
+"desktop:app/src/cli/util.ts": [
+28,
+40
+],
+"desktop:app/src/lib/ci-checks/ci-checks.ts": [
+678,
+751
+],
+"desktop:app/src/lib/databases/issues-database.ts": [
+63
+],
+"desktop:app/src/lib/fuzzy-find.ts": [
+34
+],
+"desktop:app/src/lib/git/cherry-pick.ts": [
+282
+],
+"desktop:app/src/lib/git/git-delimiter-parser.ts": [
+28
+],
+"desktop:app/src/lib/git/stash.ts": [
+252,
+253
+],
+"desktop:app/src/lib/menu-update.ts": [
+472
+],
+"desktop:app/src/lib/patch-formatter.ts": [
+135,
+143,
+258,
+266
+],
+"desktop:app/src/lib/read-emoji.ts": [
+97,
+109,
+121
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+1842,
+2576,
+2577
+],
+"desktop:app/src/lib/stores/commit-status-store.ts": [
+264,
+330
+],
+"desktop:app/src/lib/stores/updates/changes-state.ts": [
+39
+],
+"desktop:app/src/lib/thank-you.ts": [
+59,
+71
+],
+"desktop:app/src/main-process/main.ts": [
+305
+],
+"desktop:app/src/main-process/ordered-webrequest.ts": [
+41
+],
+"desktop:app/src/models/commit.ts": [
+50
+],
+"desktop:app/src/models/status.ts": [
+310
+],
+"desktop:app/src/ui/changes/changes-list.tsx": [
+330,
+518,
+557
+],
+"desktop:app/src/ui/changes/sidebar.tsx": [
+286
+],
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
+503,
+508,
+528,
+1050
+],
+"desktop:app/src/ui/diff/text-diff.tsx": [
+1004
+],
+"desktop:app/src/ui/history/commit-list.tsx": [
+319
+],
+"desktop:app/src/ui/lib/list/list.tsx": [
+550
+],
+"desktop:app/src/ui/lib/observable-ref.ts": [
+22
+],
+"desktop:app/src/ui/repositories-list/group-repositories.ts": [
+113
+],
+"desktop:script/generate-octicons.ts": [
+119
+],
+"desktop:script/test-review.ts": [
+7
+],
+"desktop:script/test-setup.ts": [
+25
+],
+"desktop:script/validate-sass/validate-all.ts": [
+39
+]
+}

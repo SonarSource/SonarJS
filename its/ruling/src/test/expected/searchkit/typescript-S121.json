@@ -1,0 +1,61 @@
+{
+"searchkit:examples/indexer/config.ts": [
+147
+],
+"searchkit:packages/searchkit-cli/src/lib.ts": [
+8,
+12
+],
+"searchkit:packages/searchkit-client/src/components.tsx": [
+45,
+69
+],
+"searchkit:packages/searchkit-client/src/searchkit.tsx": [
+32,
+39,
+46,
+48,
+49,
+219
+],
+"searchkit:packages/searchkit-client/src/withSearchkitRouting.tsx": [
+67
+],
+"searchkit:packages/searchkit-elastic-ui/src/SelectedFilters/index.tsx": [
+83
+],
+"searchkit:packages/searchkit-schema/src/core/QueryManager.ts": [
+81
+],
+"searchkit:packages/searchkit-sdk/src/core/QueryManager.ts": [
+96
+],
+"searchkit:packages/searchkit-sdk/src/facets/DateRangeFacet.ts": [
+26,
+27
+],
+"searchkit:packages/searchkit-sdk/src/facets/RangeFacet.ts": [
+32,
+33
+],
+"searchkit:packages/searchkit-sdk/src/facets/VisibilityRules/index.ts": [
+20,
+21
+],
+"searchkit:packages/searchkit-sdk/src/filters/NumericRangeFilter.ts": [
+24,
+25
+],
+"searchkit:packages/searchkit-sdk/src/index.ts": [
+178,
+179,
+180
+],
+"searchkit:packages/searchkit-sdk/src/transporters/ESClientTransporter.ts": [
+38,
+45
+],
+"searchkit:packages/searchkit-sdk/src/transporters/FetchClientTransporter.ts": [
+13
+]
+}

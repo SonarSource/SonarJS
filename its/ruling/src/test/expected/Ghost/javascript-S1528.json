@@ -1,0 +1,48 @@
+{
+"Ghost:core/client/app/mixins/ed-editor-shortcuts.js": [
+95
+],
+"Ghost:core/client/tests/acceptance/team-test.js": [
+263,
+299,
+315
+],
+"Ghost:core/client/tests/integration/components/gh-tag-settings-form-test.js": [
+244,
+257,
+275
+],
+"Ghost:core/client/tests/unit/controllers/post-settings-menu-test.js": [
+166,
+201,
+255
+],
+"Ghost:core/client/tests/unit/validators/tag-settings-test.js": [
+59,
+123,
+145,
+162,
+184,
+201,
+231,
+248,
+272,
+289
+],
+"Ghost:core/test/functional/client/editor_test.js": [
+532,
+577
+],
+"Ghost:core/test/functional/client/settings_test.js": [
+87,
+96
+],
+"Ghost:core/test/functional/client/team_test.js": [
+269,
+307
+],
+"Ghost:core/test/integration/import_spec.js": [
+241,
+405
+]
+}

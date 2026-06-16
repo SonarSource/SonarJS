@@ -1,0 +1,39 @@
+{
+"vuetify:eslint-local-rules.js": [
+69,
+82
+],
+"vuetify:packages/docs/src/components/app/Markdown.vue": [
+58
+],
+"vuetify:packages/docs/src/components/app/bar/Logo.vue": [
+36
+],
+"vuetify:packages/docs/src/components/features/ColorPalette.vue": [
+84
+],
+"vuetify:packages/docs/src/components/sponsor/Link.vue": [
+36
+],
+"vuetify:packages/docs/src/examples/v-calendar/misc-drag-and-drop.vue": [
+163,
+164
+],
+"vuetify:packages/docs/src/examples/v-tooltip/usage.vue": [
+37
+],
+"vuetify:packages/vuetify/build/rollup.config.js": [
+25,
+124,
+127,
+146,
+261,
+264
+],
+"vuetify:packages/vuetify/dev/Playground.nested.vue": [
+278
+],
+"vuetify:scripts/converter.js": [
+69
+]
+}

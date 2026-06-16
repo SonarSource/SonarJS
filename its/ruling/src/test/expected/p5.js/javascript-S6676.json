@@ -1,0 +1,22 @@
+{
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+503,
+515
+],
+"p5.js:src/core/p5.Renderer2D.js": [
+305
+],
+"p5.js:src/core/shape/2d_primitives.js": [
+423,
+490
+],
+"p5.js:src/core/transform.js": [
+374
+],
+"p5.js:src/webgl/interaction.js": [
+334,
+339,
+344,
+348
+]
+}

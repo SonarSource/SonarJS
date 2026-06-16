@@ -1,0 +1,27 @@
+{
+"fresh:packages/fresh/src/dev/update_check.ts": [
+14
+],
+"fresh:packages/fresh/src/jsonify/parse.ts": [
+31,
+65
+],
+"fresh:packages/fresh/src/runtime/client/dev_hmr.ts": [
+83
+],
+"fresh:packages/fresh/src/runtime/client/preact_hooks_client.ts": [
+91
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+315
+],
+"fresh:packages/plugin-vite/src/plugins/deno.ts": [
+293
+],
+"fresh:packages/plugin-vite/src/plugins/patches/code_eval.ts": [
+154
+],
+"fresh:tools/check_docs_lib.ts": [
+334
+]
+}

@@ -1,0 +1,30 @@
+{
+"ant-design:components/date-picker/__tests__/RangePicker.test.js": [
+53
+],
+"ant-design:components/table/__tests__/Table.filter.test.js": [
+434
+],
+"ant-design:components/upload/__tests__/uploadlist.test.js": [
+1141
+],
+"ant-design:scripts/check-version-md.js": [
+7,
+9
+],
+"ant-design:scripts/print-changelog.js": [
+119
+],
+"ant-design:site/theme/static/template.html": [
+59,
+133,
+137
+],
+"ant-design:site/theme/template/Content/ComponentDoc.jsx": [
+148
+],
+"ant-design:webpack.config.js": [
+40,
+45
+]
+}

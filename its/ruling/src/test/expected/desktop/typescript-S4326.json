@@ -1,0 +1,37 @@
+{
+"desktop:app/src/lib/file-system.ts": [
+70
+],
+"desktop:app/src/lib/git/merge-tree.ts": [
+61
+],
+"desktop:app/src/lib/git/merge.ts": [
+107,
+120
+],
+"desktop:app/src/lib/ssh/ssh.ts": [
+26
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+1756,
+3008,
+4873,
+4903,
+4972,
+5990
+],
+"desktop:app/src/lib/stores/pull-request-store.ts": [
+131
+],
+"desktop:app/src/lib/stores/repositories-store.ts": [
+215,
+248,
+434
+],
+"desktop:app/src/ui/add-repository/gitignores.ts": [
+46
+],
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
+1939
+]
+}

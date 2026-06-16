@@ -1,0 +1,61 @@
+{
+"react-cloud-music:scripts/start.js": [
+44
+],
+"react-cloud-music:src/api/lyric-parser.js": [
+61,
+61,
+62,
+62,
+65
+],
+"react-cloud-music:src/application/Player/index.jsx": [
+117,
+201
+],
+"react-cloud-music:src/application/Player/normal-player/index.jsx": [
+59,
+60,
+84
+],
+"react-cloud-music:src/application/Player/play-list/index.jsx": [
+59,
+103
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/index.jsx": [
+33
+],
+"react-cloud-music:src/application/User/Login/index.jsx": [
+40
+],
+"react-cloud-music:src/application/User/Login/store/actionCreators.js": [
+43,
+58
+],
+"react-cloud-music:src/assets/border.js": [
+57
+],
+"react-cloud-music:src/baseUI/music-note/index.jsx": [
+73
+],
+"react-cloud-music:src/baseUI/scroll/index.jsx": [
+90,
+94,
+141
+],
+"react-cloud-music:src/baseUI/search-box/index.jsx": [
+47
+],
+"react-cloud-music:src/baseUI/toast/index.jsx": [
+46
+],
+"react-cloud-music:src/serviceWorker.js": [
+108
+],
+"react-cloud-music:ts-music/scripts/start.js": [
+44
+],
+"react-cloud-music:ts-music/src/serviceWorker.js": [
+110
+]
+}

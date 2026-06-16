@@ -1,0 +1,111 @@
+{
+"vitest:packages/browser-playwright/src/locators.ts": [
+44,
+59
+],
+"vitest:packages/browser-preview/src/locators.ts": [
+68,
+79
+],
+"vitest:packages/browser-webdriverio/src/locators.ts": [
+79,
+203
+],
+"vitest:packages/browser/src/client/tester/context.ts": [
+90,
+197,
+495,
+510
+],
+"vitest:packages/browser/src/client/tester/expect-element.ts": [
+12
+],
+"vitest:packages/browser/src/client/tester/expect/toBeInvalid.ts": [
+29
+],
+"vitest:packages/browser/src/client/tester/locators/index.ts": [
+139,
+177
+],
+"vitest:packages/browser/src/types.ts": [
+50
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+243,
+432,
+745
+],
+"vitest:packages/expect/src/types.ts": [
+659
+],
+"vitest:packages/mocker/src/types.ts": [
+14
+],
+"vitest:packages/runner/src/types/tasks.ts": [
+468,
+803,
+1065
+],
+"vitest:packages/ui/client/components/Badge.vue": [
+3
+],
+"vitest:packages/ui/client/components/dashboard/TestsEntry.vue": [
+6
+],
+"vitest:packages/ui/client/composables/params.ts": [
+5
+],
+"vitest:packages/vitest/src/integrations/wait.ts": [
+40,
+122,
+135
+],
+"vitest:packages/vitest/src/node/ast-collect.ts": [
+43,
+166
+],
+"vitest:packages/vitest/src/node/cache/fsModuleCache.ts": [
+378
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+48
+],
+"vitest:packages/vitest/src/node/pools/types.ts": [
+44,
+70
+],
+"vitest:packages/vitest/src/node/reporters/renderers/utils.ts": [
+271
+],
+"vitest:packages/vitest/src/node/reporters/reported-tasks.ts": [
+579
+],
+"vitest:packages/vitest/src/node/reporters/utils.ts": [
+38
+],
+"vitest:packages/vitest/src/node/state.ts": [
+219,
+223
+],
+"vitest:packages/vitest/src/node/types/browser.ts": [
+78
+],
+"vitest:packages/vitest/src/node/types/config.ts": [
+384,
+627,
+1123
+],
+"vitest:packages/vitest/src/node/watcher.ts": [
+247
+],
+"vitest:packages/vitest/src/runtime/config.ts": [
+156
+],
+"vitest:packages/vitest/src/runtime/external-executor.ts": [
+31,
+145
+],
+"vitest:packages/vitest/src/utils/memory-limit.ts": [
+39
+]
+}

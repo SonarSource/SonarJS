@@ -1,0 +1,22 @@
+{
+"fresh:packages/fresh/src/dev/builder.ts": [
+408,
+417,
+431
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
+91
+],
+"fresh:packages/fresh/src/middlewares/csp_test.tsx": [
+121,
+146,
+186,
+189
+],
+"fresh:packages/plugin-vite/src/plugins/deno.ts": [
+336
+],
+"fresh:packages/plugin-vite/tests/build_test.ts": [
+687
+]
+}

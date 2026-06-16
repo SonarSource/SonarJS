@@ -1,0 +1,30 @@
+{
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+3544,
+3550
+],
+"p5.js:lib/addons/p5.sound.js": [
+1288,
+2504,
+2510,
+2511,
+12176,
+12177,
+12206,
+12588,
+12602,
+12700
+],
+"p5.js:src/image/filters.js": [
+488
+],
+"p5.js:src/image/image.js": [
+223
+],
+"p5.js:src/utilities/array_functions.js": [
+217
+],
+"p5.js:src/utilities/conversion.js": [
+80
+]
+}

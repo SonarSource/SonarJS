@@ -1,0 +1,20 @@
+{
+"sonar-web:src/main/js/apps/coding-rules/rule/custom-rule-creation-view.js": [
+169
+],
+"sonar-web:src/main/js/apps/overview/helpers/metrics.js": [
+31
+],
+"sonar-web:src/main/js/libs/translate.js": [
+82
+],
+"sonar-web:src/main/js/main/nav/app.js": [
+26
+],
+"sonar-web:src/main/js/main/nav/component/component-nav-meta.js": [
+29
+],
+"sonar-web:src/main/js/main/processes.js": [
+78
+]
+}

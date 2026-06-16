@@ -1,0 +1,64 @@
+{
+"sizzle:speed/data/selector.html": [
+3310,
+3313
+],
+"sizzle:speed/speed.js": [
+162,
+167,
+186,
+190,
+250,
+311,
+312,
+317,
+320,
+337,
+375,
+472,
+587
+],
+"sizzle:src/sizzle.js": [
+35,
+80,
+84,
+94,
+109,
+112,
+113,
+118,
+121,
+122,
+123,
+126,
+129,
+133,
+151,
+181,
+352,
+809,
+818,
+824,
+828,
+841,
+855,
+878,
+1263,
+1353,
+1385
+],
+"sizzle:tasks/compile.js": [
+23
+],
+"sizzle:tasks/dist.js": [
+23,
+29
+],
+"sizzle:tasks/ensure_ascii.js": [
+40,
+41
+],
+"sizzle:tasks/version.js": [
+35
+]
+}

@@ -1,0 +1,11 @@
+{
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+117
+],
+"vitest:packages/vitest/src/node/reporters/summary.ts": [
+328,
+329,
+330,
+332
+]
+}

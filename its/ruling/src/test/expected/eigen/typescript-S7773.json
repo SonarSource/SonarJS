@@ -1,0 +1,65 @@
+{
+"eigen:src/app/Components/ArtworkFilter/Filters/CustomSizeInputs.tsx": [
+47,
+48
+],
+"eigen:src/app/Components/ArtworkFilter/Filters/PriceRangeOptions.tsx": [
+60,
+135
+],
+"eigen:src/app/Components/ArtworkFilter/Filters/helpers.ts": [
+77,
+94
+],
+"eigen:src/app/Components/Bidding/Components/ArtworkAuctionProgressBar.tsx": [
+27,
+28,
+29,
+30
+],
+"eigen:src/app/Components/StyledWebView.tsx": [
+43
+],
+"eigen:src/app/Scenes/MyBids/Components/SaleInfo.tsx": [
+36
+],
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tsx": [
+297
+],
+"eigen:src/app/Scenes/MyCollection/utils/localArtworkSortAndFilter.ts": [
+200,
+201,
+203,
+207,
+212,
+246,
+247,
+249,
+253,
+259
+],
+"eigen:src/app/Scenes/SaleInfo/SaleInfo.tsx": [
+135
+],
+"eigen:src/app/utils/LocalImageStore.ts": [
+67,
+68
+],
+"eigen:src/app/utils/platformUtil.ts": [
+16
+],
+"eigen:src/app/utils/saleTime.ts": [
+32,
+33,
+34,
+35
+],
+"eigen:src/app/utils/transformBytesToSize.ts": [
+8
+],
+"eigen:src/palette/Theme.tsx": [
+70,
+96,
+142
+]
+}

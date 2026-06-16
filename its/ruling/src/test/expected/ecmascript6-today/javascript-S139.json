@@ -1,0 +1,33 @@
+{
+"ecmascript6-today:5-map.js": [
+11,
+12,
+13,
+16,
+30,
+31
+],
+"ecmascript6-today:5-set.js": [
+7,
+9,
+13,
+19
+],
+"ecmascript6-today:6-destructuring.js": [
+6,
+10,
+15,
+16,
+36
+],
+"ecmascript6-today:7-rest-params/Gruntfile.js": [
+8
+],
+"ecmascript6-today:7-rest-params/rest-spread.js": [
+12,
+35
+],
+"ecmascript6-today:8-iterators.js": [
+18
+]
+}

@@ -1,0 +1,200 @@
+{
+"ace:demo/kitchen-sink/docs/javascript.js": [
+4
+],
+"ace:demo/settings_menu.html": [
+36
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+5
+],
+"ace:lib/ace/mode/php/php.js": [
+21
+],
+"ace:lib/ace/mode/xml/dom-parser.js": [
+2
+],
+"ace:lib/ace/mode/xml/dom.js": [
+11
+],
+"ace:lib/ace/mode/xml/sax.js": [
+3
+],
+"ace:lib/ace/snippets/jsoniq.snippets.js": [
+2
+],
+"ace:lib/ace/snippets/xquery.snippets.js": [
+2
+],
+"ace:src/lib/bidiutil.js": [
+9
+],
+"ace:src/mode/folding/diff.js": [
+8
+],
+"ace:src/mode/html_highlight_rules.js": [
+11
+],
+"ace:src/mode/jade.js": [
+16
+],
+"ace:src/mode/matlab_highlight_rules.js": [
+18
+],
+"ace:src/mode/raku_highlight_rules.js": [
+43
+],
+"ace:src/mode/rdoc.js": [
+47
+],
+"ace:src/mode/scheme.js": [
+10
+],
+"ace:src/mode/xml_highlight_rules.js": [
+8
+],
+"ace:src/snippets/abc.snippets.js": [
+3
+],
+"ace:src/snippets/actionscript.snippets.js": [
+2
+],
+"ace:src/snippets/c_cpp.snippets.js": [
+4
+],
+"ace:src/snippets/clojure.snippets.js": [
+2
+],
+"ace:src/snippets/coffee.snippets.js": [
+3
+],
+"ace:src/snippets/csound_document.snippets.js": [
+3
+],
+"ace:src/snippets/csound_orchestra.snippets.js": [
+3
+],
+"ace:src/snippets/css.snippets.js": [
+2
+],
+"ace:src/snippets/dart.snippets.js": [
+2
+],
+"ace:src/snippets/diff.snippets.js": [
+3
+],
+"ace:src/snippets/django.snippets.js": [
+12
+],
+"ace:src/snippets/drools.snippets.js": [
+3
+],
+"ace:src/snippets/edifact.snippets.js": [
+3
+],
+"ace:src/snippets/erlang.snippets.js": [
+3
+],
+"ace:src/snippets/fsl.snippets.js": [
+2
+],
+"ace:src/snippets/gobstones.snippets.js": [
+5
+],
+"ace:src/snippets/graphqlschema.snippets.js": [
+4
+],
+"ace:src/snippets/haml.snippets.js": [
+2
+],
+"ace:src/snippets/haskell.snippets.js": [
+2
+],
+"ace:src/snippets/html.snippets.js": [
+4
+],
+"ace:src/snippets/java.snippets.js": [
+3
+],
+"ace:src/snippets/javascript.snippets.js": [
+3
+],
+"ace:src/snippets/jsp.snippets.js": [
+2
+],
+"ace:src/snippets/liquid.snippets.js": [
+4
+],
+"ace:src/snippets/lsl.snippets.js": [
+2
+],
+"ace:src/snippets/lua.snippets.js": [
+2
+],
+"ace:src/snippets/makefile.snippets.js": [
+2
+],
+"ace:src/snippets/markdown.snippets.js": [
+6
+],
+"ace:src/snippets/maze.snippets.js": [
+4
+],
+"ace:src/snippets/perl.snippets.js": [
+3
+],
+"ace:src/snippets/php.snippets.js": [
+2
+],
+"ace:src/snippets/python.snippets.js": [
+2
+],
+"ace:src/snippets/r.snippets.js": [
+2
+],
+"ace:src/snippets/razor.snippets.js": [
+3
+],
+"ace:src/snippets/robot.snippets.js": [
+5
+],
+"ace:src/snippets/rst.snippets.js": [
+4
+],
+"ace:src/snippets/ruby.snippets.js": [
+7
+],
+"ace:src/snippets/sh.snippets.js": [
+3
+],
+"ace:src/snippets/snippets.snippets.js": [
+3
+],
+"ace:src/snippets/sql.snippets.js": [
+2
+],
+"ace:src/snippets/sqlserver.snippets.js": [
+3
+],
+"ace:src/snippets/tcl.snippets.js": [
+3
+],
+"ace:src/snippets/tex.snippets.js": [
+4
+],
+"ace:src/snippets/textile.snippets.js": [
+3
+],
+"ace:src/snippets/velocity.snippets.js": [
+3
+],
+"ace:src/snippets/wollok.snippets.js": [
+4
+],
+"ace:tool/lib.js": [
+160
+],
+"ace:tool/update_deps.js": [
+218
+]
+}

@@ -1,0 +1,46 @@
+{
+"Ghost:Gruntfile.js": [
+871
+],
+"Ghost:core/client/app/assets/lib/uploader.js": [
+136
+],
+"Ghost:core/client/app/controllers/setup/three.js": [
+206
+],
+"Ghost:core/client/app/mirage/config.js": [
+59,
+61
+],
+"Ghost:core/client/app/routes/signup.js": [
+59
+],
+"Ghost:core/test/functional/client/editor_test.js": [
+141
+],
+"Ghost:core/test/unit/server_helpers/excerpt_spec.js": [
+42,
+52
+],
+"Ghost:core/test/unit/server_helpers/foreach_spec.js": [
+305,
+313,
+320,
+321,
+335,
+351
+],
+"Ghost:core/test/unit/showdown_client_integrated_spec.js": [
+501,
+502,
+521
+],
+"Ghost:core/test/utils/fixtures/data-generator.js": [
+12,
+18,
+34,
+42,
+285,
+286
+]
+}

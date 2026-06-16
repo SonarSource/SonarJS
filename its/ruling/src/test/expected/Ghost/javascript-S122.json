@@ -1,0 +1,68 @@
+{
+"Ghost:core/client/lib/asset-delivery/index.js": [
+17
+],
+"Ghost:core/client/tests/unit/models/user-test.js": [
+31,
+35,
+38,
+49,
+52,
+55,
+66,
+69
+],
+"Ghost:core/client/tests/unit/services/notifications-test.js": [
+206,
+309,
+313,
+333
+],
+"Ghost:core/server/api/settings.js": [
+316,
+323,
+400
+],
+"Ghost:core/server/data/schema/clients/mysql.js": [
+21
+],
+"Ghost:core/server/data/xml/rss/index.js": [
+40,
+41
+],
+"Ghost:core/server/helpers/body_class.js": [
+47,
+67
+],
+"Ghost:core/server/helpers/ghost_foot.js": [
+23
+],
+"Ghost:core/server/helpers/post_class.js": [
+21,
+32
+],
+"Ghost:core/server/models/settings.js": [
+121,
+166
+],
+"Ghost:core/server/update-check.js": [
+70,
+122,
+123
+],
+"Ghost:core/test/integration/api/api_settings_spec.js": [
+60,
+74,
+88
+],
+"Ghost:core/test/unit/config_spec.js": [
+562
+],
+"Ghost:core/test/unit/middleware/theme-handler_spec.js": [
+54
+],
+"Ghost:core/test/utils/index.js": [
+414,
+424
+]
+}

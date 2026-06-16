@@ -1,0 +1,30 @@
+{
+"snoode:test/models/account.js": [
+1,
+5,
+7,
+8,
+12
+],
+"snoode:test/models/base.js": [
+1,
+5,
+7,
+8,
+12
+],
+"snoode:test/models/comment.js": [
+1,
+5,
+7,
+8,
+12
+],
+"snoode:test/models/link.js": [
+1,
+5,
+7,
+8,
+12
+]
+}

@@ -1,0 +1,48 @@
+{
+"knockout:src/binding/defaultBindings/uniqueName.js": [
+4
+],
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
+59,
+71,
+105,
+137,
+150,
+182
+],
+"knockout:src/binding/editDetection/compareArrays.js": [
+74,
+79
+],
+"knockout:src/components/componentBinding.js": [
+44
+],
+"knockout:src/components/defaultLoader.js": [
+72
+],
+"knockout:src/subscribables/dependencyDetection.js": [
+14
+],
+"knockout:src/subscribables/dependentObservable.js": [
+180
+],
+"knockout:src/tasks.js": [
+43,
+45,
+81,
+82
+],
+"knockout:src/utils.domData.js": [
+35,
+68
+],
+"knockout:src/utils.domManipulation.js": [
+66
+],
+"knockout:src/utils.domNodeDisposal.js": [
+47
+],
+"knockout:src/utils.js": [
+53
+]
+}

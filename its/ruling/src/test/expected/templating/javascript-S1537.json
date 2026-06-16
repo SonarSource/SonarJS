@@ -1,0 +1,11 @@
+{
+"templating:protractor-shared.conf.js": [
+8
+],
+"templating:protractor.conf.js": [
+5
+],
+"templating:src/lib/compiler/selector_config.js": [
+7
+]
+}

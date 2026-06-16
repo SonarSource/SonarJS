@@ -1,0 +1,27 @@
+{
+"router:examples/http.js": [
+10
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+1287,
+1287,
+1412,
+1428,
+1862,
+1943,
+2057,
+2069,
+2071,
+2162,
+2163,
+2171,
+2171,
+2187,
+2442,
+2442,
+3286
+],
+"router:third_party/route-recognizer.js": [
+518
+]
+}

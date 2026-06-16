@@ -1,0 +1,33 @@
+{
+"fresh:packages/examples/src/shared.tsx": [
+5
+],
+"fresh:packages/fresh/src/middlewares/csp_test.tsx": [
+96,
+132,
+173,
+201,
+222,
+248
+],
+"fresh:packages/fresh/tests/fixture_precompile/valid/main.tsx": [
+7
+],
+"fresh:packages/fresh/tests/no_client_js_test.tsx": [
+102,
+126
+],
+"fresh:packages/fresh/tests/partials_test.tsx": [
+2323,
+2347,
+2425,
+2452,
+2917,
+2943,
+2994,
+3020
+],
+"fresh:packages/fresh/tests/test_utils.tsx": [
+34
+]
+}

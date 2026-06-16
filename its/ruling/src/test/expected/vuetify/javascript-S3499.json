@@ -1,0 +1,17 @@
+{
+"vuetify:packages/docs/build/sitemap.js": [
+16
+],
+"vuetify:packages/docs/src/examples/v-sparkline/prop-fill.vue": [
+121
+],
+"vuetify:packages/docs/src/examples/v-sparkline/usage.vue": [
+28
+],
+"vuetify:packages/vuetify/dev/vuetify.js": [
+18
+],
+"vuetify:scripts/rules/jsx-curly-spacing.js": [
+34
+]
+}

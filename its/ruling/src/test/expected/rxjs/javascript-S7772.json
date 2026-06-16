@@ -1,0 +1,39 @@
+{
+"rxjs:dangerfile.js": [
+1,
+2
+],
+"rxjs:doc/decision-tree-widget/tools/yaml2json.js": [
+2
+],
+"rxjs:perf/micro/immediate-scheduler/observable/fromevent.js": [
+3
+],
+"rxjs:perf/micro/immediate-scheduler/observable/fromeventpattern.js": [
+3
+],
+"rxjs:perf/micro/index.js": [
+7,
+8,
+10,
+12
+],
+"rxjs:tools/add-license-to-file.js": [
+1
+],
+"rxjs:tools/check-gzip-size.js": [
+2,
+3
+],
+"rxjs:tools/make-closure-core.js": [
+2
+],
+"rxjs:tools/make-umd-bundle.js": [
+7,
+8
+],
+"rxjs:wallaby.js": [
+30,
+51
+]
+}

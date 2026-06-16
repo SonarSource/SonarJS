@@ -1,0 +1,48 @@
+{
+"desktop:app/src/lib/git/gitignore.ts": [
+104,
+104,
+104,
+104
+],
+"desktop:app/src/lib/git/rev-parse.ts": [
+40
+],
+"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts": [
+33
+],
+"desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts": [
+40,
+40
+],
+"desktop:app/src/lib/markdown-filters/issue-link-filter.ts": [
+89
+],
+"desktop:app/src/lib/sanitize-ref-name.ts": [
+6,
+10
+],
+"desktop:app/src/lib/ssh/ssh.ts": [
+77
+],
+"desktop:app/src/lib/text-token-parser.ts": [
+191
+],
+"desktop:app/src/main-process/squirrel-updater.ts": [
+111,
+111
+],
+"desktop:app/src/ui/diff/diff-syntax-mode.ts": [
+204,
+204,
+204
+],
+"desktop:app/webpack.common.ts": [
+147,
+147,
+147,
+147,
+154,
+154
+]
+}

@@ -1,0 +1,34 @@
+{
+"ant-design:components/_util/__tests__/scrollTo.test.js": [
+19
+],
+"ant-design:components/back-top/__tests__/index.test.js": [
+13,
+29
+],
+"ant-design:components/modal/__tests__/confirm.test.js": [
+314
+],
+"ant-design:components/pagination/__tests__/index.test.js": [
+14
+],
+"ant-design:components/table/__tests__/Table.filter.test.js": [
+746,
+1743
+],
+"ant-design:components/upload/__tests__/uploadlist.test.js": [
+723,
+1301,
+1391,
+1455
+],
+"ant-design:index-style-only.js": [
+2
+],
+"ant-design:scripts/generateLegacyLocale.js": [
+8
+],
+"ant-design:site/antd.js": [
+3
+]
+}

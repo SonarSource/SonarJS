@@ -1,0 +1,14 @@
+{
+"vuetify:packages/api-generator/src/types.ts": [
+446
+],
+"vuetify:packages/docs/src/composables/codepen.ts": [
+74
+],
+"vuetify:packages/docs/src/util/helpers.ts": [
+147
+],
+"vuetify:packages/docs/src/util/markdown-it-rules.ts": [
+18
+]
+}

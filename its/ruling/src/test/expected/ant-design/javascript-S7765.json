@@ -1,0 +1,38 @@
+{
+"ant-design:components/cascader/__tests__/index.test.js": [
+68,
+176
+],
+"ant-design:components/table/__tests__/Table.filter.test.js": [
+20,
+1953
+],
+"ant-design:components/transfer/__tests__/index.test.js": [
+217,
+301,
+328
+],
+"ant-design:components/typography/__tests__/index.test.js": [
+262,
+269,
+293,
+300,
+301
+],
+"ant-design:scripts/generate-authors.js": [
+24
+],
+"ant-design:site/bisheng.config.js": [
+16,
+20
+],
+"ant-design:site/theme/static/template.html": [
+152
+],
+"ant-design:site/theme/template/Color/Palette.jsx": [
+22
+],
+"ant-design:site/theme/template/Content/index.jsx": [
+6
+]
+}

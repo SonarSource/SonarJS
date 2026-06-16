@@ -1,0 +1,73 @@
+{
+"vuetify:packages/docs/src/examples/application-layout/layout-information-composable.vue": [
+27
+],
+"vuetify:packages/docs/src/examples/spacing/usage.vue": [
+92,
+93
+],
+"vuetify:packages/docs/src/examples/v-autocomplete/prop-filter.vue": [
+87
+],
+"vuetify:packages/docs/src/examples/v-click-outside/option-close-on-outside-click.vue": [
+33
+],
+"vuetify:packages/docs/src/examples/v-data-table/misc-server-side-paginate-and-sort.vue": [
+66
+],
+"vuetify:packages/docs/src/examples/v-data-table/prop-custom-filter.vue": [
+130
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-formatting.vue": [
+90
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-picker-date.vue": [
+53
+],
+"vuetify:packages/docs/src/examples/v-intersect/prop-options.vue": [
+54,
+54
+],
+"vuetify:packages/docs/src/examples/v-intersect/usage.vue": [
+45,
+45
+],
+"vuetify:packages/docs/src/examples/v-timeline/misc-advanced.vue": [
+173,
+173
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/misc-user-directory.vue": [
+80,
+80
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/prop-dynamic-item-height.vue": [
+24
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/prop-height-parent.vue": [
+14
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/prop-height.vue": [
+12
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/prop-item-height.vue": [
+42
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/prop-visible-items.vue": [
+53
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/usage.vue": [
+28,
+33
+],
+"vuetify:packages/vuetify/build/babel-plugin-replace-import-extension.js": [
+33
+],
+"vuetify:packages/vuetify/dev/Playground.nested.vue": [
+271,
+271,
+271
+],
+"vuetify:packages/vuetify/postcss.config.js": [
+3
+]
+}

@@ -1,0 +1,115 @@
+{
+"knockout:Gruntfile.js": [
+47
+],
+"knockout:build/knockout-raw.js": [
+18
+],
+"knockout:src/binding/bindingAttributeSyntax.js": [
+230,
+250
+],
+"knockout:src/binding/defaultBindings/checked.js": [
+92,
+93
+],
+"knockout:src/binding/defaultBindings/ifIfnotWith.js": [
+15
+],
+"knockout:src/binding/defaultBindings/options.js": [
+20,
+62,
+64
+],
+"knockout:src/binding/defaultBindings/selectedOptions.js": [
+19,
+28
+],
+"knockout:src/binding/defaultBindings/style.js": [
+25
+],
+"knockout:src/binding/defaultBindings/textInput.js": [
+83,
+115,
+137
+],
+"knockout:src/binding/defaultBindings/value.js": [
+4,
+7,
+7,
+37,
+38,
+38,
+39,
+73
+],
+"knockout:src/binding/defaultBindings/visibleHidden.js": [
+4
+],
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
+179,
+213
+],
+"knockout:src/binding/expressionRewriting.js": [
+167
+],
+"knockout:src/binding/selectExtensions.js": [
+49
+],
+"knockout:src/components/customElements.js": [
+8,
+8
+],
+"knockout:src/memoization.js": [
+14,
+18
+],
+"knockout:src/subscribables/dependentObservable.js": [
+430,
+467,
+497,
+497
+],
+"knockout:src/subscribables/extenders.js": [
+36,
+70
+],
+"knockout:src/subscribables/mappingHelpers.js": [
+6
+],
+"knockout:src/templating/templateEngine.js": [
+46,
+46
+],
+"knockout:src/templating/templateSources.js": [
+45,
+55,
+85,
+122
+],
+"knockout:src/templating/templating.js": [
+4,
+112,
+136,
+144,
+156,
+342
+],
+"knockout:src/utils.domNodeDisposal.js": [
+47,
+64
+],
+"knockout:src/utils.js": [
+63,
+65,
+65,
+334,
+335,
+452,
+480
+],
+"knockout:src/virtualElements.js": [
+20,
+24
+]
+}

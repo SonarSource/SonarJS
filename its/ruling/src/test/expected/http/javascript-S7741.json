@@ -1,0 +1,10 @@
+{
+"http:lib/gulp/karma/index.js": [
+10,
+12,
+12
+],
+"http:src/Serialize.js": [
+5
+]
+}

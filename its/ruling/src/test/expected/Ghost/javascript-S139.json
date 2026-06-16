@@ -1,0 +1,83 @@
+{
+"Ghost:Gruntfile.js": [
+113,
+161
+],
+"Ghost:core/client/app/adapters/base.js": [
+62
+],
+"Ghost:core/client/app/components/gh-cm-editor.js": [
+9,
+18
+],
+"Ghost:core/client/app/components/gh-editor.js": [
+16,
+17
+],
+"Ghost:core/client/app/components/gh-select-native.js": [
+16
+],
+"Ghost:core/client/app/mirage/config.js": [
+52
+],
+"Ghost:core/client/app/router.js": [
+12,
+13
+],
+"Ghost:core/client/app/services/config.js": [
+22
+],
+"Ghost:core/client/app/services/notifications.js": [
+122,
+124,
+126
+],
+"Ghost:core/client/app/utils/word-count.js": [
+5,
+7,
+8,
+9,
+10,
+12
+],
+"Ghost:core/server/helpers/foreach.js": [
+46
+],
+"Ghost:core/server/helpers/tags.js": [
+42
+],
+"Ghost:core/server/middleware/auth.js": [
+100,
+147
+],
+"Ghost:core/server/middleware/check-ssl.js": [
+17
+],
+"Ghost:core/server/middleware/index.js": [
+104
+],
+"Ghost:core/test/functional/base.js": [
+24
+],
+"Ghost:core/test/functional/client/about_test.js": [
+14
+],
+"Ghost:core/test/functional/client/editor_test.js": [
+109
+],
+"Ghost:core/test/functional/client/team_test.js": [
+252
+],
+"Ghost:core/test/integration/api/api_notifications_spec.js": [
+85,
+86,
+101,
+102
+],
+"Ghost:core/test/integration/migration_spec.js": [
+22
+],
+"Ghost:core/test/unit/showdown_client_integrated_spec.js": [
+500
+]
+}

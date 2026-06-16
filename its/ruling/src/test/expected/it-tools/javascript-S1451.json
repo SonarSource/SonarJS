@@ -1,0 +1,38 @@
+{
+"it-tools:scripts/build-locales-files.mjs": [
+0
+],
+"it-tools:scripts/create-tool.mjs": [
+0
+],
+"it-tools:scripts/getLatestChangelog.mjs": [
+0
+],
+"it-tools:scripts/release.mjs": [
+0
+],
+"it-tools:scripts/shared/changelog.mjs": [
+0
+],
+"it-tools:scripts/shared/commits.mjs": [
+0
+],
+"it-tools:src/tools/text-diff/text-diff.vue": [
+0
+],
+"it-tools:src/ui/c-card/c-card.demo.vue": [
+0
+],
+"it-tools:src/ui/c-collapse/c-collapse.demo.vue": [
+0
+],
+"it-tools:src/ui/c-file-upload/c-file-upload.demo.vue": [
+0
+],
+"it-tools:src/ui/c-modal-value/c-modal-value.demo.vue": [
+0
+],
+"it-tools:src/ui/c-text-copyable/c-text-copyable.demo.vue": [
+0
+]
+}

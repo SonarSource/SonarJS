@@ -1,0 +1,22 @@
+{
+"ionic2-auth:hooks/after_prepare/010_add_platform_class.js": [
+11,
+12,
+14,
+19,
+20,
+22,
+24,
+29,
+31,
+34,
+35,
+71,
+73,
+76,
+77
+],
+"ionic2-auth:webpack.config.js": [
+1
+]
+}

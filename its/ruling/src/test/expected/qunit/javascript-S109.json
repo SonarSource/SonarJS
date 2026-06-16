@@ -1,0 +1,42 @@
+{
+"qunit:Gruntfile.js": [
+16,
+17
+],
+"qunit:reporter/diff.js": [
+176,
+376,
+486,
+491
+],
+"qunit:reporter/html.js": [
+438,
+439
+],
+"qunit:reporter/urlparams.js": [
+30
+],
+"qunit:src/assert.js": [
+466
+],
+"qunit:src/cli/run.js": [
+34
+],
+"qunit:src/core/on-unhandled-rejection.js": [
+13
+],
+"qunit:src/core/utilities.js": [
+158
+],
+"qunit:src/dump.js": [
+98,
+231,
+251
+],
+"qunit:src/test.js": [
+601
+],
+"qunit:test/reporter-html/no-qunit-element.html": [
+11
+]
+}

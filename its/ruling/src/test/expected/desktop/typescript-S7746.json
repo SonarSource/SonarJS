@@ -1,0 +1,21 @@
+{
+"desktop:app/src/lib/git/apply.ts": [
+83
+],
+"desktop:app/src/lib/shells/shared.ts": [
+59,
+104,
+106
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+1564,
+1568,
+1586
+],
+"desktop:app/src/lib/stores/git-store.ts": [
+1119
+],
+"desktop:app/src/lib/stores/repositories-store.ts": [
+143
+]
+}

@@ -1,0 +1,17 @@
+{
+"searchkit:examples/indexer/config.ts": [
+147,
+147,
+148
+],
+"searchkit:packages/searchkit-client/src/withSearchkitRouting.tsx": [
+17,
+30,
+31
+],
+"searchkit:packages/searchkit-elastic-ui/src/Facets/RangeSliderFacet/index.tsx": [
+12,
+22,
+25
+]
+}

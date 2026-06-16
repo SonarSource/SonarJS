@@ -1,0 +1,23 @@
+{
+"vuetify:packages/api-generator/src/index.ts": [
+93,
+112
+],
+"vuetify:packages/api-generator/src/types.ts": [
+381
+],
+"vuetify:packages/docs/src/util/helpers.ts": [
+87
+],
+"vuetify:packages/vuetify/src/composables/filter.ts": [
+81,
+98
+],
+"vuetify:packages/vuetify/src/composables/theme.ts": [
+222,
+224
+],
+"vuetify:packages/vuetify/src/util/console.ts": [
+90
+]
+}

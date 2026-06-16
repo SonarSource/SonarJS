@@ -1,0 +1,56 @@
+{
+"console:src/components/Links.tsx": [
+182
+],
+"console:src/components/PopupFooter.tsx": [
+146
+],
+"console:src/utils/relay.ts": [
+153
+],
+"console:src/utils/valueparser.ts": [
+161
+],
+"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
+255
+],
+"console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermission.tsx": [
+69
+],
+"console:src/views/RelationsPopup/RelationPopup.tsx": [
+83,
+90
+],
+"console:src/views/SchemaView/EnumsOverview/AddEnum.tsx": [
+200
+],
+"console:src/views/SchemaView/SchemaOverview/AddType.tsx": [
+232
+],
+"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
+278
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+334
+],
+"console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
+67
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+237,
+640
+],
+"console:src/views/models/FieldPopup/EditValueInput.tsx": [
+71
+],
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
+280
+],
+"console:src/views/models/utils.ts": [
+69,
+164
+],
+"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
+114
+]
+}

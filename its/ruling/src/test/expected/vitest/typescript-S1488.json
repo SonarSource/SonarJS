@@ -1,0 +1,77 @@
+{
+"vitest:packages/browser/src/client/tester/context.ts": [
+209
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveStyle.ts": [
+166
+],
+"vitest:packages/browser/src/client/tester/rpc.ts": [
+16
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/index.ts": [
+375
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+553
+],
+"vitest:packages/browser/src/node/serverTester.ts": [
+69
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+1176
+],
+"vitest:packages/mocker/src/browser/mocker.ts": [
+36,
+146,
+238
+],
+"vitest:packages/mocker/src/node/mockerPlugin.ts": [
+68
+],
+"vitest:packages/mocker/src/node/parsers.ts": [
+79
+],
+"vitest:packages/runner/src/suite.ts": [
+969
+],
+"vitest:packages/snapshot/src/manager.ts": [
+35,
+47
+],
+"vitest:packages/ui/client/composables/navigation.ts": [
+164
+],
+"vitest:packages/utils/src/diff/index.ts": [
+289
+],
+"vitest:packages/utils/src/helpers.ts": [
+351
+],
+"vitest:packages/vitest/src/integrations/env/utils.ts": [
+11
+],
+"vitest:packages/vitest/src/node/ast-collect.ts": [
+314
+],
+"vitest:packages/vitest/src/node/cli/filter.ts": [
+36
+],
+"vitest:packages/vitest/src/node/plugins/vitestResolver.ts": [
+22
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
+139
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleRunner.ts": [
+136
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/nativeModuleMocker.ts": [
+19
+],
+"vitest:packages/vitest/src/runtime/rpc.ts": [
+37
+],
+"vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
+153
+]
+}

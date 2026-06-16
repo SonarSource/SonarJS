@@ -1,0 +1,20 @@
+{
+"react-cloud-music:src/application/Player/play-list/index.jsx": [
+225
+],
+"react-cloud-music:src/application/Search/index.jsx": [
+54,
+152
+],
+"react-cloud-music:src/application/SongList/index.jsx": [
+41
+],
+"react-cloud-music:src/application/User/Login/LoginForm/index.jsx": [
+46,
+51,
+56
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/index.jsx": [
+42
+]
+}

@@ -1,0 +1,143 @@
+{
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
+144,
+529,
+622,
+622
+],
+"desktop:app/src/lib/api.ts": [
+619,
+619,
+620,
+620,
+916,
+1442,
+1443
+],
+"desktop:app/src/lib/ci-checks/ci-checks.ts": [
+604
+],
+"desktop:app/src/lib/diff-parser.ts": [
+215,
+217
+],
+"desktop:app/src/lib/format-date.ts": [
+19
+],
+"desktop:app/src/lib/git/diff.ts": [
+318,
+319
+],
+"desktop:app/src/lib/git/log.ts": [
+227,
+228
+],
+"desktop:app/src/lib/git/rebase.ts": [
+168,
+170,
+183,
+185,
+288,
+289,
+291,
+291
+],
+"desktop:app/src/lib/git/rev-list.ts": [
+78,
+79,
+83,
+84
+],
+"desktop:app/src/lib/git/stash.ts": [
+45
+],
+"desktop:app/src/lib/git/status.ts": [
+336,
+337,
+339,
+339
+],
+"desktop:app/src/lib/local-storage.ts": [
+72,
+73,
+100,
+101,
+132,
+133
+],
+"desktop:app/src/lib/progress/git.ts": [
+274,
+276,
+286,
+287,
+288,
+290,
+290,
+290
+],
+"desktop:app/src/lib/progress/lfs.ts": [
+60,
+61,
+62,
+66,
+67,
+68
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+1905
+],
+"desktop:app/src/lib/stores/helpers/repository-indicator-updater.ts": [
+51
+],
+"desktop:app/src/lib/stores/issues-store.ts": [
+60
+],
+"desktop:app/src/lib/text-token-parser.ts": [
+160,
+161
+],
+"desktop:app/src/lib/trampoline/trampoline-command-parser.ts": [
+43,
+61
+],
+"desktop:app/src/main-process/ordered-webrequest.ts": [
+217
+],
+"desktop:app/src/models/commit-identity.ts": [
+32,
+34,
+46,
+46
+],
+"desktop:app/src/ui/dialog/dialog.tsx": [
+368
+],
+"desktop:app/src/ui/diff/diff-syntax-mode.ts": [
+206,
+207
+],
+"desktop:app/src/ui/lib/color-manipulation.ts": [
+25
+],
+"desktop:app/src/ui/publish-repository/publish-repository.tsx": [
+92,
+94
+],
+"desktop:app/webpack.development.ts": [
+29,
+30
+],
+"desktop:script/changelog/parser.ts": [
+25,
+26
+],
+"desktop:script/draft-release/version.ts": [
+17,
+18,
+86
+],
+"desktop:script/start.ts": [
+15,
+16
+]
+}

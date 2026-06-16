@@ -1,0 +1,22 @@
+{
+"rxjs:doc/decision-tree-widget/src/main.js": [
+37
+],
+"rxjs:perf/macro/specbuilder.js": [
+23
+],
+"rxjs:perf/micro/index.js": [
+133
+],
+"rxjs:protractor.conf.js": [
+24,
+30
+],
+"rxjs:tools/add-license-to-file.js": [
+27,
+28
+],
+"rxjs:wallaby.js": [
+28
+]
+}

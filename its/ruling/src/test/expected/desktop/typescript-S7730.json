@@ -1,0 +1,22 @@
+{
+"desktop:app/src/lib/get-main-guid.ts": [
+31
+],
+"desktop:app/src/lib/git/cherry-pick.ts": [
+247,
+260,
+273,
+314
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+1992,
+3004
+],
+"desktop:app/src/lib/stores/helpers/branch-pruner.ts": [
+195
+],
+"desktop:script/draft-release/run.ts": [
+34,
+59
+]
+}

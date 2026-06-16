@@ -1,0 +1,20 @@
+{
+"postgraphql:resources/jest-preprocessor.js": [
+0
+],
+"postgraphql:resources/jest-setup.js": [
+0
+],
+"postgraphql:src/postgraphql/graphiql/src/components/PostGraphiQL.js": [
+0
+],
+"postgraphql:src/postgraphql/graphiql/src/index.js": [
+0
+],
+"postgraphql:src/postgraphql/http/createPostGraphQLHttpRequestHandler.js": [
+0
+],
+"postgraphql:src/postgraphql/http/setupServerSentEvents.js": [
+0
+]
+}

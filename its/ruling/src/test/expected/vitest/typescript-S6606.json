@@ -1,0 +1,95 @@
+{
+"vitest:packages/browser/src/client/tester/expect/toHaveAccessibleDescription.ts": [
+28
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveAccessibleErrorMessage.ts": [
+28
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveAccessibleName.ts": [
+29
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveFormValues.ts": [
+28
+],
+"vitest:packages/browser/src/client/tester/expect/utils.ts": [
+46,
+71
+],
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+214
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/index.ts": [
+428
+],
+"vitest:packages/browser/src/node/index.ts": [
+118
+],
+"vitest:packages/expect/src/utils.ts": [
+41
+],
+"vitest:packages/runner/src/artifact.ts": [
+153
+],
+"vitest:packages/runner/src/fixture.ts": [
+166
+],
+"vitest:packages/runner/src/run.ts": [
+83,
+86
+],
+"vitest:packages/runner/src/utils/collect.ts": [
+111,
+117
+],
+"vitest:packages/utils/src/helpers.ts": [
+143
+],
+"vitest:packages/vitest/src/integrations/chai/poll.ts": [
+39
+],
+"vitest:packages/vitest/src/integrations/vi.ts": [
+815
+],
+"vitest:packages/vitest/src/integrations/wait.ts": [
+143
+],
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+320,
+378
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+335,
+885
+],
+"vitest:packages/vitest/src/node/core.ts": [
+343,
+942,
+1127,
+1490
+],
+"vitest:packages/vitest/src/node/plugins/utils.ts": [
+15
+],
+"vitest:packages/vitest/src/node/project.ts": [
+508,
+748
+],
+"vitest:packages/vitest/src/node/reporters/default.ts": [
+36
+],
+"vitest:packages/vitest/src/runtime/runners/test.ts": [
+223
+],
+"vitest:packages/vitest/src/runtime/vm/commonjs-executor.ts": [
+205
+],
+"vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
+143
+],
+"vitest:packages/vitest/src/typecheck/typechecker.ts": [
+145
+],
+"vitest:packages/ws-client/src/state.ts": [
+128
+]
+}

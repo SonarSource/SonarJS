@@ -1,0 +1,12 @@
+{
+"vitest:packages/browser/src/client/public/error-catcher.js": [
+77
+],
+"vitest:packages/ui/rollup.config.js": [
+35
+],
+"vitest:packages/vitest/rollup.config.js": [
+137,
+280
+]
+}

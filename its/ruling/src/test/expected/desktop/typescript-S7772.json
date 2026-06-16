@@ -1,0 +1,424 @@
+{
+"desktop:app/app-info.ts": [
+1,
+2
+],
+"desktop:app/git-info.ts": [
+1,
+2
+],
+"desktop:app/src/cli/commands/clone.ts": [
+1,
+2
+],
+"desktop:app/src/cli/commands/open.ts": [
+2
+],
+"desktop:app/src/cli/open-desktop.ts": [
+1
+],
+"desktop:app/src/lib/api.ts": [
+1,
+2
+],
+"desktop:app/src/lib/app-shell.ts": [
+2
+],
+"desktop:app/src/lib/directory-exists.ts": [
+1
+],
+"desktop:app/src/lib/editors/launch.ts": [
+1
+],
+"desktop:app/src/lib/editors/win32.ts": [
+1
+],
+"desktop:app/src/lib/email.ts": [
+1
+],
+"desktop:app/src/lib/exec-file.ts": [
+1,
+2
+],
+"desktop:app/src/lib/file-system.ts": [
+1,
+2,
+6,
+7,
+8
+],
+"desktop:app/src/lib/find-account.ts": [
+1
+],
+"desktop:app/src/lib/find-toast-activator-clsid.ts": [
+1,
+2
+],
+"desktop:app/src/lib/friendly-endpoint-name.ts": [
+1
+],
+"desktop:app/src/lib/generic-git-auth.ts": [
+1
+],
+"desktop:app/src/lib/get-main-guid.ts": [
+2,
+3
+],
+"desktop:app/src/lib/get-os.ts": [
+1
+],
+"desktop:app/src/lib/git/cherry-pick.ts": [
+1,
+14,
+22
+],
+"desktop:app/src/lib/git/config.ts": [
+3
+],
+"desktop:app/src/lib/git/core.ts": [
+10,
+12,
+13
+],
+"desktop:app/src/lib/git/description.ts": [
+1,
+2
+],
+"desktop:app/src/lib/git/diff.ts": [
+1,
+29
+],
+"desktop:app/src/lib/git/gitignore.ts": [
+1,
+2,
+5
+],
+"desktop:app/src/lib/git/merge.ts": [
+1
+],
+"desktop:app/src/lib/git/rebase.ts": [
+1,
+2,
+30
+],
+"desktop:app/src/lib/git/reorder.ts": [
+1
+],
+"desktop:app/src/lib/git/rev-parse.ts": [
+3
+],
+"desktop:app/src/lib/git/show.ts": [
+1
+],
+"desktop:app/src/lib/git/squash.ts": [
+1
+],
+"desktop:app/src/lib/git/submodule.ts": [
+1
+],
+"desktop:app/src/lib/gravatar.ts": [
+1
+],
+"desktop:app/src/lib/http.ts": [
+2
+],
+"desktop:app/src/lib/is-git-on-path.ts": [
+1
+],
+"desktop:app/src/lib/large-files.ts": [
+4,
+5
+],
+"desktop:app/src/lib/logging/get-log-path.ts": [
+1
+],
+"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
+2,
+3
+],
+"desktop:app/src/lib/parse-app-url.ts": [
+1
+],
+"desktop:app/src/lib/path.ts": [
+1,
+2,
+3
+],
+"desktop:app/src/lib/process/win32.ts": [
+1,
+2
+],
+"desktop:app/src/lib/progress/from-process.ts": [
+1,
+2,
+3
+],
+"desktop:app/src/lib/progress/lfs.ts": [
+4
+],
+"desktop:app/src/lib/read-emoji.ts": [
+1,
+2
+],
+"desktop:app/src/lib/release-notes.ts": [
+1,
+2
+],
+"desktop:app/src/lib/repository-matching.ts": [
+1,
+2
+],
+"desktop:app/src/lib/shell.ts": [
+1
+],
+"desktop:app/src/lib/shells/darwin.ts": [
+1
+],
+"desktop:app/src/lib/shells/linux.ts": [
+1
+],
+"desktop:app/src/lib/shells/shared.ts": [
+1
+],
+"desktop:app/src/lib/shells/win32.ts": [
+1,
+2
+],
+"desktop:app/src/lib/source-map-support.ts": [
+1,
+2,
+4
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+1
+],
+"desktop:app/src/lib/stores/git-store.ts": [
+1,
+97
+],
+"desktop:app/src/lib/stores/helpers/create-tutorial-repository.ts": [
+1,
+4
+],
+"desktop:app/src/lib/stores/updates/update-remote-url.ts": [
+4
+],
+"desktop:app/src/lib/tailer.ts": [
+1
+],
+"desktop:app/src/lib/trampoline/trampoline-environment.ts": [
+3
+],
+"desktop:app/src/lib/trampoline/trampoline-server.ts": [
+1
+],
+"desktop:app/src/lib/uuid.ts": [
+1
+],
+"desktop:app/src/main-process/app-window.ts": [
+20
+],
+"desktop:app/src/main-process/desktop-file-transport.ts": [
+1,
+2,
+5,
+6,
+7
+],
+"desktop:app/src/main-process/log.ts": [
+7
+],
+"desktop:app/src/main-process/main.ts": [
+12,
+13
+],
+"desktop:app/src/main-process/menu/build-default-menu.ts": [
+10
+],
+"desktop:app/src/main-process/squirrel-updater.ts": [
+1,
+2,
+4
+],
+"desktop:app/src/models/cloning-repository.ts": [
+1
+],
+"desktop:app/src/models/repository.ts": [
+1
+],
+"desktop:app/src/ui/acknowledgements/acknowledgements.tsx": [
+1,
+2
+],
+"desktop:app/src/ui/add-repository/add-existing-repository.tsx": [
+2
+],
+"desktop:app/src/ui/add-repository/create-repository.tsx": [
+2,
+35,
+37
+],
+"desktop:app/src/ui/add-repository/git-attributes.ts": [
+1,
+2
+],
+"desktop:app/src/ui/add-repository/gitignores.ts": [
+1,
+2
+],
+"desktop:app/src/ui/add-repository/licenses.ts": [
+1,
+2
+],
+"desktop:app/src/ui/add-repository/write-default-readme.ts": [
+1,
+2
+],
+"desktop:app/src/ui/app.tsx": [
+2
+],
+"desktop:app/src/ui/changes/changes-list.tsx": [
+2,
+39,
+56
+],
+"desktop:app/src/ui/changes/sidebar.tsx": [
+1
+],
+"desktop:app/src/ui/clone-repository/clone-repository.tsx": [
+1,
+25
+],
+"desktop:app/src/ui/diff/binary-file.tsx": [
+2
+],
+"desktop:app/src/ui/diff/syntax-highlighting/index.ts": [
+1
+],
+"desktop:app/src/ui/history/selected-commit.tsx": [
+3
+],
+"desktop:app/src/ui/index.tsx": [
+5
+],
+"desktop:app/src/ui/lib/config-lock-file-exists.tsx": [
+4
+],
+"desktop:app/src/ui/lib/conflicts/unmerged-file.tsx": [
+10
+],
+"desktop:app/src/ui/lib/default-dir.ts": [
+1
+],
+"desktop:app/src/ui/lib/enterprise-validate-url.ts": [
+1
+],
+"desktop:app/src/ui/lib/install-cli.ts": [
+1,
+4
+],
+"desktop:app/src/ui/lib/object-id.ts": [
+1
+],
+"desktop:app/src/ui/lib/path-exists.ts": [
+1
+],
+"desktop:app/src/ui/lib/path-text.tsx": [
+2
+],
+"desktop:app/src/ui/lib/sandboxed-markdown.tsx": [
+2,
+5
+],
+"desktop:app/src/ui/main-process-proxy.ts": [
+4
+],
+"desktop:app/src/ui/tutorial/tutorial-panel.tsx": [
+2
+],
+"desktop:app/src/ui/untrusted-certificate/untrusted-certificate.tsx": [
+2
+],
+"desktop:app/webpack.common.ts": [
+1
+],
+"desktop:script/build.ts": [
+4,
+5,
+6,
+56
+],
+"desktop:script/changelog/parser.ts": [
+1,
+2
+],
+"desktop:script/dist-info.ts": [
+1,
+2
+],
+"desktop:script/draft-release/run.ts": [
+11,
+13,
+14,
+18
+],
+"desktop:script/generate-octicons.ts": [
+8,
+9,
+10
+],
+"desktop:script/licenses/update-license-dump.ts": [
+1,
+2,
+10
+],
+"desktop:script/package.ts": [
+3,
+4,
+18
+],
+"desktop:script/post-install.ts": [
+3,
+4
+],
+"desktop:script/pr-api.ts": [
+1
+],
+"desktop:script/publish.ts": [
+26,
+27,
+29
+],
+"desktop:script/review-logs.ts": [
+3,
+4,
+5
+],
+"desktop:script/run.ts": [
+1,
+2,
+3
+],
+"desktop:script/sh.ts": [
+1,
+2
+],
+"desktop:script/test-review.ts": [
+3
+],
+"desktop:script/test-setup.ts": [
+3,
+4
+],
+"desktop:script/validate-changelog.ts": [
+3,
+4
+],
+"desktop:script/validate-sass/validate-all.ts": [
+1
+],
+"desktop:script/validate-sass/validate-file.ts": [
+1,
+2
+]
+}

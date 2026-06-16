@@ -1,0 +1,54 @@
+{
+"sonar-web:src/main/js/apps/update-center/plugins.js": [
+192
+],
+"sonar-web:src/main/js/components/charts/word-cloud.js": [
+44
+],
+"sonar-web:src/main/js/components/common/select-list.js": [
+285,
+285
+],
+"sonar-web:src/main/js/components/common/selectable-collection-view.js": [
+10
+],
+"sonar-web:src/main/js/components/navigator/filters/ajax-select-filters.js": [
+243
+],
+"sonar-web:src/main/js/components/widgets/barchart.js": [
+48
+],
+"sonar-web:src/main/js/libs/graphics/pie-chart.js": [
+45
+],
+"sonar-web:src/main/js/libs/translate.js": [
+73
+],
+"sonar-web:src/main/js/widgets/issue-filter/widget.js": [
+34,
+34,
+162,
+169
+],
+"sonar-web:src/main/js/widgets/old/histogram.js": [
+95,
+99
+],
+"sonar-web:src/main/js/widgets/old/pie-chart.js": [
+169,
+174,
+219,
+220,
+354
+],
+"sonar-web:src/main/js/widgets/old/stack-area.js": [
+126,
+315
+],
+"sonar-web:src/main/js/widgets/old/timeline.js": [
+224
+],
+"sonar-web:src/main/js/widgets/old/treemap.js": [
+169
+]
+}

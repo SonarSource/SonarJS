@@ -1,0 +1,49 @@
+{
+"vitest:packages/browser/src/node/plugin.ts": [
+615
+],
+"vitest:packages/expect/src/jest-matcher-utils.ts": [
+90
+],
+"vitest:packages/mocker/src/utils.ts": [
+1
+],
+"vitest:packages/pretty-format/src/index.ts": [
+54
+],
+"vitest:packages/runner/src/fixture.ts": [
+656
+],
+"vitest:packages/snapshot/src/port/inlineSnapshot.ts": [
+213
+],
+"vitest:packages/utils/src/diff/index.ts": [
+401
+],
+"vitest:packages/utils/src/diff/joinAlignedDiffs.ts": [
+16
+],
+"vitest:packages/utils/src/helpers.ts": [
+63
+],
+"vitest:packages/utils/src/source-map.ts": [
+14,
+53,
+157
+],
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+44
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/tableRender.ts": [
+16
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/utils.ts": [
+2
+],
+"vitest:packages/vitest/src/typecheck/typechecker.ts": [
+245
+],
+"vitest:packages/vitest/src/utils/memory-limit.ts": [
+50
+]
+}

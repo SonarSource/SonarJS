@@ -1,0 +1,65 @@
+{
+"vitest:packages/browser/src/client/tester/logger.ts": [
+75
+],
+"vitest:packages/expect/src/jest-asymmetric-matchers.ts": [
+230
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+248,
+264,
+422,
+748
+],
+"vitest:packages/expect/src/jest-utils.ts": [
+280
+],
+"vitest:packages/mocker/src/browser/hints.ts": [
+36
+],
+"vitest:packages/mocker/src/browser/mocker.ts": [
+75
+],
+"vitest:packages/pretty-format/src/index.ts": [
+296
+],
+"vitest:packages/snapshot/src/port/utils.ts": [
+272,
+279
+],
+"vitest:packages/ui/client/components/FileDetails.vue": [
+122
+],
+"vitest:packages/utils/src/diff/index.ts": [
+318,
+319
+],
+"vitest:packages/utils/src/display.ts": [
+252
+],
+"vitest:packages/utils/src/serialize.ts": [
+74
+],
+"vitest:packages/vitest/src/integrations/env/jsdom.ts": [
+120,
+121,
+142
+],
+"vitest:packages/vitest/src/integrations/mock/date.ts": [
+67
+],
+"vitest:packages/vitest/src/integrations/mock/timers.ts": [
+188
+],
+"vitest:packages/vitest/src/node/cli/cli-api.ts": [
+206,
+214
+],
+"vitest:packages/vitest/src/node/stdin.ts": [
+182,
+233
+],
+"vitest:packages/vitest/src/utils/config-helpers.ts": [
+81
+]
+}

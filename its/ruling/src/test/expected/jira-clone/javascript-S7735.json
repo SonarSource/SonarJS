@@ -1,0 +1,17 @@
+{
+"jira-clone:client/cypress/support/commands.js": [
+58
+],
+"jira-clone:client/src/Project/Board/Lists/index.jsx": [
+69
+],
+"jira-clone:client/src/Project/Sidebar/Styles.js": [
+58
+],
+"jira-clone:client/src/shared/components/Modal/index.jsx": [
+52
+],
+"jira-clone:client/src/shared/utils/api.js": [
+29
+]
+}

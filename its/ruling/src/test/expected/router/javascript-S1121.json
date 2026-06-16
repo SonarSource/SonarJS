@@ -1,0 +1,28 @@
+{
+"router:src/navigationInstruction.js": [
+17
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+86,
+183,
+244,
+310,
+452,
+503,
+1010,
+1111,
+1129,
+1254,
+1488,
+1704,
+2901
+],
+"router:third_party/route-recognizer.js": [
+98,
+102,
+158,
+191,
+193,
+366
+]
+}

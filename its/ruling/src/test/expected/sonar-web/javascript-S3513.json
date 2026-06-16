@@ -1,0 +1,443 @@
+{
+"sonar-web:src/main/js/apps/api-documentation/filters-view.js": [
+21
+],
+"sonar-web:src/main/js/apps/coding-rules/bulk-change-modal-view.js": [
+10,
+30,
+39,
+84
+],
+"sonar-web:src/main/js/apps/coding-rules/controller.js": [
+89
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/active-severity-facet.js": [
+23,
+28,
+33
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/available-since-facet.js": [
+9
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/characteristic-facet.js": [
+10,
+58
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/custom-labels-facet.js": [
+21
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/custom-values-facet.js": [
+9,
+19
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/inheritance-facet.js": [
+27,
+32,
+37,
+63
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/key-facet.js": [
+17
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/language-facet.js": [
+43
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/quality-profile-facet.js": [
+10,
+71
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/query-facet.js": [
+9
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/repository-facet.js": [
+47
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/status-facet.js": [
+23
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/template-facet.js": [
+9
+],
+"sonar-web:src/main/js/apps/coding-rules/rule-details-view.js": [
+166
+],
+"sonar-web:src/main/js/apps/coding-rules/rule-filter-view.js": [
+13,
+17
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/custom-rule-creation-view.js": [
+12,
+26,
+53,
+182
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/custom-rule-view.js": [
+36
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/custom-rules-view.js": [
+39
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/manual-rule-creation-view.js": [
+41,
+112
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/rule-description-view.js": [
+78
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/rule-issues-view.js": [
+42
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/rule-meta-view.js": [
+88
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/rule-parameters-view.js": [
+19
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/rule-profile-view.js": [
+131
+],
+"sonar-web:src/main/js/apps/coding-rules/rule/rule-profiles-view.js": [
+74
+],
+"sonar-web:src/main/js/apps/coding-rules/workspace-header-view.js": [
+11,
+42
+],
+"sonar-web:src/main/js/apps/coding-rules/workspace-list-item-view.js": [
+83
+],
+"sonar-web:src/main/js/apps/coding-rules/workspace-list-view.js": [
+13
+],
+"sonar-web:src/main/js/apps/issues/component-viewer/issue-view.js": [
+6,
+11
+],
+"sonar-web:src/main/js/apps/issues/component-viewer/main.js": [
+8,
+15,
+20,
+74
+],
+"sonar-web:src/main/js/apps/issues/controller.js": [
+12,
+162,
+188
+],
+"sonar-web:src/main/js/apps/issues/facets/action-plan-facet.js": [
+10,
+60
+],
+"sonar-web:src/main/js/apps/issues/facets/assignee-facet.js": [
+25,
+99
+],
+"sonar-web:src/main/js/apps/issues/facets/base-facet.js": [
+9
+],
+"sonar-web:src/main/js/apps/issues/facets/context-facet.js": [
+9
+],
+"sonar-web:src/main/js/apps/issues/facets/creation-date-facet.js": [
+13,
+127
+],
+"sonar-web:src/main/js/apps/issues/facets/custom-values-facet.js": [
+9,
+19
+],
+"sonar-web:src/main/js/apps/issues/facets/file-facet.js": [
+10,
+35
+],
+"sonar-web:src/main/js/apps/issues/facets/issue-key-facet.js": [
+17
+],
+"sonar-web:src/main/js/apps/issues/facets/language-facet.js": [
+60
+],
+"sonar-web:src/main/js/apps/issues/facets/module-facet.js": [
+23
+],
+"sonar-web:src/main/js/apps/issues/facets/project-facet.js": [
+20,
+76
+],
+"sonar-web:src/main/js/apps/issues/facets/reporter-facet.js": [
+39
+],
+"sonar-web:src/main/js/apps/issues/facets/resolution-facet.js": [
+10
+],
+"sonar-web:src/main/js/apps/issues/facets/rule-facet.js": [
+72
+],
+"sonar-web:src/main/js/apps/issues/facets/tag-facet.js": [
+48
+],
+"sonar-web:src/main/js/apps/issues/filters-view.js": [
+84
+],
+"sonar-web:src/main/js/apps/issues/router.js": [
+10
+],
+"sonar-web:src/main/js/apps/issues/workspace-header-view.js": [
+10,
+19
+],
+"sonar-web:src/main/js/apps/issues/workspace-list-item-view.js": [
+23,
+33,
+38,
+129
+],
+"sonar-web:src/main/js/apps/issues/workspace-list-view.js": [
+28,
+105
+],
+"sonar-web:src/main/js/apps/permission-templates/delete-view.js": [
+9
+],
+"sonar-web:src/main/js/apps/permission-templates/form-view.js": [
+22
+],
+"sonar-web:src/main/js/apps/permission-templates/groups-view.js": [
+49
+],
+"sonar-web:src/main/js/apps/permission-templates/users-view.js": [
+46
+],
+"sonar-web:src/main/js/apps/project-permissions/apply-template-view.js": [
+11,
+19,
+45
+],
+"sonar-web:src/main/js/apps/project-permissions/groups-view.js": [
+48
+],
+"sonar-web:src/main/js/apps/project-permissions/users-view.js": [
+46
+],
+"sonar-web:src/main/js/apps/quality-gates/actions-view.js": [
+21
+],
+"sonar-web:src/main/js/apps/quality-gates/delete-view.js": [
+8
+],
+"sonar-web:src/main/js/apps/quality-gates/form-view.js": [
+11,
+41
+],
+"sonar-web:src/main/js/apps/quality-gates/gate-condition-view.js": [
+90
+],
+"sonar-web:src/main/js/apps/quality-gates/gate-conditions-delete-view.js": [
+10,
+33
+],
+"sonar-web:src/main/js/apps/quality-gates/gate-conditions-empty-view.js": [
+10
+],
+"sonar-web:src/main/js/apps/quality-gates/gate-conditions-view.js": [
+68
+],
+"sonar-web:src/main/js/apps/quality-gates/gate-projects-view.js": [
+42
+],
+"sonar-web:src/main/js/apps/quality-gates/header-view.js": [
+46
+],
+"sonar-web:src/main/js/apps/quality-profiles/actions-view.js": [
+88
+],
+"sonar-web:src/main/js/apps/quality-profiles/change-profile-parent-view.js": [
+11,
+19,
+56
+],
+"sonar-web:src/main/js/apps/quality-profiles/copy-profile-view.js": [
+10
+],
+"sonar-web:src/main/js/apps/quality-profiles/create-profile-view.js": [
+12,
+18,
+23,
+78
+],
+"sonar-web:src/main/js/apps/quality-profiles/delete-profile-view.js": [
+13
+],
+"sonar-web:src/main/js/apps/quality-profiles/profile-comparison-view.js": [
+41
+],
+"sonar-web:src/main/js/apps/quality-profiles/profile-details-view.js": [
+154
+],
+"sonar-web:src/main/js/apps/quality-profiles/profile-header-view.js": [
+66
+],
+"sonar-web:src/main/js/apps/quality-profiles/profile-view.js": [
+37
+],
+"sonar-web:src/main/js/apps/quality-profiles/profiles-view.js": [
+52
+],
+"sonar-web:src/main/js/apps/quality-profiles/rename-profile-view.js": [
+9
+],
+"sonar-web:src/main/js/apps/quality-profiles/restore-built-in-profiles-view.js": [
+10,
+16,
+51
+],
+"sonar-web:src/main/js/apps/quality-profiles/restore-profile-view.js": [
+13
+],
+"sonar-web:src/main/js/apps/users/groups-view.js": [
+36
+],
+"sonar-web:src/main/js/components/common/action-options-view.js": [
+24,
+97
+],
+"sonar-web:src/main/js/components/common/modal-form.js": [
+13,
+20
+],
+"sonar-web:src/main/js/components/common/select-list.js": [
+94,
+97
+],
+"sonar-web:src/main/js/components/issue/issue-view.js": [
+259
+],
+"sonar-web:src/main/js/components/issue/views/assign-form-view.js": [
+12
+],
+"sonar-web:src/main/js/components/issue/views/changelog-view.js": [
+13
+],
+"sonar-web:src/main/js/components/issue/views/comment-form-view.js": [
+26,
+83
+],
+"sonar-web:src/main/js/components/issue/views/issue-popup.js": [
+17
+],
+"sonar-web:src/main/js/components/issue/views/more-actions-view.js": [
+11
+],
+"sonar-web:src/main/js/components/issue/views/plan-form-view.js": [
+21,
+33
+],
+"sonar-web:src/main/js/components/issue/views/set-severity-form-view.js": [
+20,
+28
+],
+"sonar-web:src/main/js/components/issue/views/tags-form-view.js": [
+16,
+24,
+42
+],
+"sonar-web:src/main/js/components/issue/views/transitions-form-view.js": [
+15
+],
+"sonar-web:src/main/js/components/navigator/facets/base-facet.js": [
+96
+],
+"sonar-web:src/main/js/components/navigator/filters/ajax-select-filters.js": [
+108,
+205
+],
+"sonar-web:src/main/js/components/navigator/filters/base-filters.js": [
+68,
+102
+],
+"sonar-web:src/main/js/components/navigator/filters/choice-filters.js": [
+21,
+269
+],
+"sonar-web:src/main/js/components/navigator/filters/filter-bar.js": [
+30
+],
+"sonar-web:src/main/js/components/navigator/filters/range-filters.js": [
+169
+],
+"sonar-web:src/main/js/components/navigator/filters/string-filters.js": [
+21
+],
+"sonar-web:src/main/js/components/navigator/workspace-header-view.js": [
+74
+],
+"sonar-web:src/main/js/components/source-viewer/header.js": [
+76
+],
+"sonar-web:src/main/js/components/source-viewer/measures-overlay.js": [
+24,
+34,
+221
+],
+"sonar-web:src/main/js/components/source-viewer/more-actions.js": [
+45
+],
+"sonar-web:src/main/js/components/source-viewer/popups/coverage-popup.js": [
+15
+],
+"sonar-web:src/main/js/components/source-viewer/popups/scm-popup.js": [
+12
+],
+"sonar-web:src/main/js/components/workspace/views/rule-view.js": [
+10,
+19
+],
+"sonar-web:src/main/js/components/workspace/views/viewer-view.js": [
+9
+],
+"sonar-web:src/main/js/helpers/handlebars-helpers.js": [
+13,
+18,
+60,
+123,
+130,
+224,
+233,
+252,
+306,
+321,
+326,
+331
+],
+"sonar-web:src/main/js/libs/translate.js": [
+6,
+15,
+28
+],
+"sonar-web:src/main/js/main/nav/global/search-view.js": [
+28
+],
+"sonar-web:src/main/js/widgets/old/histogram.js": [
+4,
+68,
+149
+],
+"sonar-web:src/main/js/widgets/old/tag-cloud.js": [
+4,
+62
+],
+"sonar-web:src/main/js/widgets/old/treemap.js": [
+10,
+266
+],
+"sonar-web:src/main/js/widgets/old/word-cloud.js": [
+7,
+80
+],
+"sonar-web:tests/helpers/measures-test.js": [
+24,
+31
+],
+"sonar-web:tests/jsdom-setup.js": [
+13
+]
+}

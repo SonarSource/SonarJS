@@ -1,0 +1,17 @@
+{
+"jshint:src/cli.js": [
+209,
+283
+],
+"jshint:src/jshint.js": [
+3493,
+6337,
+6342,
+6382,
+6424,
+6428
+],
+"jshint:src/lex.js": [
+202
+]
+}

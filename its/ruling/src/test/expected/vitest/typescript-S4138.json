@@ -1,0 +1,36 @@
+{
+"vitest:packages/browser/src/client/orchestrator.ts": [
+88
+],
+"vitest:packages/expect/src/jest-utils.ts": [
+122
+],
+"vitest:packages/ui/client/composables/explorer/collapse.ts": [
+78,
+88
+],
+"vitest:packages/ui/client/composables/explorer/collector.ts": [
+159,
+167,
+197,
+208,
+273,
+503
+],
+"vitest:packages/ui/client/composables/explorer/filter.ts": [
+301
+],
+"vitest:packages/ui/client/composables/explorer/utils.ts": [
+125,
+233
+],
+"vitest:packages/utils/src/display.ts": [
+142
+],
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+133
+],
+"vitest:packages/vitest/src/typecheck/collect.ts": [
+265
+]
+}

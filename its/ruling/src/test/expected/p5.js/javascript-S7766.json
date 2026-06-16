@@ -1,0 +1,21 @@
+{
+"p5.js:lib/addons/p5.sound.js": [
+12623
+],
+"p5.js:src/image/filters.js": [
+489
+],
+"p5.js:src/typography/p5.Font.js": [
+1167
+],
+"p5.js:src/webgl/3d_primitives.js": [
+318,
+320,
+321
+],
+"p5.js:src/webgl/interaction.js": [
+91,
+414,
+486
+]
+}

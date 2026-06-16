@@ -1,0 +1,68 @@
+{
+"vitest:packages/browser/src/client/tester/expect/toHaveFormValues.ts": [
+109
+],
+"vitest:packages/browser/src/client/utils.ts": [
+21
+],
+"vitest:packages/coverage-v8/src/provider.ts": [
+172
+],
+"vitest:packages/mocker/src/node/resolver.ts": [
+94,
+94
+],
+"vitest:packages/pretty-format/src/plugins/lib/markup.ts": [
+29
+],
+"vitest:packages/runner/src/fixture.ts": [
+672
+],
+"vitest:packages/snapshot/src/port/inlineSnapshot.ts": [
+236
+],
+"vitest:packages/snapshot/src/port/utils.ts": [
+75
+],
+"vitest:packages/utils/src/diff/cleanupSemantic.ts": [
+70,
+107,
+369,
+521,
+537
+],
+"vitest:packages/vitest/src/integrations/env/loader.ts": [
+62,
+62,
+115,
+115
+],
+"vitest:packages/vitest/src/integrations/env/utils.ts": [
+28
+],
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+215
+],
+"vitest:packages/vitest/src/node/cli/cli-api.ts": [
+341
+],
+"vitest:packages/vitest/src/node/environments/fetchModule.ts": [
+59
+],
+"vitest:packages/vitest/src/node/environments/normalizeUrl.ts": [
+42,
+42
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/utils.ts": [
+14
+],
+"vitest:packages/vitest/src/runtime/workers/vm.ts": [
+34
+],
+"vitest:packages/vitest/src/typecheck/parse.ts": [
+70
+],
+"vitest:packages/vitest/src/utils/base.ts": [
+29
+]
+}

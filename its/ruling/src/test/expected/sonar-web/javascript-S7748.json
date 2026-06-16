@@ -1,0 +1,24 @@
+{
+"sonar-web:src/main/js/widgets/old/treemap.js": [
+271
+],
+"sonar-web:tests/apps/overview/main/coverage-test.js": [
+16,
+22
+],
+"sonar-web:tests/helpers/measures-test.js": [
+68,
+69,
+73,
+76,
+80,
+81,
+85,
+174,
+175,
+176,
+182,
+183,
+184
+]
+}

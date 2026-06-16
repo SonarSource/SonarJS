@@ -1,0 +1,26 @@
+{
+"searchkit:packages/searchkit-client/src/history.ts": [
+134
+],
+"searchkit:packages/searchkit-client/src/withSearchkit.tsx": [
+6
+],
+"searchkit:packages/searchkit-schema/src/resolvers/FacetResolver.ts": [
+9
+],
+"searchkit:packages/searchkit-schema/src/resolvers/FacetsResolver.ts": [
+3
+],
+"searchkit:packages/searchkit-schema/src/resolvers/HitsResolver.ts": [
+11
+],
+"searchkit:packages/searchkit-schema/src/resolvers/ResultsResolver.ts": [
+83
+],
+"searchkit:packages/searchkit-schema/src/resolvers/SummaryResolver.ts": [
+3
+],
+"searchkit:packages/searchkit-schema/src/schema.ts": [
+194
+]
+}

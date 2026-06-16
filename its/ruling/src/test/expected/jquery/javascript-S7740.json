@@ -1,0 +1,27 @@
+{
+"jquery:src/ajax/load.js": [
+15
+],
+"jquery:src/core.js": [
+141
+],
+"jquery:src/deferred.js": [
+106
+],
+"jquery:src/effects.js": [
+83
+],
+"jquery:src/event.js": [
+405,
+794
+],
+"jquery:src/queue.js": [
+115
+],
+"jquery:src/traversing/findFilter.js": [
+53
+],
+"jquery:src/wrap.js": [
+24
+]
+}

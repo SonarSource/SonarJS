@@ -1,0 +1,17 @@
+{
+"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
+292,
+309,
+320,
+437,
+527,
+590
+],
+"mootools-core:Source/Slick/Slick.Parser.js": [
+40,
+65
+],
+"mootools-core:Source/Types/Function.js": [
+44
+]
+}

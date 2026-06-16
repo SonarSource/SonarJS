@@ -1,0 +1,129 @@
+{
+"desktop:app/src/cli/main.ts": [
+60
+],
+"desktop:app/src/highlighter/index.ts": [
+589
+],
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
+174,
+258,
+488
+],
+"desktop:app/src/lib/api.ts": [
+1547
+],
+"desktop:app/src/lib/find-account.ts": [
+38
+],
+"desktop:app/src/lib/git/diff.ts": [
+281
+],
+"desktop:app/src/lib/git/reorder.ts": [
+28
+],
+"desktop:app/src/lib/git/squash.ts": [
+33
+],
+"desktop:app/src/lib/menu-update.ts": [
+155
+],
+"desktop:app/src/lib/parse-app-url.ts": [
+74
+],
+"desktop:app/src/lib/patch-formatter.ts": [
+143
+],
+"desktop:app/src/lib/status-parser.ts": [
+165
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+2165,
+2841
+],
+"desktop:app/src/lib/stores/sign-in-store.ts": [
+334
+],
+"desktop:app/src/lib/wrap-rich-text-commit-message.ts": [
+34
+],
+"desktop:app/src/main-process/main.ts": [
+334
+],
+"desktop:app/src/main-process/menu/build-default-menu.ts": [
+35
+],
+"desktop:app/src/models/app-menu.ts": [
+267
+],
+"desktop:app/src/models/diff/diff-selection.ts": [
+184
+],
+"desktop:app/src/ui/add-repository/create-repository.tsx": [
+247
+],
+"desktop:app/src/ui/app-menu/app-menu-bar.tsx": [
+375
+],
+"desktop:app/src/ui/app.tsx": [
+997,
+1357
+],
+"desktop:app/src/ui/changes/commit-message.tsx": [
+646
+],
+"desktop:app/src/ui/diff/diff-helpers.tsx": [
+257
+],
+"desktop:app/src/ui/diff/diff-syntax-mode.ts": [
+167
+],
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
+1075,
+1152
+],
+"desktop:app/src/ui/diff/syntax-highlighting/index.ts": [
+151
+],
+"desktop:app/src/ui/diff/text-diff-expansion.ts": [
+175
+],
+"desktop:app/src/ui/diff/text-diff.tsx": [
+873
+],
+"desktop:app/src/ui/history/commit-list-item.tsx": [
+265
+],
+"desktop:app/src/ui/index.tsx": [
+126
+],
+"desktop:app/src/ui/lib/avatar.tsx": [
+58
+],
+"desktop:app/src/ui/lib/filter-list.tsx": [
+458
+],
+"desktop:app/src/ui/lib/list/list.tsx": [
+375,
+1023
+],
+"desktop:app/src/ui/lib/list/selection.ts": [
+80
+],
+"desktop:app/src/ui/lib/path-text.tsx": [
+161,
+318
+],
+"desktop:app/src/ui/repository-settings/repository-settings.tsx": [
+286
+],
+"desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
+119
+],
+"desktop:script/draft-release/run.ts": [
+117
+],
+"desktop:script/draft-release/version.ts": [
+24
+]
+}

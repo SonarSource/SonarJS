@@ -1,0 +1,95 @@
+{
+"jquery:src/ajax.js": [
+693,
+727
+],
+"jquery:src/ajax/jsonp.js": [
+69
+],
+"jquery:src/ajax/parseXML.js": [
+13
+],
+"jquery:src/ajax/var/location.js": [
+1
+],
+"jquery:src/ajax/xhr.js": [
+6
+],
+"jquery:src/core/ready-no-deferred.js": [
+12,
+78
+],
+"jquery:src/core/ready.js": [
+69
+],
+"jquery:src/core/readyException.js": [
+4
+],
+"jquery:src/css/support.js": [
+26
+],
+"jquery:src/css/var/getStyles.js": [
+11
+],
+"jquery:src/deferred.js": [
+224
+],
+"jquery:src/deferred/exceptionHook.js": [
+12
+],
+"jquery:src/effects.js": [
+27,
+28,
+30,
+39
+],
+"jquery:src/event/trigger.js": [
+89
+],
+"jquery:src/exports/global.js": [
+6,
+9,
+12,
+13,
+16,
+17,
+27,
+27
+],
+"jquery:src/queue/delay.js": [
+13,
+15
+],
+"jquery:src/selector.js": [
+897,
+897
+],
+"jquery:src/var/document.js": [
+1
+],
+"jquery:src/wrapper.js": [
+37,
+37
+],
+"jquery:test/data/ajax/onunload.html": [
+12
+],
+"jquery:test/data/core/aliased.html": [
+8
+],
+"jquery:test/data/core/onready.html": [
+8
+],
+"jquery:test/data/event/focusinCrossFrame.html": [
+14
+],
+"jquery:test/data/event/onbeforeunload.html": [
+12,
+16
+],
+"jquery:test/data/event/triggerunload.html": [
+9,
+11,
+15
+]
+}

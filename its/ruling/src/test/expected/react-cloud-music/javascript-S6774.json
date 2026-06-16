@@ -1,0 +1,301 @@
+{
+"react-cloud-music:src/application/Album/index.jsx": [
+25,
+25,
+25,
+27,
+27,
+27,
+27,
+28,
+28,
+30,
+74,
+74
+],
+"react-cloud-music:src/application/Home/index.jsx": [
+12,
+19,
+19,
+26
+],
+"react-cloud-music:src/application/Player/index.jsx": [
+31,
+32,
+33,
+34,
+35,
+36,
+37,
+38,
+42,
+43,
+44,
+45,
+46,
+47,
+48,
+49,
+52,
+53,
+54
+],
+"react-cloud-music:src/application/Player/mini-player/index.jsx": [
+10,
+10,
+10,
+10,
+11,
+11,
+11,
+37,
+37,
+41,
+42
+],
+"react-cloud-music:src/application/Player/normal-player/index.jsx": [
+24,
+25,
+26,
+27,
+28,
+29,
+30,
+31,
+32,
+33,
+34,
+37,
+38,
+39,
+40,
+41,
+42,
+43,
+44,
+172,
+172,
+184,
+185,
+205,
+205,
+229,
+229
+],
+"react-cloud-music:src/application/Player/play-list/index.jsx": [
+35,
+36,
+37,
+38,
+39,
+40,
+43,
+46,
+47,
+48,
+49,
+50,
+51,
+54,
+55,
+56
+],
+"react-cloud-music:src/application/Rank/index.jsx": [
+17,
+17,
+17,
+18,
+20,
+30,
+30,
+33,
+36,
+47,
+79,
+79
+],
+"react-cloud-music:src/application/Recommend/index.jsx": [
+14,
+14,
+14,
+14,
+16,
+16,
+19,
+22,
+28,
+29,
+40,
+40
+],
+"react-cloud-music:src/application/Search/index.jsx": [
+23,
+24,
+25,
+26,
+27,
+30,
+31,
+34,
+35,
+36,
+37,
+42,
+48,
+98,
+98,
+122,
+122,
+174,
+174
+],
+"react-cloud-music:src/application/Singer/index.jsx": [
+23,
+24,
+25,
+26,
+29,
+31,
+32,
+43,
+43,
+43,
+108,
+108
+],
+"react-cloud-music:src/application/Singers/index.jsx": [
+21,
+21,
+21,
+21,
+21,
+21,
+21,
+21,
+23,
+23,
+23,
+23,
+23,
+26,
+33,
+33,
+57,
+62,
+99,
+99
+],
+"react-cloud-music:src/application/SongList/index.jsx": [
+12,
+12,
+12,
+12,
+12,
+14,
+16,
+16,
+16,
+17,
+67
+],
+"react-cloud-music:src/application/User/Login/LoginForm/index.jsx": [
+8,
+8,
+8
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/index.jsx": [
+8,
+8,
+8,
+8
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/step-one/index.jsx": [
+5,
+5,
+5
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/step-two/index.jsx": [
+8,
+8,
+8,
+52
+],
+"react-cloud-music:src/application/User/Login/index.jsx": [
+13,
+14,
+15,
+16,
+17,
+18,
+26,
+31
+],
+"react-cloud-music:src/baseUI/confirm/index.jsx": [
+80,
+80,
+80,
+82
+],
+"react-cloud-music:src/baseUI/horizen-item/index.jsx": [
+38,
+38
+],
+"react-cloud-music:src/baseUI/progress-bar/index.jsx": [
+45,
+69
+],
+"react-cloud-music:src/baseUI/progress-circle/index.jsx": [
+22,
+22,
+36
+],
+"react-cloud-music:src/baseUI/scroll/index.jsx": [
+85,
+175
+],
+"react-cloud-music:src/baseUI/search-box/index.jsx": [
+43,
+44,
+84
+],
+"react-cloud-music:src/baseUI/toast/index.jsx": [
+38
+],
+"react-cloud-music:src/components/album-detail/index.jsx": [
+6,
+6,
+10,
+16,
+19,
+23,
+26,
+26,
+28,
+28,
+60,
+61,
+64
+],
+"react-cloud-music:src/components/list/index.jsx": [
+12,
+12,
+19,
+19
+],
+"react-cloud-music:src/components/slider/index.jsx": [
+8,
+11,
+23,
+30
+],
+"react-cloud-music:src/layouts/BlankLayout.jsx": [
+4,
+4
+],
+"react-cloud-music:src/layouts/HomeLayout.jsx": [
+8,
+22,
+22,
+44
+]
+}

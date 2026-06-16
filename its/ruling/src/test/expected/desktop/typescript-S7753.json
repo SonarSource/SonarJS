@@ -1,0 +1,13 @@
+{
+"desktop:app/src/lib/stores/app-store.ts": [
+1148
+],
+"desktop:app/src/lib/stores/git-store.ts": [
+188
+],
+"desktop:app/src/ui/history/commit-list.tsx": [
+234,
+350,
+415
+]
+}

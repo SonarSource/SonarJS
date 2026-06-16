@@ -1,0 +1,34 @@
+{
+"Ghost:core/client/app/initializers/trailing-history.js": [
+7
+],
+"Ghost:core/server/data/validation/index.js": [
+159
+],
+"Ghost:core/server/errors/index.js": [
+89,
+145
+],
+"Ghost:core/server/helpers/ghost_head.js": [
+104
+],
+"Ghost:core/server/models/plugins/include-count.js": [
+61,
+71
+],
+"Ghost:core/server/models/post.js": [
+577
+],
+"Ghost:core/server/models/role.js": [
+58
+],
+"Ghost:core/server/models/user.js": [
+454
+],
+"Ghost:core/server/utils/pipeline.js": [
+19
+],
+"Ghost:core/test/unit/server_helpers_index_spec.js": [
+28
+]
+}

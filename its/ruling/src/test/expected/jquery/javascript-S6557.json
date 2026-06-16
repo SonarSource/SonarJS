@@ -1,0 +1,28 @@
+{
+"jquery:build/release/cdn.js": [
+41
+],
+"jquery:build/tasks/dist.js": [
+59
+],
+"jquery:build/tasks/node_smoke_tests.js": [
+18
+],
+"jquery:src/core/init.js": [
+31,
+32
+],
+"jquery:src/css.js": [
+212,
+281
+],
+"jquery:src/effects.js": [
+548
+],
+"jquery:src/event.js": [
+727
+],
+"jquery:src/serialize.js": [
+22
+]
+}

@@ -1,0 +1,40 @@
+{
+"TypeScript:Gulpfile.ts": [
+121,
+153,
+469,
+564,
+606,
+653,
+719
+],
+"TypeScript:src/compiler/checker.ts": [
+15047
+],
+"TypeScript:src/compiler/factory.ts": [
+3183
+],
+"TypeScript:src/compiler/transformer.ts": [
+175,
+239,
+240
+],
+"TypeScript:src/compiler/visitor.ts": [
+1504
+],
+"TypeScript:src/harness/fourslash.ts": [
+2106
+],
+"TypeScript:src/harness/harness.ts": [
+923
+],
+"TypeScript:src/server/client.ts": [
+763
+],
+"TypeScript:src/server/editorServices.ts": [
+621
+],
+"TypeScript:src/services/jsTyping.ts": [
+96
+]
+}

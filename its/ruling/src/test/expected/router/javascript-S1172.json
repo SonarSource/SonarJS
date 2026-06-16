@@ -1,0 +1,26 @@
+{
+"router:examples/hello/jsonp.js": [
+3
+],
+"router:gulpfile.js": [
+21,
+21,
+83
+],
+"router:src/modelBinding.js": [
+2
+],
+"router:third_party/brick/brick-1.0.1.byob.js": [
+1025,
+1388,
+1503,
+2913,
+3905,
+3909,
+3912,
+3922
+],
+"router:third_party/route-recognizer.js": [
+413
+]
+}

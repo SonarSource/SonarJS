@@ -1,0 +1,39 @@
+{
+"TypeScript:src/compiler/checker.ts": [
+10011,
+15285
+],
+"TypeScript:src/compiler/program.ts": [
+637,
+657
+],
+"TypeScript:src/compiler/scanner.ts": [
+300
+],
+"TypeScript:src/compiler/transformer.ts": [
+94
+],
+"TypeScript:src/compiler/transformers/ts.ts": [
+1181
+],
+"TypeScript:src/compiler/utilities.ts": [
+4270,
+4271
+],
+"TypeScript:src/harness/fourslash.ts": [
+1602
+],
+"TypeScript:src/harness/harness.ts": [
+1353
+],
+"TypeScript:src/server/scriptVersionCache.ts": [
+114,
+269,
+615,
+882
+],
+"TypeScript:src/services/formatting/rulesMap.ts": [
+22,
+25
+]
+}

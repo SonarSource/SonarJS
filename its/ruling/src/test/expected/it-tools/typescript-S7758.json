@@ -1,0 +1,17 @@
+{
+"it-tools:src/tools/emoji-picker/emoji-picker.vue": [
+8
+],
+"it-tools:src/tools/text-to-binary/text-to-binary.models.ts": [
+6,
+20
+],
+"it-tools:src/tools/text-to-nato-alphabet/text-to-nato-alphabet.service.ts": [
+6,
+6
+],
+"it-tools:src/tools/text-to-unicode/text-to-unicode.service.ts": [
+2,
+6
+]
+}

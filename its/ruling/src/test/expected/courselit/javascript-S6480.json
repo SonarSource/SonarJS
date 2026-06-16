@@ -1,0 +1,19 @@
+{
+"courselit:packages/rich-text/src/Editor.js": [
+92,
+93,
+96
+],
+"courselit:packages/rich-text/src/EditorWithToolbar.js": [
+99
+],
+"courselit:packages/rich-text/src/index.js": [
+30
+],
+"courselit:packages/widget-buttondown/src/AdminWidget.js": [
+100,
+110,
+119,
+128
+]
+}

@@ -1,0 +1,20 @@
+{
+"bulma:docs/_scripts/plugins/02-read-derived-variables.js": [
+4
+],
+"bulma:docs/_scripts/plugins/03-read-other-variables.js": [
+4
+],
+"bulma:docs/_scripts/plugins/utils.js": [
+1,
+2
+],
+"bulma:test/dart-sass/dart-sass.js": [
+1,
+2
+],
+"bulma:test/node-sass/node-sass.js": [
+1,
+2
+]
+}

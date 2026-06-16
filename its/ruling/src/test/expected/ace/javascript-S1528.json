@@ -1,0 +1,59 @@
+{
+"ace:lib/ace/mode/html/saxparser.js": [
+10127,
+10134
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+18931,
+18938,
+19284
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+918,
+1136,
+1137,
+3763,
+3786
+],
+"ace:src/edit_session_test.js": [
+1091
+],
+"ace:src/editor_navigation_test.js": [
+15,
+16
+],
+"ace:src/keyboard/emacs.js": [
+213
+],
+"ace:src/keyboard/vim.js": [
+1425,
+3684,
+3807,
+3846,
+4031
+],
+"ace:src/keyboard/vim_test.js": [
+3879,
+3907,
+3919,
+3929
+],
+"ace:src/layer/gutter.js": [
+87
+],
+"ace:src/lib/bidiutil.js": [
+310,
+311
+],
+"ace:src/line_widgets.js": [
+128,
+159
+],
+"ace:src/mode/asciidoc.js": [
+21
+],
+"ace:src/selection_test.js": [
+14,
+15
+]
+}

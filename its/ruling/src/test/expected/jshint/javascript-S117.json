@@ -1,0 +1,18 @@
+{
+"jshint:scripts/generate-identifier-data.js": [
+19,
+20,
+21
+],
+"jshint:src/jshint.js": [
+2058,
+4232
+],
+"jshint:src/scope-manager.js": [
+79,
+91,
+94,
+98,
+153
+]
+}

@@ -1,0 +1,24 @@
+{
+"fresh:packages/fresh/src/dev/builder_test.ts": [
+236,
+274
+],
+"fresh:packages/fresh/src/dev/file_transformer_test.ts": [
+69,
+88,
+106,
+129,
+160,
+192,
+227
+],
+"fresh:packages/fresh/src/dev/update_check.ts": [
+82
+],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+1549
+],
+"fresh:packages/plugin-vite/tests/test_utils.ts": [
+122
+]
+}

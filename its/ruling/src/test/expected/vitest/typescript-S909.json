@@ -1,0 +1,163 @@
+{
+"vitest:packages/browser-playwright/src/commands/keyboard.ts": [
+82
+],
+"vitest:packages/browser-webdriverio/src/commands/keyboard.ts": [
+84
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveFormValues.ts": [
+52,
+117
+],
+"vitest:packages/mocker/src/automocker.ts": [
+83,
+88,
+100,
+123,
+134,
+153,
+159
+],
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+154
+],
+"vitest:packages/runner/src/fixture.ts": [
+210,
+216,
+220,
+225,
+395
+],
+"vitest:packages/runner/src/run.ts": [
+551
+],
+"vitest:packages/runner/src/utils/tags.ts": [
+87,
+93,
+99,
+105,
+111,
+117,
+123,
+129,
+135
+],
+"vitest:packages/spy/src/index.ts": [
+495,
+616,
+645
+],
+"vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
+30
+],
+"vitest:packages/ui/client/components/views/ViewModuleGraph.vue": [
+133
+],
+"vitest:packages/ui/client/composables/explorer/collapse.ts": [
+94,
+100
+],
+"vitest:packages/ui/client/composables/explorer/collector.ts": [
+171,
+177,
+212,
+216,
+335
+],
+"vitest:packages/ui/client/composables/explorer/filter.ts": [
+43,
+197
+],
+"vitest:packages/utils/src/helpers.ts": [
+227
+],
+"vitest:packages/vitest/src/node/ast-collect.ts": [
+236
+],
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+139
+],
+"vitest:packages/vitest/src/node/cli/cli-api.ts": [
+289,
+313
+],
+"vitest:packages/vitest/src/node/coverage.ts": [
+442,
+497,
+514,
+623,
+743
+],
+"vitest:packages/vitest/src/node/module-diagnostic.ts": [
+49,
+53
+],
+"vitest:packages/vitest/src/node/plugins/utils.ts": [
+83
+],
+"vitest:packages/vitest/src/node/pool.ts": [
+98,
+113
+],
+"vitest:packages/vitest/src/node/printError.ts": [
+458,
+465
+],
+"vitest:packages/vitest/src/node/project.ts": [
+246
+],
+"vitest:packages/vitest/src/node/projects/resolveProjects.ts": [
+125,
+160
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+179,
+817,
+824,
+873
+],
+"vitest:packages/vitest/src/node/reporters/blob.ts": [
+272
+],
+"vitest:packages/vitest/src/node/reporters/dot.ts": [
+178
+],
+"vitest:packages/vitest/src/node/reporters/github-actions.ts": [
+144,
+164
+],
+"vitest:packages/vitest/src/node/reporters/junit.ts": [
+175
+],
+"vitest:packages/vitest/src/node/reporters/renderers/windowedRenderer.ts": [
+106,
+112
+],
+"vitest:packages/vitest/src/node/reporters/reported-tasks.ts": [
+303
+],
+"vitest:packages/vitest/src/node/test-run.ts": [
+130
+],
+"vitest:packages/vitest/src/node/watcher.ts": [
+205,
+214
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleRunner.ts": [
+207,
+211
+],
+"vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
+42
+],
+"vitest:packages/vitest/src/runtime/vm/commonjs-executor.ts": [
+288
+],
+"vitest:packages/vitest/src/utils/config-helpers.ts": [
+60
+],
+"vitest:scripts/explain-types.ts": [
+13,
+33
+]
+}

@@ -1,0 +1,101 @@
+{
+"vitest:packages/browser/src/client/tester/context.ts": [
+48
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+214
+],
+"vitest:packages/mocker/src/browser/mocker.ts": [
+175
+],
+"vitest:packages/pretty-format/src/index.ts": [
+219,
+232,
+234,
+270,
+272
+],
+"vitest:packages/pretty-format/src/plugins/DOMCollection.ts": [
+47
+],
+"vitest:packages/pretty-format/src/plugins/ReactTestComponent.ts": [
+53,
+64
+],
+"vitest:packages/pretty-format/src/plugins/lib/markup.ts": [
+120
+],
+"vitest:packages/runner/src/suite.ts": [
+378,
+380,
+621,
+623,
+992
+],
+"vitest:packages/snapshot/src/port/state.ts": [
+511,
+551
+],
+"vitest:packages/ui/client/components/Navigation.vue": [
+61
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+131,
+149
+],
+"vitest:packages/utils/src/diff/getAlignedDiffs.ts": [
+25,
+63
+],
+"vitest:packages/utils/src/diff/index.ts": [
+417,
+418
+],
+"vitest:packages/utils/src/diff/joinAlignedDiffs.ts": [
+31,
+33
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+570,
+590,
+590
+],
+"vitest:packages/vitest/src/node/create.ts": [
+30
+],
+"vitest:packages/vitest/src/node/plugins/publicConfig.ts": [
+25
+],
+"vitest:packages/vitest/src/node/pools/workers/typecheckWorker.ts": [
+139
+],
+"vitest:packages/vitest/src/node/projects/resolveProjects.ts": [
+82,
+239
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+756
+],
+"vitest:packages/vitest/src/node/reporters/reported-tasks.ts": [
+170
+],
+"vitest:packages/vitest/src/node/sequencers/BaseSequencer.ts": [
+29,
+69
+],
+"vitest:packages/vitest/src/node/specifications.ts": [
+182
+],
+"vitest:packages/vitest/src/node/test-run.ts": [
+117
+],
+"vitest:packages/vitest/src/node/test-specification.ts": [
+62
+],
+"vitest:packages/vitest/src/runtime/benchmark.ts": [
+67
+],
+"vitest:scripts/publish-ci.ts": [
+32
+]
+}

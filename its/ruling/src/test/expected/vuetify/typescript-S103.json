@@ -1,0 +1,12 @@
+{
+"vuetify:packages/vuetify/dev/Playground.datatable.vue": [
+121,
+123
+],
+"vuetify:packages/vuetify/src/util/console.ts": [
+46
+],
+"vuetify:packages/vuetify/src/util/propsFactory.ts": [
+82
+]
+}

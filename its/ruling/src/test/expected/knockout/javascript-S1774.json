@@ -1,0 +1,165 @@
+{
+"knockout:src/binding/bindingAttributeSyntax.js": [
+40,
+94,
+138,
+158,
+418,
+443,
+454,
+546,
+595
+],
+"knockout:src/binding/bindingProvider.js": [
+22,
+28
+],
+"knockout:src/binding/defaultBindings/attr.js": [
+17,
+33,
+41
+],
+"knockout:src/binding/defaultBindings/checked.js": [
+39,
+104
+],
+"knockout:src/binding/defaultBindings/hasfocus.js": [
+46,
+56
+],
+"knockout:src/binding/defaultBindings/ifIfnotWith.js": [
+38
+],
+"knockout:src/binding/defaultBindings/options.js": [
+22,
+77,
+124,
+140
+],
+"knockout:src/binding/defaultBindings/textInput.js": [
+76,
+83
+],
+"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
+30,
+165
+],
+"knockout:src/binding/editDetection/compareArrays.js": [
+27
+],
+"knockout:src/binding/expressionRewriting.js": [
+13,
+13,
+66,
+119,
+128,
+143
+],
+"knockout:src/binding/selectExtensions.js": [
+13,
+14,
+17,
+39
+],
+"knockout:src/components/componentBinding.js": [
+100
+],
+"knockout:src/components/customElements.js": [
+29
+],
+"knockout:src/components/defaultLoader.js": [
+38
+],
+"knockout:src/components/loaderRegistry.js": [
+33
+],
+"knockout:src/memoization.js": [
+61
+],
+"knockout:src/namespace.js": [
+3
+],
+"knockout:src/subscribables/dependentObservable.js": [
+139,
+291,
+351
+],
+"knockout:src/subscribables/extenders.js": [
+36,
+36,
+70,
+79
+],
+"knockout:src/subscribables/mappingHelpers.js": [
+31,
+47,
+90
+],
+"knockout:src/subscribables/observableArray.changeTracking.js": [
+139,
+140
+],
+"knockout:src/subscribables/observableArray.js": [
+16,
+57,
+96,
+123
+],
+"knockout:src/subscribables/subscribable.js": [
+57,
+124
+],
+"knockout:src/templating/native/nativeTemplateEngine.js": [
+9,
+10
+],
+"knockout:src/templating/templateSources.js": [
+42,
+43,
+45,
+51,
+52,
+88,
+89
+],
+"knockout:src/templating/templating.js": [
+75,
+76,
+144,
+149,
+247,
+300
+],
+"knockout:src/utils.domManipulation.js": [
+98
+],
+"knockout:src/utils.js": [
+33,
+56,
+78,
+110,
+196,
+234,
+248,
+313,
+314,
+332,
+357,
+384,
+434,
+438,
+480,
+515,
+524,
+591
+],
+"knockout:src/virtualElements.js": [
+15,
+16,
+20,
+24,
+91,
+184,
+185
+]
+}

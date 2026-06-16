@@ -1,0 +1,199 @@
+{
+"TypeScript:scripts/buildProtocol.ts": [
+86
+],
+"TypeScript:scripts/tslint/noIncrementDecrementRule.ts": [
+18
+],
+"TypeScript:src/compiler/binder.ts": [
+288,
+289,
+292,
+293,
+2026,
+2088,
+2089,
+2356,
+2357,
+2749,
+2750
+],
+"TypeScript:src/compiler/checker.ts": [
+921,
+3691,
+6652,
+7729,
+7990,
+8011,
+11410,
+11411,
+11412,
+15100,
+16593,
+16599,
+16996,
+17025,
+17073,
+17074,
+17674,
+17883,
+17884,
+18567,
+18568,
+18874,
+18875,
+18897,
+18898,
+18949,
+19017,
+21054,
+21065,
+21069,
+21095,
+21096,
+21097,
+21098,
+21146,
+21151,
+21380,
+21398,
+22036,
+22054,
+22323,
+22333,
+22341,
+22752,
+23311
+],
+"TypeScript:src/compiler/commandLineParser.ts": [
+792,
+804
+],
+"TypeScript:src/compiler/factory.ts": [
+2800
+],
+"TypeScript:src/compiler/parser.ts": [
+1696,
+1697,
+2526,
+6404,
+6425,
+6862
+],
+"TypeScript:src/compiler/program.ts": [
+1142,
+1161,
+1388
+],
+"TypeScript:src/compiler/scanner.ts": [
+650,
+651,
+1582
+],
+"TypeScript:src/compiler/transformers/es2015.ts": [
+1540,
+2657,
+3026
+],
+"TypeScript:src/compiler/transformers/es5.ts": [
+53
+],
+"TypeScript:src/compiler/transformers/ts.ts": [
+1804,
+1805,
+1861
+],
+"TypeScript:src/compiler/utilities.ts": [
+547,
+680,
+782,
+1271,
+1293,
+1299,
+1686,
+1692
+],
+"TypeScript:src/harness/harness.ts": [
+90,
+304
+],
+"TypeScript:src/server/scriptInfo.ts": [
+273
+],
+"TypeScript:src/server/server.ts": [
+454
+],
+"TypeScript:src/server/session.ts": [
+423,
+428,
+432
+],
+"TypeScript:src/server/utilities.ts": [
+44
+],
+"TypeScript:src/services/breakpoints.ts": [
+565,
+569,
+606,
+607,
+615,
+633
+],
+"TypeScript:src/services/codefixes/helpers.ts": [
+77,
+78,
+95,
+106
+],
+"TypeScript:src/services/codefixes/unusedIdentifierFixes.ts": [
+49,
+66,
+76,
+80,
+94,
+113,
+136,
+137,
+146,
+148,
+157
+],
+"TypeScript:src/services/completions.ts": [
+408,
+992
+],
+"TypeScript:src/services/documentHighlights.ts": [
+82
+],
+"TypeScript:src/services/formatting/formatting.ts": [
+177,
+1100,
+1111
+],
+"TypeScript:src/services/importTracker.ts": [
+105
+],
+"TypeScript:src/services/navigationBar.ts": [
+159,
+187,
+197,
+212,
+213,
+412
+],
+"TypeScript:src/services/outliningElementsCollector.ts": [
+168,
+169
+],
+"TypeScript:src/services/services.ts": [
+620,
+621,
+693,
+1378
+],
+"TypeScript:src/services/utilities.ts": [
+517,
+531,
+537
+]
+}

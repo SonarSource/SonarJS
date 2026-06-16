@@ -1,0 +1,11 @@
+{
+"knockout:build/knockout-raw.js": [
+15
+],
+"knockout:src/templating/templateRewriting.js": [
+8
+],
+"knockout:src/virtualElements.js": [
+205
+]
+}

@@ -1,0 +1,21 @@
+{
+"tailwindcss:src/cli/utils.js": [
+99,
+119,
+144,
+156
+],
+"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
+270
+],
+"tailwindcss:src/util/disposables.js": [
+2
+],
+"tailwindcss:src/util/parseAnimationValue.js": [
+16
+],
+"tailwindcss:src/util/resolveConfig.js": [
+72,
+155
+]
+}

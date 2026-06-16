@@ -1,0 +1,18 @@
+{
+"postgraphql:src/graphql/schema/collection/getConditionGqlType.ts": [
+46
+],
+"postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionMutationFieldEntry.ts": [
+114
+],
+"postgraphql:src/postgraphql/postgraphql.ts": [
+49
+],
+"postgraphql:src/postgraphql/withPostGraphQLContext.ts": [
+131
+],
+"postgraphql:src/postgres/inventory/collection/PgCollection.ts": [
+142,
+166
+]
+}

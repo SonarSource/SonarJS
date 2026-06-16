@@ -1,0 +1,94 @@
+{
+"angular.js:benchmarks/animation-bp/app.js": [
+16
+],
+"angular.js:benchmarks/event-delegation-bp/app.js": [
+39
+],
+"angular.js:benchmarks/orderby-bp/app.js": [
+8
+],
+"angular.js:docs/app/assets/js/angular-bootstrap/dropdown-toggle.js": [
+34,
+73
+],
+"angular.js:docs/app/src/directives.js": [
+57
+],
+"angular.js:docs/app/src/examples.js": [
+106
+],
+"angular.js:src/ng/animate.js": [
+181
+],
+"angular.js:src/ng/animateRunner.js": [
+114,
+167
+],
+"angular.js:src/ng/browser.js": [
+35
+],
+"angular.js:src/ng/compile.js": [
+2285
+],
+"angular.js:src/ng/directive/form.js": [
+307
+],
+"angular.js:src/ng/directive/ngModel.js": [
+583,
+604,
+730,
+864
+],
+"angular.js:src/ng/directive/select.js": [
+157
+],
+"angular.js:src/ng/log.js": [
+59
+],
+"angular.js:src/ng/parse.js": [
+803,
+868,
+890,
+907,
+1219,
+1226,
+1269,
+1313
+],
+"angular.js:src/ng/rootScope.js": [
+404,
+467,
+589,
+1218,
+1264,
+1272,
+1311,
+1380
+],
+"angular.js:src/ng/taskTrackerFactory.js": [
+23
+],
+"angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js": [
+76,
+117
+],
+"angular.js:src/ngMessageFormat/messageFormatSelector.js": [
+17,
+49,
+61
+],
+"angular.js:src/ngMessages/messages.js": [
+377
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+38,
+3188,
+3205,
+3211
+],
+"angular.js:src/ngResource/resource.js": [
+499,
+604
+]
+}

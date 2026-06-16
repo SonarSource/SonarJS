@@ -1,0 +1,8 @@
+{
+"templating:src/util/ng_polymer.js": [
+10
+],
+"templating:test/lib/dom_mocks.js": [
+25
+]
+}

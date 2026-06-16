@@ -1,0 +1,47 @@
+{
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
+97,
+162
+],
+"desktop:app/src/lib/branch.ts": [
+42
+],
+"desktop:app/src/lib/git/rebase.ts": [
+572
+],
+"desktop:app/src/lib/stats/stats-store.ts": [
+1921
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+1200,
+2107
+],
+"desktop:app/src/lib/thank-you.ts": [
+97
+],
+"desktop:app/src/main-process/menu/build-default-menu.ts": [
+684
+],
+"desktop:app/src/models/repository.ts": [
+212
+],
+"desktop:app/src/models/status.ts": [
+330
+],
+"desktop:app/src/ui/diff/diff-explorer.ts": [
+176,
+194
+],
+"desktop:app/src/ui/lib/list/selection.ts": [
+90
+],
+"desktop:app/src/ui/lib/path-text.tsx": [
+165
+],
+"desktop:script/build.ts": [
+155
+],
+"desktop:script/dist-info.ts": [
+122
+]
+}

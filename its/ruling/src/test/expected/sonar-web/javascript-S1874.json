@@ -1,0 +1,15 @@
+{
+"sonar-web:src/main/js/components/router/router.js": [
+16
+],
+"sonar-web:src/main/js/components/source-viewer/helpers/code-with-issue-locations-helper.js": [
+27,
+27
+],
+"sonar-web:src/main/js/helpers/handlebars-helpers.js": [
+544
+],
+"sonar-web:src/main/js/libs/translate.js": [
+76
+]
+}

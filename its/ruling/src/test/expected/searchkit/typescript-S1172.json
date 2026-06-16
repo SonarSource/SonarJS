@@ -1,0 +1,26 @@
+{
+"searchkit:examples/indexer/mrp-products/config.ts": [
+78,
+90,
+102
+],
+"searchkit:packages/searchkit-client/src/searchkit.tsx": [
+298
+],
+"searchkit:packages/searchkit-schema/src/resolvers/FacetResolver.ts": [
+9
+],
+"searchkit:packages/searchkit-schema/src/resolvers/FacetsResolver.ts": [
+3
+],
+"searchkit:packages/searchkit-schema/src/resolvers/HitsResolver.ts": [
+11
+],
+"searchkit:packages/searchkit-schema/src/resolvers/SummaryResolver.ts": [
+3
+],
+"searchkit:packages/searchkit-sdk/src/facets/HierarchicalMenuFacet.ts": [
+33,
+36
+]
+}

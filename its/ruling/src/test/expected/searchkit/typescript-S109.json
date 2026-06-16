@@ -1,0 +1,11 @@
+{
+"searchkit:packages/searchkit-elastic-ui/src/Facets/RangeSliderFacet/index.tsx": [
+46
+],
+"searchkit:packages/searchkit-sdk/src/facets/RefinementSelectFacet.ts": [
+47
+],
+"searchkit:packages/searchkit-sdk/src/transporters/ESClientTransporter.ts": [
+46
+]
+}

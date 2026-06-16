@@ -1,0 +1,34 @@
+{
+"fresh:packages/fresh/src/dev/check.ts": [
+61
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+120,
+131
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+216
+],
+"fresh:packages/fresh/src/jsonify/stringify.ts": [
+102
+],
+"fresh:packages/fresh/src/router.ts": [
+154,
+202
+],
+"fresh:packages/fresh/src/runtime/client/reviver.ts": [
+164
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+400
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+206
+],
+"fresh:packages/update/src/update.ts": [
+636
+],
+"fresh:tools/check_links.ts": [
+150
+]
+}
