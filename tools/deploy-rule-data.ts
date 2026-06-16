@@ -89,9 +89,31 @@ type JsonObject = {
   [key: string]: JsonValue;
 };
 
+const OVERRIDES_FOLDER = resolve('tools/rule-data-overrides');
+
+applyRuleDataOverrides('javascript', join(sourceFolder, 'javascript'));
+applyRuleDataOverrides('css', join(sourceFolder, 'css'));
+
 syncRuleData(join(sourceFolder, 'javascript'), JS_RULE_DATA_FOLDER, jsRuleNames);
 syncRuleData(join(sourceFolder, 'css'), CSS_RULE_DATA_FOLDER, cssRuleNames);
 syncRspecShas();
+
+function applyRuleDataOverrides(language: string, targetFolder: string): void {
+  const overrideFolder = join(OVERRIDES_FOLDER, language);
+  let entries: string[];
+  try {
+    entries = readdirSync(overrideFolder);
+  } catch {
+    return;
+  }
+  mkdirSync(targetFolder, { recursive: true });
+  for (const entry of entries) {
+    copyFileSync(join(overrideFolder, entry), join(targetFolder, entry));
+  }
+  if (entries.length > 0) {
+    console.log(`[deploy-rule-data] ${language}: applied ${entries.length} override file(s)`);
+  }
+}
 
 function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: string[]) {
   warnOnRulesWithoutImplementation(sourceFolder, ruleNames);
