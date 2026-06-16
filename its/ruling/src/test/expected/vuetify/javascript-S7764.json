@@ -1,7 +1,11 @@
 {
 "vuetify:packages/docs/src/service-worker.js": [
 6,
+25,
+41,
+51,
 54,
+66,
 100
 ],
 "vuetify:packages/vuetify/dev/Playground.nested.vue": [

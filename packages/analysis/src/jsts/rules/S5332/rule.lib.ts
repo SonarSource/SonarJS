@@ -24,32 +24,50 @@ import { getParent } from '../helpers/ancestor.js';
 import { getProperty, getValueOfExpression } from '../helpers/ast.js';
 import { normalizeFQN } from '../helpers/aws/cdk.js';
 
-const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];
-const LOOPBACK_PATTERN = /localhost|127(?:\.\d+){0,2}\.\d+$|\/\/(?:0*:)*?:?0*1$/;
-const EXCEPTION_FULL_HOSTS = new Set([
-  'www.w3.org',
-  'xml.apache.org',
-  'schemas.xmlsoap.org',
-  'schemas.openxmlformats.org',
-  'rdfs.org',
-  'purl.org',
-  'xmlns.com',
-  'schemas.google.com',
-  'a9.com',
-  'ns.adobe.com',
-  'ltsc.ieee.org',
-  'docbook.org',
-  'graphml.graphdrawing.org',
-  'json-schema.org',
-  'schemas.microsoft.com',
-]);
-const EXCEPTION_TOP_HOSTS = [
-  /\.example$/,
-  /\.?example\.com$/,
-  /\.?example\.org$/,
-  /\.test$/,
-  /\.?test\.com$/,
-];
+// Single source of truth: cleartext scheme → recommended secure alternative.
+// Mirrors CleartextProtocolFilter.CLEARTEXT_PROTOCOL_ALTERNATIVES from sonar-analyzer-commons.
+// To add a new protocol, add one entry here — INSECURE_PROTOCOLS and LENIENT_AUTHORITY are derived.
+const CLEARTEXT_PROTOCOL_ALTERNATIVES: Record<string, string> = {
+  http: 'https',
+  ftp: 'sftp, scp or ftps',
+  ws: 'wss',
+  telnet: 'ssh',
+  gopher: 'https',
+  tftp: 'sftp',
+  smtp: 'smtps',
+  ldap: 'ldaps',
+  imap: 'imaps',
+  pop3: 'pop3s',
+  amqp: 'amqps',
+  mqtt: 'mqtts',
+  sip: 'sips',
+  rtmp: 'rtmps',
+  irc: 'ircs',
+  nntp: 'nntps',
+  stomp: 'stomps',
+};
+
+const INSECURE_PROTOCOLS = Object.keys(CLEARTEXT_PROTOCOL_ALTERNATIVES).map(s => `${s}://`);
+
+// Internal / non-public hosts — port of CleartextProtocolFilter.SAFE_HOSTS from sonar-analyzer-commons
+// Note: ^127(?:\.\d+){1,3} covers abbreviated loopback forms (127.1, 127.0.1) that are valid on POSIX systems
+const SAFE_HOSTS =
+  /(?:^localhost|^127(?:\.\d+){1,3}|^\[(?:0*:){7}:?0*1]|^\[::1]|^169\.254\.\d+\.\d+|^\[fd00:ec2::254]|^168\.63\.129\.16|^100\.100\.100\.200|^metadata\.google\.internal|^metadata\.internal|^host\.docker\.internal|^gateway\.docker\.internal|\.svc\.cluster\.local)(?=:|$)/i;
+
+// XML namespace URI authorities — port of CleartextProtocolFilter.NAMESPACE_URI_AUTHORITIES, extended with pre-existing sonar-js exceptions
+const NAMESPACE_URI_AUTHORITIES =
+  /(?:^www\.w3\.org|^schemas\.android\.com|^schemas\.microsoft\.com|^schemas\.xmlsoap\.org|^www\.sap\.com|^www\.opengis\.net|^hl7\.org|^unitsofmeasure\.org|^purl\.org|^docs\.oasis-open\.org|^xmlns\.com|^json-ld\.org|^schema\.org|^www\.springframework\.org|^maven\.apache\.org|^dublincore\.org|^ogp\.me|^xml\.apache\.org|^schemas\.openxmlformats\.org|^rdfs\.org|^schemas\.google\.com|^a9\.com|^ns\.adobe\.com|^ltsc\.ieee\.org|^docbook\.org|^graphml\.graphdrawing\.org|^json-schema\.org)(?=:|$)/i;
+
+// IANA-reserved documentation / placeholder domains — port of CleartextProtocolFilter.DOCUMENTATION_HOSTS
+const DOCUMENTATION_HOSTS =
+  /(?:(?:^|\.)example\.(?:com|net|org)|\.(?:example|test|localhost))(?=:|$)/i;
+
+// Lenient authority extractor for URLs that fail strict URL parsing (e.g. template placeholders, underscores in hostnames).
+// Derived from CLEARTEXT_PROTOCOL_ALTERNATIVES — no manual update needed when adding protocols.
+const LENIENT_AUTHORITY = new RegExp(
+  String.raw`^(?:${Object.keys(CLEARTEXT_PROTOCOL_ALTERNATIVES).join('|')}):\/\/(?:[^@\s/?#]+@)?([^\s/?#]+)`,
+  'i',
+);
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -207,34 +225,36 @@ export const rule: Rule.RuleModule = {
 };
 
 function getMessageAndData(protocol: string) {
-  let alternative;
-  switch (protocol) {
-    case 'http':
-      alternative = 'https';
-      break;
-    case 'ftp':
-      alternative = 'sftp, scp or ftps';
-      break;
-    default:
-      alternative = 'ssh';
-  }
-  return { messageId: 'insecureProtocol', data: { protocol, alternative } };
+  return {
+    messageId: 'insecureProtocol',
+    data: { protocol, alternative: CLEARTEXT_PROTOCOL_ALTERNATIVES[protocol] },
+  };
 }
 
 function hasExceptionHost(value: string) {
-  let url;
+  let host: string;
 
   try {
-    url = new URL(value);
+    const url = new URL(value);
+    host = url.hostname;
+    if (host.length === 0) {
+      return false;
+    }
   } catch {
-    return false;
+    // Lenient fallback for template placeholders (e.g. http://localhost:${port}) and underscores in hostnames.
+    // Mirrors CleartextProtocolFilter's authority-extraction logic.
+    const match = LENIENT_AUTHORITY.exec(value);
+    if (!match) {
+      return false;
+    }
+    host = match[1];
   }
 
-  const host = url.hostname;
+  return isSafeHost(host);
+}
+
+function isSafeHost(host: string) {
   return (
-    host.length === 0 ||
-    LOOPBACK_PATTERN.test(host) ||
-    EXCEPTION_FULL_HOSTS.has(host) ||
-    EXCEPTION_TOP_HOSTS.some(exception => exception.test(host))
+    SAFE_HOSTS.test(host) || NAMESPACE_URI_AUTHORITIES.test(host) || DOCUMENTATION_HOSTS.test(host)
   );
 }

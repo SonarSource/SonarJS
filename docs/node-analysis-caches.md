@@ -45,11 +45,11 @@ These concerns change for different reasons, so they are not cached as one large
 
 There are three Node-side cache layers that are easy to confuse:
 
-| Layer | Main files | Owns | Typical consumer |
-| --- | --- | --- | --- |
-| File-store layer | `file-stores/*` | discovered source files, tsconfigs, raw manifest contents, directory indexes | project-input normalization and analysis entrypoints |
-| TypeScript program/cache layer | `jsts/program/*`, `jsts/program/cache/*` | parsed tsconfig content, computed `ProgramOptions`, builder programs, cached file contents, parsed TS ASTs | `analyzeWithProgram`, `analyzeWithIncrementalProgram`, compiler host |
-| Dependency-helper cache layer | `jsts/rules/helpers/dependency-manifests/*` | nearest-manifest caches, manifest-in-parents caches, parsed manifests, derived dependency maps, module-type signals | rules, module-type detection, ECMAScript/lib resolution |
+| Layer                          | Main files                                  | Owns                                                                                                                | Typical consumer                                                     |
+| ------------------------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| File-store layer               | `file-stores/*`                             | discovered source files, tsconfigs, raw manifest contents, directory indexes                                        | project-input normalization and analysis entrypoints                 |
+| TypeScript program/cache layer | `jsts/program/*`, `jsts/program/cache/*`    | parsed tsconfig content, computed `ProgramOptions`, builder programs, cached file contents, parsed TS ASTs          | `analyzeWithProgram`, `analyzeWithIncrementalProgram`, compiler host |
+| Dependency-helper cache layer  | `jsts/rules/helpers/dependency-manifests/*` | nearest-manifest caches, manifest-in-parents caches, parsed manifests, derived dependency maps, module-type signals | rules, module-type detection, ECMAScript/lib resolution              |
 
 The most important naming distinction is:
 
@@ -70,11 +70,11 @@ They are initialized through `initFileStores(configuration, inputFiles?)`.
 
 ### Summary Table
 
-| Store | What it owns | How it is populated | Main invalidation |
-| --- | --- | --- | --- |
-| `sourceFileStore` | analyzable files, file contents, file types, file statuses, ignored dirs, `DirectoryIndex` | filesystem walk or explicit request files | `baseDir` change, or direct reseeding from `inputFiles` |
-| `dependencyManifestStore` | raw preloadable manifest contents plus directory-parent graph | filesystem walk or simulated traversal from request files | `baseDir` change, manifest-shaped `fsEvents` |
-| `tsConfigStore` | discovered `tsconfig.json` files and provided `tsConfigPaths` matches | filesystem walk or simulated traversal from request files | `baseDir` change, `tsConfigPaths` change, `clearTsConfigCache`, relevant `fsEvents` |
+| Store                     | What it owns                                                                               | How it is populated                                       | Main invalidation                                                                   |
+| ------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `sourceFileStore`         | analyzable files, file contents, file types, file statuses, ignored dirs, `DirectoryIndex` | filesystem walk or explicit request files                 | `baseDir` change, or direct reseeding from `inputFiles`                             |
+| `dependencyManifestStore` | raw preloadable manifest contents plus directory-parent graph                              | filesystem walk or simulated traversal from request files | `baseDir` change, manifest-shaped `fsEvents`                                        |
+| `tsConfigStore`           | discovered `tsconfig.json` files and provided `tsConfigPaths` matches                      | filesystem walk or simulated traversal from request files | `baseDir` change, `tsConfigPaths` change, `clearTsConfigCache`, relevant `fsEvents` |
 
 ### `sourceFileStore`
 
@@ -198,7 +198,7 @@ That precedence appears in several places:
 1. Input sanitization:
    `sanitizeInputFiles()` uses request-provided `fileContent` when available, and only reads disk when the caller omitted content.
 2. `sourceFileStore`:
-   when `inputFiles` are present, the store is directly reseeded from those files instead of reusing the previous analyzable set.
+   when `inputFiles` are present, the store is directly reseeded from those files instead of reusing the previous analyzable set. The file-store request context also keeps the original explicit requested path set so generated-source refreshes can detect explicit-request changes without recomputing derived metadata.
 3. Compiler host file reads:
    `IncrementalCompilerHost.readFile()` checks the current request context first, then the shared source-file content cache, then disk.
 4. Parsed AST reuse:

@@ -113,8 +113,8 @@ function getTypedMinMaxEvidence(
  * Converts a TypeScript type into a reporting decision.
  *
  * Decision rules:
- * 1. Union: return `unknown` if any branch is unknown, `suppress` if any branch
- *    is suppressible, otherwise `report`.
+ * 1. Union: return `unknown` if any branch is unknown, `report` if any branch
+ *    is numeric, otherwise `suppress`.
  * 2. `any` / `unknown`: return `unknown` so the syntax fallback can decide.
  * 3. Type parameters and intersections: return `suppress`.
  * 4. Plain numeric types: return `report`.
@@ -128,6 +128,9 @@ function classifyMinMaxType(type: ts.Type): TypedMinMaxEvidence {
       const evidence = classifyMinMaxType(constituent);
       if (evidence === 'unknown') {
         return 'unknown';
+      }
+      if (evidence === 'report') {
+        return 'report';
       }
       sawSuppressibleType ||= evidence === 'suppress';
     }

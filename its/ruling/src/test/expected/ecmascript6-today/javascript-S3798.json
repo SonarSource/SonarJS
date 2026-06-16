@@ -5,10 +5,6 @@
 15,
 26
 ],
-"ecmascript6-today:10-modules/in/circle.js": [
-1,
-5
-],
 "ecmascript6-today:2-const.js": [
 16
 ],
@@ -18,6 +14,16 @@
 ],
 "ecmascript6-today:5-set.js": [
 7
+],
+"ecmascript6-today:6-destructuring.js": [
+5,
+12,
+15,
+15,
+21,
+33,
+33,
+33
 ],
 "ecmascript6-today:7-rest-params/js/rest-spread.js": [
 1,

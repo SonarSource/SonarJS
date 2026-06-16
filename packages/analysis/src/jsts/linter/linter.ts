@@ -42,6 +42,7 @@ import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
 import { materializeRuleOptions } from '../rules/helpers/configs.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
+import { DEFAULT_ECMA_VERSION } from '../parsers/options.js';
 import {
   getDependencies,
   getModuleType,
@@ -230,6 +231,10 @@ export class Linter {
     if (!Linter.linter) {
       throw APIError.linterError(`Linter does not exist.`);
     }
+    if (detectedModuleType === undefined) {
+      detectedModuleType = Linter.detectModuleType(filePath);
+      getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
+    }
     const baseRules = Linter.getRulesForFile(
       filePath,
       fileType,
@@ -255,7 +260,9 @@ export class Linter {
       /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
       settings: {
         react: { version: '999.999.999' },
+        detectedModuleType,
         fileType,
+        predefinedGlobals: getPredefinedGlobals(detectedEsYear),
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
         testFileExtensions: Linter.testFileExtensions,
@@ -426,6 +433,12 @@ function getRuleMeta(ruleConfig: RuleConfig): SonarMeta | undefined {
   return ruleConfig.key in ruleMetas
     ? (ruleMetas[ruleConfig.key as keyof typeof ruleMetas] as SonarMeta)
     : undefined;
+}
+
+function getPredefinedGlobals(detectedEsYear?: number): string[] {
+  const ecmaGlobalsKey = `es${detectedEsYear ?? DEFAULT_ECMA_VERSION}` as keyof typeof globalsPkg;
+  const ecmaGlobals = globalsPkg[ecmaGlobalsKey] ?? globalsPkg.es2027;
+  return [...new Set([...Object.keys(ecmaGlobals), ...Linter.globals.keys()])];
 }
 
 function hasRequiredDependencies(ruleMeta: SonarMeta | undefined): boolean {
