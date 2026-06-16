@@ -22,7 +22,12 @@ import { getVariablePropertyFromAssignment } from '../S2598/rule.js';
 import { parse } from 'bytes';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
-import { getLhsVariable, getProperty, getValueOfExpression } from '../helpers/ast.js';
+import {
+  getLhsVariable,
+  getProperty,
+  getUniqueWriteUsageOrNode,
+  getValueOfExpression,
+} from '../helpers/ast.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
@@ -129,6 +134,14 @@ function checkMulter(context: Rule.RuleContext, callExpression: estree.CallExpre
     return;
   }
 
+  // Skip destructured imports of multer sub-functions (e.g., `import { diskStorage } from 'multer'`)
+  if (callExpression.callee.type === 'Identifier') {
+    const fqn = getFullyQualifiedName(context, callExpression.callee);
+    if (fqn && fqn !== MULTER_MODULE) {
+      return;
+    }
+  }
+
   if (callExpression.arguments.length === 0) {
     report(context, callExpression.callee);
     return;
@@ -206,7 +219,50 @@ function visitAssignment(context: Rule.RuleContext, assignment: estree.Assignmen
   }
 }
 
-function getSizeValue(context: Rule.RuleContext, node: estree.Node): number | null {
+function evaluateBinaryExpression(
+  context: Rule.RuleContext,
+  node: estree.BinaryExpression,
+  visited: Set<estree.Node>,
+): number | null {
+  const left = getSizeValue(context, node.left, visited);
+  const right = getSizeValue(context, node.right, visited);
+  if (left == null || right == null) {
+    return null;
+  }
+  let result: number | null = null;
+  switch (node.operator) {
+    case '*':
+      result = left * right;
+      break;
+    case '+':
+      result = left + right;
+      break;
+    case '-':
+      result = left - right;
+      break;
+    case '/':
+      result = left / right;
+      break;
+    case '**':
+      result = left ** right;
+      break;
+  }
+  return result != null && Number.isFinite(result) ? result : null;
+}
+
+function getSizeValue(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  visited: Set<estree.Node> = new Set(),
+): number | null {
+  if (visited.has(node)) {
+    return null;
+  }
+  visited.add(node);
+  const resolved = getUniqueWriteUsageOrNode(context, node, true);
+  if (resolved !== node) {
+    return getSizeValue(context, resolved, visited);
+  }
   const literal = getValueOfExpression(context, node, 'Literal');
   if (literal) {
     if (typeof literal.value === 'number') {
@@ -214,6 +270,9 @@ function getSizeValue(context: Rule.RuleContext, node: estree.Node): number | nu
     } else if (typeof literal.value === 'string') {
       return parse(literal.value);
     }
+  }
+  if (node.type === 'BinaryExpression') {
+    return evaluateBinaryExpression(context, node, visited);
   }
   return null;
 }
