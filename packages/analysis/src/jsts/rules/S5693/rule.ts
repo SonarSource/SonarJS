@@ -22,7 +22,12 @@ import { getVariablePropertyFromAssignment } from '../S2598/rule.js';
 import { parse } from 'bytes';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
-import { getLhsVariable, getProperty, getValueOfExpression } from '../helpers/ast.js';
+import {
+  getLhsVariable,
+  getProperty,
+  getUniqueWriteUsageOrNode,
+  getValueOfExpression,
+} from '../helpers/ast.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
@@ -214,7 +219,41 @@ function visitAssignment(context: Rule.RuleContext, assignment: estree.Assignmen
   }
 }
 
+function evaluateBinaryExpression(
+  context: Rule.RuleContext,
+  node: estree.BinaryExpression,
+): number | null {
+  const left = getSizeValue(context, node.left);
+  const right = getSizeValue(context, node.right);
+  if (left == null || right == null) {
+    return null;
+  }
+  let result: number | null = null;
+  switch (node.operator) {
+    case '*':
+      result = left * right;
+      break;
+    case '+':
+      result = left + right;
+      break;
+    case '-':
+      result = left - right;
+      break;
+    case '/':
+      result = left / right;
+      break;
+    case '**':
+      result = left ** right;
+      break;
+  }
+  return result != null && Number.isFinite(result) ? result : null;
+}
+
 function getSizeValue(context: Rule.RuleContext, node: estree.Node): number | null {
+  const resolved = getUniqueWriteUsageOrNode(context, node, true);
+  if (resolved !== node) {
+    return getSizeValue(context, resolved);
+  }
   const literal = getValueOfExpression(context, node, 'Literal');
   if (literal) {
     if (typeof literal.value === 'number') {
@@ -224,28 +263,7 @@ function getSizeValue(context: Rule.RuleContext, node: estree.Node): number | nu
     }
   }
   if (node.type === 'BinaryExpression') {
-    const left = getSizeValue(context, node.left);
-    const right = getSizeValue(context, node.right);
-    if (left != null && right != null) {
-      let result: number | null = null;
-      switch (node.operator) {
-        case '*':
-          result = left * right;
-          break;
-        case '+':
-          result = left + right;
-          break;
-        case '-':
-          result = left - right;
-          break;
-        case '/':
-          result = left / right;
-          break;
-      }
-      if (result != null && Number.isFinite(result)) {
-        return result;
-      }
-    }
+    return evaluateBinaryExpression(context, node);
   }
   return null;
 }

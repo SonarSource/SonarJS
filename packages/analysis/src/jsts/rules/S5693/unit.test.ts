@@ -94,6 +94,21 @@ describe('S5693', () => {
         },
         {
           code: `
+      import * as multer from 'multer';
+      multer({ limits: { fileSize: 2 ** 20 } });
+        `,
+          options,
+        },
+        {
+          code: `
+      import * as multer from 'multer';
+      const MB = 1024 ** 2;
+      multer({ limits: { fileSize: 5 * MB } });
+        `,
+          options,
+        },
+        {
+          code: `
       import { formidable } from 'formidable';
       const form = formidable({}); // Ok, default is used which is less than parameter
       `,
