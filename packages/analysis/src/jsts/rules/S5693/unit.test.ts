@@ -49,6 +49,51 @@ describe('S5693', () => {
         },
         {
           code: `
+      import { diskStorage } from 'multer';
+      const storage = diskStorage({
+        destination: '/tmp/uploads',
+        filename: function (req, file, cb) { cb(null, file.fieldname) }
+      });
+        `,
+          options,
+        },
+        {
+          code: `
+      import * as multer from 'multer';
+      multer({ limits: { fileSize: 5 * 1024 * 1024 } });
+        `,
+          options,
+        },
+        {
+          code: `
+      import * as multer from 'multer';
+      multer({ limits: { fileSize: 4000000 + 2000000 } });
+        `,
+          options,
+        },
+        {
+          code: `
+      import * as multer from 'multer';
+      multer({ limits: { fileSize: 16000000 - 10000000 } });
+        `,
+          options,
+        },
+        {
+          code: `
+      import * as multer from 'multer';
+      multer({ limits: { fileSize: 16000000 / 2 } });
+        `,
+          options,
+        },
+        {
+          code: `
+      import * as multer from 'multer';
+      multer({ limits: { fileSize: 1024 / 0 } });
+        `,
+          options,
+        },
+        {
+          code: `
       import { formidable } from 'formidable';
       const form = formidable({}); // Ok, default is used which is less than parameter
       `,
@@ -169,6 +214,7 @@ describe('S5693', () => {
       multer();            // Noncompliant
       multer({ storage }); // Noncompliant
       multer({ limits: {} }); // Noncompliant
+      multer({ limits: { fileSize: 10 * 1024 * 1024 } }); // Noncompliant, 10MB > 8MB
       `,
           errors: [
             { messageId: 'safeLimit', line: 3 },
@@ -176,6 +222,7 @@ describe('S5693', () => {
             { messageId: 'safeLimit', line: 9 },
             { messageId: 'safeLimit', line: 10 },
             { messageId: 'safeLimit', line: 11 },
+            { messageId: 'safeLimit', line: 12 },
           ],
           options,
         },
