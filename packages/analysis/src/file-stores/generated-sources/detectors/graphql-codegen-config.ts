@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { readFile } from 'node:fs/promises';
 import { basename, extname } from 'node:path/posix';
 import ts from 'typescript';
 import yaml from 'yaml';
@@ -29,18 +28,6 @@ export type GraphqlGenerateTarget = {
 
 const GRAPHQL_YAML_CONFIG_BASENAMES = new Set(['.graphqlrc', '.graphqlconfig']);
 const PACKAGE_JSON_BASENAME = 'package.json';
-
-export async function parseGraphqlGenerates(configPath: NormalizedAbsolutePath) {
-  try {
-    return parseGraphqlGeneratesFile({
-      content: await readFile(configPath, 'utf8'),
-      path: configPath,
-    });
-  } catch {
-    // Broken or unreadable GraphQL config files should not abort the whole analysis.
-    return [];
-  }
-}
 
 export function parseGraphqlGeneratesFile(configFile: File) {
   const configPath = configFile.path;

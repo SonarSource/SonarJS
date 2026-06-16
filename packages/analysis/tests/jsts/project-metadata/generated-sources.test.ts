@@ -28,9 +28,14 @@ import {
   sourceFileStore,
 } from '../../../src/file-stores/index.js';
 import {
-  deriveGeneratedSources,
+  deriveGeneratedSources as deriveGeneratedSourcesFromSnapshot,
   extractFlagValues,
 } from '../../../src/file-stores/generated-sources/derive.js';
+import type {
+  GeneratedSourceFileMatcher,
+  GeneratedSourceProjectSnapshot,
+} from '../../../src/file-stores/generated-sources/contracts.js';
+import { collectGeneratedSourceProjectSnapshotFromFileSystem } from '../../../src/file-stores/generated-sources/filesystem-snapshot.js';
 import { graphqlCodegenDetector } from '../../../src/file-stores/generated-sources/detectors/graphql-codegen.js';
 import {
   GENERATED_SOURCE_DETECTORS,
@@ -78,6 +83,41 @@ async function writeOpenApiFilesManifest(outputDir: string, filePaths: string[])
     join(outputDir, '.openapi-generator', 'FILES'),
     `${filePaths.join('\n')}\n`,
   );
+}
+
+async function deriveGeneratedSources(
+  baseDir: NormalizedAbsolutePath,
+  packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>,
+  options?: {
+    projectSnapshot?: GeneratedSourceProjectSnapshot;
+    sourceFileMatcher?: GeneratedSourceFileMatcher;
+  },
+) {
+  return deriveGeneratedSourcesFromSnapshot(baseDir, packageJsons, {
+    ...options,
+    projectSnapshot:
+      options?.projectSnapshot ??
+      (await createGeneratedSourceProjectSnapshot(
+        baseDir,
+        packageJsons,
+        options?.sourceFileMatcher,
+      )),
+  });
+}
+
+async function createGeneratedSourceProjectSnapshot(
+  baseDir: NormalizedAbsolutePath,
+  packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>,
+  sourceFileMatcher?: GeneratedSourceFileMatcher,
+): Promise<GeneratedSourceProjectSnapshot> {
+  return (
+    await collectGeneratedSourceProjectSnapshotFromFileSystem({
+      baseDir,
+      jsTsExclusions: [],
+      packageJsons,
+      sourceFileMatcher,
+    })
+  ).projectSnapshot;
 }
 
 function observeGeneratedSources(
@@ -2531,13 +2571,30 @@ plugins = [
     expect(generatedSourceStore.getFamily(generatedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
   });
 
-  it('records the current configuration when post-processing exits early', async () => {
+  it('does not reuse generated-source cache when filesystem access is disabled', async () => {
     const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
     const configuration = createConfiguration({ baseDir, canAccessFileSystem: false });
 
     await generatedSourceStore.postProcess(configuration);
 
-    expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
+    expect(await generatedSourceStore.isInitialized(configuration)).toBe(false);
+  });
+
+  it('drops the transient filesystem snapshot after deriving metadata', async () => {
+    const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
+    const generatedSourceStoreState = generatedSourceStore as unknown as {
+      packageJsons: Map<NormalizedAbsolutePath, File>;
+      preloadedFiles: Map<NormalizedAbsolutePath, File>;
+      sourceFiles: Set<NormalizedAbsolutePath>;
+      walkedDirectories: Set<NormalizedAbsolutePath>;
+    };
+
+    await initFileStores(createConfiguration({ baseDir }));
+
+    expect(generatedSourceStoreState.packageJsons.size).toEqual(0);
+    expect(generatedSourceStoreState.preloadedFiles.size).toEqual(0);
+    expect(generatedSourceStoreState.sourceFiles.size).toEqual(0);
+    expect(generatedSourceStoreState.walkedDirectories.size).toEqual(0);
   });
 
   it('records generated-source observability for resolved and tagged files', async ({ mock }) => {

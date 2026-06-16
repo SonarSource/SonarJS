@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { SourceFileStore } from './source-files.js';
-import { dependencyManifestStore } from './dependency-manifests.js';
-import { generatedSourceStore } from './generated-sources/index.js';
+import { DependencyManifestStore } from './dependency-manifests.js';
+import { GeneratedSourceStore } from './generated-sources/index.js';
 import { TsConfigStore } from './tsconfigs.js';
 import { findFiles } from '../common/find-files.js';
 import type { FileStore } from './store-type.js';
@@ -29,9 +29,9 @@ import {
 import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();
+export const dependencyManifestStore = new DependencyManifestStore();
+export const generatedSourceStore = new GeneratedSourceStore(dependencyManifestStore);
 export const tsConfigStore = new TsConfigStore();
-export { dependencyManifestStore } from './dependency-manifests.js';
-export { generatedSourceStore } from './generated-sources/index.js';
 
 const fileStores: FileStore[] = [
   sourceFileStore,

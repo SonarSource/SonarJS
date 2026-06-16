@@ -14,10 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { type File, type NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import {
+  dirnamePath,
+  isRoot,
+  type File,
+  type NormalizedAbsolutePath,
+} from '../../../../shared/src/helpers/files.js';
 import type { PackageJson } from 'type-fest';
-import { getDependencies } from '../../jsts/rules/helpers/dependency-manifests/dependencies.js';
-import { getPackageJsonManifests } from '../../jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
 import { parsePackageJson } from '../../jsts/rules/helpers/dependency-manifests/parsed-dependency-files.js';
 import type { DependenciesList } from '../../jsts/rules/helpers/dependency-manifests/resolvers/types.js';
 import type {
@@ -43,13 +46,15 @@ export async function deriveGeneratedSources(
   }
 
   const { projectSnapshot, sourceFileMatcher } = options ?? {};
+  if (!projectSnapshot) {
+    throw new Error('generated-source derivation requires a project snapshot');
+  }
 
-  for (const [packageDir, file] of packageJsons) {
-    const packageJson = parsePackageJson(file);
-    if (!packageJson) {
-      continue;
-    }
+  const parsedPackageJsons = collectParsedGeneratedSourcePackageJsons(packageJsons);
 
+  for (const [packageDir, packageJson] of [...parsedPackageJsons.entries()].sort(
+    ([left], [right]) => left.localeCompare(right),
+  )) {
     const taskInvocations = await collectGeneratedSourceTaskInvocations({
       baseDir,
       packageDir,
@@ -58,11 +63,21 @@ export async function deriveGeneratedSources(
     let dependencyNames: Set<string> | undefined;
     let dependencies: DependenciesList | undefined;
     const hasGeneratedSourceDependency = (dependencyName: string) => {
-      dependencyNames ??= collectGeneratedSourceDependencyNames(packageDir, baseDir, packageJson);
+      dependencyNames ??= collectGeneratedSourceDependencyNames(
+        packageDir,
+        baseDir,
+        parsedPackageJsons,
+        packageJson,
+      );
       return dependencyNames.has(dependencyName);
     };
     const getGeneratedSourceDependencies = () => {
-      dependencies ??= resolveGeneratedSourceDependencies(packageDir, baseDir, packageJson);
+      dependencies ??= resolveGeneratedSourceDependencies(
+        packageDir,
+        baseDir,
+        parsedPackageJsons,
+        packageJson,
+      );
       return dependencies;
     };
     for (const detector of GENERATED_SOURCE_DETECTORS) {
@@ -87,12 +102,17 @@ export async function deriveGeneratedSources(
 function collectGeneratedSourceDependencyNames(
   packageDir: NormalizedAbsolutePath,
   baseDir: NormalizedAbsolutePath,
+  packageJsons: ReadonlyMap<NormalizedAbsolutePath, PackageJson>,
   packageJson: PackageJson,
 ) {
   const dependencyNames = new Set<string>();
-  const packageJsons = getPackageJsonManifests(packageDir, baseDir);
 
-  for (const packageJsonManifest of packageJsons.length > 0 ? packageJsons : [packageJson]) {
+  for (const packageJsonManifest of getGeneratedSourcePackageJsonHierarchy(
+    packageDir,
+    baseDir,
+    packageJsons,
+    packageJson,
+  )) {
     addPackageJsonDependencyNames(dependencyNames, packageJsonManifest);
   }
 
@@ -102,29 +122,63 @@ function collectGeneratedSourceDependencyNames(
 function resolveGeneratedSourceDependencies(
   packageDir: NormalizedAbsolutePath,
   baseDir: NormalizedAbsolutePath,
+  packageJsons: ReadonlyMap<NormalizedAbsolutePath, PackageJson>,
   packageJson: PackageJson,
 ): DependenciesList {
-  const dependencies = getDependencies(packageDir, baseDir);
-
-  // Support in-memory package.json fixtures that do not populate the manifest caches.
-  // When raw dependency sections are still present, derive the dependency list from them.
-  return dependencies.size > 0 || !hasRawDependencySections(packageJson)
-    ? dependencies
-    : createFallbackDependencies(packageJson);
-}
-
-function hasRawDependencySections(packageJson: PackageJson) {
-  return [
-    packageJson.dependencies,
-    packageJson.devDependencies,
-    packageJson.peerDependencies,
-    packageJson.optionalDependencies,
-  ].some(section => section !== undefined && Object.keys(section).length > 0);
-}
-
-function createFallbackDependencies(packageJson: PackageJson): DependenciesList {
   const dependencies: DependenciesList = new Map();
 
+  for (const packageJsonManifest of getGeneratedSourcePackageJsonHierarchy(
+    packageDir,
+    baseDir,
+    packageJsons,
+    packageJson,
+  )) {
+    addPackageJsonDependencies(dependencies, packageJsonManifest);
+  }
+
+  return dependencies;
+}
+
+function collectParsedGeneratedSourcePackageJsons(
+  packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>,
+) {
+  const parsedPackageJsons = new Map<NormalizedAbsolutePath, PackageJson>();
+
+  for (const [packageDir, file] of packageJsons) {
+    const packageJson = parsePackageJson(file);
+    if (packageJson) {
+      parsedPackageJsons.set(packageDir, packageJson);
+    }
+  }
+
+  return parsedPackageJsons;
+}
+
+function getGeneratedSourcePackageJsonHierarchy(
+  packageDir: NormalizedAbsolutePath,
+  baseDir: NormalizedAbsolutePath,
+  packageJsons: ReadonlyMap<NormalizedAbsolutePath, PackageJson>,
+  currentPackageJson: PackageJson,
+) {
+  const manifests: PackageJson[] = [];
+  let currentDir = packageDir;
+
+  while (true) {
+    const packageJson =
+      currentDir === packageDir ? currentPackageJson : packageJsons.get(currentDir);
+    if (packageJson) {
+      manifests.push(packageJson);
+    }
+
+    if (currentDir === baseDir || isRoot(currentDir)) {
+      return manifests;
+    }
+
+    currentDir = dirnamePath(currentDir);
+  }
+}
+
+function addPackageJsonDependencies(dependencies: DependenciesList, packageJson: PackageJson) {
   for (const section of [
     packageJson.dependencies,
     packageJson.devDependencies,
@@ -136,11 +190,11 @@ function createFallbackDependencies(packageJson: PackageJson): DependenciesList 
     }
 
     for (const [name, version] of Object.entries(section)) {
-      dependencies.set(name, typeof version === 'string' ? version : undefined);
+      if (!dependencies.has(name)) {
+        dependencies.set(name, typeof version === 'string' ? version : undefined);
+      }
     }
   }
-
-  return dependencies;
 }
 
 function addPackageJsonDependencyNames(dependencyNames: Set<string>, packageJson: PackageJson) {

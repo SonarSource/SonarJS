@@ -49,7 +49,7 @@ function createManifestFilesByName(): ManifestFilesByName {
   ) as ManifestFilesByName;
 }
 
-class DependencyManifestStore implements FileStore {
+export class DependencyManifestStore implements FileStore {
   private readonly manifestsByName = createManifestFilesByName();
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
@@ -145,5 +145,3 @@ class DependencyManifestStore implements FileStore {
     }
   }
 }
-
-export const dependencyManifestStore = new DependencyManifestStore();

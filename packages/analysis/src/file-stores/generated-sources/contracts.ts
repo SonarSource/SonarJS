@@ -44,6 +44,11 @@ export interface GeneratedSourceDetector {
   readonly family: string;
   readonly watchedFilenames?: readonly string[];
   readonly shouldPreload?: (filePath: NormalizedAbsolutePath) => boolean;
+  readonly resolveDeclaredPreloadPaths?: (context: {
+    baseDir: NormalizedAbsolutePath;
+    packageDir: NormalizedAbsolutePath;
+    taskInvocations: readonly TaskInvocation[];
+  }) => Promise<ReadonlySet<NormalizedAbsolutePath>> | ReadonlySet<NormalizedAbsolutePath>;
   detect(context: {
     baseDir: NormalizedAbsolutePath;
     packageDir: NormalizedAbsolutePath;

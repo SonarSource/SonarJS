@@ -14,8 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { readdir, stat } from 'node:fs/promises';
-import { extname } from 'node:path/posix';
+import { isJsTsFile } from '../../common/configuration.js';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
@@ -31,18 +30,8 @@ const OBVIOUS_BUILD_OR_CACHE_SEGMENTS = new Set([
   'coverage',
   '.next',
 ]);
-const DEFAULT_GENERATED_SOURCE_EXTENSIONS = new Set([
-  '.js',
-  '.mjs',
-  '.cjs',
-  '.jsx',
-  '.ts',
-  '.mts',
-  '.cts',
-  '.tsx',
-]);
 const defaultGeneratedSourceFileMatcher: GeneratedSourceFileMatcher = filePath =>
-  DEFAULT_GENERATED_SOURCE_EXTENSIONS.has(extname(filePath).toLowerCase());
+  isJsTsFile(filePath);
 
 export function createDerivedGeneratedSources(): DerivedGeneratedSources {
   return {
@@ -105,59 +94,6 @@ export function isSourceFile(
   sourceFileMatcher: GeneratedSourceFileMatcher = defaultGeneratedSourceFileMatcher,
 ) {
   return sourceFileMatcher(path);
-}
-
-export async function isFile(path: NormalizedAbsolutePath) {
-  const stats = await safeStat(path);
-  return stats?.isFile() === true;
-}
-
-export async function isDirectory(path: NormalizedAbsolutePath) {
-  const stats = await safeStat(path);
-  return stats?.isDirectory() === true;
-}
-
-export async function safeStat(path: NormalizedAbsolutePath) {
-  try {
-    return await stat(path);
-  } catch {
-    return undefined;
-  }
-}
-
-async function safeReadDir(path: NormalizedAbsolutePath) {
-  try {
-    return await readdir(path, { withFileTypes: true });
-  } catch {
-    return [];
-  }
-}
-
-export async function listSourceFilesInDirectory(
-  directory: NormalizedAbsolutePath,
-  recursive: boolean,
-  sourceFileMatcher: GeneratedSourceFileMatcher = defaultGeneratedSourceFileMatcher,
-) {
-  const entries = await safeReadDir(directory);
-  const sourceFiles: NormalizedAbsolutePath[] = [];
-
-  for (const entry of entries) {
-    const entryPath = normalizeToAbsolutePath(entry.name, directory);
-    if (!isSafeChildEntryPath(entryPath, directory)) {
-      continue;
-    }
-
-    if (entry.isFile() && isSourceFile(entryPath, sourceFileMatcher)) {
-      sourceFiles.push(entryPath);
-      continue;
-    }
-
-    if (recursive && entry.isDirectory()) {
-      sourceFiles.push(...(await listSourceFilesInDirectory(entryPath, true, sourceFileMatcher)));
-    }
-  }
-
-  return sourceFiles;
 }
 
 /**
@@ -337,7 +273,7 @@ function isWithinBaseDir(path: NormalizedAbsolutePath, baseDir: NormalizedAbsolu
   return relativePath !== undefined;
 }
 
-function isSafeChildEntryPath(
+export function isSafeGeneratedSourceChildPath(
   path: NormalizedAbsolutePath,
   parentDirectory: NormalizedAbsolutePath,
 ) {

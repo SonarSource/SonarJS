@@ -14,13 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { readFile } from 'node:fs/promises';
 import { basename, dirname } from 'node:path/posix';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../../shared/src/helpers/files.js';
-import type { GeneratedSourceDetector, GeneratedSourceProjectSnapshot } from '../contracts.js';
+import type {
+  GeneratedSourceDetector,
+  GeneratedSourceFileMatcher,
+  GeneratedSourceProjectSnapshot,
+} from '../contracts.js';
 import { type ResolvedGeneratedOutputs } from '../detector-api.js';
 import {
   addFamilyFiles,
@@ -28,7 +31,6 @@ import {
   extractFlagValuesFromTokens,
   isSourceFile,
   resolveLiteralPath,
-  safeStat,
 } from '../shared.js';
 import { taskInvocationInvokesCommand, type TaskInvocation } from '../task-invocations.js';
 
@@ -95,7 +97,7 @@ async function resolveOpenApiOutputsFromFilesManifests(
   packageDir: NormalizedAbsolutePath,
   outputPaths: Iterable<string>,
   projectSnapshot?: GeneratedSourceProjectSnapshot,
-  sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
+  sourceFileMatcher?: GeneratedSourceFileMatcher,
 ): Promise<ResolvedGeneratedOutputs> {
   const resolvedOutputs: ResolvedGeneratedOutputs = {
     filePaths: new Set(),
@@ -126,15 +128,12 @@ async function addOpenApiManifestFiles(
   baseDir: NormalizedAbsolutePath,
   outputPath: NormalizedAbsolutePath,
   projectSnapshot?: GeneratedSourceProjectSnapshot,
-  sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
+  sourceFileMatcher?: GeneratedSourceFileMatcher,
 ) {
   resolvedOutputs.watchedOutputPaths.add(outputPath);
 
   if (!projectSnapshot?.directories.has(outputPath)) {
-    const stats = await safeStat(outputPath);
-    if (!stats?.isDirectory()) {
-      return;
-    }
+    return;
   }
 
   resolvedOutputs.outputDirectories.add(outputPath);
@@ -150,12 +149,6 @@ async function addOpenApiManifestFiles(
     }
 
     if (projectSnapshot?.sourceFiles.has(resolvedFilePath)) {
-      resolvedOutputs.filePaths.add(resolvedFilePath);
-      continue;
-    }
-
-    const fileStats = await safeStat(resolvedFilePath);
-    if (fileStats?.isFile()) {
       resolvedOutputs.filePaths.add(resolvedFilePath);
     }
   }
@@ -176,11 +169,7 @@ async function readOpenApiFilesManifest(
     );
   }
 
-  try {
-    return parseOpenApiFilesManifestContents(await readFile(manifestPath, 'utf8'));
-  } catch {
-    return undefined;
-  }
+  return undefined;
 }
 
 function parseOpenApiFilesManifestContents(manifestContents: string) {

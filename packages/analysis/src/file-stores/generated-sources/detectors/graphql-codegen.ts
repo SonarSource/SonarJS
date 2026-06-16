@@ -19,22 +19,15 @@ import { type NormalizedAbsolutePath } from '../../../../../shared/src/helpers/f
 import type { GeneratedSourceDetector, GeneratedSourceProjectSnapshot } from '../contracts.js';
 import {
   hasToolEvidence,
+  resolveDeclaredPathsFromTaskInvocations,
   resolveConfigPaths,
   resolveGeneratedOutputsFromLiteralPaths,
   type ResolvedGeneratedOutputs,
 } from '../detector-api.js';
-import {
-  addFamilyFiles,
-  createDerivedGeneratedSources,
-  resolveLiteralPath,
-  safeStat,
-} from '../shared.js';
+import { addFamilyFiles, createDerivedGeneratedSources, resolveLiteralPath } from '../shared.js';
+import { hasDirectoryInSnapshot } from '../snapshot.js';
 import { taskInvocationInvokesCommand, type TaskInvocation } from '../task-invocations.js';
-import {
-  parseGraphqlGenerates,
-  parseGraphqlGeneratesFile,
-  type GraphqlGenerateTarget,
-} from './graphql-codegen-config.js';
+import { parseGraphqlGeneratesFile, type GraphqlGenerateTarget } from './graphql-codegen-config.js';
 
 const AUTO_DISCOVERED_GRAPHQL_CONFIGS = [
   'package.json',
@@ -102,6 +95,16 @@ export const graphqlCodegenDetector = {
   family: GRAPHQL_CODEGEN_FAMILY,
   shouldPreload(filePath: NormalizedAbsolutePath) {
     return WATCHED_GRAPHQL_CONFIG_BASENAMES.has(basename(filePath).toLowerCase());
+  },
+  resolveDeclaredPreloadPaths({ baseDir, packageDir, taskInvocations }) {
+    return resolveDeclaredPathsFromTaskInvocations({
+      baseDir,
+      packageDir,
+      taskInvocations,
+      matchesTaskInvocation: taskInvocation =>
+        taskInvocationInvokesCommand(taskInvocation, 'graphql-codegen'),
+      flags: GRAPHQL_CONFIG_FLAGS,
+    });
   },
   watchedFilenames: WATCHED_GRAPHQL_CONFIGS,
 
@@ -338,13 +341,7 @@ async function watchOnlyGraphqlDirectoryOutput(
 
   resolvedOutputs.watchedOutputPaths.add(resolvedPath);
 
-  if (projectSnapshot?.directories.has(resolvedPath)) {
-    resolvedOutputs.outputDirectories.add(resolvedPath);
-    return resolvedOutputs;
-  }
-
-  const stats = await safeStat(resolvedPath);
-  if (stats?.isDirectory()) {
+  if (projectSnapshot && hasDirectoryInSnapshot(resolvedPath, projectSnapshot)) {
     resolvedOutputs.outputDirectories.add(resolvedPath);
   }
 
@@ -356,9 +353,11 @@ async function getGraphqlGenerateTargets(
   projectSnapshot?: GeneratedSourceProjectSnapshot,
 ) {
   const preloadedFile = projectSnapshot?.preloadedFiles.get(configPath);
-  return preloadedFile
-    ? parseGraphqlGeneratesFile(preloadedFile)
-    : parseGraphqlGenerates(configPath);
+  try {
+    return preloadedFile ? parseGraphqlGeneratesFile(preloadedFile) : [];
+  } catch {
+    return [];
+  }
 }
 
 function mergeResolvedGeneratedOutputs(
