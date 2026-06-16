@@ -30,14 +30,14 @@ import {
 import {
   deriveGeneratedSources,
   extractFlagValues,
-} from '../../../src/jsts/rules/helpers/generated-sources/derive.js';
-import { graphqlCodegenDetector } from '../../../src/jsts/rules/helpers/generated-sources/detectors/graphql-codegen.js';
+} from '../../../src/file-stores/generated-sources/derive.js';
+import { graphqlCodegenDetector } from '../../../src/file-stores/generated-sources/detectors/graphql-codegen.js';
 import {
   GENERATED_SOURCE_DETECTORS,
   GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS,
   collectGeneratedSourceTaskInvocations,
   getGeneratedSourceWatchedFilenames,
-} from '../../../src/jsts/rules/helpers/generated-sources/index.js';
+} from '../../../src/file-stores/generated-sources/index.js';
 import {
   joinPaths,
   normalizeToAbsolutePath,

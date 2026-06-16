@@ -19,7 +19,7 @@ import { basename, dirname } from 'node:path/posix';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
-} from '../../../../../../../shared/src/helpers/files.js';
+} from '../../../../../shared/src/helpers/files.js';
 import type { GeneratedSourceDetector, GeneratedSourceProjectSnapshot } from '../contracts.js';
 import { type ResolvedGeneratedOutputs } from '../detector-api.js';
 import {

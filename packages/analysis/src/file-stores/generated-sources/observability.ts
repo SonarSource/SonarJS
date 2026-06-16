@@ -18,15 +18,15 @@ import { createHash } from 'node:crypto';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
-} from '../../../shared/src/helpers/files.js';
-import { debug, info } from '../../../shared/src/helpers/logging.js';
-import type { Configuration } from '../common/configuration.js';
-import { matchesJsTsExclusion } from '../common/filter/filter-path.js';
+} from '../../../../shared/src/helpers/files.js';
+import { debug, info } from '../../../../shared/src/helpers/logging.js';
+import type { Configuration } from '../../common/configuration.js';
+import { matchesJsTsExclusion } from '../../common/filter/filter-path.js';
 import {
   type GeneratedSourceFamilyTelemetry,
   type GeneratedSourcesTelemetry,
-} from '../generated-source-telemetry.js';
-import { relativeToAncestorPath } from '../jsts/rules/helpers/files.js';
+} from './telemetry.js';
+import { relativeToAncestorPath } from '../../jsts/rules/helpers/files.js';
 
 const DEFAULT_DTS_EXCLUSION_PATTERN = '**/*.d.ts';
 const OBSERVABILITY_SAMPLE_LIMIT = 3;

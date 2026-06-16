@@ -19,8 +19,8 @@ import { extname } from 'node:path/posix';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
-} from '../../../../../../shared/src/helpers/files.js';
-import { relativeToAncestorPath } from '../files.js';
+} from '../../../../shared/src/helpers/files.js';
+import { relativeToAncestorPath } from '../../jsts/rules/helpers/files.js';
 import type { DerivedGeneratedSources, GeneratedSourceFileMatcher } from './contracts.js';
 
 const OBVIOUS_BUILD_OR_CACHE_SEGMENTS = new Set([

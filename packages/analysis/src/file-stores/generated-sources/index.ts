@@ -23,3 +23,10 @@ export {
   GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS,
   collectGeneratedSourceTaskInvocations,
 } from './task-invocations.js';
+export { generatedSourceStore } from './store.js';
+export {
+  cloneGeneratedSourcesTelemetry,
+  createEmptyGeneratedSourcesTelemetry,
+  type GeneratedSourceFamilyTelemetry,
+  type GeneratedSourcesTelemetry,
+} from './telemetry.js';

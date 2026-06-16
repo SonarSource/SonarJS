@@ -17,7 +17,7 @@
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
-} from '../../../../../../shared/src/helpers/files.js';
+} from '../../../../shared/src/helpers/files.js';
 import type { GeneratedSourceFileMatcher, GeneratedSourceProjectSnapshot } from './contracts.js';
 import {
   extractFlagValuesFromTokens,
@@ -28,7 +28,7 @@ import {
   resolveLiteralPath,
   safeStat,
 } from './shared.js';
-import type { DependenciesList } from '../dependency-manifests/resolvers/types.js';
+import type { DependenciesList } from '../../jsts/rules/helpers/dependency-manifests/resolvers/types.js';
 import type { TaskInvocation } from './task-invocations.js';
 export type ResolvedGeneratedOutputs = {
   filePaths: Set<NormalizedAbsolutePath>;

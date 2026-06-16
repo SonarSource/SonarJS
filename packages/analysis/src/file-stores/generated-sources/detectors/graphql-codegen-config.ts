@@ -18,10 +18,7 @@ import { readFile } from 'node:fs/promises';
 import { basename, extname } from 'node:path/posix';
 import ts from 'typescript';
 import yaml from 'yaml';
-import {
-  type File,
-  type NormalizedAbsolutePath,
-} from '../../../../../../../shared/src/helpers/files.js';
+import { type File, type NormalizedAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 import { isLiteralPathToken } from '../shared.js';
 
 export type GraphqlGenerateTarget = {

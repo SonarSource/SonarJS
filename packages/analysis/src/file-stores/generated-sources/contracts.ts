@@ -14,8 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { File, NormalizedAbsolutePath } from '../../../../../../shared/src/helpers/files.js';
-import type { DependenciesList } from '../dependency-manifests/resolvers/types.js';
+import type { File, NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import type { DependenciesList } from '../../jsts/rules/helpers/dependency-manifests/resolvers/types.js';
 import type { TaskInvocation } from './task-invocations.js';
 
 export type GeneratedSourceFileMatcher = (filePath: NormalizedAbsolutePath) => boolean;

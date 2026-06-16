@@ -16,7 +16,7 @@
  */
 import { SourceFileStore } from './source-files.js';
 import { dependencyManifestStore } from './dependency-manifests.js';
-import { generatedSourceStore } from './generated-sources.js';
+import { generatedSourceStore } from './generated-sources/index.js';
 import { TsConfigStore } from './tsconfigs.js';
 import { findFiles } from '../common/find-files.js';
 import type { FileStore } from './store-type.js';
@@ -31,7 +31,7 @@ import type { AnalyzableFiles } from '../projectAnalysis.js';
 export const sourceFileStore = new SourceFileStore();
 export const tsConfigStore = new TsConfigStore();
 export { dependencyManifestStore } from './dependency-manifests.js';
-export { generatedSourceStore } from './generated-sources.js';
+export { generatedSourceStore } from './generated-sources/index.js';
 
 const fileStores: FileStore[] = [
   sourceFileStore,

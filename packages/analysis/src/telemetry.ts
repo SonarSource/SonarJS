@@ -23,7 +23,7 @@ import {
   cloneGeneratedSourcesTelemetry,
   createEmptyGeneratedSourcesTelemetry,
   type GeneratedSourcesTelemetry,
-} from './generated-source-telemetry.js';
+} from './file-stores/generated-sources/telemetry.js';
 
 const NOT_DETECTED = 'not-detected';
 const STRICT_CHILD_COMPILER_OPTIONS = [

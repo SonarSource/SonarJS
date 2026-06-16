@@ -14,15 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import {
-  type File,
-  type NormalizedAbsolutePath,
-} from '../../../../../../shared/src/helpers/files.js';
+import { type File, type NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import type { PackageJson } from 'type-fest';
-import { getDependencies } from '../dependency-manifests/dependencies.js';
-import { getPackageJsonManifests } from '../dependency-manifests/all-in-parent-dirs.js';
-import { parsePackageJson } from '../dependency-manifests/parsed-dependency-files.js';
-import type { DependenciesList } from '../dependency-manifests/resolvers/types.js';
+import { getDependencies } from '../../jsts/rules/helpers/dependency-manifests/dependencies.js';
+import { getPackageJsonManifests } from '../../jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
+import { parsePackageJson } from '../../jsts/rules/helpers/dependency-manifests/parsed-dependency-files.js';
+import type { DependenciesList } from '../../jsts/rules/helpers/dependency-manifests/resolvers/types.js';
 import type {
   DerivedGeneratedSources,
   GeneratedSourceFileMatcher,

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { basename, extname } from 'node:path/posix';
-import { type NormalizedAbsolutePath } from '../../../../../../../shared/src/helpers/files.js';
+import { type NormalizedAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 import type { GeneratedSourceDetector, GeneratedSourceProjectSnapshot } from '../contracts.js';
 import {
   hasToolEvidence,

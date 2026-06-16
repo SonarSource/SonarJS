@@ -15,30 +15,33 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { basename, extname } from 'node:path/posix';
-import type { FileStore } from './store-type.js';
-import { getProjectFileDiscoveryConfigKey, type Configuration } from '../common/configuration.js';
-import type { AnalyzableFiles } from '../projectAnalysis.js';
+import type { FileStore } from '../store-type.js';
+import {
+  getProjectFileDiscoveryConfigKey,
+  type Configuration,
+} from '../../common/configuration.js';
+import type { AnalyzableFiles } from '../../projectAnalysis.js';
 import {
   dirnamePath,
   readFile,
   type File,
   type NormalizedAbsolutePath,
-} from '../../../shared/src/helpers/files.js';
-import { dependencyManifestStore } from './dependency-manifests.js';
+} from '../../../../shared/src/helpers/files.js';
+import { dependencyManifestStore } from '../dependency-manifests.js';
 import {
   getGeneratedSourceWatchedFilenames,
   shouldPreloadGeneratedSourcePath,
-} from '../jsts/rules/helpers/generated-sources/index.js';
+} from './detectors/index.js';
 import {
   isPreloadableDependencyManifestPath,
   PACKAGE_JSON,
-} from '../jsts/rules/helpers/dependency-manifests/index.js';
-import type { GeneratedSourceFileMatcher } from '../jsts/rules/helpers/generated-sources/contracts.js';
-import { deriveGeneratedSources } from '../jsts/rules/helpers/generated-sources/derive.js';
+} from '../../jsts/rules/helpers/dependency-manifests/index.js';
+import type { GeneratedSourceFileMatcher } from './contracts.js';
+import { deriveGeneratedSources } from './derive.js';
 import {
   createEmptyGeneratedSourcesTelemetry,
   type GeneratedSourcesTelemetry,
-} from '../generated-source-telemetry.js';
+} from './telemetry.js';
 import {
   buildGeneratedSourceObservability,
   createGeneratedSourceDetectionLogKey,
@@ -46,7 +49,7 @@ import {
   logGeneratedSourceDetectionInfo,
   logMatchedGeneratedSourceFiles,
   logGeneratedSourceObservability,
-} from './generated-sources-observability.js';
+} from './observability.js';
 
 class GeneratedSourceStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
