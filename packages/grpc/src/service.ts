@@ -71,8 +71,11 @@ export async function analyzeFileHandler(
 
     // Transform, sanitize source files, and initialize file stores
     const rawFiles = transformSourceFilesToRawInputFiles(request.sourceFiles || []);
-    const { files: inputFiles, pathMap } = await sanitizeRawInputFiles(rawFiles, configuration);
-    await initFileStores(configuration, inputFiles);
+    const { pathMap, fileStoreRequestContext } = await sanitizeRawInputFiles(
+      rawFiles,
+      configuration,
+    );
+    await initFileStores(configuration, fileStoreRequestContext);
 
     const projectInput = transformRequestToProjectInput(request);
 

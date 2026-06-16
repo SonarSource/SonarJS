@@ -33,6 +33,7 @@ import {
   isPreloadableDependencyManifestPath,
 } from '../jsts/rules/helpers/dependency-manifests/index.js';
 import { getProjectFileDiscoveryConfigKey } from '../common/configuration.js';
+import type { FileStoreRequestContext } from '../projectAnalysis.js';
 
 export const UNINITIALIZED_ERROR =
   'dependency manifest cache has not been initialized. Call loadFiles() first.';
@@ -58,7 +59,7 @@ class DependencyManifestStore implements FileStore {
     NormalizedAbsolutePath | undefined
   > = new Map();
 
-  async isInitialized(configuration: Configuration) {
+  async isInitialized(configuration: Configuration, _requestContext?: FileStoreRequestContext) {
     this.dirtyCachesIfNeeded(configuration);
     return this.baseDir !== undefined;
   }
@@ -130,7 +131,7 @@ class DependencyManifestStore implements FileStore {
     this.dirnameToParent.set(dir, dirnamePath(dir));
   }
 
-  async postProcess() {
+  async postProcess(_configuration: Configuration, _requestContext?: FileStoreRequestContext) {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }

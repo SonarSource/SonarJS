@@ -264,8 +264,8 @@
       "sqkey": "S7760"
     },
     {
-      "name": "prefer-dom-node-dataset",
-      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/prefer-dom-node-dataset.md",
+      "name": "dom-node-dataset",
+      "link": "https://raw.githubusercontent.com/sindresorhus/eslint-plugin-unicorn/refs/heads/main/docs/rules/dom-node-dataset.md",
       "quickfix": "covered",
       "sqkey": "S7761"
     },

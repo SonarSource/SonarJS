@@ -2,7 +2,7 @@
 
 The generated-source detection subsystem identifies analyzable JS/TS files that were produced by project-local generators and exposes that information to the linter.
 
-This document explains the mechanism added on this branch from first principles. It is meant for readers who do not already know the file-store architecture or the generated-source helpers.
+This document explains the mechanism from first principles. It is meant for readers who do not already know the file-store architecture or the generated-source helpers.
 
 ## Why This Exists
 
@@ -14,24 +14,18 @@ The analyzer therefore needs a way to answer a narrow question for each file:
 
 The new subsystem does **not** decide on its own which issues to suppress. It only produces metadata. The linter then uses that metadata when a rule explicitly declares that it should be skipped on generated sources.
 
-## What This Branch Adds
+## What The Subsystem Contains
 
-This branch adds the foundation for generated-source detection:
+The subsystem contains:
 
 - a new `generatedSourceStore` file store
 - a detector contract for tool-specific generated-source detectors
 - helper functions for detector implementations
 - integration with `analyzeProject()` and the JS/TS linter
 - cache invalidation rules so long-lived analyzer processes can refresh when relevant project files change
+- observability and telemetry for derived and visible generated-source metadata
 
-This branch does **not** register any built-in detector yet.
-
-That means:
-
-- the mechanism is wired through the analyzer end to end
-- the store stays empty until detectors are added to `GENERATED_SOURCE_DETECTORS`
-
-Reviewers should read this branch as “infrastructure for generated-source detection”, not as “support for a specific generator already shipped”.
+Concrete support for specific generators is provided by detectors registered in `GENERATED_SOURCE_DETECTORS`.
 
 ## Core Terms
 
@@ -116,6 +110,43 @@ skipOnGeneratedSource: true;
 ```
 
 So the generated-source subsystem is a metadata source for rule filtering. It is not a blanket “ignore generated files” switch.
+
+### 6. The store computes observability for the current snapshot
+
+After rebuilding the request-filtered `familyByFile` view, the store computes an observability snapshot for the current state.
+
+That snapshot serves two purposes:
+
+- expose structured telemetry for the current generated-source counts
+- emit summary logs for those counts and for declaration-only families that are intentionally omitted from observability totals
+
+The snapshot is built from:
+
+- `resolvedFamilyByFile`: every generated file derived for the project
+- `taggedFamilyByFile`: the subset currently visible to the analysis request
+- the current analysis configuration
+
+For each detector family, observability keeps only two counters:
+
+- `resolvedFileCount`: files derived for that family before request filtering
+- `taggedFileCount`: derived files currently visible to the analysis request
+
+The difference between those counters is only an aggregate count of resolved files that are not currently tagged. The current implementation does not publish additional per-reason telemetry.
+
+Families whose resolved outputs are all `.d.ts` files excluded by the default `**/*.d.ts` JS/TS exclusion remain a special case: they are omitted from telemetry totals and logged separately at DEBUG level so the omission is explicit.
+
+### 7. Logs are deduplicated across refreshes
+
+The store logs observability only when the content changes.
+
+The deduplication fingerprint includes:
+
+- aggregate telemetry totals
+- ignored declaration-only family samples
+
+This means repeated refreshes do not re-emit identical INFO and DEBUG lines, but a request refresh that changes the resolved or tagged counts does produce a new observability log entry.
+
+The fingerprint is intentionally preserved across cache invalidations, so rebuilding identical generated-source state does not log the same observability snapshot again.
 
 ## Detector Model
 
@@ -279,15 +310,61 @@ If `canAccessFileSystem` is `false`, `postProcess()` keeps the store empty. The 
 
 That is an important current limitation.
 
-## Review Notes
+## Telemetry And Logging
 
-These are the main design points worth keeping in mind when reviewing the implementation:
+The subsystem exposes two observability outputs:
+
+- structured telemetry via `generatedSourceStore.getGeneratedSourcesTelemetry()`
+- log lines emitted during refresh through `logGeneratedSourceObservability()`
+
+### Structured telemetry
+
+The top-level telemetry shape is:
+
+```ts
+type GeneratedSourcesTelemetry = {
+  familyCount: number;
+  resolvedFileCount: number;
+  taggedFileCount: number;
+  families: GeneratedSourceFamilyTelemetry[];
+};
+```
+
+Each family entry carries the same counters for one detector family.
+
+The counters mean:
+
+- `resolvedFileCount`: files derived for that family before request filtering
+- `taggedFileCount`: derived files currently visible to the analysis request
+
+### Log output
+
+When telemetry is non-empty, the store logs:
+
+- one INFO summary line for the current snapshot
+- one INFO line per family
+- DEBUG lines for declaration-only families that are intentionally ignored from observability totals
+
+The sampled file paths are relative to `baseDir` and capped to a small fixed sample size.
+
+Separately, when at least one generated source file is currently tagged, the detection log path emits one INFO guidance line once per `baseDir` and DEBUG lines for the matched files. Those matched-file logs are deduplicated by tagged file fingerprint, but they are not part of structured telemetry.
+
+### Declaration-only default exclusions
+
+Families whose resolved outputs are all `.d.ts` files excluded by the default `**/*.d.ts` JS/TS exclusion are omitted from telemetry totals.
+
+That rule remains true even when those same `.d.ts` files also match `sonar.exclusions` or `sonar.test.exclusions`. The special case is about declaration-only default JS/TS exclusions, not about whether another analysis-scope exclusion also applies.
+
+They are still reported through DEBUG logging so the omission is explicit rather than silent.
+
+## Operational Notes
 
 - The mechanism is metadata-driven. It does not inspect source-file contents to guess whether a file is generated.
 - The store derives its data in `postProcess()` because it depends on outputs from other stores.
 - The store exposes only analyzable files for the current request, even if more generated files were derived for the project.
+- Request-driven analyses can change matched generated files without changing project-wide derived metadata.
+- Exclusions and scope filters affect whether resolved files are tagged; they do not produce separate telemetry fields.
 - The detector foundation is intentionally conservative about shell parsing and path resolution.
-- The mechanism is fully wired into the linter, but no concrete detector family is registered on this branch yet.
 
 ## Related Documentation
 

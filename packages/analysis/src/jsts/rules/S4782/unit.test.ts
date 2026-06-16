@@ -81,7 +81,7 @@ describe('S4782', () => {
             type F = E;
             interface Example2 {
               attribute?: F;
-            }; 
+            };
             `,
           },
           {

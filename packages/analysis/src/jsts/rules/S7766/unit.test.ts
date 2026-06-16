@@ -415,15 +415,15 @@ earliestValue(new Date(1), new Date(2));
     });
   });
 
-  it('classifies typed unions and intersections in the decorated rule', () => {
+  it('reports typed unions with numeric constituents in the decorated rule', () => {
     const ruleTester = new RuleTester();
     ruleTester.run('Decorated rule', decorate(conditionalExpressionRule), {
       valid: [
         {
           code: `
-type NumericOrDate = number | Date;
+type StringOrDate = string | Date;
 
-function lowerNumericOrDate(left: NumericOrDate, right: NumericOrDate): NumericOrDate {
+function lowerStringOrDate(left: StringOrDate, right: StringOrDate): StringOrDate {
   return left < right ? left : right;
 }
           `,
@@ -444,6 +444,16 @@ function earliestBrandedTimestamp(
         },
       ],
       invalid: [
+        {
+          code: `
+type NumericOrDate = number | Date;
+
+function earliestNumericOrDate(left: NumericOrDate, right: NumericOrDate): NumericOrDate {
+  return left < right ? left : right;
+}
+          `,
+          errors: 1,
+        },
         {
           code: `
 type NumericValue = 1 | 2 | 3;
@@ -631,6 +641,39 @@ const first = getTimestamp(1);
 const second = getTimestamp(2);
 
 const earliest = Math.min(first, second);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+interface FormlyJSONSchema7 {
+  maxLength?: number;
+  maximum?: number;
+  title?: string;
+}
+
+function merge(base: FormlyJSONSchema7, schema: FormlyJSONSchema7) {
+  (['maxLength', 'maximum'] as (keyof FormlyJSONSchema7)[]).forEach(prop => {
+    if (base[prop] != null && schema[prop] != null) {
+      (base as any)[prop] = base[prop] < schema[prop] ? base[prop] : schema[prop];
+    }
+  });
+}
+          `,
+          output: `
+interface FormlyJSONSchema7 {
+  maxLength?: number;
+  maximum?: number;
+  title?: string;
+}
+
+function merge(base: FormlyJSONSchema7, schema: FormlyJSONSchema7) {
+  (['maxLength', 'maximum'] as (keyof FormlyJSONSchema7)[]).forEach(prop => {
+    if (base[prop] != null && schema[prop] != null) {
+      (base as any)[prop] = Math.min(base[prop], schema[prop]);
+    }
+  });
+}
           `,
           errors: 1,
         },
