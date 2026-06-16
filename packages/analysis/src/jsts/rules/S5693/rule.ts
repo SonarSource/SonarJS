@@ -223,6 +223,22 @@ function getSizeValue(context: Rule.RuleContext, node: estree.Node): number | nu
       return parse(literal.value);
     }
   }
+  if (node.type === 'BinaryExpression') {
+    const left = getSizeValue(context, node.left);
+    const right = getSizeValue(context, node.right);
+    if (left != null && right != null) {
+      switch (node.operator) {
+        case '*':
+          return left * right;
+        case '+':
+          return left + right;
+        case '-':
+          return left - right;
+        case '/':
+          return left / right;
+      }
+    }
+  }
   return null;
 }
 

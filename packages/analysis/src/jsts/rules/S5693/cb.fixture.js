@@ -23,7 +23,7 @@ const config = {
     },
   }),
   limits: {
-    fileSize: 10 * 1024 * 1024,
+    fileSize: 5 * 1024 * 1024,
     fieldSize: 1024 * 1024,
     fieldNameSize: 5,
     files: 1,
