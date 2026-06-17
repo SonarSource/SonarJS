@@ -51,6 +51,20 @@ export const rule: Rule.RuleModule = {
           reportUpdateExpression(updateExpression);
         }
       },
+      AssignmentExpression(node: estree.Node) {
+        const assignment = node as estree.AssignmentExpression;
+        const rhs = assignment.right;
+        if (rhs.type === 'UpdateExpression' && !rhs.prefix) {
+          const lhs = assignment.left;
+          if (
+            lhs.type === 'Identifier' &&
+            rhs.argument.type === 'Identifier' &&
+            rhs.argument.name === lhs.name
+          ) {
+            reportUpdateExpression(rhs);
+          }
+        }
+      },
     };
   },
 };

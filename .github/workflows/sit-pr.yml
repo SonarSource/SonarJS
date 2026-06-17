@@ -183,6 +183,7 @@ jobs:
 
           marker="<!-- sit-diffsit-report -->"
           report="build/sit-diffsit/reports/diffsit-report.txt"
+          report_limit=45000
           {
             echo "$marker"
             echo "## SIT DiffSIT Report"
@@ -199,7 +200,12 @@ jobs:
               echo "<details><summary>Text report</summary>"
               echo ""
               echo '```text'
-              head -c 45000 "$report"
+              head -c "$report_limit" "$report" | iconv -f utf-8 -t utf-8 -c
+              report_bytes="$(wc -c < "$report" | tr -d '[:space:]')"
+              if [ "$report_bytes" -gt "$report_limit" ]; then
+                echo ""
+                echo "... (report truncated; download the full report from the workflow artifacts)"
+              fi
               echo ""
               echo '```'
               echo "</details>"
@@ -207,7 +213,7 @@ jobs:
           } > comment.md
 
           existing_comment_id="$(
-            gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
+            gh api --paginate "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
               --jq ".[] | select(.body | startswith(\"$marker\")) | .id" \
               | head -1
           )"

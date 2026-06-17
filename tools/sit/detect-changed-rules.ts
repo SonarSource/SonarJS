@@ -115,9 +115,13 @@ function parseNameStatus(output: string): ChangedFile[] {
 }
 
 function gitChangedFiles(base: string, head: string): ChangedFile[] {
-  const result = spawnSync('git', ['diff', '--name-status', '--diff-filter=ACMRD', base, head], {
-    encoding: 'utf8',
-  });
+  const result = spawnSync(
+    'git',
+    ['diff', '--name-status', '--diff-filter=ACMRD', `${base}...${head}`],
+    {
+      encoding: 'utf8',
+    },
+  );
   if (result.status !== 0) {
     throw new Error(result.stderr || `git diff failed with exit code ${result.status}`);
   }

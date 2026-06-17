@@ -107,6 +107,7 @@ jobs:
         env:
           RULES_JSON: ${{ inputs.rules_json }}
           PROJECT_FILTER: ${{ inputs.project_filter }}
+          CHECKOUT_REF: ${{ inputs.checkout_ref }}
         run: |
           set -euo pipefail
 
@@ -135,7 +136,7 @@ jobs:
             --rules-json build/sit-rules.json
             --output-dir build/sit-export
             --plugin-jar "$plugin_jar"
-            --commit '${{ inputs.checkout_ref }}'
+            --commit "$CHECKOUT_REF"
           )
           if [ -n "$PROJECT_FILTER" ]; then
             args+=(--project-filter "$PROJECT_FILTER")

@@ -33,12 +33,6 @@ describe('S2123', () => {
           code: `i++;`,
         },
         {
-          code: `i = i++;`,
-        },
-        {
-          code: `i = i--; `,
-        },
-        {
           code: `function f1() {
               let i = 1;
               i++;
@@ -58,6 +52,26 @@ describe('S2123', () => {
         },
       ],
       invalid: [
+        {
+          code: `i = i++;`,
+          errors: [
+            {
+              message: 'Remove this increment or correct the code not to waste it.',
+              line: 1,
+              endLine: 1,
+              column: 5,
+              endColumn: 8,
+            },
+          ],
+        },
+        {
+          code: `i = i--; `,
+          errors: [
+            {
+              message: 'Remove this decrement or correct the code not to waste it.',
+            },
+          ],
+        },
         {
           code: `function f1() {
               let i = 1;
