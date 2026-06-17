@@ -1,0 +1,153 @@
+name: SIT Export
+
+on:
+  workflow_call:
+    inputs:
+      checkout_ref:
+        description: "Git ref to checkout before running the export"
+        required: true
+        type: string
+      rules_json:
+        description: "Changed rules JSON"
+        required: true
+        type: string
+      artifact_name:
+        description: "Uploaded artifact name"
+        required: true
+        type: string
+      maven_targets_artifact_name:
+        description: "Optional Maven targets artifact containing the target plugin jar"
+        required: false
+        default: ""
+        type: string
+      sonarjs_m2_artifact_name:
+        description: "Optional SonarJS Maven repository artifact containing the target plugin jar"
+        required: false
+        default: ""
+        type: string
+      build_plugin:
+        description: "Build the plugin jar in this checkout before export"
+        required: false
+        default: false
+        type: boolean
+      project_filter:
+        description: "Optional comma-separated ruling project names for faster iteration"
+        required: false
+        default: ""
+        type: string
+
+jobs:
+  sit-export:
+    name: SIT Export
+    runs-on: sonar-l
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ inputs.checkout_ref }}
+          submodules: true
+
+      - uses: jdx/mise-action@v4.1.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            java = "21.0"
+            maven = "3.9"
+            node = "24.11.0"
+
+      - name: Configure Maven
+        uses: SonarSource/ci-github-actions/config-maven@master
+        with:
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
+
+      - name: Cache NPM dependencies
+        if: inputs.build_plugin
+        id: npm-cache
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
+
+      - name: Configure npm registry
+        if: inputs.build_plugin && steps.npm-cache.outputs.cache-hit != 'true'
+        uses: SonarSource/ci-github-actions/config-npm@v1
+
+      - name: Install NPM dependencies
+        if: inputs.build_plugin && steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Download SonarJS Maven artifacts
+        if: inputs.sonarjs_m2_artifact_name != ''
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ${{ inputs.sonarjs_m2_artifact_name }}
+          path: ~/.m2/repository/org/sonarsource/javascript
+
+      - name: Download Maven target artifacts
+        if: inputs.maven_targets_artifact_name != ''
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ${{ inputs.maven_targets_artifact_name }}
+          path: .
+
+      - name: Build SonarJS plugin
+        if: inputs.build_plugin
+        run: mvn -pl sonar-plugin/sonar-javascript-plugin -am package -DskipTests -B -e -V
+
+      - name: Build SIT exporter
+        run: mvn -f its/sit-exporter/pom.xml package -DskipTests -B -e -V
+
+      - name: Run SIT exporter
+        env:
+          RULES_JSON: ${{ inputs.rules_json }}
+          PROJECT_FILTER: ${{ inputs.project_filter }}
+        run: |
+          set -euo pipefail
+
+          mkdir -p build/sit-export
+          printf '%s\n' "$RULES_JSON" > build/sit-rules.json
+
+          find_latest_plugin_jar() {
+            local root="$1"
+            if [ ! -d "$root" ]; then
+              return 0
+            fi
+            find "$root" -name 'sonar-javascript-plugin-*-multi.jar' -type f | sort | tail -n 1
+          }
+
+          plugin_jar="$(find_latest_plugin_jar sonar-plugin/sonar-javascript-plugin/target)"
+          if [ -z "$plugin_jar" ]; then
+            plugin_jar="$(find_latest_plugin_jar "$HOME/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin")"
+          fi
+          if [ -z "$plugin_jar" ]; then
+            echo "Could not find sonar-javascript-plugin-*-multi.jar in target directories or sonarjs-m2 artifact" >&2
+            exit 1
+          fi
+
+          args=(
+            --projects-json packages/ruling/projects.json
+            --rules-json build/sit-rules.json
+            --output-dir build/sit-export
+            --plugin-jar "$plugin_jar"
+            --commit '${{ inputs.checkout_ref }}'
+          )
+          if [ -n "$PROJECT_FILTER" ]; then
+            args+=(--project-filter "$PROJECT_FILTER")
+          fi
+
+          java -jar its/sit-exporter/target/javascript-it-sit-exporter-*.jar "${args[@]}"
+
+      - name: Upload SIT export bundles
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ inputs.artifact_name }}
+          path: build/sit-export/**
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30

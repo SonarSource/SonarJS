@@ -1,0 +1,422 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #f5f6fa;
+  color: #2d3436;
+  line-height: 1.6;
+}
+.site-header {
+  background: linear-gradient(135deg, #1a252f 0%, #2980b9 100%);
+  color: white;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.site-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+.header-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+.meta-label {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.1em 0.5em;
+  border-radius: 4px;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 0.3em;
+}
+.header-meta code {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.15em 0.5em;
+  border-radius: 4px;
+  font-size: 0.85em;
+  margin: 0 0.2em;
+}
+.ts {
+  opacity: 0.7;
+  font-size: 0.85em;
+}
+.container {
+  margin: 0 auto;
+  padding: 2rem;
+}
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #636e72;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+.summary-section {
+  margin-bottom: 2rem;
+}
+.stat-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.stat-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  min-width: 110px;
+  text-align: center;
+  flex: 1;
+}
+.stat-label {
+  font-size: 0.75rem;
+  color: #636e72;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.4rem;
+}
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2d3436;
+}
+.stat-subvalue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-top: 0.35rem;
+  color: #636e72;
+  font-size: 0.7rem;
+  line-height: 1.3;
+}
+.stat-card.new-card {
+  border-top: 3px solid #e74c3c;
+}
+.stat-card.new-card .stat-value {
+  color: #e74c3c;
+}
+.stat-card.changed-card {
+  border-top: 3px solid #f39c12;
+}
+.stat-card.changed-card .stat-value {
+  color: #d68910;
+}
+.stat-card.removed-card {
+  border-top: 3px solid #27ae60;
+}
+.stat-card.removed-card .stat-value {
+  color: #27ae60;
+}
+.issue-section {
+  margin-bottom: 2rem;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+.section-header h2 {
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.section-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+.btn {
+  background: white;
+  border: 1px solid #dfe6e9;
+  border-radius: 6px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: #636e72;
+  transition: all 0.15s;
+}
+.btn:hover {
+  background: #f0f0f0;
+  border-color: #b2bec3;
+}
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.2em 0.55em;
+  border-radius: 10px;
+}
+.new-badge {
+  background: #ffeaea;
+  color: #c0392b;
+}
+.changed-badge {
+  background: #fff4df;
+  color: #b9770e;
+}
+.removed-badge {
+  background: #eafaf1;
+  color: #1e8449;
+}
+.issue-group {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+.group-header {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  user-select: none;
+  gap: 0.75rem;
+  transition: background 0.12s;
+}
+.group-header:hover {
+  background: #f8f9fa;
+}
+.group-title {
+  flex: 1;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  word-break: break-all;
+}
+.toggle-icon {
+  color: #b2bec3;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+.group-body {
+  display: none;
+  border-top: 1px solid #f0f2f5;
+}
+.group-body.open {
+  display: block;
+}
+.issue-row {
+  display: flex;
+  align-items: baseline;
+  padding: 0.5rem 1rem;
+  gap: 0.75rem;
+  border-bottom: 1px solid #f5f6fa;
+  font-size: 0.875rem;
+}
+.issue-row:last-child {
+  border-bottom: none;
+}
+.issue-row:hover {
+  background: #f8f9fa;
+}
+.cell-key,
+.cell-file {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.8rem;
+  color: #636e72;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 0 1 32%;
+  min-width: 100px;
+}
+.cell-line {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.8rem;
+  color: #b2bec3;
+  white-space: nowrap;
+  flex: 0 0 5rem;
+  text-align: right;
+}
+.cell-msg {
+  flex: 1 1 0;
+  min-width: 0;
+  color: #2d3436;
+  word-break: break-word;
+}
+.cell-proj {
+  flex: 0 0 auto;
+  min-width: 80px;
+  max-width: 180px;
+}
+.new-issues .group-header {
+  border-left: 3px solid #e74c3c;
+}
+.new-issues .group-header:hover {
+  background: #fff8f8;
+}
+.changed-issues .group-header {
+  border-left: 3px solid #f39c12;
+}
+.changed-issues .group-header:hover {
+  background: #fffaf0;
+}
+.removed-issues .group-header {
+  border-left: 3px solid #27ae60;
+}
+.removed-issues .group-header:hover {
+  background: #f8fff9;
+}
+.empty-state {
+  color: #b2bec3;
+  font-style: italic;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+}
+.overall-summary {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  margin-bottom: 2rem;
+}
+.overall-stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.5rem;
+  font-size: 0.9rem;
+}
+.overall-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.overall-stat-label {
+  color: #636e72;
+}
+.overall-stat-value {
+  font-weight: 600;
+  color: #2d3436;
+}
+.overall-stat-value.new-val {
+  color: #e74c3c;
+}
+.overall-stat-value.changed-val {
+  color: #d68910;
+}
+.overall-stat-value.removed-val {
+  color: #27ae60;
+}
+.issue-link {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  color: #636e72;
+  text-decoration: none;
+}
+.issue-link:hover {
+  text-decoration: underline;
+}
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+.filter-bar label {
+  color: #636e72;
+  font-weight: 500;
+}
+.filter-bar select {
+  border: 1px solid #dfe6e9;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.88rem;
+  color: #2d3436;
+  background: white;
+  cursor: pointer;
+}
+.project-badge {
+  display: inline-block;
+  background: #f0f2f5;
+  border: 1px solid #dfe6e9;
+  border-radius: 4px;
+  padding: 0.1em 0.45em;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.75rem;
+  color: #636e72;
+  white-space: nowrap;
+}
+.only-in-section {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+}
+.only-in-list {
+  list-style: none;
+  margin-top: 0.5rem;
+}
+.only-in-list li {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.875rem;
+  color: #636e72;
+  padding: 0.2rem 0;
+}
+.only-in-list li::before {
+  content: '\2022  ';
+  color: #b2bec3;
+}
+.change-detail {
+  margin-top: 0.15rem;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.78rem;
+  color: #636e72;
+}
+.change-detail span {
+  font-weight: 600;
+}
+.change-detail.new-val {
+  color: #c0392b;
+}
+.change-detail.removed-val {
+  color: #1e8449;
+}
+.site-footer {
+  text-align: center;
+  padding: 2rem;
+  color: #b2bec3;
+  font-size: 0.82rem;
+}
+@media (max-width: 600px) {
+  .header-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .stat-cards {
+    flex-direction: column;
+  }
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .cell-key,
+  .cell-file {
+    flex-basis: 45%;
+  }
+  .filter-bar {
+    flex-wrap: wrap;
+  }
+}

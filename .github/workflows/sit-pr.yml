@@ -1,0 +1,221 @@
+name: SIT PR DiffSIT
+
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        required: true
+        type: string
+      base_sha:
+        required: true
+        type: string
+      head_sha:
+        required: true
+        type: string
+      rules_json:
+        required: true
+        type: string
+      maven_targets_artifact_name:
+        required: false
+        default: ""
+        type: string
+      sonarjs_m2_artifact_name:
+        required: false
+        default: ""
+        type: string
+      project_filter:
+        required: false
+        default: ""
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.pr_number }}
+  cancel-in-progress: true
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+  pull-requests: write
+
+jobs:
+  prepare_rules:
+    name: Prepare Rules
+    runs-on: sonar-xs
+    outputs:
+      has_rules: ${{ steps.prepare.outputs.has_rules }}
+      rules_json: ${{ steps.prepare.outputs.rules_json }}
+      rule_filter: ${{ steps.prepare.outputs.rule_filter }}
+    steps:
+      - name: Canonicalize rules
+        id: prepare
+        env:
+          RULES_JSON_INPUT: ${{ inputs.rules_json }}
+        run: |
+          set -euo pipefail
+
+          rules_json="$(
+            jq -ec '
+              [
+                .[]
+                | {
+                    repository: (.repository | ascii_downcase),
+                    language: (.language | ascii_downcase),
+                    ruleKey: (.ruleKey | ascii_upcase)
+                  }
+              ]
+              | unique_by(.repository, .language, .ruleKey)
+              | sort_by(.repository, .language, .ruleKey)
+            ' <<< "$RULES_JSON_INPUT"
+          )"
+          has_rules="$(jq -r 'if length > 0 then "true" else "false" end' <<< "$rules_json")"
+          rule_filter="$(jq -r '[.[] | "\(.repository):\(.ruleKey)"] | unique | sort | join(",")' <<< "$rules_json")"
+
+          {
+            echo "rules_json=$rules_json"
+            echo "has_rules=$has_rules"
+            echo "rule_filter=$rule_filter"
+          } >> "$GITHUB_OUTPUT"
+
+  target_sit_export:
+    name: Target SIT Export
+    needs: [prepare_rules]
+    if: needs.prepare_rules.outputs.has_rules == 'true'
+    uses: ./.github/workflows/sit-export.yml
+    with:
+      checkout_ref: ${{ inputs.head_sha }}
+      rules_json: ${{ needs.prepare_rules.outputs.rules_json }}
+      artifact_name: sit-export-target
+      maven_targets_artifact_name: ${{ inputs.maven_targets_artifact_name }}
+      sonarjs_m2_artifact_name: ${{ inputs.sonarjs_m2_artifact_name }}
+      build_plugin: false
+      project_filter: ${{ inputs.project_filter }}
+    secrets: inherit
+
+  baseline_sit_export:
+    name: Baseline SIT Export
+    needs: [prepare_rules]
+    if: needs.prepare_rules.outputs.has_rules == 'true'
+    uses: ./.github/workflows/sit-export.yml
+    with:
+      checkout_ref: ${{ inputs.base_sha }}
+      rules_json: ${{ needs.prepare_rules.outputs.rules_json }}
+      artifact_name: sit-export-baseline
+      build_plugin: true
+      project_filter: ${{ inputs.project_filter }}
+    secrets: inherit
+
+  diffsit:
+    name: DiffSIT
+    needs: [prepare_rules, target_sit_export, baseline_sit_export]
+    if: needs.prepare_rules.outputs.has_rules == 'true'
+    runs-on: sonar-s
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ inputs.head_sha }}
+
+      - uses: jdx/mise-action@v4.1.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            rust = "1.84"
+
+      - name: Download target SIT export
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sit-export-target
+          path: sit-diffsit/target
+
+      - name: Download baseline SIT export
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sit-export-baseline
+          path: sit-diffsit/base
+
+      - name: Run DiffSIT
+        id: diffsit
+        env:
+          RULE_FILTER: ${{ needs.prepare_rules.outputs.rule_filter }}
+        run: |
+          set -euo pipefail
+          mkdir -p build/sit-diffsit/reports
+
+          set +e
+          cargo run --release --manifest-path tools/diffsit/Cargo.toml -- \
+            sit-diffsit/base \
+            sit-diffsit/target \
+            --formats text,json,html \
+            --output build/sit-diffsit/reports \
+            --group-by rule \
+            --rule-filter "$RULE_FILTER"
+          exit_code="$?"
+          set -e
+
+          if [ "$exit_code" -ge 2 ]; then
+            exit "$exit_code"
+          fi
+          echo "diffsit_exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+
+      - name: Upload DiffSIT reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: diffsit-reports
+          path: build/sit-diffsit/reports/**/*
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Comment on PR
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          DIFFSIT_EXIT_CODE: ${{ steps.diffsit.outputs.diffsit_exit_code || '2' }}
+        run: |
+          set -euo pipefail
+
+          marker="<!-- sit-diffsit-report -->"
+          report="build/sit-diffsit/reports/diffsit-report.txt"
+          {
+            echo "$marker"
+            echo "## SIT DiffSIT Report"
+            echo ""
+            if [ "$DIFFSIT_EXIT_CODE" = "0" ]; then
+              echo "No SIT differences found for the changed rules."
+            elif [ "$DIFFSIT_EXIT_CODE" = "1" ]; then
+              echo "SIT differences were found for the changed rules."
+            else
+              echo "SIT DiffSIT did not complete successfully. Check the workflow logs."
+            fi
+            echo ""
+            if [ -f "$report" ]; then
+              echo "<details><summary>Text report</summary>"
+              echo ""
+              echo '```text'
+              head -c 45000 "$report"
+              echo ""
+              echo '```'
+              echo "</details>"
+            fi
+          } > comment.md
+
+          existing_comment_id="$(
+            gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
+              --jq ".[] | select(.body | startswith(\"$marker\")) | .id" \
+              | head -1
+          )"
+
+          if [ -n "$existing_comment_id" ]; then
+            gh api "repos/${{ github.repository }}/issues/comments/$existing_comment_id" \
+              -X PATCH \
+              -F body=@comment.md
+          else
+            gh pr comment "$PR_NUMBER" --body-file comment.md
+          fi

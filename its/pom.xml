@@ -15,6 +15,7 @@
   <modules>
     <module>plugin</module>
     <module>ruling</module>
+    <module>sit-exporter</module>
   </modules>
 
   <build>
