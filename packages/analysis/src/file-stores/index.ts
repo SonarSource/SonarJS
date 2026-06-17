@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { SourceFileStore } from './source-files.js';
-import { dependencyManifestStore } from './dependency-manifests.js';
-import { generatedSourceStore } from './generated-sources.js';
+import { DependencyManifestStore } from './dependency-manifests.js';
+import { GeneratedSourceStore } from './generated-sources/index.js';
 import { TsConfigStore } from './tsconfigs.js';
 import { findFiles } from '../common/find-files.js';
 import type { FileStore } from './store-type.js';
@@ -26,29 +26,39 @@ import {
   type NormalizedAbsolutePath,
   dirnamePath,
 } from '../../../shared/src/helpers/files.js';
-import type { AnalyzableFiles, FileStoreRequestContext } from '../projectAnalysis.js';
+import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();
+export const dependencyManifestStore = new DependencyManifestStore();
+export const generatedSourceStore = new GeneratedSourceStore(
+  sourceFileStore,
+  dependencyManifestStore,
+);
 export const tsConfigStore = new TsConfigStore();
-export { dependencyManifestStore } from './dependency-manifests.js';
-export { generatedSourceStore } from './generated-sources.js';
 
-export async function initFileStores(
-  configuration: Configuration,
-  requestContext?: FileStoreRequestContext,
-) {
+const fileStores: FileStore[] = [
+  sourceFileStore,
+  dependencyManifestStore,
+  // Order matters: generatedSourceStore reuses sourceFileStore content for overlapping
+  // JS/TS config files and dependencyManifestStore package.json contents, so both stores
+  // must run before generatedSourceStore.
+  generatedSourceStore,
+  tsConfigStore,
+];
+
+export function resetFileStores() {
+  sourceFileStore.clearCache();
+  dependencyManifestStore.clearCache();
+  generatedSourceStore.clearCache();
+  tsConfigStore.clearCache();
+}
+
+export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
-  const fileStores = configuration.detectGeneratedCode
-    ? [sourceFileStore, dependencyManifestStore, generatedSourceStore, tsConfigStore]
-    : [sourceFileStore, dependencyManifestStore, tsConfigStore];
-
-  if (!configuration.detectGeneratedCode) {
-    generatedSourceStore.clearCache();
-  }
 
   for (const store of fileStores) {
-    if (!(await store.isInitialized(configuration, requestContext))) {
+    if (!(await store.isInitialized(configuration, inputFiles))) {
       pendingStores.push(store);
     }
   }
@@ -72,18 +82,11 @@ export async function initFileStores(
         }
       }
     });
-  } else if (requestContext?.analyzableFiles) {
-    await simulateFromInputFiles(requestContext.analyzableFiles, configuration, pendingStores);
+  } else if (inputFiles) {
+    await simulateFromInputFiles(inputFiles, configuration, pendingStores);
   }
-  const effectiveRequestContext: FileStoreRequestContext = requestContext?.analyzableFiles
-    ? requestContext
-    : {
-        ...requestContext,
-        analyzableFiles: sourceFileStore.getFiles(),
-        isExplicitRequest: requestContext?.isExplicitRequest ?? false,
-      };
   for (const store of pendingStores) {
-    await store.postProcess(configuration, effectiveRequestContext);
+    await store.postProcess(configuration);
   }
 }
 

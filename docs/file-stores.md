@@ -186,14 +186,27 @@ Like `tsconfigs`, this store is intentionally independent from the current set o
 
 ## `generated-sources`
 
-`generated-sources.ts` owns metadata about generated source files.
+`generated-sources/store.ts` owns metadata about generated source files.
 
 See [Generated Source Detection](./generated-sources.md) for the detector pipeline, linter integration, and cache behavior behind this store.
 
-It maintains two caches:
+It maintains one project-derived detector cache:
 
-- a **detector cache** with generated-file to family mappings, config paths used by generated-source detectors, and watched output paths
-- a **match cache** with the subset of detector matches visible to the current analysis request
+- generated-file to family mappings
+- config paths used by generated-source detectors
+- watched output paths
+
+During traversal it also collects the temporary inputs needed for derivation:
+
+- walked directories
+- walked JS/TS file paths that match the current suffix set
+- preloaded detector-specific files needed by detectors
+
+`postProcess()` then merges raw `package.json` contents from `dependencyManifestStore` into that
+snapshot and turns the combined view into the project-derived cache above.
+
+The tagged subset is not cached inside the store. `analyzeProject()` computes it later from the
+current analyzable files via `generatedSourceStore.observeGeneratedSources(...)`.
 
 The most useful way to reason about this store is by the corresponding Sonar property families.
 
@@ -201,7 +214,8 @@ The most useful way to reason about this store is by the corresponding Sonar pro
 - **Filesystem-walk exclusions**: `sonar.javascript.exclusions` and `sonar.typescript.exclusions`
 
 Internally, the source-scope properties map to `sources`, `tests`, `inclusions`, `exclusions`, `testInclusions`, and `testExclusions`.
-They decide which discovered source files remain visible to analysis, so they affect the **match cache**.
+They decide which discovered source files remain visible to analysis, so they affect only the
+analysis-time tagged subset and telemetry.
 
 Internally, `sonar.javascript.exclusions` and `sonar.typescript.exclusions` are merged into `jsTsExclusions`.
 They are different from `sonar.exclusions`: they are applied during `findFiles()`, before helper files such as `package.json` are discovered.
@@ -209,14 +223,17 @@ Because the detector cache derives metadata from those helper files, the current
 
 For example:
 
-- changing `sonar.exclusions` to ignore `src/generated/**` only changes the visible generated-file matches
+- changing `sonar.exclusions` to ignore `src/generated/**` only changes the tagged generated-file subset
 - changing `sonar.javascript.exclusions` or `sonar.typescript.exclusions` to ignore `**/package.json` changes detector inputs and invalidates the detector cache
 
 The store also depends on:
 
-- **explicit request files** in request-driven analysis, where the visible match-cache subset may change from one request to the next
 - **project helper files** because the detector cache derives metadata from files such as `package.json`
 - **JS/TS suffix settings** because detector output matching depends on the supported source extensions
+
+There is one additional implementation detail worth keeping explicit: store order matters.
+`generatedSourceStore` intentionally runs after `sourceFileStore` and `dependencyManifestStore`
+so it can reuse their cached file contents instead of rereading the same detector inputs itself.
 
 ### Refresh Model
 
@@ -228,12 +245,11 @@ The store also depends on:
 - `sonar.javascript.exclusions` or `sonar.typescript.exclusions` changes
 - `fsEvents` mention a relevant helper file, generated-source config file, or watched output path
 
-`generatedSourceStore` refreshes only the match cache when:
+`generatedSourceStore` does **not** refresh just because the current analyzable source-file set
+changes. Source-scope properties and explicit request files refresh `sourceFileStore`; the tagged
+generated-file subset is then recomputed at analysis time from `sourceFileStore.getFiles()`.
 
-- `sonar.sources`, `sonar.tests`, `sonar.inclusions`, `sonar.exclusions`, `sonar.test.inclusions`, or `sonar.test.exclusions` changes
-- the explicit request file set changes but the detector cache is still valid
-
-This is why `generated-sources` is the hybrid store: its detector cache depends on helper-file discovery, while its match cache also depends on the currently visible source-file set.
+When filesystem access is unavailable, the store is skipped entirely. The request-only simulated walk still exists for the other stores, but generated-source metadata is not derived in that mode.
 
 ## `fsEvents`
 
@@ -254,7 +270,7 @@ This allows long-lived analyzer processes to keep caches warm while still cleari
 | `source-files`         | Current analyzable source-file set                           | Yes                              | Indirectly, through walk exclusions only |
 | `tsconfigs`            | Discovered tsconfig files                                    | No                               | Yes                                      |
 | `dependency-manifests` | Discovered dependency manifests and warmed dependency caches | No                               | Yes                                      |
-| `generated-sources`    | Generated-source metadata visible to the linter              | Yes                              | Yes                                      |
+| `generated-sources`    | Project-derived generated-source metadata                    | Only for analysis-time tagging   | Yes                                      |
 
 ## Practical Rule
 
@@ -262,6 +278,6 @@ If a change affects:
 
 - **which source files are analyzed**, refresh `source-files`
 - **which helper files can be discovered**, refresh `tsconfigs` and `dependency-manifests`
-- **both**, refresh `generated-sources` too
+- **generator discovery inputs** such as dependency manifests, generated-source config files, watched outputs, or JS/TS suffix settings, refresh `generated-sources` too
 
 That split is the reason the file stores stay understandable even though they are all initialized from the same entrypoint.

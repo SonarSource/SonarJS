@@ -15,17 +15,19 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { basename, extname } from 'node:path/posix';
-import { type NormalizedAbsolutePath } from '../../../../../../../shared/src/helpers/files.js';
-import { type GeneratedSourceDetector } from '../contracts.js';
+import { type NormalizedAbsolutePath } from '../../../../../shared/src/helpers/files.js';
+import type { GeneratedSourceDetector, GeneratedSourceProjectSnapshot } from '../contracts.js';
 import {
   hasToolEvidence,
+  resolveDeclaredPathsFromTaskInvocations,
   resolveConfigPaths,
   resolveGeneratedOutputsFromLiteralPaths,
   type ResolvedGeneratedOutputs,
 } from '../detector-api.js';
-import { addFamilyFiles, createDerivedGeneratedSources, resolveLiteralPath, safeStat } from '../shared.js';
+import { addFamilyFiles, createDerivedGeneratedSources, resolveLiteralPath } from '../shared.js';
+import { hasDirectoryInSnapshot } from '../snapshot.js';
 import { taskInvocationInvokesCommand, type TaskInvocation } from '../task-invocations.js';
-import { parseGraphqlGenerates, type GraphqlGenerateTarget } from './graphql-codegen-config.js';
+import { parseGraphqlGeneratesFile, type GraphqlGenerateTarget } from './graphql-codegen-config.js';
 
 const AUTO_DISCOVERED_GRAPHQL_CONFIGS = [
   'package.json',
@@ -79,6 +81,7 @@ const WATCHED_GRAPHQL_CONFIGS = [
   ...AUTO_DISCOVERED_GRAPHQL_CONFIGS,
   ...EXPLICIT_GRAPHQL_CONFIGS,
 ] as const;
+const WATCHED_GRAPHQL_CONFIG_BASENAMES = new Set<string>(WATCHED_GRAPHQL_CONFIGS);
 const GRAPHQL_YAML_CONFIG_BASENAMES = new Set(['.graphqlrc', '.graphqlconfig']);
 const GRAPHQL_STRUCTURED_CONFIG_EXTENSIONS = new Set(['.json', '.yaml', '.yml']);
 const GRAPHQL_SOURCE_CONFIG_EXTENSIONS = new Set(['.cjs', '.cts', '.js', '.mjs', '.mts', '.ts']);
@@ -90,13 +93,27 @@ const GRAPHQL_CODEGEN_FAMILY = '@graphql-codegen/cli';
 
 export const graphqlCodegenDetector = {
   family: GRAPHQL_CODEGEN_FAMILY,
+  shouldPreload(filePath: NormalizedAbsolutePath) {
+    return WATCHED_GRAPHQL_CONFIG_BASENAMES.has(basename(filePath).toLowerCase());
+  },
+  resolveDeclaredPreloadPaths({ baseDir, packageDir, taskInvocations }) {
+    return resolveDeclaredPathsFromTaskInvocations({
+      baseDir,
+      packageDir,
+      taskInvocations,
+      matchesTaskInvocation: taskInvocation =>
+        taskInvocationInvokesCommand(taskInvocation, 'graphql-codegen'),
+      flags: GRAPHQL_CONFIG_FLAGS,
+    });
+  },
   watchedFilenames: WATCHED_GRAPHQL_CONFIGS,
 
-  async detect({
+  detect({
     baseDir,
     packageDir,
     hasDependency,
     getDependencies,
+    projectSnapshot,
     taskInvocations,
     sourceFileMatcher,
   }) {
@@ -114,15 +131,17 @@ export const graphqlCodegenDetector = {
       return createDerivedGeneratedSources();
     }
 
-    const configPaths = await filterGraphqlConfigPaths(
-      await resolveConfigPaths({
+    const configPaths = filterGraphqlConfigPaths(
+      resolveConfigPaths({
         baseDir,
         packageDir,
+        projectSnapshot,
         taskInvocations,
         matchesTaskInvocation,
         flags: GRAPHQL_CONFIG_FLAGS,
         fallbackBasenames: AUTO_DISCOVERED_GRAPHQL_CONFIGS,
       }),
+      projectSnapshot,
     );
     if (configPaths.size === 0) {
       return createDerivedGeneratedSources();
@@ -131,10 +150,11 @@ export const graphqlCodegenDetector = {
     const derived = createDerivedGeneratedSources();
     for (const configPath of [...configPaths].sort((left, right) => left.localeCompare(right))) {
       derived.configPaths.add(configPath);
-      const resolvedOutputs = await resolveGraphqlOutputs(
+      const resolvedOutputs = resolveGraphqlOutputs(
         baseDir,
         packageDir,
         configPath,
+        projectSnapshot,
         sourceFileMatcher,
       );
       addFamilyFiles(GRAPHQL_CODEGEN_FAMILY, resolvedOutputs.filePaths, derived);
@@ -147,7 +167,10 @@ export const graphqlCodegenDetector = {
   },
 } satisfies GeneratedSourceDetector;
 
-async function filterGraphqlConfigPaths(configPaths: Set<NormalizedAbsolutePath>) {
+function filterGraphqlConfigPaths(
+  configPaths: Set<NormalizedAbsolutePath>,
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
+) {
   const filteredConfigPaths = new Set<NormalizedAbsolutePath>();
 
   for (const configPath of configPaths) {
@@ -157,7 +180,7 @@ async function filterGraphqlConfigPaths(configPaths: Set<NormalizedAbsolutePath>
 
     if (
       basename(configPath).toLowerCase() !== PACKAGE_JSON_BASENAME ||
-      (await parseGraphqlGenerates(configPath)).length > 0
+      getGraphqlGenerateTargets(configPath, projectSnapshot).length > 0
     ) {
       filteredConfigPaths.add(configPath);
     }
@@ -182,13 +205,14 @@ function isSupportedGraphqlConfigPath(configPath: NormalizedAbsolutePath) {
   );
 }
 
-async function resolveGraphqlOutputs(
+function resolveGraphqlOutputs(
   baseDir: NormalizedAbsolutePath,
   packageDir: NormalizedAbsolutePath,
   configPath: NormalizedAbsolutePath,
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
   sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
-): Promise<ResolvedGeneratedOutputs> {
-  const generateTargets = await parseGraphqlGenerates(configPath);
+): ResolvedGeneratedOutputs {
+  const generateTargets = getGraphqlGenerateTargets(configPath, projectSnapshot);
   const resolvedOutputs: ResolvedGeneratedOutputs = {
     filePaths: new Set(),
     outputDirectories: new Set(),
@@ -200,10 +224,11 @@ async function resolveGraphqlOutputs(
   )) {
     mergeResolvedGeneratedOutputs(
       resolvedOutputs,
-      await resolveGraphqlGenerateTargetOutputs(
+      resolveGraphqlGenerateTargetOutputs(
         baseDir,
         packageDir,
         generateTarget,
+        projectSnapshot,
         sourceFileMatcher,
       ),
     );
@@ -212,10 +237,11 @@ async function resolveGraphqlOutputs(
   return resolvedOutputs;
 }
 
-async function resolveGraphqlGenerateTargetOutputs(
+function resolveGraphqlGenerateTargetOutputs(
   baseDir: NormalizedAbsolutePath,
   packageDir: NormalizedAbsolutePath,
   generateTarget: GraphqlGenerateTarget,
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
   sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
 ) {
   if (!isGraphqlDirectoryOutput(generateTarget.outputPath)) {
@@ -225,6 +251,7 @@ async function resolveGraphqlGenerateTargetOutputs(
       [generateTarget.outputPath],
       true,
       createGraphqlOutputFileMatcher(generateTarget, sourceFileMatcher),
+      projectSnapshot,
     );
   }
 
@@ -235,6 +262,7 @@ async function resolveGraphqlGenerateTargetOutputs(
       [generateTarget.outputPath],
       true,
       createNearOperationFileMatcher(generateTarget, sourceFileMatcher),
+      projectSnapshot,
     );
   }
 
@@ -245,10 +273,16 @@ async function resolveGraphqlGenerateTargetOutputs(
       [generateTarget.outputPath],
       true,
       sourceFileMatcher,
+      projectSnapshot,
     );
   }
 
-  return watchOnlyGraphqlDirectoryOutput(baseDir, packageDir, generateTarget.outputPath);
+  return watchOnlyGraphqlDirectoryOutput(
+    baseDir,
+    packageDir,
+    generateTarget.outputPath,
+    projectSnapshot,
+  );
 }
 
 function isGraphqlDirectoryOutput(outputPath: string) {
@@ -289,11 +323,12 @@ function createNearOperationFileMatcher(
     filePath.endsWith(generatedFileExtension) && (sourceFileMatcher?.(filePath) ?? true);
 }
 
-async function watchOnlyGraphqlDirectoryOutput(
+function watchOnlyGraphqlDirectoryOutput(
   baseDir: NormalizedAbsolutePath,
   packageDir: NormalizedAbsolutePath,
   outputPath: string,
-): Promise<ResolvedGeneratedOutputs> {
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
+): ResolvedGeneratedOutputs {
   const resolvedOutputs: ResolvedGeneratedOutputs = {
     filePaths: new Set(),
     outputDirectories: new Set(),
@@ -306,12 +341,23 @@ async function watchOnlyGraphqlDirectoryOutput(
 
   resolvedOutputs.watchedOutputPaths.add(resolvedPath);
 
-  const stats = await safeStat(resolvedPath);
-  if (stats?.isDirectory()) {
+  if (projectSnapshot && hasDirectoryInSnapshot(resolvedPath, projectSnapshot)) {
     resolvedOutputs.outputDirectories.add(resolvedPath);
   }
 
   return resolvedOutputs;
+}
+
+function getGraphqlGenerateTargets(
+  configPath: NormalizedAbsolutePath,
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
+) {
+  const preloadedFile = projectSnapshot?.preloadedFiles.get(configPath);
+  try {
+    return preloadedFile ? parseGraphqlGeneratesFile(preloadedFile) : [];
+  } catch {
+    return [];
+  }
 }
 
 function mergeResolvedGeneratedOutputs(

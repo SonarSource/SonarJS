@@ -14,11 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { NormalizedAbsolutePath } from '../../../../../../shared/src/helpers/files.js';
-import type { DependenciesList } from '../dependency-manifests/resolvers/types.js';
+import type { File, NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import type { DependenciesList } from '../../jsts/rules/helpers/dependency-manifests/resolvers/types.js';
 import type { TaskInvocation } from './task-invocations.js';
 
 export type GeneratedSourceFileMatcher = (filePath: NormalizedAbsolutePath) => boolean;
+
+export type GeneratedSourceProjectSnapshot = {
+  directories: ReadonlySet<NormalizedAbsolutePath>;
+  sourceFiles: ReadonlySet<NormalizedAbsolutePath>;
+  preloadedFiles: ReadonlyMap<NormalizedAbsolutePath, File>;
+};
 
 export type DerivedGeneratedSources = {
   familyByFile: Map<NormalizedAbsolutePath, string>;
@@ -37,12 +43,19 @@ export type DerivedGeneratedSources = {
 export interface GeneratedSourceDetector {
   readonly family: string;
   readonly watchedFilenames?: readonly string[];
+  readonly shouldPreload?: (filePath: NormalizedAbsolutePath) => boolean;
+  readonly resolveDeclaredPreloadPaths?: (context: {
+    baseDir: NormalizedAbsolutePath;
+    packageDir: NormalizedAbsolutePath;
+    taskInvocations: readonly TaskInvocation[];
+  }) => Promise<ReadonlySet<NormalizedAbsolutePath>> | ReadonlySet<NormalizedAbsolutePath>;
   detect(context: {
     baseDir: NormalizedAbsolutePath;
     packageDir: NormalizedAbsolutePath;
     hasDependency?: (dependencyName: string) => boolean;
     getDependencies: () => DependenciesList;
     taskInvocations: readonly TaskInvocation[];
+    projectSnapshot?: GeneratedSourceProjectSnapshot;
     sourceFileMatcher?: GeneratedSourceFileMatcher;
-  }): Promise<DerivedGeneratedSources>;
+  }): Promise<DerivedGeneratedSources> | DerivedGeneratedSources;
 }

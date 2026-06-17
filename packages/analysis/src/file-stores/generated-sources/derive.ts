@@ -15,24 +15,33 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import {
+  dirnamePath,
+  isRoot,
   type File,
   type NormalizedAbsolutePath,
-} from '../../../../../../shared/src/helpers/files.js';
+} from '../../../../shared/src/helpers/files.js';
 import type { PackageJson } from 'type-fest';
-import { getDependencies } from '../dependency-manifests/dependencies.js';
-import { getPackageJsonManifests } from '../dependency-manifests/all-in-parent-dirs.js';
-import { parsePackageJson } from '../dependency-manifests/parsed-dependency-files.js';
-import type { DependenciesList } from '../dependency-manifests/resolvers/types.js';
-import type { DerivedGeneratedSources, GeneratedSourceFileMatcher } from './contracts.js';
+import type { DependenciesList } from '../../jsts/rules/helpers/dependency-manifests/resolvers/types.js';
+import type {
+  DerivedGeneratedSources,
+  GeneratedSourceFileMatcher,
+  GeneratedSourceProjectSnapshot,
+} from './contracts.js';
 import { GENERATED_SOURCE_DETECTORS } from './detectors/index.js';
-import { collectGeneratedSourceTaskInvocations } from './task-invocations.js';
+import {
+  collectGeneratedSourcePackageContexts,
+  createGeneratedSourcePackageJsonMap,
+  type GeneratedSourcePackageContext,
+} from './package-contexts.js';
 import { createDerivedGeneratedSources, mergeDerivedGeneratedSources } from './shared.js';
 
 export async function deriveGeneratedSources(
   baseDir: NormalizedAbsolutePath,
   packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>,
   options?: {
+    projectSnapshot?: GeneratedSourceProjectSnapshot;
     sourceFileMatcher?: GeneratedSourceFileMatcher;
+    packageContexts?: readonly GeneratedSourcePackageContext[];
   },
 ): Promise<DerivedGeneratedSources> {
   const derived = createDerivedGeneratedSources();
@@ -40,27 +49,38 @@ export async function deriveGeneratedSources(
     return derived;
   }
 
-  const { sourceFileMatcher } = options ?? {};
+  const {
+    projectSnapshot,
+    sourceFileMatcher,
+    packageContexts: providedPackageContexts,
+  } = options ?? {};
+  if (!projectSnapshot) {
+    throw new Error('generated-source derivation requires a project snapshot');
+  }
 
-  for (const [packageDir, file] of packageJsons) {
-    const packageJson = parsePackageJson(file);
-    if (!packageJson) {
-      continue;
-    }
+  const packageContexts =
+    providedPackageContexts ?? (await collectGeneratedSourcePackageContexts(baseDir, packageJsons));
+  const parsedPackageJsons = createGeneratedSourcePackageJsonMap(packageContexts);
 
-    const taskInvocations = await collectGeneratedSourceTaskInvocations({
-      baseDir,
-      packageDir,
-      packageJson,
-    });
+  for (const { packageDir, packageJson, taskInvocations } of packageContexts) {
     let dependencyNames: Set<string> | undefined;
     let dependencies: DependenciesList | undefined;
     const hasGeneratedSourceDependency = (dependencyName: string) => {
-      dependencyNames ??= collectGeneratedSourceDependencyNames(packageDir, baseDir, packageJson);
+      dependencyNames ??= collectGeneratedSourceDependencyNames(
+        packageDir,
+        baseDir,
+        parsedPackageJsons,
+        packageJson,
+      );
       return dependencyNames.has(dependencyName);
     };
     const getGeneratedSourceDependencies = () => {
-      dependencies ??= resolveGeneratedSourceDependencies(packageDir, baseDir, packageJson);
+      dependencies ??= resolveGeneratedSourceDependencies(
+        packageDir,
+        baseDir,
+        parsedPackageJsons,
+        packageJson,
+      );
       return dependencies;
     };
     for (const detector of GENERATED_SOURCE_DETECTORS) {
@@ -71,6 +91,7 @@ export async function deriveGeneratedSources(
           packageDir,
           hasDependency: hasGeneratedSourceDependency,
           getDependencies: getGeneratedSourceDependencies,
+          projectSnapshot,
           taskInvocations,
           sourceFileMatcher,
         }),
@@ -84,12 +105,17 @@ export async function deriveGeneratedSources(
 function collectGeneratedSourceDependencyNames(
   packageDir: NormalizedAbsolutePath,
   baseDir: NormalizedAbsolutePath,
+  packageJsons: ReadonlyMap<NormalizedAbsolutePath, PackageJson>,
   packageJson: PackageJson,
 ) {
   const dependencyNames = new Set<string>();
-  const packageJsons = getPackageJsonManifests(packageDir, baseDir);
 
-  for (const packageJsonManifest of packageJsons.length > 0 ? packageJsons : [packageJson]) {
+  for (const packageJsonManifest of getGeneratedSourcePackageJsonHierarchy(
+    packageDir,
+    baseDir,
+    packageJsons,
+    packageJson,
+  )) {
     addPackageJsonDependencyNames(dependencyNames, packageJsonManifest);
   }
 
@@ -99,29 +125,48 @@ function collectGeneratedSourceDependencyNames(
 function resolveGeneratedSourceDependencies(
   packageDir: NormalizedAbsolutePath,
   baseDir: NormalizedAbsolutePath,
+  packageJsons: ReadonlyMap<NormalizedAbsolutePath, PackageJson>,
   packageJson: PackageJson,
 ): DependenciesList {
-  const dependencies = getDependencies(packageDir, baseDir);
-
-  // Support in-memory package.json fixtures that do not populate the manifest caches.
-  // When raw dependency sections are still present, derive the dependency list from them.
-  return dependencies.size > 0 || !hasRawDependencySections(packageJson)
-    ? dependencies
-    : createFallbackDependencies(packageJson);
-}
-
-function hasRawDependencySections(packageJson: PackageJson) {
-  return [
-    packageJson.dependencies,
-    packageJson.devDependencies,
-    packageJson.peerDependencies,
-    packageJson.optionalDependencies,
-  ].some(section => section !== undefined && Object.keys(section).length > 0);
-}
-
-function createFallbackDependencies(packageJson: PackageJson): DependenciesList {
   const dependencies: DependenciesList = new Map();
 
+  for (const packageJsonManifest of getGeneratedSourcePackageJsonHierarchy(
+    packageDir,
+    baseDir,
+    packageJsons,
+    packageJson,
+  )) {
+    addPackageJsonDependencies(dependencies, packageJsonManifest);
+  }
+
+  return dependencies;
+}
+
+function getGeneratedSourcePackageJsonHierarchy(
+  packageDir: NormalizedAbsolutePath,
+  baseDir: NormalizedAbsolutePath,
+  packageJsons: ReadonlyMap<NormalizedAbsolutePath, PackageJson>,
+  currentPackageJson: PackageJson,
+) {
+  const manifests: PackageJson[] = [];
+  let currentDir = packageDir;
+
+  while (true) {
+    const packageJson =
+      currentDir === packageDir ? currentPackageJson : packageJsons.get(currentDir);
+    if (packageJson) {
+      manifests.push(packageJson);
+    }
+
+    if (currentDir === baseDir || isRoot(currentDir)) {
+      return manifests;
+    }
+
+    currentDir = dirnamePath(currentDir);
+  }
+}
+
+function addPackageJsonDependencies(dependencies: DependenciesList, packageJson: PackageJson) {
   for (const section of [
     packageJson.dependencies,
     packageJson.devDependencies,
@@ -133,11 +178,11 @@ function createFallbackDependencies(packageJson: PackageJson): DependenciesList 
     }
 
     for (const [name, version] of Object.entries(section)) {
-      dependencies.set(name, typeof version === 'string' ? version : undefined);
+      if (!dependencies.has(name)) {
+        dependencies.set(name, typeof version === 'string' ? version : undefined);
+      }
     }
   }
-
-  return dependencies;
 }
 
 function addPackageJsonDependencyNames(dependencyNames: Set<string>, packageJson: PackageJson) {

@@ -14,12 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { readFile } from 'node:fs/promises';
+import { basename, dirname } from 'node:path/posix';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
-} from '../../../../../../../shared/src/helpers/files.js';
-import type { GeneratedSourceDetector } from '../contracts.js';
+} from '../../../../../shared/src/helpers/files.js';
+import type {
+  GeneratedSourceDetector,
+  GeneratedSourceFileMatcher,
+  GeneratedSourceProjectSnapshot,
+} from '../contracts.js';
 import { type ResolvedGeneratedOutputs } from '../detector-api.js';
 import {
   addFamilyFiles,
@@ -27,7 +31,6 @@ import {
   extractFlagValuesFromTokens,
   isSourceFile,
   resolveLiteralPath,
-  safeStat,
 } from '../shared.js';
 import { taskInvocationInvokesCommand, type TaskInvocation } from '../task-invocations.js';
 
@@ -43,8 +46,14 @@ const OPENAPI_OUTPUT_FLAGS = ['-o', '--output'];
 
 export const openApiGeneratorDetector = {
   family: OPENAPI_GENERATOR_FAMILY,
+  shouldPreload(filePath: NormalizedAbsolutePath) {
+    return (
+      basename(filePath).toLowerCase() === 'files' &&
+      dirname(filePath).endsWith('/.openapi-generator')
+    );
+  },
 
-  async detect({ baseDir, packageDir, taskInvocations, sourceFileMatcher }) {
+  detect({ baseDir, packageDir, projectSnapshot, taskInvocations, sourceFileMatcher }) {
     const matchesTaskInvocation = (taskInvocation: TaskInvocation) =>
       taskInvocationInvokesCommand(taskInvocation, 'openapi-generator-cli') &&
       taskInvocation.args[0] === 'generate' &&
@@ -59,10 +68,11 @@ export const openApiGeneratorDetector = {
     const outputPaths = matchingInvocations.flatMap(taskInvocation =>
       extractFlagValuesFromTokens(taskInvocation.args, OPENAPI_OUTPUT_FLAGS),
     );
-    const resolvedOutputs = await resolveOpenApiOutputsFromFilesManifests(
+    const resolvedOutputs = resolveOpenApiOutputsFromFilesManifests(
       baseDir,
       packageDir,
       outputPaths,
+      projectSnapshot,
       sourceFileMatcher,
     );
     const derived = createDerivedGeneratedSources();
@@ -82,12 +92,13 @@ function isJsTsOpenApiGenerator(generatorName: string) {
   );
 }
 
-async function resolveOpenApiOutputsFromFilesManifests(
+function resolveOpenApiOutputsFromFilesManifests(
   baseDir: NormalizedAbsolutePath,
   packageDir: NormalizedAbsolutePath,
   outputPaths: Iterable<string>,
-  sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
-): Promise<ResolvedGeneratedOutputs> {
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
+  sourceFileMatcher?: GeneratedSourceFileMatcher,
+): ResolvedGeneratedOutputs {
   const resolvedOutputs: ResolvedGeneratedOutputs = {
     filePaths: new Set(),
     outputDirectories: new Set(),
@@ -100,10 +111,11 @@ async function resolveOpenApiOutputsFromFilesManifests(
       continue;
     }
 
-    await addOpenApiManifestFiles(
+    addOpenApiManifestFiles(
       resolvedOutputs,
       baseDir,
       resolvedOutputPath,
+      projectSnapshot,
       sourceFileMatcher,
     );
   }
@@ -111,21 +123,21 @@ async function resolveOpenApiOutputsFromFilesManifests(
   return resolvedOutputs;
 }
 
-async function addOpenApiManifestFiles(
+function addOpenApiManifestFiles(
   resolvedOutputs: ResolvedGeneratedOutputs,
   baseDir: NormalizedAbsolutePath,
   outputPath: NormalizedAbsolutePath,
-  sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
+  sourceFileMatcher?: GeneratedSourceFileMatcher,
 ) {
   resolvedOutputs.watchedOutputPaths.add(outputPath);
 
-  const stats = await safeStat(outputPath);
-  if (!stats?.isDirectory()) {
+  if (!projectSnapshot?.directories.has(outputPath)) {
     return;
   }
 
   resolvedOutputs.outputDirectories.add(outputPath);
-  const manifestEntries = await readOpenApiFilesManifest(outputPath);
+  const manifestEntries = readOpenApiFilesManifest(outputPath, projectSnapshot);
   if (!manifestEntries) {
     return;
   }
@@ -136,23 +148,33 @@ async function addOpenApiManifestFiles(
       continue;
     }
 
-    const fileStats = await safeStat(resolvedFilePath);
-    if (fileStats?.isFile()) {
+    if (projectSnapshot?.sourceFiles.has(resolvedFilePath)) {
       resolvedOutputs.filePaths.add(resolvedFilePath);
     }
   }
 }
 
-async function readOpenApiFilesManifest(outputPath: NormalizedAbsolutePath) {
+function readOpenApiFilesManifest(
+  outputPath: NormalizedAbsolutePath,
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
+) {
   const manifestPath = normalizeToAbsolutePath(OPENAPI_GENERATOR_FILES_MANIFEST, outputPath);
+  const preloadedFile = projectSnapshot?.preloadedFiles.get(manifestPath);
 
-  try {
-    const manifestContents = await readFile(manifestPath, 'utf8');
-    return manifestContents
-      .split(/\r?\n/u)
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
-  } catch {
-    return undefined;
+  if (preloadedFile) {
+    return parseOpenApiFilesManifestContents(
+      typeof preloadedFile.content === 'string'
+        ? preloadedFile.content
+        : preloadedFile.content.toString('utf8'),
+    );
   }
+
+  return undefined;
+}
+
+function parseOpenApiFilesManifestContents(manifestContents: string) {
+  return manifestContents
+    .split(/\r?\n/u)
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
 }

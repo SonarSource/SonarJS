@@ -22,3 +22,4 @@ export {
   GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS,
   collectGeneratedSourceTaskInvocations,
 } from './task-invocations.js';
+export { GeneratedSourceStore } from './store.js';
