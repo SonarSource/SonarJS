@@ -16,23 +16,17 @@
  */
 import { basename } from 'node:path/posix';
 import type { FileStore } from '../store-type.js';
+import type { DependencyManifestStore } from '../dependency-manifests.js';
+import type { SourceFileStore } from '../source-files.js';
 import {
   getProjectFileDiscoveryConfigKey,
   isJsTsFile,
   type Configuration,
 } from '../../common/configuration.js';
 import type { AnalyzableFiles } from '../../projectAnalysis.js';
-import {
-  dirnamePath,
-  readFile,
-  type File,
-  type NormalizedAbsolutePath,
-} from '../../../../shared/src/helpers/files.js';
+import { type File, type NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { getGeneratedSourceWatchedFilenames } from './detectors/index.js';
-import {
-  isPreloadableDependencyManifestPath,
-  PACKAGE_JSON,
-} from '../../jsts/rules/helpers/dependency-manifests/index.js';
+import { isPreloadableDependencyManifestPath } from '../../jsts/rules/helpers/dependency-manifests/index.js';
 import type { GeneratedSourceProjectSnapshot } from './contracts.js';
 import { deriveGeneratedSources } from './derive.js';
 import { collectGeneratedSourceDeclaredPreloadPaths } from './preload-paths.js';
@@ -50,7 +44,15 @@ import {
 } from './observability.js';
 import { shouldCaptureGeneratedSourceSnapshotPath } from './snapshot-files.js';
 
+type SourceFileContentLookup = Pick<SourceFileStore, 'getFileContent'>;
+type DependencyManifestLookup = Pick<DependencyManifestStore, 'getPackageJsons'>;
+
 export class GeneratedSourceStore implements FileStore {
+  constructor(
+    private readonly sourceFileStore: SourceFileContentLookup,
+    private readonly dependencyManifestStore: DependencyManifestLookup,
+  ) {}
+
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
   private derivedConfigKey: string | undefined = undefined;
@@ -176,20 +178,12 @@ export class GeneratedSourceStore implements FileStore {
       return;
     }
 
-    if (basename(filename).toLowerCase() === PACKAGE_JSON) {
-      this.preloadedFiles.set(filename, {
-        content: await readFile(filename),
-        path: filename,
-      });
-      return;
-    }
-
-    if (!shouldCaptureGeneratedSourceSnapshotPath(filename, configuration)) {
+    if (!shouldCaptureGeneratedSourceSnapshotPath(filename)) {
       return;
     }
 
     this.preloadedFiles.set(filename, {
-      content: await readFile(filename),
+      content: await this.sourceFileStore.getFileContent(filename),
       path: filename,
     });
   }
@@ -219,8 +213,9 @@ export class GeneratedSourceStore implements FileStore {
     }
 
     try {
+      const packageJsons = this.dependencyManifestStore.getPackageJsons();
+      this.addPackageJsonsToSnapshot(packageJsons);
       const projectSnapshot = this.createProjectSnapshot();
-      const packageJsons = collectPackageJsons(projectSnapshot.preloadedFiles);
       this.watchedConfigPaths = await collectGeneratedSourceDeclaredPreloadPaths(
         baseDir,
         packageJsons,
@@ -278,6 +273,12 @@ export class GeneratedSourceStore implements FileStore {
     this.walkedDirectories = new Set();
   }
 
+  private addPackageJsonsToSnapshot(packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>) {
+    for (const file of packageJsons.values()) {
+      this.preloadedFiles.set(file.path, file);
+    }
+  }
+
   private createProjectSnapshot(): GeneratedSourceProjectSnapshot {
     return {
       directories: this.walkedDirectories,
@@ -305,16 +306,4 @@ function filterAnalyzableGeneratedFiles(
     }
   }
   return filtered;
-}
-
-function collectPackageJsons(preloadedFiles: ReadonlyMap<NormalizedAbsolutePath, File>) {
-  const packageJsons = new Map<NormalizedAbsolutePath, File>();
-
-  for (const [filePath, file] of preloadedFiles) {
-    if (basename(filePath).toLowerCase() === PACKAGE_JSON) {
-      packageJsons.set(dirnamePath(filePath), file);
-    }
-  }
-
-  return packageJsons;
 }

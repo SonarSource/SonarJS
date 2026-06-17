@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { basename, extname } from 'node:path/posix';
-import { isJsTsFile, type Configuration } from '../../common/configuration.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { PACKAGE_JSON } from '../../jsts/rules/helpers/dependency-manifests/index.js';
 import { shouldPreloadGeneratedSourcePath } from './detectors/index.js';
@@ -30,20 +29,17 @@ const GENERATED_SOURCE_SOURCE_CONFIG_EXTENSIONS = new Set([
 ]);
 const GENERATED_SOURCE_STRUCTURED_CONFIG_EXTENSIONS = new Set(['.json', '.yaml', '.yml']);
 
-export function shouldCaptureGeneratedSourceSnapshotPath(
-  filePath: NormalizedAbsolutePath,
-  configuration: Configuration,
-) {
-  if (
-    basename(filePath).toLowerCase() === PACKAGE_JSON ||
-    shouldPreloadGeneratedSourcePath(filePath)
-  ) {
+export function shouldCaptureGeneratedSourceSnapshotPath(filePath: NormalizedAbsolutePath) {
+  if (basename(filePath).toLowerCase() === PACKAGE_JSON) {
+    return false;
+  }
+
+  if (shouldPreloadGeneratedSourcePath(filePath)) {
     return true;
   }
 
   const extension = extname(filePath).toLowerCase();
   return (
-    isJsTsFile(filePath, configuration) ||
     GENERATED_SOURCE_SOURCE_CONFIG_EXTENSIONS.has(extension) ||
     GENERATED_SOURCE_STRUCTURED_CONFIG_EXTENSIONS.has(extension)
   );

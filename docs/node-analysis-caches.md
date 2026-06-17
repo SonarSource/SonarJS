@@ -144,8 +144,9 @@ tagged subset and generated-source telemetry are computed later in `analyzeProje
 
 During traversal it also collects a temporary project snapshot made of walked directories,
 walked JS/TS file paths matching the current suffix set, and a small detector-specific set of
-preloaded files. `postProcess()` uses that snapshot to
-derive the cached metadata.
+preloaded files. It reuses `sourceFileStore` for overlapping JS/TS config contents and
+`dependencyManifestStore` for raw `package.json` contents, then `postProcess()` derives the cached
+metadata from that combined in-memory snapshot.
 
 ## Initialization Flow
 
@@ -197,6 +198,11 @@ The walk is intentionally broader than the final analyzable source-file set beca
 - `tsconfig.json`
 - dependency manifests
 - parent-directory relationships
+
+The store order in `file-stores/index.ts` is intentional:
+
+- `sourceFileStore` runs before `generatedSourceStore` so detector config files can reuse cached JS/TS contents
+- `dependencyManifestStore` runs before `generatedSourceStore` so `package.json` ownership stays in one place
 
 ### Population Mode 2: Simulated Traversal From Explicit Request Files
 

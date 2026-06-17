@@ -134,10 +134,7 @@ async function createGeneratedSourceProjectSnapshot(
       sourceFiles.add(filePath);
     }
 
-    if (
-      preloadedFiles.has(filePath) ||
-      !shouldCaptureGeneratedSourceSnapshotPath(filePath, configuration)
-    ) {
+    if (preloadedFiles.has(filePath) || !shouldCaptureGeneratedSourceSnapshotPath(filePath)) {
       return;
     }
 
@@ -225,6 +222,25 @@ describe('generated sources project metadata', () => {
     );
     expect(getGeneratedSourceWatchedFilenames()).not.toEqual(
       expect.arrayContaining(['.graphqlrc.toml', 'graphql.config.toml']),
+    );
+  });
+
+  it('preloads detector inputs without snapshotting package.json or plain TSX source files', () => {
+    const baseDir = normalizeToAbsolutePath('/project');
+
+    expect(
+      shouldCaptureGeneratedSourceSnapshotPath(joinPaths(baseDir, 'config', 'custom-codegen.ts')),
+    ).toBe(true);
+    expect(shouldCaptureGeneratedSourceSnapshotPath(joinPaths(baseDir, 'package.json'))).toBe(
+      false,
+    );
+    expect(
+      shouldCaptureGeneratedSourceSnapshotPath(
+        joinPaths(baseDir, 'src', '.openapi-generator', 'FILES'),
+      ),
+    ).toBe(true);
+    expect(shouldCaptureGeneratedSourceSnapshotPath(joinPaths(baseDir, 'src', 'App.tsx'))).toBe(
+      false,
     );
   });
 

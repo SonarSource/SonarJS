@@ -200,9 +200,10 @@ During traversal it also collects the temporary inputs needed for derivation:
 
 - walked directories
 - walked JS/TS file paths that match the current suffix set
-- preloaded manifest/config files needed by detectors
+- preloaded detector-specific files needed by detectors
 
-`postProcess()` then derives `package.json` inputs from that snapshot and turns the snapshot into the project-derived cache above.
+`postProcess()` then merges raw `package.json` contents from `dependencyManifestStore` into that
+snapshot and turns the combined view into the project-derived cache above.
 
 The tagged subset is not cached inside the store. `analyzeProject()` computes it later from the
 current analyzable files via `generatedSourceStore.observeGeneratedSources(...)`.
@@ -229,6 +230,10 @@ The store also depends on:
 
 - **project helper files** because the detector cache derives metadata from files such as `package.json`
 - **JS/TS suffix settings** because detector output matching depends on the supported source extensions
+
+There is one additional implementation detail worth keeping explicit: store order matters.
+`generatedSourceStore` intentionally runs after `sourceFileStore` and `dependencyManifestStore`
+so it can reuse their cached file contents instead of rereading the same detector inputs itself.
 
 ### Refresh Model
 

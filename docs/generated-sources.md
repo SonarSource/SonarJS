@@ -51,7 +51,10 @@ The walk-time snapshot currently includes:
 
 - walked directories
 - walked JS/TS file paths that match the current suffix set
-- preloaded helper files needed by detectors, including `package.json` and generator config inputs
+- preloaded detector inputs such as generator config files and output manifests
+
+Raw `package.json` contents are not duplicated into that walk-time snapshot. They stay owned by
+`dependencyManifestStore` and are merged into the detector snapshot later in `postProcess()`.
 
 That split exists because generated-source detection needs the full walk snapshot before it can derive anything useful.
 
@@ -61,9 +64,17 @@ Before `generatedSourceStore.postProcess()` runs, the store has already captured
 
 - directories
 - source-file paths
-- preloaded manifest/config files
+- preloaded detector-specific files
 
-Other stores still run in parallel from the same traversal, but generated-source derivation no longer depends on their post-processed state.
+At the same time:
+
+- `sourceFileStore` has already cached overlapping JS/TS file contents, which
+  `generatedSourceStore` reuses for detector config files
+- `dependencyManifestStore` has already collected raw `package.json` contents, which
+  `generatedSourceStore` reuses as task-invocation and fallback-config input
+
+So generated-source derivation still comes from the single shared walk. It just reuses the other
+stores as owners for inputs they already cache.
 
 This is also why the store now only runs when filesystem access is available. Request-only analyses do not execute generated-source derivation.
 
@@ -72,17 +83,24 @@ This is also why the store now only runs when filesystem access is available. Re
 In `postProcess()`, `generatedSourceStore` calls:
 
 ```ts
-const packageJsons = collectPackageJsons(projectSnapshot.preloadedFiles);
+const packageJsons = dependencyManifestStore.getPackageJsons();
+addPackageJsonsToSnapshot(packageJsons);
+const projectSnapshot = createProjectSnapshot();
 
 deriveGeneratedSources(baseDir, packageJsons, {
-  projectSnapshot: {
-    directories,
-    preloadedFiles,
-    sourceFiles,
-  },
+  projectSnapshot,
   sourceFileMatcher,
 });
 ```
+
+Before snapshot creation, `generatedSourceStore` merges the manifest-store `package.json` entries
+into its transient `preloadedFiles` map. `createProjectSnapshot()` then exposes one combined
+in-memory view containing:
+
+- walked directories
+- walked JS/TS source-file paths
+- preloaded detector-specific files captured by `generatedSourceStore`
+- raw `package.json` files owned by `dependencyManifestStore`
 
 `deriveGeneratedSources()` then:
 

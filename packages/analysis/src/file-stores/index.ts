@@ -30,12 +30,18 @@ import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const dependencyManifestStore = new DependencyManifestStore();
-export const generatedSourceStore = new GeneratedSourceStore();
+export const generatedSourceStore = new GeneratedSourceStore(
+  sourceFileStore,
+  dependencyManifestStore,
+);
 export const tsConfigStore = new TsConfigStore();
 
 const fileStores: FileStore[] = [
   sourceFileStore,
   dependencyManifestStore,
+  // Order matters: generatedSourceStore reuses sourceFileStore content for overlapping
+  // JS/TS config files and dependencyManifestStore package.json contents, so both stores
+  // must run before generatedSourceStore.
   generatedSourceStore,
   tsConfigStore,
 ];
