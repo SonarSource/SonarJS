@@ -14,11 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export {
-  GENERATED_SOURCE_DETECTORS,
-  getGeneratedSourceWatchedFilenames,
-} from './detectors/index.js';
-export {
-  GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS,
-  collectGeneratedSourceTaskInvocations,
-} from './task-invocations.js';
+// https://sonarsource.github.io/rspec/#/rspec/S8786/javascript
+export const implementation = 'original';
+export const eslintId = 'super-linear-regex';

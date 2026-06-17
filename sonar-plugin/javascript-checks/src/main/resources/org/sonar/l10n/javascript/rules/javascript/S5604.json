@@ -34,9 +34,9 @@
       "A1"
     ]
   },
-  "defaultQualityProfiles": [],
   "compatibleLanguages": [
     "js",
     "ts"
-  ]
+  ],
+  "defaultQualityProfiles": []
 }

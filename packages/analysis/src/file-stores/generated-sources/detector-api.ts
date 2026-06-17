@@ -17,19 +17,16 @@
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
-} from '../../../../../../shared/src/helpers/files.js';
-import type { GeneratedSourceFileMatcher } from './contracts.js';
-import {
-  extractFlagValuesFromTokens,
-  isDirectory,
-  isFile,
-  isSourceFile,
-  listSourceFilesInDirectory,
-  resolveLiteralPath,
-  safeStat,
-} from './shared.js';
-import type { DependenciesList } from '../dependency-manifests/resolvers/types.js';
+} from '../../../../shared/src/helpers/files.js';
+import type { GeneratedSourceFileMatcher, GeneratedSourceProjectSnapshot } from './contracts.js';
+import { extractFlagValuesFromTokens, isSourceFile, resolveLiteralPath } from './shared.js';
+import type { DependenciesList } from '../../jsts/rules/helpers/dependency-manifests/resolvers/types.js';
 import type { TaskInvocation } from './task-invocations.js';
+import {
+  hasDirectoryInSnapshot,
+  hasFileInSnapshot,
+  listSourceFilesInSnapshot,
+} from './snapshot.js';
 export type ResolvedGeneratedOutputs = {
   filePaths: Set<NormalizedAbsolutePath>;
   outputDirectories: Set<NormalizedAbsolutePath>;
@@ -62,6 +59,7 @@ type ResolveConfigPathsOptions = {
   matchesTaskInvocation: TaskInvocationMatcher;
   flags: string[];
   fallbackBasenames: readonly string[];
+  projectSnapshot?: GeneratedSourceProjectSnapshot;
 };
 
 export function hasToolEvidence({
@@ -86,13 +84,14 @@ export function hasToolEvidence({
   return getDependencies ? getDependencies().has(dependencyName) : false;
 }
 
-export async function resolveConfigPaths({
+export function resolveConfigPaths({
   baseDir,
   packageDir,
   taskInvocations,
   matchesTaskInvocation,
   flags,
   fallbackBasenames,
+  projectSnapshot,
 }: ResolveConfigPathsOptions) {
   const declaredConfigPaths = resolveDeclaredPathsFromTaskInvocations({
     baseDir,
@@ -106,16 +105,29 @@ export async function resolveConfigPaths({
     return declaredConfigPaths;
   }
 
-  return resolveExistingSiblingPaths(packageDir, fallbackBasenames, 'file');
+  if (projectSnapshot) {
+    const snapshotPaths = resolveExistingSiblingPathsFromSnapshot(
+      packageDir,
+      fallbackBasenames,
+      'file',
+      projectSnapshot,
+    );
+    if (snapshotPaths.size > 0) {
+      return snapshotPaths;
+    }
+  }
+
+  return new Set<NormalizedAbsolutePath>();
 }
 
-export async function resolveGeneratedOutputsFromLiteralPaths(
+export function resolveGeneratedOutputsFromLiteralPaths(
   baseDir: NormalizedAbsolutePath,
   declaredFromDirs: NormalizedAbsolutePath | readonly NormalizedAbsolutePath[],
   outputPaths: Iterable<string>,
   recursive: boolean,
   sourceFileMatcher?: GeneratedSourceFileMatcher,
-): Promise<ResolvedGeneratedOutputs> {
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
+): ResolvedGeneratedOutputs {
   const resolvedOutputs: ResolvedGeneratedOutputs = {
     filePaths: new Set<NormalizedAbsolutePath>(),
     outputDirectories: new Set<NormalizedAbsolutePath>(),
@@ -132,11 +144,12 @@ export async function resolveGeneratedOutputsFromLiteralPaths(
       }
       seenResolvedPaths.add(resolvedPath);
       if (
-        await addResolvedGeneratedOutput(
+        addResolvedGeneratedOutput(
           resolvedOutputs,
           resolvedPath,
           recursive,
           sourceFileMatcher,
+          projectSnapshot,
         )
       ) {
         break;
@@ -147,19 +160,19 @@ export async function resolveGeneratedOutputsFromLiteralPaths(
   return resolvedOutputs;
 }
 
-async function addResolvedGeneratedOutput(
+function addResolvedGeneratedOutput(
   resolvedOutputs: ResolvedGeneratedOutputs,
   resolvedPath: NormalizedAbsolutePath,
   recursive: boolean,
   sourceFileMatcher?: GeneratedSourceFileMatcher,
+  projectSnapshot?: GeneratedSourceProjectSnapshot,
 ) {
   resolvedOutputs.watchedOutputPaths.add(resolvedPath);
-  const stats = await safeStat(resolvedPath);
-  if (!stats) {
+  if (!projectSnapshot) {
     return false;
   }
 
-  if (stats.isFile()) {
+  if (projectSnapshot.sourceFiles.has(resolvedPath)) {
     if (isSourceFile(resolvedPath, sourceFileMatcher)) {
       resolvedOutputs.filePaths.add(resolvedPath);
       return true;
@@ -167,25 +180,30 @@ async function addResolvedGeneratedOutput(
     return false;
   }
 
-  if (!stats.isDirectory()) {
+  if (!hasDirectoryInSnapshot(resolvedPath, projectSnapshot)) {
     return false;
   }
 
   resolvedOutputs.outputDirectories.add(resolvedPath);
-  const childFiles = await listSourceFilesInDirectory(resolvedPath, recursive, sourceFileMatcher);
+  const childFiles = listSourceFilesInSnapshot(
+    resolvedPath,
+    recursive,
+    sourceFileMatcher,
+    projectSnapshot,
+  );
   for (const childFile of childFiles) {
     resolvedOutputs.filePaths.add(childFile);
   }
   return childFiles.length > 0;
 }
 
-function resolveDeclaredPathsFromTaskInvocations({
+export function resolveDeclaredPathsFromTaskInvocations({
   baseDir,
   packageDir,
   taskInvocations,
   matchesTaskInvocation,
   flags,
-}: Omit<ResolvePathsFromTaskInvocationsOptions, 'kind'>) {
+}: ResolvePathsFromTaskInvocationsOptions) {
   const resolvedPaths = new Set<NormalizedAbsolutePath>();
 
   for (const taskInvocation of taskInvocations) {
@@ -204,16 +222,21 @@ function resolveDeclaredPathsFromTaskInvocations({
   return resolvedPaths;
 }
 
-async function resolveExistingSiblingPaths(
+function resolveExistingSiblingPathsFromSnapshot(
   packageDir: NormalizedAbsolutePath,
   basenames: readonly string[],
   kind: ExistingPathKind,
+  projectSnapshot: GeneratedSourceProjectSnapshot,
 ) {
   const resolvedPaths = new Set<NormalizedAbsolutePath>();
 
   for (const basename of basenames) {
     const resolvedPath = normalizeToAbsolutePath(basename, packageDir);
-    if (kind === 'file' ? await isFile(resolvedPath) : await isDirectory(resolvedPath)) {
+    if (
+      kind === 'file'
+        ? hasFileInSnapshot(resolvedPath, projectSnapshot)
+        : hasDirectoryInSnapshot(resolvedPath, projectSnapshot)
+    ) {
       resolvedPaths.add(resolvedPath);
     }
   }

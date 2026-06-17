@@ -14,11 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { readFile } from 'node:fs/promises';
 import { basename, extname } from 'node:path/posix';
 import ts from 'typescript';
 import yaml from 'yaml';
-import { type NormalizedAbsolutePath } from '../../../../../../../shared/src/helpers/files.js';
+import { type File, type NormalizedAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 import { isLiteralPathToken } from '../shared.js';
 
 export type GraphqlGenerateTarget = {
@@ -30,41 +29,40 @@ export type GraphqlGenerateTarget = {
 const GRAPHQL_YAML_CONFIG_BASENAMES = new Set(['.graphqlrc', '.graphqlconfig']);
 const PACKAGE_JSON_BASENAME = 'package.json';
 
-export async function parseGraphqlGenerates(configPath: NormalizedAbsolutePath) {
-  try {
-    const configContents = await readFile(configPath, 'utf8');
-    const configBasename = basename(configPath).toLowerCase();
-    const configExtension = extname(configPath).toLowerCase();
+export function parseGraphqlGeneratesFile(configFile: File) {
+  const configPath = configFile.path;
+  const configContents =
+    typeof configFile.content === 'string'
+      ? configFile.content
+      : configFile.content.toString('utf8');
+  const configBasename = basename(configPath).toLowerCase();
+  const configExtension = extname(configPath).toLowerCase();
 
-    if (configBasename === PACKAGE_JSON_BASENAME) {
-      return getGenerateTargetsFromPackageJson(JSON.parse(configContents) as unknown);
-    }
+  if (configBasename === PACKAGE_JSON_BASENAME) {
+    return getGenerateTargetsFromPackageJson(JSON.parse(configContents) as unknown);
+  }
 
-    if (GRAPHQL_YAML_CONFIG_BASENAMES.has(configBasename)) {
-      return parseGraphqlYamlConfig(configContents);
-    }
+  if (GRAPHQL_YAML_CONFIG_BASENAMES.has(configBasename)) {
+    return parseGraphqlYamlConfig(configContents);
+  }
 
-    if (configExtension === '.yml' || configExtension === '.yaml') {
-      return parseGraphqlYamlConfig(configContents);
-    }
+  if (configExtension === '.yml' || configExtension === '.yaml') {
+    return parseGraphqlYamlConfig(configContents);
+  }
 
-    if (configExtension === '.json') {
-      return getGenerateTargetsFromObject(JSON.parse(configContents) as unknown);
-    }
+  if (configExtension === '.json') {
+    return getGenerateTargetsFromObject(JSON.parse(configContents) as unknown);
+  }
 
-    if (
-      configExtension === '.ts' ||
-      configExtension === '.js' ||
-      configExtension === '.mts' ||
-      configExtension === '.cts' ||
-      configExtension === '.mjs' ||
-      configExtension === '.cjs'
-    ) {
-      return getGenerateTargetsFromSource(configContents, configPath);
-    }
-  } catch {
-    // Broken or unreadable GraphQL config files should not abort the whole analysis.
-    return [];
+  if (
+    configExtension === '.ts' ||
+    configExtension === '.js' ||
+    configExtension === '.mts' ||
+    configExtension === '.cts' ||
+    configExtension === '.mjs' ||
+    configExtension === '.cjs'
+  ) {
+    return getGenerateTargetsFromSource(configContents, configPath);
   }
 
   return [];

@@ -21,7 +21,7 @@ import { join } from 'node:path/posix';
 import { FileStore } from '../src/file-stores/store-type.js';
 import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { createConfiguration, type Configuration } from '../src/common/configuration.js';
-import type { FileStoreRequestContext } from '../src/projectAnalysis.js';
+import type { AnalyzableFiles } from '../src/projectAnalysis.js';
 import { sanitizeRawInputFiles } from '../src/common/input-sanitize.js';
 import {
   dependencyManifestStore,
@@ -43,7 +43,7 @@ class MockFileStore implements FileStore {
 
   async isInitialized(
     _configuration: Configuration,
-    _requestContext?: FileStoreRequestContext,
+    _inputFiles?: AnalyzableFiles,
   ): Promise<boolean> {
     return false; // Always return false to simulate uninitialized state
   }
@@ -60,10 +60,7 @@ class MockFileStore implements FileStore {
     this.processedFiles.push(filename);
   }
 
-  async postProcess(
-    _configuration: Configuration,
-    _requestContext?: FileStoreRequestContext,
-  ): Promise<void> {
+  async postProcess(_configuration: Configuration): Promise<void> {
     this.postProcessCalled = true;
   }
 }
@@ -123,7 +120,7 @@ describe('simulateFromInputFiles', () => {
 
       async isInitialized(
         _configuration: Configuration,
-        _requestContext?: FileStoreRequestContext,
+        _inputFiles?: AnalyzableFiles,
       ): Promise<boolean> {
         return false;
       }
@@ -131,10 +128,7 @@ describe('simulateFromInputFiles', () => {
       async processFile(filename: string, _configuration: Configuration): Promise<void> {
         this.processedFiles.push(filename);
       }
-      async postProcess(
-        _configuration: Configuration,
-        _requestContext?: FileStoreRequestContext,
-      ): Promise<void> {}
+      async postProcess(_configuration: Configuration): Promise<void> {}
       // Note: processDirectory is optional, so we don't implement it
     }
 
@@ -204,20 +198,22 @@ describe('initFileStores', () => {
     sourceFileStore.clearCache();
   });
 
-  it('should populate analyzableFiles when request context omits them', async ({ mock }) => {
+  it('should skip generated-source post-processing when filesystem access is disabled', async ({
+    mock,
+  }) => {
     const baseDir = normalizeToAbsolutePath(join(sourceFileFixtures, 'paths'));
-    const configuration = createConfiguration({ baseDir });
-    const postProcessMock = mock.method(
-      generatedSourceStore,
-      'postProcess',
-      async (_configuration, requestContext) => {
-        expect(requestContext?.isExplicitRequest).toBe(false);
-        expect(requestContext?.analyzableFiles).toBe(sourceFileStore.getFiles());
-      },
+    const configuration = createConfiguration({ baseDir, canAccessFileSystem: false });
+    const postProcessMock = mock.method(generatedSourceStore, 'postProcess');
+    const setupMock = mock.method(generatedSourceStore, 'setup');
+
+    const { files: inputFiles } = await sanitizeRawInputFiles(
+      { file1: { filePath: join(baseDir, 'src', 'app.js'), fileType: 'MAIN', fileContent: '' } },
+      configuration,
     );
 
-    await initFileStores(configuration, { isExplicitRequest: false });
+    await initFileStores(configuration, inputFiles);
 
-    expect(postProcessMock.mock.calls).toHaveLength(1);
+    expect(setupMock.mock.calls).toHaveLength(0);
+    expect(postProcessMock.mock.calls).toHaveLength(0);
   });
 });

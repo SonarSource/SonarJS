@@ -20,13 +20,13 @@
   "ruleSpecification": "RSPEC-6606",
   "sqKey": "S6606",
   "scope": "Main",
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "quickfix": "covered",
   "title": "Nullish coalescing should be preferred",
   "compatibleLanguages": [
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
   ]
 }

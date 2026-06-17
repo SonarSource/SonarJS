@@ -14,11 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import {
-  type AnalyzableFiles,
-  createAnalyzableFiles,
-  type FileStoreRequestContext,
-} from '../projectAnalysis.js';
+import { type AnalyzableFiles, createAnalyzableFiles } from '../projectAnalysis.js';
 import { JSTS_ANALYSIS_DEFAULTS } from '../jsts/analysis/analysis.js';
 import {
   isAnalyzableFile,
@@ -50,14 +46,13 @@ export class SourceFileStore implements FileStore {
   /**
    * Checks if the file store is initialized for the given base directory.
    */
-  async isInitialized(configuration: Configuration, requestContext?: FileStoreRequestContext) {
+  async isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles) {
     this.dirtyCachesIfNeeded(configuration);
-    const analyzableFiles = requestContext?.analyzableFiles;
-    if (analyzableFiles) {
+    if (inputFiles) {
       this.clearCache();
       this.setup(configuration);
-      this.files = analyzableFiles;
-      this.directoryIndex.buildFromFiles(Object.keys(analyzableFiles) as NormalizedAbsolutePath[]);
+      this.files = inputFiles;
+      this.directoryIndex.buildFromFiles(Object.keys(inputFiles) as NormalizedAbsolutePath[]);
       return true;
     }
     return this.files !== undefined;
@@ -139,7 +134,7 @@ export class SourceFileStore implements FileStore {
     return this.files?.[filePath]?.fileContent ?? (await readFile(filePath));
   }
 
-  async postProcess(_configuration: Configuration, _requestContext?: FileStoreRequestContext) {
+  async postProcess(_configuration: Configuration) {
     // No-op: files are added directly in processFile()
   }
 

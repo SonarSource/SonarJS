@@ -78,17 +78,6 @@ export type AnalyzableFiles = { [key: NormalizedAbsolutePath]: AnalyzableFile } 
 };
 
 /**
- * Request-scoped file-store context passed from input sanitization to file stores.
- * Carries both the analyzable files that survived sanitization and the original
- * explicit request scope used to derive them.
- */
-export type FileStoreRequestContext = {
-  analyzableFiles?: AnalyzableFiles;
-  isExplicitRequest: boolean;
-  requestedFilePaths?: ReadonlySet<NormalizedAbsolutePath>;
-};
-
-/**
  * Creates an empty branded AnalyzableFiles object.
  */
 export function createAnalyzableFiles(): AnalyzableFiles {

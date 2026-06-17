@@ -11,10 +11,6 @@
   "ruleSpecification": "RSPEC-8441",
   "sqKey": "S8441",
   "scope": "Main",
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "quickfix": "unknown",
   "code": {
     "impacts": {
@@ -31,5 +27,9 @@
       668,
       16
     ]
-  }
+  },
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
 }
