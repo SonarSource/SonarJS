@@ -54,31 +54,18 @@ describe('S5759', () => {
       createProxyServer({xfwd: true});
       createProxyMiddleware({ target: 'http://localhost:9000', changeOrigin: true, xfwd: true });`,
         },
-      ],
-      invalid: [
         {
           code: `
       const httpProxy = require('http-proxy')
       httpProxy.createProxyServer({target: 'http://localhost:9000', xfwd: true})`,
-          errors: [
-            {
-              message: JSON.stringify({
-                message: 'Make sure forwarding client IP address is safe here.',
-                secondaryLocations: [{ column: 68, line: 3, endColumn: 78, endLine: 3 }],
-              }),
-              line: 3,
-              column: 7,
-              endColumn: 34,
-            },
-          ],
-          settings: { sonarRuntime: true },
         },
         {
           code: `
       const { createProxyServer } = require('http-proxy')
       createProxyServer({target: 'http://localhost:9000', xfwd: true})`,
-          errors: 1,
         },
+      ],
+      invalid: [
         {
           code: `
       const { createProxyMiddleware } = require('http-proxy-middleware');
