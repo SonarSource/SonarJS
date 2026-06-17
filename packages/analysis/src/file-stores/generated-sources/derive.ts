@@ -21,7 +21,6 @@ import {
   type NormalizedAbsolutePath,
 } from '../../../../shared/src/helpers/files.js';
 import type { PackageJson } from 'type-fest';
-import { parsePackageJson } from '../../jsts/rules/helpers/dependency-manifests/parsed-dependency-files.js';
 import type { DependenciesList } from '../../jsts/rules/helpers/dependency-manifests/resolvers/types.js';
 import type {
   DerivedGeneratedSources,
@@ -29,7 +28,11 @@ import type {
   GeneratedSourceProjectSnapshot,
 } from './contracts.js';
 import { GENERATED_SOURCE_DETECTORS } from './detectors/index.js';
-import { collectGeneratedSourceTaskInvocations } from './task-invocations.js';
+import {
+  collectGeneratedSourcePackageContexts,
+  createGeneratedSourcePackageJsonMap,
+  type GeneratedSourcePackageContext,
+} from './package-contexts.js';
 import { createDerivedGeneratedSources, mergeDerivedGeneratedSources } from './shared.js';
 
 export async function deriveGeneratedSources(
@@ -38,6 +41,7 @@ export async function deriveGeneratedSources(
   options?: {
     projectSnapshot?: GeneratedSourceProjectSnapshot;
     sourceFileMatcher?: GeneratedSourceFileMatcher;
+    packageContexts?: readonly GeneratedSourcePackageContext[];
   },
 ): Promise<DerivedGeneratedSources> {
   const derived = createDerivedGeneratedSources();
@@ -45,21 +49,20 @@ export async function deriveGeneratedSources(
     return derived;
   }
 
-  const { projectSnapshot, sourceFileMatcher } = options ?? {};
+  const {
+    projectSnapshot,
+    sourceFileMatcher,
+    packageContexts: providedPackageContexts,
+  } = options ?? {};
   if (!projectSnapshot) {
     throw new Error('generated-source derivation requires a project snapshot');
   }
 
-  const parsedPackageJsons = collectParsedGeneratedSourcePackageJsons(packageJsons);
+  const packageContexts =
+    providedPackageContexts ?? (await collectGeneratedSourcePackageContexts(baseDir, packageJsons));
+  const parsedPackageJsons = createGeneratedSourcePackageJsonMap(packageContexts);
 
-  for (const [packageDir, packageJson] of [...parsedPackageJsons.entries()].sort(
-    ([left], [right]) => left.localeCompare(right),
-  )) {
-    const taskInvocations = await collectGeneratedSourceTaskInvocations({
-      baseDir,
-      packageDir,
-      packageJson,
-    });
+  for (const { packageDir, packageJson, taskInvocations } of packageContexts) {
     let dependencyNames: Set<string> | undefined;
     let dependencies: DependenciesList | undefined;
     const hasGeneratedSourceDependency = (dependencyName: string) => {
@@ -137,21 +140,6 @@ function resolveGeneratedSourceDependencies(
   }
 
   return dependencies;
-}
-
-function collectParsedGeneratedSourcePackageJsons(
-  packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>,
-) {
-  const parsedPackageJsons = new Map<NormalizedAbsolutePath, PackageJson>();
-
-  for (const [packageDir, file] of packageJsons) {
-    const packageJson = parsePackageJson(file);
-    if (packageJson) {
-      parsedPackageJsons.set(packageDir, packageJson);
-    }
-  }
-
-  return parsedPackageJsons;
 }
 
 function getGeneratedSourcePackageJsonHierarchy(

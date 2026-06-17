@@ -84,7 +84,7 @@ export function hasToolEvidence({
   return getDependencies ? getDependencies().has(dependencyName) : false;
 }
 
-export async function resolveConfigPaths({
+export function resolveConfigPaths({
   baseDir,
   packageDir,
   taskInvocations,
@@ -120,14 +120,14 @@ export async function resolveConfigPaths({
   return new Set<NormalizedAbsolutePath>();
 }
 
-export async function resolveGeneratedOutputsFromLiteralPaths(
+export function resolveGeneratedOutputsFromLiteralPaths(
   baseDir: NormalizedAbsolutePath,
   declaredFromDirs: NormalizedAbsolutePath | readonly NormalizedAbsolutePath[],
   outputPaths: Iterable<string>,
   recursive: boolean,
   sourceFileMatcher?: GeneratedSourceFileMatcher,
   projectSnapshot?: GeneratedSourceProjectSnapshot,
-): Promise<ResolvedGeneratedOutputs> {
+): ResolvedGeneratedOutputs {
   const resolvedOutputs: ResolvedGeneratedOutputs = {
     filePaths: new Set<NormalizedAbsolutePath>(),
     outputDirectories: new Set<NormalizedAbsolutePath>(),
@@ -144,7 +144,7 @@ export async function resolveGeneratedOutputsFromLiteralPaths(
       }
       seenResolvedPaths.add(resolvedPath);
       if (
-        await addResolvedGeneratedOutput(
+        addResolvedGeneratedOutput(
           resolvedOutputs,
           resolvedPath,
           recursive,
@@ -160,7 +160,7 @@ export async function resolveGeneratedOutputsFromLiteralPaths(
   return resolvedOutputs;
 }
 
-async function addResolvedGeneratedOutput(
+function addResolvedGeneratedOutput(
   resolvedOutputs: ResolvedGeneratedOutputs,
   resolvedPath: NormalizedAbsolutePath,
   recursive: boolean,

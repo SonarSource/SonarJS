@@ -119,7 +119,7 @@ Detector helpers resolve config and output existence from that in-memory snapsho
 
 The store keeps one project-derived map:
 
-- `derivedFamilyByFile`: every generated file derived for the project
+- `derivedFamilyByFile`: every generated file derived from the shared project snapshot used by analysis
 
 The tagged subset is computed later, at analysis time, from the current analyzable files in
 `sourceFileStore`.
@@ -155,7 +155,7 @@ generatedSourceStore.observeGeneratedSources(configuration, filesToAnalyze);
 
 That computes an observability snapshot from:
 
-- `resolvedFamilyByFile`: every generated file derived for the project
+- `resolvedFamilyByFile`: every generated file derived from the shared project snapshot used by analysis
 - `taggedFamilyByFile`: the subset currently present in `filesToAnalyze`
 - the current analysis configuration
 
@@ -166,7 +166,7 @@ That snapshot serves two purposes:
 
 For each detector family, observability keeps only two counters:
 
-- `resolvedFileCount`: files derived for that family before tagging
+- `resolvedFileCount`: files derived for that family from the shared project snapshot, before tagging
 - `taggedFileCount`: derived files currently visible to the current analysis
 
 The difference between those counters is only an aggregate count of resolved files that are not currently tagged. The current implementation does not publish additional per-reason telemetry.
@@ -322,7 +322,8 @@ This keeps a declared output directory from recursively pulling in unrelated nes
 
 ## Cache and Invalidation Model
 
-The generated-source store caches project-derived detector output.
+The generated-source store caches project-derived detector output from the shared project snapshot
+used by analysis.
 
 Tagged subsets, telemetry, and generated-source logs depend on the current analyzable file set, but
 that state is computed later by `observeGeneratedSources(...)` rather than being cached inside the
@@ -367,7 +368,7 @@ Each family entry carries the same counters for one detector family.
 
 The counters mean:
 
-- `resolvedFileCount`: files derived for that family before tagging
+- `resolvedFileCount`: files derived for that family from the shared project snapshot, before tagging
 - `taggedFileCount`: derived files currently visible to the analysis
 
 ### Log output

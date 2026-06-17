@@ -39,7 +39,7 @@ function isGeneratedLikeProtoLoaderDirectory(outputPath: string) {
 export const protoLoaderGenTypesDetector = {
   family: PROTO_LOADER_GEN_TYPES_FAMILY,
 
-  async detect({ baseDir, packageDir, projectSnapshot, taskInvocations, sourceFileMatcher }) {
+  detect({ baseDir, packageDir, projectSnapshot, taskInvocations, sourceFileMatcher }) {
     const matchesTaskInvocation = (taskInvocation: TaskInvocation) =>
       taskInvocationInvokesCommand(taskInvocation, PROTO_LOADER_GEN_TYPES_FAMILY);
     const matchingInvocations = taskInvocations.filter(matchesTaskInvocation);
@@ -53,7 +53,7 @@ export const protoLoaderGenTypesDetector = {
     const derived = createDerivedGeneratedSources();
     const recursiveOutputPaths = outputPaths.filter(isGeneratedLikeProtoLoaderDirectory);
     if (recursiveOutputPaths.length > 0) {
-      const resolvedOutputs = await resolveGeneratedOutputsFromLiteralPaths(
+      const resolvedOutputs = resolveGeneratedOutputsFromLiteralPaths(
         baseDir,
         packageDir,
         recursiveOutputPaths,

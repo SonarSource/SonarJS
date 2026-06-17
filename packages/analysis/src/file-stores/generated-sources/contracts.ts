@@ -57,5 +57,5 @@ export interface GeneratedSourceDetector {
     taskInvocations: readonly TaskInvocation[];
     projectSnapshot?: GeneratedSourceProjectSnapshot;
     sourceFileMatcher?: GeneratedSourceFileMatcher;
-  }): Promise<DerivedGeneratedSources>;
+  }): Promise<DerivedGeneratedSources> | DerivedGeneratedSources;
 }

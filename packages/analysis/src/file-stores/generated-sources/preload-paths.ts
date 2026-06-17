@@ -14,48 +14,30 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { PackageJson } from 'type-fest';
-import type { File, NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import { parsePackageJson } from '../../jsts/rules/helpers/dependency-manifests/parsed-dependency-files.js';
+import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { GENERATED_SOURCE_DETECTORS } from './detectors/index.js';
-import { collectGeneratedSourceTaskInvocations } from './task-invocations.js';
+import type { GeneratedSourcePackageContext } from './package-contexts.js';
 
 export async function collectGeneratedSourceDeclaredPreloadPaths(
   baseDir: NormalizedAbsolutePath,
-  packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>,
+  packageContexts: readonly GeneratedSourcePackageContext[],
 ) {
   const declaredPreloadPaths = new Set<NormalizedAbsolutePath>();
 
-  for (const [packageDir, file] of packageJsons) {
-    const packageJson = parsePackageJson(file);
-    if (!packageJson) {
-      continue;
-    }
-
+  for (const packageContext of packageContexts) {
     mergeDeclaredPreloadPaths(
       declaredPreloadPaths,
-      await collectGeneratedSourceDeclaredPreloadPathsForPackage({
-        baseDir,
-        packageDir,
-        packageJson,
-      }),
+      await collectGeneratedSourceDeclaredPreloadPathsForPackage(baseDir, packageContext),
     );
   }
 
   return declaredPreloadPaths;
 }
 
-async function collectGeneratedSourceDeclaredPreloadPathsForPackage(context: {
-  baseDir: NormalizedAbsolutePath;
-  packageDir: NormalizedAbsolutePath;
-  packageJson: PackageJson;
-}) {
-  const { baseDir, packageDir, packageJson } = context;
-  const taskInvocations = await collectGeneratedSourceTaskInvocations({
-    baseDir,
-    packageDir,
-    packageJson,
-  });
+async function collectGeneratedSourceDeclaredPreloadPathsForPackage(
+  baseDir: NormalizedAbsolutePath,
+  { packageDir, taskInvocations }: GeneratedSourcePackageContext,
+) {
   const declaredPreloadPaths = new Set<NormalizedAbsolutePath>();
 
   for (const detector of GENERATED_SOURCE_DETECTORS) {

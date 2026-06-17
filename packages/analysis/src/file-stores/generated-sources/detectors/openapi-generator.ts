@@ -53,7 +53,7 @@ export const openApiGeneratorDetector = {
     );
   },
 
-  async detect({ baseDir, packageDir, projectSnapshot, taskInvocations, sourceFileMatcher }) {
+  detect({ baseDir, packageDir, projectSnapshot, taskInvocations, sourceFileMatcher }) {
     const matchesTaskInvocation = (taskInvocation: TaskInvocation) =>
       taskInvocationInvokesCommand(taskInvocation, 'openapi-generator-cli') &&
       taskInvocation.args[0] === 'generate' &&
@@ -68,7 +68,7 @@ export const openApiGeneratorDetector = {
     const outputPaths = matchingInvocations.flatMap(taskInvocation =>
       extractFlagValuesFromTokens(taskInvocation.args, OPENAPI_OUTPUT_FLAGS),
     );
-    const resolvedOutputs = await resolveOpenApiOutputsFromFilesManifests(
+    const resolvedOutputs = resolveOpenApiOutputsFromFilesManifests(
       baseDir,
       packageDir,
       outputPaths,
@@ -92,13 +92,13 @@ function isJsTsOpenApiGenerator(generatorName: string) {
   );
 }
 
-async function resolveOpenApiOutputsFromFilesManifests(
+function resolveOpenApiOutputsFromFilesManifests(
   baseDir: NormalizedAbsolutePath,
   packageDir: NormalizedAbsolutePath,
   outputPaths: Iterable<string>,
   projectSnapshot?: GeneratedSourceProjectSnapshot,
   sourceFileMatcher?: GeneratedSourceFileMatcher,
-): Promise<ResolvedGeneratedOutputs> {
+): ResolvedGeneratedOutputs {
   const resolvedOutputs: ResolvedGeneratedOutputs = {
     filePaths: new Set(),
     outputDirectories: new Set(),
@@ -111,7 +111,7 @@ async function resolveOpenApiOutputsFromFilesManifests(
       continue;
     }
 
-    await addOpenApiManifestFiles(
+    addOpenApiManifestFiles(
       resolvedOutputs,
       baseDir,
       resolvedOutputPath,
@@ -123,7 +123,7 @@ async function resolveOpenApiOutputsFromFilesManifests(
   return resolvedOutputs;
 }
 
-async function addOpenApiManifestFiles(
+function addOpenApiManifestFiles(
   resolvedOutputs: ResolvedGeneratedOutputs,
   baseDir: NormalizedAbsolutePath,
   outputPath: NormalizedAbsolutePath,
@@ -137,7 +137,7 @@ async function addOpenApiManifestFiles(
   }
 
   resolvedOutputs.outputDirectories.add(outputPath);
-  const manifestEntries = await readOpenApiFilesManifest(outputPath, projectSnapshot);
+  const manifestEntries = readOpenApiFilesManifest(outputPath, projectSnapshot);
   if (!manifestEntries) {
     return;
   }
@@ -154,7 +154,7 @@ async function addOpenApiManifestFiles(
   }
 }
 
-async function readOpenApiFilesManifest(
+function readOpenApiFilesManifest(
   outputPath: NormalizedAbsolutePath,
   projectSnapshot?: GeneratedSourceProjectSnapshot,
 ) {
