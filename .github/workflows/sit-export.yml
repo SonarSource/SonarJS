@@ -147,7 +147,7 @@ jobs:
           fi
 
           args=(
-            --projects-json packages/ruling/projects.json
+            --projects-json sit-tooling/packages/ruling/projects.json
             --rules-json build/sit-rules.json
             --output-dir build/sit-export
             --plugin-jar "$plugin_jar"
