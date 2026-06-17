@@ -47,8 +47,6 @@ import { shouldCaptureGeneratedSourceSnapshotPath } from './snapshot-files.js';
 
 type SourceFileContentLookup = Pick<SourceFileStore, 'getFileContent'>;
 type DependencyManifestLookup = Pick<DependencyManifestStore, 'getPackageJsons'>;
-const UNINITIALIZED_ERROR =
-  'generated-source store has not been initialized. Call initFileStores() first.';
 
 export class GeneratedSourceStore implements FileStore {
   constructor(
@@ -205,7 +203,7 @@ export class GeneratedSourceStore implements FileStore {
       return;
     }
 
-    const baseDir = this.assertInitializedForPostProcess();
+    const baseDir = this.baseDir!;
 
     try {
       const packageJsons = this.dependencyManifestStore.getPackageJsons();
@@ -268,19 +266,6 @@ export class GeneratedSourceStore implements FileStore {
     this.preloadedFiles = new Map();
     this.sourceFiles = new Set();
     this.walkedDirectories = new Set();
-  }
-
-  private assertInitializedForPostProcess() {
-    if (
-      this.baseDir === undefined ||
-      this.canAccessFileSystem === undefined ||
-      this.derivedConfigKey === undefined ||
-      this.projectFileDiscoveryConfigKey === undefined
-    ) {
-      throw new Error(UNINITIALIZED_ERROR);
-    }
-
-    return this.baseDir;
   }
 
   private addPackageJsonsToSnapshot(packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>) {
