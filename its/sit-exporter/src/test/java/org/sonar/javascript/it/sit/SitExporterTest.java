@@ -113,6 +113,32 @@ class SitExporterTest {
   }
 
   @Test
+  void rulingManifestReferencesExistingSourceDirectories() throws Exception {
+    var repoRoot = repoRoot();
+    var projects = JsonParser.parseString(
+      Files.readString(repoRoot.resolve("packages/ruling/projects.json"), StandardCharsets.UTF_8)
+    ).getAsJsonArray();
+    var missingProjects = new java.util.ArrayList<String>();
+
+    for (var element : projects) {
+      var object = element.getAsJsonObject();
+      var project = new RulingProject(
+        object.get("name").getAsString(),
+        object.has("folder") && !object.get("folder").isJsonNull()
+          ? object.get("folder").getAsString()
+          : null,
+        null,
+        null
+      );
+      if (!Files.isDirectory(project.resolveSourceDirectory(repoRoot))) {
+        missingProjects.add(project.name());
+      }
+    }
+
+    assertThat(missingProjects).isEmpty();
+  }
+
+  @Test
   @EnabledIfSystemProperty(named = "sit.exporter.smoke", matches = "true")
   void smokeExportsCustomJstsWithS1116() throws Exception {
     var repoRoot = repoRoot();
