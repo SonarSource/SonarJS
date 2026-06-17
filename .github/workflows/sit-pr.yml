@@ -12,7 +12,7 @@ on:
       head_sha:
         required: true
         type: string
-      rules_json:
+      rules_json_b64:
         required: true
         type: string
       maven_targets_artifact_name:
@@ -50,10 +50,11 @@ jobs:
       - name: Canonicalize rules
         id: prepare
         env:
-          RULES_JSON_INPUT: ${{ inputs.rules_json }}
+          RULES_JSON_B64_INPUT: ${{ inputs.rules_json_b64 }}
         run: |
           set -euo pipefail
 
+          rules_json_input="$(printf '%s' "$RULES_JSON_B64_INPUT" | base64 --decode)"
           rules_json="$(
             jq -ec '
               [
@@ -66,7 +67,7 @@ jobs:
               ]
               | unique_by(.repository, .language, .ruleKey)
               | sort_by(.repository, .language, .ruleKey)
-            ' <<< "$RULES_JSON_INPUT"
+            ' <<< "$rules_json_input"
           )"
           has_rules="$(jq -r 'if length > 0 then "true" else "false" end' <<< "$rules_json")"
           rule_filter="$(jq -r '[.[] | "\(.repository):\(.ruleKey)"] | unique | sort | join(",")' <<< "$rules_json")"
