@@ -103,7 +103,7 @@ function addRule(rules: Map<string, ChangedRule>, rule: ChangedRule) {
   rules.set(`${rule.repository}:${rule.ruleKey}`, rule);
 }
 
-export function parseNameStatus(output: string): ChangedFile[] {
+function parseNameStatus(output: string): ChangedFile[] {
   return output
     .split('\n')
     .map(line => line.trim())

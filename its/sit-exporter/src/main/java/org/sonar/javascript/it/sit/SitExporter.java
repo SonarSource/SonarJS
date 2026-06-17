@@ -68,12 +68,28 @@ public final class SitExporter {
   private static final String DEFAULT_PLUGIN_JAR =
     "sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-*-multi.jar";
   private static final String DEFAULT_EXCLUSIONS = "**/.*,**/*.d.ts";
+  private static final String DEFAULT_RUNTIME_VERSION = "LATEST_RELEASE";
+  private static final String JAVASCRIPT_REPOSITORY = "javascript";
   private static final Set<String> UNSUPPORTED_TEMPLATE_RULES = Set.of("S124");
 
   private SitExporter() {}
 
-  public static void main(String[] args) throws Exception {
-    run(Config.fromArgs(args));
+  public static void main(String[] args) {
+    int exitCode = runCli(args);
+    if (exitCode != 0) {
+      System.exit(exitCode);
+    }
+  }
+
+  private static int runCli(String[] args) {
+    try {
+      run(Config.fromArgs(args));
+      return 0;
+    } catch (Exception e) {
+      String message = e.getMessage();
+      System.err.println(message == null || message.isBlank() ? e : message);
+      return 1;
+    }
   }
 
   static void run(Config config) throws IOException {
@@ -176,9 +192,11 @@ public final class SitExporter {
       .withEngineVersion(resolveEngineVersion())
       .withPlugin(resolvePluginLocation(pluginJar))
       .withPlugin(
-        MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE")
+        MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", DEFAULT_RUNTIME_VERSION)
       )
-      .withPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
+      .withPlugin(
+        MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", DEFAULT_RUNTIME_VERSION)
+      )
       .withLanguage("js", "JAVASCRIPT", "sonar.javascript.file.suffixes", ".js,.jsx,.cjs,.mjs,.vue")
       .withLanguage("ts", "TYPESCRIPT", "sonar.typescript.file.suffixes", ".ts,.tsx,.cts,.mts")
       .withLanguage("css", "CSS", "sonar.css.file.suffixes", ".css,.less,.scss,.sass")
@@ -195,7 +213,7 @@ public final class SitExporter {
   }
 
   private static EngineVersion.Version resolveEngineVersion() {
-    String runtimeVersion = System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE");
+    String runtimeVersion = System.getProperty("sonar.runtimeVersion", DEFAULT_RUNTIME_VERSION);
     if ("DEV".equals(runtimeVersion)) {
       return EngineVersion.latestMasterBuild();
     }
@@ -224,7 +242,7 @@ public final class SitExporter {
   }
 
   private static Map<String, String> parameterOverrides(RuleSelection rule) {
-    if ("javascript".equals(rule.repository()) && "S1451".equals(rule.ruleKey())) {
+    if (JAVASCRIPT_REPOSITORY.equals(rule.repository()) && "S1451".equals(rule.ruleKey())) {
       return Map.of(
         "headerFormat",
         "// Copyright 20\\d\\d The Closure Library Authors. All Rights Reserved.",
@@ -235,7 +253,7 @@ public final class SitExporter {
     if ("typescript".equals(rule.repository()) && "S1451".equals(rule.ruleKey())) {
       return Map.of("headerFormat", "//.*", "isRegularExpression", "true");
     }
-    if ("javascript".equals(rule.repository()) && "S1192".equals(rule.ruleKey())) {
+    if (JAVASCRIPT_REPOSITORY.equals(rule.repository()) && "S1192".equals(rule.ruleKey())) {
       return Map.of("threshold", "4");
     }
     return Map.of();
@@ -331,7 +349,7 @@ public final class SitExporter {
 
   private static String repositoryForLanguage(String language) {
     return switch (language) {
-      case "js" -> "javascript";
+      case "js" -> JAVASCRIPT_REPOSITORY;
       case "ts" -> "typescript";
       case "css" -> "css";
       default -> throw new IllegalArgumentException("Unsupported language: " + language);
@@ -514,9 +532,17 @@ public final class SitExporter {
       String serverUrl = System.getenv().getOrDefault("GITHUB_SERVER_URL", "");
       String repository = System.getenv().getOrDefault("GITHUB_REPOSITORY", "");
       if (!serverUrl.isBlank() && !repository.isBlank()) {
-        return serverUrl.replaceAll("/+$", "") + "/" + repository;
+        return trimTrailingSlashes(serverUrl) + "/" + repository;
       }
       return "unknown";
+    }
+
+    private static String trimTrailingSlashes(String value) {
+      int end = value.length();
+      while (end > 0 && value.charAt(end - 1) == '/') {
+        end--;
+      }
+      return value.substring(0, end);
     }
   }
 }
@@ -527,8 +553,11 @@ record RulingProject(
   @Nullable String testDir,
   @Nullable String exclusions
 ) {
+  private static final String DEFAULT_FOLDER_PREFIX = "projects/";
+
   Path resolveSourceDirectory(Path repoRoot) {
-    return repoRoot.resolve("its/sources").resolve(folder == null ? "projects/" + name : folder);
+    String projectFolder = folder == null ? (DEFAULT_FOLDER_PREFIX + name) : folder;
+    return repoRoot.resolve("its/sources").resolve(projectFolder);
   }
 }
 
