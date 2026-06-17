@@ -16,7 +16,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { listRulesDir } from './helpers.js';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join as joinNative } from 'node:path';
 import { dirname, join, resolve } from 'node:path/posix';
@@ -102,11 +102,6 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
       )
       .filter(([, manifest]) => manifest !== undefined),
   );
-  const existingHtml = new Map(
-    ruleNames
-      .map(ruleName => [ruleName, readFileIfExists(join(targetFolder, `${ruleName}.html`))] as const)
-      .filter(([, html]) => html !== undefined),
-  );
 
   rmSync(targetFolder, {
     recursive: true,
@@ -123,18 +118,8 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
     const sourceJsonPath = join(sourceFolder, `${ruleName}.json`);
     const targetJsonPath = join(targetFolder, `${ruleName}.json`);
     const existingManifest = existingManifests.get(ruleName);
-    const manifest = writeNormalizedManifest(
-      sourceJsonPath,
-      targetJsonPath,
-      existingManifest,
-    );
-    const sourceHtmlPath = join(sourceFolder, `${ruleName}.html`);
-    const targetHtmlPath = join(targetFolder, `${ruleName}.html`);
-    if (existsSync(sourceHtmlPath)) {
-      copyFileSync(sourceHtmlPath, targetHtmlPath);
-    } else {
-      writeFileSync(targetHtmlPath, existingHtml.get(ruleName) ?? '<html></html>');
-    }
+    const manifest = writeNormalizedManifest(sourceJsonPath, targetJsonPath, existingManifest);
+    copyFileSync(join(sourceFolder, `${ruleName}.html`), join(targetFolder, `${ruleName}.html`));
 
     for (const qualityProfileName of manifest.defaultQualityProfiles ?? []) {
       if (!qualityProfileName) {
@@ -246,15 +231,8 @@ function writeNormalizedManifest(
   targetPath: string,
   existingManifest: JsonValue | undefined,
 ): RuleManifest {
-  const rawManifest = existsSync(sourcePath)
-    ? (JSON.parse(readFileSync(sourcePath, 'utf-8')) as JsonValue)
-    : existingManifest;
-  if (rawManifest === undefined) {
-    throw new Error(
-      `Cannot deploy rule data: neither source manifest ${sourcePath} nor tracked target ${targetPath} exists`,
-    );
-  }
-  const normalizedManifest = reorderJsonLike(rawManifest, existingManifest);
+  const manifest = JSON.parse(readFileSync(sourcePath, 'utf-8')) as JsonValue;
+  const normalizedManifest = reorderJsonLike(manifest, existingManifest);
   writeFileSync(targetPath, `${JSON.stringify(normalizedManifest, null, 2)}\n`);
   return normalizedManifest as RuleManifest;
 }
@@ -262,14 +240,6 @@ function writeNormalizedManifest(
 function readJsonIfExists(path: string): JsonValue | undefined {
   try {
     return JSON.parse(readFileSync(path, 'utf-8')) as JsonValue;
-  } catch {
-    return undefined;
-  }
-}
-
-function readFileIfExists(path: string): string | undefined {
-  try {
-    return readFileSync(path, 'utf-8');
   } catch {
     return undefined;
   }
