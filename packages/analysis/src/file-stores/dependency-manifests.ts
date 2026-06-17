@@ -131,7 +131,7 @@ export class DependencyManifestStore implements FileStore {
     this.dirnameToParent.set(dir, dirnamePath(dir));
   }
 
-  async postProcess(_configuration: Configuration, _inputFiles?: AnalyzableFiles) {
+  async postProcess(_configuration: Configuration) {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }

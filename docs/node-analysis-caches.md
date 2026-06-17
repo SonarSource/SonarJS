@@ -144,7 +144,7 @@ tagged subset and generated-source telemetry are computed later in `analyzeProje
 
 During traversal it also collects a temporary project snapshot made of walked directories,
 walked JS/TS file paths matching the current suffix set, and a small detector-specific set of
-preloaded files. `postProcess()` uses that snapshot together with `dependencyManifestStore` to
+preloaded files. `postProcess()` uses that snapshot to
 derive the cached metadata.
 
 ## Initialization Flow
@@ -210,9 +210,9 @@ That simulated traversal:
 
 This does not discover helper files that were never provided to the request. What it does provide is a coherent virtual traversal over the explicit request files and their parent directories, so stores that depend on directory callbacks can still keep consistent state in request-only mode.
 
-For `generatedSourceStore`, that means request-only analyses can still derive generated-source
-metadata from the in-memory snapshot, but only for helper/config/output files that were actually
-included in the request.
+`generatedSourceStore` does not participate in that mode. When filesystem access is unavailable, it
+clears its cached state and is treated as already initialized, so request-only analyses do not run
+generated-source derivation.
 
 ## Request Files Are Authoritative
 

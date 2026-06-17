@@ -60,7 +60,7 @@ class MockFileStore implements FileStore {
     this.processedFiles.push(filename);
   }
 
-  async postProcess(_configuration: Configuration, _inputFiles?: AnalyzableFiles): Promise<void> {
+  async postProcess(_configuration: Configuration): Promise<void> {
     this.postProcessCalled = true;
   }
 }
@@ -128,10 +128,7 @@ describe('simulateFromInputFiles', () => {
       async processFile(filename: string, _configuration: Configuration): Promise<void> {
         this.processedFiles.push(filename);
       }
-      async postProcess(
-        _configuration: Configuration,
-        _inputFiles?: AnalyzableFiles,
-      ): Promise<void> {}
+      async postProcess(_configuration: Configuration): Promise<void> {}
       // Note: processDirectory is optional, so we don't implement it
     }
 
@@ -201,21 +198,22 @@ describe('initFileStores', () => {
     sourceFileStore.clearCache();
   });
 
-  it('should populate inputFiles from sourceFileStore when caller does not provide them', async ({
+  it('should skip generated-source post-processing when filesystem access is disabled', async ({
     mock,
   }) => {
     const baseDir = normalizeToAbsolutePath(join(sourceFileFixtures, 'paths'));
-    const configuration = createConfiguration({ baseDir });
-    const postProcessMock = mock.method(
-      generatedSourceStore,
-      'postProcess',
-      async (_configuration, inputFiles) => {
-        expect(inputFiles).toBe(sourceFileStore.getFiles());
-      },
+    const configuration = createConfiguration({ baseDir, canAccessFileSystem: false });
+    const postProcessMock = mock.method(generatedSourceStore, 'postProcess');
+    const setupMock = mock.method(generatedSourceStore, 'setup');
+
+    const { files: inputFiles } = await sanitizeRawInputFiles(
+      { file1: { filePath: join(baseDir, 'src', 'app.js'), fileType: 'MAIN', fileContent: '' } },
+      configuration,
     );
 
-    await initFileStores(configuration);
+    await initFileStores(configuration, inputFiles);
 
-    expect(postProcessMock.mock.calls).toHaveLength(1);
+    expect(setupMock.mock.calls).toHaveLength(0);
+    expect(postProcessMock.mock.calls).toHaveLength(0);
   });
 });

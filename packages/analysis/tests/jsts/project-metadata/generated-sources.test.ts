@@ -19,7 +19,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { beforeEach, describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
-import { createConfiguration } from '../../../src/common/configuration.js';
+import { createConfiguration, isJsTsFile } from '../../../src/common/configuration.js';
+import { findFiles } from '../../../src/common/find-files.js';
 import { sanitizeRawInputFiles } from '../../../src/common/input-sanitize.js';
 import {
   dependencyManifestStore,
@@ -35,7 +36,6 @@ import type {
   GeneratedSourceFileMatcher,
   GeneratedSourceProjectSnapshot,
 } from '../../../src/file-stores/generated-sources/contracts.js';
-import { collectGeneratedSourceProjectSnapshotFromFileSystem } from '../../../src/file-stores/generated-sources/filesystem-snapshot.js';
 import { graphqlCodegenDetector } from '../../../src/file-stores/generated-sources/detectors/graphql-codegen.js';
 import {
   GENERATED_SOURCE_DETECTORS,
@@ -43,9 +43,11 @@ import {
   collectGeneratedSourceTaskInvocations,
   getGeneratedSourceWatchedFilenames,
 } from '../../../src/file-stores/generated-sources/index.js';
+import { shouldCaptureGeneratedSourceSnapshotPath } from '../../../src/file-stores/generated-sources/snapshot-files.js';
 import {
   joinPaths,
   normalizeToAbsolutePath,
+  readFile,
   type File,
   type NormalizedAbsolutePath,
 } from '../../../../shared/src/helpers/files.js';
@@ -110,14 +112,46 @@ async function createGeneratedSourceProjectSnapshot(
   packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>,
   sourceFileMatcher?: GeneratedSourceFileMatcher,
 ): Promise<GeneratedSourceProjectSnapshot> {
-  return (
-    await collectGeneratedSourceProjectSnapshotFromFileSystem({
-      baseDir,
-      jsTsExclusions: [],
-      packageJsons,
-      sourceFileMatcher,
-    })
-  ).projectSnapshot;
+  const configuration = createConfiguration({ baseDir });
+  const directories = new Set<NormalizedAbsolutePath>([baseDir]);
+  const preloadedFiles = new Map<NormalizedAbsolutePath, File>(
+    [...packageJsons.values()].map(file => [file.path, file]),
+  );
+  const sourceFiles = new Set<NormalizedAbsolutePath>();
+  const isSourceFile = sourceFileMatcher ?? (filePath => isJsTsFile(filePath, configuration));
+
+  await findFiles(baseDir, [], async (entry, filePath) => {
+    if (entry.isDirectory()) {
+      directories.add(filePath);
+      return;
+    }
+
+    if (!entry.isFile()) {
+      return;
+    }
+
+    if (isSourceFile(filePath)) {
+      sourceFiles.add(filePath);
+    }
+
+    if (
+      preloadedFiles.has(filePath) ||
+      !shouldCaptureGeneratedSourceSnapshotPath(filePath, configuration)
+    ) {
+      return;
+    }
+
+    preloadedFiles.set(filePath, {
+      content: await readFile(filePath),
+      path: filePath,
+    });
+  });
+
+  return {
+    directories,
+    preloadedFiles,
+    sourceFiles,
+  };
 }
 
 function observeGeneratedSources(
@@ -468,7 +502,7 @@ export default config;
     ).toEqual(GRAPHQL_CODEGEN_FAMILY);
     expect(
       generatedSourceStore.getFamily(joinPaths(baseDir, 'dist', 'generated', 'ignored.ts')),
-    ).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    ).toBeUndefined();
   });
 
   it('does not tag handwritten files for near-operation-file directory outputs', async () => {
@@ -2571,19 +2605,18 @@ plugins = [
     expect(generatedSourceStore.getFamily(generatedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
   });
 
-  it('does not reuse generated-source cache when filesystem access is disabled', async () => {
+  it('skips generated-source detection when filesystem access is disabled', async () => {
     const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
     const configuration = createConfiguration({ baseDir, canAccessFileSystem: false });
+    const generatedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
 
-    await generatedSourceStore.postProcess(configuration);
-
-    expect(await generatedSourceStore.isInitialized(configuration)).toBe(false);
+    expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
+    expect(generatedSourceStore.getFamily(generatedFile)).toBeUndefined();
   });
 
   it('drops the transient filesystem snapshot after deriving metadata', async () => {
     const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
     const generatedSourceStoreState = generatedSourceStore as unknown as {
-      packageJsons: Map<NormalizedAbsolutePath, File>;
       preloadedFiles: Map<NormalizedAbsolutePath, File>;
       sourceFiles: Set<NormalizedAbsolutePath>;
       walkedDirectories: Set<NormalizedAbsolutePath>;
@@ -2591,7 +2624,6 @@ plugins = [
 
     await initFileStores(createConfiguration({ baseDir }));
 
-    expect(generatedSourceStoreState.packageJsons.size).toEqual(0);
     expect(generatedSourceStoreState.preloadedFiles.size).toEqual(0);
     expect(generatedSourceStoreState.sourceFiles.size).toEqual(0);
     expect(generatedSourceStoreState.walkedDirectories.size).toEqual(0);
@@ -2897,7 +2929,7 @@ plugins = [
     }
   });
 
-  it('keeps js/ts-excluded generated files in resolved counts without relogging exclusion debug lines on observation', async ({
+  it('does not keep js/ts-excluded generated files in observability or relog exclusion debug lines on observation', async ({
     mock,
   }) => {
     const baseDir = await createTempBaseDir();
@@ -2945,15 +2977,15 @@ plugins = [
       await initFileStores(configuration);
 
       expect(generatedSourceStore.getFamily(taggedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
-      expect(generatedSourceStore.getFamily(jsTsExcludedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(generatedSourceStore.getFamily(jsTsExcludedFile)).toBeUndefined();
       expect(observeGeneratedSources(configuration)).toEqual({
         familyCount: 1,
-        resolvedFileCount: 2,
+        resolvedFileCount: 1,
         taggedFileCount: 1,
         families: [
           {
             family: GRAPHQL_CODEGEN_FAMILY,
-            resolvedFileCount: 2,
+            resolvedFileCount: 1,
             taggedFileCount: 1,
           },
         ],
@@ -3339,7 +3371,7 @@ plugins = [
     }
   });
 
-  it('ignores declaration-only default-excluded generated families in observability', async ({
+  it('does not keep declaration-only default-excluded generated files in observability', async ({
     mock,
   }) => {
     const baseDir = await createTempBaseDir();
@@ -3380,7 +3412,7 @@ plugins = [
       await initFileStores(configuration);
 
       expect(sourceFileStore.getFiles()[declarationFile]).toBeUndefined();
-      expect(generatedSourceStore.getFamily(declarationFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(generatedSourceStore.getFamily(declarationFile)).toBeUndefined();
       expect(observeGeneratedSources(configuration)).toEqual({
         familyCount: 0,
         resolvedFileCount: 0,
@@ -3394,7 +3426,7 @@ plugins = [
       expect(logs).not.toContain(
         'Generated source observability: families=0, resolvedFiles=0, taggedFiles=0',
       );
-      expect(logs).toContain(
+      expect(logs).not.toContain(
         'DEBUG Generated source family=@graphql-codegen/cli ignored for observability because all resolved outputs are declaration files excluded by default **/*.d.ts: src/generated/operations.d.ts',
       );
     } finally {
@@ -3403,7 +3435,7 @@ plugins = [
     }
   });
 
-  it('ignores declaration-only default-excluded generated families even when source exclusions also match', async ({
+  it('does not keep declaration-only default-excluded generated files even when source exclusions also match', async ({
     mock,
   }) => {
     const baseDir = await createTempBaseDir();
@@ -3445,7 +3477,7 @@ plugins = [
       await initFileStores(configuration);
 
       expect(sourceFileStore.getFiles()[declarationFile]).toBeUndefined();
-      expect(generatedSourceStore.getFamily(declarationFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(generatedSourceStore.getFamily(declarationFile)).toBeUndefined();
       expect(observeGeneratedSources(configuration)).toEqual({
         familyCount: 0,
         resolvedFileCount: 0,
@@ -3459,7 +3491,7 @@ plugins = [
       expect(logs).not.toContain(
         'Generated source family=@graphql-codegen/cli resolvedFiles=1 taggedFiles=0',
       );
-      expect(logs).toContain(
+      expect(logs).not.toContain(
         'DEBUG Generated source family=@graphql-codegen/cli ignored for observability because all resolved outputs are declaration files excluded by default **/*.d.ts: src/generated/operations.d.ts',
       );
     } finally {

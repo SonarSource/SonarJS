@@ -30,7 +30,7 @@ import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const dependencyManifestStore = new DependencyManifestStore();
-export const generatedSourceStore = new GeneratedSourceStore(dependencyManifestStore);
+export const generatedSourceStore = new GeneratedSourceStore();
 export const tsConfigStore = new TsConfigStore();
 
 const fileStores: FileStore[] = [
@@ -79,9 +79,8 @@ export async function initFileStores(configuration: Configuration, inputFiles?: 
   } else if (inputFiles) {
     await simulateFromInputFiles(inputFiles, configuration, pendingStores);
   }
-  const effectiveInputFiles = inputFiles ?? sourceFileStore.getFiles();
   for (const store of pendingStores) {
-    await store.postProcess(configuration, effectiveInputFiles);
+    await store.postProcess(configuration);
   }
 }
 

@@ -134,7 +134,7 @@ export class SourceFileStore implements FileStore {
     return this.files?.[filePath]?.fileContent ?? (await readFile(filePath));
   }
 
-  async postProcess(_configuration: Configuration, _inputFiles?: AnalyzableFiles) {
+  async postProcess(_configuration: Configuration) {
     // No-op: files are added directly in processFile()
   }
 

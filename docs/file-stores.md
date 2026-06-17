@@ -200,9 +200,9 @@ During traversal it also collects the temporary inputs needed for derivation:
 
 - walked directories
 - walked JS/TS file paths that match the current suffix set
-- a small detector-specific set of preloaded files
+- preloaded manifest/config files needed by detectors
 
-`postProcess()` then turns that snapshot plus dependency-manifest data into the project-derived cache above.
+`postProcess()` then derives `package.json` inputs from that snapshot and turns the snapshot into the project-derived cache above.
 
 The tagged subset is not cached inside the store. `analyzeProject()` computes it later from the
 current analyzable files via `generatedSourceStore.observeGeneratedSources(...)`.
@@ -244,7 +244,7 @@ The store also depends on:
 changes. Source-scope properties and explicit request files refresh `sourceFileStore`; the tagged
 generated-file subset is then recomputed at analysis time from `sourceFileStore.getFiles()`.
 
-When filesystem access is unavailable, the store can still derive metadata from the simulated walk over explicit request files, but only for helper/config/output files that were present in that request.
+When filesystem access is unavailable, the store is skipped entirely. The request-only simulated walk still exists for the other stores, but generated-source metadata is not derived in that mode.
 
 ## `fsEvents`
 

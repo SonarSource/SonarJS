@@ -174,7 +174,7 @@ export class TsConfigStore implements FileStore {
   /**
    * Performs post-processing after all files have been processed.
    */
-  async postProcess(configuration: Configuration, _inputFiles?: AnalyzableFiles) {
+  async postProcess(configuration: Configuration) {
     const { tsConfigPaths } = configuration;
     if (tsConfigPaths.length && !this.foundPropertyTsConfigs.length) {
       error(`Failed to find any of the provided tsconfig.json files: ${tsConfigPaths.join(', ')}`);

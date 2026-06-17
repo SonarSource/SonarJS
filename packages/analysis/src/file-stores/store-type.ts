@@ -46,9 +46,8 @@ export abstract class FileStore {
    * Performs post-processing after all files have been processed.
    *
    * @param configuration - The project configuration
-   * @param inputFiles - Optional authoritative analyzable files
    */
-  abstract postProcess(configuration: Configuration, inputFiles?: AnalyzableFiles): Promise<void>;
+  abstract postProcess(configuration: Configuration): Promise<void>;
 
   abstract processDirectory?(dir: NormalizedAbsolutePath, configuration: Configuration): void;
 }
