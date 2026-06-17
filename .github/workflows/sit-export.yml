@@ -51,6 +51,12 @@ jobs:
           ref: ${{ inputs.checkout_ref }}
           submodules: true
 
+      - name: Checkout SIT tooling
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ github.sha }}
+          path: sit-tooling
+
       - uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
@@ -67,7 +73,6 @@ jobs:
           disable-caching: 'true'
 
       - name: Get RSPEC GitHub token
-        if: inputs.build_plugin
         id: rspec-secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -111,7 +116,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
       - name: Build SIT exporter
-        run: mvn -f its/sit-exporter/pom.xml package -DskipTests -B -e -V
+        run: mvn -f sit-tooling/its/sit-exporter/pom.xml package -DskipTests -B -e -V
 
       - name: Run SIT exporter
         env:
@@ -152,7 +157,7 @@ jobs:
             args+=(--project-filter "$PROJECT_FILTER")
           fi
 
-          java -jar its/sit-exporter/target/javascript-it-sit-exporter-*.jar "${args[@]}"
+          java -jar sit-tooling/its/sit-exporter/target/javascript-it-sit-exporter-*.jar "${args[@]}"
 
       - name: Upload SIT export bundles
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
