@@ -59,9 +59,12 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class SitExporter {
 
+  private static final Logger LOG = LoggerFactory.getLogger(SitExporter.class);
   private static final Gson GSON = new Gson();
   private static final String DEFAULT_PROJECTS_JSON = "packages/ruling/projects.json";
   private static final String DEFAULT_OUTPUT_DIR = "build/sit-export";
@@ -87,7 +90,7 @@ public final class SitExporter {
       return 0;
     } catch (Exception e) {
       String message = e.getMessage();
-      System.err.println(message == null || message.isBlank() ? e : message);
+      LOG.error(message == null || message.isBlank() ? e.toString() : message);
       return 1;
     }
   }
