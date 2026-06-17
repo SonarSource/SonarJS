@@ -150,11 +150,9 @@ public final class SitExporter {
 
     List<SitIssue> issues = List.of();
     if (!rules.isEmpty()) {
-      var scannerInput = buildScannerInput(
-        project,
-        projectDir,
-        config.workDir().resolve(project.name())
-      );
+      Path projectWorkDir = config.workDir().resolve(project.name());
+      Files.createDirectories(projectWorkDir);
+      var scannerInput = buildScannerInput(project, projectDir, projectWorkDir);
       var result = ScannerRunner.run(
         Objects.requireNonNull(serverContext),
         scannerInput.withVerbose().build(),

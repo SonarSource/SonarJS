@@ -66,6 +66,14 @@ jobs:
           artifactory-reader-role: private-reader
           disable-caching: 'true'
 
+      - name: Get RSPEC GitHub token
+        if: inputs.build_plugin
+        id: rspec-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
+
       - name: Cache NPM dependencies
         if: inputs.build_plugin
         id: npm-cache
@@ -99,6 +107,8 @@ jobs:
       - name: Build SonarJS plugin
         if: inputs.build_plugin
         run: mvn -pl sonar-plugin/sonar-javascript-plugin -am package -DskipTests -B -e -V
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
       - name: Build SIT exporter
         run: mvn -f its/sit-exporter/pom.xml package -DskipTests -B -e -V
