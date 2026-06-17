@@ -15,9 +15,6 @@
   "ruleSpecification": "RSPEC-8780",
   "sqKey": "S8780",
   "scope": "Tests",
-  "defaultQualityProfiles": [
-    "Sonar way"
-  ],
   "quickfix": "unknown",
   "code": {
     "impacts": {
@@ -29,5 +26,8 @@
   "compatibleLanguages": [
     "js",
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

@@ -114,8 +114,14 @@ describe('S3798', () => {
         },
         {
           code: `
-      var _ = require('lodash');
-      `,
+      export function exportedFunction() {};
+            `,
+        },
+        {
+          code: `
+      await foo();
+      var x = 1;
+            `,
         },
       ],
       invalid: [
@@ -208,12 +214,6 @@ describe('S3798', () => {
         },
         {
           code: `
-      export function exportedFunction(){};  // Noncompliant, this rule should not be used with ES2015 modules
-            `,
-          errors: 1,
-        },
-        {
-          code: `
       function bat1() {                      // Noncompliant
         var x;                               // OK
         [a, b] = [1, 2];                     // OK
@@ -242,25 +242,49 @@ describe('S3798', () => {
             `,
         },
       ],
+      invalid: [],
+    });
+
+    ruleTester.run('No issue for CommonJS and ES modules', rule, {
+      valid: [
+        {
+          code: `
+      var _ = require('lodash');
+            `,
+          settings: {
+            detectedModuleType: 'commonjs',
+          },
+        },
+        {
+          code: `
+      var exports;
+            `,
+          settings: {
+            detectedModuleType: 'commonjs',
+          },
+        },
+        {
+          code: `
+      function packageLevelModuleFunction() {}
+            `,
+          settings: {
+            detectedModuleType: 'module',
+          },
+        },
+      ],
+      invalid: [],
+    });
+
+    ruleTesterScript.run('Report global declarations in script source type', rule, {
+      valid: [],
       invalid: [
         {
           code: `
-      var exports;  // commonjs global (not in configuration)
+      var x = 1;
             `,
           errors: 1,
         },
       ],
-    });
-
-    ruleTesterScript.run('FNs with script source type', rule, {
-      valid: [
-        {
-          code: `
-      var x = 1; // FN
-            `,
-        },
-      ],
-      invalid: [],
     });
 
     ruleTesterCustomGlobals.run('No issue for custom globals', rule, {

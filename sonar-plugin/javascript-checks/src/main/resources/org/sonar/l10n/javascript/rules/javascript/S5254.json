@@ -14,9 +14,6 @@
   "ruleSpecification": "RSPEC-5254",
   "sqKey": "S5254",
   "scope": "Main",
-  "defaultQualityProfiles": [
-    "Sonar way"
-  ],
   "quickfix": "targeted",
   "code": {
     "impacts": {
@@ -27,5 +24,8 @@
   "compatibleLanguages": [
     "js",
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

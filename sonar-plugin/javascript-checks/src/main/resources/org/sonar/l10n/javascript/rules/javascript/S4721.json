@@ -42,9 +42,9 @@
       "5.3.8"
     ]
   },
-  "defaultQualityProfiles": [],
   "compatibleLanguages": [
     "js",
     "ts"
-  ]
+  ],
+  "defaultQualityProfiles": []
 }

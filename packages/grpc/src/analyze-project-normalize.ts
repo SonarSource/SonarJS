@@ -63,7 +63,6 @@ export async function normalizeAnalyzeProjectRequest(
   const sanitizedFiles = filesPresent
     ? await sanitizeInputFiles(normalizeProtoInputFiles(request.files), configuration)
     : undefined;
-  const inputFiles = sanitizedFiles?.files;
   const rules = normalizeJsTsRules(request.rules);
   const cssRules = normalizeCssRules(request.cssRules);
   const bundles = normalizePathList(request.bundles, configuration.baseDir);
@@ -72,7 +71,7 @@ export async function normalizeAnalyzeProjectRequest(
   if (!filesPresent && configuration.canAccessFileSystem) {
     resetFileStoresForFileSystemDiscovery();
   }
-  await initFileStores(configuration, inputFiles);
+  await initFileStores(configuration, sanitizedFiles?.fileStoreRequestContext);
 
   return {
     rules,

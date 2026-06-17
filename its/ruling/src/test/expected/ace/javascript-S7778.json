@@ -22,6 +22,14 @@
 "ace:src/keyboard/vim.js": [
 7164
 ],
+"ace:src/mode/r_highlight_rules.js": [
+190,
+194
+],
+"ace:src/mode/razor_highlight_rules.js": [
+27,
+70
+],
 "ace:src/mode/yaml_highlight_rules.js": [
 59
 ],

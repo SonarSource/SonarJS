@@ -26,14 +26,17 @@ import {
   type NormalizedAbsolutePath,
   dirnamePath,
 } from '../../../shared/src/helpers/files.js';
-import type { AnalyzableFiles } from '../projectAnalysis.js';
+import type { AnalyzableFiles, FileStoreRequestContext } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const tsConfigStore = new TsConfigStore();
 export { dependencyManifestStore } from './dependency-manifests.js';
 export { generatedSourceStore } from './generated-sources.js';
 
-export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
+export async function initFileStores(
+  configuration: Configuration,
+  requestContext?: FileStoreRequestContext,
+) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
   const fileStores = configuration.detectGeneratedCode
@@ -45,7 +48,7 @@ export async function initFileStores(configuration: Configuration, inputFiles?: 
   }
 
   for (const store of fileStores) {
-    if (!(await store.isInitialized(configuration, inputFiles))) {
+    if (!(await store.isInitialized(configuration, requestContext))) {
       pendingStores.push(store);
     }
   }
@@ -69,13 +72,18 @@ export async function initFileStores(configuration: Configuration, inputFiles?: 
         }
       }
     });
-  } else if (inputFiles) {
-    await simulateFromInputFiles(inputFiles, configuration, pendingStores);
+  } else if (requestContext?.analyzableFiles) {
+    await simulateFromInputFiles(requestContext.analyzableFiles, configuration, pendingStores);
   }
-
-  const analyzableFiles = sourceFileStore.getFiles();
+  const effectiveRequestContext: FileStoreRequestContext = requestContext?.analyzableFiles
+    ? requestContext
+    : {
+        ...requestContext,
+        analyzableFiles: sourceFileStore.getFiles(),
+        isExplicitRequest: requestContext?.isExplicitRequest ?? false,
+      };
   for (const store of pendingStores) {
-    await store.postProcess(configuration, analyzableFiles);
+    await store.postProcess(configuration, effectiveRequestContext);
   }
 }
 

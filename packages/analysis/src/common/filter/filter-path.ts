@@ -35,20 +35,25 @@ export function isJsTsExcluded(
   filePath: NormalizedAbsolutePath,
   jsTsExclusions: Minimatch[],
 ): boolean {
-  if (jsTsExclusions?.some(exclusion => exclusion.match(filePath))) {
+  if (matchesJsTsExclusion(filePath, jsTsExclusions)) {
     debug(`File ignored due to js/ts exclusions: ${filePath}`);
     return true;
   }
   return false;
 }
 
+export function matchesJsTsExclusion(
+  filePath: NormalizedAbsolutePath,
+  jsTsExclusions: Minimatch[],
+): boolean {
+  return jsTsExclusions?.some(exclusion => exclusion.match(filePath)) ?? false;
+}
+
 /**
  * Filters a given file path based on inclusion and exclusion rules and determines its type.
  * This mimics the scanner engine implementation of "sources", "tests" and its inclusion/exclusion
- * properties. This is only used when Node.js loops the whole project tree looking for files. This
- * only happens in ruling tests and in SonarLint during the first lookup to count files.
- * In SQS this will never be executed, as the request already contains the list of files as
- * digested by the scanner engine. The only path filter that we need to run in SQS is isJsTsExcluded.
+ * properties. It is used during filesystem traversal and as a defensive file-type inference
+ * fallback for explicit request files whose incoming type is not explicitly TEST.
  *
  * @param {NormalizedAbsolutePath} filePath - The file path to be evaluated (must be normalized absolute path).
  * @param {FilterPathParams} params - The path filtering parameters from configuration.
@@ -62,13 +67,14 @@ export function filterPathAndGetFileType(
   filePath: NormalizedAbsolutePath,
   params: FilterPathParams,
 ): FileType | undefined {
-  if (fileIsTest(filePath, params)) {
+  if (matchesTestPath(filePath, params, true)) {
     return 'TEST';
   }
 
-  if (fileIsMain(filePath, params)) {
+  if (matchesMainPath(filePath, params)) {
     return 'MAIN';
   }
+
   debug(`File ignored due to analysis scope filters: ${filePath}`);
 }
 
@@ -76,7 +82,11 @@ function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolute
   return paths.some(path => filePath === path || filePath.startsWith(`${path}/`));
 }
 
-function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
+function matchesTestPath(
+  filePath: NormalizedAbsolutePath,
+  params: FilterPathParams,
+  logHeuristicTestDetection: boolean,
+): boolean {
   const {
     testPaths,
     testExclusions,
@@ -98,7 +108,7 @@ function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams):
       return false;
     }
     const doesLookLikeTestFile = isTestRelatedFile(filePath, testFileExtensions);
-    if (doesLookLikeTestFile) {
+    if (doesLookLikeTestFile && logHeuristicTestDetection) {
       debug(
         `Test file detected: ${filePath}. If this file should not be treated as a test, please configure sonar.tests or adjust your sonar.sources/sonar.inclusions to explicitly include it as MAIN.`,
       );
@@ -118,7 +128,7 @@ function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams):
   return true;
 }
 
-function fileIsMain(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
+function matchesMainPath(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
   const { sourcesPaths, exclusions, inclusions } = params;
   if (!fileIsUnder(filePath, sourcesPaths)) {
     return false;

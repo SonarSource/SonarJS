@@ -34,6 +34,7 @@ public class PluginTelemetry {
   private static final String KEY_PREFIX = "javascript.";
   private static final String RUNTIME_PREFIX = KEY_PREFIX + "runtime.";
   private static final String TELEMETRY_PREFIX = KEY_PREFIX + "telemetry.";
+  private static final String GENERATED_SOURCES_PREFIX = TELEMETRY_PREFIX + "generated-sources.";
   private static final String MODULE_TYPE_PREFIX = TELEMETRY_PREFIX + "module-type.";
 
   private final BridgeServer server;
@@ -146,6 +147,37 @@ public class PluginTelemetry {
       MODULE_TYPE_PREFIX + "cjs-file-count",
       Integer.toString(projectAnalysisTelemetry.getCjsFileCount())
     );
+
+    if (projectAnalysisTelemetry.hasGeneratedSources()) {
+      var generatedSources = projectAnalysisTelemetry.getGeneratedSources();
+      keyMapToSave.put(
+        GENERATED_SOURCES_PREFIX + "family-count",
+        Integer.toString(generatedSources.getFamilyCount())
+      );
+      keyMapToSave.put(
+        GENERATED_SOURCES_PREFIX + "resolved-file-count",
+        Integer.toString(generatedSources.getResolvedFileCount())
+      );
+      keyMapToSave.put(
+        GENERATED_SOURCES_PREFIX + "tagged-file-count",
+        Integer.toString(generatedSources.getTaggedFileCount())
+      );
+      addValueList(
+        keyMapToSave,
+        GENERATED_SOURCES_PREFIX + "families",
+        generatedSources
+          .getFamiliesList()
+          .stream()
+          .map(family ->
+            "%s:%d/%d".formatted(
+              family.getFamily(),
+              family.getResolvedFileCount(),
+              family.getTaggedFileCount()
+            )
+          )
+          .toList()
+      );
+    }
   }
 
   private static void addCompilerOptionTelemetry(

@@ -14,9 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { join, resolve } from 'node:path/posix';
+import { execFileSync } from 'node:child_process';
 import { listRulesDir } from './helpers.js';
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join as joinNative } from 'node:path';
+import { dirname, join, resolve } from 'node:path/posix';
 import { cssRulesMeta } from '../packages/analysis/src/css/rules/metadata.js';
 
 const sourceFolder = resolve('resources/rule-data');
@@ -49,6 +52,19 @@ const CSS_RULE_DATA_FOLDER = join(
   'css',
 );
 
+const RSPEC_SHA_FILES = {
+  javascript: {
+    envName: 'RSPEC_JAVASCRIPT_SHA',
+    marker: join('resources', 'rule-data', '.synced-sha-javascript'),
+    target: join('sonar-plugin', 'javascript-checks', 'src', 'main', 'resources', 'rspec.sha'),
+  },
+  css: {
+    envName: 'RSPEC_CSS_SHA',
+    marker: join('resources', 'rule-data', '.synced-sha-css'),
+    target: join('sonar-plugin', 'css', 'src', 'main', 'resources', 'rspec.sha'),
+  },
+} as const;
+
 const jsRuleNames = [...new Set([...(await listRulesDir()), 'S2260'])].sort(sortRuleKeys);
 const cssRuleNames = [...new Set([...cssRulesMeta.map(rule => rule.sqKey), 'S2260'])].sort(
   sortRuleKeys,
@@ -68,11 +84,24 @@ type GeneratedProfile = {
   ruleKeys: Array<string>;
 };
 
+type JsonValue = JsonObject | Array<JsonValue> | boolean | number | string | null;
+type JsonObject = {
+  [key: string]: JsonValue;
+};
+
 syncRuleData(join(sourceFolder, 'javascript'), JS_RULE_DATA_FOLDER, jsRuleNames);
 syncRuleData(join(sourceFolder, 'css'), CSS_RULE_DATA_FOLDER, cssRuleNames);
+syncRspecShas();
 
 function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: string[]) {
   warnOnRulesWithoutImplementation(sourceFolder, ruleNames);
+  const existingManifests = new Map(
+    ruleNames
+      .map(
+        ruleName => [ruleName, readJsonIfExists(join(targetFolder, `${ruleName}.json`))] as const,
+      )
+      .filter(([, manifest]) => manifest !== undefined),
+  );
 
   rmSync(targetFolder, {
     recursive: true,
@@ -86,13 +115,11 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
   const profileRuleKeys = new Map<string, Set<string>>();
 
   for (const ruleName of ruleNames) {
-    for (const extension of ['json', 'html']) {
-      const fileName = `${ruleName}.${extension}`;
-      copyFileSync(join(sourceFolder, fileName), join(targetFolder, fileName));
-    }
-    const manifest: RuleManifest = JSON.parse(
-      readFileSync(join(sourceFolder, `${ruleName}.json`), 'utf-8'),
-    );
+    const sourceJsonPath = join(sourceFolder, `${ruleName}.json`);
+    const targetJsonPath = join(targetFolder, `${ruleName}.json`);
+    const existingManifest = existingManifests.get(ruleName);
+    const manifest = writeNormalizedManifest(sourceJsonPath, targetJsonPath, existingManifest);
+    copyFileSync(join(sourceFolder, `${ruleName}.html`), join(targetFolder, `${ruleName}.html`));
 
     for (const qualityProfileName of manifest.defaultQualityProfiles ?? []) {
       if (!qualityProfileName) {
@@ -143,6 +170,138 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
       })),
     ),
   );
+}
+
+function syncRspecShas() {
+  const repositorySha = readRspecRepositorySha();
+
+  for (const paths of Object.values(RSPEC_SHA_FILES)) {
+    const sha = readEnvSha(paths.envName) ?? repositorySha ?? readShaIfExists(paths.marker);
+    if (sha === undefined) {
+      throw new Error(
+        `Failed to resolve RSPEC SHA for ${paths.target}: ${paths.envName} is not set and no local RSPEC repository or marker exists`,
+      );
+    }
+
+    mkdirSync(dirname(paths.marker), {
+      recursive: true,
+    });
+    writeFileSync(paths.marker, `${sha}\n`);
+
+    mkdirSync(dirname(paths.target), {
+      recursive: true,
+    });
+    writeFileSync(paths.target, `${sha}\n`);
+  }
+}
+
+function readRspecRepositorySha(): string | undefined {
+  const sonarUserHome = process.env.SONAR_USER_HOME ?? joinNative(homedir(), '.sonar');
+  const rspecRepository = joinNative(sonarUserHome, 'rule-api', 'rspec');
+
+  try {
+    return execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: rspecRepository,
+      encoding: 'utf-8',
+    }).trim();
+  } catch {
+    return undefined;
+  }
+}
+
+function readEnvSha(envName: string): string | undefined {
+  const value = process.env[envName]?.trim();
+  if (value === undefined || value.length === 0 || /^\$\{.+}$/.test(value)) {
+    return undefined;
+  }
+  return value;
+}
+
+function readShaIfExists(path: string): string | undefined {
+  try {
+    const value = readFileSync(path, 'utf-8').trim();
+    return value.length === 0 ? undefined : value;
+  } catch {
+    return undefined;
+  }
+}
+
+function writeNormalizedManifest(
+  sourcePath: string,
+  targetPath: string,
+  existingManifest: JsonValue | undefined,
+): RuleManifest {
+  const manifest = JSON.parse(readFileSync(sourcePath, 'utf-8')) as JsonValue;
+  const normalizedManifest = reorderJsonLike(manifest, existingManifest);
+  writeFileSync(targetPath, `${JSON.stringify(normalizedManifest, null, 2)}\n`);
+  return normalizedManifest as RuleManifest;
+}
+
+function readJsonIfExists(path: string): JsonValue | undefined {
+  try {
+    return JSON.parse(readFileSync(path, 'utf-8')) as JsonValue;
+  } catch {
+    return undefined;
+  }
+}
+
+function reorderJsonLike(value: JsonValue, reference: JsonValue | undefined): JsonValue {
+  if (Array.isArray(value)) {
+    if (Array.isArray(reference) && isScalarArray(value) && isScalarArray(reference)) {
+      return reorderScalarArray(value, reference);
+    }
+    return value.map((item, index) =>
+      reorderJsonLike(item, Array.isArray(reference) ? reference[index] : undefined),
+    );
+  }
+
+  if (!isJsonObject(value)) {
+    return value;
+  }
+
+  const orderedObject: JsonObject = {};
+  const referenceObject = isJsonObject(reference) ? reference : undefined;
+
+  for (const key of Object.keys(referenceObject ?? {})) {
+    if (Object.hasOwn(value, key)) {
+      orderedObject[key] = reorderJsonLike(value[key], referenceObject?.[key]);
+    }
+  }
+
+  for (const [key, nestedValue] of Object.entries(value)) {
+    if (!Object.hasOwn(orderedObject, key)) {
+      orderedObject[key] = reorderJsonLike(nestedValue, referenceObject?.[key]);
+    }
+  }
+
+  return orderedObject;
+}
+
+function isJsonObject(value: JsonValue | undefined): value is JsonObject {
+  return (
+    value !== null && value !== undefined && !Array.isArray(value) && typeof value === 'object'
+  );
+}
+
+function isScalarArray(values: Array<JsonValue>): boolean {
+  return values.every(value => value === null || typeof value !== 'object');
+}
+
+function reorderScalarArray(
+  values: Array<boolean | number | string | null>,
+  reference: Array<boolean | number | string | null>,
+): Array<boolean | number | string | null> {
+  const remainingValues = [...values];
+  const orderedValues = reference
+    .map(referenceValue => {
+      const index = remainingValues.findIndex(value => Object.is(value, referenceValue));
+      if (index === -1) {
+        return undefined;
+      }
+      return remainingValues.splice(index, 1)[0];
+    })
+    .filter(value => value !== undefined);
+  return [...orderedValues, ...remainingValues];
 }
 
 function warnOnRulesWithoutImplementation(sourceFolder: string, ruleNames: string[]) {
