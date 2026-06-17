@@ -51,12 +51,6 @@ jobs:
           ref: ${{ inputs.checkout_ref }}
           submodules: true
 
-      - name: Checkout SIT tooling
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          ref: ${{ github.sha }}
-          path: sit-tooling
-
       - uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
@@ -114,6 +108,12 @@ jobs:
         run: mvn -pl sonar-plugin/sonar-javascript-plugin -am package -DskipTests -B -e -V
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+
+      - name: Checkout SIT tooling
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ github.sha }}
+          path: sit-tooling
 
       - name: Build SIT exporter
         run: mvn -f sit-tooling/its/sit-exporter/pom.xml package -DskipTests -B -e -V
