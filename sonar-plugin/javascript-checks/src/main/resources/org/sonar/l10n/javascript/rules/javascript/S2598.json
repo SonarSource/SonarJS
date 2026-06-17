@@ -45,10 +45,6 @@
       "13.1.5"
     ]
   },
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "educationPrinciples": [
     "defense_in_depth",
     "never_trust_user_input"
@@ -57,5 +53,9 @@
   "compatibleLanguages": [
     "js",
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
   ]
 }

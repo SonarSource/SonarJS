@@ -32,13 +32,13 @@
   "ruleSpecification": "RSPEC-1607",
   "sqKey": "S1607",
   "scope": "Tests",
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "quickfix": "infeasible",
   "compatibleLanguages": [
     "js",
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
   ]
 }

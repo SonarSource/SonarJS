@@ -32,10 +32,6 @@
       16
     ]
   },
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "compatibleLanguages": [
     "js",
     "ts"
@@ -44,5 +40,9 @@
     "requiredDependency": [
       "aws-cdk-lib"
     ]
-  }
+  },
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
 }

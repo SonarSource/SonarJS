@@ -17,7 +17,6 @@
   "ruleSpecification": "RSPEC-3523",
   "sqKey": "S3523",
   "scope": "Main",
-  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "code": {
     "impacts": {
@@ -27,5 +26,6 @@
   },
   "compatibleLanguages": [
     "js"
-  ]
+  ],
+  "defaultQualityProfiles": []
 }
