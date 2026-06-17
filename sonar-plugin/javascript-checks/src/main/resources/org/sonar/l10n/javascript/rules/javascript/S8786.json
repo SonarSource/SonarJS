@@ -1,0 +1,32 @@
+{
+  "title": "Regular expressions should not cause non-linear backtracking",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "EFFICIENT"
+  },
+  "status": "ready",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "regex",
+    "performance"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8786",
+  "sqKey": "S8786",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}
