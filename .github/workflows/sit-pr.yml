@@ -1,4 +1,4 @@
-name: SIT PR DiffSIT
+name: SIT/FPS PR Automation
 
 on:
   workflow_call:
@@ -14,6 +14,10 @@ on:
         type: string
       rules_json_b64:
         required: true
+        type: string
+      plugin_version:
+        required: false
+        default: ""
         type: string
       maven_targets_artifact_name:
         required: false
@@ -37,6 +41,7 @@ permissions:
   contents: read
   id-token: write
   pull-requests: write
+  statuses: write
 
 jobs:
   prepare_rules:
@@ -46,6 +51,7 @@ jobs:
       has_rules: ${{ steps.prepare.outputs.has_rules }}
       rules_json: ${{ steps.prepare.outputs.rules_json }}
       rule_filter: ${{ steps.prepare.outputs.rule_filter }}
+      rule_keys_text: ${{ steps.prepare.outputs.rule_keys_text }}
     steps:
       - name: Canonicalize rules
         id: prepare
@@ -53,6 +59,17 @@ jobs:
           RULES_JSON_B64_INPUT: ${{ inputs.rules_json_b64 }}
         run: |
           set -euo pipefail
+
+          append_output() {
+            local key="$1"
+            local value="$2"
+            local delimiter="EOF_$(date +%s%N)_$RANDOM"
+            {
+              printf '%s<<%s\n' "$key" "$delimiter"
+              printf '%s\n' "$value"
+              printf '%s\n' "$delimiter"
+            } >> "$GITHUB_OUTPUT"
+          }
 
           rules_json_input="$(printf '%s' "$RULES_JSON_B64_INPUT" | base64 --decode)"
           rules_json="$(
@@ -71,12 +88,12 @@ jobs:
           )"
           has_rules="$(jq -r 'if length > 0 then "true" else "false" end' <<< "$rules_json")"
           rule_filter="$(jq -r '[.[] | "\(.repository):\(.ruleKey)"] | unique | sort | join(",")' <<< "$rules_json")"
+          rule_keys_text="$(jq -r '[.[] | "\(.repository):\(.ruleKey)"] | unique | sort | .[]' <<< "$rules_json")"
 
-          {
-            echo "rules_json=$rules_json"
-            echo "has_rules=$has_rules"
-            echo "rule_filter=$rule_filter"
-          } >> "$GITHUB_OUTPUT"
+          append_output "rules_json" "$rules_json"
+          append_output "has_rules" "$has_rules"
+          append_output "rule_filter" "$rule_filter"
+          append_output "rule_keys_text" "$rule_keys_text"
 
   target_sit_export:
     name: Target SIT Export
@@ -114,7 +131,6 @@ jobs:
     permissions:
       actions: read
       contents: read
-      pull-requests: write
     steps:
       - name: Checkout source code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -126,6 +142,7 @@ jobs:
           version: 2025.11.2
           mise_toml: |
             [tools]
+            node = "24.11.0"
             rust = "1.88"
 
       - name: Download target SIT export
@@ -140,29 +157,56 @@ jobs:
           name: sit-export-baseline
           path: sit-diffsit/base
 
-      - name: Run DiffSIT
-        id: diffsit
+      - name: Prepare DiffSIT inputs
         env:
-          RULE_FILTER: ${{ needs.prepare_rules.outputs.rule_filter }}
+          RULES_JSON: ${{ needs.prepare_rules.outputs.rules_json }}
         run: |
           set -euo pipefail
-          mkdir -p build/sit-diffsit/reports
 
-          set +e
-          cargo run --release --locked --manifest-path tools/diffsit/Cargo.toml -- \
-            sit-diffsit/base \
-            sit-diffsit/target \
-            --formats text,json,html \
-            --output build/sit-diffsit/reports \
-            --group-by rule \
-            --rule-filter "$RULE_FILTER"
-          exit_code="$?"
-          set -e
+          node tools/sit/prepare-diffsit-inputs.js \
+            --rules-json "$RULES_JSON" \
+            --base-dir sit-diffsit/base \
+            --target-dir sit-diffsit/target \
+            --reports-dir build/sit-diffsit/reports \
+            --manifest-output build/sit-diffsit/diffsit-manifest.json
 
-          if [ "$exit_code" -ge 2 ]; then
-            exit "$exit_code"
-          fi
-          echo "diffsit_exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+      - name: Run DiffSIT reports
+        run: |
+          set -euo pipefail
+
+          jq -c '.runs[]' build/sit-diffsit/diffsit-manifest.json | while IFS= read -r run; do
+            name="$(echo "$run" | jq -r '.name')"
+            base_dir="$(echo "$run" | jq -r '.base_dir')"
+            target_dir="$(echo "$run" | jq -r '.target_dir')"
+            rule_filter="$(echo "$run" | jq -r '.rule_filter')"
+            report_dir="$(echo "$run" | jq -r '.report_dir')"
+            mkdir -p "$report_dir"
+            echo "Running DiffSIT for ${name} (json,text,html)"
+
+            set +e
+            cargo run --release --locked --manifest-path tools/diffsit/Cargo.toml -- \
+              "$base_dir" \
+              "$target_dir" \
+              --formats text,json,html \
+              --output "$report_dir" \
+              --group-by rule \
+              --rule-filter "$rule_filter"
+            exit_code="$?"
+            set -e
+
+            if [ "$exit_code" -ge 2 ]; then
+              echo "DiffSIT failed for ${name} with exit code ${exit_code}"
+              exit "$exit_code"
+            fi
+          done
+
+      - name: Summarize DiffSIT reports
+        run: |
+          set -euo pipefail
+
+          node tools/sit/summarize-diffsit-reports.js \
+            --manifest build/sit-diffsit/diffsit-manifest.json \
+            --summary-output build/sit-diffsit/diffsit-summary.json
 
       - name: Upload DiffSIT reports
         if: always()
@@ -173,56 +217,286 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Comment on PR
+      - name: Upload DiffSIT summary
         if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ inputs.pr_number }}
-          DIFFSIT_EXIT_CODE: ${{ steps.diffsit.outputs.diffsit_exit_code || '2' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: diffsit-run-summary
+          path: build/sit-diffsit/diffsit-summary.json
+          if-no-files-found: error
+          retention-days: 30
+
+  fps:
+    name: FPS
+    needs: [prepare_rules, target_sit_export]
+    if: needs.prepare_rules.outputs.has_rules == 'true'
+    runs-on: sonar-s
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    steps:
+      - name: Get secrets
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-submodules token | github_submodules_token;
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | github_rspec_token;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+            development/team/analysis-team/kv/data/anthropic-rad-squad apikey | ANTHROPIC_API_KEY;
+
+      - name: Checkout source code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ inputs.head_sha }}
+
+      - uses: jdx/mise-action@v4.1.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            node = "24.11.0"
+            python = "3.13"
+            uv = "0.11.2"
+
+      - name: Register the personal access token
+        run: |
+          set -euo pipefail
+          echo "${{ fromJSON(steps.secrets.outputs.vault).github_submodules_token }}" | gh auth login --with-token
+
+      - name: Configure the Git credential helper
+        run: |
+          set -euo pipefail
+          gh auth setup-git
+
+      - name: Restore DSPy cache
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: ${{ github.workspace }}/.dspy_cache
+          key: dspy-cache-${{ runner.os }}-${{ hashFiles('dev-tools/scripts/uv.lock') }}
+          restore-keys: dspy-cache-${{ runner.os }}-
+
+      - name: Download SIT bundles
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sit-export-target
+          path: sit-input
+
+      - name: Normalize SIT bundles for FPS
         run: |
           set -euo pipefail
 
-          marker="<!-- sit-diffsit-report -->"
-          report="build/sit-diffsit/reports/diffsit-report.txt"
-          report_limit=45000
-          {
-            echo "$marker"
-            echo "## SIT DiffSIT Report"
-            echo ""
-            if [ "$DIFFSIT_EXIT_CODE" = "0" ]; then
-              echo "No SIT differences found for the changed rules."
-            elif [ "$DIFFSIT_EXIT_CODE" = "1" ]; then
-              echo "SIT differences were found for the changed rules."
-            else
-              echo "SIT DiffSIT did not complete successfully. Check the workflow logs."
-            fi
-            echo ""
-            if [ -f "$report" ]; then
-              echo "<details><summary>Text report</summary>"
-              echo ""
-              echo '```text'
-              head -c "$report_limit" "$report" | iconv -f utf-8 -t utf-8 -c
-              report_bytes="$(wc -c < "$report" | tr -d '[:space:]')"
-              if [ "$report_bytes" -gt "$report_limit" ]; then
-                echo ""
-                echo "... (report truncated; download the full report from the workflow artifacts)"
-              fi
-              echo ""
-              echo '```'
-              echo "</details>"
-            fi
-          } > comment.md
+          node tools/sit/normalize-sit-bundles.js \
+            --input-dir sit-input \
+            --output-dir sit-input-bundles
 
-          existing_comment_id="$(
-            gh api --paginate "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
-              --jq ".[] | select(.body | startswith(\"$marker\")) | .id" \
-              | head -1
-          )"
+      - name: Install FPS dependencies
+        working-directory: dev-tools/scripts
+        env:
+          UV_INDEX_REPOX_USERNAME: ""
+          UV_INDEX_REPOX_PASSWORD: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          uv sync --frozen --no-dev
 
-          if [ -n "$existing_comment_id" ]; then
-            gh api "repos/${{ github.repository }}/issues/comments/$existing_comment_id" \
-              -X PATCH \
-              -F body=@comment.md
+      - name: Run FPS for all changed rules
+        env:
+          RULE_KEYS_TEXT: ${{ needs.prepare_rules.outputs.rule_keys_text }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).github_rspec_token }}
+          GH_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).github_rspec_token }}
+          ANTHROPIC_API_KEY: ${{ fromJSON(steps.secrets.outputs.vault).ANTHROPIC_API_KEY }}
+          DSPY_CACHEDIR: ${{ github.workspace }}/.dspy_cache
+          UV_INDEX_REPOX_USERNAME: ""
+          UV_INDEX_REPOX_PASSWORD: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          node tools/sit/run-fps-batch.js \
+            --rules-text "$RULE_KEYS_TEXT" \
+            --workspace "$GITHUB_WORKSPACE" \
+            --sit-input "$GITHUB_WORKSPACE/sit-input-bundles" \
+            --reports-dir "$GITHUB_WORKSPACE/build/sit-fps/reports" \
+            --summary-tsv "$GITHUB_WORKSPACE/build/sit-fps/fps-summary.tsv" \
+            --summary-json "$GITHUB_WORKSPACE/build/sit-fps/fps-summary.json" \
+            --pr-number "$PR_NUMBER" \
+            --head-sha "$HEAD_SHA"
+
+      - name: Upload FPS reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fps-reports
+          path: build/sit-fps/reports/**/*
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload FPS summary
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fps-run-summary
+          path: build/sit-fps/fps-summary.json
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    name: Publish PR Status
+    needs: [prepare_rules, target_sit_export, baseline_sit_export, diffsit, fps]
+    if: always()
+    runs-on: sonar-xs
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+      statuses: write
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ inputs.head_sha }}
+
+      - uses: jdx/mise-action@v4.1.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            node = "24.11.0"
+
+      - name: Initialize publish inputs
+        run: |
+          set -euo pipefail
+
+          mkdir -p build/sit-fps build/sit-diffsit
+          printf '{"results":[]}\n' > build/sit-fps/fps-summary.json
+          printf '{"overall":{},"results":[]}\n' > build/sit-diffsit/diffsit-summary.json
+          printf '{"artifacts":[]}\n' > build/sit-fps/run-artifacts.json
+
+      - name: Download FPS summary
+        if: needs.prepare_rules.outputs.has_rules == 'true'
+        continue-on-error: ${{ needs.fps.result != 'success' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: fps-run-summary
+          path: build/sit-fps
+
+      - name: Download DiffSIT summary
+        if: needs.prepare_rules.outputs.has_rules == 'true'
+        continue-on-error: ${{ needs.diffsit.result != 'success' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: diffsit-run-summary
+          path: build/sit-diffsit
+
+      - name: Collect run artifact metadata
+        if: needs.prepare_rules.outputs.has_rules == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          if gh api --method GET "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100" > build/sit-fps/run-artifacts.json; then
+            echo "Collected run artifact metadata"
           else
-            gh pr comment "$PR_NUMBER" --body-file comment.md
+            echo "Failed to collect run artifact metadata, continuing with an empty list"
+            printf '{"artifacts":[]}\n' > build/sit-fps/run-artifacts.json
           fi
+
+      - name: Build publish payload
+        id: payload
+        env:
+          HAS_RULES: ${{ needs.prepare_rules.outputs.has_rules }}
+          RULES_JSON: ${{ needs.prepare_rules.outputs.rules_json }}
+          TARGET_SIT_RESULT: ${{ needs.target_sit_export.result }}
+          BASELINE_SIT_RESULT: ${{ needs.baseline_sit_export.result }}
+          DIFFSIT_RESULT: ${{ needs.diffsit.result }}
+          FPS_RESULT: ${{ needs.fps.result }}
+          PLUGIN_VERSION: ${{ inputs.plugin_version }}
+        run: |
+          set -euo pipefail
+
+          if [ "$HAS_RULES" != "true" ]; then
+            sit_result="skipped"
+          elif [ "$TARGET_SIT_RESULT" = "success" ] && [ "$BASELINE_SIT_RESULT" = "success" ]; then
+            sit_result="success"
+          else
+            sit_result="failure"
+          fi
+
+          node tools/sit/build-publish-payload.js \
+            --rules-json "${RULES_JSON:-[]}" \
+            --sit-result "$sit_result" \
+            --diffsit-result "$DIFFSIT_RESULT" \
+            --fps-result "$FPS_RESULT" \
+            --plugin-version "$PLUGIN_VERSION" \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --repository "${{ github.repository }}" \
+            --run-id "${{ github.run_id }}" \
+            --fps-summary-path build/sit-fps/fps-summary.json \
+            --diffsit-summary-path build/sit-diffsit/diffsit-summary.json \
+            --artifacts-json-path build/sit-fps/run-artifacts.json \
+            --comment-path build/sit-fps/comment.md \
+            --rule-statuses-path build/sit-fps/rule-statuses.json
+
+      - name: Set commit status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+          STATE: ${{ steps.payload.outputs.state }}
+          DESCRIPTION: ${{ steps.payload.outputs.description }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${HEAD_SHA}" \
+            -f state="$STATE" \
+            -f context='sit-fps' \
+            -f description="$DESCRIPTION" \
+            -f target_url="$RUN_URL" > /dev/null
+
+      - name: Set per-rule commit statuses
+        if: needs.prepare_rules.outputs.has_rules == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+          RULE_STATUSES_PATH: build/sit-fps/rule-statuses.json
+        run: |
+          set -euo pipefail
+
+          if [ ! -f "$RULE_STATUSES_PATH" ]; then
+            echo "No per-rule statuses to publish"
+            exit 0
+          fi
+
+          status_count="$(jq 'length' "$RULE_STATUSES_PATH")"
+          if [ "$status_count" -eq 0 ]; then
+            echo "No per-rule statuses to publish"
+            exit 0
+          fi
+
+          jq -c '.[]' "$RULE_STATUSES_PATH" | while IFS= read -r status_entry; do
+            context="$(echo "$status_entry" | jq -r '.context')"
+            state="$(echo "$status_entry" | jq -r '.state')"
+            description="$(echo "$status_entry" | jq -r '.description')"
+            target_url="$(echo "$status_entry" | jq -r '.target_url')"
+
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${HEAD_SHA}" \
+              -f state="$state" \
+              -f context="$context" \
+              -f description="$description" \
+              -f target_url="$target_url" > /dev/null
+          done
+
+      - name: Post PR summary comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          set -euo pipefail
+
+          node tools/sit/publish-pr-comment.js \
+            --repository "${{ github.repository }}" \
+            --pr-number "$PR_NUMBER" \
+            --body-path build/sit-fps/comment.md

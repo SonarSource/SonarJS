@@ -1,0 +1,25 @@
+[project]
+name = "dev-tools-scripts"
+version = "0.1.0"
+description = "Python tooling for SonarJS developer scripts"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "mega-false-positive-slayer-3000",
+    "PyYAML>=6.0",
+    "python-dotenv>=1.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "coverage>=7.10.7",
+    "pytest>=8.0",
+    "ruff>=0.14.0",
+]
+
+[[tool.uv.index]]
+name = "repox"
+url = "https://repox.jfrog.io/artifactory/api/pypi/sonarsource-pypi/simple"
+default = true
+
+[tool.uv.sources]
+mega-false-positive-slayer-3000 = { git = "https://github.com/SonarSource/mega-false-positive-slayer-3000.git", rev = "ee565227989be5b75dab02bf06253583d66e4d4c" }

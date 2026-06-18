@@ -153,6 +153,7 @@ jobs:
     outputs:
       sit-has-rules: ${{ steps.detect_sit_rules.outputs.has_rules }}
       sit-rules-json-b64: ${{ steps.detect_sit_rules.outputs.rules_json_b64 }}
+      plugin-version: ${{ steps.config-maven.outputs.project-version }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -1329,22 +1330,25 @@ jobs:
           shadow1_platform: ${{ matrix.shadow-platform }}
 
   sit_pr:
-    name: SIT DiffSIT
+    name: SIT/FPS
     needs: [build]
     if: >-
       github.event_name == 'pull_request' &&
-      github.event.pull_request.head.repo.fork == false
+      github.event.pull_request.head.repo.fork == false &&
+      needs.build.outputs.sit-has-rules == 'true'
     permissions:
       actions: read
       contents: read
       id-token: write
       pull-requests: write
+      statuses: write
     uses: ./.github/workflows/sit-pr.yml
     with:
       pr_number: ${{ format('{0}', github.event.pull_request.number) }}
       base_sha: ${{ github.event.pull_request.base.sha }}
       head_sha: ${{ github.sha }}
       rules_json_b64: ${{ needs.build.outputs.sit-rules-json-b64 }}
+      plugin_version: ${{ needs.build.outputs.plugin-version }}
       maven_targets_artifact_name: maven-targets-${{ github.sha }}
       sonarjs_m2_artifact_name: sonarjs-m2
     secrets: inherit
