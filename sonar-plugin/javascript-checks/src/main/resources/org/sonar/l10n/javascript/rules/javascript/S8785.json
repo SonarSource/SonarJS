@@ -1,0 +1,36 @@
+{
+  "title": "Test suite callbacks should be synchronous functions",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "async",
+    "jest",
+    "vitest",
+    "mocha",
+    "cypress"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-8785",
+  "sqKey": "S8785",
+  "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH",
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}
