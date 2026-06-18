@@ -263,6 +263,10 @@ export const cssRulesMeta: CssRuleMeta[] = [
     stylelintKey: 'sonar/text-spacing',
   },
   {
+    sqKey: 'S8765',
+    stylelintKey: 'custom-property-no-missing-var-function',
+  },
+  {
     sqKey: 'S8770',
     stylelintKey: 'at-rule-descriptor-no-unknown',
   },

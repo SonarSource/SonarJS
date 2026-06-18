@@ -259,18 +259,26 @@ describe('CSS rule configurations', () => {
     expect(result).toEqual({ key: 'block-no-empty', configurations: [] });
   });
 
+  it('should map S8765 to the stylelint custom property rule', () => {
+    const result = buildCssRuleConfigurations('S8765', []);
+    expect(result).toEqual({
+      key: 'custom-property-no-missing-var-function',
+      configurations: [],
+    });
+  });
+
   it('should map S8770 to at-rule-descriptor-no-unknown', () => {
     expect(buildCssRuleConfigurations('S8770', [])).toEqual({
       key: 'at-rule-descriptor-no-unknown',
       configurations: [],
     });
   });
-  
+
   it('should map S8775 to at-rule-descriptor-value-no-unknown', () => {
     const result = buildCssRuleConfigurations('S8775', []);
     expect(result).toEqual({ key: 'at-rule-descriptor-value-no-unknown', configurations: [] });
   });
-  
+
   it('should map S8777 to at-rule-prelude-no-invalid', () => {
     expect(buildCssRuleConfigurations('S8777', [])).toEqual({
       key: 'at-rule-prelude-no-invalid',
@@ -663,6 +671,30 @@ describe('transformProjectOutputToResponse', () => {
       startLineOffset: 2,
       endLine: 1,
       endLineOffset: 5,
+    });
+  });
+
+  it('should map CSS stylelint rule ids back to SonarQube rule keys', () => {
+    const output = makeOutput({
+      '/project/src/styles.css': {
+        issues: [
+          {
+            ruleId: 'custom-property-no-missing-var-function',
+            language: 'css',
+            line: 1,
+            column: 2,
+            message: 'Missing var function for "--accent-color"',
+          },
+        ],
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].rule).toEqual({
+      repo: 'css',
+      rule: 'S8765',
     });
   });
 
