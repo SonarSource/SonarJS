@@ -35,7 +35,10 @@ public class CssRules {
     this.rules = checks.all();
     stylelintKeyToRuleKey = new HashMap<>();
     for (CssRule rule : rules) {
-      stylelintKeyToRuleKey.put(rule.stylelintKey(), checks.ruleKey(rule));
+      RuleKey ruleKey = checks.ruleKey(rule);
+      for (StylelintRule sr : rule.stylelintRules()) {
+        stylelintKeyToRuleKey.put(sr.getKey(), ruleKey);
+      }
     }
   }
 
@@ -54,8 +57,8 @@ ___RULE_CLASSES___
 
   public List<StylelintRule> getStylelintRules() {
     return this.rules.stream()
-      .filter(rule -> !CSS_PARSING_ERROR_STYLELINT_KEY.equals(rule.stylelintKey()))
-      .map(rule -> new StylelintRule(rule.stylelintKey(), rule.stylelintOptions()))
+      .flatMap(rule -> rule.stylelintRules().stream())
+      .filter(sr -> !CSS_PARSING_ERROR_STYLELINT_KEY.equals(sr.getKey()))
       .toList();
   }
 }
