@@ -45,7 +45,8 @@ export class SourceFileStore implements FileStore {
   private canAccessFileSystem: boolean | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
   private readonly ignoredPaths = new Set<string>();
-  private readonly pendingFileTypes = new Map<NormalizedAbsolutePath, FileType>();
+  private pendingFileType: { filePath: NormalizedAbsolutePath; fileType: FileType } | undefined =
+    undefined;
   private files: AnalyzableFiles | undefined = undefined;
   private readonly directoryIndex = new DirectoryIndex();
 
@@ -98,7 +99,7 @@ export class SourceFileStore implements FileStore {
     this.analyzableFilesConfigKey = undefined;
     this.files = undefined;
     this.ignoredPaths.clear();
-    this.pendingFileTypes.clear();
+    this.pendingFileType = undefined;
     this.directoryIndex.clear();
   }
 
@@ -120,15 +121,17 @@ export class SourceFileStore implements FileStore {
       return false;
     }
 
-    this.pendingFileTypes.set(filename, fileType);
+    this.pendingFileType = { filePath: filename, fileType };
     return 'content';
   }
 
   async processFile(filename: NormalizedAbsolutePath, configuration: Configuration, file?: File) {
+    const pendingFileType = this.pendingFileType;
+    this.pendingFileType = undefined;
     const fileType =
-      this.pendingFileTypes.get(filename) ??
-      filterPathAndGetFileType(filename, getFilterPathParams(configuration));
-    this.pendingFileTypes.delete(filename);
+      pendingFileType?.filePath === filename
+        ? pendingFileType.fileType
+        : filterPathAndGetFileType(filename, getFilterPathParams(configuration));
     // we don't call shouldIgnoreFile because the isJsTsExcluded method has already been
     // called while walking the project tree
     if (
@@ -154,7 +157,7 @@ export class SourceFileStore implements FileStore {
   }
 
   async postProcess(_configuration: Configuration) {
-    this.pendingFileTypes.clear();
+    this.pendingFileType = undefined;
   }
 
   private anyParentIsIgnored(filePath: NormalizedAbsolutePath) {
