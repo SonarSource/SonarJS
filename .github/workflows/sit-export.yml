@@ -98,7 +98,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{ inputs.sonarjs_m2_artifact_name }}
-          path: ~/.m2/repository/org/sonarsource/javascript
+          path: build/sonarjs-m2
 
       - name: Download Maven target artifacts
         if: inputs.maven_targets_artifact_name != ''
@@ -144,6 +144,10 @@ jobs:
             exit 1
           fi
 
+          mkdir -p build
+          available_projects=()
+          skipped_projects=()
+
           for project in "${projects[@]}"; do
             project="${project#"${project%%[![:space:]]*}"}"
             project="${project%"${project##*[![:space:]]}"}"
@@ -156,6 +160,7 @@ jobs:
               exit 1
             fi
 
+            checkout_ok='false'
             for attempt in 1 2 3; do
               if [ "$attempt" -gt 1 ] && [ -d "$PEACHEE_ROOT/$project/workspace/.git" ]; then
                 rm -rf "$PEACHEE_ROOT/$project/workspace"
@@ -174,6 +179,7 @@ jobs:
               set -e
 
               if [ "$exit_code" -eq 0 ]; then
+                checkout_ok='true'
                 break
               fi
 
@@ -185,11 +191,35 @@ jobs:
                 echo "Checkout failed for $project (attempt $attempt), retrying in 10 seconds"
                 sleep 10
               else
-                echo "Checkout failed for $project after $attempt attempts" >&2
-                exit "$exit_code"
+                echo "Skipping peachee project $project after $attempt failed checkout attempts" >&2
               fi
             done
+
+            if [ "$checkout_ok" = 'true' ]; then
+              available_projects+=("$project")
+            else
+              skipped_projects+=("$project")
+            fi
           done
+
+          if [ "${#available_projects[@]}" -eq 0 ]; then
+            echo "No peachee-js projects could be checked out" >&2
+            exit 1
+          fi
+
+          available_filter="$(
+            IFS=,
+            printf '%s' "${available_projects[*]}"
+          )"
+          printf '%s\n' "$available_filter" > build/peachee-project-filter.txt
+
+          if [ "${#skipped_projects[@]}" -gt 0 ]; then
+            skipped_filter="$(
+              IFS=,
+              printf '%s' "${skipped_projects[*]}"
+            )"
+            echo "Skipped unavailable peachee-js projects: $skipped_filter"
+          fi
 
       - name: Run SIT exporter
         env:
@@ -204,6 +234,7 @@ jobs:
           mkdir -p build/sit-export
           printf '%s\n' "$RULES_JSON" > build/sit-rules.json
           projects_json="sit-tooling/packages/ruling/projects.json"
+          effective_project_filter="$PROJECT_FILTER"
 
           find_latest_plugin_jar() {
             local root="$1"
@@ -215,6 +246,9 @@ jobs:
 
           plugin_jar="$(find_latest_plugin_jar sonar-plugin/sonar-javascript-plugin/target)"
           if [ -z "$plugin_jar" ]; then
+            plugin_jar="$(find_latest_plugin_jar build/sonarjs-m2)"
+          fi
+          if [ -z "$plugin_jar" ]; then
             plugin_jar="$(find_latest_plugin_jar "$HOME/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin")"
           fi
           if [ -z "$plugin_jar" ]; then
@@ -223,12 +257,15 @@ jobs:
           fi
 
           if [ "$PROJECT_SOURCE" = "peachee" ]; then
+            if [ -f build/peachee-project-filter.txt ]; then
+              effective_project_filter="$(tr -d '\n' < build/peachee-project-filter.txt)"
+            fi
             manifest_args=(
               --peachee-root "$PEACHEE_ROOT"
               --output build/sit-projects.json
             )
-            if [ -n "$PROJECT_FILTER" ]; then
-              manifest_args+=(--project-filter "$PROJECT_FILTER")
+            if [ -n "$effective_project_filter" ]; then
+              manifest_args+=(--project-filter "$effective_project_filter")
             fi
             node sit-tooling/tools/sit/generate-peachee-manifest.js "${manifest_args[@]}"
             projects_json="build/sit-projects.json"
@@ -241,8 +278,8 @@ jobs:
             --plugin-jar "$plugin_jar"
             --commit "$CHECKOUT_REF"
           )
-          if [ -n "$PROJECT_FILTER" ]; then
-            args+=(--project-filter "$PROJECT_FILTER")
+          if [ -n "$effective_project_filter" ]; then
+            args+=(--project-filter "$effective_project_filter")
           fi
 
           java -jar sit-tooling/its/sit-exporter/target/javascript-it-sit-exporter-*.jar "${args[@]}"

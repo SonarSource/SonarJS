@@ -128,7 +128,7 @@ jobs:
           node tools/sit/render-peachee-shard-matrix.js \
             --peachee-root "$GITHUB_WORKSPACE/tools/sit/peachee-public" \
             --output build/sit-peachee-matrix.json \
-            --projects-per-shard 16 \
+            --projects-per-shard 128 \
             --project-filter "$PROJECT_FILTER"
 
           {
@@ -199,7 +199,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: sonarjs-m2-baseline
-          path: ~/.m2/repository/org/sonarsource/javascript
+          path: ${{ github.workspace }}/.m2/repository/org/sonarsource/javascript
           retention-days: 1
 
   target_sit_export:
