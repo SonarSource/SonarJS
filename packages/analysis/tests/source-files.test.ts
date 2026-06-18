@@ -20,7 +20,11 @@ import { join } from 'node:path/posix';
 import { initFileStores, sourceFileStore } from '../src/file-stores/index.js';
 import { createConfiguration } from '../src/common/configuration.js';
 import { sanitizeRawInputFiles } from '../src/common/input-sanitize.js';
-import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import {
+  normalizePath,
+  normalizeToAbsolutePath,
+  type File,
+} from '../../shared/src/helpers/files.js';
 import { UNINITIALIZED_ERROR } from '../src/file-stores/source-files.js';
 
 const fixtures = join(import.meta.dirname, 'fixtures-source-files');
@@ -91,5 +95,26 @@ describe('files', () => {
     expect([
       ...sourceFileStore.getFilesInDirectory(normalizeToAbsolutePath('/project/src'))!,
     ]).toEqual(['second.ts']);
+  });
+
+  it('should promote shared walk files without allocating a wrapper', async () => {
+    const baseDir = normalizeToAbsolutePath('/project');
+    const configuration = createConfiguration({ baseDir });
+    const file: File = {
+      filePath: normalizeToAbsolutePath('/project/src/app.js'),
+      fileContent: 'console.log("shared");\n',
+    };
+
+    sourceFileStore.setup(configuration);
+    await sourceFileStore.processFile(file.filePath, configuration, file);
+
+    const storedFile = sourceFileStore.getFiles()[file.filePath];
+    expect(storedFile).toBe(file);
+    expect(storedFile).toMatchObject({
+      filePath: file.filePath,
+      fileContent: file.fileContent,
+      fileType: 'MAIN',
+      fileStatus: 'SAME',
+    });
   });
 });

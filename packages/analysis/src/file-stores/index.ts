@@ -23,25 +23,22 @@ import type { FileStore } from './store-type.js';
 import type { Configuration } from '../common/configuration.js';
 import {
   isRoot,
+  readFile,
+  type File,
   type NormalizedAbsolutePath,
   dirnamePath,
 } from '../../../shared/src/helpers/files.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
+import { warn } from '../../../shared/src/helpers/logging.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const dependencyManifestStore = new DependencyManifestStore();
-export const generatedSourceStore = new GeneratedSourceStore(
-  sourceFileStore,
-  dependencyManifestStore,
-);
+export const generatedSourceStore = new GeneratedSourceStore(dependencyManifestStore);
 export const tsConfigStore = new TsConfigStore();
 
 const fileStores: FileStore[] = [
   sourceFileStore,
   dependencyManifestStore,
-  // Order matters: generatedSourceStore reuses sourceFileStore content for overlapping
-  // JS/TS config files and dependencyManifestStore package.json contents, so both stores
-  // must run before generatedSourceStore.
   generatedSourceStore,
   tsConfigStore,
 ];
@@ -72,14 +69,15 @@ export async function initFileStores(configuration: Configuration, inputFiles?: 
   }
 
   if (canAccessFileSystem) {
-    await findFiles(baseDir, jsTsExclusions, async (file, filePath) => {
+    await findFiles(baseDir, jsTsExclusions, async (entry, filePath) => {
       for (const store of pendingStores) {
-        if (file.isFile()) {
-          await store.processFile(filePath, configuration);
-        }
-        if (file.isDirectory()) {
+        if (entry.isDirectory()) {
           store.processDirectory?.(filePath, configuration);
         }
+      }
+
+      if (entry.isFile()) {
+        await processPendingFileStores(pendingStores, filePath, configuration);
       }
     });
   } else if (inputFiles) {
@@ -116,9 +114,56 @@ export async function simulateFromInputFiles(
         store.processDirectory(dir, configuration);
       }
     }
-    //files need to be processed after as ignored files logic depends on ignored paths being ingested
-    for (const filePath of filePaths) {
+  }
+
+  // files need to be processed after as ignored files logic depends on ignored paths being ingested
+  for (const filePath of filePaths) {
+    await processPendingFileStores(
+      pendingStores,
+      filePath,
+      configuration,
+      inputFiles[filePath].fileContent,
+    );
+  }
+}
+
+async function processPendingFileStores(
+  pendingStores: FileStore[],
+  filePath: NormalizedAbsolutePath,
+  configuration: Configuration,
+  fileContent?: string,
+) {
+  let file: File | undefined = undefined;
+  let fileResolved = false;
+  for (const store of pendingStores) {
+    const storeWantsFile = store.wantsFile(filePath, configuration);
+    if (storeWantsFile === 'content') {
+      if (!fileResolved) {
+        file = await createSharedFile(filePath, fileContent);
+        fileResolved = true;
+      }
+
+      if (file !== undefined) {
+        await store.processFile(filePath, configuration, file);
+      }
+    } else if (storeWantsFile === 'path') {
       await store.processFile(filePath, configuration);
     }
+  }
+}
+
+async function createSharedFile(
+  filePath: NormalizedAbsolutePath,
+  fileContent?: string,
+): Promise<File | undefined> {
+  if (fileContent !== undefined) {
+    return { filePath, fileContent };
+  }
+
+  try {
+    return { filePath, fileContent: await readFile(filePath) };
+  } catch (error) {
+    warn(`Error reading file ${filePath}: ${error}`);
+    return undefined;
   }
 }

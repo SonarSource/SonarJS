@@ -19,7 +19,7 @@ import type { RuleConfig } from './jsts/linter/config/rule-config.js';
 import type { RuleConfig as CssRuleConfig } from './css/linter/config.js';
 import type { EmbeddedAnalysisOutput } from './jsts/embedded/analysis/analysis.js';
 import type { CssAnalysisOutput } from './css/analysis/analysis.js';
-import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
+import type { File, NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import type { ProjectAnalysisTelemetry } from './telemetry.js';
 import type { ParsingError } from './contracts/project-analysis.js';
 import type { FileType } from './contracts/file.js';
@@ -59,9 +59,7 @@ type FileErrorResult = { error: string };
  * Contains the per-file fields needed for storage and analysis.
  * The remaining fields are filled from configuration when actually analyzing the file.
  */
-export type AnalyzableFile = {
-  filePath: NormalizedAbsolutePath;
-  fileContent: string;
+export type AnalyzableFile = File & {
   fileType: FileType;
   fileStatus: FileStatus;
 };
@@ -82,6 +80,17 @@ export type AnalyzableFiles = { [key: NormalizedAbsolutePath]: AnalyzableFile } 
  */
 export function createAnalyzableFiles(): AnalyzableFiles {
   return {} as AnalyzableFiles;
+}
+
+/**
+ * Promotes a shared file-walk entry into an analyzable source file without creating a wrapper.
+ */
+export function promoteToAnalyzableFile(
+  file: File,
+  fileType: FileType,
+  fileStatus: FileStatus,
+): AnalyzableFile {
+  return Object.assign(file, { fileType, fileStatus });
 }
 
 /**

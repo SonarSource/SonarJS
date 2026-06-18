@@ -55,8 +55,8 @@ export const MinimatchCache = new ComputedCache<
 
           if (stats.isFile()) {
             files.push({
-              path: fullEntryPath,
-              content: filesystem.readFileSync(fullEntryPath),
+              filePath: fullEntryPath,
+              fileContent: filesystem.readFileSync(fullEntryPath, 'utf8'),
             });
           }
         }

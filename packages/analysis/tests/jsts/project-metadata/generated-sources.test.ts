@@ -67,7 +67,7 @@ function createPackageJsonMap(
 ) {
   const packageJsonPath = joinPaths(packageDir, 'package.json');
   return new Map<NormalizedAbsolutePath, File>([
-    [packageDir, { path: packageJsonPath, content: JSON.stringify(packageJson, null, 2) }],
+    [packageDir, { filePath: packageJsonPath, fileContent: JSON.stringify(packageJson, null, 2) }],
   ]);
 }
 
@@ -115,7 +115,7 @@ async function createGeneratedSourceProjectSnapshot(
   const configuration = createConfiguration({ baseDir });
   const directories = new Set<NormalizedAbsolutePath>([baseDir]);
   const preloadedFiles = new Map<NormalizedAbsolutePath, File>(
-    [...packageJsons.values()].map(file => [file.path, file]),
+    [...packageJsons.values()].map(file => [file.filePath, file]),
   );
   const sourceFiles = new Set<NormalizedAbsolutePath>();
   const isSourceFile = sourceFileMatcher ?? (filePath => isJsTsFile(filePath, configuration));
@@ -139,8 +139,8 @@ async function createGeneratedSourceProjectSnapshot(
     }
 
     preloadedFiles.set(filePath, {
-      content: await readFile(filePath),
-      path: filePath,
+      fileContent: await readFile(filePath),
+      filePath,
     });
   });
 
@@ -324,12 +324,12 @@ describe('generated sources project metadata', () => {
               [
                 configPath,
                 {
-                  content: `generates:
+                  fileContent: `generates:
   ./src/generated/graphql.ts:
     plugins:
       - typescript
 `,
-                  path: configPath,
+                  filePath: configPath,
                 },
               ],
             ]),
@@ -371,8 +371,8 @@ describe('generated sources project metadata', () => {
               [
                 manifestPath,
                 {
-                  content: 'client.ts\n',
-                  path: manifestPath,
+                  fileContent: 'client.ts\n',
+                  filePath: manifestPath,
                 },
               ],
             ]),

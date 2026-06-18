@@ -33,8 +33,8 @@ export type NormalizedAbsolutePath = string & {
   readonly __normalizedAbsolutePathBrand: 'NormalizedAbsolutePath';
 };
 export type File = {
-  readonly path: NormalizedAbsolutePath;
-  readonly content: Buffer | string;
+  readonly filePath: NormalizedAbsolutePath;
+  readonly fileContent: string;
 };
 
 /**

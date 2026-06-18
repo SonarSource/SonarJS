@@ -30,7 +30,7 @@ export function getClosestDependencyManifestDir(
     const manifestPath = closestPatternCache
       .get(manifestName)
       .get(topDir ?? getPathRoot(dir))
-      .get(dir)?.path;
+      .get(dir)?.filePath;
 
     // All candidates are on the same ancestor chain of `dir`, so the longest path is the closest.
     if (

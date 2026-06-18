@@ -144,9 +144,10 @@ tagged subset and generated-source telemetry are computed later in `analyzeProje
 
 During traversal it also collects a temporary project snapshot made of walked directories,
 walked JS/TS file paths matching the current suffix set, and a small detector-specific set of
-preloaded files. It reuses `sourceFileStore` for overlapping JS/TS config contents and
-`dependencyManifestStore` for raw `package.json` contents, then `postProcess()` derives the cached
-metadata from that combined in-memory snapshot.
+preloaded files. File reads are centralized in `file-stores/index.ts`, which reads each requested
+path at most once and passes the same shared `File` object to every interested store. The
+generated-source store also reuses `dependencyManifestStore` for raw `package.json` contents, then
+`postProcess()` derives the cached metadata from that combined in-memory snapshot.
 
 ## Initialization Flow
 
@@ -199,10 +200,9 @@ The walk is intentionally broader than the final analyzable source-file set beca
 - dependency manifests
 - parent-directory relationships
 
-The store order in `file-stores/index.ts` is intentional:
-
-- `sourceFileStore` runs before `generatedSourceStore` so detector config files can reuse cached JS/TS contents
-- `dependencyManifestStore` runs before `generatedSourceStore` so `package.json` ownership stays in one place
+For file entries, `initFileStores()` first asks each pending store whether it wants the path only or
+needs contents too. If any pending store needs contents, the file is read once and the same shared
+`File` object is passed to every interested store.
 
 ### Population Mode 2: Simulated Traversal From Explicit Request Files
 

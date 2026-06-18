@@ -18,8 +18,12 @@
 import { beforeEach, describe, it } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
-import { FileStore } from '../src/file-stores/store-type.js';
-import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { FileStore, type FileProcessingMode } from '../src/file-stores/store-type.js';
+import {
+  normalizePath,
+  normalizeToAbsolutePath,
+  type File,
+} from '../../shared/src/helpers/files.js';
 import { createConfiguration, type Configuration } from '../src/common/configuration.js';
 import type { AnalyzableFiles } from '../src/projectAnalysis.js';
 import { sanitizeRawInputFiles } from '../src/common/input-sanitize.js';
@@ -36,8 +40,11 @@ const sourceFileFixtures = normalizeToAbsolutePath(
 );
 
 class MockFileStore implements FileStore {
+  constructor(private readonly fileRequest: FileProcessingMode | false = 'path') {}
+
   public processedDirectories: string[] = [];
   public processedFiles: string[] = [];
+  public receivedFiles: Array<File | undefined> = [];
   public setupCalled = false;
   public postProcessCalled = false;
 
@@ -52,12 +59,17 @@ class MockFileStore implements FileStore {
     this.setupCalled = true;
   }
 
+  wantsFile(_filename: string, _configuration: Configuration): FileProcessingMode | false {
+    return this.fileRequest;
+  }
+
   processDirectory(dir: string): void {
     this.processedDirectories.push(dir);
   }
 
-  async processFile(filename: string, _configuration: Configuration): Promise<void> {
+  async processFile(filename: string, _configuration: Configuration, file?: File): Promise<void> {
     this.processedFiles.push(filename);
+    this.receivedFiles.push(file);
   }
 
   async postProcess(_configuration: Configuration): Promise<void> {
@@ -125,7 +137,14 @@ describe('simulateFromInputFiles', () => {
         return false;
       }
       setup(_configuration: Configuration): void {}
-      async processFile(filename: string, _configuration: Configuration): Promise<void> {
+      wantsFile(_filename: string, _configuration: Configuration): FileProcessingMode | false {
+        return 'path';
+      }
+      async processFile(
+        filename: string,
+        _configuration: Configuration,
+        _file?: File,
+      ): Promise<void> {
         this.processedFiles.push(filename);
       }
       async postProcess(_configuration: Configuration): Promise<void> {}
@@ -188,6 +207,57 @@ describe('simulateFromInputFiles', () => {
 
     expect(mockStore1.processedFiles).toContain(normalizePath('/project/src/app.js'));
     expect(mockStore2.processedFiles).toContain(normalizePath('/project/src/app.js'));
+  });
+
+  it('should share the same file object across content stores', async () => {
+    const mockStore1 = new MockFileStore('content');
+    const mockStore2 = new MockFileStore('content');
+    const configuration = createConfiguration({
+      baseDir: normalizeToAbsolutePath('/project'),
+    });
+    const { files: inputFiles } = await sanitizeRawInputFiles(
+      {
+        file1: {
+          filePath: '/project/src/app.js',
+          fileType: 'MAIN',
+          fileContent: 'console.log("shared");',
+        },
+      },
+      configuration,
+    );
+
+    await simulateFromInputFiles(inputFiles, configuration, [mockStore1, mockStore2]);
+
+    expect(mockStore1.receivedFiles[0]).toBeDefined();
+    expect(mockStore1.receivedFiles[0]).toBe(mockStore2.receivedFiles[0]);
+    expect(mockStore1.receivedFiles[0]?.fileContent).toEqual('console.log("shared");');
+  });
+
+  it('should skip files for stores that do not want them', async () => {
+    class FilteringMockStore extends MockFileStore {
+      override wantsFile(
+        filename: string,
+        _configuration: Configuration,
+      ): FileProcessingMode | false {
+        return filename.endsWith('.ts') ? 'path' : false;
+      }
+    }
+
+    const mockStore = new FilteringMockStore();
+    const configuration = createConfiguration({
+      baseDir: normalizeToAbsolutePath('/project'),
+    });
+    const { files: inputFiles } = await sanitizeRawInputFiles(
+      {
+        file1: { filePath: '/project/src/app.js', fileType: 'MAIN', fileContent: '' },
+        file2: { filePath: '/project/src/app.ts', fileType: 'MAIN', fileContent: '' },
+      },
+      configuration,
+    );
+
+    await simulateFromInputFiles(inputFiles, configuration, [mockStore]);
+
+    expect(mockStore.processedFiles).toEqual([normalizePath('/project/src/app.ts')]);
   });
 });
 
