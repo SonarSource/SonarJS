@@ -195,11 +195,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
+      - name: Stage baseline SonarJS Maven artifacts
+        run: |
+          set -euo pipefail
+
+          mkdir -p build/sonarjs-m2-baseline
+          cp -R "$HOME/.m2/repository/org/sonarsource/javascript/." build/sonarjs-m2-baseline/
+
       - name: Upload baseline SonarJS artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: sonarjs-m2-baseline
-          path: ${{ github.workspace }}/.m2/repository/org/sonarsource/javascript
+          path: build/sonarjs-m2-baseline
           retention-days: 1
 
   target_sit_export:
