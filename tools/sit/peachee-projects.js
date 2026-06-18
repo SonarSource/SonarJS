@@ -40,9 +40,7 @@ export async function loadPeacheeProjects(peacheeRoot) {
 
 export function selectEnabledPeacheeProjects(projects, rawProjectFilter = '') {
   const enabledProjects = Object.entries(projects)
-    .filter(
-      ([, config]) => isEnabledProjectConfig(config) && !requiresAuthenticatedCheckout(config),
-    )
+    .filter(([, config]) => isEnabledProjectConfig(config) && isSupportedProjectConfig(config))
     .map(([name]) => name)
     .sort((left, right) => left.localeCompare(right));
   const requestedProjects = parseProjectFilter(rawProjectFilter);
@@ -57,23 +55,28 @@ export function selectEnabledPeacheeProjects(projects, rawProjectFilter = '') {
   const missingProjects = [...requestedProjects].filter(project => !enabledSet.has(project)).sort();
   if (missingProjects.length > 0) {
     throw new Error(
-      `Unknown, disabled, or auth-gated peachee-js project(s): ${missingProjects.join(', ')}`,
+      `Unknown, disabled, auth-gated, or unsupported peachee-js project(s): ${missingProjects.join(', ')}`,
     );
   }
   return enabledProjects.filter(project => requestedProjects.has(project));
 }
 
-export async function buildPeacheeManifest(peacheeRoot, projectNames) {
+export async function buildPeacheeManifest(peacheeRoot, projectNames, projects = null) {
   const manifest = [];
   for (const projectName of projectNames) {
     const projectRoot = join(peacheeRoot, projectName);
-    const properties = parseSonarProperties(
-      await readFile(join(projectRoot, 'sonar-project.properties'), 'utf8'),
-    );
+    const snapshotScannerProperties = projects?.[projectName]?.scannerProperties;
+    const properties =
+      snapshotScannerProperties && typeof snapshotScannerProperties === 'object'
+        ? null
+        : parseSonarProperties(
+            await readFile(join(projectRoot, 'sonar-project.properties'), 'utf8'),
+          );
     manifest.push({
       name: projectName,
       folder: resolve(projectRoot, 'workspace'),
-      scannerProperties: buildPeacheeScannerProperties(properties),
+      scannerProperties:
+        properties === null ? snapshotScannerProperties : buildPeacheeScannerProperties(properties),
     });
   }
   return manifest;
@@ -152,11 +155,28 @@ function isEnabledProjectConfig(config) {
   );
 }
 
+function isSupportedProjectConfig(config) {
+  return !requiresAuthenticatedCheckout(config) && supportsDirectCheckout(config);
+}
+
 function requiresAuthenticatedCheckout(config) {
   if (config === null || typeof config !== 'object' || Array.isArray(config)) {
     return false;
   }
   return typeof config.auth === 'string' ? config.auth.trim() !== '' : Boolean(config.auth);
+}
+
+function supportsDirectCheckout(config) {
+  if (config === null || typeof config !== 'object' || Array.isArray(config)) {
+    return false;
+  }
+  if (config.scannerProperties && typeof config.scannerProperties === 'object') {
+    return true;
+  }
+  const checkout = typeof config.checkout === 'string' ? config.checkout.trim() : '';
+  const repo = typeof config.repo === 'string' ? config.repo.trim() : '';
+  const ref = typeof config.ref === 'string' ? config.ref.trim() : '';
+  return checkout === '' && repo !== '' && ref !== '';
 }
 
 function parseProjectFilter(rawProjectFilter) {

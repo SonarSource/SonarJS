@@ -40,12 +40,6 @@ on:
         required: false
         default: "ruling"
         type: string
-      peachee_ref:
-        description: "peachee-js ref used when project_source=peachee"
-        required: false
-        default: "js-ts-css-html"
-        type: string
-
 jobs:
   sit-export:
     name: SIT Export
@@ -125,19 +119,6 @@ jobs:
           ref: ${{ github.sha }}
           path: sit-tooling
 
-      - name: Checkout peachee-js
-        if: inputs.project_source == 'peachee'
-        env:
-          PEACHEE_REF: ${{ inputs.peachee_ref }}
-        run: |
-          set -euo pipefail
-
-          git init peachee-js
-          cd peachee-js
-          git remote add origin https://github.com/SonarSource/peachee-js.git
-          git fetch --depth 1 origin "$PEACHEE_REF"
-          git checkout FETCH_HEAD
-
       - name: Build SIT exporter
         run: mvn -f sit-tooling/its/sit-exporter/pom.xml package -DskipTests -B -e -V
 
@@ -145,6 +126,7 @@ jobs:
         if: inputs.project_source == 'peachee'
         env:
           PROJECT_FILTER: ${{ inputs.project_filter }}
+          PEACHEE_ROOT: ${{ github.workspace }}/sit-tooling/tools/sit/peachee-public
         run: |
           set -euo pipefail
 
@@ -153,11 +135,7 @@ jobs:
             IFS=',' read -r -a projects <<< "$PROJECT_FILTER"
           else
             mapfile -t projects < <(
-              jq -r '
-                to_entries[]
-                | select(.value.analysis != false and ((.value.auth // "") | tostring | length) == 0)
-                | .key
-              ' peachee-js/projects.json
+              jq -r 'keys[]' "$PEACHEE_ROOT/projects.json"
             )
           fi
 
@@ -171,16 +149,26 @@ jobs:
             project="${project%"${project##*[![:space:]]}"}"
             [ -n "$project" ] || continue
             echo "Checking out $project"
+            repo="$(jq -r --arg project "$project" '.[$project].repo // empty' "$PEACHEE_ROOT/projects.json")"
+            ref="$(jq -r --arg project "$project" '.[$project].ref // empty' "$PEACHEE_ROOT/projects.json")"
+            if [ -z "$repo" ] || [ -z "$ref" ]; then
+              echo "Missing repo/ref for peachee project $project" >&2
+              exit 1
+            fi
 
             for attempt in 1 2 3; do
-              if [ "$attempt" -gt 1 ] && [ -d "peachee-js/$project/workspace/.git" ]; then
-                rm -rf "peachee-js/$project/workspace"
+              if [ "$attempt" -gt 1 ] && [ -d "$PEACHEE_ROOT/$project/workspace/.git" ]; then
+                rm -rf "$PEACHEE_ROOT/$project/workspace"
               fi
 
               set +e
               (
-                cd peachee-js
-                timeout 15m bash scripts/checkout-project.sh "$project"
+                mkdir -p "$PEACHEE_ROOT/$project/workspace"
+                cd "$PEACHEE_ROOT/$project/workspace"
+                git init
+                git remote add origin "$repo"
+                git fetch --depth 1 origin "$ref"
+                git checkout FETCH_HEAD
               )
               exit_code="$?"
               set -e
@@ -189,8 +177,8 @@ jobs:
                 break
               fi
 
-              if [ -d "peachee-js/$project/workspace/.git" ]; then
-                rm -rf "peachee-js/$project/workspace"
+              if [ -d "$PEACHEE_ROOT/$project/workspace/.git" ]; then
+                rm -rf "$PEACHEE_ROOT/$project/workspace"
               fi
 
               if [ "$attempt" -lt 3 ]; then
@@ -209,7 +197,7 @@ jobs:
           PROJECT_FILTER: ${{ inputs.project_filter }}
           CHECKOUT_REF: ${{ inputs.checkout_ref }}
           PROJECT_SOURCE: ${{ inputs.project_source }}
-          PEACHEE_ROOT: ${{ github.workspace }}/peachee-js
+          PEACHEE_ROOT: ${{ github.workspace }}/sit-tooling/tools/sit/peachee-public
         run: |
           set -euo pipefail
 

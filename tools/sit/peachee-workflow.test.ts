@@ -20,6 +20,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { afterEach, describe, it } from 'node:test';
 import { generatePeacheeManifest } from './generate-peachee-manifest.js';
+import { generatePeacheePublicSnapshot } from './generate-peachee-public-snapshot.js';
 import { renderPeacheeShardMatrix } from './render-peachee-shard-matrix.js';
 import { summarizeSitExports } from './summarize-sit-exports.js';
 
@@ -145,7 +146,98 @@ describe('peachee workflow helpers', () => {
         projectFilter: 'secure',
         projectsPerShard: 1,
       }),
-      /Unknown, disabled, or auth-gated peachee-js project\(s\): secure/,
+      /Unknown, disabled, auth-gated, or unsupported peachee-js project\(s\): secure/,
+    );
+  });
+
+  it('generates manifests from checked-in peachee snapshot metadata', async () => {
+    const root = await tempRoot();
+    await writeJson(join(root, 'projects.json'), {
+      alpha: {
+        repo: 'https://example.com/alpha.git',
+        ref: '123',
+        scannerProperties: {
+          'sonar.sources': 'src',
+          'sonar.tests': 'test',
+        },
+      },
+    });
+
+    const manifest = await generatePeacheeManifest({
+      peacheeRoot: root,
+      outputPath: join(root, 'out', 'manifest.json'),
+      projectFilter: '',
+    });
+
+    assert.deepEqual(manifest, [
+      {
+        name: 'alpha',
+        folder: resolve(root, 'alpha', 'workspace'),
+        scannerProperties: {
+          'sonar.sources': 'src',
+          'sonar.tests': 'test',
+        },
+      },
+    ]);
+  });
+
+  it('writes a public peachee snapshot from local peachee metadata', async () => {
+    const root = await tempRoot();
+    await writeJson(join(root, 'projects.json'), {
+      alpha: { repo: 'https://example.com/alpha.git', ref: '123' },
+      secure: {
+        repo: 'https://example.com/secure.git',
+        ref: '456',
+        auth: 'github_token',
+      },
+    });
+    await mkdir(join(root, 'alpha', 'workspace'), { recursive: true });
+    await writeFile(join(root, 'alpha', 'sonar-project.properties'), 'sonar.sources=src\n', 'utf8');
+
+    const snapshot = await generatePeacheePublicSnapshot({
+      peacheeRoot: root,
+      outputPath: join(root, 'out', 'snapshot.json'),
+    });
+
+    assert.deepEqual(snapshot, {
+      alpha: {
+        repo: 'https://example.com/alpha.git',
+        ref: '123',
+        scannerProperties: {
+          'sonar.sources': 'src',
+        },
+      },
+    });
+    assert.deepEqual(
+      JSON.parse(await readFile(join(root, 'out', 'snapshot.json'), 'utf8')),
+      snapshot,
+    );
+  });
+
+  it('skips unsupported peachee projects that need custom checkout scripts', async () => {
+    const root = await tempRoot();
+    await writeJson(join(root, 'projects.json'), {
+      supported: { repo: 'https://example.com/supported.git', ref: '123' },
+      scripted: { checkout: 'script' },
+    });
+
+    const matrix = await renderPeacheeShardMatrix({
+      peacheeRoot: root,
+      outputPath: join(root, 'out', 'matrix.json'),
+      projectFilter: '',
+      projectsPerShard: 2,
+    });
+
+    assert.deepEqual(matrix.include[0].projects, ['supported']);
+
+    await assert.rejects(
+      renderPeacheeShardMatrix({
+        peacheeRoot: root,
+        outputPath: join(root, 'out', 'filtered-matrix.json'),
+        projectFilter: 'scripted',
+        projectsPerShard: 1,
+      }),
+      /Unknown, disabled, auth-gated, or unsupported peachee-js project\(s\): scripted/,
     );
   });
 

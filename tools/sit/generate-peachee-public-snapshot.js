@@ -28,23 +28,32 @@ import {
   selectEnabledPeacheeProjects,
 } from './peachee-projects.js';
 
-export async function generatePeacheeManifest({ peacheeRoot, outputPath, projectFilter = '' }) {
+export async function generatePeacheePublicSnapshot({ peacheeRoot, outputPath }) {
   const projects = await loadPeacheeProjects(peacheeRoot);
-  const projectNames = selectEnabledPeacheeProjects(projects, projectFilter);
+  const projectNames = selectEnabledPeacheeProjects(projects, '');
   const manifest = await buildPeacheeManifest(peacheeRoot, projectNames, projects);
-  await writeJsonFile(outputPath, manifest);
-  return manifest;
+  const snapshot = Object.fromEntries(
+    manifest.map(project => [
+      project.name,
+      {
+        repo: projects[project.name].repo,
+        ref: projects[project.name].ref,
+        scannerProperties: project.scannerProperties,
+      },
+    ]),
+  );
+  await writeJsonFile(outputPath, snapshot);
+  return snapshot;
 }
 
 async function main() {
   const args = parseOptionArgs(process.argv);
   const cwd = process.cwd();
-  const manifest = await generatePeacheeManifest({
+  const snapshot = await generatePeacheePublicSnapshot({
     peacheeRoot: resolve(requireOption(args, '--peachee-root')),
     outputPath: resolvePathUnder(cwd, requireOption(args, '--output'), '--output'),
-    projectFilter: args.get('--project-filter') ?? '',
   });
-  console.log(`Wrote peachee SIT manifest (${manifest.length} project(s))`);
+  console.log(`Wrote public peachee snapshot (${Object.keys(snapshot).length} project(s))`);
 }
 
 if (isMain(import.meta.url)) {

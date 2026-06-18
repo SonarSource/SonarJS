@@ -118,16 +118,6 @@ jobs:
             [tools]
             node = "24.11.0"
 
-      - name: Checkout peachee-js
-        run: |
-          set -euo pipefail
-
-          git init peachee-js
-          cd peachee-js
-          git remote add origin https://github.com/SonarSource/peachee-js.git
-          git fetch --depth 1 origin js-ts-css-html
-          git checkout FETCH_HEAD
-
       - name: Render peachee shard matrix
         id: matrix
         env:
@@ -136,7 +126,7 @@ jobs:
           set -euo pipefail
 
           node tools/sit/render-peachee-shard-matrix.js \
-            --peachee-root "$GITHUB_WORKSPACE/peachee-js" \
+            --peachee-root "$GITHUB_WORKSPACE/tools/sit/peachee-public" \
             --output build/sit-peachee-matrix.json \
             --projects-per-shard 16 \
             --project-filter "$PROJECT_FILTER"
