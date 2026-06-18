@@ -545,25 +545,32 @@ jobs:
         run: |
           set -euo pipefail
 
-          if (
-            page=1
-            tmp_json="$(mktemp)"
-            printf '{"artifacts":[]}\n' > build/sit-fps/run-artifacts.json
+          collect_run_artifacts() {
+            local page=1
+            local tmp_json
+            local count
+
+            tmp_json="$(mktemp)" || return 1
+            trap 'rm -f "$tmp_json"' RETURN
+            printf '{"artifacts":[]}\n' > build/sit-fps/run-artifacts.json || return 1
+
             while true; do
-              gh api --method GET "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100&page=${page}" > "$tmp_json"
+              gh api --method GET "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100&page=${page}" > "$tmp_json" || return 1
               jq -s '{artifacts: (.[0].artifacts + .[1].artifacts)}' \
                 build/sit-fps/run-artifacts.json \
-                "$tmp_json" > build/sit-fps/run-artifacts.next.json
-              mv build/sit-fps/run-artifacts.next.json build/sit-fps/run-artifacts.json
+                "$tmp_json" > build/sit-fps/run-artifacts.next.json || return 1
+              mv build/sit-fps/run-artifacts.next.json build/sit-fps/run-artifacts.json || return 1
 
-              count="$(jq '.artifacts | length' "$tmp_json")"
+              count="$(jq -r '.artifacts | length' "$tmp_json")" || return 1
+              [[ "$count" =~ ^[0-9]+$ ]] || return 1
               if [ "$count" -lt 100 ]; then
                 break
               fi
               page="$((page + 1))"
             done
-            rm -f "$tmp_json"
-          ); then
+          }
+
+          if collect_run_artifacts; then
             echo "Collected run artifact metadata"
           else
             echo "Failed to collect run artifact metadata, continuing with an empty list"
