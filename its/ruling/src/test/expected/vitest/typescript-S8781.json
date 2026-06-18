@@ -1,0 +1,26 @@
+{
+"vitest:test/cli/fixtures/fails/expect-unreachable.test.ts": [
+3
+],
+"vitest:test/cli/fixtures/project/packages/project_1/base.test.ts": [
+3
+],
+"vitest:test/cli/fixtures/project/packages/project_2/base.test.ts": [
+3
+],
+"vitest:test/cli/fixtures/project/packages/space_1/base.test.ts": [
+3
+],
+"vitest:test/cli/fixtures/reporters/custom-diff-config.test.ts": [
+3
+],
+"vitest:test/config/fixtures/cache/basic.test.ts": [
+3
+],
+"vitest:test/config/fixtures/cache/second.test.ts": [
+3
+],
+"vitest:test/snapshots/test/fixtures/custom-serializers/custom-serializers.test.ts": [
+3
+]
+}
