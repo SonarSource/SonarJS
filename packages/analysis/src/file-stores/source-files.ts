@@ -36,6 +36,7 @@ import {
 } from '../../../shared/src/helpers/files.js';
 import { filterPathAndGetFileType } from '../common/filter/filter-path.js';
 import { dirname } from 'node:path/posix';
+import type { FileType } from '../contracts/file.js';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
 
@@ -44,6 +45,7 @@ export class SourceFileStore implements FileStore {
   private canAccessFileSystem: boolean | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
   private readonly ignoredPaths = new Set<string>();
+  private readonly pendingFileTypes = new Map<NormalizedAbsolutePath, FileType>();
   private files: AnalyzableFiles | undefined = undefined;
   private readonly directoryIndex = new DirectoryIndex();
 
@@ -96,6 +98,7 @@ export class SourceFileStore implements FileStore {
     this.analyzableFilesConfigKey = undefined;
     this.files = undefined;
     this.ignoredPaths.clear();
+    this.pendingFileTypes.clear();
     this.directoryIndex.clear();
   }
 
@@ -108,15 +111,24 @@ export class SourceFileStore implements FileStore {
 
   wantsFile(filename: NormalizedAbsolutePath, configuration: Configuration) {
     const shouldIgnoreParams = getShouldIgnoreParams(configuration);
-    return isAnalyzableFile(filename, shouldIgnoreParams) &&
-      !this.anyParentIsIgnored(filename) &&
-      filterPathAndGetFileType(filename, getFilterPathParams(configuration))
-      ? 'content'
-      : false;
+    if (!isAnalyzableFile(filename, shouldIgnoreParams) || this.anyParentIsIgnored(filename)) {
+      return false;
+    }
+
+    const fileType = filterPathAndGetFileType(filename, getFilterPathParams(configuration));
+    if (!fileType) {
+      return false;
+    }
+
+    this.pendingFileTypes.set(filename, fileType);
+    return 'content';
   }
 
   async processFile(filename: NormalizedAbsolutePath, configuration: Configuration, file?: File) {
-    const fileType = filterPathAndGetFileType(filename, getFilterPathParams(configuration));
+    const fileType =
+      this.pendingFileTypes.get(filename) ??
+      filterPathAndGetFileType(filename, getFilterPathParams(configuration));
+    this.pendingFileTypes.delete(filename);
     // we don't call shouldIgnoreFile because the isJsTsExcluded method has already been
     // called while walking the project tree
     if (
@@ -142,7 +154,7 @@ export class SourceFileStore implements FileStore {
   }
 
   async postProcess(_configuration: Configuration) {
-    // No-op: files are added directly in processFile()
+    this.pendingFileTypes.clear();
   }
 
   private anyParentIsIgnored(filePath: NormalizedAbsolutePath) {

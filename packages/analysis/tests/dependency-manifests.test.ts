@@ -116,18 +116,22 @@ describe('files', () => {
   it('should warm package.json caches without sync filesystem fallbacks', async ({ mock }) => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'child-parent-merge'));
     const configuration = createConfiguration({ baseDir });
+    const packageJsonPath = normalizeToAbsolutePath(join(baseDir, 'package.json'));
+    const childPackageJsonPath = normalizeToAbsolutePath(join(baseDir, 'subdir/package.json'));
     const readdirSyncSpy = mock.method(fs, 'readdirSync');
     const readFileSyncSpy = mock.method(fs, 'readFileSync');
     const statSyncSpy = mock.method(fs, 'statSync');
 
     dependencyManifestStore.setup(configuration);
     dependencyManifestStore.processDirectory(normalizeToAbsolutePath(join(baseDir, 'subdir')));
-    await dependencyManifestStore.processFile(
-      normalizeToAbsolutePath(join(baseDir, 'package.json')),
-    );
-    await dependencyManifestStore.processFile(
-      normalizeToAbsolutePath(join(baseDir, 'subdir/package.json')),
-    );
+    await dependencyManifestStore.processFile(packageJsonPath, configuration, {
+      filePath: packageJsonPath,
+      fileContent: await readFile(packageJsonPath),
+    });
+    await dependencyManifestStore.processFile(childPackageJsonPath, configuration, {
+      filePath: childPackageJsonPath,
+      fileContent: await readFile(childPackageJsonPath),
+    });
     await dependencyManifestStore.postProcess(configuration);
 
     expect(readdirSyncSpy.mock.calls).toHaveLength(0);
