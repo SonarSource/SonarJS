@@ -395,7 +395,7 @@ jobs:
             development/github/token/{REPO_OWNER_NAME_DASH}-submodules token | github_submodules_token;
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | github_rspec_token;
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-            development/team/analysis-team/kv/data/anthropic-rad-squad apikey | ANTHROPIC_API_KEY;
+            development/team/analysis-js-squad/kv/data/sonarjs-anthropic apikey | ANTHROPIC_API_KEY;
 
       - name: Checkout source code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
