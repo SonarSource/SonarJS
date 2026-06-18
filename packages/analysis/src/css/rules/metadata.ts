@@ -333,6 +333,20 @@ export const cssRulesMeta: CssRuleMeta[] = [
     stylelintKey: 'at-rule-descriptor-value-no-unknown',
   },
   {
+    sqKey: 'S8776',
+    stylelintKey: 'nesting-selector-no-missing-scoping-root',
+    listParam: [
+      {
+        sqKey: 'ignoreAtRules',
+        javaField: 'ignoredAtRules',
+        description:
+          'Comma-separated list of "at-rules" inside which nesting selectors are allowed without a scoping parent.',
+        default: '',
+        stylelintOptionKey: 'ignoreAtRules',
+      },
+    ],
+  },
+  {
     sqKey: 'S8777',
     stylelintKey: 'at-rule-prelude-no-invalid',
     listParam: [
