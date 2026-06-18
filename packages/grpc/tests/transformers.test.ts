@@ -325,6 +325,26 @@ describe('CSS rule configurations', () => {
     expect(result).toEqual([{ key: 'selector-anb-no-unmatchable', configurations: [] }]);
   });
 
+  it('should map S8778 to no-invalid-position-at-import-rule', () => {
+    expect(buildCssRuleConfigurations('S8778', [])).toEqual([
+      {
+        key: 'no-invalid-position-at-import-rule',
+        configurations: [],
+      },
+    ]);
+  });
+
+  it('should map non-empty ignoreAtRules for S8778', () => {
+    expect(
+      buildCssRuleConfigurations('S8778', [{ key: 'ignoreAtRules', value: 'tailwind,layer' }]),
+    ).toEqual([
+      {
+        key: 'no-invalid-position-at-import-rule',
+        configurations: [true, { ignoreAtRules: ['tailwind', 'layer'] }],
+      },
+    ]);
+  });
+
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {
       // S4659: ignorePseudoClasses default is 'local,global,export,import,deep'

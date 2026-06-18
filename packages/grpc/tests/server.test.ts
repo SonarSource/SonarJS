@@ -1272,6 +1272,36 @@ describe('gRPC server', () => {
       expect(responseNoIssue.issues?.length).toBe(0);
     });
 
+    it('should apply listParam ignoreAtRules to control @import positioning (S8778)', async () => {
+      const content = '@tailwind utilities;\n@import "foo.css";';
+
+      const requestIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S8778' }, params: [] }],
+      };
+
+      const responseIssue = await client.analyze(requestIssue);
+      expect(responseIssue.issues?.length).toBe(1);
+      expect(responseIssue.issues?.[0].rule?.rule).toBe('S8778');
+
+      const requestNoIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S8778' },
+            params: [{ key: 'ignoreAtRules', value: 'tailwind' }],
+          },
+        ],
+      };
+
+      const responseNoIssue = await client.analyze(requestNoIssue);
+      expect(responseNoIssue.issues?.length).toBe(0);
+    });
+
     it('should apply listParam ignorePseudoElements to control unknown pseudo-element behaviour (S4660)', async () => {
       // ::ng-deep is in the default ignorePseudoElements list → no issue
       const content = 'a::ng-deep { color: red; }';

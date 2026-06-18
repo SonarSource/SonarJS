@@ -23,6 +23,8 @@ import { cssOnlyRuleKeys } from '../css-only-rules.js';
 
 const NON_CSS_LANGS = new Set(['scss', 'sass', 'less', 'stylus', 'styl']);
 
+type EmbeddedBlockSource = PostCSS.Source & { lang?: string };
+
 /**
  * Checks if a position value (line or column) is valid.
  * Stylelint may return null/NaN for certain edge cases (e.g., empty SASS blocks in Vue files).
@@ -36,6 +38,49 @@ function getEmbeddedBlockLang(source: PostCSS.Source | undefined): string | unde
     return undefined;
   }
   return source.lang.toLowerCase();
+}
+
+/**
+ * Returns true when a warning position falls within an embedded block range.
+ *
+ * We require a fully known source range. Missing start/end positions are treated
+ * conservatively as "no match" to avoid suppressing unrelated CSS warnings.
+ */
+function isWithinSourceRange(
+  warning: Pick<stylelint.Warning, 'line' | 'column'>,
+  source: EmbeddedBlockSource | undefined,
+): boolean {
+  const warningLine = warning.line;
+  const warningColumn = warning.column;
+  const startLine = source?.start?.line;
+  const startColumn = source?.start?.column;
+  const endLine = source?.end?.line;
+  const endColumn = source?.end?.column;
+
+  if (
+    !isValidPosition(warningLine) ||
+    !isValidPosition(warningColumn) ||
+    !isValidPosition(startLine) ||
+    !isValidPosition(startColumn) ||
+    !isValidPosition(endLine) ||
+    !isValidPosition(endColumn)
+  ) {
+    return false;
+  }
+
+  if (warningLine < startLine || warningLine > endLine) {
+    return false;
+  }
+
+  if (warningLine === startLine && warningColumn < startColumn) {
+    return false;
+  }
+
+  if (warningLine === endLine && warningColumn > endColumn) {
+    return false;
+  }
+
+  return true;
 }
 
 /**
@@ -59,15 +104,12 @@ function isInNonCssEmbeddedBlock(
     return false;
   }
 
-  const warnLine = warning.line ?? 1;
   for (const child of (root as PostCSS.Document).nodes) {
     if (child.type !== 'root') continue;
     const source = (child as PostCSS.Root).source;
     const lang = getEmbeddedBlockLang(source);
     if (!lang || !NON_CSS_LANGS.has(lang)) continue;
-    const startLine = source?.start?.line ?? 0;
-    const endLine = source?.end?.line ?? Infinity;
-    if (warnLine >= startLine && warnLine <= endLine) {
+    if (isWithinSourceRange(warning, source as EmbeddedBlockSource)) {
       return true;
     }
   }

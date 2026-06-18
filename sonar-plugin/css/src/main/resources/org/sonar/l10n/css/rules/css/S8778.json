@@ -1,0 +1,31 @@
+{
+  "title": "\"@import\" rules should precede all other statements",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8778",
+  "sqKey": "S8778",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "css"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
