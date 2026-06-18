@@ -259,6 +259,13 @@ describe('CSS rule configurations', () => {
     expect(result).toEqual({ key: 'block-no-empty', configurations: [] });
   });
 
+  it('should map S8759 to at-rule-no-vendor-prefix', () => {
+    expect(buildCssRuleConfigurations('S8759', [])).toEqual({
+      key: 'at-rule-no-vendor-prefix',
+      configurations: [],
+    });
+  });
+
   it('should map S8765 to the stylelint custom property rule', () => {
     const result = buildCssRuleConfigurations('S8765', []);
     expect(result).toEqual({
