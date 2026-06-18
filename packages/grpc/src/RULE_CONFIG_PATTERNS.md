@@ -251,7 +251,7 @@ Rules without `ignoreParams` or `booleanParam` have no configurable parameters. 
 
 **Stylelint output:** `true`
 
-**Rules using this pattern:** S125, S1116, S1128, S4647, S4648, S4650, S4651, S4652, S4655, S4657, S4658, S4661, S4663, S4664, S4666, S4667, S4668, S5362, S7923, S7924, S7925, S8770, S8775 (23 rules)
+**Rules using this pattern:** S125, S1116, S1128, S4647, S4648, S4650, S4651, S4652, S4655, S4657, S4658, S4661, S4663, S4664, S4666, S4667, S4668, S5362, S7923, S7924, S7925, S8765, S8770, S8775 (24 rules)
 
 ---
 
@@ -259,7 +259,7 @@ Rules without `ignoreParams` or `booleanParam` have no configurable parameters. 
 
 | Pattern       | Count | Description                  | Stylelint Output                 |
 | ------------- | ----- | ---------------------------- | -------------------------------- |
-| No params     | 23    | Rule enabled with defaults   | `true`                           |
+| No params     | 24    | Rule enabled with defaults   | `true`                           |
 | Ignore params | 8     | Comma-separated string lists | `[true, { key: ['v1', 'v2'] }]`  |
 | Boolean param | 1     | Conditional fixed options    | `[true, { key: ['v'] }]` or `[]` |
 
