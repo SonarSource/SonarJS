@@ -136,12 +136,10 @@ async function processPendingFileStores(
   for (const store of pendingStores) {
     const storeWantsFile = store.wantsFile(filePath, configuration);
     if (storeWantsFile === 'content') {
-      if (sharedFile === undefined) {
-        sharedFile = {
-          filePath,
-          fileContent: fileContent ?? (await readFile(filePath)),
-        };
-      }
+      sharedFile ??= {
+        filePath,
+        fileContent: fileContent ?? (await readFile(filePath)),
+      };
       await store.processFile(filePath, configuration, sharedFile);
     } else if (storeWantsFile === 'path') {
       await store.processFile(filePath, configuration);
