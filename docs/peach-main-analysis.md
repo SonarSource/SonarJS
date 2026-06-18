@@ -779,6 +779,69 @@ When summarizing a run for SonarJS release triage:
 
 ---
 
+## Appendix: Aggregated Diff Val Omissions
+
+Use this appendix when DROP forensics reports `PROJECT_NOT_FOUND_IN_SARIF` from the aggregated
+artifact even though the project job itself was green.
+
+### Symptom
+
+- `peach-drop-forensics` says `PROJECT_NOT_FOUND_IN_SARIF`
+- the project job in `project-jobs.json` completed successfully
+- the project has a fresh Peach analysis in `peach-issue-history.json`
+
+Do not jump from that directly to "Diff Val did not run" or "the project had no diff".
+The merged `0-aggregated-sarif` artifact can be incomplete even when per-project Diff Val succeeded.
+
+### Verification Path
+
+1. Check the project job metadata first.
+   - Confirm `Analyze project` succeeded.
+   - Confirm `Diff Val Snapshot generation` succeeded.
+   - Confirm `Upload diff-val artifacts` succeeded.
+2. Download the per-project artifacts for the same run:
+   - `project-status-<project>`
+   - `<project>-diff-val-logs`
+   - `<project>-sarif`
+3. Inspect the per-project status JSON.
+   - If it shows `"status": "success"` and `"diffval_outcome": "success"`, the project-level Diff Val run completed.
+4. Inspect the per-project `diff-app.log`.
+   - If it reports `Differential results for the project ...`, the project had a real diff result.
+5. Inspect the per-project SARIF.
+   - If it contains the project key, the project-level SARIF was produced successfully.
+6. Only then compare against the aggregated inputs:
+   - download `all-project-status-reports`
+   - download `0-aggregated-diff-val-logs`
+   - check whether the project's status JSON is present in `all-project-status-reports`
+   - check whether the project name appears in the aggregated `diff-app.log` startup project list
+
+### Interpretation
+
+- If the per-project status JSON, per-project Diff Val log, and per-project SARIF all exist, but
+  the project is missing from `all-project-status-reports` or from the aggregated project list,
+  classify this as an **aggregation-input omission**, not as an analysis failure and not as "no diff".
+- If the project status JSON exists but `diffval_outcome` is not `success`, classify it as a
+  per-project Diff Val failure instead.
+- If the project status JSON says success but the per-project SARIF or per-project `diff-app.log`
+  is missing, classify it as an incomplete per-project artifact set and keep it in manual review.
+
+### Recommended Wording
+
+When the omission is confirmed, describe it plainly:
+
+- "Per-project Diff Val succeeded and produced SARIF, but the aggregated status/SARIF inputs did
+  not include this project."
+- "DROP remains in manual review because the aggregated artifact path is incomplete for this
+  project."
+
+Do not describe that case as:
+
+- "differential validation did not run"
+- "the project had no diff"
+- "analysis failed"
+
+---
+
 ## How to Run the Check
 
 Use the `/peach-check` skill from within the SonarJS repository. It will automatically fetch

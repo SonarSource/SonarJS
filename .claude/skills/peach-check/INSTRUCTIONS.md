@@ -579,7 +579,10 @@ Interpret the diagnosis like this:
   merged SARIF because the actual drop may have been introduced earlier and the latest diff can be
   `NO DIFFERENCE`.
 - `PROJECT_NOT_FOUND_IN_SARIF` → mention that differential validation did not capture this project,
-  so the drop remains unexplained.
+  so the drop remains unexplained. Before finalizing that wording, follow the aggregation-omission
+  appendix in `docs/peach-main-analysis.md`. If per-project Diff Val succeeded and produced SARIF
+  but the aggregated inputs omitted the project, describe it as an aggregated-artifact omission
+  instead of "no diff" or "analysis failure".
 - `UNCLASSIFIED_DROP` → keep the generic suspicious-drop wording and summarize the dominant rules
   and paths from the helper output.
 
