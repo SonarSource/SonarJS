@@ -212,6 +212,7 @@ jobs:
             printf '%s' "${available_projects[*]}"
           )"
           printf '%s\n' "$available_filter" > build/peachee-project-filter.txt
+          echo "Using peachee-js projects (${#available_projects[@]}): $available_filter"
 
           if [ "${#skipped_projects[@]}" -gt 0 ]; then
             skipped_filter="$(
@@ -269,6 +270,11 @@ jobs:
             fi
             node sit-tooling/tools/sit/generate-peachee-manifest.js "${manifest_args[@]}"
             projects_json="build/sit-projects.json"
+          fi
+
+          if [ -n "$effective_project_filter" ]; then
+            project_count="$(printf '%s' "$effective_project_filter" | tr ',' '\n' | sed '/^$/d' | wc -l | tr -d ' ')"
+            echo "Running SIT exporter for $project_count project(s): $effective_project_filter"
           fi
 
           args=(

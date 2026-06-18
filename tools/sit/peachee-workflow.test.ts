@@ -115,6 +115,37 @@ describe('peachee workflow helpers', () => {
     assert.deepEqual(JSON.parse(await readFile(outputPath, 'utf8')), matrix);
   });
 
+  it('limits peachee shard matrices to a capped subset of projects', async () => {
+    const root = await tempRoot();
+    await writeJson(join(root, 'projects.json'), {
+      gamma: { repo: 'https://example.com/gamma.git', ref: '789' },
+      alpha: { repo: 'https://example.com/alpha.git', ref: '123' },
+      beta: { repo: 'https://example.com/beta.git', ref: '456' },
+    });
+
+    const outputPath = join(root, 'out', 'matrix.json');
+    const matrix = await renderPeacheeShardMatrix({
+      peacheeRoot: root,
+      outputPath,
+      projectFilter: '',
+      projectsPerShard: 16,
+      maxProjects: 2,
+    });
+
+    assert.deepEqual(matrix, {
+      include: [
+        {
+          shard: '01',
+          label: '1/1',
+          project_count: 2,
+          project_filter: 'alpha,beta',
+          projects: ['alpha', 'beta'],
+        },
+      ],
+    });
+    assert.deepEqual(JSON.parse(await readFile(outputPath, 'utf8')), matrix);
+  });
+
   it('skips auth-gated peachee projects in the public-only SIT fallback', async () => {
     const root = await tempRoot();
     await writeJson(join(root, 'projects.json'), {

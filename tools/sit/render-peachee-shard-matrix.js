@@ -33,12 +33,27 @@ export async function renderPeacheeShardMatrix({
   outputPath,
   projectFilter = '',
   projectsPerShard = 16,
+  maxProjects = '',
 }) {
   const projects = await loadPeacheeProjects(peacheeRoot);
-  const projectNames = selectEnabledPeacheeProjects(projects, projectFilter);
+  const projectNames = limitProjects(
+    selectEnabledPeacheeProjects(projects, projectFilter),
+    maxProjects,
+  );
   const matrix = buildPeacheeShardMatrix(projectNames, projectsPerShard);
   await writeJsonFile(outputPath, matrix);
   return matrix;
+}
+
+function limitProjects(projectNames, maxProjects) {
+  if (maxProjects === '' || maxProjects === null || maxProjects === undefined) {
+    return projectNames;
+  }
+  const limit = Number(maxProjects);
+  if (!Number.isInteger(limit) || limit <= 0) {
+    throw new Error(`maxProjects must be a positive integer: ${maxProjects}`);
+  }
+  return projectNames.slice(0, limit);
 }
 
 async function main() {
@@ -49,7 +64,12 @@ async function main() {
     outputPath: resolvePathUnder(cwd, requireOption(args, '--output'), '--output'),
     projectFilter: args.get('--project-filter') ?? '',
     projectsPerShard: args.get('--projects-per-shard') ?? '16',
+    maxProjects: args.get('--max-projects') ?? '',
   });
+  const selectedProjects = matrix.include.flatMap(shard => shard.projects);
+  console.log(
+    `Selected peachee projects (${selectedProjects.length}): ${selectedProjects.join(', ')}`,
+  );
   console.log(`Wrote peachee shard matrix (${matrix.include.length} shard(s))`);
 }
 

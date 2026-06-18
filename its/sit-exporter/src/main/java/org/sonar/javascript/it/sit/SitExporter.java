@@ -123,11 +123,24 @@ public final class SitExporter {
       .toList();
 
     Files.createDirectories(config.outputDir());
+    LOG.info(
+      "Preparing SIT export for {} project(s) with {} supported rule(s)",
+      projects.size(),
+      supportedRules.size()
+    );
     SonarServerContext serverContext = supportedRules.isEmpty()
       ? null
       : buildServerContext(config.pluginJar(), supportedRules);
-    for (RulingProject project : projects) {
-      exportProject(config, project, supportedRules, unsupportedRules, serverContext);
+    for (int index = 0; index < projects.size(); index++) {
+      exportProject(
+        config,
+        projects.get(index),
+        supportedRules,
+        unsupportedRules,
+        serverContext,
+        index + 1,
+        projects.size()
+      );
     }
   }
 
@@ -136,8 +149,11 @@ public final class SitExporter {
     RulingProject project,
     List<RuleSelection> rules,
     List<String> unsupportedRules,
-    @Nullable SonarServerContext serverContext
+    @Nullable SonarServerContext serverContext,
+    int projectIndex,
+    int projectCount
   ) throws IOException {
+    LOG.info("Starting SIT export for project {}/{}: {}", projectIndex, projectCount, project.name());
     Path projectDir = project
       .resolveSourceDirectory(config.repoRoot())
       .toAbsolutePath()
@@ -190,6 +206,14 @@ public final class SitExporter {
       analysisDurationMs
     );
     copySources(projectDir, projectOutputDir.resolve("sources"), collectComponentPaths(issues));
+    LOG.info(
+      "Completed SIT export for project {}/{}: {} (issues={}, duration={} ms)",
+      projectIndex,
+      projectCount,
+      project.name(),
+      issues.size(),
+      analysisDurationMs
+    );
   }
 
   private static SonarServerContext buildServerContext(Path pluginJar, List<RuleSelection> rules) {
