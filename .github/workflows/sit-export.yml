@@ -83,14 +83,6 @@ jobs:
           secrets: |
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
 
-      - name: Get peachee GitHub token
-        if: inputs.project_source == 'peachee'
-        id: peachee-secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/github/token/{REPO_OWNER_NAME_DASH}-submodules token | GITHUB_SUBMODULES_TOKEN;
-
       - name: Cache NPM dependencies
         if: inputs.build_plugin
         id: npm-cache
@@ -135,12 +127,16 @@ jobs:
 
       - name: Checkout peachee-js
         if: inputs.project_source == 'peachee'
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          repository: SonarSource/peachee-js
-          ref: ${{ inputs.peachee_ref }}
-          path: peachee-js
-          token: ${{ fromJSON(steps.peachee-secrets.outputs.vault).GITHUB_SUBMODULES_TOKEN }}
+        env:
+          PEACHEE_REF: ${{ inputs.peachee_ref }}
+        run: |
+          set -euo pipefail
+
+          git init peachee-js
+          cd peachee-js
+          git remote add origin https://github.com/SonarSource/peachee-js.git
+          git fetch --depth 1 origin "$PEACHEE_REF"
+          git checkout FETCH_HEAD
 
       - name: Build SIT exporter
         run: mvn -f sit-tooling/its/sit-exporter/pom.xml package -DskipTests -B -e -V
@@ -149,7 +145,6 @@ jobs:
         if: inputs.project_source == 'peachee'
         env:
           PROJECT_FILTER: ${{ inputs.project_filter }}
-          GITHUB_TOKEN: ${{ fromJSON(steps.peachee-secrets.outputs.vault).GITHUB_SUBMODULES_TOKEN }}
         run: |
           set -euo pipefail
 
@@ -157,7 +152,13 @@ jobs:
           if [ -n "$PROJECT_FILTER" ]; then
             IFS=',' read -r -a projects <<< "$PROJECT_FILTER"
           else
-            mapfile -t projects < <(jq -r 'to_entries[] | select(.value.analysis != false) | .key' peachee-js/projects.json)
+            mapfile -t projects < <(
+              jq -r '
+                to_entries[]
+                | select(.value.analysis != false and ((.value.auth // "") | tostring | length) == 0)
+                | .key
+              ' peachee-js/projects.json
+            )
           fi
 
           if [ "${#projects[@]}" -eq 0 ]; then

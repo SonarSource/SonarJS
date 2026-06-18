@@ -118,20 +118,15 @@ jobs:
             [tools]
             node = "24.11.0"
 
-      - name: Get peachee GitHub token
-        id: peachee-secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/github/token/{REPO_OWNER_NAME_DASH}-submodules token | GITHUB_SUBMODULES_TOKEN;
-
       - name: Checkout peachee-js
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          repository: SonarSource/peachee-js
-          ref: js-ts-css-html
-          path: peachee-js
-          token: ${{ fromJSON(steps.peachee-secrets.outputs.vault).GITHUB_SUBMODULES_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          git init peachee-js
+          cd peachee-js
+          git remote add origin https://github.com/SonarSource/peachee-js.git
+          git fetch --depth 1 origin js-ts-css-html
+          git checkout FETCH_HEAD
 
       - name: Render peachee shard matrix
         id: matrix

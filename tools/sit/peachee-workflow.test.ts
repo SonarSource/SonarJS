@@ -114,6 +114,41 @@ describe('peachee workflow helpers', () => {
     assert.deepEqual(JSON.parse(await readFile(outputPath, 'utf8')), matrix);
   });
 
+  it('skips auth-gated peachee projects in the public-only SIT fallback', async () => {
+    const root = await tempRoot();
+    await writeJson(join(root, 'projects.json'), {
+      alpha: { repo: 'https://example.com/alpha.git', ref: '123' },
+      secure: {
+        repo: 'https://example.com/secure.git',
+        ref: '456',
+        auth: 'github_token',
+      },
+    });
+    await mkdir(join(root, 'alpha', 'workspace'), { recursive: true });
+    await writeFile(join(root, 'alpha', 'sonar-project.properties'), 'sonar.sources=src\n', 'utf8');
+
+    const manifest = await generatePeacheeManifest({
+      peacheeRoot: root,
+      outputPath: join(root, 'out', 'manifest.json'),
+      projectFilter: '',
+    });
+
+    assert.deepEqual(
+      manifest.map(project => project.name),
+      ['alpha'],
+    );
+
+    await assert.rejects(
+      renderPeacheeShardMatrix({
+        peacheeRoot: root,
+        outputPath: join(root, 'out', 'matrix.json'),
+        projectFilter: 'secure',
+        projectsPerShard: 1,
+      }),
+      /Unknown, disabled, or auth-gated peachee-js project\(s\): secure/,
+    );
+  });
+
   it('summarizes SIT export timings from metadata', async () => {
     const root = await tempRoot();
     await writeExport(root, 'baseline', 'alpha', 1_500);

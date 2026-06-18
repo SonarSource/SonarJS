@@ -40,7 +40,9 @@ export async function loadPeacheeProjects(peacheeRoot) {
 
 export function selectEnabledPeacheeProjects(projects, rawProjectFilter = '') {
   const enabledProjects = Object.entries(projects)
-    .filter(([, config]) => isEnabledProjectConfig(config))
+    .filter(
+      ([, config]) => isEnabledProjectConfig(config) && !requiresAuthenticatedCheckout(config),
+    )
     .map(([name]) => name)
     .sort((left, right) => left.localeCompare(right));
   const requestedProjects = parseProjectFilter(rawProjectFilter);
@@ -54,7 +56,9 @@ export function selectEnabledPeacheeProjects(projects, rawProjectFilter = '') {
   const enabledSet = new Set(enabledProjects);
   const missingProjects = [...requestedProjects].filter(project => !enabledSet.has(project)).sort();
   if (missingProjects.length > 0) {
-    throw new Error(`Unknown or disabled peachee-js project(s): ${missingProjects.join(', ')}`);
+    throw new Error(
+      `Unknown, disabled, or auth-gated peachee-js project(s): ${missingProjects.join(', ')}`,
+    );
   }
   return enabledProjects.filter(project => requestedProjects.has(project));
 }
@@ -146,6 +150,13 @@ function isEnabledProjectConfig(config) {
     !Array.isArray(config) &&
     config.analysis !== false
   );
+}
+
+function requiresAuthenticatedCheckout(config) {
+  if (config === null || typeof config !== 'object' || Array.isArray(config)) {
+    return false;
+  }
+  return typeof config.auth === 'string' ? config.auth.trim() !== '' : Boolean(config.auth);
 }
 
 function parseProjectFilter(rawProjectFilter) {
