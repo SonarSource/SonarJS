@@ -115,7 +115,7 @@ describe('peachee workflow helpers', () => {
     assert.deepEqual(JSON.parse(await readFile(outputPath, 'utf8')), matrix);
   });
 
-  it('limits peachee shard matrices to a capped subset of projects', async () => {
+  it('renders peachee shard matrices with excluded projects removed', async () => {
     const root = await tempRoot();
     await writeJson(join(root, 'projects.json'), {
       gamma: { repo: 'https://example.com/gamma.git', ref: '789' },
@@ -128,8 +128,8 @@ describe('peachee workflow helpers', () => {
       peacheeRoot: root,
       outputPath,
       projectFilter: '',
+      excludeProjects: 'beta',
       projectsPerShard: 16,
-      maxProjects: 2,
     });
 
     assert.deepEqual(matrix, {
@@ -138,8 +138,8 @@ describe('peachee workflow helpers', () => {
           shard: '01',
           label: '1/1',
           project_count: 2,
-          project_filter: 'alpha,beta',
-          projects: ['alpha', 'beta'],
+          project_filter: 'alpha,gamma',
+          projects: ['alpha', 'gamma'],
         },
       ],
     });

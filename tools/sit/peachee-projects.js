@@ -38,27 +38,44 @@ export async function loadPeacheeProjects(peacheeRoot) {
   return projects;
 }
 
-export function selectEnabledPeacheeProjects(projects, rawProjectFilter = '') {
+export function selectEnabledPeacheeProjects(
+  projects,
+  rawProjectFilter = '',
+  rawExcludedProjects = '',
+) {
   const enabledProjects = Object.entries(projects)
     .filter(([, config]) => isEnabledProjectConfig(config) && isSupportedProjectConfig(config))
     .map(([name]) => name)
     .sort((left, right) => left.localeCompare(right));
   const requestedProjects = parseProjectFilter(rawProjectFilter);
+  const excludedProjects = parseProjectFilter(rawExcludedProjects);
+  const enabledSet = new Set(enabledProjects);
+
+  const missingExcludedProjects = [...excludedProjects]
+    .filter(project => !enabledSet.has(project))
+    .sort();
+  if (missingExcludedProjects.length > 0) {
+    throw new Error(
+      `Unknown, disabled, auth-gated, or unsupported excluded peachee-js project(s): ${missingExcludedProjects.join(', ')}`,
+    );
+  }
+
   if (requestedProjects.size === 0) {
     if (enabledProjects.length === 0) {
       throw new Error('No enabled peachee-js projects found');
     }
-    return enabledProjects;
+    return enabledProjects.filter(project => !excludedProjects.has(project));
   }
 
-  const enabledSet = new Set(enabledProjects);
   const missingProjects = [...requestedProjects].filter(project => !enabledSet.has(project)).sort();
   if (missingProjects.length > 0) {
     throw new Error(
       `Unknown, disabled, auth-gated, or unsupported peachee-js project(s): ${missingProjects.join(', ')}`,
     );
   }
-  return enabledProjects.filter(project => requestedProjects.has(project));
+  return enabledProjects.filter(
+    project => requestedProjects.has(project) && !excludedProjects.has(project),
+  );
 }
 
 export async function buildPeacheeManifest(peacheeRoot, projectNames, projects = null) {

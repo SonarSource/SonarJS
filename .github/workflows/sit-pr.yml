@@ -121,15 +121,17 @@ jobs:
       - name: Render peachee shard matrix
         id: matrix
         env:
+          PEACHEE_EXCLUDE_PROJECTS: ant-design-windows,gutenberg,kibana,nextjs,vscode,wzry
           PROJECT_FILTER: ${{ inputs.project_filter }}
         run: |
           set -euo pipefail
 
+          echo "Excluded peachee projects: $PEACHEE_EXCLUDE_PROJECTS"
           node tools/sit/render-peachee-shard-matrix.js \
             --peachee-root "$GITHUB_WORKSPACE/tools/sit/peachee-public" \
             --output build/sit-peachee-matrix.json \
-            --projects-per-shard 16 \
-            --max-projects 16 \
+            --projects-per-shard 128 \
+            --exclude-projects "$PEACHEE_EXCLUDE_PROJECTS" \
             --project-filter "$PROJECT_FILTER"
 
           {
