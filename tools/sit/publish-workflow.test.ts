@@ -84,6 +84,7 @@ describe('build-publish-payload', () => {
         artifactLinks: {
           'sit-export-target': 'https://target-artifact',
           'sit-export-baseline': 'https://baseline-artifact',
+          'sit-timing-summary': 'https://sit-timing-summary',
           'fps-reports': 'https://fps-reports',
           'fps-run-summary': 'https://fps-summary',
           'diffsit-reports': 'https://diffsit-reports',
@@ -102,6 +103,59 @@ describe('build-publish-payload', () => {
     assert.match(text, /#### `javascript:S1116` - `success` - 5 issues - FP rate 20\.0%/);
     assert.match(text, /\| A\\\|B \| 5 \| 20\.0% \|/);
     assert.match(text, /\| 1 \| 3 \| 2 \| 0 \| 0 \| 0 \| 0 \| 1 \| 2 \|/);
+  });
+
+  it('summarizes sharded SIT artifacts and timing', () => {
+    const lines = buildCommentLines(
+      {
+        rules: [{ repository: 'javascript', language: 'js', ruleKey: 'S5759' }],
+        hasRules: true,
+        languages: ['js'],
+        fullRuleKeys: ['javascript:S5759'],
+        sitResult: 'success',
+        diffsitResult: 'success',
+        fpsResult: 'success',
+        pluginVersion: '1.2.3',
+        runUrl: 'https://run',
+        fpsSummary: { results: [] },
+        diffsitSummary: { overall: {} },
+        sitSummary: {
+          target: {
+            project_count: 2,
+            total_analysis_duration_ms: 185000,
+            average_analysis_duration_ms: 92500,
+            slowest_projects: [
+              { project_key: 'kibana', analysis_duration_ms: 120000 },
+              { project_key: 'react', analysis_duration_ms: 65000 },
+            ],
+          },
+          baseline: {
+            project_count: 2,
+            total_analysis_duration_ms: 150000,
+            average_analysis_duration_ms: 75000,
+            slowest_projects: [{ project_key: 'kibana', analysis_duration_ms: 110000 }],
+          },
+        },
+        artifactLinks: {
+          'sit-export-target-01': 'https://target-01',
+          'sit-export-target-02': 'https://target-02',
+          'sit-export-baseline-01': 'https://baseline-01',
+          'sit-export-baseline-02': 'https://baseline-02',
+          'sit-timing-summary': 'https://timing',
+          'fps-reports': 'https://fps-reports',
+          'fps-run-summary': 'https://fps-summary',
+          'diffsit-reports': 'https://diffsit-reports',
+          'diffsit-run-summary': 'https://diffsit-summary',
+        },
+      },
+      'Success',
+    );
+    const text = lines.join('\n');
+
+    assert.match(text, /sit-export-target-\*` \(2 shards\)/);
+    assert.match(text, /### SIT timing/);
+    assert.match(text, /\| Target \| 2 \| 3m 5s \| 1m 33s \|/);
+    assert.match(text, /- Target slowest: `kibana` \(2m 0s\), `react` \(1m 5s\)/);
   });
 
   it('builds overall and per-rule commit statuses', () => {

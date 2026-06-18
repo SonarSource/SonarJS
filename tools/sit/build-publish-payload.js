@@ -93,8 +93,9 @@ export function buildCommentLines(context, workflowStatus) {
   if (context.hasRules) {
     lines.push(
       `- SIT artifacts: ${[
-        renderArtifactLink('sit-export-target', context.artifactLinks),
-        renderArtifactLink('sit-export-baseline', context.artifactLinks),
+        `target ${renderArtifactGroup('sit-export-target', context.artifactLinks)}`,
+        `baseline ${renderArtifactGroup('sit-export-baseline', context.artifactLinks)}`,
+        `timing ${renderArtifactGroup('sit-timing-summary', context.artifactLinks)}`,
       ].join(', ')}`,
       `- FPS artifacts: ${[
         renderArtifactLink('fps-reports', context.artifactLinks),
@@ -113,6 +114,9 @@ export function buildCommentLines(context, workflowStatus) {
 
   if (context.fpsSummary?.results?.length > 0) {
     lines.push(...renderRuleSections(context.fpsSummary.results));
+  }
+  if (context.sitSummary?.target || context.sitSummary?.baseline) {
+    lines.push(...renderSitTimingSummary(context.sitSummary));
   }
   if (context.diffsitSummary?.overall) {
     lines.push(...renderDiffsitSummary(context.diffsitSummary));
@@ -179,6 +183,52 @@ function renderDiffsitSummary(summary) {
   ];
 }
 
+function renderSitTimingSummary(summary) {
+  const lines = [
+    '',
+    '### SIT timing',
+    '',
+    '| Export | Projects | Total | Average |',
+    '|:-------|---------:|------:|--------:|',
+  ];
+
+  for (const [label, key] of [
+    ['Target', 'target'],
+    ['Baseline', 'baseline'],
+  ]) {
+    const details = summary?.[key];
+    if (!details) {
+      continue;
+    }
+    lines.push(
+      `| ${label} | ${formatCount(details.project_count)} | ${formatDuration(
+        details.total_analysis_duration_ms,
+      )} | ${formatDuration(details.average_analysis_duration_ms)} |`,
+    );
+  }
+  lines.push('');
+
+  for (const [label, key] of [
+    ['Target', 'target'],
+    ['Baseline', 'baseline'],
+  ]) {
+    const slowestProjects = summary?.[key]?.slowest_projects ?? [];
+    if (slowestProjects.length === 0) {
+      continue;
+    }
+    lines.push(
+      `- ${label} slowest: ${slowestProjects
+        .slice(0, 5)
+        .map(
+          project => `\`${project.project_key}\` (${formatDuration(project.analysis_duration_ms)})`,
+        )
+        .join(', ')}`,
+    );
+  }
+  lines.push('');
+  return lines;
+}
+
 export function buildRuleStatuses(results, targetUrl) {
   const statuses = [];
   for (const result of results) {
@@ -241,10 +291,26 @@ function renderArtifactLink(artifactName, artifactLinks) {
   return `[\`${artifactName}\`](${artifactLink})`;
 }
 
+function renderArtifactGroup(artifactName, artifactLinks) {
+  const artifactLink = artifactLinks[artifactName];
+  if (artifactLink) {
+    return `[\`${artifactName}\`](${artifactLink})`;
+  }
+
+  const shardCount = Object.keys(artifactLinks).filter(name =>
+    name.startsWith(`${artifactName}-`),
+  ).length;
+  if (shardCount === 0) {
+    return `\`${artifactName}\` (artifact not found)`;
+  }
+  return `\`${artifactName}-*\` (${shardCount} shard${shardCount === 1 ? '' : 's'})`;
+}
+
 export async function buildPublishPayload(args, appendOutput = appendGithubOutput) {
   const rules = loadRules(args.rulesJson);
   const fpsSummary = await loadOptionalJson(args.fpsSummaryPath);
   const diffsitSummary = await loadOptionalJson(args.diffsitSummaryPath);
+  const sitSummary = await loadOptionalJson(args.sitSummaryPath);
   const artifactLinks = await loadArtifactLinks(
     args.artifactsJsonPath,
     args.repository,
@@ -262,6 +328,7 @@ export async function buildPublishPayload(args, appendOutput = appendGithubOutpu
     runUrl: args.runUrl,
     fpsSummary,
     diffsitSummary,
+    sitSummary,
     artifactLinks,
   };
   const outcome = resolveWorkflowOutcome(
@@ -310,10 +377,37 @@ async function writeJsonOrText(path, text) {
 }
 
 async function loadOptionalJson(path) {
+  if (!path) {
+    return null;
+  }
   if (!(await exists(path))) {
     return null;
   }
   return readJsonFile(path);
+}
+
+function formatDuration(value) {
+  if (value === null || value === undefined) {
+    return 'n/a';
+  }
+  const durationMs = Number(value);
+  if (!Number.isFinite(durationMs)) {
+    return 'n/a';
+  }
+  if (durationMs < 1_000) {
+    return `${Math.round(durationMs)}ms`;
+  }
+  const totalSeconds = Math.round(durationMs / 1_000);
+  const hours = Math.floor(totalSeconds / 3_600);
+  const minutes = Math.floor((totalSeconds % 3_600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours > 0) {
+    return `${hours}h ${minutes}m ${seconds}s`;
+  }
+  if (minutes > 0) {
+    return `${minutes}m ${seconds}s`;
+  }
+  return `${(durationMs / 1_000).toFixed(1)}s`;
 }
 
 async function exists(path) {
@@ -357,6 +451,9 @@ async function main() {
       requireOption(options, '--diffsit-summary-path'),
       '--diffsit-summary-path',
     ),
+    sitSummaryPath: options.get('--sit-summary-path')
+      ? resolvePathUnder(cwd, options.get('--sit-summary-path'), '--sit-summary-path')
+      : undefined,
     artifactsJsonPath: resolvePathUnder(
       cwd,
       requireOption(options, '--artifacts-json-path'),

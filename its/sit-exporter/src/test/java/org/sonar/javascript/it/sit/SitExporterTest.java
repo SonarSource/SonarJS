@@ -128,6 +128,7 @@ class SitExporterTest {
           ? object.get("folder").getAsString()
           : null,
         null,
+        null,
         null
       );
       if (!Files.isDirectory(project.resolveSourceDirectory(repoRoot))) {
@@ -136,6 +137,83 @@ class SitExporterTest {
     }
 
     assertThat(missingProjects).isEmpty();
+  }
+
+  @Test
+  void mergesManifestScannerPropertiesWithDefaultScannerSettings() {
+    var properties = SitExporter.scannerProperties(
+      new RulingProject(
+        "peachee-project",
+        "/tmp/peachee-project",
+        null,
+        null,
+        java.util.Map.of(
+          "sonar.sources",
+          "src,packages",
+          "sonar.tests",
+          "tests",
+          "sonar.exclusions",
+          "**/dist/**",
+          "sonar.test.inclusions",
+          "**/*.spec.ts"
+        )
+      )
+    );
+
+    assertThat(properties).containsEntry("sonar.sources", "src,packages");
+    assertThat(properties).containsEntry("sonar.tests", "tests");
+    assertThat(properties).containsEntry("sonar.exclusions", "**/dist/**");
+    assertThat(properties).containsEntry("sonar.test.inclusions", "**/*.spec.ts");
+    assertThat(properties).containsEntry("sonar.cpd.exclusions", "**/*");
+    assertThat(properties).containsEntry("sonar.internal.analysis.failFast", "true");
+  }
+
+  @Test
+  void writesAnalysisDurationForProjectsWithoutRules() throws Exception {
+    var outputDir = tempDir.resolve("sit-output");
+    var repoRoot = tempDir.resolve("repo-root");
+    var projectDir = tempDir.resolve("external-project");
+    Files.createDirectories(repoRoot);
+    Files.createDirectories(projectDir);
+    Files.writeString(projectDir.resolve("index.js"), "console.log('hi');\n", StandardCharsets.UTF_8);
+
+    var projectsJson = tempDir.resolve("projects.json");
+    Files.writeString(
+      projectsJson,
+      "[{\"name\":\"external-project\",\"folder\":\"" +
+      projectDir.toString().replace("\\", "\\\\") +
+      "\"}]\n",
+      StandardCharsets.UTF_8
+    );
+
+    var rulesJson = tempDir.resolve("rules.json");
+    Files.writeString(rulesJson, "[]\n", StandardCharsets.UTF_8);
+
+    SitExporter.run(
+      SitExporter.Config.fromArgs(
+        new String[] {
+          "--repo-root",
+          repoRoot.toString(),
+          "--projects-json",
+          projectsJson.toString(),
+          "--rules-json",
+          rulesJson.toString(),
+          "--output-dir",
+          outputDir.toString(),
+          "--timestamp",
+          "2026-06-18T00:00:00Z",
+        }
+      )
+    );
+
+    var metadata = JsonParser.parseString(
+      Files.readString(
+        outputDir.resolve("external-project").resolve("metadata.json"),
+        StandardCharsets.UTF_8
+      )
+    ).getAsJsonObject();
+
+    assertThat(metadata.get("analysis_duration_ms").getAsLong()).isZero();
   }
 
   @Test

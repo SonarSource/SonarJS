@@ -31,9 +31,19 @@ on:
         default: false
         type: boolean
       project_filter:
-        description: "Optional comma-separated ruling project names for faster iteration"
+        description: "Optional comma-separated project names for faster iteration"
         required: false
         default: ""
+        type: string
+      project_source:
+        description: "Project source to export (ruling or peachee)"
+        required: false
+        default: "ruling"
+        type: string
+      peachee_ref:
+        description: "peachee-js ref used when project_source=peachee"
+        required: false
+        default: "js-ts-css-html"
         type: string
 
 jobs:
@@ -72,6 +82,14 @@ jobs:
         with:
           secrets: |
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
+
+      - name: Get peachee GitHub token
+        if: inputs.project_source == 'peachee'
+        id: peachee-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-submodules token | GITHUB_SUBMODULES_TOKEN;
 
       - name: Cache NPM dependencies
         if: inputs.build_plugin
@@ -115,19 +133,88 @@ jobs:
           ref: ${{ github.sha }}
           path: sit-tooling
 
+      - name: Checkout peachee-js
+        if: inputs.project_source == 'peachee'
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          repository: SonarSource/peachee-js
+          ref: ${{ inputs.peachee_ref }}
+          path: peachee-js
+          token: ${{ fromJSON(steps.peachee-secrets.outputs.vault).GITHUB_SUBMODULES_TOKEN }}
+
       - name: Build SIT exporter
         run: mvn -f sit-tooling/its/sit-exporter/pom.xml package -DskipTests -B -e -V
+
+      - name: Checkout peachee workspaces
+        if: inputs.project_source == 'peachee'
+        env:
+          PROJECT_FILTER: ${{ inputs.project_filter }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.peachee-secrets.outputs.vault).GITHUB_SUBMODULES_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          projects=()
+          if [ -n "$PROJECT_FILTER" ]; then
+            IFS=',' read -r -a projects <<< "$PROJECT_FILTER"
+          else
+            mapfile -t projects < <(jq -r 'to_entries[] | select(.value.analysis != false) | .key' peachee-js/projects.json)
+          fi
+
+          if [ "${#projects[@]}" -eq 0 ]; then
+            echo "No peachee-js projects selected" >&2
+            exit 1
+          fi
+
+          for project in "${projects[@]}"; do
+            project="${project#"${project%%[![:space:]]*}"}"
+            project="${project%"${project##*[![:space:]]}"}"
+            [ -n "$project" ] || continue
+            echo "Checking out $project"
+
+            for attempt in 1 2 3; do
+              if [ "$attempt" -gt 1 ] && [ -d "peachee-js/$project/workspace/.git" ]; then
+                rm -rf "peachee-js/$project/workspace"
+              fi
+
+              set +e
+              (
+                cd peachee-js
+                timeout 15m bash scripts/checkout-project.sh "$project"
+              )
+              exit_code="$?"
+              set -e
+
+              if [ "$exit_code" -eq 0 ]; then
+                break
+              fi
+
+              if [ -d "peachee-js/$project/workspace/.git" ]; then
+                rm -rf "peachee-js/$project/workspace"
+              fi
+
+              if [ "$attempt" -lt 3 ]; then
+                echo "Checkout failed for $project (attempt $attempt), retrying in 10 seconds"
+                sleep 10
+              else
+                echo "Checkout failed for $project after $attempt attempts" >&2
+                exit "$exit_code"
+              fi
+            done
+          done
 
       - name: Run SIT exporter
         env:
           RULES_JSON: ${{ inputs.rules_json }}
           PROJECT_FILTER: ${{ inputs.project_filter }}
           CHECKOUT_REF: ${{ inputs.checkout_ref }}
+          PROJECT_SOURCE: ${{ inputs.project_source }}
+          PEACHEE_ROOT: ${{ github.workspace }}/peachee-js
         run: |
           set -euo pipefail
 
           mkdir -p build/sit-export
           printf '%s\n' "$RULES_JSON" > build/sit-rules.json
+          projects_json="sit-tooling/packages/ruling/projects.json"
 
           find_latest_plugin_jar() {
             local root="$1"
@@ -146,8 +233,20 @@ jobs:
             exit 1
           fi
 
+          if [ "$PROJECT_SOURCE" = "peachee" ]; then
+            manifest_args=(
+              --peachee-root "$PEACHEE_ROOT"
+              --output build/sit-projects.json
+            )
+            if [ -n "$PROJECT_FILTER" ]; then
+              manifest_args+=(--project-filter "$PROJECT_FILTER")
+            fi
+            node sit-tooling/tools/sit/generate-peachee-manifest.js "${manifest_args[@]}"
+            projects_json="build/sit-projects.json"
+          fi
+
           args=(
-            --projects-json sit-tooling/packages/ruling/projects.json
+            --projects-json "$projects_json"
             --rules-json build/sit-rules.json
             --output-dir build/sit-export
             --plugin-jar "$plugin_jar"

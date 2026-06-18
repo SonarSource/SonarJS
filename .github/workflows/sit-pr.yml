@@ -95,32 +95,163 @@ jobs:
           append_output "rule_filter" "$rule_filter"
           append_output "rule_keys_text" "$rule_keys_text"
 
-  target_sit_export:
-    name: Target SIT Export
+  prepare_projects:
+    name: Prepare Projects
     needs: [prepare_rules]
     if: needs.prepare_rules.outputs.has_rules == 'true'
+    runs-on: sonar-xs
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ inputs.head_sha }}
+
+      - uses: jdx/mise-action@v4.1.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            node = "24.11.0"
+
+      - name: Get peachee GitHub token
+        id: peachee-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-submodules token | GITHUB_SUBMODULES_TOKEN;
+
+      - name: Checkout peachee-js
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          repository: SonarSource/peachee-js
+          ref: js-ts-css-html
+          path: peachee-js
+          token: ${{ fromJSON(steps.peachee-secrets.outputs.vault).GITHUB_SUBMODULES_TOKEN }}
+
+      - name: Render peachee shard matrix
+        id: matrix
+        env:
+          PROJECT_FILTER: ${{ inputs.project_filter }}
+        run: |
+          set -euo pipefail
+
+          node tools/sit/render-peachee-shard-matrix.js \
+            --peachee-root "$GITHUB_WORKSPACE/peachee-js" \
+            --output build/sit-peachee-matrix.json \
+            --projects-per-shard 16 \
+            --project-filter "$PROJECT_FILTER"
+
+          {
+            echo 'matrix<<EOF'
+            cat build/sit-peachee-matrix.json
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+  baseline_plugin:
+    name: Build Baseline Plugin
+    needs: [prepare_rules]
+    if: needs.prepare_rules.outputs.has_rules == 'true'
+    runs-on: sonar-l
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ inputs.base_sha }}
+          submodules: true
+
+      - uses: jdx/mise-action@v4.1.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            java = "21.0"
+            maven = "3.9"
+            node = "24.11.0"
+
+      - name: Configure Maven
+        uses: SonarSource/ci-github-actions/config-maven@master
+        with:
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
+
+      - name: Get RSPEC GitHub token
+        id: rspec-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
+
+      - name: Cache NPM dependencies
+        id: npm-cache
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
+
+      - name: Configure npm registry
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        uses: SonarSource/ci-github-actions/config-npm@v1
+
+      - name: Install NPM dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Build baseline SonarJS plugin
+        run: mvn -pl sonar-plugin/sonar-javascript-plugin -am package -DskipTests -B -e -V
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+
+      - name: Upload baseline SonarJS artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sonarjs-m2-baseline
+          path: ~/.m2/repository/org/sonarsource/javascript
+          retention-days: 1
+
+  target_sit_export:
+    name: Target SIT Export (${{ matrix.label }})
+    needs: [prepare_rules, prepare_projects]
+    if: needs.prepare_rules.outputs.has_rules == 'true'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare_projects.outputs.matrix) }}
     uses: ./.github/workflows/sit-export.yml
     with:
       checkout_ref: ${{ inputs.head_sha }}
       rules_json: ${{ needs.prepare_rules.outputs.rules_json }}
-      artifact_name: sit-export-target
+      artifact_name: sit-export-target-${{ matrix.shard }}
       maven_targets_artifact_name: ${{ inputs.maven_targets_artifact_name }}
       sonarjs_m2_artifact_name: ${{ inputs.sonarjs_m2_artifact_name }}
       build_plugin: false
-      project_filter: ${{ inputs.project_filter }}
+      project_filter: ${{ matrix.project_filter }}
+      project_source: peachee
     secrets: inherit
 
   baseline_sit_export:
-    name: Baseline SIT Export
-    needs: [prepare_rules]
+    name: Baseline SIT Export (${{ matrix.label }})
+    needs: [prepare_rules, prepare_projects, baseline_plugin]
     if: needs.prepare_rules.outputs.has_rules == 'true'
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare_projects.outputs.matrix) }}
     uses: ./.github/workflows/sit-export.yml
     with:
       checkout_ref: ${{ inputs.base_sha }}
       rules_json: ${{ needs.prepare_rules.outputs.rules_json }}
-      artifact_name: sit-export-baseline
-      build_plugin: true
-      project_filter: ${{ inputs.project_filter }}
+      artifact_name: sit-export-baseline-${{ matrix.shard }}
+      sonarjs_m2_artifact_name: sonarjs-m2-baseline
+      build_plugin: false
+      project_filter: ${{ matrix.project_filter }}
+      project_source: peachee
     secrets: inherit
 
   diffsit:
@@ -148,14 +279,16 @@ jobs:
       - name: Download target SIT export
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: sit-export-target
+          pattern: sit-export-target-*
           path: sit-diffsit/target
+          merge-multiple: true
 
       - name: Download baseline SIT export
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: sit-export-baseline
+          pattern: sit-export-baseline-*
           path: sit-diffsit/base
+          merge-multiple: true
 
       - name: Prepare DiffSIT inputs
         env:
@@ -208,6 +341,15 @@ jobs:
             --manifest build/sit-diffsit/diffsit-manifest.json \
             --summary-output build/sit-diffsit/diffsit-summary.json
 
+      - name: Summarize SIT timing
+        run: |
+          set -euo pipefail
+
+          node tools/sit/summarize-sit-exports.js \
+            --base-dir sit-diffsit/base \
+            --target-dir sit-diffsit/target \
+            --summary-output build/sit-diffsit/sit-timing-summary.json
+
       - name: Upload DiffSIT reports
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -223,6 +365,15 @@ jobs:
         with:
           name: diffsit-run-summary
           path: build/sit-diffsit/diffsit-summary.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload SIT timing summary
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sit-timing-summary
+          path: build/sit-diffsit/sit-timing-summary.json
           if-no-files-found: error
           retention-days: 30
 
@@ -282,8 +433,9 @@ jobs:
       - name: Download SIT bundles
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: sit-export-target
+          pattern: sit-export-target-*
           path: sit-input
+          merge-multiple: true
 
       - name: Normalize SIT bundles for FPS
         run: |
@@ -374,6 +526,7 @@ jobs:
           mkdir -p build/sit-fps build/sit-diffsit
           printf '{"results":[]}\n' > build/sit-fps/fps-summary.json
           printf '{"overall":{},"results":[]}\n' > build/sit-diffsit/diffsit-summary.json
+          printf '{"baseline":{},"target":{}}\n' > build/sit-diffsit/sit-timing-summary.json
           printf '{"artifacts":[]}\n' > build/sit-fps/run-artifacts.json
 
       - name: Download FPS summary
@@ -392,6 +545,14 @@ jobs:
           name: diffsit-run-summary
           path: build/sit-diffsit
 
+      - name: Download SIT timing summary
+        if: needs.prepare_rules.outputs.has_rules == 'true'
+        continue-on-error: ${{ needs.diffsit.result != 'success' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sit-timing-summary
+          path: build/sit-diffsit
+
       - name: Collect run artifact metadata
         if: needs.prepare_rules.outputs.has_rules == 'true'
         env:
@@ -399,7 +560,25 @@ jobs:
         run: |
           set -euo pipefail
 
-          if gh api --method GET "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100" > build/sit-fps/run-artifacts.json; then
+          if (
+            page=1
+            tmp_json="$(mktemp)"
+            printf '{"artifacts":[]}\n' > build/sit-fps/run-artifacts.json
+            while true; do
+              gh api --method GET "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100&page=${page}" > "$tmp_json"
+              jq -s '{artifacts: (.[0].artifacts + .[1].artifacts)}' \
+                build/sit-fps/run-artifacts.json \
+                "$tmp_json" > build/sit-fps/run-artifacts.next.json
+              mv build/sit-fps/run-artifacts.next.json build/sit-fps/run-artifacts.json
+
+              count="$(jq '.artifacts | length' "$tmp_json")"
+              if [ "$count" -lt 100 ]; then
+                break
+              fi
+              page="$((page + 1))"
+            done
+            rm -f "$tmp_json"
+          ); then
             echo "Collected run artifact metadata"
           else
             echo "Failed to collect run artifact metadata, continuing with an empty list"
@@ -438,6 +617,7 @@ jobs:
             --run-id "${{ github.run_id }}" \
             --fps-summary-path build/sit-fps/fps-summary.json \
             --diffsit-summary-path build/sit-diffsit/diffsit-summary.json \
+            --sit-summary-path build/sit-diffsit/sit-timing-summary.json \
             --artifacts-json-path build/sit-fps/run-artifacts.json \
             --comment-path build/sit-fps/comment.md \
             --rule-statuses-path build/sit-fps/rule-statuses.json

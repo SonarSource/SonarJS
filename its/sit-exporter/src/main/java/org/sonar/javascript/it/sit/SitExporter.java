@@ -57,6 +57,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -149,15 +150,18 @@ public final class SitExporter {
     Files.createDirectories(projectOutputDir);
 
     List<SitIssue> issues = List.of();
+    long analysisDurationMs = 0L;
     if (!rules.isEmpty()) {
       Path projectWorkDir = config.workDir().resolve(project.name());
       Files.createDirectories(projectWorkDir);
       var scannerInput = buildScannerInput(project, projectDir, projectWorkDir);
+      long startTime = System.nanoTime();
       var result = ScannerRunner.run(
         Objects.requireNonNull(serverContext),
         scannerInput.withVerbose().build(),
         ScannerRunnerConfig.defaults()
       );
+      analysisDurationMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime);
       if (result.exitCode() != 0) {
         throw new IllegalStateException(
           "Scanner failed for " + project.name() + " with exit code " + result.exitCode()
@@ -182,7 +186,8 @@ public final class SitExporter {
       config,
       project,
       rules,
-      unsupportedRules
+      unsupportedRules,
+      analysisDurationMs
     );
     copySources(projectDir, projectOutputDir.resolve("sources"), collectComponentPaths(issues));
   }
@@ -267,25 +272,37 @@ public final class SitExporter {
   ) {
     var builder = ScannerInput.create(project.name(), projectDir)
       .withWorkDir(workDir)
-      .withOrganizationKey("test-organization")
-      .withScannerProperty("sonar.projectName", project.name())
-      .withScannerProperty("sonar.projectVersion", "1")
-      .withScannerProperty("sonar.sources", ".")
-      .withScannerProperty("sonar.sourceEncoding", "utf-8")
-      .withScannerProperty("sonar.exclusions", exclusions(project))
-      .withScannerProperty("sonar.javascript.node.maxspace", "4096")
-      .withScannerProperty("sonar.javascript.maxFileSize", "4000")
-      .withScannerProperty("sonar.cpd.exclusions", "**/*")
-      .withScannerProperty("sonar.scm.disabled", "true")
-      .withScannerProperty("sonar.sca.disabled", "true")
-      .withScannerProperty("sonar.sensor.cache.enable", "false")
-      .withScannerProperty("sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir", "true")
-      .withScannerProperty("sonar.internal.analysis.failFast", "true");
+      .withOrganizationKey("test-organization");
 
-    if (!isBlank(project.testDir())) {
-      builder = builder.withScannerProperty("sonar.tests", project.testDir());
+    for (Map.Entry<String, String> entry : scannerProperties(project).entrySet()) {
+      if (isBlank(entry.getValue())) {
+        continue;
+      }
+      builder = builder.withScannerProperty(entry.getKey(), entry.getValue());
     }
     return builder;
+  }
+
+  static Map<String, String> scannerProperties(RulingProject project) {
+    Map<String, String> scannerProperties = new LinkedHashMap<>();
+    scannerProperties.put("sonar.projectName", project.name());
+    scannerProperties.put("sonar.projectVersion", "1");
+    scannerProperties.put("sonar.sources", ".");
+    scannerProperties.put("sonar.sourceEncoding", "utf-8");
+    scannerProperties.put("sonar.exclusions", exclusions(project));
+    if (!isBlank(project.testDir())) {
+      scannerProperties.put("sonar.tests", project.testDir());
+    }
+    scannerProperties.putAll(project.scannerProperties());
+    scannerProperties.putIfAbsent("sonar.javascript.node.maxspace", "4096");
+    scannerProperties.putIfAbsent("sonar.javascript.maxFileSize", "4000");
+    scannerProperties.put("sonar.cpd.exclusions", "**/*");
+    scannerProperties.put("sonar.scm.disabled", "true");
+    scannerProperties.put("sonar.sca.disabled", "true");
+    scannerProperties.put("sonar.sensor.cache.enable", "false");
+    scannerProperties.put("sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir", "true");
+    scannerProperties.put("sonar.internal.analysis.failFast", "true");
+    return scannerProperties;
   }
 
   private static String exclusions(RulingProject project) {
@@ -428,7 +445,8 @@ public final class SitExporter {
     Config config,
     RulingProject project,
     List<RuleSelection> rules,
-    List<String> unsupportedRules
+    List<String> unsupportedRules,
+    long analysisDurationMs
   ) throws IOException {
     var metadata = new LinkedHashMap<String, Object>();
     metadata.put("project_key", project.name());
@@ -438,6 +456,7 @@ public final class SitExporter {
     metadata.put("rule_keys", rules.stream().map(RuleSelection::qualifiedKey).sorted().toList());
     metadata.put("unsupported_rules", unsupportedRules);
     metadata.put("analysis_timestamp", config.timestamp());
+    metadata.put("analysis_duration_ms", analysisDurationMs);
     Files.writeString(metadataFile, GSON.toJson(metadata) + "\n", StandardCharsets.UTF_8);
   }
 
@@ -552,9 +571,14 @@ record RulingProject(
   String name,
   @Nullable String folder,
   @Nullable String testDir,
-  @Nullable String exclusions
+  @Nullable String exclusions,
+  @Nullable Map<String, String> scannerProperties
 ) {
   private static final String DEFAULT_FOLDER_PREFIX = "projects/";
+
+  RulingProject {
+    scannerProperties = scannerProperties == null ? Map.of() : Map.copyOf(scannerProperties);
+  }
 
   Path resolveSourceDirectory(Path repoRoot) {
     String projectFolder = folder == null ? (DEFAULT_FOLDER_PREFIX + name) : folder;
