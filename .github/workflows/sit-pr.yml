@@ -191,7 +191,7 @@ jobs:
         run: npm ci
 
       - name: Build baseline SonarJS plugin
-        run: mvn -pl sonar-plugin/sonar-javascript-plugin -am package -DskipTests -B -e -V
+        run: mvn -pl sonar-plugin/sonar-javascript-plugin -am install -DskipTests -B -e -V
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
