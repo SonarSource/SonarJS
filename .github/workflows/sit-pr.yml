@@ -121,7 +121,7 @@ jobs:
       - name: Render peachee shard matrix
         id: matrix
         env:
-          PEACHEE_EXCLUDE_PROJECTS: ant-design-windows,gutenberg,kibana,nextjs,vscode,wzry
+          PEACHEE_EXCLUDE_PROJECTS: ant-design-windows,gutenberg,hospitalrun-frontend,kibana,nextjs,vscode,wzry
           PROJECT_FILTER: ${{ inputs.project_filter }}
         run: |
           set -euo pipefail
@@ -130,7 +130,7 @@ jobs:
           node tools/sit/render-peachee-shard-matrix.js \
             --peachee-root "$GITHUB_WORKSPACE/tools/sit/peachee-public" \
             --output build/sit-peachee-matrix.json \
-            --projects-per-shard 128 \
+            --projects-per-shard 32 \
             --exclude-projects "$PEACHEE_EXCLUDE_PROJECTS" \
             --project-filter "$PROJECT_FILTER"
 
