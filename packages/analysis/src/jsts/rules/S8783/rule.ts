@@ -35,7 +35,12 @@ const messages = {
 
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
 
-const CYPRESS_OPTIONS_INDEX = new Map([
+// The options object is always the trailing argument of these commands, but it can
+// follow a variable number of positional arguments (e.g. Cypress `.click(options)`,
+// `.click(position, options)`, `.click(x, y, options)`). The mapped value is the
+// minimum index at which the options object may appear, guarding required positional
+// arguments (e.g. the event name of Cypress `.trigger()` or the value of `.type()`).
+const CYPRESS_MIN_OPTIONS_INDEX = new Map([
   ['click', 0],
   ['check', 0],
   ['clear', 0],
@@ -47,7 +52,7 @@ const CYPRESS_OPTIONS_INDEX = new Map([
   ['uncheck', 0],
 ]);
 
-const PLAYWRIGHT_OPTIONS_INDEX = new Map([
+const PLAYWRIGHT_MIN_OPTIONS_INDEX = new Map([
   ['check', 0],
   ['click', 0],
   ['dblclick', 0],
@@ -71,8 +76,12 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
-    function reportIfForced(call: estree.CallExpression, optionsIndex: number): void {
-      const forceProperty = findForceTrueProperty(context, call.arguments[optionsIndex]);
+    function reportIfForced(call: estree.CallExpression, minOptionsIndex: number): void {
+      if (call.arguments.length <= minOptionsIndex) {
+        return;
+      }
+      const optionsArgument = call.arguments.at(-1);
+      const forceProperty = findForceTrueProperty(context, optionsArgument);
       if (!forceProperty) {
         return;
       }
@@ -101,9 +110,9 @@ export const rule: Rule.RuleModule = {
       if (!isMethodCall(call) || !chainStartsWithCy(call.callee.object)) {
         return;
       }
-      const optionsIndex = CYPRESS_OPTIONS_INDEX.get(call.callee.property.name);
-      if (optionsIndex !== undefined) {
-        reportIfForced(call, optionsIndex);
+      const minOptionsIndex = CYPRESS_MIN_OPTIONS_INDEX.get(call.callee.property.name);
+      if (minOptionsIndex !== undefined) {
+        reportIfForced(call, minOptionsIndex);
       }
     }
 
@@ -111,12 +120,12 @@ export const rule: Rule.RuleModule = {
       if (!isMethodCall(call)) {
         return;
       }
-      const optionsIndex = PLAYWRIGHT_OPTIONS_INDEX.get(call.callee.property.name);
-      if (optionsIndex === undefined) {
+      const minOptionsIndex = PLAYWRIGHT_MIN_OPTIONS_INDEX.get(call.callee.property.name);
+      if (minOptionsIndex === undefined) {
         return;
       }
       if (isPlaywrightLocatorExpression(context, call.callee.object, playwrightLocators)) {
-        reportIfForced(call, optionsIndex);
+        reportIfForced(call, minOptionsIndex);
       }
     }
   },

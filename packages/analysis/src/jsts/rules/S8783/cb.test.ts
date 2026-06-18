@@ -23,18 +23,8 @@ describe('S8783', () => {
   it('reports forced browser interactions', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     const cypressFile = path.join(import.meta.dirname, 'fixtures', 'cypress', 'test.cy.js');
-    const playwrightFile = path.join(
-      import.meta.dirname,
-      'fixtures',
-      'playwright',
-      'test.spec.ts',
-    );
-    const noDependencyFile = path.join(
-      import.meta.dirname,
-      'fixtures',
-      'no-dependency',
-      'test.js',
-    );
+    const playwrightFile = path.join(import.meta.dirname, 'fixtures', 'playwright', 'test.spec.ts');
+    const noDependencyFile = path.join(import.meta.dirname, 'fixtures', 'no-dependency', 'test.js');
     const expectedError = { messageId: 'removeForce' };
 
     ruleTester.run('no-forced-browser-interaction', rule, {
@@ -50,6 +40,14 @@ describe('S8783', () => {
             cy.get('button[type=submit]').click();
             cy.get('input[type=checkbox]').check({ force: false });
             cy.get('input[name=zip]').type('75008', { delay: 10 });
+          `,
+          filename: cypressFile,
+        },
+        {
+          code: `
+            cy.get('button').click(10, 20);
+            cy.get('button').trigger('mouseover', 'topLeft');
+            cy.get('button').click('topLeft', { force: false });
           `,
           filename: cypressFile,
         },
@@ -144,6 +142,48 @@ describe('S8783', () => {
         {
           code: `
             cy.contains('button', 'Save').click({ force: true });
+          `,
+          filename: cypressFile,
+          errors: [expectedError],
+        },
+        {
+          code: `
+            cy.get('button').click('topLeft', { force: true });
+          `,
+          filename: cypressFile,
+          errors: [expectedError],
+        },
+        {
+          code: `
+            cy.get('button').click(10, 20, { force: true });
+          `,
+          filename: cypressFile,
+          errors: [expectedError],
+        },
+        {
+          code: `
+            cy.get('button').dblclick(10, 20, { force: true });
+          `,
+          filename: cypressFile,
+          errors: [expectedError],
+        },
+        {
+          code: `
+            cy.get('button').rightclick('topRight', { force: true });
+          `,
+          filename: cypressFile,
+          errors: [expectedError],
+        },
+        {
+          code: `
+            cy.get('button').trigger('mouseover', 'topLeft', { force: true });
+          `,
+          filename: cypressFile,
+          errors: [expectedError],
+        },
+        {
+          code: `
+            cy.get('button').trigger('mouseover', 10, 20, { force: true });
           `,
           filename: cypressFile,
           errors: [expectedError],
