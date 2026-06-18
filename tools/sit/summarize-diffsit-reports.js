@@ -76,7 +76,7 @@ function extractSummary(report, reportPath) {
     throw new Error(`DiffSIT report is missing summary data: ${reportPath}`);
   }
 
-  const summary = Object.fromEntries(COUNT_KEYS.map(key => [key, Number(rawSummary[key] ?? 0)]));
+  const summary = Object.fromEntries(COUNT_KEYS.map(key => [key, toCount(rawSummary[key])]));
   if (!('overall_summary' in report)) {
     summary.projects = 1;
   }
@@ -89,6 +89,11 @@ function extractSummary(report, reportPath) {
   summary.only_in_base = rawSummary.only_in_base ?? [];
   summary.only_in_target = rawSummary.only_in_target ?? [];
   return summary;
+}
+
+function toCount(value) {
+  const count = Number(value ?? 0);
+  return Number.isFinite(count) ? count : 0;
 }
 
 function aggregateResults(results) {

@@ -261,9 +261,11 @@ jobs:
             uv = "0.11.2"
 
       - name: Register the personal access token
+        env:
+          GH_SUBMODULES_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).github_submodules_token }}
         run: |
           set -euo pipefail
-          echo "${{ fromJSON(steps.secrets.outputs.vault).github_submodules_token }}" | gh auth login --with-token
+          gh auth login --with-token <<< "$GH_SUBMODULES_TOKEN"
 
       - name: Configure the Git credential helper
         run: |

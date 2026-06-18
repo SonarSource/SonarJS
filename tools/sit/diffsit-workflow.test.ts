@@ -179,6 +179,57 @@ describe('summarizeDiffsitReports', () => {
       ],
     });
   });
+
+  it('coerces non-finite summary fields to zero', async () => {
+    const root = await tempRoot();
+    const reportPath = join(root, 'reports', 'diffsit-report.json');
+    await writeJson(reportPath, {
+      overall_summary: {
+        projects: 'oops',
+        base_count: 4,
+        target_count: null,
+        new: 'NaN',
+        removed: 1,
+        changed: undefined,
+        message_changes: '2',
+        secondary_changes: Number.NaN,
+        unchanged: 3,
+        only_in_base: [],
+        only_in_target: [],
+      },
+      projects: [],
+    });
+    const manifestPath = join(root, 'manifest.json');
+    await writeJson(manifestPath, {
+      runs: [
+        {
+          name: 'sonarjs',
+          rule_keys: ['javascript:S1116'],
+          rule_filter: 'javascript:S1116',
+          reports: { json: reportPath },
+        },
+      ],
+    });
+
+    const payload = await summarizeDiffsitReports({
+      manifest: manifestPath,
+      summaryOutput: join(root, 'summary.json'),
+    });
+
+    assert.deepEqual(payload.overall, {
+      projects: 0,
+      base_count: 4,
+      target_count: 0,
+      new: 0,
+      removed: 1,
+      changed: 0,
+      message_changes: 2,
+      secondary_changes: 0,
+      unchanged: 3,
+      only_in_base: [],
+      only_in_target: [],
+    });
+  });
 });
 
 async function tempRoot() {
