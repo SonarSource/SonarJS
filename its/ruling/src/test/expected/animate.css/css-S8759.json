@@ -1,7 +1,4 @@
 {
-"animate.css:animate.compat.css": [
-7
-],
 "animate.css:animate.css": [
 112,
 194,
@@ -100,11 +97,5 @@
 3989,
 4017,
 4045
-],
-"animate.css:animate.min.css": [
-7
-],
-"animate.css:docs/animate.min.css": [
-7
 ]
 }

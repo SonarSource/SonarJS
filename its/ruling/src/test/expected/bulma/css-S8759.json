@@ -3,15 +3,9 @@
 442,
 2662
 ],
-"bulma:css/bulma-rtl.min.css": [
-1
-],
 "bulma:css/bulma.css": [
 442,
 2662
-],
-"bulma:css/bulma.min.css": [
-1
 ],
 "bulma:docs/css/bulma-docs.css": [
 443,
@@ -31,8 +25,5 @@
 16214,
 16236,
 16274
-],
-"bulma:docs/css/bulma-docs.min.css": [
-1
 ]
 }
