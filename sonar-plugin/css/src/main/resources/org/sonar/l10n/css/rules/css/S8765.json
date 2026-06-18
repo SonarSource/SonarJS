@@ -1,0 +1,28 @@
+{
+  "title": "Custom properties should be wrapped in \"var()\" when used as values",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-8765",
+  "sqKey": "S8765",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
