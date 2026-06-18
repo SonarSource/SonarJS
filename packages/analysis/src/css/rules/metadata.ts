@@ -263,6 +263,20 @@ export const cssRulesMeta: CssRuleMeta[] = [
     stylelintKey: 'sonar/text-spacing',
   },
   {
+    sqKey: 'S8759',
+    stylelintKey: 'at-rule-no-vendor-prefix',
+    listParam: [
+      {
+        sqKey: 'ignoreAtRules',
+        javaField: 'ignoredAtRules',
+        description:
+          'Comma-separated list of strings and/or regular expressions for at-rules to ignore.',
+        default: '',
+        stylelintOptionKey: 'ignoreAtRules',
+      },
+    ],
+  },
+  {
     sqKey: 'S8765',
     stylelintKey: 'custom-property-no-missing-var-function',
   },
