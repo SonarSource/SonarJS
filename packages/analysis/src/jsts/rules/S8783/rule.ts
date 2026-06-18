@@ -54,12 +54,14 @@ const CYPRESS_MIN_OPTIONS_INDEX = new Map([
 
 const PLAYWRIGHT_MIN_OPTIONS_INDEX = new Map([
   ['check', 0],
+  ['clear', 0],
   ['click', 0],
   ['dblclick', 0],
   ['dragTo', 1],
   ['fill', 1],
   ['hover', 0],
   ['selectOption', 1],
+  ['selectText', 0],
   ['setChecked', 1],
   ['tap', 0],
   ['uncheck', 0],

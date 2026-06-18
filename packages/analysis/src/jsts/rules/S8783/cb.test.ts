@@ -233,6 +233,28 @@ describe('S8783', () => {
           filename: playwrightFile,
           errors: [expectedError],
         },
+        {
+          code: `
+            import { test } from '@playwright/test';
+
+            test('clears the field', async ({ page }) => {
+              await page.getByLabel('Name').clear({ force: true });
+            });
+          `,
+          filename: playwrightFile,
+          errors: [expectedError],
+        },
+        {
+          code: `
+            import { test } from '@playwright/test';
+
+            test('selects the text', async ({ page }) => {
+              await page.getByLabel('Name').selectText({ force: true });
+            });
+          `,
+          filename: playwrightFile,
+          errors: [expectedError],
+        },
       ],
     });
   });
