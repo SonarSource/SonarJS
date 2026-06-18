@@ -231,9 +231,12 @@ The store also depends on:
 - **project helper files** because the detector cache derives metadata from files such as `package.json`
 - **JS/TS suffix settings** because detector output matching depends on the supported source extensions
 
-There is one additional implementation detail worth keeping explicit: store order matters.
-`generatedSourceStore` intentionally runs after `sourceFileStore` and `dependencyManifestStore`
-so it can reuse their cached file contents instead of rereading the same detector inputs itself.
+There is one additional implementation detail worth keeping explicit: file reads are centralized in
+`file-stores/index.ts`.
+
+Each store declares whether it wants a given file path only or needs the shared `File` object too.
+If any pending store needs contents, `initFileStores()` reads the file once and passes the same
+object to every interested store.
 
 ### Refresh Model
 

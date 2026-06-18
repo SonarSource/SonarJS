@@ -68,13 +68,13 @@ Before `generatedSourceStore.postProcess()` runs, the store has already captured
 
 At the same time:
 
-- `sourceFileStore` has already cached overlapping JS/TS file contents, which
-  `generatedSourceStore` reuses for detector config files
+- `file-stores/index.ts` has already fanned out any requested file contents as shared `File`
+  objects, so overlapping detector inputs are read at most once
 - `dependencyManifestStore` has already collected raw `package.json` contents, which
   `generatedSourceStore` reuses as task-invocation and fallback-config input
 
-So generated-source derivation still comes from the single shared walk. It just reuses the other
-stores as owners for inputs they already cache.
+So generated-source derivation still comes from the single shared walk. It just reuses the
+shared-walk snapshot plus the manifest-store inputs it already owns.
 
 This is also why the store now only runs when filesystem access is available. Request-only analyses do not execute generated-source derivation.
 
@@ -99,7 +99,7 @@ in-memory view containing:
 
 - walked directories
 - walked JS/TS source-file paths
-- preloaded detector-specific files captured by `generatedSourceStore`
+- preloaded detector-specific files captured during the shared walk
 - raw `package.json` files owned by `dependencyManifestStore`
 
 `deriveGeneratedSources()` then:
