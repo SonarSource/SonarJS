@@ -113,7 +113,7 @@ async function listProjectExports(root, label) {
 
   const entries = await readdir(root, { withFileTypes: true });
   const projectDirs = entries
-    .filter(entry => entry.isDirectory())
+    .filter(entry => entry.isDirectory() && !entry.name.startsWith('.'))
     .sort((a, b) => a.name.localeCompare(b.name));
   const missingIssueFiles = [];
   const projects = new Map();
@@ -145,7 +145,7 @@ async function listBaseProjectExports(root) {
   const projects = new Map();
   const entries = await readdir(root, { withFileTypes: true });
   for (const entry of entries
-    .filter(entry => entry.isDirectory())
+    .filter(entry => entry.isDirectory() && !entry.name.startsWith('.'))
     .sort((a, b) => a.name.localeCompare(b.name))) {
     const projectDir = join(root, entry.name);
     if (!(await isFile(join(projectDir, ISSUES_FILE)))) {

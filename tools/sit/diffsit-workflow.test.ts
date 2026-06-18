@@ -104,6 +104,33 @@ describe('prepareDiffsitInputs', () => {
       /target project export\(s\) missing issues\.jsonl/,
     );
   });
+
+  it('ignores hidden housekeeping directories in downloaded SIT exports', async () => {
+    const root = await tempRoot();
+    await writeExport(
+      root,
+      'target',
+      'custom-jsts',
+      { project_key: 'sit-export-custom-jsts' },
+      '{"rule_key":"javascript:S1116"}\n',
+    );
+    await mkdir(join(root, 'target', '.work', 'custom-jsts'), { recursive: true });
+    await mkdir(join(root, 'base', '.work'), { recursive: true });
+
+    const manifest = await prepareDiffsitInputs({
+      rulesJson: '[{"repository":"javascript","language":"js","ruleKey":"S1116"}]',
+      baseDir: join(root, 'base'),
+      targetDir: join(root, 'target'),
+      reportsDir: join(root, 'reports'),
+      manifestOutput: join(root, 'manifest.json'),
+    });
+
+    assert.equal(manifest.runs[0].target_dir, join(root, 'target'));
+    assert.equal(
+      await readFile(join(root, 'prepared-base', 'custom-jsts', 'issues.jsonl'), 'utf8'),
+      '',
+    );
+  });
 });
 
 describe('summarizeDiffsitReports', () => {
