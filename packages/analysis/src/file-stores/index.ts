@@ -132,32 +132,19 @@ async function processPendingFileStores(
   configuration: Configuration,
   fileContent?: string,
 ) {
-  let file: File | undefined = undefined;
-  let fileResolved = false;
+  let sharedFile: File | undefined;
   for (const store of pendingStores) {
     const storeWantsFile = store.wantsFile(filePath, configuration);
     if (storeWantsFile === 'content') {
-      if (!fileResolved) {
-        file = await createSharedFile(filePath, fileContent);
-        fileResolved = true;
+      if (sharedFile === undefined) {
+        sharedFile = {
+          filePath,
+          fileContent: fileContent ?? (await readFile(filePath)),
+        };
       }
-
-      if (file !== undefined) {
-        await store.processFile(filePath, configuration, file);
-      }
+      await store.processFile(filePath, configuration, sharedFile);
     } else if (storeWantsFile === 'path') {
       await store.processFile(filePath, configuration);
     }
   }
-}
-
-async function createSharedFile(
-  filePath: NormalizedAbsolutePath,
-  fileContent?: string,
-): Promise<File | undefined> {
-  if (fileContent !== undefined) {
-    return { filePath, fileContent };
-  }
-
-  return { filePath, fileContent: await readFile(filePath) };
 }
