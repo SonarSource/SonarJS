@@ -1,0 +1,18 @@
+{
+"vitest:test/snapshots/test/fixtures/test-update-result/same-title-file.test.js": [
+8,
+17
+],
+"vitest:test/snapshots/test/fixtures/test-update-result/same-title-inline.test.js": [
+8,
+13
+],
+"vitest:test/snapshots/test/fixtures/test-update/same-title-file.test.js": [
+8,
+17
+],
+"vitest:test/snapshots/test/fixtures/test-update/same-title-inline.test.js": [
+8,
+13
+]
+}

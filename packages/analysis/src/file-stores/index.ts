@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { SourceFileStore } from './source-files.js';
-import { dependencyManifestStore } from './dependency-manifests.js';
-import { generatedSourceStore } from './generated-sources.js';
+import { DependencyManifestStore } from './dependency-manifests.js';
+import { GeneratedSourceStore } from './generated-sources/index.js';
 import { TsConfigStore } from './tsconfigs.js';
 import { findFiles } from '../common/find-files.js';
 import type { FileStore } from './store-type.js';
@@ -29,20 +29,33 @@ import {
 import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();
+export const dependencyManifestStore = new DependencyManifestStore();
+export const generatedSourceStore = new GeneratedSourceStore(
+  sourceFileStore,
+  dependencyManifestStore,
+);
 export const tsConfigStore = new TsConfigStore();
-export { dependencyManifestStore } from './dependency-manifests.js';
-export { generatedSourceStore } from './generated-sources.js';
+
+const fileStores: FileStore[] = [
+  sourceFileStore,
+  dependencyManifestStore,
+  // Order matters: generatedSourceStore reuses sourceFileStore content for overlapping
+  // JS/TS config files and dependencyManifestStore package.json contents, so both stores
+  // must run before generatedSourceStore.
+  generatedSourceStore,
+  tsConfigStore,
+];
+
+export function resetFileStores() {
+  sourceFileStore.clearCache();
+  dependencyManifestStore.clearCache();
+  generatedSourceStore.clearCache();
+  tsConfigStore.clearCache();
+}
 
 export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
-  const fileStores = configuration.detectGeneratedCode
-    ? [sourceFileStore, dependencyManifestStore, generatedSourceStore, tsConfigStore]
-    : [sourceFileStore, dependencyManifestStore, tsConfigStore];
-
-  if (!configuration.detectGeneratedCode) {
-    generatedSourceStore.clearCache();
-  }
 
   for (const store of fileStores) {
     if (!(await store.isInitialized(configuration, inputFiles))) {
@@ -72,10 +85,8 @@ export async function initFileStores(configuration: Configuration, inputFiles?: 
   } else if (inputFiles) {
     await simulateFromInputFiles(inputFiles, configuration, pendingStores);
   }
-
-  const analyzableFiles = sourceFileStore.getFiles();
   for (const store of pendingStores) {
-    await store.postProcess(configuration, analyzableFiles);
+    await store.postProcess(configuration);
   }
 }
 

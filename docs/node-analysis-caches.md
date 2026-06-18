@@ -45,11 +45,11 @@ These concerns change for different reasons, so they are not cached as one large
 
 There are three Node-side cache layers that are easy to confuse:
 
-| Layer | Main files | Owns | Typical consumer |
-| --- | --- | --- | --- |
-| File-store layer | `file-stores/*` | discovered source files, tsconfigs, raw manifest contents, directory indexes | project-input normalization and analysis entrypoints |
-| TypeScript program/cache layer | `jsts/program/*`, `jsts/program/cache/*` | parsed tsconfig content, computed `ProgramOptions`, builder programs, cached file contents, parsed TS ASTs | `analyzeWithProgram`, `analyzeWithIncrementalProgram`, compiler host |
-| Dependency-helper cache layer | `jsts/rules/helpers/dependency-manifests/*` | nearest-manifest caches, manifest-in-parents caches, parsed manifests, derived dependency maps, module-type signals | rules, module-type detection, ECMAScript/lib resolution |
+| Layer                          | Main files                                  | Owns                                                                                                                | Typical consumer                                                     |
+| ------------------------------ | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| File-store layer               | `file-stores/*`                             | discovered source files, tsconfigs, raw manifest contents, directory indexes                                        | project-input normalization and analysis entrypoints                 |
+| TypeScript program/cache layer | `jsts/program/*`, `jsts/program/cache/*`    | parsed tsconfig content, computed `ProgramOptions`, builder programs, cached file contents, parsed TS ASTs          | `analyzeWithProgram`, `analyzeWithIncrementalProgram`, compiler host |
+| Dependency-helper cache layer  | `jsts/rules/helpers/dependency-manifests/*` | nearest-manifest caches, manifest-in-parents caches, parsed manifests, derived dependency maps, module-type signals | rules, module-type detection, ECMAScript/lib resolution              |
 
 The most important naming distinction is:
 
@@ -58,23 +58,25 @@ The most important naming distinction is:
 
 They are related, but they do not own the same data and they do not have the same invalidation rules.
 
-## The Three File Stores
+## The Four File Stores
 
-`packages/analysis/src/file-stores/index.ts` exports three singleton stores:
+`packages/analysis/src/file-stores/index.ts` exports four singleton stores:
 
 - `sourceFileStore`
 - `dependencyManifestStore`
+- `generatedSourceStore`
 - `tsConfigStore`
 
 They are initialized through `initFileStores(configuration, inputFiles?)`.
 
 ### Summary Table
 
-| Store | What it owns | How it is populated | Main invalidation |
-| --- | --- | --- | --- |
-| `sourceFileStore` | analyzable files, file contents, file types, file statuses, ignored dirs, `DirectoryIndex` | filesystem walk or explicit request files | `baseDir` change, or direct reseeding from `inputFiles` |
-| `dependencyManifestStore` | raw preloadable manifest contents plus directory-parent graph | filesystem walk or simulated traversal from request files | `baseDir` change, manifest-shaped `fsEvents` |
-| `tsConfigStore` | discovered `tsconfig.json` files and provided `tsConfigPaths` matches | filesystem walk or simulated traversal from request files | `baseDir` change, `tsConfigPaths` change, `clearTsConfigCache`, relevant `fsEvents` |
+| Store                     | What it owns                                                                               | How it is populated                                       | Main invalidation                                                                      |
+| ------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `sourceFileStore`         | analyzable files, file contents, file types, file statuses, ignored dirs, `DirectoryIndex` | filesystem walk or explicit request files                 | `baseDir` change, or direct reseeding from `inputFiles`                                |
+| `dependencyManifestStore` | raw preloadable manifest contents plus directory-parent graph                              | filesystem walk or simulated traversal from request files | `baseDir` change, manifest-shaped `fsEvents`                                           |
+| `generatedSourceStore`    | project-derived generated-source families plus watched config/output paths                 | post-process derivation from discovered project metadata  | `baseDir` change, JS/TS suffix changes, project discovery changes, relevant `fsEvents` |
+| `tsConfigStore`           | discovered `tsconfig.json` files and provided `tsConfigPaths` matches                      | filesystem walk or simulated traversal from request files | `baseDir` change, `tsConfigPaths` change, `clearTsConfigCache`, relevant `fsEvents`    |
 
 ### `sourceFileStore`
 
@@ -126,6 +128,26 @@ It intentionally stores raw file contents rather than parsed manifest objects. P
 
 After traversal, `postProcess()` calls `fillManifestCaches()` to warm the "closest manifest" and "manifests in parents" caches used by the rest of the analyzer.
 
+### `generatedSourceStore`
+
+`GeneratedSourceStore` owns project-derived generated-source metadata.
+
+It stores:
+
+- generated-file to family mappings
+- detector config paths
+- watched output paths
+
+Unlike `sourceFileStore`, it is not keyed by the current explicit request contents. The current
+tagged subset and generated-source telemetry are computed later in `analyzeProject()` from
+`sourceFileStore.getFiles()`.
+
+During traversal it also collects a temporary project snapshot made of walked directories,
+walked JS/TS file paths matching the current suffix set, and a small detector-specific set of
+preloaded files. It reuses `sourceFileStore` for overlapping JS/TS config contents and
+`dependencyManifestStore` for raw `package.json` contents, then `postProcess()` derives the cached
+metadata from that combined in-memory snapshot.
+
 ## Initialization Flow
 
 All project-style entrypoints go through the same basic sequence:
@@ -147,7 +169,7 @@ The main entrypoints are:
 
 One additional nuance in `normalizeAnalyzeProjectRequest()`:
 
-- when the request has no explicit files and filesystem access is enabled, it explicitly resets the three file stores before rediscovering the project from disk
+- when the request has no explicit files and filesystem access is enabled, it explicitly resets the four file stores before rediscovering the project from disk
 
 There is also a standalone gRPC path in `packages/grpc/src/service.ts` that always resets the shared caches before analyzing an inline virtual project rooted at `/`.
 
@@ -177,6 +199,11 @@ The walk is intentionally broader than the final analyzable source-file set beca
 - dependency manifests
 - parent-directory relationships
 
+The store order in `file-stores/index.ts` is intentional:
+
+- `sourceFileStore` runs before `generatedSourceStore` so detector config files can reuse cached JS/TS contents
+- `dependencyManifestStore` runs before `generatedSourceStore` so `package.json` ownership stays in one place
+
 ### Population Mode 2: Simulated Traversal From Explicit Request Files
 
 When `configuration.canAccessFileSystem === false` and explicit `inputFiles` are present, `initFileStores()` calls `simulateFromInputFiles()`.
@@ -188,6 +215,10 @@ That simulated traversal:
 - then feeds the files themselves to `processFile()`
 
 This does not discover helper files that were never provided to the request. What it does provide is a coherent virtual traversal over the explicit request files and their parent directories, so stores that depend on directory callbacks can still keep consistent state in request-only mode.
+
+`generatedSourceStore` does not participate in that mode. When filesystem access is unavailable, it
+clears its cached state and is treated as already initialized, so request-only analyses do not run
+generated-source derivation.
 
 ## Request Files Are Authoritative
 
@@ -370,7 +401,7 @@ This is the path where the cache architecture matters most for latency.
 
 `packages/grpc/src/service.ts` intentionally does not share state between requests:
 
-- it resets all three file stores
+- it resets all four file stores
 - it clears the compiler-side source-file cache
 - it analyzes an inline request-only virtual project
 

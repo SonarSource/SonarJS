@@ -18,7 +18,12 @@ import { debug } from '../../../../shared/src/helpers/logging.js';
 import { type Rule, Linter as ESLintLinter, type SourceCode } from 'eslint';
 import type { RuleConfig } from './config/rule-config.js';
 import type { JsTsLanguage } from '../../common/configuration.js';
-import { transformMessages } from './issues/transform.js';
+import {
+  transformMessages,
+  transformSuppressedMessages,
+  type SuppressedLintMessage,
+} from './issues/transform.js';
+import type { JsTsIssue, SuppressedJsTsIssue } from './issues/issue.js';
 import * as internalRules from '../rules/rules.js';
 import {
   normalizePath,
@@ -37,6 +42,7 @@ import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
 import { materializeRuleOptions } from '../rules/helpers/configs.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
+import { DEFAULT_ECMA_VERSION } from '../parsers/options.js';
 import {
   getDependencies,
   getModuleType,
@@ -74,6 +80,11 @@ interface InitializeParams {
 interface LintOptions {
   additionalSettings?: Record<string, unknown>;
   additionalRules?: ESLintLinter.RulesRecord;
+}
+
+export interface LintResult {
+  issues: JsTsIssue[];
+  suppressedIssues: SuppressedJsTsIssue[];
 }
 
 /**
@@ -216,9 +227,13 @@ export class Linter {
     detectedEsYear?: number,
     detectedModuleType?: ModuleType,
     lintOptions: LintOptions = {},
-  ) {
+  ): LintResult {
     if (!Linter.linter) {
       throw APIError.linterError(`Linter does not exist.`);
+    }
+    if (detectedModuleType === undefined) {
+      detectedModuleType = Linter.detectModuleType(filePath);
+      getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
     }
     const baseRules = Linter.getRulesForFile(
       filePath,
@@ -245,7 +260,9 @@ export class Linter {
       /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
       settings: {
         react: { version: '999.999.999' },
+        detectedModuleType,
         fileType,
+        predefinedGlobals: getPredefinedGlobals(detectedEsYear),
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
         testFileExtensions: Linter.testFileExtensions,
@@ -255,12 +272,21 @@ export class Linter {
     };
 
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath, rules));
+    const suppressedMessages = (
+      Linter.linter as ESLintLinter & {
+        getSuppressedMessages(): SuppressedLintMessage[];
+      }
+    ).getSuppressedMessages();
     clearFileCaches();
-    return transformMessages(messages, language, {
+    const ctx = {
       sourceCode,
       ruleMetas,
       filePath,
-    });
+    };
+    return {
+      issues: transformMessages(messages, language, ctx),
+      suppressedIssues: transformSuppressedMessages(suppressedMessages, language, ctx),
+    };
   }
 
   /**
@@ -407,6 +433,12 @@ function getRuleMeta(ruleConfig: RuleConfig): SonarMeta | undefined {
   return ruleConfig.key in ruleMetas
     ? (ruleMetas[ruleConfig.key as keyof typeof ruleMetas] as SonarMeta)
     : undefined;
+}
+
+function getPredefinedGlobals(detectedEsYear?: number): string[] {
+  const ecmaGlobalsKey = `es${detectedEsYear ?? DEFAULT_ECMA_VERSION}` as keyof typeof globalsPkg;
+  const ecmaGlobals = globalsPkg[ecmaGlobalsKey] ?? globalsPkg.es2027;
+  return [...new Set([...Object.keys(ecmaGlobals), ...Linter.globals.keys()])];
 }
 
 function hasRequiredDependencies(ruleMeta: SonarMeta | undefined): boolean {

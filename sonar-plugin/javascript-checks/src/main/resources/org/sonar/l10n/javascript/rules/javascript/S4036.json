@@ -1,6 +1,6 @@
 {
-  "title": "Searching OS commands in PATH is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "OS commands should not rely on PATH resolution",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "LOW"
@@ -8,17 +8,15 @@
     "attribute": "COMPLETE"
   },
   "status": "ready",
+  "quickfix": "unknown",
   "remediation": {
     "func": "Constant/Issue",
     "constantCost": "15min"
   },
   "tags": [
-    "cwe"
+    "cwe",
+    "former-hotspot"
   ],
-  "extra": {
-    "replacementRules": [],
-    "legacyKeys": []
-  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4036",
   "sqKey": "S4036",
@@ -35,12 +33,12 @@
       "A8"
     ]
   },
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "compatibleLanguages": [
     "js",
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
   ]
 }

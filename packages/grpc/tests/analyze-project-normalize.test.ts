@@ -227,8 +227,6 @@ describe('normalizeAnalyzeProjectRequest', () => {
     );
     const generatedSourceState = generatedSourceStore as unknown as {
       derivedFamilyByFile: Map<NormalizedAbsolutePath, string>;
-      familyByFile: Map<NormalizedAbsolutePath, string>;
-      requestFilesKey: string | undefined;
     };
 
     generatedSourceStore.setup(
@@ -238,8 +236,6 @@ describe('normalizeAnalyzeProjectRequest', () => {
       }),
     );
     generatedSourceState.derivedFamilyByFile = new Map([[staleGeneratedFile, 'stale-family']]);
-    generatedSourceState.familyByFile = new Map([[staleGeneratedFile, 'stale-family']]);
-    generatedSourceState.requestFilesKey = 'all-files';
 
     await normalizeAnalyzeProjectRequest({
       configuration: {

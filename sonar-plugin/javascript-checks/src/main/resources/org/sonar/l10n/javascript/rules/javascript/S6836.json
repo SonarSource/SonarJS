@@ -11,10 +11,6 @@
   "ruleSpecification": "RSPEC-6836",
   "sqKey": "S6836",
   "scope": "Main",
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "quickfix": "covered",
   "code": {
     "impacts": {
@@ -25,5 +21,9 @@
   "compatibleLanguages": [
     "js",
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
   ]
 }

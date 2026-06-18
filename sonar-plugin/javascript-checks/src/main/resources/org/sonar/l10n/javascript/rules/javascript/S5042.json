@@ -41,9 +41,9 @@
       "12.1.2"
     ]
   },
-  "defaultQualityProfiles": [],
   "compatibleLanguages": [
     "js",
     "ts"
-  ]
+  ],
+  "defaultQualityProfiles": []
 }

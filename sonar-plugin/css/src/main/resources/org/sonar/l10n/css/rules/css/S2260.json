@@ -22,6 +22,6 @@
   "ruleSpecification": "RSPEC-2260",
   "sqKey": "S2260",
   "scope": "Main",
-  "defaultQualityProfiles": [],
-  "quickfix": "infeasible"
+  "quickfix": "infeasible",
+  "defaultQualityProfiles": []
 }

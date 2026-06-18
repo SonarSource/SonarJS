@@ -100,9 +100,8 @@ export async function sanitizeProjectAnalysisInput(
   const sanitizedFiles = isObject(raw.files)
     ? await sanitizeRawInputFiles(raw.files, configuration)
     : undefined;
-  const inputFiles = sanitizedFiles?.files;
 
-  await initFileStores(configuration, inputFiles);
+  await initFileStores(configuration, sanitizedFiles?.files);
 
   return {
     rules: isJsTsRuleConfigArray(raw.rules) ? (raw.rules as RuleConfig[]) : [],
@@ -138,7 +137,10 @@ export async function sanitizeInputFiles(
   const pathMap = new Map<string, string>();
 
   if (!inputFiles) {
-    return { files, pathMap };
+    return {
+      files,
+      pathMap,
+    };
   }
 
   for (const [key, fileInput] of Object.entries(inputFiles)) {
@@ -170,7 +172,10 @@ export async function sanitizeInputFiles(
     pathMap.set(filePath, key);
   }
 
-  return { files, pathMap };
+  return {
+    files,
+    pathMap,
+  };
 }
 
 export async function sanitizeRawInputFiles(

@@ -35,102 +35,53 @@ describe('S5852', () => {
         {
           code: String.raw`/\p{EMod}/u;`,
         },
-      ],
-      invalid: [
         {
-          code: ` 
-        /(a+)+$/
+          // Polynomial-only (super-linear, non-exponential) — reported by S8786 instead
+          code: `
+      /([^,]*,)*/;
+      new RegExp('x*$');
       `,
-          errors: [
-            {
-              message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
-              line: 2,
-              endLine: 2,
-              column: 9,
-              endColumn: 17,
-            },
-          ],
         },
         {
-          code: ` 
-        /([^,]*,)*/; // FP? compliant in SonarJava tests
-      `,
-          errors: 1,
-        },
-        {
-          code: ` 
-        new RegExp('x*$');
-      `,
-          errors: 1,
-        },
-        {
-          // Real vulnerabilities
+          // Polynomial-only real-world patterns — reported by S8786 instead
           code: `
       protocol.trim().split(/ *, */);
       var matcher = /.+\\@.+\\..+/;
       enclosure = /[{[].*\\/.*[}\\]]$/;
       f.replace(/\\/+$/, '');
       regex = /^(?:\\r\\n|\\n|\\r)+|(?:\\r\\n|\\n|\\r)+$/g;
-      text.replace(/\\033\\[(\\d+)*m/g, '');
       /^[\s\u200c]+|[\s\u200c]+$/;
-      str.replace(/\s*$/, ''); // fixed by next line but it's reported
+      str.replace(/\s*$/, '');
       str.replace(/^\s+|\s+$/g, '');
       const entryPattern1 = /^(.)(.*?)\\t(.*?)\\t(.*?)\\t(.*?)\\u000d\\u000a$/
-      const entryPattern2 = /^(.)([^\\t]*)\\t([^\\t]*)\\t([^\\t]*)\\t([^\\t]*)\\r\\n$/   // OK, fix for previous one
       const match = /^data:(?<type>.*?),(?<data>.*?)(?:#(?<hash>.*))?$/.exec(urlString);
-      const match = /^data:(?<type>[^,]*?),(?<data>[^#]*?)(?:#(?<hash>.*))?$/.exec(urlString); // OK, fix for previous one
       `,
+        },
+        {
+          code: `new RegExp('[\\x09\\x0A]*$');`,
+        },
+      ],
+      invalid: [
+        {
+          code: `/(a+)+$/`,
           errors: [
             {
-              message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
-              line: 2,
-            },
-            {
-              message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
-              line: 3,
-            },
-            {
-              message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
-              line: 4,
-            },
-            {
-              message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
-              line: 5,
-            },
-            {
-              message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
-              line: 6,
-            },
-            {
-              message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
-              line: 7,
-            },
-            {
-              message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
-              line: 8,
-            },
-            {
-              message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
-              line: 9,
-            },
-            {
-              message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
-              line: 10,
-            },
-            {
-              message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
-              line: 11,
-            },
-            {
-              message: `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`,
-              line: 13,
+              message: `Fix this regular expression that is vulnerable to exponential backtracking, as it can lead to denial of service.`,
+              line: 1,
+              endLine: 1,
+              column: 1,
+              endColumn: 9,
             },
           ],
         },
         {
-          // fails on Node 10
-          code: `new RegExp('[\\x09\\x0A]*$');`,
-          errors: 1,
+          code: String.raw`text.replace(/\033\[(\d+)*m/g, '');`,
+          errors: [
+            {
+              message: `Fix this regular expression that is vulnerable to exponential backtracking, as it can lead to denial of service.`,
+              line: 1,
+            },
+          ],
         },
       ],
     });

@@ -178,6 +178,7 @@ message ProjectAnalysisFileResult {
   bytes ast = 7;
   optional string error = 8;
   repeated SonarResolveComment sonar_resolve_comments = 9;
+  repeated Issue suppressed_issues = 10;
 }
 
 message ParsingError {
@@ -202,6 +203,7 @@ message Issue {
   repeated QuickFix quick_fixes = 10;
   repeated string rule_eslint_keys = 11;
   string file_path = 12;
+  optional string resolution_comment = 13;
 }
 
 message QuickFix {
@@ -277,10 +279,26 @@ message ProjectAnalysisTelemetry {
   int32 esm_file_count = 6;
   int32 cjs_file_count = 7;
   map<string, int32> deno_import_counts = 8;
+  GeneratedSourcesTelemetry generated_sources = 9;
 }
 
 message ProgramCreationTelemetry {
   int32 attempted = 1;
   int32 succeeded = 2;
   int32 failed = 3;
+}
+
+message GeneratedSourcesTelemetry {
+  int32 family_count = 1;
+  int32 resolved_file_count = 2;
+  int32 tagged_file_count = 3;
+  reserved 4, 5;
+  repeated GeneratedSourceFamilyTelemetry families = 6;
+}
+
+message GeneratedSourceFamilyTelemetry {
+  string family = 1;
+  int32 resolved_file_count = 2;
+  int32 tagged_file_count = 3;
+  reserved 4, 5;
 }

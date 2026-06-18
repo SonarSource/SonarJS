@@ -1,6 +1,6 @@
 {
-  "title": "Formatting SQL queries is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "SQL queries should not be dynamically formatted",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "LOW",
@@ -9,6 +9,7 @@
     "attribute": "COMPLETE"
   },
   "status": "ready",
+  "quickfix": "unknown",
   "remediation": {
     "func": "Constant/Issue",
     "constantCost": "20min"
@@ -17,20 +18,17 @@
     "cwe",
     "bad-practice",
     "sql",
-    "type-dependent"
+    "type-dependent",
+    "former-hotspot"
   ],
-  "extra": {
-    "replacementRules": [],
-    "legacyKeys": []
-  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-2077",
   "sqKey": "S2077",
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      20,
-      89
+      89,
+      943
     ],
     "OWASP": [
       "A1"
@@ -51,12 +49,12 @@
       "5.3.5"
     ]
   },
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "compatibleLanguages": [
     "js",
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
   ]
 }

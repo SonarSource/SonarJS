@@ -36,7 +36,11 @@ import type { WsIncrementalResult } from './incremental-result.js';
 import { setSourceFilesContext } from './jsts/program/cache/sourceFileCache.js';
 import { generatedSourceStore, sourceFileStore } from './file-stores/index.js';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
-import { getProjectAnalysisTelemetry, resetProjectAnalysisTelemetry } from './telemetry.js';
+import {
+  getProjectAnalysisTelemetry,
+  getProjectAnalysisTelemetryCollector,
+  resetProjectAnalysisTelemetry,
+} from './telemetry.js';
 
 const analysisStatus = {
   cancelled: false,
@@ -79,6 +83,9 @@ export async function analyzeProject(
   };
   const { baseDir, environments, globals, sonarlint, canAccessFileSystem } = configuration;
   resetProjectAnalysisTelemetry();
+  getProjectAnalysisTelemetryCollector().recordGeneratedSources(
+    generatedSourceStore.observeGeneratedSources(configuration, filesToAnalyze),
+  );
   const jsTsConfigFields = getJsTsConfigFields(configuration);
   setSourceFilesContext(filesToAnalyze);
   const { testFileExtensions } = getFilterPathParams(configuration);

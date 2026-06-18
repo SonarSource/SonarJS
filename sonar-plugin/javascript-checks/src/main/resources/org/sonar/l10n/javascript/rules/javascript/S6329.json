@@ -1,6 +1,6 @@
 {
-  "title": "Allowing public network access to cloud resources is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Public network access to cloud resources should be disabled",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "BLOCKER"
@@ -8,19 +8,16 @@
     "attribute": "COMPLETE"
   },
   "status": "ready",
+  "quickfix": "unknown",
   "remediation": {
     "func": "Constant/Issue",
-    "constantCost": "5min"
+    "constantCost": "30min"
   },
   "tags": [
     "cwe",
-    "aws"
+    "aws",
+    "former-hotspot"
   ],
-  "extra": {
-    "requiredDependency": [
-      "aws-cdk-lib"
-    ]
-  },
   "defaultSeverity": "Blocker",
   "ruleSpecification": "RSPEC-6329",
   "sqKey": "S6329",
@@ -28,7 +25,9 @@
   "securityStandards": {
     "CWE": [
       284,
-      668
+      668,
+      732,
+      1327
     ],
     "PCI DSS 3.2": [
       "6.5.8"
@@ -40,12 +39,17 @@
       "V-222620"
     ]
   },
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "compatibleLanguages": [
     "js",
     "ts"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "aws-cdk-lib"
+    ]
+  },
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
   ]
 }

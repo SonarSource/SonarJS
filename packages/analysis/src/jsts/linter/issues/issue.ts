@@ -17,7 +17,7 @@
 import type { QuickFix, Location } from '../../../contracts/location.js';
 import type { JsTsLanguage } from '../../../common/configuration.js';
 import type { NormalizedAbsolutePath } from '../../../../../shared/src/helpers/files.js';
-import type { BaseIssue } from '../../../contracts/analysis.js';
+import type { BaseIssue, SuppressedIssue } from '../../../contracts/analysis.js';
 
 /**
  * A SonarQube-compatible source code issue
@@ -43,3 +43,5 @@ export interface JsTsIssue extends BaseIssue {
   ruleESLintKeys: Array<string>;
   filePath: NormalizedAbsolutePath;
 }
+
+export type SuppressedJsTsIssue = SuppressedIssue<JsTsIssue>;

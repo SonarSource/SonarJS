@@ -101,6 +101,7 @@ public final class OrchestratorStarter
     .restoreProfileAtStartup(FileLocation.ofClasspath("/js-with-ts-eslint-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/html-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/html-blacklist-profile.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/suppressed-issues-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/typechecker-config-js.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/typechecker-config-ts.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/resolve-json-module-profile.xml"))

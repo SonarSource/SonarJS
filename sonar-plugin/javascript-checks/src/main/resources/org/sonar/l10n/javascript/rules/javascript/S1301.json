@@ -14,6 +14,7 @@
   },
   "tags": [
     "bad-practice",
+    "type-dependent",
     "editable-source"
   ],
   "extra": {
@@ -24,13 +25,13 @@
   "ruleSpecification": "RSPEC-1301",
   "sqKey": "S1301",
   "scope": "Main",
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
   ]
 }

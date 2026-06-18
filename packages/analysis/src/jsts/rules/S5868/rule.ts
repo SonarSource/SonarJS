@@ -261,10 +261,10 @@ function characters(nodes: RegexppAST.CharacterClassElement[]): RegexppAST.Chara
     if (node.type === 'Character') {
       current.push(node);
     } else if (node.type === 'CharacterClassRange') {
-      // for following regexp [xa-z] we produce [[xa],[z]]
-      // we would report for example if instead of 'xa' there would be unicode combined class
+      // For [xa-z], check [xa] but do not pair z with the next range or character.
+      // Report if the sequence ending at the range minimum is a grapheme cluster.
       current.push(node.min);
-      current = [node.max];
+      current = [];
       sequences.push(current);
     } else if (node.type === 'CharacterSet' && current.length > 0) {
       // CharacterSet is for example [\d], ., or \p{ASCII}

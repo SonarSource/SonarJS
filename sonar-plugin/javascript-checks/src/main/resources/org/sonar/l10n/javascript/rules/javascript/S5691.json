@@ -1,25 +1,23 @@
 {
-  "title": "Statically serving hidden files is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Hidden files should not be served statically",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "MEDIUM"
     },
     "attribute": "COMPLETE"
   },
-  "status": "ready",
+  "status": "deprecated",
+  "quickfix": "unknown",
   "remediation": {
     "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
     "cwe",
-    "express.js"
+    "express.js",
+    "former-hotspot"
   ],
-  "extra": {
-    "replacementRules": [],
-    "legacyKeys": []
-  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-5691",
   "sqKey": "S5691",
@@ -35,12 +33,9 @@
       "A5"
     ]
   },
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "compatibleLanguages": [
     "js",
     "ts"
-  ]
+  ],
+  "defaultQualityProfiles": []
 }

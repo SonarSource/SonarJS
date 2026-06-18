@@ -23,7 +23,7 @@ export abstract class FileStore {
    * Checks if the store is initialized for the given base directory.
    *
    * @param configuration - The project configuration
-   * @param inputFiles - Optional sanitized input files
+   * @param inputFiles - Optional authoritative analyzable files
    */
   abstract isInitialized(
     configuration: Configuration,
@@ -46,12 +46,8 @@ export abstract class FileStore {
    * Performs post-processing after all files have been processed.
    *
    * @param configuration - The project configuration
-   * @param analyzableFiles - Optional analyzable files prepared during the scan
    */
-  abstract postProcess(
-    configuration: Configuration,
-    analyzableFiles?: AnalyzableFiles,
-  ): Promise<void>;
+  abstract postProcess(configuration: Configuration): Promise<void>;
 
   abstract processDirectory?(dir: NormalizedAbsolutePath, configuration: Configuration): void;
 }

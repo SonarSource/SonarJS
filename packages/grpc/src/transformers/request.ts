@@ -131,7 +131,7 @@ function transformActiveRules(activeRules: analyzer.IActiveRule[]): {
  *   └── activeRules[] ──→ transformActiveRules() ──→ RuleConfig[] (one per rule+language)
  * ```
  *
- * Note: The caller must call `initFileStores(configuration, rawFiles)` before calling
+ * Note: The caller must call `initFileStores(configuration, inputFiles)` before calling
  * `analyzeProject`. The `analyzeProject` function retrieves files from the file store internally.
  *
  * @param request - The gRPC AnalyzeRequest containing source files and active rules
