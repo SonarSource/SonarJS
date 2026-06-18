@@ -27,4 +27,12 @@ public class StylelintRule {
     this.key = key;
     this.configurations = configurations;
   }
+
+  public String getKey() {
+    return key;
+  }
+
+  public List<Object> getConfigurations() {
+    return configurations;
+  }
 }
