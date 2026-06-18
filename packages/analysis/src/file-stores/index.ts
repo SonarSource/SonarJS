@@ -29,7 +29,6 @@ import {
   dirnamePath,
 } from '../../../shared/src/helpers/files.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
-import { warn } from '../../../shared/src/helpers/logging.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const dependencyManifestStore = new DependencyManifestStore();
@@ -160,10 +159,5 @@ async function createSharedFile(
     return { filePath, fileContent };
   }
 
-  try {
-    return { filePath, fileContent: await readFile(filePath) };
-  } catch (error) {
-    warn(`Error reading file ${filePath}: ${error}`);
-    return undefined;
-  }
+  return { filePath, fileContent: await readFile(filePath) };
 }

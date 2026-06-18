@@ -17,6 +17,7 @@
 // Mock FileStore implementation
 import { beforeEach, describe, it } from 'node:test';
 import { expect } from 'expect';
+import fs from 'node:fs';
 import { join } from 'node:path/posix';
 import { FileStore, type FileProcessingMode } from '../src/file-stores/store-type.js';
 import {
@@ -285,5 +286,35 @@ describe('initFileStores', () => {
 
     expect(setupMock.mock.calls).toHaveLength(0);
     expect(postProcessMock.mock.calls).toHaveLength(0);
+  });
+
+  it('should fail when an analyzable source file cannot be read', async ({ mock }) => {
+    const baseDir = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures-package-jsons'));
+    const fixtureDir = normalizeToAbsolutePath(join(baseDir, 'dependencies'));
+    const configuration = createConfiguration({ baseDir: fixtureDir });
+    const originalReadFile = fs.promises.readFile;
+    mock.method(fs.promises, 'readFile', async (path, options) => {
+      if (path === normalizeToAbsolutePath(join(fixtureDir, 'index.js'))) {
+        throw new Error('boom');
+      }
+      return Reflect.apply(originalReadFile, fs.promises, [path, options]);
+    });
+
+    await expect(initFileStores(configuration)).rejects.toThrow('boom');
+  });
+
+  it('should fail when a helper file cannot be read', async ({ mock }) => {
+    const baseDir = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures-package-jsons'));
+    const fixtureDir = normalizeToAbsolutePath(join(baseDir, 'dependencies'));
+    const configuration = createConfiguration({ baseDir: fixtureDir });
+    const originalReadFile = fs.promises.readFile;
+    mock.method(fs.promises, 'readFile', async (path, options) => {
+      if (path === normalizeToAbsolutePath(join(fixtureDir, 'package.json'))) {
+        throw new Error('boom');
+      }
+      return Reflect.apply(originalReadFile, fs.promises, [path, options]);
+    });
+
+    await expect(initFileStores(configuration)).rejects.toThrow('boom');
   });
 });
