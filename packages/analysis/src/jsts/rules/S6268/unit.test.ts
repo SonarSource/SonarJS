@@ -41,6 +41,14 @@ describe('S6268', () => {
       sanitizer.bypassSecurityTrustHtml('input');
       sanitizer.bypassSecurityTrustHtml("input");
       sanitizer.bypassSecurityTrustHtml(\`input\`);
+
+      // identifier assigned a string literal
+      const html = '<b>safe</b>';
+      sanitizer.bypassSecurityTrustHtml(html);
+
+      // member expression on a locally defined object literal
+      const config = { content: '<b>safe</b>' };
+      sanitizer.bypassSecurityTrustHtml(config.content);
       `,
         },
       ],

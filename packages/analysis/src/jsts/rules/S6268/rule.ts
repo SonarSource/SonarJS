@@ -19,7 +19,13 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isLiteral, isMemberWithProperty } from '../helpers/ast.js';
+import {
+  getProperty,
+  getUniqueWriteUsageOrNode,
+  getValueOfExpression,
+  isLiteral,
+  isMemberWithProperty,
+} from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const bypassMethods = [
@@ -44,7 +50,7 @@ export const rule: Rule.RuleModule = {
         if (
           isMemberWithProperty(callee, ...bypassMethods) &&
           args.length === 1 &&
-          !isHardcodedLiteral(args[0])
+          !isHardcodedLiteral(args[0], context)
         ) {
           context.report({
             messageId: 'checkAngularBypass',
@@ -56,10 +62,29 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isHardcodedLiteral(node: estree.Node) {
+function isHardcodedLiteral(node: estree.Node, context: Rule.RuleContext): boolean {
   if (node.type === 'TemplateLiteral') {
     return node.expressions.length === 0;
-  } else {
-    return isLiteral(node);
   }
+  if (isLiteral(node)) {
+    return true;
+  }
+  // Identifier with a single write site: trace to the assigned value
+  if (node.type === 'Identifier') {
+    const resolved = getUniqueWriteUsageOrNode(context, node, true);
+    if (resolved !== node) {
+      return isHardcodedLiteral(resolved, context);
+    }
+  }
+  // obj.prop where obj resolves to an object literal with a literal property value
+  if (node.type === 'MemberExpression' && !node.computed && node.property.type === 'Identifier') {
+    const obj = getValueOfExpression(context, node.object, 'ObjectExpression', true);
+    if (obj) {
+      const prop = getProperty(obj, node.property.name, context);
+      if (prop) {
+        return isHardcodedLiteral(prop.value as estree.Node, context);
+      }
+    }
+  }
+  return false;
 }
