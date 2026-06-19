@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { spawnSync } from 'node:child_process';
-import { mkdir, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import {
   isMain,
@@ -46,12 +46,24 @@ export function sanitizeRuleKey(ruleKey) {
   return ruleKey.replaceAll(/[:/]/g, '__');
 }
 
+export function resolveRspecRefForRule(ruleKey, rspecRefs) {
+  const repository = ruleKey.split(':', 1)[0];
+  if (repository === 'javascript' || repository === 'typescript') {
+    return rspecRefs.javascript;
+  }
+  if (repository === 'css') {
+    return rspecRefs.css;
+  }
+  return undefined;
+}
+
 export async function runOneRule({
   fpsProjectDir,
   runDir,
   sitInput,
   ruleKey,
   outputPrefix,
+  rspecRef,
   runCommand = defaultRunCommand,
 }) {
   const command = [
@@ -74,7 +86,7 @@ export async function runOneRule({
 
   let completed;
   try {
-    completed = runCommand(command, runDir);
+    completed = runCommand(command, runDir, buildRunEnvironment(rspecRef));
   } catch (error) {
     console.error(`Failed to run FPS for ${ruleKey}: ${error.message ?? error}`);
     return 1;
@@ -106,12 +118,24 @@ export async function writeEmptyReport(reportPath) {
   });
 }
 
-function defaultRunCommand(command, cwd) {
+function defaultRunCommand(command, cwd, env) {
   return spawnSync(command[0], command.slice(1), {
     cwd,
+    env,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   });
+}
+
+function buildRunEnvironment(rspecRef) {
+  if (!rspecRef) {
+    return process.env;
+  }
+
+  return {
+    ...process.env,
+    RSPEC_GITHUB_BRANCH: rspecRef,
+  };
 }
 
 function utcNow() {
@@ -144,6 +168,7 @@ async function main() {
     '--summary-json',
   );
   const runDir = resolvePathUnder(safeWorkspace, dirname(reportsDir), 'run directory');
+  const rspecRefs = await loadRspecRefs(safeWorkspace);
 
   await requireDirectory(fpsProjectDir, 'FPS project directory');
   await requireDirectory(sitInput, 'SIT input directory');
@@ -166,6 +191,7 @@ async function main() {
       sitInput,
       ruleKey,
       outputPrefix,
+      rspecRef: resolveRspecRefForRule(ruleKey, rspecRefs),
     });
     const finishedAt = utcNow();
     const status = exitCode === 0 ? 'success' : 'failure';
@@ -201,6 +227,29 @@ async function requireDirectory(path, label) {
     }
   }
   throw new Error(`${label} does not exist: ${path}`);
+}
+
+async function loadRspecRefs(workspace) {
+  return {
+    javascript: await readOptionalTrimmedFile(
+      join(workspace, 'sonar-plugin', 'javascript-checks', 'src', 'main', 'resources', 'rspec.sha'),
+    ),
+    css: await readOptionalTrimmedFile(
+      join(workspace, 'sonar-plugin', 'css', 'src', 'main', 'resources', 'rspec.sha'),
+    ),
+  };
+}
+
+async function readOptionalTrimmedFile(path) {
+  try {
+    const value = (await readFile(path, 'utf8')).trim();
+    return value === '' ? undefined : value;
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      return undefined;
+    }
+    throw error;
+  }
 }
 
 if (isMain(import.meta.url)) {

@@ -20,7 +20,12 @@ import { dirname, join } from 'node:path';
 import { afterEach, describe, it } from 'node:test';
 import { strict as assert } from 'node:assert';
 import { normalizeSitBundles } from './normalize-sit-bundles.js';
-import { parseRuleKeys, runOneRule, sanitizeRuleKey } from './run-fps-batch.js';
+import {
+  parseRuleKeys,
+  resolveRspecRefForRule,
+  runOneRule,
+  sanitizeRuleKey,
+} from './run-fps-batch.js';
 import { loadFpsReportMetrics, summarizeFpsTsv } from './summarize-fps-results.js';
 
 const roots: string[] = [];
@@ -75,6 +80,15 @@ describe('run-fps-batch helpers', () => {
     assert.equal(sanitizeRuleKey('javascript:S1116'), 'javascript__S1116');
   });
 
+  it('maps rule repositories to the matching pinned RSPEC ref', () => {
+    const rspecRefs = { javascript: 'js-sha', css: 'css-sha' };
+
+    assert.equal(resolveRspecRefForRule('javascript:S1116', rspecRefs), 'js-sha');
+    assert.equal(resolveRspecRefForRule('typescript:S1116', rspecRefs), 'js-sha');
+    assert.equal(resolveRspecRefForRule('css:S125', rspecRefs), 'css-sha');
+    assert.equal(resolveRspecRefForRule('java:S1116', rspecRefs), undefined);
+  });
+
   it('runs FPS with SIT input and treats the FPS no-issues exit code as success', async () => {
     const root = await tempRoot();
     const calls: unknown[] = [];
@@ -85,31 +99,35 @@ describe('run-fps-batch helpers', () => {
       sitInput: join(root, 'sit-input-bundles'),
       ruleKey: 'javascript:S1116',
       outputPrefix: 'prefix',
-      runCommand: command => {
-        calls.push(command);
+      rspecRef: '122b67ce3410ecaaf269dfa755039ed157d4ea09',
+      runCommand: (command, _cwd, env) => {
+        calls.push({ command, rspecRef: env.RSPEC_GITHUB_BRANCH });
         return { status: 2, stdout: '', stderr: '' };
       },
     });
 
     assert.equal(exitCode, 0);
     assert.deepEqual(calls, [
-      [
-        'uv',
-        'run',
-        '--project',
-        join(root, 'dev-tools', 'scripts'),
-        'fps',
-        '--source',
-        'sit',
-        '--sit-input',
-        join(root, 'sit-input-bundles'),
-        '--limit',
-        '1000',
-        '--export-json',
-        '--output-prefix',
-        'prefix',
-        'javascript:S1116',
-      ],
+      {
+        command: [
+          'uv',
+          'run',
+          '--project',
+          join(root, 'dev-tools', 'scripts'),
+          'fps',
+          '--source',
+          'sit',
+          '--sit-input',
+          join(root, 'sit-input-bundles'),
+          '--limit',
+          '1000',
+          '--export-json',
+          '--output-prefix',
+          'prefix',
+          'javascript:S1116',
+        ],
+        rspecRef: '122b67ce3410ecaaf269dfa755039ed157d4ea09',
+      },
     ]);
     assert.deepEqual(
       JSON.parse(
