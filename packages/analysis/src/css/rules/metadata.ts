@@ -321,6 +321,20 @@ export const cssRulesMeta: CssRuleMeta[] = [
     stylelintKey: 'custom-property-no-missing-var-function',
   },
   {
+    sqKey: 'S8767',
+    stylelintKey: 'no-invalid-position-declaration',
+    listParam: [
+      {
+        sqKey: 'ignoreAtRules',
+        javaField: 'ignoredAtRules',
+        description:
+          'Comma-separated list of at-rule names or regular expressions to treat as valid nesting containers.',
+        default: '',
+        stylelintOptionKey: 'ignoreAtRules',
+      },
+    ],
+  },
+  {
     sqKey: 'S8769',
     stylelintKey: 'block-no-redundant-nested-style-rules',
   },
