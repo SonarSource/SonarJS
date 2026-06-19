@@ -87,6 +87,39 @@ describe('S6268', () => {
             },
           ],
         },
+        {
+          code: `
+      // identifier assigned a non-literal (function call)
+      const html = getHtml();
+      sanitizer.bypassSecurityTrustHtml(html);
+      `,
+          errors: 1,
+        },
+        {
+          code: `
+      // identifier with multiple write sites — no unique write usage
+      let html = '<b>safe</b>';
+      html = getHtml();
+      sanitizer.bypassSecurityTrustHtml(html);
+      `,
+          errors: 1,
+        },
+        {
+          code: `
+      // object property value is a non-literal
+      const config = { content: getHtml() };
+      sanitizer.bypassSecurityTrustHtml(config.content);
+      `,
+          errors: 1,
+        },
+        {
+          code: `
+      // computed member access is not tracked
+      const config = { content: '<b>safe</b>' };
+      sanitizer.bypassSecurityTrustHtml(config['content']);
+      `,
+          errors: 1,
+        },
       ],
     });
   });

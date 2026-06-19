@@ -62,7 +62,15 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isHardcodedLiteral(node: estree.Node, context: Rule.RuleContext): boolean {
+function isHardcodedLiteral(
+  node: estree.Node,
+  context: Rule.RuleContext,
+  visited: Set<estree.Node> = new Set(),
+): boolean {
+  if (visited.has(node)) {
+    return false;
+  }
+  visited.add(node);
   if (node.type === 'TemplateLiteral') {
     return node.expressions.length === 0;
   }
@@ -73,7 +81,7 @@ function isHardcodedLiteral(node: estree.Node, context: Rule.RuleContext): boole
   if (node.type === 'Identifier') {
     const resolved = getUniqueWriteUsageOrNode(context, node, true);
     if (resolved !== node) {
-      return isHardcodedLiteral(resolved, context);
+      return isHardcodedLiteral(resolved, context, visited);
     }
   }
   // obj.prop where obj resolves to an object literal with a literal property value
@@ -82,7 +90,7 @@ function isHardcodedLiteral(node: estree.Node, context: Rule.RuleContext): boole
     if (obj) {
       const prop = getProperty(obj, node.property.name, context);
       if (prop) {
-        return isHardcodedLiteral(prop.value as estree.Node, context);
+        return isHardcodedLiteral(prop.value as estree.Node, context, visited);
       }
     }
   }
