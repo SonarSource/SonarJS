@@ -1,0 +1,7 @@
+{
+  "name": "s2925-playwright-fixture",
+  "private": true,
+  "dependencies": {
+    "@playwright/test": "^1.0.0"
+  }
+}

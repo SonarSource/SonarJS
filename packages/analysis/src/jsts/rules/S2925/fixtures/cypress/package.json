@@ -1,0 +1,7 @@
+{
+  "name": "s2925-cypress-fixture",
+  "private": true,
+  "dependencies": {
+    "cypress": "^13.0.0"
+  }
+}

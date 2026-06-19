@@ -1,0 +1,7 @@
+{
+  "name": "s2925-puppeteer-fixture",
+  "private": true,
+  "dependencies": {
+    "puppeteer": "^24.0.0"
+  }
+}
