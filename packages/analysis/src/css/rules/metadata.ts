@@ -47,369 +47,268 @@ export type CssRuleMeta = {
   booleanParam?: StylelintBooleanParam;
 };
 
+function simpleRule(sqKey: string, stylelintKey: string): CssRuleMeta {
+  return { sqKey, stylelintKey };
+}
+
+function buildSimpleRules(rules: Record<string, string>): CssRuleMeta[] {
+  return Object.entries(rules).map(([sqKey, stylelintKey]) => simpleRule(sqKey, stylelintKey));
+}
+
+function singleListParamRule(
+  sqKey: string,
+  stylelintKey: string,
+  listParam: StylelintListParam,
+): CssRuleMeta {
+  return { sqKey, stylelintKey, listParam: [listParam] };
+}
+
+function multiListParamRule(
+  sqKey: string,
+  stylelintKey: string,
+  ...listParam: StylelintListParam[]
+): CssRuleMeta {
+  return { sqKey, stylelintKey, listParam };
+}
+
+function booleanParamRule(
+  sqKey: string,
+  stylelintKey: string,
+  booleanParam: StylelintBooleanParam,
+): CssRuleMeta {
+  return { sqKey, stylelintKey, booleanParam };
+}
+
+function listParam(
+  sqKey: string,
+  javaField: string,
+  description: string,
+  defaultValue: string,
+  stylelintOptionKey = sqKey,
+): StylelintListParam {
+  return {
+    sqKey,
+    javaField,
+    description,
+    default: defaultValue,
+    stylelintOptionKey,
+  };
+}
+
+function ignoreAtRulesRule(
+  sqKey: string,
+  stylelintKey: string,
+  javaField: string,
+  description: string,
+  defaultValue = '',
+): CssRuleMeta {
+  return singleListParamRule(
+    sqKey,
+    stylelintKey,
+    listParam('ignoreAtRules', javaField, description, defaultValue),
+  );
+}
+
 export const cssRulesMeta: CssRuleMeta[] = [
-  {
-    sqKey: 'S125',
-    stylelintKey: 'sonar/no-commented-code',
-  },
-  {
-    sqKey: 'S1116',
-    stylelintKey: '@stylistic/no-extra-semicolons',
-  },
-  {
-    sqKey: 'S1128',
-    stylelintKey: 'no-duplicate-at-import-rules',
-  },
-  {
-    sqKey: 'S1874',
-    stylelintKey: 'selector-no-deprecated',
-    listParam: [
+  ...buildSimpleRules({
+    S125: 'sonar/no-commented-code',
+    S1116: '@stylistic/no-extra-semicolons',
+    S1128: 'no-duplicate-at-import-rules',
+  }),
+  singleListParamRule(
+    'S1874',
+    'selector-no-deprecated',
+    listParam(
+      'ignoreSelectors',
+      'ignoreSelectors',
+      'Comma-separated list of selector names and/or regular expressions to ignore.',
+      '',
+    ),
+  ),
+  singleListParamRule(
+    'S1874',
+    'declaration-property-value-keyword-no-deprecated',
+    listParam(
+      'ignoreKeywords',
+      'ignoreKeywords',
+      'Comma-separated list of strings and/or regular expressions for deprecated keywords to ignore.',
+      '',
+    ),
+  ),
+  ignoreAtRulesRule(
+    'S1874',
+    'at-rule-no-deprecated',
+    'ignoreAtRules',
+    'Comma-separated list of deprecated "at-rules" to ignore.',
+  ),
+  ...buildSimpleRules({
+    S4647: 'color-no-invalid-hex',
+    S4648: 'font-family-no-duplicate-names',
+  }),
+  singleListParamRule(
+    'S4649',
+    'font-family-no-missing-generic-family-keyword',
+    listParam(
+      'ignoreFontFamilies',
+      'ignoreFontFamilies',
+      'Comma-separated list of font families to ignore. Each value can be a string or a regular expression with the syntax /pattern/.',
+      '',
+    ),
+  ),
+  ...buildSimpleRules({
+    S4650: 'function-calc-no-unspaced-operator',
+    S4651: 'function-linear-gradient-no-nonstandard-direction',
+    S4652: 'string-no-newline',
+  }),
+  singleListParamRule(
+    'S4653',
+    'unit-no-unknown',
+    listParam(
+      'ignoreFunctions',
+      'ignoreFunctions',
+      'Comma-separated list of function names and/or regular expressions for functions whose arguments should be ignored.',
+      'image-set, spacer, spacing, size, rem, em, fluid',
+    ),
+  ),
+  multiListParamRule(
+    'S4654',
+    'property-no-unknown',
+    listParam(
+      'ignoreTypes',
+      'ignoreProperties',
+      'Comma-separated list of strings and/or regular expressions for properties to consider as valid.',
+      'composes, /^mso-/',
+      'ignoreProperties',
+    ),
+    listParam(
+      'ignoreSelectors',
+      'ignoreSelectors',
+      'Comma-separated list of strings and/or regular expressions for selectors to consider as valid.',
+      '/^:export.*/, /^:import.*/',
+    ),
+  ),
+  simpleRule('S4655', 'keyframe-declaration-no-important'),
+  booleanParamRule('S4656', 'declaration-block-no-duplicate-properties', {
+    sqKey: 'ignoreFallbacks',
+    javaField: 'ignoreFallbacks',
+    description: 'Ignore consecutive duplicated properties with different values.',
+    default: true,
+    onTrue: [
       {
-        sqKey: 'ignoreSelectors',
-        javaField: 'ignoreSelectors',
-        description: 'Comma-separated list of selector names and/or regular expressions to ignore.',
-        default: '',
-        stylelintOptionKey: 'ignoreSelectors',
-      },
-    ],
-  },
-  {
-    sqKey: 'S1874',
-    stylelintKey: 'declaration-property-value-keyword-no-deprecated',
-    listParam: [
-      {
-        sqKey: 'ignoreKeywords',
-        javaField: 'ignoreKeywords',
-        description:
-          'Comma-separated list of strings and/or regular expressions for deprecated keywords to ignore.',
-        default: '',
-        stylelintOptionKey: 'ignoreKeywords',
-      },
-    ],
-  },
-  {
-    sqKey: 'S1874',
-    stylelintKey: 'at-rule-no-deprecated',
-    listParam: [
-      {
-        sqKey: 'ignoreAtRules',
-        javaField: 'ignoreAtRules',
-        description: 'Comma-separated list of deprecated "at-rules" to ignore.',
-        default: '',
-        stylelintOptionKey: 'ignoreAtRules',
-      },
-    ],
-  },
-  {
-    sqKey: 'S4647',
-    stylelintKey: 'color-no-invalid-hex',
-  },
-  {
-    sqKey: 'S4648',
-    stylelintKey: 'font-family-no-duplicate-names',
-  },
-  {
-    sqKey: 'S4649',
-    stylelintKey: 'font-family-no-missing-generic-family-keyword',
-    listParam: [
-      {
-        sqKey: 'ignoreFontFamilies',
-        javaField: 'ignoreFontFamilies',
-        description:
-          'Comma-separated list of font families to ignore. Each value can be a string or a regular expression with the syntax /pattern/.',
-        default: '',
-        stylelintOptionKey: 'ignoreFontFamilies',
-      },
-    ],
-  },
-  {
-    sqKey: 'S4650',
-    stylelintKey: 'function-calc-no-unspaced-operator',
-  },
-  {
-    sqKey: 'S4651',
-    stylelintKey: 'function-linear-gradient-no-nonstandard-direction',
-  },
-  {
-    sqKey: 'S4652',
-    stylelintKey: 'string-no-newline',
-  },
-  {
-    sqKey: 'S4653',
-    stylelintKey: 'unit-no-unknown',
-    listParam: [
-      {
-        sqKey: 'ignoreFunctions',
-        javaField: 'ignoreFunctions',
-        description:
-          'Comma-separated list of function names and/or regular expressions for functions whose arguments should be ignored.',
-        default: 'image-set, spacer, spacing, size, rem, em, fluid',
-        stylelintOptionKey: 'ignoreFunctions',
-      },
-    ],
-  },
-  {
-    sqKey: 'S4654',
-    stylelintKey: 'property-no-unknown',
-    listParam: [
-      {
-        sqKey: 'ignoreTypes',
-        javaField: 'ignoreProperties',
-        description:
-          'Comma-separated list of strings and/or regular expressions for properties to consider as valid.',
-        default: 'composes, /^mso-/',
-        stylelintOptionKey: 'ignoreProperties',
-      },
-      {
-        sqKey: 'ignoreSelectors',
-        javaField: 'ignoreSelectors',
-        description:
-          'Comma-separated list of strings and/or regular expressions for selectors to consider as valid.',
-        default: '/^:export.*/, /^:import.*/',
-        stylelintOptionKey: 'ignoreSelectors',
-      },
-    ],
-  },
-  {
-    sqKey: 'S4655',
-    stylelintKey: 'keyframe-declaration-no-important',
-  },
-  {
-    sqKey: 'S4656',
-    stylelintKey: 'declaration-block-no-duplicate-properties',
-    booleanParam: {
-      sqKey: 'ignoreFallbacks',
-      javaField: 'ignoreFallbacks',
-      description: 'Ignore consecutive duplicated properties with different values.',
-      default: true,
-      onTrue: [
-        {
-          stylelintOptionKey: 'ignore',
-          values: ['consecutive-duplicates-with-different-values'],
-        },
-      ],
-    },
-  },
-  {
-    sqKey: 'S4657',
-    stylelintKey: 'declaration-block-no-shorthand-property-overrides',
-  },
-  {
-    sqKey: 'S4658',
-    stylelintKey: 'block-no-empty',
-  },
-  {
-    sqKey: 'S4659',
-    stylelintKey: 'selector-pseudo-class-no-unknown',
-    listParam: [
-      {
-        sqKey: 'ignorePseudoClasses',
-        javaField: 'ignoredPseudoClasses',
-        description:
-          'Comma-separated list of strings and/or regular expressions for pseudo classes to consider as valid.',
-        default: 'local,global,export,import,deep',
-        stylelintOptionKey: 'ignorePseudoClasses',
-      },
-    ],
-  },
-  {
-    sqKey: 'S4660',
-    stylelintKey: 'selector-pseudo-element-no-unknown',
-    listParam: [
-      {
-        sqKey: 'ignorePseudoElements',
-        javaField: 'ignorePseudoElements',
-        description:
-          'Comma-separated list of regular expressions or strings to ignore (e.g. /^custom-/).',
-        default: 'ng-deep,v-deep,deep',
-        stylelintOptionKey: 'ignorePseudoElements',
-      },
-    ],
-  },
-  {
-    sqKey: 'S4661',
-    stylelintKey: 'media-feature-name-no-unknown',
-  },
-  {
-    sqKey: 'S4662',
-    stylelintKey: 'at-rule-no-unknown',
-    listParam: [
-      {
-        sqKey: 'ignoreAtRules',
-        javaField: 'ignoreAtRules',
-        description: 'Comma-separated list of "at-rules" to consider as valid.',
-        default:
-          'value,at-root,content,debug,each,else,error,for,function,if,include,mixin,return,warn,while,extend,use,forward,tailwind,apply,layer,container,theme,utility,custom-variant,source,plugin,config,reference,variant,/^@.*/',
-        stylelintOptionKey: 'ignoreAtRules',
-      },
-    ],
-  },
-  {
-    sqKey: 'S4663',
-    stylelintKey: 'comment-no-empty',
-  },
-  {
-    sqKey: 'S4664',
-    stylelintKey: 'no-descending-specificity',
-  },
-  {
-    sqKey: 'S4666',
-    stylelintKey: 'no-duplicate-selectors',
-  },
-  {
-    sqKey: 'S4667',
-    stylelintKey: 'no-empty-source',
-  },
-  {
-    sqKey: 'S4668',
-    stylelintKey: 'no-invalid-double-slash-comments',
-  },
-  {
-    sqKey: 'S4670',
-    stylelintKey: 'selector-type-no-unknown',
-    listParam: [
-      {
-        sqKey: 'ignoreTypes',
-        javaField: 'ignoreTypes',
-        description:
-          'Comma-separated list of regular expressions for selector types to consider as valid.',
-        default: '/^(mat|md|fa)-/',
-        stylelintOptionKey: 'ignoreTypes',
-      },
-      {
-        sqKey: 'ignore',
-        javaField: 'ignore',
-        description:
-          'Comma-separated list of ignored elements. The possible values are: "custom-elements": Allow custom elements (e.g "x-foo"). "default-namespace": Allow unknown type selectors if they belong to the default namespace.',
-        default: 'custom-elements',
         stylelintOptionKey: 'ignore',
+        values: ['consecutive-duplicates-with-different-values'],
       },
     ],
-  },
-  {
-    sqKey: 'S5362',
-    stylelintKey: 'sonar/function-calc-no-invalid',
-  },
-  {
-    sqKey: 'S7923',
-    stylelintKey: 'sonar/no-restrict-orientation',
-  },
-  {
-    sqKey: 'S7924',
-    stylelintKey: 'sonar/minimum-contrast',
-  },
-  {
-    sqKey: 'S7925',
-    stylelintKey: 'sonar/text-spacing',
-  },
-  {
-    sqKey: 'S8757',
-    stylelintKey: 'sonar/annotation-no-unknown',
-    listParam: [
-      {
-        sqKey: 'ignoreAnnotations',
-        javaField: 'ignoreAnnotations',
-        description:
-          'Comma-separated list of strings and/or regular expressions for annotations to consider as valid.',
-        default: '',
-        stylelintOptionKey: 'ignoreAnnotations',
-      },
-    ],
-  },
-  {
-    sqKey: 'S8759',
-    stylelintKey: 'at-rule-no-vendor-prefix',
-    listParam: [
-      {
-        sqKey: 'ignoreAtRules',
-        javaField: 'ignoredAtRules',
-        description:
-          'Comma-separated list of strings and/or regular expressions for at-rules to ignore.',
-        default: '',
-        stylelintOptionKey: 'ignoreAtRules',
-      },
-    ],
-  },
-  {
-    sqKey: 'S8765',
-    stylelintKey: 'custom-property-no-missing-var-function',
-  },
-  {
-    sqKey: 'S8767',
-    stylelintKey: 'no-invalid-position-declaration',
-    listParam: [
-      {
-        sqKey: 'ignoreAtRules',
-        javaField: 'ignoredAtRules',
-        description:
-          'Comma-separated list of at-rule names or regular expressions to treat as valid nesting containers.',
-        default: '',
-        stylelintOptionKey: 'ignoreAtRules',
-      },
-    ],
-  },
-  {
-    sqKey: 'S8769',
-    stylelintKey: 'block-no-redundant-nested-style-rules',
-  },
-  {
-    sqKey: 'S8770',
-    stylelintKey: 'at-rule-descriptor-no-unknown',
-  },
-  {
-    sqKey: 'S8773',
-    stylelintKey: 'keyframe-block-no-duplicate-selectors',
-  },
-  {
-    sqKey: 'S8774',
-    stylelintKey: 'selector-anb-no-unmatchable',
-  },
-  {
-    sqKey: 'S8775',
-    stylelintKey: 'at-rule-descriptor-value-no-unknown',
-  },
-  {
-    sqKey: 'S8776',
-    stylelintKey: 'nesting-selector-no-missing-scoping-root',
-    listParam: [
-      {
-        sqKey: 'ignoreAtRules',
-        javaField: 'ignoredAtRules',
-        description:
-          'Comma-separated list of "at-rules" inside which nesting selectors are allowed without a scoping parent.',
-        default: '',
-        stylelintOptionKey: 'ignoreAtRules',
-      },
-    ],
-  },
-  {
-    sqKey: 'S8777',
-    stylelintKey: 'at-rule-prelude-no-invalid',
-    listParam: [
-      {
-        sqKey: 'ignoreAtRules',
-        javaField: 'ignoredAtRules',
-        description:
-          'Comma-separated list of at-rule names or regular expressions whose preludes should not be validated.',
-        default: '',
-        stylelintOptionKey: 'ignoreAtRules',
-      },
-    ],
-  },
-  {
-    sqKey: 'S8778',
-    stylelintKey: 'no-invalid-position-at-import-rule',
-    listParam: [
-      {
-        sqKey: 'ignoreAtRules',
-        javaField: 'ignoredAtRules',
-        description:
-          'Comma-separated list of "at-rules" that are allowed to appear before "@import" rules.',
-        default: '',
-        stylelintOptionKey: 'ignoreAtRules',
-      },
-    ],
-  },
+  }),
+  ...buildSimpleRules({
+    S4657: 'declaration-block-no-shorthand-property-overrides',
+    S4658: 'block-no-empty',
+  }),
+  singleListParamRule(
+    'S4659',
+    'selector-pseudo-class-no-unknown',
+    listParam(
+      'ignorePseudoClasses',
+      'ignoredPseudoClasses',
+      'Comma-separated list of strings and/or regular expressions for pseudo classes to consider as valid.',
+      'local,global,export,import,deep',
+    ),
+  ),
+  singleListParamRule(
+    'S4660',
+    'selector-pseudo-element-no-unknown',
+    listParam(
+      'ignorePseudoElements',
+      'ignorePseudoElements',
+      'Comma-separated list of regular expressions or strings to ignore (e.g. /^custom-/).',
+      'ng-deep,v-deep,deep',
+    ),
+  ),
+  simpleRule('S4661', 'media-feature-name-no-unknown'),
+  ignoreAtRulesRule(
+    'S4662',
+    'at-rule-no-unknown',
+    'ignoreAtRules',
+    'Comma-separated list of "at-rules" to consider as valid.',
+    'value,at-root,content,debug,each,else,error,for,function,if,include,mixin,return,warn,while,extend,use,forward,tailwind,apply,layer,container,theme,utility,custom-variant,source,plugin,config,reference,variant,/^@.*/',
+  ),
+  ...buildSimpleRules({
+    S4663: 'comment-no-empty',
+    S4664: 'no-descending-specificity',
+    S4666: 'no-duplicate-selectors',
+    S4667: 'no-empty-source',
+    S4668: 'no-invalid-double-slash-comments',
+  }),
+  multiListParamRule(
+    'S4670',
+    'selector-type-no-unknown',
+    listParam(
+      'ignoreTypes',
+      'ignoreTypes',
+      'Comma-separated list of regular expressions for selector types to consider as valid.',
+      '/^(mat|md|fa)-/',
+    ),
+    listParam(
+      'ignore',
+      'ignore',
+      'Comma-separated list of ignored elements. The possible values are: "custom-elements": Allow custom elements (e.g "x-foo"). "default-namespace": Allow unknown type selectors if they belong to the default namespace.',
+      'custom-elements',
+    ),
+  ),
+  ...buildSimpleRules({
+    S5362: 'sonar/function-calc-no-invalid',
+    S7923: 'sonar/no-restrict-orientation',
+    S7924: 'sonar/minimum-contrast',
+    S7925: 'sonar/text-spacing',
+  }),
+  singleListParamRule(
+    'S8757',
+    'sonar/annotation-no-unknown',
+    listParam(
+      'ignoreAnnotations',
+      'ignoreAnnotations',
+      'Comma-separated list of strings and/or regular expressions for annotations to consider as valid.',
+      '',
+    ),
+  ),
+  ignoreAtRulesRule(
+    'S8759',
+    'at-rule-no-vendor-prefix',
+    'ignoredAtRules',
+    'Comma-separated list of strings and/or regular expressions for at-rules to ignore.',
+  ),
+  simpleRule('S8765', 'custom-property-no-missing-var-function'),
+  ignoreAtRulesRule(
+    'S8767',
+    'no-invalid-position-declaration',
+    'ignoredAtRules',
+    'Comma-separated list of at-rule names or regular expressions to treat as valid nesting containers.',
+  ),
+  ...buildSimpleRules({
+    S8769: 'block-no-redundant-nested-style-rules',
+    S8770: 'at-rule-descriptor-no-unknown',
+    S8773: 'keyframe-block-no-duplicate-selectors',
+    S8774: 'selector-anb-no-unmatchable',
+    S8775: 'at-rule-descriptor-value-no-unknown',
+  }),
+  ignoreAtRulesRule(
+    'S8776',
+    'nesting-selector-no-missing-scoping-root',
+    'ignoredAtRules',
+    'Comma-separated list of "at-rules" inside which nesting selectors are allowed without a scoping parent.',
+  ),
+  ignoreAtRulesRule(
+    'S8777',
+    'at-rule-prelude-no-invalid',
+    'ignoredAtRules',
+    'Comma-separated list of at-rule names or regular expressions whose preludes should not be validated.',
+  ),
+  ignoreAtRulesRule(
+    'S8778',
+    'no-invalid-position-at-import-rule',
+    'ignoredAtRules',
+    'Comma-separated list of "at-rules" that are allowed to appear before "@import" rules.',
+  ),
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */

@@ -1,0 +1,44 @@
+{
+  "title": "Deprecated CSS features should not be used",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "cwe",
+    "obsolete"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "CallToDeprecatedMethod"
+    ]
+  },
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-1874",
+  "sqKey": "S1874",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      477
+    ],
+    "ASVS 4.0": [
+      "1.14.6"
+    ]
+  },
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "css"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

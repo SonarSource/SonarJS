@@ -13,10 +13,6 @@
     "constantCost": "5min"
   },
   "tags": [],
-  "extra": {
-    "replacementRules": [],
-    "legacyKeys": []
-  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-8757",
   "sqKey": "S8757",
