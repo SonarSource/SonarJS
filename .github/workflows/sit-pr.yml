@@ -130,7 +130,7 @@ jobs:
           node tools/sit/render-peachee-shard-matrix.js \
             --peachee-root "$GITHUB_WORKSPACE/tools/sit/peachee-public" \
             --output build/sit-peachee-matrix.json \
-            --projects-per-shard 32 \
+            --projects-per-shard 16 \
             --exclude-projects "$PEACHEE_EXCLUDE_PROJECTS" \
             --project-filter "$PROJECT_FILTER"
 
