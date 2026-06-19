@@ -146,10 +146,7 @@ test('regenerates rule data when generated outputs are missing', () => {
 test('uses the PATH npm stub even when parent npm_execpath is set', () => {
   const fixture = createFixture({ createRuleDataOutputs: false });
   try {
-    const result = runEnsureRuleData(fixture, {
-      npm_execpath: '/tmp/fake-npm-cli.js',
-      npm_config_user_agent: 'npm/test',
-    });
+    const result = withTemporaryNpmEnvironment(fixture, () => runEnsureRuleData(fixture));
 
     assert.equal(result.status, 0, result.stderr);
     assert.equal(
@@ -191,6 +188,12 @@ exit 1
 set -eu
 printf 'npm %s\\n' "$*" >> '${commandLog}'
 exit 0
+`,
+  );
+  writeFileSync(
+    join(repoRoot, 'fake-npm-cli.js'),
+    `import { appendFileSync } from 'node:fs';
+appendFileSync(${JSON.stringify(commandLog)}, 'npm_execpath run ' + process.argv.slice(2).join(' ') + '\\n');
 `,
   );
 
@@ -258,4 +261,25 @@ function createChildEnv(fixture, injectedEnv = {}) {
     ...env,
     PATH: `${fixture.binDir}:${process.env.PATH}`,
   };
+}
+
+function withTemporaryNpmEnvironment(fixture, callback) {
+  const previousNpmExecPath = process.env.npm_execpath;
+  const previousUserAgent = process.env.npm_config_user_agent;
+  process.env.npm_execpath = join(fixture.repoRoot, 'fake-npm-cli.js');
+  process.env.npm_config_user_agent = 'npm/test';
+  try {
+    return callback();
+  } finally {
+    restoreProcessEnv('npm_execpath', previousNpmExecPath);
+    restoreProcessEnv('npm_config_user_agent', previousUserAgent);
+  }
+}
+
+function restoreProcessEnv(key, value) {
+  if (value === undefined) {
+    delete process.env[key];
+  } else {
+    process.env[key] = value;
+  }
 }
