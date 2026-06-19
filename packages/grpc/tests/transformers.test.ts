@@ -355,6 +355,26 @@ describe('CSS rule configurations', () => {
     ]);
   });
 
+  it('should map S8757 to sonar/annotation-no-unknown with empty default ignoreAnnotations', () => {
+    expect(buildCssRuleConfigurations('S8757', [])).toEqual([
+      {
+        key: 'sonar/annotation-no-unknown',
+        configurations: [],
+      },
+    ]);
+  });
+
+  it('should map S8757 with explicit ignoreAnnotations', () => {
+    expect(
+      buildCssRuleConfigurations('S8757', [{ key: 'ignoreAnnotations', value: 'foo,bar' }]),
+    ).toEqual([
+      {
+        key: 'sonar/annotation-no-unknown',
+        configurations: [true, { ignoreAnnotations: ['foo', 'bar'] }],
+      },
+    ]);
+  });
+
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {
       // S4659: ignorePseudoClasses default is 'local,global,export,import,deep'
