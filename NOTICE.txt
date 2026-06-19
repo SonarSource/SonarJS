@@ -1,6 +1,11 @@
-JavaScript
-Copyright (C) 2011-2024 SonarSource SA
+Copyright (C) SonarSource Sàrl
 mailto:info AT sonarsource DOT com
 
 This product includes software developed at
-SonarSource (http://www.sonarsource.com/).
+SonarSource (https://sonarsource.com/).
+
+See LICENSE.txt file for details of the
+applicable license.
+
+For further legal information, see
+https://sonarsource.com/legal/
