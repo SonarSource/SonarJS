@@ -230,15 +230,37 @@ describe('transform', () => {
     afterEach(() => cssOnlyRuleKeys.delete('css-only-rule'));
 
     function makeDocumentResult(
-      blocks: Array<{ lang?: string; startLine: number; endLine: number }>,
-      warnings: Array<{ rule: string; line: number }>,
+      blocks: Array<{
+        lang?: string;
+        startLine?: number;
+        startColumn?: number;
+        endLine?: number;
+        endColumn?: number;
+      }>,
+      warnings: Array<{ rule: string; line: number; column?: number }>,
     ): stylelint.LintResult {
       const nodes = blocks.map(b => ({
         type: 'root' as const,
         source: {
-          ...(b.lang === undefined ? {} : { lang: b.lang }),
-          start: { line: b.startLine, column: 1, offset: 0 },
-          end: { line: b.endLine, column: 1, offset: 0 },
+          lang: b.lang,
+          ...(b.startLine !== undefined || b.startColumn !== undefined
+            ? {
+                start: {
+                  line: b.startLine ?? 1,
+                  column: b.startColumn ?? 1,
+                  offset: 0,
+                },
+              }
+            : {}),
+          ...(b.endLine !== undefined || b.endColumn !== undefined
+            ? {
+                end: {
+                  line: b.endLine ?? b.startLine ?? 1,
+                  column: b.endColumn ?? 1,
+                  offset: 0,
+                },
+              }
+            : {}),
         },
       }));
       return {
@@ -247,7 +269,7 @@ describe('transform', () => {
           rule: w.rule,
           text: `${w.rule} message (${w.rule})`,
           line: w.line,
-          column: 1,
+          column: w.column ?? 1,
         })),
         _postcssResult: { root: { type: 'document', nodes } },
       } as unknown as stylelint.LintResult;
@@ -316,6 +338,36 @@ describe('transform', () => {
       expect(issues[0].line).toBe(3);
     });
 
+    it('does not suppress warnings when a non-CSS block has no explicit end position', () => {
+      const result = makeDocumentResult(
+        [
+          { lang: 'scss', startLine: 1 }, // missing end → cannot safely match
+          { startLine: 5, endLine: 6 },
+        ],
+        [{ rule: 'css-only-rule', line: 5, column: 3 }],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(1);
+      expect(issues[0].line).toBe(5);
+    });
+
+    it('uses columns to distinguish adjacent blocks on the same line', () => {
+      const result = makeDocumentResult(
+        [
+          { lang: 'scss', startLine: 1, startColumn: 1, endLine: 1, endColumn: 10 },
+          { startLine: 1, startColumn: 11, endLine: 1, endColumn: 20 },
+        ],
+        [
+          { rule: 'css-only-rule', line: 1, column: 5 }, // SCSS block → suppress
+          { rule: 'css-only-rule', line: 1, column: 15 }, // CSS block → keep
+        ],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(1);
+      expect(issues[0].line).toBe(1);
+      expect(issues[0].column).toBe(14);
+    });
+
     it('does not filter warnings from plain CSS files (no document root)', () => {
       const cssFilePath = normalizeToAbsolutePath('/tmp/styles.css');
       const result = {
@@ -338,7 +390,11 @@ describe('transform', () => {
               { type: 'atrule' }, // non-root node — must be skipped
               {
                 type: 'root',
-                source: { lang: 'scss', start: { line: 1 }, end: { line: 10 } },
+                source: {
+                  lang: 'scss',
+                  start: { line: 1, column: 1 },
+                  end: { line: 10, column: 1 },
+                },
               },
             ],
           },
