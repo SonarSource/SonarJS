@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const statePath = join('resources', 'rule-data-state.json');
@@ -52,15 +52,24 @@ const preparedRuleDataPaths = [
   join('sonar-plugin', 'css', 'src', 'main', 'resources', 'rspec.sha'),
 ];
 
+const actualState = readRuleDataState();
+const preparedRuleData = hasPreparedRuleData();
+const rootRspecSha = readRootRspecSha();
+const head = gitHead();
 const desiredState = {
   version: stateVersion,
   step: stepName,
-  head: gitHead(),
-  rootRspecSha: readRootRspecSha(),
+  head,
+  rootRspecSha,
 };
 
-if (hasPreparedRuleData() && isCurrentState(readRuleDataState(), desiredState)) {
-  console.log(`Rule data is already prepared for ${desiredState.head}`);
+if (preparedRuleData && isCurrentState(actualState, desiredState)) {
+  console.log(`Rule data is already prepared for ${displayHead(head)}`);
+  process.exit(0);
+}
+
+if (preparedRuleData && head === null && isPreparedStateForUnknownHead(actualState, desiredState)) {
+  console.log('Rule data is already prepared; skipping because git HEAD is unavailable');
   process.exit(0);
 }
 
@@ -68,7 +77,27 @@ runNpmScript(stepName);
 writeRuleDataState(desiredState);
 
 function hasPreparedRuleData() {
-  return preparedRuleDataPaths.every(path => existsSync(path));
+  return (
+    preparedRuleDataPaths.every(path => existsSync(path)) &&
+    directoryContainsRuleFiles(
+      join(
+        'sonar-plugin',
+        'javascript-checks',
+        'src',
+        'main',
+        'resources',
+        'org',
+        'sonar',
+        'l10n',
+        'javascript',
+        'rules',
+        'javascript',
+      ),
+    ) &&
+    directoryContainsRuleFiles(
+      join('sonar-plugin', 'css', 'src', 'main', 'resources', 'org', 'sonar', 'l10n', 'css', 'rules', 'css'),
+    )
+  );
 }
 
 function isCurrentState(actual, expected) {
@@ -76,6 +105,14 @@ function isCurrentState(actual, expected) {
     actual?.version === expected.version &&
     actual?.step === expected.step &&
     actual?.head === expected.head &&
+    actual?.rootRspecSha === expected.rootRspecSha
+  );
+}
+
+function isPreparedStateForUnknownHead(actual, expected) {
+  return (
+    actual?.version === expected.version &&
+    actual?.step === expected.step &&
     actual?.rootRspecSha === expected.rootRspecSha
   );
 }
@@ -108,14 +145,21 @@ function gitHead() {
   const result = spawnSync('git', ['rev-parse', 'HEAD'], {
     encoding: 'utf8',
   });
-  if (result.error !== undefined) {
-    throw result.error;
-  }
-  if (result.status !== 0) {
-    process.stderr.write(result.stderr);
-    process.exit(result.status ?? 1);
+  if (result.error !== undefined || result.status !== 0) {
+    return null;
   }
   return result.stdout.trim();
+}
+
+function directoryContainsRuleFiles(path) {
+  return readdirSync(path, { withFileTypes: true }).some(
+    entry =>
+      entry.isFile() && (entry.name.endsWith('.json') || entry.name.endsWith('.html')),
+  );
+}
+
+function displayHead(head) {
+  return head ?? 'an unknown head';
 }
 
 function runNpmScript(script) {

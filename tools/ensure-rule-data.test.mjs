@@ -1,3 +1,19 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import {
@@ -18,6 +34,25 @@ const statePath = join('resources', 'rule-data-state.json');
 
 test('skips rule data generation when the visible state is current', () => {
   const fixture = createFixture();
+  try {
+    writeRuleDataState(fixture.repoRoot, {
+      version: 1,
+      step: 'generate-rule-data:maven',
+      head: fixture.head,
+      rootRspecSha: null,
+    });
+
+    const result = runEnsureRuleData(fixture);
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(existsSync(fixture.commandLog), false);
+  } finally {
+    cleanupFixture(fixture);
+  }
+});
+
+test('skips rule data generation when git is unavailable but prepared data is current', () => {
+  const fixture = createFixture({ createGitBinary: false });
   try {
     writeRuleDataState(fixture.repoRoot, {
       version: 1,
@@ -64,6 +99,28 @@ test('regenerates rule data when the root rspec pin changes', () => {
   }
 });
 
+test('regenerates rule data when generated output directories are empty', () => {
+  const fixture = createFixture({ createRuleFiles: false });
+  try {
+    writeRuleDataState(fixture.repoRoot, {
+      version: 1,
+      step: 'generate-rule-data:maven',
+      head: fixture.head,
+      rootRspecSha: null,
+    });
+
+    const result = runEnsureRuleData(fixture);
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(
+      readFileSync(fixture.commandLog, 'utf8'),
+      'npm run generate-rule-data:maven\n',
+    );
+  } finally {
+    cleanupFixture(fixture);
+  }
+});
+
 test('regenerates rule data when generated outputs are missing', () => {
   const fixture = createFixture({ createRuleDataOutputs: false });
   try {
@@ -86,7 +143,25 @@ test('regenerates rule data when generated outputs are missing', () => {
   }
 });
 
-function createFixture({ createRuleDataOutputs = true } = {}) {
+test('uses the PATH npm stub even when parent npm_execpath is set', () => {
+  const fixture = createFixture({ createRuleDataOutputs: false });
+  try {
+    const result = runEnsureRuleData(fixture, {
+      npm_execpath: '/tmp/fake-npm-cli.js',
+      npm_config_user_agent: 'npm/test',
+    });
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(
+      readFileSync(fixture.commandLog, 'utf8'),
+      'npm run generate-rule-data:maven\n',
+    );
+  } finally {
+    cleanupFixture(fixture);
+  }
+});
+
+function createFixture({ createRuleDataOutputs = true, createRuleFiles = true, createGitBinary = true } = {}) {
   const repoRoot = mkdtempSync(join(tmpdir(), 'sonarjs-rule-data-'));
   const binDir = join(repoRoot, 'bin');
   const commandLog = join(repoRoot, 'commands.log');
@@ -97,9 +172,10 @@ function createFixture({ createRuleDataOutputs = true } = {}) {
     join(repoRoot, 'package.json'),
     '{"scripts":{"generate-rule-data:maven":"echo"}}\n',
   );
-  writeExecutable(
-    join(binDir, 'git'),
-    `#!/bin/sh
+  if (createGitBinary) {
+    writeExecutable(
+      join(binDir, 'git'),
+      `#!/bin/sh
 set -eu
 if [ "$1 $2" = "rev-parse HEAD" ]; then
   printf '${head}\\n'
@@ -107,7 +183,8 @@ if [ "$1 $2" = "rev-parse HEAD" ]; then
 fi
 exit 1
 `,
-  );
+    );
+  }
   writeExecutable(
     join(binDir, 'npm'),
     `#!/bin/sh
@@ -118,35 +195,32 @@ exit 0
   );
 
   if (createRuleDataOutputs) {
-    createPreparedRuleDataOutputs(repoRoot);
+    createPreparedRuleDataOutputs(repoRoot, { createRuleFiles });
   }
 
   return { repoRoot, binDir, commandLog, head };
 }
 
-function createPreparedRuleDataOutputs(repoRoot) {
-  mkdirSync(
-    join(
-      repoRoot,
-      'sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript',
-    ),
-    { recursive: true },
+function createPreparedRuleDataOutputs(repoRoot, { createRuleFiles }) {
+  const javascriptRulesDir = join(
+    repoRoot,
+    'sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript',
   );
-  mkdirSync(
-    join(repoRoot, 'sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css'),
-    { recursive: true },
-  );
+  const cssRulesDir = join(repoRoot, 'sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css');
+  mkdirSync(javascriptRulesDir, { recursive: true });
+  mkdirSync(cssRulesDir, { recursive: true });
   writeFileSync(join(repoRoot, 'sonar-plugin/javascript-checks/src/main/resources/rspec.sha'), 'js\n');
   writeFileSync(join(repoRoot, 'sonar-plugin/css/src/main/resources/rspec.sha'), 'css\n');
+  if (createRuleFiles) {
+    writeFileSync(join(javascriptRulesDir, 'S0001.json'), '{}\n');
+    writeFileSync(join(cssRulesDir, 'S0002.json'), '{}\n');
+  }
 }
 
-function runEnsureRuleData(fixture) {
+function runEnsureRuleData(fixture, injectedEnv = {}) {
   return spawnSync(process.execPath, [scriptPath], {
     cwd: fixture.repoRoot,
-    env: {
-      ...process.env,
-      PATH: `${fixture.binDir}:${process.env.PATH}`,
-    },
+    env: createChildEnv(fixture, injectedEnv),
     text: true,
     encoding: 'utf8',
   });
@@ -167,4 +241,21 @@ function writeRuleDataState(repoRoot, state) {
 
 function writeExecutable(path, content) {
   writeFileSync(path, content, { mode: 0o755 });
+}
+
+function createChildEnv(fixture, injectedEnv = {}) {
+  const env = {
+    ...process.env,
+    ...injectedEnv,
+  };
+  delete env.npm_execpath;
+  for (const key of Object.keys(env)) {
+    if (key.startsWith('npm_config_')) {
+      delete env[key];
+    }
+  }
+  return {
+    ...env,
+    PATH: `${fixture.binDir}:${process.env.PATH}`,
+  };
 }
