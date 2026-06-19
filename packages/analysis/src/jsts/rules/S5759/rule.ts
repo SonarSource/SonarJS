@@ -55,5 +55,8 @@ export const rule: Rule.RuleModule = {
 
 function isSensitiveFQN(context: Rule.RuleContext, call: estree.CallExpression) {
   const fqn = getFullyQualifiedName(context, call);
-  return fqn === 'http-proxy-middleware.createProxyMiddleware';
+  return (
+    fqn &&
+    ['http-proxy.createProxyServer', 'http-proxy-middleware.createProxyMiddleware'].includes(fqn)
+  );
 }
