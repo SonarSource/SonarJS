@@ -16,9 +16,10 @@
  */
 import stylelint from 'stylelint';
 import { transform } from '../../../../src/css/linter/issues/transform.js';
-import { describe, it, type Mock } from 'node:test';
+import { describe, it, beforeEach, afterEach, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
+import { cssOnlyRuleKeys } from '../../../../src/css/linter/css-only-rules.js';
 
 describe('transform', () => {
   it('should transform Stylelint results into issues', () => {
@@ -220,5 +221,219 @@ describe('transform', () => {
     expect((console.log as Mock<typeof console.log>).mock.calls[0].arguments[0]).toMatch(
       /^WARN Invalid position for rule no-empty-source/,
     );
+  });
+
+  describe('CSS-only rule filtering in HTML/Vue files', () => {
+    const filePath = normalizeToAbsolutePath('/tmp/page.html');
+
+    beforeEach(() => cssOnlyRuleKeys.add('css-only-rule'));
+    afterEach(() => cssOnlyRuleKeys.delete('css-only-rule'));
+
+    function makeDocumentResult(
+      blocks: Array<{
+        lang?: string;
+        startLine?: number;
+        startColumn?: number;
+        endLine?: number;
+        endColumn?: number;
+      }>,
+      warnings: Array<{ rule: string; line: number; column?: number }>,
+    ): stylelint.LintResult {
+      const nodes = blocks.map(b => ({
+        type: 'root' as const,
+        source: {
+          lang: b.lang,
+          ...(b.startLine !== undefined || b.startColumn !== undefined
+            ? {
+                start: {
+                  line: b.startLine ?? 1,
+                  column: b.startColumn ?? 1,
+                  offset: 0,
+                },
+              }
+            : {}),
+          ...(b.endLine !== undefined || b.endColumn !== undefined
+            ? {
+                end: {
+                  line: b.endLine ?? b.startLine ?? 1,
+                  column: b.endColumn ?? 1,
+                  offset: 0,
+                },
+              }
+            : {}),
+        },
+      }));
+      return {
+        source: filePath as string,
+        warnings: warnings.map(w => ({
+          rule: w.rule,
+          text: `${w.rule} message (${w.rule})`,
+          line: w.line,
+          column: w.column ?? 1,
+        })),
+        _postcssResult: { root: { type: 'document', nodes } },
+      } as unknown as stylelint.LintResult;
+    }
+
+    it('reports CSS-only rule warnings from plain CSS blocks', () => {
+      const result = makeDocumentResult(
+        [{ startLine: 1, endLine: 5 }], // no lang → CSS
+        [{ rule: 'css-only-rule', line: 3 }],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(1);
+      expect(issues[0].ruleId).toBe('css-only-rule');
+    });
+
+    it('suppresses CSS-only rule warnings from non-CSS embedded blocks', () => {
+      const result = makeDocumentResult(
+        [{ lang: 'scss', startLine: 1, endLine: 10 }],
+        [{ rule: 'css-only-rule', line: 5 }],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(0);
+    });
+
+    it('suppresses warnings from less, sass, stylus and styl blocks too', () => {
+      const result = makeDocumentResult(
+        [
+          { lang: 'less', startLine: 1, endLine: 5 },
+          { lang: 'sass', startLine: 7, endLine: 12 },
+          { lang: 'stylus', startLine: 14, endLine: 18 },
+          { lang: 'styl', startLine: 20, endLine: 24 },
+        ],
+        [
+          { rule: 'css-only-rule', line: 3 },
+          { rule: 'css-only-rule', line: 9 },
+          { rule: 'css-only-rule', line: 16 },
+          { rule: 'css-only-rule', line: 22 },
+        ],
+      );
+      expect(transform([result], filePath)).toHaveLength(0);
+    });
+
+    it('does not suppress regular rule warnings from non-CSS blocks', () => {
+      const result = makeDocumentResult(
+        [{ lang: 'scss', startLine: 1, endLine: 10 }],
+        [{ rule: 'regular-rule', line: 5 }],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(1);
+      expect(issues[0].ruleId).toBe('regular-rule');
+    });
+
+    it('handles mixed CSS and non-CSS blocks correctly', () => {
+      const result = makeDocumentResult(
+        [
+          { startLine: 1, endLine: 5 }, // CSS block
+          { lang: 'scss', startLine: 7, endLine: 15 }, // SCSS block
+        ],
+        [
+          { rule: 'css-only-rule', line: 3 }, // in CSS block → keep
+          { rule: 'css-only-rule', line: 10 }, // in SCSS block → suppress
+        ],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(1);
+      expect(issues[0].line).toBe(3);
+    });
+
+    it('does not suppress warnings when a non-CSS block has no explicit end position', () => {
+      const result = makeDocumentResult(
+        [
+          { lang: 'scss', startLine: 1 }, // missing end → cannot safely match
+          { startLine: 5, endLine: 6 },
+        ],
+        [{ rule: 'css-only-rule', line: 5, column: 3 }],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(1);
+      expect(issues[0].line).toBe(5);
+    });
+
+    it('uses columns to distinguish adjacent blocks on the same line', () => {
+      const result = makeDocumentResult(
+        [
+          { lang: 'scss', startLine: 1, startColumn: 1, endLine: 1, endColumn: 10 },
+          { startLine: 1, startColumn: 11, endLine: 1, endColumn: 20 },
+        ],
+        [
+          { rule: 'css-only-rule', line: 1, column: 5 }, // SCSS block → suppress
+          { rule: 'css-only-rule', line: 1, column: 15 }, // CSS block → keep
+        ],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(1);
+      expect(issues[0].line).toBe(1);
+      expect(issues[0].column).toBe(14);
+    });
+
+    it('does not filter warnings from plain CSS files (no document root)', () => {
+      const cssFilePath = normalizeToAbsolutePath('/tmp/styles.css');
+      const result = {
+        source: cssFilePath as string,
+        warnings: [{ rule: 'css-only-rule', text: 'msg (css-only-rule)', line: 1, column: 1 }],
+        _postcssResult: { root: { type: 'root' } }, // not a document
+      } as unknown as stylelint.LintResult;
+      const issues = transform([result], cssFilePath);
+      expect(issues).toHaveLength(1);
+    });
+
+    it('skips non-root child nodes in a document', () => {
+      const result = {
+        source: filePath as string,
+        warnings: [{ rule: 'css-only-rule', text: 'msg (css-only-rule)', line: 3, column: 1 }],
+        _postcssResult: {
+          root: {
+            type: 'document',
+            nodes: [
+              { type: 'atrule' }, // non-root node — must be skipped
+              {
+                type: 'root',
+                source: {
+                  lang: 'scss',
+                  start: { line: 1, column: 1 },
+                  end: { line: 10, column: 1 },
+                },
+              },
+            ],
+          },
+        },
+      } as unknown as stylelint.LintResult;
+      expect(transform([result], filePath)).toHaveLength(0);
+    });
+
+    it('treats a block with no source as CSS (does not suppress)', () => {
+      const result = {
+        source: filePath as string,
+        warnings: [{ rule: 'css-only-rule', text: 'msg (css-only-rule)', line: 3, column: 1 }],
+        _postcssResult: {
+          root: {
+            type: 'document',
+            nodes: [{ type: 'root', source: undefined }],
+          },
+        },
+      } as unknown as stylelint.LintResult;
+      expect(transform([result], filePath)).toHaveLength(1);
+    });
+
+    it('treats a block whose lang is not a string as CSS (does not suppress)', () => {
+      const result = {
+        source: filePath as string,
+        warnings: [{ rule: 'css-only-rule', text: 'msg (css-only-rule)', line: 3, column: 1 }],
+        _postcssResult: {
+          root: {
+            type: 'document',
+            nodes: [
+              {
+                type: 'root',
+                source: { lang: 42, start: { line: 1 }, end: { line: 10 } },
+              },
+            ],
+          },
+        },
+      } as unknown as stylelint.LintResult;
+      expect(transform([result], filePath)).toHaveLength(1);
+    });
   });
 });

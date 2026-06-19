@@ -61,6 +61,46 @@ export const cssRulesMeta: CssRuleMeta[] = [
     stylelintKey: 'no-duplicate-at-import-rules',
   },
   {
+    sqKey: 'S1874',
+    stylelintKey: 'selector-no-deprecated',
+    listParam: [
+      {
+        sqKey: 'ignoreSelectors',
+        javaField: 'ignoreSelectors',
+        description: 'Comma-separated list of selector names and/or regular expressions to ignore.',
+        default: '',
+        stylelintOptionKey: 'ignoreSelectors',
+      },
+    ],
+  },
+  {
+    sqKey: 'S1874',
+    stylelintKey: 'declaration-property-value-keyword-no-deprecated',
+    listParam: [
+      {
+        sqKey: 'ignoreKeywords',
+        javaField: 'ignoreKeywords',
+        description:
+          'Comma-separated list of strings and/or regular expressions for deprecated keywords to ignore.',
+        default: '',
+        stylelintOptionKey: 'ignoreKeywords',
+      },
+    ],
+  },
+  {
+    sqKey: 'S1874',
+    stylelintKey: 'at-rule-no-deprecated',
+    listParam: [
+      {
+        sqKey: 'ignoreAtRules',
+        javaField: 'ignoreAtRules',
+        description: 'Comma-separated list of deprecated "at-rules" to ignore.',
+        default: '',
+        stylelintOptionKey: 'ignoreAtRules',
+      },
+    ],
+  },
+  {
     sqKey: 'S4647',
     stylelintKey: 'color-no-invalid-hex',
   },
@@ -196,7 +236,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
     listParam: [
       {
         sqKey: 'ignoreAtRules',
-        javaField: 'ignoredAtRules',
+        javaField: 'ignoreAtRules',
         description: 'Comma-separated list of "at-rules" to consider as valid.',
         default:
           'value,at-root,content,debug,each,else,error,for,function,if,include,mixin,return,warn,while,extend,use,forward,tailwind,apply,layer,container,theme,utility,custom-variant,source,plugin,config,reference,variant,/^@.*/',
@@ -261,6 +301,114 @@ export const cssRulesMeta: CssRuleMeta[] = [
   {
     sqKey: 'S7925',
     stylelintKey: 'sonar/text-spacing',
+  },
+  {
+    sqKey: 'S8757',
+    stylelintKey: 'sonar/annotation-no-unknown',
+    listParam: [
+      {
+        sqKey: 'ignoreAnnotations',
+        javaField: 'ignoreAnnotations',
+        description:
+          'Comma-separated list of strings and/or regular expressions for annotations to consider as valid.',
+        default: '',
+        stylelintOptionKey: 'ignoreAnnotations',
+      },
+    ],
+  },
+  {
+    sqKey: 'S8759',
+    stylelintKey: 'at-rule-no-vendor-prefix',
+    listParam: [
+      {
+        sqKey: 'ignoreAtRules',
+        javaField: 'ignoredAtRules',
+        description:
+          'Comma-separated list of strings and/or regular expressions for at-rules to ignore.',
+        default: '',
+        stylelintOptionKey: 'ignoreAtRules',
+      },
+    ],
+  },
+  {
+    sqKey: 'S8765',
+    stylelintKey: 'custom-property-no-missing-var-function',
+  },
+  {
+    sqKey: 'S8767',
+    stylelintKey: 'no-invalid-position-declaration',
+    listParam: [
+      {
+        sqKey: 'ignoreAtRules',
+        javaField: 'ignoredAtRules',
+        description:
+          'Comma-separated list of at-rule names or regular expressions to treat as valid nesting containers.',
+        default: '',
+        stylelintOptionKey: 'ignoreAtRules',
+      },
+    ],
+  },
+  {
+    sqKey: 'S8769',
+    stylelintKey: 'block-no-redundant-nested-style-rules',
+  },
+  {
+    sqKey: 'S8770',
+    stylelintKey: 'at-rule-descriptor-no-unknown',
+  },
+  {
+    sqKey: 'S8773',
+    stylelintKey: 'keyframe-block-no-duplicate-selectors',
+  },
+  {
+    sqKey: 'S8774',
+    stylelintKey: 'selector-anb-no-unmatchable',
+  },
+  {
+    sqKey: 'S8775',
+    stylelintKey: 'at-rule-descriptor-value-no-unknown',
+  },
+  {
+    sqKey: 'S8776',
+    stylelintKey: 'nesting-selector-no-missing-scoping-root',
+    listParam: [
+      {
+        sqKey: 'ignoreAtRules',
+        javaField: 'ignoredAtRules',
+        description:
+          'Comma-separated list of "at-rules" inside which nesting selectors are allowed without a scoping parent.',
+        default: '',
+        stylelintOptionKey: 'ignoreAtRules',
+      },
+    ],
+  },
+  {
+    sqKey: 'S8777',
+    stylelintKey: 'at-rule-prelude-no-invalid',
+    listParam: [
+      {
+        sqKey: 'ignoreAtRules',
+        javaField: 'ignoredAtRules',
+        description:
+          'Comma-separated list of at-rule names or regular expressions whose preludes should not be validated.',
+        default: '',
+        stylelintOptionKey: 'ignoreAtRules',
+      },
+    ],
+  },
+  {
+    sqKey: 'S8778',
+    stylelintKey: 'no-invalid-position-at-import-rule',
+    listParam: [
+      {
+        sqKey: 'ignoreAtRules',
+        javaField: 'ignoredAtRules',
+        description:
+          'Comma-separated list of "at-rules" that are allowed to appear before "@import" rules.',
+        default: '',
+        stylelintOptionKey: 'ignoreAtRules',
+      },
+    ],
   },
 ];
 
