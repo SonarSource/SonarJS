@@ -8,6 +8,7 @@
     "new-rule": "tsx tools/new-rule.mts",
     "generate-meta": "node tools/generate-meta.mjs",
     "generate-meta:raw": "npm run grpc:generate-proto && tsx tools/generate-meta.ts",
+    "ensure-rule-data": "node tools/ensure-rule-data.mjs",
     "generate-rule-data:maven": "node tools/generate-rule-data.mjs",
     "validate-quickfix": "tsx tools/validate-quickfix.ts",
     "generate-java-rule-classes": "tsx tools/generate-java-rule-classes.ts",

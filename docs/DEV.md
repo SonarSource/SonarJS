@@ -40,11 +40,22 @@ Examples:
    source ~/.zshenv
    ```
 
-`npm run generate-meta` reuses prepared RSPEC outputs when the generated local rule data directories and per-language `rspec.sha` files are already present. On a fresh checkout, or after `mvn clean`, it runs Maven first and uses either your GitHub CLI auth or `GITHUB_TOKEN` to fetch from `SonarSource/rspec`.
+`npm run generate-meta` first runs `npm run ensure-rule-data`. This reuses prepared RSPEC outputs
+when the generated local rule data directories, per-language `rspec.sha` files, and ignored
+`.sonarjs-build-state/rule-data.json` stamp match the current checkout. On a fresh checkout, after
+switching revisions, after changing the ignored root `rspec.sha` pin, or after `mvn clean`, it runs
+Maven first and uses either your GitHub CLI auth or `GITHUB_TOKEN` to fetch from `SonarSource/rspec`.
 
-To pin all rule data generation to an exact RSPEC revision, write the commit SHA to `rspec.sha` at the repository root and run `npm run generate-rule-data:maven`. If you want to use `npm run generate-meta`, run it after `mvn clean` (or otherwise remove the prepared rule data) so the Maven wrapper is invoked. When the ignored root pin is present, the Maven wrapper passes it to `rspec-maven-plugin` for both JavaScript and CSS.
+To pin all rule data generation to an exact RSPEC revision, write the commit SHA to `rspec.sha` at
+the repository root and run `npm run ensure-rule-data`. When the ignored root pin is present, the
+Maven wrapper passes it to `rspec-maven-plugin` for both JavaScript and CSS.
 
-Prepared rule data keeps separate generated pins in `sonar-plugin/javascript-checks/src/main/resources/rspec.sha` and `sonar-plugin/css/src/main/resources/rspec.sha`. If there is no root pin, the Maven wrapper falls back to these per-language generated pins when they are present. For direct Maven commands that generate rule data, pass `-Drspec.sha=<commit-sha>` to pin both languages, or `-Drspec.javascript.sha=<commit-sha>` and `-Drspec.css.sha=<commit-sha>` to pin them independently.
+Prepared rule data keeps separate generated pins in
+`sonar-plugin/javascript-checks/src/main/resources/rspec.sha` and
+`sonar-plugin/css/src/main/resources/rspec.sha`. If there is no root pin, the Maven wrapper falls
+back to these per-language generated pins when they are present. For direct Maven commands that
+generate rule data, pass `-Drspec.sha=<commit-sha>` to pin both languages, or
+`-Drspec.javascript.sha=<commit-sha>` and `-Drspec.css.sha=<commit-sha>` to pin them independently.
 
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 

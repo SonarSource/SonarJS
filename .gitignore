@@ -64,6 +64,7 @@ Desktop.ini
 # ---- Sonar
 .sonar
 .scannerwork
+.sonarjs-build-state/
 
 # eslint-plugin-sonarjs
 eslint-plugin-sonarjs-*.tgz

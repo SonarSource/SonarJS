@@ -7,7 +7,13 @@ Run `npm ci` first on a fresh checkout, and again after any `package.json` or lo
 Use `mvn install` for normal development after Node dependencies are installed.
 When generated RSPEC outputs are already present, this reuses them instead of refetching RSPEC.
 
-Avoid `mvn clean` while iterating. The fast Java-only loop reuses previously generated artifacts, and `clean` deletes them. Only use `mvn clean install` when you explicitly want to rebuild generated assets from scratch.
+Rule-data preparation is materialized by `npm run ensure-rule-data`. This command refreshes
+`generate-rule-data:maven` outputs when they are missing or when the checkout no longer matches
+the ignored state stored under `.sonarjs-build-state/`.
+
+Avoid `mvn clean` while iterating. The fast Java-only loop reuses previously generated artifacts,
+and `clean` deletes them. Only use `mvn clean install` when you explicitly want to rebuild
+generated assets from scratch.
 
 ## Common commands
 
@@ -47,6 +53,12 @@ Regenerate rule metadata:
 
 ```bash
 npm run generate-meta
+```
+
+Ensure rule data is prepared for the current checkout:
+
+```bash
+npm run ensure-rule-data
 ```
 
 Validate quickfix declarations:
@@ -94,7 +106,9 @@ It skips:
 Important details:
 
 - `npm run generate-meta` reuses prepared RSPEC outputs when they already exist, and refreshes them when they do not.
-- To force an RSPEC refresh, or to apply a new root `rspec.sha` pin, run `npm run generate-rule-data:maven` or run `mvn clean` before `npm run generate-meta`.
+- To force an RSPEC refresh, or to apply a new root `rspec.sha` pin, run
+  `npm run ensure-rule-data`; `npm run generate-meta` also invokes this check before generating
+  metadata.
 - The `bridge` module still adds `target/generated-sources` to the Java source roots, so an existing generated stub directory can be reused without re-running protobuf generation.
 - This flag is intended for Java-only loops after a previous non-skipped build.
 
