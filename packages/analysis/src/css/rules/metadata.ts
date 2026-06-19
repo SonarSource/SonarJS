@@ -364,6 +364,20 @@ export const cssRulesMeta: CssRuleMeta[] = [
       },
     ],
   },
+  {
+    sqKey: 'S8778',
+    stylelintKey: 'no-invalid-position-at-import-rule',
+    listParam: [
+      {
+        sqKey: 'ignoreAtRules',
+        javaField: 'ignoredAtRules',
+        description:
+          'Comma-separated list of "at-rules" that are allowed to appear before "@import" rules.',
+        default: '',
+        stylelintOptionKey: 'ignoreAtRules',
+      },
+    ],
+  },
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
