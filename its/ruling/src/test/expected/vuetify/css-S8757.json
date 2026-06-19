@@ -1,15 +1,8 @@
 {
-"vuetify:packages/vuetify/src/styles/generic/_transitions.scss": [
-5,
-124,
-133,
-148,
-163,
-178,
-196,
-210,
-224,
-245,
-266
+"vuetify:packages/docs/src/components/Alert.vue": [
+23
+],
+"vuetify:packages/docs/src/components/app/Markup.vue": [
+155
 ]
 }
