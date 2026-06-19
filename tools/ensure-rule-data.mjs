@@ -15,12 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 const statePath = join('resources', 'rule-data-state.json');
 const stateVersion = 1;
 const stepName = 'generate-rule-data:maven';
+const generatedRspecShaPaths = [
+  join('sonar-plugin', 'javascript-checks', 'src', 'main', 'resources', 'rspec.sha'),
+  join('sonar-plugin', 'css', 'src', 'main', 'resources', 'rspec.sha'),
+];
 const preparedRuleDataPaths = [
   join(
     'sonar-plugin',
@@ -48,8 +52,7 @@ const preparedRuleDataPaths = [
     'rules',
     'css',
   ),
-  join('sonar-plugin', 'javascript-checks', 'src', 'main', 'resources', 'rspec.sha'),
-  join('sonar-plugin', 'css', 'src', 'main', 'resources', 'rspec.sha'),
+  ...generatedRspecShaPaths,
 ];
 
 const actualState = readRuleDataState();
@@ -62,6 +65,10 @@ const desiredState = {
   head,
   rootRspecSha,
 };
+const stateIsKnownStale =
+  actualState !== undefined &&
+  !isCurrentState(actualState, desiredState) &&
+  !(head === null && isPreparedStateForUnknownHead(actualState, desiredState));
 
 if (preparedRuleData && isCurrentState(actualState, desiredState)) {
   console.log(`Rule data is already prepared for ${displayHead(head)}`);
@@ -71,6 +78,10 @@ if (preparedRuleData && isCurrentState(actualState, desiredState)) {
 if (preparedRuleData && head === null && isPreparedStateForUnknownHead(actualState, desiredState)) {
   console.log('Rule data is already prepared; skipping because git HEAD is unavailable');
   process.exit(0);
+}
+
+if (stateIsKnownStale && rootRspecSha === null) {
+  clearGeneratedRspecShaPins();
 }
 
 runNpmScript(stepName);
@@ -95,7 +106,19 @@ function hasPreparedRuleData() {
       ),
     ) &&
     directoryContainsRuleFiles(
-      join('sonar-plugin', 'css', 'src', 'main', 'resources', 'org', 'sonar', 'l10n', 'css', 'rules', 'css'),
+      join(
+        'sonar-plugin',
+        'css',
+        'src',
+        'main',
+        'resources',
+        'org',
+        'sonar',
+        'l10n',
+        'css',
+        'rules',
+        'css',
+      ),
     )
   );
 }
@@ -133,6 +156,12 @@ function writeRuleDataState(state) {
   writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`);
 }
 
+function clearGeneratedRspecShaPins() {
+  for (const path of generatedRspecShaPaths) {
+    rmSync(path, { force: true });
+  }
+}
+
 function readRootRspecSha() {
   if (!existsSync('rspec.sha')) {
     return null;
@@ -153,8 +182,7 @@ function gitHead() {
 
 function directoryContainsRuleFiles(path) {
   return readdirSync(path, { withFileTypes: true }).some(
-    entry =>
-      entry.isFile() && (entry.name.endsWith('.json') || entry.name.endsWith('.html')),
+    entry => entry.isFile() && (entry.name.endsWith('.json') || entry.name.endsWith('.html')),
   );
 }
 

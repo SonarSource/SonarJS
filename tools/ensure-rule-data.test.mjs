@@ -16,14 +16,7 @@
  */
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -31,6 +24,15 @@ import { fileURLToPath } from 'node:url';
 
 const scriptPath = fileURLToPath(new URL('./ensure-rule-data.mjs', import.meta.url));
 const statePath = join('resources', 'rule-data-state.json');
+const javascriptRspecShaPath = join(
+  'sonar-plugin',
+  'javascript-checks',
+  'src',
+  'main',
+  'resources',
+  'rspec.sha',
+);
+const cssRspecShaPath = join('sonar-plugin', 'css', 'src', 'main', 'resources', 'rspec.sha');
 
 test('skips rule data generation when the visible state is current', () => {
   const fixture = createFixture();
@@ -84,16 +86,48 @@ test('regenerates rule data when the root rspec pin changes', () => {
     const result = runEnsureRuleData(fixture);
 
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(
-      readFileSync(fixture.commandLog, 'utf8'),
-      'npm run generate-rule-data:maven\n',
-    );
+    assert.equal(readFileSync(fixture.commandLog, 'utf8'), 'npm run generate-rule-data:maven\n');
     assert.deepEqual(readRuleDataState(fixture.repoRoot), {
       version: 1,
       step: 'generate-rule-data:maven',
       head: fixture.head,
       rootRspecSha: 'new-rspec-pin',
     });
+  } finally {
+    cleanupFixture(fixture);
+  }
+});
+
+test('clears generated rspec pins before regenerating stale unpinned rule data', () => {
+  const fixture = createFixture({ failWhenNpmSeesGeneratedPins: true });
+  try {
+    writeRuleDataState(fixture.repoRoot, {
+      version: 1,
+      step: 'generate-rule-data:maven',
+      head: 'old-head',
+      rootRspecSha: null,
+    });
+
+    const result = runEnsureRuleData(fixture);
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(readFileSync(fixture.commandLog, 'utf8'), 'npm run generate-rule-data:maven\n');
+    assert.equal(existsSync(join(fixture.repoRoot, javascriptRspecShaPath)), false);
+    assert.equal(existsSync(join(fixture.repoRoot, cssRspecShaPath)), false);
+  } finally {
+    cleanupFixture(fixture);
+  }
+});
+
+test('preserves generated rspec pins when prepared rule data has no state stamp yet', () => {
+  const fixture = createFixture({ failWhenNpmDoesNotSeeGeneratedPins: true });
+  try {
+    const result = runEnsureRuleData(fixture);
+
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(readFileSync(fixture.commandLog, 'utf8'), 'npm run generate-rule-data:maven\n');
+    assert.equal(readFileSync(join(fixture.repoRoot, javascriptRspecShaPath), 'utf8'), 'js\n');
+    assert.equal(readFileSync(join(fixture.repoRoot, cssRspecShaPath), 'utf8'), 'css\n');
   } finally {
     cleanupFixture(fixture);
   }
@@ -112,10 +146,7 @@ test('regenerates rule data when generated output directories are empty', () => 
     const result = runEnsureRuleData(fixture);
 
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(
-      readFileSync(fixture.commandLog, 'utf8'),
-      'npm run generate-rule-data:maven\n',
-    );
+    assert.equal(readFileSync(fixture.commandLog, 'utf8'), 'npm run generate-rule-data:maven\n');
   } finally {
     cleanupFixture(fixture);
   }
@@ -134,10 +165,7 @@ test('regenerates rule data when generated outputs are missing', () => {
     const result = runEnsureRuleData(fixture);
 
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(
-      readFileSync(fixture.commandLog, 'utf8'),
-      'npm run generate-rule-data:maven\n',
-    );
+    assert.equal(readFileSync(fixture.commandLog, 'utf8'), 'npm run generate-rule-data:maven\n');
   } finally {
     cleanupFixture(fixture);
   }
@@ -149,16 +177,19 @@ test('uses the PATH npm stub even when parent npm_execpath is set', () => {
     const result = withTemporaryNpmEnvironment(fixture, () => runEnsureRuleData(fixture));
 
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(
-      readFileSync(fixture.commandLog, 'utf8'),
-      'npm run generate-rule-data:maven\n',
-    );
+    assert.equal(readFileSync(fixture.commandLog, 'utf8'), 'npm run generate-rule-data:maven\n');
   } finally {
     cleanupFixture(fixture);
   }
 });
 
-function createFixture({ createRuleDataOutputs = true, createRuleFiles = true, createGitBinary = true } = {}) {
+function createFixture({
+  createRuleDataOutputs = true,
+  createRuleFiles = true,
+  createGitBinary = true,
+  failWhenNpmSeesGeneratedPins = false,
+  failWhenNpmDoesNotSeeGeneratedPins = false,
+} = {}) {
   const repoRoot = mkdtempSync(join(tmpdir(), 'sonarjs-rule-data-'));
   const binDir = join(repoRoot, 'bin');
   const commandLog = join(repoRoot, 'commands.log');
@@ -186,6 +217,14 @@ exit 1
     join(binDir, 'npm'),
     `#!/bin/sh
 set -eu
+if ${failWhenNpmSeesGeneratedPins ? 'true' : 'false'} && { [ -e '${join(repoRoot, javascriptRspecShaPath)}' ] || [ -e '${join(repoRoot, cssRspecShaPath)}' ]; }; then
+  printf 'generated rspec pins were still present\\n' >&2
+  exit 42
+fi
+if ${failWhenNpmDoesNotSeeGeneratedPins ? 'true' : 'false'} && { ! [ -e '${join(repoRoot, javascriptRspecShaPath)}' ] || ! [ -e '${join(repoRoot, cssRspecShaPath)}' ]; }; then
+  printf 'generated rspec pins were missing\\n' >&2
+  exit 43
+fi
 printf 'npm %s\\n' "$*" >> '${commandLog}'
 exit 0
 `,
@@ -209,11 +248,14 @@ function createPreparedRuleDataOutputs(repoRoot, { createRuleFiles }) {
     repoRoot,
     'sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript',
   );
-  const cssRulesDir = join(repoRoot, 'sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css');
+  const cssRulesDir = join(
+    repoRoot,
+    'sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css',
+  );
   mkdirSync(javascriptRulesDir, { recursive: true });
   mkdirSync(cssRulesDir, { recursive: true });
-  writeFileSync(join(repoRoot, 'sonar-plugin/javascript-checks/src/main/resources/rspec.sha'), 'js\n');
-  writeFileSync(join(repoRoot, 'sonar-plugin/css/src/main/resources/rspec.sha'), 'css\n');
+  writeFileSync(join(repoRoot, javascriptRspecShaPath), 'js\n');
+  writeFileSync(join(repoRoot, cssRspecShaPath), 'css\n');
   if (createRuleFiles) {
     writeFileSync(join(javascriptRulesDir, 'S0001.json'), '{}\n');
     writeFileSync(join(cssRulesDir, 'S0002.json'), '{}\n');
