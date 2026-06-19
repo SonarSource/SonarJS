@@ -13,10 +13,6 @@
     "constantCost": "1min"
   },
   "tags": [],
-  "extra": {
-    "replacementRules": [],
-    "legacyKeys": []
-  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-8769",
   "sqKey": "S8769",

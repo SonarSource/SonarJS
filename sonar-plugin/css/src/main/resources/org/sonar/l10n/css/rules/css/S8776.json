@@ -10,13 +10,11 @@
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
-    "constantCost": "1min"
+    "constantCost": "1 min"
   },
-  "tags": [],
-  "extra": {
-    "replacementRules": [],
-    "legacyKeys": []
-  },
+  "tags": [
+    "css"
+  ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-8776",
   "sqKey": "S8776",
