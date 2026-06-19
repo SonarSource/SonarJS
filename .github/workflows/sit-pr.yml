@@ -130,6 +130,7 @@ jobs:
           node tools/sit/render-peachee-shard-matrix.js \
             --peachee-root "$GITHUB_WORKSPACE/tools/sit/peachee-public" \
             --output build/sit-peachee-matrix.json \
+            --max-projects 16 \
             --projects-per-shard 16 \
             --exclude-projects "$PEACHEE_EXCLUDE_PROJECTS" \
             --project-filter "$PROJECT_FILTER"
@@ -405,6 +406,8 @@ jobs:
             node = "24.11.0"
             python = "3.13"
             uv = "0.11.2"
+        env:
+          MISE_PYTHON_PRECOMPILED_FLAVOR: install_only_stripped
 
       - name: Register the personal access token
         env:
