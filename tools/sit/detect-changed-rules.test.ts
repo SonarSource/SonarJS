@@ -61,6 +61,20 @@ describe('detectChangedRules', () => {
     ]);
   });
 
+  it('falls back to resources/rule-data when deployed metadata is unavailable', async () => {
+    const root = await repoRoot();
+    await writeRuleDataMetadata(root, 'S2925', ['js', 'ts']);
+
+    const rules = await detectChangedRules(root, [
+      added('packages/analysis/src/jsts/rules/S2925/rule.ts'),
+    ]);
+
+    assert.deepEqual(rules, [
+      { repository: 'javascript', language: 'js', ruleKey: 'S2925' },
+      { repository: 'typescript', language: 'ts', ruleKey: 'S2925' },
+    ]);
+  });
+
   it('maps CSS rule implementation and metadata paths', async () => {
     const root = await repoRoot();
 
@@ -103,6 +117,15 @@ async function writeRuleMetadata(root: string, ruleKey: string, compatibleLangua
     root,
     'sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript',
   );
+  await writeMetadataFile(dir, ruleKey, compatibleLanguages);
+}
+
+async function writeRuleDataMetadata(root: string, ruleKey: string, compatibleLanguages: string[]) {
+  const dir = join(root, 'resources/rule-data/javascript');
+  await writeMetadataFile(dir, ruleKey, compatibleLanguages);
+}
+
+async function writeMetadataFile(dir: string, ruleKey: string, compatibleLanguages: string[]) {
   await mkdir(dir, { recursive: true });
   await writeFile(
     join(dir, `${ruleKey}.json`),

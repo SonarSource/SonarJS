@@ -28,6 +28,7 @@ const CSS_METADATA_PATH =
 
 const JSTS_METADATA_DIR =
   'sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript';
+const JSTS_RULE_DATA_DIR = 'resources/rule-data/javascript';
 
 export type ChangedFile = {
   status: string;
@@ -87,16 +88,32 @@ function matchRuleKey(path: string, pattern: RegExp) {
 }
 
 async function compatibleLanguages(repoRoot: string, ruleKey: string) {
-  const metadataPath = resolve(repoRoot, JSTS_METADATA_DIR, `${ruleKey}.json`);
-  const metadata = JSON.parse(await readFile(metadataPath, 'utf8')) as RuleMetadata;
-  const languages = metadata.compatibleLanguages ?? [];
-  if (!languages.every(language => language === 'js' || language === 'ts')) {
-    throw new Error(`${metadataPath} contains unsupported compatibleLanguages`);
+  let missingMetadataPath: string | undefined;
+
+  for (const metadataDir of [JSTS_METADATA_DIR, JSTS_RULE_DATA_DIR]) {
+    const metadataPath = resolve(repoRoot, metadataDir, `${ruleKey}.json`);
+
+    try {
+      const metadata = JSON.parse(await readFile(metadataPath, 'utf8')) as RuleMetadata;
+      const languages = metadata.compatibleLanguages ?? [];
+      if (!languages.every(language => language === 'js' || language === 'ts')) {
+        throw new Error(`${metadataPath} contains unsupported compatibleLanguages`);
+      }
+      if (languages.length === 0) {
+        throw new Error(`${metadataPath} does not define compatibleLanguages`);
+      }
+      return languages;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        throw error;
+      }
+      missingMetadataPath = metadataPath;
+    }
   }
-  if (languages.length === 0) {
-    throw new Error(`${metadataPath} does not define compatibleLanguages`);
-  }
-  return languages;
+
+  throw new Error(
+    `Unable to find rule metadata for ${ruleKey}; last checked ${missingMetadataPath}`,
+  );
 }
 
 function addRule(rules: Map<string, ChangedRule>, rule: ChangedRule) {

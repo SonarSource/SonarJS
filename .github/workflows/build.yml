@@ -241,11 +241,11 @@ jobs:
       - name: Build, test and deploy Maven artifacts
         run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release -T1C
         env:
-          ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
-          ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
+          ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault || '{}').ARTIFACTORY_DEPLOY_USERNAME }}
+          ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault || '{}').ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
-          SIGN_KEY: ${{ fromJSON(steps.deployer-secrets.outputs.vault).SIGN_KEY }}
-          PGP_PASSPHRASE: ${{ fromJSON(steps.deployer-secrets.outputs.vault).PGP_PASSPHRASE }}
+          SIGN_KEY: ${{ fromJSON(steps.deployer-secrets.outputs.vault || '{}').SIGN_KEY }}
+          PGP_PASSPHRASE: ${{ fromJSON(steps.deployer-secrets.outputs.vault || '{}').PGP_PASSPHRASE }}
       - name: Upload SonarJS artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
