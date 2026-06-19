@@ -4,7 +4,7 @@
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
-    "constantCost": "5min"
+    "constantCost": "2min"
   },
   "tags": [
     "tests",
@@ -12,7 +12,11 @@
     "jest",
     "mocha",
     "vitest",
-    "playwright"
+    "playwright",
+    "jasmine",
+    "cypress",
+    "node",
+    "karma"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-8781",
@@ -21,7 +25,7 @@
   "defaultQualityProfiles": [
     "Sonar way"
   ],
-  "quickfix": "unknown",
+  "quickfix": "infeasible",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "MEDIUM"
