@@ -17,3 +17,4 @@
 // https://sonarsource.github.io/rspec/#/rspec/S8785/javascript
 export const implementation = 'original';
 export const eslintId = 'synchronous-suite-callback';
+export const hasSecondaries = true;

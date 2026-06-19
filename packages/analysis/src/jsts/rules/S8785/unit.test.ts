@@ -22,55 +22,39 @@ import path from 'node:path';
 describe('S8785', () => {
   it('S8785', () => {
     const ruleTester = new DefaultParserRuleTester();
+    const fixture = (folder: string) =>
+      path.join(import.meta.dirname, 'fixtures', folder, 'suite.test.js');
     const noFrameworkFixture = path.join(import.meta.dirname, 'fixtures', 'test.js');
-    const vitestGlobalsFixture = path.join(
-      import.meta.dirname,
-      'fixtures',
-      'vitest-globals',
-      'suite.test.js',
-    );
-    const jestGlobalsFixture = path.join(
-      import.meta.dirname,
-      'fixtures',
-      'jest-globals',
-      'suite.test.js',
-    );
-    const mochaGlobalsFixture = path.join(
-      import.meta.dirname,
-      'fixtures',
-      'mocha-globals',
-      'suite.test.js',
-    );
+    const jestGlobals = fixture('jest-globals');
+    const mochaGlobals = fixture('mocha-globals');
+    const cypressGlobals = fixture('cypress-globals');
 
     ruleTester.run('Test suite callbacks should be synchronous functions', rule, {
       valid: [
         {
           // synchronous arrow / function callbacks
           code: `
-import { describe, suite } from 'vitest';
+import { describe, suite, context } from 'mocha';
 describe('user service', () => {
   it('returns users', () => {});
 });
-suite('billing', function () {
-  it('charges the card', () => {});
-});
+suite('billing', function () {});
+context('checkout', () => {});
           `,
           filename: 'service.test.ts',
         },
         {
-          // generator callback is a function and not async
+          // a non-async generator callback is fine
           code: `
-const mocha = require('mocha');
-describe('user service', function* () {
-  it('returns users', () => {});
-});
+import { describe } from 'mocha';
+describe('user service', function* () {});
           `,
-          filename: 'service.test.js',
+          filename: 'service.test.ts',
         },
         {
           // pending suite without a callback is valid
           code: `
-import { describe } from 'vitest';
+import { describe } from 'mocha';
 describe('not implemented yet');
           `,
           filename: 'pending.test.ts',
@@ -87,123 +71,223 @@ describe('orders', cb);
           filename: 'reference.test.js',
         },
         {
-          // modifiers and aliases with a synchronous callback
+          // skip and focus-skip variants are excluded: their tests never run anyway
           code: `
-const jest = require('jest');
-describe.only('focused', () => {});
-describe.skip('skipped', function () {});
-context('a context', () => {});
+describe.skip('a', async () => {});
+xdescribe('b', async () => {});
+describe.skip.each([1])('c', async () => {});
+xdescribe.each([1])('d', async () => {});
           `,
-          filename: 'modifiers.test.js',
+          filename: jestGlobals,
         },
         {
-          // Vitest awaits the suite callback, so async callbacks are safe there
+          // Mocha skip variants are excluded too
           code: `
-import { describe, suite, test } from 'vitest';
-describe('user service', async () => {
-  const config = await loadConfig();
-  test('returns users', () => {});
-});
-suite('billing', async function () {});
-describe.only('focused', async () => {});
+context.skip('a', async () => {});
+suite.skip('b', async () => {});
+describe.skip('c', async () => {});
           `,
-          filename: 'vitest-async.test.ts',
+          filename: mochaGlobals,
         },
         {
-          // Vitest async generator callback is also safe
+          // A Vitest-only project (no jest/mocha/cypress dependency) is out of scope: Vitest
+          // awaits the suite callback, so an async callback is safe there
           code: `
 import { describe } from 'vitest';
-describe('user service', async function* () {});
-          `,
-          filename: 'vitest-gen.test.ts',
-        },
-        {
-          // `describe(name, options, fn)` form: the callback is the third argument, the second is
-          // an options object and must not be mistaken for a non-function callback
-          code: `
-import { describe } from 'vitest';
-describe('suite 2', { tags: ['e2e'] }, () => {
-  test('test 2', () => {});
-});
-describe('options only', { concurrent: true });
-          `,
-          filename: 'options.test.ts',
-        },
-        {
-          // global describe in a Vitest-only project (globals: true) is resolved to Vitest
-          code: `
 describe('user service', async () => {
   await loadConfig();
   it('returns users', () => {});
 });
           `,
-          filename: vitestGlobalsFixture,
+          filename: noFrameworkFixture,
+        },
+        {
+          // a Vitest import is excluded even when the project also uses Mocha
+          code: `
+import { describe } from 'vitest';
+const mocha = require('mocha');
+describe('user service', async () => {
+  await loadConfig();
+  it('returns users', () => {});
+});
+          `,
+          filename: 'mixed.test.ts',
+        },
+        {
+          // a locally-defined function named describe is not a framework suite
+          code: `
+const mocha = require('mocha');
+function describe(cb) {}
+describe(async () => {});
+          `,
+          filename: 'local.test.js',
         },
         {
           // no supported test framework: rule does not apply
           code: `
 describe('user service', async () => {});
-describe('payments', 'not a function');
           `,
           filename: noFrameworkFixture,
+        },
+        {
+          // an await nested inside another function is not a top-level await of the suite callback,
+          // and a synchronous suite callback is always fine
+          code: `
+import { describe } from 'mocha';
+describe('user service', () => {
+  it('returns users', async () => {
+    await loadConfig();
+  });
+});
+          `,
+          filename: 'nested.test.ts',
         },
       ],
       invalid: [
         {
-          // Mocha does not await the callback: tests after `await` are silently skipped
+          // async callback without a top-level await: remove the misleading async keyword
+          code: `import { describe } from 'mocha';
+describe('user service', async () => {
+  it('returns users', () => {});
+});`,
+          filename: 'service.test.ts',
+          errors: [
+            {
+              messageId: 'removeAsync',
+              suggestions: [
+                {
+                  messageId: 'removeAsyncQuickFix',
+                  output: `import { describe } from 'mocha';
+describe('user service', () => {
+  it('returns users', () => {});
+});`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // a nested suite is flagged independently of its (synchronous) parent, and the quick fix
+          // removes only the nested async keyword
+          code: `describe('outer', () => {
+  describe('inner', async () => {
+    it('returns users', () => {});
+  });
+});`,
+          filename: mochaGlobals,
+          errors: [
+            {
+              messageId: 'removeAsync',
+              suggestions: [
+                {
+                  messageId: 'removeAsyncQuickFix',
+                  output: `describe('outer', () => {
+  describe('inner', () => {
+    it('returns users', () => {});
+  });
+});`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // both an async parent and an async nested suite are flagged
+          code: `
+describe('outer', async () => {
+  await setup();
+  describe('inner', async () => {
+    await innerSetup();
+  });
+});
+          `,
+          filename: mochaGlobals,
+          errors: [{ messageId: 'moveAsyncSetup' }, { messageId: 'moveAsyncSetup' }],
+        },
+        {
+          // async callback with a top-level await: tests declared after it are silently dropped
           code: `
 describe('user service', async () => {
   const config = await loadConfig();
   it('returns users', () => {});
 });
-describe('billing', async function () {});
           `,
-          filename: mochaGlobalsFixture,
-          errors: [{ messageId: 'asyncCallback' }, { messageId: 'asyncCallback' }],
+          filename: mochaGlobals,
+          errors: [{ messageId: 'moveAsyncSetup' }],
         },
         {
-          // Jest globals (globals are unresolved, so the framework comes from the dependency):
-          // async callback, including aliases, modifiers and async generators, is a bug
+          // a top-level `for await...of` is also an awaiting suite callback
           code: `
-describe('user service', async () => {});
-suite('billing', async function () {});
-context('checkout', async () => {});
-describe.only('focused', async () => {});
-describe('async generator', async function* () {});
+describe('user service', async () => {
+  for await (const chunk of stream()) {}
+  it('returns users', () => {});
+});
           `,
-          filename: jestGlobalsFixture,
+          filename: mochaGlobals,
+          errors: [{ messageId: 'moveAsyncSetup' }],
+        },
+        {
+          // Jest variants: aliases, modifiers, and the curried .each forms all raise
+          code: `
+describe.only('a', async () => { await a(); });
+fdescribe('b', async () => { await b(); });
+describe.each([1])('c', async () => { await c(); });
+describe.only.each([1])('d', async () => { await d(); });
+fdescribe.each([1])('e', async () => { await e(); });
+          `,
+          filename: jestGlobals,
           errors: [
-            { messageId: 'asyncCallback' },
-            { messageId: 'asyncCallback' },
-            { messageId: 'asyncCallback' },
-            { messageId: 'asyncCallback' },
-            { messageId: 'asyncCallback' },
+            { messageId: 'moveAsyncSetup' },
+            { messageId: 'moveAsyncSetup' },
+            { messageId: 'moveAsyncSetup' },
+            { messageId: 'moveAsyncSetup' },
+            { messageId: 'moveAsyncSetup' },
           ],
         },
         {
-          // a non-function callback is a mistake in every framework, Vitest included
+          // Mocha aliases context() and suite()
           code: `
-import { describe } from 'vitest';
-describe('user service', 'register the tests');
+context('checkout', async () => { await a(); });
+suite('billing', async function () { await b(); });
           `,
-          filename: 'string.test.ts',
-          errors: [{ messageId: 'nonFunctionCallback' }],
+          filename: mochaGlobals,
+          errors: [{ messageId: 'moveAsyncSetup' }, { messageId: 'moveAsyncSetup' }],
         },
         {
-          // various non-function callbacks (an object is excluded: it is a plausible options arg)
+          // Cypress globals (project depends on cypress)
           code: `
-const jest = require('jest');
-describe('a', undefined);
-describe('b', 42);
-describe('c', []);
-describe('e', \`template\`);
+describe('e2e', async () => { await a(); });
+context('group', async () => { await b(); });
           `,
-          filename: 'nonfunction.test.js',
+          filename: cypressGlobals,
+          errors: [{ messageId: 'moveAsyncSetup' }, { messageId: 'moveAsyncSetup' }],
+        },
+        {
+          // secondary locations point at the tests dropped after the await
+          code: `describe('user service', async () => {
+  await loadConfig();
+  it('returns users', () => {});
+});`,
+          filename: mochaGlobals,
+          settings: { sonarRuntime: true },
           errors: [
-            { messageId: 'nonFunctionCallback' },
-            { messageId: 'nonFunctionCallback' },
-            { messageId: 'nonFunctionCallback' },
-            { messageId: 'nonFunctionCallback' },
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                sonarRuntimeData: JSON.stringify({
+                  message: 'Move this asynchronous setup into a "beforeAll" or "beforeEach" hook.',
+                  secondaryLocations: [
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 2,
+                      line: 3,
+                      endColumn: 4,
+                      endLine: 3,
+                    },
+                  ],
+                }),
+              },
+            },
           ],
         },
       ],
