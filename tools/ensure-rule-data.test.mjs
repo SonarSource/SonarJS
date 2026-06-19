@@ -14,6 +14,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const scriptPath = fileURLToPath(new URL('./ensure-rule-data.mjs', import.meta.url));
+const statePath = join('resources', 'rule-data-state.json');
 
 test('skips rule data generation when the visible state is current', () => {
   const fixture = createFixture();
@@ -156,15 +157,12 @@ function cleanupFixture(fixture) {
 }
 
 function readRuleDataState(repoRoot) {
-  return JSON.parse(readFileSync(join(repoRoot, '.sonarjs-build-state/rule-data.json'), 'utf8'));
+  return JSON.parse(readFileSync(join(repoRoot, statePath), 'utf8'));
 }
 
 function writeRuleDataState(repoRoot, state) {
-  mkdirSync(join(repoRoot, '.sonarjs-build-state'), { recursive: true });
-  writeFileSync(
-    join(repoRoot, '.sonarjs-build-state/rule-data.json'),
-    `${JSON.stringify(state, null, 2)}\n`,
-  );
+  mkdirSync(join(repoRoot, 'resources'), { recursive: true });
+  writeFileSync(join(repoRoot, statePath), `${JSON.stringify(state, null, 2)}\n`);
 }
 
 function writeExecutable(path, content) {

@@ -18,7 +18,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
-const statePath = join('.sonarjs-build-state', 'rule-data.json');
+const statePath = join('resources', 'rule-data-state.json');
 const stateVersion = 1;
 const stepName = 'generate-rule-data:maven';
 const preparedRuleDataPaths = [

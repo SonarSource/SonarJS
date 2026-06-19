@@ -9,7 +9,7 @@ When generated RSPEC outputs are already present, this reuses them instead of re
 
 Rule-data preparation is materialized by `npm run ensure-rule-data`. This command refreshes
 `generate-rule-data:maven` outputs when they are missing or when the checkout no longer matches
-the ignored state stored under `.sonarjs-build-state/`.
+the ignored state stored in `resources/rule-data-state.json`.
 
 Avoid `mvn clean` while iterating. The fast Java-only loop reuses previously generated artifacts,
 and `clean` deletes them. Only use `mvn clean install` when you explicitly want to rebuild

@@ -42,7 +42,7 @@ Examples:
 
 `npm run generate-meta` first runs `npm run ensure-rule-data`. This reuses prepared RSPEC outputs
 when the generated local rule data directories, per-language `rspec.sha` files, and ignored
-`.sonarjs-build-state/rule-data.json` stamp match the current checkout. On a fresh checkout, after
+`resources/rule-data-state.json` stamp match the current checkout. On a fresh checkout, after
 switching revisions, after changing the ignored root `rspec.sha` pin, or after `mvn clean`, it runs
 Maven first and uses either your GitHub CLI auth or `GITHUB_TOKEN` to fetch from `SonarSource/rspec`.
 
