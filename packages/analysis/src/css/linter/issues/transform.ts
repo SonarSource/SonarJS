@@ -104,16 +104,16 @@ function isInNonCssEmbeddedBlock(
     return false;
   }
 
-  for (const child of (root as PostCSS.Document).nodes) {
+  for (const child of root.nodes) {
     if (child.type !== 'root') {
       continue;
     }
-    const source = (child as PostCSS.Root).source;
+    const source = child.source;
     const lang = getEmbeddedBlockLang(source);
     if (!lang || !NON_CSS_LANGS.has(lang)) {
       continue;
     }
-    if (isWithinSourceRange(warning, source as EmbeddedBlockSource)) {
+    if (isWithinSourceRange(warning, source)) {
       return true;
     }
   }

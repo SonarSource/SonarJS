@@ -27,9 +27,7 @@ const SASS_LANGS = new Set(['scss', 'sass']);
 
 function isSassBlock(root: PostCSS.Root, result: PostcssResult): boolean {
   // postcss-html sets source.lang on each embedded block inside HTML/Vue
-  const lang = (
-    root.source as (PostCSS.Source & { lang?: string }) | undefined
-  )?.lang?.toLowerCase();
+  const lang = root.source?.lang?.toLowerCase();
   if (lang !== undefined) {
     return SASS_LANGS.has(lang);
   }
@@ -97,8 +95,7 @@ const ruleImpl: stylelint.RuleBase = (primary, secondaryOptions, context) => {
         if ((child as PostCSS.Node).type !== 'root') {
           continue;
         }
-        const childRoot = child as unknown as PostCSS.Root;
-        await runOnBlock(childRoot, result, isSassBlock(childRoot, result));
+        await runOnBlock(child, result, isSassBlock(child, result));
       }
       return;
     }
