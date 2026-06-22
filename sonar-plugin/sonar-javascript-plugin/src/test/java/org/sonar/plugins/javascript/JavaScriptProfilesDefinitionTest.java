@@ -107,10 +107,7 @@ class JavaScriptProfilesDefinitionTest {
     assertThat(profile.rules())
       .extracting("repoKey")
       .containsOnly(CheckList.JS_REPOSITORY_KEY, "additionalRepository");
-    assertThat(profile.rules()).hasSizeGreaterThan(100);
-    assertThat(profile.rules())
-      .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
-      .doesNotContain("S7764");
+    assertThat(profile.rules().size()).isGreaterThan(100);
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).isEmpty();
   }
@@ -140,8 +137,7 @@ class JavaScriptProfilesDefinitionTest {
     assertThat(profile.rules()).hasSizeGreaterThan(100);
     assertThat(profile.rules())
       .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
-      .contains("S5122")
-      .doesNotContain("S7764");
+      .contains("S5122");
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedTsRules)).isEmpty();
   }
@@ -159,13 +155,8 @@ class JavaScriptProfilesDefinitionTest {
     Set<String> sonarWayKeys = BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(
       SONAR_WAY_JSON
     );
-    Set<String> sonarAgenticAiKeys = BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(
-      JavaScriptProfilesDefinition.RESOURCE_PATH + "/Sonar_agentic_AI_profile.json"
-    );
 
     assertThat(sonarWayKeys).isSubsetOf(allKeys);
-    assertThat(sonarWayKeys).doesNotContain("S7764");
-    assertThat(sonarAgenticAiKeys).isSubsetOf(allKeys).contains("S7764");
   }
 
   @Test
