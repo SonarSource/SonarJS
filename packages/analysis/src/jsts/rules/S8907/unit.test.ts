@@ -18,6 +18,202 @@ import { describe, it } from 'node:test';
 import { rule } from './index.js';
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 
+type ReplacementCase = {
+  method: string;
+  alternative: string;
+  reason: string;
+  code?: string;
+  example?: string;
+};
+
+const ARRAY_NULLISH_REASON = 'the library handles nullish values differently from the native API';
+const COLLECTION_REASON = 'the library also accepts objects and nullish values';
+const COLLECTION_PREDICATE_REASON =
+  'the library also accepts objects, nullish values, and shorthand predicates';
+const STRING_COERCION_REASON =
+  'the library coerces values and handles nullish values differently from the native API';
+
+const additionalReplacementCases: ReplacementCase[] = [
+  {
+    method: 'all',
+    alternative: 'Array.prototype.every()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  {
+    method: 'any',
+    alternative: 'Array.prototype.some()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  {
+    method: 'bind',
+    alternative: 'Function.prototype.bind()',
+    reason: 'argument handling is not identical',
+    code: '_.bind(fn, thisArg);',
+    example: '`fn.bind(thisArg, ...args)`',
+  },
+  { method: 'collect', alternative: 'Array.prototype.map()', reason: COLLECTION_REASON },
+  { method: 'concat', alternative: 'Array.prototype.concat()', reason: ARRAY_NULLISH_REASON },
+  {
+    method: 'contains',
+    alternative: 'Array.prototype.includes()',
+    reason: 'the library also accepts strings, objects, and nullish values',
+  },
+  {
+    method: 'detect',
+    alternative: 'Array.prototype.find()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  {
+    method: 'each',
+    alternative: 'Array.prototype.forEach()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  {
+    method: 'endsWith',
+    alternative: 'String.prototype.endsWith()',
+    reason: STRING_COERCION_REASON,
+    code: "_.endsWith(name, 'x');",
+  },
+  {
+    method: 'every',
+    alternative: 'Array.prototype.every()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  { method: 'extendOwn', alternative: 'Object.assign()', reason: ARRAY_NULLISH_REASON },
+  { method: 'fill', alternative: 'Array.prototype.fill()', reason: ARRAY_NULLISH_REASON },
+  {
+    method: 'filter',
+    alternative: 'Array.prototype.filter()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  {
+    method: 'findIndex',
+    alternative: 'Array.prototype.findIndex()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  {
+    method: 'foldl',
+    alternative: 'Array.prototype.reduce()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  {
+    method: 'foldr',
+    alternative: 'Array.prototype.reduceRight()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  {
+    method: 'forEach',
+    alternative: 'Array.prototype.forEach()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  { method: 'indexOf', alternative: 'Array.prototype.indexOf()', reason: ARRAY_NULLISH_REASON },
+  {
+    method: 'inject',
+    alternative: 'Array.prototype.reduce()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  {
+    method: 'isNaN',
+    alternative: 'Number.isNaN()',
+    reason: 'boxed Number objects are handled differently',
+    code: '_.isNaN(value);',
+  },
+  { method: 'join', alternative: 'Array.prototype.join()', reason: ARRAY_NULLISH_REASON },
+  {
+    method: 'lastIndexOf',
+    alternative: 'Array.prototype.lastIndexOf()',
+    reason: ARRAY_NULLISH_REASON,
+  },
+  {
+    method: 'padEnd',
+    alternative: 'String.prototype.padEnd()',
+    reason: STRING_COERCION_REASON,
+    code: '_.padEnd(name, 3);',
+  },
+  { method: 'pairs', alternative: 'Object.entries()', reason: ARRAY_NULLISH_REASON },
+  {
+    method: 'reduce',
+    alternative: 'Array.prototype.reduce()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  {
+    method: 'reduceRight',
+    alternative: 'Array.prototype.reduceRight()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  {
+    method: 'repeat',
+    alternative: 'String.prototype.repeat()',
+    reason: STRING_COERCION_REASON,
+    code: '_.repeat(name, 3);',
+  },
+  {
+    method: 'replace',
+    alternative: 'String.prototype.replace()',
+    reason: STRING_COERCION_REASON,
+    code: "_.replace(name, 'x', 'y');",
+  },
+  { method: 'reverse', alternative: 'Array.prototype.reverse()', reason: ARRAY_NULLISH_REASON },
+  {
+    method: 'select',
+    alternative: 'Array.prototype.filter()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  { method: 'slice', alternative: 'Array.prototype.slice()', reason: ARRAY_NULLISH_REASON },
+  {
+    method: 'some',
+    alternative: 'Array.prototype.some()',
+    reason: COLLECTION_PREDICATE_REASON,
+  },
+  {
+    method: 'split',
+    alternative: 'String.prototype.split()',
+    reason: STRING_COERCION_REASON,
+    code: "_.split(name, ' ');",
+  },
+  { method: 'toPairs', alternative: 'Object.entries()', reason: ARRAY_NULLISH_REASON },
+  {
+    method: 'toUpper',
+    alternative: 'String.prototype.toUpperCase()',
+    reason: STRING_COERCION_REASON,
+    code: '_.toUpper(name);',
+  },
+  {
+    method: 'trim',
+    alternative: 'String.prototype.trim()',
+    reason: STRING_COERCION_REASON,
+    code: '_.trim(name);',
+  },
+];
+
+function toInvalidCase(replacementCase: ReplacementCase) {
+  const code = replacementCase.code ?? `_.${replacementCase.method}(items, callback);`;
+
+  return {
+    code: `
+import _ from 'lodash';
+${code}
+`,
+    errors: [
+      {
+        message: expectedCautiousMessage(replacementCase),
+      },
+    ],
+  };
+}
+
+function expectedCautiousMessage({
+  alternative,
+  method,
+  reason,
+  example,
+}: ReplacementCase): string {
+  if (example !== undefined) {
+    return `Consider ${alternative} instead of ${method}() from lodash; for example, use ${example}. Check that the behavior is equivalent because ${reason}.`;
+  }
+  return `Consider ${alternative} instead of ${method}() from lodash; check that the behavior is equivalent because ${reason}.`;
+}
+
 describe('S8907', () => {
   it('reports lodash and underscore calls with native alternatives', () => {
     const ruleTester = new DefaultParserRuleTester();
@@ -130,6 +326,7 @@ _.flatten(items);
         },
       ],
       invalid: [
+        ...additionalReplacementCases.map(toInvalidCase),
         {
           code: `
 import _ from 'lodash';
