@@ -19,30 +19,13 @@ import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
-describe('S6774 with React 19', () => {
+describe('S6774 with unknown React version', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
-  ruleTester.run('S6774 is silenced on React 19 projects', rule, {
-    valid: [
-      {
-        code: `
-          import React, { forwardRef } from 'react';
-          const MyComponent = forwardRef((props, ref) => {
-            return <div ref={ref}>{props.name}</div>;
-          });
-        `,
-        filename: join(dirname, 'component.jsx'),
-      },
-      {
-        code: `
-          import React from 'react';
-          const MyComponent = React.forwardRef((props, ref) => {
-            return <div ref={ref}>{props.name}</div>;
-          });
-        `,
-        filename: join(dirname, 'component.jsx'),
-      },
+  ruleTester.run('S6774 still reports when the React version cannot be determined', rule, {
+    valid: [],
+    invalid: [
       {
         code: `
           function MyComponent({ name }) {
@@ -50,16 +33,8 @@ describe('S6774 with React 19', () => {
           }
         `,
         filename: join(dirname, 'component.jsx'),
-      },
-      {
-        code: `
-          class MyComponent extends React.Component {
-            render() { return <div>{this.props.name}</div>; }
-          }
-        `,
-        filename: join(dirname, 'component.jsx'),
+        errors: [{ messageId: 'missingPropType' }],
       },
     ],
-    invalid: [],
   });
 });
