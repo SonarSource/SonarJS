@@ -4,16 +4,17 @@
 
 Run `npm ci` first on a fresh checkout, and again after any `package.json` or lockfile change.
 
-Use `mvn install` for normal development after Node dependencies are installed.
-When generated RSPEC outputs are already present, this reuses them instead of refetching RSPEC.
+Use `mvn install` for normal development after Node dependencies are installed. When generated RSPEC
+outputs are already present, this reuses them instead of refetching RSPEC.
 
 Rule-data preparation is materialized by `npm run ensure-rule-data`. This command refreshes
-`generate-rule-data:maven` outputs when they are missing or when the checkout no longer matches
-the ignored state stored in `resources/rule-data-state.json`.
+`generate-rule-data:maven` outputs when they are missing or when the checkout no longer matches the
+ignored state stored in `resources/rule-data-state.json`. For the full RSPEC sync and stamp model,
+see [RSPEC Rule-Data Lifecycle](./rule-data-lifecycle.md).
 
 Avoid `mvn clean` while iterating. The fast Java-only loop reuses previously generated artifacts,
-and `clean` deletes them. Only use `mvn clean install` when you explicitly want to rebuild
-generated assets from scratch.
+and `clean` deletes them. Only use `mvn clean install` when you explicitly want to rebuild generated
+assets from scratch.
 
 ## Common commands
 
@@ -61,6 +62,9 @@ Ensure rule data is prepared for the current checkout:
 npm run ensure-rule-data
 ```
 
+The detailed behavior of this command is documented in
+[RSPEC Rule-Data Lifecycle](./rule-data-lifecycle.md).
+
 Validate quickfix declarations:
 
 ```bash
@@ -78,12 +82,13 @@ The `sonar-plugin` reactor builds modules in this order:
 5. `sonar-javascript-plugin`
 6. `standalone`
 
-`javascript-checks` stays before `bridge` because bridge generation consumes rule metadata prepared earlier in the build.
+`javascript-checks` stays before `bridge` because bridge generation consumes rule metadata prepared
+earlier in the build.
 
 ## Fast Java iteration flags
 
-The fast path is implemented with property-activated profiles in `sonar-plugin/pom.xml`.
-These are repo-specific toggles, not built-in Maven flags.
+The fast path is implemented with property-activated profiles in `sonar-plugin/pom.xml`. These are
+repo-specific toggles, not built-in Maven flags.
 
 ### `-Dskip-nodejs`
 
@@ -105,11 +110,12 @@ It skips:
 
 Important details:
 
-- `npm run generate-meta` reuses prepared RSPEC outputs when they already exist, and refreshes them when they do not.
-- To force an RSPEC refresh, or to apply a new root `rspec.sha` pin, run
-  `npm run ensure-rule-data`; `npm run generate-meta` also invokes this check before generating
-  metadata.
-- The `bridge` module still adds `target/generated-sources` to the Java source roots, so an existing generated stub directory can be reused without re-running protobuf generation.
+- `npm run generate-meta` reuses prepared RSPEC outputs when they already exist, and refreshes them
+  when they do not.
+- To force an RSPEC refresh, or to apply a new root `rspec.sha` pin, run `npm run ensure-rule-data`;
+  `npm run generate-meta` also invokes this check before generating metadata.
+- The `bridge` module still adds `target/generated-sources` to the Java source roots, so an existing
+  generated stub directory can be reused without re-running protobuf generation.
 - This flag is intended for Java-only loops after a previous non-skipped build.
 
 Do not use `-Dskip-nodejs`:
@@ -141,7 +147,8 @@ The clean phase removes the outputs that make the fast loop work:
 - `sonar-plugin/sonar-javascript-plugin/src/main/resources/node-info.properties`
 - `lib/` and `bin/`
 - downloaded rule data under `resources/rule-data`
-- generated rule data copied under `sonar-plugin/javascript-checks/src/main/resources` and `sonar-plugin/css/src/main/resources`
+- generated rule data copied under `sonar-plugin/javascript-checks/src/main/resources` and
+  `sonar-plugin/css/src/main/resources`
 - generated rule metadata under `packages/analysis/src/jsts/rules`
 
 Because of that, a common workflow is:
@@ -185,5 +192,7 @@ Because of that, a common workflow is:
 
 ## Notes
 
-- `-Dsurefire.failIfNoSpecifiedTests=false` is useful with `-pl ... -am -Dtest=...` because upstream modules in the reactor may not contain the selected test class.
-- If the fast path starts failing because generated artifacts are missing or stale, drop the skip flags and run a regular `mvn install`.
+- `-Dsurefire.failIfNoSpecifiedTests=false` is useful with `-pl ... -am -Dtest=...` because upstream
+  modules in the reactor may not contain the selected test class.
+- If the fast path starts failing because generated artifacts are missing or stale, drop the skip
+  flags and run a regular `mvn install`.
