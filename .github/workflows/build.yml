@@ -35,7 +35,7 @@ jobs:
     steps:
       - &checkout
         name: Checkout source code
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: Generate Node.js version matrix from package.json
         id: generate-matrix
         run: |
@@ -106,7 +106,7 @@ jobs:
           lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v4.1.0
         with:
@@ -427,7 +427,7 @@ jobs:
           lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v4.1.0
         with:
@@ -472,7 +472,7 @@ jobs:
           lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v4.1.0
         with:
@@ -514,7 +514,7 @@ jobs:
     steps:
       - &checkout_with_tags
         name: Checkout source code with tags
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: '0'
           fetch-tags: 'true'
@@ -1025,7 +1025,7 @@ jobs:
     steps:
       - &checkout_with_submodules
         name: Checkout source code
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           submodules: true
       - *mise
