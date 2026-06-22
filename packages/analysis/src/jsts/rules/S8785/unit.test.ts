@@ -291,6 +291,48 @@ context('group', async () => { await b(); });
           ],
         },
         {
+          // secondary locations also cover registrations nested in blocks (if/try/loops) after the
+          // await: they are dropped too. The walk stops at function boundaries, so the `it` inside
+          // the dropped nested `describe` is not collected separately (only the `describe` callee).
+          code: `describe('svc', async () => {
+  await loadConfig();
+  if (cond) {
+    it('a', () => {});
+    describe('inner', () => {
+      it('b', () => {});
+    });
+  }
+});`,
+          filename: mochaGlobals,
+          settings: { sonarRuntime: true },
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                sonarRuntimeData: JSON.stringify({
+                  message: 'Move this asynchronous setup into a "beforeAll" or "beforeEach" hook.',
+                  secondaryLocations: [
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 4,
+                      line: 4,
+                      endColumn: 6,
+                      endLine: 4,
+                    },
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 4,
+                      line: 5,
+                      endColumn: 12,
+                      endLine: 5,
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        },
+        {
           // regression: the rule declares `hasSecondaries`, so under sonarRuntime the linter
           // decodes every message of S8785 as JSON. The removeAsync report (which carries no
           // secondary locations) must be encoded too, otherwise the decoder crashes parsing a

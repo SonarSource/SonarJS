@@ -224,6 +224,12 @@ function isTopLevelAwait(node: estree.Node): boolean {
 /**
  * Collects the test/suite registrations declared in the callback body after the given await node.
  * Returns the callee of each such call, to be used as a secondary location.
+ *
+ * The walk descends into nested blocks (`if`, `try`, loops, ...) because a registration there is
+ * dropped just like a top-level one: once the callback suspends on the await, everything that runs
+ * afterwards does so too late to be registered. It stops at nested function boundaries — a test
+ * inside a dropped nested suite's own callback belongs to that suite's registration, not to a
+ * separate dropped registration, so only the nested suite's callee is collected.
  */
 function findTestsRegisteredAfter(
   sourceCode: SourceCode,
@@ -235,20 +241,28 @@ function findTestsRegisteredAfter(
   }
   const awaitEnd = sourceCode.getRange(awaitNode)[1];
   const tests: estree.Node[] = [];
-  for (const statement of callback.body.body) {
-    if (sourceCode.getRange(statement)[0] < awaitEnd) {
+  const stack: estree.Node[] = [...childrenOf(callback.body, sourceCode.visitorKeys)];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (current === undefined || isFunctionNode(current)) {
       continue;
     }
     if (
-      statement.type !== 'ExpressionStatement' ||
-      statement.expression.type !== 'CallExpression'
+      current.type === 'ExpressionStatement' &&
+      current.expression.type === 'CallExpression' &&
+      sourceCode.getRange(current)[0] >= awaitEnd
     ) {
-      continue;
+      const parts = getMochaCalleeParts(current.expression.callee);
+      if (parts && TEST_AND_SUITE_NAMES.has(parts.base.name)) {
+        tests.push(current.expression.callee);
+        // Don't descend into the registered call: its own callback is a function boundary and any
+        // tests it contains belong to its registration, not to a separate dropped one.
+        continue;
+      }
     }
-    const parts = getMochaCalleeParts(statement.expression.callee);
-    if (parts && TEST_AND_SUITE_NAMES.has(parts.base.name)) {
-      tests.push(statement.expression.callee);
-    }
+    stack.push(...childrenOf(current, sourceCode.visitorKeys));
   }
-  return tests;
+  // The stack-based walk yields nodes out of source order; sort so secondary locations are emitted
+  // deterministically (asserted in unit tests, dumped in ruling).
+  return tests.sort((a, b) => sourceCode.getRange(a)[0] - sourceCode.getRange(b)[0]);
 }
