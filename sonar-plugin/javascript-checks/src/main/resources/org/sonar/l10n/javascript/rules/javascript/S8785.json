@@ -10,21 +10,20 @@
     "tests",
     "async",
     "jest",
-    "vitest",
     "mocha",
     "cypress"
   ],
-  "defaultSeverity": "Critical",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-8785",
   "sqKey": "S8785",
   "scope": "Tests",
   "defaultQualityProfiles": [
     "Sonar way"
   ],
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "code": {
     "impacts": {
-      "RELIABILITY": "HIGH",
+      "RELIABILITY": "MEDIUM",
       "MAINTAINABILITY": "MEDIUM"
     },
     "attribute": "LOGICAL"
