@@ -31,10 +31,12 @@ type Replacement = {
 };
 
 const ES5 = 5;
+const ES6 = 6;
 const ES2015 = 2015;
 const ES2016 = 2016;
 const ES2017 = 2017;
 const ES2019 = 2019;
+const ECMA_VERSION_YEAR_OFFSET = ES2015 - ES6;
 
 const ARRAY_NULLISH_REASON = 'the library handles nullish values differently from the native API';
 const COLLECTION_REASON = 'the library also accepts objects and nullish values';
@@ -203,7 +205,7 @@ function normalizeEcmaVersion(
   if (ecmaVersion <= ES5) {
     return ecmaVersion;
   }
-  return ecmaVersion < ES2015 ? ecmaVersion + 2009 : ecmaVersion;
+  return ecmaVersion < ES2015 ? ecmaVersion + ECMA_VERSION_YEAR_OFFSET : ecmaVersion;
 }
 
 function getSyntacticMethodName(
