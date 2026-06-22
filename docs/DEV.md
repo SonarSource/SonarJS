@@ -11,12 +11,20 @@ To work on this project, it is required to have the following tools installed:
 
 ### RSPEC Access
 
-The build fetches rule metadata from the private `SonarSource/rspec` repository through `rspec-maven-plugin`.
-The generated RSPEC rule metadata JSON published under `sonar-plugin/*/src/main/resources/**/rules/*/` is tracked in Git. The generated HTML files and per-language `rspec.sha` files remain build artifacts and are not tracked.
+For the full RSPEC sync and lifecycle model, including the distinction between
+`resources/rule-data-state.json`, root `rspec.sha`, and generated per-language `rspec.sha`, see
+[RSPEC Rule-Data Lifecycle](./rule-data-lifecycle.md).
 
-For local development, the Maven flow can reuse your existing GitHub CLI login. Running `gh auth login` is enough on a fresh checkout or after `mvn clean`.
+The build fetches rule metadata from the private `SonarSource/rspec` repository through
+`rspec-maven-plugin`. The generated RSPEC rule metadata JSON published under
+`sonar-plugin/*/src/main/resources/**/rules/*/` is tracked in Git. The generated HTML files and
+per-language `rspec.sha` files remain build artifacts and are not tracked.
 
-If you already have a token with read access to `SonarSource/rspec`, exporting `GITHUB_TOKEN` still works as well.
+For local development, the Maven flow can reuse your existing GitHub CLI login. Running
+`gh auth login` is enough on a fresh checkout or after `mvn clean`.
+
+If you already have a token with read access to `SonarSource/rspec`, exporting `GITHUB_TOKEN` still
+works as well.
 
 In CI, the token is provided from Vault-managed secrets and passed explicitly to the Maven plugin.
 
@@ -40,13 +48,28 @@ Examples:
    source ~/.zshenv
    ```
 
-`npm run generate-meta` reuses prepared RSPEC outputs when the generated local rule data directories and per-language `rspec.sha` files are already present. On a fresh checkout, or after `mvn clean`, it runs Maven first and uses either your GitHub CLI auth or `GITHUB_TOKEN` to fetch from `SonarSource/rspec`.
+`npm run generate-meta` first runs `npm run ensure-rule-data`. This reuses prepared RSPEC outputs
+when the generated local rule data directories, per-language `rspec.sha` files, and ignored
+`resources/rule-data-state.json` stamp match the current checkout. On a fresh checkout, after
+switching revisions, after changing the ignored root `rspec.sha` pin, or after `mvn clean`, it runs
+Maven first and uses either your GitHub CLI auth or `GITHUB_TOKEN` to fetch from
+`SonarSource/rspec`.
 
-To pin all rule data generation to an exact RSPEC revision, write the commit SHA to `rspec.sha` at the repository root and run `npm run generate-rule-data:maven`. If you want to use `npm run generate-meta`, run it after `mvn clean` (or otherwise remove the prepared rule data) so the Maven wrapper is invoked. When the ignored root pin is present, the Maven wrapper passes it to `rspec-maven-plugin` for both JavaScript and CSS.
+To pin all rule data generation to an exact RSPEC revision, write the commit SHA to `rspec.sha` at
+the repository root and run `npm run ensure-rule-data`. When the ignored root pin is present, the
+Maven wrapper passes it to `rspec-maven-plugin` for both JavaScript and CSS.
 
-Prepared rule data keeps separate generated pins in `sonar-plugin/javascript-checks/src/main/resources/rspec.sha` and `sonar-plugin/css/src/main/resources/rspec.sha`. If there is no root pin, the Maven wrapper falls back to these per-language generated pins when they are present. For direct Maven commands that generate rule data, pass `-Drspec.sha=<commit-sha>` to pin both languages, or `-Drspec.javascript.sha=<commit-sha>` and `-Drspec.css.sha=<commit-sha>` to pin them independently.
+Prepared rule data keeps separate generated pins in
+`sonar-plugin/javascript-checks/src/main/resources/rspec.sha` and
+`sonar-plugin/css/src/main/resources/rspec.sha`. If there is no root pin, the Maven wrapper falls
+back to these per-language generated pins when they are present. For direct Maven commands that
+generate rule data, use Direct Maven pinning: pass `-Drspec.sha=<commit-sha>` to pin both languages,
+or `-Drspec.javascript.sha=<commit-sha>` and `-Drspec.css.sha=<commit-sha>` to pin them
+independently. When `npm run ensure-rule-data` detects stale state without a root pin, it clears the
+generated per-language pins before regenerating so pins from another checkout are not reused.
 
-You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
+You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all
+required dependencies and is used for our CI pipeline.
 
 ## Build and run unit tests
 
@@ -73,7 +96,8 @@ First make sure the submodules are checked out:
 
 ### Plugin Tests
 
-The "Plugin Test" is an integration test which verifies plugin features such as metric calculation, coverage etc.
+The "Plugin Test" is an integration test which verifies plugin features such as metric calculation,
+coverage etc.
 
 ```sh
 cd its/plugin
@@ -82,7 +106,11 @@ mvn clean install
 
 ### Ruling Tests
 
-The "Ruling Test" is an integration test which launches the analysis of a large code base of third-party projects (stored as submodules), saves the issues created by the plugin in report files, and then compares those results to the set of expected issues (stored as JSON files). This test gives you the opportunity to examine the issues created by each rule and make sure that they are what you expect.
+The "Ruling Test" is an integration test which launches the analysis of a large code base of
+third-party projects (stored as submodules), saves the issues created by the plugin in report files,
+and then compares those results to the set of expected issues (stored as JSON files). This test
+gives you the opportunity to examine the issues created by each rule and make sure that they are
+what you expect.
 
 #### JS/TS
 
@@ -90,8 +118,8 @@ The "Ruling Test" is an integration test which launches the analysis of a large 
 npm run ruling
 ```
 
-The generated issues are written under `packages/ruling/actual/<project>/`.
-The expected issues are stored under `its/ruling/src/test/expected/<project>/`.
+The generated issues are written under `packages/ruling/actual/<project>/`. The expected issues are
+stored under `its/ruling/src/test/expected/<project>/`.
 
 From the project root, run: `npm run ruling-sync`
 
@@ -104,25 +132,35 @@ cd its/ruling
 mvn verify -Dtest=RulingTest -Dmaven.test.redirectTestOutputToFile=false
 ```
 
-To review the Ruling difference in SonarQube UI, put the breakpoint on `assertThat(...)` in `RulingTest.java` and open in the browser the orchestrated local SonarQube.
-Note that you can fix the port in `orchestrator.properties files`, e.g. `orchestrator.container.port=9100`.
+To review the Ruling difference in SonarQube UI, put the breakpoint on `assertThat(...)` in
+`RulingTest.java` and open in the browser the orchestrated local SonarQube. Note that you can fix
+the port in `orchestrator.properties files`, e.g. `orchestrator.container.port=9100`.
 
-If everything looks good to you, you can copy the file with the actual issues located at `its/ruling/target/actual/`
-into the directory with the expected issues `its/ruling/src/test/expected/`.
+If everything looks good to you, you can copy the file with the actual issues located at
+`its/ruling/target/actual/` into the directory with the expected issues
+`its/ruling/src/test/expected/`.
 
-You can review the Ruling difference by running `diff -rq src/test/expected target/actual` from `its/ruling`.
+You can review the Ruling difference by running `diff -rq src/test/expected target/actual` from
+`its/ruling`.
 
-> :warning: Please note that running ruling tests will remove `node_modules` from the root to avoid affecting the results. Run `npm ci` to put them back.
+> :warning: Please note that running ruling tests will remove `node_modules` from the root to avoid
+> affecting the results. Run `npm ci` to put them back.
 
 ### Debug `node` process during scan
 
-You can run your own Node.js process manually and set the environment variable `SONARJS_EXISTING_NODE_PROCESS_PORT` with the value of the port where your process is listening to. When set, SonarJS will not start a new Node process and will send the analysis requests to the specified port instead.
+You can run your own Node.js process manually and set the environment variable
+`SONARJS_EXISTING_NODE_PROCESS_PORT` with the value of the port where your process is listening to.
+When set, SonarJS will not start a new Node process and will send the analysis requests to the
+specified port instead.
 
-When using this for the ruling tests, make sure that you run them in series (and not in parallel), by removing `@Execution(ExecutionMode.CONCURRENT)` from the ruling test.
+When using this for the ruling tests, make sure that you run them in series (and not in parallel),
+by removing `@Execution(ExecutionMode.CONCURRENT)` from the ruling test.
 
 ## Testing in VS Code SonarLint
 
-To patch a local VS Code SonarLint or SonarQube for IDE installation with the latest SonarJS master build from Repox, see [Testing VS Code SonarLint with the latest SonarJS master build](./vscode-sonarlint-master-build.md).
+To patch a local VS Code SonarLint or SonarQube for IDE installation with the latest SonarJS master
+build from Repox, see
+[Testing VS Code SonarLint with the latest SonarJS master build](./vscode-sonarlint-master-build.md).
 
 ## Adding a rule
 
@@ -130,31 +168,29 @@ To patch a local VS Code SonarLint or SonarQube for IDE installation with the la
 
 1. Create a PR with a rule description in the RSPEC repo as described in the
    [RSPEC create-or-modify-a-rule guide](https://github.com/SonarSource/rspec#create-or-modify-a-rule)
-   - Tag the RSPEC with `type-dependent` if the rule relies partially or fully
-     on type information.
-     - In practice, this means the implementation uses TypeScript parser
-       services, either directly or through shared helpers or wrappers.
-     - Direct signals are code paths using
-       `context.sourceCode.parserServices`, `isRequiredParserServices(...)`,
-       `services.program.getTypeChecker()`, or ESTree/TypeScript node maps such
-       as `services.esTreeNodeToTSNodeMap`.
+   - Tag the RSPEC with `type-dependent` if the rule relies partially or fully on type information.
+     - In practice, this means the implementation uses TypeScript parser services, either directly
+       or through shared helpers or wrappers.
+     - Direct signals are code paths using `context.sourceCode.parserServices`,
+       `isRequiredParserServices(...)`, `services.program.getTypeChecker()`, or ESTree/TypeScript
+       node maps such as `services.esTreeNodeToTSNodeMap`.
      - Indirect signals include helpers that wrap the type checker such as
-       `getTypeFromTreeNode(...)`, regex rules built with
-       `createRegExpRule(...)`, and wrapped `@typescript-eslint` rules whose
-       implementation requires typed services.
-     - Do not use `type-dependent` for rules that only inspect TypeScript
-       syntax and never query typed parser services.
-   - Add a field `dependencies` if your rule should only be executed if it
-     relies on a specific import (example: 'react' or 'jest').
-   - Add a field `compatibleLanguages` with an array including which languages
-     you support (`js` and/or `ts`).
+       `getTypeFromTreeNode(...)`, regex rules built with `createRegExpRule(...)`, and wrapped
+       `@typescript-eslint` rules whose implementation requires typed services.
+     - Do not use `type-dependent` for rules that only inspect TypeScript syntax and never query
+       typed parser services.
+   - Add a field `dependencies` if your rule should only be executed if it relies on a specific
+     import (example: 'react' or 'jest').
+   - Add a field `compatibleLanguages` with an array including which languages you support (`js`
+     and/or `ts`).
 
 2. Link this RSPEC PR to the implementation issue in this repo
 3. Make sure the implementation issue title contains the RSPEC number and name
 
 ### Implementing a rule
 
-1. Generate other files required for a new rule. Just choose your options in the prompt of the `new-rule` script
+1. Generate other files required for a new rule. Just choose your options in the prompt of the
+   `new-rule` script
 
 ```sh
 npm run new-rule
@@ -176,25 +212,43 @@ It will also update some files which are not tracked by Git as they are automati
 - updates the `AllRules.java` to include the new rule
 
 2. Update generated files
-   - Make sure annotations in the Java class specify languages to cover (`@JavaScriptRule` and/or `@TypeScriptRule`)
-   - If your rule has configurations, or you are using some from an ESLint rule, override the `configurations()` method of the Java check class
-     - You can use a `MyRuleCheckTest.java` test case to verify how the configurations will be serialized to JSON as shown [here](https://github.com/SonarSource/SonarJS/blob/master/sonar-plugin/javascript-checks/src/test/java/org/sonar/javascript/checks/NoEmptyClassCheckTest.java#L30)
-   - If writing a rule for the test files, replace `extends Check` with `extends TestFileCheck` in the Java class. This will be done by the `new-rule` script, but make sure you are extending the right base class.
+   - Make sure annotations in the Java class specify languages to cover (`@JavaScriptRule` and/or
+     `@TypeScriptRule`)
+   - If your rule has configurations, or you are using some from an ESLint rule, override the
+     `configurations()` method of the Java check class
+     - You can use a `MyRuleCheckTest.java` test case to verify how the configurations will be
+       serialized to JSON as shown
+       [here](https://github.com/SonarSource/SonarJS/blob/master/sonar-plugin/javascript-checks/src/test/java/org/sonar/javascript/checks/NoEmptyClassCheckTest.java#L30)
+   - If writing a rule for the test files, replace `extends Check` with `extends TestFileCheck` in
+     the Java class. This will be done by the `new-rule` script, but make sure you are extending the
+     right base class.
 3. Implement the rule logic in `S1234/rule.ts`
-   - Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of the RSPEC description, like [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
-   - If writing a regex rule, use [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/master/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
+   - Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of
+     the RSPEC description, like
+     [here](https://sonarsource.github.io/rspec/#/rspec/S4036/javascript#message).
+   - If writing a regex rule, use
+     [createRegExpRule](https://github.com/SonarSource/SonarJS/blob/master/src/linting/eslint/rules/helpers/regex/rule-template.ts#L52)
 
 4. If possible, implement quick fixes for the rule:
-   - If the ESLint fix is at the root of the report (and not in a suggestion), add the message for the quick fix in `rules/SXXXX/meta.ts`.
-   - Add a code fixture that should provide a quickfix in `tests/linter/fixtures/wrapper/quickfixes/<ESLint-style rulekey>.{js,ts}`. The [following test](https://github.com/SonarSource/SonarJS/blob/a99fd9614c4ee3052f8da1cfecbfc05ef16e95d1/tests/linting/eslint/linter/wrapper.test.ts#L334) asserts that the quickfix is enabled.
+   - If the ESLint fix is at the root of the report (and not in a suggestion), add the message for
+     the quick fix in `rules/SXXXX/meta.ts`.
+   - Add a code fixture that should provide a quickfix in
+     `tests/linter/fixtures/wrapper/quickfixes/<ESLint-style rulekey>.{js,ts}`. The
+     [following test](https://github.com/SonarSource/SonarJS/blob/a99fd9614c4ee3052f8da1cfecbfc05ef16e95d1/tests/linting/eslint/linter/wrapper.test.ts#L334)
+     asserts that the quickfix is enabled.
 
 ## Testing a rule
 
-We support 2 kinds of rule unit-tests: ESLint's [RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester) or our comment-based tests.
+We support 2 kinds of rule unit-tests: ESLint's
+[RuleTester](https://eslint.org/docs/developer-guide/nodejs-api#ruletester) or our comment-based
+tests.
 
 ### Comment-based testing
 
-These tests are located in the rule folder and they **MUST** be named `*.fixture.*` (where the extension could be one of `js`, `ts`, `jsx`, `tsx`, `vue`). If options are to be passed to the tested rule, add a JSON file to the same directory named `cb.options.json`. The file must contain the array of options.
+These tests are located in the rule folder and they **MUST** be named `*.fixture.*` (where the
+extension could be one of `js`, `ts`, `jsx`, `tsx`, `vue`). If options are to be passed to the
+tested rule, add a JSON file to the same directory named `cb.options.json`. The file must contain
+the array of options.
 
 The contents of the test code have the following structure:
 
@@ -212,10 +266,11 @@ The contents of the options file must be a valid JSON array:
 
 ```javascript
 // brace-style.json
-['1tbs', { allowSingleLine: true }];
+["1tbs", { allowSingleLine: true }];
 ```
 
-If your rule depends on a dependency declared in the `package.json` file, you can add the following clause to your test:
+If your rule depends on a dependency declared in the `package.json` file, you can add the following
+clause to your test:
 
 ```js
 process.chdir(__dirname); // change current working dir to avoid the package.json lookup to up in the tree
@@ -232,16 +287,20 @@ You can find an example at [the bottom of this document](#examples).
 
 #### Tests syntax
 
-Given the above test snippet, issue messages (`{{...}}`) and quick fixes (if the rule provides them) are mandatory. The issue primary location (`// ^^^^`) and secondary location(s) (`// ^^^<`) are optional.
+Given the above test snippet, issue messages (`{{...}}`) and quick fixes (if the rule provides them)
+are mandatory. The issue primary location (`// ^^^^`) and secondary location(s) (`// ^^^<`) are
+optional.
 
-`Noncompliant` lines will be associated by default to the line of code where they are written. The syntax `@line_number` allows for an issue to be associated to another line:
+`Noncompliant` lines will be associated by default to the line of code where they are written. The
+syntax `@line_number` allows for an issue to be associated to another line:
 
 ```javascript
 // Noncompliant@2 [[qf1,qf2,...]] {{Optional message to assert}}
 some.faulty.code();
 ```
 
-Another option is to use relative line increments (`@+line_increment`) or decrements (`@-line_decrement`):
+Another option is to use relative line increments (`@+line_increment`) or decrements
+(`@-line_decrement`):
 
 ```javascript
 // Noncompliant@+1
@@ -254,7 +313,11 @@ another.faulty.code();
 
 #### Secondary locations
 
-Secondary locations are part of [Sonar issues](https://docs.sonarqube.org/latest/user-guide/issues/). They provide additional context to the raised issue. In order to use them, you must call the [toEncodedMessage()](https://github.com/SonarSource/SonarJS/blob/382fd7d4dad2a085ca5ac6d004cb38fe52720cca/src/linting/eslint/rules/helpers/location.ts#L44) function when reporting the issue message like this:
+Secondary locations are part of
+[Sonar issues](https://docs.sonarqube.org/latest/user-guide/issues/). They provide additional
+context to the raised issue. In order to use them, you must call the
+[toEncodedMessage()](https://github.com/SonarSource/SonarJS/blob/382fd7d4dad2a085ca5ac6d004cb38fe52720cca/src/linting/eslint/rules/helpers/location.ts#L44)
+function when reporting the issue message like this:
 
 ```javascript
 context.report({
@@ -263,26 +326,49 @@ context.report({
 });
 ```
 
-In order to indicate secondary locations, you must use either `// ^^^^^<` or `// ^^^^>`, the arrow indicating whether the matching main location is either before or after the secondary one.
+In order to indicate secondary locations, you must use either `// ^^^^^<` or `// ^^^^>`, the arrow
+indicating whether the matching main location is either before or after the secondary one.
 
 As stated before, the message is optional.
 
-\*\*/!\*\* If you have used a secondary location in your test file, you must always report error messages using [toEncodedMessage()](https://github.com/SonarSource/SonarJS/blob/382fd7d4dad2a085ca5ac6d004cb38fe52720cca/src/linting/eslint/rules/helpers/location.ts#L44) in your rule, as it will be expecting it.
+\*\*/!\*\* If you have used a secondary location in your test file, you must always report error
+messages using
+[toEncodedMessage()](https://github.com/SonarSource/SonarJS/blob/382fd7d4dad2a085ca5ac6d004cb38fe52720cca/src/linting/eslint/rules/helpers/location.ts#L44)
+in your rule, as it will be expecting it.
 
 #### Quick fixes
 
-Quick fixes refer to both ESLint [Suggestions](https://eslint.org/docs/latest/developer-guide/working-with-rules#providing-suggestions) and [Fixes](https://eslint.org/docs/latest/developer-guide/working-with-rules#applying-fixes). In our comment-based framework both use the same syntax, with the difference that a quick fix ID followed by an exclamation mark (`!`) will be internally treated as a `fix` with ESLint instead of as a suggestion. Please note that rules providing fixes **MUST** be tested always with fixes, otherwise the test will fail with the following error: `The rule fixed the code. Please add 'output' property.`. On the other side, it is optional to check against rule suggestions, meaning that even if a rule provides them, the tests can choose not to test their contents.
+Quick fixes refer to both ESLint
+[Suggestions](https://eslint.org/docs/latest/developer-guide/working-with-rules#providing-suggestions)
+and [Fixes](https://eslint.org/docs/latest/developer-guide/working-with-rules#applying-fixes). In
+our comment-based framework both use the same syntax, with the difference that a quick fix ID
+followed by an exclamation mark (`!`) will be internally treated as a `fix` with ESLint instead of
+as a suggestion. Please note that rules providing fixes **MUST** be tested always with fixes,
+otherwise the test will fail with the following error:
+`The rule fixed the code. Please add 'output' property.`. On the other side, it is optional to check
+against rule suggestions, meaning that even if a rule provides them, the tests can choose not to
+test their contents.
 
-The `fix@` comment referring to a quick fix provides the suggestion description and is optional. Eslint fixes do not support descriptions, meaning a quick fix ID declared with an exclamation mark (i.e. `qf1!`) must **NOT** have a `fix@` matching comment (i.e. `fix@qf1`).
+The `fix@` comment referring to a quick fix provides the suggestion description and is optional.
+Eslint fixes do not support descriptions, meaning a quick fix ID declared with an exclamation mark
+(i.e. `qf1!`) must **NOT** have a `fix@` matching comment (i.e. `fix@qf1`).
 
-Each quick fix can have multiple editions associated to it. There are three different kind of operations to edit the code with quick fixes. Given a quick fix ID `qf`, these are the syntaxes used for each operation:
+Each quick fix can have multiple editions associated to it. There are three different kind of
+operations to edit the code with quick fixes. Given a quick fix ID `qf`, these are the syntaxes used
+for each operation:
 
 - `add@qf {{code to add}}` Add the string between the double brackets to a new line in the code.
 - `del@qf` Remove the line
-- `edit@qf1 [[sc=1;ec=5]] {{text to replace the range }}` Edit the line from start column `sc` to end column `ec` (both 0-based) with the provided string between the double brackets. Alternatively, one can conveniently use only `sc` or `ec`. also optional, meaning this syntax can be used too:
+- `edit@qf1 [[sc=1;ec=5]] {{text to replace the range }}` Edit the line from start column `sc` to
+  end column `ec` (both 0-based) with the provided string between the double brackets.
+  Alternatively, one can conveniently use only `sc` or `ec`. also optional, meaning this syntax can
+  be used too:
   - `edit@qf1 {{text to replace the whole line -do not include //Noncompliant comment- }}`
 
-The line affected in each of these operations will be the line of the issue to which the quick fix is linked to. It is possible to use the line modifier syntax (`@[+|-]?line`). When using line increments/decrements, keep in mind the base number is the issue line number, not the line of the quick fix edit comment. Example for rule `brace-style`:
+The line affected in each of these operations will be the line of the issue to which the quick fix
+is linked to. It is possible to use the line modifier syntax (`@[+|-]?line`). When using line
+increments/decrements, keep in mind the base number is the issue line number, not the line of the
+quick fix edit comment. Example for rule `brace-style`:
 
 ```javascript
 //Noncompliant@+1 [[qf!]]
@@ -304,13 +390,22 @@ if (condition) {
 Let's go through the syntax used in this example:
 
 - The test provides a fix (note the `!` after the ID `qf`).
-- The line `//Noncompliant@+1 [[qf!]]` means that in the following (`@+1`) line there is an issue for which we provide a quick fix.
-- The line `// edit@qf [[sc=16]] {{}}` is providing an edit to the same line of the issue, replacing the contents after column 16 (`sc=16`) by an empty string (`{{}}`). An alternative with the same effect would be `// edit@qf {{if (condition) {}}`, which would replace the whole line by `if (condition) {`.
-- Lastly, the line `// add@qf@+1 {{ doSomething()}}` will add a new line just after the issue line (`@+1`) with the contents `&nbsp;doSomething()`
+- The line `//Noncompliant@+1 [[qf!]]` means that in the following (`@+1`) line there is an issue
+  for which we provide a quick fix.
+- The line `// edit@qf [[sc=16]] {{}}` is providing an edit to the same line of the issue, replacing
+  the contents after column 16 (`sc=16`) by an empty string (`{{}}`). An alternative with the same
+  effect would be `// edit@qf {{if (condition) {}}`, which would replace the whole line by
+  `if (condition) {`.
+- Lastly, the line `// add@qf@+1 {{ doSomething()}}` will add a new line just after the issue line
+  (`@+1`) with the contents `&nbsp;doSomething()`
 
-Note that the length of the list of quick fixes cannot surpass the number of issues declared by `N` or the number of expected messages unless their matching issue is reassigned (see below).
+Note that the length of the list of quick fixes cannot surpass the number of issues declared by `N`
+or the number of expected messages unless their matching issue is reassigned (see below).
 
-Quick fixes IDs can be any `string`, they don't have to follow the `qfN` convention. The order of the list is important, as they will be assigned to the message in the matching position. If one provides 3 messages and 2 quick fixes which are not to be matched against first and second message, there are two options:
+Quick fixes IDs can be any `string`, they don't have to follow the `qfN` convention. The order of
+the list is important, as they will be assigned to the message in the matching position. If one
+provides 3 messages and 2 quick fixes which are not to be matched against first and second message,
+there are two options:
 
 - A _dummy_ quick fix can be used as placeholder:
 
@@ -321,7 +416,8 @@ some.faulty.code(); // Noncompliant [[qf1,qf2,qf3]] {{message1}} {{message2}} {{
 // qf2 is declared but never used --> ignored by the engine
 ```
 
-- Explicitly set the index (0-based) of the message to which the quick fix refers to with the syntax `=index` next to the quick fix ID:
+- Explicitly set the index (0-based) of the message to which the quick fix refers to with the syntax
+  `=index` next to the quick fix ID:
 
 ```javascript
 some.faulty.code(); // Noncompliant [[qf1,qf3=2]] {{message1}} {{message2}} {{message3}}
@@ -341,7 +437,8 @@ some.faulty.code(); // Noncompliant [[qf1,qf2=0]]
 
 #### Ruling
 
-Make sure to run [Ruling ITs](#ruling-tests) for the new or updated rule (don't forget to rebuild the jar before that!).
+Make sure to run [Ruling ITs](#ruling-tests) for the new or updated rule (don't forget to rebuild
+the jar before that!).
 
 If your rule does not raise any issue, you should write your own code that triggers your rule in:
 
@@ -354,13 +451,19 @@ You can simply copy and paste compliant and non-compliant examples from your RSP
 
 - Security Hotspot implementation: [PR](https://github.com/SonarSource/SonarJS/pull/3148)
 - Quality rule implemented with quickfix: [PR](https://github.com/SonarSource/SonarJS/pull/3141)
-- Adding a rule already covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3134)
-- Adding a quickfix for rule covered by ESLint or its plugins: [PR](https://github.com/SonarSource/SonarJS/pull/3058)
-- Adding a rule covered by ESLint with an ESLint "fix" quick fix: [PR](https://github.com/SonarSource/SonarJS/pull/3751)
+- Adding a rule already covered by ESLint or its plugins:
+  [PR](https://github.com/SonarSource/SonarJS/pull/3134)
+- Adding a quickfix for rule covered by ESLint or its plugins:
+  [PR](https://github.com/SonarSource/SonarJS/pull/3058)
+- Adding a rule covered by ESLint with an ESLint "fix" quick fix:
+  [PR](https://github.com/SonarSource/SonarJS/pull/3751)
 - Decorate a rule covered by ESLint: [PR](https://github.com/SonarSource/SonarJS/pull/3514)
-- Merge 2 ESLint rules: [PR](https://github.com/SonarSource/SonarJS/pull/4387/files#diff-0bbe92c0a507bd02fb792be5df80db2ad9d66b30ce7b11b7925ed29121c3b233R22-R44)
-- Use comment-based tests with `package.json` dependencies dependent rule: [PR](<[TBD](https://github.com/SonarSource/SonarJS/pull/4443/files#diff-92d7c68b7e4cc945d0f128acbd458648eb8021903587c1ee7025243f2fae89d2)>)
-- Use ESLint's Rule tester with `package.json` dependencies dependent rule: [PR](<[TBD](https://github.com/SonarSource/SonarJS/commit/dc9435738093286869edff742c90d17d74e39b1c#diff-55f5136cfbed4170ed04f718f78f46015d6bb1f78c26403e036136211a333425R154-R213)>)
+- Merge 2 ESLint rules:
+  [PR](https://github.com/SonarSource/SonarJS/pull/4387/files#diff-0bbe92c0a507bd02fb792be5df80db2ad9d66b30ce7b11b7925ed29121c3b233R22-R44)
+- Use comment-based tests with `package.json` dependencies dependent rule:
+  [PR](<[TBD](https://github.com/SonarSource/SonarJS/pull/4443/files#diff-92d7c68b7e4cc945d0f128acbd458648eb8021903587c1ee7025243f2fae89d2)>)
+- Use ESLint's Rule tester with `package.json` dependencies dependent rule:
+  [PR](<[TBD](https://github.com/SonarSource/SonarJS/commit/dc9435738093286869edff742c90d17d74e39b1c#diff-55f5136cfbed4170ed04f718f78f46015d6bb1f78c26403e036136211a333425R154-R213)>)
 
 ## Rule Options Architecture
 
@@ -388,7 +491,8 @@ External Client → gRPC → transformers.ts → analyzeProject() → ESLint Lin
                    string params to typed values
 ```
 
-The key difference is that SonarQube's Java side sends already-typed values via `configurations()`, while the gRPC endpoint receives string key-value pairs that need type parsing.
+The key difference is that SonarQube's Java side sends already-typed values via `configurations()`,
+while the gRPC endpoint receives string key-value pairs that need type parsing.
 
 Each rule can have configurable options defined in several places that serve different purposes.
 
@@ -409,40 +513,42 @@ The `implementation` field in `meta.ts` determines how a rule is structured:
 
 #### `original`
 
-Rules written from scratch for SonarJS. If the rule accepts options, it defines its own JSON Schema in `meta.ts`. Rules without options don't need a schema or config.ts:
+Rules written from scratch for SonarJS. If the rule accepts options, it defines its own JSON Schema
+in `meta.ts`. Rules without options don't need a schema or config.ts:
 
 ```typescript
 // S100/meta.ts
-export const implementation = 'original';
-export const eslintId = 'function-name';
-export * from './config.js';
-import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
+export const implementation = "original";
+export const eslintId = "function-name";
+export * from "./config.js";
+import type { JSONSchema4 } from "@typescript-eslint/utils/json-schema";
 export const schema = {
-  type: 'array',
-  items: [{ type: 'object', properties: { format: { type: 'string' } } }],
+  type: "array",
+  items: [{ type: "object", properties: { format: { type: "string" } } }],
 } as const satisfies JSONSchema4;
 ```
 
 #### `decorated`
 
-Rules that wrap/extend an existing ESLint rule, adding SonarJS-specific behavior. They may optionally define a `schema` if needed:
+Rules that wrap/extend an existing ESLint rule, adding SonarJS-specific behavior. They may
+optionally define a `schema` if needed:
 
 ```typescript
 // S109/meta.ts - no schema, uses external rule's schema at runtime
-export const implementation = 'decorated';
-export const eslintId = 'no-magic-numbers';
+export const implementation = "decorated";
+export const eslintId = "no-magic-numbers";
 export const externalRules = [
-  { externalPlugin: 'typescript-eslint', externalRule: 'no-magic-numbers' },
+  { externalPlugin: "typescript-eslint", externalRule: "no-magic-numbers" },
 ];
-export * from './config.js';
+export * from "./config.js";
 ```
 
 ```typescript
 // S107/meta.ts - explicit schema (when customization is needed)
-export const implementation = 'decorated';
-export const eslintId = 'max-params';
-export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'max-params' }];
-export * from './config.js';
+export const implementation = "decorated";
+export const eslintId = "max-params";
+export const externalRules = [{ externalPlugin: "eslint", externalRule: "max-params" }];
+export * from "./config.js";
 export const schema = {
   /* ... */
 } as const satisfies JSONSchema4;
@@ -450,14 +556,16 @@ export const schema = {
 
 #### `external`
 
-Rules that directly use an ESLint rule without modification. The schema is inherited from the external rule at runtime. Some external rules expose user-configurable options via `config.ts` (e.g., S103, S139, S1441):
+Rules that directly use an ESLint rule without modification. The schema is inherited from the
+external rule at runtime. Some external rules expose user-configurable options via `config.ts`
+(e.g., S103, S139, S1441):
 
 ```typescript
 // S106/meta.ts
-export const implementation = 'external';
-export const eslintId = 'no-console';
-export const externalPlugin = 'eslint';
-export * from './config.js';
+export const implementation = "external";
+export const eslintId = "no-console";
+export const externalPlugin = "eslint";
+export * from "./config.js";
 ```
 
 ### The `fields` Array (`config.ts`)
@@ -474,9 +582,9 @@ The `fields` array is the **source of truth** for rule options. It defines:
 export const fields = [
   [
     {
-      field: 'max', // ESLint option name
-      displayName: 'maximumFunctionParameters', // SonarQube UI name (optional)
-      description: 'Maximum authorized...', // Shows in SQ UI
+      field: "max", // ESLint option name
+      displayName: "maximumFunctionParameters", // SonarQube UI name (optional)
+      description: "Maximum authorized...", // Shows in SQ UI
       default: 7, // Default value & type inference
     },
   ],
@@ -514,8 +622,8 @@ Fields without `description` are internal-only defaults that users cannot config
 // S109/config.ts - NO descriptions, so not exposed in SQ
 export const fields = [
   [
-    { field: 'ignore', default: [0, 1, -1, 24, 60] }, // Internal only
-    { field: 'ignoreDefaultValues', default: true }, // Internal only
+    { field: "ignore", default: [0, 1, -1, 24, 60] }, // Internal only
+    { field: "ignoreDefaultValues", default: true }, // Internal only
   ],
 ] as const satisfies ESLintConfiguration;
 ```
@@ -527,10 +635,10 @@ export const fields = [
 export const fields = [
   [
     {
-      field: 'passwordWords',
-      items: { type: 'string' },
-      description: 'Comma separated list of words identifying potential passwords.',
-      default: ['password', 'pwd', 'passwd', 'passphrase'],
+      field: "passwordWords",
+      items: { type: "string" },
+      description: "Comma separated list of words identifying potential passwords.",
+      default: ["password", "pwd", "passwd", "passphrase"],
     },
   ],
 ] as const satisfies ESLintConfiguration;
@@ -556,7 +664,10 @@ The transformation layer (`packages/grpc/src/transformers.ts`) handles this mapp
 | **Required for** | `original` rules with options | All rules with options                |
 | **Defines**      | Structure & constraints       | Defaults, descriptions, SQ keys       |
 
-**Important:** The schema is for ESLint validation. The `fields` array provides default values and metadata for SonarQube integration. For `original` rules with options, both schema and fields must be kept in sync manually. For `decorated`/`external` rules, the schema is inherited from the external rule at runtime.
+**Important:** The schema is for ESLint validation. The `fields` array provides default values and
+metadata for SonarQube integration. For `original` rules with options, both schema and fields must
+be kept in sync manually. For `decorated`/`external` rules, the schema is inherited from the
+external rule at runtime.
 
 ### `defaultOptions` in `generated-meta.ts`
 
@@ -567,7 +678,7 @@ The `npm run generate-meta` script reads `fields` and generates `defaultOptions`
 export const meta = {
   // ...
   defaultOptions: [
-    { format: '^[_a-z][a-zA-Z0-9]*$' }, // From fields[0][0].default
+    { format: "^[_a-z][a-zA-Z0-9]*$" }, // From fields[0][0].default
   ],
 };
 ```
@@ -578,12 +689,14 @@ This is extracted using the `defaultOptions()` helper from `helpers/configs.ts`.
 
 #### SonarQube workflow (gRPC)
 
-1. **Java Side**: `@RuleProperty` fields are read, `configurations()` returns typed `List<Object>` (e.g., `Map.of("max", 7)`)
-2. **Transport**: `AnalyzeProjectMessages` converts those Java values to protobuf `Struct`/`Value` while preserving their types
+1. **Java Side**: `@RuleProperty` fields are read, `configurations()` returns typed `List<Object>`
+   (e.g., `Map.of("max", 7)`)
+2. **Transport**: `AnalyzeProjectMessages` converts those Java values to protobuf `Struct`/`Value`
+   while preserving their types
 3. **Linter**: `linter.ts:createRulesRecord()` merges defaults with user config:
    ```typescript
    rules[`sonarjs/${rule.key}`] = [
-     'error',
+     "error",
      ...merge(defaultOptions(ruleMeta.fields), rule.configurations),
    ];
    ```
@@ -591,12 +704,14 @@ This is extracted using the `defaultOptions()` helper from `helpers/configs.ts`.
 #### gRPC workflow (external clients)
 
 1. **Client**: Sends rule params as string key-value pairs via proto3
-2. **Transformer**: `transformers.ts` maps SQ keys → ESLint keys and parses string values to proper types
+2. **Transformer**: `transformers.ts` maps SQ keys → ESLint keys and parses string values to proper
+   types
 3. **Linter**: Same merging as above
 
 ### Type Parsing from Strings (gRPC only)
 
-The gRPC workflow receives all param values as strings. The transformer parses them based on the `default` value type in `fields`:
+The gRPC workflow receives all param values as strings. The transformer parses them based on the
+`default` value type in `fields`:
 
 | Default Type | Input String | Parsed Result     |
 | ------------ | ------------ | ----------------- |
@@ -622,8 +737,8 @@ The gRPC workflow receives all param values as strings. The transformer parses t
 // config.ts
 export const fields = [
   [
-    { field: 'max', description: '...', default: 7 },
-    { field: 'ignoreIIFE', description: '...', default: false },
+    { field: "max", description: "...", default: 7 },
+    { field: "ignoreIIFE", description: "...", default: false },
   ],
 ] as const satisfies ESLintConfiguration;
 
@@ -635,7 +750,7 @@ export const fields = [
 ```typescript
 // config.ts
 export const fields = [
-  { default: '^[a-z]+$' }, // Single non-array element
+  { default: "^[a-z]+$" }, // Single non-array element
 ] as const satisfies ESLintConfiguration;
 
 // ESLint receives: ['^[a-z]+$']
@@ -648,10 +763,10 @@ export const fields = [
 export const fields = [
   [
     {
-      field: 'passwordWords',
-      items: { type: 'string' }, // Required for Java codegen
-      description: 'Comma separated list...',
-      default: ['password', 'pwd'],
+      field: "passwordWords",
+      items: { type: "string" }, // Required for Java codegen
+      description: "Comma separated list...",
+      default: ["password", "pwd"],
     },
   ],
 ] as const satisfies ESLintConfiguration;
@@ -663,13 +778,16 @@ export const fields = [
 ## Misc
 
 - Use issue number for a branch name, e.g. `issue-1234`
-- You can use [AST explorer](https://astexplorer.net/) to explore the tree share. Use the `regexpp` parser when implementing a Regex rule.
+- You can use [AST explorer](https://astexplorer.net/) to explore the tree share. Use the `regexpp`
+  parser when implementing a Regex rule.
 - [ESlint's working with rules](https://eslint.org/docs/developer-guide/working-with-rules)
 
 ## Issue tracking
 
 ### Working on a rule
 
-You don't need to make separate Jira tickets for RSPEC and rule implementation, a single one is good enough.
+You don't need to make separate Jira tickets for RSPEC and rule implementation, a single one is good
+enough.
 
-Add a link to the RSPEC PR from the SonarJS PR as shown in [this example](https://github.com/SonarSource/SonarJS/pull/4802#issue-2505105904).
+Add a link to the RSPEC PR from the SonarJS PR as shown in
+[this example](https://github.com/SonarSource/SonarJS/pull/4802#issue-2505105904).

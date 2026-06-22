@@ -173,7 +173,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: rspec-rule-data-${{ github.sha }}
-          path: sonar-plugin
+          path: .
       - &maven_cache
         uses: ./.github/actions/maven-cache
         with:
@@ -263,8 +263,8 @@ jobs:
         with:
           secrets: |
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
-      - name: Generate and deploy RSPEC rule data
-        run: npm run generate-rule-data:maven
+      - name: Generate and stamp RSPEC rule data
+        run: npm run ensure-rule-data
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
       - name: Upload prepared RSPEC rule data
@@ -276,6 +276,7 @@ jobs:
             sonar-plugin/javascript-checks/src/main/resources/rspec.sha
             sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css
             sonar-plugin/css/src/main/resources/rspec.sha
+            resources/rule-data-state.json
           retention-days: 1
 
   build_eslint_plugin:
@@ -448,7 +449,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: rspec-rule-data-${{ github.sha }}
-          path: sonar-plugin
+          path: .
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests with coverage
         run: |
@@ -493,7 +494,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: rspec-rule-data-${{ github.sha }}
-          path: sonar-plugin
+          path: .
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests on Windows
         shell: bash
