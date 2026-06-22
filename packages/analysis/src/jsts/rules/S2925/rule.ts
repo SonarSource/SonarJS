@@ -63,9 +63,84 @@ export const rule: Rule.RuleModule = {
           report(context, property, 'debugPause');
         }
       },
+      NewExpression(node: estree.Node) {
+        reportPromiseSetTimeout(context, node as estree.NewExpression);
+      },
     };
   },
 };
+
+function reportPromiseSetTimeout(context: Rule.RuleContext, node: estree.NewExpression) {
+  if (!isIdentifier(node.callee, 'Promise')) {
+    return;
+  }
+  const [executor] = node.arguments;
+  if (
+    !executor ||
+    (executor.type !== 'ArrowFunctionExpression' && executor.type !== 'FunctionExpression')
+  ) {
+    return;
+  }
+  const [resolveParam] = executor.params;
+  if (!resolveParam || resolveParam.type !== 'Identifier') {
+    return;
+  }
+  const resolveName = resolveParam.name;
+
+  const setTimeoutCall = findSetTimeoutCallInExecutorBody(executor.body, resolveName);
+  if (!setTimeoutCall) {
+    return;
+  }
+
+  const delayArg = setTimeoutCall.arguments[1];
+  if (!delayArg) {
+    return;
+  }
+  if (isNumericLiteralOrUnaryNumericLiteral(delayArg)) {
+    report(context, setTimeoutCall, 'fixedWait');
+    return;
+  }
+  if (delayArg.type === 'Identifier') {
+    const resolved = getUniqueWriteUsage(context, delayArg.name, delayArg);
+    if (resolved && isNumericLiteralOrUnaryNumericLiteral(resolved)) {
+      report(context, setTimeoutCall, 'fixedWait');
+    }
+  }
+}
+
+function findSetTimeoutCallInExecutorBody(
+  body: estree.BlockStatement | estree.Expression,
+  resolveName: string,
+): estree.CallExpression | undefined {
+  if (body.type === 'BlockStatement') {
+    if (body.body.length !== 1) {
+      return undefined;
+    }
+    const statement = body.body[0];
+    if (statement.type !== 'ExpressionStatement') {
+      return undefined;
+    }
+    return matchSetTimeoutCall(statement.expression, resolveName);
+  }
+  return matchSetTimeoutCall(body, resolveName);
+}
+
+function matchSetTimeoutCall(
+  expression: estree.Node,
+  resolveName: string,
+): estree.CallExpression | undefined {
+  if (expression.type !== 'CallExpression') {
+    return undefined;
+  }
+  if (!isIdentifier(expression.callee, 'setTimeout')) {
+    return undefined;
+  }
+  const [callback] = expression.arguments;
+  if (!callback || !isIdentifier(callback, resolveName)) {
+    return undefined;
+  }
+  return expression;
+}
 
 function reportCypressWait(
   context: Rule.RuleContext,

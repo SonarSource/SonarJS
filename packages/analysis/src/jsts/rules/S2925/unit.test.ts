@@ -148,6 +148,43 @@ describe('S2925', () => {
           `,
           filename: 'src/app/page.ts',
         },
+        {
+          code: `
+            it('ignores Promise+setTimeout with non-numeric delay', async () => {
+              await new Promise(resolve => setTimeout(resolve, computeDelay()));
+              await new Promise(resolve => setTimeout(resolve, delay));
+            });
+          `,
+          filename: 'tests/promise-dynamic.test.js',
+        },
+        {
+          code: `
+            it('ignores setTimeout outside Promise constructor', () => {
+              setTimeout(() => {}, 1000);
+            });
+          `,
+          filename: 'tests/standalone.test.js',
+        },
+        {
+          code: `
+            it('ignores Promise constructors that do more than wait', async () => {
+              await new Promise(resolve => {
+                doSomething();
+                setTimeout(resolve, 1000);
+              });
+              await new Promise(resolve => setTimeout(() => resolve(), 1000));
+            });
+          `,
+          filename: 'tests/promise-extra.test.js',
+        },
+        {
+          code: `
+            it('ignores non-Promise constructors', async () => {
+              new MyPromise(resolve => setTimeout(resolve, 1000));
+            });
+          `,
+          filename: 'tests/non-promise.test.js',
+        },
       ],
       invalid: [
         {
@@ -242,6 +279,31 @@ describe('S2925', () => {
           `,
           filename: 'tests/non-awaited.spec.ts',
           errors: [{ messageId: 'fixedWait' }, { messageId: 'debugPause' }],
+        },
+        {
+          code: `
+            it('flags Promise+setTimeout fixed wait', async () => {
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              await new Promise((resolve) => { setTimeout(resolve, 500); });
+              await new Promise(function (resolve) { setTimeout(resolve, 250); });
+            });
+          `,
+          filename: 'tests/promise-wait.test.js',
+          errors: [
+            { messageId: 'fixedWait' },
+            { messageId: 'fixedWait' },
+            { messageId: 'fixedWait' },
+          ],
+        },
+        {
+          code: `
+            it('flags Promise+setTimeout with resolvable delay', async () => {
+              const DELAY = 1000;
+              await new Promise(resolve => setTimeout(resolve, DELAY));
+            });
+          `,
+          filename: 'tests/promise-resolved.test.js',
+          errors: [{ messageId: 'fixedWait' }],
         },
       ],
     });
