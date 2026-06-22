@@ -56,7 +56,7 @@ const TEST_AND_SUITE_NAMES = new Set([...TEST_FUNCTION_NAMES, ...SUITE_FUNCTION_
 const messages = {
   removeAsync:
     'Remove the "async" keyword from this test suite callback; a test suite callback must be synchronous.',
-  moveAsyncSetup: 'Move this asynchronous setup into a "beforeAll" or "beforeEach" hook.',
+  moveAsyncSetup: 'Move this asynchronous work into a lifecycle hook.',
   removeAsyncQuickFix: 'Remove the "async" keyword',
   droppedTest: 'This test is declared after the await and is never registered.',
 };

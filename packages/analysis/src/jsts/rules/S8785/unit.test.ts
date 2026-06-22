@@ -275,7 +275,7 @@ context('group', async () => { await b(); });
               messageId: 'sonarRuntime',
               data: {
                 sonarRuntimeData: JSON.stringify({
-                  message: 'Move this asynchronous setup into a "beforeAll" or "beforeEach" hook.',
+                  message: 'Move this asynchronous work into a lifecycle hook.',
                   secondaryLocations: [
                     {
                       message: 'This test is declared after the await and is never registered.',
@@ -310,7 +310,7 @@ context('group', async () => { await b(); });
               messageId: 'sonarRuntime',
               data: {
                 sonarRuntimeData: JSON.stringify({
-                  message: 'Move this asynchronous setup into a "beforeAll" or "beforeEach" hook.',
+                  message: 'Move this asynchronous work into a lifecycle hook.',
                   secondaryLocations: [
                     {
                       message: 'This test is declared after the await and is never registered.',
