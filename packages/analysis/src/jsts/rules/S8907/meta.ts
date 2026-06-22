@@ -14,12 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import eslintPluginUnicorn from 'eslint-plugin-unicorn';
-import type { Rule } from 'eslint';
-
-const unicornRules = eslintPluginUnicorn.rules!;
-
-export const rules: Record<string, Rule.RuleModule> = {
-  ...unicornRules,
-  'dom-node-dataset': unicornRules['dom-node-dataset'] ?? unicornRules['prefer-dom-node-dataset'],
-};
+// https://sonarsource.github.io/rspec/#/rspec/S8907/javascript
+export const implementation = 'original';
+export const eslintId = 'prefer-native-lodash-alternative';
