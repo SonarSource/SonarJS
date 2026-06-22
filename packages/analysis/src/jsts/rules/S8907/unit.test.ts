@@ -46,6 +46,18 @@ _.map(item => item.label, items);
         },
         {
           code: `
+import map from 'lodash/fp/map';
+import mapPipeline from 'lodash/map/fp';
+import lodashEsMapPipeline from 'lodash-es/map/fp';
+const mapPackagePipeline = require('lodash.map/fp');
+map(item => item.label, items);
+mapPipeline(items, item => item.label);
+lodashEsMapPipeline(items, item => item.label);
+mapPackagePipeline(items, item => item.label);
+`,
+        },
+        {
+          code: `
 import _ from 'lodash';
 _.last(items);
 _.cloneDeep(config);
@@ -126,7 +138,7 @@ const labels = _.map(items, item => item.label);
           errors: [
             {
               message:
-                'Consider Array.prototype.map() instead of Lodash map(); check that the behavior is equivalent because Lodash also accepts objects and nullish values.',
+                'Consider Array.prototype.map() instead of map() from lodash; check that the behavior is equivalent because the library also accepts objects and nullish values.',
               line: 3,
               column: 18,
               endColumn: 21,
@@ -141,7 +153,22 @@ const labels = map(items, item => item.label);
           errors: [
             {
               message:
-                'Consider Array.prototype.map() instead of Lodash map(); check that the behavior is equivalent because Lodash also accepts objects and nullish values.',
+                'Consider Array.prototype.map() instead of map() from lodash; check that the behavior is equivalent because the library also accepts objects and nullish values.',
+              line: 3,
+              column: 16,
+              endColumn: 19,
+            },
+          ],
+        },
+        {
+          code: `
+import { map } from 'lodash-es';
+const labels = map(items, item => item.label);
+`,
+          errors: [
+            {
+              message:
+                'Consider Array.prototype.map() instead of map() from lodash-es; check that the behavior is equivalent because the library also accepts objects and nullish values.',
               line: 3,
               column: 16,
               endColumn: 19,
@@ -156,7 +183,7 @@ const labels = lodashMap(items, item => item.label);
           errors: [
             {
               message:
-                'Consider Array.prototype.map() instead of Lodash map(); check that the behavior is equivalent because Lodash also accepts objects and nullish values.',
+                'Consider Array.prototype.map() instead of map() from lodash; check that the behavior is equivalent because the library also accepts objects and nullish values.',
             },
           ],
         },
@@ -168,7 +195,7 @@ const labels = map(items, item => item.label);
           errors: [
             {
               message:
-                'Consider Array.prototype.map() instead of Lodash map(); check that the behavior is equivalent because Lodash also accepts objects and nullish values.',
+                'Consider Array.prototype.map() instead of map() from lodash; check that the behavior is equivalent because the library also accepts objects and nullish values.',
             },
           ],
         },
@@ -181,7 +208,7 @@ const activeUser = _.find(users, user => user.active);
           errors: [
             {
               message:
-                'Consider Array.prototype.find() instead of Lodash find(); check that the behavior is equivalent because Lodash and Underscore also accept objects, nullish values, and shorthand predicates.',
+                'Consider Array.prototype.find() instead of find() from lodash; check that the behavior is equivalent because the library also accepts objects, nullish values, and shorthand predicates.',
             },
           ],
         },
@@ -193,7 +220,7 @@ const names = keys(record);
           errors: [
             {
               message:
-                'Consider Object.keys() instead of Underscore keys(); check that the behavior is equivalent because Lodash and Underscore handle nullish values differently from the native API.',
+                'Consider Object.keys() instead of keys() from underscore.js; check that the behavior is equivalent because the library handles nullish values differently from the native API.',
               line: 3,
               column: 15,
               endColumn: 19,
@@ -209,7 +236,29 @@ const values = uniq(items);
           errors: [
             {
               message:
-                'Consider Set instead of Lodash uniq(); check that the behavior is equivalent because Lodash and Underscore handle nullish values differently from the native API.',
+                'Consider Set instead of uniq() from lodash; for example, use `[...new Set(values)]`. Check that the behavior is equivalent because the library handles nullish values differently from the native API.',
+            },
+          ],
+        },
+        {
+          code: `
+import _ from 'lodash';
+const tail = _.drop(items, count);
+const head = _.dropRight(items, count);
+const end = _.takeRight(items, count);
+`,
+          errors: [
+            {
+              message:
+                'Consider Array.prototype.slice() instead of drop() from lodash; for example, use `array.slice(n)`. Check that the behavior is equivalent because the library handles nullish values differently from the native API.',
+            },
+            {
+              message:
+                'Consider Array.prototype.slice() instead of dropRight() from lodash; for example, use `array.slice(0, -n)`. Check that the behavior is equivalent because the library handles nullish values differently from the native API.',
+            },
+            {
+              message:
+                'Consider Array.prototype.slice() instead of takeRight() from lodash; for example, use `array.slice(-n)`. Check that the behavior is equivalent because the library handles nullish values differently from the native API.',
             },
           ],
         },
@@ -220,7 +269,7 @@ const valid = isArray(value);
 `,
           errors: [
             {
-              message: 'Use Array.isArray() instead of Lodash isArray().',
+              message: 'Use Array.isArray() instead of isArray() from lodash.',
               line: 3,
               column: 15,
               endColumn: 22,
@@ -235,7 +284,7 @@ const valid = startsWith(name, 'x');
           errors: [
             {
               message:
-                'Consider String.prototype.startsWith() instead of Lodash startsWith(); check that the behavior is equivalent because Lodash and Underscore coerce values and handle nullish values differently from the native API.',
+                'Consider String.prototype.startsWith() instead of startsWith() from lodash; check that the behavior is equivalent because the library coerces values and handles nullish values differently from the native API.',
             },
           ],
         },
@@ -247,7 +296,7 @@ const lower = _.toLower(name);
           errors: [
             {
               message:
-                'Consider String.prototype.toLowerCase() instead of Underscore toLower(); check that the behavior is equivalent because Lodash and Underscore coerce values and handle nullish values differently from the native API.',
+                'Consider String.prototype.toLowerCase() instead of toLower() from underscore.js; check that the behavior is equivalent because the library coerces values and handles nullish values differently from the native API.',
             },
           ],
         },
@@ -260,7 +309,7 @@ const merged = _.assign(target, source);
           errors: [
             {
               message:
-                'Consider Object.assign() instead of Lodash assign(); check that the behavior is equivalent because Lodash and Underscore handle nullish targets differently from Object.assign.',
+                'Consider Object.assign() instead of assign() from lodash; check that the behavior is equivalent because the library handles nullish targets differently from Object.assign.',
             },
           ],
         },
@@ -273,7 +322,7 @@ const finite = _.isFinite(value);
           errors: [
             {
               message:
-                'Consider Number.isFinite() instead of Underscore isFinite(); check that the behavior is equivalent because Underscore coerces some values before checking them.',
+                'Consider Number.isFinite() instead of isFinite() from underscore.js; check that the behavior is equivalent because the library can handle non-number values differently from Number.isFinite.',
             },
           ],
         },
@@ -285,7 +334,7 @@ const valid = integer(value);
           languageOptions: { ecmaVersion: 2015 },
           errors: [
             {
-              message: 'Use Number.isInteger() instead of Lodash isInteger().',
+              message: 'Use Number.isInteger() instead of isInteger() from lodash.',
             },
           ],
         },
@@ -298,7 +347,7 @@ const has = _.includes(items, value);
           errors: [
             {
               message:
-                'Consider Array.prototype.includes() instead of Lodash includes(); check that the behavior is equivalent because Lodash also accepts strings, objects, and nullish values.',
+                'Consider Array.prototype.includes() instead of includes() from lodash; check that the behavior is equivalent because the library also accepts strings, objects, and nullish values.',
             },
           ],
         },
@@ -311,7 +360,7 @@ const values = _.values(record);
           errors: [
             {
               message:
-                'Consider Object.values() instead of Lodash values(); check that the behavior is equivalent because Lodash and Underscore handle nullish values differently from the native API.',
+                'Consider Object.values() instead of values() from lodash; check that the behavior is equivalent because the library handles nullish values differently from the native API.',
             },
           ],
         },
@@ -325,11 +374,11 @@ const padded = _.padStart(name, 3);
           errors: [
             {
               message:
-                'Consider Object.entries() instead of Lodash entries(); check that the behavior is equivalent because Lodash and Underscore handle nullish values differently from the native API.',
+                'Consider Object.entries() instead of entries() from lodash; check that the behavior is equivalent because the library handles nullish values differently from the native API.',
             },
             {
               message:
-                'Consider String.prototype.padStart() instead of Lodash padStart(); check that the behavior is equivalent because Lodash and Underscore coerce values and handle nullish values differently from the native API.',
+                'Consider String.prototype.padStart() instead of padStart() from lodash; check that the behavior is equivalent because the library coerces values and handles nullish values differently from the native API.',
             },
           ],
         },
@@ -342,7 +391,7 @@ const flat = _.flatten(items);
           errors: [
             {
               message:
-                'Consider Array.prototype.flat() instead of Lodash flatten(); check that the behavior is equivalent because Lodash handles nullish values differently from the native API.',
+                'Consider Array.prototype.flat() instead of flatten() from lodash; check that the behavior is equivalent because the library handles nullish values differently from the native API.',
             },
           ],
         },

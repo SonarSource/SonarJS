@@ -27,6 +27,7 @@ type Replacement = {
   alternative: string;
   minimumEcmaVersion: number;
   reason?: string;
+  example?: string;
 };
 
 const ES5 = 5;
@@ -35,30 +36,34 @@ const ES2016 = 2016;
 const ES2017 = 2017;
 const ES2019 = 2019;
 
-const ARRAY_NULLISH_REASON =
-  'Lodash and Underscore handle nullish values differently from the native API';
-const COLLECTION_REASON = 'Lodash also accepts objects and nullish values';
+const ARRAY_NULLISH_REASON = 'the library handles nullish values differently from the native API';
+const COLLECTION_REASON = 'the library also accepts objects and nullish values';
 const COLLECTION_PREDICATE_REASON =
-  'Lodash and Underscore also accept objects, nullish values, and shorthand predicates';
+  'the library also accepts objects, nullish values, and shorthand predicates';
 const STRING_COERCION_REASON =
-  'Lodash and Underscore coerce values and handle nullish values differently from the native API';
-const ASSIGN_REASON = 'Lodash and Underscore handle nullish targets differently from Object.assign';
+  'the library coerces values and handles nullish values differently from the native API';
+const ASSIGN_REASON = 'the library handles nullish targets differently from Object.assign';
 
 const replacements: Record<string, Replacement> = {
   all: cautious('Array.prototype.every()', COLLECTION_PREDICATE_REASON, ES5),
   any: cautious('Array.prototype.some()', COLLECTION_PREDICATE_REASON, ES5),
   assign: cautious('Object.assign()', ASSIGN_REASON, ES2015),
-  bind: cautious('Function.prototype.bind()', 'argument handling is not identical', ES5),
+  bind: cautious(
+    'Function.prototype.bind()',
+    'argument handling is not identical',
+    ES5,
+    '`fn.bind(thisArg, ...args)`',
+  ),
   collect: cautious('Array.prototype.map()', COLLECTION_REASON, ES5),
   concat: cautious('Array.prototype.concat()', ARRAY_NULLISH_REASON, ES5),
   contains: cautious(
     'Array.prototype.includes()',
-    'Lodash also accepts strings, objects, and nullish values',
+    'the library also accepts strings, objects, and nullish values',
     ES2016,
   ),
   detect: cautious('Array.prototype.find()', COLLECTION_PREDICATE_REASON, ES2015),
-  drop: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5),
-  dropRight: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5),
+  drop: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5, '`array.slice(n)`'),
+  dropRight: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5, '`array.slice(0, -n)`'),
   each: cautious('Array.prototype.forEach()', COLLECTION_PREDICATE_REASON, ES5),
   endsWith: cautious('String.prototype.endsWith()', STRING_COERCION_REASON, ES2015),
   entries: cautious('Object.entries()', ARRAY_NULLISH_REASON, ES2017),
@@ -70,7 +75,7 @@ const replacements: Record<string, Replacement> = {
   findIndex: cautious('Array.prototype.findIndex()', COLLECTION_PREDICATE_REASON, ES2015),
   flatten: cautious(
     'Array.prototype.flat()',
-    'Lodash handles nullish values differently from the native API',
+    'the library handles nullish values differently from the native API',
     ES2019,
   ),
   foldl: cautious('Array.prototype.reduce()', COLLECTION_PREDICATE_REASON, ES5),
@@ -78,7 +83,7 @@ const replacements: Record<string, Replacement> = {
   forEach: cautious('Array.prototype.forEach()', COLLECTION_PREDICATE_REASON, ES5),
   includes: cautious(
     'Array.prototype.includes()',
-    'Lodash also accepts strings, objects, and nullish values',
+    'the library also accepts strings, objects, and nullish values',
     ES2016,
   ),
   indexOf: cautious('Array.prototype.indexOf()', ARRAY_NULLISH_REASON, ES5),
@@ -86,7 +91,7 @@ const replacements: Record<string, Replacement> = {
   isArray: direct('Array.isArray()', ES5),
   isFinite: cautious(
     'Number.isFinite()',
-    'Underscore coerces some values before checking them',
+    'the library can handle non-number values differently from Number.isFinite',
     ES2015,
   ),
   isInteger: direct('Number.isInteger()', ES2015),
@@ -108,12 +113,12 @@ const replacements: Record<string, Replacement> = {
   some: cautious('Array.prototype.some()', COLLECTION_PREDICATE_REASON, ES5),
   split: cautious('String.prototype.split()', STRING_COERCION_REASON, ES5),
   startsWith: cautious('String.prototype.startsWith()', STRING_COERCION_REASON, ES2015),
-  takeRight: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5),
+  takeRight: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5, '`array.slice(-n)`'),
   toLower: cautious('String.prototype.toLowerCase()', STRING_COERCION_REASON, ES5),
   toPairs: cautious('Object.entries()', ARRAY_NULLISH_REASON, ES2017),
   toUpper: cautious('String.prototype.toUpperCase()', STRING_COERCION_REASON, ES5),
   trim: cautious('String.prototype.trim()', STRING_COERCION_REASON, ES5),
-  uniq: cautious('Set', ARRAY_NULLISH_REASON, ES2015),
+  uniq: cautious('Set', ARRAY_NULLISH_REASON, ES2015, '`[...new Set(values)]`'),
   values: cautious('Object.values()', ARRAY_NULLISH_REASON, ES2017),
 };
 
@@ -125,9 +130,11 @@ const methodNamesByLowerCase = new Map(
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      direct: 'Use {{alternative}} instead of {{library}} {{method}}().',
+      direct: 'Use {{alternative}} instead of {{method}}() from {{library}}.',
       cautious:
-        'Consider {{alternative}} instead of {{library}} {{method}}(); check that the behavior is equivalent because {{reason}}.',
+        'Consider {{alternative}} instead of {{method}}() from {{library}}; check that the behavior is equivalent because {{reason}}.',
+      cautiousWithExample:
+        'Consider {{alternative}} instead of {{method}}() from {{library}}; for example, use {{example}}. Check that the behavior is equivalent because {{reason}}.',
     },
   }),
   create(context: Rule.RuleContext) {
@@ -153,9 +160,10 @@ export const rule: Rule.RuleModule = {
         const { library, method, replacement } = lodashCall;
         context.report({
           node: getReportNode(call.callee),
-          messageId: replacement.reason ? 'cautious' : 'direct',
+          messageId: getMessageId(replacement),
           data: {
             alternative: replacement.alternative,
+            example: replacement.example ?? '',
             library,
             method,
             reason: replacement.reason ?? '',
@@ -170,8 +178,20 @@ function direct(alternative: string, minimumEcmaVersion: number): Replacement {
   return { alternative, minimumEcmaVersion };
 }
 
-function cautious(alternative: string, reason: string, minimumEcmaVersion: number): Replacement {
-  return { alternative, reason, minimumEcmaVersion };
+function cautious(
+  alternative: string,
+  reason: string,
+  minimumEcmaVersion: number,
+  example?: string,
+): Replacement {
+  return { alternative, reason, minimumEcmaVersion, example };
+}
+
+function getMessageId(replacement: Replacement): 'direct' | 'cautious' | 'cautiousWithExample' {
+  if (replacement.reason === undefined) {
+    return 'direct';
+  }
+  return replacement.example === undefined ? 'cautious' : 'cautiousWithExample';
 }
 
 function normalizeEcmaVersion(
@@ -222,17 +242,28 @@ function getLodashCall(
   syntacticMethod: string | null,
 ): { library: string; method: string; replacement: Replacement } | null {
   const parts = fullyQualifiedName.replaceAll('/', '.').split('.');
+  if (!hasSupportedImportShape(parts)) {
+    return null;
+  }
   const [moduleName, qualifier] = parts;
   if (moduleName === 'lodash' || moduleName === 'lodash-es') {
-    if (qualifier === 'fp') {
-      return null;
-    }
-    return getCatalogEntry('Lodash', qualifier, syntacticMethod);
+    return getCatalogEntry(moduleName, qualifier, syntacticMethod);
   }
   if (moduleName === 'underscore') {
-    return getCatalogEntry('Underscore', qualifier, syntacticMethod);
+    return getCatalogEntry('underscore.js', qualifier, syntacticMethod);
   }
   return null;
+}
+
+function hasSupportedImportShape(parts: string[]): boolean {
+  if (parts.length !== 2) {
+    return false;
+  }
+  const [moduleName, qualifier] = parts;
+  return (
+    qualifier !== undefined &&
+    (moduleName === 'lodash' || moduleName === 'lodash-es' || moduleName === 'underscore')
+  );
 }
 
 function getCatalogEntry(
