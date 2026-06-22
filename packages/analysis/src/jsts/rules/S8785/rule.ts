@@ -144,9 +144,14 @@ function reportAsyncCallback(
       return;
     }
     const tokenAfterAsync = context.sourceCode.getTokenAfter(asyncToken);
-    context.report({
+    // This rule declares `hasSecondaries`, so the linter decodes every issue message of S8785 as
+    // an encoded payload. Route this report through the `report` helper too (with no secondary
+    // locations) so its message is encoded consistently; a raw `context.report` would emit a plain
+    // string that the decoder fails to `JSON.parse`.
+    report(context, {
       loc: asyncToken.loc,
       messageId: 'removeAsync',
+      message: messages.removeAsync,
       suggest: [
         {
           messageId: 'removeAsyncQuickFix',

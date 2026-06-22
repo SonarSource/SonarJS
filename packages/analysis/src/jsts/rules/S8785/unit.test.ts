@@ -290,6 +290,37 @@ context('group', async () => { await b(); });
             },
           ],
         },
+        {
+          // regression: the rule declares `hasSecondaries`, so under sonarRuntime the linter
+          // decodes every message of S8785 as JSON. The removeAsync report (which carries no
+          // secondary locations) must be encoded too, otherwise the decoder crashes parsing a
+          // plain string. See the matching `report` call in rule.ts.
+          code: `describe('user service', async () => {
+  it('returns users', () => {});
+});`,
+          filename: mochaGlobals,
+          settings: { sonarRuntime: true },
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                sonarRuntimeData: JSON.stringify({
+                  message:
+                    'Remove the "async" keyword from this test suite callback; a test suite callback must be synchronous.',
+                  secondaryLocations: [],
+                }),
+              },
+              suggestions: [
+                {
+                  messageId: 'removeAsyncQuickFix',
+                  output: `describe('user service', () => {
+  it('returns users', () => {});
+});`,
+                },
+              ],
+            },
+          ],
+        },
       ],
     });
   });
