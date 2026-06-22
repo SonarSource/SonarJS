@@ -19,33 +19,37 @@ import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
-describe('S6774 with React 18', () => {
+describe('S6774 with unknown React version', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
-  ruleTester.run('S6774 reports missing propTypes on React 18 projects', rule, {
-    valid: [
-      {
-        code: `
+  ruleTester.run(
+    'S6774 reports missing propTypes when the React version cannot be determined',
+    rule,
+    {
+      valid: [
+        {
+          code: `
           import PropTypes from 'prop-types';
           function MyComponent({ name }) {
             return <div>{name}</div>;
           }
           MyComponent.propTypes = { name: PropTypes.string.isRequired };
         `,
-        filename: join(dirname, 'component.jsx'),
-      },
-    ],
-    invalid: [
-      {
-        code: `
+          filename: join(dirname, 'component.jsx'),
+        },
+      ],
+      invalid: [
+        {
+          code: `
           function MyComponent({ name }) {
             return <div>{name}</div>;
           }
         `,
-        filename: join(dirname, 'component.jsx'),
-        errors: [{ messageId: 'missingPropType' }],
-      },
-    ],
-  });
+          filename: join(dirname, 'component.jsx'),
+          errors: [{ messageId: 'missingPropType' }],
+        },
+      ],
+    },
+  );
 });

@@ -17,7 +17,6 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6774/javascript
 
 import type { Rule } from 'eslint';
-import type estree from 'estree';
 import { parse as parseSemver } from 'semver';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
@@ -25,12 +24,11 @@ import { getReactVersion } from '../helpers/dependency-manifests/dependencies.js
 import * as meta from './generated-meta.js';
 
 /**
- * Decorates the react/prop-types rule to skip components wrapped in React.forwardRef
- * when the project uses React 19+.
+ * Decorates the react/prop-types rule to silence it on React 19+ projects.
  *
- * React 19 deprecated propTypes specifically on forwardRef components
- * (ForwardRefExoticComponent), so flagging missing propTypes on these
- * components is no longer appropriate for React 19+ projects.
+ * React 19 silently ignores `propTypes` on function components, so the
+ * rule's prescribed fix is dead code there. When the React version cannot
+ * be determined the rule still reports.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -39,68 +37,25 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
-      const node = (reportDescriptor as { node?: estree.Node }).node;
-      if (!node) {
-        context.report(reportDescriptor);
+      if (isReact19OrLater(context)) {
         return;
       }
-
-      // Only skip forwardRef components if using React 19+
-      if (isReact19OrLater(context) && isInsideForwardRef(node, context)) {
-        return; // Skip reporting for forwardRef components in React 19+
-      }
-
       context.report(reportDescriptor);
     },
   );
 }
 
 /**
- * Checks if the project uses React 19 or later.
+ * Returns true when the project's React dependency is 19 or later.
+ *
+ * @param context the rule context
+ * @return whether the project is on React 19+
  */
 function isReact19OrLater(context: Rule.RuleContext): boolean {
   const reactVersion = getReactVersion(context);
   if (!reactVersion) {
-    return true; // If we can't determine the version, be conservative and don't report
+    return false;
   }
   const version = parseSemver(reactVersion);
   return version !== null && version.major >= 19;
-}
-
-/**
- * Checks if a node is inside a React.forwardRef() call.
- */
-function isInsideForwardRef(node: estree.Node, context: Rule.RuleContext): boolean {
-  const ancestors = context.sourceCode.getAncestors(node);
-
-  for (const ancestor of ancestors) {
-    if (ancestor.type === 'CallExpression' && isForwardRefCall(ancestor)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/**
- * Checks if a CallExpression is a React.forwardRef() or forwardRef() call.
- */
-function isForwardRefCall(node: estree.CallExpression): boolean {
-  const { callee } = node;
-
-  // Direct call: forwardRef(...)
-  if (callee.type === 'Identifier' && callee.name === 'forwardRef') {
-    return true;
-  }
-
-  // Member expression: React.forwardRef(...)
-  if (
-    callee.type === 'MemberExpression' &&
-    callee.property.type === 'Identifier' &&
-    callee.property.name === 'forwardRef'
-  ) {
-    return true;
-  }
-
-  return false;
 }
