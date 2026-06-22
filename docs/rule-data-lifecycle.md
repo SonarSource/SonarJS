@@ -5,7 +5,96 @@ focuses on the moving pieces that are easy to confuse in a reused workspace:
 
 - `resources/rule-data-state.json`
 - root `rspec.sha`
+- Direct Maven pinning
 - generated per-language `sonar-plugin/*/src/main/resources/rspec.sha`
+
+## Lifecycle at a glance
+
+### Input / Output
+
+```text
+          normal SonarJS path                    advanced/manual path
+        +---------------------------+          +---------------------------+
+        | root rspec.sha            |          | Direct Maven pinning      |
+        | - shared explicit pin     |          | - explicit advanced       |
+        |                           |          |   pinning                 |
+        |                           |          |                           |
+        +-------------+-------------+          +-------------+-------------+
+                      |                                      |
+                      v                                      v
+        +---------------------------+          +---------------------------+
+        | ensure-rule-data /        |          | direct mvn generation     |
+        | generate-rule-data:maven  |          |                           |
+        +-------------+-------------+          +-------------+-------------+
+                      |                                      |
+                      +------------------+-------------------+
+                                         |
+                                         v
+        +-----------------------------------------+
+        | prepared rule-data outputs              |
+        | - sonar-plugin/**/rules/**/*.json       |
+        | - sonar-plugin/**/rules/**/*.html       |
+        | - generated per-language rspec.sha      |
+        +-------------------+---------------------+
+                            |
+                            v
+        +-----------------------------------------+
+        | resources/rule-data-state.json          |
+        | - version                               |
+        | - step                                  |
+        | - head                                  |
+        | - rootRspecSha                          |
+        +-----------------------------------------+
+```
+
+### State Graph
+
+```text
+                    +------------------------------+
+                    | no prepared rule data        |
+                    +--------------+---------------+
+                                   |
+                                   | ensure-rule-data
+                                   v
+                    +------------------------------+
+                    | regenerate rule data         |
+                    +--------------+---------------+
+                                   |
+                                   | write state stamp
+                                   v
+              +--------------------------------------------------+
+              | prepared rule data exists and is consistent      |
+              +----------------------+---------------------------+
+                                     |
+            +------------------------+------------------------+
+            |                                                 |
+            | same HEAD + same root pin                       | HEAD changed
+            | outputs still present                           | or root pin changed
+            |                                                 | or outputs missing
+            v                                                 v
+    +---------------------+                         +------------------------------+
+    | reuse / skip        |                         | stale                        |
+    +----------+----------+                         +--------------+---------------+
+               |                                                   |
+               | ensure-rule-data                                  | ensure-rule-data
+               |                                                   |
+               |                                                   | if stale stamp exists
+               |                                                   | and no root rspec.sha:
+               |                                                   | clear generated
+               |                                                   | per-language pins
+               |                                                   v
+               |                                    +------------------------------+
+               +----------------------------------->| regenerate rule data         |
+                                                    +--------------+---------------+
+                                                                   |
+                                                                   | normal refresh uses:
+                                                                   | - root rspec.sha
+                                                                   | - generated pin fallback
+                                                                   v
+              +--------------------------------------------------+
+              | prepared rule data exists and is consistent      |
+              +--------------------------------------------------+
+```
 
 ## Files and roles
 
@@ -37,6 +126,37 @@ If present, it means:
 
 `ensure-rule-data` and the Maven wrapper treat this file as authoritative. It applies to both
 JavaScript and CSS unless a direct Maven command overrides the per-language properties itself.
+
+This file is intentionally different from `resources/rule-data-state.json`:
+
+- `rspec.sha` expresses requested input: "build from this RSPEC revision"
+- `rule-data-state.json` expresses observed freshness: "these prepared outputs match this checkout
+  and this root pin"
+
+The state file can tell SonarJS whether outputs are current, but it is not meant to replace the
+user-controlled pin. Keeping those roles separate avoids mixing "what was requested" with "what was
+last prepared".
+
+### Direct Maven pinning
+
+Direct Maven pinning means generating rule data by passing explicit Maven properties instead of
+creating a root `rspec.sha` file.
+
+Examples:
+
+```bash
+-Drspec.sha=<commit-sha>
+```
+
+or, for separate JavaScript and CSS revisions:
+
+```bash
+-Drspec.javascript.sha=<commit-sha>
+-Drspec.css.sha=<commit-sha>
+```
+
+This is a supported advanced/manual workflow. It is not the normal GitHub CI path. It is supported
+through the Maven profiles in `sonar-plugin/javascript-checks/pom.xml`.
 
 ### Generated per-language `rspec.sha`
 
@@ -78,8 +198,11 @@ That means metadata generation always goes through the same rule-data freshness 
 
 This is the Maven wrapper that actually performs RSPEC generation and deployment.
 
-It can still be useful directly, especially for explicit Maven pinning workflows, but ordinary
-SonarJS lifecycle handling should go through `npm run ensure-rule-data`.
+It can still be useful directly for the normal SonarJS workflow, but ordinary SonarJS lifecycle
+handling should go through `npm run ensure-rule-data`.
+
+Direct Maven pinning is a separate advanced/manual workflow that bypasses `ensure-rule-data` and
+invokes Maven with explicit `-Drspec...` properties.
 
 ## Reuse and refresh rules
 
@@ -95,7 +218,7 @@ If any of those conditions stop matching, `ensure-rule-data` regenerates the rul
 
 ## Pin precedence
 
-Pin precedence is:
+Within the normal SonarJS lifecycle, pin precedence is:
 
 1. root `rspec.sha`
 2. generated per-language `rspec.sha`
@@ -105,6 +228,29 @@ In other words:
 
 - root `rspec.sha` is the intentional shared pin
 - generated per-language pins are fallback inputs when no root pin is present
+
+Direct Maven pinning sits outside that precedence chain because it bypasses the normal SonarJS
+wrapper and passes explicit Maven properties directly.
+
+## Why the root pin and state file both exist
+
+It may be tempting to collapse root `rspec.sha` into `resources/rule-data-state.json`, but they
+serve different responsibilities:
+
+- root `rspec.sha` is an input chosen by the user or workflow
+- `rule-data-state.json` is a derived stamp written by SonarJS after preparation
+
+In practice, that means:
+
+- deleting the state file should only force SonarJS to re-check or regenerate prepared outputs
+- changing root `rspec.sha` should deliberately change which RSPEC revision is used
+
+As long as SonarJS supports an explicit shared RSPEC pin, the root `rspec.sha` file remains useful
+even though the lifecycle stamp also records its current value.
+
+The generated per-language `rspec.sha` files are a different story: they are primarily build
+artifacts and Maven-facing fallback inputs. Those are more likely candidates for future
+simplification than the root pin itself.
 
 ## Why stale generated pins are dangerous
 
@@ -151,11 +297,10 @@ The root `rspec.sha` value is part of the lifecycle stamp.
 Changing that file makes the stamp stale, so `npm run ensure-rule-data` regenerates rule data for
 the new explicit pin.
 
-### Direct Maven per-language pinning
+### Direct Maven pinning
 
-If rule data was prepared outside `ensure-rule-data`, for example with direct Maven
-`-Drspec.javascript.sha=...` or `-Drspec.css.sha=...`, the generated per-language pins may exist
-without a lifecycle stamp.
+If rule data was prepared outside `ensure-rule-data` with Direct Maven pinning, the generated
+per-language pins may exist without a lifecycle stamp.
 
 In that case `ensure-rule-data` does not delete those pins just because the stamp is absent. That
 preserves legacy and directly pinned prepared outputs until SonarJS itself stamps a lifecycle state.
