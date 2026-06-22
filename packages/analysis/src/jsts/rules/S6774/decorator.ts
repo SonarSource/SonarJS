@@ -19,7 +19,6 @@
 import type { Rule } from 'eslint';
 import { parse as parseSemver } from 'semver';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { getReactVersion } from '../helpers/dependency-manifests/dependencies.js';
 import * as meta from './generated-meta.js';
 
@@ -31,18 +30,15 @@ import * as meta from './generated-meta.js';
  * be determined the rule still reports.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(
-    {
-      ...rule,
-      meta: generateMeta(meta, rule.meta),
-    },
-    (context, reportDescriptor) => {
+  return {
+    meta: generateMeta(meta, rule.meta),
+    create(context: Rule.RuleContext) {
       if (isReact19OrLater(context)) {
-        return;
+        return {};
       }
-      context.report(reportDescriptor);
+      return rule.create(context);
     },
-  );
+  };
 }
 
 /**
