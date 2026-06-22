@@ -16,5 +16,4 @@
  */
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 import type { Rule } from 'eslint';
-
 export const rules: Record<string, Rule.RuleModule> = eslintPluginUnicorn.rules!;

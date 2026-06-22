@@ -16,7 +16,10 @@
  */
 import { describe, it } from 'node:test';
 import { rule } from './index.js';
-import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  RuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 
 type ReplacementCase = {
   method: string;
@@ -32,6 +35,27 @@ const COLLECTION_PREDICATE_REASON =
   'the library also accepts objects, nullish values, and shorthand predicates';
 const STRING_COERCION_REASON =
   'the library coerces values and handles nullish values differently from the native API';
+const ARRAY_COLLECTION_METHODS = new Set([
+  'all',
+  'any',
+  'collect',
+  'contains',
+  'detect',
+  'each',
+  'every',
+  'filter',
+  'findIndex',
+  'foldl',
+  'foldr',
+  'forEach',
+  'includes',
+  'inject',
+  'map',
+  'reduce',
+  'reduceRight',
+  'select',
+  'some',
+]);
 
 const additionalReplacementCases: ReplacementCase[] = [
   {
@@ -187,7 +211,11 @@ const additionalReplacementCases: ReplacementCase[] = [
 ];
 
 function toInvalidCase(replacementCase: ReplacementCase) {
-  const code = replacementCase.code ?? `_.${replacementCase.method}(items, callback);`;
+  const code =
+    replacementCase.code ??
+    (ARRAY_COLLECTION_METHODS.has(replacementCase.method)
+      ? `_.${replacementCase.method}([item], callback);`
+      : `_.${replacementCase.method}(items, callback);`);
 
   return {
     code: `
@@ -270,6 +298,27 @@ _(items).map(item => item.label).value();
         },
         {
           code: `
+import _ from 'lodash';
+_.map(items, item => item.label);
+_.filter(items, item => item.enabled);
+_.includes(items, value);
+`,
+        },
+        {
+          code: `
+import _ from 'lodash';
+_.map([item], 'label');
+_.find([item], { active: true });
+`,
+        },
+        {
+          code: `
+import _ from 'lodash';
+_.trim(name, '"');
+`,
+        },
+        {
+          code: `
 import lodash from 'lodash';
 lodash(items).filter(item => item.enabled).value();
 `,
@@ -330,7 +379,7 @@ _.flatten(items);
         {
           code: `
 import _ from 'lodash';
-const labels = _.map(items, item => item.label);
+const labels = _.map([item], item => item.label);
 `,
           errors: [
             {
@@ -345,7 +394,7 @@ const labels = _.map(items, item => item.label);
         {
           code: `
 import { map } from 'lodash';
-const labels = map(items, item => item.label);
+const labels = map([item], item => item.label);
 `,
           errors: [
             {
@@ -360,7 +409,7 @@ const labels = map(items, item => item.label);
         {
           code: `
 import { map } from 'lodash-es';
-const labels = map(items, item => item.label);
+const labels = map([item], item => item.label);
 `,
           errors: [
             {
@@ -375,7 +424,7 @@ const labels = map(items, item => item.label);
         {
           code: `
 import { map as lodashMap } from 'lodash';
-const labels = lodashMap(items, item => item.label);
+const labels = lodashMap([item], item => item.label);
 `,
           errors: [
             {
@@ -387,7 +436,7 @@ const labels = lodashMap(items, item => item.label);
         {
           code: `
 import map from 'lodash/map';
-const labels = map(items, item => item.label);
+const labels = map([item], item => item.label);
 `,
           errors: [
             {
@@ -399,7 +448,7 @@ const labels = map(items, item => item.label);
         {
           code: `
 import _ from 'lodash';
-const activeUser = _.find(users, user => user.active);
+const activeUser = _.find([user], user => user.active);
 `,
           languageOptions: { ecmaVersion: 2015 },
           errors: [
@@ -538,7 +587,7 @@ const valid = integer(value);
         {
           code: `
 import _ from 'lodash';
-const has = _.includes(items, value);
+const has = _.includes([item], value);
 `,
           languageOptions: { ecmaVersion: 2016 },
           errors: [
@@ -589,6 +638,81 @@ const flat = _.flatten(items);
             {
               message:
                 'Consider Array.prototype.flat() instead of flatten() from lodash; check that the behavior is equivalent because the library handles nullish values differently from the native API.',
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('uses type information to select shape-specific alternatives', () => {
+    const ruleTester = new RuleTester();
+
+    ruleTester.run('prefer-native-lodash-alternative', rule, {
+      valid: [
+        {
+          code: `
+import _ from 'lodash';
+declare const items: unknown;
+declare const value: unknown;
+_.map(items, item => item);
+_.includes(items, value);
+`,
+          languageOptions: { ecmaVersion: 2016 },
+        },
+        {
+          code: `
+import _ from 'lodash';
+declare const users: Array<{ name: string }>;
+const labels = _.map(users, 'name');
+`,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+import _ from 'lodash';
+declare const users: Array<{ name: string }>;
+const labels = _.map(users, user => user.name);
+`,
+          errors: [
+            {
+              message:
+                'Consider Array.prototype.map() instead of map() from lodash; check that the behavior is equivalent because the library also accepts objects and nullish values.',
+            },
+          ],
+        },
+        {
+          code: `
+import _ from 'lodash';
+declare const record: Record<string, { label: string }>;
+const labels = _.map(record, value => value.label);
+`,
+          errors: [
+            {
+              message:
+                'Consider Object.values() or Object.entries() with Array.prototype.map() instead of map() from lodash; check that the behavior is equivalent because the library handles nullish values differently and object iteratees receive value, key, and collection.',
+            },
+          ],
+        },
+        {
+          code: `
+import _ from 'lodash';
+declare const users: string[];
+declare const user: string;
+declare const name: string;
+const hasItem = _.includes(users, user);
+const hasText = _.includes(name, 'x');
+`,
+          languageOptions: { ecmaVersion: 2016 },
+          errors: [
+            {
+              message:
+                'Consider Array.prototype.includes() instead of includes() from lodash; check that the behavior is equivalent because the library also accepts strings, objects, and nullish values.',
+            },
+            {
+              message:
+                'Consider String.prototype.includes() instead of includes() from lodash; check that the behavior is equivalent because the library also accepts arrays, objects, and nullish values.',
             },
           ],
         },

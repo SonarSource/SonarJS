@@ -6,26 +6,14 @@
 10,
 23
 ],
-"it-tools:src/tools/color-converter/color-converter.vue": [
-67
-],
-"it-tools:src/tools/emoji-picker/emoji-picker.vue": [
-11
-],
 "it-tools:src/tools/json-diff/json-diff.models.ts": [
 11,
 11
 ],
 "it-tools:src/tools/jwt-parser/jwt-parser.service.ts": [
-11,
-12,
 22
 ],
 "it-tools:src/ui/c-buttons-select/c-buttons-select.vue": [
-25,
-35
-],
-"it-tools:src/ui/c-table/c-table.vue": [
 25
 ]
 }

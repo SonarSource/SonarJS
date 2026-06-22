@@ -3,12 +3,7 @@
 43
 ],
 "eigen:src/app/Components/ArtworkFilter/ArtworkFilterHelpers.ts": [
-481,
 515
-],
-"eigen:src/app/Components/ArtworkFilter/ArtworkFilterStore.tsx": [
-84,
-85
 ],
 "eigen:src/app/Components/ArtworkFilter/Filters/useMultiSelect.ts": [
 37
@@ -46,15 +41,6 @@
 "eigen:src/app/Scenes/MyCollection/Screens/Insights/AverageSalePriceSelectArtistModal.tsx": [
 47
 ],
-"eigen:src/app/Scenes/MyCollection/utils/localArtworkSortAndFilter.ts": [
-124,
-148,
-156,
-185,
-211,
-234,
-257
-],
 "eigen:src/app/Scenes/MyProfile/MyProfileEditForm.tsx": [
 171
 ],
@@ -75,9 +61,6 @@
 ],
 "eigen:src/app/utils/isValidPhoneNumber.ts": [
 20
-],
-"eigen:src/app/utils/renderMarkdown.tsx": [
-134
 ],
 "eigen:src/app/utils/requestPhotos.ts": [
 17

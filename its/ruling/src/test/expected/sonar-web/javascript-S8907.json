@@ -1,44 +1,21 @@
 {
-"sonar-web:src/main/js/apps/api-documentation/item-view.js": [
-26
-],
-"sonar-web:src/main/js/apps/api-documentation/list.js": [
-10
-],
-"sonar-web:src/main/js/apps/coding-rules/app.js": [
-87
-],
-"sonar-web:src/main/js/apps/coding-rules/bulk-change-modal-view.js": [
-75
-],
 "sonar-web:src/main/js/apps/coding-rules/rule/profile-activation-view.js": [
-108,
 117
 ],
 "sonar-web:src/main/js/apps/custom-measures/custom-measures.js": [
 47
 ],
 "sonar-web:src/main/js/apps/issues/controller.js": [
-30,
-180
+30
 ],
 "sonar-web:src/main/js/apps/issues/facets/creation-date-facet.js": [
 42
-],
-"sonar-web:src/main/js/apps/issues/models/issues.js": [
-15
 ],
 "sonar-web:src/main/js/apps/issues/workspace-header-view.js": [
 21
 ],
 "sonar-web:src/main/js/apps/projects/main.js": [
 138
-],
-"sonar-web:src/main/js/apps/quality-gates/gate-conditions-view.js": [
-58
-],
-"sonar-web:src/main/js/apps/quality-profiles/change-profile-parent-view.js": [
-53
 ],
 "sonar-web:src/main/js/apps/quality-profiles/create-profile-view.js": [
 52,
@@ -49,86 +26,37 @@
 15
 ],
 "sonar-web:src/main/js/apps/users/user.js": [
-20,
 21
 ],
 "sonar-web:src/main/js/components/common/modal-form.js": [
 40,
 46
 ],
-"sonar-web:src/main/js/components/issue/collections/issues.js": [
-15
-],
-"sonar-web:src/main/js/components/issue/models/issue.js": [
-43
-],
 "sonar-web:src/main/js/components/issue/views/assign-form-view.js": [
 136
 ],
-"sonar-web:src/main/js/components/issue/views/tags-form-view.js": [
-56
-],
-"sonar-web:src/main/js/components/navigator/controller.js": [
-100
-],
 "sonar-web:src/main/js/components/navigator/filters/ajax-select-filters.js": [
-86,
-87,
-147,
-198,
-243,
-276,
-290,
-303,
-316
+290
 ],
 "sonar-web:src/main/js/components/navigator/filters/choice-filters.js": [
-101,
-206,
-320,
-360
-],
-"sonar-web:src/main/js/components/navigator/filters/favorite-filters.js": [
-33
+101
 ],
 "sonar-web:src/main/js/components/navigator/filters/metric-filters.js": [
-53,
-116,
-121,
 148,
 177
 ],
-"sonar-web:src/main/js/components/navigator/filters/more-criteria-filters.js": [
-23
-],
 "sonar-web:src/main/js/components/navigator/filters/range-filters.js": [
 62,
-134,
 185
 ],
 "sonar-web:src/main/js/components/source-viewer/main.js": [
 244,
 293,
-298,
-442,
-446
+298
 ],
 "sonar-web:src/main/js/components/source-viewer/measures-overlay.js": [
-47,
-74,
-78,
 78,
 163
-],
-"sonar-web:src/main/js/components/source-viewer/popups/coverage-popup.js": [
-28
-],
-"sonar-web:src/main/js/components/source-viewer/popups/duplication-popup.js": [
-25
-],
-"sonar-web:src/main/js/components/source-viewer/source.js": [
-79,
-85
 ],
 "sonar-web:src/main/js/components/workspace/views/viewer-header-view.js": [
 60,
@@ -139,11 +67,7 @@
 219,
 242,
 265,
-270,
-429
-],
-"sonar-web:src/main/js/helpers/measures.js": [
-44
+270
 ],
 "sonar-web:src/main/js/widgets/issue-filter/widget.js": [
 84,
@@ -152,13 +76,10 @@
 122,
 132,
 143,
-197,
 288,
-300,
 338
 ],
 "sonar-web:src/main/js/widgets/old/treemap.js": [
-282,
 288,
 290
 ]

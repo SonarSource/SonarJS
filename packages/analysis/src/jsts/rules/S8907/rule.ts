@@ -18,9 +18,21 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier } from '../helpers/ast.js';
 import { getFullyQualifiedName, isRequire } from '../helpers/module.js';
+import {
+  isRequiredParserServices,
+  type RequiredParserServices,
+} from '../helpers/parser-services.js';
+import {
+  getTypeFromTreeNode,
+  isAny,
+  isArrayLikeType,
+  isObjectType,
+  isStringType,
+} from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 type Replacement = {
@@ -42,8 +54,11 @@ const ARRAY_NULLISH_REASON = 'the library handles nullish values differently fro
 const COLLECTION_REASON = 'the library also accepts objects and nullish values';
 const COLLECTION_PREDICATE_REASON =
   'the library also accepts objects, nullish values, and shorthand predicates';
+const OBJECT_COLLECTION_REASON =
+  'the library handles nullish values differently and object iteratees receive value, key, and collection';
 const STRING_COERCION_REASON =
   'the library coerces values and handles nullish values differently from the native API';
+const STRING_INCLUDES_REASON = 'the library also accepts arrays, objects, and nullish values';
 const ASSIGN_REASON = 'the library handles nullish targets differently from Object.assign';
 
 const replacements: Record<string, Replacement> = {
@@ -128,6 +143,55 @@ const methodNames = new Set(Object.keys(replacements));
 const methodNamesByLowerCase = new Map(
   Object.keys(replacements).map(method => [method.toLowerCase(), method]),
 );
+const shapeDependentMethods = new Set([
+  'all',
+  'any',
+  'collect',
+  'contains',
+  'detect',
+  'each',
+  'every',
+  'filter',
+  'find',
+  'findIndex',
+  'foldl',
+  'foldr',
+  'forEach',
+  'includes',
+  'inject',
+  'map',
+  'reduce',
+  'reduceRight',
+  'select',
+  'some',
+]);
+const callbackCollectionMethods = new Set(
+  [...shapeDependentMethods].filter(method => method !== 'contains' && method !== 'includes'),
+);
+const objectCollectionAlternatives: Record<string, string> = {
+  all: 'Object.values() or Object.entries() with Array.prototype.every()',
+  any: 'Object.values() or Object.entries() with Array.prototype.some()',
+  collect: 'Object.values() or Object.entries() with Array.prototype.map()',
+  contains: 'Object.values() with Array.prototype.includes()',
+  detect: 'Object.values() or Object.entries() with Array.prototype.find()',
+  each: 'Object.values() or Object.entries() with Array.prototype.forEach()',
+  every: 'Object.values() or Object.entries() with Array.prototype.every()',
+  filter: 'Object.values() or Object.entries() with Array.prototype.filter()',
+  find: 'Object.values() or Object.entries() with Array.prototype.find()',
+  findIndex: 'Object.values() or Object.entries() with Array.prototype.findIndex()',
+  foldl: 'Object.values() or Object.entries() with Array.prototype.reduce()',
+  foldr: 'Object.values() or Object.entries() with Array.prototype.reduceRight()',
+  forEach: 'Object.values() or Object.entries() with Array.prototype.forEach()',
+  includes: 'Object.values() with Array.prototype.includes()',
+  inject: 'Object.values() or Object.entries() with Array.prototype.reduce()',
+  map: 'Object.values() or Object.entries() with Array.prototype.map()',
+  reduce: 'Object.values() or Object.entries() with Array.prototype.reduce()',
+  reduceRight: 'Object.values() or Object.entries() with Array.prototype.reduceRight()',
+  select: 'Object.values() or Object.entries() with Array.prototype.filter()',
+  some: 'Object.values() or Object.entries() with Array.prototype.some()',
+};
+
+type CollectionShape = 'array' | 'object' | 'string' | 'unknown';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -155,11 +219,21 @@ export const rule: Rule.RuleModule = {
         }
 
         const lodashCall = getLodashCall(fqn, syntacticMethod);
-        if (lodashCall === null || ecmaVersion < lodashCall.replacement.minimumEcmaVersion) {
+        if (lodashCall === null) {
           return;
         }
 
-        const { library, method, replacement } = lodashCall;
+        const replacement = resolveReplacement(
+          lodashCall.method,
+          lodashCall.replacement,
+          call,
+          context,
+        );
+        if (replacement === null || ecmaVersion < replacement.minimumEcmaVersion) {
+          return;
+        }
+
+        const { library, method } = lodashCall;
         context.report({
           node: getReportNode(call.callee),
           messageId: getMessageId(replacement),
@@ -194,6 +268,137 @@ function getMessageId(replacement: Replacement): 'direct' | 'cautious' | 'cautio
     return 'direct';
   }
   return replacement.example === undefined ? 'cautious' : 'cautiousWithExample';
+}
+
+function resolveReplacement(
+  method: string,
+  replacement: Replacement,
+  call: estree.CallExpression,
+  context: Rule.RuleContext,
+): Replacement | null {
+  if (method === 'trim' && call.arguments.length > 1) {
+    return null;
+  }
+  if (!shapeDependentMethods.has(method)) {
+    return replacement;
+  }
+  if (hasUnsupportedIteratee(method, call)) {
+    return null;
+  }
+  const collection = call.arguments[0];
+  if (collection === undefined || collection.type === 'SpreadElement') {
+    return null;
+  }
+  return getShapeSpecificReplacement(method, replacement, getCollectionShape(collection, context));
+}
+
+function hasUnsupportedIteratee(method: string, call: estree.CallExpression): boolean {
+  if (!callbackCollectionMethods.has(method)) {
+    return false;
+  }
+  const iteratee = call.arguments[1];
+  return iteratee === undefined || iteratee.type === 'SpreadElement' || isLodashShorthand(iteratee);
+}
+
+function isLodashShorthand(node: estree.Expression): boolean {
+  return (
+    node.type === 'ArrayExpression' ||
+    node.type === 'Literal' ||
+    node.type === 'ObjectExpression' ||
+    node.type === 'TemplateLiteral'
+  );
+}
+
+function getShapeSpecificReplacement(
+  method: string,
+  replacement: Replacement,
+  shape: CollectionShape,
+): Replacement | null {
+  if (shape === 'array') {
+    return replacement;
+  }
+  if (shape === 'string' && (method === 'contains' || method === 'includes')) {
+    return cautious('String.prototype.includes()', STRING_INCLUDES_REASON, ES2016);
+  }
+  if (shape === 'object') {
+    return cautious(objectCollectionAlternatives[method], OBJECT_COLLECTION_REASON, ES2017);
+  }
+  return null;
+}
+
+function getCollectionShape(node: estree.Expression, context: Rule.RuleContext): CollectionShape {
+  const syntacticShape = getSyntacticCollectionShape(node);
+  if (syntacticShape !== 'unknown') {
+    return syntacticShape;
+  }
+
+  const services = context.sourceCode.parserServices;
+  if (!isRequiredParserServices(services)) {
+    return 'unknown';
+  }
+  return getTypeCollectionShape(node, services);
+}
+
+function getSyntacticCollectionShape(node: estree.Expression): CollectionShape {
+  if (node.type === 'ChainExpression') {
+    return getSyntacticCollectionShape(node.expression);
+  }
+  if (node.type === 'ArrayExpression') {
+    return 'array';
+  }
+  if (node.type === 'ObjectExpression') {
+    return 'object';
+  }
+  if (node.type === 'Literal' && typeof node.value === 'string') {
+    return 'string';
+  }
+  if (node.type === 'TemplateLiteral') {
+    return 'string';
+  }
+  return 'unknown';
+}
+
+function getTypeCollectionShape(
+  node: estree.Expression,
+  services: RequiredParserServices,
+): CollectionShape {
+  const checker = services.program.getTypeChecker();
+  const type = getTypeFromTreeNode(node, services);
+  const shapes = new Set(
+    getUnionTypes(type)
+      .map(part => getTypePartCollectionShape(checker.getBaseTypeOfLiteralType(part), services))
+      .filter(shape => shape !== 'unknown'),
+  );
+  return shapes.size === 1 && !getUnionTypes(type).some(isUnknownCollectionType)
+    ? [...shapes][0]
+    : 'unknown';
+}
+
+function getUnionTypes(type: ts.Type): ts.Type[] {
+  return type.isUnion() ? type.types : [type];
+}
+
+function getTypePartCollectionShape(
+  type: ts.Type,
+  services: RequiredParserServices,
+): CollectionShape {
+  if (isUnknownCollectionType(type)) {
+    return 'unknown';
+  }
+  if (isStringType(type)) {
+    return 'string';
+  }
+  if (isArrayLikeType(type, services)) {
+    return 'array';
+  }
+  if (isObjectType(type) && type.getCallSignatures().length === 0) {
+    return 'object';
+  }
+  return 'unknown';
+}
+
+function isUnknownCollectionType(type: ts.Type): boolean {
+  return isAny(type) || (type.flags & ts.TypeFlags.Unknown) !== 0;
 }
 
 function normalizeEcmaVersion(

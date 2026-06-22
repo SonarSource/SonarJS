@@ -1,108 +1,17 @@
 {
 "tailwindcss:src/cli/commands/help.js": [
-17,
 24,
 25,
-43,
-47,
 48
 ],
 "tailwindcss:src/cli/utils.js": [
 157
 ],
-"tailwindcss:src/lib/evaluateTailwindFunctions.js": [
-34
-],
 "tailwindcss:src/lib/substituteResponsiveAtRules.js": [
-58,
-67
-],
-"tailwindcss:src/lib/substituteVariantsAtRules.js": [
-139,
-143,
-186
-],
-"tailwindcss:src/plugins/backgroundColor.js": [
-24
-],
-"tailwindcss:src/plugins/backgroundImage.js": [
-7
-],
-"tailwindcss:src/plugins/backgroundPosition.js": [
-7
-],
-"tailwindcss:src/plugins/backgroundSize.js": [
-7
-],
-"tailwindcss:src/plugins/borderColor.js": [
-24
-],
-"tailwindcss:src/plugins/boxShadow.js": [
-16
+58
 ],
 "tailwindcss:src/plugins/container.js": [
-50,
 76
-],
-"tailwindcss:src/plugins/cursor.js": [
-7
-],
-"tailwindcss:src/plugins/divideColor.js": [
-24
-],
-"tailwindcss:src/plugins/divideOpacity.js": [
-7
-],
-"tailwindcss:src/plugins/fill.js": [
-11
-],
-"tailwindcss:src/plugins/flex.js": [
-7
-],
-"tailwindcss:src/plugins/flexGrow.js": [
-8
-],
-"tailwindcss:src/plugins/flexShrink.js": [
-8
-],
-"tailwindcss:src/plugins/fontSize.js": [
-7
-],
-"tailwindcss:src/plugins/outline.js": [
-7
-],
-"tailwindcss:src/plugins/placeholderColor.js": [
-24
-],
-"tailwindcss:src/plugins/placeholderOpacity.js": [
-7
-],
-"tailwindcss:src/plugins/ringColor.js": [
-19
-],
-"tailwindcss:src/plugins/ringOffsetColor.js": [
-10
-],
-"tailwindcss:src/plugins/ringOffsetWidth.js": [
-7
-],
-"tailwindcss:src/plugins/ringOpacity.js": [
-7
-],
-"tailwindcss:src/plugins/ringWidth.js": [
-34
-],
-"tailwindcss:src/plugins/stroke.js": [
-11
-],
-"tailwindcss:src/plugins/textColor.js": [
-24
-],
-"tailwindcss:src/plugins/transitionProperty.js": [
-10
-],
-"tailwindcss:src/util/cloneNodes.js": [
-4
 ],
 "tailwindcss:src/util/createUtilityPlugin.js": [
 14
@@ -111,7 +20,6 @@
 6
 ],
 "tailwindcss:src/util/resolveConfig.js": [
-95,
 216,
 273
 ]
