@@ -17,9 +17,4 @@
 import eslintPluginUnicorn from 'eslint-plugin-unicorn';
 import type { Rule } from 'eslint';
 
-const unicornRules = eslintPluginUnicorn.rules!;
-
-export const rules: Record<string, Rule.RuleModule> = {
-  ...unicornRules,
-  'dom-node-dataset': unicornRules['dom-node-dataset'] ?? unicornRules['prefer-dom-node-dataset'],
-};
+export const rules: Record<string, Rule.RuleModule> = eslintPluginUnicorn.rules!;
