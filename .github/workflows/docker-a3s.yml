@@ -45,7 +45,7 @@ jobs:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.BUILD_NUMBER }}
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.branch }}
 
