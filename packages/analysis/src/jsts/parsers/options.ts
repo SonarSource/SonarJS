@@ -15,10 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Linter } from 'eslint';
-import babelPresetReact from '@babel/preset-react';
-import babelPresetFlow from '@babel/preset-flow';
-import babelPresetEnv from '@babel/preset-env';
-import babelPluginDecorators from '@babel/plugin-proposal-decorators';
 import { parsersMap } from './eslint.js';
 import type { JsTsLanguage } from '../../common/configuration.js';
 
@@ -29,6 +25,8 @@ export interface ParserContext {
   detectedEsYear?: number;
   jsx?: boolean;
 }
+
+type BabelParserPlugin = string | [string, Record<string, boolean>];
 
 /**
  * Get common ESLint parser options.
@@ -62,18 +60,26 @@ function typescriptParserOverlay(): Linter.ParserOptions {
   };
 }
 
+function babelParserPlugins(context: ParserContext = {}): BabelParserPlugin[] {
+  const plugins: BabelParserPlugin[] = ['flow', ['decorators', { allowCallParenthesized: false }]];
+
+  if (context.jsx ?? true) {
+    plugins.unshift('jsx');
+  }
+
+  return plugins;
+}
+
 /** Overlay for @babel/eslint-parser; non-standard syntaxes are plugin-driven. */
-function babelParserOverlay(): Linter.ParserOptions {
+function babelParserOverlay(context: ParserContext = {}): Linter.ParserOptions {
   return {
     requireConfigFile: false,
     babelOptions: {
-      targets: 'defaults',
-      presets: [babelPresetReact, babelPresetFlow, babelPresetEnv],
-      plugins: [[babelPluginDecorators, { version: '2022-03' }]],
       babelrc: false,
       configFile: false,
       parserOpts: {
         allowReturnOutsideFunction: true,
+        plugins: babelParserPlugins(context),
       },
     },
   };
@@ -98,7 +104,7 @@ export function buildBabelParserOptions(
 ): Linter.ParserOptions {
   return {
     ...commonParserOptions(context),
-    ...babelParserOverlay(),
+    ...babelParserOverlay(context),
     ...overrides,
   };
 }
@@ -119,7 +125,7 @@ export function buildVueParserOptions(
   }
   return {
     ...commonParserOptions(context),
-    ...babelParserOverlay(),
+    ...babelParserOverlay(context),
     parser: parsersMap.javascript,
     ...overrides,
   };
