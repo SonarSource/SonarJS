@@ -200,6 +200,49 @@ _.find([item], { active: true });
         {
           code: `
 import _ from 'lodash';
+const property = 'label';
+_.map([item], property);
+`,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const property = \`label\`;
+_.map([item], property);
+`,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const matcher = { active: true };
+_.filter([item], matcher);
+`,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const matcher = ['active', true];
+_.find([item], matcher);
+`,
+        },
+        {
+          code: `
+import _ from 'lodash';
+_.includes('abc', /a/);
+`,
+          languageOptions: { ecmaVersion: 2016 },
+        },
+        {
+          code: `
+import _ from 'lodash';
+const pattern = /a/;
+_.includes('abc', pattern);
+`,
+          languageOptions: { ecmaVersion: 2016 },
+        },
+        {
+          code: `
+import _ from 'lodash';
 _.trim(name, '"');
 `,
         },
@@ -407,11 +450,11 @@ const end = _.takeRight(items, count);
             },
             {
               message:
-                'Consider Array.prototype.slice() instead of dropRight() from lodash; for example, use `array.slice(0, -n)`. Check that the behavior is equivalent because the library handles nullish values differently from the native API.',
+                'Consider Array.prototype.slice() instead of dropRight() from lodash; for example, use `n === 0 ? array.slice() : array.slice(0, -n)`. Check that the behavior is equivalent because the library handles nullish values differently from the native API.',
             },
             {
               message:
-                'Consider Array.prototype.slice() instead of takeRight() from lodash; for example, use `array.slice(-n)`. Check that the behavior is equivalent because the library handles nullish values differently from the native API.',
+                'Consider Array.prototype.slice() instead of takeRight() from lodash; for example, use `n === 0 ? [] : array.slice(-n)`. Check that the behavior is equivalent because the library handles nullish values differently from the native API.',
             },
           ],
         },

@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isIdentifier } from '../helpers/ast.js';
+import { getVariableFromName, isIdentifier } from '../helpers/ast.js';
 import { getFullyQualifiedName, isRequire } from '../helpers/module.js';
 import {
   isRequiredParserServices,
@@ -72,7 +72,12 @@ const replacements: Record<string, Replacement> = {
     ES2016,
   ),
   drop: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5, '`array.slice(n)`'),
-  dropRight: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5, '`array.slice(0, -n)`'),
+  dropRight: cautious(
+    'Array.prototype.slice()',
+    ARRAY_NULLISH_REASON,
+    ES5,
+    '`n === 0 ? array.slice() : array.slice(0, -n)`',
+  ),
   entries: cautious('Object.entries()', ARRAY_NULLISH_REASON, ES2017),
   every: cautious('Array.prototype.every()', COLLECTION_PREDICATE_REASON, ES5),
   extendOwn: cautious('Object.assign()', ARRAY_NULLISH_REASON, ES2015),
@@ -103,7 +108,12 @@ const replacements: Record<string, Replacement> = {
   reverse: cautious('Array.prototype.reverse()', ARRAY_NULLISH_REASON, ES5),
   slice: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5),
   some: cautious('Array.prototype.some()', COLLECTION_PREDICATE_REASON, ES5),
-  takeRight: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5, '`array.slice(-n)`'),
+  takeRight: cautious(
+    'Array.prototype.slice()',
+    ARRAY_NULLISH_REASON,
+    ES5,
+    '`n === 0 ? [] : array.slice(-n)`',
+  ),
   toPairs: cautious('Object.entries()', ARRAY_NULLISH_REASON, ES2017),
   uniq: cautious('Set', ARRAY_NULLISH_REASON, ES2015, '`[...new Set(values)]`'),
   values: cautious('Object.values()', ARRAY_NULLISH_REASON, ES2017),
@@ -217,31 +227,92 @@ function resolveReplacement(
   if (!shapeDependentMethods.has(method)) {
     return replacement;
   }
-  if (hasUnsupportedIteratee(method, call)) {
+  if (hasUnsupportedIteratee(method, call, context)) {
     return null;
   }
   const collection = call.arguments[0];
   if (collection === undefined || collection.type === 'SpreadElement') {
     return null;
   }
-  return getShapeSpecificReplacement(method, replacement, getCollectionShape(collection, context));
+  const collectionShape = getCollectionShape(collection, context);
+  if (hasUnsupportedStringSearchValue(method, call, context, collectionShape)) {
+    return null;
+  }
+  return getShapeSpecificReplacement(method, replacement, collectionShape);
 }
 
-function hasUnsupportedIteratee(method: string, call: estree.CallExpression): boolean {
+function hasUnsupportedIteratee(
+  method: string,
+  call: estree.CallExpression,
+  context: Rule.RuleContext,
+): boolean {
   if (!callbackCollectionMethods.has(method)) {
     return false;
   }
   const iteratee = call.arguments[1];
-  return iteratee === undefined || iteratee.type === 'SpreadElement' || isLodashShorthand(iteratee);
+  return (
+    iteratee === undefined ||
+    iteratee.type === 'SpreadElement' ||
+    isLodashShorthand(iteratee, context)
+  );
 }
 
-function isLodashShorthand(node: estree.Expression): boolean {
+function isLodashShorthand(node: estree.Expression, context: Rule.RuleContext): boolean {
+  const value = getConstantExpression(node, context);
   return (
-    node.type === 'ArrayExpression' ||
-    node.type === 'Literal' ||
-    node.type === 'ObjectExpression' ||
-    node.type === 'TemplateLiteral'
+    value.type === 'ArrayExpression' ||
+    value.type === 'Literal' ||
+    value.type === 'ObjectExpression' ||
+    value.type === 'TemplateLiteral'
   );
+}
+
+function hasUnsupportedStringSearchValue(
+  method: string,
+  call: estree.CallExpression,
+  context: Rule.RuleContext,
+  collectionShape: CollectionShape,
+): boolean {
+  if (collectionShape !== 'string' || (method !== 'contains' && method !== 'includes')) {
+    return false;
+  }
+  const searchValue = call.arguments[1];
+  return (
+    searchValue?.type === 'SpreadElement' ||
+    (searchValue !== undefined && isRegExpLiteral(getConstantExpression(searchValue, context)))
+  );
+}
+
+function getConstantExpression(
+  node: estree.Expression,
+  context: Rule.RuleContext,
+  visited = new Set<string>(),
+): estree.Expression {
+  if (!isIdentifier(node) || visited.has(node.name)) {
+    return node;
+  }
+  visited.add(node.name);
+
+  const variable = getVariableFromName(context, node.name, node);
+  if (variable?.defs.length !== 1) {
+    return node;
+  }
+
+  const definition = variable.defs[0];
+  if (definition.type !== 'Variable' || definition.parent?.kind !== 'const') {
+    return node;
+  }
+
+  const declarator = definition.node;
+  if (declarator.type !== 'VariableDeclarator' || declarator.init === null) {
+    return node;
+  }
+
+  return getConstantExpression(declarator.init, context, visited);
+}
+
+function isRegExpLiteral(node: estree.Expression): boolean {
+  return node.type === 'Literal' && 'regex' in node && node.regex !== undefined;
 }
 
 function getShapeSpecificReplacement(
