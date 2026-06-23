@@ -76,7 +76,12 @@ type RuleManifest = {
 };
 
 const SONAR_WAY = 'Sonar way';
+const SONAR_AGENTIC_AI_PROFILE_FILENAME = 'Sonar_agentic_AI_profile.json';
 const SONAR_WAY_PROFILE_FILENAME = 'Sonar_way_profile.json';
+const PRETTY_PRINTED_JS_PROFILE_FILENAMES = new Set([
+  SONAR_AGENTIC_AI_PROFILE_FILENAME,
+  SONAR_WAY_PROFILE_FILENAME,
+]);
 
 type GeneratedProfile = {
   fileName: string;
@@ -152,12 +157,18 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
   }
 
   for (const generatedProfile of generatedProfiles) {
+    const profileContents = {
+      name: generatedProfile.name,
+      ruleKeys: generatedProfile.ruleKeys,
+    };
+    const shouldPrettyPrintProfile =
+      targetFolder === JS_RULE_DATA_FOLDER &&
+      PRETTY_PRINTED_JS_PROFILE_FILENAMES.has(generatedProfile.fileName);
     writeFileSync(
       join(targetFolder, generatedProfile.fileName),
-      JSON.stringify({
-        name: generatedProfile.name,
-        ruleKeys: generatedProfile.ruleKeys,
-      }),
+      shouldPrettyPrintProfile
+        ? `${JSON.stringify(profileContents, null, 2)}\n`
+        : JSON.stringify(profileContents),
     );
   }
 
