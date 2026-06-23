@@ -19,10 +19,11 @@ import { rule as S5362 } from './S5362/rule.js';
 import { rule as S7923 } from './S7923/rule.js';
 import { rule as S7924 } from './S7924/rule.js';
 import { rule as S7925 } from './S7925/rule.js';
+import { rule as S8757 } from './S8757/rule.js';
 
 /**
  * The set of internal Stylelint-based rules
  */
-const sonarRules = [S125, S5362, S7923, S7924, S7925];
+const sonarRules = [S125, S5362, S7923, S7924, S7925, S8757];
 
 export { sonarRules };

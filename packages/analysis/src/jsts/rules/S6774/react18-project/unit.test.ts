@@ -23,22 +23,21 @@ describe('S6774 with React 18', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
-  ruleTester.run('S6774 still reports forwardRef components in React 18 projects', rule, {
-    valid: [],
-    invalid: [
+  ruleTester.run('S6774 reports missing propTypes on React 18 projects', rule, {
+    valid: [
       {
-        // forwardRef component - should still report in React 18 (propTypes not yet deprecated)
         code: `
-          import React, { forwardRef } from 'react';
-          const MyComponent = forwardRef((props, ref) => {
-            return <div ref={ref}>{props.name}</div>;
-          });
+          import PropTypes from 'prop-types';
+          function MyComponent({ name }) {
+            return <div>{name}</div>;
+          }
+          MyComponent.propTypes = { name: PropTypes.string.isRequired };
         `,
         filename: join(dirname, 'component.jsx'),
-        errors: [{ messageId: 'missingPropType' }],
       },
+    ],
+    invalid: [
       {
-        // Regular component - should report
         code: `
           function MyComponent({ name }) {
             return <div>{name}</div>;

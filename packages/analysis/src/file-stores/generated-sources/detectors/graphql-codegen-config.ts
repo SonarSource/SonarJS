@@ -30,11 +30,8 @@ const GRAPHQL_YAML_CONFIG_BASENAMES = new Set(['.graphqlrc', '.graphqlconfig']);
 const PACKAGE_JSON_BASENAME = 'package.json';
 
 export function parseGraphqlGeneratesFile(configFile: File) {
-  const configPath = configFile.path;
-  const configContents =
-    typeof configFile.content === 'string'
-      ? configFile.content
-      : configFile.content.toString('utf8');
+  const configPath = configFile.filePath;
+  const configContents = configFile.fileContent;
   const configBasename = basename(configPath).toLowerCase();
   const configExtension = extname(configPath).toLowerCase();
 

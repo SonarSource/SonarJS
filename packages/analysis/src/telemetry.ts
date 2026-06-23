@@ -330,7 +330,7 @@ function resolveTypeScriptVersion(typeScriptSignal: string): string | undefined 
   }
 }
 
-function getPackageJsonFiles(): Iterable<{ content: string | Buffer }> {
+function getPackageJsonFiles(): Iterable<{ fileContent: string }> {
   try {
     return dependencyManifestStore.getPackageJsons().values();
   } catch {

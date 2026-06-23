@@ -1,0 +1,18 @@
+{
+"vuetify:packages/vuetify/src/components/VAutocomplete/__tests__/VAutocomplete.spec.cy.tsx": [
+122,
+150
+],
+"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.cy.tsx": [
+353,
+381
+],
+"vuetify:packages/vuetify/src/components/VRating/__tests__/VRating.spec.cy.tsx": [
+133,
+147
+],
+"vuetify:packages/vuetify/src/components/VSelect/__tests__/VSelect.spec.cy.tsx": [
+209,
+237
+]
+}

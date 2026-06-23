@@ -1,0 +1,29 @@
+{
+  "title": "Nesting selectors should have a scoping root",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "1 min"
+  },
+  "tags": [
+    "css"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8776",
+  "sqKey": "S8776",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "css"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

@@ -18,7 +18,7 @@ import { debug, error, info } from '../../../shared/src/helpers/logging.js';
 import { basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import type { FileStore } from './store-type.js';
-import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
+import type { File, NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { type Configuration, getProjectFileDiscoveryConfigKey } from '../common/configuration.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
 import { clearTsConfigContentCache } from '../jsts/program/cache/tsconfigCache.js';
@@ -151,7 +151,13 @@ export class TsConfigStore implements FileStore {
     return tsConfigPaths.join(',');
   }
 
-  async processFile(filename: NormalizedAbsolutePath, _configuration: Configuration) {
+  wantsFile(filename: NormalizedAbsolutePath, _configuration: Configuration) {
+    return this.filenameMatchesProvidedTsConfig(filename) || this.filenameMatchesTsConfig(filename)
+      ? 'path'
+      : false;
+  }
+
+  async processFile(filename: NormalizedAbsolutePath, _configuration: Configuration, _file?: File) {
     if (this.filenameMatchesProvidedTsConfig(filename)) {
       this.foundPropertyTsConfigs.push(filename);
     }

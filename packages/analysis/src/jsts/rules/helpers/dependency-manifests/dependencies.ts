@@ -281,13 +281,13 @@ function getTypeScriptVersionSignalsFromPackageJson(packageJson: PackageJson): s
 }
 
 export function getTypeScriptSignalsFromPackageJsonFiles(
-  packageJsonFiles: Iterable<{ content: string | Buffer }>,
+  packageJsonFiles: Iterable<{ fileContent: string }>,
 ): { typeScriptVersionSignals: string[]; hasTypeScriptNativePreview: boolean } {
   const typeScriptVersionSignals: string[] = [];
   let hasTypeScriptNativePreview = false;
 
   for (const packageJsonFile of packageJsonFiles) {
-    const packageJson = parsePackageJsonContent(packageJsonFile.content);
+    const packageJson = parsePackageJsonContent(packageJsonFile.fileContent);
     if (packageJson === undefined) {
       continue;
     }

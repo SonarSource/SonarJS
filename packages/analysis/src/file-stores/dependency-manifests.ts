@@ -14,8 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { readFile } from 'node:fs/promises';
-import { warn, debug } from '../../../shared/src/helpers/logging.js';
+import { debug } from '../../../shared/src/helpers/logging.js';
 import type { FileStore } from './store-type.js';
 import {
   type File,
@@ -108,23 +107,16 @@ export class DependencyManifestStore implements FileStore {
     this.dirnameToParent.set(configuration.baseDir, undefined);
   }
 
-  async processFile(filename: NormalizedAbsolutePath) {
+  wantsFile(filename: NormalizedAbsolutePath, _configuration: Configuration) {
+    return isPreloadableDependencyManifestPath(filename) ? 'content' : false;
+  }
+
+  async processFile(filename: NormalizedAbsolutePath, _configuration: Configuration, file?: File) {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    if (!isPreloadableDependencyManifestPath(filename)) {
-      return;
-    }
-    try {
-      const content = await readFile(filename, 'utf-8');
-      const file = { content, path: filename };
-      const manifestName = getPreloadableDependencyManifestName(filename);
-      if (manifestName) {
-        this.manifestsByName[manifestName].set(dirnamePath(filename), file);
-      }
-    } catch (e) {
-      warn(`Error reading dependency manifest ${filename}: ${e}`);
-    }
+    const manifestName = getPreloadableDependencyManifestName(filename)!;
+    this.manifestsByName[manifestName].set(dirnamePath(filename), file!);
   }
 
   processDirectory(dir: NormalizedAbsolutePath) {
