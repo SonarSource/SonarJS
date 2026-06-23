@@ -143,6 +143,8 @@ const methodNames = new Set(Object.keys(replacements));
 const methodNamesByLowerCase = new Map(
   Object.keys(replacements).map(method => [method.toLowerCase(), method]),
 );
+const OBJECT_REDUCE_ALTERNATIVE =
+  'Object.values() or Object.entries() with Array.prototype.reduce()';
 const shapeDependentMethods = new Set([
   'all',
   'any',
@@ -179,13 +181,13 @@ const objectCollectionAlternatives: Record<string, string> = {
   filter: 'Object.values() or Object.entries() with Array.prototype.filter()',
   find: 'Object.values() or Object.entries() with Array.prototype.find()',
   findIndex: 'Object.values() or Object.entries() with Array.prototype.findIndex()',
-  foldl: 'Object.values() or Object.entries() with Array.prototype.reduce()',
+  foldl: OBJECT_REDUCE_ALTERNATIVE,
   foldr: 'Object.values() or Object.entries() with Array.prototype.reduceRight()',
   forEach: 'Object.values() or Object.entries() with Array.prototype.forEach()',
   includes: 'Object.values() with Array.prototype.includes()',
-  inject: 'Object.values() or Object.entries() with Array.prototype.reduce()',
+  inject: OBJECT_REDUCE_ALTERNATIVE,
   map: 'Object.values() or Object.entries() with Array.prototype.map()',
-  reduce: 'Object.values() or Object.entries() with Array.prototype.reduce()',
+  reduce: OBJECT_REDUCE_ALTERNATIVE,
   reduceRight: 'Object.values() or Object.entries() with Array.prototype.reduceRight()',
   select: 'Object.values() or Object.entries() with Array.prototype.filter()',
   some: 'Object.values() or Object.entries() with Array.prototype.some()',
