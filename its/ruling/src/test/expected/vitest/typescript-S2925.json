@@ -1,8 +1,4 @@
 {
-"vitest:examples/opentelemetry/src/other.test.ts": [
-5,
-19
-],
 "vitest:test/browser/fixtures/assertion-helper/basic.test.ts": [
 8,
 17
@@ -65,24 +61,23 @@
 "vitest:test/cli/test/scoped-fixtures.test.ts": [
 2255
 ],
+"vitest:test/core/test/fixture-concurrent-beforeEach.test.ts": [
+18
+],
+"vitest:test/core/test/fixture-concurrent.test.ts": [
+8
+],
 "vitest:test/core/test/handled-unhandled.test.ts": [
 44
 ],
 "vitest:test/core/test/jest-expect.test.ts": [
-1262,
-2097
+1262
 ],
 "vitest:test/core/test/on-finished.test.ts": [
 50
 ],
-"vitest:test/core/test/suite.test.tsx": [
-17
-],
 "vitest:test/core/test/test-extend.test.ts": [
 364,
 368
-],
-"vitest:test/core/test/wait.test.ts": [
-75
 ]
 }
