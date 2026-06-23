@@ -128,6 +128,21 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
         include: /node_modules[/\\]@stylistic[/\\]eslint-plugin[/\\]dist[/\\]rolldown-runtime\.js$/,
         pattern: [['createRequire(import.meta.url);', 'createRequire(__filename);']],
       }),
+      // Babel 8 config-file helpers still use createRequire(import.meta.url); in the bundled CJS
+      // output this becomes createRequire(undefined), which breaks standalone bridge startup.
+      textReplace({
+        include: /node_modules[/\\]@babel[/\\]core[/\\]lib[/\\]config[/\\]files[/\\]index\.js$/,
+        pattern: [[/createRequire\(import\.meta\.url\)/g, 'createRequire(__filename)']],
+      }),
+      textReplace({
+        include: /node_modules[/\\]@babel[/\\]eslint-parser[/\\]lib[/\\]index\.js$/,
+        pattern: [
+          [
+            /const require\$\d+ = createRequire\((?:import\.meta\.url|__filename)\);\s*const babelParser = require\$\d+\(require\$\d+\.resolve\("@babel\/parser", \{\s*paths: \[require\$\d+\.resolve\("@babel\/core\/package\.json"\)\]\s*\}\)\);/g,
+            'const babelParser = require("@babel/parser");',
+          ],
+        ],
+      }),
       textReplace({
         include: /node_modules[/\\]css-tree[/\\]lib[/\\]data-patch\.js$/,
         pattern: [['const require = createRequire(import.meta.url);', '']],
