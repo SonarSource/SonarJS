@@ -30,73 +30,26 @@ type ReplacementCase = {
 };
 
 const ARRAY_NULLISH_REASON = 'the library handles nullish values differently from the native API';
-const COLLECTION_REASON = 'the library also accepts objects and nullish values';
 const COLLECTION_PREDICATE_REASON =
   'the library also accepts objects, nullish values, and shorthand predicates';
-const STRING_COERCION_REASON =
-  'the library coerces values and handles nullish values differently from the native API';
 const ARRAY_COLLECTION_METHODS = new Set([
-  'all',
-  'any',
-  'collect',
   'contains',
-  'detect',
-  'each',
   'every',
   'filter',
   'findIndex',
-  'foldl',
-  'foldr',
-  'forEach',
   'includes',
-  'inject',
   'map',
   'reduce',
   'reduceRight',
-  'select',
   'some',
 ]);
 
 const additionalReplacementCases: ReplacementCase[] = [
-  {
-    method: 'all',
-    alternative: 'Array.prototype.every()',
-    reason: COLLECTION_PREDICATE_REASON,
-  },
-  {
-    method: 'any',
-    alternative: 'Array.prototype.some()',
-    reason: COLLECTION_PREDICATE_REASON,
-  },
-  {
-    method: 'bind',
-    alternative: 'Function.prototype.bind()',
-    reason: 'argument handling is not identical',
-    code: '_.bind(fn, thisArg);',
-    example: '`fn.bind(thisArg, ...args)`',
-  },
-  { method: 'collect', alternative: 'Array.prototype.map()', reason: COLLECTION_REASON },
   { method: 'concat', alternative: 'Array.prototype.concat()', reason: ARRAY_NULLISH_REASON },
   {
     method: 'contains',
     alternative: 'Array.prototype.includes()',
     reason: 'the library also accepts strings, objects, and nullish values',
-  },
-  {
-    method: 'detect',
-    alternative: 'Array.prototype.find()',
-    reason: COLLECTION_PREDICATE_REASON,
-  },
-  {
-    method: 'each',
-    alternative: 'Array.prototype.forEach()',
-    reason: COLLECTION_PREDICATE_REASON,
-  },
-  {
-    method: 'endsWith',
-    alternative: 'String.prototype.endsWith()',
-    reason: STRING_COERCION_REASON,
-    code: "_.endsWith(name, 'x');",
   },
   {
     method: 'every',
@@ -115,44 +68,12 @@ const additionalReplacementCases: ReplacementCase[] = [
     alternative: 'Array.prototype.findIndex()',
     reason: COLLECTION_PREDICATE_REASON,
   },
-  {
-    method: 'foldl',
-    alternative: 'Array.prototype.reduce()',
-    reason: COLLECTION_PREDICATE_REASON,
-  },
-  {
-    method: 'foldr',
-    alternative: 'Array.prototype.reduceRight()',
-    reason: COLLECTION_PREDICATE_REASON,
-  },
-  {
-    method: 'forEach',
-    alternative: 'Array.prototype.forEach()',
-    reason: COLLECTION_PREDICATE_REASON,
-  },
   { method: 'indexOf', alternative: 'Array.prototype.indexOf()', reason: ARRAY_NULLISH_REASON },
-  {
-    method: 'inject',
-    alternative: 'Array.prototype.reduce()',
-    reason: COLLECTION_PREDICATE_REASON,
-  },
-  {
-    method: 'isNaN',
-    alternative: 'Number.isNaN()',
-    reason: 'boxed Number objects are handled differently',
-    code: '_.isNaN(value);',
-  },
   { method: 'join', alternative: 'Array.prototype.join()', reason: ARRAY_NULLISH_REASON },
   {
     method: 'lastIndexOf',
     alternative: 'Array.prototype.lastIndexOf()',
     reason: ARRAY_NULLISH_REASON,
-  },
-  {
-    method: 'padEnd',
-    alternative: 'String.prototype.padEnd()',
-    reason: STRING_COERCION_REASON,
-    code: '_.padEnd(name, 3);',
   },
   { method: 'pairs', alternative: 'Object.entries()', reason: ARRAY_NULLISH_REASON },
   {
@@ -165,49 +86,14 @@ const additionalReplacementCases: ReplacementCase[] = [
     alternative: 'Array.prototype.reduceRight()',
     reason: COLLECTION_PREDICATE_REASON,
   },
-  {
-    method: 'repeat',
-    alternative: 'String.prototype.repeat()',
-    reason: STRING_COERCION_REASON,
-    code: '_.repeat(name, 3);',
-  },
-  {
-    method: 'replace',
-    alternative: 'String.prototype.replace()',
-    reason: STRING_COERCION_REASON,
-    code: "_.replace(name, 'x', 'y');",
-  },
   { method: 'reverse', alternative: 'Array.prototype.reverse()', reason: ARRAY_NULLISH_REASON },
-  {
-    method: 'select',
-    alternative: 'Array.prototype.filter()',
-    reason: COLLECTION_PREDICATE_REASON,
-  },
   { method: 'slice', alternative: 'Array.prototype.slice()', reason: ARRAY_NULLISH_REASON },
   {
     method: 'some',
     alternative: 'Array.prototype.some()',
     reason: COLLECTION_PREDICATE_REASON,
   },
-  {
-    method: 'split',
-    alternative: 'String.prototype.split()',
-    reason: STRING_COERCION_REASON,
-    code: "_.split(name, ' ');",
-  },
   { method: 'toPairs', alternative: 'Object.entries()', reason: ARRAY_NULLISH_REASON },
-  {
-    method: 'toUpper',
-    alternative: 'String.prototype.toUpperCase()',
-    reason: STRING_COERCION_REASON,
-    code: '_.toUpper(name);',
-  },
-  {
-    method: 'trim',
-    alternative: 'String.prototype.trim()',
-    reason: STRING_COERCION_REASON,
-    code: '_.trim(name);',
-  },
 ];
 
 function toInvalidCase(replacementCase: ReplacementCase) {
@@ -315,6 +201,27 @@ _.find([item], { active: true });
           code: `
 import _ from 'lodash';
 _.trim(name, '"');
+`,
+        },
+        {
+          code: `
+import _ from 'lodash';
+_.all([item], callback);
+_.any([item], callback);
+_.collect([item], callback);
+_.detect([item], callback);
+_.each([item], callback);
+_.forEach([item], callback);
+_.foldl([item], callback);
+_.foldr([item], callback);
+_.inject([item], callback);
+_.select([item], callback);
+_.startsWith(name, 'x');
+_.padStart(name, 3);
+_.toLower(name);
+_.bind(fn, thisArg);
+_.isFinite(value);
+_.isNaN(value);
 `,
         },
         {
@@ -524,30 +431,6 @@ const valid = isArray(value);
         },
         {
           code: `
-const startsWith = require('lodash.startswith');
-const valid = startsWith(name, 'x');
-`,
-          errors: [
-            {
-              message:
-                'Consider String.prototype.startsWith() instead of startsWith() from lodash; check that the behavior is equivalent because the library coerces values and handles nullish values differently from the native API.',
-            },
-          ],
-        },
-        {
-          code: `
-import _ from 'underscore';
-const lower = _.toLower(name);
-`,
-          errors: [
-            {
-              message:
-                'Consider String.prototype.toLowerCase() instead of toLower() from underscore.js; check that the behavior is equivalent because the library coerces values and handles nullish values differently from the native API.',
-            },
-          ],
-        },
-        {
-          code: `
 import _ from 'lodash';
 const merged = _.assign(target, source);
 `,
@@ -556,19 +439,6 @@ const merged = _.assign(target, source);
             {
               message:
                 'Consider Object.assign() instead of assign() from lodash; check that the behavior is equivalent because the library handles nullish targets differently from Object.assign.',
-            },
-          ],
-        },
-        {
-          code: `
-import _ from 'underscore';
-const finite = _.isFinite(value);
-`,
-          languageOptions: { ecmaVersion: 2015 },
-          errors: [
-            {
-              message:
-                'Consider Number.isFinite() instead of isFinite() from underscore.js; check that the behavior is equivalent because the library can handle non-number values differently from Number.isFinite.',
             },
           ],
         },
@@ -622,10 +492,6 @@ const padded = _.padStart(name, 3);
               message:
                 'Consider Object.entries() instead of entries() from lodash; check that the behavior is equivalent because the library handles nullish values differently from the native API.',
             },
-            {
-              message:
-                'Consider String.prototype.padStart() instead of padStart() from lodash; check that the behavior is equivalent because the library coerces values and handles nullish values differently from the native API.',
-            },
           ],
         },
         {
@@ -667,6 +533,13 @@ declare const users: Array<{ name: string }>;
 const labels = _.map(users, 'name');
 `,
         },
+        {
+          code: `
+import _ from 'lodash';
+declare const record: Record<string, { label: string }>;
+const labels = _.map(record, value => value.label);
+`,
+        },
       ],
       invalid: [
         {
@@ -679,19 +552,6 @@ const labels = _.map(users, user => user.name);
             {
               message:
                 'Consider Array.prototype.map() instead of map() from lodash; check that the behavior is equivalent because the library also accepts objects and nullish values.',
-            },
-          ],
-        },
-        {
-          code: `
-import _ from 'lodash';
-declare const record: Record<string, { label: string }>;
-const labels = _.map(record, value => value.label);
-`,
-          errors: [
-            {
-              message:
-                'Consider Object.values() or Object.entries() with Array.prototype.map() instead of map() from lodash; check that the behavior is equivalent because the library handles nullish values differently and object iteratees receive value, key, and collection.',
             },
           ],
         },

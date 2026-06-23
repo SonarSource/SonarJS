@@ -1,12 +1,4 @@
 {
-"tailwindcss:src/cli/commands/help.js": [
-24,
-25,
-48
-],
-"tailwindcss:src/cli/utils.js": [
-157
-],
 "tailwindcss:src/lib/substituteResponsiveAtRules.js": [
 58
 ],
@@ -15,9 +7,6 @@
 ],
 "tailwindcss:src/util/createUtilityPlugin.js": [
 14
-],
-"tailwindcss:src/util/prefixNegativeModifiers.js": [
-6
 ],
 "tailwindcss:src/util/resolveConfig.js": [
 216,

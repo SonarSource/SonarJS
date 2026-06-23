@@ -26,13 +26,7 @@ import {
   isRequiredParserServices,
   type RequiredParserServices,
 } from '../helpers/parser-services.js';
-import {
-  getTypeFromTreeNode,
-  isAny,
-  isArrayLikeType,
-  isObjectType,
-  isStringType,
-} from '../helpers/type.js';
+import { getTypeFromTreeNode, isAny, isArrayLikeType, isStringType } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 type Replacement = {
@@ -54,35 +48,31 @@ const ARRAY_NULLISH_REASON = 'the library handles nullish values differently fro
 const COLLECTION_REASON = 'the library also accepts objects and nullish values';
 const COLLECTION_PREDICATE_REASON =
   'the library also accepts objects, nullish values, and shorthand predicates';
-const OBJECT_COLLECTION_REASON =
-  'the library handles nullish values differently and object iteratees receive value, key, and collection';
-const STRING_COERCION_REASON =
-  'the library coerces values and handles nullish values differently from the native API';
 const STRING_INCLUDES_REASON = 'the library also accepts arrays, objects, and nullish values';
 const ASSIGN_REASON = 'the library handles nullish targets differently from Object.assign';
 
+/**
+ * First-version catalog: keep high-confidence native API recommendations only.
+ * Included methods have a clear native API target and either a local helper API
+ * replacement, an object helper replacement, or an array/string receiver check.
+ *
+ * Removed or deferred because they were noisy in ruling:
+ * - Collection aliases: all, any, collect, detect, each, forEach, foldl, foldr, inject, select.
+ * - Object collection rewrites: Object.values()/Object.entries() alternatives for map/filter/reduce.
+ * - String coercion helpers: endsWith, padEnd, padStart, repeat, replace, split, startsWith,
+ *   toLower, toUpper, trim.
+ * - Subtle semantic helpers: bind, isFinite, isNaN.
+ */
 const replacements: Record<string, Replacement> = {
-  all: cautious('Array.prototype.every()', COLLECTION_PREDICATE_REASON, ES5),
-  any: cautious('Array.prototype.some()', COLLECTION_PREDICATE_REASON, ES5),
   assign: cautious('Object.assign()', ASSIGN_REASON, ES2015),
-  bind: cautious(
-    'Function.prototype.bind()',
-    'argument handling is not identical',
-    ES5,
-    '`fn.bind(thisArg, ...args)`',
-  ),
-  collect: cautious('Array.prototype.map()', COLLECTION_REASON, ES5),
   concat: cautious('Array.prototype.concat()', ARRAY_NULLISH_REASON, ES5),
   contains: cautious(
     'Array.prototype.includes()',
     'the library also accepts strings, objects, and nullish values',
     ES2016,
   ),
-  detect: cautious('Array.prototype.find()', COLLECTION_PREDICATE_REASON, ES2015),
   drop: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5, '`array.slice(n)`'),
   dropRight: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5, '`array.slice(0, -n)`'),
-  each: cautious('Array.prototype.forEach()', COLLECTION_PREDICATE_REASON, ES5),
-  endsWith: cautious('String.prototype.endsWith()', STRING_COERCION_REASON, ES2015),
   entries: cautious('Object.entries()', ARRAY_NULLISH_REASON, ES2017),
   every: cautious('Array.prototype.every()', COLLECTION_PREDICATE_REASON, ES5),
   extendOwn: cautious('Object.assign()', ARRAY_NULLISH_REASON, ES2015),
@@ -95,46 +85,26 @@ const replacements: Record<string, Replacement> = {
     'the library handles nullish values differently from the native API',
     ES2019,
   ),
-  foldl: cautious('Array.prototype.reduce()', COLLECTION_PREDICATE_REASON, ES5),
-  foldr: cautious('Array.prototype.reduceRight()', COLLECTION_PREDICATE_REASON, ES5),
-  forEach: cautious('Array.prototype.forEach()', COLLECTION_PREDICATE_REASON, ES5),
   includes: cautious(
     'Array.prototype.includes()',
     'the library also accepts strings, objects, and nullish values',
     ES2016,
   ),
   indexOf: cautious('Array.prototype.indexOf()', ARRAY_NULLISH_REASON, ES5),
-  inject: cautious('Array.prototype.reduce()', COLLECTION_PREDICATE_REASON, ES5),
   isArray: direct('Array.isArray()', ES5),
-  isFinite: cautious(
-    'Number.isFinite()',
-    'the library can handle non-number values differently from Number.isFinite',
-    ES2015,
-  ),
   isInteger: direct('Number.isInteger()', ES2015),
-  isNaN: cautious('Number.isNaN()', 'boxed Number objects are handled differently', ES2015),
   join: cautious('Array.prototype.join()', ARRAY_NULLISH_REASON, ES5),
   keys: cautious('Object.keys()', ARRAY_NULLISH_REASON, ES5),
   lastIndexOf: cautious('Array.prototype.lastIndexOf()', ARRAY_NULLISH_REASON, ES5),
   map: cautious('Array.prototype.map()', COLLECTION_REASON, ES5),
-  padEnd: cautious('String.prototype.padEnd()', STRING_COERCION_REASON, ES2017),
-  padStart: cautious('String.prototype.padStart()', STRING_COERCION_REASON, ES2017),
   pairs: cautious('Object.entries()', ARRAY_NULLISH_REASON, ES2017),
   reduce: cautious('Array.prototype.reduce()', COLLECTION_PREDICATE_REASON, ES5),
   reduceRight: cautious('Array.prototype.reduceRight()', COLLECTION_PREDICATE_REASON, ES5),
-  repeat: cautious('String.prototype.repeat()', STRING_COERCION_REASON, ES2015),
-  replace: cautious('String.prototype.replace()', STRING_COERCION_REASON, ES5),
   reverse: cautious('Array.prototype.reverse()', ARRAY_NULLISH_REASON, ES5),
-  select: cautious('Array.prototype.filter()', COLLECTION_PREDICATE_REASON, ES5),
   slice: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5),
   some: cautious('Array.prototype.some()', COLLECTION_PREDICATE_REASON, ES5),
-  split: cautious('String.prototype.split()', STRING_COERCION_REASON, ES5),
-  startsWith: cautious('String.prototype.startsWith()', STRING_COERCION_REASON, ES2015),
   takeRight: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5, '`array.slice(-n)`'),
-  toLower: cautious('String.prototype.toLowerCase()', STRING_COERCION_REASON, ES5),
   toPairs: cautious('Object.entries()', ARRAY_NULLISH_REASON, ES2017),
-  toUpper: cautious('String.prototype.toUpperCase()', STRING_COERCION_REASON, ES5),
-  trim: cautious('String.prototype.trim()', STRING_COERCION_REASON, ES5),
   uniq: cautious('Set', ARRAY_NULLISH_REASON, ES2015, '`[...new Set(values)]`'),
   values: cautious('Object.values()', ARRAY_NULLISH_REASON, ES2017),
 };
@@ -143,57 +113,23 @@ const methodNames = new Set(Object.keys(replacements));
 const methodNamesByLowerCase = new Map(
   Object.keys(replacements).map(method => [method.toLowerCase(), method]),
 );
-const OBJECT_REDUCE_ALTERNATIVE =
-  'Object.values() or Object.entries() with Array.prototype.reduce()';
 const shapeDependentMethods = new Set([
-  'all',
-  'any',
-  'collect',
   'contains',
-  'detect',
-  'each',
   'every',
   'filter',
   'find',
   'findIndex',
-  'foldl',
-  'foldr',
-  'forEach',
   'includes',
-  'inject',
   'map',
   'reduce',
   'reduceRight',
-  'select',
   'some',
 ]);
 const callbackCollectionMethods = new Set(
   [...shapeDependentMethods].filter(method => method !== 'contains' && method !== 'includes'),
 );
-const objectCollectionAlternatives: Record<string, string> = {
-  all: 'Object.values() or Object.entries() with Array.prototype.every()',
-  any: 'Object.values() or Object.entries() with Array.prototype.some()',
-  collect: 'Object.values() or Object.entries() with Array.prototype.map()',
-  contains: 'Object.values() with Array.prototype.includes()',
-  detect: 'Object.values() or Object.entries() with Array.prototype.find()',
-  each: 'Object.values() or Object.entries() with Array.prototype.forEach()',
-  every: 'Object.values() or Object.entries() with Array.prototype.every()',
-  filter: 'Object.values() or Object.entries() with Array.prototype.filter()',
-  find: 'Object.values() or Object.entries() with Array.prototype.find()',
-  findIndex: 'Object.values() or Object.entries() with Array.prototype.findIndex()',
-  foldl: OBJECT_REDUCE_ALTERNATIVE,
-  foldr: 'Object.values() or Object.entries() with Array.prototype.reduceRight()',
-  forEach: 'Object.values() or Object.entries() with Array.prototype.forEach()',
-  includes: 'Object.values() with Array.prototype.includes()',
-  inject: OBJECT_REDUCE_ALTERNATIVE,
-  map: 'Object.values() or Object.entries() with Array.prototype.map()',
-  reduce: OBJECT_REDUCE_ALTERNATIVE,
-  reduceRight: 'Object.values() or Object.entries() with Array.prototype.reduceRight()',
-  select: 'Object.values() or Object.entries() with Array.prototype.filter()',
-  some: 'Object.values() or Object.entries() with Array.prototype.some()',
-};
 
-type CollectionShape = 'array' | 'object' | 'string' | 'unknown';
+type CollectionShape = 'array' | 'string' | 'unknown';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -278,9 +214,6 @@ function resolveReplacement(
   call: estree.CallExpression,
   context: Rule.RuleContext,
 ): Replacement | null {
-  if (method === 'trim' && call.arguments.length > 1) {
-    return null;
-  }
   if (!shapeDependentMethods.has(method)) {
     return replacement;
   }
@@ -322,9 +255,6 @@ function getShapeSpecificReplacement(
   if (shape === 'string' && (method === 'contains' || method === 'includes')) {
     return cautious('String.prototype.includes()', STRING_INCLUDES_REASON, ES2016);
   }
-  if (shape === 'object') {
-    return cautious(objectCollectionAlternatives[method], OBJECT_COLLECTION_REASON, ES2017);
-  }
   return null;
 }
 
@@ -347,9 +277,6 @@ function getSyntacticCollectionShape(node: estree.Expression): CollectionShape {
   }
   if (node.type === 'ArrayExpression') {
     return 'array';
-  }
-  if (node.type === 'ObjectExpression') {
-    return 'object';
   }
   if (node.type === 'Literal' && typeof node.value === 'string') {
     return 'string';
@@ -392,9 +319,6 @@ function getTypePartCollectionShape(
   }
   if (isArrayLikeType(type, services)) {
     return 'array';
-  }
-  if (isObjectType(type) && type.getCallSignatures().length === 0) {
-    return 'object';
   }
   return 'unknown';
 }

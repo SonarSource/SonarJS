@@ -1,11 +1,4 @@
 {
-"it-tools:src/composable/downloadBase64.ts": [
-22
-],
-"it-tools:src/tools/chmod-calculator/chmod-calculator.service.ts": [
-10,
-23
-],
 "it-tools:src/tools/json-diff/json-diff.models.ts": [
 11,
 11

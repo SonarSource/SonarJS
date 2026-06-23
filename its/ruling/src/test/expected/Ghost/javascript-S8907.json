@@ -1,24 +1,17 @@
 {
 "Ghost:Gruntfile.js": [
-448,
-457
-],
-"Ghost:core/server/api/configuration.js": [
-56
+448
 ],
 "Ghost:core/server/api/notifications.js": [
 90,
 138
 ],
 "Ghost:core/server/api/settings.js": [
-78,
 108,
 110,
-138,
 153,
 169,
-211,
-272
+211
 ],
 "Ghost:core/server/api/themes.js": [
 151
@@ -35,9 +28,6 @@
 "Ghost:core/server/controllers/admin.js": [
 27
 ],
-"Ghost:core/server/controllers/frontend/fetch-data.js": [
-69
-],
 "Ghost:core/server/controllers/frontend/templates.js": [
 77
 ],
@@ -49,10 +39,7 @@
 171
 ],
 "Ghost:core/server/data/import/utils.js": [
-56,
 66,
-93,
-117,
 124
 ],
 "Ghost:core/server/data/importer/handlers/json.js": [
@@ -103,9 +90,7 @@
 "Ghost:core/server/errors/index.js": [
 99,
 192,
-196,
-353,
-375
+353
 ],
 "Ghost:core/server/filters.js": [
 77
@@ -160,9 +145,6 @@
 "Ghost:core/test/integration/api/api_posts_spec.js": [
 336
 ],
-"Ghost:core/test/integration/export_spec.js": [
-48
-],
 "Ghost:core/test/unit/apps_spec.js": [
 417,
 489
@@ -182,15 +164,9 @@
 34
 ],
 "Ghost:core/test/unit/server_helpers/foreach_spec.js": [
-63,
 88,
-114,
 156,
-191,
 233
-],
-"Ghost:core/test/utils/configUtils.js": [
-19
 ],
 "Ghost:core/test/utils/fixtures/data-generator.js": [
 443,
@@ -206,8 +182,6 @@
 "Ghost:core/test/utils/index.js": [
 246,
 277,
-355,
-360,
-457
+360
 ]
 }

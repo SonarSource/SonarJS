@@ -11,9 +11,6 @@
 "sonar-web:src/main/js/apps/issues/facets/creation-date-facet.js": [
 42
 ],
-"sonar-web:src/main/js/apps/issues/workspace-header-view.js": [
-21
-],
 "sonar-web:src/main/js/apps/projects/main.js": [
 138
 ],
@@ -38,13 +35,6 @@
 "sonar-web:src/main/js/components/navigator/filters/ajax-select-filters.js": [
 290
 ],
-"sonar-web:src/main/js/components/navigator/filters/choice-filters.js": [
-101
-],
-"sonar-web:src/main/js/components/navigator/filters/metric-filters.js": [
-148,
-177
-],
 "sonar-web:src/main/js/components/navigator/filters/range-filters.js": [
 62,
 185
@@ -57,10 +47,6 @@
 "sonar-web:src/main/js/components/source-viewer/measures-overlay.js": [
 78,
 163
-],
-"sonar-web:src/main/js/components/workspace/views/viewer-header-view.js": [
-60,
-61
 ],
 "sonar-web:src/main/js/helpers/handlebars-helpers.js": [
 214,
