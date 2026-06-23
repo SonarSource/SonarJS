@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { execFileSync } from 'node:child_process';
-import { listRulesDir } from './helpers.js';
+import { listRulesDir, writePrettyFile } from './helpers.js';
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join as joinNative } from 'node:path';
@@ -94,11 +94,11 @@ type JsonObject = {
   [key: string]: JsonValue;
 };
 
-syncRuleData(join(sourceFolder, 'javascript'), JS_RULE_DATA_FOLDER, jsRuleNames);
-syncRuleData(join(sourceFolder, 'css'), CSS_RULE_DATA_FOLDER, cssRuleNames);
+await syncRuleData(join(sourceFolder, 'javascript'), JS_RULE_DATA_FOLDER, jsRuleNames);
+await syncRuleData(join(sourceFolder, 'css'), CSS_RULE_DATA_FOLDER, cssRuleNames);
 syncRspecShas();
 
-function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: string[]) {
+async function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: string[]) {
   warnOnRulesWithoutImplementation(sourceFolder, ruleNames);
   const existingManifests = new Map(
     ruleNames
@@ -164,12 +164,17 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
     const shouldPrettyPrintProfile =
       targetFolder === JS_RULE_DATA_FOLDER &&
       PRETTY_PRINTED_JS_PROFILE_FILENAMES.has(generatedProfile.fileName);
-    writeFileSync(
-      join(targetFolder, generatedProfile.fileName),
-      shouldPrettyPrintProfile
-        ? `${JSON.stringify(profileContents, null, 2)}\n`
-        : JSON.stringify(profileContents),
-    );
+    if (shouldPrettyPrintProfile) {
+      await writePrettyFile(
+        join(targetFolder, generatedProfile.fileName),
+        JSON.stringify(profileContents),
+      );
+    } else {
+      writeFileSync(
+        join(targetFolder, generatedProfile.fileName),
+        JSON.stringify(profileContents),
+      );
+    }
   }
 
   writeFileSync(
