@@ -304,11 +304,12 @@ function getConstantExpression(
   }
 
   const declarator = definition.node;
-  if (declarator.type !== 'VariableDeclarator' || declarator.init === null) {
+  const init = declarator.type === 'VariableDeclarator' ? declarator.init : null;
+  if (init == null) {
     return node;
   }
 
-  return getConstantExpression(declarator.init, context, visited);
+  return getConstantExpression(init, context, visited);
 }
 
 function isRegExpLiteral(node: estree.Expression): boolean {
