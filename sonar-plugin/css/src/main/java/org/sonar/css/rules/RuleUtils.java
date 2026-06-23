@@ -31,4 +31,8 @@ public class RuleUtils {
     String[] split = parameterValue.split(",");
     return Arrays.stream(split).map(String::trim).toList();
   }
+
+  public static List<Object> toOptions(Object ignoreOption) {
+    return Arrays.asList(true, ignoreOption);
+  }
 }

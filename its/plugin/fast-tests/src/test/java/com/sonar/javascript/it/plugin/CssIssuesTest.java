@@ -180,7 +180,11 @@ class CssIssuesTest {
         tuple("css:S5362", "src/file2.less"),
         tuple("css:S5362", "src/file3.scss"),
         tuple("css:S1116", "src/file5-1.html"),
-        tuple("css:S125", "src/file2.less")
+        tuple("css:S125", "src/file2.less"),
+        tuple("css:S8767", "src/file1.css"),
+        tuple("css:S8767", "src/file1.css"),
+        tuple("css:S8767", "src/file2.less"),
+        tuple("css:S8767", "src/file3.scss")
       );
   }
 }

@@ -35,7 +35,7 @@ function getOrSetParsedDependencyFile<T>(
   file: File,
   parse: (file: File) => T | undefined,
 ): T | undefined {
-  const cacheKey = normalizeToAbsolutePath(file.path);
+  const cacheKey = normalizeToAbsolutePath(file.filePath);
   if (cache.has(cacheKey)) {
     return cache.get(cacheKey);
   }
@@ -46,17 +46,16 @@ function getOrSetParsedDependencyFile<T>(
 
 export function parsePackageJson(file: File): PackageJson | undefined {
   return getOrSetParsedDependencyFile(parsedPackageJsonCache, file, file =>
-    parsePackageJsonContent(file.content, file.path),
+    parsePackageJsonContent(file.fileContent, file.filePath),
   );
 }
 
 export function parsePackageJsonContent(
-  content: string | Buffer,
+  content: string,
   filePath?: string,
 ): PackageJson | undefined {
-  const packageJsonContent = typeof content === 'string' ? content : content.toString();
   try {
-    return JSON.parse(stripBOM(packageJsonContent)) as PackageJson;
+    return JSON.parse(stripBOM(content)) as PackageJson;
   } catch (error) {
     if (filePath) {
       console.debug(`Error parsing package.json ${filePath}: ${error}`);
@@ -71,7 +70,7 @@ export function parsePnpmWorkspace(file: File): Workspace | undefined {
 
 function parsePnpmWorkspaceContent(file: File): Workspace | undefined {
   try {
-    const parsedPnpm = yaml.parse(file.content.toString());
+    const parsedPnpm = yaml.parse(file.fileContent);
     if (
       parsedPnpm &&
       ('catalog' in parsedPnpm || 'catalogs' in parsedPnpm || 'packages' in parsedPnpm)
@@ -80,7 +79,7 @@ function parsePnpmWorkspaceContent(file: File): Workspace | undefined {
     }
     return undefined;
   } catch (error) {
-    console.debug(`Error parsing pnpm workspace ${file.path}: ${error}`);
+    console.debug(`Error parsing pnpm workspace ${file.filePath}: ${error}`);
     return undefined;
   }
 }
@@ -92,15 +91,15 @@ export function parseDenoManifest(file: File): DenoJson | undefined {
 function parseDenoManifestContent(file: File): DenoJson | undefined {
   try {
     // ts.parseConfigFileTextToJson handles JSON with comments and trailing commas
-    const parsed = ts.parseConfigFileTextToJson(file.path, stripBOM(file.content.toString()));
+    const parsed = ts.parseConfigFileTextToJson(file.filePath, stripBOM(file.fileContent));
     if (parsed.error) {
       const message = ts.flattenDiagnosticMessageText(parsed.error.messageText, '\n');
-      console.debug(`Error parsing deno manifest ${file.path}: ${message}`);
+      console.debug(`Error parsing deno manifest ${file.filePath}: ${message}`);
       return;
     }
     return parsed.config as DenoJson;
   } catch (error) {
-    console.debug(`Error parsing deno manifest ${file.path}: ${error}`);
+    console.debug(`Error parsing deno manifest ${file.filePath}: ${error}`);
     return;
   }
 }

@@ -162,11 +162,7 @@ function readOpenApiFilesManifest(
   const preloadedFile = projectSnapshot?.preloadedFiles.get(manifestPath);
 
   if (preloadedFile) {
-    return parseOpenApiFilesManifestContents(
-      typeof preloadedFile.content === 'string'
-        ? preloadedFile.content
-        : preloadedFile.content.toString('utf8'),
-    );
+    return parseOpenApiFilesManifestContents(preloadedFile.fileContent);
   }
 
   return undefined;

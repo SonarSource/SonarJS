@@ -1,3 +1,46 @@
+## 2026-06-18, Version 4.1.0
+
+* [[JS-1880](https://sonarsource.atlassian.net/browse/JS-1880)] - Create rule S8782: Lifecycle hooks should be declared before test cases
+* [[JS-1877](https://sonarsource.atlassian.net/browse/JS-1877)] - S5332: Port CleartextProtocolFilter safe-URL logic to TypeScript
+* [[JS-1871](https://sonarsource.atlassian.net/browse/JS-1871)] - S8780: Async test assertions should be awaited or returned
+* [[JS-1870](https://sonarsource.atlassian.net/browse/JS-1870)] - Remove deprecated rules S2255, S4784, S4787, S4817, S4818, S4823, S4829, S5742, S5743, S6245, S6299
+* [[JS-1867](https://sonarsource.atlassian.net/browse/JS-1867)] - S4790 should not raise when the hash output is truncated/sliced
+* [[JS-1862](https://sonarsource.atlassian.net/browse/JS-1862)] - S8754: Test titles should be unique within the same suite
+* [[JS-1825](https://sonarsource.atlassian.net/browse/JS-1825)] - S5852: only report in case of exponential backtracking + add rule S8786
+* [[JS-1823](https://sonarsource.atlassian.net/browse/JS-1823)] - S5906: FP in Jasmine quickfix suggestions for toHaveLength
+* [[JS-1810](https://sonarsource.atlassian.net/browse/JS-1810)] - S6281: Adjust detection logic for AWS CDK BlockPublicAccess changes
+* [[JS-1802](https://sonarsource.atlassian.net/browse/JS-1802)] - Fix S3801 false positives for React effect cleanups
+* [[JS-1790](https://sonarsource.atlassian.net/browse/JS-1790)] - S5725: Restrict rule to statically versioned URLs
+* [[JS-1789](https://sonarsource.atlassian.net/browse/JS-1789)] - Fix S4782 false negative when optional property type alias includes `undefined`
+* [[JS-1776](https://sonarsource.atlassian.net/browse/JS-1776)] - Update S5845 issue wording
+* [[JS-1775](https://sonarsource.atlassian.net/browse/JS-1775)] - Fix FP on S4782: Fix S4782: false positive when optional property type is exactly undefined
+* [[JS-1707](https://sonarsource.atlassian.net/browse/JS-1707)] - Fix FP on S5868: Unicode ranges flagged as grapheme clusters in character classes
+* [[JS-1706](https://sonarsource.atlassian.net/browse/JS-1706)] - Fix FP on S5868: Unicode in variables concatenated into regex character classes
+* [[JS-1694](https://sonarsource.atlassian.net/browse/JS-1694)] - JS 1688 extend dependencies cache with versions
+* [[JS-1692](https://sonarsource.atlassian.net/browse/JS-1692)] - S8686: Assertions should not be conditional
+* [[JS-1688](https://sonarsource.atlassian.net/browse/JS-1688)] - Extend dependenciesCache to store dependency versions alongside names
+* [[JS-1687](https://sonarsource.atlassian.net/browse/JS-1687)] - S5906: The most specific assertion should be used
+* [[JS-1685](https://sonarsource.atlassian.net/browse/JS-1685)] - Fix FP S6759 readonly props inherited from Readonly base
+* [[JS-1682](https://sonarsource.atlassian.net/browse/JS-1682)] - Fix FN S6324 false negatives in printable ranges
+* [[JS-1680](https://sonarsource.atlassian.net/browse/JS-1680)] - Fix S7780 quickfix: Applying quickfix may introduce S4624 issues
+* [[JS-1678](https://sonarsource.atlassian.net/browse/JS-1678)] - S5845: Assertions comparing incompatible types should not be made
+* [[JS-1677](https://sonarsource.atlassian.net/browse/JS-1677)] - S5914: Assertions should not be trivially true or false
+* [[JS-1651](https://sonarsource.atlassian.net/browse/JS-1651)] - Recognize test.prop and it.prop from @fast-check/vitest in S2187
+* [[JS-1649](https://sonarsource.atlassian.net/browse/JS-1649)] - Enable rules dynamically based on per-file import declarations
+* [[JS-1609](https://sonarsource.atlassian.net/browse/JS-1609)] - Clean up accepted issues in SonarJS self-analysis
+* [[JS-1608](https://sonarsource.atlassian.net/browse/JS-1608)] - Port TS6 rule FP fixes from #6626
+* [[JS-1576](https://sonarsource.atlassian.net/browse/JS-1576)] - Upgrade to TypeScript 6
+* [[JS-1550](https://sonarsource.atlassian.net/browse/JS-1550)] - Don't bundle slf4j in the plugin
+* [[JS-1541](https://sonarsource.atlassian.net/browse/JS-1541)] - Expand S6437 coverage
+* [[JS-1528](https://sonarsource.atlassian.net/browse/JS-1528)] - Fix FP on S2871: Sorted comparisons where both sides use identical sort logic
+* [[JS-1501](https://sonarsource.atlassian.net/browse/JS-1501)] - Move MAIN/TEST fallback heuristic to linter layer; remove rule-level filename gating
+* [[JS-1491](https://sonarsource.atlassian.net/browse/JS-1491)] - Fix FP on S2392: Loop counter variables reused across separate loops
+* [[JS-1462](https://sonarsource.atlassian.net/browse/JS-1462)] - Fix FP on S6582: Multi-condition logic with && and || cannot use optional chaining
+* [[JS-1423](https://sonarsource.atlassian.net/browse/JS-1423)] - Fix FP on S7778: Methods accepting only a single argument incorrectly flagged as combinable
+* [[JS-1316](https://sonarsource.atlassian.net/browse/JS-1316)] - Resolve catalog: references from Bun's package.json catalog fields
+* [[JS-736](https://sonarsource.atlassian.net/browse/JS-736)] - Search for deno.json files during lookup
+* [[JS-366](https://sonarsource.atlassian.net/browse/JS-366)] - Fully support JSX syntax in S125 (`no-commented-code`)
+
 ## 2026-04-16, Version 4.0.3
 
 - [[JS-1540](https://sonarsource.atlassian.net/browse/JS-1540)] - Strengthen Rule S2077 with new detection

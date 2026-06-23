@@ -14,41 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { join } from 'node:path';
-
-const preparedRuleDataPaths = [
-  join(
-    'sonar-plugin',
-    'javascript-checks',
-    'src',
-    'main',
-    'resources',
-    'org',
-    'sonar',
-    'l10n',
-    'javascript',
-    'rules',
-    'javascript',
-  ),
-  join(
-    'sonar-plugin',
-    'css',
-    'src',
-    'main',
-    'resources',
-    'org',
-    'sonar',
-    'l10n',
-    'css',
-    'rules',
-    'css',
-  ),
-  join('sonar-plugin', 'javascript-checks', 'src', 'main', 'resources', 'rspec.sha'),
-  join('sonar-plugin', 'css', 'src', 'main', 'resources', 'rspec.sha'),
-];
-const hasPreparedRuleData = preparedRuleDataPaths.every(path => existsSync(path));
 
 const command =
   process.env.npm_execpath === undefined
@@ -59,9 +25,7 @@ const command =
 const commandArgumentsPrefix =
   process.env.npm_execpath === undefined ? [] : [process.env.npm_execpath];
 const shouldUseShell = process.platform === 'win32' && command.toLowerCase().endsWith('.cmd');
-const scripts = hasPreparedRuleData
-  ? ['generate-meta:raw']
-  : ['generate-rule-data:maven', 'generate-meta:raw'];
+const scripts = ['ensure-rule-data', 'generate-meta:raw'];
 
 for (const script of scripts) {
   const result = spawnSync(command, [...commandArgumentsPrefix, 'run', script], {

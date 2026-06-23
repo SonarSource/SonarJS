@@ -202,7 +202,7 @@ function findClosestParentPackageJsonWithCatalogs(
       return parsed;
     }
 
-    const fileDir = dirnamePath(file.path);
+    const fileDir = dirnamePath(file.filePath);
     if (fileDir === topDir) {
       return undefined;
     }

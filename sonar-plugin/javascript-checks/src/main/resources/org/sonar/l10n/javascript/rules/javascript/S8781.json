@@ -1,0 +1,39 @@
+{
+  "title": "Test and suite titles should not be empty or whitespace-only",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "tests",
+    "confusing",
+    "jest",
+    "mocha",
+    "vitest",
+    "playwright",
+    "jasmine",
+    "cypress",
+    "node",
+    "karma"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8781",
+  "sqKey": "S8781",
+  "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

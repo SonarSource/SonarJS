@@ -23,6 +23,7 @@ import postcssHtmlConfig from 'stylelint-config-html/html.js';
 import postcssVueConfig from 'stylelint-config-html/vue.js';
 import { sonarRules } from '../rules/index.js';
 import stylisticPlugins from '@stylistic/stylelint-plugin';
+import { cssOnlyRuleKeys } from './css-only-rules.js';
 
 /**
  * A Stylelint rule configuration
@@ -51,16 +52,23 @@ type ConfigRules = {
  * Creating a Stylelint configuration implies enabling along with specific rule
  * configuration all the rules from the active quality profile.
  *
+ * Rules in cssOnlyRuleKeys are treated specially:
+ *  - Enabled for .css files and HTML/Vue files (where transform.ts filters
+ *    out warnings from non-CSS embedded blocks).
+ *  - Never enabled for .scss/.sass/.less files.
+ *
  * @param rules the rules from the active quality profile
  * @returns the created Stylelint configuration
  */
 export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
   const configRules: ConfigRules = {};
+  const cssOnlyRules: ConfigRules = {};
   for (const { key, configurations } of rules) {
-    if (configurations.length === 0) {
-      configRules[key] = true;
+    const value = configurations.length === 0 ? true : configurations;
+    if (cssOnlyRuleKeys.has(key)) {
+      cssOnlyRules[key] = value;
     } else {
-      configRules[key] = configurations;
+      configRules[key] = value;
     }
   }
   return {
@@ -68,6 +76,13 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
     // automatically. However, esbuild will not be able to resolve our dependencies. We pass them
     // explicitly so that no dynamic requires happen at bundle time.
     overrides: [
+      // CSS-only rules run on plain .css files only.
+      {
+        files: ['**/*.css'],
+        rules: cssOnlyRules,
+      },
+      // HTML/Vue: full syntax so all embedded blocks are parsed. CSS-only rules run here
+      // too; transform.ts drops any warning that comes from a non-CSS embedded block.
       {
         files: [...postcssHtmlConfig.overrides[0].files, ...postcssVueConfig.overrides[0].files],
         customSyntax: postcssHtml({
@@ -75,7 +90,9 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
           sass: postcssSass,
           less: postcssLess,
         }),
+        rules: cssOnlyRules,
       },
+      // scss/sass/less: no CSS-only rules.
       {
         files: ['**/*.scss'],
         customSyntax: postcssScss,

@@ -28,7 +28,7 @@ export function getManifestFileInDir(
   fileSystem?: Filesystem,
 ): File | undefined {
   const file = closestPatternCache.get(manifestName, fileSystem).get(topDir).get(dir);
-  if (file && dirnamePath(file.path) === dir) {
+  if (file && dirnamePath(file.filePath) === dir) {
     return file;
   }
   return undefined;

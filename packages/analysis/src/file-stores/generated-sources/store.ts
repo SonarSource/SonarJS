@@ -17,7 +17,6 @@
 import { basename } from 'node:path/posix';
 import type { FileStore } from '../store-type.js';
 import type { DependencyManifestStore } from '../dependency-manifests.js';
-import type { SourceFileStore } from '../source-files.js';
 import {
   getProjectFileDiscoveryConfigKey,
   isJsTsFile,
@@ -45,14 +44,10 @@ import {
 } from './observability.js';
 import { shouldCaptureGeneratedSourceSnapshotPath } from './snapshot-files.js';
 
-type SourceFileContentLookup = Pick<SourceFileStore, 'getFileContent'>;
 type DependencyManifestLookup = Pick<DependencyManifestStore, 'getPackageJsons'>;
 
 export class GeneratedSourceStore implements FileStore {
-  constructor(
-    private readonly sourceFileStore: SourceFileContentLookup,
-    private readonly dependencyManifestStore: DependencyManifestLookup,
-  ) {}
+  constructor(private readonly dependencyManifestStore: DependencyManifestLookup) {}
 
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
@@ -170,23 +165,26 @@ export class GeneratedSourceStore implements FileStore {
     this.walkedDirectories.add(configuration.baseDir);
   }
 
-  async processFile(filename: NormalizedAbsolutePath, configuration: Configuration): Promise<void> {
+  wantsFile(filename: NormalizedAbsolutePath, configuration: Configuration) {
+    if (shouldCaptureGeneratedSourceSnapshotPath(filename)) {
+      return 'content';
+    }
+
+    return isJsTsFile(filename, configuration) ? 'path' : false;
+  }
+
+  async processFile(
+    filename: NormalizedAbsolutePath,
+    configuration: Configuration,
+    file?: File,
+  ): Promise<void> {
     if (isJsTsFile(filename, configuration)) {
       this.sourceFiles.add(filename);
     }
 
-    if (this.canAccessFileSystem === false) {
-      return;
+    if (file) {
+      this.preloadedFiles.set(filename, file);
     }
-
-    if (!shouldCaptureGeneratedSourceSnapshotPath(filename)) {
-      return;
-    }
-
-    this.preloadedFiles.set(filename, {
-      content: await this.sourceFileStore.getFileContent(filename),
-      path: filename,
-    });
   }
 
   processDirectory(dir: NormalizedAbsolutePath) {
@@ -270,7 +268,7 @@ export class GeneratedSourceStore implements FileStore {
 
   private addPackageJsonsToSnapshot(packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>) {
     for (const file of packageJsons.values()) {
-      this.preloadedFiles.set(file.path, file);
+      this.preloadedFiles.set(file.filePath, file);
     }
   }
 

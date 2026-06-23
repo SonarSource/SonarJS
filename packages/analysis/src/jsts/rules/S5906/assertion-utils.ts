@@ -71,6 +71,28 @@ function isPlaywrightLocatorRoot(
   return isPlaywrightLocatorExpression(context, node, locatorVariables);
 }
 
+// As soon as a third rule consumes this, promote it out of S5906/ into a
+// shared module under helpers/ (e.g. helpers/playwright-locators.ts) so it no
+// longer lives under a specific rule's directory.
+export function trackPlaywrightLocators(
+  context: Rule.RuleContext,
+  locators: Set<Scope.Variable>,
+): Rule.RuleListener {
+  return {
+    VariableDeclarator(node) {
+      if (node.type !== 'VariableDeclarator' || !isIdentifier(node.id)) {
+        return;
+      }
+      if (node.init && isPlaywrightLocatorExpression(context, node.init, locators)) {
+        const variable = context.sourceCode.getDeclaredVariables(node)[0];
+        if (variable) {
+          locators.add(variable);
+        }
+      }
+    },
+  };
+}
+
 export function isLengthAccess(node: estree.Node): node is estree.MemberExpression {
   return (
     node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property, 'length')

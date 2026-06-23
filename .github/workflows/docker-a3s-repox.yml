@@ -42,11 +42,11 @@ jobs:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.BUILD_NUMBER }}
     steps:
       - name: Checkout source code
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7
         with:
           ref: ${{ inputs.branch || github.ref }}
 
-      - uses: jdx/mise-action@v4.1.0
+      - uses: jdx/mise-action@v4.2.0
         with:
           version: 2025.11.2
           mise_toml: |
