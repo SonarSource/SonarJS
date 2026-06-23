@@ -333,6 +333,45 @@ context('group', async () => { await b(); });
           ],
         },
         {
+          // secondary locations for a `for await...of` suspension cover tests declared *inside* the
+          // loop body as well as after it: the loop suspends on the first `iterator.next()`, so its
+          // body never runs during discovery and every registration there is dropped too.
+          code: `describe('svc', async () => {
+  for await (const chunk of stream()) {
+    it('inside', () => {});
+  }
+  it('after', () => {});
+});`,
+          filename: mochaGlobals,
+          settings: { sonarRuntime: true },
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                sonarRuntimeData: JSON.stringify({
+                  message: 'Move this asynchronous work into a lifecycle hook.',
+                  secondaryLocations: [
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 4,
+                      line: 3,
+                      endColumn: 6,
+                      endLine: 3,
+                    },
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 2,
+                      line: 5,
+                      endColumn: 4,
+                      endLine: 5,
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        },
+        {
           // regression: the rule declares `hasSecondaries`, so under sonarRuntime the linter
           // decodes every message of S8785 as JSON. The removeAsync report (which carries no
           // secondary locations) must be encoded too, otherwise the decoder crashes parsing a

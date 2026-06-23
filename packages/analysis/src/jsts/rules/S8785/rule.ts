@@ -239,7 +239,13 @@ function findTestsRegisteredAfter(
   if (callback.body.type !== 'BlockStatement') {
     return [];
   }
-  const awaitEnd = sourceCode.getRange(awaitNode)[1];
+  // The offset at which the callback suspends. A `for await...of` suspends at the loop itself (the
+  // first `iterator.next()` call, even for a synchronous iterable), so its entire body is dropped
+  // too — use the loop's start. A plain `await` only drops what follows it — use the await's end.
+  const suspendOffset =
+    awaitNode.type === 'ForOfStatement'
+      ? sourceCode.getRange(awaitNode)[0]
+      : sourceCode.getRange(awaitNode)[1];
   const tests: estree.Node[] = [];
   const stack: estree.Node[] = [...childrenOf(callback.body, sourceCode.visitorKeys)];
   while (stack.length > 0) {
@@ -250,7 +256,7 @@ function findTestsRegisteredAfter(
     if (
       current.type === 'ExpressionStatement' &&
       current.expression.type === 'CallExpression' &&
-      sourceCode.getRange(current)[0] >= awaitEnd
+      sourceCode.getRange(current)[0] >= suspendOffset
     ) {
       const parts = getMochaCalleeParts(current.expression.callee);
       if (parts && TEST_AND_SUITE_NAMES.has(parts.base.name)) {
