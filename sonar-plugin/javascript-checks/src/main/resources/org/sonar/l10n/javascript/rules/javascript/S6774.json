@@ -29,9 +29,5 @@
   },
   "compatibleLanguages": [
     "js"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar agentic AI",
-    "Sonar way"
   ]
 }
