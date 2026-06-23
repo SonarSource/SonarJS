@@ -33,8 +33,10 @@ import * as meta from './generated-meta.js';
 /**
  * Frameworks that run a suite's callback synchronously during the discovery phase. Vitest is
  * intentionally excluded: it awaits the suite callback, so an async callback is safe there.
+ * `@jest/globals` is the explicit Jest entry point (`import { describe } from '@jest/globals'`) and
+ * must be treated like `jest`, mirroring S8780.
  */
-const SUPPORTED_FRAMEWORKS = ['jest', 'mocha', 'cypress'];
+const SUPPORTED_FRAMEWORKS = ['jest', '@jest/globals', 'mocha', 'cypress'];
 
 /**
  * Suite-defining identifiers whose callback runs during discovery. `xdescribe`/`xcontext` (skip
@@ -112,8 +114,8 @@ function isSuiteCallback(
 
 /**
  * Whether the suite identifier comes from a supported framework. An imported/required name must
- * resolve to `jest`, `mocha`, or `cypress` (this excludes Vitest); a locally-defined name is
- * rejected; an unresolved global is accepted, since the file-level dependency gate already
+ * resolve to `jest`, `@jest/globals`, `mocha`, or `cypress` (this excludes Vitest); a locally-defined
+ * name is rejected; an unresolved global is accepted, since the file-level dependency gate already
  * confirmed a supported framework is in use.
  */
 function isSupportedFrameworkConstruct(
@@ -126,7 +128,13 @@ function isSupportedFrameworkConstruct(
     if (fqn === null) {
       return false;
     }
-    return SUPPORTED_FRAMEWORKS.includes(fqn.split('.')[0]);
+    // `getFullyQualifiedName` splits the module path on `/`, so a scoped entry point like
+    // `@jest/globals` yields the prefix `@jest.globals` (not a single first segment). Match the
+    // whole module prefix rather than `fqn.split('.')[0]`.
+    return SUPPORTED_FRAMEWORKS.some(module => {
+      const prefix = module.replaceAll('/', '.');
+      return fqn === prefix || fqn.startsWith(`${prefix}.`);
+    });
   }
   return true;
 }

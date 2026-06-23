@@ -145,6 +145,15 @@ describe('user service', () => {
       ],
       invalid: [
         {
+          // `@jest/globals` is a supported Jest entry point and must be detected like `jest`
+          code: `import { describe } from '@jest/globals';
+describe('user service', async () => {
+  await setup();
+});`,
+          filename: 'service.test.ts',
+          errors: [{ messageId: 'moveAsyncSetup' }],
+        },
+        {
           // async callback without a top-level await: remove the misleading async keyword
           code: `import { describe } from 'mocha';
 describe('user service', async () => {
