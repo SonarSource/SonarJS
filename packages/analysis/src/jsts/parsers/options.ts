@@ -23,6 +23,7 @@ export const DEFAULT_ECMA_VERSION = 2018;
 
 export interface ParserContext {
   detectedEsYear?: number;
+  errorRecovery?: boolean;
   jsx?: boolean;
 }
 
@@ -79,7 +80,7 @@ function babelParserOverlay(context: ParserContext = {}): Linter.ParserOptions {
       configFile: false,
       parserOpts: {
         allowReturnOutsideFunction: true,
-        errorRecovery: true,
+        errorRecovery: context.errorRecovery ?? false,
         plugins: babelParserPlugins(context),
       },
     },

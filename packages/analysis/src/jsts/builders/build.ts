@@ -38,19 +38,19 @@ import { type Parser, parsersMap } from '../parsers/eslint.js';
  */
 export function build(input: JsTsAnalysisInput, parserContext: ParserContext = {}) {
   const vueFile = isVueFile(input.filePath);
-  const context: ParserContext = {
+  const typescriptContext: ParserContext = {
     ...parserContext,
     jsx: parserContext.jsx ?? jsxEnabledFor(input.program),
   };
 
   if (shouldUseTypescriptParser(input)) {
-    const result = parseAsTypescript(input, vueFile, context);
+    const result = parseAsTypescript(input, vueFile, typescriptContext);
     if (result) {
       return result;
     }
   }
 
-  return parseAsJavascript(input, vueFile, context);
+  return parseAsJavascript(input, vueFile, parserContext);
 }
 
 /**
@@ -108,63 +108,24 @@ function retryVueTsWithFlippedJsx(
 }
 
 function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: ParserContext) {
-  const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
-  const moduleOptions = vueFile
-    ? buildVueParserOptions('js', {}, context)
-    : buildBabelParserOptions({}, context);
+  const attempts = javascriptParseAttempts(vueFile, context);
+  let preferredError: Error | undefined;
+  let lastError: Error | undefined;
 
-  // Preserve the script fallback signal for module-only errors that Babel 8 can recover from.
-  try {
-    debug(`Parsing ${input.filePath} with ${parser.meta?.name}`);
-    return parse(input.fileContent, parser, withBabelErrorRecovery(moduleOptions, false));
-  } catch (error) {
-    debug(`Failed to parse ${input.filePath} with ${parser.meta?.name}: ${error.message}`);
-    if (!vueFile) {
-      const scriptOptions = buildBabelParserOptions({ sourceType: 'script' }, context);
-
-      try {
-        debug(
-          `Parsing ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode`,
-        );
-        return parse(
-          input.fileContent,
-          parsersMap.javascript,
-          withBabelErrorRecovery(scriptOptions, false),
-        );
-      } catch (scriptError) {
-        debug(
-          `Failed to parse ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode: ${scriptError.message}`,
-        );
+  for (const attempt of attempts) {
+    try {
+      debug(`Parsing ${input.filePath} with ${attempt.description}`);
+      return parse(input.fileContent, attempt.parser, attempt.parserOptions);
+    } catch (error) {
+      debug(`Failed to parse ${input.filePath} with ${attempt.description}: ${error.message}`);
+      if (attempt.preferredError) {
+        preferredError = error;
       }
-
-      try {
-        debug(`Retrying ${input.filePath} with ${parser.meta?.name} error recovery`);
-        return parse(input.fileContent, parser, moduleOptions);
-      } catch (moduleError) {
-        debug(
-          `Failed to recover ${input.filePath} with ${parser.meta?.name}: ${moduleError.message}`,
-        );
-        try {
-          debug(
-            `Retrying ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode and error recovery`,
-          );
-          return parse(input.fileContent, parsersMap.javascript, scriptOptions);
-        } catch (scriptError) {
-          debug(
-            `Failed to recover ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode: ${scriptError.message}`,
-          );
-          /**
-           * We prefer displaying parsing error as module if parsing as script also failed,
-           * as it is more likely that the expected source type is module.
-           */
-          throw moduleError;
-        }
-      }
+      lastError = error;
     }
-
-    debug(`Retrying ${input.filePath} with ${parser.meta?.name} error recovery`);
-    return parse(input.fileContent, parser, moduleOptions);
   }
+
+  throw preferredError ?? lastError;
 }
 
 function shouldUseTypescriptParser({ allowTsParserJsFiles, language }: JsTsAnalysisInput): boolean {
@@ -188,18 +149,65 @@ function jsxEnabledFor(program?: ts.Program): boolean | undefined {
   return jsx === undefined ? undefined : jsx !== ts.JsxEmit.None;
 }
 
-function withBabelErrorRecovery(
-  parserOptions: Linter.ParserOptions,
-  errorRecovery: boolean,
-): Linter.ParserOptions {
-  return {
-    ...parserOptions,
-    babelOptions: {
-      ...parserOptions.babelOptions,
-      parserOpts: {
-        ...parserOptions.babelOptions?.parserOpts,
-        errorRecovery,
-      },
+type JavaScriptParseAttempt = {
+  description: string;
+  parser: Parser;
+  parserOptions: Linter.ParserOptions;
+  preferredError?: boolean;
+};
+
+function javascriptParseAttempts(
+  vueFile: boolean,
+  context: ParserContext,
+): JavaScriptParseAttempt[] {
+  const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
+  const attempts: JavaScriptParseAttempt[] = [
+    {
+      description: parser.meta?.name ?? 'parser',
+      parser,
+      parserOptions: buildJavascriptParserOptions(vueFile, context, false),
     },
-  };
+  ];
+
+  if (!vueFile) {
+    attempts.push({
+      description: `${parsersMap.javascript.meta?.name} in 'script' mode`,
+      parser: parsersMap.javascript,
+      parserOptions: buildJavascriptParserOptions(false, context, false, {
+        sourceType: 'script',
+      }),
+    });
+  }
+
+  attempts.push({
+    description: `${parser.meta?.name} error recovery`,
+    parser,
+    parserOptions: buildJavascriptParserOptions(vueFile, context, true),
+    preferredError: true,
+  });
+
+  if (!vueFile) {
+    attempts.push({
+      description: `${parsersMap.javascript.meta?.name} in 'script' mode and error recovery`,
+      parser: parsersMap.javascript,
+      parserOptions: buildJavascriptParserOptions(false, context, true, {
+        sourceType: 'script',
+      }),
+    });
+  }
+
+  return attempts;
+}
+
+function buildJavascriptParserOptions(
+  vueFile: boolean,
+  context: ParserContext,
+  errorRecovery: boolean,
+  overrides: Linter.ParserOptions = {},
+): Linter.ParserOptions {
+  const parserContext = { ...context, errorRecovery };
+
+  return vueFile
+    ? buildVueParserOptions('js', overrides, parserContext)
+    : buildBabelParserOptions(overrides, parserContext);
 }
