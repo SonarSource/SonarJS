@@ -61,6 +61,23 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
           [/const babelParser = require.*}\)\)/gms, 'const babelParser = require("@babel/parser")'],
         ],
       }),
+      // Babel 7 pulled in by eslint-plugin-react-hooks has optional .cts config support that
+      // references @babel/preset-typescript. The bridge bundle never loads Babel config files,
+      // so we can drop that branch instead of forcing an otherwise unused preset into the
+      // packaged runtime.
+      textReplace({
+        include: /@babel[/\\]core[/\\]lib[/\\]config[/\\]files[/\\]module-types\.js$/,
+        pattern: [
+          [
+            /const packageJson = require\("@babel\/preset-typescript\/package\.json"\);\s*if \(_semver\(\)\.lt\(packageJson\.version, "7\.21\.4"\)\) \{\s*console\.error\("`\.cts` configuration file failed to load, please try to update `@babel\/preset-typescript`\."\);\s*\}/g,
+            '',
+          ],
+          [
+            /function getTSPreset\(filepath\) \{\s*try \{\s*return require\("@babel\/preset-typescript"\);\s*\} catch \(error\) \{\s*if \(error\.code !== "MODULE_NOT_FOUND"\) throw error;\s*let message = "You appear to be using a \.cts file as Babel configuration, but the `@babel\/preset-typescript` package was not found: please install it!";\s*if \(process\.versions\.pnp\) \{\s*message \+= `[\s\S]*?`;\s*\}\s*throw new _configError\.default\(message, filepath\);\s*\}\s*\}/g,
+            'function getTSPreset(filepath) { throw new _configError.default("You appear to be using a .cts file as Babel configuration, but the SonarJS bridge bundle does not support loading Babel .cts config files.", filepath); }',
+          ],
+        ],
+      }),
       // Remove dynamic import of espree on ESLint Rule tester. In any case, it's never used in the bundle
       textReplace({
         include: /node_modules[/\\]eslint[/\\]lib[/\\]rule-tester[/\\]rule-tester\.js$/,
