@@ -18,8 +18,15 @@ import esbuild from 'esbuild';
 import textReplace from 'esbuild-plugin-text-replace';
 import { copy } from 'esbuild-plugin-copy';
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 
 const stylelintPkgJson = readFileSync('node_modules/stylelint/package.json', 'utf8');
+const require = createRequire(import.meta.url);
+const babelParserFromCore = JSON.stringify(
+  require.resolve('@babel/parser', {
+    paths: [require.resolve('@babel/core/package.json')],
+  }),
+);
 
 /**
  * Build a SonarJS server bundle
@@ -58,7 +65,10 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
       textReplace({
         include: /node_modules[/\\]@babel[/\\]eslint-parser[/\\]lib[/\\]parse\.cjs$/,
         pattern: [
-          [/const babelParser = require.*}\)\)/gms, 'const babelParser = require("@babel/parser")'],
+          [
+            /const babelParser = require.*}\)\)/gms,
+            `const babelParser = require(${babelParserFromCore})`,
+          ],
         ],
       }),
       // Babel 7 pulled in by eslint-plugin-react-hooks has optional .cts config support that
@@ -139,7 +149,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
         pattern: [
           [
             /const require\$\d+ = createRequire\((?:import\.meta\.url|__filename)\);\s*const babelParser = require\$\d+\(require\$\d+\.resolve\("@babel\/parser", \{\s*paths: \[require\$\d+\.resolve\("@babel\/core\/package\.json"\)\]\s*\}\)\);/g,
-            'const babelParser = require("@babel/parser");',
+            `const babelParser = require(${babelParserFromCore});`,
           ],
         ],
       }),
