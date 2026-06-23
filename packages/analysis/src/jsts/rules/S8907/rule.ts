@@ -279,7 +279,7 @@ function hasUnsupportedStringSearchValue(
   const searchValue = call.arguments[1];
   return (
     searchValue?.type === 'SpreadElement' ||
-    (searchValue !== undefined && isRegExpLiteral(getConstantExpression(searchValue, context)))
+    (searchValue !== undefined && isRegExpExpression(getConstantExpression(searchValue, context)))
   );
 }
 
@@ -313,6 +313,14 @@ function getConstantExpression(
 
 function isRegExpLiteral(node: estree.Expression): boolean {
   return node.type === 'Literal' && 'regex' in node && node.regex !== undefined;
+}
+
+function isRegExpExpression(node: estree.Expression): boolean {
+  return (
+    isRegExpLiteral(node) ||
+    ((node.type === 'CallExpression' || node.type === 'NewExpression') &&
+      isIdentifier(node.callee, 'RegExp'))
+  );
 }
 
 function getShapeSpecificReplacement(

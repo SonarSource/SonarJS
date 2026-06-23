@@ -243,6 +243,36 @@ _.includes('abc', pattern);
         {
           code: `
 import _ from 'lodash';
+_.includes('abc', new RegExp('a'));
+`,
+          languageOptions: { ecmaVersion: 2016 },
+        },
+        {
+          code: `
+import _ from 'lodash';
+_.includes('abc', RegExp('a'));
+`,
+          languageOptions: { ecmaVersion: 2016 },
+        },
+        {
+          code: `
+import _ from 'lodash';
+const pattern = new RegExp('a');
+_.includes('abc', pattern);
+`,
+          languageOptions: { ecmaVersion: 2016 },
+        },
+        {
+          code: `
+import _ from 'lodash';
+const pattern = RegExp('a');
+_.includes('abc', pattern);
+`,
+          languageOptions: { ecmaVersion: 2016 },
+        },
+        {
+          code: `
+import _ from 'lodash';
 _.trim(name, '"');
 `,
         },
