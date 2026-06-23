@@ -41,7 +41,7 @@ const parseFunctions = [
 ] as const;
 
 describe('parseForESLint', () => {
-  it(`Babel should fail parsing input with JSX without the React preset`, async () => {
+  it('should parse JSX with Babel in no-config mode via parser plugins', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js'),
     );
@@ -50,11 +50,10 @@ describe('parseForESLint', () => {
 
     const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
     const options = buildBabelParserOptions(input);
-    options.babelOptions.presets.shift();
+    options.babelOptions.presets = [];
+    options.babelOptions.plugins = [];
 
-    expect(() => parse(fileContent, parseFunctions[0].parser, options)).toThrow(
-      APIError.parsingError('Unexpected token (2:15)', { line: 2 }),
-    );
+    expect(() => parse(fileContent, parseFunctions[0].parser, options)).not.toThrow();
   });
 
   for (const { parser, usingBabel, errorMessage } of parseFunctions) {

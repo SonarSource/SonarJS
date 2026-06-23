@@ -109,38 +109,61 @@ function retryVueTsWithFlippedJsx(
 
 function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: ParserContext) {
   const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
-  let moduleError;
+  const moduleOptions = vueFile
+    ? buildVueParserOptions('js', {}, context)
+    : buildBabelParserOptions({}, context);
+
+  // Preserve the script fallback signal for module-only errors that Babel 8 can recover from.
   try {
     debug(`Parsing ${input.filePath} with ${parser.meta?.name}`);
-    return parse(
-      input.fileContent,
-      parser,
-      vueFile ? buildVueParserOptions('js', {}, context) : buildBabelParserOptions({}, context),
-    );
+    return parse(input.fileContent, parser, withBabelErrorRecovery(moduleOptions, false));
   } catch (error) {
     debug(`Failed to parse ${input.filePath} with ${parser.meta?.name}: ${error.message}`);
-    if (vueFile) {
-      throw error;
-    }
-    moduleError = error;
-  }
+    if (!vueFile) {
+      const scriptOptions = buildBabelParserOptions({ sourceType: 'script' }, context);
 
-  try {
-    debug(`Parsing ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode`);
-    return parse(
-      input.fileContent,
-      parsersMap.javascript,
-      buildBabelParserOptions({ sourceType: 'script' }, context),
-    );
-  } catch (error) {
-    debug(
-      `Failed to parse ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode: ${error.message}`,
-    );
-    /**
-     * We prefer displaying parsing error as module if parsing as script also failed,
-     * as it is more likely that the expected source type is module.
-     */
-    throw moduleError;
+      try {
+        debug(
+          `Parsing ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode`,
+        );
+        return parse(
+          input.fileContent,
+          parsersMap.javascript,
+          withBabelErrorRecovery(scriptOptions, false),
+        );
+      } catch (scriptError) {
+        debug(
+          `Failed to parse ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode: ${scriptError.message}`,
+        );
+      }
+
+      try {
+        debug(`Retrying ${input.filePath} with ${parser.meta?.name} error recovery`);
+        return parse(input.fileContent, parser, moduleOptions);
+      } catch (moduleError) {
+        debug(
+          `Failed to recover ${input.filePath} with ${parser.meta?.name}: ${moduleError.message}`,
+        );
+        try {
+          debug(
+            `Retrying ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode and error recovery`,
+          );
+          return parse(input.fileContent, parsersMap.javascript, scriptOptions);
+        } catch (scriptError) {
+          debug(
+            `Failed to recover ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode: ${scriptError.message}`,
+          );
+          /**
+           * We prefer displaying parsing error as module if parsing as script also failed,
+           * as it is more likely that the expected source type is module.
+           */
+          throw moduleError;
+        }
+      }
+    }
+
+    debug(`Retrying ${input.filePath} with ${parser.meta?.name} error recovery`);
+    return parse(input.fileContent, parser, moduleOptions);
   }
 }
 
@@ -162,5 +185,21 @@ function jsxEnabledFor(program?: ts.Program): boolean | undefined {
     return undefined;
   }
   const jsx = program.getCompilerOptions().jsx;
-  return jsx !== undefined && jsx !== ts.JsxEmit.None;
+  return jsx === undefined ? undefined : jsx !== ts.JsxEmit.None;
+}
+
+function withBabelErrorRecovery(
+  parserOptions: Linter.ParserOptions,
+  errorRecovery: boolean,
+): Linter.ParserOptions {
+  return {
+    ...parserOptions,
+    babelOptions: {
+      ...parserOptions.babelOptions,
+      parserOpts: {
+        ...parserOptions.babelOptions?.parserOpts,
+        errorRecovery,
+      },
+    },
+  };
 }
