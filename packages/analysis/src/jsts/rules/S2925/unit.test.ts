@@ -159,6 +159,31 @@ describe('S2925', () => {
         },
         {
           code: `
+            it('ignores non-awaited Promise+setTimeout', () => {
+              const promise = new Promise(resolve => setTimeout(resolve, 250));
+              usePromise(promise);
+            });
+          `,
+          filename: 'tests/promise-construction.test.js',
+        },
+        {
+          code: `
+            it('ignores Promise.race timeout guards', async () => {
+              await Promise.race([action(), new Promise(resolve => setTimeout(resolve, 5000))]);
+            });
+          `,
+          filename: 'tests/promise-race.test.js',
+        },
+        {
+          code: `
+            it('ignores next-tick Promise+setTimeout', async () => {
+              await new Promise(resolve => setTimeout(resolve, 0));
+            });
+          `,
+          filename: 'tests/promise-next-tick.test.js',
+        },
+        {
+          code: `
             it('ignores setTimeout outside Promise constructor', () => {
               setTimeout(() => {}, 1000);
             });
@@ -200,8 +225,8 @@ describe('S2925', () => {
           filename: 'cypress/e2e/save-user.cy.js',
           errors: [
             { messageId: 'fixedWait' },
-            { messageId: 'debugPause' },
-            { messageId: 'debugPause' },
+            { message: 'Remove this debug command from the test.' },
+            { message: 'Remove this debug command from the test.' },
           ],
         },
         {
@@ -212,7 +237,10 @@ describe('S2925', () => {
             });
           `,
           filename: 'tests/save-user.spec.js',
-          errors: [{ messageId: 'debugPause' }, { messageId: 'debugPause' }],
+          errors: [
+            { message: 'Remove this debug command from the test.' },
+            { message: 'Remove this debug command from the test.' },
+          ],
         },
         {
           code: `
@@ -257,7 +285,10 @@ describe('S2925', () => {
             });
           `,
           filename: 'tests/save-user.spec.ts',
-          errors: [{ messageId: 'fixedWait' }, { messageId: 'debugPause' }],
+          errors: [
+            { messageId: 'fixedWait' },
+            { message: 'Remove this debug command from the test.' },
+          ],
         },
         {
           code: `
@@ -278,7 +309,10 @@ describe('S2925', () => {
             });
           `,
           filename: 'tests/non-awaited.spec.ts',
-          errors: [{ messageId: 'fixedWait' }, { messageId: 'debugPause' }],
+          errors: [
+            { messageId: 'fixedWait' },
+            { message: 'Remove this debug command from the test.' },
+          ],
         },
         {
           code: `

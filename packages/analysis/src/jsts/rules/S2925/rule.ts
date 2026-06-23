@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
       fixedWait: 'Replace this fixed wait with a synchronization on an observable condition.',
-      debugPause: 'Remove this debug pause from the test.',
+      debugPause: 'Remove this debug command from the test.',
     },
   }),
   create(context: Rule.RuleContext) {
@@ -74,6 +74,9 @@ function reportPromiseSetTimeout(context: Rule.RuleContext, node: estree.NewExpr
   if (!isIdentifier(node.callee, 'Promise')) {
     return;
   }
+  if (!isDirectlyAwaited(node)) {
+    return;
+  }
   const [executor] = node.arguments;
   if (
     !executor ||
@@ -96,16 +99,15 @@ function reportPromiseSetTimeout(context: Rule.RuleContext, node: estree.NewExpr
   if (!delayArg) {
     return;
   }
-  if (isNumericLiteralOrUnaryNumericLiteral(delayArg)) {
+  const delayValue = resolveNumericDelay(context, delayArg);
+  if (delayValue !== undefined && delayValue !== 0) {
     report(context, setTimeoutCall, 'fixedWait');
-    return;
   }
-  if (delayArg.type === 'Identifier') {
-    const resolved = getUniqueWriteUsage(context, delayArg.name, delayArg);
-    if (resolved && isNumericLiteralOrUnaryNumericLiteral(resolved)) {
-      report(context, setTimeoutCall, 'fixedWait');
-    }
-  }
+}
+
+function isDirectlyAwaited(node: estree.Node) {
+  const parent = (node as estree.Node & { parent?: estree.AwaitExpression }).parent;
+  return parent?.type === 'AwaitExpression' && parent.argument === node;
 }
 
 function findSetTimeoutCallInExecutorBody(
@@ -172,7 +174,36 @@ function isNumericLiteralOrUnaryNumericLiteral(node: estree.Node) {
   );
 }
 
-function report(context: Rule.RuleContext, node: estree.Node, messageId: 'fixedWait' | 'debugPause') {
+function resolveNumericDelay(context: Rule.RuleContext, node: estree.Node) {
+  if (isNumericLiteralOrUnaryNumericLiteral(node)) {
+    return numericValue(node);
+  }
+  if (node.type === 'Identifier') {
+    const resolved = getUniqueWriteUsage(context, node.name, node);
+    return resolved ? numericValue(resolved) : undefined;
+  }
+  return undefined;
+}
+
+function numericValue(node: estree.Node) {
+  if (isNumberLiteral(node)) {
+    return node.value;
+  }
+  if (
+    node.type === 'UnaryExpression' &&
+    (node.operator === '+' || node.operator === '-') &&
+    isNumberLiteral(node.argument)
+  ) {
+    return node.operator === '-' ? -node.argument.value : node.argument.value;
+  }
+  return undefined;
+}
+
+function report(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  messageId: 'fixedWait' | 'debugPause',
+) {
   context.report({
     node,
     messageId,
