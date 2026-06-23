@@ -85,7 +85,7 @@ function reportPromiseSetTimeout(context: Rule.RuleContext, node: estree.NewExpr
     return;
   }
   const [resolveParam] = executor.params;
-  if (!resolveParam || resolveParam.type !== 'Identifier') {
+  if (resolveParam?.type !== 'Identifier') {
     return;
   }
   const resolveName = resolveParam.name;
