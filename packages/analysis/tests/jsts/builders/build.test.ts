@@ -98,13 +98,8 @@ describe('buildSourceCode', () => {
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
 
-  it('should build JSX with unescaped entities through the Babel parser path', async () => {
-    const filePath = path.join(
-      import.meta.dirname,
-      'fixtures',
-      'build-js',
-      'jsx-unescaped-entity.js',
-    );
+  it('should build JSX through the Babel parser path', async () => {
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'jsx.js');
     const {
       ast: {
         body: [stmt],
@@ -114,17 +109,24 @@ describe('buildSourceCode', () => {
     expect(stmt.type).toEqual('VariableDeclaration');
   });
 
-  it('should build JSX in a JS project when tsconfig leaves JSX unspecified', async () => {
-    const tsConfig = normalizeToAbsolutePath(
-      path.join(import.meta.dirname, 'fixtures', 'build-js', 'tsconfig.json'),
-    );
-    const program = createStandardProgram(createProgramOptions(tsConfig, undefined, true));
+  it('should fail building JSX with unescaped entities through the Babel parser path', async () => {
     const filePath = path.join(
       import.meta.dirname,
       'fixtures',
       'build-js',
       'jsx-unescaped-entity.js',
     );
+    const analysisInput = await jsTsInput({ filePath, allowTsParserJsFiles: false });
+
+    expect(() => build(analysisInput)).toThrow(/Unexpected token/);
+  });
+
+  it('should build JSX in a JS project when tsconfig leaves JSX unspecified', async () => {
+    const tsConfig = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'build-js', 'tsconfig.json'),
+    );
+    const program = createStandardProgram(createProgramOptions(tsConfig, undefined, true));
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'jsx.js');
     const {
       ast: {
         body: [stmt],

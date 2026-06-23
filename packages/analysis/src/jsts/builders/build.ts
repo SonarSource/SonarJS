@@ -108,24 +108,41 @@ function retryVueTsWithFlippedJsx(
 }
 
 function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: ParserContext) {
-  const attempts = javascriptParseAttempts(vueFile, context);
-  let preferredError: Error | undefined;
-  let lastError: Error | undefined;
+  const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
+  let moduleError: Error | undefined;
 
-  for (const attempt of attempts) {
-    try {
-      debug(`Parsing ${input.filePath} with ${attempt.description}`);
-      return parse(input.fileContent, attempt.parser, attempt.parserOptions);
-    } catch (error) {
-      debug(`Failed to parse ${input.filePath} with ${attempt.description}: ${error.message}`);
-      if (attempt.preferredError) {
-        preferredError = error;
-      }
-      lastError = error;
+  try {
+    debug(`Parsing ${input.filePath} with ${parser.meta?.name}`);
+    return parse(
+      input.fileContent,
+      parser,
+      vueFile ? buildVueParserOptions('js', {}, context) : buildBabelParserOptions({}, context),
+    );
+  } catch (error) {
+    debug(`Failed to parse ${input.filePath} with ${parser.meta?.name}: ${error.message}`);
+    if (vueFile) {
+      throw error;
     }
+    moduleError = error;
   }
 
-  throw preferredError ?? lastError;
+  try {
+    debug(`Parsing ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode`);
+    return parse(
+      input.fileContent,
+      parsersMap.javascript,
+      buildBabelParserOptions({ sourceType: 'script' }, context),
+    );
+  } catch (error) {
+    debug(
+      `Failed to parse ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode: ${error.message}`,
+    );
+    /**
+     * We prefer displaying parsing error as module if parsing as script also failed,
+     * as it is more likely that the expected source type is module.
+     */
+    throw moduleError ?? error;
+  }
 }
 
 function shouldUseTypescriptParser({ allowTsParserJsFiles, language }: JsTsAnalysisInput): boolean {
@@ -147,67 +164,4 @@ function jsxEnabledFor(program?: ts.Program): boolean | undefined {
   }
   const jsx = program.getCompilerOptions().jsx;
   return jsx === undefined ? undefined : jsx !== ts.JsxEmit.None;
-}
-
-type JavaScriptParseAttempt = {
-  description: string;
-  parser: Parser;
-  parserOptions: Linter.ParserOptions;
-  preferredError?: boolean;
-};
-
-function javascriptParseAttempts(
-  vueFile: boolean,
-  context: ParserContext,
-): JavaScriptParseAttempt[] {
-  const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
-  const attempts: JavaScriptParseAttempt[] = [
-    {
-      description: parser.meta?.name ?? 'parser',
-      parser,
-      parserOptions: buildJavascriptParserOptions(vueFile, context, false),
-    },
-  ];
-
-  if (!vueFile) {
-    attempts.push({
-      description: `${parsersMap.javascript.meta?.name} in 'script' mode`,
-      parser: parsersMap.javascript,
-      parserOptions: buildJavascriptParserOptions(false, context, false, {
-        sourceType: 'script',
-      }),
-    });
-  }
-
-  attempts.push({
-    description: `${parser.meta?.name} error recovery`,
-    parser,
-    parserOptions: buildJavascriptParserOptions(vueFile, context, true),
-    preferredError: true,
-  });
-
-  if (!vueFile) {
-    attempts.push({
-      description: `${parsersMap.javascript.meta?.name} in 'script' mode and error recovery`,
-      parser: parsersMap.javascript,
-      parserOptions: buildJavascriptParserOptions(false, context, true, {
-        sourceType: 'script',
-      }),
-    });
-  }
-
-  return attempts;
-}
-
-function buildJavascriptParserOptions(
-  vueFile: boolean,
-  context: ParserContext,
-  errorRecovery: boolean,
-  overrides: Linter.ParserOptions = {},
-): Linter.ParserOptions {
-  const parserContext = { ...context, errorRecovery };
-
-  return vueFile
-    ? buildVueParserOptions('js', overrides, parserContext)
-    : buildBabelParserOptions(overrides, parserContext);
 }
