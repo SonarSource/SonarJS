@@ -123,6 +123,8 @@ especially:
   RSPEC revision.
 - Generated per-language `rspec.sha` files may still exist as derived artifacts or compatibility
   outputs, but they must not represent independent user-visible pin inputs.
+- Generated per-language `rspec.sha` files must preserve the exact RSPEC revision used for the
+  build so old analyzer artifacts remain reproducible.
 - Fresh-clone bootstrap must work when the requested pin is a raw commit SHA, not only a branch
   tip.
 
@@ -132,6 +134,9 @@ especially:
 - Prepared outputs must record which RSPEC revision produced them.
 - The sync flow must remain traceable enough to explain which checkout and which RSPEC revision the
   prepared outputs belong to.
+- Release artifacts must preserve enough RSPEC traceability that rebuilding an older released
+  SonarJS version from scratch can recover both the SonarJS source revision and the RSPEC revision
+  used during the release build.
 
 ### Output compatibility
 
@@ -151,6 +156,9 @@ especially:
 - Root `rspec.sha` is an input chosen by the user or workflow.
 - If generated per-language `rspec.sha` files remain present for compatibility, they are derived
   outputs of the single logical RSPEC pin rather than distinct pin authorities.
+- The generated per-language `rspec.sha` files are also release-reproducibility markers: they are
+  expected to be packaged into published release artifacts so an old released jar can reveal which
+  RSPEC revision was used for that release build.
 - A repo-local lifecycle stamp such as `resources/rule-data-state.json` is not part of the desired
   simplified normal workflow contract.
 
@@ -169,7 +177,10 @@ especially:
 - Generated per-language `rspec.sha` files are build artifacts and are not required to be tracked
   in Git.
 - Even though they are build artifacts, the generated per-language `rspec.sha` files may remain as
-  compatibility outputs if needed, but they are not part of the intended user-visible pin model.
+  compatibility and reproducibility outputs if needed, but they are not part of the intended
+  user-visible pin model.
+- Those generated per-language `rspec.sha` files must remain present in packaged release artifacts
+  so historical rebuilds can recover the RSPEC revision from the released jar itself.
 
 ### CSS parity
 

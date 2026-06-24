@@ -66,7 +66,11 @@ a temporary local workflow input and must never be committed to `master`.
 
 The generated `sonar-plugin/javascript-checks/src/main/resources/rspec.sha` and
 `sonar-plugin/css/src/main/resources/rspec.sha` files are derived outputs written during refresh.
-They are not separate pin inputs. For direct Maven commands that generate rule data, pass
+They are not separate pin inputs. They are packaged into published release artifacts so an old
+release jar still records which RSPEC revision was used during that release build. That
+reproducibility trail matters when rebuilding an older SonarJS version from scratch: the SonarJS
+release tag tells you the analyzer source, and the packaged `rspec.sha` tells you which RSPEC
+revision to rebuild against. For direct Maven commands that generate rule data, pass
 `-Drspec.sha=<commit-sha>` to pin the refresh.
 
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all

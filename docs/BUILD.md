@@ -156,6 +156,9 @@ Important detail:
   is preserved by `clean`.
 - Because of that, `npm run bbf` after `mvn clean` still reuses the tracked rule JSON and does not
   trigger an RSPEC refresh.
+- The per-language `rspec.sha` files are still meaningful in built release artifacts even though
+  they are local derived outputs in the workspace: they preserve which RSPEC revision was used to
+  build that analyzer version.
 
 Because of that, a common workflow is:
 
