@@ -98,32 +98,28 @@
         <version>1.4.0.122</version>
         <configuration>
           <githubToken>${env.GITHUB_TOKEN}</githubToken>
+          <rspecSha>${rspec.sha}</rspecSha>
+          <rspecShaFile>${maven.multiModuleProjectDirectory}/rspec.sha</rspecShaFile>
+          <vcsBranchName>${rspec.branch}</vcsBranchName>
         </configuration>
         <executions>
           <execution>
-            <id>generate-rspec-javascript</id>
+            <id>generate-rspec-rule-data</id>
             <phase>${rule.data.build.phase}</phase>
             <goals>
               <goal>generate-rule-data</goal>
             </goals>
             <configuration>
-              <ruleSubdirectory>javascript</ruleSubdirectory>
-              <rspecSha>${rspec.sha}</rspecSha>
-              <vcsBranchName>${rspec.branch}</vcsBranchName>
-              <targetDirectory>${project.basedir}/../../resources/rule-data/javascript</targetDirectory>
-            </configuration>
-          </execution>
-          <execution>
-            <id>generate-rspec-css</id>
-            <phase>${rule.data.build.phase}</phase>
-            <goals>
-              <goal>generate-rule-data</goal>
-            </goals>
-            <configuration>
-              <ruleSubdirectory>css</ruleSubdirectory>
-              <rspecSha>${rspec.sha}</rspecSha>
-              <vcsBranchName>${rspec.branch}</vcsBranchName>
-              <targetDirectory>${project.basedir}/../../resources/rule-data/css</targetDirectory>
+              <targets>
+                <target>
+                  <ruleSubdirectory>javascript</ruleSubdirectory>
+                  <targetDirectory>${project.basedir}/../../resources/rule-data/javascript</targetDirectory>
+                </target>
+                <target>
+                  <ruleSubdirectory>css</ruleSubdirectory>
+                  <targetDirectory>${project.basedir}/../../resources/rule-data/css</targetDirectory>
+                </target>
+              </targets>
             </configuration>
           </execution>
         </executions>
@@ -202,17 +198,6 @@
   </build>
 
   <profiles>
-    <profile>
-      <id>generate-rule-data-from-rspec-sha</id>
-      <activation>
-        <property>
-          <name>rspec.sha</name>
-        </property>
-      </activation>
-      <properties>
-        <rspec.branch></rspec.branch>
-      </properties>
-    </profile>
     <profile>
       <id>generate-rule-data-when-javascript-rule-data-is-missing</id>
       <activation>

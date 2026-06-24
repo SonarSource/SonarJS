@@ -7,7 +7,7 @@
     "check-format": "prettier --list-different .",
     "new-rule": "tsx tools/new-rule.mts",
     "generate-meta": "tsx tools/generate-meta.ts",
-    "rspec:refresh": "node tools/generate-rule-data.mjs",
+    "rspec:refresh": "mvn -q -ntp -Dskip-nodejs -DskipTests -pl sonar-plugin/javascript-checks -am -Drule.data.build.phase=generate-resources generate-resources",
     "validate-quickfix": "tsx tools/validate-quickfix.ts",
     "generate-java-rule-classes": "tsx tools/generate-java-rule-classes.ts",
     "ruling": "tsx --tsconfig packages/tsconfig.test.json --test packages/ruling/projects/*.ruling.test.ts",
