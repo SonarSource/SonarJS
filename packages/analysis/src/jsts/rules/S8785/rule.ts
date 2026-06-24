@@ -58,7 +58,8 @@ const TEST_AND_SUITE_NAMES = new Set([...TEST_FUNCTION_NAMES, ...SUITE_FUNCTION_
 const messages = {
   removeAsync:
     'Remove the "async" keyword from this test suite callback; a test suite callback must be synchronous.',
-  moveAsyncSetup: 'Move this asynchronous work into a lifecycle hook.',
+  asyncSuiteCallback:
+    'Make this test suite callback synchronous; any test declared after this await is silently dropped.',
   removeAsyncQuickFix: 'Remove the "async" keyword',
   droppedTest: 'This test is declared after the await and is never registered.',
 };
@@ -184,8 +185,8 @@ function reportAsyncCallback(
   report(
     context,
     {
-      messageId: 'moveAsyncSetup',
-      message: messages.moveAsyncSetup,
+      messageId: 'asyncSuiteCallback',
+      message: messages.asyncSuiteCallback,
       node: topLevelAwait,
     },
     secondaryLocations,

@@ -151,7 +151,7 @@ describe('user service', async () => {
   await setup();
 });`,
           filename: 'service.test.ts',
-          errors: [{ messageId: 'moveAsyncSetup' }],
+          errors: [{ messageId: 'asyncSuiteCallback' }],
         },
         {
           // async callback without a top-level await: remove the misleading async keyword
@@ -211,7 +211,7 @@ describe('outer', async () => {
 });
           `,
           filename: mochaGlobals,
-          errors: [{ messageId: 'moveAsyncSetup' }, { messageId: 'moveAsyncSetup' }],
+          errors: [{ messageId: 'asyncSuiteCallback' }, { messageId: 'asyncSuiteCallback' }],
         },
         {
           // async callback with a top-level await: tests declared after it are silently dropped
@@ -222,7 +222,7 @@ describe('user service', async () => {
 });
           `,
           filename: mochaGlobals,
-          errors: [{ messageId: 'moveAsyncSetup' }],
+          errors: [{ messageId: 'asyncSuiteCallback' }],
         },
         {
           // a top-level `for await...of` is also an awaiting suite callback
@@ -233,7 +233,7 @@ describe('user service', async () => {
 });
           `,
           filename: mochaGlobals,
-          errors: [{ messageId: 'moveAsyncSetup' }],
+          errors: [{ messageId: 'asyncSuiteCallback' }],
         },
         {
           // Jest variants: aliases, modifiers, and the curried .each forms all raise
@@ -246,11 +246,11 @@ fdescribe.each([1])('e', async () => { await e(); });
           `,
           filename: jestGlobals,
           errors: [
-            { messageId: 'moveAsyncSetup' },
-            { messageId: 'moveAsyncSetup' },
-            { messageId: 'moveAsyncSetup' },
-            { messageId: 'moveAsyncSetup' },
-            { messageId: 'moveAsyncSetup' },
+            { messageId: 'asyncSuiteCallback' },
+            { messageId: 'asyncSuiteCallback' },
+            { messageId: 'asyncSuiteCallback' },
+            { messageId: 'asyncSuiteCallback' },
+            { messageId: 'asyncSuiteCallback' },
           ],
         },
         {
@@ -260,7 +260,7 @@ context('checkout', async () => { await a(); });
 suite('billing', async function () { await b(); });
           `,
           filename: mochaGlobals,
-          errors: [{ messageId: 'moveAsyncSetup' }, { messageId: 'moveAsyncSetup' }],
+          errors: [{ messageId: 'asyncSuiteCallback' }, { messageId: 'asyncSuiteCallback' }],
         },
         {
           // Cypress globals (project depends on cypress)
@@ -269,7 +269,7 @@ describe('e2e', async () => { await a(); });
 context('group', async () => { await b(); });
           `,
           filename: cypressGlobals,
-          errors: [{ messageId: 'moveAsyncSetup' }, { messageId: 'moveAsyncSetup' }],
+          errors: [{ messageId: 'asyncSuiteCallback' }, { messageId: 'asyncSuiteCallback' }],
         },
         {
           // secondary locations point at the tests dropped after the await
@@ -284,7 +284,8 @@ context('group', async () => { await b(); });
               messageId: 'sonarRuntime',
               data: {
                 sonarRuntimeData: JSON.stringify({
-                  message: 'Move this asynchronous work into a lifecycle hook.',
+                  message:
+                    'Make this test suite callback synchronous; any test declared after this await is silently dropped.',
                   secondaryLocations: [
                     {
                       message: 'This test is declared after the await and is never registered.',
@@ -319,7 +320,8 @@ context('group', async () => { await b(); });
               messageId: 'sonarRuntime',
               data: {
                 sonarRuntimeData: JSON.stringify({
-                  message: 'Move this asynchronous work into a lifecycle hook.',
+                  message:
+                    'Make this test suite callback synchronous; any test declared after this await is silently dropped.',
                   secondaryLocations: [
                     {
                       message: 'This test is declared after the await and is never registered.',
@@ -358,7 +360,8 @@ context('group', async () => { await b(); });
               messageId: 'sonarRuntime',
               data: {
                 sonarRuntimeData: JSON.stringify({
-                  message: 'Move this asynchronous work into a lifecycle hook.',
+                  message:
+                    'Make this test suite callback synchronous; any test declared after this await is silently dropped.',
                   secondaryLocations: [
                     {
                       message: 'This test is declared after the await and is never registered.',
