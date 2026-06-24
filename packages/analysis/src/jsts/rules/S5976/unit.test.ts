@@ -20,6 +20,7 @@ import { describe, it } from 'node:test';
 import path from 'node:path';
 
 const MESSAGE = 'Replace these 3 tests with a single Parameterized one.';
+const MESSAGE_4 = 'Replace these 4 tests with a single Parameterized one.';
 const SONAR_RUNTIME_MESSAGE = JSON.stringify({
   message: MESSAGE,
   secondaryLocations: [
@@ -130,16 +131,16 @@ test('builds case 3', () => {
 
 test('builds case 4', () => {
   const value = build(4);
-  expect(value.a).toBe('aaa');
-  expect(value.b).toBe('bbb');
-  expect(value.c).toBe('ccc');
+  expect(value.a).toBe('aaaa');
+  expect(value.b).toBe('bbbb');
+  expect(value.c).toBe('cccc');
 });
 
 test('builds case 5', () => {
   const value = build(5);
-  expect(value.a).toBe('aaa');
-  expect(value.b).toBe('bbb');
-  expect(value.c).toBe('ccc');
+  expect(value.a).toBe('aaaaa');
+  expect(value.b).toBe('bbbbb');
+  expect(value.c).toBe('ccccc');
 });
           `,
           filename: jestTestFile,
@@ -312,6 +313,29 @@ test('normalizes a 202 status', async () => {
         },
         {
           code: `
+import 'cypress';
+test('normalizes a 200 status', () => {
+  const value = normalize(200);
+  expect(value).toBeGreaterThan(199);
+  expect(value).toBeLessThan(300);
+});
+
+test('normalizes a 201 status', () => {
+  const value = normalize(201);
+  expect(value).toBeGreaterThan(199);
+  expect(value).toBeLessThan(300);
+});
+
+test('normalizes a 202 status', () => {
+  const value = normalize(202);
+  expect(value).toBeGreaterThan(199);
+  expect(value).toBeLessThan(300);
+});
+          `,
+          filename: jestTestFile,
+        },
+        {
+          code: `
 import { describe, test } from 'vitest';
 describe('outer', () => {
   test('normalizes a 200 status', () => {
@@ -386,6 +410,71 @@ check('renders /projects', () => {
           `,
           filename: vitestTestFile,
           errors: [{ message: MESSAGE }],
+        },
+        {
+          code: `
+import 'cypress';
+import { test } from 'vitest';
+test('renders /users', () => {
+  const route = buildRoute('/users');
+  render(route);
+  expect(screen.url()).toContain('/users');
+});
+
+test('renders /teams', () => {
+  const route = buildRoute('/teams');
+  render(route);
+  expect(screen.url()).toContain('/teams');
+});
+
+test('renders /projects', () => {
+  const route = buildRoute('/projects');
+  render(route);
+  expect(screen.url()).toContain('/projects');
+});
+          `,
+          filename: vitestTestFile,
+          errors: [{ message: MESSAGE }],
+        },
+        {
+          code: `
+test('loads /users with admin role', () => {
+  const response = request('/users');
+  expect(response.status).toBe(200);
+  expect(response.role).toBe('admin');
+  expect(response.cached).toBe(false);
+});
+
+test('loads /teams with member role', () => {
+  const response = request('/teams');
+  expect(response.status).toBe(201);
+  expect(response.role).toBe('member');
+  expect(response.cached).toBe(false);
+});
+
+test('loads /projects with owner role', () => {
+  const response = request('/projects');
+  expect(response.status).toBe(202);
+  expect(response.role).toBe('owner');
+  expect(response.cached).toBe(false);
+});
+
+test('loads /tasks with viewer role', () => {
+  const response = request('/tasks');
+  expect(response.status).toBe(203);
+  expect(response.role).toBe('viewer');
+  expect(response.cached).toBe(false);
+});
+
+test('loads /reports with guest role from cache', () => {
+  const response = request('/reports');
+  expect(response.status).toBe(204);
+  expect(response.role).toBe('guest');
+  expect(response.cached).toBe(true);
+});
+          `,
+          filename: jestTestFile,
+          errors: [{ message: MESSAGE_4 }],
         },
         {
           code: `

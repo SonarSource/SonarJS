@@ -93,13 +93,11 @@ export const rule: Rule.RuleModule = {
       vitest: importsOrDependsOnModule(context, VITEST_MODULES, VITEST_MODULES),
     };
 
-    if (
-      !Object.values(activeFrameworks).some(Boolean) ||
-      importsUnsupportedTestFramework(context)
-    ) {
+    if (!Object.values(activeFrameworks).some(Boolean)) {
       return {};
     }
 
+    const allowGlobalTestFunctions = !importsUnsupportedTestFramework(context);
     const scopeStack: ScopeFrame[] = [];
     const functionStack: FunctionNode[] = [];
     const testCallbacks = new Set<FunctionNode>();
@@ -148,7 +146,7 @@ export const rule: Rule.RuleModule = {
         }
       },
       CallExpression(node: estree.CallExpression) {
-        const testCall = getTestCall(context, node, activeFrameworks);
+        const testCall = getTestCall(context, node, activeFrameworks, allowGlobalTestFunctions);
         if (testCall === undefined) {
           return;
         }
@@ -177,8 +175,14 @@ function getTestCall(
   context: Rule.RuleContext,
   node: estree.CallExpression,
   activeFrameworks: ActiveFrameworks,
+  allowGlobalTestFunctions: boolean,
 ): TestCall | undefined {
-  const classification = classifyTestCall(context, node, activeFrameworks);
+  const classification = classifyTestCall(
+    context,
+    node,
+    activeFrameworks,
+    allowGlobalTestFunctions,
+  );
   if (classification === undefined) {
     return undefined;
   }
@@ -195,6 +199,7 @@ function classifyTestCall(
   context: Rule.RuleContext,
   node: estree.CallExpression,
   activeFrameworks: ActiveFrameworks,
+  allowGlobalTestFunctions: boolean,
 ): 'concrete' | 'ignored' | undefined {
   const calleeParts = getMochaCalleeParts(node.callee);
   if (calleeParts === undefined) {
@@ -206,6 +211,7 @@ function classifyTestCall(
     calleeParts.base,
     calleeParts.modifiers,
     activeFrameworks,
+    allowGlobalTestFunctions,
   );
   if (testConstruct === undefined) {
     return undefined;
@@ -227,6 +233,7 @@ function getSupportedTestConstruct(
   base: estree.Identifier,
   modifiers: string[],
   activeFrameworks: ActiveFrameworks,
+  allowGlobalTestFunctions: boolean,
 ): { name: string; modifiers: string[] } | undefined {
   const fqn = getFullyQualifiedName(context, base);
   const importedName = getTestNameFromFullyQualifiedName(fqn);
@@ -240,6 +247,7 @@ function getSupportedTestConstruct(
 
   const variable = getVariableFromScope(context.sourceCode.getScope(base), base.name);
   if (
+    allowGlobalTestFunctions &&
     (variable === undefined || variable.defs.length === 0) &&
     TEST_FUNCTION_NAMES.has(base.name) &&
     (activeFrameworks.jest || activeFrameworks.vitest)
@@ -313,9 +321,11 @@ function checkSimilarTests(context: Rule.RuleContext, tests: TestCandidate[]) {
         continue;
       }
 
-      if (literalCollector.matches(otherTest.body)) {
+      if (
+        literalCollector.matches(otherTest.body) &&
+        literalCollector.acceptCurrentWithinLimits(MAX_PARAMETERS)
+      ) {
         equivalentTests.push(otherTest);
-        literalCollector.finishCollect();
       }
       literalCollector.clearCurrent();
     }
@@ -335,11 +345,6 @@ function reportIfIssue(
     return;
   }
 
-  handled.add(test);
-  for (const equivalentTest of equivalentTests) {
-    handled.add(equivalentTest);
-  }
-
   const parameterNodes = literalCollector.nodesToParameterize;
   if (
     parameterNodes.size === 0 ||
@@ -347,6 +352,11 @@ function reportIfIssue(
     test.body.length <= parameterNodes.size
   ) {
     return;
+  }
+
+  handled.add(test);
+  for (const equivalentTest of equivalentTests) {
+    handled.add(equivalentTest);
   }
 
   report(
@@ -397,10 +407,19 @@ class LiteralDifferenceCollector {
     });
   }
 
-  finishCollect() {
+  acceptCurrentWithinLimits(maxParameters: number): boolean {
+    const parameterCount = new Set([
+      ...this.nodesToParameterize,
+      ...this.currentNodesToParameterize,
+    ]).size;
+    if (parameterCount > maxParameters || this.baseBody.length <= parameterCount) {
+      return false;
+    }
+
     for (const node of this.currentNodesToParameterize) {
       this.nodesToParameterize.add(node);
     }
+    return true;
   }
 
   clearCurrent() {
