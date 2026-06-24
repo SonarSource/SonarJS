@@ -73,6 +73,12 @@ echo "<rspec-commit-sha>" > rspec.sha
 npm run rspec:refresh
 ```
 
+Or pin one refresh run directly from the command line:
+
+```bash
+npm run rspec:refresh -- -Drspec.sha=<commit-sha>
+```
+
 Refresh RSPEC first, then run the fast local build:
 
 ```bash

@@ -74,6 +74,12 @@ the command line:
 npm run rspec:refresh -- -Drspec.branch=<rspec-branch>
 ```
 
+For a one-off SHA pin without creating the root `rspec.sha` file, pass the SHA on the command line:
+
+```bash
+npm run rspec:refresh -- -Drspec.sha=<commit-sha>
+```
+
 There is intentionally no `rspec.branch` file equivalent to the root `rspec.sha` file. Branch
 override is an explicit command-line choice, not a tracked or semi-persistent workspace input.
 
