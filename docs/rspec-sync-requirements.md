@@ -116,11 +116,15 @@ especially:
 - The normal SonarJS lifecycle must support a shared root `rspec.sha`.
 - SonarJS should speak in terms of a single RSPEC pin, not separate JavaScript and CSS pins.
 - There is no valid requirement for JavaScript and CSS to resolve to different RSPEC revisions.
+- An explicit branch override for refresh should still be supported when no SHA pin is active.
+- Branch override should be a command/property input such as `-Drspec.branch=...`, not a second
+  user-visible pin file beside the shared root `rspec.sha`.
 - A root `rspec.sha` is a temporary workflow input used for branch-specific development such as
   building against RSPEC changes that are not yet merged.
 - That root `rspec.sha` must not be committed to `master`.
 - When root `rspec.sha` is absent, the explicit refresh workflow should resolve the latest intended
   RSPEC revision.
+- If both a branch selection and a SHA pin are provided, the SHA pin must take precedence.
 - Generated per-language `rspec.sha` files may still exist as derived artifacts or compatibility
   outputs, but they must not represent independent user-visible pin inputs.
 - Generated per-language `rspec.sha` files must preserve the exact RSPEC revision used for the

@@ -64,6 +64,26 @@ To pin rule data generation to an exact RSPEC revision for branch-local work, wr
 to `rspec.sha` at the repository root and run `npm run rspec:refresh`. The root `rspec.sha` file is
 a temporary local workflow input and must never be committed to `master`.
 
+When no SHA pin is active, the refresh uses the configured default RSPEC branch. In the current
+SonarJS wiring that default is `dogfood-automerge`.
+
+To refresh from a different RSPEC branch without creating a SHA pin, override the Maven property on
+the command line:
+
+```bash
+npm run rspec:refresh -- -Drspec.branch=<rspec-branch>
+```
+
+There is intentionally no `rspec.branch` file equivalent to the root `rspec.sha` file. Branch
+override is an explicit command-line choice, not a tracked or semi-persistent workspace input.
+
+If both a branch and a SHA are provided, the SHA takes precedence for `generate-rule-data`.
+Practically, that means:
+
+- an explicit `-Drspec.sha=<commit-sha>` wins over `-Drspec.branch=<rspec-branch>`
+- the root `rspec.sha` file wins over the configured default branch
+- if a root `rspec.sha` file is present, branch override is ignored until that file is removed
+
 The generated `sonar-plugin/javascript-checks/src/main/resources/rspec.sha` and
 `sonar-plugin/css/src/main/resources/rspec.sha` files are derived outputs written during refresh.
 They are not separate pin inputs. They are packaged into published release artifacts so an old

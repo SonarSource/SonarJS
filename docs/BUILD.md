@@ -60,6 +60,19 @@ npm run rspec:refresh
 That refresh uses a dedicated root Maven profile. It syncs RSPEC once and generates both JavaScript
 and CSS rule data from the same checkout.
 
+Override the default RSPEC branch for one refresh run:
+
+```bash
+npm run rspec:refresh -- -Drspec.branch=<rspec-branch>
+```
+
+Pin the refresh to an exact RSPEC revision:
+
+```bash
+echo "<rspec-commit-sha>" > rspec.sha
+npm run rspec:refresh
+```
+
 Refresh RSPEC first, then run the fast local build:
 
 ```bash
@@ -113,6 +126,10 @@ Important details:
 
 - `npm run generate-meta` reads the tracked local JavaScript rule JSON and does not refresh RSPEC.
 - To refresh RSPEC explicitly, or to apply a root `rspec.sha` pin, run `npm run rspec:refresh`.
+- `npm run rspec:refresh` uses the configured default RSPEC branch when no SHA pin is active.
+- You can override that branch per command with `-Drspec.branch=<rspec-branch>`.
+- SHA wins over branch selection: an explicit `-Drspec.sha=...` or a root `rspec.sha` file takes
+  precedence over any branch setting.
 - The `bridge` module still adds `target/generated-sources` to the Java source roots, so an existing
   generated stub directory can be reused without re-running protobuf generation.
 - This flag is intended for Java-only loops after a previous non-skipped build.
