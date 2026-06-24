@@ -57,7 +57,8 @@ Refresh tracked RSPEC rule data explicitly:
 npm run rspec:refresh
 ```
 
-That refresh syncs RSPEC once and generates both JavaScript and CSS rule data from the same checkout.
+That refresh uses a dedicated root Maven profile. It syncs RSPEC once and generates both JavaScript
+and CSS rule data from the same checkout.
 
 Refresh RSPEC first, then run the fast local build:
 
@@ -83,7 +84,7 @@ The `sonar-plugin` reactor builds modules in this order:
 6. `standalone`
 
 `javascript-checks` stays before `bridge` because bridge generation consumes rule metadata prepared
-earlier in the build.
+earlier in the build. The explicit RSPEC refresh path is not part of this normal reactor flow.
 
 ## Fast Java iteration flags
 
@@ -138,16 +139,23 @@ It can be combined with `-Dskip-nodejs`.
 
 ## What `clean` removes
 
-The clean phase removes the outputs that make the fast loop work:
+The clean phase removes the derived outputs that make the fast loop work:
 
 - `sonar-plugin/bridge/target/generated-sources`
 - `sonar-plugin/bridge/src/main/resources/org/sonar/plugins/javascript/bridge/node-info.properties`
 - `sonar-plugin/sonar-javascript-plugin/src/main/resources/node-info.properties`
 - `lib/` and `bin/`
 - downloaded rule data under `resources/rule-data`
-- generated rule data copied under `sonar-plugin/javascript-checks/src/main/resources` and
-  `sonar-plugin/css/src/main/resources`
+- generated HTML and derived `rspec.sha` files under `sonar-plugin/javascript-checks/src/main/resources`
+  and `sonar-plugin/css/src/main/resources`
 - generated rule metadata under `packages/analysis/src/jsts/rules`
+
+Important detail:
+
+- The committed JSON/profile rule metadata under `sonar-plugin/*/src/main/resources/**/rules/**`
+  is preserved by `clean`.
+- Because of that, `npm run bbf` after `mvn clean` still reuses the tracked rule JSON and does not
+  trigger an RSPEC refresh.
 
 Because of that, a common workflow is:
 
@@ -174,6 +182,14 @@ Because of that, a common workflow is:
 - runs `npm run count-rules`
 - builds, bundles, and packs the bridge
 - generates `bridge/src/main/resources/org/sonar/plugins/javascript/bridge/node-info.properties`
+
+Explicit RSPEC refresh
+
+- `npm run rspec:refresh`
+- runs a root, non-recursive Maven profile
+- syncs RSPEC once for JavaScript and CSS
+- runs `npm run deploy-rule-data`
+- does not depend on the `javascript-checks` module lifecycle or hidden file-missing profiles
 
 `process-resources`
 

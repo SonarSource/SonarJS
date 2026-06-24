@@ -44,7 +44,8 @@ Examples:
    source ~/.zshenv
    ```
 
-`npm run generate-meta` reads the tracked local JavaScript rule JSON already present in the workspace and regenerates `generated-meta.ts` without contacting GitHub.
+`npm run generate-meta` reads the tracked local JavaScript rule JSON already present in the workspace
+and regenerates `generated-meta.ts` without contacting GitHub.
 
 To refresh the tracked RSPEC rule data explicitly, run:
 
@@ -52,11 +53,21 @@ To refresh the tracked RSPEC rule data explicitly, run:
 npm run rspec:refresh
 ```
 
-On an unpinned branch, that command refreshes to the latest intended RSPEC revision using either your GitHub CLI auth or `GITHUB_TOKEN`.
+That command uses a root, non-recursive Maven profile dedicated to RSPEC refresh. It performs one
+RSPEC sync for both JavaScript and CSS, then deploys the generated JSON and HTML into the tracked
+plugin resource directories.
 
-To pin rule data generation to an exact RSPEC revision for branch-local work, write the commit SHA to `rspec.sha` at the repository root and run `npm run rspec:refresh`. The root `rspec.sha` file is a temporary local workflow input and must never be committed to `master`.
+On an unpinned branch, it refreshes to the latest intended RSPEC revision using either your GitHub
+CLI auth or `GITHUB_TOKEN`.
 
-The generated `sonar-plugin/javascript-checks/src/main/resources/rspec.sha` and `sonar-plugin/css/src/main/resources/rspec.sha` files are derived outputs written during refresh. They are not separate pin inputs. For direct Maven commands that generate rule data, pass `-Drspec.sha=<commit-sha>` to pin the refresh.
+To pin rule data generation to an exact RSPEC revision for branch-local work, write the commit SHA
+to `rspec.sha` at the repository root and run `npm run rspec:refresh`. The root `rspec.sha` file is
+a temporary local workflow input and must never be committed to `master`.
+
+The generated `sonar-plugin/javascript-checks/src/main/resources/rspec.sha` and
+`sonar-plugin/css/src/main/resources/rspec.sha` files are derived outputs written during refresh.
+They are not separate pin inputs. For direct Maven commands that generate rule data, pass
+`-Drspec.sha=<commit-sha>` to pin the refresh.
 
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all
 required dependencies and is used for our CI pipeline.
