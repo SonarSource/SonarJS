@@ -17,7 +17,8 @@
     "bad-practice",
     "clumsy",
     "jest",
-    "vitest"
+    "vitest",
+    "playwright"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-5976",

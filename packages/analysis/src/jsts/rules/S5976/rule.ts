@@ -36,10 +36,10 @@ const messages = {
 };
 
 const JEST_MODULES = ['jest', '@jest/globals'];
+const PLAYWRIGHT_MODULES = ['@playwright/test'];
 const VITEST_MODULES = ['vitest'];
-const SUPPORTED_MODULE_FQNS = ['jest', '@jest.globals', 'vitest'];
+const SUPPORTED_MODULE_FQNS = ['jest', '@jest.globals', 'vitest', '@playwright.test'];
 const UNSUPPORTED_TEST_MODULES = new Set([
-  '@playwright/test',
   'cypress',
   'jasmine',
   'jasmine-core',
@@ -49,10 +49,11 @@ const UNSUPPORTED_TEST_MODULES = new Set([
 ]);
 
 const TEST_FUNCTION_NAMES = new Set(['it', 'test']);
-const COMMON_TEST_MODIFIERS = new Set(['only', 'concurrent']);
-const JEST_TEST_MODIFIERS = new Set(['failing']);
-const VITEST_TEST_MODIFIERS = new Set(['sequential']);
-const NON_CONCRETE_TEST_MODIFIERS = new Set(['each', 'skip', 'todo']);
+const COMMON_TEST_MODIFIERS = new Set(['only']);
+const JEST_TEST_MODIFIERS = new Set(['concurrent', 'failing']);
+const PLAYWRIGHT_TEST_MODIFIERS = new Set(['fail', 'slow']);
+const VITEST_TEST_MODIFIERS = new Set(['concurrent', 'sequential']);
+const NON_CONCRETE_TEST_MODIFIERS = new Set(['each', 'fixme', 'skip', 'todo']);
 
 const MIN_SIMILAR_TESTS = 3;
 const MIN_STATEMENTS = 2;
@@ -62,6 +63,7 @@ type FunctionNode = estree.FunctionExpression | estree.ArrowFunctionExpression;
 
 interface ActiveFrameworks {
   jest: boolean;
+  playwright: boolean;
   vitest: boolean;
 }
 
@@ -87,6 +89,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const activeFrameworks = {
       jest: importsOrDependsOnModule(context, JEST_MODULES, JEST_MODULES),
+      playwright: importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES),
       vitest: importsOrDependsOnModule(context, VITEST_MODULES, VITEST_MODULES),
     };
 
@@ -198,10 +201,11 @@ function classifyTestCall(
     return undefined;
   }
 
-  const testConstruct = getJestVitestTestConstruct(
+  const testConstruct = getSupportedTestConstruct(
     context,
     calleeParts.base,
     calleeParts.modifiers,
+    activeFrameworks,
   );
   if (testConstruct === undefined) {
     return undefined;
@@ -218,10 +222,11 @@ function classifyTestCall(
   return undefined;
 }
 
-function getJestVitestTestConstruct(
+function getSupportedTestConstruct(
   context: Rule.RuleContext,
   base: estree.Identifier,
   modifiers: string[],
+  activeFrameworks: ActiveFrameworks,
 ): { name: string; modifiers: string[] } | undefined {
   const fqn = getFullyQualifiedName(context, base);
   const importedName = getTestNameFromFullyQualifiedName(fqn);
@@ -236,7 +241,8 @@ function getJestVitestTestConstruct(
   const variable = getVariableFromScope(context.sourceCode.getScope(base), base.name);
   if (
     (variable === undefined || variable.defs.length === 0) &&
-    TEST_FUNCTION_NAMES.has(base.name)
+    TEST_FUNCTION_NAMES.has(base.name) &&
+    (activeFrameworks.jest || activeFrameworks.vitest)
   ) {
     return { name: base.name, modifiers };
   }
@@ -262,6 +268,7 @@ function isConcreteModifier(modifier: string, activeFrameworks: ActiveFrameworks
   return (
     COMMON_TEST_MODIFIERS.has(modifier) ||
     (activeFrameworks.jest && JEST_TEST_MODIFIERS.has(modifier)) ||
+    (activeFrameworks.playwright && PLAYWRIGHT_TEST_MODIFIERS.has(modifier)) ||
     (activeFrameworks.vitest && VITEST_TEST_MODIFIERS.has(modifier))
   );
 }

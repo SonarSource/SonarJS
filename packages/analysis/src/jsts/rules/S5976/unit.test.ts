@@ -35,6 +35,7 @@ describe('S5976', () => {
     const fixtures = path.join(import.meta.dirname, 'fixtures');
     const jestTestFile = path.join(fixtures, 'jest', 'test.js');
     const noFrameworkTestFile = path.join(fixtures, 'no-framework', 'test.js');
+    const playwrightTestFile = path.join(fixtures, 'playwright', 'test.ts');
     const vitestTestFile = path.join(fixtures, 'vitest', 'test.ts');
 
     ruleTester.run('Similar tests should be grouped in a single Parameterized test', rule, {
@@ -265,6 +266,30 @@ it('normalizes a 202 status', () => {
         {
           code: `
 import { test } from '@playwright/test';
+test.skip('normalizes a 200 status', async () => {
+  const value = normalize(200);
+  expect(value).toBeGreaterThan(199);
+  expect(value).toBeLessThan(300);
+});
+
+test.skip('normalizes a 201 status', async () => {
+  const value = normalize(201);
+  expect(value).toBeGreaterThan(199);
+  expect(value).toBeLessThan(300);
+});
+
+test.skip('normalizes a 202 status', async () => {
+  const value = normalize(202);
+  expect(value).toBeGreaterThan(199);
+  expect(value).toBeLessThan(300);
+});
+
+test.fixme('normalizes the next status');
+          `,
+          filename: playwrightTestFile,
+        },
+        {
+          code: `
 test('normalizes a 200 status', async () => {
   const value = normalize(200);
   expect(value).toBeGreaterThan(199);
@@ -283,7 +308,7 @@ test('normalizes a 202 status', async () => {
   expect(value).toBeLessThan(300);
 });
           `,
-          filename: noFrameworkTestFile,
+          filename: playwrightTestFile,
         },
         {
           code: `
@@ -408,6 +433,102 @@ check('loads the projects endpoint', () => {
 });
           `,
           filename: vitestTestFile,
+          errors: [{ message: MESSAGE }],
+        },
+        {
+          code: `
+import { test } from '@playwright/test';
+test('opens /users', async ({ page }) => {
+  await page.goto('/users');
+  await page.waitForLoadState('networkidle');
+  await expect(page.getByRole('heading', { name: 'Users' })).toBeVisible();
+});
+
+test('opens /teams', async ({ page }) => {
+  await page.goto('/teams');
+  await page.waitForLoadState('networkidle');
+  await expect(page.getByRole('heading', { name: 'Teams' })).toBeVisible();
+});
+
+test('opens /projects', async ({ page }) => {
+  await page.goto('/projects');
+  await page.waitForLoadState('networkidle');
+  await expect(page.getByRole('heading', { name: 'Projects' })).toBeVisible();
+});
+          `,
+          filename: playwrightTestFile,
+          errors: [{ message: MESSAGE }],
+        },
+        {
+          code: `
+import { test as pwTest } from '@playwright/test';
+pwTest.only('opens /users', async ({ page }) => {
+  await page.goto('/users');
+  await page.waitForLoadState('networkidle');
+  await expect(page.locator('h1')).toHaveText('Users');
+});
+
+pwTest.only('opens /teams', async ({ page }) => {
+  await page.goto('/teams');
+  await page.waitForLoadState('networkidle');
+  await expect(page.locator('h1')).toHaveText('Teams');
+});
+
+pwTest.only('opens /projects', async ({ page }) => {
+  await page.goto('/projects');
+  await page.waitForLoadState('networkidle');
+  await expect(page.locator('h1')).toHaveText('Projects');
+});
+          `,
+          filename: playwrightTestFile,
+          errors: [{ message: MESSAGE }],
+        },
+        {
+          code: `
+const { test: check } = require('@playwright/test');
+check.fail('loads /users', async ({ page }) => {
+  await page.goto('/users');
+  await page.waitForLoadState('networkidle');
+  await expect(page.locator('main')).toContainText('Users');
+});
+
+check.fail('loads /teams', async ({ page }) => {
+  await page.goto('/teams');
+  await page.waitForLoadState('networkidle');
+  await expect(page.locator('main')).toContainText('Teams');
+});
+
+check.fail('loads /projects', async ({ page }) => {
+  await page.goto('/projects');
+  await page.waitForLoadState('networkidle');
+  await expect(page.locator('main')).toContainText('Projects');
+});
+          `,
+          filename: playwrightTestFile,
+          errors: [{ message: MESSAGE }],
+        },
+        {
+          code: `
+import * as playwright from '@playwright/test';
+playwright.test.slow('shows /users', async ({ page }) => {
+  await page.goto('/users');
+  await page.waitForLoadState('networkidle');
+  await playwright.expect(page.locator('main')).toContainText('Users');
+});
+
+playwright.test.slow('shows /teams', async ({ page }) => {
+  await page.goto('/teams');
+  await page.waitForLoadState('networkidle');
+  await playwright.expect(page.locator('main')).toContainText('Teams');
+});
+
+playwright.test.slow('shows /projects', async ({ page }) => {
+  await page.goto('/projects');
+  await page.waitForLoadState('networkidle');
+  await playwright.expect(page.locator('main')).toContainText('Projects');
+});
+          `,
+          filename: playwrightTestFile,
           errors: [{ message: MESSAGE }],
         },
       ],
