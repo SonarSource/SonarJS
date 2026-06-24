@@ -20,6 +20,8 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { FUNCTION_NODES } from '../helpers/ast.js';
 import {
+  getPlaywrightDescribeQualifiers,
+  getPlaywrightTestQualifiers,
   isMochaTestConstruct,
   SUITE_FUNCTION_NAMES,
 } from '../helpers/mocha-style-test-frameworks.js';
@@ -110,10 +112,11 @@ function findEnclosingExpressionStatement(
 
 /**
  * An assertion runs outside a test case when its nearest enclosing function is a
- * `describe`/`context`/`suite` callback (it runs at suite-collection time), or
- * when there is no enclosing function at all (it runs at module load). Any other
- * enclosing function — a test case, a lifecycle hook, or an unrelated helper —
- * is treated as "cannot prove it runs outside a test", so we stay silent.
+ * suite callback — `describe`/`context`/`suite` or Playwright's `test.describe` —
+ * (it runs at suite-collection time), or when there is no enclosing function at
+ * all (it runs at module load). Any other enclosing function — a test case, a
+ * lifecycle hook, or an unrelated helper — is treated as "cannot prove it runs
+ * outside a test", so we stay silent.
  */
 function runsOutsideTestCase(context: Rule.RuleContext, node: estree.Node): boolean {
   const ancestors = context.sourceCode.getAncestors(node);
@@ -126,8 +129,26 @@ function runsOutsideTestCase(context: Rule.RuleContext, node: estree.Node): bool
   return (
     parent?.type === 'CallExpression' &&
     parent.arguments.includes(enclosingFunction as estree.Expression) &&
-    isMochaTestConstruct(context, parent, SUITE_FUNCTION_NAMES)
+    isSuiteCallback(context, parent)
   );
+}
+
+/**
+ * Whether `call` is a suite declaration whose body runs at collection time:
+ * a Mocha-style `describe`/`context`/`suite` (also covering Jest/Vitest/Jasmine/
+ * Cypress), or Playwright's `test.describe(...)`.
+ */
+function isSuiteCallback(context: Rule.RuleContext, call: estree.CallExpression): boolean {
+  return (
+    isMochaTestConstruct(context, call, SUITE_FUNCTION_NAMES) || isPlaywrightDescribe(context, call)
+  );
+}
+
+function isPlaywrightDescribe(context: Rule.RuleContext, call: estree.CallExpression): boolean {
+  const qualifiers =
+    getPlaywrightTestQualifiers(context, call.callee) ??
+    getPlaywrightDescribeQualifiers(call.callee);
+  return qualifiers?.[0] === 'describe';
 }
 
 function findEnclosingFunctionIndex(ancestors: estree.Node[]): number {
