@@ -17,6 +17,7 @@
 import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { isVendorFile } from '../helpers/vendor-file-pattern.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
@@ -27,6 +28,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
+      if (isVendorFile(context.physicalFilename)) {
+        return;
+      }
+
       if ('node' in reportDescriptor) {
         const { node, ...rest } = reportDescriptor;
         const varDecl = node as estree.VariableDeclaration & { declare?: boolean };
