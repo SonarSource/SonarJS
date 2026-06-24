@@ -66,9 +66,15 @@ especially:
 - CI must prepare RSPEC rule data once and reuse it in downstream jobs instead of fetching RSPEC in
   every job.
 - The prepared artifact must be complete enough for downstream reuse.
+- Ordinary PR and branch CI may use ephemeral refreshed rule data that is never committed back to
+  the branch.
 - The explicit refresh path should follow the same pinning and freshness rules in local runs and CI,
   rather than having separate hidden lifecycle logic.
 - CI must not rely on `npm run bbf` performing hidden RSPEC refresh.
+- SonarJS must also keep a scheduled maintenance path, currently the `Generated Files Freshness`
+  workflow, that detects when tracked generated files on `master` are behind latest RSPEC and opens
+  or updates an automated refresh PR rather than relying on developers to create manual sync-only
+  PRs.
 
 ### Idempotence and reuse
 
@@ -97,6 +103,12 @@ especially:
   refresh action that produced them.
 - The default local `bbf` flow does not need to decide freshness against remote RSPEC state; it only
   needs the required local metadata inputs to be present.
+- Ordinary PR CI does not need the tracked rule JSON already committed on the branch to be at the
+  latest RSPEC revision, as long as CI refreshes RSPEC explicitly and downstream jobs consume the
+  prepared refreshed artifact for that run.
+- Freshness of the tracked generated files on `master` should instead be enforced over time by the
+  scheduled maintenance workflow, currently `Generated Files Freshness`, that proposes update PRs
+  when `master` falls behind latest RSPEC.
 
 ### Pinning
 
@@ -150,6 +162,9 @@ especially:
   coverage state and “Covered since” information on the RSPEC site.
 - Those tracked JSON files are retained both for RSPEC publication/historical coverage and as the
   normal local input for `bbf` when no explicit refresh is requested.
+- Because CI refresh outputs are ephemeral, SonarJS still needs a separate automated path to
+  periodically refresh and propose commits for the tracked generated files on `master` so the
+  repository does not drift indefinitely from latest RSPEC.
 - Generated HTML files are build artifacts and are not required to be tracked in Git.
 - Generated per-language `rspec.sha` files are build artifacts and are not required to be tracked
   in Git.
