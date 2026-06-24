@@ -1,0 +1,71 @@
+{
+"eigen:src/app/Components/AnimatedBottomButton.tsx": [
+1
+],
+"eigen:src/app/Components/ArtworkFilter/ArtworkFilterNavigator.tsx": [
+31
+],
+"eigen:src/app/Components/ArtworkFilter/ArtworkFilterOptionsScreen.tsx": [
+16
+],
+"eigen:src/app/Components/Markdown.tsx": [
+2
+],
+"eigen:src/app/Components/ReadMore.tsx": [
+4
+],
+"eigen:src/app/Scenes/Articles/ArticlesList.tsx": [
+11
+],
+"eigen:src/app/Scenes/Artist/ArtistSavedSearch.tests.tsx": [
+4
+],
+"eigen:src/app/Scenes/ArtistArticles/ArtistArticles.tsx": [
+6
+],
+"eigen:src/app/Scenes/Artwork/Artwork.tests.tsx": [
+21
+],
+"eigen:src/app/Scenes/Sale/Sale.tsx": [
+22
+],
+"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomsHomeRail.tsx": [
+8
+],
+"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomsListFeatured.tsx": [
+7
+],
+"eigen:src/app/Scenes/ViewingRoom/ViewingRoomArtwork.tsx": [
+6
+],
+"eigen:src/app/Scenes/ViewingRoom/ViewingRoomsList.tsx": [
+10
+],
+"eigen:src/app/relay/RelayCache.ts": [
+2
+],
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+5
+],
+"eigen:src/app/store/migration.tests.ts": [
+2
+],
+"eigen:src/app/utils/renderMarkdown.tsx": [
+3
+],
+"eigen:src/app/utils/sendEmail.ts": [
+1
+],
+"eigen:src/palette/Theme.tsx": [
+2
+],
+"eigen:src/palette/elements/Input/Input.tsx": [
+3
+],
+"eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx": [
+3
+],
+"eigen:src/palette/elements/Text/index.tsx": [
+1
+]
+}

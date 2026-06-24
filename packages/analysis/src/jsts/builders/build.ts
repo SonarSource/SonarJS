@@ -38,19 +38,19 @@ import { type Parser, parsersMap } from '../parsers/eslint.js';
  */
 export function build(input: JsTsAnalysisInput, parserContext: ParserContext = {}) {
   const vueFile = isVueFile(input.filePath);
-  const context: ParserContext = {
+  const typescriptContext: ParserContext = {
     ...parserContext,
     jsx: parserContext.jsx ?? jsxEnabledFor(input.program),
   };
 
   if (shouldUseTypescriptParser(input)) {
-    const result = parseAsTypescript(input, vueFile, context);
+    const result = parseAsTypescript(input, vueFile, typescriptContext);
     if (result) {
       return result;
     }
   }
 
-  return parseAsJavascript(input, vueFile, context);
+  return parseAsJavascript(input, vueFile, parserContext);
 }
 
 /**
@@ -109,7 +109,8 @@ function retryVueTsWithFlippedJsx(
 
 function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: ParserContext) {
   const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
-  let moduleError;
+  let moduleError: Error | undefined;
+
   try {
     debug(`Parsing ${input.filePath} with ${parser.meta?.name}`);
     return parse(
@@ -140,7 +141,7 @@ function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: 
      * We prefer displaying parsing error as module if parsing as script also failed,
      * as it is more likely that the expected source type is module.
      */
-    throw moduleError;
+    throw moduleError ?? error;
   }
 }
 
@@ -162,5 +163,5 @@ function jsxEnabledFor(program?: ts.Program): boolean | undefined {
     return undefined;
   }
   const jsx = program.getCompilerOptions().jsx;
-  return jsx !== undefined && jsx !== ts.JsxEmit.None;
+  return jsx === undefined ? undefined : jsx !== ts.JsxEmit.None;
 }
