@@ -263,8 +263,8 @@ jobs:
         with:
           secrets: |
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
-      - name: Generate and stamp RSPEC rule data
-        run: npm run ensure-rule-data
+      - name: Refresh and deploy RSPEC rule data
+        run: npm run rspec:refresh
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
       - name: Upload prepared RSPEC rule data
@@ -276,7 +276,6 @@ jobs:
             sonar-plugin/javascript-checks/src/main/resources/rspec.sha
             sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css
             sonar-plugin/css/src/main/resources/rspec.sha
-            resources/rule-data-state.json
           retention-days: 1
 
   build_eslint_plugin:

@@ -52,18 +52,10 @@ const CSS_RULE_DATA_FOLDER = join(
   'css',
 );
 
-const RSPEC_SHA_FILES = {
-  javascript: {
-    envName: 'RSPEC_JAVASCRIPT_SHA',
-    marker: join('resources', 'rule-data', '.synced-sha-javascript'),
-    target: join('sonar-plugin', 'javascript-checks', 'src', 'main', 'resources', 'rspec.sha'),
-  },
-  css: {
-    envName: 'RSPEC_CSS_SHA',
-    marker: join('resources', 'rule-data', '.synced-sha-css'),
-    target: join('sonar-plugin', 'css', 'src', 'main', 'resources', 'rspec.sha'),
-  },
-} as const;
+const GENERATED_RSPEC_SHA_TARGETS = [
+  join('sonar-plugin', 'javascript-checks', 'src', 'main', 'resources', 'rspec.sha'),
+  join('sonar-plugin', 'css', 'src', 'main', 'resources', 'rspec.sha'),
+];
 
 const jsRuleNames = [...new Set([...(await listRulesDir()), 'S2260'])].sort(sortRuleKeys);
 const cssRuleNames = [...new Set([...cssRulesMeta.map(rule => rule.sqKey), 'S2260'])].sort(
@@ -96,7 +88,7 @@ type JsonObject = {
 
 await syncRuleData(join(sourceFolder, 'javascript'), JS_RULE_DATA_FOLDER, jsRuleNames);
 await syncRuleData(join(sourceFolder, 'css'), CSS_RULE_DATA_FOLDER, cssRuleNames);
-syncRspecShas();
+syncRspecSha();
 
 async function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: string[]) {
   warnOnRulesWithoutImplementation(sourceFolder, ruleNames);
@@ -170,10 +162,7 @@ async function syncRuleData(sourceFolder: string, targetFolder: string, ruleName
         JSON.stringify(profileContents),
       );
     } else {
-      writeFileSync(
-        join(targetFolder, generatedProfile.fileName),
-        JSON.stringify(profileContents),
-      );
+      writeFileSync(join(targetFolder, generatedProfile.fileName), JSON.stringify(profileContents));
     }
   }
 
@@ -188,26 +177,19 @@ async function syncRuleData(sourceFolder: string, targetFolder: string, ruleName
   );
 }
 
-function syncRspecShas() {
-  const repositorySha = readRspecRepositorySha();
+function syncRspecSha() {
+  const sha = readEnvSha('RSPEC_SHA') ?? readRspecRepositorySha();
+  if (sha === undefined) {
+    throw new Error(
+      'Failed to resolve RSPEC SHA: RSPEC_SHA is not set and the local RSPEC cache clone is unavailable',
+    );
+  }
 
-  for (const paths of Object.values(RSPEC_SHA_FILES)) {
-    const sha = readEnvSha(paths.envName) ?? repositorySha ?? readShaIfExists(paths.marker);
-    if (sha === undefined) {
-      throw new Error(
-        `Failed to resolve RSPEC SHA for ${paths.target}: ${paths.envName} is not set and no local RSPEC repository or marker exists`,
-      );
-    }
-
-    mkdirSync(dirname(paths.marker), {
+  for (const target of GENERATED_RSPEC_SHA_TARGETS) {
+    mkdirSync(dirname(target), {
       recursive: true,
     });
-    writeFileSync(paths.marker, `${sha}\n`);
-
-    mkdirSync(dirname(paths.target), {
-      recursive: true,
-    });
-    writeFileSync(paths.target, `${sha}\n`);
+    writeFileSync(target, `${sha}\n`);
   }
 }
 
@@ -231,15 +213,6 @@ function readEnvSha(envName: string): string | undefined {
     return undefined;
   }
   return value;
-}
-
-function readShaIfExists(path: string): string | undefined {
-  try {
-    const value = readFileSync(path, 'utf-8').trim();
-    return value.length === 0 ? undefined : value;
-  } catch {
-    return undefined;
-  }
 }
 
 function writeNormalizedManifest(

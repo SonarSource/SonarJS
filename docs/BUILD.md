@@ -4,13 +4,8 @@
 
 Run `npm ci` first on a fresh checkout, and again after any `package.json` or lockfile change.
 
-Use `mvn install` for normal development after Node dependencies are installed. When generated RSPEC
-outputs are already present, this reuses them instead of refetching RSPEC.
-
-Rule-data preparation is materialized by `npm run ensure-rule-data`. This command refreshes
-`generate-rule-data:maven` outputs when they are missing or when the checkout no longer matches the
-ignored state stored in `resources/rule-data-state.json`. For the full RSPEC sync and stamp model,
-see [RSPEC Rule-Data Lifecycle](./rule-data-lifecycle.md).
+Use `mvn install` for normal development after Node dependencies are installed.
+This reuses the tracked rule metadata already present in the checkout unless an explicit RSPEC refresh is requested.
 
 Avoid `mvn clean` while iterating. The fast Java-only loop reuses previously generated artifacts,
 and `clean` deletes them. Only use `mvn clean install` when you explicitly want to rebuild generated
@@ -56,14 +51,19 @@ Regenerate rule metadata:
 npm run generate-meta
 ```
 
-Ensure rule data is prepared for the current checkout:
+Refresh tracked RSPEC rule data explicitly:
 
 ```bash
-npm run ensure-rule-data
+npm run rspec:refresh
 ```
 
-The detailed behavior of this command is documented in
-[RSPEC Rule-Data Lifecycle](./rule-data-lifecycle.md).
+That refresh syncs RSPEC once and generates both JavaScript and CSS rule data from the same checkout.
+
+Refresh RSPEC first, then run the fast local build:
+
+```bash
+npm run bbf:latest
+```
 
 Validate quickfix declarations:
 
@@ -110,10 +110,8 @@ It skips:
 
 Important details:
 
-- `npm run generate-meta` reuses prepared RSPEC outputs when they already exist, and refreshes them
-  when they do not.
-- To force an RSPEC refresh, or to apply a new root `rspec.sha` pin, run `npm run ensure-rule-data`;
-  `npm run generate-meta` also invokes this check before generating metadata.
+- `npm run generate-meta` reads the tracked local JavaScript rule JSON and does not refresh RSPEC.
+- To refresh RSPEC explicitly, or to apply a root `rspec.sha` pin, run `npm run rspec:refresh`.
 - The `bridge` module still adds `target/generated-sources` to the Java source roots, so an existing
   generated stub directory can be reused without re-running protobuf generation.
 - This flag is intended for Java-only loops after a previous non-skipped build.
