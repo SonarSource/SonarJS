@@ -447,5 +447,16 @@
         </plugins>
       </build>
     </profile>
+    <profile>
+      <id>rspec-refresh-pinned</id>
+      <activation>
+        <file>
+          <exists>${maven.multiModuleProjectDirectory}/rspec.sha</exists>
+        </file>
+      </activation>
+      <properties>
+        <rspec.branch></rspec.branch>
+      </properties>
+    </profile>
   </profiles>
 </project>
