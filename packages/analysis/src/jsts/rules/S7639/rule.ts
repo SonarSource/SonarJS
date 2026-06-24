@@ -22,7 +22,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier, isMemberWithProperty, isRequireModule } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
-const BLOCKCHAIN_MODULES = ['ethers', 'viem/accounts', 'tronweb'];
+const BLOCKCHAIN_MODULES = new Set(['ethers', 'viem/accounts', 'tronweb']);
 const MNEMONIC_FUNCTIONS = ['fromPhrase', 'mnemonicToAccount', 'fromMnemonic'];
 
 export const rule: Rule.RuleModule = {
@@ -72,7 +72,7 @@ export const rule: Rule.RuleModule = {
       },
 
       ImportDeclaration(node: estree.ImportDeclaration) {
-        if (BLOCKCHAIN_MODULES.includes(node.source.value as string)) {
+        if (BLOCKCHAIN_MODULES.has(node.source.value as string)) {
           isBlockchainModuleImported = true;
         }
       },

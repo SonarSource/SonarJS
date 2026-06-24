@@ -49,8 +49,7 @@ const switchWithoutDefaultRule: Rule.RuleModule = {
         if (hasTypeInformation && isUnion(discriminant, services)) {
           return;
         }
-        const defaultClause = cases.find(c => c.test === null);
-        if (!defaultClause) {
+        if (!cases.some(c => c.test === null)) {
           const switchKeyword = getSwitchKeyword(node, context);
           context.report({
             messageId: 'switchDefault',
