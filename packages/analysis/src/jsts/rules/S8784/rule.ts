@@ -46,7 +46,7 @@ export const rule: Rule.RuleModule = {
         if (!isAssertion(context, node)) {
           return;
         }
-        const statement = enclosingExpressionStatement(context, node);
+        const statement = findEnclosingExpressionStatement(context, node);
         if (statement === undefined || reportedStatements.has(statement)) {
           return;
         }
@@ -71,7 +71,7 @@ export const rule: Rule.RuleModule = {
  * `await`/`yield`/optional-chaining/non-null wrappers, which matters for
  * async-first libraries like supertest).
  */
-function enclosingExpressionStatement(
+function findEnclosingExpressionStatement(
   context: Rule.RuleContext,
   node: estree.Node,
 ): estree.Node | undefined {
