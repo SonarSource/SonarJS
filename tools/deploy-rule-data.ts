@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { execFileSync } from 'node:child_process';
-import { listRulesDir } from './helpers.js';
+import { listRulesDir, writePrettyFile } from './helpers.js';
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join as joinNative } from 'node:path';
@@ -76,7 +76,12 @@ type RuleManifest = {
 };
 
 const SONAR_WAY = 'Sonar way';
+const SONAR_AGENTIC_AI_PROFILE_FILENAME = 'Sonar_agentic_AI_profile.json';
 const SONAR_WAY_PROFILE_FILENAME = 'Sonar_way_profile.json';
+const PRETTY_PRINTED_JS_PROFILE_FILENAMES = new Set([
+  SONAR_AGENTIC_AI_PROFILE_FILENAME,
+  SONAR_WAY_PROFILE_FILENAME,
+]);
 
 type GeneratedProfile = {
   fileName: string;
@@ -89,11 +94,11 @@ type JsonObject = {
   [key: string]: JsonValue;
 };
 
-syncRuleData(join(sourceFolder, 'javascript'), JS_RULE_DATA_FOLDER, jsRuleNames);
-syncRuleData(join(sourceFolder, 'css'), CSS_RULE_DATA_FOLDER, cssRuleNames);
+await syncRuleData(join(sourceFolder, 'javascript'), JS_RULE_DATA_FOLDER, jsRuleNames);
+await syncRuleData(join(sourceFolder, 'css'), CSS_RULE_DATA_FOLDER, cssRuleNames);
 syncRspecShas();
 
-function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: string[]) {
+async function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: string[]) {
   warnOnRulesWithoutImplementation(sourceFolder, ruleNames);
   const existingManifests = new Map(
     ruleNames
@@ -152,13 +157,24 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
   }
 
   for (const generatedProfile of generatedProfiles) {
-    writeFileSync(
-      join(targetFolder, generatedProfile.fileName),
-      JSON.stringify({
-        name: generatedProfile.name,
-        ruleKeys: generatedProfile.ruleKeys,
-      }),
-    );
+    const profileContents = {
+      name: generatedProfile.name,
+      ruleKeys: generatedProfile.ruleKeys,
+    };
+    const shouldPrettyPrintProfile =
+      targetFolder === JS_RULE_DATA_FOLDER &&
+      PRETTY_PRINTED_JS_PROFILE_FILENAMES.has(generatedProfile.fileName);
+    if (shouldPrettyPrintProfile) {
+      await writePrettyFile(
+        join(targetFolder, generatedProfile.fileName),
+        JSON.stringify(profileContents),
+      );
+    } else {
+      writeFileSync(
+        join(targetFolder, generatedProfile.fileName),
+        JSON.stringify(profileContents),
+      );
+    }
   }
 
   writeFileSync(

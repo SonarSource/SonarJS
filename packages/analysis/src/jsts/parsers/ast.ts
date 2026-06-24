@@ -421,8 +421,25 @@ function getProtobufShapeForNode(node: TSESTree.Node) {
   }
   return {
     type: NodeType[(node.type + 'Type') as keyof typeof NodeType] ?? NodeType.UnknownNodeType,
-    loc: node.loc,
+    loc: normalizeSourceLocation(node.loc),
     [lowerCaseFirstLetter(node.type)]: shape,
+  };
+}
+
+// Babel 8 attaches extra location metadata such as filename/identifierName that protobuf does not
+// encode. Normalize locations up front so the in-memory protobuf shape matches the serialized one.
+function normalizeSourceLocation(loc: TSESTree.SourceLocation) {
+  const source = 'source' in loc ? loc.source : undefined;
+  return {
+    source,
+    start: {
+      line: loc.start.line,
+      column: loc.start.column,
+    },
+    end: {
+      line: loc.end.line,
+      column: loc.end.column,
+    },
   };
 }
 

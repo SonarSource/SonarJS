@@ -98,6 +98,44 @@ describe('buildSourceCode', () => {
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
 
+  it('should build JSX through the Babel parser path', async () => {
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'jsx.js');
+    const {
+      ast: {
+        body: [stmt],
+      },
+    } = build(await jsTsInput({ filePath, allowTsParserJsFiles: false })).sourceCode;
+
+    expect(stmt.type).toEqual('VariableDeclaration');
+  });
+
+  it('should fail building JSX with unescaped entities through the Babel parser path', async () => {
+    const filePath = path.join(
+      import.meta.dirname,
+      'fixtures',
+      'build-js',
+      'jsx-unescaped-entity.js',
+    );
+    const analysisInput = await jsTsInput({ filePath, allowTsParserJsFiles: false });
+
+    expect(() => build(analysisInput)).toThrow(/Unexpected token/);
+  });
+
+  it('should build JSX in a JS project when tsconfig leaves JSX unspecified', async () => {
+    const tsConfig = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'build-js', 'tsconfig.json'),
+    );
+    const program = createStandardProgram(createProgramOptions(tsConfig, undefined, true));
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'jsx.js');
+    const {
+      ast: {
+        body: [stmt],
+      },
+    } = build(await jsTsInput({ filePath, allowTsParserJsFiles: false, program })).sourceCode;
+
+    expect(stmt.type).toEqual('VariableDeclaration');
+  });
+
   it('should fail building malformed JavaScript code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'malformed.js');
 
@@ -292,7 +330,7 @@ describe('buildSourceCode', () => {
     );
   });
 
-  it('should parse Vue+TS angle-bracket assertion without retry when tsconfig has no JSX', async ({
+  it('should parse Vue+TS angle-bracket assertion by retrying with JSX disabled when tsconfig leaves JSX unspecified', async ({
     mock,
   }) => {
     console.log = mock.fn(console.log);
@@ -308,15 +346,13 @@ describe('buildSourceCode', () => {
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );
-    expect(logs).not.toContain(
-      `DEBUG Retrying ${normalizeToAbsolutePath(filePath)} with JSX disabled`,
-    );
+    expect(logs).toContain(`DEBUG Retrying ${normalizeToAbsolutePath(filePath)} with JSX disabled`);
     expect(logs).not.toContain(
       `DEBUG Retrying ${normalizeToAbsolutePath(filePath)} with JSX enabled`,
     );
   });
 
-  it('should recover JSX content when tsconfig disables JSX by retrying with JSX enabled', async ({
+  it('should recover JSX content when parser context disables JSX by retrying with JSX enabled', async ({
     mock,
   }) => {
     console.log = mock.fn(console.log);
@@ -326,7 +362,9 @@ describe('buildSourceCode', () => {
     );
     const program = createStandardProgram(createProgramOptions(tsConfig, undefined, true));
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-vue', 'tsx-content.vue');
-    const sourceCode = build(await jsTsInput({ filePath, language: 'ts', program })).sourceCode;
+    const sourceCode = build(await jsTsInput({ filePath, language: 'ts', program }), {
+      jsx: false,
+    }).sourceCode;
     expect(sourceCode.ast).toBeDefined();
 
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(

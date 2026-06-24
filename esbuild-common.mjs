@@ -18,8 +18,15 @@ import esbuild from 'esbuild';
 import textReplace from 'esbuild-plugin-text-replace';
 import { copy } from 'esbuild-plugin-copy';
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 
 const stylelintPkgJson = readFileSync('node_modules/stylelint/package.json', 'utf8');
+const require = createRequire(import.meta.url);
+const babelParserFromCore = JSON.stringify(
+  require.resolve('@babel/parser', {
+    paths: [require.resolve('@babel/core/package.json')],
+  }),
+);
 
 /**
  * Build a SonarJS server bundle
@@ -58,7 +65,27 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
       textReplace({
         include: /node_modules[/\\]@babel[/\\]eslint-parser[/\\]lib[/\\]parse\.cjs$/,
         pattern: [
-          [/const babelParser = require.*}\)\)/gms, 'const babelParser = require("@babel/parser")'],
+          [
+            /const babelParser = require.*}\)\)/gms,
+            `const babelParser = require(${babelParserFromCore})`,
+          ],
+        ],
+      }),
+      // Babel 7 pulled in by eslint-plugin-react-hooks has optional .cts config support that
+      // references @babel/preset-typescript. The bridge bundle never loads Babel config files,
+      // so we can drop that branch instead of forcing an otherwise unused preset into the
+      // packaged runtime.
+      textReplace({
+        include: /@babel[/\\]core[/\\]lib[/\\]config[/\\]files[/\\]module-types\.js$/,
+        pattern: [
+          [
+            /const packageJson = require\("@babel\/preset-typescript\/package\.json"\);\s*if \(_semver\(\)\.lt\(packageJson\.version, "7\.21\.4"\)\) \{\s*console\.error\("`\.cts` configuration file failed to load, please try to update `@babel\/preset-typescript`\."\);\s*\}/g,
+            '',
+          ],
+          [
+            /function getTSPreset\(filepath\) \{\s*try \{\s*return require\("@babel\/preset-typescript"\);\s*\} catch \(error\) \{\s*if \(error\.code !== "MODULE_NOT_FOUND"\) throw error;\s*let message = "You appear to be using a \.cts file as Babel configuration, but the `@babel\/preset-typescript` package was not found: please install it!";\s*if \(process\.versions\.pnp\) \{\s*message \+= `[\s\S]*?`;\s*\}\s*throw new _configError\.default\(message, filepath\);\s*\}\s*\}/g,
+            'function getTSPreset(filepath) { throw new _configError.default("You appear to be using a .cts file as Babel configuration, but the SonarJS bridge bundle does not support loading Babel .cts config files.", filepath); }',
+          ],
         ],
       }),
       // Remove dynamic import of espree on ESLint Rule tester. In any case, it's never used in the bundle
@@ -110,6 +137,21 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
       textReplace({
         include: /node_modules[/\\]@stylistic[/\\]eslint-plugin[/\\]dist[/\\]rolldown-runtime\.js$/,
         pattern: [['createRequire(import.meta.url);', 'createRequire(__filename);']],
+      }),
+      // Babel 8 config-file helpers still use createRequire(import.meta.url); in the bundled CJS
+      // output this becomes createRequire(undefined), which breaks standalone bridge startup.
+      textReplace({
+        include: /node_modules[/\\]@babel[/\\]core[/\\]lib[/\\]config[/\\]files[/\\]index\.js$/,
+        pattern: [[/createRequire\(import\.meta\.url\)/g, 'createRequire(__filename)']],
+      }),
+      textReplace({
+        include: /node_modules[/\\]@babel[/\\]eslint-parser[/\\]lib[/\\]index\.js$/,
+        pattern: [
+          [
+            /const require\$\d+ = createRequire\((?:import\.meta\.url|__filename)\);\s*const babelParser = require\$\d+\(require\$\d+\.resolve\("@babel\/parser", \{\s*paths: \[require\$\d+\.resolve\("@babel\/core\/package\.json"\)\]\s*\}\)\);/g,
+            `const babelParser = require(${babelParserFromCore});`,
+          ],
+        ],
       }),
       textReplace({
         include: /node_modules[/\\]css-tree[/\\]lib[/\\]data-patch\.js$/,
