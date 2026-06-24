@@ -65,6 +65,28 @@ test('normalizes a 202 status', () => expect(normalize(202)).toBe(202));
         },
         {
           code: `
+test('normalizes a status', () => {
+  const status = normalize(200);
+  expect(status).toBeGreaterThan(199);
+  expect(status).toBeLessThan(300);
+});
+
+test('normalizes a status', () => {
+  const status = normalize(200);
+  expect(status).toBeGreaterThan(199);
+  expect(status).toBeLessThan(300);
+});
+
+test('normalizes a status', () => {
+  const status = normalize(200);
+  expect(status).toBeGreaterThan(199);
+  expect(status).toBeLessThan(300);
+});
+          `,
+          filename: jestTestFile,
+        },
+        {
+          code: `
 test('normalizes a 200 status', () => {
   const status = normalize(200);
   expect(status).toBe(200);

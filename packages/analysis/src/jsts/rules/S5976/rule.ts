@@ -334,7 +334,11 @@ function reportIfIssue(
   }
 
   const parameterNodes = literalCollector.nodesToParameterize;
-  if (parameterNodes.size > MAX_PARAMETERS || test.body.length <= parameterNodes.size) {
+  if (
+    parameterNodes.size === 0 ||
+    parameterNodes.size > MAX_PARAMETERS ||
+    test.body.length <= parameterNodes.size
+  ) {
     return;
   }
 
