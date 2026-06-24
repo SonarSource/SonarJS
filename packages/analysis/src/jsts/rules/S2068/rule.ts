@@ -22,7 +22,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isLogicalExpression, isStaticTemplateLiteral, isStringLiteral } from '../helpers/ast.js';
 import { shannonEntropy } from '../helpers/entropy.js';
-import path from 'node:path';
+import { pathHasSegment } from '../helpers/files.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
@@ -31,6 +31,7 @@ const ENTROPY_THRESHOLD = 3;
 const MIN_PASSWORD_LENGTH = 5;
 const NON_CREDENTIAL_CHARS = /[\s/["'\]<>]/;
 const TEST_FILE_PATTERN = /\.(spec|test|mock)\.[jt]sx?$/;
+const L10N_SEGMENTS = new Set(['l10n']);
 
 const messages = {
   reviewPassword: 'Review this potentially hard-coded password.',
@@ -44,9 +45,7 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
-    const dir = path.dirname(filename);
-    const parts = dir.split(path.sep).map(part => part.toLowerCase());
-    if (parts.includes('l10n')) {
+    if (pathHasSegment(filename, L10N_SEGMENTS)) {
       return {};
     }
 

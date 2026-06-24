@@ -179,3 +179,9 @@ export function joinPaths(
 export function basenamePath(filePath: NormalizedPath | NormalizedAbsolutePath): string {
   return basenamePosix(filePath);
 }
+
+export function pathHasSegment(filePath: string, names: Set<string>): boolean {
+  return normalizePath(filePath)
+    .split('/')
+    .some(segment => names.has(segment.toLowerCase()));
+}

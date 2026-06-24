@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { normalizePath } from './files.js';
+import { pathHasSegment } from './files.js';
 
 const VENDOR_DIRECTORY_NAMES = new Set([
   'asset',
@@ -36,7 +36,5 @@ const VENDOR_DIRECTORY_NAMES = new Set([
  * @returns true when the path includes a vendor directory.
  */
 export function isVendorFile(filePath: string): boolean {
-  return normalizePath(filePath)
-    .split('/')
-    .some(segment => VENDOR_DIRECTORY_NAMES.has(segment.toLowerCase()));
+  return pathHasSegment(filePath, VENDOR_DIRECTORY_NAMES);
 }
