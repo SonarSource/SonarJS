@@ -1,5 +1,5 @@
 {
-  "title": "Memoized functions with multiple parameters should use an explicit cache key function",
+  "title": "Lodash and Underscore.js `memoize` calls on functions with multiple parameters should use an explicit cache key function",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
