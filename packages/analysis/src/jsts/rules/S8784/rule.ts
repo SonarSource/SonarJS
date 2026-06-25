@@ -106,13 +106,17 @@ export const rule: Rule.RuleModule = {
  * Whether `call` is a recognised test-framework construct that proves the file is
  * a test file: a Mocha-style suite (`describe`/`context`/`suite`) or test case
  * (`it`/`test`/`specify`), or any Playwright `test`/`test.describe` call. It reuses
- * `isMochaTestConstruct`, so a locally-defined `describe`/`it` does not count.
+ * `isMochaTestConstruct`, so a locally-defined `describe`/`it` does not count. The
+ * Playwright check mirrors `isPlaywrightDescribe`'s FQN-then-name resolution so the
+ * two agree (notably for the `test` extended-fixtures pattern, where the FQN does
+ * not resolve to `@playwright/test`).
  */
 function isTestStructureConstruct(context: Rule.RuleContext, call: estree.CallExpression): boolean {
   return (
     isMochaTestConstruct(context, call, SUITE_FUNCTION_NAMES) ||
     isMochaTestConstruct(context, call, TEST_FUNCTION_NAMES) ||
-    getPlaywrightTestQualifiers(context, call.callee) !== undefined
+    (getPlaywrightTestQualifiers(context, call.callee) ??
+      getPlaywrightDescribeQualifiers(call.callee)) !== undefined
   );
 }
 
