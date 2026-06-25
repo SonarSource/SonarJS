@@ -68,3 +68,31 @@ it('uses external source maps when instrumenting compiled JavaScript', async () 
     rmSync(tempDir, { recursive: true, force: true });
   }
 });
+
+it('continues instrumenting when an external source map cannot be read', async () => {
+  const tempDir = mkdtempSync(join(process.cwd(), '.nyc-esm-loader-test-'));
+
+  try {
+    const { load } = (await import(
+      pathToFileURL(join(process.cwd(), 'tools/nyc-esm-loader.js')).href
+    )) as { load: LoadHook };
+    const jsPath = join(tempDir, 'missing-map.js');
+    const compiledSource = [
+      'export function answer() {',
+      '  return 42;',
+      '}',
+      '//# sourceMappingURL=missing-map.js.map',
+    ].join('\n');
+
+    writeFileSync(jsPath, compiledSource);
+
+    const result = await load(pathToFileURL(jsPath).href, { format: 'module' }, async () => ({
+      format: 'module',
+      source: compiledSource,
+    }));
+
+    assert.match(String(result.source), /coverageData/);
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+});

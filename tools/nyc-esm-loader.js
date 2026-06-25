@@ -74,10 +74,7 @@ export async function load(url, context, nextLoad) {
   }
 
   const sourceMap = (
-    convertSourceMap.fromSource(source) ??
-    convertSourceMap.fromMapFileSource(source, sourceMapPath =>
-      readFileSync(join(dirname(filename), sourceMapPath)),
-    )
+    convertSourceMap.fromSource(source) ?? sourceMapFromFile(source, filename)
   )?.toObject();
   const instrumented = instrumenter.instrumentSync(source, filename, {
     sourceMap,
@@ -88,4 +85,14 @@ export async function load(url, context, nextLoad) {
     format: fromNext.format,
     source: instrumented,
   };
+}
+
+function sourceMapFromFile(source, filename) {
+  try {
+    return convertSourceMap.fromMapFileSource(source, sourceMapPath =>
+      readFileSync(join(dirname(filename), sourceMapPath)),
+    );
+  } catch {
+    return undefined;
+  }
 }
