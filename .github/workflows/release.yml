@@ -23,6 +23,6 @@ jobs:
     with:
       publishToBinaries: true
       mavenCentralSync: true
-      slackChannel: core-languages-releases
+      slackChannel: squad-corelang-releases
       version: ${{ inputs.version }}
       dryRun: ${{ inputs.dryRun == true }}
