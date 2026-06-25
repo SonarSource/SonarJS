@@ -273,6 +273,20 @@ _.includes('abc', pattern);
         {
           code: `
 import _ from 'lodash';
+const pattern = /a/;
+function demo() {
+  const search = pattern;
+  {
+    const pattern = search;
+    _.includes('abc', pattern);
+  }
+}
+`,
+          languageOptions: { ecmaVersion: 2016 },
+        },
+        {
+          code: `
+import _ from 'lodash';
 _.trim(name, '"');
 `,
         },
