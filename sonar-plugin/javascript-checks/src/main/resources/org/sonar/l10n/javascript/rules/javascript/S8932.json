@@ -1,0 +1,31 @@
+{
+  "title": "Memoized functions with multiple parameters should use an explicit resolver",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "lodash",
+    "underscore.js"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8932",
+  "sqKey": "S8932",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "CLEAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
