@@ -1,0 +1,14 @@
+{
+"vitest:test/cli/fixtures/fails/expect-soft.test.ts": [
+3
+],
+"vitest:test/core/test/hoisted-async-simple.test.ts": [
+21
+],
+"vitest:test/typescript/failing/fail.test-d.ts": [
+15
+],
+"vitest:test/typescript/test-d/test.test-d.ts": [
+49
+]
+}

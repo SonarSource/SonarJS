@@ -28,6 +28,7 @@ import {
 } from '../helpers/ast.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as Mocha from '../helpers/mocha.js';
+import * as Vitest from '../helpers/vitest.js';
 import {
   hasSupportedAssertionLibrary,
   isAssertion,
@@ -223,6 +224,15 @@ class TestCaseAssertionVisitor {
     }
     visitedTSNodes.set(node, false);
     if (isTSAssertion(services, node)) {
+      visitedTSNodes.set(node, true);
+      return true;
+    }
+    // Stopgap: in this type-aware path, a vitest `expect.extend(...)` (and other
+    // expect setup helpers) is a compile-time check on its typed arguments, so a
+    // typecheck test that only configures matchers should not be reported as
+    // assertion-less. Recognising typecheck-mode test files properly is a separate
+    // S2699 discussion; this keeps those type-tests quiet meanwhile.
+    if (Vitest.isTSSetupCall(services, node)) {
       visitedTSNodes.set(node, true);
       return true;
     }
