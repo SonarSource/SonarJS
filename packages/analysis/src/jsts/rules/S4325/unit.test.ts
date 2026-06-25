@@ -28,135 +28,139 @@ const ruleTester = new RuleTester();
 
 describe('S4325', () => {
   it('should not flag assertions narrowing generic function return types', () => {
-    ruleTester.run('S4325 generic return types', rule, {
-      valid: [
-        {
-          // Generic method with type parameter inferred from assertion target
-          code: `
-            interface ViewRef { destroy(): void; }
-            interface EmbeddedViewRef<C> extends ViewRef {
-              rootNodes: HTMLElement[];
-              context: C;
-            }
-            class ViewContainerRef {
-              private views: ViewRef[] = [];
-              get<T extends ViewRef>(index: number): T | null {
-                return (this.views[index] as T) ?? null;
+    assert.doesNotThrow(() => {
+      ruleTester.run('S4325 generic return types', rule, {
+        valid: [
+          {
+            // Generic method with type parameter inferred from assertion target
+            code: `
+              interface ViewRef { destroy(): void; }
+              interface EmbeddedViewRef<C> extends ViewRef {
+                rootNodes: HTMLElement[];
+                context: C;
               }
-            }
-            function measureRange(vcr: ViewContainerRef, start: number, end: number) {
-              for (let i = 0; i < end - start; i++) {
-                const view = vcr.get(i + start) as EmbeddedViewRef<unknown> | null;
-                if (view && view.rootNodes.length) {
-                  return view.rootNodes[0];
+              class ViewContainerRef {
+                private views: ViewRef[] = [];
+                get<T extends ViewRef>(index: number): T | null {
+                  return (this.views[index] as T) ?? null;
                 }
               }
-            }
-          `,
-        },
-        {
-          // Generic validate() narrowed to union type alias
-          code: `
-            interface StandardResult<Output> {
-              value?: Output;
-              issues?: { message: string }[];
-            }
-            interface StandardSchema {
-              validate<T>(value: unknown): T;
-            }
-            type ValidationResult<S> = StandardResult<S> | Promise<StandardResult<S>>;
-            function createValidator<S>(schema: StandardSchema, getValue: () => unknown) {
-              return schema.validate(getValue()) as ValidationResult<S>;
-            }
-          `,
-        },
-        {
-          // Generic cache lookup narrowed to specific type
-          code: `
-            class QueryClient {
-              private cache = new Map<string, unknown>();
-              getQueryData<T>(key: string): T | undefined {
-                return this.cache.get(key) as T | undefined;
+              function measureRange(vcr: ViewContainerRef, start: number, end: number) {
+                for (let i = 0; i < end - start; i++) {
+                  const view = vcr.get(i + start) as EmbeddedViewRef<unknown> | null;
+                  if (view && view.rootNodes.length) {
+                    return view.rootNodes[0];
+                  }
+                }
               }
-            }
-            function getUser(client: QueryClient) {
-              const user = client.getQueryData('user') as { name: string } | undefined;
-              return user;
-            }
-          `,
-        },
-        {
-          // Generic service registry lookup
-          code: `
-            const registry = new Map<string, unknown>();
-            function getService<T>(name: string): T {
-              return registry.get(name) as T;
-            }
-            const logger = getService('logger') as { log(msg: string): void };
-          `,
-        },
-        {
-          // Generic querySelector narrowing to HTMLElement
-          code: `
-            class Component {
-              private eGui: HTMLElement = document.createElement('div');
-              queryForHtmlElement(cssSelector: string): HTMLElement {
-                return this.eGui.querySelector(cssSelector) as HTMLElement;
+            `,
+          },
+          {
+            // Generic validate() narrowed to union type alias
+            code: `
+              interface StandardResult<Output> {
+                value?: Output;
+                issues?: { message: string }[];
               }
-              queryForHtmlInputElement(cssSelector: string): HTMLInputElement {
-                return this.eGui.querySelector(cssSelector) as HTMLInputElement;
+              interface StandardSchema {
+                validate<T>(value: unknown): T;
               }
-            }
-          `,
-        },
-        {
-          // Generic function with type parameter in declaration
-          code: `
-            function parseTokenNode<T extends object>(): T {
-              return {} as T;
-            }
-            type EndOfFileToken = { kind: 'eof' };
-            const token = parseTokenNode() as EndOfFileToken;
-          `,
-        },
-        {
-          // querySelector()! as HTMLElement — `as` drives generic inference; `!` strips null
-          code: `
-            function getSubmitButton(form: Element): HTMLElement {
-              return form.querySelector('button[type="submit"]')! as HTMLElement;
-            }
-          `,
-        },
-        {
-          // Same pattern with a more specific DOM element type
-          code: `
-            function getFirstLink(container: Element): HTMLAnchorElement {
-              return container.querySelector('a')! as HTMLAnchorElement;
-            }
-          `,
-        },
-      ],
-      invalid: [],
+              type ValidationResult<S> = StandardResult<S> | Promise<StandardResult<S>>;
+              function createValidator<S>(schema: StandardSchema, getValue: () => unknown) {
+                return schema.validate(getValue()) as ValidationResult<S>;
+              }
+            `,
+          },
+          {
+            // Generic cache lookup narrowed to specific type
+            code: `
+              class QueryClient {
+                private cache = new Map<string, unknown>();
+                getQueryData<T>(key: string): T | undefined {
+                  return this.cache.get(key) as T | undefined;
+                }
+              }
+              function getUser(client: QueryClient) {
+                const user = client.getQueryData('user') as { name: string } | undefined;
+                return user;
+              }
+            `,
+          },
+          {
+            // Generic service registry lookup
+            code: `
+              const registry = new Map<string, unknown>();
+              function getService<T>(name: string): T {
+                return registry.get(name) as T;
+              }
+              const logger = getService('logger') as { log(msg: string): void };
+            `,
+          },
+          {
+            // Generic querySelector narrowing to HTMLElement
+            code: `
+              class Component {
+                private eGui: HTMLElement = document.createElement('div');
+                queryForHtmlElement(cssSelector: string): HTMLElement {
+                  return this.eGui.querySelector(cssSelector) as HTMLElement;
+                }
+                queryForHtmlInputElement(cssSelector: string): HTMLInputElement {
+                  return this.eGui.querySelector(cssSelector) as HTMLInputElement;
+                }
+              }
+            `,
+          },
+          {
+            // Generic function with type parameter in declaration
+            code: `
+              function parseTokenNode<T extends object>(): T {
+                return {} as T;
+              }
+              type EndOfFileToken = { kind: 'eof' };
+              const token = parseTokenNode() as EndOfFileToken;
+            `,
+          },
+          {
+            // querySelector()! as HTMLElement — `as` drives generic inference; `!` strips null
+            code: `
+              function getSubmitButton(form: Element): HTMLElement {
+                return form.querySelector('button[type="submit"]')! as HTMLElement;
+              }
+            `,
+          },
+          {
+            // Same pattern with a more specific DOM element type
+            code: `
+              function getFirstLink(container: Element): HTMLAnchorElement {
+                return container.querySelector('a')! as HTMLAnchorElement;
+              }
+            `,
+          },
+        ],
+        invalid: [],
+      });
     });
   });
 
   it('should not flag type assertions to any or unknown', () => {
-    ruleTester.run('S4325 any/unknown casts', rule, {
-      valid: [
-        {
-          code: `
-            const value: number = 42;
-            const asAny = value as any;
-          `,
-        },
-        {
-          code: `
-            const value: number = 42;
-            const asUnknown = value as unknown;
-          `,
-        },
-      ],
-      invalid: [],
+    assert.doesNotThrow(() => {
+      ruleTester.run('S4325 any/unknown casts', rule, {
+        valid: [
+          {
+            code: `
+              const value: number = 42;
+              const asAny = value as any;
+            `,
+          },
+          {
+            code: `
+              const value: number = 42;
+              const asUnknown = value as unknown;
+            `,
+          },
+        ],
+        invalid: [],
+      });
     });
   });
 
@@ -301,6 +305,7 @@ describe('S4325', () => {
         },
       ],
     });
+    assert.ok(true);
   });
 
   it('should flag non-generic function call assertions', () => {
@@ -322,6 +327,7 @@ describe('S4325', () => {
         },
       ],
     });
+    assert.ok(true);
   });
 
   it('should pass through report descriptor without a node', () => {

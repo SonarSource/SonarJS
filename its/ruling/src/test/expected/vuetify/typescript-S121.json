@@ -429,12 +429,6 @@
 "vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
 82
 ],
-"vuetify:packages/vuetify/src/composables/__tests__/display.spec.ts": [
-269
-],
-"vuetify:packages/vuetify/src/composables/__tests__/filter.spec.ts": [
-137
-],
 "vuetify:packages/vuetify/src/composables/defaults.ts": [
 25,
 48
@@ -581,16 +575,6 @@
 126,
 136,
 167
-],
-"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside-shadow-dom.spec.ts": [
-33,
-34,
-38,
-39
-],
-"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside.spec.ts": [
-24,
-25
 ],
 "vuetify:packages/vuetify/src/directives/click-outside/index.ts": [
 23,

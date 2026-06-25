@@ -130,7 +130,7 @@ export const rule: Rule.RuleModule = {
       }
       // Also handle bare statement branches where ExpressionStatement IS the branch body
       // (e.g. `if (x) doSomething()` — no BlockStatement is pushed for such a branch)
-      const exprStmt = (node as TSESTree.Node).parent as TSESTree.Node | undefined;
+      const exprStmt = (node as TSESTree.Node).parent;
       if (exprStmt && isBranchBody(exprStmt)) {
         ctx.hasSideEffectOnlyBranch = true;
       }

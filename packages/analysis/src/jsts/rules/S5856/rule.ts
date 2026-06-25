@@ -79,7 +79,7 @@ function getFlags(node: estree.CallExpression): string | null {
   }
 
   if (isStringLiteral(node.arguments[1])) {
-    return node.arguments[1].value as string;
+    return node.arguments[1].value;
   }
 
   return null;
@@ -110,7 +110,7 @@ function isRegExpConstructor(call: estree.CallExpression) {
 
 function getPattern(call: estree.CallExpression): string | null {
   if (isStringLiteral(call.arguments[0])) {
-    return call.arguments[0].value as string;
+    return call.arguments[0].value;
   }
   return null;
 }

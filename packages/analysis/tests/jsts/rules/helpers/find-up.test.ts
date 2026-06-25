@@ -64,10 +64,10 @@ describe('findUp', () => {
 
     for (const entries of [abcEntries, abcEntries2, abcEntries3, abcEntries4]) {
       equal(entries.length, 2);
-      equal(entries[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
-      equal(entries[0].content.toString(), '/a/b/c/foo.bar content');
-      equal(entries[1].path, joinPaths(ROOT, 'a', 'foo.bar'));
-      equal(entries[1].content.toString(), '/a/foo.bar content');
+      equal(entries[0].filePath, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
+      equal(entries[0].fileContent, '/a/b/c/foo.bar content');
+      equal(entries[1].filePath, joinPaths(ROOT, 'a', 'foo.bar'));
+      equal(entries[1].fileContent, '/a/foo.bar content');
     }
 
     equal(filesystemReadFileSpy.mock.calls.length, 2);
@@ -100,14 +100,14 @@ describe('findUp', () => {
       .get(joinPaths(ROOT, 'a', 'b', 'c'));
 
     equal(entriesUpToRoot.length, 3);
-    equal(entriesUpToRoot[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
-    equal(entriesUpToRoot[1].path, joinPaths(ROOT, 'a', 'foo.bar'));
-    equal(entriesUpToRoot[2].path, joinPaths(ROOT, 'foo.bar'));
+    equal(entriesUpToRoot[0].filePath, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
+    equal(entriesUpToRoot[1].filePath, joinPaths(ROOT, 'a', 'foo.bar'));
+    equal(entriesUpToRoot[2].filePath, joinPaths(ROOT, 'foo.bar'));
     equal(entriesUpToA.length, 2);
-    equal(entriesUpToA[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
-    equal(entriesUpToA[1].path, joinPaths(ROOT, 'a', 'foo.bar'));
+    equal(entriesUpToA[0].filePath, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
+    equal(entriesUpToA[1].filePath, joinPaths(ROOT, 'a', 'foo.bar'));
     equal(entriesUpToAB.length, 1);
-    equal(entriesUpToAB[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
+    equal(entriesUpToAB[0].filePath, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
   });
 
   it('honors the glob pattern', () => {
@@ -131,14 +131,14 @@ describe('findUp', () => {
       .get(joinPaths(ROOT, 'a', 'b', 'c'));
 
     equal(entriesUpToRoot.length, 3);
-    equal(entriesUpToRoot[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
-    equal(entriesUpToRoot[1].path, joinPaths(ROOT, 'a', 'foo.x.bar'));
-    equal(entriesUpToRoot[2].path, joinPaths(ROOT, 'foo.y.bar'));
+    equal(entriesUpToRoot[0].filePath, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
+    equal(entriesUpToRoot[1].filePath, joinPaths(ROOT, 'a', 'foo.x.bar'));
+    equal(entriesUpToRoot[2].filePath, joinPaths(ROOT, 'foo.y.bar'));
     equal(entriesUpToA.length, 2);
-    equal(entriesUpToA[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
-    equal(entriesUpToA[1].path, joinPaths(ROOT, 'a', 'foo.x.bar'));
+    equal(entriesUpToA[0].filePath, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
+    equal(entriesUpToA[1].filePath, joinPaths(ROOT, 'a', 'foo.x.bar'));
     equal(entriesUpToAB.length, 1);
-    equal(entriesUpToAB[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
+    equal(entriesUpToAB[0].filePath, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
   });
 
   it('patternInParentsCache throws when from is outside topDir', () => {

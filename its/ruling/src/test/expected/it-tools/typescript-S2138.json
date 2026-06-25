@@ -2,9 +2,6 @@
 "it-tools:src/composable/computed/catchedComputed.ts": [
 12
 ],
-"it-tools:src/composable/downloadBase64.test.ts": [
-29
-],
 "it-tools:src/composable/downloadBase64.ts": [
 28
 ],
@@ -12,13 +9,6 @@
 48,
 51,
 60
-],
-"it-tools:src/tools/json-diff/json-diff.models.test.ts": [
-33,
-70
-],
-"it-tools:src/tools/json-to-csv/json-to-csv.service.test.ts": [
-56
 ],
 "it-tools:src/ui/c-alert/c-alert.vue": [
 4

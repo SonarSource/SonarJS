@@ -15,45 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { rules as unicornRules } from '../external/unicorn.js';
 import {
   NoTypeCheckingRuleTester,
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
-// Sentinel: verify that the upstream unicorn rule still raises on the Zod .catch() patterns our
-// decorator suppresses. If this test starts failing, it signals that the decorator can be removed.
-describe('S7785 upstream sentinel', () => {
-  it('upstream prefer-top-level-await raises on Zod .catch() pattern that decorator suppresses', () => {
-    const sentinelTester = new NoTypeCheckingRuleTester();
-    sentinelTester.run('prefer-top-level-await', unicornRules['prefer-top-level-await'], {
-      valid: [],
-      invalid: [
-        {
-          // Zod string schema .catch() — suppressed by decorator, raised by upstream
-          code: `import { z } from 'zod';
-                 const nameSchema = z.string().optional().catch('');`,
-          errors: [{ messageId: 'promise' }],
-        },
-      ],
-    });
-  });
-});
-
 describe('S7785', () => {
-  it('should skip CommonJS files (sourceType: script)', () => {
-    const cjsRuleTester = new NoTypeCheckingRuleTester({ sourceType: 'script' });
-    cjsRuleTester.run('S7785', rule, {
-      valid: [
-        {
-          code: `(async () => { await fetch('https://example.com'); })();`,
-        },
-      ],
-      invalid: [],
-    });
-  });
-
   it('should report in ES modules (sourceType: module)', () => {
     const esmRuleTester = new NoTypeCheckingRuleTester();
     esmRuleTester.run('S7785', rule, {
@@ -71,12 +39,12 @@ describe('S7785', () => {
     });
   });
 
-  it('should suppress .catch() on Zod schema objects imported from zod (no type-checker mode)', () => {
+  it('should rely on upstream no-typechecker handling for Zod schema objects', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('S7785', rule, {
       valid: [
         {
-          // Compliant: Zod string schema .catch()
+          // Compliant: Zod string schema .catch() via upstream Unicorn heuristic
           code: `import { z } from 'zod';
                  const nameSchema = z.string().optional().catch('');`,
         },
@@ -112,9 +80,9 @@ describe('S7785', () => {
           errors: [{ messageId: 'promise' }],
         },
         {
-          // Non-compliant: import not from 'zod'
-          code: `import { schema } from 'my-internal-lib';
-                 schema.catch(console.error);`,
+          // Non-compliant: import not from 'zod' and not using a schema-like identifier name
+          code: `import { validator } from 'my-internal-lib';
+                 validator.catch(console.error);`,
           errors: [{ messageId: 'promise' }],
         },
         {

@@ -1,0 +1,28 @@
+{
+  "title": "An+B selectors should be matchable",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-8774",
+  "sqKey": "S8774",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

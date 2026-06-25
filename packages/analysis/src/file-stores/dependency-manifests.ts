@@ -14,8 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { readFile } from 'node:fs/promises';
-import { warn, debug } from '../../../shared/src/helpers/logging.js';
+import { debug } from '../../../shared/src/helpers/logging.js';
 import type { FileStore } from './store-type.js';
 import {
   type File,
@@ -32,6 +31,8 @@ import {
   type PreloadableDependencyManifestName,
   isPreloadableDependencyManifestPath,
 } from '../jsts/rules/helpers/dependency-manifests/index.js';
+import { getProjectFileDiscoveryConfigKey } from '../common/configuration.js';
+import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export const UNINITIALIZED_ERROR =
   'dependency manifest cache has not been initialized. Call loadFiles() first.';
@@ -50,12 +51,14 @@ function createManifestFilesByName(): ManifestFilesByName {
 export class DependencyManifestStore implements FileStore {
   private readonly manifestsByName = createManifestFilesByName();
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
+  private canAccessFileSystem: boolean | undefined = undefined;
+  private projectFileDiscoveryConfigKey: string | undefined = undefined;
   private readonly dirnameToParent: Map<
     NormalizedAbsolutePath,
     NormalizedAbsolutePath | undefined
   > = new Map();
 
-  async isInitialized(configuration: Configuration) {
+  async isInitialized(configuration: Configuration, _inputFiles?: AnalyzableFiles) {
     this.dirtyCachesIfNeeded(configuration);
     return this.baseDir !== undefined;
   }
@@ -68,8 +71,12 @@ export class DependencyManifestStore implements FileStore {
   }
 
   dirtyCachesIfNeeded(configuration: Configuration) {
-    const { baseDir, fsEvents } = configuration;
-    if (baseDir !== this.baseDir) {
+    const { baseDir, canAccessFileSystem, fsEvents } = configuration;
+    if (
+      baseDir !== this.baseDir ||
+      canAccessFileSystem !== this.canAccessFileSystem ||
+      getProjectFileDiscoveryConfigKey(configuration) !== this.projectFileDiscoveryConfigKey
+    ) {
       this.clearCache();
       return;
     }
@@ -83,6 +90,8 @@ export class DependencyManifestStore implements FileStore {
 
   clearCache() {
     this.baseDir = undefined;
+    this.canAccessFileSystem = undefined;
+    this.projectFileDiscoveryConfigKey = undefined;
     for (const manifestFiles of Object.values(this.manifestsByName)) {
       manifestFiles.clear();
     }
@@ -93,33 +102,28 @@ export class DependencyManifestStore implements FileStore {
 
   setup(configuration: Configuration) {
     this.baseDir = configuration.baseDir;
+    this.canAccessFileSystem = configuration.canAccessFileSystem;
+    this.projectFileDiscoveryConfigKey = getProjectFileDiscoveryConfigKey(configuration);
     this.dirnameToParent.set(configuration.baseDir, undefined);
   }
 
-  async processFile(filename: NormalizedAbsolutePath) {
+  wantsFile(filename: NormalizedAbsolutePath, _configuration: Configuration) {
+    return isPreloadableDependencyManifestPath(filename) ? 'content' : false;
+  }
+
+  async processFile(filename: NormalizedAbsolutePath, _configuration: Configuration, file?: File) {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    if (!isPreloadableDependencyManifestPath(filename)) {
-      return;
-    }
-    try {
-      const content = await readFile(filename, 'utf-8');
-      const file = { content, path: filename };
-      const manifestName = getPreloadableDependencyManifestName(filename);
-      if (manifestName) {
-        this.manifestsByName[manifestName].set(dirnamePath(filename), file);
-      }
-    } catch (e) {
-      warn(`Error reading dependency manifest ${filename}: ${e}`);
-    }
+    const manifestName = getPreloadableDependencyManifestName(filename)!;
+    this.manifestsByName[manifestName].set(dirnamePath(filename), file!);
   }
 
   processDirectory(dir: NormalizedAbsolutePath) {
     this.dirnameToParent.set(dir, dirnamePath(dir));
   }
 
-  async postProcess() {
+  async postProcess(_configuration: Configuration) {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }

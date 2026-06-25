@@ -1,0 +1,37 @@
+{
+  "title": "The return value of \"useState\" should be destructured and named symmetrically",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react",
+    "editable-source"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "react"
+    ]
+  },
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6754",
+  "sqKey": "S6754",
+  "scope": "Main",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "IDENTIFIABLE"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

@@ -20,6 +20,10 @@ import type { ProjectAnalysisTelemetry } from '../../analysis/src/telemetry.js';
 import type { WsIncrementalResult } from '../../analysis/src/incremental-result.js';
 import type { AnalyzeProjectPathMap } from './analyze-project-request.js';
 import type {
+  SonarResolveComment as InternalSonarResolveComment,
+  SuppressedIssue,
+} from '../../analysis/src/contracts/analysis.js';
+import type {
   ParsingError as InternalParsingError,
   ParsingErrorLanguage,
 } from '../../analysis/src/contracts/project-analysis.js';
@@ -119,6 +123,11 @@ function toProjectAnalysisFileResult(
   return {
     parsingErrors: (result.parsingErrors ?? []).map(toParsingError),
     issues: result.issues.map(issue => toIssue(issue, pathMap)),
+    ...(result.suppressedIssues?.length
+      ? {
+          suppressedIssues: result.suppressedIssues.map(issue => toSuppressedIssue(issue, pathMap)),
+        }
+      : {}),
     highlights: ('highlights' in result ? result.highlights : undefined)?.map(toHighlight) ?? [],
     highlightedSymbols:
       ('highlightedSymbols' in result ? result.highlightedSymbols : undefined)?.map(
@@ -127,6 +136,7 @@ function toProjectAnalysisFileResult(
     metrics: result.metrics ? toMetrics(result.metrics) : undefined,
     cpdTokens: ('cpdTokens' in result ? result.cpdTokens : undefined)?.map(toCpdToken) ?? [],
     ast: 'ast' in result && result.ast != null ? Buffer.from(result.ast, 'base64') : undefined,
+    sonarResolveComments: (result.sonarResolveComments ?? []).map(toSonarResolveComment),
   };
 }
 
@@ -154,6 +164,22 @@ function toTelemetry(
     esmFileCount: telemetry.esmFileCount,
     cjsFileCount: telemetry.cjsFileCount,
     denoImportCounts: telemetry.denoImportCounts,
+    generatedSources: toGeneratedSourcesTelemetry(telemetry.generatedSources),
+  };
+}
+
+function toGeneratedSourcesTelemetry(
+  telemetry: ProjectAnalysisTelemetry['generatedSources'],
+): sonarjs.analyzeproject.v1.IGeneratedSourcesTelemetry {
+  return {
+    familyCount: telemetry.familyCount,
+    resolvedFileCount: telemetry.resolvedFileCount,
+    taggedFileCount: telemetry.taggedFileCount,
+    families: telemetry.families.map(family => ({
+      family: family.family,
+      resolvedFileCount: family.resolvedFileCount,
+      taggedFileCount: family.taggedFileCount,
+    })),
   };
 }
 
@@ -185,6 +211,16 @@ function toIssue(
     quickFixes: 'quickFixes' in issue ? (issue.quickFixes ?? []).map(toQuickFix) : [],
     ruleEslintKeys: 'ruleESLintKeys' in issue ? [...issue.ruleESLintKeys] : [],
     filePath: 'filePath' in issue ? restorePath(issue.filePath, pathMap) : undefined,
+  };
+}
+
+function toSuppressedIssue(
+  issue: SuppressedIssue<JsTsIssue>,
+  pathMap: AnalyzeProjectPathMap,
+): sonarjs.analyzeproject.v1.IIssue {
+  return {
+    ...toIssue(issue, pathMap),
+    resolutionComment: issue.resolutionComment,
   };
 }
 
@@ -246,6 +282,15 @@ function toCpdToken(cpdToken: InternalCpdToken): sonarjs.analyzeproject.v1.ICpdT
   return {
     location: toLocation(cpdToken.location),
     image: cpdToken.image,
+  };
+}
+
+function toSonarResolveComment(
+  comment: InternalSonarResolveComment,
+): sonarjs.analyzeproject.v1.ISonarResolveComment {
+  return {
+    line: comment.line,
+    text: comment.text,
   };
 }
 

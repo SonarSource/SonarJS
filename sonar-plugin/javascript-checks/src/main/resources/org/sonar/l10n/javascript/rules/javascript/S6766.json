@@ -1,0 +1,36 @@
+{
+  "title": "JSX special characters should be escaped",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react",
+    "jsx"
+  ],
+  "extra": {
+    "requiredDependency": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6766",
+  "sqKey": "S6766",
+  "scope": "Main",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW",
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

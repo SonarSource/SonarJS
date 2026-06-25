@@ -1,0 +1,35 @@
+{
+  "title": "Regular expression literals should be used when possible",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CLEAR"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "regex",
+    "editable-source"
+  ],
+  "extra": {
+    "replacementRules": []
+  },
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6325",
+  "sqKey": "S6325",
+  "scope": "Main",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

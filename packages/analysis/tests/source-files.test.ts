@@ -19,7 +19,12 @@ import { expect } from 'expect';
 import { join } from 'node:path/posix';
 import { initFileStores, sourceFileStore } from '../src/file-stores/index.js';
 import { createConfiguration } from '../src/common/configuration.js';
-import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { sanitizeRawInputFiles } from '../src/common/input-sanitize.js';
+import {
+  normalizePath,
+  normalizeToAbsolutePath,
+  type File,
+} from '../../shared/src/helpers/files.js';
 import { UNINITIALIZED_ERROR } from '../src/file-stores/source-files.js';
 
 const fixtures = join(import.meta.dirname, 'fixtures-source-files');
@@ -55,6 +60,61 @@ describe('files', () => {
       [file2]: {
         fileType: 'TEST',
       },
+    });
+  });
+
+  it('should rebuild the directory index from input files on each analysis', async () => {
+    const baseDir = normalizeToAbsolutePath('/project');
+    const configuration = createConfiguration({ baseDir, canAccessFileSystem: false });
+
+    const { files: firstInputFiles } = await sanitizeRawInputFiles(
+      {
+        first: {
+          filePath: '/project/src/first.ts',
+          fileContent: 'export const first = true;\n',
+        },
+      },
+      configuration,
+    );
+    await sourceFileStore.isInitialized(configuration, firstInputFiles);
+    expect([
+      ...sourceFileStore.getFilesInDirectory(normalizeToAbsolutePath('/project/src'))!,
+    ]).toEqual(['first.ts']);
+
+    const { files: secondInputFiles } = await sanitizeRawInputFiles(
+      {
+        second: {
+          filePath: '/project/src/second.ts',
+          fileContent: 'export const second = true;\n',
+        },
+      },
+      configuration,
+    );
+    await sourceFileStore.isInitialized(configuration, secondInputFiles);
+
+    expect([
+      ...sourceFileStore.getFilesInDirectory(normalizeToAbsolutePath('/project/src'))!,
+    ]).toEqual(['second.ts']);
+  });
+
+  it('should promote shared walk files without allocating a wrapper', async () => {
+    const baseDir = normalizeToAbsolutePath('/project');
+    const configuration = createConfiguration({ baseDir });
+    const file: File = {
+      filePath: normalizeToAbsolutePath('/project/src/app.js'),
+      fileContent: 'console.log("shared");\n',
+    };
+
+    sourceFileStore.setup(configuration);
+    await sourceFileStore.processFile(file.filePath, configuration, file);
+
+    const storedFile = sourceFileStore.getFiles()[file.filePath];
+    expect(storedFile).toBe(file);
+    expect(storedFile).toMatchObject({
+      filePath: file.filePath,
+      fileContent: file.fileContent,
+      fileType: 'MAIN',
+      fileStatus: 'SAME',
     });
   });
 });

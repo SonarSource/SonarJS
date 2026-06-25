@@ -28,12 +28,6 @@
 65,
 129
 ],
-"vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx": [
-38,
-41,
-44,
-47
-],
 "vuetify:packages/vuetify/src/components/VCard/VCard.tsx": [
 107
 ],
@@ -47,16 +41,9 @@
 67,
 133
 ],
-"vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.cy.tsx": [
-299
-],
 "vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
 65,
 102
-],
-"vuetify:packages/vuetify/src/components/VFileInput/__tests__/VFileInput.spec.tsx": [
-27,
-63
 ],
 "vuetify:packages/vuetify/src/components/VIcon/VIcon.tsx": [
 42
@@ -96,9 +83,6 @@
 77,
 132
 ],
-"vuetify:packages/vuetify/src/components/VSelect/__tests__/VSelect.spec.cy.tsx": [
-135
-],
 "vuetify:packages/vuetify/src/components/VSelectionControl/VSelectionControl.tsx": [
 63
 ],
@@ -108,17 +92,9 @@
 "vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
 92
 ],
-"vuetify:packages/vuetify/src/components/VTextField/__tests__/VTextField.spec.tsx": [
-27,
-63
-],
 "vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
 91,
 161
-],
-"vuetify:packages/vuetify/src/components/VTextarea/__tests__/VTextarea.spec.tsx": [
-27,
-63
 ],
 "vuetify:packages/vuetify/src/components/VToolbar/VToolbar.tsx": [
 96
@@ -184,28 +160,6 @@
 49,
 86
 ],
-"vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
-30
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/sort.spec.ts": [
-18,
-28,
-38,
-48,
-58,
-68,
-82,
-96,
-116,
-126,
-136,
-146,
-156,
-166,
-176,
-186,
-196
-],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
 32
 ],
@@ -217,20 +171,6 @@
 ],
 "vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScroll.tsx": [
 75
-],
-"vuetify:packages/vuetify/src/util/__tests__/colorUtils.spec.ts": [
-115,
-118,
-121
-],
-"vuetify:packages/vuetify/src/util/__tests__/getCurrentInstance.spec.tsx": [
-11,
-21
-],
-"vuetify:packages/vuetify/src/util/__tests__/propsFactory.spec.ts": [
-19,
-20,
-32
 ],
 "vuetify:packages/vuetify/src/util/animation.ts": [
 42

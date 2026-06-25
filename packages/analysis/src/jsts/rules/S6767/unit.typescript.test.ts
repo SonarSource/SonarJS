@@ -34,7 +34,7 @@ describe('S6767 TypeScript coverage', () => {
       valid: [
         {
           // FP: TypeScript function component with props delegation — Strategy C finds
-          // the component and hasPropsCall suppresses the report.
+          // the component and recognizes the whole props object as used.
           code: `
 declare const React: any;
 interface CardProps {
@@ -49,7 +49,7 @@ function Card(props: CardProps) {
         },
         {
           // FP: TypeScript class component with this.props delegation — Strategy C
-          // matches BarProps to Bar via matchesClassProps, hasPropsCall finds getStyle(this.props).
+          // matches BarProps to Bar via matchesClassProps and recognizes getStyle(this.props).
           code: `
 declare const React: any;
 interface BarProps {
@@ -65,8 +65,32 @@ class Bar extends React.Component<BarProps> {
           filename: fixtureFile,
         },
         {
+          // FP: TypeScript class constructor forwards the real props object to a helper.
+          code: `
+declare const React: any;
+interface DialogProps {
+  showCoAuthoredBy: boolean;
+  coAuthors: string[];
+}
+declare function createState(props: DialogProps): {
+  showCoAuthoredBy: boolean;
+  coAuthors: string[];
+};
+class CommitMessageDialog extends React.Component<DialogProps, ReturnType<typeof createState>> {
+  constructor(props: DialogProps) {
+    super(props);
+    this.state = createState(props);
+  }
+  render() {
+    return <div />;
+  }
+}
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: TypeScript function component spreads props — Strategy C matches
-          // MyComponentProps to MyComponent, hasPropsCall finds the SpreadElement.
+          // MyComponentProps to MyComponent and recognizes the SpreadElement.
           code: `
 declare const React: any;
 interface MyComponentProps {
@@ -81,7 +105,7 @@ function MyComponent(props: MyComponentProps) {
         },
         {
           // FP: TypeScript class component with this.props[key] — Strategy C matches
-          // VictoryAxisProps to VictoryAxis via matchesClassProps, hasPropsCall finds computed MemberExpression.
+          // VictoryAxisProps to VictoryAxis via matchesClassProps and recognizes computed member access.
           code: `
 declare const React: any;
 interface VictoryAxisProps {
@@ -168,8 +192,25 @@ class ForwardedCounterPanel extends CounterPanelBase {
           filename: fixtureFile,
         },
         {
+          // FP: wrapped callbacks still resolve through the owning variable, so the
+          // forwardRef closure escape continues to suppress WrappedProps.label.
+          code: `
+declare const React: any;
+interface WrappedProps {
+  label: string;
+}
+const Wrapped = React.memo(function (props: WrappedProps) {
+  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
+    <label ref={ref}>{props.label}</label>
+  ));
+  return <ForwardedInput />;
+});
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: whole props are only forwarded to the custom superclass, never accessed locally.
-          // This isolates hasOwnCustomSuperclassPropsForwarding from hasPropsCall.
+          // This isolates hasOwnCustomSuperclassPropsForwarding from other whole-props escapes.
           code: `
 declare const React: any;
 interface ForwardedOnlyProps {
@@ -185,6 +226,47 @@ class ForwardedOnlyPanel extends CounterPanelBase {
     return <span>ready</span>;
   }
 }
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: decorator-factory callback reads typed component props.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorFactoryProps {
+  contextModule: string;
+  userId: string;
+}
+function DecoratorFactoryComponent(props: DecoratorFactoryProps) {
+  return <div />;
+}
+track((props: DecoratorFactoryProps) => ({
+  context_module: props.contextModule,
+  user_id: props.userId,
+}))(DecoratorFactoryComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: decorator-factory callback forwards typed props to a helper.
+          code: `
+declare const React: any;
+declare function buildPayload<P>(props: P): Record<string, unknown>;
+declare function screenTrack<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorHelperProps {
+  screenName: string;
+}
+function DecoratorHelperComponent(props: DecoratorHelperProps) {
+  return <main />;
+}
+screenTrack(function (props: DecoratorHelperProps) {
+  return buildPayload(props);
+})(DecoratorHelperComponent);
 `,
           filename: fixtureFile,
         },
@@ -291,6 +373,214 @@ class DerivedForwarder extends CustomIntermediateBase {
 `,
           filename: fixtureFile,
           errors: 1,
+        },
+        {
+          // TP: a shared base props declaration can belong to multiple components.
+          // The wrapper forwards whole props to the child, but the child still leaves
+          // the inherited prop unused, so the report must remain.
+          code: `
+import * as React from 'react';
+interface SharedProps {
+  relay: string;
+}
+interface ChildProps extends SharedProps {
+  title: string;
+}
+const SavedSearchesList: React.FC<ChildProps> = props => {
+  const { title } = props;
+  return <div>{title}</div>;
+};
+const SavedSearchesListWrapper: React.FC<SharedProps> = props => {
+  const { relay } = props;
+  return <div data-id={relay}><SavedSearchesList {...props} title="x" /></div>;
+};
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: an exact shared props contract can belong to both a destructuring React.FC
+          // and a class component that forwards whole props. The issue must remain until
+          // every owner proves the prop is consumed through an FP remediation pattern.
+          code: `
+import * as React from 'react';
+interface PageWrapperProps {
+  moduleName: string;
+  viewProps: { isVisible: boolean };
+}
+const InnerPageWrapper: React.FC<PageWrapperProps> = ({ viewProps }) => {
+  return <div>{String(viewProps.isVisible)}</div>;
+};
+class PageWrapper extends React.Component<PageWrapperProps> {
+  componentDidUpdate() {
+    if (this.props.moduleName === 'Map') {
+      return;
+    }
+  }
+  render() {
+    return <InnerPageWrapper {...this.props} />;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should not report anonymous default-export component props used via forwardRef closure', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // Regression: anonymous default-export components still own typed props
+          // even though their component identifier is attached later in analysis.
+          code: `
+declare const React: any;
+interface Props {
+  label: string;
+}
+export default function (props: Props) {
+  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
+    <label ref={ref}>{props.label}</label>
+  ));
+  return <ForwardedInput />;
+}
+`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should report props when a decorator target only matches a shadowed local binding', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [],
+      invalid: [
+        {
+          // Regression: the decorator callback matches the component props type,
+          // but the applied target is a nested shadowing binding, not the component.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface Props {
+  label: string;
+  userId: string;
+}
+function Comp(props: Props) {
+  {
+    const Comp = 0;
+    track((decoratedProps: Props) => ({
+      user_id: decoratedProps.userId,
+    }))(Comp);
+  }
+  return <div>{props.label}</div>;
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should not report narrow local aliases in typed decorator callbacks', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          code: `
+declare const React: any;
+declare function buildPayload<P>(props: P): Record<string, unknown>;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorAliasProps {
+  screenName: string;
+}
+function DecoratorAliasComponent(props: DecoratorAliasProps) {
+  return <main />;
+}
+track((props: DecoratorAliasProps) => {
+  const forwarded = props;
+  return buildPayload(forwarded);
+})(DecoratorAliasComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorNamedPropProps {
+  screenName: string;
+}
+function DecoratorNamedPropComponent(props: DecoratorNamedPropProps) {
+  return <main />;
+}
+track((props: DecoratorNamedPropProps) => {
+  const { screenName } = props;
+  return { screen_name: screenName };
+})(DecoratorNamedPropComponent);
+`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorShadowedProps {
+  screenName: string;
+}
+function DecoratorShadowedComponent(props: DecoratorShadowedProps) {
+  return <main />;
+}
+track((props: DecoratorShadowedProps) => {
+  const { screenName } = props;
+  const value = (() => {
+    const screenName = 'shadowed';
+    return screenName;
+  })();
+  return { screen_name: value };
+})(DecoratorShadowedComponent);
+`,
+          filename: fixtureFile,
+          errors: [{ message: "'screenName' PropType is defined but prop is never used" }],
         },
       ],
     });

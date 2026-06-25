@@ -55,7 +55,7 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
     // key={bar}
     context.report({
       messageId: 'noGeneratedKeys',
-      node: node as estree.Node,
+      node,
     });
     return;
   }
@@ -65,7 +65,7 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
     if (node.expressions.some(isGeneratedExpression)) {
       context.report({
         messageId: 'noGeneratedKeys',
-        node: node as estree.Node,
+        node,
       });
     }
 
@@ -81,7 +81,7 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
     if (callExpressions.some(isGeneratedExpression)) {
       context.report({
         messageId: 'noGeneratedKeys',
-        node: node as estree.Node,
+        node,
       });
     }
 
@@ -99,7 +99,7 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
     // key={bar.toString()}
     context.report({
       messageId: 'noGeneratedKeys',
-      node: node as estree.Node,
+      node,
     });
     return;
   }
@@ -115,7 +115,7 @@ function checkPropValue(context: Rule.RuleContext, node: TSESTree.Node) {
     // key={String(bar)}
     context.report({
       messageId: 'noGeneratedKeys',
-      node: node.arguments[0] as estree.Node,
+      node: node.arguments[0],
     });
   }
 }

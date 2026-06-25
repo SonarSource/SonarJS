@@ -21,6 +21,14 @@ import { describe, it } from 'node:test';
 describe('S5868', () => {
   it('S5868', () => {
     const ruleTester = new DefaultParserRuleTester();
+    const ecma2015 = 2015;
+    const literalSuggestionStart = 12;
+    const literalSuggestionEnd = 13;
+    const quotedConstructorSuggestionStart = 24;
+    const quotedConstructorSuggestionEnd = 25;
+    const templateConstructorSuggestionStart = 20;
+    const templateConstructorSuggestionEnd = 26;
+    const rawConstructorSuggestionEnd = 36;
 
     const combiningClass = c =>
       `Move this Unicode combined character '${c}' outside of the character class`;
@@ -59,6 +67,10 @@ describe('S5868', () => {
 
         { code: String.raw`var r = /[x\S]/u` },
         { code: 'var r = /[xa-z]/u' },
+        { code: String.raw`var r = /[\u0BE6-\u0BEF\u0C01-\u0C03]/` },
+        { code: String.raw`var r = /[\u0BE6-\u0BEF\u0C01-\u0C03]/u` },
+        { code: String.raw`var r = /[\u00F8-\u02B8\u0300-\u0590]/` },
+        { code: String.raw`var r = /[\u00F8-\u02B8\u0300]/` },
 
         { code: String.raw`var r = /[\u{1F3FB}]/u` },
         { code: 'var r = /[\u{1F3FB}]/u' },
@@ -68,6 +80,40 @@ describe('S5868', () => {
 
         { code: String.raw`var r = /[\u200D]/` },
         { code: String.raw`var r = /[\u200D]/u` },
+
+        {
+          code: String.raw`const part1 = '\u00BA', part2 = '\u0300', r = new RegExp('[' + part1 + part2 + ']')`,
+        },
+        {
+          code: String.raw`const rangeA = '\u00C0-\u00D6', rangeB = '\u0300-\u036F', r = new RegExp('[' + rangeA + rangeB + ']')`,
+        },
+        {
+          code: String.raw`const ranges = '\u0BE6-\u0BEF\u0C01-\u0C03', r = new RegExp('[' + ranges + ']')`,
+        },
+        {
+          code: String.raw`const start = '\u0BE6-\u0BEF', rest = '\u0C01-\u0C03', r = new RegExp('[' + start + rest + ']')`,
+        },
+        {
+          code: String.raw`const r = new RegExp("[\\u00F8-\\u02B8\\u0300-\\u0590]")`,
+        },
+        {
+          code: String.raw`const high = '\uD83D', low = '\uDC4D', r = new RegExp('[' + high + low + ']')`,
+        },
+        {
+          code: String.raw`const baby = '\u{1F476}', skinTone = '\u{1F3FB}', r = new RegExp('[' + baby + skinTone + ']', 'u')`,
+          languageOptions: { ecmaVersion: ecma2015 },
+        },
+        {
+          code: String.raw`const first = '\u{1F1EF}', second = '\u{1F1F5}', r = new RegExp('[' + first + second + ']', 'u')`,
+          languageOptions: { ecmaVersion: ecma2015 },
+        },
+        {
+          code: String.raw`const man = '\u{1F468}', zwjChar = '\u200D', woman = '\u{1F469}', r = new RegExp('[' + man + zwjChar + woman + ']', 'u')`,
+          languageOptions: { ecmaVersion: ecma2015 },
+        },
+        {
+          code: String.raw`const tail = '\u0301', r = new RegExp('[' + 'A' + tail + ']')`,
+        },
 
         // don't report and don't crash on invalid regex
         { code: "var r = new RegExp('[Á] [ ');" },
@@ -89,6 +135,14 @@ describe('S5868', () => {
           errors: [
             { column: 17, endColumn: 23, message: combiningClass(String.raw`\u0041\u0301`) },
           ],
+        },
+        {
+          code: String.raw`var r = /[\u0587\u0591-\u05BD]/`,
+          errors: [{ message: combiningClass(String.raw`\u0587\u0591`) }],
+        },
+        {
+          code: String.raw`var r = /[\u00ad\u0600-\u0604\u070f\u17b4\u17b5]/`,
+          errors: [{ message: combiningClass(String.raw`\u070f\u17b4`) }],
         },
         {
           code: 'var r = /[Á]/',
@@ -159,7 +213,12 @@ describe('S5868', () => {
         // RegExp Literals.
         {
           code: 'var r = /[👍]/',
-          errors: surrogatePair('👍', 'var r = /[👍]/u', 12, 13),
+          errors: surrogatePair(
+            '👍',
+            'var r = /[👍]/u',
+            literalSuggestionStart,
+            literalSuggestionEnd,
+          ),
         },
         {
           code: String.raw`var r = /[\uD83D\uDC4D]/`,
@@ -185,6 +244,14 @@ describe('S5868', () => {
         {
           code: 'var r = new RegExp(String.raw`[👶🏻]`, String.raw`u`)',
           errors: [{ column: 20, endColumn: 38, message: modifiedEmoji('👶🏻') }],
+        },
+        {
+          code: 'const flags = `u`; var r = new RegExp("[👶🏻]", flags)',
+          errors: [{ message: modifiedEmoji('👶🏻') }],
+        },
+        {
+          code: 'const flags = String.raw`u`; var r = new RegExp("[👶🏻]", flags)',
+          errors: [{ message: modifiedEmoji('👶🏻') }],
         },
         {
           code: String.raw`var r = /[\uD83D\uDC76\uD83C\uDFFB]/u`,
@@ -258,15 +325,30 @@ describe('S5868', () => {
         // RegExp constructors.
         {
           code: 'var r = new RegExp("[👍]")',
-          errors: surrogatePair('👍', 'var r = new RegExp("[👍]", "u")', 24, 25),
+          errors: surrogatePair(
+            '👍',
+            'var r = new RegExp("[👍]", "u")',
+            quotedConstructorSuggestionStart,
+            quotedConstructorSuggestionEnd,
+          ),
         },
         {
           code: 'var r = new RegExp(`[👍]`)',
-          errors: surrogatePair('👍', 'var r = new RegExp(`[👍]`, "u")', 20, 26),
+          errors: surrogatePair(
+            '👍',
+            'var r = new RegExp(`[👍]`, "u")',
+            templateConstructorSuggestionStart,
+            templateConstructorSuggestionEnd,
+          ),
         },
         {
           code: 'var r = new RegExp(String.raw`[👍]`)',
-          errors: surrogatePair('👍', 'var r = new RegExp(String.raw`[👍]`, "u")', 20, 36),
+          errors: surrogatePair(
+            '👍',
+            'var r = new RegExp(String.raw`[👍]`, "u")',
+            templateConstructorSuggestionStart,
+            rawConstructorSuggestionEnd,
+          ),
         },
         {
           code: 'var r = new RegExp("[👍]", "")',
@@ -382,12 +464,38 @@ describe('S5868', () => {
           errors: surrogatePair('👍', 'var r = new RegExp("[" + "👍" + "]", "u")'),
         },
         {
+          code: String.raw`var r = new RegExp('[A' + '\\u0301]')`,
+          errors: [{ message: combiningClass(String.raw`A\u0301`) }],
+        },
+        {
+          code: String.raw`var r = new RegExp('[\\uD83D' + '\\uDC4D]')`,
+          errors: surrogatePair(
+            String.raw`\uD83D\uDC4D`,
+            String.raw`var r = new RegExp('[\\uD83D' + '\\uDC4D]', "u")`,
+          ),
+        },
+        {
           code: 'const p = "[" + "👍" + "]", r = new RegExp(p)',
           errors: surrogatePair('👍', 'const p = "[" + "👍" + "]", r = new RegExp(p, "u")'),
         },
         {
           code: 'const c = "👍", p = "[" + c + "]", r = new RegExp(p)',
           errors: surrogatePair('👍', 'const c = "👍", p = "[" + c + "]", r = new RegExp(p, "u")'),
+        },
+        {
+          code: String.raw`const part1 = '\\uD83';
+const part2 = 'D\\uDC4D';
+new RegExp('[' + part1 + part2 + ']');`,
+          errors: surrogatePair(
+            String.raw`\uD83D\uDC4D`,
+            String.raw`const part1 = '\\uD83';
+const part2 = 'D\\uDC4D';
+new RegExp('[' + part1 + part2 + ']', "u");`,
+          ),
+        },
+        {
+          code: String.raw`const part1 = '\u00BA', part2 = '\u0300A\u0301', r = new RegExp('[' + part1 + part2 + ']')`,
+          errors: [{ message: combiningClass('Á') }],
         },
       ],
     });

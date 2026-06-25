@@ -14,12 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import type { Linter } from 'eslint';
+import ts from 'typescript';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { JsTsAnalysisInput } from '../analysis/analysis.js';
-import { buildParserOptions } from '../parsers/options.js';
+import {
+  buildBabelParserOptions,
+  buildTsParserOptions,
+  buildVueParserOptions,
+  type ParserContext,
+} from '../parsers/options.js';
 import { parse } from '../parsers/parse.js';
 import { type Parser, parsersMap } from '../parsers/eslint.js';
-import type { Linter } from 'eslint';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript
@@ -30,40 +36,87 @@ import type { Linter } from 'eslint';
  * @param input the sanitized JavaScript / TypeScript analysis input (all fields required)
  * @returns the parsed source code
  */
-export function build(input: JsTsAnalysisInput) {
+export function build(input: JsTsAnalysisInput, parserContext: ParserContext = {}) {
   const vueFile = isVueFile(input.filePath);
+  const typescriptContext: ParserContext = {
+    ...parserContext,
+    jsx: parserContext.jsx ?? jsxEnabledFor(input.program),
+  };
 
-  let parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
   if (shouldUseTypescriptParser(input)) {
-    const options: Linter.ParserOptions = {
-      // enable logs for @typescript-eslint
-      // debugLevel: true,
-      filePath: input.filePath,
-      parser: vueFile ? parsersMap.typescript : undefined,
-    };
-    if (!vueFile) {
-      options.programs = input.program ? [input.program] : undefined;
-      options.project = input.tsConfigs;
-    }
-    try {
-      debug(`Parsing ${input.filePath} with ${parser.meta.name}`);
-      return parse(input.fileContent, parser, buildParserOptions(options, false));
-    } catch (error) {
-      debug(`Failed to parse ${input.filePath} with ${parser.meta.name}: ${error.message}`);
-      if (input.language === 'ts') {
-        throw error;
-      }
+    const result = parseAsTypescript(input, vueFile, typescriptContext);
+    if (result) {
+      return result;
     }
   }
 
-  let moduleError;
-  parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
+  return parseAsJavascript(input, vueFile, parserContext);
+}
+
+/**
+ * Returns the parse result, or undefined to signal the caller should fall back to JS parsing.
+ * Throws when the input is TS or a Vue+TS retry fails.
+ */
+function parseAsTypescript(input: JsTsAnalysisInput, vueFile: boolean, context: ParserContext) {
+  const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
+  const parserOptions: Linter.ParserOptions = vueFile
+    ? buildVueParserOptions('ts', { filePath: input.filePath }, context)
+    : buildTsParserOptions(
+        {
+          filePath: input.filePath,
+          programs: input.program ? [input.program] : undefined,
+          project: input.tsConfigs,
+        },
+        context,
+      );
+  try {
+    debug(`Parsing ${input.filePath} with ${parser.meta.name}`);
+    return parse(input.fileContent, parser, parserOptions);
+  } catch (error) {
+    debug(`Failed to parse ${input.filePath} with ${parser.meta.name}: ${error.message}`);
+    if (vueFile && input.language === 'ts') {
+      return retryVueTsWithFlippedJsx(input, parser, context, error);
+    }
+    if (input.language === 'ts') {
+      throw error;
+    }
+    return undefined;
+  }
+}
+
+// Vue+TS: JSX-vs-TS ambiguity. Retry with the opposite jsx setting.
+function retryVueTsWithFlippedJsx(
+  input: JsTsAnalysisInput,
+  parser: Parser,
+  context: ParserContext,
+  originalError: Error,
+) {
+  const retryJsx = !(context.jsx ?? true);
+  try {
+    debug(`Retrying ${input.filePath} with JSX ${retryJsx ? 'enabled' : 'disabled'}`);
+    return parse(
+      input.fileContent,
+      parser,
+      buildVueParserOptions('ts', { filePath: input.filePath }, { ...context, jsx: retryJsx }),
+    );
+  } catch (retryError) {
+    debug(
+      `JSX-${retryJsx ? 'enabled' : 'disabled'} retry failed for ${input.filePath}: ${retryError.message}`,
+    );
+    throw originalError;
+  }
+}
+
+function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: ParserContext) {
+  const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
+  let moduleError: Error | undefined;
+
   try {
     debug(`Parsing ${input.filePath} with ${parser.meta?.name}`);
     return parse(
       input.fileContent,
       parser,
-      buildParserOptions({ parser: vueFile ? parsersMap.javascript : undefined }, true),
+      vueFile ? buildVueParserOptions('js', {}, context) : buildBabelParserOptions({}, context),
     );
   } catch (error) {
     debug(`Failed to parse ${input.filePath} with ${parser.meta?.name}: ${error.message}`);
@@ -78,7 +131,7 @@ export function build(input: JsTsAnalysisInput) {
     return parse(
       input.fileContent,
       parsersMap.javascript,
-      buildParserOptions({ sourceType: 'script' }, true),
+      buildBabelParserOptions({ sourceType: 'script' }, context),
     );
   } catch (error) {
     debug(
@@ -88,7 +141,7 @@ export function build(input: JsTsAnalysisInput) {
      * We prefer displaying parsing error as module if parsing as script also failed,
      * as it is more likely that the expected source type is module.
      */
-    throw moduleError;
+    throw moduleError ?? error;
   }
 }
 
@@ -98,4 +151,17 @@ function shouldUseTypescriptParser({ allowTsParserJsFiles, language }: JsTsAnaly
 
 function isVueFile(file: string) {
   return file.toLowerCase().endsWith('.vue');
+}
+
+/**
+ * Whether JSX should be enabled based on the project's tsconfig. Undefined when unknown.
+ * @param program the TypeScript Program instance
+ * @return true if JSX is enabled, false if disabled, or undefined if unknown
+ * */
+function jsxEnabledFor(program?: ts.Program): boolean | undefined {
+  if (!program) {
+    return undefined;
+  }
+  const jsx = program.getCompilerOptions().jsx;
+  return jsx === undefined ? undefined : jsx !== ts.JsxEmit.None;
 }

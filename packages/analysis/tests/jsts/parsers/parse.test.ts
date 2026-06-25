@@ -16,7 +16,10 @@
  */
 import { parsersMap } from '../../../src/jsts/parsers/eslint.js';
 import { parse } from '../../../src/jsts/parsers/parse.js';
-import { buildParserOptions } from '../../../src/jsts/parsers/options.js';
+import {
+  buildBabelParserOptions,
+  buildTsParserOptions,
+} from '../../../src/jsts/parsers/options.js';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
@@ -38,7 +41,7 @@ const parseFunctions = [
 ] as const;
 
 describe('parseForESLint', () => {
-  it(`Babel should fail parsing input with JSX without the React preset`, async () => {
+  it('should parse JSX with Babel in no-config mode via parser plugins', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'parse', 'valid.js'),
     );
@@ -46,12 +49,11 @@ describe('parseForESLint', () => {
     const fileType = 'MAIN';
 
     const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-    const options = buildParserOptions(input, true);
-    options.babelOptions.presets.shift();
+    const options = buildBabelParserOptions(input);
+    options.babelOptions.presets = [];
+    options.babelOptions.plugins = [];
 
-    expect(() => parse(fileContent, parseFunctions[0].parser, options)).toThrow(
-      APIError.parsingError('Unexpected token (2:15)', { line: 2 }),
-    );
+    expect(() => parse(fileContent, parseFunctions[0].parser, options)).not.toThrow();
   });
 
   for (const { parser, usingBabel, errorMessage } of parseFunctions) {
@@ -63,7 +65,7 @@ describe('parseForESLint', () => {
       const fileType = 'MAIN';
 
       const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-      const options = buildParserOptions(input, usingBabel);
+      const options = usingBabel ? buildBabelParserOptions(input) : buildTsParserOptions(input);
       const sourceCode = parse(fileContent, parser, options).sourceCode;
 
       expect(sourceCode).toBeDefined();
@@ -75,7 +77,7 @@ describe('parseForESLint', () => {
       const fileType = 'MAIN';
 
       const input = { fileContent, fileType } as JsTsAnalysisInput;
-      const options = buildParserOptions(input, usingBabel);
+      const options = usingBabel ? buildBabelParserOptions(input) : buildTsParserOptions(input);
       const sourceCode = parse(fileContent, parser, options).sourceCode;
 
       expect(sourceCode).toBeDefined();
@@ -90,7 +92,7 @@ describe('parseForESLint', () => {
       const fileType = 'MAIN';
 
       const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-      const options = buildParserOptions(input, usingBabel);
+      const options = usingBabel ? buildBabelParserOptions(input) : buildTsParserOptions(input);
 
       expect(() => parse(fileContent, parser, options)).toThrow(
         APIError.parsingError(errorMessage, { line: 1 }),

@@ -18,8 +18,9 @@ import { debug, error, info } from '../../../shared/src/helpers/logging.js';
 import { basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import type { FileStore } from './store-type.js';
-import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
-import type { Configuration } from '../common/configuration.js';
+import type { File, NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
+import { type Configuration, getProjectFileDiscoveryConfigKey } from '../common/configuration.js';
+import type { AnalyzableFiles } from '../projectAnalysis.js';
 import { clearTsConfigContentCache } from '../jsts/program/cache/tsconfigCache.js';
 import { clearProgramOptionsCache } from '../jsts/program/cache/programOptionsCache.js';
 import { getProgramCacheManager } from '../jsts/program/cache/programCache.js';
@@ -39,11 +40,13 @@ export class TsConfigStore implements FileStore {
   private providedPropertyTsConfigs: ProvidedTsConfig[] | undefined = undefined;
   private propertyTsConfigsHash: string | undefined = undefined;
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
+  private canAccessFileSystem: boolean | undefined = undefined;
+  private projectFileDiscoveryConfigKey: string | undefined = undefined;
 
   /**
    * Checks if the store is initialized for the given base directory.
    */
-  async isInitialized(configuration: Configuration) {
+  async isInitialized(configuration: Configuration, _inputFiles?: AnalyzableFiles) {
     this.dirtyCachesIfNeeded(configuration);
     return this.baseDir !== undefined;
   }
@@ -77,10 +80,13 @@ export class TsConfigStore implements FileStore {
   }
 
   dirtyCachesIfNeeded(configuration: Configuration) {
-    const { baseDir, tsConfigPaths, fsEvents, clearTsConfigCache } = configuration;
+    const { baseDir, canAccessFileSystem, tsConfigPaths, fsEvents, clearTsConfigCache } =
+      configuration;
     if (
       this.baseDir !== baseDir ||
-      this.propertyTsConfigsHash !== this.computeTsConfigsHash(tsConfigPaths)
+      this.canAccessFileSystem !== canAccessFileSystem ||
+      this.propertyTsConfigsHash !== this.computeTsConfigsHash(tsConfigPaths) ||
+      this.projectFileDiscoveryConfigKey !== getProjectFileDiscoveryConfigKey(configuration)
     ) {
       this.clearCache();
       return;
@@ -104,9 +110,12 @@ export class TsConfigStore implements FileStore {
   clearCache() {
     debug(`Resetting the TsConfigCache`);
     this.baseDir = undefined;
+    this.canAccessFileSystem = undefined;
+    this.projectFileDiscoveryConfigKey = undefined;
     this.foundLookupTsConfigs = [];
     this.foundPropertyTsConfigs = [];
     this.providedPropertyTsConfigs = undefined;
+    this.propertyTsConfigsHash = undefined;
     clearTsConfigContentCache();
     clearProgramOptionsCache();
     getProgramCacheManager().clear();
@@ -116,8 +125,10 @@ export class TsConfigStore implements FileStore {
    * Sets up the store for processing files.
    */
   setup(configuration: Configuration) {
-    const { baseDir, tsConfigPaths } = configuration;
+    const { baseDir, canAccessFileSystem, tsConfigPaths } = configuration;
     this.baseDir = baseDir;
+    this.canAccessFileSystem = canAccessFileSystem;
+    this.projectFileDiscoveryConfigKey = getProjectFileDiscoveryConfigKey(configuration);
     const newHash = this.computeTsConfigsHash(tsConfigPaths);
     if (newHash !== this.propertyTsConfigsHash) {
       this.propertyTsConfigsHash = newHash;
@@ -140,7 +151,13 @@ export class TsConfigStore implements FileStore {
     return tsConfigPaths.join(',');
   }
 
-  async processFile(filename: NormalizedAbsolutePath, _configuration: Configuration) {
+  wantsFile(filename: NormalizedAbsolutePath, _configuration: Configuration) {
+    return this.filenameMatchesProvidedTsConfig(filename) || this.filenameMatchesTsConfig(filename)
+      ? 'path'
+      : false;
+  }
+
+  async processFile(filename: NormalizedAbsolutePath, _configuration: Configuration, _file?: File) {
     if (this.filenameMatchesProvidedTsConfig(filename)) {
       this.foundPropertyTsConfigs.push(filename);
     }

@@ -26,6 +26,7 @@ import { decorate } from './decorator.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
+import { getImportDeclarations } from '../helpers/module.js';
 
 const noUnknownProp = reactRules['no-unknown-property'];
 const decoratedNoUnknownProp = decorate(noUnknownProp);
@@ -91,7 +92,9 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const dependencies = getDependenciesSanitizePaths(context);
 
-    // Build list of props to ignore based on dependencies
+    // Project-wide dependency checks are used only for integrations whose props are valid anywhere
+    // in that framework's project. File-specific APIs such as ImageResponse or twin.macro must be
+    // imported in the current file before their JSX props are ignored.
     const frameworkIgnoredProps: string[] = [];
     if (dependencies.has('next') || dependencies.has('styled-jsx')) {
       // styled-jsx uses jsx and global props (used standalone or via Next.js)
@@ -100,6 +103,20 @@ export const rule: Rule.RuleModule = {
     if (dependencies.has('@emotion/react')) {
       // Emotion uses css prop for styling
       frameworkIgnoredProps.push('css');
+    }
+    const imports = getImportDeclarations(context);
+    if (
+      imports.some(i => {
+        const importKind =
+          'importKind' in i ? (i as { importKind?: string | null }).importKind : undefined;
+        return (
+          importKind !== 'type' &&
+          ['next/og', '@vercel/og', 'satori', 'twin.macro'].includes(String(i.source.value))
+        );
+      })
+    ) {
+      // These file-specific APIs use tw prop for Tailwind styling in JSX
+      frameworkIgnoredProps.push('tw');
     }
 
     // If we have framework-specific props, create a modified context with updated options

@@ -16,7 +16,7 @@ jobs:
   publish:
     permissions:
       id-token: write # required for GitHub OIDC and SonarSource/vault-action-wrapper
-    runs-on: sonar-xs
+    runs-on: github-ubuntu-latest-s # npm Trusted Publishers require a GitHub-hosted runner
     environment: release
     env:
       RELEASE_TAG: ${{ github.event.inputs.release_version }}
@@ -34,14 +34,23 @@ jobs:
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-promoter access_token  | promoter_access_token;
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
       - name: Setup JFrog for deploy
-        uses: SonarSource/jfrog-setup-wrapper@e0f353c7f1bcc7b2f663063d72b5fec7948f6815 # 3.6.0
+        uses: SonarSource/jfrog-setup-wrapper@b243f5b25440cdcb062db329eec5fd9c9cd2dab2 # 3.7.0
         with:
           jfrogAccessToken: ${{ fromJSON(steps.secrets.outputs.vault).qa_deployer_access_token }}
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v4.2.0
         with:
-          node-version: 24
-      - run: cp .github/workflows/.npmrc .npmrc
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            java = "21.0"
+            maven = "3.9"
+            node = "24.11.0"
+      - name: Configure Maven
+        uses: SonarSource/ci-github-actions/config-maven@master
+        with:
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
       - name: Publish npm package
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
@@ -49,7 +58,6 @@ jobs:
           jfrog rt npm-config --repo-resolve npm --repo-deploy sonarsource-npm-public-qa
           jfrog rt npm-ci
           npm run eslint-plugin:compile
-          cp .npmrc lib/.npmrc
           cd lib
           npm version $RELEASE_TAG --no-git-tag-version
           npm publish --provenance

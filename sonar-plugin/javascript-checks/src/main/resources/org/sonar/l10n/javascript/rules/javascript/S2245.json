@@ -1,0 +1,49 @@
+{
+  "title": "Pseudorandom number generators (PRNGs) should not be used in security contexts",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
+  "status": "ready",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "cwe",
+    "former-hotspot"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2245",
+  "sqKey": "S2245",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      326,
+      330,
+      338,
+      1241
+    ],
+    "OWASP": [
+      "A3"
+    ],
+    "OWASP Top 10 2021": [
+      "A2"
+    ],
+    "ASVS 4.0": [
+      "6.2.4"
+    ]
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

@@ -23,7 +23,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
-const message = `Make sure the regex used here, which is vulnerable to super-linear runtime due to backtracking, cannot lead to denial of service.`;
+const message = `Fix this regular expression that is vulnerable to exponential backtracking, as it can lead to denial of service.`;
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
         // Skip the S5852 check for those literals instead of aborting analysis for the whole file.
         return;
       }
-      if (reports.length > 0) {
+      if (reports.some(r => r.exponential)) {
         context.report({
           message,
           node: context.node,

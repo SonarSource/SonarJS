@@ -1,0 +1,48 @@
+{
+  "title": "Amazon S3 buckets should have versioning enabled",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "status": "ready",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "aws",
+    "former-hotspot"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6252",
+  "sqKey": "S6252",
+  "scope": "Main",
+  "securityStandards": {
+    "PCI DSS 3.2": [
+      "10.2.7"
+    ],
+    "PCI DSS 4.0": [
+      "10.2.1.7"
+    ],
+    "CWE": [
+      16
+    ]
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "aws-cdk-lib"
+    ]
+  },
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

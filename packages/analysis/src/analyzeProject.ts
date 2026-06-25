@@ -24,14 +24,23 @@ import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.j
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from './jsts/linter/linter.js';
 import { linter as cssLinter } from './css/linter/wrapper.js';
-import { type Configuration, getJsTsConfigFields, isJsTsFile } from './common/configuration.js';
+import {
+  type Configuration,
+  getFilterPathParams,
+  getJsTsConfigFields,
+  isJsTsFile,
+} from './common/configuration.js';
 import { info, error } from '../../shared/src/helpers/logging.js';
 import { ProgressReport } from './common/progress-report.js';
 import type { WsIncrementalResult } from './incremental-result.js';
 import { setSourceFilesContext } from './jsts/program/cache/sourceFileCache.js';
-import { sourceFileStore } from './file-stores/index.js';
+import { generatedSourceStore, sourceFileStore } from './file-stores/index.js';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
-import { getProjectAnalysisTelemetry, resetProjectAnalysisTelemetry } from './telemetry.js';
+import {
+  getProjectAnalysisTelemetry,
+  getProjectAnalysisTelemetryCollector,
+  resetProjectAnalysisTelemetry,
+} from './telemetry.js';
 
 const analysisStatus = {
   cancelled: false,
@@ -74,15 +83,22 @@ export async function analyzeProject(
   };
   const { baseDir, environments, globals, sonarlint, canAccessFileSystem } = configuration;
   resetProjectAnalysisTelemetry();
+  getProjectAnalysisTelemetryCollector().recordGeneratedSources(
+    generatedSourceStore.observeGeneratedSources(configuration, filesToAnalyze),
+  );
   const jsTsConfigFields = getJsTsConfigFields(configuration);
   setSourceFilesContext(filesToAnalyze);
+  const { testFileExtensions } = getFilterPathParams(configuration);
   await Linter.initialize({
     rules,
     environments,
     globals,
     bundles,
     baseDir,
+    detectGeneratedCode: configuration.detectGeneratedCode,
+    isGeneratedSourceFile: filePath => generatedSourceStore.getFamily(filePath) !== undefined,
     rulesWorkdir,
+    testFileExtensions,
   });
 
   // Initialize CSS linter with active CSS rules (mirrors Linter.initialize for JS/TS).

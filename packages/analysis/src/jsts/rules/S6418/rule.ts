@@ -129,9 +129,9 @@ function findKeySuspect(node: estree.Node): string | undefined {
     return node.name;
   } else if (
     isStringLiteral(node) &&
-    secretWordRegexps.some(pattern => pattern.test(node.value as string))
+    secretWordRegexps.some(pattern => pattern.test(node.value))
   ) {
-    return node.value as string;
+    return node.value;
   } else if (node.type === 'MemberExpression') {
     return findKeySuspect(node.property);
   } else {

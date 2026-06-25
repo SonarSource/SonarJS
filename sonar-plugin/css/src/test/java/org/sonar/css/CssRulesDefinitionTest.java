@@ -86,6 +86,15 @@ class CssRulesDefinitionTest {
       "Comma-separated list of \"at-rules\" to consider as valid."
     );
     assertThat(param.type()).isEqualTo(RuleParamType.STRING);
+
+    // AtRuleNoVendorPrefix
+    param = repository.rule("S8759").param("ignoreAtRules");
+    assertThat(param).isNotNull();
+    assertThat(param.defaultValue()).isNull();
+    assertThat(param.description()).isEqualTo(
+      "Comma-separated list of strings and/or regular expressions for at-rules to ignore."
+    );
+    assertThat(param.type()).isEqualTo(RuleParamType.STRING);
   }
 
   private void assertAllRuleParametersHaveDescription(Repository repository) {

@@ -1,0 +1,28 @@
+name: Toggle lock branch
+
+on:
+  workflow_dispatch:    # Triggered manually from the GitHub UI / Actions
+    inputs:
+      additional-message:
+        description: 'Additional Slack message text'
+        required: false
+
+jobs:
+  ToggleLockBranch_job:
+    name: Toggle lock branch
+    runs-on: sonar-xs
+    permissions:
+      id-token: write
+    steps:
+      - id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-lock token | lock_token;
+            development/kv/data/slack token | slack_api_token;
+      - uses: sonarsource/gh-action-lt-backlog/ToggleLockBranch@v2
+        with:
+          github-token: ${{ fromJSON(steps.secrets.outputs.vault).lock_token }}
+          slack-token: ${{ fromJSON(steps.secrets.outputs.vault).slack_api_token }}
+          additional-message: ${{ github.event.inputs.additional-message }}
+          slack-channel: squad-corelang-releases

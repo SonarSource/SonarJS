@@ -1,7 +1,4 @@
 {
-"console:src/actions/databrowser/__tests__/data.ts": [
-226
-],
 "console:src/actions/databrowser/data.ts": [
 256,
 283
@@ -518,10 +515,6 @@
 199,
 250,
 255
-],
-"console:src/views/models/DatabrowserView/__tests__/Cell.tsx": [
-104,
-178
 ],
 "console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
 245,

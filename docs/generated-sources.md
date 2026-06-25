@@ -1,0 +1,405 @@
+# Generated Source Detection
+
+The generated-source detection subsystem identifies analyzable JS/TS files that were produced by project-local generators and exposes that information to the linter.
+
+This document explains the mechanism from first principles. It is meant for readers who do not already know the file-store architecture or the generated-source helpers.
+
+## Why This Exists
+
+Some rules are less useful on generated code than on hand-written code.
+
+The analyzer therefore needs a way to answer a narrow question for each file:
+
+- is this file a generated source file?
+
+The new subsystem does **not** decide on its own which issues to suppress. It only produces metadata. The linter then uses that metadata when a rule explicitly declares that it should be skipped on generated sources.
+
+## What The Subsystem Contains
+
+The subsystem contains:
+
+- a new `generatedSourceStore` file store
+- a detector contract for tool-specific generated-source detectors
+- helper functions for detector implementations
+- integration with `analyzeProject()` and the JS/TS linter
+- cache invalidation rules so long-lived analyzer processes can refresh when relevant project files change
+- observability and telemetry for derived and visible generated-source metadata
+
+Concrete support for specific generators is provided by detectors registered in `GENERATED_SOURCE_DETECTORS`.
+
+## Core Terms
+
+- **Generated source file**: an analyzable JavaScript or TypeScript file that a detector decided was produced by a generator.
+- **Family**: the detector-owned label attached to a generated file, such as a future tool family like `graphql-codegen`.
+- **Detector**: a plugin-like object that knows how to recognize one generator family.
+- **Task invocation**: a normalized command extracted from project metadata, currently from `package.json` scripts.
+- **Config path**: a generator configuration file path that should invalidate the cache if it changes.
+- **Watched output path**: an output file or directory that should invalidate the cache if it changes.
+
+## End-to-End Flow
+
+### 1. File stores are initialized before analysis
+
+`initFileStores()` initializes `source-files`, `dependency-manifests`, `generated-sources`, and `tsconfigs`.
+
+The new store is intentionally different from the others:
+
+- during the file walk, `generatedSourceStore` collects a lightweight project snapshot
+- the detector pass still happens later in `postProcess()`
+
+The walk-time snapshot currently includes:
+
+- walked directories
+- walked JS/TS file paths that match the current suffix set
+- preloaded detector inputs such as generator config files and output manifests
+
+Raw `package.json` contents are not duplicated into that walk-time snapshot. They stay owned by
+`dependencyManifestStore` and are merged into the detector snapshot later in `postProcess()`.
+
+That split exists because generated-source detection needs the full walk snapshot before it can derive anything useful.
+
+### 2. The shared filesystem walk populates every detector input it needs
+
+Before `generatedSourceStore.postProcess()` runs, the store has already captured from the shared traversal:
+
+- directories
+- source-file paths
+- preloaded detector-specific files
+
+At the same time:
+
+- `file-stores/index.ts` has already fanned out any requested file contents as shared `File`
+  objects, so overlapping detector inputs are read at most once
+- `dependencyManifestStore` has already collected raw `package.json` contents, which
+  `generatedSourceStore` reuses as task-invocation and fallback-config input
+
+So generated-source derivation still comes from the single shared walk. It just reuses the
+shared-walk snapshot plus the manifest-store inputs it already owns.
+
+This is also why the store now only runs when filesystem access is available. Request-only analyses do not execute generated-source derivation.
+
+### 3. The store derives project-wide generated-source metadata
+
+In `postProcess()`, `generatedSourceStore` calls:
+
+```ts
+const packageJsons = dependencyManifestStore.getPackageJsons();
+addPackageJsonsToSnapshot(packageJsons);
+const projectSnapshot = createProjectSnapshot();
+
+deriveGeneratedSources(baseDir, packageJsons, {
+  projectSnapshot,
+  sourceFileMatcher,
+});
+```
+
+Before snapshot creation, `generatedSourceStore` merges the manifest-store `package.json` entries
+into its transient `preloadedFiles` map. `createProjectSnapshot()` then exposes one combined
+in-memory view containing:
+
+- walked directories
+- walked JS/TS source-file paths
+- preloaded detector-specific files captured during the shared walk
+- raw `package.json` files owned by `dependencyManifestStore`
+
+`deriveGeneratedSources()` then:
+
+1. iterates over discovered `package.json` files
+2. parses each manifest
+3. collects task invocations from supported providers
+4. lazily resolves project dependencies for that package
+5. runs every registered detector
+6. merges the detector outputs into one project-level result
+
+If no detector is registered, the function returns immediately with empty metadata and does not even traverse package metadata.
+
+Detector helpers resolve config and output existence from that in-memory snapshot only. They do not perform extra directory walks or ad hoc filesystem reads during detection.
+
+### 4. The store keeps project-derived metadata only
+
+The store keeps one project-derived map:
+
+- `derivedFamilyByFile`: every generated file derived from the shared project snapshot used by analysis
+
+The tagged subset is computed later, at analysis time, from the current analyzable files in
+`sourceFileStore`.
+
+### 5. The linter consumes the metadata
+
+`analyzeProject()` passes this predicate into `Linter.initialize()`:
+
+```ts
+filePath => generatedSourceStore.getFamily(filePath) !== undefined;
+```
+
+During rule selection, the linter computes `isGeneratedSource` for the current file.
+
+That value is used by `filterGeneratedSource`, which disables only rules whose metadata sets:
+
+```ts
+skipOnGeneratedSource: true;
+```
+
+So the generated-source subsystem is a metadata source for rule filtering. It is not a blanket “ignore generated files” switch.
+
+`getFamily()` is project-derived, but `analyzeProject()` only queries it for files that are already
+in the current analyzable set, so analysis behavior still follows the current request/scope.
+
+### 6. `analyzeProject()` computes observability for the current snapshot
+
+At the start of analysis, `analyzeProject()` calls:
+
+```ts
+generatedSourceStore.observeGeneratedSources(configuration, filesToAnalyze);
+```
+
+That computes an observability snapshot from:
+
+- `resolvedFamilyByFile`: every generated file derived from the shared project snapshot used by analysis
+- `taggedFamilyByFile`: the subset currently present in `filesToAnalyze`
+- the current analysis configuration
+
+That snapshot serves two purposes:
+
+- expose structured telemetry for the current generated-source counts
+- emit summary logs for those counts and for declaration-only families that are intentionally omitted from observability totals
+
+For each detector family, observability keeps only two counters:
+
+- `resolvedFileCount`: files derived for that family from the shared project snapshot, before tagging
+- `taggedFileCount`: derived files currently visible to the current analysis
+
+The difference between those counters is only an aggregate count of resolved files that are not currently tagged. The current implementation does not publish additional per-reason telemetry.
+
+Families whose resolved outputs are all `.d.ts` files excluded by the default `**/*.d.ts` JS/TS exclusion remain a special case: they are omitted from telemetry totals and logged separately at DEBUG level so the omission is explicit.
+
+### 7. Logs are deduplicated across refreshes
+
+The store logs observability only when the content changes.
+
+The deduplication fingerprint includes:
+
+- aggregate telemetry totals
+- ignored declaration-only family samples
+
+This means repeated refreshes do not re-emit identical INFO and DEBUG lines, but a later analysis
+that changes the resolved or tagged counts does produce a new observability log entry.
+
+The fingerprint is intentionally preserved across cache invalidations, so rebuilding identical generated-source state does not log the same observability snapshot again.
+
+## Detector Model
+
+Each detector implements the `GeneratedSourceDetector` contract and owns one family.
+
+The detector receives:
+
+- `baseDir`: the analysis root
+- `packageDir`: the directory that owns the current `package.json`
+- `getDependencies()`: a lazy dependency lookup for that package
+- `taskInvocations`: normalized command invocations derived from project metadata
+- `sourceFileMatcher`: the current analysis-time definition of “analyzable source file”
+
+The detector returns:
+
+- `familyByFile`: generated-file to family mappings
+- `configPaths`: config files that should invalidate the cache on change
+- `watchedOutputPaths`: output files or directories that should invalidate the cache on change
+
+### Important detector rule
+
+Detectors are expected to report only project-local paths under `baseDir`.
+
+The shared helpers enforce that boundary so one project cannot accidentally claim generated files outside the analysis root.
+
+## Shared Helper Responsibilities
+
+The helpers under `packages/analysis/src/file-stores/generated-sources/` exist so detectors can stay small and declarative.
+
+### Evidence helpers
+
+`hasToolEvidence()` answers “is this generator probably in use here?” by combining:
+
+- dependency evidence
+- task-invocation evidence
+
+This lets a detector avoid expensive work when the project shows no sign of using its tool.
+
+### Config-path resolution
+
+`resolveConfigPaths()` looks for generator config files in two ways:
+
+- explicit flag values in matching task invocations
+- fallback sibling basenames such as a default config filename
+
+If explicit config flags are present, they win over fallback basenames.
+
+### Output resolution
+
+`resolveGeneratedOutputsFromLiteralPaths()` resolves declared output paths and returns three things:
+
+- source files that currently exist
+- output directories that currently exist
+- watched output paths, even if the target does not exist yet
+
+That last point is intentional. A missing output today may be created tomorrow, and the cache still needs to invalidate when that happens.
+
+When the store already has a walk snapshot, this resolution is fully in-memory:
+
+- files already present in the snapshot are resolved from `projectSnapshot.sourceFiles`
+- directories already present in the snapshot are expanded from that same source-file snapshot
+- preloaded config and manifest contents are read from `projectSnapshot.preloadedFiles`
+
+### Deterministic merging
+
+`mergeDerivedGeneratedSources()` sorts paths before insertion and keeps the first family that claimed a file.
+
+That gives two useful guarantees:
+
+- generated-source metadata is deterministic across runs and platforms
+- detector order in `GENERATED_SOURCE_DETECTORS` defines conflict resolution when two detectors claim the same file
+
+## Task Invocation Parsing
+
+Generated-source detectors need a small amount of project-task awareness, but not a full shell parser.
+
+The current implementation intentionally recognizes only simple, defensible cases:
+
+- direct commands in `package.json` scripts
+- command chains separated by `&&`
+- quoted arguments
+- `npx <tool> ...`
+- `npx -- <tool> ...`
+- `pnpm exec <tool> ...`
+
+It intentionally does **not** try to interpret broader shell behavior such as:
+
+- environment-assignment preambles like `NODE_ENV=production tool ...`
+- separators other than `&&`
+- runner options such as `npx --yes ...`
+- package-manager script indirection such as `yarn <script>` or `npm run <script>`
+- shell-generated or concatenated path expressions
+
+That restriction is deliberate. The goal is predictable detector behavior, not best-effort shell emulation.
+
+## Path and Filesystem Safety Rules
+
+The helper layer is conservative about which paths it trusts.
+
+### Literal paths only
+
+Only literal path tokens are resolved.
+
+Tokens containing shell interpolation or string construction are ignored, for example values containing:
+
+- `$`
+- backticks
+- `+`
+
+### `baseDir` boundary
+
+Resolved paths must stay under the current analysis `baseDir`.
+
+This prevents detectors from producing metadata for files outside the analyzed project.
+
+### Source-file filtering
+
+Generated outputs are filtered through the configured JS/TS suffix set used by the analysis.
+
+In practice, this means the generated-source subsystem only surfaces files that the current analysis would consider analyzable source files anyway.
+
+### Recursive directory pruning
+
+When a detector declares an output directory and asks for recursive scanning, the helper skips obvious nested build or cache directories such as:
+
+- `node_modules`
+- `dist`
+- `build`
+- `.cache`
+- `coverage`
+- `.next`
+
+This keeps a declared output directory from recursively pulling in unrelated nested artifacts.
+
+## Cache and Invalidation Model
+
+The generated-source store caches project-derived detector output from the shared project snapshot
+used by analysis.
+
+Tagged subsets, telemetry, and generated-source logs depend on the current analyzable file set, but
+that state is computed later by `observeGeneratedSources(...)` rather than being cached inside the
+store itself.
+
+### Full recomputation happens when:
+
+- `baseDir` changes
+- filesystem access mode changes
+- project-file-discovery configuration changes
+- `fsEvents` mention a relevant manifest, config file, generated file, or watched output path
+
+`fsEvents` can also invalidate the store through detector-declared watched basenames, even when the detector had not yet resolved a full config path.
+
+### No-filesystem mode
+
+If `canAccessFileSystem` is `false`, `generatedSourceStore` is skipped entirely.
+
+In that mode the analyzer still uses the other request-backed stores, but generated-source detection produces no derived metadata, no tagging, and no generated-source observability beyond the empty default.
+
+## Telemetry And Logging
+
+The subsystem exposes two observability outputs:
+
+- structured telemetry returned by `generatedSourceStore.observeGeneratedSources(configuration, filesToAnalyze)`
+- log lines emitted during that same observation step
+
+### Structured telemetry
+
+The top-level telemetry shape is:
+
+```ts
+type GeneratedSourcesTelemetry = {
+  familyCount: number;
+  resolvedFileCount: number;
+  taggedFileCount: number;
+  families: GeneratedSourceFamilyTelemetry[];
+};
+```
+
+Each family entry carries the same counters for one detector family.
+
+The counters mean:
+
+- `resolvedFileCount`: files derived for that family from the shared project snapshot, before tagging
+- `taggedFileCount`: derived files currently visible to the analysis
+
+### Log output
+
+When telemetry is non-empty, the store logs:
+
+- one INFO summary line for the current snapshot
+- one INFO line per family
+- DEBUG lines for declaration-only families that are intentionally ignored from observability totals
+
+The sampled file paths are relative to `baseDir` and capped to a small fixed sample size.
+
+Separately, when at least one generated source file is currently tagged, the detection log path emits one INFO guidance line once per `baseDir` and DEBUG lines for the matched files. Those matched-file logs are deduplicated by tagged file fingerprint, but they are not part of structured telemetry.
+
+### Declaration-only default exclusions
+
+Families whose resolved outputs are all `.d.ts` files excluded by the default `**/*.d.ts` JS/TS exclusion are omitted from telemetry totals.
+
+That rule remains true even when those same `.d.ts` files also match `sonar.exclusions` or `sonar.test.exclusions`. The special case is about declaration-only default JS/TS exclusions, not about whether another analysis-scope exclusion also applies.
+
+They are still reported through DEBUG logging so the omission is explicit rather than silent.
+
+## Operational Notes
+
+- The mechanism is metadata-driven. It does not inspect source-file contents to guess whether a file is generated.
+- The store derives its cached data in `postProcess()` because it needs the full filesystem walk snapshot to be complete before detectors run.
+- The store caches project-derived matches, even if some of them are outside the current analyzable set.
+- Request-driven analyses can change tagged generated files without changing project-wide derived metadata.
+- Exclusions and scope filters affect whether resolved files are tagged; they do not produce separate telemetry fields.
+- The detector foundation is intentionally conservative about shell parsing and path resolution.
+
+## Related Documentation
+
+- [File Stores](./file-stores.md)

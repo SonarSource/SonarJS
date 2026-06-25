@@ -18,21 +18,22 @@ package org.sonar.plugins.javascript.lcov;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
+import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.utils.PathUtils;
 
 /**
  * http://ltp.sourceforge.net/coverage/lcov/geninfo.1.php
@@ -44,9 +45,12 @@ class LCOVParser {
   private static final String SF = "SF:";
   private static final String DA = "DA:";
   private static final String BRDA = "BRDA:";
+  private static final PathResolver PATH_RESOLVER = new PathResolver();
 
   private final Map<InputFile, NewCoverage> coverageByFile;
   private final SensorContext context;
+  private final Path analysisBaseDir;
+  private final Path realAnalysisBaseDir;
   // deduplicated list of unresolved paths (keep order of insertion)
   private final Set<String> unresolvedPaths = new LinkedHashSet<>();
   private final FileLocator fileLocator;
@@ -54,25 +58,12 @@ class LCOVParser {
 
   private static final Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
 
-  private LCOVParser(List<String> lines, SensorContext context, FileLocator fileLocator) {
+  LCOVParser(SensorContext context, List<File> files, FileLocator fileLocator) {
     this.context = context;
     this.fileLocator = fileLocator;
-    this.coverageByFile = parse(lines);
-  }
-
-  /**
-   * Reads all report files and parses them as a single LCOV stream.
-   */
-  static LCOVParser create(SensorContext context, List<File> files, FileLocator fileLocator) {
-    final List<String> lines = new LinkedList<>();
-    for (File file : files) {
-      try (Stream<String> fileLines = Files.lines(file.toPath())) {
-        lines.addAll(fileLines.toList());
-      } catch (IOException e) {
-        throw new IllegalArgumentException("Could not read content from file: " + file, e);
-      }
-    }
-    return new LCOVParser(lines, context, fileLocator);
+    this.analysisBaseDir = context.fileSystem().baseDir().toPath().toAbsolutePath().normalize();
+    this.realAnalysisBaseDir = resolveRealPath(analysisBaseDir);
+    this.coverageByFile = parse(files);
   }
 
   Map<InputFile, NewCoverage> coverageByFile() {
@@ -94,25 +85,32 @@ class LCOVParser {
    * the active {@link FileData}. Every SF block gets a unique record index to support branch merge
    * logic across multiple reports.
    */
-  private Map<InputFile, NewCoverage> parse(List<String> lines) {
+  private Map<InputFile, NewCoverage> parse(List<File> reportFiles) {
     final Map<InputFile, FileData> files = new HashMap<>();
-    FileData fileData = null;
     int sourceFileRecordIndex = 0;
-    int reportLineNum = 0;
 
-    for (String line : lines) {
-      reportLineNum++;
-      if (line.startsWith(SF)) {
-        sourceFileRecordIndex++;
-        fileData = files.computeIfAbsent(inputFileForSourceFile(line), inputFile ->
-          inputFile == null ? null : new FileData(inputFile)
-        );
-      } else if (fileData != null) {
-        if (line.startsWith(DA)) {
-          parseLineCoverage(fileData, reportLineNum, line);
-        } else if (line.startsWith(BRDA)) {
-          parseBranchCoverage(fileData, sourceFileRecordIndex, reportLineNum, line);
+    for (File reportFile : reportFiles) {
+      FileData fileData = null;
+      int reportLineNum = 0;
+
+      try {
+        for (String line : java.nio.file.Files.readAllLines(reportFile.toPath())) {
+          reportLineNum++;
+          if (line.startsWith(SF)) {
+            sourceFileRecordIndex++;
+            fileData = files.computeIfAbsent(inputFileForSourceFile(reportFile, line), inputFile ->
+              inputFile == null ? null : new FileData(inputFile)
+            );
+          } else if (fileData != null) {
+            if (line.startsWith(DA)) {
+              parseLineCoverage(fileData, reportLineNum, line);
+            } else if (line.startsWith(BRDA)) {
+              parseBranchCoverage(fileData, sourceFileRecordIndex, reportLineNum, line);
+            }
+          }
         }
+      } catch (IOException e) {
+        throw new IllegalArgumentException("Could not read content from file: " + reportFile, e);
       }
     }
 
@@ -190,24 +188,162 @@ class LCOVParser {
    * Resolves the SF path to an indexed input file.
    * <p>
    * Resolution order:
-   * 1) exact filesystem predicate match (absolute or project-relative path),
-   * 2) suffix-based lookup through {@link FileLocator} for cross-tool/cross-root path variants.
+   * 1) exact absolute-path match,
+   * 2) relative-to-report lookup for package-local LCOV paths,
+   * 3) exact project-relative match,
+   * 4) suffix-based lookup through {@link FileLocator}, preferring unique matches and falling back
+   * to the historical deterministic guess when several analyzed files share the same suffix.
    */
   @CheckForNull
-  private InputFile inputFileForSourceFile(String line) {
+  private InputFile inputFileForSourceFile(File reportFile, String line) {
     // SF:<absolute path to the source file>
     String filePath = line.substring(SF.length());
-    // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
-    InputFile inputFile = context
-      .fileSystem()
-      .inputFile(context.fileSystem().predicates().hasPath(filePath));
+    String sanitizedPath = PathUtils.sanitize(filePath);
+    if (sanitizedPath == null) {
+      unresolvedPaths.add(filePath);
+      return null;
+    }
+
+    InputFile inputFile;
+    if (new File(sanitizedPath).isAbsolute()) {
+      inputFile = inputFileByAbsolutePath(context.fileSystem().predicates(), sanitizedPath);
+    } else {
+      inputFile = inputFileRelativeToReport(reportFile, sanitizedPath);
+      if (inputFile == null) {
+        inputFile = inputFileByProjectRelativePath(sanitizedPath);
+      }
+    }
     if (inputFile == null) {
-      inputFile = fileLocator.getInputFile(filePath);
+      FileLocator.Resolution resolution = fileLocator.resolve(filePath);
+      inputFile = resolution.inputFile();
+      if (inputFile != null && resolution.guessed() && LOG.isDebugEnabled()) {
+        LOG.debug(
+          "Ambiguous LCOV path '{}' in '{}' matched multiple analyzed files; falling back to '{}'.",
+          filePath,
+          reportFile,
+          inputFile
+        );
+      }
     }
     if (inputFile == null) {
       unresolvedPaths.add(filePath);
     }
     return inputFile;
+  }
+
+  @CheckForNull
+  private InputFile inputFileByProjectRelativePath(String relativePath) {
+    return context.fileSystem().inputFile(context.fileSystem().predicates().hasPath(relativePath));
+  }
+
+  @CheckForNull
+  private InputFile inputFileRelativeToReport(File reportFile, String filePath) {
+    File reportDirectory = reportFile.getParentFile();
+    if (reportDirectory == null) {
+      return null;
+    }
+
+    FilePredicates predicates = context.fileSystem().predicates();
+    for (
+      Path currentDirectory = reportDirectory.toPath().toAbsolutePath().normalize();
+      isInsideAnalysisBaseDir(currentDirectory);
+      currentDirectory = currentDirectory.getParent()
+    ) {
+      InputFile inputFile = inputFileByAbsolutePath(
+        predicates,
+        currentDirectory.resolve(filePath).normalize().toString()
+      );
+      if (inputFile != null) {
+        return inputFile;
+      }
+      if (isAnalysisBaseDir(currentDirectory)) {
+        break;
+      }
+    }
+    return null;
+  }
+
+  private boolean isInsideAnalysisBaseDir(@CheckForNull Path path) {
+    return (
+      path != null && (path.startsWith(analysisBaseDir) || path.startsWith(realAnalysisBaseDir))
+    );
+  }
+
+  private boolean isAnalysisBaseDir(Path path) {
+    return path.equals(analysisBaseDir) || path.equals(realAnalysisBaseDir);
+  }
+
+  @CheckForNull
+  private InputFile inputFileByAbsolutePath(FilePredicates predicates, String absolutePath) {
+    Path normalizedAbsolutePath = new File(absolutePath).toPath().toAbsolutePath().normalize();
+    InputFile inputFile = context
+      .fileSystem()
+      .inputFile(predicates.hasAbsolutePath(normalizedAbsolutePath.toString()));
+    if (inputFile != null) {
+      return inputFile;
+    }
+
+    inputFile = inputFileByRelativePathFromAnalysisBaseDir(predicates, normalizedAbsolutePath);
+    if (inputFile != null) {
+      return inputFile;
+    }
+
+    Path canonicalAbsolutePath = canonicalizePathSpelling(normalizedAbsolutePath);
+    if (!canonicalAbsolutePath.equals(normalizedAbsolutePath)) {
+      return inputFileByRelativePathFromAnalysisBaseDir(predicates, canonicalAbsolutePath);
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private InputFile inputFileByRelativePathFromAnalysisBaseDir(
+    FilePredicates predicates,
+    Path absoluteFilePath
+  ) {
+    String relativePath = relativePathFromAnalysisBaseDir(absoluteFilePath);
+    if (relativePath == null) {
+      return null;
+    }
+    return context.fileSystem().inputFile(predicates.hasPath(relativePath));
+  }
+
+  @CheckForNull
+  private String relativePathFromAnalysisBaseDir(Path absoluteFilePath) {
+    String relativePath = PATH_RESOLVER.relativePath(analysisBaseDir, absoluteFilePath);
+    if (relativePath != null) {
+      return relativePath;
+    }
+
+    if (!realAnalysisBaseDir.equals(analysisBaseDir)) {
+      return PATH_RESOLVER.relativePath(realAnalysisBaseDir, absoluteFilePath);
+    }
+    return null;
+  }
+
+  private static Path canonicalizePathSpelling(Path path) {
+    Path normalizedPath = path.toAbsolutePath().normalize();
+    Path existingPath = normalizedPath;
+    while (existingPath != null && !java.nio.file.Files.exists(existingPath)) {
+      existingPath = existingPath.getParent();
+    }
+    if (existingPath == null) {
+      return normalizedPath;
+    }
+
+    Path realExistingPath = resolveRealPath(existingPath);
+    if (realExistingPath.equals(existingPath)) {
+      return normalizedPath;
+    }
+
+    return realExistingPath.resolve(existingPath.relativize(normalizedPath)).normalize();
+  }
+
+  private static Path resolveRealPath(Path path) {
+    try {
+      return path.toRealPath();
+    } catch (IOException e) {
+      return path;
+    }
   }
 
   private static class FileData {

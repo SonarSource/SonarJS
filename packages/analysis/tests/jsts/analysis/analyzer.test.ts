@@ -16,7 +16,7 @@
  */
 import path from 'node:path/posix';
 import { Linter as ESLintLinter } from 'eslint';
-import { describe, it } from 'node:test';
+import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import {
   normalizePath,
@@ -35,6 +35,8 @@ import assert from 'node:assert';
 import { getPackageJsonManifests } from '../../../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
 import { createProgramOptions } from '../../../src/jsts/program/tsconfig/options.js';
 import { createStandardProgram } from '../../../src/jsts/program/factory.js';
+import { clearDependenciesCache } from '../../../src/jsts/rules/helpers/dependency-manifests/index.js';
+import { DEFAULT_ECMA_VERSION } from '../../../src/jsts/parsers/options.js';
 
 const currentPath = normalizePath(import.meta.dirname);
 
@@ -74,6 +76,40 @@ describe('await analyzeJSTS', () => {
     );
   });
 
+  it('should return ESLint-suppressed issues separately from open issues', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(fixtures),
+      rules: [
+        {
+          key: 'S3504',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+
+    const result = await analyzeJSTS(
+      await jsTsInput({
+        filePath: path.join(fixtures, 'eslint-suppressed.js'),
+        fileContent: '/* eslint-disable-next-line no-var -- accepted */\nvar value = 42;\n',
+      }),
+    );
+
+    expect(result.issues).toEqual([]);
+    expect(result.suppressedIssues).toEqual([
+      expect.objectContaining({
+        ruleId: 'S3504',
+        line: 2,
+        column: 0,
+        endLine: 2,
+        endColumn: 9,
+        resolutionComment: 'accepted',
+      }),
+    ]);
+  });
+
   it('should analyze Vue.js code', async () => {
     const rules: RuleConfig[] = [
       {
@@ -95,6 +131,97 @@ describe('await analyzeJSTS', () => {
         ruleId: 'S1534',
       }),
     );
+  });
+
+  it('should extract sonar-resolve directives from block comments', async () => {
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(fixtures), rules: [] });
+
+    const result = await analyzeJSTS(
+      await jsTsInput({
+        filePath: path.join(fixtures, 'sonar-resolve-block.js'),
+        fileContent: '/* sonar-resolve javascript:S1116 "reason" */\nfoo();\n',
+      }),
+    );
+
+    expect(result.sonarResolveComments).toEqual([
+      {
+        line: 1,
+        text: ' sonar-resolve javascript:S1116 "reason" ',
+      },
+    ]);
+  });
+
+  it('should preserve multiline sonar-resolve directives across consecutive line comments', async () => {
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(fixtures), rules: [] });
+
+    const result = await analyzeJSTS(
+      await jsTsInput({
+        filePath: path.join(fixtures, 'sonar-resolve-line.js'),
+        fileContent: ['// sonar-resolve javascript:S1116 "reason', '// continued"', 'foo();'].join(
+          '\n',
+        ),
+      }),
+    );
+
+    expect(result.sonarResolveComments).toEqual([
+      {
+        line: 1,
+        text: ' sonar-resolve javascript:S1116 "reason\n continued"',
+      },
+    ]);
+  });
+
+  it('should split adjacent sonar-resolve directives in consecutive line comments', async () => {
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(fixtures), rules: [] });
+
+    const result = await analyzeJSTS(
+      await jsTsInput({
+        filePath: path.join(fixtures, 'sonar-resolve-adjacent-line.js'),
+        fileContent: [
+          '// sonar-resolve javascript:S1116 "first',
+          '// sonar-resolve javascript:S1121 "second"',
+          'foo();',
+        ].join('\n'),
+      }),
+    );
+
+    expect(result.sonarResolveComments).toEqual([
+      {
+        line: 1,
+        text: ' sonar-resolve javascript:S1116 "first',
+      },
+      {
+        line: 2,
+        text: ' sonar-resolve javascript:S1121 "second"',
+      },
+    ]);
+  });
+
+  it('should extract sonar-resolve directives from Vue script comments only', async () => {
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(fixtures), rules: [] });
+
+    const result = await analyzeJSTS(
+      await jsTsInput({
+        filePath: path.join(fixtures, 'sonar-resolve.vue'),
+        fileContent: [
+          '<template>',
+          '  <!-- sonar-resolve javascript:S1116 "template" -->',
+          '  <div />',
+          '</template>',
+          '<script>',
+          '// sonar-resolve javascript:S1116 "script"',
+          'const x = 1;',
+          '</script>',
+        ].join('\n'),
+      }),
+    );
+
+    expect(result.sonarResolveComments).toEqual([
+      {
+        line: 6,
+        text: ' sonar-resolve javascript:S1116 "script"',
+      },
+    ]);
   });
 
   it('should not analyze Vue.js with type checking', async () => {
@@ -1068,5 +1195,30 @@ describe('await analyzeJSTS', () => {
       await jsTsInput({ filePath: updatedReactFilePath, skipAst: true }),
     );
     expect(analysisResult.issues.length).toBe(1);
+  });
+
+  it('should log when ECMAScript version and module type fall back to defaults', async ({
+    mock,
+  }) => {
+    console.log = mock.fn(console.log);
+
+    const filePath = path.join(fixtures, 'code.js');
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [],
+    });
+    clearDependenciesCache();
+
+    await analyzeJSTS(await jsTsInput({ filePath }));
+
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain(
+      `DEBUG No ECMAScript version detected for "${normalizeToAbsolutePath(filePath)}"; using default ${DEFAULT_ECMA_VERSION}`,
+    );
+    expect(logs).toContain(
+      `DEBUG No module type detected for "${normalizeToAbsolutePath(filePath)}"`,
+    );
   });
 });

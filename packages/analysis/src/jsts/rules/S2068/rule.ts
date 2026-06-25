@@ -22,7 +22,6 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isLogicalExpression, isStaticTemplateLiteral, isStringLiteral } from '../helpers/ast.js';
 import { shannonEntropy } from '../helpers/entropy.js';
-import { pathHasSegment } from '../helpers/files.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
@@ -30,8 +29,6 @@ const DEFAULT_NAMES = ['password', 'pwd', 'passwd', 'passphrase'];
 const ENTROPY_THRESHOLD = 3;
 const MIN_PASSWORD_LENGTH = 5;
 const NON_CREDENTIAL_CHARS = /[\s/["'\]<>]/;
-const TEST_FILE_PATTERN = /\.(spec|test|mock)\.[jt]sx?$/;
-const L10N_SEGMENTS = new Set(['l10n']);
 
 const messages = {
   reviewPassword: 'Review this potentially hard-coded password.',
@@ -40,15 +37,6 @@ const messages = {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
-    const filename = context.physicalFilename;
-    if (TEST_FILE_PATTERN.test(filename)) {
-      return {};
-    }
-
-    if (pathHasSegment(filename, L10N_SEGMENTS)) {
-      return {};
-    }
-
     const variableNames =
       (context.options as FromSchema<typeof meta.schema>)[0]?.passwordWords ?? DEFAULT_NAMES;
     const lowerCaseVariableNames = variableNames.map(name => name.toLowerCase());
@@ -121,7 +109,7 @@ function findValueSuspect(node: estree.Node | undefined | null): boolean {
     );
   }
   if (isStringLiteral(node)) {
-    const value = node.value as string;
+    const value = node.value;
     return (
       value.length >= MIN_PASSWORD_LENGTH &&
       !NON_CREDENTIAL_CHARS.test(value) &&
@@ -144,7 +132,7 @@ function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: es
   if (!isStringLiteral(literal)) {
     return;
   }
-  const value = literal.value as string;
+  const value = literal.value;
   checkStringValue(context, patterns, value, literal);
 }
 

@@ -57,32 +57,32 @@
   </issueManagement>
 
   <properties>
-    <revision>12.5.0-SNAPSHOT</revision>
+    <revision>13.1.0-SNAPSHOT</revision>
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
     <!-- Version corresponds to SQ 9.9 LTS -->
     <pluginApiMinVersion>9.14.0.375</pluginApiMinVersion>
 
     <assertj.version>3.27.7</assertj.version>
-    <jgit.version>7.6.0.202603022253-r</jgit.version>
-    <junit.version>6.0.3</junit.version>
+    <jgit.version>7.7.0.202606012155-r</jgit.version>
+    <junit.version>6.1.0</junit.version>
     <mockito.version>5.23.0</mockito.version>
-    <slf4j.version>2.0.17</slf4j.version>
+    <slf4j.version>2.0.18</slf4j.version>
     <jetbrains.annotations.version>26.1.0</jetbrains.annotations.version>
-    <sonar.version>26.5.0.122743</sonar.version>
-    <sonar.api.version>13.6.0.4371</sonar.api.version>
-    <sonar-orchestrator.version>6.1.0.3962</sonar-orchestrator.version>
+    <sonar.version>26.6.0.123539</sonar.version>
+    <sonar.api.version>13.8.0.4399</sonar.api.version>
+    <sonar-orchestrator.version>6.2.0.4392</sonar-orchestrator.version>
     <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
     <gson.version>2.14.0</gson.version>
-    <analyzer-commons.version>2.22.0.4796</analyzer-commons.version>
+    <analyzer-commons.version>2.24.0.4903</analyzer-commons.version>
     <sslr.version>1.25.1.3886</sslr.version>
-    <sonarlint.plugin.api.version>11.3.0.85510</sonarlint.plugin.api.version>
+    <sonarlint.plugin.api.version>11.5.0.85871</sonarlint.plugin.api.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <maven.compiler.release>17</maven.compiler.release>
     <jdk.min.version>17</jdk.min.version>
-    <jacoco.version>0.8.14</jacoco.version>
+    <jacoco.version>0.8.15</jacoco.version>
     <version.surefire.plugin>3.1.2</version.surefire.plugin>
     <!-- FIXME fix javadoc errors -->
     <doclint>none</doclint>
@@ -270,7 +270,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.5.32</version>
+        <version>1.5.34</version>
         <scope>test</scope>
       </dependency>
       <dependency>

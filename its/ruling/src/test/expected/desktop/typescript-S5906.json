@@ -1,0 +1,117 @@
+{
+"desktop:app/test/unit/enum-test.ts": [
+17,
+31
+],
+"desktop:app/test/unit/git-store-test.ts": [
+187,
+203,
+220,
+226
+],
+"desktop:app/test/unit/git/cherry-pick-test.ts": [
+67,
+97,
+107,
+118,
+137,
+172,
+189,
+222,
+496
+],
+"desktop:app/test/unit/git/commit-test.ts": [
+62,
+69,
+72,
+82,
+107,
+123,
+127,
+144,
+153,
+191,
+196,
+243,
+248,
+298,
+344,
+349,
+386,
+391,
+415,
+424,
+445,
+462,
+469,
+470,
+490,
+510,
+755,
+792,
+832,
+842
+],
+"desktop:app/test/unit/git/environment-test.ts": [
+35,
+41,
+61,
+67,
+75,
+83,
+91,
+99
+],
+"desktop:app/test/unit/git/rebase/progress-test.ts": [
+31,
+82,
+84,
+149,
+160,
+162
+],
+"desktop:app/test/unit/git/reorder-test.ts": [
+42,
+64,
+111
+],
+"desktop:app/test/unit/git/squash-test.ts": [
+47,
+96,
+117,
+133,
+184,
+274,
+308
+],
+"desktop:app/test/unit/git/stash-test.ts": [
+179,
+188,
+248,
+268,
+298
+],
+"desktop:app/test/unit/promise-with-timeout-test.ts": [
+69
+],
+"desktop:app/test/unit/text-diff-expansion-test.ts": [
+88,
+89
+],
+"desktop:app/test/unit/wrap-rich-text-commit-message-test.ts": [
+33,
+34,
+45,
+46,
+65,
+66,
+84,
+85,
+100,
+101,
+119,
+120,
+131,
+132
+]
+}

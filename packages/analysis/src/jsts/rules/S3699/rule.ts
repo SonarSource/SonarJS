@@ -147,7 +147,7 @@ export const rule: Rule.RuleModule = {
           if (!functionsWithReturnValue.has(functionDeclaration)) {
             context.report({
               messageId: 'removeUseOfOutput',
-              node: callee as estree.Node,
+              node: callee,
               data: { name: callee.name },
             });
           }

@@ -187,7 +187,7 @@ function isStrictlyReadingMethodCall(usage: Scope.Reference) {
   if (parent?.type === 'MemberExpression') {
     const memberExpressionParent = parent.parent;
     if (memberExpressionParent?.type === 'CallExpression') {
-      return isIdentifier(parent.property as TSESTree.Node, ...strictlyReadingMethods);
+      return isIdentifier(parent.property, ...strictlyReadingMethods);
     }
   }
   return false;

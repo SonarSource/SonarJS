@@ -33,8 +33,8 @@ export type NormalizedAbsolutePath = string & {
   readonly __normalizedAbsolutePathBrand: 'NormalizedAbsolutePath';
 };
 export type File = {
-  readonly path: NormalizedAbsolutePath;
-  readonly content: Buffer | string;
+  readonly filePath: NormalizedAbsolutePath;
+  readonly fileContent: string;
 };
 
 /**
@@ -157,6 +157,18 @@ export function dirnamePath(filePath: NormalizedAbsolutePath): NormalizedAbsolut
   return dirnamePosix(filePath) as NormalizedAbsolutePath;
 }
 
+export function relativeToAncestorPath(
+  filePath: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath,
+) {
+  const topDirPrefix = topDir.endsWith('/') ? topDir : `${topDir}/`;
+  if (filePath === topDir) {
+    return '';
+  }
+
+  return filePath.startsWith(topDirPrefix) ? filePath.slice(topDirPrefix.length) : undefined;
+}
+
 /**
  * Type-safe path join that preserves the NormalizedAbsolutePath brand.
  * Joins path segments using posix separators.
@@ -178,10 +190,4 @@ export function joinPaths(
  */
 export function basenamePath(filePath: NormalizedPath | NormalizedAbsolutePath): string {
   return basenamePosix(filePath);
-}
-
-export function pathHasSegment(filePath: string, names: Set<string>): boolean {
-  return normalizePath(filePath)
-    .split('/')
-    .some(segment => names.has(segment.toLowerCase()));
 }

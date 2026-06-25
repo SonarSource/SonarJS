@@ -17,12 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6847/javascript
 
 import type { ESLintConfiguration } from '../helpers/configs.js';
+import { getUpstreamRecommendedFields } from '../external/a11y.js';
 
-export const fields = [
-  [
-    {
-      field: 'handlers',
-      default: ['onClick', 'onMouseDown', 'onMouseUp', 'onKeyPress', 'onKeyDown', 'onKeyUp'],
-    },
-  ],
-] as const satisfies ESLintConfiguration;
+export const fields: ESLintConfiguration = [
+  getUpstreamRecommendedFields('no-noninteractive-element-interactions'),
+];

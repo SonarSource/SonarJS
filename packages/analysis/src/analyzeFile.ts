@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import type ts from 'typescript';
 import type { JsTsAnalysisInput } from './jsts/analysis/analysis.js';
 import { analyzeHTMLProject } from './html/index.js';
 import { analyzeYAMLProject } from './yaml/index.js';
@@ -31,7 +32,6 @@ import type { WsIncrementalResult } from './incremental-result.js';
 import type { AnalyzableFile, FileResult, ProjectAnalysisOutput } from './projectAnalysis.js';
 import type { ProgressReport } from './common/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
-import type ts from 'typescript';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import type { EmbeddedAnalysisInput } from './jsts/embedded/analysis/analysis.js';
 import { analyzeCSSProject } from './css/analysis/analyzer.js';
@@ -174,13 +174,24 @@ async function mergeAdditionalCssAnalysis(
     return result;
   }
   result.issues.push(...cssResult.issues);
+  const cssSonarResolveComments =
+    'sonarResolveComments' in cssResult ? (cssResult.sonarResolveComments ?? []) : [];
+  const sonarResolveComments = [...(result.sonarResolveComments ?? []), ...cssSonarResolveComments];
   if ('parsingErrors' in cssResult && cssResult.parsingErrors?.length) {
     const parsingErrors = [...(result.parsingErrors ?? []), ...cssResult.parsingErrors];
     return {
       ...result,
       parsingErrors,
+      ...(sonarResolveComments.length > 0 ? { sonarResolveComments } : {}),
     };
   }
 
-  return result;
+  if (sonarResolveComments.length === 0) {
+    return result;
+  }
+
+  return {
+    ...result,
+    sonarResolveComments,
+  };
 }

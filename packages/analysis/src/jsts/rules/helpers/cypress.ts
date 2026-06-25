@@ -54,7 +54,7 @@ export function isTSAssertion(node: ts.Node): boolean {
   return tsChainStartsWithCy(member.expression);
 }
 
-function chainStartsWithCy(node: estree.Node): boolean {
+export function chainStartsWithCy(node: estree.Node): boolean {
   if (isIdentifier(node, 'cy')) {
     return true;
   }

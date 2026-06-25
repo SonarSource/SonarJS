@@ -25,6 +25,7 @@ import {
 } from '../../contracts/project-analysis.js';
 import { warn } from '../../../../shared/src/helpers/logging.js';
 import type { CssIssue } from '../linter/issues/issue.js';
+import { extractSonarResolveCommentsFromCssRoot } from '../../common/sonar-resolve.js';
 
 /**
  * Analyzes a CSS analysis input
@@ -74,11 +75,15 @@ export async function analyzeCSS(
   const { root, issues: lintingIssues } = lintResult;
   throwIfCssParsingError(lintingIssues);
   const issues = isTestFile ? [] : lintingIssues;
+  const sonarResolveComments = root ? extractSonarResolveCommentsFromCssRoot(root) : [];
 
   // Skip metrics and highlighting for non-pure-CSS files
   // (HTML/Vue files are handled by their own analyzers for metrics)
   if (!includeMetrics || !root) {
-    return { issues };
+    return {
+      issues,
+      ...(sonarResolveComments.length > 0 ? { sonarResolveComments } : {}),
+    };
   }
 
   try {
@@ -88,21 +93,30 @@ export async function analyzeCSS(
       return {
         issues,
         metrics: { nosonarLines: metrics.nosonarLines },
+        ...(sonarResolveComments.length > 0 ? { sonarResolveComments } : {}),
       };
     } else {
       const highlights = computeHighlighting(root, sanitizedCode);
       if (isTestFile) {
-        return { issues, highlights };
+        return {
+          issues,
+          highlights,
+          ...(sonarResolveComments.length > 0 ? { sonarResolveComments } : {}),
+        };
       }
       return {
         issues,
         highlights,
         metrics: computeMetrics(root),
+        ...(sonarResolveComments.length > 0 ? { sonarResolveComments } : {}),
       };
     }
   } catch (err) {
     warn(`Failed to compute metrics/highlighting for ${filePath}: ${err}`);
-    return { issues };
+    return {
+      issues,
+      ...(sonarResolveComments.length > 0 ? { sonarResolveComments } : {}),
+    };
   }
 }
 

@@ -20,8 +20,7 @@ import { join, dirname } from 'node:path/posix';
 import fs from 'node:fs';
 import yaml from 'yaml';
 import { initFileStores, dependencyManifestStore } from '../src/file-stores/index.js';
-import { readFile } from 'node:fs/promises';
-import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { normalizeToAbsolutePath, readFile } from '../../shared/src/helpers/files.js';
 import { createConfiguration } from '../src/common/configuration.js';
 import { UNINITIALIZED_ERROR } from '../src/file-stores/dependency-manifests.js';
 import {
@@ -68,15 +67,15 @@ describe('files', () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'dependencies'));
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
-    const path = join(fixtures, 'dependencies', 'package.json');
-    const content = await readFile(path, 'utf-8');
+    const path = normalizeToAbsolutePath(join(fixtures, 'dependencies', 'package.json'));
+    const content = await readFile(path);
     expect(dependencyManifestStore.getPackageJsons()).toEqual(
       new Map([
         [
           dirname(path),
           {
-            path,
-            content,
+            filePath: path,
+            fileContent: content,
           },
         ],
       ]),
@@ -109,7 +108,7 @@ describe('files', () => {
     await initFileStores(configuration);
 
     expect(closestPnpmWorkspaceCache.has(baseDir)).toEqual(true);
-    expect(closestPnpmWorkspaceCache.get(baseDir).get(baseDir)?.path).toEqual(
+    expect(closestPnpmWorkspaceCache.get(baseDir).get(baseDir)?.filePath).toEqual(
       join(baseDir, PNPM_WORKSPACE_YAML),
     );
   });
@@ -117,19 +116,23 @@ describe('files', () => {
   it('should warm package.json caches without sync filesystem fallbacks', async ({ mock }) => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'child-parent-merge'));
     const configuration = createConfiguration({ baseDir });
+    const packageJsonPath = normalizeToAbsolutePath(join(baseDir, 'package.json'));
+    const childPackageJsonPath = normalizeToAbsolutePath(join(baseDir, 'subdir/package.json'));
     const readdirSyncSpy = mock.method(fs, 'readdirSync');
     const readFileSyncSpy = mock.method(fs, 'readFileSync');
     const statSyncSpy = mock.method(fs, 'statSync');
 
     dependencyManifestStore.setup(configuration);
     dependencyManifestStore.processDirectory(normalizeToAbsolutePath(join(baseDir, 'subdir')));
-    await dependencyManifestStore.processFile(
-      normalizeToAbsolutePath(join(baseDir, 'package.json')),
-    );
-    await dependencyManifestStore.processFile(
-      normalizeToAbsolutePath(join(baseDir, 'subdir/package.json')),
-    );
-    await dependencyManifestStore.postProcess();
+    await dependencyManifestStore.processFile(packageJsonPath, configuration, {
+      filePath: packageJsonPath,
+      fileContent: await readFile(packageJsonPath),
+    });
+    await dependencyManifestStore.processFile(childPackageJsonPath, configuration, {
+      filePath: childPackageJsonPath,
+      fileContent: await readFile(childPackageJsonPath),
+    });
+    await dependencyManifestStore.postProcess(configuration);
 
     expect(readdirSyncSpy.mock.calls).toHaveLength(0);
     expect(readFileSyncSpy.mock.calls).toHaveLength(0);
@@ -139,8 +142,8 @@ describe('files', () => {
   it('should fill package.json parent caches correctly even when dirs are registered child-first', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'child-parent-merge'));
     const subDir = normalizeToAbsolutePath(join(baseDir, 'subdir'));
-    const parentContent = await readFile(join(baseDir, 'package.json'), 'utf-8');
-    const childContent = await readFile(join(subDir, 'package.json'), 'utf-8');
+    const parentContent = await readFile(normalizeToAbsolutePath(join(baseDir, 'package.json')));
+    const childContent = await readFile(normalizeToAbsolutePath(join(subDir, 'package.json')));
 
     fillManifestCaches(
       PACKAGE_JSON,
@@ -148,15 +151,15 @@ describe('files', () => {
         [
           subDir,
           {
-            path: normalizeToAbsolutePath(join(subDir, 'package.json')),
-            content: childContent,
+            filePath: normalizeToAbsolutePath(join(subDir, 'package.json')),
+            fileContent: childContent,
           },
         ],
         [
           baseDir,
           {
-            path: normalizeToAbsolutePath(join(baseDir, 'package.json')),
-            content: parentContent,
+            filePath: normalizeToAbsolutePath(join(baseDir, 'package.json')),
+            fileContent: parentContent,
           },
         ],
       ]),
@@ -797,5 +800,42 @@ describe('files', () => {
     expect(() => dependencyManifestStore.getPackageJsons()).toThrow(new Error(UNINITIALIZED_ERROR));
     expect(dependenciesCache.size).toEqual(0);
     expect(moduleTypeCache.size).toEqual(0);
+  });
+
+  it('should refresh discovered manifests when project-file discovery config changes', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'child-parent-merge'));
+    const subDir = normalizeToAbsolutePath(join(baseDir, 'subdir'));
+
+    let configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    expect(dependencyManifestStore.getPackageJsons().has(baseDir)).toEqual(true);
+    expect(dependencyManifestStore.getPackageJsons().has(subDir)).toEqual(true);
+
+    configuration = createConfiguration({
+      baseDir,
+      jsTsExclusions: ['**/subdir/**'],
+    });
+    await initFileStores(configuration);
+
+    expect(dependencyManifestStore.getPackageJsons().has(baseDir)).toEqual(true);
+    expect(dependencyManifestStore.getPackageJsons().has(subDir)).toEqual(false);
+  });
+
+  it('should keep discovered manifests when only source-file selection changes', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'child-parent-merge'));
+    const subDir = normalizeToAbsolutePath(join(baseDir, 'subdir'));
+
+    let configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    configuration = createConfiguration({
+      baseDir,
+      sources: ['subdir'],
+    });
+    await initFileStores(configuration);
+
+    expect(dependencyManifestStore.getPackageJsons().has(baseDir)).toEqual(true);
+    expect(dependencyManifestStore.getPackageJsons().has(subDir)).toEqual(true);
   });
 });

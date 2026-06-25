@@ -26,7 +26,10 @@ import {
   type NormalizedAbsolutePath,
 } from '../../../../shared/src/helpers/files.js';
 import { JsTsAnalysisInput } from '../../../src/jsts/analysis/analysis.js';
-import { buildParserOptions } from '../../../src/jsts/parsers/options.js';
+import {
+  buildBabelParserOptions,
+  buildTsParserOptions,
+} from '../../../src/jsts/parsers/options.js';
 import {
   deserializeProtobuf,
   lowerCaseFirstLetter,
@@ -61,7 +64,7 @@ async function parseSourceFile(
   const fileType = 'MAIN';
 
   const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-  const options = buildParserOptions(input, usingBabel);
+  const options = usingBabel ? buildBabelParserOptions(input) : buildTsParserOptions(input);
   return parse(fileContent, parser, options);
 }
 
@@ -96,8 +99,20 @@ describe('ast', () => {
         const protoMessage = parseInProtobuf(sc.sourceCode.ast as TSESTree.Program);
         const serialized = serializeInProtobuf(sc.sourceCode.ast as TSESTree.Program, filePath);
         const deserializedProtoMessage = deserializeProtobuf(serialized);
+        assert.ok(protoMessage);
         compareASTs(protoMessage, deserializedProtoMessage);
       });
+
+    test('should serialize and deserialize deep commander call chains', async () => {
+      const filePath = normalizeToAbsolutePath(
+        path.join(import.meta.dirname, 'fixtures', 'ast', 'commander.js'),
+      );
+      const sc = await parseSourceFile(filePath, parsersMap.typescript);
+      const protoMessage = parseInProtobuf(sc.sourceCode.ast as TSESTree.Program);
+      const serialized = serializeInProtobuf(sc.sourceCode.ast as TSESTree.Program, filePath);
+      const deserializedProtoMessage = deserializeProtobuf(serialized);
+      compareASTs(protoMessage, deserializedProtoMessage);
+    });
   });
   test('should support TSAsExpression nodes', async () => {
     const code = `const foo = '5' as string;`;

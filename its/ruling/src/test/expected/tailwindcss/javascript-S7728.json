@@ -1,15 +1,4 @@
 {
-"tailwindcss:__tests__/processPlugins.test.js": [
-654
-],
-"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
-654,
-708,
-758
-],
-"tailwindcss:__tests__/util/produce.js": [
-19
-],
 "tailwindcss:src/cli/utils.js": [
 32
 ],

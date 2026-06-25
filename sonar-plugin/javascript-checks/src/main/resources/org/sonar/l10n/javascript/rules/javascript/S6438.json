@@ -1,0 +1,35 @@
+{
+  "title": "Comments inside JSX expressions should be enclosed in curly braces",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "react",
+    "jsx"
+  ],
+  "extra": {
+    "requiredDependency": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6438",
+  "sqKey": "S6438",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

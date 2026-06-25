@@ -14,16 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
+import type { File, NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 import type { Configuration } from '../common/configuration.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
+
+export type FileProcessingMode = 'path' | 'content';
 
 export abstract class FileStore {
   /**
    * Checks if the store is initialized for the given base directory.
    *
    * @param configuration - The project configuration
-   * @param inputFiles - Optional sanitized input files
+   * @param inputFiles - Optional authoritative analyzable files
    */
   abstract isInitialized(
     configuration: Configuration,
@@ -37,9 +39,15 @@ export abstract class FileStore {
    */
   abstract setup(configuration: Configuration): void;
 
+  abstract wantsFile(
+    filename: NormalizedAbsolutePath,
+    configuration: Configuration,
+  ): FileProcessingMode | false;
+
   abstract processFile(
     filename: NormalizedAbsolutePath,
     configuration: Configuration,
+    file?: File,
   ): Promise<void>;
 
   /**

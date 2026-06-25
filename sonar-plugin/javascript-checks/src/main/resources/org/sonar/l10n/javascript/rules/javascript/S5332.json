@@ -1,0 +1,68 @@
+{
+  "title": "Clear-text protocols should not be used",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "LOW"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "ready",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "cwe",
+    "former-hotspot"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-5332",
+  "sqKey": "S5332",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      200,
+      319
+    ],
+    "OWASP": [
+      "A3"
+    ],
+    "OWASP Top 10 2021": [
+      "A2"
+    ],
+    "PCI DSS 3.2": [
+      "4.1",
+      "6.5.4"
+    ],
+    "PCI DSS 4.0": [
+      "4.2.1",
+      "6.2.4"
+    ],
+    "ASVS 4.0": [
+      "1.9.1",
+      "9.1.1",
+      "9.2.2"
+    ],
+    "STIG ASD_V5R3": [
+      "V-222397",
+      "V-222534",
+      "V-222562",
+      "V-222563",
+      "V-222577",
+      "V-222596",
+      "V-222597",
+      "V-222598",
+      "V-222599"
+    ]
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

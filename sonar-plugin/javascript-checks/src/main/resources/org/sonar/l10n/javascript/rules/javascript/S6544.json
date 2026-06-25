@@ -1,0 +1,34 @@
+{
+  "title": "Promises should not be misused",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "promise",
+    "async",
+    "type-dependent",
+    "es2017"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6544",
+  "sqKey": "S6544",
+  "scope": "Main",
+  "quickfix": "partial",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

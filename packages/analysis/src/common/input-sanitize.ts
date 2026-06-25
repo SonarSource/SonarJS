@@ -100,9 +100,8 @@ export async function sanitizeProjectAnalysisInput(
   const sanitizedFiles = isObject(raw.files)
     ? await sanitizeRawInputFiles(raw.files, configuration)
     : undefined;
-  const inputFiles = sanitizedFiles?.files;
 
-  await initFileStores(configuration, inputFiles);
+  await initFileStores(configuration, sanitizedFiles?.files);
 
   return {
     rules: isJsTsRuleConfigArray(raw.rules) ? (raw.rules as RuleConfig[]) : [],
@@ -138,14 +137,26 @@ export async function sanitizeInputFiles(
   const pathMap = new Map<string, string>();
 
   if (!inputFiles) {
-    return { files, pathMap };
+    return {
+      files,
+      pathMap,
+    };
   }
 
   for (const [key, fileInput] of Object.entries(inputFiles)) {
     const filePath = normalizeToAbsolutePath(fileInput.filePath, baseDir);
     const fileContent = fileInput.fileContent ?? (await readFile(filePath));
-    const rawFileType =
-      fileInput.fileType ?? filterPathAndGetFileType(filePath, getFilterPathParams(configuration));
+    let rawFileType: FileType | undefined = fileInput.fileType;
+    if (rawFileType !== 'TEST') {
+      // We cannot trust the caller to provide the correct fileType, so we attempt to infer it from the file path if not explicitly set to 'TEST'.
+      const inferredFileType = filterPathAndGetFileType(
+        filePath,
+        getFilterPathParams(configuration),
+      );
+      if (inferredFileType) {
+        rawFileType = inferredFileType;
+      }
+    }
     const rawFileStatus = fileInput.fileStatus;
 
     if (await shouldIgnoreFile({ filePath, fileContent }, getShouldIgnoreParams(configuration))) {
@@ -161,7 +172,10 @@ export async function sanitizeInputFiles(
     pathMap.set(filePath, key);
   }
 
-  return { files, pathMap };
+  return {
+    files,
+    pathMap,
+  };
 }
 
 export async function sanitizeRawInputFiles(

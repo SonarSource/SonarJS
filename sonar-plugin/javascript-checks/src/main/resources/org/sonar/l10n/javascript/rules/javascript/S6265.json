@@ -1,0 +1,50 @@
+{
+  "title": "S3 buckets should not grant access to all users or authenticated users",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "BLOCKER"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "status": "ready",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "aws",
+    "cwe",
+    "former-hotspot"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "aws-cdk-lib"
+    ]
+  },
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-6265",
+  "sqKey": "S6265",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      284,
+      732
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ]
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

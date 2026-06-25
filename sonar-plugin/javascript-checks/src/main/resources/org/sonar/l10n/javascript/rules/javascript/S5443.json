@@ -1,0 +1,58 @@
+{
+  "title": "Temporary files should not be created in publicly writable directories",
+  "type": "VULNERABILITY",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "cwe",
+    "former-hotspot"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-5443",
+  "sqKey": "S5443",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      377,
+      379
+    ],
+    "OWASP": [
+      "A5",
+      "A3"
+    ],
+    "OWASP Top 10 2021": [
+      "A1"
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ],
+    "STIG ASD_V5R3": [
+      "V-222567"
+    ]
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

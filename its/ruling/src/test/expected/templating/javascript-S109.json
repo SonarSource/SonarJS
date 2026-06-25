@@ -2,12 +2,5 @@
 "templating:protractor-shared.conf.js": [
 16,
 16
-],
-"templating:test/example/greet.spec.js": [
-61
-],
-"templating:test/example/todo.spec.js": [
-13,
-26
 ]
 }

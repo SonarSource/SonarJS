@@ -18,7 +18,12 @@ import { debug } from '../../../../shared/src/helpers/logging.js';
 import { type Rule, Linter as ESLintLinter, type SourceCode } from 'eslint';
 import type { RuleConfig } from './config/rule-config.js';
 import type { JsTsLanguage } from '../../common/configuration.js';
-import { transformMessages } from './issues/transform.js';
+import {
+  transformMessages,
+  transformSuppressedMessages,
+  type SuppressedLintMessage,
+} from './issues/transform.js';
+import type { JsTsIssue, SuppressedJsTsIssue } from './issues/issue.js';
 import * as internalRules from '../rules/rules.js';
 import {
   normalizePath,
@@ -35,15 +40,19 @@ import { APIError } from '../../contracts/error.js';
 import { pathToFileURL } from 'node:url';
 import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
-import { defaultOptions, applyTransformations } from '../rules/helpers/configs.js';
+import { materializeRuleOptions } from '../rules/helpers/configs.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
-import merge from 'lodash.merge';
+import { DEFAULT_ECMA_VERSION } from '../parsers/options.js';
 import {
   getDependencies,
   getModuleType,
   setCurrentFileInlineDependencies,
   withCurrentFileInlineDependencies,
 } from '../rules/helpers/dependency-manifests/dependencies.js';
+import type {
+  DependenciesList,
+  ModuleType,
+} from '../rules/helpers/dependency-manifests/resolvers/types.js';
 import {
   DEPENDENCY_INDEPENDENT_RULE_FILTERS,
   DEPENDENCY_SENSITIVE_RULE_FILTERS,
@@ -54,20 +63,28 @@ import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js
 import type { FileType } from '../../contracts/file.js';
 import { clearFileCaches, getCurrentFileImports } from '../rules/helpers/module.js';
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/deno.js';
-import type { DependenciesList } from '../rules/helpers/dependency-manifests/resolvers/types.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
   environments?: string[];
   globals?: string[];
   baseDir: NormalizedAbsolutePath;
+  detectGeneratedCode?: boolean;
+  isGeneratedSourceFile?: (filePath: NormalizedAbsolutePath) => boolean;
   bundles?: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
+  /** Union of jsSuffixes and tsSuffixes; exposed to rules via context.settings.testFileExtensions */
+  testFileExtensions?: string[];
 }
 
 interface LintOptions {
   additionalSettings?: Record<string, unknown>;
   additionalRules?: ESLintLinter.RulesRecord;
+}
+
+export interface LintResult {
+  issues: JsTsIssue[];
+  suppressedIssues: SuppressedJsTsIssue[];
 }
 
 /**
@@ -111,6 +128,10 @@ export class Linter {
   /** The rules working directory (used for architecture, dbd...) */
   private static rulesWorkdir?: NormalizedAbsolutePath;
   private static baseDir: NormalizedAbsolutePath;
+  private static detectGeneratedCode = true;
+  private static isGeneratedSourceFile = (_filePath: NormalizedAbsolutePath) => false;
+  /** Union of jsSuffixes and tsSuffixes, surfaced to rules through ESLint settings. */
+  private static testFileExtensions: string[] = [];
 
   /** Linter is a static class and cannot be instantiated */
   private constructor() {
@@ -139,7 +160,10 @@ export class Linter {
     globals = [],
     bundles = [],
     baseDir,
+    detectGeneratedCode = true,
+    isGeneratedSourceFile = _filePath => false,
     rulesWorkdir,
+    testFileExtensions = [],
   }: InitializeParams) {
     debug(`Initializing linter with ${rules?.map(rule => rule.key)}`);
     Linter.ruleConfigs = rules;
@@ -149,6 +173,9 @@ export class Linter {
     Linter.dependencyIndependentRulesCache.clear();
     Linter.dependencySensitiveRulesCache.clear();
     Linter.baseDir = baseDir;
+    Linter.detectGeneratedCode = detectGeneratedCode;
+    Linter.isGeneratedSourceFile = isGeneratedSourceFile;
+    Linter.testFileExtensions = testFileExtensions;
     /**
      * Context bundles define a set of external custom rules (like the architecture rule)
      * including rule keys and rule definitions that cannot be provided to the linter
@@ -157,6 +184,11 @@ export class Linter {
     for (const ruleBundle of bundles) {
       await Linter.loadRulesFromBundle(ruleBundle);
     }
+  }
+
+  /** Resolve the module type for a file against the linter's base directory. */
+  public static detectModuleType(filePath: NormalizedAbsolutePath): ModuleType | undefined {
+    return getModuleType(normalizeToAbsolutePath(filePath), Linter.baseDir);
   }
 
   private static async loadRulesFromBundle(ruleBundle: NormalizedAbsolutePath) {
@@ -181,6 +213,7 @@ export class Linter {
    * @param analysisMode whether we are analyzing all files or only changed files
    * @param language language of the source file
    * @param detectedEsYear ecmascript version for the file
+   * @param detectedModuleType module type for the file
    * @param lintOptions additional rules and settings for linting
    * @returns linting issues
    */
@@ -192,10 +225,15 @@ export class Linter {
     analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
     detectedEsYear?: number,
+    detectedModuleType?: ModuleType,
     lintOptions: LintOptions = {},
-  ) {
+  ): LintResult {
     if (!Linter.linter) {
       throw APIError.linterError(`Linter does not exist.`);
+    }
+    if (detectedModuleType === undefined) {
+      detectedModuleType = Linter.detectModuleType(filePath);
+      getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
     }
     const baseRules = Linter.getRulesForFile(
       filePath,
@@ -203,6 +241,7 @@ export class Linter {
       fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
       language,
       detectedEsYear,
+      detectedModuleType,
       sourceCode,
     );
     const rules = lintOptions.additionalRules
@@ -221,21 +260,33 @@ export class Linter {
       /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
       settings: {
         react: { version: '999.999.999' },
+        detectedModuleType,
         fileType,
+        predefinedGlobals: getPredefinedGlobals(detectedEsYear),
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
+        testFileExtensions: Linter.testFileExtensions,
         ...lintOptions.additionalSettings,
       },
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
-    const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
+    const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath, rules));
+    const suppressedMessages = (
+      Linter.linter as ESLintLinter & {
+        getSuppressedMessages(): SuppressedLintMessage[];
+      }
+    ).getSuppressedMessages();
     clearFileCaches();
-    return transformMessages(messages, language, {
+    const ctx = {
       sourceCode,
       ruleMetas,
       filePath,
-    });
+    };
+    return {
+      issues: transformMessages(messages, language, ctx),
+      suppressedIssues: transformSuppressedMessages(suppressedMessages, language, ctx),
+    };
   }
 
   /**
@@ -266,28 +317,22 @@ export class Linter {
     analysisMode: AnalysisMode,
     fileLanguage: JsTsLanguage,
     detectedEsYear?: number,
+    detectedModuleType?: ModuleType,
     sourceCode?: SourceCode,
   ): ESLintLinter.RulesRecord {
     const normalizedFilePath = normalizeToAbsolutePath(filePath);
-    const detectedModuleType = getModuleType(normalizedFilePath, Linter.baseDir);
-    getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
+    if (detectedModuleType === undefined) {
+      detectedModuleType = getModuleType(normalizedFilePath, Linter.baseDir);
+      getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
+    }
+    const isGeneratedSource = Linter.detectGeneratedCode
+      ? Linter.isGeneratedSourceFile(normalizedFilePath)
+      : false;
     const manifestDependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
     // Make inline npm: imports visible to both rule activation and to dependency helpers
     // (getReactVersion, getDependenciesSanitizePaths) called from rules during linting.
     // Cleared by clearFileCaches() once linting completes.
     setCurrentFileInlineDependencies(sourceCode ? extractInlineNpmDependencies(sourceCode) : null);
-    const linterConfigKey = createLinterConfigKey(
-      filePath,
-      Linter.baseDir,
-      fileType,
-      fileLanguage,
-      analysisMode,
-      detectedEsYear,
-      detectedModuleType,
-    );
-    let baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey);
-    let dependencySensitiveRules = Linter.dependencySensitiveRulesCache.get(linterConfigKey);
-
     const baseContext = {
       extensionName: extname(normalizePath(filePath)),
       fileType,
@@ -295,7 +340,12 @@ export class Linter {
       analysisMode,
       detectedEsYear,
       detectedModuleType,
+      detectGeneratedCode: Linter.detectGeneratedCode,
+      isGeneratedSource,
     };
+    const linterConfigKey = createLinterConfigKey(filePath, Linter.baseDir, baseContext);
+    let baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey);
+    let dependencySensitiveRules = Linter.dependencySensitiveRulesCache.get(linterConfigKey);
 
     if (baseRules === undefined || dependencySensitiveRules === undefined) {
       /**
@@ -365,21 +415,16 @@ export class Linter {
    * @param rules the rules from the active quality profile
    */
   private static createRulesRecord(rules: RuleConfig[]): ESLintLinter.RulesRecord {
-    return rules.reduce((rules, rule) => {
-      // in the case of bundles, rule.key will not be present in the ruleMetas
-      const ruleMeta = getRuleMeta(rule);
-      if (ruleMeta?.fields) {
-        rules[`sonarjs/${rule.key}`] = [
-          'error',
-          ...applyTransformations(
-            ruleMeta.fields,
-            merge(defaultOptions(ruleMeta.fields), rule.configurations),
-          ),
-        ];
-      } else {
-        rules[`sonarjs/${rule.key}`] = ['error'];
-      }
-      return rules;
+    return rules.reduce((rulesRecord, rule) => {
+      const transformedOptions = materializeRuleOptions(
+        getRuleMeta(rule),
+        Linter.rules[rule.key],
+        rule.configurations,
+      );
+
+      rulesRecord[`sonarjs/${rule.key}`] =
+        transformedOptions.length > 0 ? ['error', ...transformedOptions] : ['error'];
+      return rulesRecord;
     }, {} as ESLintLinter.RulesRecord);
   }
 }
@@ -388,6 +433,12 @@ function getRuleMeta(ruleConfig: RuleConfig): SonarMeta | undefined {
   return ruleConfig.key in ruleMetas
     ? (ruleMetas[ruleConfig.key as keyof typeof ruleMetas] as SonarMeta)
     : undefined;
+}
+
+function getPredefinedGlobals(detectedEsYear?: number): string[] {
+  const ecmaGlobalsKey = `es${detectedEsYear ?? DEFAULT_ECMA_VERSION}` as keyof typeof globalsPkg;
+  const ecmaGlobals = globalsPkg[ecmaGlobalsKey] ?? globalsPkg.es2027;
+  return [...new Set([...Object.keys(ecmaGlobals), ...Linter.globals.keys()])];
 }
 
 function hasRequiredDependencies(ruleMeta: SonarMeta | undefined): boolean {
@@ -426,11 +477,16 @@ function extractInlineNpmDependencies(sourceCode: SourceCode): DependenciesList 
 function createLinterConfigKey(
   filePath: NormalizedAbsolutePath,
   baseDir: NormalizedAbsolutePath,
-  fileType: FileType,
-  language: JsTsLanguage,
-  analysisMode: AnalysisMode,
-  detectedEsYear?: number,
-  detectedModuleType?: string,
+  context: Pick<
+    RuleFilterContext,
+    | 'fileType'
+    | 'fileLanguage'
+    | 'analysisMode'
+    | 'detectedEsYear'
+    | 'detectedModuleType'
+    | 'detectGeneratedCode'
+    | 'isGeneratedSource'
+  >,
 ): string {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
   const normalizedPath = normalizeToAbsolutePath(filePath);
@@ -438,6 +494,6 @@ function createLinterConfigKey(
     dirnamePath(normalizedPath),
     baseDir,
   );
-  const linterConfigKey = `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
-  return `${linterConfigKey}:${detectedEsYear ?? 'esnext'}:${detectedModuleType ?? 'unknown'}`;
+  const linterConfigKey = `${context.fileType}-${context.fileLanguage}-${context.analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
+  return `${linterConfigKey}:${context.detectedEsYear ?? 'esnext'}:${context.detectedModuleType ?? 'unknown'}:${context.detectGeneratedCode === false ? 'generated-off' : 'generated-on'}:${context.isGeneratedSource === true ? 'generated' : 'regular'}`;
 }

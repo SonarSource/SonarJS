@@ -70,7 +70,7 @@ export const rule: Rule.RuleModule = {
         return;
       }
       const signature = checker.getSignatureFromDeclaration(
-        services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node) as ts.SignatureDeclaration,
+        services.esTreeNodeToTSNodeMap.get(node) as ts.SignatureDeclaration,
       );
       if (signature && hasMultipleReturnTypes(signature, checker)) {
         if (isASanitationFunction(signature)) {

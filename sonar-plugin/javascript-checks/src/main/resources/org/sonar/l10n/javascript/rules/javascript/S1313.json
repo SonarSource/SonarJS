@@ -1,0 +1,45 @@
+{
+  "title": "IP addresses should not be hardcoded",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "SECURITY": "LOW"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "former-hotspot"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Minor",
+  "quickfix": "unknown",
+  "ruleSpecification": "RSPEC-1313",
+  "sqKey": "S1313",
+  "scope": "Main",
+  "securityStandards": {
+    "OWASP": [
+      "A3"
+    ],
+    "OWASP Top 10 2021": [
+      "A1"
+    ],
+    "CWE": [
+      547
+    ]
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

@@ -21,7 +21,9 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.stream.StreamSupport;
@@ -31,9 +33,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.CancellationException;
@@ -70,10 +72,17 @@ import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.sonarlint.FSListener;
 
 @DependedUpon("js-analysis")
-public class WebSensor implements Sensor {
+public class WebSensor implements ProjectSensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(WebSensor.class);
   private static final String LANG = "JS/TS";
+  private static final Set<String> PROJECT_METADATA_FILENAMES = Set.of(
+    "tsconfig.json",
+    "package.json",
+    "deno.json",
+    "deno.jsonc",
+    "pnpm-workspace.yaml"
+  );
 
   private final JsTsChecks checks;
   private final AnalysisConsumers consumers;
@@ -81,6 +90,7 @@ public class WebSensor implements Sensor {
   private final AnalysisWarningsWrapper analysisWarnings;
   private final CssRules cssRules;
   private final BridgeServer bridgeServer;
+  private final WebSensorModuleConfiguration moduleConfiguration;
   private ProjectConfiguration.Builder configurationBuilder;
   private JsTsContext<?> context;
   FSListener fsListener;
@@ -91,9 +101,19 @@ public class WebSensor implements Sensor {
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
-    CssRules cssRules
+    CssRules cssRules,
+    WebSensorModuleConfiguration moduleConfiguration
   ) {
-    this(checks, bridgeServer, analysisProcessor, analysisWarnings, consumers, cssRules, null);
+    this(
+      checks,
+      bridgeServer,
+      analysisProcessor,
+      analysisWarnings,
+      consumers,
+      cssRules,
+      null,
+      moduleConfiguration
+    );
   }
 
   public WebSensor(
@@ -103,7 +123,8 @@ public class WebSensor implements Sensor {
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
     CssRules cssRules,
-    @Nullable FSListener fsListener
+    @Nullable FSListener fsListener,
+    WebSensorModuleConfiguration moduleConfiguration
   ) {
     this.checks = checks;
     this.consumers = consumers;
@@ -112,6 +133,7 @@ public class WebSensor implements Sensor {
     this.analysisWarnings = analysisWarnings;
     this.cssRules = cssRules;
     this.bridgeServer = bridgeServer;
+    this.moduleConfiguration = moduleConfiguration;
   }
 
   @Override
@@ -150,7 +172,7 @@ public class WebSensor implements Sensor {
       LOG.debug(msg);
       configurationBuilder = AnalyzeProjectMessages.newProjectConfigurationBuilder(
         sensorContext.fileSystem().baseDir().getAbsolutePath(),
-        context
+        contextWithCollectedTsConfigPaths(sensorContext)
       );
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
       analyzeFiles(inputFiles);
@@ -180,8 +202,22 @@ public class WebSensor implements Sensor {
       LOG.error("Failure during analysis", e);
       throw new IllegalStateException("Analysis of " + LANG + " files failed", e);
     } finally {
+      moduleConfiguration.clear();
       CacheStrategies.logReport();
     }
+  }
+
+  private JsTsContext<SensorContext> contextWithCollectedTsConfigPaths(
+    SensorContext sensorContext
+  ) {
+    var baseContext = new JsTsContext<>(sensorContext);
+    Set<String> collectedTsConfigPaths = moduleConfiguration.tsConfigPaths(baseContext);
+    return new JsTsContext<>(sensorContext) {
+      @Override
+      public Set<String> getTsConfigPaths() {
+        return collectedTsConfigPaths;
+      }
+    };
   }
 
   private List<InputFile> getInputFiles() {
@@ -223,7 +259,10 @@ public class WebSensor implements Sensor {
 
   private void analyzeFiles(List<InputFile> inputFiles) {
     var eslintImporter = new EslintReportImporter();
-    var externalIssues = eslintImporter.execute(context);
+    var externalIssues = eslintImporter.execute(
+      context,
+      moduleConfiguration.eslintReports(context.getSensorContext())
+    );
     try {
       var handler = new AnalyzeProjectHandler(context, inputFiles, externalIssues);
       bridgeServer.analyzeProject(handler);
@@ -254,6 +293,7 @@ public class WebSensor implements Sensor {
     private final JsTsContext<?> context;
     private final Map<String, List<ExternalIssue>> externalIssues;
     private final List<InputFile> inputFiles;
+    private final List<InputFile> projectMetadataFiles;
     private final Map<String, InputFile> fileToInputFile = new HashMap<>();
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
     private final CompletableFuture<Void> handle;
@@ -268,6 +308,9 @@ public class WebSensor implements Sensor {
     ) {
       this.inputFiles = inputFiles;
       this.context = context;
+      this.projectMetadataFiles = context.canAccessFileSystem()
+        ? List.of()
+        : collectProjectMetadataFiles();
       this.handle = new CompletableFuture<>();
       this.externalIssues = externalIssues;
     }
@@ -276,29 +319,8 @@ public class WebSensor implements Sensor {
     public AnalyzeProjectRequest getRequest() {
       var files = new HashMap<String, ProjectFileInput>();
       try {
-        for (InputFile inputFile : inputFiles) {
-          var language = inputFile.language();
-          var isJsTs = isJsTsFile(inputFile);
-          var isHtmlOrYaml =
-            JavaScriptFilePredicate.WEB_LANGUAGE.equals(language) ||
-            JavaScriptFilePredicate.YAML_LANGUAGE.equals(language);
-
-          if (isJsTs || isHtmlOrYaml) {
-            CacheStrategy cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
-            if (cacheStrategy.isAnalysisRequired()) {
-              addFileToAnalyze(files, inputFile);
-              fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
-            } else if (isJsTs) {
-              LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
-              var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
-              analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
-              acceptAstResponse(cacheAnalysis.getAst(), inputFile);
-            }
-          } else {
-            // CSS and extension-based HTML/YAML/CSS-additional files: always analyze, no caching.
-            addFileToAnalyze(files, inputFile);
-          }
-        }
+        addInputFilesToRequest(files);
+        addProjectMetadataFilesToRequest(files);
       } catch (IOException e) {
         var failure = new IllegalStateException(e);
         handle.completeExceptionally(failure);
@@ -318,6 +340,69 @@ public class WebSensor implements Sensor {
           cssRules.getStylelintRules().stream().map(AnalyzeProjectMessages::toProtoRule).toList()
         )
         .build();
+    }
+
+    private void addInputFilesToRequest(Map<String, ProjectFileInput> files) throws IOException {
+      for (InputFile inputFile : inputFiles) {
+        addInputFileToRequest(files, inputFile);
+      }
+    }
+
+    private void addInputFileToRequest(Map<String, ProjectFileInput> files, InputFile inputFile)
+      throws IOException {
+      if (shouldUseCache(inputFile)) {
+        handleCachedInputFile(files, inputFile);
+      } else {
+        // CSS and extension-based HTML/YAML/CSS-additional files: always analyze, no caching.
+        addFileToAnalyze(files, inputFile);
+      }
+    }
+
+    private boolean shouldUseCache(InputFile inputFile) {
+      var language = inputFile.language();
+      return (
+        isJsTsFile(inputFile) ||
+        JavaScriptFilePredicate.WEB_LANGUAGE.equals(language) ||
+        JavaScriptFilePredicate.YAML_LANGUAGE.equals(language)
+      );
+    }
+
+    private void handleCachedInputFile(Map<String, ProjectFileInput> files, InputFile inputFile)
+      throws IOException {
+      CacheStrategy cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+      if (cacheStrategy.isAnalysisRequired()) {
+        addFileToAnalyze(files, inputFile);
+        fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
+        return;
+      }
+
+      if (isJsTsFile(inputFile)) {
+        LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
+        var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
+        analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
+        acceptAstResponse(cacheAnalysis.getAst(), inputFile);
+      }
+    }
+
+    private void addProjectMetadataFilesToRequest(Map<String, ProjectFileInput> files)
+      throws IOException {
+      for (InputFile metadataFile : projectMetadataFiles) {
+        addFileToAnalyze(files, metadataFile);
+      }
+    }
+
+    private List<InputFile> collectProjectMetadataFiles() {
+      FileSystem fileSystem = context.getSensorContext().fileSystem();
+      return StreamSupport.stream(
+        fileSystem.inputFiles(fileSystem.predicates().all()).spliterator(),
+        false
+      )
+        .filter(AnalyzeProjectHandler::isProjectMetadataFile)
+        .toList();
+    }
+
+    private static boolean isProjectMetadataFile(InputFile inputFile) {
+      return PROJECT_METADATA_FILENAMES.contains(inputFile.filename().toLowerCase(Locale.ROOT));
     }
 
     public CompletableFuture<Void> getFuture() {

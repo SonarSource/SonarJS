@@ -46,5 +46,5 @@ export function getInternalMetricsSink(settings: unknown): InternalMetricsSink |
     return undefined;
   }
 
-  return metricsSink as InternalMetricsSink;
+  return metricsSink;
 }

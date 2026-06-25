@@ -31,6 +31,13 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { isRegExpConstructor } from './ast.js';
 import { getFlags } from './flags.js';
 
+type ExtractedRegexPattern = {
+  pattern: string;
+  flags: string;
+  seams: number[];
+  isPureLiteral: boolean;
+};
+
 export function getParsedRegex(
   node: estree.Node,
   context: Rule.RuleContext,
@@ -50,38 +57,55 @@ export function getParsedRegex(
 export function getPatternFromNode(
   node: estree.Node,
   context: Rule.RuleContext,
-): { pattern: string; flags: string } | null {
+): ExtractedRegexPattern | null {
   if (isRegExpConstructor(node)) {
     const patternOnly = getPatternFromNode(node.arguments[0], context);
     const flags = getFlags(node, context);
     if (patternOnly && flags !== null) {
       // if we can't extract flags correctly, we skip this
       // to avoid FPs
-      return { pattern: patternOnly.pattern, flags };
+      return { ...patternOnly, flags };
     }
   } else if (isRegexLiteral(node)) {
-    return node.regex;
+    return literalPattern(node.regex.pattern, node.regex.flags);
   } else if (isStringLiteral(node)) {
-    return { pattern: node.value as string, flags: '' };
+    return literalPattern(node.value);
   } else if (isStaticTemplateLiteral(node)) {
-    return { pattern: node.quasis[0].value.raw, flags: '' };
+    return literalPattern(node.quasis[0].value.raw);
   } else if (isSimpleRawString(node)) {
-    return { pattern: getSimpleRawStringValue(node), flags: '' };
+    return literalPattern(getSimpleRawStringValue(node));
   } else if (isIdentifier(node)) {
     const assignedExpression = getUniqueWriteUsage(context, node.name, node);
     if (
       assignedExpression &&
       (assignedExpression as TSESTree.Node).parent?.type === 'VariableDeclarator'
     ) {
-      return getPatternFromNode(assignedExpression, context);
+      const pattern = getPatternFromNode(assignedExpression, context);
+      return pattern ? { ...pattern, isPureLiteral: false } : null;
     }
   } else if (isBinaryPlus(node)) {
     const left = getPatternFromNode(node.left, context);
     const right = getPatternFromNode(node.right, context);
-    if (left && right) {
-      return { pattern: left.pattern + right.pattern, flags: '' };
-    }
+    return left && right ? concatPatterns(left, right) : null;
   }
 
   return null;
+}
+
+function literalPattern(pattern: string, flags = ''): ExtractedRegexPattern {
+  return { pattern, flags, seams: [], isPureLiteral: true };
+}
+
+function concatPatterns(
+  left: ExtractedRegexPattern,
+  right: ExtractedRegexPattern,
+): ExtractedRegexPattern {
+  const splitOffset = left.pattern.length;
+  const splitSeams = left.isPureLiteral && right.isPureLiteral ? [] : [splitOffset];
+  return {
+    pattern: left.pattern + right.pattern,
+    flags: '',
+    seams: [...left.seams, ...splitSeams, ...right.seams.map(s => s + splitOffset)],
+    isPureLiteral: left.isPureLiteral && right.isPureLiteral,
+  };
 }

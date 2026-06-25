@@ -89,4 +89,57 @@ describe('tsconfigs', () => {
       `Failed to find any of the provided tsconfig.json files: ${join(fixtures, 'tsconfig.fake.json')}`,
     );
   });
+
+  it('should keep using provided tsconfig paths after project-file discovery resets the cache', async () => {
+    const providedTsconfig = normalizeToAbsolutePath(join(fixtures, 'project3', 'tsconfig.json'));
+    let configuration = createConfiguration({
+      baseDir: fixtures,
+      tsConfigPaths: [providedTsconfig],
+    });
+    await initFileStores(configuration);
+
+    expect(tsConfigStore.getTsConfigs()).toEqual([providedTsconfig]);
+    expect(tsConfigStore.usingPropertyTsConfigs()).toBe(true);
+
+    configuration = createConfiguration({
+      baseDir: fixtures,
+      tsConfigPaths: [providedTsconfig],
+      jsTsExclusions: ['**/project1/**'],
+    });
+    await initFileStores(configuration);
+
+    expect(tsConfigStore.getTsConfigs()).toEqual([providedTsconfig]);
+    expect(tsConfigStore.usingPropertyTsConfigs()).toBe(true);
+  });
+
+  it('should refresh discovered tsconfigs when project-file discovery config changes', async () => {
+    let configuration = createConfiguration({ baseDir: fixtures });
+    await initFileStores(configuration);
+
+    const excludedTsconfig = normalizeToAbsolutePath(join(fixtures, 'project3', 'tsconfig.json'));
+    expect(tsConfigStore.getTsConfigs()).toContain(excludedTsconfig);
+
+    configuration = createConfiguration({
+      baseDir: fixtures,
+      jsTsExclusions: ['**/project3/**'],
+    });
+    await initFileStores(configuration);
+
+    expect(tsConfigStore.getTsConfigs()).not.toContain(excludedTsconfig);
+  });
+
+  it('should keep discovered tsconfigs when only source-file selection changes', async () => {
+    let configuration = createConfiguration({ baseDir: fixtures });
+    await initFileStores(configuration);
+
+    const retainedTsconfig = normalizeToAbsolutePath(join(fixtures, 'project3', 'tsconfig.json'));
+
+    configuration = createConfiguration({
+      baseDir: fixtures,
+      sources: ['project3'],
+    });
+    await initFileStores(configuration);
+
+    expect(tsConfigStore.getTsConfigs()).toContain(retainedTsconfig);
+  });
 });

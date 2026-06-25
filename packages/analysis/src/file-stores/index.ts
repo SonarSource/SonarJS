@@ -16,12 +16,15 @@
  */
 import { SourceFileStore } from './source-files.js';
 import { DependencyManifestStore } from './dependency-manifests.js';
+import { GeneratedSourceStore } from './generated-sources/index.js';
 import { TsConfigStore } from './tsconfigs.js';
 import { findFiles } from '../common/find-files.js';
 import type { FileStore } from './store-type.js';
 import type { Configuration } from '../common/configuration.js';
 import {
   isRoot,
+  readFile,
+  type File,
   type NormalizedAbsolutePath,
   dirnamePath,
 } from '../../../shared/src/helpers/files.js';
@@ -29,13 +32,28 @@ import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const dependencyManifestStore = new DependencyManifestStore();
+export const generatedSourceStore = new GeneratedSourceStore(dependencyManifestStore);
 export const tsConfigStore = new TsConfigStore();
+
+const fileStores: FileStore[] = [
+  sourceFileStore,
+  dependencyManifestStore,
+  generatedSourceStore,
+  tsConfigStore,
+];
+
+export function resetFileStores() {
+  sourceFileStore.clearCache();
+  dependencyManifestStore.clearCache();
+  generatedSourceStore.clearCache();
+  tsConfigStore.clearCache();
+}
 
 export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
 
-  for (const store of [sourceFileStore, dependencyManifestStore, tsConfigStore]) {
+  for (const store of fileStores) {
     if (!(await store.isInitialized(configuration, inputFiles))) {
       pendingStores.push(store);
     }
@@ -50,20 +68,20 @@ export async function initFileStores(configuration: Configuration, inputFiles?: 
   }
 
   if (canAccessFileSystem) {
-    await findFiles(baseDir, jsTsExclusions, async (file, filePath) => {
+    await findFiles(baseDir, jsTsExclusions, async (entry, filePath) => {
       for (const store of pendingStores) {
-        if (file.isFile()) {
-          await store.processFile(filePath, configuration);
-        }
-        if (file.isDirectory()) {
+        if (entry.isDirectory()) {
           store.processDirectory?.(filePath, configuration);
         }
+      }
+
+      if (entry.isFile()) {
+        await processPendingFileStores(pendingStores, filePath, configuration);
       }
     });
   } else if (inputFiles) {
     await simulateFromInputFiles(inputFiles, configuration, pendingStores);
   }
-
   for (const store of pendingStores) {
     await store.postProcess(configuration);
   }
@@ -95,8 +113,35 @@ export async function simulateFromInputFiles(
         store.processDirectory(dir, configuration);
       }
     }
-    //files need to be processed after as ignored files logic depends on ignored paths being ingested
-    for (const filePath of filePaths) {
+  }
+
+  // files need to be processed after as ignored files logic depends on ignored paths being ingested
+  for (const filePath of filePaths) {
+    await processPendingFileStores(
+      pendingStores,
+      filePath,
+      configuration,
+      inputFiles[filePath].fileContent,
+    );
+  }
+}
+
+async function processPendingFileStores(
+  pendingStores: FileStore[],
+  filePath: NormalizedAbsolutePath,
+  configuration: Configuration,
+  fileContent?: string,
+) {
+  let sharedFile: File | undefined;
+  for (const store of pendingStores) {
+    const storeWantsFile = store.wantsFile(filePath, configuration);
+    if (storeWantsFile === 'content') {
+      sharedFile ??= {
+        filePath,
+        fileContent: fileContent ?? (await readFile(filePath)),
+      };
+      await store.processFile(filePath, configuration, sharedFile);
+    } else if (storeWantsFile === 'path') {
       await store.processFile(filePath, configuration);
     }
   }

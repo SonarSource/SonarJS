@@ -1,0 +1,53 @@
+{
+  "title": "Amazon S3 bucket public access should be fully blocked",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "ready",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "aws",
+    "cwe",
+    "former-hotspot"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-6281",
+  "sqKey": "S6281",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      284,
+      732
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ],
+    "STIG ASD_V5R3": [
+      "V-222620"
+    ]
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "aws-cdk-lib"
+    ]
+  },
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

@@ -21,6 +21,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
 import { serializeInProtobuf } from '../parsers/ast.js';
+import { extractSonarResolveCommentsFromJsTsComments } from '../../common/sonar-resolve.js';
 import {
   collectMainFileArtifacts,
   collectNoSonarMetrics,
@@ -36,6 +37,8 @@ import {
   type InternalMetricsSink,
   toInternalMetricsSettings,
 } from '../rules/helpers/internal-metrics.js';
+import { DEFAULT_ECMA_VERSION, type ParserContext } from '../parsers/options.js';
+import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'sonarjs/S3776';
 const COGNITIVE_COMPLEXITY_SILENCE_ISSUES_OPTION = 'silence-issues';
@@ -65,14 +68,26 @@ interface AnalysisLinterOptions {
 export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysisOutput> {
   debug(`Analyzing file "${input.filePath}"`);
   const { filePath, fileType, analysisMode, fileStatus, language, detectedEsYear } = input;
+  const detectedModuleType = Linter.detectModuleType(filePath);
+  getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
 
-  const parseResult = build(input);
+  if (detectedEsYear === undefined) {
+    debug(
+      `No ECMAScript version detected for "${filePath}"; using default ${DEFAULT_ECMA_VERSION}`,
+    );
+  }
+  if (detectedModuleType === undefined) {
+    debug(`No module type detected for "${filePath}"`);
+  }
+
+  const parserContext: ParserContext = { detectedEsYear };
+  const parseResult = build(input, parserContext);
   if (input.clearDependenciesCache) {
     debug('Clearing dependencies cache');
     clearDependenciesCache();
   }
   const { additionalRules, additionalSettings, metricsSink } = prepareLinterOptions(input);
-  const issues = Linter.lint(
+  const { issues, suppressedIssues } = Linter.lint(
     parseResult,
     filePath,
     fileType,
@@ -80,6 +95,7 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     analysisMode,
     language,
     detectedEsYear,
+    detectedModuleType,
     { additionalRules, additionalSettings },
   );
   const extendedMetrics = computeExtendedMetrics(
@@ -87,10 +103,15 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     parseResult.sourceCode,
     metricsSink?.cognitiveComplexity,
   );
+  const sonarResolveComments = extractSonarResolveCommentsFromJsTsComments(
+    parseResult.sourceCode.ast.comments ?? [],
+  );
 
   const result = {
     issues,
+    ...(suppressedIssues.length > 0 ? { suppressedIssues } : {}),
     ...extendedMetrics,
+    ...(sonarResolveComments.length > 0 ? { sonarResolveComments } : {}),
   };
 
   if (!input.skipAst) {

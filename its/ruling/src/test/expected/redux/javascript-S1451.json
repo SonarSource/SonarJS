@@ -53,18 +53,6 @@
 "redux:examples/counter/store/configureStore.js": [
 0
 ],
-"redux:examples/counter/test/actions/counter.spec.js": [
-0
-],
-"redux:examples/counter/test/components/Counter.spec.js": [
-0
-],
-"redux:examples/counter/test/containers/App.spec.js": [
-0
-],
-"redux:examples/counter/test/reducers/counter.spec.js": [
-0
-],
 "redux:examples/counter/test/setup.js": [
 0
 ],
@@ -230,27 +218,6 @@
 "redux:examples/todomvc/store/configureStore.js": [
 0
 ],
-"redux:examples/todomvc/test/actions/todos.spec.js": [
-0
-],
-"redux:examples/todomvc/test/components/Footer.spec.js": [
-0
-],
-"redux:examples/todomvc/test/components/Header.spec.js": [
-0
-],
-"redux:examples/todomvc/test/components/MainSection.spec.js": [
-0
-],
-"redux:examples/todomvc/test/components/TodoItem.spec.js": [
-0
-],
-"redux:examples/todomvc/test/components/TodoTextInput.spec.js": [
-0
-],
-"redux:examples/todomvc/test/reducers/todos.spec.js": [
-0
-],
 "redux:examples/todomvc/test/setup.js": [
 0
 ],
@@ -350,9 +317,6 @@
 "redux:src/utils/pick.js": [
 0
 ],
-"redux:test/createStore.spec.js": [
-0
-],
 "redux:test/helpers/actionCreators.js": [
 0
 ],
@@ -363,27 +327,6 @@
 0
 ],
 "redux:test/helpers/reducers.js": [
-0
-],
-"redux:test/utils/applyMiddleware.spec.js": [
-0
-],
-"redux:test/utils/bindActionCreators.spec.js": [
-0
-],
-"redux:test/utils/combineReducers.spec.js": [
-0
-],
-"redux:test/utils/compose.spec.js": [
-0
-],
-"redux:test/utils/isPlainObject.spec.js": [
-0
-],
-"redux:test/utils/mapValues.spec.js": [
-0
-],
-"redux:test/utils/pick.spec.js": [
 0
 ],
 "redux:webpack.config.base.js": [

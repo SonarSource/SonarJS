@@ -1,0 +1,47 @@
+{
+  "title": "Browsers should not be allowed to perform MIME type sniffing",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "LOW"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
+  "status": "ready",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "express.js",
+    "former-hotspot"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-5734",
+  "sqKey": "S5734",
+  "scope": "Main",
+  "securityStandards": {
+    "OWASP": [
+      "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A5"
+    ],
+    "CWE": [
+      79,
+      436
+    ]
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

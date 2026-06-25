@@ -19,10 +19,10 @@ jobs:
     permissions:
       id-token: write
       contents: write
-    uses: SonarSource/gh-action_release/.github/workflows/main.yaml@7.0.1
+    uses: SonarSource/gh-action_release/.github/workflows/main.yaml@7.4.0
     with:
       publishToBinaries: true
       mavenCentralSync: true
-      slackChannel: ask-squad-web
+      slackChannel: squad-corelang-releases
       version: ${{ inputs.version }}
       dryRun: ${{ inputs.dryRun == true }}

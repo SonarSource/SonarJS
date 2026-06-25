@@ -93,6 +93,10 @@ public interface AnalysisConfiguration {
     return true;
   }
 
+  default boolean shouldDetectGeneratedCode() {
+    return true;
+  }
+
   default boolean canAccessFileSystem() {
     return true;
   }

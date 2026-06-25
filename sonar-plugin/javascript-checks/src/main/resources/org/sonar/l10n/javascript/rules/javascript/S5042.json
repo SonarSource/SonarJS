@@ -1,0 +1,49 @@
+{
+  "title": "Expanding archive files should not be done without controlling resource consumption",
+  "type": "CODE_SMELL",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "deprecated",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "cwe",
+    "former-hotspot"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-5042",
+  "sqKey": "S5042",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      409
+    ],
+    "OWASP": [
+      "A5",
+      "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A1",
+      "A5"
+    ],
+    "ASVS 4.0": [
+      "12.1.2"
+    ]
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": []
+}

@@ -1,25 +1,16 @@
 {
 "expressionist.js:gulpfile.js": [
+1,
+2,
+3,
 7
+],
+"expressionist.js:karma.conf.js": [
+1
 ],
 "expressionist.js:test-main.js": [
 1,
 2,
 4
-],
-"expressionist.js:test/lexer.spec.js": [
-252
-],
-"expressionist.js:test/parser.spec.js": [
-910,
-946,
-967
-],
-"expressionist.js:test/watch_parser.spec.js": [
-31,
-31,
-31,
-31,
-252
 ]
 }

@@ -755,13 +755,13 @@ function collectCpdExclusions(
   switch (node.type) {
     case 'JSXAttribute':
       if (node.value?.type === 'Literal') {
-        for (const token of sourceCode.getTokens(node.value as unknown as estree.Node)) {
+        for (const token of sourceCode.getTokens(node.value)) {
           jsxTokens.add(token);
         }
       }
       break;
     case 'ImportDeclaration':
-      for (const token of sourceCode.getTokens(node as unknown as estree.Node)) {
+      for (const token of sourceCode.getTokens(node)) {
         importTokens.add(token);
       }
       break;

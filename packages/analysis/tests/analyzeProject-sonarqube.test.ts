@@ -28,6 +28,7 @@ import type { RuleConfig as CssRuleConfig } from '../src/css/linter/config.js';
 import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../src/jsts/program/cache/programOptionsCache.js';
 import { sanitizeProjectAnalysisInput } from '../src/common/input-sanitize.js';
+import { DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT } from '../src/jsts/linter/issues/transform.js';
 
 // Helper to initialize file stores for tests - wraps sanitizeProjectAnalysisInput
 async function initForTest(configOptions: object, rawFiles: object) {
@@ -39,7 +40,6 @@ async function initForTest(configOptions: object, rawFiles: object) {
 }
 
 const fixtures = normalizePath(join(import.meta.dirname, 'fixtures-sonarqube'));
-
 const rules: RuleConfig[] = [
   {
     key: 'S1116',
@@ -297,6 +297,12 @@ describe('SonarQube project analysis', () => {
           esmFileCount: 0,
           cjsFileCount: 0,
           denoImportCounts: {},
+          generatedSources: {
+            familyCount: 0,
+            resolvedFileCount: 0,
+            taggedFileCount: 0,
+            families: [],
+          },
           programCreation: {
             attempted: 0,
             succeeded: 0,
@@ -459,6 +465,77 @@ describe('SonarQube project analysis', () => {
     expect('issues' in excludedResult! && excludedResult!.issues[0].ruleId).toBe('S1116');
   });
 
+  it('should keep suppressed issues separate from open issues in project analysis', async () => {
+    const baseDir = join(fixtures, 'no-tsconfig');
+    const filePath = join(baseDir, 'suppressed.js');
+    const suppressionRules: RuleConfig[] = [
+      {
+        key: 'S3504',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+
+    const configuration = await initForTest(
+      { baseDir },
+      {
+        [filePath]: {
+          filePath,
+          fileType: 'MAIN',
+          fileContent: [
+            '/* eslint-disable-next-line no-var -- eslint reason */',
+            'var a = 1;',
+            '/* eslint-disable-next-line sonarjs/S3504 -- sonar reason */',
+            'var b = 2;',
+            '/* eslint-disable-next-line no-var */',
+            'var c = 3;',
+            '/* eslint-disable-next-line sonarjs/S3504 */',
+            'var d = 4;',
+            'var e = 5;',
+          ].join('\n'),
+        },
+      },
+    );
+
+    const result = await analyzeProject({ rules: suppressionRules, bundles: [] }, configuration);
+
+    const fileResult = result.files[normalizeToAbsolutePath(filePath)];
+    expect(fileResult).toBeDefined();
+    expect('issues' in fileResult!).toBe(true);
+    if ('issues' in fileResult!) {
+      expect(fileResult.issues).toEqual([
+        expect.objectContaining({
+          ruleId: 'S3504',
+          line: 9,
+        }),
+      ]);
+      expect(fileResult.suppressedIssues).toEqual([
+        expect.objectContaining({
+          ruleId: 'S3504',
+          line: 2,
+          resolutionComment: 'eslint reason',
+        }),
+        expect.objectContaining({
+          ruleId: 'S3504',
+          line: 4,
+          resolutionComment: 'sonar reason',
+        }),
+        expect.objectContaining({
+          ruleId: 'S3504',
+          line: 6,
+          resolutionComment: DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT,
+        }),
+        expect.objectContaining({
+          ruleId: 'S3504',
+          line: 8,
+          resolutionComment: DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT,
+        }),
+      ]);
+    }
+  });
+
   it('should route HTML files to HTML analyzer and include CSS issues from style blocks', async () => {
     const baseDir = join(fixtures, 'html-yaml');
     const htmlFile = join(baseDir, 'file.html');
@@ -488,6 +565,52 @@ describe('SonarQube project analysis', () => {
       // CSS issues from <style> block should be merged into the result
       const ruleIds = fileResult.issues.map(i => i.ruleId);
       expect(ruleIds).toContain('no-extra-semicolons');
+    }
+  });
+
+  it('should merge sonar-resolve comments from embedded JS and CSS for HTML files', async () => {
+    const baseDir = join(fixtures, 'html-yaml');
+    const htmlFile = join(baseDir, 'sonar-resolve.html');
+    const cssRules: CssRuleConfig[] = [{ key: 'no-extra-semicolons', configurations: [] }];
+
+    const configuration = await initForTest(
+      { baseDir },
+      {
+        [htmlFile]: {
+          filePath: htmlFile,
+          fileType: 'MAIN',
+          fileContent: [
+            '<html>',
+            '<script>',
+            '// sonar-resolve javascript:S1116 "js reason"',
+            'const x = 1;',
+            '</script>',
+            '<style>',
+            '/* sonar-resolve css:no-extra-semicolons "css reason" */',
+            'a { color: pink; }',
+            '</style>',
+            '</html>',
+          ].join('\n'),
+        },
+      },
+    );
+
+    const result = await analyzeProject({ rules: [], cssRules, bundles: [] }, configuration);
+
+    const fileResult = result.files[normalizeToAbsolutePath(htmlFile)];
+    expect(fileResult).toBeDefined();
+    expect('issues' in fileResult!).toBe(true);
+    if ('issues' in fileResult!) {
+      expect(fileResult.sonarResolveComments).toEqual([
+        {
+          line: 3,
+          text: ' sonar-resolve javascript:S1116 "js reason"',
+        },
+        {
+          line: 7,
+          text: 'sonar-resolve css:no-extra-semicolons "css reason"',
+        },
+      ]);
     }
   });
 

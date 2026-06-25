@@ -1,0 +1,60 @@
+{
+  "title": "SQL queries should not be dynamically formatted",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW",
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "ready",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "cwe",
+    "bad-practice",
+    "sql",
+    "type-dependent",
+    "former-hotspot"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2077",
+  "sqKey": "S2077",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      89,
+      943
+    ],
+    "OWASP": [
+      "A1"
+    ],
+    "OWASP Top 10 2021": [
+      "A3"
+    ],
+    "PCI DSS 3.2": [
+      "6.5.1"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ],
+    "ASVS 4.0": [
+      "5.1.3",
+      "5.1.4",
+      "5.3.4",
+      "5.3.5"
+    ]
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

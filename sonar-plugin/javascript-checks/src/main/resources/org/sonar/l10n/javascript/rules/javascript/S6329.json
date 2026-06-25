@@ -1,0 +1,55 @@
+{
+  "title": "Public network access to cloud resources should be disabled",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "BLOCKER"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "ready",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "cwe",
+    "aws",
+    "former-hotspot"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-6329",
+  "sqKey": "S6329",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      284,
+      668,
+      732,
+      1327
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ],
+    "STIG ASD_V5R3": [
+      "V-222620"
+    ]
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "aws-cdk-lib"
+    ]
+  },
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

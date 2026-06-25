@@ -1,0 +1,56 @@
+{
+  "title": "DOMPurify configuration should not be bypassable",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "HIGH"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "cwe",
+    "type-dependent"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-8479",
+  "sqKey": "S8479",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      79,
+      183
+    ],
+    "OWASP Top 10 2021": [
+      "A3"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ],
+    "ASVS 4.0": [
+      "5.1.3",
+      "5.1.4"
+    ]
+  },
+  "educationPrinciples": [
+    "defense_in_depth",
+    "never_trust_user_input"
+  ],
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}

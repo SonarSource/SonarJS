@@ -30,6 +30,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.batch.sensor.issue.IssueResolution;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.batch.sensor.symbol.NewSymbol;
@@ -58,8 +59,10 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.Metrics;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ParsingError;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ParsingErrorCode;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
+import org.sonar.plugins.javascript.analyzeproject.grpc.SonarResolveComment;
 import org.sonar.plugins.javascript.analyzeproject.grpc.TextType;
 import org.sonar.plugins.javascript.api.Language;
+import org.sonarsource.analyzer.commons.SonarResolve;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 
@@ -68,6 +71,7 @@ import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 public class AnalysisProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisProcessor.class);
+  private static final Version ISSUE_RESOLUTION_API_MIN_VERSION = Version.create(13, 5);
 
   private final NoSonarFilter noSonarFilter;
   private final FileLinesContextFactory fileLinesContextFactory;
@@ -109,6 +113,7 @@ public class AnalysisProcessor {
       // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
       saveMetrics(context, response.getMetrics());
       saveIssues(context, issues);
+      saveSuppressedIssues(context, response.getSuppressedIssuesList());
       saveHighlights(context, response.getHighlightsList());
       saveHighlightedSymbols(context, response.getHighlightedSymbolsList());
       saveCpd(context, response.getCpdTokensList());
@@ -118,7 +123,11 @@ public class AnalysisProcessor {
       // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
       // sonar-html plugin.
       saveIssues(context, issues);
+      // Embedded JS/TS in HTML/YAML can still produce suppressed issues on the host file.
+      // saveSuppressedIssues() filters out unsupported non-JS/TS suppressed issues.
+      saveSuppressedIssues(context, response.getSuppressedIssuesList());
     }
+    saveIssueResolutions(context, response.getSonarResolveCommentsList());
 
     return issues;
   }
@@ -228,6 +237,51 @@ public class AnalysisProcessor {
         saveIssue(context, issue);
       } catch (RuntimeException e) {
         LOG.warn("Failed to save issue in {} at line {}", file.uri(), issue.getLine());
+        LOG.warn("Exception cause", e);
+      }
+    }
+  }
+
+  private void saveSuppressedIssues(JsTsContext<?> context, List<Issue> suppressedIssues) {
+    if (!supportsIssueResolution(context) || !context.isIssueResolutionEnabled()) {
+      return;
+    }
+
+    for (Issue issue : suppressedIssues) {
+      if (!isJsTs(issue.getLanguage())) {
+        continue;
+      }
+      LOG.debug(
+        "Saving suppressed issue for rule {} on file {} at line {}",
+        issue.getRuleId(),
+        file,
+        issue.getLine()
+      );
+      var ruleKey = findRuleKey(issue);
+      if (ruleKey == null) {
+        continue;
+      }
+      if (issue.getResolutionComment().isEmpty()) {
+        LOG.warn(
+          "Skipping suppressed issue for rule {} in {} because accepted issues require a justification comment",
+          ruleKey,
+          file.uri()
+        );
+        continue;
+      }
+      var primaryTextRange = primaryTextRange(issue);
+      if (primaryTextRange == null) {
+        LOG.warn(
+          "Skipping suppressed issue for rule {} in {} because accepted issues require a valid location",
+          ruleKey,
+          file.uri()
+        );
+        continue;
+      }
+      try {
+        saveSuppressedIssueAsAccepted(context, issue, ruleKey, primaryTextRange);
+      } catch (RuntimeException e) {
+        LOG.warn("Failed to save suppressed issue in {} at line {}", file.uri(), issue.getLine());
         LOG.warn("Exception cause", e);
       }
     }
@@ -376,19 +430,91 @@ public class AnalysisProcessor {
     }
   }
 
+  private void saveIssueResolutions(
+    JsTsContext<?> context,
+    List<SonarResolveComment> sonarResolveComments
+  ) {
+    if (!supportsIssueResolution(context)) {
+      return;
+    }
+
+    for (SonarResolveComment sonarResolveComment : sonarResolveComments) {
+      processSonarResolveComment(context, sonarResolveComment);
+    }
+  }
+
+  private void processSonarResolveComment(
+    JsTsContext<?> context,
+    SonarResolveComment sonarResolveComment
+  ) {
+    String[] commentLines = sonarResolveComment.getText().split("\\R", -1);
+    int index = 0;
+    while (index < commentLines.length) {
+      int directiveLine = sonarResolveComment.getLine() + index;
+      String line = commentLines[index];
+      if (!startsWithDirectiveKeyword(line)) {
+        index++;
+        continue;
+      }
+
+      SonarResolve.StreamingParser parser = new SonarResolve.StreamingParser(directiveLine);
+      SonarResolve.StreamingParser.State state = parser.consumeLine(directiveLine, line);
+      int lastConsumedIndex = index;
+
+      while (
+        state == SonarResolve.StreamingParser.State.INCOMPLETE &&
+        lastConsumedIndex + 1 < commentLines.length
+      ) {
+        lastConsumedIndex++;
+        int lineNumber = sonarResolveComment.getLine() + lastConsumedIndex;
+        state = parser.consumeLine(lineNumber, commentLines[lastConsumedIndex]);
+      }
+
+      if (state == SonarResolve.StreamingParser.State.COMPLETE) {
+        saveIssueResolution(context, parser.result());
+      } else if (state == SonarResolve.StreamingParser.State.INVALID) {
+        logInvalidDirective(directiveLine, parser.errorMessage());
+      } else {
+        var finalState = parser.finish();
+        if (finalState == SonarResolve.StreamingParser.State.COMPLETE) {
+          saveIssueResolution(context, parser.result());
+        } else if (finalState == SonarResolve.StreamingParser.State.INVALID) {
+          logInvalidDirective(directiveLine, parser.errorMessage());
+        }
+      }
+
+      index = lastConsumedIndex + 1;
+    }
+  }
+
   void saveIssue(JsTsContext<?> context, Issue issue) {
+    saveIssue(context, issue, findRuleKey(issue), primaryTextRange(issue));
+  }
+
+  private void saveSuppressedIssueAsAccepted(
+    JsTsContext<?> context,
+    Issue issue,
+    RuleKey ruleKey,
+    TextRange primaryTextRange
+  ) {
+    saveIssue(context, issue, ruleKey, primaryTextRange);
+    saveAcceptedIssueResolution(context, ruleKey, issue.getResolutionComment(), primaryTextRange);
+  }
+
+  private void saveIssue(
+    JsTsContext<?> context,
+    Issue issue,
+    @Nullable RuleKey ruleKey,
+    @Nullable TextRange primaryTextRange
+  ) {
     var newIssue = context.getSensorContext().newIssue();
     var location = newIssue.newLocation().on(file);
     if (!issue.getMessage().isEmpty()) {
       location.message(issue.getMessage());
     }
 
-    if (issue.hasEndLine() && issue.hasEndColumn()) {
-      location.at(
-        file.newRange(issue.getLine(), issue.getColumn(), issue.getEndLine(), issue.getEndColumn())
-      );
-    } else if (issue.getLine() != 0) {
-      location.at(file.selectLine(issue.getLine()));
+    if (primaryTextRange != null) {
+      location.at(primaryTextRange);
     }
 
     issue
@@ -413,7 +539,6 @@ public class AnalysisProcessor {
       }
     }
 
-    var ruleKey = findRuleKey(issue);
     if (ruleKey != null) {
       newIssue.at(location).forRule(ruleKey).save();
     } else if (CssRules.CSS_PARSING_ERROR_STYLELINT_KEY.equals(issue.getRuleId())) {
@@ -448,12 +573,30 @@ public class AnalysisProcessor {
     );
   }
 
+  private static boolean supportsIssueResolution(JsTsContext<?> context) {
+    return (
+      !context.isSonarLint() &&
+      context
+        .getSensorContext()
+        .runtime()
+        .getApiVersion()
+        .isGreaterThanOrEqual(ISSUE_RESOLUTION_API_MIN_VERSION)
+    );
+  }
+
   private static boolean isQuickFixCompatible(JsTsContext<?> context) {
     return (
       context.isSonarLint() &&
       (
         (SonarLintRuntime) context.getSensorContext().runtime()
       ).getSonarLintPluginApiVersion().isGreaterThanOrEqual(Version.create(6, 3))
+    );
+  }
+
+  private static boolean isJsTs(AnalysisLanguage language) {
+    return (
+      language == AnalysisLanguage.ANALYSIS_LANGUAGE_JS ||
+      language == AnalysisLanguage.ANALYSIS_LANGUAGE_TS
     );
   }
 
@@ -518,6 +661,57 @@ public class AnalysisProcessor {
         yield null;
       }
     };
+  }
+
+  private static boolean startsWithDirectiveKeyword(String line) {
+    String trimmed = line.stripLeading();
+    return trimmed.regionMatches(true, 0, SonarResolve.KEYWORD, 0, SonarResolve.KEYWORD.length());
+  }
+
+  @Nullable
+  private TextRange primaryTextRange(Issue issue) {
+    if (issue.hasEndLine() && issue.hasEndColumn()) {
+      return file.newRange(
+        issue.getLine(),
+        issue.getColumn(),
+        issue.getEndLine(),
+        issue.getEndColumn()
+      );
+    }
+    return issue.getLine() != 0 ? file.selectLine(issue.getLine()) : null;
+  }
+
+  private void saveIssueResolution(JsTsContext<?> context, SonarResolve sonarResolve) {
+    context
+      .getSensorContext()
+      .newIssueResolution()
+      .on(file)
+      .at(file.selectLine(sonarResolve.targetLine()))
+      .status(sonarResolve.status())
+      .forRules(sonarResolve.ruleKeys())
+      .comment(sonarResolve.justification())
+      .save();
+  }
+
+  private void logInvalidDirective(int line, String errorMessage) {
+    LOG.warn("{} in file {} at line {}", errorMessage, file.uri(), line);
+  }
+
+  private void saveAcceptedIssueResolution(
+    JsTsContext<?> context,
+    RuleKey ruleKey,
+    String resolutionComment,
+    TextRange textRange
+  ) {
+    context
+      .getSensorContext()
+      .newIssueResolution()
+      .on(file)
+      .at(textRange)
+      .status(IssueResolution.Status.DEFAULT)
+      .forRules(List.of(ruleKey))
+      .comment(resolutionComment)
+      .save();
   }
 
   @Nullable

@@ -208,6 +208,37 @@ describe('gRPC server', () => {
     expect(issue.message).toBe('Unnecessary semicolon.');
   });
 
+  it('should return ESLint-suppressed findings separately from open issues', async () => {
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [
+        {
+          relativePath: '/project/src/suppressed.js',
+          content: '/* eslint-disable-next-line no-var -- accepted */\nvar value = 42;\n',
+        },
+      ],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S3504' },
+          params: [],
+        },
+      ],
+    };
+
+    const response = await client.analyze(request);
+
+    expect(response.issues || []).toEqual([]);
+    expect(response.suppressedIssues).toEqual([
+      expect.objectContaining({
+        filePath: '/project/src/suppressed.js',
+        message: expect.any(String),
+        resolutionComment: 'accepted',
+        rule: expect.objectContaining({ repo: 'javascript', rule: 'S3504' }),
+      }),
+    ]);
+  });
+
   it('should not reuse previous issues when the same file path is analyzed with different content', async () => {
     const filePath = '/project/src/cached-content.js';
 
@@ -1209,6 +1240,66 @@ describe('gRPC server', () => {
       const responseIssue = await client.analyze(requestIssue);
       expect(responseIssue.issues?.length).toBe(1);
       expect(responseIssue.issues?.[0].rule?.rule).toBe('S4662');
+    });
+
+    it('should apply listParam ignoreAtRules to allow nested selectors inside configured at-rules (S8776)', async () => {
+      const content = '@media print { & { color: red; } }';
+
+      const requestIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S8776' }, params: [] }],
+      };
+
+      const responseIssue = await client.analyze(requestIssue);
+      expect(responseIssue.issues?.length).toBe(1);
+      expect(responseIssue.issues?.[0].rule?.rule).toBe('S8776');
+
+      const requestNoIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S8776' },
+            params: [{ key: 'ignoreAtRules', value: 'media' }],
+          },
+        ],
+      };
+
+      const responseNoIssue = await client.analyze(requestNoIssue);
+      expect(responseNoIssue.issues?.length).toBe(0);
+    });
+
+    it('should apply listParam ignoreAtRules to control @import positioning (S8778)', async () => {
+      const content = '@tailwind utilities;\n@import "foo.css";';
+
+      const requestIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S8778' }, params: [] }],
+      };
+
+      const responseIssue = await client.analyze(requestIssue);
+      expect(responseIssue.issues?.length).toBe(1);
+      expect(responseIssue.issues?.[0].rule?.rule).toBe('S8778');
+
+      const requestNoIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S8778' },
+            params: [{ key: 'ignoreAtRules', value: 'tailwind' }],
+          },
+        ],
+      };
+
+      const responseNoIssue = await client.analyze(requestNoIssue);
+      expect(responseNoIssue.issues?.length).toBe(0);
     });
 
     it('should apply listParam ignorePseudoElements to control unknown pseudo-element behaviour (S4660)', async () => {

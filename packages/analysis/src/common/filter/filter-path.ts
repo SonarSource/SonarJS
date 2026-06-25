@@ -19,6 +19,7 @@ import { type NormalizedAbsolutePath } from '../../../../shared/src/helpers/file
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { FileType } from '../../contracts/file.js';
 import { type FilterPathParams } from '../configuration.js';
+import { isTestRelatedFile } from '../../jsts/rules/helpers/test-file-pattern.js';
 
 /**
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
@@ -34,20 +35,25 @@ export function isJsTsExcluded(
   filePath: NormalizedAbsolutePath,
   jsTsExclusions: Minimatch[],
 ): boolean {
-  if (jsTsExclusions?.some(exclusion => exclusion.match(filePath))) {
+  if (matchesJsTsExclusion(filePath, jsTsExclusions)) {
     debug(`File ignored due to js/ts exclusions: ${filePath}`);
     return true;
   }
   return false;
 }
 
+export function matchesJsTsExclusion(
+  filePath: NormalizedAbsolutePath,
+  jsTsExclusions: Minimatch[],
+): boolean {
+  return jsTsExclusions?.some(exclusion => exclusion.match(filePath)) ?? false;
+}
+
 /**
  * Filters a given file path based on inclusion and exclusion rules and determines its type.
  * This mimics the scanner engine implementation of "sources", "tests" and its inclusion/exclusion
- * properties. This is only used when Node.js loops the whole project tree looking for files. This
- * only happens in ruling tests and in SonarLint during the first lookup to count files.
- * In SQS this will never be executed, as the request already contains the list of files as
- * digested by the scanner engine. The only path filter that we need to run in SQS is isJsTsExcluded.
+ * properties. It is used during filesystem traversal and as a defensive file-type inference
+ * fallback for explicit request files whose incoming type is not explicitly TEST.
  *
  * @param {NormalizedAbsolutePath} filePath - The file path to be evaluated (must be normalized absolute path).
  * @param {FilterPathParams} params - The path filtering parameters from configuration.
@@ -61,19 +67,56 @@ export function filterPathAndGetFileType(
   filePath: NormalizedAbsolutePath,
   params: FilterPathParams,
 ): FileType | undefined {
-  if (fileIsTest(filePath, params)) {
+  if (matchesTestPath(filePath, params, true)) {
     return 'TEST';
   }
 
-  if (fileIsMain(filePath, params)) {
+  if (matchesMainPath(filePath, params)) {
     return 'MAIN';
   }
+
   debug(`File ignored due to analysis scope filters: ${filePath}`);
 }
 
-function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
-  const { testPaths, testExclusions, testInclusions } = params;
-  if (!testPaths?.some(testPath => filePath === testPath || filePath.startsWith(`${testPath}/`))) {
+function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolutePath[]): boolean {
+  return paths.some(path => filePath === path || filePath.startsWith(`${path}/`));
+}
+
+function matchesTestPath(
+  filePath: NormalizedAbsolutePath,
+  params: FilterPathParams,
+  logHeuristicTestDetection: boolean,
+): boolean {
+  const {
+    testPaths,
+    testExclusions,
+    testInclusions,
+    inclusions,
+    sourcesPaths,
+    testFileExtensions,
+  } = params;
+
+  // If `sonar.tests` is not configured, fall back to the filename heuristic — unless the file
+  // qualifies as MAIN via the user's `sonar.inclusions` (which narrows `sonar.sources`), in which
+  // case the user has explicitly opted it into MAIN scope and we should not second-guess them.
+  if (!testPaths.length) {
+    if (
+      inclusions.length > 0 &&
+      fileIsUnder(filePath, sourcesPaths) &&
+      inclusions.some(inclusion => inclusion.match(filePath))
+    ) {
+      return false;
+    }
+    const doesLookLikeTestFile = isTestRelatedFile(filePath, testFileExtensions);
+    if (doesLookLikeTestFile && logHeuristicTestDetection) {
+      debug(
+        `Test file detected: ${filePath}. If this file should not be treated as a test, please configure sonar.tests or adjust your sonar.sources/sonar.inclusions to explicitly include it as MAIN.`,
+      );
+    }
+    return doesLookLikeTestFile;
+  }
+
+  if (!fileIsUnder(filePath, testPaths)) {
     return false;
   }
   if (testExclusions?.some(exclusion => exclusion.match(filePath))) {
@@ -85,13 +128,9 @@ function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams):
   return true;
 }
 
-function fileIsMain(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
+function matchesMainPath(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
   const { sourcesPaths, exclusions, inclusions } = params;
-  if (
-    !sourcesPaths.some(
-      sourcePath => filePath === sourcePath || filePath.startsWith(`${sourcePath}/`),
-    )
-  ) {
+  if (!fileIsUnder(filePath, sourcesPaths)) {
     return false;
   }
 

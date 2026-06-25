@@ -16,7 +16,6 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2755/javascript
 
-import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -52,7 +51,7 @@ export const rule: Rule.RuleModule = {
                 message: 'Disable access to external entities in XML parsing.',
                 node: noent,
               },
-              [toSecondaryLocation(call.callee as TSESTree.Node)],
+              [toSecondaryLocation(call.callee)],
             );
           }
         }

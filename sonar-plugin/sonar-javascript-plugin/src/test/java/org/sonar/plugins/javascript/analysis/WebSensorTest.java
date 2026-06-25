@@ -33,9 +33,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -421,7 +423,12 @@ class WebSensorTest {
       }
     );
     executeSensorMockingResponse(
-      createSensor(checks("S3923", "S1451"), new AnalysisConsumers(), null),
+      createSensor(
+        checks("S3923", "S1451"),
+        new AnalysisConsumers(),
+        null,
+        new WebSensorModuleConfiguration()
+      ),
       expectedResponse
     );
     Collection<Issue> issues = context.allIssues();
@@ -536,6 +543,22 @@ class WebSensorTest {
   }
 
   @Test
+  void should_send_detectGeneratedCode_false_when_disabled() {
+    context.setSettings(
+      new MapSettings().setProperty(JavaScriptPlugin.DETECT_GENERATED_CODE_PROPERTY, "false")
+    );
+
+    var configuration = executeSensorAndCaptureHandler(createSensor(), context)
+      .getRequest()
+      .getConfiguration();
+    var field = configuration.getDescriptorForType().findFieldByName("detect_generated_code");
+
+    assertThat(field).isNotNull();
+    assertThat(configuration.hasField(field)).isTrue();
+    assertThat(configuration.getField(field)).isEqualTo(false);
+  }
+
+  @Test
   void should_send_skipNodeModuleLookupOutsideBaseDir_false_by_default() {
     assertThat(
       executeSensorAndCaptureHandler(createSensor(), context)
@@ -559,6 +582,89 @@ class WebSensorTest {
         .getConfiguration()
         .getSkipNodeModuleLookupOutsideBaseDir()
     ).isTrue();
+  }
+
+  @Test
+  void should_send_collected_module_tsconfig_paths_to_bridge_configuration() throws IOException {
+    Files.writeString(baseDir.resolve("tsconfig.shared.json"), "{}");
+    Files.createDirectories(baseDir.resolve("moduleA"));
+    Files.createDirectories(baseDir.resolve("moduleB"));
+
+    var moduleConfiguration = new WebSensorModuleConfiguration();
+    var collector = new WebSensorModuleConfigurationSensor(moduleConfiguration);
+
+    var projectContext = createSensorContext(baseDir);
+    setSonarQubeRuntime(projectContext);
+    createInputFile(projectContext, "moduleA/src/main.ts", StandardCharsets.UTF_8, baseDir);
+    createInputFile(projectContext, "moduleB/src/main.ts", StandardCharsets.UTF_8, baseDir);
+
+    var moduleAContext = createSensorContext(baseDir.resolve("moduleA"));
+    moduleAContext.setSettings(
+      new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS, "../tsconfig.shared.json")
+    );
+    collector.execute(moduleAContext);
+
+    var moduleBContext = createSensorContext(baseDir.resolve("moduleB"));
+    moduleBContext.setSettings(
+      new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS, "../tsconfig.shared.json")
+    );
+    collector.execute(moduleBContext);
+
+    var configuration = executeSensorAndCaptureHandler(
+      createSensor(moduleConfiguration),
+      projectContext
+    )
+      .getRequest()
+      .getConfiguration();
+    var expectedPath = projectContext
+      .fileSystem()
+      .baseDir()
+      .toPath()
+      .resolve("tsconfig.shared.json")
+      .toAbsolutePath()
+      .normalize()
+      .toString();
+    assertThat(configuration.getTsConfigPathsList()).containsExactly(expectedPath);
+  }
+
+  @Test
+  void should_preserve_wildcard_module_tsconfig_paths() throws IOException {
+    var moduleConfiguration = new WebSensorModuleConfiguration();
+    var collector = new WebSensorModuleConfigurationSensor(moduleConfiguration);
+
+    var projectContext = createSensorContext(baseDir);
+    setSonarQubeRuntime(projectContext);
+    projectContext.setSettings(
+      new MapSettings().setProperty(
+        JavaScriptPlugin.TSCONFIG_PATHS,
+        "tsconfig.json,**/custom.tsconfig.json"
+      )
+    );
+    createInputFile(projectContext, "file.ts", StandardCharsets.UTF_8, baseDir);
+
+    collector.execute(projectContext);
+
+    var configuration = executeSensorAndCaptureHandler(
+      createSensor(moduleConfiguration),
+      projectContext
+    )
+      .getRequest()
+      .getConfiguration();
+    var expectedGlobPath = new File(
+      new File(projectContext.fileSystem().baseDir(), "**/custom.tsconfig.json").toURI().normalize()
+    ).getPath();
+
+    assertThat(configuration.getTsConfigPathsList()).containsExactly(
+      projectContext
+        .fileSystem()
+        .baseDir()
+        .toPath()
+        .resolve("tsconfig.json")
+        .toAbsolutePath()
+        .normalize()
+        .toString(),
+      expectedGlobPath
+    );
   }
 
   @Test
@@ -671,6 +777,50 @@ class WebSensorTest {
         .get(inputFile.absolutePath())
         .getFileContent()
     ).isEqualTo(inputFile.contents());
+  }
+
+  @Test
+  void should_send_project_metadata_files_on_sonarlint_when_filesystem_access_is_disabled()
+    throws Exception {
+    setSonarLintRuntime(context);
+    context.settings().setProperty(JavaScriptPlugin.NO_FS, "false");
+
+    var tsconfigFile = new TestInputFileBuilder(
+      "moduleKey",
+      baseDir.toFile(),
+      baseDir.resolve("dir/tsconfig.json").toFile()
+    )
+      .setLanguage("json")
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("{\"files\": [\"file.ts\"]}")
+      .build();
+    var packageJsonFile = new TestInputFileBuilder(
+      "moduleKey",
+      baseDir.toFile(),
+      baseDir.resolve("dir/package.json").toFile()
+    )
+      .setLanguage("json")
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("{\"type\": \"module\"}")
+      .build();
+    context.fileSystem().add(tsconfigFile);
+    context.fileSystem().add(packageJsonFile);
+
+    var requestFiles = executeSensorAndCaptureHandler(createSonarLintSensor(), context)
+      .getRequest()
+      .getFiles();
+
+    assertThat(requestFiles).containsKeys(
+      inputFile.absolutePath(),
+      tsconfigFile.absolutePath(),
+      packageJsonFile.absolutePath()
+    );
+    assertThat(requestFiles.get(tsconfigFile.absolutePath()).getFileContent()).isEqualTo(
+      tsconfigFile.contents()
+    );
+    assertThat(requestFiles.get(packageJsonFile.absolutePath()).getFileContent()).isEqualTo(
+      packageJsonFile.contents()
+    );
   }
 
   @Test
@@ -1592,26 +1742,43 @@ class WebSensorTest {
     return createSensor(
       checks("S3923", "S2260", "S1451"),
       new AnalysisConsumers(List.of(consumer)),
-      null
+      null,
+      new WebSensorModuleConfiguration()
     );
   }
 
   private WebSensor createSensor() {
-    return createSensor(checks("S3923", "S2260", "S1451"), new AnalysisConsumers(), null);
+    return createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      new WebSensorModuleConfiguration()
+    );
+  }
+
+  private WebSensor createSensor(WebSensorModuleConfiguration moduleConfiguration) {
+    return createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      moduleConfiguration
+    );
   }
 
   private WebSensor createSonarLintSensor() {
     return createSensor(
       checks("S3923", "S2260", "S1451"),
       new AnalysisConsumers(),
-      new FSListenerImpl()
+      new FSListenerImpl(),
+      new WebSensorModuleConfiguration()
     );
   }
 
   private WebSensor createSensor(
     JsTsChecks checks,
     AnalysisConsumers consumers,
-    @Nullable FSListener fsListener
+    @Nullable FSListener fsListener,
+    WebSensorModuleConfiguration moduleConfiguration
   ) {
     return new WebSensor(
       checks,
@@ -1620,7 +1787,8 @@ class WebSensorTest {
       analysisWarnings,
       consumers,
       mock(CssRules.class),
-      fsListener
+      fsListener,
+      moduleConfiguration
     );
   }
 
@@ -1766,43 +1934,35 @@ class WebSensorTest {
     }
 
     if (root.has("parsingErrors") && root.get("parsingErrors").isJsonArray()) {
-      root
-        .getAsJsonArray("parsingErrors")
-        .forEach(error -> {
-          if (error.isJsonObject()) {
-            builder.addParsingErrors(parseParsingError(error.getAsJsonObject()));
-          }
-        });
+      root.getAsJsonArray("parsingErrors").forEach(error -> {
+        if (error.isJsonObject()) {
+          builder.addParsingErrors(parseParsingError(error.getAsJsonObject()));
+        }
+      });
     }
 
     if (root.has("issues") && root.get("issues").isJsonArray()) {
-      root
-        .getAsJsonArray("issues")
-        .forEach(issue -> {
-          if (issue.isJsonObject()) {
-            builder.addIssues(parseIssue(issue.getAsJsonObject()));
-          }
-        });
+      root.getAsJsonArray("issues").forEach(issue -> {
+        if (issue.isJsonObject()) {
+          builder.addIssues(parseIssue(issue.getAsJsonObject()));
+        }
+      });
     }
 
     if (root.has("highlights") && root.get("highlights").isJsonArray()) {
-      root
-        .getAsJsonArray("highlights")
-        .forEach(highlight -> {
-          if (highlight.isJsonObject()) {
-            builder.addHighlights(parseHighlight(highlight.getAsJsonObject()));
-          }
-        });
+      root.getAsJsonArray("highlights").forEach(highlight -> {
+        if (highlight.isJsonObject()) {
+          builder.addHighlights(parseHighlight(highlight.getAsJsonObject()));
+        }
+      });
     }
 
     if (root.has("highlightedSymbols") && root.get("highlightedSymbols").isJsonArray()) {
-      root
-        .getAsJsonArray("highlightedSymbols")
-        .forEach(symbol -> {
-          if (symbol.isJsonObject()) {
-            builder.addHighlightedSymbols(parseHighlightedSymbol(symbol.getAsJsonObject()));
-          }
-        });
+      root.getAsJsonArray("highlightedSymbols").forEach(symbol -> {
+        if (symbol.isJsonObject()) {
+          builder.addHighlightedSymbols(parseHighlightedSymbol(symbol.getAsJsonObject()));
+        }
+      });
     }
 
     if (root.has("metrics") && root.get("metrics").isJsonObject()) {
@@ -1812,13 +1972,11 @@ class WebSensorTest {
     }
 
     if (root.has("cpdTokens") && root.get("cpdTokens").isJsonArray()) {
-      root
-        .getAsJsonArray("cpdTokens")
-        .forEach(cpdToken -> {
-          if (cpdToken.isJsonObject()) {
-            builder.addCpdTokens(parseCpdToken(cpdToken.getAsJsonObject()));
-          }
-        });
+      root.getAsJsonArray("cpdTokens").forEach(cpdToken -> {
+        if (cpdToken.isJsonObject()) {
+          builder.addCpdTokens(parseCpdToken(cpdToken.getAsJsonObject()));
+        }
+      });
     }
 
     if (root.has("error") && !root.get("error").isJsonNull()) {
@@ -1861,35 +2019,29 @@ class WebSensorTest {
       builder.setEndColumn(json.get("endColumn").getAsInt());
     }
     if (json.has("secondaryLocations") && json.get("secondaryLocations").isJsonArray()) {
-      json
-        .getAsJsonArray("secondaryLocations")
-        .forEach(location -> {
-          if (location.isJsonObject()) {
-            builder.addSecondaryLocations(parseIssueLocation(location.getAsJsonObject()));
-          }
-        });
+      json.getAsJsonArray("secondaryLocations").forEach(location -> {
+        if (location.isJsonObject()) {
+          builder.addSecondaryLocations(parseIssueLocation(location.getAsJsonObject()));
+        }
+      });
     }
     if (json.has("cost") && !json.get("cost").isJsonNull()) {
       builder.setCost(json.get("cost").getAsDouble());
     }
     if (json.has("quickFixes") && json.get("quickFixes").isJsonArray()) {
-      json
-        .getAsJsonArray("quickFixes")
-        .forEach(quickFix -> {
-          if (quickFix.isJsonObject()) {
-            builder.addQuickFixes(parseQuickFix(quickFix.getAsJsonObject()));
-          }
-        });
+      json.getAsJsonArray("quickFixes").forEach(quickFix -> {
+        if (quickFix.isJsonObject()) {
+          builder.addQuickFixes(parseQuickFix(quickFix.getAsJsonObject()));
+        }
+      });
     }
     String ruleEslintKeysField = json.has("ruleEslintKeys") ? "ruleEslintKeys" : "ruleESLintKeys";
     if (json.has(ruleEslintKeysField) && json.get(ruleEslintKeysField).isJsonArray()) {
-      json
-        .getAsJsonArray(ruleEslintKeysField)
-        .forEach(key -> {
-          if (!key.isJsonNull()) {
-            builder.addRuleEslintKeys(key.getAsString());
-          }
-        });
+      json.getAsJsonArray(ruleEslintKeysField).forEach(key -> {
+        if (!key.isJsonNull()) {
+          builder.addRuleEslintKeys(key.getAsString());
+        }
+      });
     }
     if (json.has("filePath") && !json.get("filePath").isJsonNull()) {
       builder.setFilePath(json.get("filePath").getAsString());
@@ -1925,13 +2077,11 @@ class WebSensorTest {
       builder.setMessage(json.get("message").getAsString());
     }
     if (json.has("edits") && json.get("edits").isJsonArray()) {
-      json
-        .getAsJsonArray("edits")
-        .forEach(edit -> {
-          if (edit.isJsonObject()) {
-            builder.addEdits(parseQuickFixEdit(edit.getAsJsonObject()));
-          }
-        });
+      json.getAsJsonArray("edits").forEach(edit -> {
+        if (edit.isJsonObject()) {
+          builder.addEdits(parseQuickFixEdit(edit.getAsJsonObject()));
+        }
+      });
     }
     return builder.build();
   }
@@ -1962,13 +2112,11 @@ class WebSensorTest {
       builder.setDeclaration(parseLocation(json.getAsJsonObject("declaration")));
     }
     if (json.has("references") && json.get("references").isJsonArray()) {
-      json
-        .getAsJsonArray("references")
-        .forEach(reference -> {
-          if (reference.isJsonObject()) {
-            builder.addReferences(parseLocation(reference.getAsJsonObject()));
-          }
-        });
+      json.getAsJsonArray("references").forEach(reference -> {
+        if (reference.isJsonObject()) {
+          builder.addReferences(parseLocation(reference.getAsJsonObject()));
+        }
+      });
     }
     return builder.build();
   }
@@ -2144,6 +2292,16 @@ class WebSensorTest {
 
   private void setSonarLintRuntime(SensorContextTester context) {
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(8, 9)));
+  }
+
+  private void setSonarQubeRuntime(SensorContextTester context) {
+    context.setRuntime(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(9, 3),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
   }
 
   private boolean isWindows() {
