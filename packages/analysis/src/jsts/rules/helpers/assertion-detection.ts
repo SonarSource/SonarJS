@@ -60,20 +60,61 @@ export function hasSupportedAssertionLibrary(context: Rule.RuleContext): boolean
   return importsOrDependsOnModule(context, ASSERTION_LIBRARIES, GLOBAL_ASSERTION_DEPENDENCIES);
 }
 
+type AssertionDetector = (context: Rule.RuleContext, node: estree.Node) => boolean;
+
+/**
+ * AST assertion detectors, classified by whether the assertion API can run
+ * without a test runner. This is the single source of truth for the split:
+ * {@link isAssertion} matches any detector, {@link isScriptCapableAssertion} only
+ * the script-capable ones. A new library is one classified entry here, so the two
+ * predicates can never drift apart.
+ *
+ * Script-capable — node `assert`, chai, sinon, supertest — are ordinary libraries
+ * usable in a plain `node file.js`. Runner-bound — vitest, cypress, global
+ * `expect*(...)` chains — only exist because a runner executes the file.
+ *
+ * Classification is by library, not syntax: a chai `expect(x).to.equal(y)` is also
+ * matched by the name-based global-`expect` detector (on the outer `.to.equal(...)`
+ * call), so the script-capable Chai detector (on the inner `chai.expect(...)` call)
+ * must be able to claim it — which it does, because `isScriptCapableAssertion`
+ * checks the script-capable detectors directly.
+ */
+const SCRIPT_CAPABLE_DETECTORS: AssertionDetector[] = [
+  Chai.isAssertion,
+  Sinon.isAssertion,
+  Supertest.isAssertion,
+  isFunctionCallFromNodeAssert,
+];
+
+const RUNNER_BOUND_DETECTORS: AssertionDetector[] = [
+  Vitest.isAssertion,
+  (_context, node) => Cypress.isAssertion(node),
+  (_context, node) => node.type === 'CallExpression' && isGlobalExpectExpressionJS(node),
+];
+
+const ASSERTION_DETECTORS: AssertionDetector[] = [
+  ...SCRIPT_CAPABLE_DETECTORS,
+  ...RUNNER_BOUND_DETECTORS,
+];
+
 /**
  * Whether the given AST node is an assertion call, recognised across chai,
  * sinon, vitest, supertest, cypress, global `expect*(...)` chains and node
  * `assert`. Pure-AST: does not require type information.
  */
 export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  return (
-    Chai.isAssertion(context, node) ||
-    Sinon.isAssertion(context, node) ||
-    Vitest.isAssertion(context, node) ||
-    Supertest.isAssertion(context, node) ||
-    Cypress.isAssertion(node) ||
-    isGlobalAssertion(context, node)
-  );
+  return ASSERTION_DETECTORS.some(detect => detect(context, node));
+}
+
+/**
+ * Whether `node` is an assertion from a library that runs in a plain script with
+ * no test runner (node `assert`, chai, sinon, supertest). The complement among
+ * assertions — vitest, cypress, global `expect` — is "runner-bound". Callers
+ * deciding "is this runner-bound?" should test
+ * `isAssertion(...) && !isScriptCapableAssertion(...)`.
+ */
+export function isScriptCapableAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
+  return SCRIPT_CAPABLE_DETECTORS.some(detect => detect(context, node));
 }
 
 /**
@@ -89,17 +130,6 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
     Vitest.isTSAssertion(services, node) ||
     Cypress.isTSAssertion(node)
   );
-}
-
-function isGlobalAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  if (node.type !== 'CallExpression') {
-    return false;
-  }
-  // Check for global expect (mirrors isGlobalExpectExpression for TS)
-  if (isGlobalExpectExpressionJS(node)) {
-    return true;
-  }
-  return isFunctionCallFromNodeAssert(context, node);
 }
 
 /**
@@ -130,7 +160,10 @@ function isGlobalExpectExpressionJS(node: estree.CallExpression): boolean {
   return innerCall.callee.type === 'Identifier' && innerCall.callee.name.startsWith('expect');
 }
 
-function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node) {
+function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node): boolean {
+  if (node.type !== 'CallExpression') {
+    return false;
+  }
   const fullyQualifiedName = getFullyQualifiedName(context, node);
   return fullyQualifiedName?.split('.')[0] === 'assert';
 }

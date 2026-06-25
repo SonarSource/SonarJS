@@ -1,5 +1,6 @@
 {
   "devDependencies": {
-    "cypress": "1.2.3"
+    "cypress": "1.2.3",
+    "jest": "1.2.3"
   }
 }

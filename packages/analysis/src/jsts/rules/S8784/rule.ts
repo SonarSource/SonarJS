@@ -24,8 +24,13 @@ import {
   getPlaywrightTestQualifiers,
   isMochaTestConstruct,
   SUITE_FUNCTION_NAMES,
+  TEST_FUNCTION_NAMES,
 } from '../helpers/mocha-style-test-frameworks.js';
-import { hasSupportedAssertionLibrary, isAssertion } from '../helpers/assertion-detection.js';
+import {
+  hasSupportedAssertionLibrary,
+  isAssertion,
+  isScriptCapableAssertion,
+} from '../helpers/assertion-detection.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -43,23 +48,73 @@ export const rule: Rule.RuleModule = {
     // call), and Cypress `.should().and()` matches per link. They all share one
     // ExpressionStatement, so we report each statement at most once.
     const reportedStatements = new Set<estree.Node>();
+    // Test structure is a whole-file property, so top-level assertions are only
+    // resolved at Program:exit.
+    let hasTestStructure = false;
+    // Top-level assertion statements → whether any matched call is script-capable.
+    const topLevelStatements = new Map<estree.Node, boolean>();
+
+    const report = (statement: estree.Node) => {
+      if (!reportedStatements.has(statement)) {
+        reportedStatements.add(statement);
+        context.report({ node: statement, messageId: 'moveAssertion' });
+      }
+    };
+
     return {
       CallExpression(node: estree.CallExpression) {
+        if (isTestStructureConstruct(context, node)) {
+          hasTestStructure = true;
+        }
         if (!isAssertion(context, node)) {
           return;
         }
         const statement = findEnclosingExpressionStatement(context, node);
-        if (statement === undefined || reportedStatements.has(statement)) {
+        if (statement === undefined) {
           return;
         }
-        if (runsOutsideTestCase(context, node)) {
-          reportedStatements.add(statement);
-          context.report({ node: statement, messageId: 'moveAssertion' });
+        switch (classifyPlacement(context, node)) {
+          case 'inside-function':
+            return; // a test case, a lifecycle hook, or an unrelated helper
+          case 'suite-body':
+            report(statement); // runs at suite-collection time — always misplaced
+            return;
+          case 'top-level': {
+            const scriptCapable =
+              (topLevelStatements.get(statement) ?? false) ||
+              isScriptCapableAssertion(context, node);
+            topLevelStatements.set(statement, scriptCapable);
+            break;
+          }
+        }
+      },
+      'Program:exit'() {
+        // A top-level script-capable assertion in a file with no test structure is
+        // a standalone script (the assertion is the test); a runner-bound one is
+        // always misplaced. Flag everything else.
+        for (const [statement, scriptCapable] of topLevelStatements) {
+          if (hasTestStructure || !scriptCapable) {
+            report(statement);
+          }
         }
       },
     };
   },
 };
+
+/**
+ * Whether `call` is a recognised test-framework construct that proves the file is
+ * a test file: a Mocha-style suite (`describe`/`context`/`suite`) or test case
+ * (`it`/`test`/`specify`), or any Playwright `test`/`test.describe` call. It reuses
+ * `isMochaTestConstruct`, so a locally-defined `describe`/`it` does not count.
+ */
+function isTestStructureConstruct(context: Rule.RuleContext, call: estree.CallExpression): boolean {
+  return (
+    isMochaTestConstruct(context, call, SUITE_FUNCTION_NAMES) ||
+    isMochaTestConstruct(context, call, TEST_FUNCTION_NAMES) ||
+    getPlaywrightTestQualifiers(context, call.callee) !== undefined
+  );
+}
 
 /**
  * Returns the ExpressionStatement for which `node` is the (transitive)
@@ -111,26 +166,31 @@ function findEnclosingExpressionStatement(
 }
 
 /**
- * An assertion runs outside a test case when its nearest enclosing function is a
- * suite callback — `describe`/`context`/`suite` or Playwright's `test.describe` —
- * (it runs at suite-collection time), or when there is no enclosing function at
- * all (it runs at module load). Any other enclosing function — a test case, a
- * lifecycle hook, or an unrelated helper — is treated as "cannot prove it runs
- * outside a test", so we stay silent.
+ * Where an assertion sits relative to test cases:
+ * - `top-level`: no enclosing function — it runs at module load.
+ * - `suite-body`: its nearest enclosing function is a suite callback
+ *   (`describe`/`context`/`suite` or Playwright's `test.describe`) — it runs at
+ *   suite-collection time, never as part of a test.
+ * - `inside-function`: any other enclosing function — a test case, a lifecycle
+ *   hook, or an unrelated helper. We cannot prove it runs outside a test, so we
+ *   stay silent.
  */
-function runsOutsideTestCase(context: Rule.RuleContext, node: estree.Node): boolean {
+function classifyPlacement(
+  context: Rule.RuleContext,
+  node: estree.Node,
+): 'top-level' | 'suite-body' | 'inside-function' {
   const ancestors = context.sourceCode.getAncestors(node);
   const fnIndex = findEnclosingFunctionIndex(ancestors);
   if (fnIndex === -1) {
-    return true; // module top level
+    return 'top-level';
   }
   const enclosingFunction = ancestors[fnIndex];
   const parent = ancestors[fnIndex - 1];
-  return (
+  const isSuiteBody =
     parent?.type === 'CallExpression' &&
     parent.arguments.includes(enclosingFunction as estree.Expression) &&
-    isSuiteCallback(context, parent)
-  );
+    isSuiteCallback(context, parent);
+  return isSuiteBody ? 'suite-body' : 'inside-function';
 }
 
 /**
