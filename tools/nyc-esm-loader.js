@@ -15,6 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { fileURLToPath } from 'node:url';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 import convertSourceMap from 'convert-source-map';
 import loader from '@istanbuljs/load-nyc-config';
@@ -71,7 +73,12 @@ export async function load(url, context, nextLoad) {
     source = new TextDecoder().decode(source);
   }
 
-  const sourceMap = convertSourceMap.fromSource(source)?.toObject();
+  const sourceMap = (
+    convertSourceMap.fromSource(source) ??
+    convertSourceMap.fromMapFileSource(source, sourceMapPath =>
+      readFileSync(join(dirname(filename), sourceMapPath)),
+    )
+  )?.toObject();
   const instrumented = instrumenter.instrumentSync(source, filename, {
     sourceMap,
     registerMap() {},
