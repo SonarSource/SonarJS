@@ -10,8 +10,8 @@ function formatWithLocale(this: Intl.NumberFormat, amount: number, locale: strin
   return `${this.format(amount)} ${locale}`;
 }
 
-_.memoize(formatWithLocale); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+_.memoize(formatWithLocale); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //^^^^^^^
 
-_.memoize((amount: number, locale: string) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+_.memoize((amount: number, locale: string) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //^^^^^^^

@@ -36,7 +36,7 @@ const methodName = 'memoize';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      provideResolver: 'Provide an explicit resolver argument for this memoized function.',
+      provideResolver: 'Provide an explicit function to compute the cache key.',
     },
   }),
   create(context: Rule.RuleContext) {

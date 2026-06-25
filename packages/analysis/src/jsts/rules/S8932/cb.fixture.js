@@ -18,45 +18,45 @@ _.memoize((amount, locale) => amount.toLocaleString(locale), resolver); // Compl
 _.memoize((amount, locale) => amount.toLocaleString(locale), (amount, locale) => resolver(amount, locale)); // Compliant
 _.memoize(unresolvedFormatter); // Compliant
 
-_.memoize((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+_.memoize((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //^^^^^^^
 
-lodash.memoize(function (amount, locale) { return amount.toLocaleString(locale); }); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+lodash.memoize(function (amount, locale) { return amount.toLocaleString(locale); }); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //     ^^^^^^^
 
-lodashEs.memoize((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+lodashEs.memoize((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //       ^^^^^^^
 
-  memoizeFromLodash((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+  memoizeFromLodash((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //^^^^^^^^^^^^^^^^^
 
-  memoize((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+  memoize((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //^^^^^^^
 
-  memoizeFromRequire((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+  memoizeFromRequire((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //^^^^^^^^^^^^^^^^^^
 
-underscore.memoize((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+underscore.memoize((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //         ^^^^^^^
 
-  memoizeFromUnderscore((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+  memoizeFromUnderscore((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //^^^^^^^^^^^^^^^^^^^^^
 
-lodashModule.memoize((amount, locale) => amount.toLocaleString(locale), undefined); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+lodashModule.memoize((amount, locale) => amount.toLocaleString(locale), undefined); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //           ^^^^^^^
 
-lodashModule.memoize((amount, locale) => amount.toLocaleString(locale), null); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+lodashModule.memoize((amount, locale) => amount.toLocaleString(locale), null); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //           ^^^^^^^
 
-_.memoize(formatAmount); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+_.memoize(formatAmount); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //^^^^^^^
 
 function formatDate(date, locale) {
   return date.toLocaleDateString(locale);
 }
 
-_.memoize(formatDate); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+_.memoize(formatDate); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //^^^^^^^
 
-_.memoize((...parts) => parts.join(':')); // Noncompliant {{Provide an explicit resolver argument for this memoized function.}}
+_.memoize((...parts) => parts.join(':')); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //^^^^^^^

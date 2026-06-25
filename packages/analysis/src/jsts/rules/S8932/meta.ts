@@ -16,4 +16,4 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S8932/javascript
 export const implementation = 'original';
-export const eslintId = 'lodash-memoize-resolver';
+export const eslintId = 'memoize-cache-key';
