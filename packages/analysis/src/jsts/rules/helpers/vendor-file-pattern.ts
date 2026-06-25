@@ -47,6 +47,9 @@ const KNOWN_LIBRARY_FILE_PATTERN =
  * @returns true when the path includes a vendor directory or the filename matches a known library distribution.
  */
 export function isVendorFile(filePath: string): boolean {
+  if (!filePath) {
+    return false;
+  }
   const segments = normalizePath(filePath).split('/');
   const basename = segments[segments.length - 1] ?? '';
   return (

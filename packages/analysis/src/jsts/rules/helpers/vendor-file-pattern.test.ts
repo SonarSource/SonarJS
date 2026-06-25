@@ -109,6 +109,8 @@ describe('isVendorFile', () => {
       path.join('app', 'js', 'jquery-custom-plugin.js'),
       path.join('app', 'js', 'moment-utils.js'),
       path.join('app', 'js', 'lodash-fp.js'),
+      // empty / virtual path (SonarLint in-memory files)
+      '',
     ];
 
     for (const filePath of nonVendorPaths) {
