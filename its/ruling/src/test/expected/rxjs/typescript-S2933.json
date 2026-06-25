@@ -1,50 +1,34 @@
 {
 "rxjs:src/InnerSubscriber.ts": [
-12,
-12,
 12
 ],
 "rxjs:src/Notification.ts": [
-96,
-97
+21
 ],
 "rxjs:src/ReplaySubject.ts": [
-13,
-14,
-15,
-19
+17
 ],
 "rxjs:src/Scheduler.ts": [
 28
 ],
 "rxjs:src/observable/ArrayLikeObservable.ts": [
-46,
-48,
 48
 ],
 "rxjs:src/observable/ArrayObservable.ts": [
-104,
 104
 ],
 "rxjs:src/observable/BoundCallbackObservable.ts": [
-184,
-185,
-186,
-187,
-188
+184
 ],
 "rxjs:src/observable/BoundNodeCallbackObservable.ts": [
-163,
-164,
-165,
-166
+163
 ],
 "rxjs:src/observable/ConnectableObservable.ts": [
 100
 ],
 "rxjs:src/observable/DeferObservable.ts": [
 64,
-75
+74
 ],
 "rxjs:src/observable/EmptyObservable.ts": [
 69
@@ -54,126 +38,80 @@
 ],
 "rxjs:src/observable/ForkJoinObservable.ts": [
 17,
-18,
-86,
-91,
-92
+90
 ],
 "rxjs:src/observable/FromEventObservable.ts": [
-113,
-114,
-115,
-116
+113
 ],
 "rxjs:src/observable/FromEventPatternObservable.ts": [
-67,
-68,
-69
+67
 ],
 "rxjs:src/observable/FromObservable.ts": [
-22,
 22
 ],
 "rxjs:src/observable/GenerateObservable.ts": [
-58,
-59,
-60,
-61,
-62
+58
 ],
 "rxjs:src/observable/IfObservable.ts": [
 20,
-21,
-22,
-35,
-36,
-37
+34
 ],
 "rxjs:src/observable/IntervalObservable.ts": [
-65,
-66
+65
 ],
 "rxjs:src/observable/IteratorObservable.ts": [
-14,
 48,
 88,
-90,
-105,
-107
+105
 ],
 "rxjs:src/observable/PairsObservable.ts": [
-37,
-74,
 74
 ],
 "rxjs:src/observable/PromiseObservable.ts": [
-46,
 46
 ],
 "rxjs:src/observable/RangeObservable.ts": [
-70,
-71,
-72
+74
 ],
 "rxjs:src/observable/ScalarObservable.ts": [
 35
 ],
 "rxjs:src/observable/SubscribeOnObservable.ts": [
-30,
-31
+29
 ],
 "rxjs:src/observable/TimerObservable.ts": [
-82,
-83,
-84
+86
 ],
 "rxjs:src/observable/UsingObservable.ts": [
 19,
-20,
-40,
-41
+39
 ],
 "rxjs:src/observable/dom/AjaxObservable.ts": [
-142
+144
 ],
 "rxjs:src/operator/audit.ts": [
 56,
-76
+75
 ],
 "rxjs:src/operator/auditTime.ts": [
 55,
-56,
-76,
-77
+75
 ],
 "rxjs:src/operator/buffer.ts": [
 47
 ],
 "rxjs:src/operator/bufferCount.ts": [
-52,
-54,
 54,
 75,
-105,
-108,
 108
 ],
 "rxjs:src/operator/bufferTime.ts": [
 82,
-83,
-84,
-85,
-114,
-117,
-118,
-119,
-120
+116
 ],
 "rxjs:src/operator/bufferToggle.ts": [
 55,
-56,
-78,
-79
+77
 ],
 "rxjs:src/operator/bufferWhen.ts": [
 51,
@@ -181,30 +119,23 @@
 ],
 "rxjs:src/operator/catch.ts": [
 76,
-91,
-92
+90
 ],
 "rxjs:src/operator/combineLatest.ts": [
 91,
-106,
-107,
 110
 ],
 "rxjs:src/operator/count.ts": [
 59,
-60,
-78,
-79
+77
 ],
 "rxjs:src/operator/debounce.ts": [
 57,
-76
+75
 ],
 "rxjs:src/operator/debounceTime.ts": [
 59,
-59,
-78,
-79
+77
 ],
 "rxjs:src/operator/defaultIfEmpty.ts": [
 46,
@@ -212,224 +143,136 @@
 ],
 "rxjs:src/operator/delay.ts": [
 59,
-60,
-103,
-104
+102
 ],
 "rxjs:src/operator/delayWhen.ts": [
 65,
-80,
-81,
-84,
+83,
 163,
-180,
 180
 ],
 "rxjs:src/operator/distinct.ts": [
 62,
-62,
-76,
 78
 ],
 "rxjs:src/operator/distinctUntilChanged.ts": [
 57,
-58,
-77
+75
 ],
 "rxjs:src/operator/do.ts": [
 62,
-63,
-64,
-78
+80
 ],
 "rxjs:src/operator/elementAt.ts": [
-55,
 55,
 73
 ],
 "rxjs:src/operator/every.ts": [
 26,
-27,
-28,
-45,
-46,
-47
+44
 ],
 "rxjs:src/operator/exhaustMap.ts": [
 65,
-66,
-85,
-86
+84
 ],
 "rxjs:src/operator/expand.ts": [
 71,
-72,
-73,
-97,
-100,
-101,
-102
+99
 ],
 "rxjs:src/operator/filter.ts": [
 60,
-61,
-79,
-80
+78
 ],
 "rxjs:src/operator/finally.ts": [
 19
 ],
 "rxjs:src/operator/find.ts": [
 56,
-57,
-58,
-59,
-76,
-77,
-78,
-79
+75
 ],
 "rxjs:src/operator/first.ts": [
 83,
-84,
-85,
-86,
-105,
-106,
-107,
-108
+104
 ],
 "rxjs:src/operator/groupBy.ts": [
 98,
-99,
-100,
-101,
-122,
-123,
-124,
-125,
+121,
 227,
-228,
-229,
-264,
-265,
+263,
 286
 ],
 "rxjs:src/operator/last.ts": [
 52,
-53,
-54,
-55,
-74,
-75,
-76,
-77
+73
 ],
 "rxjs:src/operator/map.ts": [
 46,
-46,
-61,
-64
+63
 ],
 "rxjs:src/operator/mergeAll.ts": [
 61,
-76,
 79
 ],
 "rxjs:src/operator/mergeMap.ts": [
 83,
-84,
-85,
-102,
-107,
-108,
-109
+106
 ],
 "rxjs:src/operator/mergeMapTo.ts": [
 71,
-72,
-73,
-88,
-93,
-94,
-95
+92
 ],
 "rxjs:src/operator/mergeScan.ts": [
 50,
-51,
-52,
-70,
-75,
-77
+74
 ],
 "rxjs:src/operator/multicast.ts": [
-57,
-58
+57
 ],
 "rxjs:src/operator/observeOn.ts": [
 61,
-61,
-82,
-83
+81
 ],
 "rxjs:src/operator/onErrorResumeNext.ts": [
 117,
-127
+126
 ],
 "rxjs:src/operator/reduce.ts": [
 70,
-70,
-70,
-88,
-90
+87
 ],
 "rxjs:src/operator/repeat.ts": [
 30,
-31,
-46
+44
 ],
 "rxjs:src/operator/repeatWhen.ts": [
-53,
-54
+52
 ],
 "rxjs:src/operator/retry.ts": [
 27,
-28,
-44
+42
 ],
 "rxjs:src/operator/retryWhen.ts": [
-53,
-54
+52
 ],
 "rxjs:src/operator/sample.ts": [
 48
 ],
 "rxjs:src/operator/sampleTime.ts": [
 50,
-51,
-69,
-70
+68
 ],
 "rxjs:src/operator/scan.ts": [
-63,
-63,
 63,
 87
 ],
 "rxjs:src/operator/sequenceEqual.ts": [
 66,
-67,
-81,
-82,
-86,
-87,
+85,
 146
 ],
 "rxjs:src/operator/single.ts": [
 29,
-30,
-49,
-50
+48
 ],
 "rxjs:src/operator/skip.ts": [
 22,
@@ -444,23 +287,18 @@
 ],
 "rxjs:src/operator/skipWhile.ts": [
 23,
-41
+40
 ],
 "rxjs:src/operator/subscribeOn.ts": [
-24,
-25
+24
 ],
 "rxjs:src/operator/switchMap.ts": [
 67,
-68,
-86,
-87
+85
 ],
 "rxjs:src/operator/switchMapTo.ts": [
 65,
-66,
-84,
-85
+83
 ],
 "rxjs:src/operator/take.ts": [
 50,
@@ -468,34 +306,23 @@
 ],
 "rxjs:src/operator/takeLast.ts": [
 53,
-70,
 73
 ],
 "rxjs:src/operator/takeUntil.ts": [
 48,
-64
+63
 ],
 "rxjs:src/operator/takeWhile.ts": [
 47,
-64
+63
 ],
 "rxjs:src/operator/throttle.ts": [
 67,
-68,
-69,
-90,
-91,
-92
+89
 ],
 "rxjs:src/operator/throttleTime.ts": [
 56,
-57,
-58,
-59,
-80,
-81,
-82,
-83
+79
 ],
 "rxjs:src/operator/timeInterval.ts": [
 24,
@@ -503,87 +330,58 @@
 ],
 "rxjs:src/operator/timeout.ts": [
 27,
-28,
-29,
-30,
-50,
-51
+49
 ],
 "rxjs:src/operator/timeoutWith.ts": [
 34,
-35,
-36,
-37,
-57,
-58
+56
 ],
 "rxjs:src/operator/timestamp.ts": [
 23,
 32
 ],
 "rxjs:src/operator/toArray.ts": [
-27
+29
 ],
 "rxjs:src/operator/window.ts": [
 52
 ],
 "rxjs:src/operator/windowCount.ts": [
 61,
-62,
-80,
-81
+79
 ],
 "rxjs:src/operator/windowTime.ts": [
 110,
-111,
-112,
-113,
-166,
-169,
-170,
-171,
-172
+168
 ],
 "rxjs:src/operator/windowToggle.ts": [
 62,
-63,
-85,
-88,
-89
+87
 ],
 "rxjs:src/operator/windowWhen.ts": [
 57,
-75
+74
 ],
 "rxjs:src/operator/withLatestFrom.ts": [
 73,
-74,
-89,
-92,
-93
+91
 ],
 "rxjs:src/operator/zip.ts": [
-121,
-122,
-123,
+126,
 236,
-258,
 260,
-294,
-295
+293
 ],
 "rxjs:src/testing/TestScheduler.ts": [
-22,
-23,
-24
+26
 ],
 "rxjs:src/util/Immediate.ts": [
 22
 ],
 "rxjs:src/util/MapPolyfill.ts": [
-4
+1
 ],
 "rxjs:src/util/Set.ts": [
-18
+17
 ]
 }
