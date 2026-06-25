@@ -34,12 +34,12 @@ describe('S3504', () => {
           filename: path.join('project', 'vendors', 'legacy.js'),
         },
         {
-          code: `var vendorValue = 1;`,
-          filename: path.join('project', 'assets', 'legacy.js'),
+          code: `var x = 1;`,
+          filename: path.join('src', 'vs', 'base', 'common', 'semver', 'semver.js'),
         },
         {
-          code: `var vendorValue = 1;`,
-          filename: path.join('project', 'static', 'legacy.js'),
+          code: `var DOMPurify = 1;`,
+          filename: path.join('src', 'vs', 'base', 'browser', 'dompurify', 'dompurify.js'),
         },
       ],
       invalid: [

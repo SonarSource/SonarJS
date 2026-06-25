@@ -26,12 +26,14 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     {
       ...rule,
       meta: generateMeta(meta, rule.meta),
+      create(context) {
+        if (isVendorFile(context.physicalFilename)) {
+          return {};
+        }
+        return rule.create(context);
+      },
     },
     (context, reportDescriptor) => {
-      if (isVendorFile(context.physicalFilename)) {
-        return;
-      }
-
       if ('node' in reportDescriptor) {
         const { node, ...rest } = reportDescriptor;
         const varDecl = node as estree.VariableDeclaration & { declare?: boolean };

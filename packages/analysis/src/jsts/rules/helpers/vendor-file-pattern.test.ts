@@ -24,9 +24,6 @@ describe('isVendorFile', () => {
     const vendorPaths = [
       path.join('project', 'vendor', 'library.js'),
       path.join('project', 'vendors', 'library.js'),
-      path.join('project', 'asset', 'library.js'),
-      path.join('project', 'assets', 'library.js'),
-      path.join('project', 'static', 'library.js'),
       path.join('project', 'external', 'library.js'),
       path.join('project', 'externals', 'library.js'),
       path.join('project', 'contrib', 'library.js'),
@@ -41,11 +38,27 @@ describe('isVendorFile', () => {
     }
   });
 
+  it('should recognize well-known library directory names', () => {
+    const libraryPaths = [
+      path.join('src', 'vs', 'base', 'common', 'semver', 'semver.js'),
+      path.join('src', 'vs', 'base', 'browser', 'dompurify', 'dompurify.js'),
+      path.join('src', 'vendor', 'jquery', 'jquery.min.js'),
+      path.join('app', 'assets', 'javascripts', 'lodash', 'lodash.js'),
+      path.join('lib', 'moment', 'moment.js'),
+    ];
+
+    for (const filePath of libraryPaths) {
+      assert.ok(isVendorFile(filePath), filePath);
+    }
+  });
+
   it('should ignore non-vendor paths and near misses', () => {
     const nonVendorPaths = [
       path.join('project', 'src', 'library.js'),
       path.join('project', 'lib', 'library.js'),
       path.join('project', 'libs', 'library.js'),
+      path.join('project', 'assets', 'library.js'),
+      path.join('project', 'static', 'library.js'),
       path.join('project', 'static-site', 'library.js'),
       path.join('project', 'vendors.ts'),
       path.join('project', 'third_party_tools', 'library.js'),

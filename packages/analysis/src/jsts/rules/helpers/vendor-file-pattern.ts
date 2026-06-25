@@ -16,17 +16,39 @@
  */
 import { pathHasSegment } from './files.js';
 
+// Well-known naming conventions for directories that hold copied third-party code.
 const VENDOR_DIRECTORY_NAMES = new Set([
-  'asset',
-  'assets',
   'contrib',
   'external',
   'externals',
-  'static',
   'third-party',
   'thirdparty',
   'vendor',
   'vendors',
+]);
+
+// Widely-used library names that appear as directory segments when vendored into a project.
+const KNOWN_LIBRARY_NAMES = new Set([
+  'backbone',
+  'bluebird',
+  'chartjs',
+  'codemirror',
+  'd3',
+  'dompurify',
+  'handlebars',
+  'jquery',
+  'knockout',
+  'lodash',
+  'marked',
+  'modernizr',
+  'moment',
+  'mootools',
+  'punycode',
+  'requirejs',
+  'semver',
+  'sprintf',
+  'underscore',
+  'xregexp',
 ]);
 
 /**
@@ -36,5 +58,5 @@ const VENDOR_DIRECTORY_NAMES = new Set([
  * @returns true when the path includes a vendor directory.
  */
 export function isVendorFile(filePath: string): boolean {
-  return pathHasSegment(filePath, VENDOR_DIRECTORY_NAMES);
+  return pathHasSegment(filePath, VENDOR_DIRECTORY_NAMES) || pathHasSegment(filePath, KNOWN_LIBRARY_NAMES);
 }
