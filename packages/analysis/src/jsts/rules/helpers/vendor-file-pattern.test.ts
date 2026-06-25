@@ -38,22 +38,59 @@ describe('isVendorFile', () => {
     }
   });
 
-  it('should recognize well-known library directory names', () => {
-    const libraryPaths = [
+  it('should recognize well-known library distribution filenames', () => {
+    const libraryFilePaths = [
+      // bare name — jquery, lodash, moment, ...
+      path.join('app', 'js', 'jquery.js'),
+      path.join('app', 'js', 'jQuery.js'),           // case-insensitive
+      path.join('app', 'js', 'lodash.js'),
+      path.join('app', 'js', 'moment.js'),
+      path.join('app', 'js', 'backbone.js'),
+      // .min.js — standard minified distribution
+      path.join('app', 'js', 'jquery.min.js'),
+      path.join('app', 'js', 'lodash.min.js'),
+      path.join('app', 'js', 'underscore.min.js'),
+      // versioned — {name}-{semver}.js / {name}-{semver}.min.js
+      path.join('app', 'js', 'jquery-3.7.1.js'),
+      path.join('app', 'js', 'jquery-3.7.1.min.js'),
+      path.join('app', 'js', 'moment-2.29.4.min.js'),
+      // Three.js uses r{release} versioning
+      path.join('app', 'js', 'three.r128.min.js'),
+      // library-specific variants
+      path.join('app', 'js', 'lodash.core.min.js'),      // Lodash core build
+      path.join('app', 'js', 'handlebars.runtime.js'),   // Handlebars runtime
+      path.join('app', 'js', 'highlight.pack.js'),        // Highlight.js pack
+      path.join('app', 'js', 'bluebird.core.min.js'),     // Bluebird core
+      // DOMPurify ships its dist as purify.js
+      path.join('app', 'js', 'purify.js'),
+      path.join('app', 'js', 'purify.min.js'),
+      path.join('app', 'js', 'dompurify.js'),
+      // ticket's motivating examples — vendored inside deeply nested paths
       path.join('src', 'vs', 'base', 'common', 'semver', 'semver.js'),
       path.join('src', 'vs', 'base', 'browser', 'dompurify', 'dompurify.js'),
-      path.join('src', 'vendor', 'jquery', 'jquery.min.js'),
-      path.join('app', 'assets', 'javascripts', 'lodash', 'lodash.js'),
-      path.join('lib', 'moment', 'moment.js'),
     ];
 
-    for (const filePath of libraryPaths) {
+    for (const filePath of libraryFilePaths) {
       assert.ok(isVendorFile(filePath), filePath);
+    }
+  });
+
+  it('should not suppress a library directory when the file has a different name', () => {
+    // A library analyzing its own source must not have all its files suppressed.
+    const ownSourcePaths = [
+      path.join('src', 'semver', 'index.js'),          // semver's own source: only semver.js is suppressed
+      path.join('src', 'jquery', 'src', 'core.js'),    // jQuery's own source
+      path.join('src', 'lodash', 'array', 'chunk.js'), // Lodash's own source
+    ];
+
+    for (const filePath of ownSourcePaths) {
+      assert.ok(!isVendorFile(filePath), filePath);
     }
   });
 
   it('should ignore non-vendor paths and near misses', () => {
     const nonVendorPaths = [
+      // plain source directories — never suppressed
       path.join('project', 'src', 'library.js'),
       path.join('project', 'lib', 'library.js'),
       path.join('project', 'libs', 'library.js'),
@@ -62,6 +99,10 @@ describe('isVendorFile', () => {
       path.join('project', 'static-site', 'library.js'),
       path.join('project', 'vendors.ts'),
       path.join('project', 'third_party_tools', 'library.js'),
+      // library name with an arbitrary suffix — not a library distribution file
+      path.join('app', 'js', 'jquery-custom-plugin.js'),
+      path.join('app', 'js', 'moment-utils.js'),
+      path.join('app', 'js', 'lodash-fp.js'),
     ];
 
     for (const filePath of nonVendorPaths) {

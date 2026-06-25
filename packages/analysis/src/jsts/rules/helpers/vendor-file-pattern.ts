@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { pathHasSegment } from './files.js';
+import { normalizePath } from './files.js';
 
 // Well-known naming conventions for directories that hold copied third-party code.
 const VENDOR_DIRECTORY_NAMES = new Set([
@@ -27,36 +27,27 @@ const VENDOR_DIRECTORY_NAMES = new Set([
   'vendors',
 ]);
 
-// Widely-used library names that appear as directory segments when vendored into a project.
-const KNOWN_LIBRARY_NAMES = new Set([
-  'backbone',
-  'bluebird',
-  'chartjs',
-  'codemirror',
-  'd3',
-  'dompurify',
-  'handlebars',
-  'jquery',
-  'knockout',
-  'lodash',
-  'marked',
-  'modernizr',
-  'moment',
-  'mootools',
-  'punycode',
-  'requirejs',
-  'semver',
-  'sprintf',
-  'underscore',
-  'xregexp',
-]);
+// Matches single-file distributions of widely-used libraries when copied into a project.
+// Covers each library's documented distribution filename format:
+//   - bare:      jquery.js, lodash.js
+//   - minified:  jquery.min.js, lodash.min.js
+//   - versioned: jquery-3.7.1.js, moment-2.29.4.min.js, three.r128.min.js, d3.v7.min.js
+//   - variants:  lodash.core.js, handlebars.runtime.js, highlight.pack.js, bootstrap.bundle.js
+// Only the basename is tested; a directory named after a library does NOT match.
+const KNOWN_LIBRARY_FILE_PATTERN =
+  /^(?:backbone|bluebird|chartjs|codemirror|dompurify|handlebars|highlight|jquery|knockout|lodash|marked|modernizr|moment|mootools|punycode|purify|requirejs|semver|sprintf|three|underscore|xregexp)(?:[-.](?:v?\d[\w.]*|r\d[\w.]*|min|bundle|core|slim|pack|runtime|umd|esm|cjs|full|debug|all|custom))*\.js$/i;
 
 /**
- * Checks whether a file path contains a vendor directory segment.
+ * Checks whether a file path contains a vendor directory segment or has a well-known library filename.
  *
  * @param filePath the file path to test.
- * @returns true when the path includes a vendor directory.
+ * @returns true when the path includes a vendor directory or the filename matches a known library distribution.
  */
 export function isVendorFile(filePath: string): boolean {
-  return pathHasSegment(filePath, VENDOR_DIRECTORY_NAMES) || pathHasSegment(filePath, KNOWN_LIBRARY_NAMES);
+  const segments = normalizePath(filePath).split('/');
+  const basename = segments[segments.length - 1] ?? '';
+  return (
+    segments.some(s => VENDOR_DIRECTORY_NAMES.has(s.toLowerCase())) ||
+    KNOWN_LIBRARY_FILE_PATTERN.test(basename)
+  );
 }
