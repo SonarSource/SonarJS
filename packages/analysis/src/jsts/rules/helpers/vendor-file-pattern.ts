@@ -38,7 +38,7 @@ const VENDOR_DIRECTORY_NAMES = new Set([
 //                three.module.min.js, three.webgpu.js, three.webgpu.nodes.min.js
 // Only the basename is tested; a directory named after a library does NOT match.
 const KNOWN_LIBRARY_FILE_PATTERN =
-  /^(?:backbone|bluebird|chartjs|codemirror|dompurify|handlebars|highlight|jquery|knockout|lodash|marked|modernizr|moment|mootools|punycode|purify|requirejs|semver|sprintf|three|underscore|xregexp)(?:[-.](?:v?\d[\w.]*|r\d[\w.]*|min|prod|amd|bundle|core|global|slim|pack|runtime|module|webgpu|nodes|tsl|umd|esm|cjs|full|debug|all|custom))*\.js$/i;
+  /^(?:backbone|bluebird|chartjs|codemirror|dompurify|handlebars|highlight|jquery|knockout|lodash|marked|modernizr|moment|mootools|punycode|purify|requirejs|semver|sprintf|three|underscore|xregexp)(?:[-.](?:v?\d[\w]*|r\d[\w]*|min|prod|amd|bundle|core|global|slim|pack|runtime|module|webgpu|nodes|tsl|umd|esm|cjs|full|debug|all|custom))*\.js$/i;
 
 /**
  * Checks whether a file path contains a vendor directory segment or has a well-known library filename.
