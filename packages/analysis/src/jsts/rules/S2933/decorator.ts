@@ -208,7 +208,7 @@ function getReportMessage(rule: Rule.RuleModule, reportDescriptor: Rule.ReportDe
 }
 
 function getCombinedFix(groupedReports: Rule.ReportDescriptor[]): Rule.ReportFixer | undefined {
-  if (!groupedReports.every(reportDescriptor => typeof reportDescriptor.fix === 'function')) {
+  if (!groupedReports.some(reportDescriptor => typeof reportDescriptor.fix === 'function')) {
     return undefined;
   }
 
@@ -218,12 +218,12 @@ function getCombinedFix(groupedReports: Rule.ReportDescriptor[]): Rule.ReportFix
     for (const reportDescriptor of groupedReports) {
       const reportFixer = reportDescriptor.fix;
       if (typeof reportFixer !== 'function') {
-        return null;
+        continue;
       }
 
       const fix = reportFixer(fixer);
       if (!fix) {
-        return null;
+        continue;
       }
 
       if (isIterableFix(fix)) {
@@ -233,7 +233,7 @@ function getCombinedFix(groupedReports: Rule.ReportDescriptor[]): Rule.ReportFix
       }
     }
 
-    return fixes;
+    return fixes.length > 0 ? fixes : null;
   };
 }
 
