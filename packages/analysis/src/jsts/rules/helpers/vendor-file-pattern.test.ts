@@ -54,13 +54,19 @@ describe('isVendorFile', () => {
       path.join('app', 'js', 'jquery-3.7.1.js'),
       path.join('app', 'js', 'jquery-3.7.1.min.js'),
       path.join('app', 'js', 'moment-2.29.4.min.js'),
-      // Three.js uses r{release} versioning
+      // Three.js: r{release} versioning used in legacy releases (≤ r160)
       path.join('app', 'js', 'three.r128.min.js'),
-      // library-specific variants
-      path.join('app', 'js', 'lodash.core.min.js'),      // Lodash core build
-      path.join('app', 'js', 'handlebars.runtime.js'),   // Handlebars runtime
-      path.join('app', 'js', 'highlight.pack.js'),        // Highlight.js pack
-      path.join('app', 'js', 'bluebird.core.min.js'),     // Bluebird core
+      // Three.js: module/webgpu variants in current releases (≥ r161, confirmed via unpkg)
+      path.join('app', 'js', 'three.module.js'),
+      path.join('app', 'js', 'three.module.min.js'),
+      path.join('app', 'js', 'three.webgpu.js'),
+      path.join('app', 'js', 'three.webgpu.nodes.min.js'),
+      // library-specific variants (confirmed via CDN/unpkg)
+      path.join('app', 'js', 'handlebars.runtime.js'),       // Handlebars runtime-only build
+      path.join('app', 'js', 'handlebars.amd.js'),            // Handlebars AMD build
+      path.join('app', 'js', 'handlebars.runtime.amd.min.js'), // Handlebars runtime+AMD
+      path.join('app', 'js', 'highlight.pack.js'),            // Highlight.js v9 (renamed in v10)
+      path.join('app', 'js', 'bluebird.core.min.js'),         // Bluebird core build
       // DOMPurify ships its dist as purify.js
       path.join('app', 'js', 'purify.js'),
       path.join('app', 'js', 'purify.min.js'),
