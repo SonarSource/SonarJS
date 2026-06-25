@@ -209,5 +209,5 @@ function isFunctionCallFromNodeAssertTS(
   node: ts.Node,
 ): boolean {
   const fqn = getFullyQualifiedNameTS(services, node);
-  return fqn ? fqn?.startsWith('assert') : false;
+  return fqn?.split('.')[0] === 'assert';
 }
