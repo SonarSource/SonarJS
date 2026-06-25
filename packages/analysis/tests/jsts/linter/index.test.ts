@@ -1366,6 +1366,53 @@ describe('Linter', () => {
     expect(issues).toHaveLength(0);
   });
 
+  it('should group S2933 issues at the class constructor with secondary locations', async () => {
+    const fixtures = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'prefer-readonly');
+    const filePath = normalizeToAbsolutePath(path.join(fixtures, 'grouped.ts'));
+    const tsConfig = path.join(fixtures, 'tsconfig.json');
+
+    const parseResult = await parseTypeScriptSourceFile(filePath, [tsConfig], 'MAIN');
+    const ruleId = 'S2933';
+    const rules: RuleConfig[] = [
+      {
+        key: ruleId,
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
+    const { issues } = Linter.lint(parseResult, filePath);
+
+    expect(issues).toEqual([
+      expect.objectContaining({
+        ruleId,
+        line: 5,
+        column: 2,
+        message: 'Mark these members as `readonly`.',
+        quickFixes: [
+          expect.objectContaining({
+            message: "Add 'readonly'",
+          }),
+        ],
+        secondaryLocations: [
+          expect.objectContaining({
+            line: 2,
+            column: 2,
+            message: "Member 'foo' is never reassigned; mark it as `readonly`.",
+          }),
+          expect.objectContaining({
+            line: 3,
+            column: 2,
+            message: "Member 'bar' is never reassigned; mark it as `readonly`.",
+          }),
+        ],
+      }),
+    ]);
+  });
+
   it('should report issues with secondary locations', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'wrapper', 'secondary-location.js'),
