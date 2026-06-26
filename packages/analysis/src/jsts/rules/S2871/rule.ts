@@ -16,13 +16,13 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2871/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type ts from 'typescript';
 import type estree from 'estree';
-import { childrenOf, getNodeParent } from '../helpers/ancestor.js';
+import { getNodeParent } from '../helpers/ancestor.js';
 import { copyingSortLike, sortLike } from '../helpers/collection.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isIdentifier } from '../helpers/ast.js';
+import { getVariableFromName, isIdentifier } from '../helpers/ast.js';
 import {
   getTypeFromTreeNode,
   isArrayLikeType,
@@ -215,16 +215,18 @@ export const rule: Rule.RuleModule = {
 
     function isReturnedByComparedNormalizer(call: estree.CallExpression): boolean {
       const callInfo = getBareSortInfo(call);
-      const functionName = getEnclosingReturnedFunctionName(call);
+      const functionVariable = getEnclosingReturnedFunctionVariable(call);
       return (
         callInfo !== null &&
         isPrimitiveSortReceiver(callInfo.receiver) &&
-        functionName !== null &&
-        isUsedOnlyInJsonStringifyComparisons(functionName)
+        functionVariable !== null &&
+        isUsedOnlyInJsonStringifyComparisons(functionVariable)
       );
     }
 
-    function getEnclosingReturnedFunctionName(call: estree.CallExpression): string | null {
+    function getEnclosingReturnedFunctionVariable(
+      call: estree.CallExpression,
+    ): Scope.Variable | null {
       let currentNode: estree.Node | undefined = getNodeParent(call);
       let returnStatement: estree.ReturnStatement | undefined;
 
@@ -240,7 +242,7 @@ export const rule: Rule.RuleModule = {
           if (returnStatement === undefined) {
             return null;
           }
-          return getLocalFunctionName(currentNode);
+          return getLocalFunctionVariable(currentNode);
         }
         currentNode = getNodeParent(currentNode);
       }
@@ -248,7 +250,7 @@ export const rule: Rule.RuleModule = {
       return null;
     }
 
-    function getLocalFunctionName(functionNode: estree.Node): string | null {
+    function getLocalFunctionVariable(functionNode: estree.Node): Scope.Variable | null {
       const parent = getNodeParent(functionNode);
       if (
         parent?.type === 'ExportNamedDeclaration' ||
@@ -257,39 +259,40 @@ export const rule: Rule.RuleModule = {
         return null;
       }
       if (functionNode.type === 'FunctionDeclaration') {
-        return functionNode.id?.name ?? null;
+        if (functionNode.id === null) {
+          return null;
+        }
+        return getVariableFromName(context, functionNode.id.name, functionNode) ?? null;
       }
       if (parent?.type === 'VariableDeclarator' && isIdentifier(parent.id)) {
-        return parent.id.name;
+        return getVariableFromName(context, parent.id.name, parent) ?? null;
       }
       return null;
     }
 
-    function isUsedOnlyInJsonStringifyComparisons(functionName: string): boolean {
-      const calls = collectFunctionCalls(functionName);
+    function isUsedOnlyInJsonStringifyComparisons(functionVariable: Scope.Variable): boolean {
+      const calls = collectFunctionCalls(functionVariable);
       return (
         calls.length > 0 &&
-        calls.every(call => isJsonStringifyFunctionCallComparison(call, functionName))
+        calls.every(call => isJsonStringifyFunctionCallComparison(call, functionVariable))
       );
     }
 
-    function collectFunctionCalls(functionName: string): estree.CallExpression[] {
-      const functionCalls: estree.CallExpression[] = [];
-      const visit = (node: estree.Node) => {
-        if (node.type === 'CallExpression' && isIdentifier(node.callee, functionName)) {
-          functionCalls.push(node);
+    function collectFunctionCalls(functionVariable: Scope.Variable): estree.CallExpression[] {
+      return functionVariable.references.flatMap(reference => {
+        if (!reference.isRead()) {
+          return [];
         }
-        for (const child of childrenOf(node, sourceCode.visitorKeys)) {
-          visit(child);
-        }
-      };
-      visit(sourceCode.ast);
-      return functionCalls;
+        const parent = getNodeParent(reference.identifier);
+        return parent?.type === 'CallExpression' && parent.callee === reference.identifier
+          ? [parent]
+          : [];
+      });
     }
 
     function isJsonStringifyFunctionCallComparison(
       call: estree.CallExpression,
-      functionName: string,
+      functionVariable: Scope.Variable,
     ): boolean {
       const parent = getNodeParent(call);
       if (!isJsonStringifyCall(parent) || (parent as estree.CallExpression).arguments[0] !== call) {
@@ -302,7 +305,9 @@ export const rule: Rule.RuleModule = {
       const siblingArgument = (sibling as estree.CallExpression).arguments[0];
       return (
         siblingArgument.type === 'CallExpression' &&
-        isIdentifier(siblingArgument.callee, functionName)
+        siblingArgument.callee.type === 'Identifier' &&
+        getVariableFromName(context, siblingArgument.callee.name, siblingArgument) ===
+          functionVariable
       );
     }
 

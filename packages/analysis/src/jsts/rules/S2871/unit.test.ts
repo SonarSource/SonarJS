@@ -180,6 +180,28 @@ describe('S2871', () => {
           },
           {
             code: `
+      function normalize(value: unknown): string[] {
+        if (Array.isArray(value)) {
+          return value.map(String).sort();
+        }
+        return [];
+      }
+
+      function format(values: string[]): string {
+        function normalize(items: string[]): string {
+          return items.join(',');
+        }
+
+        return normalize(values);
+      }
+
+      function hasChanged(before: unknown, after: unknown): boolean {
+        return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+      }
+    `,
+          },
+          {
+            code: `
       function haveSameItems(a: number[], b: number[]): boolean {
         return a.slice().sort().map(String).join(',') === b.slice().sort().map(String).join(',');
       }
@@ -652,6 +674,25 @@ describe('S2871', () => {
             code: `
       function haveSameItems(a: string[], b: string[]): boolean {
         return a.toSorted().map(String).join(',') === b.toSorted().map(String).join(',');
+      }
+    `,
+          },
+          {
+            code: `
+      const normalize = (value: unknown): string[] => {
+        if (Array.isArray(value)) {
+          return value.map(String).toSorted();
+        }
+        return [];
+      };
+
+      function format(values: string[]): string {
+        const normalize = (items: string[]): string => items.join(',');
+        return normalize(values);
+      }
+
+      function hasChanged(before: unknown, after: unknown): boolean {
+        return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
       }
     `,
           },
