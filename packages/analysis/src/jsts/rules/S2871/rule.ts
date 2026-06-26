@@ -120,6 +120,14 @@ function getJoinSeparator(call: estree.CallExpression): string | null {
   return null;
 }
 
+function isReturnedExpressionBody(functionNode: estree.Node, childNode: estree.Node): boolean {
+  return (
+    functionNode.type === 'ArrowFunctionExpression' &&
+    functionNode.body.type !== 'BlockStatement' &&
+    functionNode.body === childNode
+  );
+}
+
 function getStringJoinSortChainRoot(call: estree.CallExpression): estree.CallExpression | null {
   const mapCall = getChainedMethodCall(call, 'map');
   if (mapCall === null || !isStringMapCall(mapCall)) {
@@ -311,14 +319,6 @@ export const rule: Rule.RuleModule = {
       }
 
       return null;
-    }
-
-    function isReturnedExpressionBody(functionNode: estree.Node, childNode: estree.Node): boolean {
-      return (
-        functionNode.type === 'ArrowFunctionExpression' &&
-        functionNode.body.type !== 'BlockStatement' &&
-        functionNode.body === childNode
-      );
     }
 
     function getLocalFunctionVariable(functionNode: estree.Node): Scope.Variable | null {
