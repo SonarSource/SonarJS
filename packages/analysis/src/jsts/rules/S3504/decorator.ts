@@ -17,6 +17,7 @@
 import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { isVendorFile } from '../helpers/vendor-file-pattern.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
@@ -25,6 +26,12 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     {
       ...rule,
       meta: generateMeta(meta, rule.meta),
+      create(context) {
+        if (isVendorFile(context.physicalFilename)) {
+          return {};
+        }
+        return rule.create(context);
+      },
     },
     (context, reportDescriptor) => {
       if ('node' in reportDescriptor) {

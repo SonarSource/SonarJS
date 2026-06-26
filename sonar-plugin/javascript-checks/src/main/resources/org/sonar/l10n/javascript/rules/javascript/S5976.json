@@ -1,0 +1,35 @@
+{
+  "title": "Similar tests should be grouped in a single Parameterized test",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "tests",
+    "bad-practice",
+    "clumsy",
+    "jest",
+    "vitest",
+    "playwright"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-5976",
+  "sqKey": "S5976",
+  "scope": "Tests",
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

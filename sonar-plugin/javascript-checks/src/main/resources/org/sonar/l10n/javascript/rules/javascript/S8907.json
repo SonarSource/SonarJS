@@ -1,0 +1,34 @@
+{
+  "title": "Standard APIs should be preferred over Lodash and Underscore methods",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "convention",
+    "modernize",
+    "lodash",
+    "underscore.js"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-8907",
+  "sqKey": "S8907",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}
