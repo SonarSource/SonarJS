@@ -25,7 +25,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import {
   getFullyQualifiedName,
-  getImportDeclarations,
+  importsModule,
   importsOrDependsOnModule,
 } from '../helpers/module.js';
 import { getMochaCalleeParts, getStaticTitle } from '../helpers/mocha-style-test-frameworks.js';
@@ -39,20 +39,20 @@ const JEST_MODULES = ['jest', '@jest/globals'];
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
 const VITEST_MODULES = ['vitest'];
 const SUPPORTED_MODULE_FQNS = ['jest', '@jest.globals', 'vitest', '@playwright.test'];
-const UNSUPPORTED_TEST_MODULES = new Set([
+const UNSUPPORTED_TEST_MODULES = [
   'cypress',
   'jasmine',
   'jasmine-core',
   'jasmine-node',
   'karma-jasmine',
   'mocha',
-]);
+] as const;
 
 const TEST_FUNCTION_NAMES = new Set(['it', 'test']);
 const COMMON_TEST_MODIFIERS = new Set(['only']);
 const JEST_TEST_MODIFIERS = new Set(['concurrent', 'failing']);
 const PLAYWRIGHT_TEST_MODIFIERS = new Set(['fail', 'slow']);
-const VITEST_TEST_MODIFIERS = new Set(['concurrent', 'sequential']);
+const VITEST_TEST_MODIFIERS = new Set(['concurrent', 'fails', 'sequential']);
 const NON_CONCRETE_TEST_MODIFIERS = new Set(['each', 'fixme', 'skip', 'todo']);
 
 const MIN_SIMILAR_TESTS = 3;
@@ -97,7 +97,7 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
-    const allowGlobalTestFunctions = !importsUnsupportedTestFramework(context);
+    const allowGlobalTestFunctions = !importsUnsupportedFrameworkForGlobals(context);
     const scopeStack: ScopeFrame[] = [];
     const functionStack: FunctionNode[] = [];
     const testCallbacks = new Set<FunctionNode>();
@@ -135,12 +135,12 @@ export const rule: Rule.RuleModule = {
         }
       },
       ':function'(node: estree.Node) {
-        if (isFunctionNode(node)) {
+        if (isCallbackFunctionNode(node)) {
           functionStack.push(node);
         }
       },
       ':function:exit'(node: estree.Node) {
-        if (isFunctionNode(node)) {
+        if (isCallbackFunctionNode(node)) {
           testCallbacks.delete(node);
           functionStack.pop();
         }
@@ -163,12 +163,8 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function importsUnsupportedTestFramework(context: Rule.RuleContext): boolean {
-  return getImportDeclarations(context).some(
-    declaration =>
-      typeof declaration.source.value === 'string' &&
-      UNSUPPORTED_TEST_MODULES.has(declaration.source.value),
-  );
+function importsUnsupportedFrameworkForGlobals(context: Rule.RuleContext): boolean {
+  return importsModule(context, [...UNSUPPORTED_TEST_MODULES]);
 }
 
 function getTestCall(
@@ -187,7 +183,7 @@ function getTestCall(
     return undefined;
   }
 
-  const callback = node.arguments.find(isFunctionNode);
+  const callback = node.arguments.find(isCallbackFunctionNode);
   if (callback === undefined) {
     return undefined;
   }
@@ -225,7 +221,7 @@ function classifyTestCall(
     return 'ignored';
   }
 
-  return undefined;
+  return 'ignored';
 }
 
 function getSupportedTestConstruct(
@@ -346,11 +342,7 @@ function reportIfIssue(
   }
 
   const parameterNodes = literalCollector.nodesToParameterize;
-  if (
-    parameterNodes.size === 0 ||
-    parameterNodes.size > MAX_PARAMETERS ||
-    test.body.length <= parameterNodes.size
-  ) {
+  if (parameterNodes.size === 0) {
     return;
   }
 
@@ -387,19 +379,25 @@ class LiteralDifferenceCollector {
   }
 
   matches(otherBody: estree.Statement[]): boolean {
+    const otherLiteralNodesByTokenRange = collectLiteralNodes(this.context, otherBody);
     return areEquivalent(this.baseBody, otherBody, this.context.sourceCode, (left, right) => {
       if (left.value === right.value) {
         return true;
       }
 
-      const leftCategory = tokenLiteralCategory(left);
-      if (leftCategory === undefined || leftCategory !== tokenLiteralCategory(right)) {
+      const leftLiteral = this.literalNodesByTokenRange.get(tokenRangeKey(left));
+      const rightLiteral = otherLiteralNodesByTokenRange.get(tokenRangeKey(right));
+      if (leftLiteral === undefined || rightLiteral === undefined) {
         return false;
       }
 
-      const leftLiteral = this.literalNodesByTokenRange.get(tokenRangeKey(left));
-      if (leftLiteral === undefined || literalCategory(leftLiteral) !== leftCategory) {
+      const leftCategory = literalCategory(leftLiteral);
+      if (leftCategory === undefined || leftCategory !== literalCategory(rightLiteral)) {
         return false;
+      }
+
+      if (Object.is(leftLiteral.value, rightLiteral.value)) {
+        return true;
       }
 
       this.currentNodesToParameterize.add(leftLiteral);
@@ -486,21 +484,6 @@ function literalCategory(node: estree.Literal): LiteralCategory | undefined {
   }
 }
 
-function tokenLiteralCategory(token: { type: string; value: string }): LiteralCategory | undefined {
-  switch (token.type) {
-    case 'Boolean':
-      return 'boolean';
-    case 'Null':
-      return 'null';
-    case 'Numeric':
-      return token.value.endsWith('n') ? 'bigint' : 'number';
-    case 'String':
-      return 'string';
-    default:
-      return undefined;
-  }
-}
-
-function isFunctionNode(node: estree.Node | estree.SpreadElement): node is FunctionNode {
+function isCallbackFunctionNode(node: estree.Node | estree.SpreadElement): node is FunctionNode {
   return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
 }

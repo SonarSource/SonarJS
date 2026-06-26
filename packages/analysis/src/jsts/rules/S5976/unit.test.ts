@@ -89,6 +89,30 @@ test('normalizes a status', () => {
         },
         {
           code: `
+import { test, expect } from '@jest/globals';
+
+test('normalizes x', () => {
+  const result = normalize(f('x'));
+  expect(result).toBe(1);
+  expect(result.ok).toBe(true);
+});
+
+test('normalizes x again', () => {
+  const result = normalize(f("x"));
+  expect(result).toBe(1.0);
+  expect(result.ok).toBe(true);
+});
+
+test('normalizes x once more', () => {
+  const result = normalize(f('x'));
+  expect(result).toBe(1);
+  expect(result.ok).toBe(true);
+});
+          `,
+          filename: jestTestFile,
+        },
+        {
+          code: `
 test('normalizes a 200 status', () => {
   const status = normalize(200);
   expect(status).toBe(200);
@@ -353,6 +377,30 @@ test('normalizes a 202 status', () => {
   expect(value).toBeGreaterThan(199);
   expect(value).toBeLessThan(300);
 });
+          `,
+          filename: jestTestFile,
+        },
+        {
+          code: `
+const cypress = require('cypress');
+test('normalizes a 200 status', () => {
+  const value = normalize(200);
+  expect(value).toBeGreaterThan(199);
+  expect(value).toBeLessThan(300);
+});
+
+test('normalizes a 201 status', () => {
+  const value = normalize(201);
+  expect(value).toBeGreaterThan(199);
+  expect(value).toBeLessThan(300);
+});
+
+test('normalizes a 202 status', () => {
+  const value = normalize(202);
+  expect(value).toBeGreaterThan(199);
+  expect(value).toBeLessThan(300);
+});
+cypress.run();
           `,
           filename: jestTestFile,
         },
