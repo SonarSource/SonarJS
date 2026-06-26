@@ -1366,7 +1366,7 @@ describe('Linter', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should group S2933 issues at the class constructor with secondary locations', async () => {
+  it('should group S2933 issues at the class name with secondary locations', async () => {
     const fixtures = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'prefer-readonly');
     const filePath = normalizeToAbsolutePath(path.join(fixtures, 'grouped.ts'));
     const tsConfig = path.join(fixtures, 'tsconfig.json');
@@ -1389,8 +1389,8 @@ describe('Linter', () => {
     expect(issues).toEqual([
       expect.objectContaining({
         ruleId,
-        line: 5,
-        column: 2,
+        line: 1,
+        column: 6,
         message: 'Mark these members as `readonly`.',
         quickFixes: [
           expect.objectContaining({

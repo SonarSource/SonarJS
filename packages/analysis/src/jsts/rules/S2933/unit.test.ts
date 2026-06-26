@@ -38,6 +38,9 @@ describe('S2933 decorator', () => {
     assert.equal(reports.length, 1);
     assert.ok('message' in reports[0]);
     assert.equal(reports[0].message, GROUPED_MESSAGE);
+    // The class has a constructor, but the grouped issue still anchors on the class name.
+    assert.ok('loc' in reports[0]);
+    assert.deepEqual(reports[0].loc, loc(1, 6, 1, 7));
 
     const fix = reports[0].fix!(fixer);
     assert.deepEqual(fix, [
@@ -46,7 +49,7 @@ describe('S2933 decorator', () => {
     ]);
   });
 
-  it('reports constructor-less classes on the class name or class keyword', () => {
+  it('reports on the class name, falling back to the whole class for anonymous classes', () => {
     const namedMember = member('foo', loc(2, 2, 2, 5), [12, 15]);
     const namedClass = classNode({
       id: identifier('NamedClass', loc(1, 6, 1, 16)),

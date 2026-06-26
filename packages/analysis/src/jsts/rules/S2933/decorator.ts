@@ -147,11 +147,7 @@ function reportGroupedIssue(
 }
 
 function getPrimaryLocation(classNode: ClassNode): LocationHolder {
-  return classNode.body.body.find(isConstructor) ?? classNode.id ?? classNode;
-}
-
-function isConstructor(node: TSESTree.ClassElement): node is TSESTree.MethodDefinition {
-  return node.type === 'MethodDefinition' && node.kind === 'constructor';
+  return classNode.id ?? classNode;
 }
 
 function getSecondaryLocation(rule: Rule.RuleModule, reportDescriptor: Rule.ReportDescriptor) {
