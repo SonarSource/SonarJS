@@ -49,7 +49,7 @@ type StringJoinSortChainInfo = BareSortInfo & {
 // Matches JSON.stringify(<expr>) — exactly one argument, non-computed property access.
 // Does not match: JSON.stringify(x, replacer, space), JSON['stringify'](x), myObj.stringify(x).
 function isJsonStringifyCall(node: estree.Node | null): boolean {
-  if (node === null || node.type !== 'CallExpression') {
+  if (node?.type !== 'CallExpression') {
     return false;
   }
   const callExpr = node as estree.CallExpression;
@@ -67,6 +67,69 @@ function isJsonStringifyCall(node: estree.Node | null): boolean {
     callee.property.type === 'Identifier' &&
     callee.property.name === 'stringify'
   );
+}
+
+function collectFunctionCalls(functionVariable: Scope.Variable): estree.CallExpression[] {
+  return functionVariable.references.flatMap(reference => {
+    if (!reference.isRead()) {
+      return [];
+    }
+    const parent = getNodeParent(reference.identifier);
+    return parent?.type === 'CallExpression' && parent.callee === reference.identifier
+      ? [parent]
+      : [];
+  });
+}
+
+function getEqualityComparisonSibling(node: estree.Node): estree.Node | null {
+  const parent = getNodeParent(node);
+  if (parent.type !== 'BinaryExpression' || !equalityOperators.has(parent.operator)) {
+    return null;
+  }
+  return parent.left === node ? parent.right : parent.left;
+}
+
+function getChainedMethodCall(
+  object: estree.Node,
+  methodName: string,
+): estree.CallExpression | null {
+  const member = getNodeParent(object);
+  if (
+    member.type !== 'MemberExpression' ||
+    member.object !== object ||
+    member.computed ||
+    !isIdentifier(member.property, methodName)
+  ) {
+    return null;
+  }
+  const call = getNodeParent(member);
+  if (call.type !== 'CallExpression' || call.callee !== member) {
+    return null;
+  }
+  return call as estree.CallExpression;
+}
+
+function isStringMapCall(call: estree.CallExpression): boolean {
+  return (
+    call.arguments.length === 1 &&
+    isIdentifier(call.arguments[0] as estree.Node, 'String') &&
+    call.callee.type === 'MemberExpression' &&
+    isIdentifier(call.callee.property, 'map')
+  );
+}
+
+function getJoinSeparator(call: estree.CallExpression): string | null {
+  if (call.arguments.length === 0) {
+    return ',';
+  }
+  if (
+    call.arguments.length === 1 &&
+    call.arguments[0].type === 'Literal' &&
+    typeof call.arguments[0].value === 'string'
+  ) {
+    return call.arguments[0].value;
+  }
+  return null;
 }
 
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
@@ -189,7 +252,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function getStringJoinSortChainInfo(node: estree.Node | null): StringJoinSortChainInfo | null {
-      if (node === null || node.type !== 'CallExpression') {
+      if (node?.type !== 'CallExpression') {
         return null;
       }
       const joinSeparator = getJoinSeparator(node);
@@ -278,18 +341,6 @@ export const rule: Rule.RuleModule = {
       );
     }
 
-    function collectFunctionCalls(functionVariable: Scope.Variable): estree.CallExpression[] {
-      return functionVariable.references.flatMap(reference => {
-        if (!reference.isRead()) {
-          return [];
-        }
-        const parent = getNodeParent(reference.identifier);
-        return parent?.type === 'CallExpression' && parent.callee === reference.identifier
-          ? [parent]
-          : [];
-      });
-    }
-
     function isJsonStringifyFunctionCallComparison(
       call: estree.CallExpression,
       functionVariable: Scope.Variable,
@@ -309,57 +360,6 @@ export const rule: Rule.RuleModule = {
         getVariableFromName(context, siblingArgument.callee.name, siblingArgument) ===
           functionVariable
       );
-    }
-
-    function getEqualityComparisonSibling(node: estree.Node): estree.Node | null {
-      const parent = getNodeParent(node);
-      if (parent.type !== 'BinaryExpression' || !equalityOperators.has(parent.operator)) {
-        return null;
-      }
-      return parent.left === node ? parent.right : parent.left;
-    }
-
-    function getChainedMethodCall(
-      object: estree.Node,
-      methodName: string,
-    ): estree.CallExpression | null {
-      const member = getNodeParent(object);
-      if (
-        member.type !== 'MemberExpression' ||
-        member.object !== object ||
-        member.computed ||
-        !isIdentifier(member.property, methodName)
-      ) {
-        return null;
-      }
-      const call = getNodeParent(member);
-      if (call.type !== 'CallExpression' || call.callee !== member) {
-        return null;
-      }
-      return call as estree.CallExpression;
-    }
-
-    function isStringMapCall(call: estree.CallExpression): boolean {
-      return (
-        call.arguments.length === 1 &&
-        isIdentifier(call.arguments[0] as estree.Node, 'String') &&
-        call.callee.type === 'MemberExpression' &&
-        isIdentifier(call.callee.property, 'map')
-      );
-    }
-
-    function getJoinSeparator(call: estree.CallExpression): string | null {
-      if (call.arguments.length === 0) {
-        return ',';
-      }
-      if (
-        call.arguments.length === 1 &&
-        call.arguments[0].type === 'Literal' &&
-        typeof call.arguments[0].value === 'string'
-      ) {
-        return call.arguments[0].value;
-      }
-      return null;
     }
 
     function getBareSortInfo(node: estree.Node): BareSortInfo | null {
