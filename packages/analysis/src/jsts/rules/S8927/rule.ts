@@ -130,13 +130,21 @@ function hasNamespaceImport(node: estree.ImportDeclaration): boolean {
 }
 
 function supportsRecommendation(versionRange: string | undefined, minimumVersion: string): boolean {
-  if (!versionRange) {
+  if (versionRange === undefined) {
     return false;
   }
   const normalizedVersionRange = versionRange.trim();
-  if (normalizedVersionRange === '*' || normalizedVersionRange === 'latest') {
+  if (isUnboundedVersionRange(normalizedVersionRange)) {
     return true;
   }
   const minimumSupportedVersion = getProjectMinVersion(normalizedVersionRange);
   return minimumSupportedVersion !== null && gte(minimumSupportedVersion, minimumVersion);
+}
+
+function isUnboundedVersionRange(versionRange: string): boolean {
+  return (
+    versionRange === '' ||
+    versionRange === '*' ||
+    ['latest', 'x'].includes(versionRange.toLowerCase())
+  );
 }

@@ -148,26 +148,53 @@ lodashEs.filter(users, Boolean);
         },
         {
           code: `
+import lodash from 'lodash';
 import lodashEs from 'lodash-es';
 import rxjs from 'rxjs';
+import R from 'rambda';
+import validator from 'validator';
 `,
           filename: path.join(fixtures, 'unbounded', 'file.js'),
           errors: [
             {
-              messageId: 'useNamedImports',
-              data: { library: 'lodash-es' },
+              messageId: 'useMethodImports',
+              data: { library: 'lodash', example: 'lodash/map' },
               line: 2,
               column: 1,
               endLine: 2,
+              endColumn: 29,
+            },
+            {
+              messageId: 'useNamedImports',
+              data: { library: 'lodash-es' },
+              line: 3,
+              column: 1,
+              endLine: 3,
               endColumn: 34,
             },
             {
               messageId: 'useNamedImports',
               data: { library: 'rxjs' },
-              line: 3,
+              line: 4,
               column: 1,
-              endLine: 3,
+              endLine: 4,
               endColumn: 25,
+            },
+            {
+              messageId: 'useNamedImports',
+              data: { library: 'rambda' },
+              line: 5,
+              column: 1,
+              endLine: 5,
+              endColumn: 24,
+            },
+            {
+              messageId: 'useMethodImports',
+              data: { library: 'validator', example: 'validator/es/lib/isEmail' },
+              line: 6,
+              column: 1,
+              endLine: 6,
+              endColumn: 35,
             },
           ],
         },

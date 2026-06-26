@@ -2,7 +2,10 @@
   "name": "unbounded-utility-imports",
   "version": "1.0.0",
   "dependencies": {
+    "lodash": "",
     "lodash-es": "*",
-    "rxjs": "latest"
+    "rxjs": "latest",
+    "rambda": "x",
+    "validator": "X"
   }
 }
