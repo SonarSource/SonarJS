@@ -548,6 +548,31 @@ check('loads the projects endpoint', () => {
         },
         {
           code: `
+import { test, expect } from 'vitest';
+
+test('labels 0 degrees as north', () => {
+  const heading = formatHeading(0);
+  expect(heading.length).toBeGreaterThan(0);
+  expect(heading).toBe('north');
+});
+
+test('labels 90 degrees as east', () => {
+  const heading = formatHeading(90);
+  expect(heading.length).toBeGreaterThan(0);
+  expect(heading).toBe('east');
+});
+
+test('labels 180 degrees as south', () => {
+  const heading = formatHeading(180);
+  expect(heading.length).toBeGreaterThan(0);
+  expect(heading).toBe('south');
+});
+          `,
+          filename: vitestTestFile,
+          errors: [{ message: MESSAGE }],
+        },
+        {
+          code: `
 import { test } from '@playwright/test';
 test('opens /users', async ({ page }) => {
   await page.goto('/users');
