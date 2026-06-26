@@ -31,3 +31,12 @@ supertest(app).get('/').expect(200); // Compliant
 // --- runner-bound: still flagged ---
 expect(value).toBe(1); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
 cy.get('.status').should('be.visible'); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
+// other known global expect entry points (rxjs marble, vitest type assertions)
+expectObservable(source$).toBe('a-b'); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
+expectTypeOf(value).toEqualTypeOf(); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
+
+// --- `expect`-prefixed identifiers that are NOT assertion entry points: not flagged ---
+// Matching is by exact name, not an `expect` prefix, so ordinary production code
+// using such helpers is never treated as an assertion.
+expectation(config).validate(); // Compliant
+expected(value).toThrow(); // Compliant

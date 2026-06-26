@@ -51,6 +51,18 @@ const ASSERTION_LIBRARIES = [
 // runners that expose assertion APIs as globals (no import required).
 const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', '@playwright/test'];
 
+// Known global `expect*(...)` entry points: the universal `expect`, rxjs marble
+// testing's `expectObservable`/`expectSubscriptions`, and vitest's `expectTypeOf`.
+// Matched by exact name (not an `expect`-prefix) so unrelated identifiers such as
+// `expectation(...)` or `expected(...)` in production code are not treated as
+// assertions.
+const GLOBAL_EXPECT_NAMES = new Set([
+  'expect',
+  'expectObservable',
+  'expectSubscriptions',
+  'expectTypeOf',
+]);
+
 /**
  * Whether the linted file imports or the project depends on a supported
  * assertion library / test runner. Rules use this to avoid raising issues in
@@ -134,7 +146,7 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
 
 /**
  * Checks if the node matches the pattern expectX(...).method() where:
- * - expectX is a function whose name starts with "expect" (e.g., expect, expectObservable, expectSubscriptions, expectTypeOf)
+ * - expectX is one of the known global expect entry points ({@link GLOBAL_EXPECT_NAMES})
  * - method is a chained property access with a method call (e.g., .toBe(), .toEqual(), .not.toBe())
  *
  * This mirrors the TypeScript isGlobalExpectExpression function logic.
@@ -157,7 +169,7 @@ function isGlobalExpectExpressionJS(node: estree.CallExpression): boolean {
   }
 
   const innerCall = current;
-  return innerCall.callee.type === 'Identifier' && innerCall.callee.name.startsWith('expect');
+  return innerCall.callee.type === 'Identifier' && GLOBAL_EXPECT_NAMES.has(innerCall.callee.name);
 }
 
 function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node): boolean {
@@ -200,7 +212,7 @@ function isGlobalExpectExpression(node: ts.CallExpression) {
   const innerCallExpression = current as ts.CallExpression;
   return (
     innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
-    (innerCallExpression.expression as ts.Identifier).text.startsWith('expect')
+    GLOBAL_EXPECT_NAMES.has((innerCallExpression.expression as ts.Identifier).text)
   );
 }
 
