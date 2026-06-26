@@ -69,18 +69,6 @@ function isJsonStringifyCall(node: estree.Node | null): boolean {
   );
 }
 
-function collectFunctionCalls(functionVariable: Scope.Variable): estree.CallExpression[] {
-  return functionVariable.references.flatMap(reference => {
-    if (!reference.isRead()) {
-      return [];
-    }
-    const parent = getNodeParent(reference.identifier);
-    return parent?.type === 'CallExpression' && parent.callee === reference.identifier
-      ? [parent]
-      : [];
-  });
-}
-
 function getEqualityComparisonSibling(node: estree.Node): estree.Node | null {
   const parent = getNodeParent(node);
   if (parent.type !== 'BinaryExpression' || !equalityOperators.has(parent.operator)) {
@@ -334,10 +322,17 @@ export const rule: Rule.RuleModule = {
     }
 
     function isUsedOnlyInJsonStringifyComparisons(functionVariable: Scope.Variable): boolean {
-      const calls = collectFunctionCalls(functionVariable);
+      const reads = functionVariable.references.filter(reference => reference.isRead());
       return (
-        calls.length > 0 &&
-        calls.every(call => isJsonStringifyFunctionCallComparison(call, functionVariable))
+        reads.length > 0 &&
+        reads.every(reference => {
+          const parent = getNodeParent(reference.identifier);
+          return (
+            parent?.type === 'CallExpression' &&
+            parent.callee === reference.identifier &&
+            isJsonStringifyFunctionCallComparison(parent, functionVariable)
+          );
+        })
       );
     }
 

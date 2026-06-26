@@ -511,6 +511,24 @@ describe('S2871', () => {
       `,
             errors: 1,
           },
+          // helper escaping by reference is also used outside the normalization comparison: not suppressed
+          {
+            code: `
+        function normalize(value: unknown): string[] {
+          if (Array.isArray(value)) {
+            return value.map(String).sort();
+          }
+          return [];
+        }
+
+        const alias = normalize;
+
+        function hasChanged(before: unknown, after: unknown): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
           // helper-based comparison is still reported for non-primitive arrays
           {
             code: `
