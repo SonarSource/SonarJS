@@ -23,6 +23,7 @@ import { getFullyQualifiedName } from './module.js';
 import { report, toSecondaryLocation } from './location.js';
 
 export type Node = estree.Node | TSESTree.Node;
+type ImportDeclarationWithKind = estree.ImportDeclaration & { importKind?: string | null };
 
 const MODULE_DECLARATION_NODES = new Set([
   'ImportDeclaration',
@@ -91,6 +92,10 @@ export function isIdentifier(
   ...values: string[]
 ): node is estree.Identifier {
   return node?.type === 'Identifier' && (values.length === 0 || values.includes(node.name));
+}
+
+export function isTypeOnlyImport(node: estree.ImportDeclaration): boolean {
+  return (node as ImportDeclarationWithKind).importKind === 'type';
 }
 
 export function getProgramStatements(program: estree.Program) {

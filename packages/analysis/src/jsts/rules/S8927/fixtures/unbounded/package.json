@@ -1,0 +1,8 @@
+{
+  "name": "unbounded-utility-imports",
+  "version": "1.0.0",
+  "dependencies": {
+    "lodash-es": "*",
+    "rxjs": "latest"
+  }
+}

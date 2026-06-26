@@ -74,7 +74,7 @@ function isSupportedNodeVersion(
   return semver.gte(projectMinVersion, requiredVersion);
 }
 
-function getProjectMinVersion(versionRange: string) {
+export function getProjectMinVersion(versionRange: string) {
   try {
     return semver.minVersion(versionRange);
   } catch {

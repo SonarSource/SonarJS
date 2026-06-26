@@ -146,6 +146,41 @@ lodashEs.filter(users, Boolean);
             },
           ],
         },
+        {
+          code: `
+import lodashEs from 'lodash-es';
+import rxjs from 'rxjs';
+`,
+          filename: path.join(fixtures, 'unbounded', 'file.js'),
+          errors: [
+            {
+              messageId: 'useNamedImports',
+              data: { library: 'lodash-es' },
+              line: 2,
+              column: 1,
+              endLine: 2,
+              endColumn: 34,
+            },
+            {
+              messageId: 'useNamedImports',
+              data: { library: 'rxjs' },
+              line: 3,
+              column: 1,
+              endLine: 3,
+              endColumn: 25,
+            },
+          ],
+        },
+        {
+          code: `import lodashEs from 'lodash-es';`,
+          filename: path.join(fixtures, 'loose-semver', 'file.js'),
+          errors: [
+            {
+              messageId: 'useNamedImports',
+              data: { library: 'lodash-es' },
+            },
+          ],
+        },
       ],
     });
   });
