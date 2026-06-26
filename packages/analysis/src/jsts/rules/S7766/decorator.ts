@@ -23,6 +23,7 @@ import {
   getUniqueWriteReference,
   getVariableFromScope,
   hasParent,
+  isCallingMethod,
   isFunctionNode,
   isThisExpression,
 } from '../helpers/ast.js';
@@ -30,7 +31,7 @@ import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { areEquivalent } from '../helpers/equivalence.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
-import { getTypeFromTreeNode, isNumberType } from '../helpers/type.js';
+import { getTypeFromTreeNode, isArrayLikeType, isNumberType } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 const comparisonOperators = new Set(['<', '<=', '>', '>=']);
@@ -261,7 +262,8 @@ function hasDirectObjectDefinition(
     case 'Parameter':
       return (
         !variable.references.some(reference => reference.isWrite()) &&
-        hasDirectObjectCallSites(definition, sourceCode)
+        (hasReduceCallbackParameterEvidence(definition, sourceCode, visitedVariables) ||
+          hasDirectObjectCallSites(definition, sourceCode))
       );
     case 'Variable': {
       const initializer = definition.node.init;
@@ -274,6 +276,238 @@ function hasDirectObjectDefinition(
     default:
       return false;
   }
+}
+
+function hasReduceCallbackParameterEvidence(
+  definition: Scope.Definition,
+  sourceCode: SourceCode,
+  visitedVariables: Set<Scope.Variable>,
+): boolean {
+  if (definition.name.type !== 'Identifier' || !isFunctionNode(definition.node)) {
+    return false;
+  }
+
+  const parameterIndex = definition.node.params.indexOf(definition.name);
+  if (parameterIndex !== 0 && parameterIndex !== 1) {
+    return false;
+  }
+
+  const reduceCall = getInlineReduceCall(definition.node);
+  if (!reduceCall || reduceCall.callee.object.type === 'Super') {
+    return false;
+  }
+
+  const receiver = reduceCall.callee.object;
+  if (!hasArrayReceiverEvidence(receiver, sourceCode, new Set())) {
+    return false;
+  }
+
+  return hasReduceObjectValueEvidence(
+    parameterIndex,
+    reduceCall,
+    receiver,
+    sourceCode,
+    visitedVariables,
+  );
+}
+
+function hasReduceObjectValueEvidence(
+  parameterIndex: number,
+  reduceCall: estree.CallExpression,
+  receiver: estree.Expression,
+  sourceCode: SourceCode,
+  visitedVariables: Set<Scope.Variable>,
+): boolean {
+  if (parameterIndex === 1) {
+    return hasArrayElementObjectEvidence(receiver, sourceCode, visitedVariables, new Set());
+  }
+
+  const initialValue = reduceCall.arguments[1];
+  return (
+    initialValue != null &&
+    initialValue.type !== 'SpreadElement' &&
+    hasDirectObjectEvidence(initialValue, sourceCode, new Set(visitedVariables))
+  );
+}
+
+function getInlineReduceCall(functionNode: estree.Function):
+  | (estree.CallExpression & {
+      callee: estree.MemberExpression & { property: estree.Identifier };
+    })
+  | null {
+  if (!hasParent(functionNode)) {
+    return null;
+  }
+
+  const parent = functionNode.parent;
+  if (
+    parent.type === 'CallExpression' &&
+    parent.arguments[0] === functionNode &&
+    isCallingMethod(parent, 2, 'reduce')
+  ) {
+    return parent;
+  }
+
+  return null;
+}
+
+function hasArrayReceiverEvidence(
+  node: estree.Expression,
+  sourceCode: SourceCode,
+  visitedVariables: Set<Scope.Variable>,
+): boolean {
+  if (node.type === 'ArrayExpression') {
+    return true;
+  }
+
+  if (isRequiredParserServices(sourceCode.parserServices)) {
+    const type = getTypeFromTreeNode(node, sourceCode.parserServices);
+    if (isArrayLikeType(type, sourceCode.parserServices)) {
+      return true;
+    }
+  }
+
+  if (node.type !== 'Identifier') {
+    return false;
+  }
+
+  const variable = getVariableFromScope(sourceCode.getScope(node), node.name);
+  if (!variable || visitedVariables.has(variable)) {
+    return false;
+  }
+  visitedVariables.add(variable);
+
+  return variable.defs.some(definition =>
+    hasArrayDefinitionEvidence(definition, variable, sourceCode),
+  );
+}
+
+function hasArrayDefinitionEvidence(
+  definition: Scope.Definition,
+  variable: Scope.Variable,
+  sourceCode: SourceCode,
+): boolean {
+  switch (definition.type) {
+    case 'Variable': {
+      const initializer = definition.node.init;
+      return (
+        initializer?.type === 'ArrayExpression' && getUniqueWriteReference(variable) === initializer
+      );
+    }
+    case 'Parameter':
+      return hasDirectArrayCallSites(definition, sourceCode);
+    default:
+      return false;
+  }
+}
+
+function hasDirectArrayCallSites(definition: Scope.Definition, sourceCode: SourceCode): boolean {
+  if (definition.name.type !== 'Identifier' || !isFunctionNode(definition.node)) {
+    return false;
+  }
+
+  const parameterIndex = definition.node.params.indexOf(definition.name);
+  if (parameterIndex === -1) {
+    return false;
+  }
+
+  const callSites = findDirectCallSites(definition.node, sourceCode);
+  return (
+    callSites !== null &&
+    callSites.length > 0 &&
+    callSites.every(callSite => callSite.arguments[parameterIndex]?.type === 'ArrayExpression')
+  );
+}
+
+function hasArrayElementObjectEvidence(
+  node: estree.Expression,
+  sourceCode: SourceCode,
+  visitedVariables: Set<Scope.Variable>,
+  visitedArrayVariables: Set<Scope.Variable>,
+): boolean {
+  if (node.type === 'ArrayExpression') {
+    return hasArrayLiteralObjectElements(node, sourceCode, visitedVariables);
+  }
+
+  if (node.type !== 'Identifier') {
+    return false;
+  }
+
+  const variable = getVariableFromScope(sourceCode.getScope(node), node.name);
+  if (!variable || visitedArrayVariables.has(variable)) {
+    return false;
+  }
+  visitedArrayVariables.add(variable);
+
+  return variable.defs.some(definition =>
+    hasArrayDefinitionElementEvidence(definition, variable, sourceCode, visitedVariables),
+  );
+}
+
+function hasArrayDefinitionElementEvidence(
+  definition: Scope.Definition,
+  variable: Scope.Variable,
+  sourceCode: SourceCode,
+  visitedVariables: Set<Scope.Variable>,
+): boolean {
+  switch (definition.type) {
+    case 'Variable': {
+      const initializer = definition.node.init;
+      return (
+        initializer?.type === 'ArrayExpression' &&
+        getUniqueWriteReference(variable) === initializer &&
+        hasArrayLiteralObjectElements(initializer, sourceCode, visitedVariables)
+      );
+    }
+    case 'Parameter':
+      return hasDirectArrayObjectCallSites(definition, sourceCode, visitedVariables);
+    default:
+      return false;
+  }
+}
+
+function hasDirectArrayObjectCallSites(
+  definition: Scope.Definition,
+  sourceCode: SourceCode,
+  visitedVariables: Set<Scope.Variable>,
+): boolean {
+  if (definition.name.type !== 'Identifier' || !isFunctionNode(definition.node)) {
+    return false;
+  }
+
+  const parameterIndex = definition.node.params.indexOf(definition.name);
+  if (parameterIndex === -1) {
+    return false;
+  }
+
+  const callSites = findDirectCallSites(definition.node, sourceCode);
+  return (
+    callSites !== null &&
+    callSites.length > 0 &&
+    callSites.every(callSite => {
+      const argument = callSite.arguments[parameterIndex];
+      return (
+        argument?.type === 'ArrayExpression' &&
+        hasArrayLiteralObjectElements(argument, sourceCode, visitedVariables)
+      );
+    })
+  );
+}
+
+function hasArrayLiteralObjectElements(
+  node: estree.ArrayExpression,
+  sourceCode: SourceCode,
+  visitedVariables: Set<Scope.Variable>,
+): boolean {
+  return (
+    node.elements.length > 0 &&
+    node.elements.every(
+      element =>
+        element != null &&
+        element.type !== 'SpreadElement' &&
+        hasDirectObjectEvidence(element, sourceCode, new Set(visitedVariables)),
+    )
+  );
 }
 
 /**

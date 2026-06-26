@@ -267,6 +267,16 @@ function latestDate(dates) {
 
 latestDate([new Date(1), new Date(2)]);
           `,
+          output: `
+function latestDate(dates) {
+  return dates.reduce(
+    (latest, current) => Math.max(latest, current),
+    new Date(0),
+  );
+}
+
+latestDate([new Date(1), new Date(2)]);
+          `,
           errors: 1,
         },
         {
@@ -278,6 +288,17 @@ const values = [
 
 const highest = values.reduce(
   (highest, current) => highest < current ? current : highest,
+  { label: 'zero', valueOf: () => 0 },
+);
+          `,
+          output: `
+const values = [
+  { label: 'low', valueOf: () => 1 },
+  { label: 'high', valueOf: () => 2 },
+];
+
+const highest = values.reduce(
+  (highest, current) => Math.max(highest, current),
   { label: 'zero', valueOf: () => 0 },
 );
           `,
@@ -932,6 +953,12 @@ const latestTimestamp = [1, 2].reduce(
   0,
 );
           `,
+          output: `
+const latestTimestamp = [1, 2].reduce(
+  (latest, current) => Math.max(latest, current),
+  0,
+);
+          `,
           errors: 1,
         },
         {
@@ -947,6 +974,18 @@ collection.reduce(
   { valueOf: () => 0 },
 );
           `,
+          output: `
+const collection = {
+  reduce(callback, initialValue) {
+    return callback(initialValue, { valueOf: () => 1 });
+  },
+};
+
+collection.reduce(
+  (left, right) => Math.max(left, right),
+  { valueOf: () => 0 },
+);
+          `,
           errors: 1,
         },
         {
@@ -954,6 +993,14 @@ collection.reduce(
 function pick(collection) {
   return collection.reduce(
     (left, right) => left < right ? right : left,
+    { valueOf: () => 0 },
+  );
+}
+          `,
+          output: `
+function pick(collection) {
+  return collection.reduce(
+    (left, right) => Math.max(left, right),
     { valueOf: () => 0 },
   );
 }
