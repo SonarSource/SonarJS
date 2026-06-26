@@ -1,0 +1,20 @@
+{
+"vitest:test/cli/test/config/browser-configs.test.ts": [
+1137
+],
+"vitest:test/cli/test/expect-soft.test.ts": [
+16
+],
+"vitest:test/cli/test/setup-files.test.ts": [
+45
+],
+"vitest:test/config/test/shard.test.ts": [
+35
+],
+"vitest:test/core/test/cli-test.test.ts": [
+255
+],
+"vitest:test/core/test/imports.test.ts": [
+20
+]
+}

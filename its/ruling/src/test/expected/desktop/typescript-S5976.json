@@ -1,0 +1,38 @@
+{
+"desktop:app/test/unit/find-account-test.ts": [
+92
+],
+"desktop:app/test/unit/fuzzy-find-test.ts": [
+19
+],
+"desktop:app/test/unit/git/config-test.ts": [
+73,
+97
+],
+"desktop:app/test/unit/parse-app-url-test.ts": [
+36,
+103
+],
+"desktop:app/test/unit/release-notes-test.ts": [
+8
+],
+"desktop:app/test/unit/remote-parsing-test.ts": [
+4
+],
+"desktop:app/test/unit/repository-matching-test.ts": [
+24
+],
+"desktop:app/test/unit/sanitize-ref-name-test.ts": [
+4
+],
+"desktop:app/test/unit/sanitized-repository-name-test.ts": [
+4,
+34
+],
+"desktop:app/test/unit/text-token-parser-test.ts": [
+434
+],
+"desktop:app/test/unit/truncate-with-ellipsis-test.ts": [
+4
+]
+}
