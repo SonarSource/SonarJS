@@ -550,22 +550,25 @@ check('loads the projects endpoint', () => {
           code: `
 import { test, expect } from 'vitest';
 
-test('labels 0 degrees as north', () => {
-  const heading = formatHeading(0);
-  expect(heading.length).toBeGreaterThan(0);
-  expect(heading).toBe('north');
+test('describes Europa', () => {
+  const moon = describeMoon('europa');
+  expect(moon.kind).toBe('moon');
+  expect(moon.planet).toBe('Jupiter');
+  expect(moon.label).toBe('Europa');
 });
 
-test('labels 90 degrees as east', () => {
-  const heading = formatHeading(90);
-  expect(heading.length).toBeGreaterThan(0);
-  expect(heading).toBe('east');
+test('describes Io', () => {
+  const moon = describeMoon('io');
+  expect(moon.kind).toBe('moon');
+  expect(moon.planet).toBe('Jupiter');
+  expect(moon.label).toBe('Io');
 });
 
-test('labels 180 degrees as south', () => {
-  const heading = formatHeading(180);
-  expect(heading.length).toBeGreaterThan(0);
-  expect(heading).toBe('south');
+test('describes Ganymede', () => {
+  const moon = describeMoon('ganymede');
+  expect(moon.kind).toBe('moon');
+  expect(moon.planet).toBe('Jupiter');
+  expect(moon.label).toBe('Ganymede');
 });
           `,
           filename: vitestTestFile,
