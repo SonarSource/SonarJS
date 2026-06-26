@@ -243,8 +243,15 @@ export const rule: Rule.RuleModule = {
       if (node?.type !== 'CallExpression') {
         return null;
       }
+      if (
+        node.callee.type !== 'MemberExpression' ||
+        node.callee.computed ||
+        !isIdentifier(node.callee.property, 'join')
+      ) {
+        return null;
+      }
       const joinSeparator = getJoinSeparator(node);
-      if (joinSeparator === null || node.callee.type !== 'MemberExpression') {
+      if (joinSeparator === null) {
         return null;
       }
       const mapCall = node.callee.object;
@@ -279,6 +286,7 @@ export const rule: Rule.RuleModule = {
       call: estree.CallExpression,
     ): Scope.Variable | null {
       let currentNode: estree.Node | undefined = getNodeParent(call);
+      let previousNode: estree.Node = call;
       let returnStatement: estree.ReturnStatement | undefined;
 
       while (currentNode) {
@@ -290,15 +298,27 @@ export const rule: Rule.RuleModule = {
           currentNode.type === 'FunctionExpression' ||
           currentNode.type === 'ArrowFunctionExpression'
         ) {
-          if (returnStatement === undefined) {
+          if (
+            returnStatement === undefined &&
+            !isReturnedExpressionBody(currentNode, previousNode)
+          ) {
             return null;
           }
           return getLocalFunctionVariable(currentNode);
         }
+        previousNode = currentNode;
         currentNode = getNodeParent(currentNode);
       }
 
       return null;
+    }
+
+    function isReturnedExpressionBody(functionNode: estree.Node, childNode: estree.Node): boolean {
+      return (
+        functionNode.type === 'ArrowFunctionExpression' &&
+        functionNode.body.type !== 'BlockStatement' &&
+        functionNode.body === childNode
+      );
     }
 
     function getLocalFunctionVariable(functionNode: estree.Node): Scope.Variable | null {

@@ -207,6 +207,15 @@ describe('S2871', () => {
       }
     `,
           },
+          {
+            code: `
+      const normalize = (value: string[]): string[] => value.toSorted();
+
+      function hasChanged(before: string[], after: string[]): boolean {
+        return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+      }
+    `,
+          },
         ],
         invalid: [
           {
@@ -546,6 +555,11 @@ describe('S2871', () => {
           {
             code: `function haveSameItems(a: number[], b: number[]): boolean { return a.slice().sort().map(String).join(',') === b.map(String).join(','); }`,
             errors: 1,
+          },
+          // alternate serialization is only suppressed when both sides use join
+          {
+            code: `function haveSameItems(a: number[], b: number[]): boolean { return a.sort().map(String).join(',') === b.sort().map(String).toLocaleString(); }`,
+            errors: 2,
           },
         ],
       },
