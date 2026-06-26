@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+// https://sonarsource.github.io/rspec/#/rspec/S5976/javascript
 export const implementation = 'original';
-export const eslintId = 'prefer-read-only-props';
-export const requiredDependency = ['react'];
+export const eslintId = 'parameterized-tests';
+export const hasSecondaries = true;

@@ -14,12 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { createHash } from 'node:crypto';
+import { mkdirSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import convertSourceMap from 'convert-source-map';
 import loader from '@istanbuljs/load-nyc-config';
 import schema from '@istanbuljs/schema';
 import InstrumenterIstanbul from 'nyc/lib/instrumenters/istanbul.js';
+import SourceMaps from 'nyc/lib/source-maps.js';
 import TestExclude from 'test-exclude';
 
 function nycEnvironmentConfig() {
@@ -33,6 +36,49 @@ function nycEnvironmentConfig() {
 let nycConfig;
 let testExclude;
 let instrumenter;
+let sourceMaps;
+
+function nycCwd() {
+  return process.env.NYC_CWD || process.cwd();
+}
+
+function nycCacheDirectory() {
+  return nycConfig.cacheDir
+    ? resolve(nycConfig.cacheDir)
+    : join(nycCwd(), 'node_modules', '.cache', 'nyc');
+}
+
+function contentHash(filename, source) {
+  return createHash('sha256').update(filename).update('\0').update(source).digest('hex');
+}
+
+function contentHashTag(filename, hash) {
+  return `;(() => {
+  const coverage = globalThis.__coverage__;
+  if (coverage?.[${JSON.stringify(filename)}]) {
+    coverage[${JSON.stringify(filename)}].contentHash = ${JSON.stringify(hash)};
+  }
+})();`;
+}
+
+function addContentHashTag(instrumented, filename, hash) {
+  // nyc's parent reporter reloads source maps from cache using coverage.contentHash.
+  const sourceMapComment = '\n//# sourceMappingURL=';
+  const sourceMapIndex = instrumented.lastIndexOf(sourceMapComment);
+  const tag = '\n' + contentHashTag(filename, hash);
+  return sourceMapIndex === -1
+    ? instrumented + tag
+    : instrumented.slice(0, sourceMapIndex) + tag + instrumented.slice(sourceMapIndex);
+}
+
+function assertSourceMapsApi(sourceMaps) {
+  if (
+    typeof sourceMaps.extract !== 'function' ||
+    typeof sourceMaps.registerMap !== 'function'
+  ) {
+    throw new Error('nyc SourceMaps API changed; ESM coverage remapping cannot continue.');
+  }
+}
 
 export async function load(url, context, nextLoad) {
   if (context.format !== 'module' || loader.isLoading()) {
@@ -50,6 +96,13 @@ export async function load(url, context, nextLoad) {
 
   if (!testExclude) {
     testExclude = new TestExclude(nycConfig);
+    const cacheDirectory = nycCacheDirectory();
+    const cache = Boolean(cacheDirectory && nycConfig.cache);
+    if (cacheDirectory && cache) {
+      mkdirSync(cacheDirectory, { recursive: true });
+    }
+    sourceMaps = new SourceMaps({ cache, cacheDirectory });
+    assertSourceMapsApi(sourceMaps);
     instrumenter = InstrumenterIstanbul({
       compact: nycConfig.compact,
       preserveComments: nycConfig.preserveComments,
@@ -71,14 +124,17 @@ export async function load(url, context, nextLoad) {
     source = new TextDecoder().decode(source);
   }
 
-  const sourceMap = convertSourceMap.fromSource(source)?.toObject();
+  const sourceMap = sourceMaps.extract(source, filename);
+  const hash = sourceMap ? contentHash(filename, source) : undefined;
   const instrumented = instrumenter.instrumentSync(source, filename, {
     sourceMap,
-    registerMap() {},
+    registerMap() {
+      sourceMaps.registerMap(filename, hash, sourceMap);
+    },
   });
 
   return {
     format: fromNext.format,
-    source: instrumented,
+    source: hash ? addContentHashTag(instrumented, filename, hash) : instrumented,
   };
 }

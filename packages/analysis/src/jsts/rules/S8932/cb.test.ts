@@ -14,6 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'original';
-export const eslintId = 'prefer-read-only-props';
-export const requiredDependency = ['react'];
+// https://sonarsource.github.io/rspec/#/rspec/S8932/javascript
+import { test } from '../../../../tests/jsts/tools/testers/comment-based/checker.js';
+import { rule } from './rule.js';
+import { describe } from 'node:test';
+import * as meta from './generated-meta.js';
+
+describe('Rule S8932', () => {
+  test(meta, rule, import.meta.dirname);
+});

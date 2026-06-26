@@ -28,6 +28,7 @@ import {
   typeMatrix,
 } from './helpers.js';
 import { readFile } from 'fs/promises';
+import ts from 'typescript';
 
 const sonarWayProfile = JSON.parse(
   await readFile(join(METADATA_FOLDER, `Sonar_way_profile.json`), 'utf-8'),
@@ -44,6 +45,7 @@ export async function generateMetaForRule(
   defaults?: { compatibleLanguages?: ('js' | 'ts')[]; scope?: 'Main' | 'Tests' },
 ) {
   const ruleRspecMeta = await getRspecMeta(sonarKey, defaults);
+  const localMetadataOverrides = await getLocalMetadataOverrides(sonarKey);
   if (!typeMatrix[ruleRspecMeta.type]) {
     console.log(`Type not found for rule ${sonarKey}`);
   }
@@ -72,7 +74,9 @@ export async function generateMetaForRule(
       ___DEFAULT_OPTIONS___: JSON.stringify(defaultOptions(eslintConfiguration), null, 2),
       ___LANGUAGES___: JSON.stringify(ruleRspecMeta.compatibleLanguages),
       ___SCOPE___: ruleRspecMeta.scope,
-      ___REQUIRED_DEPENDENCY___: JSON.stringify(ruleRspecMeta.extra?.requiredDependency ?? []),
+      ___REQUIRED_DEPENDENCY___: JSON.stringify(
+        localMetadataOverrides.requiredDependency ?? ruleRspecMeta.extra?.requiredDependency ?? [],
+      ),
       ___SKIP_ON_GENERATED_SOURCE___: `${shouldSkipOnGeneratedSource(tags)}`,
       ___REQUIRED_MODULE_TYPE_EXPORT___:
         requiredModuleType !== undefined
@@ -102,4 +106,67 @@ function getRequiredModuleType(
     return 'commonjs';
   }
   return undefined;
+}
+
+type LocalMetadataOverrides = {
+  requiredDependency?: string[];
+};
+
+async function getLocalMetadataOverrides(sonarKey: string): Promise<LocalMetadataOverrides> {
+  const metaPath = join(RULES_FOLDER, sonarKey, 'meta.ts');
+  const sourceText = await readFile(metaPath, 'utf8');
+  const sourceFile = ts.createSourceFile(metaPath, sourceText, ts.ScriptTarget.Latest, true);
+
+  return {
+    requiredDependency: getExportedStringArrayLiteral(sourceFile, 'requiredDependency'),
+  };
+}
+
+function getExportedStringArrayLiteral(
+  sourceFile: ts.SourceFile,
+  exportName: string,
+): string[] | undefined {
+  for (const statement of sourceFile.statements) {
+    if (
+      !ts.isVariableStatement(statement) ||
+      !statement.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword)
+    ) {
+      continue;
+    }
+
+    for (const declaration of statement.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== exportName) {
+        continue;
+      }
+
+      const initializer = unwrapConstAssertion(declaration.initializer);
+      if (!initializer || !ts.isArrayLiteralExpression(initializer)) {
+        return undefined;
+      }
+
+      const values: string[] = [];
+      for (const element of initializer.elements) {
+        if (!ts.isStringLiteralLike(element)) {
+          return undefined;
+        }
+        values.push(element.text);
+      }
+      return values;
+    }
+  }
+
+  return undefined;
+}
+
+function unwrapConstAssertion(expression: ts.Expression | undefined): ts.Expression | undefined {
+  let current = expression;
+  while (
+    current &&
+    (ts.isAsExpression(current) ||
+      ts.isSatisfiesExpression(current) ||
+      ts.isParenthesizedExpression(current))
+  ) {
+    current = current.expression;
+  }
+  return current;
 }

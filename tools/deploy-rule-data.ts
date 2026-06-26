@@ -170,10 +170,7 @@ async function syncRuleData(sourceFolder: string, targetFolder: string, ruleName
         JSON.stringify(profileContents),
       );
     } else {
-      writeFileSync(
-        join(targetFolder, generatedProfile.fileName),
-        JSON.stringify(profileContents),
-      );
+      writeFileSync(join(targetFolder, generatedProfile.fileName), JSON.stringify(profileContents));
     }
   }
 

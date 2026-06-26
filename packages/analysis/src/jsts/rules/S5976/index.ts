@@ -14,6 +14,4 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'original';
-export const eslintId = 'prefer-read-only-props';
-export const requiredDependency = ['react'];
+export { rule } from './rule.js';

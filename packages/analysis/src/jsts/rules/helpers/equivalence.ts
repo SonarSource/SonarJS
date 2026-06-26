@@ -27,11 +27,14 @@ export function areEquivalent(
   first: Node | Node[],
   second: Node | Node[],
   sourceCode: SourceCode,
+  tokenComparator: TokenComparator = sameTokenValue,
 ): boolean {
   if (Array.isArray(first) && Array.isArray(second)) {
     return (
       first.length === second.length &&
-      first.every((firstNode, index) => areEquivalent(firstNode, second[index], sourceCode))
+      first.every((firstNode, index) =>
+        areEquivalent(firstNode, second[index], sourceCode, tokenComparator),
+      )
     );
   } else if (!Array.isArray(first) && !Array.isArray(second)) {
     return (
@@ -39,15 +42,26 @@ export function areEquivalent(
       compareTokens(
         sourceCode.getTokens(first as estree.Node),
         sourceCode.getTokens(second as estree.Node),
+        tokenComparator,
       )
     );
   }
   return false;
 }
 
-function compareTokens(firstTokens: AST.Token[], secondTokens: AST.Token[]) {
+export type TokenComparator = (firstToken: AST.Token, secondToken: AST.Token) => boolean;
+
+function sameTokenValue(firstToken: AST.Token, secondToken: AST.Token): boolean {
+  return firstToken.value === secondToken.value;
+}
+
+function compareTokens(
+  firstTokens: AST.Token[],
+  secondTokens: AST.Token[],
+  tokenComparator: TokenComparator,
+) {
   return (
     firstTokens.length === secondTokens.length &&
-    firstTokens.every((firstToken, index) => firstToken.value === secondTokens[index].value)
+    firstTokens.every((firstToken, index) => tokenComparator(firstToken, secondTokens[index]))
   );
 }
