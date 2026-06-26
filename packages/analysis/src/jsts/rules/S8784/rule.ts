@@ -103,34 +103,29 @@ export const rule: Rule.RuleModule = {
 };
 
 /**
- * Whether `call` is a recognised test-framework construct that proves the file is
- * a test file: a Mocha-style suite (`describe`/`context`/`suite`) or test case
- * (`it`/`test`/`specify`), or any Playwright `test`/`test.describe` call. It reuses
- * `isMochaTestConstruct`, so a locally-defined `describe`/`it` does not count. The
- * Playwright check mirrors `isPlaywrightDescribe`'s FQN-then-name resolution so the
- * two agree (notably for the `test` extended-fixtures pattern, where the FQN does
- * not resolve to `@playwright/test`).
+ * Whether `call` proves the file is a test file: a Mocha-style suite or test case,
+ * a `@playwright/test`-bound `test(...)`, or a `test.describe(...)`. Binding-checked
+ * (reusing `isMochaTestConstruct`), so a locally-defined `describe`/`it`/`test` does
+ * not count. The name-only `test.describe` arm (for Playwright's extended-fixtures
+ * pattern, where `test` does not resolve to `@playwright/test`) is restricted to
+ * `describe` so a bare local `test()` is not mistaken for test structure.
  */
 function isTestStructureConstruct(context: Rule.RuleContext, call: estree.CallExpression): boolean {
   return (
     isMochaTestConstruct(context, call, SUITE_FUNCTION_NAMES) ||
     isMochaTestConstruct(context, call, TEST_FUNCTION_NAMES) ||
-    (getPlaywrightTestQualifiers(context, call.callee) ??
-      getPlaywrightDescribeQualifiers(call.callee)) !== undefined
+    getPlaywrightTestQualifiers(context, call.callee) !== undefined ||
+    isPlaywrightDescribe(context, call)
   );
 }
 
 /**
- * Returns the ExpressionStatement for which `node` is the (transitive)
- * expression, or `undefined` when the assertion is not used as a standalone
- * statement (e.g. as an argument, in a declaration, returned, or as an arrow
- * concise body). We only flag statement-level assertions: that is the strongest
- * signal that the assertion actually executes at this position, and it gives a
- * clean highlight target.
- *
- * The walk only climbs through the assertion's own call/member chain (including
- * `await`/`yield`/optional-chaining/non-null wrappers, which matters for
- * async-first libraries like supertest).
+ * Returns the ExpressionStatement `node` is the expression of, or `undefined` when
+ * the assertion is not a standalone statement (an argument, declaration, return, or
+ * arrow concise body) — we only flag statement-level assertions, the strongest
+ * signal it actually executes here. The walk climbs only the assertion's own
+ * call/member chain (including `await`/`yield`/optional-chaining/non-null wrappers,
+ * which matters for async-first libraries like supertest).
  */
 function findEnclosingExpressionStatement(
   context: Rule.RuleContext,

@@ -21,6 +21,17 @@ describe('not a real suite', () => {
   });
 });
 
+// A locally-defined `test` must not count as Playwright test structure either: a
+// bare `test(...)` is only recognised when its base binds to `@playwright/test`,
+// never by name. Otherwise this unrelated local `test()` would flip the whole-file
+// flag and wrongly flag the script-capable top-level assertion above.
+function test(name, cb) {
+  cb();
+}
+test('not a real test', () => {
+  expect(x).to.equal(y); // Compliant
+});
+
 // A runner-bound assertion cannot come from a local binding — its presence proves
 // a runner is executing the file — so it is still flagged even with no real test
 // structure.
