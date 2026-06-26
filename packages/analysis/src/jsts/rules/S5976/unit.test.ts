@@ -190,6 +190,28 @@ test('handles boolean status', () => {
           filename: jestTestFile,
         },
         {
+          // Current heuristic does not report when all varying literals are in the 2 body statements.
+          code: `
+import { test, expect } from 'vitest';
+
+test('labels 0 degrees as north', () => {
+  const heading = formatHeading(0);
+  expect(heading).toBe('north');
+});
+
+test('labels 90 degrees as east', () => {
+  const heading = formatHeading(90);
+  expect(heading).toBe('east');
+});
+
+test('labels 180 degrees as south', () => {
+  const heading = formatHeading(180);
+  expect(heading).toBe('south');
+});
+          `,
+          filename: vitestTestFile,
+        },
+        {
           code: `
 test.each([200, 201, 202])('normalizes %i', status => {
   const value = normalize(status);
@@ -543,6 +565,31 @@ test('opens /projects', async ({ page }) => {
   await page.goto('/projects');
   await page.waitForLoadState('networkidle');
   await expect(page.getByRole('heading', { name: 'Projects' })).toBeVisible();
+});
+          `,
+          filename: playwrightTestFile,
+          errors: [{ message: MESSAGE }],
+        },
+        {
+          code: `
+import { test, expect } from '@playwright/test';
+
+test('opens the planets page', async ({ page }) => {
+  await page.goto('/planets');
+  await page.waitForLoadState('networkidle');
+  await expect(page.getByRole('heading', { name: 'Planets' })).toBeVisible();
+});
+
+test('opens the moons page', async ({ page }) => {
+  await page.goto('/moons');
+  await page.waitForLoadState('networkidle');
+  await expect(page.getByRole('heading', { name: 'Moons' })).toBeVisible();
+});
+
+test('opens the comets page', async ({ page }) => {
+  await page.goto('/comets');
+  await page.waitForLoadState('networkidle');
+  await expect(page.getByRole('heading', { name: 'Comets' })).toBeVisible();
 });
           `,
           filename: playwrightTestFile,
