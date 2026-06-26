@@ -118,16 +118,31 @@ function getSyntacticMethodName(
     return getSyntacticMethodName(callee.expression);
   }
   if (callee.type === 'MemberExpression') {
-    if (callee.computed || !isIdentifier(callee.property)) {
+    const propertyName = getPropertyName(callee);
+    if (propertyName === undefined) {
       return undefined;
     }
     if (isCallResult(callee.object) && !isRequire(callee.object)) {
       return undefined;
     }
-    return callee.property.name === methodName ? methodName : undefined;
+    return propertyName === methodName ? methodName : undefined;
   }
   if (callee.type === 'Identifier' || callee.type === 'CallExpression') {
     return null;
+  }
+  return undefined;
+}
+
+function getPropertyName(member: estree.MemberExpression): string | undefined {
+  if (!member.computed && isIdentifier(member.property)) {
+    return member.property.name;
+  }
+  if (
+    member.computed &&
+    member.property.type === 'Literal' &&
+    typeof member.property.value === 'string'
+  ) {
+    return member.property.value;
   }
   return undefined;
 }
@@ -159,8 +174,13 @@ function getReportNode(callee: estree.Expression | estree.Super): estree.Node {
   if (callee.type === 'ChainExpression') {
     return getReportNode(callee.expression);
   }
-  if (callee.type === 'MemberExpression' && isIdentifier(callee.property)) {
-    return callee.property;
+  if (callee.type === 'MemberExpression') {
+    if (isIdentifier(callee.property)) {
+      return callee.property;
+    }
+    if (callee.computed && callee.property.type === 'Literal') {
+      return callee.property;
+    }
   }
   return callee;
 }

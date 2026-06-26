@@ -11,6 +11,9 @@ const { memoize: memoizeFromUnderscore } = require('underscore');
 
 const resolver = (amount, locale) => `${amount}:${locale}`;
 const formatAmount = (amount, locale) => amount.toLocaleString(locale);
+const formatAmountExpression = function (amount, locale) {
+  return amount.toLocaleString(locale);
+};
 
 _.memoize(amount => amount.toLocaleString()); // Compliant
 _.memoize(({ amount, locale }) => amount.toLocaleString(locale)); // Compliant
@@ -20,6 +23,9 @@ _.memoize(unresolvedFormatter); // Compliant
 
 _.memoize((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //^^^^^^^
+
+_['memoize']((amount, locale) => amount.toLocaleString(locale)); // Noncompliant {{Provide an explicit function to compute the cache key.}}
+//^^^^^^^^^
 
 lodash.memoize(function (amount, locale) { return amount.toLocaleString(locale); }); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //     ^^^^^^^
@@ -49,6 +55,9 @@ lodashModule.memoize((amount, locale) => amount.toLocaleString(locale), null); /
 //           ^^^^^^^
 
 _.memoize(formatAmount); // Noncompliant {{Provide an explicit function to compute the cache key.}}
+//^^^^^^^
+
+_.memoize(formatAmountExpression); // Noncompliant {{Provide an explicit function to compute the cache key.}}
 //^^^^^^^
 
 function formatDate(date, locale) {
