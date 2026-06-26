@@ -112,8 +112,8 @@ export const rule: Rule.RuleModule = {
  */
 function isTestStructureConstruct(context: Rule.RuleContext, call: estree.CallExpression): boolean {
   return (
-    isMochaTestConstruct(context, call, SUITE_FUNCTION_NAMES) ||
-    isMochaTestConstruct(context, call, TEST_FUNCTION_NAMES) ||
+    isMochaTestConstruct(context, call, SUITE_FUNCTION_NAMES, { allowParameterized: true }) ||
+    isMochaTestConstruct(context, call, TEST_FUNCTION_NAMES, { allowParameterized: true }) ||
     getPlaywrightTestQualifiers(context, call.callee) !== undefined ||
     isPlaywrightDescribe(context, call)
   );
@@ -199,7 +199,8 @@ function classifyPlacement(
  */
 function isSuiteCallback(context: Rule.RuleContext, call: estree.CallExpression): boolean {
   return (
-    isMochaTestConstruct(context, call, SUITE_FUNCTION_NAMES) || isPlaywrightDescribe(context, call)
+    isMochaTestConstruct(context, call, SUITE_FUNCTION_NAMES, { allowParameterized: true }) ||
+    isPlaywrightDescribe(context, call)
   );
 }
 
