@@ -14,8 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import convertSourceMap from 'convert-source-map';
@@ -35,23 +33,6 @@ function nycEnvironmentConfig() {
 let nycConfig;
 let testExclude;
 let instrumenter;
-
-export function extractSourceMap(source, filename) {
-  const inlineSourceMap = convertSourceMap.fromSource(source)?.toObject();
-  if (inlineSourceMap) {
-    return inlineSourceMap;
-  }
-
-  try {
-    return convertSourceMap
-      .fromMapFileSource(source, mapFile =>
-        readFileSync(resolve(dirname(filename), mapFile), 'utf8'),
-      )
-      ?.toObject();
-  } catch {
-    return undefined;
-  }
-}
 
 export async function load(url, context, nextLoad) {
   if (context.format !== 'module' || loader.isLoading()) {
@@ -90,7 +71,7 @@ export async function load(url, context, nextLoad) {
     source = new TextDecoder().decode(source);
   }
 
-  const sourceMap = extractSourceMap(source, filename);
+  const sourceMap = convertSourceMap.fromSource(source)?.toObject();
   const instrumented = instrumenter.instrumentSync(source, filename, {
     sourceMap,
     registerMap() {},
