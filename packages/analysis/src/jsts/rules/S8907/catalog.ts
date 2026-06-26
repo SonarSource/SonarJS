@@ -28,6 +28,8 @@ const ES2016 = 2016;
 const ES2017 = 2017;
 const ES2019 = 2019;
 
+const ARRAY_SLICE_ALTERNATIVE = 'Array.prototype.slice()';
+const OBJECT_ENTRIES_ALTERNATIVE = 'Object.entries()';
 const ARRAY_NULLISH_REASON = 'the library handles nullish values differently from the native API';
 const COLLECTION_REASON = 'the library also accepts objects and nullish values';
 const COLLECTION_PREDICATE_REASON =
@@ -54,14 +56,14 @@ const replacements: Record<string, Replacement> = {
     'the library also accepts strings, objects, and nullish values',
     ES2016,
   ),
-  drop: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5, '`array.slice(n)`'),
+  drop: cautious(ARRAY_SLICE_ALTERNATIVE, ARRAY_NULLISH_REASON, ES5, '`array.slice(n)`'),
   dropRight: cautious(
-    'Array.prototype.slice()',
+    ARRAY_SLICE_ALTERNATIVE,
     ARRAY_NULLISH_REASON,
     ES5,
     '`n === 0 ? array.slice() : array.slice(0, -n)`',
   ),
-  entries: cautious('Object.entries()', ARRAY_NULLISH_REASON, ES2017),
+  entries: cautious(OBJECT_ENTRIES_ALTERNATIVE, ARRAY_NULLISH_REASON, ES2017),
   every: cautious('Array.prototype.every()', COLLECTION_PREDICATE_REASON, ES5),
   extendOwn: cautious('Object.assign()', ARRAY_NULLISH_REASON, ES2015),
   fill: cautious('Array.prototype.fill()', ARRAY_NULLISH_REASON, ES2015),
@@ -85,19 +87,19 @@ const replacements: Record<string, Replacement> = {
   keys: cautious('Object.keys()', ARRAY_NULLISH_REASON, ES5),
   lastIndexOf: cautious('Array.prototype.lastIndexOf()', ARRAY_NULLISH_REASON, ES5),
   map: cautious('Array.prototype.map()', COLLECTION_REASON, ES5),
-  pairs: cautious('Object.entries()', ARRAY_NULLISH_REASON, ES2017),
+  pairs: cautious(OBJECT_ENTRIES_ALTERNATIVE, ARRAY_NULLISH_REASON, ES2017),
   reduce: cautious('Array.prototype.reduce()', COLLECTION_PREDICATE_REASON, ES5),
   reduceRight: cautious('Array.prototype.reduceRight()', COLLECTION_PREDICATE_REASON, ES5),
   reverse: cautious('Array.prototype.reverse()', ARRAY_NULLISH_REASON, ES5),
-  slice: cautious('Array.prototype.slice()', ARRAY_NULLISH_REASON, ES5),
+  slice: cautious(ARRAY_SLICE_ALTERNATIVE, ARRAY_NULLISH_REASON, ES5),
   some: cautious('Array.prototype.some()', COLLECTION_PREDICATE_REASON, ES5),
   takeRight: cautious(
-    'Array.prototype.slice()',
+    ARRAY_SLICE_ALTERNATIVE,
     ARRAY_NULLISH_REASON,
     ES5,
     '`n === 0 ? [] : array.slice(-n)`',
   ),
-  toPairs: cautious('Object.entries()', ARRAY_NULLISH_REASON, ES2017),
+  toPairs: cautious(OBJECT_ENTRIES_ALTERNATIVE, ARRAY_NULLISH_REASON, ES2017),
   uniq: cautious('Set', ARRAY_NULLISH_REASON, ES2015, '`[...new Set(values)]`'),
   values: cautious('Object.values()', ARRAY_NULLISH_REASON, ES2017),
 };
