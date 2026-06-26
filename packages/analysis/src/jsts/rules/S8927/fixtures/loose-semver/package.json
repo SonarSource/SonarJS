@@ -1,0 +1,7 @@
+{
+  "name": "loose-semver-utility-imports",
+  "version": "1.0.0",
+  "dependencies": {
+    "lodash-es": ">=04.00.0"
+  }
+}
