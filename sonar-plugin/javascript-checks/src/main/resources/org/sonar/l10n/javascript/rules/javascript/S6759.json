@@ -10,11 +10,6 @@
     "react",
     "type-dependent"
   ],
-  "extra": {
-    "requiredDependency": [
-      "react"
-    ]
-  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6759",
   "sqKey": "S6759",

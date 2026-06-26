@@ -16,3 +16,4 @@
  */
 export const implementation = 'original';
 export const eslintId = 'prefer-read-only-props';
+export const requiredDependency = ['react'];
