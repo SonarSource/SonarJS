@@ -256,6 +256,33 @@ lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
           `,
           errors: 1,
         },
+        {
+          code: `
+function latestDate(dates) {
+  return dates.reduce(
+    (latest, current) => latest < current ? current : latest,
+    new Date(0),
+  );
+}
+
+latestDate([new Date(1), new Date(2)]);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+const values = [
+  { label: 'low', valueOf: () => 1 },
+  { label: 'high', valueOf: () => 2 },
+];
+
+const highest = values.reduce(
+  (highest, current) => highest < current ? current : highest,
+  { label: 'zero', valueOf: () => 0 },
+);
+          `,
+          errors: 1,
+        },
       ],
     });
   });
@@ -334,6 +361,46 @@ lowerDomainValue({ 'valueOf': () => 1 }, { 'valueOf': () => 2 });
 const lowerDomainValue = (left, right) => left < right ? left : right;
 
 lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
+          `,
+        },
+        {
+          code: `
+function latestDate(dates) {
+  return dates.reduce(
+    (latest, current) => latest < current ? current : latest,
+    new Date(0),
+  );
+}
+
+latestDate([new Date(1), new Date(2)]);
+          `,
+        },
+        {
+          code: `
+const values = [
+  { label: 'low', valueOf: () => 1 },
+  { label: 'high', valueOf: () => 2 },
+];
+
+const highest = values.reduce(
+  (highest, current) => highest < current ? current : highest,
+  { label: 'zero', valueOf: () => 0 },
+);
+          `,
+        },
+        {
+          code: `
+function highestValue(values) {
+  return values.reduce(
+    (highest, current) => highest < current ? current : highest,
+    { label: 'zero', valueOf: () => 0 },
+  );
+}
+
+highestValue([
+  { label: 'low', valueOf: () => 1 },
+  { label: 'high', valueOf: () => 2 },
+]);
           `,
         },
       ],
@@ -745,6 +812,31 @@ const lowerDomainValue = (left, right) => left < right ? left : right;
 lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
           `,
         },
+        {
+          code: `
+function latestDate(dates) {
+  return dates.reduce(
+    (latest, current) => latest < current ? current : latest,
+    new Date(0),
+  );
+}
+
+latestDate([new Date(1), new Date(2)]);
+          `,
+        },
+        {
+          code: `
+const values = [
+  { label: 'low', valueOf: () => 1 },
+  { label: 'high', valueOf: () => 2 },
+];
+
+const highest = values.reduce(
+  (highest, current) => highest < current ? current : highest,
+  { label: 'zero', valueOf: () => 0 },
+);
+          `,
+        },
       ],
       invalid: [
         {
@@ -830,6 +922,41 @@ function earliestValue(left, right) {
 }
 
 earliestValue(new Date(1), new Date(2));
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+const latestTimestamp = [1, 2].reduce(
+  (latest, current) => latest < current ? current : latest,
+  0,
+);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+const collection = {
+  reduce(callback, initialValue) {
+    return callback(initialValue, { valueOf: () => 1 });
+  },
+};
+
+collection.reduce(
+  (left, right) => left < right ? right : left,
+  { valueOf: () => 0 },
+);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function pick(collection) {
+  return collection.reduce(
+    (left, right) => left < right ? right : left,
+    { valueOf: () => 0 },
+  );
+}
           `,
           errors: 1,
         },
