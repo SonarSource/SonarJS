@@ -164,6 +164,27 @@ describe('S2871', () => {
           {
             code: `function f(a: bigint[], b: bigint[]) { return JSON.stringify(a.sort()) === JSON.stringify(b.sort()); }`,
           },
+          {
+            code: `
+      function normalize(value: unknown): string[] {
+        if (Array.isArray(value)) {
+          return value.map(String).sort();
+        }
+        return [];
+      }
+
+      function hasChanged(before: unknown, after: unknown): boolean {
+        return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+      }
+    `,
+          },
+          {
+            code: `
+      function haveSameItems(a: number[], b: number[]): boolean {
+        return a.slice().sort().map(String).join(',') === b.slice().sort().map(String).join(',');
+      }
+    `,
+          },
         ],
         invalid: [
           {
@@ -448,6 +469,44 @@ describe('S2871', () => {
             code: `function f(a: any[], b: any[]) { return JSON.stringify(a.sort()) === JSON.stringify(b.sort()); }`,
             errors: 2,
           },
+          // helper is also used outside the normalization comparison: not suppressed
+          {
+            code: `
+        function normalize(value: unknown): string[] {
+          if (Array.isArray(value)) {
+            return value.map(String).sort();
+          }
+          return [];
+        }
+
+        function sorted(value: unknown): string[] {
+          return normalize(value);
+        }
+
+        function hasChanged(before: unknown, after: unknown): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
+          // helper-based comparison is still reported for non-primitive arrays
+          {
+            code: `
+        function normalize(value: Array<{ id: number }>): Array<{ id: number }> {
+          return value.sort();
+        }
+
+        function hasChanged(before: Array<{ id: number }>, after: Array<{ id: number }>): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
+          // alternate serialization is only suppressed when both sides sort with the same method
+          {
+            code: `function haveSameItems(a: number[], b: number[]): boolean { return a.slice().sort().map(String).join(',') === b.map(String).join(','); }`,
+            errors: 1,
+          },
         ],
       },
     );
@@ -588,6 +647,13 @@ describe('S2871', () => {
           },
           {
             code: `function f(a: bigint[], b: bigint[]) { return JSON.stringify(a.toSorted()) === JSON.stringify(b.toSorted()); }`,
+          },
+          {
+            code: `
+      function haveSameItems(a: string[], b: string[]): boolean {
+        return a.toSorted().map(String).join(',') === b.toSorted().map(String).join(',');
+      }
+    `,
           },
         ],
         invalid: [
@@ -861,6 +927,11 @@ describe('S2871', () => {
           {
             code: `function f(a: any[], b: any[]) { return JSON.stringify(a.toSorted()) === JSON.stringify(b.toSorted()); }`,
             errors: 2,
+          },
+          // alternate serialization is only suppressed when both sides sort with the same method
+          {
+            code: `function haveSameItems(a: string[], b: string[]): boolean { return a.toSorted().map(String).join(',') === b.map(String).join(','); }`,
+            errors: 1,
           },
         ],
       },
