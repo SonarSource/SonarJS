@@ -211,6 +211,34 @@ highestValue([
 ]);
           `,
         },
+        {
+          code: `
+const values = [
+  { label: 'mid', valueOf: () => 2 },
+  { label: 'low', valueOf: () => 1 },
+];
+
+const lowest = values.reduce(
+  (lowest, current) => current < lowest ? current : lowest,
+  { label: 'seed', valueOf: () => 3 },
+);
+          `,
+        },
+        {
+          code: `
+function lowestValue(values) {
+  return values.reduce(
+    (lowest, current) => current < lowest ? current : lowest,
+    { label: 'seed', valueOf: () => 3 },
+  );
+}
+
+lowestValue([
+  { label: 'mid', valueOf: () => 2 },
+  { label: 'low', valueOf: () => 1 },
+]);
+          `,
+        },
       ],
       invalid: [
         {
@@ -286,6 +314,25 @@ earliestValue(new Date(1), new Date(2));
           `,
           errors: 1,
         },
+        {
+          code: `
+function getValues() {
+  return [
+    { label: 'mid', valueOf: () => 2 },
+    { label: 'low', valueOf: () => 1 },
+  ];
+}
+
+const lowest = getValues().reduce((lowest, current) => current < lowest ? current : lowest);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+[1, 2].reduce((highest, current, index) => highest < index ? index : highest, 0);
+          `,
+          errors: 1,
+        },
       ],
     });
   });
@@ -315,6 +362,19 @@ function earliestBrandedTimestamp(
 ): BrandedTimestamp {
   return first < second ? first : second;
 }
+          `,
+        },
+        {
+          code: `
+type Comparable = { valueOf(): number; label: string };
+
+const values: any[] = [];
+const seed = { label: 'seed', valueOf: () => 0 };
+
+const lowest = values.reduce(
+  (lowest, current) => current < lowest ? current : lowest,
+  seed,
+);
           `,
         },
       ],
