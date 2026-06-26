@@ -120,6 +120,18 @@ function getJoinSeparator(call: estree.CallExpression): string | null {
   return null;
 }
 
+function getStringJoinSortChainRoot(call: estree.CallExpression): estree.CallExpression | null {
+  const mapCall = getChainedMethodCall(call, 'map');
+  if (mapCall === null || !isStringMapCall(mapCall)) {
+    return null;
+  }
+  const joinCall = getChainedMethodCall(mapCall, 'join');
+  if (joinCall === null || getJoinSeparator(joinCall) === null) {
+    return null;
+  }
+  return joinCall;
+}
+
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
 const compareBigIntFunctionPlaceholder = [
   '(a, b) => {',
@@ -225,18 +237,6 @@ export const rule: Rule.RuleModule = {
         isPrimitiveSortReceiver(callInfo.receiver) &&
         isPrimitiveSortReceiver(siblingInfo.receiver)
       );
-    }
-
-    function getStringJoinSortChainRoot(call: estree.CallExpression): estree.CallExpression | null {
-      const mapCall = getChainedMethodCall(call, 'map');
-      if (mapCall === null || !isStringMapCall(mapCall)) {
-        return null;
-      }
-      const joinCall = getChainedMethodCall(mapCall, 'join');
-      if (joinCall === null || getJoinSeparator(joinCall) === null) {
-        return null;
-      }
-      return joinCall;
     }
 
     function getStringJoinSortChainInfo(node: estree.Node | null): StringJoinSortChainInfo | null {
