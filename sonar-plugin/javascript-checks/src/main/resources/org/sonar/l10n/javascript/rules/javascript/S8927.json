@@ -4,7 +4,7 @@
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
-    "constantCost": "5 min"
+    "constantCost": "5min"
   },
   "tags": [
     "performance",
@@ -15,8 +15,7 @@
   "sqKey": "S8927",
   "scope": "Main",
   "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
+    "Sonar way"
   ],
   "quickfix": "targeted",
   "code": {
