@@ -24,6 +24,7 @@ import { getESLintCoreRule } from './core.js';
 import { rules as reactRules } from './react.js';
 import { rules as tsEslintRules } from './typescript-eslint/index.js';
 import { rules as unicornRules } from './unicorn.js';
+import { rules as vueRules } from './vue.js';
 
 const { rules: angularRules } = angularPlugin;
 const indexableA11yRules = a11yRules as Record<string, Rule.RuleModule>;
@@ -33,6 +34,7 @@ const indexableReactRules = reactRules as Record<string, Rule.RuleModule>;
 const indexableStylisticRules = stylistic.rules as Record<string, Rule.RuleModule> | undefined;
 const indexableTSEslintRules = tsEslintRules as Record<string, Rule.RuleModule>;
 const indexableUnicornRules = unicornRules as Record<string, Rule.RuleModule>;
+const indexableVueRules = vueRules as Record<string, Rule.RuleModule>;
 
 const externalRuleDefinitions = {
   eslint: getESLintCoreRule,
@@ -45,6 +47,7 @@ const externalRuleDefinitions = {
   '@stylistic/eslint-plugin': (ruleId: string) => indexableStylisticRules?.[ruleId],
   '@angular-eslint': (ruleId: string) => indexableAngularRules[ruleId],
   unicorn: (ruleId: string) => indexableUnicornRules[ruleId],
+  vue: (ruleId: string) => indexableVueRules[ruleId],
 } satisfies Record<string, (ruleId: string) => Rule.RuleModule | undefined>;
 
 type ExternalPluginId = keyof typeof externalRuleDefinitions;
