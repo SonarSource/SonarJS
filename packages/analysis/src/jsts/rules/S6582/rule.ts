@@ -90,16 +90,6 @@ function allowsUndefined(type: ts.Type): boolean {
 }
 
 /**
- * Tells whether optional chaining syntax can be emitted for a TypeScript target.
- *
- * @param target TypeScript target compiler option.
- * @returns `true` when no below-ES2020 target is configured.
- */
-function supportsOptionalChainingTarget(target: ts.ScriptTarget | undefined): boolean {
-  return target === undefined || target >= ts.ScriptTarget.ES2020;
-}
-
-/**
  * Sanitized rule 'prefer-optional-chain' from TypeScript ESLint.
  *
  * TypeScript ESLint's rule raises a runtime error if the parser services of the
@@ -134,10 +124,6 @@ export const rule: Rule.RuleModule = {
     // Any reasoning about whether undefined is safe to introduce is meaningless in that mode.
     // `strict: true` implies strictNullChecks but does not materialize it as an explicit property.
     const compilerOptions = services.program.getCompilerOptions();
-    if (!supportsOptionalChainingTarget(compilerOptions.target)) {
-      return {};
-    }
-
     if (!compilerOptions.strictNullChecks && !compilerOptions.strict) {
       return preferOptionalChainRule.create(context);
     }

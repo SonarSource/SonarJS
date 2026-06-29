@@ -212,53 +212,6 @@ describe('S6582 without strictNullChecks', () => {
   });
 });
 
-describe('S6582 with legacy ECMAScript target', () => {
-  it('does not report when the configured target cannot emit optional chaining syntax', () => {
-    const ruleTester = new RuleTester({
-      parserOptions: {
-        project: './tsconfig.json',
-        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures/target-es2019'),
-      },
-    });
-    ruleTester.run('S6582', rule, {
-      valid: [
-        {
-          code: `function f(arr: string[] | null) { if (arr && arr.length) {} }`,
-          filename: path.join(import.meta.dirname, 'fixtures/target-es2019/index.ts'),
-        },
-        {
-          code: `function f(callback?: () => void) { callback && callback(); }`,
-          filename: path.join(import.meta.dirname, 'fixtures/target-es2019/index.ts'),
-        },
-      ],
-      invalid: [],
-    });
-  });
-});
-
-describe('S6582 with supported ECMAScript target', () => {
-  it('reports when the configured target can emit optional chaining syntax', () => {
-    for (const fixture of ['target-es2020', 'target-esnext']) {
-      const ruleTester = new RuleTester({
-        parserOptions: {
-          project: './tsconfig.json',
-          tsconfigRootDir: path.join(import.meta.dirname, `fixtures/${fixture}`),
-        },
-      });
-      ruleTester.run('S6582', rule, {
-        valid: [],
-        invalid: [
-          {
-            code: `function f(arr: string[] | null) { if (arr && arr.length) {} }`,
-            filename: path.join(import.meta.dirname, `fixtures/${fixture}/index.ts`),
-            errors: 1,
-          },
-        ],
-      });
-    }
-  });
-});
-
 describe('S6582', () => {
   it('does not raise without TypeScript services', () => {
     const ruleTester = new DefaultParserRuleTester();
