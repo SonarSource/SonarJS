@@ -139,7 +139,7 @@
     "postcss-value-parser": "4.2.0",
     "protobufjs": "8.6.5",
     "scslre": "0.3.0",
-    "semver": "7.8.4",
+    "semver": "7.8.5",
     "stylelint": "17.13.0",
     "stylelint-config-html": "1.1.0",
     "ts-api-utils": "2.5.0",
