@@ -211,4 +211,24 @@ import validator from 'validator';
       ],
     });
   });
+
+  it('explains why method-level imports are preferred', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-default-utility-imports', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `import lodash from 'lodash';`,
+          filename: path.join(fixtures, 'supported', 'file.js'),
+          errors: [
+            {
+              message:
+                'Import lodash methods from subpaths such as "lodash/map" to avoid importing more code than needed.',
+            },
+          ],
+        },
+      ],
+    });
+  });
 });
