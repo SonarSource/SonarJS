@@ -350,16 +350,19 @@ export const rule: Rule.RuleModule = {
           return (
             parent?.type === 'CallExpression' &&
             parent.callee === reference.identifier &&
-            isJsonStringifyFunctionCallComparison(parent, functionVariable)
+            isSingleArgumentJsonStringifyFunctionCallComparison(parent, functionVariable)
           );
         })
       );
     }
 
-    function isJsonStringifyFunctionCallComparison(
+    function isSingleArgumentJsonStringifyFunctionCallComparison(
       call: estree.CallExpression,
       functionVariable: Scope.Variable,
     ): boolean {
+      if (call.arguments.length !== 1 || call.arguments[0].type === 'SpreadElement') {
+        return false;
+      }
       const parent = getNodeParent(call);
       if (!isJsonStringifyCall(parent) || (parent as estree.CallExpression).arguments[0] !== call) {
         return false;
@@ -371,6 +374,8 @@ export const rule: Rule.RuleModule = {
       const siblingArgument = (sibling as estree.CallExpression).arguments[0];
       return (
         siblingArgument.type === 'CallExpression' &&
+        siblingArgument.arguments.length === 1 &&
+        siblingArgument.arguments[0].type !== 'SpreadElement' &&
         siblingArgument.callee.type === 'Identifier' &&
         getVariableFromName(context, siblingArgument.callee.name, siblingArgument) ===
           functionVariable
