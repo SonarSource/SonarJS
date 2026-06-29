@@ -294,7 +294,6 @@ export const rule: Rule.RuleModule = {
       call: estree.CallExpression,
     ): Scope.Variable | null {
       let currentNode: estree.Node | undefined = getNodeParent(call);
-      let previousNode: estree.Node = call;
       let returnStatement: estree.ReturnStatement | undefined;
 
       while (currentNode) {
@@ -306,15 +305,11 @@ export const rule: Rule.RuleModule = {
           currentNode.type === 'FunctionExpression' ||
           currentNode.type === 'ArrowFunctionExpression'
         ) {
-          if (
-            returnStatement === undefined &&
-            !isReturnedExpressionBody(currentNode, previousNode)
-          ) {
+          if (returnStatement?.argument !== call && !isReturnedExpressionBody(currentNode, call)) {
             return null;
           }
           return getLocalFunctionVariable(currentNode);
         }
-        previousNode = currentNode;
         currentNode = getNodeParent(currentNode);
       }
 

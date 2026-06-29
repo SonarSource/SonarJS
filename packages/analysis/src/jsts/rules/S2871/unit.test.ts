@@ -567,6 +567,19 @@ describe('S2871', () => {
       `,
             errors: 1,
           },
+          // helper-based comparison is still reported when the sort result is further derived
+          {
+            code: `
+        function normalize(value: string[]): string {
+          return value.sort()[0];
+        }
+
+        function hasChanged(before: string[], after: string[]): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
           // alternate serialization is only suppressed when both sides sort with the same method
           {
             code: `function haveSameItems(a: number[], b: number[]): boolean { return a.slice().sort().map(String).join(',') === b.map(String).join(','); }`,
