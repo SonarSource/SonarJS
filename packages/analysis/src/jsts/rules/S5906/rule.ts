@@ -248,6 +248,8 @@ function supportsJasmineToHaveSize(context: Rule.RuleContext): boolean {
   return false;
 }
 
+// For bare global expect(), mixed Jasmine/Jest dependency signals are ambiguous:
+// there is no import/FQN evidence to choose between toHaveSize() and toHaveLength().
 function hasAmbiguousJasmineJestGlobalExpectSignal(context: Rule.RuleContext): boolean {
   if (importsModule(context, JEST_LIKE_MODULES) || importsModule(context, JASMINE_MODULES)) {
     return false;
