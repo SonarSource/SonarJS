@@ -28,7 +28,7 @@ import * as meta from './generated-meta.js';
 const messages = {
   useNamedImports: 'Use named imports from "{{library}}" instead of a default import.',
   useMethodImports:
-    'Import used {{library}} methods from method-level subpaths such as "{{example}}".',
+    'Import {{library}} methods from subpaths such as "{{example}}" to avoid importing more code than needed.',
 };
 
 type LibraryRecommendation =
