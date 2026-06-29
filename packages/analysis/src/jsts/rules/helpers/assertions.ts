@@ -113,6 +113,36 @@ export function extractTestAssertion(
   context: Rule.RuleContext,
   node: estree.Node,
 ): Assertion | null {
+  // Explicit imports in the current file are more precise than project-wide dependency signals.
+  if (importsModule(context, JEST_LIKE_MODULES)) {
+    const assertion = extractExpectAssertion(node, 'jest-like');
+    if (assertion) {
+      return assertion;
+    }
+  }
+
+  if (importsModule(context, JASMINE_MODULES)) {
+    const assertion = extractExpectAssertion(node, 'jasmine');
+    if (assertion) {
+      return assertion;
+    }
+  }
+
+  if (importsModule(context, PLAYWRIGHT_MODULES)) {
+    const assertion = extractExpectAssertion(node, 'playwright');
+    if (assertion) {
+      return assertion;
+    }
+  }
+
+  if (importsModule(context, CHAI_LIKE_GLOBAL_MODULES)) {
+    const assertion =
+      extractChaiAssertion(context, node, true) ?? extractCypressChainAssertion(node);
+    if (assertion) {
+      return assertion;
+    }
+  }
+
   // covers Jest-like assertion libraries
   if (importsOrDependsOnModule(context, JEST_LIKE_MODULES, JEST_LIKE_GLOBAL_MODULES)) {
     const assertion = extractExpectAssertion(node, 'jest-like');

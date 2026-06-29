@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "jasmine-core": "5.7.1",
+    "jest": "30.0.0"
+  }
+}

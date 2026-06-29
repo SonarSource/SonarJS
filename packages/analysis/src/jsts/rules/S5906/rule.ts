@@ -22,7 +22,11 @@ import { minVersion } from 'semver';
 import { extractTestAssertion, type AssertionStyle } from '../helpers/assertions.js';
 import { isIdentifier, isMethodCall } from '../helpers/ast.js';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
-import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
+import {
+  getFullyQualifiedName,
+  importsModule,
+  importsOrDependsOnModule,
+} from '../helpers/module.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { chaiShouldReceiver, getBooleanExpressionSuggestion } from './assertion-suggestions.js';
 import {
@@ -47,6 +51,10 @@ const messages = {
 };
 
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
+const JEST_LIKE_MODULES = ['vitest', 'bun:test', '@jest/globals'];
+const JEST_LIKE_GLOBAL_MODULES = ['jest'];
+const JASMINE_MODULES = ['jasmine'];
+const JASMINE_GLOBAL_MODULES = ['jasmine', 'jasmine-core', 'jasmine-node', 'karma-jasmine'];
 const MAX_ASSERT_ARGUMENTS_WITH_MESSAGE = 3;
 const CHAI_EQUALITY_MATCHERS = new Set(['equal', 'equals', 'eq', 'eql', 'eqls']);
 const JASMINE_SIZE_DEPENDENCIES = ['jasmine-core', 'jasmine'];
@@ -58,6 +66,7 @@ export const rule: Rule.RuleModule = {
     const sourceCode = context.sourceCode;
     const hasPlaywright = importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES);
     const jasmineSupportsToHaveSize = supportsJasmineToHaveSize(context);
+    const hasAmbiguousJasmineJestGlobalExpect = hasAmbiguousJasmineJestGlobalExpectSignal(context);
     const playwrightLocators = new Set<Scope.Variable>();
 
     function report(node: estree.CallExpression, suggestion: Suggestion) {
@@ -108,6 +117,7 @@ export const rule: Rule.RuleModule = {
           node,
           sourceCode,
           jasmineSupportsToHaveSize,
+          hasAmbiguousJasmineJestGlobalExpect,
         );
         if (suggestion) {
           report(node, suggestion);
@@ -123,9 +133,17 @@ function getSuggestion(
   node: estree.CallExpression,
   sourceCode: SourceCode,
   jasmineSupportsToHaveSize: boolean,
+  hasAmbiguousJasmineJestGlobalExpect: boolean,
 ): Suggestion | null {
   switch (style) {
     case 'jest-like':
+      return getExpectLikeSuggestion(
+        node,
+        sourceCode,
+        'jest',
+        true,
+        hasAmbiguousJasmineJestGlobalExpect,
+      );
     case 'playwright':
       return getExpectLikeSuggestion(node, sourceCode, 'jest');
     case 'jasmine':
@@ -146,6 +164,7 @@ function getExpectLikeSuggestion(
   sourceCode: SourceCode,
   family: 'jest' | 'jasmine',
   jasmineSupportsToHaveSize = true,
+  skipLengthEqualitySuggestions = false,
 ): Suggestion | null {
   if (
     !isMethodCall(node) ||
@@ -180,6 +199,9 @@ function getExpectLikeSuggestion(
     return replacement(`${prefix}.toBeNaN()`, node, sourceCode);
   }
   if (isLengthAccess(actual)) {
+    if (skipLengthEqualitySuggestions) {
+      return null;
+    }
     if (family === 'jasmine' && !jasmineSupportsToHaveSize) {
       return null;
     }
@@ -192,6 +214,9 @@ function getExpectLikeSuggestion(
   }
   const booleanExpected = getBooleanValue(expected);
   if (booleanExpected === undefined) {
+    return null;
+  }
+  if (skipLengthEqualitySuggestions && isLengthEqualityComparison(actual)) {
     return null;
   }
   return getBooleanExpressionSuggestion(
@@ -221,6 +246,26 @@ function supportsJasmineToHaveSize(context: Rule.RuleContext): boolean {
   }
 
   return false;
+}
+
+function hasAmbiguousJasmineJestGlobalExpectSignal(context: Rule.RuleContext): boolean {
+  if (importsModule(context, JEST_LIKE_MODULES) || importsModule(context, JASMINE_MODULES)) {
+    return false;
+  }
+
+  const dependencies = getDependenciesSanitizePaths(context);
+  return (
+    JEST_LIKE_GLOBAL_MODULES.some(dependency => dependencies.has(dependency)) &&
+    JASMINE_GLOBAL_MODULES.some(dependency => dependencies.has(dependency))
+  );
+}
+
+function isLengthEqualityComparison(node: estree.Node): boolean {
+  return (
+    node.type === 'BinaryExpression' &&
+    ['===', '!=='].includes(node.operator) &&
+    (isLengthAccess(node.left) || isLengthAccess(node.right))
+  );
 }
 
 function getChaiBddSuggestion(

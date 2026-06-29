@@ -34,6 +34,12 @@ describe('S5906', () => {
       'modern-jasmine',
       'test.ts',
     );
+    const mixedJasmineJestFixture = path.join(
+      import.meta.dirname,
+      'fixtures',
+      'mixed-jasmine-jest',
+      'test.ts',
+    );
     const expectedError = (output: string) => ({
       messageId: 'preferSpecificAssertion',
       suggestions: [{ messageId: 'quickfix', output }],
@@ -118,10 +124,23 @@ describe('S5906', () => {
           `,
         },
         {
+          // https://community.sonarsource.com/t/eslint-prefer-specific-assertions-wants-me-to-use-tohavelength-but-i-cant/184082
           code: `
             expect(items.length).toBe(3);
           `,
           filename: angularJasmineFixture,
+        },
+        {
+          code: `
+            expect(items.length).toBe(3);
+          `,
+          filename: mixedJasmineJestFixture,
+        },
+        {
+          code: `
+            expect(items.length === 2).toBe(true);
+          `,
+          filename: mixedJasmineJestFixture,
         },
       ],
       invalid: [
@@ -174,9 +193,35 @@ describe('S5906', () => {
         },
         {
           code: `
+            import { expect } from 'jasmine';
+
+            expect(items.length).toBe(3);
+          `,
+          filename: mixedJasmineJestFixture,
+          errors: [
+            expectedError(`
+            import { expect } from 'jasmine';
+
+            expect(items).toHaveSize(3);
+          `),
+          ],
+        },
+        {
+          code: `
             expect(error).toBe(null);
           `,
           filename: angularJasmineFixture,
+          errors: [
+            expectedError(`
+            expect(error).toBeNull();
+          `),
+          ],
+        },
+        {
+          code: `
+            expect(error).toBe(null);
+          `,
+          filename: mixedJasmineJestFixture,
           errors: [
             expectedError(`
             expect(error).toBeNull();
@@ -198,6 +243,21 @@ describe('S5906', () => {
             test('uses generic length assertion', () => {
               expect(items).toHaveLength(3);
             });
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            expect(items.length).toBe(3);
+          `,
+          filename: mixedJasmineJestFixture,
+          errors: [
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(items).toHaveLength(3);
           `),
           ],
         },
