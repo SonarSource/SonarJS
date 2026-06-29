@@ -27,6 +27,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 import { getImportDeclarations } from '../helpers/module.js';
+import { isTypeOnlyImport } from '../helpers/ast.js';
 
 const noUnknownProp = reactRules['no-unknown-property'];
 const decoratedNoUnknownProp = decorate(noUnknownProp);
@@ -106,14 +107,11 @@ export const rule: Rule.RuleModule = {
     }
     const imports = getImportDeclarations(context);
     if (
-      imports.some(i => {
-        const importKind =
-          'importKind' in i ? (i as { importKind?: string | null }).importKind : undefined;
-        return (
-          importKind !== 'type' &&
-          ['next/og', '@vercel/og', 'satori', 'twin.macro'].includes(String(i.source.value))
-        );
-      })
+      imports.some(
+        i =>
+          !isTypeOnlyImport(i) &&
+          ['next/og', '@vercel/og', 'satori', 'twin.macro'].includes(String(i.source.value)),
+      )
     ) {
       // These file-specific APIs use tw prop for Tailwind styling in JSX
       frameworkIgnoredProps.push('tw');

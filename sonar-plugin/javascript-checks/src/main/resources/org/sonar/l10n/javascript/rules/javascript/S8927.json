@@ -1,0 +1,31 @@
+{
+  "title": "Default imports from modular utility libraries should not be used",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "performance",
+    "es2015"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-8927",
+  "sqKey": "S8927",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "quickfix": "targeted",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "EFFICIENT"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

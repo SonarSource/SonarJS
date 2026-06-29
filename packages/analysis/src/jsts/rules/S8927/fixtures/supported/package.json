@@ -1,0 +1,11 @@
+{
+  "name": "supported-utility-imports",
+  "version": "1.0.0",
+  "dependencies": {
+    "lodash": "4.17.21",
+    "lodash-es": "4.17.21",
+    "rxjs": "7.2.0",
+    "rambda": "0.8.8",
+    "validator": "12.1.0"
+  }
+}

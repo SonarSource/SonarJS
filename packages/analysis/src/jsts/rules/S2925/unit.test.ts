@@ -150,6 +150,19 @@ describe('S2925', () => {
         },
         {
           code: `
+            it('ignores Promise+setTimeout waits', async () => {
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              await new Promise((resolve) => { setTimeout(resolve, 500); });
+              await new Promise(function (resolve) { setTimeout(resolve, 250); });
+
+              const DELAY = 1000;
+              await new Promise(resolve => setTimeout(resolve, DELAY));
+            });
+          `,
+          filename: 'tests/promise-wait.test.js',
+        },
+        {
+          code: `
             it('ignores Promise+setTimeout with non-numeric delay', async () => {
               await new Promise(resolve => setTimeout(resolve, computeDelay()));
               await new Promise(resolve => setTimeout(resolve, delay));
@@ -313,31 +326,6 @@ describe('S2925', () => {
             { messageId: 'fixedWait' },
             { message: 'Remove this debug command from the test.' },
           ],
-        },
-        {
-          code: `
-            it('flags Promise+setTimeout fixed wait', async () => {
-              await new Promise(resolve => setTimeout(resolve, 1000));
-              await new Promise((resolve) => { setTimeout(resolve, 500); });
-              await new Promise(function (resolve) { setTimeout(resolve, 250); });
-            });
-          `,
-          filename: 'tests/promise-wait.test.js',
-          errors: [
-            { messageId: 'fixedWait' },
-            { messageId: 'fixedWait' },
-            { messageId: 'fixedWait' },
-          ],
-        },
-        {
-          code: `
-            it('flags Promise+setTimeout with resolvable delay', async () => {
-              const DELAY = 1000;
-              await new Promise(resolve => setTimeout(resolve, DELAY));
-            });
-          `,
-          filename: 'tests/promise-resolved.test.js',
-          errors: [{ messageId: 'fixedWait' }],
         },
       ],
     });

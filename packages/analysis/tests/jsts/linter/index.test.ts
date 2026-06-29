@@ -417,6 +417,31 @@ describe('Linter', () => {
     expect(rules).not.toHaveProperty('sonarjs/S6748');
   });
 
+  it('should disable S6759 when react dependency is missing from a TSX project', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'no-react'),
+    );
+    await Linter.initialize({
+      baseDir,
+      rules: [
+        {
+          key: 'S6759',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'ts',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(baseDir, 'src', 'file.tsx')),
+      'MAIN',
+      'DEFAULT',
+      'ts',
+    );
+    expect(rules).not.toHaveProperty('sonarjs/S6759');
+  });
+
   it('should enable React-dependent rules when react dependency is present', async () => {
     const baseDir = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'react'),
@@ -440,6 +465,31 @@ describe('Linter', () => {
       'js',
     );
     expect(rules).toHaveProperty('sonarjs/S6477');
+  });
+
+  it('should enable S6759 when react dependency is present in a TSX project', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'react'),
+    );
+    await Linter.initialize({
+      baseDir,
+      rules: [
+        {
+          key: 'S6759',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'ts',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(baseDir, 'src', 'file.tsx')),
+      'MAIN',
+      'DEFAULT',
+      'ts',
+    );
+    expect(rules).toHaveProperty('sonarjs/S6759');
   });
 
   it('should enable React-dependent rules when react dependency is present in deno.json', async () => {

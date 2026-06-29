@@ -1,0 +1,164 @@
+{
+"tailwindcss:src/featureFlags.js": [
+1
+],
+"tailwindcss:src/index.js": [
+4
+],
+"tailwindcss:src/index.postcss7.js": [
+4
+],
+"tailwindcss:src/lib/evaluateTailwindFunctions.js": [
+1
+],
+"tailwindcss:src/lib/purgeUnusedStyles.js": [
+1
+],
+"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
+1
+],
+"tailwindcss:src/lib/substituteResponsiveAtRules.js": [
+1
+],
+"tailwindcss:src/lib/substituteScreenAtRules.js": [
+1
+],
+"tailwindcss:src/lib/substituteTailwindAtRules.js": [
+1
+],
+"tailwindcss:src/lib/substituteVariantsAtRules.js": [
+1
+],
+"tailwindcss:src/plugins/animation.js": [
+1
+],
+"tailwindcss:src/plugins/backgroundColor.js": [
+1
+],
+"tailwindcss:src/plugins/backgroundImage.js": [
+1
+],
+"tailwindcss:src/plugins/backgroundPosition.js": [
+1
+],
+"tailwindcss:src/plugins/backgroundSize.js": [
+1
+],
+"tailwindcss:src/plugins/borderColor.js": [
+1
+],
+"tailwindcss:src/plugins/borderRadius.js": [
+1
+],
+"tailwindcss:src/plugins/borderWidth.js": [
+1
+],
+"tailwindcss:src/plugins/boxShadow.js": [
+1
+],
+"tailwindcss:src/plugins/container.js": [
+2
+],
+"tailwindcss:src/plugins/cursor.js": [
+1
+],
+"tailwindcss:src/plugins/divideColor.js": [
+1
+],
+"tailwindcss:src/plugins/divideOpacity.js": [
+1
+],
+"tailwindcss:src/plugins/divideWidth.js": [
+1
+],
+"tailwindcss:src/plugins/fill.js": [
+1
+],
+"tailwindcss:src/plugins/flex.js": [
+1
+],
+"tailwindcss:src/plugins/flexGrow.js": [
+1
+],
+"tailwindcss:src/plugins/flexShrink.js": [
+1
+],
+"tailwindcss:src/plugins/fontSize.js": [
+1
+],
+"tailwindcss:src/plugins/gradientColorStops.js": [
+1
+],
+"tailwindcss:src/plugins/inset.js": [
+1
+],
+"tailwindcss:src/plugins/margin.js": [
+1
+],
+"tailwindcss:src/plugins/outline.js": [
+1
+],
+"tailwindcss:src/plugins/padding.js": [
+1
+],
+"tailwindcss:src/plugins/placeholderColor.js": [
+1
+],
+"tailwindcss:src/plugins/placeholderOpacity.js": [
+1
+],
+"tailwindcss:src/plugins/ringColor.js": [
+1
+],
+"tailwindcss:src/plugins/ringOffsetColor.js": [
+1
+],
+"tailwindcss:src/plugins/ringOffsetWidth.js": [
+1
+],
+"tailwindcss:src/plugins/ringOpacity.js": [
+1
+],
+"tailwindcss:src/plugins/ringWidth.js": [
+1
+],
+"tailwindcss:src/plugins/space.js": [
+1
+],
+"tailwindcss:src/plugins/stroke.js": [
+1
+],
+"tailwindcss:src/plugins/textColor.js": [
+1
+],
+"tailwindcss:src/plugins/transitionProperty.js": [
+1
+],
+"tailwindcss:src/processTailwindFeatures.js": [
+1
+],
+"tailwindcss:src/util/buildMediaQuery.js": [
+1
+],
+"tailwindcss:src/util/cloneNodes.js": [
+1
+],
+"tailwindcss:src/util/generateVariantFunction.js": [
+1
+],
+"tailwindcss:src/util/parseObjectStyles.js": [
+1
+],
+"tailwindcss:src/util/prefixNegativeModifiers.js": [
+1
+],
+"tailwindcss:src/util/processPlugins.js": [
+1
+],
+"tailwindcss:src/util/toColorValue.js": [
+1
+],
+"tailwindcss:src/util/withAlphaVariable.js": [
+2
+]
+}
