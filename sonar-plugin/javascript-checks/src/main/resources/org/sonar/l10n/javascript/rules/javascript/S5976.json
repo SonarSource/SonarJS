@@ -31,5 +31,9 @@
   ],
   "defaultQualityProfiles": [
     "Sonar way"
-  ]
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  }
 }
