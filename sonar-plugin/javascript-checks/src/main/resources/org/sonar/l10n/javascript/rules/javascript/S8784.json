@@ -1,0 +1,42 @@
+{
+  "title": "Assertions should be placed inside test cases or hooks",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "pitfall",
+    "jest",
+    "vitest",
+    "mocha",
+    "jasmine",
+    "cypress",
+    "playwright",
+    "chai",
+    "sinon",
+    "supertest",
+    "node"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8784",
+  "sqKey": "S8784",
+  "scope": "Tests",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM",
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

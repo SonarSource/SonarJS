@@ -17,11 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2699/javascript
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
-import * as Chai from '../helpers/chai.js';
 import { childrenOf } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
-import { getFullyQualifiedNameTS } from '../helpers/module-ts.js';
 import {
   getProperty,
   isFunctionCall,
@@ -31,25 +28,15 @@ import {
 } from '../helpers/ast.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as Mocha from '../helpers/mocha.js';
-import * as Sinon from '../helpers/sinon.js';
 import * as Vitest from '../helpers/vitest.js';
-import * as Supertest from '../helpers/supertest.js';
-import * as Cypress from '../helpers/cypress.js';
+import {
+  hasSupportedAssertionLibrary,
+  isAssertion,
+  isTSAssertion,
+} from '../helpers/assertion-detection.js';
 import * as meta from './generated-meta.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
-
-const ASSERTION_LIBRARIES = [
-  'chai',
-  'sinon',
-  'vitest',
-  'supertest',
-  '@playwright/test',
-  'assert',
-  'node:assert',
-];
-// runners that expose assertion APIs as globals (no import required).
-const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', '@playwright/test'];
 
 /**
  * We assume that the user is using a single assertion library per file,
@@ -74,10 +61,6 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
-
-function hasSupportedAssertionLibrary(context: Rule.RuleContext): boolean {
-  return importsOrDependsOnModule(context, ASSERTION_LIBRARIES, GLOBAL_ASSERTION_DEPENDENCIES);
-}
 
 /**
  * Checks if a test uses the Mocha done callback as an assertion mechanism.
@@ -240,14 +223,16 @@ class TestCaseAssertionVisitor {
       return visitedTSNodes.get(node)!;
     }
     visitedTSNodes.set(node, false);
-    if (
-      isGlobalTSAssertion(services, node) ||
-      Chai.isTSAssertion(services, node) ||
-      Sinon.isTSAssertion(services, node) ||
-      Supertest.isTSAssertion(services, node) ||
-      Vitest.isTSAssertion(services, node) ||
-      Cypress.isTSAssertion(node)
-    ) {
+    if (isTSAssertion(services, node)) {
+      visitedTSNodes.set(node, true);
+      return true;
+    }
+    // Stopgap: in this type-aware path, a vitest `expect.extend(...)` (and other
+    // expect setup helpers) is a compile-time check on its typed arguments, so a
+    // typecheck test that only configures matchers should not be reported as
+    // assertion-less. Recognising typecheck-mode test files properly is a separate
+    // S2699 discussion; this keeps those type-tests quiet meanwhile.
+    if (Vitest.isTSSetupCall(services, node)) {
       visitedTSNodes.set(node, true);
       return true;
     }
@@ -277,14 +262,7 @@ class TestCaseAssertionVisitor {
       return visitedNodes.get(node)!;
     }
     visitedNodes.set(node, false);
-    if (
-      Chai.isAssertion(context, node) ||
-      Sinon.isAssertion(context, node) ||
-      Vitest.isAssertion(context, node) ||
-      Supertest.isAssertion(context, node) ||
-      Cypress.isAssertion(node) ||
-      isGlobalAssertion(context, node)
-    ) {
+    if (isAssertion(context, node)) {
       visitedNodes.set(node, true);
       return true;
     }
@@ -303,92 +281,4 @@ class TestCaseAssertionVisitor {
     visitedNodes.set(node, nodeHasAssertions);
     return nodeHasAssertions;
   }
-}
-
-function isGlobalTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
-  if (node.kind !== ts.SyntaxKind.CallExpression) {
-    return false;
-  }
-  const callExpressionNode = node as ts.CallExpression;
-  // check for global expect
-  if (isGlobalExpectExpression(callExpressionNode)) {
-    return true;
-  }
-  return isFunctionCallFromNodeAssertTS(services, node);
-}
-
-function isGlobalExpectExpression(node: ts.CallExpression) {
-  if (node.expression.kind !== ts.SyntaxKind.PropertyAccessExpression) {
-    return false;
-  }
-
-  // Walk up the chain of property accesses to find the innermost call expression
-  // This handles: expect(...).toHaveBeenCalled() as well as expect(...).not.toHaveBeenCalled()
-  // Also handles: expectObservable(...).toBe(...), expectSubscriptions(...).toBe(...), etc.
-  let current: ts.Expression = (node.expression as ts.PropertyAccessExpression).expression;
-  while (current.kind === ts.SyntaxKind.PropertyAccessExpression) {
-    current = (current as ts.PropertyAccessExpression).expression;
-  }
-
-  if (current.kind !== ts.SyntaxKind.CallExpression) {
-    return false;
-  }
-
-  const innerCallExpression = current as ts.CallExpression;
-  return (
-    innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
-    (innerCallExpression.expression as ts.Identifier).text.startsWith('expect')
-  );
-}
-
-function isFunctionCallFromNodeAssertTS(
-  services: ParserServicesWithTypeInformation,
-  node: ts.Node,
-): boolean {
-  const fqn = getFullyQualifiedNameTS(services, node);
-  return fqn ? fqn?.startsWith('assert') : false;
-}
-
-function isGlobalAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  if (node.type !== 'CallExpression') {
-    return false;
-  }
-  // Check for global expect (mirrors isGlobalExpectExpression for TS)
-  if (isGlobalExpectExpressionJS(node)) {
-    return true;
-  }
-  return isFunctionCallFromNodeAssert(context, node);
-}
-
-/**
- * Checks if the node matches the pattern expectX(...).method() where:
- * - expectX is a function whose name starts with "expect" (e.g., expect, expectObservable, expectSubscriptions, expectTypeOf)
- * - method is a chained property access with a method call (e.g., .toBe(), .toEqual(), .not.toBe())
- *
- * This mirrors the TypeScript isGlobalExpectExpression function logic.
- */
-function isGlobalExpectExpressionJS(node: estree.CallExpression): boolean {
-  if (node.callee.type !== 'MemberExpression') {
-    return false;
-  }
-
-  // Walk up the chain of member expressions to find the innermost call expression
-  // This handles: expect(...).toBe() as well as expect(...).not.toBe()
-  // Also handles: expectObservable(...).toBe(...), expectSubscriptions(...).toBe(...), etc.
-  let current: estree.Expression | estree.Super = node.callee.object;
-  while (current.type === 'MemberExpression') {
-    current = current.object;
-  }
-
-  if (current.type !== 'CallExpression') {
-    return false;
-  }
-
-  const innerCall = current;
-  return innerCall.callee.type === 'Identifier' && innerCall.callee.name.startsWith('expect');
-}
-
-function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node) {
-  const fullyQualifiedName = getFullyQualifiedName(context, node);
-  return fullyQualifiedName?.split('.')[0] === 'assert';
 }

@@ -41,6 +41,10 @@ export function isMochaTestConstruct(
   context: Rule.RuleContext,
   node: estree.CallExpression,
   constructs: string[],
+  // The parameterized `each` form (`describe.each(table)(name, fn)`) is opt-in: it
+  // is an executing test/suite, but some rules deliberately exclude parameterized
+  // titles (e.g. S8781 `no-empty-test-title`), so it is off by default.
+  { allowParameterized = false }: { allowParameterized?: boolean } = {},
 ): boolean {
   const calleeParts = getMochaCalleeParts(node.callee);
   if (calleeParts === undefined) {
@@ -52,7 +56,10 @@ export function isMochaTestConstruct(
     return false;
   }
 
-  return calleeParts.modifiers.every(modifier => isConcreteMochaTestModifier(context, modifier));
+  return calleeParts.modifiers.every(
+    modifier =>
+      (allowParameterized && modifier === 'each') || isConcreteMochaTestModifier(context, modifier),
+  );
 }
 
 export function isConcreteMochaTestModifier(context: Rule.RuleContext, modifier: string): boolean {
@@ -72,12 +79,21 @@ export function getMochaCalleeParts(
 ): { base: estree.Identifier; modifiers: string[] } | undefined {
   const modifiers: string[] = [];
   let current = node;
+  // Tracks whether the node we just descended from was a call application, so the
+  // curried `each` form (`X.each(table)(...)`) can be told apart from the bare
+  // factory (`X.each` / `X.each(table)`), which is not itself a test/suite.
+  let appliedAsCall = false;
   while (true) {
     if (current.type === 'CallExpression') {
       current = current.callee;
+      appliedAsCall = true;
     } else if (isQualifyingMember(current)) {
+      if (current.property.name === 'each' && !appliedAsCall) {
+        return undefined;
+      }
       modifiers.unshift(current.property.name);
       current = current.object;
+      appliedAsCall = false;
     } else {
       break;
     }

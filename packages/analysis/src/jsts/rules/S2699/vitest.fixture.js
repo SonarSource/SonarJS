@@ -2,9 +2,16 @@
 const vitest = require('vitest');
 const { describe, expect, it, expectTypeOf, assertType } = require('vitest');
 
+// entry stored in a variable; the matcher is invoked separately below.
+const storedTypeAssertion = expectTypeOf(it);
+
 describe('vitest test cases', () => {
   it('no assertion', () => { // Noncompliant {{Add at least one assertion to this test case.}}
     alert('msg');
+  });
+
+  it('matcher invoked on a stored expectTypeOf result', () => { // Compliant
+    storedTypeAssertion.toBeFunction();
   });
   
   it('expect', () => { // Compliant
