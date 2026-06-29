@@ -124,8 +124,7 @@ function extractResetRegex(
       const variable = getVariableFromName(context, node.object.name, node);
       if (variable) {
         const value = getUniqueWriteUsage(context, variable.name, node);
-        const regex = regexes.find(r => r.node === value);
-        if (regex) {
+        if (regexes.some(r => r.node === value)) {
           resets.add(variable);
         }
       }

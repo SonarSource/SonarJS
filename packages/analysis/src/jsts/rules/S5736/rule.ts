@@ -64,11 +64,11 @@ function isSafePolicy(policy: estree.Property): boolean {
   const { value } = policy;
   const values: Array<estree.Node | null> =
     value.type === 'ArrayExpression' ? value.elements : [value];
-  const sensitiveValue = values.find(
+  const hasSensitiveValue = values.some(
     v =>
       v?.type === 'Literal' &&
       typeof v.value === 'string' &&
       UNSAFE_REFERRER_POLICY_VALUES.has(v.value),
   );
-  return !Boolean(sensitiveValue);
+  return !hasSensitiveValue;
 }

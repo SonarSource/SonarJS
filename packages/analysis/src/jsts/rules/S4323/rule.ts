@@ -48,7 +48,7 @@ export const rule: Rule.RuleModule = {
       },
       'TSUnionType, TSIntersectionType': (node: estree.Node) => {
         const ancestors = context.sourceCode.getAncestors(node);
-        const declaration = ancestors.find(
+        const declaration = ancestors.some(
           ancestor => (ancestor as TSESTree.Node).type === 'TSTypeAliasDeclaration',
         );
         if (declaration) {
