@@ -1,5 +1,5 @@
 {
-  "title": "Native APIs should be preferred over Lodash and Underscore.js methods",
+  "title": "Standard APIs should be preferred over Lodash and Underscore methods",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {

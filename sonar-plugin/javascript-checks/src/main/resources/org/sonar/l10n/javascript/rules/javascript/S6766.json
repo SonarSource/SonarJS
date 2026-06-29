@@ -1,7 +1,7 @@
 {
   "title": "JSX special characters should be escaped",
   "type": "CODE_SMELL",
-  "status": "deprecated",
+  "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
     "constantCost": "5min"
@@ -29,5 +29,8 @@
     "js",
     "ts"
   ],
-  "defaultQualityProfiles": []
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
 }

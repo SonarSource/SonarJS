@@ -1,23 +1,21 @@
 {
-  "title": "Fixed waits and debug commands should not be used in tests",
+  "title": "Fixed waits and debug pauses should not be used in tests",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "MEDIUM"
     },
-    "attribute": "COMPLETE"
+    "attribute": "CLEAR"
   },
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
-    "constantCost": "20min"
+    "constantCost": "5min"
   },
   "tags": [
     "tests",
     "cypress",
-    "playwright",
-    "bad-practice",
-    "puppeteer"
+    "playwright"
   ],
   "extra": {
     "replacementRules": [],
@@ -28,9 +26,10 @@
   "sqKey": "S2925",
   "scope": "Tests",
   "defaultQualityProfiles": [
-    "Sonar way"
+    "Sonar way",
+    "Sonar agentic AI"
   ],
-  "quickfix": "infeasible",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
