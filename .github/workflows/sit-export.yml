@@ -8,38 +8,24 @@ on:
         required: true
         type: string
       rules_json:
-        description: "Changed rules JSON"
+        description: "Changed rules JSON (canonical SIT/FPS payload)"
         required: true
         type: string
       artifact_name:
         description: "Uploaded artifact name"
         required: true
         type: string
-      maven_targets_artifact_name:
-        description: "Optional Maven targets artifact containing the target plugin jar"
-        required: false
-        default: ""
-        type: string
       sonarjs_m2_artifact_name:
-        description: "Optional SonarJS Maven repository artifact containing the target plugin jar"
+        description: "Optional SonarJS Maven repository artifact containing a pre-built target plugin"
         required: false
         default: ""
         type: string
       build_plugin:
-        description: "Build the plugin jar in this checkout before export"
+        description: "Build the plugin from sources in this checkout before export"
         required: false
         default: false
         type: boolean
-      project_filter:
-        description: "Optional comma-separated project names for faster iteration"
-        required: false
-        default: ""
-        type: string
-      project_source:
-        description: "Project source to export (ruling or peachee)"
-        required: false
-        default: "ruling"
-        type: string
+
 jobs:
   sit-export:
     name: SIT Export
@@ -93,19 +79,12 @@ jobs:
         if: inputs.build_plugin && steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci
 
-      - name: Download SonarJS Maven artifacts
+      - name: Download pre-built SonarJS Maven artifacts
         if: inputs.sonarjs_m2_artifact_name != ''
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{ inputs.sonarjs_m2_artifact_name }}
           path: build/sonarjs-m2
-
-      - name: Download Maven target artifacts
-        if: inputs.maven_targets_artifact_name != ''
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: ${{ inputs.maven_targets_artifact_name }}
-          path: .
 
       - name: Build SonarJS plugin
         if: inputs.build_plugin
@@ -113,129 +92,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
-      - name: Checkout SIT tooling
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
-        with:
-          ref: ${{ github.sha }}
-          path: sit-tooling
-
       - name: Build SIT exporter
-        run: mvn -f sit-tooling/its/sit-exporter/pom.xml package -DskipTests -B -e -V
-
-      - name: Checkout peachee workspaces
-        if: inputs.project_source == 'peachee'
-        env:
-          PROJECT_FILTER: ${{ inputs.project_filter }}
-          PEACHEE_ROOT: ${{ github.workspace }}/sit-tooling/tools/sit/peachee-public
-        run: |
-          set -euo pipefail
-
-          projects=()
-          if [ -n "$PROJECT_FILTER" ]; then
-            IFS=',' read -r -a projects <<< "$PROJECT_FILTER"
-          else
-            mapfile -t projects < <(
-              jq -r 'keys[]' "$PEACHEE_ROOT/projects.json"
-            )
-          fi
-
-          if [ "${#projects[@]}" -eq 0 ]; then
-            echo "No peachee-js projects selected" >&2
-            exit 1
-          fi
-
-          mkdir -p build
-          available_projects=()
-          skipped_projects=()
-
-          for project in "${projects[@]}"; do
-            project="${project#"${project%%[![:space:]]*}"}"
-            project="${project%"${project##*[![:space:]]}"}"
-            [ -n "$project" ] || continue
-            echo "Checking out $project"
-            repo="$(jq -r --arg project "$project" '.[$project].repo // empty' "$PEACHEE_ROOT/projects.json")"
-            ref="$(jq -r --arg project "$project" '.[$project].ref // empty' "$PEACHEE_ROOT/projects.json")"
-            if [ -z "$repo" ] || [ -z "$ref" ]; then
-              echo "Missing repo/ref for peachee project $project" >&2
-              exit 1
-            fi
-
-            checkout_ok='false'
-            for attempt in 1 2 3; do
-              if [ "$attempt" -gt 1 ] && [ -d "$PEACHEE_ROOT/$project/workspace/.git" ]; then
-                rm -rf "$PEACHEE_ROOT/$project/workspace"
-              fi
-
-              set +e
-              (
-                mkdir -p "$PEACHEE_ROOT/$project/workspace"
-                cd "$PEACHEE_ROOT/$project/workspace"
-                git init
-                git remote add origin "$repo"
-                git fetch --depth 1 origin "$ref"
-                git checkout FETCH_HEAD
-              )
-              exit_code="$?"
-              set -e
-
-              if [ "$exit_code" -eq 0 ]; then
-                checkout_ok='true'
-                break
-              fi
-
-              if [ -d "$PEACHEE_ROOT/$project/workspace/.git" ]; then
-                rm -rf "$PEACHEE_ROOT/$project/workspace"
-              fi
-
-              if [ "$attempt" -lt 3 ]; then
-                echo "Checkout failed for $project (attempt $attempt), retrying in 10 seconds"
-                sleep 10
-              else
-                echo "Skipping peachee project $project after $attempt failed checkout attempts" >&2
-              fi
-            done
-
-            if [ "$checkout_ok" = 'true' ]; then
-              available_projects+=("$project")
-            else
-              skipped_projects+=("$project")
-            fi
-          done
-
-          if [ "${#available_projects[@]}" -eq 0 ]; then
-            echo "No peachee-js projects could be checked out" >&2
-            exit 1
-          fi
-
-          available_filter="$(
-            IFS=,
-            printf '%s' "${available_projects[*]}"
-          )"
-          printf '%s\n' "$available_filter" > build/peachee-project-filter.txt
-          echo "Using peachee-js projects (${#available_projects[@]}): $available_filter"
-
-          if [ "${#skipped_projects[@]}" -gt 0 ]; then
-            skipped_filter="$(
-              IFS=,
-              printf '%s' "${skipped_projects[*]}"
-            )"
-            echo "Skipped unavailable peachee-js projects: $skipped_filter"
-          fi
+        run: mvn -f its/sit-exporter/pom.xml package -DskipTests -B -e -V
 
       - name: Run SIT exporter
         env:
           RULES_JSON: ${{ inputs.rules_json }}
-          PROJECT_FILTER: ${{ inputs.project_filter }}
           CHECKOUT_REF: ${{ inputs.checkout_ref }}
-          PROJECT_SOURCE: ${{ inputs.project_source }}
-          PEACHEE_ROOT: ${{ github.workspace }}/sit-tooling/tools/sit/peachee-public
         run: |
           set -euo pipefail
 
           mkdir -p build/sit-export
           printf '%s\n' "$RULES_JSON" > build/sit-rules.json
-          projects_json="sit-tooling/packages/ruling/projects.json"
-          effective_project_filter="$PROJECT_FILTER"
 
           find_latest_plugin_jar() {
             local root="$1"
@@ -253,42 +121,16 @@ jobs:
             plugin_jar="$(find_latest_plugin_jar "$HOME/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin")"
           fi
           if [ -z "$plugin_jar" ]; then
-            echo "Could not find sonar-javascript-plugin-*-multi.jar in target directories or sonarjs-m2 artifact" >&2
+            echo "Could not find sonar-javascript-plugin-*-multi.jar" >&2
             exit 1
           fi
 
-          if [ "$PROJECT_SOURCE" = "peachee" ]; then
-            if [ -f build/peachee-project-filter.txt ]; then
-              effective_project_filter="$(tr -d '\n' < build/peachee-project-filter.txt)"
-            fi
-            manifest_args=(
-              --peachee-root "$PEACHEE_ROOT"
-              --output build/sit-projects.json
-            )
-            if [ -n "$effective_project_filter" ]; then
-              manifest_args+=(--project-filter "$effective_project_filter")
-            fi
-            node sit-tooling/tools/sit/generate-peachee-manifest.js "${manifest_args[@]}"
-            projects_json="build/sit-projects.json"
-          fi
-
-          if [ -n "$effective_project_filter" ]; then
-            project_count="$(printf '%s' "$effective_project_filter" | tr ',' '\n' | sed '/^$/d' | wc -l | tr -d ' ')"
-            echo "Running SIT exporter for $project_count project(s): $effective_project_filter"
-          fi
-
-          args=(
-            --projects-json "$projects_json"
-            --rules-json build/sit-rules.json
-            --output-dir build/sit-export
-            --plugin-jar "$plugin_jar"
+          java -jar its/sit-exporter/target/javascript-it-sit-exporter-*.jar \
+            --projects-json dev-tools/peach-analysis/javascript/projects.json \
+            --rules-json build/sit-rules.json \
+            --output-dir build/sit-export \
+            --plugin-jar "$plugin_jar" \
             --commit "$CHECKOUT_REF"
-          )
-          if [ -n "$effective_project_filter" ]; then
-            args+=(--project-filter "$effective_project_filter")
-          fi
-
-          java -jar sit-tooling/its/sit-exporter/target/javascript-it-sit-exporter-*.jar "${args[@]}"
 
       - name: Upload SIT export bundles
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

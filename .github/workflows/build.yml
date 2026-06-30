@@ -151,8 +151,7 @@ jobs:
     permissions: *read_permissions
     env: *shared_build_number
     outputs:
-      sit-has-rules: ${{ steps.detect_sit_rules.outputs.has_rules }}
-      sit-rules-json-b64: ${{ steps.detect_sit_rules.outputs.rules_json_b64 }}
+      sit-rules-json: ${{ steps.detect_sit_rules.outputs.rules_json }}
       plugin-version: ${{ steps.config-maven.outputs.project-version }}
     steps:
       - name: Checkout source code
@@ -177,41 +176,26 @@ jobs:
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - name: Detect changed SIT rules
         id: detect_sit_rules
+        if: github.event_name == 'pull_request'
         env:
-          EVENT_NAME: ${{ github.event_name }}
           BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
           BASE_REF: ${{ github.base_ref || '' }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -euo pipefail
 
-          if [ "$EVENT_NAME" != "pull_request" ]; then
-            echo 'has_rules=false' >> "$GITHUB_OUTPUT"
-            echo 'rules_json_b64=W10=' >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
           git fetch --no-tags --depth=200 origin "$BASE_REF"
-          if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+          if ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
             git fetch --no-tags origin "$BASE_SHA"
           fi
-          if ! git cat-file -e "$HEAD_SHA^{commit}" 2>/dev/null; then
+          if ! git cat-file -e "${HEAD_SHA}^{commit}" 2>/dev/null; then
             git fetch --no-tags origin "$HEAD_SHA"
           fi
-          rules_json="$(
-            ./run-node node_modules/.bin/tsx \
-              --tsconfig packages/tsconfig.test.json \
-              tools/sit/detect-changed-rules.ts \
-              --base "$BASE_SHA" \
-              --head "$HEAD_SHA"
-          )"
-          has_rules="$(jq -r 'if length > 0 then "true" else "false" end' <<< "$rules_json")"
-          rules_json_b64="$(printf '%s' "$rules_json" | base64 | tr -d '\n')"
 
-          {
-            echo "has_rules=$has_rules"
-            echo "rules_json_b64=$rules_json_b64"
-          } >> "$GITHUB_OUTPUT"
+          python3 dev-tools/scripts/sit_pr_fps/detect_changed_rules.py \
+            --base-sha "$BASE_SHA" \
+            --head-sha "$HEAD_SHA" \
+            --repo-root "$GITHUB_WORKSPACE"
       - &download_rspec_rule_data
         name: Download prepared RSPEC rule data
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -1329,27 +1313,27 @@ jobs:
           shadow1_project_key: SonarSource_SonarJS
           shadow1_platform: ${{ matrix.shadow-platform }}
 
-  sit_pr:
+  sit-pr-fps:
     name: SIT/FPS
     needs: [build]
     if: >-
       github.event_name == 'pull_request' &&
       github.event.pull_request.head.repo.fork == false &&
-      needs.build.outputs.sit-has-rules == 'true'
+      needs.build.outputs.sit-rules-json != '' &&
+      needs.build.outputs.sit-rules-json != '[]'
     permissions:
       actions: read
       contents: read
       id-token: write
       pull-requests: write
       statuses: write
-    uses: ./.github/workflows/sit-pr.yml
+    uses: ./.github/workflows/sit-pr-fps.yml
     with:
       pr_number: ${{ format('{0}', github.event.pull_request.number) }}
       base_sha: ${{ github.event.pull_request.base.sha }}
       head_sha: ${{ github.sha }}
-      rules_json_b64: ${{ needs.build.outputs.sit-rules-json-b64 }}
+      rules_json: ${{ needs.build.outputs.sit-rules-json }}
       plugin_version: ${{ needs.build.outputs.plugin-version }}
-      maven_targets_artifact_name: maven-targets-${{ github.sha }}
       sonarjs_m2_artifact_name: sonarjs-m2
     secrets: inherit
 

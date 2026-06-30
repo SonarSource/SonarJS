@@ -1,0 +1,206 @@
+{
+  "adamant-im": {
+    "repo": "https://github.com/Adamant-im/adamant-im",
+    "ref": "d18a11cb8db43da9da729976a14daf3d7035c94f",
+    "scannerProperties": {
+      "sonar.sources": "src",
+      "sonar.tests": "tests",
+      "sonar.exclusions": "**/node_modules/**/*,**/dist/**/*,**/build/**/*,**/dist-electron/**/*,**/public/**/*",
+      "sonar.test.inclusions": "**/*.test.*,**/*.spec.*,**/test/**/*,**/tests/**/*,**/__tests__/**/*,**/__mocks__/**/*",
+      "sonar.inclusions": "**/*.js,**/*.jsx,**/*.mjs,**/*.ts,**/*.tsx,**/*.vue",
+      "sonar.typescript.tsconfigPath": "tsconfig.json",
+      "sonar.sourceEncoding": "UTF-8"
+    }
+  },
+  "ag-grid": {
+    "repo": "https://github.com/ceolter/ag-grid",
+    "ref": "21a83bb5ed75cb4b8ce2d17a588a9d6f2c5398f5",
+    "scannerProperties": {
+      "sonar.sources": "./",
+      "sonar.tests": "./",
+      "sonar.inclusions": "**/*.js,**/*.jsx,**/*.mjs,**/*.ts,**/*.tsx,**/*.vue",
+      "sonar.exclusions": "**/dist/**,packages/ag-grid-community/**,packages/ag-grid-enterprise/**, **/*.test.ts, documentation/**, legacy/grid-packages/ag-grid-docs/**,**/node_modules/**/*",
+      "sonar.test.inclusions": "**/*.test.ts",
+      "sonar.test.exclusions": "documentation/**/*.test.ts, legacy/grid-packages/ag-grid-docs/**/*.test.ts",
+      "sonar.javascript.node.maxspace": "8192"
+    }
+  },
+  "angular": {
+    "repo": "https://github.com/angular/angular",
+    "ref": "843f425ec8cd2c89f4fc3b4a694254a782a334cf",
+    "scannerProperties": {
+      "sonar.sources": "packages",
+      "sonar.tests": "packages",
+      "sonar.test.inclusions": "**/test/**/*spec.ts",
+      "sonar.inclusions": "packages/**/src/**/*.ts",
+      "sonar.exclusions": "**/integrationtest/**/*,**/test/**/*spec.ts,**/node_modules/**/*",
+      "sonar.javascript.node.maxspace": "6144"
+    }
+  },
+  "apollo-client": {
+    "repo": "https://github.com/apollographql/apollo-client",
+    "ref": "be4280a3e40b2d7657450f282ec83657ae354d6d",
+    "scannerProperties": {
+      "sonar.sources": "src",
+      "sonar.exclusions": "**/__mocks__/**/*,**/node_modules/**/*",
+      "sonar.tests": "src",
+      "sonar.test.inclusions": "**/__tests__/**/*.ts,**/__tests__/**/*.tsx"
+    }
+  },
+  "bitcoinjs-lib": {
+    "repo": "https://github.com/bitcoinjs/bitcoinjs-lib",
+    "ref": "ab9fad5978bc1f4fb6542d1cde903d4427c3344e",
+    "scannerProperties": {
+      "sonar.sources": "ts_src",
+      "sonar.tests": "test",
+      "sonar.exclusions": "**/node_modules/**/*,**/dist/**/*,**/build/**/*",
+      "sonar.test.inclusions": "**/*.test.*,**/*.spec.*,**/test/**/*,**/tests/**/*,**/__tests__/**/*",
+      "sonar.inclusions": "**/*.js,**/*.jsx,**/*.mjs,**/*.ts,**/*.tsx,**/*.vue",
+      "sonar.typescript.tsconfigPath": "tsconfig.json"
+    }
+  },
+  "bootstrap": {
+    "repo": "https://github.com/twbs/bootstrap",
+    "ref": "5b9880aab34983dfa2352fe7db03243dbf2bbf02",
+    "scannerProperties": {
+      "sonar.sources": "js/src,scss",
+      "sonar.tests": "js/tests",
+      "sonar.css.file.suffixes": ".css,.less,.scss",
+      "sonar.exclusions": "**/node_modules/**/*"
+    }
+  },
+  "chartjs": {
+    "repo": "https://github.com/chartjs/Chart.js",
+    "ref": "a153556861074e827358446ec937555ac58c3d11",
+    "scannerProperties": {
+      "sonar.sources": "src",
+      "sonar.tests": "test/specs",
+      "sonar.exclusions": "**/node_modules/**/*"
+    }
+  },
+  "date-fns": {
+    "repo": "https://github.com/date-fns/date-fns",
+    "ref": "dd66398305c2b015fba3c1b3d31ccff42ee8d4cf",
+    "scannerProperties": {
+      "sonar.sources": "src",
+      "sonar.tests": "test,src",
+      "sonar.exclusions": "**/node_modules/**/*,**/dist/**/*,**/build/**/*,**/tmp/**/*,**/examples/**/*,**/scripts/**/*,**/submodules/**/*,**/codemods/**/*",
+      "sonar.test.inclusions": "**/*.test.*,**/*.spec.*,**/test/**/*,**/tests/**/*,**/__tests__/**/*,**/test.ts",
+      "sonar.inclusions": "**/*.js,**/*.jsx,**/*.mjs,**/*.ts,**/*.tsx,**/*.vue",
+      "sonar.typescript.tsconfigPaths": "tsconfig.json,src/tsconfig.json"
+    }
+  },
+  "eslint": {
+    "repo": "https://github.com/eslint/eslint",
+    "ref": "af764af0ec38225755fbf8a6f207f0c77b595a8d",
+    "scannerProperties": {
+      "sonar.sources": "lib/",
+      "sonar.tests": "tests",
+      "sonar.javascript.node.maxspace": "6000",
+      "sonar.exclusions": "**/node_modules/**/*"
+    }
+  },
+  "formik": {
+    "repo": "https://github.com/jaredpalmer/formik",
+    "ref": "91475adbf33579561e580eceea0c031f4ec2e992",
+    "scannerProperties": {
+      "sonar.sources": "packages/formik/src,packages/formik-native/src",
+      "sonar.tests": "packages/formik/test,packages/formik-native/test",
+      "sonar.inclusions": "**/*.js,**/*.jsx,**/*.mjs,**/*.ts,**/*.tsx,**/*.vue",
+      "sonar.exclusions": "**/node_modules/**/*"
+    }
+  },
+  "jest": {
+    "repo": "https://github.com/facebook/jest",
+    "ref": "399b831484e372c07e03a634a197f3b9f5a261f7",
+    "scannerProperties": {
+      "sonar.sources": ".",
+      "sonar.inclusions": "**/*.js,**/*.jsx,**/*.mjs,**/*.ts,**/*.tsx,**/*.vue",
+      "sonar.exclusions": "**/__tests__/**,**/__mocks__/**/*,**/node_modules/**/*",
+      "sonar.javascript.node.maxspace": "4096"
+    }
+  },
+  "jquery": {
+    "repo": "https://github.com/jquery/jquery",
+    "ref": "8ad1b91476f92cec628949c9a32262e9c639c040",
+    "scannerProperties": {
+      "sonar.sources": "src",
+      "sonar.exclusions": "**/node_modules/**/*"
+    }
+  },
+  "prettier": {
+    "repo": "https://github.com/prettier/prettier",
+    "ref": "5ad0f9c4e94843164fe9cb61975dea31f66fb028",
+    "scannerProperties": {
+      "sonar.sources": "src",
+      "sonar.inclusions": "**/*.js,**/*.jsx,**/*.mjs,**/*.ts,**/*.tsx,**/*.vue",
+      "sonar.exclusions": "**/node_modules/**/*"
+    }
+  },
+  "react": {
+    "repo": "https://github.com/facebook/react",
+    "ref": "705268dcd16779b1f51f234cebaa588d761202ce",
+    "scannerProperties": {
+      "sonar.sources": ".",
+      "sonar.inclusions": "**/*.js,**/*.jsx,**/*.mjs,**/*.ts,**/*.tsx,**/*.vue",
+      "sonar.exclusions": "**/__tests__/**,fixtures/**,**/node_modules/**/*"
+    }
+  },
+  "react-native": {
+    "repo": "https://github.com/facebook/react-native",
+    "ref": "8dede75fe35a56fe31969c4829afc96010e174b0",
+    "scannerProperties": {
+      "sonar.sources": ".",
+      "sonar.inclusions": "**/*.js,**/*.jsx,**/*.mjs,**/*.ts,**/*.tsx,**/*.vue",
+      "sonar.exclusions": "**/node_modules/**/*,**/__fixtures__/output/**,packages/react-native/Libraries/Renderer/implementations/*-dev.js"
+    }
+  },
+  "rollup": {
+    "repo": "https://github.com/rollup/rollup",
+    "ref": "186b352f3b028c5733c47dadacd565e303567e9d",
+    "scannerProperties": {
+      "sonar.sources": "src",
+      "sonar.inclusions": "**/*.js,**/*.jsx,**/*.mjs,**/*.ts,**/*.tsx,**/*.vue",
+      "sonar.exclusions": "**/node_modules/**/*"
+    }
+  },
+  "rxjs": {
+    "repo": "https://github.com/ReactiveX/rxjs",
+    "ref": "c15b37f81ba5f5abea8c872b0189a70b150df4cb",
+    "scannerProperties": {
+      "sonar.sources": "packages/rxjs/src",
+      "sonar.inclusions": "**/*.js,**/*.jsx,**/*.mjs,**/*.ts,**/*.tsx,**/*.vue",
+      "sonar.exclusions": "**/node_modules/**/*"
+    }
+  },
+  "typescript": {
+    "repo": "https://github.com/Microsoft/TypeScript",
+    "ref": "c7a0ae102dfb030c534a7bc31fbbd61a707dc9cf",
+    "scannerProperties": {
+      "sonar.sources": "src",
+      "sonar.exclusions": "src/lib/**/*,**/node_modules/**/*",
+      "sonar.inclusions": "**/*.js,**/*.jsx,**/*.mjs,**/*.ts,**/*.tsx,**/*.vue",
+      "sonar.javascript.node.maxspace": "4096"
+    }
+  },
+  "vue": {
+    "repo": "https://github.com/vuejs/vue",
+    "ref": "9e88707940088cb1f4cd7dd210c9168a50dc347c",
+    "scannerProperties": {
+      "sonar.sources": "src,packages",
+      "sonar.inclusions": "**/*.js,**/*.jsx,**/*.mjs,**/*.ts,**/*.tsx,**/*.vue",
+      "sonar.exclusions": ",**/node_modules/**/*"
+    }
+  },
+  "vueuse": {
+    "repo": "https://github.com/vueuse/vueuse",
+    "ref": "0d98998ad56d99899d390f3f8d73a9955f77750e",
+    "scannerProperties": {
+      "sonar.sources": "packages",
+      "sonar.tests": "test",
+      "sonar.exclusions": "**/node_modules/**/*,**/dist/**/*,**/build/**/*,**/.vitepress/**/*,**/metadata.mjs,**/metadata.d.mts,playgrounds/**/*,scripts/**/*,**/*.test.*,**/*.spec.*",
+      "sonar.test.inclusions": "**/*.test.*,**/*.spec.*",
+      "sonar.typescript.tsconfigPath": "tsconfig.json"
+    }
+  }
+}
