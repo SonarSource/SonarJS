@@ -49,6 +49,7 @@ describe('S8959', () => {
               foo.pause();
               foo.debug();
               await adminPage.pause();
+              await page.locator('button.save').pause();
               const myPage = page;
               await myPage.pause();
             });
@@ -103,6 +104,15 @@ describe('S8959', () => {
           `,
           filename: 'tests/save-user.spec.js',
           errors: [{ messageId: 'removeDebugCommand' }, { messageId: 'removeDebugCommand' }],
+        },
+        {
+          code: `
+            it('uses chained Cypress pause helpers', () => {
+              cy.visit('/').pause();
+            });
+          `,
+          filename: 'cypress/e2e/visit.cy.js',
+          errors: [{ messageId: 'removeDebugCommand' }],
         },
         {
           code: `
