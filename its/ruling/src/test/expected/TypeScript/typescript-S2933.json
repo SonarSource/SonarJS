@@ -1,38 +1,38 @@
 {
 "TypeScript:scripts/buildProtocol.ts": [
-15
+10
 ],
 "TypeScript:src/compiler/core.ts": [
-75
+70
 ],
 "TypeScript:src/harness/compilerRunner.ts": [
-21
+11
 ],
 "TypeScript:src/harness/fourslash.ts": [
 129,
-256,
-3337,
-3366,
-3433,
-3844,
-3895,
-3959,
-3988
+182,
+3336,
+3365,
+3418,
+3843,
+3894,
+3958,
+3987
 ],
 "TypeScript:src/harness/fourslashRunner.ts": [
-16
+12
 ],
 "TypeScript:src/harness/harness.ts": [
-1682
+1675
 ],
 "TypeScript:src/harness/harnessLanguageService.ts": [
-233,
-249,
-335,
-378,
-510,
-599,
-813
+231,
+243,
+334,
+377,
+507,
+594,
+810
 ],
 "TypeScript:src/harness/rwcRunner.ts": [
 237
@@ -41,67 +41,67 @@
 6
 ],
 "TypeScript:src/harness/typeWriter.ts": [
-15
+9
 ],
 "TypeScript:src/harness/virtualFileSystem.ts": [
 54,
-100
+94
 ],
 "TypeScript:src/server/builder.ts": [
-89
+80
 ],
 "TypeScript:src/server/client.ts": [
-41
+35
 ],
 "TypeScript:src/server/editorServices.ts": [
-346
+288
 ],
 "TypeScript:src/server/project.ts": [
-183,
-780,
-846
+111,
+740,
+833
 ],
 "TypeScript:src/server/scriptInfo.ts": [
-173
+160
 ],
 "TypeScript:src/server/server.ts": [
-143,
-229
+137,
+221
 ],
 "TypeScript:src/server/session.ts": [
-371
+353
 ],
 "TypeScript:src/server/utilities.ts": [
-197
+195
 ],
 "TypeScript:src/services/formatting/ruleOperationContext.ts": [
-9
+6
 ],
 "TypeScript:src/services/formatting/rulesMap.ts": [
-138
+135
 ],
 "TypeScript:src/services/formatting/rulesProvider.ts": [
-10
+5
 ],
 "TypeScript:src/services/services.ts": [
-805,
-890,
-999,
-1021
+800,
+882,
+998,
+1015
 ],
 "TypeScript:src/services/shims.ts": [
-281,
-322,
-476,
-578,
-605,
-1002,
-1029
+280,
+313,
+470,
+577,
+601,
+998,
+1026
 ],
 "TypeScript:src/services/textChanges.ts": [
-164
+156
 ],
 "TypeScript:src/services/types.ts": [
-102
+100
 ]
 }
