@@ -80,9 +80,6 @@
 "eigen:src/app/Scenes/SellWithArtsy/Components/ArtistList.tsx": [
 135
 ],
-"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/SubmitArtwork.tsx": [
-165
-],
 "eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/UploadPhotos/UploadPhotosForm.tsx": [
 160
 ],
@@ -98,9 +95,6 @@
 "eigen:src/app/utils/placeholders.tsx": [
 157
 ],
-"eigen:src/palette/elements/CollapsibleMenuItem/CollapsibleMenuItem.stories.tsx": [
-130
-],
 "eigen:src/palette/elements/Histogram/Histogram.tsx": [
 43
 ],
@@ -113,8 +107,5 @@
 ],
 "eigen:src/palette/elements/Tabs/ContentTabs.tsx": [
 17
-],
-"eigen:src/palette/elements/Tabs/Tabs.tests.tsx": [
-51
 ]
 }
