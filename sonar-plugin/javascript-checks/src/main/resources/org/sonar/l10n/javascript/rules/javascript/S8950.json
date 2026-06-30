@@ -1,12 +1,6 @@
 {
-  "title": "Props with default values should be optional",
+  "title": "Vue props with a default value should not be required",
   "type": "CODE_SMELL",
-  "code": {
-    "impacts": {
-      "MAINTAINABILITY": "LOW"
-    },
-    "attribute": "LOGICAL"
-  },
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
@@ -15,14 +9,27 @@
   "tags": [
     "vue"
   ],
+  "extra": {
+    "requiredDependency": [
+      "vue"
+    ]
+  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-8950",
   "sqKey": "S8950",
   "scope": "Main",
-  "quickfix": "unknown",
+  "quickfix": "targeted",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "LOGICAL"
+  },
   "compatibleLanguages": [
     "js",
     "ts"
   ],
-  "defaultQualityProfiles": []
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
 }
