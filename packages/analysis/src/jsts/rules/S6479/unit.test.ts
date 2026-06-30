@@ -80,7 +80,37 @@ export const MyComponent = ({items}) => {
     return <>{items.map((_item, index) => {
       return <div key={computeKey(index)}/>;
     })}</>;
-} // this test should trigger the rule but it seems ESLint is missing it
+}
+`,
+        },
+        {
+          code: `
+export const MyComponent = () => {
+    return <>{Array.from({ length: 3 }).map((_item, index) => {
+      return <div key={index}>{index}</div>;
+    })}</>;
+}
+`,
+        },
+        {
+          code: `
+export const MyComponent = () => {
+    return <>{['left', 'center', 'right'].map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+        },
+        {
+          code: `
+export const MyComponent = () => {
+    const tabs = ['home', 'settings', 'profile'];
+    const staticTabs = tabs;
+
+    return <>{staticTabs.map((tab, index) => {
+      return <div key={index}>{tab}</div>;
+    })}</>;
+}
 `,
         },
       ],
@@ -100,6 +130,30 @@ export const MyComponent = ({items}) => {
 export const MyComponent = ({items}) => {
     return <>{items.map((item, index) => {
       return <div key={\`\${index}\`}>{item.id}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        {
+          code: `
+export const MyComponent = ({items}) => {
+    return <>{[...items].map((item, index) => {
+      return <div key={index}>{item.id}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        {
+          code: `
+export const MyComponent = () => {
+    const items = [];
+    items.push('left');
+    items.push('right');
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
     })}</>;
 }
 `,
