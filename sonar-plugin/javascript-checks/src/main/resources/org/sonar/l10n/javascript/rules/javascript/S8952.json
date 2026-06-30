@@ -1,0 +1,15 @@
+{
+  "title": "Vue component props should declare their type",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": { "func": "Constant/Issue", "constantCost": "5min" },
+  "tags": ["vue"],
+  "extra": { "requiredDependency": ["vue"] },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8952",
+  "sqKey": "S8952",
+  "scope": "Main",
+  "code": { "impacts": { "MAINTAINABILITY": "LOW" }, "attribute": "LOGICAL" },
+  "compatibleLanguages": ["js", "ts"],
+  "defaultQualityProfiles": []
+}
