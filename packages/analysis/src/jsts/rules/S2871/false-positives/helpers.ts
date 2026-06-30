@@ -20,7 +20,7 @@ import type estree from 'estree';
 import type { RequiredParserServices } from '../../helpers/parser-services.js';
 import { getNodeParent } from '../../helpers/ancestor.js';
 import { copyingSortLike, sortLike } from '../../helpers/collection.js';
-import { isIdentifier } from '../../helpers/ast.js';
+import { isIdentifier, isStaticMethodCall } from '../../helpers/ast.js';
 import {
   getTypeFromTreeNode,
   isArrayLikeType,
@@ -74,22 +74,8 @@ export type ComparatorlessSortCallInfo = {
  * custom objects exposing a `stringify` method.
  */
 export function isJsonStringifyCall(node: estree.Node | null): node is estree.CallExpression {
-  if (node?.type !== 'CallExpression') {
-    return false;
-  }
-  if (node.arguments.length !== 1) {
-    return false;
-  }
-  const callee = node.callee;
-  if (callee.type !== 'MemberExpression') {
-    return false;
-  }
   return (
-    !callee.computed &&
-    callee.object.type === 'Identifier' &&
-    callee.object.name === 'JSON' &&
-    callee.property.type === 'Identifier' &&
-    callee.property.name === 'stringify'
+    node !== null && isStaticMethodCall(node, 'JSON', 'stringify') && node.arguments.length === 1
   );
 }
 

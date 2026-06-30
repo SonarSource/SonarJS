@@ -170,6 +170,30 @@ export function isMethodInvocation(
   );
 }
 
+/**
+ * Checks whether a node is a call to the static method `objectName.methodName(...)`,
+ * e.g. `JSON.stringify(...)`.
+ *
+ * The receiver must be a plain, non-computed member access on an identifier named
+ * `objectName`; the argument count is not constrained, so callers that care about
+ * arity (e.g. exactly one argument) should check `node.arguments.length` themselves.
+ * Does not match computed access such as `JSON['stringify'](...)`, and the match is
+ * purely syntactic on the identifier name (a shadowing local `objectName` still matches).
+ */
+export function isStaticMethodCall(
+  node: estree.Node,
+  objectName: string,
+  methodName: string,
+): node is estree.CallExpression {
+  return (
+    node.type === 'CallExpression' &&
+    node.callee.type === 'MemberExpression' &&
+    !node.callee.computed &&
+    isIdentifier(node.callee.object, objectName) &&
+    isIdentifier(node.callee.property, methodName)
+  );
+}
+
 export function isFunctionInvocation(
   callExpression: estree.CallExpression,
   functionName: string,
