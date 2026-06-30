@@ -1,0 +1,16 @@
+{
+  "title": "Vue component emits should be explicitly declared",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": { "func": "Constant/Issue", "constantCost": "5min" },
+  "tags": ["vue"],
+  "extra": { "requiredDependency": ["vue"] },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8953",
+  "sqKey": "S8961",
+  "scope": "Main",
+  "quickfix": "covered",
+  "code": { "impacts": { "MAINTAINABILITY": "LOW" }, "attribute": "LOGICAL" },
+  "compatibleLanguages": ["js", "ts"],
+  "defaultQualityProfiles": []
+}
