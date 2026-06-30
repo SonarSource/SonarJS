@@ -18,7 +18,7 @@
   "ruleSpecification": "RSPEC-8950",
   "sqKey": "S8950",
   "scope": "Main",
-  "quickfix": "targeted",
+  "quickfix": "covered",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "LOW"
