@@ -53,10 +53,14 @@ export const rule: Rule.RuleModule = {
 
 function isUiTestDebugCommand(callee: estree.MemberExpression & { property: estree.Identifier }) {
   const { object, property } = callee;
-  return (
-    ((property.name === 'pause' || property.name === 'debug') && chainStartsWithCy(object)) ||
-    (property.name === 'pause' && isIdentifier(object, 'page'))
-  );
+  switch (property.name) {
+    case 'pause':
+      return chainStartsWithCy(object) || isIdentifier(object, 'page');
+    case 'debug':
+      return chainStartsWithCy(object);
+    default:
+      return false;
+  }
 }
 
 function reportDebugCommand(context: Rule.RuleContext, node: estree.Node) {
