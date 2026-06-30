@@ -88,6 +88,14 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
           ],
         ],
       }),
+      // eslint-plugin-vue legacy configs use require.resolve() to chain parent configs and set the
+      // parser. SonarJS only uses pluginVue.rules; the configs are never applied. Replacing
+      // require.resolve(...) with its string argument avoids a MODULE_NOT_FOUND crash at bridge
+      // startup caused by the bundled modules having no real on-disk paths.
+      textReplace({
+        include: /node_modules[/\\]eslint-plugin-vue[/\\]dist[/\\]configs[/\\](?!flat)[^/\\]+\.js$/,
+        pattern: [[/require\.resolve\(([^)]+)\)/g, '$1']],
+      }),
       // Remove dynamic import of espree on ESLint Rule tester. In any case, it's never used in the bundle
       textReplace({
         include: /node_modules[/\\]eslint[/\\]lib[/\\]rule-tester[/\\]rule-tester\.js$/,
