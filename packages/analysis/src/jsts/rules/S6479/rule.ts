@@ -160,7 +160,7 @@ function hasStaticListSource(source: AstNode, context: Rule.RuleContext): boolea
 function isStaticArrayExpression(node: AstNode | null | undefined): boolean {
   return (
     node?.type === 'ArrayExpression' &&
-    node.elements.every(element => element === null || element.type !== 'SpreadElement')
+    node.elements.every(element => element?.type !== 'SpreadElement')
   );
 }
 
