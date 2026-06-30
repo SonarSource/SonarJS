@@ -1,32 +1,32 @@
 {
 "Joust:ts/MetaData.ts": [
-5
+4
 ],
 "Joust:ts/components/LoadingScreen.tsx": [
 8
 ],
 "Joust:ts/components/Scrubber.tsx": [
-43
+39
 ],
 "Joust:ts/components/SetupWidget.tsx": [
-32
+29
 ],
 "Joust:ts/components/Timeline.tsx": [
-27
+20
 ],
 "Joust:ts/components/game/EntityInPlay.tsx": [
-13
+7
 ],
 "Joust:ts/components/game/visuals/CardArt.tsx": [
-24
+22
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
-49
+33
 ],
 "Joust:ts/protocol/KettleEncoder.ts": [
-13
+8
 ],
 "Joust:ts/state/GameStateDescriptor.ts": [
-7
+5
 ]
 }

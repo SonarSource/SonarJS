@@ -1,29 +1,29 @@
 {
 "fresh:packages/fresh/src/app.ts": [
-188
+166
 ],
 "fresh:packages/fresh/src/build_cache.ts": [
-56,
+50,
 97
 ],
 "fresh:packages/fresh/src/context.ts": [
-135
+63
 ],
 "fresh:packages/fresh/src/dev/builder.ts": [
-127
+119
 ],
 "fresh:packages/fresh/src/dev/dev_build_cache.ts": [
-76,
-253
+62,
+240
 ],
 "fresh:packages/fresh/src/dev/file_transformer.ts": [
-65
+60
 ],
 "fresh:packages/fresh/src/router.ts": [
 57
 ],
 "fresh:packages/fresh/src/test_utils.ts": [
-168
+161
 ],
 "fresh:packages/fresh/src/utils.ts": [
 53

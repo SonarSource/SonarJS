@@ -3,7 +3,7 @@
 5
 ],
 "eigen:src/app/Components/Bidding/Screens/CreditCardForm.tsx": [
-31
+28
 ],
 "eigen:src/app/Scenes/Collection/Collection.tsx": [
 27
@@ -12,18 +12,18 @@
 6
 ],
 "eigen:src/app/Scenes/MyBids/helpers/timely.ts": [
-32
+24
 ],
 "eigen:src/app/navigation/RouteMatcher.ts": [
-10
+8
 ],
 "eigen:src/app/utils/volleyClient.ts": [
 67
 ],
 "eigen:src/palette/elements/Autocomplete/AutoSuggest.tsx": [
-81
+79
 ],
 "eigen:src/palette/elements/Autocomplete/Autocomplete.ts": [
-12
+9
 ]
 }

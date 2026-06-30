@@ -1,102 +1,102 @@
 {
 "desktop:app/src/crash/crash-app.tsx": [
-90
+89
 ],
 "desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
-66
+51
 ],
 "desktop:app/src/lib/api.ts": [
-693
+671
 ],
 "desktop:app/src/lib/databases/base-database.ts": [
-6
+3
 ],
 "desktop:app/src/lib/markdown-filters/close-keyword-filter.ts": [
-57
+36
 ],
 "desktop:app/src/lib/markdown-filters/commit-mention-filter.ts": [
-149
+31
 ],
 "desktop:app/src/lib/mouse-scroller.ts": [
 14
 ],
 "desktop:app/src/lib/stats/stats-store.ts": [
-412
+404
 ],
 "desktop:app/src/lib/stores/accounts-store.ts": [
-58
+49
 ],
 "desktop:app/src/lib/stores/alive-store.ts": [
-63
+53
 ],
 "desktop:app/src/lib/stores/api-repositories-store.ts": [
-99
+87
 ],
 "desktop:app/src/lib/stores/app-store.ts": [
-486
+369
 ],
 "desktop:app/src/lib/stores/helpers/tutorial-assessor.ts": [
-32
+18
 ],
 "desktop:app/src/lib/stores/issues-store.ts": [
-35
+29
 ],
 "desktop:app/src/lib/stores/notifications-store.ts": [
-76
+68
 ],
 "desktop:app/src/lib/stores/repositories-store.ts": [
-58
+38
 ],
 "desktop:app/src/lib/stores/sign-in-store.ts": [
 198
 ],
 "desktop:app/src/lib/tailer.ts": [
-21
+13
 ],
 "desktop:app/src/lib/text-token-parser.ts": [
-63
+56
 ],
 "desktop:app/src/lib/trampoline/trampoline-server.ts": [
-36
+27
 ],
 "desktop:app/src/main-process/app-window.ts": [
-42
+29
 ],
 "desktop:app/src/main-process/desktop-file-transport.ts": [
-41
+37
 ],
 "desktop:app/src/ui/about/about.tsx": [
-67
+64
 ],
 "desktop:app/src/ui/add-repository/add-existing-repository.tsx": [
-63
+59
 ],
 "desktop:app/src/ui/add-repository/create-repository.tsx": [
-117
+113
 ],
 "desktop:app/src/ui/app-error.tsx": [
-53
+49
 ],
 "desktop:app/src/ui/app-menu/app-menu-bar-button.tsx": [
 150
 ],
 "desktop:app/src/ui/app-menu/app-menu-bar.tsx": [
-114
+82
 ],
 "desktop:app/src/ui/app-menu/app-menu.tsx": [
-112
+87
 ],
 "desktop:app/src/ui/app-menu/menu-pane.tsx": [
-153
+150
 ],
 "desktop:app/src/ui/app-theme.tsx": [
 29
 ],
 "desktop:app/src/ui/app.tsx": [
-228
+197
 ],
 "desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx": [
-120
+103
 ],
 "desktop:app/src/ui/banners/cherry-pick-conflicts-banner.tsx": [
 16
@@ -120,58 +120,58 @@
 27
 ],
 "desktop:app/src/ui/branches/branch-list-item.tsx": [
-57
+53
 ],
 "desktop:app/src/ui/branches/branch-list.tsx": [
-162
+156
 ],
 "desktop:app/src/ui/branches/branches-container.tsx": [
-93
-],
-"desktop:app/src/ui/branches/ci-status.tsx": [
-42
-],
-"desktop:app/src/ui/branches/pull-request-badge.tsx": [
-39
-],
-"desktop:app/src/ui/branches/pull-request-list-item.tsx": [
-69
-],
-"desktop:app/src/ui/branches/pull-request-list.tsx": [
-113
-],
-"desktop:app/src/ui/branches/push-branch-commits.tsx": [
 73
 ],
+"desktop:app/src/ui/branches/ci-status.tsx": [
+36
+],
+"desktop:app/src/ui/branches/pull-request-badge.tsx": [
+32
+],
+"desktop:app/src/ui/branches/pull-request-list-item.tsx": [
+65
+],
+"desktop:app/src/ui/branches/pull-request-list.tsx": [
+109
+],
+"desktop:app/src/ui/branches/push-branch-commits.tsx": [
+69
+],
 "desktop:app/src/ui/change-repository-alias/change-repository-alias-dialog.tsx": [
-23
+19
 ],
 "desktop:app/src/ui/changes/changed-file.tsx": [
 25
 ],
 "desktop:app/src/ui/changes/changes-list.tsx": [
-242
+236
 ],
 "desktop:app/src/ui/changes/changes.tsx": [
 54
 ],
 "desktop:app/src/ui/changes/commit-message-avatar.tsx": [
-62
+58
 ],
 "desktop:app/src/ui/changes/commit-message.tsx": [
-168
+155
 ],
 "desktop:app/src/ui/changes/continue-rebase.tsx": [
 20
 ],
 "desktop:app/src/ui/changes/no-changes.tsx": [
-184
+168
 ],
 "desktop:app/src/ui/changes/oversized-files-warning.tsx": [
-24
+23
 ],
 "desktop:app/src/ui/changes/sidebar.tsx": [
-84
+79
 ],
 "desktop:app/src/ui/check-runs/ci-check-re-run-button.tsx": [
 17
@@ -180,52 +180,52 @@
 21
 ],
 "desktop:app/src/ui/check-runs/ci-check-run-list-item.tsx": [
-63
-],
-"desktop:app/src/ui/check-runs/ci-check-run-list.tsx": [
 59
 ],
+"desktop:app/src/ui/check-runs/ci-check-run-list.tsx": [
+55
+],
 "desktop:app/src/ui/check-runs/ci-check-run-popover.tsx": [
-67
+61
 ],
 "desktop:app/src/ui/check-runs/ci-check-run-rerun-dialog.tsx": [
-53
+49
 ],
 "desktop:app/src/ui/choose-fork-settings/choose-fork-settings-dialog.tsx": [
-40
+36
 ],
 "desktop:app/src/ui/clone-repository/clone-generic-repository.tsx": [
 28
 ],
 "desktop:app/src/ui/clone-repository/clone-repository.tsx": [
-150
+146
 ],
 "desktop:app/src/ui/clone-repository/cloneable-repository-filter-list.tsx": [
 114
 ],
 "desktop:app/src/ui/commit-message/commit-message-dialog.tsx": [
-100
+96
 ],
 "desktop:app/src/ui/create-branch/create-branch-dialog.tsx": [
-104
+100
 ],
 "desktop:app/src/ui/create-tag/create-tag-dialog.tsx": [
-42
+38
 ],
 "desktop:app/src/ui/delete-branch/delete-branch-dialog.tsx": [
-29
+25
 ],
 "desktop:app/src/ui/delete-branch/delete-pull-request-dialog.tsx": [
 21
 ],
 "desktop:app/src/ui/delete-branch/delete-remote-branch-dialog.tsx": [
-24
+20
 ],
 "desktop:app/src/ui/delete-tag/delete-tag-dialog.tsx": [
-24
+20
 ],
 "desktop:app/src/ui/dialog/dialog.tsx": [
-155
+140
 ],
 "desktop:app/src/ui/dialog/header.tsx": [
 49
@@ -237,118 +237,118 @@
 19
 ],
 "desktop:app/src/ui/diff/code-mirror-host.tsx": [
-117
+95
 ],
 "desktop:app/src/ui/diff/diff-options.tsx": [
-34
+28
 ],
 "desktop:app/src/ui/diff/diff-search-input.tsx": [
-26
+22
 ],
 "desktop:app/src/ui/diff/image-diffs/image-container.tsx": [
 16
 ],
 "desktop:app/src/ui/diff/image-diffs/modified-image-diff.tsx": [
-68
+59
 ],
 "desktop:app/src/ui/diff/image-diffs/onion-skin.tsx": [
-13
+9
 ],
 "desktop:app/src/ui/diff/image-diffs/swipe.tsx": [
-16
+12
 ],
 "desktop:app/src/ui/diff/index.tsx": [
-111
+110
 ],
 "desktop:app/src/ui/diff/seamless-diff-switcher.tsx": [
-182
+144
 ],
 "desktop:app/src/ui/diff/side-by-side-diff-row.tsx": [
-146
+142
 ],
 "desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-201
+192
 ],
 "desktop:app/src/ui/diff/text-diff.tsx": [
-380
+288
 ],
 "desktop:app/src/ui/diff/whitespace-hint-popover.tsx": [
 17
 ],
 "desktop:app/src/ui/discard-changes/discard-changes-dialog.tsx": [
-49
+45
 ],
 "desktop:app/src/ui/discard-changes/discard-changes-retry-dialog.tsx": [
-25
+21
 ],
 "desktop:app/src/ui/discard-changes/discard-selection-dialog.tsx": [
-52
+48
 ],
 "desktop:app/src/ui/dispatcher/dispatcher.ts": [
-142
+139
 ],
 "desktop:app/src/ui/dropdown-select-button.tsx": [
-64
+57
 ],
 "desktop:app/src/ui/editor/editor-error.tsx": [
-42
+41
 ],
 "desktop:app/src/ui/forks/create-fork-dialog.tsx": [
-39
+35
 ],
 "desktop:app/src/ui/generic-git-auth/generic-git-auth.tsx": [
-40
+36
 ],
 "desktop:app/src/ui/history/commit-list-item.tsx": [
-71
+67
 ],
 "desktop:app/src/ui/history/commit-list.tsx": [
 138
 ],
 "desktop:app/src/ui/history/commit-summary.tsx": [
-151
+142
 ],
 "desktop:app/src/ui/history/committed-file-item.tsx": [
 17
 ],
 "desktop:app/src/ui/history/compare.tsx": [
-82
+72
 ],
 "desktop:app/src/ui/history/file-list.tsx": [
 21
 ],
 "desktop:app/src/ui/history/merge-call-to-action-with-conflicts.tsx": [
-65
+32
 ],
 "desktop:app/src/ui/history/merge-call-to-action.tsx": [
 21
 ],
 "desktop:app/src/ui/history/selected-commit.tsx": [
-101
+94
 ],
 "desktop:app/src/ui/install-git/install.tsx": [
-29
+28
 ],
 "desktop:app/src/ui/invalidated-token/invalidated-token.tsx": [
 19
 ],
 "desktop:app/src/ui/lfs/attribute-mismatch.tsx": [
-24
+20
 ],
 "desktop:app/src/ui/lfs/initialize-lfs.tsx": [
 32
 ],
 "desktop:app/src/ui/lib/authentication-form.tsx": [
-82
+78
 ],
 "desktop:app/src/ui/lib/author-input.tsx": [
-437
+388
 ],
 "desktop:app/src/ui/lib/avatar.tsx": [
-156
+143
 ],
 "desktop:app/src/ui/lib/button.tsx": [
-95
+92
 ],
 "desktop:app/src/ui/lib/call-to-action.tsx": [
 17
@@ -360,58 +360,58 @@
 25
 ],
 "desktop:app/src/ui/lib/configure-git-user.tsx": [
-71
+63
 ],
 "desktop:app/src/ui/lib/draggable.tsx": [
 39
 ],
 "desktop:app/src/ui/lib/enterprise-server-entry.tsx": [
-44
+40
 ],
 "desktop:app/src/ui/lib/fancy-text-box.tsx": [
-22
+18
 ],
 "desktop:app/src/ui/lib/filter-list.tsx": [
-185
+178
 ],
 "desktop:app/src/ui/lib/focus-container.tsx": [
-35
+28
 ],
 "desktop:app/src/ui/lib/form.tsx": [
 13
 ],
 "desktop:app/src/ui/lib/git-config-user-form.tsx": [
-46
+40
 ],
 "desktop:app/src/ui/lib/link-button.tsx": [
 32
 ],
 "desktop:app/src/ui/lib/list/list-item-insertion-overlay.tsx": [
-36
+29
 ],
 "desktop:app/src/ui/lib/list/list-row.tsx": [
 55
 ],
 "desktop:app/src/ui/lib/list/list.tsx": [
-281
+255
 ],
 "desktop:app/src/ui/lib/path-text.tsx": [
-250
+243
 ],
 "desktop:app/src/ui/lib/popover.tsx": [
-43
+39
 ],
 "desktop:app/src/ui/lib/radio-button.tsx": [
-40
+36
 ],
 "desktop:app/src/ui/lib/ref-name-text-box.tsx": [
-60
+54
 ],
 "desktop:app/src/ui/lib/rich-text.tsx": [
-95
+85
 ],
 "desktop:app/src/ui/lib/sandboxed-markdown.tsx": [
-88
+54
 ],
 "desktop:app/src/ui/lib/sign-in.tsx": [
 25
@@ -423,46 +423,46 @@
 117
 ],
 "desktop:app/src/ui/lib/theme-change-monitor.ts": [
-12
+9
 ],
 "desktop:app/src/ui/lib/throttled-scheduler.ts": [
-12
+2
 ],
 "desktop:app/src/ui/lib/toggle-button.tsx": [
-44
+40
 ],
 "desktop:app/src/ui/lib/tooltip.tsx": [
-161
+146
 ],
 "desktop:app/src/ui/lib/tooltipped-content.tsx": [
 32
 ],
 "desktop:app/src/ui/lib/two-factor-authentication.tsx": [
-57
+53
 ],
 "desktop:app/src/ui/lib/ui-activity-monitor.ts": [
 33
 ],
 "desktop:app/src/ui/lib/update-store.ts": [
-64
+55
 ],
 "desktop:app/src/ui/lib/vertical-segmented-control/segmented-item.tsx": [
 46
 ],
 "desktop:app/src/ui/lib/vertical-segmented-control/vertical-segmented-control.tsx": [
-83
+76
 ],
 "desktop:app/src/ui/local-changes-overwritten/local-changes-overwritten-dialog.tsx": [
-45
+41
 ],
 "desktop:app/src/ui/merge-conflicts/commit-conflicts-warning.tsx": [
 25
 ],
 "desktop:app/src/ui/missing-repository.tsx": [
-30
+26
 ],
 "desktop:app/src/ui/move-to-applications-folder.tsx": [
-28
+24
 ],
 "desktop:app/src/ui/multi-commit-operation/base-multi-commit-operation.tsx": [
 45
@@ -471,28 +471,28 @@
 12
 ],
 "desktop:app/src/ui/multi-commit-operation/choose-branch/base-choose-branch-dialog.tsx": [
-94
+78
 ],
 "desktop:app/src/ui/multi-commit-operation/choose-branch/choose-target-branch.tsx": [
-77
+73
 ],
 "desktop:app/src/ui/multi-commit-operation/dialog/confirm-abort-dialog.tsx": [
-27
+23
 ],
 "desktop:app/src/ui/multi-commit-operation/dialog/conflicts-dialog.tsx": [
-59
+55
 ],
 "desktop:app/src/ui/multi-commit-operation/dialog/warn-force-push-dialog.tsx": [
-32
+28
 ],
 "desktop:app/src/ui/no-repositories/no-repositories-view.tsx": [
-117
+113
 ],
 "desktop:app/src/ui/notifications/pull-request-checks-failed.tsx": [
-63
+57
 ],
 "desktop:app/src/ui/notifications/pull-request-review.tsx": [
-56
+52
 ],
 "desktop:app/src/ui/octicons/octicon.tsx": [
 39
@@ -501,49 +501,49 @@
 26
 ],
 "desktop:app/src/ui/preferences/advanced.tsx": [
-48
+44
 ],
 "desktop:app/src/ui/preferences/appearance.tsx": [
-61
+57
 ],
 "desktop:app/src/ui/preferences/custom-theme-selector.tsx": [
-27
+23
 ],
 "desktop:app/src/ui/preferences/git.tsx": [
-39
+36
 ],
 "desktop:app/src/ui/preferences/integrations.tsx": [
-27
+23
 ],
 "desktop:app/src/ui/preferences/preferences.tsx": [
-103
+99
 ],
 "desktop:app/src/ui/preferences/prompts.tsx": [
-27
+23
 ],
 "desktop:app/src/ui/publish-repository/publish-repository.tsx": [
-38
+31
 ],
 "desktop:app/src/ui/publish-repository/publish.tsx": [
-82
+81
 ],
 "desktop:app/src/ui/pull-request-quick-view.tsx": [
-53
+43
 ],
 "desktop:app/src/ui/push-needs-pull/push-needs-pull-warning.tsx": [
-22
+18
 ],
 "desktop:app/src/ui/rebase/confirm-force-push.tsx": [
-27
+23
 ],
 "desktop:app/src/ui/release-notes/release-notes-dialog.tsx": [
 27
 ],
 "desktop:app/src/ui/remove-repository/confirm-remove-repository.tsx": [
-32
+28
 ],
 "desktop:app/src/ui/rename-branch/rename-branch-dialog.tsx": [
-31
+27
 ],
 "desktop:app/src/ui/repositories-list/repositories-list.tsx": [
 101
@@ -558,46 +558,46 @@
 29
 ],
 "desktop:app/src/ui/repository-settings/repository-settings.tsx": [
-72
+68
 ],
 "desktop:app/src/ui/repository.tsx": [
-118
+107
 ],
 "desktop:app/src/ui/reset/warning-before-reset.tsx": [
-28
+24
 ],
 "desktop:app/src/ui/resizable/resizable.tsx": [
 13
 ],
 "desktop:app/src/ui/saml-reauth-required/saml-reauth-required.tsx": [
-32
+28
 ],
 "desktop:app/src/ui/shell/shell-error.tsx": [
 32
 ],
 "desktop:app/src/ui/sign-in/sign-in.tsx": [
-43
+42
 ],
 "desktop:app/src/ui/ssh/add-ssh-host.tsx": [
 18
 ],
 "desktop:app/src/ui/ssh/ssh-key-passphrase.tsx": [
-29
+25
 ],
 "desktop:app/src/ui/ssh/ssh-user-password.tsx": [
-29
+25
 ],
 "desktop:app/src/ui/stash-changes/overwrite-stashed-changes-dialog.tsx": [
-28
+24
 ],
 "desktop:app/src/ui/stash-changes/stash-and-switch-branch-dialog.tsx": [
-47
+43
 ],
 "desktop:app/src/ui/stashing/confirm-discard-stash.tsx": [
-26
+22
 ],
 "desktop:app/src/ui/stashing/stash-diff-header.tsx": [
-29
+25
 ],
 "desktop:app/src/ui/stashing/stash-diff-viewer.tsx": [
 57
@@ -612,13 +612,13 @@
 29
 ],
 "desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
-78
+74
 ],
 "desktop:app/src/ui/toolbar/button.tsx": [
 137
 ],
 "desktop:app/src/ui/toolbar/dropdown.tsx": [
-189
+182
 ],
 "desktop:app/src/ui/toolbar/push-pull-button.tsx": [
 300
@@ -630,13 +630,13 @@
 29
 ],
 "desktop:app/src/ui/tutorial/tutorial-panel.tsx": [
-52
+48
 ],
 "desktop:app/src/ui/tutorial/tutorial-step-instruction.tsx": [
 31
 ],
 "desktop:app/src/ui/undo/warn-local-changes-before-undo.tsx": [
-29
+25
 ],
 "desktop:app/src/ui/untrusted-certificate/untrusted-certificate.tsx": [
 31
@@ -654,10 +654,10 @@
 26
 ],
 "desktop:app/src/ui/welcome/welcome.tsx": [
-58
+57
 ],
 "desktop:app/src/ui/window/full-screen-info.tsx": [
-60
+29
 ],
 "desktop:app/src/ui/window/title-bar.tsx": [
 48
@@ -666,9 +666,9 @@
 38
 ],
 "desktop:app/src/ui/window/zoom-info.tsx": [
-28
+24
 ],
 "desktop:app/src/ui/workflow-push-rejected/workflow-push-rejected.tsx": [
-28
+24
 ]
 }

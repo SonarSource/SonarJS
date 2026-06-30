@@ -3,21 +3,21 @@
 16
 ],
 "postgraphql:src/postgraphql/schema/procedures/PgProcedurePaginator.ts": [
-22
-],
-"postgraphql:src/postgres/introspection/PgCatalog.ts": [
 21
 ],
+"postgraphql:src/postgres/introspection/PgCatalog.ts": [
+13
+],
 "postgraphql:src/postgres/inventory/collection/PgCollection.ts": [
-19
+18
 ],
 "postgraphql:src/postgres/inventory/collection/PgCollectionKey.ts": [
-18
+17
 ],
 "postgraphql:src/postgres/inventory/collection/PgRelation.ts": [
-10
+9
 ],
 "postgraphql:src/postgres/inventory/paginator/PgCollectionPaginator.ts": [
-18
+17
 ]
 }
