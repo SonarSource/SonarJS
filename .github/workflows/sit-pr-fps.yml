@@ -254,10 +254,6 @@ jobs:
     steps:
       - name: Get secrets
         id: secrets
-        # NOTE: the Anthropic key path below is the only per-analyser line in this workflow.
-        # When copying this workflow to another analyser repo, replace it with that squad's
-        # Vault path (and ensure the repo's Vault role has read access to it).
-        # mega-fp-slayer prefers PORTKEY_ANTHROPIC_API_KEY (Portkey gateway) over ANTHROPIC_API_KEY (direct).
         uses: SonarSource/vault-action-wrapper@v3
         with:
           secrets: |
