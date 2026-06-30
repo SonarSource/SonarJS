@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-required-prop-with-default';
 export const externalPlugin = 'vue';
+export const quickFixMessage = 'Change this prop to be optional.';
