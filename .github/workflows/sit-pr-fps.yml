@@ -259,6 +259,9 @@ jobs:
           secrets: |
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | github_rspec_token;
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+            # Per-analyser: the squad-owned Vault path holding the Anthropic key for mega-fp-slayer.
+            # The Vault role for this repo must be granted read access to this path.
+            # mega-fp-slayer prefers PORTKEY_ANTHROPIC_API_KEY (Portkey gateway) over ANTHROPIC_API_KEY (direct Anthropic).
             development/team/analysis-js-squad/kv/data/sonarjs-portkey apikey | PORTKEY_ANTHROPIC_API_KEY;
 
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
