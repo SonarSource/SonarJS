@@ -93,7 +93,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
       // require.resolve(...) with its string argument avoids a MODULE_NOT_FOUND crash at bridge
       // startup caused by the bundled modules having no real on-disk paths.
       textReplace({
-        include: /node_modules[/\\]eslint-plugin-vue[/\\]dist[/\\]configs[/\\](?!flat)[^/\\]+\.js$/,
+        include: /node_modules[/\\]eslint-plugin-vue[/\\]dist[/\\]configs[/\\]/,
         pattern: [[/require\.resolve\(([^)]+)\)/g, '$1']],
       }),
       // Remove dynamic import of espree on ESLint Rule tester. In any case, it's never used in the bundle
