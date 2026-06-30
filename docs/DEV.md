@@ -104,6 +104,10 @@ required dependencies and is used for our CI pipeline.
 
 ## Build and run unit tests
 
+On a fresh checkout, or whenever you want the latest RSPEC rule data instead of the tracked JSON
+already present in the repository, run `npm run rspec:refresh` before the Maven build commands
+below.
+
 To build the plugin and run its unit tests, execute this command from the project's root directory:
 
 ```sh

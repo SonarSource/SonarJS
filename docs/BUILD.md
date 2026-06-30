@@ -9,20 +9,41 @@ This reuses the tracked rule metadata already present in the checkout unless an 
 
 Avoid `mvn clean` while iterating. The fast Java-only loop reuses previously generated artifacts,
 and `clean` deletes them. Only use `mvn clean install` when you explicitly want to rebuild generated
-assets from scratch.
+assets from scratch. If that clean rebuild should also pick up the latest RSPEC data, run
+`npm run rspec:refresh` first.
 
 ## Common commands
 
-Full reactor build:
+Full reactor build using the tracked local rule JSON:
 
 ```bash
 mvn install
 ```
 
-Clean rebuild:
+Full reactor build without tests using the tracked local rule JSON:
+
+```bash
+mvn install -DskipTests
+```
+
+Clean rebuild using the tracked local rule JSON:
 
 ```bash
 mvn clean install
+```
+
+Refresh RSPEC first, then run a full Maven build:
+
+```bash
+npm run rspec:refresh
+mvn install
+```
+
+Refresh RSPEC first, then run a Maven build without tests:
+
+```bash
+npm run rspec:refresh
+mvn install -DskipTests
 ```
 
 Fast Java-only targeted test:

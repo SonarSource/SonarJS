@@ -43,12 +43,24 @@ To work on this project, it is required to have the following tools installed:
 
 ### Build the project
 
-The project can be built into the SonarJS Plugin by installing Node.js dependencies, and executing the usual Maven `install` command.
+Install Node.js dependencies with `npm ci` first.
+
+For normal local development, build with the tracked rule metadata already present in the checkout:
 
 ```shell
-npm install
+npm ci
+mvn install
+```
+
+To refresh RSPEC rule data before a clean rebuild, run:
+
+```shell
+npm run rspec:refresh
 mvn clean install
 ```
+
+`package.json` intentionally keeps only Node-oriented workflows plus the explicit `rspec:refresh`
+entrypoint. Maven builds are meant to be invoked directly.
 
 ### Request a new feature
 

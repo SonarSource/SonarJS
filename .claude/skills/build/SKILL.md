@@ -19,8 +19,8 @@ npm run bbf:latest                   # Explicit RSPEC refresh, then fast local b
 npm run generate-meta                # Regenerate generated-meta.ts from tracked local JS rule JSON
 npm run rspec:refresh                # Refresh tracked JS/CSS rule data from RSPEC
 npm run generate-java-rule-classes   # Regenerate Java check classes
-mvn install -DskipTests              # Full Maven build without tests
-mvn clean install                    # Full clean build with tests
+mvn install -DskipTests              # Full Maven build without tests using current local rule data
+mvn clean install                    # Full clean build with tests using current local rule data
 ```
 
 ## Important Rules
@@ -31,6 +31,10 @@ mvn clean install                    # Full clean build with tests
 - `npm run rspec:refresh` is the explicit refresh command. It updates the tracked JavaScript and CSS
   rule data from RSPEC in one pass.
 - `npm run bbf:latest` is the convenience form of `npm run rspec:refresh && npm run bbf`.
+- `mvn install` / `mvn clean install` reuse the tracked local rule JSON and do not implicitly
+  refresh RSPEC.
+- If you want refreshed RSPEC data before a full Maven build, run `npm run rspec:refresh` first and
+  then invoke Maven directly.
 - If the repository root contains `rspec.sha`, refresh uses that pinned RSPEC revision. The root
   `rspec.sha` file is a temporary local workflow input and must never be committed to `master`.
 - When no SHA pin is active, refresh uses the configured default RSPEC branch. Override it per
