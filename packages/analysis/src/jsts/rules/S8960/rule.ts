@@ -78,7 +78,7 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression(node: estree.CallExpression) {
         const callback = getCallback(node);
-        if (callback === undefined || !callback.async) {
+        if (!callback?.async) {
           return;
         }
 
