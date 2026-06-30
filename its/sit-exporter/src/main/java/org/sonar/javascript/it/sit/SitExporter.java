@@ -391,8 +391,8 @@ public final class SitExporter {
 
   private static String repositoryForLanguage(String language) {
     return switch (language) {
-      case "js" -> JAVASCRIPT_REPOSITORY;
-      case "ts" -> "typescript";
+      case "js", "javascript" -> JAVASCRIPT_REPOSITORY;
+      case "ts", "typescript" -> "typescript";
       case "css" -> "css";
       default -> throw new IllegalArgumentException("Unsupported language: " + language);
     };
