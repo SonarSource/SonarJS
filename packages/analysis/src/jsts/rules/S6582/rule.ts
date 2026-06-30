@@ -78,23 +78,6 @@ function findReportNode(
  * let result: string | undefined;
  * result = value?.property;
  */
-// Collects identifiers that are null-guarded in a logical chain:
-// `!x` in || chains and bare `x` in && chains.
-function collectGuardedSubjects(node: Rule.Node, subjects: Set<string>): void {
-  if (
-    node.type === 'UnaryExpression' &&
-    (node as Rule.Node & { operator: string }).operator === '!' &&
-    (node as Rule.Node & { argument: Rule.Node }).argument?.type === 'Identifier'
-  ) {
-    subjects.add((node as Rule.Node & { argument: Rule.Node & { name: string } }).argument.name);
-  } else if (node.type === 'Identifier') {
-    subjects.add((node as Rule.Node & { name: string }).name);
-  } else if (node.type === 'LogicalExpression') {
-    collectGuardedSubjects(node.left, subjects);
-    collectGuardedSubjects(node.right, subjects);
-  }
-}
-
 function allowsUndefined(type: ts.Type): boolean {
   const constituents: ts.Type[] = type.isUnion() ? type.types : [type];
   return constituents.some(
@@ -105,6 +88,19 @@ function allowsUndefined(type: ts.Type): boolean {
       (constituent.flags & ts.TypeFlags.Void) !== 0,
   );
 }
+
+function allowsNullOrUndefined(type: ts.Type): boolean {
+  const constituents: ts.Type[] = type.isUnion() ? type.types : [type];
+  return constituents.some(
+    constituent =>
+      (constituent.flags & ts.TypeFlags.Null) !== 0 ||
+      (constituent.flags & ts.TypeFlags.Undefined) !== 0,
+  );
+}
+
+// Operators where `undefined OP undefined` is `false`, so rewriting both sides with
+// optional chaining silently inverts the original "either-side-null" guard.
+const DANGEROUS_OPERATORS = new Set(['!==', '!=', '<', '>', '<=', '>=']);
 
 /**
  * Sanitized rule 'prefer-optional-chain' from TypeScript ESLint.
@@ -172,6 +168,21 @@ export const rule: Rule.RuleModule = {
         return null;
       }
 
+      return checker.getTypeAtLocation(tsNode);
+    }
+
+    // Resolves the type as declared at the symbol's declaration site, bypassing
+    // narrowing that the surrounding null-guard chain applies at the use site.
+    function getDeclaredTypeOfObject(node: Rule.Node): ts.Type | null {
+      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+      if (!tsNode) {
+        return null;
+      }
+      const symbol = checker.getSymbolAtLocation(tsNode);
+      const declaration = symbol?.declarations?.[0];
+      if (symbol && declaration) {
+        return checker.getTypeOfSymbolAtLocation(symbol, declaration);
+      }
       return checker.getTypeAtLocation(tsNode);
     }
 
@@ -263,7 +274,26 @@ export const rule: Rule.RuleModule = {
       return targetType != null && !allowsUndefined(targetType);
     }
 
-    // Suppress when the comparison involves more than one null-guarded subject.
+    // Records source text of null-guarded subjects: `!x` in || chains, bare `x` in && chains.
+    // Source text covers identifier, `this.prop`, and `ref.current`-style member subjects.
+    function collectGuardedSubjects(node: Rule.Node, subjects: Set<string>): void {
+      if (
+        node.type === 'UnaryExpression' &&
+        (node as Rule.Node & { operator: string }).operator === '!'
+      ) {
+        const argument = (node as Rule.Node & { argument: Rule.Node }).argument;
+        if (argument) {
+          subjects.add(context.sourceCode.getText(argument));
+        }
+      } else if (node.type === 'LogicalExpression') {
+        collectGuardedSubjects(node.left, subjects);
+        collectGuardedSubjects(node.right, subjects);
+      } else {
+        subjects.add(context.sourceCode.getText(node));
+      }
+    }
+
+    // Suppress when the comparison involves more than one null-guarded nullable subject.
     // Optional chaining has no clean single-chain form for multi-subject comparisons:
     // the partial fix (e.g. `!a || a.x !== b?.x`) is unreadable and misleads customers
     // into writing the full fix (`a?.x !== b?.x`) which silently changes semantics.
@@ -272,11 +302,17 @@ export const rule: Rule.RuleModule = {
         return false;
       }
 
-      const { left: compLeft, right: compRight } = node.right as Rule.Node & {
+      const binary = node.right as Rule.Node & {
+        operator: string;
         left: Rule.Node;
         right: Rule.Node;
       };
 
+      if (!DANGEROUS_OPERATORS.has(binary.operator)) {
+        return false;
+      }
+
+      const { left: compLeft, right: compRight } = binary;
       if (compLeft.type !== 'MemberExpression' || compRight.type !== 'MemberExpression') {
         return false;
       }
@@ -284,20 +320,26 @@ export const rule: Rule.RuleModule = {
       const leftObj = (compLeft as Rule.Node & { object: Rule.Node }).object;
       const rightObj = (compRight as Rule.Node & { object: Rule.Node }).object;
 
+      const leftText = context.sourceCode.getText(leftObj);
+      const rightText = context.sourceCode.getText(rightObj);
+      if (leftText === rightText) {
+        return false;
+      }
+
+      const leftType = getDeclaredTypeOfObject(leftObj);
+      const rightType = getDeclaredTypeOfObject(rightObj);
       if (
-        leftObj.type !== 'Identifier' ||
-        rightObj.type !== 'Identifier' ||
-        leftObj.name === rightObj.name
+        leftType == null ||
+        rightType == null ||
+        !allowsNullOrUndefined(leftType) ||
+        !allowsNullOrUndefined(rightType)
       ) {
         return false;
       }
 
-      // Collect guarded subjects from the guards side of the chain (node.left).
-      // If both comparison objects are guarded, optional chaining has no clean form.
       const guardedSubjects = new Set<string>();
       collectGuardedSubjects(node.left, guardedSubjects);
-
-      return guardedSubjects.has(leftObj.name) && guardedSubjects.has(rightObj.name);
+      return guardedSubjects.has(leftText) && guardedSubjects.has(rightText);
     }
 
     /**
