@@ -212,6 +212,45 @@ describe('S6582 without strictNullChecks', () => {
   });
 });
 
+describe('S6582 with multiple nullable subjects in comparison', () => {
+  const fixtureFile = path.join(import.meta.dirname, 'fixtures/index.ts');
+  const ruleTesterOptions = {
+    parserOptions: {
+      project: './tsconfig.json',
+      tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+    },
+  };
+
+  it('does not report when the comparison has more than one distinct nullable subject', () => {
+    const ruleTester = new RuleTester(ruleTesterOptions);
+    ruleTester.run('S6582', rule, {
+      valid: [
+        {
+          // Two nullable subjects: a and b. No clean single optional-chain form exists.
+          // The partial fix `a.length !== b?.length` is unreadable and misleads customers
+          // into writing `a?.length !== b?.length` which silently changes semantics.
+          code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b || a.length !== b.length) {} }`,
+          filename: fixtureFile,
+        },
+        {
+          // Same with undefined
+          code: `function f(a: string[] | undefined, b: string[] | undefined) { if (!a || !b || a.length !== b.length) {} }`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [
+        {
+          // Only one nullable subject (a): fix `a?.module !== b.module` is clean and unambiguous.
+          code: `interface Opts { module: number } function f(a: Opts | null, b: Opts): boolean { return !a || a.module !== b.module; }`,
+          output: `interface Opts { module: number } function f(a: Opts | null, b: Opts): boolean { return a?.module !== b.module; }`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
+
 describe('S6582', () => {
   it('does not raise without TypeScript services', () => {
     const ruleTester = new DefaultParserRuleTester();

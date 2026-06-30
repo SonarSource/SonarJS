@@ -78,6 +78,23 @@ function findReportNode(
  * let result: string | undefined;
  * result = value?.property;
  */
+// Collects identifiers that are null-guarded in a logical chain:
+// `!x` in || chains and bare `x` in && chains.
+function collectGuardedSubjects(node: Rule.Node, subjects: Set<string>): void {
+  if (
+    node.type === 'UnaryExpression' &&
+    (node as Rule.Node & { operator: string }).operator === '!' &&
+    (node as Rule.Node & { argument: Rule.Node }).argument?.type === 'Identifier'
+  ) {
+    subjects.add((node as Rule.Node & { argument: Rule.Node & { name: string } }).argument.name);
+  } else if (node.type === 'Identifier') {
+    subjects.add((node as Rule.Node & { name: string }).name);
+  } else if (node.type === 'LogicalExpression') {
+    collectGuardedSubjects(node.left, subjects);
+    collectGuardedSubjects(node.right, subjects);
+  }
+}
+
 function allowsUndefined(type: ts.Type): boolean {
   const constituents: ts.Type[] = type.isUnion() ? type.types : [type];
   return constituents.some(
@@ -246,6 +263,43 @@ export const rule: Rule.RuleModule = {
       return targetType != null && !allowsUndefined(targetType);
     }
 
+    // Suppress when the comparison involves more than one null-guarded subject.
+    // Optional chaining has no clean single-chain form for multi-subject comparisons:
+    // the partial fix (e.g. `!a || a.x !== b?.x`) is unreadable and misleads customers
+    // into writing the full fix (`a?.x !== b?.x`) which silently changes semantics.
+    function matchesMultipleNullableSubjectsFalsePositive(node: Rule.Node): boolean {
+      if (node.right?.type !== 'BinaryExpression') {
+        return false;
+      }
+
+      const { left: compLeft, right: compRight } = node.right as Rule.Node & {
+        left: Rule.Node;
+        right: Rule.Node;
+      };
+
+      if (compLeft.type !== 'MemberExpression' || compRight.type !== 'MemberExpression') {
+        return false;
+      }
+
+      const leftObj = (compLeft as Rule.Node & { object: Rule.Node }).object;
+      const rightObj = (compRight as Rule.Node & { object: Rule.Node }).object;
+
+      if (
+        leftObj.type !== 'Identifier' ||
+        rightObj.type !== 'Identifier' ||
+        leftObj.name === rightObj.name
+      ) {
+        return false;
+      }
+
+      // Collect guarded subjects from the guards side of the chain (node.left).
+      // If both comparison objects are guarded, optional chaining has no clean form.
+      const guardedSubjects = new Set<string>();
+      collectGuardedSubjects(node.left, guardedSubjects);
+
+      return guardedSubjects.has(leftObj.name) && guardedSubjects.has(rightObj.name);
+    }
+
     /**
      * Returns true when the upstream report is a known false positive that should be suppressed.
      *
@@ -270,6 +324,10 @@ export const rule: Rule.RuleModule = {
       }
 
       if (matchesAssignmentFalsePositive(node)) {
+        return true;
+      }
+
+      if (matchesMultipleNullableSubjectsFalsePositive(node)) {
         return true;
       }
 
