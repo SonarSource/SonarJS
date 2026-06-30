@@ -3,7 +3,7 @@
 12
 ],
 "ag-grid:src/ts/columnChangeEvent.ts": [
-19
+6
 ],
 "ag-grid:src/ts/columnController/autoGroupColService.ts": [
 8
@@ -31,10 +31,10 @@
 6
 ],
 "ag-grid:src/ts/context/context.ts": [
-43
+33
 ],
 "ag-grid:src/ts/csvCreator.ts": [
-17,
+13,
 124
 ],
 "ag-grid:src/ts/dragAndDrop/dragAndDropService.ts": [
@@ -44,13 +44,13 @@
 11
 ],
 "ag-grid:src/ts/entities/column.ts": [
-104
+27
 ],
 "ag-grid:src/ts/entities/columnGroup.ts": [
-41
+10
 ],
 "ag-grid:src/ts/entities/originalColumnGroup.ts": [
-22
+8
 ],
 "ag-grid:src/ts/entities/rowNode.ts": [
 30
@@ -85,13 +85,13 @@
 14
 ],
 "ag-grid:src/ts/grid.ts": [
-110
+83
 ],
 "ag-grid:src/ts/gridApi.ts": [
 51
 ],
 "ag-grid:src/ts/gridCore.ts": [
-62
+24
 ],
 "ag-grid:src/ts/gridOptionsWrapper.ts": [
 55
@@ -109,59 +109,59 @@
 177
 ],
 "ag-grid:src/ts/headerRendering/bodyDropPivotTarget.ts": [
-19
+8
 ],
 "ag-grid:src/ts/headerRendering/bodyDropTarget.ts": [
-38
+18
 ],
 "ag-grid:src/ts/headerRendering/deprecated/headerTemplateLoader.ts": [
 10
 ],
 "ag-grid:src/ts/headerRendering/deprecated/renderedHeaderCell.ts": [
-51
+18
 ],
 "ag-grid:src/ts/headerRendering/header/headerComp.ts": [
-72
+40
 ],
 "ag-grid:src/ts/headerRendering/header/headerWrapperComp.ts": [
-56
+24
 ],
 "ag-grid:src/ts/headerRendering/header/selectAllFeature.ts": [
-32
+16
 ],
 "ag-grid:src/ts/headerRendering/headerContainer.ts": [
-36
+15
 ],
 "ag-grid:src/ts/headerRendering/headerGroup/headerGroupComp.ts": [
-53
+36
 ],
 "ag-grid:src/ts/headerRendering/headerGroup/headerGroupWrapperComp.ts": [
-46
+18
 ],
 "ag-grid:src/ts/headerRendering/headerRenderer.ts": [
 13
 ],
 "ag-grid:src/ts/headerRendering/headerRowComp.ts": [
-44
+26
 ],
 "ag-grid:src/ts/headerRendering/horizontalDragService.ts": [
 18,
-50
+31
 ],
 "ag-grid:src/ts/headerRendering/moveColumnController.ts": [
-36
+11
 ],
 "ag-grid:src/ts/headerRendering/standardMenu.ts": [
 12
 ],
 "ag-grid:src/ts/layout/borderLayout.ts": [
-66
+3
 ],
 "ag-grid:src/ts/layout/tabbedLayout.ts": [
-21
+3
 ],
 "ag-grid:src/ts/logger.ts": [
-28
+23
 ],
 "ag-grid:src/ts/masterSlaveService.ts": [
 18
@@ -176,16 +176,16 @@
 13
 ],
 "ag-grid:src/ts/rendering/cellEditors/largeTextCellEditor.ts": [
-28
+17
 ],
 "ag-grid:src/ts/rendering/cellEditors/popupEditorWrapper.ts": [
-10
+4
 ],
 "ag-grid:src/ts/rendering/cellEditors/selectCellEditor.ts": [
-11
+6
 ],
 "ag-grid:src/ts/rendering/cellEditors/textCellEditor.ts": [
-13
+6
 ],
 "ag-grid:src/ts/rendering/cellRendererFactory.ts": [
 12
@@ -194,32 +194,32 @@
 8
 ],
 "ag-grid:src/ts/rendering/cellRenderers/animateShowChangeCellRenderer.ts": [
-24
+8
 ],
 "ag-grid:src/ts/rendering/cellRenderers/animateSlideCellRenderer.ts": [
-22
+6
 ],
 "ag-grid:src/ts/rendering/cellRenderers/groupCellRenderer.ts": [
-51
+23
 ],
 "ag-grid:src/ts/rendering/checkboxSelectionComponent.ts": [
-32
+16
 ],
 "ag-grid:src/ts/rendering/columnHoverService.ts": [
 8
 ],
 "ag-grid:src/ts/rendering/features/setLeftFeature.ts": [
-20
+10
 ],
 "ag-grid:src/ts/rendering/renderedCell.ts": [
-95
+36
 ],
 "ag-grid:src/ts/rendering/renderedRow.ts": [
-42,
-130
+29,
+56
 ],
 "ag-grid:src/ts/rendering/rowContainerComponent.ts": [
-25
+15
 ],
 "ag-grid:src/ts/rendering/rowRenderer.ts": [
 30
@@ -228,10 +228,10 @@
 8
 ],
 "ag-grid:src/ts/rowModels/cache/rowNodeBlock.ts": [
-58
+13
 ],
 "ag-grid:src/ts/rowModels/cache/rowNodeBlockLoader.ts": [
-18
+6
 ],
 "ag-grid:src/ts/rowModels/floatingRowModel.ts": [
 14
@@ -243,7 +243,7 @@
 11
 ],
 "ag-grid:src/ts/rowModels/inMemory/inMemoryNodeManager.ts": [
-24
+9
 ],
 "ag-grid:src/ts/rowModels/inMemory/inMemoryRowModel.ts": [
 39
@@ -252,16 +252,16 @@
 7
 ],
 "ag-grid:src/ts/rowModels/infinite/infiniteBlock.ts": [
-19
+11
 ],
 "ag-grid:src/ts/rowModels/infinite/infiniteCache.ts": [
-20
+15
 ],
 "ag-grid:src/ts/rowModels/infinite/infiniteRowModel.ts": [
 19
 ],
 "ag-grid:src/ts/rowModels/pagination/paginationComp.ts": [
-35
+13
 ],
 "ag-grid:src/ts/rowModels/pagination/serverPaginationService.ts": [
 30
@@ -292,21 +292,21 @@
 6
 ],
 "ag-grid:src/ts/utils.ts": [
-1060
+1055
 ],
 "ag-grid:src/ts/valueService.ts": [
 13
 ],
 "ag-grid:src/ts/widgets/agCheckbox.ts": [
-34
+11
 ],
 "ag-grid:src/ts/widgets/component.ts": [
-18
+6
 ],
 "ag-grid:src/ts/widgets/popupService.ts": [
 8
 ],
 "ag-grid:src/ts/widgets/touchListener.ts": [
-24
+6
 ]
 }
