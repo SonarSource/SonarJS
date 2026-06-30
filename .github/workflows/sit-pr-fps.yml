@@ -151,10 +151,10 @@ jobs:
 
       - name: Authenticate gh for private git dependencies
         env:
-          GH_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).github_rspec_token }}
+          RSPEC_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).github_rspec_token }}
         run: |
           set -euo pipefail
-          echo "${GH_TOKEN}" | gh auth login --with-token
+          echo "${RSPEC_TOKEN}" | gh auth login --with-token
           gh auth setup-git
 
       - name: Download target SIT bundles
