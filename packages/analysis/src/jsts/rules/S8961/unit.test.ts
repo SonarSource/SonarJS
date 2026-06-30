@@ -21,8 +21,8 @@ import parser from 'vue-eslint-parser';
 
 const ruleTesterVue = new NoTypeCheckingRuleTester({ parser });
 
-describe('S8953', () => {
-  it('S8953 (external: vue/require-explicit-emits)', () => {
+describe('S8961', () => {
+  it('S8961 (external: vue/require-explicit-emits)', () => {
     ruleTesterVue.run('Vue component emits should be explicitly declared', rule, {
       valid: [
         {
