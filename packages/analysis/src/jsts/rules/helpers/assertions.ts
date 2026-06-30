@@ -109,46 +109,77 @@ type NodeAssertMethod =
   | 'deepStrictEqual'
   | 'notDeepStrictEqual';
 
+type AssertionLibrary = {
+  imports: string[];
+  dependencies: string[];
+  extract: (context: Rule.RuleContext, node: estree.Node) => Assertion | null;
+};
+
+const ASSERTION_LIBRARIES: AssertionLibrary[] = [
+  {
+    imports: JEST_LIKE_MODULES,
+    dependencies: JEST_LIKE_GLOBAL_MODULES,
+    extract: (_context, node) => extractExpectAssertion(node, 'jest-like'),
+  },
+  {
+    imports: JASMINE_MODULES,
+    dependencies: JASMINE_GLOBAL_MODULES,
+    extract: (_context, node) => extractExpectAssertion(node, 'jasmine'),
+  },
+  {
+    imports: PLAYWRIGHT_MODULES,
+    dependencies: PLAYWRIGHT_MODULES,
+    extract: (_context, node) => extractExpectAssertion(node, 'playwright'),
+  },
+  {
+    imports: CHAI_LIKE_GLOBAL_MODULES,
+    dependencies: CHAI_LIKE_GLOBAL_MODULES,
+    extract: (context, node) =>
+      extractChaiAssertion(context, node, true) ?? extractCypressChainAssertion(node),
+  },
+];
+
 export function extractTestAssertion(
   context: Rule.RuleContext,
   node: estree.Node,
 ): Assertion | null {
-  // covers Jest-like assertion libraries
-  if (importsOrDependsOnModule(context, JEST_LIKE_MODULES, JEST_LIKE_GLOBAL_MODULES)) {
-    const assertion = extractExpectAssertion(node, 'jest-like');
-    if (assertion) {
-      return assertion;
-    }
+  // Explicit imports in the current file are more precise than project-wide dependency signals.
+  const importedAssertion = extractAssertionFromLibraries(context, node, library =>
+    importsModule(context, library.imports),
+  );
+  if (importedAssertion) {
+    return importedAssertion;
   }
 
-  // covers Jasmine's Jest-like assertion shape
-  if (importsOrDependsOnModule(context, JASMINE_MODULES, JASMINE_GLOBAL_MODULES)) {
-    const assertion = extractExpectAssertion(node, 'jasmine');
-    if (assertion) {
-      return assertion;
-    }
-  }
-
-  // covers Playwright's generic `expect(...).toBe()/toEqual()` shape
-  if (importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES)) {
-    const assertion = extractExpectAssertion(node, 'playwright');
-    if (assertion) {
-      return assertion;
-    }
-  }
-
-  // covers Chai-like assertion libraries (including Cypress expect/assert and cy.wrap().should() chains)
-  if (importsOrDependsOnModule(context, CHAI_LIKE_GLOBAL_MODULES, CHAI_LIKE_GLOBAL_MODULES)) {
-    const assertion =
-      extractChaiAssertion(context, node, true) ?? extractCypressChainAssertion(node);
-    if (assertion) {
-      return assertion;
-    }
+  const dependencyAssertion = extractAssertionFromLibraries(context, node, library =>
+    importsOrDependsOnModule(context, library.imports, library.dependencies),
+  );
+  if (dependencyAssertion) {
+    return dependencyAssertion;
   }
 
   // covers Node.js assert
   if (node.type === 'CallExpression' && importsModule(context, NODE_ASSERT_MODULES)) {
     return extractNodeJSAssertion(context, node);
+  }
+
+  return null;
+}
+
+function extractAssertionFromLibraries(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  isAvailable: (library: AssertionLibrary) => boolean,
+): Assertion | null {
+  for (const library of ASSERTION_LIBRARIES) {
+    if (!isAvailable(library)) {
+      continue;
+    }
+
+    const assertion = library.extract(context, node);
+    if (assertion) {
+      return assertion;
+    }
   }
 
   return null;
