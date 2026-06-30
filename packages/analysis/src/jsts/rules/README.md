@@ -569,6 +569,7 @@ SonarJS uses some rules are not shipped in this ESLint plugin to avoid duplicati
 | S7783           | [unicorn/prefer-string-trim-start-end](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/HEAD/docs/rules/prefer-string-trim-start-end.md)                                          |
 | S7786           | [unicorn/prefer-type-error](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/HEAD/docs/rules/prefer-type-error.md)                                                                |
 | S7787           | [unicorn/require-module-specifiers](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/HEAD/docs/rules/require-module-specifiers.md)                                                |
+| S8950           | [vue/no-required-prop-with-default](https://eslint.vuejs.org/rules/no-required-prop-with-default.html)                                                                                      |
 
 <!--- end external rules -->
 

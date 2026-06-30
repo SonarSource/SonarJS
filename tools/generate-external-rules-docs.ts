@@ -93,6 +93,8 @@ function externalURL(plugin: string, key: string) {
       return `https://github.com/angular-eslint/angular-eslint/blob/main/packages/eslint-plugin/docs/rules/${key}.md`;
     case 'unicorn':
       return `https://github.com/sindresorhus/eslint-plugin-unicorn/blob/HEAD/docs/rules/${key}.md`;
+    case 'vue':
+      return `https://eslint.vuejs.org/rules/${key}.html`;
     default:
       throw new Error(`Error generating URL for unknown ESLint plugin ${plugin}`);
   }
