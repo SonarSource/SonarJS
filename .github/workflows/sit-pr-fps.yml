@@ -101,7 +101,6 @@ jobs:
     if: ${{ needs.prepare_rules.outputs.has_rules == 'true' }}
     uses: ./.github/workflows/sit-export.yml
     with:
-      checkout_ref: ${{ inputs.head_sha }}
       rules_json: ${{ needs.prepare_rules.outputs.rules_json }}
       artifact_name: sit-export-target
       sonarjs_m2_artifact_name: ${{ inputs.sonarjs_m2_artifact_name }}
@@ -114,7 +113,7 @@ jobs:
     if: ${{ needs.prepare_rules.outputs.has_rules == 'true' }}
     uses: ./.github/workflows/sit-export.yml
     with:
-      checkout_ref: ${{ inputs.base_sha }}
+      plugin_ref: ${{ inputs.base_sha }}
       rules_json: ${{ needs.prepare_rules.outputs.rules_json }}
       artifact_name: sit-export-baseline
       sonarjs_m2_artifact_name: ""
@@ -145,7 +144,7 @@ jobs:
           version: 2025.11.2
           mise_toml: |
             [tools]
-            python = "3.13"
+            python = "3.13.7"
             rust = "1.85.0"
             uv = "0.5.20"
 
@@ -260,7 +259,7 @@ jobs:
           version: 2025.11.2
           mise_toml: |
             [tools]
-            python = "3.13"
+            python = "3.13.7"
             uv = "0.5.20"
 
       - name: Register the personal access token
@@ -365,7 +364,7 @@ jobs:
           version: 2025.11.2
           mise_toml: |
             [tools]
-            python = "3.13"
+            python = "3.13.7"
             uv = "0.5.20"
 
       - name: Initialize publish inputs

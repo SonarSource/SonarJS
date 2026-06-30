@@ -1,11 +1,18 @@
 name: SIT Export
 
+# The SIT exporter is always built from the workflow ref (HEAD of the
+# PR). For baseline runs we additionally check out the baseline ref into
+# `baseline-src/` and build the plugin from those sources; the exporter
+# binary itself stays at HEAD so this workflow keeps working on PRs that
+# introduce or update the SIT infra.
+
 on:
   workflow_call:
     inputs:
-      checkout_ref:
-        description: "Git ref to checkout before running the export"
-        required: true
+      plugin_ref:
+        description: "Git ref to build the plugin from (used only when build_plugin is true). Empty means the workflow ref."
+        required: false
+        default: ""
         type: string
       rules_json:
         description: "Changed rules JSON (canonical SIT/FPS payload)"
@@ -16,12 +23,12 @@ on:
         required: true
         type: string
       sonarjs_m2_artifact_name:
-        description: "Optional SonarJS Maven repository artifact containing a pre-built target plugin"
+        description: "Optional SonarJS Maven repository artifact containing a pre-built plugin"
         required: false
         default: ""
         type: string
       build_plugin:
-        description: "Build the plugin from sources in this checkout before export"
+        description: "Build the plugin from sources at plugin_ref before export"
         required: false
         default: false
         type: boolean
@@ -35,10 +42,9 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - name: Checkout source code
+      - name: Checkout source code (workflow ref)
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
-          ref: ${{ inputs.checkout_ref }}
           submodules: true
 
       - uses: jdx/mise-action@v4.1.0
@@ -63,21 +69,8 @@ jobs:
           secrets: |
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
 
-      - name: Cache NPM dependencies
-        if: inputs.build_plugin
-        id: npm-cache
-        uses: SonarSource/gh-action_cache@v1
-        with:
-          path: node_modules
-          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'patches/*') }}
-
-      - name: Configure npm registry
-        if: inputs.build_plugin && steps.npm-cache.outputs.cache-hit != 'true'
-        uses: SonarSource/ci-github-actions/config-npm@v1
-
-      - name: Install NPM dependencies
-        if: inputs.build_plugin && steps.npm-cache.outputs.cache-hit != 'true'
-        run: npm ci
+      - name: Build SIT exporter (from workflow ref)
+        run: mvn -f its/sit-exporter/pom.xml package -DskipTests -B -e -V
 
       - name: Download pre-built SonarJS Maven artifacts
         if: inputs.sonarjs_m2_artifact_name != ''
@@ -86,19 +79,42 @@ jobs:
           name: ${{ inputs.sonarjs_m2_artifact_name }}
           path: build/sonarjs-m2
 
-      - name: Build SonarJS plugin
+      - name: Checkout plugin sources (baseline ref)
         if: inputs.build_plugin
-        run: mvn -pl sonar-plugin/sonar-javascript-plugin -am package -DskipTests -B -e -V
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          ref: ${{ inputs.plugin_ref }}
+          path: baseline-src
+          submodules: false
+
+      - name: Cache NPM dependencies (baseline)
+        if: inputs.build_plugin
+        id: baseline-npm-cache
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: baseline-src/node_modules
+          key: npm-baseline-${{ runner.os }}-${{ hashFiles('baseline-src/package-lock.json', 'baseline-src/patches/*') }}
+
+      - name: Configure npm registry (baseline)
+        if: inputs.build_plugin && steps.baseline-npm-cache.outputs.cache-hit != 'true'
+        uses: SonarSource/ci-github-actions/config-npm@v1
+
+      - name: Install NPM dependencies (baseline)
+        if: inputs.build_plugin && steps.baseline-npm-cache.outputs.cache-hit != 'true'
+        working-directory: baseline-src
+        run: npm ci
+
+      - name: Build baseline plugin
+        if: inputs.build_plugin
+        working-directory: baseline-src
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
-
-      - name: Build SIT exporter
-        run: mvn -f its/sit-exporter/pom.xml package -DskipTests -B -e -V
+        run: mvn -pl sonar-plugin/sonar-javascript-plugin -am package -DskipTests -B -e -V
 
       - name: Run SIT exporter
         env:
           RULES_JSON: ${{ inputs.rules_json }}
-          CHECKOUT_REF: ${{ inputs.checkout_ref }}
+          PLUGIN_REF: ${{ inputs.plugin_ref || github.sha }}
         run: |
           set -euo pipefail
 
@@ -110,12 +126,15 @@ jobs:
             if [ ! -d "$root" ]; then
               return 0
             fi
-            find "$root" -name 'sonar-javascript-plugin-*-multi.jar' -type f | sort | tail -n 1
+            find "$root" -name 'sonar-javascript-plugin-*-multi.jar' -type f 2>/dev/null | sort | tail -n 1
           }
 
-          plugin_jar="$(find_latest_plugin_jar sonar-plugin/sonar-javascript-plugin/target)"
+          plugin_jar="$(find_latest_plugin_jar baseline-src/sonar-plugin/sonar-javascript-plugin/target)"
           if [ -z "$plugin_jar" ]; then
             plugin_jar="$(find_latest_plugin_jar build/sonarjs-m2)"
+          fi
+          if [ -z "$plugin_jar" ]; then
+            plugin_jar="$(find_latest_plugin_jar sonar-plugin/sonar-javascript-plugin/target)"
           fi
           if [ -z "$plugin_jar" ]; then
             plugin_jar="$(find_latest_plugin_jar "$HOME/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin")"
@@ -124,13 +143,14 @@ jobs:
             echo "Could not find sonar-javascript-plugin-*-multi.jar" >&2
             exit 1
           fi
+          echo "Using plugin jar: $plugin_jar"
 
           java -jar its/sit-exporter/target/javascript-it-sit-exporter-*.jar \
             --projects-json dev-tools/peach-analysis/javascript/projects.json \
             --rules-json build/sit-rules.json \
             --output-dir build/sit-export \
             --plugin-jar "$plugin_jar" \
-            --commit "$CHECKOUT_REF"
+            --commit "$PLUGIN_REF"
 
       - name: Upload SIT export bundles
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
