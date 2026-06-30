@@ -43,19 +43,21 @@ export const rule: Rule.RuleModule = {
         }
 
         const property = call.callee.property;
-        const methodName = property.name;
-        if (
-          (methodName === 'pause' || methodName === 'debug') &&
-          chainStartsWithCy(call.callee.object)
-        ) {
-          reportDebugCommand(context, property);
-        } else if (methodName === 'pause' && isIdentifier(call.callee.object, 'page')) {
+        if (isUiTestDebugCommand(call)) {
           reportDebugCommand(context, property);
         }
       },
     };
   },
 };
+
+function isUiTestDebugCommand(call: estree.CallExpression) {
+  const { object, property } = call.callee;
+  return (
+    ((property.name === 'pause' || property.name === 'debug') && chainStartsWithCy(object)) ||
+    (property.name === 'pause' && isIdentifier(object, 'page'))
+  );
+}
 
 function reportDebugCommand(context: Rule.RuleContext, node: estree.Node) {
   context.report({
