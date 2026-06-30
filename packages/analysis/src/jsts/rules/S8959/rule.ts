@@ -43,7 +43,7 @@ export const rule: Rule.RuleModule = {
         }
 
         const property = call.callee.property;
-        if (isUiTestDebugCommand(call)) {
+        if (isUiTestDebugCommand(call.callee)) {
           reportDebugCommand(context, property);
         }
       },
@@ -51,8 +51,8 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isUiTestDebugCommand(call: estree.CallExpression) {
-  const { object, property } = call.callee;
+function isUiTestDebugCommand(callee: estree.MemberExpression & { property: estree.Identifier }) {
+  const { object, property } = callee;
   return (
     ((property.name === 'pause' || property.name === 'debug') && chainStartsWithCy(object)) ||
     (property.name === 'pause' && isIdentifier(object, 'page'))
