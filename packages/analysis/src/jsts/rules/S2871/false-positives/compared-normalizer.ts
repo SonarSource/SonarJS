@@ -27,6 +27,11 @@ import {
   type SortMatcherContext,
 } from './helpers.js';
 
+type FunctionNode =
+  | estree.FunctionDeclaration
+  | estree.FunctionExpression
+  | estree.ArrowFunctionExpression;
+
 /**
  * False-positive shapes:
  *   function normalize(values: string[]) {
@@ -69,18 +74,14 @@ function getEnclosingReturnedFunctionVariable(
   ruleContext: SortMatcherContext,
 ): Scope.Variable | null {
   let currentNode: estree.Node | undefined = getNodeParent(call);
-  let returnStatement: estree.ReturnStatement | undefined;
 
   while (currentNode) {
-    if (currentNode.type === 'ReturnStatement') {
-      returnStatement = currentNode;
-    }
     if (
       currentNode.type === 'FunctionDeclaration' ||
       currentNode.type === 'FunctionExpression' ||
       currentNode.type === 'ArrowFunctionExpression'
     ) {
-      if (returnStatement?.argument !== call && !isReturnedExpressionBody(currentNode, call)) {
+      if (!isTrivialSingleReturnNormalizer(currentNode, call)) {
         return null;
       }
       return getLocalFunctionVariable(currentNode, ruleContext);
@@ -91,7 +92,24 @@ function getEnclosingReturnedFunctionVariable(
   return null;
 }
 
-function isReturnedExpressionBody(functionNode: estree.Node, childNode: estree.Node): boolean {
+function isTrivialSingleReturnNormalizer(
+  functionNode: FunctionNode,
+  returnedCall: estree.CallExpression,
+): boolean {
+  if (functionNode.params.length !== 1) {
+    return false;
+  }
+  if (isReturnedExpressionBody(functionNode, returnedCall)) {
+    return true;
+  }
+  if (functionNode.body.type !== 'BlockStatement' || functionNode.body.body.length !== 1) {
+    return false;
+  }
+  const [statement] = functionNode.body.body;
+  return statement.type === 'ReturnStatement' && statement.argument === returnedCall;
+}
+
+function isReturnedExpressionBody(functionNode: FunctionNode, childNode: estree.Node): boolean {
   return (
     functionNode.type === 'ArrowFunctionExpression' &&
     functionNode.body.type !== 'BlockStatement' &&
@@ -156,14 +174,14 @@ function isSingleArgumentJsonStringifyFunctionCallComparison(
     return false;
   }
   const parent = getNodeParent(call);
-  if (!isJsonStringifyCall(parent) || (parent as estree.CallExpression).arguments[0] !== call) {
+  if (!isJsonStringifyCall(parent) || parent.arguments[0] !== call) {
     return false;
   }
   const sibling = getEqualityComparisonSibling(parent);
   if (!isJsonStringifyCall(sibling)) {
     return false;
   }
-  const siblingArgument = (sibling as estree.CallExpression).arguments[0];
+  const siblingArgument = sibling.arguments[0];
   return (
     siblingArgument.type === 'CallExpression' &&
     siblingArgument.arguments.length === 1 &&

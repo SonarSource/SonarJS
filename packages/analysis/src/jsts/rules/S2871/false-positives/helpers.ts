@@ -73,15 +73,14 @@ export type ComparatorlessSortCallInfo = {
  * match calls with replacer/space arguments, `JSON['stringify'](...)`, or
  * custom objects exposing a `stringify` method.
  */
-export function isJsonStringifyCall(node: estree.Node | null): boolean {
+export function isJsonStringifyCall(node: estree.Node | null): node is estree.CallExpression {
   if (node?.type !== 'CallExpression') {
     return false;
   }
-  const callExpr = node as estree.CallExpression;
-  if (callExpr.arguments.length !== 1) {
+  if (node.arguments.length !== 1) {
     return false;
   }
-  const callee = callExpr.callee;
+  const callee = node.callee;
   if (callee.type !== 'MemberExpression') {
     return false;
   }

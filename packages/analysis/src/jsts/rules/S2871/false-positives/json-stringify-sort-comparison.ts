@@ -34,7 +34,7 @@ export function isSortUsedInJsonStringifyComparison(
   ruleContext: SortMatcherContext,
 ): boolean {
   const parent = getNodeParent(call);
-  if (!isJsonStringifyCall(parent) || (parent as estree.CallExpression).arguments[0] !== call) {
+  if (!isJsonStringifyCall(parent) || parent.arguments[0] !== call) {
     return false;
   }
   const sibling = getEqualityComparisonSibling(parent);
@@ -43,10 +43,7 @@ export function isSortUsedInJsonStringifyComparison(
   }
 
   const callInfo = getComparatorlessSortCallInfo(call, ruleContext);
-  const siblingInfo = getComparatorlessSortCallInfo(
-    (sibling as estree.CallExpression).arguments[0],
-    ruleContext,
-  );
+  const siblingInfo = getComparatorlessSortCallInfo(sibling.arguments[0], ruleContext);
   if (callInfo === null || siblingInfo === null) {
     return false;
   }
