@@ -152,3 +152,65 @@ function laterUnguardedResultUseStillUnsafe(data: object, fallback: string) {
   }
   return rendered || fallback;
 }
+
+function guardedByTypeofNotObject(value: unknown): string {
+  if (typeof value !== 'object') {
+    return `Unexpected value: ${value}`; // Compliant
+  }
+  return '';
+}
+
+function guardedByReversedTypeofNotObject(value: unknown): string {
+  if ('object' !== typeof value) {
+    return `Unexpected value: ${value}`; // Compliant
+  }
+  return '';
+}
+
+function guardedByPrimitiveTypeofDisjunction(value: unknown): string | undefined {
+  if (
+    (typeof value === 'string' && value !== '') ||
+    typeof value === 'number' ||
+    typeof value === 'bigint'
+  ) {
+    return 'value=' + value; // Compliant
+  }
+  return undefined;
+}
+
+function guardedByTypeofNotObjectConjunction(value: unknown, label: string): string {
+  if (typeof value !== 'object' && value !== null && value !== undefined) {
+    return `${label}: ${value}`; // Compliant
+  }
+  return label;
+}
+
+function reassignedAfterTypeofGuardStillUnsafe(value: string | object, replacement: object): string {
+  if (typeof value !== 'object') {
+    value = replacement;
+    return `Unexpected value: ${value}`; // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  }
+  return '';
+}
+
+function shadowedAfterTypeofGuardStillUnsafe(value: unknown, replacement: object): string {
+  if (typeof value !== 'object') {
+    const value = replacement;
+    return `Unexpected value: ${value}`; // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  }
+  return '';
+}
+
+function truthinessGuardStillUnsafe(pluginName: object, uid: object): string {
+  if (pluginName) {
+    return `plugins::${pluginName}.${uid}`; // Noncompliant {{'pluginName' will use Object's default stringification format ('[object Object]') when stringified.}} {{'uid' will use Object's default stringification format ('[object Object]') when stringified.}}
+  }
+  return `application::${uid}`; // Noncompliant {{'uid' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+}
+
+function directToStringAfterPrimitiveGuardStillUnsafe(value: unknown): string | undefined {
+  if (typeof value !== 'object') {
+    return value.toString(); // Noncompliant {{'value' may use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  }
+  return undefined;
+}
