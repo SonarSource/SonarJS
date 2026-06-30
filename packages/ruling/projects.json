@@ -75,6 +75,11 @@
     "exclusions": null
   },
   {
+    "name": "eslint",
+    "testDir": "tests",
+    "exclusions": null
+  },
+  {
     "name": "expressionist.js",
     "testDir": null,
     "exclusions": null
