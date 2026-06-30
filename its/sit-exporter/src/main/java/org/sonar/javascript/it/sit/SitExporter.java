@@ -159,7 +159,8 @@ public final class SitExporter {
       .toAbsolutePath()
       .normalize();
     if (!Files.isDirectory(projectDir)) {
-      throw new IllegalArgumentException("Project directory does not exist: " + projectDir);
+      LOG.warn("Skipping project {}: source directory does not exist ({})", project.name(), projectDir);
+      return;
     }
 
     Path projectOutputDir = config.outputDir().resolve(project.name()).toAbsolutePath().normalize();
