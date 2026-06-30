@@ -114,6 +114,16 @@ function getLocalFunctionVariable(
     return getVariableFromName(context, functionNode.id.name, functionNode) ?? null;
   }
   if (parent?.type === 'VariableDeclarator' && isIdentifier(parent.id)) {
+    const variableDeclaration = getNodeParent(parent);
+    if (variableDeclaration?.type === 'VariableDeclaration') {
+      const declarationParent = getNodeParent(variableDeclaration);
+      if (
+        declarationParent?.type === 'ExportNamedDeclaration' ||
+        declarationParent?.type === 'ExportDefaultDeclaration'
+      ) {
+        return null;
+      }
+    }
     return getVariableFromName(context, parent.id.name, parent) ?? null;
   }
   return null;

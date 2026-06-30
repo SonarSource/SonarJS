@@ -76,7 +76,7 @@ export const rule: Rule.RuleModule = {
         const type = getTypeFromTreeNode(object, services);
 
         if (allSortLike.has(text) && isArrayLikeType(type, services)) {
-          if (isSortUsedForNormalizationComparison(call)) {
+          if (fp.isSortUsedForNormalizationComparison(call, ruleContext)) {
             return;
           }
           const suggest = getSuggestions(call, type);
@@ -85,14 +85,6 @@ export const rule: Rule.RuleModule = {
         }
       },
     };
-
-    function isSortUsedForNormalizationComparison(call: estree.CallExpression): boolean {
-      return (
-        fp.isSortUsedInJsonStringifyComparison(call, ruleContext) ||
-        fp.isSortUsedInStringJoinComparison(call, ruleContext) ||
-        fp.isSortReturnedByComparedNormalizer(call, ruleContext)
-      );
-    }
 
     function getSuggestions(call: estree.CallExpression, type: ts.Type) {
       const suggestions: Rule.SuggestionReportDescriptor[] = [];

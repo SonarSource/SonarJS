@@ -580,6 +580,17 @@ describe('S2871', () => {
       `,
             errors: 1,
           },
+          // exported helper can be used outside this file: not suppressed
+          {
+            code: `
+        export const normalize = (value: string[]): string[] => value.sort();
+
+        function hasChanged(before: string[], after: string[]): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
           // alternate serialization is only suppressed when both sides sort with the same method
           {
             code: `function haveSameItems(a: number[], b: number[]): boolean { return a.slice().sort().map(String).join(',') === b.map(String).join(','); }`,
@@ -1029,6 +1040,17 @@ describe('S2871', () => {
           {
             code: `function f(a: any[], b: any[]) { return JSON.stringify(a.toSorted()) === JSON.stringify(b.toSorted()); }`,
             errors: 2,
+          },
+          // exported helper can be used outside this file: not suppressed
+          {
+            code: `
+        export const normalize = (value: string[]): string[] => value.toSorted();
+
+        function hasChanged(before: string[], after: string[]): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
           },
           // alternate serialization is only suppressed when both sides sort with the same method
           {
