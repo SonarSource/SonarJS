@@ -1,5 +1,5 @@
 {
-  "title": "Test and hook callbacks should not use both \"async\" and a completion callback",
+  "title": "Test and hook callbacks should use a single completion style",
   "type": "BUG",
   "status": "ready",
   "remediation": {

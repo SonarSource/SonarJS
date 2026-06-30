@@ -27,7 +27,7 @@ describe('S8960', () => {
     const noFrameworkFixture = path.join(import.meta.dirname, 'fixtures', 'test.js');
 
     ruleTester.run(
-      'Test and hook callbacks should not use both "async" and a completion callback',
+      'Test and hook callbacks should use a single completion style',
       rule,
       {
         valid: [
