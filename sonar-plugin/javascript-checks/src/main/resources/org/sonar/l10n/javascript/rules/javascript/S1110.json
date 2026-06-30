@@ -1,26 +1,19 @@
 {
-  "title": "Redundant pairs of parentheses should be removed",
+  "title": "Unnecessary parentheses should be removed",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "MEDIUM"
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "CLEAR"
   },
   "status": "deprecated",
   "remediation": {
     "func": "Constant/Issue",
-    "constantCost": "1min"
+    "constantCost": "2 min"
   },
   "tags": [],
-  "extra": {
-    "replacementRules": [],
-    "legacyKeys": [
-      "UselessParenthesesCheck",
-      "Parentheses"
-    ]
-  },
-  "defaultSeverity": "Major",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-1110",
   "sqKey": "S1110",
   "scope": "Main",
