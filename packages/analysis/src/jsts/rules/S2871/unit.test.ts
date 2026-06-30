@@ -624,6 +624,17 @@ describe('S2871', () => {
             code: `function haveSameItems(a: number[], b: number[]): boolean { return a.slice().sort().map(String).join(',') === b.map(String).join(','); }`,
             errors: 1,
           },
+          // computed map access is not a supported normalization chain
+          {
+            code: `
+        const map = 'map' as const;
+
+        function haveSameItems(a: number[], b: number[]): boolean {
+          return a.sort()[map](String).join(',') === b.sort()[map](String).join(',');
+        }
+      `,
+            errors: 2,
+          },
           // join-based serialization is only suppressed for numeric arrays
           {
             code: `function haveSameItems(a: string[], b: string[]): boolean { return a.sort().map(String).join(',') === b.sort().map(String).join(','); }`,

@@ -125,12 +125,14 @@ export function getChainedMethodCall(
  *
  * This recognizes the explicit conversion to strings that makes subsequent
  * default sorting intentional in the false-positive patterns handled by S2871.
+ * Computed access such as `array[map](String)` is intentionally excluded.
  */
 export function isStringMapCall(call: estree.CallExpression): boolean {
   return (
     call.arguments.length === 1 &&
     isIdentifier(call.arguments[0], 'String') &&
     call.callee.type === 'MemberExpression' &&
+    !call.callee.computed &&
     isIdentifier(call.callee.property, 'map')
   );
 }
