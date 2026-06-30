@@ -17,12 +17,12 @@
 
 import type estree from 'estree';
 import { isIdentifier } from '../../helpers/ast.js';
+import { getTypeFromTreeNode, isBigIntArray, isNumberArray } from '../../helpers/type.js';
 import {
   getChainedMethodCall,
   getComparatorlessSortCallInfo,
   getEqualityComparisonSibling,
   getJoinSeparator,
-  isPrimitiveSortReceiver,
   isStringMapCall,
   type ComparatorlessSortCallInfo,
   type SortMatcherContext,
@@ -41,10 +41,10 @@ type StringJoinSortChainInfo = ComparatorlessSortCallInfo & {
  * What can vary:
  * - `sort()` vs `toSorted()`, as long as both sides use the same sort family
  * - the equality operator (`==`, `!=`, `===`, `!==`)
- * - the join separator, as long as both sides use the same one
+ * - the join separator, as long as both sides use the same safe one
  *
  * Here the sort call is only part of a normalization pipeline used to compare
- * two primitive arrays after converting both sides to the same canonical string.
+ * two numeric arrays after converting both sides to the same canonical string.
  */
 export function isSortUsedInStringJoinComparison(
   call: estree.CallExpression,
@@ -63,8 +63,21 @@ export function isSortUsedInStringJoinComparison(
     siblingInfo !== null &&
     callInfo.methodName === siblingInfo.methodName &&
     callInfo.joinSeparator === siblingInfo.joinSeparator &&
-    isPrimitiveSortReceiver(callInfo.receiver, ruleContext) &&
-    isPrimitiveSortReceiver(siblingInfo.receiver, ruleContext)
+    isSafeNumericJoinSeparator(callInfo.joinSeparator) &&
+    isNumericSortReceiver(callInfo.receiver, ruleContext) &&
+    isNumericSortReceiver(siblingInfo.receiver, ruleContext)
+  );
+}
+
+function isSafeNumericJoinSeparator(separator: string): boolean {
+  return separator.length > 0 && !/[0-9+\-.eEn]/.test(separator);
+}
+
+function isNumericSortReceiver(receiver: estree.Node, ruleContext: SortMatcherContext): boolean {
+  const receiverType = getTypeFromTreeNode(receiver, ruleContext.services);
+  return (
+    isNumberArray(receiverType, ruleContext.services) ||
+    isBigIntArray(receiverType, ruleContext.services)
   );
 }
 
