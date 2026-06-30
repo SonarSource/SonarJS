@@ -18,11 +18,16 @@ import { rule } from './index.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 import parser from 'vue-eslint-parser';
+import tsParser from '@typescript-eslint/parser';
 
 const ruleTesterVue = new NoTypeCheckingRuleTester({ parser });
+const ruleTesterVueTs = new NoTypeCheckingRuleTester({
+  parser,
+  parserOptions: { parser: tsParser },
+});
 
-describe('S8952', () => {
-  it('S8952 (external: vue/require-prop-types)', () => {
+describe('S8957', () => {
+  it('S8957 (external: vue/require-prop-types)', () => {
     ruleTesterVue.run('Vue component props should declare their type', rule, {
       valid: [
         {
@@ -34,8 +39,8 @@ describe('S8952', () => {
           code: `<script>export default { props: { status: { type: String, required: true } } };</script>`,
         },
         {
-          // type-based defineProps
-          code: `<script setup lang="ts">defineProps<{ status: string }>();</script>`,
+          // defineProps with runtime type declaration
+          code: `<script setup>defineProps({ status: String });</script>`,
         },
       ],
       invalid: [
@@ -50,6 +55,16 @@ describe('S8952', () => {
           errors: 1,
         },
       ],
+    });
+
+    ruleTesterVueTs.run('Vue component props should declare their type', rule, {
+      valid: [
+        {
+          // type-based defineProps — exempt from the rule
+          code: `<script setup lang="ts">defineProps<{ status: string }>();</script>`,
+        },
+      ],
+      invalid: [],
     });
   });
 });
