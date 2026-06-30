@@ -14,16 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S2925/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S8959/javascript
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  getUniqueWriteUsage,
-  isIdentifier,
-  isMethodCall,
-  isNumberLiteral,
-} from '../helpers/ast.js';
+import { isIdentifier, isMethodCall } from '../helpers/ast.js';
 import { chainStartsWithCy } from '../helpers/cypress.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isTestRelatedFile } from '../helpers/test-file-pattern.js';
@@ -32,7 +27,7 @@ import * as meta from './generated-meta.js';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      fixedWait: 'Replace this fixed wait with a synchronization on an observable condition.',
+      removeDebugCommand: 'Remove this debug command from the test.',
     },
   }),
   create(context: Rule.RuleContext) {
@@ -49,49 +44,22 @@ export const rule: Rule.RuleModule = {
 
         const property = call.callee.property;
         const methodName = property.name;
-        if (methodName === 'wait' && chainStartsWithCy(call.callee.object)) {
-          reportCypressWait(context, call, property);
-        } else if (methodName === 'waitForTimeout' && isIdentifier(call.callee.object, 'page')) {
-          reportFixedWait(context, property);
+        if (
+          (methodName === 'pause' || methodName === 'debug') &&
+          chainStartsWithCy(call.callee.object)
+        ) {
+          reportDebugCommand(context, property);
+        } else if (methodName === 'pause' && isIdentifier(call.callee.object, 'page')) {
+          reportDebugCommand(context, property);
         }
       },
     };
   },
 };
 
-function reportCypressWait(
-  context: Rule.RuleContext,
-  call: estree.CallExpression,
-  reportNode: estree.Node,
-) {
-  const [firstArgument] = call.arguments;
-  if (!firstArgument) {
-    return;
-  }
-  if (isNumericLiteralOrUnaryNumericLiteral(firstArgument)) {
-    reportFixedWait(context, reportNode);
-    return;
-  }
-  if (firstArgument.type === 'Identifier') {
-    const resolved = getUniqueWriteUsage(context, firstArgument.name, firstArgument);
-    if (resolved && isNumericLiteralOrUnaryNumericLiteral(resolved)) {
-      reportFixedWait(context, reportNode);
-    }
-  }
-}
-
-function isNumericLiteralOrUnaryNumericLiteral(node: estree.Node) {
-  return (
-    isNumberLiteral(node) ||
-    (node.type === 'UnaryExpression' &&
-      (node.operator === '+' || node.operator === '-') &&
-      isNumberLiteral(node.argument))
-  );
-}
-
-function reportFixedWait(context: Rule.RuleContext, node: estree.Node) {
+function reportDebugCommand(context: Rule.RuleContext, node: estree.Node) {
   context.report({
     node,
-    messageId: 'fixedWait',
+    messageId: 'removeDebugCommand',
   });
 }

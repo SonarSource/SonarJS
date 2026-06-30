@@ -1,5 +1,5 @@
 {
-  "title": "Fixed waits and debug commands should not be used in tests",
+  "title": "Fixed waits should not be used in tests",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {

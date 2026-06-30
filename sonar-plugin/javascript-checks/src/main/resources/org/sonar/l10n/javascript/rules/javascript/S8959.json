@@ -1,0 +1,33 @@
+{
+  "title": "UI test debug commands should not be committed to version control",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [
+    "tests",
+    "bad-practice",
+    "cypress",
+    "playwright"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8959",
+  "sqKey": "S8959",
+  "scope": "Tests",
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  },
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
