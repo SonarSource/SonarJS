@@ -50,13 +50,15 @@ export function isSortUsedInStringJoinComparison(
   call: estree.CallExpression,
   ruleContext: SortMatcherContext,
 ): boolean {
-  const chainRoot = getStringJoinSortChainRoot(call);
+  const chainRoot = getEnclosingJoinCall(call);
   if (chainRoot === null) {
     return false;
   }
-  const sibling = getEqualityComparisonSibling(chainRoot);
   const callInfo = getStringJoinSortChainInfo(chainRoot, ruleContext);
-  const siblingInfo = getStringJoinSortChainInfo(sibling, ruleContext);
+  const siblingInfo = getStringJoinSortChainInfo(
+    getEqualityComparisonSibling(chainRoot),
+    ruleContext,
+  );
 
   return (
     callInfo !== null &&
@@ -81,16 +83,21 @@ function isNumericSortReceiver(receiver: estree.Node, ruleContext: SortMatcherCo
   );
 }
 
-function getStringJoinSortChainRoot(call: estree.CallExpression): estree.CallExpression | null {
-  const mapCall = getChainedMethodCall(call, 'map');
-  if (mapCall === null || !isStringMapCall(mapCall)) {
+/**
+ * Climbs the `sort() -> map(...) -> join(...)` chain from a comparator-less
+ * sort call to the enclosing `join(...)` call — the root of the serialization
+ * pipeline and the operand of the comparison.
+ *
+ * No shape validation happens here on purpose: `getStringJoinSortChainInfo` is
+ * the single place that decides whether a `join(...)` call is an accepted
+ * normalization chain, so both comparison sides are validated identically.
+ */
+function getEnclosingJoinCall(sortCall: estree.CallExpression): estree.CallExpression | null {
+  const mapCall = getChainedMethodCall(sortCall, 'map');
+  if (mapCall === null) {
     return null;
   }
-  const joinCall = getChainedMethodCall(mapCall, 'join');
-  if (joinCall === null || getJoinSeparator(joinCall) === null) {
-    return null;
-  }
-  return joinCall;
+  return getChainedMethodCall(mapCall, 'join');
 }
 
 function getStringJoinSortChainInfo(
