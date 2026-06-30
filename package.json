@@ -85,7 +85,7 @@
     "glob": "13.0.6",
     "husky": "9.1.7",
     "json-schema-to-ts": "3.1.1",
-    "knip": "6.18.0",
+    "knip": "6.19.0",
     "license-checker": "25.0.1",
     "memfs": "4.57.8",
     "node-reporter-sonarqube": "1.0.3",
