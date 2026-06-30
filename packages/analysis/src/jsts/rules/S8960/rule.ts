@@ -26,8 +26,10 @@ import { getMochaCalleeParts } from '../helpers/mocha-style-test-frameworks.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
-  singleCompletionStyle:
-    'Use a single completion style for this test or hook callback: remove the completion callback or stop declaring the callback `async`.',
+  singleTestCompletionStyle:
+    'Use a single completion style for this test callback: remove the completion callback or stop declaring the callback `async`.',
+  singleHookCompletionStyle:
+    'Use a single completion style for this hook callback: remove the completion callback or stop declaring the callback `async`.',
 } as const;
 
 const JEST_IMPORTS = ['jest', '@jest/globals'];
@@ -52,6 +54,7 @@ const COMMON_TEST_MODIFIERS = new Set(['only']);
 const JEST_TEST_MODIFIERS = new Set(['concurrent', 'failing']);
 
 type FunctionNode = estree.FunctionExpression | estree.ArrowFunctionExpression;
+type ConstructKind = 'test' | 'hook';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
@@ -84,9 +87,13 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        if (
-          !isSupportedTestOrHookCall(context, node, activeFrameworks.jest, allowGlobalConstructs)
-        ) {
+        const constructKind = getConstructKind(
+          context,
+          node,
+          activeFrameworks.jest,
+          allowGlobalConstructs,
+        );
+        if (constructKind === undefined) {
           return;
         }
 
@@ -95,12 +102,15 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
+        const messageId =
+          constructKind === 'hook' ? 'singleHookCompletionStyle' : 'singleTestCompletionStyle';
+
         report(
           context,
           {
             loc: asyncToken.loc,
-            messageId: 'singleCompletionStyle',
-            message: messages.singleCompletionStyle,
+            messageId,
+            message: messages[messageId],
           },
           [toSecondaryLocation(completionCallback, 'Completion callback parameter.')],
         );
@@ -124,15 +134,15 @@ function getCompletionCallbackParameter(callback: FunctionNode): estree.Identifi
   return isIdentifier(firstParameter) ? firstParameter : undefined;
 }
 
-function isSupportedTestOrHookCall(
+function getConstructKind(
   context: Rule.RuleContext,
   node: estree.CallExpression,
   jestActive: boolean,
   allowGlobalConstructs: boolean,
-): boolean {
+): ConstructKind | undefined {
   const calleeParts = getMochaCalleeParts(node.callee);
   if (calleeParts === undefined) {
-    return false;
+    return undefined;
   }
 
   const construct = getSupportedConstruct(
@@ -142,14 +152,16 @@ function isSupportedTestOrHookCall(
     allowGlobalConstructs,
   );
   if (construct === undefined) {
-    return false;
+    return undefined;
   }
 
   if (HOOK_FUNCTION_NAMES.has(construct.name)) {
-    return construct.modifiers.length === 0;
+    return construct.modifiers.length === 0 ? 'hook' : undefined;
   }
 
-  return construct.modifiers.every(modifier => isConcreteTestModifier(modifier, jestActive));
+  return construct.modifiers.every(modifier => isConcreteTestModifier(modifier, jestActive))
+    ? 'test'
+    : undefined;
 }
 
 function getSupportedConstruct(

@@ -82,7 +82,7 @@ it('loads config', async done => {
   done();
 });`,
             filename: fixture('jest-globals'),
-            errors: [{ messageId: 'singleCompletionStyle' }],
+            errors: [{ messageId: 'singleTestCompletionStyle' }],
           },
           {
             code: `import { it } from '@jest/globals';
@@ -91,7 +91,7 @@ it('loads config', async done => {
   done();
 }, 5_000);`,
             filename: fixture('jest-globals'),
-            errors: [{ messageId: 'singleCompletionStyle' }],
+            errors: [{ messageId: 'singleTestCompletionStyle' }],
           },
           {
             code: `import { beforeEach } from 'mocha';
@@ -99,7 +99,7 @@ beforeEach(async done => {
   connectToDatabase(error => done(error));
 });`,
             filename: fixture('mocha-globals'),
-            errors: [{ messageId: 'singleCompletionStyle' }],
+            errors: [{ messageId: 'singleHookCompletionStyle' }],
           },
           {
             code: `import * as jestGlobals from '@jest/globals';
@@ -108,7 +108,7 @@ jestGlobals.it('loads config', async done => {
   done();
 });`,
             filename: fixture('jest-globals'),
-            errors: [{ messageId: 'singleCompletionStyle' }],
+            errors: [{ messageId: 'singleTestCompletionStyle' }],
           },
           {
             code: `it('loads config', async done => {
@@ -116,7 +116,7 @@ jestGlobals.it('loads config', async done => {
   done();
 });`,
             filename: fixture('jasmine-globals'),
-            errors: [{ messageId: 'singleCompletionStyle' }],
+            errors: [{ messageId: 'singleTestCompletionStyle' }],
           },
         ],
       },
