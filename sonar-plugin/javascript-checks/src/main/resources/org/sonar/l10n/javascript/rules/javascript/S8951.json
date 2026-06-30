@@ -1,5 +1,5 @@
 {
-  "title": "Vue component props should not be mutated",
+  "title": "Vue component props should not be mutated directly",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -20,7 +20,7 @@
   "scope": "Main",
   "code": {
     "impacts": {
-      "RELIABILITY": "MEDIUM"
+      "MAINTAINABILITY": "MEDIUM"
     },
     "attribute": "LOGICAL"
   },
@@ -28,5 +28,8 @@
     "js",
     "ts"
   ],
-  "defaultQualityProfiles": []
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "quickfix": "infeasible"
 }
