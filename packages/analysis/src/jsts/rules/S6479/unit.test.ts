@@ -80,7 +80,37 @@ export const MyComponent = ({items}) => {
     return <>{items.map((_item, index) => {
       return <div key={computeKey(index)}/>;
     })}</>;
-} // this test should trigger the rule but it seems ESLint is missing it
+}
+`,
+        },
+        {
+          code: `
+export const MyComponent = () => {
+    return <>{Array.from({ length: 3 }).map((_item, index) => {
+      return <div key={index}>{index}</div>;
+    })}</>;
+}
+`,
+        },
+        {
+          code: `
+export const MyComponent = () => {
+    return <>{['left', 'center', 'right'].map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+        },
+        {
+          code: `
+export const MyComponent = () => {
+    const tabs = ['home', 'settings', 'profile'];
+    const staticTabs = tabs;
+
+    return <>{staticTabs.map((tab, index) => {
+      return <div key={index}>{tab}</div>;
+    })}</>;
+}
 `,
         },
       ],
@@ -100,6 +130,78 @@ export const MyComponent = ({items}) => {
 export const MyComponent = ({items}) => {
     return <>{items.map((item, index) => {
       return <div key={\`\${index}\`}>{item.id}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        {
+          code: `
+export const MyComponent = ({items}) => {
+    return <>{[...items].map((item, index) => {
+      return <div key={index}>{item.id}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        {
+          code: `
+export const MyComponent = () => {
+    const items = [];
+    items.push('left');
+    items.push('right');
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        {
+          code: `
+export const MyComponent = () => {
+    const items = ['a', 'b', 'c'];
+    const alias = items;
+    alias.push('d');
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        // M1: inline array with identifier elements is not static
+        {
+          code: `
+export const MyComponent = ({ leftTab, rightTab }) => {
+    return <>{[leftTab, rightTab].map((tab, index) => {
+      return <div key={index}>{tab}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        // M2: index from outer map used inside nested find callback — should still report
+        {
+          code: `
+const STATIC = ['home', 'about', 'contact'];
+export const MyComponent = ({ items }) => {
+    return <>{items.map((item, index) => (
+      STATIC.find((_, i) => <div key={index}>{item}</div>)
+    ))}</>;
+}
+`,
+          errors: 1,
+        },
+        // M4: Array.from with dynamic length is not a placeholder list
+        {
+          code: `
+export const MyComponent = ({ users }) => {
+    return <>{Array.from({ length: users.length }).map((_, index) => {
+      return <div key={index}>{users[index]}</div>;
     })}</>;
 }
 `,
