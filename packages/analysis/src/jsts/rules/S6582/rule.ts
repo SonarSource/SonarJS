@@ -277,17 +277,11 @@ export const rule: Rule.RuleModule = {
     // Records source text of null-guarded subjects: `!x` in || chains, bare `x` in && chains.
     // Source text covers identifier, `this.prop`, and `ref.current`-style member subjects.
     function collectGuardedSubjects(node: Rule.Node, subjects: Set<string>): void {
-      if (
-        node.type === 'UnaryExpression' &&
-        (node as Rule.Node & { operator: string }).operator === '!'
-      ) {
-        const argument = (node as Rule.Node & { argument: Rule.Node }).argument;
-        if (argument) {
-          subjects.add(context.sourceCode.getText(argument));
-        }
+      if (node.type === 'UnaryExpression' && node.operator === '!') {
+        subjects.add(context.sourceCode.getText(node.argument as Rule.Node));
       } else if (node.type === 'LogicalExpression') {
-        collectGuardedSubjects(node.left, subjects);
-        collectGuardedSubjects(node.right, subjects);
+        collectGuardedSubjects(node.left as Rule.Node, subjects);
+        collectGuardedSubjects(node.right as Rule.Node, subjects);
       } else {
         subjects.add(context.sourceCode.getText(node));
       }
@@ -298,27 +292,21 @@ export const rule: Rule.RuleModule = {
     // the partial fix (e.g. `!a || a.x !== b?.x`) is unreadable and misleads customers
     // into writing the full fix (`a?.x !== b?.x`) which silently changes semantics.
     function matchesMultipleNullableSubjectsFalsePositive(node: Rule.Node): boolean {
-      if (node.right?.type !== 'BinaryExpression') {
+      if (node.type !== 'LogicalExpression' || node.right.type !== 'BinaryExpression') {
         return false;
       }
 
-      const binary = node.right as Rule.Node & {
-        operator: string;
-        left: Rule.Node;
-        right: Rule.Node;
-      };
-
+      const binary = node.right;
       if (!DANGEROUS_OPERATORS.has(binary.operator)) {
         return false;
       }
 
-      const { left: compLeft, right: compRight } = binary;
-      if (compLeft.type !== 'MemberExpression' || compRight.type !== 'MemberExpression') {
+      if (binary.left.type !== 'MemberExpression' || binary.right.type !== 'MemberExpression') {
         return false;
       }
 
-      const leftObj = (compLeft as Rule.Node & { object: Rule.Node }).object;
-      const rightObj = (compRight as Rule.Node & { object: Rule.Node }).object;
+      const leftObj = binary.left.object as Rule.Node;
+      const rightObj = binary.right.object as Rule.Node;
 
       const leftText = context.sourceCode.getText(leftObj);
       const rightText = context.sourceCode.getText(rightObj);
@@ -338,7 +326,7 @@ export const rule: Rule.RuleModule = {
       }
 
       const guardedSubjects = new Set<string>();
-      collectGuardedSubjects(node.left, guardedSubjects);
+      collectGuardedSubjects(node.left as Rule.Node, guardedSubjects);
       return guardedSubjects.has(leftText) && guardedSubjects.has(rightText);
     }
 
