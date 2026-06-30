@@ -20,8 +20,14 @@
 // https://github.com/jsx-eslint/eslint-plugin-react/blob/0a2f6b7e9df32215fcd4e3061ec69ea3f2eef793/lib/rules/no-array-index-key.js#L16
 
 import type { TSESTree } from '@typescript-eslint/utils';
+import type estree from 'estree';
 import { rules } from '../external/react.js';
-import { getProperty, getVariableFromName, isIdentifier } from '../helpers/ast.js';
+import {
+  getProperty,
+  getVariableFromName,
+  isIdentifier,
+  type Node as AstNode,
+} from '../helpers/ast.js';
 import { writingMethods } from '../helpers/collection.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
@@ -29,6 +35,11 @@ import type { Rule, Scope } from 'eslint';
 import * as meta from './generated-meta.js';
 
 const baseRule = rules['no-array-index-key'];
+type IteratorCall = TSESTree.CallExpression & {
+  callee: TSESTree.MemberExpression & { property: TSESTree.Identifier };
+};
+type TransparentExpressionWrapper = AstNode & { expression: AstNode };
+
 const ITERATOR_INDEX_PARAMETER_POSITIONS = new Map([
   ['every', 1],
   ['filter', 1],
@@ -85,11 +96,7 @@ function isStaticListKey(node: TSESTree.Node, context: Rule.RuleContext): boolea
  * @param node Reported key node from the upstream rule.
  * @return The enclosing iterator call when it exists.
  */
-function findEnclosingIteratorCall(node: TSESTree.Node):
-  | (TSESTree.CallExpression & {
-      callee: TSESTree.MemberExpression & { property: TSESTree.Identifier };
-    })
-  | undefined {
+function findEnclosingIteratorCall(node: TSESTree.Node): IteratorCall | undefined {
   let current = node.parent;
   while (current) {
     if (current.type === 'ArrowFunctionExpression' || current.type === 'FunctionExpression') {
@@ -108,11 +115,7 @@ function findEnclosingIteratorCall(node: TSESTree.Node):
  */
 function getIteratorCallFromCallback(
   callback: TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression,
-):
-  | (TSESTree.CallExpression & {
-      callee: TSESTree.MemberExpression & { property: TSESTree.Identifier };
-    })
-  | undefined {
+): IteratorCall | undefined {
   const callExpression = callback.parent;
   if (
     callExpression?.type !== 'CallExpression' ||
@@ -127,15 +130,12 @@ function getIteratorCallFromCallback(
   const indexParameterPosition = ITERATOR_INDEX_PARAMETER_POSITIONS.get(
     callExpression.callee.property.name,
   );
-  if (
-    indexParameterPosition === undefined ||
-    callback.params.length <= indexParameterPosition ||
-    callback.params[indexParameterPosition].type !== 'Identifier'
-  ) {
+  const indexParameter = callback.params[indexParameterPosition ?? 0];
+  if (indexParameterPosition === undefined || indexParameter?.type !== 'Identifier') {
     return undefined;
   }
 
-  return callExpression;
+  return callExpression as IteratorCall;
 }
 
 /**
@@ -144,11 +144,11 @@ function getIteratorCallFromCallback(
  * @param context ESLint rule context.
  * @return True when the source is known to be static.
  */
-function hasStaticListSource(source: TSESTree.Expression, context: Rule.RuleContext): boolean {
+function hasStaticListSource(source: AstNode, context: Rule.RuleContext): boolean {
   return (
     isStaticArrayExpression(source) ||
     isArrayFromLengthCall(source, context) ||
-    resolveConstStaticArrayExpression(source, context, new Set()) !== undefined
+    resolvesToConstStaticArrayExpression(source, context, new Set())
   );
 }
 
@@ -157,9 +157,7 @@ function hasStaticListSource(source: TSESTree.Expression, context: Rule.RuleCont
  * @param node Candidate array expression.
  * @return True when the array contains no spread elements.
  */
-function isStaticArrayExpression(
-  node: TSESTree.Node | null | undefined,
-): node is TSESTree.ArrayExpression {
+function isStaticArrayExpression(node: AstNode | null | undefined): boolean {
   return (
     node?.type === 'ArrayExpression' &&
     node.elements.every(element => element === null || element.type !== 'SpreadElement')
@@ -172,7 +170,7 @@ function isStaticArrayExpression(
  * @param context ESLint rule context.
  * @return True when the node creates a fixed-length synthetic list.
  */
-function isArrayFromLengthCall(node: TSESTree.Node, context: Rule.RuleContext): boolean {
+function isArrayFromLengthCall(node: AstNode, context: Rule.RuleContext): boolean {
   if (
     node.type !== 'CallExpression' ||
     node.callee.type !== 'MemberExpression' ||
@@ -188,7 +186,13 @@ function isArrayFromLengthCall(node: TSESTree.Node, context: Rule.RuleContext): 
     return false;
   }
 
-  return getProperty(unwrapExpression(firstArgument), 'length', context) != null;
+  return (
+    getProperty(
+      unwrapExpression(firstArgument) as estree.Node | null | undefined,
+      'length',
+      context,
+    ) != null
+  );
 }
 
 /**
@@ -196,19 +200,19 @@ function isArrayFromLengthCall(node: TSESTree.Node, context: Rule.RuleContext): 
  * @param node Candidate identifier or initializer.
  * @param context ESLint rule context.
  * @param visited Previously visited variables to avoid recursive loops.
- * @return The resolved static array literal when one exists.
+ * @return True when the initializer chain resolves to a static array literal.
  */
-function resolveConstStaticArrayExpression(
-  node: TSESTree.Node | null | undefined,
+function resolvesToConstStaticArrayExpression(
+  node: AstNode | null | undefined,
   context: Rule.RuleContext,
   visited: Set<Scope.Variable>,
-): TSESTree.ArrayExpression | undefined {
-  const expression = unwrapExpression(node);
+): boolean {
+  const expression = unwrapExpression(node) ?? undefined;
   if (isStaticArrayExpression(expression)) {
-    return expression;
+    return true;
   }
   if (!isIdentifier(expression)) {
-    return undefined;
+    return false;
   }
 
   const variable = getVariableFromName(context, expression.name, expression);
@@ -222,11 +226,11 @@ function resolveConstStaticArrayExpression(
     variable.defs[0].node.id.type !== 'Identifier' ||
     hasCollectionMutation(variable)
   ) {
-    return undefined;
+    return false;
   }
 
   visited.add(variable);
-  return resolveConstStaticArrayExpression(variable.defs[0].node.init, context, visited);
+  return resolvesToConstStaticArrayExpression(variable.defs[0].node.init, context, visited);
 }
 
 /**
@@ -270,17 +274,22 @@ function isCollectionMutation(reference: Scope.Reference): boolean {
  * @param node Expression that may be wrapped by type assertions or parentheses.
  * @return The innermost wrapped expression.
  */
-function unwrapExpression(
-  node: TSESTree.Node | null | undefined,
-): TSESTree.Expression | null | undefined {
-  if (
-    node?.type === 'ParenthesizedExpression' ||
-    node?.type === 'TSAsExpression' ||
-    node?.type === 'TSTypeAssertion' ||
-    node?.type === 'TSNonNullExpression'
-  ) {
+function unwrapExpression(node: AstNode | null | undefined): AstNode | null | undefined {
+  if (isTransparentExpressionWrapper(node)) {
     return unwrapExpression(node.expression);
   }
 
-  return node as TSESTree.Expression | null | undefined;
+  return node;
+}
+
+function isTransparentExpressionWrapper(
+  node: AstNode | null | undefined,
+): node is TransparentExpressionWrapper {
+  return (
+    node != null &&
+    ((node.type as string) === 'ParenthesizedExpression' ||
+      (node.type as string) === 'TSAsExpression' ||
+      (node.type as string) === 'TSTypeAssertion' ||
+      (node.type as string) === 'TSNonNullExpression')
+  );
 }
