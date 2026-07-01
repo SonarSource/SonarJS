@@ -59,6 +59,53 @@ describe('global expect', () => {
         },
         {
           code: `
+const chai = require('chai');
+describe('chai should chains', () => {
+  it('recognizes property and lengthOf chains', () => {
+    const user = { pets: ['cat', 'dog', 'bird', 'fish'] };
+    user.should.have.property('pets').with.lengthOf(4);
+  });
+});
+          `,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('chai should property assertions', () => {
+  it('recognizes terminal assertion properties', () => {
+    const warning = { isVisible: () => true };
+    warning.isVisible().should.be.true;
+  });
+});
+          `,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('sinon-chai style terminal calls', () => {
+  it('recognizes calledWith on should chains', () => {
+    const submitPassword = { should: { have: { been: { calledWith: () => {} } } } };
+    submitPassword.should.have.been.calledWith('secret');
+  });
+});
+          `,
+        },
+        {
+          code: `
+const chai = require('chai');
+const { assert } = chai;
+describe('additional chai assert methods', () => {
+  it('recognizes instance and is', () => {
+    function Constructor() {}
+    const value = new Constructor();
+    assert.instance(value, Constructor);
+    assert.is(value, value);
+  });
+});
+          `,
+        },
+        {
+          code: `
 describe('no import from test library', () => {
   it('should not fail', () => {
     // no-op
@@ -208,6 +255,50 @@ describe('chai test cases', () => {
 });`,
           errors: 1,
         },
+        {
+          code: `
+const chai = require('chai');
+describe('bare should access', () => {
+  it('should raise when should is not completed', () => {
+    const user = {};
+    user.should;
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('unrelated method names', () => {
+  it('should raise when methods only look like assertions', () => {
+    const helper = {
+      property() {},
+      lengthOf() {},
+      calledWith() {},
+    };
+    helper.property('pets');
+    helper.lengthOf(4);
+    helper.calledWith('secret');
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('shadowed assert helper', () => {
+  it('should raise for local assert objects', () => {
+    const assert = {
+      instance() {},
+      is() {},
+      ok() {},
+    };
+    assert.instance({}, Object);
+    assert.is(1, 1);
+  });
+});`,
+          errors: 1,
+        },
         // expectX function without chained assertion method should still raise
         {
           code: `
@@ -302,6 +393,43 @@ describe('no import from test library', () => {
 });`,
         },
         // RxJS marble testing in TypeScript: expectObservable/expectSubscriptions
+        {
+          code: `
+import { expect } from 'chai';
+
+declare global {
+  interface Object {
+    should: any;
+  }
+}
+
+describe('typed chai should chains', () => {
+  it('should recognize property and lengthOf chains', () => {
+    const user = { pets: ['cat', 'dog', 'bird', 'fish'] };
+    user.should.have.property('pets').with.lengthOf(4);
+  });
+
+  it('should recognize terminal property assertions', () => {
+    const warning = { isVisible: () => true };
+    warning.isVisible().should.be.true;
+  });
+});
+`,
+        },
+        {
+          code: `
+import { assert, expect } from 'chai';
+
+describe('typed chai assert additions', () => {
+  it('should recognize instance and is', () => {
+    class Constructor {}
+    const value = new Constructor();
+    assert.instance(value, Constructor);
+    assert.is(value, value);
+  });
+});
+`,
+        },
         {
           code: `
 import { expect } from 'chai';

@@ -35,6 +35,12 @@ import {
   isTSAssertion,
 } from '../helpers/assertion-detection.js';
 import * as meta from './generated-meta.js';
+import {
+  isAdditionalAssertion,
+  isAdditionalTSAssertion,
+  isStandaloneShouldAccess,
+  isStandaloneTSShouldAccess,
+} from './assertion-detectors.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
@@ -223,7 +229,10 @@ class TestCaseAssertionVisitor {
       return visitedTSNodes.get(node)!;
     }
     visitedTSNodes.set(node, false);
-    if (isTSAssertion(services, node)) {
+    if (
+      (isTSAssertion(services, node) && !isStandaloneTSShouldAccess(node)) ||
+      isAdditionalTSAssertion(services, node)
+    ) {
       visitedTSNodes.set(node, true);
       return true;
     }
@@ -262,7 +271,10 @@ class TestCaseAssertionVisitor {
       return visitedNodes.get(node)!;
     }
     visitedNodes.set(node, false);
-    if (isAssertion(context, node)) {
+    if (
+      (isAssertion(context, node) && !isStandaloneShouldAccess(context, node)) ||
+      isAdditionalAssertion(context, node)
+    ) {
       visitedNodes.set(node, true);
       return true;
     }
