@@ -208,6 +208,38 @@ function hasDirectObjectSelectionEvidence(
 }
 
 /**
+ * Resolves an expression to evidence by matching a base case directly or by
+ * tracing an identifier through its definitions.
+ *
+ * The object, array-receiver, and array-element walks share this traversal;
+ * each supplies its own base-case matcher and definition handler. `visited`
+ * guards against cycles between identifier definitions.
+ */
+function hasIdentifierEvidence(
+  node: estree.Node,
+  sourceCode: SourceCode,
+  visited: Set<Scope.Variable>,
+  matchesBaseCase: (node: estree.Node) => boolean,
+  hasDefinitionEvidence: (definition: Scope.Definition, variable: Scope.Variable) => boolean,
+): boolean {
+  if (matchesBaseCase(node)) {
+    return true;
+  }
+
+  if (node.type !== 'Identifier') {
+    return false;
+  }
+
+  const variable = getVariableFromScope(sourceCode.getScope(node), node.name);
+  if (!variable || visited.has(variable)) {
+    return false;
+  }
+  visited.add(variable);
+
+  return variable.defs.some(definition => hasDefinitionEvidence(definition, variable));
+}
+
+/**
  * Resolves an expression to determine whether it should count as direct object
  * evidence for the fallback.
  *
@@ -225,22 +257,13 @@ function hasDirectObjectEvidence(
   sourceCode: SourceCode,
   visitedVariables: Set<Scope.Variable>,
 ): boolean {
-  if (isThisExpression(node) || isDirectObjectExpression(node)) {
-    return true;
-  }
-
-  if (node.type !== 'Identifier') {
-    return false;
-  }
-
-  const variable = getVariableFromScope(sourceCode.getScope(node), node.name);
-  if (!variable || visitedVariables.has(variable)) {
-    return false;
-  }
-  visitedVariables.add(variable);
-
-  return variable.defs.some(definition =>
-    hasDirectObjectDefinition(definition, variable, sourceCode, visitedVariables),
+  return hasIdentifierEvidence(
+    node,
+    sourceCode,
+    visitedVariables,
+    candidate => isThisExpression(candidate) || isDirectObjectExpression(candidate),
+    (definition, variable) =>
+      hasDirectObjectDefinition(definition, variable, sourceCode, visitedVariables),
   );
 }
 
@@ -263,7 +286,7 @@ function hasDirectObjectDefinition(
       return (
         !variable.references.some(reference => reference.isWrite()) &&
         (hasReduceCallbackParameterEvidence(definition, sourceCode, visitedVariables) ||
-          hasDirectObjectCallSites(definition, sourceCode))
+          everyDirectCallSiteArgumentMatches(definition, sourceCode, isDirectObjectArgument))
       );
     case 'Variable': {
       const initializer = definition.node.init;
@@ -356,67 +379,62 @@ function hasArrayReceiverEvidence(
   sourceCode: SourceCode,
   visitedVariables: Set<Scope.Variable>,
 ): boolean {
+  return hasIdentifierEvidence(
+    node,
+    sourceCode,
+    visitedVariables,
+    candidate => matchesArrayReceiverBaseCase(candidate, sourceCode),
+    (definition, variable) =>
+      hasArrayDefinitionEvidence(definition, variable, sourceCode, () => true),
+  );
+}
+
+/**
+ * Recognizes receivers that are provably array or array-like without tracing an
+ * identifier: an array literal, or a value whose type resolves to an array.
+ */
+function matchesArrayReceiverBaseCase(node: estree.Node, sourceCode: SourceCode): boolean {
   if (node.type === 'ArrayExpression') {
     return true;
   }
 
   if (isRequiredParserServices(sourceCode.parserServices)) {
     const type = getTypeFromTreeNode(node, sourceCode.parserServices);
-    if (isArrayLikeType(type, sourceCode.parserServices)) {
-      return true;
-    }
+    return isArrayLikeType(type, sourceCode.parserServices);
   }
 
-  if (node.type !== 'Identifier') {
-    return false;
-  }
-
-  const variable = getVariableFromScope(sourceCode.getScope(node), node.name);
-  if (!variable || visitedVariables.has(variable)) {
-    return false;
-  }
-  visitedVariables.add(variable);
-
-  return variable.defs.some(definition =>
-    hasArrayDefinitionEvidence(definition, variable, sourceCode),
-  );
+  return false;
 }
 
+/**
+ * Traces a variable or parameter to an array literal, accepting it only when
+ * `matchesArrayLiteral` also holds. Receiver evidence passes `() => true`;
+ * element evidence additionally requires the literal to hold object elements.
+ */
 function hasArrayDefinitionEvidence(
   definition: Scope.Definition,
   variable: Scope.Variable,
   sourceCode: SourceCode,
+  matchesArrayLiteral: (initializer: estree.ArrayExpression) => boolean,
 ): boolean {
   switch (definition.type) {
     case 'Variable': {
       const initializer = definition.node.init;
       return (
-        initializer?.type === 'ArrayExpression' && getUniqueWriteReference(variable) === initializer
+        initializer?.type === 'ArrayExpression' &&
+        getUniqueWriteReference(variable) === initializer &&
+        matchesArrayLiteral(initializer)
       );
     }
     case 'Parameter':
-      return hasDirectArrayCallSites(definition, sourceCode);
+      return everyDirectCallSiteArgumentMatches(
+        definition,
+        sourceCode,
+        argument => argument?.type === 'ArrayExpression' && matchesArrayLiteral(argument),
+      );
     default:
       return false;
   }
-}
-
-function hasDirectArrayCallSites(definition: Scope.Definition, sourceCode: SourceCode): boolean {
-  if (definition.name.type !== 'Identifier' || !isFunctionNode(definition.node)) {
-    return false;
-  }
-
-  const parameterIndex = definition.node.params.indexOf(definition.name);
-  if (parameterIndex === -1) {
-    return false;
-  }
-
-  const callSites = findDirectCallSites(definition.node, sourceCode);
-  return (
-    callSites !== null &&
-    callSites.length > 0 &&
-    callSites.every(callSite => callSite.arguments[parameterIndex]?.type === 'ArrayExpression')
-  );
 }
 
 function hasArrayElementObjectEvidence(
@@ -425,72 +443,17 @@ function hasArrayElementObjectEvidence(
   visitedVariables: Set<Scope.Variable>,
   visitedArrayVariables: Set<Scope.Variable>,
 ): boolean {
-  if (node.type === 'ArrayExpression') {
-    return hasArrayLiteralObjectElements(node, sourceCode, visitedVariables);
-  }
-
-  if (node.type !== 'Identifier') {
-    return false;
-  }
-
-  const variable = getVariableFromScope(sourceCode.getScope(node), node.name);
-  if (!variable || visitedArrayVariables.has(variable)) {
-    return false;
-  }
-  visitedArrayVariables.add(variable);
-
-  return variable.defs.some(definition =>
-    hasArrayDefinitionElementEvidence(definition, variable, sourceCode, visitedVariables),
-  );
-}
-
-function hasArrayDefinitionElementEvidence(
-  definition: Scope.Definition,
-  variable: Scope.Variable,
-  sourceCode: SourceCode,
-  visitedVariables: Set<Scope.Variable>,
-): boolean {
-  switch (definition.type) {
-    case 'Variable': {
-      const initializer = definition.node.init;
-      return (
-        initializer?.type === 'ArrayExpression' &&
-        getUniqueWriteReference(variable) === initializer &&
-        hasArrayLiteralObjectElements(initializer, sourceCode, visitedVariables)
-      );
-    }
-    case 'Parameter':
-      return hasDirectArrayObjectCallSites(definition, sourceCode, visitedVariables);
-    default:
-      return false;
-  }
-}
-
-function hasDirectArrayObjectCallSites(
-  definition: Scope.Definition,
-  sourceCode: SourceCode,
-  visitedVariables: Set<Scope.Variable>,
-): boolean {
-  if (definition.name.type !== 'Identifier' || !isFunctionNode(definition.node)) {
-    return false;
-  }
-
-  const parameterIndex = definition.node.params.indexOf(definition.name);
-  if (parameterIndex === -1) {
-    return false;
-  }
-
-  const callSites = findDirectCallSites(definition.node, sourceCode);
-  return (
-    callSites !== null &&
-    callSites.length > 0 &&
-    callSites.every(callSite => {
-      const argument = callSite.arguments[parameterIndex];
-      return (
-        argument?.type === 'ArrayExpression' &&
-        hasArrayLiteralObjectElements(argument, sourceCode, visitedVariables)
-      );
-    })
+  return hasIdentifierEvidence(
+    node,
+    sourceCode,
+    visitedArrayVariables,
+    candidate =>
+      candidate.type === 'ArrayExpression' &&
+      hasArrayLiteralObjectElements(candidate, sourceCode, visitedVariables),
+    (definition, variable) =>
+      hasArrayDefinitionEvidence(definition, variable, sourceCode, initializer =>
+        hasArrayLiteralObjectElements(initializer, sourceCode, visitedVariables),
+      ),
   );
 }
 
@@ -511,14 +474,19 @@ function hasArrayLiteralObjectElements(
 }
 
 /**
- * Accepts a parameter only when every direct call passes a direct object at the
- * same argument position. No calls or mixed call shapes are treated as unproven.
+ * Accepts a parameter only when every direct call passes an argument matching
+ * `predicate` at the parameter's position. No calls or mixed call shapes are
+ * treated as unproven.
  *
  * Pseudo-code:
  *   function pick(left, right) { return left < right ? left : right; }
  *   pick(new Date(1), new Date(2))
  */
-function hasDirectObjectCallSites(definition: Scope.Definition, sourceCode: SourceCode): boolean {
+function everyDirectCallSiteArgumentMatches(
+  definition: Scope.Definition,
+  sourceCode: SourceCode,
+  predicate: (argument: estree.Expression | estree.SpreadElement | undefined) => boolean,
+): boolean {
   if (definition.name.type !== 'Identifier' || !isFunctionNode(definition.node)) {
     return false;
   }
@@ -532,7 +500,7 @@ function hasDirectObjectCallSites(definition: Scope.Definition, sourceCode: Sour
   return (
     callSites !== null &&
     callSites.length > 0 &&
-    callSites.every(callSite => isDirectObjectArgument(callSite.arguments[parameterIndex]))
+    callSites.every(callSite => predicate(callSite.arguments[parameterIndex]))
   );
 }
 
