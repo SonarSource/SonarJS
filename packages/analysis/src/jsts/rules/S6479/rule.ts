@@ -249,6 +249,12 @@ function isArrayFromLengthCall(node: AstNode, context: Rule.RuleContext): boolea
     return false;
   }
 
+  // A mapper argument can synthesize data-backed elements with real identity,
+  // so such a list is not a safe static placeholder.
+  if (node.arguments.length > 1) {
+    return false;
+  }
+
   const lengthProperty = getProperty(
     unwrapExpression(firstArgument) as estree.Node | null | undefined,
     'length',
