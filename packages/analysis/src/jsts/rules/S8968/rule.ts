@@ -41,18 +41,30 @@ const VITEST_MODULES = ['vitest'];
 const JEST_IMPORTS = ['jest', '@jest/globals'];
 const JEST_DEPENDENCIES = ['jest'];
 const JASMINE_MODULES = ['jasmine', 'jasmine-core', 'jasmine-node', 'karma-jasmine'];
+const AVA_MODULES = ['ava'];
+const QUNIT_MODULES = ['qunit'];
 
 /**
  * Mocha is the fallback: unlike the other four frameworks, it works off globals
  * and is not necessarily imported anywhere in the file.
  * Jest and Jasmine are excluded outright: neither has a `this.skip()`-style
  * in-body skip, so the guard-return shape this rule flags isn't actionable there.
+ * AVA and QUnit both support a bare `test(name, fn)` call identical in shape to
+ * node:test/Bun/Vitest, so they are excluded too: both already fail a test by
+ * default when it completes without an assertion, so the misleading "passed"
+ * outcome this rule targets never occurs there.
  */
 function detectFramework(context: Rule.RuleContext): Framework | 'excluded' {
   if (importsOrDependsOnModule(context, JEST_IMPORTS, JEST_DEPENDENCIES)) {
     return 'excluded';
   }
   if (importsOrDependsOnModule(context, JASMINE_MODULES, JASMINE_MODULES)) {
+    return 'excluded';
+  }
+  if (importsOrDependsOnModule(context, AVA_MODULES, AVA_MODULES)) {
+    return 'excluded';
+  }
+  if (importsOrDependsOnModule(context, QUNIT_MODULES, QUNIT_MODULES)) {
     return 'excluded';
   }
   if (importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES)) {

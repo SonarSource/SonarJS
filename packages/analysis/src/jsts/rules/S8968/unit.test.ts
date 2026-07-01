@@ -47,6 +47,30 @@ it('reorders columns', function () {
 });
 `,
         },
+        {
+          code: `
+import test from 'ava';
+test('reorders columns', t => {
+  if (readOnlyMode) {
+    return;
+  }
+  db.reorderColumns();
+  t.deepEqual(db.columns, ['a', 'b']);
+});
+`,
+        },
+        {
+          code: `
+import { test } from 'qunit';
+test('reorders columns', function (assert) {
+  if (readOnlyMode) {
+    return;
+  }
+  db.reorderColumns();
+  assert.deepEqual(db.columns, ['a', 'b']);
+});
+`,
+        },
       ],
       invalid: [],
     });
