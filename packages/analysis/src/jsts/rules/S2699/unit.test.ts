@@ -20,8 +20,7 @@ import {
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import type { Rule } from 'eslint';
 import { isAssertion } from '../helpers/assertion-detection.js';
-import { withAdditionalAssertionDetectorsForTesting } from './assertion-detectors.js';
-import { rule } from './rule.js';
+import { createRule, rule } from './rule.js';
 import { describe, it } from 'node:test';
 import ts from 'typescript';
 
@@ -447,43 +446,37 @@ describe('Observable error handling with object syntax', () => {
 
   it('uses the private assertion layer in JavaScript mode', () => {
     const ruleTester = new DefaultParserRuleTester();
+    const ruleWithPrivateAssertionDetector = createRule({
+      assertionDetectors: [(_context, node) => isPrivateAssertion(node)],
+    });
 
-    withAdditionalAssertionDetectorsForTesting(
-      {
-        assertionDetectors: [(_context, node) => isPrivateAssertion(node)],
-      },
-      () => {
-        ruleTester.run(`Test cases must have assertions`, rule, {
-          valid: [
-            {
-              code: `
+    ruleTester.run(`Test cases must have assertions`, ruleWithPrivateAssertionDetector, {
+      valid: [
+        {
+          code: `
 const chai = require('chai');
 describe('private assertion layer', () => {
   it('accepts the rule-local private detector', () => {
     __sonarPrivateAssertionForTestsOnly();
   });
 });
-              `,
-            },
-          ],
-          invalid: [],
-        });
-      },
-    );
+          `,
+        },
+      ],
+      invalid: [],
+    });
   });
 
   it('uses the private assertion layer in type-aware mode', () => {
     const typedRuleTester = new RuleTester();
+    const ruleWithPrivateAssertionDetector = createRule({
+      tsAssertionDetectors: [(_services, node) => isPrivateTSAssertion(node)],
+    });
 
-    withAdditionalAssertionDetectorsForTesting(
-      {
-        tsAssertionDetectors: [(_services, node) => isPrivateTSAssertion(node)],
-      },
-      () => {
-        typedRuleTester.run('Test cases must have assertions', rule, {
-          valid: [
-            {
-              code: `
+    typedRuleTester.run('Test cases must have assertions', ruleWithPrivateAssertionDetector, {
+      valid: [
+        {
+          code: `
 import { expect } from 'chai';
 
 declare function __sonarPrivateAssertionForTestsOnly(): void;
@@ -493,13 +486,11 @@ describe('private assertion layer with types', () => {
     __sonarPrivateAssertionForTestsOnly();
   });
 });
-              `,
-            },
-          ],
-          invalid: [],
-        });
-      },
-    );
+          `,
+        },
+      ],
+      invalid: [],
+    });
   });
 
   it('keeps private placeholder assertions out of shared detection', () => {

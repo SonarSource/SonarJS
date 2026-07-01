@@ -34,34 +34,59 @@ import {
   isAssertion,
   isTSAssertion,
 } from '../helpers/assertion-detection.js';
-import { isAdditionalAssertion, isAdditionalTSAssertion } from './assertion-detectors.js';
+import {
+  isAdditionalAssertion,
+  isAdditionalTSAssertion,
+  type AdditionalAssertionDetector,
+  type AdditionalTSAssertionDetector,
+} from './assertion-detectors.js';
 import * as meta from './generated-meta.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
+
+type AdditionalAssertionLayer = {
+  assertionDetectors?: AdditionalAssertionDetector[];
+  tsAssertionDetectors?: AdditionalTSAssertionDetector[];
+};
 
 /**
  * We assume that the user is using a single assertion library per file,
  * this is why we are not saving if an assertion has been performed for
  * libX and the imported library was libY.
  */
-export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta),
-  create(context: Rule.RuleContext) {
-    if (!hasSupportedAssertionLibrary(context)) {
-      return {};
-    }
-    const visitedNodes: Map<estree.Node, boolean> = new Map();
-    const visitedTSNodes: Map<ts.Node, boolean> = new Map();
-    return {
-      'CallExpression:exit': (node: estree.Node) => {
-        const testCase = Mocha.extractTestCase(node);
-        if (testCase !== null) {
-          checkAssertions(testCase, context, visitedNodes, visitedTSNodes);
-        }
-      },
-    };
-  },
-};
+export function createRule(
+  additionalAssertionLayer: AdditionalAssertionLayer = {},
+): Rule.RuleModule {
+  const { assertionDetectors = [], tsAssertionDetectors = [] } = additionalAssertionLayer;
+
+  return {
+    meta: generateMeta(meta),
+    create(context: Rule.RuleContext) {
+      if (!hasSupportedAssertionLibrary(context)) {
+        return {};
+      }
+      const visitedNodes: Map<estree.Node, boolean> = new Map();
+      const visitedTSNodes: Map<ts.Node, boolean> = new Map();
+      return {
+        'CallExpression:exit': (node: estree.Node) => {
+          const testCase = Mocha.extractTestCase(node);
+          if (testCase !== null) {
+            checkAssertions(
+              testCase,
+              context,
+              visitedNodes,
+              visitedTSNodes,
+              assertionDetectors,
+              tsAssertionDetectors,
+            );
+          }
+        },
+      };
+    },
+  };
+}
+
+export const rule: Rule.RuleModule = createRule();
 
 /**
  * Checks if a test uses the Mocha done callback as an assertion mechanism.
@@ -186,6 +211,8 @@ function checkAssertions(
   context: Rule.RuleContext,
   visitedNodes: Map<estree.Node, boolean>,
   visitedTSNodes: Map<ts.Node, boolean>,
+  assertionDetectors: AdditionalAssertionDetector[],
+  tsAssertionDetectors: AdditionalTSAssertionDetector[],
 ) {
   const { node, callback } = testCase;
 
@@ -194,7 +221,7 @@ function checkAssertions(
     return;
   }
 
-  const visitor = new TestCaseAssertionVisitor(context);
+  const visitor = new TestCaseAssertionVisitor(context, assertionDetectors, tsAssertionDetectors);
   const parserServices = context.sourceCode.parserServices;
   let hasAssertions = false;
   if (isRequiredParserServices(parserServices)) {
@@ -211,7 +238,11 @@ function checkAssertions(
 class TestCaseAssertionVisitor {
   private readonly visitorKeys: SourceCode.VisitorKeys;
 
-  constructor(private readonly context: Rule.RuleContext) {
+  constructor(
+    private readonly context: Rule.RuleContext,
+    private readonly assertionDetectors: AdditionalAssertionDetector[],
+    private readonly tsAssertionDetectors: AdditionalTSAssertionDetector[],
+  ) {
     this.visitorKeys = context.sourceCode.visitorKeys;
   }
 
@@ -224,7 +255,10 @@ class TestCaseAssertionVisitor {
       return visitedTSNodes.get(node)!;
     }
     visitedTSNodes.set(node, false);
-    if (isTSAssertion(services, node) || isAdditionalTSAssertion(services, node)) {
+    if (
+      isTSAssertion(services, node) ||
+      isAdditionalTSAssertion(services, node, this.tsAssertionDetectors)
+    ) {
       visitedTSNodes.set(node, true);
       return true;
     }
@@ -263,7 +297,10 @@ class TestCaseAssertionVisitor {
       return visitedNodes.get(node)!;
     }
     visitedNodes.set(node, false);
-    if (isAssertion(context, node) || isAdditionalAssertion(context, node)) {
+    if (
+      isAssertion(context, node) ||
+      isAdditionalAssertion(context, node, this.assertionDetectors)
+    ) {
       visitedNodes.set(node, true);
       return true;
     }
