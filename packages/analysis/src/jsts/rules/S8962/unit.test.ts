@@ -15,14 +15,21 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { RuleTester as ESLintRuleTester } from 'eslint';
 import { describe, it } from 'node:test';
 import parser from 'vue-eslint-parser';
+import tsParser from '@typescript-eslint/parser';
 
-const ruleTesterVue = new NoTypeCheckingRuleTester({ parser });
+const ruleTesterVue = new ESLintRuleTester({
+  files: ['**/*.vue'],
+  languageOptions: {
+    parser,
+    parserOptions: { parser: tsParser },
+  },
+});
 
-describe('S8954', () => {
-  it('S8954 (external: vue/require-typed-ref)', () => {
+describe('S8962', () => {
+  it('S8962 (external: vue/require-typed-ref)', () => {
     ruleTesterVue.run(
       'Vue ref() and shallowRef() should be called with a type or initial value',
       rule,
@@ -30,26 +37,31 @@ describe('S8954', () => {
         valid: [
           {
             // ref with initial value
-            code: `<script setup>import { ref } from 'vue'; const count = ref(0);</script>`,
+            filename: 'test.vue',
+            code: `<script setup lang="ts">import { ref } from 'vue'; const count = ref(0);</script>`,
           },
           {
             // ref with explicit generic type
+            filename: 'test.vue',
             code: `<script setup lang="ts">import { ref } from 'vue'; const data = ref<string[]>([]);</script>`,
           },
           {
             // shallowRef with initial value
-            code: `<script setup>import { shallowRef } from 'vue'; const x = shallowRef('hello');</script>`,
+            filename: 'test.vue',
+            code: `<script setup lang="ts">import { shallowRef } from 'vue'; const x = shallowRef('hello');</script>`,
           },
         ],
         invalid: [
           {
-            // ref() with no argument
-            code: `<script setup>import { ref } from 'vue'; const count = ref();</script>`,
+            // ref() with no argument and no type parameter
+            filename: 'test.vue',
+            code: `<script setup lang="ts">import { ref } from 'vue'; const count = ref();</script>`,
             errors: 1,
           },
           {
-            // shallowRef() with no argument
-            code: `<script setup>import { shallowRef } from 'vue'; const data = shallowRef();</script>`,
+            // shallowRef() with no argument and no type parameter
+            filename: 'test.vue',
+            code: `<script setup lang="ts">import { shallowRef } from 'vue'; const data = shallowRef();</script>`,
             errors: 1,
           },
         ],
