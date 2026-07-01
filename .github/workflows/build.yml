@@ -179,6 +179,10 @@ jobs:
         with:
           cache-month: ${{ needs.setup.outputs.cache-month }}
           maven-hash: ${{ needs.setup.outputs.maven-hash }}
+      - &rule_api_cache
+        uses: ./.github/actions/rule-api-cache
+        with:
+          cache-month: ${{ needs.setup.outputs.cache-month }}
       - &config_maven
         name: Configure Maven
         id: config-maven
@@ -257,6 +261,7 @@ jobs:
       - *mise
       - *npm_cache
       - *maven_cache
+      - *rule_api_cache
       - *config_maven
       - id: rspec-secrets
         uses: SonarSource/vault-action-wrapper@v3
