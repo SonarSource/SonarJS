@@ -18,62 +18,22 @@ import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
-import { isMethodCall } from '../helpers/ast.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { getFullyQualifiedNameTS } from '../helpers/module-ts.js';
 
 const ADDITIONAL_CHAI_ASSERT_FQNS = new Set(['chai.assert.instance', 'chai.assert.is']);
-const SHOULD_TERMINAL_CALLS = new Set(['calledWith', 'lengthOf', 'property']);
-const SHOULD_TERMINAL_PROPERTIES = new Set([
-  'exists',
-  'exist',
-  'false',
-  'null',
-  'true',
-  'undefined',
-]);
 
+/**
+ * Extra chai `assert.*` methods not covered by the shared assertion detector.
+ */
 export function isAdditionalAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  return isAdditionalAssertCall(context, node) || isAdditionalShouldAssertion(node);
-}
-
-export function isAdditionalTSAssertion(
-  services: ParserServicesWithTypeInformation,
-  node: ts.Node,
-): boolean {
-  return isAdditionalTSAssertCall(services, node) || isAdditionalTSShouldAssertion(node);
-}
-
-export function isStandaloneShouldAccess(context: Rule.RuleContext, node: estree.Node): boolean {
-  if (
-    node.type !== 'MemberExpression' ||
-    node.computed ||
-    node.property.type !== 'Identifier' ||
-    node.property.name !== 'should'
-  ) {
-    return false;
-  }
-
-  const parent = context.sourceCode.getAncestors(node).at(-1);
-  return !isExtendingShouldChainParent(parent, node);
-}
-
-export function isStandaloneTSShouldAccess(node: ts.Node): boolean {
-  if (!isTSPropertyAccess(node, 'should')) {
-    return false;
-  }
-
-  return !isTSExtendingShouldChainParent(node.parent, node);
-}
-
-function isAdditionalAssertCall(context: Rule.RuleContext, node: estree.Node): boolean {
   return (
     node.type === 'CallExpression' &&
     ADDITIONAL_CHAI_ASSERT_FQNS.has(getFullyQualifiedName(context, node.callee) ?? '')
   );
 }
 
-function isAdditionalTSAssertCall(
+export function isAdditionalTSAssertion(
   services: ParserServicesWithTypeInformation,
   node: ts.Node,
 ): boolean {
@@ -83,94 +43,49 @@ function isAdditionalTSAssertCall(
   );
 }
 
-function isAdditionalShouldAssertion(node: estree.Node): boolean {
-  if (node.type === 'CallExpression') {
-    return isAdditionalShouldCall(node);
+/**
+ * A bare `<expr>.should` access asserts nothing on its own — only a `.should`
+ * that is *extended* by further property access or a call (e.g. `.should.be.true`,
+ * `.should.have.property(...)`) is a real chai assertion.
+ *
+ * The shared JS detector (`Chai.isShouldUsage`) matches *any* `.should` member, so
+ * S2699 subtracts the standalone case here.
+ */
+export function isStandaloneShouldAccess(context: Rule.RuleContext, node: estree.Node): boolean {
+  if (!isShouldMember(node)) {
+    return false;
   }
-  return isAdditionalShouldProperty(node);
+  const parent = context.sourceCode.getAncestors(node).at(-1);
+  return !isExtendingShouldChainParent(parent, node);
 }
 
-function isAdditionalShouldCall(node: estree.CallExpression): boolean {
-  return (
-    isMethodCall(node) &&
-    SHOULD_TERMINAL_CALLS.has(node.callee.property.name) &&
-    hasShouldChain(node.callee.object)
-  );
+/**
+ * Type-aware counterpart. Unlike the JS side, the shared TS detector
+ * (`Chai.isTSAssertion`) only recognises `.should` chains that end in a call whose
+ * fully-qualified name resolves through chai's type augmentation — so it misses
+ * property-terminal chains (`.should.be.true`) and chains rooted in locals whose
+ * name does not resolve (`user.should.equal(...)`). Mirroring the JS contract, any
+ * `.should` property access that is *extended* by a further access or call is an
+ * assertion regardless of the terminal shape, so S2699 adds that case here.
+ */
+export function isExtendedTSShouldAccess(node: ts.Node): boolean {
+  if (!isTSShouldAccess(node)) {
+    return false;
+  }
+  return isTSExtendingShouldChainParent(node.parent, node);
 }
 
-function isAdditionalShouldProperty(node: estree.Node): boolean {
+function isShouldMember(node: estree.Node): node is estree.MemberExpression {
   return (
     node.type === 'MemberExpression' &&
     !node.computed &&
     node.property.type === 'Identifier' &&
-    SHOULD_TERMINAL_PROPERTIES.has(node.property.name) &&
-    hasShouldChain(node.object)
+    node.property.name === 'should'
   );
 }
 
-function hasShouldChain(node: estree.Node): boolean {
-  let current: estree.Node | estree.Expression | estree.Super = node;
-
-  while (current.type === 'MemberExpression' || current.type === 'CallExpression') {
-    if (current.type === 'MemberExpression') {
-      if (
-        !current.computed &&
-        current.property.type === 'Identifier' &&
-        current.property.name === 'should'
-      ) {
-        return true;
-      }
-      current = current.object;
-    } else if (current.callee.type === 'MemberExpression') {
-      current = current.callee.object;
-    } else {
-      return false;
-    }
-  }
-
-  return false;
-}
-
-function isAdditionalTSShouldAssertion(node: ts.Node): boolean {
-  if (node.kind === ts.SyntaxKind.CallExpression) {
-    return isAdditionalTSShouldCall(node as ts.CallExpression);
-  }
-  return isAdditionalTSShouldProperty(node);
-}
-
-function isAdditionalTSShouldCall(node: ts.CallExpression): boolean {
-  return (
-    ts.isPropertyAccessExpression(node.expression) &&
-    SHOULD_TERMINAL_CALLS.has(node.expression.name.text) &&
-    hasTSShouldChain(node.expression.expression)
-  );
-}
-
-function isAdditionalTSShouldProperty(node: ts.Node): boolean {
-  return (
-    ts.isPropertyAccessExpression(node) &&
-    SHOULD_TERMINAL_PROPERTIES.has(node.name.text) &&
-    hasTSShouldChain(node.expression)
-  );
-}
-
-function hasTSShouldChain(node: ts.Expression): boolean {
-  let current: ts.Node = node;
-
-  while (ts.isPropertyAccessExpression(current) || ts.isCallExpression(current)) {
-    if (ts.isPropertyAccessExpression(current)) {
-      if (current.name.text === 'should') {
-        return true;
-      }
-      current = current.expression;
-    } else if (ts.isPropertyAccessExpression(current.expression)) {
-      current = current.expression.expression;
-    } else {
-      return false;
-    }
-  }
-
-  return false;
+function isTSShouldAccess(node: ts.Node): node is ts.PropertyAccessExpression {
+  return ts.isPropertyAccessExpression(node) && node.name.text === 'should';
 }
 
 function isExtendingShouldChainParent(
@@ -183,11 +98,10 @@ function isExtendingShouldChainParent(
   );
 }
 
-function isTSPropertyAccess(node: ts.Node, name: string): node is ts.PropertyAccessExpression {
-  return ts.isPropertyAccessExpression(node) && node.name.text === name;
-}
-
 function isTSExtendingShouldChainParent(parent: ts.Node | undefined, node: ts.Node): boolean {
+  if (parent === undefined) {
+    return false;
+  }
   return (
     (ts.isPropertyAccessExpression(parent) && parent.expression === node) ||
     (ts.isCallExpression(parent) && parent.expression === node)

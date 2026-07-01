@@ -38,8 +38,8 @@ import * as meta from './generated-meta.js';
 import {
   isAdditionalAssertion,
   isAdditionalTSAssertion,
+  isExtendedTSShouldAccess,
   isStandaloneShouldAccess,
-  isStandaloneTSShouldAccess,
 } from './assertion-detectors.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
@@ -230,7 +230,8 @@ class TestCaseAssertionVisitor {
     }
     visitedTSNodes.set(node, false);
     if (
-      (isTSAssertion(services, node) && !isStandaloneTSShouldAccess(node)) ||
+      isTSAssertion(services, node) ||
+      isExtendedTSShouldAccess(node) ||
       isAdditionalTSAssertion(services, node)
     ) {
       visitedTSNodes.set(node, true);
