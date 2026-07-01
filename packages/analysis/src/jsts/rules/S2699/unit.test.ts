@@ -18,6 +18,8 @@ import {
   DefaultParserRuleTester,
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import type { Rule } from 'eslint';
+import { isAssertion } from '../helpers/assertion-detection.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 
@@ -53,6 +55,16 @@ const chai = require('chai');
 describe('global expect', () => {
   it('expect', () => {
     expect(5).toEqual(4);
+  });
+});
+          `,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('private assertion layer', () => {
+  it('accepts the rule-local placeholder assertion', () => {
+    __sonarPrivateAssertionForTestsOnly();
   });
 });
           `,
@@ -320,7 +332,20 @@ describe('RxJS marble testing with types', () => {
     expectSubscriptions(subscriptions).toBe(['^ !']);
   });
 });
-`,
+          `,
+        },
+        {
+          code: `
+import { expect } from 'chai';
+
+declare function __sonarPrivateAssertionForTestsOnly(): void;
+
+describe('private assertion layer with types', () => {
+  it('accepts the rule-local placeholder assertion', () => {
+    __sonarPrivateAssertionForTestsOnly();
+  });
+});
+          `,
         },
         // expectTypeOf in TypeScript
         {
@@ -413,6 +438,44 @@ describe('Observable error handling with object syntax', () => {
         },
       ],
       invalid: [],
+    });
+  });
+
+  it('keeps private placeholder assertions out of shared detection', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    const probeRule: Rule.RuleModule = {
+      meta: {
+        messages: {
+          detected: 'detected',
+        },
+      },
+      create(context) {
+        return {
+          CallExpression(node) {
+            if (isAssertion(context, node)) {
+              context.report({ node, messageId: 'detected' });
+            }
+          },
+        };
+      },
+    };
+
+    ruleTester.run('Shared assertion detection stays unchanged', probeRule, {
+      valid: [
+        {
+          code: `
+__sonarPrivateAssertionForTestsOnly();
+          `,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+expect(1).toEqual(1);
+          `,
+          errors: 1,
+        },
+      ],
     });
   });
 });
