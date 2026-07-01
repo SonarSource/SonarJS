@@ -5,12 +5,6 @@
 "vuetify:packages/vuetify/src/components/VFileInput/__tests__/VFileInput.spec.cy.tsx": [
 109
 ],
-"vuetify:packages/vuetify/src/components/VList/__tests__/VList.spec.cy.tsx": [
-13,
-35,
-57,
-86
-],
 "vuetify:packages/vuetify/src/components/VList/__tests__/VListGroup.spec.cy.tsx": [
 13,
 29
@@ -26,8 +20,7 @@
 187
 ],
 "vuetify:packages/vuetify/src/components/VToolbar/__tests__/VToolbar.spec.cy.tsx": [
-15,
-39
+15
 ],
 "vuetify:packages/vuetify/src/components/VWindow/__tests__/VWindow.spec.cy.tsx": [
 197
