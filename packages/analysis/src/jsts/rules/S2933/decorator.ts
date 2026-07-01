@@ -20,7 +20,6 @@ import type { Rule } from 'eslint';
 import { AST_NODE_TYPES, type TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
-import { mergeRules } from '../helpers/decorators/merger.js';
 import {
   expandMessage,
   report,
@@ -31,6 +30,9 @@ import {
 import * as meta from './generated-meta.js';
 
 type ClassNode = TSESTree.ClassDeclaration | TSESTree.ClassExpression;
+type ListenerFunction<Node extends TSESTree.Node> = (node: Node) => void;
+type ProgramExitListener = NonNullable<Rule.RuleListener['Program:exit']>;
+type ProgramNode = Parameters<ProgramExitListener>[0];
 
 /**
  * Decorates typescript-eslint/prefer-readonly to raise one issue per class instead of
@@ -50,51 +52,58 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         interceptedReports.push(reportDescriptor);
       });
 
-      function rememberClassForReportOwnershipLookup(node: ClassNode) {
-        classNodes.push(node);
-      }
-
-      function reportInterceptedIssuesGroupedByOwningClass() {
-        const groupedReports = new Map<ClassNode, Rule.ReportDescriptor[]>();
-        const forwardedReports: Rule.ReportDescriptor[] = [];
-
-        for (const reportDescriptor of interceptedReports) {
-          const owner = getOwningClass(context, reportDescriptor, classNodes);
-          if (!owner) {
-            forwardedReports.push(reportDescriptor);
-            continue;
-          }
-
-          const reports = groupedReports.get(owner);
-          if (reports) {
-            reports.push(reportDescriptor);
-          } else {
-            groupedReports.set(owner, [reportDescriptor]);
-          }
-        }
-
-        for (const reportDescriptor of forwardedReports) {
-          reportUngrouped(context, rule, reportDescriptor);
-        }
-
-        const groups = [...groupedReports.entries()].sort(
-          ([leftClass], [rightClass]) => leftClass.range[0] - rightClass.range[0],
-        );
-        for (const [classNode, reports] of groups) {
-          reportGroupedIssue(context, rule, classNode, sortReportsByLocation(context, reports));
-        }
-
-        interceptedReports.length = 0;
-        classNodes.length = 0;
-      }
-
       const listener = interceptedRule.create(context);
-      const groupingListener: Rule.RuleListener = {
-        'ClassDeclaration, ClassExpression': rememberClassForReportOwnershipLookup,
-        'Program:exit': reportInterceptedIssuesGroupedByOwningClass,
-      };
+      const onClass = listener['ClassDeclaration, ClassExpression'] as
+        | ListenerFunction<ClassNode>
+        | undefined;
+      const onProgramExit = listener['Program:exit'] as ProgramExitListener | undefined;
 
-      return mergeRules(listener, groupingListener);
+      return {
+        ...listener,
+        'ClassDeclaration, ClassExpression'(node: ClassNode) {
+          classNodes.push(node);
+          if (typeof onClass === 'function') {
+            onClass(node);
+          }
+        },
+        'Program:exit'(node: ProgramNode) {
+          if (typeof onProgramExit === 'function') {
+            onProgramExit(node);
+          }
+
+          const groupedReports = new Map<ClassNode, Rule.ReportDescriptor[]>();
+          const forwardedReports: Rule.ReportDescriptor[] = [];
+
+          for (const reportDescriptor of interceptedReports) {
+            const owner = getOwningClass(context, reportDescriptor, classNodes);
+            if (!owner) {
+              forwardedReports.push(reportDescriptor);
+              continue;
+            }
+
+            const reports = groupedReports.get(owner);
+            if (reports) {
+              reports.push(reportDescriptor);
+            } else {
+              groupedReports.set(owner, [reportDescriptor]);
+            }
+          }
+
+          for (const reportDescriptor of forwardedReports) {
+            reportUngrouped(context, rule, reportDescriptor);
+          }
+
+          const groups = [...groupedReports.entries()].sort(
+            ([leftClass], [rightClass]) => leftClass.range[0] - rightClass.range[0],
+          );
+          for (const [classNode, reports] of groups) {
+            reportGroupedIssue(context, rule, classNode, sortReportsByLocation(context, reports));
+          }
+
+          interceptedReports.length = 0;
+          classNodes.length = 0;
+        },
+      };
     },
   };
 }
