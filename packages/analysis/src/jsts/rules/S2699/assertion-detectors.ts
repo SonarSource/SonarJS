@@ -14,34 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
-import { getFullyQualifiedName } from '../helpers/module.js';
-import { getFullyQualifiedNameTS } from '../helpers/module-ts.js';
-
-const ADDITIONAL_CHAI_ASSERT_FQNS = new Set(['chai.assert.instance', 'chai.assert.is']);
-
-/**
- * Extra chai `assert.*` methods not covered by the shared assertion detector.
- */
-export function isAdditionalAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  return (
-    node.type === 'CallExpression' &&
-    ADDITIONAL_CHAI_ASSERT_FQNS.has(getFullyQualifiedName(context, node.callee) ?? '')
-  );
-}
-
-export function isAdditionalTSAssertion(
-  services: ParserServicesWithTypeInformation,
-  node: ts.Node,
-): boolean {
-  return (
-    node.kind === ts.SyntaxKind.CallExpression &&
-    ADDITIONAL_CHAI_ASSERT_FQNS.has(getFullyQualifiedNameTS(services, node) ?? '')
-  );
-}
+import { getParent } from '../helpers/ancestor.js';
 
 /**
  * A bare `<expr>.should` access asserts nothing on its own — only a `.should`
@@ -55,7 +31,7 @@ export function isStandaloneShouldAccess(context: Rule.RuleContext, node: estree
   if (!isShouldMember(node)) {
     return false;
   }
-  const parent = context.sourceCode.getAncestors(node).at(-1);
+  const parent = getParent(context, node);
   return !isExtendingShouldChainParent(parent, node);
 }
 
