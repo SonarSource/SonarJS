@@ -572,6 +572,7 @@ SonarJS uses some rules are not shipped in this ESLint plugin to avoid duplicati
 | S8951           | [vue/no-mutating-props](https://eslint.vuejs.org/rules/no-mutating-props.html)                                                                                                              |
 | S8957           | [vue/require-prop-types](https://eslint.vuejs.org/rules/require-prop-types.html)                                                                                                            |
 | S8961           | [vue/require-explicit-emits](https://eslint.vuejs.org/rules/require-explicit-emits.html)                                                                                                    |
+| S8962           | [vue/require-typed-ref](https://eslint.vuejs.org/rules/require-typed-ref.html)                                                                                                              |
 
 <!--- end external rules -->
 

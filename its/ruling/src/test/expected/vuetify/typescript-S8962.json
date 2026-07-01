@@ -1,0 +1,19 @@
+{
+"vuetify:packages/docs/src/components/api/Inline.vue": [
+52
+],
+"vuetify:packages/docs/src/components/api/Section.vue": [
+62
+],
+"vuetify:packages/docs/src/components/examples/Example.vue": [
+133
+],
+"vuetify:packages/docs/src/composables/codepen.ts": [
+14,
+123
+],
+"vuetify:packages/vuetify/src/composables/nested/nested.ts": [
+51,
+132
+]
+}
