@@ -20,8 +20,36 @@ import {
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import type { Rule } from 'eslint';
 import { isAssertion } from '../helpers/assertion-detection.js';
+import { withAdditionalAssertionDetectorsForTesting } from './assertion-detectors.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
+import ts from 'typescript';
+
+const PRIVATE_ASSERTION_NAME = '__sonarPrivateAssertionForTestsOnly';
+
+function isPrivateAssertion(node: unknown): boolean {
+  return (
+    typeof node === 'object' &&
+    node !== null &&
+    'type' in node &&
+    node.type === 'CallExpression' &&
+    'callee' in node &&
+    typeof node.callee === 'object' &&
+    node.callee !== null &&
+    'type' in node.callee &&
+    node.callee.type === 'Identifier' &&
+    'name' in node.callee &&
+    node.callee.name === PRIVATE_ASSERTION_NAME
+  );
+}
+
+function isPrivateTSAssertion(node: ts.Node): boolean {
+  return (
+    ts.isCallExpression(node) &&
+    ts.isIdentifier(node.expression) &&
+    node.expression.text === PRIVATE_ASSERTION_NAME
+  );
+}
 
 describe('S2699', () => {
   it('S2699', () => {
@@ -55,16 +83,6 @@ const chai = require('chai');
 describe('global expect', () => {
   it('expect', () => {
     expect(5).toEqual(4);
-  });
-});
-          `,
-        },
-        {
-          code: `
-const chai = require('chai');
-describe('private assertion layer', () => {
-  it('accepts the rule-local placeholder assertion', () => {
-    __sonarPrivateAssertionForTestsOnly();
   });
 });
           `,
@@ -338,20 +356,6 @@ describe('RxJS marble testing with types', () => {
           code: `
 import { expect } from 'chai';
 
-declare function __sonarPrivateAssertionForTestsOnly(): void;
-
-describe('private assertion layer with types', () => {
-  it('accepts the rule-local placeholder assertion', () => {
-    __sonarPrivateAssertionForTestsOnly();
-  });
-});
-          `,
-        },
-        // expectTypeOf in TypeScript
-        {
-          code: `
-import { expect } from 'chai';
-
 declare function expectTypeOf<T>(value: T): { toEqualTypeOf: <U>() => void; toBe: () => void };
 
 describe('Type testing with expectTypeOf', () => {
@@ -441,6 +445,63 @@ describe('Observable error handling with object syntax', () => {
     });
   });
 
+  it('uses the private assertion layer in JavaScript mode', () => {
+    const ruleTester = new DefaultParserRuleTester();
+
+    withAdditionalAssertionDetectorsForTesting(
+      {
+        assertionDetectors: [(_context, node) => isPrivateAssertion(node)],
+      },
+      () => {
+        ruleTester.run(`Test cases must have assertions`, rule, {
+          valid: [
+            {
+              code: `
+const chai = require('chai');
+describe('private assertion layer', () => {
+  it('accepts the rule-local private detector', () => {
+    __sonarPrivateAssertionForTestsOnly();
+  });
+});
+              `,
+            },
+          ],
+          invalid: [],
+        });
+      },
+    );
+  });
+
+  it('uses the private assertion layer in type-aware mode', () => {
+    const typedRuleTester = new RuleTester();
+
+    withAdditionalAssertionDetectorsForTesting(
+      {
+        tsAssertionDetectors: [(_services, node) => isPrivateTSAssertion(node)],
+      },
+      () => {
+        typedRuleTester.run('Test cases must have assertions', rule, {
+          valid: [
+            {
+              code: `
+import { expect } from 'chai';
+
+declare function __sonarPrivateAssertionForTestsOnly(): void;
+
+describe('private assertion layer with types', () => {
+  it('accepts the rule-local private detector', () => {
+    __sonarPrivateAssertionForTestsOnly();
+  });
+});
+              `,
+            },
+          ],
+          invalid: [],
+        });
+      },
+    );
+  });
+
   it('keeps private placeholder assertions out of shared detection', () => {
     const ruleTester = new DefaultParserRuleTester();
     const probeRule: Rule.RuleModule = {
@@ -464,7 +525,7 @@ describe('Observable error handling with object syntax', () => {
       valid: [
         {
           code: `
-__sonarPrivateAssertionForTestsOnly();
+${PRIVATE_ASSERTION_NAME}();
           `,
         },
       ],

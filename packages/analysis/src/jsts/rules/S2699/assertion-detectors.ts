@@ -19,26 +19,59 @@ import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
-// Test-only placeholder proving S2699 can extend assertion detection privately.
-const TEST_ONLY_ASSERTION_NAME = '__sonarPrivateAssertionForTestsOnly';
+type AdditionalAssertionDetector = (context: Rule.RuleContext, node: estree.Node) => boolean;
+type AdditionalTSAssertionDetector = (
+  services: ParserServicesWithTypeInformation,
+  node: ts.Node,
+) => boolean;
+
+const additionalAssertionDetectors: AdditionalAssertionDetector[] = [];
+const additionalTSAssertionDetectors: AdditionalTSAssertionDetector[] = [];
 
 export function isAdditionalAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  void context;
-  return (
-    node.type === 'CallExpression' &&
-    node.callee.type === 'Identifier' &&
-    node.callee.name === TEST_ONLY_ASSERTION_NAME
-  );
+  return additionalAssertionDetectors.some(detector => detector(context, node));
 }
 
 export function isAdditionalTSAssertion(
   services: ParserServicesWithTypeInformation,
   node: ts.Node,
 ): boolean {
-  void services;
-  return (
-    ts.isCallExpression(node) &&
-    ts.isIdentifier(node.expression) &&
-    node.expression.text === TEST_ONLY_ASSERTION_NAME
+  return additionalTSAssertionDetectors.some(detector => detector(services, node));
+}
+
+export function withAdditionalAssertionDetectorsForTesting<T>(
+  detectors: {
+    assertionDetectors?: AdditionalAssertionDetector[];
+    tsAssertionDetectors?: AdditionalTSAssertionDetector[];
+  },
+  callback: () => T,
+): T {
+  const previousAssertionDetectors = [...additionalAssertionDetectors];
+  const previousTSAssertionDetectors = [...additionalTSAssertionDetectors];
+
+  additionalAssertionDetectors.splice(
+    0,
+    additionalAssertionDetectors.length,
+    ...(detectors.assertionDetectors ?? []),
   );
+  additionalTSAssertionDetectors.splice(
+    0,
+    additionalTSAssertionDetectors.length,
+    ...(detectors.tsAssertionDetectors ?? []),
+  );
+
+  try {
+    return callback();
+  } finally {
+    additionalAssertionDetectors.splice(
+      0,
+      additionalAssertionDetectors.length,
+      ...previousAssertionDetectors,
+    );
+    additionalTSAssertionDetectors.splice(
+      0,
+      additionalTSAssertionDetectors.length,
+      ...previousTSAssertionDetectors,
+    );
+  }
 }
