@@ -85,10 +85,13 @@ function matchesArrayDefinition(
       );
     }
     case 'Parameter':
-      return everyDirectCallSiteArgumentMatches(
-        definition,
-        sourceCode,
-        argument => argument?.type === 'ArrayExpression' && matchesArrayLiteral(argument),
+      return (
+        !variable.references.some(reference => reference.isWrite()) &&
+        everyDirectCallSiteArgumentMatches(
+          definition,
+          sourceCode,
+          argument => argument?.type === 'ArrayExpression' && matchesArrayLiteral(argument),
+        )
       );
     default:
       return false;

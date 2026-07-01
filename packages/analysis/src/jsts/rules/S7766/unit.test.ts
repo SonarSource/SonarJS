@@ -324,6 +324,13 @@ const highest = values.reduce(
 );
           `,
         },
+        {
+          code: `
+const dates = [new Date(1), new Date(2)];
+
+const latest = dates.reduce((latest, current) => latest < current ? current : latest);
+          `,
+        },
       ],
       invalid: [
         {

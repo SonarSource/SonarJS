@@ -239,6 +239,22 @@ lowestValue([
 ]);
           `,
         },
+        {
+          code: `
+const dates = [new Date(1), new Date(2)];
+
+const latest = dates.reduce((latest, current) => latest < current ? current : latest);
+          `,
+        },
+        {
+          code: `
+function latestDate(dates) {
+  return dates.reduce((latest, current) => latest < current ? current : latest);
+}
+
+latestDate([new Date(1), new Date(2)]);
+          `,
+        },
       ],
       invalid: [
         {
@@ -330,6 +346,20 @@ const lowest = getValues().reduce((lowest, current) => current < lowest ? curren
         {
           code: `
 [1, 2].reduce((highest, current, index) => highest < index ? index : highest, 0);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function latestDate(dates) {
+  dates = [1, 2];
+  return dates.reduce(
+    (latest, current) => latest < current ? current : latest,
+    new Date(0),
+  );
+}
+
+latestDate([new Date(1), new Date(2)]);
           `,
           errors: 1,
         },

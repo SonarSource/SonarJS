@@ -85,22 +85,22 @@ function getReduceCallbackParameterInfoFromDefinition(
  *
  * Supported cases:
  *
- * 1. Parameter index `1`, meaning the current-element parameter of an inline
- *    reduce callback, when the
- *    reduce receiver can be proven to be an array whose elements all have
- *    direct-object origin:
+ * 1. The current-element parameter (index `1`), or the accumulator parameter
+ *    (index `0`) of a seedless reduce whose accumulator starts as the first
+ *    array element, when the reduce receiver can be proven to be an array whose
+ *    elements all have direct-object origin:
  *
  *    `dates.reduce((lowest, current) => current < lowest ? current : lowest)`
  *
- * 2. Parameter index `0`, meaning the accumulator parameter of an inline
- *    reduce callback, when the explicit reduce initial value has direct-object
- *    origin:
+ * 2. The accumulator parameter (index `0`) of a seeded reduce, when the
+ *    explicit reduce initial value has direct-object origin:
  *
  *    `values.reduce((lowest, current) => current < lowest ? current : lowest, new Date(0))`
  *
  * Unsupported cases return `false`, including non-inline callbacks, reduce
  * callbacks using other parameters, receivers that cannot be proven array-like,
- * or accumulator parameters without a matching direct-object initial value.
+ * or seeded accumulator parameters without a matching direct-object initial
+ * value.
  */
 export function hasReduceCallbackParameterDirectObjectOrigin(
   callbackParameterDefinition: Scope.Definition,
@@ -120,9 +120,11 @@ export function hasReduceCallbackParameterDirectObjectOrigin(
     return false;
   }
 
-  if (reduceParameter.parameterIndex === 1) {
-    // The current-element parameter is safe only when every element of the
-    // receiver can be traced to direct-object origin.
+  // The current-element parameter, and the accumulator of a seedless reduce
+  // (which starts as the first array element), are safe only when every element
+  // of the receiver can be traced to direct-object origin.
+  const initialValue = reduceParameter.reduceCall.arguments[1];
+  if (reduceParameter.parameterIndex === 1 || initialValue == null) {
     return hasArrayElementDirectObjectOrigin(
       reduceParameter.receiver,
       sourceCode,
@@ -131,11 +133,9 @@ export function hasReduceCallbackParameterDirectObjectOrigin(
     );
   }
 
-  // The accumulator parameter is safe only when the explicit initial value can
-  // be traced to direct-object origin.
-  const initialValue = reduceParameter.reduceCall.arguments[1];
+  // The seeded accumulator parameter is safe only when the explicit initial
+  // value can be traced to direct-object origin.
   return (
-    initialValue != null &&
     initialValue.type !== 'SpreadElement' &&
     hasDirectObjectOrigin(initialValue, sourceCode, new Set(visitedVariables))
   );
@@ -150,7 +150,7 @@ function getEnclosingReduceCallForCallback(callback: estree.Function): InlineRed
   if (
     parent.type === 'CallExpression' &&
     parent.arguments[0] === callback &&
-    isCallingMethod(parent, 2, 'reduce')
+    (isCallingMethod(parent, 1, 'reduce') || isCallingMethod(parent, 2, 'reduce'))
   ) {
     return parent;
   }
