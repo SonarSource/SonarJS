@@ -1445,6 +1445,15 @@ describe('Linter', () => {
         quickFixes: [
           expect.objectContaining({
             message: "Add 'readonly'",
+            // The per-member `readonly` inserts are merged by ESLint into a single
+            // edit spanning from the first member to the last, splicing the untouched
+            // source in between.
+            edits: [
+              {
+                loc: { line: 2, column: 10, endLine: 3, endColumn: 10 },
+                text: "readonly foo = '';\n  private readonly ",
+              },
+            ],
           }),
         ],
         secondaryLocations: [
