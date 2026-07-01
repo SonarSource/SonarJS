@@ -49,6 +49,31 @@ describe('S2933 decorator', () => {
     ]);
   });
 
+  it('sorts combined fixes and drops overlaps that ESLint would reject', () => {
+    const foo = member('foo', loc(2, 2, 2, 5), [10, 16]);
+    const bar = member('bar', loc(3, 2, 3, 5), [14, 20]);
+    const baz = member('baz', loc(4, 2, 4, 5), [22, 25]);
+    const reports = lintClass(
+      classNode({
+        members: [foo, bar, baz],
+      }),
+      () => [
+        // `baz` precedes `foo`/`bar` by range and must be reordered; `bar` overlaps
+        // `foo` (14 < 16) and must be dropped so the combined fix stays mergeable.
+        readonlyReport(baz, () => ({ range: [22, 25], text: 'C' })),
+        readonlyReport(foo, () => ({ range: [10, 16], text: 'A' })),
+        readonlyReport(bar, () => ({ range: [14, 20], text: 'B' })),
+      ],
+    );
+
+    assert.equal(reports.length, 1);
+    const fix = reports[0].fix!(fixer);
+    assert.deepEqual(fix, [
+      { range: [10, 16], text: 'A' },
+      { range: [22, 25], text: 'C' },
+    ]);
+  });
+
   it('reports on the class name, falling back to the whole class for anonymous classes', () => {
     const namedMember = member('foo', loc(2, 2, 2, 5), [12, 15]);
     const namedClass = classNode({
@@ -97,20 +122,54 @@ describe('S2933 decorator', () => {
     ]);
   });
 
-  it('forwards original reports when a secondary location cannot be derived', () => {
+  it('re-encodes forwarded reports when a member location cannot be derived', () => {
     const foo = member('foo', loc(2, 2, 2, 5), [12, 15]);
-    const firstReport = readonlyReport(foo);
     const unlocatableReport = {
-      message: 'upstream report without a usable location',
-    } as Rule.ReportDescriptor;
+      messageId: 'preferReadonly',
+      data: { name: 'ghost' },
+    } as unknown as Rule.ReportDescriptor;
     const reports = lintClass(
       classNode({
         members: [foo, constructorNode(loc(4, 2, 4, 18))],
       }),
-      () => [firstReport, unlocatableReport],
+      () => [readonlyReport(foo), unlocatableReport],
+      { sonarRuntime: true },
     );
 
-    assert.deepEqual(reports, [firstReport, unlocatableReport]);
+    // The unlocatable report is dropped (the linter has nothing to anchor it on),
+    // and the located member is still emitted through report(), so its message
+    // stays JSON-encoded and decodable under `hasSecondaries` instead of leaking a
+    // raw messageId that would make the linter's decode step throw.
+    assert.equal(reports.length, 1);
+    assert.ok('loc' in reports[0]);
+    assert.deepEqual(reports[0].loc, foo.loc);
+    assert.equal(typeof reports[0].fix, 'function');
+
+    const data = reports[0].data as { sonarRuntimeData: string };
+    const encoded = JSON.parse(data.sonarRuntimeData) as EncodedMessage;
+    assert.equal(encoded.message, "Member 'foo' is never reassigned; mark it as `readonly`.");
+    assert.deepEqual(encoded.secondaryLocations, []);
+  });
+
+  it('fails loudly when the upstream rule stops reporting on class exit', () => {
+    const renamedRule: Rule.RuleModule = {
+      meta: { type: 'suggestion', fixable: 'code', messages: {} },
+      create() {
+        return {
+          // The upstream rule moved its reporting to a different (renamed) selector.
+          'ClassDeclaration:exit, ClassExpression:exit'() {},
+        };
+      },
+    };
+
+    assert.throws(
+      () =>
+        decorate(renamedRule).create({
+          report() {},
+          settings: {},
+        } as unknown as Rule.RuleContext),
+      /no "ClassDeclaration, ClassExpression:exit" listener/,
+    );
   });
 });
 
