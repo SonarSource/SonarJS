@@ -28,7 +28,7 @@ const messages = {
   mocha: 'Call `this.skip()` instead of returning early.',
   vitest: "Call the test context's `skip()` instead of returning early.",
   playwright: 'Call `test.skip(condition)` instead of returning early.',
-  nodeTest: 'Call `t.skip()` before returning early.',
+  nodeTest: "Call the test context's `skip()` before returning early.",
   bun: 'Move the condition to `test.skipIf()` instead of returning early.',
 };
 
