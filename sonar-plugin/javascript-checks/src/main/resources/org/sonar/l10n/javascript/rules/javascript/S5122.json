@@ -18,10 +18,6 @@
     "express.js",
     "former-hotspot"
   ],
-  "extra": {
-    "replacementRules": [],
-    "legacyKeys": []
-  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-5122",
   "sqKey": "S5122",
