@@ -137,45 +137,226 @@ describe('S2933 decorator', () => {
     );
 
     // The unlocatable report is dropped (the linter has nothing to anchor it on),
-    // and the located member is still emitted through report(), so its message
-    // stays JSON-encoded and decodable under `hasSecondaries` instead of leaking a
-    // raw messageId that would make the linter's decode step throw.
+    // and the located member is still grouped through report(), so its message
+    // stays JSON-encoded and decodable under `hasSecondaries`.
     assert.equal(reports.length, 1);
     assert.ok('loc' in reports[0]);
-    assert.deepEqual(reports[0].loc, foo.loc);
+    assert.deepEqual(reports[0].loc, loc(1, 6, 1, 7));
     assert.equal(typeof reports[0].fix, 'function');
 
     const data = reports[0].data as { sonarRuntimeData: string };
     const encoded = JSON.parse(data.sonarRuntimeData) as EncodedMessage;
-    assert.equal(encoded.message, "Member 'foo' is never reassigned; mark it as `readonly`.");
-    assert.deepEqual(encoded.secondaryLocations, []);
+    assert.equal(encoded.message, GROUPED_MESSAGE);
+    assert.deepEqual(encoded.secondaryLocations, [
+      {
+        line: 2,
+        column: 2,
+        endLine: 2,
+        endColumn: 5,
+        message: "Member 'foo' is never reassigned; mark it as `readonly`.",
+      },
+    ]);
   });
 
-  it('fails loudly when the upstream rule stops reporting on class exit', () => {
-    const renamedRule: Rule.RuleModule = {
+  it('groups reports emitted by an upstream rule without depending on its listener selector', () => {
+    const foo = member('foo', loc(2, 2, 2, 5), [12, 15]);
+    const bar = member('bar', loc(3, 2, 3, 5), [19, 22]);
+    const klass = classNode({ members: [foo, bar] });
+    attachParents(klass);
+
+    const reports = lintProgram([klass], () => [readonlyReport(foo), readonlyReport(bar)], {
+      sonarRuntime: true,
+    });
+
+    assert.equal(reports.length, 1);
+    assert.ok('loc' in reports[0]);
+    assert.deepEqual(reports[0].loc, klass.id!.loc);
+    const data = reports[0].data as { sonarRuntimeData: string };
+    const encoded = JSON.parse(data.sonarRuntimeData) as EncodedMessage;
+    assert.equal(encoded.message, GROUPED_MESSAGE);
+    assert.deepEqual(encoded.secondaryLocations, [
+      {
+        line: 2,
+        column: 2,
+        endLine: 2,
+        endColumn: 5,
+        message: "Member 'foo' is never reassigned; mark it as `readonly`.",
+      },
+      {
+        line: 3,
+        column: 2,
+        endLine: 3,
+        endColumn: 5,
+        message: "Member 'bar' is never reassigned; mark it as `readonly`.",
+      },
+    ]);
+  });
+
+  it('groups loc-only upstream reports by containing class', () => {
+    const foo = member('foo', loc(2, 2, 2, 5), [12, 15]);
+    const klass = classNode({ members: [foo] });
+    attachParents(klass);
+
+    const reports = lintProgram(
+      [klass],
+      () => [
+        {
+          loc: foo.loc,
+          messageId: 'preferReadonly',
+          data: { name: 'foo' },
+          fix: defaultReadonlyFix(foo),
+        },
+      ],
+      { sonarRuntime: true },
+    );
+
+    assert.equal(reports.length, 1);
+    assert.deepEqual((reports[0] as { loc: AST.SourceLocation }).loc, klass.id!.loc);
+    assert.deepEqual(secondaryLocations(reports[0]), [
+      {
+        line: 2,
+        column: 2,
+        endLine: 2,
+        endColumn: 5,
+        message: "Member 'foo' is never reassigned; mark it as `readonly`.",
+      },
+    ]);
+  });
+
+  it('reports grouped issues in source order', () => {
+    const firstMember = member('first', loc(2, 2, 2, 7), [12, 17]);
+    const secondMember = member('second', loc(8, 2, 8, 8), [80, 86]);
+    const firstClass = classNode({
+      id: identifier('First', loc(1, 6, 1, 11)),
+      loc: loc(1, 0, 4, 1),
+      members: [firstMember],
+    });
+    firstClass.range = [0, 40];
+    firstClass.body.range = [8, 40];
+    const secondClass = classNode({
+      id: identifier('Second', loc(7, 6, 7, 12)),
+      loc: loc(7, 0, 10, 1),
+      members: [secondMember],
+    });
+    secondClass.range = [70, 110];
+    secondClass.body.range = [78, 110];
+    attachParents(firstClass);
+    attachParents(secondClass);
+
+    const reports = lintProgram([firstClass, secondClass], () => [
+      readonlyReport(secondMember),
+      readonlyReport(firstMember),
+    ]);
+
+    assert.equal(reports.length, 2);
+    assert.deepEqual((reports[0] as { loc: AST.SourceLocation }).loc, firstClass.id!.loc);
+    assert.deepEqual((reports[1] as { loc: AST.SourceLocation }).loc, secondClass.id!.loc);
+  });
+
+  it('groups nested class members under the nearest owning class', () => {
+    const outerMember = member('outer', loc(2, 2, 2, 7), [12, 17]);
+    const innerMember = member('inner', loc(4, 4, 4, 9), [40, 45]);
+    const innerClass = classNode({
+      id: identifier('Inner', loc(3, 8, 3, 13)),
+      loc: loc(3, 2, 6, 3),
+      members: [innerMember],
+    });
+    innerClass.range = [30, 60];
+    innerClass.body.range = [38, 60];
+    const outerClass = classNode({
+      id: identifier('Outer', loc(1, 6, 1, 11)),
+      loc: loc(1, 0, 7, 1),
+      members: [outerMember, innerClass as unknown as TSESTree.ClassElement],
+    });
+    outerClass.range = [0, 80];
+    outerClass.body.range = [8, 80];
+    attachParents(outerClass);
+    attachParents(innerClass);
+    innerClass.parent = outerClass.body;
+
+    const reports = lintProgram([outerClass], () => [
+      readonlyReport(outerMember),
+      readonlyReport(innerMember),
+    ]);
+
+    assert.equal(reports.length, 2);
+    assert.deepEqual((reports[0] as { loc: AST.SourceLocation }).loc, outerClass.id!.loc);
+    assert.deepEqual((reports[1] as { loc: AST.SourceLocation }).loc, innerClass.id!.loc);
+  });
+
+  it('forwards reports transparently when no owning class can be found', () => {
+    const orphan = member('orphan', loc(2, 2, 2, 8), [12, 18]);
+    const reports = lintProgram([], () => [readonlyReport(orphan)], { sonarRuntime: true });
+
+    assert.equal(reports.length, 1);
+    assert.ok('loc' in reports[0]);
+    assert.deepEqual(reports[0].loc, orphan.loc);
+    const data = reports[0].data as { sonarRuntimeData: string };
+    const encoded = JSON.parse(data.sonarRuntimeData) as EncodedMessage;
+    assert.equal(encoded.message, "Member 'orphan' is never reassigned; mark it as `readonly`.");
+  });
+
+  it('preserves every edit produced by upstream per-member fixes', () => {
+    const foo = member('foo', loc(2, 2, 2, 5), [12, 15]);
+    const bar = member('bar', loc(3, 2, 3, 5), [30, 33]);
+    const klass = classNode({ members: [foo, bar] });
+    attachParents(klass);
+
+    const reports = lintProgram([klass], () => [
+      readonlyReport(foo, fixer => [
+        fixer.insertTextBefore(foo as Rule.Node, 'readonly '),
+        fixer.insertTextAfter(foo.key as Rule.Node, ': string'),
+      ]),
+      readonlyReport(bar, fixer => fixer.insertTextBefore(bar as Rule.Node, 'readonly ')),
+    ]);
+
+    assert.equal(reports.length, 1);
+    const fix = reports[0].fix!(fixer);
+    assert.deepEqual(fix, [
+      { range: [0, 0], text: ': string' },
+      { range: [12, 12], text: 'readonly ' },
+      { range: [30, 30], text: 'readonly ' },
+    ]);
+  });
+
+  it('preserves an upstream listener registered on the same class selector', () => {
+    const klass = classNode({ members: [] });
+    attachParents(klass);
+    let upstreamClassListenerCalls = 0;
+    const reports: Rule.ReportDescriptor[] = [];
+    const upstreamRule: Rule.RuleModule = {
       meta: { type: 'suggestion', fixable: 'code', messages: {} },
       create() {
         return {
-          // The upstream rule moved its reporting to a different (renamed) selector.
-          'ClassDeclaration:exit, ClassExpression:exit'() {},
+          'ClassDeclaration, ClassExpression'() {
+            upstreamClassListenerCalls++;
+          },
         };
       },
     };
 
-    assert.throws(
-      () =>
-        decorate(renamedRule).create({
-          report() {},
-          settings: {},
-        } as unknown as Rule.RuleContext),
-      /no "ClassDeclaration, ClassExpression:exit" listener/,
-    );
+    const listener = decorate(upstreamRule).create(ruleContext(reports));
+
+    const onClass = listener['ClassDeclaration, ClassExpression'] as (node: ClassNode) => void;
+    onClass(klass);
+
+    assert.equal(upstreamClassListenerCalls, 1);
+    assert.equal(reports.length, 0);
   });
 });
 
 function lintClass(
   node: ClassNode,
   reportsForClass: (node: ClassNode) => Rule.ReportDescriptor[],
+  settings: Record<string, unknown> = {},
+) {
+  attachParents(node);
+  return lintProgram([node], () => reportsForClass(node), settings);
+}
+
+function lintProgram(
+  classes: ClassNode[],
+  reportsForProgram: () => Rule.ReportDescriptor[],
   settings: Record<string, unknown> = {},
 ) {
   const reports: Rule.ReportDescriptor[] = [];
@@ -189,8 +370,8 @@ function lintClass(
     },
     create(context) {
       return {
-        'ClassDeclaration, ClassExpression:exit'(classNode: ClassNode) {
-          for (const report of reportsForClass(classNode)) {
+        Program() {
+          for (const report of reportsForProgram()) {
             context.report(report);
           }
         },
@@ -198,17 +379,78 @@ function lintClass(
     },
   };
 
-  const listener = decorate(upstreamRule).create({
+  const listener = decorate(upstreamRule).create(ruleContext(reports, settings));
+
+  if (typeof listener.Program === 'function') {
+    listener.Program(program(classes));
+  }
+
+  const onClass = listener['ClassDeclaration, ClassExpression'] as
+    | ((node: ClassNode) => void)
+    | undefined;
+  if (typeof onClass === 'function') {
+    for (const classNode of classes) {
+      visitClasses(classNode, onClass);
+    }
+  }
+
+  if (typeof listener['Program:exit'] === 'function') {
+    listener['Program:exit'](program(classes));
+  }
+
+  return reports;
+}
+
+function ruleContext(
+  reports: Rule.ReportDescriptor[],
+  settings: Record<string, unknown> = {},
+): Rule.RuleContext {
+  return {
     report(reportDescriptor: Rule.ReportDescriptor) {
       reports.push(reportDescriptor);
     },
+    sourceCode: {
+      getIndexFromLoc(position: { line: number; column: number }) {
+        return position.line * 10 + position.column;
+      },
+    },
     settings,
-  } as Rule.RuleContext);
-  const onClassExit = listener['ClassDeclaration, ClassExpression:exit'] as (
-    node: ClassNode,
-  ) => void;
-  onClassExit(node);
-  return reports;
+  } as Rule.RuleContext;
+}
+
+function program(classes: ClassNode[]): ProgramNode {
+  return {
+    type: AST_NODE_TYPES.Program,
+    body: classes,
+    sourceType: 'module',
+    loc: loc(1, 0, 10, 0),
+    range: [0, 100],
+  } as unknown as ProgramNode;
+}
+
+function visitClasses(node: ClassNode, onClass: (node: ClassNode) => void) {
+  onClass(node);
+  for (const memberNode of node.body.body as unknown as TSESTree.Node[]) {
+    if (
+      memberNode.type === AST_NODE_TYPES.ClassDeclaration ||
+      memberNode.type === AST_NODE_TYPES.ClassExpression
+    ) {
+      visitClasses(memberNode, onClass);
+    }
+  }
+}
+
+function attachParents(node: ClassNode) {
+  node.body.parent = node;
+  for (const memberNode of node.body.body) {
+    memberNode.parent = node.body;
+    if ('key' in memberNode && memberNode.key) {
+      memberNode.key.parent = memberNode;
+    }
+    if (memberNode.type === AST_NODE_TYPES.PropertyDefinition && memberNode.value) {
+      memberNode.value.parent = memberNode;
+    }
+  }
 }
 
 function secondaryLocations(report: Rule.ReportDescriptor) {
@@ -246,9 +488,17 @@ const fixer = {
       text,
     };
   },
+  insertTextAfter(node: Rule.Node, text: string) {
+    return {
+      range: [node.range![1], node.range![1]] as AST.Range,
+      text,
+    };
+  },
 } as Rule.RuleFixer;
 
 type ClassNode = TSESTree.ClassDeclaration | TSESTree.ClassExpression;
+type ProgramListener = NonNullable<Rule.RuleListener['Program']>;
+type ProgramNode = Parameters<ProgramListener>[0];
 
 function classNode({
   type = AST_NODE_TYPES.ClassDeclaration,
