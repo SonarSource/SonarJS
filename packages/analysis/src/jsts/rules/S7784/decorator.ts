@@ -20,6 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { isStaticMethodCall } from '../helpers/ast.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
 
@@ -54,7 +55,7 @@ function isInsideJsonStringify(node: estree.Node): boolean {
     const estreeParent = parent as unknown as estree.Node;
     const estreeChild = child as unknown as estree.Node;
     if (!isPassthroughContainer(estreeParent, estreeChild)) {
-      return isJsonStringifyCall(estreeParent);
+      return isStaticMethodCall(estreeParent, 'JSON', 'stringify');
     }
     child = parent;
     parent = parent.parent;
@@ -75,20 +76,4 @@ function isPassthroughContainer(node: estree.Node, child: estree.Node): boolean 
     default:
       return false;
   }
-}
-
-/** Returns true when `node` is a JSON.stringify(...) call expression. */
-function isJsonStringifyCall(node: estree.Node): boolean {
-  if (node.type !== 'CallExpression') {
-    return false;
-  }
-  const { callee } = node as estree.CallExpression;
-  return (
-    callee.type === 'MemberExpression' &&
-    !callee.computed &&
-    callee.object.type === 'Identifier' &&
-    callee.object.name === 'JSON' &&
-    callee.property.type === 'Identifier' &&
-    callee.property.name === 'stringify'
-  );
 }
