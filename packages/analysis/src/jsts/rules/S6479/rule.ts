@@ -182,19 +182,16 @@ function hasStaticListSource(source: AstNode, context: Rule.RuleContext): boolea
 function isStaticArrayExpression(node: AstNode | null | undefined): boolean {
   return (
     node?.type === 'ArrayExpression' &&
-    node.elements.every(
-      element =>
-        element === null ||
-        (element.type !== 'SpreadElement' && isStaticElement(element)),
-    )
-  );
-}
-
-function isStaticElement(node: TSESTree.Expression): boolean {
-  return (
-    node.type === 'Literal' ||
-    (node.type === 'TemplateLiteral' && node.expressions.length === 0) ||
-    isStaticArrayExpression(node)
+    node.elements.every(element => {
+      if (element === null) return true;
+      if (element.type === 'SpreadElement') return false;
+      if (element.type === 'Literal') return true;
+      if (element.type === 'TemplateLiteral') {
+        return (element as TSESTree.TemplateLiteral).expressions.length === 0;
+      }
+      if (element.type === 'ArrayExpression') return isStaticArrayExpression(element);
+      return false;
+    })
   );
 }
 
