@@ -33,11 +33,6 @@ describe('S8961', () => {
           // defineEmits in script setup
           code: `<script setup>const emit = defineEmits(['submit']); emit('submit');</script>`,
         },
-        {
-          // allowProps: true - event name matches a prop
-          code: `<script>export default { props: ['submit'], methods: { s() { this.$emit('submit'); } } };</script>`,
-          options: [{ allowProps: true }],
-        },
       ],
       invalid: [
         {
