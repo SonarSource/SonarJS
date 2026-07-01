@@ -22,7 +22,7 @@ import { fields } from './config.js';
 import { rule } from './index.js';
 
 describe('S6478', () => {
-  it('should expose allowAsProps as a Sonar configuration field', () => {
+  it('should expose allowAsProps and propNamePattern as Sonar configuration fields', () => {
     assert.ok(Array.isArray(fields));
     assert.ok(
       fields.some(
@@ -32,6 +32,19 @@ describe('S6478', () => {
             option =>
               option.field === 'allowAsProps' &&
               option.default === false &&
+              typeof option.description === 'string',
+          ),
+      ),
+    );
+    assert.ok(
+      fields.some(
+        field =>
+          Array.isArray(field) &&
+          field.some(
+            option =>
+              option.field === 'propNamePattern' &&
+              option.default === 'render*' &&
+              option.displayName === 'propNamePattern' &&
               typeof option.description === 'string',
           ),
       ),
@@ -124,6 +137,70 @@ describe('S6478', () => {
                 return <div />;
               }
               return <Child />;
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should suppress configured render-prop names with propNamePattern', () => {
+    const ruleTester = new DefaultParserRuleTester();
+
+    ruleTester.run('S6478', rule, {
+      valid: [
+        {
+          options: [{ propNamePattern: 'render*' }],
+          code: `
+            function Parent() {
+              return (
+                <OtherComponent
+                  renderLabel={value => <span>{value}</span>}
+                />
+              );
+            }
+          `,
+        },
+        {
+          options: [{ propNamePattern: '*Enhancer' }],
+          code: `
+            function Parent() {
+              return (
+                <Button
+                  startEnhancer={() => <Icon />}
+                  endEnhancer={() => <OtherIcon />}
+                />
+              );
+            }
+          `,
+        },
+        {
+          options: [{ propNamePattern: '*Render' }],
+          code: `
+            function Parent() {
+              return (
+                <Image
+                  preview={{
+                    imageRender: () => <video muted />,
+                    actionsRender: () => null,
+                  }}
+                />
+              );
+            }
+          `,
+        },
+      ],
+      invalid: [
+        {
+          options: [{ propNamePattern: '*Enhancer' }],
+          code: `
+            function Parent() {
+              return (
+                <OtherComponent
+                  component={() => <div />}
+                />
+              );
             }
           `,
           errors: 1,
