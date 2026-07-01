@@ -93,14 +93,36 @@ function isStaticListKey(node: TSESTree.Node, context: Rule.RuleContext): boolea
 
 /**
  * Finds the iterator call that owns the reported key usage.
+ * Walks up through all enclosing functions to find the one whose index parameter
+ * matches the reported identifier, avoiding misattribution in nested callbacks.
  * @param node Reported key node from the upstream rule.
  * @return The enclosing iterator call when it exists.
  */
 function findEnclosingIteratorCall(node: TSESTree.Node): IteratorCall | undefined {
+  let reportedName: string | undefined;
+  if (node.type === 'Identifier') {
+    reportedName = node.name;
+  } else if (node.type === 'TemplateLiteral' && node.expressions.length === 1) {
+    const expr = node.expressions[0];
+    if (expr.type === 'Identifier') {
+      reportedName = expr.name;
+    }
+  }
+
   let current = node.parent;
   while (current) {
     if (current.type === 'ArrowFunctionExpression' || current.type === 'FunctionExpression') {
-      return getIteratorCallFromCallback(current);
+      const call = getIteratorCallFromCallback(current);
+      if (call !== undefined) {
+        if (reportedName === undefined) {
+          return call;
+        }
+        const indexPos = ITERATOR_INDEX_PARAMETER_POSITIONS.get(call.callee.property.name)!;
+        const indexParam = current.params[indexPos];
+        if (indexParam?.type === 'Identifier' && indexParam.name === reportedName) {
+          return call;
+        }
+      }
     }
     current = current.parent;
   }
@@ -153,14 +175,26 @@ function hasStaticListSource(source: AstNode, context: Rule.RuleContext): boolea
 }
 
 /**
- * Returns whether an array expression is a plain static literal.
+ * Returns whether an array expression is a plain static literal (no spreads, no identifiers).
  * @param node Candidate array expression.
- * @return True when the array contains no spread elements.
+ * @return True when every element is a literal, template string, or nested static array.
  */
 function isStaticArrayExpression(node: AstNode | null | undefined): boolean {
   return (
     node?.type === 'ArrayExpression' &&
-    node.elements.every(element => element?.type !== 'SpreadElement')
+    node.elements.every(
+      element =>
+        element === null ||
+        (element.type !== 'SpreadElement' && isStaticElement(element)),
+    )
+  );
+}
+
+function isStaticElement(node: TSESTree.Expression): boolean {
+  return (
+    node.type === 'Literal' ||
+    (node.type === 'TemplateLiteral' && node.expressions.length === 0) ||
+    isStaticArrayExpression(node)
   );
 }
 
@@ -186,13 +220,17 @@ function isArrayFromLengthCall(node: AstNode, context: Rule.RuleContext): boolea
     return false;
   }
 
-  return (
-    getProperty(
-      unwrapExpression(firstArgument) as estree.Node | null | undefined,
-      'length',
-      context,
-    ) != null
+  const lengthProperty = getProperty(
+    unwrapExpression(firstArgument) as estree.Node | null | undefined,
+    'length',
+    context,
   );
+  if (lengthProperty == null) {
+    return false;
+  }
+
+  const lengthValue = (lengthProperty as TSESTree.Property).value;
+  return lengthValue.type === 'Literal' && typeof (lengthValue as TSESTree.Literal).value === 'number';
 }
 
 /**
@@ -216,21 +254,27 @@ function resolvesToConstStaticArrayExpression(
   }
 
   const variable = getVariableFromName(context, expression.name, expression);
+  if (!variable || visited.has(variable) || variable.defs.length !== 1) {
+    return false;
+  }
+
+  const def = variable.defs[0];
+  if (def.type === 'ImportBinding') {
+    return !hasCollectionMutation(variable, context);
+  }
+
   if (
-    !variable ||
-    visited.has(variable) ||
-    variable.defs.length !== 1 ||
-    variable.defs[0].type !== 'Variable' ||
-    variable.defs[0].parent?.type !== 'VariableDeclaration' ||
-    variable.defs[0].parent.kind !== 'const' ||
-    variable.defs[0].node.id.type !== 'Identifier' ||
+    def.type !== 'Variable' ||
+    def.parent?.type !== 'VariableDeclaration' ||
+    def.parent.kind !== 'const' ||
+    def.node.id.type !== 'Identifier' ||
     hasCollectionMutation(variable, context)
   ) {
     return false;
   }
 
   visited.add(variable);
-  return resolvesToConstStaticArrayExpression(variable.defs[0].node.init, context, visited);
+  return resolvesToConstStaticArrayExpression(def.node.init, context, visited);
 }
 
 /**

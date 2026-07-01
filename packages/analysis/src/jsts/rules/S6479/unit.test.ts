@@ -113,6 +113,17 @@ export const MyComponent = () => {
 }
 `,
         },
+        // M3: imported const array treated as static when not mutated locally
+        {
+          code: `
+import { TABS } from './tabs';
+export const MyComponent = () => {
+    return <>{TABS.map((tab, index) => {
+      return <div key={index}>{tab}</div>;
+    })}</>;
+}
+`,
+        },
       ],
       invalid: [
         {
@@ -168,6 +179,40 @@ export const MyComponent = () => {
 
     return <>{items.map((item, index) => {
       return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        // M1: inline array with identifier elements is not static
+        {
+          code: `
+export const MyComponent = ({ leftTab, rightTab }) => {
+    return <>{[leftTab, rightTab].map((tab, index) => {
+      return <div key={index}>{tab}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        // M2: index from outer map used inside nested find callback — should still report
+        {
+          code: `
+const STATIC = ['home', 'about', 'contact'];
+export const MyComponent = ({ items }) => {
+    return <>{items.map((item, index) => (
+      STATIC.find((_, i) => <div key={index}>{item}</div>)
+    ))}</>;
+}
+`,
+          errors: 1,
+        },
+        // M4: Array.from with dynamic length is not a placeholder list
+        {
+          code: `
+export const MyComponent = ({ users }) => {
+    return <>{Array.from({ length: users.length }).map((_, index) => {
+      return <div key={index}>{users[index]}</div>;
     })}</>;
 }
 `,
