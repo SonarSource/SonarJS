@@ -92,11 +92,17 @@ def exported_rule_key(language: str, rule_key: str, rule_key_format: str) -> str
     return rule_key_format.format(language=language, rule_id=rule_key)
 
 
+def visible_directories(root: Path) -> list[Path]:
+    return [
+        path for path in sorted(root.iterdir()) if path.is_dir() and not path.name.startswith(".")
+    ]
+
+
 def list_project_exports(language_dir: Path, label: str) -> dict[str, Path]:
     if not language_dir.is_dir():
         raise FileNotFoundError(f"{label} language export directory does not exist: {language_dir}")
 
-    project_dirs = [project_dir for project_dir in sorted(language_dir.iterdir()) if project_dir.is_dir()]
+    project_dirs = visible_directories(language_dir)
     missing_issue_files = [
         project_dir.name for project_dir in project_dirs if not (project_dir / ISSUES_FILE).is_file()
     ]
@@ -141,9 +147,7 @@ def prepare_language_base(base_dir: Path, target_dir: Path, prepared_base_dir: P
     base_language_dir = base_dir / language
     base_projects: dict[str, Path] = {}
     if base_language_dir.is_dir():
-        for project_dir in sorted(base_language_dir.iterdir()):
-            if not project_dir.is_dir():
-                continue
+        for project_dir in visible_directories(base_language_dir):
             if not (project_dir / ISSUES_FILE).is_file():
                 print(
                     f"Warning: base project export missing {ISSUES_FILE}, "
@@ -232,8 +236,8 @@ def prepare_flat_base(base_dir: Path, target_dir: Path, prepared_base_dir: Path)
 
     base_projects: dict[str, Path] = {}
     if base_dir.is_dir():
-        for project_dir in sorted(base_dir.iterdir()):
-            if project_dir.is_dir() and (project_dir / ISSUES_FILE).is_file():
+        for project_dir in visible_directories(base_dir):
+            if (project_dir / ISSUES_FILE).is_file():
                 base_projects[project_dir.name] = project_dir
 
     for project_name, base_project_dir in base_projects.items():

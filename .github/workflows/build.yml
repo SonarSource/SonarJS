@@ -693,7 +693,7 @@ jobs:
           mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault || '{}').licenses_token }}
 
   plugin_qa_fast_with_node:
     runs-on: sonar-m
@@ -720,7 +720,7 @@ jobs:
           mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault || '{}').licenses_token }}
 
   plugin_qa_without_node:
     runs-on: sonar-m
@@ -767,7 +767,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault || '{}').licenses_token }}
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_without_node_dev:
@@ -794,7 +794,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault || '{}').licenses_token }}
 
   plugin_qa_without_node_alpine:
     runs-on: warp-custom-ubuntu-24-04
@@ -850,7 +850,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault || '{}').licenses_token }}
 
   plugin_qa_fast_without_node:
     runs-on: sonar-m
@@ -877,7 +877,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault || '{}').licenses_token }}
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_fast_without_node_dev:
@@ -903,7 +903,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault || '{}').licenses_token }}
 
   plugin_qa_fast_without_node_alpine:
     runs-on: warp-custom-ubuntu-24-04
@@ -934,7 +934,7 @@ jobs:
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault || '{}').licenses_token }}
 
   plugin_qa_win:
     runs-on: github-windows-latest-m
@@ -975,7 +975,7 @@ jobs:
           mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault || '{}').licenses_token }}
 
   plugin_qa_sonarlint_win:
     runs-on: github-windows-latest-m
@@ -1038,7 +1038,7 @@ jobs:
           mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault || '{}').licenses_token }}
 
   js_ts_ruling:
     runs-on: sonar-xl
@@ -1281,7 +1281,7 @@ jobs:
           mvn test -Dtest=RulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=8 -B -e -V
         env:
           SONARSOURCE_QA: true
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault || '{}').licenses_token }}
       - name: Upload ruling differences
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

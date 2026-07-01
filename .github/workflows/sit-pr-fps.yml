@@ -369,6 +369,7 @@ jobs:
         uses: SonarSource/vault-action-wrapper@v3
         with:
           secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-submodules token | github_submodules_token;
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
 
       - uses: jdx/mise-action@v4.1.0
@@ -378,6 +379,14 @@ jobs:
             [tools]
             python = "3.13.7"
             uv = "0.5.20"
+
+      - name: Authenticate gh for private git dependencies
+        env:
+          SUBMODULES_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).github_submodules_token }}
+        run: |
+          set -euo pipefail
+          echo "${SUBMODULES_TOKEN}" | gh auth login --with-token
+          gh auth setup-git
 
       - name: Initialize publish inputs
         run: |
