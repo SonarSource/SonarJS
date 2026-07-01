@@ -113,17 +113,6 @@ export const MyComponent = () => {
 }
 `,
         },
-        // M3: imported const array treated as static when not mutated locally
-        {
-          code: `
-import { TABS } from './tabs';
-export const MyComponent = () => {
-    return <>{TABS.map((tab, index) => {
-      return <div key={index}>{tab}</div>;
-    })}</>;
-}
-`,
-        },
       ],
       invalid: [
         {

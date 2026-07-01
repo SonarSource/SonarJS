@@ -251,27 +251,21 @@ function resolvesToConstStaticArrayExpression(
   }
 
   const variable = getVariableFromName(context, expression.name, expression);
-  if (!variable || visited.has(variable) || variable.defs.length !== 1) {
-    return false;
-  }
-
-  const def = variable.defs[0];
-  if (def.type === 'ImportBinding') {
-    return !hasCollectionMutation(variable, context);
-  }
-
   if (
-    def.type !== 'Variable' ||
-    def.parent?.type !== 'VariableDeclaration' ||
-    def.parent.kind !== 'const' ||
-    def.node.id.type !== 'Identifier' ||
+    !variable ||
+    visited.has(variable) ||
+    variable.defs.length !== 1 ||
+    variable.defs[0].type !== 'Variable' ||
+    variable.defs[0].parent?.type !== 'VariableDeclaration' ||
+    variable.defs[0].parent.kind !== 'const' ||
+    variable.defs[0].node.id.type !== 'Identifier' ||
     hasCollectionMutation(variable, context)
   ) {
     return false;
   }
 
   visited.add(variable);
-  return resolvesToConstStaticArrayExpression(def.node.init, context, visited);
+  return resolvesToConstStaticArrayExpression(variable.defs[0].node.init, context, visited);
 }
 
 /**
