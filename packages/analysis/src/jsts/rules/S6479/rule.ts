@@ -224,7 +224,7 @@ function resolvesToConstStaticArrayExpression(
     variable.defs[0].parent?.type !== 'VariableDeclaration' ||
     variable.defs[0].parent.kind !== 'const' ||
     variable.defs[0].node.id.type !== 'Identifier' ||
-    hasCollectionMutation(variable)
+    hasCollectionMutation(variable, context)
   ) {
     return false;
   }
@@ -234,12 +234,39 @@ function resolvesToConstStaticArrayExpression(
 }
 
 /**
- * Returns whether a variable is modified after its declaration.
+ * Returns whether a variable is modified after its declaration, including mutations
+ * through one level of const aliases (e.g. `const b = a; b.push(...)`).
  * @param variable Const variable that may hold a static array literal.
+ * @param context ESLint rule context.
  * @return True when a mutation is detected.
  */
-function hasCollectionMutation(variable: Scope.Variable): boolean {
-  return variable.references.some(reference => !reference.init && isCollectionMutation(reference));
+function hasCollectionMutation(variable: Scope.Variable, context: Rule.RuleContext): boolean {
+  if (variable.references.some(reference => !reference.init && isCollectionMutation(reference))) {
+    return true;
+  }
+  for (const reference of variable.references) {
+    if (reference.isWrite() || reference.init) {
+      continue;
+    }
+    const identifier = reference.identifier as TSESTree.Identifier;
+    const declarator = identifier.parent;
+    if (
+      declarator?.type !== 'VariableDeclarator' ||
+      declarator.init !== identifier ||
+      declarator.id.type !== 'Identifier'
+    ) {
+      continue;
+    }
+    const declaration = declarator.parent;
+    if (declaration?.type !== 'VariableDeclaration' || declaration.kind !== 'const') {
+      continue;
+    }
+    const aliasVariable = getVariableFromName(context, declarator.id.name, declarator.id);
+    if (aliasVariable?.references.some(r => !r.init && isCollectionMutation(r))) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**

@@ -159,6 +159,20 @@ export const MyComponent = () => {
 `,
           errors: 1,
         },
+        {
+          code: `
+export const MyComponent = () => {
+    const items = ['a', 'b', 'c'];
+    const alias = items;
+    alias.push('d');
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
       ],
     });
   });
