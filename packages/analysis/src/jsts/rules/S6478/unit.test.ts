@@ -43,7 +43,7 @@ describe('S6478', () => {
           field.some(
             option =>
               option.field === 'propNamePattern' &&
-              option.default === 'render*' &&
+              option.default === '{render*,*Enhancer,*Render}' &&
               option.displayName === 'propNamePattern' &&
               typeof option.description === 'string',
           ),
@@ -56,6 +56,32 @@ describe('S6478', () => {
 
     ruleTester.run('S6478', rule, {
       valid: [
+        {
+          code: `
+            function Parent() {
+              return (
+                <Button
+                  startEnhancer={() => <Icon />}
+                  endEnhancer={() => <OtherIcon />}
+                />
+              );
+            }
+          `,
+        },
+        {
+          code: `
+            function Parent() {
+              return (
+                <Image
+                  preview={{
+                    imageRender: () => <video muted />,
+                    actionsRender: () => null,
+                  }}
+                />
+              );
+            }
+          `,
+        },
         {
           code: `
             function Parent() {
@@ -151,7 +177,7 @@ describe('S6478', () => {
     ruleTester.run('S6478', rule, {
       valid: [
         {
-          options: [{ propNamePattern: 'render*' }],
+          options: [{ propNamePattern: '{render*,*Enhancer,*Render}' }],
           code: `
             function Parent() {
               return (
@@ -163,7 +189,7 @@ describe('S6478', () => {
           `,
         },
         {
-          options: [{ propNamePattern: '*Enhancer' }],
+          options: [{ propNamePattern: '{render*,*Enhancer,*Render}' }],
           code: `
             function Parent() {
               return (
@@ -176,7 +202,7 @@ describe('S6478', () => {
           `,
         },
         {
-          options: [{ propNamePattern: '*Render' }],
+          options: [{ propNamePattern: '{render*,*Enhancer,*Render}' }],
           code: `
             function Parent() {
               return (
@@ -193,7 +219,7 @@ describe('S6478', () => {
       ],
       invalid: [
         {
-          options: [{ propNamePattern: '*Enhancer' }],
+          options: [{ propNamePattern: '{render*,*Enhancer,*Render}' }],
           code: `
             function Parent() {
               return (
