@@ -92,6 +92,44 @@ function isStaticListKey(node: TSESTree.Node, context: Rule.RuleContext): boolea
 }
 
 /**
+ * Extracts the index identifier name from the reported key node.
+ * @param node Reported key node from the upstream rule.
+ * @return The identifier name when it can be determined.
+ */
+function getReportedIndexName(node: TSESTree.Node): string | undefined {
+  if (node.type === 'Identifier') {
+    return node.name;
+  }
+  if (node.type === 'TemplateLiteral' && node.expressions.length === 1) {
+    const expr = node.expressions[0];
+    if (expr.type === 'Identifier') {
+      return expr.name;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Returns whether an iterator call's index parameter matches the reported name.
+ * @param call The iterator call to test.
+ * @param callback The callback function attached to the call.
+ * @param reportedName The index identifier name from the reported key node.
+ * @return True when this call's index parameter owns the reported identifier.
+ */
+function isOwningIteratorCall(
+  call: IteratorCall,
+  callback: TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression,
+  reportedName: string,
+): boolean {
+  const indexPos = ITERATOR_INDEX_PARAMETER_POSITIONS.get(call.callee.property.name);
+  if (indexPos === undefined) {
+    return false;
+  }
+  const indexParam = callback.params[indexPos];
+  return indexParam?.type === 'Identifier' && indexParam.name === reportedName;
+}
+
+/**
  * Finds the iterator call that owns the reported key usage.
  * Walks up through all enclosing functions to find the one whose index parameter
  * matches the reported identifier, avoiding misattribution in nested callbacks.
@@ -99,34 +137,20 @@ function isStaticListKey(node: TSESTree.Node, context: Rule.RuleContext): boolea
  * @return The enclosing iterator call when it exists.
  */
 function findEnclosingIteratorCall(node: TSESTree.Node): IteratorCall | undefined {
-  let reportedName: string | undefined;
-  if (node.type === 'Identifier') {
-    reportedName = node.name;
-  } else if (node.type === 'TemplateLiteral' && node.expressions.length === 1) {
-    const expr = node.expressions[0];
-    if (expr.type === 'Identifier') {
-      reportedName = expr.name;
-    }
-  }
-
+  const reportedName = getReportedIndexName(node);
   let current = node.parent;
   while (current) {
     if (current.type === 'ArrowFunctionExpression' || current.type === 'FunctionExpression') {
       const call = getIteratorCallFromCallback(current);
-      if (call !== undefined) {
-        if (reportedName === undefined) {
-          return call;
-        }
-        const indexPos = ITERATOR_INDEX_PARAMETER_POSITIONS.get(call.callee.property.name)!;
-        const indexParam = current.params[indexPos];
-        if (indexParam?.type === 'Identifier' && indexParam.name === reportedName) {
-          return call;
-        }
+      if (
+        call !== undefined &&
+        (reportedName === undefined || isOwningIteratorCall(call, current, reportedName))
+      ) {
+        return call;
       }
     }
     current = current.parent;
   }
-
   return undefined;
 }
 
@@ -183,13 +207,21 @@ function isStaticArrayExpression(node: AstNode | null | undefined): boolean {
   return (
     node?.type === 'ArrayExpression' &&
     node.elements.every(element => {
-      if (element === null) return true;
-      if (element.type === 'SpreadElement') return false;
-      if (element.type === 'Literal') return true;
+      if (element === null) {
+        return true;
+      }
+      if (element.type === 'SpreadElement') {
+        return false;
+      }
+      if (element.type === 'Literal') {
+        return true;
+      }
       if (element.type === 'TemplateLiteral') {
         return (element as TSESTree.TemplateLiteral).expressions.length === 0;
       }
-      if (element.type === 'ArrayExpression') return isStaticArrayExpression(element);
+      if (element.type === 'ArrayExpression') {
+        return isStaticArrayExpression(element);
+      }
       return false;
     })
   );
