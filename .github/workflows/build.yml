@@ -257,6 +257,7 @@ jobs:
       - *mise
       - *npm_cache
       - *maven_cache
+      - uses: ./.github/actions/rule-api-cache
       - *config_maven
       - id: rspec-secrets
         uses: SonarSource/vault-action-wrapper@v3
