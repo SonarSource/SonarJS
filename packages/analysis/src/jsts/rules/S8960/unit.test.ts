@@ -118,6 +118,30 @@ jestGlobals.it('loads config', async done => {
             filename: fixture('jasmine-globals'),
             errors: [{ messageId: 'singleTestCompletionStyle' }],
           },
+          {
+            code: `fit('loads config', async done => {
+  await loadConfig();
+  done();
+});`,
+            filename: fixture('jasmine-globals'),
+            errors: [{ messageId: 'singleTestCompletionStyle' }],
+          },
+          {
+            code: `xit('loads config', async done => {
+  await loadConfig();
+  done();
+});`,
+            filename: fixture('jasmine-globals'),
+            errors: [{ messageId: 'singleTestCompletionStyle' }],
+          },
+          {
+            code: `xtest('loads config', async done => {
+  await loadConfig();
+  done();
+});`,
+            filename: fixture('jest-globals'),
+            errors: [{ messageId: 'singleTestCompletionStyle' }],
+          },
         ],
       },
     );

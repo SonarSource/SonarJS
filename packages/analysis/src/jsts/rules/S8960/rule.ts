@@ -39,7 +39,7 @@ const JASMINE_MODULES = ['jasmine', 'jasmine-core', 'jasmine-node', 'karma-jasmi
 const UNSUPPORTED_GLOBAL_FRAMEWORK_IMPORTS = ['vitest', '@playwright/test', 'cypress', 'node:test'];
 const UNSUPPORTED_GLOBAL_FRAMEWORK_DEPENDENCIES = ['vitest', '@playwright/test', 'cypress'];
 
-const TEST_FUNCTION_NAMES = new Set(['it', 'test', 'specify']);
+const TEST_FUNCTION_NAMES = new Set(['it', 'test', 'specify', 'fit', 'xit', 'xtest']);
 const HOOK_FUNCTION_NAMES = new Set([
   'before',
   'after',
@@ -98,7 +98,7 @@ export const rule: Rule.RuleModule = {
         }
 
         const asyncToken = context.sourceCode.getFirstToken(callback);
-        if (asyncToken?.value !== 'async') {
+        if (asyncToken === null) {
           return;
         }
 
@@ -120,13 +120,11 @@ export const rule: Rule.RuleModule = {
 };
 
 function getCallback(node: estree.CallExpression): FunctionNode | undefined {
-  const callback = node.arguments.find(
-    argument =>
-      argument.type === 'FunctionExpression' || argument.type === 'ArrowFunctionExpression',
-  );
-  return callback?.type === 'FunctionExpression' || callback?.type === 'ArrowFunctionExpression'
-    ? callback
-    : undefined;
+  return node.arguments.find(isCallback);
+}
+
+function isCallback(argument: estree.CallExpression['arguments'][number]): argument is FunctionNode {
+  return argument.type === 'FunctionExpression' || argument.type === 'ArrowFunctionExpression';
 }
 
 function getCompletionCallbackParameter(callback: FunctionNode): estree.Identifier | undefined {
