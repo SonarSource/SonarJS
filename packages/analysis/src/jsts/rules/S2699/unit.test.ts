@@ -413,6 +413,16 @@ describe('typed chai should chains', () => {
     const warning = { isVisible: () => true };
     warning.isVisible().should.be.true;
   });
+
+  it('should recognize property terminals beyond the common ones', () => {
+    const list = [];
+    list.should.be.empty;
+  });
+
+  it('should recognize call terminals on locals that do not resolve', () => {
+    const value = 2;
+    value.should.equal(2);
+  });
 });
 `,
         },
@@ -540,7 +550,27 @@ describe('Observable error handling with object syntax', () => {
 `,
         },
       ],
-      invalid: [],
+      invalid: [
+        {
+          code: `
+import { expect } from 'chai';
+
+declare global {
+  interface Object {
+    should: any;
+  }
+}
+
+describe('typed bare should access', () => {
+  it('should raise when should is not extended', () => {
+    const user = {};
+    user.should;
+  });
+});
+`,
+          errors: 1,
+        },
+      ],
     });
   });
 });
