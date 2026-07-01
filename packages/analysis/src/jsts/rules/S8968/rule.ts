@@ -38,12 +38,23 @@ const PLAYWRIGHT_MODULES = ['@playwright/test'];
 const NODE_TEST_MODULES = ['node:test'];
 const BUN_MODULES = ['bun:test'];
 const VITEST_MODULES = ['vitest'];
+const JEST_IMPORTS = ['jest', '@jest/globals'];
+const JEST_DEPENDENCIES = ['jest'];
+const JASMINE_MODULES = ['jasmine', 'jasmine-core', 'jasmine-node', 'karma-jasmine'];
 
 /**
  * Mocha is the fallback: unlike the other four frameworks, it works off globals
  * and is not necessarily imported anywhere in the file.
+ * Jest and Jasmine are excluded outright: neither has a `this.skip()`-style
+ * in-body skip, so the guard-return shape this rule flags isn't actionable there.
  */
-function detectFramework(context: Rule.RuleContext): Framework {
+function detectFramework(context: Rule.RuleContext): Framework | 'excluded' {
+  if (importsOrDependsOnModule(context, JEST_IMPORTS, JEST_DEPENDENCIES)) {
+    return 'excluded';
+  }
+  if (importsOrDependsOnModule(context, JASMINE_MODULES, JASMINE_MODULES)) {
+    return 'excluded';
+  }
   if (importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES)) {
     return 'playwright';
   }
@@ -63,6 +74,9 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     const framework = detectFramework(context);
+    if (framework === 'excluded') {
+      return {};
+    }
 
     return {
       'CallExpression:exit'(node: estree.Node) {
