@@ -181,8 +181,6 @@ jobs:
           maven-hash: ${{ needs.setup.outputs.maven-hash }}
       - &rule_api_cache
         uses: ./.github/actions/rule-api-cache
-        with:
-          cache-month: ${{ needs.setup.outputs.cache-month }}
       - &config_maven
         name: Configure Maven
         id: config-maven

@@ -2,9 +2,6 @@ name: Setup Rule API Cache
 description: Sets up sonar-rule-api cache with restore-only behavior on non-default branches
 
 inputs:
-  cache-month:
-    description: 'Month string for cache key rotation (YYYY-MM)'
-    required: true
   key-prefix:
     description: 'Prefix for the cache key (default: rule-api)'
     required: false
@@ -28,8 +25,8 @@ runs:
       uses: actions/cache/restore@v5
       with:
         path: ${{ env.RULE_API_CACHE_DIR }}
-        key: ${{ inputs.key-prefix }}-${{ runner.os }}-${{ inputs.cache-month }}-${{ github.run_id }}
-        restore-keys: ${{ inputs.key-prefix }}-${{ runner.os }}-${{ inputs.cache-month }}-
+        key: ${{ inputs.key-prefix }}-${{ runner.os }}-${{ github.run_id }}
+        restore-keys: ${{ inputs.key-prefix }}-${{ runner.os }}-
 
     # Full cache on default branch (save enabled) - uses run_id for rolling cache because the RSPEC
     # clone contents evolve independently of the SonarJS source tree.
@@ -38,8 +35,8 @@ runs:
       uses: actions/cache@v5
       with:
         path: ${{ env.RULE_API_CACHE_DIR }}
-        key: ${{ inputs.key-prefix }}-${{ runner.os }}-${{ inputs.cache-month }}-${{ github.run_id }}
-        restore-keys: ${{ inputs.key-prefix }}-${{ runner.os }}-${{ inputs.cache-month }}-
+        key: ${{ inputs.key-prefix }}-${{ runner.os }}-${{ github.run_id }}
+        restore-keys: ${{ inputs.key-prefix }}-${{ runner.os }}-
 
     - name: Setup Rule API cache directory
       shell: bash
