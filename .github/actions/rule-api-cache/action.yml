@@ -25,8 +25,8 @@ runs:
       uses: actions/cache/restore@v5
       with:
         path: ${{ env.RULE_API_CACHE_DIR }}
-        key: ${{ inputs.key-prefix }}-${{ runner.os }}-${{ github.run_id }}
-        restore-keys: ${{ inputs.key-prefix }}-${{ runner.os }}-
+        key: ${{ inputs.key-prefix }}-${{ github.run_id }}
+        restore-keys: ${{ inputs.key-prefix }}-
 
     # Full cache on default branch (save enabled) - uses run_id for rolling cache because the RSPEC
     # clone contents evolve independently of the SonarJS source tree.
@@ -35,8 +35,8 @@ runs:
       uses: actions/cache@v5
       with:
         path: ${{ env.RULE_API_CACHE_DIR }}
-        key: ${{ inputs.key-prefix }}-${{ runner.os }}-${{ github.run_id }}
-        restore-keys: ${{ inputs.key-prefix }}-${{ runner.os }}-
+        key: ${{ inputs.key-prefix }}-${{ github.run_id }}
+        restore-keys: ${{ inputs.key-prefix }}-
 
     - name: Setup Rule API cache directory
       shell: bash
