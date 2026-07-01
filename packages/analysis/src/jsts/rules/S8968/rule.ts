@@ -21,7 +21,7 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { FUNCTION_NODES, isIdentifier } from '../helpers/ast.js';
 import { isTestCase } from '../helpers/mocha.js';
-import { importsOrDependsOnModule } from '../helpers/module.js';
+import { importsModule, importsOrDependsOnModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -53,8 +53,29 @@ const QUNIT_MODULES = ['qunit'];
  * node:test/Bun/Vitest, so they are excluded too: both already fail a test by
  * default when it completes without an assertion, so the misleading "passed"
  * outcome this rule targets never occurs there.
+ *
+ * A file's own explicit import of a covered framework is checked before the
+ * Jest/Jasmine/AVA/QUnit exclusion, and takes precedence over it: those four are
+ * detected via `importsOrDependsOnModule`, which also matches on the project's
+ * package.json dependencies, not just this file's imports. Checking that
+ * project-wide signal first would wrongly exclude an unambiguous Playwright/
+ * node:test/Bun/Vitest file whenever the project also happens to depend on
+ * Jest/Jasmine/AVA/QUnit for unrelated reasons (e.g. a mixed-runner monorepo, or
+ * a leftover Jest devDependency during a migration).
  */
 function detectFramework(context: Rule.RuleContext): Framework | 'excluded' {
+  if (importsModule(context, PLAYWRIGHT_MODULES)) {
+    return 'playwright';
+  }
+  if (importsModule(context, NODE_TEST_MODULES)) {
+    return 'nodeTest';
+  }
+  if (importsModule(context, BUN_MODULES)) {
+    return 'bun';
+  }
+  if (importsModule(context, VITEST_MODULES)) {
+    return 'vitest';
+  }
   if (importsOrDependsOnModule(context, JEST_IMPORTS, JEST_DEPENDENCIES)) {
     return 'excluded';
   }
@@ -67,14 +88,11 @@ function detectFramework(context: Rule.RuleContext): Framework | 'excluded' {
   if (importsOrDependsOnModule(context, QUNIT_MODULES, QUNIT_MODULES)) {
     return 'excluded';
   }
+  // Neither imported directly in this file nor excluded: fall back to the project's
+  // dependency manifest for Playwright/Vitest, which sometimes run test files that
+  // don't literally import the framework (e.g. via a shared fixture re-export).
   if (importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES)) {
     return 'playwright';
-  }
-  if (importsOrDependsOnModule(context, NODE_TEST_MODULES, [])) {
-    return 'nodeTest';
-  }
-  if (importsOrDependsOnModule(context, BUN_MODULES, [])) {
-    return 'bun';
   }
   if (importsOrDependsOnModule(context, VITEST_MODULES, VITEST_MODULES)) {
     return 'vitest';
