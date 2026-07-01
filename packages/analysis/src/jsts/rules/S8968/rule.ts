@@ -21,15 +21,49 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { FUNCTION_NODES, isIdentifier } from '../helpers/ast.js';
 import { isTestCase } from '../helpers/mocha.js';
+import { importsOrDependsOnModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
-  explicitSkip: 'Skip this test explicitly instead of returning early.',
+  mocha: 'Call `this.skip()` instead of returning early.',
+  vitest: "Call the test context's `skip()` instead of returning early.",
+  playwright: 'Call `test.skip(condition)` instead of returning early.',
+  nodeTest: 'Call `t.skip()` before returning early.',
+  bun: 'Move the condition to `test.skipIf()` instead of returning early.',
 };
+
+type Framework = keyof typeof messages;
+
+const PLAYWRIGHT_MODULES = ['@playwright/test'];
+const NODE_TEST_MODULES = ['node:test'];
+const BUN_MODULES = ['bun:test'];
+const VITEST_MODULES = ['vitest'];
+
+/**
+ * Mocha is the fallback: unlike the other four frameworks, it works off globals
+ * and is not necessarily imported anywhere in the file.
+ */
+function detectFramework(context: Rule.RuleContext): Framework {
+  if (importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES)) {
+    return 'playwright';
+  }
+  if (importsOrDependsOnModule(context, NODE_TEST_MODULES, [])) {
+    return 'nodeTest';
+  }
+  if (importsOrDependsOnModule(context, BUN_MODULES, [])) {
+    return 'bun';
+  }
+  if (importsOrDependsOnModule(context, VITEST_MODULES, VITEST_MODULES)) {
+    return 'vitest';
+  }
+  return 'mocha';
+}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
+    const framework = detectFramework(context);
+
     return {
       'CallExpression:exit'(node: estree.Node) {
         const call = node as estree.CallExpression;
@@ -52,7 +86,7 @@ export const rule: Rule.RuleModule = {
         if (returnStatement) {
           context.report({
             node: returnStatement,
-            messageId: 'explicitSkip',
+            messageId: framework,
           });
         }
       },

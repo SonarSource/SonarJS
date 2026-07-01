@@ -10,7 +10,7 @@ declare const readOnlyMode: boolean;
 
 it('reorders columns', async (): Promise<void> => {
   if (readOnlyMode) {
-    return; // Noncompliant {{Skip this test explicitly instead of returning early.}}
+    return; // Noncompliant {{Call the test context's `skip()` instead of returning early.}}
   }
   await db.reorderColumns();
   expect(db.columns).toEqual(['a', 'b']);
