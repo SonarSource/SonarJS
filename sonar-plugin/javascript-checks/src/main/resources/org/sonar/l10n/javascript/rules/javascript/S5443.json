@@ -17,10 +17,6 @@
     "cwe",
     "former-hotspot"
   ],
-  "extra": {
-    "replacementRules": [],
-    "legacyKeys": []
-  },
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5443",
   "sqKey": "S5443",
