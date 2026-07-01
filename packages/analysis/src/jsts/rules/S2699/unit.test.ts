@@ -349,8 +349,9 @@ describe('RxJS marble testing with types', () => {
     expectSubscriptions(subscriptions).toBe(['^ !']);
   });
 });
-          `,
+`,
         },
+        // expectTypeOf in TypeScript
         {
           code: `
 import { expect } from 'chai';
