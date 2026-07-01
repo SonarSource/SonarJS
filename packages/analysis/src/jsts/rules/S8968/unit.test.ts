@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import path from 'node:path';
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
@@ -72,7 +73,30 @@ test('reorders columns', function (assert) {
 `,
         },
       ],
-      invalid: [],
+      invalid: [
+        {
+          // Regression test for a project whose package.json depends on Jest (a fully
+          // excluded framework) while this specific file explicitly imports Playwright:
+          // the file's own import must win over the project-wide Jest dependency signal,
+          // otherwise this unambiguous Playwright file would be wrongly excluded too.
+          filename: path.join(
+            import.meta.dirname,
+            'fixtures',
+            'jest-and-playwright',
+            'checkout.spec.ts',
+          ),
+          code: `
+import { test } from '@playwright/test';
+test('checkout', async ({ page }) => {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  await page.click('#reorder');
+});
+`,
+          errors: [{ messageId: 'playwright' }],
+        },
+      ],
     });
   });
 });
