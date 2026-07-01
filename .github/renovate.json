@@ -1,7 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>SonarSource/renovate-config:languages-team"],
+  "extends": ["local>SonarSource/core-languages-tooling-public:renovate-config"],
   "configMigration": true,
+  "addLabels": ["dependencies"],
+  "minimumReleaseAgeBehaviour": "timestamp-required",
   "enabledManagers": ["github-actions", "maven", "npm"],
   "dockerfile": {
     "enabled": true
@@ -24,11 +26,6 @@
       "matchCurrentVersion": "/-SNAPSHOT$/",
       "enabled": false,
       "matchDepNames": ["/^org\\.sonarsource\\.javascript:/"]
-    },
-    {
-      "description": "Don't group updates by default",
-      "matchPackageNames": ["*"],
-      "groupName": null
     },
     {
       "description": "Group npm updates per source repository (monorepo), fallback to per dependency",
@@ -64,6 +61,5 @@
     }
   ],
   "autoApprove": true,
-  "prCreation": "immediate",
-  "rebaseWhen": "never"
+  "prCreation": "immediate"
 }
