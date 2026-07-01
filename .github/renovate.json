@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "local>SonarSource/core-languages-tooling-public:languages-tooling"
+    "local>SonarSource/core-languages-tooling-public:renovate-config"
   ],
   "enabledManagers": [
     "github-actions",
@@ -57,14 +57,6 @@
         "rollback"
       ],
       "enabled": false
-    },
-    {
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "matchCurrentVersion": "!/^0/",
-      "automerge": false
     },
     {
       "description": "@typescript/native-preview - dev builds update daily, limit to weekly",
