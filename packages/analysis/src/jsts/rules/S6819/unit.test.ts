@@ -154,6 +154,46 @@ describe('S6819', () => {
     });
   });
 
+  it('should resolve controls and composite owners rendered through JSX expressions', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - jsx expression content', rule, {
+      valid: [
+        {
+          code: `
+            <>
+              {isEditing && <div role="toolbar" aria-owns="format-actions" />}
+              <div role="group" id="format-actions" aria-label="Text formatting">
+                <button type="button">Bold</button>
+                <button type="button">Italic</button>
+              </div>
+            </>
+          `,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+            <div role="group" aria-label="Delivery">
+              <input type="radio" name="delivery" />
+              {express && <input type="radio" name="delivery" />}
+            </div>
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            <div role="group" aria-label="Toppings">
+              <input type="checkbox" name="cheese" />
+              {toppings.map(t => <input type="checkbox" name={t} key={t} />)}
+            </div>
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('should keep flagging fieldset-like role="group" patterns', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 

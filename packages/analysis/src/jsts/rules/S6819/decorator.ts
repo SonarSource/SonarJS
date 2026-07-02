@@ -377,10 +377,72 @@ function countFormControlsInChildren(children: TSESTree.JSXChild[]): number {
       count += countFormControlsInChildren(child.children);
     } else if (child.type === 'JSXFragment') {
       count += countFormControlsInChildren(child.children);
+    } else if (child.type === 'JSXExpressionContainer') {
+      count += countFormControlsInChildren(getJsxFromExpression(child.expression));
     }
   }
 
   return count;
+}
+
+/**
+ * Extracts the JSX subtrees a `{ ... }` expression container renders.
+ *
+ * Covers the common React render patterns: bare JSX, short-circuit (`&&`/`||`),
+ * conditional (`?:`), arrays, and iteration callbacks such as `.map(...)`. JSX
+ * reached through a variable or an external helper call cannot be resolved
+ * statically and is intentionally left out.
+ *
+ * @param expression The expression wrapped in the container.
+ * @return The JSX subtrees reachable from the expression.
+ */
+function getJsxFromExpression(
+  expression: TSESTree.Expression | TSESTree.JSXEmptyExpression,
+): (TSESTree.JSXElement | TSESTree.JSXFragment)[] {
+  switch (expression.type) {
+    case 'JSXElement':
+    case 'JSXFragment':
+      return [expression];
+    case 'LogicalExpression':
+      return [...getJsxFromExpression(expression.left), ...getJsxFromExpression(expression.right)];
+    case 'ConditionalExpression':
+      return [
+        ...getJsxFromExpression(expression.consequent),
+        ...getJsxFromExpression(expression.alternate),
+      ];
+    case 'ArrayExpression':
+      return expression.elements.flatMap(element =>
+        element === null || element.type === 'SpreadElement' ? [] : getJsxFromExpression(element),
+      );
+    case 'CallExpression':
+      return expression.arguments.flatMap(getJsxFromCallbackArgument);
+    default:
+      return [];
+  }
+}
+
+/**
+ * Extracts JSX returned by a callback argument (e.g. the `.map` mapper).
+ *
+ * @param argument The call argument to inspect.
+ * @return The JSX subtrees returned by the callback body.
+ */
+function getJsxFromCallbackArgument(
+  argument: TSESTree.CallExpressionArgument,
+): (TSESTree.JSXElement | TSESTree.JSXFragment)[] {
+  if (argument.type !== 'ArrowFunctionExpression' && argument.type !== 'FunctionExpression') {
+    return [];
+  }
+
+  if (argument.body.type === 'BlockStatement') {
+    return argument.body.body.flatMap(statement =>
+      statement.type === 'ReturnStatement' && statement.argument != null
+        ? getJsxFromExpression(statement.argument)
+        : [],
+    );
+  }
+
+  return getJsxFromExpression(argument.body);
 }
 
 /**
@@ -460,11 +522,17 @@ function hasCompositeGroupOwnerReference(
     return true;
   }
 
-  return node.children.some(
-    child =>
-      (child.type === 'JSXElement' || child.type === 'JSXFragment') &&
-      hasCompositeGroupOwnerReference(child, id, current),
-  );
+  return node.children.some(child => {
+    if (child.type === 'JSXElement' || child.type === 'JSXFragment') {
+      return hasCompositeGroupOwnerReference(child, id, current);
+    }
+    if (child.type === 'JSXExpressionContainer') {
+      return getJsxFromExpression(child.expression).some(jsx =>
+        hasCompositeGroupOwnerReference(jsx, id, current),
+      );
+    }
+    return false;
+  });
 }
 
 /**
