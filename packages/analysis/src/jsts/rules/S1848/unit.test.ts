@@ -295,10 +295,44 @@ new DragInstance(params, startEvent, eBody);`,
           {
             code: `
       function parseRegExp(regExp) {
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return { pattern: "fallback" };
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      function parseRegExp(regExp) {
+        const options = { pattern: "fallback" };
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return options.pattern;
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      function parseRegExp(regExp) {
         const RegExp = CustomRegExp;
         const pattern = regExp.slice(1, -1);
         new RegExp(pattern);
         return pattern;
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      const RegExp = CustomRegExp;
+      function parseRegExp(regExp) {
+        if (regExp.startsWith("/")) {
+          const pattern = regExp.slice(1, -1);
+          new RegExp(pattern);
+          return pattern;
+        }
       }
       `,
             errors: 1,
@@ -310,6 +344,19 @@ new DragInstance(params, startEvent, eBody);`,
         const pattern = regExp.slice(1, -1);
         new globalThis.RegExp(pattern);
         return pattern;
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      const globalThis = { RegExp: CustomRegExp };
+      function parseRegExp(regExp) {
+        if (regExp.startsWith("/")) {
+          const pattern = regExp.slice(1, -1);
+          new globalThis.RegExp(pattern);
+          return pattern;
+        }
       }
       `,
             errors: 1,

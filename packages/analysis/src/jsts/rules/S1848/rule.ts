@@ -107,7 +107,7 @@ function isRegExpValidation(node: estree.NewExpression, context: Rule.RuleContex
     argument =>
       argument.type !== 'SpreadElement' &&
       argument.type !== 'Literal' &&
-      containsEquivalentNode(nextStatement.argument!, argument, context),
+      containsEquivalentValueNode(nextStatement.argument!, argument, context),
   );
 }
 
@@ -131,7 +131,15 @@ function isBuiltInRegExpConstructor(
 }
 
 function isLocallyDefined(identifier: estree.Identifier, scope: Scope.Scope): boolean {
-  return (getVariableFromIdentifier(identifier, scope)?.defs.length ?? 0) > 0;
+  let currentScope: Scope.Scope | null = scope;
+  while (currentScope) {
+    const variable = currentScope.variables.find(value => value.name === identifier.name);
+    if (variable) {
+      return variable.defs.length > 0;
+    }
+    currentScope = currentScope.upper;
+  }
+  return false;
 }
 
 function getNextSiblingStatement(
@@ -164,16 +172,25 @@ function getStatementList(node: estree.Node | undefined): estree.Statement[] | u
   return undefined;
 }
 
-function containsEquivalentNode(
+function containsEquivalentValueNode(
   node: estree.Node,
   expected: estree.Node,
   context: Rule.RuleContext,
 ): boolean {
-  return (
-    areEquivalent(node, expected, context.sourceCode) ||
-    childrenOf(node, context.sourceCode.visitorKeys).some(child =>
-      containsEquivalentNode(child, expected, context),
-    )
+  if (areEquivalent(node, expected, context.sourceCode)) {
+    return true;
+  }
+
+  if (node.type === 'Property') {
+    return containsEquivalentValueNode(node.value as estree.Node, expected, context);
+  }
+
+  if (node.type === 'MemberExpression') {
+    return containsEquivalentValueNode(node.object, expected, context);
+  }
+
+  return childrenOf(node, context.sourceCode.visitorKeys).some(child =>
+    containsEquivalentValueNode(child, expected, context),
   );
 }
 
