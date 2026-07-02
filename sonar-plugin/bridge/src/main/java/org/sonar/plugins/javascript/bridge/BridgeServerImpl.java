@@ -352,13 +352,16 @@ public class BridgeServerImpl implements BridgeServer {
         if (remainingNanos <= 0) {
           return false;
         }
-        startupPortReady.await(
+        boolean stateChanged = startupPortReady.await(
           Math.min(
             TimeUnit.NANOSECONDS.toMillis(remainingNanos),
             STARTUP_PORT_WAIT_POLL_INTERVAL_MS
           ),
           TimeUnit.MILLISECONDS
         );
+        if (!stateChanged) {
+          continue;
+        }
       }
       port = startupPort.get();
       return true;

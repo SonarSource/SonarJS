@@ -190,7 +190,7 @@ function editLine(lines: string[], change: Change) {
   if (contents !== undefined) {
     let appendAfterFix = '';
     const line = lines[issueLine - 1];
-    const containsNC = line.search(/\s*\{?\s*(\/\*|\/\/)\s*Noncompliant/);
+    const containsNC = findNoncompliantCommentStart(line);
     if (end === undefined) {
       if (containsNC >= 0) {
         appendAfterFix = line.slice(containsNC);
@@ -206,6 +206,32 @@ function editLine(lines: string[], change: Change) {
     }
     lines[issueLine - 1] = line.slice(0, start || 0) + contents + appendAfterFix;
   }
+}
+
+function findNoncompliantCommentStart(line: string) {
+  const noncompliantIndex = line.indexOf('Noncompliant');
+  if (noncompliantIndex < 0) {
+    return -1;
+  }
+
+  const lineCommentIndex = line.lastIndexOf('//', noncompliantIndex);
+  const blockCommentIndex = line.lastIndexOf('/*', noncompliantIndex);
+  const commentIndex = Math.max(lineCommentIndex, blockCommentIndex);
+  if (commentIndex < 0) {
+    return -1;
+  }
+
+  let start = commentIndex;
+  while (start > 0 && /\s/.test(line[start - 1])) {
+    start--;
+  }
+  if (start > 0 && line[start - 1] === '{') {
+    start--;
+    while (start > 0 && /\s/.test(line[start - 1])) {
+      start--;
+    }
+  }
+  return start;
 }
 
 /**

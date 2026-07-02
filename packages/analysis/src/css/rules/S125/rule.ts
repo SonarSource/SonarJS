@@ -23,6 +23,9 @@ import { parse } from 'postcss';
 
 const ruleName = 'sonar/no-commented-code';
 const messages = { commentedCode: 'Remove this commented out code.' };
+const cssSelectorHead = /^[a-z0-9\s,.\-#:_\[\]"'=()*%>+~|]+$/i;
+const cssDeclarationProperty = /^[a-z-]+$/i;
+const cssAtRule = /^@[a-z-]+(?:\s|$)/i;
 
 const ruleImpl: pkg.RuleBase = () => {
   return (root: PostCSS.Root, result: PostcssResult) => {
@@ -46,20 +49,26 @@ const ruleImpl: pkg.RuleBase = () => {
 };
 
 function isLikelyCss(text: string) {
-  // Regular expression to match CSS selectors, properties, and values
-  // `<selector(s)> '{' <anything> '}'`
-  const ruleRegex = /([a-z0-9\s,.\-#:_]+)\{([^}]*)\}/i;
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return false;
+  }
 
-  // Regular expression to match CSS declarations
-  // `<property> ':' <value> ';'`
-  const declRegex = /([a-z-]+)\s*:\s*([^;]+);/i;
+  const firstOpenBrace = trimmed.indexOf('{');
+  if (firstOpenBrace > 0 && trimmed.includes('}', firstOpenBrace + 1)) {
+    const head = trimmed.slice(0, firstOpenBrace).trim();
+    if (cssAtRule.test(head) || cssSelectorHead.test(head)) {
+      return true;
+    }
+  }
 
-  // Regular expression to match CSS at-rules
-  // `'@' <at-rule> '(' <anything> ')'`
-  const atRuleRegex = /@([a-z-]*)\s*([^;{]*)(;|(\{([^}]*)\}))/i;
+  const firstColon = trimmed.indexOf(':');
+  const lastSemicolon = trimmed.lastIndexOf(';');
+  if (firstColon > 0 && lastSemicolon > firstColon + 1) {
+    return cssDeclarationProperty.test(trimmed.slice(0, firstColon).trim());
+  }
 
-  // Test the text against the regular expressions
-  return ruleRegex.test(text) || declRegex.test(text) || atRuleRegex.test(text);
+  return cssAtRule.test(trimmed) && trimmed.includes(';');
 }
 
 export const rule = createPlugin(
