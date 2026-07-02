@@ -37,19 +37,6 @@ const COMPOSITE_CHILD_ROLES = new Set([
   'rowheader',
   'option',
 ]);
-const GROUPED_CONTROL_ROLES = new Set([
-  'button',
-  'checkbox',
-  'combobox',
-  'link',
-  'menuitem',
-  'option',
-  'radio',
-  'switch',
-  'tab',
-  'textbox',
-  'treeitem',
-]);
 
 /**
  * Decorates the prefer-tag-over-role rule to fix false positives.
@@ -62,8 +49,7 @@ const GROUPED_CONTROL_ROLES = new Set([
  *    - role="status" with aria-live (live region pattern)
  *    - role="slider" with complete aria-value* attributes
  *    - role="radio" with aria-checked
- *    - role="button"/"combobox" popup triggers with ARIA disclosure state
- *    - role="group" containers that group multiple interactive controls
+ *    - role="combobox" popup widgets with ARIA disclosure state
  *    - role="separator" with children (since <hr> is void)
  *    - role="img" on div/span with children or CSS backgroundImage (since <img> is void)
  *    - ARIA composite widget roles (table, grid, listbox, row, option, etc.) when forming
@@ -132,9 +118,7 @@ function isValidAriaPattern(node: TSESTree.JSXOpeningElement): boolean {
     isLiveRegionStatus(role, attributes) ||
     isCustomSlider(role, attributes) ||
     isCustomRadio(role, attributes) ||
-    isPopupTriggerButton(role, attributes) ||
     isCustomCombobox(elementName, role, attributes, node) ||
-    isInteractiveControlGroup(role, node) ||
     isSeparatorWithChildren(role, node) ||
     isImgRoleWithValidPattern(elementName, role, attributes, node) ||
     isCustomCompositeWidget(role, node)
@@ -255,17 +239,6 @@ function isCustomRadio(role: string, attributes: JSXOpeningElement['attributes']
 }
 
 /**
- * Checks if the element is a popup trigger implemented with role="button".
- *
- * @param {string} role the normalized role attribute
- * @param {JSXOpeningElement['attributes']} attributes the opening element attributes
- * @return {boolean} true when the element matches a popup-trigger button pattern
- */
-function isPopupTriggerButton(role: string, attributes: JSXOpeningElement['attributes']): boolean {
-  return role === 'button' && hasPopupState(attributes) && Boolean(getProp(attributes, 'tabIndex'));
-}
-
-/**
  * Checks if the element is a custom combobox that manages its own popup state.
  *
  * @param {string | null} elementName the normalized opening element name
@@ -286,31 +259,6 @@ function isCustomCombobox(
     (elementName === 'input' ||
       Boolean(getProp(attributes, 'tabIndex')) ||
       hasTextInputDescendant(node))
-  );
-}
-
-/**
- * Checks if the element groups multiple interactive controls with role="group".
- *
- * @param {string} role the normalized role attribute
- * @param {TSESTree.JSXOpeningElement} node the current opening element
- * @return {boolean} true when the element groups multiple interactive descendants
- */
-function isInteractiveControlGroup(role: string, node: TSESTree.JSXOpeningElement): boolean {
-  return role === 'group' && countInteractiveDescendants(node) >= 2;
-}
-
-/**
- * Checks if the element declares popup state with ARIA disclosure attributes.
- *
- * @param {JSXOpeningElement['attributes']} attributes the opening element attributes
- * @return {boolean} true when the element exposes popup state and ownership
- */
-function hasPopupState(attributes: JSXOpeningElement['attributes']): boolean {
-  return (
-    Boolean(getProp(attributes, 'aria-haspopup')) &&
-    Boolean(getProp(attributes, 'aria-expanded')) &&
-    hasAnyProp(attributes, ['aria-controls', 'aria-owns'])
   );
 }
 
@@ -343,21 +291,6 @@ function hasTextInputDescendant(node: TSESTree.JSXOpeningElement): boolean {
 }
 
 /**
- * Counts interactive descendants inside the JSX subtree.
- *
- * @param {TSESTree.JSXOpeningElement} node the current opening element
- * @return {number} the number of interactive descendants in the subtree
- */
-function countInteractiveDescendants(node: TSESTree.JSXOpeningElement): number {
-  const jsxElement = node.parent;
-  if (jsxElement?.type !== 'JSXElement') {
-    return 0;
-  }
-
-  return countInteractiveDescendantsInSubtree(jsxElement);
-}
-
-/**
  * Checks if any descendant in the subtree is text-input-like.
  *
  * @param {TSESTree.JSXElement} node the subtree root
@@ -378,30 +311,6 @@ function hasTextInputDescendantInSubtree(node: TSESTree.JSXElement): boolean {
 }
 
 /**
- * Counts interactive descendants inside a JSX subtree.
- *
- * @param {TSESTree.JSXElement} node the subtree root
- * @return {number} the number of interactive descendants that were found
- */
-function countInteractiveDescendantsInSubtree(node: TSESTree.JSXElement): number {
-  let count = 0;
-
-  for (const child of node.children) {
-    if (child.type !== 'JSXElement') {
-      continue;
-    }
-
-    if (isInteractiveElement(child.openingElement)) {
-      count++;
-    }
-
-    count += countInteractiveDescendantsInSubtree(child);
-  }
-
-  return count;
-}
-
-/**
  * Checks if the opening element behaves like a text input control.
  *
  * @param {TSESTree.JSXOpeningElement} node the opening element to inspect
@@ -415,31 +324,6 @@ function isTextInputLikeElement(node: TSESTree.JSXOpeningElement): boolean {
     elementName === 'textarea' ||
     hasRole(attributes, ['textbox', 'searchbox'])
   );
-}
-
-/**
- * Checks if the opening element is an interactive control or widget.
- *
- * @param {TSESTree.JSXOpeningElement} node the opening element to inspect
- * @return {boolean} true when the element is an interactive descendant
- */
-function isInteractiveElement(node: TSESTree.JSXOpeningElement): boolean {
-  const elementName = getElementName(node);
-  const attributes = (node as JSXOpeningElement).attributes;
-  if (elementName === 'a') {
-    return Boolean(getProp(attributes, 'href'));
-  }
-
-  if (elementName === 'input') {
-    const typeProp = getProp(attributes, 'type');
-    return !typeProp || getLiteralPropValue(typeProp) !== 'hidden';
-  }
-
-  if (elementName !== null && ['button', 'select', 'textarea'].includes(elementName)) {
-    return true;
-  }
-
-  return hasRole(attributes, GROUPED_CONTROL_ROLES);
 }
 
 /**

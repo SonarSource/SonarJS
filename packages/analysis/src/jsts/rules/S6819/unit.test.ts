@@ -56,21 +56,13 @@ describe('S6819 upstream sentinel', () => {
     });
   });
 
-  it('upstream prefer-tag-over-role raises on popup buttons, comboboxes, and groups that decorator suppresses', () => {
+  it('upstream prefer-tag-over-role raises on combobox patterns that decorator suppresses', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('prefer-tag-over-role', upstreamRule, {
       valid: [],
       invalid: [
         {
-          code: `<div role="button" tabIndex={0} aria-haspopup="listbox" aria-controls="choices" aria-expanded={isOpen}>Open</div>`,
-          errors: 1,
-        },
-        {
           code: `<div role="combobox" tabIndex={0} aria-haspopup="listbox" aria-controls="choices" aria-expanded={isOpen}>Filter</div>`,
-          errors: 1,
-        },
-        {
-          code: `<div role="group"><button type="button">Save</button><button type="button">Cancel</button></div>`,
           errors: 1,
         },
       ],
@@ -211,39 +203,11 @@ describe('S6819', () => {
     });
   });
 
-  it('should not flag popup buttons, comboboxes, and interactive groups', () => {
+  it('should not flag custom combobox widgets', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    ruleTester.run('prefer-tag-over-role - popup widgets and groups', rule, {
+    ruleTester.run('prefer-tag-over-role - combobox widgets', rule, {
       valid: [
-        {
-          code: `
-            <div
-              role="button"
-              tabIndex={0}
-              aria-haspopup="listbox"
-              aria-controls="choices"
-              aria-expanded={isOpen}
-              onClick={toggle}
-              onKeyDown={handleKeyDown}
-            >
-              {selectedLabel}
-            </div>
-          `,
-        },
-        {
-          code: `
-            <span
-              role="button"
-              tabIndex={0}
-              aria-haspopup="menu"
-              aria-owns="actions-menu"
-              aria-expanded={menuOpen}
-            >
-              Actions
-            </span>
-          `,
-        },
         {
           code: `
             <div
@@ -266,26 +230,32 @@ describe('S6819', () => {
             />
           `,
         },
+      ],
+      invalid: [
         {
-          code: `
-            <div role="group">
-              <button type="button">Save</button>
-              <button type="button">Cancel</button>
-            </div>
-          `,
+          code: `<div role="combobox" aria-expanded={isOpen}><input aria-autocomplete="list" /></div>`,
+          errors: 1,
         },
       ],
+    });
+  });
+
+  it('should keep flagging popup buttons and groups', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - popup buttons and groups', rule, {
+      valid: [],
       invalid: [
         {
           code: `<div role="button" onClick={toggle}>Open</div>`,
           errors: 1,
         },
         {
-          code: `<div role="button" tabIndex={0} aria-haspopup="listbox" aria-expanded={isOpen}>Open</div>`,
+          code: `<div role="button" tabIndex={0} aria-haspopup="listbox" aria-controls="choices" aria-expanded={isOpen}>Open</div>`,
           errors: 1,
         },
         {
-          code: `<div role="combobox" aria-expanded={isOpen}><input aria-autocomplete="list" /></div>`,
+          code: `<div role="group"><button type="button">Save</button><button type="button">Cancel</button></div>`,
           errors: 1,
         },
         {
