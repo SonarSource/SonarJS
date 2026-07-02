@@ -33,7 +33,6 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
       fixedWait: 'Replace this fixed wait with a synchronization on an observable condition.',
-      debugPause: 'Remove this debug command from the test.',
     },
   }),
   create(context: Rule.RuleContext) {
@@ -52,15 +51,8 @@ export const rule: Rule.RuleModule = {
         const methodName = property.name;
         if (methodName === 'wait' && chainStartsWithCy(call.callee.object)) {
           reportCypressWait(context, call, property);
-        } else if (
-          (methodName === 'pause' || methodName === 'debug') &&
-          chainStartsWithCy(call.callee.object)
-        ) {
-          report(context, property, 'debugPause');
         } else if (methodName === 'waitForTimeout' && isIdentifier(call.callee.object, 'page')) {
-          report(context, property, 'fixedWait');
-        } else if (methodName === 'pause' && isIdentifier(call.callee.object, 'page')) {
-          report(context, property, 'debugPause');
+          reportFixedWait(context, property);
         }
       },
     };
@@ -77,13 +69,13 @@ function reportCypressWait(
     return;
   }
   if (isNumericLiteralOrUnaryNumericLiteral(firstArgument)) {
-    report(context, reportNode, 'fixedWait');
+    reportFixedWait(context, reportNode);
     return;
   }
   if (firstArgument.type === 'Identifier') {
     const resolved = getUniqueWriteUsage(context, firstArgument.name, firstArgument);
     if (resolved && isNumericLiteralOrUnaryNumericLiteral(resolved)) {
-      report(context, reportNode, 'fixedWait');
+      reportFixedWait(context, reportNode);
     }
   }
 }
@@ -97,13 +89,9 @@ function isNumericLiteralOrUnaryNumericLiteral(node: estree.Node) {
   );
 }
 
-function report(
-  context: Rule.RuleContext,
-  node: estree.Node,
-  messageId: 'fixedWait' | 'debugPause',
-) {
+function reportFixedWait(context: Rule.RuleContext, node: estree.Node) {
   context.report({
     node,
-    messageId,
+    messageId: 'fixedWait',
   });
 }
