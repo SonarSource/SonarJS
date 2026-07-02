@@ -432,6 +432,14 @@ describe('S5914', () => {
           `,
           errors: [{ messageId: 'issue' }],
         },
+        // negated predicate on a constant is guaranteed to succeed
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(undefined).not.toBeDefined();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
         {
           code: `
             import { expect } from 'vitest';
