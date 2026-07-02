@@ -244,6 +244,26 @@ describe('S5914', () => {
             expect(getValue()).to.be.true;
           `,
         },
+        // `.true`/`isTrue`/`isFalse` are strict: a truthy-but-not-`true` (or falsy-but-not-`false`)
+        // value always fails such an assertion, unlike a plain truthy/falsy check
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(1).to.be.true;
+          `,
+        },
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.isTrue(1);
+          `,
+        },
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.isFalse(0);
+          `,
+        },
         // chai should-style: actual is a function call, not constant
         {
           code: `
@@ -587,6 +607,21 @@ describe('S5914', () => {
           code: `
             import { assert } from 'chai';
             assert.ok("ready");
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // `isTrue`/`isFalse` are strict (=== true/false), unlike `ok`, which accepts any truthy/falsy value
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.isTrue(true);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.isFalse(false);
           `,
           errors: [{ messageId: 'issue' }],
         },

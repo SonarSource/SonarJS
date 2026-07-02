@@ -220,12 +220,15 @@ function getChaiAssertPredicate(
     case 'assert':
     case 'ok':
     case 'isOk':
-    case 'isTrue':
       return { predicate: 'truthy', negated: false };
     case 'isNotOk':
       return { predicate: 'truthy', negated: true };
+    // chai's `isTrue`/`isFalse` are strict (`=== true`/`=== false`), unlike `isOk`/`isNotOk`,
+    // which accept any truthy/falsy value
+    case 'isTrue':
+      return { predicate: 'true', negated: false };
     case 'isFalse':
-      return { predicate: 'falsy', negated: false };
+      return { predicate: 'false', negated: false };
     case 'isNull':
       return { predicate: 'null', negated: false };
     case 'isNotNull':

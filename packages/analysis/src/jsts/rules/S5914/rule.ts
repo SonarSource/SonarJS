@@ -225,6 +225,10 @@ function predicateHolds(predicate: AssertionPredicate, value: ConstantPrimitive)
       return Boolean(value);
     case 'falsy':
       return !value;
+    case 'true':
+      return value === true;
+    case 'false':
+      return value === false;
     case 'defined':
       return value !== undefined;
     case 'undefined':
@@ -242,7 +246,8 @@ function predicateHolds(predicate: AssertionPredicate, value: ConstantPrimitive)
 
 /**
  * Same as `predicateHolds`, specialized for freshly-created references: they're always truthy,
- * always defined, always "existing", and never null.
+ * always defined, always "existing", and never null, `=== true`, or `=== false` (a fresh
+ * reference is an object, never the boolean primitive itself).
  */
 function freshReferencePredicateHolds(predicate: AssertionPredicate): boolean {
   switch (predicate) {
@@ -251,6 +256,8 @@ function freshReferencePredicateHolds(predicate: AssertionPredicate): boolean {
     case 'exists':
       return true;
     case 'falsy':
+    case 'true':
+    case 'false':
     case 'undefined':
     case 'null':
       return false;

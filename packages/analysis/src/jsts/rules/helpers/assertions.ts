@@ -38,8 +38,18 @@ const NODE_ASSERT_MODULES = ['assert', 'node:assert', 'assert/strict', 'node:ass
 
 // `defined` is "not undefined" (matches Jest's `toBeDefined`); `exists` is the stricter
 // "not null and not undefined" (matches chai's `.exist`/`assert.exists`) — they are genuinely
-// different predicates, not two names for the same check.
-export type AssertionPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null' | 'exists';
+// different predicates, not two names for the same check. Likewise `true`/`false` are strict
+// (`=== true`/`=== false`, matching chai's `isTrue`/`isFalse`/`.true`/`.false`), distinct from
+// `truthy`/`falsy` (matching e.g. chai's `isOk`/`.ok`, which accept any truthy/falsy value).
+export type AssertionPredicate =
+  | 'truthy'
+  | 'falsy'
+  | 'true'
+  | 'false'
+  | 'defined'
+  | 'undefined'
+  | 'null'
+  | 'exists';
 export type AssertionStyle =
   | 'jest-like'
   | 'jasmine'
