@@ -84,62 +84,75 @@ function getTrivialAssertion(
   assertion: Assertion,
 ): TrivialAssertion | null {
   switch (assertion.kind) {
-    case 'predicate': {
-      const actual = resolveConstantPrimitiveValue(context, assertion.actual);
-      if (actual && predicateHolds(assertion.predicate, actual.value) !== assertion.negated) {
-        return { reportNode: assertion.actual, messageId: 'issue' };
-      }
-      if (
-        isFreshReferenceExpression(assertion.actual) &&
-        freshReferencePredicateHolds(assertion.predicate) !== assertion.negated
-      ) {
-        return { reportNode: assertion.actual, messageId: 'freshPredicate' };
-      }
-      return null;
-    }
+    case 'predicate':
+      return resolvePredicateAssertion(context, assertion);
     case 'comparison':
-      if (assertion.comparison === 'strict') {
-        // a freshly-created value on either side makes strict equality trivially fail (or
-        // trivially succeed when negated), and is flagged either way: it's a common
-        // toBe/toEqual mixup. Loose equality is excluded because object-to-primitive coercion
-        // can make comparisons like `[] == false` pass.
-        if (isFreshReferenceExpression(assertion.actual)) {
-          return {
-            reportNode: assertion.actual,
-            messageId: 'freshIdentity',
-            data: { matcher: getDeepEqualityMatcher(assertion.style, assertion.negated) },
-          };
-        }
-        if (isFreshReferenceExpression(assertion.expected)) {
-          return {
-            reportNode: assertion.expected,
-            messageId: 'freshIdentity',
-            data: { matcher: getDeepEqualityMatcher(assertion.style, assertion.negated) },
-          };
-        }
-      }
-      // both sides are constant (syntactically or via a resolved binding): for strict or loose
-      // equality the comparison result is statically determined. Deep equality is intentionally
-      // skipped via an explicit whitelist to avoid widening this rule when assertion helper
-      // comparison kinds evolve.
-      if (assertion.comparison === 'strict' || assertion.comparison === 'loose') {
-        const actual = resolveConstantPrimitiveValue(context, assertion.actual);
-        const expected = resolveConstantPrimitiveValue(context, assertion.expected);
-        if (actual && expected) {
-          const equal =
-            assertion.comparison === 'strict'
-              ? actual.value === expected.value
-              : // eslint-disable-next-line eqeqeq
-                actual.value == expected.value;
-          if (equal !== assertion.negated) {
-            return { reportNode: assertion.actual, messageId: 'issue' };
-          }
-        }
-      }
-      return null;
+      return resolveComparisonAssertion(context, assertion);
     default:
       return null;
   }
+}
+
+function resolvePredicateAssertion(
+  context: Rule.RuleContext,
+  assertion: Extract<Assertion, { kind: 'predicate' }>,
+): TrivialAssertion | null {
+  const actual = resolveConstantPrimitiveValue(context, assertion.actual);
+  if (actual && predicateHolds(assertion.predicate, actual.value) !== assertion.negated) {
+    return { reportNode: assertion.actual, messageId: 'issue' };
+  }
+  if (
+    isFreshReferenceExpression(assertion.actual) &&
+    freshReferencePredicateHolds(assertion.predicate) !== assertion.negated
+  ) {
+    return { reportNode: assertion.actual, messageId: 'freshPredicate' };
+  }
+  return null;
+}
+
+function resolveComparisonAssertion(
+  context: Rule.RuleContext,
+  assertion: Extract<Assertion, { kind: 'comparison' }>,
+): TrivialAssertion | null {
+  if (assertion.comparison === 'strict') {
+    // a freshly-created value on either side makes strict equality trivially fail (or
+    // trivially succeed when negated), and is flagged either way: it's a common
+    // toBe/toEqual mixup. Loose equality is excluded because object-to-primitive coercion
+    // can make comparisons like `[] == false` pass.
+    if (isFreshReferenceExpression(assertion.actual)) {
+      return {
+        reportNode: assertion.actual,
+        messageId: 'freshIdentity',
+        data: { matcher: getDeepEqualityMatcher(assertion.style, assertion.negated) },
+      };
+    }
+    if (isFreshReferenceExpression(assertion.expected)) {
+      return {
+        reportNode: assertion.expected,
+        messageId: 'freshIdentity',
+        data: { matcher: getDeepEqualityMatcher(assertion.style, assertion.negated) },
+      };
+    }
+  }
+  // both sides are constant (syntactically or via a resolved binding): for strict or loose
+  // equality the comparison result is statically determined. Deep equality is intentionally
+  // skipped via an explicit whitelist to avoid widening this rule when assertion helper
+  // comparison kinds evolve.
+  if (assertion.comparison === 'strict' || assertion.comparison === 'loose') {
+    const actual = resolveConstantPrimitiveValue(context, assertion.actual);
+    const expected = resolveConstantPrimitiveValue(context, assertion.expected);
+    if (actual && expected) {
+      const equal =
+        assertion.comparison === 'strict'
+          ? actual.value === expected.value
+          : // eslint-disable-next-line eqeqeq
+            actual.value == expected.value;
+      if (equal !== assertion.negated) {
+        return { reportNode: assertion.actual, messageId: 'issue' };
+      }
+    }
+  }
+  return null;
 }
 
 /**
@@ -221,34 +234,34 @@ const UNARY_OPERATORS_PRESERVING_CONSTNESS = new Set<estree.UnaryOperator>([
  */
 const BINARY_OPERATOR_EVALUATORS: {
   [K in estree.BinaryOperator | estree.LogicalOperator]?: (
-    left: any,
-    right: any,
+    left: ConstantPrimitive,
+    right: ConstantPrimitive,
   ) => ConstantPrimitive;
 } = {
-  '+': (l, r) => l + r,
-  '-': (l, r) => l - r,
-  '*': (l, r) => l * r,
-  '/': (l, r) => l / r,
-  '%': (l, r) => l % r,
-  '**': (l, r) => l ** r,
+  '+': (l, r) => (l as never) + (r as never),
+  '-': (l, r) => (l as never) - (r as never),
+  '*': (l, r) => (l as never) * (r as never),
+  '/': (l, r) => (l as never) / (r as never),
+  '%': (l, r) => (l as never) % (r as never),
+  '**': (l, r) => (l as never) ** (r as never),
   '===': (l, r) => l === r,
   '!==': (l, r) => l !== r,
   // eslint-disable-next-line eqeqeq
   '==': (l, r) => l == r,
   // eslint-disable-next-line eqeqeq
   '!=': (l, r) => l != r,
-  '<': (l, r) => l < r,
-  '<=': (l, r) => l <= r,
-  '>': (l, r) => l > r,
-  '>=': (l, r) => l >= r,
-  '<<': (l, r) => l << r,
-  '>>': (l, r) => l >> r,
-  '>>>': (l, r) => l >>> r,
-  '&': (l, r) => l & r,
-  '|': (l, r) => l | r,
-  '^': (l, r) => l ^ r,
+  '<': (l, r) => (l as never) < (r as never),
+  '<=': (l, r) => (l as never) <= (r as never),
+  '>': (l, r) => (l as never) > (r as never),
+  '>=': (l, r) => (l as never) >= (r as never),
+  '<<': (l, r) => (l as never) << (r as never),
+  '>>': (l, r) => (l as never) >> (r as never),
+  '>>>': (l, r) => (l as never) >>> (r as never),
+  '&': (l, r) => (l as never) & (r as never),
+  '|': (l, r) => (l as never) | (r as never),
+  '^': (l, r) => (l as never) ^ (r as never),
   '&&': (l, r) => (l ? r : l),
-  '||': (l, r) => (l ? l : r),
+  '||': (l, r) => l || r,
   '??': (l, r) => l ?? r,
 };
 
@@ -271,25 +284,9 @@ function resolveConstantPrimitiveValue(
   }
   switch (node.type) {
     case 'Literal':
-      if (
-        node.value === null ||
-        typeof node.value === 'boolean' ||
-        typeof node.value === 'string' ||
-        typeof node.value === 'number'
-      ) {
-        return { value: node.value };
-      }
-      if ('bigint' in node && typeof node.bigint === 'string') {
-        return { value: BigInt(node.bigint) };
-      }
-      return undefined;
+      return resolveLiteral(node);
     case 'Identifier':
-      if (node.name === 'undefined') {
-        const variable = getVariableFromName(context, 'undefined', node);
-        // global `undefined` has no user definitions; a shadowed binding does
-        return !variable || variable.defs.length === 0 ? { value: undefined } : undefined;
-      }
-      return undefined;
+      return resolveUndefinedIdentifier(context, node);
     case 'TemplateLiteral':
       return node.expressions.length === 0
         ? { value: node.quasis[0].value.cooked ?? '' }
@@ -302,6 +299,33 @@ function resolveConstantPrimitiveValue(
     default:
       return undefined;
   }
+}
+
+function resolveLiteral(node: estree.Literal): { value: ConstantPrimitive } | undefined {
+  if (
+    node.value === null ||
+    typeof node.value === 'boolean' ||
+    typeof node.value === 'string' ||
+    typeof node.value === 'number'
+  ) {
+    return { value: node.value };
+  }
+  if ('bigint' in node && typeof node.bigint === 'string') {
+    return { value: BigInt(node.bigint) };
+  }
+  return undefined;
+}
+
+function resolveUndefinedIdentifier(
+  context: Rule.RuleContext,
+  node: estree.Identifier,
+): { value: ConstantPrimitive } | undefined {
+  if (node.name !== 'undefined') {
+    return undefined;
+  }
+  const variable = getVariableFromName(context, 'undefined', node);
+  // global `undefined` has no user definitions; a shadowed binding does
+  return !variable || variable.defs.length === 0 ? { value: undefined } : undefined;
 }
 
 function resolveUnary(

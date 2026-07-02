@@ -345,6 +345,48 @@ describe('S5914', () => {
             expect({}).not.toBeTruthy();
           `,
         },
+        // bitwise NOT isn't in the constness-preserving allowlist
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(~1).toBeTruthy();
+          `,
+        },
+        // unary plus on a BigInt throws at evaluation time, so it can't be resolved
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(+10n).toBeTruthy();
+          `,
+        },
+        // mixing BigInt and Number throws at evaluation time
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(1 + 10n).toBe(11);
+          `,
+        },
+        // operators outside the supported evaluator map aren't constant-folded
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(1 instanceof Number).toBeTruthy();
+          `,
+        },
+        // a non-constant left operand can't be resolved
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(getValue() + 1).toBe(5);
+          `,
+        },
+        // a non-constant right operand can't be resolved
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(1 + getValue()).toBe(5);
+          `,
+        },
       ],
       invalid: [
         // negated comparisons of mismatched constants are guaranteed to succeed
@@ -799,6 +841,176 @@ describe('S5914', () => {
             import { expect } from 'chai';
             const total = 4 * 25;
             expect(100).to.equal(total);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // remaining arithmetic operators are constant-folded the same way
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(5 - 2).toBe(3);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(10 / 2).toBe(5);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(10 % 3).toBe(1);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 ** 3).toBe(8);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // nested (in)equality operators are constant-folded the same way
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 === 2).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 !== 3).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 == '2').toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 != 3).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // relational operators are constant-folded the same way
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(1 < 2).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 <= 2).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 > 1).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 >= 2).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // bitwise operators are constant-folded the same way
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(1 << 2).toBe(4);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(8 >> 2).toBe(2);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(8 >>> 1).toBe(4);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(6 & 3).toBe(2);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(4 | 1).toBe(5);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(5 ^ 1).toBe(4);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // logical OR is constant-folded the same way as AND and ??
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(0 || 5).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // unary plus coerces a resolvable operand to a number
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(+'5').toBe(5);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // && short-circuits on a falsy left operand without needing the right one
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(false && getValue()).toBeFalsy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // || short-circuits on a truthy left operand without needing the right one
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(true || getValue()).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // ?? short-circuits on a non-nullish left operand without needing the right one
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(5 ?? getValue()).toBe(5);
           `,
           errors: [{ messageId: 'issue' }],
         },
