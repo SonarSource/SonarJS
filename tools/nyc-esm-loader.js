@@ -72,7 +72,10 @@ function addContentHashTag(instrumented, filename, hash) {
 }
 
 function assertSourceMapsApi(sourceMaps) {
-  if (typeof sourceMaps.extract !== 'function' || typeof sourceMaps.registerMap !== 'function') {
+  if (
+    typeof sourceMaps.extract !== 'function' ||
+    typeof sourceMaps.registerMap !== 'function'
+  ) {
     throw new Error('nyc SourceMaps API changed; ESM coverage remapping cannot continue.');
   }
 }
