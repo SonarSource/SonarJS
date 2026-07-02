@@ -15,11 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { mkdirSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import convertSourceMap from 'convert-source-map';
 import loader from '@istanbuljs/load-nyc-config';
 import schema from '@istanbuljs/schema';
 import InstrumenterIstanbul from 'nyc/lib/instrumenters/istanbul.js';
@@ -73,29 +72,8 @@ function addContentHashTag(instrumented, filename, hash) {
 }
 
 function assertSourceMapsApi(sourceMaps) {
-  if (
-    typeof sourceMaps.extract !== 'function' ||
-    typeof sourceMaps.registerMap !== 'function'
-  ) {
+  if (typeof sourceMaps.extract !== 'function' || typeof sourceMaps.registerMap !== 'function') {
     throw new Error('nyc SourceMaps API changed; ESM coverage remapping cannot continue.');
-  }
-}
-
-function extractSourceMap(source, filename) {
-  try {
-    return sourceMaps.extract(source, filename);
-  } catch {
-    return sourceMapFromFile(source, filename)?.toObject();
-  }
-}
-
-function sourceMapFromFile(source, filename) {
-  try {
-    return convertSourceMap.fromMapFileSource(source, sourceMapPath =>
-      readFileSync(join(dirname(filename), sourceMapPath)),
-    );
-  } catch {
-    return undefined;
   }
 }
 
@@ -143,7 +121,7 @@ export async function load(url, context, nextLoad) {
     source = new TextDecoder().decode(source);
   }
 
-  const sourceMap = extractSourceMap(source, filename);
+  const sourceMap = sourceMaps.extract(source, filename);
   const hash = sourceMap ? contentHash(filename, source) : undefined;
   const instrumented = instrumenter.instrumentSync(source, filename, {
     sourceMap,

@@ -10,7 +10,6 @@
     "tools/header.ts",
     "tools/new-plugin.ts"
   ],
-  "entry": ["tools/nyc-esm-hook-loader.js", "tools/nyc-esm-loader.js"],
   "project": ["packages/**/*.ts", "tools/**/*.ts"],
   "ignoreDependencies": [
     "@istanbuljs/esm-loader-hook",
