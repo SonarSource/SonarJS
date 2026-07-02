@@ -16,7 +16,7 @@
   "ruleSpecification": "RSPEC-8959",
   "sqKey": "S8959",
   "scope": "Tests",
-  "quickfix": "infeasible",
+  "quickfix": "partial",
   "compatibleLanguages": [
     "js",
     "ts"

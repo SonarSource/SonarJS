@@ -132,6 +132,16 @@ describe('S8959', () => {
           filename: 'tests/non-awaited.spec.ts',
           errors: [{ messageId: 'removeDebugCommand' }],
         },
+        {
+          code: `
+            it('uses Cypress debug helpers via optional chaining', () => {
+              cy?.pause();
+              cy?.get('button.save').debug();
+            });
+          `,
+          filename: 'cypress/e2e/save-user.cy.js',
+          errors: [{ messageId: 'removeDebugCommand' }, { messageId: 'removeDebugCommand' }],
+        },
       ],
     });
   });
