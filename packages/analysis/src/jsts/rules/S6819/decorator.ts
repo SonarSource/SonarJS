@@ -67,6 +67,7 @@ const compositeGroupOwnersBySubtree = new WeakMap<
  *    - role="status" with aria-live (live region pattern)
  *    - role="slider" with complete aria-value* attributes
  *    - role="radio" with aria-checked
+ *    - role="combobox" popup widgets with ARIA disclosure state
  *    - role="separator" with children (since <hr> is void)
  *    - role="img" on div/span with children or CSS backgroundImage (since <img> is void)
  *    - role="group" in composite widgets or when the content is not fieldset-like
@@ -137,6 +138,7 @@ function isValidAriaPattern(node: TSESTree.JSXOpeningElement): boolean {
     isLiveRegionStatus(role, attributes) ||
     isCustomSlider(role, attributes) ||
     isCustomRadio(role, attributes) ||
+    isCustomCombobox(role, attributes) ||
     isSeparatorWithChildren(role, node) ||
     isImgRoleWithValidPattern(elementName, role, attributes, node) ||
     isValidGroupRolePattern(role, attributes, node) ||
@@ -255,6 +257,46 @@ function isCustomSlider(role: string, attributes: JSXOpeningElement['attributes'
 
 function isCustomRadio(role: string, attributes: JSXOpeningElement['attributes']): boolean {
   return role === 'radio' && Boolean(getProp(attributes, 'aria-checked'));
+}
+
+/**
+ * Checks if the element is a custom combobox that manages its own popup state.
+ *
+ * The popup-state attributes alone identify an intentional custom combobox: a
+ * native <input>/<select> cannot manually manage aria-expanded disclosure over
+ * custom popup content. This covers select-only comboboxes that have no text
+ * input descendant.
+ *
+ * @param {string} role the normalized role attribute
+ * @param {JSXOpeningElement['attributes']} attributes the opening element attributes
+ * @return {boolean} true when the element matches a custom combobox pattern
+ */
+function isCustomCombobox(role: string, attributes: JSXOpeningElement['attributes']): boolean {
+  return role === 'combobox' && hasComboboxPopupState(attributes);
+}
+
+/**
+ * Checks if the element declares popup state for a combobox widget.
+ *
+ * @param {JSXOpeningElement['attributes']} attributes the opening element attributes
+ * @return {boolean} true when the element exposes combobox popup state
+ */
+function hasComboboxPopupState(attributes: JSXOpeningElement['attributes']): boolean {
+  return (
+    Boolean(getProp(attributes, 'aria-expanded')) &&
+    hasAnyProp(attributes, ['aria-controls', 'aria-owns', 'aria-haspopup'])
+  );
+}
+
+/**
+ * Checks if any of the provided attributes exists on the element.
+ *
+ * @param {JSXOpeningElement['attributes']} attributes the opening element attributes
+ * @param {string[]} names the attribute names to look for
+ * @return {boolean} true when at least one attribute is present
+ */
+function hasAnyProp(attributes: JSXOpeningElement['attributes'], names: string[]): boolean {
+  return names.some(name => Boolean(getProp(attributes, name)));
 }
 
 function isSeparatorWithChildren(role: string, node: TSESTree.JSXOpeningElement): boolean {
