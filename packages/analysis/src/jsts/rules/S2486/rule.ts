@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { getParent } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getVariableFromScope } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
@@ -32,9 +33,13 @@ export const rule: Rule.RuleModule = {
     return {
       'CatchClause[param.type="Identifier"]'(node: estree.CatchClause) {
         const param = node.param as estree.Identifier;
+        const tryStatement = getParent(context, node);
         const scope = context.sourceCode.getScope(node);
         const variable = getVariableFromScope(scope, param.name);
-        if (variable?.references.length === 0) {
+        if (
+          variable?.references.length === 0 &&
+          !(tryStatement?.type === 'TryStatement' && tryStatement.block.body.length === 1)
+        ) {
           context.report({
             messageId: 'handleException',
             node,
