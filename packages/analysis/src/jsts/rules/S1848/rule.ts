@@ -22,8 +22,6 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
 import { isIdentifier } from '../helpers/ast.js';
-import { childrenOf } from '../helpers/ancestor.js';
-import { areEquivalent } from '../helpers/equivalence.js';
 import * as meta from './generated-meta.js';
 
 /** DOM selection method names commonly used for element selection */
@@ -105,9 +103,7 @@ function isRegExpValidation(node: estree.NewExpression, context: Rule.RuleContex
 
   return node.arguments.some(
     argument =>
-      argument.type !== 'SpreadElement' &&
-      argument.type !== 'Literal' &&
-      containsEquivalentValueNode(nextStatement.argument!, argument, context),
+      isIdentifier(argument) && containsReturnedIdentifier(nextStatement.argument!, argument),
   );
 }
 
@@ -172,26 +168,48 @@ function getStatementList(node: estree.Node | undefined): estree.Statement[] | u
   return undefined;
 }
 
-function containsEquivalentValueNode(
-  node: estree.Node,
-  expected: estree.Node,
-  context: Rule.RuleContext,
-): boolean {
-  if (areEquivalent(node, expected, context.sourceCode)) {
+function containsReturnedIdentifier(node: estree.Node, identifier: estree.Identifier): boolean {
+  if (isIdentifier(node, identifier.name)) {
     return true;
   }
 
-  if (node.type === 'Property') {
-    return containsEquivalentValueNode(node.value as estree.Node, expected, context);
+  if (node.type === 'ObjectExpression') {
+    return node.properties.some(property => {
+      if (property.type === 'Property') {
+        return containsReturnedIdentifier(property.value as estree.Node, identifier);
+      }
+      return containsReturnedIdentifier(property.argument, identifier);
+    });
   }
 
-  if (node.type === 'MemberExpression') {
-    return containsEquivalentValueNode(node.object, expected, context);
+  if (node.type === 'ArrayExpression') {
+    return node.elements.some(element => {
+      if (!element) {
+        return false;
+      }
+      if (element.type === 'SpreadElement') {
+        return containsReturnedIdentifier(element.argument, identifier);
+      }
+      return containsReturnedIdentifier(element, identifier);
+    });
   }
 
-  return childrenOf(node, context.sourceCode.visitorKeys).some(child =>
-    containsEquivalentValueNode(child, expected, context),
-  );
+  if (node.type === 'ConditionalExpression') {
+    return (
+      containsReturnedIdentifier(node.consequent, identifier) ||
+      containsReturnedIdentifier(node.alternate, identifier)
+    );
+  }
+
+  const nodeType = node.type as string;
+  if (nodeType === 'TSAsExpression' || nodeType === 'TSTypeAssertion') {
+    return containsReturnedIdentifier(
+      (node as unknown as { expression: estree.Node }).expression,
+      identifier,
+    );
+  }
+
+  return false;
 }
 
 function reportIssue(

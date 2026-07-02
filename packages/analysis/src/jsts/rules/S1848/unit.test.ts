@@ -315,6 +315,25 @@ new DragInstance(params, startEvent, eBody);`,
           },
           {
             code: `
+      function parseRegExp(regExp, items) {
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return items.map(pattern => pattern);
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      function parseRegExp() {
+        new RegExp(buildPattern());
+        return buildPattern();
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
       function parseRegExp(regExp) {
         const RegExp = CustomRegExp;
         const pattern = regExp.slice(1, -1);
