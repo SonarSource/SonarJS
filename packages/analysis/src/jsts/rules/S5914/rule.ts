@@ -378,7 +378,16 @@ function resolveBinary(
   if (!evaluate) {
     return undefined;
   }
-  const left = resolveConstantPrimitiveValue(context, node.left, visited);
+  // each operand gets its own copy of `visited`: resolving the same identifier from two
+  // independent operands (e.g. `a + a`) is not a cycle, only re-entering an identifier that is
+  // already being expanded along the *same* resolution chain is. Cloning from the set as it was
+  // when entering this call (rather than sharing one mutable instance) keeps the two operands from
+  // seeing each other's bindings while still detecting genuine cycles through an outer identifier.
+  const left = resolveConstantPrimitiveValue(
+    context,
+    node.left,
+    visited ? new Set(visited) : undefined,
+  );
   if (!left) {
     return undefined;
   }
@@ -392,7 +401,11 @@ function resolveBinary(
   if (node.operator === '??' && left.value !== null && left.value !== undefined) {
     return { value: left.value };
   }
-  const right = resolveConstantPrimitiveValue(context, node.right, visited);
+  const right = resolveConstantPrimitiveValue(
+    context,
+    node.right,
+    visited ? new Set(visited) : undefined,
+  );
   if (!right) {
     return undefined;
   }

@@ -857,6 +857,17 @@ describe('S5914', () => {
           `,
           errors: [{ messageId: 'issue' }],
         },
+        // the same identifier appearing in both operands of the initializer's binary expression
+        // must not be mistaken for a cycle
+        {
+          code: `
+            import { expect } from 'vitest';
+            const a = 5;
+            const x = a + a;
+            expect(x).toBe(10);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
         // expected-side const with a binary expression initializer (chai)
         {
           code: `
