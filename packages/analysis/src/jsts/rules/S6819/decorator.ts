@@ -50,9 +50,6 @@ const COMPOSITE_GROUP_OWNER_ROLES = new Set([
 const FIELDSET_FORM_CONTROL_ELEMENTS = new Set(['input', 'select', 'textarea']);
 const NON_GROUPABLE_INPUT_TYPES = new Set(['hidden', 'button', 'submit', 'reset', 'image']);
 
-// A group id resolved either as a static string or as a dynamic expression key.
-type GroupIdReference = { readonly value: string; readonly dynamic: boolean };
-
 // Composite-widget owners per JSX subtree root, so each tree is scanned once.
 const compositeGroupOwnersBySubtree = new WeakMap<
   TSESTree.JSXElement | TSESTree.JSXFragment,
@@ -319,7 +316,7 @@ function hasCompositeGroupOwnerAncestor(node: TSESTree.JSXOpeningElement): boole
  * @return Whether a composite widget owns the group by id reference.
  */
 function hasCompositeGroupOwnerByAriaOwns(node: TSESTree.JSXOpeningElement): boolean {
-  const id = getGroupIdReference((node as JSXOpeningElement).attributes);
+  const id = getNonEmptyStringAttributeValue((node as JSXOpeningElement).attributes, 'id');
   if (id === null) {
     return false;
   }
@@ -569,34 +566,12 @@ function isCompositeGroupOwner(node: TSESTree.JSXOpeningElement): boolean {
 /**
  * Checks whether a composite owner's aria-owns references the group id.
  *
- * Matches static ids by value and dynamic ids by shared expression, so a group
- * and its owner wired through the same `useId()`/prop variable still resolve.
- *
  * @param owner The composite-widget owner opening element.
- * @param id The group id reference to match.
+ * @param id The static group id to match.
  * @return Whether the owner owns the group.
  */
-function ownerReferencesId(owner: TSESTree.JSXOpeningElement, id: GroupIdReference): boolean {
-  const attributes = (owner as JSXOpeningElement).attributes;
-  return id.dynamic
-    ? getAriaOwnsExpressionKey(attributes) === id.value
-    : getAriaOwnsIds(attributes).includes(id.value);
-}
-
-/**
- * Resolves a group's id as a static value or a dynamic expression key.
- *
- * @param attributes The JSX attributes on the group element.
- * @return The id reference, or null when no id is present.
- */
-function getGroupIdReference(attributes: JSXOpeningElement['attributes']): GroupIdReference | null {
-  const staticId = getNonEmptyStringAttributeValue(attributes, 'id');
-  if (staticId !== null) {
-    return { value: staticId, dynamic: false };
-  }
-
-  const key = getAttributeExpressionKey(attributes, 'id');
-  return key === null ? null : { value: key, dynamic: true };
+function ownerReferencesId(owner: TSESTree.JSXOpeningElement, id: string): boolean {
+  return getAriaOwnsIds((owner as JSXOpeningElement).attributes).includes(id);
 }
 
 /**
@@ -608,58 +583,6 @@ function getGroupIdReference(attributes: JSXOpeningElement['attributes']): Group
 function getAriaOwnsIds(attributes: JSXOpeningElement['attributes']): string[] {
   const value = getNonEmptyStringAttributeValue(attributes, 'aria-owns');
   return value === null ? [] : value.split(/\s+/);
-}
-
-/**
- * Gets the dynamic expression key of an aria-owns attribute, if any.
- *
- * @param attributes The JSX attributes on the composite owner.
- * @return The expression key, or null when aria-owns is absent or unresolvable.
- */
-function getAriaOwnsExpressionKey(attributes: JSXOpeningElement['attributes']): string | null {
-  return getAttributeExpressionKey(attributes, 'aria-owns');
-}
-
-/**
- * Builds a stable key for a simple attribute expression (`{x}` or `{x.y}`).
- *
- * @param attributes The JSX attributes to read.
- * @param name The attribute name to resolve.
- * @return The expression key, or null for absent or unsupported expressions.
- */
-function getAttributeExpressionKey(
-  attributes: JSXOpeningElement['attributes'],
-  name: string,
-): string | null {
-  const prop = getProp(attributes, name);
-  if (!prop || prop.value?.type !== 'JSXExpressionContainer') {
-    return null;
-  }
-
-  return getExpressionKey(prop.value.expression as unknown as TSESTree.Node);
-}
-
-/**
- * Builds a key from an identifier or non-computed member expression.
- *
- * @param expression The expression node to key.
- * @return The key, or null for expressions that cannot be compared statically.
- */
-function getExpressionKey(expression: TSESTree.Node): string | null {
-  if (expression.type === 'Identifier') {
-    return expression.name;
-  }
-
-  if (
-    expression.type === 'MemberExpression' &&
-    !expression.computed &&
-    expression.property.type === 'Identifier'
-  ) {
-    const objectKey = getExpressionKey(expression.object);
-    return objectKey === null ? null : `${objectKey}.${expression.property.name}`;
-  }
-
-  return null;
 }
 
 /**

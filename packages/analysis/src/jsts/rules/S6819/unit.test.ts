@@ -166,7 +166,7 @@ describe('S6819', () => {
     });
   });
 
-  it('should resolve aria-owns ownership across id lists and dynamic ids', () => {
+  it('should resolve aria-owns ownership across a whitespace-separated id list', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('prefer-tag-over-role - aria-owns ownership', rule, {
@@ -176,28 +176,6 @@ describe('S6819', () => {
             <>
               <div role="toolbar" aria-owns="a b format-actions" />
               <div role="group" id="format-actions" aria-label="Filters">
-                <input type="checkbox" name="a" />
-                <input type="checkbox" name="b" />
-              </div>
-            </>
-          `,
-        },
-        {
-          code: `
-            <>
-              <div role="toolbar" aria-owns={groupId} />
-              <div role="group" id={groupId} aria-label="Filters">
-                <input type="checkbox" name="a" />
-                <input type="checkbox" name="b" />
-              </div>
-            </>
-          `,
-        },
-        {
-          code: `
-            <>
-              <div role="toolbar" aria-owns={props.groupId} />
-              <div role="group" id={props.groupId} aria-label="Filters">
                 <input type="checkbox" name="a" />
                 <input type="checkbox" name="b" />
               </div>
