@@ -266,8 +266,102 @@ describe('S5914', () => {
             expect(typeof getValue()).toBeTruthy();
           `,
         },
+        // guaranteed to always fail: self-correcting, so no longer reported
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(undefined).toBeDefined();
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(null).not.toBeNull();
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+            assert(false);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+            assert(false, "should not be called");
+          `,
+        },
+        {
+          code: `const { expect } = await import('vitest');
+            expect(null).not.toBeNull();`,
+        },
+        {
+          code: `const assert = await import('node:assert');
+            assert.ok(false);`,
+        },
+        // -1 is truthy, so this assertion always fails
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(-1).toBeFalsy();
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert.ok(false);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.strictEqual(1, 2);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(undefined).to.exists;
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+            const flag = false;
+            assert(flag);
+          `,
+        },
+        // the reported false-positive pattern: an intentional "unreachable code" sentinel
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(true).toBe(false);
+          `,
+        },
+        // a freshly-created reference is always truthy, so negating the predicate always fails
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect({}).not.toBeTruthy();
+          `,
+        },
       ],
       invalid: [
+        // negated comparisons of mismatched constants are guaranteed to succeed
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.notStrictEqual(1, 2);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(1).not.toBe(2);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
         {
           code: `
             import { expect } from 'vitest';
@@ -279,27 +373,6 @@ describe('S5914', () => {
           code: `
             import { expect } from 'vitest';
             expect(0).toBeFalsy();
-          `,
-          errors: [{ messageId: 'issue' }],
-        },
-        {
-          code: `
-            import { expect } from 'vitest';
-            expect(undefined).toBeDefined();
-          `,
-          errors: [{ messageId: 'issue' }],
-        },
-        {
-          code: `
-            import { expect } from 'vitest';
-            expect(undefined).not.toBeDefined();
-          `,
-          errors: [{ messageId: 'issue' }],
-        },
-        {
-          code: `
-            import { expect } from 'vitest';
-            expect(null).not.toBeNull();
           `,
           errors: [{ messageId: 'issue' }],
         },
@@ -359,13 +432,6 @@ describe('S5914', () => {
             assert.ok(function handler() {});
           `,
           errors: [{ messageId: 'freshPredicate' }],
-        },
-        {
-          code: `
-            import assert from 'node:assert';
-            assert(false);
-          `,
-          errors: [{ messageId: 'issue' }],
         },
         {
           code: `
@@ -506,18 +572,8 @@ describe('S5914', () => {
         },
         {
           code: `const { expect } = await import('vitest');
-            expect(null).not.toBeNull();`,
-          errors: [{ messageId: 'issue' }],
-        },
-        {
-          code: `const { expect } = await import('vitest');
             expect(getValue()).toBe({});`,
           errors: [{ messageId: 'freshIdentity' }],
-        },
-        {
-          code: `const assert = await import('node:assert');
-            assert.ok(false);`,
-          errors: [{ messageId: 'issue' }],
         },
         {
           code: `const assert = await import('node:assert');
@@ -525,13 +581,6 @@ describe('S5914', () => {
           errors: [{ messageId: 'freshIdentity' }],
         },
         // unary expressions produce constant values
-        {
-          code: `
-            import { expect } from 'vitest';
-            expect(-1).toBeFalsy();
-          `,
-          errors: [{ messageId: 'issue' }],
-        },
         {
           code: `
             import { expect } from 'vitest';
@@ -578,13 +627,6 @@ describe('S5914', () => {
           errors: [{ messageId: 'issue' }],
         },
         // node:assert/strict module
-        {
-          code: `
-            import assert from 'node:assert/strict';
-            assert.ok(false);
-          `,
-          errors: [{ messageId: 'issue' }],
-        },
         {
           code: `
             import assert from 'node:assert/strict';
@@ -649,13 +691,6 @@ describe('S5914', () => {
         {
           code: `
             import assert from 'node:assert';
-            assert.strictEqual(1, 2);
-          `,
-          errors: [{ messageId: 'issue' }],
-        },
-        {
-          code: `
-            import assert from 'node:assert';
             assert.deepEqual(1, '1');
           `,
           errors: [{ messageId: 'issue' }],
@@ -704,13 +739,6 @@ describe('S5914', () => {
           code: `
             import { expect } from 'chai';
             expect(null).to.exist;
-          `,
-          errors: [{ messageId: 'issue' }],
-        },
-        {
-          code: `
-            import { expect } from 'chai';
-            expect(undefined).to.exists;
           `,
           errors: [{ messageId: 'issue' }],
         },
@@ -766,15 +794,6 @@ describe('S5914', () => {
             import { expect } from 'chai';
             const total = 4 * 25;
             expect(100).to.equal(total);
-          `,
-          errors: [{ messageId: 'issue' }],
-        },
-        // node:assert predicate on a const-bound primitive
-        {
-          code: `
-            import assert from 'node:assert';
-            const flag = false;
-            assert(flag);
           `,
           errors: [{ messageId: 'issue' }],
         },

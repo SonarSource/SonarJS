@@ -36,7 +36,7 @@ const CHAI_LIKE_GLOBAL_MODULES = [
 ];
 const NODE_ASSERT_MODULES = ['assert', 'node:assert', 'assert/strict', 'node:assert/strict'];
 
-type AssertionPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null';
+export type AssertionPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null';
 export type AssertionStyle =
   | 'jest-like'
   | 'jasmine'

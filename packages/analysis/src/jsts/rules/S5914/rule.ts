@@ -18,13 +18,17 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import { type Assertion, extractTestAssertion } from '../helpers/assertions.js';
+import {
+  type Assertion,
+  type AssertionPredicate,
+  extractTestAssertion,
+} from '../helpers/assertions.js';
 import { getVariableFromName } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
-  issue: 'Replace this assertion; it always succeeds or fails.',
+  issue: 'Replace this assertion; it always succeeds.',
   // hint targeted at identity comparisons against a freshly-created value: a deep equality matcher is almost always what was meant
   freshIdentity:
     'Use a deep equality matcher; freshly-created values are never identical to other values.',
@@ -58,28 +62,37 @@ export const rule: Rule.RuleModule = {
 };
 
 /**
- * Classifies the assertion as trivial (always succeeds or always fails) and picks the most
- * informative message for the underlying cause.
- * @returns the node to report and the corresponding message id, or null if the assertion is not trivial.
+ * Classifies the assertion as trivially true (always guaranteed to succeed) and picks the most
+ * informative message for the underlying cause. An assertion that is guaranteed to always *fail*
+ * is not reported here: it's self-correcting, since it makes the test suite fail immediately.
+ * The one exception is an identity comparison against a freshly-created value, which is reported
+ * regardless of which way it resolves, since it usually signals a toBe/toEqual mixup.
+ * @returns the node to report and the corresponding message id, or null if the assertion isn't trivially true.
  */
 function getTrivialAssertion(
   context: Rule.RuleContext,
   assertion: Assertion,
 ): TrivialAssertion | null {
   switch (assertion.kind) {
-    case 'predicate':
-      if (isConstantPrimitiveValue(context, assertion.actual)) {
+    case 'predicate': {
+      const actual = resolveConstantPrimitiveValue(context, assertion.actual);
+      if (actual && predicateHolds(assertion.predicate, actual.value) !== assertion.negated) {
         return { reportNode: assertion.actual, messageId: 'issue' };
       }
-      if (isFreshReferenceExpression(assertion.actual)) {
+      if (
+        isFreshReferenceExpression(assertion.actual) &&
+        freshReferencePredicateHolds(assertion.predicate) !== assertion.negated
+      ) {
         return { reportNode: assertion.actual, messageId: 'freshPredicate' };
       }
       return null;
+    }
     case 'comparison':
       if (assertion.comparison === 'strict') {
-        // a freshly-created value on either side makes strict equality trivially fail
-        // (or trivially succeed when negated). Loose equality is excluded because object-to-primitive
-        // coercion can make comparisons like `[] == false` pass.
+        // a freshly-created value on either side makes strict equality trivially fail (or
+        // trivially succeed when negated), and is flagged either way: it's a common
+        // toBe/toEqual mixup. Loose equality is excluded because object-to-primitive coercion
+        // can make comparisons like `[] == false` pass.
         if (isFreshReferenceExpression(assertion.actual)) {
           return { reportNode: assertion.actual, messageId: 'freshIdentity' };
         }
@@ -91,18 +104,65 @@ function getTrivialAssertion(
       // equality the comparison result is statically determined. Deep equality is intentionally
       // skipped via an explicit whitelist to avoid widening this rule when assertion helper
       // comparison kinds evolve.
-      if (
-        (assertion.comparison === 'strict' || assertion.comparison === 'loose') &&
-        isConstantPrimitiveValue(context, assertion.actual) &&
-        isConstantPrimitiveValue(context, assertion.expected)
-      ) {
-        return { reportNode: assertion.actual, messageId: 'issue' };
+      if (assertion.comparison === 'strict' || assertion.comparison === 'loose') {
+        const actual = resolveConstantPrimitiveValue(context, assertion.actual);
+        const expected = resolveConstantPrimitiveValue(context, assertion.expected);
+        if (actual && expected) {
+          const equal =
+            assertion.comparison === 'strict'
+              ? actual.value === expected.value
+              : // eslint-disable-next-line eqeqeq
+                actual.value == expected.value;
+          if (equal !== assertion.negated) {
+            return { reportNode: assertion.actual, messageId: 'issue' };
+          }
+        }
       }
       return null;
     default:
       return null;
   }
 }
+
+/**
+ * Whether a resolved constant `value` satisfies the given assertion `predicate`.
+ */
+function predicateHolds(predicate: AssertionPredicate, value: ConstantPrimitive): boolean {
+  switch (predicate) {
+    case 'truthy':
+      return Boolean(value);
+    case 'falsy':
+      return !value;
+    case 'defined':
+      return value !== undefined;
+    case 'undefined':
+      return value === undefined;
+    case 'null':
+      return value === null;
+    default:
+      return false;
+  }
+}
+
+/**
+ * Same as `predicateHolds`, specialized for freshly-created references: they're always truthy,
+ * always defined, and never null.
+ */
+function freshReferencePredicateHolds(predicate: AssertionPredicate): boolean {
+  switch (predicate) {
+    case 'truthy':
+    case 'defined':
+      return true;
+    case 'falsy':
+    case 'undefined':
+    case 'null':
+      return false;
+    default:
+      return false;
+  }
+}
+
+type ConstantPrimitive = boolean | string | number | bigint | null | undefined;
 
 const UNARY_OPERATORS_PRESERVING_CONSTNESS = new Set<estree.UnaryOperator>([
   '!',
@@ -111,54 +171,163 @@ const UNARY_OPERATORS_PRESERVING_CONSTNESS = new Set<estree.UnaryOperator>([
   'typeof',
 ]);
 
-function isConstantPrimitiveValue(
+/**
+ * Real JS semantics for each supported binary/logical operator, applied to already-resolved
+ * constant operands. `in` and `instanceof` aren't meaningful for primitive constants and are
+ * intentionally left unsupported.
+ */
+const BINARY_OPERATOR_EVALUATORS: {
+  [K in estree.BinaryOperator | estree.LogicalOperator]?: (
+    left: any,
+    right: any,
+  ) => ConstantPrimitive;
+} = {
+  '+': (l, r) => l + r,
+  '-': (l, r) => l - r,
+  '*': (l, r) => l * r,
+  '/': (l, r) => l / r,
+  '%': (l, r) => l % r,
+  '**': (l, r) => l ** r,
+  '===': (l, r) => l === r,
+  '!==': (l, r) => l !== r,
+  // eslint-disable-next-line eqeqeq
+  '==': (l, r) => l == r,
+  // eslint-disable-next-line eqeqeq
+  '!=': (l, r) => l != r,
+  '<': (l, r) => l < r,
+  '<=': (l, r) => l <= r,
+  '>': (l, r) => l > r,
+  '>=': (l, r) => l >= r,
+  '<<': (l, r) => l << r,
+  '>>': (l, r) => l >> r,
+  '>>>': (l, r) => l >>> r,
+  '&': (l, r) => l & r,
+  '|': (l, r) => l | r,
+  '^': (l, r) => l ^ r,
+  '&&': (l, r) => (l ? r : l),
+  '||': (l, r) => (l ? l : r),
+  '??': (l, r) => l ?? r,
+};
+
+/**
+ * Resolves `node` to its constant primitive value when it's statically known (including through
+ * a resolved `const` binding), or `undefined` when it isn't resolvable. `visited` guards against
+ * mutually-recursive const references like `const a = b; const b = a;` (TDZ at runtime).
+ */
+function resolveConstantPrimitiveValue(
   context: Rule.RuleContext,
   node: estree.Node,
   visited?: Set<Scope.Variable>,
-): boolean {
-  // resolve `const` bindings through their initializer so that identifiers bound to a constant
-  // primitive are treated as constants too. `visited` guards against mutually-recursive const
-  // references like `const a = b; const b = a;` (TDZ at runtime).
+): { value: ConstantPrimitive } | undefined {
   if (node.type === 'Identifier' && node.name !== 'undefined') {
     visited ??= new Set();
     const resolved = resolveConstBinding(context, node, visited);
     if (resolved) {
-      return isConstantPrimitiveValue(context, resolved, visited);
+      return resolveConstantPrimitiveValue(context, resolved, visited);
     }
   }
   switch (node.type) {
     case 'Literal':
-      return (
+      if (
         node.value === null ||
         typeof node.value === 'boolean' ||
         typeof node.value === 'string' ||
-        typeof node.value === 'number' ||
-        ('bigint' in node && typeof node.bigint === 'string')
-      );
+        typeof node.value === 'number'
+      ) {
+        return { value: node.value };
+      }
+      if ('bigint' in node && typeof node.bigint === 'string') {
+        return { value: BigInt(node.bigint) };
+      }
+      return undefined;
     case 'Identifier':
       if (node.name === 'undefined') {
         const variable = getVariableFromName(context, 'undefined', node);
         // global `undefined` has no user definitions; a shadowed binding does
-        return !variable || variable.defs.length === 0;
+        return !variable || variable.defs.length === 0 ? { value: undefined } : undefined;
       }
-      return false;
+      return undefined;
     case 'TemplateLiteral':
-      return node.expressions.length === 0;
+      return node.expressions.length === 0
+        ? { value: node.quasis[0].value.cooked ?? '' }
+        : undefined;
     case 'UnaryExpression':
-      // `void X` is always undefined regardless of X; the other operators preserve constness
-      return (
-        node.operator === 'void' ||
-        (UNARY_OPERATORS_PRESERVING_CONSTNESS.has(node.operator) &&
-          isConstantPrimitiveValue(context, node.argument, visited))
-      );
+      return resolveUnary(context, node, visited);
     case 'BinaryExpression':
     case 'LogicalExpression':
-      return (
-        isConstantPrimitiveValue(context, node.left, visited) &&
-        isConstantPrimitiveValue(context, node.right, visited)
-      );
+      return resolveBinary(context, node, visited);
     default:
-      return false;
+      return undefined;
+  }
+}
+
+function resolveUnary(
+  context: Rule.RuleContext,
+  node: estree.UnaryExpression,
+  visited: Set<Scope.Variable> | undefined,
+): { value: ConstantPrimitive } | undefined {
+  // `void X` is always undefined regardless of X
+  if (node.operator === 'void') {
+    return { value: undefined };
+  }
+  if (!UNARY_OPERATORS_PRESERVING_CONSTNESS.has(node.operator)) {
+    return undefined;
+  }
+  const argument = resolveConstantPrimitiveValue(context, node.argument, visited);
+  if (!argument) {
+    return undefined;
+  }
+  try {
+    switch (node.operator) {
+      case '!':
+        return { value: !argument.value };
+      case '+':
+        return { value: +(argument.value as never) };
+      case '-':
+        return { value: -(argument.value as never) };
+      case 'typeof':
+        return { value: typeof argument.value };
+      default:
+        return undefined;
+    }
+  } catch {
+    // e.g. mixing incompatible bigint/number operands throws a TypeError at evaluation time
+    return undefined;
+  }
+}
+
+function resolveBinary(
+  context: Rule.RuleContext,
+  node: estree.BinaryExpression | estree.LogicalExpression,
+  visited: Set<Scope.Variable> | undefined,
+): { value: ConstantPrimitive } | undefined {
+  const evaluate = BINARY_OPERATOR_EVALUATORS[node.operator];
+  if (!evaluate) {
+    return undefined;
+  }
+  const left = resolveConstantPrimitiveValue(context, node.left, visited);
+  if (!left) {
+    return undefined;
+  }
+  // short-circuiting operators don't need the right operand when it's never evaluated
+  if (node.operator === '&&' && !left.value) {
+    return { value: left.value };
+  }
+  if (node.operator === '||' && left.value) {
+    return { value: left.value };
+  }
+  if (node.operator === '??' && left.value !== null && left.value !== undefined) {
+    return { value: left.value };
+  }
+  const right = resolveConstantPrimitiveValue(context, node.right, visited);
+  if (!right) {
+    return undefined;
+  }
+  try {
+    return { value: evaluate(left.value, right.value) };
+  } catch {
+    // e.g. mixing incompatible bigint/number operands throws a TypeError at evaluation time
+    return undefined;
   }
 }
 
