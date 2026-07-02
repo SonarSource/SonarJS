@@ -22,7 +22,7 @@ import { fields } from './config.js';
 import { rule } from './index.js';
 
 describe('S6478', () => {
-  it('should expose allowAsProps as a Sonar configuration field', () => {
+  it('should expose allowAsProps and propNamePattern as Sonar configuration fields', () => {
     assert.ok(Array.isArray(fields));
     assert.ok(
       fields.some(
@@ -36,6 +36,19 @@ describe('S6478', () => {
           ),
       ),
     );
+    assert.ok(
+      fields.some(
+        field =>
+          Array.isArray(field) &&
+          field.some(
+            option =>
+              option.field === 'propNamePattern' &&
+              option.default === '{render*,*Enhancer,*Render}' &&
+              option.displayName === 'propNamePattern' &&
+              typeof option.description === 'string',
+          ),
+      ),
+    );
   });
 
   it('should keep prop-based inline components noncompliant by default', () => {
@@ -43,6 +56,32 @@ describe('S6478', () => {
 
     ruleTester.run('S6478', rule, {
       valid: [
+        {
+          code: `
+            function Parent() {
+              return (
+                <Button
+                  startEnhancer={() => <Icon />}
+                  endEnhancer={() => <OtherIcon />}
+                />
+              );
+            }
+          `,
+        },
+        {
+          code: `
+            function Parent() {
+              return (
+                <Image
+                  preview={{
+                    imageRender: () => <video muted />,
+                    actionsRender: () => null,
+                  }}
+                />
+              );
+            }
+          `,
+        },
         {
           code: `
             function Parent() {
@@ -124,6 +163,70 @@ describe('S6478', () => {
                 return <div />;
               }
               return <Child />;
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should suppress configured render-prop names with propNamePattern', () => {
+    const ruleTester = new DefaultParserRuleTester();
+
+    ruleTester.run('S6478', rule, {
+      valid: [
+        {
+          options: [{ propNamePattern: '{render*,*Enhancer,*Render}' }],
+          code: `
+            function Parent() {
+              return (
+                <OtherComponent
+                  renderLabel={value => <span>{value}</span>}
+                />
+              );
+            }
+          `,
+        },
+        {
+          options: [{ propNamePattern: '{render*,*Enhancer,*Render}' }],
+          code: `
+            function Parent() {
+              return (
+                <Button
+                  startEnhancer={() => <Icon />}
+                  endEnhancer={() => <OtherIcon />}
+                />
+              );
+            }
+          `,
+        },
+        {
+          options: [{ propNamePattern: '{render*,*Enhancer,*Render}' }],
+          code: `
+            function Parent() {
+              return (
+                <Image
+                  preview={{
+                    imageRender: () => <video muted />,
+                    actionsRender: () => null,
+                  }}
+                />
+              );
+            }
+          `,
+        },
+      ],
+      invalid: [
+        {
+          options: [{ propNamePattern: '{render*,*Enhancer,*Render}' }],
+          code: `
+            function Parent() {
+              return (
+                <OtherComponent
+                  component={() => <div />}
+                />
+              );
             }
           `,
           errors: 1,

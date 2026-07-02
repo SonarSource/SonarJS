@@ -23,7 +23,15 @@ export const fields = [
     {
       field: 'allowAsProps',
       default: false,
-      description: 'Allow React components defined inline when they are passed as props.',
+      description:
+        'Allow React components defined inline when they are passed as props. Use this broad escape hatch when propNamePattern is not precise enough.',
+    },
+    {
+      field: 'propNamePattern',
+      default: '{render*,*Enhancer,*Render}',
+      description:
+        'Glob pattern matching prop names whose inline functions should be treated as render props rather than nested components.',
+      displayName: 'propNamePattern',
     },
   ],
 ] as const satisfies ESLintConfiguration;
