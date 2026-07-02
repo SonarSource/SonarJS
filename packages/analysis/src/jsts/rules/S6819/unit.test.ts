@@ -55,6 +55,27 @@ describe('S6819 upstream sentinel', () => {
       ],
     });
   });
+
+  it('upstream prefer-tag-over-role raises on popup buttons, comboboxes, and groups that decorator suppresses', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('prefer-tag-over-role', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          code: `<div role="button" tabIndex={0} aria-haspopup="listbox" aria-controls="choices" aria-expanded={isOpen}>Open</div>`,
+          errors: 1,
+        },
+        {
+          code: `<div role="combobox" tabIndex={0} aria-haspopup="listbox" aria-controls="choices" aria-expanded={isOpen}>Filter</div>`,
+          errors: 1,
+        },
+        {
+          code: `<div role="group"><button type="button">Save</button><button type="button">Cancel</button></div>`,
+          errors: 1,
+        },
+      ],
+    });
+  });
 });
 
 describe('S6819', () => {
@@ -184,6 +205,91 @@ describe('S6819', () => {
         // True positive: span with role="img" but self-closing (no children)
         {
           code: `<span role="img" aria-label="icon" />`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should not flag popup buttons, comboboxes, and interactive groups', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - popup widgets and groups', rule, {
+      valid: [
+        {
+          code: `
+            <div
+              role="button"
+              tabIndex={0}
+              aria-haspopup="listbox"
+              aria-controls="choices"
+              aria-expanded={isOpen}
+              onClick={toggle}
+              onKeyDown={handleKeyDown}
+            >
+              {selectedLabel}
+            </div>
+          `,
+        },
+        {
+          code: `
+            <span
+              role="button"
+              tabIndex={0}
+              aria-haspopup="menu"
+              aria-owns="actions-menu"
+              aria-expanded={menuOpen}
+            >
+              Actions
+            </span>
+          `,
+        },
+        {
+          code: `
+            <div
+              role="combobox"
+              aria-haspopup="listbox"
+              aria-controls="choices"
+              aria-expanded={isOpen}
+            >
+              <input aria-autocomplete="list" />
+            </div>
+          `,
+        },
+        {
+          code: `
+            <input
+              role="combobox"
+              aria-haspopup="listbox"
+              aria-controls="choices"
+              aria-expanded={isOpen}
+            />
+          `,
+        },
+        {
+          code: `
+            <div role="group">
+              <button type="button">Save</button>
+              <button type="button">Cancel</button>
+            </div>
+          `,
+        },
+      ],
+      invalid: [
+        {
+          code: `<div role="button" onClick={toggle}>Open</div>`,
+          errors: 1,
+        },
+        {
+          code: `<div role="button" tabIndex={0} aria-haspopup="listbox" aria-expanded={isOpen}>Open</div>`,
+          errors: 1,
+        },
+        {
+          code: `<div role="combobox" aria-expanded={isOpen}><input aria-autocomplete="list" /></div>`,
+          errors: 1,
+        },
+        {
+          code: `<div role="group"><button type="button">Save</button></div>`,
           errors: 1,
         },
       ],
