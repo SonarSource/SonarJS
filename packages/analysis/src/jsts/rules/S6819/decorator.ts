@@ -488,7 +488,7 @@ function isHiddenInput(node: TSESTree.JSXOpeningElement): boolean {
 function getContainingJsxSubtree(
   node: TSESTree.JSXOpeningElement,
 ): TSESTree.JSXElement | TSESTree.JSXFragment | null {
-  let current = node.parent;
+  let current: TSESTree.Node | undefined = node.parent;
   let root: TSESTree.JSXElement | TSESTree.JSXFragment | null = null;
 
   while (current != null) {
