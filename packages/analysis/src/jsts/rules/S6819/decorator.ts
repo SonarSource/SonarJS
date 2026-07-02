@@ -37,6 +37,17 @@ const COMPOSITE_CHILD_ROLES = new Set([
   'rowheader',
   'option',
 ]);
+const COMPOSITE_GROUP_OWNER_ROLES = new Set([
+  'tree',
+  'treegrid',
+  'menu',
+  'menubar',
+  'toolbar',
+  'listbox',
+  'tablist',
+  'radiogroup',
+]);
+const FIELDSET_FORM_CONTROL_ELEMENTS = new Set(['input', 'select', 'textarea']);
 
 /**
  * Decorates the prefer-tag-over-role rule to fix false positives.
@@ -51,13 +62,13 @@ const COMPOSITE_CHILD_ROLES = new Set([
  *    - role="radio" with aria-checked
  *    - role="separator" with children (since <hr> is void)
  *    - role="img" on div/span with children or CSS backgroundImage (since <img> is void)
- *    - role="group" on div/span outside form/fieldset contexts
+ *    - role="group" in composite widgets or when the content is not fieldset-like
  *    - ARIA composite widget roles (table, grid, listbox, row, option, etc.) when forming
  *      complete custom widget patterns
  *
  * Note: SVG internal elements like <g> are not in HTML_TAG_NAMES, so they're
- * already filtered out by isHtmlElement. HTML elements with role="group" inside
- * form-related contexts remain true positives since <fieldset> stays appropriate there.
+ * already filtered out by isHtmlElement. HTML elements with role="group" only
+ * remain true positives when they approximate a <fieldset>-style control group.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
@@ -121,7 +132,7 @@ function isValidAriaPattern(node: TSESTree.JSXOpeningElement): boolean {
     isCustomRadio(role, attributes) ||
     isSeparatorWithChildren(role, node) ||
     isImgRoleWithValidPattern(elementName, role, attributes, node) ||
-    isStandaloneGroupRole(elementName, role, node) ||
+    isValidGroupRolePattern(role, attributes, node) ||
     isCustomCompositeWidget(role, node)
   );
 }
@@ -244,42 +255,263 @@ function isSeparatorWithChildren(role: string, node: TSESTree.JSXOpeningElement)
 }
 
 /**
- * Checks if a generic container uses role="group" outside form-related ancestors.
+ * Checks if role="group" is used in a valid pattern.
  *
- * @param elementName The lower-cased JSX element name.
  * @param role The resolved role attribute value.
+ * @param attributes The JSX attributes on the current element.
  * @param node The JSX opening element being checked.
  * @return Whether the group role should be preserved.
  */
-function isStandaloneGroupRole(
-  elementName: string | null,
+function isValidGroupRolePattern(
   role: string,
+  attributes: JSXOpeningElement['attributes'],
   node: TSESTree.JSXOpeningElement,
 ): boolean {
   return (
     role === 'group' &&
-    (elementName === 'div' || elementName === 'span') &&
-    !hasFormGroupingAncestor(node)
+    (isGroupWithinCompositeWidget(node) || !hasFieldsetEquivalentContent(attributes, node))
   );
 }
 
 /**
- * Checks if the JSX element is nested inside a form or fieldset.
+ * Checks if the group belongs to a larger composite widget structure.
  *
  * @param node The JSX opening element being checked.
- * @return Whether a form-related ancestor exists.
+ * @return Whether the group is structural to a composite widget.
  */
-function hasFormGroupingAncestor(node: TSESTree.JSXOpeningElement): boolean {
+function isGroupWithinCompositeWidget(node: TSESTree.JSXOpeningElement): boolean {
+  return hasCompositeGroupOwnerAncestor(node) || hasCompositeGroupOwnerByAriaOwns(node);
+}
+
+/**
+ * Checks if the group sits below a composite widget ancestor.
+ *
+ * @param node The JSX opening element being checked.
+ * @return Whether a composite widget ancestor exists.
+ */
+function hasCompositeGroupOwnerAncestor(node: TSESTree.JSXOpeningElement): boolean {
   return (
     findFirstMatchingAncestor(node, ancestor => {
       if (ancestor.type !== 'JSXElement') {
         return false;
       }
 
-      const ancestorName = getElementName(ancestor.openingElement);
-      return ancestorName === 'form' || ancestorName === 'fieldset';
+      const role = getJSXElementRole(ancestor);
+      return role !== null && COMPOSITE_GROUP_OWNER_ROLES.has(role);
     }) !== undefined
   );
+}
+
+/**
+ * Checks if a composite widget owns this group via aria-owns.
+ *
+ * @param node The JSX opening element being checked.
+ * @return Whether a composite widget owns the group by id reference.
+ */
+function hasCompositeGroupOwnerByAriaOwns(node: TSESTree.JSXOpeningElement): boolean {
+  const id = getNonEmptyStringAttributeValue((node as JSXOpeningElement).attributes, 'id');
+  if (id === null) {
+    return false;
+  }
+
+  const root = getContainingJsxSubtree(node);
+  return root !== null && hasCompositeGroupOwnerReference(root, id, node);
+}
+
+/**
+ * Checks whether the group content is close to a fieldset-like control grouping.
+ *
+ * @param attributes The JSX attributes on the current element.
+ * @param node The JSX opening element being checked.
+ * @return Whether a fieldset is still a sound replacement.
+ */
+function hasFieldsetEquivalentContent(
+  attributes: JSXOpeningElement['attributes'],
+  node: TSESTree.JSXOpeningElement,
+): boolean {
+  return hasGroupAccessibleName(attributes) && countDescendantFormControls(node) >= 2;
+}
+
+/**
+ * Checks whether the group exposes a shared accessible name.
+ *
+ * @param attributes The JSX attributes on the current element.
+ * @return Whether the group has an accessible name attribute.
+ */
+function hasGroupAccessibleName(attributes: JSXOpeningElement['attributes']): boolean {
+  return (
+    hasAccessibleNameAttribute(attributes, 'aria-label') ||
+    hasAccessibleNameAttribute(attributes, 'aria-labelledby')
+  );
+}
+
+/**
+ * Counts descendant form controls that a fieldset could group.
+ *
+ * @param node The JSX opening element being checked.
+ * @return The number of descendant form controls.
+ */
+function countDescendantFormControls(node: TSESTree.JSXOpeningElement): number {
+  const group = node.parent;
+  if (group?.type !== 'JSXElement') {
+    return 0;
+  }
+
+  return countFormControlsInChildren(group.children);
+}
+
+/**
+ * Counts form controls in a JSX children list.
+ *
+ * @param children The JSX children to inspect.
+ * @return The number of descendant form controls.
+ */
+function countFormControlsInChildren(children: TSESTree.JSXChild[]): number {
+  let count = 0;
+
+  for (const child of children) {
+    if (child.type === 'JSXElement') {
+      if (isFieldsetFormControl(child)) {
+        count++;
+      }
+      count += countFormControlsInChildren(child.children);
+    } else if (child.type === 'JSXFragment') {
+      count += countFormControlsInChildren(child.children);
+    }
+  }
+
+  return count;
+}
+
+/**
+ * Checks whether a JSX element is a form control that a fieldset can group.
+ *
+ * @param element The JSX element being checked.
+ * @return Whether the element is a supported fieldset form control.
+ */
+function isFieldsetFormControl(element: TSESTree.JSXElement): boolean {
+  if (!isHtmlElement(element)) {
+    return false;
+  }
+
+  const elementName = getElementName(element.openingElement);
+  if (elementName === null || !FIELDSET_FORM_CONTROL_ELEMENTS.has(elementName)) {
+    return false;
+  }
+
+  if (elementName !== 'input') {
+    return true;
+  }
+
+  return !isHiddenInput(element.openingElement);
+}
+
+/**
+ * Checks whether an input element is explicitly hidden.
+ *
+ * @param node The JSX opening element being checked.
+ * @return Whether the input type is hidden.
+ */
+function isHiddenInput(node: TSESTree.JSXOpeningElement): boolean {
+  const type = getNonEmptyStringAttributeValue((node as JSXOpeningElement).attributes, 'type');
+  return type?.toLowerCase() === 'hidden';
+}
+
+/**
+ * Finds the outermost local JSX subtree containing the node.
+ *
+ * @param node The JSX opening element being checked.
+ * @return The containing JSX subtree, if any.
+ */
+function getContainingJsxSubtree(
+  node: TSESTree.JSXOpeningElement,
+): TSESTree.JSXElement | TSESTree.JSXFragment | null {
+  let current = node.parent;
+  let root: TSESTree.JSXElement | TSESTree.JSXFragment | null = null;
+
+  while (current != null) {
+    if (current.type === 'JSXElement' || current.type === 'JSXFragment') {
+      root = current;
+    }
+    current = current.parent;
+  }
+
+  return root;
+}
+
+/**
+ * Checks whether a JSX subtree contains a composite owner for the given id.
+ *
+ * @param node The JSX subtree to inspect.
+ * @param id The id owned by the composite widget.
+ * @param current The current group opening element.
+ * @return Whether a composite widget in the subtree owns the id.
+ */
+function hasCompositeGroupOwnerReference(
+  node: TSESTree.JSXElement | TSESTree.JSXFragment,
+  id: string,
+  current: TSESTree.JSXOpeningElement,
+): boolean {
+  if (
+    node.type === 'JSXElement' &&
+    node.openingElement !== current &&
+    isCompositeGroupOwnerReference(node.openingElement, id)
+  ) {
+    return true;
+  }
+
+  return node.children.some(
+    child =>
+      (child.type === 'JSXElement' || child.type === 'JSXFragment') &&
+      hasCompositeGroupOwnerReference(child, id, current),
+  );
+}
+
+/**
+ * Checks whether an element is a composite widget that owns the given id.
+ *
+ * @param node The JSX opening element being checked.
+ * @param id The id owned by the composite widget.
+ * @return Whether the element owns the id.
+ */
+function isCompositeGroupOwnerReference(node: TSESTree.JSXOpeningElement, id: string): boolean {
+  const role = getJSXOpeningElementRole(node);
+  if (role === null || !COMPOSITE_GROUP_OWNER_ROLES.has(role)) {
+    return false;
+  }
+
+  return getAriaOwnsIds((node as JSXOpeningElement).attributes).includes(id);
+}
+
+/**
+ * Gets the whitespace-separated aria-owns ids from a JSX attribute list.
+ *
+ * @param attributes The JSX attributes on the current element.
+ * @return The owned ids.
+ */
+function getAriaOwnsIds(attributes: JSXOpeningElement['attributes']): string[] {
+  const value = getNonEmptyStringAttributeValue(attributes, 'aria-owns');
+  return value === null ? [] : value.split(/\s+/);
+}
+
+/**
+ * Gets a non-empty static string attribute value.
+ *
+ * @param attributes The JSX attributes on the current element.
+ * @param name The attribute name to resolve.
+ * @return The static string value, if any.
+ */
+function getNonEmptyStringAttributeValue(
+  attributes: JSXOpeningElement['attributes'],
+  name: string,
+): string | null {
+  const prop = getProp(attributes, name);
+  if (!prop) {
+    return null;
+  }
+
+  const value = getLiteralPropValue(prop);
+  return typeof value === 'string' && value.trim() !== '' ? value.trim() : null;
 }
 
 /**
@@ -401,8 +633,14 @@ function hasCompositeChildRoleInSubtree(node: TSESTree.JSXElement): boolean {
  * Gets the role attribute value from a JSXElement.
  */
 function getJSXElementRole(element: TSESTree.JSXElement): string | null {
-  const openingElement = element.openingElement;
-  const attributes = (openingElement as JSXOpeningElement).attributes;
+  return getJSXOpeningElementRole(element.openingElement);
+}
+
+/**
+ * Gets the role attribute value from a JSXOpeningElement.
+ */
+function getJSXOpeningElementRole(element: TSESTree.JSXOpeningElement): string | null {
+  const attributes = (element as JSXOpeningElement).attributes;
   const roleProp = getProp(attributes, 'role');
   if (!roleProp) {
     return null;

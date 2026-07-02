@@ -56,7 +56,7 @@ describe('S6819 upstream sentinel', () => {
     });
   });
 
-  it('upstream prefer-tag-over-role raises on standalone group role patterns that decorator suppresses', () => {
+  it('upstream prefer-tag-over-role raises on role="group" patterns that decorator suppresses', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('prefer-tag-over-role', upstreamRule, {
       valid: [],
@@ -66,7 +66,7 @@ describe('S6819 upstream sentinel', () => {
           errors: 1,
         },
         {
-          code: `<span role="group" aria-label="Filter pills"><span>Active</span><span>Archived</span></span>`,
+          code: `<form><div role="group" aria-label="View mode"><button type="button">Grid</button><button type="button">List</button></div></form>`,
           errors: 1,
         },
       ],
@@ -105,25 +105,92 @@ describe('S6819', () => {
     });
   });
 
-  it('should not flag standalone role="group" outside form contexts', () => {
+  it('should not flag role="group" when the content is not fieldset-like', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
-    ruleTester.run('prefer-tag-over-role - standalone group', rule, {
+    ruleTester.run('prefer-tag-over-role - non-fieldset group', rule, {
       valid: [
         {
           code: `<div role="group" aria-label="Request methods"><button>GET</button><button>POST</button></div>`,
         },
         {
-          code: `<span role="group" aria-label="Filter pills"><span>Active</span><span>Archived</span></span>`,
+          code: `<form><div role="group" aria-label="View mode"><button type="button">Grid</button><button type="button">List</button></div></form>`,
+        },
+        {
+          code: `<div role="group"><input type="checkbox" /><input type="checkbox" /></div>`,
+        },
+        {
+          code: `<div role="group" aria-label="Profile fields"><input type="hidden" /><input type="email" /></div>`,
+        },
+        {
+          code: `<div role="group" aria-label="Profile fields"><Input /><Input /></div>`,
         },
       ],
+      invalid: [],
+    });
+  });
+
+  it('should not flag role="group" when it belongs to a composite widget', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - composite widget group', rule, {
+      valid: [
+        {
+          code: `<div role="listbox"><div role="group" aria-label="Cities"><div role="option">Paris</div></div></div>`,
+        },
+        {
+          code: `
+            <>
+              <div role="toolbar" aria-owns="format-actions" />
+              <div role="group" id="format-actions" aria-label="Text formatting">
+                <button type="button">Bold</button>
+                <button type="button">Italic</button>
+              </div>
+            </>
+          `,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should keep flagging fieldset-like role="group" patterns', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - fieldset-like group', rule, {
+      valid: [],
       invalid: [
         {
-          code: `<form><div role="group" aria-label="Shipping options"><input type="radio" /></div></form>`,
+          code: `
+            <div role="group" aria-label="Shipping options">
+              <label>
+                <input type="radio" name="shipping" />
+                Standard
+              </label>
+              <label>
+                <input type="radio" name="shipping" />
+                Express
+              </label>
+            </div>
+          `,
           errors: 1,
         },
         {
-          code: `<fieldset><span role="group" aria-label="Quick toggles"><button type="button">On</button></span></fieldset>`,
+          code: `
+            <form>
+              <div role="group" aria-labelledby="contact-label">
+                <span id="contact-label">Contact details</span>
+                <label>
+                  Email
+                  <input type="email" />
+                </label>
+                <label>
+                  Phone
+                  <input type="tel" />
+                </label>
+              </div>
+            </form>
+          `,
           errors: 1,
         },
       ],
