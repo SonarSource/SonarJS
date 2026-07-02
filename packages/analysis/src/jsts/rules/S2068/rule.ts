@@ -25,7 +25,7 @@ import { shannonEntropy } from '../helpers/entropy.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
-const DEFAULT_NAMES = ['password', 'pwd', 'passwd', 'passphrase'];
+const DEFAULT_NAMES = ['password', 'pwd', 'passwd', 'passphrase', 'token', 'secret', 'apikey', 'auth', 'credential'];
 const ENTROPY_THRESHOLD = 3;
 const MIN_PASSWORD_LENGTH = 5;
 const NON_CREDENTIAL_CHARS = /[\s/["'\]<>]/;

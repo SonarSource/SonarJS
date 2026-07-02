@@ -1,0 +1,102 @@
+[
+  {
+    "name": "TypeScript",
+    "testDir": "src/harness/unittests",
+    "exclusions": null
+  },
+  {
+    "name": "ag-grid",
+    "testDir": "spec",
+    "exclusions": null
+  },
+  {
+    "name": "angular.js",
+    "testDir": "test",
+    "exclusions": "src/ngLocale/**, i18n/**"
+  },
+  {
+    "name": "ant-design",
+    "testDir": "tests",
+    "exclusions": null
+  },
+  {
+    "name": "backbone",
+    "testDir": "test",
+    "exclusions": null
+  },
+  {
+    "name": "ace",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "jquery",
+    "testDir": "test",
+    "exclusions": null
+  },
+  {
+    "name": "jshint",
+    "testDir": "tests",
+    "exclusions": null
+  },
+  {
+    "name": "knockout",
+    "testDir": "spec",
+    "exclusions": null
+  },
+  {
+    "name": "mootools-core",
+    "testDir": "Specs",
+    "exclusions": null
+  },
+  {
+    "name": "paper.js",
+    "testDir": "test",
+    "exclusions": "gulp/jsdoc/**, packages/**"
+  },
+  {
+    "name": "prettier-vscode",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "react-cloud-music",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "redux",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "rxjs",
+    "testDir": "spec",
+    "exclusions": null
+  },
+  {
+    "name": "sizzle",
+    "testDir": "test",
+    "exclusions": "external/**"
+  },
+  {
+    "name": "underscore",
+    "testDir": "test",
+    "exclusions": null
+  },
+  {
+    "name": "vuetify",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "it-tools",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "vitest",
+    "testDir": "test",
+    "exclusions": null
+  }
+]

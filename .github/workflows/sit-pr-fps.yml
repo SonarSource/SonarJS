@@ -1,0 +1,514 @@
+name: Run SIT2FPS pipeline
+
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        required: true
+        type: string
+      base_sha:
+        required: true
+        type: string
+      head_sha:
+        required: true
+        type: string
+      plugin_version:
+        required: true
+        type: string
+      rules_json:
+        required: true
+        type: string
+      sonarjs_m2_artifact_name:
+        description: "Artifact name for the pre-built SonarJS Maven repository (target plugin)"
+        required: true
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-sit-pr-fps-${{ inputs.pr_number }}
+  cancel-in-progress: true
+
+permissions:
+  actions: read
+  id-token: write
+  contents: read
+  pull-requests: write
+  statuses: write
+
+jobs:
+  prepare_rules:
+    name: Prepare Rules
+    runs-on: sonar-xs
+    outputs:
+      has_rules: ${{ steps.prepare.outputs.has_rules }}
+      rules_json: ${{ steps.prepare.outputs.rules_json }}
+      rule_keys_text: ${{ steps.prepare.outputs.rule_keys_text }}
+    steps:
+      - name: Parse and derive rule payload
+        id: prepare
+        env:
+          RULES_JSON_INPUT: ${{ inputs.rules_json }}
+        run: |
+          set -euo pipefail
+
+          append_output() {
+            local key="$1"
+            local value="$2"
+            local delimiter="EOF_$(date +%s%N)_$RANDOM"
+            {
+              printf '%s<<%s\n' "$key" "$delimiter"
+              printf '%s\n' "$value"
+              printf '%s\n' "$delimiter"
+            } >> "$GITHUB_OUTPUT"
+          }
+
+          canonical_rules="$(
+            jq -ec '
+              if type != "array" then
+                error("rules_json must be a JSON array")
+              else
+                [
+                  .[] as $rule
+                  | if ($rule | type) != "object" then
+                      error("each rules_json entry must be an object")
+                    else
+                      ($rule.language | if type == "string" then ascii_downcase else error("language must be a string") end) as $language
+                      | ($rule.rule_id | if type == "string" then ascii_upcase else error("rule_id must be a string") end) as $rule_id
+                      | if ($language | test("^[a-z]+$") | not) then
+                          error("language must match ^[a-z]+$")
+                        elif ($rule_id | test("^S[0-9]+$") | not) then
+                          error("rule_id must match ^S[0-9]+$")
+                        else
+                          {"language": $language, "rule_id": $rule_id}
+                        end
+                    end
+                ]
+                | unique_by(.language, .rule_id)
+                | sort_by(.language, .rule_id)
+              end
+            ' <<< "$RULES_JSON_INPUT"
+          )"
+
+          has_rules="$(jq -r 'if length > 0 then "true" else "false" end' <<< "$canonical_rules")"
+          rule_keys_text="$(jq -r '[.[] | "\(.language):\(.rule_id)"] | join("\n")' <<< "$canonical_rules")"
+
+          append_output "has_rules" "$has_rules"
+          append_output "rules_json" "$canonical_rules"
+          append_output "rule_keys_text" "$rule_keys_text"
+
+  target_sit_export:
+    name: SIT Export (target)
+    needs: [prepare_rules]
+    if: ${{ needs.prepare_rules.outputs.has_rules == 'true' }}
+    uses: ./.github/workflows/sit-export.yml
+    with:
+      rules_json: ${{ needs.prepare_rules.outputs.rules_json }}
+      artifact_name: sit-export-target
+      sonarjs_m2_artifact_name: ${{ inputs.sonarjs_m2_artifact_name }}
+      build_plugin: false
+    secrets: inherit
+
+  baseline_sit_export:
+    name: SIT Export (baseline)
+    needs: [prepare_rules]
+    if: ${{ needs.prepare_rules.outputs.has_rules == 'true' }}
+    uses: ./.github/workflows/sit-export.yml
+    with:
+      plugin_ref: ${{ inputs.base_sha }}
+      rules_json: ${{ needs.prepare_rules.outputs.rules_json }}
+      artifact_name: sit-export-baseline
+      sonarjs_m2_artifact_name: ""
+      build_plugin: true
+    secrets: inherit
+
+  diffsit:
+    name: DiffSIT
+    needs: [prepare_rules, target_sit_export, baseline_sit_export]
+    if: ${{ needs.prepare_rules.outputs.has_rules == 'true' }}
+    runs-on: sonar-s
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Get secrets
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-submodules token | github_submodules_token;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+
+      - uses: jdx/mise-action@v4.1.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            python = "3.13.7"
+            rust = "1.85.0"
+            uv = "0.5.20"
+
+      - name: Authenticate gh for private git dependencies
+        env:
+          SUBMODULES_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).github_submodules_token }}
+        run: |
+          set -euo pipefail
+          echo "${SUBMODULES_TOKEN}" | gh auth login --with-token
+          gh auth setup-git
+
+      - name: Download target SIT bundles
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sit-export-target
+          path: sit-diffsit/target
+
+      - name: Download baseline SIT bundles
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sit-export-baseline
+          path: sit-diffsit/base
+
+      - name: Prepare DiffSIT inputs
+        env:
+          UV_INDEX_REPOX_USERNAME: ""
+          UV_INDEX_REPOX_PASSWORD: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          uv run --project dev-tools/scripts --frozen --no-dev python dev-tools/scripts/sit_pr_diffsit/prepare_diffsit_inputs.py \
+            --rules-json '${{ needs.prepare_rules.outputs.rules_json }}' \
+            --base-dir sit-diffsit/base \
+            --target-dir sit-diffsit/target \
+            --reports-dir build/sit-diffsit/reports \
+            --manifest-output build/sit-diffsit/diffsit-manifest.json \
+            --rule-key-format '{language}:{rule_id}' \
+            --flat-bundles
+
+      - name: Run DiffSIT reports
+        run: |
+          set -euo pipefail
+
+          jq -c '.runs[]' build/sit-diffsit/diffsit-manifest.json | while IFS= read -r run; do
+            language="$(echo "$run" | jq -r '.language')"
+            base_dir="$(echo "$run" | jq -r '.base_dir')"
+            target_dir="$(echo "$run" | jq -r '.target_dir')"
+            rule_filter="$(echo "$run" | jq -r '.rule_filter')"
+            report_dir="$(echo "$run" | jq -r '.report_dir')"
+            mkdir -p "$report_dir"
+            echo "Running DiffSIT for ${language} (json,text,html)"
+
+            set +e
+            cargo run --release --manifest-path dev-tools/diffsit/Cargo.toml -- \
+              "$base_dir" "$target_dir" \
+              --formats json,text,html \
+              --output "$report_dir" \
+              --group-by rule \
+              --rule-filter "$rule_filter"
+            exit_code="$?"
+            set -e
+
+            if [ "$exit_code" -ge 2 ]; then
+              echo "DiffSIT failed for ${language} with exit code ${exit_code}"
+              exit "$exit_code"
+            fi
+          done
+
+      - name: Summarize DiffSIT reports
+        env:
+          UV_INDEX_REPOX_USERNAME: ""
+          UV_INDEX_REPOX_PASSWORD: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          uv run --project dev-tools/scripts --frozen --no-dev python dev-tools/scripts/sit_pr_diffsit/summarize_diffsit_reports.py \
+            --manifest build/sit-diffsit/diffsit-manifest.json \
+            --summary-output build/sit-diffsit/diffsit-summary.json
+
+      - name: Upload DiffSIT reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: diffsit-reports
+          path: build/sit-diffsit/reports/**/*
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload DiffSIT summary
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: diffsit-run-summary
+          path: build/sit-diffsit/diffsit-summary.json
+          if-no-files-found: error
+          retention-days: 30
+
+  fps:
+    name: FPS
+    needs: [prepare_rules, target_sit_export]
+    if: ${{ needs.prepare_rules.outputs.has_rules == 'true' }}
+    runs-on: sonar-s
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Get secrets
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | github_rspec_token;
+            development/github/token/{REPO_OWNER_NAME_DASH}-submodules token | github_submodules_token;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+            development/team/analysis-js-squad/kv/data/sonarjs-portkey apikey | PORTKEY_ANTHROPIC_API_KEY;
+
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - uses: jdx/mise-action@v4.1.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            python = "3.13.7"
+            uv = "0.5.20"
+
+      - name: Authenticate gh for private git dependencies
+        env:
+          SUBMODULES_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).github_submodules_token }}
+        run: |
+          set -euo pipefail
+          echo "${SUBMODULES_TOKEN}" | gh auth login --with-token
+          gh auth setup-git
+
+      - name: Restore DSPy cache
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: ${{ github.workspace }}/.dspy_cache
+          key: dspy-cache-${{ runner.os }}-${{ hashFiles('dev-tools/scripts/uv.lock') }}
+          restore-keys: dspy-cache-${{ runner.os }}-
+
+      - name: Download SIT bundles
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sit-export-target
+          path: sit-input
+
+      - name: Normalize SIT bundles for FPS
+        env:
+          UV_INDEX_REPOX_USERNAME: ""
+          UV_INDEX_REPOX_PASSWORD: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          uv run --project dev-tools/scripts --frozen --no-dev python dev-tools/scripts/sit_pr_fps/normalize_sit_bundles.py \
+            --input-dir sit-input \
+            --output-dir sit-input-bundles \
+            --language javascript
+
+      - name: Install dev-tools/scripts dependencies
+        working-directory: dev-tools/scripts
+        env:
+          UV_INDEX_REPOX_USERNAME: ""
+          UV_INDEX_REPOX_PASSWORD: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          uv sync --frozen --no-dev
+
+      - name: Run FPS for all changed rules
+        env:
+          RULE_KEYS_TEXT: ${{ needs.prepare_rules.outputs.rule_keys_text }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).github_rspec_token }}
+          GH_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).github_rspec_token }}
+          PORTKEY_ANTHROPIC_API_KEY: ${{ fromJSON(steps.secrets.outputs.vault).PORTKEY_ANTHROPIC_API_KEY }}
+          DSPY_CACHEDIR: ${{ github.workspace }}/.dspy_cache
+          UV_INDEX_REPOX_USERNAME: ""
+          UV_INDEX_REPOX_PASSWORD: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          uv run --project dev-tools/scripts --frozen --no-dev python dev-tools/scripts/sit_pr_fps/run_fps_batch.py \
+            --rules-text "${RULE_KEYS_TEXT}" \
+            --workspace "$GITHUB_WORKSPACE" \
+            --sit-input "$GITHUB_WORKSPACE/sit-input-bundles" \
+            --reports-dir "$GITHUB_WORKSPACE/build/sit-fps/reports" \
+            --summary-tsv "$GITHUB_WORKSPACE/build/sit-fps/fps-summary.tsv" \
+            --summary-json "$GITHUB_WORKSPACE/build/sit-fps/fps-summary.json" \
+            --pr-number "$PR_NUMBER" \
+            --head-sha "$HEAD_SHA"
+
+      - name: Upload FPS reports
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fps-reports
+          path: build/sit-fps/reports/**/*
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload FPS summary
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: fps-run-summary
+          path: build/sit-fps/fps-summary.json
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    name: Publish PR Status
+    needs: [prepare_rules, target_sit_export, diffsit, fps]
+    if: ${{ always() }}
+    runs-on: sonar-xs
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Get secrets
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-submodules token | github_submodules_token;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+
+      - uses: jdx/mise-action@v4.1.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            python = "3.13.7"
+            uv = "0.5.20"
+
+      - name: Authenticate gh for private git dependencies
+        env:
+          SUBMODULES_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).github_submodules_token }}
+        run: |
+          set -euo pipefail
+          echo "${SUBMODULES_TOKEN}" | gh auth login --with-token
+          gh auth setup-git
+
+      - name: Initialize publish inputs
+        run: |
+          set -euo pipefail
+
+          mkdir -p build/sit-fps build/sit-diffsit
+          printf '{"results":[]}\n' > build/sit-fps/fps-summary.json
+          printf '{"overall":{},"results":[]}\n' > build/sit-diffsit/diffsit-summary.json
+          printf '{"artifacts":[]}\n' > build/sit-fps/run-artifacts.json
+
+      - name: Download FPS summary
+        if: ${{ needs.prepare_rules.outputs.has_rules == 'true' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: fps-run-summary
+          path: build/sit-fps
+
+      - name: Download DiffSIT summary
+        if: ${{ needs.prepare_rules.outputs.has_rules == 'true' }}
+        continue-on-error: ${{ needs.diffsit.result != 'success' }}
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: diffsit-run-summary
+          path: build/sit-diffsit
+
+      - name: Collect run artifact metadata
+        if: ${{ needs.prepare_rules.outputs.has_rules == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if gh api --method GET "repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/artifacts?per_page=100" > build/sit-fps/run-artifacts.json; then
+            echo "Collected run artifact metadata"
+          else
+            echo "Failed to collect run artifact metadata, continuing with an empty list"
+            printf '{"artifacts":[]}\n' > build/sit-fps/run-artifacts.json
+          fi
+
+      - name: Build publish payload
+        id: payload
+        env:
+          PLUGIN_VERSION: ${{ inputs.plugin_version }}
+          UV_INDEX_REPOX_USERNAME: ""
+          UV_INDEX_REPOX_PASSWORD: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          uv run --project dev-tools/scripts --frozen --no-dev python dev-tools/scripts/sit_pr_fps/build_publish_payload.py \
+            --rules-json '${{ needs.prepare_rules.outputs.rules_json }}' \
+            --sit-result "${{ needs.target_sit_export.result }}" \
+            --diffsit-result "${{ needs.diffsit.result }}" \
+            --fps-result "${{ needs.fps.result }}" \
+            --plugin-version "$PLUGIN_VERSION" \
+            --rule-key-format '{language}:{rule_id}' \
+            --sit-artifact-name-template 'sit-export-target' \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            --repository "${{ github.repository }}" \
+            --run-id "${{ github.run_id }}" \
+            --fps-summary-path build/sit-fps/fps-summary.json \
+            --diffsit-summary-path build/sit-diffsit/diffsit-summary.json \
+            --artifacts-json-path build/sit-fps/run-artifacts.json \
+            --rule-statuses-path build/sit-fps/rule-statuses.json \
+            --comment-path build/sit-fps/comment.md
+
+      - name: Set commit status
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+          STATE: ${{ steps.payload.outputs.state }}
+          DESCRIPTION: ${{ steps.payload.outputs.description }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${HEAD_SHA}" \
+            -f state="$STATE" \
+            -f context='sit-fps' \
+            -f description="$DESCRIPTION" \
+            -f target_url="$RUN_URL" > /dev/null
+
+      - name: Set per-rule commit statuses
+        if: ${{ needs.prepare_rules.outputs.has_rules == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+          RULE_STATUSES_PATH: build/sit-fps/rule-statuses.json
+        run: |
+          set -euo pipefail
+
+          if [ ! -f "$RULE_STATUSES_PATH" ]; then
+            echo "No per-rule statuses to publish"
+            exit 0
+          fi
+
+          status_count="$(jq 'length' "$RULE_STATUSES_PATH")"
+          if [ "$status_count" -eq 0 ]; then
+            echo "No per-rule statuses to publish"
+            exit 0
+          fi
+
+          jq -c '.[]' "$RULE_STATUSES_PATH" | while IFS= read -r status_entry; do
+            context="$(echo "$status_entry" | jq -r '.context')"
+            state="$(echo "$status_entry" | jq -r '.state')"
+            description="$(echo "$status_entry" | jq -r '.description')"
+            target_url="$(echo "$status_entry" | jq -r '.target_url')"
+
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/statuses/${HEAD_SHA}" \
+              -f state="$state" \
+              -f context="$context" \
+              -f description="$description" \
+              -f target_url="$target_url" > /dev/null
+          done
+
+      - name: Post PR summary comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          set -euo pipefail
+
+          uv run --project dev-tools/scripts --frozen --no-dev python dev-tools/scripts/sit_pr_fps/publish_pr_comment.py \
+            --repository "${{ github.repository }}" \
+            --pr-number "${PR_NUMBER}" \
+            --body-path build/sit-fps/comment.md
