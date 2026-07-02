@@ -22,6 +22,7 @@ import { getVariableFromName, isIdentifier, isMethodCall } from '../helpers/ast.
 export type Suggestion = {
   assertion: string;
   replacement?: string;
+  kind?: 'length';
 };
 
 const PLAYWRIGHT_LOCATOR_FACTORIES = new Set([
@@ -124,9 +125,11 @@ export function replacement(
   replacementText: string,
   _node: estree.CallExpression,
   _sourceCode?: SourceCode,
+  kind?: Suggestion['kind'],
 ): Suggestion {
   return {
     assertion: replacementText,
     replacement: replacementText,
+    ...(kind ? { kind } : {}),
   };
 }
