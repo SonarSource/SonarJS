@@ -72,6 +72,21 @@ test('reorders columns', function (assert) {
 });
 `,
         },
+        {
+          // No test framework is imported or depended on: Mocha can no longer be assumed
+          // as a fallback, since that produced false positives on frameworks this rule
+          // doesn't otherwise recognize (e.g. Jasmine loaded from a vendored copy rather
+          // than an npm dependency, which looks the same as an untyped file to this rule).
+          code: `
+it('reorders columns', function () {
+  if (readOnlyMode) {
+    return;
+  }
+  db.reorderColumns();
+  expect(db.columns).toEqual(['a', 'b']);
+});
+`,
+        },
       ],
       invalid: [
         {

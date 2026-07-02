@@ -38,6 +38,7 @@ const PLAYWRIGHT_MODULES = ['@playwright/test'];
 const NODE_TEST_MODULES = ['node:test'];
 const BUN_MODULES = ['bun:test'];
 const VITEST_MODULES = ['vitest'];
+const MOCHA_MODULES = ['mocha'];
 const JEST_IMPORTS = ['jest', '@jest/globals'];
 const JEST_DEPENDENCIES = ['jest'];
 const JASMINE_MODULES = ['jasmine', 'jasmine-core', 'jasmine-node', 'karma-jasmine'];
@@ -45,8 +46,6 @@ const AVA_MODULES = ['ava'];
 const QUNIT_MODULES = ['qunit'];
 
 /**
- * Mocha is the fallback: unlike the other four frameworks, it works off globals
- * and is not necessarily imported anywhere in the file.
  * Jest and Jasmine are excluded outright: neither has a `this.skip()`-style
  * in-body skip, so the guard-return shape this rule flags isn't actionable there.
  * AVA and QUnit both support a bare `test(name, fn)` call identical in shape to
@@ -62,6 +61,15 @@ const QUNIT_MODULES = ['qunit'];
  * node:test/Bun/Vitest file whenever the project also happens to depend on
  * Jest/Jasmine/AVA/QUnit for unrelated reasons (e.g. a mixed-runner monorepo, or
  * a leftover Jest devDependency during a migration).
+ *
+ * Mocha works off globals and is not necessarily imported in the file, so it's
+ * checked last via `importsOrDependsOnModule` against the project's package.json
+ * dependencies. Unlike the other frameworks, Mocha has no other positive signal
+ * to rely on: without this dependency check, every file with no other framework
+ * signal would be assumed to be Mocha, which produces false positives on
+ * frameworks this rule doesn't otherwise recognize (e.g. Jasmine loaded from a
+ * vendored copy rather than an npm dependency). If nothing indicates Mocha
+ * either, the file is excluded rather than guessed at.
  */
 function detectFramework(context: Rule.RuleContext): Framework | 'excluded' {
   if (importsModule(context, PLAYWRIGHT_MODULES)) {
@@ -97,7 +105,10 @@ function detectFramework(context: Rule.RuleContext): Framework | 'excluded' {
   if (importsOrDependsOnModule(context, VITEST_MODULES, VITEST_MODULES)) {
     return 'vitest';
   }
-  return 'mocha';
+  if (importsOrDependsOnModule(context, MOCHA_MODULES, MOCHA_MODULES)) {
+    return 'mocha';
+  }
+  return 'excluded';
 }
 
 export const rule: Rule.RuleModule = {
@@ -112,7 +123,7 @@ export const rule: Rule.RuleModule = {
       'CallExpression:exit'(node: estree.Node) {
         const call = node as estree.CallExpression;
         const callback = extractCallback(call);
-        if (!callback || callback.body.type !== 'BlockStatement') {
+        if (callback?.body.type !== 'BlockStatement') {
           return;
         }
 
@@ -157,7 +168,7 @@ function extractCallback(call: estree.CallExpression): estree.Function | null {
   ) {
     return null;
   }
-  const lastArgument = call.arguments[call.arguments.length - 1];
+  const lastArgument = call.arguments.at(-1);
   return lastArgument && FUNCTION_NODES.includes(lastArgument.type)
     ? (lastArgument as estree.Function)
     : null;
