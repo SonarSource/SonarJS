@@ -352,6 +352,18 @@ describe('S5914', () => {
             expect(-0).toBe(0);
           `,
         },
+        // node:assert's strictEqual also compares with Object.is
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.strictEqual(-0, 0);
+          `,
+        },
+        // jasmine's toBe compares with === (unlike jest-like styles): NaN === NaN is false
+        {
+          code: `expect(0 / 0).toBe(0 / 0);`,
+          filename: jasmineFixture,
+        },
         // a freshly-created reference is always truthy, so negating the predicate always fails
         {
           code: `
@@ -763,6 +775,20 @@ describe('S5914', () => {
             import { expect } from 'vitest';
             expect(0 / 0).toBe(0 / 0);
           `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // node:assert's strictEqual also compares with Object.is
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.strictEqual(0 / 0, 0 / 0);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // jasmine's toBe compares with === (unlike jest-like styles): -0 === 0 is true
+        {
+          code: `expect(-0).toBe(0);`,
+          filename: jasmineFixture,
           errors: [{ messageId: 'issue' }],
         },
         {

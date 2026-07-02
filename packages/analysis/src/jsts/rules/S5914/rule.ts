@@ -144,7 +144,7 @@ function resolveComparisonAssertion(
     if (actual && expected) {
       const equal =
         assertion.comparison === 'strict'
-          ? Object.is(actual.value, expected.value)
+          ? strictEqualityHolds(assertion.style, actual.value, expected.value)
           : // eslint-disable-next-line eqeqeq
             actual.value == expected.value;
       if (equal !== assertion.negated) {
@@ -153,6 +153,42 @@ function resolveComparisonAssertion(
     }
   }
   return null;
+}
+
+/**
+ * Whether `style`'s strict-equality matcher is documented as comparing with the SameValue
+ * algorithm (`Object.is`) rather than `===`: Jest/Vitest/Bun's `toBe`, Playwright's `toBe`, and
+ * Node's `assert.strictEqual`/`notStrictEqual` all state this explicitly in their docs. This
+ * matters for `NaN` (`NaN === NaN` is `false`, but `Object.is(NaN, NaN)` is `true`) and signed
+ * zero (`-0 === 0` is `true`, but `Object.is(-0, 0)` is `false`). Jasmine's `toBe` and chai's
+ * `.equal`/`strictEqual` (including Cypress, which delegates to chai) are documented as using
+ * plain `===`. This is an exhaustive switch (rather than a Set) so that adding a new
+ * `AssertionStyle` forces an explicit choice instead of silently defaulting to `===`.
+ */
+function usesObjectIsForStrictEquality(style: AssertionStyle): boolean {
+  switch (style) {
+    case 'jest-like':
+    case 'playwright':
+    case 'node-assert':
+      return true;
+    case 'jasmine':
+    case 'chai-bdd':
+    case 'chai-assert':
+    case 'cypress':
+      return false;
+    default: {
+      const exhaustiveCheck: never = style;
+      return exhaustiveCheck;
+    }
+  }
+}
+
+function strictEqualityHolds(
+  style: AssertionStyle,
+  actual: ConstantPrimitive,
+  expected: ConstantPrimitive,
+): boolean {
+  return usesObjectIsForStrictEquality(style) ? Object.is(actual, expected) : actual === expected;
 }
 
 /**
