@@ -9,7 +9,7 @@ This repository now hosts [eslint-plugin-sonarjs](packages/analysis/src/jsts/rul
 # Features
 
 - Advanced rules based on pattern matching and control flow analysis
-- [486 JS rules](https://rules.sonarsource.com/javascript) and [503 TS rules](https://rules.sonarsource.com/typescript)
+- [490 JS rules](https://rules.sonarsource.com/javascript) and [508 TS rules](https://rules.sonarsource.com/typescript)
 - [43 CSS rules](https://rules.sonarsource.com/css)
 - Compatible with ECMAScript 2015-2020
 - React JSX, Flow, Vue, and AWS lambda functions support for JavaScript and TypeScript
@@ -43,12 +43,24 @@ To work on this project, it is required to have the following tools installed:
 
 ### Build the project
 
-The project can be built into the SonarJS Plugin by installing Node.js dependencies, and executing the usual Maven `install` command.
+Install Node.js dependencies with `npm ci` first.
+
+For normal local development, build with the tracked rule metadata already present in the checkout:
 
 ```shell
-npm install
+npm ci
+mvn install
+```
+
+To refresh RSPEC rule data before a clean rebuild, run:
+
+```shell
+npm run rspec:refresh
 mvn clean install
 ```
+
+`package.json` intentionally keeps only Node-oriented workflows plus the explicit `rspec:refresh`
+entrypoint. Maven builds are meant to be invoked directly.
 
 ### Request a new feature
 

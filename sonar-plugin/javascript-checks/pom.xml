@@ -13,13 +13,6 @@
   <name>SonarQube JavaScript :: Checks</name>
 
   <properties>
-    <rule.data.build.phase>none</rule.data.build.phase>
-    <rspec.sha></rspec.sha>
-    <rspec.javascript.sha>${rspec.sha}</rspec.javascript.sha>
-    <rspec.css.sha>${rspec.sha}</rspec.css.sha>
-    <rspec.branch>dogfood-automerge</rspec.branch>
-    <rspec.javascript.branch>${rspec.branch}</rspec.javascript.branch>
-    <rspec.css.branch>${rspec.branch}</rspec.css.branch>
     <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <sonar.exclusions>src/main/java/org/sonar/javascript/checks/AllChecks.java,src/main/java/org/sonar/javascript/checks/S*.java</sonar.exclusions>
     <sonar.coverage.exclusions>src/main/java/org/sonar/javascript/checks/AllChecks.java,src/main/java/org/sonar/javascript/checks/S*.java</sonar.coverage.exclusions>
@@ -62,14 +55,14 @@
             <fileset>
               <directory>${project.basedir}/src/main/resources</directory>
               <includes>
-                <include>org/sonar/l10n/javascript/rules/javascript/**</include>
+                <include>org/sonar/l10n/javascript/rules/javascript/*.html</include>
                 <include>rspec.sha</include>
               </includes>
             </fileset>
             <fileset>
               <directory>${project.basedir}/../css/src/main/resources</directory>
               <includes>
-                <include>org/sonar/l10n/css/rules/css/**</include>
+                <include>org/sonar/l10n/css/rules/css/*.html</include>
                 <include>rspec.sha</include>
               </includes>
             </fileset>
@@ -97,65 +90,10 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.sonarsource.rspec</groupId>
-        <artifactId>rspec-maven-plugin</artifactId>
-        <version>1.4.0.122</version>
-        <configuration>
-          <githubToken>${env.GITHUB_TOKEN}</githubToken>
-        </configuration>
-        <executions>
-          <execution>
-            <id>generate-rspec-javascript</id>
-            <phase>${rule.data.build.phase}</phase>
-            <goals>
-              <goal>generate-rule-data</goal>
-            </goals>
-            <configuration>
-              <ruleSubdirectory>javascript</ruleSubdirectory>
-              <rspecSha>${rspec.javascript.sha}</rspecSha>
-              <vcsBranchName>${rspec.javascript.branch}</vcsBranchName>
-              <targetDirectory>${project.basedir}/../../resources/rule-data/javascript</targetDirectory>
-            </configuration>
-          </execution>
-          <execution>
-            <id>generate-rspec-css</id>
-            <phase>${rule.data.build.phase}</phase>
-            <goals>
-              <goal>generate-rule-data</goal>
-            </goals>
-            <configuration>
-              <ruleSubdirectory>css</ruleSubdirectory>
-              <rspecSha>${rspec.css.sha}</rspecSha>
-              <vcsBranchName>${rspec.css.branch}</vcsBranchName>
-              <targetDirectory>${project.basedir}/../../resources/rule-data/css</targetDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.6.3</version>
         <executions>
-          <execution>
-            <id>deploy-rule-data</id>
-            <phase>${rule.data.build.phase}</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>npm</executable>
-              <workingDirectory>../..</workingDirectory>
-              <arguments>
-                <argument>run</argument>
-                <argument>deploy-rule-data</argument>
-              </arguments>
-              <environmentVariables>
-                <RSPEC_JAVASCRIPT_SHA>${rspec.javascript.sha}</RSPEC_JAVASCRIPT_SHA>
-                <RSPEC_CSS_SHA>${rspec.css.sha}</RSPEC_CSS_SHA>
-              </environmentVariables>
-            </configuration>
-          </execution>
           <execution>
             <id>Generate rule metadata</id>
             <phase>${node.build.phase}</phase>
@@ -167,7 +105,7 @@
               <workingDirectory>../..</workingDirectory>
               <arguments>
                 <argument>run</argument>
-                <argument>generate-meta:raw</argument>
+                <argument>generate-meta</argument>
               </arguments>
             </configuration>
           </execution>
@@ -205,86 +143,5 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>generate-rule-data-from-rspec-sha</id>
-      <activation>
-        <property>
-          <name>rspec.sha</name>
-        </property>
-      </activation>
-      <properties>
-        <rspec.javascript.branch></rspec.javascript.branch>
-        <rspec.css.branch></rspec.css.branch>
-      </properties>
-    </profile>
-    <profile>
-      <id>generate-javascript-rule-data-from-rspec-sha</id>
-      <activation>
-        <property>
-          <name>rspec.javascript.sha</name>
-        </property>
-      </activation>
-      <properties>
-        <rspec.javascript.branch></rspec.javascript.branch>
-      </properties>
-    </profile>
-    <profile>
-      <id>generate-css-rule-data-from-rspec-sha</id>
-      <activation>
-        <property>
-          <name>rspec.css.sha</name>
-        </property>
-      </activation>
-      <properties>
-        <rspec.css.branch></rspec.css.branch>
-      </properties>
-    </profile>
-    <profile>
-      <id>generate-rule-data-when-javascript-rule-data-is-missing</id>
-      <activation>
-        <file>
-          <missing>${project.basedir}/src/main/resources/org/sonar/l10n/javascript/rules/javascript</missing>
-        </file>
-      </activation>
-      <properties>
-        <rule.data.build.phase>${node.build.phase}</rule.data.build.phase>
-      </properties>
-    </profile>
-    <profile>
-      <id>generate-rule-data-when-css-rule-data-is-missing</id>
-      <activation>
-        <file>
-          <missing>${project.basedir}/../css/src/main/resources/org/sonar/l10n/css/rules/css</missing>
-        </file>
-      </activation>
-      <properties>
-        <rule.data.build.phase>${node.build.phase}</rule.data.build.phase>
-      </properties>
-    </profile>
-    <profile>
-      <id>generate-rule-data-when-javascript-rspec-sha-is-missing</id>
-      <activation>
-        <file>
-          <missing>${project.basedir}/src/main/resources/rspec.sha</missing>
-        </file>
-      </activation>
-      <properties>
-        <rule.data.build.phase>${node.build.phase}</rule.data.build.phase>
-      </properties>
-    </profile>
-    <profile>
-      <id>generate-rule-data-when-css-rspec-sha-is-missing</id>
-      <activation>
-        <file>
-          <missing>${project.basedir}/../css/src/main/resources/rspec.sha</missing>
-        </file>
-      </activation>
-      <properties>
-        <rule.data.build.phase>${node.build.phase}</rule.data.build.phase>
-      </properties>
-    </profile>
-  </profiles>
 
 </project>

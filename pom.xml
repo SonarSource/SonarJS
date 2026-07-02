@@ -57,7 +57,7 @@
   </issueManagement>
 
   <properties>
-    <revision>13.1.0-SNAPSHOT</revision>
+    <revision>13.2.0-SNAPSHOT</revision>
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
     <!-- Version corresponds to SQ 9.9 LTS -->
@@ -71,10 +71,13 @@
     <jetbrains.annotations.version>26.1.0</jetbrains.annotations.version>
     <sonar.version>26.6.0.123539</sonar.version>
     <sonar.api.version>13.8.0.4399</sonar.api.version>
-    <sonar-orchestrator.version>6.2.0.4392</sonar-orchestrator.version>
+    <sonar-orchestrator.version>6.3.0.4464</sonar-orchestrator.version>
     <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
     <gson.version>2.14.0</gson.version>
-    <analyzer-commons.version>2.24.0.4903</analyzer-commons.version>
+    <analyzer-commons.version>2.25.0.4954</analyzer-commons.version>
+    <rspec-maven-plugin.version>1.5.0.155</rspec-maven-plugin.version>
+    <rspec.sha></rspec.sha>
+    <rspec.branch>dogfood-automerge</rspec.branch>
     <sslr.version>1.25.1.3886</sslr.version>
     <sonarlint.plugin.api.version>11.5.0.85871</sonarlint.plugin.api.version>
 
@@ -270,7 +273,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.5.35</version>
+        <version>1.5.37</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -379,4 +382,70 @@
       </plugins>
     </pluginManagement>
   </build>
+
+  <profiles>
+    <profile>
+      <id>rspec-refresh</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonarsource.rspec</groupId>
+            <artifactId>rspec-maven-plugin</artifactId>
+            <version>${rspec-maven-plugin.version}</version>
+            <configuration>
+              <githubToken>${env.GITHUB_TOKEN}</githubToken>
+              <rspecSha>${rspec.sha}</rspecSha>
+              <rspecShaFile>${maven.multiModuleProjectDirectory}/rspec.sha</rspecShaFile>
+              <vcsBranchName>${rspec.branch}</vcsBranchName>
+            </configuration>
+            <executions>
+              <execution>
+                <id>generate-rspec-rule-data</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>generate-rule-data</goal>
+                </goals>
+                <configuration>
+                  <targets>
+                    <target>
+                      <ruleSubdirectory>javascript</ruleSubdirectory>
+                      <targetDirectory>${maven.multiModuleProjectDirectory}/resources/rule-data/javascript</targetDirectory>
+                    </target>
+                    <target>
+                      <ruleSubdirectory>css</ruleSubdirectory>
+                      <targetDirectory>${maven.multiModuleProjectDirectory}/resources/rule-data/css</targetDirectory>
+                    </target>
+                  </targets>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-rule-data</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>npm</executable>
+                  <workingDirectory>${maven.multiModuleProjectDirectory}</workingDirectory>
+                  <arguments>
+                    <argument>run</argument>
+                    <argument>deploy-rule-data</argument>
+                  </arguments>
+                  <environmentVariables>
+                    <RSPEC_SHA>${rspec.sha}</RSPEC_SHA>
+                  </environmentVariables>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
