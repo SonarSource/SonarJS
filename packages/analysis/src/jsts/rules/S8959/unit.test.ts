@@ -128,7 +128,8 @@ describe('S8959', () => {
           errors: [{ messageId: 'removeDebugCommand' }, { messageId: 'removeDebugCommand' }],
           output: `
             it('uses Cypress chain debug helpers', () => {
-              cy.contains('Saved').debug();
+              cy.get('button.save');
+              cy.contains('Saved');
             });
           `,
         },
@@ -142,6 +143,21 @@ describe('S8959', () => {
           errors: [{ messageId: 'removeDebugCommand' }],
           output: `
             it('uses chained Cypress pause helpers', () => {
+              cy.visit('/');
+            });
+          `,
+        },
+        {
+          code: `
+            it('keeps preceding Cypress chain when debug ends the statement', () => {
+              cy.contains('Saved').debug();
+            });
+          `,
+          filename: 'tests/debug-tail.spec.js',
+          errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            it('keeps preceding Cypress chain when debug ends the statement', () => {
+              cy.contains('Saved');
             });
           `,
         },
@@ -183,7 +199,21 @@ describe('S8959', () => {
           // only the first fix applies in a single pass, since the two statements are adjacent
           output: `
             it('uses Cypress debug helpers via optional chaining', () => {
-              cy?.get('button.save').debug();
+              cy?.get('button.save');
+            });
+          `,
+        },
+        {
+          code: `
+            it('keeps optional Cypress chain tail when debug ends the statement', () => {
+              cy?.contains('Saved').debug();
+            });
+          `,
+          filename: 'cypress/e2e/optional-tail.cy.js',
+          errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            it('keeps optional Cypress chain tail when debug ends the statement', () => {
+              cy?.contains('Saved');
             });
           `,
         },

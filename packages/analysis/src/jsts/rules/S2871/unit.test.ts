@@ -164,6 +164,59 @@ describe('S2871', () => {
           {
             code: `function f(a: bigint[], b: bigint[]) { return JSON.stringify(a.sort()) === JSON.stringify(b.sort()); }`,
           },
+          {
+            code: `
+      function normalize(value: string[]): string[] {
+        return value.map(String).sort();
+      }
+
+      function hasChanged(before: string[], after: string[]): boolean {
+        return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+      }
+    `,
+          },
+          {
+            code: `
+      function normalize(value: string[]): string[] {
+        return value.map(String).sort();
+      }
+
+      function format(values: string[]): string {
+        function normalize(items: string[]): string {
+          return items.join(',');
+        }
+
+        return normalize(values);
+      }
+
+      function hasChanged(before: string[], after: string[]): boolean {
+        return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+      }
+    `,
+          },
+          {
+            code: `
+      function haveSameItems(a: number[], b: number[]): boolean {
+        return a.slice().sort().map(String).join(',') === b.slice().sort().map(String).join(',');
+      }
+    `,
+          },
+          {
+            code: `
+      function haveSameItems(a: bigint[], b: bigint[]): boolean {
+        return a.sort().map(String).join('|') === b.sort().map(String).join('|');
+      }
+    `,
+          },
+          {
+            code: `
+      const normalize = (value: string[]): string[] => value.toSorted();
+
+      function hasChanged(before: string[], after: string[]): boolean {
+        return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+      }
+    `,
+          },
         ],
         invalid: [
           {
@@ -448,6 +501,159 @@ describe('S2871', () => {
             code: `function f(a: any[], b: any[]) { return JSON.stringify(a.sort()) === JSON.stringify(b.sort()); }`,
             errors: 2,
           },
+          // helper-based comparison is initially only suppressed for trivial single-return helpers
+          {
+            code: `
+        function normalize(value: unknown): string[] {
+          if (Array.isArray(value)) {
+            return value.map(String).sort();
+          }
+          return [];
+        }
+
+        function hasChanged(before: unknown, after: unknown): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
+          // helper is also used outside the normalization comparison: not suppressed
+          {
+            code: `
+        function normalize(value: unknown): string[] {
+          if (Array.isArray(value)) {
+            return value.map(String).sort();
+          }
+          return [];
+        }
+
+        function sorted(value: unknown): string[] {
+          return normalize(value);
+        }
+
+        function hasChanged(before: unknown, after: unknown): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
+          // helper escaping by reference is also used outside the normalization comparison: not suppressed
+          {
+            code: `
+        function normalize(value: unknown): string[] {
+          if (Array.isArray(value)) {
+            return value.map(String).sort();
+          }
+          return [];
+        }
+
+        const alias = normalize;
+
+        function hasChanged(before: unknown, after: unknown): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
+          // helper-based comparison is still reported for non-primitive arrays
+          {
+            code: `
+        function normalize(value: Array<{ id: number }>): Array<{ id: number }> {
+          return value.sort();
+        }
+
+        function hasChanged(before: Array<{ id: number }>, after: Array<{ id: number }>): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
+          // helper-based comparison is still reported when extra arguments make sorting asymmetric
+          {
+            code: `
+        function normalize(value: string[], shouldSort: boolean): string[] {
+          if (shouldSort) {
+            return value.sort();
+          }
+          return value;
+        }
+
+        function hasChanged(before: string[], after: string[]): boolean {
+          return JSON.stringify(normalize(before, true)) !== JSON.stringify(normalize(after, false));
+        }
+      `,
+            errors: 1,
+          },
+          // helper-based comparison is still reported when the sort result is further derived
+          {
+            code: `
+        function normalize(value: string[]): string {
+          return value.sort()[0];
+        }
+
+        function hasChanged(before: string[], after: string[]): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
+          // helper-based comparison is still reported when an expression-bodied helper derives the sort result
+          {
+            code: `
+        const normalize = (value: string[]): string => value.sort()[0];
+
+        function hasChanged(before: string[], after: string[]): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
+          // exported helper can be used outside this file: not suppressed
+          {
+            code: `
+        export const normalize = (value: string[]): string[] => value.sort();
+
+        function hasChanged(before: string[], after: string[]): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
+          // alternate serialization is only suppressed when both sides sort with the same method
+          {
+            code: `function haveSameItems(a: number[], b: number[]): boolean { return a.slice().sort().map(String).join(',') === b.map(String).join(','); }`,
+            errors: 1,
+          },
+          // computed map access is not a supported normalization chain
+          {
+            code: `
+        const map = 'map' as const;
+
+        function haveSameItems(a: number[], b: number[]): boolean {
+          return a.sort()[map](String).join(',') === b.sort()[map](String).join(',');
+        }
+      `,
+            errors: 2,
+          },
+          // join-based serialization is only suppressed for numeric arrays
+          {
+            code: `function haveSameItems(a: string[], b: string[]): boolean { return a.sort().map(String).join(',') === b.sort().map(String).join(','); }`,
+            errors: 2,
+          },
+          // join-based serialization is only suppressed with a safe non-empty separator
+          {
+            code: `function haveSameItems(a: number[], b: number[]): boolean { return a.sort().map(String).join('') === b.sort().map(String).join(''); }`,
+            errors: 2,
+          },
+          {
+            code: `function haveSameItems(a: number[], b: number[]): boolean { return a.sort().map(String).join('1') === b.sort().map(String).join('1'); }`,
+            errors: 2,
+          },
+          // alternate serialization is only suppressed when both sides use join
+          {
+            code: `function haveSameItems(a: number[], b: number[]): boolean { return a.sort().map(String).join(',') === b.sort().map(String).toLocaleString(); }`,
+            errors: 2,
+          },
         ],
       },
     );
@@ -588,6 +794,27 @@ describe('S2871', () => {
           },
           {
             code: `function f(a: bigint[], b: bigint[]) { return JSON.stringify(a.toSorted()) === JSON.stringify(b.toSorted()); }`,
+          },
+          {
+            code: `
+      function haveSameItems(a: number[], b: number[]): boolean {
+        return a.toSorted().map(String).join(',') === b.toSorted().map(String).join(',');
+      }
+    `,
+          },
+          {
+            code: `
+      const normalize = (value: string[]): string[] => value.toSorted();
+
+      function format(values: string[]): string {
+        const normalize = (items: string[]): string => items.join(',');
+        return normalize(values);
+      }
+
+      function hasChanged(before: unknown, after: unknown): boolean {
+        return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+      }
+    `,
           },
         ],
         invalid: [
@@ -860,6 +1087,63 @@ describe('S2871', () => {
           },
           {
             code: `function f(a: any[], b: any[]) { return JSON.stringify(a.toSorted()) === JSON.stringify(b.toSorted()); }`,
+            errors: 2,
+          },
+          // helper-based comparison is initially only suppressed for trivial single-return helpers
+          {
+            code: `
+        const normalize = (value: unknown): string[] => {
+          if (Array.isArray(value)) {
+            return value.map(String).toSorted();
+          }
+          return [];
+        };
+
+        function hasChanged(before: unknown, after: unknown): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
+          // exported helper can be used outside this file: not suppressed
+          {
+            code: `
+        export const normalize = (value: string[]): string[] => value.toSorted();
+
+        function hasChanged(before: string[], after: string[]): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
+          // helper-based comparison is still reported when an expression-bodied helper derives the sort result
+          {
+            code: `
+        const normalize = (value: string[]): string => value.toSorted()[0];
+
+        function hasChanged(before: string[], after: string[]): boolean {
+          return JSON.stringify(normalize(before)) !== JSON.stringify(normalize(after));
+        }
+      `,
+            errors: 1,
+          },
+          // alternate serialization is only suppressed when both sides sort with the same method
+          {
+            code: `function haveSameItems(a: string[], b: string[]): boolean { return a.toSorted().map(String).join(',') === b.map(String).join(','); }`,
+            errors: 1,
+          },
+          // join-based serialization is only suppressed for numeric arrays
+          {
+            code: `function haveSameItems(a: string[], b: string[]): boolean { return a.toSorted().map(String).join(',') === b.toSorted().map(String).join(','); }`,
+            errors: 2,
+          },
+          // join-based serialization is only suppressed with a safe non-empty separator
+          {
+            code: `function haveSameItems(a: number[], b: number[]): boolean { return a.toSorted().map(String).join('') === b.toSorted().map(String).join(''); }`,
+            errors: 2,
+          },
+          {
+            code: `function haveSameItems(a: bigint[], b: bigint[]): boolean { return a.toSorted().map(String).join('n') === b.toSorted().map(String).join('n'); }`,
             errors: 2,
           },
         ],

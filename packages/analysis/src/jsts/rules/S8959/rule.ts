@@ -76,9 +76,10 @@ function reportDebugCommand(
 }
 
 /**
- * Removes the whole statement when the debug call stands alone, e.g. `cy.pause();` or
- * `await page.pause();`. Otherwise only the `.pause()`/`.debug()` link is spliced out of
- * the chain, e.g. `cy.get('x').debug().click();` -> `cy.get('x').click();`.
+ * Removes the whole statement only for root debug calls used as standalone statements, e.g.
+ * `cy.pause();` or `await page.pause();`. For Cypress chains, only the `.pause()`/`.debug()`
+ * link is spliced out, e.g. `cy.get('x').debug().click();` -> `cy.get('x').click();` and
+ * `cy.get('x').pause();` -> `cy.get('x');`.
  */
 function removeDebugCommand(
   context: Rule.RuleContext,
@@ -86,7 +87,7 @@ function removeDebugCommand(
   fixer: Rule.RuleFixer,
 ): Rule.Fix {
   const statement = unwrapToStatementExpression(call);
-  if (hasParent(statement)) {
+  if (isRootDebugReceiver(call.callee.object) && hasParent(statement)) {
     const { parent } = statement;
     if (parent.type === 'ExpressionStatement' && parent.expression === statement) {
       return removeNodeWithLeadingWhitespaces(context, parent, fixer);
@@ -106,6 +107,18 @@ function unwrapToStatementExpression(node: estree.Node): estree.Node {
     } else {
       break;
     }
+  }
+  return current;
+}
+
+function isRootDebugReceiver(node: estree.Node): boolean {
+  return isIdentifier(unwrapChainExpression(node), 'cy', 'page');
+}
+
+function unwrapChainExpression(node: estree.Node): estree.Node {
+  let current = node;
+  while (current.type === 'ChainExpression') {
+    current = current.expression;
   }
   return current;
 }

@@ -11,14 +11,10 @@ To work on this project, it is required to have the following tools installed:
 
 ### RSPEC Access
 
-For the full RSPEC sync and lifecycle model, including the distinction between
-`resources/rule-data-state.json`, root `rspec.sha`, and generated per-language `rspec.sha`, see
-[RSPEC Rule-Data Lifecycle](./rule-data-lifecycle.md).
-
 The build fetches rule metadata from the private `SonarSource/rspec` repository through
 `rspec-maven-plugin`. The generated RSPEC rule metadata JSON published under
 `sonar-plugin/*/src/main/resources/**/rules/*/` is tracked in Git. The generated HTML files and
-per-language `rspec.sha` files remain build artifacts and are not tracked.
+derived `rspec.sha` files remain build artifacts and are not tracked.
 
 For local development, the Maven flow can reuse your existing GitHub CLI login. Running
 `gh auth login` is enough on a fresh checkout or after `mvn clean`.
@@ -48,30 +44,69 @@ Examples:
    source ~/.zshenv
    ```
 
-`npm run generate-meta` first runs `npm run ensure-rule-data`. This reuses prepared RSPEC outputs
-when the generated local rule data directories, per-language `rspec.sha` files, and ignored
-`resources/rule-data-state.json` stamp match the current checkout. On a fresh checkout, after
-switching revisions, after changing the ignored root `rspec.sha` pin, or after `mvn clean`, it runs
-Maven first and uses either your GitHub CLI auth or `GITHUB_TOKEN` to fetch from
-`SonarSource/rspec`.
+`npm run generate-meta` reads the tracked local JavaScript rule JSON already present in the workspace
+and regenerates `generated-meta.ts` without contacting GitHub.
 
-To pin all rule data generation to an exact RSPEC revision, write the commit SHA to `rspec.sha` at
-the repository root and run `npm run ensure-rule-data`. When the ignored root pin is present, the
-Maven wrapper passes it to `rspec-maven-plugin` for both JavaScript and CSS.
+To refresh the tracked RSPEC rule data explicitly, run:
 
-Prepared rule data keeps separate generated pins in
-`sonar-plugin/javascript-checks/src/main/resources/rspec.sha` and
-`sonar-plugin/css/src/main/resources/rspec.sha`. If there is no root pin, the Maven wrapper falls
-back to these per-language generated pins when they are present. For direct Maven commands that
-generate rule data, use Direct Maven pinning: pass `-Drspec.sha=<commit-sha>` to pin both languages,
-or `-Drspec.javascript.sha=<commit-sha>` and `-Drspec.css.sha=<commit-sha>` to pin them
-independently. When `npm run ensure-rule-data` detects stale state without a root pin, it clears the
-generated per-language pins before regenerating so pins from another checkout are not reused.
+```bash
+npm run rspec:refresh
+```
+
+That command uses a root, non-recursive Maven profile dedicated to RSPEC refresh. It performs one
+RSPEC sync for both JavaScript and CSS, then deploys the generated JSON and HTML into the tracked
+plugin resource directories.
+
+On an unpinned branch, it refreshes to the latest intended RSPEC revision using either your GitHub
+CLI auth or `GITHUB_TOKEN`.
+
+To pin rule data generation to an exact RSPEC revision for branch-local work, write the commit SHA
+to `rspec.sha` at the repository root and run `npm run rspec:refresh`. The root `rspec.sha` file is
+a temporary local workflow input and must never be committed to `master`.
+
+When no SHA pin is active, the refresh uses the configured default RSPEC branch. In the current
+SonarJS wiring that default is `dogfood-automerge`.
+
+To refresh from a different RSPEC branch without creating a SHA pin, override the Maven property on
+the command line:
+
+```bash
+npm run rspec:refresh -- -Drspec.branch=<rspec-branch>
+```
+
+For a one-off SHA pin without creating the root `rspec.sha` file, pass the SHA on the command line:
+
+```bash
+npm run rspec:refresh -- -Drspec.sha=<commit-sha>
+```
+
+There is intentionally no `rspec.branch` file equivalent to the root `rspec.sha` file. Branch
+override is an explicit command-line choice, not a tracked or semi-persistent workspace input.
+
+If both a branch and a SHA are provided, the SHA takes precedence for `generate-rule-data`.
+Practically, that means:
+
+- an explicit `-Drspec.sha=<commit-sha>` wins over `-Drspec.branch=<rspec-branch>`
+- the root `rspec.sha` file wins over the configured default branch
+- if a root `rspec.sha` file is present, branch override is ignored until that file is removed
+
+The generated `sonar-plugin/javascript-checks/src/main/resources/rspec.sha` and
+`sonar-plugin/css/src/main/resources/rspec.sha` files are derived outputs written during refresh.
+They are not separate pin inputs. They are packaged into published release artifacts so an old
+release jar still records which RSPEC revision was used during that release build. That
+reproducibility trail matters when rebuilding an older SonarJS version from scratch: the SonarJS
+release tag tells you the analyzer source, and the packaged `rspec.sha` tells you which RSPEC
+revision to rebuild against. For direct Maven commands that generate rule data, pass
+`-Drspec.sha=<commit-sha>` to pin the refresh.
 
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all
 required dependencies and is used for our CI pipeline.
 
 ## Build and run unit tests
+
+On a fresh checkout, or whenever you want the latest RSPEC rule data instead of the tracked JSON
+already present in the repository, run `npm run rspec:refresh` before the Maven build commands
+below.
 
 To build the plugin and run its unit tests, execute this command from the project's root directory:
 
@@ -266,7 +301,7 @@ The contents of the options file must be a valid JSON array:
 
 ```javascript
 // brace-style.json
-["1tbs", { allowSingleLine: true }];
+['1tbs', { allowSingleLine: true }];
 ```
 
 If your rule depends on a dependency declared in the `package.json` file, you can add the following
@@ -518,13 +553,13 @@ in `meta.ts`. Rules without options don't need a schema or config.ts:
 
 ```typescript
 // S100/meta.ts
-export const implementation = "original";
-export const eslintId = "function-name";
-export * from "./config.js";
-import type { JSONSchema4 } from "@typescript-eslint/utils/json-schema";
+export const implementation = 'original';
+export const eslintId = 'function-name';
+export * from './config.js';
+import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 export const schema = {
-  type: "array",
-  items: [{ type: "object", properties: { format: { type: "string" } } }],
+  type: 'array',
+  items: [{ type: 'object', properties: { format: { type: 'string' } } }],
 } as const satisfies JSONSchema4;
 ```
 
@@ -535,20 +570,20 @@ optionally define a `schema` if needed:
 
 ```typescript
 // S109/meta.ts - no schema, uses external rule's schema at runtime
-export const implementation = "decorated";
-export const eslintId = "no-magic-numbers";
+export const implementation = 'decorated';
+export const eslintId = 'no-magic-numbers';
 export const externalRules = [
-  { externalPlugin: "typescript-eslint", externalRule: "no-magic-numbers" },
+  { externalPlugin: 'typescript-eslint', externalRule: 'no-magic-numbers' },
 ];
-export * from "./config.js";
+export * from './config.js';
 ```
 
 ```typescript
 // S107/meta.ts - explicit schema (when customization is needed)
-export const implementation = "decorated";
-export const eslintId = "max-params";
-export const externalRules = [{ externalPlugin: "eslint", externalRule: "max-params" }];
-export * from "./config.js";
+export const implementation = 'decorated';
+export const eslintId = 'max-params';
+export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'max-params' }];
+export * from './config.js';
 export const schema = {
   /* ... */
 } as const satisfies JSONSchema4;
@@ -562,10 +597,10 @@ external rule at runtime. Some external rules expose user-configurable options v
 
 ```typescript
 // S106/meta.ts
-export const implementation = "external";
-export const eslintId = "no-console";
-export const externalPlugin = "eslint";
-export * from "./config.js";
+export const implementation = 'external';
+export const eslintId = 'no-console';
+export const externalPlugin = 'eslint';
+export * from './config.js';
 ```
 
 ### The `fields` Array (`config.ts`)
@@ -582,9 +617,9 @@ The `fields` array is the **source of truth** for rule options. It defines:
 export const fields = [
   [
     {
-      field: "max", // ESLint option name
-      displayName: "maximumFunctionParameters", // SonarQube UI name (optional)
-      description: "Maximum authorized...", // Shows in SQ UI
+      field: 'max', // ESLint option name
+      displayName: 'maximumFunctionParameters', // SonarQube UI name (optional)
+      description: 'Maximum authorized...', // Shows in SQ UI
       default: 7, // Default value & type inference
     },
   ],
@@ -622,8 +657,8 @@ Fields without `description` are internal-only defaults that users cannot config
 // S109/config.ts - NO descriptions, so not exposed in SQ
 export const fields = [
   [
-    { field: "ignore", default: [0, 1, -1, 24, 60] }, // Internal only
-    { field: "ignoreDefaultValues", default: true }, // Internal only
+    { field: 'ignore', default: [0, 1, -1, 24, 60] }, // Internal only
+    { field: 'ignoreDefaultValues', default: true }, // Internal only
   ],
 ] as const satisfies ESLintConfiguration;
 ```
@@ -635,10 +670,10 @@ export const fields = [
 export const fields = [
   [
     {
-      field: "passwordWords",
-      items: { type: "string" },
-      description: "Comma separated list of words identifying potential passwords.",
-      default: ["password", "pwd", "passwd", "passphrase"],
+      field: 'passwordWords',
+      items: { type: 'string' },
+      description: 'Comma separated list of words identifying potential passwords.',
+      default: ['password', 'pwd', 'passwd', 'passphrase'],
     },
   ],
 ] as const satisfies ESLintConfiguration;
@@ -678,7 +713,7 @@ The `npm run generate-meta` script reads `fields` and generates `defaultOptions`
 export const meta = {
   // ...
   defaultOptions: [
-    { format: "^[_a-z][a-zA-Z0-9]*$" }, // From fields[0][0].default
+    { format: '^[_a-z][a-zA-Z0-9]*$' }, // From fields[0][0].default
   ],
 };
 ```
@@ -696,7 +731,7 @@ This is extracted using the `defaultOptions()` helper from `helpers/configs.ts`.
 3. **Linter**: `linter.ts:createRulesRecord()` merges defaults with user config:
    ```typescript
    rules[`sonarjs/${rule.key}`] = [
-     "error",
+     'error',
      ...merge(defaultOptions(ruleMeta.fields), rule.configurations),
    ];
    ```
@@ -737,8 +772,8 @@ The gRPC workflow receives all param values as strings. The transformer parses t
 // config.ts
 export const fields = [
   [
-    { field: "max", description: "...", default: 7 },
-    { field: "ignoreIIFE", description: "...", default: false },
+    { field: 'max', description: '...', default: 7 },
+    { field: 'ignoreIIFE', description: '...', default: false },
   ],
 ] as const satisfies ESLintConfiguration;
 
@@ -750,7 +785,7 @@ export const fields = [
 ```typescript
 // config.ts
 export const fields = [
-  { default: "^[a-z]+$" }, // Single non-array element
+  { default: '^[a-z]+$' }, // Single non-array element
 ] as const satisfies ESLintConfiguration;
 
 // ESLint receives: ['^[a-z]+$']
@@ -763,10 +798,10 @@ export const fields = [
 export const fields = [
   [
     {
-      field: "passwordWords",
-      items: { type: "string" }, // Required for Java codegen
-      description: "Comma separated list...",
-      default: ["password", "pwd"],
+      field: 'passwordWords',
+      items: { type: 'string' }, // Required for Java codegen
+      description: 'Comma separated list...',
+      default: ['password', 'pwd'],
     },
   ],
 ] as const satisfies ESLintConfiguration;

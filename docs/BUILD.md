@@ -4,30 +4,46 @@
 
 Run `npm ci` first on a fresh checkout, and again after any `package.json` or lockfile change.
 
-Use `mvn install` for normal development after Node dependencies are installed. When generated RSPEC
-outputs are already present, this reuses them instead of refetching RSPEC.
-
-Rule-data preparation is materialized by `npm run ensure-rule-data`. This command refreshes
-`generate-rule-data:maven` outputs when they are missing or when the checkout no longer matches the
-ignored state stored in `resources/rule-data-state.json`. For the full RSPEC sync and stamp model,
-see [RSPEC Rule-Data Lifecycle](./rule-data-lifecycle.md).
+Use `mvn install` for normal development after Node dependencies are installed.
+This reuses the tracked rule metadata already present in the checkout unless an explicit RSPEC refresh is requested.
 
 Avoid `mvn clean` while iterating. The fast Java-only loop reuses previously generated artifacts,
 and `clean` deletes them. Only use `mvn clean install` when you explicitly want to rebuild generated
-assets from scratch.
+assets from scratch. If that clean rebuild should also pick up the latest RSPEC data, run
+`npm run rspec:refresh` first.
 
 ## Common commands
 
-Full reactor build:
+Full reactor build using the tracked local rule JSON:
 
 ```bash
 mvn install
 ```
 
-Clean rebuild:
+Full reactor build without tests using the tracked local rule JSON:
+
+```bash
+mvn install -DskipTests
+```
+
+Clean rebuild using the tracked local rule JSON:
 
 ```bash
 mvn clean install
+```
+
+Refresh RSPEC first, then run a full Maven build:
+
+```bash
+npm run rspec:refresh
+mvn install
+```
+
+Refresh RSPEC first, then run a Maven build without tests:
+
+```bash
+npm run rspec:refresh
+mvn install -DskipTests
 ```
 
 Fast Java-only targeted test:
@@ -56,14 +72,39 @@ Regenerate rule metadata:
 npm run generate-meta
 ```
 
-Ensure rule data is prepared for the current checkout:
+Refresh tracked RSPEC rule data explicitly:
 
 ```bash
-npm run ensure-rule-data
+npm run rspec:refresh
 ```
 
-The detailed behavior of this command is documented in
-[RSPEC Rule-Data Lifecycle](./rule-data-lifecycle.md).
+That refresh uses a dedicated root Maven profile. It syncs RSPEC once and generates both JavaScript
+and CSS rule data from the same checkout.
+
+Override the default RSPEC branch for one refresh run:
+
+```bash
+npm run rspec:refresh -- -Drspec.branch=<rspec-branch>
+```
+
+Pin the refresh to an exact RSPEC revision:
+
+```bash
+echo "<rspec-commit-sha>" > rspec.sha
+npm run rspec:refresh
+```
+
+Or pin one refresh run directly from the command line:
+
+```bash
+npm run rspec:refresh -- -Drspec.sha=<commit-sha>
+```
+
+Refresh RSPEC first, then run the fast local build:
+
+```bash
+npm run bbf:latest
+```
 
 Validate quickfix declarations:
 
@@ -83,7 +124,7 @@ The `sonar-plugin` reactor builds modules in this order:
 6. `standalone`
 
 `javascript-checks` stays before `bridge` because bridge generation consumes rule metadata prepared
-earlier in the build.
+earlier in the build. The explicit RSPEC refresh path is not part of this normal reactor flow.
 
 ## Fast Java iteration flags
 
@@ -110,10 +151,12 @@ It skips:
 
 Important details:
 
-- `npm run generate-meta` reuses prepared RSPEC outputs when they already exist, and refreshes them
-  when they do not.
-- To force an RSPEC refresh, or to apply a new root `rspec.sha` pin, run `npm run ensure-rule-data`;
-  `npm run generate-meta` also invokes this check before generating metadata.
+- `npm run generate-meta` reads the tracked local JavaScript rule JSON and does not refresh RSPEC.
+- To refresh RSPEC explicitly, or to apply a root `rspec.sha` pin, run `npm run rspec:refresh`.
+- `npm run rspec:refresh` uses the configured default RSPEC branch when no SHA pin is active.
+- You can override that branch per command with `-Drspec.branch=<rspec-branch>`.
+- SHA wins over branch selection: an explicit `-Drspec.sha=...` or a root `rspec.sha` file takes
+  precedence over any branch setting.
 - The `bridge` module still adds `target/generated-sources` to the Java source roots, so an existing
   generated stub directory can be reused without re-running protobuf generation.
 - This flag is intended for Java-only loops after a previous non-skipped build.
@@ -140,16 +183,26 @@ It can be combined with `-Dskip-nodejs`.
 
 ## What `clean` removes
 
-The clean phase removes the outputs that make the fast loop work:
+The clean phase removes the derived outputs that make the fast loop work:
 
 - `sonar-plugin/bridge/target/generated-sources`
 - `sonar-plugin/bridge/src/main/resources/org/sonar/plugins/javascript/bridge/node-info.properties`
 - `sonar-plugin/sonar-javascript-plugin/src/main/resources/node-info.properties`
 - `lib/` and `bin/`
 - downloaded rule data under `resources/rule-data`
-- generated rule data copied under `sonar-plugin/javascript-checks/src/main/resources` and
-  `sonar-plugin/css/src/main/resources`
+- generated HTML and derived `rspec.sha` files under `sonar-plugin/javascript-checks/src/main/resources`
+  and `sonar-plugin/css/src/main/resources`
 - generated rule metadata under `packages/analysis/src/jsts/rules`
+
+Important detail:
+
+- The committed JSON/profile rule metadata under `sonar-plugin/*/src/main/resources/**/rules/**`
+  is preserved by `clean`.
+- Because of that, `npm run bbf` after `mvn clean` still reuses the tracked rule JSON and does not
+  trigger an RSPEC refresh.
+- The per-language `rspec.sha` files are still meaningful in built release artifacts even though
+  they are local derived outputs in the workspace: they preserve which RSPEC revision was used to
+  build that analyzer version.
 
 Because of that, a common workflow is:
 
@@ -176,6 +229,14 @@ Because of that, a common workflow is:
 - runs `npm run count-rules`
 - builds, bundles, and packs the bridge
 - generates `bridge/src/main/resources/org/sonar/plugins/javascript/bridge/node-info.properties`
+
+Explicit RSPEC refresh
+
+- `npm run rspec:refresh`
+- runs a root, non-recursive Maven profile
+- syncs RSPEC once for JavaScript and CSS
+- runs `npm run deploy-rule-data`
+- does not depend on the `javascript-checks` module lifecycle or hidden file-missing profiles
 
 `process-resources`
 
