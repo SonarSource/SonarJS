@@ -18,6 +18,7 @@
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { childrenOf } from '../helpers/ancestor.js';
+import { getParent } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
   getProperty,
@@ -35,7 +36,6 @@ import {
   isTSAssertion,
 } from '../helpers/assertion-detection.js';
 import * as meta from './generated-meta.js';
-import { isExtendedTSShouldAccess, isStandaloneShouldAccess } from './assertion-detectors.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
@@ -208,6 +208,33 @@ function checkAssertions(
   }
 }
 
+function isStandaloneShouldAccess(context: Rule.RuleContext, node: estree.Node): boolean {
+  if (!isShouldMember(node)) {
+    return false;
+  }
+  const parent = getParent(context, node);
+  return !isExtendingShouldChainParent(parent, node);
+}
+
+function isShouldMember(node: estree.Node): node is estree.MemberExpression {
+  return (
+    node.type === 'MemberExpression' &&
+    !node.computed &&
+    node.property.type === 'Identifier' &&
+    node.property.name === 'should'
+  );
+}
+
+function isExtendingShouldChainParent(
+  parent: estree.Node | undefined,
+  node: estree.MemberExpression,
+): boolean {
+  return (
+    (parent?.type === 'MemberExpression' && parent.object === node) ||
+    (parent?.type === 'CallExpression' && parent.callee === node)
+  );
+}
+
 class TestCaseAssertionVisitor {
   private readonly visitorKeys: SourceCode.VisitorKeys;
 
@@ -224,7 +251,7 @@ class TestCaseAssertionVisitor {
       return visitedTSNodes.get(node)!;
     }
     visitedTSNodes.set(node, false);
-    if (isTSAssertion(services, node) || isExtendedTSShouldAccess(node)) {
+    if (isTSAssertion(services, node)) {
       visitedTSNodes.set(node, true);
       return true;
     }

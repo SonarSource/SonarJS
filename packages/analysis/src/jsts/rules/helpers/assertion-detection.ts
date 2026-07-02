@@ -136,11 +136,30 @@ export function isScriptCapableAssertion(context: Rule.RuleContext, node: estree
 export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node): boolean {
   return (
     isGlobalTSAssertion(services, node) ||
+    isExtendedTSShouldAccess(node) ||
     Chai.isTSAssertion(services, node) ||
     Sinon.isTSAssertion(services, node) ||
     Supertest.isTSAssertion(services, node) ||
     Vitest.isTSAssertion(services, node) ||
     Cypress.isTSAssertion(node)
+  );
+}
+
+function isExtendedTSShouldAccess(node: ts.Node): boolean {
+  return isTSShouldAccess(node) && isTSExtendingShouldChainParent(node.parent, node);
+}
+
+function isTSShouldAccess(node: ts.Node): node is ts.PropertyAccessExpression {
+  return ts.isPropertyAccessExpression(node) && node.name.text === 'should';
+}
+
+function isTSExtendingShouldChainParent(parent: ts.Node | undefined, node: ts.Node): boolean {
+  if (parent === undefined) {
+    return false;
+  }
+  return (
+    (ts.isPropertyAccessExpression(parent) && parent.expression === node) ||
+    (ts.isCallExpression(parent) && parent.expression === node)
   );
 }
 
