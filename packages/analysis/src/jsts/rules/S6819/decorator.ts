@@ -51,12 +51,13 @@ const COMPOSITE_CHILD_ROLES = new Set([
  *    - role="radio" with aria-checked
  *    - role="separator" with children (since <hr> is void)
  *    - role="img" on div/span with children or CSS backgroundImage (since <img> is void)
+ *    - role="group" on div/span outside form/fieldset contexts
  *    - ARIA composite widget roles (table, grid, listbox, row, option, etc.) when forming
  *      complete custom widget patterns
  *
  * Note: SVG internal elements like <g> are not in HTML_TAG_NAMES, so they're
- * already filtered out by isHtmlElement. HTML elements with role="group" remain
- * as true positives since semantic alternatives exist.
+ * already filtered out by isHtmlElement. HTML elements with role="group" inside
+ * form-related contexts remain true positives since <fieldset> stays appropriate there.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
@@ -120,6 +121,7 @@ function isValidAriaPattern(node: TSESTree.JSXOpeningElement): boolean {
     isCustomRadio(role, attributes) ||
     isSeparatorWithChildren(role, node) ||
     isImgRoleWithValidPattern(elementName, role, attributes, node) ||
+    isStandaloneGroupRole(elementName, role, node) ||
     isCustomCompositeWidget(role, node)
   );
 }
@@ -239,6 +241,45 @@ function isCustomRadio(role: string, attributes: JSXOpeningElement['attributes']
 
 function isSeparatorWithChildren(role: string, node: TSESTree.JSXOpeningElement): boolean {
   return role === 'separator' && hasChildren(node);
+}
+
+/**
+ * Checks if a generic container uses role="group" outside form-related ancestors.
+ *
+ * @param elementName The lower-cased JSX element name.
+ * @param role The resolved role attribute value.
+ * @param node The JSX opening element being checked.
+ * @return Whether the group role should be preserved.
+ */
+function isStandaloneGroupRole(
+  elementName: string | null,
+  role: string,
+  node: TSESTree.JSXOpeningElement,
+): boolean {
+  return (
+    role === 'group' &&
+    (elementName === 'div' || elementName === 'span') &&
+    !hasFormGroupingAncestor(node)
+  );
+}
+
+/**
+ * Checks if the JSX element is nested inside a form or fieldset.
+ *
+ * @param node The JSX opening element being checked.
+ * @return Whether a form-related ancestor exists.
+ */
+function hasFormGroupingAncestor(node: TSESTree.JSXOpeningElement): boolean {
+  return (
+    findFirstMatchingAncestor(node, ancestor => {
+      if (ancestor.type !== 'JSXElement') {
+        return false;
+      }
+
+      const ancestorName = getElementName(ancestor.openingElement);
+      return ancestorName === 'form' || ancestorName === 'fieldset';
+    }) !== undefined
+  );
 }
 
 /**

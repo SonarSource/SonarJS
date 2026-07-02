@@ -55,6 +55,23 @@ describe('S6819 upstream sentinel', () => {
       ],
     });
   });
+
+  it('upstream prefer-tag-over-role raises on standalone group role patterns that decorator suppresses', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('prefer-tag-over-role', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          code: `<div role="group" aria-label="Request methods"><button>GET</button><button>POST</button></div>`,
+          errors: 1,
+        },
+        {
+          code: `<span role="group" aria-label="Filter pills"><span>Active</span><span>Archived</span></span>`,
+          errors: 1,
+        },
+      ],
+    });
+  });
 });
 
 describe('S6819', () => {
@@ -85,6 +102,31 @@ describe('S6819', () => {
         },
       ],
       invalid: [],
+    });
+  });
+
+  it('should not flag standalone role="group" outside form contexts', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - standalone group', rule, {
+      valid: [
+        {
+          code: `<div role="group" aria-label="Request methods"><button>GET</button><button>POST</button></div>`,
+        },
+        {
+          code: `<span role="group" aria-label="Filter pills"><span>Active</span><span>Archived</span></span>`,
+        },
+      ],
+      invalid: [
+        {
+          code: `<form><div role="group" aria-label="Shipping options"><input type="radio" /></div></form>`,
+          errors: 1,
+        },
+        {
+          code: `<fieldset><span role="group" aria-label="Quick toggles"><button type="button">On</button></span></fieldset>`,
+          errors: 1,
+        },
+      ],
     });
   });
 
