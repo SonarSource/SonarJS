@@ -16,7 +16,7 @@
  */
 import type estree from 'estree';
 
-export type ChaiPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null';
+export type ChaiPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null' | 'exists';
 
 export function getChaiPropertyPredicate(
   name: string,
@@ -31,9 +31,10 @@ export function getChaiPropertyPredicate(
       return { predicate: 'null', negated: false };
     case 'undefined':
       return { predicate: 'undefined', negated: false };
+    // chai's `.exist` is stricter than "defined": it requires not-null AND not-undefined
     case 'exist':
     case 'exists':
-      return { predicate: 'defined', negated: false };
+      return { predicate: 'exists', negated: false };
     default:
       return null;
   }

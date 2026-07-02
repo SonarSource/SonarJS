@@ -324,6 +324,13 @@ describe('S5914', () => {
             expect(undefined).to.exists;
           `,
         },
+        // chai's `.exist` requires not-null AND not-undefined, so this always fails
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(null).to.exist;
+          `,
+        },
         {
           code: `
             import assert from 'node:assert';
@@ -837,11 +844,19 @@ describe('S5914', () => {
           `,
           errors: [{ messageId: 'issue' }],
         },
-        // chai BDD `.exist` (and its `.exists` alias) — equivalent to assert-style `.exists()`
+        // chai BDD `.exist` requires not-null AND not-undefined: fresh reference predicates
+        // and negated `notExists` still resolve correctly with the stricter `exists` predicate
         {
           code: `
             import { expect } from 'chai';
-            expect(null).to.exist;
+            expect({}).to.exist;
+          `,
+          errors: [{ messageId: 'freshPredicate' }],
+        },
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.notExists(null);
           `,
           errors: [{ messageId: 'issue' }],
         },

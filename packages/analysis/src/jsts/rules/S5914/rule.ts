@@ -231,6 +231,8 @@ function predicateHolds(predicate: AssertionPredicate, value: ConstantPrimitive)
       return value === undefined;
     case 'null':
       return value === null;
+    case 'exists':
+      return value !== null && value !== undefined;
     default: {
       const exhaustiveCheck: never = predicate;
       return exhaustiveCheck;
@@ -240,12 +242,13 @@ function predicateHolds(predicate: AssertionPredicate, value: ConstantPrimitive)
 
 /**
  * Same as `predicateHolds`, specialized for freshly-created references: they're always truthy,
- * always defined, and never null.
+ * always defined, always "existing", and never null.
  */
 function freshReferencePredicateHolds(predicate: AssertionPredicate): boolean {
   switch (predicate) {
     case 'truthy':
     case 'defined':
+    case 'exists':
       return true;
     case 'falsy':
     case 'undefined':

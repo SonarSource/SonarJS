@@ -233,10 +233,13 @@ function getChaiAssertPredicate(
     case 'isUndefined':
       return { predicate: 'undefined', negated: false };
     case 'isDefined':
-    case 'exists':
       return { predicate: 'defined', negated: false };
+    // chai's `exists`/`notExists` are stricter than `isDefined`: they require not-null AND
+    // not-undefined, unlike `isDefined`, which is only "not undefined"
+    case 'exists':
+      return { predicate: 'exists', negated: false };
     case 'notExists':
-      return { predicate: 'defined', negated: true };
+      return { predicate: 'exists', negated: true };
     default:
       return null;
   }

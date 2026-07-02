@@ -36,7 +36,10 @@ const CHAI_LIKE_GLOBAL_MODULES = [
 ];
 const NODE_ASSERT_MODULES = ['assert', 'node:assert', 'assert/strict', 'node:assert/strict'];
 
-export type AssertionPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null';
+// `defined` is "not undefined" (matches Jest's `toBeDefined`); `exists` is the stricter
+// "not null and not undefined" (matches chai's `.exist`/`assert.exists`) — they are genuinely
+// different predicates, not two names for the same check.
+export type AssertionPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null' | 'exists';
 export type AssertionStyle =
   | 'jest-like'
   | 'jasmine'
