@@ -209,10 +209,10 @@ function getDeepEqualityMatcher(style: AssertionStyle, negated: boolean): string
       return negated ? 'notDeepEqual' : 'deepEqual';
     case 'node-assert':
       return negated ? 'notDeepStrictEqual' : 'deepStrictEqual';
-    default:
-      return negated
-        ? 'a matcher that checks deep inequality'
-        : 'a matcher that checks deep equality';
+    default: {
+      const exhaustiveCheck: never = style;
+      return exhaustiveCheck;
+    }
   }
 }
 
@@ -231,8 +231,10 @@ function predicateHolds(predicate: AssertionPredicate, value: ConstantPrimitive)
       return value === undefined;
     case 'null':
       return value === null;
-    default:
-      return false;
+    default: {
+      const exhaustiveCheck: never = predicate;
+      return exhaustiveCheck;
+    }
   }
 }
 
@@ -249,8 +251,10 @@ function freshReferencePredicateHolds(predicate: AssertionPredicate): boolean {
     case 'undefined':
     case 'null':
       return false;
-    default:
-      return false;
+    default: {
+      const exhaustiveCheck: never = predicate;
+      return exhaustiveCheck;
+    }
   }
 }
 
