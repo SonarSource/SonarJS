@@ -149,6 +149,61 @@ describe('S6819', () => {
             </>
           `,
         },
+        // One fieldset-like group per owner role: suppression must come from the
+        // composite owner, not from the content failing the fieldset heuristic.
+        ...['tree', 'treegrid', 'menu', 'menubar', 'tablist', 'radiogroup'].map(ownerRole => ({
+          code: `
+            <div role="${ownerRole}">
+              <div role="group" aria-label="Filters">
+                <input type="checkbox" name="a" />
+                <input type="checkbox" name="b" />
+              </div>
+            </div>
+          `,
+        })),
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should resolve aria-owns ownership across id lists and dynamic ids', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - aria-owns ownership', rule, {
+      valid: [
+        {
+          code: `
+            <>
+              <div role="toolbar" aria-owns="a b format-actions" />
+              <div role="group" id="format-actions" aria-label="Filters">
+                <input type="checkbox" name="a" />
+                <input type="checkbox" name="b" />
+              </div>
+            </>
+          `,
+        },
+        {
+          code: `
+            <>
+              <div role="toolbar" aria-owns={groupId} />
+              <div role="group" id={groupId} aria-label="Filters">
+                <input type="checkbox" name="a" />
+                <input type="checkbox" name="b" />
+              </div>
+            </>
+          `,
+        },
+        {
+          code: `
+            <>
+              <div role="toolbar" aria-owns={props.groupId} />
+              <div role="group" id={props.groupId} aria-label="Filters">
+                <input type="checkbox" name="a" />
+                <input type="checkbox" name="b" />
+              </div>
+            </>
+          `,
+        },
       ],
       invalid: [],
     });

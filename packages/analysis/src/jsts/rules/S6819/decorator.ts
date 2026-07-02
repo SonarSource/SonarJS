@@ -50,6 +50,15 @@ const COMPOSITE_GROUP_OWNER_ROLES = new Set([
 const FIELDSET_FORM_CONTROL_ELEMENTS = new Set(['input', 'select', 'textarea']);
 const NON_GROUPABLE_INPUT_TYPES = new Set(['hidden', 'button', 'submit', 'reset', 'image']);
 
+// A group id resolved either as a static string or as a dynamic expression key.
+type GroupIdReference = { readonly value: string; readonly dynamic: boolean };
+
+// Composite-widget owners per JSX subtree root, so each tree is scanned once.
+const compositeGroupOwnersBySubtree = new WeakMap<
+  TSESTree.JSXElement | TSESTree.JSXFragment,
+  TSESTree.JSXOpeningElement[]
+>();
+
 /**
  * Decorates the prefer-tag-over-role rule to fix false positives.
  *
@@ -310,13 +319,13 @@ function hasCompositeGroupOwnerAncestor(node: TSESTree.JSXOpeningElement): boole
  * @return Whether a composite widget owns the group by id reference.
  */
 function hasCompositeGroupOwnerByAriaOwns(node: TSESTree.JSXOpeningElement): boolean {
-  const id = getNonEmptyStringAttributeValue((node as JSXOpeningElement).attributes, 'id');
+  const id = getGroupIdReference((node as JSXOpeningElement).attributes);
   if (id === null) {
     return false;
   }
 
   const root = getContainingJsxSubtree(node);
-  return root !== null && hasCompositeGroupOwnerReference(root, id, node);
+  return root !== null && getCompositeGroupOwners(root).some(owner => ownerReferencesId(owner, id));
 }
 
 /**
@@ -353,12 +362,7 @@ function hasGroupAccessibleName(attributes: JSXOpeningElement['attributes']): bo
  * @return The number of descendant form controls.
  */
 function countDescendantFormControls(node: TSESTree.JSXOpeningElement): number {
-  const group = node.parent;
-  if (group?.type !== 'JSXElement') {
-    return 0;
-  }
-
-  return countFormControlsInChildren(group.children);
+  return countFormControlsInChildren(node.parent.children);
 }
 
 /**
@@ -506,53 +510,93 @@ function getContainingJsxSubtree(
 }
 
 /**
- * Checks whether a JSX subtree contains a composite owner for the given id.
+ * Collects the composite-widget owner elements within a JSX subtree.
  *
- * @param node The JSX subtree to inspect.
- * @param id The id owned by the composite widget.
- * @param current The current group opening element.
- * @return Whether a composite widget in the subtree owns the id.
+ * The result is memoized per subtree root so a file with many id-bearing
+ * groups scans each tree once instead of once per group.
+ *
+ * @param root The containing JSX subtree.
+ * @return The composite-widget owner opening elements in the subtree.
  */
-function hasCompositeGroupOwnerReference(
-  node: TSESTree.JSXElement | TSESTree.JSXFragment,
-  id: string,
-  current: TSESTree.JSXOpeningElement,
-): boolean {
-  if (
-    node.type === 'JSXElement' &&
-    node.openingElement !== current &&
-    isCompositeGroupOwnerReference(node.openingElement, id)
-  ) {
-    return true;
+function getCompositeGroupOwners(
+  root: TSESTree.JSXElement | TSESTree.JSXFragment,
+): TSESTree.JSXOpeningElement[] {
+  let owners = compositeGroupOwnersBySubtree.get(root);
+  if (owners === undefined) {
+    owners = [];
+    collectCompositeGroupOwners(root, owners);
+    compositeGroupOwnersBySubtree.set(root, owners);
   }
-
-  return node.children.some(child => {
-    if (child.type === 'JSXElement' || child.type === 'JSXFragment') {
-      return hasCompositeGroupOwnerReference(child, id, current);
-    }
-    if (child.type === 'JSXExpressionContainer') {
-      return getJsxFromExpression(child.expression).some(jsx =>
-        hasCompositeGroupOwnerReference(jsx, id, current),
-      );
-    }
-    return false;
-  });
+  return owners;
 }
 
 /**
- * Checks whether an element is a composite widget that owns the given id.
+ * Gathers composite-widget owner opening elements from a JSX subtree.
  *
- * @param node The JSX opening element being checked.
- * @param id The id owned by the composite widget.
- * @return Whether the element owns the id.
+ * @param node The JSX subtree to inspect.
+ * @param owners The accumulator to append owners to.
  */
-function isCompositeGroupOwnerReference(node: TSESTree.JSXOpeningElement, id: string): boolean {
-  const role = getJSXOpeningElementRole(node);
-  if (role === null || !COMPOSITE_GROUP_OWNER_ROLES.has(role)) {
-    return false;
+function collectCompositeGroupOwners(
+  node: TSESTree.JSXElement | TSESTree.JSXFragment,
+  owners: TSESTree.JSXOpeningElement[],
+): void {
+  if (node.type === 'JSXElement' && isCompositeGroupOwner(node.openingElement)) {
+    owners.push(node.openingElement);
   }
 
-  return getAriaOwnsIds((node as JSXOpeningElement).attributes).includes(id);
+  for (const child of node.children) {
+    if (child.type === 'JSXElement' || child.type === 'JSXFragment') {
+      collectCompositeGroupOwners(child, owners);
+    } else if (child.type === 'JSXExpressionContainer') {
+      for (const jsx of getJsxFromExpression(child.expression)) {
+        collectCompositeGroupOwners(jsx, owners);
+      }
+    }
+  }
+}
+
+/**
+ * Checks whether an element carries a composite-widget owner role.
+ *
+ * @param node The JSX opening element being checked.
+ * @return Whether the element is a composite-widget owner.
+ */
+function isCompositeGroupOwner(node: TSESTree.JSXOpeningElement): boolean {
+  const role = getJSXOpeningElementRole(node);
+  return role !== null && COMPOSITE_GROUP_OWNER_ROLES.has(role);
+}
+
+/**
+ * Checks whether a composite owner's aria-owns references the group id.
+ *
+ * Matches static ids by value and dynamic ids by shared expression, so a group
+ * and its owner wired through the same `useId()`/prop variable still resolve.
+ *
+ * @param owner The composite-widget owner opening element.
+ * @param id The group id reference to match.
+ * @return Whether the owner owns the group.
+ */
+function ownerReferencesId(owner: TSESTree.JSXOpeningElement, id: GroupIdReference): boolean {
+  const attributes = (owner as JSXOpeningElement).attributes;
+  return id.dynamic
+    ? getAriaOwnsExpressionKey(attributes) === id.value
+    : getAriaOwnsIds(attributes).includes(id.value);
+}
+
+/**
+ * Resolves a group's id as a static value or a dynamic expression key.
+ *
+ * @param attributes The JSX attributes on the group element.
+ * @return The id reference, or null when no id is present.
+ */
+function getGroupIdReference(attributes: JSXOpeningElement['attributes']): GroupIdReference | null {
+  const staticId = getNonEmptyStringAttributeValue(attributes, 'id');
+  if (staticId !== null) {
+    return { value: staticId, dynamic: false };
+  }
+
+  const key = getAttributeExpressionKey(attributes, 'id');
+  return key === null ? null : { value: key, dynamic: true };
 }
 
 /**
@@ -564,6 +608,58 @@ function isCompositeGroupOwnerReference(node: TSESTree.JSXOpeningElement, id: st
 function getAriaOwnsIds(attributes: JSXOpeningElement['attributes']): string[] {
   const value = getNonEmptyStringAttributeValue(attributes, 'aria-owns');
   return value === null ? [] : value.split(/\s+/);
+}
+
+/**
+ * Gets the dynamic expression key of an aria-owns attribute, if any.
+ *
+ * @param attributes The JSX attributes on the composite owner.
+ * @return The expression key, or null when aria-owns is absent or unresolvable.
+ */
+function getAriaOwnsExpressionKey(attributes: JSXOpeningElement['attributes']): string | null {
+  return getAttributeExpressionKey(attributes, 'aria-owns');
+}
+
+/**
+ * Builds a stable key for a simple attribute expression (`{x}` or `{x.y}`).
+ *
+ * @param attributes The JSX attributes to read.
+ * @param name The attribute name to resolve.
+ * @return The expression key, or null for absent or unsupported expressions.
+ */
+function getAttributeExpressionKey(
+  attributes: JSXOpeningElement['attributes'],
+  name: string,
+): string | null {
+  const prop = getProp(attributes, name);
+  if (!prop || prop.value?.type !== 'JSXExpressionContainer') {
+    return null;
+  }
+
+  return getExpressionKey(prop.value.expression as unknown as TSESTree.Node);
+}
+
+/**
+ * Builds a key from an identifier or non-computed member expression.
+ *
+ * @param expression The expression node to key.
+ * @return The key, or null for expressions that cannot be compared statically.
+ */
+function getExpressionKey(expression: TSESTree.Node): string | null {
+  if (expression.type === 'Identifier') {
+    return expression.name;
+  }
+
+  if (
+    expression.type === 'MemberExpression' &&
+    !expression.computed &&
+    expression.property.type === 'Identifier'
+  ) {
+    const objectKey = getExpressionKey(expression.object);
+    return objectKey === null ? null : `${objectKey}.${expression.property.name}`;
+  }
+
+  return null;
 }
 
 /**
