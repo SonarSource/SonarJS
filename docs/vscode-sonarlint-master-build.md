@@ -45,6 +45,8 @@ if [ -d "$SONARLINT_EXT/eslint-bridge" ]; then
 fi
 ```
 
+Prefer moving the live `eslint-bridge` directory out of the way instead of copying it. In a running VS Code session the bridge files can change while you are copying them, which can leave a noisy or incomplete backup.
+
 ## 3. Download the latest master build from Repox
 
 Use the Repox JFrog Web UI to download the same Maven artifact with these coordinates:
@@ -89,6 +91,12 @@ unzip -p "$SONARLINT_EXT/analyzers/sonarjs.jar" META-INF/MANIFEST.MF \
   | grep -E 'Plugin-Version|Plugin-Display-Version|Implementation-Build'
 ```
 
+If `PATCH_JAR` is a local file, you can also verify the copied jar matches it exactly:
+
+```bash
+cmp -s "$PATCH_JAR" "$SONARLINT_EXT/analyzers/sonarjs.jar"
+```
+
 ## 5. Rebuild `eslint-bridge` from the patched jar
 
 The jar embeds the Node payload as `sonarjs-1.0.0.tgz`. Extract it into the extension directory:
@@ -110,9 +118,13 @@ If `server.cjs` is missing, SonarLint will fail to start the bridge and the patc
 
 ## 6. Restart VS Code and trigger analysis
 
-Reload or restart VS Code, then open a JavaScript or TypeScript file and let SonarLint analyze it.
+After patching, restart the live SonarQube for IDE runtime before trusting any result. Replacing files on disk is not enough if the extension is already running.
+
+Reload or restart VS Code, or kill the existing SonarQube for IDE Java and Node processes and let the extension start them again. Then open a JavaScript or TypeScript file and let SonarLint analyze it.
 
 Do not rely on extension startup alone to recreate `eslint-bridge`. In WSL testing, removing that folder and starting VS Code again did not recreate it eagerly, and JS/TS analysis failed until the bridge files were restored.
+
+For rule-specific validation, prefer a tiny file that you already know should trigger the rule instead of guessing with a larger project file.
 
 ## 7. Verify the patched runtime through the logs
 
@@ -129,18 +141,23 @@ LATEST_LOG="$(find "$HOME/.vscode-server/data/logs" \
   -path '*SonarSource.sonarlint-vscode/SonarQube for IDE.log' | sort | tail -n 1)"
 ```
 
+After a restart, VS Code may keep appending to the same log file instead of creating a new one. Do not assume a new session directory will appear.
+
 Then inspect the lines that matter:
 
 ```bash
-grep -En 'Starting analysis with configuration|sonar\.js\.internal\.bundlePath|server\.cjs' \
+grep -En 'Plugin version:|Starting analysis with configuration|sonar\.js\.internal\.bundlePath|server\.cjs' \
   "$LATEST_LOG"
 ```
 
 What you want to see:
 
+- `Plugin version: [...]` matching the version from the patched jar manifest
 - `Starting analysis with configuration`
 - `sonar.js.internal.bundlePath=<your extension>/eslint-bridge`
 - no `Node.js script to start the bridge server doesn't exist` error
+
+If you are validating JavaScript or TypeScript rules, the `activeRules` list in `Starting analysis with configuration` should include non-zero `javascript` and `typescript` entries.
 
 ## 8. Restore the official extension files
 
@@ -166,6 +183,8 @@ Reinstalling or updating the extension also restores the official files.
 ## Troubleshooting
 
 - If you patched the jar but analysis still behaves like the old build, check `sonar.js.internal.bundlePath` in the logs. SonarLint is probably still using an old `eslint-bridge` directory.
+- If you patched the jar but the logs still show the previous analyzer version, the old runtime is probably still in memory. Reload VS Code or restart the SonarQube for IDE Java and Node processes, then trigger analysis again.
 - If the logs mention `server.cjs` does not exist, the `eslint-bridge` extraction step failed or the folder was removed.
 - If nothing changes in a WSL session, make sure you patched `~/.vscode-server/extensions/...` and not the desktop extension under `~/.vscode/extensions/...`.
+- If a specific project file still shows a parser error after the patch, that does not automatically mean the patch failed. Confirm the patched analyzer version and test with a known-positive minimal repro file before concluding the runtime is wrong.
 - If VS Code updates the extension, the versioned extension directory changes and the patch must be applied again.
