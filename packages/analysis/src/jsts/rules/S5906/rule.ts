@@ -47,6 +47,8 @@ import { getPlaywrightLocatorSuggestion } from './playwright-suggestions.js';
 const messages = {
   preferSpecificAssertion:
     'Prefer a more specific assertion instead of this generic one, e.g. "{{assertion}}".',
+  preferSpecificLengthAssertion:
+    'Prefer a more specific assertion instead of this generic one, e.g. "{{assertion}}". This matcher works on any value with a numeric length property, not only arrays or collections.',
   quickfix: 'Replace with {{assertion}}.',
 };
 
@@ -83,7 +85,10 @@ export const rule: Rule.RuleModule = {
 
       context.report({
         node: node.callee,
-        messageId: 'preferSpecificAssertion',
+        messageId:
+          suggestion.kind === 'length'
+            ? 'preferSpecificLengthAssertion'
+            : 'preferSpecificAssertion',
         data: { assertion: suggestion.assertion },
         ...(suggest ? { suggest } : {}),
       });
@@ -210,6 +215,7 @@ function getExpectLikeSuggestion(
       `expect(${sourceCode.getText(actual.object)}).${negated ? 'not.' : ''}${lengthMatcher}(${expectedText})`,
       node,
       sourceCode,
+      'length',
     );
   }
   const booleanExpected = getBooleanValue(expected);
@@ -370,6 +376,7 @@ function getChaiAssertSuggestion(
       `${assertText}.lengthOf(${sourceCode.getText(actual.object)}, ${sourceCode.getText(expected)}${trailingArgs})`,
       node,
       sourceCode,
+      'length',
     );
   }
   const booleanExpected = getBooleanValue(expected);
@@ -415,6 +422,7 @@ function getChaiValueSuggestion(
       `expect(${sourceCode.getText(actual.object)}${messageArguments}).to${negated ? '.not' : ''}.have.lengthOf(${sourceCode.getText(expected)})`,
       node,
       sourceCode,
+      'length',
     );
   }
   const booleanExpected = getBooleanValue(expected);
@@ -460,6 +468,7 @@ function getChaiShouldValueSuggestion(
       `${receiver}.should${negated ? '.not' : ''}.have.lengthOf(${sourceCode.getText(expected)})`,
       node,
       sourceCode,
+      'length',
     );
   }
   const booleanExpected = getBooleanValue(expected);
