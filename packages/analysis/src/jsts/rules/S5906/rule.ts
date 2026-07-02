@@ -48,7 +48,7 @@ const messages = {
   preferSpecificAssertion:
     'Prefer "{{assertion}}" over this generic assertion; dedicated matchers read better and report clearer failures.',
   preferSpecificLengthAssertion:
-    'Prefer "{{assertion}}"; it works for any object with a numeric length property.',
+    'Prefer "{{assertion}}" over this generic assertion; it reads better, reports clearer failures, and applies to any object with a numeric length property.',
   quickfix: 'Replace with {{assertion}}.',
 };
 
