@@ -92,6 +92,16 @@ describe('S5914', () => {
             expect(a).toBeTruthy();
           `,
         },
+        // a read that textually precedes its `const` declaration is a temporal-dead-zone
+        // violation: it throws at runtime instead of resolving to the initializer, so the
+        // assertion is guaranteed to crash, not to succeed
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(x).toBeTruthy();
+            const x = true;
+          `,
+        },
         // function parameter has no write expression
         {
           code: `function f(x) { expect(x).toBeTruthy(); }`,

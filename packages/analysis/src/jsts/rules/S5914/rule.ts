@@ -489,6 +489,12 @@ function resolveConstBinding(
   if (def.parent.kind !== 'const' || def.node.id.type !== 'Identifier') {
     return undefined;
   }
+  // a read that textually precedes its `const` declaration is a temporal-dead-zone violation:
+  // it throws at runtime rather than resolving to the initializer, so treat it as unresolvable
+  // rather than as a value (the assertion is then guaranteed to crash, not to succeed).
+  if (!node.range || !def.node.range || node.range[0] < def.node.range[0]) {
+    return undefined;
+  }
   visited.add(variable);
   return def.node.init;
 }
