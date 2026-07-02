@@ -118,7 +118,7 @@ function isValidAriaPattern(node: TSESTree.JSXOpeningElement): boolean {
     isLiveRegionStatus(role, attributes) ||
     isCustomSlider(role, attributes) ||
     isCustomRadio(role, attributes) ||
-    isCustomCombobox(elementName, role, attributes, node) ||
+    isCustomCombobox(role, attributes) ||
     isSeparatorWithChildren(role, node) ||
     isImgRoleWithValidPattern(elementName, role, attributes, node) ||
     isCustomCompositeWidget(role, node)
@@ -241,25 +241,17 @@ function isCustomRadio(role: string, attributes: JSXOpeningElement['attributes']
 /**
  * Checks if the element is a custom combobox that manages its own popup state.
  *
- * @param {string | null} elementName the normalized opening element name
+ * The popup-state attributes alone identify an intentional custom combobox: a
+ * native <input>/<select> cannot manually manage aria-expanded disclosure over
+ * custom popup content. This covers select-only comboboxes that have no text
+ * input descendant.
+ *
  * @param {string} role the normalized role attribute
  * @param {JSXOpeningElement['attributes']} attributes the opening element attributes
- * @param {TSESTree.JSXOpeningElement} node the current opening element
  * @return {boolean} true when the element matches a custom combobox pattern
  */
-function isCustomCombobox(
-  elementName: string | null,
-  role: string,
-  attributes: JSXOpeningElement['attributes'],
-  node: TSESTree.JSXOpeningElement,
-): boolean {
-  return (
-    role === 'combobox' &&
-    hasComboboxPopupState(attributes) &&
-    (elementName === 'input' ||
-      Boolean(getProp(attributes, 'tabIndex')) ||
-      hasTextInputDescendant(node))
-  );
+function isCustomCombobox(role: string, attributes: JSXOpeningElement['attributes']): boolean {
+  return role === 'combobox' && hasComboboxPopupState(attributes);
 }
 
 /**
@@ -276,57 +268,6 @@ function hasComboboxPopupState(attributes: JSXOpeningElement['attributes']): boo
 }
 
 /**
- * Checks if any descendant is text-input-like.
- *
- * @param {TSESTree.JSXOpeningElement} node the current opening element
- * @return {boolean} true when a descendant input, textarea, or textbox exists
- */
-function hasTextInputDescendant(node: TSESTree.JSXOpeningElement): boolean {
-  const jsxElement = node.parent;
-  if (jsxElement?.type !== 'JSXElement') {
-    return false;
-  }
-
-  return hasTextInputDescendantInSubtree(jsxElement);
-}
-
-/**
- * Checks if any descendant in the subtree is text-input-like.
- *
- * @param {TSESTree.JSXElement} node the subtree root
- * @return {boolean} true when a text-input-like descendant is found
- */
-function hasTextInputDescendantInSubtree(node: TSESTree.JSXElement): boolean {
-  for (const child of node.children) {
-    if (child.type !== 'JSXElement') {
-      continue;
-    }
-
-    if (isTextInputLikeElement(child.openingElement) || hasTextInputDescendantInSubtree(child)) {
-      return true;
-    }
-  }
-
-  return false;
-}
-
-/**
- * Checks if the opening element behaves like a text input control.
- *
- * @param {TSESTree.JSXOpeningElement} node the opening element to inspect
- * @return {boolean} true when the element is input-like or exposes a textbox role
- */
-function isTextInputLikeElement(node: TSESTree.JSXOpeningElement): boolean {
-  const elementName = getElementName(node);
-  const attributes = (node as JSXOpeningElement).attributes;
-  return (
-    elementName === 'input' ||
-    elementName === 'textarea' ||
-    hasRole(attributes, ['textbox', 'searchbox'])
-  );
-}
-
-/**
  * Checks if any of the provided attributes exists on the element.
  *
  * @param {JSXOpeningElement['attributes']} attributes the opening element attributes
@@ -335,31 +276,6 @@ function isTextInputLikeElement(node: TSESTree.JSXOpeningElement): boolean {
  */
 function hasAnyProp(attributes: JSXOpeningElement['attributes'], names: string[]): boolean {
   return names.some(name => Boolean(getProp(attributes, name)));
-}
-
-/**
- * Checks if the element exposes any role from the provided set.
- *
- * @param {JSXOpeningElement['attributes']} attributes the opening element attributes
- * @param {Set<string> | string[]} roles the accepted role names
- * @return {boolean} true when the role attribute matches an accepted value
- */
-function hasRole(
-  attributes: JSXOpeningElement['attributes'],
-  roles: Set<string> | string[],
-): boolean {
-  const roleProp = getProp(attributes, 'role');
-  if (!roleProp) {
-    return false;
-  }
-
-  const roleValue = getLiteralPropValue(roleProp);
-  if (typeof roleValue !== 'string') {
-    return false;
-  }
-
-  const normalizedRole = roleValue.toLowerCase();
-  return Array.isArray(roles) ? roles.includes(normalizedRole) : roles.has(normalizedRole);
 }
 
 function isSeparatorWithChildren(role: string, node: TSESTree.JSXOpeningElement): boolean {

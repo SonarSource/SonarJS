@@ -65,6 +65,16 @@ describe('S6819 upstream sentinel', () => {
           code: `<div role="combobox" tabIndex={0} aria-haspopup="listbox" aria-controls="choices" aria-expanded={isOpen}>Filter</div>`,
           errors: 1,
         },
+        // select-only combobox (no text input descendant) — suppressed by decorator, raised by upstream
+        {
+          code: `<div role="combobox" aria-haspopup="listbox" aria-controls="choices" aria-expanded={isOpen}>Selected</div>`,
+          errors: 1,
+        },
+        // combobox declaring popup ownership via aria-owns — suppressed by decorator, raised by upstream
+        {
+          code: `<div role="combobox" aria-owns="choices" aria-expanded={isOpen}>Selected</div>`,
+          errors: 1,
+        },
       ],
     });
   });
@@ -229,6 +239,23 @@ describe('S6819', () => {
               aria-expanded={isOpen}
             />
           `,
+        },
+        {
+          // Select-only combobox: no text input, popup state alone identifies the widget
+          code: `
+            <div
+              role="combobox"
+              aria-haspopup="listbox"
+              aria-controls="choices"
+              aria-expanded={isOpen}
+            >
+              Selected
+            </div>
+          `,
+        },
+        {
+          // Combobox declaring popup ownership via aria-owns
+          code: `<div role="combobox" aria-owns="choices" aria-expanded={isOpen}>Selected</div>`,
         },
       ],
       invalid: [
