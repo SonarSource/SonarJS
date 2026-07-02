@@ -85,7 +85,7 @@ function removeDebugCommand(
   context: Rule.RuleContext,
   call: estree.CallExpression & { callee: estree.MemberExpression },
   fixer: Rule.RuleFixer,
-): Rule.Fix {
+): Rule.Fix | null {
   const statement = unwrapToStatementExpression(call);
   if (isRootDebugReceiver(call.callee.object) && hasParent(statement)) {
     const { parent } = statement;
@@ -93,16 +93,22 @@ function removeDebugCommand(
       return removeNodeWithLeadingWhitespaces(context, parent, fixer);
     }
   }
-  return fixer.removeRange([call.callee.object.range![1], call.range![1]]);
+  const objectRange = call.callee.object.range;
+  const callRange = call.range;
+  if (!objectRange || !callRange) {
+    return null;
+  }
+  return fixer.removeRange([objectRange[1], callRange[1]]);
 }
 
 function unwrapToStatementExpression(node: estree.Node): estree.Node {
   let current = node;
   while (hasParent(current)) {
     const { parent } = current;
-    if (parent.type === 'ChainExpression' && parent.expression === current) {
-      current = parent;
-    } else if (parent.type === 'AwaitExpression' && parent.argument === current) {
+    if (
+      (parent.type === 'ChainExpression' && parent.expression === current) ||
+      (parent.type === 'AwaitExpression' && parent.argument === current)
+    ) {
       current = parent;
     } else {
       break;
