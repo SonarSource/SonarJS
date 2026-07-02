@@ -46,7 +46,7 @@ import { getPlaywrightLocatorSuggestion } from './playwright-suggestions.js';
 
 const messages = {
   preferSpecificAssertion:
-    'Prefer a more specific assertion instead of this generic one, e.g. "{{assertion}}".',
+    'Prefer "{{assertion}}" over this generic assertion; dedicated matchers read better and report clearer failures.',
   preferSpecificLengthAssertion:
     'Prefer "{{assertion}}"; it works for any object with a numeric length property.',
   quickfix: 'Replace with {{assertion}}.',
