@@ -284,6 +284,51 @@ describe('S2933 decorator', () => {
     assert.deepEqual((reports[1] as { loc: AST.SourceLocation }).loc, innerClass.id!.loc);
   });
 
+  it('groups loc-only nested class reports under the nearest owning class', () => {
+    const outerMember = member('outer', loc(2, 2, 2, 7), [12, 17]);
+    const innerMember = member('inner', loc(4, 4, 4, 9), [40, 45]);
+    const innerClass = classNode({
+      id: identifier('Inner', loc(3, 8, 3, 13)),
+      loc: loc(3, 2, 6, 3),
+      members: [innerMember],
+    });
+    innerClass.range = [30, 60];
+    innerClass.body.range = [38, 60];
+    const outerClass = classNode({
+      id: identifier('Outer', loc(1, 6, 1, 11)),
+      loc: loc(1, 0, 7, 1),
+      members: [outerMember, innerClass as unknown as TSESTree.ClassElement],
+    });
+    outerClass.range = [0, 80];
+    outerClass.body.range = [8, 80];
+    attachParents(outerClass);
+    attachParents(innerClass);
+    innerClass.parent = outerClass.body;
+
+    const reports = lintProgram(
+      [outerClass],
+      () => [
+        {
+          loc: outerMember.loc,
+          messageId: 'preferReadonly',
+          data: { name: 'outer' },
+          fix: defaultReadonlyFix(outerMember),
+        },
+        {
+          loc: innerMember.loc,
+          messageId: 'preferReadonly',
+          data: { name: 'inner' },
+          fix: defaultReadonlyFix(innerMember),
+        },
+      ],
+      { sonarRuntime: true },
+    );
+
+    assert.equal(reports.length, 2);
+    assert.deepEqual((reports[0] as { loc: AST.SourceLocation }).loc, outerClass.id!.loc);
+    assert.deepEqual((reports[1] as { loc: AST.SourceLocation }).loc, innerClass.id!.loc);
+  });
+
   it('forwards reports transparently when no owning class can be found', () => {
     const orphan = member('orphan', loc(2, 2, 2, 8), [12, 18]);
     const reports = lintProgram([], () => [readonlyReport(orphan)], { sonarRuntime: true });
