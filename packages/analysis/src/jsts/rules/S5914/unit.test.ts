@@ -146,6 +146,24 @@ describe('S5914', () => {
             assert.fail("should not be called");
           `,
         },
+        // `1` and `'1'` are loosely equal, so the negated `notDeepEqual` always fails
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.notDeepEqual(1, '1');
+          `,
+        },
+        // a shadowed `assert` parameter isn't traceable back to an import, so whether it's the
+        // strict or non-strict variant is unknown — deepEqual/notDeepEqual must stay unresolved
+        // rather than guessing non-strict
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            function run(assert) {
+              assert.deepEqual(1, '1');
+            }
+          `,
+        },
         {
           code: `
             import assert from 'node:assert';
@@ -802,6 +820,14 @@ describe('S5914', () => {
           code: `
             import assert from 'node:assert';
             assert.deepEqual(1, '1');
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // negated loose comparison: `1` and `2` are loosely unequal, so `notDeepEqual` always succeeds
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.notDeepEqual(1, 2);
           `,
           errors: [{ messageId: 'issue' }],
         },

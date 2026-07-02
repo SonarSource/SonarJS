@@ -320,7 +320,7 @@ function extractNodeJSAssertion(
     comparison: getNodeJSComparison(assertCall.method),
     actual,
     expected,
-    negated: assertCall.method.startsWith('not'),
+    negated: assertCall.negated,
     node,
     reportNode: assertCall.reportNode,
   };
@@ -344,23 +344,35 @@ function getNodeJSComparison(method: NodeAssertMethod): ComparisonAssertion['com
 function getNodeJSAssertCall(
   context: Rule.RuleContext,
   node: estree.CallExpression,
-): { method: NodeAssertMethod; reportNode: estree.Node } | null {
+): { method: NodeAssertMethod; negated: boolean; reportNode: estree.Node } | null {
   // fully qualified assert method like `assert.strictEqual()`
   const fqn = getFullyQualifiedName(context, node.callee);
   const fqnMethod = getNodeJSAssertMethodFromFqn(fqn);
   if (fqnMethod) {
     return {
+      // `negated` is derived from the raw method name, before normalization renames
+      // e.g. `notDeepEqual` to `looseNotDeepEqual` for a non-strict import, which would
+      // otherwise no longer start with `not`.
       method: normalizeNodeJSAssertMethod(fqnMethod, isStrictNodeJSAssertFqn(fqn)),
+      negated: fqnMethod.startsWith('not'),
       reportNode: node.callee,
     };
   }
 
-  // assert method from destructured import like `const { strictEqual } = require('assert');`
+  // `assert.xxx()` where `assert`'s origin isn't traceable via its fully qualified name, e.g. a
+  // test-framework-provided `assert` parameter (`QUnit.test('...', assert => { assert.ok(x); })`).
+  // Whether such an `assert` is the strict or non-strict variant can't be determined here, so
+  // `deepEqual`/`notDeepEqual` — whose comparison kind depends on that — are left unresolved
+  // rather than guessing non-strict; the unambiguous methods are still recognized.
   if (isMethodCall(node) && isIdentifier(node.callee.object, 'assert')) {
     const method = getNodeJSAssertMethodFromName(node.callee.property.name);
+    if (method === 'deepEqual' || method === 'notDeepEqual') {
+      return null;
+    }
     if (method) {
       return {
         method: normalizeNodeJSAssertMethod(method, false),
+        negated: method.startsWith('not'),
         reportNode: node.callee.property,
       };
     }
