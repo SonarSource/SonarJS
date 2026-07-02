@@ -231,6 +231,12 @@ const UNARY_OPERATORS_PRESERVING_CONSTNESS = new Set<estree.UnaryOperator>([
  * Real JS semantics for each supported binary/logical operator, applied to already-resolved
  * constant operands. `in` and `instanceof` aren't meaningful for primitive constants and are
  * intentionally left unsupported.
+ *
+ * Equality and logical operators accept the full `ConstantPrimitive` union as-is. The rest
+ * (arithmetic, relational, bitwise) reject mixed `number | bigint` operand types even when both
+ * sides are individually valid, so they're narrowed to `number`: a cast rather than a behavior
+ * change, since the real runtime values (and any resulting TypeError, e.g. mixing bigint and
+ * number) still flow through unchanged.
  */
 const BINARY_OPERATOR_EVALUATORS: {
   [K in estree.BinaryOperator | estree.LogicalOperator]?: (
@@ -238,28 +244,28 @@ const BINARY_OPERATOR_EVALUATORS: {
     right: ConstantPrimitive,
   ) => ConstantPrimitive;
 } = {
-  '+': (l, r) => (l as never) + (r as never),
-  '-': (l, r) => (l as never) - (r as never),
-  '*': (l, r) => (l as never) * (r as never),
-  '/': (l, r) => (l as never) / (r as never),
-  '%': (l, r) => (l as never) % (r as never),
-  '**': (l, r) => (l as never) ** (r as never),
+  '+': (l, r) => (l as number) + (r as number),
+  '-': (l, r) => (l as number) - (r as number),
+  '*': (l, r) => (l as number) * (r as number),
+  '/': (l, r) => (l as number) / (r as number),
+  '%': (l, r) => (l as number) % (r as number),
+  '**': (l, r) => (l as number) ** (r as number),
   '===': (l, r) => l === r,
   '!==': (l, r) => l !== r,
   // eslint-disable-next-line eqeqeq
   '==': (l, r) => l == r,
   // eslint-disable-next-line eqeqeq
   '!=': (l, r) => l != r,
-  '<': (l, r) => (l as never) < (r as never),
-  '<=': (l, r) => (l as never) <= (r as never),
-  '>': (l, r) => (l as never) > (r as never),
-  '>=': (l, r) => (l as never) >= (r as never),
-  '<<': (l, r) => (l as never) << (r as never),
-  '>>': (l, r) => (l as never) >> (r as never),
-  '>>>': (l, r) => (l as never) >>> (r as never),
-  '&': (l, r) => (l as never) & (r as never),
-  '|': (l, r) => (l as never) | (r as never),
-  '^': (l, r) => (l as never) ^ (r as never),
+  '<': (l, r) => (l as number) < (r as number),
+  '<=': (l, r) => (l as number) <= (r as number),
+  '>': (l, r) => (l as number) > (r as number),
+  '>=': (l, r) => (l as number) >= (r as number),
+  '<<': (l, r) => (l as number) << (r as number),
+  '>>': (l, r) => (l as number) >> (r as number),
+  '>>>': (l, r) => (l as number) >>> (r as number),
+  '&': (l, r) => (l as number) & (r as number),
+  '|': (l, r) => (l as number) | (r as number),
+  '^': (l, r) => (l as number) ^ (r as number),
   '&&': (l, r) => (l ? r : l),
   '||': (l, r) => l || r,
   '??': (l, r) => l ?? r,
