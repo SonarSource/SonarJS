@@ -395,14 +395,14 @@ describe('S5914', () => {
             import { expect } from 'vitest';
             expect(getValue()).toBe({});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [{ messageId: 'freshIdentity', data: { matcher: 'toEqual' } }],
         },
         {
           code: `
             import { expect } from 'vitest';
             expect([]).not.toBe(getValue());
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [{ messageId: 'freshIdentity', data: { matcher: 'not.toEqual' } }],
         },
         {
           code: `expect(true).toBeTruthy();`,
@@ -438,14 +438,14 @@ describe('S5914', () => {
             import assert from 'node:assert';
             assert.strictEqual(getValue(), {});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [{ messageId: 'freshIdentity', data: { matcher: 'deepStrictEqual' } }],
         },
         {
           code: `
             import assert from 'node:assert';
             assert.notStrictEqual(getItems(), []);
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [{ messageId: 'freshIdentity', data: { matcher: 'notDeepStrictEqual' } }],
         },
         {
           code: `
@@ -480,7 +480,7 @@ describe('S5914', () => {
             import { expect } from 'chai';
             expect(getValue()).to.equal({});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [{ messageId: 'freshIdentity', data: { matcher: 'deep.equal' } }],
         },
         {
           code: `
@@ -494,7 +494,7 @@ describe('S5914', () => {
             import { assert } from 'chai';
             assert.strictEqual(getValue(), {});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [{ messageId: 'freshIdentity', data: { matcher: 'deepEqual' } }],
         },
         {
           code: `
@@ -563,6 +563,11 @@ describe('S5914', () => {
           code: `cy.wrap(true).should('exist').and('be.true');`,
           filename: cypressFixture,
           errors: [{ messageId: 'issue' }, { messageId: 'issue' }],
+        },
+        {
+          code: `cy.wrap(getValue()).should('equal', {});`,
+          filename: cypressFixture,
+          errors: [{ messageId: 'freshIdentity', data: { matcher: 'deep.equal' } }],
         },
         // awaited dynamic imports are detected the same as static imports
         {
@@ -648,7 +653,7 @@ describe('S5914', () => {
             import 'chai/register-should';
             getValue().should.not.equal({});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [{ messageId: 'freshIdentity', data: { matcher: 'not.deep.equal' } }],
         },
         // chai assert strict equality against fresh references is still trivial
         {

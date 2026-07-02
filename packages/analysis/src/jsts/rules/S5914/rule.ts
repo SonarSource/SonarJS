@@ -21,6 +21,7 @@ import type estree from 'estree';
 import {
   type Assertion,
   type AssertionPredicate,
+  type AssertionStyle,
   extractTestAssertion,
 } from '../helpers/assertions.js';
 import { getVariableFromName } from '../helpers/ast.js';
@@ -29,15 +30,20 @@ import * as meta from './generated-meta.js';
 
 const messages = {
   issue: 'Replace this assertion; it always succeeds.',
-  // hint targeted at identity comparisons against a freshly-created value: a deep equality matcher is almost always what was meant
+  // hint targeted at identity comparisons against a freshly-created value: name the deep equality
+  // matcher for the assertion's own style, since it's almost always what was meant
   freshIdentity:
-    'Use a deep equality matcher; freshly-created values are never identical to other values.',
+    'Use `{{matcher}}` instead; freshly-created values are never identical to other values.',
   // hint for predicate assertions on a freshly-created value, where the truthiness/nullishness is statically known
   freshPredicate:
     'Replace this assertion; the value is freshly created here, so the result is independent of the code under test.',
 };
 
-type TrivialAssertion = { reportNode: estree.Node; messageId: keyof typeof messages };
+type TrivialAssertion = {
+  reportNode: estree.Node;
+  messageId: keyof typeof messages;
+  data?: Record<string, string>;
+};
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
@@ -46,7 +52,11 @@ export const rule: Rule.RuleModule = {
       const assertion = extractTestAssertion(context, node);
       const trivial = assertion ? getTrivialAssertion(context, assertion) : null;
       if (trivial) {
-        context.report({ node: trivial.reportNode, messageId: trivial.messageId });
+        context.report({
+          node: trivial.reportNode,
+          messageId: trivial.messageId,
+          data: trivial.data,
+        });
       }
     }
 
@@ -94,10 +104,18 @@ function getTrivialAssertion(
         // toBe/toEqual mixup. Loose equality is excluded because object-to-primitive coercion
         // can make comparisons like `[] == false` pass.
         if (isFreshReferenceExpression(assertion.actual)) {
-          return { reportNode: assertion.actual, messageId: 'freshIdentity' };
+          return {
+            reportNode: assertion.actual,
+            messageId: 'freshIdentity',
+            data: { matcher: getDeepEqualityMatcher(assertion.style, assertion.negated) },
+          };
         }
         if (isFreshReferenceExpression(assertion.expected)) {
-          return { reportNode: assertion.expected, messageId: 'freshIdentity' };
+          return {
+            reportNode: assertion.expected,
+            messageId: 'freshIdentity',
+            data: { matcher: getDeepEqualityMatcher(assertion.style, assertion.negated) },
+          };
         }
       }
       // both sides are constant (syntactically or via a resolved binding): for strict or loose
@@ -121,6 +139,31 @@ function getTrivialAssertion(
       return null;
     default:
       return null;
+  }
+}
+
+/**
+ * Names the deep equality matcher that most likely fixes a `freshIdentity` finding, for the
+ * assertion's own style and negation, so the suggestion reads naturally regardless of which
+ * library the offending assertion came from.
+ */
+function getDeepEqualityMatcher(style: AssertionStyle, negated: boolean): string {
+  switch (style) {
+    case 'jest-like':
+    case 'jasmine':
+    case 'playwright':
+      return negated ? 'not.toEqual' : 'toEqual';
+    case 'chai-bdd':
+    case 'cypress':
+      return negated ? 'not.deep.equal' : 'deep.equal';
+    case 'chai-assert':
+      return negated ? 'notDeepEqual' : 'deepEqual';
+    case 'node-assert':
+      return negated ? 'notDeepStrictEqual' : 'deepStrictEqual';
+    default:
+      return negated
+        ? 'a matcher that checks deep inequality'
+        : 'a matcher that checks deep equality';
   }
 }
 
