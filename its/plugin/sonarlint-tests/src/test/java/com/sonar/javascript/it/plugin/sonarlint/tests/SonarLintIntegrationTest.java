@@ -26,7 +26,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.io.TempDir;
@@ -46,7 +45,7 @@ import org.sonarsource.sonarlint.core.test.utils.plugins.Plugin;
 
 class SonarLintIntegrationTest {
 
-  private final String configScopeId = "CONFIG_SCOPE_ID-" + UUID.randomUUID();
+  private static final String CONFIG_SCOPE_ID = "CONFIG_SCOPE_ID";
   private SonarLintBackendFixture.FakeSonarLintRpcClient client;
   private SonarLintTestRpcServer backend;
 
@@ -163,7 +162,7 @@ class SonarLintIntegrationTest {
     });
     backend
       .getFileService()
-      .didCloseFile(new DidCloseFileParams(configScopeId, jsFileDTO.getUri()));
+      .didCloseFile(new DidCloseFileParams(CONFIG_SCOPE_ID, jsFileDTO.getUri()));
     client.clearLogs();
 
     triggerAnalysisByFileOpened(jsFileDTO);
@@ -180,7 +179,7 @@ class SonarLintIntegrationTest {
     });
     backend
       .getFileService()
-      .didCloseFile(new DidCloseFileParams(configScopeId, jsFileDTO.getUri()));
+      .didCloseFile(new DidCloseFileParams(CONFIG_SCOPE_ID, jsFileDTO.getUri()));
     client.clearLogs();
 
     // changed tsconfig to not contain the file
@@ -305,7 +304,7 @@ class SonarLintIntegrationTest {
     });
   }
 
-  private ClientFileDto createFile(Path folderPath, String fileName, String content) {
+  private static ClientFileDto createFile(Path folderPath, String fileName, String content) {
     var filePath = folderPath.resolve(fileName);
     try {
       Files.writeString(filePath, content);
@@ -315,7 +314,7 @@ class SonarLintIntegrationTest {
     return new ClientFileDto(
       filePath.toUri(),
       folderPath.relativize(filePath),
-      configScopeId,
+      CONFIG_SCOPE_ID,
       false,
       null,
       filePath,
@@ -326,7 +325,7 @@ class SonarLintIntegrationTest {
   }
 
   private void triggerAnalysisByFileOpened(ClientFileDto fileDTO) {
-    backend.getFileService().didOpenFile(new DidOpenFileParams(configScopeId, fileDTO.getUri()));
+    backend.getFileService().didOpenFile(new DidOpenFileParams(CONFIG_SCOPE_ID, fileDTO.getUri()));
   }
 
   private void triggerAnalysisByFileChanged(ClientFileDto fileDTO, String content) {
@@ -348,7 +347,7 @@ class SonarLintIntegrationTest {
   ) {
     client = harness
       .newFakeClient()
-      .withInitialFs(configScopeId, baseDir, Arrays.asList(fileDTOs))
+      .withInitialFs(CONFIG_SCOPE_ID, baseDir, Arrays.asList(fileDTOs))
       .build();
 
     backend = harness
@@ -361,7 +360,7 @@ class SonarLintIntegrationTest {
           ""
         )
       )
-      .withUnboundConfigScope(configScopeId)
+      .withUnboundConfigScope(CONFIG_SCOPE_ID)
       .start(client);
   }
 
@@ -369,7 +368,7 @@ class SonarLintIntegrationTest {
     await()
       .atMost(15, TimeUnit.SECONDS)
       .untilAsserted(() -> {
-        var results = client.getRaisedIssuesForScopeIdAsList(configScopeId);
+        var results = client.getRaisedIssuesForScopeIdAsList(CONFIG_SCOPE_ID);
         assertionLambda.accept(results);
       });
   }
