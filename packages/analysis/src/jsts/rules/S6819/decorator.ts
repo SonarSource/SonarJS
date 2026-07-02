@@ -409,10 +409,11 @@ function countInteractiveDescendantsInSubtree(node: TSESTree.JSXElement): number
  */
 function isTextInputLikeElement(node: TSESTree.JSXOpeningElement): boolean {
   const elementName = getElementName(node);
+  const attributes = (node as JSXOpeningElement).attributes;
   return (
     elementName === 'input' ||
     elementName === 'textarea' ||
-    hasRole(node.attributes, ['textbox', 'searchbox'])
+    hasRole(attributes, ['textbox', 'searchbox'])
   );
 }
 
@@ -424,20 +425,21 @@ function isTextInputLikeElement(node: TSESTree.JSXOpeningElement): boolean {
  */
 function isInteractiveElement(node: TSESTree.JSXOpeningElement): boolean {
   const elementName = getElementName(node);
+  const attributes = (node as JSXOpeningElement).attributes;
   if (elementName === 'a') {
-    return Boolean(getProp(node.attributes, 'href'));
+    return Boolean(getProp(attributes, 'href'));
   }
 
   if (elementName === 'input') {
-    const typeProp = getProp(node.attributes, 'type');
-    return getLiteralPropValue(typeProp) !== 'hidden';
+    const typeProp = getProp(attributes, 'type');
+    return !typeProp || getLiteralPropValue(typeProp) !== 'hidden';
   }
 
   if (elementName !== null && ['button', 'select', 'textarea'].includes(elementName)) {
     return true;
   }
 
-  return hasRole(node.attributes, GROUPED_CONTROL_ROLES);
+  return hasRole(attributes, GROUPED_CONTROL_ROLES);
 }
 
 /**
