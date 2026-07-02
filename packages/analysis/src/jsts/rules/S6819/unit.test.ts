@@ -14,7 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import type { Rule } from 'eslint';
 import { rule } from './index.js';
+import { decorate } from './decorator.js';
 import { rules } from '../external/a11y.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
@@ -86,6 +88,99 @@ describe('S6819', () => {
       ],
       invalid: [],
     });
+  });
+
+  it('should not flag deprecated menuitem role suggestions', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - deprecated menuitem roles', rule, {
+      valid: [
+        {
+          code: `<li role="menuitem" onClick={handleClick}>Save</li>`,
+        },
+        {
+          code: `<li role="menuitemcheckbox" aria-checked="true">Autosave</li>`,
+        },
+        {
+          code: `<li role="menuitemradio" aria-checked="false">Compact</li>`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should suppress non-conforming menuitem replacements without hiding valid ones', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    const mockPreferTagOverRoleRule: Rule.RuleModule = {
+      meta: { schema: [] },
+      create(context) {
+        return {
+          JSXOpeningElement(node) {
+            const roleAttribute = node.attributes.find(
+              attribute =>
+                attribute.type === 'JSXAttribute' &&
+                attribute.name.type === 'JSXIdentifier' &&
+                attribute.name.name === 'role' &&
+                attribute.value?.type === 'Literal' &&
+                typeof attribute.value.value === 'string',
+            );
+
+            if (!roleAttribute || roleAttribute.value?.type !== 'Literal') {
+              return;
+            }
+
+            const roleValue = roleAttribute.value.value.toLowerCase();
+            const tag =
+              roleValue === 'menuitemcheckbox'
+                ? '<menuitem type="checkbox">'
+                : roleValue === 'menuitemradio'
+                  ? '<menuitem type="radio">'
+                  : roleValue === 'menuitem'
+                    ? '<menuitem>'
+                    : '<button>';
+
+            context.report({
+              node,
+              message:
+                'Use {{tag}} instead of the "{{role}}" role to ensure accessibility across all devices.',
+              data: {
+                tag,
+                role: roleValue,
+              },
+            });
+          },
+        };
+      },
+    };
+
+    ruleTester.run(
+      'prefer-tag-over-role - non-conforming menuitem replacement',
+      decorate(mockPreferTagOverRoleRule),
+      {
+        valid: [
+          {
+            code: `<li role="menuitem">Save</li>`,
+          },
+          {
+            code: `<li role="menuitemcheckbox">Autosave</li>`,
+          },
+          {
+            code: `<li role="menuitemradio">Compact</li>`,
+          },
+        ],
+        invalid: [
+          {
+            code: `<div role="button">Save</div>`,
+            errors: [
+              {
+                message:
+                  'Use <button> instead of the "button" role to ensure accessibility across all devices.',
+              },
+            ],
+          },
+        ],
+      },
+    );
   });
 
   // Test for JS-1101: role="img" flagged on non-image visual content and containers

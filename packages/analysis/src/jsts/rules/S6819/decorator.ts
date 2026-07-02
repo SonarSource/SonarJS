@@ -83,6 +83,13 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
+      const suggestedTag = (
+        reportDescriptor as Rule.ReportDescriptor & { data?: { tag?: unknown } }
+      ).data?.tag;
+      if (typeof suggestedTag === 'string' && suggestedTag.startsWith('<menuitem')) {
+        return;
+      }
+
       if (isValidAriaPattern(node)) {
         // Suppress for valid ARIA patterns
         return;
