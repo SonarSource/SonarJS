@@ -123,6 +123,10 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
+        if (usesDoneCallback(callback)) {
+          return;
+        }
+
         forEachExpressionStatement(callback.body, statement => {
           const assertionNode = getAsyncAssertionNode(context, statement.expression, frameworks);
           if (assertionNode) {
@@ -161,6 +165,18 @@ function extractSupportedTestCallback(
 
 function isFunctionArgument(node: estree.Node | estree.SpreadElement): node is FunctionArgument {
   return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
+}
+
+/**
+ * Jest/Jasmine/Vitest pass a `done` callback whenever the test function declares a parameter
+ * (arity-based, regardless of its name). Mixing that with an awaited/returned assertion makes
+ * the runtime throw ("cannot both take a 'done' callback and return something"), so the fix this
+ * rule suggests doesn't apply to such tests. Playwright's fixtures parameter is always a
+ * destructuring pattern, never a plain identifier, so it isn't mistaken for a done callback.
+ */
+function usesDoneCallback(callback: estree.Function): boolean {
+  const [firstParam] = callback.params;
+  return firstParam?.type === 'Identifier';
 }
 
 function forEachExpressionStatement(
@@ -363,7 +379,9 @@ function isNamedCall(
   return importedNames.includes(fqn ?? '') || isIdentifier(call.callee, globalName);
 }
 
-function unwrapChainExpression<T extends estree.Node | estree.Super>(node: T): T | estree.Expression {
+function unwrapChainExpression<T extends estree.Node | estree.Super>(
+  node: T,
+): T | estree.Expression {
   return node.type === 'ChainExpression' ? node.expression : node;
 }
 
