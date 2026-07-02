@@ -44,6 +44,70 @@ describe('S1848', () => {
           },
           {
             code: `
+      export function parseRegExp(regExp: string): {
+        pattern: string;
+        flags: string;
+      } {
+        const patternEnd = regExp.lastIndexOf("/");
+        const pattern = regExp.slice(1, patternEnd);
+        const flags = regExp.slice(patternEnd + 1);
+        new RegExp(pattern, flags);
+        return { pattern, flags };
+      }
+      `,
+          },
+          {
+            code: `
+      function parsePattern(regExp) {
+        const pattern = regExp.slice(1, -1);
+        new globalThis.RegExp(pattern);
+        return pattern;
+      }
+      `,
+          },
+          {
+            code: `
+      function parsePatternInSwitch(regExp, type) {
+        const pattern = regExp.slice(1, -1);
+        switch (type) {
+          case "pattern":
+            new RegExp(pattern);
+            return pattern;
+          default:
+            return "";
+        }
+      }
+      `,
+          },
+          {
+            code: `
+      function parsePatternCharacters(regExp) {
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return [...pattern];
+      }
+      `,
+          },
+          {
+            code: `
+      function parsePatternConditionally(regExp, withPrefix) {
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return withPrefix ? \`/\${pattern}/\` : pattern;
+      }
+      `,
+          },
+          {
+            code: `
+      function parsePatternWithAssertion(regExp) {
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return pattern as string;
+      }
+      `,
+          },
+          {
+            code: `
       new Notification("hello there");
       `,
           },
@@ -247,6 +311,113 @@ new DragInstance(params, startEvent, eBody);`,
             code: `
         import Grid from '@ag-grid-community/core';
         new Grid();
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      function parseRegExp(regExp) {
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      function parseRegExp(regExp) {
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return true;
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      function parseRegExp(regExp) {
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return { pattern: "fallback" };
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      function parseRegExp(regExp) {
+        const options = { pattern: "fallback" };
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return options.pattern;
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      function parseRegExp(regExp, items) {
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return items.map(pattern => pattern);
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      function parseRegExp() {
+        new RegExp(buildPattern());
+        return buildPattern();
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      function parseRegExp(regExp) {
+        const RegExp = CustomRegExp;
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return pattern;
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      const RegExp = CustomRegExp;
+      function parseRegExp(regExp) {
+        if (regExp.startsWith("/")) {
+          const pattern = regExp.slice(1, -1);
+          new RegExp(pattern);
+          return pattern;
+        }
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      function parseRegExp(regExp) {
+        const globalThis = { RegExp: CustomRegExp };
+        const pattern = regExp.slice(1, -1);
+        new globalThis.RegExp(pattern);
+        return pattern;
+      }
+      `,
+            errors: 1,
+          },
+          {
+            code: `
+      const globalThis = { RegExp: CustomRegExp };
+      function parseRegExp(regExp) {
+        if (regExp.startsWith("/")) {
+          const pattern = regExp.slice(1, -1);
+          new globalThis.RegExp(pattern);
+          return pattern;
+        }
+      }
       `,
             errors: 1,
           },
