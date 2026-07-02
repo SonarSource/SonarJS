@@ -17,13 +17,19 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6551/javascript
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isGenericType } from '../helpers/type.js';
 import { childrenOf } from '../helpers/ancestor.js';
-import { isCallingMethod, isFunctionNode, isIdentifier, isIfStatement } from '../helpers/ast.js';
+import {
+  getVariableFromScope,
+  isCallingMethod,
+  isFunctionNode,
+  isIdentifier,
+  isIfStatement,
+} from '../helpers/ast.js';
 import { areEquivalent } from '../helpers/equivalence.js';
 import * as meta from './generated-meta.js';
 
@@ -39,7 +45,8 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         const node = reportDescriptor.node as TSESTree.Node;
         if (
           isGenericType(node, services) ||
-          isGuardedDirectToStringCall(reportDescriptor, context)
+          isGuardedDirectToStringCall(reportDescriptor, context) ||
+          isGuardedByTypeofCheck(reportDescriptor, context)
         ) {
           // we skip
         } else {
@@ -233,6 +240,183 @@ function flattenConjunction(condition: TSESTree.Expression): TSESTree.Expression
     return [...flattenConjunction(condition.left), ...flattenConjunction(condition.right)];
   }
   return [condition];
+}
+
+function flattenDisjunction(condition: TSESTree.Expression): TSESTree.Expression[] {
+  if (condition.type === 'LogicalExpression' && condition.operator === '||') {
+    return [...flattenDisjunction(condition.left), ...flattenDisjunction(condition.right)];
+  }
+  return [condition];
+}
+
+const SAFE_TYPEOF_VALUES = new Set([
+  'string',
+  'number',
+  'bigint',
+  'boolean',
+  'symbol',
+  'undefined',
+  'function',
+]);
+
+/**
+ * Suppresses string concatenation or template interpolation reports when an enclosing
+ * if-consequent is guarded by typeof checks proving the same bound value is primitive.
+ */
+function isGuardedByTypeofCheck(
+  reportDescriptor: Rule.ReportDescriptor,
+  context: Rule.RuleContext,
+): boolean {
+  if (!('node' in reportDescriptor)) {
+    return false;
+  }
+
+  const node = reportDescriptor.node as TSESTree.Node;
+  if (node.type !== 'Identifier' || !isInImplicitStringContext(node)) {
+    return false;
+  }
+
+  const variable = getVariableFromScope(context.sourceCode.getScope(node), node.name);
+  if (!variable) {
+    return false;
+  }
+
+  let current: TSESTree.Node | undefined = node;
+  while (current?.parent) {
+    const parent: TSESTree.Node = current.parent;
+    if (
+      isIfStatement(parent) &&
+      parent.consequent === current &&
+      conditionProvesPrimitive(parent.test, variable, context) &&
+      !hasWriteBefore(variable, parent.consequent, node.range[0], context)
+    ) {
+      return true;
+    }
+    if (isFunctionNode(parent as estree.Node)) {
+      break;
+    }
+    current = parent;
+  }
+  return false;
+}
+
+function isInImplicitStringContext(node: TSESTree.Identifier): boolean {
+  let current: TSESTree.Node = node;
+  while (current.parent) {
+    const parent: TSESTree.Node = current.parent;
+    if (
+      parent.type === 'TemplateLiteral' &&
+      parent.expressions.includes(current as TSESTree.Expression)
+    ) {
+      return true;
+    }
+    if (parent.type === 'BinaryExpression' && parent.operator === '+') {
+      return true;
+    }
+    if (
+      parent.type !== 'TSAsExpression' &&
+      parent.type !== 'TSTypeAssertion' &&
+      parent.type !== 'TSNonNullExpression'
+    ) {
+      return false;
+    }
+    current = parent;
+  }
+  return false;
+}
+
+function conditionProvesPrimitive(
+  condition: TSESTree.Expression,
+  variable: Scope.Variable,
+  context: Rule.RuleContext,
+): boolean {
+  if (condition.type === 'LogicalExpression') {
+    if (condition.operator === '&&') {
+      return flattenConjunction(condition).some(conjunct =>
+        conditionProvesPrimitive(conjunct, variable, context),
+      );
+    }
+    if (condition.operator === '||') {
+      return flattenDisjunction(condition).every(disjunct =>
+        conditionProvesPrimitive(disjunct, variable, context),
+      );
+    }
+    return false;
+  }
+
+  if (condition.type !== 'BinaryExpression') {
+    return false;
+  }
+
+  const { left, operator, right } = condition;
+  return (
+    (operator === '===' &&
+      ((isTypeofComparison(left, right, variable, context) &&
+        isSafeTypeofLiteral(right, SAFE_TYPEOF_VALUES)) ||
+        (isTypeofComparison(right, left, variable, context) &&
+          isSafeTypeofLiteral(left, SAFE_TYPEOF_VALUES)))) ||
+    (operator === '!==' &&
+      ((isTypeofComparison(left, right, variable, context) && isTypeofLiteral(right, 'object')) ||
+        (isTypeofComparison(right, left, variable, context) && isTypeofLiteral(left, 'object'))))
+  );
+}
+
+function isTypeofComparison(
+  typeofSide: TSESTree.Expression,
+  literalSide: TSESTree.Expression,
+  variable: Scope.Variable,
+  context: Rule.RuleContext,
+): boolean {
+  return (
+    literalSide.type === 'Literal' &&
+    typeof literalSide.value === 'string' &&
+    typeofSide.type === 'UnaryExpression' &&
+    typeofSide.operator === 'typeof' &&
+    typeofSide.argument.type === 'Identifier' &&
+    getVariableFromScope(
+      context.sourceCode.getScope(typeofSide.argument),
+      typeofSide.argument.name,
+    ) === variable
+  );
+}
+
+function isSafeTypeofLiteral(node: TSESTree.Expression, safeValues: ReadonlySet<string>): boolean {
+  return node.type === 'Literal' && typeof node.value === 'string' && safeValues.has(node.value);
+}
+
+function isTypeofLiteral(node: TSESTree.Expression, value: string): boolean {
+  return node.type === 'Literal' && node.value === value;
+}
+
+function hasWriteBefore(
+  variable: Scope.Variable,
+  node: TSESTree.Node,
+  end: number,
+  context: Rule.RuleContext,
+): boolean {
+  if (node.range[0] >= end || isFunctionNode(node as estree.Node)) {
+    return false;
+  }
+  if (
+    node.type === 'Identifier' &&
+    isWriteIdentifier(node) &&
+    getVariableFromScope(context.sourceCode.getScope(node), node.name) === variable
+  ) {
+    return true;
+  }
+  return childrenOf(node as estree.Node, context.sourceCode.visitorKeys).some(child =>
+    hasWriteBefore(variable, child as TSESTree.Node, end, context),
+  );
+}
+
+function isWriteIdentifier(node: TSESTree.Identifier): boolean {
+  const parent = node.parent;
+  return (
+    (parent?.type === 'AssignmentExpression' && parent.left === node) ||
+    (parent?.type === 'AssignmentPattern' && parent.left === node) ||
+    (parent?.type === 'UpdateExpression' && parent.argument === node) ||
+    (parent?.type === 'VariableDeclarator' && parent.id === node)
+  );
 }
 
 /**
