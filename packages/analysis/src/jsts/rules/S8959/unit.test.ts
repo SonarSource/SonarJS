@@ -87,6 +87,22 @@ describe('S8959', () => {
       invalid: [
         {
           code: `
+            it('saves a user', () => {
+              cy.get('button.save').debug().click();
+              cy.contains('Saved').should('be.visible');
+            });
+          `,
+          filename: 'cypress/e2e/save-user.cy.js',
+          errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            it('saves a user', () => {
+              cy.get('button.save').click();
+              cy.contains('Saved').should('be.visible');
+            });
+          `,
+        },
+        {
+          code: `
             it('uses Cypress debug helpers', () => {
               cy.pause();
               cy.debug();
@@ -94,6 +110,12 @@ describe('S8959', () => {
           `,
           filename: 'cypress/e2e/save-user.cy.js',
           errors: [{ messageId: 'removeDebugCommand' }, { messageId: 'removeDebugCommand' }],
+          // only the first fix applies in a single pass, since the two statements are adjacent
+          output: `
+            it('uses Cypress debug helpers', () => {
+              cy.debug();
+            });
+          `,
         },
         {
           code: `
@@ -104,6 +126,11 @@ describe('S8959', () => {
           `,
           filename: 'tests/save-user.spec.js',
           errors: [{ messageId: 'removeDebugCommand' }, { messageId: 'removeDebugCommand' }],
+          output: `
+            it('uses Cypress chain debug helpers', () => {
+              cy.contains('Saved').debug();
+            });
+          `,
         },
         {
           code: `
@@ -113,6 +140,10 @@ describe('S8959', () => {
           `,
           filename: 'cypress/e2e/visit.cy.js',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            it('uses chained Cypress pause helpers', () => {
+            });
+          `,
         },
         {
           code: `
@@ -122,6 +153,10 @@ describe('S8959', () => {
           `,
           filename: 'tests/save-user.spec.ts',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            test('uses Playwright pause', async ({ page }) => {
+            });
+          `,
         },
         {
           code: `
@@ -131,6 +166,10 @@ describe('S8959', () => {
           `,
           filename: 'tests/non-awaited.spec.ts',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            test('reports non-awaited Playwright pause', () => {
+            });
+          `,
         },
         {
           code: `
@@ -141,6 +180,12 @@ describe('S8959', () => {
           `,
           filename: 'cypress/e2e/save-user.cy.js',
           errors: [{ messageId: 'removeDebugCommand' }, { messageId: 'removeDebugCommand' }],
+          // only the first fix applies in a single pass, since the two statements are adjacent
+          output: `
+            it('uses Cypress debug helpers via optional chaining', () => {
+              cy?.get('button.save').debug();
+            });
+          `,
         },
       ],
     });
