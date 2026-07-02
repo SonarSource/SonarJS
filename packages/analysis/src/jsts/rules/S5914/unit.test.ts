@@ -338,6 +338,20 @@ describe('S5914', () => {
             expect(true).toBe(false);
           `,
         },
+        // strict equality uses Object.is semantics: NaN is equal to itself, so negating always fails
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(0 / 0).not.toBe(0 / 0);
+          `,
+        },
+        // strict equality uses Object.is semantics: -0 and 0 are distinct, so this always fails
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(-0).toBe(0);
+          `,
+        },
         // a freshly-created reference is always truthy, so negating the predicate always fails
         {
           code: `
@@ -732,6 +746,14 @@ describe('S5914', () => {
           code: `
             import { expect } from 'vitest';
             expect(true).toBe(true);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // strict equality uses Object.is semantics: NaN is equal to itself
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(0 / 0).toBe(0 / 0);
           `,
           errors: [{ messageId: 'issue' }],
         },

@@ -144,7 +144,7 @@ function resolveComparisonAssertion(
     if (actual && expected) {
       const equal =
         assertion.comparison === 'strict'
-          ? actual.value === expected.value
+          ? Object.is(actual.value, expected.value)
           : // eslint-disable-next-line eqeqeq
             actual.value == expected.value;
       if (equal !== assertion.negated) {
