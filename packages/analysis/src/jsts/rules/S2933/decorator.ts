@@ -154,10 +154,12 @@ function findInnermostClassContaining(classes: ClassNode[], index: number): Clas
   let owner: ClassNode | null = null;
 
   for (const classNode of classes) {
-    if (classNode.range[0] <= index && index <= classNode.range[1]) {
-      if (!owner || classNode.range[0] >= owner.range[0]) {
-        owner = classNode;
-      }
+    if (
+      classNode.range[0] <= index &&
+      index <= classNode.range[1] &&
+      (!owner || classNode.range[0] >= owner.range[0])
+    ) {
+      owner = classNode;
     }
   }
 
