@@ -48,6 +48,7 @@ const COMPOSITE_GROUP_OWNER_ROLES = new Set([
   'radiogroup',
 ]);
 const FIELDSET_FORM_CONTROL_ELEMENTS = new Set(['input', 'select', 'textarea']);
+const NON_GROUPABLE_INPUT_TYPES = new Set(['hidden', 'button', 'submit', 'reset', 'image']);
 
 /**
  * Decorates the prefer-tag-over-role rule to fix false positives.
@@ -465,18 +466,21 @@ function isFieldsetFormControl(element: TSESTree.JSXElement): boolean {
     return true;
   }
 
-  return !isHiddenInput(element.openingElement);
+  return !isNonGroupableInput(element.openingElement);
 }
 
 /**
- * Checks whether an input element is explicitly hidden.
+ * Checks whether an input is a type a fieldset would not group.
+ *
+ * Hidden inputs are not user-facing, and command inputs (button, submit, reset,
+ * image) are the `<button>` case rather than data-entry fields.
  *
  * @param node The JSX opening element being checked.
- * @return Whether the input type is hidden.
+ * @return Whether the input type falls outside fieldset grouping.
  */
-function isHiddenInput(node: TSESTree.JSXOpeningElement): boolean {
+function isNonGroupableInput(node: TSESTree.JSXOpeningElement): boolean {
   const type = getNonEmptyStringAttributeValue((node as JSXOpeningElement).attributes, 'type');
-  return type?.toLowerCase() === 'hidden';
+  return type !== null && NON_GROUPABLE_INPUT_TYPES.has(type.toLowerCase());
 }
 
 /**

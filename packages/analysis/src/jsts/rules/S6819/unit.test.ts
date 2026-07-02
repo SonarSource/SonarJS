@@ -237,6 +237,32 @@ describe('S6819', () => {
     });
   });
 
+  it('should not treat command inputs as fieldset-groupable form controls', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - command inputs group', rule, {
+      valid: [
+        {
+          code: `
+            <div role="group" aria-label="Actions">
+              <input type="submit" value="Save" />
+              <input type="reset" value="Cancel" />
+            </div>
+          `,
+        },
+        {
+          code: `
+            <div role="group" aria-label="Search">
+              <input type="text" name="q" />
+              <input type="submit" value="Go" />
+            </div>
+          `,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   // Test for JS-1101: role="img" flagged on non-image visual content and containers
   // These tests demonstrate false positives that occur when role="img" is used on
   // div/span elements containing children or using CSS background-image.
