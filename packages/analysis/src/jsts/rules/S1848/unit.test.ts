@@ -67,6 +67,47 @@ describe('S1848', () => {
           },
           {
             code: `
+      function parsePatternInSwitch(regExp, type) {
+        const pattern = regExp.slice(1, -1);
+        switch (type) {
+          case "pattern":
+            new RegExp(pattern);
+            return pattern;
+          default:
+            return "";
+        }
+      }
+      `,
+          },
+          {
+            code: `
+      function parsePatternCharacters(regExp) {
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return [...pattern];
+      }
+      `,
+          },
+          {
+            code: `
+      function parsePatternConditionally(regExp, withPrefix) {
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return withPrefix ? \`/\${pattern}/\` : pattern;
+      }
+      `,
+          },
+          {
+            code: `
+      function parsePatternWithAssertion(regExp) {
+        const pattern = regExp.slice(1, -1);
+        new RegExp(pattern);
+        return pattern as string;
+      }
+      `,
+          },
+          {
+            code: `
       new Notification("hello there");
       `,
           },

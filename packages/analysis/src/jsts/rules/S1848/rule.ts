@@ -35,6 +35,8 @@ const DOM_SELECTION_METHODS = [
 ];
 /** jQuery/$ function names */
 const JQUERY_IDENTIFIERS = ['$', 'jQuery'];
+const STATEMENT_ANCESTOR_OFFSET = 1;
+const CONTAINER_ANCESTOR_OFFSET = 2;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -97,13 +99,17 @@ function isRegExpValidation(node: estree.NewExpression, context: Rule.RuleContex
   }
 
   const nextStatement = getNextSiblingStatement(node, context);
-  if (nextStatement?.type !== 'ReturnStatement' || !nextStatement.argument) {
+  if (nextStatement?.type !== 'ReturnStatement') {
+    return false;
+  }
+
+  const { argument: returnArgument } = nextStatement;
+  if (!returnArgument) {
     return false;
   }
 
   return node.arguments.some(
-    argument =>
-      isIdentifier(argument) && containsReturnedIdentifier(nextStatement.argument!, argument),
+    argument => isIdentifier(argument) && containsReturnedIdentifier(returnArgument, argument),
   );
 }
 
@@ -143,8 +149,8 @@ function getNextSiblingStatement(
   context: Rule.RuleContext,
 ): estree.Statement | undefined {
   const ancestors = context.sourceCode.getAncestors(node);
-  const statement = ancestors.at(-1);
-  const container = ancestors.at(-2);
+  const statement = ancestors.at(-STATEMENT_ANCESTOR_OFFSET);
+  const container = ancestors.at(-CONTAINER_ANCESTOR_OFFSET);
   if (statement?.type !== 'ExpressionStatement') {
     return undefined;
   }
