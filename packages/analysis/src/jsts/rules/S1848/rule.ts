@@ -22,6 +22,8 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
 import { isIdentifier } from '../helpers/ast.js';
+import { childrenOf } from '../helpers/ancestor.js';
+import { areEquivalent } from '../helpers/equivalence.js';
 import * as meta from './generated-meta.js';
 
 /** DOM selection method names commonly used for element selection */
@@ -55,6 +57,9 @@ export const rule: Rule.RuleModule = {
         if (hasDomSelectionArgument(node, context)) {
           return;
         }
+        if (isRegExpValidation(node, context)) {
+          return;
+        }
         const { callee } = node;
         if (callee.type === 'Identifier' || callee.type === 'MemberExpression') {
           const calleeText = sourceCode.getText(callee);
@@ -86,6 +91,90 @@ function isTryable(node: estree.Node, context: Rule.RuleContext) {
     child = parent;
   }
   return false;
+}
+
+function isRegExpValidation(node: estree.NewExpression, context: Rule.RuleContext): boolean {
+  if (!isBuiltInRegExpConstructor(node, context)) {
+    return false;
+  }
+
+  const nextStatement = getNextSiblingStatement(node, context);
+  if (nextStatement?.type !== 'ReturnStatement' || !nextStatement.argument) {
+    return false;
+  }
+
+  return node.arguments.some(
+    argument =>
+      argument.type !== 'SpreadElement' &&
+      argument.type !== 'Literal' &&
+      containsEquivalentNode(nextStatement.argument!, argument, context),
+  );
+}
+
+function isBuiltInRegExpConstructor(
+  node: estree.NewExpression,
+  context: Rule.RuleContext,
+): boolean {
+  const { callee } = node;
+
+  if (isIdentifier(callee, 'RegExp')) {
+    return !isLocallyDefined(callee, context.sourceCode.getScope(node));
+  }
+
+  return (
+    callee.type === 'MemberExpression' &&
+    !callee.computed &&
+    isIdentifier(callee.object, 'globalThis') &&
+    !isLocallyDefined(callee.object, context.sourceCode.getScope(node)) &&
+    isIdentifier(callee.property, 'RegExp')
+  );
+}
+
+function isLocallyDefined(identifier: estree.Identifier, scope: Scope.Scope): boolean {
+  return (getVariableFromIdentifier(identifier, scope)?.defs.length ?? 0) > 0;
+}
+
+function getNextSiblingStatement(
+  node: estree.Node,
+  context: Rule.RuleContext,
+): estree.Statement | undefined {
+  const ancestors = context.sourceCode.getAncestors(node);
+  const statement = ancestors.at(-1);
+  const container = ancestors.at(-2);
+  if (statement?.type !== 'ExpressionStatement') {
+    return undefined;
+  }
+
+  const body = getStatementList(container);
+  if (!body) {
+    return undefined;
+  }
+
+  const statementIndex = body.indexOf(statement);
+  return statementIndex === -1 ? undefined : body[statementIndex + 1];
+}
+
+function getStatementList(node: estree.Node | undefined): estree.Statement[] | undefined {
+  if (node?.type === 'BlockStatement') {
+    return node.body;
+  }
+  if (node?.type === 'SwitchCase') {
+    return node.consequent;
+  }
+  return undefined;
+}
+
+function containsEquivalentNode(
+  node: estree.Node,
+  expected: estree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  return (
+    areEquivalent(node, expected, context.sourceCode) ||
+    childrenOf(node, context.sourceCode.visitorKeys).some(child =>
+      containsEquivalentNode(child, expected, context),
+    )
+  );
 }
 
 function reportIssue(
