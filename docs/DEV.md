@@ -108,6 +108,11 @@ On a fresh checkout, or whenever you want the latest RSPEC rule data instead of 
 already present in the repository, run `npm run rspec:refresh` before the Maven build commands
 below.
 
+If CI starts failing after an RSPEC refresh even though your branch still looks consistent locally,
+see [BUILD.md](BUILD.md#baseline-ci-mismatches). Pull request CI validates against freshly refreshed
+RSPEC rule data, so temporary merge-order drift between RSPEC and SonarJS can make `master`
+temporarily red until the lagging side catches up.
+
 To build the plugin and run its unit tests, execute this command from the project's root directory:
 
 ```sh
