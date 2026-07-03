@@ -98,7 +98,12 @@ function isBuiltInInlineSnapshotAssertion(
     return false;
   }
 
-  const chain = collectCallChain(call).map(segment => segment.name);
+  const rawChain = collectCallChain(call);
+  if (rawChain === null) {
+    return false;
+  }
+
+  const chain = rawChain.map(segment => segment.name);
   if (isMethodCall(root) && root.callee.property.name === 'expect') {
     chain.pop();
   }

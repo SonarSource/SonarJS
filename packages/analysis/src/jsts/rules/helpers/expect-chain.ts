@@ -33,12 +33,12 @@ export function unwrapChainExpression<T extends estree.Node | estree.Super>(
  * Collects the chain of member names hung off `call`, innermost first, e.g. for
  * `expect(x).not.resolves.toBe(y)` called with the `toBe(y)` node, returns
  * `[{name: 'toBe', ...}, {name: 'resolves', ...}, {name: 'not', ...}]`.
- * Stops (without signalling) at the first computed member or non-identifier
+ * Returns `null` if the chain contains a computed member or a non-identifier
  * property, since neither is a recognisable named chain segment.
  */
 export function collectCallChain(
   call: estree.CallExpression,
-): { name: string; node: estree.Node }[] {
+): { name: string; node: estree.Node }[] | null {
   const chain: { name: string; node: estree.Node }[] = [];
   let current: estree.Node | estree.Super = call;
 
@@ -49,7 +49,7 @@ export function collectCallChain(
     }
 
     if (current.computed || !isIdentifier(current.property)) {
-      break;
+      return null;
     }
 
     chain.push({ name: current.property.name, node: current.property });
@@ -62,7 +62,8 @@ export function collectCallChain(
 /**
  * Walks down from `call` to the root call of its member/call chain, e.g. for
  * `expect(x).not.resolves.toBe(y)` called with the `toBe(y)` node, returns the
- * `expect(x)` call.
+ * `expect(x)` call. Returns `null` if the chain contains a computed member or a
+ * non-identifier property, since neither is a recognisable named chain segment.
  */
 export function getRootCall(call: estree.CallExpression): estree.CallExpression | null {
   let current: estree.Node | estree.Super = call;
@@ -78,6 +79,10 @@ export function getRootCall(call: estree.CallExpression): estree.CallExpression 
       }
       current = callee;
       continue;
+    }
+
+    if (current.computed || !isIdentifier(current.property)) {
+      return null;
     }
 
     current = unwrapChainExpression(current.object);

@@ -83,6 +83,19 @@ describe('S8967', () => {
         },
         {
           code: `
+            import { expect, it } from '@jest/globals';
+
+            it('ignores custom wrappers accessed with computed member syntax', () => {
+              expect(getUser())['custom'].toMatchInlineSnapshot(\`
+                {
+                  "id": \${getUser().id},
+                }
+              \`);
+            });
+          `,
+        },
+        {
+          code: `
             const expect = require('chai').expect;
 
             it('ignores non jest or vitest expect chains', () => {

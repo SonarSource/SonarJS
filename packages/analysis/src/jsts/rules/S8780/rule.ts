@@ -253,7 +253,7 @@ function getJestOrVitestAsyncNode(
   }
 
   const chain = collectCallChain(call);
-  const asyncSegment = chain.find(
+  const asyncSegment = chain?.find(
     segment => segment.name === 'resolves' || segment.name === 'rejects',
   );
   if (!asyncSegment) {
