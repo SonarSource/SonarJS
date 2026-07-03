@@ -419,6 +419,15 @@ describe('typed chai should chains', () => {
     list.should.be.empty;
   });
 
+  it('should recognize single-getter property assertions', () => {
+    const list = [];
+    const user = {};
+    const value = true;
+    list.should.empty;
+    user.should.exist;
+    value.should.ok;
+  });
+
   it('should recognize call terminals on locals that do not resolve', () => {
     const value = 2;
     value.should.equal(2);

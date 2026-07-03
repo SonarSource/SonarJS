@@ -64,6 +64,22 @@ const GLOBAL_EXPECT_NAMES = new Set([
   'expectTypeOf',
 ]);
 
+const CHAI_ASSERTION_PROPERTY_NAMES = new Set([
+  'Arguments',
+  'NaN',
+  'empty',
+  'exist',
+  'extensible',
+  'false',
+  'finite',
+  'frozen',
+  'null',
+  'ok',
+  'sealed',
+  'true',
+  'undefined',
+]);
+
 /**
  * Whether the linted file imports or the project depends on a supported
  * assertion library / test runner. Rules use this to avoid raising issues in
@@ -182,7 +198,8 @@ function isTSExtendingShouldChainParent(parent: ts.Node | undefined, node: ts.No
   const grandparent = parent.parent;
   return (
     (ts.isPropertyAccessExpression(grandparent) && grandparent.expression === parent) ||
-    (ts.isCallExpression(grandparent) && grandparent.expression === parent)
+    (ts.isCallExpression(grandparent) && grandparent.expression === parent) ||
+    CHAI_ASSERTION_PROPERTY_NAMES.has(parent.name.text)
   );
 }
 
