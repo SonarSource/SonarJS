@@ -20,7 +20,7 @@
   "defaultQualityProfiles": [
     "Sonar way"
   ],
-  "quickfix": "partial",
+  "quickfix": "covered",
   "code": {
     "impacts": {
       "RELIABILITY": "MEDIUM",
