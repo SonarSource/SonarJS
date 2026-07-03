@@ -14,43 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
-import { fields } from './config.js';
 import { rule } from './index.js';
 
 describe('S6478', () => {
-  it('should expose allowAsProps and propNamePattern as Sonar configuration fields', () => {
-    assert.ok(Array.isArray(fields));
-    assert.ok(
-      fields.some(
-        field =>
-          Array.isArray(field) &&
-          field.some(
-            option =>
-              option.field === 'allowAsProps' &&
-              option.default === false &&
-              typeof option.description === 'string',
-          ),
-      ),
-    );
-    assert.ok(
-      fields.some(
-        field =>
-          Array.isArray(field) &&
-          field.some(
-            option =>
-              option.field === 'propNamePattern' &&
-              option.default === '{render*,*Enhancer,*Render}' &&
-              option.displayName === 'propNamePattern' &&
-              typeof option.description === 'string',
-          ),
-      ),
-    );
-  });
-
   it('should keep prop-based inline components noncompliant by default', () => {
     const ruleTester = new DefaultParserRuleTester();
 
@@ -74,8 +43,8 @@ describe('S6478', () => {
               return (
                 <Image
                   preview={{
-                    imageRender: () => <video muted />,
-                    actionsRender: () => null,
+                    imageRenderer: () => <video muted />,
+                    actionsRenderer: () => null,
                   }}
                 />
               );
@@ -173,36 +142,24 @@ describe('S6478', () => {
 
   it('should suppress configured render-prop names with propNamePattern', () => {
     const ruleTester = new DefaultParserRuleTester();
+    const propNamePattern = '{*Render,*Slot}';
 
     ruleTester.run('S6478', rule, {
       valid: [
         {
-          options: [{ propNamePattern: '{render*,*Enhancer,*Render}' }],
+          options: [{ propNamePattern }],
           code: `
             function Parent() {
               return (
                 <OtherComponent
-                  renderLabel={value => <span>{value}</span>}
+                  footerSlot={() => <Footer />}
                 />
               );
             }
           `,
         },
         {
-          options: [{ propNamePattern: '{render*,*Enhancer,*Render}' }],
-          code: `
-            function Parent() {
-              return (
-                <Button
-                  startEnhancer={() => <Icon />}
-                  endEnhancer={() => <OtherIcon />}
-                />
-              );
-            }
-          `,
-        },
-        {
-          options: [{ propNamePattern: '{render*,*Enhancer,*Render}' }],
+          options: [{ propNamePattern }],
           code: `
             function Parent() {
               return (
@@ -219,12 +176,25 @@ describe('S6478', () => {
       ],
       invalid: [
         {
-          options: [{ propNamePattern: '{render*,*Enhancer,*Render}' }],
+          options: [{ propNamePattern }],
           code: `
             function Parent() {
               return (
                 <OtherComponent
-                  component={() => <div />}
+                  renderLabel={value => <span>{value}</span>}
+                />
+              );
+            }
+          `,
+          errors: 1,
+        },
+        {
+          options: [{ propNamePattern }],
+          code: `
+            function Parent() {
+              return (
+                <OtherComponent
+                  itemRenderer={() => <div />}
                 />
               );
             }

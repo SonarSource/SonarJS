@@ -28,7 +28,7 @@ export const fields = [
     },
     {
       field: 'propNamePattern',
-      default: '{render*,*Enhancer,*Render}',
+      default: '{render*,*Enhancer,*Renderer}',
       description:
         'Glob pattern matching prop names whose inline functions should be treated as render props rather than nested components.',
       displayName: 'propNamePattern',
