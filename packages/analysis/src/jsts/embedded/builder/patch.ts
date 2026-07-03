@@ -156,52 +156,14 @@ export function patchParsingErrorMessage(
   patchedLine: number,
   embeddedJS: EmbeddedJS,
 ): string {
-  const location = findLineAndColumn(message);
-  if (location) {
-    const { line, column } = location;
+  /* Extracts location information of the form `(<line>:<column>)` */
+  const regex = /((?<line>\d+):(?<column>\d+))/;
+  const found = message.match(regex);
+  if (found?.groups) {
+    const line = found.groups.line;
+    const column = Number(found.groups.column);
     const patchedColumn = embeddedJS.format === 'PLAIN' ? column + embeddedJS.column - 1 : column;
     return message.replace(`(${line}:${column})`, `(${patchedLine}:${patchedColumn})`);
   }
   return message;
-}
-
-function findLineAndColumn(message: string): { line: string; column: number } | undefined {
-  let index = 0;
-  while (index < message.length) {
-    if (!isDigit(message[index])) {
-      index++;
-      continue;
-    }
-
-    const lineStart = index;
-    const lineEnd = skipDigits(message, index + 1);
-    if (message[lineEnd] !== ':') {
-      index = lineEnd;
-      continue;
-    }
-
-    const columnStart = lineEnd + 1;
-    if (columnStart >= message.length || !isDigit(message[columnStart])) {
-      index = columnStart;
-      continue;
-    }
-
-    const columnEnd = skipDigits(message, columnStart + 1);
-    return {
-      line: message.slice(lineStart, lineEnd),
-      column: Number(message.slice(columnStart, columnEnd)),
-    };
-  }
-}
-
-function skipDigits(text: string, start: number) {
-  let index = start;
-  while (index < text.length && isDigit(text[index])) {
-    index++;
-  }
-  return index;
-}
-
-function isDigit(char: string | undefined): char is string {
-  return char !== undefined && char >= '0' && char <= '9';
 }

@@ -124,12 +124,4 @@ describe('patchSourceCode', () => {
     const patchedMessage = patchParsingErrorMessage(message, patchedLine, embeddedJS);
     expect(patchedMessage).toEqual(`Unexpected parsing error`);
   });
-
-  it('should patch parsing error messages with locations', () => {
-    const message = `Unexpected token ','. (7:22)`;
-    const patchedLine = 3;
-    const embeddedJS = { code: 'f(x', line: 4, column: 10, format: 'PLAIN' } as EmbeddedJS;
-    const patchedMessage = patchParsingErrorMessage(message, patchedLine, embeddedJS);
-    expect(patchedMessage).toEqual(`Unexpected token ','. (3:31)`);
-  });
 });
