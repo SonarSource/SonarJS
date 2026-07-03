@@ -590,8 +590,57 @@ function LoadingIcon({ prefixCls }: { prefixCls: string }) {
 `,
           filename: fixtureFile,
         },
+        {
+          // FP: first param is an AssignmentPattern (whole-param default value):
+          // ({ section }: { section: SectionItem } = {} as any) — exercises the
+          // firstParam.type === 'AssignmentPattern' branch (line 47).
+          code: `
+declare const React: any;
+type SectionItem = { title: string; };
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section }: { section: SectionItem } = {} as any) => <div>{section.title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: prop with object-default value ({ item = { label: '' } }) in useCallback —
+          // value is AssignmentPattern with Identifier left, exercises lines 66-68.
+          code: `
+declare const React: any;
+function ItemRenderer() {
+  const renderItem = React.useCallback(
+    ({ item = { label: '' } }: { item: { label: string } }) => <div>{item.label}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
       ],
-      invalid: [],
+      invalid: [
+        {
+          // TP: nested destructuring for prop ({ section: { title } }) — value is an ObjectPattern,
+          // not an Identifier or AssignmentPattern with Identifier left, exercises line 70.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: { title } }: { section: { title: string } }) => <div>{title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
     });
   });
 
