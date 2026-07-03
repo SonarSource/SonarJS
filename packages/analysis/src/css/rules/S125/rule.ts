@@ -59,7 +59,7 @@ function looksLikeCssRule(text: string) {
       continue;
     }
 
-    if (char === '{' && selectorLength > 0 && text.indexOf('}', index + 1) !== -1) {
+    if (char === '{' && selectorLength > 0 && text.includes('}', index + 1)) {
       return true;
     }
 
@@ -76,28 +76,9 @@ function looksLikeCssDeclaration(text: string) {
       continue;
     }
 
-    let propertyEnd = index + 1;
-    while (propertyEnd < text.length && isCssPropertyChar(text[propertyEnd])) {
-      propertyEnd++;
-    }
-
-    let cursor = propertyEnd;
-    while (cursor < text.length && isWhitespace(text[cursor])) {
-      cursor++;
-    }
-    if (text[cursor] === ':') {
-      cursor++;
-      while (cursor < text.length && isWhitespace(text[cursor])) {
-        cursor++;
-      }
-      if (cursor < text.length && text[cursor] !== ';') {
-        while (cursor < text.length && text[cursor] !== ';') {
-          cursor++;
-        }
-        if (cursor < text.length) {
-          return true;
-        }
-      }
+    const propertyEnd = skipWhile(text, index + 1, isCssPropertyChar);
+    if (hasCssDeclarationValue(text, propertyEnd)) {
+      return true;
     }
 
     index = propertyEnd;
@@ -106,34 +87,48 @@ function looksLikeCssDeclaration(text: string) {
   return false;
 }
 
+function hasCssDeclarationValue(text: string, propertyEnd: number) {
+  const colonIndex = skipWhile(text, propertyEnd, isWhitespace);
+  return text[colonIndex] === ':' && findCharacter(text, colonIndex + 1, ';') > colonIndex + 1;
+}
+
 function looksLikeCssAtRule(text: string) {
   for (let index = 0; index < text.length; index++) {
     if (text[index] !== '@') {
       continue;
     }
 
-    let cursor = index + 1;
-    while (cursor < text.length && isAtRuleNameChar(text[cursor])) {
-      cursor++;
-    }
-    while (cursor < text.length && isWhitespace(text[cursor])) {
-      cursor++;
-    }
-    while (cursor < text.length && text[cursor] !== ';' && text[cursor] !== '{') {
-      cursor++;
-    }
-    if (cursor >= text.length) {
+    const bodyStart = skipWhile(text, skipWhile(text, index + 1, isAtRuleNameChar), isWhitespace);
+    const terminator = findCharacter(text, bodyStart, ';{');
+    if (terminator < 0) {
       continue;
     }
-    if (text[cursor] === ';') {
+    if (text[terminator] === ';') {
       return true;
     }
-    if (text.indexOf('}', cursor + 1) !== -1) {
+    if (findCharacter(text, terminator + 1, '}') >= 0) {
       return true;
     }
   }
 
   return false;
+}
+
+function skipWhile(text: string, start: number, predicate: (char: string | undefined) => boolean) {
+  let index = start;
+  while (index < text.length && predicate(text[index])) {
+    index++;
+  }
+  return index;
+}
+
+function findCharacter(text: string, start: number, characters: string) {
+  for (let index = start; index < text.length; index++) {
+    if (characters.includes(text[index])) {
+      return index;
+    }
+  }
+  return -1;
 }
 
 function isCssSelectorChar(char: string | undefined): char is string {

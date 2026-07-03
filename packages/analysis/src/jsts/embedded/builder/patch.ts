@@ -166,36 +166,40 @@ export function patchParsingErrorMessage(
 }
 
 function findLineAndColumn(message: string): { line: string; column: number } | undefined {
-  for (let i = 0; i < message.length; i++) {
-    if (!isDigit(message[i])) {
+  let index = 0;
+  while (index < message.length) {
+    if (!isDigit(message[index])) {
+      index++;
       continue;
     }
 
-    let lineEnd = i + 1;
-    while (lineEnd < message.length && isDigit(message[lineEnd])) {
-      lineEnd++;
-    }
+    const lineStart = index;
+    const lineEnd = skipDigits(message, index + 1);
     if (message[lineEnd] !== ':') {
-      i = lineEnd - 1;
+      index = lineEnd;
       continue;
     }
 
     const columnStart = lineEnd + 1;
     if (columnStart >= message.length || !isDigit(message[columnStart])) {
-      i = lineEnd;
+      index = columnStart;
       continue;
     }
 
-    let columnEnd = columnStart + 1;
-    while (columnEnd < message.length && isDigit(message[columnEnd])) {
-      columnEnd++;
-    }
-
+    const columnEnd = skipDigits(message, columnStart + 1);
     return {
-      line: message.slice(i, lineEnd),
+      line: message.slice(lineStart, lineEnd),
       column: Number(message.slice(columnStart, columnEnd)),
     };
   }
+}
+
+function skipDigits(text: string, start: number) {
+  let index = start;
+  while (index < text.length && isDigit(text[index])) {
+    index++;
+  }
+  return index;
 }
 
 function isDigit(char: string | undefined): char is string {

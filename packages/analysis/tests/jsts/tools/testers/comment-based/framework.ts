@@ -210,33 +210,45 @@ function editLine(lines: string[], change: Change) {
 
 function findNoncompliantCommentStart(line: string) {
   for (let index = 0; index < line.length - 1; index++) {
-    if (!line.startsWith('//', index) && !line.startsWith('/*', index)) {
+    if (!startsComment(line, index)) {
       continue;
     }
 
-    let commentTextStart = index + 2;
-    while (commentTextStart < line.length && isWhitespace(line[commentTextStart])) {
-      commentTextStart++;
-    }
-    if (!line.startsWith('Noncompliant', commentTextStart)) {
+    if (!line.startsWith('Noncompliant', skipWhitespaceForward(line, index + 2))) {
       continue;
     }
 
-    let commentStart = index;
-    while (commentStart > 0 && isWhitespace(line[commentStart - 1])) {
-      commentStart--;
-    }
-    if (commentStart > 0 && line[commentStart - 1] === '{') {
-      commentStart--;
-      while (commentStart > 0 && isWhitespace(line[commentStart - 1])) {
-        commentStart--;
-      }
-    }
-
-    return commentStart;
+    return expandCommentStart(line, index);
   }
 
   return -1;
+}
+
+function startsComment(line: string, index: number) {
+  return line.startsWith('//', index) || line.startsWith('/*', index);
+}
+
+function expandCommentStart(line: string, index: number) {
+  const commentStart = skipWhitespaceBackward(line, index);
+  return commentStart > 0 && line[commentStart - 1] === '{'
+    ? skipWhitespaceBackward(line, commentStart - 1)
+    : commentStart;
+}
+
+function skipWhitespaceForward(text: string, start: number) {
+  let index = start;
+  while (index < text.length && isWhitespace(text[index])) {
+    index++;
+  }
+  return index;
+}
+
+function skipWhitespaceBackward(text: string, start: number) {
+  let index = start;
+  while (index > 0 && isWhitespace(text[index - 1])) {
+    index--;
+  }
+  return index;
 }
 
 function isWhitespace(char: string | undefined): char is string {
