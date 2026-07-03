@@ -19,6 +19,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { isIdentifier, isMethodCall, isUnresolved } from '../helpers/ast.js';
+import { collectCallChain, getRootCall } from '../helpers/expect-chain.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
@@ -97,7 +98,7 @@ function isBuiltInInlineSnapshotAssertion(
     return false;
   }
 
-  const chain = collectCallChain(call);
+  const chain = collectCallChain(call).map(segment => segment.name);
   if (isMethodCall(root) && root.callee.property.name === 'expect') {
     chain.pop();
   }
@@ -107,49 +108,6 @@ function isBuiltInInlineSnapshotAssertion(
     INLINE_SNAPSHOT_MATCHERS.has(chain[0]) &&
     chain.slice(1).every(segment => ALLOWED_EXPECT_MODIFIERS.has(segment))
   );
-}
-
-function collectCallChain(call: estree.CallExpression): string[] {
-  const chain: string[] = [];
-  let current: estree.Node | estree.Super = call;
-
-  while (current.type === 'CallExpression' || current.type === 'MemberExpression') {
-    if (current.type === 'CallExpression') {
-      current = unwrapChainExpression(current.callee);
-      continue;
-    }
-
-    if (current.computed || !isIdentifier(current.property)) {
-      break;
-    }
-
-    chain.push(current.property.name);
-    current = unwrapChainExpression(current.object);
-  }
-
-  return chain;
-}
-
-function getRootCall(call: estree.CallExpression): estree.CallExpression | null {
-  let current: estree.Node | estree.Super = call;
-
-  while (current.type === 'CallExpression' || current.type === 'MemberExpression') {
-    if (current.type === 'CallExpression') {
-      const callee = unwrapChainExpression(current.callee);
-      if (
-        callee.type !== 'MemberExpression' ||
-        (callee.object.type !== 'CallExpression' && callee.object.type !== 'MemberExpression')
-      ) {
-        return current;
-      }
-      current = callee;
-      continue;
-    }
-
-    current = unwrapChainExpression(current.object);
-  }
-
-  return null;
 }
 
 function isExpectCall(
@@ -167,8 +125,4 @@ function isExpectCall(
     isIdentifier(call.callee, 'expect') &&
     isUnresolved(call.callee, context)
   );
-}
-
-function unwrapChainExpression<T extends estree.Node | estree.Super>(node: T): T | estree.Expression {
-  return node.type === 'ChainExpression' ? node.expression : node;
 }
