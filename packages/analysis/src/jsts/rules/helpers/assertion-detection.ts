@@ -182,11 +182,35 @@ function isTSExtendingShouldChainParent(parent: ts.Node | undefined, node: ts.No
 }
 
 function isChaiImported(sourceFile: ts.SourceFile): boolean {
-  return sourceFile.statements.some(
-    statement =>
-      ts.isImportDeclaration(statement) &&
-      ts.isStringLiteral(statement.moduleSpecifier) &&
-      statement.moduleSpecifier.text === 'chai',
+  return sourceFile.statements.some(statement => {
+    if (ts.isImportDeclaration(statement)) {
+      return (
+        ts.isStringLiteral(statement.moduleSpecifier) && statement.moduleSpecifier.text === 'chai'
+      );
+    }
+    return (
+      ts.isVariableStatement(statement) &&
+      statement.declarationList.declarations.some(declaration =>
+        isChaiRequireInitializer(declaration.initializer),
+      )
+    );
+  });
+}
+
+function isChaiRequireInitializer(initializer: ts.Expression | undefined): boolean {
+  if (initializer === undefined) {
+    return false;
+  }
+  if (ts.isPropertyAccessExpression(initializer)) {
+    return isChaiRequireInitializer(initializer.expression);
+  }
+  return (
+    ts.isCallExpression(initializer) &&
+    ts.isIdentifier(initializer.expression) &&
+    initializer.expression.text === 'require' &&
+    initializer.arguments[0] !== undefined &&
+    ts.isStringLiteral(initializer.arguments[0]) &&
+    initializer.arguments[0].text === 'chai'
   );
 }
 

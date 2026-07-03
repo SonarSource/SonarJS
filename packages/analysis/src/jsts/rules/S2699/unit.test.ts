@@ -442,6 +442,24 @@ describe('typed chai assert additions', () => {
         },
         {
           code: `
+const chai = require('chai');
+
+declare global {
+  interface Object {
+    should: any;
+  }
+}
+
+describe('typed commonjs chai should chains', () => {
+  it('should recognize terminal property assertions', () => {
+    const value = true;
+    value.should.be.true;
+  });
+});
+`,
+        },
+        {
+          code: `
 import { expect } from 'chai';
 
 declare function expectObservable(observable: any): { toBe: (expected: string) => void };
