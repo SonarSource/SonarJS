@@ -92,6 +92,16 @@ describe('S5914', () => {
             expect(a).toBeTruthy();
           `,
         },
+        // a read that textually precedes its `const` declaration is a temporal-dead-zone
+        // violation: it throws at runtime instead of resolving to the initializer, so the
+        // assertion is guaranteed to crash, not to succeed
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(x).toBeTruthy();
+            const x = true;
+          `,
+        },
         // function parameter has no write expression
         {
           code: `function f(x) { expect(x).toBeTruthy(); }`,
@@ -144,6 +154,24 @@ describe('S5914', () => {
           code: `
             import assert from 'node:assert';
             assert.fail("should not be called");
+          `,
+        },
+        // `1` and `'1'` are loosely equal, so the negated `notDeepEqual` always fails
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.notDeepEqual(1, '1');
+          `,
+        },
+        // a shadowed `assert` parameter isn't traceable back to an import, so whether it's the
+        // strict or non-strict variant is unknown — deepEqual/notDeepEqual must stay unresolved
+        // rather than guessing non-strict
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            function run(assert) {
+              assert.deepEqual(1, '1');
+            }
           `,
         },
         {
@@ -226,6 +254,26 @@ describe('S5914', () => {
             expect(getValue()).to.be.true;
           `,
         },
+        // `.true`/`isTrue`/`isFalse` are strict: a truthy-but-not-`true` (or falsy-but-not-`false`)
+        // value always fails such an assertion, unlike a plain truthy/falsy check
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(1).to.be.true;
+          `,
+        },
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.isTrue(1);
+          `,
+        },
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.isFalse(0);
+          `,
+        },
         // chai should-style: actual is a function call, not constant
         {
           code: `
@@ -266,8 +314,177 @@ describe('S5914', () => {
             expect(typeof getValue()).toBeTruthy();
           `,
         },
+        // guaranteed to always fail: self-correcting, so no longer reported
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(undefined).toBeDefined();
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(null).not.toBeNull();
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+            assert(false);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+            assert(false, "should not be called");
+          `,
+        },
+        {
+          code: `const { expect } = await import('vitest');
+            expect(null).not.toBeNull();`,
+        },
+        {
+          code: `const assert = await import('node:assert');
+            assert.ok(false);`,
+        },
+        // -1 is truthy, so this assertion always fails
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(-1).toBeFalsy();
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert.ok(false);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.strictEqual(1, 2);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(undefined).to.exists;
+          `,
+        },
+        // chai's `.exist` requires not-null AND not-undefined, so this always fails
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(null).to.exist;
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+            const flag = false;
+            assert(flag);
+          `,
+        },
+        // the reported false-positive pattern: an intentional "unreachable code" sentinel
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(true).toBe(false);
+          `,
+        },
+        // strict equality uses Object.is semantics: NaN is equal to itself, so negating always fails
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(0 / 0).not.toBe(0 / 0);
+          `,
+        },
+        // strict equality uses Object.is semantics: -0 and 0 are distinct, so this always fails
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(-0).toBe(0);
+          `,
+        },
+        // node:assert's strictEqual also compares with Object.is
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.strictEqual(-0, 0);
+          `,
+        },
+        // jasmine's toBe compares with === (unlike jest-like styles): NaN === NaN is false
+        {
+          code: `expect(0 / 0).toBe(0 / 0);`,
+          filename: jasmineFixture,
+        },
+        // a freshly-created reference is always truthy, so negating the predicate always fails
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect({}).not.toBeTruthy();
+          `,
+        },
+        // bitwise NOT isn't in the constness-preserving allowlist
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(~1).toBeTruthy();
+          `,
+        },
+        // unary plus on a BigInt throws at evaluation time, so it can't be resolved
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(+10n).toBeTruthy();
+          `,
+        },
+        // mixing BigInt and Number throws at evaluation time
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(1 + 10n).toBe(11);
+          `,
+        },
+        // operators outside the supported evaluator map aren't constant-folded
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(1 instanceof Number).toBeTruthy();
+          `,
+        },
+        // a non-constant left operand can't be resolved
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(getValue() + 1).toBe(5);
+          `,
+        },
+        // a non-constant right operand can't be resolved
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(1 + getValue()).toBe(5);
+          `,
+        },
       ],
       invalid: [
+        // negated comparisons of mismatched constants are guaranteed to succeed
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.notStrictEqual(1, 2);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(1).not.toBe(2);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
         {
           code: `
             import { expect } from 'vitest';
@@ -282,24 +499,11 @@ describe('S5914', () => {
           `,
           errors: [{ messageId: 'issue' }],
         },
-        {
-          code: `
-            import { expect } from 'vitest';
-            expect(undefined).toBeDefined();
-          `,
-          errors: [{ messageId: 'issue' }],
-        },
+        // negated predicate on a constant is guaranteed to succeed
         {
           code: `
             import { expect } from 'vitest';
             expect(undefined).not.toBeDefined();
-          `,
-          errors: [{ messageId: 'issue' }],
-        },
-        {
-          code: `
-            import { expect } from 'vitest';
-            expect(null).not.toBeNull();
           `,
           errors: [{ messageId: 'issue' }],
         },
@@ -322,14 +526,44 @@ describe('S5914', () => {
             import { expect } from 'vitest';
             expect(getValue()).toBe({});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'toEqual' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'toEqual' },
+                  output: `
+            import { expect } from 'vitest';
+            expect(getValue()).toEqual({});
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
             import { expect } from 'vitest';
             expect([]).not.toBe(getValue());
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'not.toEqual' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'not.toEqual' },
+                  output: `
+            import { expect } from 'vitest';
+            expect([]).not.toEqual(getValue());
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `expect(true).toBeTruthy();`,
@@ -344,7 +578,18 @@ describe('S5914', () => {
         {
           code: `expect(getValue()).toBe({});`,
           filename: jasmineFixture,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'toEqual' },
+                  output: `expect(getValue()).toEqual({});`,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
@@ -363,32 +608,71 @@ describe('S5914', () => {
         {
           code: `
             import assert from 'node:assert';
-            assert(false);
-          `,
-          errors: [{ messageId: 'issue' }],
-        },
-        {
-          code: `
-            import assert from 'node:assert';
             assert.strictEqual(getValue(), {});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'deepStrictEqual' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepStrictEqual' },
+                  output: `
+            import assert from 'node:assert';
+            assert.deepStrictEqual(getValue(), {});
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
             import assert from 'node:assert';
             assert.notStrictEqual(getItems(), []);
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'notDeepStrictEqual' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'notDeepStrictEqual' },
+                  output: `
+            import assert from 'node:assert';
+            assert.notDeepStrictEqual(getItems(), []);
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
             import assert from 'node:assert';
             assert.strictEqual(getValue(), new Value());
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepStrictEqual' },
+                  output: `
+            import assert from 'node:assert';
+            assert.deepStrictEqual(getValue(), new Value());
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
+          // no suggestion: `same` is a bare call reference to an aliased import, so there's no
+          // single member-name edit that would fix it without touching the import too
           code: `
             import { strictEqual as same } from 'node:assert';
             same(getValue(), {});
@@ -414,7 +698,22 @@ describe('S5914', () => {
             import { expect } from 'chai';
             expect(getValue()).to.equal({});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'deep.equal' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'eql' },
+                  output: `
+            import { expect } from 'chai';
+            expect(getValue()).to.eql({});
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
@@ -423,12 +722,42 @@ describe('S5914', () => {
           `,
           errors: [{ messageId: 'issue' }],
         },
+        // `isTrue`/`isFalse` are strict (=== true/false), unlike `ok`, which accepts any truthy/falsy value
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.isTrue(true);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.isFalse(false);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
         {
           code: `
             import { assert } from 'chai';
             assert.strictEqual(getValue(), {});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'deepEqual' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepEqual' },
+                  output: `
+            import { assert } from 'chai';
+            assert.deepEqual(getValue(), {});
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
@@ -442,7 +771,21 @@ describe('S5914', () => {
             import 'chai/register-should';
             getValue().should.equal({});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'eql' },
+                  output: `
+            import 'chai/register-should';
+            getValue().should.eql({});
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
@@ -471,7 +814,18 @@ describe('S5914', () => {
         {
           code: `assert.strictEqual(getValue(), {});`,
           filename: cypressFixture,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepEqual' },
+                  output: `assert.deepEqual(getValue(), {});`,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `cy.wrap(true).should('be.true');`,
@@ -498,6 +852,23 @@ describe('S5914', () => {
           filename: cypressFixture,
           errors: [{ messageId: 'issue' }, { messageId: 'issue' }],
         },
+        {
+          code: `cy.wrap(getValue()).should('equal', {});`,
+          filename: cypressFixture,
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'deep.equal' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deep.equal' },
+                  output: `cy.wrap(getValue()).should('deep.equal', {});`,
+                },
+              ],
+            },
+          ],
+        },
         // awaited dynamic imports are detected the same as static imports
         {
           code: `const { expect } = await import('vitest');
@@ -506,32 +877,39 @@ describe('S5914', () => {
         },
         {
           code: `const { expect } = await import('vitest');
-            expect(null).not.toBeNull();`,
-          errors: [{ messageId: 'issue' }],
-        },
-        {
-          code: `const { expect } = await import('vitest');
             expect(getValue()).toBe({});`,
-          errors: [{ messageId: 'freshIdentity' }],
-        },
-        {
-          code: `const assert = await import('node:assert');
-            assert.ok(false);`,
-          errors: [{ messageId: 'issue' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'toEqual' },
+                  output: `const { expect } = await import('vitest');
+            expect(getValue()).toEqual({});`,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `const assert = await import('node:assert');
             assert.strictEqual(getValue(), {});`,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepStrictEqual' },
+                  output: `const assert = await import('node:assert');
+            assert.deepStrictEqual(getValue(), {});`,
+                },
+              ],
+            },
+          ],
         },
         // unary expressions produce constant values
-        {
-          code: `
-            import { expect } from 'vitest';
-            expect(-1).toBeFalsy();
-          `,
-          errors: [{ messageId: 'issue' }],
-        },
         {
           code: `
             import { expect } from 'vitest';
@@ -581,16 +959,23 @@ describe('S5914', () => {
         {
           code: `
             import assert from 'node:assert/strict';
-            assert.ok(false);
-          `,
-          errors: [{ messageId: 'issue' }],
-        },
-        {
-          code: `
-            import assert from 'node:assert/strict';
             assert.strictEqual(getValue(), {});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepStrictEqual' },
+                  output: `
+            import assert from 'node:assert/strict';
+            assert.deepStrictEqual(getValue(), {});
+          `,
+                },
+              ],
+            },
+          ],
         },
         // chai assert: fresh reference on the actual side
         {
@@ -598,7 +983,21 @@ describe('S5914', () => {
             import { assert } from 'chai';
             assert.notStrictEqual({}, getValue());
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'notDeepEqual' },
+                  output: `
+            import { assert } from 'chai';
+            assert.notDeepEqual({}, getValue());
+          `,
+                },
+              ],
+            },
+          ],
         },
         // chai should-style with negation
         {
@@ -606,7 +1005,22 @@ describe('S5914', () => {
             import 'chai/register-should';
             getValue().should.not.equal({});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'not.deep.equal' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'not.eql' },
+                  output: `
+            import 'chai/register-should';
+            getValue().should.not.eql({});
+          `,
+                },
+              ],
+            },
+          ],
         },
         // chai assert strict equality against fresh references is still trivial
         {
@@ -614,14 +1028,42 @@ describe('S5914', () => {
             import { assert } from 'chai';
             assert.strictEqual(getValue(), /value/);
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepEqual' },
+                  output: `
+            import { assert } from 'chai';
+            assert.deepEqual(getValue(), /value/);
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
             import { assert } from 'chai';
             assert.notStrictEqual(getItems(), new Set());
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'notDeepEqual' },
+                  output: `
+            import { assert } from 'chai';
+            assert.notDeepEqual(getItems(), new Set());
+          `,
+                },
+              ],
+            },
+          ],
         },
         // chai expect with optional message argument is still analyzed
         {
@@ -636,7 +1078,21 @@ describe('S5914', () => {
             import { expect } from 'chai';
             expect(getValue(), 'msg').to.equal({});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'eql' },
+                  output: `
+            import { expect } from 'chai';
+            expect(getValue(), 'msg').to.eql({});
+          `,
+                },
+              ],
+            },
+          ],
         },
         // identity comparison of two constant primitives is statically known
         {
@@ -646,17 +1102,40 @@ describe('S5914', () => {
           `,
           errors: [{ messageId: 'issue' }],
         },
+        // strict equality uses Object.is semantics: NaN is equal to itself
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(0 / 0).toBe(0 / 0);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // node:assert's strictEqual also compares with Object.is
         {
           code: `
             import assert from 'node:assert';
-            assert.strictEqual(1, 2);
+            assert.strictEqual(0 / 0, 0 / 0);
           `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // jasmine's toBe compares with === (unlike jest-like styles): -0 === 0 is true
+        {
+          code: `expect(-0).toBe(0);`,
+          filename: jasmineFixture,
           errors: [{ messageId: 'issue' }],
         },
         {
           code: `
             import assert from 'node:assert';
             assert.deepEqual(1, '1');
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // negated loose comparison: `1` and `2` are loosely unequal, so `notDeepEqual` always succeeds
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.notDeepEqual(1, 2);
           `,
           errors: [{ messageId: 'issue' }],
         },
@@ -681,7 +1160,21 @@ describe('S5914', () => {
             import { expect } from 'vitest';
             expect(getValue()).toBe(/foo/);
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'toEqual' },
+                  output: `
+            import { expect } from 'vitest';
+            expect(getValue()).toEqual(/foo/);
+          `,
+                },
+              ],
+            },
+          ],
         },
         // void X is always undefined
         {
@@ -699,18 +1192,19 @@ describe('S5914', () => {
           `,
           errors: [{ messageId: 'issue' }],
         },
-        // chai BDD `.exist` (and its `.exists` alias) — equivalent to assert-style `.exists()`
+        // chai BDD `.exist` requires not-null AND not-undefined: fresh reference predicates
+        // and negated `notExists` still resolve correctly with the stricter `exists` predicate
         {
           code: `
             import { expect } from 'chai';
-            expect(null).to.exist;
+            expect({}).to.exist;
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshPredicate' }],
         },
         {
           code: `
-            import { expect } from 'chai';
-            expect(undefined).to.exists;
+            import { assert } from 'chai';
+            assert.notExists(null);
           `,
           errors: [{ messageId: 'issue' }],
         },
@@ -760,6 +1254,30 @@ describe('S5914', () => {
           `,
           errors: [{ messageId: 'issue' }],
         },
+        // the same identifier appearing in both operands of the initializer's binary expression
+        // must not be mistaken for a cycle
+        {
+          code: `
+            import { expect } from 'vitest';
+            const a = 5;
+            const x = a + a;
+            expect(x).toBe(10);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // a read textually preceding its `const` declaration but deferred into a callback runs
+        // after the declaration executes, so it's not a temporal-dead-zone violation and the
+        // binding must still resolve
+        {
+          code: `
+            import { expect } from 'vitest';
+            test('x', () => {
+              expect(answer).toBe(42);
+            });
+            const answer = 42;
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
         // expected-side const with a binary expression initializer (chai)
         {
           code: `
@@ -769,12 +1287,173 @@ describe('S5914', () => {
           `,
           errors: [{ messageId: 'issue' }],
         },
-        // node:assert predicate on a const-bound primitive
+        // remaining arithmetic operators are constant-folded the same way
         {
           code: `
-            import assert from 'node:assert';
-            const flag = false;
-            assert(flag);
+            import { expect } from 'vitest';
+            expect(5 - 2).toBe(3);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(10 / 2).toBe(5);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(10 % 3).toBe(1);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 ** 3).toBe(8);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // nested (in)equality operators are constant-folded the same way
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 === 2).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 !== 3).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 == '2').toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 != 3).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // relational operators are constant-folded the same way
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(1 < 2).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 <= 2).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 > 1).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(2 >= 2).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // bitwise operators are constant-folded the same way
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(1 << 2).toBe(4);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(8 >> 2).toBe(2);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(8 >>> 1).toBe(4);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(6 & 3).toBe(2);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(4 | 1).toBe(5);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(5 ^ 1).toBe(4);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // logical OR is constant-folded the same way as AND and ??
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(0 || 5).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // unary plus coerces a resolvable operand to a number
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(+'5').toBe(5);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // && short-circuits on a falsy left operand without needing the right one
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(false && getValue()).toBeFalsy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // || short-circuits on a truthy left operand without needing the right one
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(true || getValue()).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // ?? short-circuits on a non-nullish left operand without needing the right one
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(5 ?? getValue()).toBe(5);
           `,
           errors: [{ messageId: 'issue' }],
         },

@@ -1,5 +1,5 @@
 {
-  "title": "Assertions should not fail or succeed unconditionally",
+  "title": "Assertions should not be trivially true",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {
@@ -33,7 +33,7 @@
   "ruleSpecification": "RSPEC-5914",
   "sqKey": "S5914",
   "scope": "Tests",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "js",
     "ts"
