@@ -569,6 +569,27 @@ function Counter() {
 `,
           filename: fixtureFile,
         },
+        {
+          // FP: two-parameter render prop callback — first param is destructured ObjectPattern,
+          // second param is ref; both className and style are read in body.
+          // Mirrors the ant-design LoadingIcon CSSMotion render prop pattern.
+          code: `
+declare const React: any;
+declare const CSSMotion: any;
+function LoadingIcon({ prefixCls }: { prefixCls: string }) {
+  return (
+    <CSSMotion>
+      {({ className, style }: { className?: string; style?: React.CSSProperties }, ref: any) => (
+        <span className={className} style={style} ref={ref}>
+          <span className={\`\${prefixCls}-icon\`} />
+        </span>
+      )}
+    </CSSMotion>
+  );
+}
+`,
+          filename: fixtureFile,
+        },
       ],
       invalid: [],
     });
