@@ -125,6 +125,29 @@ describe('S8780', () => {
             });
           `,
         },
+        {
+          code: `
+            import { expect, test } from '@jest/globals';
+
+            test('should log errors and mark job as failed', (done) => {
+              failingJob.once('error', () => {
+                expect(failingJob.status).toBe('FAILED');
+                done();
+              });
+              expect(failingJob.run()).rejects.toThrow('Processor error');
+            });
+          `,
+        },
+        {
+          code: `
+            import { expect, it } from 'vitest';
+
+            it('ignores done-style callbacks', function (done) {
+              expect(fetchUser(1)).resolves.toHaveProperty('name');
+              done();
+            });
+          `,
+        },
       ],
       invalid: [
         {
