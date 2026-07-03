@@ -64,22 +64,6 @@ const GLOBAL_EXPECT_NAMES = new Set([
   'expectTypeOf',
 ]);
 
-const CHAI_ASSERTION_PROPERTY_NAMES = new Set([
-  'Arguments',
-  'NaN',
-  'empty',
-  'exist',
-  'extensible',
-  'false',
-  'finite',
-  'frozen',
-  'null',
-  'ok',
-  'sealed',
-  'true',
-  'undefined',
-]);
-
 /**
  * Whether the linted file imports or the project depends on a supported
  * assertion library / test runner. Rules use this to avoid raising issues in
@@ -156,7 +140,7 @@ export function isStandaloneShouldAccess(context: Rule.RuleContext, node: estree
     return false;
   }
   const parent = getParent(context, node);
-  return !isExtendingShouldChainParent(context, parent, node);
+  return !isExtendingShouldChainParent(parent, node);
 }
 
 /**
@@ -198,8 +182,7 @@ function isTSExtendingShouldChainParent(parent: ts.Node | undefined, node: ts.No
   const grandparent = parent.parent;
   return (
     (ts.isPropertyAccessExpression(grandparent) && grandparent.expression === parent) ||
-    (ts.isCallExpression(grandparent) && grandparent.expression === parent) ||
-    CHAI_ASSERTION_PROPERTY_NAMES.has(parent.name.text)
+    (ts.isCallExpression(grandparent) && grandparent.expression === parent)
   );
 }
 
@@ -282,22 +265,12 @@ function isShouldMember(node: estree.Node): node is estree.MemberExpression {
 }
 
 function isExtendingShouldChainParent(
-  context: Rule.RuleContext,
   parent: estree.Node | undefined,
   node: estree.MemberExpression,
 ): boolean {
-  if (parent?.type === 'CallExpression' && parent.callee === node) {
-    return true;
-  }
-  if (parent?.type !== 'MemberExpression' || parent.object !== node) {
-    return false;
-  }
-  const grandparent = getParent(context, parent);
   return (
-    (grandparent?.type === 'MemberExpression' && grandparent.object === parent) ||
-    (grandparent?.type === 'CallExpression' && grandparent.callee === parent) ||
-    (parent.property.type === 'Identifier' &&
-      CHAI_ASSERTION_PROPERTY_NAMES.has(parent.property.name))
+    (parent?.type === 'MemberExpression' && parent.object === node) ||
+    (parent?.type === 'CallExpression' && parent.callee === node)
   );
 }
 

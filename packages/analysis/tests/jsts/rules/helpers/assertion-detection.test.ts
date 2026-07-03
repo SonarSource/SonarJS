@@ -33,12 +33,6 @@ describe('assertion-detection', () => {
       const warning = { isVisible: () => true };
       warning.isVisible().should.be.true;
 
-      const list = [];
-      list.should.empty;
-
-      const value = true;
-      value.should.ok;
-
       const submitPassword = { should: { have: { been: { calledWith: () => {} } } } };
       submitPassword.should.have.been.calledWith('secret');
     `;
@@ -49,8 +43,6 @@ describe('assertion-detection', () => {
     expect(
       isTSAssertion(services, findTSNodeByText(program, 'warning.isVisible().should')),
     ).toEqual(true);
-    expect(isTSAssertion(services, findTSNodeByText(program, 'list.should'))).toEqual(true);
-    expect(isTSAssertion(services, findTSNodeByText(program, 'value.should'))).toEqual(true);
     expect(isTSAssertion(services, findTSNodeByText(program, 'submitPassword.should'))).toEqual(
       true,
     );

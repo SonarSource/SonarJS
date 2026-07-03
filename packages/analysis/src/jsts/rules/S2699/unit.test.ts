@@ -82,21 +82,6 @@ describe('chai should property assertions', () => {
         {
           code: `
 const chai = require('chai');
-describe('chai should single-getter assertions', () => {
-  it('recognizes terminal assertion getters', () => {
-    const list = [];
-    const user = {};
-    const value = true;
-    list.should.empty;
-    user.should.exist;
-    value.should.ok;
-  });
-});
-          `,
-        },
-        {
-          code: `
-const chai = require('chai');
 describe('sinon-chai style terminal calls', () => {
   it('recognizes calledWith on should chains', () => {
     const submitPassword = { should: { have: { been: { calledWith: () => {} } } } };
@@ -284,17 +269,6 @@ describe('bare should access', () => {
         {
           code: `
 const chai = require('chai');
-describe('incomplete should chains', () => {
-  it('should raise when should only has a language chain', () => {
-    const value = true;
-    value.should.be;
-  });
-});`,
-          errors: 1,
-        },
-        {
-          code: `
-const chai = require('chai');
 describe('unrelated method names', () => {
   it('should raise when methods only look like assertions', () => {
     const helper = {
@@ -443,15 +417,6 @@ describe('typed chai should chains', () => {
   it('should recognize property terminals beyond the common ones', () => {
     const list = [];
     list.should.be.empty;
-  });
-
-  it('should recognize single-getter property assertions', () => {
-    const list = [];
-    const user = {};
-    const value = true;
-    list.should.empty;
-    user.should.exist;
-    value.should.ok;
   });
 
   it('should recognize call terminals on locals that do not resolve', () => {
