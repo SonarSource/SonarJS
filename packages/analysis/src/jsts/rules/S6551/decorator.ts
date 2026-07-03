@@ -394,7 +394,7 @@ function hasWriteBefore(
   end: number,
   context: Rule.RuleContext,
 ): boolean {
-  if (node.range[0] >= end) {
+  if (node.range[0] >= end || isFunctionNode(node as estree.Node)) {
     return false;
   }
   if (
