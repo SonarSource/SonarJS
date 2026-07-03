@@ -43,11 +43,8 @@ export function hasDestructuredParamPropUsage(
 
   if (firstParam?.type === 'ObjectPattern') {
     objectPattern = firstParam;
-  } else if (
-    firstParam?.type === 'AssignmentPattern' &&
-    firstParam.left.type === 'ObjectPattern'
-  ) {
-    objectPattern = firstParam.left as estree.ObjectPattern;
+  } else if (firstParam?.type === 'AssignmentPattern' && firstParam.left.type === 'ObjectPattern') {
+    objectPattern = firstParam.left;
   } else {
     return false;
   }
