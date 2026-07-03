@@ -36,6 +36,7 @@ import * as Sinon from './sinon.js';
 import * as Vitest from './vitest.js';
 import * as Supertest from './supertest.js';
 import * as Cypress from './cypress.js';
+import { getParent } from './ancestor.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
 import { getFullyQualifiedNameTS } from './module-ts.js';
 
@@ -130,6 +131,19 @@ export function isScriptCapableAssertion(context: Rule.RuleContext, node: estree
 }
 
 /**
+ * Bare Chai `foo.should` property reads are not assertions on their own.
+ * We exclude them so S2699 does not treat an incomplete `should` chain as an assertion
+ * and miss the "Add at least one assertion to this test case." issue.
+ */
+export function isStandaloneShouldAccess(context: Rule.RuleContext, node: estree.Node): boolean {
+  if (!isShouldMember(node)) {
+    return false;
+  }
+  const parent = getParent(context, node);
+  return !isExtendingShouldChainParent(parent, node);
+}
+
+/**
  * Type-checker-aware counterpart of {@link isAssertion}, operating on TypeScript
  * AST nodes. Used when parser services are available to follow resolved types.
  */
@@ -197,6 +211,25 @@ function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.No
   }
   const fullyQualifiedName = getFullyQualifiedName(context, node);
   return fullyQualifiedName?.split('.')[0] === 'assert';
+}
+
+function isShouldMember(node: estree.Node): node is estree.MemberExpression {
+  return (
+    node.type === 'MemberExpression' &&
+    !node.computed &&
+    node.property.type === 'Identifier' &&
+    node.property.name === 'should'
+  );
+}
+
+function isExtendingShouldChainParent(
+  parent: estree.Node | undefined,
+  node: estree.MemberExpression,
+): boolean {
+  return (
+    (parent?.type === 'MemberExpression' && parent.object === node) ||
+    (parent?.type === 'CallExpression' && parent.callee === node)
+  );
 }
 
 function isGlobalTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {

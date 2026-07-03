@@ -18,7 +18,6 @@
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { childrenOf } from '../helpers/ancestor.js';
-import { getParent } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
   getProperty,
@@ -33,6 +32,7 @@ import * as Vitest from '../helpers/vitest.js';
 import {
   hasSupportedAssertionLibrary,
   isAssertion,
+  isStandaloneShouldAccess,
   isTSAssertion,
 } from '../helpers/assertion-detection.js';
 import * as meta from './generated-meta.js';
@@ -206,33 +206,6 @@ function checkAssertions(
   if (!hasAssertions) {
     context.report({ node, message: 'Add at least one assertion to this test case.' });
   }
-}
-
-function isStandaloneShouldAccess(context: Rule.RuleContext, node: estree.Node): boolean {
-  if (!isShouldMember(node)) {
-    return false;
-  }
-  const parent = getParent(context, node);
-  return !isExtendingShouldChainParent(parent, node);
-}
-
-function isShouldMember(node: estree.Node): node is estree.MemberExpression {
-  return (
-    node.type === 'MemberExpression' &&
-    !node.computed &&
-    node.property.type === 'Identifier' &&
-    node.property.name === 'should'
-  );
-}
-
-function isExtendingShouldChainParent(
-  parent: estree.Node | undefined,
-  node: estree.MemberExpression,
-): boolean {
-  return (
-    (parent?.type === 'MemberExpression' && parent.object === node) ||
-    (parent?.type === 'CallExpression' && parent.callee === node)
-  );
 }
 
 class TestCaseAssertionVisitor {
