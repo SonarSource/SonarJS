@@ -705,7 +705,7 @@ describe('S5914', () => {
               suggestions: [
                 {
                   messageId: 'suggestDeepEquality',
-                  data: { matcher: 'deep.equal' },
+                  data: { matcher: 'eql' },
                   output: `
             import { expect } from 'chai';
             expect(getValue()).to.eql({});
@@ -777,7 +777,7 @@ describe('S5914', () => {
               suggestions: [
                 {
                   messageId: 'suggestDeepEquality',
-                  data: { matcher: 'deep.equal' },
+                  data: { matcher: 'eql' },
                   output: `
             import 'chai/register-should';
             getValue().should.eql({});
@@ -1012,7 +1012,7 @@ describe('S5914', () => {
               suggestions: [
                 {
                   messageId: 'suggestDeepEquality',
-                  data: { matcher: 'not.deep.equal' },
+                  data: { matcher: 'not.eql' },
                   output: `
             import 'chai/register-should';
             getValue().should.not.eql({});
@@ -1084,7 +1084,7 @@ describe('S5914', () => {
               suggestions: [
                 {
                   messageId: 'suggestDeepEquality',
-                  data: { matcher: 'deep.equal' },
+                  data: { matcher: 'eql' },
                   output: `
             import { expect } from 'chai';
             expect(getValue(), 'msg').to.eql({});
@@ -1262,6 +1262,19 @@ describe('S5914', () => {
             const a = 5;
             const x = a + a;
             expect(x).toBe(10);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // a read textually preceding its `const` declaration but deferred into a callback runs
+        // after the declaration executes, so it's not a temporal-dead-zone violation and the
+        // binding must still resolve
+        {
+          code: `
+            import { expect } from 'vitest';
+            test('x', () => {
+              expect(answer).toBe(42);
+            });
+            const answer = 42;
           `,
           errors: [{ messageId: 'issue' }],
         },

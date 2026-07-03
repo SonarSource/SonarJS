@@ -248,8 +248,14 @@ function getFreshIdentitySuggestion(
       return replacePropertyIdentifier(assertion.reportNode, 'toEqual', matcher);
     case 'chai-bdd':
       // `eql` is chai's built-in alias for `.deep.equal`, so no chain restructuring is needed;
-      // reportNode is always the matcher property identifier (e.g. `equal` in `.to.equal(y)`)
-      return replacePropertyIdentifier(assertion.reportNode, 'eql', matcher);
+      // reportNode is always the matcher property identifier (e.g. `equal` in `.to.equal(y)`).
+      // Report the inserted name (`eql`, with `not` left untouched when already present) so the
+      // suggestion label matches the applied edit.
+      return replacePropertyIdentifier(
+        assertion.reportNode,
+        'eql',
+        assertion.negated ? 'not.eql' : 'eql',
+      );
     case 'chai-assert':
       return replaceCalleeMethodName(
         assertion.node,
@@ -591,6 +597,29 @@ function resolveBinary(
 }
 
 /**
+ * Scope types that represent a distinct execution context: code inside one only runs once the
+ * context itself is invoked, rather than inline with the surrounding statements.
+ */
+const EXECUTION_CONTEXT_SCOPE_TYPES = new Set<Scope.Scope['type']>([
+  'function',
+  'global',
+  'module',
+  'class-static-block',
+]);
+
+/**
+ * Returns the nearest enclosing scope that represents a distinct execution context (function,
+ * module, global, or class static block), walking up from `scope`.
+ */
+function getExecutionContextScope(scope: Scope.Scope): Scope.Scope {
+  let current = scope;
+  while (current.upper && !EXECUTION_CONTEXT_SCOPE_TYPES.has(current.type)) {
+    current = current.upper;
+  }
+  return current;
+}
+
+/**
  * Returns the initializer of `node` if it refers to a `const` binding declared with a plain identifier
  * pattern (no destructuring) and that binding has not been visited already, otherwise undefined.
  * Restricting to `const` ensures the binding's value is statically equal to the initializer at every read.
@@ -612,10 +641,18 @@ function resolveConstBinding(
   if (def.parent.kind !== 'const' || def.node.id.type !== 'Identifier') {
     return undefined;
   }
-  // a read that textually precedes its `const` declaration is a temporal-dead-zone violation:
-  // it throws at runtime rather than resolving to the initializer, so treat it as unresolvable
-  // rather than as a value (the assertion is then guaranteed to crash, not to succeed).
-  if (!node.range || !def.node.range || node.range[0] < def.node.range[0]) {
+  if (!node.range || !def.node.range) {
+    return undefined;
+  }
+  // a read that textually precedes its `const` declaration is only a guaranteed temporal-dead-zone
+  // violation when it runs in the same execution context as the declaration: reads deferred into a
+  // nested function (e.g. a test callback) may execute after the declaration has run, so source
+  // order alone can't prove a crash there. Restricting the check to the shared execution context
+  // avoids false negatives on such deferred reads while still catching genuine TDZ violations.
+  const readScope = context.sourceCode.getScope(node);
+  const sameExecutionContext =
+    getExecutionContextScope(readScope) === getExecutionContextScope(variable.scope);
+  if (sameExecutionContext && node.range[0] < def.node.range[0]) {
     return undefined;
   }
   visited.add(variable);
