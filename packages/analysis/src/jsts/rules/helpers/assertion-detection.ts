@@ -156,7 +156,7 @@ export function isStandaloneShouldAccess(context: Rule.RuleContext, node: estree
     return false;
   }
   const parent = getParent(context, node);
-  return !isExtendingShouldChainParent(parent, node);
+  return !isExtendingShouldChainParent(context, parent, node);
 }
 
 /**
@@ -282,12 +282,22 @@ function isShouldMember(node: estree.Node): node is estree.MemberExpression {
 }
 
 function isExtendingShouldChainParent(
+  context: Rule.RuleContext,
   parent: estree.Node | undefined,
   node: estree.MemberExpression,
 ): boolean {
+  if (parent?.type === 'CallExpression' && parent.callee === node) {
+    return true;
+  }
+  if (parent?.type !== 'MemberExpression' || parent.object !== node) {
+    return false;
+  }
+  const grandparent = getParent(context, parent);
   return (
-    (parent?.type === 'MemberExpression' && parent.object === node) ||
-    (parent?.type === 'CallExpression' && parent.callee === node)
+    (grandparent?.type === 'MemberExpression' && grandparent.object === parent) ||
+    (grandparent?.type === 'CallExpression' && grandparent.callee === parent) ||
+    (parent.property.type === 'Identifier' &&
+      CHAI_ASSERTION_PROPERTY_NAMES.has(parent.property.name))
   );
 }
 

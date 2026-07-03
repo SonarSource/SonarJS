@@ -82,6 +82,21 @@ describe('chai should property assertions', () => {
         {
           code: `
 const chai = require('chai');
+describe('chai should single-getter assertions', () => {
+  it('recognizes terminal assertion getters', () => {
+    const list = [];
+    const user = {};
+    const value = true;
+    list.should.empty;
+    user.should.exist;
+    value.should.ok;
+  });
+});
+          `,
+        },
+        {
+          code: `
+const chai = require('chai');
 describe('sinon-chai style terminal calls', () => {
   it('recognizes calledWith on should chains', () => {
     const submitPassword = { should: { have: { been: { calledWith: () => {} } } } };
@@ -262,6 +277,17 @@ describe('bare should access', () => {
   it('should raise when should is not completed', () => {
     const user = {};
     user.should;
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('incomplete should chains', () => {
+  it('should raise when should only has a language chain', () => {
+    const value = true;
+    value.should.be;
   });
 });`,
           errors: 1,
