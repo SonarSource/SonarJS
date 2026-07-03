@@ -56,17 +56,23 @@ describe('S6819 upstream sentinel', () => {
     });
   });
 
-  it('upstream prefer-tag-over-role raises on role="group" patterns that decorator suppresses', () => {
+  it('upstream prefer-tag-over-role raises on combobox patterns that decorator suppresses', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('prefer-tag-over-role', upstreamRule, {
       valid: [],
       invalid: [
         {
-          code: `<div role="group" aria-label="Request methods"><button>GET</button><button>POST</button></div>`,
+          code: `<div role="combobox" tabIndex={0} aria-haspopup="listbox" aria-controls="choices" aria-expanded={isOpen}>Filter</div>`,
           errors: 1,
         },
+        // select-only combobox (no text input descendant) — suppressed by decorator, raised by upstream
         {
-          code: `<form><div role="group" aria-label="View mode"><button type="button">Grid</button><button type="button">List</button></div></form>`,
+          code: `<div role="combobox" aria-haspopup="listbox" aria-controls="choices" aria-expanded={isOpen}>Selected</div>`,
+          errors: 1,
+        },
+        // combobox declaring popup ownership via aria-owns — suppressed by decorator, raised by upstream
+        {
+          code: `<div role="combobox" aria-owns="choices" aria-expanded={isOpen}>Selected</div>`,
           errors: 1,
         },
       ],
@@ -99,197 +105,6 @@ describe('S6819', () => {
         {
           // Nav with navigation role is valid (element already matches)
           code: `<nav role="navigation">content</nav>`,
-        },
-      ],
-      invalid: [],
-    });
-  });
-
-  it('should not flag role="group" when the content is not fieldset-like', () => {
-    const ruleTester = new NoTypeCheckingRuleTester();
-
-    ruleTester.run('prefer-tag-over-role - non-fieldset group', rule, {
-      valid: [
-        {
-          code: `<div role="group" aria-label="Request methods"><button>GET</button><button>POST</button></div>`,
-        },
-        {
-          code: `<form><div role="group" aria-label="View mode"><button type="button">Grid</button><button type="button">List</button></div></form>`,
-        },
-        {
-          code: `<div role="group"><input type="checkbox" /><input type="checkbox" /></div>`,
-        },
-        {
-          code: `<div role="group" aria-label="Profile fields"><input type="hidden" /><input type="email" /></div>`,
-        },
-        {
-          code: `<div role="group" aria-label="Profile fields"><Input /><Input /></div>`,
-        },
-      ],
-      invalid: [],
-    });
-  });
-
-  it('should not flag role="group" when it belongs to a composite widget', () => {
-    const ruleTester = new NoTypeCheckingRuleTester();
-
-    ruleTester.run('prefer-tag-over-role - composite widget group', rule, {
-      valid: [
-        {
-          code: `<div role="listbox"><div role="group" aria-label="Cities"><div role="option">Paris</div></div></div>`,
-        },
-        {
-          code: `
-            <>
-              <div role="toolbar" aria-owns="format-actions" />
-              <div role="group" id="format-actions" aria-label="Text formatting">
-                <button type="button">Bold</button>
-                <button type="button">Italic</button>
-              </div>
-            </>
-          `,
-        },
-        // One fieldset-like group per owner role: suppression must come from the
-        // composite owner, not from the content failing the fieldset heuristic.
-        ...['tree', 'treegrid', 'menu', 'menubar', 'tablist', 'radiogroup'].map(ownerRole => ({
-          code: `
-            <div role="${ownerRole}">
-              <div role="group" aria-label="Filters">
-                <input type="checkbox" name="a" />
-                <input type="checkbox" name="b" />
-              </div>
-            </div>
-          `,
-        })),
-      ],
-      invalid: [],
-    });
-  });
-
-  it('should resolve aria-owns ownership across a whitespace-separated id list', () => {
-    const ruleTester = new NoTypeCheckingRuleTester();
-
-    ruleTester.run('prefer-tag-over-role - aria-owns ownership', rule, {
-      valid: [
-        {
-          code: `
-            <>
-              <div role="toolbar" aria-owns="a b format-actions" />
-              <div role="group" id="format-actions" aria-label="Filters">
-                <input type="checkbox" name="a" />
-                <input type="checkbox" name="b" />
-              </div>
-            </>
-          `,
-        },
-      ],
-      invalid: [],
-    });
-  });
-
-  it('should resolve controls and composite owners rendered through JSX expressions', () => {
-    const ruleTester = new NoTypeCheckingRuleTester();
-
-    ruleTester.run('prefer-tag-over-role - jsx expression content', rule, {
-      valid: [
-        {
-          code: `
-            <>
-              {isEditing && <div role="toolbar" aria-owns="format-actions" />}
-              <div role="group" id="format-actions" aria-label="Text formatting">
-                <button type="button">Bold</button>
-                <button type="button">Italic</button>
-              </div>
-            </>
-          `,
-        },
-      ],
-      invalid: [
-        {
-          code: `
-            <div role="group" aria-label="Delivery">
-              <input type="radio" name="delivery" />
-              {express && <input type="radio" name="delivery" />}
-            </div>
-          `,
-          errors: 1,
-        },
-        {
-          code: `
-            <div role="group" aria-label="Toppings">
-              <input type="checkbox" name="cheese" />
-              {toppings.map(t => <input type="checkbox" name={t} key={t} />)}
-            </div>
-          `,
-          errors: 1,
-        },
-      ],
-    });
-  });
-
-  it('should keep flagging fieldset-like role="group" patterns', () => {
-    const ruleTester = new NoTypeCheckingRuleTester();
-
-    ruleTester.run('prefer-tag-over-role - fieldset-like group', rule, {
-      valid: [],
-      invalid: [
-        {
-          code: `
-            <div role="group" aria-label="Shipping options">
-              <label>
-                <input type="radio" name="shipping" />
-                Standard
-              </label>
-              <label>
-                <input type="radio" name="shipping" />
-                Express
-              </label>
-            </div>
-          `,
-          errors: 1,
-        },
-        {
-          code: `
-            <form>
-              <div role="group" aria-labelledby="contact-label">
-                <span id="contact-label">Contact details</span>
-                <label>
-                  Email
-                  <input type="email" />
-                </label>
-                <label>
-                  Phone
-                  <input type="tel" />
-                </label>
-              </div>
-            </form>
-          `,
-          errors: 1,
-        },
-      ],
-    });
-  });
-
-  it('should not treat command inputs as fieldset-groupable form controls', () => {
-    const ruleTester = new NoTypeCheckingRuleTester();
-
-    ruleTester.run('prefer-tag-over-role - command inputs group', rule, {
-      valid: [
-        {
-          code: `
-            <div role="group" aria-label="Actions">
-              <input type="submit" value="Save" />
-              <input type="reset" value="Cancel" />
-            </div>
-          `,
-        },
-        {
-          code: `
-            <div role="group" aria-label="Search">
-              <input type="text" name="q" />
-              <input type="submit" value="Go" />
-            </div>
-          `,
         },
       ],
       invalid: [],
@@ -392,6 +207,86 @@ describe('S6819', () => {
         // True positive: span with role="img" but self-closing (no children)
         {
           code: `<span role="img" aria-label="icon" />`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should not flag custom combobox widgets', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - combobox widgets', rule, {
+      valid: [
+        {
+          code: `
+            <div
+              role="combobox"
+              aria-haspopup="listbox"
+              aria-controls="choices"
+              aria-expanded={isOpen}
+            >
+              <input aria-autocomplete="list" />
+            </div>
+          `,
+        },
+        {
+          code: `
+            <input
+              role="combobox"
+              aria-haspopup="listbox"
+              aria-controls="choices"
+              aria-expanded={isOpen}
+            />
+          `,
+        },
+        {
+          // Select-only combobox: no text input, popup state alone identifies the widget
+          code: `
+            <div
+              role="combobox"
+              aria-haspopup="listbox"
+              aria-controls="choices"
+              aria-expanded={isOpen}
+            >
+              Selected
+            </div>
+          `,
+        },
+        {
+          // Combobox declaring popup ownership via aria-owns
+          code: `<div role="combobox" aria-owns="choices" aria-expanded={isOpen}>Selected</div>`,
+        },
+      ],
+      invalid: [
+        {
+          code: `<div role="combobox" aria-expanded={isOpen}><input aria-autocomplete="list" /></div>`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should keep flagging popup buttons and groups', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - popup buttons and groups', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `<div role="button" onClick={toggle}>Open</div>`,
+          errors: 1,
+        },
+        {
+          code: `<div role="button" tabIndex={0} aria-haspopup="listbox" aria-controls="choices" aria-expanded={isOpen}>Open</div>`,
+          errors: 1,
+        },
+        {
+          code: `<div role="group"><button type="button">Save</button><button type="button">Cancel</button></div>`,
+          errors: 1,
+        },
+        {
+          code: `<div role="group"><button type="button">Save</button></div>`,
           errors: 1,
         },
       ],
