@@ -570,6 +570,19 @@ describe('typed bare should access', () => {
 `,
           errors: 1,
         },
+        {
+          code: `
+import { expect } from 'vitest';
+
+describe('typed unrelated should chains', () => {
+  it('should raise when should is not from chai', () => {
+    const helper = { should: { eventually: () => {} } };
+    helper.should.eventually();
+  });
+});
+`,
+          errors: 1,
+        },
       ],
     });
   });

@@ -160,7 +160,11 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
 }
 
 function isExtendedTSShouldAccess(node: ts.Node): boolean {
-  return isTSShouldAccess(node) && isTSExtendingShouldChainParent(node.parent, node);
+  return (
+    isTSShouldAccess(node) &&
+    isChaiImported(node.getSourceFile()) &&
+    isTSExtendingShouldChainParent(node.parent, node)
+  );
 }
 
 function isTSShouldAccess(node: ts.Node): node is ts.PropertyAccessExpression {
@@ -174,6 +178,15 @@ function isTSExtendingShouldChainParent(parent: ts.Node | undefined, node: ts.No
   return (
     (ts.isPropertyAccessExpression(parent) && parent.expression === node) ||
     (ts.isCallExpression(parent) && parent.expression === node)
+  );
+}
+
+function isChaiImported(sourceFile: ts.SourceFile): boolean {
+  return sourceFile.statements.some(
+    statement =>
+      ts.isImportDeclaration(statement) &&
+      ts.isStringLiteral(statement.moduleSpecifier) &&
+      statement.moduleSpecifier.text === 'chai',
   );
 }
 
