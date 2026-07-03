@@ -57,7 +57,7 @@ type rspecMeta = {
   type: keyof typeof typeMatrix;
   status: 'ready' | 'beta' | 'closed' | 'deprecated' | 'superseded';
   title: string;
-  quickfix: 'covered' | 'partial' | undefined;
+  quickfix: 'covered' | undefined;
   tags: string[];
   scope: 'Main' | 'Tests';
   compatibleLanguages: ('js' | 'ts')[];

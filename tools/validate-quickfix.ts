@@ -26,23 +26,22 @@ for (const [sonarKey, rule] of Object.entries(rules) as [string, Rule.RuleModule
   const rspecMeta = await getRspecMeta(sonarKey, {});
   const ruleMeta = await getRuleMetadata(sonarKey);
 
-  const rspecRequiresQuickfix = rspecMeta.quickfix === 'covered';
-  const rspecAllowsQuickfix = rspecMeta.quickfix === 'covered' || rspecMeta.quickfix === 'partial';
+  const rspecHasQuickfix = rspecMeta.quickfix === 'covered';
   const ruleHasFixable = !!rule.meta?.fixable;
   const ruleHasSuggestions = !!rule.meta?.hasSuggestions;
   const ruleHasQuickfixCapability = ruleHasFixable || ruleHasSuggestions;
 
   // Validation 1: RSPEC says quickfix but rule doesn't implement it
-  if (rspecRequiresQuickfix && !ruleHasQuickfixCapability) {
+  if (rspecHasQuickfix && !ruleHasQuickfixCapability) {
     errors.push(
-      `${sonarKey}: RSPEC declares quickfix='${rspecMeta.quickfix}' but rule has neither fixable nor hasSuggestions`,
+      `${sonarKey}: RSPEC declares quickfix='covered' but rule has neither fixable nor hasSuggestions`,
     );
   }
 
   // Validation 2: Rule implements fix/suggestion but RSPEC doesn't declare it
-  if (ruleHasQuickfixCapability && !rspecAllowsQuickfix) {
+  if (ruleHasQuickfixCapability && !rspecHasQuickfix) {
     errors.push(
-      `${sonarKey}: Rule has ${ruleHasFixable ? 'fixable' : 'hasSuggestions'} but RSPEC doesn't declare quickfix='covered' or quickfix='partial'`,
+      `${sonarKey}: Rule has ${ruleHasFixable ? 'fixable' : 'hasSuggestions'} but RSPEC doesn't declare quickfix='covered'`,
     );
   }
 
