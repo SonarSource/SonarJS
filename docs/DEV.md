@@ -64,6 +64,18 @@ To pin rule data generation to an exact RSPEC revision for branch-local work, wr
 to `rspec.sha` at the repository root and run `npm run rspec:refresh`. The root `rspec.sha` file is
 a temporary local workflow input and must never be committed to `master`.
 
+This is also the standard way to keep a SonarJS pull request aligned with an RSPEC pull request
+that is not yet merged on the default RSPEC branch. For example:
+
+- you add a quickfix in SonarJS and need RSPEC to declare `quickfix='covered'`
+- you remove quickfix capability in SonarJS and need RSPEC to stop declaring it
+
+In that situation, point the root `rspec.sha` file to the commit on the RSPEC branch that contains
+the intended metadata and keep that file in the SonarJS pull request while the dependency is still
+unmerged. CI will then refresh against that exact RSPEC revision instead of the default branch.
+Remove the temporary root `rspec.sha` before merging to `master` once the RSPEC change has landed on
+the intended default branch.
+
 When no SHA pin is active, the refresh uses the configured default RSPEC branch. In the current
 SonarJS wiring that default is `dogfood-automerge`.
 

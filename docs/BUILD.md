@@ -166,6 +166,18 @@ When one of these failures appears in CI:
 6. Do not patch unrelated rules or commit unrelated refreshed RSPEC metadata just to make the pull
    request green.
 
+When the mismatch is intentional because your SonarJS pull request depends on an RSPEC change that
+is not yet merged on the default RSPEC branch, make that dependency explicit:
+
+- create or update the matching RSPEC pull request
+- point the root `rspec.sha` file in the SonarJS branch to a commit from that RSPEC branch
+- let CI refresh against that exact RSPEC revision while the two pull requests move together
+
+This is the normal workflow both when adding quickfix support and needing RSPEC to start declaring
+`quickfix='covered'`, and when removing quickfix support and needing RSPEC to stop declaring it.
+Remove the temporary root `rspec.sha` before merging to `master` once the RSPEC change has landed on
+the intended default branch.
+
 Concrete examples:
 
 - `S5914` started failing in CI after refreshed RSPEC metadata declared `quickfix='covered'` before
