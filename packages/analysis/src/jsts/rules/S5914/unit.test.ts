@@ -526,14 +526,44 @@ describe('S5914', () => {
             import { expect } from 'vitest';
             expect(getValue()).toBe({});
           `,
-          errors: [{ messageId: 'freshIdentity', data: { matcher: 'toEqual' } }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'toEqual' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'toEqual' },
+                  output: `
+            import { expect } from 'vitest';
+            expect(getValue()).toEqual({});
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
             import { expect } from 'vitest';
             expect([]).not.toBe(getValue());
           `,
-          errors: [{ messageId: 'freshIdentity', data: { matcher: 'not.toEqual' } }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'not.toEqual' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'not.toEqual' },
+                  output: `
+            import { expect } from 'vitest';
+            expect([]).not.toEqual(getValue());
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `expect(true).toBeTruthy();`,
@@ -548,7 +578,18 @@ describe('S5914', () => {
         {
           code: `expect(getValue()).toBe({});`,
           filename: jasmineFixture,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'toEqual' },
+                  output: `expect(getValue()).toEqual({});`,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
@@ -569,23 +610,69 @@ describe('S5914', () => {
             import assert from 'node:assert';
             assert.strictEqual(getValue(), {});
           `,
-          errors: [{ messageId: 'freshIdentity', data: { matcher: 'deepStrictEqual' } }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'deepStrictEqual' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepStrictEqual' },
+                  output: `
+            import assert from 'node:assert';
+            assert.deepStrictEqual(getValue(), {});
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
             import assert from 'node:assert';
             assert.notStrictEqual(getItems(), []);
           `,
-          errors: [{ messageId: 'freshIdentity', data: { matcher: 'notDeepStrictEqual' } }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'notDeepStrictEqual' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'notDeepStrictEqual' },
+                  output: `
+            import assert from 'node:assert';
+            assert.notDeepStrictEqual(getItems(), []);
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
             import assert from 'node:assert';
             assert.strictEqual(getValue(), new Value());
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepStrictEqual' },
+                  output: `
+            import assert from 'node:assert';
+            assert.deepStrictEqual(getValue(), new Value());
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
+          // no suggestion: `same` is a bare call reference to an aliased import, so there's no
+          // single member-name edit that would fix it without touching the import too
           code: `
             import { strictEqual as same } from 'node:assert';
             same(getValue(), {});
@@ -611,7 +698,22 @@ describe('S5914', () => {
             import { expect } from 'chai';
             expect(getValue()).to.equal({});
           `,
-          errors: [{ messageId: 'freshIdentity', data: { matcher: 'deep.equal' } }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'deep.equal' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deep.equal' },
+                  output: `
+            import { expect } from 'chai';
+            expect(getValue()).to.eql({});
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
@@ -640,7 +742,22 @@ describe('S5914', () => {
             import { assert } from 'chai';
             assert.strictEqual(getValue(), {});
           `,
-          errors: [{ messageId: 'freshIdentity', data: { matcher: 'deepEqual' } }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'deepEqual' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepEqual' },
+                  output: `
+            import { assert } from 'chai';
+            assert.deepEqual(getValue(), {});
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
@@ -654,7 +771,21 @@ describe('S5914', () => {
             import 'chai/register-should';
             getValue().should.equal({});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deep.equal' },
+                  output: `
+            import 'chai/register-should';
+            getValue().should.eql({});
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
@@ -683,7 +814,18 @@ describe('S5914', () => {
         {
           code: `assert.strictEqual(getValue(), {});`,
           filename: cypressFixture,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepEqual' },
+                  output: `assert.deepEqual(getValue(), {});`,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `cy.wrap(true).should('be.true');`,
@@ -713,7 +855,19 @@ describe('S5914', () => {
         {
           code: `cy.wrap(getValue()).should('equal', {});`,
           filename: cypressFixture,
-          errors: [{ messageId: 'freshIdentity', data: { matcher: 'deep.equal' } }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'deep.equal' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deep.equal' },
+                  output: `cy.wrap(getValue()).should('deep.equal', {});`,
+                },
+              ],
+            },
+          ],
         },
         // awaited dynamic imports are detected the same as static imports
         {
@@ -724,12 +878,36 @@ describe('S5914', () => {
         {
           code: `const { expect } = await import('vitest');
             expect(getValue()).toBe({});`,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'toEqual' },
+                  output: `const { expect } = await import('vitest');
+            expect(getValue()).toEqual({});`,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `const assert = await import('node:assert');
             assert.strictEqual(getValue(), {});`,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepStrictEqual' },
+                  output: `const assert = await import('node:assert');
+            assert.deepStrictEqual(getValue(), {});`,
+                },
+              ],
+            },
+          ],
         },
         // unary expressions produce constant values
         {
@@ -783,7 +961,21 @@ describe('S5914', () => {
             import assert from 'node:assert/strict';
             assert.strictEqual(getValue(), {});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepStrictEqual' },
+                  output: `
+            import assert from 'node:assert/strict';
+            assert.deepStrictEqual(getValue(), {});
+          `,
+                },
+              ],
+            },
+          ],
         },
         // chai assert: fresh reference on the actual side
         {
@@ -791,7 +983,21 @@ describe('S5914', () => {
             import { assert } from 'chai';
             assert.notStrictEqual({}, getValue());
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'notDeepEqual' },
+                  output: `
+            import { assert } from 'chai';
+            assert.notDeepEqual({}, getValue());
+          `,
+                },
+              ],
+            },
+          ],
         },
         // chai should-style with negation
         {
@@ -799,7 +1005,22 @@ describe('S5914', () => {
             import 'chai/register-should';
             getValue().should.not.equal({});
           `,
-          errors: [{ messageId: 'freshIdentity', data: { matcher: 'not.deep.equal' } }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              data: { matcher: 'not.deep.equal' },
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'not.deep.equal' },
+                  output: `
+            import 'chai/register-should';
+            getValue().should.not.eql({});
+          `,
+                },
+              ],
+            },
+          ],
         },
         // chai assert strict equality against fresh references is still trivial
         {
@@ -807,14 +1028,42 @@ describe('S5914', () => {
             import { assert } from 'chai';
             assert.strictEqual(getValue(), /value/);
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deepEqual' },
+                  output: `
+            import { assert } from 'chai';
+            assert.deepEqual(getValue(), /value/);
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
             import { assert } from 'chai';
             assert.notStrictEqual(getItems(), new Set());
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'notDeepEqual' },
+                  output: `
+            import { assert } from 'chai';
+            assert.notDeepEqual(getItems(), new Set());
+          `,
+                },
+              ],
+            },
+          ],
         },
         // chai expect with optional message argument is still analyzed
         {
@@ -829,7 +1078,21 @@ describe('S5914', () => {
             import { expect } from 'chai';
             expect(getValue(), 'msg').to.equal({});
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'deep.equal' },
+                  output: `
+            import { expect } from 'chai';
+            expect(getValue(), 'msg').to.eql({});
+          `,
+                },
+              ],
+            },
+          ],
         },
         // identity comparison of two constant primitives is statically known
         {
@@ -897,7 +1160,21 @@ describe('S5914', () => {
             import { expect } from 'vitest';
             expect(getValue()).toBe(/foo/);
           `,
-          errors: [{ messageId: 'freshIdentity' }],
+          errors: [
+            {
+              messageId: 'freshIdentity',
+              suggestions: [
+                {
+                  messageId: 'suggestDeepEquality',
+                  data: { matcher: 'toEqual' },
+                  output: `
+            import { expect } from 'vitest';
+            expect(getValue()).toEqual(/foo/);
+          `,
+                },
+              ],
+            },
+          ],
         },
         // void X is always undefined
         {

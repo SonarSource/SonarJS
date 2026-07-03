@@ -37,16 +37,18 @@ const messages = {
   // hint for predicate assertions on a freshly-created value, where the truthiness/nullishness is statically known
   freshPredicate:
     'Replace this assertion; the value is freshly created here, so the result is independent of the code under test.',
+  suggestDeepEquality: 'Replace with `{{matcher}}`.',
 };
 
 type TrivialAssertion = {
   reportNode: estree.Node;
   messageId: keyof typeof messages;
   data?: Record<string, string>;
+  suggest?: Rule.SuggestionReportDescriptor[];
 };
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, { messages }),
+  meta: generateMeta(meta, { messages, hasSuggestions: true }),
   create(context: Rule.RuleContext) {
     function checkAssertion(node: estree.Node) {
       const assertion = extractTestAssertion(context, node);
@@ -56,6 +58,7 @@ export const rule: Rule.RuleModule = {
           node: trivial.reportNode,
           messageId: trivial.messageId,
           data: trivial.data,
+          suggest: trivial.suggest,
         });
       }
     }
@@ -124,6 +127,7 @@ function resolveComparisonAssertion(
         reportNode: assertion.actual,
         messageId: 'freshIdentity',
         data: { matcher: getDeepEqualityMatcher(assertion.style, assertion.negated) },
+        suggest: toSuggestions(getFreshIdentitySuggestion(context, assertion)),
       };
     }
     if (isFreshReferenceExpression(assertion.expected)) {
@@ -131,6 +135,7 @@ function resolveComparisonAssertion(
         reportNode: assertion.expected,
         messageId: 'freshIdentity',
         data: { matcher: getDeepEqualityMatcher(assertion.style, assertion.negated) },
+        suggest: toSuggestions(getFreshIdentitySuggestion(context, assertion)),
       };
     }
   }
@@ -214,6 +219,124 @@ function getDeepEqualityMatcher(style: AssertionStyle, negated: boolean): string
       return exhaustiveCheck;
     }
   }
+}
+
+type ComparisonAssertion = Extract<Assertion, { kind: 'comparison' }>;
+
+function toSuggestions(
+  suggestion: Rule.SuggestionReportDescriptor | null,
+): Rule.SuggestionReportDescriptor[] | undefined {
+  return suggestion ? [suggestion] : undefined;
+}
+
+/**
+ * Builds the suggestion that swaps a `freshIdentity` assertion's matcher for its deep equality
+ * counterpart, for the assertion's own style and negation. Returns null when the assertion's
+ * shape doesn't map cleanly onto a single text edit (e.g. an unexpected AST shape).
+ */
+function getFreshIdentitySuggestion(
+  context: Rule.RuleContext,
+  assertion: ComparisonAssertion,
+): Rule.SuggestionReportDescriptor | null {
+  const matcher = getDeepEqualityMatcher(assertion.style, assertion.negated);
+  switch (assertion.style) {
+    case 'jest-like':
+    case 'jasmine':
+    case 'playwright':
+      // reportNode is always the matcher property identifier itself (e.g. `toBe` in
+      // `expect(x).toBe(y)`), so it's always safe to rename in place
+      return replacePropertyIdentifier(assertion.reportNode, 'toEqual', matcher);
+    case 'chai-bdd':
+      // `eql` is chai's built-in alias for `.deep.equal`, so no chain restructuring is needed;
+      // reportNode is always the matcher property identifier (e.g. `equal` in `.to.equal(y)`)
+      return replacePropertyIdentifier(assertion.reportNode, 'eql', matcher);
+    case 'chai-assert':
+      return replaceCalleeMethodName(
+        assertion.node,
+        assertion.negated ? 'notDeepEqual' : 'deepEqual',
+        matcher,
+      );
+    case 'node-assert':
+      return replaceCalleeMethodName(
+        assertion.node,
+        assertion.negated ? 'notDeepStrictEqual' : 'deepStrictEqual',
+        matcher,
+      );
+    case 'cypress':
+      return replaceCypressPredicateString(context, assertion, matcher);
+    default: {
+      const exhaustiveCheck: never = assertion.style;
+      return exhaustiveCheck;
+    }
+  }
+}
+
+function replacePropertyIdentifier(
+  reportNode: estree.Node,
+  newName: string,
+  matcher: string,
+): Rule.SuggestionReportDescriptor | null {
+  if (reportNode.type !== 'Identifier') {
+    return null;
+  }
+  return {
+    messageId: 'suggestDeepEquality',
+    data: { matcher },
+    fix: fixer => fixer.replaceText(reportNode, newName),
+  };
+}
+
+/**
+ * Replaces the method name in an `obj.method(...)` call with `newName`. Only fires when the
+ * call is written as a member access: destructured/aliased imports like
+ * `import { strictEqual as same } from 'node:assert'; same(x, y)` make the callee a bare
+ * identifier bound to a specific function, so renaming its call site would reference an
+ * undefined binding instead of fixing the assertion.
+ */
+function replaceCalleeMethodName(
+  assertionNode: estree.Node,
+  newName: string,
+  matcher: string,
+): Rule.SuggestionReportDescriptor | null {
+  if (
+    assertionNode.type !== 'CallExpression' ||
+    assertionNode.callee.type !== 'MemberExpression' ||
+    assertionNode.callee.computed ||
+    assertionNode.callee.property.type !== 'Identifier'
+  ) {
+    return null;
+  }
+  const identifier = assertionNode.callee.property;
+  return {
+    messageId: 'suggestDeepEquality',
+    data: { matcher },
+    fix: fixer => fixer.replaceText(identifier, newName),
+  };
+}
+
+/**
+ * Cypress expresses the comparison as a Chai assertion string, e.g. `cy.wrap(x).should('equal', y)`,
+ * so the fix rewrites the string content instead of an identifier.
+ */
+function replaceCypressPredicateString(
+  context: Rule.RuleContext,
+  assertion: ComparisonAssertion,
+  matcher: string,
+): Rule.SuggestionReportDescriptor | null {
+  if (assertion.node.type !== 'CallExpression') {
+    return null;
+  }
+  const predicateArg = assertion.node.arguments[0];
+  if (predicateArg?.type !== 'Literal' || typeof predicateArg.value !== 'string') {
+    return null;
+  }
+  const quote = context.sourceCode.getText(predicateArg)[0];
+  const newValue = assertion.negated ? 'not.deep.equal' : 'deep.equal';
+  return {
+    messageId: 'suggestDeepEquality',
+    data: { matcher },
+    fix: fixer => fixer.replaceText(predicateArg, `${quote}${newValue}${quote}`),
+  };
 }
 
 /**

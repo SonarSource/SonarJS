@@ -33,7 +33,7 @@
   "ruleSpecification": "RSPEC-5914",
   "sqKey": "S5914",
   "scope": "Tests",
-  "quickfix": "unknown",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "js",
     "ts"
