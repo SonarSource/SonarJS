@@ -172,12 +172,17 @@ function isTSShouldAccess(node: ts.Node): node is ts.PropertyAccessExpression {
 }
 
 function isTSExtendingShouldChainParent(parent: ts.Node | undefined, node: ts.Node): boolean {
-  if (parent === undefined) {
+  if (
+    parent === undefined ||
+    !ts.isPropertyAccessExpression(parent) ||
+    parent.expression !== node
+  ) {
     return false;
   }
+  const grandparent = parent.parent;
   return (
-    (ts.isPropertyAccessExpression(parent) && parent.expression === node) ||
-    (ts.isCallExpression(parent) && parent.expression === node)
+    (ts.isPropertyAccessExpression(grandparent) && grandparent.expression === parent) ||
+    (ts.isCallExpression(grandparent) && grandparent.expression === parent)
   );
 }
 

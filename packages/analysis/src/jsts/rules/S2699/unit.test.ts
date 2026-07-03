@@ -590,6 +590,25 @@ describe('typed bare should access', () => {
         },
         {
           code: `
+import { expect } from 'chai';
+
+declare global {
+  interface Object {
+    should: any;
+  }
+}
+
+describe('typed incomplete should chains', () => {
+  it('should raise when should only has a language chain', () => {
+    const value = true;
+    value.should.be;
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
 import { expect } from 'vitest';
 
 describe('typed unrelated should chains', () => {
