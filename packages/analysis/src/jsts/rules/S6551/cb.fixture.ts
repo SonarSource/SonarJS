@@ -214,3 +214,14 @@ function directToStringAfterPrimitiveGuardStillUnsafe(value: unknown): string | 
   }
   return undefined;
 }
+
+function loopWriteAfterUseStillUnsafe(value: string | object, replacements: object[]): string {
+  let rendered = '';
+  if (typeof value !== 'object') {
+    for (const replacement of replacements) {
+      rendered += `${value}`; // Noncompliant {{'value' may use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+      value = replacement;
+    }
+  }
+  return rendered;
+}

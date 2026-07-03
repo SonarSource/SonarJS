@@ -288,7 +288,7 @@ function isGuardedByTypeofCheck(
       isIfStatement(parent) &&
       parent.consequent === current &&
       conditionProvesPrimitive(parent.test, variable, context) &&
-      !hasWriteBefore(variable, parent.consequent, node.range[0], context)
+      !hasInvalidatingWrite(variable, parent.consequent, node, context)
     ) {
       return true;
     }
@@ -394,7 +394,7 @@ function hasWriteBefore(
   end: number,
   context: Rule.RuleContext,
 ): boolean {
-  if (node.range[0] >= end || isFunctionNode(node as estree.Node)) {
+  if (node.range[0] >= end) {
     return false;
   }
   if (
@@ -406,6 +406,61 @@ function hasWriteBefore(
   }
   return childrenOf(node as estree.Node, context.sourceCode.visitorKeys).some(child =>
     hasWriteBefore(variable, child as TSESTree.Node, end, context),
+  );
+}
+
+function hasInvalidatingWrite(
+  variable: Scope.Variable,
+  branch: TSESTree.Statement,
+  usage: TSESTree.Identifier,
+  context: Rule.RuleContext,
+): boolean {
+  return (
+    hasWriteBefore(variable, branch, usage.range[0], context) ||
+    getLoopAncestors(usage, branch).some(loop => hasWriteAnywhere(variable, loop, context))
+  );
+}
+
+function getLoopAncestors(node: TSESTree.Node, boundary: TSESTree.Statement): TSESTree.Node[] {
+  const loops: TSESTree.Node[] = [];
+  let current: TSESTree.Node | undefined = node;
+  while (current && current !== boundary) {
+    const parent = current.parent;
+    if (!parent) {
+      break;
+    }
+    if (isLoopLike(parent)) {
+      loops.push(parent);
+    }
+    current = parent;
+  }
+  return loops;
+}
+
+function hasWriteAnywhere(
+  variable: Scope.Variable,
+  node: TSESTree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  if (
+    node.type === 'Identifier' &&
+    isWriteIdentifier(node) &&
+    getVariableFromScope(context.sourceCode.getScope(node), node.name) === variable
+  ) {
+    return true;
+  }
+  return childrenOf(node as estree.Node, context.sourceCode.visitorKeys).some(child =>
+    hasWriteAnywhere(variable, child as TSESTree.Node, context),
+  );
+}
+
+function isLoopLike(node: TSESTree.Node): boolean {
+  return (
+    node.type === 'WhileStatement' ||
+    node.type === 'DoWhileStatement' ||
+    node.type === 'ForStatement' ||
+    node.type === 'ForOfStatement' ||
+    node.type === 'ForInStatement'
   );
 }
 
