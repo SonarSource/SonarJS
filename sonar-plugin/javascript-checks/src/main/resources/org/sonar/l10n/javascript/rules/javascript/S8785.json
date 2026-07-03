@@ -1,5 +1,5 @@
 {
-  "title": "Test suite callbacks should be synchronous functions",
+  "title": "Tests should not be registered asynchronously in suite callbacks",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -20,7 +20,7 @@
   "defaultQualityProfiles": [
     "Sonar way"
   ],
-  "quickfix": "covered",
+  "quickfix": "partial",
   "code": {
     "impacts": {
       "RELIABILITY": "MEDIUM",
