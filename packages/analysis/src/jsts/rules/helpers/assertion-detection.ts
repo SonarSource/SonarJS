@@ -186,8 +186,13 @@ function isTSExtendingShouldChainParent(parent: ts.Node | undefined, node: ts.No
   );
 }
 
+const chaiImportCache = new WeakMap<ts.SourceFile, boolean>();
 function isChaiImported(sourceFile: ts.SourceFile): boolean {
-  return sourceFile.statements.some(statement => {
+  const cached = chaiImportCache.get(sourceFile);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const result = sourceFile.statements.some(statement => {
     if (ts.isImportDeclaration(statement)) {
       return (
         ts.isStringLiteral(statement.moduleSpecifier) && statement.moduleSpecifier.text === 'chai'
@@ -200,6 +205,8 @@ function isChaiImported(sourceFile: ts.SourceFile): boolean {
       )
     );
   });
+  chaiImportCache.set(sourceFile, result);
+  return result;
 }
 
 function isChaiRequireInitializer(initializer: ts.Expression | undefined): boolean {
