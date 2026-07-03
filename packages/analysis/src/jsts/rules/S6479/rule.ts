@@ -410,8 +410,7 @@ function isMutatedByLocalHelper(reference: Scope.Reference, context: Rule.RuleCo
   }
 
   // the callee must resolve to a single local function with a plain identifier parameter
-  const callee = resolveLocalFunction(call.callee, context);
-  const parameter = callee?.params[argumentIndex];
+  const parameter = resolveLocalFunctionParameters(call.callee, context)?.[argumentIndex];
   if (parameter?.type !== 'Identifier') {
     return false;
   }
@@ -428,38 +427,32 @@ function isMutatedByLocalHelper(reference: Scope.Reference, context: Rule.RuleCo
 }
 
 /**
- * Resolves a callee identifier to a single locally-defined function.
+ * Resolves a callee identifier to the parameters of a single locally-defined function.
  * @param callee Identifier used as the callee of a call expression.
  * @param context ESLint rule context.
- * @return The function node when the callee has exactly one local function definition.
+ * @return The function parameters when the callee has exactly one local function definition.
  */
-function resolveLocalFunction(
+function resolveLocalFunctionParameters(
   callee: TSESTree.Identifier,
   context: Rule.RuleContext,
-):
-  | TSESTree.FunctionDeclaration
-  | TSESTree.FunctionExpression
-  | TSESTree.ArrowFunctionExpression
-  | undefined {
+): TSESTree.Parameter[] | undefined {
   const variable = getVariableFromName(context, callee.name, callee);
-  if (!variable || variable.defs.length !== 1) {
+  if (variable?.defs.length !== 1) {
     return undefined;
   }
 
   const def = variable.defs[0];
   if (def.type === 'FunctionName') {
-    return def.node as unknown as TSESTree.FunctionDeclaration;
+    return (def.node as unknown as TSESTree.FunctionDeclaration).params;
   }
+  const initializer = def.node.init;
   if (
     def.type === 'Variable' &&
     def.parent?.type === 'VariableDeclaration' &&
     def.parent.kind === 'const' &&
-    (def.node.init?.type === 'ArrowFunctionExpression' ||
-      def.node.init?.type === 'FunctionExpression')
+    (initializer?.type === 'ArrowFunctionExpression' || initializer?.type === 'FunctionExpression')
   ) {
-    return def.node.init as unknown as
-      | TSESTree.ArrowFunctionExpression
-      | TSESTree.FunctionExpression;
+    return initializer.params;
   }
   return undefined;
 }
