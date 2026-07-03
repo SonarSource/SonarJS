@@ -61,10 +61,12 @@ export const rule: Rule.RuleModule = {
 
         const snapshot = getInterpolatedInlineSnapshot(context, node, frameworks);
         if (snapshot) {
-          context.report({
-            node: snapshot,
-            messageId: 'removeInterpolation',
-          });
+          for (const expression of snapshot.expressions) {
+            context.report({
+              node: expression,
+              messageId: 'removeInterpolation',
+            });
+          }
         }
       },
     };

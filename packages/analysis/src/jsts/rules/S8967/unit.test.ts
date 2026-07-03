@@ -130,6 +130,23 @@ describe('S8967', () => {
           code: `
             import { expect, it } from '@jest/globals';
 
+            it('reports one issue per interpolation', () => {
+              const user = getUser();
+
+              expect(user).toMatchInlineSnapshot(\`
+                {
+                  "id": \${user.id},
+                  "name": \${user.name},
+                }
+              \`);
+            });
+          `,
+          errors: [{ message: MESSAGE }, { message: MESSAGE }],
+        },
+        {
+          code: `
+            import { expect, it } from '@jest/globals';
+
             it('reports snapshot argument after property matchers', () => {
               const user = getUser();
 
