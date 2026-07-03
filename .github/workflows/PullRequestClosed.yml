@@ -4,12 +4,9 @@ on:
   pull_request:
     types: [closed]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-
 jobs:
-  PullRequestMerged_job:
-    name: Pull Request Merged
+  PullRequestClosed_job:
+    name: Pull Request Closed
     runs-on: sonar-xs
     permissions:
       id-token: write
