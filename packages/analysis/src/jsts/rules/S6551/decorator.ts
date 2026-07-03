@@ -425,7 +425,7 @@ function getLoopAncestors(node: TSESTree.Node, boundary: TSESTree.Statement): TS
   const loops: TSESTree.Node[] = [];
   let current: TSESTree.Node | undefined = node;
   while (current && current !== boundary) {
-    const parent = current.parent;
+    const parent: TSESTree.Node | undefined = current.parent;
     if (!parent) {
       break;
     }
