@@ -113,6 +113,74 @@ export const MyComponent = () => {
 }
 `,
         },
+        // a local helper that only reads the list keeps it static
+        {
+          code: `
+function log(xs) { console.log(xs.length); }
+export const MyComponent = () => {
+    const items = ['a', 'b'];
+    log(items);
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+        },
+        // a callee we cannot resolve locally keeps the current behavior (suppressed)
+        {
+          code: `
+export const MyComponent = () => {
+    const items = ['a', 'b'];
+    mutateExternal(items);
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+        },
+        // a method callee is not a resolvable local function, so mutations are not attributed
+        {
+          code: `
+export const MyComponent = ({ store }) => {
+    const items = ['a', 'b'];
+    store.mutate(items);
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+        },
+        // a rest parameter is not a plain identifier, so we do not attribute mutations
+        {
+          code: `
+function add(...xs) { xs.push('c'); }
+export const MyComponent = () => {
+    const items = ['a', 'b'];
+    add(items);
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+        },
+        // a reassigned parameter no longer aliases the caller's array
+        {
+          code: `
+function replace(xs) { xs = []; xs.push('c'); }
+export const MyComponent = () => {
+    const items = ['a', 'b'];
+    replace(items);
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+        },
       ],
       invalid: [
         {
@@ -202,6 +270,82 @@ export const MyComponent = ({ items }) => {
 export const MyComponent = ({ users }) => {
     return <>{Array.from({ length: users.length }).map((_, index) => {
       return <div key={index}>{users[index]}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        // a local helper (function declaration) mutating its parameter makes the list dynamic
+        {
+          code: `
+function add(xs) { xs.push('c'); }
+export const MyComponent = () => {
+    const items = ['a', 'b'];
+    add(items);
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        // a local helper (const arrow) mutating its parameter makes the list dynamic
+        {
+          code: `
+const add = xs => xs.push('c');
+export const MyComponent = () => {
+    const items = ['a', 'b'];
+    add(items);
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        // a local helper (const function expression) mutating its parameter makes the list dynamic
+        {
+          code: `
+const add = function (xs) { xs.push('c'); };
+export const MyComponent = () => {
+    const items = ['a', 'b'];
+    add(items);
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        // element assignment inside the helper also mutates the list
+        {
+          code: `
+function overwrite(xs) { xs[0] = 'z'; }
+export const MyComponent = () => {
+    const items = ['a', 'b'];
+    overwrite(items);
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
+    })}</>;
+}
+`,
+          errors: 1,
+        },
+        // mutation through an alias passed to the helper is still detected
+        {
+          code: `
+function add(xs) { xs.push('c'); }
+export const MyComponent = () => {
+    const items = ['a', 'b'];
+    const alias = items;
+    add(alias);
+
+    return <>{items.map((item, index) => {
+      return <div key={index}>{item}</div>;
     })}</>;
 }
 `,

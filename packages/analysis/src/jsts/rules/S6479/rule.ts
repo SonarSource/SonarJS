@@ -265,7 +265,9 @@ function isArrayFromLengthCall(node: AstNode, context: Rule.RuleContext): boolea
   }
 
   const lengthValue = (lengthProperty as TSESTree.Property).value;
-  return lengthValue.type === 'Literal' && typeof (lengthValue as TSESTree.Literal).value === 'number';
+  return (
+    lengthValue.type === 'Literal' && typeof (lengthValue as TSESTree.Literal).value === 'number'
+  );
 }
 
 /**
@@ -314,7 +316,13 @@ function resolvesToConstStaticArrayExpression(
  * @return True when a mutation is detected.
  */
 function hasCollectionMutation(variable: Scope.Variable, context: Rule.RuleContext): boolean {
-  if (variable.references.some(reference => !reference.init && isCollectionMutation(reference))) {
+  if (
+    variable.references.some(
+      reference =>
+        !reference.init &&
+        (isCollectionMutation(reference) || isMutatedByLocalHelper(reference, context)),
+    )
+  ) {
     return true;
   }
   for (const reference of variable.references) {
@@ -335,7 +343,11 @@ function hasCollectionMutation(variable: Scope.Variable, context: Rule.RuleConte
       continue;
     }
     const aliasVariable = getVariableFromName(context, declarator.id.name, declarator.id);
-    if (aliasVariable?.references.some(r => !r.init && isCollectionMutation(r))) {
+    if (
+      aliasVariable?.references.some(
+        r => !r.init && (isCollectionMutation(r) || isMutatedByLocalHelper(r, context)),
+      )
+    ) {
       return true;
     }
   }
@@ -348,10 +360,18 @@ function hasCollectionMutation(variable: Scope.Variable, context: Rule.RuleConte
  * @return True when the reference is part of a mutating operation.
  */
 function isCollectionMutation(reference: Scope.Reference): boolean {
-  if (reference.isWrite()) {
-    return true;
-  }
+  return reference.isWrite() || isInPlaceMutation(reference);
+}
 
+/**
+ * Returns whether a reference mutates the array in place through a member expression
+ * (element assignment, update, or a writing method such as `push`/`sort`). Unlike
+ * {@link isCollectionMutation}, reassigning the binding does not count: it rebinds a
+ * local name and cannot affect an array shared with a caller.
+ * @param reference Reference to the variable being inspected.
+ * @return True when the reference mutates the array in place.
+ */
+function isInPlaceMutation(reference: Scope.Reference): boolean {
   const identifier = reference.identifier as TSESTree.Identifier;
   const memberExpression = identifier.parent;
   if (memberExpression?.type !== 'MemberExpression' || memberExpression.object !== identifier) {
@@ -367,6 +387,81 @@ function isCollectionMutation(reference: Scope.Reference): boolean {
       memberExpression.property.type === 'Identifier' &&
       writingMethods.includes(memberExpression.property.name))
   );
+}
+
+/**
+ * Returns whether a reference passes the array to a local function that mutates the
+ * matching parameter in place. Limited on purpose to directly-resolvable local callees
+ * and plain identifier parameters; anything unresolved keeps the current behavior.
+ * @param reference Reference to the variable being inspected.
+ * @param context ESLint rule context.
+ * @return True when the resolved callee mutates the corresponding parameter.
+ */
+function isMutatedByLocalHelper(reference: Scope.Reference, context: Rule.RuleContext): boolean {
+  // the array must be passed directly as a positional argument
+  const argument = reference.identifier as TSESTree.Identifier;
+  const call = argument.parent;
+  if (call?.type !== 'CallExpression' || call.callee.type !== 'Identifier') {
+    return false;
+  }
+  const argumentIndex = call.arguments.indexOf(argument);
+  if (argumentIndex === -1) {
+    return false;
+  }
+
+  // the callee must resolve to a single local function with a plain identifier parameter
+  const callee = resolveLocalFunction(call.callee, context);
+  const parameter = callee?.params[argumentIndex];
+  if (parameter?.type !== 'Identifier') {
+    return false;
+  }
+  const parameterVariable = getVariableFromName(context, parameter.name, parameter);
+  if (!parameterVariable) {
+    return false;
+  }
+
+  // a reassigned parameter no longer aliases the caller's array
+  if (parameterVariable.references.some(r => r.isWrite() && !r.init)) {
+    return false;
+  }
+  return parameterVariable.references.some(r => !r.init && isInPlaceMutation(r));
+}
+
+/**
+ * Resolves a callee identifier to a single locally-defined function.
+ * @param callee Identifier used as the callee of a call expression.
+ * @param context ESLint rule context.
+ * @return The function node when the callee has exactly one local function definition.
+ */
+function resolveLocalFunction(
+  callee: TSESTree.Identifier,
+  context: Rule.RuleContext,
+):
+  | TSESTree.FunctionDeclaration
+  | TSESTree.FunctionExpression
+  | TSESTree.ArrowFunctionExpression
+  | undefined {
+  const variable = getVariableFromName(context, callee.name, callee);
+  if (!variable || variable.defs.length !== 1) {
+    return undefined;
+  }
+
+  const def = variable.defs[0];
+  if (def.type === 'FunctionName') {
+    return def.node as unknown as TSESTree.FunctionDeclaration;
+  }
+  if (
+    def.type === 'Variable' &&
+    def.parent?.type === 'VariableDeclaration' &&
+    def.parent.kind === 'const' &&
+    (def.node.init?.type === 'ArrowFunctionExpression' ||
+      def.node.init?.type === 'FunctionExpression')
+  ) {
+    return def.node.init as unknown as
+      | TSESTree.ArrowFunctionExpression
+      | TSESTree.FunctionExpression;
+  }
+  return undefined;
 }
 
 /**
