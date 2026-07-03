@@ -23,6 +23,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { findComponentNodes } from '../helpers/react.js';
 import { hasOwnCustomSuperclassPropsForwarding } from './custom-superclass-forwarding.js';
 import { hasDecoratorPropUsage } from './decorator-indirect-prop-usage.js';
+import { hasDestructuredParamPropUsage } from './destructured-param-prop-usage.js';
 import { hasForwardRefCallbackPropUsage } from './forward-ref-indirect-prop-usage.js';
 import * as meta from './generated-meta.js';
 import { hasSupportedWholePropsUsage } from './whole-props-usage.js';
@@ -66,6 +67,13 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       if (
         allMatch(componentNodes, componentNode =>
           hasDecoratorPropUsage(componentNode, context, propName),
+        )
+      ) {
+        return;
+      }
+      if (
+        allMatch(componentNodes, componentNode =>
+          hasDestructuredParamPropUsage(componentNode, context, propName),
         )
       ) {
         return;
