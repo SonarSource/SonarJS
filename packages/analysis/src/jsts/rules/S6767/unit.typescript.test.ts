@@ -505,6 +505,75 @@ function Comp(props: Props) {
     });
   });
 
+  it('should not report props used via destructured object parameter binding', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // FP: destructured first-param binding in useCallback — section.title is read
+          code: `
+declare const React: any;
+type SectionItem = { title: string; };
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section }: { section: SectionItem }) => <div>{section.title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: destructured first-param binding in render-prop callback — item.status is read
+          code: `
+declare const React: any;
+type Subscription = { status: string; };
+function SubscriptionTable() {
+  const columns = [
+    { render: ({ item }: { item: Subscription }) => <div>{item.status}</div> },
+  ];
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: destructured with alias ({ section: sec }) — sec.title is read
+          code: `
+declare const React: any;
+type SectionItem = { title: string; };
+function SectionList() {
+  const renderHeader = ({ section: sec }: { section: SectionItem }) => <div>{sec.title}</div>;
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: destructured with default value ({ count = 0 }) — count is read
+          code: `
+declare const React: any;
+function Counter() {
+  const renderCount = ({ count = 0 }: { count: number }) => <span>{count}</span>;
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   it('should not report narrow local aliases in typed decorator callbacks', () => {
     const ruleTester = new RuleTester({
       parserOptions: {
