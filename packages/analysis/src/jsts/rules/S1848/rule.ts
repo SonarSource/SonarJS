@@ -21,7 +21,7 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
-import { isIdentifier } from '../helpers/ast.js';
+import { getVariableFromScope, isIdentifier } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 /** DOM selection method names commonly used for element selection */
@@ -93,6 +93,19 @@ function isTryable(node: estree.Node, context: Rule.RuleContext) {
   return false;
 }
 
+/**
+ * Suppresses false positives for RegExp validation patterns where the constructor is used only
+ * to validate an input before returning it.
+ *
+ * For example, `new RegExp(pattern)` is intentional in:
+ *
+ * ```js
+ * function validatePattern(pattern) {
+ *   new RegExp(pattern);
+ *   return pattern;
+ * }
+ * ```
+ */
 function isRegExpValidation(node: estree.NewExpression, context: Rule.RuleContext): boolean {
   if (!isBuiltInRegExpConstructor(node, context)) {
     return false;
@@ -118,30 +131,19 @@ function isBuiltInRegExpConstructor(
   context: Rule.RuleContext,
 ): boolean {
   const { callee } = node;
+  const scope = context.sourceCode.getScope(node);
 
   if (isIdentifier(callee, 'RegExp')) {
-    return !isLocallyDefined(callee, context.sourceCode.getScope(node));
+    return !getVariableFromScope(scope, callee.name)?.defs.length;
   }
 
   return (
     callee.type === 'MemberExpression' &&
     !callee.computed &&
     isIdentifier(callee.object, 'globalThis') &&
-    !isLocallyDefined(callee.object, context.sourceCode.getScope(node)) &&
+    !getVariableFromScope(scope, callee.object.name)?.defs.length &&
     isIdentifier(callee.property, 'RegExp')
   );
-}
-
-function isLocallyDefined(identifier: estree.Identifier, scope: Scope.Scope): boolean {
-  let currentScope: Scope.Scope | null = scope;
-  while (currentScope) {
-    const variable = currentScope.variables.find(value => value.name === identifier.name);
-    if (variable) {
-      return variable.defs.length > 0;
-    }
-    currentScope = currentScope.upper;
-  }
-  return false;
 }
 
 function getNextSiblingStatement(
