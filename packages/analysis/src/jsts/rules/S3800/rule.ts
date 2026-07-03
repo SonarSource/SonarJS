@@ -176,7 +176,20 @@ function prettyPrint(type: ts.Type, checker: ts.TypeChecker): string {
 function isTypedArray(type: ts.Type, checker: ts.TypeChecker) {
   const typeAsString = checker.typeToString(type);
   // Since TS 5.7 typed arrays include the type of the elements in the string, eg. Float32Array<any>
-  return /.*Array(?:<[^>]*>)?$/.test(typeAsString);
+  if (typeAsString.endsWith('Array')) {
+    return true;
+  }
+
+  if (!typeAsString.endsWith('>')) {
+    return false;
+  }
+
+  const genericStart = typeAsString.lastIndexOf('<');
+  return (
+    genericStart > 0 &&
+    typeAsString.slice(0, genericStart).endsWith('Array') &&
+    !typeAsString.slice(genericStart + 1, -1).includes('>')
+  );
 }
 
 function isNullLike(type: ts.Type) {

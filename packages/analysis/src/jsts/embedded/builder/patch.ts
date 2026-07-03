@@ -156,14 +156,48 @@ export function patchParsingErrorMessage(
   patchedLine: number,
   embeddedJS: EmbeddedJS,
 ): string {
-  /* Extracts location information of the form `(<line>:<column>)` */
-  const regex = /((?<line>\d+):(?<column>\d+))/;
-  const found = message.match(regex);
-  if (found?.groups) {
-    const line = found.groups.line;
-    const column = Number(found.groups.column);
+  const location = findLineAndColumn(message);
+  if (location) {
+    const { line, column } = location;
     const patchedColumn = embeddedJS.format === 'PLAIN' ? column + embeddedJS.column - 1 : column;
     return message.replace(`(${line}:${column})`, `(${patchedLine}:${patchedColumn})`);
   }
   return message;
+}
+
+function findLineAndColumn(message: string): { line: string; column: number } | undefined {
+  for (let i = 0; i < message.length; i++) {
+    if (!isDigit(message[i])) {
+      continue;
+    }
+
+    let lineEnd = i + 1;
+    while (lineEnd < message.length && isDigit(message[lineEnd])) {
+      lineEnd++;
+    }
+    if (message[lineEnd] !== ':') {
+      i = lineEnd - 1;
+      continue;
+    }
+
+    const columnStart = lineEnd + 1;
+    if (columnStart >= message.length || !isDigit(message[columnStart])) {
+      i = lineEnd;
+      continue;
+    }
+
+    let columnEnd = columnStart + 1;
+    while (columnEnd < message.length && isDigit(message[columnEnd])) {
+      columnEnd++;
+    }
+
+    return {
+      line: message.slice(i, lineEnd),
+      column: Number(message.slice(columnStart, columnEnd)),
+    };
+  }
+}
+
+function isDigit(char: string | undefined): char is string {
+  return char !== undefined && char >= '0' && char <= '9';
 }

@@ -46,20 +46,130 @@ const ruleImpl: pkg.RuleBase = () => {
 };
 
 function isLikelyCss(text: string) {
-  // Regular expression to match CSS selectors, properties, and values
-  // `<selector(s)> '{' <anything> '}'`
-  const ruleRegex = /([a-z0-9\s,.\-#:_]+)\{([^}]*)\}/i;
+  return looksLikeCssRule(text) || looksLikeCssDeclaration(text) || looksLikeCssAtRule(text);
+}
 
-  // Regular expression to match CSS declarations
-  // `<property> ':' <value> ';'`
-  const declRegex = /([a-z-]+)\s*:\s*([^;]+);/i;
+function looksLikeCssRule(text: string) {
+  let selectorLength = 0;
 
-  // Regular expression to match CSS at-rules
-  // `'@' <at-rule> '(' <anything> ')'`
-  const atRuleRegex = /@([a-z-]*)\s*([^;{]*)(;|(\{([^}]*)\}))/i;
+  for (let index = 0; index < text.length; index++) {
+    const char = text[index];
+    if (isCssSelectorChar(char)) {
+      selectorLength++;
+      continue;
+    }
 
-  // Test the text against the regular expressions
-  return ruleRegex.test(text) || declRegex.test(text) || atRuleRegex.test(text);
+    if (char === '{' && selectorLength > 0 && text.indexOf('}', index + 1) !== -1) {
+      return true;
+    }
+
+    selectorLength = 0;
+  }
+
+  return false;
+}
+
+function looksLikeCssDeclaration(text: string) {
+  for (let index = 0; index < text.length; ) {
+    if (!isCssPropertyChar(text[index])) {
+      index++;
+      continue;
+    }
+
+    let propertyEnd = index + 1;
+    while (propertyEnd < text.length && isCssPropertyChar(text[propertyEnd])) {
+      propertyEnd++;
+    }
+
+    let cursor = propertyEnd;
+    while (cursor < text.length && isWhitespace(text[cursor])) {
+      cursor++;
+    }
+    if (text[cursor] === ':') {
+      cursor++;
+      while (cursor < text.length && isWhitespace(text[cursor])) {
+        cursor++;
+      }
+      if (cursor < text.length && text[cursor] !== ';') {
+        while (cursor < text.length && text[cursor] !== ';') {
+          cursor++;
+        }
+        if (cursor < text.length) {
+          return true;
+        }
+      }
+    }
+
+    index = propertyEnd;
+  }
+
+  return false;
+}
+
+function looksLikeCssAtRule(text: string) {
+  for (let index = 0; index < text.length; index++) {
+    if (text[index] !== '@') {
+      continue;
+    }
+
+    let cursor = index + 1;
+    while (cursor < text.length && isAtRuleNameChar(text[cursor])) {
+      cursor++;
+    }
+    while (cursor < text.length && isWhitespace(text[cursor])) {
+      cursor++;
+    }
+    while (cursor < text.length && text[cursor] !== ';' && text[cursor] !== '{') {
+      cursor++;
+    }
+    if (cursor >= text.length) {
+      continue;
+    }
+    if (text[cursor] === ';') {
+      return true;
+    }
+    if (text.indexOf('}', cursor + 1) !== -1) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function isCssSelectorChar(char: string | undefined): char is string {
+  if (char === undefined) {
+    return false;
+  }
+
+  const lower = char.toLowerCase();
+  return (
+    (lower >= 'a' && lower <= 'z') ||
+    (char >= '0' && char <= '9') ||
+    char === ',' ||
+    char === '.' ||
+    char === '-' ||
+    char === '#' ||
+    char === ':' ||
+    char === '_' ||
+    isWhitespace(char)
+  );
+}
+
+function isCssPropertyChar(char: string | undefined): char is string {
+  if (char === undefined) {
+    return false;
+  }
+
+  const lower = char.toLowerCase();
+  return (lower >= 'a' && lower <= 'z') || char === '-';
+}
+
+function isAtRuleNameChar(char: string | undefined): char is string {
+  return isCssPropertyChar(char);
+}
+
+function isWhitespace(char: string | undefined): char is string {
+  return char !== undefined && /\s/u.test(char);
 }
 
 export const rule = createPlugin(

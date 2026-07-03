@@ -190,7 +190,7 @@ function editLine(lines: string[], change: Change) {
   if (contents !== undefined) {
     let appendAfterFix = '';
     const line = lines[issueLine - 1];
-    const containsNC = line.search(/\s*\{?\s*(\/\*|\/\/)\s*Noncompliant/);
+    const containsNC = findNoncompliantCommentStart(line);
     if (end === undefined) {
       if (containsNC >= 0) {
         appendAfterFix = line.slice(containsNC);
@@ -206,6 +206,41 @@ function editLine(lines: string[], change: Change) {
     }
     lines[issueLine - 1] = line.slice(0, start || 0) + contents + appendAfterFix;
   }
+}
+
+function findNoncompliantCommentStart(line: string) {
+  for (let index = 0; index < line.length - 1; index++) {
+    if (!line.startsWith('//', index) && !line.startsWith('/*', index)) {
+      continue;
+    }
+
+    let commentTextStart = index + 2;
+    while (commentTextStart < line.length && isWhitespace(line[commentTextStart])) {
+      commentTextStart++;
+    }
+    if (!line.startsWith('Noncompliant', commentTextStart)) {
+      continue;
+    }
+
+    let commentStart = index;
+    while (commentStart > 0 && isWhitespace(line[commentStart - 1])) {
+      commentStart--;
+    }
+    if (commentStart > 0 && line[commentStart - 1] === '{') {
+      commentStart--;
+      while (commentStart > 0 && isWhitespace(line[commentStart - 1])) {
+        commentStart--;
+      }
+    }
+
+    return commentStart;
+  }
+
+  return -1;
+}
+
+function isWhitespace(char: string | undefined): char is string {
+  return char !== undefined && /\s/u.test(char);
 }
 
 /**
