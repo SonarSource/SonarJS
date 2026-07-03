@@ -21,7 +21,7 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
-import { isIdentifier } from '../helpers/ast.js';
+import { isIdentifier, getVariableFromName } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 /** DOM selection method names commonly used for element selection */
@@ -104,27 +104,55 @@ function reportIssue(
 }
 
 /**
- * These exceptions are based on community requests and Peach
+ * These exceptions are based on community requests and Peach.
+ * Two separate checks: one FQN-backed, one for explicit global/member-expression forms.
  */
 function isException(
   context: Rule.RuleContext,
   node: estree.Identifier | estree.MemberExpression,
   name: string,
 ) {
-  if (name === 'Notification') {
+  const fqn = getFullyQualifiedName(context, node);
+  if (fqn !== null && isFqnException(fqn)) {
     return true;
   }
+  return isGlobalFormException(context, node, name);
+}
 
-  const fqn = getFullyQualifiedName(context, node);
-  if (!fqn) {
-    return false;
-  }
+/** Checks import-resolved FQN against the curated list of known side-effect constructors. */
+function isFqnException(fqn: string): boolean {
   const exactExceptions = ['vue', '@ag-grid-community.core.Grid'];
   const startsWithExceptions = ['aws-cdk-lib', 'cdk8s', '@pulumi', '@cdktf', 'obsidian'];
   return (
     exactExceptions.includes(fqn) ||
-    startsWithExceptions.some(exception => fqn.startsWith(exception))
+    startsWithExceptions.some(prefix => fqn.startsWith(prefix))
   );
+}
+
+/**
+ * Checks explicitly approved global/member-expression forms.
+ * For window.ClipboardJS, paper.*, and paperScope.*, verifies the root identifier
+ * is not a local variable or import (i.e. it is a true global).
+ */
+function isGlobalFormException(
+  context: Rule.RuleContext,
+  callee: estree.Identifier | estree.MemberExpression,
+  calleeText: string,
+): boolean {
+  if (calleeText === 'Notification') {
+    return true;
+  }
+  for (const rootName of ['window', 'paper', 'paperScope']) {
+    const prefix = rootName === 'window' ? 'window.ClipboardJS' : `${rootName}.`;
+    if (rootName === 'window' ? calleeText === prefix : calleeText.startsWith(prefix)) {
+      const variable = getVariableFromName(context, rootName, callee);
+      // Suppress only when rootName is a true global (not locally declared)
+      if (variable == null || variable.defs.length === 0) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 /**
