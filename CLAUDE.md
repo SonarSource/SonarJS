@@ -55,14 +55,10 @@ See `/build` for the full build pipeline reference.
 
 - The guidance in this section applies to any automated coding agent working in this repository, not
   only Claude Code.
-- If CI fails with `Mismatch between RSPEC metadata and implementation for fixable attribute in rule
-  ...`, first verify whether the failing rule is unrelated to the pull request diff.
-- If the failure is unrelated, rebase once on the latest `origin/master` to confirm the mismatch is
-  not already fixed upstream.
-- If the same failure persists after that rebase and still points to files outside the pull request
-  scope, stop and report it as a baseline/environment blocker instead of patching unrelated rules in
-  the pull request.
-- See [`docs/BUILD.md`](docs/BUILD.md) for the detailed RSPEC and build guidance behind this rule.
+- For RSPEC-related baseline CI failures, follow
+  [`docs/BUILD.md#baseline-ci-mismatches`](docs/BUILD.md#baseline-ci-mismatches).
+- Do not patch unrelated rules or commit unrelated refreshed RSPEC metadata just to make a pull
+  request green.
 
 ## Important Notes
 
