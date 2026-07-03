@@ -20,7 +20,11 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier } from '../helpers/ast.js';
-import { collectCallChain, getRootCall, unwrapChainExpression } from '../helpers/expect-chain.js';
+import {
+  collectCallChain,
+  getRootCall,
+  unwrapChainExpression,
+} from '../helpers/expect-call-chain.js';
 import { extractTestCase } from '../helpers/mocha.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';

@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { isIdentifier, isMethodCall, isUnresolved } from '../helpers/ast.js';
-import { collectCallChain, getRootCall } from '../helpers/expect-chain.js';
+import { collectCallChain, getRootCall } from '../helpers/expect-call-chain.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
