@@ -190,6 +190,18 @@ new DragInstance(params, startEvent, eBody);`,
             // DOM attachment: this.$() in object property (Backbone/Marionette SelectList pattern)
             code: `new SelectList({ el: this.$('#groups-users'), width: '100%' });`,
           },
+          {
+            // Global-form exception: window.ClipboardJS attaches clipboard handlers as a side effect
+            code: `new window.ClipboardJS('.copy-button', { text: trigger => trigger.dataset.copyText });`,
+          },
+          {
+            // Global-form exception: paper.* global namespace (Paper.js items register in active project)
+            code: `new paper.Path.Circle({ center: [20, 20], radius: 8, fillColor: 'red' });`,
+          },
+          {
+            // Global-form exception: paperScope.* global namespace
+            code: `new paperScope.Path.Line({ from: [0, 0], to: [40, 40], strokeColor: 'black' });`,
+          },
         ],
         invalid: [
           {
@@ -248,6 +260,36 @@ new DragInstance(params, startEvent, eBody);`,
         import Grid from '@ag-grid-community/core';
         new Grid();
       `,
+            errors: 1,
+          },
+          {
+            // Local class named ClipboardJS must still be reported
+            code: `class ClipboardJS {} new ClipboardJS('.selector');`,
+            errors: 1,
+          },
+          {
+            // Local class named Clipboard must still be reported
+            code: `class Clipboard {} new Clipboard('.selector');`,
+            errors: 1,
+          },
+          {
+            // Local class named p5 must still be reported
+            code: `class p5 {} new p5(createSketch);`,
+            errors: 1,
+          },
+          {
+            // Local object named paper must not suppress paper.* member-expression forms
+            code: `const paper = { Path: { Circle: class {} } }; new paper.Path.Circle({ center: [0, 0] });`,
+            errors: 1,
+          },
+          {
+            // Local object named paperScope must not suppress paperScope.* member-expression forms
+            code: `const paperScope = { Path: { Line: class {} } }; new paperScope.Path.Line({ from: [0, 0] });`,
+            errors: 1,
+          },
+          {
+            // Local window parameter must not suppress window.ClipboardJS
+            code: `function bind(window) { new window.ClipboardJS('.copy-button'); }`,
             errors: 1,
           },
         ],
