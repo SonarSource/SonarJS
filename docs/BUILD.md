@@ -112,6 +112,30 @@ Validate quickfix declarations:
 npm run validate-quickfix
 ```
 
+## Baseline CI mismatches
+
+One recurring repository-wide failure mode is:
+
+```text
+Mismatch between RSPEC metadata and implementation for fixable attribute in rule ...
+```
+
+This means the tracked RSPEC-derived rule metadata and the SonarJS rule implementation are
+temporarily out of sync for some rule.
+
+When this appears in CI:
+
+- Check whether the failing rule is part of the pull request diff.
+- If the failing rule is unrelated to the pull request, treat it as a baseline/environment blocker
+  rather than as work to absorb into that pull request.
+- Rebase once on the latest `origin/master` to confirm the mismatch is not already fixed upstream.
+- If the same mismatch persists after rebasing and it still points outside the pull request scope,
+  stop and report the blocker instead of patching unrelated rules or committing unrelated refreshed
+  RSPEC metadata in the pull request.
+
+This guidance is especially important for automated agents, because RSPEC refreshes can update
+tracked metadata for rules that have nothing to do with the requested change.
+
 ## Reactor order
 
 The `sonar-plugin` reactor builds modules in this order:
