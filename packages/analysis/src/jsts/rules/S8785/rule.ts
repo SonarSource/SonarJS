@@ -20,6 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import { childrenOf } from '../helpers/ancestor.js';
+import { isAssertion } from '../helpers/assertion-detection.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { importsOrDependsOnModule, getFullyQualifiedName } from '../helpers/module.js';
@@ -33,6 +34,7 @@ import {
   isRequiredParserServices,
   type RequiredParserServices,
 } from '../helpers/parser-services.js';
+import { TEST_FRAMEWORK_STRUCTURE_FUNCTIONS } from '../helpers/test-frameworks.js';
 import * as meta from './generated-meta.js';
 import {
   findFirstTopLevelAwait,
@@ -346,7 +348,7 @@ function reportUnawaitedAsyncHelperCalls(
   callback: FunctionLike,
   skipAwait?: estree.Node,
 ): boolean {
-  if (callback.body.type !== 'BlockStatement') {
+  if (callback.body?.type !== 'BlockStatement') {
     return false;
   }
   const { sourceCode } = context;
@@ -360,7 +362,7 @@ function reportUnawaitedAsyncHelperCalls(
     if (current.type === 'ExpressionStatement') {
       const expr = current.expression;
       // Unawaited call: ExpressionStatement → CallExpression
-      if (expr.type === 'CallExpression') {
+      if (expr.type === 'CallExpression' && !shouldSkipHelperResolution(context, expr)) {
         reported = reportAsyncHelperCall(context, services, expr, callback) || reported;
       }
       // Awaited call: ExpressionStatement → AwaitExpression → CallExpression
@@ -368,7 +370,8 @@ function reportUnawaitedAsyncHelperCalls(
       if (
         expr.type === 'AwaitExpression' &&
         expr !== skipAwait &&
-        expr.argument.type === 'CallExpression'
+        expr.argument.type === 'CallExpression' &&
+        !shouldSkipHelperResolution(context, expr.argument)
       ) {
         reported =
           reportAsyncHelperCall(context, services, expr.argument, callback, expr) || reported;
@@ -377,6 +380,16 @@ function reportUnawaitedAsyncHelperCalls(
     stack.push(...childrenOf(current, sourceCode.visitorKeys));
   }
   return reported;
+}
+
+function shouldSkipHelperResolution(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+): boolean {
+  const calleeParts = getMochaCalleeParts(call.callee);
+  const isKnownFrameworkRegistration =
+    calleeParts !== undefined && TEST_FRAMEWORK_STRUCTURE_FUNCTIONS.has(calleeParts.base.name);
+  return isKnownFrameworkRegistration || isAssertion(context, call);
 }
 
 /**
