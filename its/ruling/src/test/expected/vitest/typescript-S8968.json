@@ -1,0 +1,9 @@
+{
+"vitest:test/coverage-test/test/decorators.test.ts": [
+30
+],
+"vitest:test/snapshots/test/fixtures/obsolete/src/test1.test.ts": [
+4,
+9
+]
+}
