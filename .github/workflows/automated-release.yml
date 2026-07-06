@@ -18,6 +18,10 @@ on:
         description: "Integrate into SQS"
         type: boolean
         default: true
+      sqaa-integration:
+        description: "Integrate into SQAA"
+        type: boolean
+        default: true
       branch:
         description: "Branch from which to do the release"
         required: true
@@ -53,8 +57,8 @@ jobs:
       new-version: ${{ github.event.inputs.new-version }}
       sqc-integration: ${{ github.event.inputs.sqc-integration == 'true' }}
       sqs-integration: ${{ github.event.inputs.sqs-integration == 'true' }}
-      # SonarJS SQAA releases are handled manually from the dedicated SQAA workflow
-      # and then handed off through sonar-analysis-as-a-service.
+      # SonarJS uses a custom SQAA workflow that builds the Docker image from the
+      # release tag and updates analysis/js_ts_image_tag in sonar-analysis-as-a-service.
       sqaa-integration: false
       create-slvs-ticket: true
       create-slvscode-ticket: true
@@ -69,9 +73,28 @@ jobs:
       use-jira-sandbox: false
       is-draft-release: false
 
+  sqaa_release:
+    name: Release SQAA
+    needs: release
+    if: ${{ needs.release.result == 'success' && github.event.inputs.sqc-integration == 'true' && github.event.inputs.sqaa-integration == 'true' }}
+    uses: ./.github/workflows/sqaa-release.yml
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      ref: refs/tags/${{ needs.release.outputs.release-version }}
+      release-version: ${{ needs.release.outputs.release-version }}
+      ticket-url: ${{ needs.release.outputs.sqc-ticket-url }}
+      create-aaas-pr: true
+      reviewers: ${{ github.actor }}
+      release-automation-secret-name: "SonarJS-release-automation"
+
   bump_versions:
     name: Bump versions
-    needs: release
+    needs:
+      - release
+      - sqaa_release
+    if: ${{ needs.release.result == 'success' && (needs.sqaa_release.result == 'success' || needs.sqaa_release.result == 'skipped') }}
     uses: ./.github/workflows/bump-versions.yml
     permissions:
       contents: write

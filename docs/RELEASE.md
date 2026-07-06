@@ -2,10 +2,10 @@
 
 SonarJS currently has two distinct release targets:
 
-| Target                      | Artifact                                   | Main workflow                             | Notes                                                |
-| --------------------------- | ------------------------------------------ | ----------------------------------------- | ---------------------------------------------------- |
-| Standard SonarQube analyzer | Maven/JAR release artifacts                | `.github/workflows/automated-release.yml` | This is the normal SonarJS release flow.             |
-| SQAA (previously A3S)       | Docker image for `LanguageAnalyzerService` | `.github/workflows/docker-sqaa.yml`       | This is separate from the standard analyzer release. |
+| Target                      | Artifact                                   | Main workflow                             | Notes                                      |
+| --------------------------- | ------------------------------------------ | ----------------------------------------- | ------------------------------------------ |
+| Standard SonarQube analyzer | Maven/JAR release artifacts                | `.github/workflows/automated-release.yml` | This is the normal SonarJS release flow.   |
+| SQAA (previously A3S)       | Docker image for `LanguageAnalyzerService` | `.github/workflows/docker-sqaa.yml`       | Manual SQAA-only entry point and fallback. |
 
 ## Terminology
 
@@ -17,7 +17,7 @@ SonarJS currently has two distinct release targets:
 
 ## Standard SonarQube Analyzer Release
 
-This is the regular SonarJS analyzer release. It is the release that produces the standard SonarQube analyzer artifacts. It does **not** build or roll out the SQAA Docker image.
+This is the regular SonarJS analyzer release. It produces the standard SonarQube analyzer artifacts and can also automate the SQAA handoff using the same build number.
 
 ### Entry points
 
@@ -33,8 +33,9 @@ The SonarJS workflow is a thin wrapper around `SonarSource/release-github-action
 - plugin name `javascript`
 - Jira project `JS`
 - optional SQC and SQS integration PRs
+- optional SQAA integration, enabled in the SonarJS wrapper and implemented by a custom local workflow
 - SLVS, SLVSCODE, SLE, and SLI integration tickets enabled
-- SQAA integration explicitly disabled in SonarJS, because SQAA is released manually
+- the generic `release-github-actions` SQAA integration explicitly disabled, because SonarJS uses `analysis/js_ts_image_tag` instead of `gradle/sonar-plugins.versions.toml`
 
 The reusable workflow performs the following steps:
 
@@ -49,6 +50,16 @@ The reusable workflow performs the following steps:
 9. Release the Jira version, create the next Jira version, and move the REL ticket to `Technical Release Done`.
 10. Create integration tickets.
 11. Open analyzer update PRs for SQS and SQC.
+
+After that reusable workflow succeeds, SonarJS runs a custom `sqaa_release` job that:
+
+1. Reuses the released `X.Y.Z.BuildNumber` version from the standard release.
+2. Extracts the Docker tag from the final `.BuildNumber` suffix.
+3. Checks out the release tag `refs/tags/<release-version>` so the SQAA image is built from the exact released commit.
+4. Runs the SQAA Docker build and push flow.
+5. Opens the `sonar-analysis-as-a-service` PR that updates `analysis/js_ts_image_tag`.
+
+The `Prepare next development iteration` PR waits for this SonarJS-specific SQAA automation to finish, so a failed SQAA handoff blocks the end of the automated release run.
 
 ### What `publish-github-release` does in practice
 
@@ -94,13 +105,18 @@ SonarJS does **not** use the generic `release-github-actions` version bump actio
 1. Run `.github/workflows/automated-release.yml`, usually from `master`.
 2. Monitor the GitHub release publication kicked off through `.github/workflows/release.yml`.
 3. Verify the REL ticket and Jira release were updated.
-4. Merge the `Prepare next development iteration` PR.
-5. Merge the SQS and SQC integration PRs created by the release automation.
-6. Do **not** expect a SQAA Docker image from this flow.
+4. If `sqaa-integration` was enabled, verify the SQAA Docker image was built from the release tag and that the `sonar-analysis-as-a-service` PR was created.
+5. Merge the `Prepare next development iteration` PR.
+6. Merge the SQS, SQC, and SQAA integration PRs created by the release automation.
 
 ## SQAA Release
 
-SQAA (previously A3S) is released separately from the standard analyzer. The SonarJS side only builds and publishes the Docker image to Repox. The deployment handoff happens afterwards in `SonarSource/sonar-analysis-as-a-service`.
+SQAA (previously A3S) can be released in two ways:
+
+- automatically from `.github/workflows/automated-release.yml`, reusing the standard release build number and release tag
+- manually from `.github/workflows/docker-sqaa.yml` for SQAA-only rebuilds or exceptional reruns
+
+In both cases, the SonarJS side only builds and publishes the Docker image to Repox. The deployment handoff happens afterwards in `SonarSource/sonar-analysis-as-a-service`.
 
 ### Artifact
 
@@ -115,7 +131,7 @@ Relevant implementation details:
 
 ### SonarJS workflow
 
-Run `.github/workflows/docker-sqaa.yml` manually.
+Run `.github/workflows/docker-sqaa.yml` manually when you need an SQAA-only build outside the standard automated release.
 
 This workflow does the following:
 
@@ -148,12 +164,23 @@ repox-sonarsource-docker-builds.jfrog.io/a3s/analysis/javascript:<build_number>
 
 The `a3s` repository segment is still intentional legacy naming. Do not change it during a routine SQAA release.
 
+### SQAA automation from the standard release
+
+When SQAA automation is enabled in `.github/workflows/automated-release.yml`:
+
+1. The standard release produces a version in the format `X.Y.Z.BuildNumber`.
+2. SonarJS reuses that exact `.BuildNumber` suffix for the SQAA Docker tag.
+3. The SQAA image is built from the release tag `refs/tags/<release-version>`, not from the moving branch head.
+4. The same run opens the `sonar-analysis-as-a-service` PR that updates `analysis/js_ts_image_tag`.
+
+This keeps the Java artifacts and the SQAA Docker image on the same released commit and build number.
+
 ### Handoff to `sonar-analysis-as-a-service`
 
 After the SonarJS workflow succeeds:
 
 1. Take the SonarJS build number from the SQAA workflow run.
-2. Open a PR in `SonarSource/sonar-analysis-as-a-service`.
+2. Open a PR in `SonarSource/sonar-analysis-as-a-service`, or let the automated release create it for you.
 3. Update only `analysis/js_ts_image_tag` to that new build number.
 
 Example:
@@ -180,13 +207,13 @@ repox-sonarsource-docker-builds.jfrog.io/a3s/analysis/javascript:${source_tag}
 
 Do **not** use the generic `SonarSource/release-github-actions/update-analysis-as-a-service` action for the SonarJS SQAA release.
 
-That generic action updates `gradle/sonar-plugins.versions.toml` in `sonar-analysis-as-a-service`. The current JS/TS SQAA rollout does **not** use that file. The real SonarJS handoff is the manual PR that updates `analysis/js_ts_image_tag`.
+That generic action updates `gradle/sonar-plugins.versions.toml` in `sonar-analysis-as-a-service`. The current JS/TS SQAA rollout does **not** use that file. The real SonarJS handoff is the PR that updates `analysis/js_ts_image_tag`, whether that PR is created automatically or manually.
 
 ### SQAA release checklist
 
-1. Run `.github/workflows/docker-sqaa.yml`.
-2. Note the SonarJS build number used as the Docker tag.
-3. Open a PR in `SonarSource/sonar-analysis-as-a-service`.
-4. Update `analysis/js_ts_image_tag` to that build number.
+1. For the normal release path, run `.github/workflows/automated-release.yml` with `sqaa-integration` enabled.
+2. For a manual SQAA-only path, run `.github/workflows/docker-sqaa.yml`.
+3. Note the SonarJS build number used as the Docker tag.
+4. If the flow was manual, open a PR in `SonarSource/sonar-analysis-as-a-service` and update `analysis/js_ts_image_tag` to that build number.
 5. Merge the PR to `master`.
 6. Let `sonar-analysis-as-a-service` build and deployment workflows roll out the new image.
