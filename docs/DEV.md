@@ -114,6 +114,8 @@ revision to rebuild against. For direct Maven commands that generate rule data, 
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all
 required dependencies and is used for our CI pipeline.
 
+For release procedures, see [RELEASE.md](RELEASE.md).
+
 ## Build and run unit tests
 
 On a fresh checkout, or whenever you want the latest RSPEC rule data instead of the tracked JSON
