@@ -23,6 +23,7 @@ import { FUNCTION_NODES, isIdentifier } from '../helpers/ast.js';
 import { isTestCase } from '../helpers/mocha.js';
 import {
   isMochaTestConstruct,
+  collectMemberChain,
   getPlaywrightTestQualifiers,
   PLAYWRIGHT_TEST_MODIFIERS,
   TEST_FUNCTION_NAMES,
@@ -39,6 +40,14 @@ const messages = {
 };
 
 type Framework = keyof typeof messages;
+
+const suggestionMessages = {
+  suggestMochaSkip: 'Replace with `this.skip()`.',
+  suggestVitestSkip: "Replace with the test context's `skip()`.",
+  suggestPlaywrightSkip: 'Replace with `test.skip(condition)`.',
+  suggestNodeTestSkip: "Call the test context's `skip()` before returning.",
+  suggestBunSkipIf: 'Move the condition to `test.skipIf()`.',
+};
 
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
 const NODE_TEST_MODULES = ['node:test'];
@@ -123,7 +132,10 @@ function detectFramework(context: Rule.RuleContext): Framework | 'excluded' {
 }
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, { messages }),
+  meta: generateMeta(meta, {
+    messages: { ...messages, ...suggestionMessages },
+    hasSuggestions: true,
+  }),
   create(context: Rule.RuleContext) {
     const framework = detectFramework(context);
     if (framework === 'excluded') {
@@ -153,6 +165,7 @@ export const rule: Rule.RuleModule = {
           context.report({
             node: returnStatement,
             messageId: framework,
+            suggest: buildSuggestions(context, framework, call, callback, guard),
           });
         }
       },
@@ -248,4 +261,157 @@ function getSoleReturnWithoutValue(statement: estree.Statement): estree.ReturnSt
     return getSoleReturnWithoutValue(statement.body[0]);
   }
   return null;
+}
+
+/**
+ * Builds the `suggest` fixes for the diagnostic, or undefined when the callback's shape
+ * doesn't give the fix a safe place to call the framework's skip mechanism from. Each
+ * framework's fix mirrors the compliant example documented in the RSPEC:
+ * - Playwright's `test.skip(condition)` is always safe to insert: it doesn't depend on
+ *   the callback's signature at all.
+ * - node:test and Vitest's fixes call `skip()` on the callback's own test-context
+ *   parameter; when the callback doesn't already declare one, there's nothing to call
+ *   `skip()` on, and introducing a new parameter is left to the developer.
+ * - Bun has no in-body skip call at all: the only fix is to move the condition to
+ *   `test.skipIf(condition)`, which is only offered for a bare `test`/`it` call (no
+ *   `.only`-style modifier chain to reconcile) whose callback takes no parameters, so
+ *   the condition can't be referring to state that only exists once the test starts
+ *   running (see the RSPEC's "How to fix it in Bun" section).
+ * - Mocha's `this.skip()` relies on the Mocha test context, which is only bound when the
+ *   callback is declared with the `function` keyword; an arrow function callback has no
+ *   fix to offer.
+ */
+function buildSuggestions(
+  context: Rule.RuleContext,
+  framework: Framework,
+  call: estree.CallExpression,
+  callback: estree.Function,
+  guard: estree.IfStatement,
+): Rule.SuggestionReportDescriptor[] | undefined {
+  const condition = context.sourceCode.getText(guard.test);
+  switch (framework) {
+    case 'playwright': {
+      const { base } = collectMemberChain(call.callee);
+      const calleeName = context.sourceCode.getText(base);
+      return [
+        {
+          messageId: 'suggestPlaywrightSkip',
+          fix: fixer => fixer.replaceText(guard, `${calleeName}.skip(${condition});`),
+        },
+      ];
+    }
+    case 'nodeTest': {
+      const contextParamName = getFirstIdentifierParamName(callback);
+      if (!contextParamName) {
+        return undefined;
+      }
+      return [
+        {
+          messageId: 'suggestNodeTestSkip',
+          fix: fixer =>
+            fixer.replaceText(guard.consequent, `{ ${contextParamName}.skip(); return; }`),
+        },
+      ];
+    }
+    case 'vitest': {
+      const skipAccessor = getVitestSkipAccessor(callback);
+      if (!skipAccessor) {
+        return undefined;
+      }
+      return [
+        {
+          messageId: 'suggestVitestSkip',
+          fix: fixer => fixer.replaceText(guard.consequent, `{ ${skipAccessor}(); }`),
+        },
+      ];
+    }
+    case 'bun': {
+      if (call.callee.type !== 'Identifier' || callback.params.length > 0) {
+        return undefined;
+      }
+      const calleeName = call.callee.name;
+      return [
+        {
+          messageId: 'suggestBunSkipIf',
+          fix: fixer => [
+            fixer.replaceText(call.callee, `${calleeName}.skipIf(${condition})`),
+            removeLines(context, fixer, guard),
+          ],
+        },
+      ];
+    }
+    case 'mocha': {
+      if (callback.type !== 'FunctionExpression') {
+        return undefined;
+      }
+      return [
+        {
+          messageId: 'suggestMochaSkip',
+          fix: fixer => fixer.replaceText(guard.consequent, `{ this.skip(); }`),
+        },
+      ];
+    }
+  }
+}
+
+/**
+ * Removes the whole lines a node occupies, including its leading indentation and
+ * trailing newline. A plain `fixer.remove(node)` would only remove the node's own
+ * range, leaving an empty (whitespace-only) line behind; this only reads correctly
+ * for a statement that is the sole content of the line(s) it occupies, which is the
+ * case for the `if` guard this is used on.
+ */
+function removeLines(
+  context: Rule.RuleContext,
+  fixer: Rule.RuleFixer,
+  node: estree.Node,
+): Rule.Fix {
+  const sourceCode = context.sourceCode;
+  const lineStart = sourceCode.getIndexFromLoc({ line: node.loc!.start.line, column: 0 });
+  const nodeEnd = node.range![1];
+  const trailingNewline = /^\r?\n/.exec(sourceCode.text.slice(nodeEnd));
+  const end = nodeEnd + (trailingNewline ? trailingNewline[0].length : 0);
+  return fixer.removeRange([lineStart, end]);
+}
+
+/**
+ * The callback's first parameter name, when it's a plain identifier (e.g. node:test's
+ * `t` in `test('...', t => { ... })`). Any other shape (no parameter, destructured,
+ * default value, rest element) has no single name to call `.skip()` on.
+ */
+function getFirstIdentifierParamName(callback: estree.Function): string | undefined {
+  const [firstParam] = callback.params;
+  return firstParam?.type === 'Identifier' ? firstParam.name : undefined;
+}
+
+/**
+ * An expression that evaluates to Vitest's test-context `skip` function, or undefined
+ * when the callback's first parameter doesn't already expose one:
+ * - `({ skip }) => {}` or `({ skip: renamed }) => {}`: the destructured local binding.
+ * - `(ctx) => {}`: `ctx.skip`.
+ * A parameter that doesn't grant access to `skip` (no parameter, or a destructuring
+ * pattern without a `skip` property) is left alone rather than rewriting the callback's
+ * signature to add one.
+ */
+function getVitestSkipAccessor(callback: estree.Function): string | undefined {
+  const [firstParam] = callback.params;
+  if (!firstParam) {
+    return undefined;
+  }
+  if (firstParam.type === 'Identifier') {
+    return `${firstParam.name}.skip`;
+  }
+  if (firstParam.type === 'ObjectPattern') {
+    for (const property of firstParam.properties) {
+      if (
+        property.type === 'Property' &&
+        !property.computed &&
+        isIdentifier(property.key, 'skip') &&
+        property.value.type === 'Identifier'
+      ) {
+        return property.value.name;
+      }
+    }
+  }
+  return undefined;
 }

@@ -109,7 +109,23 @@ test('checkout', async ({ page }) => {
   await page.click('#reorder');
 });
 `,
-          errors: [{ messageId: 'playwright' }],
+          errors: [
+            {
+              messageId: 'playwright',
+              suggestions: [
+                {
+                  messageId: 'suggestPlaywrightSkip',
+                  output: `
+import { test } from '@playwright/test';
+test('checkout', async ({ page }) => {
+  test.skip(readOnlyMode);
+  await page.click('#reorder');
+});
+`,
+                },
+              ],
+            },
+          ],
         },
         {
           // Regression test for a project whose package.json depends on Jest (a fully
@@ -127,7 +143,24 @@ it('reorders columns', function () {
   expect(db.columns).toEqual(['a', 'b']);
 });
 `,
-          errors: [{ messageId: 'mocha' }],
+          errors: [
+            {
+              messageId: 'mocha',
+              suggestions: [
+                {
+                  messageId: 'suggestMochaSkip',
+                  output: `
+import { it } from 'mocha';
+it('reorders columns', function () {
+  if (readOnlyMode) { this.skip(); }
+  db.reorderColumns();
+  expect(db.columns).toEqual(['a', 'b']);
+});
+`,
+                },
+              ],
+            },
+          ],
         },
         {
           // Regression test for an aliased Mocha import combined with the `.only`
@@ -143,7 +176,316 @@ mochaIt.only('reorders columns', function () {
   expect(db.columns).toEqual(['a', 'b']);
 });
 `,
-          errors: [{ messageId: 'mocha' }],
+          errors: [
+            {
+              messageId: 'mocha',
+              suggestions: [
+                {
+                  messageId: 'suggestMochaSkip',
+                  output: `
+import { it as mochaIt } from 'mocha';
+mochaIt.only('reorders columns', function () {
+  if (readOnlyMode) { this.skip(); }
+  db.reorderColumns();
+  expect(db.columns).toEqual(['a', 'b']);
+});
+`,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('offers a quickfix only when it has a safe target to call the framework skip mechanism on', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run('Tests should be skipped explicitly', rule, {
+      valid: [],
+      invalid: [
+        {
+          // Playwright's fix never depends on the callback's signature.
+          code: `
+import { test } from '@playwright/test';
+test('reorders columns', async ({ page }) => {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  await page.click('#reorder');
+});
+`,
+          errors: [
+            {
+              messageId: 'playwright',
+              suggestions: [
+                {
+                  messageId: 'suggestPlaywrightSkip',
+                  output: `
+import { test } from '@playwright/test';
+test('reorders columns', async ({ page }) => {
+  test.skip(readOnlyMode);
+  await page.click('#reorder');
+});
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // The fix reuses the call's own (possibly aliased) test identifier.
+          code: `
+import { test as t } from '@playwright/test';
+t('reorders columns', async ({ page }) => {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  await page.click('#reorder');
+});
+`,
+          errors: [
+            {
+              messageId: 'playwright',
+              suggestions: [
+                {
+                  messageId: 'suggestPlaywrightSkip',
+                  output: `
+import { test as t } from '@playwright/test';
+t('reorders columns', async ({ page }) => {
+  t.skip(readOnlyMode);
+  await page.click('#reorder');
+});
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // node:test: a fix is offered when the callback already has a context parameter.
+          code: `
+import test from 'node:test';
+test('reorders columns', t => {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  db.reorderColumns();
+});
+`,
+          errors: [
+            {
+              messageId: 'nodeTest',
+              suggestions: [
+                {
+                  messageId: 'suggestNodeTestSkip',
+                  output: `
+import test from 'node:test';
+test('reorders columns', t => {
+  if (readOnlyMode) { t.skip(); return; }
+  db.reorderColumns();
+});
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // node:test: without a context parameter, there's nothing to call `skip()` on.
+          code: `
+import test from 'node:test';
+test('reorders columns', () => {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  db.reorderColumns();
+});
+`,
+          errors: [{ messageId: 'nodeTest', suggestions: [] }],
+        },
+        {
+          // Vitest: a destructured `{ skip }` context parameter is used as-is.
+          code: `
+import { it } from 'vitest';
+it('reorders columns', async ({ skip }) => {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  await db.reorderColumns();
+});
+`,
+          errors: [
+            {
+              messageId: 'vitest',
+              suggestions: [
+                {
+                  messageId: 'suggestVitestSkip',
+                  output: `
+import { it } from 'vitest';
+it('reorders columns', async ({ skip }) => {
+  if (readOnlyMode) { skip(); }
+  await db.reorderColumns();
+});
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // Vitest: a renamed `{ skip: mySkip }` destructured binding is used as-is.
+          code: `
+import { it } from 'vitest';
+it('reorders columns', async ({ skip: mySkip }) => {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  await db.reorderColumns();
+});
+`,
+          errors: [
+            {
+              messageId: 'vitest',
+              suggestions: [
+                {
+                  messageId: 'suggestVitestSkip',
+                  output: `
+import { it } from 'vitest';
+it('reorders columns', async ({ skip: mySkip }) => {
+  if (readOnlyMode) { mySkip(); }
+  await db.reorderColumns();
+});
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // Vitest: a plain (non-destructured) context parameter is used via `.skip`.
+          code: `
+import { it } from 'vitest';
+it('reorders columns', async (ctx) => {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  await db.reorderColumns();
+});
+`,
+          errors: [
+            {
+              messageId: 'vitest',
+              suggestions: [
+                {
+                  messageId: 'suggestVitestSkip',
+                  output: `
+import { it } from 'vitest';
+it('reorders columns', async (ctx) => {
+  if (readOnlyMode) { ctx.skip(); }
+  await db.reorderColumns();
+});
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // Vitest: without a context parameter, there's nothing to call `skip()` on.
+          code: `
+import { it } from 'vitest';
+it('reorders columns', async () => {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  await db.reorderColumns();
+});
+`,
+          errors: [{ messageId: 'vitest', suggestions: [] }],
+        },
+        {
+          // Bun: a bare, unqualified test call with a parameterless callback is fixable.
+          code: `
+import { test } from 'bun:test';
+test('reorders columns', () => {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  db.reorderColumns();
+});
+`,
+          errors: [
+            {
+              messageId: 'bun',
+              suggestions: [
+                {
+                  messageId: 'suggestBunSkipIf',
+                  output: `
+import { test } from 'bun:test';
+test.skipIf(readOnlyMode)('reorders columns', () => {
+  db.reorderColumns();
+});
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // Bun: a `.only`-qualified call has no safe place to insert `.skipIf()`.
+          code: `
+import { test } from 'bun:test';
+test.only('reorders columns', () => {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  db.reorderColumns();
+});
+`,
+          errors: [{ messageId: 'bun', suggestions: [] }],
+        },
+        {
+          // Mocha: `this.skip()` is only safe in a `function` callback, not an arrow one.
+          code: `
+import { it } from 'mocha';
+it('reorders columns', function () {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  db.reorderColumns();
+});
+`,
+          errors: [
+            {
+              messageId: 'mocha',
+              suggestions: [
+                {
+                  messageId: 'suggestMochaSkip',
+                  output: `
+import { it } from 'mocha';
+it('reorders columns', function () {
+  if (readOnlyMode) { this.skip(); }
+  db.reorderColumns();
+});
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // Mocha: an arrow callback has no `this` to call `.skip()` on.
+          code: `
+import { it } from 'mocha';
+it('reorders columns', () => {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  db.reorderColumns();
+});
+`,
+          errors: [{ messageId: 'mocha', suggestions: [] }],
         },
       ],
     });

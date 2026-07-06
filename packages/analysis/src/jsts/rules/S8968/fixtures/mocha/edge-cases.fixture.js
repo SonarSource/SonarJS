@@ -57,11 +57,15 @@ it('checks two prerequisites', () => {
 // The `specify` alias is recognized like `it`/`test`.
 specify('reorders columns', function () {
   if (readOnlyMode) {
-    return; // Noncompliant {{Call `this.skip()` instead of returning early.}}
+    return; // Noncompliant [[qf1]] {{Call `this.skip()` instead of returning early.}}
   }
   db.reorderColumns();
   expect(db.columns).toEqual(['a', 'b']);
 });
+// fix@qf1 {{Replace with `this.skip()`.}}
+// del@qf1@+1
+// del@qf1
+// edit@qf1@-1 {{  if (readOnlyMode) { this.skip(); }}}
 
 // A test already marked `.skip` can never be misreported as "passed".
 it.skip('reorders columns', function () {
@@ -75,11 +79,15 @@ it.skip('reorders columns', function () {
 // `.only` still runs normally, so the anti-pattern still applies.
 it.only('reorders columns', function () {
   if (readOnlyMode) {
-    return; // Noncompliant {{Call `this.skip()` instead of returning early.}}
+    return; // Noncompliant [[qf2]] {{Call `this.skip()` instead of returning early.}}
   }
   db.reorderColumns();
   expect(db.columns).toEqual(['a', 'b']);
 });
+// fix@qf2 {{Replace with `this.skip()`.}}
+// del@qf2@+1
+// del@qf2
+// edit@qf2@-1 {{  if (readOnlyMode) { this.skip(); }}}
 
 // Chained `.skipIf(...)(...)` declarations are not recognized as test cases at all.
 it.skipIf(readOnlyMode)('reorders columns', () => {

@@ -3,20 +3,28 @@ import assert from 'node:assert/strict';
 
 test('reorders columns', t => {
   if (readOnlyMode) {
-    return; // Noncompliant {{Call the test context's `skip()` before returning early.}}
+    return; // Noncompliant [[qf1]] {{Call the test context's `skip()` before returning early.}}
   }
   db.reorderColumns();
   assert.deepEqual(db.columns, ['a', 'b']);
 });
+// fix@qf1 {{Call the test context's `skip()` before returning.}}
+// del@qf1@+1
+// del@qf1
+// edit@qf1@-1 {{  if (readOnlyMode) { t.skip(); return; }}}
 
 // The message must not assume the context parameter is named `t`.
 test('reorders columns', context => {
   if (readOnlyMode) {
-    return; // Noncompliant {{Call the test context's `skip()` before returning early.}}
+    return; // Noncompliant [[qf2]] {{Call the test context's `skip()` before returning early.}}
   }
   db.reorderColumns();
   assert.deepEqual(db.columns, ['a', 'b']);
 });
+// fix@qf2 {{Call the test context's `skip()` before returning.}}
+// del@qf2@+1
+// del@qf2
+// edit@qf2@-1 {{  if (readOnlyMode) { context.skip(); return; }}}
 
 test('reorders columns', t => {
   if (readOnlyMode) {
