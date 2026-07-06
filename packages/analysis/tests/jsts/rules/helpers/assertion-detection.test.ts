@@ -33,6 +33,12 @@ describe('assertion-detection', () => {
       const warning = { isVisible: () => true };
       warning.isVisible().should.be.true;
 
+      const status = true;
+      status.should.to.be.be.true;
+
+      const payload = {};
+      payload.should.exist;
+
       const submitPassword = { should: { have: { been: { calledWith: () => {} } } } };
       submitPassword.should.have.been.calledWith('secret');
     `;
@@ -43,8 +49,43 @@ describe('assertion-detection', () => {
     expect(
       isTSAssertion(services, findTSNodeByText(program, 'warning.isVisible().should')),
     ).toEqual(true);
+    expect(isTSAssertion(services, findTSNodeByText(program, 'status.should'))).toEqual(true);
+    expect(isTSAssertion(services, findTSNodeByText(program, 'payload.should'))).toEqual(true);
     expect(isTSAssertion(services, findTSNodeByText(program, 'submitPassword.should'))).toEqual(
       true,
+    );
+  });
+
+  it('rejects incomplete or unknown TypeScript chai should chains', () => {
+    const sourceCode = `
+      import chai from 'chai';
+
+      declare global {
+        interface Object {
+          should: any;
+        }
+      }
+
+      const bare = {};
+      bare.should;
+
+      const incomplete = true;
+      incomplete.should.to.be;
+
+      const unknown = {};
+      unknown.should.eventually;
+
+      const terminalFollowed = {};
+      terminalFollowed.should.exist.and;
+    `;
+
+    const { services, program } = createProgramFromSource(sourceCode);
+
+    expect(isTSAssertion(services, findTSNodeByText(program, 'bare.should'))).toEqual(false);
+    expect(isTSAssertion(services, findTSNodeByText(program, 'incomplete.should'))).toEqual(false);
+    expect(isTSAssertion(services, findTSNodeByText(program, 'unknown.should'))).toEqual(false);
+    expect(isTSAssertion(services, findTSNodeByText(program, 'terminalFollowed.should'))).toEqual(
+      false,
     );
   });
 });

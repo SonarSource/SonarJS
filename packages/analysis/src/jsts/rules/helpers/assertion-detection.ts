@@ -64,6 +64,51 @@ const GLOBAL_EXPECT_NAMES = new Set([
   'expectTypeOf',
 ]);
 
+const CHAI_NON_TERMINAL_PROPERTY_NAMES = new Set([
+  'all',
+  'also',
+  'and',
+  'any',
+  'at',
+  'be',
+  'been',
+  'but',
+  'deep',
+  'does',
+  'have',
+  'has',
+  'is',
+  'itself',
+  'nested',
+  'not',
+  'of',
+  'ordered',
+  'own',
+  'same',
+  'still',
+  'that',
+  'to',
+  'which',
+  'with',
+]);
+
+const CHAI_TERMINAL_PROPERTY_NAMES = new Set([
+  'Arguments',
+  'NaN',
+  'arguments',
+  'empty',
+  'exist',
+  'extensible',
+  'false',
+  'finite',
+  'frozen',
+  'null',
+  'ok',
+  'sealed',
+  'true',
+  'undefined',
+]);
+
 /**
  * Whether the linted file imports or the project depends on a supported
  * assertion library / test runner. Rules use this to avoid raising issues in
@@ -131,16 +176,15 @@ export function isScriptCapableAssertion(context: Rule.RuleContext, node: estree
 }
 
 /**
- * Bare Chai `foo.should` property reads are not assertions on their own.
- * We exclude them so S2699 does not treat an incomplete `should` chain as an assertion
+ * Incomplete Chai `foo.should` property chains are not assertions on their own.
+ * We exclude them so S2699 does not treat an unfinished `should` chain as an assertion
  * and miss the "Add at least one assertion to this test case." issue.
  */
-export function isStandaloneShouldAccess(context: Rule.RuleContext, node: estree.Node): boolean {
+export function isIncompleteShouldAccess(context: Rule.RuleContext, node: estree.Node): boolean {
   if (!isShouldMember(node)) {
     return false;
   }
-  const parent = getParent(context, node);
-  return !isExtendingShouldChainParent(parent, node);
+  return !isCompleteESTreeShouldPropertyChain(context, node);
 }
 
 /**
@@ -163,27 +207,12 @@ function isExtendedTSShouldAccess(node: ts.Node): boolean {
   return (
     isTSShouldAccess(node) &&
     importsModuleTS(node.getSourceFile(), ['chai']) &&
-    isTSExtendingShouldChainParent(node.parent, node)
+    isCompleteTSShouldPropertyChain(node)
   );
 }
 
 function isTSShouldAccess(node: ts.Node): node is ts.PropertyAccessExpression {
   return ts.isPropertyAccessExpression(node) && node.name.text === 'should';
-}
-
-function isTSExtendingShouldChainParent(parent: ts.Node | undefined, node: ts.Node): boolean {
-  if (
-    parent === undefined ||
-    !ts.isPropertyAccessExpression(parent) ||
-    parent.expression !== node
-  ) {
-    return false;
-  }
-  const grandparent = parent.parent;
-  return (
-    (ts.isPropertyAccessExpression(grandparent) && grandparent.expression === parent) ||
-    (ts.isCallExpression(grandparent) && grandparent.expression === parent)
-  );
 }
 
 /**
@@ -231,13 +260,82 @@ function isShouldMember(node: estree.Node): node is estree.MemberExpression {
   );
 }
 
-function isExtendingShouldChainParent(
-  parent: estree.Node | undefined,
+function isCompleteESTreeShouldPropertyChain(
+  context: Rule.RuleContext,
   node: estree.MemberExpression,
 ): boolean {
+  let current: estree.Node = node;
+  let parent = getParent(context, node);
+
+  while (isESTreeChaiShouldChainContinuation(parent, current)) {
+    const grandparent = getParent(context, parent);
+    if (isESTreeCallOnNode(grandparent, parent)) {
+      return true;
+    }
+    if (CHAI_TERMINAL_PROPERTY_NAMES.has(parent.property.name)) {
+      return !isESTreeChaiShouldChainContinuation(grandparent, parent);
+    }
+    if (!CHAI_NON_TERMINAL_PROPERTY_NAMES.has(parent.property.name)) {
+      return false;
+    }
+    current = parent;
+    parent = grandparent;
+  }
+
+  return false;
+}
+
+function isCompleteTSShouldPropertyChain(node: ts.PropertyAccessExpression): boolean {
+  let current: ts.Node = node;
+  let parent = node.parent;
+
+  while (isTSChaiShouldChainContinuation(parent, current)) {
+    const grandparent = parent.parent;
+    if (isTSCallOnNode(grandparent, parent)) {
+      return true;
+    }
+    if (CHAI_TERMINAL_PROPERTY_NAMES.has(parent.name.text)) {
+      return !isTSChaiShouldChainContinuation(grandparent, parent);
+    }
+    if (!CHAI_NON_TERMINAL_PROPERTY_NAMES.has(parent.name.text)) {
+      return false;
+    }
+    current = parent;
+    parent = grandparent;
+  }
+
+  return false;
+}
+
+function isESTreeCallOnNode(
+  parent: estree.Node | undefined,
+  node: estree.Node,
+): parent is estree.CallExpression {
+  return parent?.type === 'CallExpression' && parent.callee === node;
+}
+
+function isTSCallOnNode(parent: ts.Node | undefined, node: ts.Node): parent is ts.CallExpression {
+  return parent !== undefined && ts.isCallExpression(parent) && parent.expression === node;
+}
+
+function isESTreeChaiShouldChainContinuation(
+  parent: estree.Node | undefined,
+  node: estree.Node,
+): parent is estree.MemberExpression & { property: estree.Identifier } {
   return (
-    (parent?.type === 'MemberExpression' && parent.object === node) ||
-    (parent?.type === 'CallExpression' && parent.callee === node)
+    parent?.type === 'MemberExpression' &&
+    parent.object === node &&
+    !parent.computed &&
+    parent.property.type === 'Identifier'
+  );
+}
+
+function isTSChaiShouldChainContinuation(
+  parent: ts.Node | undefined,
+  node: ts.Node,
+): parent is ts.PropertyAccessExpression {
+  return (
+    parent !== undefined && ts.isPropertyAccessExpression(parent) && parent.expression === node
   );
 }
 

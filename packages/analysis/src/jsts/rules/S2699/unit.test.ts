@@ -82,6 +82,31 @@ describe('chai should property assertions', () => {
         {
           code: `
 const chai = require('chai');
+describe('chai direct terminal should properties', () => {
+  it('recognizes direct terminal properties and longer non-terminal chains', () => {
+    const warning = {};
+    warning.should.exist;
+
+    const status = true;
+    status.should.to.be.be.true;
+  });
+});
+          `,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('chai direct method should properties', () => {
+  it('recognizes direct method assertions', () => {
+    const value = 2;
+    value.should.equal(2);
+  });
+});
+          `,
+        },
+        {
+          code: `
+const chai = require('chai');
 describe('sinon-chai style terminal calls', () => {
   it('recognizes calledWith on should chains', () => {
     const submitPassword = { should: { have: { been: { calledWith: () => {} } } } };
@@ -269,6 +294,39 @@ describe('bare should access', () => {
         {
           code: `
 const chai = require('chai');
+describe('incomplete should chains', () => {
+  it('should raise when should only has language chains', () => {
+    const value = true;
+    value.should.to.be;
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('unknown should chains', () => {
+  it('should raise when should ends with an unknown property', () => {
+    const helper = {};
+    helper.should.eventually;
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('terminal should chains with extra properties', () => {
+  it('should raise when a terminal property is extended', () => {
+    const helper = {};
+    helper.should.exist.and;
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const chai = require('chai');
 describe('unrelated method names', () => {
   it('should raise when methods only look like assertions', () => {
     const helper = {
@@ -417,6 +475,14 @@ describe('typed chai should chains', () => {
   it('should recognize property terminals beyond the common ones', () => {
     const list = [];
     list.should.be.empty;
+  });
+
+  it('should recognize direct terminal properties and longer non-terminal chains', () => {
+    const payload = {};
+    payload.should.exist;
+
+    const status = true;
+    status.should.to.be.be.true;
   });
 
   it('should recognize call terminals on locals that do not resolve', () => {
@@ -601,7 +667,45 @@ declare global {
 describe('typed incomplete should chains', () => {
   it('should raise when should only has a language chain', () => {
     const value = true;
-    value.should.be;
+    value.should.to.be;
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { expect } from 'chai';
+
+declare global {
+  interface Object {
+    should: any;
+  }
+}
+
+describe('typed unknown should chains', () => {
+  it('should raise when should ends with an unknown property', () => {
+    const helper = {};
+    helper.should.eventually;
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { expect } from 'chai';
+
+declare global {
+  interface Object {
+    should: any;
+  }
+}
+
+describe('typed terminal should chains with extra properties', () => {
+  it('should raise when a terminal property is extended', () => {
+    const helper = {};
+    helper.should.exist.and;
   });
 });
 `,
