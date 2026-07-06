@@ -233,7 +233,7 @@ function buildLengthEqualitySuggestion(
       `expect(${actual})${negation(same)}.${matcher}(${expected})`,
       node,
       undefined,
-      'length',
+      'preferSpecificLengthAssertion',
     );
   }
   if (family === 'assert') {
@@ -242,7 +242,7 @@ function buildLengthEqualitySuggestion(
           `${assertObject}.lengthOf(${actual}, ${expected}${extraArguments})`,
           node,
           undefined,
-          'length',
+          'preferSpecificLengthAssertion',
         )
       : null;
   }
@@ -251,14 +251,14 @@ function buildLengthEqualitySuggestion(
       `${chaiShouldReceiver(actual, actualNode)}.should${negation(same)}.have.lengthOf(${expected})`,
       node,
       undefined,
-      'length',
+      'preferSpecificLengthAssertion',
     );
   }
   return replacement(
     `expect(${actual}${extraArguments}).to${negation(same)}.have.lengthOf(${expected})`,
     node,
     undefined,
-    'length',
+    'preferSpecificLengthAssertion',
   );
 }
 

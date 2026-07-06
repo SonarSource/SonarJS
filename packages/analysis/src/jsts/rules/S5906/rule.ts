@@ -85,10 +85,7 @@ export const rule: Rule.RuleModule = {
 
       context.report({
         node: node.callee,
-        messageId:
-          suggestion.kind === 'length'
-            ? 'preferSpecificLengthAssertion'
-            : 'preferSpecificAssertion',
+        messageId: suggestion.messageId ?? 'preferSpecificAssertion',
         data: { assertion: suggestion.assertion },
         ...(suggest ? { suggest } : {}),
       });
@@ -215,7 +212,7 @@ function getExpectLikeSuggestion(
       `expect(${sourceCode.getText(actual.object)}).${negated ? 'not.' : ''}${lengthMatcher}(${expectedText})`,
       node,
       sourceCode,
-      'length',
+      'preferSpecificLengthAssertion',
     );
   }
   const booleanExpected = getBooleanValue(expected);
@@ -376,7 +373,7 @@ function getChaiAssertSuggestion(
       `${assertText}.lengthOf(${sourceCode.getText(actual.object)}, ${sourceCode.getText(expected)}${trailingArgs})`,
       node,
       sourceCode,
-      'length',
+      'preferSpecificLengthAssertion',
     );
   }
   const booleanExpected = getBooleanValue(expected);
@@ -422,7 +419,7 @@ function getChaiValueSuggestion(
       `expect(${sourceCode.getText(actual.object)}${messageArguments}).to${negated ? '.not' : ''}.have.lengthOf(${sourceCode.getText(expected)})`,
       node,
       sourceCode,
-      'length',
+      'preferSpecificLengthAssertion',
     );
   }
   const booleanExpected = getBooleanValue(expected);
@@ -468,7 +465,7 @@ function getChaiShouldValueSuggestion(
       `${receiver}.should${negated ? '.not' : ''}.have.lengthOf(${sourceCode.getText(expected)})`,
       node,
       sourceCode,
-      'length',
+      'preferSpecificLengthAssertion',
     );
   }
   const booleanExpected = getBooleanValue(expected);
