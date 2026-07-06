@@ -456,6 +456,12 @@ const register = setup;
 describe('suite', register);`,
         },
         {
+          // concise-body arrow with sync helper — no issue
+          code: `import { describe } from 'mocha';
+function syncHelper() { return 42; }
+describe('suite', () => syncHelper());`,
+        },
+        {
           // cross-file helper via declare: no ESTree body available — skip
           code: `import { describe } from 'mocha';
 declare function asyncHelper(): Promise<void>;
@@ -631,6 +637,26 @@ describe('suite', () => {
               },
             },
           ],
+        },
+        {
+          // concise-body arrow: () => helper() — unawaited async helper
+          code: `import { describe } from 'mocha';
+async function testing() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+describe('suite', () => testing());`,
+          errors: [{ messageId: 'asyncHelperCall' }],
+        },
+        {
+          // concise-body arrow: async () => await helper() — awaited async helper
+          code: `import { describe } from 'mocha';
+async function testing() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+describe('suite', async () => await testing());`,
+          errors: [{ messageId: 'asyncHelperCall' }],
         },
         {
           // sonarRuntime — awaited async helper: secondaries from helper body + describe body

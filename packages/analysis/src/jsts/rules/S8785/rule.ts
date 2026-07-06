@@ -348,38 +348,62 @@ function reportUnawaitedAsyncHelperCalls(
   callback: FunctionLike,
   skipAwait?: estree.Node,
 ): boolean {
-  if (callback.body?.type !== 'BlockStatement') {
+  const body = callback.body;
+  if (!body) {
     return false;
   }
   const { sourceCode } = context;
   let reported = false;
-  const stack: estree.Node[] = [...childrenOf(callback.body, sourceCode.visitorKeys)];
+  // Block body: seed the stack with direct statement children.
+  // Concise-body arrow (`() => expr`): seed with the qexpression itself so it falls through the
+  // while loop below. The expression is identified inside the loop by `current === body`.
+  const stack: estree.Node[] =
+    body.type === 'BlockStatement'
+      ? [...childrenOf(body, sourceCode.visitorKeys)]
+      : [body as estree.Node];
   while (stack.length > 0) {
     const current = stack.pop();
     if (!current || isFunctionNode(current)) {
       continue;
     }
+    let expr: estree.Expression | null = null;
     if (current.type === 'ExpressionStatement') {
-      const expr = current.expression;
-      // Unawaited call: ExpressionStatement → CallExpression
-      if (expr.type === 'CallExpression' && !shouldSkipHelperResolution(context, expr)) {
-        reported = reportAsyncHelperCall(context, services, expr, callback) || reported;
-      }
-      // Awaited call: ExpressionStatement → AwaitExpression → CallExpression
-      // Skip if this is the top-level-await already handled by the outer detection branch.
-      if (
-        expr.type === 'AwaitExpression' &&
-        expr !== skipAwait &&
-        expr.argument.type === 'CallExpression' &&
-        !shouldSkipHelperResolution(context, expr.argument)
-      ) {
-        reported =
-          reportAsyncHelperCall(context, services, expr.argument, callback, expr) || reported;
-      }
+      expr = current.expression;
+    } else if (body.type !== 'BlockStatement' && current === body) {
+      expr = body as estree.Expression;
     }
-    stack.push(...childrenOf(current, sourceCode.visitorKeys));
+    if (expr === null) {
+      stack.push(...childrenOf(current, sourceCode.visitorKeys));
+      continue;
+    }
+    reported =
+      reportAsyncHelperExpression(context, services, expr, callback, skipAwait) || reported;
   }
   return reported;
+}
+
+function reportAsyncHelperExpression(
+  context: Rule.RuleContext,
+  services: RequiredParserServices,
+  expr: estree.Expression,
+  callback: FunctionLike,
+  skipAwait?: estree.Node,
+): boolean {
+  // Unawaited call: helper() / () => helper()
+  if (expr.type === 'CallExpression' && !shouldSkipHelperResolution(context, expr)) {
+    return reportAsyncHelperCall(context, services, expr, callback);
+  }
+  // Awaited call: await helper() / async () => await helper()
+  // Skip if this is the top-level-await already handled by the outer detection branch.
+  if (
+    expr.type === 'AwaitExpression' &&
+    expr !== skipAwait &&
+    expr.argument.type === 'CallExpression' &&
+    !shouldSkipHelperResolution(context, expr.argument)
+  ) {
+    return reportAsyncHelperCall(context, services, expr.argument, callback, expr);
+  }
+  return false;
 }
 
 function shouldSkipHelperResolution(
