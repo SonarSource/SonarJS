@@ -1,5 +1,5 @@
 {
-  "title": "Test suite callbacks should be synchronous functions",
+  "title": "Tests should not be registered asynchronously in suite callbacks",
   "type": "BUG",
   "status": "ready",
   "remediation": {

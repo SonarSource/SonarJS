@@ -2,7 +2,7 @@
   "type": "CODE_SMELL",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "MEDIUM"
+      "MAINTAINABILITY": "LOW"
     },
     "attribute": "CLEAR"
   },
@@ -15,7 +15,7 @@
     "type-dependent",
     "editable-source"
   ],
-  "defaultSeverity": "Major",
+  "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6582",
   "sqKey": "S6582",
   "scope": "Main",

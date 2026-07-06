@@ -14,7 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  RuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 import path from 'node:path';
@@ -29,7 +32,8 @@ describe('S8785', () => {
     const mochaGlobals = fixture('mocha-globals');
     const cypressGlobals = fixture('cypress-globals');
 
-    ruleTester.run('Test suite callbacks should be synchronous functions', rule, {
+    const RULE_NAME = 'Test suite callbacks should be synchronous functions';
+    ruleTester.run(RULE_NAME, rule, {
       valid: [
         {
           // synchronous arrow / function callbacks
@@ -285,7 +289,7 @@ context('group', async () => { await b(); });
               data: {
                 sonarRuntimeData: JSON.stringify({
                   message:
-                    'Make this test suite callback synchronous; any test declared after this await is silently dropped.',
+                    'Move this async setup into a lifecycle hook or a test callback; any test declared after this "await" is silently dropped.',
                   secondaryLocations: [
                     {
                       message: 'This test is declared after the await and is never registered.',
@@ -321,7 +325,7 @@ context('group', async () => { await b(); });
               data: {
                 sonarRuntimeData: JSON.stringify({
                   message:
-                    'Make this test suite callback synchronous; any test declared after this await is silently dropped.',
+                    'Move this async setup into a lifecycle hook or a test callback; any test declared after this "await" is silently dropped.',
                   secondaryLocations: [
                     {
                       message: 'This test is declared after the await and is never registered.',
@@ -361,7 +365,7 @@ context('group', async () => { await b(); });
               data: {
                 sonarRuntimeData: JSON.stringify({
                   message:
-                    'Make this test suite callback synchronous; any test declared after this await is silently dropped.',
+                    'Move this async setup into a lifecycle hook or a test callback; any test declared after this "await" is silently dropped.',
                   secondaryLocations: [
                     {
                       message: 'This test is declared after the await and is never registered.',
@@ -411,6 +415,372 @@ context('group', async () => { await b(); });
 });`,
                 },
               ],
+            },
+          ],
+        },
+      ],
+    });
+
+    const typedRuleTester = new RuleTester();
+    typedRuleTester.run(RULE_NAME, rule, {
+      valid: [
+        {
+          // sync helper is never async — no issue
+          code: `import { describe } from 'mocha';
+function setup() { return 42; }
+describe('suite', () => { setup(); });`,
+        },
+        {
+          // async helper has no tests after its await — nothing dropped
+          code: `import { describe } from 'mocha';
+async function setup() { await Promise.resolve(); }
+describe('suite', () => { setup(); });`,
+        },
+        {
+          // async helper has tests but BEFORE its await — nothing dropped
+          code: `import { describe } from 'mocha';
+async function setup() {
+  it('before', () => {});
+  await Promise.resolve();
+}
+describe('suite', () => { setup(); });`,
+        },
+        {
+          // only one hop is followed for referenced suite callbacks
+          code: `import { describe } from 'mocha';
+async function setup() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+const register = setup;
+describe('suite', register);`,
+        },
+        {
+          // concise-body arrow with sync helper — no issue
+          code: `import { describe } from 'mocha';
+function syncHelper() { return 42; }
+describe('suite', () => syncHelper());`,
+        },
+        {
+          // cross-file helper via declare: no ESTree body available — skip
+          code: `import { describe } from 'mocha';
+declare function asyncHelper(): Promise<void>;
+describe('suite', () => { asyncHelper(); });`,
+        },
+      ],
+      invalid: [
+        {
+          // async callback passed by reference to a named function: report on the declaration,
+          // but do not auto-fix because the function may be reused elsewhere
+          code: `import { describe } from 'mocha';
+async function register() {
+  it('registered', () => {});
+}
+describe('suite', register);`,
+          errors: [{ messageId: 'removeAsync' }],
+        },
+        {
+          // async callback passed by reference through a variable initializer is also resolved
+          code: `import { describe } from 'mocha';
+const register = async () => {
+  await Promise.resolve();
+  it('dropped', () => {});
+};
+describe('suite', register);`,
+          errors: [{ messageId: 'asyncSuiteCallback' }],
+        },
+        {
+          // one-hop resolution also catches named async function declarations with dropped tests
+          code: `import { describe } from 'mocha';
+async function register() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+describe('suite', register);`,
+          errors: [{ messageId: 'asyncSuiteCallback' }],
+        },
+        {
+          // the callback can still be found when the suite title is itself passed by reference
+          code: `import { describe } from 'mocha';
+const title = 'suite';
+async function register() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+describe(title, register);`,
+          errors: [{ messageId: 'asyncSuiteCallback' }],
+        },
+        {
+          // Sync describe + unawaited async helper with dropped tests
+          code: `import { describe } from 'mocha';
+async function testing() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+describe('suite', () => {
+  testing();
+});`,
+          errors: [{ messageId: 'asyncHelperCall' }],
+        },
+        {
+          // User-defined async helper named after a framework hook (e.g. 'before') must be
+          // reported — the bare-name match against TEST_FRAMEWORK_STRUCTURE_FUNCTIONS must not
+          // exempt it without verifying import provenance.
+          code: `import { describe } from 'mocha';
+async function before() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+describe('suite', () => {
+  before();
+});`,
+          errors: [{ messageId: 'asyncHelperCall' }],
+        },
+        {
+          // top-level await inside a variable initializer still drops later tests in the helper
+          code: `import { describe } from 'mocha';
+async function testing() {
+  const value = await Promise.resolve();
+  it('dropped', () => {});
+}
+describe('suite', () => {
+  testing();
+});`,
+          errors: [{ messageId: 'asyncHelperCall' }],
+        },
+        {
+          // Async describe (no top-level await) + unawaited async helper
+          // removeAsync (with QF) + asyncHelperCall both fire
+          code: `import { describe } from 'mocha';
+async function testing() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+describe('suite', async () => {
+  testing();
+});`,
+          errors: [
+            {
+              messageId: 'removeAsync',
+              suggestions: [
+                {
+                  messageId: 'removeAsyncQuickFix',
+                  output: `import { describe } from 'mocha';
+async function testing() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+describe('suite', () => {
+  testing();
+});`,
+                },
+              ],
+            },
+            { messageId: 'asyncHelperCall' },
+          ],
+        },
+        {
+          // Async describe + top-level await that IS the async helper
+          // asyncHelperCall fires, asyncSuiteCallback suppressed
+          code: `import { describe } from 'mocha';
+async function testing() {
+  await Promise.resolve();
+  it('dropped in helper', () => {});
+}
+describe('suite', async () => {
+  await testing();
+});`,
+          errors: [{ messageId: 'asyncHelperCall' }],
+        },
+        {
+          // Tests dropped in both the helper body and the describe body
+          code: `import { describe } from 'mocha';
+async function testing() {
+  await Promise.resolve();
+  it('dropped in helper', () => {});
+}
+describe('suite', async () => {
+  await testing();
+  it('dropped in describe', () => {});
+});`,
+          errors: [{ messageId: 'asyncHelperCall' }],
+        },
+        {
+          // Async describe + non-helper top-level await + unawaited async helper
+          // asyncSuiteCallback + asyncHelperCall both fire independently
+          code: `import { describe } from 'mocha';
+async function testing() {
+  await Promise.resolve();
+  it('dropped in helper', () => {});
+}
+describe('suite', async () => {
+  await Promise.resolve();
+  it('dropped in describe', () => {});
+  testing();
+});`,
+          errors: [{ messageId: 'asyncSuiteCallback' }, { messageId: 'asyncHelperCall' }],
+        },
+        {
+          // sonarRuntime — asyncHelperCall secondary locations: tests inside the helper
+          code: `import { describe } from 'mocha';
+async function testing() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+describe('suite', () => {
+  testing();
+});`,
+          settings: { sonarRuntime: true },
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                sonarRuntimeData: JSON.stringify({
+                  message:
+                    'This async helper silently drops tests; remove its "async" keyword and move async setup into a lifecycle hook or a test callback.',
+                  secondaryLocations: [
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 2,
+                      line: 4,
+                      endColumn: 4,
+                      endLine: 4,
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        },
+        {
+          // concise-body arrow: () => helper() — unawaited async helper
+          code: `import { describe } from 'mocha';
+async function testing() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+describe('suite', () => testing());`,
+          errors: [{ messageId: 'asyncHelperCall' }],
+        },
+        {
+          // concise-body arrow: async () => await helper() — awaited async helper
+          code: `import { describe } from 'mocha';
+async function testing() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+describe('suite', async () => await testing());`,
+          errors: [{ messageId: 'asyncHelperCall' }],
+        },
+        {
+          // sonarRuntime — awaited async helper: secondaries from helper body + describe body
+          code: `import { describe } from 'mocha';
+async function testing() {
+  await Promise.resolve();
+  it('dropped in helper', () => {});
+}
+describe('suite', async () => {
+  await testing();
+  it('dropped in describe', () => {});
+});`,
+          settings: { sonarRuntime: true },
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                sonarRuntimeData: JSON.stringify({
+                  message:
+                    'This async helper silently drops tests; remove its "async" keyword and move async setup into a lifecycle hook or a test callback.',
+                  secondaryLocations: [
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 2,
+                      line: 4,
+                      endColumn: 4,
+                      endLine: 4,
+                    },
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 2,
+                      line: 8,
+                      endColumn: 4,
+                      endLine: 8,
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        },
+        {
+          // sonarRuntime — two sequential awaited helpers: each reports only its own dropped tests,
+          // with no overlap between their secondary locations.
+          code: `import { describe } from 'mocha';
+async function helperA() {
+  await Promise.resolve();
+  it('dropped in helperA', () => {});
+}
+async function helperB() {
+  await Promise.resolve();
+  it('dropped in helperB', () => {});
+}
+describe('suite', async () => {
+  await helperA();
+  it('dropped after helperA', () => {});
+  await helperB();
+  it('dropped after helperB', () => {});
+});`,
+          settings: { sonarRuntime: true },
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                sonarRuntimeData: JSON.stringify({
+                  message:
+                    'This async helper silently drops tests; remove its "async" keyword and move async setup into a lifecycle hook or a test callback.',
+                  secondaryLocations: [
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 2,
+                      line: 4,
+                      endColumn: 4,
+                      endLine: 4,
+                    },
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 2,
+                      line: 12,
+                      endColumn: 4,
+                      endLine: 12,
+                    },
+                  ],
+                }),
+              },
+            },
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                sonarRuntimeData: JSON.stringify({
+                  message:
+                    'This async helper silently drops tests; remove its "async" keyword and move async setup into a lifecycle hook or a test callback.',
+                  secondaryLocations: [
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 2,
+                      line: 8,
+                      endColumn: 4,
+                      endLine: 8,
+                    },
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 2,
+                      line: 14,
+                      endColumn: 4,
+                      endLine: 14,
+                    },
+                  ],
+                }),
+              },
             },
           ],
         },
