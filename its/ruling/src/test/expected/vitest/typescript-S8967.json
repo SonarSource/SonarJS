@@ -1,0 +1,10 @@
+{
+"vitest:test/browser/fixtures/expect-dom/toMatchScreenshot.test.ts": [
+134,
+182
+],
+"vitest:test/coverage-test/test/mixed-versions-warning.unit.test.ts": [
+25,
+47
+]
+}
