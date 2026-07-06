@@ -1,14 +1,14 @@
 {
-  "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
-    671
-  ],
-  "p5.js:src/core/error_helpers.js": [
-    608
-  ],
-  "p5.js:src/core/main.js": [
-    657
-  ],
-  "p5.js:src/dom/dom.js": [
-    3055
-  ]
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+671
+],
+"p5.js:src/core/error_helpers.js": [
+608
+],
+"p5.js:src/core/main.js": [
+657
+],
+"p5.js:src/dom/dom.js": [
+3055
+]
 }

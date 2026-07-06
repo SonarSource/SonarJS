@@ -1,11 +1,11 @@
 {
-  "angular.js:src/Angular.js": [
-    1154
-  ],
-  "angular.js:src/ng/compile.js": [
-    2778
-  ],
-  "angular.js:src/ngSanitize/sanitize.js": [
-    478
-  ]
+"angular.js:src/Angular.js": [
+1154
+],
+"angular.js:src/ng/compile.js": [
+2778
+],
+"angular.js:src/ngSanitize/sanitize.js": [
+478
+]
 }

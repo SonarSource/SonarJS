@@ -1,8 +1,8 @@
 {
-  "qunit:src/cli/require-qunit.js": [
-    12
-  ],
-  "qunit:src/globals.js": [
-    18
-  ]
+"qunit:src/cli/require-qunit.js": [
+12
+],
+"qunit:src/globals.js": [
+18
+]
 }

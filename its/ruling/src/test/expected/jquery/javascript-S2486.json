@@ -1,14 +1,14 @@
 {
-  "jquery:src/ajax.js": [
-    556
-  ],
-  "jquery:src/manipulation.js": [
-    402
-  ],
-  "jquery:src/selector.js": [
-    259
-  ],
-  "jquery:src/selector/support.js": [
-    9
-  ]
+"jquery:src/ajax.js": [
+556
+],
+"jquery:src/manipulation.js": [
+402
+],
+"jquery:src/selector.js": [
+259
+],
+"jquery:src/selector/support.js": [
+9
+]
 }

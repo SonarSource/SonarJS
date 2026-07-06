@@ -1,16 +1,16 @@
 {
-  "Ghost:core/server/data/xml/rss/index.js": [
-    93
-  ],
-  "Ghost:core/server/update-check.js": [
-    128
-  ],
-  "Ghost:core/server/utils/parse-package-json.js": [
-    41
-  ],
-  "Ghost:core/server/utils/startup-check.js": [
-    53,
-    124,
-    190
-  ]
+"Ghost:core/server/data/xml/rss/index.js": [
+93
+],
+"Ghost:core/server/update-check.js": [
+128
+],
+"Ghost:core/server/utils/parse-package-json.js": [
+41
+],
+"Ghost:core/server/utils/startup-check.js": [
+53,
+124,
+190
+]
 }

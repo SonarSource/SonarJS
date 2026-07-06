@@ -1,34 +1,37 @@
 {
-  "ace:Makefile.dryice.js": [
-    217
-  ],
-  "ace:demo/kitchen-sink/file_drop.js": [
-    27
-  ],
-  "ace:lib/ace/mode/yaml/yaml-lint.js": [
-    2999,
-    3474,
-    3497,
-    4205,
-    5196
-  ],
-  "ace:src/ext/emmet.js": [
-    390
-  ],
-  "ace:src/keyboard/textinput.js": [
-    228
-  ],
-  "ace:src/selection.js": [
-    849
-  ],
-  "ace:src/snippets.js": [
-    695
-  ],
-  "ace:tool/lib.js": [
-    25,
-    111
-  ],
-  "ace:tool/tmtheme.js": [
-    359
-  ]
+"ace:Makefile.dryice.js": [
+217
+],
+"ace:demo/kitchen-sink/doclist.js": [
+90
+],
+"ace:demo/kitchen-sink/file_drop.js": [
+27
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+2999,
+3474,
+3497,
+4205,
+5196
+],
+"ace:src/ext/emmet.js": [
+390
+],
+"ace:src/keyboard/textinput.js": [
+228
+],
+"ace:src/selection.js": [
+849
+],
+"ace:src/snippets.js": [
+695
+],
+"ace:tool/lib.js": [
+25,
+111
+],
+"ace:tool/tmtheme.js": [
+359
+]
 }

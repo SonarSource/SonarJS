@@ -1,14 +1,14 @@
 {
-  "console:src/components/ProjectSelection/ProjectSelection.tsx": [
-    394
-  ],
-  "console:src/utils/valueparser.ts": [
-    142
-  ],
-  "console:src/views/PermissionsView/PermissionPopup/ast.ts": [
-    29,
-    55,
-    86,
-    126
-  ]
+"console:src/components/ProjectSelection/ProjectSelection.tsx": [
+394
+],
+"console:src/utils/valueparser.ts": [
+142
+],
+"console:src/views/PermissionsView/PermissionPopup/ast.ts": [
+29,
+55,
+86,
+126
+]
 }

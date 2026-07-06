@@ -1,8 +1,8 @@
 {
-  "sonar-web:src/main/js/components/common/file-upload.js": [
-    33
-  ],
-  "sonar-web:src/main/js/components/workspace/models/items.js": [
-    24
-  ]
+"sonar-web:src/main/js/components/common/file-upload.js": [
+33
+],
+"sonar-web:src/main/js/components/workspace/models/items.js": [
+24
+]
 }
