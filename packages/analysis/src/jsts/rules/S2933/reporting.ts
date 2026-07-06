@@ -47,6 +47,7 @@ export function reportGroupedIssue(
     return;
   }
 
+  // Keep the aggregate issue wording aligned with the number of grouped members.
   const message =
     groupedReports.length === 1
       ? 'Mark this member as `readonly`.'
