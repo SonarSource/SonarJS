@@ -229,22 +229,36 @@ function buildLengthEqualitySuggestion(
   const actual = sourceCode.getText(actualNode);
   if (family === 'jest' || family === 'jasmine') {
     const matcher = family === 'jasmine' ? 'toHaveSize' : 'toHaveLength';
-    return replacement(`expect(${actual})${negation(same)}.${matcher}(${expected})`, node);
+    return replacement(
+      `expect(${actual})${negation(same)}.${matcher}(${expected})`,
+      node,
+      undefined,
+      'preferSpecificLengthAssertion',
+    );
   }
   if (family === 'assert') {
     return same
-      ? replacement(`${assertObject}.lengthOf(${actual}, ${expected}${extraArguments})`, node)
+      ? replacement(
+          `${assertObject}.lengthOf(${actual}, ${expected}${extraArguments})`,
+          node,
+          undefined,
+          'preferSpecificLengthAssertion',
+        )
       : null;
   }
   if (family === 'chai-should') {
     return replacement(
       `${chaiShouldReceiver(actual, actualNode)}.should${negation(same)}.have.lengthOf(${expected})`,
       node,
+      undefined,
+      'preferSpecificLengthAssertion',
     );
   }
   return replacement(
     `expect(${actual}${extraArguments}).to${negation(same)}.have.lengthOf(${expected})`,
     node,
+    undefined,
+    'preferSpecificLengthAssertion',
   );
 }
 
