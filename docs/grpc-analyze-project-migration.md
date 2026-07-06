@@ -32,7 +32,7 @@ Move the internal Java -> Node.js analyze-project communication from HTTP/WebSoc
 9. No transport backward compatibility is required. HTTP is dropped.
 10. HTTP/WebSocket runtime dependencies should be removed in the same change.
 11. Worker retention is a design choice, not a compatibility constraint.
-12. The protocol should be designed around analyze-project needs, not around the external A3S contract.
+12. The protocol should be designed around analyze-project needs, not around the external SQAA (previously A3S) contract.
 
 ## Final Protocol Design
 
