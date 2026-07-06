@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { isIdentifier, isMethodCall, isUnresolved } from '../helpers/ast.js';
+import { getVariableFromName, isIdentifier, isMethodCall } from '../helpers/ast.js';
 import { collectCallChain, getRootCall } from '../helpers/expect-call-chain.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
@@ -128,6 +128,11 @@ function isExpectCall(
   return (
     (frameworks.jest || frameworks.vitest) &&
     isIdentifier(call.callee, 'expect') &&
-    isUnresolved(call.callee, context)
+    isGlobalExpect(context, call.callee)
   );
+}
+
+function isGlobalExpect(context: Rule.RuleContext, node: estree.Identifier): boolean {
+  const variable = getVariableFromName(context, node.name, node);
+  return !variable || variable.defs.length === 0;
 }

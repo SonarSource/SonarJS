@@ -30,8 +30,9 @@ export function unwrapChainExpression<T extends estree.Node | estree.Super>(
 }
 
 /**
- * Collects the chain of member names hung off `call`, innermost first, e.g. for
- * `expect(x).not.resolves.toBe(y)` called with the `toBe(y)` node, returns
+ * Collects the chain of member names hung off `call`, furthest from the root
+ * call first, e.g. for `expect(x).not.resolves.toBe(y)` called with the `toBe(y)`
+ * node, returns
  * `{ segments: [{name: 'toBe', ...}, {name: 'resolves', ...}, {name: 'not', ...}], complete: true }`.
  * `complete` is `false` when a computed member or non-identifier property was hit
  * before reaching the root call, in which case `segments` only holds the
