@@ -32,3 +32,46 @@ function i() {
         console.log(`Exception while doing something: ${err}`);
     }
 }
+
+function assignmentBody() {
+    try {
+        n = String(name || "");
+    } catch (err) { // Compliant
+
+    }
+}
+
+function variableDeclarationBody() {
+    try {
+        const parsed = JSON.parse(raw);
+    } catch (err) { // Compliant
+
+    }
+}
+
+function throwBody() {
+    try {
+        throw new Error("boom");
+    } catch (err) { // Compliant
+
+    }
+}
+
+function nestedTryBody() {
+    try {
+        try {
+            doSomething();
+        } catch (inner) {
+            handle(inner);
+        }
+    } catch (err) { // Compliant
+
+    }
+}
+
+function emptyTryBody() {
+    try {
+    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+
+    }
+}

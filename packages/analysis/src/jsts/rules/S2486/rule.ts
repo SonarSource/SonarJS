@@ -33,17 +33,16 @@ export const rule: Rule.RuleModule = {
     return {
       'CatchClause[param.type="Identifier"]'(node: estree.CatchClause) {
         const param = node.param as estree.Identifier;
-        const tryStatement = getParent(context, node);
         const scope = context.sourceCode.getScope(node);
         const variable = getVariableFromScope(scope, param.name);
-        if (
-          variable?.references.length === 0 &&
-          !(tryStatement?.type === 'TryStatement' && tryStatement.block.body.length === 1)
-        ) {
-          context.report({
-            messageId: 'handleException',
-            node,
-          });
+        if (variable?.references.length === 0) {
+          const tryStatement = getParent(context, node) as estree.TryStatement;
+          if (tryStatement.block.body.length !== 1) {
+            context.report({
+              messageId: 'handleException',
+              node,
+            });
+          }
         }
       },
     };
