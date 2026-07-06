@@ -33,7 +33,14 @@ const LOOP_OR_SWITCH_TYPES = new Set([
 ]);
 
 function isSingleSimpleStatement(body: estree.Statement[]): boolean {
-  return body.length === 1 && !LOOP_OR_SWITCH_TYPES.has(body[0].type);
+  if (body.length !== 1) {
+    return false;
+  }
+  let stmt = body[0];
+  while (stmt.type === 'LabeledStatement') {
+    stmt = (stmt as estree.LabeledStatement).body;
+  }
+  return !LOOP_OR_SWITCH_TYPES.has(stmt.type);
 }
 
 export const rule: Rule.RuleModule = {
