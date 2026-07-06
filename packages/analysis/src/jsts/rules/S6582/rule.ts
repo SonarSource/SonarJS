@@ -89,6 +89,19 @@ function allowsUndefined(type: ts.Type): boolean {
   );
 }
 
+function allowsNullOrUndefined(type: ts.Type): boolean {
+  const constituents: ts.Type[] = type.isUnion() ? type.types : [type];
+  return constituents.some(
+    constituent =>
+      (constituent.flags & ts.TypeFlags.Null) !== 0 ||
+      (constituent.flags & ts.TypeFlags.Undefined) !== 0,
+  );
+}
+
+// Operators where `undefined OP undefined` is `false`, so rewriting both sides with
+// optional chaining silently inverts the original "either-side-null" guard.
+const DANGEROUS_OPERATORS = new Set(['!==', '!=', '<', '>', '<=', '>=']);
+
 /**
  * Sanitized rule 'prefer-optional-chain' from TypeScript ESLint.
  *
@@ -155,6 +168,21 @@ export const rule: Rule.RuleModule = {
         return null;
       }
 
+      return checker.getTypeAtLocation(tsNode);
+    }
+
+    // Resolves the type as declared at the symbol's declaration site, bypassing
+    // narrowing that the surrounding null-guard chain applies at the use site.
+    function getDeclaredTypeOfObject(node: Rule.Node): ts.Type | null {
+      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+      if (!tsNode) {
+        return null;
+      }
+      const symbol = checker.getSymbolAtLocation(tsNode);
+      const declaration = symbol?.declarations?.[0];
+      if (symbol && declaration) {
+        return checker.getTypeOfSymbolAtLocation(symbol, declaration);
+      }
       return checker.getTypeAtLocation(tsNode);
     }
 
@@ -246,6 +274,62 @@ export const rule: Rule.RuleModule = {
       return targetType != null && !allowsUndefined(targetType);
     }
 
+    // Records source text of null-guarded subjects: `!x` in || chains, bare `x` in && chains.
+    // Source text covers identifier, `this.prop`, and `ref.current`-style member subjects.
+    function collectGuardedSubjects(node: Rule.Node, subjects: Set<string>): void {
+      if (node.type === 'UnaryExpression' && node.operator === '!') {
+        subjects.add(context.sourceCode.getText(node.argument as Rule.Node));
+      } else if (node.type === 'LogicalExpression') {
+        collectGuardedSubjects(node.left as Rule.Node, subjects);
+        collectGuardedSubjects(node.right as Rule.Node, subjects);
+      } else {
+        subjects.add(context.sourceCode.getText(node));
+      }
+    }
+
+    // Suppress when the comparison involves more than one null-guarded nullable subject.
+    // Optional chaining has no clean single-chain form for multi-subject comparisons:
+    // the partial fix (e.g. `!a || a.x !== b?.x`) is unreadable and misleads customers
+    // into writing the full fix (`a?.x !== b?.x`) which silently changes semantics.
+    function matchesMultipleNullableSubjectsFalsePositive(node: Rule.Node): boolean {
+      if (node.type !== 'LogicalExpression' || node.right.type !== 'BinaryExpression') {
+        return false;
+      }
+
+      const binary = node.right;
+      if (!DANGEROUS_OPERATORS.has(binary.operator)) {
+        return false;
+      }
+
+      if (binary.left.type !== 'MemberExpression' || binary.right.type !== 'MemberExpression') {
+        return false;
+      }
+
+      const leftObj = binary.left.object as Rule.Node;
+      const rightObj = binary.right.object as Rule.Node;
+
+      const leftText = context.sourceCode.getText(leftObj);
+      const rightText = context.sourceCode.getText(rightObj);
+      if (leftText === rightText) {
+        return false;
+      }
+
+      const leftType = getDeclaredTypeOfObject(leftObj);
+      const rightType = getDeclaredTypeOfObject(rightObj);
+      if (
+        leftType == null ||
+        rightType == null ||
+        !allowsNullOrUndefined(leftType) ||
+        !allowsNullOrUndefined(rightType)
+      ) {
+        return false;
+      }
+
+      const guardedSubjects = new Set<string>();
+      collectGuardedSubjects(node.left as Rule.Node, guardedSubjects);
+      return guardedSubjects.has(leftText) && guardedSubjects.has(rightText);
+    }
+
     /**
      * Returns true when the upstream report is a known false positive that should be suppressed.
      *
@@ -270,6 +354,10 @@ export const rule: Rule.RuleModule = {
       }
 
       if (matchesAssignmentFalsePositive(node)) {
+        return true;
+      }
+
+      if (matchesMultipleNullableSubjectsFalsePositive(node)) {
         return true;
       }
 

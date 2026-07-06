@@ -220,12 +220,15 @@ function getChaiAssertPredicate(
     case 'assert':
     case 'ok':
     case 'isOk':
-    case 'isTrue':
       return { predicate: 'truthy', negated: false };
     case 'isNotOk':
       return { predicate: 'truthy', negated: true };
+    // chai's `isTrue`/`isFalse` are strict (`=== true`/`=== false`), unlike `isOk`/`isNotOk`,
+    // which accept any truthy/falsy value
+    case 'isTrue':
+      return { predicate: 'true', negated: false };
     case 'isFalse':
-      return { predicate: 'falsy', negated: false };
+      return { predicate: 'false', negated: false };
     case 'isNull':
       return { predicate: 'null', negated: false };
     case 'isNotNull':
@@ -233,10 +236,13 @@ function getChaiAssertPredicate(
     case 'isUndefined':
       return { predicate: 'undefined', negated: false };
     case 'isDefined':
-    case 'exists':
       return { predicate: 'defined', negated: false };
+    // chai's `exists`/`notExists` are stricter than `isDefined`: they require not-null AND
+    // not-undefined, unlike `isDefined`, which is only "not undefined"
+    case 'exists':
+      return { predicate: 'exists', negated: false };
     case 'notExists':
-      return { predicate: 'defined', negated: true };
+      return { predicate: 'exists', negated: true };
     default:
       return null;
   }

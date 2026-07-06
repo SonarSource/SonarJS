@@ -212,6 +212,124 @@ describe('S6582 without strictNullChecks', () => {
   });
 });
 
+describe('S6582 with multiple nullable subjects in comparison', () => {
+  const fixtureFile = path.join(import.meta.dirname, 'fixtures/index.ts');
+  const ruleTesterOptions = {
+    parserOptions: {
+      project: './tsconfig.json',
+      tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+    },
+  };
+
+  it('does not report when the comparison has more than one distinct nullable subject', () => {
+    const ruleTester = new RuleTester(ruleTesterOptions);
+    ruleTester.run('S6582', rule, {
+      valid: [
+        {
+          // Two nullable subjects: a and b. No clean single optional-chain form exists.
+          // The partial fix `a.length !== b?.length` is unreadable and misleads customers
+          // into writing `a?.length !== b?.length` which silently changes semantics.
+          code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b || a.length !== b.length) {} }`,
+          filename: fixtureFile,
+        },
+        {
+          // Same with undefined
+          code: `function f(a: string[] | undefined, b: string[] | undefined) { if (!a || !b || a.length !== b.length) {} }`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [
+        {
+          // Only one nullable subject (a): fix `a?.module !== b.module` is clean and unambiguous.
+          code: `interface Opts { module: number } function f(a: Opts | null, b: Opts): boolean { return !a || a.module !== b.module; }`,
+          output: `interface Opts { module: number } function f(a: Opts | null, b: Opts): boolean { return a?.module !== b.module; }`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('does not report for each dangerous comparison operator (!=, <, >, <=, >=)', () => {
+    const ruleTester = new RuleTester(ruleTesterOptions);
+    ruleTester.run('S6582', rule, {
+      valid: [
+        {
+          code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b || a.length != b.length) {} }`,
+          filename: fixtureFile,
+        },
+        {
+          code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b || a.length < b.length) {} }`,
+          filename: fixtureFile,
+        },
+        {
+          code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b || a.length > b.length) {} }`,
+          filename: fixtureFile,
+        },
+        {
+          code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b || a.length <= b.length) {} }`,
+          filename: fixtureFile,
+        },
+        {
+          code: `function f(a: string[] | null, b: string[] | null) { if (!a || !b || a.length >= b.length) {} }`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('does not report for && chains where both subjects are bare-guarded', () => {
+    const ruleTester = new RuleTester(ruleTesterOptions);
+    ruleTester.run('S6582', rule, {
+      valid: [
+        {
+          code: `function f(a: string[] | null, b: string[] | null) { if (a && b && a.length !== b.length) {} }`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('does not report when guarded subjects are member expressions (this.x, ref.current)', () => {
+    const ruleTester = new RuleTester(ruleTesterOptions);
+    ruleTester.run('S6582', rule, {
+      valid: [
+        {
+          // this-prefixed nullable fields — common in class / React code
+          code: `class C { left: { len: number } | null = null; right: { len: number } | null = null; f(): boolean { return !this.left || !this.right || this.left.len !== this.right.len; } }`,
+          filename: fixtureFile,
+        },
+        {
+          // ref.current-style nullable members
+          code: `interface Ref<T> { current: T | null } interface Box { value: number } function f(a: Ref<Box>, b: Ref<Box>): boolean { return !a.current || !b.current || a.current.value !== b.current.value; }`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('still reports when one comparison subject is not nullable', () => {
+    // b is declared non-nullable so the suppression contract (both-sides-nullable) does not
+    // hold; the upstream report must pass through. The recorded output is whatever upstream
+    // emits for that chain — its exact shape is upstream's responsibility, not ours.
+    const ruleTester = new RuleTester(ruleTesterOptions);
+    ruleTester.run('S6582', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `interface Opts { module: number } function f(a: Opts | null, b: Opts) { if (!a || !b || a.module !== b.module) {} }`,
+          output: `interface Opts { module: number } function f(a: Opts | null, b: Opts) { if (!a || a.module !== b?.module) {} }`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
+
 describe('S6582', () => {
   it('does not raise without TypeScript services', () => {
     const ruleTester = new DefaultParserRuleTester();

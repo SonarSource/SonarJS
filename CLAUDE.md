@@ -51,6 +51,15 @@ See `/build` for the full build pipeline reference.
 
 - Always add `SonarSource/quality-web-squad` as a reviewer when creating PRs
 
+## Repo-wide agent guidance
+
+- The guidance in this section applies to any automated coding agent working in this repository, not
+  only Claude Code.
+- For RSPEC-related baseline CI failures, follow
+  [`docs/BUILD.md#baseline-ci-mismatches`](docs/BUILD.md#baseline-ci-mismatches).
+- Do not patch unrelated rules or commit unrelated refreshed RSPEC metadata just to make a pull
+  request green.
+
 ## Important Notes
 
 - `generated-meta.ts` files are auto-generated from RSPEC — do not edit manually

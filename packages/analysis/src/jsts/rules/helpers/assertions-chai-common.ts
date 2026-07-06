@@ -16,24 +16,36 @@
  */
 import type estree from 'estree';
 
-export type ChaiPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null';
+export type ChaiPredicate =
+  | 'truthy'
+  | 'falsy'
+  | 'true'
+  | 'false'
+  | 'defined'
+  | 'undefined'
+  | 'null'
+  | 'exists';
 
 export function getChaiPropertyPredicate(
   name: string,
 ): { predicate: ChaiPredicate; negated: boolean } | null {
   switch (name) {
-    case 'true':
     case 'ok':
       return { predicate: 'truthy', negated: false };
+    // chai's `.true`/`.false` are strict (`=== true`/`=== false`), unlike `.ok`, which accepts
+    // any truthy/falsy value
+    case 'true':
+      return { predicate: 'true', negated: false };
     case 'false':
-      return { predicate: 'falsy', negated: false };
+      return { predicate: 'false', negated: false };
     case 'null':
       return { predicate: 'null', negated: false };
     case 'undefined':
       return { predicate: 'undefined', negated: false };
+    // chai's `.exist` is stricter than "defined": it requires not-null AND not-undefined
     case 'exist':
     case 'exists':
-      return { predicate: 'defined', negated: false };
+      return { predicate: 'exists', negated: false };
     default:
       return null;
   }
