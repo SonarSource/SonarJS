@@ -1,0 +1,35 @@
+{
+  "title": "Test and hook callbacks should use a single completion style",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "async",
+    "jest",
+    "mocha",
+    "jasmine"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8960",
+  "sqKey": "S8960",
+  "scope": "Tests",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM",
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
