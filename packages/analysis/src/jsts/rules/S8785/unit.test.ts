@@ -698,6 +698,78 @@ describe('suite', async () => {
             },
           ],
         },
+        {
+          // sonarRuntime — two sequential awaited helpers: each reports only its own dropped tests,
+          // with no overlap between their secondary locations.
+          code: `import { describe } from 'mocha';
+async function helperA() {
+  await Promise.resolve();
+  it('dropped in helperA', () => {});
+}
+async function helperB() {
+  await Promise.resolve();
+  it('dropped in helperB', () => {});
+}
+describe('suite', async () => {
+  await helperA();
+  it('dropped after helperA', () => {});
+  await helperB();
+  it('dropped after helperB', () => {});
+});`,
+          settings: { sonarRuntime: true },
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                sonarRuntimeData: JSON.stringify({
+                  message:
+                    'This async helper silently drops tests; remove its "async" keyword and move async setup into a lifecycle hook or a test callback.',
+                  secondaryLocations: [
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 2,
+                      line: 4,
+                      endColumn: 4,
+                      endLine: 4,
+                    },
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 2,
+                      line: 12,
+                      endColumn: 4,
+                      endLine: 12,
+                    },
+                  ],
+                }),
+              },
+            },
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                sonarRuntimeData: JSON.stringify({
+                  message:
+                    'This async helper silently drops tests; remove its "async" keyword and move async setup into a lifecycle hook or a test callback.',
+                  secondaryLocations: [
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 2,
+                      line: 8,
+                      endColumn: 4,
+                      endLine: 8,
+                    },
+                    {
+                      message: 'This test is declared after the await and is never registered.',
+                      column: 2,
+                      line: 14,
+                      endColumn: 4,
+                      endLine: 14,
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        },
       ],
     });
   });

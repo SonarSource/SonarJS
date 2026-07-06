@@ -101,6 +101,7 @@ export function findTestsRegisteredAfter(
   callback: FunctionLike,
   awaitNode: estree.Node,
   testAndSuiteNames: Set<string>,
+  beforeNode?: estree.Node,
 ): estree.Node[] {
   if (callback.body?.type !== 'BlockStatement') {
     return [];
@@ -112,6 +113,7 @@ export function findTestsRegisteredAfter(
     awaitNode.type === 'ForOfStatement'
       ? sourceCode.getRange(awaitNode)[0]
       : sourceCode.getRange(awaitNode)[1];
+  const endOffset = beforeNode !== undefined ? sourceCode.getRange(beforeNode)[0] : Infinity;
   const tests: estree.Node[] = [];
   const stack: estree.Node[] = [...childrenOf(callback.body, sourceCode.visitorKeys)];
   while (stack.length > 0) {
@@ -119,10 +121,12 @@ export function findTestsRegisteredAfter(
     if (current === undefined || isFunctionNode(current)) {
       continue;
     }
+    const nodeStart = sourceCode.getRange(current)[0];
     if (
       current.type === 'ExpressionStatement' &&
       current.expression.type === 'CallExpression' &&
-      sourceCode.getRange(current)[0] >= suspendOffset
+      nodeStart >= suspendOffset &&
+      nodeStart < endOffset
     ) {
       const parts = getMochaCalleeParts(current.expression.callee);
       if (parts && testAndSuiteNames.has(parts.base.name)) {

@@ -181,12 +181,17 @@ function tryReportAwaitedAsyncHelperCall(
     return undefined;
   }
 
+  const nextDescribeAwait =
+    callback.body?.type === 'BlockStatement'
+      ? findNextTopLevelAwaitAfter(context.sourceCode, callback.body, topLevelAwait)
+      : undefined;
   const reported = reportAsyncHelperCall(
     context,
     parserServices,
     awaitedCall,
     callback,
     topLevelAwait,
+    nextDescribeAwait,
   );
   if (!reported) {
     return undefined;
@@ -376,8 +381,19 @@ function reportUnawaitedAsyncHelperCalls(
       stack.push(...childrenOf(current, sourceCode.visitorKeys));
       continue;
     }
+    const nextDescribeAwait =
+      body.type === 'BlockStatement'
+        ? findNextTopLevelAwaitAfter(sourceCode, body, expr)
+        : undefined;
     reported =
-      reportAsyncHelperExpression(context, services, expr, callback, skipAwait) || reported;
+      reportAsyncHelperExpression(
+        context,
+        services,
+        expr,
+        callback,
+        skipAwait,
+        nextDescribeAwait,
+      ) || reported;
   }
   return reported;
 }
@@ -388,6 +404,7 @@ function reportAsyncHelperExpression(
   expr: estree.Expression,
   callback: FunctionLike,
   skipAwait?: estree.Node,
+  nextDescribeAwait?: estree.Node,
 ): boolean {
   // Unawaited call: helper() / () => helper()
   if (expr.type === 'CallExpression' && !shouldSkipHelperResolution(context, expr)) {
@@ -401,9 +418,34 @@ function reportAsyncHelperExpression(
     expr.argument.type === 'CallExpression' &&
     !shouldSkipHelperResolution(context, expr.argument)
   ) {
-    return reportAsyncHelperCall(context, services, expr.argument, callback, expr);
+    return reportAsyncHelperCall(
+      context,
+      services,
+      expr.argument,
+      callback,
+      expr,
+      nextDescribeAwait,
+    );
   }
   return false;
+}
+
+function findNextTopLevelAwaitAfter(
+  sourceCode: Rule.RuleContext['sourceCode'],
+  body: estree.BlockStatement,
+  afterNode: estree.Node,
+): estree.Node | undefined {
+  const afterEnd = sourceCode.getRange(afterNode)[1];
+  for (const stmt of body.body) {
+    if (
+      stmt.type === 'ExpressionStatement' &&
+      stmt.expression.type === 'AwaitExpression' &&
+      sourceCode.getRange(stmt)[0] >= afterEnd
+    ) {
+      return stmt.expression;
+    }
+  }
+  return undefined;
 }
 
 function shouldSkipHelperResolution(
@@ -431,6 +473,7 @@ function reportAsyncHelperCall(
   callNode: estree.CallExpression,
   describeCallback: FunctionLike,
   awaitNode?: estree.Node,
+  nextDescribeAwait?: estree.Node,
 ): boolean {
   const decl = followCallToDeclaration(callNode, services);
   if (!decl) {
@@ -467,13 +510,15 @@ function reportAsyncHelperCall(
   }
 
   // If the call is awaited inside the describe callback, also collect tests dropped in the
-  // describe body after the await expression.
+  // describe body after the await expression, up to the next top-level await (if any) to avoid
+  // overlapping secondaries when multiple sequential awaited helpers are reported.
   const droppedInDescribe = awaitNode
     ? findTestsRegisteredAfter(
         context.sourceCode,
         describeCallback,
         awaitNode,
         TEST_AND_SUITE_NAMES,
+        nextDescribeAwait,
       )
     : [];
 
