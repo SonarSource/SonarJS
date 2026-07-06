@@ -75,3 +75,35 @@ function emptyTryBody() {
 
     }
 }
+
+function forLoopBody() {
+    try {
+        for (const x of xs) {
+            doSomething(x);
+            doSomethingElse(x);
+        }
+    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+
+    }
+}
+
+function whileLoopBody() {
+    try {
+        while (condition()) {
+            doSomething();
+        }
+    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+
+    }
+}
+
+function switchBody() {
+    try {
+        switch (kind) {
+            case 'a': stepOne(); stepTwo(); break;
+            default: fallback();
+        }
+    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+
+    }
+}

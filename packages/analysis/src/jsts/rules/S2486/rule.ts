@@ -23,6 +23,19 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getVariableFromScope } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
+const LOOP_OR_SWITCH_TYPES = new Set([
+  'ForStatement',
+  'ForInStatement',
+  'ForOfStatement',
+  'WhileStatement',
+  'DoWhileStatement',
+  'SwitchStatement',
+]);
+
+function isSingleSimpleStatement(body: estree.Statement[]): boolean {
+  return body.length === 1 && !LOOP_OR_SWITCH_TYPES.has(body[0].type);
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
@@ -37,7 +50,7 @@ export const rule: Rule.RuleModule = {
         const variable = getVariableFromScope(scope, param.name);
         if (variable?.references.length === 0) {
           const tryStatement = getParent(context, node) as estree.TryStatement;
-          if (tryStatement.block.body.length !== 1) {
+          if (!isSingleSimpleStatement(tryStatement.block.body)) {
             context.report({
               messageId: 'handleException',
               node,
