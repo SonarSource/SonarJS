@@ -454,7 +454,9 @@ function shouldSkipHelperResolution(
 ): boolean {
   const calleeParts = getMochaCalleeParts(call.callee);
   const isKnownFrameworkRegistration =
-    calleeParts !== undefined && TEST_FRAMEWORK_STRUCTURE_FUNCTIONS.has(calleeParts.base.name);
+    calleeParts !== undefined &&
+    TEST_FRAMEWORK_STRUCTURE_FUNCTIONS.has(calleeParts.base.name) &&
+    isSupportedFrameworkConstruct(context, calleeParts.base);
   return isKnownFrameworkRegistration || isAssertion(context, call);
 }
 

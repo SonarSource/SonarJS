@@ -523,6 +523,20 @@ describe('suite', () => {
           errors: [{ messageId: 'asyncHelperCall' }],
         },
         {
+          // User-defined async helper named after a framework hook (e.g. 'before') must be
+          // reported — the bare-name match against TEST_FRAMEWORK_STRUCTURE_FUNCTIONS must not
+          // exempt it without verifying import provenance.
+          code: `import { describe } from 'mocha';
+async function before() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+describe('suite', () => {
+  before();
+});`,
+          errors: [{ messageId: 'asyncHelperCall' }],
+        },
+        {
           // top-level await inside a variable initializer still drops later tests in the helper
           code: `import { describe } from 'mocha';
 async function testing() {
