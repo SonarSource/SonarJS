@@ -154,16 +154,28 @@ function findInnermostClassContaining(classes: ClassNode[], index: number): Clas
   let owner: ClassNode | null = null;
 
   for (const classNode of classes) {
-    if (
-      classNode.range[0] <= index &&
-      index <= classNode.range[1] &&
-      (!owner || classNode.range[0] >= owner.range[0])
-    ) {
+    if (isBetterOwningClassCandidate(owner, classNode, index)) {
       owner = classNode;
     }
   }
 
   return owner;
+}
+
+/**
+ * Prefer the most specific class enclosing the report location so nested class members
+ * are grouped under the inner class rather than the outer container.
+ */
+function isBetterOwningClassCandidate(
+  currentOwner: ClassNode | null,
+  candidateClass: ClassNode,
+  index: number,
+) {
+  const candidateContainsIndex =
+    candidateClass.range[0] <= index && index <= candidateClass.range[1];
+  const candidateIsMoreSpecific =
+    currentOwner === null || candidateClass.range[0] >= currentOwner.range[0];
+  return candidateContainsIndex && candidateIsMoreSpecific;
 }
 
 function sortReportsByLocation(context: Rule.RuleContext, reports: Rule.ReportDescriptor[]) {
