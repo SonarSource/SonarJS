@@ -38,7 +38,7 @@ import * as Supertest from './supertest.js';
 import * as Cypress from './cypress.js';
 import { getParent } from './ancestor.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
-import { getFullyQualifiedNameTS } from './module-ts.js';
+import { getFullyQualifiedNameTS, importsModuleTS } from './module-ts.js';
 
 const ASSERTION_LIBRARIES = [
   'chai',
@@ -162,7 +162,7 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
 function isExtendedTSShouldAccess(node: ts.Node): boolean {
   return (
     isTSShouldAccess(node) &&
-    isChaiImported(node.getSourceFile()) &&
+    importsModuleTS(node.getSourceFile(), ['chai']) &&
     isTSExtendingShouldChainParent(node.parent, node)
   );
 }
@@ -183,46 +183,6 @@ function isTSExtendingShouldChainParent(parent: ts.Node | undefined, node: ts.No
   return (
     (ts.isPropertyAccessExpression(grandparent) && grandparent.expression === parent) ||
     (ts.isCallExpression(grandparent) && grandparent.expression === parent)
-  );
-}
-
-const chaiImportCache = new WeakMap<ts.SourceFile, boolean>();
-function isChaiImported(sourceFile: ts.SourceFile): boolean {
-  const cached = chaiImportCache.get(sourceFile);
-  if (cached !== undefined) {
-    return cached;
-  }
-  const result = sourceFile.statements.some(statement => {
-    if (ts.isImportDeclaration(statement)) {
-      return (
-        ts.isStringLiteral(statement.moduleSpecifier) && statement.moduleSpecifier.text === 'chai'
-      );
-    }
-    return (
-      ts.isVariableStatement(statement) &&
-      statement.declarationList.declarations.some(declaration =>
-        isChaiRequireInitializer(declaration.initializer),
-      )
-    );
-  });
-  chaiImportCache.set(sourceFile, result);
-  return result;
-}
-
-function isChaiRequireInitializer(initializer: ts.Expression | undefined): boolean {
-  if (initializer === undefined) {
-    return false;
-  }
-  if (ts.isPropertyAccessExpression(initializer)) {
-    return isChaiRequireInitializer(initializer.expression);
-  }
-  return (
-    ts.isCallExpression(initializer) &&
-    ts.isIdentifier(initializer.expression) &&
-    initializer.expression.text === 'require' &&
-    initializer.arguments[0] !== undefined &&
-    ts.isStringLiteral(initializer.arguments[0]) &&
-    initializer.arguments[0].text === 'chai'
   );
 }
 

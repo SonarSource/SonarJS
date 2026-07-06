@@ -19,6 +19,8 @@ import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils
 import { isTsAncestor } from './ancestor.js';
 import { removeNodePrefixIfExists } from './module.js';
 
+const FILE_IMPORTS_CACHE = new WeakMap<ts.SourceFile, Set<string>>();
+
 export function getFullyQualifiedNameTS(
   services: ParserServicesWithTypeInformation,
   rootNode: ts.Node,
@@ -153,12 +155,59 @@ export function getFullyQualifiedNameTS(
   }
 }
 
+export function importsModuleTS(sourceFile: ts.SourceFile, moduleNames: string[]): boolean {
+  if (moduleNames.length === 0) {
+    return false;
+  }
+  const imports = getImportsOfSourceFile(sourceFile);
+  return moduleNames.some(moduleName => imports.has(moduleName));
+}
+
+function getImportsOfSourceFile(sourceFile: ts.SourceFile): ReadonlySet<string> {
+  let imports = FILE_IMPORTS_CACHE.get(sourceFile);
+  if (imports !== undefined) {
+    return imports;
+  }
+
+  imports = new Set<string>();
+  for (const statement of sourceFile.statements) {
+    if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)) {
+      imports.add(statement.moduleSpecifier.text);
+    } else if (ts.isVariableStatement(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        const moduleName = getRequiredModuleName(declaration.initializer);
+        if (moduleName !== undefined) {
+          imports.add(moduleName);
+        }
+      }
+    }
+  }
+
+  FILE_IMPORTS_CACHE.set(sourceFile, imports);
+  return imports;
+}
+
 function isRequireCall(callExpression: ts.CallExpression) {
   return (
     callExpression.expression.kind === ts.SyntaxKind.Identifier &&
     (callExpression.expression as ts.Identifier).text === 'require' &&
     callExpression.arguments.length === 1
   );
+}
+
+function getRequiredModuleName(initializer: ts.Expression | undefined): string | undefined {
+  if (initializer === undefined) {
+    return undefined;
+  }
+  if (ts.isPropertyAccessExpression(initializer)) {
+    return getRequiredModuleName(initializer.expression);
+  }
+  if (!ts.isCallExpression(initializer) || !isRequireCall(initializer)) {
+    return undefined;
+  }
+
+  const moduleName = initializer.arguments[0];
+  return ts.isStringLiteral(moduleName) ? moduleName.text : undefined;
 }
 
 function isCompilerModule(node: ts.Symbol | undefined) {
