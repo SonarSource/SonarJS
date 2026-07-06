@@ -18,6 +18,7 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 import type { RequiredParserServices } from '../helpers/parser-services.js';
+import { getSignatureFromCallee } from '../helpers/type.js';
 
 function normalizeToFunctionLikeDeclaration(
   declaration: ts.Declaration | undefined,
@@ -50,11 +51,7 @@ export function followCallToDeclaration(
   call: estree.CallExpression,
   services: RequiredParserServices,
 ): ts.SignatureDeclaration | undefined {
-  const tsCall = services.esTreeNodeToTSNodeMap.get(call as unknown as TSESTree.Node);
-  const signature = services.program
-    .getTypeChecker()
-    .getResolvedSignature(tsCall as ts.CallLikeExpression);
-  return normalizeToFunctionLikeDeclaration(signature?.declaration);
+  return normalizeToFunctionLikeDeclaration(getSignatureFromCallee(call, services)?.declaration);
 }
 
 /**
