@@ -47,12 +47,16 @@ export function reportGroupedIssue(
     return;
   }
 
+  const message =
+    groupedReports.length === 1
+      ? 'Mark this member as `readonly`.'
+      : 'Mark these members as `readonly`.';
   const fix = getCombinedFix(groupedReports);
   report(
     context,
     {
       loc: primaryLocation.loc,
-      message: 'Mark these members as `readonly`.',
+      message,
       ...(fix && { fix }),
     },
     secondaryLocations,

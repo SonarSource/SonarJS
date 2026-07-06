@@ -22,6 +22,7 @@ import { decorate } from './decorator.js';
 import type { EncodedMessage } from '../helpers/location.js';
 
 const GROUPED_MESSAGE = 'Mark these members as `readonly`.';
+const SINGLE_GROUPED_MESSAGE = 'Mark this member as `readonly`.';
 
 describe('S2933 decorator', () => {
   it('keeps aggregate quick fixes when one member fix cannot be produced', () => {
@@ -146,7 +147,7 @@ describe('S2933 decorator', () => {
 
     const data = reports[0].data as { sonarRuntimeData: string };
     const encoded = JSON.parse(data.sonarRuntimeData) as EncodedMessage;
-    assert.equal(encoded.message, GROUPED_MESSAGE);
+    assert.equal(encoded.message, SINGLE_GROUPED_MESSAGE);
     assert.deepEqual(encoded.secondaryLocations, [
       {
         line: 2,
