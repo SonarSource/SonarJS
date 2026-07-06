@@ -52,7 +52,7 @@ export function transformSourceFilesToRawInputFiles(
     } else {
       /* TODO: Infer file scope from context when not explicitly provided by the caller
        *   calling filterPathAndGetFileType(filename, getFilterPathParams(configuration)),
-       *   but we need configuration from the a3s context
+       *   but we need configuration from the SQAA context
        * */
     }
 
