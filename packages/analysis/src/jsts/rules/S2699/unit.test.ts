@@ -100,6 +100,9 @@ describe('chai direct method should properties', () => {
   it('recognizes direct method assertions', () => {
     const value = 2;
     value.should.equal(2);
+
+    const promiseResult = 2;
+    promiseResult.should.eventually.equal(2);
   });
 });
           `,
@@ -483,6 +486,9 @@ describe('typed chai should chains', () => {
 
     const status = true;
     status.should.to.be.be.true;
+
+    const promiseResult = 2;
+    promiseResult.should.eventually.equal(2);
   });
 
   it('should recognize call terminals on locals that do not resolve', () => {

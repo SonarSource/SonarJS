@@ -39,6 +39,9 @@ describe('assertion-detection', () => {
       const payload = {};
       payload.should.exist;
 
+      const promiseResult = {};
+      promiseResult.should.eventually.equal(2);
+
       const submitPassword = { should: { have: { been: { calledWith: () => {} } } } };
       submitPassword.should.have.been.calledWith('secret');
     `;
@@ -51,6 +54,9 @@ describe('assertion-detection', () => {
     ).toEqual(true);
     expect(isTSAssertion(services, findTSNodeByText(program, 'status.should'))).toEqual(true);
     expect(isTSAssertion(services, findTSNodeByText(program, 'payload.should'))).toEqual(true);
+    expect(isTSAssertion(services, findTSNodeByText(program, 'promiseResult.should'))).toEqual(
+      true,
+    );
     expect(isTSAssertion(services, findTSNodeByText(program, 'submitPassword.should'))).toEqual(
       true,
     );
