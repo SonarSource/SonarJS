@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, test as pwTest } from '@playwright/test';
 
 test('reorders columns', async ({ page }) => {
   if (readOnlyMode) {
@@ -16,6 +16,15 @@ test('reorders columns', async ({ page }) => {
 
 // Playwright's 3-argument form: `test(title, options, fn)`.
 test('reorders columns', { tag: '@slow' }, async ({ page }) => {
+  if (readOnlyMode) {
+    return; // Noncompliant {{Call `test.skip(condition)` instead of returning early.}}
+  }
+  await page.click('#reorder');
+  await expect(page.locator('.column')).toHaveText(['a', 'b']);
+});
+
+// An aliased import combined with `.only` is still recognized as a test case.
+pwTest.only('reorders columns and focuses on this one', async ({ page }) => {
   if (readOnlyMode) {
     return; // Noncompliant {{Call `test.skip(condition)` instead of returning early.}}
   }

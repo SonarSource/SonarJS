@@ -111,6 +111,40 @@ test('checkout', async ({ page }) => {
 `,
           errors: [{ messageId: 'playwright' }],
         },
+        {
+          // Regression test for a project whose package.json depends on Jest (a fully
+          // excluded framework) while this specific file explicitly imports Mocha: the
+          // file's own import must win over the project-wide Jest dependency signal,
+          // otherwise this unambiguous Mocha file would be wrongly excluded too.
+          filename: path.join(import.meta.dirname, 'fixtures', 'jest-and-mocha', 'reorder.spec.ts'),
+          code: `
+import { it } from 'mocha';
+it('reorders columns', function () {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  db.reorderColumns();
+  expect(db.columns).toEqual(['a', 'b']);
+});
+`,
+          errors: [{ messageId: 'mocha' }],
+        },
+        {
+          // Regression test for an aliased Mocha import combined with the `.only`
+          // modifier: aliasing must not defeat detection, and `.only` must still be
+          // recognized as a modifier that keeps the call an executing test case.
+          code: `
+import { it as mochaIt } from 'mocha';
+mochaIt.only('reorders columns', function () {
+  if (readOnlyMode) {
+    return; // Noncompliant
+  }
+  db.reorderColumns();
+  expect(db.columns).toEqual(['a', 'b']);
+});
+`,
+          errors: [{ messageId: 'mocha' }],
+        },
       ],
     });
   });

@@ -21,6 +21,12 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { FUNCTION_NODES, isIdentifier } from '../helpers/ast.js';
 import { isTestCase } from '../helpers/mocha.js';
+import {
+  isMochaTestConstruct,
+  getPlaywrightTestQualifiers,
+  PLAYWRIGHT_TEST_MODIFIERS,
+  TEST_FUNCTION_NAMES,
+} from '../helpers/mocha-style-test-frameworks.js';
 import { importsModule, importsOrDependsOnModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 
@@ -58,18 +64,20 @@ const QUNIT_MODULES = ['qunit'];
  * detected via `importsOrDependsOnModule`, which also matches on the project's
  * package.json dependencies, not just this file's imports. Checking that
  * project-wide signal first would wrongly exclude an unambiguous Playwright/
- * node:test/Bun/Vitest file whenever the project also happens to depend on
+ * node:test/Bun/Vitest/Mocha file whenever the project also happens to depend on
  * Jest/Jasmine/AVA/QUnit for unrelated reasons (e.g. a mixed-runner monorepo, or
- * a leftover Jest devDependency during a migration).
+ * a leftover Jest devDependency during a migration). Mocha is included in this
+ * early check too: although it usually runs off globals, a file can still
+ * explicitly `import { it } from 'mocha'`, and that signal must win over the
+ * project-wide exclusion just like the other frameworks.
  *
- * Mocha works off globals and is not necessarily imported in the file, so it's
- * checked last via `importsOrDependsOnModule` against the project's package.json
- * dependencies. Unlike the other frameworks, Mocha has no other positive signal
- * to rely on: without this dependency check, every file with no other framework
- * signal would be assumed to be Mocha, which produces false positives on
- * frameworks this rule doesn't otherwise recognize (e.g. Jasmine loaded from a
- * vendored copy rather than an npm dependency). If nothing indicates Mocha
- * either, the file is excluded rather than guessed at.
+ * Absent that explicit import, Mocha has no other positive signal to rely on, so
+ * it's checked last via `importsOrDependsOnModule` against the project's
+ * package.json dependencies. Without this dependency check, every file with no
+ * other framework signal would be assumed to be Mocha, which produces false
+ * positives on frameworks this rule doesn't otherwise recognize (e.g. Jasmine
+ * loaded from a vendored copy rather than an npm dependency). If nothing
+ * indicates Mocha either, the file is excluded rather than guessed at.
  */
 function detectFramework(context: Rule.RuleContext): Framework | 'excluded' {
   if (importsModule(context, PLAYWRIGHT_MODULES)) {
@@ -83,6 +91,9 @@ function detectFramework(context: Rule.RuleContext): Framework | 'excluded' {
   }
   if (importsModule(context, VITEST_MODULES)) {
     return 'vitest';
+  }
+  if (importsModule(context, MOCHA_MODULES)) {
+    return 'mocha';
   }
   if (importsOrDependsOnModule(context, JEST_IMPORTS, JEST_DEPENDENCIES)) {
     return 'excluded';
@@ -122,7 +133,7 @@ export const rule: Rule.RuleModule = {
     return {
       'CallExpression:exit'(node: estree.Node) {
         const call = node as estree.CallExpression;
-        const callback = extractCallback(call);
+        const callback = extractCallback(context, call, framework);
         if (callback?.body.type !== 'BlockStatement') {
           return;
         }
@@ -150,15 +161,18 @@ export const rule: Rule.RuleModule = {
 };
 
 /**
- * A recognized it/test call's callback, or null. Does not reuse Mocha.extractTestCase,
- * which only looks at argument index 1 and therefore misses the 3-argument
- * `test(name, options, fn)` form used by node:test and Playwright: the callback is
- * always the last argument regardless of how many arguments precede it.
+ * A recognized it/test call's callback, or null. The callback is always the last
+ * argument regardless of how many arguments precede it, to cover the 3-argument
+ * `test(name, options, fn)` form used by node:test and Playwright.
  * Calls already marked `.skip` are ignored: such a test can never be misreported as
  * "passed", since it never runs at all.
  */
-function extractCallback(call: estree.CallExpression): estree.Function | null {
-  if (!isTestCase(call)) {
+function extractCallback(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+  framework: Framework,
+): estree.Function | null {
+  if (!isRecognizedTestCall(context, call, framework)) {
     return null;
   }
   if (
@@ -172,6 +186,51 @@ function extractCallback(call: estree.CallExpression): estree.Function | null {
   return lastArgument && FUNCTION_NODES.includes(lastArgument.type)
     ? (lastArgument as estree.Function)
     : null;
+}
+
+/**
+ * Mocha and Vitest share the same `it`/`test` call shape, so aliased imports,
+ * destructured `require()` bindings, and their modifier chains (`.only`,
+ * `.concurrent`, Vitest's `.sequential`) are resolved through the same helper
+ * already relied on by other test-related rules (e.g. S8960). `.skip` is
+ * deliberately not a recognized modifier there, so a `.skip`-marked call is
+ * already excluded at this stage.
+ *
+ * Playwright has its own `test` export and modifier set, resolved separately via
+ * `getPlaywrightTestQualifiers`; only its known modifiers (plus `.skip`, filtered
+ * out below) are accepted so that unrelated member chains aren't misread as tests.
+ *
+ * node:test and Bun aren't covered by either shared helper yet, so they keep the
+ * simpler literal-name matching used before (bare `it`/`test`/`specify`, or
+ * `.only`/`.skip` on top of one of those names).
+ *
+ * None of these helpers resolve namespace-style access (`import * as ns from
+ * '...'; ns.it(...)` or `const ns = require('...'); ns.it(...)`): that's a
+ * pre-existing gap in the shared FQN resolution these helpers build on, also
+ * present in the other rules that already rely on them, not specific to this one.
+ */
+function isRecognizedTestCall(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+  framework: Framework,
+): boolean {
+  switch (framework) {
+    case 'mocha':
+    case 'vitest':
+      return isMochaTestConstruct(context, call, TEST_FUNCTION_NAMES);
+    case 'playwright': {
+      const qualifiers = getPlaywrightTestQualifiers(context, call.callee);
+      return (
+        qualifiers !== undefined &&
+        qualifiers.every(
+          qualifier => qualifier === 'skip' || PLAYWRIGHT_TEST_MODIFIERS.has(qualifier),
+        )
+      );
+    }
+    case 'nodeTest':
+    case 'bun':
+      return isTestCase(call);
+  }
 }
 
 /**
