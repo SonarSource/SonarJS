@@ -171,20 +171,35 @@ function getImportsOfSourceFile(sourceFile: ts.SourceFile): ReadonlySet<string> 
 
   imports = new Set<string>();
   for (const statement of sourceFile.statements) {
-    if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)) {
-      imports.add(statement.moduleSpecifier.text);
-    } else if (ts.isVariableStatement(statement)) {
-      for (const declaration of statement.declarationList.declarations) {
-        const moduleName = getRequiredModuleName(declaration.initializer);
-        if (moduleName !== undefined) {
-          imports.add(moduleName);
-        }
-      }
+    const importedModuleName = getImportedModuleName(statement);
+    if (importedModuleName !== undefined) {
+      imports.add(importedModuleName);
+      continue;
+    }
+    if (!ts.isVariableStatement(statement)) {
+      continue;
+    }
+    for (const moduleName of getRequiredModuleNames(statement)) {
+      imports.add(moduleName);
     }
   }
 
   FILE_IMPORTS_CACHE.set(sourceFile, imports);
   return imports;
+}
+
+function getImportedModuleName(statement: ts.Statement): string | undefined {
+  if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) {
+    return undefined;
+  }
+  return statement.moduleSpecifier.text;
+}
+
+function getRequiredModuleNames(variableStatement: ts.VariableStatement): string[] {
+  return variableStatement.declarationList.declarations.flatMap(declaration => {
+    const moduleName = getRequiredModuleName(declaration.initializer);
+    return moduleName === undefined ? [] : [moduleName];
+  });
 }
 
 function isRequireCall(callExpression: ts.CallExpression) {

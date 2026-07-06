@@ -50,4 +50,18 @@ describe('module-ts', () => {
 
     expect(importsModuleTS(sourceFile, ['chai'])).toEqual(false);
   });
+
+  it('detects required modules across multiple declarations in one statement', () => {
+    const sourceFile = ts.createSourceFile(
+      'fixture.ts',
+      `
+        const helper = require('./helper'), assert = require('chai').assert;
+      `,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    );
+
+    expect(importsModuleTS(sourceFile, ['chai'])).toEqual(true);
+  });
 });
