@@ -15,10 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
-import type { TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 import type { RequiredParserServices } from '../helpers/parser-services.js';
-import { getSignatureFromCallee } from '../helpers/type.js';
+import { getSignatureFromCallee, getSymbolAtLocation } from '../helpers/type.js';
 
 function normalizeToFunctionLikeDeclaration(
   declaration: ts.Declaration | undefined,
@@ -65,14 +64,12 @@ export function followReferenceToDeclaration(
   node: estree.Identifier,
   services: RequiredParserServices,
 ): ts.SignatureDeclaration | undefined {
-  const tsNode = services.esTreeNodeToTSNodeMap.get(node as unknown as TSESTree.Node);
-  const checker = services.program.getTypeChecker();
-  let symbol = checker.getSymbolAtLocation(tsNode);
+  let symbol = getSymbolAtLocation(node, services);
   if (symbol === undefined) {
     return undefined;
   }
   if ((symbol.flags & ts.SymbolFlags.Alias) !== 0) {
-    symbol = checker.getAliasedSymbol(symbol);
+    symbol = services.program.getTypeChecker().getAliasedSymbol(symbol);
   }
   if (symbol.declarations?.length !== 1) {
     return undefined;
