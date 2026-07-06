@@ -25,6 +25,10 @@ describe('S5906', () => {
       messageId: 'preferSpecificAssertion',
       suggestions: [{ messageId: 'quickfix', output }],
     });
+    const expectedLengthError = (output: string) => ({
+      messageId: 'preferSpecificLengthAssertion',
+      suggestions: [{ messageId: 'quickfix', output }],
+    });
     const expectedErrorWithoutSuggestion = {
       messageId: 'preferSpecificAssertion',
       suggestions: [],
@@ -191,7 +195,7 @@ describe('S5906', () => {
             assert.strictEqual(items.length, 2, 'item count');
           `,
           errors: [
-            expectedError(`
+            expectedLengthError(`
             import { assert } from 'chai';
 
             assert.lengthOf(items, 2, 'item count');
