@@ -20,6 +20,11 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier } from '../helpers/ast.js';
+import {
+  collectCallChain,
+  getRootCall,
+  unwrapChainExpression,
+} from '../helpers/expect-call-chain.js';
 import { extractTestCase } from '../helpers/mocha.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
@@ -251,8 +256,8 @@ function getJestOrVitestAsyncNode(
     return null;
   }
 
-  const chain = collectCallChain(call);
-  const asyncSegment = chain.find(
+  const { segments } = collectCallChain(call);
+  const asyncSegment = segments.find(
     segment => segment.name === 'resolves' || segment.name === 'rejects',
   );
   if (!asyncSegment) {
@@ -306,49 +311,6 @@ function getPlaywrightAsyncNode(
   return null;
 }
 
-function collectCallChain(call: estree.CallExpression): { name: string; node: estree.Node }[] {
-  const chain: { name: string; node: estree.Node }[] = [];
-  let current: estree.Node | estree.Super = call;
-
-  while (current.type === 'CallExpression' || current.type === 'MemberExpression') {
-    if (current.type === 'CallExpression') {
-      current = unwrapChainExpression(current.callee);
-      continue;
-    }
-
-    if (current.computed || !isIdentifier(current.property)) {
-      break;
-    }
-
-    chain.push({ name: current.property.name, node: current.property });
-    current = unwrapChainExpression(current.object);
-  }
-
-  return chain;
-}
-
-function getRootCall(call: estree.CallExpression): estree.CallExpression | null {
-  let current: estree.Node | estree.Super = call;
-
-  while (current.type === 'CallExpression' || current.type === 'MemberExpression') {
-    if (current.type === 'CallExpression') {
-      const callee: estree.Expression | estree.Super = unwrapChainExpression(current.callee);
-      if (
-        callee.type !== 'MemberExpression' ||
-        (callee.object.type !== 'CallExpression' && callee.object.type !== 'MemberExpression')
-      ) {
-        return current;
-      }
-      current = callee;
-      continue;
-    }
-
-    current = unwrapChainExpression(current.object);
-  }
-
-  return null;
-}
-
 function isExpectCall(
   context: Rule.RuleContext,
   call: estree.CallExpression,
@@ -377,12 +339,6 @@ function isNamedCall(
 ): boolean {
   const fqn = getFullyQualifiedName(context, call.callee);
   return importedNames.includes(fqn ?? '') || isIdentifier(call.callee, globalName);
-}
-
-function unwrapChainExpression<T extends estree.Node | estree.Super>(
-  node: T,
-): T | estree.Expression {
-  return node.type === 'ChainExpression' ? node.expression : node;
 }
 
 function getDottedName(node: estree.Node): string | null {
