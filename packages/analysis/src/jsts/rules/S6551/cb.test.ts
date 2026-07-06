@@ -118,6 +118,39 @@ function rejectedDefaultStringResultOnElse(data: unknown) {
           `,
           errors: 1,
         },
+        {
+          code: `
+function guardedByTypeofNotObject(value: unknown): string {
+  if (typeof value !== 'object') {
+    return \`Unexpected value: \${value}\`;
+  }
+  return '';
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function guardedByReversedTypeofNotObject(value: unknown): string {
+  if ('object' !== typeof value) {
+    return \`Unexpected value: \${value}\`;
+  }
+  return '';
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function guardedByTypeofNotObjectConjunction(value: unknown, label: string): string {
+  if (typeof value !== 'object' && value !== null && value !== undefined) {
+    return \`\${label}: \${value}\`;
+  }
+  return label;
+}
+          `,
+          errors: 1,
+        },
       ],
     });
   });
