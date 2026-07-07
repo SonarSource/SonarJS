@@ -31,37 +31,13 @@ import * as Mocha from '../helpers/mocha.js';
 import * as Vitest from '../helpers/vitest.js';
 import {
   hasSupportedAssertionLibrary,
+  hasSupportedTestFramework,
   isAssertion,
   isTSAssertion,
 } from '../helpers/assertion-detection.js';
-import { importsOrDependsOnModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
-
-const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
-  '@jest/globals',
-  '@playwright/test',
-  'cypress',
-  'jasmine',
-  'jest',
-  'mocha',
-  'node:test',
-  'vitest',
-];
-
-const SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES = [
-  '@jest/globals',
-  '@playwright/test',
-  'cypress',
-  'jasmine',
-  'jasmine-core',
-  'jasmine-node',
-  'jest',
-  'karma-jasmine',
-  'mocha',
-  'vitest',
-];
 
 /**
  * We assume that the user is using a single assertion library per file,
@@ -86,14 +62,6 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
-
-function hasSupportedTestFramework(context: Rule.RuleContext): boolean {
-  return importsOrDependsOnModule(
-    context,
-    SUPPORTED_TEST_FRAMEWORK_IMPORTS,
-    SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES,
-  );
-}
 
 /**
  * Checks if a test uses the Mocha done callback as an assertion mechanism.

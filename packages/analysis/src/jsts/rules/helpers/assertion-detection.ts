@@ -53,6 +53,30 @@ const ASSERTION_LIBRARIES = [
 // runners that expose assertion APIs as globals (no import required).
 const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', '@playwright/test'];
 
+const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
+  '@jest/globals',
+  '@playwright/test',
+  'cypress',
+  'jasmine',
+  'jest',
+  'mocha',
+  'node:test',
+  'vitest',
+];
+
+const SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES = [
+  '@jest/globals',
+  '@playwright/test',
+  'cypress',
+  'jasmine',
+  'jasmine-core',
+  'jasmine-node',
+  'jest',
+  'karma-jasmine',
+  'mocha',
+  'vitest',
+];
+
 // Known global `expect*(...)` entry points: the universal `expect`, rxjs marble
 // testing's `expectObservable`/`expectSubscriptions`, and vitest's `expectTypeOf`.
 // Matched by exact name (not an `expect`-prefix) so unrelated identifiers such as
@@ -72,6 +96,14 @@ const GLOBAL_EXPECT_NAMES = new Set([
  */
 export function hasSupportedAssertionLibrary(context: Rule.RuleContext): boolean {
   return importsOrDependsOnModule(context, ASSERTION_LIBRARIES, GLOBAL_ASSERTION_DEPENDENCIES);
+}
+
+export function hasSupportedTestFramework(context: Rule.RuleContext): boolean {
+  return importsOrDependsOnModule(
+    context,
+    SUPPORTED_TEST_FRAMEWORK_IMPORTS,
+    SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES,
+  );
 }
 
 type AssertionDetector = (context: Rule.RuleContext, node: estree.Node) => boolean;
