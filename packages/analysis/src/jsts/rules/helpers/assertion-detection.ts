@@ -288,7 +288,8 @@ function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.No
     return false;
   }
   const fullyQualifiedName = getFullyQualifiedName(context, node);
-  return fullyQualifiedName?.split('.')[0] === 'assert';
+  const root = fullyQualifiedName?.split('.')[0];
+  return root === 'assert' || root === 'assert/strict';
 }
 
 function isShouldMember(node: estree.Node): node is estree.MemberExpression {
