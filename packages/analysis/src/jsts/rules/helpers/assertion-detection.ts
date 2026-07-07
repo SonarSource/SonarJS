@@ -46,7 +46,9 @@ const ASSERTION_LIBRARIES = [
   'supertest',
   '@playwright/test',
   'assert',
+  'assert/strict',
   'node:assert',
+  'node:assert/strict',
 ];
 // runners that expose assertion APIs as globals (no import required).
 const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', '@playwright/test'];
@@ -221,5 +223,6 @@ function isFunctionCallFromNodeAssertTS(
   node: ts.Node,
 ): boolean {
   const fqn = getFullyQualifiedNameTS(services, node);
-  return fqn?.split('.')[0] === 'assert';
+  const root = fqn?.split('.')[0];
+  return root === 'assert' || root === 'assert/strict';
 }

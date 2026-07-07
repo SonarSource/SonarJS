@@ -66,6 +66,16 @@ describe('no import from test library', () => {
 });
 `,
         },
+        {
+          code: `
+const assert = require('assert');
+describe('assert imported without a supported test framework', () => {
+  it('should not activate the rule', () => {
+    const x = 1 + 2;
+  });
+});
+`,
+        },
         // RxJS marble testing: expectObservable/expectSubscriptions should be recognized as assertions
         {
           code: `
@@ -201,6 +211,7 @@ describe('Observable error handling with object syntax', () => {
         {
           code: `
 const chai = require('chai');
+const mocha = require('mocha');
 describe('chai test cases', () => {
   it('no assertion', () => {
     const x = 1 + 2;
@@ -212,6 +223,7 @@ describe('chai test cases', () => {
         {
           code: `
 const chai = require('chai');
+const mocha = require('mocha');
 describe('expectX without assertion', () => {
   it('should raise when expectSomething has no chained method', () => {
     expectSomething(value);
@@ -223,6 +235,7 @@ describe('expectX without assertion', () => {
         {
           code: `
 const chai = require('chai');
+const mocha = require('mocha');
 describe('async tests', () => {
   it('should raise when only using done callback without assertions', (done) => {
     setTimeout(() => {
@@ -236,6 +249,7 @@ describe('async tests', () => {
         {
           code: `
 const chai = require('chai');
+const mocha = require('mocha');
 describe('async tests with finally', () => {
   it('should raise when done is only in finally', (done) => {
     asyncOperation().finally(done);
@@ -247,6 +261,7 @@ describe('async tests with finally', () => {
         {
           code: `
 const chai = require('chai');
+const mocha = require('mocha');
 describe('async tests with then', () => {
   it('should raise when done is only first arg of then', (done) => {
     asyncOperation().then(done);
@@ -258,6 +273,7 @@ describe('async tests with then', () => {
         {
           code: `
 const chai = require('chai');
+const mocha = require('mocha');
 describe('async tests with subscribe', () => {
   it('should raise when done is only first arg of subscribe', (done) => {
     observable.subscribe(done);
@@ -269,6 +285,7 @@ describe('async tests with subscribe', () => {
         {
           code: `
 const chai = require('chai');
+const mocha = require('mocha');
 describe('async tests with subscribe complete', () => {
   it('should raise when done is third arg of subscribe', (done) => {
     observable.subscribe(() => {}, () => {}, done);
@@ -280,6 +297,7 @@ describe('async tests with subscribe complete', () => {
         {
           code: `
 const chai = require('chai');
+const mocha = require('mocha');
 describe('async tests with RxJS finalize', () => {
   it('should raise when done is in finalize', (done) => {
     observable.pipe(finalize(done)).subscribe();
@@ -333,6 +351,73 @@ describe('Type testing with expectTypeOf', () => {
   it('should recognize expectTypeOf as an assertion', () => {
     expectTypeOf({ a: 1 }).toEqualTypeOf<{ a: number }>();
   });
+});
+`,
+        },
+        {
+          code: `
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+declare const actual: string;
+declare const expected: string;
+declare const items: unknown[];
+declare const message: string;
+
+test('has assertions', () => {
+  assert.equal(actual, expected);
+  assert.deepEqual(items, []);
+  assert.match(message, /ok/);
+});
+`,
+        },
+        {
+          code: `
+import test from 'node:test';
+import * as assert from 'node:assert/strict';
+
+declare const value: unknown;
+declare const actual: string;
+declare const unexpected: string;
+declare const message: string;
+
+test('has assertions', () => {
+  assert.ok(value);
+  assert.notEqual(actual, unexpected);
+  assert.doesNotMatch(message, /error/);
+});
+`,
+        },
+        {
+          code: `
+import test from 'node:test';
+import { equal, deepEqual, strictEqual, throws } from 'node:assert/strict';
+
+declare const actual: string;
+declare const expected: string;
+declare const items: unknown[];
+declare function run(): void;
+
+test('has assertions', () => {
+  equal(actual, expected);
+  deepEqual(items, []);
+  strictEqual(actual, expected);
+  throws(() => run());
+});
+`,
+        },
+        {
+          code: `
+import test from 'node:test';
+const assert = require('node:assert/strict');
+
+declare const actual: string;
+declare const expected: string;
+declare function run(): void;
+
+test('has assertions', () => {
+  assert.equal(actual, expected);
+  assert.doesNotThrow(() => run());
 });
 `,
         },
@@ -412,7 +497,19 @@ describe('Observable error handling with object syntax', () => {
 `,
         },
       ],
-      invalid: [],
+      invalid: [
+        {
+          code: `
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+test('has no assertions', () => {
+  const x = 1 + 2;
+});
+`,
+          errors: 1,
+        },
+      ],
     });
   });
 });

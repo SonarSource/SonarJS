@@ -34,9 +34,34 @@ import {
   isAssertion,
   isTSAssertion,
 } from '../helpers/assertion-detection.js';
+import { importsOrDependsOnModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
+
+const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
+  '@jest/globals',
+  '@playwright/test',
+  'cypress',
+  'jasmine',
+  'jest',
+  'mocha',
+  'node:test',
+  'vitest',
+];
+
+const SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES = [
+  '@jest/globals',
+  '@playwright/test',
+  'cypress',
+  'jasmine',
+  'jasmine-core',
+  'jasmine-node',
+  'jest',
+  'karma-jasmine',
+  'mocha',
+  'vitest',
+];
 
 /**
  * We assume that the user is using a single assertion library per file,
@@ -46,7 +71,7 @@ import ts from 'typescript';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    if (!hasSupportedAssertionLibrary(context)) {
+    if (!hasSupportedTestFramework(context) || !hasSupportedAssertionLibrary(context)) {
       return {};
     }
     const visitedNodes: Map<estree.Node, boolean> = new Map();
@@ -61,6 +86,14 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function hasSupportedTestFramework(context: Rule.RuleContext): boolean {
+  return importsOrDependsOnModule(
+    context,
+    SUPPORTED_TEST_FRAMEWORK_IMPORTS,
+    SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES,
+  );
+}
 
 /**
  * Checks if a test uses the Mocha done callback as an assertion mechanism.

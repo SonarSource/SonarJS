@@ -1,3 +1,4 @@
+import test from 'node:test';
 import supertest from 'supertest';
 import foo from 'supertest';
 
@@ -28,4 +29,3 @@ describe("fail", () => {
     return supertest(app).get(`/foo/bar`).expect('Content-Type', /json/u).expect(200);
   });
 });
-
