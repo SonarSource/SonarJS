@@ -23,7 +23,8 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getVariableFromScope } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
-const LOOP_OR_SWITCH_TYPES = new Set([
+const NON_SIMPLE_STATEMENT_TYPES = new Set([
+  'BlockStatement',
   'ForStatement',
   'ForInStatement',
   'ForOfStatement',
@@ -40,7 +41,7 @@ function isSingleSimpleStatement(body: estree.Statement[]): boolean {
   while (stmt.type === 'LabeledStatement') {
     stmt = (stmt as estree.LabeledStatement).body;
   }
-  return !LOOP_OR_SWITCH_TYPES.has(stmt.type);
+  return !NON_SIMPLE_STATEMENT_TYPES.has(stmt.type);
 }
 
 export const rule: Rule.RuleModule = {

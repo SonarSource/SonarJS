@@ -108,6 +108,17 @@ function switchBody() {
     }
 }
 
+function blockBody() {
+    try {
+        {
+            doSomething();
+            doSomethingElse();
+        }
+    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+
+    }
+}
+
 function labeledLoopBody() {
     try {
         outer: for (const x of xs) {
