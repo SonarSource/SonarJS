@@ -135,8 +135,10 @@ Run `.github/workflows/docker-sqaa.yml` manually when you need an SQAA-only buil
 
 This workflow does the following:
 
-1. Get a SonarJS build number with `SonarSource/ci-github-actions/get-build-number@master`.
-2. Check out the requested branch.
+1. Resolve the Docker tag:
+   - use the explicit `build-number` input when provided
+   - otherwise get a SonarJS build number with `SonarSource/ci-github-actions/get-build-number@master`
+2. Check out the requested branch or tag.
 3. Install toolchains with `jdx/mise-action@v4.2.0`:
    - Java 21
    - Maven 3.9
@@ -150,7 +152,8 @@ This workflow does the following:
 8. Refresh RSPEC rule data with `npm run rspec:refresh`.
 9. Run `npm run grpc:build`.
 10. Log in to `repox-sonarsource-docker-builds.jfrog.io`.
-11. Build and push the Docker image with:
+11. If `publish-to-release-repo` is enabled, also log in to `repox-sonarsource-docker-releases.jfrog.io`.
+12. Build and push the Docker image with:
 
 ```bash
 docker buildx build --platform linux/arm64 --tag "${DOCKER_IMAGE_BUILD_NUMBER}" --push .
@@ -162,6 +165,12 @@ The image is pushed to:
 repox-sonarsource-docker-builds.jfrog.io/a3s/analysis/javascript:<build_number>
 ```
 
+When `publish-to-release-repo=true`, the same tag is also pushed to:
+
+```text
+repox-sonarsource-docker-releases.jfrog.io/a3s/analysis/javascript:<build_number>
+```
+
 The `a3s` repository segment is still intentional legacy naming. Do not change it during a routine SQAA release.
 
 ### SQAA automation from the standard release
@@ -171,7 +180,8 @@ When SQAA automation is enabled in `.github/workflows/automated-release.yml`:
 1. The standard release produces a version in the format `X.Y.Z.BuildNumber`.
 2. SonarJS reuses that exact `.BuildNumber` suffix for the SQAA Docker tag.
 3. The SQAA image is built from the release tag `refs/tags/<release-version>`, not from the moving branch head.
-4. The same run opens the `sonar-analysis-as-a-service` PR that updates `analysis/js_ts_image_tag`.
+4. The same Docker tag is published to the durable Repox release registry `repox-sonarsource-docker-releases.jfrog.io`.
+5. The same run opens the `sonar-analysis-as-a-service` PR that updates `analysis/js_ts_image_tag`.
 
 This keeps the Java artifacts and the SQAA Docker image on the same released commit and build number.
 
@@ -194,14 +204,15 @@ In `SonarSource/sonar-analysis-as-a-service`:
 
 1. `.github/workflows/build.yml` reads `analysis/js_ts_image_tag`.
 2. It calls `.github/workflows/pull-and-push-analyzer-image.yml`.
-3. That reusable workflow pulls:
+3. That reusable workflow must pull the official release image from the durable release registry:
 
 ```text
-repox-sonarsource-docker-builds.jfrog.io/a3s/analysis/javascript:${source_tag}
+repox-sonarsource-docker-releases.jfrog.io/a3s/analysis/javascript:${source_tag}
 ```
 
-4. It re-tags that image with the `sonar-analysis-as-a-service` build number and pushes it to ECR.
-5. The merge to `master` also triggers `.github/workflows/master-deployment.yml`, which starts the deployment workflow for the environments.
+4. This pull-source switch is implemented in `SonarSource/sonar-analysis-as-a-service`, not in SonarJS.
+5. It then re-tags that image with the `sonar-analysis-as-a-service` build number and pushes it to ECR.
+6. The merge to `master` also triggers `.github/workflows/master-deployment.yml`, which starts the deployment workflow for the environments.
 
 ### Important warning
 
@@ -214,6 +225,7 @@ That generic action updates `gradle/sonar-plugins.versions.toml` in `sonar-analy
 1. For the normal release path, run `.github/workflows/automated-release.yml` with `sqaa-integration` enabled.
 2. For a manual SQAA-only path, run `.github/workflows/docker-sqaa.yml`.
 3. Note the SonarJS build number used as the Docker tag.
-4. If the flow was manual, open a PR in `SonarSource/sonar-analysis-as-a-service` and update `analysis/js_ts_image_tag` to that build number.
-5. Merge the PR to `master`.
-6. Let `sonar-analysis-as-a-service` build and deployment workflows roll out the new image.
+4. If the flow was a manual rerun for an official release, pass the original release build number and enable `publish-to-release-repo`.
+5. If the flow was manual, open a PR in `SonarSource/sonar-analysis-as-a-service` and update `analysis/js_ts_image_tag` to that build number.
+6. Merge the PR to `master`.
+7. Let `sonar-analysis-as-a-service` build and deployment workflows roll out the new image.

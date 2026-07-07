@@ -84,6 +84,7 @@ jobs:
     with:
       ref: refs/tags/${{ needs.release.outputs.release-version }}
       release-version: ${{ needs.release.outputs.release-version }}
+      publish-to-release-repo: true
       ticket-url: ${{ needs.release.outputs.sqc-ticket-url }}
       create-aaas-pr: true
       reviewers: ${{ github.actor }}

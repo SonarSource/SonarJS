@@ -15,6 +15,11 @@ on:
         description: Build number to reuse for the Docker image tag
         required: false
         type: string
+      publish-to-release-repo:
+        description: Publish the same Docker tag to the Repox release registry
+        required: false
+        type: boolean
+        default: false
       ticket-url:
         description: Jira ticket URL used for the sonar-analysis-as-a-service PR
         required: false
@@ -59,6 +64,7 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   DOCKER_REPOX_BUILDS_REGISTRY: repox-sonarsource-docker-builds.jfrog.io
+  DOCKER_REPOX_RELEASES_REGISTRY: repox-sonarsource-docker-releases.jfrog.io
   # The registry repository still uses the historical a3s prefix.
   DOCKER_IMAGE: "a3s/analysis/javascript"
 
@@ -181,12 +187,31 @@ jobs:
           username: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           password: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_PASSWORD }}
 
+      - name: Access vault release registry secrets
+        if: ${{ inputs.publish-to-release-repo }}
+        id: release-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-docker-release access_token | ARTIFACTORY_RELEASE_PASSWORD;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-docker-release username | ARTIFACTORY_RELEASE_USERNAME;
+
+      - name: Docker login to Repox release registry
+        if: ${{ inputs.publish-to-release-repo }}
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee  # v4.2.0
+        with:
+          registry: ${{ env.DOCKER_REPOX_RELEASES_REGISTRY }}
+          username: ${{ fromJSON(steps.release-secrets.outputs.vault).ARTIFACTORY_RELEASE_USERNAME }}
+          password: ${{ fromJSON(steps.release-secrets.outputs.vault).ARTIFACTORY_RELEASE_PASSWORD }}
+
       - name: Setup Docker image
         shell: bash
         id: docker-image-setup
         run: |
           DOCKER_IMAGE_BUILD_NUMBER="${DOCKER_REPOX_BUILDS_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
-          echo "docker-image=${DOCKER_IMAGE_BUILD_NUMBER}" >> "$GITHUB_OUTPUT"
+          DOCKER_IMAGE_RELEASE_NUMBER="${DOCKER_REPOX_RELEASES_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
+          echo "docker-image-build=${DOCKER_IMAGE_BUILD_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "docker-image-release=${DOCKER_IMAGE_RELEASE_NUMBER}" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5  # v4
@@ -194,9 +219,15 @@ jobs:
       - name: Build and push Docker image
         shell: bash
         env:
-          DOCKER_IMAGE_BUILD_NUMBER: ${{ steps.docker-image-setup.outputs.docker-image }}
+          DOCKER_IMAGE_BUILD_NUMBER: ${{ steps.docker-image-setup.outputs.docker-image-build }}
+          DOCKER_IMAGE_RELEASE_NUMBER: ${{ steps.docker-image-setup.outputs.docker-image-release }}
+          PUBLISH_TO_RELEASE_REPO: ${{ inputs.publish-to-release-repo == true && 'true' || 'false' }}
         run: |
-          docker buildx build --platform linux/arm64 --tag "${DOCKER_IMAGE_BUILD_NUMBER}" --push .
+          docker_args=(--platform linux/arm64 --tag "${DOCKER_IMAGE_BUILD_NUMBER}")
+          if [[ "$PUBLISH_TO_RELEASE_REPO" == "true" ]]; then
+            docker_args+=(--tag "${DOCKER_IMAGE_RELEASE_NUMBER}")
+          fi
+          docker buildx build "${docker_args[@]}" --push .
 
   handoff_to_analysis_as_a_service:
     name: Update sonar-analysis-as-a-service
