@@ -31,9 +31,13 @@ supertest(app).get('/').expect(200); // Compliant
 // --- runner-bound: still flagged ---
 expect(value).toBe(1); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
 cy.get('.status').should('be.visible'); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
-// other known global expect entry points (rxjs marble, vitest type assertions)
+// other known global expect entry points (rxjs marble)
 expectObservable(source$).toBe('a-b'); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
-expectTypeOf(value).toEqualTypeOf(); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
+
+// --- type-level: never flagged ---
+// expectTypeOf is a compile-time Vitest construct (static type check, never executed
+// at runtime), so placing it at the top level is not a misplaced assertion.
+expectTypeOf(value).toEqualTypeOf(); // Compliant
 
 // --- `expect`-prefixed identifiers that are NOT assertion entry points: not flagged ---
 // Matching is by exact name, not an `expect` prefix, so ordinary production code
