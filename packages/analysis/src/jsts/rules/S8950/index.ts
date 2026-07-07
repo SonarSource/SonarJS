@@ -15,4 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rules } from '../external/vue.js';
-export const rule = rules['no-required-prop-with-default'];
+import { decorate } from './decorator.js';
+
+export const rule = decorate(rules['no-required-prop-with-default']);
