@@ -1,0 +1,31 @@
+{
+  "title": "Regular expressions used in Testing Library queries should not have the global flag",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "regex"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8981",
+  "sqKey": "S8981",
+  "scope": "Tests",
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
