@@ -1,9 +1,9 @@
-import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
 
 describe('node:assert/strict', () => {
   it('should recognize assert/strict assertions', () => { // Compliant
-    assert.strictEqual(1, 1);
+    assert.strictEqual(actual, expected);
   });
 
   it('should raise without assertions', () => { // Noncompliant

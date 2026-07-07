@@ -19,15 +19,14 @@ describe('supertest', function () { // Compliant
   });
 });
 
-import { describe as d, it as t } from 'node:test';
 import assert from 'node:assert/strict';
 
-d('node:assert/strict', () => {
-  t('should recognize assert/strict assertions', () => { // Compliant
-    assert.strictEqual(1, 1);
+describe('node:assert/strict', () => {
+  it('should recognize assert/strict assertions', () => { // Compliant
+    assert.strictEqual(actual, expected);
   });
 
-  t('should raise without assertions', () => { // Noncompliant
+  it('should raise without assertions', () => { // Noncompliant
     const x = 1 + 2;
   });
 });
