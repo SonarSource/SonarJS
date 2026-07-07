@@ -209,6 +209,16 @@ function reassignedAfterTypeofGuardStillUnsafe(value: string | object, replaceme
   return '';
 }
 
+function reassignedInsideTypeofGuardStillUnsafe(
+  value: string | object,
+  replacement: object,
+): string {
+  if (typeof value !== 'object' && (value = replacement)) {
+    return `Unexpected value: ${value}`; // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  }
+  return '';
+}
+
 function shadowedAfterTypeofGuardStillUnsafe(value: unknown, replacement: object): string {
   if (typeof value !== 'object') {
     const value = replacement;

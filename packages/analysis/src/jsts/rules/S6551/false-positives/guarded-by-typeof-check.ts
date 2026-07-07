@@ -81,7 +81,7 @@ export function isGuardedByTypeofCheckFalsePositive(
           ruleContext,
           branch.consequent,
         ) &&
-        !hasInvalidatingWrite(variable, branch.node, node, ruleContext)
+        !hasInvalidatingWrite(variable, parent, branch.node, node, ruleContext)
       ) {
         return true;
       }
@@ -212,11 +212,13 @@ function isTypeofValue(node: TSESTree.Expression, value: string): boolean {
 
 function hasInvalidatingWrite(
   variable: Scope.Variable,
+  ifStatement: TSESTree.IfStatement,
   branch: TSESTree.Statement,
   usage: TSESTree.Identifier,
   ruleContext: NoBaseToStringMatcherContext,
 ): boolean {
   return (
+    hasWriteInSubtreeBefore(variable, ifStatement.test, usage.range[0], ruleContext) ||
     hasWriteInSubtreeBefore(variable, branch, usage.range[0], ruleContext) ||
     getLoopAncestors(usage, branch).some(loop => hasWriteInSubtree(variable, loop, ruleContext))
   );
