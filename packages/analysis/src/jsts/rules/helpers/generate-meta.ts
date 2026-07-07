@@ -45,7 +45,10 @@ export type SonarMeta = {
 };
 
 export function generateMeta(sonarMeta: SonarMeta, ruleMeta?: RulesMeta): RulesMeta {
-  if (!!sonarMeta.meta.fixable !== !!(ruleMeta?.fixable || ruleMeta?.hasSuggestions)) {
+  if (
+    (sonarMeta.meta.fixable && !(ruleMeta?.fixable || ruleMeta?.hasSuggestions)) ||
+    (!sonarMeta.meta.fixable && ruleMeta?.fixable)
+  ) {
     throw new Error(
       `Mismatch between RSPEC metadata and implementation for fixable attribute in rule ${sonarMeta.meta.docs!.url}`,
     );
