@@ -25,14 +25,20 @@ import * as meta from './generated-meta.js';
 const EMPTY_CALLBACK_MESSAGE_ID = 'noUnnecessaryActEmptyFunction';
 
 // Without any `testing-library/*` settings, the upstream rule falls back to
-// "aggressive" name-based heuristics: it treats any call merely *named* like
-// `render`/`getBy*`/`fireEvent` as a Testing Library util, regardless of where
-// it's imported from. Forcing these settings switches it to precise,
-// import-resolution-only detection instead. The official `@testing-library/*`
-// module check still runs unconditionally, so real Testing Library imports are
-// unaffected; only the name-based fallback for anything else is disabled.
+// "aggressive" name-based heuristics for `render` and for custom queries: it
+// treats any call merely *named* like `render` as a Testing Library util,
+// regardless of where it's imported from. Forcing these settings (the
+// upstream plugin's own documented recipe for disabling aggressive reporting)
+// switches `render` detection to import resolution instead. The official
+// `@testing-library/*` module check still runs unconditionally, so real
+// Testing Library imports are unaffected. Note this does not make *built-in*
+// query detection (`getBy*`/`queryBy*`/`findBy*`) import-resolution-based:
+// upstream matches those purely by name in all modes, so a same-named,
+// unrelated helper (e.g. Playwright's `page.getByRole`) can still be
+// misidentified as a Testing Library query. Accepted as a known v1 limitation
+// inherited from the upstream plugin.
 const STRICT_IMPORT_RESOLUTION_SETTINGS = {
-  'testing-library/utils-module': 'sonarjs-s8980',
+  'testing-library/utils-module': 'off',
   'testing-library/custom-renders': 'off',
   'testing-library/custom-queries': 'off',
 };
