@@ -60,6 +60,25 @@ describe('S3735', () => {
             const f = () => {};
             void f(); // FN: should raise since 'f()' is not a promise but we are missing type information`,
         },
+        {
+          code: `
+            class Component {
+              load() {}
+
+              onClick() {
+                void this.load();
+              }
+            }
+            `,
+        },
+        {
+          code: `
+            const service = {
+              load() {},
+            };
+            void service?.load();
+            `,
+        },
       ],
       invalid: [
         {
@@ -73,6 +92,15 @@ describe('S3735', () => {
               endColumn: 5,
             },
           ],
+        },
+        {
+          code: `
+            const service = {
+              load() {},
+            };
+            void service.load;
+            `,
+          errors: 1,
         },
       ],
     });
@@ -154,6 +182,26 @@ describe('S3735', () => {
             void z;
             `,
         },
+        {
+          code: `
+            const service = {
+              doAsync: async () => {},
+            };
+            void service.doAsync();
+            `,
+        },
+        {
+          code: `
+            declare const anyService: { doAsync: any };
+            void anyService.doAsync();
+            `,
+        },
+        {
+          code: `
+            declare const unknownCallable: unknown;
+            void unknownCallable();
+            `,
+        },
       ],
       invalid: [
         {
@@ -174,6 +222,15 @@ describe('S3735', () => {
             declare const skipCheck: boolean;
             declare const checkPromise: Promise<void>;
             void (skipCheck || checkPromise);
+            `,
+          errors: 1,
+        },
+        {
+          code: `
+            const service = {
+              doSync: () => 42,
+            };
+            void service.doSync();
             `,
           errors: 1,
         },

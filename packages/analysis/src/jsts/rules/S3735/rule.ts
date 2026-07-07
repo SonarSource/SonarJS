@@ -18,10 +18,13 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isFunctionCall } from '../helpers/ast.js';
-import { isRequiredParserServices } from '../helpers/parser-services.js';
-import { isThenableOrVoidUnion } from '../helpers/type.js';
+import {
+  isRequiredParserServices,
+  type RequiredParserServices,
+} from '../helpers/parser-services.js';
+import { getTypeFromTreeNode, isThenableOrVoidUnion } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -65,11 +68,37 @@ function isIIFE(expr: estree.UnaryExpression) {
 function isPromiseLike(context: Rule.RuleContext, expr: estree.UnaryExpression) {
   const services = context.sourceCode.parserServices;
   if (isRequiredParserServices(services)) {
-    return isThenableOrVoidUnion(expr.argument, services);
+    return (
+      isThenableOrVoidUnion(expr.argument, services) ||
+      (isCallLikeExpression(expr.argument) && hasIndeterminateType(expr.argument, services))
+    );
   } else {
     // If we don't have typescript types, we can't reason if it's a promise.
     // Therefore, if this is a function call, assume it is a promise.
     // For this rule, it will result in not raising an issue.
-    return isFunctionCall(expr.argument);
+    return isCallLikeExpression(expr.argument);
   }
+}
+
+/**
+ * Returns true when `node` is a direct call or an optionally chained call.
+ * @param node The expression used with `void`.
+ * @return Whether the expression has a callable shape.
+ */
+function isCallLikeExpression(node: estree.Node) {
+  return (
+    node.type === 'CallExpression' ||
+    (node.type === 'ChainExpression' && node.expression.type === 'CallExpression')
+  );
+}
+
+/**
+ * Returns true when TypeScript cannot determine whether `node` resolves to a promise.
+ * @param node The expression used with `void`.
+ * @param services The TypeScript parser services.
+ * @return Whether the resolved type is `any`, `unknown`, or an unresolved error type.
+ */
+function hasIndeterminateType(node: estree.Node, services: RequiredParserServices) {
+  const type = getTypeFromTreeNode(node, services);
+  return (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0;
 }
