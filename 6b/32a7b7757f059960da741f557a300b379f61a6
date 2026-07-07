@@ -1,0 +1,52 @@
+packages/analysis/src/jsts/rules/S2699/chai.fixture.js
+  s_bb9a22f8451ca3::t_6073aa21034b04 1
+packages/analysis/src/jsts/rules/helpers/assertion-detection.ts
+  s_bb9a22f8451ca3::t_57a8b819fe8758 49,51
+  s_bb9a22f8451ca3::t_6073aa21034b04 226-227
+packages/analysis/src/jsts/rules/S2699/assert-esm.fixture.js
+  s_bb9a22f8451ca3::t_ad0ecc47bb1fa4 1,8-11
+  s_bb9a22f8451ca3::t_57a8b819fe8758 3-5,20-41
+  s_bb9a22f8451ca3::t_36081cff846963 42
+packages/analysis/src/jsts/rules/S2699/loop.fixture.ts
+  s_bb9a22f8451ca3::t_6073aa21034b04 1
+packages/analysis/src/jsts/rules/S2699/supertest.fixture.js
+  s_bb9a22f8451ca3::t_6073aa21034b04 1
+packages/analysis/src/jsts/rules/S2699/rule.ts
+  s_bb9a22f8451ca3::t_ad0ecc47bb1fa4 37,42-65,74,90-96
+  s_bb9a22f8451ca3::t_4f066caa4e4ddf 97
+packages/analysis/src/jsts/rules/S2699/sinon.fixture.js
+  s_bb9a22f8451ca3::t_6073aa21034b04 1
+packages/analysis/src/jsts/rules/S2699/unit.test.ts
+  s_bb9a22f8451ca3::t_db88fef9294bec 69-76
+  s_bb9a22f8451ca3::t_c79f1b04a22c13 67-68,355-421,500-511
+  s_bb9a22f8451ca3::t_2fe9e1b3151710 214,226,238,252,264,276,288,300
+  s_0b0f268ed5be5a::t_46642d7c742080 512
+packages/analysis/src/jsts/rules/S2699/assert.fixture.js
+  s_bb9a22f8451ca3::t_57a8b819fe8758 3,6,26-34
+  s_bb9a22f8451ca3::t_ad0ecc47bb1fa4 1,9-12
+  s_bb9a22f8451ca3::t_76478dcf1379d5 35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "6b32a7b7757f059960da741f557a300b379f61a6",
+  "prompts": {},
+  "sessions": {
+    "s_0b0f268ed5be5a": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f37d5-0039-7621-bc6a-373d9166dd7a",
+        "model": "gpt-5.5"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    },
+    "s_bb9a22f8451ca3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f3c68-90e6-7673-b508-d9a35a0a4e19",
+        "model": "gpt-5.5"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
