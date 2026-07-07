@@ -637,8 +637,102 @@ function SectionListComponent() {
 `,
           filename: fixtureFile,
         },
+        {
+          // FP: triple nested destructuring ({ section: { nested: { title } } }) — exercises
+          // ObjectPattern branch in isBindingRead (lines 36-37); title is read in the body.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: { nested: { title } } }: { section: { nested: { title: string } } }) => <div>{title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: renamed property with default value ({ section: { title: name = 'def' } }) —
+          // exercises AssignmentPattern branch in isBindingRead (lines 33-34); name is read.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: { title: name = 'def' } }: { section: { title: string } }) => <div>{name}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: nested ArrayPattern with hole ({ section: { items: [, title] } }) — exercises
+          // null element path in isBindingRead (line 28); title (second element) is read.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: { items: [, title] } }: { section: { items: string[] } }) => <div>{title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
       ],
       invalid: [],
+    });
+  });
+
+  it('should report props when destructured via patterns not tracked by isBindingRead', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [],
+      invalid: [
+        {
+          // TP: rest element inside nested ArrayPattern ({ section: { items: [...rest] } }) —
+          // exercises RestElement fall-through in isBindingRead (line 39); section is still reported.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: { items: [...rest] } }: { section: { items: string[] } }) => <div>{rest}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: array destructuring for prop value ({ section: [title] }) — exercises else branch
+          // in hasDestructuredParamPropUsage (line 113); ArrayPattern value is not suppressed.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: [title] }: { section: string[] }) => <div>{title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
     });
   });
 
