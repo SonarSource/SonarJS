@@ -20,6 +20,26 @@ import type estree from 'estree';
 import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
 
 /**
+ * Returns true when the given pattern node corresponds to a variable binding
+ * that is read in the given scope, including nested destructuring patterns.
+ */
+function isBindingRead(node: estree.Pattern | null, scope: Scope.Scope): boolean {
+  if (node === null) {
+    return false;
+  }
+  if (isIdentifier(node)) {
+    return scope.set.get(node.name)?.references.some(ref => ref.isRead()) ?? false;
+  }
+  if (node.type === 'AssignmentPattern' && isIdentifier(node.left)) {
+    return scope.set.get(node.left.name)?.references.some(ref => ref.isRead()) ?? false;
+  }
+  if (node.type === 'ObjectPattern' || node.type === 'ArrayPattern') {
+    return hasAnyNestedBindingRead(node, scope);
+  }
+  return false;
+}
+
+/**
  * Returns true when at least one binding introduced by the nested destructuring
  * pattern is read in the given scope. Handles ObjectPattern and ArrayPattern
  * recursively to cover cases like `{ section: { title } }`.
@@ -32,19 +52,7 @@ function hasAnyNestedBindingRead(
     pattern.type === 'ObjectPattern'
       ? pattern.properties.map(p => (p.type === 'RestElement' ? p.argument : p.value))
       : pattern.elements;
-  for (const node of nodes) {
-    if (node === null) continue;
-    if (isIdentifier(node)) {
-      const variable = scope.set.get(node.name);
-      if (variable?.references.some(ref => ref.isRead())) return true;
-    } else if (node.type === 'AssignmentPattern' && isIdentifier(node.left)) {
-      const variable = scope.set.get(node.left.name);
-      if (variable?.references.some(ref => ref.isRead())) return true;
-    } else if (node.type === 'ObjectPattern' || node.type === 'ArrayPattern') {
-      if (hasAnyNestedBindingRead(node, scope)) return true;
-    }
-  }
-  return false;
+  return nodes.some(node => isBindingRead(node, scope));
 }
 
 /**

@@ -58,7 +58,7 @@ export function findFirstTopLevelAwait(
     return undefined;
   }
   const { sourceCode } = context;
-  const stack: estree.Node[] = [callback.body as estree.Node];
+  const stack: estree.Node[] = [callback.body];
   let earliest: estree.Node | undefined;
   let earliestStart = Infinity;
   while (stack.length > 0) {
@@ -113,7 +113,7 @@ export function findTestsRegisteredAfter(
     awaitNode.type === 'ForOfStatement'
       ? sourceCode.getRange(awaitNode)[0]
       : sourceCode.getRange(awaitNode)[1];
-  const endOffset = beforeNode !== undefined ? sourceCode.getRange(beforeNode)[0] : Infinity;
+  const endOffset = beforeNode === undefined ? Infinity : sourceCode.getRange(beforeNode)[0];
   const tests: estree.Node[] = [];
   const stack: estree.Node[] = [...childrenOf(callback.body, sourceCode.visitorKeys)];
   while (stack.length > 0) {
