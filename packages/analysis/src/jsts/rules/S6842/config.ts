@@ -17,8 +17,40 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6842/javascript
 
 import type { ESLintConfiguration } from '../helpers/configs.js';
-import { getUpstreamRecommendedFields } from '../external/a11y.js';
+import { getUpstreamRecommendedConfiguration } from '../external/a11y.js';
+
+type Allowlist = Record<string, string[]>;
+
+const LIST_CONTAINER_COMPOSITE_ROLES = [
+  'listbox',
+  'menu',
+  'menubar',
+  'radiogroup',
+  'tablist',
+  'toolbar',
+  'tree',
+];
+
+const TABLE_COMPOSITE_ROLES = [...LIST_CONTAINER_COMPOSITE_ROLES, 'grid', 'treegrid'];
+
+const upstreamAllowlist = getUpstreamRecommendedConfiguration(
+  'no-noninteractive-element-to-interactive-role',
+) as Allowlist;
+
+const allowlist: Allowlist = {
+  ...upstreamAllowlist,
+  ul: [...new Set([...upstreamAllowlist.ul, 'toolbar'])],
+  ol: [...new Set([...upstreamAllowlist.ol, 'toolbar'])],
+  table: [...new Set([...upstreamAllowlist.table, ...TABLE_COMPOSITE_ROLES])],
+  menu: LIST_CONTAINER_COMPOSITE_ROLES,
+  tbody: TABLE_COMPOSITE_ROLES,
+  thead: TABLE_COMPOSITE_ROLES,
+  tfoot: TABLE_COMPOSITE_ROLES,
+};
 
 export const fields: ESLintConfiguration = [
-  getUpstreamRecommendedFields('no-noninteractive-element-to-interactive-role'),
+  Object.entries(allowlist).map(([field, defaultValue]) => ({
+    field,
+    default: defaultValue,
+  })),
 ];
