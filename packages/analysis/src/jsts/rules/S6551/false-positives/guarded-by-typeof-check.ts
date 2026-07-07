@@ -19,7 +19,12 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { childrenOf } from '../../helpers/ancestor.js';
-import { getVariableFromScope, isFunctionNode, isIfStatement } from '../../helpers/ast.js';
+import {
+  getVariableFromScope,
+  isBinaryPlus,
+  isFunctionNode,
+  isIfStatement,
+} from '../../helpers/ast.js';
 import {
   flattenConjunction,
   flattenDisjunction,
@@ -49,7 +54,7 @@ export function isGuardedByTypeofCheckFalsePositive(
   }
 
   const node = reportDescriptor.node as TSESTree.Node;
-  if (node.type !== 'Identifier' || !isInImplicitStringContext(node)) {
+  if (node.type !== 'Identifier' || !isImplicitlyStringified(node)) {
     return false;
   }
 
@@ -61,13 +66,20 @@ export function isGuardedByTypeofCheckFalsePositive(
   let current: TSESTree.Node | undefined = node;
   while (current?.parent) {
     const parent: TSESTree.Node = current.parent;
-    if (
-      isIfStatement(parent) &&
-      parent.consequent === current &&
-      conditionProvesPrimitive(parent.test, variable, ruleContext) &&
-      !hasInvalidatingWrite(variable, parent.consequent, node, ruleContext)
-    ) {
-      return true;
+    if (isIfStatement(parent)) {
+      const branch = getBranchContainingNode(parent, current);
+      if (
+        branch !== null &&
+        conditionMakesBranchSafeToStringify(
+          parent.test,
+          variable,
+          ruleContext,
+          branch.consequent,
+        ) &&
+        !hasInvalidatingWrite(variable, branch.node, node, ruleContext)
+      ) {
+        return true;
+      }
     }
     if (isFunctionNode(parent as estree.Node)) {
       break;
@@ -77,7 +89,14 @@ export function isGuardedByTypeofCheckFalsePositive(
   return false;
 }
 
-function isInImplicitStringContext(node: TSESTree.Identifier): boolean {
+/**
+ * Detects whether an identifier is being implicitly stringified by its surrounding expression.
+ *
+ * This matcher accepts template-literal interpolations and `+` concatenations, and it
+ * transparently walks through TypeScript-only wrappers such as casts and non-null assertions
+ * so the check still applies to the underlying value expression.
+ */
+function isImplicitlyStringified(node: TSESTree.Identifier): boolean {
   let current: TSESTree.Node = node;
   while (current.parent) {
     const parent: TSESTree.Node = current.parent;
@@ -87,7 +106,7 @@ function isInImplicitStringContext(node: TSESTree.Identifier): boolean {
     ) {
       return true;
     }
-    if (parent.type === 'BinaryExpression' && parent.operator === '+') {
+    if (isBinaryPlus(parent as estree.Node)) {
       return true;
     }
     if (
@@ -102,21 +121,45 @@ function isInImplicitStringContext(node: TSESTree.Identifier): boolean {
   return false;
 }
 
-function conditionProvesPrimitive(
+function getBranchContainingNode(
+  ifStatement: TSESTree.IfStatement,
+  node: TSESTree.Node,
+): { node: TSESTree.Statement; consequent: boolean } | null {
+  if (ifStatement.consequent === node) {
+    return { node: ifStatement.consequent, consequent: true };
+  }
+  if (ifStatement.alternate === node) {
+    return { node: ifStatement.alternate, consequent: false };
+  }
+  return null;
+}
+
+function conditionMakesBranchSafeToStringify(
   condition: TSESTree.Expression,
   variable: Scope.Variable,
   ruleContext: NoBaseToStringMatcherContext,
+  isConsequentBranch: boolean,
 ): boolean {
   if (condition.type === 'LogicalExpression') {
     if (condition.operator === '&&') {
-      return flattenConjunction(condition).some(conjunct =>
-        conditionProvesPrimitive(conjunct, variable, ruleContext),
-      );
+      const conjuncts = flattenConjunction(condition);
+      return isConsequentBranch
+        ? conjuncts.some(conjunct =>
+            conditionMakesBranchSafeToStringify(conjunct, variable, ruleContext, true),
+          )
+        : conjuncts.every(conjunct =>
+            conditionMakesBranchSafeToStringify(conjunct, variable, ruleContext, false),
+          );
     }
     if (condition.operator === '||') {
-      return flattenDisjunction(condition).every(disjunct =>
-        conditionProvesPrimitive(disjunct, variable, ruleContext),
-      );
+      const disjuncts = flattenDisjunction(condition);
+      return isConsequentBranch
+        ? disjuncts.every(disjunct =>
+            conditionMakesBranchSafeToStringify(disjunct, variable, ruleContext, true),
+          )
+        : disjuncts.some(disjunct =>
+            conditionMakesBranchSafeToStringify(disjunct, variable, ruleContext, false),
+          );
     }
     return false;
   }
@@ -125,14 +168,30 @@ function conditionProvesPrimitive(
     return false;
   }
 
+  return isTypeOfGuard(condition, isConsequentBranch, variable, ruleContext);
+}
+
+function isTypeOfGuard(
+  condition: TSESTree.PrivateInExpression | TSESTree.SymmetricBinaryExpression,
+  isConsequentBranch: boolean,
+  variable: Scope.Variable,
+  ruleContext: NoBaseToStringMatcherContext,
+) {
   const { left, operator, right } = condition;
   return (
-    (operator === '===' &&
-      ((isTypeofComparison(left, right, variable, ruleContext) &&
-        isSafeTypeofLiteral(right, SAFE_TYPEOF_VALUES)) ||
-        (isTypeofComparison(right, left, variable, ruleContext) &&
-          isSafeTypeofLiteral(left, SAFE_TYPEOF_VALUES)))) ||
-    (operator === '!==' &&
+    (isConsequentBranch &&
+      ((operator === '===' &&
+        ((isTypeofComparison(left, right, variable, ruleContext) &&
+          isSafeTypeofLiteral(right, SAFE_TYPEOF_VALUES)) ||
+          (isTypeofComparison(right, left, variable, ruleContext) &&
+            isSafeTypeofLiteral(left, SAFE_TYPEOF_VALUES)))) ||
+        (operator === '!==' &&
+          ((isTypeofComparison(left, right, variable, ruleContext) &&
+            isTypeofLiteral(right, 'object')) ||
+            (isTypeofComparison(right, left, variable, ruleContext) &&
+              isTypeofLiteral(left, 'object')))))) ||
+    (!isConsequentBranch &&
+      operator === '===' &&
       ((isTypeofComparison(left, right, variable, ruleContext) &&
         isTypeofLiteral(right, 'object')) ||
         (isTypeofComparison(right, left, variable, ruleContext) &&

@@ -151,6 +151,30 @@ function guardedByTypeofNotObjectConjunction(value: unknown, label: string): str
           `,
           errors: 1,
         },
+        {
+          code: `
+function guardedByTypeofObjectElse(value: unknown): string {
+  if (typeof value === 'object') {
+    return '';
+  } else {
+    return \`Unexpected value: \${value}\`;
+  }
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function guardedByReversedTypeofObjectElse(value: unknown): string {
+  if ('object' === typeof value) {
+    return '';
+  } else {
+    return \`Unexpected value: \${value}\`;
+  }
+}
+          `,
+          errors: 1,
+        },
       ],
     });
   });

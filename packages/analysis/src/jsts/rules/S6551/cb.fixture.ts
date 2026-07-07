@@ -185,6 +185,22 @@ function guardedByTypeofNotObjectConjunction(value: unknown, label: string): str
   return label;
 }
 
+function guardedByTypeofObjectElse(value: unknown): string {
+  if (typeof value === 'object') {
+    return '';
+  } else {
+    return `Unexpected value: ${value}`; // Compliant
+  }
+}
+
+function guardedByReversedTypeofObjectElse(value: unknown): string {
+  if ('object' === typeof value) {
+    return '';
+  } else {
+    return `Unexpected value: ${value}`; // Compliant
+  }
+}
+
 function reassignedAfterTypeofGuardStillUnsafe(value: string | object, replacement: object): string {
   if (typeof value !== 'object') {
     value = replacement;
