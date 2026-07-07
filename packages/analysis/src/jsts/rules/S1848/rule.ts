@@ -276,10 +276,7 @@ function isFqnException(fqn: string): boolean {
  * Checks explicitly approved global/member-expression forms.
  * For window.ClipboardJS, paper.*, and paperScope.*, verifies the root identifier
  * is not a local variable or import (i.e. it is a true global).
-<<<<<<< HEAD
  * For paper.* and paperScope.*, only suppresses known scene-graph constructors.
-=======
->>>>>>> 8fb932dfc (Fix FP for S1848: add scope-guarded global-form exceptions)
  */
 function isGlobalFormException(
   context: Rule.RuleContext,
@@ -289,7 +286,6 @@ function isGlobalFormException(
   if (calleeText === 'Notification') {
     return true;
   }
-<<<<<<< HEAD
   if (calleeText === 'window.ClipboardJS') {
     const variable = getVariableFromName(context, 'window', callee);
     if (variable == null || variable.defs.length === 0) {
@@ -306,15 +302,6 @@ function isGlobalFormException(
         if (variable == null || variable.defs.length === 0) {
           return true;
         }
-=======
-  for (const rootName of ['window', 'paper', 'paperScope']) {
-    const prefix = rootName === 'window' ? 'window.ClipboardJS' : `${rootName}.`;
-    if (rootName === 'window' ? calleeText === prefix : calleeText.startsWith(prefix)) {
-      const variable = getVariableFromName(context, rootName, callee);
-      // Suppress only when rootName is a true global (not locally declared)
-      if (variable == null || variable.defs.length === 0) {
-        return true;
->>>>>>> 8fb932dfc (Fix FP for S1848: add scope-guarded global-form exceptions)
       }
     }
   }
