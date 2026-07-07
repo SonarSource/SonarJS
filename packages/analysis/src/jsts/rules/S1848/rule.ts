@@ -184,7 +184,7 @@ function containsReturnedIdentifier(node: estree.Node, identifier: estree.Identi
   if (node.type === 'ObjectExpression') {
     return node.properties.some(property => {
       if (property.type === 'Property') {
-        return containsReturnedIdentifier(property.value, identifier);
+        return containsReturnedIdentifier(property.value as estree.Node, identifier);
       }
       return containsReturnedIdentifier(property.argument, identifier);
     });

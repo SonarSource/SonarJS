@@ -365,7 +365,7 @@ function reportUnawaitedAsyncHelperCalls(
   const stack: estree.Node[] =
     body.type === 'BlockStatement'
       ? [...childrenOf(body, sourceCode.visitorKeys)]
-      : [body];
+      : [body as estree.Node];
   while (stack.length > 0) {
     const current = stack.pop();
     if (!current || isFunctionNode(current)) {
@@ -375,7 +375,7 @@ function reportUnawaitedAsyncHelperCalls(
     if (current.type === 'ExpressionStatement') {
       expr = current.expression;
     } else if (body.type !== 'BlockStatement' && current === body) {
-      expr = body;
+      expr = body as estree.Expression;
     }
     if (expr === null) {
       stack.push(...childrenOf(current, sourceCode.visitorKeys));
@@ -483,8 +483,7 @@ function reportAsyncHelperCall(
   }
 
   // Only flag async functions.
-  const isAsync = (ts.getCombinedModifierFlags(decl) & ts.ModifierFlags.Async) !== 0;
-  if (!isAsync) {
+  if (!(ts.getCombinedModifierFlags(decl) & ts.ModifierFlags.Async)) {
     return false;
   }
 

@@ -68,8 +68,7 @@ export function followReferenceToDeclaration(
   if (symbol === undefined) {
     return undefined;
   }
-  const isAlias = (symbol.flags & ts.SymbolFlags.Alias) !== 0;
-  if (isAlias) {
+  if ((symbol.flags & ts.SymbolFlags.Alias) !== 0) {
     symbol = services.program.getTypeChecker().getAliasedSymbol(symbol);
   }
   if (symbol.declarations?.length !== 1) {
