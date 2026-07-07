@@ -47,10 +47,42 @@ const ASSERTION_LIBRARIES = [
   'supertest',
   '@playwright/test',
   'assert',
+  'assert/strict',
   'node:assert',
+  'node:assert/strict',
 ];
 // runners that expose assertion APIs as globals (no import required).
 const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', '@playwright/test'];
+
+const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
+  '@jest/globals',
+  '@playwright/test',
+  'chai',
+  'cypress',
+  'jasmine',
+  'jest',
+  'mocha',
+  'node:test',
+  'sinon',
+  'supertest',
+  'vitest',
+];
+
+const SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES = [
+  '@jest/globals',
+  '@playwright/test',
+  'chai',
+  'cypress',
+  'jasmine',
+  'jasmine-core',
+  'jasmine-node',
+  'jest',
+  'karma-jasmine',
+  'mocha',
+  'sinon',
+  'supertest',
+  'vitest',
+];
 
 // Known global `expect*(...)` entry points: the universal `expect`, rxjs marble
 // testing's `expectObservable`/`expectSubscriptions`, and vitest's `expectTypeOf`.
@@ -116,6 +148,14 @@ const CHAI_TERMINAL_PROPERTY_NAMES = new Set([
  */
 export function hasSupportedAssertionLibrary(context: Rule.RuleContext): boolean {
   return importsOrDependsOnModule(context, ASSERTION_LIBRARIES, GLOBAL_ASSERTION_DEPENDENCIES);
+}
+
+export function hasSupportedTestFramework(context: Rule.RuleContext): boolean {
+  return importsOrDependsOnModule(
+    context,
+    SUPPORTED_TEST_FRAMEWORK_IMPORTS,
+    SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES,
+  );
 }
 
 type AssertionDetector = (context: Rule.RuleContext, node: estree.Node) => boolean;
@@ -273,7 +313,12 @@ function isCompleteESTreeShouldPropertyChain(
       return true;
     }
     if (CHAI_TERMINAL_PROPERTY_NAMES.has(parent.property.name)) {
-      return !isESTreeChaiShouldChainContinuation(grandparent, parent);
+      if (!isESTreeChaiShouldChainContinuation(grandparent, parent)) {
+        return true;
+      }
+      current = parent;
+      parent = grandparent;
+      continue;
     }
     if (
       !CHAI_NON_TERMINAL_PROPERTY_NAMES.has(parent.property.name) &&
@@ -298,7 +343,12 @@ function isCompleteTSShouldPropertyChain(node: ts.PropertyAccessExpression): boo
       return true;
     }
     if (CHAI_TERMINAL_PROPERTY_NAMES.has(parent.name.text)) {
-      return !isTSChaiShouldChainContinuation(grandparent, parent);
+      if (!isTSChaiShouldChainContinuation(grandparent, parent)) {
+        return true;
+      }
+      current = parent;
+      parent = grandparent;
+      continue;
     }
     if (
       !CHAI_NON_TERMINAL_PROPERTY_NAMES.has(parent.name.text) &&
@@ -386,5 +436,6 @@ function isFunctionCallFromNodeAssertTS(
   node: ts.Node,
 ): boolean {
   const fqn = getFullyQualifiedNameTS(services, node);
-  return fqn?.split('.')[0] === 'assert';
+  const root = fqn?.split('.')[0];
+  return root === 'assert' || root === 'assert/strict';
 }
