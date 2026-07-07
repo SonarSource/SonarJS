@@ -1,4 +1,3 @@
-import test from 'node:test';
 const sinon = require('sinon');
 const { assert } = sinon;
 

@@ -1,4 +1,3 @@
-import test from 'node:test';
 const chai = require('chai');
 const chaiExpect = require('chai').expect;
 const shouldFunc = require('chai').should();

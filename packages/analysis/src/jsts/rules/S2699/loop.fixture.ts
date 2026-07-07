@@ -1,4 +1,3 @@
-import test from 'node:test';
 const assert = require('assert');
 const chai = require('chai');
 

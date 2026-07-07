@@ -1,4 +1,3 @@
-import test from 'node:test';
 import supertest from 'supertest';
 import foo from 'supertest';
 

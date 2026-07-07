@@ -56,17 +56,21 @@ const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', '@playwrigh
 const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
   '@jest/globals',
   '@playwright/test',
+  'chai',
   'cypress',
   'jasmine',
   'jest',
   'mocha',
   'node:test',
+  'sinon',
+  'supertest',
   'vitest',
 ];
 
 const SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES = [
   '@jest/globals',
   '@playwright/test',
+  'chai',
   'cypress',
   'jasmine',
   'jasmine-core',
@@ -74,6 +78,8 @@ const SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES = [
   'jest',
   'karma-jasmine',
   'mocha',
+  'sinon',
+  'supertest',
   'vitest',
 ];
 

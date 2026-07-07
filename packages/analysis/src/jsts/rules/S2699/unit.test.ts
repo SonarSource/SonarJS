@@ -211,7 +211,6 @@ describe('Observable error handling with object syntax', () => {
         {
           code: `
 const chai = require('chai');
-const mocha = require('mocha');
 describe('chai test cases', () => {
   it('no assertion', () => {
     const x = 1 + 2;
@@ -223,7 +222,6 @@ describe('chai test cases', () => {
         {
           code: `
 const chai = require('chai');
-const mocha = require('mocha');
 describe('expectX without assertion', () => {
   it('should raise when expectSomething has no chained method', () => {
     expectSomething(value);
