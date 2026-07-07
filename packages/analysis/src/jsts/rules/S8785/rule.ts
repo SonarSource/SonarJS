@@ -16,19 +16,34 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S8785/javascript
 
-import type { Rule, SourceCode } from 'eslint';
+import type { Rule } from 'eslint';
 import type estree from 'estree';
+import ts from 'typescript';
+import { childrenOf } from '../helpers/ancestor.js';
+import { isAssertion } from '../helpers/assertion-detection.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { importsOrDependsOnModule, getFullyQualifiedName } from '../helpers/module.js';
-import { childrenOf } from '../helpers/ancestor.js';
 import { getVariableFromScope, isFunctionNode } from '../helpers/ast.js';
 import {
   getMochaCalleeParts,
   SUITE_FUNCTION_NAMES,
   TEST_FUNCTION_NAMES,
 } from '../helpers/mocha-style-test-frameworks.js';
+import {
+  isRequiredParserServices,
+  type RequiredParserServices,
+} from '../helpers/parser-services.js';
+import { TEST_FRAMEWORK_STRUCTURE_FUNCTIONS } from '../helpers/test-frameworks.js';
 import * as meta from './generated-meta.js';
+import {
+  findFirstTopLevelAwait,
+  findTestsRegisteredAfter,
+  getAwaitedCall,
+  isFunctionLike,
+  type FunctionLike,
+} from './async-analysis.js';
+import { followCallToDeclaration, followReferenceToDeclaration } from './call-to-declaration.js';
 
 /**
  * Frameworks that run a suite's callback synchronously during the discovery phase. Vitest is
@@ -55,13 +70,30 @@ const RAISING_MODIFIERS = new Set(['only', 'each']);
 /** Test- and suite-registering identifiers, used to detect the tests dropped after an `await`. */
 const TEST_AND_SUITE_NAMES = new Set([...TEST_FUNCTION_NAMES, ...SUITE_FUNCTION_NAMES]);
 
+type RaisingSuiteCallback =
+  | {
+      callback: estree.FunctionExpression | estree.ArrowFunctionExpression;
+      byReference: false;
+    }
+  | {
+      callback: FunctionLike;
+      byReference: true;
+    };
+
+type AsyncSuiteOutcome =
+  | { kind: 'noTopLevelAwait' }
+  | { kind: 'awaitedHelperReported'; skipAwait: estree.Node }
+  | { kind: 'asyncSuiteReported' };
+
 const messages = {
   removeAsync:
     'Remove the "async" keyword from this test suite callback; a test suite callback must be synchronous.',
   asyncSuiteCallback:
-    'Make this test suite callback synchronous; any test declared after this await is silently dropped.',
+    'Move this async setup into a lifecycle hook or a test callback; any test declared after this "await" is silently dropped.',
   removeAsyncQuickFix: 'Remove the "async" keyword',
   droppedTest: 'This test is declared after the await and is never registered.',
+  asyncHelperCall:
+    'This async helper silently drops tests; remove its "async" keyword and move async setup into a lifecycle hook or a test callback.',
 };
 
 export const rule: Rule.RuleModule = {
@@ -71,16 +103,125 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
+    const parserServices = context.sourceCode.parserServices;
+
     return {
       CallExpression(node: estree.CallExpression) {
-        const callback = getRaisingSuiteCallback(context, node);
-        if (callback?.async) {
-          reportAsyncCallback(context, callback);
+        const raisingSuiteCallback = getRaisingSuiteCallback(context, node, parserServices);
+        if (!raisingSuiteCallback) {
+          return;
         }
+        visitRaisingSuiteCallback(context, parserServices, raisingSuiteCallback);
       },
     };
   },
 };
+
+function visitRaisingSuiteCallback(
+  context: Rule.RuleContext,
+  parserServices: Rule.RuleContext['sourceCode']['parserServices'],
+  raisingSuiteCallback: RaisingSuiteCallback,
+): void {
+  const { callback, byReference } = raisingSuiteCallback;
+  const asyncSuiteOutcome = callback.async
+    ? analyzeAsyncSuiteCallback(context, parserServices, callback)
+    : undefined;
+
+  if (asyncSuiteOutcome?.kind === 'noTopLevelAwait') {
+    // Async callback, no top-level await: remove the misleading async keyword.
+    reportRemoveAsync(context, callback, !byReference);
+  }
+
+  if (isRequiredParserServices(parserServices)) {
+    reportUnawaitedAsyncHelperCalls(
+      context,
+      parserServices,
+      callback,
+      asyncSuiteOutcome?.kind === 'awaitedHelperReported' ? asyncSuiteOutcome.skipAwait : undefined,
+    );
+  }
+}
+
+function analyzeAsyncSuiteCallback(
+  context: Rule.RuleContext,
+  parserServices: Rule.RuleContext['sourceCode']['parserServices'],
+  callback: FunctionLike,
+): AsyncSuiteOutcome {
+  const topLevelAwait = findFirstTopLevelAwait(context, callback);
+  if (!topLevelAwait) {
+    return { kind: 'noTopLevelAwait' };
+  }
+
+  const awaitedHelperOutcome = tryReportAwaitedAsyncHelperCall(
+    context,
+    parserServices,
+    callback,
+    topLevelAwait,
+  );
+  if (awaitedHelperOutcome) {
+    return awaitedHelperOutcome;
+  }
+
+  reportAsyncSuiteCallback(context, callback, topLevelAwait);
+  return { kind: 'asyncSuiteReported' };
+}
+
+function tryReportAwaitedAsyncHelperCall(
+  context: Rule.RuleContext,
+  parserServices: Rule.RuleContext['sourceCode']['parserServices'],
+  callback: FunctionLike,
+  topLevelAwait: estree.Node,
+): AsyncSuiteOutcome | undefined {
+  if (!isRequiredParserServices(parserServices)) {
+    return undefined;
+  }
+
+  const awaitedCall = getAwaitedCall(topLevelAwait);
+  if (!awaitedCall) {
+    return undefined;
+  }
+
+  const nextDescribeAwait =
+    callback.body?.type === 'BlockStatement'
+      ? findNextTopLevelAwaitAfter(context.sourceCode, callback.body, topLevelAwait)
+      : undefined;
+  const reported = reportAsyncHelperCall(
+    context,
+    parserServices,
+    awaitedCall,
+    callback,
+    topLevelAwait,
+    nextDescribeAwait,
+  );
+  if (!reported) {
+    return undefined;
+  }
+
+  return { kind: 'awaitedHelperReported', skipAwait: topLevelAwait };
+}
+
+function reportAsyncSuiteCallback(
+  context: Rule.RuleContext,
+  callback: FunctionLike,
+  topLevelAwait: estree.Node,
+): void {
+  const secondaryLocations = findTestsRegisteredAfter(
+    context.sourceCode,
+    callback,
+    topLevelAwait,
+    TEST_AND_SUITE_NAMES,
+  ).map(test => toSecondaryLocation(test, messages.droppedTest));
+
+  report(
+    context,
+    {
+      messageId: 'asyncSuiteCallback',
+      message: messages.asyncSuiteCallback,
+      node: topLevelAwait,
+    },
+    secondaryLocations,
+  );
+}
 
 /**
  * Returns the function callback of `node` when `node` is a supported suite form that runs its
@@ -91,7 +232,8 @@ export const rule: Rule.RuleModule = {
 function getRaisingSuiteCallback(
   context: Rule.RuleContext,
   node: estree.CallExpression,
-): estree.FunctionExpression | estree.ArrowFunctionExpression | undefined {
+  parserServices: Rule.RuleContext['sourceCode']['parserServices'],
+): RaisingSuiteCallback | undefined {
   const parts = getMochaCalleeParts(node.callee);
   if (parts === undefined || !SUITE_BASE_NAMES.has(parts.base.name)) {
     return undefined;
@@ -102,11 +244,31 @@ function getRaisingSuiteCallback(
   if (!isSupportedFrameworkConstruct(context, parts.base)) {
     return undefined;
   }
-  // The callback is the function literal among the arguments. A callback passed by reference
-  // (an identifier, a call, etc.) is not a literal and is intentionally not reported.
-  return node.arguments.find(isSuiteCallback);
+  const inlineCallback = node.arguments.find(isSuiteCallback);
+  if (inlineCallback) {
+    return { callback: inlineCallback, byReference: false };
+  }
+  if (!isRequiredParserServices(parserServices)) {
+    return undefined;
+  }
+  for (const argument of node.arguments) {
+    if (argument.type !== 'Identifier') {
+      continue;
+    }
+    const decl = followReferenceToDeclaration(argument, parserServices);
+    if (!decl) {
+      continue;
+    }
+    const esTreeDecl = parserServices.tsNodeToESTreeNodeMap.get(decl) as estree.Node | undefined;
+    if (!esTreeDecl || !isFunctionLike(esTreeDecl)) {
+      continue;
+    }
+    return { callback: esTreeDecl, byReference: true };
+  }
+  return undefined;
 }
 
+/** Type guard for inline function callbacks (the describe callback is always an expression). */
 function isSuiteCallback(
   node: estree.Node,
 ): node is estree.FunctionExpression | estree.ArrowFunctionExpression {
@@ -140,144 +302,240 @@ function isSupportedFrameworkConstruct(
   return true;
 }
 
-function reportAsyncCallback(
+function reportRemoveAsync(
   context: Rule.RuleContext,
-  callback: estree.FunctionExpression | estree.ArrowFunctionExpression,
+  callback: FunctionLike,
+  withQuickFix: boolean,
 ): void {
-  const topLevelAwait = findFirstTopLevelAwait(context, callback);
-  if (topLevelAwait === undefined) {
-    // No top-level await: every test still registers, but the `async` keyword is misleading and
-    // makes the callback return a promise the framework silently ignores. A quick fix removes it.
-    const asyncToken = context.sourceCode.getFirstToken(callback);
-    if (asyncToken?.value !== 'async') {
-      return;
-    }
-    const tokenAfterAsync = context.sourceCode.getTokenAfter(asyncToken);
-    // This rule declares `hasSecondaries`, so the linter decodes every issue message of S8785 as
-    // an encoded payload. Route this report through the `report` helper too (with no secondary
-    // locations) so its message is encoded consistently; a raw `context.report` would emit a plain
-    // string that the decoder fails to `JSON.parse`.
-    report(context, {
-      loc: asyncToken.loc,
-      messageId: 'removeAsync',
-      message: messages.removeAsync,
-      suggest: [
-        {
-          messageId: 'removeAsyncQuickFix',
-          fix: fixer =>
-            fixer.removeRange([
-              asyncToken.range[0],
-              tokenAfterAsync?.range[0] ?? asyncToken.range[1],
-            ]),
-        },
-      ],
-    });
+  const asyncToken = context.sourceCode.getFirstToken(callback);
+  if (asyncToken?.value !== 'async') {
     return;
   }
+  const tokenAfterAsync = context.sourceCode.getTokenAfter(asyncToken);
+  // This rule declares `hasSecondaries`, so the linter decodes every issue message of S8785 as
+  // an encoded payload. Route this report through the `report` helper too (with no secondary
+  // locations) so its message is encoded consistently; a raw `context.report` would emit a plain
+  // string that the decoder fails to `JSON.parse`.
+  report(context, {
+    loc: asyncToken.loc,
+    messageId: 'removeAsync',
+    message: messages.removeAsync,
+    ...(withQuickFix
+      ? {
+          suggest: [
+            {
+              messageId: 'removeAsyncQuickFix',
+              fix: fixer =>
+                fixer.removeRange([
+                  asyncToken.range[0],
+                  tokenAfterAsync?.range[0] ?? asyncToken.range[1],
+                ]),
+            },
+          ],
+        }
+      : {}),
+  });
+}
 
-  // A top-level await: the framework registers whatever was scheduled before it and moves on, so
-  // tests declared afterwards are silently dropped. No safe automated fix exists.
-  const secondaryLocations = findTestsRegisteredAfter(
+/**
+ * Walks the top-level statements of `callback`'s body (not crossing function boundaries) and
+ * reports `asyncHelperCall` for each `CallExpression` statement whose target is an async function
+ * with at least one test registered after a top-level `await` inside it.
+ *
+ * `skipAwait` is an optional `AwaitExpression` node already handled by the caller (the top-level
+ * await of the describe callback). Any statement whose expression IS that node is skipped.
+ *
+ * Returns `true` if at least one issue was reported.
+ */
+function reportUnawaitedAsyncHelperCalls(
+  context: Rule.RuleContext,
+  services: RequiredParserServices,
+  callback: FunctionLike,
+  skipAwait?: estree.Node,
+): boolean {
+  const body = callback.body;
+  if (!body) {
+    return false;
+  }
+  const { sourceCode } = context;
+  let reported = false;
+  // Block body: seed the stack with direct statement children.
+  // Concise-body arrow (`() => expr`): seed with the qexpression itself so it falls through the
+  // while loop below. The expression is identified inside the loop by `current === body`.
+  const stack: estree.Node[] =
+    body.type === 'BlockStatement'
+      ? [...childrenOf(body, sourceCode.visitorKeys)]
+      : [body as estree.Node];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current || isFunctionNode(current)) {
+      continue;
+    }
+    let expr: estree.Expression | null = null;
+    if (current.type === 'ExpressionStatement') {
+      expr = current.expression;
+    } else if (body.type !== 'BlockStatement' && current === body) {
+      expr = body as estree.Expression;
+    }
+    if (expr === null) {
+      stack.push(...childrenOf(current, sourceCode.visitorKeys));
+      continue;
+    }
+    const nextDescribeAwait =
+      body.type === 'BlockStatement'
+        ? findNextTopLevelAwaitAfter(sourceCode, body, expr)
+        : undefined;
+    reported =
+      reportAsyncHelperExpression(
+        context,
+        services,
+        expr,
+        callback,
+        skipAwait,
+        nextDescribeAwait,
+      ) || reported;
+  }
+  return reported;
+}
+
+function reportAsyncHelperExpression(
+  context: Rule.RuleContext,
+  services: RequiredParserServices,
+  expr: estree.Expression,
+  callback: FunctionLike,
+  skipAwait?: estree.Node,
+  nextDescribeAwait?: estree.Node,
+): boolean {
+  // Unawaited call: helper() / () => helper()
+  if (expr.type === 'CallExpression' && !shouldSkipHelperResolution(context, expr)) {
+    return reportAsyncHelperCall(context, services, expr, callback);
+  }
+  // Awaited call: await helper() / async () => await helper()
+  // Skip if this is the top-level-await already handled by the outer detection branch.
+  if (
+    expr.type === 'AwaitExpression' &&
+    expr !== skipAwait &&
+    expr.argument.type === 'CallExpression' &&
+    !shouldSkipHelperResolution(context, expr.argument)
+  ) {
+    return reportAsyncHelperCall(
+      context,
+      services,
+      expr.argument,
+      callback,
+      expr,
+      nextDescribeAwait,
+    );
+  }
+  return false;
+}
+
+function findNextTopLevelAwaitAfter(
+  sourceCode: Rule.RuleContext['sourceCode'],
+  body: estree.BlockStatement,
+  afterNode: estree.Node,
+): estree.Node | undefined {
+  const afterEnd = sourceCode.getRange(afterNode)[1];
+  for (const stmt of body.body) {
+    if (
+      stmt.type === 'ExpressionStatement' &&
+      stmt.expression.type === 'AwaitExpression' &&
+      sourceCode.getRange(stmt)[0] >= afterEnd
+    ) {
+      return stmt.expression;
+    }
+  }
+  return undefined;
+}
+
+function shouldSkipHelperResolution(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+): boolean {
+  const calleeParts = getMochaCalleeParts(call.callee);
+  const isKnownFrameworkRegistration =
+    calleeParts !== undefined &&
+    TEST_FRAMEWORK_STRUCTURE_FUNCTIONS.has(calleeParts.base.name) &&
+    isSupportedFrameworkConstruct(context, calleeParts.base);
+  return isKnownFrameworkRegistration || isAssertion(context, call);
+}
+
+/**
+ * Checks whether `callNode` targets an async function that drops tests after its first top-level
+ * `await`. If so, reports `asyncHelperCall` on `callNode` with the dropped tests as secondaries.
+ *
+ * When `awaitNode` is provided, the call is awaited at `awaitNode` inside the describe callback,
+ * so tests dropped in the describe body after `awaitNode` are also collected as secondaries.
+ *
+ * Returns `true` if an issue was reported.
+ */
+function reportAsyncHelperCall(
+  context: Rule.RuleContext,
+  services: RequiredParserServices,
+  callNode: estree.CallExpression,
+  describeCallback: FunctionLike,
+  awaitNode?: estree.Node,
+  nextDescribeAwait?: estree.Node,
+): boolean {
+  const decl = followCallToDeclaration(callNode, services);
+  if (!decl) {
+    return false;
+  }
+
+  // Only flag async functions.
+  if (!(ts.getCombinedModifierFlags(decl) & ts.ModifierFlags.Async)) {
+    return false;
+  }
+
+  // Get the ESTree equivalent — skip cross-file declarations (no ESTree nodes available for
+  // secondary locations, and we cannot confirm dropped tests without the body).
+  const esTreeDecl = services.tsNodeToESTreeNodeMap.get(decl) as estree.Node | undefined;
+  if (!esTreeDecl || !isFunctionLike(esTreeDecl)) {
+    return false;
+  }
+
+  // Find the first top-level await inside the helper.
+  const helperAwait = findFirstTopLevelAwait(context, esTreeDecl);
+  if (!helperAwait) {
+    return false;
+  }
+
+  // Require at least one test dropped after the await inside the helper.
+  const droppedInHelper = findTestsRegisteredAfter(
     context.sourceCode,
-    callback,
-    topLevelAwait,
-  ).map(test => toSecondaryLocation(test, messages.droppedTest));
+    esTreeDecl,
+    helperAwait,
+    TEST_AND_SUITE_NAMES,
+  );
+  if (droppedInHelper.length === 0) {
+    return false;
+  }
+
+  // If the call is awaited inside the describe callback, also collect tests dropped in the
+  // describe body after the await expression, up to the next top-level await (if any) to avoid
+  // overlapping secondaries when multiple sequential awaited helpers are reported.
+  const droppedInDescribe = awaitNode
+    ? findTestsRegisteredAfter(
+        context.sourceCode,
+        describeCallback,
+        awaitNode,
+        TEST_AND_SUITE_NAMES,
+        nextDescribeAwait,
+      )
+    : [];
+
+  const secondaryLocations = [...droppedInHelper, ...droppedInDescribe].map(test =>
+    toSecondaryLocation(test, messages.droppedTest),
+  );
+
   report(
     context,
     {
-      messageId: 'asyncSuiteCallback',
-      message: messages.asyncSuiteCallback,
-      node: topLevelAwait,
+      messageId: 'asyncHelperCall',
+      message: messages.asyncHelperCall,
+      node: callNode,
     },
     secondaryLocations,
   );
-}
-
-/**
- * Finds the earliest `await` (or `for await...of`) that runs directly in the callback's body,
- * i.e. not nested inside another function. Returns `undefined` when there is none.
- */
-function findFirstTopLevelAwait(
-  context: Rule.RuleContext,
-  callback: estree.FunctionExpression | estree.ArrowFunctionExpression,
-): estree.Node | undefined {
-  const { sourceCode } = context;
-  const stack: estree.Node[] = [callback.body];
-  let earliest: estree.Node | undefined;
-  let earliestStart = Infinity;
-  while (stack.length > 0) {
-    const current = stack.pop();
-    if (current === undefined || isFunctionNode(current)) {
-      // A nested function has its own execution context; its awaits are not top-level here.
-      continue;
-    }
-    if (isTopLevelAwait(current)) {
-      const start = sourceCode.getRange(current)[0];
-      if (start < earliestStart) {
-        earliest = current;
-        earliestStart = start;
-      }
-    }
-    stack.push(...childrenOf(current, sourceCode.visitorKeys));
-  }
-  return earliest;
-}
-
-function isTopLevelAwait(node: estree.Node): boolean {
-  return (
-    node.type === 'AwaitExpression' ||
-    (node.type === 'ForOfStatement' && (node as estree.ForOfStatement & { await: boolean }).await)
-  );
-}
-
-/**
- * Collects the test/suite registrations declared in the callback body after the given await node.
- * Returns the callee of each such call, to be used as a secondary location.
- *
- * The walk descends into nested blocks (`if`, `try`, loops, ...) because a registration there is
- * dropped just like a top-level one: once the callback suspends on the await, everything that runs
- * afterwards does so too late to be registered. It stops at nested function boundaries — a test
- * inside a dropped nested suite's own callback belongs to that suite's registration, not to a
- * separate dropped registration, so only the nested suite's callee is collected.
- */
-function findTestsRegisteredAfter(
-  sourceCode: SourceCode,
-  callback: estree.FunctionExpression | estree.ArrowFunctionExpression,
-  awaitNode: estree.Node,
-): estree.Node[] {
-  if (callback.body.type !== 'BlockStatement') {
-    return [];
-  }
-  // The offset at which the callback suspends. A `for await...of` suspends at the loop itself (the
-  // first `iterator.next()` call, even for a synchronous iterable), so its entire body is dropped
-  // too — use the loop's start. A plain `await` only drops what follows it — use the await's end.
-  const suspendOffset =
-    awaitNode.type === 'ForOfStatement'
-      ? sourceCode.getRange(awaitNode)[0]
-      : sourceCode.getRange(awaitNode)[1];
-  const tests: estree.Node[] = [];
-  const stack: estree.Node[] = [...childrenOf(callback.body, sourceCode.visitorKeys)];
-  while (stack.length > 0) {
-    const current = stack.pop();
-    if (current === undefined || isFunctionNode(current)) {
-      continue;
-    }
-    if (
-      current.type === 'ExpressionStatement' &&
-      current.expression.type === 'CallExpression' &&
-      sourceCode.getRange(current)[0] >= suspendOffset
-    ) {
-      const parts = getMochaCalleeParts(current.expression.callee);
-      if (parts && TEST_AND_SUITE_NAMES.has(parts.base.name)) {
-        tests.push(current.expression.callee);
-        // Don't descend into the registered call: its own callback is a function boundary and any
-        // tests it contains belong to its registration, not to a separate dropped one.
-        continue;
-      }
-    }
-    stack.push(...childrenOf(current, sourceCode.visitorKeys));
-  }
-  // The stack-based walk yields nodes out of source order; sort so secondary locations are emitted
-  // deterministically (asserted in unit tests, dumped in ruling).
-  return tests.sort((a, b) => sourceCode.getRange(a)[0] - sourceCode.getRange(b)[0]);
+  return true;
 }

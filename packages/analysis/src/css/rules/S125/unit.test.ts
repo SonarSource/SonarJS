@@ -48,6 +48,14 @@ describe('S125', () => {
       ],
     }));
 
+  it('declaration with whitespace-only value', () =>
+    ruleTester.invalid({
+      code: '/* color: ; */',
+      errors: [
+        { text: 'Remove this commented out code. (sonar/no-commented-code)', line: 1, column: 1 },
+      ],
+    }));
+
   it('selector declaration', () =>
     ruleTester.invalid({
       code: '/* p { color: blue; } */',

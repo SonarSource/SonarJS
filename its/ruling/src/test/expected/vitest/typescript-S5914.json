@@ -1,7 +1,4 @@
 {
-"vitest:test/browser/fixtures/failing/failing.test.ts": [
-11
-],
 "vitest:test/browser/fixtures/inspect/math.test.ts": [
 4
 ],
@@ -15,22 +12,13 @@
 27
 ],
 "vitest:test/cli/fixtures/bail-race/a.test.ts": [
-4,
-8
+4
 ],
 "vitest:test/cli/fixtures/basic/basic.test.ts": [
 4
 ],
-"vitest:test/cli/fixtures/benchmarking/basic/only.bench.ts": [
-10,
-22,
-34,
-44,
-56
-],
 "vitest:test/cli/fixtures/config/bail/test/first.test.ts": [
 5,
-9,
 13
 ],
 "vitest:test/cli/fixtures/config/bail/test/second.test.ts": [
@@ -53,12 +41,6 @@
 "vitest:test/cli/fixtures/fails/hooks-timeout-before-hook-cleanup-callback.test.ts": [
 6,
 13
-],
-"vitest:test/cli/fixtures/fails/nested-suite.test.ts": [
-9
-],
-"vitest:test/cli/fixtures/fails/poll-no-awaited.test.ts": [
-19
 ],
 "vitest:test/cli/fixtures/fails/test-extend/fixture-error.test.ts": [
 14,
@@ -86,8 +68,7 @@
 7
 ],
 "vitest:test/cli/fixtures/list/math.test.ts": [
-6,
-10
+6
 ],
 "vitest:test/cli/fixtures/location-filters/basic.test.ts": [
 6,
@@ -124,12 +105,8 @@
 ],
 "vitest:test/cli/fixtures/reported-tasks/1_first.test.ts": [
 5,
-10,
-27,
-36,
 41,
 48,
-52,
 56,
 60,
 75
@@ -148,21 +125,8 @@
 "vitest:test/cli/fixtures/reporters/console-simple.test.ts": [
 6
 ],
-"vitest:test/cli/fixtures/reporters/console-some-failing.test.ts": [
-11,
-25
-],
 "vitest:test/cli/fixtures/reporters/console.test.ts": [
 37
-],
-"vitest:test/cli/fixtures/reporters/default/a.test.ts": [
-19
-],
-"vitest:test/cli/fixtures/reporters/default/b1.test.ts": [
-19
-],
-"vitest:test/cli/fixtures/reporters/default/b2.test.ts": [
-19
 ],
 "vitest:test/cli/fixtures/reporters/function-as-name.test.ts": [
 8,
@@ -171,9 +135,6 @@
 26,
 32,
 38
-],
-"vitest:test/cli/fixtures/reporters/github-actions/flaky/math.spec.ts": [
-34
 ],
 "vitest:test/cli/fixtures/reporters/import-durations-throws.test.ts": [
 5
@@ -184,20 +145,12 @@
 "vitest:test/cli/fixtures/reporters/junit-cli-options/sample.test.ts": [
 4
 ],
-"vitest:test/cli/fixtures/reporters/merge-errors/basic.test.ts": [
+"vitest:test/cli/fixtures/reporters/merge-reports/first.test.ts": [
 10
 ],
-"vitest:test/cli/fixtures/reporters/merge-reports/first.test.ts": [
-10,
-15
-],
 "vitest:test/cli/fixtures/reporters/merge-reports/second.test.ts": [
-5,
 10,
 14
-],
-"vitest:test/cli/fixtures/reporters/metadata/metadata.test.ts": [
-11
 ],
 "vitest:test/cli/fixtures/reporters/repeats.test.ts": [
 4
@@ -206,21 +159,13 @@
 5
 ],
 "vitest:test/cli/fixtures/reporters/some-failing.test.ts": [
-4,
-8
-],
-"vitest:test/cli/fixtures/reporters/verbose/example-1.test.ts": [
-19,
-32
+4
 ],
 "vitest:test/cli/fixtures/ssr-runner-project/project/basic.test.ts": [
 4
 ],
 "vitest:test/cli/fixtures/ssr-runner/basic.test.ts": [
 4
-],
-"vitest:test/cli/fixtures/stacktraces/mocked-imported.test.ts": [
-6
 ],
 "vitest:test/cli/fixtures/standalone/basic.test.ts": [
 4
@@ -247,9 +192,6 @@
 4
 ],
 "vitest:test/config/fixtures/filters/test/config.test.ts": [
-4
-],
-"vitest:test/config/fixtures/filters/test/dont-run-this.test.ts": [
 4
 ],
 "vitest:test/config/fixtures/filters/test/example.test.ts": [
@@ -310,17 +252,11 @@
 413,
 422,
 428,
-432,
-433,
 451,
 1210,
 1219,
 1228,
-1237,
-2100,
-2101,
-2103,
-2104
+1237
 ],
 "vitest:test/core/test/lot-of-tests.test.ts": [
 12
@@ -335,35 +271,15 @@
 "vitest:test/core/test/mocking/cyclic-import-original.spec.ts": [
 12
 ],
-"vitest:test/core/test/modes.test.ts": [
-110
-],
 "vitest:test/core/test/nested-only.test.ts": [
 6
 ],
 "vitest:test/core/test/nested-suite.test.ts": [
 15
 ],
-"vitest:test/core/test/only.test.ts": [
-14,
-26,
-38,
-48,
-60
-],
-"vitest:test/core/test/repeats.test.ts": [
-47
-],
 "vitest:test/core/test/run-if.test.ts": [
 11,
 19
-],
-"vitest:test/core/test/skip.test.ts": [
-8,
-14,
-20,
-29,
-38
 ],
 "vitest:test/core/test/sourcemap.test.ts": [
 4,
@@ -378,9 +294,6 @@
 ],
 "vitest:test/ui/fixtures/console.test.ts": [
 69
-],
-"vitest:test/ui/fixtures/error.test.ts": [
-5
 ],
 "vitest:test/ui/fixtures/task-name.test.ts": [
 4,

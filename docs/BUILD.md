@@ -112,6 +112,83 @@ Validate quickfix declarations:
 npm run validate-quickfix
 ```
 
+## Baseline CI mismatches
+
+Local builds and CI do not consume RSPEC data the same way:
+
+- Normal local workflows such as `npm run bbf`, `npm run generate-meta`, and `mvn install` reuse
+  the tracked JavaScript rule JSON already present in the checkout unless you explicitly run
+  `npm run rspec:refresh`.
+- In GitHub Actions, `prepare_rspec_rule_data` refreshes RSPEC first and uploads an
+  `rspec-rule-data-${github.sha}` artifact. Downstream jobs use that refreshed artifact instead of
+  the tracked JSON from the branch.
+- The nightly `generated_files_freshness` workflow keeps the tracked JSON on `master` reasonably
+  fresh, but pull request CI does not wait for those tracked files to be updated.
+
+Because of that, pull request CI can fail even when the tracked JSON in the branch still looks
+consistent.
+
+In other words, CI is validating against freshly refreshed RSPEC data, not only against the metadata
+tracked in Git.
+
+One recurring failure class is temporary drift between freshly refreshed RSPEC metadata and the
+SonarJS implementation. This can happen in either direction when RSPEC and SonarJS changes merge in
+different orders, so `master` can temporarily go red until the lagging side catches up.
+
+One common symptom is:
+
+```text
+Mismatch between RSPEC metadata and implementation for fixable attribute in rule ...
+```
+
+That error is thrown later in the build when a rule module calls `generateMeta(...)`. Another common
+surface is `npm run validate-quickfix`, which can fail with messages such as:
+
+- `RSPEC declares quickfix='covered' but rule has neither fixable nor hasSuggestions`
+- `Rule has fixable or hasSuggestions but RSPEC doesn't declare quickfix='covered'`
+- `Rule is fixable but meta.ts doesn't export quickFixMessage`
+
+When one of these failures appears in CI:
+
+1. Identify the failing rule and check whether your pull request actually changes that rule.
+2. Rebase once on the latest `origin/master` to confirm the mismatch is not already fixed upstream.
+3. If the same failure persists after rebasing and the rule is still unrelated to your change,
+   treat it as a baseline blocker rather than as work to absorb into your pull request.
+4. Determine which side is behind:
+   - If RSPEC now says `quickfix='covered'` but the SonarJS rule has neither `fixable` nor
+     `hasSuggestions`, the SonarJS implementation usually still needs to catch up.
+   - If the SonarJS rule already has `fixable` or `hasSuggestions` but RSPEC does not declare
+     `quickfix='covered'`, the RSPEC metadata usually still needs to catch up.
+   - If the rule is fixable but `quickFixMessage` is missing, SonarJS metadata still needs to catch
+     up.
+5. Fix the lagging repository, or wait for the already-merged fix to reach the branch you are
+   building.
+6. Do not patch unrelated rules or commit unrelated refreshed RSPEC metadata just to make the pull
+   request green.
+
+When the mismatch is intentional because your SonarJS pull request depends on an RSPEC change that
+is not yet merged on the default RSPEC branch, make that dependency explicit:
+
+- create or update the matching RSPEC pull request
+- point the root `rspec.sha` file in the SonarJS branch to a commit from that RSPEC branch
+- let CI refresh against that exact RSPEC revision while the two pull requests move together
+
+This is the normal workflow both when adding quickfix support and needing RSPEC to start declaring
+`quickfix='covered'`, and when removing quickfix support and needing RSPEC to stop declaring it.
+Remove the temporary root `rspec.sha` before merging to `master` once the RSPEC change has landed on
+the intended default branch.
+
+Concrete examples:
+
+- `S5914` started failing in CI after refreshed RSPEC metadata declared `quickfix='covered'` before
+  the matching SonarJS implementation change had merged. That was fixed on the SonarJS side in
+  [#7435](https://github.com/SonarSource/SonarJS/pull/7435).
+- `S7743` and `S7761` failed in `validate-quickfix` during an unrelated SonarJS update because the
+  RSPEC quickfix metadata was lagging. That was fixed on the RSPEC side in
+  [SonarSource/rspec#7088](https://github.com/SonarSource/rspec/pull/7088).
+
+This guidance applies to humans and automated agents alike.
+
 ## Reactor order
 
 The `sonar-plugin` reactor builds modules in this order:

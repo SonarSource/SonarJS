@@ -1,8 +1,13 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>SonarSource/renovate-config:languages-team"],
-  "configMigration": true,
-  "enabledManagers": ["github-actions", "maven", "npm"],
+  "extends": [
+    "local>SonarSource/core-languages-tooling-public:renovate-config"
+  ],
+  "enabledManagers": [
+    "github-actions",
+    "maven",
+    "npm"
+  ],
   "dockerfile": {
     "enabled": true
   },
@@ -20,40 +25,47 @@
   "packageRules": [
     {
       "description": "Ignore project revision property - managed by CI during release",
-      "matchManagers": ["maven"],
+      "matchManagers": [
+        "maven"
+      ],
       "matchCurrentVersion": "/-SNAPSHOT$/",
       "enabled": false,
-      "matchDepNames": ["/^org\\.sonarsource\\.javascript:/"]
-    },
-    {
-      "description": "Don't group updates by default",
-      "matchPackageNames": ["*"],
-      "groupName": null
+      "matchDepNames": [
+        "/^org\\.sonarsource\\.javascript:/"
+      ]
     },
     {
       "description": "Group npm updates per source repository (monorepo), fallback to per dependency",
-      "matchManagers": ["npm"],
+      "matchManagers": [
+        "npm"
+      ],
       "groupName": "{{#if sourceRepo}}{{sourceRepo}} monorepo{{else}}{{depName}}{{/if}}",
       "groupSlug": "{{#if sourceRepo}}{{sourceRepo}}{{else}}{{depName}}{{/if}}"
     },
     {
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "pinDigests": false
     },
     {
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["pin", "rollback"],
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchUpdateTypes": [
+        "pin",
+        "rollback"
+      ],
       "enabled": false
     },
     {
-      "matchUpdateTypes": ["minor", "patch"],
-      "matchCurrentVersion": "!/^0/",
-      "automerge": false
-    },
-    {
       "description": "@typescript/native-preview - dev builds update daily, limit to weekly",
-      "matchPackageNames": ["@typescript/native-preview"],
-      "extends": ["schedule:weekly"]
+      "matchPackageNames": [
+        "@typescript/native-preview"
+      ],
+      "extends": [
+        "schedule:weekly"
+      ]
     }
   ],
   "hostRules": [
@@ -62,8 +74,5 @@
       "matchHost": "https://repox.jfrog.io/artifactory/api/npm/npm/",
       "token": "{{ secrets.REPOX_TOKEN }}"
     }
-  ],
-  "autoApprove": true,
-  "prCreation": "immediate",
-  "rebaseWhen": "never"
+  ]
 }

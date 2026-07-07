@@ -38,7 +38,7 @@ jobs:
     name: Release
     uses: SonarSource/release-github-actions/.github/workflows/automated-release.yml@v1
     permissions:
-      statuses: read
+      statuses: write
       id-token: write
       contents: write
       actions: write
@@ -53,6 +53,9 @@ jobs:
       new-version: ${{ github.event.inputs.new-version }}
       sqc-integration: ${{ github.event.inputs.sqc-integration == 'true' }}
       sqs-integration: ${{ github.event.inputs.sqs-integration == 'true' }}
+      # SonarJS SQAA releases are handled manually from the dedicated SQAA workflow
+      # and then handed off through sonar-analysis-as-a-service.
+      sqaa-integration: false
       create-slvs-ticket: true
       create-slvscode-ticket: true
       create-sle-ticket: true

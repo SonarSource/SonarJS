@@ -87,7 +87,7 @@ export type Configuration = {
   disableTypeChecking: boolean /* sonar.javascript.disableTypeChecking - whether to completely disable TypeScript type checking */;
   skipNodeModuleLookupOutsideBaseDir: boolean /* sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir - whether to skip node_modules lookups outside baseDir in TS compiler host */;
   ecmaScriptVersion?: string /* sonar.javascript.ecmaScriptVersion - explicit ES version override e.g. 'ES2022' */;
-  reportNclocForTestFiles: boolean /* In gRPC/A3S context, ncloc for test files is computed by the analyzer. In SQ context, ncloc is not computed for tests. */;
+  reportNclocForTestFiles: boolean /* In gRPC/SQAA (previously A3S) context, ncloc for test files is computed by the analyzer. In SQ context, ncloc is not computed for tests. */;
 };
 
 export type ConfigurationInput = {

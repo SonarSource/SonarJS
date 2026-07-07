@@ -157,8 +157,8 @@ export function patchParsingErrorMessage(
   embeddedJS: EmbeddedJS,
 ): string {
   /* Extracts location information of the form `(<line>:<column>)` */
-  const regex = /((?<line>\d+):(?<column>\d+))/;
-  const found = message.match(regex);
+  const regex = /\((?<line>\d+):(?<column>\d+)\)/;
+  const found = regex.exec(message);
   if (found?.groups) {
     const line = found.groups.line;
     const column = Number(found.groups.column);

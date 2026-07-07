@@ -125,6 +125,29 @@ describe('S8780', () => {
             });
           `,
         },
+        {
+          code: `
+            import { expect, test } from '@jest/globals';
+
+            test('should log errors and mark job as failed', (done) => {
+              failingJob.once('error', () => {
+                expect(failingJob.status).toBe('FAILED');
+                done();
+              });
+              expect(failingJob.run()).rejects.toThrow('Processor error');
+            });
+          `,
+        },
+        {
+          code: `
+            import { expect, it } from 'vitest';
+
+            it('ignores done-style callbacks', function (done) {
+              expect(fetchUser(1)).resolves.toHaveProperty('name');
+              done();
+            });
+          `,
+        },
       ],
       invalid: [
         {
@@ -247,6 +270,26 @@ describe('S8780', () => {
 
             playwright.test('shows the account menu after login', async ({ page }) => {
               playwright.expect(page.getByRole('button', { name: 'Account' })).toBeVisible();
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { test, expect } from '@playwright/test';
+
+            test('shows the account menu after login accessed with computed member syntax', async ({ page }) => {
+              expect(page.getByRole('button', { name: 'Account' }))['not'].toBeVisible();
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { expect, it } from '@jest/globals';
+
+            it('waits for an async value accessed with computed member syntax', () => {
+              expect(fetchUser(1))['not'].resolves.toHaveProperty('name');
             });
           `,
           errors: 1,
