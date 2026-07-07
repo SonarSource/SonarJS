@@ -292,6 +292,11 @@ new DragInstance(params, startEvent, eBody);`,
             code: `function bind(window) { new window.ClipboardJS('.copy-button'); }`,
             errors: 1,
           },
+          {
+            // paper.Point is a value object; the global-form exception must not suppress it
+            code: `new paper.Point(10, 20);`,
+            errors: 1,
+          },
         ],
       },
     );

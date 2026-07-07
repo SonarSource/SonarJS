@@ -24,6 +24,17 @@ import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
 import { isIdentifier, getVariableFromName } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
+/**
+ * Paper.js constructors that auto-register with the active project layer.
+ * Value objects (Point, Size, Color, Matrix, etc.) are intentionally excluded.
+ */
+const PAPER_ITEM_CONSTRUCTORS = new Set([
+  'Layer', 'Group', 'Raster', 'Path', 'CompoundPath', 'PointText', 'SymbolItem', 'Project',
+  'Path.Line', 'Path.Circle', 'Path.Rectangle', 'Path.Ellipse',
+  'Path.Arc', 'Path.RegularPolygon', 'Path.Star',
+  'Shape.Circle', 'Shape.Rectangle', 'Shape.Ellipse',
+]);
+
 /** DOM selection method names commonly used for element selection */
 const DOM_SELECTION_METHODS = [
   'querySelector',
@@ -133,6 +144,7 @@ function isFqnException(fqn: string): boolean {
  * Checks explicitly approved global/member-expression forms.
  * For window.ClipboardJS, paper.*, and paperScope.*, verifies the root identifier
  * is not a local variable or import (i.e. it is a true global).
+ * For paper.* and paperScope.*, only suppresses known scene-graph constructors.
  */
 function isGlobalFormException(
   context: Rule.RuleContext,
@@ -142,13 +154,22 @@ function isGlobalFormException(
   if (calleeText === 'Notification') {
     return true;
   }
-  for (const rootName of ['window', 'paper', 'paperScope']) {
-    const prefix = rootName === 'window' ? 'window.ClipboardJS' : `${rootName}.`;
-    if (rootName === 'window' ? calleeText === prefix : calleeText.startsWith(prefix)) {
-      const variable = getVariableFromName(context, rootName, callee);
-      // Suppress only when rootName is a true global (not locally declared)
-      if (variable == null || variable.defs.length === 0) {
-        return true;
+  if (calleeText === 'window.ClipboardJS') {
+    const variable = getVariableFromName(context, 'window', callee);
+    if (variable == null || variable.defs.length === 0) {
+      return true;
+    }
+  }
+  for (const rootName of ['paper', 'paperScope']) {
+    const prefix = `${rootName}.`;
+    if (calleeText.startsWith(prefix)) {
+      const itemName = calleeText.slice(prefix.length);
+      if (PAPER_ITEM_CONSTRUCTORS.has(itemName)) {
+        const variable = getVariableFromName(context, rootName, callee);
+        // Suppress only when rootName is a true global (not locally declared)
+        if (variable == null || variable.defs.length === 0) {
+          return true;
+        }
       }
     }
   }
