@@ -18,3 +18,16 @@ describe('supertest', function () { // Compliant
     return supertest(app).get(`/foo/bar`);
   });
 });
+
+import { describe as d, it as t } from 'node:test';
+import assert from 'node:assert/strict';
+
+d('node:assert/strict', () => {
+  t('should recognize assert/strict assertions', () => { // Compliant
+    assert.strictEqual(1, 1);
+  });
+
+  t('should raise without assertions', () => { // Noncompliant
+    const x = 1 + 2;
+  });
+});
