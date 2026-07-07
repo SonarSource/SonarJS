@@ -18,16 +18,21 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import { childrenOf } from '../../helpers/ancestor.js';
 import {
   getVariableFromScope,
   isBinaryPlus,
   isFunctionNode,
   isIfStatement,
+  isStringLiteral,
 } from '../../helpers/ast.js';
 import {
   flattenConjunction,
   flattenDisjunction,
+  getDirectIfBranch,
+  getLoopAncestors,
+  hasWriteInSubtree,
+  hasWriteInSubtreeBefore,
+  isTypeofVariableComparedToStringLiteral,
   type NoBaseToStringMatcherContext,
 } from './helpers.js';
 
@@ -43,7 +48,7 @@ const SAFE_TYPEOF_VALUES = new Set([
 
 /**
  * Suppresses string concatenation or template interpolation reports when an enclosing
- * if-consequent is guarded by typeof checks proving the same bound value is primitive.
+ * if branch is guarded by typeof checks proving the same bound value is primitive.
  */
 export function isGuardedByTypeofCheckFalsePositive(
   reportDescriptor: Rule.ReportDescriptor,
@@ -67,7 +72,7 @@ export function isGuardedByTypeofCheckFalsePositive(
   while (current?.parent) {
     const parent: TSESTree.Node = current.parent;
     if (isIfStatement(parent)) {
-      const branch = getBranchContainingNode(parent, current);
+      const branch = getDirectIfBranch(parent, current);
       if (
         branch !== null &&
         conditionMakesBranchSafeToStringify(
@@ -121,19 +126,6 @@ function isImplicitlyStringified(node: TSESTree.Identifier): boolean {
   return false;
 }
 
-function getBranchContainingNode(
-  ifStatement: TSESTree.IfStatement,
-  node: TSESTree.Node,
-): { node: TSESTree.Statement; consequent: boolean } | null {
-  if (ifStatement.consequent === node) {
-    return { node: ifStatement.consequent, consequent: true };
-  }
-  if (ifStatement.alternate === node) {
-    return { node: ifStatement.alternate, consequent: false };
-  }
-  return null;
-}
-
 function conditionMakesBranchSafeToStringify(
   condition: TSESTree.Expression,
   variable: Scope.Variable,
@@ -141,25 +133,20 @@ function conditionMakesBranchSafeToStringify(
   isConsequentBranch: boolean,
 ): boolean {
   if (condition.type === 'LogicalExpression') {
+    const branchAllowsSafeStringification = (expression: TSESTree.Expression) =>
+      conditionMakesBranchSafeToStringify(expression, variable, ruleContext, isConsequentBranch);
+
     if (condition.operator === '&&') {
       const conjuncts = flattenConjunction(condition);
       return isConsequentBranch
-        ? conjuncts.some(conjunct =>
-            conditionMakesBranchSafeToStringify(conjunct, variable, ruleContext, true),
-          )
-        : conjuncts.every(conjunct =>
-            conditionMakesBranchSafeToStringify(conjunct, variable, ruleContext, false),
-          );
+        ? conjuncts.some(branchAllowsSafeStringification)
+        : conjuncts.every(branchAllowsSafeStringification);
     }
     if (condition.operator === '||') {
       const disjuncts = flattenDisjunction(condition);
       return isConsequentBranch
-        ? disjuncts.every(disjunct =>
-            conditionMakesBranchSafeToStringify(disjunct, variable, ruleContext, true),
-          )
-        : disjuncts.some(disjunct =>
-            conditionMakesBranchSafeToStringify(disjunct, variable, ruleContext, false),
-          );
+        ? disjuncts.every(branchAllowsSafeStringification)
+        : disjuncts.some(branchAllowsSafeStringification);
     }
     return false;
   }
@@ -178,73 +165,49 @@ function isTypeOfGuard(
   ruleContext: NoBaseToStringMatcherContext,
 ) {
   const { left, operator, right } = condition;
-  return (
-    (isConsequentBranch &&
-      ((operator === '===' &&
-        ((isTypeofComparison(left, right, variable, ruleContext) &&
-          isSafeTypeofLiteral(right, SAFE_TYPEOF_VALUES)) ||
-          (isTypeofComparison(right, left, variable, ruleContext) &&
-            isSafeTypeofLiteral(left, SAFE_TYPEOF_VALUES)))) ||
-        (operator === '!==' &&
-          ((isTypeofComparison(left, right, variable, ruleContext) &&
-            isTypeofLiteral(right, 'object')) ||
-            (isTypeofComparison(right, left, variable, ruleContext) &&
-              isTypeofLiteral(left, 'object')))))) ||
-    (!isConsequentBranch &&
-      operator === '===' &&
-      ((isTypeofComparison(left, right, variable, ruleContext) &&
-        isTypeofLiteral(right, 'object')) ||
-        (isTypeofComparison(right, left, variable, ruleContext) &&
-          isTypeofLiteral(left, 'object'))))
+  const isTypeofSafeValueCheck = isTypeofComparisonWithExpectedValue(
+    left,
+    right,
+    variable,
+    ruleContext,
+    isSafeTypeofValue,
   );
+  const isTypeofObjectCheck = isTypeofComparisonWithExpectedValue(
+    left,
+    right,
+    variable,
+    ruleContext,
+    node => isTypeofValue(node, 'object'),
+  );
+
+  return isConsequentBranch
+    ? (operator === '===' && isTypeofSafeValueCheck) || (operator === '!==' && isTypeofObjectCheck)
+    : operator === '===' && isTypeofObjectCheck;
 }
 
-function isTypeofComparison(
-  typeofSide: TSESTree.Expression,
-  literalSide: TSESTree.Expression,
+function isTypeofComparisonWithExpectedValue(
+  left: TSESTree.Expression,
+  right: TSESTree.Expression,
   variable: Scope.Variable,
   ruleContext: NoBaseToStringMatcherContext,
+  isExpectedValue: (node: TSESTree.Expression) => boolean,
 ): boolean {
   return (
-    literalSide.type === 'Literal' &&
-    typeof literalSide.value === 'string' &&
-    typeofSide.type === 'UnaryExpression' &&
-    typeofSide.operator === 'typeof' &&
-    typeofSide.argument.type === 'Identifier' &&
-    getVariableFromScope(
-      ruleContext.sourceCode.getScope(typeofSide.argument),
-      typeofSide.argument.name,
-    ) === variable
+    (isTypeofVariableComparedToStringLiteral(left, right, variable, ruleContext) &&
+      isExpectedValue(right)) ||
+    (isTypeofVariableComparedToStringLiteral(right, left, variable, ruleContext) &&
+      isExpectedValue(left))
   );
 }
 
-function isSafeTypeofLiteral(node: TSESTree.Expression, safeValues: ReadonlySet<string>): boolean {
-  return node.type === 'Literal' && typeof node.value === 'string' && safeValues.has(node.value);
+function isSafeTypeofValue(node: TSESTree.Expression): boolean {
+  const literal = node as estree.Node;
+  return isStringLiteral(literal) && SAFE_TYPEOF_VALUES.has(literal.value);
 }
 
-function isTypeofLiteral(node: TSESTree.Expression, value: string): boolean {
-  return node.type === 'Literal' && node.value === value;
-}
-
-function hasWriteBefore(
-  variable: Scope.Variable,
-  node: TSESTree.Node,
-  end: number,
-  ruleContext: NoBaseToStringMatcherContext,
-): boolean {
-  if (node.range[0] >= end || isFunctionNode(node as estree.Node)) {
-    return false;
-  }
-  if (
-    node.type === 'Identifier' &&
-    isWriteIdentifier(node) &&
-    getVariableFromScope(ruleContext.sourceCode.getScope(node), node.name) === variable
-  ) {
-    return true;
-  }
-  return childrenOf(node as estree.Node, ruleContext.sourceCode.visitorKeys).some(child =>
-    hasWriteBefore(variable, child as TSESTree.Node, end, ruleContext),
-  );
+function isTypeofValue(node: TSESTree.Expression, value: string): boolean {
+  const literal = node as estree.Node;
+  return isStringLiteral(literal) && literal.value === value;
 }
 
 function hasInvalidatingWrite(
@@ -254,60 +217,7 @@ function hasInvalidatingWrite(
   ruleContext: NoBaseToStringMatcherContext,
 ): boolean {
   return (
-    hasWriteBefore(variable, branch, usage.range[0], ruleContext) ||
-    getLoopAncestors(usage, branch).some(loop => hasWriteAnywhere(variable, loop, ruleContext))
-  );
-}
-
-function getLoopAncestors(node: TSESTree.Node, boundary: TSESTree.Statement): TSESTree.Node[] {
-  const loops: TSESTree.Node[] = [];
-  let current: TSESTree.Node | undefined = node;
-  while (current && current !== boundary) {
-    const parent: TSESTree.Node | undefined = current.parent;
-    if (!parent) {
-      break;
-    }
-    if (isLoopLike(parent)) {
-      loops.push(parent);
-    }
-    current = parent;
-  }
-  return loops;
-}
-
-function hasWriteAnywhere(
-  variable: Scope.Variable,
-  node: TSESTree.Node,
-  ruleContext: NoBaseToStringMatcherContext,
-): boolean {
-  if (
-    node.type === 'Identifier' &&
-    isWriteIdentifier(node) &&
-    getVariableFromScope(ruleContext.sourceCode.getScope(node), node.name) === variable
-  ) {
-    return true;
-  }
-  return childrenOf(node as estree.Node, ruleContext.sourceCode.visitorKeys).some(child =>
-    hasWriteAnywhere(variable, child as TSESTree.Node, ruleContext),
-  );
-}
-
-function isLoopLike(node: TSESTree.Node): boolean {
-  return (
-    node.type === 'WhileStatement' ||
-    node.type === 'DoWhileStatement' ||
-    node.type === 'ForStatement' ||
-    node.type === 'ForOfStatement' ||
-    node.type === 'ForInStatement'
-  );
-}
-
-function isWriteIdentifier(node: TSESTree.Identifier): boolean {
-  const parent = node.parent;
-  return (
-    (parent?.type === 'AssignmentExpression' && parent.left === node) ||
-    (parent?.type === 'AssignmentPattern' && parent.left === node) ||
-    (parent?.type === 'UpdateExpression' && parent.argument === node) ||
-    (parent?.type === 'VariableDeclarator' && parent.id === node)
+    hasWriteInSubtreeBefore(variable, branch, usage.range[0], ruleContext) ||
+    getLoopAncestors(usage, branch).some(loop => hasWriteInSubtree(variable, loop, ruleContext))
   );
 }

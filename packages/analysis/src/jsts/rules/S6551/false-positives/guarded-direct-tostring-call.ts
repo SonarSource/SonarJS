@@ -18,10 +18,19 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { childrenOf } from '../../helpers/ancestor.js';
-import { areEquivalent } from '../../helpers/equivalence.js';
 import { isCallingMethod, isFunctionNode, isIdentifier, isIfStatement } from '../../helpers/ast.js';
-import { flattenConjunction, type NoBaseToStringMatcherContext } from './helpers.js';
+import { areEquivalent } from '../../helpers/equivalence.js';
+import {
+  containsIdentifier,
+  containsIdentifierAfterStatement,
+  flattenConjunction,
+  getDirectIfBranch,
+  isCallInFirstStatementOfBranch,
+  isNonComputedToStringMemberOnReceiver,
+  isObjectPrototypeToStringMember,
+  isSingleEvaluationReceiver,
+  type NoBaseToStringMatcherContext,
+} from './helpers.js';
 
 export function isGuardedDirectToStringCallFalsePositive(
   reportDescriptor: Rule.ReportDescriptor,
@@ -76,7 +85,7 @@ function isGuardedReceiverCall(
   ruleContext: NoBaseToStringMatcherContext,
 ): boolean {
   const receiver = (call.callee as TSESTree.MemberExpression).object;
-  if (!isStableReceiver(receiver)) {
+  if (!isSingleEvaluationReceiver(receiver)) {
     return false;
   }
 
@@ -84,17 +93,11 @@ function isGuardedReceiverCall(
   while (current?.parent) {
     const parent: TSESTree.Node = current.parent;
     if (isIfStatement(parent)) {
+      const branch = getDirectIfBranch(parent, current);
       if (
-        parent.consequent === current &&
-        isCallInFirstStatementOfBranch(call, parent.consequent) &&
-        provesCustomToString(parent.test, receiver, ruleContext, true)
-      ) {
-        return true;
-      }
-      if (
-        parent.alternate === current &&
-        isCallInFirstStatementOfBranch(call, parent.alternate) &&
-        provesCustomToString(parent.test, receiver, ruleContext, false)
+        branch !== null &&
+        isCallInFirstStatementOfBranch(call, branch.node) &&
+        provesCustomToString(parent.test, receiver, ruleContext, branch.consequent)
       ) {
         return true;
       }
@@ -104,50 +107,6 @@ function isGuardedReceiverCall(
     }
     current = parent;
   }
-  return false;
-}
-
-/**
- * Matches a guarded branch only when the reported call is reached before any sibling statement:
- *
- *   if (value.toString !== Object.prototype.toString) {
- *     return value.toString(); // match
- *   }
- *
- *   if (value.toString !== Object.prototype.toString) {
- *     mutate(value);
- *     return value.toString(); // non-match
- *   }
- */
-function isCallInFirstStatementOfBranch(
-  call: TSESTree.CallExpression,
-  branch: TSESTree.Statement | null,
-): boolean {
-  if (!branch) {
-    return false;
-  }
-
-  const firstStatement = branch.type === 'BlockStatement' ? branch.body[0] : branch;
-  return firstStatement !== undefined && startsWithCall(firstStatement, call);
-}
-
-/**
- * Accepts only statement forms where the call itself is evaluated first.
- * `return value.toString()` matches; `return mutate(value) && value.toString()` does not.
- */
-function startsWithCall(statement: TSESTree.Statement, call: TSESTree.CallExpression): boolean {
-  if (statement.type === 'ReturnStatement') {
-    return statement.argument === call;
-  }
-
-  if (statement.type === 'ExpressionStatement') {
-    return statement.expression === call;
-  }
-
-  if (statement.type === 'VariableDeclaration' && statement.declarations.length === 1) {
-    return statement.declarations[0].init === call;
-  }
-
   return false;
 }
 
@@ -188,10 +147,10 @@ function provesCustomToString(
   const expectedOperator = positiveBranch ? '!==' : '===';
   return (
     condition.operator === expectedOperator &&
-    ((isReceiverToString(condition.left, receiver, ruleContext) &&
-      isObjectPrototypeToString(condition.right)) ||
-      (isObjectPrototypeToString(condition.left) &&
-        isReceiverToString(condition.right, receiver, ruleContext)))
+    ((isNonComputedToStringMemberOnReceiver(condition.left, receiver, ruleContext) &&
+      isObjectPrototypeToStringMember(condition.right)) ||
+      (isObjectPrototypeToStringMember(condition.left) &&
+        isNonComputedToStringMemberOnReceiver(condition.right, receiver, ruleContext)))
   );
 }
 
@@ -209,12 +168,12 @@ function provesReceiverToStringIsFunction(
     condition.operator === '===' &&
     ((condition.left.type === 'UnaryExpression' &&
       condition.left.operator === 'typeof' &&
-      isReceiverToString(condition.left.argument, receiver, ruleContext) &&
+      isNonComputedToStringMemberOnReceiver(condition.left.argument, receiver, ruleContext) &&
       condition.right.type === 'Literal' &&
       condition.right.value === 'function') ||
       (condition.right.type === 'UnaryExpression' &&
         condition.right.operator === 'typeof' &&
-        isReceiverToString(condition.right.argument, receiver, ruleContext) &&
+        isNonComputedToStringMemberOnReceiver(condition.right.argument, receiver, ruleContext) &&
         condition.left.type === 'Literal' &&
         condition.left.value === 'function'))
   );
@@ -290,7 +249,7 @@ function isValidatedResultCall(
   const validation = block.body[declarationIndex + 1];
   if (
     !isIfStatement(validation) ||
-    usesIdentifierAfter(block, declarationIndex + 1, resultName, ruleContext)
+    containsIdentifierAfterStatement(block, declarationIndex + 1, resultName, ruleContext)
   ) {
     return false;
   }
@@ -304,14 +263,14 @@ function isValidatedResultCall(
 
   if (acceptedBranch) {
     return (
-      usesIdentifier(acceptedBranch, resultName, ruleContext) &&
-      !usesIdentifier(validation.alternate, resultName, ruleContext)
+      containsIdentifier(acceptedBranch, resultName, ruleContext) &&
+      !containsIdentifier(validation.alternate, resultName, ruleContext)
     );
   }
   return (
     acceptedElseBranch !== undefined &&
-    usesIdentifier(acceptedElseBranch, resultName, ruleContext) &&
-    !usesIdentifier(validation.consequent, resultName, ruleContext)
+    containsIdentifier(acceptedElseBranch, resultName, ruleContext) &&
+    !containsIdentifier(validation.consequent, resultName, ruleContext)
   );
 }
 
@@ -337,75 +296,5 @@ function provesAcceptedResult(
       (isIdentifier(condition.right, variableName) &&
         condition.left.type === 'Literal' &&
         condition.left.value === '[object Object]'))
-  );
-}
-
-/**
- * Matches non-computed `.toString` reads on the same stable receiver expression.
- * `value.toString` matches for `value`; `value['toString']` and `other.toString` do not.
- */
-function isReceiverToString(
-  node: TSESTree.Node,
-  receiver: TSESTree.Expression,
-  ruleContext: NoBaseToStringMatcherContext,
-): boolean {
-  return (
-    node.type === 'MemberExpression' &&
-    !node.computed &&
-    isIdentifier(node.property, 'toString') &&
-    areEquivalent(node.object, receiver, ruleContext.sourceCode)
-  );
-}
-
-/**
- * Matches exactly `Object.prototype.toString`, the default implementation the rule warns about.
- */
-function isObjectPrototypeToString(node: TSESTree.Node): boolean {
-  return (
-    node.type === 'MemberExpression' &&
-    !node.computed &&
-    isIdentifier(node.property, 'toString') &&
-    node.object.type === 'MemberExpression' &&
-    !node.object.computed &&
-    isIdentifier(node.object.object, 'Object') &&
-    isIdentifier(node.object.property, 'prototype')
-  );
-}
-
-/**
- * Limits receiver-guard suppression to single-evaluation receivers.
- * `value` and `this` match; `holder.value` does not because it may invoke a getter on each access.
- */
-function isStableReceiver(node: TSESTree.Node): boolean {
-  return isIdentifier(node) || node.type === 'ThisExpression';
-}
-
-/**
- * Prevents suppressing when a validated result escapes after the guarding `if`.
- */
-function usesIdentifierAfter(
-  block: TSESTree.BlockStatement,
-  statementIndex: number,
-  variableName: string,
-  ruleContext: NoBaseToStringMatcherContext,
-): boolean {
-  return block.body
-    .slice(statementIndex + 1)
-    .some(statement => usesIdentifier(statement, variableName, ruleContext));
-}
-
-function usesIdentifier(
-  node: TSESTree.Node | null | undefined,
-  variableName: string,
-  ruleContext: NoBaseToStringMatcherContext,
-): boolean {
-  if (!node) {
-    return false;
-  }
-  if (isIdentifier(node, variableName)) {
-    return true;
-  }
-  return childrenOf(node as estree.Node, ruleContext.sourceCode.visitorKeys).some(child =>
-    usesIdentifier(child as TSESTree.Node, variableName, ruleContext),
   );
 }
