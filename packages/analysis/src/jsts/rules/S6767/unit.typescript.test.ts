@@ -622,11 +622,9 @@ function ItemRenderer() {
 `,
           filename: fixtureFile,
         },
-      ],
-      invalid: [
         {
-          // TP: nested destructuring for prop ({ section: { title } }) — value is an ObjectPattern,
-          // not an Identifier or AssignmentPattern with Identifier left, exercises line 70.
+          // FP: nested destructuring ({ section: { title } }) — section is consumed through
+          // the first-param destructuring; title (inner binding) is read in the body.
           code: `
 declare const React: any;
 function SectionListComponent() {
@@ -638,9 +636,9 @@ function SectionListComponent() {
 }
 `,
           filename: fixtureFile,
-          errors: 1,
         },
       ],
+      invalid: [],
     });
   });
 

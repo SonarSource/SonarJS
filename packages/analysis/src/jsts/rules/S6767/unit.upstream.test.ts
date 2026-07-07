@@ -289,6 +289,47 @@ function SectionListComponent() {
     });
   });
 
+  it('upstream rule should report nested destructured-param binding FP pattern (sentinel: remove decorator check if this fails)', () => {
+    // Confirms that the upstream eslint-plugin-react no-unused-prop-types rule DOES raise
+    // issues when a prop is consumed via nested destructuring in the first parameter but the
+    // callback is not recognized as a component at entry time.
+    // If this test starts failing, the upstream rule has been fixed and the nested-ObjectPattern
+    // branch of hasDestructuredParamPropUsage can be removed.
+    const upstreamRule = rules['no-unused-prop-types'];
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run(
+      'no-unused-prop-types (upstream, nested destructured param binding)',
+      upstreamRule,
+      {
+        valid: [],
+        invalid: [
+          {
+            // upstream does not track nested destructuring ({ section: { title } }) in inner callbacks
+            code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: { title } }: { section: { title: string } }) => <div>{title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+            filename: fixtureFile,
+            errors: 1,
+          },
+        ],
+      },
+    );
+  });
+
   it('upstream rule should NOT report direct class decorator prop access', () => {
     // Characterizes the current upstream behavior for class decorators:
     // direct prop reads inside @screenTrack(...) do not need an S6767 escape.
