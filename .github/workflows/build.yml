@@ -455,6 +455,14 @@ jobs:
           npm run generate-meta
           npm run bridge:compile
           npm run bridge:test:cov
+      - name: Validate JS coverage reports
+        run: |
+          for report in coverage/js/lcov.info coverage/js/test-report.xml; do
+            if [ ! -f "$report" ]; then
+              echo "::error file=$report::Missing JS coverage report"
+              exit 1
+            fi
+          done
       - name: Upload JS coverage reports
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
