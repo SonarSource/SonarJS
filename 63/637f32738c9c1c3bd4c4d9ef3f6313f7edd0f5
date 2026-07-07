@@ -1,0 +1,37 @@
+packages/analysis/src/jsts/rules/S2699/unit.test.ts
+  s_bb9a22f8451ca3::t_85161ceeeea165 62-136,293-369,477-552,735-823
+packages/analysis/src/jsts/rules/S1848/rule.ts
+  s_bb9a22f8451ca3::t_bf7ba8d85a8b4a 24,38-39,60-62,96-222
+packages/analysis/src/jsts/rules/S1848/unit.test.ts
+  s_bb9a22f8451ca3::t_d4319a4d476228 43-106,314-420
+packages/analysis/src/jsts/rules/S2699/chai.fixture.js
+  s_bb9a22f8451ca3::t_e5f93174a87dba 75
+packages/analysis/src/jsts/rules/S2699/rule.ts
+  s_bb9a22f8451ca3::t_6efaf4834bc154 36,267
+packages/analysis/src/jsts/rules/helpers/assertion-detection.ts
+  s_bb9a22f8451ca3::t_facdcf1cf4f4fe 39,41,99-143,218-229,237,246-257,294-387
+packages/analysis/src/jsts/rules/helpers/generate-meta.ts
+  s_bb9a22f8451ca3::t_b61a646d9d24c2 48-51
+packages/analysis/src/jsts/rules/helpers/module-ts.ts
+  s_bb9a22f8451ca3::t_26b0ef0d1d0782 22-23,158-204,213-227
+packages/analysis/tests/jsts/rules/helpers/assertion-detection.test.ts
+  s_bb9a22f8451ca3::t_ba98c8532f1f64 1-145
+packages/analysis/tests/jsts/rules/helpers/module-ts.test.ts
+  s_bb9a22f8451ca3::t_8dc3ff563552e1 1-67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "63637f32738c9c1c3bd4c4d9ef3f6313f7edd0f5",
+  "prompts": {},
+  "sessions": {
+    "s_bb9a22f8451ca3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f3c68-90e6-7673-b508-d9a35a0a4e19",
+        "model": "gpt-5.5"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
