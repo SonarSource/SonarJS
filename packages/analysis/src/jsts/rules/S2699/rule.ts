@@ -33,6 +33,7 @@ import {
   hasSupportedAssertionLibrary,
   hasSupportedTestFramework,
   isAssertion,
+  isIncompleteShouldAccess,
   isTSAssertion,
 } from '../helpers/assertion-detection.js';
 import * as meta from './generated-meta.js';
@@ -263,7 +264,7 @@ class TestCaseAssertionVisitor {
       return visitedNodes.get(node)!;
     }
     visitedNodes.set(node, false);
-    if (isAssertion(context, node)) {
+    if (isAssertion(context, node) && !isIncompleteShouldAccess(context, node)) {
       visitedNodes.set(node, true);
       return true;
     }

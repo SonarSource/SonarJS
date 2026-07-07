@@ -36,8 +36,9 @@ import * as Sinon from './sinon.js';
 import * as Vitest from './vitest.js';
 import * as Supertest from './supertest.js';
 import * as Cypress from './cypress.js';
+import { getParent } from './ancestor.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
-import { getFullyQualifiedNameTS } from './module-ts.js';
+import { getFullyQualifiedNameTS, importsModuleTS } from './module-ts.js';
 
 const ASSERTION_LIBRARIES = [
   'chai',
@@ -93,6 +94,51 @@ const GLOBAL_EXPECT_NAMES = new Set([
   'expectObservable',
   'expectSubscriptions',
   'expectTypeOf',
+]);
+
+const CHAI_NON_TERMINAL_PROPERTY_NAMES = new Set([
+  'all',
+  'also',
+  'and',
+  'any',
+  'at',
+  'be',
+  'been',
+  'but',
+  'deep',
+  'does',
+  'have',
+  'has',
+  'is',
+  'itself',
+  'nested',
+  'not',
+  'of',
+  'ordered',
+  'own',
+  'same',
+  'still',
+  'that',
+  'to',
+  'which',
+  'with',
+]);
+
+const CHAI_TERMINAL_PROPERTY_NAMES = new Set([
+  'Arguments',
+  'NaN',
+  'arguments',
+  'empty',
+  'exist',
+  'extensible',
+  'false',
+  'finite',
+  'frozen',
+  'null',
+  'ok',
+  'sealed',
+  'true',
+  'undefined',
 ]);
 
 /**
@@ -170,18 +216,43 @@ export function isScriptCapableAssertion(context: Rule.RuleContext, node: estree
 }
 
 /**
+ * Incomplete Chai `foo.should` property chains are not assertions on their own.
+ * We exclude them so S2699 does not treat an unfinished `should` chain as an assertion
+ * and miss the "Add at least one assertion to this test case." issue.
+ */
+export function isIncompleteShouldAccess(context: Rule.RuleContext, node: estree.Node): boolean {
+  if (!isShouldMember(node)) {
+    return false;
+  }
+  return !isCompleteESTreeShouldPropertyChain(context, node);
+}
+
+/**
  * Type-checker-aware counterpart of {@link isAssertion}, operating on TypeScript
  * AST nodes. Used when parser services are available to follow resolved types.
  */
 export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node): boolean {
   return (
     isGlobalTSAssertion(services, node) ||
+    isExtendedTSShouldAccess(node) ||
     Chai.isTSAssertion(services, node) ||
     Sinon.isTSAssertion(services, node) ||
     Supertest.isTSAssertion(services, node) ||
     Vitest.isTSAssertion(services, node) ||
     Cypress.isTSAssertion(node)
   );
+}
+
+function isExtendedTSShouldAccess(node: ts.Node): boolean {
+  return (
+    isTSShouldAccess(node) &&
+    importsModuleTS(node.getSourceFile(), ['chai']) &&
+    isCompleteTSShouldPropertyChain(node)
+  );
+}
+
+function isTSShouldAccess(node: ts.Node): node is ts.PropertyAccessExpression {
+  return ts.isPropertyAccessExpression(node) && node.name.text === 'should';
 }
 
 /**
@@ -218,6 +289,100 @@ function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.No
   }
   const fullyQualifiedName = getFullyQualifiedName(context, node);
   return fullyQualifiedName?.split('.')[0] === 'assert';
+}
+
+function isShouldMember(node: estree.Node): node is estree.MemberExpression {
+  return (
+    node.type === 'MemberExpression' &&
+    !node.computed &&
+    node.property.type === 'Identifier' &&
+    node.property.name === 'should'
+  );
+}
+
+function isCompleteESTreeShouldPropertyChain(
+  context: Rule.RuleContext,
+  node: estree.MemberExpression,
+): boolean {
+  let current: estree.Node = node;
+  let parent = getParent(context, node);
+
+  while (isESTreeChaiShouldChainContinuation(parent, current)) {
+    const grandparent = getParent(context, parent);
+    if (isESTreeCallOnNode(grandparent, parent)) {
+      return true;
+    }
+    if (CHAI_TERMINAL_PROPERTY_NAMES.has(parent.property.name)) {
+      return !isESTreeChaiShouldChainContinuation(grandparent, parent);
+    }
+    if (
+      !CHAI_NON_TERMINAL_PROPERTY_NAMES.has(parent.property.name) &&
+      !isESTreeChaiShouldChainContinuation(grandparent, parent)
+    ) {
+      return false;
+    }
+    current = parent;
+    parent = grandparent;
+  }
+
+  return false;
+}
+
+function isCompleteTSShouldPropertyChain(node: ts.PropertyAccessExpression): boolean {
+  let current: ts.Node = node;
+  let parent = node.parent;
+
+  while (isTSChaiShouldChainContinuation(parent, current)) {
+    const grandparent = parent.parent;
+    if (isTSCallOnNode(grandparent, parent)) {
+      return true;
+    }
+    if (CHAI_TERMINAL_PROPERTY_NAMES.has(parent.name.text)) {
+      return !isTSChaiShouldChainContinuation(grandparent, parent);
+    }
+    if (
+      !CHAI_NON_TERMINAL_PROPERTY_NAMES.has(parent.name.text) &&
+      !isTSChaiShouldChainContinuation(grandparent, parent)
+    ) {
+      return false;
+    }
+    current = parent;
+    parent = grandparent;
+  }
+
+  return false;
+}
+
+function isESTreeCallOnNode(
+  parent: estree.Node | undefined,
+  node: estree.Node,
+): parent is estree.CallExpression {
+  return parent?.type === 'CallExpression' && parent.callee === node;
+}
+
+function isTSCallOnNode(parent: ts.Node | undefined, node: ts.Node): parent is ts.CallExpression {
+  return parent !== undefined && ts.isCallExpression(parent) && parent.expression === node;
+}
+
+function isESTreeChaiShouldChainContinuation(
+  parent: estree.Node | undefined,
+  node: estree.Node,
+): parent is estree.MemberExpression & { property: estree.Identifier } {
+  return (
+    parent?.type === 'MemberExpression' &&
+    parent.object === node &&
+    !parent.computed &&
+    parent.property.type === 'Identifier'
+  );
+}
+
+function isTSChaiShouldChainContinuation(
+  parent: ts.Node | undefined,
+  node: ts.Node,
+): parent is ts.PropertyAccessExpression {
+  return (
+    parent !== undefined && ts.isPropertyAccessExpression(parent) && parent.expression === node
+  );
 }
 
 function isGlobalTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {

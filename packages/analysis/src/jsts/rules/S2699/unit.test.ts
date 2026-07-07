@@ -59,6 +59,81 @@ describe('global expect', () => {
         },
         {
           code: `
+const chai = require('chai');
+describe('chai should chains', () => {
+  it('recognizes property and lengthOf chains', () => {
+    const user = { pets: ['cat', 'dog', 'bird', 'fish'] };
+    user.should.have.property('pets').with.lengthOf(4);
+  });
+});
+          `,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('chai should property assertions', () => {
+  it('recognizes terminal assertion properties', () => {
+    const warning = { isVisible: () => true };
+    warning.isVisible().should.be.true;
+  });
+});
+          `,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('chai direct terminal should properties', () => {
+  it('recognizes direct terminal properties and longer non-terminal chains', () => {
+    const warning = {};
+    warning.should.exist;
+
+    const status = true;
+    status.should.to.be.be.true;
+  });
+});
+          `,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('chai direct method should properties', () => {
+  it('recognizes direct method assertions', () => {
+    const value = 2;
+    value.should.equal(2);
+
+    const promiseResult = 2;
+    promiseResult.should.eventually.equal(2);
+  });
+});
+          `,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('sinon-chai style terminal calls', () => {
+  it('recognizes calledWith on should chains', () => {
+    const submitPassword = { should: { have: { been: { calledWith: () => {} } } } };
+    submitPassword.should.have.been.calledWith('secret');
+  });
+});
+          `,
+        },
+        {
+          code: `
+const chai = require('chai');
+const { assert } = chai;
+describe('additional chai assert methods', () => {
+  it('recognizes instance and is', () => {
+    function Constructor() {}
+    const value = new Constructor();
+    assert.instance(value, Constructor);
+    assert.is(value, value);
+  });
+});
+          `,
+        },
+        {
+          code: `
 describe('no import from test library', () => {
   it('should not fail', () => {
     // no-op
@@ -218,6 +293,83 @@ describe('chai test cases', () => {
 });`,
           errors: 1,
         },
+        {
+          code: `
+const chai = require('chai');
+describe('bare should access', () => {
+  it('should raise when should is not completed', () => {
+    const user = {};
+    user.should;
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('incomplete should chains', () => {
+  it('should raise when should only has language chains', () => {
+    const value = true;
+    value.should.to.be;
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('unknown should chains', () => {
+  it('should raise when should ends with an unknown property', () => {
+    const helper = {};
+    helper.should.eventually;
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('terminal should chains with extra properties', () => {
+  it('should raise when a terminal property is extended', () => {
+    const helper = {};
+    helper.should.exist.and;
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('unrelated method names', () => {
+  it('should raise when methods only look like assertions', () => {
+    const helper = {
+      property() {},
+      lengthOf() {},
+      calledWith() {},
+    };
+    helper.property('pets');
+    helper.lengthOf(4);
+    helper.calledWith('secret');
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const chai = require('chai');
+describe('shadowed assert helper', () => {
+  it('should raise for local assert objects', () => {
+    const assert = {
+      instance() {},
+      is() {},
+      ok() {},
+    };
+    assert.instance({}, Object);
+    assert.is(1, 1);
+  });
+});`,
+          errors: 1,
+        },
         // expectX function without chained assertion method should still raise
         {
           code: `
@@ -318,6 +470,82 @@ describe('no import from test library', () => {
 });`,
         },
         // RxJS marble testing in TypeScript: expectObservable/expectSubscriptions
+        {
+          code: `
+import { expect } from 'chai';
+
+declare global {
+  interface Object {
+    should: any;
+  }
+}
+
+describe('typed chai should chains', () => {
+  it('should recognize property and lengthOf chains', () => {
+    const user = { pets: ['cat', 'dog', 'bird', 'fish'] };
+    user.should.have.property('pets').with.lengthOf(4);
+  });
+
+  it('should recognize terminal property assertions', () => {
+    const warning = { isVisible: () => true };
+    warning.isVisible().should.be.true;
+  });
+
+  it('should recognize property terminals beyond the common ones', () => {
+    const list = [];
+    list.should.be.empty;
+  });
+
+  it('should recognize direct terminal properties and longer non-terminal chains', () => {
+    const payload = {};
+    payload.should.exist;
+
+    const status = true;
+    status.should.to.be.be.true;
+
+    const promiseResult = 2;
+    promiseResult.should.eventually.equal(2);
+  });
+
+  it('should recognize call terminals on locals that do not resolve', () => {
+    const value = 2;
+    value.should.equal(2);
+  });
+});
+`,
+        },
+        {
+          code: `
+import { assert, expect } from 'chai';
+
+describe('typed chai assert additions', () => {
+  it('should recognize instance and is', () => {
+    class Constructor {}
+    const value = new Constructor();
+    assert.instance(value, Constructor);
+    assert.is(value, value);
+  });
+});
+`,
+        },
+        {
+          code: `
+const chai = require('chai');
+
+declare global {
+  interface Object {
+    should: any;
+  }
+}
+
+describe('typed commonjs chai should chains', () => {
+  it('should recognize terminal property assertions', () => {
+    const value = true;
+    value.should.be.true;
+  });
+});
+`,
+        },
         {
           code: `
 import { expect } from 'chai';
@@ -503,6 +731,95 @@ import assert from 'node:assert/strict';
 
 test('has no assertions', () => {
   const x = 1 + 2;
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { expect } from 'chai';
+
+declare global {
+  interface Object {
+    should: any;
+  }
+}
+
+describe('typed bare should access', () => {
+  it('should raise when should is not extended', () => {
+    const user = {};
+    user.should;
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { expect } from 'chai';
+
+declare global {
+  interface Object {
+    should: any;
+  }
+}
+
+describe('typed incomplete should chains', () => {
+  it('should raise when should only has a language chain', () => {
+    const value = true;
+    value.should.to.be;
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { expect } from 'chai';
+
+declare global {
+  interface Object {
+    should: any;
+  }
+}
+
+describe('typed unknown should chains', () => {
+  it('should raise when should ends with an unknown property', () => {
+    const helper = {};
+    helper.should.eventually;
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { expect } from 'chai';
+
+declare global {
+  interface Object {
+    should: any;
+  }
+}
+
+describe('typed terminal should chains with extra properties', () => {
+  it('should raise when a terminal property is extended', () => {
+    const helper = {};
+    helper.should.exist.and;
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { expect } from 'vitest';
+
+describe('typed unrelated should chains', () => {
+  it('should raise when should is not from chai', () => {
+    const helper = { should: { eventually: () => {} } };
+    helper.should.eventually();
+  });
 });
 `,
           errors: 1,
