@@ -39,6 +39,10 @@ describe('assertion-detection', () => {
       const payload = {};
       payload.should.exist;
 
+      const rechainedPayload = {};
+      rechainedPayload.should.exist.and.be.true;
+      rechainedPayload.should.exist.and.be.a('object');
+
       const promiseResult = {};
       promiseResult.should.eventually.equal(2);
 
@@ -54,6 +58,9 @@ describe('assertion-detection', () => {
     ).toEqual(true);
     expect(isTSAssertion(services, findTSNodeByText(program, 'status.should'))).toEqual(true);
     expect(isTSAssertion(services, findTSNodeByText(program, 'payload.should'))).toEqual(true);
+    expect(isTSAssertion(services, findTSNodeByText(program, 'rechainedPayload.should'))).toEqual(
+      true,
+    );
     expect(isTSAssertion(services, findTSNodeByText(program, 'promiseResult.should'))).toEqual(
       true,
     );
