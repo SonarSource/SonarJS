@@ -29,9 +29,10 @@ function actFromReactWrappingTestingLibraryRender() {
 // `render` here is a same-named local helper, not Testing Library's `render`.
 // With aggressive name-based reporting disabled (forced settings in
 // decorator.ts), the rule must rely on import resolution only, so a call
-// merely named `render` must not be flagged.
+// merely named `render` must not be flagged even though `act` itself is a
+// genuine Testing Library import (`tlAct`) and would otherwise be checked.
 function actWrappingSameNamedNonTestingLibraryCall() {
-    act(() => {
+    tlAct(() => {
         render(<Form />);
     });
 }
