@@ -176,7 +176,7 @@ export function containsIdentifierAfterStatement(
 /**
  * Checks whether an identifier is the syntactic target of a write.
  */
-export function isWriteIdentifier(node: TSESTree.Identifier): boolean {
+function isWriteIdentifier(node: TSESTree.Identifier): boolean {
   const parent = node.parent;
   return (
     (parent?.type === 'AssignmentExpression' && parent.left === node) ||
@@ -238,7 +238,7 @@ function isWriteToVariable(
 /**
  * Checks whether a node is one of the JavaScript loop statement forms.
  */
-export function isLoopLike(node: TSESTree.Node): node is TSESTree.Node & LoopLike {
+function isLoopLike(node: TSESTree.Node): node is TSESTree.Node & LoopLike {
   return (
     node.type === 'WhileStatement' ||
     node.type === 'DoWhileStatement' ||

@@ -151,7 +151,7 @@ function conditionMakesBranchSafeToStringify(
     return false;
   }
 
-  if (condition.type !== 'BinaryExpression') {
+  if (condition.type !== 'BinaryExpression' || condition.operator === 'in') {
     return false;
   }
 
@@ -159,7 +159,7 @@ function conditionMakesBranchSafeToStringify(
 }
 
 function isTypeOfGuard(
-  condition: TSESTree.PrivateInExpression | TSESTree.SymmetricBinaryExpression,
+  condition: TSESTree.SymmetricBinaryExpression,
   isConsequentBranch: boolean,
   variable: Scope.Variable,
   ruleContext: NoBaseToStringMatcherContext,
