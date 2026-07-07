@@ -86,6 +86,8 @@ describe('chai direct terminal should properties', () => {
   it('recognizes direct terminal properties and longer non-terminal chains', () => {
     const warning = {};
     warning.should.exist;
+    warning.should.exist.and.be.true;
+    warning.should.exist.and.be.a('object');
 
     const status = true;
     status.should.to.be.be.true;
@@ -499,6 +501,8 @@ describe('typed chai should chains', () => {
   it('should recognize direct terminal properties and longer non-terminal chains', () => {
     const payload = {};
     payload.should.exist;
+    payload.should.exist.and.be.true;
+    payload.should.exist.and.be.a('object');
 
     const status = true;
     status.should.to.be.be.true;

@@ -313,7 +313,12 @@ function isCompleteESTreeShouldPropertyChain(
       return true;
     }
     if (CHAI_TERMINAL_PROPERTY_NAMES.has(parent.property.name)) {
-      return !isESTreeChaiShouldChainContinuation(grandparent, parent);
+      if (!isESTreeChaiShouldChainContinuation(grandparent, parent)) {
+        return true;
+      }
+      current = parent;
+      parent = grandparent;
+      continue;
     }
     if (
       !CHAI_NON_TERMINAL_PROPERTY_NAMES.has(parent.property.name) &&
@@ -338,7 +343,12 @@ function isCompleteTSShouldPropertyChain(node: ts.PropertyAccessExpression): boo
       return true;
     }
     if (CHAI_TERMINAL_PROPERTY_NAMES.has(parent.name.text)) {
-      return !isTSChaiShouldChainContinuation(grandparent, parent);
+      if (!isTSChaiShouldChainContinuation(grandparent, parent)) {
+        return true;
+      }
+      current = parent;
+      parent = grandparent;
+      continue;
     }
     if (
       !CHAI_NON_TERMINAL_PROPERTY_NAMES.has(parent.name.text) &&
