@@ -251,3 +251,25 @@ function loopWriteAfterUseStillUnsafe(value: string | object, replacements: obje
   }
   return rendered;
 }
+
+function arrayDestructuringWriteAfterTypeofGuardStillUnsafe(
+  value: string | object,
+  replacements: object[],
+): string {
+  if (typeof value !== 'object') {
+    [value] = replacements;
+    return `Unexpected value: ${value}`; // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  }
+  return '';
+}
+
+function objectDestructuringWriteAfterTypeofGuardStillUnsafe(
+  value: string | object,
+  replacement: { value: object },
+): string {
+  if (typeof value !== 'object') {
+    ({ value } = replacement);
+    return `Unexpected value: ${value}`; // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  }
+  return '';
+}

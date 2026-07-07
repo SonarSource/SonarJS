@@ -182,8 +182,35 @@ function isWriteIdentifier(node: TSESTree.Identifier): boolean {
     (parent?.type === 'AssignmentExpression' && parent.left === node) ||
     (parent?.type === 'AssignmentPattern' && parent.left === node) ||
     (parent?.type === 'UpdateExpression' && parent.argument === node) ||
-    (parent?.type === 'VariableDeclarator' && parent.id === node)
+    (parent?.type === 'VariableDeclarator' && parent.id === node) ||
+    isDestructuringAssignmentTarget(node)
   );
+}
+
+/**
+ * Checks whether an identifier is a target of a destructuring assignment such as
+ * `[value] = arr`, `({ value } = obj)`, or `[...value] = arr`.
+ *
+ * The identifier is climbed through the enclosing pattern nodes; it is a write only when the
+ * chain terminates on an `AssignmentExpression` left-hand side. A destructuring *declaration*
+ * (`const [value] = arr`) introduces a new binding that resolves to a different scope variable,
+ * so it is intentionally excluded.
+ */
+function isDestructuringAssignmentTarget(node: TSESTree.Node): boolean {
+  let current: TSESTree.Node = node;
+  let parent = current.parent;
+  while (
+    parent &&
+    (parent.type === 'ArrayPattern' ||
+      parent.type === 'ObjectPattern' ||
+      parent.type === 'RestElement' ||
+      (parent.type === 'Property' && parent.value === current) ||
+      (parent.type === 'AssignmentPattern' && parent.left === current))
+  ) {
+    current = parent;
+    parent = current.parent;
+  }
+  return parent?.type === 'AssignmentExpression' && parent.left === current;
 }
 
 /**
