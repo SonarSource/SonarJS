@@ -44,6 +44,10 @@ describe('S5906', () => {
       messageId: 'preferSpecificAssertion',
       suggestions: [{ messageId: 'quickfix', output }],
     });
+    const expectedLengthError = (output: string) => ({
+      messageId: 'preferSpecificLengthAssertion',
+      suggestions: [{ messageId: 'quickfix', output }],
+    });
 
     ruleTester.run('prefer-specific-assertions', rule, {
       valid: [
@@ -184,7 +188,7 @@ describe('S5906', () => {
           `,
           filename: modernJasmineFixture,
           errors: [
-            expectedError(`
+            expectedLengthError(`
             import { expect } from 'jasmine';
 
             expect(items).toHaveSize(3);
@@ -199,7 +203,7 @@ describe('S5906', () => {
           `,
           filename: mixedJasmineJestFixture,
           errors: [
-            expectedError(`
+            expectedLengthError(`
             import { expect } from 'jasmine';
 
             expect(items).toHaveSize(3);
@@ -237,7 +241,7 @@ describe('S5906', () => {
             });
           `,
           errors: [
-            expectedError(`
+            expectedLengthError(`
             import { expect, test } from 'vitest';
 
             test('uses generic length assertion', () => {
@@ -254,7 +258,7 @@ describe('S5906', () => {
           `,
           filename: mixedJasmineJestFixture,
           errors: [
-            expectedError(`
+            expectedLengthError(`
             import { expect } from 'vitest';
 
             expect(items).toHaveLength(3);
@@ -338,7 +342,7 @@ describe('S5906', () => {
             expect(items.length === 2).toBe(true);
           `,
           errors: [
-            expectedError(`
+            expectedLengthError(`
             import { expect } from 'vitest';
 
             expect(items).toHaveLength(2);
@@ -352,7 +356,7 @@ describe('S5906', () => {
             expect(items.length === 2).toBe(true);
           `,
           errors: [
-            expectedError(`
+            expectedLengthError(`
             import { expect } from 'jasmine';
 
             expect(items).toHaveSize(2);

@@ -21,7 +21,7 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
-import { isIdentifier, getVariableFromName } from '../helpers/ast.js';
+import { isIdentifier, getVariableFromName, getVariableFromScope } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 /**
@@ -46,6 +46,8 @@ const DOM_SELECTION_METHODS = [
 ];
 /** jQuery/$ function names */
 const JQUERY_IDENTIFIERS = ['$', 'jQuery'];
+const STATEMENT_ANCESTOR_OFFSET = 1;
+const CONTAINER_ANCESTOR_OFFSET = 2;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -64,6 +66,9 @@ export const rule: Rule.RuleModule = {
         }
         // Skip constructors receiving DOM elements - indicates DOM attachment side effect
         if (hasDomSelectionArgument(node, context)) {
+          return;
+        }
+        if (isRegExpValidation(node, context)) {
           return;
         }
         const { callee } = node;
@@ -96,6 +101,133 @@ function isTryable(node: estree.Node, context: Rule.RuleContext) {
     }
     child = parent;
   }
+  return false;
+}
+
+/**
+ * Suppresses false positives for RegExp validation patterns where the constructor is used only
+ * to validate an input before returning it.
+ *
+ * For example, `new RegExp(pattern)` is intentional in:
+ *
+ * ```js
+ * function validatePattern(pattern) {
+ *   new RegExp(pattern);
+ *   return pattern;
+ * }
+ * ```
+ */
+function isRegExpValidation(node: estree.NewExpression, context: Rule.RuleContext): boolean {
+  if (!isBuiltInRegExpConstructor(node, context)) {
+    return false;
+  }
+
+  const nextStatement = getNextSiblingStatement(node, context);
+  if (nextStatement?.type !== 'ReturnStatement') {
+    return false;
+  }
+
+  const { argument: returnArgument } = nextStatement;
+  if (!returnArgument) {
+    return false;
+  }
+
+  return node.arguments.some(
+    argument => isIdentifier(argument) && containsReturnedIdentifier(returnArgument, argument),
+  );
+}
+
+function isBuiltInRegExpConstructor(
+  node: estree.NewExpression,
+  context: Rule.RuleContext,
+): boolean {
+  const { callee } = node;
+  const scope = context.sourceCode.getScope(node);
+
+  if (isIdentifier(callee, 'RegExp')) {
+    return !getVariableFromScope(scope, callee.name)?.defs.length;
+  }
+
+  return (
+    callee.type === 'MemberExpression' &&
+    !callee.computed &&
+    isIdentifier(callee.object, 'globalThis') &&
+    !getVariableFromScope(scope, callee.object.name)?.defs.length &&
+    isIdentifier(callee.property, 'RegExp')
+  );
+}
+
+function getNextSiblingStatement(
+  node: estree.Node,
+  context: Rule.RuleContext,
+): estree.Statement | undefined {
+  const ancestors = context.sourceCode.getAncestors(node);
+  const statement = ancestors.at(-STATEMENT_ANCESTOR_OFFSET);
+  const container = ancestors.at(-CONTAINER_ANCESTOR_OFFSET);
+  if (statement?.type !== 'ExpressionStatement') {
+    return undefined;
+  }
+
+  const body = getStatementList(container);
+  if (!body) {
+    return undefined;
+  }
+
+  const statementIndex = body.indexOf(statement);
+  return statementIndex === -1 ? undefined : body[statementIndex + 1];
+}
+
+function getStatementList(node: estree.Node | undefined): estree.Statement[] | undefined {
+  if (node?.type === 'BlockStatement') {
+    return node.body;
+  }
+  if (node?.type === 'SwitchCase') {
+    return node.consequent;
+  }
+  return undefined;
+}
+
+function containsReturnedIdentifier(node: estree.Node, identifier: estree.Identifier): boolean {
+  if (isIdentifier(node, identifier.name)) {
+    return true;
+  }
+
+  if (node.type === 'ObjectExpression') {
+    return node.properties.some(property => {
+      if (property.type === 'Property') {
+        return containsReturnedIdentifier(property.value as estree.Node, identifier);
+      }
+      return containsReturnedIdentifier(property.argument, identifier);
+    });
+  }
+
+  if (node.type === 'ArrayExpression') {
+    return node.elements.some(element => {
+      if (!element) {
+        return false;
+      }
+      if (element.type === 'SpreadElement') {
+        return containsReturnedIdentifier(element.argument, identifier);
+      }
+      return containsReturnedIdentifier(element, identifier);
+    });
+  }
+
+  if (node.type === 'ConditionalExpression') {
+    return (
+      containsReturnedIdentifier(node.consequent, identifier) ||
+      containsReturnedIdentifier(node.alternate, identifier)
+    );
+  }
+
+  const nodeType = node.type as string;
+  if (nodeType === 'TSAsExpression' || nodeType === 'TSTypeAssertion') {
+    return containsReturnedIdentifier(
+      (node as unknown as { expression: estree.Node }).expression,
+      identifier,
+    );
+  }
+
   return false;
 }
 

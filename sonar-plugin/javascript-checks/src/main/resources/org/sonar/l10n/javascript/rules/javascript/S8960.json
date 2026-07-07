@@ -1,5 +1,5 @@
 {
-  "title": "Tests should not be registered asynchronously in suite callbacks",
+  "title": "Test and hook callbacks should use a single completion style",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -11,16 +11,13 @@
     "async",
     "jest",
     "mocha",
-    "cypress"
+    "jasmine"
   ],
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-8785",
-  "sqKey": "S8785",
+  "ruleSpecification": "RSPEC-8960",
+  "sqKey": "S8960",
   "scope": "Tests",
-  "defaultQualityProfiles": [
-    "Sonar way"
-  ],
-  "quickfix": "covered",
+  "quickfix": "infeasible",
   "code": {
     "impacts": {
       "RELIABILITY": "MEDIUM",
@@ -31,5 +28,8 @@
   "compatibleLanguages": [
     "js",
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
   ]
 }

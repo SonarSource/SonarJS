@@ -25,6 +25,10 @@ describe('S5906', () => {
       messageId: 'preferSpecificAssertion',
       suggestions: [{ messageId: 'quickfix', output }],
     });
+    const expectedLengthError = (output: string) => ({
+      messageId: 'preferSpecificLengthAssertion',
+      suggestions: [{ messageId: 'quickfix', output }],
+    });
 
     ruleTester.run('prefer-specific-assertions', rule, {
       valid: [],
@@ -106,7 +110,7 @@ describe('S5906', () => {
             expect(items.length).to.equal(2);
           `,
           errors: [
-            expectedError(`
+            expectedLengthError(`
             import { expect } from 'chai';
 
             expect(items).to.have.lengthOf(2);

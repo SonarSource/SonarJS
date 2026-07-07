@@ -278,6 +278,26 @@ describe('S8780', () => {
           code: `
             import { test, expect } from '@playwright/test';
 
+            test('shows the account menu after login accessed with computed member syntax', async ({ page }) => {
+              expect(page.getByRole('button', { name: 'Account' }))['not'].toBeVisible();
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { expect, it } from '@jest/globals';
+
+            it('waits for an async value accessed with computed member syntax', () => {
+              expect(fetchUser(1))['not'].resolves.toHaveProperty('name');
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { test, expect } from '@playwright/test';
+
             test('checks accessibility assertions', async ({ page }) => {
               expect(page.getByRole('button')).toHaveRole('button');
               expect(page.getByRole('button')).toContainClass('primary');
