@@ -22,6 +22,7 @@ import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import { rules as a11yRules } from './a11y.js';
 import { getESLintCoreRule } from './core.js';
 import { rules as reactRules } from './react.js';
+import { rules as testingLibraryRules } from './testing-library.js';
 import { rules as tsEslintRules } from './typescript-eslint/index.js';
 import { rules as unicornRules } from './unicorn.js';
 import { rules as vueRules } from './vue.js';
@@ -32,6 +33,7 @@ const indexableAngularRules = angularRules as unknown as Record<string, Rule.Rul
 const indexableImportRules = importRules as Record<string, Rule.RuleModule>;
 const indexableReactRules = reactRules as Record<string, Rule.RuleModule>;
 const indexableStylisticRules = stylistic.rules as Record<string, Rule.RuleModule> | undefined;
+const indexableTestingLibraryRules = testingLibraryRules as Record<string, Rule.RuleModule>;
 const indexableTSEslintRules = tsEslintRules as Record<string, Rule.RuleModule>;
 const indexableUnicornRules = unicornRules as Record<string, Rule.RuleModule>;
 const indexableVueRules = vueRules as Record<string, Rule.RuleModule>;
@@ -46,6 +48,7 @@ const externalRuleDefinitions = {
     (reactHooksPlugin as { rules?: Record<string, Rule.RuleModule> }).rules?.[ruleId],
   '@stylistic/eslint-plugin': (ruleId: string) => indexableStylisticRules?.[ruleId],
   '@angular-eslint': (ruleId: string) => indexableAngularRules[ruleId],
+  'testing-library': (ruleId: string) => indexableTestingLibraryRules[ruleId],
   unicorn: (ruleId: string) => indexableUnicornRules[ruleId],
   vue: (ruleId: string) => indexableVueRules[ruleId],
 } satisfies Record<string, (ruleId: string) => Rule.RuleModule | undefined>;
