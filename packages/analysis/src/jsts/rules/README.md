@@ -574,6 +574,7 @@ SonarJS uses some rules are not shipped in this ESLint plugin to avoid duplicati
 | S8957           | [vue/require-prop-types](https://eslint.vuejs.org/rules/require-prop-types.html)                                                                                                            |
 | S8961           | [vue/require-explicit-emits](https://eslint.vuejs.org/rules/require-explicit-emits.html)                                                                                                    |
 | S8962           | [vue/require-typed-ref](https://eslint.vuejs.org/rules/require-typed-ref.html)                                                                                                              |
+| S8981           | [testing-library/no-global-regexp-flag-in-query](https://github.com/testing-library/eslint-plugin-testing-library/blob/main/docs/rules/no-global-regexp-flag-in-query.md)                   |
 
 <!--- end external rules -->
 
