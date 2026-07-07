@@ -41,14 +41,7 @@ export type ContextAwareJsRule = {
 
 const toolsDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.join(toolsDirectory, '..');
-const rulesDirectory = path.join(
-  repositoryRoot,
-  'packages',
-  'analysis',
-  'src',
-  'jsts',
-  'rules',
-);
+const rulesDirectory = path.join(repositoryRoot, 'packages', 'analysis', 'src', 'jsts', 'rules');
 const metadataDirectory = path.join(
   repositoryRoot,
   'sonar-plugin',
@@ -138,7 +131,9 @@ async function listSonarRuleKeys() {
   return entries
     .filter(entry => entry.isDirectory() && sonarKeyPattern.test(entry.name))
     .map(entry => entry.name)
-    .sort((left, right) => Number.parseInt(left.slice(1), 10) - Number.parseInt(right.slice(1), 10));
+    .sort(
+      (left, right) => Number.parseInt(left.slice(1), 10) - Number.parseInt(right.slice(1), 10),
+    );
 }
 
 async function readRspecRuleMetadata(sonarKey: string): Promise<RspecRuleMetadata> {
