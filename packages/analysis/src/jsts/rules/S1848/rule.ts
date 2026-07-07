@@ -294,15 +294,17 @@ function isGlobalFormException(
   }
   for (const rootName of ['paper', 'paperScope']) {
     const prefix = `${rootName}.`;
-    if (calleeText.startsWith(prefix)) {
-      const itemName = calleeText.slice(prefix.length);
-      if (PAPER_ITEM_CONSTRUCTORS.has(itemName)) {
-        const variable = getVariableFromName(context, rootName, callee);
-        // Suppress only when rootName is a true global (not locally declared)
-        if (variable == null || variable.defs.length === 0) {
-          return true;
-        }
-      }
+    if (!calleeText.startsWith(prefix)) {
+      continue;
+    }
+    const itemName = calleeText.slice(prefix.length);
+    if (!PAPER_ITEM_CONSTRUCTORS.has(itemName)) {
+      continue;
+    }
+    const variable = getVariableFromName(context, rootName, callee);
+    // Suppress only when rootName is a true global (not locally declared)
+    if (variable == null || variable.defs.length === 0) {
+      return true;
     }
   }
   return false;
