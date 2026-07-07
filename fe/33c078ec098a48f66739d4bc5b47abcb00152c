@@ -1,0 +1,23 @@
+packages/analysis/src/jsts/rules/S2699/unit.test.ts
+  s_bb9a22f8451ca3::t_3251402d339c79 89-90,504-505
+packages/analysis/tests/jsts/rules/helpers/assertion-detection.test.ts
+  s_bb9a22f8451ca3::t_3251402d339c79 42-45,61-63
+packages/analysis/src/jsts/rules/helpers/assertion-detection.ts
+  s_bb9a22f8451ca3::t_299cd5ef41f9e1 316-321,346-351
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "fe33c078ec098a48f66739d4bc5b47abcb00152c",
+  "prompts": {},
+  "sessions": {
+    "s_bb9a22f8451ca3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f3c68-90e6-7673-b508-d9a35a0a4e19",
+        "model": "gpt-5.5"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
