@@ -16,6 +16,16 @@
     "tests",
     "regex"
   ],
+  "extra": {
+    "requiredDependency": [
+      "@testing-library/dom",
+      "@testing-library/react",
+      "@testing-library/vue",
+      "@testing-library/angular",
+      "@testing-library/svelte",
+      "storybook"
+    ]
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-8981",
   "sqKey": "S8981",

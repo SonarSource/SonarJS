@@ -17,4 +17,12 @@
 export const implementation = 'external';
 export const eslintId = 'no-global-regexp-flag-in-query';
 export const externalPlugin = 'testing-library';
+export const requiredDependency = [
+  '@testing-library/dom',
+  '@testing-library/react',
+  '@testing-library/vue',
+  '@testing-library/angular',
+  '@testing-library/svelte',
+  'storybook',
+] as const;
 export const quickFixMessage = "Remove the 'g' flag";
