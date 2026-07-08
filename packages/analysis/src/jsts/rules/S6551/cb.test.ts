@@ -123,6 +123,38 @@ function rejectedDefaultStringResultOnElse(data: unknown) {
   });
 });
 
+describe('S6551 lodash utility report redirection', () => {
+  it('reports unconstrained generic lodash arguments when checkUnknown is enabled', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('S6551', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+declare const require: (moduleName: string) => object;
+
+function lodashNamespaceToStringWithUnconstrainedGeneric<T>(value: T) {
+  const _ = require('lodash');
+  return _.toString(value);
+}
+          `,
+          options: [{ checkUnknown: true }],
+          errors: [
+            {
+              message:
+                "'value' may use Object's default stringification format ('[object Object]') when stringified.",
+              line: 6,
+              column: 21,
+              endLine: 6,
+              endColumn: 26,
+            },
+          ],
+        },
+      ],
+    });
+  });
+});
+
 describe('Rule S6551', () => {
   test(meta, rule, import.meta.dirname);
 });

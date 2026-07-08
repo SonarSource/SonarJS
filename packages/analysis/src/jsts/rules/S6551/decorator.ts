@@ -101,8 +101,7 @@ function getKnownUtilityToStringArgument(
 ): TSESTree.Expression | undefined {
   const call = getContainingToStringCallExpression(node);
   if (
-    call === undefined ||
-    call.arguments.length !== 1 ||
+    call?.arguments.length !== 1 ||
     call.arguments[0].type === 'SpreadElement' ||
     getFullyQualifiedName(context, call as estree.CallExpression) !== 'lodash.toString'
   ) {
@@ -237,10 +236,10 @@ function collectTupleCertainty(
   const certainties = checker
     .getTypeArguments(type)
     .map(subType => collectToStringCertainty(subType, checker, options, visited));
-  if (certainties.some(certainty => certainty === DEFAULT_TO_STRING)) {
+  if (certainties.includes(DEFAULT_TO_STRING)) {
     return DEFAULT_TO_STRING;
   }
-  if (certainties.some(certainty => certainty === POSSIBLE_DEFAULT_TO_STRING)) {
+  if (certainties.includes(POSSIBLE_DEFAULT_TO_STRING)) {
     return POSSIBLE_DEFAULT_TO_STRING;
   }
   return USEFUL_TO_STRING;
