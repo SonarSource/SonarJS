@@ -18,9 +18,31 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { getParent } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getVariableFromScope } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
+
+const NON_SIMPLE_STATEMENT_TYPES = new Set([
+  'BlockStatement',
+  'ForStatement',
+  'ForInStatement',
+  'ForOfStatement',
+  'WhileStatement',
+  'DoWhileStatement',
+  'SwitchStatement',
+]);
+
+function isSingleSimpleStatement(body: estree.Statement[]): boolean {
+  if (body.length !== 1) {
+    return false;
+  }
+  let stmt = body[0];
+  while (stmt.type === 'LabeledStatement') {
+    stmt = (stmt as estree.LabeledStatement).body;
+  }
+  return !NON_SIMPLE_STATEMENT_TYPES.has(stmt.type);
+}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -35,10 +57,13 @@ export const rule: Rule.RuleModule = {
         const scope = context.sourceCode.getScope(node);
         const variable = getVariableFromScope(scope, param.name);
         if (variable?.references.length === 0) {
-          context.report({
-            messageId: 'handleException',
-            node,
-          });
+          const tryStatement = getParent(context, node) as estree.TryStatement;
+          if (!isSingleSimpleStatement(tryStatement.block.body)) {
+            context.report({
+              messageId: 'handleException',
+              node,
+            });
+          }
         }
       },
     };
