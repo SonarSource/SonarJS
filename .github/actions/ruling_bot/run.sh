@@ -74,7 +74,8 @@ write_pr_comment() {
     mv comment-truncated.md comment.md
   fi
 
-  EXISTING_COMMENT_ID="$(gh api "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments" \
+  EXISTING_COMMENT_ID="$(gh api --paginate \
+    "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
     --jq ".[] | select(.body | startswith(\"${COMMENT_MARKER}\")) | .id" | head -1)"
 
   if [ -n "$EXISTING_COMMENT_ID" ]; then
