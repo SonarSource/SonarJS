@@ -31,7 +31,9 @@ import * as Mocha from '../helpers/mocha.js';
 import * as Vitest from '../helpers/vitest.js';
 import {
   hasSupportedAssertionLibrary,
+  hasSupportedTestFramework,
   isAssertion,
+  isIncompleteShouldAccess,
   isTSAssertion,
 } from '../helpers/assertion-detection.js';
 import * as meta from './generated-meta.js';
@@ -46,7 +48,7 @@ import ts from 'typescript';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    if (!hasSupportedAssertionLibrary(context)) {
+    if (!hasSupportedTestFramework(context) || !hasSupportedAssertionLibrary(context)) {
       return {};
     }
     const visitedNodes: Map<estree.Node, boolean> = new Map();
@@ -262,7 +264,7 @@ class TestCaseAssertionVisitor {
       return visitedNodes.get(node)!;
     }
     visitedNodes.set(node, false);
-    if (isAssertion(context, node)) {
+    if (isAssertion(context, node) && !isIncompleteShouldAccess(context, node)) {
       visitedNodes.set(node, true);
       return true;
     }

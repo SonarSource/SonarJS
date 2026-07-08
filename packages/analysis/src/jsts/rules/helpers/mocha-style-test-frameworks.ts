@@ -101,7 +101,7 @@ export function getMochaCalleeParts(
   return current.type === 'Identifier' ? { base: current, modifiers } : undefined;
 }
 
-function collectMemberChain(node: estree.Node): {
+export function collectMemberChain(node: estree.Node): {
   base: estree.Node;
   qualifiers: string[];
 } {
