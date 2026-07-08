@@ -369,10 +369,6 @@ function buildSourceLink(change) {
 }
 
 function getSourceRepositoryPath(change) {
-  if (change.project.startsWith('custom-')) {
-    return `custom/${change.project.slice('custom-'.length)}/${toGitPath(change.relativeFilePath)}`;
-  }
-
   return `${change.project}/${toGitPath(change.relativeFilePath)}`;
 }
 
@@ -421,43 +417,15 @@ function resolveLocalSourceFile(change) {
 
 function detectSnippetLanguage(filePathValue) {
   const extension = path.extname(filePathValue).slice(1).toLowerCase();
-  const basename = path.basename(filePathValue).toLowerCase();
-  const languageByExtension = {
-    bash: 'bash',
-    c: 'c',
-    cc: 'cpp',
-    cpp: 'cpp',
-    cs: 'csharp',
-    css: 'css',
-    go: 'go',
-    h: 'c',
-    hpp: 'cpp',
-    html: 'html',
-    java: 'java',
-    js: 'javascript',
-    json: 'json',
-    jsx: 'jsx',
-    kt: 'kotlin',
-    kts: 'kotlin',
-    php: 'php',
-    py: 'python',
-    rb: 'ruby',
-    scala: 'scala',
-    sh: 'bash',
-    sql: 'sql',
-    swift: 'swift',
-    ts: 'typescript',
-    tsx: 'tsx',
-    xml: 'xml',
-    yaml: 'yaml',
-    yml: 'yaml',
-  };
-
-  if (basename === 'dockerfile') {
-    return 'dockerfile';
-  }
-
-  return languageByExtension[extension] ?? '';
+  return (
+    {
+      ts: 'typescript',
+      tsx: 'tsx',
+      js: 'javascript',
+      jsx: 'jsx',
+      css: 'css',
+    }[extension] || 'javascript'
+  );
 }
 
 function formatLocation(change) {
