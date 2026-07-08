@@ -24,7 +24,7 @@ const ruleTesterVue = new NoTypeCheckingRuleTester({ parser });
 
 describe('S8982', () => {
   it('S8982', () => {
-    ruleTesterVue.run('HTML elements with v-for should have a :key attribute', rule, {
+    ruleTesterVue.run("Add a ':key' binding to this element.", rule, {
       valid: [
         {
           // native element with v-for and :key
@@ -73,7 +73,7 @@ describe('S8982', () => {
   </ul>
 </template>
 `,
-          errors: [{ message: "Add a ':key' binding to this 'v-for' directive." }],
+          errors: [{ message: "Add a ':key' binding to this element." }],
         },
         {
           // nested v-for without :key on inner element
@@ -84,7 +84,7 @@ describe('S8982', () => {
   </div>
 </template>
 `,
-          errors: [{ message: "Add a ':key' binding to this 'v-for' directive." }],
+          errors: [{ message: "Add a ':key' binding to this element." }],
         },
       ],
     });

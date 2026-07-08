@@ -32,7 +32,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         const { messageId: _messageId, data: _data, ...rest } = reportDescriptor;
         context.report({
           ...rest,
-          message: "Add a ':key' binding to this 'v-for' directive.",
+          message: "Add a ':key' binding to this element.",
         });
       }
     },
