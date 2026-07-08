@@ -1,19 +1,11 @@
 {
 "courselit:apps/web/ui-models/app-message.ts": [
-10,
-11,
-12
+6
 ],
 "courselit:packages/common-models/src/app-message.ts": [
-10,
-11,
-12
+6
 ],
 "courselit:packages/utils/src/fetch-builder.ts": [
-18,
-19,
-20,
-21,
-22
+16
 ]
 }

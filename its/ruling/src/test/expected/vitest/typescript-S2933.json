@@ -1,331 +1,200 @@
 {
 "vitest:packages/browser-playwright/src/playwright.ts": [
-128,
-129,
-142
+105
 ],
 "vitest:packages/browser-preview/src/preview.ts": [
-20
+17
 ],
 "vitest:packages/browser-webdriverio/src/locators.ts": [
-152
+148
 ],
 "vitest:packages/browser-webdriverio/src/webdriverio.ts": [
-49,
-50,
-52
+43
 ],
 "vitest:packages/browser/src/client/orchestrator.ts": [
-17,
-21,
-273,
-384
+14
 ],
 "vitest:packages/browser/src/client/tester/runner.ts": [
-62,
-63,
-77
+57
 ],
 "vitest:packages/browser/src/client/tester/snapshot.ts": [
-7,
-8
+6
 ],
 "vitest:packages/browser/src/client/tester/tester-utils.ts": [
-116
+115
 ],
 "vitest:packages/browser/src/node/cdp.ts": [
-10,
-11
-],
-"vitest:packages/browser/src/node/projectParent.ts": [
-33,
-50,
-177
-],
-"vitest:packages/coverage-istanbul/src/provider.ts": [
-29
-],
-"vitest:packages/mocker/src/automocker.ts": [
-184,
-185
-],
-"vitest:packages/mocker/src/browser/mocker.ts": [
-14,
-15,
-18,
-19,
-20,
-21
-],
-"vitest:packages/mocker/src/node/resolver.ts": [
-19,
-20
-],
-"vitest:packages/runner/src/fixture.ts": [
-23,
-24,
-27,
-28,
-37,
-38,
-39
-],
-"vitest:packages/runner/src/utils/tags.ts": [
-167
-],
-"vitest:packages/snapshot/src/client.ts": [
-81
-],
-"vitest:packages/snapshot/src/env/node.ts": [
-6
-],
-"vitest:packages/snapshot/src/port/state.ts": [
-65,
-67,
-69,
-72,
-73,
-74,
-75,
-76,
-82,
-83,
-84,
-85
-],
-"vitest:packages/snapshot/src/port/utils.ts": [
-241
-],
-"vitest:packages/ui/client/composables/explorer/tree.ts": [
-21,
-29
-],
-"vitest:packages/utils/src/diff/getAlignedDiffs.ts": [
-35,
-36
-],
-"vitest:packages/vitest/src/integrations/mock/timers.ts": [
-18,
-28,
-30
-],
-"vitest:packages/vitest/src/node/browser/sessions.ts": [
-6
-],
-"vitest:packages/vitest/src/node/cache/fsModuleCache.ts": [
-33,
-34,
-36,
-37,
-38,
-39,
-42,
-48
-],
-"vitest:packages/vitest/src/node/cache/results.ts": [
-16,
-21
-],
-"vitest:packages/vitest/src/node/core.ts": [
-158,
-159,
-160,
-161,
-163,
-437,
-460
-],
-"vitest:packages/vitest/src/node/environments/fetchModule.ts": [
-21,
-22,
-25,
-26,
-27,
-28
-],
-"vitest:packages/vitest/src/node/environments/serverRunner.ts": [
-11,
-13
-],
-"vitest:packages/vitest/src/node/logger.ts": [
-38,
-39
-],
-"vitest:packages/vitest/src/node/pools/browser.ts": [
-191,
-193,
-194,
-200,
-201
-],
-"vitest:packages/vitest/src/node/pools/pool.ts": [
-35,
-41,
-41
-],
-"vitest:packages/vitest/src/node/pools/poolRunner.ts": [
-51,
-53,
-59,
-60,
-62,
-63,
-347,
-353,
-369
-],
-"vitest:packages/vitest/src/node/pools/workers/forksWorker.ts": [
-19,
-20
-],
-"vitest:packages/vitest/src/node/pools/workers/threadsWorker.ts": [
-15,
-16
-],
-"vitest:packages/vitest/src/node/pools/workers/typecheckWorker.ts": [
-18
-],
-"vitest:packages/vitest/src/node/reporters/base.ts": [
-55
-],
-"vitest:packages/vitest/src/node/reporters/default.ts": [
-15,
-16
-],
-"vitest:packages/vitest/src/node/reporters/dot.ts": [
-21,
-22
-],
-"vitest:packages/vitest/src/node/reporters/junit.ts": [
-126
-],
-"vitest:packages/vitest/src/node/reporters/renderers/indented-logger.ts": [
 4
 ],
-"vitest:packages/vitest/src/node/reporters/renderers/windowedRenderer.ts": [
-26,
-27,
-28,
-35
+"vitest:packages/browser/src/node/projectParent.ts": [
+24
 ],
-"vitest:packages/vitest/src/node/reporters/reported-tasks.ts": [
-245,
-246
+"vitest:packages/coverage-istanbul/src/provider.ts": [
+24
 ],
-"vitest:packages/vitest/src/node/reporters/summary.ts": [
-58,
-61
+"vitest:packages/mocker/src/automocker.ts": [
+183
 ],
-"vitest:packages/vitest/src/node/resolver.ts": [
-14
+"vitest:packages/mocker/src/browser/mocker.ts": [
+11
 ],
-"vitest:packages/vitest/src/node/specifications.ts": [
-14
+"vitest:packages/mocker/src/node/resolver.ts": [
+17
 ],
-"vitest:packages/vitest/src/node/test-run.ts": [
-28
+"vitest:packages/runner/src/fixture.ts": [
+22
 ],
-"vitest:packages/vitest/src/node/watch-filter.ts": [
-21,
-23,
-27,
-28
+"vitest:packages/runner/src/utils/tags.ts": [
+165
 ],
-"vitest:packages/vitest/src/node/watcher.ts": [
+"vitest:packages/snapshot/src/client.ts": [
+78
+],
+"vitest:packages/snapshot/src/env/node.ts": [
+5
+],
+"vitest:packages/snapshot/src/port/state.ts": [
+64
+],
+"vitest:packages/snapshot/src/port/utils.ts": [
+239
+],
+"vitest:packages/ui/client/composables/explorer/tree.ts": [
 20
 ],
-"vitest:packages/vitest/src/runtime/external-executor.ts": [
-44,
-45,
-46,
-47,
-48,
-49,
-54
+"vitest:packages/utils/src/diff/getAlignedDiffs.ts": [
+33
 ],
-"vitest:packages/vitest/src/runtime/moduleRunner/moduleDebug.ts": [
-37
+"vitest:packages/vitest/src/integrations/mock/timers.ts": [
+17
 ],
-"vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
-42,
-44,
-45,
-47,
-53,
-54,
-55,
-59
+"vitest:packages/vitest/src/node/browser/sessions.ts": [
+5
 ],
-"vitest:packages/vitest/src/runtime/moduleRunner/moduleMocker.ts": [
-19
+"vitest:packages/vitest/src/node/cache/fsModuleCache.ts": [
+26
 ],
-"vitest:packages/vitest/src/runtime/moduleRunner/moduleRunner.ts": [
-52,
-53,
-55
-],
-"vitest:packages/vitest/src/runtime/moduleRunner/moduleTransport.ts": [
-12,
-13,
+"vitest:packages/vitest/src/node/cache/results.ts": [
 14
 ],
-"vitest:packages/vitest/src/runtime/moduleRunner/nativeModuleMocker.ts": [
-167,
-181,
-182
+"vitest:packages/vitest/src/node/core.ts": [
+67
 ],
-"vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
-155
+"vitest:packages/vitest/src/node/environments/fetchModule.ts": [
+20
 ],
-"vitest:packages/vitest/src/runtime/runners/test.ts": [
-37,
-38,
-39,
-42,
-47
+"vitest:packages/vitest/src/node/environments/serverRunner.ts": [
+9
 ],
-"vitest:packages/vitest/src/runtime/vm/commonjs-executor.ts": [
-24,
-25,
-26,
-28,
-30,
-35,
-36,
-37,
-193,
-198
+"vitest:packages/vitest/src/node/logger.ts": [
+36
 ],
-"vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
-16,
-18,
-19,
-21,
-24
+"vitest:packages/vitest/src/node/pools/browser.ts": [
+186
 ],
-"vitest:packages/vitest/src/runtime/vm/file-map.ts": [
-6,
+"vitest:packages/vitest/src/node/pools/pool.ts": [
+31
+],
+"vitest:packages/vitest/src/node/pools/poolRunner.ts": [
+42
+],
+"vitest:packages/vitest/src/node/pools/workers/forksWorker.ts": [
+10
+],
+"vitest:packages/vitest/src/node/pools/workers/threadsWorker.ts": [
 7
 ],
-"vitest:packages/vitest/src/runtime/vm/vite-executor.ts": [
-22,
-24
+"vitest:packages/vitest/src/node/pools/workers/typecheckWorker.ts": [
+14
 ],
-"vitest:packages/vitest/src/utils/nativeModuleRunner.ts": [
-13
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+43
 ],
-"vitest:packages/vitest/src/utils/traces.ts": [
-46,
-47,
+"vitest:packages/vitest/src/node/reporters/default.ts": [
+14
+],
+"vitest:packages/vitest/src/node/reporters/dot.ts": [
+19
+],
+"vitest:packages/vitest/src/node/reporters/junit.ts": [
+119
+],
+"vitest:packages/vitest/src/node/reporters/renderers/indented-logger.ts": [
+1
+],
+"vitest:packages/vitest/src/node/reporters/renderers/windowedRenderer.ts": [
+25
+],
+"vitest:packages/vitest/src/node/reporters/reported-tasks.ts": [
+244
+],
+"vitest:packages/vitest/src/node/reporters/summary.ts": [
 48
 ],
+"vitest:packages/vitest/src/node/resolver.ts": [
+12
+],
+"vitest:packages/vitest/src/node/specifications.ts": [
+11
+],
+"vitest:packages/vitest/src/node/test-run.ts": [
+27
+],
+"vitest:packages/vitest/src/node/watch-filter.ts": [
+20
+],
+"vitest:packages/vitest/src/node/watcher.ts": [
+8
+],
+"vitest:packages/vitest/src/runtime/external-executor.ts": [
+43
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleDebug.ts": [
+36
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
+39
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleMocker.ts": [
+18
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleRunner.ts": [
+47
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleTransport.ts": [
+10
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/nativeModuleMocker.ts": [
+16
+],
+"vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
+154
+],
+"vitest:packages/vitest/src/runtime/runners/test.ts": [
+36
+],
+"vitest:packages/vitest/src/runtime/vm/commonjs-executor.ts": [
+23
+],
+"vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
+15
+],
+"vitest:packages/vitest/src/runtime/vm/file-map.ts": [
+5
+],
+"vitest:packages/vitest/src/runtime/vm/vite-executor.ts": [
+21
+],
+"vitest:packages/vitest/src/utils/nativeModuleRunner.ts": [
+7
+],
+"vitest:packages/vitest/src/utils/traces.ts": [
+39
+],
 "vitest:packages/web-worker/src/shared-worker.ts": [
-56,
-58
+53
 ],
 "vitest:packages/web-worker/src/worker.ts": [
-24,
-25,
-30
+21
 ]
 }
