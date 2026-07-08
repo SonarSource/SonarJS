@@ -367,8 +367,11 @@ function removeLines(
   node: estree.Node,
 ): Rule.Fix {
   const sourceCode = context.sourceCode;
-  const lineStart = sourceCode.getIndexFromLoc({ line: node.loc!.start.line, column: 0 });
-  const nodeEnd = node.range![1];
+  const lineStart = sourceCode.getIndexFromLoc({
+    line: sourceCode.getLoc(node).start.line,
+    column: 0,
+  });
+  const nodeEnd = sourceCode.getRange(node)[1];
   const trailingNewline = /^\r?\n/.exec(sourceCode.text.slice(nodeEnd));
   const end = nodeEnd + (trailingNewline ? trailingNewline[0].length : 0);
   return fixer.removeRange([lineStart, end]);
