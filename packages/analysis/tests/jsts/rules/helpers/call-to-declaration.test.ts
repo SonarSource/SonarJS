@@ -129,6 +129,28 @@ describe('call-to-declaration', () => {
     expect(implementation?.getText(sourceFile)).toBe('() => void');
   });
 
+  it('does not trust reassigned object member implementations', () => {
+    const { services, sourceFile, call } = createProgramFromSource(`
+      type Helper = () => void;
+
+      const helpers: { check: Helper } = {
+        check: () => {
+          return;
+        },
+      };
+      helpers.check = () => {};
+
+      helpers.check();
+    `);
+
+    if (!call) {
+      throw new Error('Expected helper call expression to exist');
+    }
+    const implementation = followCallToImplementation(call, services);
+
+    expect(implementation?.getText(sourceFile)).toBe('() => void');
+  });
+
   it('resolves typed helper calls in imported declarations without an ESTree mapping', () => {
     const helperFileName = '/project/helper.ts';
     const program = createProgramFromFiles({

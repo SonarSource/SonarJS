@@ -153,8 +153,10 @@ function followObjectLiteralMemberToDeclaration(
   if (
     !ts.isVariableDeclaration(declaration) ||
     !isConstVariableDeclaration(declaration) ||
+    !ts.isIdentifier(declaration.name) ||
     declaration.initializer === undefined ||
-    !ts.isObjectLiteralExpression(declaration.initializer)
+    !ts.isObjectLiteralExpression(declaration.initializer) ||
+    hasPropertyWrite(declaration.name.text, propertyName, declaration.getSourceFile())
   ) {
     return undefined;
   }
@@ -197,8 +199,10 @@ function followTypeScriptObjectLiteralMemberToDeclaration(
   if (
     !ts.isVariableDeclaration(declaration) ||
     !isConstVariableDeclaration(declaration) ||
+    !ts.isIdentifier(declaration.name) ||
     declaration.initializer === undefined ||
-    !ts.isObjectLiteralExpression(declaration.initializer)
+    !ts.isObjectLiteralExpression(declaration.initializer) ||
+    hasPropertyWrite(declaration.name.text, propertyName, declaration.getSourceFile())
   ) {
     return undefined;
   }
@@ -225,6 +229,35 @@ function followTypeScriptCalleeToDeclaration(
     );
   }
   return undefined;
+}
+
+function hasPropertyWrite(objectName: string, propertyName: string, sourceFile: ts.SourceFile) {
+  let found = false;
+  const visit = (node: ts.Node) => {
+    if (found) {
+      return;
+    }
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+      isPropertyAccess(node.left, objectName, propertyName)
+    ) {
+      found = true;
+      return;
+    }
+    node.forEachChild(visit);
+  };
+  sourceFile.forEachChild(visit);
+  return found;
+}
+
+function isPropertyAccess(node: ts.Node, objectName: string, propertyName: string) {
+  return (
+    ts.isPropertyAccessExpression(node) &&
+    ts.isIdentifier(node.expression) &&
+    node.expression.text === objectName &&
+    node.name.text === propertyName
+  );
 }
 
 /**

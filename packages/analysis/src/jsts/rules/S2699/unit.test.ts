@@ -827,6 +827,29 @@ type AssertionHelper = (actual: unknown, expected: unknown) => void;
 declare const actual: unknown;
 declare const expected: unknown;
 
+const helpers: { check: AssertionHelper } = {
+  check: (actual, expected) => {
+    assert.deepEqual(actual, expected);
+  },
+};
+helpers.check = () => {};
+
+test('has no helper assertion', () => {
+  helpers.check(actual, expected);
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+type AssertionHelper = (actual: unknown, expected: unknown) => void;
+
+declare const actual: unknown;
+declare const expected: unknown;
+
 let check: AssertionHelper = (actual, expected) => {
   assert.deepEqual(actual, expected);
 };
