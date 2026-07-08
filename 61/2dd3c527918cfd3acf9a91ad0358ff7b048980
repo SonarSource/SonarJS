@@ -1,0 +1,19 @@
+packages/analysis/src/jsts/rules/helpers/call-to-declaration.ts
+  s_bb9a22f8451ca3::t_52c324c19d6f61 19,23-25,74,77-79,90,93,112
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "612dd3c527918cfd3acf9a91ad0358ff7b048980",
+  "prompts": {},
+  "sessions": {
+    "s_bb9a22f8451ca3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f3c68-90e6-7673-b508-d9a35a0a4e19",
+        "model": "gpt-5.5"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
