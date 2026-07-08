@@ -91,7 +91,7 @@ function getPrimaryLocation(
   }
 
   const classKeyword = context.sourceCode.getFirstToken(
-    classNode,
+    classNode as unknown as Rule.Node,
     token => token.value === 'class',
   );
   return classKeyword?.loc ? { loc: classKeyword.loc } : classNode;
