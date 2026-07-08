@@ -96,34 +96,16 @@ export function isGuardedByTypeofCheckFalsePositive(
 
 /**
  * Detects whether an identifier is being implicitly stringified by its surrounding expression.
- *
- * This matcher accepts template-literal interpolations and `+` concatenations, and it
- * transparently walks through TypeScript-only wrappers such as casts and non-null assertions
- * so the check still applies to the underlying value expression.
  */
 function isImplicitlyStringified(node: TSESTree.Identifier): boolean {
-  let current: TSESTree.Node = node;
-  while (current.parent) {
-    const parent: TSESTree.Node = current.parent;
-    if (
-      parent.type === 'TemplateLiteral' &&
-      parent.expressions.includes(current as TSESTree.Expression)
-    ) {
-      return true;
-    }
-    if (isBinaryPlus(parent as estree.Node)) {
-      return true;
-    }
-    if (
-      parent.type !== 'TSAsExpression' &&
-      parent.type !== 'TSTypeAssertion' &&
-      parent.type !== 'TSNonNullExpression'
-    ) {
-      return false;
-    }
-    current = parent;
-  }
-  return false;
+  const parent = node.parent;
+  return (
+    (parent?.type === 'TemplateLiteral' && parent.expressions.includes(node)) ||
+    (parent !== undefined && isBinaryPlus(parent as estree.Node)) ||
+    (parent?.type === 'AssignmentExpression' &&
+      parent.operator === '+=' &&
+      (parent.left === node || parent.right === node))
+  );
 }
 
 function conditionMakesBranchSafeToStringify(

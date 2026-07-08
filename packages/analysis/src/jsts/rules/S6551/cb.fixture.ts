@@ -178,6 +178,14 @@ function guardedByPrimitiveTypeofDisjunction(value: unknown): string | undefined
   return undefined;
 }
 
+function guardedPlusEquals(value: unknown): string {
+  let rendered = '';
+  if (typeof value !== 'object') {
+    rendered += value; // Compliant
+  }
+  return rendered;
+}
+
 function guardedByTypeofNotObjectConjunction(value: unknown, label: string): string {
   if (typeof value !== 'object' && value !== null && value !== undefined) {
     return `${label}: ${value}`; // Compliant

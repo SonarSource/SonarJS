@@ -178,6 +178,31 @@ function guardedByReversedTypeofObjectElse(value: unknown): string {
       ],
     });
   });
+
+  it('upstream no-base-to-string reports wrapped operands on the wrapper node', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('no-base-to-string', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+function wrappedValue(value: unknown): string {
+  return \`Unexpected value: \${value as object}\`;
+}
+          `,
+          errors: [{ messageId: 'baseToString', type: 'TSAsExpression' }],
+        },
+        {
+          code: `
+function nonNullValue(value: object | null): string {
+  return \`Unexpected value: \${value!}\`;
+}
+          `,
+          errors: [{ messageId: 'baseToString', type: 'TSNonNullExpression' }],
+        },
+      ],
+    });
+  });
 });
 
 describe('Rule S6551', () => {
