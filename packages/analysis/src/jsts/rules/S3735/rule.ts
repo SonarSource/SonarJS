@@ -18,7 +18,6 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
   isRequiredParserServices,
@@ -26,6 +25,7 @@ import {
 } from '../helpers/parser-services.js';
 import {
   getTypeFromTreeNode,
+  isAnyOrUnknownType,
   isThenableOrGuardUnion,
   isThenableOrVoidUnion,
 } from '../helpers/type.js';
@@ -114,6 +114,5 @@ function isCallLikeExpression(node: estree.Node) {
  * @return Whether the resolved type is `any` or `unknown`.
  */
 function hasIndeterminateType(node: estree.Node, services: RequiredParserServices) {
-  const type = getTypeFromTreeNode(node, services);
-  return (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0;
+  return isAnyOrUnknownType(getTypeFromTreeNode(node, services));
 }

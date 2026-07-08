@@ -330,7 +330,7 @@ function areSameTypeArguments(
   return checker.typeToString(left) === checker.typeToString(right);
 }
 
-function isAnyOrUnknownType(type: ts.Type): boolean {
+export function isAnyOrUnknownType(type: ts.Type): boolean {
   return (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0;
 }
 
