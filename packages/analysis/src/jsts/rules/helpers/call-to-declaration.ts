@@ -16,12 +16,8 @@
  */
 import type estree from 'estree';
 import ts from 'typescript';
-import type { TSESTree } from '@typescript-eslint/utils';
 import type { RequiredParserServices } from './parser-services.js';
 import { getSignatureFromCallee, getSymbolAtLocation } from './type.js';
-
-type SupportedCallExpression = estree.CallExpression | TSESTree.CallExpression;
-type SupportedIdentifier = estree.Identifier | TSESTree.Identifier;
 
 function normalizeToFunctionLikeDeclaration(
   declaration: ts.Declaration | undefined,
@@ -34,6 +30,14 @@ function normalizeToFunctionLikeDeclaration(
   }
   if (
     ts.isVariableDeclaration(declaration) &&
+    isConstVariableDeclaration(declaration) &&
+    declaration.initializer !== undefined &&
+    ts.isFunctionLike(declaration.initializer)
+  ) {
+    return declaration.initializer;
+  }
+  if (
+    ts.isPropertyAssignment(declaration) &&
     declaration.initializer !== undefined &&
     ts.isFunctionLike(declaration.initializer)
   ) {
@@ -42,13 +46,19 @@ function normalizeToFunctionLikeDeclaration(
   return undefined;
 }
 
+function isConstVariableDeclaration(declaration: ts.VariableDeclaration): boolean {
+  return ts.isVariableDeclarationList(declaration.parent)
+    ? (declaration.parent.flags & ts.NodeFlags.Const) !== 0
+    : false;
+}
+
 function hasBody(
   declaration: ts.SignatureDeclaration | undefined,
 ): declaration is ts.SignatureDeclaration & ts.FunctionLikeDeclarationBase {
   return declaration !== undefined && isFunctionLikeDeclaration(declaration) && !!declaration.body;
 }
 
-function isFunctionLikeDeclaration(
+export function isFunctionLikeDeclaration(
   declaration: ts.Declaration,
 ): declaration is ts.FunctionLikeDeclarationBase {
   return [
@@ -71,12 +81,10 @@ function isFunctionLikeDeclaration(
  * Only one hop is followed: the directly called function. Deeper call chains are not resolved.
  */
 export function followCallToDeclaration(
-  call: SupportedCallExpression,
+  call: estree.CallExpression,
   services: RequiredParserServices,
 ): ts.SignatureDeclaration | undefined {
-  return normalizeToFunctionLikeDeclaration(
-    getSignatureFromCallee(call as estree.CallExpression, services)?.declaration,
-  );
+  return normalizeToFunctionLikeDeclaration(getSignatureFromCallee(call, services)?.declaration);
 }
 
 /**
@@ -87,10 +95,10 @@ export function followCallToDeclaration(
  * intentionally return `undefined`.
  */
 export function followReferenceToDeclaration(
-  node: SupportedIdentifier,
+  node: estree.Identifier,
   services: RequiredParserServices,
 ): ts.SignatureDeclaration | undefined {
-  let symbol = getSymbolAtLocation(node as estree.Identifier, services);
+  let symbol = getSymbolAtLocation(node, services);
   if (symbol === undefined) {
     return undefined;
   }
@@ -103,13 +111,65 @@ export function followReferenceToDeclaration(
   return normalizeToFunctionLikeDeclaration(symbol.declarations[0]);
 }
 
+function followMemberPropertyToDeclaration(
+  call: estree.CallExpression,
+  services: RequiredParserServices,
+): ts.SignatureDeclaration | undefined {
+  if (
+    call.callee.type !== 'MemberExpression' ||
+    call.callee.computed ||
+    call.callee.property.type !== 'Identifier'
+  ) {
+    return undefined;
+  }
+  return (
+    followObjectLiteralMemberToDeclaration(
+      call.callee.object,
+      call.callee.property.name,
+      services,
+    ) ?? followReferenceToDeclaration(call.callee.property, services)
+  );
+}
+
+function followObjectLiteralMemberToDeclaration(
+  object: estree.Expression | estree.Super,
+  propertyName: string,
+  services: RequiredParserServices,
+): ts.SignatureDeclaration | undefined {
+  if (object.type !== 'Identifier') {
+    return undefined;
+  }
+  let symbol = getSymbolAtLocation(object, services);
+  if (symbol === undefined) {
+    return undefined;
+  }
+  if ((symbol.flags & ts.SymbolFlags.Alias) !== 0) {
+    symbol = services.program.getTypeChecker().getAliasedSymbol(symbol);
+  }
+  if (symbol.declarations?.length !== 1) {
+    return undefined;
+  }
+  const declaration = symbol.declarations[0];
+  if (
+    !ts.isVariableDeclaration(declaration) ||
+    !isConstVariableDeclaration(declaration) ||
+    declaration.initializer === undefined ||
+    !ts.isObjectLiteralExpression(declaration.initializer)
+  ) {
+    return undefined;
+  }
+  return normalizeToFunctionLikeDeclaration(
+    declaration.initializer.properties.find(property => property.name?.getText() === propertyName),
+  );
+}
+
 /**
  * Resolves a call expression to executable code when possible. TypeScript may resolve a typed
- * function value call to its call signature rather than to the assigned implementation; in that
- * case, fallback to the callee identifier's value declaration.
+ * function value call to its call signature rather than to the assigned implementation. In that
+ * case, fallback to the callee's value declaration for direct identifiers and object members.
  */
 export function followCallToImplementation(
-  call: SupportedCallExpression,
+  call: estree.CallExpression,
   services: RequiredParserServices,
 ): ts.SignatureDeclaration | undefined {
   const declaration = followCallToDeclaration(call, services);
@@ -119,5 +179,5 @@ export function followCallToImplementation(
   if (call.callee.type === 'Identifier') {
     return followReferenceToDeclaration(call.callee, services) ?? declaration;
   }
-  return declaration;
+  return followMemberPropertyToDeclaration(call, services) ?? declaration;
 }

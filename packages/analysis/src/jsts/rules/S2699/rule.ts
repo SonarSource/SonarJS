@@ -245,7 +245,7 @@ class TestCaseAssertionVisitor {
       const estreeNode = services.tsNodeToESTreeNodeMap.get(node);
       const declaration =
         estreeNode?.type === 'CallExpression'
-          ? followCallToImplementation(estreeNode, services)
+          ? followCallToImplementation(estreeNode as estree.CallExpression, services)
           : services.program.getTypeChecker().getResolvedSignature(node as ts.CallLikeExpression)
               ?.declaration;
       if (declaration) {

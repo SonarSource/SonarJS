@@ -84,6 +84,49 @@ describe('call-to-declaration', () => {
 
     expect(declaration?.getText(sourceFile)).toContain('return;');
   });
+
+  it('resolves typed object member calls to their implementation', () => {
+    const { services, sourceFile, call } = createProgramFromSource(`
+      type Helper = () => void;
+
+      const helpers: { check: Helper } = {
+        check: () => {
+          return;
+        },
+      };
+
+      helpers.check();
+    `);
+
+    if (!call) {
+      throw new Error('Expected helper call expression to exist');
+    }
+    const declaration = followCallToDeclaration(call, services);
+    const implementation = followCallToImplementation(call, services);
+
+    expect(declaration?.getText(sourceFile)).toBe('() => void');
+    expect(implementation?.getText(sourceFile)).toContain('return;');
+  });
+
+  it('does not trust mutable typed function value initializers as implementations', () => {
+    const { services, sourceFile, call } = createProgramFromSource(`
+      type Helper = () => void;
+
+      let helper: Helper = () => {
+        return;
+      };
+      helper = () => {};
+
+      helper();
+    `);
+
+    if (!call) {
+      throw new Error('Expected helper call expression to exist');
+    }
+    const implementation = followCallToImplementation(call, services);
+
+    expect(implementation?.getText(sourceFile)).toBe('() => void');
+  });
 });
 
 function createProgramFromSource(sourceCode: string): {
@@ -113,8 +156,11 @@ function createProgramFromSource(sourceCode: string): {
     parseResult.ast as estree.Node,
     node =>
       node.type === 'CallExpression' &&
-      node.callee.type === 'Identifier' &&
-      node.callee.name === 'helper',
+      ((node.callee.type === 'Identifier' && node.callee.name === 'helper') ||
+        (node.callee.type === 'MemberExpression' &&
+          !node.callee.computed &&
+          node.callee.property.type === 'Identifier' &&
+          node.callee.property.name === 'check')),
   ) as estree.CallExpression | undefined;
 
   const referenceStart = sourceCode.indexOf('use(helper)');

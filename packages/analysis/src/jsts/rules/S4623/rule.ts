@@ -25,6 +25,7 @@ import {
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isUndefined } from '../helpers/ast.js';
 import { last } from '../helpers/collection.js';
+import { isFunctionLikeDeclaration } from '../helpers/call-to-declaration.js';
 import type estree from 'estree';
 import ts from 'typescript';
 import * as meta from './generated-meta.js';
@@ -99,18 +100,4 @@ function isOptionalParameter(
     }
   }
   return false;
-}
-
-function isFunctionLikeDeclaration(
-  declaration: ts.Declaration,
-): declaration is ts.FunctionLikeDeclarationBase {
-  return [
-    ts.SyntaxKind.FunctionDeclaration,
-    ts.SyntaxKind.FunctionExpression,
-    ts.SyntaxKind.ArrowFunction,
-    ts.SyntaxKind.MethodDeclaration,
-    ts.SyntaxKind.Constructor,
-    ts.SyntaxKind.GetAccessor,
-    ts.SyntaxKind.SetAccessor,
-  ].includes(declaration.kind);
 }
