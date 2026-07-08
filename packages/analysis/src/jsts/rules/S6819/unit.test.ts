@@ -34,6 +34,19 @@ describe('S6819 upstream sentinel', () => {
         { code: `<div role="listbox"><div role="option">Item</div></div>`, errors: 2 },
         // ul/li listbox/option — suppressed by decorator, raised by upstream
         { code: `<ul role="listbox"><li role="option">Item</li></ul>`, errors: 2 },
+        // grouped listbox — suppressed by decorator, raised by upstream
+        {
+          code: `<div role="listbox"><ul role="group"><li role="option">Item</li></ul></div>`,
+          errors: 3,
+        },
+        {
+          code: `<section role="listbox"><div role="group"><div role="option">Item</div></div></section>`,
+          errors: 3,
+        },
+        {
+          code: `<div role="listbox"><div role="group">{items.map(item => <div role="option">{item}</div>)}</div></div>`,
+          errors: 3,
+        },
       ],
     });
   });
@@ -490,6 +503,42 @@ describe('S6819', () => {
             </ul>
           `,
         },
+        {
+          // Compliant: grouped listbox
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <ul role="group" aria-label="Europe">
+                <li role="option" aria-selected="true">Paris</li>
+                <li role="option" aria-selected="false">Berlin</li>
+              </ul>
+            </div>
+          `,
+        },
+        {
+          // Compliant: generic grouped listbox
+          code: `
+            <section role="listbox" aria-label="Projects">
+              <div role="group" aria-label="Active projects">
+                <div role="option" aria-selected="true">Apollo</div>
+                <div role="option" aria-selected="false">Gemini</div>
+              </div>
+            </section>
+          `,
+        },
+        {
+          // Compliant: expression-contained options
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                {cities.map(city => (
+                  <div role="option" aria-selected={city === 'Paris'} key={city}>
+                    {city}
+                  </div>
+                ))}
+              </div>
+            </div>
+          `,
+        },
       ],
       invalid: [
         // True positive: option without listbox ancestor (use <option>)
@@ -501,6 +550,16 @@ describe('S6819', () => {
         {
           code: `<div role="listbox"><div>hello</div></div>`,
           errors: 1,
+        },
+        // True positive: group without listbox ancestor
+        {
+          code: `<div role="group"><div role="option">Item</div></div>`,
+          errors: 2,
+        },
+        // True positive: group inside listbox without option descendants
+        {
+          code: `<div role="listbox"><div role="group">Europe</div></div>`,
+          errors: 2,
         },
       ],
     });
