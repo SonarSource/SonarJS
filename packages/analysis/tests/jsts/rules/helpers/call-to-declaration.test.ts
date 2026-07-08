@@ -37,6 +37,9 @@ describe('call-to-declaration', () => {
       helper();
     `);
 
+    if (!call) {
+      throw new Error('Expected helper call expression to exist');
+    }
     const declaration = followCallToDeclaration(call, services);
 
     expect(declaration?.getText(sourceFile)).toContain('function helper()');
@@ -53,6 +56,9 @@ describe('call-to-declaration', () => {
       helper();
     `);
 
+    if (!call) {
+      throw new Error('Expected helper call expression to exist');
+    }
     const declaration = followCallToDeclaration(call, services);
     const implementation = followCallToImplementation(call, services);
 
@@ -83,7 +89,7 @@ describe('call-to-declaration', () => {
 function createProgramFromSource(sourceCode: string): {
   services: RequiredParserServices;
   sourceFile: ts.SourceFile;
-  call: estree.CallExpression;
+  call: estree.CallExpression | undefined;
   identifier: estree.Identifier | undefined;
 } {
   const fileName = 'call-to-declaration.test.ts';
@@ -124,7 +130,7 @@ function createProgramFromSource(sourceCode: string): {
   return {
     services: parseResult.services as RequiredParserServices,
     sourceFile,
-    call: call ?? ({} as estree.CallExpression),
+    call,
     identifier,
   };
 }
