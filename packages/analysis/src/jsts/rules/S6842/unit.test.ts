@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { deepStrictEqual } from 'node:assert';
+import { deepStrictEqual, doesNotThrow } from 'node:assert';
 import { describe, it } from 'node:test';
 import { defaultOptions } from '../helpers/configs.js';
 import { fields } from './config.js';
@@ -137,9 +137,11 @@ describe('S6842', () => {
 
   it('should report only the element/role combinations forbidden by ARIA in HTML', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
-    ruleTester.run('no-noninteractive-element-to-interactive-role', rule, {
-      valid: VALID_CASES,
-      invalid: INVALID_CASES,
-    });
+    doesNotThrow(() =>
+      ruleTester.run('no-noninteractive-element-to-interactive-role', rule, {
+        valid: VALID_CASES,
+        invalid: INVALID_CASES,
+      }),
+    );
   });
 });

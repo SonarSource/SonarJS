@@ -248,7 +248,10 @@ function hasFigcaptionChild(
     return false;
   }
   const first = elementChildren[0];
-  const last = elementChildren[elementChildren.length - 1];
+  const last = elementChildren.at(-1);
+  if (last === undefined) {
+    return false;
+  }
   return isFigcaption(context, first) || isFigcaption(context, last);
 }
 
