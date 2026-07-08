@@ -14,9 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'decorated';
-export const eslintId = 'no-required-prop-with-default';
-export const externalRules = [
-  { externalPlugin: 'vue', externalRule: 'no-required-prop-with-default' },
-];
-export const quickFixMessage = 'Change this prop to be optional.';
+// https://sonarsource.github.io/rspec/#/rspec/S8968/javascript
+import { test } from '../../../../tests/jsts/tools/testers/comment-based/checker.js';
+import { rule } from './index.js';
+import { describe } from 'node:test';
+import * as meta from './generated-meta.js';
+
+describe(`Rule S8968`, () => {
+  test(meta, rule, import.meta.dirname);
+});

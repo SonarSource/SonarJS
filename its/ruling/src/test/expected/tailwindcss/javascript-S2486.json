@@ -11,12 +11,6 @@
 "tailwindcss:src/plugins/gradientColorStops.js": [
 21
 ],
-"tailwindcss:src/plugins/ringWidth.js": [
-10
-],
-"tailwindcss:src/util/negateValue.js": [
-6
-],
 "tailwindcss:src/util/withAlphaVariable.js": [
 40
 ]
