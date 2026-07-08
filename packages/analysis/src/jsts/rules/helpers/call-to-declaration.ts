@@ -163,6 +163,70 @@ function followObjectLiteralMemberToDeclaration(
   );
 }
 
+function getAliasedSymbol(symbol: ts.Symbol | undefined, checker: ts.TypeChecker) {
+  if (symbol === undefined) {
+    return undefined;
+  }
+  if ((symbol.flags & ts.SymbolFlags.Alias) !== 0) {
+    return checker.getAliasedSymbol(symbol);
+  }
+  return symbol;
+}
+
+function followTypeScriptReferenceToDeclaration(
+  node: ts.Node,
+  checker: ts.TypeChecker,
+): ts.SignatureDeclaration | undefined {
+  const symbol = getAliasedSymbol(checker.getSymbolAtLocation(node), checker);
+  if (symbol?.declarations?.length !== 1) {
+    return undefined;
+  }
+  return normalizeToFunctionLikeDeclaration(symbol.declarations[0]);
+}
+
+function followTypeScriptObjectLiteralMemberToDeclaration(
+  expression: ts.Expression,
+  propertyName: string,
+  checker: ts.TypeChecker,
+): ts.SignatureDeclaration | undefined {
+  const symbol = getAliasedSymbol(checker.getSymbolAtLocation(expression), checker);
+  if (symbol?.declarations?.length !== 1) {
+    return undefined;
+  }
+  const declaration = symbol.declarations[0];
+  if (
+    !ts.isVariableDeclaration(declaration) ||
+    !isConstVariableDeclaration(declaration) ||
+    declaration.initializer === undefined ||
+    !ts.isObjectLiteralExpression(declaration.initializer)
+  ) {
+    return undefined;
+  }
+  return normalizeToFunctionLikeDeclaration(
+    declaration.initializer.properties.find(property => property.name?.getText() === propertyName),
+  );
+}
+
+function followTypeScriptCalleeToDeclaration(
+  call: ts.CallExpression,
+  checker: ts.TypeChecker,
+): ts.SignatureDeclaration | undefined {
+  const { expression } = call;
+  if (ts.isIdentifier(expression)) {
+    return followTypeScriptReferenceToDeclaration(expression, checker);
+  }
+  if (ts.isPropertyAccessExpression(expression)) {
+    return (
+      followTypeScriptObjectLiteralMemberToDeclaration(
+        expression.expression,
+        expression.name.text,
+        checker,
+      ) ?? followTypeScriptReferenceToDeclaration(expression.name, checker)
+    );
+  }
+  return undefined;
+}
+
 /**
  * Resolves a call expression to executable code when possible. TypeScript may resolve a typed
  * function value call to its call signature rather than to the assigned implementation. In that
@@ -180,4 +244,22 @@ export function followCallToImplementation(
     return followReferenceToDeclaration(call.callee, services) ?? declaration;
   }
   return followMemberPropertyToDeclaration(call, services) ?? declaration;
+}
+
+/**
+ * Resolves a TypeScript call expression to executable code without requiring an ESTree mapping.
+ * This is used while recursively visiting declarations from other files, where
+ * `tsNodeToESTreeNodeMap` only covers the originally parsed file.
+ */
+export function followTypeScriptCallToImplementation(
+  call: ts.CallExpression,
+  checker: ts.TypeChecker,
+): ts.SignatureDeclaration | undefined {
+  const declaration = normalizeToFunctionLikeDeclaration(
+    checker.getResolvedSignature(call)?.declaration,
+  );
+  if (hasBody(declaration)) {
+    return declaration;
+  }
+  return followTypeScriptCalleeToDeclaration(call, checker) ?? declaration;
 }

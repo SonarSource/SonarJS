@@ -24,6 +24,7 @@ import {
   followCallToDeclaration,
   followCallToImplementation,
   followReferenceToDeclaration,
+  followTypeScriptCallToImplementation,
 } from '../../../../src/jsts/rules/helpers/call-to-declaration.js';
 import type { RequiredParserServices } from '../../../../src/jsts/rules/helpers/parser-services.js';
 
@@ -127,7 +128,70 @@ describe('call-to-declaration', () => {
 
     expect(implementation?.getText(sourceFile)).toBe('() => void');
   });
+
+  it('resolves typed helper calls in imported declarations without an ESTree mapping', () => {
+    const helperFileName = '/project/helper.ts';
+    const program = createProgramFromFiles({
+      '/project/test.ts': `
+        import { check } from './helper';
+
+        check();
+      `,
+      [helperFileName]: `
+        type Helper = () => void;
+
+        const assertHelper: Helper = () => {
+          return;
+        };
+
+        export const check: Helper = () => {
+          assertHelper();
+        };
+      `,
+    });
+    const helperSourceFile = program.getSourceFile(helperFileName);
+    if (!helperSourceFile) {
+      throw new Error('Expected helper source file to exist');
+    }
+    const call = findTSNode(
+      helperSourceFile,
+      node =>
+        ts.isCallExpression(node) && node.expression.getText(helperSourceFile) === 'assertHelper',
+    ) as ts.CallExpression | undefined;
+    if (!call) {
+      throw new Error('Expected imported helper call expression to exist');
+    }
+
+    const implementation = followTypeScriptCallToImplementation(call, program.getTypeChecker());
+
+    expect(implementation?.getText(helperSourceFile)).toContain('return;');
+  });
 });
+
+function createProgramFromFiles(files: Record<string, string>): ts.Program {
+  const compilerOptions: ts.CompilerOptions = {
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Node10,
+    target: ts.ScriptTarget.ESNext,
+  };
+  const host = ts.createCompilerHost(compilerOptions);
+  return ts.createProgram({
+    rootNames: Object.keys(files),
+    options: compilerOptions,
+    host: {
+      ...host,
+      fileExists: fileName => Object.hasOwn(files, fileName) || host.fileExists(fileName),
+      readFile: fileName => files[fileName] ?? host.readFile(fileName),
+      getSourceFile: (fileName, languageVersion) => {
+        const sourceCode = files[fileName];
+        if (sourceCode !== undefined) {
+          return ts.createSourceFile(fileName, sourceCode, languageVersion, true);
+        }
+        return host.getSourceFile(fileName, languageVersion);
+      },
+    },
+  });
+}
 
 function createProgramFromSource(sourceCode: string): {
   services: RequiredParserServices;
@@ -209,6 +273,18 @@ function findESTreeNode(
   }
 
   return undefined;
+}
+
+function findTSNode(node: ts.Node, predicate: (node: ts.Node) => boolean): ts.Node | undefined {
+  if (predicate(node)) {
+    return node;
+  }
+
+  let found: ts.Node | undefined;
+  node.forEachChild(child => {
+    found ??= findTSNode(child, predicate);
+  });
+  return found;
 }
 
 function isNode(value: unknown): value is estree.Node {
