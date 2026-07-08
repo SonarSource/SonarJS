@@ -17,35 +17,30 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6842/javascript
 
 import type { ESLintConfiguration } from '../helpers/configs.js';
-import { getUpstreamRecommendedConfiguration } from '../external/a11y.js';
 
-type Allowlist = Record<string, string[]>;
+// Interactive roles that the ARIA in HTML conformance table
+// (https://w3c.github.io/html-aria/#docconformance) permits per element.
+// "Any role" elements, the context-sensitive elements (li, img, figure, label)
+// and the `toolbar` structure role are handled in decorator.ts.
+const LIST_CONTAINER_ROLES = ['listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree'];
 
-const LIST_CONTAINER_COMPOSITE_ROLES = [
-  'listbox',
-  'menu',
-  'menubar',
-  'radiogroup',
-  'tablist',
-  'toolbar',
-  'tree',
-];
-
-const TABLE_COMPOSITE_ROLES = [...LIST_CONTAINER_COMPOSITE_ROLES, 'grid', 'treegrid'];
-
-const upstreamAllowlist = getUpstreamRecommendedConfiguration(
-  'no-noninteractive-element-to-interactive-role',
-) as Allowlist;
-
-const allowlist: Allowlist = {
-  ...upstreamAllowlist,
-  ul: [...new Set([...upstreamAllowlist.ul, 'toolbar'])],
-  ol: [...new Set([...upstreamAllowlist.ol, 'toolbar'])],
-  table: [...new Set([...upstreamAllowlist.table, ...TABLE_COMPOSITE_ROLES])],
-  menu: LIST_CONTAINER_COMPOSITE_ROLES,
-  tbody: TABLE_COMPOSITE_ROLES,
-  thead: TABLE_COMPOSITE_ROLES,
-  tfoot: TABLE_COMPOSITE_ROLES,
+const allowlist: Record<string, string[]> = {
+  ul: LIST_CONTAINER_ROLES,
+  ol: LIST_CONTAINER_ROLES,
+  menu: LIST_CONTAINER_ROLES,
+  nav: ['menu', 'menubar', 'tablist'],
+  h1: ['tab'],
+  h2: ['tab'],
+  h3: ['tab'],
+  h4: ['tab'],
+  h5: ['tab'],
+  h6: ['tab'],
+  fieldset: ['radiogroup', 'presentation'],
+  td: ['gridcell'],
+  progress: ['progressbar'],
+  // Restricted to `listitem` only when the parent still exposes a list role;
+  // decorator.ts allows any role otherwise.
+  li: [],
 };
 
 export const fields: ESLintConfiguration = [
