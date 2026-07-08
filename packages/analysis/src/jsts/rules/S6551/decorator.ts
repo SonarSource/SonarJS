@@ -136,6 +136,9 @@ function getToStringCertainty(node: TSESTree.Node, context: Rule.RuleContext): T
   return collectToStringCertainty(type, checker, getToStringOptions(context), new Set());
 }
 
+// Mirrors @typescript-eslint/no-base-to-string's usefulness heuristic for redirected lodash
+// reports. The wrapped rule only evaluated the namespace receiver, so dependency bumps should
+// compare this block with the upstream rule before changing S6551 behavior.
 function getToStringOptions(context: Rule.RuleContext) {
   const option = context.options[0] as
     { ignoredTypeNames?: string[]; checkUnknown?: boolean } | undefined;

@@ -27,6 +27,45 @@ function lodashNamespaceToStringWithStringArgument(value: string) {
   return _.toString(value); // Compliant
 }
 
+function lodashNamespaceToStringWithUnionArgument(value: string | object) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Noncompliant {{'value' may use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //                ^^^^^
+}
+
+function lodashNamespaceToStringWithObjectArray(values: object[]) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(values); // Noncompliant {{'values' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //                ^^^^^^
+}
+
+function lodashNamespaceToStringWithStringArray(values: string[]) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(values); // Compliant
+}
+
+function lodashNamespaceToStringWithIgnoredType(value: Error) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Compliant
+}
+
+function lodashNamespaceToStringWithConstrainedGeneric<T extends object>(value: T) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //                ^^^^^
+}
+
+function lodashNamespaceToStringWithUnconstrainedGeneric<T>(value: T) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Compliant
+}
+
 function guardedByPrototypeComparison(value: object) {
   if (value.toString !== Object.prototype.toString) {
     return value.toString(); // Compliant // NOSONAR S6551 - intentional compliant fixture assertion.
