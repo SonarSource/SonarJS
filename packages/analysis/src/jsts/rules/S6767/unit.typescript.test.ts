@@ -682,6 +682,21 @@ function SectionListComponent() {
 `,
           filename: fixtureFile,
         },
+        {
+          // FP: array destructuring for prop value ({ section: [title] }) — ArrayPattern value
+          // is handled by isBindingRead; title (first element) is read in the body.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: [title] }: { section: string[] }) => <div>{title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
       ],
       invalid: [],
     });
@@ -708,22 +723,6 @@ declare const React: any;
 function SectionListComponent() {
   const renderHeader = React.useCallback(
     ({ section: { items: [...rest] } }: { section: { items: string[] } }) => <div>{rest}</div>,
-    [],
-  );
-  return <div />;
-}
-`,
-          filename: fixtureFile,
-          errors: 1,
-        },
-        {
-          // TP: array destructuring for prop value ({ section: [title] }) — exercises else branch
-          // in hasDestructuredParamPropUsage (line 113); ArrayPattern value is not suppressed.
-          code: `
-declare const React: any;
-function SectionListComponent() {
-  const renderHeader = React.useCallback(
-    ({ section: [title] }: { section: string[] }) => <div>{title}</div>,
     [],
   );
   return <div />;

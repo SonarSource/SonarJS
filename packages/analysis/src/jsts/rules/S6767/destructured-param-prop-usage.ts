@@ -97,19 +97,5 @@ export function hasDestructuredParamPropUsage(
 
   const value = matchingProperty.value;
   const scope = context.sourceCode.getScope(componentNode);
-
-  if (isIdentifier(value)) {
-    // { section } or { section: alias }
-    const variable = scope.set.get(value.name);
-    return variable?.references.some(ref => ref.isRead()) ?? false;
-  } else if (value.type === 'AssignmentPattern' && isIdentifier(value.left)) {
-    // { section = default } or { section: alias = default }
-    const variable = scope.set.get(value.left.name);
-    return variable?.references.some(ref => ref.isRead()) ?? false;
-  } else if (value.type === 'ObjectPattern') {
-    // { section: { title } } — nested destructuring; suppress if any inner binding is read
-    return hasAnyNestedBindingRead(value, scope);
-  } else {
-    return false;
-  }
+  return isBindingRead(value, scope);
 }
