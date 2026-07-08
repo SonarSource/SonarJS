@@ -31,7 +31,7 @@ import {
   isAssertion,
   isScriptCapableAssertion,
 } from '../helpers/assertion-detection.js';
-import { getFullyQualifiedName } from '../helpers/module.js';
+import { isTypeLevelAssertion } from '../helpers/vitest.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -70,7 +70,7 @@ export const rule: Rule.RuleModule = {
         if (!isAssertion(context, node)) {
           return;
         }
-        if (isVitestTypeLevelAssertion(context, node)) {
+        if (isTypeLevelAssertion(context, node)) {
           return;
         }
         const statement = findEnclosingExpressionStatement(context, node);
@@ -222,39 +222,4 @@ function findEnclosingFunctionIndex(ancestors: estree.Node[]): number {
     }
   }
   return -1;
-}
-
-// Vitest's `expectTypeOf` and `assertType` are compile-time type checks, not runtime
-// assertions — Vitest's type-checking pipeline passes these files to `tsc` for static
-// analysis and never executes them. Placing them outside `test()` is idiomatic in
-// `.test-d.ts` files, so S8784 must not flag them.
-const VITEST_TYPE_LEVEL_ROOTS = ['vitest.expectTypeOf', 'vitest.assertType'];
-const VITEST_TYPE_LEVEL_CALLEE_NAMES = new Set(['expectTypeOf', 'assertType']);
-
-function isVitestTypeLevelAssertion(
-  context: Rule.RuleContext,
-  node: estree.CallExpression,
-): boolean {
-  // FQN-based: covers imported/destructured `expectTypeOf`/`assertType` from vitest.
-  const fqn = getFullyQualifiedName(context, node);
-  if (
-    fqn !== null &&
-    VITEST_TYPE_LEVEL_ROOTS.some(root => fqn === root || fqn.startsWith(`${root}.`))
-  ) {
-    return true;
-  }
-  // Name-based: covers global/unimported usage in chains like `expectTypeOf(x).toBeString()`.
-  // The outer chained call is what `isAssertion` matched; we walk to the innermost call.
-  if (node.callee.type !== 'MemberExpression') {
-    return false;
-  }
-  let current: estree.Expression | estree.Super = node.callee.object;
-  while (current.type === 'MemberExpression') {
-    current = current.object;
-  }
-  return (
-    current.type === 'CallExpression' &&
-    current.callee.type === 'Identifier' &&
-    VITEST_TYPE_LEVEL_CALLEE_NAMES.has(current.callee.name)
-  );
 }
