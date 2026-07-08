@@ -4,11 +4,5 @@
 ],
 "vitest:test/core/test/hoisted-async-simple.test.ts": [
 21
-],
-"vitest:test/typescript/failing/fail.test-d.ts": [
-15
-],
-"vitest:test/typescript/test-d/test.test-d.ts": [
-49
 ]
 }
