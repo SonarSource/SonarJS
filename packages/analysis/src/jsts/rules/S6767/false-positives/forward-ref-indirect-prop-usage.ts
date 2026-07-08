@@ -17,15 +17,15 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import { getNodeParent } from '../helpers/ancestor.js';
+import { getNodeParent } from '../../helpers/ancestor.js';
 import {
   collectReferences,
   getVariableFromName,
   isFunctionNode,
   isIdentifier,
-} from '../helpers/ast.js';
-import { isForwardRefCallee } from '../helpers/react/component-analysis.js';
-import { isNamedPropExpressionOrAlias } from '../helpers/react/prop-alias-resolution.js';
+} from '../../helpers/ast.js';
+import { isForwardRefCallee } from '../../helpers/react/component-analysis.js';
+import { isNamedPropExpressionOrAlias } from '../../helpers/react/prop-alias-resolution.js';
 
 /**
  * False-positive remediation escape:
