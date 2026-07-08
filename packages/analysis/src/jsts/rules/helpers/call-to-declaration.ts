@@ -98,17 +98,10 @@ export function followReferenceToDeclaration(
   node: estree.Identifier,
   services: RequiredParserServices,
 ): ts.SignatureDeclaration | undefined {
-  let symbol = getSymbolAtLocation(node, services);
-  if (symbol === undefined) {
-    return undefined;
-  }
-  if ((symbol.flags & ts.SymbolFlags.Alias) !== 0) {
-    symbol = services.program.getTypeChecker().getAliasedSymbol(symbol);
-  }
-  if (symbol.declarations?.length !== 1) {
-    return undefined;
-  }
-  return normalizeToFunctionLikeDeclaration(symbol.declarations[0]);
+  return followSymbolToDeclaration(
+    getSymbolAtLocation(node, services),
+    services.program.getTypeChecker(),
+  );
 }
 
 function followMemberPropertyToDeclaration(
@@ -139,17 +132,53 @@ function followObjectLiteralMemberToDeclaration(
   if (object.type !== 'Identifier') {
     return undefined;
   }
-  let symbol = getSymbolAtLocation(object, services);
+  return followObjectLiteralSymbolMemberToDeclaration(
+    getSymbolAtLocation(object, services),
+    propertyName,
+    services.program.getTypeChecker(),
+  );
+}
+
+function getAliasedSymbol(symbol: ts.Symbol | undefined, checker: ts.TypeChecker) {
   if (symbol === undefined) {
     return undefined;
   }
   if ((symbol.flags & ts.SymbolFlags.Alias) !== 0) {
-    symbol = services.program.getTypeChecker().getAliasedSymbol(symbol);
+    return checker.getAliasedSymbol(symbol);
   }
-  if (symbol.declarations?.length !== 1) {
+  return symbol;
+}
+
+function followSymbolToDeclaration(
+  symbol: ts.Symbol | undefined,
+  checker: ts.TypeChecker,
+): ts.SignatureDeclaration | undefined {
+  const aliasedSymbol = getAliasedSymbol(symbol, checker);
+  if (aliasedSymbol?.declarations?.length !== 1) {
     return undefined;
   }
-  const declaration = symbol.declarations[0];
+  return normalizeToFunctionLikeDeclaration(aliasedSymbol.declarations[0]);
+}
+
+function followObjectLiteralSymbolMemberToDeclaration(
+  symbol: ts.Symbol | undefined,
+  propertyName: string,
+  checker: ts.TypeChecker,
+): ts.SignatureDeclaration | undefined {
+  const aliasedSymbol = getAliasedSymbol(symbol, checker);
+  if (aliasedSymbol?.declarations?.length !== 1) {
+    return undefined;
+  }
+  return followObjectLiteralDeclarationMemberToDeclaration(
+    aliasedSymbol.declarations[0],
+    propertyName,
+  );
+}
+
+function followObjectLiteralDeclarationMemberToDeclaration(
+  declaration: ts.Declaration,
+  propertyName: string,
+): ts.SignatureDeclaration | undefined {
   if (
     !ts.isVariableDeclaration(declaration) ||
     !isConstVariableDeclaration(declaration) ||
@@ -165,25 +194,11 @@ function followObjectLiteralMemberToDeclaration(
   );
 }
 
-function getAliasedSymbol(symbol: ts.Symbol | undefined, checker: ts.TypeChecker) {
-  if (symbol === undefined) {
-    return undefined;
-  }
-  if ((symbol.flags & ts.SymbolFlags.Alias) !== 0) {
-    return checker.getAliasedSymbol(symbol);
-  }
-  return symbol;
-}
-
 function followTypeScriptReferenceToDeclaration(
   node: ts.Node,
   checker: ts.TypeChecker,
 ): ts.SignatureDeclaration | undefined {
-  const symbol = getAliasedSymbol(checker.getSymbolAtLocation(node), checker);
-  if (symbol?.declarations?.length !== 1) {
-    return undefined;
-  }
-  return normalizeToFunctionLikeDeclaration(symbol.declarations[0]);
+  return followSymbolToDeclaration(checker.getSymbolAtLocation(node), checker);
 }
 
 function followTypeScriptObjectLiteralMemberToDeclaration(
@@ -191,23 +206,10 @@ function followTypeScriptObjectLiteralMemberToDeclaration(
   propertyName: string,
   checker: ts.TypeChecker,
 ): ts.SignatureDeclaration | undefined {
-  const symbol = getAliasedSymbol(checker.getSymbolAtLocation(expression), checker);
-  if (symbol?.declarations?.length !== 1) {
-    return undefined;
-  }
-  const declaration = symbol.declarations[0];
-  if (
-    !ts.isVariableDeclaration(declaration) ||
-    !isConstVariableDeclaration(declaration) ||
-    !ts.isIdentifier(declaration.name) ||
-    declaration.initializer === undefined ||
-    !ts.isObjectLiteralExpression(declaration.initializer) ||
-    hasPropertyWrite(declaration.name.text, propertyName, declaration.getSourceFile())
-  ) {
-    return undefined;
-  }
-  return normalizeToFunctionLikeDeclaration(
-    declaration.initializer.properties.find(property => property.name?.getText() === propertyName),
+  return followObjectLiteralSymbolMemberToDeclaration(
+    checker.getSymbolAtLocation(expression),
+    propertyName,
+    checker,
   );
 }
 
