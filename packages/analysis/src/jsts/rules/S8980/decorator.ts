@@ -56,6 +56,27 @@ function isRecognizedTestingLibraryCall(context: Rule.RuleContext, node: estree.
   );
 }
 
+const SKIPPED_AST_KEYS = new Set(['parent', 'loc', 'range']);
+
+function isNode(value: unknown): value is estree.Node {
+  return !!value && typeof (value as estree.Node).type === 'string';
+}
+
+function childNodesOf(node: estree.Node): estree.Node[] {
+  const children: estree.Node[] = [];
+  for (const [key, value] of Object.entries(node)) {
+    if (SKIPPED_AST_KEYS.has(key)) {
+      continue;
+    }
+    if (Array.isArray(value)) {
+      children.push(...value.filter(isNode));
+    } else if (isNode(value)) {
+      children.push(value);
+    }
+  }
+  return children;
+}
+
 function collectCallExpressions(
   node: estree.Node,
   results: estree.CallExpression[] = [],
@@ -63,20 +84,8 @@ function collectCallExpressions(
   if (node.type === 'CallExpression') {
     results.push(node);
   }
-  for (const key of Object.keys(node)) {
-    if (key === 'parent' || key === 'loc' || key === 'range') {
-      continue;
-    }
-    const value = (node as unknown as Record<string, unknown>)[key];
-    if (Array.isArray(value)) {
-      for (const item of value) {
-        if (item && typeof (item as estree.Node).type === 'string') {
-          collectCallExpressions(item as estree.Node, results);
-        }
-      }
-    } else if (value && typeof (value as estree.Node).type === 'string') {
-      collectCallExpressions(value as estree.Node, results);
-    }
+  for (const child of childNodesOf(node)) {
+    collectCallExpressions(child, results);
   }
   return results;
 }
