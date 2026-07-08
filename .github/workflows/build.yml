@@ -97,12 +97,14 @@ jobs:
       # Reuse the build number minted once in get_build_number everywhere workflow metadata is configured or promoted.
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     steps: &populate_npm_cache_steps
-      - name: Cache NPM dependencies
+      # Producer jobs need a lookup-only probe that still saves a freshly populated cache at job end.
+      - name: Check NPM dependencies cache
         id: cache
-        uses: SonarSource/gh-action_cache@v1
+        uses: actions/cache@v5
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
+          lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
@@ -162,11 +164,12 @@ jobs:
             maven = "3.9"
             node = "24.11.0"
       - &npm_cache
-        name: Cache NPM dependencies
-        uses: SonarSource/gh-action_cache@v1
+        name: Restore NPM dependencies
+        uses: actions/cache/restore@v5
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
+          fail-on-cache-miss: true
       - &download_rspec_rule_data
         name: Download prepared RSPEC rule data
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -300,12 +303,13 @@ jobs:
       - *download_rspec_rule_data
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
-      - &eslint_tarball_cache
-        name: Cache ESLint plugin tarball
-        uses: SonarSource/gh-action_cache@v1
+      - name: Upload ESLint plugin tarball
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          path: lib/*.tgz
-          key: eslint-tarball-${{ github.sha }}
+          name: eslint-tarball-${{ github.sha }}
+          path: lib/eslint-plugin-sonarjs-0.0.0-SNAPSHOT.tgz
+          if-no-files-found: error
+          retention-days: 1
 
   generated_files_freshness:
     runs-on: github-ubuntu-latest-s
@@ -388,7 +392,27 @@ jobs:
           mise_toml: |
             [tools]
             node = "${{ matrix.node-version }}"
-      - *eslint_tarball_cache
+      - name: Download ESLint plugin tarball
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: eslint-tarball-${{ github.sha }}
+          path: lib
+      - name: Validate ESLint plugin tarball
+        shell: bash
+        run: |
+          TARBALL=lib/eslint-plugin-sonarjs-0.0.0-SNAPSHOT.tgz
+
+          if [ -f "$TARBALL" ]; then
+            exit 0
+          fi
+
+          FOUND_TARBALL=$(find lib -name "$(basename "$TARBALL")" -print -quit)
+          if [ -z "$FOUND_TARBALL" ]; then
+            echo "::error::Missing ESLint plugin tarball"
+            exit 1
+          fi
+
+          mv "$FOUND_TARBALL" "$TARBALL"
       - name: Test ESLint Plugin
         run: |
           cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
@@ -419,7 +443,7 @@ jobs:
     steps:
       - name: Restore JS coverage cache
         id: cache
-        uses: SonarSource/gh-action_cache@v1
+        uses: actions/cache@v5
         with:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
@@ -436,12 +460,13 @@ jobs:
             java = "21.0"
             maven = "3.9"
             node = "24.11.0"
-      - name: Cache NPM dependencies
+      - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: SonarSource/gh-action_cache@v1
+        uses: actions/cache/restore@v5
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
+          fail-on-cache-miss: true
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Download prepared RSPEC rule data
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -454,7 +479,8 @@ jobs:
           npm run generate-meta
           npm run bridge:compile
           npm run bridge:test:cov
-      - name: Validate JS coverage reports
+      - &validate_js_coverage_reports
+        name: Validate JS coverage reports
         run: |
           for report in coverage/js/lcov.info coverage/js/test-report.xml; do
             if [ ! -f "$report" ]; then
@@ -478,9 +504,9 @@ jobs:
     needs: [setup, populate_npm_cache_win, prepare_rspec_rule_data]
     permissions: *read_permissions
     steps:
-      - name: Cache JS test results marker (Windows)
+      - name: Check JS test results marker (Windows)
         id: cache
-        uses: SonarSource/gh-action_cache@v1
+        uses: actions/cache@v5
         with:
           path: .js-test-marker-win
           key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
@@ -498,12 +524,13 @@ jobs:
             java = "21.0"
             maven = "3.9"
             node = "24.11.0"
-      - name: Cache NPM dependencies
+      - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: SonarSource/gh-action_cache@v1
+        uses: actions/cache/restore@v5
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
+          fail-on-cache-miss: true
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Download prepared RSPEC rule data
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -542,6 +569,7 @@ jobs:
         with:
           name: js-coverage-reports-${{ github.sha }}
           path: coverage/js
+      - *validate_js_coverage_reports
       - &download_maven_targets
         name: Download Maven target artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -603,6 +631,7 @@ jobs:
       - *npm_cache
       - *maven_cache
       - *download_js_coverage_reports
+      - *validate_js_coverage_reports
       - *download_maven_targets
       - *download_jacoco_xml_reports
       - *config_maven
