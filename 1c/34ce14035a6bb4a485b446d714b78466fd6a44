@@ -1,0 +1,33 @@
+packages/analysis/src/jsts/rules/S8785/call-to-declaration.ts
+  s_bb9a22f8451ca3::t_ce18c2d9ac941e 17-20
+packages/analysis/src/jsts/rules/S2699/unit.test.ts
+  s_bb9a22f8451ca3::t_3e61df5ebf08eb 652-669,757-774
+packages/analysis/src/jsts/rules/helpers/call-to-declaration.ts
+  s_bb9a22f8451ca3::t_ce18c2d9ac941e 1-42,59-117
+  s_bb9a22f8451ca3::t_0e4fae448f5070 43-58
+packages/analysis/src/jsts/rules/S2699/rule.ts
+  s_bb9a22f8451ca3::t_f9bb46369ac840 245
+  s_bb9a22f8451ca3::t_176f05593fc261 32,252
+  s_bb9a22f8451ca3::t_33a7ce0281520e 246-251
+packages/analysis/tests/jsts/rules/helpers/call-to-declaration.test.ts
+  s_bb9a22f8451ca3::t_23a0c6a63d08fa 114,120-122
+  s_bb9a22f8451ca3::t_7a05a4bfe5551d 117-119,127
+  s_bb9a22f8451ca3::t_73fcd56cac6a5f 1-73,77-86,88-113,115-116,123-126,129-164
+  s_bb9a22f8451ca3::t_a31b689ac90691 74-76,87,128
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1c34ce14035a6bb4a485b446d714b78466fd6a44",
+  "prompts": {},
+  "sessions": {
+    "s_bb9a22f8451ca3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f3c68-90e6-7673-b508-d9a35a0a4e19",
+        "model": "gpt-5.5"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
