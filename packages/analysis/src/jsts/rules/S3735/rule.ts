@@ -96,7 +96,7 @@ function isCallLikeExpression(node: estree.Node) {
  * Returns true when TypeScript cannot determine whether `node` resolves to a promise.
  * @param node The expression used with `void`.
  * @param services The TypeScript parser services.
- * @return Whether the resolved type is `any`, `unknown`, or an unresolved error type.
+ * @return Whether the resolved type is `any` or `unknown`.
  */
 function hasIndeterminateType(node: estree.Node, services: RequiredParserServices) {
   const type = getTypeFromTreeNode(node, services);
