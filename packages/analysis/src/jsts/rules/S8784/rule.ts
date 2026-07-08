@@ -30,8 +30,8 @@ import {
   hasSupportedAssertionLibrary,
   isAssertion,
   isScriptCapableAssertion,
+  isTypeLevelAssertion,
 } from '../helpers/assertion-detection.js';
-import { isTypeLevelAssertion } from '../helpers/vitest.js';
 import * as meta from './generated-meta.js';
 
 const messages = {

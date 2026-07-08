@@ -215,6 +215,26 @@ export function isScriptCapableAssertion(context: Rule.RuleContext, node: estree
   return SCRIPT_CAPABLE_DETECTORS.some(detect => detect(context, node));
 }
 
+// All FQN roots whose calls are compile-time-only type checks: Vitest's
+// `expectTypeOf`/`assertType` and the standalone `expect-type` package's
+// `expectTypeOf` (which Vitest uses internally and may be imported directly).
+const TYPE_LEVEL_ASSERTION_ROOTS = [...Vitest.TYPE_LEVEL_ROOTS, 'expect-type.expectTypeOf'];
+
+/**
+ * Whether `node` is a compile-time-only type check that must not be flagged for
+ * placement outside a test case.
+ */
+export function isTypeLevelAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
+  if (node.type !== 'CallExpression') {
+    return false;
+  }
+  const fqn = getFullyQualifiedName(context, node);
+  return (
+    fqn !== null &&
+    TYPE_LEVEL_ASSERTION_ROOTS.some(root => fqn === root || fqn.startsWith(`${root}.`))
+  );
+}
+
 /**
  * Incomplete Chai `foo.should` property chains are not assertions on their own.
  * We exclude them so S2699 does not treat an unfinished `should` chain as an assertion
