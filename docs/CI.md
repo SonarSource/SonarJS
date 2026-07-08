@@ -877,9 +877,20 @@ These are the most important reusable components in the current pipeline.
 | `SonarSource/ci-github-actions/promote` | 1 | Artifactory/Repox promotion | downstream of all build/test gates |
 | `SonarSource/gh-action_releasability/releasability-status` | 1 | releasability commit status | none |
 
-## Optional Follow-Up: `pr-cleanup.yml`
+## PR Cleanup Workflow
 
-A separate PR-close cleanup workflow now makes more sense than before. The common pattern is:
+This branch also adds a companion workflow:
+
+- [`../.github/workflows/pr-cleanup.yml`](../.github/workflows/pr-cleanup.yml)
+
+It runs on `pull_request.closed` and uses `SonarSource/ci-github-actions/pr_cleanup@v1`.
+
+The workflow is intentionally separate from [`../.github/workflows/PullRequestClosed.yml`](../.github/workflows/PullRequestClosed.yml):
+
+- `PullRequestClosed.yml` handles Jira/backlog behavior
+- `pr-cleanup.yml` handles GitHub Actions resource cleanup
+
+The workflow shape is:
 
 ```yaml
 name: Cleanup PR Resources
@@ -897,7 +908,7 @@ jobs:
       - uses: SonarSource/ci-github-actions/pr_cleanup@v1
 ```
 
-What it would help with in SonarJS:
+What it helps with in SonarJS:
 
 - delete PR-scoped GitHub caches after the PR closes
 - delete branch-run artifacts for the PR's head branch
