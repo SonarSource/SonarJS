@@ -31,8 +31,10 @@ supertest(app).get('/').expect(200); // Compliant
 // --- runner-bound: still flagged ---
 expect(value).toBe(1); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
 cy.get('.status').should('be.visible'); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
-// other known global expect entry points (rxjs marble, vitest type assertions)
+// other known global expect entry points (rxjs marble)
 expectObservable(source$).toBe('a-b'); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
+// `expectTypeOf` is only exempt when imported from vitest (FQN check); an unimported
+// name-alike (e.g. from the `expect-type` package) is still runner-bound.
 expectTypeOf(value).toEqualTypeOf(); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
 
 // --- `expect`-prefixed identifiers that are NOT assertion entry points: not flagged ---
