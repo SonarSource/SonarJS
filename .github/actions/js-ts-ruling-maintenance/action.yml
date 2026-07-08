@@ -1,0 +1,43 @@
+name: JS/TS Ruling Maintenance
+description: Generate ruling reports, update PR comments, and manage fix PRs for JS/TS ruling changes
+
+inputs:
+  github-token:
+    description: GitHub token used for PR comments and fix PR management
+    required: true
+  pr-number:
+    description: Pull request number when the workflow runs on a PR
+    required: false
+    default: ''
+  target-ref:
+    description: Branch name targeted by ruling maintenance updates
+    required: true
+  base-ref:
+    description: Base branch or ref used for ruling comparison
+    required: true
+  base-sha:
+    description: Exact base SHA when available
+    required: false
+    default: ''
+  is-pull-request:
+    description: Whether the current workflow run is for a pull request
+    required: true
+  ruling-failed:
+    description: Whether the preceding JS/TS ruling execution failed
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Update ruling and notify
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+        TARGET_REF: ${{ inputs.target-ref }}
+        BASE_REF: ${{ inputs.base-ref }}
+        BASE_SHA: ${{ inputs.base-sha }}
+        IS_PULL_REQUEST: ${{ inputs.is-pull-request }}
+        RULING_FAILED: ${{ inputs.ruling-failed }}
+      run: bash "$ACTION_PATH/run.sh"

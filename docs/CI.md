@@ -26,6 +26,7 @@ This is the document to read first when you need to answer any of these question
 This document focuses on the main `Build` workflow:
 
 - [`../.github/workflows/build.yml`](../.github/workflows/build.yml)
+- [`../.github/actions/js-ts-ruling-maintenance/action.yml`](../.github/actions/js-ts-ruling-maintenance/action.yml)
 - [`../.github/actions/maven-cache/action.yml`](../.github/actions/maven-cache/action.yml)
 - [`../.github/actions/orchestrator-cache/action.yml`](../.github/actions/orchestrator-cache/action.yml)
 - [`../.github/actions/rule-api-cache/action.yml`](../.github/actions/rule-api-cache/action.yml)
@@ -678,7 +679,7 @@ Responsibilities:
 - restore `node_modules`
 - download refreshed RSPEC data
 - run JS/TS ruling
-- on PRs or default branch, delegate ruling report, fix-PR, and comment handling to `tools/js-ts-ruling-update.sh`
+- on PRs or default branch, delegate ruling report, fix-PR, and comment handling to `./.github/actions/js-ts-ruling-maintenance`
 - fail the workflow when ruling needs an update
 
 This job is more than test execution; it is also automated ruling maintenance.
@@ -805,6 +806,7 @@ These are the most important reusable components in the current pipeline.
 | `actions/upload-artifact` | 7 | same-run file handoff | artifact production |
 | `actions/cache` | 4 | cache producer/probe jobs | direct GitHub cache use |
 | `SonarSource/ci-github-actions/get-build-number` | 1 | stable build number | internally uses GitHub cache |
+| `./.github/actions/js-ts-ruling-maintenance` | 1 | repo-owned ruling report/comment/fix-PR automation | control-plane encapsulation, no direct cache semantics |
 | `./.github/actions/rule-api-cache` | 1 | repo-owned rule-api cache policy | official GitHub cache, rolling prefix |
 | `peter-evans/create-pull-request` | 1 | nightly generated-files PR | none |
 | `SonarSource/unified-dogfooding-actions/run-iris` | 1 | nightly cross-platform comparison | none |
