@@ -139,9 +139,10 @@ jobs:
   populate_npm_cache_win:
     runs-on: github-windows-latest-s
     name: Populate NPM cache for Windows
-    needs: setup
+    needs: [setup, get_build_number]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps: *populate_npm_cache_steps
 
   build:
