@@ -1,0 +1,35 @@
+{
+  "title": "Tests should be skipped explicitly",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "mocha",
+    "vitest",
+    "playwright",
+    "node",
+    "bun"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8968",
+  "sqKey": "S8968",
+  "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "TESTED"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

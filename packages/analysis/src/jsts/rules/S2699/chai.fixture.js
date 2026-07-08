@@ -72,7 +72,7 @@ describe('chai test cases', () => {
 
   const throwsTypeError = () => { throw new TypeError() }
 
-  it("uses chai 'should'", function() { // Noncompliant {{Add at least one assertion to this test case.}}
+  it("uses chai 'should'", function() { // Compliant
     // The same is true for "should" assertions.
     throwsTypeError.should.to.not.throw(ReferenceError)
 

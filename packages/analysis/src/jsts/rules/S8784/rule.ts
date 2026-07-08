@@ -30,6 +30,7 @@ import {
   hasSupportedAssertionLibrary,
   isAssertion,
   isScriptCapableAssertion,
+  isTypeLevelAssertion,
 } from '../helpers/assertion-detection.js';
 import * as meta from './generated-meta.js';
 
@@ -67,6 +68,9 @@ export const rule: Rule.RuleModule = {
           hasTestStructure = true;
         }
         if (!isAssertion(context, node)) {
+          return;
+        }
+        if (isTypeLevelAssertion(context, node)) {
           return;
         }
         const statement = findEnclosingExpressionStatement(context, node);
