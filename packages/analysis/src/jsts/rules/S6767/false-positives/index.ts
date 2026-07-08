@@ -36,18 +36,20 @@ export function shouldSuppressFalsePositive(
   propName: string | undefined,
 ): boolean {
   return (
-    allMatch(componentNodes, componentNode => hasSupportedWholePropsUsage(componentNode, context)) ||
+    allMatch(componentNodes, componentNode =>
+      hasDestructuredParamPropUsage(componentNode, context, propName),
+    ) ||
     allMatch(componentNodes, componentNode =>
       hasOwnCustomSuperclassPropsForwarding(componentNode),
+    ) ||
+    allMatch(componentNodes, componentNode =>
+      hasSupportedWholePropsUsage(componentNode, context),
     ) ||
     allMatch(componentNodes, componentNode =>
       hasForwardRefCallbackPropUsage(componentNode, context, propName),
     ) ||
     allMatch(componentNodes, componentNode =>
       hasDecoratorPropUsage(componentNode, context, propName),
-    ) ||
-    allMatch(componentNodes, componentNode =>
-      hasDestructuredParamPropUsage(componentNode, context, propName),
     )
   );
 }

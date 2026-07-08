@@ -593,7 +593,7 @@ function LoadingIcon({ prefixCls }: { prefixCls: string }) {
         {
           // FP: first param is an AssignmentPattern (whole-param default value):
           // ({ section }: { section: SectionItem } = {} as any) — exercises the
-          // firstParam.type === 'AssignmentPattern' branch (line 47).
+          // firstParam.type === 'AssignmentPattern' branch.
           code: `
 declare const React: any;
 type SectionItem = { title: string; };
@@ -609,7 +609,7 @@ function SectionListComponent() {
         },
         {
           // FP: prop with object-default value ({ item = { label: '' } }) in useCallback —
-          // value is AssignmentPattern with Identifier left, exercises lines 66-68.
+          // value is AssignmentPattern with Identifier left.
           code: `
 declare const React: any;
 function ItemRenderer() {
@@ -638,8 +638,8 @@ function SectionListComponent() {
           filename: fixtureFile,
         },
         {
-          // FP: triple nested destructuring ({ section: { nested: { title } } }) — exercises
-          // ObjectPattern branch in isBindingRead (lines 36-37); title is read in the body.
+          // FP: triple nested destructuring ({ section: { nested: { title } } }) — title
+          // is read in the body.
           code: `
 declare const React: any;
 function SectionListComponent() {
@@ -654,7 +654,7 @@ function SectionListComponent() {
         },
         {
           // FP: renamed property with default value ({ section: { title: name = 'def' } }) —
-          // exercises AssignmentPattern branch in isBindingRead (lines 33-34); name is read.
+          // name is read in the body.
           code: `
 declare const React: any;
 function SectionListComponent() {
@@ -668,8 +668,8 @@ function SectionListComponent() {
           filename: fixtureFile,
         },
         {
-          // FP: nested ArrayPattern with hole ({ section: { items: [, title] } }) — exercises
-          // null element path in isBindingRead (line 28); title (second element) is read.
+          // FP: nested ArrayPattern with hole ({ section: { items: [, title] } }) — title
+          // (second element) is read.
           code: `
 declare const React: any;
 function SectionListComponent() {
@@ -697,12 +697,27 @@ function SectionListComponent() {
 `,
           filename: fixtureFile,
         },
+        {
+          // FP: rest element inside nested ArrayPattern ({ section: { items: [...rest] } }) —
+          // isBindingRead delegates to resolveIdentifiers, which unwraps RestElement; rest is read.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: { items: [...rest] } }: { section: { items: string[] } }) => <div>{rest}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
       ],
       invalid: [],
     });
   });
 
-  it('should report props when destructured via patterns not tracked by isBindingRead', () => {
+  it('should report props when destructured via patterns not tracked by hasDestructuredParamPropUsage', () => {
     const ruleTester = new RuleTester({
       parserOptions: {
         project: './tsconfig.json',
@@ -716,13 +731,15 @@ function SectionListComponent() {
       valid: [],
       invalid: [
         {
-          // TP: rest element inside nested ArrayPattern ({ section: { items: [...rest] } }) —
-          // exercises RestElement fall-through in isBindingRead (line 39); section is still reported.
+          // TP: computed property key ({ [propName]: value }) — the matching-property lookup
+          // excludes computed keys, so the escape never resolves the binding; section is
+          // still reported even though `value` is read.
           code: `
 declare const React: any;
 function SectionListComponent() {
+  const propName = 'section';
   const renderHeader = React.useCallback(
-    ({ section: { items: [...rest] } }: { section: { items: string[] } }) => <div>{rest}</div>,
+    ({ [propName]: value }: { section: string }) => <div>{value}</div>,
     [],
   );
   return <div />;

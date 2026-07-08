@@ -15,44 +15,25 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import { isFunctionNode, isIdentifier } from '../../helpers/ast.js';
+import { isFunctionNode, isIdentifier, resolveIdentifiers } from '../../helpers/ast.js';
 
 /**
- * Returns true when the given pattern node corresponds to a variable binding
- * that is read in the given scope, including nested destructuring patterns.
+ * Returns true when the given pattern node binds at least one identifier that
+ * is read in the given scope. Delegates to resolveIdentifiers to walk nested
+ * destructuring patterns, aliases, defaults, and rest elements, so it covers
+ * the same cases as every other consumer of that helper (e.g. `{ section:
+ * { items: [...rest] } }` where `rest` is read).
  */
 function isBindingRead(node: estree.Pattern | null, scope: Scope.Scope): boolean {
   if (node === null) {
     return false;
   }
-  if (isIdentifier(node)) {
-    return scope.set.get(node.name)?.references.some(ref => ref.isRead()) ?? false;
-  }
-  if (node.type === 'AssignmentPattern' && isIdentifier(node.left)) {
-    return scope.set.get(node.left.name)?.references.some(ref => ref.isRead()) ?? false;
-  }
-  if (node.type === 'ObjectPattern' || node.type === 'ArrayPattern') {
-    return hasAnyNestedBindingRead(node, scope);
-  }
-  return false;
-}
-
-/**
- * Returns true when at least one binding introduced by the nested destructuring
- * pattern is read in the given scope. Handles ObjectPattern and ArrayPattern
- * recursively to cover cases like `{ section: { title } }`.
- */
-function hasAnyNestedBindingRead(
-  pattern: estree.ObjectPattern | estree.ArrayPattern,
-  scope: Scope.Scope,
-): boolean {
-  const nodes: (estree.Pattern | null)[] =
-    pattern.type === 'ObjectPattern'
-      ? pattern.properties.map(p => (p.type === 'RestElement' ? p.argument : p.value))
-      : pattern.elements;
-  return nodes.some(node => isBindingRead(node, scope));
+  return resolveIdentifiers(node as TSESTree.Node, true).some(
+    id => scope.set.get(id.name)?.references.some(ref => ref.isRead()) ?? false,
+  );
 }
 
 /**
@@ -88,14 +69,14 @@ export function hasDestructuredParamPropUsage(
   }
 
   const matchingProperty = objectPattern.properties.find(
-    prop => prop.type !== 'RestElement' && !prop.computed && isIdentifier(prop.key, propName),
+    (prop): prop is estree.Property =>
+      prop.type !== 'RestElement' && !prop.computed && isIdentifier(prop.key, propName),
   );
 
-  if (!matchingProperty || matchingProperty.type === 'RestElement') {
+  if (!matchingProperty) {
     return false;
   }
 
-  const value = matchingProperty.value;
   const scope = context.sourceCode.getScope(componentNode);
-  return isBindingRead(value, scope);
+  return isBindingRead(matchingProperty.value, scope);
 }
