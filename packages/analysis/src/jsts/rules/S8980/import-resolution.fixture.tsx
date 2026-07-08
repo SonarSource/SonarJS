@@ -1,6 +1,7 @@
 import { act } from 'react';
 import { act as tlAct, render as testingLibraryRender } from '@testing-library/react';
 import { render } from './my-local-render';
+import { act as legacyAct } from 'react-dom/test-utils';
 
 function Form() {
     return <button>Submit</button>;
@@ -34,5 +35,17 @@ function actFromReactWrappingTestingLibraryRender() {
 function actWrappingSameNamedNonTestingLibraryCall() {
     tlAct(() => {
         render(<Form />);
+    });
+}
+
+// A manual timer delay has no call the rule can positively classify as either
+// Testing Library or non-Testing-Library, so the callback must not be flagged
+// as "entirely Testing Library calls" purely because it found nothing to the
+// contrary. This is a real-world pattern (a `sleep()` test helper).
+function actWrappingManualTimerDelay() {
+    legacyAct(async () => {
+        await new Promise(resolve => {
+            setTimeout(resolve, 0);
+        });
     });
 }
