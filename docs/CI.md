@@ -3,12 +3,12 @@
 This document explains the main GitHub Actions pipeline in
 [`../.github/workflows/build.yml`](../.github/workflows/build.yml).
 
-It is intentionally written for the cache/artifact model introduced by the current cache migration:
+It documents the cache/artifact model used by the workflow:
 
 - direct workflow-level cache usage in `build.yml` uses official GitHub cache actions
 - same-run file handoff uses official GitHub artifact actions
 - local cache wrappers (`maven-cache`, `orchestrator-cache`, `rule-api-cache`) also use official GitHub cache actions
-- SonarSource's S3-backed cache action is no longer used directly in `build.yml`
+- `build.yml` does not call SonarSource's S3-backed cache action directly
 - SonarSource's S3-backed cache action still matters indirectly through `SonarSource/ci-github-actions/config-npm`, which caches `~/.npm` on Linux cache-population jobs
 
 This is the document to read first when you need to answer any of these questions quickly:
@@ -32,26 +32,17 @@ This document focuses on the main `Build` workflow:
 
 Other workflows exist in `.github/workflows/`, but they are out of scope unless they directly affect the `build.yml` lifecycle.
 
-## What This Cache Migration Changes
+## Cache And Artifact Model
 
-Historically, `build.yml` used `SonarSource/gh-action_cache` directly for several kinds of handoff. The current design changes that split.
+The workflow uses a deliberate split between GitHub cache and GitHub artifacts:
 
-### Direct changes in `build.yml`
-
-- `node_modules` cache production now uses `actions/cache` in probe mode (`lookup-only: true`) instead of `SonarSource/gh-action_cache`
-- downstream `node_modules` consumers now use `actions/cache/restore` with `fail-on-cache-miss: true`
-- ESLint plugin tarball handoff is now modeled as `upload-artifact` + `download-artifact`, not as a cache
-- JS coverage reuse and Windows JS test marker reuse now use official GitHub cache actions directly
-- downloaded JS coverage is validated before Sonar analysis jobs consume it
-- Windows NPM cache population now mirrors the Linux job's build-number dependency wiring
-- local wrapper actions for Maven, orchestrator, and rule-api caches are pinned to the same `actions/cache` v6.1.0 commit as the direct workflow cache steps
-
-### What remains intentionally unchanged
-
-- `prepare_rspec_rule_data` still refreshes RSPEC once and shares the result through a per-run artifact
-- Maven/orchestrator/rule-api caches still use local wrapper actions so branch save policy stays centralized
-- `config-maven` still configures Maven and Repox access, but its built-in caching is disabled in `build.yml`
-- Linux NPM cache population still uses `config-npm` for auth/bootstrap, which means `~/.npm` still goes through SonarSource's S3-backed cache action indirectly
+- `node_modules`, Maven, orchestrator, rule-api, JS coverage, and the Windows JS marker use cache semantics
+- RSPEC data, built Maven outputs, JaCoCo reports, JS coverage reports, and the ESLint plugin tarball use artifact semantics
+- `prepare_rspec_rule_data` refreshes RSPEC once and shares the result through a per-run artifact
+- Maven, orchestrator, and rule-api cache policy is centralized in local wrapper actions
+- `config-maven` configures Maven and Repox access, but its built-in caching is disabled in `build.yml`
+- Linux NPM cache population uses `config-npm` for auth/bootstrap, so `~/.npm` still goes through SonarSource's S3-backed cache action indirectly
+- all direct workflow cache steps and the local cache wrappers are pinned to the same `actions/cache` v6.1.0 commit
 
 ## Trigger Model And Global Controls
 
@@ -361,7 +352,7 @@ That is exactly artifact semantics, not cache semantics.
 
 ### Helper-owned or transitive caches
 
-| Owner | Path or payload | Backend after this change | Why it exists |
+| Owner | Path or payload | Backend | Why it exists |
 | --- | --- | --- | --- |
 | `get-build-number` action | `.build_number.txt` | GitHub cache | Reuse one build number across reruns of the same workflow run |
 | `config-npm` action on Linux | `~/.npm` | SonarSource S3 cache action, transitively | Speeds package download reuse when `npm ci` actually runs |
@@ -479,22 +470,17 @@ PR runs still create PR-scoped GitHub state:
 - action-owned caches such as `mise`
 - workflow artifacts for that PR's runs
 
-That is why a PR-close cleanup workflow is now more relevant than before.
+That is why the repository also defines a PR-close cleanup workflow.
 
 ## Where S3 Still Matters
-
-### Historical direct usage
 
 `SonarSource/gh-action_cache` is not a generic wrapper around GitHub cache. It is a SonarSource cache action whose primary backend is S3 and whose semantics include:
 
 - branch-scoped paths
 - default-branch fallback behavior
-- optional migration from GitHub cache to S3
 - S3 credential setup and credential guard logic
 
-### Current direct usage in `build.yml`
-
-After this migration:
+### Direct usage in `build.yml`
 
 - direct `build.yml` cache usage is GitHub-native
 - direct same-run file handoff is artifact-native
@@ -506,7 +492,7 @@ So if you inspect only `build.yml` plus the local wrapper actions, the answer is
 - GitHub artifacts for same-run file payloads
 - no direct S3 cache action calls
 
-### Current indirect usage
+### Indirect usage via `config-npm`
 
 S3 still appears indirectly through `SonarSource/ci-github-actions/config-npm` on Linux:
 
@@ -516,18 +502,18 @@ S3 still appears indirectly through `SonarSource/ci-github-actions/config-npm` o
 
 This means:
 
-- `build.yml` is not yet 100 percent free of SonarSource cache action behavior
+- `build.yml` is not 100 percent free of SonarSource cache action behavior
 - only the Linux package-download cache path still depends on it
 - Windows NPM registry setup is manual in `build.yml`, so there is no equivalent transitive `config-npm` cache there
 
-### If we want to remove S3 entirely from this pipeline later
+### Removing S3 entirely from this pipeline
 
-We would need one of these follow-ups:
+This would require one of these approaches:
 
 - keep `config-npm`, but disable its internal caching and rely only on `node_modules`
 - stop using `config-npm` in `build.yml` and configure Linux npm auth manually, like the Windows job does
 
-That is a separate decision from this migration.
+That is a separate decision from the current workflow design.
 
 ## Why GitHub Cache / Artifact Makes Sense Here
 
@@ -879,7 +865,7 @@ These are the most important reusable components in the current pipeline.
 
 ## PR Cleanup Workflow
 
-This branch also adds a companion workflow:
+The repository also defines a companion workflow:
 
 - [`../.github/workflows/pr-cleanup.yml`](../.github/workflows/pr-cleanup.yml)
 
@@ -947,7 +933,7 @@ If you remember only one model, remember this one:
 
 And for caches specifically:
 
-- GitHub cache is now the direct mechanism in this workflow
+- GitHub cache is the direct mechanism in this workflow
 - artifacts carry run-local build products
 - default branch is the intended long-lived producer for shared warm caches
-- S3 is now only an indirect side path through Linux `config-npm`
+- S3 is only an indirect side path through Linux `config-npm`
