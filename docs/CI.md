@@ -333,7 +333,7 @@ That is exactly artifact semantics, not cache semantics.
 
 | Cache | Path | Producer(s) | Consumer(s) | Key shape | Save policy |
 | --- | --- | --- | --- | --- | --- |
-| installed NPM dependencies | `node_modules` | `populate_npm_cache`, `populate_npm_cache_win` | `build`, `build_win`, `prepare_rspec_rule_data`, `generated_files_freshness`, `knip`, `test_js`, `test_js_win`, `analyze_primary`, `analyze_shadows`, `js_ts_ruling` | `npm-${runner.os}-${npm-hash}` | producer jobs use `actions/cache` with `lookup-only: true`; save happens only after a miss and a successful install |
+| installed NPM dependencies | `node_modules` | `populate_npm_cache`, `populate_npm_cache_win` | `build`, `build_win`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `generated_files_freshness`, `knip`, `test_js`, `test_js_win`, `analyze_primary`, `analyze_shadows`, `js_ts_ruling` | `npm-${runner.os}-${npm-hash}` | producer jobs use `actions/cache` with `lookup-only: true`; save happens only after a miss and a successful install |
 | JS coverage cache | `coverage/js` | `test_js` | `test_js` itself | `js-coverage-${js-files-hash}` | combined restore/save cache; allows skip when exact coverage already exists |
 | Windows JS marker | `.js-test-marker-win` | `test_js_win` | `test_js_win` itself | `js-test-win-${js-files-hash}` | lookup-only probe; on miss the job runs tests and saves marker at job end |
 | Maven repository | `~/.m2/repository` | default-branch runs through `maven-cache` | all `maven-cache` users | `maven-${runner.os}-${cache-month}-${maven-hash}` plus monthly restore prefix | only default branch saves; non-default branches restore only |
@@ -582,6 +582,7 @@ It validates Windows buildability but does not deploy artifacts.
 
 Responsibilities:
 
+- restore `node_modules`
 - configure npm registry
 - download refreshed RSPEC data
 - build ESLint plugin package
