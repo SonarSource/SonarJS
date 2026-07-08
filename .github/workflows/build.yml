@@ -85,7 +85,7 @@ jobs:
       build-number: ${{ steps.build-number.outputs.BUILD_NUMBER }}
     steps:
       - id: build-number
-        uses: SonarSource/ci-github-actions/get-build-number@1.8.2
+        uses: SonarSource/ci-github-actions/get-build-number@v1
 
   populate_npm_cache:
     runs-on: sonar-xs
@@ -183,7 +183,7 @@ jobs:
       - &config_maven
         name: Configure Maven
         id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@1.8.2
+        uses: SonarSource/ci-github-actions/config-maven@v1
         with:
           artifactory-reader-role: private-reader
           disable-caching: 'true'
