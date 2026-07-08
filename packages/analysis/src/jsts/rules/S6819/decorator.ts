@@ -16,13 +16,14 @@
  */
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
+import type estree from 'estree';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
 const { getProp, getLiteralPropValue, getPropValue } = pkg;
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isHtmlElement } from '../helpers/isHtmlElement.js';
-import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { childrenOf, findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
 
 // ARIA composite container roles that indicate a custom composite widget
@@ -52,12 +53,13 @@ const COMPOSITE_CHILD_ROLES = new Set([
  *    - role="combobox" popup widgets with ARIA disclosure state
  *    - role="separator" with children (since <hr> is void)
  *    - role="img" on div/span with children or CSS backgroundImage (since <img> is void)
+ *    - role="group" subgroups containing options inside role="listbox"
  *    - ARIA composite widget roles (table, grid, listbox, row, option, etc.) when forming
  *      complete custom widget patterns
  *
  * Note: SVG internal elements like <g> are not in HTML_TAG_NAMES, so they're
  * already filtered out by isHtmlElement. HTML elements with role="group" remain
- * as true positives since semantic alternatives exist.
+ * true positives unless they form a listbox subgroup with option descendants.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
@@ -84,7 +86,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
-      if (isValidAriaPattern(node)) {
+      if (isValidAriaPattern(node, context)) {
         // Suppress for valid ARIA patterns
         return;
       }
@@ -98,7 +100,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
  * Checks if the element uses a valid ARIA pattern where suggesting a semantic
  * element would be inappropriate.
  */
-function isValidAriaPattern(node: TSESTree.JSXOpeningElement): boolean {
+function isValidAriaPattern(node: TSESTree.JSXOpeningElement, context: Rule.RuleContext): boolean {
   const attributes = (node as JSXOpeningElement).attributes;
   const roleProp = getProp(attributes, 'role');
   if (!roleProp) {
@@ -122,7 +124,8 @@ function isValidAriaPattern(node: TSESTree.JSXOpeningElement): boolean {
     isCustomCombobox(role, attributes) ||
     isSeparatorWithChildren(role, node) ||
     isImgRoleWithValidPattern(elementName, role, attributes, node) ||
-    isCustomCompositeWidget(role, node)
+    isGroupedListboxSubgroup(role, node, context) ||
+    isCustomCompositeWidget(role, node, context)
   );
 }
 
@@ -348,6 +351,69 @@ function hasChildren(node: TSESTree.JSXOpeningElement): boolean {
   return false;
 }
 
+function isGroupedListboxSubgroup(
+  role: string,
+  node: TSESTree.JSXOpeningElement,
+  context: Rule.RuleContext,
+): boolean {
+  return (
+    role === 'group' &&
+    hasAncestorWithRole(node, 'listbox') &&
+    hasDescendantWithRole(node, 'option', context)
+  );
+}
+
+function hasAncestorWithRole(node: TSESTree.JSXOpeningElement, role: string): boolean {
+  return (
+    findFirstMatchingAncestor(
+      node,
+      ancestor => ancestor.type === 'JSXElement' && getJSXElementRole(ancestor) === role,
+    ) !== undefined
+  );
+}
+
+function hasDescendantWithRole(
+  node: TSESTree.JSXOpeningElement,
+  role: string,
+  context: Rule.RuleContext,
+): boolean {
+  return hasDescendantMatchingRole(node, descendantRole => descendantRole === role, context);
+}
+
+function hasDescendantMatchingRole(
+  node: TSESTree.JSXOpeningElement,
+  predicate: (role: string) => boolean,
+  context: Rule.RuleContext,
+): boolean {
+  const jsxElement = node.parent;
+  if (jsxElement?.type !== 'JSXElement') {
+    return false;
+  }
+
+  const root = jsxElement as unknown as estree.Node;
+  const stack = [...childrenOf(root, context.sourceCode.visitorKeys)];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current) {
+      continue;
+    }
+    if (
+      current.type === 'JSXElement' &&
+      current !== root &&
+      roleMatches(current as unknown as TSESTree.JSXElement, predicate)
+    ) {
+      return true;
+    }
+    stack.push(...childrenOf(current, context.sourceCode.visitorKeys));
+  }
+  return false;
+}
+
+function roleMatches(element: TSESTree.JSXElement, predicate: (role: string) => boolean): boolean {
+  const role = getJSXElementRole(element);
+  return role !== null && predicate(role);
+}
+
 /**
  * Checks if the element is part of a custom composite widget pattern.
  *
@@ -357,9 +423,13 @@ function hasChildren(node: TSESTree.JSXOpeningElement): boolean {
  *
  * No element-name restriction: any HTML tag (div, ul, li, span, etc.) qualifies.
  */
-function isCustomCompositeWidget(role: string, node: TSESTree.JSXOpeningElement): boolean {
+function isCustomCompositeWidget(
+  role: string,
+  node: TSESTree.JSXOpeningElement,
+  context: Rule.RuleContext,
+): boolean {
   if (COMPOSITE_CONTAINER_ROLES.has(role)) {
-    return hasDescendantCompositeChildRole(node);
+    return hasDescendantCompositeChildRole(node, context);
   }
 
   if (COMPOSITE_CHILD_ROLES.has(role)) {
@@ -372,30 +442,23 @@ function isCustomCompositeWidget(role: string, node: TSESTree.JSXOpeningElement)
 /**
  * Checks if the element has any descendant with a COMPOSITE_CHILD_ROLE.
  */
-function hasDescendantCompositeChildRole(node: TSESTree.JSXOpeningElement): boolean {
-  const jsxElement = node.parent;
-  if (jsxElement?.type !== 'JSXElement') {
-    return false;
-  }
-  return hasCompositeChildRoleInSubtree(jsxElement);
+function hasDescendantCompositeChildRole(
+  node: TSESTree.JSXOpeningElement,
+  context: Rule.RuleContext,
+): boolean {
+  return hasDescendantWithOneOfRoles(node, COMPOSITE_CHILD_ROLES, context);
 }
 
 /**
- * Recursively searches the JSX subtree for elements with COMPOSITE_CHILD_ROLES.
+ * Searches the JSX subtree for elements with one of the target roles, including
+ * JSX returned through expression containers.
  */
-function hasCompositeChildRoleInSubtree(node: TSESTree.JSXElement): boolean {
-  for (const child of node.children) {
-    if (child.type === 'JSXElement') {
-      const childRole = getJSXElementRole(child);
-      if (childRole && COMPOSITE_CHILD_ROLES.has(childRole)) {
-        return true;
-      }
-      if (hasCompositeChildRoleInSubtree(child)) {
-        return true;
-      }
-    }
-  }
-  return false;
+function hasDescendantWithOneOfRoles(
+  node: TSESTree.JSXOpeningElement,
+  roles: Set<string>,
+  context: Rule.RuleContext,
+): boolean {
+  return hasDescendantMatchingRole(node, role => roles.has(role), context);
 }
 
 /**
