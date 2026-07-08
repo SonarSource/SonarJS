@@ -16,8 +16,12 @@
  */
 import type estree from 'estree';
 import ts from 'typescript';
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { RequiredParserServices } from './parser-services.js';
 import { getSignatureFromCallee, getSymbolAtLocation } from './type.js';
+
+type SupportedCallExpression = estree.CallExpression | TSESTree.CallExpression;
+type SupportedIdentifier = estree.Identifier | TSESTree.Identifier;
 
 function normalizeToFunctionLikeDeclaration(
   declaration: ts.Declaration | undefined,
@@ -67,10 +71,12 @@ function isFunctionLikeDeclaration(
  * Only one hop is followed: the directly called function. Deeper call chains are not resolved.
  */
 export function followCallToDeclaration(
-  call: estree.CallExpression,
+  call: SupportedCallExpression,
   services: RequiredParserServices,
 ): ts.SignatureDeclaration | undefined {
-  return normalizeToFunctionLikeDeclaration(getSignatureFromCallee(call, services)?.declaration);
+  return normalizeToFunctionLikeDeclaration(
+    getSignatureFromCallee(call as estree.CallExpression, services)?.declaration,
+  );
 }
 
 /**
@@ -81,10 +87,10 @@ export function followCallToDeclaration(
  * intentionally return `undefined`.
  */
 export function followReferenceToDeclaration(
-  node: estree.Identifier,
+  node: SupportedIdentifier,
   services: RequiredParserServices,
 ): ts.SignatureDeclaration | undefined {
-  let symbol = getSymbolAtLocation(node, services);
+  let symbol = getSymbolAtLocation(node as estree.Identifier, services);
   if (symbol === undefined) {
     return undefined;
   }
@@ -103,7 +109,7 @@ export function followReferenceToDeclaration(
  * case, fallback to the callee identifier's value declaration.
  */
 export function followCallToImplementation(
-  call: estree.CallExpression,
+  call: SupportedCallExpression,
   services: RequiredParserServices,
 ): ts.SignatureDeclaration | undefined {
   const declaration = followCallToDeclaration(call, services);
