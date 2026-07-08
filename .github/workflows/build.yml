@@ -99,7 +99,7 @@ jobs:
     steps: &populate_npm_cache_steps
       - name: Cache NPM dependencies
         id: cache
-        uses: SonarSource/gh-action_cache@v1
+        uses: SonarSource/gh-action_cache@v1.7.1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
@@ -164,29 +164,10 @@ jobs:
             node = "24.11.0"
       - &npm_cache
         name: Cache NPM dependencies
-        id: npm_cache
-        uses: SonarSource/gh-action_cache@v1
+        uses: SonarSource/gh-action_cache@v1.7.1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
-      - &npm_cache_fallback_secrets
-        name: Access vault secrets on cache miss
-        if: steps.npm_cache.outputs.cache-hit != 'true'
-        id: npm-cache-fallback-secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - &npm_cache_fallback_config
-        name: Configure npm registry on cache miss
-        if: steps.npm_cache.outputs.cache-hit != 'true'
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.npm-cache-fallback-secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
-      - &npm_cache_fallback_install
-        name: Install NPM dependencies on cache miss
-        if: steps.npm_cache.outputs.cache-hit != 'true'
-        run: npm ci
       - &download_rspec_rule_data
         name: Download prepared RSPEC rule data
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -259,9 +240,6 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
-      - *npm_cache_fallback_secrets
-      - *npm_cache_fallback_config
-      - *npm_cache_fallback_install
       - *download_rspec_rule_data
       - *maven_cache
       - *config_maven
@@ -278,9 +256,6 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
-      - *npm_cache_fallback_secrets
-      - *npm_cache_fallback_config
-      - *npm_cache_fallback_install
       - *maven_cache
       - uses: ./.github/actions/rule-api-cache
       - *config_maven
@@ -328,7 +303,7 @@ jobs:
         run: npm run eslint-plugin:build
       - &eslint_tarball_cache
         name: Cache ESLint plugin tarball
-        uses: SonarSource/gh-action_cache@v1
+        uses: SonarSource/gh-action_cache@v1.7.1
         with:
           path: lib/*.tgz
           key: eslint-tarball-${{ github.sha }}
@@ -356,9 +331,6 @@ jobs:
           npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
           npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
       - *npm_cache
-      - *npm_cache_fallback_secrets
-      - *npm_cache_fallback_config
-      - *npm_cache_fallback_install
       - *download_rspec_rule_data
       - name: Regenerate tracked generated files
         run: |
@@ -434,9 +406,6 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
-      - *npm_cache_fallback_secrets
-      - *npm_cache_fallback_config
-      - *npm_cache_fallback_install
       - *download_rspec_rule_data
       - name: Run knip
         run: |
@@ -451,7 +420,7 @@ jobs:
     steps:
       - name: Restore JS coverage cache
         id: cache
-        uses: SonarSource/gh-action_cache@v1
+        uses: SonarSource/gh-action_cache@v1.7.1
         with:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
@@ -470,7 +439,7 @@ jobs:
             node = "24.11.0"
       - name: Cache NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: SonarSource/gh-action_cache@v1
+        uses: SonarSource/gh-action_cache@v1.7.1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
@@ -512,7 +481,7 @@ jobs:
     steps:
       - name: Cache JS test results marker (Windows)
         id: cache
-        uses: SonarSource/gh-action_cache@v1
+        uses: SonarSource/gh-action_cache@v1.7.1
         with:
           path: .js-test-marker-win
           key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
@@ -532,7 +501,7 @@ jobs:
             node = "24.11.0"
       - name: Cache NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: SonarSource/gh-action_cache@v1
+        uses: SonarSource/gh-action_cache@v1.7.1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
@@ -567,9 +536,6 @@ jobs:
           fetch-tags: 'true'
       - *mise
       - *npm_cache
-      - *npm_cache_fallback_secrets
-      - *npm_cache_fallback_config
-      - *npm_cache_fallback_install
       - *maven_cache
       - &download_js_coverage_reports
         name: Download JS coverage reports
@@ -636,9 +602,6 @@ jobs:
       - *checkout_with_tags
       - *mise
       - *npm_cache
-      - *npm_cache_fallback_secrets
-      - *npm_cache_fallback_config
-      - *npm_cache_fallback_install
       - *maven_cache
       - *download_js_coverage_reports
       - *download_maven_targets
@@ -1082,9 +1045,6 @@ jobs:
           submodules: true
       - *mise
       - *npm_cache
-      - *npm_cache_fallback_secrets
-      - *npm_cache_fallback_config
-      - *npm_cache_fallback_install
       - *download_rspec_rule_data
       - name: Run JS/TS Ruling
         id: ruling
