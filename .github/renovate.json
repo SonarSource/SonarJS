@@ -3,14 +3,6 @@
   "extends": [
     "local>SonarSource/core-languages-tooling-public:renovate-config"
   ],
-  "enabledManagers": [
-    "github-actions",
-    "maven",
-    "npm"
-  ],
-  "dockerfile": {
-    "enabled": true
-  },
   "ignorePaths": [
     "its/sources/**",
     "its/plugin/projects/**",
@@ -43,22 +35,6 @@
       "groupSlug": "{{#if sourceRepo}}{{sourceRepo}}{{else}}{{depName}}{{/if}}"
     },
     {
-      "matchManagers": [
-        "github-actions"
-      ],
-      "pinDigests": false
-    },
-    {
-      "matchManagers": [
-        "github-actions"
-      ],
-      "matchUpdateTypes": [
-        "pin",
-        "rollback"
-      ],
-      "enabled": false
-    },
-    {
       "description": "@typescript/native-preview - dev builds update daily, limit to weekly",
       "matchPackageNames": [
         "@typescript/native-preview"
@@ -66,13 +42,6 @@
       "extends": [
         "schedule:weekly"
       ]
-    }
-  ],
-  "hostRules": [
-    {
-      "hostType": "npm",
-      "matchHost": "https://repox.jfrog.io/artifactory/api/npm/npm/",
-      "token": "{{ secrets.REPOX_TOKEN }}"
     }
   ]
 }
