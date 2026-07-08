@@ -777,6 +777,17 @@ test('has no helper assertion', () => {
         },
         {
           code: `
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+test('has no assertions', async () => {
+  await import('./helper');
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
 import { expect } from 'chai';
 
 declare global {
