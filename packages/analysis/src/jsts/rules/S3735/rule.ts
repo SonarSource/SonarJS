@@ -80,9 +80,7 @@ function isPromiseLike(context: Rule.RuleContext, expr: estree.UnaryExpression) 
       (isCallLikeExpression(expr.argument) && hasIndeterminateType(expr.argument, services))
     );
   } else {
-    // If we don't have typescript types, we can't reason if it's a promise.
-    // Therefore, if this is a function call, assume it is a promise.
-    // For this rule, it will result in not raising an issue.
+    // No type info: treat any call-like expression as a possible promise and don't raise.
     return isCallLikeExpression(expr.argument);
   }
 }
