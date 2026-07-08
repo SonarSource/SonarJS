@@ -233,13 +233,15 @@ function collectTupleCertainty(
   options: { ignoredTypeNames: string[]; checkUnknown: boolean },
   visited: Set<ts.Type>,
 ): ToStringCertainty {
-  const certainties = checker
-    .getTypeArguments(type)
-    .map(subType => collectToStringCertainty(subType, checker, options, visited));
-  if (certainties.includes(DEFAULT_TO_STRING)) {
+  const certainties = new Set(
+    checker
+      .getTypeArguments(type)
+      .map(subType => collectToStringCertainty(subType, checker, options, visited)),
+  );
+  if (certainties.has(DEFAULT_TO_STRING)) {
     return DEFAULT_TO_STRING;
   }
-  if (certainties.includes(POSSIBLE_DEFAULT_TO_STRING)) {
+  if (certainties.has(POSSIBLE_DEFAULT_TO_STRING)) {
     return POSSIBLE_DEFAULT_TO_STRING;
   }
   return USEFUL_TO_STRING;
