@@ -282,7 +282,7 @@ These are the small data items passed as job outputs or step outputs, not bulky 
 | Producer | Data | Consumers | Meaning |
 | --- | --- | --- | --- |
 | `setup` | `node-matrix` | Node-matrix plugin QA jobs | Derived from `package.json` engine range |
-| `setup` | `js-files-hash` | `test_js`, `test_js_win` | Cache key seed for JS coverage and Windows JS marker |
+| `setup` | `js-files-hash` | `test_js`, `test_js_win` | Cache key seed for JS coverage and Windows JS marker, including workflow and dependency inputs |
 | `setup` | `maven-hash` | all `maven-cache` users | Cache key seed for Maven dependencies |
 | `setup` | `npm-hash` | all `node_modules` producers/consumers | Exact cache key seed for installed Node dependencies |
 | `setup` | `cache-month` | `maven-cache` | Monthly key rotation value |
@@ -334,8 +334,8 @@ That is exactly artifact semantics, not cache semantics.
 | Cache | Path | Producer(s) | Consumer(s) | Key shape | Save policy |
 | --- | --- | --- | --- | --- | --- |
 | installed NPM dependencies | `node_modules` | `populate_npm_cache`, `populate_npm_cache_win` | `build`, `build_win`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `generated_files_freshness`, `knip`, `test_js`, `test_js_win`, `analyze_primary`, `analyze_shadows`, `js_ts_ruling` | `npm-${runner.os}-${npm-hash}` | producer jobs use `actions/cache` with `lookup-only: true`; save happens only after a miss and a successful install |
-| JS coverage cache | `coverage/js` | `test_js` | `test_js` itself | `js-coverage-${js-files-hash}` | combined restore/save cache; allows skip when exact coverage already exists |
-| Windows JS marker | `.js-test-marker-win` | `test_js_win` | `test_js_win` itself | `js-test-win-${js-files-hash}` | lookup-only probe; on miss the job runs tests and saves marker at job end |
+| JS coverage cache | `coverage/js` | `test_js` | `test_js` itself | `js-coverage-${runner.os}-${js-files-hash}` | combined restore/save cache; allows skip when exact coverage already exists |
+| Windows JS marker | `.js-test-marker-win` | `test_js_win` | `test_js_win` itself | `js-test-win-${runner.os}-${js-files-hash}` | lookup-only probe; on miss the job runs tests and saves marker at job end |
 | Maven repository | `~/.m2/repository` | default-branch runs through `maven-cache` | all `maven-cache` users | `maven-${runner.os}-${cache-month}-${maven-hash}` plus monthly restore prefix | only default branch saves; non-default branches restore only |
 | Orchestrator home | `${github.workspace}/orchestrator` | default-branch QA jobs through `orchestrator-cache` | orchestrator-based QA/ruling jobs | `${key-prefix}-${month}-${github.run_id}` with monthly restore prefix | only default branch saves unless `save: false` |
 | Rule API clone/cache | `$HOME/.sonar/rule-api` | default-branch `prepare_rspec_rule_data` through `rule-api-cache` | `prepare_rspec_rule_data` | `${key-prefix}-${github.run_id}` with prefix restore | only default branch saves unless `save: false` |
@@ -504,7 +504,7 @@ Because the semantics differ:
 Responsibilities:
 
 - derive Node matrix from `package.json`
-- hash JavaScript sources for JS test reuse
+- hash JavaScript sources plus test-environment inputs for JS test reuse
 - hash Maven files for Maven cache
 - hash lockfile plus patches for `node_modules` cache
 - compute cache month
@@ -616,6 +616,7 @@ Responsibilities:
 - upload coverage reports artifact for analysis jobs
 
 This job is both a cache consumer and a cache producer.
+Its skip cache is keyed on both source inputs and workflow/dependency inputs so CI or Node changes do not silently reuse stale success.
 
 #### `test_js_win`
 
@@ -624,6 +625,8 @@ Responsibilities:
 - use a Windows marker cache as a skip mechanism
 - on miss, restore `node_modules`, download refreshed RSPEC data, generate metadata, compile bridge, run JS tests
 - create marker directory so the post step can save it
+
+Like `test_js`, its skip key includes workflow/dependency inputs in addition to source inputs.
 
 ### Analysis, QA, and ruling fan-out
 
@@ -675,9 +678,7 @@ Responsibilities:
 - restore `node_modules`
 - download refreshed RSPEC data
 - run JS/TS ruling
-- on PRs or default branch, generate a ruling report
-- if expected results are stale, create/update a fix branch and PR
-- update PR comments or job summary
+- on PRs or default branch, delegate ruling report, fix-PR, and comment handling to `tools/js-ts-ruling-update.sh`
 - fail the workflow when ruling needs an update
 
 This job is more than test execution; it is also automated ruling maintenance.
