@@ -202,6 +202,30 @@ describe('S3735', () => {
             void unknownCallable();
             `,
         },
+        {
+          code: `
+            // Guarded promise: boolean || Promise
+            declare const skipCheck: boolean;
+            declare const checkPromise: Promise<void>;
+            void (skipCheck || checkPromise);
+            `,
+        },
+        {
+          code: `
+            // Guarded promise: boolean && Promise
+            declare const runCheck: boolean;
+            declare const checkPromise: Promise<void>;
+            void (runCheck && checkPromise);
+            `,
+        },
+        {
+          code: `
+            // Guarded promise: conditional with boolean fallback
+            declare const cond: boolean;
+            declare const checkPromise: Promise<void>;
+            void (cond ? checkPromise : false);
+            `,
+        },
       ],
       invalid: [
         {
@@ -218,10 +242,10 @@ describe('S3735', () => {
         },
         {
           code: `
-            // Union with boolean (logical expressions)
-            declare const skipCheck: boolean;
+            // Short-circuit where the guard is a real value (string), not a boolean
+            declare const label: string;
             declare const checkPromise: Promise<void>;
-            void (skipCheck || checkPromise);
+            void (label || checkPromise);
             `,
           errors: 1,
         },

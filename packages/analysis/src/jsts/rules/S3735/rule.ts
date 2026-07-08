@@ -24,7 +24,11 @@ import {
   isRequiredParserServices,
   type RequiredParserServices,
 } from '../helpers/parser-services.js';
-import { getTypeFromTreeNode, isThenableOrVoidUnion } from '../helpers/type.js';
+import {
+  getTypeFromTreeNode,
+  isThenableOrGuardUnion,
+  isThenableOrVoidUnion,
+} from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -70,6 +74,8 @@ function isPromiseLike(context: Rule.RuleContext, expr: estree.UnaryExpression) 
   if (isRequiredParserServices(services)) {
     return (
       isThenableOrVoidUnion(expr.argument, services) ||
+      (isShortCircuitExpression(expr.argument) &&
+        isThenableOrGuardUnion(expr.argument, services)) ||
       (isCallLikeExpression(expr.argument) && hasIndeterminateType(expr.argument, services))
     );
   } else {
@@ -78,6 +84,15 @@ function isPromiseLike(context: Rule.RuleContext, expr: estree.UnaryExpression) 
     // For this rule, it will result in not raising an issue.
     return isCallLikeExpression(expr.argument);
   }
+}
+
+/**
+ * Returns true when `node` is a short-circuit expression whose result depends on a guard.
+ * @param node The expression used with `void`.
+ * @return Whether the expression is a logical (`||`, `&&`, `??`) or conditional (`?:`) expression.
+ */
+function isShortCircuitExpression(node: estree.Node) {
+  return node.type === 'LogicalExpression' || node.type === 'ConditionalExpression';
 }
 
 /**

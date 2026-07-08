@@ -176,6 +176,8 @@ export function isThenable(node: estree.Node, services: RequiredParserServices) 
   return hasThenMethod(checker.getTypeAtLocation(mapped), checker);
 }
 
+const NOTHING_TYPE_FLAGS = ts.TypeFlags.Void | ts.TypeFlags.Undefined | ts.TypeFlags.Null;
+
 /**
  * Checks if a node's type is either:
  * - Thenable (Promise-like), OR
@@ -186,21 +188,40 @@ export function isThenable(node: estree.Node, services: RequiredParserServices) 
  * optional async callbacks (() => void | Promise<void>).
  */
 export function isThenableOrVoidUnion(node: estree.Node, services: RequiredParserServices) {
+  return isThenableUnionWithGuards(node, services, NOTHING_TYPE_FLAGS);
+}
+
+/**
+ * Like {@link isThenableOrVoidUnion}, but also accepts boolean members as guards.
+ *
+ * Short-circuit expressions such as `skipCheck || checkPromise` resolve to
+ * `boolean | Promise<void>`, where the boolean is only a guard deciding whether
+ * the promise runs. Voiding such an expression is the `no-floating-promises`
+ * idiom and must not be flagged.
+ */
+export function isThenableOrGuardUnion(node: estree.Node, services: RequiredParserServices) {
+  return isThenableUnionWithGuards(node, services, NOTHING_TYPE_FLAGS | ts.TypeFlags.BooleanLike);
+}
+
+function isThenableUnionWithGuards(
+  node: estree.Node,
+  services: RequiredParserServices,
+  guardFlags: ts.TypeFlags,
+) {
   const checker = services.program.getTypeChecker();
   const type = getTypeFromTreeNode(node, services);
   const unionTypes = type.isUnion() ? type.types : [type];
   let hasThenable = false;
-  let allThenableOrVoid = true;
+  let allThenableOrGuard = true;
 
   for (const unionType of unionTypes) {
     const isThenable = hasThenMethod(unionType, checker);
-    const isNothingType =
-      (unionType.flags & (ts.TypeFlags.Void | ts.TypeFlags.Undefined | ts.TypeFlags.Null)) !== 0;
+    const isGuard = (unionType.flags & guardFlags) !== 0;
     hasThenable ||= isThenable;
-    allThenableOrVoid &&= isThenable || isNothingType;
+    allThenableOrGuard &&= isThenable || isGuard;
   }
 
-  return hasThenable && allThenableOrVoid;
+  return hasThenable && allThenableOrGuard;
 }
 
 function hasThenMethod(type: ts.Type, checker: ts.TypeChecker): boolean {
