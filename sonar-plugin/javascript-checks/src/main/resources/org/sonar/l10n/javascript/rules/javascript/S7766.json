@@ -9,7 +9,8 @@
   "tags": [
     "readability",
     "confusing",
-    "editable-source"
+    "editable-source",
+    "type-dependent"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-7766",

@@ -23,7 +23,7 @@ import parser from 'vue-eslint-parser';
 const ruleTesterVue = new NoTypeCheckingRuleTester({ parser });
 
 describe('S8950', () => {
-  it('S8950 (external: vue/no-required-prop-with-default)', () => {
+  it('S8950', () => {
     ruleTesterVue.run('Props with default values should be optional', rule, {
       valid: [
         {
@@ -67,7 +67,24 @@ describe('S8950', () => {
         };
       </script>
       `,
-          errors: 1,
+          errors: [
+            {
+              message:
+                'Props with a default value should not be required; if this prop is required, the default is never used.',
+              suggestions: [
+                {
+                  desc: 'Change this prop to be optional.',
+                  output: `
+      <script>
+        export default {
+          props: { name: { type: String, required: false, default: 'Hello' } }
+        };
+      </script>
+      `,
+                },
+              ],
+            },
+          ],
         },
         {
           // same contradiction with <script setup> + defineProps
@@ -76,7 +93,22 @@ describe('S8950', () => {
         defineProps({ name: { type: String, required: true, default: 'Hello' } });
       </script>
       `,
-          errors: 1,
+          errors: [
+            {
+              message:
+                'Props with a default value should not be required; if this prop is required, the default is never used.',
+              suggestions: [
+                {
+                  desc: 'Change this prop to be optional.',
+                  output: `
+      <script setup>
+        defineProps({ name: { type: String, required: false, default: 'Hello' } });
+      </script>
+      `,
+                },
+              ],
+            },
+          ],
         },
       ],
     });

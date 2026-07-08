@@ -418,13 +418,12 @@ jobs:
     needs: [setup, populate_npm_cache, prepare_rspec_rule_data]
     permissions: *read_permissions
     steps:
-      - name: Check JS coverage cache
+      - name: Restore JS coverage cache
         id: cache
         uses: SonarSource/gh-action_cache@v1.7.1
         with:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
-          lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
@@ -456,6 +455,23 @@ jobs:
           npm run generate-meta
           npm run bridge:compile
           npm run bridge:test:cov
+      - name: Validate JS coverage reports
+        run: |
+          for report in coverage/js/lcov.info coverage/js/test-report.xml; do
+            if [ ! -f "$report" ]; then
+              echo "::error file=$report::Missing JS coverage report"
+              exit 1
+            fi
+          done
+      - name: Upload JS coverage reports
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: js-coverage-reports-${{ github.sha }}
+          path: |
+            coverage/js/lcov.info
+            coverage/js/test-report.xml
+          if-no-files-found: error
+          retention-days: 1
 
   test_js_win:
     runs-on: github-windows-latest-m
@@ -521,13 +537,12 @@ jobs:
       - *mise
       - *npm_cache
       - *maven_cache
-      - &js_coverage_cache
-        name: Cache JS coverage
-        id: js-coverage-cache
-        uses: SonarSource/gh-action_cache@v1.7.1
+      - &download_js_coverage_reports
+        name: Download JS coverage reports
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
+          name: js-coverage-reports-${{ github.sha }}
           path: coverage/js
-          key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
       - &download_maven_targets
         name: Download Maven target artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -588,7 +603,7 @@ jobs:
       - *mise
       - *npm_cache
       - *maven_cache
-      - *js_coverage_cache
+      - *download_js_coverage_reports
       - *download_maven_targets
       - *download_jacoco_xml_reports
       - *config_maven

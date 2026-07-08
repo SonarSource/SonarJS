@@ -31,6 +31,7 @@ import * as Mocha from '../helpers/mocha.js';
 import * as Vitest from '../helpers/vitest.js';
 import {
   hasSupportedAssertionLibrary,
+  hasSupportedTestFramework,
   isAssertion,
   isIncompleteShouldAccess,
   isTSAssertion,
@@ -47,7 +48,7 @@ import ts from 'typescript';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    if (!hasSupportedAssertionLibrary(context)) {
+    if (!hasSupportedTestFramework(context) || !hasSupportedAssertionLibrary(context)) {
       return {};
     }
     const visitedNodes: Map<estree.Node, boolean> = new Map();

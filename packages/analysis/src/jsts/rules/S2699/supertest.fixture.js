@@ -28,4 +28,3 @@ describe("fail", () => {
     return supertest(app).get(`/foo/bar`).expect('Content-Type', /json/u).expect(200);
   });
 });
-

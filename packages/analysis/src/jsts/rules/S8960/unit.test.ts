@@ -26,44 +26,41 @@ describe('S8960', () => {
       path.join(import.meta.dirname, 'fixtures', folder, 'test.js');
     const noFrameworkFixture = path.join(import.meta.dirname, 'fixtures', 'test.js');
 
-    ruleTester.run(
-      'Test and hook callbacks should use a single completion style',
-      rule,
-      {
-        valid: [
-          {
-            code: `import { it } from '@jest/globals';
+    ruleTester.run('Test and hook callbacks should use a single completion style', rule, {
+      valid: [
+        {
+          code: `import { it } from '@jest/globals';
 it('loads config', async () => {
   await loadConfig();
 });`,
-            filename: fixture('jest-globals'),
-          },
-          {
-            code: `import { it } from '@jest/globals';
+          filename: fixture('jest-globals'),
+        },
+        {
+          code: `import { it } from '@jest/globals';
 it('loads config', done => {
   loadConfig().then(() => done());
 });`,
-            filename: fixture('jest-globals'),
-          },
-          {
-            code: `import { it } from '@jest/globals';
+          filename: fixture('jest-globals'),
+        },
+        {
+          code: `import { it } from '@jest/globals';
 it('loads config', async () => {
   await new Promise(async done => {
     await loadConfig();
     done();
   });
 });`,
-            filename: fixture('jest-globals'),
-          },
-          {
-            code: `it('loads config', async done => {
+          filename: fixture('jest-globals'),
+        },
+        {
+          code: `it('loads config', async done => {
   await loadConfig();
   done();
 });`,
-            filename: noFrameworkFixture,
-          },
-          {
-            code: `import { describe } from '@jest/globals';
+          filename: noFrameworkFixture,
+        },
+        {
+          code: `import { describe } from '@jest/globals';
 describe('shadowed', () => {
   const it = (name, callback) => {};
   it('loads config', async done => {
@@ -71,79 +68,78 @@ describe('shadowed', () => {
     done();
   });
 });`,
-            filename: fixture('jest-globals'),
-          },
-        ],
-        invalid: [
-          {
-            code: `import { it } from '@jest/globals';
+          filename: fixture('jest-globals'),
+        },
+      ],
+      invalid: [
+        {
+          code: `import { it } from '@jest/globals';
 it('loads config', async done => {
   await loadConfig();
   done();
 });`,
-            filename: fixture('jest-globals'),
-            errors: [{ messageId: 'singleTestCompletionStyle' }],
-          },
-          {
-            code: `import { it } from '@jest/globals';
+          filename: fixture('jest-globals'),
+          errors: [{ messageId: 'singleTestCompletionStyle' }],
+        },
+        {
+          code: `import { it } from '@jest/globals';
 it('loads config', async done => {
   await loadConfig();
   done();
 }, 5_000);`,
-            filename: fixture('jest-globals'),
-            errors: [{ messageId: 'singleTestCompletionStyle' }],
-          },
-          {
-            code: `import { beforeEach } from 'mocha';
+          filename: fixture('jest-globals'),
+          errors: [{ messageId: 'singleTestCompletionStyle' }],
+        },
+        {
+          code: `import { beforeEach } from 'mocha';
 beforeEach(async done => {
   connectToDatabase(error => done(error));
 });`,
-            filename: fixture('mocha-globals'),
-            errors: [{ messageId: 'singleHookCompletionStyle' }],
-          },
-          {
-            code: `import * as jestGlobals from '@jest/globals';
+          filename: fixture('mocha-globals'),
+          errors: [{ messageId: 'singleHookCompletionStyle' }],
+        },
+        {
+          code: `import * as jestGlobals from '@jest/globals';
 jestGlobals.it('loads config', async done => {
   await loadConfig();
   done();
 });`,
-            filename: fixture('jest-globals'),
-            errors: [{ messageId: 'singleTestCompletionStyle' }],
-          },
-          {
-            code: `it('loads config', async done => {
+          filename: fixture('jest-globals'),
+          errors: [{ messageId: 'singleTestCompletionStyle' }],
+        },
+        {
+          code: `it('loads config', async done => {
   await loadConfig();
   done();
 });`,
-            filename: fixture('jasmine-globals'),
-            errors: [{ messageId: 'singleTestCompletionStyle' }],
-          },
-          {
-            code: `fit('loads config', async done => {
+          filename: fixture('jasmine-globals'),
+          errors: [{ messageId: 'singleTestCompletionStyle' }],
+        },
+        {
+          code: `fit('loads config', async done => {
   await loadConfig();
   done();
 });`,
-            filename: fixture('jasmine-globals'),
-            errors: [{ messageId: 'singleTestCompletionStyle' }],
-          },
-          {
-            code: `xit('loads config', async done => {
+          filename: fixture('jasmine-globals'),
+          errors: [{ messageId: 'singleTestCompletionStyle' }],
+        },
+        {
+          code: `xit('loads config', async done => {
   await loadConfig();
   done();
 });`,
-            filename: fixture('jasmine-globals'),
-            errors: [{ messageId: 'singleTestCompletionStyle' }],
-          },
-          {
-            code: `xtest('loads config', async done => {
+          filename: fixture('jasmine-globals'),
+          errors: [{ messageId: 'singleTestCompletionStyle' }],
+        },
+        {
+          code: `xtest('loads config', async done => {
   await loadConfig();
   done();
 });`,
-            filename: fixture('jest-globals'),
-            errors: [{ messageId: 'singleTestCompletionStyle' }],
-          },
-        ],
-      },
-    );
+          filename: fixture('jest-globals'),
+          errors: [{ messageId: 'singleTestCompletionStyle' }],
+        },
+      ],
+    });
   });
 });
