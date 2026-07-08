@@ -141,112 +141,102 @@ flowchart TD
   T --> U["releasability"]
 ```
 
-## Full Job Graph
+## Detailed Dependency Views
 
-This is the exact dependency graph implied by the current workflow.
+The full 31-job dependency graph is too dense to read well as a single Mermaid diagram. The grouped views below are the readable version; the job table that follows is the exact exhaustive reference.
+
+### 1. Setup And Artifact Producers
 
 ```mermaid
-graph TD
-    setup["setup"]
-    setup["setup"] --> get_build_number["get_build_number"]
-    setup["setup"] --> populate_npm_cache["populate_npm_cache"]
-    get_build_number["get_build_number"] --> populate_npm_cache["populate_npm_cache"]
-    setup["setup"] --> populate_npm_cache_win["populate_npm_cache_win"]
-    get_build_number["get_build_number"] --> populate_npm_cache_win["populate_npm_cache_win"]
-    setup["setup"] --> build["build"]
-    get_build_number["get_build_number"] --> build["build"]
-    populate_npm_cache["populate_npm_cache"] --> build["build"]
-    prepare_rspec_rule_data["prepare_rspec_rule_data"] --> build["build"]
-    setup["setup"] --> build_win["build_win"]
-    get_build_number["get_build_number"] --> build_win["build_win"]
-    populate_npm_cache_win["populate_npm_cache_win"] --> build_win["build_win"]
-    prepare_rspec_rule_data["prepare_rspec_rule_data"] --> build_win["build_win"]
-    setup["setup"] --> prepare_rspec_rule_data["prepare_rspec_rule_data"]
-    populate_npm_cache["populate_npm_cache"] --> prepare_rspec_rule_data["prepare_rspec_rule_data"]
-    setup["setup"] --> build_eslint_plugin["build_eslint_plugin"]
-    prepare_rspec_rule_data["prepare_rspec_rule_data"] --> build_eslint_plugin["build_eslint_plugin"]
-    setup["setup"] --> generated_files_freshness["generated_files_freshness"]
-    populate_npm_cache["populate_npm_cache"] --> generated_files_freshness["generated_files_freshness"]
-    prepare_rspec_rule_data["prepare_rspec_rule_data"] --> generated_files_freshness["generated_files_freshness"]
-    setup["setup"] --> test_eslint_plugin["test_eslint_plugin"]
-    build_eslint_plugin["build_eslint_plugin"] --> test_eslint_plugin["test_eslint_plugin"]
-    setup["setup"] --> knip["knip"]
-    populate_npm_cache["populate_npm_cache"] --> knip["knip"]
-    prepare_rspec_rule_data["prepare_rspec_rule_data"] --> knip["knip"]
-    setup["setup"] --> test_js["test_js"]
-    populate_npm_cache["populate_npm_cache"] --> test_js["test_js"]
-    prepare_rspec_rule_data["prepare_rspec_rule_data"] --> test_js["test_js"]
-    setup["setup"] --> test_js_win["test_js_win"]
-    populate_npm_cache_win["populate_npm_cache_win"] --> test_js_win["test_js_win"]
-    prepare_rspec_rule_data["prepare_rspec_rule_data"] --> test_js_win["test_js_win"]
-    setup["setup"] --> analyze_primary["analyze_primary"]
-    get_build_number["get_build_number"] --> analyze_primary["analyze_primary"]
-    test_js["test_js"] --> analyze_primary["analyze_primary"]
-    build["build"] --> analyze_primary["analyze_primary"]
-    setup["setup"] --> analyze_shadows["analyze_shadows"]
-    get_build_number["get_build_number"] --> analyze_shadows["analyze_shadows"]
-    test_js["test_js"] --> analyze_shadows["analyze_shadows"]
-    build["build"] --> analyze_shadows["analyze_shadows"]
-    setup["setup"] --> plugin_qa_with_node["plugin_qa_with_node"]
-    get_build_number["get_build_number"] --> plugin_qa_with_node["plugin_qa_with_node"]
-    build["build"] --> plugin_qa_with_node["plugin_qa_with_node"]
-    setup["setup"] --> plugin_qa_fast_with_node["plugin_qa_fast_with_node"]
-    get_build_number["get_build_number"] --> plugin_qa_fast_with_node["plugin_qa_fast_with_node"]
-    build["build"] --> plugin_qa_fast_with_node["plugin_qa_fast_with_node"]
-    setup["setup"] --> plugin_qa_without_node["plugin_qa_without_node"]
-    get_build_number["get_build_number"] --> plugin_qa_without_node["plugin_qa_without_node"]
-    build["build"] --> plugin_qa_without_node["plugin_qa_without_node"]
-    setup["setup"] --> plugin_qa_without_node_dev["plugin_qa_without_node_dev"]
-    get_build_number["get_build_number"] --> plugin_qa_without_node_dev["plugin_qa_without_node_dev"]
-    build["build"] --> plugin_qa_without_node_dev["plugin_qa_without_node_dev"]
-    setup["setup"] --> plugin_qa_without_node_alpine["plugin_qa_without_node_alpine"]
-    get_build_number["get_build_number"] --> plugin_qa_without_node_alpine["plugin_qa_without_node_alpine"]
-    build["build"] --> plugin_qa_without_node_alpine["plugin_qa_without_node_alpine"]
-    setup["setup"] --> plugin_qa_fast_without_node["plugin_qa_fast_without_node"]
-    get_build_number["get_build_number"] --> plugin_qa_fast_without_node["plugin_qa_fast_without_node"]
-    build["build"] --> plugin_qa_fast_without_node["plugin_qa_fast_without_node"]
-    setup["setup"] --> plugin_qa_fast_without_node_dev["plugin_qa_fast_without_node_dev"]
-    get_build_number["get_build_number"] --> plugin_qa_fast_without_node_dev["plugin_qa_fast_without_node_dev"]
-    build["build"] --> plugin_qa_fast_without_node_dev["plugin_qa_fast_without_node_dev"]
-    setup["setup"] --> plugin_qa_fast_without_node_alpine["plugin_qa_fast_without_node_alpine"]
-    get_build_number["get_build_number"] --> plugin_qa_fast_without_node_alpine["plugin_qa_fast_without_node_alpine"]
-    build["build"] --> plugin_qa_fast_without_node_alpine["plugin_qa_fast_without_node_alpine"]
-    setup["setup"] --> plugin_qa_win["plugin_qa_win"]
-    get_build_number["get_build_number"] --> plugin_qa_win["plugin_qa_win"]
-    build["build"] --> plugin_qa_win["plugin_qa_win"]
-    setup["setup"] --> plugin_qa_sonarlint_win["plugin_qa_sonarlint_win"]
-    get_build_number["get_build_number"] --> plugin_qa_sonarlint_win["plugin_qa_sonarlint_win"]
-    build["build"] --> plugin_qa_sonarlint_win["plugin_qa_sonarlint_win"]
-    setup["setup"] --> plugin_qa_win_fast_with_node["plugin_qa_win_fast_with_node"]
-    get_build_number["get_build_number"] --> plugin_qa_win_fast_with_node["plugin_qa_win_fast_with_node"]
-    build["build"] --> plugin_qa_win_fast_with_node["plugin_qa_win_fast_with_node"]
-    setup["setup"] --> js_ts_ruling["js_ts_ruling"]
-    populate_npm_cache["populate_npm_cache"] --> js_ts_ruling["js_ts_ruling"]
-    prepare_rspec_rule_data["prepare_rspec_rule_data"] --> js_ts_ruling["js_ts_ruling"]
-    setup["setup"] --> ruling["ruling"]
-    get_build_number["get_build_number"] --> ruling["ruling"]
-    build["build"] --> ruling["ruling"]
-    analyze_primary["analyze_primary"] --> run_iris["run_iris"]
-    analyze_shadows["analyze_shadows"] --> run_iris["run_iris"]
-    get_build_number["get_build_number"] --> promote["promote"]
-    build["build"] --> promote["promote"]
-    build_win["build_win"] --> promote["promote"]
-    test_js["test_js"] --> promote["promote"]
-    test_js_win["test_js_win"] --> promote["promote"]
-    analyze_primary["analyze_primary"] --> promote["promote"]
-    test_eslint_plugin["test_eslint_plugin"] --> promote["promote"]
-    plugin_qa_with_node["plugin_qa_with_node"] --> promote["promote"]
-    plugin_qa_without_node["plugin_qa_without_node"] --> promote["promote"]
-    plugin_qa_fast_with_node["plugin_qa_fast_with_node"] --> promote["promote"]
-    plugin_qa_fast_without_node["plugin_qa_fast_without_node"] --> promote["promote"]
-    plugin_qa_without_node_alpine["plugin_qa_without_node_alpine"] --> promote["promote"]
-    plugin_qa_fast_without_node_alpine["plugin_qa_fast_without_node_alpine"] --> promote["promote"]
-    plugin_qa_win["plugin_qa_win"] --> promote["promote"]
-    plugin_qa_sonarlint_win["plugin_qa_sonarlint_win"] --> promote["promote"]
-    plugin_qa_win_fast_with_node["plugin_qa_win_fast_with_node"] --> promote["promote"]
-    ruling["ruling"] --> promote["promote"]
-    js_ts_ruling["js_ts_ruling"] --> promote["promote"]
-    promote["promote"] --> releasability["releasability"]
+flowchart TD
+  setup["setup"] --> get_build_number["get_build_number"]
+  setup --> populate_npm_cache["populate_npm_cache"]
+  get_build_number --> populate_npm_cache
+  setup --> populate_npm_cache_win["populate_npm_cache_win"]
+  get_build_number --> populate_npm_cache_win
+
+  setup --> prepare_rspec_rule_data["prepare_rspec_rule_data"]
+  populate_npm_cache --> prepare_rspec_rule_data
+
+  setup --> build["build"]
+  get_build_number --> build
+  populate_npm_cache --> build
+  prepare_rspec_rule_data --> build
+
+  setup --> build_win["build_win"]
+  get_build_number --> build_win
+  populate_npm_cache_win --> build_win
+  prepare_rspec_rule_data --> build_win
+
+  setup --> build_eslint_plugin["build_eslint_plugin"]
+  prepare_rspec_rule_data --> build_eslint_plugin
+  build_eslint_plugin --> test_eslint_plugin["test_eslint_plugin"]
+```
+
+### 2. Verification And Analysis
+
+```mermaid
+flowchart TD
+  setup["setup"] --> populate_npm_cache["populate_npm_cache"]
+  setup --> populate_npm_cache_win["populate_npm_cache_win"]
+  setup --> prepare_rspec_rule_data["prepare_rspec_rule_data"]
+  populate_npm_cache --> prepare_rspec_rule_data
+
+  setup --> knip["knip"]
+  populate_npm_cache --> knip
+  prepare_rspec_rule_data --> knip
+
+  setup --> test_js["test_js"]
+  populate_npm_cache --> test_js
+  prepare_rspec_rule_data --> test_js
+
+  setup --> test_js_win["test_js_win"]
+  populate_npm_cache_win --> test_js_win
+  prepare_rspec_rule_data --> test_js_win
+
+  setup --> generated_files_freshness["generated_files_freshness"]
+  populate_npm_cache --> generated_files_freshness
+  prepare_rspec_rule_data --> generated_files_freshness
+
+  setup --> analyze_primary["analyze_primary"]
+  get_build_number["get_build_number"] --> analyze_primary
+  build["build"] --> analyze_primary
+  test_js --> analyze_primary
+
+  setup --> analyze_shadows["analyze_shadows"]
+  get_build_number --> analyze_shadows
+  build --> analyze_shadows
+  test_js --> analyze_shadows
+
+  analyze_primary --> run_iris["run_iris"]
+  analyze_shadows --> run_iris
+```
+
+### 3. QA, Ruling, And Release Fan-In
+
+```mermaid
+flowchart TD
+  build["build"] --> plugin_qa["plugin QA matrix"]
+  get_build_number["get_build_number"] --> plugin_qa
+
+  build --> ruling["ruling"]
+  get_build_number --> ruling
+
+  populate_npm_cache["populate_npm_cache"] --> js_ts_ruling["js_ts_ruling"]
+  prepare_rspec_rule_data["prepare_rspec_rule_data"] --> js_ts_ruling
+
+  build --> promote["promote"]
+  build_win["build_win"] --> promote
+  test_js["test_js"] --> promote
+  test_js_win["test_js_win"] --> promote
+  analyze_primary["analyze_primary"] --> promote
+  test_eslint_plugin["test_eslint_plugin"] --> promote
+  plugin_qa --> promote
+  ruling --> promote
+  js_ts_ruling --> promote
+  get_build_number --> promote
+
+  promote --> releasability["releasability"]
 ```
 
 ## Job Index
