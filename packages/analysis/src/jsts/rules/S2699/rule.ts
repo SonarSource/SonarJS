@@ -30,6 +30,10 @@ import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as Mocha from '../helpers/mocha.js';
 import * as Vitest from '../helpers/vitest.js';
 import {
+  followCallToImplementation,
+  followTypeScriptCallToImplementation,
+} from '../helpers/call-to-declaration.js';
+import {
   hasSupportedAssertionLibrary,
   hasSupportedTestFramework,
   isAssertion,
@@ -241,11 +245,16 @@ class TestCaseAssertionVisitor {
 
     let nodeHasAssertions = false;
     if (node.kind === ts.SyntaxKind.CallExpression) {
-      const callNode = services.program
-        .getTypeChecker()
-        .getResolvedSignature(node as ts.CallLikeExpression);
-      if (callNode?.declaration) {
-        nodeHasAssertions ||= this.visitTSNode(services, callNode.declaration, visitedTSNodes);
+      const estreeNode = services.tsNodeToESTreeNodeMap.get(node);
+      const declaration =
+        estreeNode?.type === 'CallExpression'
+          ? followCallToImplementation(estreeNode as estree.CallExpression, services)
+          : followTypeScriptCallToImplementation(
+              node as ts.CallExpression,
+              services.program.getTypeChecker(),
+            );
+      if (declaration) {
+        nodeHasAssertions ||= this.visitTSNode(services, declaration, visitedTSNodes);
       }
     }
     node.forEachChild(child => {
