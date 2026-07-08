@@ -33,8 +33,8 @@ get_open_fix_pr_url() {
 }
 
 stash_ruling_changes() {
-  if [ -n "$(git status --porcelain -- its/ruling/src/test/expected/)" ]; then
-    git stash push -u -m "ruling-sync-changes" -- its/ruling/src/test/expected/ >/dev/null
+  if [ -n "$(git status --porcelain -- "$OLD_RESULTS_PATH")" ]; then
+    git stash push -u -m "ruling-sync-changes" -- "$OLD_RESULTS_PATH" >/dev/null
     STASHED_CHANGES="true"
   fi
 }
@@ -117,10 +117,10 @@ if [ "$RULING_FAILED" = "true" ]; then
     exit 0
   fi
 
-  npm run ruling-sync
+  node "$ACTION_PATH/sync-results.mjs" "$NEW_RESULTS_PATH" "$OLD_RESULTS_PATH"
 fi
 
-node tools/ruling-report.js > ruling-report.md
+BASE_REF="$BASE_REF" BASE_SHA="$BASE_SHA" node "$ACTION_PATH/generate-report.mjs" "$OLD_RESULTS_PATH" > ruling-report.md
 if [ -s ruling-report.md ]; then
   HAS_DIFFERENCES="true"
 fi
@@ -138,9 +138,9 @@ if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
   git checkout -B "$FIX_BRANCH" "origin/$TARGET_REF"
   restore_ruling_changes
 
-  git add its/ruling/src/test/expected/
+  git add -- "$OLD_RESULTS_PATH"
 
-  if git diff --staged --quiet; then
+  if git diff --staged --quiet -- "$OLD_RESULTS_PATH"; then
     echo "No ruling changes to commit"
   else
     git commit -m "$FIX_COMMIT_MESSAGE"

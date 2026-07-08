@@ -1,5 +1,5 @@
-name: JS/TS Ruling Maintenance
-description: Generate ruling reports, update PR comments, and manage fix PRs for JS/TS ruling changes
+name: ruling_bot
+description: Generate sonar-lits ruling reports, update PR comments, and manage fix PRs
 
 inputs:
   github-token:
@@ -23,13 +23,19 @@ inputs:
     description: Whether the current workflow run is for a pull request
     required: true
   ruling-failed:
-    description: Whether the preceding JS/TS ruling execution failed
+    description: Whether the preceding ruling execution failed
+    required: true
+  new-results-path:
+    description: Path to freshly generated ruling results produced by sonar-lits
+    required: true
+  old-results-path:
+    description: Path to version-controlled baseline ruling results
     required: true
 
 runs:
   using: composite
   steps:
-    - name: Update ruling and notify
+    - name: Run ruling bot
       shell: bash
       env:
         ACTION_PATH: ${{ github.action_path }}
@@ -40,4 +46,6 @@ runs:
         BASE_SHA: ${{ inputs.base-sha }}
         IS_PULL_REQUEST: ${{ inputs.is-pull-request }}
         RULING_FAILED: ${{ inputs.ruling-failed }}
+        NEW_RESULTS_PATH: ${{ inputs.new-results-path }}
+        OLD_RESULTS_PATH: ${{ inputs.old-results-path }}
       run: bash "$ACTION_PATH/run.sh"
