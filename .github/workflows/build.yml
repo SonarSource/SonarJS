@@ -100,7 +100,7 @@ jobs:
       # Producer jobs need a lookup-only probe that still saves a freshly populated cache at job end.
       - name: Check NPM dependencies cache
         id: cache
-        uses: actions/cache@v5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
@@ -166,7 +166,7 @@ jobs:
             node = "24.11.0"
       - &npm_cache
         name: Restore NPM dependencies
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
@@ -444,7 +444,7 @@ jobs:
     steps:
       - name: Restore JS coverage cache
         id: cache
-        uses: actions/cache@v5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
@@ -463,7 +463,7 @@ jobs:
             node = "24.11.0"
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
@@ -507,7 +507,7 @@ jobs:
     steps:
       - name: Check JS test results marker (Windows)
         id: cache
-        uses: actions/cache@v5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .js-test-marker-win
           key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
@@ -527,7 +527,7 @@ jobs:
             node = "24.11.0"
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
