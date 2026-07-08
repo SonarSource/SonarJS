@@ -1,3 +1,5 @@
+declare const require: (moduleName: string) => object;
+
 function toStrings<T>(array: T[]): string[] {
   return array.map((item) => {
     if (item?.toString) {
@@ -10,6 +12,19 @@ function toStrings<T>(array: T[]): string[] {
 function maybeString() {
   let foo: string | {};
   foo.toString() // Noncompliant {{'foo' may use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+}
+
+function lodashNamespaceToStringIsReported(value: object) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //                ^^^^^
+}
+
+function lodashNamespaceToStringWithStringArgument(value: string) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Compliant
 }
 
 function guardedByPrototypeComparison(value: object) {

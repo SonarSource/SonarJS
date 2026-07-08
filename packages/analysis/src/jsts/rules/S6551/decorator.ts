@@ -19,13 +19,22 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isGenericType } from '../helpers/type.js';
 import { childrenOf } from '../helpers/ancestor.js';
 import { isCallingMethod, isFunctionNode, isIdentifier, isIfStatement } from '../helpers/ast.js';
 import { areEquivalent } from '../helpers/equivalence.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
+
+const USEFUL_TO_STRING = 'always';
+const DEFAULT_TO_STRING = 'will';
+const POSSIBLE_DEFAULT_TO_STRING = 'may';
+const DEFAULT_IGNORED_TYPE_NAMES = ['Error', 'RegExp', 'URL', 'URLSearchParams'];
+type ToStringCertainty =
+  typeof USEFUL_TO_STRING | typeof DEFAULT_TO_STRING | typeof POSSIBLE_DEFAULT_TO_STRING;
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -43,10 +52,282 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         ) {
           // we skip
         } else {
-          context.report(reportDescriptor);
+          const redirectedReport = redirectKnownUtilityToStringReport(reportDescriptor, context);
+          if (redirectedReport !== undefined) {
+            context.report(redirectedReport);
+          }
         }
       }
     },
+  );
+}
+
+function redirectKnownUtilityToStringReport(
+  reportDescriptor: Rule.ReportDescriptor,
+  context: Rule.RuleContext,
+): Rule.ReportDescriptor | undefined {
+  if (
+    !('node' in reportDescriptor) ||
+    !('messageId' in reportDescriptor) ||
+    reportDescriptor.messageId !== 'baseToString'
+  ) {
+    return reportDescriptor;
+  }
+
+  const argument = getKnownUtilityToStringArgument(reportDescriptor.node as TSESTree.Node, context);
+  if (argument === undefined) {
+    return reportDescriptor;
+  }
+
+  const certainty = getToStringCertainty(argument, context);
+  if (certainty === USEFUL_TO_STRING) {
+    return undefined;
+  }
+
+  return {
+    ...reportDescriptor,
+    node: argument as estree.Node,
+    data: {
+      ...('data' in reportDescriptor ? reportDescriptor.data : {}),
+      name: context.sourceCode.getText(argument as estree.Node),
+      certainty,
+    },
+  };
+}
+
+function getKnownUtilityToStringArgument(
+  node: TSESTree.Node,
+  context: Rule.RuleContext,
+): TSESTree.Expression | undefined {
+  const call = getContainingToStringCallExpression(node);
+  if (
+    call === undefined ||
+    call.arguments.length !== 1 ||
+    call.arguments[0].type === 'SpreadElement' ||
+    getFullyQualifiedName(context, call as estree.CallExpression) !== 'lodash.toString'
+  ) {
+    return undefined;
+  }
+
+  return call.arguments[0];
+}
+
+function getContainingToStringCallExpression(
+  node: TSESTree.Node,
+): TSESTree.CallExpression | undefined {
+  const parent = node.parent;
+  if (
+    parent?.type === 'MemberExpression' &&
+    parent.object === node &&
+    parent.property.type === 'Identifier' &&
+    parent.property.name === 'toString' &&
+    parent.parent?.type === 'CallExpression' &&
+    parent.parent.callee === parent
+  ) {
+    return parent.parent;
+  }
+  return undefined;
+}
+
+function getToStringCertainty(node: TSESTree.Node, context: Rule.RuleContext): ToStringCertainty {
+  const services = context.sourceCode.parserServices;
+  const checker = services.program.getTypeChecker();
+  const type = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node));
+  return collectToStringCertainty(type, checker, getToStringOptions(context), new Set());
+}
+
+function getToStringOptions(context: Rule.RuleContext) {
+  const option = context.options[0] as
+    { ignoredTypeNames?: string[]; checkUnknown?: boolean } | undefined;
+  return {
+    checkUnknown: option?.checkUnknown ?? false,
+    ignoredTypeNames: option?.ignoredTypeNames ?? DEFAULT_IGNORED_TYPE_NAMES,
+  };
+}
+
+function collectToStringCertainty(
+  type: ts.Type,
+  checker: ts.TypeChecker,
+  options: { ignoredTypeNames: string[]; checkUnknown: boolean },
+  visited: Set<ts.Type>,
+): ToStringCertainty {
+  if (visited.has(type)) {
+    return USEFUL_TO_STRING;
+  }
+  if (isTypeParameter(type)) {
+    const constraint = type.getConstraint();
+    if (constraint) {
+      return collectToStringCertainty(constraint, checker, options, visited);
+    }
+    return options.checkUnknown ? POSSIBLE_DEFAULT_TO_STRING : USEFUL_TO_STRING;
+  }
+  if (isPrimitiveStringifiable(type) || isIgnoredType(type, options.ignoredTypeNames)) {
+    return USEFUL_TO_STRING;
+  }
+  if (type.isIntersection()) {
+    return collectIntersectionTypeCertainty(type, checker, options, visited);
+  }
+  if (type.isUnion()) {
+    return collectUnionTypeCertainty(type, checker, options, visited);
+  }
+  if (checker.isTupleType(type)) {
+    return collectTupleCertainty(
+      type as ts.TypeReference,
+      checker,
+      options,
+      new Set([...visited, type]),
+    );
+  }
+  if (checker.isArrayType(type)) {
+    return collectArrayCertainty(type, checker, options, new Set([...visited, type]));
+  }
+  switch (isToStringLikeFromObject(type, checker)) {
+    case undefined:
+      return options.checkUnknown && type.flags === ts.TypeFlags.Unknown
+        ? POSSIBLE_DEFAULT_TO_STRING
+        : USEFUL_TO_STRING;
+    case true:
+      return DEFAULT_TO_STRING;
+    case false:
+      return USEFUL_TO_STRING;
+  }
+}
+
+function collectUnionTypeCertainty(
+  type: ts.UnionType,
+  checker: ts.TypeChecker,
+  options: { ignoredTypeNames: string[]; checkUnknown: boolean },
+  visited: Set<ts.Type>,
+): ToStringCertainty {
+  const certainties = type.types.map(subType =>
+    collectToStringCertainty(subType, checker, options, visited),
+  );
+  if (certainties.every(certainty => certainty === DEFAULT_TO_STRING)) {
+    return DEFAULT_TO_STRING;
+  }
+  if (certainties.every(certainty => certainty === USEFUL_TO_STRING)) {
+    return USEFUL_TO_STRING;
+  }
+  return POSSIBLE_DEFAULT_TO_STRING;
+}
+
+function collectIntersectionTypeCertainty(
+  type: ts.IntersectionType,
+  checker: ts.TypeChecker,
+  options: { ignoredTypeNames: string[]; checkUnknown: boolean },
+  visited: Set<ts.Type>,
+): ToStringCertainty {
+  for (const subType of type.types) {
+    if (collectToStringCertainty(subType, checker, options, visited) === USEFUL_TO_STRING) {
+      return USEFUL_TO_STRING;
+    }
+  }
+  return DEFAULT_TO_STRING;
+}
+
+function collectTupleCertainty(
+  type: ts.TypeReference,
+  checker: ts.TypeChecker,
+  options: { ignoredTypeNames: string[]; checkUnknown: boolean },
+  visited: Set<ts.Type>,
+): ToStringCertainty {
+  const certainties = checker
+    .getTypeArguments(type)
+    .map(subType => collectToStringCertainty(subType, checker, options, visited));
+  if (certainties.some(certainty => certainty === DEFAULT_TO_STRING)) {
+    return DEFAULT_TO_STRING;
+  }
+  if (certainties.some(certainty => certainty === POSSIBLE_DEFAULT_TO_STRING)) {
+    return POSSIBLE_DEFAULT_TO_STRING;
+  }
+  return USEFUL_TO_STRING;
+}
+
+function collectArrayCertainty(
+  type: ts.Type,
+  checker: ts.TypeChecker,
+  options: { ignoredTypeNames: string[]; checkUnknown: boolean },
+  visited: Set<ts.Type>,
+): ToStringCertainty {
+  const elementType = type.getNumberIndexType();
+  if (elementType === undefined) {
+    return USEFUL_TO_STRING;
+  }
+  return collectToStringCertainty(elementType, checker, options, visited);
+}
+
+function isPrimitiveStringifiable(type: ts.Type) {
+  return (
+    (type.flags &
+      (ts.TypeFlags.StringLike |
+        ts.TypeFlags.NumberLike |
+        ts.TypeFlags.BigIntLike |
+        ts.TypeFlags.BooleanLike |
+        ts.TypeFlags.ESSymbolLike |
+        ts.TypeFlags.Null |
+        ts.TypeFlags.Undefined |
+        ts.TypeFlags.Void)) !==
+    0
+  );
+}
+
+function isTypeParameter(type: ts.Type) {
+  return (type.flags & ts.TypeFlags.TypeParameter) !== 0;
+}
+
+function isIgnoredType(type: ts.Type, ignoredTypeNames: string[]) {
+  const name = type.aliasSymbol?.name ?? type.getSymbol()?.name;
+  return name !== undefined && ignoredTypeNames.includes(name);
+}
+
+function isToStringLikeFromObject(type: ts.Type, checker: ts.TypeChecker): boolean | undefined {
+  if (
+    type
+      .getProperties()
+      .some(
+        property =>
+          property.valueDeclaration !== undefined &&
+          isSymbolToPrimitiveMethod(property.valueDeclaration),
+      )
+  ) {
+    return false;
+  }
+
+  let foundFallbackOnObject = false;
+  for (const propertyName of ['toLocaleString', 'toString', 'valueOf']) {
+    const candidate = checker.getPropertyOfType(type, propertyName);
+    if (!candidate) {
+      continue;
+    }
+    const declarations = candidate.getDeclarations();
+    if (!declarations?.length) {
+      continue;
+    }
+    if (
+      declarations.some(
+        declaration =>
+          !(
+            ts.isInterfaceDeclaration(declaration.parent) &&
+            declaration.parent.name.text === 'Object'
+          ),
+      )
+    ) {
+      return false;
+    }
+    foundFallbackOnObject = true;
+  }
+  return foundFallbackOnObject ? true : undefined;
+}
+
+function isSymbolToPrimitiveMethod(node: ts.Declaration) {
+  return (
+    ts.isMethodSignature(node) &&
+    ts.isComputedPropertyName(node.name) &&
+    ts.isPropertyAccessExpression(node.name.expression) &&
+    ts.isIdentifier(node.name.expression.expression) &&
+    node.name.expression.expression.text === 'Symbol' &&
+    ts.isIdentifier(node.name.expression.name) &&
+    node.name.expression.name.text === 'toPrimitive'
   );
 }
 
