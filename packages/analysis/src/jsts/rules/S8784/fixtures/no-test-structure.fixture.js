@@ -33,11 +33,9 @@ expect(value).toBe(1); // Noncompliant {{Move this assertion into a test case or
 cy.get('.status').should('be.visible'); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
 // other known global expect entry points (rxjs marble)
 expectObservable(source$).toBe('a-b'); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
-
-// --- type-level: never flagged ---
-// expectTypeOf is a compile-time Vitest construct (static type check, never executed
-// at runtime), so placing it at the top level is not a misplaced assertion.
-expectTypeOf(value).toEqualTypeOf(); // Compliant
+// `expectTypeOf` is only exempt when imported from vitest (FQN check); an unimported
+// name-alike (e.g. from the `expect-type` package) is still runner-bound.
+expectTypeOf(value).toEqualTypeOf(); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
 
 // --- `expect`-prefixed identifiers that are NOT assertion entry points: not flagged ---
 // Matching is by exact name, not an `expect` prefix, so ordinary production code

@@ -34,10 +34,14 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
   return isFQNAssertion(fqn);
 }
 
+// Vitest's compile-time type checks: never executed at runtime, idiomatic at top
+// level in .test-d.ts files, so rules about assertion placement must not flag them.
+const TYPE_LEVEL_ROOTS = ['vitest.expectTypeOf', 'vitest.assertType'];
+
 // The set of valid matchers is open (custom matchers, matchers called on a stored
 // result), so we cannot enumerate them. Instead, we match anything under these
 // roots and then exclude the few non-assertion members below.
-const ASSERTION_ROOTS = ['vitest.expect', 'vitest.expectTypeOf', 'vitest.assertType'];
+const ASSERTION_ROOTS = ['vitest.expect', ...TYPE_LEVEL_ROOTS];
 
 // Static helpers on `expect` that share the `vitest.expect` root but configure or
 // declare rather than assert. This set IS closed, so we carve it out by name.
@@ -79,4 +83,17 @@ function extractFQNforCallExpression(context: Rule.RuleContext, node: estree.Nod
     return undefined;
   }
   return getFullyQualifiedName(context, node);
+}
+
+/**
+ * Whether `node` is a Vitest compile-time type check (`expectTypeOf` / `assertType`).
+ * These are processed by `tsc`, never executed at runtime, so placement outside a
+ * test case is idiomatic and must not be flagged.
+ */
+export function isTypeLevelAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
+  const fqn = extractFQNforCallExpression(context, node);
+  if (!fqn) {
+    return false;
+  }
+  return TYPE_LEVEL_ROOTS.some(root => fqn === root || fqn.startsWith(`${root}.`));
 }
