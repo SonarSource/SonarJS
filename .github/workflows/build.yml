@@ -99,11 +99,10 @@ jobs:
     steps: &populate_npm_cache_steps
       - name: Cache NPM dependencies
         id: cache
-        uses: SonarSource/gh-action_cache@v1.7.1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
-          lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
@@ -164,7 +163,7 @@ jobs:
             node = "24.11.0"
       - &npm_cache
         name: Cache NPM dependencies
-        uses: SonarSource/gh-action_cache@v1.7.1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
@@ -303,7 +302,7 @@ jobs:
         run: npm run eslint-plugin:build
       - &eslint_tarball_cache
         name: Cache ESLint plugin tarball
-        uses: SonarSource/gh-action_cache@v1.7.1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: lib/*.tgz
           key: eslint-tarball-${{ github.sha }}
@@ -420,7 +419,7 @@ jobs:
     steps:
       - name: Restore JS coverage cache
         id: cache
-        uses: SonarSource/gh-action_cache@v1.7.1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
@@ -439,7 +438,7 @@ jobs:
             node = "24.11.0"
       - name: Cache NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: SonarSource/gh-action_cache@v1.7.1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
@@ -481,7 +480,7 @@ jobs:
     steps:
       - name: Cache JS test results marker (Windows)
         id: cache
-        uses: SonarSource/gh-action_cache@v1.7.1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: .js-test-marker-win
           key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
@@ -501,7 +500,7 @@ jobs:
             node = "24.11.0"
       - name: Cache NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: SonarSource/gh-action_cache@v1.7.1
+        uses: SonarSource/gh-action_cache@v1
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
