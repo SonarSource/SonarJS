@@ -69,7 +69,7 @@ export function hasDestructuredParamPropUsage(
   }
 
   const matchingProperty = objectPattern.properties.find(
-    (prop): prop is estree.Property =>
+    (prop): prop is estree.AssignmentProperty =>
       prop.type !== 'RestElement' && !prop.computed && isIdentifier(prop.key, propName),
   );
 
