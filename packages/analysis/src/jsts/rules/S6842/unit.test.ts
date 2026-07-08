@@ -26,8 +26,8 @@ type Allowlist = Record<string, string[]>;
 const OPTIONS = defaultOptions(fields) as [Allowlist];
 
 // The flat, spec-derived allowlist exposed as default options. Context-sensitive elements
-// (li, img, figure, label), "any role" elements and the `toolbar` structure role are enforced
-// by the decorator, not by these options.
+// (li, img, figure, label), "any role" elements and the list-container `toolbar` structure role
+// are enforced by the decorator, not by these options.
 const EXPECTED_ALLOWLIST: Allowlist = {
   ul: ['listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree'],
   ol: ['listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree'],
@@ -109,6 +109,7 @@ const INVALID_CASES = [
   // A list child inside a real list is restricted to listitem.
   { code: `<ul><li role="menuitem">Item</li></ul>`, options: OPTIONS, errors: 1 },
   { code: `<ul role="list"><li role="button">Item</li></ul>`, options: OPTIONS, errors: 1 },
+  { code: `<ul role="list"><li role="toolbar">Item</li></ul>`, options: OPTIONS, errors: 1 },
   // img without an accessible name, or with a role it does not permit.
   { code: `<img role="button" />`, options: OPTIONS, errors: 1 },
   { code: `<img alt="" role="button" />`, options: OPTIONS, errors: 1 },

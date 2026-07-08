@@ -21,7 +21,7 @@ import type { ESLintConfiguration } from '../helpers/configs.js';
 // Interactive roles that the ARIA in HTML conformance table
 // (https://w3c.github.io/html-aria/#docconformance) permits per element.
 // "Any role" elements, the context-sensitive elements (li, img, figure, label)
-// and the `toolbar` structure role are handled in decorator.ts.
+// and the list-container `toolbar` structure role are handled in decorator.ts.
 const LIST_CONTAINER_ROLES = ['listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree'];
 
 const allowlist: Record<string, string[]> = {

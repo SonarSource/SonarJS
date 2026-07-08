@@ -84,7 +84,7 @@ const LABELABLE_CONTROLS = new Set([
  * the element/role combinations the ARIA in HTML conformance table permits are not
  * reported. config.ts keeps the flat, spec-derived allowlists; this decorator handles
  * what the allowlist cannot express: elements that accept any role, the context-sensitive
- * elements (li, img, figure, label) and the `toolbar` structure role.
+ * elements (li, img, figure, label) and the list-container `toolbar` structure role.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
@@ -150,9 +150,9 @@ function isRoleAllowedBySpec(
   tag: string,
   role: string,
 ): boolean {
-  // `toolbar` is a structure role, not a widget role.
+  // `toolbar` is a structure role, not a widget role; ARIA in HTML allows it on list containers.
   if (role === 'toolbar') {
-    return true;
+    return LIST_CONTAINER_ELEMENTS.has(tag);
   }
   if (ANY_ROLE_ELEMENTS.has(tag)) {
     return true;
