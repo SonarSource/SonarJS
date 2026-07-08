@@ -401,17 +401,10 @@ jobs:
         run: |
           TARBALL=lib/eslint-plugin-sonarjs-0.0.0-SNAPSHOT.tgz
 
-          if [ -f "$TARBALL" ]; then
-            exit 0
-          fi
-
-          FOUND_TARBALL=$(find lib -name "$(basename "$TARBALL")" -print -quit)
-          if [ -z "$FOUND_TARBALL" ]; then
-            echo "::error::Missing ESLint plugin tarball"
+          if [ ! -f "$TARBALL" ]; then
+            echo "::error file=$TARBALL::Missing ESLint plugin tarball"
             exit 1
           fi
-
-          mv "$FOUND_TARBALL" "$TARBALL"
       - name: Test ESLint Plugin
         run: |
           cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
