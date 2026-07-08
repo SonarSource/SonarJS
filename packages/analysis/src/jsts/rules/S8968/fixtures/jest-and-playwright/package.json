@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "jest": "30.0.0",
+    "@playwright/test": "1.49.0"
+  }
+}

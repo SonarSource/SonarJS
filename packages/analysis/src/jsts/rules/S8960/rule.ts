@@ -123,7 +123,9 @@ function getCallback(node: estree.CallExpression): FunctionNode | undefined {
   return node.arguments.find(isCallback);
 }
 
-function isCallback(argument: estree.CallExpression['arguments'][number]): argument is FunctionNode {
+function isCallback(
+  argument: estree.CallExpression['arguments'][number],
+): argument is FunctionNode {
   return argument.type === 'FunctionExpression' || argument.type === 'ArrowFunctionExpression';
 }
 
