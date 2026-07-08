@@ -17,7 +17,7 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
+import { isFunctionNode, isIdentifier } from '../../helpers/ast.js';
 
 /**
  * Returns true when the given pattern node corresponds to a variable binding

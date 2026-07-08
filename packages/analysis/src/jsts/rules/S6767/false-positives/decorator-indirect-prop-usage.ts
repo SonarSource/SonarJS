@@ -17,23 +17,23 @@
 
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
-import { getNodeParent } from '../helpers/ancestor.js';
+import { getNodeParent } from '../../helpers/ancestor.js';
 import {
   collectReferences,
   getVariableFromName,
   isFunctionNode,
   isIdentifier,
-} from '../helpers/ast.js';
-import { isRequiredParserServices } from '../helpers/parser-services.js';
+} from '../../helpers/ast.js';
+import { isRequiredParserServices } from '../../helpers/parser-services.js';
 import {
   getComponentIdentifier,
   getComponentPropsType,
-} from '../helpers/react/component-analysis.js';
-import { areSameTypeDeclarations, getTypeFromTreeNode } from '../helpers/type.js';
+} from '../../helpers/react/component-analysis.js';
+import { areSameTypeDeclarations, getTypeFromTreeNode } from '../../helpers/type.js';
 import {
   isNamedPropExpressionOrAlias,
   isWholePropsExpressionOrAlias,
-} from '../helpers/react/prop-alias-resolution.js';
+} from '../../helpers/react/prop-alias-resolution.js';
 import { isSupportedWholePropsUsage } from './whole-props-usage.js';
 
 /**
