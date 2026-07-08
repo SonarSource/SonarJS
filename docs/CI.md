@@ -42,7 +42,7 @@ The workflow uses a deliberate split between GitHub cache and GitHub artifacts:
 - Maven, orchestrator, and rule-api cache policy is centralized in local wrapper actions
 - `config-maven` configures Maven and Repox access, but its built-in caching is disabled in `build.yml`
 - Linux NPM cache population uses `config-npm` for auth/bootstrap, so `~/.npm` still goes through SonarSource's S3-backed cache action indirectly
-- all direct workflow cache steps and the local cache wrappers are pinned to the same `actions/cache` v6.1.0 commit
+- all direct workflow cache steps and the local cache wrappers use the same official GitHub cache actions
 
 ## Trigger Model And Global Controls
 
