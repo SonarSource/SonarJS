@@ -21,6 +21,9 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
 const stylelintPkgJson = readFileSync('node_modules/stylelint/package.json', 'utf8');
+const testingLibraryPkgJson = JSON.parse(
+  readFileSync('node_modules/eslint-plugin-testing-library/package.json', 'utf8'),
+);
 const require = createRequire(import.meta.url);
 const babelParserFromCore = JSON.stringify(
   require.resolve('@babel/parser', {
@@ -158,6 +161,21 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
           [
             /const require\$\d+ = createRequire\((?:import\.meta\.url|__filename)\);\s*const babelParser = require\$\d+\(require\$\d+\.resolve\("@babel\/parser", \{\s*paths: \[require\$\d+\.resolve\("@babel\/core\/package\.json"\)\]\s*\}\)\);/g,
             `const babelParser = require(${babelParserFromCore});`,
+          ],
+        ],
+      }),
+      // eslint-plugin-testing-library reads its own name/version off package.json via
+      // createRequire(import.meta.url)(...); in the bundled CJS output import.meta.url is
+      // undefined, which breaks standalone bridge startup the same way the Babel case above does.
+      textReplace({
+        include: /node_modules[/\\]eslint-plugin-testing-library[/\\]dist[/\\]index\.mjs$/,
+        pattern: [
+          [
+            'createRequire(import.meta.url)(resolve(dirname(fileURLToPath(import.meta.url)), "../package.json"))',
+            JSON.stringify({
+              name: testingLibraryPkgJson.name,
+              version: testingLibraryPkgJson.version,
+            }),
           ],
         ],
       }),
