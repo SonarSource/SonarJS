@@ -651,6 +651,24 @@ test('has assertions', () => {
 });
 `,
         },
+        {
+          code: `
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+type AssertionHelper = (actual: unknown, expected: unknown) => void;
+
+declare const actual: unknown;
+declare const expected: unknown;
+
+const check: AssertionHelper = (actual, expected) =>
+  assert.deepEqual(actual, expected);
+
+test('has helper assertion', () => {
+  check(actual, expected);
+});
+`,
+        },
         // Chained property access: expectObservable(...).not.toBe(...)
         {
           code: `
@@ -735,6 +753,24 @@ import assert from 'node:assert/strict';
 
 test('has no assertions', () => {
   const x = 1 + 2;
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+type AssertionHelper = (actual: unknown, expected: unknown) => void;
+
+declare const actual: unknown;
+declare const expected: unknown;
+
+const check: AssertionHelper = () => {};
+
+test('has no helper assertion', () => {
+  check(actual, expected);
 });
 `,
           errors: 1,
