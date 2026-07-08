@@ -75,7 +75,7 @@ describe('S2933 decorator', () => {
     ]);
   });
 
-  it('reports on the class name, falling back to the whole class for anonymous classes', () => {
+  it('reports on the class name, falling back to the class keyword for anonymous classes', () => {
     const namedMember = member('foo', loc(2, 2, 2, 5), [12, 15]);
     const namedClass = classNode({
       id: identifier('NamedClass', loc(1, 6, 1, 16)),
@@ -111,7 +111,7 @@ describe('S2933 decorator', () => {
     });
 
     assert.ok('loc' in anonymousReports[0]);
-    assert.deepEqual(anonymousReports[0].loc, anonymousClass.loc);
+    assert.deepEqual(anonymousReports[0].loc, loc(5, 10, 5, 15));
     assert.deepEqual(secondaryLocations(anonymousReports[0]), [
       {
         line: 6,
@@ -432,8 +432,7 @@ function lintProgram(
   }
 
   const onClass = listener['ClassDeclaration, ClassExpression'] as
-    | ((node: ClassNode) => void)
-    | undefined;
+    ((node: ClassNode) => void) | undefined;
   if (typeof onClass === 'function') {
     for (const classNode of classes) {
       visitClasses(classNode, onClass);
@@ -458,6 +457,20 @@ function ruleContext(
     sourceCode: {
       getIndexFromLoc(position: { line: number; column: number }) {
         return position.line * 10 + position.column;
+      },
+      getFirstToken(node: TSESTree.Node, predicate?: (token: AST.Token) => boolean) {
+        const classToken = {
+          type: 'Keyword',
+          value: 'class',
+          loc: loc(
+            node.loc!.start.line,
+            node.loc!.start.column,
+            node.loc!.start.line,
+            node.loc!.start.column + 5,
+          ),
+          range: [node.range![0], node.range![0] + 5] as AST.Range,
+        } as AST.Token;
+        return (predicate?.(classToken) ?? true) ? classToken : null;
       },
     },
     settings,

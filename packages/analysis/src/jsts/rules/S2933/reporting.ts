@@ -37,7 +37,7 @@ export function reportGroupedIssue(
   classNode: ClassNode,
   groupedReports: Rule.ReportDescriptor[],
 ) {
-  const primaryLocation = classNode.id ?? classNode;
+  const primaryLocation = getPrimaryLocation(context, classNode);
   const secondaryLocations = groupedReports.map(reportDescriptor =>
     getSecondaryLocation(rule, reportDescriptor),
   );
@@ -80,6 +80,21 @@ export function reportUngrouped(
     message: getReportMessage(rule, reportDescriptor),
     ...(fix && { fix }),
   });
+}
+
+function getPrimaryLocation(
+  context: Rule.RuleContext,
+  classNode: ClassNode,
+): TSESTree.Node | { loc: TSESTree.SourceLocation } {
+  if (classNode.id?.loc) {
+    return classNode.id;
+  }
+
+  const classKeyword = context.sourceCode.getFirstToken(
+    classNode,
+    token => token.value === 'class',
+  );
+  return classKeyword?.loc ? { loc: classKeyword.loc } : classNode;
 }
 
 function getSecondaryLocation(
