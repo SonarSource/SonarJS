@@ -31,6 +31,22 @@ inputs:
   old-results-path:
     description: Path to version-controlled baseline ruling results
     required: true
+  sources-path:
+    description: Path to the local sonar-lits sources checkout used for inline code snippets
+    required: false
+    default: its/sources
+  sources-repo-url:
+    description: Base URL of the remote sonar-lits sources repository used for file links in PR comments
+    required: false
+    default: ''
+  rspec-base-url:
+    description: Base URL used for RSPEC links in PR comments
+    required: false
+    default: https://sonarsource.github.io/rspec/#/rspec
+  max-inline-snippets:
+    description: Maximum number of inline snippets to embed before collapsing the remaining report
+    required: false
+    default: '10'
 
 runs:
   using: composite
@@ -48,4 +64,8 @@ runs:
         RULING_FAILED: ${{ inputs.ruling-failed }}
         NEW_RESULTS_PATH: ${{ inputs.new-results-path }}
         OLD_RESULTS_PATH: ${{ inputs.old-results-path }}
+        SOURCES_PATH: ${{ inputs.sources-path }}
+        SOURCES_REPO_URL: ${{ inputs.sources-repo-url }}
+        RSPEC_BASE_URL: ${{ inputs.rspec-base-url }}
+        MAX_INLINE_SNIPPETS: ${{ inputs.max-inline-snippets }}
       run: bash "$ACTION_PATH/run.sh"

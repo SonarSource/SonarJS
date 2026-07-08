@@ -681,6 +681,7 @@ Responsibilities:
 - run JS/TS ruling
 - on PRs or default branch, delegate ruling report, fix-PR, and comment handling to `./.github/actions/ruling_bot`
 - pass explicit `new-results-path` and `old-results-path` inputs so the action only depends on sonar-lits result JSON semantics, not on a fixed SonarJS directory layout
+- pass source-tree and link inputs so the action can render the same rule-centric PR ruling report format with RSPEC links, source links, inline snippets, and a collapsible full report
 - fail the workflow when ruling needs an update
 
 This job is more than test execution; it is also automated ruling maintenance.
@@ -807,7 +808,7 @@ These are the most important reusable components in the current pipeline.
 | `actions/upload-artifact` | 7 | same-run file handoff | artifact production |
 | `actions/cache` | 4 | cache producer/probe jobs | direct GitHub cache use |
 | `SonarSource/ci-github-actions/get-build-number` | 1 | stable build number | internally uses GitHub cache |
-| `./.github/actions/ruling_bot` | 1 | repo-owned ruling report/comment/fix-PR automation for sonar-lits result trees | control-plane encapsulation, no direct cache semantics |
+| `./.github/actions/ruling_bot` | 1 | repo-owned ruling report/comment/fix-PR automation for sonar-lits result trees and rich PR ruling comments | control-plane encapsulation, no direct cache semantics |
 | `./.github/actions/rule-api-cache` | 1 | repo-owned rule-api cache policy | official GitHub cache, rolling prefix |
 | `peter-evans/create-pull-request` | 1 | nightly generated-files PR | none |
 | `SonarSource/unified-dogfooding-actions/run-iris` | 1 | nightly cross-platform comparison | none |

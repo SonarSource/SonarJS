@@ -1086,6 +1086,9 @@ jobs:
           ruling-failed: ${{ steps.ruling.outcome == 'failure' }}
           new-results-path: packages/ruling/actual
           old-results-path: its/ruling/src/test/expected
+          sources-path: its/sources
+          sources-repo-url: https://github.com/SonarSource/jsts-test-sources/blob/master
+          rspec-base-url: https://musical-adventure-r9qk65j.pages.github.io/rspec/#
 
   ruling:
     runs-on: sonar-xl
