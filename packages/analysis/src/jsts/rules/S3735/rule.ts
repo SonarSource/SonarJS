@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { unwrapChainExpression } from '../helpers/expect-call-chain.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
   isRequiredParserServices,
@@ -101,10 +102,7 @@ function isShortCircuitExpression(node: estree.Node) {
  * @return Whether the expression has a callable shape.
  */
 function isCallLikeExpression(node: estree.Node) {
-  return (
-    node.type === 'CallExpression' ||
-    (node.type === 'ChainExpression' && node.expression.type === 'CallExpression')
-  );
+  return unwrapChainExpression(node).type === 'CallExpression';
 }
 
 /**
