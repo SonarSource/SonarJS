@@ -16,9 +16,9 @@
  */
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { JSXOpeningElement } from 'estree-jsx';
+import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
-const { getProp, getLiteralPropValue } = pkg;
+const { getProp, getLiteralPropValue, getPropValue } = pkg;
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getElementType } from '../helpers/accessibility.js';
@@ -99,7 +99,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
       const tag = getElementType(context)(opening).toLowerCase();
-      const roleValue = getLiteralPropValue(getProp(attributesOf(opening), 'role'));
+      const roleValue = getLiteralAttributeValue(attributesOf(opening), 'role');
       const role = typeof roleValue === 'string' ? roleValue.toLowerCase() : '';
       if (isRoleAllowedBySpec(context, opening, tag, role)) {
         return;
@@ -111,6 +111,21 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
 function attributesOf(opening: TSESTree.JSXOpeningElement): JSXOpeningElement['attributes'] {
   return (opening as unknown as JSXOpeningElement).attributes;
+}
+
+function getAttribute(
+  attributes: JSXOpeningElement['attributes'],
+  name: string,
+): JSXAttribute | undefined {
+  return getProp(attributes, name);
+}
+
+function getLiteralAttributeValue(
+  attributes: JSXOpeningElement['attributes'],
+  name: string,
+): unknown {
+  const attribute = getAttribute(attributes, name);
+  return attribute ? getLiteralPropValue(attribute) : undefined;
 }
 
 function openingElementOf(
@@ -166,7 +181,7 @@ function parentExposesListRole(
     return false;
   }
   const parentOpening = parent.openingElement;
-  const parentRole = getLiteralPropValue(getProp(attributesOf(parentOpening), 'role'));
+  const parentRole = getLiteralAttributeValue(attributesOf(parentOpening), 'role');
   if (typeof parentRole === 'string' && parentRole !== '') {
     return parentRole.toLowerCase() === 'list';
   }
@@ -175,16 +190,46 @@ function parentExposesListRole(
 
 // An img exposes an accessible name via non-empty alt, aria-label or aria-labelledby.
 function hasAccessibleName(opening: TSESTree.JSXOpeningElement): boolean {
+  const attributes = attributesOf(opening);
   return (
-    hasNonEmptyAttribute(opening, 'alt') ||
-    hasNonEmptyAttribute(opening, 'aria-label') ||
-    hasNonEmptyAttribute(opening, 'aria-labelledby')
+    hasAccessibleNameAttribute(attributes, 'alt') ||
+    hasAccessibleNameAttribute(attributes, 'aria-label') ||
+    hasAccessibleNameAttribute(attributes, 'aria-labelledby')
   );
 }
 
-function hasNonEmptyAttribute(opening: TSESTree.JSXOpeningElement, name: string): boolean {
-  const value = getLiteralPropValue(getProp(attributesOf(opening), name));
-  return typeof value === 'string' && value.length > 0;
+function hasAccessibleNameAttribute(
+  attributes: JSXOpeningElement['attributes'],
+  name: string,
+): boolean {
+  const attribute = getAttribute(attributes, name);
+  if (!attribute) {
+    return false;
+  }
+  if (isNonEmptyStringAttribute(attribute)) {
+    return true;
+  }
+
+  // Dynamic expressions are unknown statically, but nullish values should not suppress.
+  return getLiteralPropValue(attribute) === null && getPropValue(attribute) != null;
+}
+
+function isNonEmptyStringAttribute(attribute: JSXAttribute): boolean {
+  if (attribute.value?.type === 'Literal') {
+    return typeof attribute.value.value === 'string' && attribute.value.value.trim() !== '';
+  }
+
+  if (
+    attribute.value?.type === 'JSXExpressionContainer' &&
+    attribute.value.expression.type === 'Literal'
+  ) {
+    return (
+      typeof attribute.value.expression.value === 'string' &&
+      attribute.value.expression.value.trim() !== ''
+    );
+  }
+
+  return false;
 }
 
 // A figure caption must be the first or last child of the figure per the HTML content model.
