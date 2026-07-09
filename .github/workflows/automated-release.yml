@@ -73,10 +73,32 @@ jobs:
       use-jira-sandbox: false
       is-draft-release: false
 
-  sqaa_release:
-    name: Release SQAA
+  derive_sqaa_build_number:
+    name: Derive SQAA build number
     needs: release
     if: ${{ needs.release.result == 'success' && github.event.inputs.sqc-integration == 'true' && github.event.inputs.sqaa-integration == 'true' }}
+    runs-on: github-ubuntu-latest-s
+    outputs:
+      build-number: ${{ steps.derive.outputs.build-number }}
+    steps:
+      - name: Derive build number from released version
+        id: derive
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.release.outputs.release-version }}
+        run: |
+          if [[ -z "$RELEASE_VERSION" ]]; then
+            echo "::error::Missing release-version output from the automated release workflow."
+            exit 1
+          fi
+          echo "build-number=${RELEASE_VERSION##*.}" >> "$GITHUB_OUTPUT"
+
+  sqaa_release:
+    name: Release SQAA
+    needs:
+      - release
+      - derive_sqaa_build_number
+    if: ${{ needs.release.result == 'success' && needs.derive_sqaa_build_number.result == 'success' && github.event.inputs.sqc-integration == 'true' && github.event.inputs.sqaa-integration == 'true' }}
     uses: ./.github/workflows/sqaa-release.yml
     permissions:
       id-token: write
@@ -84,6 +106,7 @@ jobs:
     with:
       ref: refs/tags/${{ needs.release.outputs.release-version }}
       release-version: ${{ needs.release.outputs.release-version }}
+      build-number: ${{ needs.derive_sqaa_build_number.outputs.build-number }}
       publish-to-release-repo: true
       ticket-url: ${{ needs.release.outputs.sqc-ticket-url }}
       create-aaas-pr: true
