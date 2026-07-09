@@ -85,6 +85,11 @@ const fragmentShader = 'void main() {}';
         filename: join(dirname, 'filename.jsx'),
         errors: 1,
       },
+      {
+        code: `<mesh position:x={1} />;`,
+        filename: join(dirname, 'filename.jsx'),
+        errors: 1,
+      },
     ],
   });
 });
