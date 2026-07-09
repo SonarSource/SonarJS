@@ -35,7 +35,7 @@ jobs:
     steps:
       - &checkout
         name: Checkout source code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Generate Node.js version matrix from package.json
         id: generate-matrix
         run: |
@@ -107,9 +107,9 @@ jobs:
           lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v4.2.0
+        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -153,7 +153,7 @@ jobs:
     steps:
       - *checkout
       - &mise
-        uses: jdx/mise-action@v4.2.0
+        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -340,7 +340,7 @@ jobs:
           npm run eslint-plugin:compile
           npm run count-rules
       - name: Open or update generated files refresh PR
-        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           commit-message: Update generated README files and RSPEC JSON
@@ -384,7 +384,7 @@ jobs:
             node-label: 'min supported'
     steps:
       - *checkout
-      - uses: jdx/mise-action@v4.2.0
+      - uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -441,9 +441,9 @@ jobs:
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v4.2.0
+        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -505,9 +505,9 @@ jobs:
           lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v4.2.0
+        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -548,7 +548,7 @@ jobs:
     steps:
       - &checkout_with_tags
         name: Checkout source code with tags
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: '0'
           fetch-tags: 'true'
@@ -669,7 +669,7 @@ jobs:
     steps:
       - *checkout
       - &mise_java_matrix_node
-        uses: jdx/mise-action@v4.2.0
+        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -741,7 +741,7 @@ jobs:
       - *checkout
       - &mise_java_only
         name: Setup Java and Maven
-        uses: jdx/mise-action@v4.2.0
+        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -832,7 +832,7 @@ jobs:
           chown -R sonar:sonar /github/home
       - &alpine_setup_maven
         name: Setup Maven
-        uses: jdx/mise-action@v4.2.0
+        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
         with:
           version: 2025.11.2
           cache_save: true
@@ -1060,7 +1060,7 @@ jobs:
     steps:
       - &checkout_with_submodules
         name: Checkout source code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
       - *mise
