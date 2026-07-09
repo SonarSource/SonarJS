@@ -38,7 +38,7 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
 
 public final class SonarScannerIntegrationHelper {
 
-  static final String LITS_VERSION = "0.12.0.5861";
+  static final String LITS_VERSION = "0.13.0.5954";
 
   /**
    * Get the engine version based on the sonar.runtimeVersion system property.
