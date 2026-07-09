@@ -70,6 +70,7 @@
     <slf4j.version>2.0.18</slf4j.version>
     <jetbrains.annotations.version>26.1.0</jetbrains.annotations.version>
     <sonar.version>26.7.0.124771</sonar.version>
+    <scanner-engine.version>13.4.0.3968</scanner-engine.version>
     <sonar.api.version>13.8.0.4399</sonar.api.version>
     <sonar-orchestrator.version>6.3.0.4464</sonar-orchestrator.version>
     <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
@@ -268,6 +269,18 @@
         <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-plugin-api-impl</artifactId>
         <version>${sonar.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.scanner.engine</groupId>
+        <artifactId>plugin-api-scanner-impl</artifactId>
+        <version>${scanner-engine.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sonarsource.scanner.engine</groupId>
+        <artifactId>sensor-test-fixtures</artifactId>
+        <version>${scanner-engine.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
