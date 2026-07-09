@@ -43,7 +43,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         ) {
           // we skip
         } else {
-          const redirectedReport = redirectKnownUtilityToStringReport(reportDescriptor, context);
+          const redirectedReport = applyKnownUtilityToStringRedirection(reportDescriptor, context);
           if (redirectedReport !== undefined) {
             context.report(redirectedReport);
           }
@@ -53,7 +53,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   );
 }
 
-function redirectKnownUtilityToStringReport(
+function applyKnownUtilityToStringRedirection(
   reportDescriptor: Rule.ReportDescriptor,
   context: Rule.RuleContext,
 ): Rule.ReportDescriptor | undefined {
