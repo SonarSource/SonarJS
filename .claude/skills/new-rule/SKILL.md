@@ -129,6 +129,15 @@ npx tsx --test packages/analysis/src/jsts/rules/S1234/**/*.test.ts
 
 See `/ruling` skill. Required before merging new or modified rules.
 
+## Step 8: Run Checks Before Committing
+
+```bash
+uc check
+```
+
+Covers merge conflicts against the base branch, `knip`, a `tsgo` type check, and the unit and
+ruling tests scoped to this rule's changes. Fix anything it flags before committing.
+
 ## Rule Implementation Patterns
 
 ### Wrapping an ESLint Rule (`decorated`)
