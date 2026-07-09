@@ -35,7 +35,7 @@ jobs:
     steps:
       - &checkout
         name: Checkout source code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - name: Generate Node.js version matrix from package.json
         id: generate-matrix
         run: |
@@ -107,7 +107,7 @@ jobs:
           lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v4.2.0
         with:
@@ -441,7 +441,7 @@ jobs:
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v4.2.0
         with:
@@ -505,7 +505,7 @@ jobs:
           lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@v4.2.0
         with:
@@ -548,7 +548,7 @@ jobs:
     steps:
       - &checkout_with_tags
         name: Checkout source code with tags
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: '0'
           fetch-tags: 'true'
@@ -1060,7 +1060,7 @@ jobs:
     steps:
       - &checkout_with_submodules
         name: Checkout source code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           submodules: true
       - *mise
