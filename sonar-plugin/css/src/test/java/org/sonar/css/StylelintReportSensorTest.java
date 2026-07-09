@@ -224,7 +224,7 @@ class StylelintReportSensorTest {
     String relativePath
   ) {
     DefaultInputFile testInputFile = new TestInputFileBuilder("moduleKey", relativePath)
-      .setModuleBaseDir(sensorContext.fileSystem().baseDirPath())
+      .setModuleBaseDir(sensorContext.fileSystem().baseDir().toPath())
       .setType(Type.MAIN)
       .setLanguage(CssLanguage.KEY)
       .setCharset(StandardCharsets.UTF_8)
