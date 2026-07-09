@@ -372,14 +372,6 @@ function hasAncestorWithRole(node: TSESTree.JSXOpeningElement, role: string): bo
   );
 }
 
-function hasDescendantWithRole(
-  node: TSESTree.JSXOpeningElement,
-  role: string,
-  context: Rule.RuleContext,
-): boolean {
-  return hasDescendantMatchingRole(node, descendantRole => descendantRole === role, context);
-}
-
 function hasDescendantWithRoleBeforeBoundary(
   node: TSESTree.JSXOpeningElement,
   role: string,
