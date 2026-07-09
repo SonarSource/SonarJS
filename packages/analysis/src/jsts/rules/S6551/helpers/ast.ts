@@ -99,10 +99,7 @@ export function isCallInFirstStatementOfBranch(
  * Why S6551 cares: the helper only accepts statements where the reported call is the first
  * evaluated node.
  */
-export function startsWithCall(
-  statement: TSESTree.Statement,
-  call: TSESTree.CallExpression,
-): boolean {
+function startsWithCall(statement: TSESTree.Statement, call: TSESTree.CallExpression): boolean {
   if (statement.type === 'ReturnStatement') {
     return statement.argument === call;
   }
@@ -168,7 +165,7 @@ export function provesCustomToString(
   );
 }
 
-export function flattenConjunction(condition: TSESTree.Expression): TSESTree.Expression[] {
+function flattenConjunction(condition: TSESTree.Expression): TSESTree.Expression[] {
   if (condition.type === 'LogicalExpression' && condition.operator === '&&') {
     return [...flattenConjunction(condition.left), ...flattenConjunction(condition.right)];
   }
@@ -187,7 +184,7 @@ export function flattenConjunction(condition: TSESTree.Expression): TSESTree.Exp
  * Why S6551 cares: the inherited default method is callable too, so this check only supports the
  * explicit `value.toString !== Object.prototype.toString` comparison.
  */
-export function provesReceiverToStringIsFunction(
+function provesReceiverToStringIsFunction(
   condition: TSESTree.Expression,
   receiver: TSESTree.Expression,
   sourceCode: SourceCode,
@@ -222,7 +219,7 @@ export function provesReceiverToStringIsFunction(
  * Why S6551 cares: these checks only make the property read safe enough to analyze; they do not
  * prove that `value.toString` is custom.
  */
-export function provesReceiverIsObjectLike(
+function provesReceiverIsObjectLike(
   condition: TSESTree.Expression,
   receiver: TSESTree.Expression,
   sourceCode: SourceCode,
@@ -287,7 +284,7 @@ export function provesAcceptedResult(
  *
  * Why S6551 cares: the matcher only accepts a non-computed `.toString` read on the same receiver.
  */
-export function isReceiverToString(
+function isReceiverToString(
   node: TSESTree.Node,
   receiver: TSESTree.Expression,
   sourceCode: SourceCode,
@@ -310,7 +307,7 @@ export function isReceiverToString(
  *
  * Why S6551 cares: suppression is keyed to the exact default implementation the rule warns about.
  */
-export function isObjectPrototypeToString(node: TSESTree.Node): boolean {
+function isObjectPrototypeToString(node: TSESTree.Node): boolean {
   return (
     node.type === 'MemberExpression' &&
     !node.computed &&
