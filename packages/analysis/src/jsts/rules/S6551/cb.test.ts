@@ -124,11 +124,10 @@ function rejectedDefaultStringResultOnElse(data: unknown) {
 });
 
 describe('S6551 lodash utility report redirection', () => {
-  it('reports unconstrained generic lodash arguments when checkUnknown is enabled', () => {
+  it('keeps Sonar defaults even when upstream options are passed', () => {
     const ruleTester = new RuleTester();
     ruleTester.run('S6551', rule, {
-      valid: [],
-      invalid: [
+      valid: [
         {
           code: `
 declare const require: (moduleName: string) => object;
@@ -139,18 +138,9 @@ function lodashNamespaceToStringWithUnconstrainedGeneric<T>(value: T) {
 }
           `,
           options: [{ checkUnknown: true }],
-          errors: [
-            {
-              message:
-                "'value' may use Object's default stringification format ('[object Object]') when stringified.",
-              line: 6,
-              column: 21,
-              endLine: 6,
-              endColumn: 26,
-            },
-          ],
         },
       ],
+      invalid: [],
     });
   });
 });
