@@ -118,6 +118,88 @@ function rejectedDefaultStringResultOnElse(data: unknown) {
           `,
           errors: 1,
         },
+        {
+          code: `
+function guardedByTypeofNotObject(value: unknown): string {
+  if (typeof value !== 'object') {
+    return \`Unexpected value: \${value}\`;
+  }
+  return '';
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function guardedByReversedTypeofNotObject(value: unknown): string {
+  if ('object' !== typeof value) {
+    return \`Unexpected value: \${value}\`;
+  }
+  return '';
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function guardedByTypeofNotObjectConjunction(value: unknown, label: string): string {
+  if (typeof value !== 'object' && value !== null && value !== undefined) {
+    return \`\${label}: \${value}\`;
+  }
+  return label;
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function guardedByTypeofObjectElse(value: unknown): string {
+  if (typeof value === 'object') {
+    return '';
+  } else {
+    return \`Unexpected value: \${value}\`;
+  }
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function guardedByReversedTypeofObjectElse(value: unknown): string {
+  if ('object' === typeof value) {
+    return '';
+  } else {
+    return \`Unexpected value: \${value}\`;
+  }
+}
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('upstream no-base-to-string reports wrapped operands on the wrapper node', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('no-base-to-string', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+function wrappedValue(value: unknown): string {
+  return \`Unexpected value: \${value as object}\`;
+}
+          `,
+          errors: [{ messageId: 'baseToString', type: 'TSAsExpression' }],
+        },
+        {
+          code: `
+function nonNullValue(value: object | null): string {
+  return \`Unexpected value: \${value!}\`;
+}
+          `,
+          errors: [{ messageId: 'baseToString', type: 'TSNonNullExpression' }],
+        },
       ],
     });
   });
