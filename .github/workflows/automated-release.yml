@@ -76,7 +76,7 @@ jobs:
   derive_sqaa_build_number:
     name: Derive SQAA build number
     needs: release
-    if: ${{ needs.release.result == 'success' && github.event.inputs.sqc-integration == 'true' && github.event.inputs.sqaa-integration == 'true' }}
+    if: ${{ needs.release.result == 'success' && github.event.inputs.sqaa-integration == 'true' }}
     runs-on: github-ubuntu-latest-s
     outputs:
       build-number: ${{ steps.derive.outputs.build-number }}
@@ -98,7 +98,7 @@ jobs:
     needs:
       - release
       - derive_sqaa_build_number
-    if: ${{ needs.release.result == 'success' && needs.derive_sqaa_build_number.result == 'success' && github.event.inputs.sqc-integration == 'true' && github.event.inputs.sqaa-integration == 'true' }}
+    if: ${{ needs.release.result == 'success' && needs.derive_sqaa_build_number.result == 'success' && github.event.inputs.sqaa-integration == 'true' }}
     uses: ./.github/workflows/sqaa-release.yml
     permissions:
       id-token: write
@@ -108,7 +108,7 @@ jobs:
       release-version: ${{ needs.release.outputs.release-version }}
       build-number: ${{ needs.derive_sqaa_build_number.outputs.build-number }}
       publish-to-release-repo: true
-      ticket-url: ${{ needs.release.outputs.sqc-ticket-url }}
+      ticket-url: ${{ needs.release.outputs.sqc-ticket-url || needs.release.outputs.release-ticket-url }}
       create-aaas-pr: true
       reviewers: ${{ github.actor }}
       release-automation-secret-name: "SonarJS-release-automation"
@@ -118,7 +118,7 @@ jobs:
     needs:
       - release
       - sqaa_release
-    if: ${{ needs.release.result == 'success' && (needs.sqaa_release.result == 'success' || needs.sqaa_release.result == 'skipped') }}
+    if: ${{ needs.release.result == 'success' && (github.event.inputs.sqaa-integration != 'true' || needs.sqaa_release.result == 'success') }}
     uses: ./.github/workflows/bump-versions.yml
     permissions:
       contents: write
