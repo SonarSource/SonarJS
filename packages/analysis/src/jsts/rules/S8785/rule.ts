@@ -43,7 +43,10 @@ import {
   isFunctionLike,
   type FunctionLike,
 } from './async-analysis.js';
-import { followCallToDeclaration, followReferenceToDeclaration } from './call-to-declaration.js';
+import {
+  followCallToDeclaration,
+  followReferenceToDeclaration,
+} from '../helpers/call-to-declaration.js';
 
 /**
  * Frameworks that run a suite's callback synchronously during the discovery phase. Vitest is

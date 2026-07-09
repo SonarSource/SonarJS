@@ -4,9 +4,6 @@ on:
   pull_request_review:
     types: [submitted]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-
 jobs:
   SubmitReview_job:
     name: Submit Review
@@ -29,5 +26,5 @@ jobs:
       - uses: sonarsource/gh-action-lt-backlog/SubmitReview@v2
         with:
           github-token: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
-          jira-user: ${{ fromJSON(steps.secrets.outputs.vault).JIRA_USER }}
-          jira-token: ${{ fromJSON(steps.secrets.outputs.vault).JIRA_TOKEN }}
+          jira-user:    ${{ fromJSON(steps.secrets.outputs.vault).JIRA_USER }}
+          jira-token:   ${{ fromJSON(steps.secrets.outputs.vault).JIRA_TOKEN }}

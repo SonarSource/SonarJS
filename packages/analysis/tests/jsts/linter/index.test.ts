@@ -1416,6 +1416,62 @@ describe('Linter', () => {
     expect(issues).toHaveLength(0);
   });
 
+  it('should group S2933 issues at the class name with secondary locations', async () => {
+    const fixtures = path.join(import.meta.dirname, 'fixtures', 'wrapper', 'prefer-readonly');
+    const filePath = normalizeToAbsolutePath(path.join(fixtures, 'grouped.ts'));
+    const tsConfig = path.join(fixtures, 'tsconfig.json');
+
+    const parseResult = await parseTypeScriptSourceFile(filePath, [tsConfig], 'MAIN');
+    const ruleId = 'S2933';
+    const rules: RuleConfig[] = [
+      {
+        key: ruleId,
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
+    const { issues } = Linter.lint(parseResult, filePath);
+
+    expect(issues).toEqual([
+      expect.objectContaining({
+        ruleId,
+        line: 1,
+        column: 6,
+        message: 'Mark these members as `readonly`.',
+        quickFixes: [
+          expect.objectContaining({
+            message: "Add 'readonly'",
+            // The per-member `readonly` inserts are merged by ESLint into a single
+            // edit spanning from the first member to the last, splicing the untouched
+            // source in between.
+            edits: [
+              {
+                loc: { line: 2, column: 10, endLine: 3, endColumn: 10 },
+                text: "readonly foo = '';\n  private readonly ",
+              },
+            ],
+          }),
+        ],
+        secondaryLocations: [
+          expect.objectContaining({
+            line: 2,
+            column: 2,
+            message: "Member 'foo' is never reassigned; mark it as `readonly`.",
+          }),
+          expect.objectContaining({
+            line: 3,
+            column: 2,
+            message: "Member 'bar' is never reassigned; mark it as `readonly`.",
+          }),
+        ],
+      }),
+    ]);
+  });
+
   it('should report issues with secondary locations', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'wrapper', 'secondary-location.js'),

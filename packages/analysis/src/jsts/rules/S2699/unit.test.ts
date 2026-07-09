@@ -651,6 +651,66 @@ test('has assertions', () => {
 });
 `,
         },
+        {
+          code: `
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+type AssertionHelper = (actual: unknown, expected: unknown) => void;
+
+declare const actual: unknown;
+declare const expected: unknown;
+
+const check: AssertionHelper = (actual, expected) =>
+  assert.deepEqual(actual, expected);
+
+test('has helper assertion', () => {
+  check(actual, expected);
+});
+`,
+        },
+        {
+          code: `
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+type AssertionHelper = (actual: unknown, expected: unknown) => void;
+
+declare const actual: unknown;
+declare const expected: unknown;
+
+const helpers: { check: AssertionHelper } = {
+  check: (actual, expected) => assert.deepEqual(actual, expected),
+};
+
+test('has helper assertion', () => {
+  helpers.check(actual, expected);
+});
+`,
+        },
+        {
+          code: `
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+type Assert = {
+  equal(actual: unknown, expected: unknown): void;
+};
+
+declare const actual: unknown;
+declare const expected: unknown;
+
+const checkers: Assert = {
+  equal(actual, expected) {
+    assert.deepEqual(actual, expected);
+  },
+};
+
+test('has helper assertion', () => {
+  checkers.equal(actual, expected);
+});
+`,
+        },
         // Chained property access: expectObservable(...).not.toBe(...)
         {
           code: `
@@ -735,6 +795,79 @@ import assert from 'node:assert/strict';
 
 test('has no assertions', () => {
   const x = 1 + 2;
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+type AssertionHelper = (actual: unknown, expected: unknown) => void;
+
+declare const actual: unknown;
+declare const expected: unknown;
+
+const check: AssertionHelper = () => {};
+
+test('has no helper assertion', () => {
+  check(actual, expected);
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+type AssertionHelper = (actual: unknown, expected: unknown) => void;
+
+declare const actual: unknown;
+declare const expected: unknown;
+
+const helpers: { check: AssertionHelper } = {
+  check: (actual, expected) => {
+    assert.deepEqual(actual, expected);
+  },
+};
+helpers.check = () => {};
+
+test('has no helper assertion', () => {
+  helpers.check(actual, expected);
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+type AssertionHelper = (actual: unknown, expected: unknown) => void;
+
+declare const actual: unknown;
+declare const expected: unknown;
+
+let check: AssertionHelper = (actual, expected) => {
+  assert.deepEqual(actual, expected);
+};
+check = () => {};
+
+test('has no helper assertion', () => {
+  check(actual, expected);
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
+import assert from 'node:assert/strict';
+
+test('has no assertions', async () => {
+  await import('./helper');
 });
 `,
           errors: 1,
