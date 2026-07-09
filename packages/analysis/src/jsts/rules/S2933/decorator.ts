@@ -48,8 +48,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
       const listener = interceptedRule.create(context);
       const onClass = listener['ClassDeclaration, ClassExpression'] as
-        | ListenerFunction<ClassNode>
-        | undefined;
+        ListenerFunction<ClassNode> | undefined;
       const onProgramExit = listener['Program:exit'] as ProgramExitListener | undefined;
 
       return {
