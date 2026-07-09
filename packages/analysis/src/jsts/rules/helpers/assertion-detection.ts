@@ -37,6 +37,7 @@ import * as Vitest from './vitest.js';
 import * as Supertest from './supertest.js';
 import * as Cypress from './cypress.js';
 import { getParent } from './ancestor.js';
+import { isIdentifier } from './ast.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
 import { getFullyQualifiedNameTS, importsModuleTS } from './module-ts.js';
 
@@ -50,6 +51,7 @@ const ASSERTION_LIBRARIES = [
   'assert/strict',
   'node:assert',
   'node:assert/strict',
+  'uvu/assert',
 ];
 // runners that expose assertion APIs as globals (no import required).
 const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', '@playwright/test'];
@@ -95,6 +97,34 @@ const GLOBAL_EXPECT_NAMES = new Set([
   'expectSubscriptions',
   'expectTypeOf',
 ]);
+
+const UVU_ASSERT_METHODS = new Set([
+  'ok',
+  'is',
+  'is.not',
+  'equal',
+  'type',
+  'instance',
+  'match',
+  'snapshot',
+  'fixture',
+  'throws',
+  'unreachable',
+  'not',
+  'not.ok',
+  'not.equal',
+  'not.type',
+  'not.instance',
+  'not.match',
+  'not.snapshot',
+  'not.fixture',
+  'not.throws',
+]);
+
+const JS_PLAYWRIGHT_EXPECT_POLL_FQN = '@playwright.test.expect.poll';
+const TS_PLAYWRIGHT_EXPECT_POLL_FQN = '@playwright/test.expect.poll';
+const JS_UVU_ASSERT_FQN_PREFIX = 'uvu.assert.';
+const TS_UVU_ASSERT_FQN_PREFIX = 'uvu/assert.';
 
 const CHAI_NON_TERMINAL_PROPERTY_NAMES = new Set([
   'all',
@@ -167,9 +197,10 @@ type AssertionDetector = (context: Rule.RuleContext, node: estree.Node) => boole
  * the script-capable ones. A new library is one classified entry here, so the two
  * predicates can never drift apart.
  *
- * Script-capable — node `assert`, chai, sinon, supertest — are ordinary libraries
- * usable in a plain `node file.js`. Runner-bound — vitest, cypress, global
- * `expect*(...)` chains — only exist because a runner executes the file.
+ * Script-capable — node `assert`, uvu `assert`, chai, sinon, supertest — are
+ * ordinary libraries usable in a plain `node file.js`. Runner-bound — vitest,
+ * cypress, global `expect*(...)` chains — only exist because a runner executes
+ * the file.
  *
  * Classification is by library, not syntax: a chai `expect(x).to.equal(y)` is also
  * matched by the name-based global-`expect` detector (on the outer `.to.equal(...)`
@@ -182,12 +213,13 @@ const SCRIPT_CAPABLE_DETECTORS: AssertionDetector[] = [
   Sinon.isAssertion,
   Supertest.isAssertion,
   isFunctionCallFromNodeAssert,
+  isUvuAssertAssertion,
 ];
 
 const RUNNER_BOUND_DETECTORS: AssertionDetector[] = [
   Vitest.isAssertion,
   (_context, node) => Cypress.isAssertion(node),
-  (_context, node) => node.type === 'CallExpression' && isGlobalExpectExpressionJS(node),
+  (context, node) => node.type === 'CallExpression' && isGlobalExpectExpressionJS(context, node),
 ];
 
 const ASSERTION_DETECTORS: AssertionDetector[] = [
@@ -206,9 +238,9 @@ export function isAssertion(context: Rule.RuleContext, node: estree.Node): boole
 
 /**
  * Whether `node` is an assertion from a library that runs in a plain script with
- * no test runner (node `assert`, chai, sinon, supertest). The complement among
- * assertions — vitest, cypress, global `expect` — is "runner-bound". Callers
- * deciding "is this runner-bound?" should test
+ * no test runner (node `assert`, uvu `assert`, chai, sinon, supertest). The
+ * complement among assertions — vitest, cypress, global `expect` — is
+ * "runner-bound". Callers deciding "is this runner-bound?" should test
  * `isAssertion(...) && !isScriptCapableAssertion(...)`.
  */
 export function isScriptCapableAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
@@ -251,13 +283,18 @@ export function isIncompleteShouldAccess(context: Rule.RuleContext, node: estree
  * Type-checker-aware counterpart of {@link isAssertion}, operating on TypeScript
  * AST nodes. Used when parser services are available to follow resolved types.
  */
-export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node): boolean {
+export function isTSAssertion(
+  services: ParserServicesWithTypeInformation,
+  node: ts.Node,
+  context?: Rule.RuleContext,
+): boolean {
   return (
-    isGlobalTSAssertion(services, node) ||
+    isGlobalTSAssertion(services, node, context) ||
     isExtendedTSShouldAccess(node) ||
     Chai.isTSAssertion(services, node) ||
     Sinon.isTSAssertion(services, node) ||
     Supertest.isTSAssertion(services, node) ||
+    isUvuAssertTSAssertion(services, node) ||
     Vitest.isTSAssertion(services, node) ||
     Cypress.isTSAssertion(node)
   );
@@ -282,7 +319,10 @@ function isTSShouldAccess(node: ts.Node): node is ts.PropertyAccessExpression {
  *
  * This mirrors the TypeScript isGlobalExpectExpression function logic.
  */
-function isGlobalExpectExpressionJS(node: estree.CallExpression): boolean {
+function isGlobalExpectExpressionJS(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+): boolean {
   if (node.callee.type !== 'MemberExpression') {
     return false;
   }
@@ -300,7 +340,35 @@ function isGlobalExpectExpressionJS(node: estree.CallExpression): boolean {
   }
 
   const innerCall = current;
-  return innerCall.callee.type === 'Identifier' && GLOBAL_EXPECT_NAMES.has(innerCall.callee.name);
+  return isGlobalExpectCall(innerCall.callee) || isPlaywrightExpectPollCall(context, innerCall);
+}
+
+function isGlobalExpectCall(callee: estree.Expression | estree.Super): boolean {
+  return callee.type === 'Identifier' && GLOBAL_EXPECT_NAMES.has(callee.name);
+}
+
+function isPlaywrightExpectPollCall(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+): boolean {
+  const { callee } = call;
+  if (
+    callee.type !== 'MemberExpression' ||
+    callee.computed ||
+    !isIdentifier(callee.property, 'poll')
+  ) {
+    return false;
+  }
+
+  if (getFullyQualifiedName(context, callee) === JS_PLAYWRIGHT_EXPECT_POLL_FQN) {
+    return true;
+  }
+
+  return (
+    callee.object.type === 'Identifier' &&
+    callee.object.name === 'expect' &&
+    importsOrDependsOnModule(context, ['@playwright/test'], ['@playwright/test'])
+  );
 }
 
 function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node): boolean {
@@ -309,6 +377,19 @@ function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.No
   }
   const fullyQualifiedName = getFullyQualifiedName(context, node);
   return fullyQualifiedName?.split('.')[0] === 'assert';
+}
+
+function isUvuAssertAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
+  if (node.type !== 'CallExpression') {
+    return false;
+  }
+  const fqn = getFullyQualifiedName(context, node);
+  const method = fqn?.slice(JS_UVU_ASSERT_FQN_PREFIX.length);
+  return (
+    fqn?.startsWith(JS_UVU_ASSERT_FQN_PREFIX) === true &&
+    method !== undefined &&
+    UVU_ASSERT_METHODS.has(method)
+  );
 }
 
 function isShouldMember(node: estree.Node): node is estree.MemberExpression {
@@ -415,19 +496,27 @@ function isTSChaiShouldChainContinuation(
   );
 }
 
-function isGlobalTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
+function isGlobalTSAssertion(
+  services: ParserServicesWithTypeInformation,
+  node: ts.Node,
+  context?: Rule.RuleContext,
+) {
   if (node.kind !== ts.SyntaxKind.CallExpression) {
     return false;
   }
   const callExpressionNode = node as ts.CallExpression;
   // check for global expect
-  if (isGlobalExpectExpression(callExpressionNode)) {
+  if (isGlobalExpectExpression(services, callExpressionNode, context)) {
     return true;
   }
   return isFunctionCallFromNodeAssertTS(services, node);
 }
 
-function isGlobalExpectExpression(node: ts.CallExpression) {
+function isGlobalExpectExpression(
+  services: ParserServicesWithTypeInformation,
+  node: ts.CallExpression,
+  context?: Rule.RuleContext,
+) {
   if (node.expression.kind !== ts.SyntaxKind.PropertyAccessExpression) {
     return false;
   }
@@ -446,8 +535,34 @@ function isGlobalExpectExpression(node: ts.CallExpression) {
 
   const innerCallExpression = current as ts.CallExpression;
   return (
-    innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
-    GLOBAL_EXPECT_NAMES.has((innerCallExpression.expression as ts.Identifier).text)
+    isGlobalExpectCallTS(innerCallExpression.expression) ||
+    isPlaywrightExpectPollCallTS(services, innerCallExpression, context)
+  );
+}
+
+function isGlobalExpectCallTS(expression: ts.Expression): boolean {
+  return ts.isIdentifier(expression) && GLOBAL_EXPECT_NAMES.has(expression.text);
+}
+
+function isPlaywrightExpectPollCallTS(
+  services: ParserServicesWithTypeInformation,
+  call: ts.CallExpression,
+  context?: Rule.RuleContext,
+): boolean {
+  if (!ts.isPropertyAccessExpression(call.expression) || call.expression.name.text !== 'poll') {
+    return false;
+  }
+
+  if (getFullyQualifiedNameTS(services, call.expression) === TS_PLAYWRIGHT_EXPECT_POLL_FQN) {
+    return true;
+  }
+
+  return (
+    ts.isIdentifier(call.expression.expression) &&
+    call.expression.expression.text === 'expect' &&
+    (importsModuleTS(call.getSourceFile(), ['@playwright/test']) ||
+      (context !== undefined &&
+        importsOrDependsOnModule(context, ['@playwright/test'], ['@playwright/test'])))
   );
 }
 
@@ -458,4 +573,20 @@ function isFunctionCallFromNodeAssertTS(
   const fqn = getFullyQualifiedNameTS(services, node);
   const root = fqn?.split('.')[0];
   return root === 'assert' || root === 'assert/strict';
+}
+
+function isUvuAssertTSAssertion(
+  services: ParserServicesWithTypeInformation,
+  node: ts.Node,
+): boolean {
+  if (!ts.isCallExpression(node)) {
+    return false;
+  }
+  const fqn = getFullyQualifiedNameTS(services, node);
+  const method = fqn?.slice(TS_UVU_ASSERT_FQN_PREFIX.length);
+  return (
+    fqn?.startsWith(TS_UVU_ASSERT_FQN_PREFIX) === true &&
+    method !== undefined &&
+    UVU_ASSERT_METHODS.has(method)
+  );
 }
