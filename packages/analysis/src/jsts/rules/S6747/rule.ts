@@ -52,6 +52,21 @@ const R3F_INTRINSIC_ELEMENTS = new Set([
   'meshStandardMaterial',
   'meshPhongMaterial',
 ]);
+const R3F_INTRINSIC_PROPS = new Set([
+  'args',
+  'attach',
+  'color',
+  'distance',
+  'fragmentShader',
+  'intensity',
+  'position',
+  'rotation',
+  'scale',
+  'transparent',
+  'uniforms',
+  'vertexShader',
+  'wireframe',
+]);
 
 /**
  * We keep a single occurrence of issues raised by both rules, keeping the ones raised by 'aria-props'
@@ -187,5 +202,17 @@ function isReactThreeFiberIntrinsicProp(descriptor: Rule.ReportDescriptor): bool
   }
 
   const elementName = openingElement.name;
-  return elementName.type === 'JSXIdentifier' && R3F_INTRINSIC_ELEMENTS.has(elementName.name);
+  return (
+    elementName.type === 'JSXIdentifier' &&
+    R3F_INTRINSIC_ELEMENTS.has(elementName.name) &&
+    isReactThreeFiberIntrinsicPropName(node.name)
+  );
+}
+
+function isReactThreeFiberIntrinsicPropName(name: TSESTree.JSXAttribute['name']): boolean {
+  if (name.type !== 'JSXIdentifier') {
+    return false;
+  }
+
+  return R3F_INTRINSIC_PROPS.has(name.name) || /^(position|rotation|scale)-[xyz]$/.test(name.name);
 }

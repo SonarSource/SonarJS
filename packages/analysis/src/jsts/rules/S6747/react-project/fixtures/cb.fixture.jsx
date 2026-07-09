@@ -26,3 +26,4 @@ import { Canvas } from '@react-three/fiber';
 <div intensity={1} />; // Noncompliant {{Unknown property 'intensity' found}}
 <span transparent />; // Noncompliant {{Unknown property 'transparent' found}}
 <img position={[1, 2, 3]} />; // Noncompliant {{Unknown property 'position' found}}
+<mesh transparnt />; // Noncompliant {{Unknown property 'transparnt' found}}

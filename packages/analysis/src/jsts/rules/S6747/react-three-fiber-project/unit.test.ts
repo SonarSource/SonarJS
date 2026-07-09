@@ -80,6 +80,11 @@ const fragmentShader = 'void main() {}';
         filename: join(dirname, 'filename.jsx'),
         errors: 1,
       },
+      {
+        code: `<mesh transparnt />;`,
+        filename: join(dirname, 'filename.jsx'),
+        errors: 1,
+      },
     ],
   });
 });
