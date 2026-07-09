@@ -21,12 +21,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.rule.internal.NewActiveRule;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.scanner.plugin.api.impl.rule.ActiveRulesBuilder;
+import org.sonar.scanner.plugin.api.impl.rule.NewActiveRule;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
 
@@ -38,7 +38,7 @@ public class TestUtils {
     String relativePath
   ) {
     DefaultInputFile testInputFile = new TestInputFileBuilder("moduleKey", relativePath)
-      .setModuleBaseDir(sensorContext.fileSystem().baseDirPath())
+      .setModuleBaseDir(sensorContext.fileSystem().baseDir().toPath())
       .setType(Type.MAIN)
       .setLanguage(relativePath.split("\\.")[1])
       .setCharset(StandardCharsets.UTF_8)
@@ -56,7 +56,7 @@ public class TestUtils {
     String language
   ) {
     DefaultInputFile testInputFile = new TestInputFileBuilder("moduleKey", relativePath)
-      .setModuleBaseDir(sensorContext.fileSystem().baseDirPath())
+      .setModuleBaseDir(sensorContext.fileSystem().baseDir().toPath())
       .setType(Type.MAIN)
       .setLanguage(language)
       .setCharset(StandardCharsets.UTF_8)

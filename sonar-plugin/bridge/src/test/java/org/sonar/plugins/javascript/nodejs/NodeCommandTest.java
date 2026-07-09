@@ -46,12 +46,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.event.Level;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.Environment;
+import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 
 class NodeCommandTest {
 
