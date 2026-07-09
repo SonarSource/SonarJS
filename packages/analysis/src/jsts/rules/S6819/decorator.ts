@@ -359,7 +359,7 @@ function isGroupedListboxSubgroup(
   return (
     role === 'group' &&
     hasAncestorWithRole(node, 'listbox') &&
-    hasDescendantWithRole(node, 'option', context)
+    hasDescendantWithRoleBeforeBoundary(node, 'option', 'listbox', context)
   );
 }
 
@@ -380,10 +380,25 @@ function hasDescendantWithRole(
   return hasDescendantMatchingRole(node, descendantRole => descendantRole === role, context);
 }
 
+function hasDescendantWithRoleBeforeBoundary(
+  node: TSESTree.JSXOpeningElement,
+  role: string,
+  boundaryRole: string,
+  context: Rule.RuleContext,
+): boolean {
+  return hasDescendantMatchingRole(
+    node,
+    descendantRole => descendantRole === role,
+    context,
+    descendantRole => descendantRole === boundaryRole,
+  );
+}
+
 function hasDescendantMatchingRole(
   node: TSESTree.JSXOpeningElement,
   predicate: (role: string) => boolean,
   context: Rule.RuleContext,
+  isBoundary: (role: string) => boolean = () => false,
 ): boolean {
   const jsxElement = node.parent;
   if (jsxElement?.type !== 'JSXElement') {
@@ -403,6 +418,13 @@ function hasDescendantMatchingRole(
       roleMatches(current as unknown as TSESTree.JSXElement, predicate)
     ) {
       return true;
+    }
+    if (
+      current.type === 'JSXElement' &&
+      current !== root &&
+      roleMatches(current as unknown as TSESTree.JSXElement, isBoundary)
+    ) {
+      continue;
     }
     stack.push(...childrenOf(current, context.sourceCode.visitorKeys));
   }
