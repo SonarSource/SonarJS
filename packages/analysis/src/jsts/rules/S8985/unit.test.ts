@@ -122,6 +122,38 @@ describe('S8985', () => {
             `,
           errors: [{ messageId: 'noSideEffectsWaitFor' }],
         },
+        {
+          // click inside a waitFor callback declared as a function expression, not an arrow function
+          code: `
+              import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+              await waitFor(function () {
+                fireEvent.click(screen.getByRole('button'));
+              });
+            `,
+          output: `
+              import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+              fireEvent.click(screen.getByRole('button'));
+            `,
+          errors: [{ messageId: 'noSideEffectsWaitFor' }],
+        },
+        {
+          // only the side effect statement is extracted; the assertion stays inside waitFor
+          code: `
+              import { screen, fireEvent, waitFor } from '@testing-library/react';
+              await waitFor(() => {
+                fireEvent.click(screen.getByRole('button'));
+                screen.getByText('Success');
+              });
+            `,
+          output: `
+              import { screen, fireEvent, waitFor } from '@testing-library/react';
+              fireEvent.click(screen.getByRole('button'));
+              await waitFor(() => {
+                screen.getByText('Success');
+              });
+            `,
+          errors: [{ messageId: 'noSideEffectsWaitFor' }],
+        },
       ],
     });
   });
