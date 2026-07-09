@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@react-three/fiber": "1.2.3",
     "react": "1.2.3"
   }
 }

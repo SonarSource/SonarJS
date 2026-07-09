@@ -20,17 +20,38 @@ import type { Rule } from 'eslint';
 import { rules as reactRules } from '../external/react.js';
 import { rules as jsxA11yRules } from '../external/a11y.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { interceptReport, interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { mergeRules } from '../helpers/decorators/merger.js';
 import { decorate } from './decorator.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
-import { getImportDeclarations } from '../helpers/module.js';
+import { getCurrentFileImports, getImportDeclarations } from '../helpers/module.js';
 import { isTypeOnlyImport } from '../helpers/ast.js';
 
 const noUnknownProp = reactRules['no-unknown-property'];
 const decoratedNoUnknownProp = decorate(noUnknownProp);
+const REACT_THREE_FIBER = '@react-three/fiber';
+const R3F_INTRINSIC_ELEMENTS = new Set([
+  'ambientLight',
+  'pointLight',
+  'spotLight',
+  'directionalLight',
+  'mesh',
+  'group',
+  'scene',
+  'perspectiveCamera',
+  'orthographicCamera',
+  'circleGeometry',
+  'sphereGeometry',
+  'boxGeometry',
+  'planeGeometry',
+  'torusKnotGeometry',
+  'shaderMaterial',
+  'meshBasicMaterial',
+  'meshStandardMaterial',
+  'meshPhongMaterial',
+]);
 
 /**
  * We keep a single occurrence of issues raised by both rules, keeping the ones raised by 'aria-props'
@@ -92,6 +113,9 @@ export const rule: Rule.RuleModule = {
 
   create(context: Rule.RuleContext) {
     const dependencies = getDependenciesSanitizePaths(context);
+    const hasReactThreeFiber =
+      dependencies.has(REACT_THREE_FIBER) ||
+      getCurrentFileImports(context.sourceCode).has(REACT_THREE_FIBER);
 
     // Project-wide dependency checks are used only for integrations whose props are valid anywhere
     // in that framework's project. File-specific APIs such as ImageResponse or twin.macro must be
@@ -134,9 +158,34 @@ export const rule: Rule.RuleModule = {
     // aria-props doesn't accept options, so use original context
     const ariaPropsListener: Rule.RuleListener = decoratedAriaPropsRule.create(context);
     // no-unknown-property accepts ignore option, so use effectiveContext with merged ignore list
-    const noUnknownPropListener: Rule.RuleListener =
-      twiceDecoratedNoUnknownProp.create(effectiveContext);
+    const noUnknownPropListener: Rule.RuleListener = interceptReportForReact(
+      twiceDecoratedNoUnknownProp,
+      (reportContext, descriptor) => {
+        if (!hasReactThreeFiber || !isReactThreeFiberIntrinsicProp(descriptor)) {
+          reportContext.report(descriptor);
+        }
+      },
+    ).create(effectiveContext);
 
     return mergeRules(ariaPropsListener, noUnknownPropListener);
   },
 };
+
+function isReactThreeFiberIntrinsicProp(descriptor: Rule.ReportDescriptor): boolean {
+  if (!('node' in descriptor)) {
+    return false;
+  }
+
+  const node = descriptor.node as TSESTree.Node;
+  if (node.type !== 'JSXAttribute') {
+    return false;
+  }
+
+  const openingElement = node.parent;
+  if (openingElement?.type !== 'JSXOpeningElement') {
+    return false;
+  }
+
+  const elementName = openingElement.name;
+  return elementName.type === 'JSXIdentifier' && R3F_INTRINSIC_ELEMENTS.has(elementName.name);
+}
