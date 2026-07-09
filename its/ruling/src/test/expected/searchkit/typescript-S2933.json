@@ -1,49 +1,38 @@
 {
 "searchkit:packages/searchkit-schema/src/core/QueryManager.ts": [
-56,
-57,
-58
+52
 ],
 "searchkit:packages/searchkit-schema/src/resolvers/ResultsResolver.ts": [
-19,
-24,
-27
+18
 ],
 "searchkit:packages/searchkit-schema/tests/support/server.ts": [
-54,
-55,
-56
+52
 ],
 "searchkit:packages/searchkit-sdk/src/facets/GeoDistanceOptionsFacet.ts": [
-21
+19
 ],
 "searchkit:packages/searchkit-sdk/src/facets/VisibilityRules/index.ts": [
-5,
-5
+4
 ],
 "searchkit:packages/searchkit-sdk/src/filters/TermFilter.ts": [
-11
+10
 ],
 "searchkit:packages/searchkit-sdk/src/index.ts": [
-120,
-121,
-122,
-124
+119
 ],
 "searchkit:packages/searchkit-sdk/src/query/CustomQuery.ts": [
-10
-],
-"searchkit:packages/searchkit-sdk/src/query/MultiMatchQuery.ts": [
 9
 ],
+"searchkit:packages/searchkit-sdk/src/query/MultiMatchQuery.ts": [
+8
+],
 "searchkit:packages/searchkit-sdk/src/query/PrefixQuery.ts": [
-10
+9
 ],
 "searchkit:packages/searchkit-sdk/src/transporters/ESClientTransporter.ts": [
-10,
-12
+9
 ],
 "searchkit:packages/searchkit-sdk/src/transporters/FetchClientTransporter.ts": [
-7
+6
 ]
 }

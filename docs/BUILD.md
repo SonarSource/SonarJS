@@ -1,5 +1,7 @@
 # SonarJS Build
 
+For the GitHub Actions pipeline, cache design, artifacts, job graph, and external CI integrations, see [CI.md](CI.md).
+
 ## Default workflow
 
 Run `npm ci` first on a fresh checkout, and again after any `package.json` or lockfile change.
@@ -62,6 +64,14 @@ Bridge-only Node build:
 
 ```bash
 npm run bridge:build:fast
+```
+
+This command also assumes `npm ci` was already run in the checkout.
+
+Build the ESLint plugin tarball:
+
+```bash
+npm run eslint-plugin:build
 ```
 
 This command also assumes `npm ci` was already run in the checkout.
