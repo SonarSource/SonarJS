@@ -50,12 +50,12 @@ jobs:
 
           echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
           echo "Generated Node.js version matrix from package.json: $MATRIX"
-      - name: Compute JS files hash for test caching
+      - name: Compute JS test hash for skip caching
         id: compute-js-hash
         run: |
-          HASH=$(find packages patches sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules tools typings .nycrc package.json server.mjs -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          HASH=$(find .github/workflows/build.yml packages patches sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules tools typings .nycrc package.json package-lock.json server.mjs -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
           echo "hash=$HASH" >> $GITHUB_OUTPUT
-          echo "Computed JS files hash: $HASH"
+          echo "Computed JS test hash: $HASH"
       - name: Compute Maven hash for cache key
         id: compute-maven-hash
         run: |
@@ -85,7 +85,7 @@ jobs:
       build-number: ${{ steps.build-number.outputs.BUILD_NUMBER }}
     steps:
       - id: build-number
-        uses: SonarSource/ci-github-actions/get-build-number@master
+        uses: SonarSource/ci-github-actions/get-build-number@v1
 
   populate_npm_cache:
     runs-on: sonar-xs
@@ -183,7 +183,7 @@ jobs:
       - &config_maven
         name: Configure Maven
         id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@master
+        uses: SonarSource/ci-github-actions/config-maven@v1
         with:
           artifactory-reader-role: private-reader
           disable-caching: 'true'
@@ -289,6 +289,7 @@ jobs:
     steps:
       - *checkout
       - *mise
+      - *npm_cache
       - id: secrets
         name: Access vault secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -438,7 +439,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: coverage/js
-          key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
+          key: js-coverage-${{ runner.os }}-${{ needs.setup.outputs.js-files-hash }}
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -501,7 +502,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .js-test-marker-win
-          key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
+          key: js-test-win-${{ runner.os }}-${{ needs.setup.outputs.js-files-hash }}
           lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
@@ -1074,196 +1075,20 @@ jobs:
           npm run ruling
       - name: Update ruling and notify
         if: always() && (github.event_name == 'pull_request' || github.ref_name == github.event.repository.default_branch)
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number || '' }}
-          TARGET_REF: ${{ github.head_ref || github.ref_name }}
-          BASE_REF: ${{ github.base_ref || github.event.repository.default_branch }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
-          IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
-          RULING_FAILED: ${{ steps.ruling.outcome == 'failure' }}
-        run: |
-          git fetch origin "$BASE_REF"
-          if [ -n "$BASE_SHA" ]; then
-            git fetch origin "$BASE_SHA" || true
-            if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
-              echo "::error::Failed to fetch PR base SHA: $BASE_SHA"
-              exit 1
-            fi
-          fi
-
-          # If ruling failed, sync the actual results first to get the differences
-          if [ "$RULING_FAILED" = "true" ]; then
-            # Check if last commit was already an auto-update (prevent infinite loop)
-            LAST_COMMIT_MSG=$(git log -1 --format=%B)
-            if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
-              echo "Last commit was an auto-update, skipping to prevent infinite loop"
-              exit 0
-            fi
-
-            # Sync ruling results (this modifies its/ruling/...)
-            npm run ruling-sync
-          fi
-
-          # Generate report comparing against base branch (after sync if ruling failed)
-          node tools/ruling-report.js > ruling-report.md
-
-          # Check if there are ruling differences
-          if [ -s ruling-report.md ]; then
-            HAS_DIFFERENCES=true
-          else
-            HAS_DIFFERENCES=false
-          fi
-
-          FIX_BRANCH="fix/update-ruling-for-${TARGET_REF}"
-
-          if [ "$IS_PULL_REQUEST" = "true" ]; then
-            FIX_PR_TITLE="Update ruling results for PR #${PR_NUMBER}"
-            FIX_PR_BODY="Auto-generated ruling update for PR #${PR_NUMBER}.
-
-          🤖 Generated with GitHub Actions"
-          else
-            FIX_PR_TITLE="Update ruling results for ${TARGET_REF}"
-            FIX_PR_BODY="Auto-generated ruling update for ${TARGET_REF}.
-
-          🤖 Generated with GitHub Actions"
-          fi
-
-          get_open_fix_pr_url() {
-            gh pr list \
-              --head "$FIX_BRANCH" \
-              --base "$TARGET_REF" \
-              --state open \
-              --json url \
-              --jq '.[0].url // empty'
-          }
-
-          # Create/update fix PR if ruling failed and there are differences
-          if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
-            # Stash changes before checkout
-            git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/
-
-            git fetch origin "$TARGET_REF"
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-
-            if git ls-remote --exit-code origin "refs/heads/$FIX_BRANCH" > /dev/null 2>&1; then
-              git checkout -b "$FIX_BRANCH" "origin/$TARGET_REF"
-              git stash pop
-              git add its/ruling/src/test/expected/
-
-              if git diff --staged --quiet; then
-                echo "No ruling changes to commit"
-              else
-                git commit -m "Update ruling results
-
-          🤖 Generated with GitHub Actions"
-                git push --force-with-lease origin "$FIX_BRANCH"
-              fi
-              FIX_PR_URL=$(get_open_fix_pr_url 2>/dev/null || true)
-              if [ -z "${FIX_PR_URL:-}" ]; then
-                FIX_PR_URL=$(gh pr create \
-                  --title "$FIX_PR_TITLE" \
-                  --base "$TARGET_REF" \
-                  --head "$FIX_BRANCH" \
-                  --body "$FIX_PR_BODY")
-              fi
-            else
-              git checkout -b "$FIX_BRANCH" "origin/$TARGET_REF"
-              git stash pop
-              git add its/ruling/src/test/expected/
-
-              if git diff --staged --quiet; then
-                echo "No ruling changes to commit"
-              else
-                git commit -m "Update ruling results
-
-          🤖 Generated with GitHub Actions"
-                git push origin "$FIX_BRANCH"
-                FIX_PR_URL=$(gh pr create \
-                  --title "$FIX_PR_TITLE" \
-                  --base "$TARGET_REF" \
-                  --head "$FIX_BRANCH" \
-                  --body "$FIX_PR_BODY")
-              fi
-            fi
-          else
-            # No changes needed — clean up stale fix PR if one exists and is still open
-            FIX_PR_STATE=$(gh pr view "$FIX_BRANCH" --json state --jq '.state' 2>/dev/null || true)
-            if [ "$FIX_PR_STATE" = "OPEN" ]; then
-              gh pr close "$FIX_BRANCH" --comment "No longer needed — the original PR is now up to date."
-              git push origin --delete "$FIX_BRANCH" 2>/dev/null || true
-            fi
-          fi
-
-          if [ "$IS_PULL_REQUEST" = "true" ]; then
-            # Build comment with marker for identification
-            MARKER="<!-- ruling-report -->"
-            if [ "$HAS_DIFFERENCES" = "true" ]; then
-              # Build comment with ruling changes
-              {
-                echo "$MARKER"
-                cat ruling-report.md
-                echo ""
-                if [ "$RULING_FAILED" = "true" ] && [ -n "${FIX_PR_URL:-}" ]; then
-                  echo "---"
-                  echo "❌ **Ruling needs updating.** A fix PR has been created: ${FIX_PR_URL}"
-                  echo ""
-                  echo "Please review and merge it into your branch."
-                fi
-              } > comment.md
-            else
-              # Build comment for no changes
-              {
-                echo "$MARKER"
-                echo "## Ruling Report"
-                echo ""
-                echo "✅ **No changes to ruling expected issues in this PR**"
-              } > comment.md
-            fi
-
-            # Truncate comment to 50KB to stay within GitHub API limits
-            MAX_BYTES=50000
-            if [ "$(wc -c < comment.md)" -gt "$MAX_BYTES" ]; then
-              head -c "$MAX_BYTES" comment.md > comment-truncated.md
-              echo "" >> comment-truncated.md
-              echo "_(truncated — full report too large for PR comment)_" >> comment-truncated.md
-              mv comment-truncated.md comment.md
-            fi
-
-            # Find existing ruling comment and update it, or create new one
-            EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
-              --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
-
-            if [ -n "$EXISTING_COMMENT_ID" ]; then
-              gh api "repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT_ID" \
-                -X PATCH -F body=@comment.md
-            else
-              gh pr comment "$PR_NUMBER" --body-file comment.md
-            fi
-          elif [ -n "${FIX_PR_URL:-}" ]; then
-            {
-              echo "## Ruling Report"
-              echo ""
-              echo "❌ **Ruling needs updating.** A fix PR has been created: ${FIX_PR_URL}"
-            } >> "$GITHUB_STEP_SUMMARY"
-          else
-            {
-              echo "## Ruling Report"
-              echo ""
-              echo "✅ **No ruling fix PR was needed for this run.**"
-            } >> "$GITHUB_STEP_SUMMARY"
-          fi
-
-          # Fail CI if ruling needs updating
-          if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
-            if [ -n "${FIX_PR_URL:-}" ]; then
-              echo "::error::Ruling results are out of date. See fix PR: ${FIX_PR_URL}"
-            else
-              echo "::error::Ruling results are out of date."
-            fi
-            exit 1
-          fi
+        uses: ./.github/actions/ruling_bot
+        with:
+          github-token: ${{ github.token }}
+          pr-number: ${{ github.event.pull_request.number || '' }}
+          target-ref: ${{ github.head_ref || github.ref_name }}
+          base-ref: ${{ github.base_ref || github.event.repository.default_branch }}
+          base-sha: ${{ github.event.pull_request.base.sha || '' }}
+          is-pull-request: ${{ github.event_name == 'pull_request' }}
+          ruling-failed: ${{ steps.ruling.outcome == 'failure' }}
+          new-results-path: packages/ruling/actual
+          old-results-path: its/ruling/src/test/expected
+          sources-path: its/sources
+          sources-repo-url: https://github.com/SonarSource/jsts-test-sources/blob/master
+          rspec-base-url: https://musical-adventure-r9qk65j.pages.github.io/rspec/#
 
   ruling:
     runs-on: sonar-xl
