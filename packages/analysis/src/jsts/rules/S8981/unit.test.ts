@@ -35,6 +35,10 @@ describe('S8981', () => {
             // name option without the global flag
             code: `screen.getByRole('button', { name: /submit/i });`,
           },
+          {
+            // global flag on a regex not passed to a query — should not be flagged
+            code: `const re = /foo/g; someNonQueryFn(re);`,
+          },
         ],
         invalid: [
           {
@@ -59,6 +63,18 @@ describe('S8981', () => {
               const re = /foo/;
               screen.getByText(re);
             `,
+            errors: [{ messageId: 'noGlobalRegExpFlagInQuery' }],
+          },
+          {
+            // queryBy* family
+            code: `screen.queryByText(/hello/g);`,
+            output: `screen.queryByText(/hello/);`,
+            errors: [{ messageId: 'noGlobalRegExpFlagInQuery' }],
+          },
+          {
+            // findBy* (async) family
+            code: `await screen.findByText(/hello/g);`,
+            output: `await screen.findByText(/hello/);`,
             errors: [{ messageId: 'noGlobalRegExpFlagInQuery' }],
           },
         ],
