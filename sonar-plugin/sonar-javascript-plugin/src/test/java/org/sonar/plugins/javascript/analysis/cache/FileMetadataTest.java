@@ -20,7 +20,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 
 class FileMetadataTest {
 

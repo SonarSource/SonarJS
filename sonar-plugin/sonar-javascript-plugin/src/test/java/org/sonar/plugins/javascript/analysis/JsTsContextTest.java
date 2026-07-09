@@ -19,11 +19,11 @@ package org.sonar.plugins.javascript.analysis;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.sonar.api.config.internal.MapSettings;
 import org.sonar.css.CssLanguage;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
+import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 
 class JsTsContextTest {
 

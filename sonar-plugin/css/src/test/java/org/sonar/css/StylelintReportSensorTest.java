@@ -34,12 +34,12 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rules.RuleType;
@@ -224,7 +224,7 @@ class StylelintReportSensorTest {
     String relativePath
   ) {
     DefaultInputFile testInputFile = new TestInputFileBuilder("moduleKey", relativePath)
-      .setModuleBaseDir(sensorContext.fileSystem().baseDirPath())
+      .setModuleBaseDir(sensorContext.fileSystem().baseDir().toPath())
       .setType(Type.MAIN)
       .setLanguage(CssLanguage.KEY)
       .setCharset(StandardCharsets.UTF_8)
