@@ -89,7 +89,7 @@
     "node-reporter-sonarqube": "1.0.3",
     "nyc": "18.0.0",
     "package-manifest-generator": "1.0.0-beta.4",
-    "prettier": "3.9.3",
+    "prettier": "3.9.4",
     "prettier-plugin-java": "2.10.1",
     "pretty-quick": "4.2.2",
     "protobufjs-cli": "2.5.7",
