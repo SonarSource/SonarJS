@@ -72,16 +72,16 @@ That means:
 
 Runner labels express relative size and environment, not a stable hardware contract. The workflow uses them as follows:
 
-| Runner label | Typical jobs | Why it is used |
-| --- | --- | --- |
-| `sonar-xs` | `setup`, `get_build_number`, `populate_npm_cache`, `prepare_rspec_rule_data`, `knip`, `promote`, `releasability`, `run_iris` | Lightweight orchestration, metadata, cache preparation, and control-plane jobs |
-| `sonar-m` | `test_js`, `analyze_primary`, `analyze_shadows`, most Linux plugin QA jobs | Medium Linux compute for tests and analysis |
-| `sonar-l` | `build` | Main Linux Maven build and deploy |
-| `sonar-xl` | `js_ts_ruling`, `ruling` | Large ruling workloads |
-| `github-ubuntu-latest-s` | `build_eslint_plugin`, `test_eslint_plugin`, `generated_files_freshness` | Small GitHub-hosted Linux jobs |
-| `github-windows-latest-s` | `populate_npm_cache_win` | Small Windows cache producer |
-| `github-windows-latest-m` | `build_win`, `test_js_win`, Windows plugin QA jobs | Medium Windows build/test jobs |
-| `warp-custom-ubuntu-24-04` + Alpine container | Alpine QA jobs | Host runner plus containerized musl/Alpine validation |
+| Runner label                                  | Typical jobs                                                                                                                 | Why it is used                                                                 |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `sonar-xs`                                    | `setup`, `get_build_number`, `populate_npm_cache`, `prepare_rspec_rule_data`, `knip`, `promote`, `releasability`, `run_iris` | Lightweight orchestration, metadata, cache preparation, and control-plane jobs |
+| `sonar-m`                                     | `test_js`, `analyze_primary`, `analyze_shadows`, most Linux plugin QA jobs                                                   | Medium Linux compute for tests and analysis                                    |
+| `sonar-l`                                     | `build`                                                                                                                      | Main Linux Maven build and deploy                                              |
+| `sonar-xl`                                    | `js_ts_ruling`, `ruling`                                                                                                     | Large ruling workloads                                                         |
+| `github-ubuntu-latest-s`                      | `build_eslint_plugin`, `test_eslint_plugin`, `generated_files_freshness`                                                     | Small GitHub-hosted Linux jobs                                                 |
+| `github-windows-latest-s`                     | `populate_npm_cache_win`                                                                                                     | Small Windows cache producer                                                   |
+| `github-windows-latest-m`                     | `build_win`, `test_js_win`, Windows plugin QA jobs                                                                           | Medium Windows build/test jobs                                                 |
+| `warp-custom-ubuntu-24-04` + Alpine container | Alpine QA jobs                                                                                                               | Host runner plus containerized musl/Alpine validation                          |
 
 ## High-Level Pipeline Map
 
@@ -242,54 +242,54 @@ flowchart TD
 
 ## Job Index
 
-| Job | Runner | Needs | Condition |
-| --- | --- | --- | --- |
-| `setup` | `sonar-xs` | `-` | default |
-| `get_build_number` | `sonar-xs` | `setup` | non-fork PRs and all non-PR runs |
-| `populate_npm_cache` | `sonar-xs` | `setup`, `get_build_number` | non-fork PRs and all non-PR runs |
-| `populate_npm_cache_win` | `github-windows-latest-s` | `setup`, `get_build_number` | non-fork PRs and all non-PR runs |
-| `prepare_rspec_rule_data` | `sonar-xs` | `setup`, `populate_npm_cache` | non-fork PRs and all non-PR runs |
-| `build` | `sonar-l` | `setup`, `get_build_number`, `populate_npm_cache`, `prepare_rspec_rule_data` | non-fork PRs and all non-PR runs |
-| `build_win` | `github-windows-latest-m` | `setup`, `get_build_number`, `populate_npm_cache_win`, `prepare_rspec_rule_data` | non-fork PRs and all non-PR runs |
-| `build_eslint_plugin` | `github-ubuntu-latest-s` | `setup`, `prepare_rspec_rule_data` | non-fork PRs and all non-PR runs |
-| `generated_files_freshness` | `github-ubuntu-latest-s` | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data` | nightly only |
-| `test_eslint_plugin` | `github-ubuntu-latest-s` | `setup`, `build_eslint_plugin` | default |
-| `knip` | `sonar-xs` | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data` | default |
-| `test_js` | `sonar-m` | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data` | default |
-| `test_js_win` | `github-windows-latest-m` | `setup`, `populate_npm_cache_win`, `prepare_rspec_rule_data` | default |
-| `analyze_primary` | `sonar-m` | `setup`, `get_build_number`, `test_js`, `build` | non-fork PRs and all non-PR runs |
-| `analyze_shadows` | `sonar-m` | `setup`, `get_build_number`, `test_js`, `build` | nightly only |
-| `plugin_qa_with_node` | `sonar-m` | `setup`, `get_build_number`, `build` | non-fork PRs and all non-PR runs |
-| `plugin_qa_fast_with_node` | `sonar-m` | `setup`, `get_build_number`, `build` | non-fork PRs and all non-PR runs |
-| `plugin_qa_without_node` | `sonar-m` | `setup`, `get_build_number`, `build` | non-fork PRs and all non-PR runs |
-| `plugin_qa_without_node_dev` | `sonar-m` | `setup`, `get_build_number`, `build` | nightly only |
-| `plugin_qa_without_node_alpine` | `warp-custom-ubuntu-24-04` | `setup`, `get_build_number`, `build` | nightly only |
-| `plugin_qa_fast_without_node` | `sonar-m` | `setup`, `get_build_number`, `build` | non-fork PRs and all non-PR runs |
-| `plugin_qa_fast_without_node_dev` | `sonar-m` | `setup`, `get_build_number`, `build` | nightly only |
-| `plugin_qa_fast_without_node_alpine` | `warp-custom-ubuntu-24-04` | `setup`, `get_build_number`, `build` | nightly only |
-| `plugin_qa_win` | `github-windows-latest-m` | `setup`, `get_build_number`, `build` | non-fork PRs and all non-PR runs |
-| `plugin_qa_sonarlint_win` | `github-windows-latest-m` | `setup`, `get_build_number`, `build` | non-fork PRs and all non-PR runs |
-| `plugin_qa_win_fast_with_node` | `github-windows-latest-m` | `setup`, `get_build_number`, `build` | non-fork PRs and all non-PR runs |
-| `js_ts_ruling` | `sonar-xl` | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data` | non-fork PRs and all non-PR runs |
-| `ruling` | `sonar-xl` | `setup`, `get_build_number`, `build` | non-fork PRs and all non-PR runs |
-| `run_iris` | `sonar-xs` | `analyze_primary`, `analyze_shadows` | nightly only |
-| `promote` | `sonar-xs` | many fan-in jobs | only when upstream jobs succeeded and the run is allowed to promote |
-| `releasability` | `sonar-xs` | `promote` | only after successful promote on `master`, `branch-*`, or `dogfood-*` |
+| Job                                  | Runner                     | Needs                                                                            | Condition                                                             |
+| ------------------------------------ | -------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| `setup`                              | `sonar-xs`                 | `-`                                                                              | default                                                               |
+| `get_build_number`                   | `sonar-xs`                 | `setup`                                                                          | non-fork PRs and all non-PR runs                                      |
+| `populate_npm_cache`                 | `sonar-xs`                 | `setup`, `get_build_number`                                                      | non-fork PRs and all non-PR runs                                      |
+| `populate_npm_cache_win`             | `github-windows-latest-s`  | `setup`, `get_build_number`                                                      | non-fork PRs and all non-PR runs                                      |
+| `prepare_rspec_rule_data`            | `sonar-xs`                 | `setup`, `populate_npm_cache`                                                    | non-fork PRs and all non-PR runs                                      |
+| `build`                              | `sonar-l`                  | `setup`, `get_build_number`, `populate_npm_cache`, `prepare_rspec_rule_data`     | non-fork PRs and all non-PR runs                                      |
+| `build_win`                          | `github-windows-latest-m`  | `setup`, `get_build_number`, `populate_npm_cache_win`, `prepare_rspec_rule_data` | non-fork PRs and all non-PR runs                                      |
+| `build_eslint_plugin`                | `github-ubuntu-latest-s`   | `setup`, `prepare_rspec_rule_data`                                               | non-fork PRs and all non-PR runs                                      |
+| `generated_files_freshness`          | `github-ubuntu-latest-s`   | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`                         | nightly only                                                          |
+| `test_eslint_plugin`                 | `github-ubuntu-latest-s`   | `setup`, `build_eslint_plugin`                                                   | default                                                               |
+| `knip`                               | `sonar-xs`                 | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`                         | default                                                               |
+| `test_js`                            | `sonar-m`                  | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`                         | default                                                               |
+| `test_js_win`                        | `github-windows-latest-m`  | `setup`, `populate_npm_cache_win`, `prepare_rspec_rule_data`                     | default                                                               |
+| `analyze_primary`                    | `sonar-m`                  | `setup`, `get_build_number`, `test_js`, `build`                                  | non-fork PRs and all non-PR runs                                      |
+| `analyze_shadows`                    | `sonar-m`                  | `setup`, `get_build_number`, `test_js`, `build`                                  | nightly only                                                          |
+| `plugin_qa_with_node`                | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_fast_with_node`           | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_without_node`             | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_without_node_dev`         | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
+| `plugin_qa_without_node_alpine`      | `warp-custom-ubuntu-24-04` | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
+| `plugin_qa_fast_without_node`        | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_fast_without_node_dev`    | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
+| `plugin_qa_fast_without_node_alpine` | `warp-custom-ubuntu-24-04` | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
+| `plugin_qa_win`                      | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_sonarlint_win`            | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_win_fast_with_node`       | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
+| `js_ts_ruling`                       | `sonar-xl`                 | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`                         | non-fork PRs and all non-PR runs                                      |
+| `ruling`                             | `sonar-xl`                 | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
+| `run_iris`                           | `sonar-xs`                 | `analyze_primary`, `analyze_shadows`                                             | nightly only                                                          |
+| `promote`                            | `sonar-xs`                 | many fan-in jobs                                                                 | only when upstream jobs succeeded and the run is allowed to promote   |
+| `releasability`                      | `sonar-xs`                 | `promote`                                                                        | only after successful promote on `master`, `branch-*`, or `dogfood-*` |
 
 ## Control-Plane Handoff
 
 These are the small data items passed as job outputs or step outputs, not bulky file payloads.
 
-| Producer | Data | Consumers | Meaning |
-| --- | --- | --- | --- |
-| `setup` | `node-matrix` | Node-matrix plugin QA jobs | Derived from `package.json` engine range |
-| `setup` | `js-files-hash` | `test_js`, `test_js_win` | Cache key seed for JS coverage and Windows JS marker, including workflow and dependency inputs |
-| `setup` | `maven-hash` | all `maven-cache` users | Cache key seed for Maven dependencies |
-| `setup` | `npm-hash` | all `node_modules` producers/consumers | Exact cache key seed for installed Node dependencies |
-| `setup` | `cache-month` | `maven-cache` | Monthly key rotation value |
-| `setup` | `is-default-branch` | most `mise-action` calls | Controls when tool caches may be saved |
-| `get_build_number` | `build-number` | build, QA, analysis, promotion, and shared env anchor users | One build number is minted once and reused consistently |
-| `config-maven` | `project-version` | `analyze_primary`, `analyze_shadows` | Sonar analysis version value |
+| Producer           | Data                | Consumers                                                   | Meaning                                                                                        |
+| ------------------ | ------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `setup`            | `node-matrix`       | Node-matrix plugin QA jobs                                  | Derived from `package.json` engine range                                                       |
+| `setup`            | `js-files-hash`     | `test_js`, `test_js_win`                                    | Cache key seed for JS coverage and Windows JS marker, including workflow and dependency inputs |
+| `setup`            | `maven-hash`        | all `maven-cache` users                                     | Cache key seed for Maven dependencies                                                          |
+| `setup`            | `npm-hash`          | all `node_modules` producers/consumers                      | Exact cache key seed for installed Node dependencies                                           |
+| `setup`            | `cache-month`       | `maven-cache`                                               | Monthly key rotation value                                                                     |
+| `setup`            | `is-default-branch` | most `mise-action` calls                                    | Controls when tool caches may be saved                                                         |
+| `get_build_number` | `build-number`      | build, QA, analysis, promotion, and shared env anchor users | One build number is minted once and reused consistently                                        |
+| `config-maven`     | `project-version`   | `analyze_primary`, `analyze_shadows`                        | Sonar analysis version value                                                                   |
 
 ### Important internal detail: build number cache
 
@@ -307,15 +307,15 @@ Artifacts are the only cross-job file handoff mechanism that is guaranteed to st
 
 ### Artifacts
 
-| Producer | Artifact name | Consumers | Purpose | Retention |
-| --- | --- | --- | --- | --- |
-| `prepare_rspec_rule_data` | `rspec-rule-data-${github.sha}` | `build`, `build_win`, `build_eslint_plugin`, `generated_files_freshness`, `knip`, `test_js`, `test_js_win`, `js_ts_ruling` | One RSPEC refresh per run; downstream jobs do not refresh again | 1 day |
-| `build` | `sonarjs-m2` | all plugin QA jobs, `ruling` | Share locally built SonarJS Maven artifacts instead of rebuilding them everywhere | 1 day |
-| `build` | `maven-targets-${github.sha}` | `analyze_primary`, `analyze_shadows` | Reuse compiled Maven outputs for Sonar analysis | 1 day |
-| `build` | `jacoco-xml-reports-${github.sha}` | `analyze_primary`, `analyze_shadows` | Reuse JaCoCo XML coverage reports | 1 day |
-| `build_eslint_plugin` | `eslint-tarball-${github.sha}` | `test_eslint_plugin` | Same-run ESLint plugin tarball handoff | 1 day |
-| `test_js` | `js-coverage-reports-${github.sha}` | `analyze_primary`, `analyze_shadows` | Reuse JS coverage reports for Sonar analysis | 1 day |
-| `ruling` | `ruling-differences` | humans only on failure | Failure triage artifact | default retention for upload step |
+| Producer                  | Artifact name                       | Consumers                                                                                                                  | Purpose                                                                           | Retention                         |
+| ------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------------- |
+| `prepare_rspec_rule_data` | `rspec-rule-data-${github.sha}`     | `build`, `build_win`, `build_eslint_plugin`, `generated_files_freshness`, `knip`, `test_js`, `test_js_win`, `js_ts_ruling` | One RSPEC refresh per run; downstream jobs do not refresh again                   | 1 day                             |
+| `build`                   | `sonarjs-m2`                        | all plugin QA jobs, `ruling`                                                                                               | Share locally built SonarJS Maven artifacts instead of rebuilding them everywhere | 1 day                             |
+| `build`                   | `maven-targets-${github.sha}`       | `analyze_primary`, `analyze_shadows`                                                                                       | Reuse compiled Maven outputs for Sonar analysis                                   | 1 day                             |
+| `build`                   | `jacoco-xml-reports-${github.sha}`  | `analyze_primary`, `analyze_shadows`                                                                                       | Reuse JaCoCo XML coverage reports                                                 | 1 day                             |
+| `build_eslint_plugin`     | `eslint-tarball-${github.sha}`      | `test_eslint_plugin`                                                                                                       | Same-run ESLint plugin tarball handoff                                            | 1 day                             |
+| `test_js`                 | `js-coverage-reports-${github.sha}` | `analyze_primary`, `analyze_shadows`                                                                                       | Reuse JS coverage reports for Sonar analysis                                      | 1 day                             |
+| `ruling`                  | `ruling-differences`                | humans only on failure                                                                                                     | Failure triage artifact                                                           | default retention for upload step |
 
 ### Why ESLint Tarball Is An Artifact, Not A Cache
 
@@ -332,21 +332,21 @@ That is exactly artifact semantics, not cache semantics.
 
 ### Explicit workflow-owned caches
 
-| Cache | Path | Producer(s) | Consumer(s) | Key shape | Save policy |
-| --- | --- | --- | --- | --- | --- |
-| installed NPM dependencies | `node_modules` | `populate_npm_cache`, `populate_npm_cache_win` | `build`, `build_win`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `generated_files_freshness`, `knip`, `test_js`, `test_js_win`, `analyze_primary`, `analyze_shadows`, `js_ts_ruling` | `npm-${runner.os}-${npm-hash}` | producer jobs use `actions/cache` with `lookup-only: true`; save happens only after a miss and a successful install |
-| JS coverage cache | `coverage/js` | `test_js` | `test_js` itself | `js-coverage-${runner.os}-${js-files-hash}` | combined restore/save cache; allows skip when exact coverage already exists |
-| Windows JS marker | `.js-test-marker-win` | `test_js_win` | `test_js_win` itself | `js-test-win-${runner.os}-${js-files-hash}` | lookup-only probe; on miss the job runs tests and saves marker at job end |
-| Maven repository | `~/.m2/repository` | default-branch runs through `maven-cache` | all `maven-cache` users | `maven-${runner.os}-${cache-month}-${maven-hash}` plus monthly restore prefix | only default branch saves; non-default branches restore only |
-| Orchestrator home | `${github.workspace}/orchestrator` | default-branch QA jobs through `orchestrator-cache` | orchestrator-based QA/ruling jobs | `${key-prefix}-${month}-${github.run_id}` with monthly restore prefix | only default branch saves unless `save: false` |
-| Rule API clone/cache | `$HOME/.sonar/rule-api` | default-branch `prepare_rspec_rule_data` through `rule-api-cache` | `prepare_rspec_rule_data` | `${key-prefix}-${github.run_id}` with prefix restore | only default branch saves unless `save: false` |
+| Cache                      | Path                               | Producer(s)                                                       | Consumer(s)                                                                                                                                                                                 | Key shape                                                                     | Save policy                                                                                                         |
+| -------------------------- | ---------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| installed NPM dependencies | `node_modules`                     | `populate_npm_cache`, `populate_npm_cache_win`                    | `build`, `build_win`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `generated_files_freshness`, `knip`, `test_js`, `test_js_win`, `analyze_primary`, `analyze_shadows`, `js_ts_ruling` | `npm-${runner.os}-${npm-hash}`                                                | producer jobs use `actions/cache` with `lookup-only: true`; save happens only after a miss and a successful install |
+| JS coverage cache          | `coverage/js`                      | `test_js`                                                         | `test_js` itself                                                                                                                                                                            | `js-coverage-${runner.os}-${js-files-hash}`                                   | combined restore/save cache; allows skip when exact coverage already exists                                         |
+| Windows JS marker          | `.js-test-marker-win`              | `test_js_win`                                                     | `test_js_win` itself                                                                                                                                                                        | `js-test-win-${runner.os}-${js-files-hash}`                                   | lookup-only probe; on miss the job runs tests and saves marker at job end                                           |
+| Maven repository           | `~/.m2/repository`                 | default-branch runs through `maven-cache`                         | all `maven-cache` users                                                                                                                                                                     | `maven-${runner.os}-${cache-month}-${maven-hash}` plus monthly restore prefix | only default branch saves; non-default branches restore only                                                        |
+| Orchestrator home          | `${github.workspace}/orchestrator` | default-branch QA jobs through `orchestrator-cache`               | orchestrator-based QA/ruling jobs                                                                                                                                                           | `${key-prefix}-${month}-${github.run_id}` with monthly restore prefix         | only default branch saves unless `save: false`                                                                      |
+| Rule API clone/cache       | `$HOME/.sonar/rule-api`            | default-branch `prepare_rspec_rule_data` through `rule-api-cache` | `prepare_rspec_rule_data`                                                                                                                                                                   | `${key-prefix}-${github.run_id}` with prefix restore                          | only default branch saves unless `save: false`                                                                      |
 
 ### Helper-owned or transitive caches
 
-| Owner | Path or payload | Backend | Why it exists |
-| --- | --- | --- | --- |
-| `get-build-number` action | `.build_number.txt` | GitHub cache | Reuse one build number across reruns of the same workflow run |
-| `jdx/mise-action` | tool/runtime downloads | action-managed cache behavior | Reuses provisioned Java/Maven/Node toolchains; not a SonarJS-specific cache contract |
+| Owner                     | Path or payload        | Backend                       | Why it exists                                                                        |
+| ------------------------- | ---------------------- | ----------------------------- | ------------------------------------------------------------------------------------ |
+| `get-build-number` action | `.build_number.txt`    | GitHub cache                  | Reuse one build number across reruns of the same workflow run                        |
+| `jdx/mise-action`         | tool/runtime downloads | action-managed cache behavior | Reuses provisioned Java/Maven/Node toolchains; not a SonarJS-specific cache contract |
 
 ### Local wrapper semantics
 
@@ -477,15 +477,15 @@ S3 may still exist elsewhere in SonarSource reusable actions or in other workflo
 
 ### Good fits for official GitHub primitives
 
-| Payload | Best primitive | Why |
-| --- | --- | --- |
-| `node_modules` | GitHub cache | exact-key reusable install output; natural cross-run cache |
-| JS coverage skip output | GitHub cache | cache key is tied to source hash; restore/save in same job |
-| Windows JS test marker | GitHub cache | tiny skip marker, not a reusable artifact |
-| RSPEC prepared files | artifact | per-run output shared by many downstream jobs |
-| ESLint tarball | artifact | one producer, one consumer, same run only |
-| Maven build outputs for analysis | artifact | exact same run-local compiled outputs are required |
-| locally built SonarJS Maven artifacts | artifact | explicit handoff is safer than accidentally restoring stale cached builds |
+| Payload                               | Best primitive | Why                                                                       |
+| ------------------------------------- | -------------- | ------------------------------------------------------------------------- |
+| `node_modules`                        | GitHub cache   | exact-key reusable install output; natural cross-run cache                |
+| JS coverage skip output               | GitHub cache   | cache key is tied to source hash; restore/save in same job                |
+| Windows JS test marker                | GitHub cache   | tiny skip marker, not a reusable artifact                                 |
+| RSPEC prepared files                  | artifact       | per-run output shared by many downstream jobs                             |
+| ESLint tarball                        | artifact       | one producer, one consumer, same run only                                 |
+| Maven build outputs for analysis      | artifact       | exact same run-local compiled outputs are required                        |
+| locally built SonarJS Maven artifacts | artifact       | explicit handoff is safer than accidentally restoring stale cached builds |
 
 ### Why not use one cache mechanism for everything?
 
@@ -795,25 +795,25 @@ The workflow targets:
 
 These are the most important reusable components in the current pipeline.
 
-| Action | Approx. uses in `build.yml` | Purpose | Cache / artifact relevance |
-| --- | --- | --- | --- |
-| `actions/checkout` | 28 | source checkout | none |
-| `jdx/mise-action` | 27 | provision Java, Maven, Node | action-managed runtime cache behavior |
-| `actions/download-artifact` | 27 | same-run file handoff | run-local artifact consumption |
-| `SonarSource/vault-action-wrapper` | 19 | credentials from Vault | none directly, but enables Repox/RSPEC/Sonar access |
-| `./.github/actions/maven-cache` | 17 | repo-owned Maven cache policy | official GitHub cache, restore-only on branches |
-| `SonarSource/ci-github-actions/config-maven` | 17 | Maven + Repox setup | built-in caching disabled in this workflow |
-| `actions/cache/restore` | 10 | restore-only cache consumers | direct GitHub cache use |
-| `./.github/actions/orchestrator-cache` | 9 | repo-owned orchestrator cache policy | official GitHub cache, rolling monthly prefix |
-| `actions/upload-artifact` | 7 | same-run file handoff | artifact production |
-| `actions/cache` | 4 | cache producer/probe jobs | direct GitHub cache use |
-| `SonarSource/ci-github-actions/get-build-number` | 1 | stable build number | internally uses GitHub cache |
-| `./.github/actions/ruling_bot` | 1 | repo-owned ruling report/comment/fix-PR automation for sonar-lits result trees and rich PR ruling comments | control-plane encapsulation, no direct cache semantics |
-| `./.github/actions/rule-api-cache` | 1 | repo-owned rule-api cache policy | official GitHub cache, rolling prefix |
-| `peter-evans/create-pull-request` | 1 | nightly generated-files PR | none |
-| `SonarSource/unified-dogfooding-actions/run-iris` | 1 | nightly cross-platform comparison | none |
-| `SonarSource/ci-github-actions/promote` | 1 | Artifactory/Repox promotion | downstream of all build/test gates |
-| `SonarSource/gh-action_releasability/releasability-status` | 1 | releasability commit status | none |
+| Action                                                     | Approx. uses in `build.yml` | Purpose                                                                                                    | Cache / artifact relevance                             |
+| ---------------------------------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `actions/checkout`                                         | 28                          | source checkout                                                                                            | none                                                   |
+| `jdx/mise-action`                                          | 27                          | provision Java, Maven, Node                                                                                | action-managed runtime cache behavior                  |
+| `actions/download-artifact`                                | 27                          | same-run file handoff                                                                                      | run-local artifact consumption                         |
+| `SonarSource/vault-action-wrapper`                         | 19                          | credentials from Vault                                                                                     | none directly, but enables Repox/RSPEC/Sonar access    |
+| `./.github/actions/maven-cache`                            | 17                          | repo-owned Maven cache policy                                                                              | official GitHub cache, restore-only on branches        |
+| `SonarSource/ci-github-actions/config-maven`               | 17                          | Maven + Repox setup                                                                                        | built-in caching disabled in this workflow             |
+| `actions/cache/restore`                                    | 10                          | restore-only cache consumers                                                                               | direct GitHub cache use                                |
+| `./.github/actions/orchestrator-cache`                     | 9                           | repo-owned orchestrator cache policy                                                                       | official GitHub cache, rolling monthly prefix          |
+| `actions/upload-artifact`                                  | 7                           | same-run file handoff                                                                                      | artifact production                                    |
+| `actions/cache`                                            | 4                           | cache producer/probe jobs                                                                                  | direct GitHub cache use                                |
+| `SonarSource/ci-github-actions/get-build-number`           | 1                           | stable build number                                                                                        | internally uses GitHub cache                           |
+| `./.github/actions/ruling_bot`                             | 1                           | repo-owned ruling report/comment/fix-PR automation for sonar-lits result trees and rich PR ruling comments | control-plane encapsulation, no direct cache semantics |
+| `./.github/actions/rule-api-cache`                         | 1                           | repo-owned rule-api cache policy                                                                           | official GitHub cache, rolling prefix                  |
+| `peter-evans/create-pull-request`                          | 1                           | nightly generated-files PR                                                                                 | none                                                   |
+| `SonarSource/unified-dogfooding-actions/run-iris`          | 1                           | nightly cross-platform comparison                                                                          | none                                                   |
+| `SonarSource/ci-github-actions/promote`                    | 1                           | Artifactory/Repox promotion                                                                                | downstream of all build/test gates                     |
+| `SonarSource/gh-action_releasability/releasability-status` | 1                           | releasability commit status                                                                                | none                                                   |
 
 ## PR Cleanup Workflow
 

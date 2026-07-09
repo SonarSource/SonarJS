@@ -24,6 +24,19 @@ const stylelintPkgJson = readFileSync('node_modules/stylelint/package.json', 'ut
 const testingLibraryPkgJson = JSON.parse(
   readFileSync('node_modules/eslint-plugin-testing-library/package.json', 'utf8'),
 );
+const TESTING_LIBRARY_REQUIRE_EXPR =
+  'createRequire(import.meta.url)(resolve(dirname(fileURLToPath(import.meta.url)), "../package.json"))';
+const testingLibraryDistSource = readFileSync(
+  'node_modules/eslint-plugin-testing-library/dist/index.mjs',
+  'utf8',
+);
+if (!testingLibraryDistSource.includes(TESTING_LIBRARY_REQUIRE_EXPR)) {
+  throw new Error(
+    'eslint-plugin-testing-library bundle patch target not found; the createRequire replacement ' +
+      'in esbuild-common.mjs is stale and the crash it fixes may have regressed. Re-check ' +
+      'node_modules/eslint-plugin-testing-library/dist/index.mjs after the dependency bump.',
+  );
+}
 const require = createRequire(import.meta.url);
 const babelParserFromCore = JSON.stringify(
   require.resolve('@babel/parser', {
@@ -171,7 +184,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
         include: /node_modules[/\\]eslint-plugin-testing-library[/\\]dist[/\\]index\.mjs$/,
         pattern: [
           [
-            'createRequire(import.meta.url)(resolve(dirname(fileURLToPath(import.meta.url)), "../package.json"))',
+            TESTING_LIBRARY_REQUIRE_EXPR,
             JSON.stringify({
               name: testingLibraryPkgJson.name,
               version: testingLibraryPkgJson.version,
