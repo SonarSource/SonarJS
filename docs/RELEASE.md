@@ -144,7 +144,7 @@ This workflow does the following:
    - Maven 3.9
    - Node 24.11.0
 4. Configure Maven with `SonarSource/ci-github-actions/config-maven@master`.
-5. Configure npm with `SonarSource/ci-github-actions/config-npm@v1`.
+5. Configure the npm registry for Repox with the Artifactory private-reader token.
 6. Read Vault secrets:
    - Repox QA deployer credentials
    - RSPEC GitHub token
