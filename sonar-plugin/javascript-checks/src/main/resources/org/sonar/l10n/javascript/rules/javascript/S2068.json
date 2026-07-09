@@ -15,7 +15,8 @@
   "quickfix": "infeasible",
   "tags": [
     "cwe",
-    "former-hotspot"
+    "former-hotspot",
+    "secret"
   ],
   "extra": {
     "replacementRules": [],
