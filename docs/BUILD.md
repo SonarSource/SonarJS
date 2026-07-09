@@ -68,6 +68,14 @@ npm run bridge:build:fast
 
 This command also assumes `npm ci` was already run in the checkout.
 
+Build the ESLint plugin tarball:
+
+```bash
+npm run eslint-plugin:build
+```
+
+This command also assumes `npm ci` was already run in the checkout.
+
 Regenerate rule metadata:
 
 ```bash
