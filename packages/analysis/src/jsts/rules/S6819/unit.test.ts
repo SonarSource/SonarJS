@@ -561,6 +561,19 @@ describe('S6819', () => {
           code: `<div role="listbox"><div role="group">Europe</div></div>`,
           errors: 2,
         },
+        // True positive: nested listbox option is not owned by outer group
+        {
+          code: `
+            <div role="listbox">
+              <div role="group">
+                <div role="listbox">
+                  <div role="option">Nested</div>
+                </div>
+              </div>
+            </div>
+          `,
+          errors: 1,
+        },
       ],
     });
   });
