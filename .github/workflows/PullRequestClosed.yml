@@ -4,12 +4,9 @@ on:
   pull_request:
     types: [closed]
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-
 jobs:
-  PullRequestMerged_job:
-    name: Pull Request Merged
+  PullRequestClosed_job:
+    name: Pull Request Closed
     runs-on: sonar-xs
     permissions:
       id-token: write
@@ -27,5 +24,5 @@ jobs:
       - uses: sonarsource/gh-action-lt-backlog/PullRequestClosed@v2
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
-          jira-user:  ${{ fromJSON(steps.secrets.outputs.vault).JIRA_USER }}
-          jira-token: ${{ fromJSON(steps.secrets.outputs.vault).JIRA_TOKEN }}
+          jira-user:    ${{ fromJSON(steps.secrets.outputs.vault).JIRA_USER }}
+          jira-token:   ${{ fromJSON(steps.secrets.outputs.vault).JIRA_TOKEN }}

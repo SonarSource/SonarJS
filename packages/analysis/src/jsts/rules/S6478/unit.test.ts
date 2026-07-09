@@ -14,35 +14,43 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
-import { fields } from './config.js';
 import { rule } from './index.js';
 
 describe('S6478', () => {
-  it('should expose allowAsProps as a Sonar configuration field', () => {
-    assert.ok(Array.isArray(fields));
-    assert.ok(
-      fields.some(
-        field =>
-          Array.isArray(field) &&
-          field.some(
-            option =>
-              option.field === 'allowAsProps' &&
-              option.default === false &&
-              typeof option.description === 'string',
-          ),
-      ),
-    );
-  });
-
   it('should keep prop-based inline components noncompliant by default', () => {
     const ruleTester = new DefaultParserRuleTester();
 
     ruleTester.run('S6478', rule, {
       valid: [
+        {
+          code: `
+            function Parent() {
+              return (
+                <Button
+                  startEnhancer={() => <Icon />}
+                  endEnhancer={() => <OtherIcon />}
+                />
+              );
+            }
+          `,
+        },
+        {
+          code: `
+            function Parent() {
+              return (
+                <Image
+                  preview={{
+                    imageRenderer: () => <video muted />,
+                    actionsRenderer: () => null,
+                  }}
+                />
+              );
+            }
+          `,
+        },
         {
           code: `
             function Parent() {
@@ -124,6 +132,71 @@ describe('S6478', () => {
                 return <div />;
               }
               return <Child />;
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should suppress configured render-prop names with propNamePattern', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    const propNamePattern = '{*Render,*Slot}';
+
+    ruleTester.run('S6478', rule, {
+      valid: [
+        {
+          options: [{ propNamePattern }],
+          code: `
+            function Parent() {
+              return (
+                <OtherComponent
+                  footerSlot={() => <Footer />}
+                />
+              );
+            }
+          `,
+        },
+        {
+          options: [{ propNamePattern }],
+          code: `
+            function Parent() {
+              return (
+                <Image
+                  preview={{
+                    imageRender: () => <video muted />,
+                    actionsRender: () => null,
+                  }}
+                />
+              );
+            }
+          `,
+        },
+      ],
+      invalid: [
+        {
+          options: [{ propNamePattern }],
+          code: `
+            function Parent() {
+              return (
+                <OtherComponent
+                  renderLabel={value => <span>{value}</span>}
+                />
+              );
+            }
+          `,
+          errors: 1,
+        },
+        {
+          options: [{ propNamePattern }],
+          code: `
+            function Parent() {
+              return (
+                <OtherComponent
+                  itemRenderer={() => <div />}
+                />
+              );
             }
           `,
           errors: 1,

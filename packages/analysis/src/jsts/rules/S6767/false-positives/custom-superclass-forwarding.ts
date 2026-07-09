@@ -16,8 +16,8 @@
  */
 
 import type estree from 'estree';
-import { isIdentifier } from '../helpers/ast.js';
-import { isBuiltinReactSuperclass } from '../helpers/react/component-analysis.js';
+import { isIdentifier } from '../../helpers/ast.js';
+import { isBuiltinReactSuperclass } from '../../helpers/react/component-analysis.js';
 
 /**
  * False-positive remediation escape:

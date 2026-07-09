@@ -14,5 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import pkg from 'eslint-plugin-testing-library';
-export const { rules } = pkg;
+import pluginTestingLibrary from 'eslint-plugin-testing-library';
+import type { Rule } from 'eslint';
+export const rules = pluginTestingLibrary.rules as unknown as Record<string, Rule.RuleModule>;

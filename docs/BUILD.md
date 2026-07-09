@@ -1,5 +1,7 @@
 # SonarJS Build
 
+For the GitHub Actions pipeline, cache design, artifacts, job graph, and external CI integrations, see [CI.md](CI.md).
+
 ## Default workflow
 
 Run `npm ci` first on a fresh checkout, and again after any `package.json` or lockfile change.

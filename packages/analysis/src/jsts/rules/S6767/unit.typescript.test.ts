@@ -505,6 +505,253 @@ function Comp(props: Props) {
     });
   });
 
+  it('should not report props used via destructured object parameter binding', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // FP: destructured first-param binding in useCallback — section.title is read
+          code: `
+declare const React: any;
+type SectionItem = { title: string; };
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section }: { section: SectionItem }) => <div>{section.title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: destructured first-param binding in render-prop callback — item.status is read
+          code: `
+declare const React: any;
+type Subscription = { status: string; };
+function SubscriptionTable() {
+  const columns = [
+    { render: ({ item }: { item: Subscription }) => <div>{item.status}</div> },
+  ];
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: destructured with alias ({ section: sec }) — sec.title is read
+          code: `
+declare const React: any;
+type SectionItem = { title: string; };
+function SectionList() {
+  const renderHeader = ({ section: sec }: { section: SectionItem }) => <div>{sec.title}</div>;
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: destructured with default value ({ count = 0 }) — count is read
+          code: `
+declare const React: any;
+function Counter() {
+  const renderCount = ({ count = 0 }: { count: number }) => <span>{count}</span>;
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: two-parameter render prop callback — first param is destructured ObjectPattern,
+          // second param is ref; both className and style are read in body.
+          // Mirrors the ant-design LoadingIcon CSSMotion render prop pattern.
+          code: `
+declare const React: any;
+declare const CSSMotion: any;
+function LoadingIcon({ prefixCls }: { prefixCls: string }) {
+  return (
+    <CSSMotion>
+      {({ className, style }: { className?: string; style?: React.CSSProperties }, ref: any) => (
+        <span className={className} style={style} ref={ref}>
+          <span className={\`\${prefixCls}-icon\`} />
+        </span>
+      )}
+    </CSSMotion>
+  );
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: first param is an AssignmentPattern (whole-param default value):
+          // ({ section }: { section: SectionItem } = {} as any) — exercises the
+          // firstParam.type === 'AssignmentPattern' branch.
+          code: `
+declare const React: any;
+type SectionItem = { title: string; };
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section }: { section: SectionItem } = {} as any) => <div>{section.title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: prop with object-default value ({ item = { label: '' } }) in useCallback —
+          // value is AssignmentPattern with Identifier left.
+          code: `
+declare const React: any;
+function ItemRenderer() {
+  const renderItem = React.useCallback(
+    ({ item = { label: '' } }: { item: { label: string } }) => <div>{item.label}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: nested destructuring ({ section: { title } }) — section is consumed through
+          // the first-param destructuring; title (inner binding) is read in the body.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: { title } }: { section: { title: string } }) => <div>{title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: triple nested destructuring ({ section: { nested: { title } } }) — title
+          // is read in the body.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: { nested: { title } } }: { section: { nested: { title: string } } }) => <div>{title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: renamed property with default value ({ section: { title: name = 'def' } }) —
+          // name is read in the body.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: { title: name = 'def' } }: { section: { title: string } }) => <div>{name}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: nested ArrayPattern with hole ({ section: { items: [, title] } }) — title
+          // (second element) is read.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: { items: [, title] } }: { section: { items: string[] } }) => <div>{title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: array destructuring for prop value ({ section: [title] }) — ArrayPattern value
+          // is handled by isBindingRead; title (first element) is read in the body.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: [title] }: { section: string[] }) => <div>{title}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: rest element inside nested ArrayPattern ({ section: { items: [...rest] } }) —
+          // isBindingRead delegates to resolveIdentifiers, which unwraps RestElement; rest is read.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const renderHeader = React.useCallback(
+    ({ section: { items: [...rest] } }: { section: { items: string[] } }) => <div>{rest}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should report props when destructured via patterns not tracked by hasDestructuredParamPropUsage', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [],
+      invalid: [
+        {
+          // TP: computed property key ({ [propName]: value }) — the matching-property lookup
+          // excludes computed keys, so the escape never resolves the binding; section is
+          // still reported even though `value` is read.
+          code: `
+declare const React: any;
+function SectionListComponent() {
+  const propName = 'section';
+  const renderHeader = React.useCallback(
+    ({ [propName]: value }: { section: string }) => <div>{value}</div>,
+    [],
+  );
+  return <div />;
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('should not report narrow local aliases in typed decorator callbacks', () => {
     const ruleTester = new RuleTester({
       parserOptions: {
