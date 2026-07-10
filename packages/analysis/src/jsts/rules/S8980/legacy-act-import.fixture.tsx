@@ -6,7 +6,7 @@ function Form() {
 }
 
 function usesLegacyActImport() {
-    legacyAct(() => { // Noncompliant {{Avoid wrapping Testing Library util calls in `act`}}
+    legacyAct(() => { // Noncompliant {{Remove this redundant `act()` call; the wrapped call already flushes its own updates.}}
         render(<Form />);
     });
 }
