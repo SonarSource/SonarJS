@@ -123,7 +123,10 @@ const UVU_ASSERT_METHODS = new Set([
   'not.throws',
 ]);
 
-const JS_PLAYWRIGHT_EXPECT_POLL_FQN = `${PLAYWRIGHT_TEST_MODULE.replace('/', '.')}.expect.poll`;
+const JS_PLAYWRIGHT_EXPECT_POLL_FQNS = new Set([
+  `${PLAYWRIGHT_TEST_MODULE.replace('/', '.')}.expect.poll`,
+  `${PLAYWRIGHT_TEST_MODULE}.expect.poll`,
+]);
 const TS_PLAYWRIGHT_EXPECT_POLL_FQN = `${PLAYWRIGHT_TEST_MODULE}.expect.poll`;
 const JS_UVU_ASSERT_FQN_PREFIX = 'uvu.assert.';
 const TS_UVU_ASSERT_FQN_PREFIX = 'uvu/assert.';
@@ -362,7 +365,8 @@ function isPlaywrightExpectPollCall(
     return false;
   }
 
-  if (getFullyQualifiedName(context, callee) === JS_PLAYWRIGHT_EXPECT_POLL_FQN) {
+  const fqn = getFullyQualifiedName(context, callee) ?? getFullyQualifiedName(context, call);
+  if (fqn !== null && JS_PLAYWRIGHT_EXPECT_POLL_FQNS.has(fqn)) {
     return true;
   }
 

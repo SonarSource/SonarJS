@@ -161,6 +161,7 @@ const { expect, expect: renamedExpect, test } = require('@playwright/test');
 test('recognizes Playwright expect.poll', async () => {
   await expect.poll(() => 'ready').toBe('ready');
   await renamedExpect.poll(() => 'ready').toEqual('ready');
+  await require('@playwright/test').expect.poll(() => 'ready').toBe('ready');
 });
           `,
         },
