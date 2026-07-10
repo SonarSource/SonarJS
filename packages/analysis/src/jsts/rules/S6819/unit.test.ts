@@ -561,16 +561,18 @@ describe('S6819', () => {
           `,
         },
         {
-          // Compliant: expression-contained options
+          // Compliant: expression-contained option in a conditional branch
           code: `
             <div role="listbox" aria-label="Cities">
-              <div role="group" aria-label="Europe">
-                {cities.map(city => (
-                  <div role="option" aria-selected={city === 'Paris'} key={city}>
-                    {city}
-                  </div>
-                ))}
-              </div>
+              {isOpen ? <div role="option">Paris</div> : null}
+            </div>
+          `,
+        },
+        {
+          // Compliant: expression-contained option in a logical OR fallback
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {selectedOption || <div role="option">Paris</div>}
             </div>
           `,
         },
@@ -595,6 +597,44 @@ describe('S6819', () => {
         {
           code: `<div role="listbox"><div role="group">Europe</div></div>`,
           errors: 2,
+        },
+        // True positive: callback-rendered option is not statically owned by the group/listbox
+        {
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                {cities.map(city => (
+                  <div role="option" aria-selected={city === 'Paris'} key={city}>
+                    {city}
+                  </div>
+                ))}
+              </div>
+            </div>
+          `,
+          errors: 2,
+        },
+        // True positive: option in a nested function body is not rendered as a descendant
+        {
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                {() => <div role="option">Paris</div>}
+              </div>
+            </div>
+          `,
+          errors: 2,
+        },
+        // True positive: option in an unused initializer is not rendered as a descendant
+        {
+          code: `
+            <div role="listbox">
+              {(() => {
+                const unused = <div role="option">Paris</div>;
+                return null;
+              })()}
+            </div>
+          `,
+          errors: 1,
         },
         // True positive: nested listbox option is not owned by outer group
         {

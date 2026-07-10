@@ -16,7 +16,6 @@
  */
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { SourceCode } from 'eslint';
 import {
   getJSXElementRole,
   hasAncestorWithRole,
@@ -36,15 +35,11 @@ const COMPOSITE_CHILD_ROLES = new Set([
   'option',
 ]);
 
-export function isGroupedListboxSubgroup(
-  role: string,
-  node: TSESTree.JSXOpeningElement,
-  sourceCode: SourceCode,
-): boolean {
+export function isGroupedListboxSubgroup(role: string, node: TSESTree.JSXOpeningElement): boolean {
   return (
     role === 'group' &&
     hasAncestorWithRole(node, 'listbox') &&
-    hasDescendantWithRoleBeforeBoundary(node, 'option', 'listbox', sourceCode)
+    hasDescendantWithRoleBeforeBoundary(node, 'option', 'listbox')
   );
 }
 
@@ -57,13 +52,9 @@ export function isGroupedListboxSubgroup(
  *
  * No element-name restriction: any HTML tag (div, ul, li, span, etc.) qualifies.
  */
-export function isCustomCompositeWidget(
-  role: string,
-  node: TSESTree.JSXOpeningElement,
-  sourceCode: SourceCode,
-): boolean {
+export function isCustomCompositeWidget(role: string, node: TSESTree.JSXOpeningElement): boolean {
   if (COMPOSITE_CONTAINER_ROLES.has(role)) {
-    return hasDescendantWithOneOfRoles(node, COMPOSITE_CHILD_ROLES, sourceCode);
+    return hasDescendantWithOneOfRoles(node, COMPOSITE_CHILD_ROLES);
   }
 
   if (COMPOSITE_CHILD_ROLES.has(role)) {

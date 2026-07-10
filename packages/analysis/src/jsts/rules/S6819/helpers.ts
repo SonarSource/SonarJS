@@ -16,11 +16,9 @@
  */
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import type estree from 'estree';
-import type { SourceCode } from 'eslint';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
-import { childrenOf, findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 
 const { getLiteralPropValue, getProp, getPropValue } = pkg;
 
@@ -129,32 +127,27 @@ export function hasDescendantWithRoleBeforeBoundary(
   node: TSESTree.JSXOpeningElement,
   role: string,
   boundaryRole: string,
-  sourceCode: SourceCode,
 ): boolean {
   return hasDescendantMatchingRole(
     node,
     descendantRole => descendantRole === role,
-    sourceCode,
     descendantRole => descendantRole === boundaryRole,
   );
 }
 
 /**
- * Searches the JSX subtree for elements with one of the target roles, including
- * JSX returned through expression containers.
+ * Searches rendered JSX children for elements with one of the target roles.
  */
 export function hasDescendantWithOneOfRoles(
   node: TSESTree.JSXOpeningElement,
   roles: Set<string>,
-  sourceCode: SourceCode,
 ): boolean {
-  return hasDescendantMatchingRole(node, role => roles.has(role), sourceCode);
+  return hasDescendantMatchingRole(node, role => roles.has(role));
 }
 
 function hasDescendantMatchingRole(
   node: TSESTree.JSXOpeningElement,
   predicate: (role: string) => boolean,
-  sourceCode: SourceCode,
   isBoundary: (role: string) => boolean = () => false,
 ): boolean {
   const jsxElement = node.parent;
@@ -162,39 +155,62 @@ function hasDescendantMatchingRole(
     return false;
   }
 
-  const root = jsxElement as unknown as estree.Node;
-  const stack = [...renderedChildrenOf(root, sourceCode.visitorKeys)];
+  const root = jsxElement;
+  const stack = [...renderedChildrenOf(root)];
   while (stack.length > 0) {
     const current = stack.pop();
     if (!current) {
       continue;
     }
-    if (
-      current.type === 'JSXElement' &&
-      current !== root &&
-      roleMatches(current as unknown as TSESTree.JSXElement, predicate)
-    ) {
+    if (current.type === 'JSXElement' && current !== root && roleMatches(current, predicate)) {
       return true;
     }
-    if (
-      current.type === 'JSXElement' &&
-      current !== root &&
-      roleMatches(current as unknown as TSESTree.JSXElement, isBoundary)
-    ) {
+    if (current.type === 'JSXElement' && current !== root && roleMatches(current, isBoundary)) {
       continue;
     }
-    stack.push(...renderedChildrenOf(current, sourceCode.visitorKeys));
+    stack.push(...renderedChildrenOf(current));
   }
   return false;
 }
 
-function renderedChildrenOf(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): estree.Node[] {
+function renderedChildrenOf(node: TSESTree.Node): TSESTree.Node[] {
   if (node.type === 'JSXElement' || node.type === 'JSXFragment') {
-    return (node as unknown as TSESTree.JSXElement | TSESTree.JSXFragment)
-      .children as unknown as estree.Node[];
+    return node.children;
   }
 
-  return childrenOf(node, visitorKeys);
+  if (node.type === 'JSXExpressionContainer' && node.expression.type !== 'JSXEmptyExpression') {
+    return renderedExpressionChildrenOf(node.expression);
+  }
+
+  return [];
+}
+
+function renderedExpressionChildrenOf(node: TSESTree.Node): TSESTree.Node[] {
+  switch (node.type) {
+    case 'JSXElement':
+    case 'JSXFragment':
+      return [node];
+    case 'ConditionalExpression':
+      return [node.consequent, node.alternate];
+    case 'LogicalExpression':
+      if (node.operator === '&&') {
+        return [node.right];
+      }
+      if (node.operator === '||' || node.operator === '??') {
+        return [node.left, node.right];
+      }
+      return [];
+    case 'ArrayExpression':
+      return node.elements.filter((element): element is TSESTree.Node => element !== null);
+    case 'ChainExpression':
+      return [node.expression];
+    case 'TSAsExpression':
+    case 'TSTypeAssertion':
+    case 'TSNonNullExpression':
+      return [node.expression];
+    default:
+      return [];
+  }
 }
 
 function roleMatches(element: TSESTree.JSXElement, predicate: (role: string) => boolean): boolean {
