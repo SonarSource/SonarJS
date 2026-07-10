@@ -7,7 +7,8 @@
     "constantCost": "5min"
   },
   "tags": [
-    "tests"
+    "tests",
+    "testing-library"
   ],
   "extra": {
     "requiredDependency": [
@@ -15,8 +16,7 @@
       "@testing-library/react",
       "@testing-library/vue",
       "@testing-library/angular",
-      "@testing-library/svelte",
-      "storybook"
+      "@testing-library/svelte"
     ]
   },
   "defaultSeverity": "Major",
