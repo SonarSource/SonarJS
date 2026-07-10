@@ -138,10 +138,25 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }
       if (
         'messageId' in reportDescriptor &&
-        reportDescriptor.messageId === TESTING_LIBRARY_UTIL_MESSAGE_ID &&
-        'node' in reportDescriptor &&
-        actCallbackHasNoRecognizedTestingLibraryCall(context, reportDescriptor.node as estree.Node)
+        reportDescriptor.messageId === TESTING_LIBRARY_UTIL_MESSAGE_ID
       ) {
+        if (
+          'node' in reportDescriptor &&
+          actCallbackHasNoRecognizedTestingLibraryCall(
+            context,
+            reportDescriptor.node as estree.Node,
+          )
+        ) {
+          return;
+        }
+        // Upstream's own message only states what is wrong, not why it matters
+        // or what to do; state the fix and the risk of leaving it in place.
+        const { messageId, data, ...rest } = reportDescriptor;
+        context.report({
+          ...rest,
+          message:
+            'Remove this redundant `act()` call; the wrapped call already flushes its own updates.',
+        });
         return;
       }
       context.report(reportDescriptor);
