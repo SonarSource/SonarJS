@@ -29,7 +29,7 @@ import {
   setCurrentFileInlineDependencies,
 } from './dependency-manifests/dependencies.js';
 
-export function getImportDeclarations(context: Rule.RuleContext): estree.ImportDeclaration[] {
+function getImportDeclarations(context: Rule.RuleContext): estree.ImportDeclaration[] {
   return context.sourceCode.ast.body.filter(node => node.type === 'ImportDeclaration');
 }
 
