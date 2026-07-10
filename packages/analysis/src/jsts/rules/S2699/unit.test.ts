@@ -136,6 +136,37 @@ describe('additional chai assert methods', () => {
         },
         {
           code: `
+const assert = require('uvu/assert');
+const { describe, it } = require('node:test');
+
+describe('uvu assert methods', () => {
+  it('recognizes documented methods', () => {
+    function Constructor() {}
+    const value = new Constructor();
+    assert.instance(value, Constructor);
+    assert.is(value, value);
+    assert.ok(value);
+    assert.equal({ status: 'ready' }, { status: 'ready' });
+    assert.match({ enabled: true }, { enabled: true });
+    assert.throws(() => { throw new Error('expected'); });
+    assert.not.equal('ready', 'failed');
+  });
+});
+          `,
+        },
+        {
+          code: `
+const { expect, expect: renamedExpect, test } = require('@playwright/test');
+
+test('recognizes Playwright expect.poll', async () => {
+  await expect.poll(() => 'ready').toBe('ready');
+  await renamedExpect.poll(() => 'ready').toEqual('ready');
+  await require('@playwright/test').expect.poll(() => 'ready').toBe('ready');
+});
+          `,
+        },
+        {
+          code: `
 describe('no import from test library', () => {
   it('should not fail', () => {
     // no-op
@@ -369,6 +400,27 @@ describe('shadowed assert helper', () => {
     assert.instance({}, Object);
     assert.is(1, 1);
   });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const assert = require('uvu/assert');
+const { describe, it } = require('node:test');
+
+describe('unknown uvu assert methods', () => {
+  it('raises when the method is outside the whitelist', () => {
+    assert.custom('ready');
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const { expect, test } = require('@playwright/test');
+
+test('bare expect.poll does not assert', async () => {
+  await expect.poll(() => 'ready');
 });`,
           errors: 1,
         },
@@ -653,6 +705,36 @@ test('has assertions', () => {
         },
         {
           code: `
+import { describe, it } from 'node:test';
+import assert from 'uvu/assert';
+
+describe('typed uvu assert methods', () => {
+  it('recognizes documented methods', () => {
+    class Constructor {}
+    const value = new Constructor();
+    assert.instance(value, Constructor);
+    assert.is(value, value);
+    assert.ok(value);
+    assert.equal({ status: 'ready' }, { status: 'ready' });
+    assert.match({ enabled: true }, { enabled: true });
+    assert.throws(() => { throw new Error('expected'); });
+    assert.not.equal('ready', 'failed');
+  });
+});
+`,
+        },
+        {
+          code: `
+import { expect, expect as renamedExpect, test } from '@playwright/test';
+
+test('recognizes typed Playwright expect.poll', async () => {
+  await expect.poll(() => 'ready').toBe('ready');
+  await renamedExpect.poll(() => 'ready').toEqual('ready');
+});
+`,
+        },
+        {
+          code: `
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -795,6 +877,29 @@ import assert from 'node:assert/strict';
 
 test('has no assertions', () => {
   const x = 1 + 2;
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, it } from 'node:test';
+import assert from 'uvu/assert';
+
+describe('typed unknown uvu assert methods', () => {
+  it('raises when the method is outside the whitelist', () => {
+    assert.custom('ready');
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { expect, test } from '@playwright/test';
+
+test('typed bare expect.poll does not assert', async () => {
+  await expect.poll(() => 'ready');
 });
 `,
           errors: 1,
