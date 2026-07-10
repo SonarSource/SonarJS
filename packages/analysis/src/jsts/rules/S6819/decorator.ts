@@ -36,6 +36,7 @@ import * as meta from './generated-meta.js';
  *    - role="combobox" popup widgets with ARIA disclosure state
  *    - role="separator" with children (since <hr> is void)
  *    - role="img" on div/span with children or CSS backgroundImage (since <img> is void)
+ *    - role="presentation"/"none" on structural layout containers
  *    - role="group" subgroups containing options inside role="listbox"
  *    - ARIA composite widget roles (table, grid, listbox, row, option, etc.) when forming
  *      complete custom widget patterns
