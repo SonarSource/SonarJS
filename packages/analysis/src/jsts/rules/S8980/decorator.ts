@@ -21,6 +21,7 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
+import { withStrictImportResolution } from '../helpers/testing-library.js';
 import * as meta from './generated-meta.js';
 
 // Reported by the upstream rule for `act(() => {})`; already covered by S1186.
@@ -120,40 +121,6 @@ function actCallbackHasNoRecognizedTestingLibraryCall(
   }
   const calls = collectCallExpressions(callback.body);
   return !calls.some(call => isRecognizedTestingLibraryCall(context, call));
-}
-
-// Without any `testing-library/*` settings, the upstream rule falls back to
-// "aggressive" name-based heuristics for `render` and for custom queries: it
-// treats any call merely *named* like `render` as a Testing Library util,
-// regardless of where it's imported from. Forcing these settings (the
-// upstream plugin's own documented recipe for disabling aggressive reporting)
-// switches `render` detection to import resolution instead. The official
-// `@testing-library/*` module check still runs unconditionally, so real
-// Testing Library imports are unaffected. Note this does not make *built-in*
-// query detection (`getBy*`/`queryBy*`/`findBy*`) import-resolution-based:
-// upstream matches those purely by name in all modes, so a same-named,
-// unrelated helper (e.g. Playwright's `page.getByRole`) can still be
-// misidentified as a Testing Library query. Accepted as a known v1 limitation
-// inherited from the upstream plugin.
-const STRICT_IMPORT_RESOLUTION_SETTINGS = {
-  'testing-library/utils-module': 'off',
-  'testing-library/custom-renders': 'off',
-  'testing-library/custom-queries': 'off',
-};
-
-function withStrictImportResolution(rule: Rule.RuleModule): Rule.RuleModule {
-  return {
-    ...rule,
-    create(context: Rule.RuleContext) {
-      const overriddenContext = Object.create(context, {
-        settings: {
-          value: { ...context.settings, ...STRICT_IMPORT_RESOLUTION_SETTINGS },
-          enumerable: true,
-        },
-      });
-      return rule.create(overriddenContext);
-    },
-  };
 }
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
