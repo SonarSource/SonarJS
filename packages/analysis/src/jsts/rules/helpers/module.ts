@@ -17,7 +17,13 @@
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { type Node, getUniqueWriteReference, getVariableFromScope, isIdentifier } from './ast.js';
+import {
+  type Node,
+  getUniqueWriteReference,
+  getVariableFromScope,
+  isIdentifier,
+  isTypeOnlyImport,
+} from './ast.js';
 import {
   getDependenciesSanitizePaths,
   setCurrentFileInlineDependencies,
@@ -25,6 +31,34 @@ import {
 
 export function getImportDeclarations(context: Rule.RuleContext): estree.ImportDeclaration[] {
   return context.sourceCode.ast.body.filter(node => node.type === 'ImportDeclaration');
+}
+
+type ImportSpecifierWithKind = estree.ImportSpecifier & { importKind?: string | null };
+
+export function getRuntimeImportDeclarations(
+  context: Rule.RuleContext,
+): estree.ImportDeclaration[] {
+  return getImportDeclarations(context).filter(isRuntimeImportDeclaration);
+}
+
+function isRuntimeImportDeclaration(declaration: estree.ImportDeclaration): boolean {
+  if (isTypeOnlyImport(declaration)) {
+    return false;
+  }
+
+  return (
+    declaration.specifiers.length === 0 ||
+    declaration.specifiers.some(specifier => !isTypeOnlyImportSpecifier(specifier))
+  );
+}
+
+function isTypeOnlyImportSpecifier(
+  specifier: estree.ImportDeclaration['specifiers'][number],
+): boolean {
+  return (
+    specifier.type === 'ImportSpecifier' &&
+    (specifier as ImportSpecifierWithKind).importKind === 'type'
+  );
 }
 
 /**

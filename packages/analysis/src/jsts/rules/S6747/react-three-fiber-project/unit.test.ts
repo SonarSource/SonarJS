@@ -21,6 +21,7 @@ import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/tester
 import { describe, it } from 'node:test';
 
 const dirname = join(import.meta.dirname, 'fixtures');
+const noDependencyDirname = join(import.meta.dirname, '../non-react-project/fixtures');
 const upstreamRule = reactRules['no-unknown-property'];
 
 // Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
@@ -110,6 +111,22 @@ const fragmentShader = 'void main() {}';
       {
         code: `<mesh position:x={1} />;`,
         filename: join(dirname, 'filename.jsx'),
+        errors: 1,
+      },
+    ],
+  });
+});
+
+describe('S6747 React Three Fiber import detection', () => {
+  process.chdir(noDependencyDirname);
+  const ruleTester = new NoTypeCheckingRuleTester();
+  ruleTester.run('S6747 reports React Three Fiber props with only a type import', rule, {
+    valid: [],
+    invalid: [
+      {
+        code: `import type { ThreeElements } from '@react-three/fiber';
+<mesh position={[1, 2, 3]} />;`,
+        filename: join(noDependencyDirname, 'filename.tsx'),
         errors: 1,
       },
     ],
