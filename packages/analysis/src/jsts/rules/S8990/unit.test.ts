@@ -61,7 +61,9 @@ describe('S8990', () => {
               import { fireEvent, screen } from '@testing-library/react';
               fireEvent.click(screen.findByRole('button'));
             `,
-          errors: [{ messageId: 'noPromiseInFireEvent' }],
+          // assert the message text to lock in the Sonar override (RuleTester forbids
+          // pairing `message` with `messageId`; the other cases cover the messageId)
+          errors: [{ message: "Pass a DOM element to 'fireEvent', not this promise." }],
         },
         {
           // variable that still holds the unawaited async query
