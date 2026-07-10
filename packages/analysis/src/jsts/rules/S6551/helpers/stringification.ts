@@ -84,7 +84,7 @@ function classifyTypeToStringification(
     }
     return options.checkUnknown ? POSSIBLE_DEFAULT_TO_STRING : USEFUL_TO_STRING;
   }
-  if (isPrimitiveStringifiable(type) || isIgnoredType(type, options.ignoredTypeNames)) {
+  if (isPrimitiveStringifiable(type) || isIgnoredType(type, checker, options.ignoredTypeNames)) {
     return USEFUL_TO_STRING;
   }
   if (type.isIntersection()) {
@@ -200,9 +200,43 @@ function isTypeParameter(type: ts.Type) {
   return (type.flags & ts.TypeFlags.TypeParameter) !== 0;
 }
 
-function isIgnoredType(type: ts.Type, ignoredTypeNames: readonly string[]) {
+function isIgnoredType(
+  type: ts.Type,
+  checker: ts.TypeChecker,
+  ignoredTypeNames: readonly string[],
+  visited = new Set<ts.Type>(),
+) {
+  if (visited.has(type)) {
+    return false;
+  }
+  visited.add(type);
+
   const name = type.aliasSymbol?.name ?? type.getSymbol()?.name;
-  return name !== undefined && ignoredTypeNames.includes(name);
+  if (name !== undefined && ignoredTypeNames.includes(name)) {
+    return true;
+  }
+
+  return getBaseTypes(type, checker).some(baseType =>
+    isIgnoredType(baseType, checker, ignoredTypeNames, visited),
+  );
+}
+
+function getBaseTypes(type: ts.Type, checker: ts.TypeChecker) {
+  if (!(type.flags & ts.TypeFlags.Object)) {
+    return [];
+  }
+
+  const objectType = type as ts.ObjectType;
+  const baseTypeOwner =
+    objectType.objectFlags & ts.ObjectFlags.Reference
+      ? (type as ts.TypeReference).target
+      : objectType;
+
+  if (!(baseTypeOwner.objectFlags & ts.ObjectFlags.ClassOrInterface)) {
+    return [];
+  }
+
+  return checker.getBaseTypes(baseTypeOwner as ts.InterfaceType) ?? [];
 }
 
 function isToStringLikeFromObject(type: ts.Type, checker: ts.TypeChecker): boolean | undefined {

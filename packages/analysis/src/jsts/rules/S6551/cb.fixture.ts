@@ -73,6 +73,14 @@ function lodashNamespaceToStringWithIgnoredType(value: Error) {
   return _.toString(value); // Compliant
 }
 
+class ExtendedIgnoredError extends Error {}
+
+function lodashNamespaceToStringWithIgnoredBaseType(value: ExtendedIgnoredError) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Compliant
+}
+
 type ObjectWithCustomToString = object & { toString(): string };
 
 function lodashNamespaceToStringWithIntersection(value: object & ObjectWithCustomToString) {
