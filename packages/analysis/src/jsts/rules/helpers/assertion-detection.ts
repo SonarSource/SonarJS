@@ -41,12 +41,14 @@ import { isIdentifier } from './ast.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
 import { getFullyQualifiedNameTS, importsModuleTS } from './module-ts.js';
 
+const PLAYWRIGHT_TEST_MODULE = '@playwright/test';
+
 const ASSERTION_LIBRARIES = [
   'chai',
   'sinon',
   'vitest',
   'supertest',
-  '@playwright/test',
+  PLAYWRIGHT_TEST_MODULE,
   'assert',
   'assert/strict',
   'node:assert',
@@ -54,11 +56,11 @@ const ASSERTION_LIBRARIES = [
   'uvu/assert',
 ];
 // runners that expose assertion APIs as globals (no import required).
-const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', '@playwright/test'];
+const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', PLAYWRIGHT_TEST_MODULE];
 
 const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
   '@jest/globals',
-  '@playwright/test',
+  PLAYWRIGHT_TEST_MODULE,
   'chai',
   'cypress',
   'jasmine',
@@ -72,7 +74,7 @@ const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
 
 const SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES = [
   '@jest/globals',
-  '@playwright/test',
+  PLAYWRIGHT_TEST_MODULE,
   'chai',
   'cypress',
   'jasmine',
@@ -121,8 +123,8 @@ const UVU_ASSERT_METHODS = new Set([
   'not.throws',
 ]);
 
-const JS_PLAYWRIGHT_EXPECT_POLL_FQN = '@playwright.test.expect.poll';
-const TS_PLAYWRIGHT_EXPECT_POLL_FQN = '@playwright/test.expect.poll';
+const JS_PLAYWRIGHT_EXPECT_POLL_FQN = `${PLAYWRIGHT_TEST_MODULE.replace('/', '.')}.expect.poll`;
+const TS_PLAYWRIGHT_EXPECT_POLL_FQN = `${PLAYWRIGHT_TEST_MODULE}.expect.poll`;
 const JS_UVU_ASSERT_FQN_PREFIX = 'uvu.assert.';
 const TS_UVU_ASSERT_FQN_PREFIX = 'uvu/assert.';
 
@@ -367,7 +369,7 @@ function isPlaywrightExpectPollCall(
   return (
     callee.object.type === 'Identifier' &&
     callee.object.name === 'expect' &&
-    importsOrDependsOnModule(context, ['@playwright/test'], ['@playwright/test'])
+    importsOrDependsOnModule(context, [PLAYWRIGHT_TEST_MODULE], [PLAYWRIGHT_TEST_MODULE])
   );
 }
 
@@ -560,9 +562,9 @@ function isPlaywrightExpectPollCallTS(
   return (
     ts.isIdentifier(call.expression.expression) &&
     call.expression.expression.text === 'expect' &&
-    (importsModuleTS(call.getSourceFile(), ['@playwright/test']) ||
+    (importsModuleTS(call.getSourceFile(), [PLAYWRIGHT_TEST_MODULE]) ||
       (context !== undefined &&
-        importsOrDependsOnModule(context, ['@playwright/test'], ['@playwright/test'])))
+        importsOrDependsOnModule(context, [PLAYWRIGHT_TEST_MODULE], [PLAYWRIGHT_TEST_MODULE])))
   );
 }
 
