@@ -55,18 +55,26 @@ const FALSE_POSITIVE_ESCAPES: readonly FalsePositiveEscape[] = [
 export function getActiveFalsePositiveEscapes(
   signals: FalsePositiveSignals,
 ): FalsePositiveEscape[] {
-  return FALSE_POSITIVE_ESCAPES.filter(escape => escape.isActive(signals));
+  return FALSE_POSITIVE_ESCAPES.filter(falsePositiveEscape =>
+    falsePositiveEscape.isActive(signals),
+  );
 }
 
 export function getIgnoredProps(activeEscapes: readonly FalsePositiveEscape[]): string[] {
-  return [...new Set(activeEscapes.flatMap(escape => escape.ignoredProps ?? []))];
+  return [
+    ...new Set(
+      activeEscapes.flatMap(falsePositiveEscape => falsePositiveEscape.ignoredProps ?? []),
+    ),
+  ];
 }
 
 export function shouldSuppressReport(
   activeEscapes: readonly FalsePositiveEscape[],
   descriptor: Rule.ReportDescriptor,
 ): boolean {
-  return activeEscapes.some(escape => escape.shouldSuppressReport?.(descriptor));
+  return activeEscapes.some(falsePositiveEscape =>
+    falsePositiveEscape.shouldSuppressReport?.(descriptor),
+  );
 }
 
 function hasRuntimeImport(signals: FalsePositiveSignals, moduleNames: readonly string[]): boolean {
