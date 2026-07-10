@@ -205,7 +205,7 @@ function isIgnoredType(
   checker: ts.TypeChecker,
   ignoredTypeNames: readonly string[],
   visited = new Set<ts.Type>(),
-) {
+): boolean {
   if (visited.has(type)) {
     return false;
   }
@@ -221,7 +221,7 @@ function isIgnoredType(
   );
 }
 
-function getBaseTypes(type: ts.Type, checker: ts.TypeChecker) {
+function getBaseTypes(type: ts.Type, checker: ts.TypeChecker): ts.BaseType[] {
   if (!(type.flags & ts.TypeFlags.Object)) {
     return [];
   }
