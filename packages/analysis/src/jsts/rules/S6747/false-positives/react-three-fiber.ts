@@ -40,20 +40,32 @@ const R3F_INTRINSIC_ELEMENTS = new Set([
   'meshPhongMaterial',
 ]);
 
-const R3F_INTRINSIC_PROPS = new Set([
-  'args',
-  'attach',
-  'color',
-  'distance',
-  'fragmentShader',
-  'intensity',
-  'position',
-  'rotation',
-  'scale',
-  'transparent',
-  'uniforms',
-  'vertexShader',
-  'wireframe',
+const R3F_COMMON_PROPS = new Set(['args', 'attach']);
+
+const R3F_OBJECT_3D_ELEMENTS = new Set([
+  'ambientLight',
+  'pointLight',
+  'spotLight',
+  'directionalLight',
+  'mesh',
+  'group',
+  'scene',
+  'perspectiveCamera',
+  'orthographicCamera',
+]);
+
+const R3F_ELEMENT_PROPS = new Map([
+  ['ambientLight', new Set(['color', 'intensity'])],
+  ['pointLight', new Set(['color', 'distance', 'intensity'])],
+  ['spotLight', new Set(['color', 'distance', 'intensity'])],
+  ['directionalLight', new Set(['color', 'intensity'])],
+  [
+    'shaderMaterial',
+    new Set(['fragmentShader', 'transparent', 'uniforms', 'vertexShader', 'wireframe']),
+  ],
+  ['meshBasicMaterial', new Set(['color', 'transparent', 'wireframe'])],
+  ['meshStandardMaterial', new Set(['color', 'transparent', 'wireframe'])],
+  ['meshPhongMaterial', new Set(['color', 'transparent', 'wireframe'])],
 ]);
 
 export function isReactThreeFiberIntrinsicProp(descriptor: Rule.ReportDescriptor): boolean {
@@ -75,14 +87,27 @@ export function isReactThreeFiberIntrinsicProp(descriptor: Rule.ReportDescriptor
   return (
     elementName.type === 'JSXIdentifier' &&
     R3F_INTRINSIC_ELEMENTS.has(elementName.name) &&
-    isReactThreeFiberIntrinsicPropName(node.name)
+    isReactThreeFiberIntrinsicPropName(elementName.name, node.name)
   );
 }
 
-function isReactThreeFiberIntrinsicPropName(name: TSESTree.JSXAttribute['name']): boolean {
+function isReactThreeFiberIntrinsicPropName(
+  elementName: string,
+  name: TSESTree.JSXAttribute['name'],
+): boolean {
   if (name.type !== 'JSXIdentifier') {
     return false;
   }
 
-  return R3F_INTRINSIC_PROPS.has(name.name) || /^(position|rotation|scale)-[xyz]$/.test(name.name);
+  return (
+    R3F_COMMON_PROPS.has(name.name) ||
+    isObject3DTransformProp(elementName, name.name) ||
+    R3F_ELEMENT_PROPS.get(elementName)?.has(name.name) === true
+  );
+}
+
+function isObject3DTransformProp(elementName: string, propName: string): boolean {
+  return (
+    R3F_OBJECT_3D_ELEMENTS.has(elementName) && /^(position|rotation|scale)(-[xyz])?$/.test(propName)
+  );
 }

@@ -27,3 +27,6 @@ import { Canvas } from '@react-three/fiber';
 <span transparent />; // Noncompliant {{Unknown property 'transparent' found}}
 <img position={[1, 2, 3]} />; // Noncompliant {{Unknown property 'position' found}}
 <mesh transparnt />; // Noncompliant {{Unknown property 'transparnt' found}}
+<mesh intensity={1} />; // Noncompliant {{Unknown property 'intensity' found}}
+<ambientLight vertexShader="void main() {}" />; // Noncompliant {{Unknown property 'vertexShader' found}}
+<boxGeometry transparent />; // Noncompliant {{Unknown property 'transparent' found}}
