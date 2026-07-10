@@ -22,6 +22,8 @@ import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 
 const { getLiteralPropValue, getProp, getPropValue } = pkg;
 
+type ArrayElement = NonNullable<TSESTree.ArrayExpression['elements'][number]>;
+
 export function hasAccessibleNameAttribute(
   attributes: JSXOpeningElement['attributes'],
   name: 'aria-label' | 'aria-labelledby',
@@ -201,7 +203,7 @@ function renderedExpressionChildrenOf(node: TSESTree.Node): TSESTree.Node[] {
       }
       return [];
     case 'ArrayExpression':
-      return node.elements.filter((element): element is TSESTree.Node => element !== null);
+      return node.elements.filter(isArrayElement);
     case 'ChainExpression':
       return [node.expression];
     case 'TSAsExpression':
@@ -211,6 +213,10 @@ function renderedExpressionChildrenOf(node: TSESTree.Node): TSESTree.Node[] {
     default:
       return [];
   }
+}
+
+function isArrayElement(element: TSESTree.ArrayExpression['elements'][number]): element is ArrayElement {
+  return element !== null;
 }
 
 function roleMatches(element: TSESTree.JSXElement, predicate: (role: string) => boolean): boolean {
