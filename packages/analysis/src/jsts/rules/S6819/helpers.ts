@@ -163,7 +163,7 @@ function hasDescendantMatchingRole(
   }
 
   const root = jsxElement as unknown as estree.Node;
-  const stack = [...childrenOf(root, sourceCode.visitorKeys)];
+  const stack = [...renderedChildrenOf(root, sourceCode.visitorKeys)];
   while (stack.length > 0) {
     const current = stack.pop();
     if (!current) {
@@ -183,9 +183,18 @@ function hasDescendantMatchingRole(
     ) {
       continue;
     }
-    stack.push(...childrenOf(current, sourceCode.visitorKeys));
+    stack.push(...renderedChildrenOf(current, sourceCode.visitorKeys));
   }
   return false;
+}
+
+function renderedChildrenOf(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): estree.Node[] {
+  if (node.type === 'JSXElement' || node.type === 'JSXFragment') {
+    return (node as unknown as TSESTree.JSXElement | TSESTree.JSXFragment)
+      .children as unknown as estree.Node[];
+  }
+
+  return childrenOf(node, visitorKeys);
 }
 
 function roleMatches(element: TSESTree.JSXElement, predicate: (role: string) => boolean): boolean {
