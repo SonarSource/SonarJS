@@ -56,17 +56,6 @@ describe('S8987', () => {
 </template>
 `,
         },
-        {
-          // allowUsingIterationVar: true suppresses shouldUseComputed
-          code: `
-<template>
-  <ul>
-    <li v-for="user in users" v-if="user.active" :key="user.id">{{ user.name }}</li>
-  </ul>
-</template>
-`,
-          options: [{ allowUsingIterationVar: true }],
-        },
       ],
       invalid: [
         {

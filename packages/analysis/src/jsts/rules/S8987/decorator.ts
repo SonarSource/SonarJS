@@ -30,8 +30,8 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     (context, reportDescriptor) => {
       if ('messageId' in reportDescriptor) {
         const { messageId, data, ...rest } = reportDescriptor;
-        if (messageId === 'shouldUseComputed') {
-          const { iteratorName } = data as { iteratorName: string; kind: string };
+        const iteratorName = (data as Record<string, unknown> | undefined)?.iteratorName;
+        if (messageId === 'shouldUseComputed' && typeof iteratorName === 'string') {
           context.report({
             ...rest,
             message: `Replace \`${iteratorName}\` with a computed property that returns a filtered array.`,
