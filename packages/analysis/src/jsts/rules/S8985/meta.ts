@@ -14,22 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.css;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.jupiter.api.Test;
-import org.sonar.scanner.plugin.api.impl.config.MapSettings;
-
-class CssLanguageTest {
-
-  @Test
-  void test() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(CssLanguage.FILE_SUFFIXES_KEY, CssLanguage.DEFAULT_FILE_SUFFIXES);
-    CssLanguage language = new CssLanguage(settings.asConfig());
-    assertThat(language.getKey()).isEqualTo("css");
-    assertThat(language.getName()).isEqualTo("CSS");
-    assertThat(language.getFileSuffixes()).containsOnly(".css", ".less", ".scss", ".sass");
-  }
-}
+// https://sonarsource.github.io/rspec/#/rspec/S8985/javascript
+export const implementation = 'decorated';
+export const eslintId = 'no-wait-for-side-effects';
+export const externalRules = [
+  { externalPlugin: 'testing-library', externalRule: 'no-wait-for-side-effects' },
+];
+export const quickFixMessage = 'Move the side effect out of the waitFor callback';

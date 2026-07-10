@@ -14,22 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.css;
+// https://sonarsource.github.io/rspec/#/rspec/S8985/javascript
 
-import static org.assertj.core.api.Assertions.assertThat;
+import type { Rule } from 'eslint';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { withStrictImportResolution } from '../helpers/testing-library.js';
+import * as meta from './generated-meta.js';
 
-import org.junit.jupiter.api.Test;
-import org.sonar.scanner.plugin.api.impl.config.MapSettings;
-
-class CssLanguageTest {
-
-  @Test
-  void test() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(CssLanguage.FILE_SUFFIXES_KEY, CssLanguage.DEFAULT_FILE_SUFFIXES);
-    CssLanguage language = new CssLanguage(settings.asConfig());
-    assertThat(language.getKey()).isEqualTo("css");
-    assertThat(language.getName()).isEqualTo("CSS");
-    assertThat(language.getFileSuffixes()).containsOnly(".css", ".less", ".scss", ".sass");
-  }
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  return {
+    ...withStrictImportResolution(rule),
+    meta: generateMeta(meta, rule.meta),
+  };
 }

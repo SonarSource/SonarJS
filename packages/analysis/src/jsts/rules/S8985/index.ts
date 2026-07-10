@@ -14,22 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.css;
+import { rules as testingLibraryRules } from '../external/testing-library.js';
+import { decorate } from './decorator.js';
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.jupiter.api.Test;
-import org.sonar.scanner.plugin.api.impl.config.MapSettings;
-
-class CssLanguageTest {
-
-  @Test
-  void test() {
-    MapSettings settings = new MapSettings();
-    settings.setProperty(CssLanguage.FILE_SUFFIXES_KEY, CssLanguage.DEFAULT_FILE_SUFFIXES);
-    CssLanguage language = new CssLanguage(settings.asConfig());
-    assertThat(language.getKey()).isEqualTo("css");
-    assertThat(language.getName()).isEqualTo("CSS");
-    assertThat(language.getFileSuffixes()).containsOnly(".css", ".less", ".scss", ".sass");
-  }
-}
+export const rule = decorate(testingLibraryRules['no-wait-for-side-effects']);

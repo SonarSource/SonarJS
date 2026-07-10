@@ -21,10 +21,10 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
-import { isGenericType } from '../helpers/type.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
+import * as fp from './false-positives/index.js';
+import type { NoBaseToStringMatcherContext } from './false-positives/helpers.js';
 import * as meta from './generated-meta.js';
-import { isGuardedDirectToStringCall } from './helpers/guarded-tostring.js';
 import { classifyArgumentToStringification, USEFUL_TO_STRING } from './helpers/stringification.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -35,18 +35,17 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     },
     (context, reportDescriptor) => {
       if ('node' in reportDescriptor) {
-        const services = context.sourceCode.parserServices;
-        const node = reportDescriptor.node as TSESTree.Node;
-        if (
-          isGenericType(node, services) ||
-          isGuardedDirectToStringCall(reportDescriptor, context)
-        ) {
-          // we skip
-        } else {
-          const redirectedReport = applyKnownUtilityToStringRedirection(reportDescriptor, context);
-          if (redirectedReport !== undefined) {
-            context.report(redirectedReport);
-          }
+        const ruleContext: NoBaseToStringMatcherContext = {
+          sourceCode: context.sourceCode,
+          services: context.sourceCode.parserServices,
+        };
+        if (fp.isFalsePositive(reportDescriptor, ruleContext)) {
+          return;
+        }
+
+        const redirectedReport = applyKnownUtilityToStringRedirection(reportDescriptor, context);
+        if (redirectedReport !== undefined) {
+          context.report(redirectedReport);
         }
       }
     },
