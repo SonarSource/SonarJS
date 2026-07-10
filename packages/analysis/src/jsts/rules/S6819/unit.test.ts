@@ -51,6 +51,17 @@ describe('S6819 upstream sentinel', () => {
     });
   });
 
+  it('upstream prefer-tag-over-role raises on presentation layout containers that decorator suppresses', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('prefer-tag-over-role', upstreamRule, {
+      valid: [],
+      invalid: [
+        // presentation layout container — suppressed by decorator, raised by upstream
+        { code: `<li role="presentation" aria-hidden="true">Section header</li>`, errors: 1 },
+      ],
+    });
+  });
+
   it('upstream prefer-tag-over-role raises on svg role="img" with accessible labels that decorator suppresses', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('prefer-tag-over-role', upstreamRule, {
