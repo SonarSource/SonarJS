@@ -19,8 +19,6 @@ package org.sonar.plugins.javascript.lcov;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -30,10 +28,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
+import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.scanner.plugin.api.impl.config.MapSettings;
-import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
 
 class CoverageSensorDuplicateSuffixPathReproducerTest {
 
@@ -59,23 +59,25 @@ class CoverageSensorDuplicateSuffixPathReproducerTest {
     DefaultInputFile packageA = tsInputFile(
       "packages/a/src/index.ts",
       String.join(
-        "\n",
-        "export const fromA = 1;",
-        "export function fromPackageA() {",
-        "  return fromA;",
-        "}"
-      ) + "\n"
+          "\n",
+          "export const fromA = 1;",
+          "export function fromPackageA() {",
+          "  return fromA;",
+          "}"
+        ) +
+        "\n"
     );
     DefaultInputFile packageB = tsInputFile(
       "packages/b/src/index.ts",
       String.join(
-        "\n",
-        "export const fromB = 1;",
-        "export function fromPackageB() {",
-        "  return fromB + 1;",
-        "}",
-        "export const uncoveredButCounted = fromB + 2;"
-      ) + "\n"
+          "\n",
+          "export const fromB = 1;",
+          "export function fromPackageB() {",
+          "  return fromB + 1;",
+          "}",
+          "export const uncoveredButCounted = fromB + 2;"
+        ) +
+        "\n"
     );
 
     Path packageADir = Files.createDirectories(tempDir.resolve("packages/a"));
@@ -117,12 +119,13 @@ class CoverageSensorDuplicateSuffixPathReproducerTest {
     DefaultInputFile packageA = tsInputFile(
       "packages/a/src/index.ts",
       String.join(
-        "\n",
-        "export const fromA = 1;",
-        "export function fromPackageA() {",
-        "  return fromA;",
-        "}"
-      ) + "\n"
+          "\n",
+          "export const fromA = 1;",
+          "export function fromPackageA() {",
+          "  return fromA;",
+          "}"
+        ) +
+        "\n"
     );
 
     Path packageACoverageDir = Files.createDirectories(tempDir.resolve("packages/a/coverage"));
@@ -150,23 +153,25 @@ class CoverageSensorDuplicateSuffixPathReproducerTest {
     DefaultInputFile packageA = tsInputFile(
       "packages/a/src/index.ts",
       String.join(
-        "\n",
-        "export const fromA = 1;",
-        "export function fromPackageA() {",
-        "  return fromA;",
-        "}"
-      ) + "\n"
+          "\n",
+          "export const fromA = 1;",
+          "export function fromPackageA() {",
+          "  return fromA;",
+          "}"
+        ) +
+        "\n"
     );
     DefaultInputFile packageB = tsInputFile(
       "packages/b/src/index.ts",
       String.join(
-        "\n",
-        "export const fromB = 1;",
-        "export function fromPackageB() {",
-        "  return fromB + 1;",
-        "}",
-        "export const uncoveredButCounted = fromB + 2;"
-      ) + "\n"
+          "\n",
+          "export const fromB = 1;",
+          "export function fromPackageB() {",
+          "  return fromB + 1;",
+          "}",
+          "export const uncoveredButCounted = fromB + 2;"
+        ) +
+        "\n"
     );
 
     Path packageACoverageDir = Files.createDirectories(tempDir.resolve("packages/a/coverage"));
@@ -204,23 +209,25 @@ class CoverageSensorDuplicateSuffixPathReproducerTest {
     DefaultInputFile packageA = tsInputFile(
       "packages/a/src/index.ts",
       String.join(
-        "\n",
-        "export const fromA = 1;",
-        "export function fromPackageA() {",
-        "  return fromA;",
-        "}"
-      ) + "\n"
+          "\n",
+          "export const fromA = 1;",
+          "export function fromPackageA() {",
+          "  return fromA;",
+          "}"
+        ) +
+        "\n"
     );
     DefaultInputFile packageB = tsInputFile(
       "packages/b/src/index.ts",
       String.join(
-        "\n",
-        "export const fromB = 1;",
-        "export function fromPackageB() {",
-        "  return fromB + 1;",
-        "}",
-        "export const uncoveredButCounted = fromB + 2;"
-      ) + "\n"
+          "\n",
+          "export const fromB = 1;",
+          "export function fromPackageB() {",
+          "  return fromB + 1;",
+          "}",
+          "export const uncoveredButCounted = fromB + 2;"
+        ) +
+        "\n"
     );
 
     Path lcov = tempDir.resolve("duplicate-suffix-relative.lcov");
@@ -255,23 +262,25 @@ class CoverageSensorDuplicateSuffixPathReproducerTest {
     DefaultInputFile packageA = tsInputFile(
       "packages/a/src/index.ts",
       String.join(
-        "\n",
-        "export const fromA = 1;",
-        "export function fromPackageA() {",
-        "  return fromA;",
-        "}"
-      ) + "\n"
+          "\n",
+          "export const fromA = 1;",
+          "export function fromPackageA() {",
+          "  return fromA;",
+          "}"
+        ) +
+        "\n"
     );
     DefaultInputFile packageB = tsInputFile(
       "packages/b/src/index.ts",
       String.join(
-        "\n",
-        "export const fromB = 1;",
-        "export function fromPackageB() {",
-        "  return fromB + 1;",
-        "}",
-        "export const uncoveredButCounted = fromB + 2;"
-      ) + "\n"
+          "\n",
+          "export const fromB = 1;",
+          "export function fromPackageB() {",
+          "  return fromB + 1;",
+          "}",
+          "export const uncoveredButCounted = fromB + 2;"
+        ) +
+        "\n"
     );
 
     Path lcov = tempDir.resolve("duplicate-suffix-absolute.lcov");
@@ -309,12 +318,13 @@ class CoverageSensorDuplicateSuffixPathReproducerTest {
       realBaseDir,
       "packages/a/src/index.ts",
       String.join(
-        "\n",
-        "export const fromA = 1;",
-        "export function fromPackageA() {",
-        "  return fromA;",
-        "}"
-      ) + "\n"
+          "\n",
+          "export const fromA = 1;",
+          "export function fromPackageA() {",
+          "  return fromA;",
+          "}"
+        ) +
+        "\n"
     );
 
     Path lcov = analysisBaseDir.resolve("duplicate-suffix-absolute-alias.lcov");
@@ -348,12 +358,13 @@ class CoverageSensorDuplicateSuffixPathReproducerTest {
       realBaseDir,
       "packages/a/src/index.ts",
       String.join(
-        "\n",
-        "export const fromA = 1;",
-        "export function fromPackageA() {",
-        "  return fromA;",
-        "}"
-      ) + "\n"
+          "\n",
+          "export const fromA = 1;",
+          "export function fromPackageA() {",
+          "  return fromA;",
+          "}"
+        ) +
+        "\n"
     );
 
     Path lcov = realBaseDir.resolve("duplicate-suffix-absolute-alias-spelling.lcov");

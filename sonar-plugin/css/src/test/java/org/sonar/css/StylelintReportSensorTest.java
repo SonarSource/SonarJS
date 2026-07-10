@@ -19,8 +19,6 @@ package org.sonar.css;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.css.StylelintReportSensor.STYLELINT_REPORT_PATHS;
 
-import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
@@ -36,15 +34,17 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Severity;
+import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
-import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
-import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 
 class StylelintReportSensorTest {
 

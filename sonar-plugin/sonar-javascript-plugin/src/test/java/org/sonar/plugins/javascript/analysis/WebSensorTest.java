@@ -33,8 +33,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -62,13 +60,24 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultTextPointer;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultTextRange;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.scanner.plugin.api.impl.rule.ActiveRulesBuilder;
+import org.sonar.scanner.plugin.api.impl.rule.NewActiveRule;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
+import org.sonar.scanner.plugin.api.impl.sensor.issue.DefaultNoSonarFilter;
+import org.sonar.scanner.plugin.api.impl.config.MapSettings;
+import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
@@ -111,15 +120,6 @@ import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.sonarlint.FSListener;
 import org.sonar.plugins.javascript.sonarlint.FSListenerImpl;
-import org.sonar.scanner.plugin.api.impl.config.MapSettings;
-import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
-import org.sonar.scanner.plugin.api.impl.fs.DefaultTextPointer;
-import org.sonar.scanner.plugin.api.impl.fs.DefaultTextRange;
-import org.sonar.scanner.plugin.api.impl.rule.ActiveRulesBuilder;
-import org.sonar.scanner.plugin.api.impl.rule.NewActiveRule;
-import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
-import org.sonar.scanner.plugin.api.impl.sensor.issue.DefaultNoSonarFilter;
-import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 
 class WebSensorTest {
 
@@ -1408,7 +1408,7 @@ class WebSensorTest {
 
     assertThat(inputFile.hasNoSonarAt(7)).isTrue();
     assertThat(context.measures(inputFile.key())).isEmpty();
-    assertThat(context.cpdTokens(inputFile.key())).isNull();
+    assertThat((context.cpdTokens(inputFile.key()))).isNull();
   }
 
   @Test
@@ -1436,11 +1436,11 @@ class WebSensorTest {
     executeSensorMockingResponse(expectedResponse);
     assertThat(testInputFile.hasNoSonarAt(7)).isTrue();
     assertThat(context.measures(testInputFile.key())).isEmpty();
-    assertThat(context.cpdTokens(testInputFile.key())).isNull();
+    assertThat((context.cpdTokens(testInputFile.key()))).isNull();
 
     assertThat(inputFile.hasNoSonarAt(7)).isTrue();
     assertThat(context.measures(inputFile.key())).hasSize(7);
-    assertThat(context.cpdTokens(inputFile.key())).isEmpty();
+    assertThat((context.cpdTokens(inputFile.key()))).isEmpty();
   }
 
   @Test
@@ -2232,11 +2232,11 @@ class WebSensorTest {
   }
 
   private static int optionalInt(JsonElement value) {
-    return value == null || value.isJsonNull() ? 0 : value.getAsInt();
+    return (value == null || value.isJsonNull()) ? 0 : value.getAsInt();
   }
 
   private static String optionalString(JsonElement value) {
-    return value == null || value.isJsonNull() ? "" : value.getAsString();
+    return (value == null || value.isJsonNull()) ? "" : value.getAsString();
   }
 
   private DefaultInputFile createInputFile(SensorContextTester context) {

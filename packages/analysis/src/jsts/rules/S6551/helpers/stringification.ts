@@ -25,6 +25,9 @@ const POSSIBLE_DEFAULT_TO_STRING = 'may';
 export type ToStringClassification =
   typeof USEFUL_TO_STRING | typeof DEFAULT_TO_STRING | typeof POSSIBLE_DEFAULT_TO_STRING;
 
+// These values are fixed on purpose. SonarJS owns the S6551 configuration and does not expose the
+// upstream `no-base-to-string` options to users, so the redirection classification always runs with
+// SonarJS's chosen defaults rather than any user-provided option object.
 const SONAR_TO_STRING_CLASSIFICATION_OPTIONS = {
   // S6551 keeps the upstream default: an unconstrained type parameter `T` is not treated like
   // `unknown`, so `_.toString(value)` stays valid for `function f<T>(value: T)`.
@@ -42,6 +45,11 @@ type ToStringClassificationOptions = {
 /**
  * Extracted copy of the `no-base-to-string` usefulness classification used when S6551 redirects
  * `_.toString(value)` reports from `_` to `value`.
+ *
+ * This mirrors `collectToStringCertainty` from `@typescript-eslint/eslint-plugin`, which is
+ * internal to the upstream rule and therefore not importable. Keep it in sync when bumping
+ * `@typescript-eslint/eslint-plugin` (last aligned with 8.62.0): if the upstream classification
+ * changes, this copy will silently drift and must be updated to match.
  *
  * Classifies how a value will stringify at runtime:
  * - `always`: the value already has a useful string representation;

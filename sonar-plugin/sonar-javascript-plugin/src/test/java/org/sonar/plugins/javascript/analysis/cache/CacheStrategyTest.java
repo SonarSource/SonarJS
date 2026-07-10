@@ -32,7 +32,6 @@ import static org.sonar.plugins.javascript.analysis.cache.CacheStrategy.writeOnl
 import static org.sonar.plugins.javascript.analysis.cache.CacheTestUtils.inputStream;
 
 import com.google.gson.Gson;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -49,6 +48,7 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;

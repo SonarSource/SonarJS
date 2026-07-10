@@ -19,11 +19,11 @@ package org.sonar.plugins.javascript.lcov;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.batch.fs.InputFile;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 
 class FileLocatorTest {
 

@@ -19,7 +19,6 @@ package org.sonar.plugins.javascript.external;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.javascript.TestUtils.createInputFile;
 
-import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,15 +28,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultTextPointer;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultTextRange;
 import org.sonar.api.batch.sensor.SensorContext;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.analysis.JsTsContext;
-import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
-import org.sonar.scanner.plugin.api.impl.fs.DefaultTextPointer;
-import org.sonar.scanner.plugin.api.impl.fs.DefaultTextRange;
 
 class EslintReportImporterTest {
 

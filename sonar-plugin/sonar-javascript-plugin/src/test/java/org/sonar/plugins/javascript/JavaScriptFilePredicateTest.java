@@ -18,7 +18,6 @@ package org.sonar.plugins.javascript;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -30,6 +29,7 @@ import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.scanner.plugin.api.impl.fs.DefaultFileSystem;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 
 class JavaScriptFilePredicateTest {
 
@@ -40,15 +40,13 @@ class JavaScriptFilePredicateTest {
 
   @Test
   void testYamlPredicate() {
-    var baseYamlFile = ""
-      .concat("apiVersion: apps/v1")
+    var baseYamlFile = "".concat("apiVersion: apps/v1")
       .concat(newLine)
       .concat("kind: Deployment")
       .concat(newLine)
       .concat("metadata:")
       .concat(" name: ");
-    var samHeader = ""
-      .concat("Transform: AWS::Serverless-2016-10-31")
+    var samHeader = "".concat("Transform: AWS::Serverless-2016-10-31")
       .concat(newLine)
       .concat("Runtime: nodejs18.x")
       .concat(newLine);
@@ -96,8 +94,7 @@ class JavaScriptFilePredicateTest {
 
   @Test
   void yamlPredicateShouldUseExtensionInsteadOfLanguage() {
-    var samHeader = ""
-      .concat("Transform: AWS::Serverless-2016-10-31")
+    var samHeader = "".concat("Transform: AWS::Serverless-2016-10-31")
       .concat(newLine)
       .concat("Runtime: nodejs18.x")
       .concat(newLine);

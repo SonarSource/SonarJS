@@ -16,19 +16,19 @@
  */
 package org.sonar.plugins.javascript;
 
-import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.InputFile.Type;
-import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
+import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.scanner.plugin.api.impl.rule.ActiveRulesBuilder;
 import org.sonar.scanner.plugin.api.impl.rule.NewActiveRule;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.rule.RulesDefinition;
 
 public class TestUtils {
 
