@@ -124,6 +124,41 @@ describe('S6819', () => {
     });
   });
 
+  // JS-1780: role="presentation" / role="none" on structural containers.
+  it('should not flag presentational layout containers', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - presentation layout containers', rule, {
+      valid: [
+        {
+          code: `
+            <li role="presentation" aria-hidden="true">
+              Section header
+            </li>
+          `,
+        },
+        {
+          code: `
+            <div className="header-cake__title" role="presentation" onClick={onTitleClick}>
+              {children}
+            </div>
+          `,
+        },
+        {
+          code: `<span role="none" aria-hidden="true" className="layout-spacer" />`,
+        },
+        {
+          code: `
+            <ul role="presentation" aria-hidden="true">
+              <li>Decorative item</li>
+            </ul>
+          `,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   // Test for JS-1101: role="img" flagged on non-image visual content and containers
   // These tests demonstrate false positives that occur when role="img" is used on
   // div/span elements containing children or using CSS background-image.

@@ -21,6 +21,7 @@ import type { JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
 import { getElementName } from '../helpers.js';
 import { isCustomCompositeWidget, isGroupedListboxSubgroup } from './composite-widgets.js';
+import { isPresentationalLayoutContainer } from './layout-containers.js';
 import { isDecorativeSvg, isSemanticSvgImg } from './svg.js';
 import {
   isCustomCombobox,
@@ -61,6 +62,7 @@ export function isFalsePositive(node: TSESTree.JSXOpeningElement, sourceCode: So
     isCustomCombobox(role, attributes) ||
     isSeparatorWithChildren(role, node) ||
     isImgRoleWithValidPattern(elementName, role, attributes, node) ||
+    isPresentationalLayoutContainer(elementName, role) ||
     isGroupedListboxSubgroup(role, node, sourceCode) ||
     isCustomCompositeWidget(role, node, sourceCode)
   );
