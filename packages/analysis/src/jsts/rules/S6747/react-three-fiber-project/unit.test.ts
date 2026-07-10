@@ -15,12 +15,34 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from '../rule.js';
+import { rules as reactRules } from '../../external/react.js';
 import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
+
+const dirname = join(import.meta.dirname, 'fixtures');
+const upstreamRule = reactRules['no-unknown-property'];
+
+// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator can be safely removed.
+describe('S6747 upstream sentinel', () => {
+  it('upstream no-unknown-property raises on React Three Fiber props that decorator suppresses', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('no-unknown-property', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          code: `<mesh position={[1, 2, 3]} />;`,
+          filename: join(dirname, 'filename.jsx'),
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
 
 describe('S6747', () => {
-  const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
   ruleTester.run('S6747 ignores props on reviewed React Three Fiber intrinsic elements', rule, {
