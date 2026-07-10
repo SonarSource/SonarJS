@@ -70,7 +70,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
-      if (fp.isFalsePositive(node, context.sourceCode)) {
+      if (fp.isFalsePositive(node)) {
         // Suppress for valid ARIA patterns
         return;
       }
