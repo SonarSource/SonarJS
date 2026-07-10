@@ -609,6 +609,17 @@ describe('S6819', () => {
           `,
           errors: 1,
         },
+        // True positive: render prop option is not owned by the group/listbox
+        {
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                <Widget renderOption={() => <div role="option">Paris</div>} />
+              </div>
+            </div>
+          `,
+          errors: 2,
+        },
       ],
     });
   });
