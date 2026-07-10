@@ -18,36 +18,8 @@
 
 import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { withStrictImportResolution } from '../helpers/testing-library.js';
 import * as meta from './generated-meta.js';
-
-// Without any `testing-library/*` settings, the upstream rule falls back to
-// "aggressive" name-based heuristics for `waitFor`, `fireEvent`, `userEvent`,
-// and `render`: it treats any call merely *named* like one of these as a
-// Testing Library util, regardless of where it's imported from. Forcing these
-// settings (the upstream plugin's own documented recipe for disabling
-// aggressive reporting) switches detection to import resolution instead. The
-// official `@testing-library/*` module check still runs unconditionally, so
-// real Testing Library imports are unaffected.
-const STRICT_IMPORT_RESOLUTION_SETTINGS = {
-  'testing-library/utils-module': 'off',
-  'testing-library/custom-renders': 'off',
-  'testing-library/custom-queries': 'off',
-};
-
-function withStrictImportResolution(rule: Rule.RuleModule): Rule.RuleModule {
-  return {
-    ...rule,
-    create(context: Rule.RuleContext) {
-      const overriddenContext = Object.create(context, {
-        settings: {
-          value: { ...context.settings, ...STRICT_IMPORT_RESOLUTION_SETTINGS },
-          enumerable: true,
-        },
-      });
-      return rule.create(overriddenContext);
-    },
-  };
-}
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return {
