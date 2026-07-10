@@ -29,10 +29,24 @@ import * as meta from './generated-meta.js';
  * Value objects (Point, Size, Color, Matrix, etc.) are intentionally excluded.
  */
 const PAPER_ITEM_CONSTRUCTORS = new Set([
-  'Layer', 'Group', 'Raster', 'Path', 'CompoundPath', 'PointText', 'SymbolItem', 'Project',
-  'Path.Line', 'Path.Circle', 'Path.Rectangle', 'Path.Ellipse',
-  'Path.Arc', 'Path.RegularPolygon', 'Path.Star',
-  'Shape.Circle', 'Shape.Rectangle', 'Shape.Ellipse',
+  'Layer',
+  'Group',
+  'Raster',
+  'Path',
+  'CompoundPath',
+  'PointText',
+  'SymbolItem',
+  'Project',
+  'Path.Line',
+  'Path.Circle',
+  'Path.Rectangle',
+  'Path.Ellipse',
+  'Path.Arc',
+  'Path.RegularPolygon',
+  'Path.Star',
+  'Shape.Circle',
+  'Shape.Rectangle',
+  'Shape.Ellipse',
 ]);
 
 /** DOM selection method names commonly used for element selection */
@@ -267,8 +281,7 @@ function isFqnException(fqn: string): boolean {
   const exactExceptions = ['vue', '@ag-grid-community.core.Grid'];
   const startsWithExceptions = ['aws-cdk-lib', 'cdk8s', '@pulumi', '@cdktf', 'obsidian'];
   return (
-    exactExceptions.includes(fqn) ||
-    startsWithExceptions.some(prefix => fqn.startsWith(prefix))
+    exactExceptions.includes(fqn) || startsWithExceptions.some(prefix => fqn.startsWith(prefix))
   );
 }
 

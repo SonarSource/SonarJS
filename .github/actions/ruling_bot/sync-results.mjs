@@ -19,14 +19,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const currentFilePath = fileURLToPath(import.meta.url);
-const toolsDirectory = path.dirname(currentFilePath);
-const repositoryRoot = path.resolve(toolsDirectory, '..');
+const actionDirectory = path.dirname(currentFilePath);
+const repositoryRoot = path.resolve(actionDirectory, '../../..');
 
-const sourceDirectory = path.resolve(repositoryRoot, process.argv[2] ?? 'packages/ruling/actual');
-const destinationDirectory = path.resolve(
-  repositoryRoot,
-  process.argv[3] ?? 'its/ruling/src/test/expected',
-);
+const sourceDirectory = path.resolve(repositoryRoot, process.argv[2] ?? '');
+const destinationDirectory = path.resolve(repositoryRoot, process.argv[3] ?? '');
+
+if (!process.argv[2] || !process.argv[3]) {
+  throw new Error('Usage: node sync-results.mjs <source-results-path> <destination-results-path>');
+}
 
 ensurePathIsInsideRepository(sourceDirectory, 'source');
 ensurePathIsInsideRepository(destinationDirectory, 'destination');

@@ -240,11 +240,21 @@ describe('S6582 with multiple nullable subjects in comparison', () => {
       ],
       invalid: [
         {
-          // Only one nullable subject (a): fix `a?.module !== b.module` is clean and unambiguous.
+          // Only one nullable subject (a): upstream still reports, but binary-operator rewrites are
+          // suggestion-only starting with typescript-eslint 8.62.1.
           code: `interface Opts { module: number } function f(a: Opts | null, b: Opts): boolean { return !a || a.module !== b.module; }`,
-          output: `interface Opts { module: number } function f(a: Opts | null, b: Opts): boolean { return a?.module !== b.module; }`,
           filename: fixtureFile,
-          errors: 1,
+          errors: [
+            {
+              messageId: 'preferOptionalChain',
+              suggestions: [
+                {
+                  desc: 'Change to an optional chain.',
+                  output: `interface Opts { module: number } function f(a: Opts | null, b: Opts): boolean { return a?.module !== b.module; }`,
+                },
+              ],
+            },
+          ],
         },
       ],
     });
@@ -321,9 +331,18 @@ describe('S6582 with multiple nullable subjects in comparison', () => {
       invalid: [
         {
           code: `interface Opts { module: number } function f(a: Opts | null, b: Opts) { if (!a || !b || a.module !== b.module) {} }`,
-          output: `interface Opts { module: number } function f(a: Opts | null, b: Opts) { if (!a || a.module !== b?.module) {} }`,
           filename: fixtureFile,
-          errors: 1,
+          errors: [
+            {
+              messageId: 'preferOptionalChain',
+              suggestions: [
+                {
+                  desc: 'Change to an optional chain.',
+                  output: `interface Opts { module: number } function f(a: Opts | null, b: Opts) { if (!a || a.module !== b?.module) {} }`,
+                },
+              ],
+            },
+          ],
         },
       ],
     });
@@ -417,19 +436,39 @@ describe('S6582', () => {
           errors: 1,
         },
         {
-          // comparison pattern: !a || a.prop !== b rewrites to a?.prop !== b, which is always boolean — no undefined leak
+          // comparison pattern: !a || a.prop !== b suggests `a?.prop !== b`, which is always boolean
+          // and keeps the report, but upstream no longer auto-applies trailing binary-operator rewrites.
           code: `interface Opts { module: number; } function changesAffect(a: Opts | null, b: Opts): boolean { return !a || a.module !== b.module; }`,
-          output: `interface Opts { module: number; } function changesAffect(a: Opts | null, b: Opts): boolean { return a?.module !== b.module; }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-          errors: 1,
+          errors: [
+            {
+              messageId: 'preferOptionalChain',
+              suggestions: [
+                {
+                  desc: 'Change to an optional chain.',
+                  output: `interface Opts { module: number; } function changesAffect(a: Opts | null, b: Opts): boolean { return a?.module !== b.module; }`,
+                },
+              ],
+            },
+          ],
         },
         {
-          // comparison pattern (&&): a && a.prop === b rewrites to a?.prop === b, which is always boolean — no undefined leak
-          // inspired by tsc.js ruling patterns like `node.parent.parent && node.parent.parent.kind === 163`
+          // comparison pattern (&&): a && a.prop === b suggests `a?.prop === b`, which is always
+          // boolean. Upstream keeps trailing binary-operator rewrites as suggestions only.
+          // Inspired by tsc.js ruling patterns like `node.parent.parent && node.parent.parent.kind === 163`.
           code: `interface Node { kind: number; } function f(node: Node | null): void { if (node && node.kind === 160) {} }`,
-          output: `interface Node { kind: number; } function f(node: Node | null): void { if (node?.kind === 160) {} }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-          errors: 1,
+          errors: [
+            {
+              messageId: 'preferOptionalChain',
+              suggestions: [
+                {
+                  desc: 'Change to an optional chain.',
+                  output: `interface Node { kind: number; } function f(node: Node | null): void { if (node?.kind === 160) {} }`,
+                },
+              ],
+            },
+          ],
         },
         {
           // loose inequality: a && a.p != null rewrites to a?.p != null, which is always boolean — no undefined leak
