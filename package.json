@@ -120,7 +120,7 @@
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-hooks": "7.1.1",
-    "eslint-plugin-unicorn": "65.0.1",
+    "eslint-plugin-unicorn": "71.0.0",
     "functional-red-black-tree": "1.0.1",
     "globals": "17.7.0",
     "htmlparser2": "12.0.0",
