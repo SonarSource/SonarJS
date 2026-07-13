@@ -1,6 +1,6 @@
 {
-  "title": "Side effects should not be performed inside Vue computed properties",
-  "type": "BUG",
+  "title": "\"v-if\" and \"v-for\" should not be used on the same element",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
@@ -15,8 +15,8 @@
     ]
   },
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-8988",
-  "sqKey": "S8988",
+  "ruleSpecification": "RSPEC-8987",
+  "sqKey": "S8987",
   "scope": "Main",
   "defaultQualityProfiles": [
     "Sonar way"
@@ -24,7 +24,7 @@
   "quickfix": "infeasible",
   "code": {
     "impacts": {
-      "RELIABILITY": "MEDIUM"
+      "MAINTAINABILITY": "MEDIUM"
     },
     "attribute": "LOGICAL"
   },
