@@ -1,5 +1,5 @@
 {
-  "title": "Side effects should not be performed inside \"waitFor\" callbacks",
+  "title": "Promises should not be passed to \"fireEvent\"",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -16,17 +16,18 @@
       "@testing-library/react",
       "@testing-library/vue",
       "@testing-library/angular",
-      "@testing-library/svelte"
+      "@testing-library/svelte",
+      "storybook"
     ]
   },
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-8985",
-  "sqKey": "S8985",
+  "ruleSpecification": "RSPEC-8990",
+  "sqKey": "S8990",
   "scope": "Tests",
-  "quickfix": "covered",
+  "quickfix": "infeasible",
   "code": {
     "impacts": {
-      "RELIABILITY": "MEDIUM"
+      "RELIABILITY": "HIGH"
     },
     "attribute": "LOGICAL"
   },

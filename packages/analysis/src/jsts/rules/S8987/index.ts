@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rules } from '../external/a11y.js';
+import { rules } from '../external/vue.js';
 import { decorate } from './decorator.js';
 
-export const rule = decorate(rules['no-noninteractive-element-to-interactive-role']);
+export const rule = decorate(rules['no-use-v-if-with-v-for']);

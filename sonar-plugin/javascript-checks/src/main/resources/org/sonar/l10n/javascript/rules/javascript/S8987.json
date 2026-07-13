@@ -1,6 +1,6 @@
 {
-  "title": "HTML elements with v-for should have a :key attribute",
-  "type": "BUG",
+  "title": "\"v-if\" and \"v-for\" should not be used on the same element",
+  "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
@@ -15,8 +15,8 @@
     ]
   },
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-8982",
-  "sqKey": "S8982",
+  "ruleSpecification": "RSPEC-8987",
+  "sqKey": "S8987",
   "scope": "Main",
   "defaultQualityProfiles": [
     "Sonar way"
@@ -24,7 +24,7 @@
   "quickfix": "infeasible",
   "code": {
     "impacts": {
-      "RELIABILITY": "HIGH"
+      "MAINTAINABILITY": "MEDIUM"
     },
     "attribute": "LOGICAL"
   },

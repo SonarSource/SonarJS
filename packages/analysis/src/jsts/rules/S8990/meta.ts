@@ -14,7 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rules } from '../external/a11y.js';
-import { decorate } from './decorator.js';
-
-export const rule = decorate(rules['no-noninteractive-element-to-interactive-role']);
+// https://sonarsource.github.io/rspec/#/rspec/S8990/javascript
+export const implementation = 'decorated';
+export const eslintId = 'no-promise-in-fire-event';
+export const externalRules = [
+  { externalPlugin: 'testing-library', externalRule: 'no-promise-in-fire-event' },
+];
