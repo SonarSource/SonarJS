@@ -46,6 +46,32 @@ describe('S9011', () => {
           // not a button
           code: `const d = <div>Search</div>;`,
         },
+        {
+          // real-world pattern: search form with an explicitly-typed submit button
+          // and a same-form "clear" button explicitly typed as "button"
+          code: `
+function SearchForm({ onSearch, onClear }) {
+  return (
+    <form onSubmit={onSearch}>
+      <input type="text" name="q" />
+      <button type="submit">Search</button>
+      <button type="button" onClick={onClear}>Clear</button>
+    </form>
+  );
+}`,
+        },
+        {
+          // real-world pattern: dialog footer button with a dynamic className
+          // but a static, valid type
+          code: `
+function ModalFooter({ isSaving, onSave }) {
+  return (
+    <button type="submit" className={isSaving ? 'btn-loading' : 'btn'} disabled={isSaving} onClick={onSave}>
+      Save
+    </button>
+  );
+}`,
+        },
       ],
       invalid: [
         {
@@ -75,6 +101,49 @@ describe('S9011', () => {
             },
           ],
         },
+        {
+          // real-world pattern: icon-only toolbar button with a click handler, no type
+          code: `
+function ToolbarButton({ onClick, icon, title }) {
+  return (
+    <button className="toolbar-button" onClick={onClick} title={title}>
+      <Icon path={icon} size={0.72} />
+    </button>
+  );
+}`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // real-world pattern: two conditionally-rendered button variants (a play/pause
+          // toggle), neither one typed
+          code: `
+function PlayPauseButton({ playing, canPlay, canInteract, onPlay, onPause }) {
+  return playing
+    ? <button onClick={onPause} disabled={!canInteract}><Icon name="pause" /></button>
+    : <button onClick={onPlay} disabled={!canPlay}><Icon name="play" /></button>;
+}`,
+          errors: [
+            { message: 'Add an explicit "type" attribute to this button.' },
+            { message: 'Add an explicit "type" attribute to this button.' },
+          ],
+        },
+        {
+          // real-world pattern: list of buttons rendered from an array (e.g. pagination),
+          // none of them typed
+          code: `
+function Pagination({ pages, onSelect }) {
+  return (
+    <div className="pagination">
+      {pages.map(page => (
+        <button key={page} className="page-link" onClick={() => onSelect(page)}>
+          {page}
+        </button>
+      ))}
+    </div>
+  );
+}`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
       ],
     });
   });
@@ -96,6 +165,22 @@ describe('S9011', () => {
         },
         {
           code: `<template><div>Search</div></template>`,
+        },
+        {
+          // real-world pattern: view-mode tab toggle group, each button explicitly typed
+          code: `
+<template>
+  <div class="tabs">
+    <button type="button" :class="{ active: viewMode === 'report' }" @click="setViewMode('report')">Report</button>
+    <button type="button" :class="{ active: viewMode === 'graph' }" @click="setViewMode('graph')">Graph</button>
+  </div>
+</template>`,
+        },
+        {
+          // real-world pattern: bound type from a ternary of literals - unlike React,
+          // vue/html-button-has-type never inspects a bound expression's contents, so any
+          // non-empty binding (literal, ternary, or fully dynamic) is treated as compliant
+          code: `<template><button :type="isSubmit ? 'submit' : 'button'" @click="handleClick">{{ label }}</button></template>`,
         },
       ],
       invalid: [
@@ -119,6 +204,28 @@ describe('S9011', () => {
                 'Replace this invalid "type" value "action" with one of "button", "submit", or "reset".',
             },
           ],
+        },
+        {
+          // real-world pattern: icon-only button component using a slot, no type
+          code: `
+<template>
+  <button :aria-label="title" role="button" :disabled="disabled" class="icon-button">
+    <slot />
+  </button>
+</template>`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // real-world pattern: v-for rendered action buttons, none of them typed
+          code: `
+<template>
+  <ul class="filters">
+    <li v-for="tag in tags" :key="tag.id">
+      <button @click="toggleTag(tag)">{{ tag.name }}</button>
+    </li>
+  </ul>
+</template>`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
       ],
     });
