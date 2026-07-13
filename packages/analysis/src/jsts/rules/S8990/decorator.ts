@@ -22,12 +22,14 @@ import { withStrictImportResolution } from '../helpers/testing-library.js';
 import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  const ruleMeta = rule.meta ?? {};
+
   return {
     ...withStrictImportResolution(rule),
     meta: generateMeta(meta, {
-      ...rule.meta!,
+      ...ruleMeta,
       messages: {
-        ...rule.meta!.messages,
+        ...ruleMeta.messages,
         // Single Sonar message for all upstream branches (async query, traced variable, `new Promise`).
         noPromiseInFireEvent: "Pass a DOM element to 'fireEvent', not this promise.",
       },
