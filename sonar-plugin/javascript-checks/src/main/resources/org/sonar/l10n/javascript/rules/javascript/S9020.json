@@ -1,0 +1,42 @@
+{
+  "title": "Use \"find*\" to query Testing Library elements that may not be available yet",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "testing-library"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "@testing-library/dom",
+      "@testing-library/react",
+      "@testing-library/vue",
+      "@testing-library/angular",
+      "@testing-library/svelte",
+      "storybook"
+    ]
+  },
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-9020",
+  "sqKey": "S9020",
+  "scope": "Tests",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
+}
