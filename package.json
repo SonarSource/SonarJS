@@ -141,7 +141,7 @@
     "stylelint": "17.14.0",
     "stylelint-config-html": "1.1.0",
     "ts-api-utils": "2.5.0",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "vue-eslint-parser": "10.4.1",
     "yaml": "2.9.0"
   },
