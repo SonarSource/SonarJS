@@ -14,9 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { deepStrictEqual, ok } from 'node:assert';
+import { deepStrictEqual, doesNotThrow } from 'node:assert';
 import { describe, it } from 'node:test';
-import { getUpstreamRecommendedConfiguration } from '../external/a11y.js';
 import { defaultOptions } from '../helpers/configs.js';
 import { fields } from './config.js';
 import { rule } from './index.js';
@@ -24,103 +23,129 @@ import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/r
 
 type Allowlist = Record<string, string[]>;
 
-function isAllowlist(
-  configuration: Record<string, boolean | string[]>,
-): configuration is Allowlist {
-  return Object.values(configuration).every(Array.isArray);
-}
-
-const upstreamConfiguration = getUpstreamRecommendedConfiguration(
-  'no-noninteractive-element-to-interactive-role',
-);
-if (!isAllowlist(upstreamConfiguration)) {
-  throw new Error(
-    'eslint-plugin-jsx-a11y: expected S6842 upstream config to contain only string[] values',
-  );
-}
-const UPSTREAM_ALLOWLIST = upstreamConfiguration;
-
 const OPTIONS = defaultOptions(fields) as [Allowlist];
-const [allowlist] = OPTIONS;
-const COMPOSITE_VALID_CASES = [
-  {
-    code: `<ul role="listbox"><li role="option">Item</li></ul>`,
-    options: OPTIONS,
-  },
-  {
-    code: `<ol role="listbox"><li role="option">Item</li></ol>`,
-    options: OPTIONS,
-  },
-  {
-    code: `<table role="grid"><tr><td>Item</td></tr></table>`,
-    options: OPTIONS,
-  },
-  {
-    code: `<table><tr><td role="gridcell">Item</td></tr></table>`,
-    options: OPTIONS,
-  },
-  {
-    code: `<fieldset role="radiogroup"><legend>Label</legend></fieldset>`,
-    options: OPTIONS,
-  },
-  {
-    code: `<fieldset role="presentation"><legend>Label</legend></fieldset>`,
-    options: OPTIONS,
-  },
-];
+
+// The flat, spec-derived allowlist exposed as default options. Context-sensitive elements
+// (li, img, figure, label), "any role" elements and the list-container `toolbar` structure role
+// are enforced by the decorator, not by these options.
+const EXPECTED_ALLOWLIST: Allowlist = {
+  ul: ['listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree'],
+  ol: ['listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree'],
+  menu: ['listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree'],
+  nav: ['menu', 'menubar', 'tablist'],
+  h1: ['tab'],
+  h2: ['tab'],
+  h3: ['tab'],
+  h4: ['tab'],
+  h5: ['tab'],
+  h6: ['tab'],
+  fieldset: ['radiogroup', 'presentation'],
+  td: ['gridcell'],
+  progress: ['progressbar'],
+  li: [],
+};
+
+const LIST_CONTAINER_ROLES = ['listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree'];
 
 const VALID_CASES = [
-  ...allowlist.ul.map(role => ({
-    code: `<ul role="${role}"><li>Item</li></ul>`,
+  // Composite list containers: every spec-allowed role, plus the `toolbar` structure role.
+  ...['ul', 'ol', 'menu'].flatMap(tag =>
+    [...LIST_CONTAINER_ROLES, 'toolbar'].map(role => ({
+      code: `<${tag} role="${role}"><li>Item</li></${tag}>`,
+      options: OPTIONS,
+    })),
+  ),
+  // A list child may take any role once its parent no longer exposes the list role.
+  { code: `<ul role="menu"><li role="menuitem">Item</li></ul>`, options: OPTIONS },
+  { code: `<ol role="listbox"><li role="option">Item</li></ol>`, options: OPTIONS },
+  { code: `<div><li role="button">Item</li></div>`, options: OPTIONS },
+  { code: `<div role="navigation"><li role="menuitem">Item</li></div>`, options: OPTIONS },
+  // nav / headings composite overrides.
+  ...['menu', 'menubar', 'tablist'].map(role => ({
+    code: `<nav role="${role}">Item</nav>`,
     options: OPTIONS,
   })),
-  ...allowlist.ol.map(role => ({
-    code: `<ol role="${role}"><li>Item</li></ol>`,
+  ...['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].map(tag => ({
+    code: `<${tag} role="tab">Item</${tag}>`,
     options: OPTIONS,
   })),
-  ...allowlist.li.map(role => ({
-    code: `<li role="${role}">Item</li>`,
+  { code: `<fieldset role="radiogroup"><legend>Label</legend></fieldset>`, options: OPTIONS },
+  { code: `<fieldset role="presentation"><legend>Label</legend></fieldset>`, options: OPTIONS },
+  { code: `<table><tr><td role="gridcell">Item</td></tr></table>`, options: OPTIONS },
+  { code: `<progress role="progressbar" />`, options: OPTIONS },
+  // "Any role" elements: table family and text-level elements accept any role.
+  ...['button', 'grid', 'treegrid', 'menuitem'].flatMap(role =>
+    ['table', 'tbody', 'thead', 'tfoot'].map(tag => ({
+      code:
+        tag === 'table'
+          ? `<table role="${role}"><tr><td>Item</td></tr></table>`
+          : `<table><${tag} role="${role}"><tr><td>Item</td></tr></${tag}></table>`,
+      options: OPTIONS,
+    })),
+  ),
+  ...['p', 'blockquote', 'time', 'output', 'abbr'].map(tag => ({
+    code: `<${tag} role="button">Item</${tag}>`,
     options: OPTIONS,
   })),
-  ...COMPOSITE_VALID_CASES,
+  // img with an accessible name and a permitted role.
+  { code: `<img alt="Logo" role="button" />`, options: OPTIONS },
+  { code: `<img aria-label="Logo" role="tab" />`, options: OPTIONS },
+  { code: `<img alt={label} role="button" />`, options: OPTIONS },
+  { code: `<img aria-label={t('logo')} role="tab" />`, options: OPTIONS },
+  { code: `<img aria-labelledby={computedId} role="link" />`, options: OPTIONS },
+  { code: `<img alt={\`Logo\`} role="button" />`, options: OPTIONS },
+  { code: `<img aria-label={\`\${x} logo\`} role="tab" />`, options: OPTIONS },
+  // figure without a caption, and a non-associated label, accept any role.
+  { code: `<figure role="button"><img alt="x" /></figure>`, options: OPTIONS },
+  { code: `<label role="button">Text</label>`, options: OPTIONS },
+];
+
+const INVALID_CASES = [
+  // treegrid is not permitted on ul/ol.
+  { code: `<ul role="treegrid"><li>Item</li></ul>`, options: OPTIONS, errors: 1 },
+  { code: `<ol role="treegrid"><li>Item</li></ol>`, options: OPTIONS, errors: 1 },
+  // Non-composite interactive roles on list containers.
+  { code: `<ul role="button"><li>Item</li></ul>`, options: OPTIONS, errors: 1 },
+  { code: `<ol role="button"><li>Item</li></ol>`, options: OPTIONS, errors: 1 },
+  { code: `<menu role="button"><li>Item</li></menu>`, options: OPTIONS, errors: 1 },
+  // A list child inside a real list is restricted to listitem.
+  { code: `<ul><li role="menuitem">Item</li></ul>`, options: OPTIONS, errors: 1 },
+  { code: `<ul role="list"><li role="button">Item</li></ul>`, options: OPTIONS, errors: 1 },
+  { code: `<ul role="list"><li role="toolbar">Item</li></ul>`, options: OPTIONS, errors: 1 },
+  // img without an accessible name, or with a role it does not permit.
+  { code: `<img role="button" />`, options: OPTIONS, errors: 1 },
+  { code: `<img alt="" role="button" />`, options: OPTIONS, errors: 1 },
+  { code: `<img alt={\`\`} role="button" />`, options: OPTIONS, errors: 1 },
+  { code: `<img alt={null} role="button" />`, options: OPTIONS, errors: 1 },
+  { code: `<img aria-label={null} role="button" />`, options: OPTIONS, errors: 1 },
+  { code: `<img aria-labelledby={null} role="button" />`, options: OPTIONS, errors: 1 },
+  { code: `<img alt="Logo" role="combobox" />`, options: OPTIONS, errors: 1 },
+  // figure with a caption, and an associated label, are restricted.
+  {
+    code: `<figure role="button"><figcaption>Cap</figcaption></figure>`,
+    options: OPTIONS,
+    errors: 1,
+  },
+  { code: `<label htmlFor="x" role="button">Name</label>`, options: OPTIONS, errors: 1 },
+  { code: `<label role="button"><input type="text" /></label>`, options: OPTIONS, errors: 1 },
+  // nav / headings / progress non-permitted roles.
+  { code: `<nav role="listbox">Item</nav>`, options: OPTIONS, errors: 1 },
+  { code: `<h1 role="button">Item</h1>`, options: OPTIONS, errors: 1 },
+  { code: `<progress role="button" />`, options: OPTIONS, errors: 1 },
 ];
 
 describe('S6842', () => {
-  it('should expose the upstream recommended allowlist as default options', () => {
-    deepStrictEqual(allowlist, UPSTREAM_ALLOWLIST);
+  it('should expose the spec-derived flat allowlist as default options', () => {
+    deepStrictEqual(OPTIONS[0], EXPECTED_ALLOWLIST);
   });
 
-  it('should not flag upstream recommended element/role combinations', () => {
+  it('should report only the element/role combinations forbidden by ARIA in HTML', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
-    ok(
-      VALID_CASES.some(
-        ({ code }) => code === `<ul role="listbox"><li role="option">Item</li></ul>`,
-      ),
+    doesNotThrow(() =>
+      ruleTester.run('no-noninteractive-element-to-interactive-role', rule, {
+        valid: VALID_CASES,
+        invalid: INVALID_CASES,
+      }),
     );
-    ok(
-      VALID_CASES.some(
-        ({ code }) => code === `<ol role="listbox"><li role="option">Item</li></ol>`,
-      ),
-    );
-    ruleTester.run('no-noninteractive-element-to-interactive-role', rule, {
-      valid: VALID_CASES,
-      invalid: [
-        {
-          code: `<ul role="button"><li>Item</li></ul>`,
-          options: OPTIONS,
-          errors: 1,
-        },
-        {
-          code: `<ol role="button"><li>Item</li></ol>`,
-          options: OPTIONS,
-          errors: 1,
-        },
-        {
-          code: `<li role="button">Foo</li>`,
-          options: OPTIONS,
-          errors: 1,
-        },
-      ],
-    });
   });
 });
