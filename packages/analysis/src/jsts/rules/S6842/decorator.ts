@@ -206,7 +206,10 @@ function hasAccessibleNameAttribute(
   if (!attribute) {
     return false;
   }
-  if (isNonEmptyStringAttribute(attribute)) {
+  if (
+    isNonEmptyStringAttribute(attribute) ||
+    isPotentiallyNonEmptyTemplateLiteralAttribute(attribute)
+  ) {
     return true;
   }
 
@@ -230,6 +233,20 @@ function isNonEmptyStringAttribute(attribute: JSXAttribute): boolean {
   }
 
   return false;
+}
+
+function isPotentiallyNonEmptyTemplateLiteralAttribute(attribute: JSXAttribute): boolean {
+  if (
+    attribute.value?.type !== 'JSXExpressionContainer' ||
+    attribute.value.expression.type !== 'TemplateLiteral'
+  ) {
+    return false;
+  }
+
+  return (
+    attribute.value.expression.expressions.length > 0 ||
+    attribute.value.expression.quasis.some(quasi => quasi.value.cooked?.trim() !== '')
+  );
 }
 
 // A figure caption must be the first or last child of the figure per the HTML content model.

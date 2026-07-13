@@ -93,6 +93,8 @@ const VALID_CASES = [
   { code: `<img alt={label} role="button" />`, options: OPTIONS },
   { code: `<img aria-label={t('logo')} role="tab" />`, options: OPTIONS },
   { code: `<img aria-labelledby={computedId} role="link" />`, options: OPTIONS },
+  { code: `<img alt={\`Logo\`} role="button" />`, options: OPTIONS },
+  { code: `<img aria-label={\`\${x} logo\`} role="tab" />`, options: OPTIONS },
   // figure without a caption, and a non-associated label, accept any role.
   { code: `<figure role="button"><img alt="x" /></figure>`, options: OPTIONS },
   { code: `<label role="button">Text</label>`, options: OPTIONS },
@@ -113,6 +115,7 @@ const INVALID_CASES = [
   // img without an accessible name, or with a role it does not permit.
   { code: `<img role="button" />`, options: OPTIONS, errors: 1 },
   { code: `<img alt="" role="button" />`, options: OPTIONS, errors: 1 },
+  { code: `<img alt={\`\`} role="button" />`, options: OPTIONS, errors: 1 },
   { code: `<img alt={null} role="button" />`, options: OPTIONS, errors: 1 },
   { code: `<img aria-label={null} role="button" />`, options: OPTIONS, errors: 1 },
   { code: `<img aria-labelledby={null} role="button" />`, options: OPTIONS, errors: 1 },
