@@ -1,0 +1,17 @@
+{
+"desktop:app/src/ui/changes/changes-list.tsx": [
+851
+],
+"desktop:app/src/ui/changes/commit-message.tsx": [
+514
+],
+"desktop:app/src/ui/diff/diff-options.tsx": [
+81
+],
+"desktop:app/src/ui/history/commit-summary.tsx": [
+422
+],
+"desktop:app/src/ui/window/window-controls.tsx": [
+99
+]
+}
