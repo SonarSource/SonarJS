@@ -38,7 +38,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
 function hasUnsafeFix(node: estree.Node | null | undefined) {
   return (
-    hasVariableWaitOptions(node) || hasBareSynchronousQuery(node) || hasOptionsForAsyncQuery(node)
+    hasVariableWaitOptions(node) ||
+    hasSynchronousQueryWithoutOptionsSlot(node) ||
+    hasBareSynchronousQuery(node) ||
+    hasOptionsForAsyncQuery(node)
   );
 }
 
@@ -48,6 +51,20 @@ function hasVariableWaitOptions(node: estree.Node | null | undefined) {
     node.arguments.length > 1 &&
     node.arguments[1]?.type !== 'ObjectExpression'
   );
+}
+
+function hasSynchronousQueryWithoutOptionsSlot(node: estree.Node | null | undefined) {
+  if (node?.type !== 'CallExpression' || node.arguments[1]?.type !== 'ObjectExpression') {
+    return false;
+  }
+
+  const callback = node.arguments[0];
+  if (callback?.type !== 'ArrowFunctionExpression' || callback.body.type !== 'CallExpression') {
+    return false;
+  }
+
+  const query = getSynchronousQuery(callback.body);
+  return query?.callee.type === 'MemberExpression' && query.arguments.length < 2;
 }
 
 function hasOptionsForAsyncQuery(node: estree.Node | null | undefined) {
@@ -72,13 +89,25 @@ function hasBareSynchronousQuery(node: estree.Node | null | undefined) {
 }
 
 function getSynchronousQuery(body: estree.CallExpression) {
-  if (body.callee.type === 'Identifier') {
+  if (isSynchronousQueryCallee(body.callee)) {
     return body;
   }
 
   const expectCall = getExpectCall(body.callee);
   const query = expectCall?.arguments[0];
   return query?.type === 'CallExpression' ? query : undefined;
+}
+
+function isSynchronousQueryCallee(callee: estree.Expression | estree.Super) {
+  if (callee.type === 'Identifier') {
+    return /^(get|query)(All)?By/.test(callee.name);
+  }
+
+  return (
+    callee.type === 'MemberExpression' &&
+    callee.property.type === 'Identifier' &&
+    /^(get|query)(All)?By/.test(callee.property.name)
+  );
 }
 
 function getExpectCall(

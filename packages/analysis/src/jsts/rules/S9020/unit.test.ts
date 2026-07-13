@@ -195,13 +195,13 @@ describe('S9020', () => {
             code: `
             import { screen, waitFor } from '@testing-library/react';
             const status = await waitFor(
-              () => screen.getByRole('status'),
+              () => screen.getByRole('status', { name: 'Saved' }),
               { timeout: 2_000 },
             );
           `,
             output: `
             import { screen, waitFor } from '@testing-library/react';
-            const status = await screen.findByRole('status', { timeout: 2_000 });
+            const status = await screen.findByRole('status', { name: 'Saved' }, { timeout: 2_000 });
           `,
             errors: [{ messageId: 'preferFindBy' }],
           },
@@ -269,6 +269,17 @@ describe('S9020', () => {
             const status = await waitFor(
               () => screen.getByRole('status', { name: 'Saved' }),
               options,
+            );
+          `,
+            output: null,
+            errors: [{ messageId: 'preferFindBy' }],
+          },
+          {
+            code: `
+            import { screen, waitFor } from '@testing-library/react';
+            const status = await waitFor(
+              () => screen.getByRole('status'),
+              { timeout: 2_000 },
             );
           `,
             output: null,
