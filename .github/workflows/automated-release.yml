@@ -61,7 +61,7 @@ jobs:
       create-sle-ticket: true
       create-sli-ticket: true
       branch: ${{ github.event.inputs.branch }}
-      pm-email: "gabriel.vivas@sonarsource.com"
+      pm-email: "geoffray.adde@sonarsource.com"
       slack-channel: "squad-corelang-releases"
       release-automation-secret-name: "SonarJS-release-automation"
       runner-environment: "github-ubuntu-latest-s"
