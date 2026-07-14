@@ -177,9 +177,9 @@ function Pagination({ pages, onSelect }) {
 </template>`,
         },
         {
-          // real-world pattern: bound type from a ternary of literals - unlike React,
-          // vue/html-button-has-type never inspects a bound expression's contents, so any
-          // non-empty binding (literal, ternary, or fully dynamic) is treated as compliant
+          // real-world pattern: bound type from a ternary of literals - both branches
+          // are valid types, so this is compliant even though eslint-plugin-vue's own
+          // directive check never inspects the bound expression's contents
           code: `<template><button :type="isSubmit ? 'submit' : 'button'" @click="handleClick">{{ label }}</button></template>`,
         },
       ],
@@ -198,6 +198,27 @@ function Pagination({ pages, onSelect }) {
         },
         {
           code: `<template><button type="action">Save</button></template>`,
+          errors: [
+            {
+              message:
+                'Replace this invalid "type" value "action" with one of "button", "submit", or "reset".',
+            },
+          ],
+        },
+        {
+          // bound type is a string literal: eslint-plugin-vue's own check never
+          // inspects it, so we evaluate it ourselves
+          code: `<template><button :type="'action'">Save</button></template>`,
+          errors: [
+            {
+              message:
+                'Replace this invalid "type" value "action" with one of "button", "submit", or "reset".',
+            },
+          ],
+        },
+        {
+          // ternary with one invalid literal branch is still statically analyzable
+          code: `<template><button :type="isSubmit ? 'submit' : 'action'">Go</button></template>`,
           errors: [
             {
               message:

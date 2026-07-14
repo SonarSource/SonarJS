@@ -17,6 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S9011/javascript
 
 import type { Rule } from 'eslint';
+import type estree from 'estree';
+import type { AST } from 'vue-eslint-parser';
 import { rules as reactRules } from '../external/react.js';
 import { rules as vueRules } from '../external/vue.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -28,6 +30,11 @@ const reactBaseRule = reactRules['button-has-type'];
 const vueBaseRule = vueRules['html-button-has-type'];
 
 const MISSING_TYPE_MESSAGE = 'Add an explicit "type" attribute to this button.';
+const VALID_BUTTON_TYPES = new Set(['button', 'submit', 'reset']);
+
+function invalidTypeMessage(value: string) {
+  return `Replace this invalid "type" value "${value}" with one of "button", "submit", or "reset".`;
+}
 
 /**
  * messageId -> Sonar-standard message for the cases we keep.
@@ -57,11 +64,60 @@ function onReport(context: Rule.RuleContext, reportDescriptor: Rule.ReportDescri
   if (MISSING_TYPE_MESSAGE_IDS.has(messageId)) {
     context.report({ ...rest, message: MISSING_TYPE_MESSAGE });
   } else if (INVALID_TYPE_MESSAGE_IDS.has(messageId)) {
-    const { value } = data as { value?: string };
-    context.report({
-      ...rest,
-      message: `Replace this invalid "type" value "${value}" with one of "button", "submit", or "reset".`,
-    });
+    const { value } = data as { value: string };
+    context.report({ ...rest, message: invalidTypeMessage(value) });
+  }
+}
+
+/**
+ * Unlike the JSX `type={...}` case, eslint-plugin-vue's own directive check
+ * (`:type="..."`) only verifies that the bound expression is non-empty; it never
+ * evaluates it, so `:type="'action'"` and `:type="isSubmit ? 'submit' : 'action'"`
+ * silently pass. Simple cases (string literals, and ternaries whose branches are
+ * all string literals) can be evaluated statically, so we check those ourselves
+ * here instead of relying on the base rule's report.
+ */
+function evaluateVueTypeLiterals(expression: AST.ESLintExpression): string[] | null {
+  if (expression.type === 'Literal' && typeof expression.value === 'string') {
+    return [expression.value];
+  }
+  if (expression.type === 'ConditionalExpression') {
+    const consequent = evaluateVueTypeLiterals(expression.consequent as AST.ESLintExpression);
+    const alternate = evaluateVueTypeLiterals(expression.alternate as AST.ESLintExpression);
+    if (consequent && alternate) {
+      return [...consequent, ...alternate];
+    }
+  }
+  return null;
+}
+
+function checkVueTypeBinding(context: Rule.RuleContext, node: AST.VElement) {
+  const attributes = node.startTag.attributes;
+  const hasStaticTypeAttribute = attributes.some(
+    attribute => !attribute.directive && attribute.key.name === 'type',
+  );
+  if (hasStaticTypeAttribute) {
+    return;
+  }
+  const typeDirective = attributes.find(
+    (attribute): attribute is AST.VDirective =>
+      attribute.directive &&
+      attribute.key.name.name === 'bind' &&
+      attribute.key.argument?.type === 'VIdentifier' &&
+      attribute.key.argument.name === 'type',
+  );
+  const expression = typeDirective?.value?.expression;
+  if (!expression) {
+    return;
+  }
+  const literals = evaluateVueTypeLiterals(expression as AST.ESLintExpression);
+  for (const value of literals ?? []) {
+    if (!VALID_BUTTON_TYPES.has(value)) {
+      context.report({
+        node: expression as unknown as estree.Node,
+        message: invalidTypeMessage(value),
+      });
+    }
   }
 }
 
@@ -76,6 +132,16 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    return mergeRules(reactRule.create(context), vueRule.create(context));
+    const listeners = mergeRules(reactRule.create(context), vueRule.create(context));
+    const parserServices = context.sourceCode.parserServices;
+    if (!parserServices?.defineTemplateBodyVisitor) {
+      return listeners;
+    }
+    return mergeRules(
+      listeners,
+      parserServices.defineTemplateBodyVisitor({
+        "VElement[rawName='button']": (node: AST.VElement) => checkVueTypeBinding(context, node),
+      }),
+    );
   },
 };
