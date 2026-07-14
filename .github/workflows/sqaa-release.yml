@@ -185,7 +185,7 @@ jobs:
         run: npm run grpc:build
 
       - name: Docker login to Repox registry
-        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee  # v4.2.0
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0  # v4.4.0
         with:
           registry: ${{ env.DOCKER_REPOX_BUILDS_REGISTRY }}
           username: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
@@ -202,7 +202,7 @@ jobs:
 
       - name: Docker login to Repox release registry
         if: ${{ inputs.publish-to-release-repo }}
-        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee  # v4.2.0
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0  # v4.4.0
         with:
           registry: ${{ env.DOCKER_REPOX_RELEASES_REGISTRY }}
           username: ${{ fromJSON(steps.release-secrets.outputs.vault).ARTIFACTORY_RELEASE_USERNAME }}
