@@ -1,3 +1,53 @@
+## 2026-07-14, Version 4.2.0
+
+* [[JS-2043](https://sonarsource.atlassian.net/browse/JS-2043)] - S8988: Create decorated rule for `vue/no-side-effects-in-computed-properties`
+* [[JS-2018](https://sonarsource.atlassian.net/browse/JS-2018)] - Fix S2699 Node assert strict detection
+* [[JS-2016](https://sonarsource.atlassian.net/browse/JS-2016)] - S8984: Import `vue/valid-v-for` as an external rule
+* [[JS-2000](https://sonarsource.atlassian.net/browse/JS-2000)] - Refactor S8786 hot spots without behavior changes
+* [[JS-1999](https://sonarsource.atlassian.net/browse/JS-1999)] - S8982: Import `vue/require-v-for-key` as an external rule
+* [[JS-1997](https://sonarsource.atlassian.net/browse/JS-1997)] - Fix FP on S1848: S1848 should not report RegExp constructors used only for syntax validation
+* [[JS-1996](https://sonarsource.atlassian.net/browse/JS-1996)] - Fix SonarQube Next quality gate issues
+* [[JS-1994](https://sonarsource.atlassian.net/browse/JS-1994)] - S8780: false positive when async assertion is used alongside a done callback
+* [[JS-1993](https://sonarsource.atlassian.net/browse/JS-1993)] - S5906: clarify that length matchers apply beyond collections
+* [[JS-1992](https://sonarsource.atlassian.net/browse/JS-1992)] - Fix S5914: narrow to trivially-true assertions
+* [[JS-1991](https://sonarsource.atlassian.net/browse/JS-1991)] - S5914: narrow to trivially-true assertions
+* [[JS-1990](https://sonarsource.atlassian.net/browse/JS-1990)] - S5914: Assertions should not be trivially true
+* [[JS-1975](https://sonarsource.atlassian.net/browse/JS-1975)] - Implement private assertion layer for assertions-in-tests
+* [[JS-1972](https://sonarsource.atlassian.net/browse/JS-1972)] - S8784: false positive on Vitest type-level assertions (expectTypeOf / assertType) at the top level
+* [[JS-1971](https://sonarsource.atlassian.net/browse/JS-1971)] - S8785: extend detection to synchronous describe calling an unawaited async helper
+* [[JS-1963](https://sonarsource.atlassian.net/browse/JS-1963)] - Fix FP on S2871: comparison-only default sorts used for order normalization
+* [[JS-1962](https://sonarsource.atlassian.net/browse/JS-1962)] - S8962 - Import `vue/require-typed-ref` rule
+* [[JS-1960](https://sonarsource.atlassian.net/browse/JS-1960)] - S8960: Test and hook callbacks should use a single completion style
+* [[JS-1959](https://sonarsource.atlassian.net/browse/JS-1959)] - S8961 - Import `vue/require-explicit-emits` rule
+* [[JS-1957](https://sonarsource.atlassian.net/browse/JS-1957)] - S8959: UI test debug commands should not be used
+* [[JS-1956](https://sonarsource.atlassian.net/browse/JS-1956)] - S8957 - Import `vue/require-prop-types` rule
+* [[JS-1955](https://sonarsource.atlassian.net/browse/JS-1955)] - S8951 - Import `vue/no-mutating-props` rule
+* [[JS-1952](https://sonarsource.atlassian.net/browse/JS-1952)] - S8950 - Import `vue/no-required-prop-with-default` rule 
+* [[JS-1950](https://sonarsource.atlassian.net/browse/JS-1950)] - S5906 suggests Jest length matcher for Jasmine global expect in mixed test dependencies
+* [[JS-1946](https://sonarsource.atlassian.net/browse/JS-1946)] - Fix FP on S6759: S6759 should not report non-React TSX components
+* [[JS-1943](https://sonarsource.atlassian.net/browse/JS-1943)] - S2925: Remove Promise-based fixed wait detection
+* [[JS-1937](https://sonarsource.atlassian.net/browse/JS-1937)] - S8932: Lodash memoize calls should provide an explicit cache key function
+* [[JS-1934](https://sonarsource.atlassian.net/browse/JS-1934)] - S5976: Similar tests should be grouped in a single Parameterized test
+* [[JS-1929](https://sonarsource.atlassian.net/browse/JS-1929)] - S8927: Default imports from modular utility libraries should not be used
+* [[JS-1927](https://sonarsource.atlassian.net/browse/JS-1927)] - Create new rule S8784: Assertions should be placed inside test cases or hooks
+* [[JS-1916](https://sonarsource.atlassian.net/browse/JS-1916)] - S6268 Reduce false positives for locally-assigned hardcoded values
+* [[JS-1910](https://sonarsource.atlassian.net/browse/JS-1910)] - Create new rule S8785: Test suite callbacks should be synchronous functions
+* [[JS-1901](https://sonarsource.atlassian.net/browse/JS-1901)] - Remove accidental rspec.sha and tighten source-type follow-ups
+* [[JS-1898](https://sonarsource.atlassian.net/browse/JS-1898)] - Add check for multer sub-function
+* [[JS-1890](https://sonarsource.atlassian.net/browse/JS-1890)] - Create rule S8783: Forced browser interactions should not bypass actionability checks
+* [[JS-1889](https://sonarsource.atlassian.net/browse/JS-1889)] - S2925 No fixed waits in tests
+* [[JS-1880](https://sonarsource.atlassian.net/browse/JS-1880)] - Create rule S8782: Lifecycle hooks should be declared before test cases
+* [[JS-1873](https://sonarsource.atlassian.net/browse/JS-1873)] - S8781: Test and suite titles should not be empty or whitespace-only
+* [[JS-1828](https://sonarsource.atlassian.net/browse/JS-1828)] - Add stylelint rule "at-rule-descriptor-no-unknown"
+* [[JS-1825](https://sonarsource.atlassian.net/browse/JS-1825)] - S5852: only report in case of exponential backtracking + add rule S8786
+* [[JS-1795](https://sonarsource.atlassian.net/browse/JS-1795)] - Fix FP on S1848: Constructors with side-effect initialization not recognized
+* [[JS-1789](https://sonarsource.atlassian.net/browse/JS-1789)] - Fix S4782 false negative when optional property type alias includes `undefined`
+* [[JS-1759](https://sonarsource.atlassian.net/browse/JS-1759)] - Implement S119 for TypeScript type parameter names
+* [[JS-1686](https://sonarsource.atlassian.net/browse/JS-1686)] - S1244: Floating point numbers should not be tested for equality
+* [[JS-1597](https://sonarsource.atlassian.net/browse/JS-1597)] - Identify generated JS/TS files via generator tooling and filter only non-relevant rules
+* [[JS-1077](https://sonarsource.atlassian.net/browse/JS-1077)] - Fix FP S2699 (`assertions-in-tests`): Support 'should' assertions
+* [[JS-1011](https://sonarsource.atlassian.net/browse/JS-1011)] - S8907: Replace Lodash/underscore.js methods with native APIs
+
 ## 2026-06-18, Version 4.1.0
 
 * [[JS-1880](https://sonarsource.atlassian.net/browse/JS-1880)] - Create rule S8782: Lifecycle hooks should be declared before test cases
