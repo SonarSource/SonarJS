@@ -79,7 +79,7 @@
     <rspec-maven-plugin.version>1.5.0.155</rspec-maven-plugin.version>
     <rspec.sha></rspec.sha>
     <rspec.branch>dogfood-automerge</rspec.branch>
-    <sslr.version>1.25.1.3886</sslr.version>
+    <sslr.version>1.26.0.4194</sslr.version>
     <sonarlint.plugin.api.version>11.6.0.85952</sonarlint.plugin.api.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
