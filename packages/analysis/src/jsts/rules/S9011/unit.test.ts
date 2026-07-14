@@ -43,6 +43,14 @@ describe('S9011', () => {
           code: `React.createElement('button', { type: 'submit' });`,
         },
         {
+          // the HTML type attribute is matched ASCII case-insensitively per spec
+          code: `const b = <button type="Submit">Search</button>;`,
+        },
+        {
+          // ternary of two valid literals, differently cased, is still compliant
+          code: `const b = <button type={isSubmit ? 'Submit' : 'BUTTON'}>Go</button>;`,
+        },
+        {
           // not a button
           code: `const d = <div>Search</div>;`,
         },
@@ -90,6 +98,13 @@ function ModalFooter({ isSaving, onSave }) {
                 'Replace this invalid "type" value "action" with one of "button", "submit", or "reset".',
             },
           ],
+        },
+        {
+          // React's own rule reports type="" as an "invalid value" rather than a
+          // missing one; align the message with the missing-type case instead of
+          // the confusing "replace this invalid value """ wording
+          code: `const b = <button type="">Search</button>;`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
           // ternary with one invalid literal branch is still statically analyzable
@@ -158,6 +173,14 @@ function Pagination({ pages, onSelect }) {
         },
         {
           code: `<template><button type="button">Clear</button></template>`,
+        },
+        {
+          // the HTML type attribute is matched ASCII case-insensitively per spec
+          code: `<template><button type="Submit">Search</button></template>`,
+        },
+        {
+          // bound literal type, differently cased, is still compliant
+          code: `<template><button :type="'Submit'">Search</button></template>`,
         },
         {
           // bound dynamic type with a real expression: can't be judged statically

@@ -65,7 +65,16 @@ function onReport(context: Rule.RuleContext, reportDescriptor: Rule.ReportDescri
     context.report({ ...rest, message: MISSING_TYPE_MESSAGE });
   } else if (INVALID_TYPE_MESSAGE_IDS.has(messageId)) {
     const { value } = data as { value: string };
-    context.report({ ...rest, message: invalidTypeMessage(value) });
+    // The HTML type attribute is an enumerated attribute, matched ASCII
+    // case-insensitively, so `type="Submit"` is spec-valid - but both base rules
+    // compare case-sensitively and treat it as invalid.
+    if (value !== '' && VALID_BUTTON_TYPES.has(value.toLowerCase())) {
+      return;
+    }
+    context.report({
+      ...rest,
+      message: value === '' ? MISSING_TYPE_MESSAGE : invalidTypeMessage(value),
+    });
   }
 }
 
@@ -112,7 +121,7 @@ function checkVueTypeBinding(context: Rule.RuleContext, node: AST.VElement) {
   }
   const literals = evaluateVueTypeLiterals(expression as AST.ESLintExpression);
   for (const value of literals ?? []) {
-    if (!VALID_BUTTON_TYPES.has(value)) {
+    if (!VALID_BUTTON_TYPES.has(value.toLowerCase())) {
       context.report({
         node: expression as unknown as estree.Node,
         message: invalidTypeMessage(value),
