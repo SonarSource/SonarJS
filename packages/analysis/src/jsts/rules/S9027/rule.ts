@@ -192,10 +192,7 @@ function isDirectTestingLibraryScreen(
     return false;
   }
 
-  return (
-    getFullyQualifiedName(context, receiver) ===
-    `${definition.parent.source.value.replace('/', '.')}.screen`
-  );
+  return true;
 }
 
 function isInTestingLibraryWaitFor(context: Rule.RuleContext, node: estree.Node): boolean {
