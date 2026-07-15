@@ -20,4 +20,5 @@ export const externalRules = [
   { externalPlugin: 'eslint', externalRule: 'no-dupe-keys' },
   { externalPlugin: 'typescript-eslint', externalRule: 'no-dupe-class-members' },
   { externalPlugin: 'react', externalRule: 'jsx-no-duplicate-props' },
+  { externalPlugin: 'vue', externalRule: 'no-duplicate-attributes' },
 ];

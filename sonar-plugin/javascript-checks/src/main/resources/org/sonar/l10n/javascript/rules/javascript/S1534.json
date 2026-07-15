@@ -13,7 +13,9 @@
     "constantCost": "5min"
   },
   "tags": [
-    "pitfall"
+    "pitfall",
+    "react",
+    "vue"
   ],
   "extra": {
     "replacementRules": [],
