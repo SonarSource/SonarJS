@@ -4,108 +4,32 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to build from'
+        description: 'Branch or tag to build from'
         required: true
         type: string
         default: master
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-  DOCKER_REPOX_BUILDS_REGISTRY: repox-sonarsource-docker-builds.jfrog.io
-  # The registry repository still uses the historical a3s prefix.
-  DOCKER_IMAGE: "a3s/analysis/javascript"
+      build-number:
+        description: 'Optional build number to reuse for the Docker tag'
+        required: false
+        type: string
+      publish-to-release-repo:
+        description: 'Publish the same Docker tag to the durable Repox release registry'
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  get_build_number:
-    runs-on: warp-custom-ubuntu-24-04
-    name: Get build number
-    permissions:
-      id-token: write
-      contents: read
-    outputs:
-      BUILD_NUMBER: ${{ steps.get-build-number.outputs.BUILD_NUMBER }}
-    steps:
-      - uses: SonarSource/ci-github-actions/get-build-number@master
-        id: get-build-number
-
   build_and_publish:
     name: Build and publish Docker image
-    runs-on: warp-custom-ubuntu-24-04
-    needs: get_build_number
     permissions:
       id-token: write
       contents: read
-    env:
-      BUILD_NUMBER: ${{ needs.get_build_number.outputs.BUILD_NUMBER }}
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
-        with:
-          ref: ${{ inputs.branch || github.ref }}
-
-      - uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
-        with:
-          version: 2025.11.2
-          mise_toml: |
-            [tools]
-            java = "21.0"
-            maven = "3.9"
-            node = "24.11.0"
-
-      - name: Configure Maven
-        uses: SonarSource/ci-github-actions/config-maven@master
-        with:
-          artifactory-reader-role: private-reader
-          disable-caching: 'true'
-
-      - uses: SonarSource/ci-github-actions/config-npm@v1
-
-      - name: Access vault secrets
-        id: secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_PASSWORD;
-            development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer username | ARTIFACTORY_DEPLOY_USERNAME;
-            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
-
-      - name: Install NPM dependencies
-        run: npm ci
-
-      - uses: ./.github/actions/rule-api-cache
-
-      - name: Refresh RSPEC rule data
-        env:
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
-        run: npm run rspec:refresh
-
-      - name: Build bundle for Docker
-        run: npm run grpc:build
-
-      - name: Docker login to Repox registry
-        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0  # v4.4.0
-        with:
-          registry: ${{ env.DOCKER_REPOX_BUILDS_REGISTRY }}
-          username: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
-          password: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_PASSWORD }}
-
-      - name: Setup Docker image
-        shell: bash
-        id: docker-image-setup
-        run: |
-          DOCKER_IMAGE_BUILD_NUMBER="${DOCKER_REPOX_BUILDS_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
-          echo "docker-image=${DOCKER_IMAGE_BUILD_NUMBER}" >> $GITHUB_OUTPUT
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c  # v4.2.0
-
-      - name: Build and push Docker image
-        shell: bash
-        env:
-          DOCKER_IMAGE_BUILD_NUMBER: ${{ steps.docker-image-setup.outputs.docker-image }}
-        run: |
-          docker buildx build --platform linux/arm64 --tag "${DOCKER_IMAGE_BUILD_NUMBER}" --push .
+    uses: ./.github/workflows/sqaa-release.yml
+    with:
+      ref: ${{ inputs.branch || github.ref }}
+      build-number: ${{ inputs.build-number }}
+      publish-to-release-repo: ${{ inputs.publish-to-release-repo == true }}

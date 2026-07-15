@@ -1,0 +1,32 @@
+{
+"sonar-web:src/main/js/apps/background-tasks/search.js": [
+107,
+143
+],
+"sonar-web:src/main/js/apps/permission-templates/header.js": [
+25
+],
+"sonar-web:src/main/js/apps/permission-templates/permission-template-set-defaults.js": [
+47
+],
+"sonar-web:src/main/js/apps/permission-templates/permission-template.js": [
+64,
+113
+],
+"sonar-web:src/main/js/apps/project-permissions/main.js": [
+90
+],
+"sonar-web:src/main/js/apps/project-permissions/project.js": [
+81
+],
+"sonar-web:src/main/js/apps/project-permissions/search.js": [
+30
+],
+"sonar-web:src/main/js/apps/projects/header.js": [
+19
+],
+"sonar-web:src/main/js/apps/projects/search.js": [
+105,
+113
+]
+}

@@ -26,11 +26,6 @@
       <artifactId>sonar-plugin-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.sslr</groupId>
-      <artifactId>sslr-core</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
     </dependency>
