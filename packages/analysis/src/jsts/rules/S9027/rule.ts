@@ -138,9 +138,24 @@ function getQueryCall(actual: estree.Expression): estree.CallExpression | null {
   if (actual.type === 'CallExpression') {
     return actual;
   }
-  return actual.type === 'MemberExpression' && actual.object.type === 'CallExpression'
-    ? actual.object
-    : null;
+  if (actual.type !== 'MemberExpression' || actual.object.type !== 'CallExpression') {
+    return null;
+  }
+
+  const queryMethod = getQueryMethod(actual.object);
+  if (!queryMethod?.name.includes('AllBy')) {
+    return null;
+  }
+
+  const isArrayIndex =
+    actual.computed &&
+    actual.property.type === 'Literal' &&
+    typeof actual.property.value === 'number' &&
+    Number.isInteger(actual.property.value) &&
+    actual.property.value >= 0;
+  const isLength = !actual.computed && isIdentifier(actual.property, 'length');
+
+  return isArrayIndex || isLength ? actual.object : null;
 }
 
 function getQueryMethod(query: estree.CallExpression): estree.Identifier | null {

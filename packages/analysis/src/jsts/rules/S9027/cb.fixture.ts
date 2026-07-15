@@ -9,6 +9,9 @@ expect(screen.getByRole('dialog')).not.toBeInTheDocument(); // Noncompliant [[ab
 expect(screen.getAllByText('item')[0]).not.toBeDefined(); // Noncompliant [[all!]] {{An absence assertion should use a `queryBy*` so it can observe a missing element.}}
 // edit@all [[sc=14;ec=17]] {{query}}
 
+expect(screen.queryAllByRole('dialog').length).toBeTruthy(); // Noncompliant [[length!]] {{A presence assertion should use a `getBy*` query so a missing element produces Testing Library diagnostics.}}
+// edit@length [[sc=14;ec=19]] {{get}}
+
 expect(screen.queryByRole('dialog')).toBeDefined(); // Noncompliant [[defined!]] {{A presence assertion should use a `getBy*` query so a missing element produces Testing Library diagnostics.}}
 // edit@defined [[sc=14;ec=19]] {{get}}
 
@@ -21,6 +24,7 @@ expect(screen.getByRole('dialog')).toBeFalsy(); // Noncompliant [[falsy!]] {{An 
 expect(screen.getByRole('dialog')).toBeInTheDocument();
 expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 await waitFor(() => expect(screen.queryByRole('dialog')).toBeInTheDocument());
+expect(screen.getByRole('checkbox').checked).toBeFalsy();
 
 import { screen as tlScreen } from '@testing-library/vue';
 expect(tlScreen.queryByText('ready')).toBeTruthy(); // Noncompliant [[alias!]] {{A presence assertion should use a `getBy*` query so a missing element produces Testing Library diagnostics.}}
