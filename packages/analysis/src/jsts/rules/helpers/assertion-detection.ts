@@ -106,7 +106,9 @@ const PLAYWRIGHT_EXPECT_FQN_ROOTS = [
 ];
 
 function isPlaywrightExpectFqn(fqn: string | null | undefined): boolean {
-  if (!fqn) return false;
+  if (!fqn) {
+    return false;
+  }
   const normalized = fqn.replaceAll('/', '.');
   return PLAYWRIGHT_EXPECT_FQN_ROOTS.some(
     root => normalized === root || normalized.startsWith(root + '.'),
