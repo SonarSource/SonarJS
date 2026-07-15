@@ -717,6 +717,76 @@ function SectionListComponent() {
     });
   });
 
+  it('should not report props forwarded to a helper with a destructured parameter', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          code: `
+declare const React: any;
+enum ImageOrientation {
+  left = 'left',
+  right = 'right',
+}
+type ImageReference = {
+  valid: boolean;
+  uid: string;
+  href: string;
+};
+type ParallaxEffect = {
+  orientation: ImageOrientation;
+  size: string;
+  href: string;
+};
+type ParallaxImagesProps = {
+  images: ImageReference[];
+};
+const useParallaxImages = ({ images }: ParallaxImagesProps) => {
+  return {
+    images: images.map(img => ({
+      ...img,
+      size: '1',
+      orientation: ImageOrientation.left,
+    })),
+  };
+};
+const ParallaxImage = ({ orientation, size, href }: ParallaxEffect) => {
+  return <div>{orientation}, {size}, {href}</div>;
+};
+export const ParallaxImages = (props: ParallaxImagesProps) => {
+  const { images } = useParallaxImages(props);
+  return (
+    <>
+      {images.map(
+        i =>
+          i.valid && (
+            <ParallaxImage
+              key={i.uid}
+              orientation={i.orientation}
+              href={i.href}
+              size={i.size}
+            />
+          ),
+      )}
+    </>
+  );
+};
+`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   it('should report props when destructured via patterns not tracked by hasDestructuredParamPropUsage', () => {
     const ruleTester = new RuleTester({
       parserOptions: {
