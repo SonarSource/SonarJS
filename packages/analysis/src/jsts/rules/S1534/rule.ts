@@ -44,7 +44,8 @@ export const rule: Rule.RuleModule = {
       {
         type: 'object',
         properties: {
-          ...(jsxNoDuplicatePropsRule.meta!.schema as { properties: object }[])[0].properties,
+          ...(jsxNoDuplicatePropsRule.meta?.schema as { properties: object }[] | undefined)?.[0]
+            ?.properties,
           ...(
             vueNoDuplicateAttributesRule.meta?.schema as { properties: object }[] | undefined
           )?.[0]?.properties,
