@@ -79,7 +79,6 @@
     <rspec-maven-plugin.version>1.5.0.155</rspec-maven-plugin.version>
     <rspec.sha></rspec.sha>
     <rspec.branch>dogfood-automerge</rspec.branch>
-    <sslr.version>1.25.1.3886</sslr.version>
     <sonarlint.plugin.api.version>11.6.0.85952</sonarlint.plugin.api.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
@@ -159,11 +158,6 @@
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
         <version>2.22.0</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonarsource.sslr</groupId>
-        <artifactId>sslr-core</artifactId>
-        <version>${sslr.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sonarlint.core</groupId>
@@ -286,7 +280,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.5.37</version>
+        <version>1.5.38</version>
         <scope>test</scope>
       </dependency>
       <dependency>

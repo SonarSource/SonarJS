@@ -44,6 +44,16 @@ describe('S9012', () => {
           },
           {
             code: `
+            import { waitFor } from './test-utils';
+
+            await waitFor(() => expect(document.body).toMatchSnapshot());
+          `,
+            settings: {
+              'testing-library/utils-module': './test-utils',
+            },
+          },
+          {
+            code: `
             import { vi } from 'vitest';
 
             await vi.waitFor(() => expect(document.body).toMatchInlineSnapshot());
@@ -87,6 +97,32 @@ describe('S9012', () => {
               {
                 message:
                   'Snapshots should not be generated inside `tlWaitFor`; retries can create unstable snapshot artifacts.',
+              },
+            ],
+          },
+          {
+            code: `
+            import * as rtl from '@testing-library/react';
+
+            await rtl.waitFor(() => expect(document.body).toMatchSnapshot());
+          `,
+            errors: [
+              {
+                message:
+                  'Snapshots should not be generated inside `waitFor`; retries can create unstable snapshot artifacts.',
+              },
+            ],
+          },
+          {
+            code: `
+            const { waitFor } = require('@testing-library/react');
+
+            await waitFor(() => expect(document.body).toMatchSnapshot());
+          `,
+            errors: [
+              {
+                message:
+                  'Snapshots should not be generated inside `waitFor`; retries can create unstable snapshot artifacts.',
               },
             ],
           },

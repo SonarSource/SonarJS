@@ -1,0 +1,316 @@
+name: SQAA Release
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        description: Git ref to build from
+        required: true
+        type: string
+      release-version:
+        description: Released version in major.minor.patch.build format
+        required: false
+        type: string
+      build-number:
+        description: Build number to reuse for the Docker image tag
+        required: false
+        type: string
+      publish-to-release-repo:
+        description: Publish the same Docker tag to the Repox release registry
+        required: false
+        type: boolean
+        default: false
+      ticket-url:
+        description: Jira ticket URL used for the sonar-analysis-as-a-service PR
+        required: false
+        type: string
+      create-aaas-pr:
+        description: Create the sonar-analysis-as-a-service PR after pushing the image
+        required: false
+        type: boolean
+        default: false
+      aaas-base-branch:
+        description: Base branch for the sonar-analysis-as-a-service PR
+        required: false
+        type: string
+        default: master
+      reviewers:
+        description: Comma-separated list of GitHub reviewers for the sonar-analysis-as-a-service PR
+        required: false
+        type: string
+      draft:
+        description: Create the sonar-analysis-as-a-service PR as draft
+        required: false
+        type: boolean
+        default: false
+      release-automation-secret-name:
+        description: Vault secret name for a GitHub token with sonar-analysis-as-a-service access
+        required: false
+        type: string
+        default: SonarJS-release-automation
+      runner:
+        description: GitHub runner to use
+        required: false
+        type: string
+        default: warp-custom-ubuntu-24-04
+    outputs:
+      build-number:
+        description: Docker image build number
+        value: ${{ jobs.resolve_build_number.outputs.build-number }}
+      pull-request-url:
+        description: URL of the created sonar-analysis-as-a-service pull request
+        value: ${{ jobs.handoff_to_analysis_as_a_service.outputs.pull-request-url }}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  DOCKER_REPOX_BUILDS_REGISTRY: repox-sonarsource-docker-builds.jfrog.io
+  DOCKER_REPOX_RELEASES_REGISTRY: repox-sonarsource-docker-releases.jfrog.io
+  # The registry repository still uses the historical a3s prefix.
+  DOCKER_IMAGE: "a3s/analysis/javascript"
+
+jobs:
+  resolve_build_number:
+    name: Resolve build number
+    runs-on: ${{ inputs.runner }}
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      build-number: ${{ steps.finalize.outputs.build-number }}
+      ticket-key: ${{ steps.finalize.outputs.ticket-key }}
+    steps:
+      - name: Derive build metadata from inputs
+        id: derive
+        shell: bash
+        env:
+          INPUT_BUILD_NUMBER: ${{ inputs.build-number }}
+          RELEASE_VERSION: ${{ inputs.release-version }}
+          TICKET_URL: ${{ inputs.ticket-url }}
+        run: |
+          if [[ -n "$INPUT_BUILD_NUMBER" ]]; then
+            echo "build-number=$INPUT_BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+          elif [[ -n "$RELEASE_VERSION" ]]; then
+            echo "build-number=${RELEASE_VERSION##*.}" >> "$GITHUB_OUTPUT"
+          fi
+
+          if [[ -n "$TICKET_URL" ]]; then
+            ticket_key="${TICKET_URL##*/}"
+            ticket_key="${ticket_key%%\?*}"
+            echo "ticket-key=$ticket_key" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Get build number
+        if: ${{ steps.derive.outputs.build-number == '' }}
+        id: get-build-number
+        uses: SonarSource/ci-github-actions/get-build-number@master
+
+      - name: Finalize build metadata
+        id: finalize
+        shell: bash
+        env:
+          DERIVED_BUILD_NUMBER: ${{ steps.derive.outputs.build-number }}
+          GENERATED_BUILD_NUMBER: ${{ steps.get-build-number.outputs.BUILD_NUMBER }}
+          DERIVED_TICKET_KEY: ${{ steps.derive.outputs.ticket-key }}
+          CREATE_AAAS_PR: ${{ inputs.create-aaas-pr == true && 'true' || 'false' }}
+        run: |
+          build_number="${DERIVED_BUILD_NUMBER:-$GENERATED_BUILD_NUMBER}"
+          if [[ -z "$build_number" ]]; then
+            echo "::error::Could not resolve the SQAA build number."
+            exit 1
+          fi
+          echo "build-number=$build_number" >> "$GITHUB_OUTPUT"
+
+          if [[ "$CREATE_AAAS_PR" == "true" && -z "$DERIVED_TICKET_KEY" ]]; then
+            echo "::error::ticket-url is required when create-aaas-pr is true."
+            exit 1
+          fi
+          echo "ticket-key=$DERIVED_TICKET_KEY" >> "$GITHUB_OUTPUT"
+
+  build_and_publish:
+    name: Build and publish Docker image
+    runs-on: ${{ inputs.runner }}
+    needs: resolve_build_number
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      BUILD_NUMBER: ${{ needs.resolve_build_number.outputs.build-number }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          ref: ${{ inputs.ref }}
+
+      - uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            java = "21.0"
+            maven = "3.9"
+            node = "24.11.0"
+
+      - name: Configure Maven
+        uses: SonarSource/ci-github-actions/config-maven@master
+        with:
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
+
+      - name: Access vault secrets
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_PASSWORD;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer username | ARTIFACTORY_DEPLOY_USERNAME;
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
+
+      - name: Configure npm registry
+        run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - uses: ./.github/actions/rule-api-cache
+
+      - name: Refresh RSPEC rule data
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+        run: npm run rspec:refresh
+
+      - name: Build bundle for Docker
+        run: npm run grpc:build
+
+      - name: Docker login to Repox registry
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0  # v4.4.0
+        with:
+          registry: ${{ env.DOCKER_REPOX_BUILDS_REGISTRY }}
+          username: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
+          password: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_PASSWORD }}
+
+      - name: Access vault release registry secrets
+        if: ${{ inputs.publish-to-release-repo }}
+        id: release-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-docker-release access_token | ARTIFACTORY_RELEASE_PASSWORD;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-docker-release username | ARTIFACTORY_RELEASE_USERNAME;
+
+      - name: Docker login to Repox release registry
+        if: ${{ inputs.publish-to-release-repo }}
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0  # v4.4.0
+        with:
+          registry: ${{ env.DOCKER_REPOX_RELEASES_REGISTRY }}
+          username: ${{ fromJSON(steps.release-secrets.outputs.vault).ARTIFACTORY_RELEASE_USERNAME }}
+          password: ${{ fromJSON(steps.release-secrets.outputs.vault).ARTIFACTORY_RELEASE_PASSWORD }}
+
+      - name: Setup Docker image
+        shell: bash
+        id: docker-image-setup
+        run: |
+          DOCKER_IMAGE_BUILD_NUMBER="${DOCKER_REPOX_BUILDS_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
+          DOCKER_IMAGE_RELEASE_NUMBER="${DOCKER_REPOX_RELEASES_REGISTRY}/${DOCKER_IMAGE}:${BUILD_NUMBER}"
+          echo "docker-image-build=${DOCKER_IMAGE_BUILD_NUMBER}" >> "$GITHUB_OUTPUT"
+          echo "docker-image-release=${DOCKER_IMAGE_RELEASE_NUMBER}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c  # v4
+
+      - name: Build and push Docker image
+        shell: bash
+        env:
+          DOCKER_IMAGE_BUILD_NUMBER: ${{ steps.docker-image-setup.outputs.docker-image-build }}
+          DOCKER_IMAGE_RELEASE_NUMBER: ${{ steps.docker-image-setup.outputs.docker-image-release }}
+          PUBLISH_TO_RELEASE_REPO: ${{ inputs.publish-to-release-repo == true && 'true' || 'false' }}
+        run: |
+          docker_args=(--platform linux/arm64 --tag "${DOCKER_IMAGE_BUILD_NUMBER}")
+          if [[ "$PUBLISH_TO_RELEASE_REPO" == "true" ]]; then
+            docker_args+=(--tag "${DOCKER_IMAGE_RELEASE_NUMBER}")
+          fi
+          docker buildx build "${docker_args[@]}" --push .
+
+  handoff_to_analysis_as_a_service:
+    name: Update sonar-analysis-as-a-service
+    if: ${{ inputs.create-aaas-pr }}
+    runs-on: ${{ inputs.runner }}
+    needs:
+      - resolve_build_number
+      - build_and_publish
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      pull-request-url: ${{ steps.create_pr.outputs.pull-request-url }}
+    env:
+      BUILD_NUMBER: ${{ needs.resolve_build_number.outputs.build-number }}
+      TICKET_KEY: ${{ needs.resolve_build_number.outputs.ticket-key }}
+    steps:
+      - name: Access vault secrets
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/SonarSource-${{ inputs.release-automation-secret-name }} token | GITHUB_TOKEN;
+
+      - name: Set commit prefix
+        id: setup_env
+        shell: bash
+        env:
+          DRAFT: ${{ inputs.draft == true && 'true' || 'false' }}
+          TICKET_KEY: ${{ env.TICKET_KEY }}
+        run: |
+          if [[ "$DRAFT" == "true" ]]; then
+            echo "commit-prefix=[DO NOT MERGE]" >> "$GITHUB_OUTPUT"
+          else
+            echo "commit-prefix=$TICKET_KEY" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create pull request body
+        id: pull_request_body
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ inputs.release-version }}
+          BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
+        run: |
+          release_label="${RELEASE_VERSION:-build ${BUILD_NUMBER}}"
+          {
+            echo "body<<EOF"
+            echo "Update \`analysis/js_ts_image_tag\` to \`${BUILD_NUMBER}\` for SonarJS release \`${release_label}\`."
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Checkout sonar-analysis-as-a-service
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          repository: SonarSource/sonar-analysis-as-a-service
+          ref: ${{ inputs.aaas-base-branch }}
+          sparse-checkout: analysis/js_ts_image_tag
+          sparse-checkout-cone-mode: false
+          fetch-depth: 0
+          path: sonar-analysis-as-a-service
+          token: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
+
+      - name: Update JS/TS image tag
+        shell: bash
+        run: |
+          echo "${BUILD_NUMBER}" > sonar-analysis-as-a-service/analysis/js_ts_image_tag
+
+      - name: Create Pull Request
+        id: create_pr
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ fromJSON(steps.secrets.outputs.vault).GITHUB_TOKEN }}
+          path: sonar-analysis-as-a-service
+          add-paths: analysis/js_ts_image_tag
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          commit-message: '${{ steps.setup_env.outputs.commit-prefix }} Update JSTS analyzer to ${{ env.BUILD_NUMBER }}'
+          title: '${{ steps.setup_env.outputs.commit-prefix }} Update JSTS analyzer to ${{ env.BUILD_NUMBER }}'
+          body: ${{ steps.pull_request_body.outputs.body }}
+          branch: javascript/update-sqaa-${{ env.BUILD_NUMBER }}
+          base: ${{ inputs.aaas-base-branch }}
+          draft: ${{ inputs.draft }}
+          reviewers: ${{ inputs.reviewers }}
