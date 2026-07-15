@@ -96,6 +96,8 @@ const GLOBAL_EXPECT_NAMES = new Set([
   'expectTypeOf',
 ]);
 
+const PLAYWRIGHT_TEST_EXPECT_FQN = '@playwright.test.test.expect';
+
 const CHAI_NON_TERMINAL_PROPERTY_NAMES = new Set([
   'all',
   'also',
@@ -187,7 +189,7 @@ const SCRIPT_CAPABLE_DETECTORS: AssertionDetector[] = [
 const RUNNER_BOUND_DETECTORS: AssertionDetector[] = [
   Vitest.isAssertion,
   (_context, node) => Cypress.isAssertion(node),
-  (_context, node) => node.type === 'CallExpression' && isGlobalExpectExpressionJS(node),
+  (context, node) => node.type === 'CallExpression' && isGlobalExpectExpressionJS(context, node),
 ];
 
 const ASSERTION_DETECTORS: AssertionDetector[] = [
@@ -278,11 +280,15 @@ function isTSShouldAccess(node: ts.Node): node is ts.PropertyAccessExpression {
 /**
  * Checks if the node matches the pattern expectX(...).method() where:
  * - expectX is one of the known global expect entry points ({@link GLOBAL_EXPECT_NAMES})
+ *   or Playwright's `test.expect(...)` alias
  * - method is a chained property access with a method call (e.g., .toBe(), .toEqual(), .not.toBe())
  *
  * This mirrors the TypeScript isGlobalExpectExpression function logic.
  */
-function isGlobalExpectExpressionJS(node: estree.CallExpression): boolean {
+function isGlobalExpectExpressionJS(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+): boolean {
   if (node.callee.type !== 'MemberExpression') {
     return false;
   }
@@ -300,7 +306,11 @@ function isGlobalExpectExpressionJS(node: estree.CallExpression): boolean {
   }
 
   const innerCall = current;
-  return innerCall.callee.type === 'Identifier' && GLOBAL_EXPECT_NAMES.has(innerCall.callee.name);
+  return (
+    (innerCall.callee.type === 'Identifier' && GLOBAL_EXPECT_NAMES.has(innerCall.callee.name)) ||
+    getFullyQualifiedName(context, innerCall.callee)?.replaceAll('/', '.') ===
+      PLAYWRIGHT_TEST_EXPECT_FQN
+  );
 }
 
 function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node): boolean {
@@ -421,13 +431,16 @@ function isGlobalTSAssertion(services: ParserServicesWithTypeInformation, node: 
   }
   const callExpressionNode = node as ts.CallExpression;
   // check for global expect
-  if (isGlobalExpectExpression(callExpressionNode)) {
+  if (isGlobalExpectExpression(services, callExpressionNode)) {
     return true;
   }
   return isFunctionCallFromNodeAssertTS(services, node);
 }
 
-function isGlobalExpectExpression(node: ts.CallExpression) {
+function isGlobalExpectExpression(
+  services: ParserServicesWithTypeInformation,
+  node: ts.CallExpression,
+) {
   if (node.expression.kind !== ts.SyntaxKind.PropertyAccessExpression) {
     return false;
   }
@@ -446,8 +459,10 @@ function isGlobalExpectExpression(node: ts.CallExpression) {
 
   const innerCallExpression = current as ts.CallExpression;
   return (
-    innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
-    GLOBAL_EXPECT_NAMES.has((innerCallExpression.expression as ts.Identifier).text)
+    (innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
+      GLOBAL_EXPECT_NAMES.has((innerCallExpression.expression as ts.Identifier).text)) ||
+    getFullyQualifiedNameTS(services, innerCallExpression.expression)?.replaceAll('/', '.') ===
+      PLAYWRIGHT_TEST_EXPECT_FQN
   );
 }
 

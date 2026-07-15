@@ -1,3 +1,5 @@
+import { test } from '@playwright/test';
+
 describe('playwright assertions', () => {
   it('recognizes expect on locators', () => { // Compliant
     expect(page.locator('h1')).toHaveText('Hello');
@@ -9,6 +11,10 @@ describe('playwright assertions', () => {
 
   test('recognizes test()', () => { // Compliant
     expect(page.locator('h1')).toHaveText('Hello');
+  });
+
+  test('recognizes test.expect()', async ({ page }) => { // Compliant
+    await test.expect(page.locator('h1')).toHaveText('Hello');
   });
 
   it('should recognize issue', () => { // Noncompliant {{Add at least one assertion to this test case.}}

@@ -1,4 +1,5 @@
 import vitest from "vitest";
+import { test } from "@playwright/test";
 import {functionWithAssertion, functionWithoutAssertion, functionWithInnerAssertion} from "./a.js"
 
 describe("tests", () => {
@@ -23,5 +24,9 @@ describe("tests", () => {
   // reported as assertion-less.
   it("treats expect.extend as a compile-time check under the type-checker", () => { // Compliant
     vitest.expect.extend({ toBeFoo: () => ({ pass: true, message: () => "" }) });
+  });
+
+  test("recognizes test.expect via the type-checker path", async ({ page }) => { // Compliant
+    await test.expect(page.locator("div").first()).toBeVisible();
   });
 });
