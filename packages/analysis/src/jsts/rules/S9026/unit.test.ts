@@ -126,6 +126,44 @@ describe('S9026', () => {
           output: null,
           errors: [{ messageId: 'awaitAsyncQuery' }],
         },
+        {
+          code: `
+            import { screen } from '@testing-library/react';
+            async function outer() {
+              function inner() {
+                const button = screen.findByRole('button');
+                expect(button).toBeVisible();
+              }
+              inner();
+            }
+          `,
+          output: null,
+          errors: [
+            {
+              message:
+                'The promise returned by findByRole is unhandled, so the test can continue before the queried element is available.',
+            },
+          ],
+        },
+        {
+          code: `
+            import { screen } from '@testing-library/react';
+            test('finds the button', async () => {
+              const button = screen.findByRole('button');
+              expect(button).toBeVisible();
+              expect(button).toHaveAttribute('data-state', 'ready');
+            });
+          `,
+          output: `
+            import { screen } from '@testing-library/react';
+            test('finds the button', async () => {
+              const button = screen.findByRole('button');
+              expect(await button).toBeVisible();
+              expect(await button).toHaveAttribute('data-state', 'ready');
+            });
+          `,
+          errors: [{ messageId: 'awaitAsyncQuery' }],
+        },
       ],
     });
   });
