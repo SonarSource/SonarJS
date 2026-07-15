@@ -1,5 +1,5 @@
 import vitest from "vitest";
-import { test } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 import {functionWithAssertion, functionWithoutAssertion, functionWithInnerAssertion} from "./a.js"
 
 describe("tests", () => {
@@ -28,5 +28,21 @@ describe("tests", () => {
 
   test("recognizes test.expect via the type-checker path", async ({ page }) => { // Compliant
     await test.expect(page.locator("div").first()).toBeVisible();
+  });
+
+  test("recognizes test.expect.soft via the type-checker path", async ({ page }) => { // Compliant
+    await test.expect.soft(page.locator("div").first()).toBeVisible();
+  });
+
+  test("recognizes test.expect.poll via the type-checker path", async () => { // Compliant
+    await test.expect.poll(() => 1).toBe(1);
+  });
+
+  test("recognizes expect.soft via the type-checker path", async ({ page }) => { // Compliant
+    await expect.soft(page.locator("div").first()).toBeVisible();
+  });
+
+  test("recognizes expect.poll via the type-checker path", async () => { // Compliant
+    await expect.poll(() => 1).toBe(1);
   });
 });

@@ -283,6 +283,14 @@ describe('Observable error handling with object syntax', () => {
 });
 `,
         },
+        {
+          code: `
+import { expect as playwrightExpect, test } from '@playwright/test';
+test('aliased expect import', async ({ page }) => {
+  await playwrightExpect(page.locator('div')).toBeVisible();
+});
+`,
+        },
       ],
       invalid: [
         {
@@ -783,6 +791,14 @@ describe('Observable error handling with object syntax', () => {
       complete: () => { done(); }
     });
   });
+});
+`,
+        },
+        {
+          code: `
+import { expect as playwrightExpect, test } from '@playwright/test';
+test('aliased expect import', async ({ page }) => {
+  await playwrightExpect(page.locator('div')).toBeVisible();
 });
 `,
         },

@@ -96,10 +96,21 @@ const GLOBAL_EXPECT_NAMES = new Set([
   'expectTypeOf',
 ]);
 
-const PLAYWRIGHT_TEST_EXPECT_FQN = '@playwright.test.test.expect';
+// Two roots: the `test.expect` alias and the direct `import { expect }` from '@playwright/test'.
+// Prefix match covers static helpers like `.soft`, `.poll`, `.configure`.
+// `.replaceAll('/', '.')` normalises the scoped-package slash that
+// getFullyQualifiedNameTS preserves (e.g. '@playwright/test') while getFullyQualifiedName uses dots.
+const PLAYWRIGHT_EXPECT_FQN_ROOTS = [
+  '@playwright.test.test.expect', // test.expect alias
+  '@playwright.test.expect', // import { expect } from '@playwright/test'
+];
 
-function isPlaywrightTestExpectFqn(fqn: string | null | undefined): boolean {
-  return fqn?.replaceAll('/', '.') === PLAYWRIGHT_TEST_EXPECT_FQN;
+function isPlaywrightExpectFqn(fqn: string | null | undefined): boolean {
+  if (!fqn) return false;
+  const normalized = fqn.replaceAll('/', '.');
+  return PLAYWRIGHT_EXPECT_FQN_ROOTS.some(
+    root => normalized === root || normalized.startsWith(root + '.'),
+  );
 }
 
 const CHAI_NON_TERMINAL_PROPERTY_NAMES = new Set([
@@ -312,7 +323,7 @@ function isGlobalExpectExpressionJS(
   const innerCall = current;
   return (
     (innerCall.callee.type === 'Identifier' && GLOBAL_EXPECT_NAMES.has(innerCall.callee.name)) ||
-    isPlaywrightTestExpectFqn(getFullyQualifiedName(context, innerCall.callee))
+    isPlaywrightExpectFqn(getFullyQualifiedName(context, innerCall.callee))
   );
 }
 
@@ -464,7 +475,7 @@ function isGlobalExpectExpression(
   return (
     (innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
       GLOBAL_EXPECT_NAMES.has((innerCallExpression.expression as ts.Identifier).text)) ||
-    isPlaywrightTestExpectFqn(getFullyQualifiedNameTS(services, innerCallExpression.expression))
+    isPlaywrightExpectFqn(getFullyQualifiedNameTS(services, innerCallExpression.expression))
   );
 }
 
