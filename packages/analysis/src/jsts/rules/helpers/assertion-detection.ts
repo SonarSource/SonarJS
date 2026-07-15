@@ -98,6 +98,10 @@ const GLOBAL_EXPECT_NAMES = new Set([
 
 const PLAYWRIGHT_TEST_EXPECT_FQN = '@playwright.test.test.expect';
 
+function isPlaywrightTestExpectFqn(fqn: string | null | undefined): boolean {
+  return fqn?.replaceAll('/', '.') === PLAYWRIGHT_TEST_EXPECT_FQN;
+}
+
 const CHAI_NON_TERMINAL_PROPERTY_NAMES = new Set([
   'all',
   'also',
@@ -308,8 +312,7 @@ function isGlobalExpectExpressionJS(
   const innerCall = current;
   return (
     (innerCall.callee.type === 'Identifier' && GLOBAL_EXPECT_NAMES.has(innerCall.callee.name)) ||
-    getFullyQualifiedName(context, innerCall.callee)?.replaceAll('/', '.') ===
-      PLAYWRIGHT_TEST_EXPECT_FQN
+    isPlaywrightTestExpectFqn(getFullyQualifiedName(context, innerCall.callee))
   );
 }
 
@@ -461,8 +464,7 @@ function isGlobalExpectExpression(
   return (
     (innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
       GLOBAL_EXPECT_NAMES.has((innerCallExpression.expression as ts.Identifier).text)) ||
-    getFullyQualifiedNameTS(services, innerCallExpression.expression)?.replaceAll('/', '.') ===
-      PLAYWRIGHT_TEST_EXPECT_FQN
+    isPlaywrightTestExpectFqn(getFullyQualifiedNameTS(services, innerCallExpression.expression))
   );
 }
 
