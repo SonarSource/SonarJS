@@ -61,6 +61,14 @@ const secretObjectSignatures: Record<string, { argIndex: number; propertyName: s
   'mysql.createPool': { argIndex: 0, propertyName: 'password' },
   'mysql2.createConnection': { argIndex: 0, propertyName: 'password' },
   'mysql2.createPool': { argIndex: 0, propertyName: 'password' },
+  'hono.bearer-auth.bearerAuth': { argIndex: 0, propertyName: 'token' },
+  '@unkey.hono.unkey': { argIndex: 0, propertyName: 'rootKey' },
+  '@deno.kv.openKv': { argIndex: 1, propertyName: 'accessToken' },
+  '@deno.kv.makeRemoteService': { argIndex: 0, propertyName: 'accessToken' },
+  '@clerk.backend.createClerkClient': { argIndex: 0, propertyName: 'secretKey' },
+  '@clerk.express.clerkMiddleware': { argIndex: 0, propertyName: 'secretKey' },
+  '@clerk.fastify.clerkPlugin': { argIndex: 0, propertyName: 'secretKey' },
+  '@clerk.hono.clerkMiddleware': { argIndex: 0, propertyName: 'secretKey' },
 };
 
 export const rule: Rule.RuleModule = {

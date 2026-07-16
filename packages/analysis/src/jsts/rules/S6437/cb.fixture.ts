@@ -196,4 +196,65 @@ mysql2.createConnection({ password: process.env.DB_PASSWORD });
 //^^^^^^^^^^^^^^^^^
 mysql2.createPool({ password: process.env.DB_PASSWORD });
 
+import { unkey } from '@unkey/hono';
+  unkey({ rootKey: 'unkey_abc123' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^
+unkey({ rootKey: process.env.UNKEY_ROOT_KEY });
+const unkeyRoot = 'hardcoded-root-key';
+//                ^^^^^^^^^^^^^^^^^^^^ > {{Hardcoded value assigned here}}
+  unkey({ rootKey: unkeyRoot }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^
+
+import { bearerAuth } from 'hono/bearer-auth';
+  bearerAuth({ token: 'honoishot' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^
+bearerAuth({ token: process.env.API_TOKEN });
+const bearerToken = 'hardcoded-token';
+//                  ^^^^^^^^^^^^^^^^^ > {{Hardcoded value assigned here}}
+  bearerAuth({ token: bearerToken }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^
+  bearerAuth({ token: ['hardcoded-token'] }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^
+
+import { openKv, makeRemoteService } from '@deno/kv';
+  openKv('https://api.deno.com/databases/xxx/connect', { accessToken: 'deno_kv_abc123' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^
+openKv('https://api.deno.com/databases/xxx/connect', { accessToken: process.env.DENO_KV_ACCESS_TOKEN });
+const kvToken = 'deno_kv_hardcoded';
+//              ^^^^^^^^^^^^^^^^^^^ > {{Hardcoded value assigned here}}
+  openKv('https://api.deno.com/databases/xxx/connect', { accessToken: kvToken }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^
+
+  makeRemoteService({ accessToken: 'deno_kv_abc123' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^^^^^^^
+makeRemoteService({ accessToken: process.env.DENO_KV_ACCESS_TOKEN });
+
+import { createClerkClient } from '@clerk/backend';
+  createClerkClient({ secretKey: 'sk_live_abc123' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^^^^^^^
+createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY });
+const backendSecret = 'sk_live_hardcoded';
+//                    ^^^^^^^^^^^^^^^^^^^ > {{Hardcoded value assigned here}}
+  createClerkClient({ secretKey: backendSecret }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^^^^^^^
+
+import { clerkMiddleware as honoClerkMiddleware } from '@clerk/hono';
+  honoClerkMiddleware({ secretKey: 'sk_test_abc123' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^^^^^^^^^
+honoClerkMiddleware({ secretKey: process.env.CLERK_SECRET_KEY });
+const clerkSecret = 'sk_test_hardcoded';
+//                  ^^^^^^^^^^^^^^^^^^^ > {{Hardcoded value assigned here}}
+  honoClerkMiddleware({ secretKey: clerkSecret }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^^^^^^^^^
+
+import { clerkMiddleware as expressClerkMiddleware } from '@clerk/express';
+  expressClerkMiddleware({ secretKey: 'sk_test_abc123' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^^^^^^^^^^^^
+expressClerkMiddleware({ secretKey: process.env.CLERK_SECRET_KEY });
+
+import { clerkPlugin } from '@clerk/fastify';
+  clerkPlugin({ secretKey: 'sk_test_abc123' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^
+clerkPlugin({ secretKey: process.env.CLERK_SECRET_KEY });
+
 toString('not a secret'); // Compliant
