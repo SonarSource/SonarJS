@@ -18,14 +18,32 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
 import { withStrictImportResolution } from '../helpers/testing-library.js';
 import * as meta from './generated-meta.js';
+
+const RECOGNIZED_MODULE_PREFIXES = [
+  '@testing-library.dom',
+  '@testing-library.react',
+  '@testing-library.vue',
+  '@testing-library.angular',
+  '@testing-library.svelte',
+];
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     { ...withStrictImportResolution(rule), meta: generateMeta(meta, rule.meta) },
     (context, descriptor) => {
-      if (!('node' in descriptor) || !hasUnsafeFix(descriptor.node)) {
+      if (!('node' in descriptor)) {
+        context.report(descriptor);
+        return;
+      }
+
+      if (isKnownNonTestingLibraryQuery(context, descriptor.node)) {
+        return;
+      }
+
+      if (!hasUnsafeFix(descriptor.node)) {
         context.report(descriptor);
         return;
       }
@@ -33,6 +51,30 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       const { fix: _fix, ...descriptorWithoutFix } = descriptor;
       context.report(descriptorWithoutFix);
     },
+  );
+}
+
+function isKnownNonTestingLibraryQuery(
+  context: Rule.RuleContext,
+  node: estree.Node | null | undefined,
+): boolean {
+  if (node?.type !== 'CallExpression') {
+    return false;
+  }
+
+  const callback = node.arguments[0];
+  const query =
+    callback?.type === 'ArrowFunctionExpression' && callback.body.type === 'CallExpression'
+      ? getSynchronousQuery(callback.body)
+      : undefined;
+  if (query?.callee.type !== 'MemberExpression') {
+    return false;
+  }
+
+  const fqn = getFullyQualifiedName(context, query.callee);
+  return (
+    fqn != null &&
+    !RECOGNIZED_MODULE_PREFIXES.some(prefix => fqn === prefix || fqn.startsWith(`${prefix}.`))
   );
 }
 

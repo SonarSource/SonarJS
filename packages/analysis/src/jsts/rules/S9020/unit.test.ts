@@ -134,6 +134,13 @@ describe('S9020', () => {
           `,
             filename: 'status.test.ts',
           },
+          {
+            code: `
+            import { waitFor } from '@testing-library/react';
+            import { page } from '@playwright/test';
+            await waitFor(() => page.getByRole('status', { name: 'Saved' }));
+          `,
+          },
         ],
         invalid: [],
       },
