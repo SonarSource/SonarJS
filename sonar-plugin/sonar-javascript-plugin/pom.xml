@@ -565,7 +565,7 @@
         <executions>
           <execution>
             <id>make-bom</id>
-            <phase>package</phase>
+            <phase>prepare-package</phase>
             <goals>
               <goal>makeBom</goal>
             </goals>
@@ -602,7 +602,7 @@
           </execution>
           <execution>
             <id>merge-cyclonedx-bom</id>
-            <phase>package</phase>
+            <phase>verify</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -631,7 +631,7 @@
         <executions>
           <execution>
             <id>attach-cyclonedx</id>
-            <phase>package</phase>
+            <phase>verify</phase>
             <goals>
               <goal>attach-artifact</goal>
             </goals>
