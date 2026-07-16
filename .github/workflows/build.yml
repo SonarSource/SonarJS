@@ -1069,26 +1069,30 @@ jobs:
       - *download_rspec_rule_data
       - name: Run JS/TS Ruling
         id: ruling
+        continue-on-error: true
         run: |
           npm run generate-meta
           npm run grpc:generate-proto
           npm run ruling
-      - name: Update ruling and notify
-        if: always() && (github.event_name == 'pull_request' || github.ref_name == github.event.repository.default_branch)
-        uses: ./.github/actions/ruling_bot
+      - name: Upload JS/TS ruling artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          github-token: ${{ github.token }}
-          pr-number: ${{ github.event.pull_request.number || '' }}
-          target-ref: ${{ github.head_ref || github.ref_name }}
-          base-ref: ${{ github.base_ref || github.event.repository.default_branch }}
-          base-sha: ${{ github.event.pull_request.base.sha || '' }}
-          is-pull-request: ${{ github.event_name == 'pull_request' }}
+          name: actual_jsts_ruling
+          path: packages/ruling/actual/
+          retention-days: 30
+          if-no-files-found: ignore
+      - name: Update ruling and notify
+        if: always() && github.event_name == 'pull_request'
+        uses: SonarSource/core-languages-tooling-public/ruling-update-and-notify@master
+        with:
+          pr-number: ${{ github.event.pull_request.number }}
           ruling-failed: ${{ steps.ruling.outcome == 'failure' }}
-          new-results-path: packages/ruling/actual
-          old-results-path: its/ruling/src/test/expected
-          sources-path: its/sources
-          sources-repo-url: https://github.com/SonarSource/jsts-test-sources/blob/master
-          rspec-base-url: https://musical-adventure-r9qk65j.pages.github.io/rspec/#
+          sync-command: 'cp -rv packages/ruling/actual/* its/ruling/src/test/expected/'
+          ruling-root: 'its/ruling/src/test/expected'
+          sources-root: 'its/sources'
+        env:
+          GH_TOKEN: ${{ github.token }}
 
   ruling:
     runs-on: sonar-xl
