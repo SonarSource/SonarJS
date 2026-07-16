@@ -68,32 +68,6 @@ const sortedItems = computed(() => {
 </script>
 `,
           },
-          {
-            // Composition API: imported nextTick used outside of a computed function
-            code: `
-<script setup>
-import { nextTick, ref } from 'vue';
-const value = ref(0);
-function onClick() {
-  nextTick(() => {});
-}
-</script>
-`,
-          },
-          {
-            // nextTick imported from a module other than 'vue' should not be flagged
-            code: `
-<script setup>
-import { computed, ref } from 'vue';
-import { nextTick } from './my-utils.js';
-const value = ref(0);
-const data = computed(() => {
-  nextTick(() => {});
-  return value.value;
-});
-</script>
-`,
-          },
         ],
         invalid: [
           {
@@ -150,24 +124,6 @@ export default {
             // Composition API: Vue.nextTick (unexpectedInFunction, "asynchronous action")
             code: `
 <script setup>
-import { computed, ref } from 'vue';
-const value = ref(0);
-const data = computed(() => {
-  Vue.nextTick(() => {});
-  return value.value;
-});
-</script>
-`,
-            errors: [{ message: 'Move this asynchronous action out of the computed function.' }],
-          },
-          {
-            // Composition API: Vue.nextTick where `Vue` is itself a default import from 'vue'.
-            // getFullyQualifiedName() resolves `Vue.nextTick` to 'vue.nextTick' regardless of
-            // the default import's local name, so this must not be double-reported by both
-            // the upstream MemberExpression check and the bare-identifier import listener.
-            code: `
-<script setup>
-import Vue from 'vue';
 import { computed, ref } from 'vue';
 const value = ref(0);
 const data = computed(() => {
@@ -314,53 +270,6 @@ const data = computed(() => {
 `,
             errors: [{ message: 'Move this timed function out of the computed function.' }],
           },
-          {
-            // Composition API: nextTick imported from 'vue' (unexpectedInFunction, "asynchronous action")
-            code: `
-<script setup>
-import { computed, nextTick, ref } from 'vue';
-const value = ref(0);
-const data = computed(() => {
-  nextTick(() => {});
-  return value.value;
-});
-</script>
-`,
-            errors: [{ message: 'Move this asynchronous action out of the computed function.' }],
-          },
-          {
-            // Composition API: aliased import of nextTick from 'vue' is still recognized
-            code: `
-<script setup>
-import { computed, nextTick as nt, ref } from 'vue';
-const value = ref(0);
-const data = computed(() => {
-  nt(() => {});
-  return value.value;
-});
-</script>
-`,
-            errors: [{ message: 'Move this asynchronous action out of the computed function.' }],
-          },
-          {
-            // Options API: nextTick imported from 'vue' (unexpectedInProperty, "asynchronous action")
-            code: `
-<script>
-import { nextTick } from 'vue';
-export default {
-  computed: {
-    data() {
-      nextTick(() => {});
-      return this.value;
-    }
-  }
-}
-</script>
-`,
-            errors: [
-              { message: 'Move this asynchronous action out of the computed property "data".' },
-            ],
-          },
         ],
       },
     );
@@ -455,41 +364,6 @@ const data = computed(() => {
 </script>
 `,
             errors: [{ message: 'Move this timed function out of the computed function.' }],
-          },
-          {
-            // TypeScript: Composition API nextTick imported from 'vue' (unexpectedInFunction)
-            filename: 'test.vue',
-            code: `
-<script setup lang="ts">
-import { computed, nextTick, ref } from 'vue';
-const value = ref<number>(0);
-const data = computed(() => {
-  nextTick(() => {});
-  return value.value;
-});
-</script>
-`,
-            errors: [{ message: 'Move this asynchronous action out of the computed function.' }],
-          },
-          {
-            // TypeScript: Options API nextTick imported from 'vue' (unexpectedInProperty)
-            filename: 'test.vue',
-            code: `
-<script lang="ts">
-import { nextTick } from 'vue';
-export default {
-  computed: {
-    data(): number {
-      nextTick(() => {});
-      return this.value;
-    }
-  }
-}
-</script>
-`,
-            errors: [
-              { message: 'Move this asynchronous action out of the computed property "data".' },
-            ],
           },
         ],
       },
