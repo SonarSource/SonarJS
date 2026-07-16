@@ -16,7 +16,8 @@
       "@testing-library/react",
       "@testing-library/vue",
       "@testing-library/angular",
-      "@testing-library/svelte"
+      "@testing-library/svelte",
+      "storybook"
     ]
   },
   "defaultSeverity": "Major",
