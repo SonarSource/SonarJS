@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { expect as playwrightExpect } from '@playwright/test';
 
 describe('playwright assertions', () => {
   it('recognizes expect on locators', () => { // Compliant
@@ -25,12 +26,32 @@ describe('playwright assertions', () => {
     await test.expect.poll(() => 1).toBe(1);
   });
 
+  test('recognizes test.expect.configure()', async ({ page }) => { // Compliant
+    await test.expect.configure({ timeout: 1000 })(page.locator('h1')).toHaveText('Hello');
+  });
+
   test('recognizes expect.soft() from imported expect', async ({ page }) => { // Compliant
     await expect.soft(page.locator('h1')).toHaveText('Hello');
   });
 
   test('recognizes expect.poll() from imported expect', async () => { // Compliant
     await expect.poll(() => 1).toBe(1);
+  });
+
+  test('recognizes expect.configure() from imported expect', async ({ page }) => { // Compliant
+    await expect.configure({ timeout: 1000 })(page.locator('h1')).toHaveText('Hello');
+  });
+
+  test('recognizes expect.soft() from aliased imported expect', async ({ page }) => { // Compliant
+    await playwrightExpect.soft(page.locator('h1')).toHaveText('Hello');
+  });
+
+  test('recognizes expect.poll() from aliased imported expect', async () => { // Compliant
+    await playwrightExpect.poll(() => 1).toBe(1);
+  });
+
+  test('recognizes expect.configure() from aliased imported expect', async ({ page }) => { // Compliant
+    await playwrightExpect.configure({ timeout: 1000 })(page.locator('h1')).toHaveText('Hello');
   });
 
   it('should recognize issue', () => { // Noncompliant {{Add at least one assertion to this test case.}}

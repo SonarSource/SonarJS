@@ -291,6 +291,20 @@ test('aliased expect import', async ({ page }) => {
 });
 `,
         },
+        {
+          code: `
+import { expect, test } from '@playwright/test';
+import { expect as playwrightExpect } from '@playwright/test';
+
+test('member-based playwright expect entrypoints', async ({ page }) => {
+  await test.expect.configure({ timeout: 1000 })(page.locator('div')).toBeVisible();
+  await expect.configure({ timeout: 1000 })(page.locator('div')).toBeVisible();
+  await playwrightExpect.soft(page.locator('div')).toBeVisible();
+  await playwrightExpect.poll(() => 1).toBe(1);
+  await playwrightExpect.configure({ timeout: 1000 })(page.locator('div')).toBeVisible();
+});
+`,
+        },
       ],
       invalid: [
         {
@@ -799,6 +813,20 @@ describe('Observable error handling with object syntax', () => {
 import { expect as playwrightExpect, test } from '@playwright/test';
 test('aliased expect import', async ({ page }) => {
   await playwrightExpect(page.locator('div')).toBeVisible();
+});
+`,
+        },
+        {
+          code: `
+import { expect, test } from '@playwright/test';
+import { expect as playwrightExpect } from '@playwright/test';
+
+test('member-based playwright expect entrypoints', async ({ page }) => {
+  await test.expect.configure({ timeout: 1000 })(page.locator('div')).toBeVisible();
+  await expect.configure({ timeout: 1000 })(page.locator('div')).toBeVisible();
+  await playwrightExpect.soft(page.locator('div')).toBeVisible();
+  await playwrightExpect.poll(() => 1).toBe(1);
+  await playwrightExpect.configure({ timeout: 1000 })(page.locator('div')).toBeVisible();
 });
 `,
         },
