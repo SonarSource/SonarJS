@@ -81,7 +81,7 @@
     <rspec.branch>dogfood-automerge</rspec.branch>
     <sonarlint.plugin.api.version>11.6.0.85952</sonarlint.plugin.api.version>
 
-    <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
+    <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar,${project.groupId}:sonar-javascript-plugin:json:cyclonedx</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <maven.compiler.release>17</maven.compiler.release>
     <jdk.min.version>17</jdk.min.version>
@@ -374,6 +374,23 @@
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
           <version>3.6.3</version>
+        </plugin>
+        <plugin>
+          <groupId>org.cyclonedx</groupId>
+          <artifactId>cyclonedx-maven-plugin</artifactId>
+          <version>2.9.1</version>
+          <configuration>
+            <projectType>library</projectType>
+            <schemaVersion>1.6</schemaVersion>
+            <includeTestScope>false</includeTestScope>
+            <outputFormat>json</outputFormat>
+            <outputName>bom</outputName>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>3.6.1</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>

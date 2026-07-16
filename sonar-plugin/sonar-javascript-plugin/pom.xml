@@ -558,6 +558,101 @@
   </build>
   <profiles>
     <profile>
+      <id>sbom</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.cyclonedx</groupId>
+            <artifactId>cyclonedx-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>make-bom</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>makeBom</goal>
+                </goals>
+                <configuration>
+                  <skip>${skip.sbom}</skip>
+                  <skipAttach>true</skipAttach>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>generate-npm-cyclonedx-bom</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <skip>${skip.sbom}</skip>
+                  <executable>npm</executable>
+                  <workingDirectory>${maven.multiModuleProjectDirectory}</workingDirectory>
+                  <arguments>
+                    <argument>run</argument>
+                    <argument>cyclonedx:npm</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+              <execution>
+                <id>merge-cyclonedx-bom</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <skip>${skip.sbom}</skip>
+                  <executable>bash</executable>
+                  <workingDirectory>${maven.multiModuleProjectDirectory}</workingDirectory>
+                  <arguments>
+                    <argument>tools/merge-cyclonedx-bom.sh</argument>
+                    <argument>${maven.multiModuleProjectDirectory}</argument>
+                    <argument>${project.build.directory}/bom.json</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/target/bom-npm.json</argument>
+                    <argument>${project.build.directory}/bom-merged.json</argument>
+                    <argument>${project.groupId}</argument>
+                    <argument>${project.artifactId}</argument>
+                    <argument>${project.version}</argument>
+                    <argument>${maven.multiModuleProjectDirectory}/target/esbuild-metafile.json</argument>
+                  </arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-cyclonedx</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>attach-artifact</goal>
+                </goals>
+                <configuration>
+                  <skipAttach>${skip.sbom}</skipAttach>
+                  <artifacts>
+                    <artifact>
+                      <file>${project.build.directory}/bom-merged.json</file>
+                      <type>json</type>
+                      <classifier>cyclonedx</classifier>
+                    </artifact>
+                  </artifacts>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
       <id>license-regeneration</id>
       <build>
         <plugins>
