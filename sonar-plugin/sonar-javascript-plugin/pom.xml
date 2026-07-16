@@ -586,27 +586,37 @@
         <version>3.6.3</version>
         <executions>
           <execution>
+            <id>generate-npm-cyclonedx-bom</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>npm</executable>
+              <workingDirectory>${maven.multiModuleProjectDirectory}</workingDirectory>
+              <arguments>
+                <argument>run</argument>
+                <argument>cyclonedx:npm</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
             <id>merge-cyclonedx-bom</id>
             <phase>package</phase>
             <goals>
               <goal>exec</goal>
             </goals>
             <configuration>
-              <executable>cyclonedx</executable>
-              <workingDirectory>${project.basedir}</workingDirectory>
+              <executable>bash</executable>
+              <workingDirectory>${maven.multiModuleProjectDirectory}</workingDirectory>
               <arguments>
-                <argument>merge</argument>
-                <argument>--hierarchical</argument>
-                <argument>--input-files</argument>
+                <argument>tools/merge-cyclonedx-bom.sh</argument>
+                <argument>${maven.multiModuleProjectDirectory}</argument>
                 <argument>${project.build.directory}/bom.json</argument>
                 <argument>${maven.multiModuleProjectDirectory}/target/bom-npm.json</argument>
-                <argument>--output-file</argument>
                 <argument>${project.build.directory}/bom-merged.json</argument>
-                <argument>--group</argument>
                 <argument>${project.groupId}</argument>
-                <argument>--name</argument>
                 <argument>${project.artifactId}</argument>
-                <argument>--version</argument>
                 <argument>${project.version}</argument>
               </arguments>
             </configuration>
