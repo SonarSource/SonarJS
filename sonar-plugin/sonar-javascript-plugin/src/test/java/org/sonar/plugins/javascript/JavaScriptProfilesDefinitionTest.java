@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
@@ -52,7 +52,7 @@ import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
 class JavaScriptProfilesDefinitionTest {
 
-  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(
+  private static final SonarRuntime sonarRuntime = TestSonarRuntime.forSonarLint(
     Version.create(9, 3)
   );
   private final BuiltInQualityProfilesDefinition.Context context =

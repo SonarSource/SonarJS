@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RulesDefinition.Param;
@@ -41,7 +41,7 @@ import org.sonar.plugins.javascript.api.EslintHook;
 class TypeScriptRulesDefinitionTest {
 
   private static final Gson gson = new Gson();
-  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(
+  private static final SonarRuntime sonarRuntime = TestSonarRuntime.forSonarLint(
     Version.create(9, 3)
   );
 
