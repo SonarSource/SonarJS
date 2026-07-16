@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S2077/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S6437/javascript
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
@@ -22,6 +22,7 @@ import { type IssueLocation, report, toSecondaryLocation } from '../helpers/loca
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { getProperty, getValueOfExpression } from '../helpers/ast.js';
+import { isExcludedSecretValue } from '../helpers/secret-exclusion.js';
 import * as meta from './generated-meta.js';
 
 // Dictionary with fully qualified names of functions and indices of their
@@ -94,7 +95,31 @@ export const rule: Rule.RuleModule = {
       return [];
     }
 
+    function getHardcodedStringValue(expr: estree.Expression): string | undefined {
+      switch (expr.type) {
+        case 'Literal':
+          return typeof expr.value === 'string' ? expr.value : undefined;
+        case 'TemplateLiteral': {
+          if (expr.expressions.length !== 0) {
+            return undefined;
+          }
+          const parts = expr.quasis.map(quasi => quasi.value.cooked);
+          return parts.every((part): part is string => part != null) ? parts.join('') : undefined;
+        }
+        case 'Identifier': {
+          const init = hardcodedVariables.get(expr.name);
+          return init ? getHardcodedStringValue(init as estree.Expression) : undefined;
+        }
+        default:
+          return undefined;
+      }
+    }
+
     function reportIssue(callExpression: estree.CallExpression, secretExpr: estree.Expression) {
+      const value = getHardcodedStringValue(secretExpr);
+      if (value !== undefined && isExcludedSecretValue(value)) {
+        return;
+      }
       report(
         context,
         {
