@@ -180,6 +180,12 @@ jobs:
         with:
           cache-month: ${{ needs.setup.outputs.cache-month }}
           maven-hash: ${{ needs.setup.outputs.maven-hash }}
+      - &cyclonedx_cli_cache
+        name: Cache CycloneDX CLI
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/cyclonedx-cli
+          key: cyclonedx-cli-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/merge-cyclonedx-bom.sh') }}
       - &config_maven
         name: Configure Maven
         id: config-maven
@@ -196,7 +202,7 @@ jobs:
             development/kv/data/sign key | SIGN_KEY;
             development/kv/data/sign passphrase | PGP_PASSPHRASE;
       - name: Build, test and deploy Maven artifacts
-        run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release -T1C
+        run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom -T1C
         env:
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
@@ -243,9 +249,10 @@ jobs:
       - *npm_cache
       - *download_rspec_rule_data
       - *maven_cache
+      - *cyclonedx_cli_cache
       - *config_maven
       - name: Build and test Maven (no deploy)
-        run: mvn verify -T1C
+        run: mvn verify -Psbom -T1C
 
   prepare_rspec_rule_data:
     runs-on: sonar-xs

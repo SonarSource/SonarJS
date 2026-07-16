@@ -37,7 +37,7 @@ Other workflows exist in `.github/workflows/`, but they are out of scope unless 
 
 The workflow uses a deliberate split between GitHub cache and GitHub artifacts:
 
-- `node_modules`, Maven, orchestrator, rule-api, JS coverage, and the Windows JS marker use cache semantics
+- `node_modules`, Maven, CycloneDX CLI, orchestrator, rule-api, JS coverage, and the Windows JS marker use cache semantics
 - RSPEC data, built Maven outputs, JaCoCo reports, JS coverage reports, and the ESLint plugin tarball use artifact semantics
 - `prepare_rspec_rule_data` refreshes RSPEC once and shares the result through a per-run artifact
 - Maven, orchestrator, and rule-api cache policy is centralized in local wrapper actions
@@ -332,14 +332,15 @@ That is exactly artifact semantics, not cache semantics.
 
 ### Explicit workflow-owned caches
 
-| Cache                      | Path                               | Producer(s)                                                       | Consumer(s)                                                                                                                                                                                 | Key shape                                                                     | Save policy                                                                                                         |
-| -------------------------- | ---------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| installed NPM dependencies | `node_modules`                     | `populate_npm_cache`, `populate_npm_cache_win`                    | `build`, `build_win`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `generated_files_freshness`, `knip`, `test_js`, `test_js_win`, `analyze_primary`, `analyze_shadows`, `js_ts_ruling` | `npm-${runner.os}-${npm-hash}`                                                | producer jobs use `actions/cache` with `lookup-only: true`; save happens only after a miss and a successful install |
-| JS coverage cache          | `coverage/js`                      | `test_js`                                                         | `test_js` itself                                                                                                                                                                            | `js-coverage-${runner.os}-${js-files-hash}`                                   | combined restore/save cache; allows skip when exact coverage already exists                                         |
-| Windows JS marker          | `.js-test-marker-win`              | `test_js_win`                                                     | `test_js_win` itself                                                                                                                                                                        | `js-test-win-${runner.os}-${js-files-hash}`                                   | lookup-only probe; on miss the job runs tests and saves marker at job end                                           |
-| Maven repository           | `~/.m2/repository`                 | default-branch runs through `maven-cache`                         | all `maven-cache` users                                                                                                                                                                     | `maven-${runner.os}-${cache-month}-${maven-hash}` plus monthly restore prefix | only default branch saves; non-default branches restore only                                                        |
-| Orchestrator home          | `${github.workspace}/orchestrator` | default-branch QA jobs through `orchestrator-cache`               | orchestrator-based QA/ruling jobs                                                                                                                                                           | `${key-prefix}-${month}-${github.run_id}` with monthly restore prefix         | only default branch saves unless `save: false`                                                                      |
-| Rule API clone/cache       | `$HOME/.sonar/rule-api`            | default-branch `prepare_rspec_rule_data` through `rule-api-cache` | `prepare_rspec_rule_data`                                                                                                                                                                   | `${key-prefix}-${github.run_id}` with prefix restore                          | only default branch saves unless `save: false`                                                                      |
+| Cache                      | Path                               | Producer(s)                                                       | Consumer(s)                                                                                                                                                                                 | Key shape                                                                                | Save policy                                                                                                         |
+| -------------------------- | ---------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| installed NPM dependencies | `node_modules`                     | `populate_npm_cache`, `populate_npm_cache_win`                    | `build`, `build_win`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `generated_files_freshness`, `knip`, `test_js`, `test_js_win`, `analyze_primary`, `analyze_shadows`, `js_ts_ruling` | `npm-${runner.os}-${npm-hash}`                                                           | producer jobs use `actions/cache` with `lookup-only: true`; save happens only after a miss and a successful install |
+| CycloneDX CLI              | `~/.cache/cyclonedx-cli`           | `build`, `build_win`                                              | `build`, `build_win`                                                                                                                                                                        | `cyclonedx-cli-${runner.os}-${runner.arch}-${hashFiles('tools/merge-cyclonedx-bom.sh')}` | immutable, checksum-verified native CLI used only by the opt-in Maven `sbom` profile                                |
+| JS coverage cache          | `coverage/js`                      | `test_js`                                                         | `test_js` itself                                                                                                                                                                            | `js-coverage-${runner.os}-${js-files-hash}`                                              | combined restore/save cache; allows skip when exact coverage already exists                                         |
+| Windows JS marker          | `.js-test-marker-win`              | `test_js_win`                                                     | `test_js_win` itself                                                                                                                                                                        | `js-test-win-${runner.os}-${js-files-hash}`                                              | lookup-only probe; on miss the job runs tests and saves marker at job end                                           |
+| Maven repository           | `~/.m2/repository`                 | default-branch runs through `maven-cache`                         | all `maven-cache` users                                                                                                                                                                     | `maven-${runner.os}-${cache-month}-${maven-hash}` plus monthly restore prefix            | only default branch saves; non-default branches restore only                                                        |
+| Orchestrator home          | `${github.workspace}/orchestrator` | default-branch QA jobs through `orchestrator-cache`               | orchestrator-based QA/ruling jobs                                                                                                                                                           | `${key-prefix}-${month}-${github.run_id}` with monthly restore prefix                    | only default branch saves unless `save: false`                                                                      |
+| Rule API clone/cache       | `$HOME/.sonar/rule-api`            | default-branch `prepare_rspec_rule_data` through `rule-api-cache` | `prepare_rspec_rule_data`                                                                                                                                                                   | `${key-prefix}-${github.run_id}` with prefix restore                                     | only default branch saves unless `save: false`                                                                      |
 
 ### Helper-owned or transitive caches
 
@@ -557,10 +558,11 @@ Responsibilities:
 
 - restore `node_modules`
 - restore Maven cache
+- restore the checksum-verified CycloneDX CLI cache
 - download refreshed RSPEC files
 - configure Maven/Repox
 - fetch deploy/signing credentials
-- run Maven deploy with coverage/sign/release profiles
+- run Maven deploy with coverage/sign/release and `sbom` profiles
 - upload:
   - `sonarjs-m2`
   - `maven-targets-${github.sha}`
@@ -574,8 +576,8 @@ This is the central build producer job.
 Responsibilities:
 
 - Windows verification build
-- restores `node_modules`, Maven cache, and RSPEC artifact
-- runs `mvn verify -T1C`
+- restores `node_modules`, Maven cache, CycloneDX CLI cache, and RSPEC artifact
+- runs `mvn verify -Psbom -T1C`
 
 It validates Windows buildability but does not deploy artifacts.
 
@@ -806,7 +808,7 @@ These are the most important reusable components in the current pipeline.
 | `actions/cache/restore`                                    | 10                          | restore-only cache consumers                                                                               | direct GitHub cache use                                |
 | `./.github/actions/orchestrator-cache`                     | 9                           | repo-owned orchestrator cache policy                                                                       | official GitHub cache, rolling monthly prefix          |
 | `actions/upload-artifact`                                  | 7                           | same-run file handoff                                                                                      | artifact production                                    |
-| `actions/cache`                                            | 4                           | cache producer/probe jobs                                                                                  | direct GitHub cache use                                |
+| `actions/cache`                                            | 6                           | cache producer/probe jobs, including Linux and Windows CycloneDX CLI caches                                | direct GitHub cache use                                |
 | `SonarSource/ci-github-actions/get-build-number`           | 1                           | stable build number                                                                                        | internally uses GitHub cache                           |
 | `./.github/actions/ruling_bot`                             | 1                           | repo-owned ruling report/comment/fix-PR automation for sonar-lits result trees and rich PR ruling comments | control-plane encapsulation, no direct cache semantics |
 | `./.github/actions/rule-api-cache`                         | 1                           | repo-owned rule-api cache policy                                                                           | official GitHub cache, rolling prefix                  |

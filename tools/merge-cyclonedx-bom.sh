@@ -8,6 +8,7 @@ output="$4"
 group="$5"
 name="$6"
 version="$7"
+esbuild_metafile="$8"
 
 arch="$(uname -m)"
 case "$arch" in
@@ -56,10 +57,13 @@ case "$asset" in
     ;;
 esac
 
-mkdir -p "${root}/target"
 cli_version_number="${cli_version#v}"
 cli_asset="${asset#cyclonedx-}"
-cli="${root}/target/cyclonedx-cli-${cli_version_number}-${cli_asset}"
+home_dir="${HOME:-${root}/target}"
+cache_home="${XDG_CACHE_HOME:-${home_dir}/.cache}"
+cli_dir="${CYCLONEDX_CLI_CACHE_DIR:-${cache_home}/cyclonedx-cli}"
+mkdir -p "$cli_dir"
+cli="${cli_dir}/cyclonedx-cli-${cli_version_number}-${cli_asset}"
 
 calculate_sha256() {
   if command -v sha256sum >/dev/null 2>&1; then
@@ -101,3 +105,6 @@ fi
   --group "$group" \
   --name "$name" \
   --version "$version"
+
+"$cli" validate --input-file "$output"
+node "$root/tools/validate-cyclonedx-bom.mjs" "$npm_bom" "$output" "$esbuild_metafile"

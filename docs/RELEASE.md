@@ -105,9 +105,11 @@ SonarJS does **not** use the generic `release-github-actions` version bump actio
 1. Run `.github/workflows/automated-release.yml`, usually from `master`.
 2. Monitor the GitHub release publication kicked off through `.github/workflows/release.yml`.
 3. Verify the REL ticket and Jira release were updated.
-4. If `sqaa-integration` was enabled, verify the SQAA Docker image was built from the release tag and that the `sonar-analysis-as-a-service` PR was created.
-5. Merge the `Prepare next development iteration` PR.
-6. Merge the SQS, SQC, and SQAA integration PRs created by the release automation.
+4. Verify that the promoted `sonar-javascript-plugin-<version>-cyclonedx.json` classifier is present,
+   signed, valid, and contains `pkg:npm` components.
+5. If `sqaa-integration` was enabled, verify the SQAA Docker image was built from the release tag and that the `sonar-analysis-as-a-service` PR was created.
+6. Merge the `Prepare next development iteration` PR.
+7. Merge the SQS, SQC, and SQAA integration PRs created by the release automation.
 
 ## SQAA Release
 
