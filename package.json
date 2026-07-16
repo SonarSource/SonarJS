@@ -60,7 +60,7 @@
   },
   "type": "module",
   "devDependencies": {
-    "@cyclonedx/cyclonedx-npm": "5.0.0",
+    "@cyclonedx/cyclonedx-npm": "6.0.0",
     "@eslint/core": "1.2.1",
     "@inquirer/prompts": "8.5.2",
     "@istanbuljs/esm-loader-hook": "0.3.0",
