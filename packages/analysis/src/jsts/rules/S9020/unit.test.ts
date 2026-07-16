@@ -156,6 +156,17 @@ describe('S9020', () => {
         invalid: [
           {
             code: `
+            import { screen, waitFor } from '@testing-library/preact';
+            const status = await waitFor(() => screen.getByRole('status', { name: 'Saved' }));
+          `,
+            output: `
+            import { screen, waitFor } from '@testing-library/preact';
+            const status = await screen.findByRole('status', { name: 'Saved' });
+          `,
+            errors: [{ messageId: 'preferFindBy' }],
+          },
+          {
+            code: `
             import { screen, waitFor } from '@testing-library/react';
             const status = await waitFor(() => screen.getByRole('status', { name: 'Saved' }));
           `,

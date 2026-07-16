@@ -22,13 +22,7 @@ import { getFullyQualifiedName } from '../helpers/module.js';
 import { withStrictImportResolution } from '../helpers/testing-library.js';
 import * as meta from './generated-meta.js';
 
-const RECOGNIZED_MODULE_PREFIXES = [
-  '@testing-library.dom',
-  '@testing-library.react',
-  '@testing-library.vue',
-  '@testing-library.angular',
-  '@testing-library.svelte',
-];
+const RECOGNIZED_MODULE_PREFIX = '@testing-library.';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -72,10 +66,7 @@ function isKnownNonTestingLibraryQuery(
   }
 
   const fqn = getFullyQualifiedName(context, query.callee);
-  return (
-    fqn != null &&
-    !RECOGNIZED_MODULE_PREFIXES.some(prefix => fqn === prefix || fqn.startsWith(`${prefix}.`))
-  );
+  return fqn != null && !fqn.startsWith(RECOGNIZED_MODULE_PREFIX);
 }
 
 function hasUnsafeFix(node: estree.Node | null | undefined) {
