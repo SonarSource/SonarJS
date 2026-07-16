@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.Context;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -30,7 +30,7 @@ import org.sonar.api.utils.Version;
 
 class CssProfileDefinitionTest {
 
-  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(
+  private static final SonarRuntime sonarRuntime = TestSonarRuntime.forSonarLint(
     Version.create(9, 3)
   );
 

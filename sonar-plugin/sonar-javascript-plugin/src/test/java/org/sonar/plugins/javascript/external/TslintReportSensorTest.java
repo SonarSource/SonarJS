@@ -40,7 +40,7 @@ import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
@@ -66,7 +66,7 @@ class TslintReportSensorTest {
   private TslintReportSensor tslintReportSensor = new TslintReportSensor();
   private DefaultInputFile inputFile = createInputFile(context, CONTENT, "myFile.ts");
 
-  private static final SonarRuntime RUNTIME = SonarRuntimeImpl.forSonarQube(
+  private static final SonarRuntime RUNTIME = TestSonarRuntime.forSonarQube(
     Version.create(7, 9),
     SonarQubeSide.SERVER,
     SonarEdition.COMMUNITY

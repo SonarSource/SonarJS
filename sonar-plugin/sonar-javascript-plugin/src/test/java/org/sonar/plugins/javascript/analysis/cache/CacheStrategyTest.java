@@ -52,7 +52,7 @@ import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.analysis.JsTsContext;
@@ -125,7 +125,7 @@ class CacheStrategyTest {
     astCacheKey = CacheKey.forFile(inputFile, PLUGIN_VERSION).forAst().toString();
 
     when(sensorContext.runtime()).thenReturn(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(9, 6),
         SonarQubeSide.SCANNER,
         SonarEdition.ENTERPRISE
@@ -153,7 +153,7 @@ class CacheStrategyTest {
   void should_not_fail_on_older_versions() throws Exception {
     when(sensorContext.getSonarQubeVersion()).thenReturn(Version.create(9, 3));
     when(sensorContext.runtime()).thenReturn(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(9, 3),
         SonarQubeSide.SCANNER,
         SonarEdition.ENTERPRISE
@@ -169,7 +169,7 @@ class CacheStrategyTest {
 
   @Test
   void should_not_fail_in_sonarlint() throws Exception {
-    when(sensorContext.runtime()).thenReturn(SonarRuntimeImpl.forSonarLint(Version.create(9, 6)));
+    when(sensorContext.runtime()).thenReturn(TestSonarRuntime.forSonarLint(Version.create(9, 6)));
 
     var strategy = CacheStrategies.getStrategyFor(context, inputFile, PLUGIN_VERSION);
     assertThat(strategy.getName()).isEqualTo(CacheStrategy.NO_CACHE);
