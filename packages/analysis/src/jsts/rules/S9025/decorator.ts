@@ -94,6 +94,14 @@ function createNextTickImportListener(context: Rule.RuleContext): Rule.RuleListe
   return {
     CallExpression(node: estree.CallExpression) {
       const call = node as NodeWithParent<estree.CallExpression>;
+      // Only bare identifier calls, e.g. `nextTick()`, are this listener's concern.
+      // The upstream rule already recognizes `this.$nextTick(...)` and `Vue.nextTick(...)`
+      // (both `MemberExpression` callees) on its own; getFullyQualifiedName() would resolve
+      // the latter to 'vue.nextTick' too (regardless of the default import's local name),
+      // so without this guard both listeners would report the same call twice.
+      if (call.callee.type !== 'Identifier') {
+        return;
+      }
       if (getFullyQualifiedName(context, call) !== 'vue.nextTick') {
         return;
       }

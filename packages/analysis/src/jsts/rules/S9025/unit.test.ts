@@ -161,6 +161,24 @@ const data = computed(() => {
             errors: [{ message: 'Move this asynchronous action out of the computed function.' }],
           },
           {
+            // Composition API: Vue.nextTick where `Vue` is itself a default import from 'vue'.
+            // getFullyQualifiedName() resolves `Vue.nextTick` to 'vue.nextTick' regardless of
+            // the default import's local name, so this must not be double-reported by both
+            // the upstream MemberExpression check and the bare-identifier import listener.
+            code: `
+<script setup>
+import Vue from 'vue';
+import { computed, ref } from 'vue';
+const value = ref(0);
+const data = computed(() => {
+  Vue.nextTick(() => {});
+  return value.value;
+});
+</script>
+`,
+            errors: [{ message: 'Move this asynchronous action out of the computed function.' }],
+          },
+          {
             // Options API: await operator (unexpectedInProperty, "await operator")
             // The enclosing method must itself be `async`, which also triggers the
             // "async function declaration" report.
