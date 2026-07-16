@@ -25,9 +25,5 @@
       "MAINTAINABILITY": "LOW"
     },
     "attribute": "CLEAR"
-  },
-  "compatibleLanguages": [
-    "js",
-    "ts"
-  ]
+  }
 }

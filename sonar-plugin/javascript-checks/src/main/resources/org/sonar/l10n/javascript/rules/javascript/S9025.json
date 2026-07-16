@@ -1,33 +1,35 @@
 {
-  "title": "Non-interactive DOM elements should not have the `tabindex` attribute",
-  "type": "CODE_SMELL",
+  "title": "Asynchronous actions should not be used in Vue computed properties",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
-    "accessibility",
-    "react"
+    "vue"
   ],
+  "extra": {
+    "requiredDependency": [
+      "vue"
+    ]
+  },
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-6845",
-  "sqKey": "S6845",
+  "ruleSpecification": "RSPEC-9025",
+  "sqKey": "S9025",
   "scope": "Main",
-  "quickfix": "targeted",
+  "quickfix": "infeasible",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "LOW",
       "RELIABILITY": "MEDIUM"
     },
-    "attribute": "CONVENTIONAL"
+    "attribute": "LOGICAL"
   },
   "compatibleLanguages": [
     "js",
     "ts"
   ],
   "defaultQualityProfiles": [
-    "Sonar agentic AI",
     "Sonar way"
   ]
 }
