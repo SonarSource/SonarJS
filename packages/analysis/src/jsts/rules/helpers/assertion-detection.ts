@@ -32,6 +32,7 @@ import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 import * as Chai from './chai.js';
+import * as Playwright from './playwright.js';
 import * as Sinon from './sinon.js';
 import * as Vitest from './vitest.js';
 import * as Supertest from './supertest.js';
@@ -187,7 +188,7 @@ const SCRIPT_CAPABLE_DETECTORS: AssertionDetector[] = [
 const RUNNER_BOUND_DETECTORS: AssertionDetector[] = [
   Vitest.isAssertion,
   (_context, node) => Cypress.isAssertion(node),
-  (_context, node) => node.type === 'CallExpression' && isGlobalExpectExpressionJS(node),
+  (context, node) => node.type === 'CallExpression' && isGlobalExpectExpressionJS(context, node),
 ];
 
 const ASSERTION_DETECTORS: AssertionDetector[] = [
@@ -278,11 +279,15 @@ function isTSShouldAccess(node: ts.Node): node is ts.PropertyAccessExpression {
 /**
  * Checks if the node matches the pattern expectX(...).method() where:
  * - expectX is one of the known global expect entry points ({@link GLOBAL_EXPECT_NAMES})
+ *   or a Playwright `expect(...)` entry point
  * - method is a chained property access with a method call (e.g., .toBe(), .toEqual(), .not.toBe())
  *
  * This mirrors the TypeScript isGlobalExpectExpression function logic.
  */
-function isGlobalExpectExpressionJS(node: estree.CallExpression): boolean {
+function isGlobalExpectExpressionJS(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+): boolean {
   if (node.callee.type !== 'MemberExpression') {
     return false;
   }
@@ -300,7 +305,10 @@ function isGlobalExpectExpressionJS(node: estree.CallExpression): boolean {
   }
 
   const innerCall = current;
-  return innerCall.callee.type === 'Identifier' && GLOBAL_EXPECT_NAMES.has(innerCall.callee.name);
+  return (
+    (innerCall.callee.type === 'Identifier' && GLOBAL_EXPECT_NAMES.has(innerCall.callee.name)) ||
+    Playwright.isExpectFqn(getFullyQualifiedName(context, innerCall.callee))
+  );
 }
 
 function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node): boolean {
@@ -421,13 +429,16 @@ function isGlobalTSAssertion(services: ParserServicesWithTypeInformation, node: 
   }
   const callExpressionNode = node as ts.CallExpression;
   // check for global expect
-  if (isGlobalExpectExpression(callExpressionNode)) {
+  if (isGlobalExpectExpression(services, callExpressionNode)) {
     return true;
   }
   return isFunctionCallFromNodeAssertTS(services, node);
 }
 
-function isGlobalExpectExpression(node: ts.CallExpression) {
+function isGlobalExpectExpression(
+  services: ParserServicesWithTypeInformation,
+  node: ts.CallExpression,
+) {
   if (node.expression.kind !== ts.SyntaxKind.PropertyAccessExpression) {
     return false;
   }
@@ -446,8 +457,9 @@ function isGlobalExpectExpression(node: ts.CallExpression) {
 
   const innerCallExpression = current as ts.CallExpression;
   return (
-    innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
-    GLOBAL_EXPECT_NAMES.has((innerCallExpression.expression as ts.Identifier).text)
+    (innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
+      GLOBAL_EXPECT_NAMES.has((innerCallExpression.expression as ts.Identifier).text)) ||
+    Playwright.isExpectFqn(getFullyQualifiedNameTS(services, innerCallExpression.expression))
   );
 }
 
