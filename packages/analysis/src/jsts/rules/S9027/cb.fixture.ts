@@ -9,6 +9,19 @@ expect(screen.getByRole('dialog')).not.toBeInTheDocument(); // Noncompliant [[ab
 expect(screen.getAllByText('item')[0]).not.toBeDefined(); // Noncompliant [[all!]] {{An absence assertion should use a `queryBy*` so it can observe a missing element.}}
 // edit@all [[sc=14;ec=17]] {{query}}
 
+const itemIndex = 0;
+expect(screen.getAllByText('item')[itemIndex]).not.toBeDefined(); // Noncompliant [[variable_index!]] {{An absence assertion should use a `queryBy*` so it can observe a missing element.}}
+// edit@variable_index [[sc=14;ec=17]] {{query}}
+
+expect(screen.queryByRole('dialog')!).toBeInTheDocument(); // Noncompliant [[non_null!]] {{A presence assertion should use a `getBy*` query so a missing element produces Testing Library diagnostics.}}
+// edit@non_null [[sc=14;ec=19]] {{get}}
+
+expect(screen.queryByRole('dialog') as HTMLElement).toBeInTheDocument(); // Noncompliant [[as_assertion!]] {{A presence assertion should use a `getBy*` query so a missing element produces Testing Library diagnostics.}}
+// edit@as_assertion [[sc=14;ec=19]] {{get}}
+
+expect(screen.queryByRole('dialog') satisfies HTMLElement).toBeInTheDocument(); // Noncompliant [[satisfies!]] {{A presence assertion should use a `getBy*` query so a missing element produces Testing Library diagnostics.}}
+// edit@satisfies [[sc=14;ec=19]] {{get}}
+
 expect(screen.queryAllByRole('dialog').length).toBeTruthy(); // Noncompliant [[length!]] {{A presence assertion should use a `getBy*` query so a missing element produces Testing Library diagnostics.}}
 // edit@length [[sc=14;ec=19]] {{get}}
 

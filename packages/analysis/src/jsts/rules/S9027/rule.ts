@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { getVariableFromName, isIdentifier } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
@@ -135,6 +136,7 @@ function getAssertion(
 }
 
 function getQueryCall(actual: estree.Expression): estree.CallExpression | null {
+  actual = unwrapTypeScriptExpression(actual);
   if (actual.type === 'CallExpression') {
     return actual;
   }
@@ -149,13 +151,27 @@ function getQueryCall(actual: estree.Expression): estree.CallExpression | null {
 
   const isArrayIndex =
     actual.computed &&
-    actual.property.type === 'Literal' &&
-    typeof actual.property.value === 'number' &&
-    Number.isInteger(actual.property.value) &&
-    actual.property.value >= 0;
+    (isIdentifier(actual.property) ||
+      (actual.property.type === 'Literal' &&
+        typeof actual.property.value === 'number' &&
+        Number.isInteger(actual.property.value) &&
+        actual.property.value >= 0));
   const isLength = !actual.computed && isIdentifier(actual.property, 'length');
 
   return isArrayIndex || isLength ? actual.object : null;
+}
+
+function unwrapTypeScriptExpression(expression: estree.Expression): estree.Expression {
+  let unwrapped = expression as unknown as TSESTree.Expression;
+  while (
+    unwrapped.type === 'TSNonNullExpression' ||
+    unwrapped.type === 'TSAsExpression' ||
+    unwrapped.type === 'TSSatisfiesExpression' ||
+    unwrapped.type === 'TSTypeAssertion'
+  ) {
+    unwrapped = unwrapped.expression;
+  }
+  return unwrapped as unknown as estree.Expression;
 }
 
 function getQueryMethod(query: estree.CallExpression): estree.Identifier | null {
