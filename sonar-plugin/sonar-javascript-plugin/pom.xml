@@ -558,6 +558,87 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>org.cyclonedx</groupId>
+        <artifactId>cyclonedx-maven-plugin</artifactId>
+        <version>2.9.1</version>
+        <executions>
+          <execution>
+            <id>make-bom</id>
+            <phase>package</phase>
+            <goals>
+              <goal>makeBom</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <projectType>library</projectType>
+          <schemaVersion>1.6</schemaVersion>
+          <includeTestScope>false</includeTestScope>
+          <outputFormat>json</outputFormat>
+          <outputName>bom</outputName>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.6.3</version>
+        <executions>
+          <execution>
+            <id>merge-cyclonedx-bom</id>
+            <phase>package</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <executable>cyclonedx</executable>
+              <workingDirectory>${project.basedir}</workingDirectory>
+              <arguments>
+                <argument>merge</argument>
+                <argument>--hierarchical</argument>
+                <argument>--input-files</argument>
+                <argument>${project.build.directory}/bom.json</argument>
+                <argument>${maven.multiModuleProjectDirectory}/target/bom-npm.json</argument>
+                <argument>--output-file</argument>
+                <argument>${project.build.directory}/bom-merged.json</argument>
+                <argument>--group</argument>
+                <argument>${project.groupId}</argument>
+                <argument>--name</argument>
+                <argument>${project.artifactId}</argument>
+                <argument>--version</argument>
+                <argument>${project.version}</argument>
+              </arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.6.1</version>
+        <executions>
+          <execution>
+            <id>attach-cyclonedx</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${project.build.directory}/bom-merged.json</file>
+                  <type>json</type>
+                  <classifier>cyclonedx</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+
     </plugins>
   </build>
   <profiles>
