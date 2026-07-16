@@ -14,11 +14,4 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'decorated';
-export const eslintId = 'no-dupe-keys';
-export const externalRules = [
-  { externalPlugin: 'eslint', externalRule: 'no-dupe-keys' },
-  { externalPlugin: 'typescript-eslint', externalRule: 'no-dupe-class-members' },
-  { externalPlugin: 'react', externalRule: 'jsx-no-duplicate-props' },
-  { externalPlugin: 'vue', externalRule: 'no-duplicate-attributes' },
-];
+export { rule } from './rule.js';

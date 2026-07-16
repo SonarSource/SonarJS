@@ -14,11 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'decorated';
-export const eslintId = 'no-dupe-keys';
-export const externalRules = [
-  { externalPlugin: 'eslint', externalRule: 'no-dupe-keys' },
-  { externalPlugin: 'typescript-eslint', externalRule: 'no-dupe-class-members' },
-  { externalPlugin: 'react', externalRule: 'jsx-no-duplicate-props' },
-  { externalPlugin: 'vue', externalRule: 'no-duplicate-attributes' },
-];
+// https://sonarsource.github.io/rspec/#/rspec/S9027/javascript
+import { test } from '../../../../tests/jsts/tools/testers/comment-based/checker.js';
+import { rule } from './index.js';
+import { describe } from 'node:test';
+import * as meta from './generated-meta.js';
+
+describe(`Rule S9027`, () => {
+  test(meta, rule, import.meta.dirname);
+});

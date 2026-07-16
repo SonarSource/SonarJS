@@ -1,0 +1,40 @@
+{
+  "title": "Testing Library queries should match presence assertions",
+  "tags": [
+    "tests",
+    "testing-library"
+  ],
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "scope": "Tests",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "defaultSeverity": "Minor",
+  "sqKey": "S9027",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "extra": {
+    "requiredDependency": [
+      "@testing-library/dom",
+      "@testing-library/react",
+      "@testing-library/vue",
+      "@testing-library/angular",
+      "@testing-library/svelte"
+    ]
+  },
+  "ruleSpecification": "RSPEC-9027",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  }
+}
