@@ -32,6 +32,7 @@ import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 import * as Chai from './chai.js';
+import * as Playwright from './playwright.js';
 import * as Sinon from './sinon.js';
 import * as Vitest from './vitest.js';
 import * as Supertest from './supertest.js';
@@ -95,25 +96,6 @@ const GLOBAL_EXPECT_NAMES = new Set([
   'expectSubscriptions',
   'expectTypeOf',
 ]);
-
-// Two roots: the `test.expect` alias and the direct `import { expect }` from '@playwright/test'.
-// Prefix match covers static helpers like `.soft`, `.poll`, `.configure`.
-// `.replaceAll('/', '.')` normalises the scoped-package slash that
-// getFullyQualifiedNameTS preserves (e.g. '@playwright/test') while getFullyQualifiedName uses dots.
-const PLAYWRIGHT_EXPECT_FQN_ROOTS = [
-  '@playwright.test.test.expect', // test.expect alias
-  '@playwright.test.expect', // import { expect } from '@playwright/test'
-];
-
-function isPlaywrightExpectFqn(fqn: string | null | undefined): boolean {
-  if (!fqn) {
-    return false;
-  }
-  const normalized = fqn.replaceAll('/', '.');
-  return PLAYWRIGHT_EXPECT_FQN_ROOTS.some(
-    root => normalized === root || normalized.startsWith(root + '.'),
-  );
-}
 
 const CHAI_NON_TERMINAL_PROPERTY_NAMES = new Set([
   'all',
@@ -297,7 +279,7 @@ function isTSShouldAccess(node: ts.Node): node is ts.PropertyAccessExpression {
 /**
  * Checks if the node matches the pattern expectX(...).method() where:
  * - expectX is one of the known global expect entry points ({@link GLOBAL_EXPECT_NAMES})
- *   or Playwright's `test.expect(...)` alias
+ *   or a Playwright `expect(...)` entry point
  * - method is a chained property access with a method call (e.g., .toBe(), .toEqual(), .not.toBe())
  *
  * This mirrors the TypeScript isGlobalExpectExpression function logic.
@@ -325,7 +307,7 @@ function isGlobalExpectExpressionJS(
   const innerCall = current;
   return (
     (innerCall.callee.type === 'Identifier' && GLOBAL_EXPECT_NAMES.has(innerCall.callee.name)) ||
-    isPlaywrightExpectFqn(getFullyQualifiedName(context, innerCall.callee))
+    Playwright.isExpectFqn(getFullyQualifiedName(context, innerCall.callee))
   );
 }
 
@@ -477,7 +459,7 @@ function isGlobalExpectExpression(
   return (
     (innerCallExpression.expression.kind === ts.SyntaxKind.Identifier &&
       GLOBAL_EXPECT_NAMES.has((innerCallExpression.expression as ts.Identifier).text)) ||
-    isPlaywrightExpectFqn(getFullyQualifiedNameTS(services, innerCallExpression.expression))
+    Playwright.isExpectFqn(getFullyQualifiedNameTS(services, innerCallExpression.expression))
   );
 }
 
