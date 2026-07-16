@@ -1069,7 +1069,6 @@ jobs:
       - *download_rspec_rule_data
       - name: Run JS/TS Ruling
         id: ruling
-        continue-on-error: true
         run: |
           npm run generate-meta
           npm run grpc:generate-proto
@@ -1082,12 +1081,26 @@ jobs:
           path: packages/ruling/actual/
           retention-days: 30
           if-no-files-found: ignore
+
+  js_ts_ruling_update_notify:
+    runs-on: sonar-l
+    name: JS/TS Ruling Update and Notify
+    needs: js_ts_ruling
+    if: always() && github.event_name == 'pull_request'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          submodules: true
       - name: Update ruling and notify
-        if: always() && github.event_name == 'pull_request'
         uses: SonarSource/core-languages-tooling-public/ruling-update-and-notify@master
         with:
           pr-number: ${{ github.event.pull_request.number }}
-          ruling-failed: ${{ steps.ruling.outcome == 'failure' }}
+          ruling-failed: ${{ needs.js_ts_ruling.result != 'success' }}
           sync-command: 'cp -rv packages/ruling/actual/* its/ruling/src/test/expected/'
           ruling-root: 'its/ruling/src/test/expected'
           sources-root: 'its/sources'
