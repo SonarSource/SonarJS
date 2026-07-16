@@ -1,19 +1,15 @@
 {
 "redux:examples/counter/components/Counter.js": [
-8,
 10,
 12,
 14,
-16,
-18
+16
 ],
 "redux:examples/real-world/components/Explore.js": [
-47,
-50
+47
 ],
 "redux:examples/real-world/components/List.js": [
-7,
-12
+7
 ],
 "redux:examples/shopping-cart/components/Cart.js": [
 24
