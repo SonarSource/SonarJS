@@ -378,7 +378,7 @@
         <plugin>
           <groupId>org.cyclonedx</groupId>
           <artifactId>cyclonedx-maven-plugin</artifactId>
-          <version>2.9.1</version>
+          <version>2.9.2</version>
           <configuration>
             <projectType>library</projectType>
             <schemaVersion>1.6</schemaVersion>
