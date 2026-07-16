@@ -52,14 +52,16 @@ function collectPurls(bom) {
 }
 
 function npmPackageName(purl) {
-  if (!purl.startsWith('pkg:npm/')) {
+  const prefix = 'pkg:npm/';
+  if (!purl.startsWith(prefix)) {
     return undefined;
   }
   const versionSeparator = purl.lastIndexOf('@');
-  if (versionSeparator < 'pkg:npm/'.length) {
+  const version = purl.slice(versionSeparator + 1).split(/[?#]/, 1)[0];
+  if (versionSeparator <= prefix.length || version.length === 0) {
     throw new Error(`Invalid npm package URL: ${purl}`);
   }
-  return decodeURIComponent(purl.slice('pkg:npm/'.length, versionSeparator));
+  return decodeURIComponent(purl.slice(prefix.length, versionSeparator));
 }
 
 function bundledPackageNames(metafile) {
