@@ -1100,8 +1100,7 @@ jobs:
         uses: SonarSource/core-languages-tooling-public/ruling-update-and-notify@master
         with:
           pr-number: ${{ github.event.pull_request.number }}
-          ruling-failed: ${{ needs.js_ts_ruling.result != 'success' }}
-          sync-command: 'cp -rv packages/ruling/actual/* its/ruling/src/test/expected/'
+          ruling-failed: 'true'
           ruling-root: 'its/ruling/src/test/expected'
           sources-root: 'its/sources'
         env:
