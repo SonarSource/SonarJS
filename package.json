@@ -21,7 +21,7 @@
     "bridge:bundle": "node esbuild.mjs",
     "bridge:build": "npm run bridge:build:fast && npm run bridge:test",
     "bridge:build:cov": "npm run bridge:build:fast && npm run bridge:test:cov",
-    "bridge:build:fast": "npm run _:bridge:clear && npm run generate-meta && npm run generate-secret-patterns && npm run bridge:compile",
+    "bridge:build:fast": "npm run _:bridge:clear && npm run generate-meta && npm run bridge:compile",
     "bbf": "npm run bridge:build:fast",
     "bbf:latest": "npm run rspec:refresh && npm run bbf",
     "grpc:generate-proto": "tsx tools/generate-proto.ts",
