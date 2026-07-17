@@ -221,6 +221,24 @@ test('adds an item', () => {});
         },
         {
           code: `
+import test from 'node:test';
+test.it('adds an item', () => {});
+test.it('adds an item', () => {});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
+const test = require('node:test');
+test.it('adds an item', () => {});
+test.it('adds an item', () => {});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
 const test = require('node:test');
 test('adds an item', () => {});
 test('adds an item', () => {});

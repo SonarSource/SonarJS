@@ -58,12 +58,12 @@ export function isMochaTestConstruct(
     return false;
   }
 
-  const constructName = getMochaConstructName(context, calleeParts.base);
+  const { constructName, modifiers } = getMochaConstructAndModifiers(context, calleeParts);
   if (constructName === undefined || !constructs.includes(constructName)) {
     return false;
   }
 
-  return calleeParts.modifiers.every(
+  return modifiers.every(
     modifier =>
       (allowParameterized && modifier === 'each') || isConcreteMochaTestModifier(context, modifier),
   );
@@ -139,14 +139,46 @@ export function getMochaConstructName(
     const fqn = getFullyQualifiedName(context, identifier);
     return (
       getMochaConstructNameFromFqn(fqn) ??
-      (fqn === 'test' && isNodeTestDefaultBinding(definition) ? 'test' : undefined)
+      (fqn === 'test' && isNodeTestDefaultBindingDefinition(definition) ? 'test' : undefined)
     );
   }
 
   return variable == null || variable.defs.length === 0 ? identifier.name : undefined;
 }
 
-function isNodeTestDefaultBinding(definition: Scope.Definition): boolean {
+function getMochaConstructAndModifiers(
+  context: Rule.RuleContext,
+  calleeParts: { base: estree.Identifier; modifiers: string[] },
+): { constructName: string | undefined; modifiers: string[] } {
+  const constructName = getMochaConstructName(context, calleeParts.base);
+  if (
+    constructName === 'test' &&
+    isNodeTestDefaultBinding(context, calleeParts.base) &&
+    calleeParts.modifiers.length > 0
+  ) {
+    const [nodeTestConstructName, ...modifiers] = calleeParts.modifiers;
+    if (
+      TEST_FUNCTION_NAMES.includes(nodeTestConstructName) ||
+      SUITE_FUNCTION_NAMES.includes(nodeTestConstructName)
+    ) {
+      return { constructName: nodeTestConstructName, modifiers };
+    }
+  }
+  return { constructName, modifiers: calleeParts.modifiers };
+}
+
+function isNodeTestDefaultBinding(
+  context: Rule.RuleContext,
+  identifier: estree.Identifier,
+): boolean {
+  const variable = getVariableFromScope(context.sourceCode.getScope(identifier), identifier.name);
+  const definition = variable?.defs.find(
+    def => def.type === 'ImportBinding' || isSupportedRequireBinding(def.node),
+  );
+  return definition !== undefined && isNodeTestDefaultBindingDefinition(definition);
+}
+
+function isNodeTestDefaultBindingDefinition(definition: Scope.Definition): boolean {
   if (definition.type === 'ImportBinding') {
     return (
       definition.node.type === 'ImportDefaultSpecifier' &&

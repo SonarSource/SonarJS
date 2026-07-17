@@ -106,6 +106,22 @@ test('', () => {});
         },
         {
           code: `
+import test from 'node:test';
+test.it('', () => {});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
+const test = require('node:test');
+test.it('', () => {});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
 const test = require('node:test');
 test('', () => {});
           `,
