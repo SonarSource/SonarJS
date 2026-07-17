@@ -25,8 +25,15 @@ import {
 } from './ast.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
 
-export const SUPPORTED_TEST_FRAMEWORKS = ['jest', 'mocha', 'vitest', '@playwright/test'];
-const MOCHA_STYLE_TEST_FRAMEWORKS = new Set(['jest', 'mocha', 'vitest']);
+export const SUPPORTED_TEST_FRAMEWORKS = [
+  'bun:test',
+  'jest',
+  'mocha',
+  'node:test',
+  'vitest',
+  '@playwright/test',
+];
+const MOCHA_STYLE_TEST_FRAMEWORKS = new Set(['bun:test', 'jest', 'mocha', 'test', 'vitest']);
 export const TEST_FUNCTION_NAMES = ['it', 'specify', 'test'];
 export const SUITE_FUNCTION_NAMES = ['describe', 'context', 'suite'];
 const COMMON_MOCHA_TEST_MODIFIERS = new Set(['only', 'concurrent']);

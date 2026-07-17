@@ -25,6 +25,32 @@ describe('S8780', () => {
       valid: [
         {
           code: `
+            import { test, expect } from 'bun:test';
+
+            test('awaits Bun assertions', async () => {
+              await expect(fetchUser()).resolves.toBeDefined();
+              await expect(failingJob()).rejects.toThrow();
+            });
+
+            test('keeps Bun done callbacks out of scope', done => {
+              expect(fetchUser()).resolves.toBeDefined();
+              done();
+            });
+          `,
+        },
+        {
+          code: `
+            import test from 'node:test';
+            import assert from 'node:assert/strict';
+
+            test('awaits Node assertions', async () => {
+              await assert.rejects(failingJob());
+              return assert.doesNotReject(fetchUser());
+            });
+          `,
+        },
+        {
+          code: `
             import { expect, it } from '@jest/globals';
 
             async function fetchUser(id) {
@@ -150,6 +176,29 @@ describe('S8780', () => {
         },
       ],
       invalid: [
+        {
+          code: `
+            import { test, expect } from 'bun:test';
+
+            test('forgets to await Bun assertions', () => {
+              expect(fetchUser()).resolves.toBeDefined();
+              expect(failingJob()).rejects.toThrow();
+            });
+          `,
+          errors: 2,
+        },
+        {
+          code: `
+            import test from 'node:test';
+            import assert from 'node:assert/strict';
+
+            test('forgets to await Node assertions', () => {
+              assert.rejects(failingJob());
+              assert.doesNotReject(fetchUser());
+            });
+          `,
+          errors: 2,
+        },
         {
           code: `
             import { expect, it } from '@jest/globals';

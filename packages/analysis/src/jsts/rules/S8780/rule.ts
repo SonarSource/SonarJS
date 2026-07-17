@@ -38,6 +38,8 @@ const VITEST_MODULES = ['vitest'];
 const JASMINE_MODULES = ['jasmine'];
 const JASMINE_DEPENDENCIES = ['jasmine', 'jasmine-core', 'jasmine-node', 'karma-jasmine'];
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
+const BUN_MODULES = ['bun:test'];
+const NODE_TEST_MODULES = ['node:test'];
 
 const TEST_FUNCTION_NAMES = new Set([
   'it',
@@ -97,6 +99,8 @@ type Frameworks = {
   vitest: boolean;
   jasmine: boolean;
   playwright: boolean;
+  bun: boolean;
+  nodeTest: boolean;
 };
 
 type FunctionArgument = estree.FunctionExpression | estree.ArrowFunctionExpression;
@@ -110,6 +114,8 @@ export const rule: Rule.RuleModule = {
       vitest: importsOrDependsOnModule(context, VITEST_MODULES, VITEST_MODULES),
       jasmine: importsOrDependsOnModule(context, JASMINE_MODULES, JASMINE_DEPENDENCIES),
       playwright: importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES),
+      bun: importsOrDependsOnModule(context, BUN_MODULES, BUN_MODULES),
+      nodeTest: importsOrDependsOnModule(context, NODE_TEST_MODULES, NODE_TEST_MODULES),
     };
 
     if (!Object.values(frameworks).some(Boolean)) {
@@ -243,6 +249,7 @@ function getAsyncAssertionNode(
   return (
     getJestOrVitestAsyncNode(context, unwrapped, frameworks) ??
     getJasmineAsyncNode(context, unwrapped, frameworks) ??
+    getNodeAssertAsyncNode(context, unwrapped, frameworks) ??
     getPlaywrightAsyncNode(context, unwrapped, frameworks)
   );
 }
@@ -252,7 +259,7 @@ function getJestOrVitestAsyncNode(
   call: estree.CallExpression,
   frameworks: Frameworks,
 ): estree.Node | null {
-  if (!frameworks.jest && !frameworks.vitest) {
+  if (!frameworks.jest && !frameworks.vitest && !frameworks.bun) {
     return null;
   }
 
@@ -270,6 +277,24 @@ function getJestOrVitestAsyncNode(
   }
 
   return asyncSegment.node;
+}
+
+function getNodeAssertAsyncNode(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+  frameworks: Frameworks,
+): estree.Node | null {
+  if (!frameworks.nodeTest) {
+    return null;
+  }
+
+  const fqn = getFullyQualifiedName(context, call.callee);
+  return fqn === 'assert.rejects' ||
+    fqn === 'assert.doesNotReject' ||
+    fqn === 'assert.strict.rejects' ||
+    fqn === 'assert.strict.doesNotReject'
+    ? call.callee
+    : null;
 }
 
 function getJasmineAsyncNode(
@@ -324,8 +349,10 @@ function isExpectCall(
       : fqn === 'expect' ||
           fqn === '@jest.globals.expect' ||
           fqn === 'vitest.expect' ||
+          fqn === 'bun:test.expect' ||
           (frameworks.jest && isIdentifier(call.callee, 'expect')) ||
-          (frameworks.vitest && isIdentifier(call.callee, 'expect'));
+          (frameworks.vitest && isIdentifier(call.callee, 'expect')) ||
+          (frameworks.bun && isIdentifier(call.callee, 'expect'));
   }
 
   return !playwrightOnly && isIdentifier(call.callee, 'expect');

@@ -1,5 +1,13 @@
 const { expect } = require('chai');
 const assert = require('node:assert');
+import { describe as bunDescribe, expect as bunExpect, test as bunTest } from 'bun:test';
+
+bunDescribe('Bun suite', () => {
+  bunExpect(config.enabled).toBe(true); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
+  bunTest('has a test assertion', () => {
+    bunExpect(config.enabled).toBe(true); // Compliant
+  });
+});
 
 // --- NONCOMPLIANT: module top level (runs at file load) ---
 expect(config.enabled).to.equal(true); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}

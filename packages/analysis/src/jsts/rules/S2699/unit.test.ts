@@ -28,6 +28,15 @@ describe('S2699', () => {
       valid: [
         {
           code: `
+import { test, expect } from 'bun:test';
+
+test('includes a Bun expectation', () => {
+  expect(1).toBe(1);
+});
+          `,
+        },
+        {
+          code: `
 const chai = require('chai');
 const { expect } = chai;
 describe('chai test cases', () => {
@@ -307,6 +316,14 @@ test('member-based playwright expect entrypoints', async ({ page }) => {
         },
       ],
       invalid: [
+        {
+          code: `
+import { test } from 'bun:test';
+
+test('has no Bun assertion', () => {});
+          `,
+          errors: 1,
+        },
         {
           code: `
 const chai = require('chai');

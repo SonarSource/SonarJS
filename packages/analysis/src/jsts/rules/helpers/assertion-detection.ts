@@ -49,6 +49,7 @@ const ASSERTION_LIBRARIES = [
   '@playwright/test',
   'assert',
   'assert/strict',
+  'bun:test',
   'node:assert',
   'node:assert/strict',
 ];
@@ -63,6 +64,7 @@ const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
   'jasmine',
   'jest',
   'mocha',
+  'bun:test',
   'node:test',
   'sinon',
   'supertest',

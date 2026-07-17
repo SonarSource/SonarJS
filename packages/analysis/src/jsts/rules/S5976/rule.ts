@@ -38,7 +38,8 @@ const messages = {
 const JEST_MODULES = ['jest', '@jest/globals'];
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
 const VITEST_MODULES = ['vitest'];
-const SUPPORTED_MODULE_FQNS = ['jest', '@jest.globals', 'vitest', '@playwright.test'];
+const BUN_MODULES = ['bun:test'];
+const SUPPORTED_MODULE_FQNS = ['bun:test', 'jest', '@jest.globals', 'vitest', '@playwright.test'];
 const UNSUPPORTED_TEST_MODULES = [
   'cypress',
   'jasmine',
@@ -65,6 +66,7 @@ interface ActiveFrameworks {
   jest: boolean;
   playwright: boolean;
   vitest: boolean;
+  bun: boolean;
 }
 
 interface ScopeFrame {
@@ -91,6 +93,7 @@ export const rule: Rule.RuleModule = {
       jest: importsOrDependsOnModule(context, JEST_MODULES, JEST_MODULES),
       playwright: importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES),
       vitest: importsOrDependsOnModule(context, VITEST_MODULES, VITEST_MODULES),
+      bun: importsOrDependsOnModule(context, BUN_MODULES, BUN_MODULES),
     };
 
     if (!Object.values(activeFrameworks).some(Boolean)) {

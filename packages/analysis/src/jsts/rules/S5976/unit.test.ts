@@ -435,6 +435,31 @@ describe('outer', () => {
       invalid: [
         {
           code: `
+import { test, expect } from 'bun:test';
+
+test('normalizes 200', () => {
+  const status = normalize(200);
+  expect(status).toBe(200);
+  expect(status).toBeGreaterThan(199);
+});
+
+test('normalizes 201', () => {
+  const status = normalize(201);
+  expect(status).toBe(201);
+  expect(status).toBeGreaterThan(199);
+});
+
+test('normalizes 202', () => {
+  const status = normalize(202);
+  expect(status).toBe(202);
+  expect(status).toBeGreaterThan(199);
+});
+          `,
+          filename: noFrameworkTestFile,
+          errors: 1,
+        },
+        {
+          code: `
 test('normalizes a 200 status', () => {
   const status = normalize(200);
   expect(status).toBeGreaterThan(199);

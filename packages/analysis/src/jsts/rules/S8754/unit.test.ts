@@ -212,6 +212,28 @@ test.describe.serial('guest checkout', () => {
       invalid: [
         {
           code: `
+import { describe, test } from 'bun:test';
+describe('cart', () => {
+  test('adds an item', () => {});
+  test('adds an item', () => {});
+});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, test } from 'node:test';
+describe('cart', () => {
+  test('adds an item', () => {});
+  test('adds an item', () => {});
+});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
 const jest = require('jest');
 describe('focused tests', () => {
   it.only('loads profile', () => {});
