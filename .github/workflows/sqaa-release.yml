@@ -191,22 +191,13 @@ jobs:
           username: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           password: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_PASSWORD }}
 
-      - name: Access vault release registry secrets
-        if: ${{ inputs.publish-to-release-repo }}
-        id: release-secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/artifactory/token/{REPO_OWNER_NAME_DASH}-docker-release access_token | ARTIFACTORY_RELEASE_PASSWORD;
-            development/artifactory/token/{REPO_OWNER_NAME_DASH}-docker-release username | ARTIFACTORY_RELEASE_USERNAME;
-
       - name: Docker login to Repox release registry
         if: ${{ inputs.publish-to-release-repo }}
         uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0  # v4.4.0
         with:
           registry: ${{ env.DOCKER_REPOX_RELEASES_REGISTRY }}
-          username: ${{ fromJSON(steps.release-secrets.outputs.vault).ARTIFACTORY_RELEASE_USERNAME }}
-          password: ${{ fromJSON(steps.release-secrets.outputs.vault).ARTIFACTORY_RELEASE_PASSWORD }}
+          username: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
+          password: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_DEPLOY_PASSWORD }}
 
       - name: Setup Docker image
         shell: bash
