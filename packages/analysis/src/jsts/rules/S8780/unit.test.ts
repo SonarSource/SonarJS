@@ -178,6 +178,17 @@ describe('S8780', () => {
       invalid: [
         {
           code: `
+            import test from 'node:test';
+            import assert from 'node:assert/strict';
+
+            test('does not confuse TestContext with done', t => {
+              assert.rejects(failingJob());
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
             import { test as bunTest, expect } from 'bun:test';
 
             bunTest('forgets to await an aliased Bun assertion', () => {

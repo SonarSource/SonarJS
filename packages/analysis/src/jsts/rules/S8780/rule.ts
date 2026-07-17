@@ -140,7 +140,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        if (usesDoneCallback(callback)) {
+        if (usesDoneCallback(context, call, callback, frameworks)) {
           return;
         }
 
@@ -185,15 +185,37 @@ function isFunctionArgument(node: estree.Node | estree.SpreadElement): node is F
 }
 
 /**
- * Jest/Jasmine/Vitest pass a `done` callback whenever the test function declares a parameter
- * (arity-based, regardless of its name). Mixing that with an awaited/returned assertion makes
- * the runtime throw ("cannot both take a 'done' callback and return something"), so the fix this
- * rule suggests doesn't apply to such tests. Playwright's fixtures parameter is always a
- * destructuring pattern, never a plain identifier, so it isn't mistaken for a done callback.
+ * Jest/Jasmine/Vitest and Bun pass a `done` callback whenever the test function declares a
+ * parameter (arity-based, regardless of its name). Mixing that with an awaited/returned assertion
+ * makes the runtime throw ("cannot both take a 'done' callback and return something"), so the fix
+ * this rule suggests doesn't apply to such tests. Node's first callback parameter is a
+ * `TestContext`, not a `done` callback, so node:test calls are excluded from this heuristic.
+ * Playwright's fixtures parameter is always a destructuring pattern, never a plain identifier, so
+ * it isn't mistaken for a done callback.
  */
-function usesDoneCallback(callback: estree.Function): boolean {
+function usesDoneCallback(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+  callback: estree.Function,
+  frameworks: Frameworks,
+): boolean {
+  if (frameworks.nodeTest && isNodeTestCall(context, call)) {
+    return false;
+  }
   const [firstParam] = callback.params;
   return firstParam?.type === 'Identifier';
+}
+
+function isNodeTestCall(context: Rule.RuleContext, call: estree.CallExpression): boolean {
+  const fqn = getFullyQualifiedName(context, call.callee);
+  return (
+    fqn === 'test' ||
+    fqn === 'test.only' ||
+    fqn === 'test.skip' ||
+    fqn === 'test.test' ||
+    fqn === 'test.test.only' ||
+    fqn === 'test.test.skip'
+  );
 }
 
 function forEachExpressionStatement(
