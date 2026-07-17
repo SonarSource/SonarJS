@@ -98,6 +98,22 @@ test.describe.serial.only('registered checkout', () => {});
       invalid: [
         {
           code: `
+import test from 'node:test';
+test('', () => {});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
+const test = require('node:test');
+test('', () => {});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
 import { describe, test } from 'bun:test';
 describe(' ', () => {
   test('', () => {});

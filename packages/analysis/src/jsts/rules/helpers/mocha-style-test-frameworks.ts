@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import {
   FUNCTION_NODES,
@@ -132,13 +132,40 @@ export function getMochaConstructName(
   identifier: estree.Identifier,
 ): string | undefined {
   const variable = getVariableFromScope(context.sourceCode.getScope(identifier), identifier.name);
-  if (
-    variable?.defs.some(def => def.type === 'ImportBinding' || isSupportedRequireBinding(def.node))
-  ) {
-    return getMochaConstructNameFromFqn(getFullyQualifiedName(context, identifier));
+  const definition = variable?.defs.find(
+    def => def.type === 'ImportBinding' || isSupportedRequireBinding(def.node),
+  );
+  if (definition !== undefined) {
+    const fqn = getFullyQualifiedName(context, identifier);
+    return (
+      getMochaConstructNameFromFqn(fqn) ??
+      (fqn === 'test' && isNodeTestDefaultBinding(definition) ? 'test' : undefined)
+    );
   }
 
   return variable == null || variable.defs.length === 0 ? identifier.name : undefined;
+}
+
+function isNodeTestDefaultBinding(definition: Scope.Definition): boolean {
+  if (definition.type === 'ImportBinding') {
+    return (
+      definition.node.type === 'ImportDefaultSpecifier' &&
+      definition.parent.type === 'ImportDeclaration' &&
+      definition.parent.source.value === 'node:test'
+    );
+  }
+
+  if (definition.type !== 'Variable' || definition.node.type !== 'VariableDeclarator') {
+    return false;
+  }
+
+  const requireCall = definition.node.init && getRequireCall(definition.node.init);
+  const moduleName = requireCall?.arguments[0];
+  return (
+    definition.node.id.type === 'Identifier' &&
+    moduleName?.type === 'Literal' &&
+    moduleName.value === 'node:test'
+  );
 }
 
 function getMochaConstructNameFromFqn(fqn: string | null): string | undefined {
