@@ -155,10 +155,16 @@ This workflow does the following:
 9. Run `npm run grpc:build`.
 10. Log in to `repox-sonarsource-docker-builds.jfrog.io`.
 11. If `publish-to-release-repo` is enabled, also log in to `repox-sonarsource-docker-releases.jfrog.io`.
-12. Build and push the Docker image with:
+12. Build and push the Docker image once, with one or two registry tags depending on
+    `publish-to-release-repo`.
+
+For an official release, the resulting command is equivalent to:
 
 ```bash
-docker buildx build --platform linux/arm64 --tag "${DOCKER_IMAGE_BUILD_NUMBER}" --push .
+docker buildx build --platform linux/arm64 \
+  --tag "repox-sonarsource-docker-builds.jfrog.io/a3s/analysis/javascript:<build_number>" \
+  --tag "repox-sonarsource-docker-releases.jfrog.io/a3s/analysis/javascript:<build_number>" \
+  --push .
 ```
 
 The image is pushed to:
@@ -172,6 +178,44 @@ When `publish-to-release-repo=true`, the same tag is also pushed to:
 ```text
 repox-sonarsource-docker-releases.jfrog.io/a3s/analysis/javascript:<build_number>
 ```
+
+#### Why official releases currently use both registries
+
+The two registry entries are two tags for one Docker Buildx result, not two independently built
+analyzers. The workflow always adds the builds-registry tag. When
+`publish-to-release-repo=true`, it adds the releases-registry tag to the same `docker buildx build`
+invocation before pushing. Both tags therefore come from the same source ref, build number, and
+Docker build.
+
+The registries serve different lifecycle purposes:
+
+| Registry                                     | Purpose                                                                                                                                                                    |
+| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `repox-sonarsource-docker-builds.jfrog.io`   | Historical SQAA destination for branch, ad hoc, and staging images. Its artifacts expire after 90 days, so it must not be the source of an official long-lived deployment. |
+| `repox-sonarsource-docker-releases.jfrog.io` | Durable source for images produced from an official SonarJS release tag. `sonar-analysis-as-a-service` must pull released JSTS versions from here.                         |
+
+Before durable publication was added, SonarJS published only to the builds registry and
+`sonar-analysis-as-a-service` pulled JSTS from that location. The release workflow initially kept
+the builds tag while adding the releases tag so the producer and consumer could be migrated across
+repositories without breaking the existing handoff. This makes the dual publication a
+compatibility bridge, not a requirement to maintain two independent release artifacts.
+
+The standard automated release sets `publish-to-release-repo=true`, so it currently publishes both
+tags. The manual workflow defaults the input to `false`, which publishes only to the builds
+registry for ordinary branch or ad hoc builds. A manual rerun of an official release must reuse the
+original build number and set the input to `true` so the durable image is restored.
+
+The same `qa-deployer` credentials intentionally authenticate to both endpoints. Their existing
+`repox-qa-deployers` permissions authorize both pushes; the registry names describe artifact
+retention and intended use, not separate Vault identities. Do not introduce a second
+`docker-release` Vault role for this workflow.
+
+Downstream consumers must not rely on the expiring builds copy of an official release. The
+SonarJS-to-SQAA handoff passes the numeric tag through `analysis/js_ts_image_tag`, while
+`sonar-analysis-as-a-service` owns the registry selection and must choose the releases registry.
+Once no compatibility consumer needs official tags in the builds registry, the official release
+path can be simplified to publish only to the releases registry; branch and ad hoc builds should
+continue to use the builds registry.
 
 The `a3s` repository segment is still intentional legacy naming. Do not change it during a routine SQAA release.
 
