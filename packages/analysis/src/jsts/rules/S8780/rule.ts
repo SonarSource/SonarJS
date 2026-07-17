@@ -60,9 +60,15 @@ const TEST_FUNCTION_NAMES = new Set([
   '@playwright.test.test',
   '@playwright.test.test.only',
   '@playwright.test.test.skip',
+  'bun:test.it',
+  'bun:test.it.only',
+  'bun:test.it.skip',
   'bun:test.test',
   'bun:test.test.only',
   'bun:test.test.skip',
+  'test.it',
+  'test.it.only',
+  'test.it.skip',
   'test.test',
   'test.test.only',
   'test.test.skip',
@@ -212,6 +218,9 @@ function isNodeTestCall(context: Rule.RuleContext, call: estree.CallExpression):
     fqn === 'test' ||
     fqn === 'test.only' ||
     fqn === 'test.skip' ||
+    fqn === 'test.it' ||
+    fqn === 'test.it.only' ||
+    fqn === 'test.it.skip' ||
     fqn === 'test.test' ||
     fqn === 'test.test.only' ||
     fqn === 'test.test.skip'

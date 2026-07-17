@@ -210,6 +210,27 @@ describe('S8780', () => {
         },
         {
           code: `
+            import { it as bunIt, expect } from 'bun:test';
+
+            bunIt('forgets to await an aliased Bun assertion', () => {
+              expect(fetchUser()).resolves.toBeDefined();
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { it as nodeIt } from 'node:test';
+            import assert from 'node:assert/strict';
+
+            nodeIt('does not confuse TestContext with done', t => {
+              assert.rejects(failingJob());
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
             import { test, expect } from 'bun:test';
 
             test('forgets to await Bun assertions', () => {
