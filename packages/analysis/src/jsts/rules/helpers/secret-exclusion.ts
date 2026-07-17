@@ -17,7 +17,14 @@
 import { exactMatchGroups, patternGroups } from './generated-secret-patterns.js';
 
 const compiledPatterns = patternGroups.flatMap(group =>
-  group.patterns.map(pattern => new RegExp(pattern, 'i')),
+  group.patterns.flatMap(pattern => {
+    try {
+      return [new RegExp(pattern, 'i')];
+    } catch {
+      // Skip patterns using regex syntax unsupported by the JS engine.
+      return [];
+    }
+  }),
 );
 
 const exactMatchValues = new Set(
