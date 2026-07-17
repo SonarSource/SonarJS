@@ -43,8 +43,11 @@ await writePrettyFile(
   `${header}
 // Generated from @sonarsource/analyzer-commons-configurations's secret-patterns.json. Do not edit manually.
 
-export const patternGroups: { category: string; patterns: string[] }[] = ${JSON.stringify(patternGroups)};
+export type PatternGroup = { category: string; patterns: string[] };
+export type ExactMatchGroup = { category: string; values: string[] };
 
-export const exactMatchGroups: { category: string; values: string[] }[] = ${JSON.stringify(exactMatchGroups)};
+export const patternGroups: PatternGroup[] = ${JSON.stringify(patternGroups)};
+
+export const exactMatchGroups: ExactMatchGroup[] = ${JSON.stringify(exactMatchGroups)};
 `,
 );

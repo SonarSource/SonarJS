@@ -14,10 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { exactMatchGroups, patternGroups } from './generated-secret-patterns.js';
+import {
+  exactMatchGroups,
+  patternGroups,
+  type ExactMatchGroup,
+  type PatternGroup,
+} from './generated-secret-patterns.js';
 
-const compiledPatterns = patternGroups.flatMap(group =>
-  group.patterns.flatMap(pattern => {
+const compiledPatterns = patternGroups.flatMap((group: PatternGroup) =>
+  group.patterns.flatMap((pattern: string) => {
     try {
       return [new RegExp(pattern, 'i')];
     } catch {
@@ -28,7 +33,9 @@ const compiledPatterns = patternGroups.flatMap(group =>
 );
 
 const exactMatchValues = new Set(
-  exactMatchGroups.flatMap(group => group.values.map(value => value.toLowerCase())),
+  exactMatchGroups.flatMap((group: ExactMatchGroup) =>
+    group.values.map(value => value.toLowerCase()),
+  ),
 );
 
 /**

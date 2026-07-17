@@ -103,7 +103,7 @@ export async function generateJavaCheckClass(
     javaCheckClass = 'MainFileCheck';
   }
 
-  const derivedLanguages = ruleRspecMeta.compatibleLanguages;
+  const derivedLanguages = ruleRspecMeta.compatibleLanguages ?? [];
   if (derivedLanguages.includes('js')) {
     decorators.push('@JavaScriptRule');
     imports.add('import org.sonar.plugins.javascript.api.JavaScriptRule;');
