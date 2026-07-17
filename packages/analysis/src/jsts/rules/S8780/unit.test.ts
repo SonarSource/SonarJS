@@ -178,6 +178,27 @@ describe('S8780', () => {
       invalid: [
         {
           code: `
+            import { test as bunTest, expect } from 'bun:test';
+
+            bunTest('forgets to await an aliased Bun assertion', () => {
+              expect(fetchUser()).resolves.toBeDefined();
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { test as nodeTest } from 'node:test';
+            import assert from 'node:assert/strict';
+
+            nodeTest('forgets to await an aliased Node assertion', () => {
+              assert.rejects(failingJob());
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
             import { test, expect } from 'bun:test';
 
             test('forgets to await Bun assertions', () => {

@@ -60,6 +60,12 @@ const TEST_FUNCTION_NAMES = new Set([
   '@playwright.test.test',
   '@playwright.test.test.only',
   '@playwright.test.test.skip',
+  'bun:test.test',
+  'bun:test.test.only',
+  'bun:test.test.skip',
+  'test.test',
+  'test.test.only',
+  'test.test.skip',
 ]);
 
 const PLAYWRIGHT_ASYNC_MATCHERS = new Set([
