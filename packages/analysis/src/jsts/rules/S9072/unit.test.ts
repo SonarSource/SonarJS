@@ -217,6 +217,29 @@ describe('S9072', () => {
         {
           filename: fixtureFile,
           code: `
+            import { expect } from 'bun:test';
+            function parseConfig(input: string): object { return {}; }
+            expect(parseConfig('input')).toThrowError(SyntaxError);
+          `,
+          errors: [
+            {
+              messageId: 'nonCallable',
+              suggestions: [
+                {
+                  messageId: 'wrapInCallback',
+                  output: `
+            import { expect } from 'bun:test';
+            function parseConfig(input: string): object { return {}; }
+            expect(() => parseConfig('input')).toThrowError(SyntaxError);
+          `,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          filename: fixtureFile,
+          code: `
             import { expect as check } from 'vitest';
             function parseConfig(): object { return {}; }
             check(parseConfig()).toThrow();
