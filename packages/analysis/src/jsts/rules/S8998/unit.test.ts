@@ -29,112 +29,259 @@ describe('S8998', () => {
     ruleTester.run('Parameterized tests should not have empty datasets', rule, {
       valid: [
         {
-          code: "import { test } from '@jest/globals';\ntest.each([[1]])('case %i', value => expect(value).toBe(1));",
+          code: `
+            import { test } from '@jest/globals';
+            test.each([[1]])('case %i', value => expect(value).toBe(1));
+          `,
         },
         {
-          code: "import { suite } from 'vitest';\nconst cases: number[] = [[1]];\nsuite.each(cases)('case %i', () => {});",
+          code: `
+            import { suite } from 'vitest';
+            const cases: number[] = [[1]];
+            suite.each(cases)('case %i', () => {});
+          `,
         },
         {
-          code: "import { test } from 'vitest';\nconst cases: number[] = [];\ncases.push(1);\ntest.each(cases)('case %i', () => {});",
-        },
-        { code: "import { test } from 'vitest';\ntest.skip.each([])('case %i', () => {});" },
-        { code: "import { test } from 'vitest';\ntest.each(getCases())('case %i', () => {});" },
-        {
-          code: "import { test } from 'vitest';\ntest.each(getCases() as unknown[])('case %i', () => {});",
-        },
-        {
-          code: "import { test } from 'vitest';\nconst cases = [];\nconst alias = cases;\ntest.each(alias)('case %i', () => {});",
+          code: `
+            import { test } from 'vitest';
+            const cases: number[] = [];
+            cases.push(1);
+            test.each(cases)('case %i', () => {});
+          `,
         },
         {
-          code: "import { test } from 'vitest';\nconst cases = [];\ntest.todo.each(cases)('case %i', () => {});",
-        },
-        { code: "import { test } from 'vitest';\ntest.each([])();" },
-        {
-          code: "import { test } from 'vitest';\nfunction f() {\n  const test = { each: () => () => {} };\n  test.each([])('case %i', () => {});\n}",
-        },
-        { code: "import { it } from 'mocha';\nit.each([])('case %i', () => {});" },
-        {
-          code: "import { test } from 'vitest';\nfunction f() {\n  const cases: number[] = [];\n  return () => test.each(cases)('case %i', () => {});\n}\nf();",
+          code: `
+            import { test } from 'vitest';
+            test.skip.each([])('case %i', () => {});
+          `,
         },
         {
-          code: "import { test } from 'vitest';\nconst cases = [];\npopulate();\ntest.each(cases)('case %i', () => {});\nfunction populate() { cases.push([1]); }",
+          code: `
+            import { test } from 'vitest';
+            test.each(getCases())('case %i', () => {});
+          `,
         },
         {
-          code: "import { test } from 'vitest';\nlet body = () => {};\nbody = getBody();\ntest.each([])('case %i', body);",
+          code: `
+            import { test } from 'vitest';
+            test.each(getCases() as unknown[])('case %i', () => {});
+          `,
+        },
+        {
+          code: `
+            import { test } from 'vitest';
+            const cases = [];
+            const alias = cases;
+            test.each(alias)('case %i', () => {});
+          `,
+        },
+        {
+          code: `
+            import { test } from 'vitest';
+            const cases = [];
+            test.todo.each(cases)('case %i', () => {});
+          `,
+        },
+        {
+          code: `
+            import { test } from 'vitest';
+            test.each([])();
+          `,
+        },
+        {
+          code: `
+            import { test } from 'vitest';
+            function f() {
+              const test = { each: () => () => {} };
+              test.each([])('case %i', () => {});
+            }
+          `,
+        },
+        {
+          code: `
+            import { it } from 'mocha';
+            it.each([])('case %i', () => {});
+          `,
+        },
+        {
+          code: `
+            import { test } from 'vitest';
+            function f() {
+              const cases: number[] = [];
+              return () => test.each(cases)('case %i', () => {});
+            }
+            f();
+          `,
+        },
+        {
+          code: `
+            import { test } from 'vitest';
+            const cases = [];
+            populate();
+            test.each(cases)('case %i', () => {});
+            function populate() { cases.push([1]); }
+          `,
+        },
+        {
+          code: `
+            import { test } from 'vitest';
+            let body = () => {};
+            body = getBody();
+            test.each([])('case %i', body);
+          `,
+        },
+        {
+          code: `
+            import { test } from 'vitest';
+            test.each([[], []])('case %i', () => {});
+          `,
         },
       ],
       invalid: [
         {
-          code: "import { test } from 'vitest';\ntest.each([] as const)('case %i', () => {});",
+          code: `
+            import { test } from 'vitest';
+            test.each([] as const)('case %i', () => {});
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "import { test } from 'vitest';\ntest.each([] satisfies unknown[])('case %i', () => {});",
+          code: `
+            import { test } from 'vitest';
+            test.each([] satisfies unknown[])('case %i', () => {});
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "import { test } from '@jest/globals';\nfunction body() {}\ntest.each([])('case %i', body);",
+          code: `
+            import { test } from '@jest/globals';
+            function body() {}
+            test.each([])('case %i', body);
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "import { test } from 'vitest';\nconst body = () => {};\ntest.each([])('case %i', body);",
+          code: `
+            import { test } from 'vitest';
+            const body = () => {};
+            test.each([])('case %i', body);
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "import { test } from 'bun:test';\nconst body = function () {};\ntest.each([])('case %i', body);",
+          code: `
+            import { test } from 'bun:test';
+            const body = function () {};
+            test.each([])('case %i', body);
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "import { describe, test } from 'bun:test';\ntest.each([])('case %i', () => {});\ndescribe.each([])('case %i', () => {});",
+          code: `
+            import { describe, test } from 'bun:test';
+            test.each([])('case %i', () => {});
+            describe.each([])('case %i', () => {});
+          `,
           errors: [{ messageId }, { messageId }],
         },
         {
-          code: "import { test as bunTest } from 'bun:test';\nconst cases = [];\nbunTest.each(cases)('case %i', () => {});\ncases.push(1);",
+          code: `
+            import { test as bunTest } from 'bun:test';
+            const cases = [];
+            bunTest.each(cases)('case %i', () => {});
+            cases.push(1);
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "test.each([])('case %i', () => {});",
+          code: `
+            test.each([])('case %i', () => {});
+          `,
           filename: jestFixture,
           errors: [{ messageId }],
         },
         {
-          code: "import { test } from '@jest/globals';\ntest.each([])('case %i', () => {});",
+          code: `
+            import { test } from '@jest/globals';
+            test.each([])('case %i', () => {});
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "import { it } from 'vitest';\nit.each([])('case %i', () => {});",
+          code: `
+            import { it } from 'vitest';
+            it.each([])('case %i', () => {});
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "import { describe } from 'vitest';\ndescribe.each([])('case %i', () => {});",
+          code: `
+            import { describe } from 'vitest';
+            describe.each([])('case %i', () => {});
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "import { test as check } from '@jest/globals';\ncheck.failing.each([])('case %i', () => {});",
+          code: `
+            import { test as check } from '@jest/globals';
+            check.failing.each([])('case %i', () => {});
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "const { test } = require('@jest/globals');\ntest.each([])('case %i', () => {});",
+          code: `
+            const { test } = require('@jest/globals');
+            test.each([])('case %i', () => {});
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "import { describe } from 'vitest';\ndescribe.concurrent.each([])('case %i', () => {});\ndescribe.sequential.each([])('case %i', () => {});",
+          code: `
+            import { describe } from 'vitest';
+            describe.concurrent.each([])('case %i', () => {});
+            describe.sequential.each([])('case %i', () => {});
+          `,
           errors: [{ messageId }, { messageId }],
         },
         {
-          code: "import { suite } from 'vitest';\nconst cases: number[] = [];\nsuite.each(cases)('case %i', () => {});\ncases.push(1);",
+          code: `
+            import { suite } from 'vitest';
+            const cases: number[] = [];
+            suite.each(cases)('case %i', () => {});
+            cases.push(1);
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "import { test } from 'vitest';\nlet cases = [];\ntest.each(cases)('case %i', () => {});\ncases = [[1]];",
+          code: `
+            import { test } from 'vitest';
+            let cases = [];
+            test.each(cases)('case %i', () => {});
+            cases = [[1]];
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "import { test } from 'vitest';\n{\n  const cases = [];\n  {\n    const marker = 1;\n    test.each(cases)('case %i', () => marker);\n  }\n}",
+          code: `
+            import { test } from 'vitest';
+            {
+              const cases = [];
+              {
+                const marker = 1;
+                test.each(cases)('case %i', () => marker);
+              }
+            }
+          `,
           errors: [{ messageId }],
         },
         {
-          code: "import { test } from 'vitest';\ntest.only.each([])('case %i', () => {});\ntest.concurrent.each([])('case %i', () => {});\ntest.fails.each([])('case %i', () => {});\ntest.sequential.each([])('case %i', () => {});",
+          code: `
+            import { test } from 'vitest';
+            test.only.each([])('case %i', () => {});
+            test.concurrent.each([])('case %i', () => {});
+            test.fails.each([])('case %i', () => {});
+            test.sequential.each([])('case %i', () => {});
+          `,
           errors: [{ messageId }, { messageId }, { messageId }, { messageId }],
         },
       ],
