@@ -76,6 +76,13 @@ test.for([1, 2])(' ', () => {});
         },
         {
           code: `
+import { test } from 'bun:test';
+test('', () => {});
+          `,
+          filename: path.join(import.meta.dirname, 'bun.test.ts'),
+        },
+        {
+          code: `
 import { test } from '@playwright/test';
 test.skip(isMobile, 'mobile only');
 test.fail(browserName === 'webkit', 'known issue');

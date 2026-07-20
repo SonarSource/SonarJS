@@ -37,6 +37,7 @@ const JEST_IMPORTS = ['jest', '@jest/globals'];
 const JEST_DEPENDENCIES = ['jest'];
 const VITEST_MODULES = ['vitest'];
 const BUN_MODULES = ['bun:test'];
+const BUN_FQN_PREFIX = 'bun:test.';
 const COMMON_MODIFIERS = new Set(['only', 'concurrent']);
 const JEST_TEST_MODIFIERS = new Set(['failing']);
 const VITEST_MODIFIERS = new Set(['fails', 'sequential']);
@@ -140,7 +141,7 @@ function isSupportedDeclaration(
     return false;
   }
 
-  const name = getMochaConstructName(context, parts.base);
+  const name = getConstructName(context, parts.base);
   if (name === undefined || (!TESTS.has(name) && !SUITES.has(name))) {
     return false;
   }
@@ -156,6 +157,17 @@ function isSupportedDeclaration(
 
   const modifiers = parts.modifiers.slice(0, -1);
   return modifiers.every(modifier => isRunnableModifier(modifier, name, framework));
+}
+
+function getConstructName(
+  context: Rule.RuleContext,
+  identifier: estree.Identifier,
+): string | undefined {
+  const fqn = getFullyQualifiedName(context, identifier);
+  if (fqn?.startsWith(BUN_FQN_PREFIX)) {
+    return fqn.slice(BUN_FQN_PREFIX.length);
+  }
+  return getMochaConstructName(context, identifier);
 }
 
 function getFramework(
