@@ -212,6 +212,64 @@ test.describe.serial('guest checkout', () => {
       invalid: [
         {
           code: `
+import test from 'node:test';
+test('adds an item', () => {});
+test('adds an item', () => {});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
+test.it('adds an item', () => {});
+test.it('adds an item', () => {});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
+const test = require('node:test');
+test.it('adds an item', () => {});
+test.it('adds an item', () => {});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
+const test = require('node:test');
+test('adds an item', () => {});
+test('adds an item', () => {});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, test } from 'bun:test';
+describe('cart', () => {
+  test('adds an item', () => {});
+  test('adds an item', () => {});
+});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, test } from 'node:test';
+describe('cart', () => {
+  test('adds an item', () => {});
+  test('adds an item', () => {});
+});
+          `,
+          filename: noFrameworkFixture,
+          errors: 1,
+        },
+        {
+          code: `
 const jest = require('jest');
 describe('focused tests', () => {
   it.only('loads profile', () => {});

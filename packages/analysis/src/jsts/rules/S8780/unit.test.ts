@@ -25,6 +25,43 @@ describe('S8780', () => {
       valid: [
         {
           code: `
+            import { test, expect } from 'bun:test';
+
+            test('awaits Bun assertions', async () => {
+              await expect(fetchUser()).resolves.toBeDefined();
+              await expect(failingJob()).rejects.toThrow();
+            });
+
+            test('keeps Bun done callbacks out of scope', done => {
+              expect(fetchUser()).resolves.toBeDefined();
+              done();
+            });
+          `,
+        },
+        {
+          code: `
+            import test from 'node:test';
+            import assert from 'node:assert/strict';
+
+            test('awaits Node assertions', async () => {
+              await assert.rejects(failingJob());
+              return assert.doesNotReject(fetchUser());
+            });
+          `,
+        },
+        {
+          code: `
+            import test from 'node:test';
+            import assert from 'node:assert/strict';
+
+            test('uses an explicit done callback alongside TestContext', (t, done) => {
+              assert.rejects(failingJob());
+              done();
+            });
+          `,
+        },
+        {
+          code: `
             import { expect, it } from '@jest/globals';
 
             async function fetchUser(id) {
@@ -150,6 +187,82 @@ describe('S8780', () => {
         },
       ],
       invalid: [
+        {
+          code: `
+            import test from 'node:test';
+            import assert from 'node:assert/strict';
+
+            test('does not confuse TestContext with done', t => {
+              assert.rejects(failingJob());
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { test as bunTest, expect } from 'bun:test';
+
+            bunTest('forgets to await an aliased Bun assertion', () => {
+              expect(fetchUser()).resolves.toBeDefined();
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { test as nodeTest } from 'node:test';
+            import assert from 'node:assert/strict';
+
+            nodeTest('forgets to await an aliased Node assertion', () => {
+              assert.rejects(failingJob());
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { it as bunIt, expect } from 'bun:test';
+
+            bunIt('forgets to await an aliased Bun assertion', () => {
+              expect(fetchUser()).resolves.toBeDefined();
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { it as nodeIt } from 'node:test';
+            import assert from 'node:assert/strict';
+
+            nodeIt('does not confuse TestContext with done', t => {
+              assert.rejects(failingJob());
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { test, expect } from 'bun:test';
+
+            test('forgets to await Bun assertions', () => {
+              expect(fetchUser()).resolves.toBeDefined();
+              expect(failingJob()).rejects.toThrow();
+            });
+          `,
+          errors: 2,
+        },
+        {
+          code: `
+            import test from 'node:test';
+            import assert from 'node:assert/strict';
+
+            test('forgets to await Node assertions', () => {
+              assert.rejects(failingJob());
+              assert.doesNotReject(fetchUser());
+            });
+          `,
+          errors: 2,
+        },
         {
           code: `
             import { expect, it } from '@jest/globals';

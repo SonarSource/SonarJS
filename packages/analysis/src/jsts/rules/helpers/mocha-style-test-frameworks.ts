@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import {
   FUNCTION_NODES,
@@ -25,8 +25,15 @@ import {
 } from './ast.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
 
-export const SUPPORTED_TEST_FRAMEWORKS = ['jest', 'mocha', 'vitest', '@playwright/test'];
-const MOCHA_STYLE_TEST_FRAMEWORKS = new Set(['jest', 'mocha', 'vitest']);
+export const SUPPORTED_TEST_FRAMEWORKS = [
+  'bun:test',
+  'jest',
+  'mocha',
+  'node:test',
+  'vitest',
+  '@playwright/test',
+];
+const MOCHA_STYLE_TEST_FRAMEWORKS = new Set(['bun:test', 'jest', 'mocha', 'test', 'vitest']);
 export const TEST_FUNCTION_NAMES = ['it', 'specify', 'test'];
 export const SUITE_FUNCTION_NAMES = ['describe', 'context', 'suite'];
 const COMMON_MOCHA_TEST_MODIFIERS = new Set(['only', 'concurrent']);
@@ -51,12 +58,12 @@ export function isMochaTestConstruct(
     return false;
   }
 
-  const constructName = getMochaConstructName(context, calleeParts.base);
+  const { constructName, modifiers } = getMochaConstructAndModifiers(context, calleeParts);
   if (constructName === undefined || !constructs.includes(constructName)) {
     return false;
   }
 
-  return calleeParts.modifiers.every(
+  return modifiers.every(
     modifier =>
       (allowParameterized && modifier === 'each') || isConcreteMochaTestModifier(context, modifier),
   );
@@ -120,18 +127,77 @@ function isQualifyingMember(
   return node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property);
 }
 
-export function getMochaConstructName(
+function getMochaBaseConstructName(
   context: Rule.RuleContext,
   identifier: estree.Identifier,
 ): string | undefined {
   const variable = getVariableFromScope(context.sourceCode.getScope(identifier), identifier.name);
-  if (
-    variable?.defs.some(def => def.type === 'ImportBinding' || isSupportedRequireBinding(def.node))
-  ) {
-    return getMochaConstructNameFromFqn(getFullyQualifiedName(context, identifier));
+  const definition = variable?.defs.find(
+    def => def.type === 'ImportBinding' || isSupportedRequireBinding(def.node),
+  );
+  if (definition !== undefined) {
+    const fqn = getFullyQualifiedName(context, identifier);
+    return (
+      getMochaConstructNameFromFqn(fqn) ??
+      (fqn === 'test' && isNodeTestDefaultBindingDefinition(definition) ? 'test' : undefined)
+    );
   }
 
   return variable == null || variable.defs.length === 0 ? identifier.name : undefined;
+}
+
+export function getMochaConstructAndModifiers(
+  context: Rule.RuleContext,
+  calleeParts: { base: estree.Identifier; modifiers: string[] },
+): { constructName: string | undefined; modifiers: string[] } {
+  const constructName = getMochaBaseConstructName(context, calleeParts.base);
+  if (
+    constructName === 'test' &&
+    isNodeTestDefaultBinding(context, calleeParts.base) &&
+    calleeParts.modifiers.length > 0
+  ) {
+    const [nodeTestConstructName, ...modifiers] = calleeParts.modifiers;
+    if (
+      TEST_FUNCTION_NAMES.includes(nodeTestConstructName) ||
+      SUITE_FUNCTION_NAMES.includes(nodeTestConstructName)
+    ) {
+      return { constructName: nodeTestConstructName, modifiers };
+    }
+  }
+  return { constructName, modifiers: calleeParts.modifiers };
+}
+
+function isNodeTestDefaultBinding(
+  context: Rule.RuleContext,
+  identifier: estree.Identifier,
+): boolean {
+  const variable = getVariableFromScope(context.sourceCode.getScope(identifier), identifier.name);
+  const definition = variable?.defs.find(
+    def => def.type === 'ImportBinding' || isSupportedRequireBinding(def.node),
+  );
+  return definition !== undefined && isNodeTestDefaultBindingDefinition(definition);
+}
+
+function isNodeTestDefaultBindingDefinition(definition: Scope.Definition): boolean {
+  if (definition.type === 'ImportBinding') {
+    return (
+      definition.node.type === 'ImportDefaultSpecifier' &&
+      definition.parent.type === 'ImportDeclaration' &&
+      definition.parent.source.value === 'node:test'
+    );
+  }
+
+  if (definition.type !== 'Variable' || definition.node.type !== 'VariableDeclarator') {
+    return false;
+  }
+
+  const requireCall = definition.node.init && getRequireCall(definition.node.init);
+  const moduleName = requireCall?.arguments[0];
+  return (
+    definition.node.id.type === 'Identifier' &&
+    moduleName?.type === 'Literal' &&
+    moduleName.value === 'node:test'
+  );
 }
 
 function getMochaConstructNameFromFqn(fqn: string | null): string | undefined {
