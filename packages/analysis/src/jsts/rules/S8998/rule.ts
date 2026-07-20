@@ -181,7 +181,20 @@ function isKnownEmptyDataset(context: Rule.RuleContext, dataset: estree.Expressi
     return false;
   }
 
-  const writes = variable.references.filter(reference => reference.isWrite());
+  const datasetStart = dataset.range?.[0];
+  if (datasetStart === undefined) {
+    return false;
+  }
+
+  const writes = variable.references.filter(reference => {
+    const writeStart = reference.identifier.range?.[0];
+    return (
+      reference.isWrite() &&
+      (writeStart === undefined ||
+        writeStart < datasetStart ||
+        reference.from.variableScope !== variable.scope.variableScope)
+    );
+  });
   if (writes.length !== 1 || !isEmptyArray(writes[0].writeExpr)) {
     return false;
   }
