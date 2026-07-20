@@ -20,7 +20,10 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
+
+const VUE_FQN_PREFIX = 'vue.';
 
 // eslint-plugin-vue's ref-object-references.js tracks all ref-creating calls for a variable in a
 // shared map keyed by reference node, overwriting entries per call it processes. When a ref-typed
@@ -38,7 +41,24 @@ const REF_CREATING_CALLEES = new Set([
   'defineModel',
 ]);
 
-function isRefToRefReassignment(node: estree.Node & Rule.NodeParentExtension): boolean {
+function isRefCreatingCallee(context: Rule.RuleContext, callee: estree.Identifier): boolean {
+  const fqn = getFullyQualifiedName(context, callee);
+  // Resolving the import binding recognizes aliased imports too, e.g.
+  // `import { computed as makeComputed } from 'vue'`. Names with no resolvable import
+  // binding (e.g. `defineModel`, a <script setup> compiler macro that needs no import)
+  // fall back to matching the local spelling directly.
+  if (fqn !== null) {
+    return (
+      fqn.startsWith(VUE_FQN_PREFIX) && REF_CREATING_CALLEES.has(fqn.slice(VUE_FQN_PREFIX.length))
+    );
+  }
+  return REF_CREATING_CALLEES.has(callee.name);
+}
+
+function isRefToRefReassignment(
+  context: Rule.RuleContext,
+  node: estree.Node & Rule.NodeParentExtension,
+): boolean {
   const { parent } = node;
   return (
     parent.type === 'AssignmentExpression' &&
@@ -46,7 +66,7 @@ function isRefToRefReassignment(node: estree.Node & Rule.NodeParentExtension): b
     parent.left === node &&
     parent.right.type === 'CallExpression' &&
     parent.right.callee.type === 'Identifier' &&
-    REF_CREATING_CALLEES.has(parent.right.callee.name)
+    isRefCreatingCallee(context, parent.right.callee)
   );
 }
 
@@ -60,7 +80,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       if ('messageId' in reportDescriptor && reportDescriptor.messageId === 'requireDotValue') {
         if (
           'node' in reportDescriptor &&
-          isRefToRefReassignment(reportDescriptor.node as estree.Node & Rule.NodeParentExtension)
+          isRefToRefReassignment(
+            context,
+            reportDescriptor.node as estree.Node & Rule.NodeParentExtension,
+          )
         ) {
           return;
         }

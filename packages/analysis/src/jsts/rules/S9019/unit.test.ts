@@ -87,6 +87,19 @@ function revalidate() {
 </script>
 `,
         },
+        {
+          // same pattern with aliased imports: the reassignment's callee must be resolved
+          // through the import binding, not matched by its local spelling (JS-2095)
+          code: `
+<script setup>
+import { computed as makeComputed, defineComponent, ref as makeRef } from 'vue';
+let isValid = makeRef(true);
+function revalidate() {
+  isValid = makeComputed(() => true);
+}
+</script>
+`,
+        },
       ],
       invalid: [
         {
