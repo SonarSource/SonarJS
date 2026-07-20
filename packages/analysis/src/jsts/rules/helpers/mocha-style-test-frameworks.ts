@@ -201,14 +201,13 @@ function isNodeTestDefaultBindingDefinition(definition: Scope.Definition): boole
 }
 
 function getMochaConstructNameFromFqn(fqn: string | null): string | undefined {
-  if (fqn === null) {
+  const parts = fqn?.split('.');
+  if (parts?.length !== 2) {
     return undefined;
   }
 
-  const framework = [...MOCHA_STYLE_TEST_FRAMEWORKS].find(candidate =>
-    fqn.startsWith(candidate + '.'),
-  );
-  return framework === undefined ? undefined : fqn.slice(framework.length + 1);
+  const [framework, constructName] = parts;
+  return MOCHA_STYLE_TEST_FRAMEWORKS.has(framework) ? constructName : undefined;
 }
 
 function isSupportedRequireBinding(node: estree.Node): boolean {

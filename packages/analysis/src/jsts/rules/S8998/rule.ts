@@ -38,6 +38,7 @@ const JEST_DEPENDENCIES = ['jest'];
 const VITEST_MODULES = ['vitest'];
 const BUN_MODULES = ['bun:test'];
 const BUN_FQN_PREFIX = 'bun:test.';
+const JEST_GLOBALS_FQN_PREFIX = '@jest.globals.';
 const COMMON_MODIFIERS = new Set(['only', 'concurrent']);
 const JEST_TEST_MODIFIERS = new Set(['failing']);
 const VITEST_MODIFIERS = new Set(['fails', 'sequential']);
@@ -166,6 +167,9 @@ function getConstructName(
   const fqn = getFullyQualifiedName(context, identifier);
   if (fqn?.startsWith(BUN_FQN_PREFIX)) {
     return fqn.slice(BUN_FQN_PREFIX.length);
+  }
+  if (fqn?.startsWith(JEST_GLOBALS_FQN_PREFIX)) {
+    return fqn.slice(JEST_GLOBALS_FQN_PREFIX.length);
   }
   return getMochaConstructName(context, identifier);
 }
