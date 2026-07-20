@@ -205,9 +205,8 @@ function hasNoInterveningReference(
     return (
       reference !== write &&
       reference.identifier !== dataset &&
-      start !== undefined &&
-      writeStart < start &&
-      start < datasetStart
+      (reference.from.variableScope !== variable.scope.variableScope ||
+        (start !== undefined && writeStart < start && start < datasetStart))
     );
   });
 }

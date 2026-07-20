@@ -53,6 +53,9 @@ describe('S8998', () => {
         {
           code: "import { test } from 'vitest';\nfunction f() {\n  const cases: number[] = [];\n  return () => test.each(cases)('case %i', () => {});\n}\nf();",
         },
+        {
+          code: "import { test } from 'vitest';\nconst cases = [];\npopulate();\ntest.each(cases)('case %i', () => {});\nfunction populate() { cases.push([1]); }",
+        },
       ],
       invalid: [
         {
