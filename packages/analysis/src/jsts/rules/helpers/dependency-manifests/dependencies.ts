@@ -182,11 +182,36 @@ export function getReactVersion(context: Rule.RuleContext): string | null {
  * @returns Valid semver version string or null if parsing fails
  */
 export function parseReactVersion(reactVersion: string): string | null {
+  return coerceDependencyVersion(reactVersion);
+}
+
+/**
+ * Gets the Vue version from the closest package.json.
+ *
+ * @param context ESLint rule context
+ * @returns Vue version string (coerced from range) or null if not found
+ */
+export function getVueVersion(context: Rule.RuleContext): string | null {
+  const dir = dirnamePath(normalizeToAbsolutePath(context.filename));
+  const dependencies = withCurrentFileInlineDependencies(
+    getDependencies(dir, normalizeToAbsolutePath(context.cwd)),
+  );
+  const vueVersion = dependencies.get('vue');
+  if (!vueVersion) {
+    return null;
+  }
+  return coerceDependencyVersion(vueVersion);
+}
+
+/**
+ * Coerces a dependency version string or range (e.g., "^18.0.0", "19.0") to a
+ * valid semver version. Returns null for non-semver strings such as pnpm
+ * catalog references (e.g., "catalog:frontend").
+ */
+function coerceDependencyVersion(version: string): string | null {
   try {
-    // Coerce version ranges (e.g., "^18.0.0") to valid semver versions
-    return minVersion(reactVersion)?.version ?? null;
+    return minVersion(version)?.version ?? null;
   } catch {
-    // Handle non-semver strings like pnpm catalog references (e.g., "catalog:frontend")
     return null;
   }
 }
