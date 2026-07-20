@@ -103,7 +103,7 @@ function hasSupportedCallback(context: Rule.RuleContext, node: estree.CallExpres
 
   const initializer = definition.node.init;
   return (
-    initializer !== null &&
+    initializer != null &&
     FUNCTION_NODES.includes(initializer.type) &&
     getUniqueWriteReference(variable) === initializer
   );
