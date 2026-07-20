@@ -131,7 +131,7 @@ function getAssertion(context: Rule.RuleContext, node: estree.Node): Assertion |
     return null;
   }
   const root = getExpectCall(context, node);
-  if (!root || root.arguments.length !== 1) {
+  if (!root || root.arguments.length === 0) {
     return null;
   }
 

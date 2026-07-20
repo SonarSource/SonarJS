@@ -162,6 +162,15 @@ describe('S9072', () => {
           filename: fixtureFile,
           code: `
             import { expect } from 'vitest';
+            declare const value: object;
+            expect(value, 'must throw').toThrow();
+          `,
+          errors: [{ messageId: 'nonCallable', suggestions: [] }],
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            import { expect } from 'vitest';
             function parseConfig(input: string): object { return {}; }
             expect(parseConfig('input')).toThrow(SyntaxError);
           `,
