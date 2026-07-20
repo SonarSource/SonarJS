@@ -195,7 +195,8 @@ function isFunctionArgument(node: estree.Node | estree.SpreadElement): node is F
  * parameter (arity-based, regardless of its name). Mixing that with an awaited/returned assertion
  * makes the runtime throw ("cannot both take a 'done' callback and return something"), so the fix
  * this rule suggests doesn't apply to such tests. Node's first callback parameter is a
- * `TestContext`, not a `done` callback, so node:test calls are excluded from this heuristic.
+ * `TestContext`, while a second parameter is the `done` callback, so node:test calls are excluded
+ * from this heuristic only when they have a single callback parameter.
  * Playwright's fixtures parameter is always a destructuring pattern, never a plain identifier, so
  * it isn't mistaken for a done callback.
  */
@@ -206,7 +207,7 @@ function usesDoneCallback(
   frameworks: Frameworks,
 ): boolean {
   if (frameworks.nodeTest && isNodeTestCall(context, call)) {
-    return false;
+    return callback.params.length >= 2;
   }
   const [firstParam] = callback.params;
   return firstParam?.type === 'Identifier';

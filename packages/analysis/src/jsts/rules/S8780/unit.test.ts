@@ -51,6 +51,17 @@ describe('S8780', () => {
         },
         {
           code: `
+            import test from 'node:test';
+            import assert from 'node:assert/strict';
+
+            test('uses an explicit done callback alongside TestContext', (t, done) => {
+              assert.rejects(failingJob());
+              done();
+            });
+          `,
+        },
+        {
+          code: `
             import { expect, it } from '@jest/globals';
 
             async function fetchUser(id) {

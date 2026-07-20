@@ -127,7 +127,7 @@ function isQualifyingMember(
   return node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property);
 }
 
-export function getMochaConstructName(
+function getMochaBaseConstructName(
   context: Rule.RuleContext,
   identifier: estree.Identifier,
 ): string | undefined {
@@ -146,11 +146,11 @@ export function getMochaConstructName(
   return variable == null || variable.defs.length === 0 ? identifier.name : undefined;
 }
 
-function getMochaConstructAndModifiers(
+export function getMochaConstructAndModifiers(
   context: Rule.RuleContext,
   calleeParts: { base: estree.Identifier; modifiers: string[] },
 ): { constructName: string | undefined; modifiers: string[] } {
-  const constructName = getMochaConstructName(context, calleeParts.base);
+  const constructName = getMochaBaseConstructName(context, calleeParts.base);
   if (
     constructName === 'test' &&
     isNodeTestDefaultBinding(context, calleeParts.base) &&
