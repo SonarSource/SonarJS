@@ -25,8 +25,14 @@ import {
 } from './ast.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
 
-export const SUPPORTED_TEST_FRAMEWORKS = ['jest', 'mocha', 'vitest', '@playwright/test'];
-const MOCHA_STYLE_TEST_FRAMEWORKS = new Set(['jest', 'mocha', 'vitest']);
+export const SUPPORTED_TEST_FRAMEWORKS = [
+  'jest',
+  '@jest/globals',
+  'mocha',
+  'vitest',
+  '@playwright/test',
+];
+const MOCHA_STYLE_TEST_FRAMEWORKS = new Set(['jest', '@jest.globals', 'mocha', 'vitest']);
 export const TEST_FUNCTION_NAMES = ['it', 'specify', 'test'];
 export const SUITE_FUNCTION_NAMES = ['describe', 'context', 'suite'];
 const COMMON_MOCHA_TEST_MODIFIERS = new Set(['only', 'concurrent']);
@@ -135,13 +141,14 @@ export function getMochaConstructName(
 }
 
 function getMochaConstructNameFromFqn(fqn: string | null): string | undefined {
-  const parts = fqn?.split('.');
-  if (parts?.length !== 2) {
+  if (fqn === null) {
     return undefined;
   }
 
-  const [framework, constructName] = parts;
-  return MOCHA_STYLE_TEST_FRAMEWORKS.has(framework) ? constructName : undefined;
+  const framework = [...MOCHA_STYLE_TEST_FRAMEWORKS].find(candidate =>
+    fqn.startsWith(candidate + '.'),
+  );
+  return framework === undefined ? undefined : fqn.slice(framework.length + 1);
 }
 
 function isSupportedRequireBinding(node: estree.Node): boolean {
