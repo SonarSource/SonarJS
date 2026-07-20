@@ -33,10 +33,7 @@ import { jsTsInput } from '../tools/helpers/input.js';
 import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
 import assert from 'node:assert';
 import { getPackageJsonManifests } from '../../../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
-import {
-  createProgramOptions,
-  createProgramOptionsFromJson,
-} from '../../../src/jsts/program/tsconfig/options.js';
+import { createProgramOptions } from '../../../src/jsts/program/tsconfig/options.js';
 import { createStandardProgram } from '../../../src/jsts/program/factory.js';
 import { clearDependenciesCache } from '../../../src/jsts/rules/helpers/dependency-manifests/index.js';
 import { DEFAULT_ECMA_VERSION } from '../../../src/jsts/parsers/options.js';
@@ -44,33 +41,6 @@ import { DEFAULT_ECMA_VERSION } from '../../../src/jsts/parsers/options.js';
 const currentPath = normalizePath(import.meta.dirname);
 
 const fixtures = path.join(currentPath, 'fixtures-analyzer');
-const s6582Rules: RuleConfig[] = [
-  {
-    key: 'S6582',
-    configurations: [],
-    fileTypeTargets: ['MAIN'],
-    language: 'js',
-    analysisModes: ['DEFAULT'],
-  },
-];
-
-async function analyzeS6582WithDetectedEsYear(detectedEsYear: 2019 | 2020) {
-  const filePath = path.join(fixtures, 's6582.js');
-  const baseDir = normalizeToAbsolutePath(path.dirname(filePath));
-  await Linter.initialize({ baseDir, rules: s6582Rules });
-  const program = createStandardProgram(
-    createProgramOptionsFromJson(
-      { allowJs: true, checkJs: true, lib: [`es${detectedEsYear}`, 'dom'] },
-      [normalizeToAbsolutePath(filePath)],
-      baseDir,
-    ),
-  );
-
-  return analyzeJSTS({
-    ...(await jsTsInput({ filePath, program })),
-    detectedEsYear,
-  });
-}
 
 describe('await analyzeJSTS', () => {
   it('should fail on uninitialized linter', async () => {
@@ -104,20 +74,6 @@ describe('await analyzeJSTS', () => {
         ruleId: 'S4524',
       }),
     );
-  });
-
-  it('should disable S6582 when detected ES year is below ES2020', async () => {
-    const { issues } = await analyzeS6582WithDetectedEsYear(2019);
-
-    expect(issues.filter(issue => issue.ruleId === 'S6582')).toEqual([]);
-  });
-
-  it('should keep S6582 enabled when detected ES year is ES2020', async () => {
-    const { issues } = await analyzeS6582WithDetectedEsYear(2020);
-
-    expect(issues.filter(issue => issue.ruleId === 'S6582')).toEqual([
-      expect.objectContaining({ ruleId: 'S6582' }),
-    ]);
   });
 
   it('should return ESLint-suppressed issues separately from open issues', async () => {
