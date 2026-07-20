@@ -275,6 +275,92 @@ describe('SonarQube project analysis', () => {
     expect(result.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
   });
 
+  it('should disable S6582 when ecmaScriptVersion override is below ES2020 for JS files', async () => {
+    const baseDir = '/virtual/js-2118/es2019';
+    const filePath = join(normalizePath(baseDir), 'file.js');
+    const optionalChainingRules: RuleConfig[] = [
+      {
+        key: 'S6582',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+
+    const configuration = await initForTest(
+      { baseDir, canAccessFileSystem: false, ecmaScriptVersion: 'ES2019' },
+      {
+        [filePath]: {
+          filePath,
+          fileType: 'MAIN',
+          fileContent: [
+            '/**',
+            ' * @param {{ bar: string } | null | undefined} foo',
+            ' */',
+            'function test(foo) {',
+            '  return foo && foo.bar;',
+            '}',
+          ].join('\n'),
+        },
+      },
+    );
+
+    const result = await analyzeProject(
+      { rules: optionalChainingRules, bundles: [] },
+      configuration,
+    );
+    const fileResult = result.files[normalizeToAbsolutePath(filePath)];
+
+    expect(fileResult).toBeDefined();
+    expect(result.meta.telemetry?.ecmaScriptVersions).toEqual(['ES2019']);
+    expect('issues' in fileResult! && fileResult!.issues).toEqual([]);
+  });
+
+  it('should keep S6582 enabled when ecmaScriptVersion override is ES2020 for JS files', async () => {
+    const baseDir = '/virtual/js-2118/es2020';
+    const filePath = join(normalizePath(baseDir), 'file.js');
+    const optionalChainingRules: RuleConfig[] = [
+      {
+        key: 'S6582',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+
+    const configuration = await initForTest(
+      { baseDir, canAccessFileSystem: false, ecmaScriptVersion: 'ES2020' },
+      {
+        [filePath]: {
+          filePath,
+          fileType: 'MAIN',
+          fileContent: [
+            '/**',
+            ' * @param {{ bar: string } | null | undefined} foo',
+            ' */',
+            'function test(foo) {',
+            '  return foo && foo.bar;',
+            '}',
+          ].join('\n'),
+        },
+      },
+    );
+
+    const result = await analyzeProject(
+      { rules: optionalChainingRules, bundles: [] },
+      configuration,
+    );
+    const fileResult = result.files[normalizeToAbsolutePath(filePath)];
+
+    expect(fileResult).toBeDefined();
+    expect(result.meta.telemetry?.ecmaScriptVersions).toEqual(['ES2020']);
+    expect(
+      'issues' in fileResult! && fileResult!.issues.some(issue => issue.ruleId === 'S6582'),
+    ).toBe(true);
+  });
+
   it('should return empty result for empty project', async () => {
     const baseDir = join(fixtures, 'basic');
 
