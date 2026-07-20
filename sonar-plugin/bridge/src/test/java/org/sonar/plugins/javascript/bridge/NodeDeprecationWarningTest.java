@@ -22,10 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.event.Level;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
@@ -53,34 +55,48 @@ class NodeDeprecationWarningTest {
    * versions of NodeJS. Here we should only care about the deprecation warnings.
    */
   @ParameterizedTest
-  @ValueSource(strings = { "16.10.0", "18.16.0", "20.11.9", "22.10.0" })
-  void test_unsupported(String version) {
-    deprecationWarning.logNodeDeprecation(Version.parse(version));
+  @MethodSource("unsupportedNodeVersions")
+  void test_unsupported(Version version) {
+    deprecationWarning.logNodeDeprecation(version);
     assertWarnings(
       String.format(
         "Using Node.js version %s to execute analysis is not recommended. " +
-          "Please upgrade to a newer LTS version of Node.js: %s.",
-        Version.parse(version),
-        NodeDeprecationWarning.RECOMMENDED_NODE_VERSION
+          "Please use a supported LTS version of Node.js: %s.",
+        version,
+        NodeDeprecationWarning.supportedNodeVersions()
       )
     );
   }
 
   @ParameterizedTest
-  @ValueSource(strings = { "18.20.0", "20.13.0", "22.11.0" })
-  void test_supported(String version) {
-    var parsedVersion = Version.parse(version);
-    deprecationWarning.logNodeDeprecation(parsedVersion);
-    if (parsedVersion.major() < NodeDeprecationWarning.RECOMMENDED_NODE_VERSION.major()) {
-      assertWarnings(
-        String.format(
-          "Using Node.js version %s to execute analysis is not recommended. " +
-            "Please upgrade to a newer LTS version of Node.js: %s.",
-          parsedVersion,
-          NodeDeprecationWarning.RECOMMENDED_NODE_VERSION
-        )
+  @MethodSource("supportedNodeVersions")
+  void test_supported(Version version) {
+    deprecationWarning.logNodeDeprecation(version);
+    assertWarnings();
+  }
+
+  static Stream<Version> supportedNodeVersions() {
+    return NodeDeprecationWarning.supportedNodeVersions()
+      .stream()
+      .flatMap(version ->
+        Stream.of(version, Version.create(version.major(), version.minor() + 1, 0))
       );
-    }
+  }
+
+  static Stream<Version> unsupportedNodeVersions() {
+    var supportedVersions = NodeDeprecationWarning.supportedNodeVersions();
+    int minMajor = supportedVersions.get(0).major();
+    int maxMajor = supportedVersions.get(supportedVersions.size() - 1).major();
+
+    var versionsBelowSupportedMinimums = supportedVersions
+      .stream()
+      .filter(version -> version.minor() > 0)
+      .map(version -> Version.create(version.major(), version.minor() - 1, 0));
+    var unsupportedMajors = IntStream.rangeClosed(minMajor - 1, maxMajor + 1)
+      .filter(major -> supportedVersions.stream().noneMatch(version -> version.major() == major))
+      .mapToObj(major -> Version.create(major, 0, 0));
+
+    return Stream.concat(versionsBelowSupportedMinimums, unsupportedMajors).distinct();
   }
 
   private void assertWarnings(String... messages) {
