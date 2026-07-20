@@ -40,6 +40,9 @@ describe('S8998', () => {
         { code: "import { test } from 'vitest';\ntest.skip.each([])('case %i', () => {});" },
         { code: "import { test } from 'vitest';\ntest.each(getCases())('case %i', () => {});" },
         {
+          code: "import { test } from 'vitest';\ntest.each(getCases() as unknown[])('case %i', () => {});",
+        },
+        {
           code: "import { test } from 'vitest';\nconst cases = [];\nconst alias = cases;\ntest.each(alias)('case %i', () => {});",
         },
         {
@@ -61,6 +64,14 @@ describe('S8998', () => {
         },
       ],
       invalid: [
+        {
+          code: "import { test } from 'vitest';\ntest.each([] as const)('case %i', () => {});",
+          errors: [{ messageId }],
+        },
+        {
+          code: "import { test } from 'vitest';\ntest.each([] satisfies unknown[])('case %i', () => {});",
+          errors: [{ messageId }],
+        },
         {
           code: "import { test } from '@jest/globals';\nfunction body() {}\ntest.each([])('case %i', body);",
           errors: [{ messageId }],
