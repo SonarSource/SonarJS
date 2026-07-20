@@ -29,7 +29,11 @@ import { collectCallChain, unwrapChainExpression } from '../helpers/expect-call-
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
-import { getTypeFromTreeNode, isAnyOrUnknownType, isThenable } from '../helpers/type.js';
+import {
+  getTypeFromTreeNode,
+  isAnyOrUnknownType,
+  isThenableOrThenableUnion,
+} from '../helpers/type.js';
 import { TEST_FUNCTION_NAMES } from '../helpers/mocha-style-test-frameworks.js';
 import * as meta from './generated-meta.js';
 
@@ -364,7 +368,7 @@ function getNonCallableSuggestion(
   if (actual.type !== 'CallExpression' && actual.type !== 'NewExpression') {
     return undefined;
   }
-  if (isThenable(actual, services)) {
+  if (isThenableOrThenableUnion(actual, services)) {
     return undefined;
   }
 

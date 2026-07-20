@@ -176,6 +176,16 @@ export function isThenable(node: estree.Node, services: RequiredParserServices) 
   return hasThenMethod(checker.getTypeAtLocation(mapped), checker);
 }
 
+/**
+ * Returns true when any constituent of the type resolved by `node` is thenable.
+ */
+export function isThenableOrThenableUnion(node: estree.Node, services: RequiredParserServices) {
+  const checker = services.program.getTypeChecker();
+  const type = getTypeFromTreeNode(node, services);
+  const unionTypes = type.isUnion() ? type.types : [type];
+  return unionTypes.some(unionType => hasThenMethod(unionType, checker));
+}
+
 const NOTHING_TYPE_FLAGS = ts.TypeFlags.Void | ts.TypeFlags.Undefined | ts.TypeFlags.Null;
 
 /**
