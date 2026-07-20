@@ -10,7 +10,8 @@
     "tests",
     "pitfall",
     "jest",
-    "vitest"
+    "vitest",
+    "bun"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-8998",

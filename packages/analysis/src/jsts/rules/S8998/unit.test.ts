@@ -56,6 +56,14 @@ describe('S8998', () => {
       ],
       invalid: [
         {
+          code: "import { describe, test } from 'bun:test';\ntest.each([])('case %i', () => {});\ndescribe.each([])('case %i', () => {});",
+          errors: [{ messageId }, { messageId }],
+        },
+        {
+          code: "import { test as bunTest } from 'bun:test';\nconst cases = [];\nbunTest.each(cases)('case %i', () => {});\ncases.push(1);",
+          errors: [{ messageId }],
+        },
+        {
           code: "test.each([])('case %i', () => {});",
           filename: jestFixture,
           errors: [{ messageId }],
