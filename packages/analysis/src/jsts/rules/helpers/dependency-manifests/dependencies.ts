@@ -186,21 +186,21 @@ export function parseReactVersion(reactVersion: string): string | null {
 }
 
 /**
- * Gets the Vue version from the closest package.json.
+ * Gets the raw Vue dependency range from the closest package.json.
+ *
+ * Unlike getReactVersion, this returns the range as declared (e.g. "^2.7.0 || ^3.0.0")
+ * rather than a single coerced version, since S8961 needs to know whether Vue 3
+ * is a possibility for the range, not just its lower bound.
  *
  * @param context ESLint rule context
- * @returns Vue version string (coerced from range) or null if not found
+ * @returns Vue dependency range string, or null if not found
  */
 export function getVueVersion(context: Rule.RuleContext): string | null {
   const dir = dirnamePath(normalizeToAbsolutePath(context.filename));
   const dependencies = withCurrentFileInlineDependencies(
     getDependencies(dir, normalizeToAbsolutePath(context.cwd)),
   );
-  const vueVersion = dependencies.get('vue');
-  if (!vueVersion) {
-    return null;
-  }
-  return coerceDependencyVersion(vueVersion);
+  return dependencies.get('vue') ?? null;
 }
 
 /**

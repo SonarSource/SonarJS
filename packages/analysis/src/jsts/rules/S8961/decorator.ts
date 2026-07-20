@@ -17,12 +17,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S8961/javascript
 
 import type { Rule } from 'eslint';
-import { parse as parseSemver } from 'semver';
+import { intersects, validRange } from 'semver';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getVueVersion } from '../helpers/dependency-manifests/dependencies.js';
 import * as meta from './generated-meta.js';
 
-const VUE_3_MAJOR_VERSION = 3;
+const VUE_3_OR_LATER_RANGE = '>=3.0.0';
 
 /**
  * Decorates the vue/require-explicit-emits rule to silence it on Vue 2 projects.
@@ -44,16 +44,19 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 }
 
 /**
- * Returns true when the project's Vue dependency is 2 or earlier.
+ * Returns true when the project's Vue dependency range cannot possibly resolve to Vue 3+.
+ *
+ * Ranges that could resolve to either Vue 2 and Vue 3 (e.g. ">=2.7.0", "^2.7.0 || ^3.0.0")
+ * are treated as "Vue 3 is possible", so the rule keeps reporting. Unknown/unparseable
+ * ranges (catalog:, workspace:, git:, missing dependency, ...) also keep reporting.
  *
  * @param context the rule context
- * @return whether the project is on Vue 2 or earlier
+ * @return whether the project's Vue range excludes Vue 3 entirely
  */
 function isVue2OrEarlier(context: Rule.RuleContext): boolean {
-  const vueVersion = getVueVersion(context);
-  if (!vueVersion) {
+  const vueVersionRange = getVueVersion(context);
+  if (!vueVersionRange || !validRange(vueVersionRange)) {
     return false;
   }
-  const version = parseSemver(vueVersion);
-  return version !== null && version.major < VUE_3_MAJOR_VERSION;
+  return !intersects(vueVersionRange, VUE_3_OR_LATER_RANGE);
 }
