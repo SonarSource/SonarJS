@@ -18,7 +18,7 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import { getVariableFromScope } from '../helpers/ast.js';
+import { FUNCTION_NODES, getUniqueWriteReference, getVariableFromScope } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
   getMochaCalleeParts,
@@ -63,7 +63,7 @@ export const rule: Rule.RuleModule = {
         const dataset = getDataset(node);
         if (
           dataset === undefined ||
-          !hasCallback(node) ||
+          !hasSupportedCallback(context, node) ||
           node.arguments.length < 2 ||
           !isSupportedDeclaration(context, node, activeFrameworks)
         ) {
@@ -77,6 +77,37 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function hasSupportedCallback(context: Rule.RuleContext, node: estree.CallExpression): boolean {
+  if (hasCallback(node)) {
+    return true;
+  }
+
+  const callback = node.arguments[1];
+  if (callback?.type !== 'Identifier') {
+    return false;
+  }
+
+  const variable = getVariableFromScope(context.sourceCode.getScope(callback), callback.name);
+  if (variable?.defs.length !== 1) {
+    return false;
+  }
+
+  const [definition] = variable.defs;
+  if (definition.type === 'FunctionName') {
+    return !variable.references.some(reference => reference.isWrite());
+  }
+  if (definition.type !== 'Variable') {
+    return false;
+  }
+
+  const initializer = definition.node.init;
+  return (
+    initializer !== null &&
+    FUNCTION_NODES.includes(initializer.type) &&
+    getUniqueWriteReference(variable) === initializer
+  );
+}
 
 function getDataset(node: estree.CallExpression): estree.Expression | undefined {
   if (node.callee.type !== 'CallExpression') {

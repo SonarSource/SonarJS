@@ -56,8 +56,23 @@ describe('S8998', () => {
         {
           code: "import { test } from 'vitest';\nconst cases = [];\npopulate();\ntest.each(cases)('case %i', () => {});\nfunction populate() { cases.push([1]); }",
         },
+        {
+          code: "import { test } from 'vitest';\nlet body = () => {};\nbody = getBody();\ntest.each([])('case %i', body);",
+        },
       ],
       invalid: [
+        {
+          code: "import { test } from '@jest/globals';\nfunction body() {}\ntest.each([])('case %i', body);",
+          errors: [{ messageId }],
+        },
+        {
+          code: "import { test } from 'vitest';\nconst body = () => {};\ntest.each([])('case %i', body);",
+          errors: [{ messageId }],
+        },
+        {
+          code: "import { test } from 'bun:test';\nconst body = function () {};\ntest.each([])('case %i', body);",
+          errors: [{ messageId }],
+        },
         {
           code: "import { describe, test } from 'bun:test';\ntest.each([])('case %i', () => {});\ndescribe.each([])('case %i', () => {});",
           errors: [{ messageId }, { messageId }],
