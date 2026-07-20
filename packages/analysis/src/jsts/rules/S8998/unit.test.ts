@@ -100,6 +100,10 @@ describe('S8998', () => {
           errors: [{ messageId }],
         },
         {
+          code: "import { test } from 'vitest';\nlet cases = [];\ntest.each(cases)('case %i', () => {});\ncases = [[1]];",
+          errors: [{ messageId }],
+        },
+        {
           code: "import { test } from 'vitest';\ntest.only.each([])('case %i', () => {});\ntest.concurrent.each([])('case %i', () => {});\ntest.fails.each([])('case %i', () => {});\ntest.sequential.each([])('case %i', () => {});",
           errors: [{ messageId }, { messageId }, { messageId }, { messageId }],
         },
