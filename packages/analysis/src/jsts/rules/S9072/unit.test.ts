@@ -122,7 +122,8 @@ describe('S9072', () => {
           filename: fixtureFile,
           code: `
             import { expect } from 'vitest';
-            expect(value).toThrowError();
+            declare const value: object;
+            expect(() => value).toThrowError();
           `,
         },
         {
@@ -184,6 +185,29 @@ describe('S9072', () => {
             import { expect } from 'vitest';
             function parseConfig(input: string): object { return {}; }
             expect(() => parseConfig('input')).toThrow(SyntaxError);
+          `,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            import { expect } from 'vitest';
+            function parseConfig(input: string): object { return {}; }
+            expect(parseConfig('input')).toThrowError(SyntaxError);
+          `,
+          errors: [
+            {
+              messageId: 'nonCallable',
+              suggestions: [
+                {
+                  messageId: 'wrapInCallback',
+                  output: `
+            import { expect } from 'vitest';
+            function parseConfig(input: string): object { return {}; }
+            expect(() => parseConfig('input')).toThrowError(SyntaxError);
           `,
                 },
               ],
@@ -362,6 +386,31 @@ describe('S9072', () => {
             import { expect, test } from 'vitest';
             test('rejects', async () => {
               await expect((async () => { throw new Error('failure'); })()).rejects.toThrow('failure');
+            });
+          `,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            import { expect, test } from 'vitest';
+            test('rejects', async () => {
+              expect(async () => { throw new Error('failure'); }).toThrowError('failure');
+            });
+          `,
+          errors: [
+            {
+              messageId: 'asyncCallback',
+              suggestions: [
+                {
+                  messageId: 'useRejectionAssertion',
+                  output: `
+            import { expect, test } from 'vitest';
+            test('rejects', async () => {
+              await expect((async () => { throw new Error('failure'); })()).rejects.toThrowError('failure');
             });
           `,
                 },

@@ -48,6 +48,7 @@ const messages = {
 
 const EXPECT_FQNS = new Set(['@jest.globals.expect', 'vitest.expect', 'bun:test.expect']);
 const SUPPORTED_MODULES = new Set(['@jest/globals', 'vitest', 'bun:test']);
+const EXCEPTION_MATCHERS = new Set(['toThrow', 'toThrowError']);
 const TEST_CONSTRUCTS = [
   ...TEST_FUNCTION_NAMES,
   'before',
@@ -117,7 +118,8 @@ function getAssertion(context: Rule.RuleContext, node: estree.Node): Assertion |
     node.type !== 'CallExpression' ||
     node.callee.type !== 'MemberExpression' ||
     node.callee.computed ||
-    !isIdentifier(node.callee.property, 'toThrow')
+    !isIdentifier(node.callee.property) ||
+    !EXCEPTION_MATCHERS.has(node.callee.property.name)
   ) {
     return null;
   }
