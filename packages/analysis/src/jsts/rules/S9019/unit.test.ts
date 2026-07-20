@@ -62,6 +62,31 @@ if (hasItems.value) {
 </script>
 `,
         },
+        {
+          // reassigning a ref-typed variable to a new ref-creating call is a legitimate pattern,
+          // regardless of the unrelated import order of ref vs computed (JS-2095)
+          code: `
+<script setup>
+import { computed, defineComponent, ref } from 'vue';
+let isValid = ref(true);
+function revalidate() {
+  isValid = computed(() => true);
+}
+</script>
+`,
+        },
+        {
+          // same pattern with ref imported before computed
+          code: `
+<script setup>
+import { defineComponent, ref, computed } from 'vue';
+let isValid = ref(true);
+function revalidate() {
+  isValid = computed(() => true);
+}
+</script>
+`,
+        },
       ],
       invalid: [
         {
