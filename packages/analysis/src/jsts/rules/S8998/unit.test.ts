@@ -104,6 +104,10 @@ describe('S8998', () => {
           errors: [{ messageId }],
         },
         {
+          code: "import { test } from 'vitest';\n{\n  const cases = [];\n  {\n    const marker = 1;\n    test.each(cases)('case %i', () => marker);\n  }\n}",
+          errors: [{ messageId }],
+        },
+        {
           code: "import { test } from 'vitest';\ntest.only.each([])('case %i', () => {});\ntest.concurrent.each([])('case %i', () => {});\ntest.fails.each([])('case %i', () => {});\ntest.sequential.each([])('case %i', () => {});",
           errors: [{ messageId }, { messageId }, { messageId }, { messageId }],
         },

@@ -177,7 +177,7 @@ function isKnownEmptyDataset(context: Rule.RuleContext, dataset: estree.Expressi
 
   const scope = context.sourceCode.getScope(dataset);
   const variable = getVariableFromScope(scope, dataset.name);
-  if (variable === undefined || variable.scope !== scope) {
+  if (variable === undefined || variable.scope.variableScope !== scope.variableScope) {
     return false;
   }
 
