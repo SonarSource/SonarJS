@@ -26,13 +26,20 @@ import {
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
 
 export const SUPPORTED_TEST_FRAMEWORKS = [
+  'bun:test',
   'jest',
   '@jest/globals',
   'mocha',
   'vitest',
   '@playwright/test',
 ];
-const MOCHA_STYLE_TEST_FRAMEWORKS = new Set(['jest', '@jest.globals', 'mocha', 'vitest']);
+const MOCHA_STYLE_TEST_FRAMEWORKS = new Set([
+  'bun:test',
+  'jest',
+  '@jest.globals',
+  'mocha',
+  'vitest',
+]);
 export const TEST_FUNCTION_NAMES = ['it', 'specify', 'test'];
 export const SUITE_FUNCTION_NAMES = ['describe', 'context', 'suite'];
 const COMMON_MOCHA_TEST_MODIFIERS = new Set(['only', 'concurrent']);

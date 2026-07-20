@@ -35,23 +35,26 @@ const messages = {
 const JEST_IMPORTS = ['jest', '@jest/globals'];
 const JEST_DEPENDENCIES = ['jest'];
 const VITEST_MODULES = ['vitest'];
+const BUN_MODULES = ['bun:test'];
 const COMMON_MODIFIERS = new Set(['only', 'concurrent']);
 const JEST_TEST_MODIFIERS = new Set(['failing']);
 const VITEST_MODIFIERS = new Set(['fails', 'sequential']);
 const TESTS = new Set(['test', 'it']);
 const SUITES = new Set(['describe', 'suite']);
+const BUN_CONSTRUCTS = new Set(['test', 'describe']);
 
-type Framework = 'jest' | 'vitest';
+type Framework = 'bun' | 'jest' | 'vitest';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     const activeFrameworks = {
+      bun: importsOrDependsOnModule(context, BUN_MODULES, BUN_MODULES),
       jest: importsOrDependsOnModule(context, JEST_IMPORTS, JEST_DEPENDENCIES),
       vitest: importsOrDependsOnModule(context, VITEST_MODULES, VITEST_MODULES),
     };
 
-    if (!activeFrameworks.jest && !activeFrameworks.vitest) {
+    if (!Object.values(activeFrameworks).some(Boolean)) {
       return {};
     }
 
@@ -111,7 +114,11 @@ function isSupportedDeclaration(
   }
 
   const framework = getFramework(context, parts.base, activeFrameworks);
-  if (framework === undefined || (name === 'suite' && framework !== 'vitest')) {
+  if (
+    framework === undefined ||
+    (name === 'suite' && framework !== 'vitest') ||
+    (framework === 'bun' && !BUN_CONSTRUCTS.has(name))
+  ) {
     return false;
   }
 
@@ -125,6 +132,9 @@ function getFramework(
   activeFrameworks: Record<Framework, boolean>,
 ): Framework | undefined {
   const fqn = getFullyQualifiedName(context, base);
+  if (fqn?.startsWith('bun:test.')) {
+    return 'bun';
+  }
   if (fqn?.startsWith('vitest.')) {
     return 'vitest';
   }
@@ -134,15 +144,18 @@ function getFramework(
   if (base.name === 'suite') {
     return activeFrameworks.vitest ? 'vitest' : undefined;
   }
-  if (activeFrameworks.jest === activeFrameworks.vitest) {
+  const active = (Object.entries(activeFrameworks) as [Framework, boolean][]).filter(
+    ([, isActive]) => isActive,
+  );
+  if (active.length !== 1) {
     return undefined;
   }
-  return activeFrameworks.jest ? 'jest' : 'vitest';
+  return active[0][0];
 }
 
 function isRunnableModifier(modifier: string, name: string, framework: Framework): boolean {
   if (COMMON_MODIFIERS.has(modifier)) {
-    return true;
+    return framework !== 'bun' || modifier === 'only';
   }
   if (!TESTS.has(name)) {
     return framework === 'vitest' && modifier === 'sequential';
