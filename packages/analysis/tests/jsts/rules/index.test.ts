@@ -91,6 +91,16 @@ describe('Plugin public API', () => {
     expect(legacyConfig.settings).toEqual(configs.recommended.settings);
   });
 
+  it('should mark S6440 as not recommended', async () => {
+    const metadata = (await import(
+      pathToFileURL(
+        path.join(import.meta.dirname, '../../../src/jsts/rules/S6440/generated-meta.js'),
+      ).toString()
+    )) as SonarMeta;
+
+    expect(metadata.meta.docs?.recommended).toEqual(false);
+  });
+
   it('should export meta', () => {
     expect(meta.name).toEqual('eslint-plugin-sonarjs');
     expect(valid(meta.version)).toBeTruthy();

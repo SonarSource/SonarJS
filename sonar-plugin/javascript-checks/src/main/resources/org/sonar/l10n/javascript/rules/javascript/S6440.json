@@ -30,7 +30,6 @@
     "ts"
   ],
   "defaultQualityProfiles": [
-    "Sonar agentic AI",
-    "Sonar way"
+    "Sonar agentic AI"
   ]
 }
