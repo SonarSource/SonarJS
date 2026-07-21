@@ -25,8 +25,7 @@ import { getMainFunctionTokenLocation, report, toSecondaryLocation } from '../he
 import { isTestFrameworkCall } from '../helpers/test-frameworks.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
-
-const DEFAULT_THRESHOLD = 5;
+import { DEFAULT_THRESHOLD } from './config.js';
 
 /**
  * Checks if a function is a callback argument to a test framework function.
