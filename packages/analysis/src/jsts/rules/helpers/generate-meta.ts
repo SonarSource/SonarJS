@@ -41,6 +41,8 @@ export type SonarMeta = {
   quickFixMessage?: string;
   requiredDependency: readonly string[];
   requiredEcmaVersion?: number;
+  // Syntax TypeScript downlevels: requiredEcmaVersion then gates JavaScript only.
+  downlevelableSyntax?: boolean;
   requiredModuleType?: ModuleType;
 };
 
