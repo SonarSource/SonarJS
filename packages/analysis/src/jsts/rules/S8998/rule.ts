@@ -21,11 +21,7 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { FUNCTION_NODES, getUniqueWriteReference, getVariableFromScope } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import {
-  getMochaCalleeParts,
-  getMochaConstructName,
-  hasCallback,
-} from '../helpers/mocha-style-test-frameworks.js';
+import { getMochaCalleeParts, hasCallback } from '../helpers/mocha-style-test-frameworks.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 
@@ -171,7 +167,15 @@ function getConstructName(
   if (fqn?.startsWith(JEST_GLOBALS_FQN_PREFIX)) {
     return fqn.slice(JEST_GLOBALS_FQN_PREFIX.length);
   }
-  return getMochaConstructName(context, identifier);
+  if (fqn?.startsWith('jest.')) {
+    return fqn.slice('jest.'.length);
+  }
+  if (fqn?.startsWith('vitest.')) {
+    return fqn.slice('vitest.'.length);
+  }
+
+  const variable = getVariableFromScope(context.sourceCode.getScope(identifier), identifier.name);
+  return variable == null || variable.defs.length === 0 ? identifier.name : undefined;
 }
 
 function getFramework(
