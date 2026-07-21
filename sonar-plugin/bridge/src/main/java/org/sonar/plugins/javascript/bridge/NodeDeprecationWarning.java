@@ -89,7 +89,7 @@ public class NodeDeprecationWarning {
         "Using Node.js version %s to execute analysis is not recommended. " +
           "Please use a supported LTS version of Node.js: %s.",
         actualNodeVersion,
-        SUPPORTED_NODE_VERSIONS
+        String.join(", ", SUPPORTED_NODE_VERSIONS.stream().map(Version::toString).toList())
       );
       LOG.warn(msg);
       analysisWarnings.addUnique(msg);
