@@ -1,0 +1,34 @@
+{
+  "title": "Parameterized tests should not contain duplicate test cases",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "pitfall",
+    "jest",
+    "vitest",
+    "bun"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-9078",
+  "sqKey": "S9078",
+  "scope": "Tests",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "EFFICIENT"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
