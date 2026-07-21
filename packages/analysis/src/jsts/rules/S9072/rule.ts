@@ -39,7 +39,7 @@ import * as meta from './generated-meta.js';
 
 const messages = {
   nonCallable:
-    'The asserted value is not callable, so this exception matcher cannot test the operation that may throw.',
+    '`{{matcher}}` can only test exceptions thrown by a function it invokes. Wrap the code that may throw in a function.',
   asyncCallback:
     'This exception assertion only catches synchronous throws; use a rejection assertion for the async callback.',
   wrapInCallback: 'Wrap the asserted operation in a synchronous callback.',
@@ -68,6 +68,7 @@ type Assertion = {
   root: estree.CallExpression;
   actual: estree.Expression;
   not: estree.Node | null;
+  matcher: string;
 };
 
 function getRequiredServices(context: Rule.RuleContext) {
@@ -107,6 +108,7 @@ export const rule: Rule.RuleModule = {
         context.report({
           node: assertion.actual,
           messageId: 'nonCallable',
+          data: { matcher: assertion.matcher },
           suggest: getNonCallableSuggestion(context, assertion.actual, services),
         });
       },
@@ -168,7 +170,7 @@ function getAssertion(context: Rule.RuleContext, node: estree.Node): Assertion |
     return null;
   }
 
-  return { call: node, root, actual, not };
+  return { call: node, root, actual, not, matcher: node.callee.property.name };
 }
 
 function isExpectCall(context: Rule.RuleContext, callee: estree.Expression | estree.Super) {

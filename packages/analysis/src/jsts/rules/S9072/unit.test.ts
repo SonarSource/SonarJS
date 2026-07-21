@@ -178,6 +178,7 @@ describe('S9072', () => {
           errors: [
             {
               messageId: 'nonCallable',
+              data: { matcher: 'toThrow' },
               suggestions: [
                 {
                   messageId: 'wrapInCallback',
@@ -201,6 +202,7 @@ describe('S9072', () => {
           errors: [
             {
               messageId: 'nonCallable',
+              data: { matcher: 'toThrowError' },
               suggestions: [
                 {
                   messageId: 'wrapInCallback',
@@ -224,6 +226,7 @@ describe('S9072', () => {
           errors: [
             {
               messageId: 'nonCallable',
+              data: { matcher: 'toThrowError' },
               suggestions: [
                 {
                   messageId: 'wrapInCallback',
