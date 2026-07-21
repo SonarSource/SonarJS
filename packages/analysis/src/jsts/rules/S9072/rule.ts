@@ -49,7 +49,7 @@ const messages = {
 const EXPECT_FQNS = new Set(['@jest.globals.expect', 'vitest.expect', 'bun:test.expect']);
 const SUPPORTED_MODULES = new Set(['@jest/globals', 'vitest', 'bun:test']);
 const EXCEPTION_MATCHERS = new Set(['toThrow', 'toThrowError']);
-const TEST_CONSTRUCTS = [
+const TEST_CONSTRUCTS = new Set([
   ...TEST_FUNCTION_NAMES,
   'before',
   'after',
@@ -57,8 +57,9 @@ const TEST_CONSTRUCTS = [
   'afterEach',
   'beforeAll',
   'afterAll',
-];
+]);
 const TEST_MODIFIERS = new Set(['only', 'concurrent', 'failing', 'sequential']);
+const SECOND_TO_LAST_INDEX = -2;
 
 type RequiredServices = NonNullable<ReturnType<typeof getRequiredServices>>;
 
@@ -153,7 +154,7 @@ function getAssertion(context: Rule.RuleContext, node: estree.Node): Assertion |
   }
   const notAncestors = not ? context.sourceCode.getAncestors(not) : [];
   const notMember = notAncestors.at(-1);
-  const notCall = notAncestors.at(-2);
+  const notCall = notAncestors.at(SECOND_TO_LAST_INDEX);
   if (
     notMember?.type === 'MemberExpression' &&
     notCall?.type === 'CallExpression' &&
@@ -449,7 +450,7 @@ function isRecognizedTestOrHook(context: Rule.RuleContext, call: estree.CallExpr
       }
       const parts = fqn.slice(prefix.length).split('.');
       return (
-        TEST_CONSTRUCTS.includes(parts[0]) &&
+        TEST_CONSTRUCTS.has(parts[0]) &&
         parts.slice(1).every(modifier => TEST_MODIFIERS.has(modifier)) &&
         isRuntimeBinding(context, call.callee)
       );
