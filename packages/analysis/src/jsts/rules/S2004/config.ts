@@ -23,7 +23,7 @@ export const fields = [
     {
       field: 'threshold',
       description: 'Maximum depth of allowed nested functions.',
-      default: 4,
+      default: 5,
       displayName: 'max',
     },
   ],
