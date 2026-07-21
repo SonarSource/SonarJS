@@ -78,6 +78,13 @@ describe('S9078', () => {
             ])('greets %s', (name, expected) => expect(greet(name)).toBe(expected));
           `,
           errors: [{ messageId: 'duplicate', data: { index: 0 } }],
+          output: `
+            import { test } from '@jest/globals';
+            test.each([
+              ['Alice', 'Hello, Alice!'],
+              ['Bob', 'Hello, Bob!'],
+            ])('greets %s', (name, expected) => expect(greet(name)).toBe(expected));
+          `,
         },
         {
           code: `
@@ -89,6 +96,13 @@ describe('S9078', () => {
             ])('handles users', () => {});
           `,
           errors: [{ messageId: 'duplicate', data: { index: 0 } }],
+          output: `
+            import { suite } from 'vitest';
+            suite.each([
+              ['Alice', 'admin'],
+              ['Bob', 'user'],
+            ])('handles users', () => {});
+          `,
         },
         {
           code: `
@@ -102,6 +116,15 @@ describe('S9078', () => {
             ])('handles users', (user, expected) => expect(user.name).toBe(expected));
           `,
           errors: [{ messageId: 'duplicate', data: { index: 0 } }],
+          output: `
+            import { test } from 'vitest';
+            const alice = { name: 'Alice' };
+            const bob = { name: 'Bob' };
+            test.each([
+              [alice, 'Alice'],
+              [bob, 'Bob'],
+            ])('handles users', (user, expected) => expect(user.name).toBe(expected));
+          `,
         },
         {
           code: `
@@ -114,6 +137,14 @@ describe('S9078', () => {
             ])('handles users', runCase);
           `,
           errors: [{ messageId: 'duplicate', data: { index: 0 } }],
+          output: `
+            import { test } from 'vitest';
+            const runCase = () => {};
+            test.each([
+              ['Alice', 'admin'],
+              ['Bob', 'user'],
+            ])('handles users', runCase);
+          `,
         },
         {
           code: `
@@ -125,6 +156,13 @@ describe('S9078', () => {
             ])('creates greetings', (greeting, expected) => expect(greeting).toBe(expected));
           `,
           errors: [{ messageId: 'duplicate', data: { index: 0 } }],
+          output: `
+            import { test } from 'bun:test';
+            test.each([
+              [makeGreeting('Alice'), 'Hello, Alice!'],
+              [makeGreeting('Bob'), 'Hello, Bob!'],
+            ])('creates greetings', (greeting, expected) => expect(greeting).toBe(expected));
+          `,
         },
         {
           code: `
@@ -136,6 +174,13 @@ describe('S9078', () => {
             ] as const)('handles users', () => {});
           `,
           errors: [{ messageId: 'duplicate', data: { index: 0 } }],
+          output: `
+            import { test } from 'vitest';
+            test.each([
+              ['Alice', 'admin'],
+              ['Bob', 'user'],
+            ] as const)('handles users', () => {});
+          `,
         },
         {
           code: `
@@ -153,6 +198,13 @@ describe('S9078', () => {
             { messageId: 'duplicate', data: { index: 1 } },
             { messageId: 'duplicate', data: { index: 0 } },
           ],
+          output: `
+            import { test } from 'vitest';
+            test.each([
+              ['Alice', 'admin'],
+              ['Bob', 'user'],
+            ])('handles users', () => {});
+          `,
         },
       ],
     });

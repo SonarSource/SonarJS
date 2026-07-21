@@ -47,7 +47,7 @@ const BUN_CONSTRUCTS = new Set(['test', 'describe']);
 type Framework = 'bun' | 'jest' | 'vitest';
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, { messages }),
+  meta: generateMeta(meta, { messages, fixable: 'code' }),
 
   create(context: Rule.RuleContext) {
     const activeFrameworks = {
@@ -79,6 +79,7 @@ export const rule: Rule.RuleModule = {
 
 function reportDuplicateRows(context: Rule.RuleContext, dataset: estree.ArrayExpression): void {
   const previousRows: { index: number; node: estree.Node }[] = [];
+  const duplicateRows: { index: number; node: estree.Node; matchingIndex: number }[] = [];
 
   dataset.elements.forEach((element, index) => {
     if (element === null || element.type === 'SpreadElement') {
@@ -91,12 +92,42 @@ function reportDuplicateRows(context: Rule.RuleContext, dataset: estree.ArrayExp
       return;
     }
 
+    duplicateRows.push({ index, node: element, matchingIndex: previous.index });
+  });
+
+  duplicateRows.forEach((duplicate, duplicatePosition) => {
+    const previousDuplicate = duplicateRows[duplicatePosition - 1];
+    const isFirstInConsecutiveRun = previousDuplicate?.index !== duplicate.index - 1;
+    let lastDuplicate = duplicate;
+    if (isFirstInConsecutiveRun) {
+      for (let nextPosition = duplicatePosition + 1; ; nextPosition++) {
+        const nextDuplicate = duplicateRows[nextPosition];
+        if (nextDuplicate?.index !== lastDuplicate.index + 1) {
+          break;
+        }
+        lastDuplicate = nextDuplicate;
+      }
+    }
+
     context.report({
-      node: element,
+      node: duplicate.node,
       messageId: 'duplicate',
-      data: { index: previous.index },
+      data: { index: duplicate.matchingIndex },
+      fix: fixer =>
+        removeDuplicateRow(fixer, context.sourceCode, duplicate.node, lastDuplicate.node),
     });
   });
+}
+
+function removeDuplicateRow(
+  fixer: Rule.RuleFixer,
+  sourceCode: Rule.RuleContext['sourceCode'],
+  firstElement: estree.Node,
+  lastElement: estree.Node,
+): Rule.Fix {
+  const previousToken = sourceCode.getTokenBefore(firstElement);
+  const start = previousToken?.value === ',' ? previousToken.range[0] : firstElement.range![0];
+  return fixer.removeRange([start, lastElement.range![1]]);
 }
 
 function hasSupportedCallback(context: Rule.RuleContext, node: estree.CallExpression): boolean {

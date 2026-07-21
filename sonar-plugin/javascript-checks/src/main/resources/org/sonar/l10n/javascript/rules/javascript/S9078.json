@@ -17,7 +17,7 @@
   "ruleSpecification": "RSPEC-9078",
   "sqKey": "S9078",
   "scope": "Tests",
-  "quickfix": "infeasible",
+  "quickfix": "covered",
   "code": {
     "impacts": {
       "MAINTAINABILITY": "MEDIUM"
