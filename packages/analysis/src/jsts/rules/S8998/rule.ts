@@ -134,7 +134,7 @@ function isSupportedDeclaration(
   activeFrameworks: Record<Framework, boolean>,
 ): boolean {
   const parts = getMochaCalleeParts(node.callee);
-  if (parts === undefined || parts.modifiers.at(-1) !== 'each') {
+  if (parts?.modifiers.at(-1) !== 'each') {
     return false;
   }
 
@@ -247,7 +247,7 @@ function isKnownEmptyDataset(context: Rule.RuleContext, dataset: estree.Expressi
 
   const scope = context.sourceCode.getScope(dataset);
   const variable = getVariableFromScope(scope, dataset.name);
-  if (variable === undefined || variable.scope.variableScope !== scope.variableScope) {
+  if (variable?.scope.variableScope !== scope.variableScope) {
     return false;
   }
 
