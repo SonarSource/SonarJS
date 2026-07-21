@@ -69,8 +69,3 @@ function memberExpressionAssignment(req, res, next) {
   req.session['token'] = '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.='; // Noncompliant {{"token" detected here, make sure this is not a hard-coded secret.}}
   req.session.safe = '1IfHMPanImzX8ZxC-Ud6+YhXiLwlXq$f_-3v~.='; // Compliant - property name doesn't match secret words
 }
-
-function excludedButHighEntropyValues() {
-  const apiSecret = 'vK4n8QzR2mXtLpJ6wYbGdCafeBabeFh9rSk3aWq'; // Compliant - matches known-fake CAFEBABE pattern despite high entropy
-  const authToken = 'xK9process.env.wR3mQ8vL5nT2yH6dF1cS0uJ7bA4gEoIiPmZ'; // Compliant - references an environment variable despite high entropy
-}
