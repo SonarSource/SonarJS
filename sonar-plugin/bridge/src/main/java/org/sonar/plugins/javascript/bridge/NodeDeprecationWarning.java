@@ -36,8 +36,7 @@ public class NodeDeprecationWarning {
   private static final String NODE_PROPERTIES_FILE = "node-info.properties";
   private static final String NODE_SUPPORTED_VERSIONS_PROPERTY = "node.supported.versions";
   static final Version MIN_SUPPORTED_NODE_VERSION;
-  private static final List<String> RECOMMENDED_NODE_VERSIONS;
-  public static final Version RECOMMENDED_NODE_VERSION;
+  private static final List<Version> SUPPORTED_NODE_VERSIONS;
   private final AnalysisWarningsWrapper analysisWarnings;
 
   static {
@@ -51,11 +50,10 @@ public class NodeDeprecationWarning {
           NODE_SUPPORTED_VERSIONS_PROPERTY
       );
     }
-    RECOMMENDED_NODE_VERSIONS = Arrays.asList(supportedVersions.split(","));
-    MIN_SUPPORTED_NODE_VERSION = Version.parse(RECOMMENDED_NODE_VERSIONS.get(0));
-    RECOMMENDED_NODE_VERSION = Version.parse(
-      RECOMMENDED_NODE_VERSIONS.get(RECOMMENDED_NODE_VERSIONS.size() - 1)
-    );
+    SUPPORTED_NODE_VERSIONS = Arrays.stream(supportedVersions.split(","))
+      .map(Version::parse)
+      .toList();
+    MIN_SUPPORTED_NODE_VERSION = SUPPORTED_NODE_VERSIONS.get(0);
   }
 
   public NodeDeprecationWarning(AnalysisWarningsWrapper analysisWarnings) {
@@ -81,15 +79,24 @@ public class NodeDeprecationWarning {
   }
 
   void logNodeDeprecation(Version actualNodeVersion) {
-    if (!actualNodeVersion.isGreaterThanOrEqual(RECOMMENDED_NODE_VERSION)) {
+    boolean isSupported = SUPPORTED_NODE_VERSIONS.stream().anyMatch(
+      supportedVersion ->
+        actualNodeVersion.major() == supportedVersion.major() &&
+        actualNodeVersion.isGreaterThanOrEqual(supportedVersion)
+    );
+    if (!isSupported) {
       String msg = String.format(
         "Using Node.js version %s to execute analysis is not recommended. " +
-          "Please upgrade to a newer LTS version of Node.js: %s.",
+          "Please use a supported LTS version of Node.js: %s.",
         actualNodeVersion,
-        RECOMMENDED_NODE_VERSION
+        String.join(", ", SUPPORTED_NODE_VERSIONS.stream().map(Version::toString).toList())
       );
       LOG.warn(msg);
       analysisWarnings.addUnique(msg);
     }
+  }
+
+  static List<Version> supportedNodeVersions() {
+    return SUPPORTED_NODE_VERSIONS;
   }
 }
