@@ -58,7 +58,7 @@ const TEST_CONSTRUCTS = new Set([
   'beforeAll',
   'afterAll',
 ]);
-const TEST_MODIFIERS = new Set(['only', 'concurrent', 'failing', 'sequential']);
+const TEST_MODIFIERS = new Set(['only', 'concurrent', 'failing', 'sequential', 'skip', 'todo']);
 const SECOND_TO_LAST_INDEX = -2;
 
 type RequiredServices = NonNullable<ReturnType<typeof getRequiredServices>>;

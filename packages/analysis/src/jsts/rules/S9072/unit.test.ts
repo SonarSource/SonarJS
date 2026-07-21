@@ -498,6 +498,56 @@ describe('S9072', () => {
           filename: fixtureFile,
           code: `
             import { expect, test } from 'vitest';
+            test.skip('rejects', async () => {
+              expect(async () => { throw new Error('failure'); }).toThrow('failure');
+            });
+          `,
+          errors: [
+            {
+              messageId: 'asyncCallback',
+              suggestions: [
+                {
+                  messageId: 'useRejectionAssertion',
+                  output: `
+            import { expect, test } from 'vitest';
+            test.skip('rejects', async () => {
+              await expect((async () => { throw new Error('failure'); })()).rejects.toThrow('failure');
+            });
+          `,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            import { expect, it } from 'vitest';
+            it.skip('rejects', async () => {
+              expect(async () => { throw new Error('failure'); }).toThrow('failure');
+            });
+          `,
+          errors: [
+            {
+              messageId: 'asyncCallback',
+              suggestions: [
+                {
+                  messageId: 'useRejectionAssertion',
+                  output: `
+            import { expect, it } from 'vitest';
+            it.skip('rejects', async () => {
+              await expect((async () => { throw new Error('failure'); })()).rejects.toThrow('failure');
+            });
+          `,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            import { expect, test } from 'vitest';
             test('rejects', async () => {
               function check() {
                 expect(async () => { throw new Error('failure'); }).toThrow();
