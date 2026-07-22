@@ -3,7 +3,7 @@
  * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * You can redistribute this program and/or modify it under the terms of
+ * You can redistribute and/or modify this program under the terms of
  * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
@@ -52,6 +52,12 @@ describe('S9073', () => {
           code: `
             import assert from 'node:assert/strict';
             assert(a || b);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+            assert(!(a && b));
           `,
         },
         {
@@ -127,6 +133,13 @@ describe('S9073', () => {
           code: `
             import { expect } from 'bun:test';
             expect(a || b).toBeFalsy();
+          `,
+          errors: [expectedIssue],
+        },
+        {
+          code: `
+            import { expect } from 'bun:test';
+            expect(!(a && b)).toBeFalsy();
           `,
           errors: [expectedIssue],
         },

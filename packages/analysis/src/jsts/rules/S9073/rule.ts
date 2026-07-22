@@ -3,7 +3,7 @@
  * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * You can redistribute this program and/or modify it under the terms of
+ * You can redistribute and/or modify this program under the terms of
  * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
@@ -51,7 +51,12 @@ export const rule: Rule.RuleModule = {
                 actual.operator === '!' &&
                 actual.argument.type === 'LogicalExpression' &&
                 actual.argument.operator === '||'))) ||
-          (!isTruthy && actual.type === 'LogicalExpression' && actual.operator === '||');
+          (!isTruthy &&
+            ((actual.type === 'LogicalExpression' && actual.operator === '||') ||
+              (actual.type === 'UnaryExpression' &&
+                actual.operator === '!' &&
+                actual.argument.type === 'LogicalExpression' &&
+                actual.argument.operator === '&&')));
 
         if (isComposite) {
           context.report({ node: actual, messageId: 'issue' });
