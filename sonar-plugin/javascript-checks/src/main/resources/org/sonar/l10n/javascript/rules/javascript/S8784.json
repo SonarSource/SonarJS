@@ -18,7 +18,8 @@
     "chai",
     "sinon",
     "supertest",
-    "node"
+    "node",
+    "bun"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-8784",

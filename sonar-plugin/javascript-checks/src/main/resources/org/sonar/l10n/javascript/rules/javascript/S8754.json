@@ -12,7 +12,9 @@
     "jest",
     "mocha",
     "vitest",
-    "playwright"
+    "playwright",
+    "bun",
+    "node"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-8754",
