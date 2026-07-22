@@ -16,7 +16,8 @@
     "jasmine",
     "cypress",
     "node",
-    "karma"
+    "karma",
+    "bun"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-8781",
