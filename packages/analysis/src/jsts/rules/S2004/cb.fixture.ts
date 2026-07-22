@@ -6,8 +6,11 @@ function f1() {
 //               ^^> {{Nesting +1}}
             function f4() {
 //                   ^^> {{Nesting +1}}
-                function f5() { // Noncompliant {{Refactor this code to not nest functions more than 4 levels deep.}}
-//                       ^^
+                function f5() {
+//                       ^^> {{Nesting +1}}
+                    function f6() { // Noncompliant {{Refactor this code to not nest functions more than 5 levels deep.}}
+//                           ^^
+                    }
                 }
             }
         }
