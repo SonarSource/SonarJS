@@ -25,7 +25,8 @@
     "playwright",
     "node",
     "type-dependent",
-    "editable-source"
+    "editable-source",
+    "bun"
   ],
   "extra": {
     "replacementRules": [],

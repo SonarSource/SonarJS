@@ -1,6 +1,6 @@
 {
   "title": "Synchronous exception assertions should receive synchronous callbacks",
-  "type": "CODE_SMELL",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
