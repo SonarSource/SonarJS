@@ -29,8 +29,7 @@ import {
 import * as meta from './generated-meta.js';
 
 const messages = {
-  duplicate:
-    'Remove this duplicate parameterized test case matching index {{index}}, adding a redundant execution.',
+  duplicate: 'Remove this duplicate test case; it matches the case at index {{index}}.',
 } as const;
 
 export const rule: Rule.RuleModule = {
