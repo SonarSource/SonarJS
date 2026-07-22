@@ -34,8 +34,7 @@ export const rule: Rule.RuleModule = {
       CallExpression(node: estree.Node) {
         const assertion = extractTestAssertion(context, node);
         if (
-          !assertion ||
-          assertion.kind !== 'predicate' ||
+          assertion?.kind !== 'predicate' ||
           (assertion.style !== 'node-assert' && assertion.style !== 'jest-like') ||
           (assertion.predicate !== 'truthy' && assertion.predicate !== 'falsy')
         ) {
