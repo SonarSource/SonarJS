@@ -1182,6 +1182,15 @@ jobs:
     env: *shared_build_number
     steps:
       - *checkout
+      - name: Reject root rspec.sha
+        if: >-
+          (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master') ||
+          (github.event_name == 'merge_group' && github.event.merge_group.base_ref == 'refs/heads/master')
+        run: |
+          if [ -e rspec.sha ]; then
+            echo "::error file=rspec.sha::Root rspec.sha must be removed before merging to master"
+            exit 1
+          fi
       - *mise
       - uses: SonarSource/ci-github-actions/promote@v1
         with:
