@@ -19,11 +19,13 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { FUNCTION_NODES, getUniqueWriteReference, getVariableFromScope } from '../helpers/ast.js';
 import { areEquivalent } from '../helpers/equivalence.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getMochaCalleeParts, hasCallback } from '../helpers/mocha-style-test-frameworks.js';
-import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
+import {
+  getParameterizedTestFrameworks,
+  hasSupportedParameterizedCallback,
+  isSupportedParameterizedDeclaration,
+} from '../helpers/mocha-style-test-frameworks.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -31,30 +33,11 @@ const messages = {
     'Remove this duplicate parameterized test case matching index {{index}}, adding a redundant execution.',
 } as const;
 
-const JEST_IMPORTS = ['jest', '@jest/globals'];
-const JEST_DEPENDENCIES = ['jest'];
-const VITEST_MODULES = ['vitest'];
-const BUN_MODULES = ['bun:test'];
-const BUN_FQN_PREFIX = 'bun:test.';
-const JEST_GLOBALS_FQN_PREFIX = '@jest.globals.';
-const COMMON_MODIFIERS = new Set(['only', 'concurrent']);
-const JEST_TEST_MODIFIERS = new Set(['failing']);
-const VITEST_MODIFIERS = new Set(['fails', 'sequential']);
-const TESTS = new Set(['test', 'it']);
-const SUITES = new Set(['describe', 'suite']);
-const BUN_CONSTRUCTS = new Set(['test', 'describe']);
-
-type Framework = 'bun' | 'jest' | 'vitest';
-
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages, fixable: 'code' }),
 
   create(context: Rule.RuleContext) {
-    const activeFrameworks = {
-      bun: importsOrDependsOnModule(context, BUN_MODULES, BUN_MODULES),
-      jest: importsOrDependsOnModule(context, JEST_IMPORTS, JEST_DEPENDENCIES),
-      vitest: importsOrDependsOnModule(context, VITEST_MODULES, VITEST_MODULES),
-    };
+    const activeFrameworks = getParameterizedTestFrameworks(context);
 
     if (!Object.values(activeFrameworks).some(Boolean)) {
       return {};
@@ -65,8 +48,8 @@ export const rule: Rule.RuleModule = {
         const dataset = getDataset(node);
         if (
           dataset === undefined ||
-          !hasSupportedCallback(context, node) ||
-          !isSupportedDeclaration(context, node, activeFrameworks)
+          !hasSupportedParameterizedCallback(context, node) ||
+          !isSupportedParameterizedDeclaration(context, node, activeFrameworks)
         ) {
           return;
         }
@@ -125,40 +108,30 @@ function removeDuplicateRow(
   firstElement: estree.Node,
   lastElement: estree.Node,
 ): Rule.Fix {
+  const firstElementRange = sourceCode.getRange(firstElement);
+  const lastElementRange = sourceCode.getRange(lastElement);
   const previousToken = sourceCode.getTokenBefore(firstElement);
-  const start = previousToken?.value === ',' ? previousToken.range[0] : firstElement.range![0];
-  return fixer.removeRange([start, lastElement.range![1]]);
-}
+  const previousTokenIncludingComments = sourceCode.getTokenBefore(firstElement, {
+    includeComments: true,
+  });
+  const hasCommentBefore = previousTokenIncludingComments !== previousToken;
+  const lineStart = sourceCode.getIndexFromLoc({
+    line: sourceCode.getLoc(firstElement).start.line,
+    column: 0,
+  });
+  const isOnlyElementOnLine = /^\s*$/.test(sourceCode.text.slice(lineStart, firstElementRange[0]));
 
-function hasSupportedCallback(context: Rule.RuleContext, node: estree.CallExpression): boolean {
-  if (hasCallback(node)) {
-    return true;
+  if (hasCommentBefore) {
+    const start = isOnlyElementOnLine ? lineStart : firstElementRange[0];
+    const nextToken = sourceCode.getTokenAfter(lastElement);
+    const end = nextToken?.value === ',' ? nextToken.range[1] : lastElementRange[1];
+    const trailingNewline = /^\s*(\r?\n)/.exec(sourceCode.text.slice(end));
+    const endWithNewline = trailingNewline ? end + trailingNewline[0].length : end;
+    return fixer.removeRange([start, endWithNewline]);
   }
 
-  const callback = node.arguments[1];
-  if (callback?.type !== 'Identifier') {
-    return false;
-  }
-
-  const variable = getVariableFromScope(context.sourceCode.getScope(callback), callback.name);
-  if (variable?.defs.length !== 1) {
-    return false;
-  }
-
-  const [definition] = variable.defs;
-  if (definition.type === 'FunctionName') {
-    return !variable.references.some(reference => reference.isWrite());
-  }
-  if (definition.type !== 'Variable') {
-    return false;
-  }
-
-  const initializer = definition.node.init;
-  return (
-    initializer != null &&
-    FUNCTION_NODES.includes(initializer.type) &&
-    getUniqueWriteReference(variable) === initializer
-  );
+  const start = previousToken?.value === ',' ? previousToken.range[0] : firstElementRange[0];
+  return fixer.removeRange([start, lastElementRange[1]]);
 }
 
 function getDataset(node: estree.CallExpression): estree.ArrayExpression | undefined {
@@ -184,94 +157,6 @@ function getDataset(node: estree.CallExpression): estree.ArrayExpression | undef
 
   const unwrapped = unwrapTypeScriptExpression(dataset);
   return unwrapped.type === 'ArrayExpression' ? unwrapped : undefined;
-}
-
-function isSupportedDeclaration(
-  context: Rule.RuleContext,
-  node: estree.CallExpression,
-  activeFrameworks: Record<Framework, boolean>,
-): boolean {
-  const parts = getMochaCalleeParts(node.callee);
-  if (parts?.modifiers.at(-1) !== 'each') {
-    return false;
-  }
-
-  const name = getConstructName(context, parts.base);
-  if (name === undefined || (!TESTS.has(name) && !SUITES.has(name))) {
-    return false;
-  }
-
-  const framework = getFramework(context, parts.base, activeFrameworks);
-  if (
-    framework === undefined ||
-    (name === 'suite' && framework !== 'vitest') ||
-    (framework === 'bun' && !BUN_CONSTRUCTS.has(name))
-  ) {
-    return false;
-  }
-
-  const modifiers = parts.modifiers.slice(0, -1);
-  return modifiers.every(modifier => isRunnableModifier(modifier, name, framework));
-}
-
-function getConstructName(
-  context: Rule.RuleContext,
-  identifier: estree.Identifier,
-): string | undefined {
-  const fqn = getFullyQualifiedName(context, identifier);
-  if (fqn?.startsWith(BUN_FQN_PREFIX)) {
-    return fqn.slice(BUN_FQN_PREFIX.length);
-  }
-  if (fqn?.startsWith(JEST_GLOBALS_FQN_PREFIX)) {
-    return fqn.slice(JEST_GLOBALS_FQN_PREFIX.length);
-  }
-  if (fqn?.startsWith('jest.')) {
-    return fqn.slice('jest.'.length);
-  }
-  if (fqn?.startsWith('vitest.')) {
-    return fqn.slice('vitest.'.length);
-  }
-
-  const variable = getVariableFromScope(context.sourceCode.getScope(identifier), identifier.name);
-  return variable == null || variable.defs.length === 0 ? identifier.name : undefined;
-}
-
-function getFramework(
-  context: Rule.RuleContext,
-  base: estree.Identifier,
-  activeFrameworks: Record<Framework, boolean>,
-): Framework | undefined {
-  const fqn = getFullyQualifiedName(context, base);
-  if (fqn?.startsWith(BUN_FQN_PREFIX)) {
-    return 'bun';
-  }
-  if (fqn?.startsWith('vitest.')) {
-    return 'vitest';
-  }
-  if (fqn?.startsWith('jest.') || fqn?.startsWith(JEST_GLOBALS_FQN_PREFIX)) {
-    return 'jest';
-  }
-  if (base.name === 'suite') {
-    return activeFrameworks.vitest ? 'vitest' : undefined;
-  }
-
-  const active = (Object.entries(activeFrameworks) as [Framework, boolean][]).filter(
-    ([, isActive]) => isActive,
-  );
-  return active.length === 1 ? active[0][0] : undefined;
-}
-
-function isRunnableModifier(modifier: string, name: string, framework: Framework): boolean {
-  if (COMMON_MODIFIERS.has(modifier)) {
-    return framework !== 'bun' || modifier === 'only';
-  }
-  if (!TESTS.has(name)) {
-    return framework === 'vitest' && modifier === 'sequential';
-  }
-  return (
-    (framework === 'jest' && JEST_TEST_MODIFIERS.has(modifier)) ||
-    (framework === 'vitest' && VITEST_MODIFIERS.has(modifier))
-  );
 }
 
 function unwrapTypeScriptExpression(node: estree.Node): estree.Node {

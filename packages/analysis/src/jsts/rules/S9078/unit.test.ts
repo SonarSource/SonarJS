@@ -88,6 +88,24 @@ describe('S9078', () => {
         },
         {
           code: `
+            import { test } from 'vitest';
+            test.each([
+              ['Alice', 'admin'],
+              ['Bob', 'user'], // Keep this row
+              ['Alice', 'admin'],
+            ])('handles users', () => {});
+          `,
+          errors: [{ messageId: 'duplicate', data: { index: 0 } }],
+          output: `
+            import { test } from 'vitest';
+            test.each([
+              ['Alice', 'admin'],
+              ['Bob', 'user'], // Keep this row
+            ])('handles users', () => {});
+          `,
+        },
+        {
+          code: `
             import { suite } from 'vitest';
             suite.each([
               ['Alice', 'admin'],
