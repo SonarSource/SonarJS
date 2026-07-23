@@ -80,9 +80,6 @@ function reportDuplicateRows(context: Rule.RuleContext, dataset: estree.ArrayExp
   });
 
   const duplicateGroups = rowGroups.filter(group => group.duplicates.length > 0);
-  const allDuplicates = duplicateGroups
-    .flatMap(group => group.duplicates)
-    .sort((left, right) => left.index - right.index);
 
   for (const { original, duplicates } of duplicateGroups) {
     const [firstDuplicate] = duplicates;
@@ -95,7 +92,7 @@ function reportDuplicateRows(context: Rule.RuleContext, dataset: estree.ArrayExp
         node: firstDuplicate.node,
         message: messages.duplicate,
         messageId: 'duplicate',
-        fix: fixer => removeDuplicateRows(fixer, context.sourceCode, allDuplicates),
+        fix: fixer => removeDuplicateRows(fixer, context.sourceCode, duplicates),
       },
       [
         toSecondaryLocation(original, 'Original test case.'),

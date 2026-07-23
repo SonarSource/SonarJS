@@ -16,7 +16,9 @@
  */
 
 import { describe, it } from 'node:test';
+import assert from 'node:assert';
 import path from 'node:path';
+import { Linter } from 'eslint';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 
@@ -286,29 +288,6 @@ describe('S9078', () => {
           `,
         },
         {
-          code: `
-            import { test } from 'vitest';
-            test.each([
-              ['Alice', 'admin'],
-              ['Bob', 'user'],
-              ['Alice', 'admin'],
-              ['Bob', 'user'],
-              ['Alice', 'admin'],
-            ])('handles users', () => {});
-          `,
-          errors: [
-            { messageId: 'duplicate', data: { index: 0 } },
-            { messageId: 'duplicate', data: { index: 1 } },
-          ],
-          output: `
-            import { test } from 'vitest';
-            test.each([
-              ['Alice', 'admin'],
-              ['Bob', 'user'],
-            ])('handles users', () => {});
-          `,
-        },
-        {
           code: `import { test } from 'vitest';
 test.each([
   ['Alice'],
@@ -347,5 +326,37 @@ test.each([
         },
       ],
     });
+  });
+
+  it('scopes each duplicate group quickfix to its own cases', () => {
+    const code = `
+      import { test } from 'vitest';
+      test.each([
+        ['Alice', 'admin'],
+        ['Bob', 'user'],
+        ['Alice', 'admin'],
+        ['Bob', 'user'],
+        ['Alice', 'admin'],
+      ])('handles users', () => {});
+    `;
+    const linter = new Linter({ configType: 'eslintrc' });
+    linter.defineRule('s9078', rule);
+    const messages = linter.verify(
+      code,
+      {
+        parserOptions: { ecmaVersion: 2022, sourceType: 'module' },
+        rules: { s9078: 'error' },
+      },
+      { filename: path.join(import.meta.dirname, 'file.ts') },
+    );
+    assert.strictEqual(messages.length, 2);
+    const bobFix = messages[1]?.fix;
+    assert.ok(bobFix);
+    const output = code.slice(0, bobFix.range[0]) + bobFix.text + code.slice(bobFix.range[1]);
+    assert.match(output, /\['Alice', 'admin'\],\n\s+\['Bob', 'user'\],\n\s+\['Alice', 'admin'\]/);
+    assert.doesNotMatch(
+      output,
+      /\['Bob', 'user'\],\n\s+\['Alice', 'admin'\],\n\s+\['Bob', 'user'\]/,
+    );
   });
 });
