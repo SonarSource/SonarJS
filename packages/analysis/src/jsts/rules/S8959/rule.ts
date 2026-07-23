@@ -40,12 +40,12 @@ export const rule: Rule.RuleModule = {
     return {
       CallExpression(node: estree.Node) {
         const call = node as estree.CallExpression;
-        if (!isMethodCall(call)) {
-          return;
-        }
-
-        if (isUiTestDebugCommand(call.callee)) {
-          reportDebugCommand(context, call);
+        if (isMethodCall(call)) {
+          if (isUiTestDebugCommand(call.callee)) {
+            reportDebugCommand(context, call, call.callee.property);
+          }
+        } else if (isIdentifier(call.callee, 'prettyDOM', 'logRoles')) {
+          reportDebugCommand(context, call, call.callee);
         }
       },
     };
@@ -58,7 +58,11 @@ function isUiTestDebugCommand(callee: estree.MemberExpression & { property: estr
     case 'pause':
       return chainStartsWithCy(object) || isIdentifier(object, 'page');
     case 'debug':
-      return chainStartsWithCy(object);
+      return chainStartsWithCy(object) || isIdentifier(object, 'screen');
+    case 'logTestingPlaygroundURL':
+    case 'prettyDOM':
+    case 'logRoles':
+      return isIdentifier(object, 'screen');
     default:
       return false;
   }
@@ -66,10 +70,11 @@ function isUiTestDebugCommand(callee: estree.MemberExpression & { property: estr
 
 function reportDebugCommand(
   context: Rule.RuleContext,
-  call: estree.CallExpression & { callee: estree.MemberExpression },
+  call: estree.CallExpression,
+  reportNode: estree.Node,
 ) {
   context.report({
-    node: call.callee.property,
+    node: reportNode,
     messageId: 'removeDebugCommand',
     fix: fixer => removeDebugCommand(context, call, fixer),
   });
@@ -77,28 +82,36 @@ function reportDebugCommand(
 
 /**
  * Removes the whole statement only for root debug calls used as standalone statements, e.g.
- * `cy.pause();` or `await page.pause();`. For Cypress chains, only the `.pause()`/`.debug()`
+ * `cy.pause();`, `await page.pause();`, `screen.debug();`, or `prettyDOM(el);`. For Cypress chains, only the `.pause()`/`.debug()`
  * link is spliced out, e.g. `cy.get('x').debug().click();` -> `cy.get('x').click();` and
  * `cy.get('x').pause();` -> `cy.get('x');`.
  */
 function removeDebugCommand(
   context: Rule.RuleContext,
-  call: estree.CallExpression & { callee: estree.MemberExpression },
+  call: estree.CallExpression,
   fixer: Rule.RuleFixer,
 ): Rule.Fix | null {
   const statement = unwrapToStatementExpression(call);
-  if (isRootDebugReceiver(call.callee.object) && hasParent(statement)) {
+  if (call.callee.type === 'MemberExpression') {
+    if (isRootDebugReceiver(call.callee.object) && hasParent(statement)) {
+      const { parent } = statement;
+      if (parent.type === 'ExpressionStatement' && parent.expression === statement) {
+        return removeNodeWithLeadingWhitespaces(context, parent, fixer);
+      }
+    }
+    const objectRange = call.callee.object.range;
+    const callRange = call.range;
+    if (!objectRange || !callRange) {
+      return null;
+    }
+    return fixer.removeRange([objectRange[1], callRange[1]]);
+  } else if (hasParent(statement)) {
     const { parent } = statement;
     if (parent.type === 'ExpressionStatement' && parent.expression === statement) {
       return removeNodeWithLeadingWhitespaces(context, parent, fixer);
     }
   }
-  const objectRange = call.callee.object.range;
-  const callRange = call.range;
-  if (!objectRange || !callRange) {
-    return null;
-  }
-  return fixer.removeRange([objectRange[1], callRange[1]]);
+  return null;
 }
 
 function unwrapToStatementExpression(node: estree.Node): estree.Node {
@@ -118,7 +131,7 @@ function unwrapToStatementExpression(node: estree.Node): estree.Node {
 }
 
 function isRootDebugReceiver(node: estree.Node): boolean {
-  return isIdentifier(unwrapChainExpression(node), 'cy', 'page');
+  return isIdentifier(unwrapChainExpression(node), 'cy', 'page', 'screen');
 }
 
 function unwrapChainExpression(node: estree.Node): estree.Node {

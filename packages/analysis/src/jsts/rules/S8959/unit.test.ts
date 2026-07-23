@@ -71,6 +71,7 @@ describe('S8959', () => {
             cy.pause();
             cy.debug();
             page.pause();
+            screen.debug();
           `,
           filename: 'src/app/page.ts',
         },
@@ -82,6 +83,14 @@ describe('S8959', () => {
             });
           `,
           filename: 'tests/debugger.spec.ts',
+        },
+        {
+          code: `
+            test('Testing Library queries are valid', () => {
+              screen.getByRole('button');
+            });
+          `,
+          filename: 'tests/tl.test.tsx',
         },
       ],
       invalid: [
@@ -214,6 +223,47 @@ describe('S8959', () => {
           output: `
             it('keeps optional Cypress chain tail when debug ends the statement', () => {
               cy?.contains('Saved');
+            });
+          `,
+        },
+        {
+          code: `
+            test('uses Testing Library screen.debug', () => {
+              screen.debug();
+            });
+          `,
+          filename: 'tests/tl-debug.test.tsx',
+          errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            test('uses Testing Library screen.debug', () => {
+            });
+          `,
+        },
+        {
+          code: `
+            test('uses Testing Library logTestingPlaygroundURL', () => {
+              screen.logTestingPlaygroundURL();
+            });
+          `,
+          filename: 'tests/tl-playground.test.tsx',
+          errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            test('uses Testing Library logTestingPlaygroundURL', () => {
+            });
+          `,
+        },
+        {
+          code: `
+            test('uses Testing Library standalone prettyDOM and logRoles', () => {
+              prettyDOM(container);
+              logRoles(container);
+            });
+          `,
+          filename: 'tests/tl-helpers.test.tsx',
+          errors: [{ messageId: 'removeDebugCommand' }, { messageId: 'removeDebugCommand' }],
+          output: `
+            test('uses Testing Library standalone prettyDOM and logRoles', () => {
+              logRoles(container);
             });
           `,
         },
