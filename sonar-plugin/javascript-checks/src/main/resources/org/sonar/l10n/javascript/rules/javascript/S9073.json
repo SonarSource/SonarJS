@@ -1,0 +1,34 @@
+{
+  "title": "Composite assertions should be split",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "jest",
+    "vitest",
+    "bun",
+    "node"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-9073",
+  "sqKey": "S9073",
+  "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}
