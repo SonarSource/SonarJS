@@ -355,16 +355,27 @@ export function getUniqueWriteUsageOrNode(
   node: estree.Node,
   recursive = false,
 ): estree.Node {
-  if (node.type === 'Identifier') {
-    const usage = getUniqueWriteUsage(context, node.name, node);
-    if (usage) {
-      return recursive ? getUniqueWriteUsageOrNode(context, usage, recursive) : usage;
-    } else {
-      return node;
+  if (!recursive) {
+    if (node.type === 'Identifier') {
+      const usage = getUniqueWriteUsage(context, node.name, node);
+      return usage ?? node;
     }
-  } else {
     return node;
   }
+  // Iterate instead of recursing, guarding against cycles that self-referencing
+  // or mutually-referencing variables (e.g. `let a = a;` or `let a = b, b = a;`)
+  // would otherwise turn into infinite recursion / stack overflow.
+  const visited = new Set<estree.Node>();
+  let current = node;
+  while (current.type === 'Identifier' && !visited.has(current)) {
+    visited.add(current);
+    const usage = getUniqueWriteUsage(context, current.name, current);
+    if (!usage) {
+      return current;
+    }
+    current = usage;
+  }
+  return current;
 }
 
 export function getValueOfExpression<T extends estree.Node['type']>(
