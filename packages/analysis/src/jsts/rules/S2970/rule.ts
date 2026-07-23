@@ -94,9 +94,11 @@ const assertionFunctions = [
   'toBeLessThan',
   'toBeLessThanOrEqual',
   'toBeCloseTo',
+  'toContain',
   'toContainEqual',
   'toHaveLength',
   'toHaveProperty',
+  'toMatch',
   'toMatchObject',
   'toHaveBeenCalled',
   'toBeCalled',
@@ -118,11 +120,14 @@ const assertionFunctions = [
   'lastReturnedWith',
   'toHaveNthReturnedWith',
   'nthReturnedWith',
+  'toThrow',
   'toThrowError',
   'toMatchSnapshot',
   'toMatchInlineSnapshot',
   'toThrowErrorMatchingSnapshot',
   'toThrowErrorMatchingInlineSnapshot',
+  'toResolve',
+  'toReject',
 
   // @testing-library/jest-dom
   'toBeInTheDocument',
@@ -170,7 +175,6 @@ const assertionFunctions = [
   'deepStrictEqual',
   'notDeepStrictEqual',
   'doesNotThrow',
-  'rejects',
   'doesNotReject',
   'doesNotMatch',
   'ifError',
@@ -206,6 +210,7 @@ const gettersOrModifiers = [
   // Jest / Vitest / Bun / Playwright modifiers
   'not',
   'resolves',
+  'rejects',
   'soft',
   'poll',
 ];

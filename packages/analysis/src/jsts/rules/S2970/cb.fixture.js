@@ -149,6 +149,9 @@ describe("uses Jest, Vitest, Bun, Testing Library, Playwright, Node assert", fun
     expect(value).toBe;  // Noncompliant {{Call this 'toBe' assertion.}}
     expect(value).toEqual;  // Noncompliant {{Call this 'toEqual' assertion.}}
     expect(value).toStrictEqual;  // Noncompliant {{Call this 'toStrictEqual' assertion.}}
+    expect(value).toContain;  // Noncompliant {{Call this 'toContain' assertion.}}
+    expect(value).toMatch;  // Noncompliant {{Call this 'toMatch' assertion.}}
+    expect(value).toThrow;  // Noncompliant {{Call this 'toThrow' assertion.}}
     expect(value).toHaveBeenCalled;  // Noncompliant {{Call this 'toHaveBeenCalled' assertion.}}
     expect(value).toBeCalled;  // Noncompliant {{Call this 'toBeCalled' assertion.}}
     expect(value).toHaveBeenCalledTimes;  // Noncompliant {{Call this 'toHaveBeenCalledTimes' assertion.}}
@@ -171,16 +174,22 @@ describe("uses Jest, Vitest, Bun, Testing Library, Playwright, Node assert", fun
     expect(value).not;  // Noncompliant {{Complete this assertion; 'not' doesn't assert anything by itself.}}
     expect(promise).resolves;  // Noncompliant {{Complete this assertion; 'resolves' doesn't assert anything by itself.}}
     await expect(promise).resolves;  // Noncompliant {{Complete this assertion; 'resolves' doesn't assert anything by itself.}}
+    expect(promise).rejects;  // Noncompliant {{Complete this assertion; 'rejects' doesn't assert anything by itself.}}
+    await expect(promise).rejects;  // Noncompliant {{Complete this assertion; 'rejects' doesn't assert anything by itself.}}
     expect(locator).soft;  // Noncompliant {{Complete this assertion; 'soft' doesn't assert anything by itself.}}
   });
 
   it("complete assertions", async function() {
     expect(value).toBe(42);
     expect(value).toEqual(42);
+    expect(value).toContain('abc');
+    expect(value).toMatch(/abc/);
+    expect(fn).toThrow();
     expect(value).toHaveBeenCalled();
     expect(value).toBeCalled();
     expect(element).toBeInTheDocument();
     await expect(promise).resolves.toBe(42);
+    await expect(promise).rejects.toThrow();
     assert.strictEqual(value, 42);
   });
 });
