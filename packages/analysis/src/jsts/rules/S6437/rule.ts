@@ -64,21 +64,21 @@ const secretObjectSignatures: Record<string, { argIndex: number; propertyName: s
   'mysql2.createPool': { argIndex: 0, propertyName: 'password' },
 };
 
+function isLiteralStringOrTemplate(
+  node: estree.Node,
+): node is estree.Literal | estree.TemplateLiteral {
+  return (
+    (node.type === 'Literal' && typeof node.value === 'string') ||
+    (node.type === 'TemplateLiteral' && node.expressions.length === 0)
+  );
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {},
   }),
 
   create(context: Rule.RuleContext) {
-    function isLiteralStringOrTemplate(
-      node: estree.Node,
-    ): node is estree.Literal | estree.TemplateLiteral {
-      return (
-        (node.type === 'Literal' && typeof node.value === 'string') ||
-        (node.type === 'TemplateLiteral' && node.expressions.length === 0)
-      );
-    }
-
     // Scope-aware resolution avoids the infinite recursion and misresolution that a
     // name-only lookup would hit with shadowed variables and aliasing.
     function resolveHardcodedNode(
