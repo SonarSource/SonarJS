@@ -9,7 +9,6 @@ node_modules/
 coverage/
 
 packages/analysis/src/jsts/rules/*/generated-meta.ts
-packages/analysis/src/jsts/rules/helpers/generated-secret-patterns.ts
 packages/grpc/src/proto/*.js
 packages/grpc/src/proto/*.d.ts
 packages/analysis/src/jsts/parsers/estree.js
