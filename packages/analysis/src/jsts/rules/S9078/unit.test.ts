@@ -299,7 +299,6 @@ describe('S9078', () => {
           errors: [
             { messageId: 'duplicate', data: { index: 0 } },
             { messageId: 'duplicate', data: { index: 1 } },
-            { messageId: 'duplicate', data: { index: 0 } },
           ],
           output: `
             import { test } from 'vitest';
@@ -308,6 +307,43 @@ describe('S9078', () => {
               ['Bob', 'user'],
             ])('handles users', () => {});
           `,
+        },
+        {
+          code: `import { test } from 'vitest';
+test.each([
+  ['Alice'],
+  ['Alice'],
+  ['Alice'],
+])('handles users', () => {});`,
+          settings: { sonarRuntime: true },
+          errors: [
+            {
+              message: JSON.stringify({
+                message: 'Remove this duplicate test case.',
+                secondaryLocations: [
+                  {
+                    message: 'Original test case.',
+                    column: 2,
+                    line: 3,
+                    endColumn: 11,
+                    endLine: 3,
+                  },
+                  {
+                    message: 'Additional duplicate test case.',
+                    column: 2,
+                    line: 5,
+                    endColumn: 11,
+                    endLine: 5,
+                  },
+                ],
+              }),
+              line: 4,
+            },
+          ],
+          output: `import { test } from 'vitest';
+test.each([
+  ['Alice'],
+])('handles users', () => {});`,
         },
       ],
     });

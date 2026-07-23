@@ -19,3 +19,4 @@
 export const implementation = 'original';
 export const eslintId = 'no-duplicate-parameterized-test-case';
 export const quickFixMessage = 'Remove this duplicate parameterized test case';
+export const hasSecondaries = true;

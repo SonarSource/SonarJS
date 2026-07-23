@@ -21,6 +21,7 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { areEquivalent } from '../helpers/equivalence.js';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import {
   getParameterizedTestFrameworks,
   hasSupportedParameterizedCallback,
@@ -29,7 +30,7 @@ import {
 import * as meta from './generated-meta.js';
 
 const messages = {
-  duplicate: 'Remove this duplicate test case; it matches the case at index {{index}}.',
+  duplicate: 'Remove this duplicate test case.',
 } as const;
 
 export const rule: Rule.RuleModule = {
@@ -61,45 +62,68 @@ export const rule: Rule.RuleModule = {
 };
 
 function reportDuplicateRows(context: Rule.RuleContext, dataset: estree.ArrayExpression): void {
-  const previousRows: { index: number; node: estree.Node }[] = [];
-  const duplicateRows: { index: number; node: estree.Node; matchingIndex: number }[] = [];
+  const rowGroups: { original: estree.Node; duplicates: { index: number; node: estree.Node }[] }[] =
+    [];
 
   dataset.elements.forEach((element, index) => {
     if (element === null || element.type === 'SpreadElement') {
       return;
     }
 
-    const previous = previousRows.find(row => areEquivalent(row.node, element, context.sourceCode));
-    if (previous === undefined) {
-      previousRows.push({ index, node: element });
+    const group = rowGroups.find(row => areEquivalent(row.original, element, context.sourceCode));
+    if (group === undefined) {
+      rowGroups.push({ original: element, duplicates: [] });
       return;
     }
 
-    duplicateRows.push({ index, node: element, matchingIndex: previous.index });
+    group.duplicates.push({ index, node: element });
   });
 
-  duplicateRows.forEach((duplicate, duplicatePosition) => {
-    const previousDuplicate = duplicateRows[duplicatePosition - 1];
-    const isFirstInConsecutiveRun = previousDuplicate?.index !== duplicate.index - 1;
-    let lastDuplicate = duplicate;
-    if (isFirstInConsecutiveRun) {
-      for (let nextPosition = duplicatePosition + 1; ; nextPosition++) {
-        const nextDuplicate = duplicateRows[nextPosition];
-        if (nextDuplicate?.index !== lastDuplicate.index + 1) {
-          break;
-        }
-        lastDuplicate = nextDuplicate;
-      }
+  const duplicateGroups = rowGroups.filter(group => group.duplicates.length > 0);
+  const allDuplicates = duplicateGroups
+    .flatMap(group => group.duplicates)
+    .sort((left, right) => left.index - right.index);
+
+  for (const { original, duplicates } of duplicateGroups) {
+    const [firstDuplicate] = duplicates;
+    if (firstDuplicate === undefined) {
+      continue;
     }
+    report(
+      context,
+      {
+        node: firstDuplicate.node,
+        message: messages.duplicate,
+        messageId: 'duplicate',
+        fix: fixer => removeDuplicateRows(fixer, context.sourceCode, allDuplicates),
+      },
+      [
+        toSecondaryLocation(original, 'Original test case.'),
+        ...duplicates
+          .slice(1)
+          .map(duplicate => toSecondaryLocation(duplicate.node, 'Additional duplicate test case.')),
+      ],
+    );
+  }
+}
 
-    context.report({
-      node: duplicate.node,
-      messageId: 'duplicate',
-      data: { index: duplicate.matchingIndex },
-      fix: fixer =>
-        removeDuplicateRow(fixer, context.sourceCode, duplicate.node, lastDuplicate.node),
-    });
-  });
+function removeDuplicateRows(
+  fixer: Rule.RuleFixer,
+  sourceCode: Rule.RuleContext['sourceCode'],
+  duplicates: { index: number; node: estree.Node }[],
+): Rule.Fix[] {
+  const fixes: Rule.Fix[] = [];
+  for (let position = 0; position < duplicates.length;) {
+    const firstDuplicate = duplicates[position];
+    let lastDuplicate = firstDuplicate;
+    position++;
+    while (duplicates[position]?.index === lastDuplicate.index + 1) {
+      lastDuplicate = duplicates[position];
+      position++;
+    }
+    fixes.push(removeDuplicateRow(fixer, sourceCode, firstDuplicate.node, lastDuplicate.node));
+  }
+  return fixes;
 }
 
 function removeDuplicateRow(
