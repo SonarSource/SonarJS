@@ -201,3 +201,12 @@ session({ secret: 'changeit' }); // Compliant, well-known placeholder value
 crypto.createHmac('sha256', '${HMAC_KEY}'); // Compliant, placeholder-shaped value
 
 toString('not a secret'); // Compliant
+
+const shadowRoot = '9f86d081884c7d659a2feaa0c55ad015';
+//                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ > {{Hardcoded value assigned here}}
+const shadowAlias = shadowRoot;
+{
+  const shadowRoot = shadowAlias;
+    crypto.createHmac('sha256', shadowRoot); // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//  ^^^^^^^^^^^^^^^^^
+}
