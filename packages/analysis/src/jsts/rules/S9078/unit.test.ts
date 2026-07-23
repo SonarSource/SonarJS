@@ -16,6 +16,7 @@
  */
 
 import { describe, it } from 'node:test';
+import path from 'node:path';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 
@@ -43,6 +44,15 @@ describe('S9078', () => {
               [2, 4],
             ];
             test.each(cases)('doubles %i', (value, expected) => expect(value * 2).toBe(expected));
+          `,
+        },
+        {
+          code: `
+            import { test } from 'vitest';
+            test.each([
+              ['Alice', 'admin'],
+              ['Alice', 'admin'],
+            ])(() => {});
           `,
         },
         {
@@ -106,6 +116,43 @@ describe('S9078', () => {
         },
         {
           code: `
+            import { test } from 'vitest';
+            test.each([
+              ['Alice', 'admin'],
+              ['Bob', 'user'],
+              ['Alice', 'admin'], // Remove this row
+              ['Carol', 'editor'],
+            ])('handles users', () => {});
+          `,
+          errors: [{ messageId: 'duplicate', data: { index: 0 } }],
+          output: `
+            import { test } from 'vitest';
+            test.each([
+              ['Alice', 'admin'],
+              ['Bob', 'user'],
+              ['Carol', 'editor'],
+            ])('handles users', () => {});
+          `,
+        },
+        {
+          code: `
+            import { test } from 'vitest';
+            test.each([
+              ['Alice', 'admin'],
+              // Remove this duplicate row
+              ['Alice', 'admin'],
+            ])('handles users', () => {});
+          `,
+          errors: [{ messageId: 'duplicate', data: { index: 0 } }],
+          output: `
+            import { test } from 'vitest';
+            test.each([
+              ['Alice', 'admin'],
+            ])('handles users', () => {});
+          `,
+        },
+        {
+          code: `
             import { suite } from 'vitest';
             suite.each([
               ['Alice', 'admin'],
@@ -198,6 +245,44 @@ describe('S9078', () => {
               ['Alice', 'admin'],
               ['Bob', 'user'],
             ] as const)('handles users', () => {});
+          `,
+        },
+        {
+          filename: path.join(import.meta.dirname, 'file.ts'),
+          code: `
+            import { test } from 'vitest';
+            test.each([
+              ['Alice', 'admin'],
+              ['Bob', 'user'],
+              ['Alice', 'admin'],
+            ] satisfies string[][])('handles users', () => {});
+          `,
+          errors: [{ messageId: 'duplicate', data: { index: 0 } }],
+          output: `
+            import { test } from 'vitest';
+            test.each([
+              ['Alice', 'admin'],
+              ['Bob', 'user'],
+            ] satisfies string[][])('handles users', () => {});
+          `,
+        },
+        {
+          filename: path.join(import.meta.dirname, 'file.ts'),
+          code: `
+            import { test } from 'vitest';
+            test.each(<string[][]>[
+              ['Alice', 'admin'],
+              ['Bob', 'user'],
+              ['Alice', 'admin'],
+            ])('handles users', () => {});
+          `,
+          errors: [{ messageId: 'duplicate', data: { index: 0 } }],
+          output: `
+            import { test } from 'vitest';
+            test.each(<string[][]>[
+              ['Alice', 'admin'],
+              ['Bob', 'user'],
+            ])('handles users', () => {});
           `,
         },
         {

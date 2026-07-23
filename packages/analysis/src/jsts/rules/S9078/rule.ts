@@ -48,6 +48,7 @@ export const rule: Rule.RuleModule = {
         if (
           dataset === undefined ||
           !hasSupportedParameterizedCallback(context, node) ||
+          node.arguments.length < 2 ||
           !isSupportedParameterizedDeclaration(context, node, activeFrameworks)
         ) {
           return;
@@ -114,14 +115,39 @@ function removeDuplicateRow(
     includeComments: true,
   });
   const hasCommentBefore = previousTokenIncludingComments !== previousToken;
+  const nextTokenIncludingComments = sourceCode.getTokenAfter(lastElement, {
+    includeComments: true,
+  });
+  const possibleTrailingComment =
+    nextTokenIncludingComments?.value === ','
+      ? sourceCode.getTokenAfter(nextTokenIncludingComments, { includeComments: true })
+      : nextTokenIncludingComments;
   const lineStart = sourceCode.getIndexFromLoc({
     line: sourceCode.getLoc(firstElement).start.line,
     column: 0,
   });
   const isOnlyElementOnLine = /^\s*$/.test(sourceCode.text.slice(lineStart, firstElementRange[0]));
+  const standaloneLeadingCommentStart = getStandaloneLeadingCommentStart(sourceCode, firstElement);
+  const trailingCommentEnd =
+    (possibleTrailingComment?.type === 'Line' || possibleTrailingComment?.type === 'Block') &&
+    possibleTrailingComment.loc?.start.line === sourceCode.getLoc(lastElement).end.line &&
+    possibleTrailingComment.range !== undefined
+      ? possibleTrailingComment.range[1]
+      : undefined;
+
+  if (trailingCommentEnd !== undefined) {
+    const start =
+      standaloneLeadingCommentStart ?? (isOnlyElementOnLine ? lineStart : firstElementRange[0]);
+    const trailingNewline = /^\s*(\r?\n)/.exec(sourceCode.text.slice(trailingCommentEnd));
+    const end = trailingNewline
+      ? trailingCommentEnd + trailingNewline[0].length
+      : trailingCommentEnd;
+    return fixer.removeRange([start, end]);
+  }
 
   if (hasCommentBefore) {
-    const start = isOnlyElementOnLine ? lineStart : firstElementRange[0];
+    const start =
+      standaloneLeadingCommentStart ?? (isOnlyElementOnLine ? lineStart : firstElementRange[0]);
     const nextToken = sourceCode.getTokenAfter(lastElement);
     const end = nextToken?.value === ',' ? nextToken.range[1] : lastElementRange[1];
     const trailingNewline = /^\s*(\r?\n)/.exec(sourceCode.text.slice(end));
@@ -131,6 +157,30 @@ function removeDuplicateRow(
 
   const start = previousToken?.value === ',' ? previousToken.range[0] : firstElementRange[0];
   return fixer.removeRange([start, lastElementRange[1]]);
+}
+
+function getStandaloneLeadingCommentStart(
+  sourceCode: Rule.RuleContext['sourceCode'],
+  firstElement: estree.Node,
+): number | undefined {
+  const [comment] = sourceCode.getCommentsBefore(firstElement).slice(-1);
+  const firstElementRange = sourceCode.getRange(firstElement);
+  if (
+    comment === undefined ||
+    comment.range === undefined ||
+    comment.loc?.start.line === undefined ||
+    comment.loc.end.line >= sourceCode.getLoc(firstElement).start.line
+  ) {
+    return undefined;
+  }
+
+  const commentLineStart = sourceCode.getIndexFromLoc({
+    line: comment.loc.start.line,
+    column: 0,
+  });
+  const beforeComment = sourceCode.text.slice(commentLineStart, comment.range[0]);
+  const afterComment = sourceCode.text.slice(comment.range[1], firstElementRange[0]);
+  return /^\s*$/.test(beforeComment) && /^\s*$/.test(afterComment) ? commentLineStart : undefined;
 }
 
 function getDataset(node: estree.CallExpression): estree.ArrayExpression | undefined {
