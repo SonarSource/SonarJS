@@ -17,7 +17,8 @@
 import path from 'node:path';
 
 import { Linter, Rule } from 'eslint';
-import { getProperty } from '../../../../src/jsts/rules/helpers/ast.js';
+import type estree from 'estree';
+import { getProperty, getUniqueWriteUsageOrNode } from '../../../../src/jsts/rules/helpers/ast.js';
 
 import { describe, test } from 'node:test';
 import { expect } from 'expect';
@@ -85,3 +86,67 @@ describe('getProperty', () => {
     });
   }
 });
+
+describe('getUniqueWriteUsageOrNode', () => {
+  test('resolves identifier chains recursively', () => {
+    const resolved = resolveCallArgument(`
+      const secret = 'value';
+      const alias = secret;
+      consume(alias);
+    `);
+
+    expect(resolved).toMatchObject({ type: 'Literal', value: 'value' });
+  });
+
+  test('terminates on a self-referencing variable', () => {
+    const resolved = resolveCallArgument(`
+      let secret = secret;
+      consume(secret);
+    `);
+
+    expect(resolved?.type).toBe('Identifier');
+  });
+
+  test('terminates on mutually-referencing variables', () => {
+    const resolved = resolveCallArgument(`
+      let first = second;
+      let second = first;
+      consume(first);
+    `);
+
+    expect(resolved?.type).toBe('Identifier');
+  });
+});
+
+function resolveCallArgument(code: string): estree.Node | undefined {
+  let resolved: estree.Node | undefined;
+  const linter = new Linter();
+  const messages = linter.verify(
+    code,
+    {
+      languageOptions: { ecmaVersion: 2022 },
+      plugins: {
+        sonarjs: {
+          rules: {
+            'resolve-call-argument': {
+              create(context: Rule.RuleContext) {
+                return {
+                  CallExpression(node: estree.CallExpression) {
+                    const argument = node.arguments[0];
+                    if (argument?.type !== 'SpreadElement') {
+                      resolved = getUniqueWriteUsageOrNode(context, argument, true);
+                    }
+                  },
+                };
+              },
+            } as Rule.RuleModule,
+          },
+        },
+      },
+      rules: { 'sonarjs/resolve-call-argument': 'error' },
+    },
+    { allowInlineConfig: false },
+  );
+  expect(messages).toHaveLength(0);
+  return resolved;
+}
