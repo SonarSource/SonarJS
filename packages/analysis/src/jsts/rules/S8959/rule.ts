@@ -21,9 +21,19 @@ import type estree from 'estree';
 import { hasParent, isIdentifier, isMethodCall } from '../helpers/ast.js';
 import { chainStartsWithCy } from '../helpers/cypress.js';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
 import { removeNodeWithLeadingWhitespaces } from '../helpers/quickfix.js';
 import { isTestRelatedFile } from '../helpers/test-file-pattern.js';
 import * as meta from './generated-meta.js';
+
+const TESTING_LIBRARY_MODULES = [
+  '@testing-library/dom',
+  '@testing-library/react',
+  '@testing-library/vue',
+  '@testing-library/angular',
+  '@testing-library/svelte',
+  '@testing-library/preact',
+];
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -41,10 +51,10 @@ export const rule: Rule.RuleModule = {
       CallExpression(node: estree.Node) {
         const call = node as estree.CallExpression;
         if (isMethodCall(call)) {
-          if (isUiTestDebugCommand(call.callee)) {
+          if (isUiTestDebugCommand(context, call)) {
             reportDebugCommand(context, call, call.callee.property);
           }
-        } else if (isIdentifier(call.callee, 'prettyDOM', 'logRoles')) {
+        } else if (isTestingLibraryDebugCommand(context, call)) {
           reportDebugCommand(context, call, call.callee);
         }
       },
@@ -52,20 +62,43 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isUiTestDebugCommand(callee: estree.MemberExpression & { property: estree.Identifier }) {
+function isUiTestDebugCommand(
+  context: Rule.RuleContext,
+  call: estree.CallExpression & {
+    callee: estree.MemberExpression & { property: estree.Identifier };
+  },
+) {
+  const { callee } = call;
   const { object, property } = callee;
   switch (property.name) {
     case 'pause':
       return chainStartsWithCy(object) || isIdentifier(object, 'page');
     case 'debug':
-      return chainStartsWithCy(object) || isIdentifier(object, 'screen');
+      return isTestingLibraryDebugCommand(context, call) || chainStartsWithCy(object);
     case 'logTestingPlaygroundURL':
-    case 'prettyDOM':
-    case 'logRoles':
-      return isIdentifier(object, 'screen');
+      return isTestingLibraryDebugCommand(context, call);
     default:
       return false;
   }
+}
+
+function isTestingLibraryDebugCommand(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+): boolean {
+  const fqn = getFullyQualifiedName(context, call.callee);
+  if (!fqn) {
+    return false;
+  }
+  return TESTING_LIBRARY_MODULES.some(module => {
+    const prefix = module.replace('/', '.');
+    return [
+      `${prefix}.screen.debug`,
+      `${prefix}.screen.logTestingPlaygroundURL`,
+      `${prefix}.prettyDOM`,
+      `${prefix}.logRoles`,
+    ].includes(fqn);
+  });
 }
 
 function reportDebugCommand(

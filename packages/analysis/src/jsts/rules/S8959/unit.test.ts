@@ -92,6 +92,31 @@ describe('S8959', () => {
           `,
           filename: 'tests/tl.test.tsx',
         },
+        {
+          code: `
+            import { prettyDOM, logRoles } from './test-utils';
+
+            test('ignores unrelated debug helpers', () => {
+              prettyDOM(container);
+              logRoles(container);
+            });
+          `,
+          filename: 'tests/tl-lookalikes.test.tsx',
+        },
+        {
+          code: `
+            const screen = {
+              debug() {},
+              logTestingPlaygroundURL() {},
+            };
+
+            test('ignores unrelated screen objects', () => {
+              screen.debug();
+              screen.logTestingPlaygroundURL();
+            });
+          `,
+          filename: 'tests/screen-lookalike.test.tsx',
+        },
       ],
       invalid: [
         {
@@ -228,6 +253,8 @@ describe('S8959', () => {
         },
         {
           code: `
+            import { screen } from '@testing-library/react';
+
             test('uses Testing Library screen.debug', () => {
               screen.debug();
             });
@@ -235,12 +262,16 @@ describe('S8959', () => {
           filename: 'tests/tl-debug.test.tsx',
           errors: [{ messageId: 'removeDebugCommand' }],
           output: `
+            import { screen } from '@testing-library/react';
+
             test('uses Testing Library screen.debug', () => {
             });
           `,
         },
         {
           code: `
+            import { screen } from '@testing-library/react';
+
             test('uses Testing Library logTestingPlaygroundURL', () => {
               screen.logTestingPlaygroundURL();
             });
@@ -248,12 +279,16 @@ describe('S8959', () => {
           filename: 'tests/tl-playground.test.tsx',
           errors: [{ messageId: 'removeDebugCommand' }],
           output: `
+            import { screen } from '@testing-library/react';
+
             test('uses Testing Library logTestingPlaygroundURL', () => {
             });
           `,
         },
         {
           code: `
+            import { prettyDOM, logRoles } from '@testing-library/dom';
+
             test('uses Testing Library standalone prettyDOM and logRoles', () => {
               prettyDOM(container);
               logRoles(container);
@@ -262,6 +297,8 @@ describe('S8959', () => {
           filename: 'tests/tl-helpers.test.tsx',
           errors: [{ messageId: 'removeDebugCommand' }, { messageId: 'removeDebugCommand' }],
           output: `
+            import { prettyDOM, logRoles } from '@testing-library/dom';
+
             test('uses Testing Library standalone prettyDOM and logRoles', () => {
               logRoles(container);
             });
