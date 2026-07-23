@@ -111,52 +111,75 @@ function removeDuplicateRow(
   const firstElementRange = sourceCode.getRange(firstElement);
   const lastElementRange = sourceCode.getRange(lastElement);
   const previousToken = sourceCode.getTokenBefore(firstElement);
-  const previousTokenIncludingComments = sourceCode.getTokenBefore(firstElement, {
-    includeComments: true,
-  });
-  const hasCommentBefore = previousTokenIncludingComments !== previousToken;
-  const nextTokenIncludingComments = sourceCode.getTokenAfter(lastElement, {
-    includeComments: true,
-  });
-  const possibleTrailingComment =
-    nextTokenIncludingComments?.value === ','
-      ? sourceCode.getTokenAfter(nextTokenIncludingComments, { includeComments: true })
-      : nextTokenIncludingComments;
+  const removalStart = getRemovalStart(sourceCode, firstElement, firstElementRange);
+  const trailingCommentEnd = getTrailingCommentEnd(sourceCode, lastElement);
+
+  if (trailingCommentEnd !== undefined) {
+    const trailingNewline = /^\s*(\r?\n)/.exec(sourceCode.text.slice(trailingCommentEnd));
+    const end = trailingNewline
+      ? trailingCommentEnd + trailingNewline[0].length
+      : trailingCommentEnd;
+    return fixer.removeRange([removalStart, end]);
+  }
+
+  if (hasCommentBefore(sourceCode, firstElement, previousToken)) {
+    const nextToken = sourceCode.getTokenAfter(lastElement);
+    const end = nextToken?.value === ',' ? nextToken.range[1] : lastElementRange[1];
+    const trailingNewline = /^\s*(\r?\n)/.exec(sourceCode.text.slice(end));
+    const endWithNewline = trailingNewline ? end + trailingNewline[0].length : end;
+    return fixer.removeRange([removalStart, endWithNewline]);
+  }
+
+  const start = previousToken?.value === ',' ? previousToken.range[0] : firstElementRange[0];
+  return fixer.removeRange([start, lastElementRange[1]]);
+}
+
+function getRemovalStart(
+  sourceCode: Rule.RuleContext['sourceCode'],
+  firstElement: estree.Node,
+  firstElementRange: [number, number],
+): number {
+  const standaloneLeadingCommentStart = getStandaloneLeadingCommentStart(sourceCode, firstElement);
+  if (standaloneLeadingCommentStart !== undefined) {
+    return standaloneLeadingCommentStart;
+  }
+
   const lineStart = sourceCode.getIndexFromLoc({
     line: sourceCode.getLoc(firstElement).start.line,
     column: 0,
   });
   const isOnlyElementOnLine = /^\s*$/.test(sourceCode.text.slice(lineStart, firstElementRange[0]));
-  const standaloneLeadingCommentStart = getStandaloneLeadingCommentStart(sourceCode, firstElement);
-  const trailingCommentEnd =
-    (possibleTrailingComment?.type === 'Line' || possibleTrailingComment?.type === 'Block') &&
-    possibleTrailingComment.loc?.start.line === sourceCode.getLoc(lastElement).end.line &&
-    possibleTrailingComment.range !== undefined
-      ? possibleTrailingComment.range[1]
-      : undefined;
+  return isOnlyElementOnLine ? lineStart : firstElementRange[0];
+}
 
-  if (trailingCommentEnd !== undefined) {
-    const start =
-      standaloneLeadingCommentStart ?? (isOnlyElementOnLine ? lineStart : firstElementRange[0]);
-    const trailingNewline = /^\s*(\r?\n)/.exec(sourceCode.text.slice(trailingCommentEnd));
-    const end = trailingNewline
-      ? trailingCommentEnd + trailingNewline[0].length
-      : trailingCommentEnd;
-    return fixer.removeRange([start, end]);
+function hasCommentBefore(
+  sourceCode: Rule.RuleContext['sourceCode'],
+  firstElement: estree.Node,
+  previousToken: ReturnType<Rule.RuleContext['sourceCode']['getTokenBefore']>,
+): boolean {
+  return sourceCode.getTokenBefore(firstElement, { includeComments: true }) !== previousToken;
+}
+
+function getTrailingCommentEnd(
+  sourceCode: Rule.RuleContext['sourceCode'],
+  lastElement: estree.Node,
+): number | undefined {
+  const nextToken = sourceCode.getTokenAfter(lastElement, { includeComments: true });
+  const possibleTrailingComment =
+    nextToken?.value === ','
+      ? sourceCode.getTokenAfter(nextToken, { includeComments: true })
+      : nextToken;
+  if (possibleTrailingComment?.type !== 'Line' && possibleTrailingComment?.type !== 'Block') {
+    return undefined;
   }
 
-  if (hasCommentBefore) {
-    const start =
-      standaloneLeadingCommentStart ?? (isOnlyElementOnLine ? lineStart : firstElementRange[0]);
-    const nextToken = sourceCode.getTokenAfter(lastElement);
-    const end = nextToken?.value === ',' ? nextToken.range[1] : lastElementRange[1];
-    const trailingNewline = /^\s*(\r?\n)/.exec(sourceCode.text.slice(end));
-    const endWithNewline = trailingNewline ? end + trailingNewline[0].length : end;
-    return fixer.removeRange([start, endWithNewline]);
+  if (
+    possibleTrailingComment.loc?.start.line !== sourceCode.getLoc(lastElement).end.line ||
+    possibleTrailingComment.range === undefined
+  ) {
+    return undefined;
   }
-
-  const start = previousToken?.value === ',' ? previousToken.range[0] : firstElementRange[0];
-  return fixer.removeRange([start, lastElementRange[1]]);
+  return possibleTrailingComment.range[1];
 }
 
 function getStandaloneLeadingCommentStart(
@@ -165,8 +188,10 @@ function getStandaloneLeadingCommentStart(
 ): number | undefined {
   const [comment] = sourceCode.getCommentsBefore(firstElement).slice(-1);
   const firstElementRange = sourceCode.getRange(firstElement);
+  if (comment === undefined) {
+    return undefined;
+  }
   if (
-    comment === undefined ||
     comment.range === undefined ||
     comment.loc?.start.line === undefined ||
     comment.loc.end.line >= sourceCode.getLoc(firstElement).start.line
