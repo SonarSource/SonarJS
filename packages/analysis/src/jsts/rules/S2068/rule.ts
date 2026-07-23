@@ -22,6 +22,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isLogicalExpression, isStaticTemplateLiteral, isStringLiteral } from '../helpers/ast.js';
 import { shannonEntropy } from '../helpers/entropy.js';
+import { isExcludedSecretValue } from '../helpers/secret-exclusion.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
@@ -105,6 +106,7 @@ function findValueSuspect(node: estree.Node | undefined | null): boolean {
       value != null &&
       value.length >= MIN_PASSWORD_LENGTH &&
       !NON_CREDENTIAL_CHARS.test(value) &&
+      !isExcludedSecretValue(value) &&
       hasHighEntropy(value)
     );
   }
@@ -113,6 +115,7 @@ function findValueSuspect(node: estree.Node | undefined | null): boolean {
     return (
       value.length >= MIN_PASSWORD_LENGTH &&
       !NON_CREDENTIAL_CHARS.test(value) &&
+      !isExcludedSecretValue(value) &&
       hasHighEntropy(value)
     );
   }
@@ -168,7 +171,11 @@ function checkStringValue(
       continue;
     }
     const passwordValue = extractPasswordValue(value, eqIndex);
-    if (passwordValue.length >= MIN_PASSWORD_LENGTH && hasHighEntropy(passwordValue)) {
+    if (
+      passwordValue.length >= MIN_PASSWORD_LENGTH &&
+      !isExcludedSecretValue(passwordValue) &&
+      hasHighEntropy(passwordValue)
+    ) {
       context.report({
         messageId: 'reviewPassword',
         node,

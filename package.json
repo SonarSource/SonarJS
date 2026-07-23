@@ -106,6 +106,7 @@
     "@eslint-community/regexpp": "4.12.2",
     "@grpc/grpc-js": "1.14.4",
     "@protobufjs/base64": "1.1.2",
+    "@sonarsource/analyzer-commons-configurations": "2.29.0-5138",
     "@stylistic/eslint-plugin": "5.10.0",
     "@stylistic/stylelint-plugin": "5.2.1",
     "@typescript-eslint/eslint-plugin": "8.64.0",

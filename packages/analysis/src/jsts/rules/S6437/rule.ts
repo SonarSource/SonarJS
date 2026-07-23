@@ -14,14 +14,15 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S2077/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S6437/javascript
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { type IssueLocation, report, toSecondaryLocation } from '../helpers/location.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
-import { getProperty, getValueOfExpression } from '../helpers/ast.js';
+import { getProperty, getUniqueWriteUsageOrNode, getValueOfExpression } from '../helpers/ast.js';
+import { isExcludedSecretValue } from '../helpers/secret-exclusion.js';
 import * as meta from './generated-meta.js';
 
 // Dictionary with fully qualified names of functions and indices of their
@@ -63,38 +64,61 @@ const secretObjectSignatures: Record<string, { argIndex: number; propertyName: s
   'mysql2.createPool': { argIndex: 0, propertyName: 'password' },
 };
 
+function isLiteralStringOrTemplate(
+  node: estree.Node,
+): node is estree.Literal | estree.TemplateLiteral {
+  return (
+    (node.type === 'Literal' && typeof node.value === 'string') ||
+    (node.type === 'TemplateLiteral' && node.expressions.length === 0)
+  );
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {},
   }),
 
   create(context: Rule.RuleContext) {
-    const hardcodedVariables = new Map<string, estree.Node>();
+    // Scope-aware resolution avoids the infinite recursion and misresolution that a
+    // name-only lookup would hit with shadowed variables and aliasing.
+    function resolveHardcodedNode(
+      expr: estree.Expression,
+    ): estree.Literal | estree.TemplateLiteral | undefined {
+      const resolved = getUniqueWriteUsageOrNode(context, expr, true);
+      return isLiteralStringOrTemplate(resolved) ? resolved : undefined;
+    }
 
     function isHardcodedString(expr: estree.Expression): boolean {
-      switch (expr.type) {
-        case 'Literal':
-          return typeof expr.value === 'string';
-        case 'TemplateLiteral':
-          return expr.expressions.length === 0;
-        case 'Identifier':
-          return hardcodedVariables.has(expr.name);
-        default:
-          return false;
-      }
+      return resolveHardcodedNode(expr) !== undefined;
     }
 
     function getSecondaryLocations(expr: estree.Expression): IssueLocation[] {
-      if (expr.type === 'Identifier' && hardcodedVariables.has(expr.name)) {
-        const nodeName = hardcodedVariables.get(expr.name);
-        if (nodeName) {
-          return [toSecondaryLocation(nodeName, 'Hardcoded value assigned here')];
+      if (expr.type === 'Identifier') {
+        const resolved = getUniqueWriteUsageOrNode(context, expr, true);
+        if (resolved !== expr) {
+          return [toSecondaryLocation(resolved, 'Hardcoded value assigned here')];
         }
       }
       return [];
     }
 
+    function getHardcodedStringValue(expr: estree.Expression): string | undefined {
+      const resolved = resolveHardcodedNode(expr);
+      if (!resolved) {
+        return undefined;
+      }
+      if (resolved.type === 'Literal') {
+        return typeof resolved.value === 'string' ? resolved.value : undefined;
+      }
+      const parts = resolved.quasis.map(quasi => quasi.value.cooked);
+      return parts.every((part): part is string => part != null) ? parts.join('') : undefined;
+    }
+
     function reportIssue(callExpression: estree.CallExpression, secretExpr: estree.Expression) {
+      const value = getHardcodedStringValue(secretExpr);
+      if (value !== undefined && isExcludedSecretValue(value)) {
+        return;
+      }
       report(
         context,
         {
@@ -141,16 +165,6 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      Program() {
-        hardcodedVariables.clear();
-      },
-
-      VariableDeclarator(node: estree.VariableDeclarator) {
-        if (node.id.type === 'Identifier' && node.init && isHardcodedString(node.init)) {
-          hardcodedVariables.set(node.id.name, node.init);
-        }
-      },
-
       CallExpression(node: estree.CallExpression) {
         const fqn = getFullyQualifiedName(context, node);
         if (!fqn) {
