@@ -168,6 +168,7 @@ describe("uses Jest, Vitest, Bun, Testing Library, Playwright, Node assert", fun
     // Node assert
     assert.strictEqual;  // Noncompliant {{Call this 'strictEqual' assertion.}}
     assert.deepStrictEqual;  // Noncompliant {{Call this 'deepStrictEqual' assertion.}}
+    assert.rejects;  // Noncompliant {{Call this 'rejects' assertion.}}
   });
 
   it("dangling modifiers", async function() {
@@ -191,6 +192,7 @@ describe("uses Jest, Vitest, Bun, Testing Library, Playwright, Node assert", fun
     await expect(promise).resolves.toBe(42);
     await expect(promise).rejects.toThrow();
     assert.strictEqual(value, 42);
+    await assert.rejects(promise);
   });
 });
 

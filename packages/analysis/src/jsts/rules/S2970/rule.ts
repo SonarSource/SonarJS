@@ -175,6 +175,7 @@ const assertionFunctions = [
   'deepStrictEqual',
   'notDeepStrictEqual',
   'doesNotThrow',
+  'rejects',
   'doesNotReject',
   'doesNotMatch',
   'ifError',
@@ -229,13 +230,15 @@ export const rule: Rule.RuleModule = {
         if (expr.type === 'MemberExpression') {
           const { property } = expr;
           if (isTestAssertion(expr)) {
-            if (isIdentifier(property, ...assertionFunctions)) {
+            if (
+              isIdentifier(property, ...assertionFunctions) &&
+              !(isIdentifier(property, 'rejects') && isExpectAssertion(expr.object))
+            ) {
               context.report({
                 node: property,
                 message: `Call this '${property.name}' assertion.`,
               });
-            }
-            if (isIdentifier(property, ...gettersOrModifiers)) {
+            } else if (isIdentifier(property, ...gettersOrModifiers)) {
               context.report({
                 node: property,
                 message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
@@ -267,6 +270,19 @@ function isTestAssertion(node: estree.MemberExpression): boolean {
     return isTestAssertion(object);
   } else if (object.type === 'CallExpression' && object.callee.type === 'MemberExpression') {
     return isTestAssertion(object.callee);
+  }
+  return false;
+}
+
+function isExpectAssertion(node: estree.Node): boolean {
+  if (isExpectCall(node) || isIdentifier(node, 'expect')) {
+    return true;
+  }
+  if (node.type === 'MemberExpression') {
+    return isExpectAssertion(node.object);
+  }
+  if (node.type === 'CallExpression' && node.callee.type === 'MemberExpression') {
+    return isExpectAssertion(node.callee.object);
   }
   return false;
 }
