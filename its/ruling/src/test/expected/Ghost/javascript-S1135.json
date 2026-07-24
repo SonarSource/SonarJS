@@ -5,9 +5,6 @@
 "Ghost:core/client/app/adapters/user.js": [
 9
 ],
-"Ghost:core/client/app/components/gh-profile-image.js": [
-119
-],
 "Ghost:core/client/app/components/modals/invite-new-user.js": [
 45,
 54,
@@ -158,9 +155,6 @@
 ],
 "Ghost:core/server/data/xml/sitemap/user-generator.js": [
 41
-],
-"Ghost:core/server/data/xml/xmlrpc.js": [
-10
 ],
 "Ghost:core/server/errors/index.js": [
 28,
