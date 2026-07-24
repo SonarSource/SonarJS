@@ -1,6 +1,45 @@
 {
+"prototype:src/prototype/ajax/ajax.js": [
+5
+],
+"prototype:src/prototype/deprecated.js": [
+5,
+11,
+29,
+161
+],
+"prototype:src/prototype/dom/event.js": [
+1181
+],
+"prototype:src/prototype/dom/form.js": [
+725,
+733
+],
 "prototype:src/prototype/dom/selector.js": [
+86,
 150,
 160
+],
+"prototype:src/prototype/lang.js": [
+22,
+67
+],
+"prototype:src/prototype/lang/array.js": [
+92
+],
+"prototype:src/prototype/lang/enumerable.js": [
+121
+],
+"prototype:src/prototype/lang/periodical_executer.js": [
+22
+],
+"prototype:src/prototype/lang/range.js": [
+81
+],
+"prototype:src/prototype/prototype.js": [
+54
+],
+"prototype:test/functional/event.html": [
+55
 ]
 }

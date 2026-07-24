@@ -1,0 +1,24 @@
+{
+"sonar-web:src/main/js/api/metrics.js": [
+1
+],
+"sonar-web:src/main/js/components/mixins/resize-mixin.js": [
+1
+],
+"sonar-web:src/main/js/components/mixins/tooltips-mixin.js": [
+2
+],
+"sonar-web:src/main/js/widgets/old/pie-chart.js": [
+1
+],
+"sonar-web:tests/apps/overview/helpers/metrics-test.js": [
+7
+],
+"sonar-web:tests/apps/overview/overview-test.js": [
+2,
+8
+],
+"sonar-web:tests/apps/system-test.js": [
+8
+]
+}
