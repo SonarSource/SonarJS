@@ -56,16 +56,16 @@ function isLegacyIgnoredRestSibling(descriptor: Rule.ReportDescriptor) {
   }
 
   const property = getParent(descriptor.node);
+  const objectPattern = property ? getParent(property) : undefined;
   if (
     property?.type !== 'Property' ||
     !property.shorthand ||
     property.value !== descriptor.node ||
-    getParent(property)?.type !== 'ObjectPattern'
+    objectPattern?.type !== 'ObjectPattern'
   ) {
     return false;
   }
 
-  const objectPattern = getParent(property);
   return (
     objectPattern.properties.at(-1)?.type === 'RestElement' &&
     isInsideVariableDeclarationPattern(objectPattern)
