@@ -20,14 +20,14 @@ import type { Rule } from 'eslint';
 import { rules as reactRules } from '../external/react.js';
 import { rules as jsxA11yRules } from '../external/a11y.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { interceptReport, interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { mergeRules } from '../helpers/decorators/merger.js';
 import { decorate } from './decorator.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
-import { getImportDeclarations } from '../helpers/module.js';
-import { isTypeOnlyImport } from '../helpers/ast.js';
+import { getRuntimeImportDeclarations } from '../helpers/module.js';
+import * as fp from './false-positives/index.js';
 
 const noUnknownProp = reactRules['no-unknown-property'];
 const decoratedNoUnknownProp = decorate(noUnknownProp);
@@ -91,38 +91,18 @@ export const rule: Rule.RuleModule = {
   }),
 
   create(context: Rule.RuleContext) {
-    const dependencies = getDependenciesSanitizePaths(context);
-
-    // Project-wide dependency checks are used only for integrations whose props are valid anywhere
-    // in that framework's project. File-specific APIs such as ImageResponse or twin.macro must be
-    // imported in the current file before their JSX props are ignored.
-    const frameworkIgnoredProps: string[] = [];
-    if (dependencies.has('next') || dependencies.has('styled-jsx')) {
-      // styled-jsx uses jsx and global props (used standalone or via Next.js)
-      frameworkIgnoredProps.push('jsx', 'global');
-    }
-    if (dependencies.has('@emotion/react')) {
-      // Emotion uses css prop for styling
-      frameworkIgnoredProps.push('css');
-    }
-    const imports = getImportDeclarations(context);
-    if (
-      imports.some(
-        i =>
-          !isTypeOnlyImport(i) &&
-          ['next/og', '@vercel/og', 'satori', 'twin.macro'].includes(String(i.source.value)),
-      )
-    ) {
-      // These file-specific APIs use tw prop for Tailwind styling in JSX
-      frameworkIgnoredProps.push('tw');
-    }
+    const activeEscapes = fp.getActiveFalsePositiveEscapes({
+      dependencies: getDependenciesSanitizePaths(context),
+      runtimeImports: getRuntimeImportDeclarations(context),
+    });
+    const ignoredProps = fp.getIgnoredProps(activeEscapes);
 
     // If we have framework-specific props, create a modified context with updated options
     let effectiveContext = context;
-    if (frameworkIgnoredProps.length > 0) {
+    if (ignoredProps.length > 0) {
       const userOptions = (context.options[0] as { ignore?: string[] } | undefined) ?? {};
       const userIgnore = userOptions.ignore ?? [];
-      const mergedIgnore = [...new Set([...userIgnore, ...frameworkIgnoredProps])];
+      const mergedIgnore = [...new Set([...userIgnore, ...ignoredProps])];
       effectiveContext = Object.create(context, {
         options: {
           value: [{ ...userOptions, ignore: mergedIgnore }],
@@ -134,8 +114,14 @@ export const rule: Rule.RuleModule = {
     // aria-props doesn't accept options, so use original context
     const ariaPropsListener: Rule.RuleListener = decoratedAriaPropsRule.create(context);
     // no-unknown-property accepts ignore option, so use effectiveContext with merged ignore list
-    const noUnknownPropListener: Rule.RuleListener =
-      twiceDecoratedNoUnknownProp.create(effectiveContext);
+    const noUnknownPropListener: Rule.RuleListener = interceptReportForReact(
+      twiceDecoratedNoUnknownProp,
+      (reportContext, descriptor) => {
+        if (!fp.shouldSuppressReport(activeEscapes, descriptor)) {
+          reportContext.report(descriptor);
+        }
+      },
+    ).create(effectiveContext);
 
     return mergeRules(ariaPropsListener, noUnknownPropListener);
   },
