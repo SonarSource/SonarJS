@@ -21,7 +21,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
-const todoPattern = 'todo';
+const todoPattern = 'TODO';
 const letterPattern = /[\p{Letter}]/u;
 const jiraIssueKeyPattern = /\b[A-Z][A-Z0-9]+-\d+\b/u;
 
@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       'Program:exit': () => {
-        reportPatternInComment(context, todoPattern, 'completeTODO', isJiraAnchoredTodo);
+        reportPatternInComment(context, todoPattern, 'completeTODO', true, isJiraAnchoredTodo);
       },
     };
   },
@@ -46,31 +46,64 @@ export function reportPatternInComment(
   context: Rule.RuleContext,
   pattern: string,
   messageId: string,
+  caseSensitive = false,
   shouldIgnoreMatch: IgnorePatternMatch = () => false,
 ) {
-  const sourceCode = context.sourceCode;
-  for (const comment of sourceCode.getAllComments() as TSESTree.Comment[]) {
+  const normalizedPattern = caseSensitive ? pattern : pattern.toLowerCase();
+
+  for (const comment of context.sourceCode.getAllComments() as TSESTree.Comment[]) {
     if (comment.value.trim().startsWith('eslint-disable')) {
       continue;
     }
-    const lines = comment.value.split(/\r\n?|\n/);
 
-    for (const [i, originalLine] of lines.entries()) {
-      const line = originalLine.toLowerCase();
-      const index = line.indexOf(pattern);
-
-      if (
-        index >= 0 &&
-        !isLetterAround(line, index, pattern) &&
-        !shouldIgnoreMatch(originalLine, index, pattern)
-      ) {
-        context.report({
-          messageId,
-          loc: getPatternPosition(i, index, comment, pattern),
-        });
-      }
+    for (const loc of findPatternPositions(
+      comment,
+      normalizedPattern,
+      caseSensitive,
+      shouldIgnoreMatch,
+    )) {
+      context.report({ messageId, loc });
     }
   }
+}
+
+function findPatternPositions(
+  comment: TSESTree.Comment,
+  pattern: string,
+  caseSensitive: boolean,
+  shouldIgnoreMatch: IgnorePatternMatch,
+) {
+  const rawText = caseSensitive ? comment.value : comment.value.toLowerCase();
+  if (!rawText.includes(pattern)) {
+    return [];
+  }
+
+  const originalLines = comment.value.split(/\r\n?|\n/);
+  const lines = rawText.split(/\r\n?|\n/);
+
+  return lines.flatMap((line, index) =>
+    findPatternPosition(line, originalLines[index], index, comment, pattern, shouldIgnoreMatch),
+  );
+}
+
+function findPatternPosition(
+  line: string,
+  originalLine: string,
+  lineIdx: number,
+  comment: TSESTree.Comment,
+  pattern: string,
+  shouldIgnoreMatch: IgnorePatternMatch,
+) {
+  const index = line.indexOf(pattern);
+  if (
+    index < 0 ||
+    isLetterAround(line, index, pattern) ||
+    shouldIgnoreMatch(originalLine, index, pattern)
+  ) {
+    return [];
+  }
+
+  return [getPatternPosition(lineIdx, index, comment, pattern)];
 }
 
 /**
