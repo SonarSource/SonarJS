@@ -21,7 +21,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
-const todoPattern = 'todo';
+const todoPattern = 'TODO';
 const letterPattern = /[\p{Letter}]/u;
 
 export const rule: Rule.RuleModule = {
@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       'Program:exit': () => {
-        reportPatternInComment(context, todoPattern, 'completeTODO');
+        reportPatternInComment(context, todoPattern, 'completeTODO', true);
       },
     };
   },
@@ -43,28 +43,47 @@ export function reportPatternInComment(
   context: Rule.RuleContext,
   pattern: string,
   messageId: string,
+  caseSensitive = false,
 ) {
-  const sourceCode = context.sourceCode;
-  for (const comment of sourceCode.getAllComments() as TSESTree.Comment[]) {
+  const normalizedPattern = caseSensitive ? pattern : pattern.toLowerCase();
+  for (const comment of context.sourceCode.getAllComments() as TSESTree.Comment[]) {
     if (comment.value.trim().startsWith('eslint-disable')) {
       continue;
     }
-    const rawText = comment.value.toLowerCase();
 
-    if (rawText.includes(pattern)) {
-      const lines = rawText.split(/\r\n?|\n/);
-
-      for (const [i, line] of lines.entries()) {
-        const index = line.indexOf(pattern);
-        if (index >= 0 && !isLetterAround(line, index, pattern)) {
-          context.report({
-            messageId,
-            loc: getPatternPosition(i, index, comment, pattern),
-          });
-        }
-      }
+    for (const loc of findPatternPositions(comment, normalizedPattern, caseSensitive)) {
+      context.report({ messageId, loc });
     }
   }
+}
+
+function findPatternPositions(
+  comment: TSESTree.Comment,
+  pattern: string,
+  caseSensitive: boolean,
+) {
+  const rawText = caseSensitive ? comment.value : comment.value.toLowerCase();
+  if (!rawText.includes(pattern)) {
+    return [];
+  }
+
+  return rawText
+    .split(/\r\n?|\n/)
+    .flatMap((line, index) => findPatternPosition(line, index, comment, pattern));
+}
+
+function findPatternPosition(
+  line: string,
+  lineIdx: number,
+  comment: TSESTree.Comment,
+  pattern: string,
+) {
+  const index = line.indexOf(pattern);
+  if (index < 0 || isLetterAround(line, index, pattern)) {
+    return [];
+  }
+
+  return [getPatternPosition(lineIdx, index, comment, pattern)];
 }
 
 function isLetterAround(line: string, start: number, pattern: string) {

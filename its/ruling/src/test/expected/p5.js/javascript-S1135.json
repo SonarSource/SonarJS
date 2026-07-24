@@ -10,16 +10,9 @@
 3667,
 4428
 ],
-"p5.js:src/color/p5.Color.js": [
-797,
-802
-],
 "p5.js:src/core/init.js": [
 6,
 29
-],
-"p5.js:src/core/p5.Renderer2D.js": [
-273
 ],
 "p5.js:src/image/p5.Image.js": [
 636
@@ -38,10 +31,6 @@
 56
 ],
 "p5.js:src/webgl/p5.Matrix.js": [
-3,
-35,
-348,
-628,
 758
 ],
 "p5.js:src/webgl/p5.RendererGL.Immediate.js": [
@@ -51,26 +40,15 @@
 19
 ],
 "p5.js:src/webgl/p5.RendererGL.js": [
-57,
-503,
-681,
 689,
 694,
-837,
-940,
 1258,
-1296,
-1325
+1296
 ],
 "p5.js:src/webgl/p5.Shader.js": [
 21,
-51,
 194,
-256,
-456
-],
-"p5.js:src/webgl/p5.Texture.js": [
-254
+256
 ],
 "p5.js:src/webgl/text.js": [
 7,

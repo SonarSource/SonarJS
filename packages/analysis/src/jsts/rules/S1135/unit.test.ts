@@ -45,6 +45,27 @@ describe('S1135', () => {
         },
         {
           code: `
+        // Todo el mundo
+
+        // No puedo saber. Todo el mundo...
+
+        // esta todo bien
+
+        // Todo just do it
+
+        //todo comment
+
+        // todo: things to do
+
+        /*
+          Todo em um comentario de bloco
+
+          esta todo bem
+        */
+        `,
+        },
+        {
+          code: `
         /* eslint-disable-next-line rule-to-test/todo-tag */
         // TODO whatever
         `,
@@ -85,13 +106,6 @@ describe('S1135', () => {
               column: 7,
               endColumn: 11,
             },
-            {
-              message: 'Complete the task associated to this "TODO" comment.',
-              line: 4,
-              endLine: 4,
-              column: 18,
-              endColumn: 22,
-            },
           ],
         },
         {
@@ -102,13 +116,7 @@ describe('S1135', () => {
           code: `
       // TODO just do it
 
-      // Todo just do it
-
-      //todo comment
-
       // This is a TODO just do it
-
-      // todo: things to do
 
       // :TODO: things to do
 
@@ -126,7 +134,7 @@ describe('S1135', () => {
 
       // valid end of file TODO
         `,
-          errors: 11,
+          errors: 6,
         },
       ],
     });
