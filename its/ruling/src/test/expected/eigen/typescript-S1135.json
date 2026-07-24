@@ -89,57 +89,13 @@
 15
 ],
 "eigen:src/app/Scenes/City/City.tsx": [
-171,
-255
-],
-"eigen:src/app/Scenes/City/CityBMWList.tsx": [
-49
-],
-"eigen:src/app/Scenes/City/CityFairList.tsx": [
-60
-],
-"eigen:src/app/Scenes/City/CityPicker.tsx": [
-45
-],
-"eigen:src/app/Scenes/City/CitySavedList.tsx": [
-52
-],
-"eigen:src/app/Scenes/City/CitySectionList.tsx": [
-75
-],
-"eigen:src/app/Scenes/City/Components/AllEvents.tsx": [
-227
-],
-"eigen:src/app/Scenes/City/Components/EventList.tsx": [
-37
-],
-"eigen:src/app/Scenes/City/Components/FairEventSection/Components/FairEventSectionCard.tsx": [
-19
-],
-"eigen:src/app/Scenes/City/Components/SavedEventSection/index.tsx": [
-27
+171
 ],
 "eigen:src/app/Scenes/City/Components/TabFairItemRow/index.tests.tsx": [
-9,
-10
+9
 ],
 "eigen:src/app/Scenes/Fair/Components/SimpleTabs.tsx": [
 41
-],
-"eigen:src/app/Scenes/Fair/FairBMWArtActivation.tsx": [
-51
-],
-"eigen:src/app/Scenes/Favorites/FavoriteArtists.tsx": [
-62
-],
-"eigen:src/app/Scenes/Favorites/FavoriteArtworks.tsx": [
-77
-],
-"eigen:src/app/Scenes/Favorites/FavoriteCategories.tsx": [
-62
-],
-"eigen:src/app/Scenes/Favorites/FavoriteShows.tsx": [
-61
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tsx": [
 116
@@ -150,7 +106,6 @@
 ],
 "eigen:src/app/Scenes/Map/GlobalMap.tsx": [
 214,
-547,
 688
 ],
 "eigen:src/app/Scenes/MyBids/MyBids.tsx": [
