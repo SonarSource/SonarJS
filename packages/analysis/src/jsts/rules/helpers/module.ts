@@ -119,17 +119,24 @@ function computeCurrentFileModuleReferences(sourceCode: SourceCode): void {
       CURRENT_FILE_MODULE_REFERENCES.references.add(moduleName);
     }
     for (const visitorKey of sourceCode.visitorKeys[node.type] ?? []) {
-      const child = (node as unknown as Record<string, unknown>)[visitorKey];
-      if (Array.isArray(child)) {
-        for (const item of child) {
-          if (isNode(item)) {
-            pending.push(item);
-          }
-        }
-      } else if (isNode(child)) {
-        pending.push(child);
-      }
+      addChildNodes(pending, (node as unknown as Record<string, unknown>)[visitorKey]);
     }
+  }
+}
+
+function addChildNodes(pending: estree.Node[], child: unknown): void {
+  if (Array.isArray(child)) {
+    for (const item of child) {
+      addNode(pending, item);
+    }
+  } else {
+    addNode(pending, child);
+  }
+}
+
+function addNode(pending: estree.Node[], value: unknown): void {
+  if (isNode(value)) {
+    pending.push(value);
   }
 }
 
