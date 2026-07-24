@@ -1,0 +1,12 @@
+{
+"watchtower.js:lib/gulp/karma/index.js": [
+1
+],
+"watchtower.js:src/watch_record.js": [
+186,
+188
+],
+"watchtower.js:test/matchers.js": [
+36
+]
+}

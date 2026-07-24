@@ -1,6 +1,7 @@
 {
 "ocanvas:src/animation.js": [
-104
+104,
+107
 ],
 "ocanvas:src/displayobjects/ellipse.js": [
 46
@@ -21,6 +22,7 @@
 "ocanvas:src/style.js": [
 39,
 39,
-129
+129,
+331
 ]
 }
