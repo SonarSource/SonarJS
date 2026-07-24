@@ -1,8 +1,180 @@
 {
+"custom-jsts:DuplicateFunctionArgument.js": [
+3
+],
+"custom-jsts:FutureReservedWords.js": [
+7,
+13
+],
+"custom-jsts:S1068.js": [
+1
+],
+"custom-jsts:S1534.js": [
+1,
+10,
+16
+],
+"custom-jsts:S2123.js": [
+2
+],
+"custom-jsts:S2432.js": [
+1
+],
+"custom-jsts:S2639.js": [
+1,
+2
+],
+"custom-jsts:S2871.js": [
+3
+],
+"custom-jsts:S3500.js": [
+2
+],
+"custom-jsts:S3834.js": [
+1,
+2
+],
 "custom-jsts:S3854.js": [
+7,
+14,
+37,
+46,
+55,
+64,
+70,
+76,
+82,
+86,
+97,
+104,
+120,
+131,
+149,
+158,
+164,
+183,
+189,
+195,
+217,
+222,
+228,
+234,
+240,
+247,
+248,
+253,
+254,
+260,
+271,
+279,
+290,
+298,
 320,
 329,
-336
+336,
+343,
+357,
+362,
+372,
+378,
+384,
+390,
+396,
+402
+],
+"custom-jsts:S4123.js": [
+1
+],
+"custom-jsts:S5247.js": [
+6
+],
+"custom-jsts:S5332.js": [
+4
+],
+"custom-jsts:S5725.js": [
+30
+],
+"custom-jsts:S5757.js": [
+5,
+6
+],
+"custom-jsts:S5856.js": [
+2
+],
+"custom-jsts:S6249.js": [
+3,
+10
+],
+"custom-jsts:S6265.js": [
+4
+],
+"custom-jsts:S6275.js": [
+4
+],
+"custom-jsts:S6330.js": [
+4
+],
+"custom-jsts:S6435.js": [
+2
+],
+"custom-jsts:S6437.js": [
+14,
+17,
+29
+],
+"custom-jsts:S6438.js": [
+2
+],
+"custom-jsts:S6439.js": [
+1,
+10,
+19,
+20
+],
+"custom-jsts:S6442.js": [
+3
+],
+"custom-jsts:S6746.js": [
+2
+],
+"custom-jsts:S6757.js": [
+2
+],
+"custom-jsts:S6761.js": [
+2
+],
+"custom-jsts:S6789.js": [
+2
+],
+"custom-jsts:S6793.js": [
+2
+],
+"custom-jsts:S6807.js": [
+2
+],
+"custom-jsts:S6824.js": [
+2
+],
+"custom-jsts:S6840.js": [
+1
+],
+"custom-jsts:S6843.js": [
+1
+],
+"custom-jsts:S6846.js": [
+1
+],
+"custom-jsts:S6851.js": [
+1
+],
+"custom-jsts:S6859.js": [
+1
+],
+"custom-jsts:S7639.js": [
+4
+],
+"custom-jsts:S7790.js": [
+5
 ],
 "custom-jsts:boundOrAssignedEvalOrArguments.js": [
 12

@@ -1,5 +1,22 @@
 {
+"knockout:build/knockout-raw.js": [
+1,
+3,
+4
+],
 "knockout:src/binding/bindingAttributeSyntax.js": [
 96
+],
+"knockout:src/binding/defaultBindings/event.js": [
+3
+],
+"knockout:src/binding/defaultBindings/textInput.js": [
+16
+],
+"knockout:src/namespace.js": [
+3
+],
+"knockout:src/subscribables/extenders.js": [
+102
 ]
 }
