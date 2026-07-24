@@ -2,7 +2,464 @@
 "angular.js:docs/app/assets/js/angular-bootstrap/dropdown-toggle.js": [
 34
 ],
+"angular.js:docs/app/src/versions.js": [
+2
+],
+"angular.js:protractor-shared-conf.js": [
+16
+],
+"angular.js:src/Angular.js": [
+121,
+125,
+146,
+154,
+155,
+162,
+170,
+277,
+291,
+305,
+417,
+423,
+433,
+489,
+632,
+686,
+691,
+696,
+701,
+706,
+721,
+728,
+758,
+767,
+771,
+775,
+870,
+1083,
+1125,
+1335,
+1359,
+1408,
+1435,
+1463,
+1699,
+1792,
+1870,
+1883,
+1893,
+1901,
+1962,
+1977,
+1991,
+2015,
+2049,
+2070,
+2071,
+2073,
+2074,
+2075
+],
+"angular.js:src/AngularPublic.js": [
+4,
+66,
+130
+],
+"angular.js:src/apis.js": [
+15,
+100
+],
 "angular.js:src/jqLite.js": [
-199
+15,
+16,
+17,
+541,
+578,
+618,
+626,
+1116
+],
+"angular.js:src/loader.js": [
+12
+],
+"angular.js:src/minErr.js": [
+41,
+94
+],
+"angular.js:src/ng/anchorScroll.js": [
+12
+],
+"angular.js:src/ng/animate.js": [
+56,
+62,
+180
+],
+"angular.js:src/ng/animateCss.js": [
+17
+],
+"angular.js:src/ng/animateRunner.js": [
+3,
+34
+],
+"angular.js:src/ng/browser.js": [
+2,
+342
+],
+"angular.js:src/ng/cacheFactory.js": [
+85,
+404
+],
+"angular.js:src/ng/compile.js": [
+4265,
+4272
+],
+"angular.js:src/ng/controller.js": [
+7,
+28
+],
+"angular.js:src/ng/cookieReader.js": [
+63
+],
+"angular.js:src/ng/directive/a.js": [
+14
+],
+"angular.js:src/ng/directive/directives.js": [
+3
+],
+"angular.js:src/ng/directive/form.js": [
+3,
+3,
+3,
+621,
+622
+],
+"angular.js:src/ng/directive/input.js": [
+4,
+5,
+6,
+7,
+2221,
+2238,
+2339
+],
+"angular.js:src/ng/directive/ngBind.js": [
+54,
+122,
+186
+],
+"angular.js:src/ng/directive/ngChange.js": [
+71
+],
+"angular.js:src/ng/directive/ngClass.js": [
+331,
+441,
+551
+],
+"angular.js:src/ng/directive/ngCloak.js": [
+55
+],
+"angular.js:src/ng/directive/ngController.js": [
+227
+],
+"angular.js:src/ng/directive/ngIf.js": [
+81
+],
+"angular.js:src/ng/directive/ngInclude.js": [
+187,
+283
+],
+"angular.js:src/ng/directive/ngInit.js": [
+66
+],
+"angular.js:src/ng/directive/ngList.js": [
+93
+],
+"angular.js:src/ng/directive/ngModel.js": [
+3,
+4,
+5,
+6,
+7,
+8,
+9,
+17,
+1323
+],
+"angular.js:src/ng/directive/ngModelOptions.js": [
+547
+],
+"angular.js:src/ng/directive/ngNonBindable.js": [
+34
+],
+"angular.js:src/ng/directive/ngOptions.js": [
+251
+],
+"angular.js:src/ng/directive/ngPluralize.js": [
+178
+],
+"angular.js:src/ng/directive/ngRef.js": [
+245
+],
+"angular.js:src/ng/directive/ngRepeat.js": [
+433
+],
+"angular.js:src/ng/directive/ngShowHide.js": [
+205,
+424
+],
+"angular.js:src/ng/directive/ngStyle.js": [
+54
+],
+"angular.js:src/ng/directive/ngSwitch.js": [
+140,
+197,
+216
+],
+"angular.js:src/ng/directive/ngTransclude.js": [
+162
+],
+"angular.js:src/ng/directive/script.js": [
+36
+],
+"angular.js:src/ng/directive/select.js": [
+742,
+862
+],
+"angular.js:src/ng/directive/validators.js": [
+65,
+176,
+301,
+394
+],
+"angular.js:src/ng/document.js": [
+29,
+41
+],
+"angular.js:src/ng/exceptionHandler.js": [
+47
+],
+"angular.js:src/ng/filter/filter.js": [
+140
+],
+"angular.js:src/ng/filter/filters.js": [
+688,
+709,
+736
+],
+"angular.js:src/ng/filter/limitTo.js": [
+102
+],
+"angular.js:src/ng/forceReflow.js": [
+3
+],
+"angular.js:src/ng/http.js": [
+22,
+60,
+265
+],
+"angular.js:src/ng/httpBackend.js": [
+25,
+51
+],
+"angular.js:src/ng/interpolate.js": [
+59
+],
+"angular.js:src/ng/interval.js": [
+6
+],
+"angular.js:src/ng/intervalFactory.js": [
+4
+],
+"angular.js:src/ng/jsonpCallbacks.js": [
+12
+],
+"angular.js:src/ng/location.js": [
+2,
+729
+],
+"angular.js:src/ng/log.js": [
+57
+],
+"angular.js:src/ng/parse.js": [
+1726
+],
+"angular.js:src/ng/q.js": [
+227,
+259,
+685
+],
+"angular.js:src/ng/raf.js": [
+4
+],
+"angular.js:src/ng/rootScope.js": [
+72
+],
+"angular.js:src/ng/sanitizeUri.js": [
+8
+],
+"angular.js:src/ng/sce.js": [
+180,
+776
+],
+"angular.js:src/ng/sniffer.js": [
+20
+],
+"angular.js:src/ng/taskTrackerFactory.js": [
+18
+],
+"angular.js:src/ng/templateRequest.js": [
+16
+],
+"angular.js:src/ng/testability.js": [
+4
+],
+"angular.js:src/ng/timeout.js": [
+6
+],
+"angular.js:src/ng/urlUtils.js": [
+109,
+123,
+136
+],
+"angular.js:src/ng/window.js": [
+45
+],
+"angular.js:src/ngAnimate/animateCache.js": [
+4
+],
+"angular.js:src/ngAnimate/animateChildrenDirective.js": [
+81
+],
+"angular.js:src/ngAnimate/animateCss.js": [
+324
+],
+"angular.js:src/ngAnimate/animateCssDriver.js": [
+3
+],
+"angular.js:src/ngAnimate/animateJs.js": [
+7
+],
+"angular.js:src/ngAnimate/animateJsDriver.js": [
+3
+],
+"angular.js:src/ngAnimate/animateQueue.js": [
+5
+],
+"angular.js:src/ngAnimate/animation.js": [
+5
+],
+"angular.js:src/ngAnimate/module.js": [
+743,
+744,
+745,
+746,
+747,
+748,
+749,
+750,
+751,
+752,
+753,
+754
+],
+"angular.js:src/ngAnimate/ngAnimateSwap.js": [
+90
+],
+"angular.js:src/ngAnimate/rafScheduler.js": [
+3
+],
+"angular.js:src/ngAnimate/shared.js": [
+4,
+9,
+10,
+12,
+13,
+33,
+37,
+42,
+46,
+48,
+49,
+51,
+53,
+54,
+56,
+59,
+66,
+75,
+101,
+108,
+155,
+168,
+182,
+201,
+300,
+304,
+321,
+332,
+351
+],
+"angular.js:src/ngMessageFormat/messageFormatCommon.js": [
+8,
+10,
+11,
+15,
+28,
+49
+],
+"angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js": [
+9
+],
+"angular.js:src/ngMessageFormat/messageFormatParser.js": [
+272
+],
+"angular.js:src/ngMessageFormat/messageFormatSelector.js": [
+9
+],
+"angular.js:src/ngMessageFormat/messageFormatService.js": [
+8,
+9,
+10,
+11,
+213,
+214,
+215
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+2221
+],
+"angular.js:src/ngParseExt/module.js": [
+26
+],
+"angular.js:src/ngParseExt/ucd.js": [
+6,
+564
+],
+"angular.js:src/ngRoute/route.js": [
+8,
+9,
+24,
+25
+],
+"angular.js:src/ngSanitize/sanitize.js": [
+698
+],
+"angular.js:src/ngTouch/touch.js": [
+24,
+29
+],
+"angular.js:src/routeToRegExp.js": [
+3,
+17
+],
+"angular.js:src/shallowCopy.js": [
+3,
+10
+],
+"angular.js:src/stringify.js": [
+28
+],
+"angular.js:test/e2e/fixtures/ng-jq-jquery/index.html": [
+8
 ]
 }

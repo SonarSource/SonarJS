@@ -2,6 +2,15 @@
 "jquery:test/data/ajax/unreleasedXHR.html": [
 12
 ],
+"jquery:test/data/core/dynamic_ready.html": [
+6
+],
+"jquery:test/data/core/onready.html": [
+7
+],
+"jquery:test/data/test2.html": [
+2
+],
 "jquery:test/hovertest.html": [
 100
 ]

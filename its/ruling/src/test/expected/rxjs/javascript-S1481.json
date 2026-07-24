@@ -1,5 +1,16 @@
 {
+"rxjs:perf/micro/index.js": [
+2,
+5
+],
 "rxjs:protractor.conf.js": [
 33
+],
+"rxjs:tools/add-license-to-file.js": [
+2,
+3
+],
+"rxjs:tools/make-umd-bundle.js": [
+8
 ]
 }
