@@ -71,7 +71,8 @@
 1662
 ],
 "TypeScript:src/server/protocol.ts": [
-212
+212,
+224
 ],
 "TypeScript:src/server/scriptInfo.ts": [
 101
@@ -119,9 +120,6 @@
 167,
 224
 ],
-"TypeScript:src/services/jsTyping.ts": [
-211
-],
 "TypeScript:src/services/navigateTo.ts": [
 185,
 206
@@ -133,7 +131,6 @@
 559
 ],
 "TypeScript:src/services/services.ts": [
-1809,
 1846,
 1894,
 1896,
