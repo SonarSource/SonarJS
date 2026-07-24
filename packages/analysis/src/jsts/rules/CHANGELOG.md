@@ -1,5 +1,6 @@
 ## 2026-07-14, Version 4.2.0
 
+- [[JS-2151](https://sonarsource.atlassian.net/browse/JS-2151)] - Improve S1135 (`todo-tag`): ignore TODO comments anchored by Jira issue keys
 - [[JS-2043](https://sonarsource.atlassian.net/browse/JS-2043)] - S8988: Create decorated rule for `vue/no-side-effects-in-computed-properties`
 - [[JS-2018](https://sonarsource.atlassian.net/browse/JS-2018)] - Fix S2699 Node assert strict detection
 - [[JS-2016](https://sonarsource.atlassian.net/browse/JS-2016)] - S8984: Import `vue/valid-v-for` as an external rule

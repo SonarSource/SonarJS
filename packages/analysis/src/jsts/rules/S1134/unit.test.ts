@@ -86,6 +86,18 @@ describe('S1134', () => {
           errors: 1,
         },
         {
+          code: `// FIXME(JS-1234): remove this later`,
+          errors: [
+            {
+              message: 'Take the required action to fix the issue indicated by this comment.',
+              line: 1,
+              endLine: 1,
+              column: 4,
+              endColumn: 9,
+            },
+          ],
+        },
+        {
           code: `
       // FIXME just fix me 
 
