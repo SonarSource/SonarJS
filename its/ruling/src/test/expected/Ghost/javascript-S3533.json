@@ -7,7 +7,11 @@
 12,
 13,
 14,
-15
+15,
+30,
+557,
+576,
+577
 ],
 "Ghost:config.example.js": [
 6
@@ -245,7 +249,10 @@
 14,
 15,
 16,
-17
+17,
+94,
+96,
+455
 ],
 "Ghost:core/server/config/url.js": [
 4,
@@ -643,7 +650,8 @@
 17,
 18,
 19,
-20
+20,
+31
 ],
 "Ghost:core/server/events/index.js": [
 1,
@@ -843,7 +851,9 @@
 4,
 5,
 6,
-7
+7,
+101,
+107
 ],
 "Ghost:core/server/index.js": [
 5,
@@ -1037,7 +1047,9 @@
 ],
 "Ghost:core/server/models/index.js": [
 5,
-6
+6,
+34,
+37
 ],
 "Ghost:core/server/models/permission.js": [
 1
@@ -1093,7 +1105,8 @@
 6,
 7,
 8,
-10
+10,
+18
 ],
 "Ghost:core/server/models/tag.js": [
 1,
@@ -1215,7 +1228,8 @@
 1,
 2,
 3,
-4
+4,
+30
 ],
 "Ghost:core/server/utils/validate-themes.js": [
 5,
@@ -1225,6 +1239,9 @@
 ],
 "Ghost:core/test/functional/base.js": [
 57
+],
+"Ghost:core/test/functional/client/app_test.js": [
+172
 ],
 "Ghost:core/test/functional/module/module_spec.js": [
 5,
@@ -1236,7 +1253,9 @@
 9,
 11,
 12,
-13
+13,
+122,
+160
 ],
 "Ghost:core/test/functional/routes/api/authentication_spec.js": [
 3,
@@ -1306,7 +1325,10 @@
 10,
 11,
 13,
-14
+14,
+798,
+874,
+960
 ],
 "Ghost:core/test/integration/api/advanced_browse_spec.js": [
 3,
@@ -1629,7 +1651,12 @@
 17,
 18,
 20,
-22
+22,
+636,
+645,
+655,
+673,
+702
 ],
 "Ghost:core/test/unit/mail_spec.js": [
 3,
@@ -2126,6 +2153,9 @@
 "Ghost:core/test/utils/configUtils.js": [
 1,
 2
+],
+"Ghost:core/test/utils/fixtures/app/badinstall.js": [
+6
 ],
 "Ghost:core/test/utils/fixtures/app/badlib.js": [
 1

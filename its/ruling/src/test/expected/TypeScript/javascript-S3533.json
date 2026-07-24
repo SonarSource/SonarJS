@@ -11,6 +11,23 @@
 "TypeScript:lib/cancellationToken.js": [
 17
 ],
+"TypeScript:lib/tsc.js": [
+2073,
+2074,
+2075,
+2076,
+2343
+],
+"TypeScript:lib/typingsInstaller.js": [
+2083,
+2084,
+2085,
+2086,
+2353,
+7584,
+7585,
+7642
+],
 "TypeScript:lib/watchGuard.js": [
 20
 ],

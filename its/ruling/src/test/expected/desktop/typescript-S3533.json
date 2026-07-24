@@ -1,0 +1,22 @@
+{
+"desktop:app/src/cli/load-commands.ts": [
+36
+],
+"desktop:app/src/crash/index.tsx": [
+9
+],
+"desktop:app/src/main-process/main.ts": [
+721,
+723
+],
+"desktop:app/src/ui/index.tsx": [
+110,
+117
+],
+"desktop:app/src/ui/install-globals.ts": [
+5
+],
+"desktop:script/generate-octicons.ts": [
+54
+]
+}

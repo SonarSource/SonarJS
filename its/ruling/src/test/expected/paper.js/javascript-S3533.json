@@ -107,14 +107,31 @@
 13,
 14
 ],
+"paper.js:src/core/PaperScript.js": [
+24
+],
+"paper.js:src/export.js": [
+37
+],
 "paper.js:src/init.js": [
 32
+],
+"paper.js:src/load.js": [
+54,
+58
+],
+"paper.js:src/node/canvas.js": [
+21,
+38
 ],
 "paper.js:src/node/extend.js": [
 13,
 14
 ],
 "paper.js:src/node/self.js": [
-16
+16,
+28,
+47,
+48
 ]
 }

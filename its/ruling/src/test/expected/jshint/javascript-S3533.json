@@ -6,6 +6,8 @@
 ],
 "jshint:scripts/generate-identifier-data.js": [
 5,
+12,
+15,
 70
 ],
 "jshint:scripts/remove-dev-dependencies.js": [
@@ -23,7 +25,9 @@
 10,
 11,
 12,
-13
+13,
+134,
+149
 ],
 "jshint:src/jshint.js": [
 34,
@@ -46,7 +50,8 @@
 10,
 12,
 15,
-16
+16,
+713
 ],
 "jshint:src/messages.js": [
 3

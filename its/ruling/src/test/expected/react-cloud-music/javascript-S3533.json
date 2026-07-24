@@ -2,7 +2,9 @@
 "react-cloud-music:config/env.js": [
 3,
 4,
-5
+5,
+35,
+36
 ],
 "react-cloud-music:config/jest/fileTransform.js": [
 3,
@@ -48,7 +50,9 @@
 25,
 26,
 27,
-29
+29,
+93,
+94
 ],
 "react-cloud-music:config/webpackDevServer.config.js": [
 3,
@@ -104,13 +108,33 @@
 "react-cloud-music:src/api/script.js": [
 1
 ],
+"react-cloud-music:src/application/Search/index.jsx": [
+100,
+124
+],
+"react-cloud-music:src/application/Singers/index.jsx": [
+66
+],
+"react-cloud-music:src/application/User/Login/LoginForm/index.jsx": [
+48,
+53,
+58
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/index.jsx": [
+43
+],
 "react-cloud-music:src/application/User/Login/style.js": [
 117
+],
+"react-cloud-music:src/components/list/index.jsx": [
+24
 ],
 "react-cloud-music:ts-music/config/env.js": [
 3,
 4,
-5
+5,
+35,
+36
 ],
 "react-cloud-music:ts-music/config/getHttpsConfig.js": [
 3,
@@ -163,7 +187,9 @@
 24,
 25,
 26,
-28
+28,
+96,
+97
 ],
 "react-cloud-music:ts-music/config/webpackDevServer.config.js": [
 3,

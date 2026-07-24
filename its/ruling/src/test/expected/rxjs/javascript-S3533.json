@@ -722,6 +722,9 @@
 "rxjs:protractor.conf.js": [
 1
 ],
+"rxjs:src/Rx.global.js": [
+4
+],
 "rxjs:tools/add-license-to-file.js": [
 1,
 2,
@@ -744,5 +747,10 @@
 7,
 8,
 10
+],
+"rxjs:wallaby.js": [
+30,
+40,
+51
 ]
 }

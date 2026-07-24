@@ -33,6 +33,12 @@
 15,
 16
 ],
+"sonar-web:test/helpers/test-page.js": [
+3,
+4,
+5,
+6
+],
 "sonar-web:test/intern.js": [
 2
 ],

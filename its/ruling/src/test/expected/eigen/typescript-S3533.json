@@ -1,13 +1,18 @@
 {
 "eigen:metaphysics-queries-freshness-tests/test-freshness.ts": [
-3
+3,
+43
+],
+"eigen:src/app/Components/Bidding/Components/BackButton.tsx": [
+23
 ],
 "eigen:src/app/Components/Bidding/Context/TimeOffsetProvider.tests.tsx": [
 10
 ],
 "eigen:src/app/Components/Bidding/Screens/BidResult.tsx": [
 43,
-44
+44,
+112
 ],
 "eigen:src/app/Components/Bidding/Screens/RegistrationResult.tsx": [
 30,
@@ -15,10 +20,149 @@
 32,
 33
 ],
+"eigen:src/app/Components/Buttons/DarkNavigationButton.tsx": [
+25
+],
+"eigen:src/app/Components/LocationAutocomplete/LocationAutocomplete.tsx": [
+161
+],
+"eigen:src/app/Scenes/Artwork/Artwork.tests.tsx": [
+48,
+100,
+101
+],
+"eigen:src/app/Scenes/BottomTabs/BottomTabs.tests.tsx": [
+17,
+21,
+28
+],
+"eigen:src/app/Scenes/BottomTabs/BottomTabsNavigator.tests.tsx": [
+20,
+21
+],
+"eigen:src/app/Scenes/City/CityBMWSponsorship.tsx": [
+24
+],
+"eigen:src/app/Scenes/Feature/Feature.tests.tsx": [
+12
+],
+"eigen:src/app/Scenes/Home/Components/EmailConfirmationBanner.tsx": [
+83
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryPurchaseButton.tests.tsx": [
+60,
+61
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/Preview/Attachment/PDFPreview.tsx": [
+36
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/ZeroStateInbox.tsx": [
+12,
+16,
+20,
+24
+],
+"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
+568
+],
+"eigen:src/app/Scenes/MyAccount/MyAccount.tsx": [
+114,
+142,
+170
+],
+"eigen:src/app/Scenes/MyCollection/MyCollectionArtworks.tsx": [
+177
+],
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/Components/SavingArtworkModal.tsx": [
+18
+],
+"eigen:src/app/Scenes/MyCollection/Screens/Insights/ActivateMoreMarketInsightsBanner.tsx": [
+56
+],
+"eigen:src/app/Scenes/MyCollection/Screens/Insights/MyCollectionInsightsEmptyState.tsx": [
+19
+],
+"eigen:src/app/Scenes/MyProfile/MyProfileEditForm.tsx": [
+223
+],
+"eigen:src/app/Scenes/MyProfile/MyProfileHeader.tsx": [
+95
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingSocialLink.tsx": [
+280,
+281,
+282,
+283
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingSocialPick.tsx": [
+144,
+165,
+185
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingWelcome.tsx": [
+91
+],
 "eigen:src/app/Scenes/Search/AutosuggestResults.tests.tsx": [
 133
 ],
+"eigen:src/app/Scenes/Search/Search.tests.tsx": [
+63,
+64
+],
+"eigen:src/app/Scenes/Search/components/CityGuideCTA.tsx": [
+10
+],
+"eigen:src/app/Scenes/Search/components/CityGuideCTANew.tsx": [
+7
+],
+"eigen:src/app/Scenes/VanityURL/VanityURLEntity.tests.tsx": [
+32,
+33
+],
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+113,
+129
+],
+"eigen:src/app/relay/middlewares/uploadMiddleware.ts": [
+33
+],
+"eigen:src/app/store/GlobalStore.tsx": [
+29
+],
+"eigen:src/app/tests/MockRelayRenderer.tsx": [
+179
+],
+"eigen:src/app/tests/createMockNetworkLayer/index.ts": [
+30,
+133
+],
+"eigen:src/app/utils/loggers.ts": [
+15
+],
+"eigen:src/app/utils/track/SegmentTrackingProvider.ts": [
+15,
+16,
+17
+],
+"eigen:src/palette/elements/Banner/Banner.tsx": [
+76
+],
+"eigen:src/palette/elements/Message/Message.tsx": [
+115
+],
 "eigen:src/setupJest.ts": [
-114
+114,
+173,
+252,
+264,
+265,
+266,
+538,
+551,
+552,
+554,
+559,
+587,
+602
 ]
 }

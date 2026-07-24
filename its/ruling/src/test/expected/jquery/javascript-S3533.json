@@ -1,16 +1,60 @@
 {
+"jquery:Gruntfile.js": [
+5,
+15,
+16,
+140,
+287
+],
 "jquery:build/release.js": [
-3
+3,
+20,
+21
 ],
 "jquery:build/release/cdn.js": [
 4,
 5,
-6
+6,
+72
+],
+"jquery:build/release/dist.js": [
+6,
+7,
+8
+],
+"jquery:build/tasks/amd.js": [
+8,
+9,
+10
+],
+"jquery:build/tasks/build.js": [
+10,
+11,
+12,
+13,
+14,
+15
+],
+"jquery:build/tasks/dist.js": [
+4
+],
+"jquery:build/tasks/lib/spawn_test.js": [
+7
+],
+"jquery:build/tasks/node_smoke_tests.js": [
+4,
+5
+],
+"jquery:build/tasks/promises_aplus_tests.js": [
+5
 ],
 "jquery:build/tasks/qunit_fixture.js": [
 3
 ],
 "jquery:build/tasks/sourcemap.js": [
 3
+],
+"jquery:build/tasks/testswarm.js": [
+7
 ]
 }

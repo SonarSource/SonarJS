@@ -1,5 +1,12 @@
 {
+"fireface:karma.conf.js": [
+9,
+10,
+11,
+12
+],
 "fireface:protractor.conf.js": [
-5
+5,
+25
 ]
 }

@@ -5,6 +5,12 @@
 "console:jest-setup.js": [
 1
 ],
+"console:postcss.config.js": [
+3,
+4,
+6,
+7
+],
 "console:preprocessor.js": [
 1,
 2
@@ -13,7 +19,35 @@
 3,
 4,
 5,
-6
+6,
+34
+],
+"console:src/views/FunctionsView/FunctionLogs/ResultViewer.js": [
+33,
+34,
+35,
+36,
+37,
+38,
+39,
+66
+],
+"console:src/views/SchemaView/Editor/QueryEditor.js": [
+58,
+59,
+60,
+61,
+62,
+63,
+64,
+65,
+66,
+67,
+68,
+69,
+70,
+71,
+142
 ],
 "console:webpack.config.build.js": [
 1,

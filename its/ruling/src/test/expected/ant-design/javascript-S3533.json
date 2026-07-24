@@ -2,6 +2,12 @@
 "ant-design:components/__tests__/index.test.js": [
 4
 ],
+"ant-design:components/calendar/__tests__/index.test.js": [
+166
+],
+"ant-design:components/collapse/__tests__/index.test.js": [
+9
+],
 "ant-design:index-with-locales.js": [
 1
 ],
@@ -130,6 +136,15 @@
 ],
 "ant-design:site/theme/index.js": [
 1
+],
+"ant-design:site/theme/template/Content/MainContent.jsx": [
+216,
+218
+],
+"ant-design:site/theme/template/Layout/index.jsx": [
+32,
+38,
+40
 ],
 "ant-design:webpack.config.js": [
 3,

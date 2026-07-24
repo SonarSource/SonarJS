@@ -1,4 +1,8 @@
 {
+"backbone:backbone.js": [
+25,
+26
+],
 "backbone:karma.conf-sauce.js": [
 1
 ]

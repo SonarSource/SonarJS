@@ -6,6 +6,9 @@
 4,
 6
 ],
+"redux:examples/async/store/configureStore.js": [
+17
+],
 "redux:examples/async/webpack.config.js": [
 1,
 2,
@@ -18,10 +21,17 @@
 4,
 6
 ],
+"redux:examples/counter/store/configureStore.js": [
+15
+],
 "redux:examples/counter/webpack.config.js": [
 1,
 2,
 37
+],
+"redux:examples/real-world/containers/Root.js": [
+2,
+4
 ],
 "redux:examples/real-world/server.js": [
 1,
@@ -29,6 +39,13 @@
 3,
 4,
 6
+],
+"redux:examples/real-world/store/configureStore.dev.js": [
+24
+],
+"redux:examples/real-world/store/configureStore.js": [
+2,
+4
 ],
 "redux:examples/real-world/webpack.config.js": [
 1,
@@ -54,6 +71,9 @@
 4,
 6
 ],
+"redux:examples/todomvc/store/configureStore.js": [
+10
+],
 "redux:examples/todomvc/webpack.config.js": [
 1,
 2,
@@ -70,6 +90,9 @@
 1,
 2,
 35
+],
+"redux:examples/universal/common/store/configureStore.js": [
+15
 ],
 "redux:examples/universal/index.js": [
 1

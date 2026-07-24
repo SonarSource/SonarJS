@@ -14,10 +14,15 @@
 1,
 2
 ],
+"tailwindcss:scripts/build.js": [
+13
+],
 "tailwindcss:scripts/compat.js": [
 1,
 2,
-3
+3,
+22,
+23
 ],
 "tailwindcss:stubs/defaultConfig.stub.js": [
 1
