@@ -21,7 +21,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
-const todoPattern = 'todo';
+const todoPattern = 'TODO';
 const letterPattern = /[\p{Letter}]/u;
 
 export const rule: Rule.RuleModule = {
@@ -49,7 +49,7 @@ export function reportPatternInComment(
     if (comment.value.trim().startsWith('eslint-disable')) {
       continue;
     }
-    const rawText = comment.value.toLowerCase();
+    const rawText = comment.value;
 
     if (rawText.includes(pattern)) {
       const lines = rawText.split(/\r\n?|\n/);
