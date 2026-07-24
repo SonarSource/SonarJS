@@ -33,7 +33,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       'Program:exit': () => {
-        reportPatternInComment(context, todoPattern, 'completeTODO');
+        reportPatternInComment(context, todoPattern, 'completeTODO', true);
       },
     };
   },
@@ -43,23 +43,25 @@ export function reportPatternInComment(
   context: Rule.RuleContext,
   pattern: string,
   messageId: string,
+  caseSensitive = false,
 ) {
   const sourceCode = context.sourceCode;
+  const normalizedPattern = caseSensitive ? pattern : pattern.toLowerCase();
   for (const comment of sourceCode.getAllComments() as TSESTree.Comment[]) {
     if (comment.value.trim().startsWith('eslint-disable')) {
       continue;
     }
-    const rawText = comment.value;
+    const rawText = caseSensitive ? comment.value : comment.value.toLowerCase();
 
-    if (rawText.includes(pattern)) {
+    if (rawText.includes(normalizedPattern)) {
       const lines = rawText.split(/\r\n?|\n/);
 
       for (const [i, line] of lines.entries()) {
-        const index = line.indexOf(pattern);
-        if (index >= 0 && !isLetterAround(line, index, pattern)) {
+        const index = line.indexOf(normalizedPattern);
+        if (index >= 0 && !isLetterAround(line, index, normalizedPattern)) {
           context.report({
             messageId,
-            loc: getPatternPosition(i, index, comment, pattern),
+            loc: getPatternPosition(i, index, comment, normalizedPattern),
           });
         }
       }
