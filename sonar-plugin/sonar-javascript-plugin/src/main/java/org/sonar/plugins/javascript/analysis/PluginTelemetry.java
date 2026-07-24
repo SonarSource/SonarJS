@@ -149,7 +149,6 @@ public class PluginTelemetry {
       Integer.toString(projectAnalysisTelemetry.getCjsFileCount())
     );
 
-    keyMapToSave.put(IMPORT_PREFIX + "schema-version", "1");
     projectAnalysisTelemetry.getPackageImportFileCountsMap().forEach((packageName, fileCount) -> {
       var telemetryKey = packageImportTelemetryKey(packageName);
       if (telemetryKey != null && fileCount > 0) {
