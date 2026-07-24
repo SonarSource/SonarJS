@@ -45,28 +45,45 @@ export function reportPatternInComment(
   messageId: string,
   caseSensitive = false,
 ) {
-  const sourceCode = context.sourceCode;
   const normalizedPattern = caseSensitive ? pattern : pattern.toLowerCase();
-  for (const comment of sourceCode.getAllComments() as TSESTree.Comment[]) {
+  for (const comment of context.sourceCode.getAllComments() as TSESTree.Comment[]) {
     if (comment.value.trim().startsWith('eslint-disable')) {
       continue;
     }
-    const rawText = caseSensitive ? comment.value : comment.value.toLowerCase();
 
-    if (rawText.includes(normalizedPattern)) {
-      const lines = rawText.split(/\r\n?|\n/);
-
-      for (const [i, line] of lines.entries()) {
-        const index = line.indexOf(normalizedPattern);
-        if (index >= 0 && !isLetterAround(line, index, normalizedPattern)) {
-          context.report({
-            messageId,
-            loc: getPatternPosition(i, index, comment, normalizedPattern),
-          });
-        }
-      }
+    for (const loc of findPatternPositions(comment, normalizedPattern, caseSensitive)) {
+      context.report({ messageId, loc });
     }
   }
+}
+
+function findPatternPositions(
+  comment: TSESTree.Comment,
+  pattern: string,
+  caseSensitive: boolean,
+) {
+  const rawText = caseSensitive ? comment.value : comment.value.toLowerCase();
+  if (!rawText.includes(pattern)) {
+    return [];
+  }
+
+  return rawText
+    .split(/\r\n?|\n/)
+    .flatMap((line, index) => findPatternPosition(line, index, comment, pattern));
+}
+
+function findPatternPosition(
+  line: string,
+  lineIdx: number,
+  comment: TSESTree.Comment,
+  pattern: string,
+) {
+  const index = line.indexOf(pattern);
+  if (index < 0 || isLetterAround(line, index, pattern)) {
+    return [];
+  }
+
+  return [getPatternPosition(lineIdx, index, comment, pattern)];
 }
 
 function isLetterAround(line: string, start: number, pattern: string) {
