@@ -36,6 +36,7 @@ public class PluginTelemetry {
   private static final String TELEMETRY_PREFIX = KEY_PREFIX + "telemetry.";
   private static final String GENERATED_SOURCES_PREFIX = TELEMETRY_PREFIX + "generated-sources.";
   private static final String MODULE_TYPE_PREFIX = TELEMETRY_PREFIX + "module-type.";
+  private static final String IMPORT_PREFIX = TELEMETRY_PREFIX + "import.";
 
   private final BridgeServer server;
   private final JsTsContext<?> ctx;
@@ -148,6 +149,14 @@ public class PluginTelemetry {
       Integer.toString(projectAnalysisTelemetry.getCjsFileCount())
     );
 
+    keyMapToSave.put(IMPORT_PREFIX + "schema-version", "1");
+    projectAnalysisTelemetry.getPackageImportFileCountsMap().forEach((packageName, fileCount) -> {
+      var telemetryKey = packageImportTelemetryKey(packageName);
+      if (telemetryKey != null && fileCount > 0) {
+        keyMapToSave.put(telemetryKey, Integer.toString(fileCount));
+      }
+    });
+
     if (projectAnalysisTelemetry.hasGeneratedSources()) {
       var generatedSources = projectAnalysisTelemetry.getGeneratedSources();
       keyMapToSave.put(
@@ -189,6 +198,26 @@ public class PluginTelemetry {
       return;
     }
     addValueList(keyMapToSave, TELEMETRY_PREFIX + "typescript.compiler-options." + option, values);
+  }
+
+  @Nullable
+  private static String packageImportTelemetryKey(String packageName) {
+    if (packageName.startsWith("node:")) {
+      return IMPORT_PREFIX + "builtin.node." + packageName.substring(5).replace('/', '.');
+    }
+    if (packageName.equals("bun")) {
+      return IMPORT_PREFIX + "builtin.bun";
+    }
+    if (packageName.startsWith("bun:")) {
+      return IMPORT_PREFIX + "builtin.bun." + packageName.substring(4).replace('/', '.');
+    }
+    if (packageName.matches("[a-z0-9][a-z0-9._~-]*")) {
+      return IMPORT_PREFIX + packageName;
+    }
+    if (packageName.matches("@[a-z0-9][a-z0-9._~-]*/[a-z0-9][a-z0-9._~-]*")) {
+      return IMPORT_PREFIX + "scoped." + packageName.substring(1).replace('/', '.');
+    }
+    return null;
   }
 
   private static void addValueList(

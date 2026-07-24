@@ -297,6 +297,7 @@ describe('SonarQube project analysis', () => {
           esmFileCount: 0,
           cjsFileCount: 0,
           denoImportCounts: {},
+          packageImportFileCounts: {},
           generatedSources: {
             familyCount: 0,
             resolvedFileCount: 0,

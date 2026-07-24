@@ -111,6 +111,22 @@ class PluginTelemetryTest {
       )
       .setEsmFileCount(4)
       .setCjsFileCount(1)
+      .putAllPackageImportFileCounts(
+        Map.of(
+          "react",
+          3,
+          "@angular/core",
+          2,
+          "node:test",
+          1,
+          "bun:test",
+          4,
+          "../private",
+          5,
+          "vue",
+          0
+        )
+      )
       .build();
 
     new PluginTelemetry(jsTsContext, server, projectTelemetry).reportTelemetry();
@@ -156,6 +172,13 @@ class PluginTelemetryTest {
     );
     verify(ctx).addTelemetryProperty("javascript.telemetry.module-type.esm-file-count", "4");
     verify(ctx).addTelemetryProperty("javascript.telemetry.module-type.cjs-file-count", "1");
-    verify(ctx, times(17)).addTelemetryProperty(anyString(), anyString());
+    verify(ctx).addTelemetryProperty("javascript.telemetry.import.schema-version", "1");
+    verify(ctx).addTelemetryProperty("javascript.telemetry.import.react", "3");
+    verify(ctx).addTelemetryProperty("javascript.telemetry.import.scoped.angular.core", "2");
+    verify(ctx).addTelemetryProperty("javascript.telemetry.import.builtin.node.test", "1");
+    verify(ctx).addTelemetryProperty("javascript.telemetry.import.builtin.bun.test", "4");
+    verify(ctx, never()).addTelemetryProperty("javascript.telemetry.import...private", "5");
+    verify(ctx, never()).addTelemetryProperty("javascript.telemetry.import.vue", "0");
+    verify(ctx, times(22)).addTelemetryProperty(anyString(), anyString());
   }
 }

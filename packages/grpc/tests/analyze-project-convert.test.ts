@@ -38,6 +38,9 @@ function createProjectAnalysisTelemetry() {
     esmFileCount: 0,
     cjsFileCount: 0,
     denoImportCounts: {},
+    packageImportFileCounts: {
+      react: 2,
+    },
     generatedSources: {
       familyCount: 1,
       resolvedFileCount: 4,
@@ -84,6 +87,9 @@ describe('analyze-project convert', () => {
     expect(toPlainTelemetryValue(decodedUnary.meta?.telemetry?.generatedSources)).toEqual(
       telemetry.generatedSources,
     );
+    expect(decodedUnary.meta?.telemetry?.packageImportFileCounts).toEqual(
+      telemetry.packageImportFileCounts,
+    );
 
     const streamResponse = toAnalyzeProjectStreamResponse(
       {
@@ -101,6 +107,9 @@ describe('analyze-project convert', () => {
 
     expect(toPlainTelemetryValue(decodedStream.meta?.telemetry?.generatedSources)).toEqual(
       telemetry.generatedSources,
+    );
+    expect(decodedStream.meta?.telemetry?.packageImportFileCounts).toEqual(
+      telemetry.packageImportFileCounts,
     );
   });
 });

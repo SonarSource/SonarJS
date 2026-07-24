@@ -60,9 +60,10 @@ import {
 } from './filters/index.js';
 import { getClosestDependencyManifestDir } from '../rules/helpers/dependency-manifests/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
+import { collectPackageImports } from '../../package-imports.js';
 import type { FileType } from '../../contracts/file.js';
 import { clearFileCaches, getCurrentFileImports } from '../rules/helpers/module.js';
-import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/deno.js';
+import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/npm-import.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -332,7 +333,11 @@ export class Linter {
     // Make inline npm: imports visible to both rule activation and to dependency helpers
     // (getReactVersion, getDependenciesSanitizePaths) called from rules during linting.
     // Cleared by clearFileCaches() once linting completes.
-    setCurrentFileInlineDependencies(sourceCode ? extractInlineNpmDependencies(sourceCode) : null);
+    setCurrentFileInlineDependencies(
+      sourceCode
+        ? extractInlineNpmDependencies(sourceCode, manifestDependencies, normalizedFilePath)
+        : null,
+    );
     const baseContext = {
       extensionName: extname(normalizePath(filePath)),
       fileType,
@@ -458,9 +463,14 @@ function getURLScheme(moduleName: string): string | undefined {
  * and records telemetry for any URL-scheme imports (npm:, jsr:, https:, ...).
  * Returns null if the file has no inline npm imports.
  */
-function extractInlineNpmDependencies(sourceCode: SourceCode): DependenciesList | null {
+function extractInlineNpmDependencies(
+  sourceCode: SourceCode,
+  manifestDependencies: DependenciesList,
+  filePath: NormalizedAbsolutePath,
+): DependenciesList | null {
   let inlineDependencies: DependenciesList | null = null;
-  for (const moduleName of getCurrentFileImports(sourceCode)) {
+  const moduleNames = getCurrentFileImports(sourceCode);
+  for (const moduleName of moduleNames) {
     const protocol = getURLScheme(moduleName);
     if (protocol !== undefined) {
       getOptionalProjectAnalysisTelemetryCollector()?.recordDenoImport(protocol);
@@ -471,6 +481,10 @@ function extractInlineNpmDependencies(sourceCode: SourceCode): DependenciesList 
       inlineDependencies.set(parsedSpecifier.packageName, parsedSpecifier.version);
     }
   }
+  getOptionalProjectAnalysisTelemetryCollector()?.recordPackageImports(
+    filePath,
+    collectPackageImports(moduleNames, manifestDependencies),
+  );
   return inlineDependencies;
 }
 

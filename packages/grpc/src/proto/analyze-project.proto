@@ -280,6 +280,7 @@ message ProjectAnalysisTelemetry {
   int32 cjs_file_count = 7;
   map<string, int32> deno_import_counts = 8;
   GeneratedSourcesTelemetry generated_sources = 9;
+  map<string, int32> package_import_file_counts = 10;
 }
 
 message ProgramCreationTelemetry {

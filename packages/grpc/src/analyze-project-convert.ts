@@ -165,6 +165,7 @@ function toTelemetry(
     cjsFileCount: telemetry.cjsFileCount,
     denoImportCounts: telemetry.denoImportCounts,
     generatedSources: toGeneratedSourcesTelemetry(telemetry.generatedSources),
+    packageImportFileCounts: telemetry.packageImportFileCounts,
   };
 }
 

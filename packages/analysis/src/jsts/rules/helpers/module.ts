@@ -44,8 +44,7 @@ const CURRENT_FILE_IMPORTS: {
 };
 
 /**
- * Compute the set of all module names imported or required
- * in the file currently being analyzed (via import declarations, require(), or dynamic import()).
+ * Compute the set of all literal module names referenced in the file currently being analyzed.
  *
  * Supported patterns:
  * import foo from 'lodash';
@@ -54,7 +53,9 @@ const CURRENT_FILE_IMPORTS: {
  * const lodash = import('lodash');
  * const lodash = await import('lodash');
  *
- * Unsupported patterns (not stored in a variable):
+ * export { partition } from 'lodash';
+ * export * from 'lodash';
+ * import lodash = require('lodash');
  * require('lodash');
  * import('lodash').then(lodash => ...);
  */
@@ -66,25 +67,51 @@ function computeCurrentFileImports(sourceCode: SourceCode): void {
   CURRENT_FILE_IMPORTS.sourceCode = sourceCode;
   CURRENT_FILE_IMPORTS.imports.clear();
 
-  for (const node of sourceCode.ast.body) {
-    if (node.type === 'ImportDeclaration' && typeof node.source.value === 'string') {
-      CURRENT_FILE_IMPORTS.imports.add(node.source.value);
+  const pending: estree.Node[] = [sourceCode.ast];
+  while (pending.length > 0) {
+    const node = pending.pop()!;
+    const moduleName = getReferencedModuleName(node);
+    if (moduleName !== undefined) {
+      CURRENT_FILE_IMPORTS.imports.add(moduleName);
     }
-  }
-
-  for (const scope of sourceCode.scopeManager.scopes) {
-    for (const variable of scope.variables) {
-      for (const def of variable.defs) {
-        if (def.type === 'Variable' && def.node.init) {
-          const name =
-            getRequireModuleName(def.node.init) ?? getDynamicImportModuleName(def.node.init);
-          if (name !== undefined) {
-            CURRENT_FILE_IMPORTS.imports.add(name);
-          }
-        }
+    for (const visitorKey of sourceCode.visitorKeys[node.type] ?? []) {
+      const child = (node as unknown as Record<string, unknown>)[visitorKey];
+      if (Array.isArray(child)) {
+        pending.push(...child.filter(isNode));
+      } else if (isNode(child)) {
+        pending.push(child);
       }
     }
   }
+}
+
+function getReferencedModuleName(node: estree.Node): string | undefined {
+  if (
+    (node.type === 'ImportDeclaration' ||
+      node.type === 'ExportNamedDeclaration' ||
+      node.type === 'ExportAllDeclaration') &&
+    node.source &&
+    typeof node.source.value === 'string'
+  ) {
+    return node.source.value;
+  }
+  if ((node as TSESTree.Node).type === 'TSImportEqualsDeclaration') {
+    const moduleReference = (node as unknown as TSESTree.TSImportEqualsDeclaration).moduleReference;
+    if (
+      moduleReference.type === 'TSExternalModuleReference' &&
+      moduleReference.expression.type === 'Literal' &&
+      typeof moduleReference.expression.value === 'string'
+    ) {
+      return moduleReference.expression.value;
+    }
+  }
+  return getRequireModuleName(node) ?? getDynamicImportModuleName(node);
+}
+
+function isNode(value: unknown): value is estree.Node {
+  return (
+    typeof value === 'object' && value !== null && typeof (value as estree.Node).type === 'string'
+  );
 }
 
 /**
