@@ -121,7 +121,11 @@ function computeCurrentFileModuleReferences(sourceCode: SourceCode): void {
     for (const visitorKey of sourceCode.visitorKeys[node.type] ?? []) {
       const child = (node as unknown as Record<string, unknown>)[visitorKey];
       if (Array.isArray(child)) {
-        pending.push(...child.filter(isNode));
+        for (const item of child) {
+          if (isNode(item)) {
+            pending.push(item);
+          }
+        }
       } else if (isNode(child)) {
         pending.push(child);
       }
