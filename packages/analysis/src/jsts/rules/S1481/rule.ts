@@ -17,6 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1481/javascript
 
 import type { Rule } from 'eslint';
+import type estree from 'estree';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -27,10 +28,12 @@ const defaultOptions = [
   {
     args: 'none',
     caughtErrors: 'none',
-    ignoreRestSiblings: true,
   },
 ];
 const ruleWithoutQuickFixes = interceptReport(baseRule, (context, descriptor) => {
+  if (isLegacyIgnoredRestSibling(descriptor)) {
+    return;
+  }
   const { fix: _fix, suggest: _suggest, ...rest } = descriptor;
   context.report(rest);
 });
@@ -44,3 +47,44 @@ export const rule: Rule.RuleModule = {
   }),
   create: ruleWithoutQuickFixes.create,
 };
+
+type NodeWithParent = estree.Node & { parent?: NodeWithParent };
+
+function isLegacyIgnoredRestSibling(descriptor: Rule.ReportDescriptor) {
+  if (!('node' in descriptor) || descriptor.node.type !== 'Identifier') {
+    return false;
+  }
+
+  const property = getParent(descriptor.node);
+  if (
+    property?.type !== 'Property' ||
+    !property.shorthand ||
+    property.value !== descriptor.node ||
+    getParent(property)?.type !== 'ObjectPattern'
+  ) {
+    return false;
+  }
+
+  const objectPattern = getParent(property);
+  return (
+    objectPattern.properties.at(-1)?.type === 'RestElement' &&
+    isInsideVariableDeclarationPattern(objectPattern)
+  );
+}
+
+function isInsideVariableDeclarationPattern(node: NodeWithParent) {
+  let current: NodeWithParent | undefined = node;
+
+  while (current?.parent) {
+    if (current.parent.type === 'VariableDeclarator') {
+      return current.parent.id === current;
+    }
+    current = current.parent;
+  }
+
+  return false;
+}
+
+function getParent(node: estree.Node) {
+  return (node as NodeWithParent).parent;
+}

@@ -77,6 +77,23 @@ describe('S1481', () => {
         },
         {
           code: `
+            const { query: _query, ...queryParamsForCache } = queryParams;
+
+            console.log(queryParamsForCache);
+          `,
+          errors: [{ message: "'_query' is assigned a value but never used." }],
+        },
+        {
+          code: `
+            let a, rest;
+
+            ({ a, ...rest } = foo);
+            console.log(rest);
+          `,
+          errors: [{ message: "'a' is assigned a value but never used." }],
+        },
+        {
+          code: `
             import { foo } from './foo';
 
             console.log('used');
