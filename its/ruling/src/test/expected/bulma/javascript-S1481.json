@@ -5,12 +5,12 @@
 "bulma:docs/_javascript/main.js": [
 6,
 23,
-89,
 273,
 275,
 402,
 410,
-421
+421,
+472
 ],
 "bulma:docs/_javascript/navbar.js": [
 4
@@ -30,12 +30,12 @@
 "bulma:docs/lib/main.js": [
 8,
 25,
-91,
 277,
 279,
 410,
 418,
-429
+429,
+478
 ],
 "bulma:docs/lib/navbar.js": [
 6

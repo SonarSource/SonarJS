@@ -1,0 +1,11 @@
+{
+"console:jest-setup.js": [
+1
+],
+"console:src/views/FunctionsView/FunctionLogs/Codemirror.js": [
+4
+],
+"console:webpack.config.js": [
+3
+]
+}

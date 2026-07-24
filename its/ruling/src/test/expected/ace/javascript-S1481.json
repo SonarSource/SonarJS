@@ -1,13 +1,45 @@
 {
 "ace:Makefile.dryice.js": [
-438
+438,
+781
 ],
 "ace:demo/autoresize.html": [
 36,
 44
 ],
+"ace:demo/csp.html": [
+25
+],
+"ace:demo/kitchen-sink/demo.js": [
+21,
+25,
+26,
+28,
+30,
+40,
+43,
+45,
+399
+],
+"ace:demo/kitchen-sink/dev_util.js": [
+2,
+183
+],
+"ace:demo/kitchen-sink/docs/javascript.js": [
+1
+],
 "ace:demo/kitchen-sink/layout.js": [
+10,
 55
+],
+"ace:demo/kitchen-sink/token_tooltip.js": [
+3
+],
+"ace:demo/kitchen-sink/util.js": [
+6,
+7,
+10,
+82
 ],
 "ace:demo/scrollable-page.html": [
 87
@@ -18,10 +50,18 @@
 "ace:demo/static-highlighter.html": [
 63
 ],
+"ace:demo/static-highlighter/client.html": [
+19
+],
 "ace:demo/statusbar.html": [
 53
 ],
+"ace:demo/webpack/demo.js": [
+6
+],
 "ace:doc/build.js": [
+1,
+2,
 13
 ],
 "ace:doc/site/js/main.js": [
@@ -29,14 +69,29 @@
 166,
 184
 ],
+"ace:doc/template/resources/javascripts/clicker.js": [
+1
+],
 "ace:doc/template/resources/javascripts/disqus-ext.js": [
+1,
 8
 ],
+"ace:doc/template/resources/javascripts/jquery-scrollspy.js": [
+50
+],
+"ace:doc/template/resources/javascripts/prettify-extension.js": [
+5
+],
 "ace:doc/template/resources/javascripts/ux.js": [
-46
+43,
+46,
+64
 ],
 "ace:experiments/animate_folding.html": [
 122
+],
+"ace:experiments/cut_copy.html": [
+66
 ],
 "ace:experiments/dom.html": [
 42,
@@ -49,16 +104,22 @@
 "ace:lib/ace/mode/css/csslint.js": [
 60,
 3336,
-5901
+5901,
+7709,
+7709,
+7709
 ],
 "ace:lib/ace/mode/html/saxparser.js": [
-2359
+2359,
+9877
 ],
 "ace:lib/ace/mode/html_worker.js": [
 35
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
-4479
+4479,
+12946,
+18685
 ],
 "ace:lib/ace/mode/jsoniq.js": [
 122,
@@ -106,36 +167,126 @@
 1,
 4
 ],
+"ace:src/apply_delta.js": [
+13
+],
+"ace:src/background_tokenizer_test.js": [
+8,
+9
+],
+"ace:src/commands/occur_commands.js": [
+1
+],
+"ace:src/config.js": [
+4
+],
+"ace:src/config_test.js": [
+7
+],
 "ace:src/edit_session_test.js": [
 439,
 451
 ],
 "ace:src/ext/beautify.js": [
-45
+45,
+82
+],
+"ace:src/ext/error_marker_test.js": [
+12
+],
+"ace:src/ext/keybinding_menu.js": [
+2
 ],
 "ace:src/ext/menu_tools/get_editor_keyboard_shortcuts.js": [
+2,
 33
 ],
+"ace:src/ext/menu_tools/overlay_page.js": [
+2
+],
 "ace:src/ext/prompt.js": [
+27,
 278
 ],
+"ace:src/ext/settings_menu.js": [
+2
+],
+"ace:src/ext/static_highlight_test.js": [
+13
+],
 "ace:src/ext/textarea.js": [
+234,
 241,
 242
 ],
+"ace:src/incremental_search_test.js": [
+7,
+11
+],
+"ace:src/keyboard/sublime_test.js": [
+12
+],
+"ace:src/keyboard/vim.js": [
+39
+],
 "ace:src/keyboard/vim_test.js": [
+7,
+10,
+15,
+16,
+28,
+103,
+189,
+194,
+199,
+240,
+250,
+1297,
 1438,
 1515,
 1526,
 1537,
 1548
 ],
+"ace:src/lib/bidiutil.js": [
+3,
+4,
+6,
+6,
+6,
+274
+],
+"ace:src/mode/abap.js": [
+5
+],
+"ace:src/mode/behaviour/behaviour_test.js": [
+10,
+27
+],
+"ace:src/mode/behaviour/css.js": [
+4
+],
+"ace:src/mode/behaviour/liquid.js": [
+7
+],
+"ace:src/mode/behaviour/xml.js": [
+6
+],
+"ace:src/mode/c_cpp.js": [
+7
+],
 "ace:src/mode/c_cpp_highlight_rules.js": [
 47
+],
+"ace:src/mode/coffee.js": [
+6
 ],
 "ace:src/mode/coldfusion_test.js": [
 20,
 21
+],
+"ace:src/mode/css_highlight_rules.js": [
+4
 ],
 "ace:src/mode/css_test.js": [
 22
@@ -143,15 +294,40 @@
 "ace:src/mode/dot.js": [
 27
 ],
+"ace:src/mode/dot_highlight_rules.js": [
+6
+],
+"ace:src/mode/ejs.js": [
+46
+],
 "ace:src/mode/folding/drools.js": [
 21
+],
+"ace:src/mode/gcode.js": [
+6
+],
+"ace:src/mode/glsl.js": [
+7
 ],
 "ace:src/mode/golang.js": [
 26
 ],
+"ace:src/mode/handlebars.js": [
+1,
+9
+],
+"ace:src/mode/handlebars_highlight_rules.js": [
+1
+],
 "ace:src/mode/html_test.js": [
 20,
 21
+],
+"ace:src/mode/jade_highlight_rules.js": [
+9,
+10,
+11,
+12
 ],
 "ace:src/mode/liquid.js": [
 27
@@ -163,25 +339,82 @@
 35,
 62
 ],
+"ace:src/mode/logtalk.js": [
+9
+],
 "ace:src/mode/lsl.js": [
+5,
 33
 ],
 "ace:src/mode/mushcode_highlight_rules.js": [
 501
+],
+"ace:src/mode/mysql_highlight_rules.js": [
+2
+],
+"ace:src/mode/pgsql_highlight_rules.js": [
+2
+],
+"ace:src/mode/php.js": [
+8
 ],
 "ace:src/mode/php_highlight_rules.js": [
 828,
 843,
 873
 ],
+"ace:src/mode/php_test.js": [
+7,
+8
+],
+"ace:src/mode/plain_text_test.js": [
+7
+],
+"ace:src/mode/r.js": [
+42,
+45
+],
+"ace:src/mode/razor_completions.js": [
+3
+],
 "ace:src/mode/razor_highlight_rules.js": [
+5,
+9,
 115
+],
+"ace:src/mode/rdoc_highlight_rules.js": [
+37,
+39
+],
+"ace:src/mode/red.js": [
+8
 ],
 "ace:src/mode/red_highlight_rules.js": [
 11
 ],
+"ace:src/mode/redshift.js": [
+4
+],
+"ace:src/mode/redshift_highlight_rules.js": [
+2
+],
+"ace:src/mode/rst_highlight_rules.js": [
+4
+],
 "ace:src/mode/sac_highlight_rules.js": [
 41
+],
+"ace:src/mode/sass_highlight_rules.js": [
+4
+],
+"ace:src/mode/scad_highlight_rules.js": [
+4
+],
+"ace:src/mode/tcl.js": [
+8
+],
+"ace:src/mode/tex_highlight_rules.js": [
+42
 ],
 "ace:src/mode/text.js": [
 167
@@ -189,8 +422,36 @@
 "ace:src/mode/twig.js": [
 23
 ],
+"ace:src/mode/twig_highlight_rules.js": [
+4
+],
+"ace:src/mode/vala.js": [
+9,
+11
+],
+"ace:src/mode/verilog.js": [
+6
+],
+"ace:src/mode/visualforce_highlight_rules.js": [
+1
+],
+"ace:src/occur.js": [
+4
+],
+"ace:src/occur_test.js": [
+10
+],
 "ace:src/placeholder_test.js": [
 51
+],
+"ace:src/range_list_test.js": [
+9
+],
+"ace:src/search_highlight.js": [
+4
+],
+"ace:src/split.js": [
+4
 ],
 "ace:src/test/asyncjs/async.js": [
 225
@@ -201,7 +462,14 @@
 "ace:src/test/mockrenderer.js": [
 82
 ],
+"ace:src/tooltip.js": [
+3
+],
+"ace:src/undomanager.js": [
+280
+],
 "ace:tool/lib.js": [
+2,
 163
 ],
 "ace:tool/mode_creator.js": [
@@ -209,6 +477,31 @@
 20
 ],
 "ace:tool/perf-test.html": [
-127
+50,
+65,
+94,
+104,
+115,
+126,
+127,
+136,
+137,
+145
+],
+"ace:tool/regexp_tokenizer_test.js": [
+8
+],
+"ace:tool/tmlanguage.js": [
+155,
+329,
+482
+],
+"ace:tool/tmtheme.js": [
+2,
+3,
+241
+],
+"ace:tool/update_deps.js": [
+243
 ]
 }

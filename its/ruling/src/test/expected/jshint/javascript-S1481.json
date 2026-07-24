@@ -1,0 +1,11 @@
+{
+"jshint:scripts/generate-identifier-data.js": [
+21
+],
+"jshint:src/jshint.js": [
+49
+],
+"jshint:src/lex.js": [
+1638
+]
+}

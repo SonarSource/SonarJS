@@ -16,118 +16,75 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1481/javascript
 
-import type { Rule, Scope } from 'eslint';
+import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
+const baseRule = tsEslintRules['no-unused-vars'];
+const defaultOptions = [
+  {
+    args: 'none',
+    caughtErrors: 'none',
+  },
+];
+const ruleWithoutQuickFixes = interceptReport(baseRule, (context, descriptor) => {
+  if (isLegacyIgnoredRestSibling(descriptor)) {
+    return;
+  }
+  const { fix: _fix, suggest: _suggest, ...rest } = descriptor;
+  context.report(rest);
+});
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    messages: {
-      unusedFunction: `Remove unused function '{{symbol}}'.`,
-      unusedVariable: `Remove the declaration of the unused '{{symbol}}' variable.`,
-    },
+    ...baseRule.meta,
+    defaultOptions,
+    fixable: undefined,
+    hasSuggestions: undefined,
   }),
-  create(context: Rule.RuleContext) {
-    let toIgnore: estree.Identifier[] = [];
-    let jsxComponentsToIgnore: string[] = [];
-
-    function checkVariable(v: Scope.Variable, toCheck: 'let-const-function' | 'all') {
-      if (v.defs.length === 0) {
-        return;
-      }
-      const type = v.defs[0].type;
-      if (type !== 'Variable' && type !== 'FunctionName') {
-        return;
-      }
-      if (toCheck === 'let-const-function') {
-        const def = v.defs[0];
-        if (def.parent?.type === 'VariableDeclaration' && def.parent.kind === 'var') {
-          return;
-        }
-      }
-
-      const defs = v.defs.map(def => def.name);
-      const unused = v.references.every(ref => defs.includes(ref.identifier));
-
-      if (unused && !toIgnore.includes(defs[0]) && !jsxComponentsToIgnore.includes(v.name)) {
-        const messageAndData =
-          type === 'FunctionName'
-            ? getUnusedFunctionMessageAndData(v.name)
-            : getUnusedVariableMessageAndData(v.name);
-        for (const def of defs) {
-          context.report({
-            node: def,
-            ...messageAndData,
-          });
-        }
-      }
-    }
-
-    function checkScope(
-      scope: Scope.Scope,
-      checkedInParent: 'nothing' | 'let-const-function' | 'all',
-    ) {
-      let toCheck = checkedInParent;
-      if (scope.type === 'function' && !isParentOfModuleScope(scope)) {
-        toCheck = 'all';
-      } else if (checkedInParent === 'nothing' && scope.type === 'block') {
-        toCheck = 'let-const-function';
-      }
-
-      if (toCheck !== 'nothing' && scope.type !== 'function-expression-name') {
-        for (const v of scope.variables) {
-          checkVariable(v, toCheck);
-        }
-      }
-
-      for (const childScope of scope.childScopes) {
-        checkScope(childScope, toCheck);
-      }
-    }
-
-    return {
-      ObjectPattern: (node: estree.Node) => {
-        const elements = (node as estree.ObjectPattern).properties;
-        const hasRest = elements.some(element => (element as any).type === 'RestElement');
-
-        if (!hasRest) {
-          return;
-        }
-
-        for (const element of elements) {
-          if (
-            element.type === 'Property' &&
-            element.shorthand &&
-            element.value.type === 'Identifier'
-          ) {
-            toIgnore.push(element.value);
-          }
-        }
-      },
-
-      JSXIdentifier: (node: estree.Node) => {
-        // using 'any' as standard typings for AST don't provide types for JSX
-        jsxComponentsToIgnore.push((node as any).name);
-      },
-
-      'Program:exit': (node: estree.Node) => {
-        checkScope(context.sourceCode.getScope(node), 'nothing');
-        toIgnore = [];
-        jsxComponentsToIgnore = [];
-      },
-    };
-  },
+  create: ruleWithoutQuickFixes.create,
 };
 
-function isParentOfModuleScope(scope: Scope.Scope) {
-  return scope.childScopes.some(s => s.type === 'module');
+type NodeWithParent = estree.Node & { parent?: NodeWithParent };
+
+function isLegacyIgnoredRestSibling(descriptor: Rule.ReportDescriptor) {
+  if (!('node' in descriptor) || descriptor.node.type !== 'Identifier') {
+    return false;
+  }
+
+  const property = getParent(descriptor.node);
+  const objectPattern = property ? getParent(property) : undefined;
+  if (
+    property?.type !== 'Property' ||
+    !property.shorthand ||
+    property.value !== descriptor.node ||
+    objectPattern?.type !== 'ObjectPattern'
+  ) {
+    return false;
+  }
+
+  return (
+    objectPattern.properties.at(-1)?.type === 'RestElement' &&
+    isInsideVariableDeclarationPattern(objectPattern)
+  );
 }
 
-function getUnusedFunctionMessageAndData(name: string) {
-  return { messageId: 'unusedFunction', data: { symbol: name } };
+function isInsideVariableDeclarationPattern(node: NodeWithParent) {
+  let current: NodeWithParent | undefined = node;
+
+  while (current?.parent) {
+    if (current.parent.type === 'VariableDeclarator') {
+      return current.parent.id === current;
+    }
+    current = current.parent;
+  }
+
+  return false;
 }
 
-function getUnusedVariableMessageAndData(name: string) {
-  return { messageId: 'unusedVariable', data: { symbol: name } };
+function getParent(node: estree.Node) {
+  return (node as NodeWithParent).parent;
 }
