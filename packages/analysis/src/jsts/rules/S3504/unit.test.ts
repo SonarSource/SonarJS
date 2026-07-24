@@ -58,4 +58,88 @@ describe('S3504', () => {
       ],
     });
   });
+
+  it('should suppress files that predominantly use var', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('S3504 var-heavy files', rule, {
+      valid: [
+        {
+          code: `
+            var first = 1;
+            var second = first + 1;
+            let third = second + 1;
+            var fourth = third + 1;
+          `,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+            const first = 1;
+            let second = first + 1;
+            var third = second + 1;
+            let fourth = third + 1;
+            var fifth = fourth + 1;
+            const sixth = fifth + 1;
+          `,
+          output: `
+            const first = 1;
+            let second = first + 1;
+            let third = second + 1;
+            let fourth = third + 1;
+            let fifth = fourth + 1;
+            const sixth = fifth + 1;
+          `,
+          errors: 2,
+        },
+        {
+          code: `
+            var first = 1;
+            let second = first + 1;
+            var third = second + 1;
+            const fourth = third + 1;
+            var fifth = fourth + 1;
+            let sixth = fifth + 1;
+          `,
+          output: `
+            let first = 1;
+            let second = first + 1;
+            let third = second + 1;
+            const fourth = third + 1;
+            let fifth = fourth + 1;
+            let sixth = fifth + 1;
+          `,
+          errors: 3,
+        },
+      ],
+    });
+  });
+
+  it('should ignore ambient declarations when applying the var heuristic', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('S3504 ambient declarations', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+            declare var apiUrl: string;
+            declare var buildNumber: string;
+            declare var runtimeConfig: Record<string, string>;
+            let currentBuild = buildNumber;
+            var legacyBuild = currentBuild;
+          `,
+          output: `
+            declare var apiUrl: string;
+            declare var buildNumber: string;
+            declare var runtimeConfig: Record<string, string>;
+            let currentBuild = buildNumber;
+            let legacyBuild = currentBuild;
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
 });
