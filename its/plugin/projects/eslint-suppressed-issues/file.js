@@ -7,3 +7,8 @@ var c = 3;
 /* eslint-disable-next-line sonarjs/S3504 */
 var d = 4;
 var e = 5;
+let f = e + 1;
+const g = f + 1;
+let h = g + 1;
+const i = h + 1;
+let j = i + 1;
