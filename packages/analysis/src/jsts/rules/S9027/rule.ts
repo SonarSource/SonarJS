@@ -18,8 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import type { TSESTree } from '@typescript-eslint/utils';
-import { getVariableFromName, isIdentifier } from '../helpers/ast.js';
+import { getVariableFromName, isIdentifier, unwrapTypeScriptExpression } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
@@ -159,19 +158,6 @@ function getQueryCall(actual: estree.Expression): estree.CallExpression | null {
   const isLength = !actual.computed && isIdentifier(actual.property, 'length');
 
   return isArrayIndex || isLength ? actual.object : null;
-}
-
-function unwrapTypeScriptExpression(expression: estree.Expression): estree.Expression {
-  let unwrapped = expression as unknown as TSESTree.Expression;
-  while (
-    unwrapped.type === 'TSNonNullExpression' ||
-    unwrapped.type === 'TSAsExpression' ||
-    unwrapped.type === 'TSSatisfiesExpression' ||
-    unwrapped.type === 'TSTypeAssertion'
-  ) {
-    unwrapped = unwrapped.expression;
-  }
-  return unwrapped as unknown as estree.Expression;
 }
 
 function getQueryMethod(query: estree.CallExpression): estree.Identifier | null {

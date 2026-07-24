@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import type { TSESTree } from '@typescript-eslint/utils';
+import { unwrapTypeScriptExpression } from '../helpers/ast.js';
 import { areEquivalent } from '../helpers/equivalence.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
@@ -252,17 +252,4 @@ function getDataset(node: estree.CallExpression): estree.ArrayExpression | undef
 
   const unwrapped = unwrapTypeScriptExpression(dataset);
   return unwrapped.type === 'ArrayExpression' ? unwrapped : undefined;
-}
-
-function unwrapTypeScriptExpression(node: estree.Node): estree.Node {
-  let unwrapped = node as unknown as TSESTree.Node;
-  while (
-    unwrapped.type === 'TSNonNullExpression' ||
-    unwrapped.type === 'TSAsExpression' ||
-    unwrapped.type === 'TSSatisfiesExpression' ||
-    unwrapped.type === 'TSTypeAssertion'
-  ) {
-    unwrapped = unwrapped.expression;
-  }
-  return unwrapped as unknown as estree.Node;
 }

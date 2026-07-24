@@ -18,8 +18,7 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import type { TSESTree } from '@typescript-eslint/utils';
-import { getVariableFromScope } from '../helpers/ast.js';
+import { getVariableFromScope, unwrapTypeScriptExpression } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
   getParameterizedTestFrameworks,
@@ -88,19 +87,6 @@ function isEmptyArray(node: estree.Node | null): boolean {
 
   const unwrapped = unwrapTypeScriptExpression(node);
   return unwrapped.type === 'ArrayExpression' && unwrapped.elements.length === 0;
-}
-
-function unwrapTypeScriptExpression(node: estree.Node): estree.Node {
-  let unwrapped = node as unknown as TSESTree.Node;
-  while (
-    unwrapped.type === 'TSNonNullExpression' ||
-    unwrapped.type === 'TSAsExpression' ||
-    unwrapped.type === 'TSSatisfiesExpression' ||
-    unwrapped.type === 'TSTypeAssertion'
-  ) {
-    unwrapped = unwrapped.expression;
-  }
-  return unwrapped as unknown as estree.Node;
 }
 
 function isKnownEmptyDataset(context: Rule.RuleContext, dataset: estree.Expression): boolean {
