@@ -54,6 +54,10 @@ describe('package import telemetry', () => {
       'https://example.com/module.js',
       'jsr:@std/assert',
       'bun:wrap',
+      'sea',
+      'sqlite',
+      'test',
+      'test/reporters',
     ]);
 
     expect(collectPackageImports(imports, new Map())).toEqual(new Set());

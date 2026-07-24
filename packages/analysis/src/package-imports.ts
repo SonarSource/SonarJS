@@ -115,12 +115,18 @@ const RUNTIME_ALLOWLIST = new Set(
   ),
 );
 const PACKAGE_ALLOWLIST = new Set([...ALLOWLIST].filter(name => !RUNTIME_ALLOWLIST.has(name)));
+const NODE_PREFIX_ONLY_BUILTINS = new Set([
+  'node:sea',
+  'node:sqlite',
+  'node:test',
+  'node:test/reporters',
+]);
 const BARE_NODE_BUILTINS = new Map<string, string>();
 
 for (const builtin of builtinModules) {
   const bare = builtin.startsWith('node:') ? builtin.slice('node:'.length) : builtin;
   const canonical = `node:${bare}`;
-  if (RUNTIME_ALLOWLIST.has(canonical)) {
+  if (RUNTIME_ALLOWLIST.has(canonical) && !NODE_PREFIX_ONLY_BUILTINS.has(canonical)) {
     BARE_NODE_BUILTINS.set(bare, canonical);
   }
 }
