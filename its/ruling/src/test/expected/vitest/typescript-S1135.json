@@ -50,12 +50,7 @@
 22,
 595
 ],
-"vitest:packages/runner/src/suite.ts": [
-627
-],
 "vitest:packages/runner/src/types/tasks.ts": [
-59,
-568,
 1267
 ],
 "vitest:packages/snapshot/src/client.ts": [
@@ -75,9 +70,6 @@
 ],
 "vitest:packages/ui/client/components/views/ViewEditor.vue": [
 194
-],
-"vitest:packages/ui/client/composables/explorer/collector.ts": [
-450
 ],
 "vitest:packages/ui/client/composables/navigation.ts": [
 160
@@ -139,9 +131,6 @@
 "vitest:packages/vitest/src/node/reporters/base.ts": [
 783
 ],
-"vitest:packages/vitest/src/node/reporters/reported-tasks.ts": [
-648
-],
 "vitest:packages/vitest/src/node/stdin.ts": [
 61
 ],
@@ -155,9 +144,6 @@
 ],
 "vitest:packages/vitest/src/node/types/coverage.ts": [
 55
-],
-"vitest:packages/vitest/src/runtime/benchmark.ts": [
-36
 ],
 "vitest:packages/vitest/src/runtime/config.ts": [
 36
