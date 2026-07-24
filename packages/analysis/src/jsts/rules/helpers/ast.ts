@@ -50,9 +50,7 @@ export type LoopLike =
   | estree.ForInStatement;
 
 export type FunctionNodeType =
-  | estree.FunctionDeclaration
-  | estree.FunctionExpression
-  | estree.ArrowFunctionExpression;
+  estree.FunctionDeclaration | estree.FunctionExpression | estree.ArrowFunctionExpression;
 
 export type StringLiteral = estree.Literal & { value: string };
 
@@ -142,6 +140,19 @@ export function isBinaryPlus(
 
 export function isArrayExpression(node: estree.Node | undefined): node is estree.ArrayExpression {
   return node?.type === 'ArrayExpression';
+}
+
+export function unwrapTypeScriptExpression<T extends Node>(node: T): T {
+  let unwrapped = node as unknown as TSESTree.Node;
+  while (
+    unwrapped.type === 'TSNonNullExpression' ||
+    unwrapped.type === 'TSAsExpression' ||
+    unwrapped.type === 'TSSatisfiesExpression' ||
+    unwrapped.type === 'TSTypeAssertion'
+  ) {
+    unwrapped = unwrapped.expression;
+  }
+  return unwrapped as unknown as T;
 }
 
 export function isRequireModule(node: estree.CallExpression, ...moduleNames: string[]) {
