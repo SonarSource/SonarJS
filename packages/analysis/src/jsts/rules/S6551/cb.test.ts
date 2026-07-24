@@ -205,6 +205,28 @@ function nonNullValue(value: object | null): string {
   });
 });
 
+describe('S6551 lodash utility report redirection', () => {
+  it('keeps Sonar defaults even when upstream options are passed', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('S6551', rule, {
+      valid: [
+        {
+          code: `
+declare const require: (moduleName: string) => object;
+
+function lodashNamespaceToStringWithUnconstrainedGeneric<T>(value: T) {
+  const _ = require('lodash');
+  return _.toString(value);
+}
+          `,
+          options: [{ checkUnknown: true }],
+        },
+      ],
+      invalid: [],
+    });
+  });
+});
+
 describe('Rule S6551', () => {
   test(meta, rule, import.meta.dirname);
 });

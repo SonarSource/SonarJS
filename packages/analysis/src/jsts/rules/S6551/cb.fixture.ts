@@ -1,3 +1,5 @@
+declare const require: (moduleName: string) => object;
+
 function toStrings<T>(array: T[]): string[] {
   return array.map((item) => {
     if (item?.toString) {
@@ -10,6 +12,125 @@ function toStrings<T>(array: T[]): string[] {
 function maybeString() {
   let foo: string | {};
   foo.toString() // Noncompliant {{'foo' may use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+}
+
+function lodashNamespaceToStringIsReported(value: object) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //                ^^^^^
+}
+
+function lodashNamespaceToStringWithStringArgument(value: string) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Compliant
+}
+
+function lodashNamespaceToStringWithUnionArgument(value: string | object) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Noncompliant {{'value' may use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //                ^^^^^
+}
+
+function lodashNamespaceToStringWithObjectArray(values: object[]) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(values); // Noncompliant {{'values' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //                ^^^^^^
+}
+
+function lodashNamespaceToStringWithObjectTuple(values: [object]) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(values); // Noncompliant {{'values' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //                ^^^^^^
+}
+
+function lodashNamespaceToStringWithMixedTuple(values: [string | object]) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(values); // Noncompliant {{'values' may use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //                ^^^^^^
+}
+
+function lodashNamespaceToStringWithStringArray(values: string[]) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(values); // Compliant
+}
+
+function lodashNamespaceToStringWithStringTuple(values: [string]) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(values); // Compliant
+}
+
+function lodashNamespaceToStringWithIgnoredType(value: Error) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Compliant
+}
+
+class ExtendedIgnoredError extends Error {}
+
+function lodashNamespaceToStringWithIgnoredBaseType(value: ExtendedIgnoredError) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Compliant
+}
+
+type ObjectWithCustomToString = object & { toString(): string };
+
+function lodashNamespaceToStringWithIntersection(value: object & ObjectWithCustomToString) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Compliant
+}
+
+function lodashNamespaceToStringWithCustomToString(value: ObjectWithCustomToString) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Compliant
+}
+
+type ObjectWithSymbolToPrimitive = { [Symbol.toPrimitive](): string };
+
+function lodashNamespaceToStringWithSymbolToPrimitive(value: ObjectWithSymbolToPrimitive) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Compliant
+}
+
+function lodashNamespaceToStringWithConstrainedGeneric<T extends object>(value: T) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //                ^^^^^
+}
+
+function lodashNamespaceToStringWithUnconstrainedGeneric<T>(value: T) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Compliant
+}
+
+function nonLodashNamespaceToStringKeepsReceiverReport(value: object) {
+  const _ = require('underscore');
+  // @ts-ignore - reproduce a non-lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value); // Noncompliant {{'_' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //     ^
+}
+
+function templateLiteralStringificationStillReported(value: object) {
+  return `${value}`; // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //        ^^^^^
+}
+
+function arrayJoinStillReported(values: object[]) {
+  return values.join(','); // Noncompliant {{Using `join()` for values will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //     ^^^^^^
 }
 
 function guardedByPrototypeComparison(value: object) {
