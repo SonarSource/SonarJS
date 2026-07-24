@@ -43,20 +43,17 @@ const CURRENT_FILE_IMPORTS: {
   imports: new Set(),
 };
 
+const CURRENT_FILE_MODULE_REFERENCES: {
+  sourceCode: SourceCode | null;
+  references: Set<string>;
+} = {
+  sourceCode: null,
+  references: new Set(),
+};
+
 /**
- * Compute the set of all module names imported or required
- * in the file currently being analyzed (via import declarations, require(), or dynamic import()).
- *
- * Supported patterns:
- * import foo from 'lodash';
- * const lodash = require('lodash');
- * const partition = require('lodash').partition;
- * const lodash = import('lodash');
- * const lodash = await import('lodash');
- *
- * Unsupported patterns (not stored in a variable):
- * require('lodash');
- * import('lodash').then(lodash => ...);
+ * Compute the imports used by dependency-sensitive rules. Keep this intentionally narrower than
+ * telemetry collection to avoid changing rule activation semantics.
  */
 function computeCurrentFileImports(sourceCode: SourceCode): void {
   if (CURRENT_FILE_IMPORTS.sourceCode === sourceCode) {
@@ -88,17 +85,127 @@ function computeCurrentFileImports(sourceCode: SourceCode): void {
 }
 
 /**
+ * Compute all literal module references needed by package-import telemetry.
+ *
+ * Supported patterns:
+ * import foo from 'lodash';
+ * const lodash = require('lodash');
+ * const partition = require('lodash').partition;
+ * const lodash = import('lodash');
+ * const lodash = await import('lodash');
+ *
+ * export { partition } from 'lodash';
+ * export * from 'lodash';
+ * import lodash = require('lodash');
+ * require('lodash');
+ * import('lodash').then(lodash => ...);
+ */
+function computeCurrentFileModuleReferences(sourceCode: SourceCode): void {
+  if (CURRENT_FILE_MODULE_REFERENCES.sourceCode === sourceCode) {
+    return;
+  }
+
+  CURRENT_FILE_MODULE_REFERENCES.sourceCode = sourceCode;
+  CURRENT_FILE_MODULE_REFERENCES.references.clear();
+
+  const pending: estree.Node[] = [sourceCode.ast];
+  while (pending.length > 0) {
+    const node = pending.pop();
+    if (node === undefined) {
+      break;
+    }
+    const moduleName = getReferencedModuleName(sourceCode, node);
+    if (moduleName !== undefined) {
+      CURRENT_FILE_MODULE_REFERENCES.references.add(moduleName);
+    }
+    for (const visitorKey of sourceCode.visitorKeys[node.type] ?? []) {
+      addChildNodes(pending, (node as unknown as Record<string, unknown>)[visitorKey]);
+    }
+  }
+}
+
+function addChildNodes(pending: estree.Node[], child: unknown): void {
+  if (Array.isArray(child)) {
+    for (const item of child) {
+      addNode(pending, item);
+    }
+  } else {
+    addNode(pending, child);
+  }
+}
+
+function addNode(pending: estree.Node[], value: unknown): void {
+  if (isNode(value)) {
+    pending.push(value);
+  }
+}
+
+function getReferencedModuleName(sourceCode: SourceCode, node: estree.Node): string | undefined {
+  if (
+    (node.type === 'ImportDeclaration' ||
+      node.type === 'ExportNamedDeclaration' ||
+      node.type === 'ExportAllDeclaration') &&
+    node.source &&
+    typeof node.source.value === 'string'
+  ) {
+    return node.source.value;
+  }
+  if ((node as TSESTree.Node).type === 'TSImportEqualsDeclaration') {
+    const moduleReference = (node as unknown as TSESTree.TSImportEqualsDeclaration).moduleReference;
+    if (
+      moduleReference.type === 'TSExternalModuleReference' &&
+      moduleReference.expression.type === 'Literal' &&
+      typeof moduleReference.expression.value === 'string'
+    ) {
+      return moduleReference.expression.value;
+    }
+  }
+  return getUnshadowedRequireModuleName(sourceCode, node) ?? getDynamicImportModuleName(node);
+}
+
+function getUnshadowedRequireModuleName(
+  sourceCode: SourceCode,
+  node: estree.Node,
+): string | undefined {
+  const requireCall = getRequireCall(node);
+  if (requireCall === undefined) {
+    return undefined;
+  }
+  const requireVariable = getVariableFromScope(sourceCode.getScope(requireCall), 'require');
+  if (requireVariable?.defs.length) {
+    return undefined;
+  }
+  const moduleName = requireCall.arguments[0];
+  return moduleName?.type === 'Literal' && typeof moduleName.value === 'string'
+    ? moduleName.value
+    : undefined;
+}
+
+function isNode(value: unknown): value is estree.Node {
+  return (
+    typeof value === 'object' && value !== null && typeof (value as estree.Node).type === 'string'
+  );
+}
+
+/**
  * Clears the caches related to the given source file
  */
 export function clearFileCaches(): void {
   CURRENT_FILE_IMPORTS.sourceCode = null;
   CURRENT_FILE_IMPORTS.imports.clear();
+  CURRENT_FILE_MODULE_REFERENCES.sourceCode = null;
+  CURRENT_FILE_MODULE_REFERENCES.references.clear();
   setCurrentFileInlineDependencies(null);
 }
 
 export function getCurrentFileImports(sourceCode: SourceCode): ReadonlySet<string> {
   computeCurrentFileImports(sourceCode);
   return CURRENT_FILE_IMPORTS.imports;
+}
+
+export function getCurrentFileModuleReferences(sourceCode: SourceCode): ReadonlySet<string> {
+  computeCurrentFileModuleReferences(sourceCode);
+  return CURRENT_FILE_MODULE_REFERENCES.references;
 }
 
 function getRequireModuleName(node: estree.Node): string | undefined {

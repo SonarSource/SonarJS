@@ -60,9 +60,14 @@ import {
 } from './filters/index.js';
 import { getClosestDependencyManifestDir } from '../rules/helpers/dependency-manifests/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
+import { collectPackageImports as collectAllowlistedPackageImports } from '../../package-imports.js';
 import type { FileType } from '../../contracts/file.js';
-import { clearFileCaches, getCurrentFileImports } from '../rules/helpers/module.js';
-import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/deno.js';
+import {
+  clearFileCaches,
+  getCurrentFileImports,
+  getCurrentFileModuleReferences,
+} from '../rules/helpers/module.js';
+import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/npm-import.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -189,6 +194,18 @@ export class Linter {
   /** Resolve the module type for a file against the linter's base directory. */
   public static detectModuleType(filePath: NormalizedAbsolutePath): ModuleType | undefined {
     return getModuleType(normalizeToAbsolutePath(filePath), Linter.baseDir);
+  }
+
+  public static collectPackageImports(
+    sourceCode: SourceCode,
+    filePath: NormalizedAbsolutePath,
+  ): Set<string> {
+    const normalizedFilePath = normalizeToAbsolutePath(filePath);
+    const manifestDependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
+    return collectAllowlistedPackageImports(
+      getCurrentFileModuleReferences(sourceCode),
+      manifestDependencies,
+    );
   }
 
   private static async loadRulesFromBundle(ruleBundle: NormalizedAbsolutePath) {
@@ -460,7 +477,8 @@ function getURLScheme(moduleName: string): string | undefined {
  */
 function extractInlineNpmDependencies(sourceCode: SourceCode): DependenciesList | null {
   let inlineDependencies: DependenciesList | null = null;
-  for (const moduleName of getCurrentFileImports(sourceCode)) {
+  const moduleNames = getCurrentFileImports(sourceCode);
+  for (const moduleName of moduleNames) {
     const protocol = getURLScheme(moduleName);
     if (protocol !== undefined) {
       getOptionalProjectAnalysisTelemetryCollector()?.recordDenoImport(protocol);
