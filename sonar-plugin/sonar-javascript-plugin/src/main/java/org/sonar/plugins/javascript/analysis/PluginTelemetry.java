@@ -205,7 +205,7 @@ public class PluginTelemetry {
     if (packageName.startsWith("node:")) {
       return IMPORT_PREFIX + "builtin.node." + packageName.substring(5).replace('/', '.');
     }
-    if (packageName.equals("bun")) {
+    if ("bun".equals(packageName)) {
       return IMPORT_PREFIX + "builtin.bun";
     }
     if (packageName.startsWith("bun:")) {

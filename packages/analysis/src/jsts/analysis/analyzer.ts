@@ -86,6 +86,10 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     debug('Clearing dependencies cache');
     clearDependenciesCache();
   }
+  getOptionalProjectAnalysisTelemetryCollector()?.recordPackageImports(
+    filePath,
+    Linter.collectPackageImports(parseResult.sourceCode, filePath),
+  );
   const { additionalRules, additionalSettings, metricsSink } = prepareLinterOptions(input);
   const { issues, suppressedIssues } = Linter.lint(
     parseResult,

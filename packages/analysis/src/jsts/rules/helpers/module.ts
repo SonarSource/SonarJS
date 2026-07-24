@@ -43,8 +43,49 @@ const CURRENT_FILE_IMPORTS: {
   imports: new Set(),
 };
 
+const CURRENT_FILE_MODULE_REFERENCES: {
+  sourceCode: SourceCode | null;
+  references: Set<string>;
+} = {
+  sourceCode: null,
+  references: new Set(),
+};
+
 /**
- * Compute the set of all literal module names referenced in the file currently being analyzed.
+ * Compute the imports used by dependency-sensitive rules. Keep this intentionally narrower than
+ * telemetry collection to avoid changing rule activation semantics.
+ */
+function computeCurrentFileImports(sourceCode: SourceCode): void {
+  if (CURRENT_FILE_IMPORTS.sourceCode === sourceCode) {
+    return;
+  }
+
+  CURRENT_FILE_IMPORTS.sourceCode = sourceCode;
+  CURRENT_FILE_IMPORTS.imports.clear();
+
+  for (const node of sourceCode.ast.body) {
+    if (node.type === 'ImportDeclaration' && typeof node.source.value === 'string') {
+      CURRENT_FILE_IMPORTS.imports.add(node.source.value);
+    }
+  }
+
+  for (const scope of sourceCode.scopeManager.scopes) {
+    for (const variable of scope.variables) {
+      for (const def of variable.defs) {
+        if (def.type === 'Variable' && def.node.init) {
+          const name =
+            getRequireModuleName(def.node.init) ?? getDynamicImportModuleName(def.node.init);
+          if (name !== undefined) {
+            CURRENT_FILE_IMPORTS.imports.add(name);
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Compute all literal module references needed by package-import telemetry.
  *
  * Supported patterns:
  * import foo from 'lodash';
@@ -59,20 +100,23 @@ const CURRENT_FILE_IMPORTS: {
  * require('lodash');
  * import('lodash').then(lodash => ...);
  */
-function computeCurrentFileImports(sourceCode: SourceCode): void {
-  if (CURRENT_FILE_IMPORTS.sourceCode === sourceCode) {
+function computeCurrentFileModuleReferences(sourceCode: SourceCode): void {
+  if (CURRENT_FILE_MODULE_REFERENCES.sourceCode === sourceCode) {
     return;
   }
 
-  CURRENT_FILE_IMPORTS.sourceCode = sourceCode;
-  CURRENT_FILE_IMPORTS.imports.clear();
+  CURRENT_FILE_MODULE_REFERENCES.sourceCode = sourceCode;
+  CURRENT_FILE_MODULE_REFERENCES.references.clear();
 
   const pending: estree.Node[] = [sourceCode.ast];
   while (pending.length > 0) {
-    const node = pending.pop()!;
-    const moduleName = getReferencedModuleName(node);
+    const node = pending.pop();
+    if (node === undefined) {
+      break;
+    }
+    const moduleName = getReferencedModuleName(sourceCode, node);
     if (moduleName !== undefined) {
-      CURRENT_FILE_IMPORTS.imports.add(moduleName);
+      CURRENT_FILE_MODULE_REFERENCES.references.add(moduleName);
     }
     for (const visitorKey of sourceCode.visitorKeys[node.type] ?? []) {
       const child = (node as unknown as Record<string, unknown>)[visitorKey];
@@ -85,7 +129,7 @@ function computeCurrentFileImports(sourceCode: SourceCode): void {
   }
 }
 
-function getReferencedModuleName(node: estree.Node): string | undefined {
+function getReferencedModuleName(sourceCode: SourceCode, node: estree.Node): string | undefined {
   if (
     (node.type === 'ImportDeclaration' ||
       node.type === 'ExportNamedDeclaration' ||
@@ -105,7 +149,25 @@ function getReferencedModuleName(node: estree.Node): string | undefined {
       return moduleReference.expression.value;
     }
   }
-  return getRequireModuleName(node) ?? getDynamicImportModuleName(node);
+  return getUnshadowedRequireModuleName(sourceCode, node) ?? getDynamicImportModuleName(node);
+}
+
+function getUnshadowedRequireModuleName(
+  sourceCode: SourceCode,
+  node: estree.Node,
+): string | undefined {
+  const requireCall = getRequireCall(node);
+  if (requireCall === undefined) {
+    return undefined;
+  }
+  const requireVariable = getVariableFromScope(sourceCode.getScope(requireCall), 'require');
+  if (requireVariable?.defs.length) {
+    return undefined;
+  }
+  const moduleName = requireCall.arguments[0];
+  return moduleName?.type === 'Literal' && typeof moduleName.value === 'string'
+    ? moduleName.value
+    : undefined;
 }
 
 function isNode(value: unknown): value is estree.Node {
@@ -120,12 +182,19 @@ function isNode(value: unknown): value is estree.Node {
 export function clearFileCaches(): void {
   CURRENT_FILE_IMPORTS.sourceCode = null;
   CURRENT_FILE_IMPORTS.imports.clear();
+  CURRENT_FILE_MODULE_REFERENCES.sourceCode = null;
+  CURRENT_FILE_MODULE_REFERENCES.references.clear();
   setCurrentFileInlineDependencies(null);
 }
 
 export function getCurrentFileImports(sourceCode: SourceCode): ReadonlySet<string> {
   computeCurrentFileImports(sourceCode);
   return CURRENT_FILE_IMPORTS.imports;
+}
+
+export function getCurrentFileModuleReferences(sourceCode: SourceCode): ReadonlySet<string> {
+  computeCurrentFileModuleReferences(sourceCode);
+  return CURRENT_FILE_MODULE_REFERENCES.references;
 }
 
 function getRequireModuleName(node: estree.Node): string | undefined {

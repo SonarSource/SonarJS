@@ -17,16 +17,16 @@
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { Linter, type Rule } from 'eslint';
-import { getCurrentFileImports } from '../../../../src/jsts/rules/helpers/module.js';
+import { getCurrentFileModuleReferences } from '../../../../src/jsts/rules/helpers/module.js';
 
-describe('getCurrentFileImports', () => {
+describe('getCurrentFileModuleReferences', () => {
   it('collects literal module references throughout a file', () => {
     let imports = new Set<string>();
     const captureImports: Rule.RuleModule = {
       create(context) {
         return {
           Program() {
-            imports = new Set(getCurrentFileImports(context.sourceCode));
+            imports = new Set(getCurrentFileModuleReferences(context.sourceCode));
           },
         };
       },
@@ -40,6 +40,9 @@ describe('getCurrentFileImports', () => {
         require('standalone-require');
         function load() {
           return import('nested-dynamic').then(module => module.default);
+        }
+        function useLoader(require) {
+          require('shadowed-require');
         }
       `,
       {

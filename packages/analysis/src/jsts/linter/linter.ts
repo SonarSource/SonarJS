@@ -60,9 +60,13 @@ import {
 } from './filters/index.js';
 import { getClosestDependencyManifestDir } from '../rules/helpers/dependency-manifests/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
-import { collectPackageImports } from '../../package-imports.js';
+import { collectPackageImports as collectAllowlistedPackageImports } from '../../package-imports.js';
 import type { FileType } from '../../contracts/file.js';
-import { clearFileCaches, getCurrentFileImports } from '../rules/helpers/module.js';
+import {
+  clearFileCaches,
+  getCurrentFileImports,
+  getCurrentFileModuleReferences,
+} from '../rules/helpers/module.js';
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/npm-import.js';
 
 interface InitializeParams {
@@ -190,6 +194,18 @@ export class Linter {
   /** Resolve the module type for a file against the linter's base directory. */
   public static detectModuleType(filePath: NormalizedAbsolutePath): ModuleType | undefined {
     return getModuleType(normalizeToAbsolutePath(filePath), Linter.baseDir);
+  }
+
+  public static collectPackageImports(
+    sourceCode: SourceCode,
+    filePath: NormalizedAbsolutePath,
+  ): Set<string> {
+    const normalizedFilePath = normalizeToAbsolutePath(filePath);
+    const manifestDependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
+    return collectAllowlistedPackageImports(
+      getCurrentFileModuleReferences(sourceCode),
+      manifestDependencies,
+    );
   }
 
   private static async loadRulesFromBundle(ruleBundle: NormalizedAbsolutePath) {
@@ -333,11 +349,7 @@ export class Linter {
     // Make inline npm: imports visible to both rule activation and to dependency helpers
     // (getReactVersion, getDependenciesSanitizePaths) called from rules during linting.
     // Cleared by clearFileCaches() once linting completes.
-    setCurrentFileInlineDependencies(
-      sourceCode
-        ? extractInlineNpmDependencies(sourceCode, manifestDependencies, normalizedFilePath)
-        : null,
-    );
+    setCurrentFileInlineDependencies(sourceCode ? extractInlineNpmDependencies(sourceCode) : null);
     const baseContext = {
       extensionName: extname(normalizePath(filePath)),
       fileType,
@@ -463,11 +475,7 @@ function getURLScheme(moduleName: string): string | undefined {
  * and records telemetry for any URL-scheme imports (npm:, jsr:, https:, ...).
  * Returns null if the file has no inline npm imports.
  */
-function extractInlineNpmDependencies(
-  sourceCode: SourceCode,
-  manifestDependencies: DependenciesList,
-  filePath: NormalizedAbsolutePath,
-): DependenciesList | null {
+function extractInlineNpmDependencies(sourceCode: SourceCode): DependenciesList | null {
   let inlineDependencies: DependenciesList | null = null;
   const moduleNames = getCurrentFileImports(sourceCode);
   for (const moduleName of moduleNames) {
@@ -481,10 +489,6 @@ function extractInlineNpmDependencies(
       inlineDependencies.set(parsedSpecifier.packageName, parsedSpecifier.version);
     }
   }
-  getOptionalProjectAnalysisTelemetryCollector()?.recordPackageImports(
-    filePath,
-    collectPackageImports(moduleNames, manifestDependencies),
-  );
   return inlineDependencies;
 }
 
