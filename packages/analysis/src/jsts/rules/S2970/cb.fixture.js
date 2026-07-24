@@ -144,6 +144,58 @@ describe("incomplete assertions", function() {
   });
 });
 
+describe("uses Jest, Vitest, Bun, Testing Library, Playwright, Node assert", function() {
+  it("uncalled matchers and aliases", function() {
+    expect(value).toBe;  // Noncompliant {{Call this 'toBe' assertion.}}
+    expect(value).toEqual;  // Noncompliant {{Call this 'toEqual' assertion.}}
+    expect(value).toStrictEqual;  // Noncompliant {{Call this 'toStrictEqual' assertion.}}
+    expect(value).toContain;  // Noncompliant {{Call this 'toContain' assertion.}}
+    expect(value).toMatch;  // Noncompliant {{Call this 'toMatch' assertion.}}
+    expect(value).toThrow;  // Noncompliant {{Call this 'toThrow' assertion.}}
+    expect(value).toHaveBeenCalled;  // Noncompliant {{Call this 'toHaveBeenCalled' assertion.}}
+    expect(value).toBeCalled;  // Noncompliant {{Call this 'toBeCalled' assertion.}}
+    expect(value).toHaveBeenCalledTimes;  // Noncompliant {{Call this 'toHaveBeenCalledTimes' assertion.}}
+    expect(value).toBeCalledTimes;  // Noncompliant {{Call this 'toBeCalledTimes' assertion.}}
+    expect(value).toHaveBeenCalledWith;  // Noncompliant {{Call this 'toHaveBeenCalledWith' assertion.}}
+    expect(value).toBeCalledWith;  // Noncompliant {{Call this 'toBeCalledWith' assertion.}}
+    expect(value).toThrowError;  // Noncompliant {{Call this 'toThrowError' assertion.}}
+
+    // DOM & Playwright matchers
+    expect(element).toBeInTheDocument;  // Noncompliant {{Call this 'toBeInTheDocument' assertion.}}
+    expect(element).toBeVisible;  // Noncompliant {{Call this 'toBeVisible' assertion.}}
+    expect(locator).toBeAttached;  // Noncompliant {{Call this 'toBeAttached' assertion.}}
+
+    // Node assert
+    assert.strictEqual;  // Noncompliant {{Call this 'strictEqual' assertion.}}
+    assert.deepStrictEqual;  // Noncompliant {{Call this 'deepStrictEqual' assertion.}}
+    assert.rejects;  // Noncompliant {{Call this 'rejects' assertion.}}
+  });
+
+  it("dangling modifiers", async function() {
+    expect(value).not;  // Noncompliant {{Complete this assertion; 'not' doesn't assert anything by itself.}}
+    expect(promise).resolves;  // Noncompliant {{Complete this assertion; 'resolves' doesn't assert anything by itself.}}
+    await expect(promise).resolves;  // Noncompliant {{Complete this assertion; 'resolves' doesn't assert anything by itself.}}
+    expect(promise).rejects;  // Noncompliant {{Complete this assertion; 'rejects' doesn't assert anything by itself.}}
+    await expect(promise).rejects;  // Noncompliant {{Complete this assertion; 'rejects' doesn't assert anything by itself.}}
+    expect(locator).soft;  // Noncompliant {{Complete this assertion; 'soft' doesn't assert anything by itself.}}
+  });
+
+  it("complete assertions", async function() {
+    expect(value).toBe(42);
+    expect(value).toEqual(42);
+    expect(value).toContain('abc');
+    expect(value).toMatch(/abc/);
+    expect(fn).toThrow();
+    expect(value).toHaveBeenCalled();
+    expect(value).toBeCalled();
+    expect(element).toBeInTheDocument();
+    await expect(promise).resolves.toBe(42);
+    await expect(promise).rejects.toThrow();
+    assert.strictEqual(value, 42);
+    await assert.rejects(promise);
+  });
+});
+
 describe("complete assertions", function() {
   const value = 42;
 
@@ -165,4 +217,3 @@ describe("complete assertions", function() {
 });
 
 foo().bar;
-

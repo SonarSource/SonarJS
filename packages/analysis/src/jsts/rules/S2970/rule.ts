@@ -23,6 +23,7 @@ import { isIdentifier, isNumberLiteral } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const assertionFunctions = [
+  // Chai assertions
   'a',
   'an',
   'include',
@@ -76,9 +77,112 @@ const assertionFunctions = [
   'decreases',
   'by',
   'fail',
+
+  // Jest / Vitest / Bun Matchers & Aliases
+  'toBe',
+  'toEqual',
+  'toStrictEqual',
+  'toBeTruthy',
+  'toBeFalsy',
+  'toBeNull',
+  'toBeUndefined',
+  'toBeDefined',
+  'toBeNaN',
+  'toBeInstanceOf',
+  'toBeGreaterThan',
+  'toBeGreaterThanOrEqual',
+  'toBeLessThan',
+  'toBeLessThanOrEqual',
+  'toBeCloseTo',
+  'toContain',
+  'toContainEqual',
+  'toHaveLength',
+  'toHaveProperty',
+  'toMatch',
+  'toMatchObject',
+  'toHaveBeenCalled',
+  'toBeCalled',
+  'toHaveBeenCalledTimes',
+  'toBeCalledTimes',
+  'toHaveBeenCalledWith',
+  'toBeCalledWith',
+  'toHaveBeenLastCalledWith',
+  'lastCalledWith',
+  'toHaveBeenNthCalledWith',
+  'nthCalledWith',
+  'toHaveReturned',
+  'toReturn',
+  'toHaveReturnedTimes',
+  'toReturnTimes',
+  'toHaveReturnedWith',
+  'toReturnWith',
+  'toHaveLastReturnedWith',
+  'lastReturnedWith',
+  'toHaveNthReturnedWith',
+  'nthReturnedWith',
+  'toThrow',
+  'toThrowError',
+  'toMatchSnapshot',
+  'toMatchInlineSnapshot',
+  'toThrowErrorMatchingSnapshot',
+  'toThrowErrorMatchingInlineSnapshot',
+  'toResolve',
+  'toReject',
+
+  // @testing-library/jest-dom
+  'toBeInTheDocument',
+  'toBeVisible',
+  'toBeHidden',
+  'toBeDisabled',
+  'toBeEnabled',
+  'toBeRequired',
+  'toBeInvalid',
+  'toBeValid',
+  'toBeEmptyDOMElement',
+  'toBeChecked',
+  'toHaveAttribute',
+  'toHaveClass',
+  'toHaveStyle',
+  'toHaveValue',
+  'toHaveDisplayValue',
+  'toHaveFocus',
+  'toHaveTextContent',
+  'toHaveAccessibleName',
+  'toHaveAccessibleDescription',
+  'toHaveAccessibleErrorMessage',
+  'toHaveErrorMessage',
+  'toContainElement',
+  'toContainHTML',
+
+  // @playwright/test
+  'toBeAttached',
+  'toBeEditable',
+  'toBeInViewport',
+  'toBeOK',
+  'toContainText',
+  'toHaveCSS',
+  'toHaveId',
+  'toHaveJSProperty',
+  'toHaveRole',
+  'toHaveText',
+  'toHaveTitle',
+  'toHaveURL',
+  'toHaveValues',
+
+  // Node.js assert methods
+  'strictEqual',
+  'notStrictEqual',
+  'deepStrictEqual',
+  'notDeepStrictEqual',
+  'doesNotThrow',
+  'rejects',
+  'doesNotReject',
+  'doesNotMatch',
+  'ifError',
 ];
 
 const gettersOrModifiers = [
+  // Chai getters & modifiers
   'to',
   'be',
   'been',
@@ -95,9 +199,6 @@ const gettersOrModifiers = [
   'but',
   'does',
   'still',
-
-  // Modifier functions
-  'not',
   'deep',
   'nested',
   'own',
@@ -105,8 +206,14 @@ const gettersOrModifiers = [
   'any',
   'all',
   'itself',
-
   'should',
+
+  // Jest / Vitest / Bun / Playwright modifiers
+  'not',
+  'resolves',
+  'rejects',
+  'soft',
+  'poll',
 ];
 
 export const rule: Rule.RuleModule = {
@@ -115,16 +222,23 @@ export const rule: Rule.RuleModule = {
     return {
       ExpressionStatement(node: estree.Node) {
         const exprStatement = node as estree.ExpressionStatement;
-        if (exprStatement.expression.type === 'MemberExpression') {
-          const { property } = exprStatement.expression;
-          if (isTestAssertion(exprStatement.expression)) {
-            if (isIdentifier(property, ...assertionFunctions)) {
+        let expr = exprStatement.expression;
+        if (expr.type === 'AwaitExpression') {
+          expr = expr.argument;
+        }
+
+        if (expr.type === 'MemberExpression') {
+          const { property } = expr;
+          if (isTestAssertion(expr)) {
+            if (
+              isIdentifier(property, ...assertionFunctions) &&
+              !(isIdentifier(property, 'rejects') && isExpectAssertion(expr.object))
+            ) {
               context.report({
                 node: property,
                 message: `Call this '${property.name}' assertion.`,
               });
-            }
-            if (isIdentifier(property, ...gettersOrModifiers)) {
+            } else if (isIdentifier(property, ...gettersOrModifiers)) {
               context.report({
                 node: property,
                 message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
@@ -132,8 +246,8 @@ export const rule: Rule.RuleModule = {
             }
           }
         }
-        if (isExpectCall(exprStatement.expression)) {
-          const { callee } = exprStatement.expression;
+        if (isExpectCall(expr)) {
+          const { callee } = expr;
           context.report({
             node: callee,
             message: `Complete this assertion; '${callee.name}' doesn't assert anything by itself.`,
@@ -156,6 +270,19 @@ function isTestAssertion(node: estree.MemberExpression): boolean {
     return isTestAssertion(object);
   } else if (object.type === 'CallExpression' && object.callee.type === 'MemberExpression') {
     return isTestAssertion(object.callee);
+  }
+  return false;
+}
+
+function isExpectAssertion(node: estree.Node): boolean {
+  if (isExpectCall(node) || isIdentifier(node, 'expect')) {
+    return true;
+  }
+  if (node.type === 'MemberExpression') {
+    return isExpectAssertion(node.object);
+  }
+  if (node.type === 'CallExpression' && node.callee.type === 'MemberExpression') {
+    return isExpectAssertion(node.callee.object);
   }
   return false;
 }
