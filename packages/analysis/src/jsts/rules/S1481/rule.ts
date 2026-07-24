@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
@@ -29,8 +30,17 @@ const defaultOptions = [
     ignoreRestSiblings: true,
   },
 ];
+const ruleWithoutQuickFixes = interceptReport(baseRule, (context, descriptor) => {
+  const { fix: _fix, suggest: _suggest, ...rest } = descriptor;
+  context.report(rest);
+});
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, { ...baseRule.meta, defaultOptions, fixable: undefined }),
-  create: baseRule.create,
+  meta: generateMeta(meta, {
+    ...baseRule.meta,
+    defaultOptions,
+    fixable: undefined,
+    hasSuggestions: undefined,
+  }),
+  create: ruleWithoutQuickFixes.create,
 };

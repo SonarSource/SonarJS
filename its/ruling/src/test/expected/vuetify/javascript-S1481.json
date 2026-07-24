@@ -1,0 +1,480 @@
+{
+"vuetify:packages/docs/src/components/Backmatter.vue": [
+37,
+38,
+39,
+45,
+47
+],
+"vuetify:packages/docs/src/components/about/TeamMembers.vue": [
+23,
+33
+],
+"vuetify:packages/docs/src/components/app/BackToTop.vue": [
+30,
+34
+],
+"vuetify:packages/docs/src/components/app/Btn.vue": [
+35
+],
+"vuetify:packages/docs/src/components/app/Figure.vue": [
+29
+],
+"vuetify:packages/docs/src/components/app/Heading.vue": [
+40,
+41
+],
+"vuetify:packages/docs/src/components/app/Headline.vue": [
+34
+],
+"vuetify:packages/docs/src/components/app/Markdown.vue": [
+106
+],
+"vuetify:packages/docs/src/components/app/PwaSnackbar.vue": [
+37
+],
+"vuetify:packages/docs/src/components/app/V2Banner.vue": [
+44,
+50
+],
+"vuetify:packages/docs/src/components/app/bar/Bar.vue": [
+57,
+58,
+59,
+60,
+61,
+62,
+63,
+64,
+65,
+66,
+67,
+68,
+69,
+70,
+71,
+72,
+79,
+80,
+80,
+80,
+80,
+81
+],
+"vuetify:packages/docs/src/components/app/bar/EcosystemMenu.vue": [
+17,
+27
+],
+"vuetify:packages/docs/src/components/app/bar/EnterpriseLink.vue": [
+27,
+28,
+30,
+31
+],
+"vuetify:packages/docs/src/components/app/bar/JobsLink.vue": [
+27,
+35,
+40,
+42,
+48
+],
+"vuetify:packages/docs/src/components/app/bar/Logo.vue": [
+24,
+31,
+31,
+34
+],
+"vuetify:packages/docs/src/components/app/bar/PlaygroundLink.vue": [
+22
+],
+"vuetify:packages/docs/src/components/app/bar/SettingsToggle.vue": [
+23,
+29
+],
+"vuetify:packages/docs/src/components/app/bar/SponsorLink.vue": [
+18,
+23
+],
+"vuetify:packages/docs/src/components/app/bar/StoreLink.vue": [
+15,
+24
+],
+"vuetify:packages/docs/src/components/app/bar/SupportMenu.vue": [
+20,
+30,
+31
+],
+"vuetify:packages/docs/src/components/app/bar/TeamLink.vue": [
+18,
+23
+],
+"vuetify:packages/docs/src/components/app/bar/ThemeToggle.vue": [
+24,
+29
+],
+"vuetify:packages/docs/src/components/app/drawer/Drawer.vue": [
+42,
+46,
+52,
+53
+],
+"vuetify:packages/docs/src/components/app/settings/Api.vue": [
+7,
+15,
+16
+],
+"vuetify:packages/docs/src/components/app/settings/Dev.vue": [
+18
+],
+"vuetify:packages/docs/src/components/app/settings/Drawer.vue": [
+47,
+48,
+49,
+50,
+56,
+57
+],
+"vuetify:packages/docs/src/components/app/settings/Rtl.vue": [
+7,
+15,
+16
+],
+"vuetify:packages/docs/src/components/doc/Contribute.vue": [
+21,
+24
+],
+"vuetify:packages/docs/src/components/doc/RelatedPage.vue": [
+38,
+40,
+41
+],
+"vuetify:packages/docs/src/components/doc/RelatedPages.vue": [
+20,
+25
+],
+"vuetify:packages/docs/src/components/doc/UpNext.vue": [
+59,
+68,
+77
+],
+"vuetify:packages/docs/src/components/doc/VueJobs.vue": [
+92,
+93
+],
+"vuetify:packages/docs/src/components/doc/VuetifyUiKits.vue": [
+50
+],
+"vuetify:packages/docs/src/components/examples/ExampleMissing.vue": [
+18
+],
+"vuetify:packages/docs/src/components/examples/UsageExample.vue": [
+121,
+138,
+139,
+142,
+143,
+144,
+148
+],
+"vuetify:packages/docs/src/components/features/BreakpointsTable.vue": [
+80,
+118,
+125
+],
+"vuetify:packages/docs/src/components/getting-started/WireframeExamples.vue": [
+34
+],
+"vuetify:packages/docs/src/components/home/ActionBtns.vue": [
+26,
+28,
+58
+],
+"vuetify:packages/docs/src/components/home/Footer.vue": [
+80,
+81,
+95
+],
+"vuetify:packages/docs/src/components/home/Logo.vue": [
+24
+],
+"vuetify:packages/docs/src/components/home/Sponsors.vue": [
+39,
+40,
+50
+],
+"vuetify:packages/docs/src/components/introduction/DirectSupport.vue": [
+47
+],
+"vuetify:packages/docs/src/components/promoted/Base.vue": [
+34,
+42
+],
+"vuetify:packages/docs/src/components/promoted/Inline.vue": [
+19,
+19
+],
+"vuetify:packages/docs/src/components/promoted/Promoted.vue": [
+46,
+64,
+67,
+68,
+75,
+77
+],
+"vuetify:packages/docs/src/components/promoted/Vuetify.vue": [
+28,
+39,
+39,
+39,
+39
+],
+"vuetify:packages/docs/src/components/sponsor/Card.vue": [
+49,
+61,
+77
+],
+"vuetify:packages/docs/src/components/sponsor/Link.vue": [
+24,
+32,
+34
+],
+"vuetify:packages/docs/src/examples/application/theme.vue": [
+27
+],
+"vuetify:packages/docs/src/examples/blueprints/md1.vue": [
+44
+],
+"vuetify:packages/docs/src/examples/blueprints/md2.vue": [
+44
+],
+"vuetify:packages/docs/src/examples/blueprints/md3.vue": [
+44
+],
+"vuetify:packages/docs/src/examples/v-alert/usage.vue": [
+55,
+60,
+76
+],
+"vuetify:packages/docs/src/examples/v-app-bar/usage.vue": [
+45,
+73
+],
+"vuetify:packages/docs/src/examples/v-autocomplete/usage.vue": [
+32,
+48
+],
+"vuetify:packages/docs/src/examples/v-avatar/usage.vue": [
+40,
+55
+],
+"vuetify:packages/docs/src/examples/v-badge/usage.vue": [
+40,
+56
+],
+"vuetify:packages/docs/src/examples/v-banner/usage.vue": [
+54,
+57,
+80
+],
+"vuetify:packages/docs/src/examples/v-bottom-navigation/usage.vue": [
+43,
+80
+],
+"vuetify:packages/docs/src/examples/v-breadcrumbs/usage.vue": [
+34,
+35,
+48
+],
+"vuetify:packages/docs/src/examples/v-btn/usage.vue": [
+30,
+53
+],
+"vuetify:packages/docs/src/examples/v-card/usage.vue": [
+44,
+69
+],
+"vuetify:packages/docs/src/examples/v-carousel/usage.vue": [
+36,
+63
+],
+"vuetify:packages/docs/src/examples/v-checkbox/usage.vue": [
+20,
+21,
+32
+],
+"vuetify:packages/docs/src/examples/v-chip-group/usage.vue": [
+27,
+44
+],
+"vuetify:packages/docs/src/examples/v-chip/usage.vue": [
+36,
+53,
+63
+],
+"vuetify:packages/docs/src/examples/v-color-picker/usage.vue": [
+27,
+43
+],
+"vuetify:packages/docs/src/examples/v-combobox/usage.vue": [
+31,
+32,
+47
+],
+"vuetify:packages/docs/src/examples/v-defaults-provider/usage.vue": [
+34,
+36,
+55
+],
+"vuetify:packages/docs/src/examples/v-divider/usage.vue": [
+32,
+38,
+39,
+59
+],
+"vuetify:packages/docs/src/examples/v-expansion-panels/usage.vue": [
+26,
+27,
+42
+],
+"vuetify:packages/docs/src/examples/v-file-input/usage.vue": [
+27,
+45
+],
+"vuetify:packages/docs/src/examples/v-footer/usage.vue": [
+23,
+34
+],
+"vuetify:packages/docs/src/examples/v-hover/usage.vue": [
+29,
+30,
+48
+],
+"vuetify:packages/docs/src/examples/v-icon/usage.vue": [
+28,
+32,
+40,
+46,
+56,
+68
+],
+"vuetify:packages/docs/src/examples/v-img/usage.vue": [
+40,
+41,
+44,
+49,
+64
+],
+"vuetify:packages/docs/src/examples/v-lazy/usage.vue": [
+58,
+59,
+62,
+64,
+102
+],
+"vuetify:packages/docs/src/examples/v-list/usage.vue": [
+33,
+36,
+57,
+80
+],
+"vuetify:packages/docs/src/examples/v-navigation-drawer/usage.vue": [
+49,
+50,
+61
+],
+"vuetify:packages/docs/src/examples/v-pagination/usage.vue": [
+25,
+26,
+28,
+40
+],
+"vuetify:packages/docs/src/examples/v-progress-circular/usage.vue": [
+47,
+52,
+67
+],
+"vuetify:packages/docs/src/examples/v-progress-linear/usage.vue": [
+39,
+43,
+57
+],
+"vuetify:packages/docs/src/examples/v-radio-group/usage.vue": [
+29,
+46
+],
+"vuetify:packages/docs/src/examples/v-range-slider/usage.vue": [
+25,
+38
+],
+"vuetify:packages/docs/src/examples/v-responsive/usage.vue": [
+30,
+44
+],
+"vuetify:packages/docs/src/examples/v-select/usage.vue": [
+32,
+48
+],
+"vuetify:packages/docs/src/examples/v-sheet/usage.vue": [
+59,
+60,
+66,
+78,
+87
+],
+"vuetify:packages/docs/src/examples/v-slider/usage.vue": [
+25,
+38
+],
+"vuetify:packages/docs/src/examples/v-switch/usage.vue": [
+26,
+41
+],
+"vuetify:packages/docs/src/examples/v-system-bar/usage.vue": [
+32,
+39
+],
+"vuetify:packages/docs/src/examples/v-text-field/usage.vue": [
+33,
+47
+],
+"vuetify:packages/docs/src/examples/v-textarea/usage.vue": [
+33,
+47
+],
+"vuetify:packages/docs/src/examples/v-toolbar/usage.vue": [
+36,
+51
+],
+"vuetify:packages/docs/src/examples/v-tooltip/usage.vue": [
+32,
+35,
+57
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/usage.vue": [
+27,
+28,
+29,
+45
+],
+"vuetify:packages/docs/src/layouts/default.vue": [
+44,
+45,
+46,
+47,
+48,
+49,
+50,
+51,
+62
+],
+"vuetify:packages/docs/src/layouts/home.vue": [
+23,
+24,
+25,
+26,
+27
+],
+"vuetify:packages/docs/src/layouts/wireframe.vue": [
+20
+]
+}

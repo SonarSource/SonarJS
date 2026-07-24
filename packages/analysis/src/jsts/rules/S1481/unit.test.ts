@@ -75,6 +75,16 @@ describe('S1481', () => {
           options: [{ args: 'all' }],
           errors: [{ message: "'_unused' is defined but never used." }],
         },
+        {
+          code: `
+            import { foo } from './foo';
+
+            console.log('used');
+          `,
+          options: [{ enableAutofixRemoval: { imports: true } }],
+          output: null,
+          errors: [{ message: "'foo' is defined but never used.", suggestions: [] }],
+        },
       ],
     });
   });

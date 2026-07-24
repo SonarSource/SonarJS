@@ -1,10 +1,15 @@
 {
 "Ghost:core/client/tests/acceptance/authentication-test.js": [
+12,
+12,
 40,
 78,
 134
 ],
 "Ghost:core/client/tests/acceptance/posts/post-test.js": [
+12,
+13,
+13,
 29,
 56
 ],
@@ -17,14 +22,84 @@
 81
 ],
 "Ghost:core/client/tests/acceptance/setup-test.js": [
+9,
 28
 ],
 "Ghost:core/client/tests/acceptance/team-test.js": [
+9,
 38,
 52,
 67,
 75,
 239
+],
+"Ghost:core/client/tests/integration/components/gh-alerts-test.js": [
+10
+],
+"Ghost:core/client/tests/integration/components/gh-navitem-test.js": [
+8
+],
+"Ghost:core/client/tests/integration/components/gh-notifications-test.js": [
+10
+],
+"Ghost:core/client/tests/integration/components/gh-tags-management-container-test.js": [
+8
+],
+"Ghost:core/client/tests/integration/services/ajax-test.js": [
+7
+],
+"Ghost:core/client/tests/unit/components/gh-trim-focus-input_test.js": [
+1
+],
+"Ghost:core/client/tests/unit/helpers/gh-user-can-admin-test.js": [
+2
+],
+"Ghost:core/client/tests/unit/mixins/validation-engine-test.js": [
+2,
+7,
+8
+],
+"Ghost:core/client/tests/unit/validators/tag-settings-test.js": [
+8
+],
+"Ghost:core/server/helpers/foreach.js": [
+65
+],
+"Ghost:core/server/middleware/auth.js": [
+27
+],
+"Ghost:core/test/functional/base.js": [
+31,
+47
+],
+"Ghost:core/test/functional/routes/api/authentication_spec.js": [
+12
+],
+"Ghost:core/test/integration/model/model_tags_spec.js": [
+19
+],
+"Ghost:core/test/unit/apps_spec.js": [
+22,
+318,
+329
+],
+"Ghost:core/test/unit/controllers/frontend/fetch-data_spec.js": [
+20
+],
+"Ghost:core/test/unit/middleware/spam-prevention_spec.js": [
+88,
+208
+],
+"Ghost:core/test/unit/middleware/static-theme_spec.js": [
+79
+],
+"Ghost:core/test/unit/server_helpers/get_spec.js": [
+40,
+40,
+280
+],
+"Ghost:core/test/utils/fixtures/app/nested/goodnested.js": [
+2
 ],
 "Ghost:core/test/utils/index.js": [
 49
