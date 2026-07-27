@@ -63,7 +63,7 @@ export const rule: Rule.RuleModule = {
 
         if (
           isComposite &&
-          (!truthyConjunction || !isAssertionGuardChain(truthyConjunction, context.sourceCode))
+          !(truthyConjunction && isGuardChain(truthyConjunction, context.sourceCode))
         ) {
           context.report({ node: actual, messageId: 'issue' });
         }
@@ -91,14 +91,15 @@ function getTruthyConjunction(
   return undefined;
 }
 
-function isAssertionGuardChain(expression: estree.LogicalExpression, sourceCode: SourceCode) {
+/**
+ * A conjunction is one cohesive check rather than independent conditions when an operand checks
+ * the existence, type, or shape of a reference and every operand only uses that same reference.
+ */
+function isGuardChain(expression: estree.LogicalExpression, sourceCode: SourceCode) {
   const operands = flattenConjunction(expression);
-  const subjects = operands.flatMap(getGuardSubjects).filter(isStableReference);
-  return subjects.some(
-    subject =>
-      hasSafeObjectGuard(subject, operands, sourceCode) &&
-      operands.every(operand => participatesInGuard(operand, subject, sourceCode)),
-  );
+  return operands
+    .flatMap(getCheckedSubjects)
+    .some(subject => operands.every(operand => mentions(operand, subject, sourceCode)));
 }
 
 function flattenConjunction(expression: estree.Expression): estree.Expression[] {
@@ -108,17 +109,27 @@ function flattenConjunction(expression: estree.Expression): estree.Expression[] 
   return [expression];
 }
 
-function getGuardSubjects(expression: estree.Expression): estree.Expression[] {
-  if (isStableReference(expression)) {
-    return [expression];
+/**
+ * Returns the references whose existence, type, or shape the operand checks. Comparing a property
+ * checks that property, not the object holding it, so `result.kind === 'success'` checks nothing
+ * about `result`.
+ */
+function getCheckedSubjects(operand: estree.Expression): StableReference[] {
+  if (isStableReference(operand)) {
+    return [operand];
   }
-  if (expression.type === 'CallExpression' && isTypePredicateCall(expression)) {
-    return [expression.arguments[0] as estree.Expression];
+  if (operand.type === 'CallExpression' && operand.arguments.length === 1) {
+    const [argument] = operand.arguments;
+    return isStableReference(argument) ? [argument] : [];
   }
-  return expression.type === 'BinaryExpression' ? getBinaryGuardSubjects(expression) : [];
+  return operand.type === 'BinaryExpression' ? getComparisonSubjects(operand) : [];
 }
 
-function getBinaryGuardSubjects({ left, operator, right }: estree.BinaryExpression) {
+function getComparisonSubjects({
+  left,
+  operator,
+  right,
+}: estree.BinaryExpression): StableReference[] {
   switch (operator) {
     case 'instanceof':
       return isStableReference(left) ? [left] : [];
@@ -126,19 +137,19 @@ function getBinaryGuardSubjects({ left, operator, right }: estree.BinaryExpressi
       return isStringLiteral(left) && isStableReference(right) ? [right] : [];
     case '!=':
     case '!==':
-      return getAbsentValueSubject(left, right);
+      return getDefinedSubjects(left, right);
     case '==':
     case '===':
-      return getEqualitySubject(left, right);
+      return getTypeofSubjects(left, right);
     default:
       return [];
   }
 }
 
-function getAbsentValueSubject(
+function getDefinedSubjects(
   left: estree.Expression | estree.PrivateIdentifier,
   right: estree.Expression | estree.PrivateIdentifier,
-) {
+): StableReference[] {
   if (isAbsentValue(left) && isStableReference(right)) {
     return [right];
   }
@@ -148,163 +159,39 @@ function getAbsentValueSubject(
   return [];
 }
 
-function getEqualitySubject(
+function getTypeofSubjects(
   left: estree.Expression | estree.PrivateIdentifier,
   right: estree.Expression,
+): StableReference[] {
+  const subject = getTypeofSubject(left, right) ?? getTypeofSubject(right, left);
+  return subject ? [subject] : [];
+}
+
+function getTypeofSubject(
+  candidateTypeof: estree.Expression | estree.PrivateIdentifier,
+  candidateLiteral: estree.Expression | estree.PrivateIdentifier,
 ) {
-  const typeofSubject = getPositiveTypeofSubject(left, right);
-  if (typeofSubject) {
-    return [typeofSubject];
-  }
-  const discriminatedSubject = getDiscriminatedSubject(left, right);
-  return discriminatedSubject ? [discriminatedSubject] : [];
+  return candidateTypeof.type === 'UnaryExpression' &&
+    candidateTypeof.operator === 'typeof' &&
+    isStringLiteral(candidateLiteral) &&
+    isStableReference(candidateTypeof.argument)
+    ? candidateTypeof.argument
+    : undefined;
 }
 
 function isStringLiteral(node: estree.Node): node is estree.Literal {
   return node.type === 'Literal' && typeof node.value === 'string';
 }
 
-function getPositiveTypeofSubject(
-  left: estree.Expression | estree.PrivateIdentifier,
-  right: estree.Expression,
-) {
-  if (
-    left.type === 'UnaryExpression' &&
-    left.operator === 'typeof' &&
-    right.type === 'Literal' &&
-    typeof right.value === 'string' &&
-    right.value !== 'undefined' &&
-    isStableReference(left.argument)
-  ) {
-    return left.argument;
-  }
-  if (
-    right.type === 'UnaryExpression' &&
-    right.operator === 'typeof' &&
-    left.type === 'Literal' &&
-    typeof left.value === 'string' &&
-    left.value !== 'undefined' &&
-    isStableReference(right.argument)
-  ) {
-    return right.argument;
-  }
-  return undefined;
-}
-
-function getDiscriminatedSubject(
-  left: estree.Expression | estree.PrivateIdentifier,
-  right: estree.Expression,
-) {
-  if (left.type === 'MemberExpression' && isPositiveLiteral(right)) {
-    return isStableReference(left.object) ? left.object : undefined;
-  }
-  if (right.type === 'MemberExpression' && isPositiveLiteral(left)) {
-    return isStableReference(right.object) ? right.object : undefined;
-  }
-  return undefined;
-}
-
-function isPositiveLiteral(node: estree.Node) {
-  return node.type === 'Literal' && ['string', 'number'].includes(typeof node.value);
-}
-
 function isAbsentValue(node: estree.Node) {
   return isNullLiteral(node) || isUndefined(node);
 }
 
-function isTypePredicateCall(
-  expression: estree.CallExpression,
-): expression is estree.CallExpression & { arguments: [estree.Expression] } {
-  if (expression.arguments.length !== 1 || expression.arguments[0].type === 'SpreadElement') {
-    return false;
-  }
-  const { callee } = expression;
-  return (
-    (callee.type === 'Identifier' && /^is[A-Z_]/u.test(callee.name)) ||
-    (callee.type === 'MemberExpression' &&
-      !callee.computed &&
-      callee.object.type === 'Identifier' &&
-      callee.object.name === 'Array' &&
-      callee.property.type === 'Identifier' &&
-      callee.property.name === 'isArray')
-  );
-}
-
-function participatesInGuard(
-  operand: estree.Expression,
-  subject: estree.Expression,
-  sourceCode: SourceCode,
-) {
-  return (
-    areEquivalent(operand, subject, sourceCode) ||
-    getGuardSubjects(operand).some(candidate => areEquivalent(candidate, subject, sourceCode)) ||
-    containsMemberAccessOn(operand, subject, sourceCode)
-  );
-}
-
-function hasSafeObjectGuard(
-  subject: estree.Expression,
-  operands: estree.Expression[],
-  sourceCode: SourceCode,
-) {
-  const hasObjectTypeof = operands.some(operand =>
-    isPositiveTypeofComparison(operand, subject, 'object', sourceCode),
-  );
-  return (
-    !hasObjectTypeof ||
-    operands.some(operand => areEquivalent(operand, subject, sourceCode)) ||
-    operands.some(operand => isNonNullComparison(operand, subject, sourceCode))
-  );
-}
-
-function isPositiveTypeofComparison(
-  expression: estree.Expression,
-  subject: estree.Expression,
-  typeName: string,
-  sourceCode: SourceCode,
-) {
-  if (
-    expression.type !== 'BinaryExpression' ||
-    (expression.operator !== '==' && expression.operator !== '===')
-  ) {
-    return false;
-  }
-  const pairs = [
-    [expression.left, expression.right],
-    [expression.right, expression.left],
-  ] as const;
-  return pairs.some(
-    ([candidateTypeof, candidateLiteral]) =>
-      candidateTypeof.type === 'UnaryExpression' &&
-      candidateTypeof.operator === 'typeof' &&
-      candidateLiteral.type === 'Literal' &&
-      candidateLiteral.value === typeName &&
-      areEquivalent(candidateTypeof.argument, subject, sourceCode),
-  );
-}
-
-function isNonNullComparison(
-  expression: estree.Expression,
-  subject: estree.Expression,
-  sourceCode: SourceCode,
-) {
-  if (
-    expression.type !== 'BinaryExpression' ||
-    (expression.operator !== '!=' && expression.operator !== '!==')
-  ) {
-    return false;
-  }
-  return (
-    (isNullLiteral(expression.left) && areEquivalent(expression.right, subject, sourceCode)) ||
-    (isNullLiteral(expression.right) && areEquivalent(expression.left, subject, sourceCode))
-  );
-}
-
-function containsMemberAccessOn(
-  node: estree.Node,
-  subject: estree.Expression,
-  sourceCode: SourceCode,
-): boolean {
+/**
+ * Whether the expression uses the subject. Nested functions are skipped because they can shadow
+ * the reference, in which case a match would denote a different value.
+ */
+function mentions(node: estree.Node, subject: estree.Expression, sourceCode: SourceCode): boolean {
   if (
     node.type === 'FunctionExpression' ||
     node.type === 'ArrowFunctionExpression' ||
@@ -312,16 +199,15 @@ function containsMemberAccessOn(
   ) {
     return false;
   }
-  if (
-    node.type === 'MemberExpression' &&
-    isStableReference(node.object) &&
-    areEquivalent(node.object, subject, sourceCode)
-  ) {
+  if (areEquivalent(node, subject, sourceCode)) {
     return true;
   }
-  return childrenOf(node, sourceCode.visitorKeys).some(child =>
-    containsMemberAccessOn(child, subject, sourceCode),
-  );
+  // A non-computed property name is not a reference, so `b.a` does not use `a`.
+  const children =
+    node.type === 'MemberExpression' && !node.computed
+      ? [node.object]
+      : childrenOf(node, sourceCode.visitorKeys);
+  return children.some(child => mentions(child, subject, sourceCode));
 }
 
 type StableReference = estree.Identifier | estree.ThisExpression | estree.MemberExpression;

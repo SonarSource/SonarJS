@@ -131,7 +131,20 @@ describe('S9073', () => {
         {
           code: `
             import assert from 'node:assert/strict';
-            assert(result.kind === 'success' && result.value);
+            assert(isNonEmpty(list) && list[0].id);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(typeof value === 'object' && value.property);
+          `,
+        },
+        {
+          // Exempt because `value !== null` checks the reference that both operands use.
+          code: `
+            import assert from 'node:assert/strict';
+            assert(typeof value !== 'object' && value !== null);
           `,
         },
         {
@@ -237,14 +250,14 @@ describe('S9073', () => {
         {
           code: `
             import assert from 'node:assert/strict';
-            assert(typeof value !== 'object' && value !== null);
+            assert(result.kind === 'success' && result.value);
           `,
           errors: [expectedIssue],
         },
         {
           code: `
             import assert from 'node:assert/strict';
-            assert(typeof value === 'object' && value.property);
+            assert(value && other.value);
           `,
           errors: [expectedIssue],
         },
