@@ -210,21 +210,23 @@ function nonNullValue(value: object | null): string {
 describe('S6551 lodash utility report redirection', () => {
   it('keeps Sonar defaults even when upstream options are passed', () => {
     const ruleTester = new RuleTester();
-    ruleTester.run('S6551', rule, {
-      valid: [
-        {
-          code: `
+    assert.doesNotThrow(() => {
+      ruleTester.run('S6551', rule, {
+        valid: [
+          {
+            code: `
 declare const require: (moduleName: string) => object;
 
 function lodashNamespaceToStringWithUnconstrainedGeneric<T>(value: T) {
   const _ = require('lodash');
   return _.toString(value);
 }
-          `,
-          options: [{ checkUnknown: true }],
-        },
-      ],
-      invalid: [],
+            `,
+            options: [{ checkUnknown: true }],
+          },
+        ],
+        invalid: [],
+      });
     });
   });
 });
@@ -250,28 +252,30 @@ describe('S6551 upstream classification parity', () => {
 
   it('upstream defaults still classify the pinned ignored types and generics as SonarJS assumes', () => {
     const ruleTester = new RuleTester();
-    ruleTester.run('no-base-to-string', upstreamRule, {
-      valid: [
-        // `ignoredTypeNames` still covers the built-ins SonarJS never redirects onto.
-        { code: `function ignoredError(value: Error) { return String(value); }` },
-        { code: `function ignoredRegExp(value: RegExp) { return String(value); }` },
-        // `checkUnknown` still defaults to false: unconstrained generics stay compliant.
-        { code: `function unconstrainedGeneric<T>(value: T) { return String(value); }` },
-      ],
-      invalid: [
-        // Sanity check: a plain object is still reported, so the `valid` cases above are meaningful.
-        {
-          code: `function plainObject(value: object) { return String(value); }`,
-          errors: [{ messageId: 'baseToString' }],
-        },
-        // Flipping `checkUnknown` reclassifies the generic, confirming the option still behaves as
-        // SonarJS relies on when it deliberately keeps it disabled.
-        {
-          code: `function unconstrainedGeneric<T>(value: T) { return String(value); }`,
-          options: [{ checkUnknown: true }],
-          errors: [{ messageId: 'baseToString' }],
-        },
-      ],
+    assert.doesNotThrow(() => {
+      ruleTester.run('no-base-to-string', upstreamRule, {
+        valid: [
+          // `ignoredTypeNames` still covers the built-ins SonarJS never redirects onto.
+          { code: `function ignoredError(value: Error) { return String(value); }` },
+          { code: `function ignoredRegExp(value: RegExp) { return String(value); }` },
+          // `checkUnknown` still defaults to false: unconstrained generics stay compliant.
+          { code: `function unconstrainedGeneric<T>(value: T) { return String(value); }` },
+        ],
+        invalid: [
+          // Sanity check: a plain object is still reported, so the `valid` cases above are meaningful.
+          {
+            code: `function plainObject(value: object) { return String(value); }`,
+            errors: [{ messageId: 'baseToString' }],
+          },
+          // Flipping `checkUnknown` reclassifies the generic, confirming the option still behaves as
+          // SonarJS relies on when it deliberately keeps it disabled.
+          {
+            code: `function unconstrainedGeneric<T>(value: T) { return String(value); }`,
+            options: [{ checkUnknown: true }],
+            errors: [{ messageId: 'baseToString' }],
+          },
+        ],
+      });
     });
   });
 });
