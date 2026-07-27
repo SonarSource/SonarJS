@@ -27,7 +27,7 @@ export function isRenderedJsxChild(parent: TSESTree.Node, child: TSESTree.Node):
   switch (parent.type) {
     case 'JSXElement':
     case 'JSXFragment':
-      return parent.children.some(renderedChild => renderedChild === child);
+      return (parent.children as readonly TSESTree.Node[]).includes(child);
     case 'JSXExpressionContainer':
       return parent.expression === child;
     case 'ConditionalExpression':
@@ -41,7 +41,7 @@ export function isRenderedJsxChild(parent: TSESTree.Node, child: TSESTree.Node):
       }
       return false;
     case 'ArrayExpression':
-      return parent.elements.some(element => element === child);
+      return (parent.elements as readonly (TSESTree.Node | null)[]).includes(child);
     case 'ChainExpression':
     case 'TSAsExpression':
     case 'TSTypeAssertion':
