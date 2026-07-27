@@ -58,6 +58,12 @@ describe('S1135', () => {
         {
           code: `/* TODO APPSEC-42 remove this later */`,
         },
+        {
+          code: `// Temporary fix. (TODO PROJ-123 improve method)`,
+        },
+        {
+          code: `// TODO fix this. See PROJ-123.`,
+        },
       ],
       invalid: [
         {
