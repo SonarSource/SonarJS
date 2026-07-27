@@ -105,6 +105,16 @@ describe('S8959', () => {
         },
         {
           code: `
+            import { screen } from './test-utils';
+
+            test('does not resolve custom test-utils re-exports', () => {
+              screen.debug();
+            });
+          `,
+          filename: 'tests/tl-wrapper.test.tsx',
+        },
+        {
+          code: `
             const screen = {
               debug() {},
               logTestingPlaygroundURL() {},
@@ -265,6 +275,60 @@ describe('S8959', () => {
             import { screen } from '@testing-library/react';
 
             test('uses Testing Library screen.debug', () => {
+            });
+          `,
+        },
+        {
+          code: `
+            import { screen } from '@testing-library/react/pure';
+
+            test('uses Testing Library screen.debug from a subpath entrypoint', () => {
+              screen.debug();
+            });
+          `,
+          filename: 'tests/tl-pure-debug.test.tsx',
+          errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            import { screen } from '@testing-library/react/pure';
+
+            test('uses Testing Library screen.debug from a subpath entrypoint', () => {
+            });
+          `,
+        },
+        {
+          code: `
+            import { render } from '@testing-library/react';
+
+            test('uses the debug method returned by render', () => {
+              const { debug } = render(<Component />);
+              debug();
+            });
+          `,
+          filename: 'tests/tl-render-debug.test.tsx',
+          errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            import { render } from '@testing-library/react';
+
+            test('uses the debug method returned by render', () => {
+              const { debug } = render(<Component />);
+            });
+          `,
+        },
+        {
+          code: `
+            import { render } from '@testing-library/react';
+
+            test('uses the debug method returned by render inline', () => {
+              render(<Component />).debug();
+            });
+          `,
+          filename: 'tests/tl-render-inline-debug.test.tsx',
+          errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            import { render } from '@testing-library/react';
+
+            test('uses the debug method returned by render inline', () => {
+              render(<Component />);
             });
           `,
         },

@@ -35,6 +35,14 @@ const TESTING_LIBRARY_MODULES = [
   '@testing-library/preact',
 ];
 
+const TESTING_LIBRARY_DEBUG_COMMANDS = [
+  'screen.debug',
+  'screen.logTestingPlaygroundURL',
+  'render.debug',
+  'prettyDOM',
+  'logRoles',
+];
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
@@ -86,18 +94,18 @@ function isTestingLibraryDebugCommand(
   context: Rule.RuleContext,
   call: estree.CallExpression,
 ): boolean {
+  // getFullyQualifiedName intentionally resolves imports in the current file only.
+  // Custom test-utils wrappers that re-export Testing Library symbols are not resolved here.
   const fqn = getFullyQualifiedName(context, call.callee);
   if (!fqn) {
     return false;
   }
   return TESTING_LIBRARY_MODULES.some(module => {
-    const prefix = module.replace('/', '.');
-    return [
-      `${prefix}.screen.debug`,
-      `${prefix}.screen.logTestingPlaygroundURL`,
-      `${prefix}.prettyDOM`,
-      `${prefix}.logRoles`,
-    ].includes(fqn);
+    const prefix = `${module.replace('/', '.')}.`;
+    return (
+      fqn.startsWith(prefix) &&
+      TESTING_LIBRARY_DEBUG_COMMANDS.some(command => fqn.endsWith(`.${command}`))
+    );
   });
 }
 
