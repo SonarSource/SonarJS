@@ -588,6 +588,50 @@ describe('S6819', () => {
           `,
         },
         {
+          // Compliant: expression-contained option in a conditional alternate branch
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {isClosed ? null : <div role="option">Paris</div>}
+            </div>
+          `,
+        },
+        {
+          // Compliant: expression-contained option in a nullish coalescing fallback
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {selectedOption ?? <div role="option">Paris</div>}
+            </div>
+          `,
+        },
+        {
+          // Compliant: expression-contained option in an array literal
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {[<div role="option">Paris</div>]}
+            </div>
+          `,
+        },
+        {
+          // Compliant: group is rendered through a TypeScript expression wrapper
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {(<div role="group" aria-label="Europe">
+                <div role="option" aria-selected="true">Paris</div>
+              </div> as JSX.Element)}
+            </div>
+          `,
+        },
+        {
+          // Compliant: group is rendered through a non-null expression wrapper
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {(<div role="group" aria-label="Europe">
+                <div role="option" aria-selected="true">Paris</div>
+              </div>)!}
+            </div>
+          `,
+        },
+        {
           // Compliant: group is rendered through a JSX expression child of the listbox
           code: `
             <div role="listbox" aria-label="Cities">
