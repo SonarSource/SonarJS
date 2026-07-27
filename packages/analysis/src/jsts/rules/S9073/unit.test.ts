@@ -262,6 +262,15 @@ describe('S9073', () => {
           errors: [expectedIssue],
         },
         {
+          // A single-argument call is only a guard when its name signals a predicate; an
+          // arbitrary call establishes nothing about its argument.
+          code: `
+            import assert from 'node:assert/strict';
+            assert(compute(value) && value.ok);
+          `,
+          errors: [expectedIssue],
+        },
+        {
           code: `
             import assert from 'node:assert/strict';
             assert(value === null && value.property);

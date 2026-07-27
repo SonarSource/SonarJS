@@ -112,17 +112,35 @@ function flattenConjunction(expression: estree.Expression): estree.Expression[] 
 /**
  * Returns the references whose existence, type, or shape the operand checks. Comparing a property
  * checks that property, not the object holding it, so `result.kind === 'success'` checks nothing
- * about `result`.
+ * about `result`. Likewise, an arbitrary call such as `compute(value)` checks nothing about
+ * `value` unless its name signals that it is a predicate, e.g. `isNonEmpty(value)`.
  */
 function getCheckedSubjects(operand: estree.Expression): StableReference[] {
   if (isStableReference(operand)) {
     return [operand];
   }
-  if (operand.type === 'CallExpression' && operand.arguments.length === 1) {
-    const [argument] = operand.arguments;
-    return isStableReference(argument) ? [argument] : [];
+  if (operand.type === 'CallExpression' && isPredicateCall(operand)) {
+    return isStableReference(operand.arguments[0]) ? [operand.arguments[0]] : [];
   }
   return operand.type === 'BinaryExpression' ? getComparisonSubjects(operand) : [];
+}
+
+function isPredicateCall(
+  expression: estree.CallExpression,
+): expression is estree.CallExpression & { arguments: [estree.Expression] } {
+  if (expression.arguments.length !== 1 || expression.arguments[0].type === 'SpreadElement') {
+    return false;
+  }
+  const { callee } = expression;
+  return (
+    (callee.type === 'Identifier' && /^is[A-Z_]/u.test(callee.name)) ||
+    (callee.type === 'MemberExpression' &&
+      !callee.computed &&
+      callee.object.type === 'Identifier' &&
+      callee.object.name === 'Array' &&
+      callee.property.type === 'Identifier' &&
+      callee.property.name === 'isArray')
+  );
 }
 
 function getComparisonSubjects({
