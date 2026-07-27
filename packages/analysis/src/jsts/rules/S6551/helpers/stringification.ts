@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
+import { isSymbolFromDefaultLibrary } from '@typescript-eslint/type-utils';
 import type { Rule } from 'eslint';
 import ts from 'typescript';
 
@@ -28,7 +29,7 @@ export type ToStringClassification =
 // These values are fixed on purpose. SonarJS owns the S6551 configuration and does not expose the
 // upstream `no-base-to-string` options to users, so the redirection classification always runs with
 // SonarJS's chosen defaults rather than any user-provided option object.
-const SONAR_TO_STRING_CLASSIFICATION_OPTIONS = {
+export const SONAR_TO_STRING_CLASSIFICATION_OPTIONS = {
   // S6551 keeps the upstream default: an unconstrained type parameter `T` is not treated like
   // `unknown`, so `_.toString(value)` stays valid for `function f<T>(value: T)`.
   checkUnknown: false,
@@ -66,11 +67,13 @@ export function classifyArgumentToStringification(
   context: Rule.RuleContext,
 ): ToStringClassification {
   const services = context.sourceCode.parserServices;
-  const checker = services.program.getTypeChecker();
+  const { program } = services;
+  const checker = program.getTypeChecker();
   const type = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node));
   return classifyTypeToStringification(
     type,
     checker,
+    program,
     SONAR_TO_STRING_CLASSIFICATION_OPTIONS,
     new Set(),
   );
@@ -79,6 +82,7 @@ export function classifyArgumentToStringification(
 function classifyTypeToStringification(
   type: ts.Type,
   checker: ts.TypeChecker,
+  program: ts.Program,
   options: ToStringClassificationOptions,
   visited: Set<ts.Type>,
 ): ToStringClassification {
@@ -88,7 +92,7 @@ function classifyTypeToStringification(
   if (isTypeParameter(type)) {
     const constraint = type.getConstraint();
     if (constraint) {
-      return classifyTypeToStringification(constraint, checker, options, visited);
+      return classifyTypeToStringification(constraint, checker, program, options, visited);
     }
     return options.checkUnknown ? POSSIBLE_DEFAULT_TO_STRING : USEFUL_TO_STRING;
   }
@@ -96,23 +100,30 @@ function classifyTypeToStringification(
     return USEFUL_TO_STRING;
   }
   if (type.isIntersection()) {
-    return classifyIntersectionStringification(type, checker, options, visited);
+    return classifyIntersectionStringification(type, checker, program, options, visited);
   }
   if (type.isUnion()) {
-    return classifyUnionStringification(type, checker, options, visited);
+    return classifyUnionStringification(type, checker, program, options, visited);
   }
   if (checker.isTupleType(type)) {
     return classifyTupleStringification(
       type as ts.TypeReference,
       checker,
+      program,
       options,
       new Set([...visited, type]),
     );
   }
   if (checker.isArrayType(type)) {
-    return classifyArrayStringification(type, checker, options, new Set([...visited, type]));
+    return classifyArrayStringification(
+      type,
+      checker,
+      program,
+      options,
+      new Set([...visited, type]),
+    );
   }
-  switch (isToStringLikeFromObject(type, checker)) {
+  switch (isToStringLikeFromObject(type, checker, program)) {
     case undefined:
       return options.checkUnknown && type.flags === ts.TypeFlags.Unknown
         ? POSSIBLE_DEFAULT_TO_STRING
@@ -127,11 +138,12 @@ function classifyTypeToStringification(
 function classifyUnionStringification(
   type: ts.UnionType,
   checker: ts.TypeChecker,
+  program: ts.Program,
   options: ToStringClassificationOptions,
   visited: Set<ts.Type>,
 ): ToStringClassification {
   const classifications = type.types.map(subType =>
-    classifyTypeToStringification(subType, checker, options, visited),
+    classifyTypeToStringification(subType, checker, program, options, visited),
   );
   if (classifications.every(classification => classification === DEFAULT_TO_STRING)) {
     return DEFAULT_TO_STRING;
@@ -145,11 +157,15 @@ function classifyUnionStringification(
 function classifyIntersectionStringification(
   type: ts.IntersectionType,
   checker: ts.TypeChecker,
+  program: ts.Program,
   options: ToStringClassificationOptions,
   visited: Set<ts.Type>,
 ): ToStringClassification {
   for (const subType of type.types) {
-    if (classifyTypeToStringification(subType, checker, options, visited) === USEFUL_TO_STRING) {
+    if (
+      classifyTypeToStringification(subType, checker, program, options, visited) ===
+      USEFUL_TO_STRING
+    ) {
       return USEFUL_TO_STRING;
     }
   }
@@ -159,13 +175,14 @@ function classifyIntersectionStringification(
 function classifyTupleStringification(
   type: ts.TypeReference,
   checker: ts.TypeChecker,
+  program: ts.Program,
   options: ToStringClassificationOptions,
   visited: Set<ts.Type>,
 ): ToStringClassification {
   const classifications = new Set(
     checker
       .getTypeArguments(type)
-      .map(subType => classifyTypeToStringification(subType, checker, options, visited)),
+      .map(subType => classifyTypeToStringification(subType, checker, program, options, visited)),
   );
   if (classifications.has(DEFAULT_TO_STRING)) {
     return DEFAULT_TO_STRING;
@@ -179,6 +196,7 @@ function classifyTupleStringification(
 function classifyArrayStringification(
   type: ts.Type,
   checker: ts.TypeChecker,
+  program: ts.Program,
   options: ToStringClassificationOptions,
   visited: Set<ts.Type>,
 ): ToStringClassification {
@@ -186,7 +204,7 @@ function classifyArrayStringification(
   if (elementType === undefined) {
     return USEFUL_TO_STRING;
   }
-  return classifyTypeToStringification(elementType, checker, options, visited);
+  return classifyTypeToStringification(elementType, checker, program, options, visited);
 }
 
 function isPrimitiveStringifiable(type: ts.Type) {
@@ -208,6 +226,15 @@ function isTypeParameter(type: ts.Type) {
   return (type.flags & ts.TypeFlags.TypeParameter) !== 0;
 }
 
+/**
+ * Folded, self-contained equivalent of upstream's `matchesTypeOrBaseType(services, ...)` check for
+ * `ignoredTypeNames`. Upstream resolves each type name through `getTypeName` and also has a
+ * dedicated branch for *generic* ignored types (declarations with type parameters). This copy only
+ * matches by symbol/alias name and walks class/interface base types, which is sufficient for the
+ * fixed, non-generic SonarJS list (`Error`, `RegExp`, `URL`, `URLSearchParams` — see
+ * `SONAR_TO_STRING_CLASSIFICATION_OPTIONS`). If that list ever gains a generic type, revisit this
+ * to mirror upstream's generic-type-parameter handling.
+ */
 function isIgnoredType(
   type: ts.Type,
   checker: ts.TypeChecker,
@@ -247,14 +274,18 @@ function getBaseTypes(type: ts.Type, checker: ts.TypeChecker): ts.BaseType[] {
   return checker.getBaseTypes(baseTypeOwner as ts.InterfaceType) ?? [];
 }
 
-function isToStringLikeFromObject(type: ts.Type, checker: ts.TypeChecker): boolean | undefined {
+function isToStringLikeFromObject(
+  type: ts.Type,
+  checker: ts.TypeChecker,
+  program: ts.Program,
+): boolean | undefined {
   if (
     type
       .getProperties()
       .some(
         property =>
           property.valueDeclaration !== undefined &&
-          isSymbolToPrimitiveMethod(property.valueDeclaration),
+          isSymbolToPrimitiveMethod(property.valueDeclaration, checker, program),
       )
   ) {
     return false;
@@ -286,7 +317,11 @@ function isToStringLikeFromObject(type: ts.Type, checker: ts.TypeChecker): boole
   return foundFallbackOnObject ? true : undefined;
 }
 
-function isSymbolToPrimitiveMethod(node: ts.Declaration) {
+function isSymbolToPrimitiveMethod(
+  node: ts.Declaration,
+  checker: ts.TypeChecker,
+  program: ts.Program,
+) {
   return (
     ts.isMethodSignature(node) &&
     ts.isComputedPropertyName(node.name) &&
@@ -294,6 +329,13 @@ function isSymbolToPrimitiveMethod(node: ts.Declaration) {
     ts.isIdentifier(node.name.expression.expression) &&
     node.name.expression.expression.text === 'Symbol' &&
     ts.isIdentifier(node.name.expression.name) &&
-    node.name.expression.name.text === 'toPrimitive'
+    node.name.expression.name.text === 'toPrimitive' &&
+    // Mirror upstream `no-base-to-string`: only treat `[Symbol.toPrimitive]` as a user-defined
+    // coercion when `Symbol` actually resolves to the global `Symbol`, not a user-declared
+    // identifier that merely shares the name.
+    isSymbolFromDefaultLibrary(
+      program,
+      checker.getSymbolAtLocation(node.name.expression.expression),
+    )
   );
 }

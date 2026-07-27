@@ -27,6 +27,24 @@ function lodashNamespaceToStringWithStringArgument(value: string) {
   return _.toString(value); // Compliant
 }
 
+function lodashNamespaceToStringWithoutArgument() {
+  const _ = require('lodash');
+  return _.toString(); // Compliant
+}
+
+function lodashNamespaceToStringIgnoresExtraArguments(value: object) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value, 'ignored'); // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  //                ^^^^^
+}
+
+function lodashNamespaceToStringWithStringAndExtraArguments(value: string) {
+  const _ = require('lodash');
+  // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.
+  return _.toString(value, 'ignored'); // Compliant
+}
+
 function lodashNamespaceToStringWithUnionArgument(value: string | object) {
   const _ = require('lodash');
   // @ts-ignore - reproduce a lodash namespace call while keeping the namespace typed as object.

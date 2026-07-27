@@ -64,11 +64,27 @@ function applyKnownUtilityToStringRedirection(
     return reportDescriptor;
   }
 
-  const argument = getKnownUtilityToStringArgument(reportDescriptor.node as TSESTree.Node, context);
-  if (argument === undefined) {
+  const call = getKnownUtilityToStringCall(reportDescriptor.node as TSESTree.Node, context);
+  if (call === undefined) {
+    // Not a `lodash.toString(...)` call: leave the upstream report on its original node.
     return reportDescriptor;
   }
 
+  if (call.arguments.length === 0) {
+    // `_.toString()` returns '' at runtime, so there is nothing that could stringify to
+    // '[object Object]'. Drop the misleading report on the lodash namespace object.
+    return undefined;
+  }
+
+  const [firstArgument] = call.arguments;
+  if (firstArgument.type === 'SpreadElement') {
+    // The stringified value is whatever the spread resolves to first, which we cannot determine
+    // statically. Keep the upstream report rather than redirect or silently drop it.
+    return reportDescriptor;
+  }
+
+  // lodash only stringifies the first argument; any extra arguments are ignored at runtime.
+  const argument = firstArgument;
   const argumentStringification = classifyArgumentToStringification(argument, context);
   const shouldReportArgument = argumentStringification !== USEFUL_TO_STRING;
   if (!shouldReportArgument) {
@@ -86,20 +102,19 @@ function applyKnownUtilityToStringRedirection(
   };
 }
 
-function getKnownUtilityToStringArgument(
+function getKnownUtilityToStringCall(
   node: TSESTree.Node,
   context: Rule.RuleContext,
-): TSESTree.Expression | undefined {
+): TSESTree.CallExpression | undefined {
   const call = getContainingToStringCallExpression(node);
   if (
-    call?.arguments.length !== 1 ||
-    call.arguments[0].type === 'SpreadElement' ||
+    call === undefined ||
     getFullyQualifiedName(context, call as estree.CallExpression) !== 'lodash.toString'
   ) {
     return undefined;
   }
 
-  return call.arguments[0];
+  return call;
 }
 
 function getContainingToStringCallExpression(
