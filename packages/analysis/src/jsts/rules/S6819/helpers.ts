@@ -19,6 +19,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
 import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { isRenderedJsxChild } from '../helpers/jsx.js';
 
 const { getLiteralPropValue, getProp, getPropValue } = pkg;
 
@@ -125,6 +126,31 @@ export function hasAncestorWithRole(node: TSESTree.JSXOpeningElement, role: stri
   );
 }
 
+export function hasRenderedAncestorWithRole(
+  node: TSESTree.JSXOpeningElement,
+  role: string,
+): boolean {
+  const jsxElement = node.parent;
+  if (jsxElement?.type !== 'JSXElement') {
+    return false;
+  }
+
+  let child: TSESTree.Node = jsxElement;
+  for (let parent = child.parent; parent; parent = parent.parent) {
+    if (!isRenderedJsxChild(parent, child)) {
+      return false;
+    }
+
+    if (parent.type === 'JSXElement' && getJSXElementRole(parent) === role) {
+      return true;
+    }
+
+    child = parent;
+  }
+
+  return false;
+}
+
 export function hasDescendantWithRoleBeforeBoundary(
   node: TSESTree.JSXOpeningElement,
   role: string,
@@ -215,7 +241,9 @@ function renderedExpressionChildrenOf(node: TSESTree.Node): TSESTree.Node[] {
   }
 }
 
-function isArrayElement(element: TSESTree.ArrayExpression['elements'][number]): element is ArrayElement {
+function isArrayElement(
+  element: TSESTree.ArrayExpression['elements'][number],
+): element is ArrayElement {
   return element !== null;
 }
 

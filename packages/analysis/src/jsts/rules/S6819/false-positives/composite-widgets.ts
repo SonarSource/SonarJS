@@ -18,9 +18,9 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   getJSXElementRole,
-  hasAncestorWithRole,
   hasDescendantWithOneOfRoles,
   hasDescendantWithRoleBeforeBoundary,
+  hasRenderedAncestorWithRole,
 } from '../helpers.js';
 import { findFirstMatchingAncestor } from '../../helpers/ancestor.js';
 
@@ -38,7 +38,7 @@ const COMPOSITE_CHILD_ROLES = new Set([
 export function isGroupedListboxSubgroup(role: string, node: TSESTree.JSXOpeningElement): boolean {
   return (
     role === 'group' &&
-    hasAncestorWithRole(node, 'listbox') &&
+    hasRenderedAncestorWithRole(node, 'listbox') &&
     hasDescendantWithRoleBeforeBoundary(node, 'option', 'listbox')
   );
 }
