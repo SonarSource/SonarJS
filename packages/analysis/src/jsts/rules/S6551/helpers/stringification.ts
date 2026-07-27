@@ -69,142 +69,200 @@ export function classifyArgumentToStringification(
   const services = context.sourceCode.parserServices;
   const { program } = services;
   const checker = program.getTypeChecker();
-  const type = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node));
-  return classifyTypeToStringification(
-    type,
-    checker,
-    program,
-    SONAR_TO_STRING_CLASSIFICATION_OPTIONS,
-    new Set(),
-  );
+  const classifier = new StringificationClassifier(program);
+  const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+  const type = checker.getTypeAtLocation(tsNode);
+  return classifier.classify(type);
 }
 
-function classifyTypeToStringification(
-  type: ts.Type,
-  checker: ts.TypeChecker,
-  program: ts.Program,
-  options: ToStringClassificationOptions,
-  visited: Set<ts.Type>,
-): ToStringClassification {
-  if (visited.has(type)) {
-    return USEFUL_TO_STRING;
+class StringificationClassifier {
+  private readonly checker: ts.TypeChecker;
+  private readonly options: ToStringClassificationOptions = SONAR_TO_STRING_CLASSIFICATION_OPTIONS;
+
+  constructor(private readonly program: ts.Program) {
+    this.checker = program.getTypeChecker();
   }
-  if (isTypeParameter(type)) {
-    const constraint = type.getConstraint();
-    if (constraint) {
-      return classifyTypeToStringification(constraint, checker, program, options, visited);
+
+  classify(type: ts.Type, visited = new Set<ts.Type>()): ToStringClassification {
+    if (visited.has(type)) {
+      return USEFUL_TO_STRING;
     }
-    return options.checkUnknown ? POSSIBLE_DEFAULT_TO_STRING : USEFUL_TO_STRING;
+    if (isTypeParameter(type)) {
+      const constraint = type.getConstraint();
+      if (constraint) {
+        return this.classify(constraint, visited);
+      }
+      return this.options.checkUnknown ? POSSIBLE_DEFAULT_TO_STRING : USEFUL_TO_STRING;
+    }
+    if (isPrimitiveStringifiable(type) || this.isIgnoredType(type)) {
+      return USEFUL_TO_STRING;
+    }
+    if (type.isIntersection()) {
+      return this.classifyIntersection(type, visited);
+    }
+    if (type.isUnion()) {
+      return this.classifyUnion(type, visited);
+    }
+    if (this.checker.isTupleType(type)) {
+      return this.classifyTuple(type as ts.TypeReference, new Set([...visited, type]));
+    }
+    if (this.checker.isArrayType(type)) {
+      return this.classifyArray(type, new Set([...visited, type]));
+    }
+    switch (this.isToStringLikeFromObject(type)) {
+      case undefined:
+        return this.options.checkUnknown && type.flags === ts.TypeFlags.Unknown
+          ? POSSIBLE_DEFAULT_TO_STRING
+          : USEFUL_TO_STRING;
+      case true:
+        return DEFAULT_TO_STRING;
+      case false:
+        return USEFUL_TO_STRING;
+    }
   }
-  if (isPrimitiveStringifiable(type) || isIgnoredType(type, checker, options.ignoredTypeNames)) {
-    return USEFUL_TO_STRING;
-  }
-  if (type.isIntersection()) {
-    return classifyIntersectionStringification(type, checker, program, options, visited);
-  }
-  if (type.isUnion()) {
-    return classifyUnionStringification(type, checker, program, options, visited);
-  }
-  if (checker.isTupleType(type)) {
-    return classifyTupleStringification(
-      type as ts.TypeReference,
-      checker,
-      program,
-      options,
-      new Set([...visited, type]),
-    );
-  }
-  if (checker.isArrayType(type)) {
-    return classifyArrayStringification(
-      type,
-      checker,
-      program,
-      options,
-      new Set([...visited, type]),
-    );
-  }
-  switch (isToStringLikeFromObject(type, checker, program)) {
-    case undefined:
-      return options.checkUnknown && type.flags === ts.TypeFlags.Unknown
-        ? POSSIBLE_DEFAULT_TO_STRING
-        : USEFUL_TO_STRING;
-    case true:
+
+  private classifyUnion(type: ts.UnionType, visited: Set<ts.Type>): ToStringClassification {
+    const classifications = type.types.map(subType => this.classify(subType, visited));
+    if (classifications.every(classification => classification === DEFAULT_TO_STRING)) {
       return DEFAULT_TO_STRING;
-    case false:
-      return USEFUL_TO_STRING;
-  }
-}
-
-function classifyUnionStringification(
-  type: ts.UnionType,
-  checker: ts.TypeChecker,
-  program: ts.Program,
-  options: ToStringClassificationOptions,
-  visited: Set<ts.Type>,
-): ToStringClassification {
-  const classifications = type.types.map(subType =>
-    classifyTypeToStringification(subType, checker, program, options, visited),
-  );
-  if (classifications.every(classification => classification === DEFAULT_TO_STRING)) {
-    return DEFAULT_TO_STRING;
-  }
-  if (classifications.every(classification => classification === USEFUL_TO_STRING)) {
-    return USEFUL_TO_STRING;
-  }
-  return POSSIBLE_DEFAULT_TO_STRING;
-}
-
-function classifyIntersectionStringification(
-  type: ts.IntersectionType,
-  checker: ts.TypeChecker,
-  program: ts.Program,
-  options: ToStringClassificationOptions,
-  visited: Set<ts.Type>,
-): ToStringClassification {
-  for (const subType of type.types) {
-    if (
-      classifyTypeToStringification(subType, checker, program, options, visited) ===
-      USEFUL_TO_STRING
-    ) {
+    }
+    if (classifications.every(classification => classification === USEFUL_TO_STRING)) {
       return USEFUL_TO_STRING;
     }
-  }
-  return DEFAULT_TO_STRING;
-}
-
-function classifyTupleStringification(
-  type: ts.TypeReference,
-  checker: ts.TypeChecker,
-  program: ts.Program,
-  options: ToStringClassificationOptions,
-  visited: Set<ts.Type>,
-): ToStringClassification {
-  const classifications = new Set(
-    checker
-      .getTypeArguments(type)
-      .map(subType => classifyTypeToStringification(subType, checker, program, options, visited)),
-  );
-  if (classifications.has(DEFAULT_TO_STRING)) {
-    return DEFAULT_TO_STRING;
-  }
-  if (classifications.has(POSSIBLE_DEFAULT_TO_STRING)) {
     return POSSIBLE_DEFAULT_TO_STRING;
   }
-  return USEFUL_TO_STRING;
-}
 
-function classifyArrayStringification(
-  type: ts.Type,
-  checker: ts.TypeChecker,
-  program: ts.Program,
-  options: ToStringClassificationOptions,
-  visited: Set<ts.Type>,
-): ToStringClassification {
-  const elementType = type.getNumberIndexType();
-  if (elementType === undefined) {
+  private classifyIntersection(
+    type: ts.IntersectionType,
+    visited: Set<ts.Type>,
+  ): ToStringClassification {
+    for (const subType of type.types) {
+      if (this.classify(subType, visited) === USEFUL_TO_STRING) {
+        return USEFUL_TO_STRING;
+      }
+    }
+    return DEFAULT_TO_STRING;
+  }
+
+  private classifyTuple(type: ts.TypeReference, visited: Set<ts.Type>): ToStringClassification {
+    const classifications = new Set(
+      this.checker.getTypeArguments(type).map(subType => this.classify(subType, visited)),
+    );
+    if (classifications.has(DEFAULT_TO_STRING)) {
+      return DEFAULT_TO_STRING;
+    }
+    if (classifications.has(POSSIBLE_DEFAULT_TO_STRING)) {
+      return POSSIBLE_DEFAULT_TO_STRING;
+    }
     return USEFUL_TO_STRING;
   }
-  return classifyTypeToStringification(elementType, checker, program, options, visited);
+
+  private classifyArray(type: ts.Type, visited: Set<ts.Type>): ToStringClassification {
+    const elementType = type.getNumberIndexType();
+    if (elementType === undefined) {
+      return USEFUL_TO_STRING;
+    }
+    return this.classify(elementType, visited);
+  }
+
+  /**
+   * Folded, self-contained equivalent of upstream's `matchesTypeOrBaseType(services, ...)` check for
+   * `ignoredTypeNames`. Upstream resolves each type name through `getTypeName` and also has a
+   * dedicated branch for *generic* ignored types (declarations with type parameters). This copy only
+   * matches by symbol/alias name and walks class/interface base types, which is sufficient for the
+   * fixed, non-generic SonarJS list (`Error`, `RegExp`, `URL`, `URLSearchParams` — see
+   * `SONAR_TO_STRING_CLASSIFICATION_OPTIONS`). If that list ever gains a generic type, revisit this
+   * to mirror upstream's generic-type-parameter handling.
+   */
+  private isIgnoredType(type: ts.Type, visited = new Set<ts.Type>()): boolean {
+    if (visited.has(type)) {
+      return false;
+    }
+    visited.add(type);
+
+    const name = type.aliasSymbol?.name ?? type.getSymbol()?.name;
+    if (name !== undefined && this.options.ignoredTypeNames.includes(name)) {
+      return true;
+    }
+
+    return this.getBaseTypes(type).some(baseType => this.isIgnoredType(baseType, visited));
+  }
+
+  private getBaseTypes(type: ts.Type): ts.BaseType[] {
+    if (!(type.flags & ts.TypeFlags.Object)) {
+      return [];
+    }
+
+    const objectType = type as ts.ObjectType;
+    const baseTypeOwner =
+      objectType.objectFlags & ts.ObjectFlags.Reference
+        ? (type as ts.TypeReference).target
+        : objectType;
+
+    if (!(baseTypeOwner.objectFlags & ts.ObjectFlags.ClassOrInterface)) {
+      return [];
+    }
+
+    return this.checker.getBaseTypes(baseTypeOwner as ts.InterfaceType) ?? [];
+  }
+
+  private isToStringLikeFromObject(type: ts.Type): boolean | undefined {
+    if (
+      type
+        .getProperties()
+        .some(
+          property =>
+            property.valueDeclaration !== undefined &&
+            this.isSymbolToPrimitiveMethod(property.valueDeclaration),
+        )
+    ) {
+      return false;
+    }
+
+    let foundFallbackOnObject = false;
+    for (const propertyName of ['toLocaleString', 'toString', 'valueOf']) {
+      const candidate = this.checker.getPropertyOfType(type, propertyName);
+      if (!candidate) {
+        continue;
+      }
+      const declarations = candidate.getDeclarations();
+      if (!declarations?.length) {
+        continue;
+      }
+      if (
+        declarations.some(
+          declaration =>
+            !(
+              ts.isInterfaceDeclaration(declaration.parent) &&
+              declaration.parent.name.text === 'Object'
+            ),
+        )
+      ) {
+        return false;
+      }
+      foundFallbackOnObject = true;
+    }
+    return foundFallbackOnObject ? true : undefined;
+  }
+
+  private isSymbolToPrimitiveMethod(node: ts.Declaration) {
+    return (
+      ts.isMethodSignature(node) &&
+      ts.isComputedPropertyName(node.name) &&
+      ts.isPropertyAccessExpression(node.name.expression) &&
+      ts.isIdentifier(node.name.expression.expression) &&
+      node.name.expression.expression.text === 'Symbol' &&
+      ts.isIdentifier(node.name.expression.name) &&
+      node.name.expression.name.text === 'toPrimitive' &&
+      // Mirror upstream `no-base-to-string`: only treat `[Symbol.toPrimitive]` as a user-defined
+      // coercion when `Symbol` actually resolves to the global `Symbol`, not a user-declared
+      // identifier that merely shares the name.
+      isSymbolFromDefaultLibrary(
+        this.program,
+        this.checker.getSymbolAtLocation(node.name.expression.expression),
+      )
+    );
+  }
 }
 
 function isPrimitiveStringifiable(type: ts.Type) {
@@ -224,118 +282,4 @@ function isPrimitiveStringifiable(type: ts.Type) {
 
 function isTypeParameter(type: ts.Type) {
   return (type.flags & ts.TypeFlags.TypeParameter) !== 0;
-}
-
-/**
- * Folded, self-contained equivalent of upstream's `matchesTypeOrBaseType(services, ...)` check for
- * `ignoredTypeNames`. Upstream resolves each type name through `getTypeName` and also has a
- * dedicated branch for *generic* ignored types (declarations with type parameters). This copy only
- * matches by symbol/alias name and walks class/interface base types, which is sufficient for the
- * fixed, non-generic SonarJS list (`Error`, `RegExp`, `URL`, `URLSearchParams` — see
- * `SONAR_TO_STRING_CLASSIFICATION_OPTIONS`). If that list ever gains a generic type, revisit this
- * to mirror upstream's generic-type-parameter handling.
- */
-function isIgnoredType(
-  type: ts.Type,
-  checker: ts.TypeChecker,
-  ignoredTypeNames: readonly string[],
-  visited = new Set<ts.Type>(),
-): boolean {
-  if (visited.has(type)) {
-    return false;
-  }
-  visited.add(type);
-
-  const name = type.aliasSymbol?.name ?? type.getSymbol()?.name;
-  if (name !== undefined && ignoredTypeNames.includes(name)) {
-    return true;
-  }
-
-  return getBaseTypes(type, checker).some(baseType =>
-    isIgnoredType(baseType, checker, ignoredTypeNames, visited),
-  );
-}
-
-function getBaseTypes(type: ts.Type, checker: ts.TypeChecker): ts.BaseType[] {
-  if (!(type.flags & ts.TypeFlags.Object)) {
-    return [];
-  }
-
-  const objectType = type as ts.ObjectType;
-  const baseTypeOwner =
-    objectType.objectFlags & ts.ObjectFlags.Reference
-      ? (type as ts.TypeReference).target
-      : objectType;
-
-  if (!(baseTypeOwner.objectFlags & ts.ObjectFlags.ClassOrInterface)) {
-    return [];
-  }
-
-  return checker.getBaseTypes(baseTypeOwner as ts.InterfaceType) ?? [];
-}
-
-function isToStringLikeFromObject(
-  type: ts.Type,
-  checker: ts.TypeChecker,
-  program: ts.Program,
-): boolean | undefined {
-  if (
-    type
-      .getProperties()
-      .some(
-        property =>
-          property.valueDeclaration !== undefined &&
-          isSymbolToPrimitiveMethod(property.valueDeclaration, checker, program),
-      )
-  ) {
-    return false;
-  }
-
-  let foundFallbackOnObject = false;
-  for (const propertyName of ['toLocaleString', 'toString', 'valueOf']) {
-    const candidate = checker.getPropertyOfType(type, propertyName);
-    if (!candidate) {
-      continue;
-    }
-    const declarations = candidate.getDeclarations();
-    if (!declarations?.length) {
-      continue;
-    }
-    if (
-      declarations.some(
-        declaration =>
-          !(
-            ts.isInterfaceDeclaration(declaration.parent) &&
-            declaration.parent.name.text === 'Object'
-          ),
-      )
-    ) {
-      return false;
-    }
-    foundFallbackOnObject = true;
-  }
-  return foundFallbackOnObject ? true : undefined;
-}
-
-function isSymbolToPrimitiveMethod(
-  node: ts.Declaration,
-  checker: ts.TypeChecker,
-  program: ts.Program,
-) {
-  return (
-    ts.isMethodSignature(node) &&
-    ts.isComputedPropertyName(node.name) &&
-    ts.isPropertyAccessExpression(node.name.expression) &&
-    ts.isIdentifier(node.name.expression.expression) &&
-    node.name.expression.expression.text === 'Symbol' &&
-    ts.isIdentifier(node.name.expression.name) &&
-    node.name.expression.name.text === 'toPrimitive' &&
-    // Mirror upstream `no-base-to-string`: only treat `[Symbol.toPrimitive]` as a user-defined
-    // coercion when `Symbol` actually resolves to the global `Symbol`, not a user-declared
-    // identifier that merely shares the name.
-    isSymbolFromDefaultLibrary(
-      program,
-      checker.getSymbolAtLocation(node.name.expression.expression),
-    )
-  );
 }
