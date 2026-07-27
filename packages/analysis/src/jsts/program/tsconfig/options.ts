@@ -97,6 +97,10 @@ const NODE_TO_ES: [number, number][] = [
   [8, 2017],
 ];
 
+const MIN_FIXED_ES_YEAR = 2015;
+const MAX_FIXED_ES_YEAR = 2030;
+const LAST_PRE_ES2015_YEAR = MIN_FIXED_ES_YEAR - 1;
+
 /**
  * Parses a version string and returns the highest Node.js major version found.
  * Handles ranges like ">=16 || >=18", "^18.0.0", "14.x", etc.
@@ -242,7 +246,7 @@ function targetStringToEsYear(target: string): number | null {
   const match = /^ES(\d{4})$/.exec(upper);
   if (match) {
     const year = Number.parseInt(match[1], 10);
-    if (year >= 2015) {
+    if (year >= MIN_FIXED_ES_YEAR) {
       return year;
     }
   }
@@ -269,14 +273,14 @@ export function tsTargetToEsYear(target: ts.ScriptTarget | undefined): number | 
     return null;
   }
   if (targetName === 'ES3' || targetName === 'ES5') {
-    return 2014;
+    return LAST_PRE_ES2015_YEAR;
   }
   const match = /^ES(\d{4})$/.exec(targetName);
   if (!match) {
     return null;
   }
   const year = Number.parseInt(match[1], 10);
-  return year >= 2015 && year <= 2030 ? year : null;
+  return year >= MIN_FIXED_ES_YEAR && year <= MAX_FIXED_ES_YEAR ? year : null;
 }
 
 /**
