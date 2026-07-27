@@ -69,9 +69,10 @@ export function classifyArgumentToStringification(
   const services = context.sourceCode.parserServices;
   const { program } = services;
   const checker = program.getTypeChecker();
-  const classifier = new StringificationClassifier(program);
   const tsNode = services.esTreeNodeToTSNodeMap.get(node);
   const type = checker.getTypeAtLocation(tsNode);
+
+  const classifier = new StringificationClassifier(program);
   return classifier.classify(type);
 }
 
