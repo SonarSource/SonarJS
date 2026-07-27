@@ -20,4 +20,4 @@ export const eslintId = 'prefer-string-replace-all';
 export const externalPlugin = 'unicorn';
 export const externalRules = [{ externalPlugin: 'unicorn', externalRule: eslintId }];
 export const quickFixMessage = "Replace with 'replaceAll'";
-export const gateOnTypeScriptTarget = true;
+export const downlevelableSyntax = false;

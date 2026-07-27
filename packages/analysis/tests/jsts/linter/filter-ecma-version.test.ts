@@ -63,7 +63,7 @@ const apiMeta = {
   implementation: 'original',
   requiredDependency: [],
   requiredEcmaVersion: 2022,
-  gateOnTypeScriptTarget: true,
+  downlevelableSyntax: false,
 } satisfies SonarMeta;
 
 describe('filterEcmaVersion', () => {

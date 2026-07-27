@@ -42,7 +42,6 @@ export type SonarMeta = {
   requiredDependency: readonly string[];
   requiredEcmaVersion?: number;
   downlevelableSyntax?: boolean;
-  gateOnTypeScriptTarget?: boolean;
   requiredModuleType?: ModuleType;
 };
 
