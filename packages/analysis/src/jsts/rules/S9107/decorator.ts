@@ -21,6 +21,8 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
 
+const IDENTIFIER_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
+
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
@@ -29,9 +31,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     },
     (context, reportDescriptor) => {
       if ('messageId' in reportDescriptor && reportDescriptor.messageId === 'propTypeConstructor') {
-        const { messageId: _messageId, ...rest } = reportDescriptor;
+        const { messageId: _messageId, fix, ...rest } = reportDescriptor;
         context.report({
           ...rest,
+          fix: fix && withSafeIdentifierFix(fix),
           message: `Replace this value with a constructor, e.g. String or Number, for the "{{name}}" prop's type.`,
         });
       } else {
@@ -39,4 +42,25 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }
     },
   );
+}
+
+/**
+ * The upstream fixer replaces a string/template literal type with its raw text value
+ * (e.g. 'String' -> String) without checking it's a valid identifier. For a value like
+ * 'not-a-real-type' that produces broken code (`not - a - real - type`). Skip the fix
+ * whenever the replacement text isn't a plain identifier.
+ */
+function withSafeIdentifierFix(fix: Rule.ReportFixer): Rule.ReportFixer {
+  return fixer => {
+    const result = fix(fixer);
+    if (result == null) {
+      return null;
+    }
+    const edits = isSingleFix(result) ? [result] : Array.from(result);
+    return edits.every(edit => IDENTIFIER_PATTERN.test(edit.text)) ? result : null;
+  };
+}
+
+function isSingleFix(value: Rule.Fix | Iterable<Rule.Fix>): value is Rule.Fix {
+  return !(Symbol.iterator in Object(value));
 }

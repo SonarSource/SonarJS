@@ -147,6 +147,28 @@ export default {
           ],
         },
         {
+          // Options API: string literal that isn't a valid identifier is reported but not
+          // autofixed, since replacing the text as-is would produce invalid code
+          code: `
+<script>
+export default {
+  props: {
+    title: {
+      type: 'not-a-real-type'
+    }
+  }
+}
+</script>
+`,
+          output: null,
+          errors: [
+            {
+              message:
+                'Replace this value with a constructor, e.g. String or Number, for the "title" prop\'s type.',
+            },
+          ],
+        },
+        {
           // Options API: BinaryExpression is reported but not autofixed
           code: `
 <script>
