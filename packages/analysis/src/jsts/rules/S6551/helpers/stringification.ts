@@ -49,7 +49,7 @@ type ToStringClassificationOptions = {
  *
  * This mirrors `collectToStringCertainty` from `@typescript-eslint/eslint-plugin`, which is
  * internal to the upstream rule and therefore not importable. Keep it in sync when bumping
- * `@typescript-eslint/eslint-plugin` (last aligned with 8.62.0): if the upstream classification
+ * `@typescript-eslint/eslint-plugin` (last aligned with 8.62.1): if the upstream classification
  * changes, this copy will silently drift and must be updated to match.
  *
  * Classifies how a value will stringify at runtime:
