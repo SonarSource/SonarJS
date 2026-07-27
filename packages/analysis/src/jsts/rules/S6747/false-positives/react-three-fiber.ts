@@ -16,65 +16,37 @@
  */
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
+import elementsData from './react-three-fiber-elements.json' with { type: 'json' };
 
 export const REACT_THREE_FIBER = '@react-three/fiber';
 
-const R3F_INTRINSIC_ELEMENTS = new Set([
-  'ambientLight',
-  'pointLight',
-  'spotLight',
-  'directionalLight',
-  'mesh',
-  'group',
-  'scene',
-  'perspectiveCamera',
-  'orthographicCamera',
-  'circleGeometry',
-  'sphereGeometry',
-  'boxGeometry',
-  'planeGeometry',
-  'torusKnotGeometry',
-  'shaderMaterial',
-  'meshBasicMaterial',
-  'meshStandardMaterial',
-  'meshPhongMaterial',
-]);
+/**
+ * React Three Fiber (R3F) intrinsic element names (e.g. `mesh`, `ambientLight`, `boxGeometry`).
+ *
+ * These are three.js objects, not DOM elements, so `react/no-unknown-property` has no authority over
+ * their props: we suppress every one of its reports on such an element rather than maintaining a
+ * per-element allow-list of valid props (the three.js prop surface is huge, version-dependent, and
+ * includes unbounded dashed forms such as `rotation-x`). Names that collide with an HTML or SVG tag
+ * (e.g. `audio`, `line`) are deliberately excluded so real DOM elements keep reporting.
+ *
+ * The list is generated from the three.js runtime by `tools/generate-S6747-elements.ts` — run
+ * `npx tsx tools/generate-S6747-elements.ts` from the repository root to refresh it against the
+ * latest released three.js. Do not edit `react-three-fiber-elements.json` by hand.
+ */
+const R3F_INTRINSIC_ELEMENTS = new Set<string>(elementsData.elements);
 
-const R3F_COMMON_PROPS = new Set(['args', 'attach']);
-
-const R3F_OBJECT_3D_ELEMENTS = new Set([
-  'ambientLight',
-  'pointLight',
-  'spotLight',
-  'directionalLight',
-  'mesh',
-  'group',
-  'scene',
-  'perspectiveCamera',
-  'orthographicCamera',
-]);
-
-const R3F_ELEMENT_PROPS = new Map([
-  ['ambientLight', new Set(['color', 'intensity'])],
-  ['pointLight', new Set(['color', 'distance', 'intensity'])],
-  ['spotLight', new Set(['color', 'distance', 'intensity'])],
-  ['directionalLight', new Set(['color', 'intensity'])],
-  [
-    'shaderMaterial',
-    new Set(['fragmentShader', 'transparent', 'uniforms', 'vertexShader', 'wireframe']),
-  ],
-  ['meshBasicMaterial', new Set(['color', 'transparent', 'wireframe'])],
-  ['meshStandardMaterial', new Set(['color', 'transparent', 'wireframe'])],
-  ['meshPhongMaterial', new Set(['color', 'transparent', 'wireframe'])],
-]);
-
+/**
+ * Suppresses a `no-unknown-property` report when it targets a plain attribute on a recognized R3F
+ * intrinsic element. Namespaced (colon) attribute names such as `position:x` are not valid R3F props
+ * and keep reporting; dashed names such as `position-x` are single JSX identifiers and are suppressed.
+ */
 export function isReactThreeFiberIntrinsicProp(descriptor: Rule.ReportDescriptor): boolean {
   if (!('node' in descriptor)) {
     return false;
   }
 
   const node = descriptor.node as TSESTree.Node;
-  if (node.type !== 'JSXAttribute') {
+  if (node.type !== 'JSXAttribute' || node.name.type !== 'JSXIdentifier') {
     return false;
   }
 
@@ -84,30 +56,5 @@ export function isReactThreeFiberIntrinsicProp(descriptor: Rule.ReportDescriptor
   }
 
   const elementName = openingElement.name;
-  return (
-    elementName.type === 'JSXIdentifier' &&
-    R3F_INTRINSIC_ELEMENTS.has(elementName.name) &&
-    isReactThreeFiberIntrinsicPropName(elementName.name, node.name)
-  );
-}
-
-function isReactThreeFiberIntrinsicPropName(
-  elementName: string,
-  name: TSESTree.JSXAttribute['name'],
-): boolean {
-  if (name.type !== 'JSXIdentifier') {
-    return false;
-  }
-
-  return (
-    R3F_COMMON_PROPS.has(name.name) ||
-    isObject3DTransformProp(elementName, name.name) ||
-    R3F_ELEMENT_PROPS.get(elementName)?.has(name.name) === true
-  );
-}
-
-function isObject3DTransformProp(elementName: string, propName: string): boolean {
-  return (
-    R3F_OBJECT_3D_ELEMENTS.has(elementName) && /^(position|rotation|scale)(-[xyz])?$/.test(propName)
-  );
+  return elementName.type === 'JSXIdentifier' && R3F_INTRINSIC_ELEMENTS.has(elementName.name);
 }

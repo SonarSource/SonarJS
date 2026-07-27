@@ -3,6 +3,7 @@
     "target": "ES2023",
     "module": "nodenext",
     "moduleResolution": "nodenext",
+    "resolveJsonModule": true,
     "lib": ["ES2024", "dom"],
     "declaration": true,
     "outDir": "../lib",

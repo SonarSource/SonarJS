@@ -8,7 +8,8 @@
     "**/fixtures-*/**",
     "its/**",
     "tools/header.ts",
-    "tools/new-plugin.ts"
+    "tools/new-plugin.ts",
+    "tools/generate-S6747-elements.ts"
   ],
   "project": ["packages/**/*.ts", "tools/**/*.ts"],
   "ignoreDependencies": [

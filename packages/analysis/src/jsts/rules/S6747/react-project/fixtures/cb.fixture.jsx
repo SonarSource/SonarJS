@@ -26,7 +26,15 @@ import { Canvas } from '@react-three/fiber';
 <div intensity={1} />; // Noncompliant {{Unknown property 'intensity' found}}
 <span transparent />; // Noncompliant {{Unknown property 'transparent' found}}
 <img position={[1, 2, 3]} />; // Noncompliant {{Unknown property 'position' found}}
-<mesh transparnt />; // Noncompliant {{Unknown property 'transparnt' found}}
-<mesh intensity={1} />; // Noncompliant {{Unknown property 'intensity' found}}
-<ambientLight vertexShader="void main() {}" />; // Noncompliant {{Unknown property 'vertexShader' found}}
-<boxGeometry transparent />; // Noncompliant {{Unknown property 'transparent' found}}
+
+// All props on a recognized React Three Fiber intrinsic element are accepted, even ones outside
+// three.js' documented surface: no-unknown-property does not validate three.js objects. Typos and
+// misplaced props are left to react-three-fiber's runtime warnings and TypeScript's ThreeElements types.
+<mesh castShadow receiveShadow visible={false} frustumCulled={false} renderOrder={1} />;
+<mesh transparnt />;
+<mesh intensity={1} />;
+<ambientLight vertexShader="void main() {}" />;
+<boxGeometry transparent />;
+
+// Namespaced (colon) attribute names are not valid R3F props and still report.
+<mesh position:x={1} />; // Noncompliant {{Unknown property 'position:x' found}}

@@ -86,6 +86,36 @@ const fragmentShader = 'void main() {}';
         code: `<meshBasicMaterial wireframe />;`,
         filename: join(dirname, 'filename.jsx'),
       },
+      // Props outside three.js' documented surface are accepted on recognized R3F elements:
+      // element-level suppression means individual prop names are not validated.
+      {
+        code: `import { Canvas } from '@react-three/fiber';
+<Canvas>
+  <mesh castShadow receiveShadow visible={true} frustumCulled={false} renderOrder={1} onClick={() => {}}>
+    <meshStandardMaterial roughness={0.5} metalness={0.5} envMapIntensity={1} />
+  </mesh>
+</Canvas>;`,
+        filename: join(dirname, 'filename.jsx'),
+      },
+      // Typos and misplaced props on R3F elements are intentionally no longer reported:
+      // no-unknown-property has no authority over three.js objects (react-three-fiber runtime
+      // warnings and TypeScript's ThreeElements types cover those cases).
+      {
+        code: `<mesh transparnt />;`,
+        filename: join(dirname, 'filename.jsx'),
+      },
+      {
+        code: `<mesh intensity={1} />;`,
+        filename: join(dirname, 'filename.jsx'),
+      },
+      {
+        code: `<ambientLight vertexShader="void main() {}" />;`,
+        filename: join(dirname, 'filename.jsx'),
+      },
+      {
+        code: `<boxGeometry transparent />;`,
+        filename: join(dirname, 'filename.jsx'),
+      },
     ],
     invalid: [
       {
@@ -103,28 +133,9 @@ const fragmentShader = 'void main() {}';
         filename: join(dirname, 'filename.jsx'),
         errors: 1,
       },
-      {
-        code: `<mesh transparnt />;`,
-        filename: join(dirname, 'filename.jsx'),
-        errors: 1,
-      },
+      // Namespaced (colon) attribute names are not valid R3F props and keep reporting.
       {
         code: `<mesh position:x={1} />;`,
-        filename: join(dirname, 'filename.jsx'),
-        errors: 1,
-      },
-      {
-        code: `<mesh intensity={1} />;`,
-        filename: join(dirname, 'filename.jsx'),
-        errors: 1,
-      },
-      {
-        code: `<ambientLight vertexShader="void main() {}" />;`,
-        filename: join(dirname, 'filename.jsx'),
-        errors: 1,
-      },
-      {
-        code: `<boxGeometry transparent />;`,
         filename: join(dirname, 'filename.jsx'),
         errors: 1,
       },
