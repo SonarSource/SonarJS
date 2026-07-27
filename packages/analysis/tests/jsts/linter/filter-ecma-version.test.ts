@@ -51,7 +51,7 @@ const syntaxMeta = {
   implementation: 'decorated',
   requiredDependency: [],
   requiredEcmaVersion: 2020,
-  downlevelable: true,
+  downlevelableSyntax: true,
 } satisfies SonarMeta;
 
 const apiMeta = {
@@ -63,7 +63,7 @@ const apiMeta = {
   implementation: 'original',
   requiredDependency: [],
   requiredEcmaVersion: 2022,
-  downlevelable: false,
+  gateOnTypeScriptTarget: true,
 } satisfies SonarMeta;
 
 describe('filterEcmaVersion', () => {
@@ -93,7 +93,7 @@ describe('filterEcmaVersion', () => {
     expect(filterEcmaVersion(ruleConfig, apiMeta, baseContext)).toBe(false);
   });
 
-  it('should use the raw TypeScript target for non-downlevelable rules when it is available', () => {
+  it('should use the raw TypeScript target for rules that require it when it is available', () => {
     expect(
       filterEcmaVersion(ruleConfig, apiMeta, {
         ...baseContext,

@@ -25,10 +25,10 @@ export const filterEcmaVersion: RuleFilter = (_config, meta, ctx) => {
     return true;
   }
   if (ctx.fileLanguage === 'ts') {
-    if (meta.downlevelable === true) {
+    if (meta.downlevelableSyntax) {
       return true;
     }
-    if (meta.downlevelable === false && ctx.targetEsYear != null) {
+    if (meta.gateOnTypeScriptTarget && ctx.targetEsYear != null) {
       return required <= ctx.targetEsYear;
     }
   }

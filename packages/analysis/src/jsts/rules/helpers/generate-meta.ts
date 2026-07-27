@@ -41,7 +41,8 @@ export type SonarMeta = {
   quickFixMessage?: string;
   requiredDependency: readonly string[];
   requiredEcmaVersion?: number;
-  downlevelable?: boolean;
+  downlevelableSyntax?: boolean;
+  gateOnTypeScriptTarget?: boolean;
   requiredModuleType?: ModuleType;
 };
 
