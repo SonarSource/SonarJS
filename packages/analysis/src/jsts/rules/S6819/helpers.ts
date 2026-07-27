@@ -18,7 +18,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
-import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import { isRenderedJsxChild } from '../helpers/jsx.js';
 
 const { getLiteralPropValue, getProp, getPropValue } = pkg;
@@ -115,15 +114,6 @@ export function hasChildren(node: TSESTree.JSXOpeningElement): boolean {
     return parent.children.length > 0;
   }
   return false;
-}
-
-export function hasAncestorWithRole(node: TSESTree.JSXOpeningElement, role: string): boolean {
-  return (
-    findFirstMatchingAncestor(
-      node,
-      ancestor => ancestor.type === 'JSXElement' && getJSXElementRole(ancestor) === role,
-    ) !== undefined
-  );
 }
 
 export function hasRenderedAncestorWithRole(
