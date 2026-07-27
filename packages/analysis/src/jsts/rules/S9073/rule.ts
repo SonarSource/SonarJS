@@ -115,41 +115,53 @@ function getGuardSubjects(expression: estree.Expression): estree.Expression[] {
   if (expression.type === 'CallExpression' && isTypePredicateCall(expression)) {
     return [expression.arguments[0] as estree.Expression];
   }
-  if (expression.type !== 'BinaryExpression') {
-    return [];
-  }
+  return expression.type === 'BinaryExpression' ? getBinaryGuardSubjects(expression) : [];
+}
 
-  const { left, operator, right } = expression;
-  if (operator === 'instanceof' && isStableReference(left)) {
-    return [left];
+function getBinaryGuardSubjects({ left, operator, right }: estree.BinaryExpression) {
+  switch (operator) {
+    case 'instanceof':
+      return isStableReference(left) ? [left] : [];
+    case 'in':
+      return isStringLiteral(left) && isStableReference(right) ? [right] : [];
+    case '!=':
+    case '!==':
+      return getAbsentValueSubject(left, right);
+    case '==':
+    case '===':
+      return getEqualitySubject(left, right);
+    default:
+      return [];
   }
-  if (
-    operator === 'in' &&
-    left.type === 'Literal' &&
-    typeof left.value === 'string' &&
-    isStableReference(right)
-  ) {
+}
+
+function getAbsentValueSubject(
+  left: estree.Expression | estree.PrivateIdentifier,
+  right: estree.Expression | estree.PrivateIdentifier,
+) {
+  if (isAbsentValue(left) && isStableReference(right)) {
     return [right];
   }
-  if (operator === '!=' || operator === '!==') {
-    if (isAbsentValue(left) && isStableReference(right)) {
-      return [right];
-    }
-    if (isAbsentValue(right) && isStableReference(left)) {
-      return [left];
-    }
-  }
-  if (operator === '==' || operator === '===') {
-    const typeofSubject = getPositiveTypeofSubject(left, right);
-    if (typeofSubject) {
-      return [typeofSubject];
-    }
-    const discriminatedSubject = getDiscriminatedSubject(left, right);
-    if (discriminatedSubject) {
-      return [discriminatedSubject];
-    }
+  if (isAbsentValue(right) && isStableReference(left)) {
+    return [left];
   }
   return [];
+}
+
+function getEqualitySubject(
+  left: estree.Expression | estree.PrivateIdentifier,
+  right: estree.Expression,
+) {
+  const typeofSubject = getPositiveTypeofSubject(left, right);
+  if (typeofSubject) {
+    return [typeofSubject];
+  }
+  const discriminatedSubject = getDiscriminatedSubject(left, right);
+  return discriminatedSubject ? [discriminatedSubject] : [];
+}
+
+function isStringLiteral(node: estree.Node): node is estree.Literal {
+  return node.type === 'Literal' && typeof node.value === 'string';
 }
 
 function getPositiveTypeofSubject(
