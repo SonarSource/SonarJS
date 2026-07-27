@@ -136,7 +136,8 @@ export function hasRenderedAncestorWithRole(
   }
 
   let child: TSESTree.Node = jsxElement;
-  for (let parent = child.parent; parent; parent = parent.parent) {
+  let parent: TSESTree.Node | undefined = child.parent;
+  while (parent) {
     if (!isRenderedJsxChild(parent, child)) {
       return false;
     }
@@ -146,6 +147,7 @@ export function hasRenderedAncestorWithRole(
     }
 
     child = parent;
+    parent = parent.parent;
   }
 
   return false;
