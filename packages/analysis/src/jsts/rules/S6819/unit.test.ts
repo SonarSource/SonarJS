@@ -587,6 +587,18 @@ describe('S6819', () => {
             </div>
           `,
         },
+        {
+          // Compliant: group is rendered through a JSX expression child of the listbox
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {isOpen && (
+                <div role="group" aria-label="Europe">
+                  <div role="option" aria-selected="true">Paris</div>
+                </div>
+              )}
+            </div>
+          `,
+        },
       ],
       invalid: [
         // True positive: option without listbox ancestor (use <option>)
@@ -667,6 +679,21 @@ describe('S6819', () => {
               <div role="group" aria-label="Europe">
                 <Widget renderOption={() => <div role="option">Paris</div>} />
               </div>
+            </div>
+          `,
+          errors: 2,
+        },
+        // True positive: group returned from a render prop is not owned by the listbox
+        {
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <Widget
+                renderGroup={() => (
+                  <div role="group" aria-label="Europe">
+                    <div role="option" aria-selected="true">Paris</div>
+                  </div>
+                )}
+              />
             </div>
           `,
           errors: 2,
