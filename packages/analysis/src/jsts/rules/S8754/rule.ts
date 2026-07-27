@@ -31,7 +31,7 @@ import {
   SUPPORTED_TEST_FRAMEWORKS,
   TEST_FUNCTION_NAMES,
   getMochaCalleeParts,
-  getMochaConstructName,
+  getMochaConstructAndModifiers,
   getPlaywrightDescribeQualifiers,
   getPlaywrightTestQualifiers,
   getStaticTitle,
@@ -52,9 +52,7 @@ interface SuiteFrame {
 }
 
 type FunctionNode =
-  | estree.FunctionDeclaration
-  | estree.FunctionExpression
-  | estree.ArrowFunctionExpression;
+  estree.FunctionDeclaration | estree.FunctionExpression | estree.ArrowFunctionExpression;
 type CallbackFunctionNode = estree.FunctionExpression | estree.ArrowFunctionExpression;
 
 export const rule: Rule.RuleModule = {
@@ -265,12 +263,12 @@ function isNonConcreteMochaSuite(context: Rule.RuleContext, node: estree.Node): 
     return false;
   }
 
-  const constructName = getMochaConstructName(context, calleeParts.base);
+  const { constructName, modifiers } = getMochaConstructAndModifiers(context, calleeParts);
   if (constructName === undefined || !SUITE_FUNCTION_NAMES.includes(constructName)) {
     return false;
   }
 
-  return !calleeParts.modifiers.every(modifier => isConcreteMochaTestModifier(context, modifier));
+  return !modifiers.every(modifier => isConcreteMochaTestModifier(context, modifier));
 }
 
 function getCallback(node: estree.CallExpression): CallbackFunctionNode | undefined {

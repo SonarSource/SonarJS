@@ -18,7 +18,9 @@ import esbuild from 'esbuild';
 import textReplace from 'esbuild-plugin-text-replace';
 import { copy } from 'esbuild-plugin-copy';
 import { readFileSync } from 'node:fs';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
+import { dirname } from 'node:path';
 
 const stylelintPkgJson = readFileSync('node_modules/stylelint/package.json', 'utf8');
 const testingLibraryPkgJson = JSON.parse(
@@ -50,12 +52,13 @@ const babelParserFromCore = JSON.stringify(
  * @param {string} options.entryPoint - Entry point file (e.g., './server.mjs')
  * @param {string} options.outfile - Output file (e.g., './bin/server.cjs')
  * @param {Array} options.additionalAssets - Additional assets to copy (optional)
+ * @param {string} options.metafilePath - Path for esbuild dependency metadata (optional)
  */
-export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }) {
+export async function buildBundle({ entryPoint, outfile, additionalAssets = [], metafilePath }) {
   const entryPointName = entryPoint.replace('./', '').replaceAll('.', String.raw`\.`);
   const entryPointRegex = new RegExp(`${entryPointName}$`);
 
-  await esbuild.build({
+  const result = await esbuild.build({
     entryPoints: [entryPoint],
     outfile,
     format: 'cjs',
@@ -64,6 +67,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
       '.json': 'copy',
     },
     external: ['eslint/lib/util/glob-util', 'jiti'],
+    metafile: metafilePath !== undefined,
     platform: 'node',
     minify: true,
     plugins: [
@@ -260,4 +264,9 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
       }),
     ],
   });
+
+  if (metafilePath !== undefined) {
+    await mkdir(dirname(metafilePath), { recursive: true });
+    await writeFile(metafilePath, JSON.stringify(result.metafile));
+  }
 }

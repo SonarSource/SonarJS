@@ -20,6 +20,7 @@ import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier, isLogicalExpression, isStringLiteral } from '../helpers/ast.js';
 import { shannonEntropy } from '../helpers/entropy.js';
+import { isExcludedSecretValue } from '../helpers/secret-exclusion.js';
 import * as meta from './generated-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import type estree from 'estree';
@@ -127,10 +128,7 @@ function handleVariableDeclarator(context: Rule.RuleContext, node: estree.Variab
 function findKeySuspect(node: estree.Node): string | undefined {
   if (isIdentifier(node) && secretWordRegexps.some(pattern => pattern.test(node.name))) {
     return node.name;
-  } else if (
-    isStringLiteral(node) &&
-    secretWordRegexps.some(pattern => pattern.test(node.value))
-  ) {
+  } else if (isStringLiteral(node) && secretWordRegexps.some(pattern => pattern.test(node.value))) {
     return node.value;
   } else if (node.type === 'MemberExpression') {
     return findKeySuspect(node.property);
@@ -146,6 +144,7 @@ function findValueSuspect(node: estree.Node | undefined | null): estree.Node | u
   if (
     isStringLiteral(node) &&
     valuePassesPostValidation(node.value) &&
+    !isExcludedSecretValue(node.value) &&
     entropyShouldRaise(node.value)
   ) {
     return node;

@@ -21,5 +21,14 @@ export const filterEcmaVersion: RuleFilter = (_config, meta, ctx) => {
     return true;
   }
   const required = meta.requiredEcmaVersion;
-  return required == null || required <= ctx.detectedEsYear;
+  if (required == null) {
+    return true;
+  }
+  // On TypeScript the detected ES year is derived from the compiler target/lib, which
+  // describes emitted syntax. TypeScript downlevels newer syntax, so rules promoting
+  // downlevelable syntax must not be gated by it.
+  if (meta.downlevelableSyntax && ctx.fileLanguage === 'ts') {
+    return true;
+  }
+  return required <= ctx.detectedEsYear;
 };

@@ -153,7 +153,9 @@ if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
   git fetch origin "$TARGET_REF"
   git config user.name "github-actions[bot]"
   git config user.email "github-actions[bot]@users.noreply.github.com"
-  git checkout -B "$FIX_BRANCH" "origin/$TARGET_REF"
+  # Ruling preparation can modify generated files outside the expected-results directory.
+  # Those changes must not prevent switching from the tested merge ref to the PR branch.
+  git checkout -f -B "$FIX_BRANCH" "origin/$TARGET_REF"
   restore_ruling_changes
 
   git add -- "$OLD_RESULTS_PATH"

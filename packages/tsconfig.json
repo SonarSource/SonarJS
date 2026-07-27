@@ -12,6 +12,7 @@
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
     "forceConsistentCasingInFileNames": true,

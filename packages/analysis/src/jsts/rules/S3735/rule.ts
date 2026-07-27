@@ -18,10 +18,18 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { unwrapChainExpression } from '../helpers/expect-call-chain.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isFunctionCall } from '../helpers/ast.js';
-import { isRequiredParserServices } from '../helpers/parser-services.js';
-import { isThenableOrVoidUnion } from '../helpers/type.js';
+import {
+  isRequiredParserServices,
+  type RequiredParserServices,
+} from '../helpers/parser-services.js';
+import {
+  getTypeFromTreeNode,
+  isAnyOrUnknownType,
+  isThenableOrGuardUnion,
+  isThenableOrVoidUnion,
+} from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -65,11 +73,42 @@ function isIIFE(expr: estree.UnaryExpression) {
 function isPromiseLike(context: Rule.RuleContext, expr: estree.UnaryExpression) {
   const services = context.sourceCode.parserServices;
   if (isRequiredParserServices(services)) {
-    return isThenableOrVoidUnion(expr.argument, services);
+    return (
+      isThenableOrVoidUnion(expr.argument, services) ||
+      (isShortCircuitExpression(expr.argument) &&
+        isThenableOrGuardUnion(expr.argument, services)) ||
+      (isCallLikeExpression(expr.argument) && hasIndeterminateType(expr.argument, services))
+    );
   } else {
-    // If we don't have typescript types, we can't reason if it's a promise.
-    // Therefore, if this is a function call, assume it is a promise.
-    // For this rule, it will result in not raising an issue.
-    return isFunctionCall(expr.argument);
+    // No type info: treat any call-like expression as a possible promise and don't raise.
+    return isCallLikeExpression(expr.argument);
   }
+}
+
+/**
+ * Returns true when `node` is a short-circuit expression whose result depends on a guard.
+ * @param node The expression used with `void`.
+ * @return Whether the expression is a logical (`||`, `&&`, `??`) or conditional (`?:`) expression.
+ */
+function isShortCircuitExpression(node: estree.Node) {
+  return node.type === 'LogicalExpression' || node.type === 'ConditionalExpression';
+}
+
+/**
+ * Returns true when `node` is a direct call or an optionally chained call.
+ * @param node The expression used with `void`.
+ * @return Whether the expression has a callable shape.
+ */
+function isCallLikeExpression(node: estree.Node) {
+  return unwrapChainExpression(node).type === 'CallExpression';
+}
+
+/**
+ * Returns true when TypeScript cannot determine whether `node` resolves to a promise.
+ * @param node The expression used with `void`.
+ * @param services The TypeScript parser services.
+ * @return Whether the resolved type is `any` or `unknown`.
+ */
+function hasIndeterminateType(node: estree.Node, services: RequiredParserServices) {
+  return isAnyOrUnknownType(getTypeFromTreeNode(node, services));
 }

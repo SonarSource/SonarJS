@@ -15,3 +15,9 @@ You should give yourself permissions to create symbolic links (required by PathW
 
 - `git config --system core.autocrlf input`
 - `git config --system core.longpaths true`
+
+## CycloneDX SBOM builds
+
+The optional `-Psbom` Maven profile invokes `bash`, `curl`, and SHA-256 tools to download and verify
+the pinned native CycloneDX CLI on the first run. Ensure Git Bash is installed and available on
+`PATH`. Normal Maven builds and `-Dskip-nodejs` builds do not enable this profile.

@@ -3,15 +3,7 @@
 29,
 49
 ],
-"Ghost:core/test/integration/api/api_authentication_spec.js": [
-72,
-149,
-219,
-252,
-285
-],
 "Ghost:core/test/integration/api/api_users_spec.js": [
-483,
 1128,
 1129,
 1130,
@@ -26,14 +18,6 @@
 1203,
 1217,
 1218
-],
-"Ghost:core/test/integration/model/model_users_spec.js": [
-598,
-598
-],
-"Ghost:core/test/unit/middleware/private-blogging_spec.js": [
-247,
-258
 ],
 "Ghost:core/test/utils/fixtures/data-generator.js": [
 453

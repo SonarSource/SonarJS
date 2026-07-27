@@ -14,9 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
+import parser from 'vue-eslint-parser';
 
 describe('S1534', () => {
   it('S1534', () => {
@@ -104,6 +108,41 @@ let x = {
               ],
             },
           ],
+        },
+      ],
+    });
+  });
+
+  it('S1534 (decorated: vue/no-duplicate-attributes)', () => {
+    const ruleTesterVue = new NoTypeCheckingRuleTester({ parser });
+    ruleTesterVue.run(`Vue template duplicate attributes`, rule, {
+      valid: [
+        {
+          // class/style coexistence is explicitly allowed by default
+          code: `
+<template>
+  <div class="a" :class="b" style="color: red" :style="c" />
+</template>
+`,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+<template>
+  <div id="a" id="b" />
+</template>
+`,
+          errors: [{ message: "Duplicate attribute 'id'." }],
+        },
+        {
+          // plain attribute and its bound (v-bind) form resolve to the same name
+          code: `
+<template>
+  <div id="a" :id="b" />
+</template>
+`,
+          errors: [{ message: "Duplicate attribute 'id'." }],
         },
       ],
     });

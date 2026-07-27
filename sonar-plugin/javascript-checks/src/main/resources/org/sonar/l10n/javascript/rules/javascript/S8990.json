@@ -1,0 +1,41 @@
+{
+  "title": "Promises should not be passed to \"fireEvent\"",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "testing-library"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "@testing-library/dom",
+      "@testing-library/react",
+      "@testing-library/vue",
+      "@testing-library/angular",
+      "@testing-library/svelte",
+      "storybook"
+    ]
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8990",
+  "sqKey": "S8990",
+  "scope": "Tests",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

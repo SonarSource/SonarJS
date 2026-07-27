@@ -1,5 +1,5 @@
 {
-  "title": "Side effects should not be performed inside computed properties",
+  "title": "Side effects should not be performed inside Vue computed properties",
   "type": "BUG",
   "status": "ready",
   "remediation": {

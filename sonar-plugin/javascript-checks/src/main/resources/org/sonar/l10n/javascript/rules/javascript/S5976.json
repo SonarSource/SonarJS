@@ -18,7 +18,8 @@
     "clumsy",
     "jest",
     "vitest",
-    "playwright"
+    "playwright",
+    "bun"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-5976",

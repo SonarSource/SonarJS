@@ -18,9 +18,9 @@ package org.sonar.css;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RuleParamType;
@@ -32,7 +32,7 @@ import org.sonar.api.utils.Version;
 
 class CssRulesDefinitionTest {
 
-  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(
+  private static final SonarRuntime sonarRuntime = TestSonarRuntime.forSonarLint(
     Version.create(9, 3)
   );
 
@@ -100,7 +100,9 @@ class CssRulesDefinitionTest {
   private void assertAllRuleParametersHaveDescription(Repository repository) {
     for (Rule rule : repository.rules()) {
       for (Param param : rule.params()) {
-        assertThat(param.description()).as("description for " + param.key()).isNotEmpty();
+        assertThat(param.description())
+          .as("description for " + param.key())
+          .isNotEmpty();
       }
     }
   }
