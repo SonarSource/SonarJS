@@ -823,6 +823,70 @@ describe('Linter', () => {
     expect(rules).toHaveProperty('sonarjs/S6582');
   });
 
+  it('should gate S7781 on the raw TypeScript target even when detected ES year is newer', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S7781',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'ts',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const filePath = normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.ts'));
+    const es2017Rules = Linter.getRulesForFile(
+      filePath,
+      'MAIN',
+      'DEFAULT',
+      'ts',
+      2022,
+      undefined,
+      undefined,
+      2017,
+    );
+    const es2021Rules = Linter.getRulesForFile(
+      filePath,
+      'MAIN',
+      'DEFAULT',
+      'ts',
+      2022,
+      undefined,
+      undefined,
+      2021,
+    );
+    expect(es2017Rules).not.toHaveProperty('sonarjs/S7781');
+    expect(es2021Rules).toHaveProperty('sonarjs/S7781');
+  });
+
+  it('should keep S6582 on TypeScript even when the raw target is below ES2020', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S6582',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'ts',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.ts')),
+      'MAIN',
+      'DEFAULT',
+      'ts',
+      2022,
+      undefined,
+      undefined,
+      2017,
+    );
+    expect(rules).toHaveProperty('sonarjs/S6582');
+  });
+
   it('should enable all rules when detectedEsYear is undefined (esnext fallback)', async () => {
     // No ES year detected -> no restriction, all active rules should be enabled
     await Linter.initialize({

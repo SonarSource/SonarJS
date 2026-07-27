@@ -27,6 +27,7 @@ import {
   esLibToYear,
   nodeVersionToEs,
   parseMaxNodeMajor,
+  tsTargetToEsYear,
 } from '../../../src/jsts/program/tsconfig/options.js';
 import { clearProgramOptionsCache } from '../../../src/jsts/program/cache/programOptionsCache.js';
 import { clearTsConfigContentCache } from '../../../src/jsts/program/cache/tsconfigCache.js';
@@ -567,5 +568,22 @@ describe('esLibToYear', () => {
 
   it('should return null for empty lib array', () => {
     expect(esLibToYear([])).toBeNull();
+  });
+});
+
+describe('tsTargetToEsYear', () => {
+  it('should keep year-based targets unchanged', () => {
+    expect(tsTargetToEsYear(ts.ScriptTarget.ES2017)).toBe(2017);
+    expect(tsTargetToEsYear(ts.ScriptTarget.ES2021)).toBe(2021);
+  });
+
+  it('should treat legacy targets as pre-ES2015', () => {
+    expect(tsTargetToEsYear(ts.ScriptTarget.ES3)).toBe(2014);
+    expect(tsTargetToEsYear(ts.ScriptTarget.ES5)).toBe(2014);
+  });
+
+  it('should return null for targets without a fixed year', () => {
+    expect(tsTargetToEsYear(ts.ScriptTarget.ESNext)).toBeNull();
+    expect(tsTargetToEsYear(undefined)).toBeNull();
   });
 });

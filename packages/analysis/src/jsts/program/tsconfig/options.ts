@@ -254,6 +254,32 @@ function targetOptionToString(target: ts.ScriptTarget | undefined): string | und
 }
 
 /**
+ * Maps a raw TypeScript compiler target to a comparable ES year for rule gating.
+ *
+ * Legacy ES3/ES5 targets are treated as pre-ES2015 so any year-based requirement
+ * stays conservatively disabled. ESNext/JSON return null because they do not carry
+ * a fixed runtime-compatibility floor.
+ *
+ * @param target raw TypeScript compiler target
+ * @returns ES year or null when no fixed year applies
+ */
+export function tsTargetToEsYear(target: ts.ScriptTarget | undefined): number | null {
+  const targetName = targetOptionToString(target)?.toUpperCase();
+  if (!targetName || targetName === 'ESNEXT' || targetName === 'JSON') {
+    return null;
+  }
+  if (targetName === 'ES3' || targetName === 'ES5') {
+    return 2014;
+  }
+  const match = /^ES(\d{4})$/.exec(targetName);
+  if (!match) {
+    return null;
+  }
+  const year = Number.parseInt(match[1], 10);
+  return year >= 2015 && year <= 2030 ? year : null;
+}
+
+/**
  * Extracts the ES year from a normalized TypeScript lib array.
  * Returns null for esnext (no ES version restriction applies).
  *

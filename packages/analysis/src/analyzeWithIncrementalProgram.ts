@@ -33,6 +33,7 @@ import {
   esLibToYear,
   groupFilesByResolvedLib,
   MISSING_EXTENDED_TSCONFIG,
+  tsTargetToEsYear,
   type ProgramOptions,
 } from './jsts/program/tsconfig/options.js';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
@@ -98,6 +99,10 @@ export async function analyzeWithIncrementalProgram(
 
     const detectedEsYear =
       program == null ? undefined : (esLibToYear(program.getCompilerOptions().lib) ?? undefined);
+    const targetEsYear =
+      program == null
+        ? undefined
+        : (tsTargetToEsYear(program.getCompilerOptions().target) ?? undefined);
 
     await analyzeFile(
       filename,
@@ -109,6 +114,7 @@ export async function analyzeWithIncrementalProgram(
       progressReport,
       incrementalResultsChannel,
       detectedEsYear,
+      targetEsYear,
     );
 
     if (!pendingFiles.size) {

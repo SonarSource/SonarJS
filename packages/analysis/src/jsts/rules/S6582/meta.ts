@@ -21,4 +21,4 @@ export const externalRules = [
 ];
 export const quickFixMessage = 'Use optional chaining';
 // TypeScript downlevels optional chaining, so gate the ES2020 requirement on JavaScript only.
-export const downlevelableSyntax = true;
+export const downlevelable = true;
