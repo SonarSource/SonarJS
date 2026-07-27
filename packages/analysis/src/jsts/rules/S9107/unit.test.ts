@@ -169,6 +169,28 @@ export default {
           ],
         },
         {
+          // Options API: string literal matching a reserved word is reported but not
+          // autofixed, since substituting the bare keyword would produce invalid code
+          code: `
+<script>
+export default {
+  props: {
+    title: {
+      type: 'class'
+    }
+  }
+}
+</script>
+`,
+          output: null,
+          errors: [
+            {
+              message:
+                'Replace this value with a constructor, e.g. String or Number, for the "title" prop\'s type.',
+            },
+          ],
+        },
+        {
           // Options API: BinaryExpression is reported but not autofixed
           code: `
 <script>
