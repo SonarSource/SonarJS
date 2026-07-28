@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isVendorFile } from '../helpers/vendor-file-pattern.js';
@@ -27,7 +28,10 @@ const MIN_VAR_RATIO = 0.5;
 type VariableDeclarationListener = (node: estree.Node) => void;
 type ProgramExitListener = NonNullable<Rule.RuleListener['Program:exit']>;
 type ProgramNode = Parameters<ProgramExitListener>[0];
-type VariableDeclarationNode = estree.VariableDeclaration & { declare?: boolean };
+type VariableDeclarationNode = estree.VariableDeclaration &
+  Rule.NodeParentExtension & {
+    declare?: boolean;
+  };
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return {
@@ -50,14 +54,15 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       });
       const listener = interceptedRule.create(context);
       const onVariableDeclaration = listener.VariableDeclaration as
-        VariableDeclarationListener | undefined;
+        | VariableDeclarationListener
+        | undefined;
       const onProgramExit = listener['Program:exit'] as ProgramExitListener | undefined;
 
       return {
         ...listener,
         VariableDeclaration(node: estree.Node) {
           const declaration = node as VariableDeclarationNode;
-          if (!declaration.declare) {
+          if (!isAmbientVarDeclaration(declaration)) {
             totalDeclarations++;
             if (declaration.kind === 'var') {
               varDeclarations++;
@@ -119,8 +124,8 @@ function transformReportDescriptor(
   const { node, ...rest } = reportDescriptor;
   const varDecl = node as VariableDeclarationNode;
 
-  // Skip TypeScript ambient declarations (declare var)
-  if (varDecl.declare) {
+  // Skip TypeScript ambient declarations, including vars nested in declare module/namespace.
+  if (isAmbientVarDeclaration(varDecl)) {
     return undefined;
   }
 
@@ -142,4 +147,20 @@ function transformReportDescriptor(
     },
     ...rest,
   };
+}
+
+function isAmbientVarDeclaration(declaration: VariableDeclarationNode): boolean {
+  if (declaration.declare) {
+    return true;
+  }
+
+  let parent = declaration.parent as (TSESTree.Node & Rule.NodeParentExtension) | undefined;
+  while (parent) {
+    if (parent.type === 'TSModuleDeclaration' && parent.declare) {
+      return true;
+    }
+    parent = parent.parent as (TSESTree.Node & Rule.NodeParentExtension) | undefined;
+  }
+
+  return false;
 }

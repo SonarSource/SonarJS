@@ -125,16 +125,24 @@ describe('S3504', () => {
         {
           code: `
             declare var apiUrl: string;
-            declare var buildNumber: string;
-            declare var runtimeConfig: Record<string, string>;
-            let currentBuild = buildNumber;
+            declare module 'foo' {
+              var buildNumber: string;
+            }
+            declare namespace Legacy {
+              var runtimeConfig: Record<string, string>;
+            }
+            let currentBuild = apiUrl;
             var legacyBuild = currentBuild;
           `,
           output: `
             declare var apiUrl: string;
-            declare var buildNumber: string;
-            declare var runtimeConfig: Record<string, string>;
-            let currentBuild = buildNumber;
+            declare module 'foo' {
+              var buildNumber: string;
+            }
+            declare namespace Legacy {
+              var runtimeConfig: Record<string, string>;
+            }
+            let currentBuild = apiUrl;
             let legacyBuild = currentBuild;
           `,
           errors: 1,
