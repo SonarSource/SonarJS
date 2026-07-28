@@ -17,7 +17,7 @@
   "ruleSpecification": "RSPEC-8959",
   "sqKey": "S8959",
   "scope": "Tests",
-  "quickfix": "covered",
+  "quickfix": "partial",
   "compatibleLanguages": [
     "js",
     "ts"
