@@ -456,6 +456,18 @@ describe('unknown uvu assert methods', () => {
         },
         {
           code: `
+const assert = require('uvu/assert');
+const { describe, it } = require('node:test');
+
+describe('chained unknown uvu assert methods', () => {
+  it('raises when a whitelisted method has an unknown chained member', () => {
+    assert.equal.custom('ready');
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
 const { expect, test } = require('@playwright/test');
 
 test('bare expect.poll does not assert', async () => {
@@ -950,6 +962,19 @@ import assert from 'uvu/assert';
 describe('typed unknown uvu assert methods', () => {
   it('raises when the method is outside the whitelist', () => {
     assert.custom('ready');
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, it } from 'node:test';
+import assert from 'uvu/assert';
+
+describe('typed chained unknown uvu assert methods', () => {
+  it('raises when a whitelisted method has an unknown chained member', () => {
+    assert.equal.custom('ready');
   });
 });
 `,

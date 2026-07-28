@@ -61,10 +61,10 @@ function isFQNAssertion(fqn: string | null | undefined): boolean {
     parts.shift();
   }
   if (parts[0] === 'not') {
-    if (parts.length === 1) {
-      return true;
-    }
-    parts.shift();
+    return (
+      parts.length === 1 ||
+      (parts.length === 2 && parts[1] !== 'not' && ASSERT_METHOD_NAMES.has(parts[1]))
+    );
   }
-  return parts[0] !== undefined && ASSERT_METHOD_NAMES.has(parts[0]);
+  return parts.length === 1 && parts[0] !== undefined && ASSERT_METHOD_NAMES.has(parts[0]);
 }
