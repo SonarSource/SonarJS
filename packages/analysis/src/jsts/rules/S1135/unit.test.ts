@@ -49,6 +49,21 @@ describe('S1135', () => {
         // TODO whatever
         `,
         },
+        {
+          code: `// TODO JS-1234 remove this later`,
+        },
+        {
+          code: `// ToDo(JS-1234): remove this later`,
+        },
+        {
+          code: `/* TODO APPSEC-42 remove this later */`,
+        },
+        {
+          code: `// Temporary fix. (TODO PROJ-123 improve method)`,
+        },
+        {
+          code: `// TODO fix this. See PROJ-123.`,
+        },
       ],
       invalid: [
         {
@@ -97,6 +112,18 @@ describe('S1135', () => {
         {
           code: `// TODO  TODO`,
           errors: 1,
+        },
+        {
+          code: `// TODO task-123 remove this later`,
+          errors: [
+            {
+              message: 'Complete the task associated to this "TODO" comment.',
+              line: 1,
+              endLine: 1,
+              column: 4,
+              endColumn: 8,
+            },
+          ],
         },
         {
           code: `
