@@ -16,4 +16,3 @@
  */
 export const implementation = 'original';
 export const eslintId = 'no-debug-commands-in-ui-tests';
-export const quickFixMessage = 'Remove this debug command';
