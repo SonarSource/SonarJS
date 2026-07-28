@@ -70,6 +70,7 @@ const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
   'node:test',
   'sinon',
   'supertest',
+  'uvu',
   'vitest',
 ];
 
@@ -86,6 +87,7 @@ const SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES = [
   'mocha',
   'sinon',
   'supertest',
+  'uvu',
   'vitest',
 ];
 
@@ -172,7 +174,7 @@ type AssertionDetector = (context: Rule.RuleContext, node: estree.Node) => boole
  * the script-capable ones. A new library is one classified entry here, so the two
  * predicates can never drift apart.
  *
- * Script-capable — node `assert`, chai, sinon, supertest — are ordinary libraries
+ * Script-capable — node `assert`, chai, sinon, supertest, uvu — are ordinary libraries
  * usable in a plain `node file.js`. Runner-bound — vitest, cypress, global
  * `expect*(...)` chains — only exist because a runner executes the file.
  *
@@ -212,7 +214,7 @@ export function isAssertion(context: Rule.RuleContext, node: estree.Node): boole
 
 /**
  * Whether `node` is an assertion from a library that runs in a plain script with
- * no test runner (node `assert`, chai, sinon, supertest). The complement among
+ * no test runner (node `assert`, chai, sinon, supertest, uvu). The complement among
  * assertions — vitest, cypress, global `expect` — is "runner-bound". Callers
  * deciding "is this runner-bound?" should test
  * `isAssertion(...) && !isScriptCapableAssertion(...)`.

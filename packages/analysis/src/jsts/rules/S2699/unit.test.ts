@@ -20,6 +20,12 @@ import {
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
+import { join } from 'node:path';
+
+const uvuOnlyFixture = join(
+  import.meta.dirname,
+  '../../../../tests/jsts/tools/testers/fixtures/s2699-uvu-only/test.js',
+);
 
 describe('S2699', () => {
   it('S2699', () => {
@@ -464,6 +470,18 @@ describe('chained unknown uvu assert methods', () => {
     assert.equal.custom('ready');
   });
 });`,
+          errors: 1,
+        },
+        {
+          filename: uvuOnlyFixture,
+          code: `
+import { test } from 'uvu';
+import assert from 'uvu/assert';
+
+test('native uvu tests without assertions are reported', () => {
+  const value = 1 + 2;
+});
+`,
           errors: 1,
         },
         {
