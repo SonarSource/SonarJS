@@ -21,200 +21,11 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier, isNumberLiteral } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
-
-const assertionFunctions = [
-  // Chai assertions
-  'a',
-  'an',
-  'include',
-  'includes',
-  'contain',
-  'contains',
-  'equal',
-  'equals',
-  'eq',
-  'eql',
-  'eqls',
-  'above',
-  'gt',
-  'greaterThan',
-  'least',
-  'gte',
-  'below',
-  'lt',
-  'lessThan',
-  'most',
-  'lte',
-  'within',
-  'instanceof',
-  'instanceOf',
-  'property',
-  'ownPropertyDescriptor',
-  'haveOwnPropertyDescriptor',
-  'lengthOf',
-  'length',
-  'match',
-  'matches',
-  'string',
-  'key',
-  'keys',
-  'throw',
-  'throws',
-  'Throw',
-  'respondTo',
-  'respondsTo',
-  'satisfy',
-  'satisfies',
-  'closeTo',
-  'approximately',
-  'members',
-  'oneOf',
-  'change',
-  'changes',
-  'increase',
-  'increases',
-  'decrease',
-  'decreases',
-  'by',
-  'fail',
-
-  // Jest / Vitest / Bun Matchers & Aliases
-  'toBe',
-  'toEqual',
-  'toStrictEqual',
-  'toBeTruthy',
-  'toBeFalsy',
-  'toBeNull',
-  'toBeUndefined',
-  'toBeDefined',
-  'toBeNaN',
-  'toBeInstanceOf',
-  'toBeGreaterThan',
-  'toBeGreaterThanOrEqual',
-  'toBeLessThan',
-  'toBeLessThanOrEqual',
-  'toBeCloseTo',
-  'toContain',
-  'toContainEqual',
-  'toHaveLength',
-  'toHaveProperty',
-  'toMatch',
-  'toMatchObject',
-  'toHaveBeenCalled',
-  'toBeCalled',
-  'toHaveBeenCalledTimes',
-  'toBeCalledTimes',
-  'toHaveBeenCalledWith',
-  'toBeCalledWith',
-  'toHaveBeenLastCalledWith',
-  'lastCalledWith',
-  'toHaveBeenNthCalledWith',
-  'nthCalledWith',
-  'toHaveReturned',
-  'toReturn',
-  'toHaveReturnedTimes',
-  'toReturnTimes',
-  'toHaveReturnedWith',
-  'toReturnWith',
-  'toHaveLastReturnedWith',
-  'lastReturnedWith',
-  'toHaveNthReturnedWith',
-  'nthReturnedWith',
-  'toThrow',
-  'toThrowError',
-  'toMatchSnapshot',
-  'toMatchInlineSnapshot',
-  'toThrowErrorMatchingSnapshot',
-  'toThrowErrorMatchingInlineSnapshot',
-  'toResolve',
-  'toReject',
-
-  // @testing-library/jest-dom
-  'toBeInTheDocument',
-  'toBeVisible',
-  'toBeHidden',
-  'toBeDisabled',
-  'toBeEnabled',
-  'toBeRequired',
-  'toBeInvalid',
-  'toBeValid',
-  'toBeEmptyDOMElement',
-  'toBeChecked',
-  'toHaveAttribute',
-  'toHaveClass',
-  'toHaveStyle',
-  'toHaveValue',
-  'toHaveDisplayValue',
-  'toHaveFocus',
-  'toHaveTextContent',
-  'toHaveAccessibleName',
-  'toHaveAccessibleDescription',
-  'toHaveAccessibleErrorMessage',
-  'toHaveErrorMessage',
-  'toContainElement',
-  'toContainHTML',
-
-  // @playwright/test
-  'toBeAttached',
-  'toBeEditable',
-  'toBeInViewport',
-  'toBeOK',
-  'toContainText',
-  'toHaveCSS',
-  'toHaveId',
-  'toHaveJSProperty',
-  'toHaveRole',
-  'toHaveText',
-  'toHaveTitle',
-  'toHaveURL',
-  'toHaveValues',
-
-  // Node.js assert methods
-  'strictEqual',
-  'notStrictEqual',
-  'deepStrictEqual',
-  'notDeepStrictEqual',
-  'doesNotThrow',
-  'rejects',
-  'doesNotReject',
-  'doesNotMatch',
-  'ifError',
-];
-
-const gettersOrModifiers = [
-  // Chai getters & modifiers
-  'to',
-  'be',
-  'been',
-  'is',
-  'that',
-  'which',
-  'and',
-  'has',
-  'have',
-  'with',
-  'at',
-  'of',
-  'same',
-  'but',
-  'does',
-  'still',
-  'deep',
-  'nested',
-  'own',
-  'ordered',
-  'any',
-  'all',
-  'itself',
-  'should',
-
-  // Jest / Vitest / Bun / Playwright modifiers
-  'not',
-  'resolves',
-  'rejects',
-  'soft',
-  'poll',
-];
+import {
+  assertionFunctions,
+  expectStaticMethods,
+  gettersOrModifiers,
+} from './matchers.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
@@ -229,7 +40,12 @@ export const rule: Rule.RuleModule = {
 
         if (expr.type === 'MemberExpression') {
           const { property } = expr;
-          if (isTestAssertion(expr)) {
+          if (isExpectStaticMethod(expr) && isIdentifier(property)) {
+            context.report({
+              node: property,
+              message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
+            });
+          } else if (isTestAssertion(expr)) {
             if (
               isIdentifier(property, ...assertionFunctions) &&
               !(isIdentifier(property, 'rejects') && isExpectAssertion(expr.object))
@@ -246,11 +62,11 @@ export const rule: Rule.RuleModule = {
             }
           }
         }
-        if (isExpectCall(expr)) {
-          const { callee } = expr;
+        if (isExpectCall(expr) || isExpectStaticMethodCall(expr)) {
+          const reportNode = getExpectCallReportNode(expr);
           context.report({
-            node: callee,
-            message: `Complete this assertion; '${callee.name}' doesn't assert anything by itself.`,
+            node: reportNode,
+            message: `Complete this assertion; '${reportNode.name}' doesn't assert anything by itself.`,
           });
         }
       },
@@ -264,7 +80,11 @@ function isTestAssertion(node: estree.MemberExpression): boolean {
   if (isIdentifier(object) && isIdentifier(property, 'should')) {
     return true;
   }
-  if (isExpectCall(object) || isIdentifier(object, 'assert', 'expect', 'should')) {
+  if (
+    isExpectCall(object) ||
+    isExpectStaticMethodCall(object) ||
+    isIdentifier(object, 'assert', 'expect', 'should')
+  ) {
     return true;
   } else if (object.type === 'MemberExpression') {
     return isTestAssertion(object);
@@ -275,7 +95,7 @@ function isTestAssertion(node: estree.MemberExpression): boolean {
 }
 
 function isExpectAssertion(node: estree.Node): boolean {
-  if (isExpectCall(node) || isIdentifier(node, 'expect')) {
+  if (isExpectCall(node) || isExpectStaticMethodCall(node) || isIdentifier(node, 'expect')) {
     return true;
   }
   if (node.type === 'MemberExpression') {
@@ -295,4 +115,35 @@ function isExpectCall(
     isIdentifier(node.callee, 'expect') &&
     !isNumberLiteral(node.arguments[0])
   );
+}
+
+/**
+ * Playwright (and Vitest) expose `soft` / `poll` as static methods on `expect`:
+ * `expect.soft(locator)`, `expect.poll(fn)`, `expect.soft.poll(fn)`.
+ * @see https://playwright.dev/docs/test-assertions
+ */
+function isExpectStaticMethod(node: estree.Node): node is estree.MemberExpression {
+  if (node.type !== 'MemberExpression' || !isIdentifier(node.property, ...expectStaticMethods)) {
+    return false;
+  }
+  if (isIdentifier(node.object, 'expect')) {
+    return true;
+  }
+  // Nested forms such as `expect.soft.poll`
+  return isExpectStaticMethod(node.object);
+}
+
+function isExpectStaticMethodCall(node: estree.Node): node is estree.CallExpression {
+  return node.type === 'CallExpression' && isExpectStaticMethod(node.callee);
+}
+
+function getExpectCallReportNode(
+  node: estree.CallExpression,
+): estree.Identifier {
+  if (isIdentifier(node.callee)) {
+    return node.callee;
+  }
+  // Prefer the last static method in the chain (`poll` in `expect.soft.poll(...)`)
+  const { property } = node.callee as estree.MemberExpression;
+  return property as estree.Identifier;
 }

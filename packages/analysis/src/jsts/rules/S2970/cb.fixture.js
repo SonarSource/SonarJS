@@ -177,7 +177,20 @@ describe("uses Jest, Vitest, Bun, Testing Library, Playwright, Node assert", fun
     await expect(promise).resolves;  // Noncompliant {{Complete this assertion; 'resolves' doesn't assert anything by itself.}}
     expect(promise).rejects;  // Noncompliant {{Complete this assertion; 'rejects' doesn't assert anything by itself.}}
     await expect(promise).rejects;  // Noncompliant {{Complete this assertion; 'rejects' doesn't assert anything by itself.}}
-    expect(locator).soft;  // Noncompliant {{Complete this assertion; 'soft' doesn't assert anything by itself.}}
+  });
+
+  it("Playwright expect.soft / expect.poll", async function() {
+    expect.soft;  // Noncompliant {{Complete this assertion; 'soft' doesn't assert anything by itself.}}
+    expect.poll;  // Noncompliant {{Complete this assertion; 'poll' doesn't assert anything by itself.}}
+    expect.soft(locator);  // Noncompliant {{Complete this assertion; 'soft' doesn't assert anything by itself.}}
+    expect.poll(async () => response.status());  // Noncompliant {{Complete this assertion; 'poll' doesn't assert anything by itself.}}
+    await expect.soft(locator);  // Noncompliant {{Complete this assertion; 'soft' doesn't assert anything by itself.}}
+    await expect.poll(async () => response.status());  // Noncompliant {{Complete this assertion; 'poll' doesn't assert anything by itself.}}
+    expect.soft.poll(async () => response.status());  // Noncompliant {{Complete this assertion; 'poll' doesn't assert anything by itself.}}
+
+    await expect.soft(locator).toBeVisible();
+    await expect.poll(async () => response.status()).toBe(200);
+    await expect.soft.poll(async () => response.status()).toBe(200);
   });
 
   it("complete assertions", async function() {
