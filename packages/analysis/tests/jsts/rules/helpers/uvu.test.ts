@@ -17,6 +17,7 @@
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { Linter, type Rule } from 'eslint';
+import type estree from 'estree';
 import { isAssertion } from '../../../../src/jsts/rules/helpers/uvu.js';
 
 /**
@@ -27,7 +28,7 @@ function detectedAssertions(source: string): string[] {
   const detected: string[] = [];
   const collect: Rule.RuleModule = {
     create(context) {
-      const check = (node: Parameters<typeof isAssertion>[1]) => {
+      const check = (node: estree.Node) => {
         if (isAssertion(context, node)) {
           detected.push(context.sourceCode.getText(node));
         }

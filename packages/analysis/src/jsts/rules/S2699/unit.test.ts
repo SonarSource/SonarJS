@@ -233,6 +233,16 @@ describe('assert imported without a supported test framework', () => {
 });
 `,
         },
+        {
+          code: `
+const assert = require('uvu/assert');
+describe('uvu/assert imported without a supported test framework', () => {
+  it('should not activate the rule', () => {
+    const x = 1 + 2;
+  });
+});
+`,
+        },
         // RxJS marble testing: expectObservable/expectSubscriptions should be recognized as assertions
         {
           code: `
