@@ -137,13 +137,13 @@ jobs:
       BUILD_NUMBER: ${{ needs.resolve_build_number.outputs.build-number }}
     steps:
       - name: Checkout source code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           ref: ${{ inputs.ref }}
 
       - uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2026.7.7
+          version: 2026.7.11
           mise_toml: |
             [tools]
             java = "21.0"
@@ -275,7 +275,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Checkout sonar-analysis-as-a-service
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: SonarSource/sonar-analysis-as-a-service
           ref: ${{ inputs.aaas-base-branch }}

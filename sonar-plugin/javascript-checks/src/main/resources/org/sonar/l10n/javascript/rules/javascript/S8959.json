@@ -10,7 +10,8 @@
     "tests",
     "bad-practice",
     "cypress",
-    "playwright"
+    "playwright",
+    "testing-library"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-8959",
