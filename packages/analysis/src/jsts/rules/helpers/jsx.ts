@@ -16,42 +16,6 @@
  */
 import type { TSESTree } from '@typescript-eslint/utils';
 
-/**
- * Checks whether `child` is in a parent position that can render JSX containment.
- *
- * Examples accepted: `<A><B /></A>`, `<A>{condition && <B />}</A>`,
- * `<A>{condition ? <B /> : null}</A>`, and `<A>{[<B />]}</A>`.
- * Examples rejected: JSX inside attributes, callbacks, or arbitrary expression bodies.
- */
-export function isRenderedJsxChild(parent: TSESTree.Node, child: TSESTree.Node): boolean {
-  switch (parent.type) {
-    case 'JSXElement':
-    case 'JSXFragment':
-      return (parent.children as readonly TSESTree.Node[]).includes(child);
-    case 'JSXExpressionContainer':
-      return parent.expression === child;
-    case 'ConditionalExpression':
-      return parent.consequent === child || parent.alternate === child;
-    case 'LogicalExpression':
-      if (parent.operator === '&&') {
-        return parent.right === child;
-      }
-      if (parent.operator === '||' || parent.operator === '??') {
-        return parent.left === child || parent.right === child;
-      }
-      return false;
-    case 'ArrayExpression':
-      return (parent.elements as readonly (TSESTree.Node | null)[]).includes(child);
-    case 'ChainExpression':
-    case 'TSAsExpression':
-    case 'TSTypeAssertion':
-    case 'TSNonNullExpression':
-      return parent.expression === child;
-    default:
-      return false;
-  }
-}
-
 export function getJsxShortCircuitNodes(logicalExpression: TSESTree.LogicalExpression) {
   if (logicalExpression.parent?.type === 'JSXExpressionContainer') {
     return flattenJsxShortCircuitNodes(logicalExpression, logicalExpression);

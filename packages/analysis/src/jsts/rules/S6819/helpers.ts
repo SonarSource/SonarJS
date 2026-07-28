@@ -18,7 +18,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
-import { isRenderedJsxChild } from '../helpers/jsx.js';
 
 const { getLiteralPropValue, getProp, getPropValue } = pkg;
 
@@ -120,6 +119,24 @@ export function hasRenderedAncestorWithRole(
   node: TSESTree.JSXOpeningElement,
   role: string,
 ): boolean {
+  return hasRenderedAncestorMatchingRole(node, ancestorRole => ancestorRole === role);
+}
+
+export function hasRenderedAncestorWithOneOfRoles(
+  node: TSESTree.JSXOpeningElement,
+  roles: Set<string>,
+): boolean {
+  return hasRenderedAncestorMatchingRole(node, role => roles.has(role));
+}
+
+/**
+ * Walks up the enclosing JSX, stopping at the first position that does not render
+ * its child, and reports whether a rendering ancestor carries a matching role.
+ */
+function hasRenderedAncestorMatchingRole(
+  node: TSESTree.JSXOpeningElement,
+  predicate: (role: string) => boolean,
+): boolean {
   const jsxElement = node.parent;
   if (jsxElement?.type !== 'JSXElement') {
     return false;
@@ -128,11 +145,11 @@ export function hasRenderedAncestorWithRole(
   let child: TSESTree.Node = jsxElement;
   let parent: TSESTree.Node | undefined = child.parent;
   while (parent) {
-    if (!isRenderedJsxChild(parent, child)) {
+    if (!renderedChildPositions(parent).includes(child)) {
       return false;
     }
 
-    if (parent.type === 'JSXElement' && getJSXElementRole(parent) === role) {
+    if (parent.type === 'JSXElement' && roleMatches(parent, predicate)) {
       return true;
     }
 
@@ -175,41 +192,44 @@ function hasDescendantMatchingRole(
     return false;
   }
 
-  const root = jsxElement;
-  const stack = [...renderedChildrenOf(root)];
-  while (stack.length > 0) {
-    const current = stack.pop();
-    if (!current) {
-      continue;
+  // Grows while iterating: every visited position appends its own rendered positions.
+  const pending = renderedChildPositions(jsxElement);
+  for (let i = 0; i < pending.length; i++) {
+    const current = pending[i];
+    if (current.type === 'JSXElement') {
+      const role = getJSXElementRole(current);
+      if (role !== null && predicate(role)) {
+        return true;
+      }
+      if (role !== null && isBoundary(role)) {
+        // A nested container owns everything below it, so stop descending here.
+        continue;
+      }
     }
-    if (current.type === 'JSXElement' && current !== root && roleMatches(current, predicate)) {
-      return true;
-    }
-    if (current.type === 'JSXElement' && current !== root && roleMatches(current, isBoundary)) {
-      continue;
-    }
-    stack.push(...renderedChildrenOf(current));
+    pending.push(...renderedChildPositions(current));
   }
   return false;
 }
 
-function renderedChildrenOf(node: TSESTree.Node): TSESTree.Node[] {
-  if (node.type === 'JSXElement' || node.type === 'JSXFragment') {
-    return node.children;
-  }
-
-  if (node.type === 'JSXExpressionContainer' && node.expression.type !== 'JSXEmptyExpression') {
-    return renderedExpressionChildrenOf(node.expression);
-  }
-
-  return [];
-}
-
-function renderedExpressionChildrenOf(node: TSESTree.Node): TSESTree.Node[] {
+/**
+ * Lists the direct child positions of `node` whose contents React renders.
+ *
+ * This is the single description of JSX rendering positions used by this rule, read
+ * downwards by the descendant search and upwards by the ancestor walk, so both agree
+ * on what "rendered" means.
+ *
+ * Accepted: `<A><B /></A>`, `{cond && <B />}`, `{cond ? <B /> : null}`, `{[<B />]}`,
+ * `{items.map(i => <B />)}`, and callbacks with a block body that returns JSX.
+ * Rejected: JSX in attributes (render props), and bare `{() => <B />}` children, which
+ * render nothing because nothing invokes them.
+ */
+function renderedChildPositions(node: TSESTree.Node): TSESTree.Node[] {
   switch (node.type) {
     case 'JSXElement':
     case 'JSXFragment':
-      return [node];
+      return [...node.children];
+    case 'JSXExpressionContainer':
+      return node.expression.type === 'JSXEmptyExpression' ? [] : [node.expression];
     case 'ConditionalExpression':
       return [node.consequent, node.alternate];
     case 'LogicalExpression':
@@ -223,11 +243,24 @@ function renderedExpressionChildrenOf(node: TSESTree.Node): TSESTree.Node[] {
     case 'ArrayExpression':
       return node.elements.filter(isArrayElement);
     case 'ChainExpression':
-      return [node.expression];
     case 'TSAsExpression':
     case 'TSTypeAssertion':
     case 'TSNonNullExpression':
+    case 'TSSatisfiesExpression':
       return [node.expression];
+    case 'CallExpression':
+      // `items.map(item => <Option />)`: the callback is invoked, so its result renders.
+      return [node.callee, ...node.arguments].filter(isInvokedFunction);
+    case 'ArrowFunctionExpression':
+    case 'FunctionExpression':
+      // Only a function that something invokes renders; a bare `{() => <B />}` does not.
+      return node.parent?.type === 'CallExpression' ? [node.body] : [];
+    case 'BlockStatement':
+      return [...node.body];
+    case 'ReturnStatement':
+      return node.argument === null ? [] : [node.argument];
+    case 'IfStatement':
+      return node.alternate === null ? [node.consequent] : [node.consequent, node.alternate];
     default:
       return [];
   }
@@ -239,6 +272,12 @@ function isArrayElement(
   return element !== null;
 }
 
+function isInvokedFunction(
+  node: TSESTree.Node,
+): node is TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression {
+  return node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression';
+}
+
 function roleMatches(element: TSESTree.JSXElement, predicate: (role: string) => boolean): boolean {
   const role = getJSXElementRole(element);
   return role !== null && predicate(role);
@@ -247,7 +286,7 @@ function roleMatches(element: TSESTree.JSXElement, predicate: (role: string) => 
 /**
  * Gets the role attribute value from a JSXElement.
  */
-export function getJSXElementRole(element: TSESTree.JSXElement): string | null {
+function getJSXElementRole(element: TSESTree.JSXElement): string | null {
   const openingElement = element.openingElement;
   const attributes = (openingElement as JSXOpeningElement).attributes;
   const roleProp = getProp(attributes, 'role');

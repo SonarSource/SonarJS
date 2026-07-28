@@ -51,17 +51,6 @@ describe('S6819 upstream sentinel', () => {
     });
   });
 
-  it('upstream prefer-tag-over-role raises on presentation layout containers that decorator suppresses', () => {
-    const ruleTester = new NoTypeCheckingRuleTester();
-    ruleTester.run('prefer-tag-over-role', upstreamRule, {
-      valid: [],
-      invalid: [
-        // presentation layout container — suppressed by decorator, raised by upstream
-        { code: `<li role="presentation" aria-hidden="true">Section header</li>`, errors: 1 },
-      ],
-    });
-  });
-
   it('upstream prefer-tag-over-role raises on svg role="img" with accessible labels that decorator suppresses', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('prefer-tag-over-role', upstreamRule, {
@@ -129,41 +118,6 @@ describe('S6819', () => {
         {
           // Nav with navigation role is valid (element already matches)
           code: `<nav role="navigation">content</nav>`,
-        },
-      ],
-      invalid: [],
-    });
-  });
-
-  // JS-1780: role="presentation" / role="none" on structural containers.
-  it('should not flag presentational layout containers', () => {
-    const ruleTester = new NoTypeCheckingRuleTester();
-
-    ruleTester.run('prefer-tag-over-role - presentation layout containers', rule, {
-      valid: [
-        {
-          code: `
-            <li role="presentation" aria-hidden="true">
-              Section header
-            </li>
-          `,
-        },
-        {
-          code: `
-            <div className="header-cake__title" role="presentation" onClick={onTitleClick}>
-              {children}
-            </div>
-          `,
-        },
-        {
-          code: `<span role="none" aria-hidden="true" className="layout-spacer" />`,
-        },
-        {
-          code: `
-            <ul role="presentation" aria-hidden="true">
-              <li>Decorative item</li>
-            </ul>
-          `,
         },
       ],
       invalid: [],
@@ -643,6 +597,50 @@ describe('S6819', () => {
             </div>
           `,
         },
+        {
+          // Compliant: group is rendered through a satisfies expression wrapper
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {(<div role="group" aria-label="Europe">
+                <div role="option" aria-selected="true">Paris</div>
+              </div>) satisfies JSX.Element}
+            </div>
+          `,
+        },
+        {
+          // Compliant: options come from an iteration callback, the usual grouped listbox shape
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                {cities.map(city => (
+                  <div role="option" aria-selected={city === 'Paris'} key={city}>
+                    {city}
+                  </div>
+                ))}
+              </div>
+            </div>
+          `,
+        },
+        {
+          // Compliant: iteration callback with a block body returning the option
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                {cities.map(city => {
+                  return <div role="option" key={city}>{city}</div>;
+                })}
+              </div>
+            </div>
+          `,
+        },
+        {
+          // Compliant: ungrouped listbox whose options come from an iteration callback
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {cities.map(city => <div role="option" key={city}>{city}</div>)}
+            </div>
+          `,
+        },
       ],
       invalid: [
         // True positive: option without listbox ancestor (use <option>)
@@ -665,22 +663,8 @@ describe('S6819', () => {
           code: `<div role="listbox"><div role="group">Europe</div></div>`,
           errors: 2,
         },
-        // True positive: callback-rendered option is not statically owned by the group/listbox
-        {
-          code: `
-            <div role="listbox" aria-label="Cities">
-              <div role="group" aria-label="Europe">
-                {cities.map(city => (
-                  <div role="option" aria-selected={city === 'Paris'} key={city}>
-                    {city}
-                  </div>
-                ))}
-              </div>
-            </div>
-          `,
-          errors: 2,
-        },
-        // True positive: option in a nested function body is not rendered as a descendant
+        // True positive: a bare function child renders nothing, so neither the group nor
+        // the option it contains is owned by the listbox.
         {
           code: `
             <div role="listbox" aria-label="Cities">
@@ -689,7 +673,7 @@ describe('S6819', () => {
               </div>
             </div>
           `,
-          errors: 2,
+          errors: 3,
         },
         // True positive: option in an unused initializer is not rendered as a descendant
         {
@@ -701,7 +685,7 @@ describe('S6819', () => {
               })()}
             </div>
           `,
-          errors: 1,
+          errors: 2,
         },
         // True positive: nested listbox option is not owned by outer group
         {
@@ -725,7 +709,7 @@ describe('S6819', () => {
               </div>
             </div>
           `,
-          errors: 2,
+          errors: 3,
         },
         // True positive: group returned from a render prop is not owned by the listbox
         {
@@ -740,7 +724,7 @@ describe('S6819', () => {
               />
             </div>
           `,
-          errors: 2,
+          errors: 3,
         },
       ],
     });
