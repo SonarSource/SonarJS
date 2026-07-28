@@ -71,6 +71,15 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [], 
     platform: 'node',
     minify: true,
     plugins: [
+      {
+        name: 'inline-package-imports',
+        setup(build) {
+          build.onLoad({ filter: /[\\/]package-imports\.json$/ }, ({ path }) => ({
+            contents: readFileSync(path, 'utf8'),
+            loader: 'json',
+          }));
+        },
+      },
       textReplace({
         include: entryPointRegex,
         pattern: [['new URL(import.meta.url)', '__filename']],

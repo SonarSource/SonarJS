@@ -35,7 +35,7 @@ jobs:
     steps:
       - &checkout
         name: Checkout source code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Generate Node.js version matrix from package.json
         id: generate-matrix
         run: |
@@ -107,11 +107,11 @@ jobs:
           lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2026.7.7
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -155,7 +155,7 @@ jobs:
       - &mise
         uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2026.7.7
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -394,7 +394,7 @@ jobs:
       - *checkout
       - uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2026.7.7
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -449,11 +449,11 @@ jobs:
           key: js-coverage-${{ runner.os }}-${{ needs.setup.outputs.js-files-hash }}
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2026.7.7
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -513,11 +513,11 @@ jobs:
           lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2026.7.7
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -556,7 +556,7 @@ jobs:
     steps:
       - &checkout_with_tags
         name: Checkout source code with tags
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: '0'
           fetch-tags: 'true'
@@ -679,7 +679,7 @@ jobs:
       - &mise_java_matrix_node
         uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2026.7.7
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -751,7 +751,7 @@ jobs:
         name: Setup Java and Maven
         uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2026.7.7
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -842,7 +842,7 @@ jobs:
         name: Setup Maven
         uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2026.7.7
+          version: 2026.7.11
           cache_save: true
           mise_toml: |
             [tools]
@@ -1068,7 +1068,7 @@ jobs:
     steps:
       - &checkout_with_submodules
         name: Checkout source code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
       - *mise
