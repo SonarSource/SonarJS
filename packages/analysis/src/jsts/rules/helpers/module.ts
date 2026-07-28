@@ -34,6 +34,7 @@ function getImportDeclarations(context: Rule.RuleContext): estree.ImportDeclarat
 }
 
 type ImportSpecifierWithKind = estree.ImportSpecifier & { importKind?: string | null };
+type VariableWithWritable = Scope.Variable & { writeable?: boolean };
 
 export function getRuntimeImportDeclarations(
   context: Rule.RuleContext,
@@ -97,25 +98,41 @@ function computeCurrentFileImports(sourceCode: SourceCode): void {
   CURRENT_FILE_IMPORTS.sourceCode = sourceCode;
   CURRENT_FILE_IMPORTS.imports.clear();
 
+  collectImportDeclarationNames(sourceCode);
+  collectRuntimeModuleNames(sourceCode);
+}
+
+function collectImportDeclarationNames(sourceCode: SourceCode): void {
   for (const node of sourceCode.ast.body) {
-    if (node.type === 'ImportDeclaration' && typeof node.source.value === 'string') {
-      CURRENT_FILE_IMPORTS.imports.add(node.source.value);
+    const source = node.type === 'ImportDeclaration' ? node.source.value : undefined;
+    if (typeof source === 'string') {
+      CURRENT_FILE_IMPORTS.imports.add(source);
     }
   }
+}
 
+function collectRuntimeModuleNames(sourceCode: SourceCode): void {
   for (const scope of sourceCode.scopeManager.scopes) {
     for (const variable of scope.variables) {
       for (const def of variable.defs) {
-        if (def.type === 'Variable' && def.node.init) {
-          const name =
-            getRequireModuleName(def.node.init) ?? getDynamicImportModuleName(def.node.init);
-          if (name !== undefined) {
-            CURRENT_FILE_IMPORTS.imports.add(name);
-          }
-        }
+        addModuleNameFromVariableDefinition(def);
       }
     }
   }
+}
+
+function addModuleNameFromVariableDefinition(def: Scope.Definition): void {
+  const name = getModuleNameFromVariableDefinition(def);
+  if (name !== undefined) {
+    CURRENT_FILE_IMPORTS.imports.add(name);
+  }
+}
+
+function getModuleNameFromVariableDefinition(def: Scope.Definition): string | undefined {
+  if (def.type !== 'Variable' || !def.node.init) {
+    return undefined;
+  }
+  return getRequireModuleName(def.node.init) ?? getDynamicImportModuleName(def.node.init);
 }
 
 /**
@@ -413,7 +430,7 @@ function getFullyQualifiedNameRaw(
   // ESLint marks built-in global variables with an undocumented hidden `writeable` property that should equal `false`.
   // @see https://github.com/eslint/eslint/blob/6380c87c563be5dc78ce0ddd5c7409aaf71692bb/lib/linter/linter.js#L207
   // @see https://github.com/eslint/eslint/blob/6380c87c563be5dc78ce0ddd5c7409aaf71692bb/lib/rules/no-global-assign.js#L81
-  if ((variable as any).writeable === false || visitedVars.includes(variable)) {
+  if ((variable as VariableWithWritable).writeable === false || visitedVars.includes(variable)) {
     fqn.unshift(nodeToCheck.name);
     return fqn.join('.');
   }
@@ -505,13 +522,7 @@ function checkFqnFromRequire(
   if (definition.type === 'Variable' && value) {
     // case for `const {Bucket} = require('aws-cdk-lib/aws-s3');`
     // case for `const {Bucket: foo} = require('aws-cdk-lib/aws-s3');`
-    if (definition.node.id.type === 'ObjectPattern') {
-      for (const property of definition.node.id.properties) {
-        if ((property as estree.Property).value === definition.name) {
-          fqn.unshift(((property as estree.Property).key as estree.Identifier).name);
-        }
-      }
-    }
+    addObjectPatternQualifier(definition, fqn);
     const nodeToCheck = reduceTo('CallExpression', value, fqn);
     const module = getModuleNameFromRequire(nodeToCheck)?.value;
     if (typeof module === 'string') {
@@ -524,6 +535,17 @@ function checkFqnFromRequire(
     }
   }
   return null;
+}
+
+function addObjectPatternQualifier(definition: Scope.Definition, fqn: string[]): void {
+  if (definition.type !== 'Variable' || definition.node.id.type !== 'ObjectPattern') {
+    return;
+  }
+  for (const property of definition.node.id.properties) {
+    if ((property as estree.Property).value === definition.name) {
+      fqn.unshift(((property as estree.Property).key as estree.Identifier).name);
+    }
+  }
 }
 
 /**
@@ -573,34 +595,53 @@ function reduceTo<T extends estree.Node['type']>(
   let nodeToCheck: estree.Node = node;
 
   while (nodeToCheck.type !== type) {
-    if (nodeToCheck.type === 'MemberExpression') {
-      const { property } = nodeToCheck;
-      if (property.type === 'Literal' && typeof property.value === 'string') {
-        fqn.unshift(property.value);
-      } else if (property.type === 'Identifier') {
-        fqn.unshift(property.name);
-      }
-      nodeToCheck = nodeToCheck.object;
-    } else if (nodeToCheck.type === 'CallExpression' && !getModuleNameFromRequire(nodeToCheck)) {
-      nodeToCheck = nodeToCheck.callee;
-    } else if (nodeToCheck.type === 'TaggedTemplateExpression') {
-      nodeToCheck = nodeToCheck.tag;
-    } else if (nodeToCheck.type === 'NewExpression') {
-      nodeToCheck = nodeToCheck.callee;
-    } else if (nodeToCheck.type === 'ChainExpression') {
-      nodeToCheck = nodeToCheck.expression;
-    } else if ((nodeToCheck as TSESTree.Node).type === 'TSNonNullExpression') {
-      // we should migrate to use only TSESTree types everywhere to avoid casting
-      nodeToCheck = (nodeToCheck as unknown as TSESTree.TSNonNullExpression)
-        .expression as estree.Expression;
-    } else if ((nodeToCheck as TSESTree.Node).type === 'TSQualifiedName') {
-      const qualified = nodeToCheck as unknown as TSESTree.TSQualifiedName;
-      fqn.unshift(qualified.right.name);
-      nodeToCheck = qualified.left as estree.Node;
-    } else {
+    const reduced = reduceOneStep(nodeToCheck, fqn);
+    if (reduced === nodeToCheck) {
       break;
     }
+    nodeToCheck = reduced;
   }
 
   return nodeToCheck;
+}
+
+function reduceOneStep(node: estree.Node, fqn: string[]): estree.Node {
+  if (node.type === 'MemberExpression') {
+    addMemberQualifier(node.property, fqn);
+    return node.object;
+  }
+  if (node.type === 'CallExpression' && !getModuleNameFromRequire(node)) {
+    return node.callee;
+  }
+  if (node.type === 'TaggedTemplateExpression') {
+    return node.tag;
+  }
+  if (node.type === 'NewExpression') {
+    return node.callee;
+  }
+  if (node.type === 'ChainExpression') {
+    return node.expression;
+  }
+  return reduceTypeScriptStep(node, fqn) ?? node;
+}
+
+function addMemberQualifier(property: estree.MemberExpression['property'], fqn: string[]): void {
+  if (property.type === 'Literal' && typeof property.value === 'string') {
+    fqn.unshift(property.value);
+  } else if (property.type === 'Identifier') {
+    fqn.unshift(property.name);
+  }
+}
+
+function reduceTypeScriptStep(node: estree.Node, fqn: string[]): estree.Node | undefined {
+  if ((node as TSESTree.Node).type === 'TSNonNullExpression') {
+    // we should migrate to use only TSESTree types everywhere to avoid casting
+    return (node as unknown as TSESTree.TSNonNullExpression).expression as estree.Expression;
+  }
+  if ((node as TSESTree.Node).type === 'TSQualifiedName') {
+    const qualified = node as unknown as TSESTree.TSQualifiedName;
+    fqn.unshift(qualified.right.name);
+    return qualified.left as estree.Node;
+  }
+  return undefined;
 }
