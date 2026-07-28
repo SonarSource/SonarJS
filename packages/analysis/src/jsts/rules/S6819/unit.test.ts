@@ -641,6 +641,22 @@ describe('S6819', () => {
             </div>
           `,
         },
+        {
+          // Compliant: options come from a flattened iteration callback
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                {cityGroups.flatMap(group =>
+                  group.cities.map(city => (
+                    <div role="option" aria-selected={city === 'Paris'} key={city}>
+                      {city}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          `,
+        },
       ],
       invalid: [
         // True positive: option without listbox ancestor (use <option>)
@@ -686,6 +702,17 @@ describe('S6819', () => {
             </div>
           `,
           errors: 2,
+        },
+        // True positive: forEach ignores callback return values, so no option is rendered.
+        {
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                {cities.forEach(city => <div role="option" key={city}>{city}</div>)}
+              </div>
+            </div>
+          `,
+          errors: 3,
         },
         // True positive: nested listbox option is not owned by outer group
         {

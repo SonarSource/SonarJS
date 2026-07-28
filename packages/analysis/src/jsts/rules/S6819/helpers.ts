@@ -219,9 +219,9 @@ function hasDescendantMatchingRole(
  * on what "rendered" means.
  *
  * Accepted: `<A><B /></A>`, `{cond && <B />}`, `{cond ? <B /> : null}`, `{[<B />]}`,
- * `{items.map(i => <B />)}`, and callbacks with a block body that returns JSX.
- * Rejected: JSX in attributes (render props), and bare `{() => <B />}` children, which
- * render nothing because nothing invokes them.
+ * `{items.map(i => <B />)}`, and `{items.flatMap(i => <B />)}`.
+ * Rejected: JSX in attributes (render props), callbacks passed to methods that do not render
+ * their return values, and bare `{() => <B />}` children.
  */
 function renderedChildPositions(node: TSESTree.Node): TSESTree.Node[] {
   switch (node.type) {
@@ -249,8 +249,7 @@ function renderedChildPositions(node: TSESTree.Node): TSESTree.Node[] {
     case 'TSSatisfiesExpression':
       return [node.expression];
     case 'CallExpression':
-      // `items.map(item => <Option />)`: the callback is invoked, so its result renders.
-      return [node.callee, ...node.arguments].filter(isInvokedFunction);
+      return isRenderingArrayMappingCall(node) ? node.arguments.filter(isInvokedFunction) : [];
     case 'ArrowFunctionExpression':
     case 'FunctionExpression':
       // Only a function that something invokes renders; a bare `{() => <B />}` does not.
@@ -276,6 +275,18 @@ function isInvokedFunction(
   node: TSESTree.Node,
 ): node is TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression {
   return node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression';
+}
+
+function isRenderingArrayMappingCall(node: TSESTree.CallExpression): boolean {
+  const callee = node.callee;
+  if (
+    callee.type !== 'MemberExpression' ||
+    callee.computed ||
+    callee.property.type !== 'Identifier'
+  ) {
+    return false;
+  }
+  return callee.property.name === 'map' || callee.property.name === 'flatMap';
 }
 
 function roleMatches(element: TSESTree.JSXElement, predicate: (role: string) => boolean): boolean {
