@@ -26,3 +26,8 @@ function CompliantTyped({ onSearch }: SearchProps) {
   const onChange = useMemo(() => debounce(onSearch, 300), [onSearch]);
   return null;
 }
+
+function CompliantReactNamespace({ onSearch }: SearchProps) {
+  const onChange = React.useCallback(debounce(onSearch, 300), [onSearch]);
+  return null;
+}

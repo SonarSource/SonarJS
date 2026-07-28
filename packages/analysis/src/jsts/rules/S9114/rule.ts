@@ -179,15 +179,24 @@ function isWrappedInMemoHook(
     if (ancestor === boundaryFunction) {
       return false;
     }
-    if (
-      ancestor.type === 'CallExpression' &&
-      ancestor.callee.type === 'Identifier' &&
-      memoHooks.has(ancestor.callee.name)
-    ) {
-      return true;
+    if (ancestor.type === 'CallExpression') {
+      const calleeName = getHookCalleeName(context, ancestor);
+      if (calleeName !== undefined && memoHooks.has(calleeName)) {
+        return true;
+      }
     }
   }
   return false;
+}
+
+function getHookCalleeName(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+): string | undefined {
+  if (call.callee.type === 'Identifier') {
+    return call.callee.name;
+  }
+  return getFullyQualifiedName(context, call)?.replace(/^react\./, '');
 }
 
 function getReportNode(callee: estree.Expression | estree.Super): estree.Node {
