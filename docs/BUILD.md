@@ -28,6 +28,19 @@ Full reactor build without tests using the tracked local rule JSON:
 mvn install -DskipTests
 ```
 
+Generate and attach the analyzer CycloneDX SBOM:
+
+```bash
+mvn -Psbom -pl sonar-plugin/sonar-javascript-plugin -am package
+```
+
+The `sbom` profile is intentionally opt-in for local builds. CI enables it on the Linux deploy and
+Windows verification builds. It generates the Maven and npm BOMs, hierarchically merges them,
+validates the result, and verifies that every npm package included by esbuild is represented.
+
+The pinned CycloneDX CLI is stored under `${XDG_CACHE_HOME:-$HOME/.cache}/cyclonedx-cli` after its
+SHA-256 checksum is verified. Set `CYCLONEDX_CLI_CACHE_DIR` to override that location.
+
 Clean rebuild using the tracked local rule JSON:
 
 ```bash
@@ -235,6 +248,7 @@ It skips:
 - protobuf Java generation for parser and analyze-project gRPC stubs
 - copying the packaged bridge tarball into `bridge/target/classes`
 - unpacking embedded Node runtimes in `sonar-javascript-plugin`
+- CycloneDX SBOM generation and attachment, even when `-Psbom` is also supplied
 
 Important details:
 
@@ -329,6 +343,13 @@ Explicit RSPEC refresh
 
 - copies the packaged bridge tarball into the bridge module output
 - unpacks embedded Node runtimes for plugin packaging
+
+`prepare-package`, `package` with `-Psbom`
+
+- generates the Maven and production npm CycloneDX BOMs
+- merges them into the analyzer-owned `json:cyclonedx` sidecar
+- validates the CycloneDX document and checks it against the esbuild dependency metafile
+- attaches the merged sidecar for Maven install/deploy
 
 `compile`, `test`, `package`, `verify`, `install`
 

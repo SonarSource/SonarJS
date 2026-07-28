@@ -19,6 +19,7 @@
     <node.resources.phase>process-resources</node.resources.phase>
     <protobuf.generation.phase>generate-sources</protobuf.generation.phase>
     <java.generation.phase>generate-resources</java.generation.phase>
+    <skip.sbom>false</skip.sbom>
     <!-- sonar scanner properties -->
     <sonar.sources>src/main</sonar.sources>
     <sonar.tests>src/test</sonar.tests>
@@ -51,6 +52,7 @@
         <node.resources.phase>none</node.resources.phase>
         <protobuf.generation.phase>none</protobuf.generation.phase>
         <java.generation.phase>none</java.generation.phase>
+        <skip.sbom>true</skip.sbom>
       </properties>
     </profile>
     <profile>

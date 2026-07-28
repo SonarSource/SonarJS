@@ -33,7 +33,7 @@ import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.IssueResolution;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -289,7 +289,7 @@ class AnalysisProcessorTest {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
     sensorContext.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(13, 5),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -321,7 +321,7 @@ class AnalysisProcessorTest {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
     sensorContext.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(13, 5),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -353,7 +353,7 @@ class AnalysisProcessorTest {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
     sensorContext.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(13, 4),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -377,7 +377,7 @@ class AnalysisProcessorTest {
   void should_ignore_sonar_resolve_in_sonarlint() {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
-    sensorContext.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(13, 6)));
+    sensorContext.setRuntime(TestSonarRuntime.forSonarLint(Version.create(13, 6)));
     var context = new JsTsContext<>(sensorContext);
     var file = createInputFile(sensorContext, "js", "file.js", "const x = 1;\n");
     var response = responseWithSonarResolveComments(
@@ -402,7 +402,7 @@ class AnalysisProcessorTest {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
     sensorContext.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(13, 5),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -434,7 +434,7 @@ class AnalysisProcessorTest {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
     sensorContext.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(13, 5),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -491,7 +491,7 @@ class AnalysisProcessorTest {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
     sensorContext.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(13, 5),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -530,7 +530,7 @@ class AnalysisProcessorTest {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
     sensorContext.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(13, 5),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -563,7 +563,7 @@ class AnalysisProcessorTest {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
     sensorContext.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(13, 5),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -644,7 +644,7 @@ class AnalysisProcessorTest {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
     sensorContext.setRuntime(
-      SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY)
+      TestSonarRuntime.forSonarQube(apiVersion, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY)
     );
     sensorContext.setSettings(settings);
     var context = new JsTsContext<>(sensorContext);

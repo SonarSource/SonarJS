@@ -41,7 +41,7 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.ExternalIssue;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
@@ -211,7 +211,7 @@ class StylelintReportSensorTest {
   }
 
   private SonarRuntime getRuntime(int major, int minor) {
-    return SonarRuntimeImpl.forSonarQube(
+    return TestSonarRuntime.forSonarQube(
       Version.create(major, minor),
       SonarQubeSide.SERVER,
       SonarEdition.COMMUNITY

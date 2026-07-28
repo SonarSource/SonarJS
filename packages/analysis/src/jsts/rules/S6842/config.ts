@@ -17,8 +17,35 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6842/javascript
 
 import type { ESLintConfiguration } from '../helpers/configs.js';
-import { getUpstreamRecommendedFields } from '../external/a11y.js';
+
+// Interactive roles that the ARIA in HTML conformance table
+// (https://w3c.github.io/html-aria/#docconformance) permits per element.
+// "Any role" elements, the context-sensitive elements (li, img, figure, label)
+// and the list-container `toolbar` structure role are handled in decorator.ts.
+const LIST_CONTAINER_ROLES = ['listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree'];
+
+const allowlist: Record<string, string[]> = {
+  ul: LIST_CONTAINER_ROLES,
+  ol: LIST_CONTAINER_ROLES,
+  menu: LIST_CONTAINER_ROLES,
+  nav: ['menu', 'menubar', 'tablist'],
+  h1: ['tab'],
+  h2: ['tab'],
+  h3: ['tab'],
+  h4: ['tab'],
+  h5: ['tab'],
+  h6: ['tab'],
+  fieldset: ['radiogroup', 'presentation'],
+  td: ['gridcell'],
+  progress: ['progressbar'],
+  // Restricted to `listitem` only when the parent still exposes a list role;
+  // decorator.ts allows any role otherwise.
+  li: [],
+};
 
 export const fields: ESLintConfiguration = [
-  getUpstreamRecommendedFields('no-noninteractive-element-to-interactive-role'),
+  Object.entries(allowlist).map(([field, defaultValue]) => ({
+    field,
+    default: defaultValue,
+  })),
 ];

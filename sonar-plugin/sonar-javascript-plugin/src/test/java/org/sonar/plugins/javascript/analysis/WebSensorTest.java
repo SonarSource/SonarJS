@@ -78,7 +78,7 @@ import org.sonar.api.batch.sensor.issue.IssueLocation;
 import org.sonar.scanner.plugin.api.impl.sensor.issue.DefaultNoSonarFilter;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -174,7 +174,7 @@ class WebSensorTest {
 
     context = createSensorContext(baseDir);
     context.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(9, 3),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -1245,7 +1245,7 @@ class WebSensorTest {
       }
     );
     context.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(9, 1),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -1403,7 +1403,7 @@ class WebSensorTest {
       }
     );
 
-    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    context.setRuntime(TestSonarRuntime.forSonarLint(Version.create(4, 4)));
     executeSensorMockingResponse(createSonarLintSensor(), expectedResponse);
 
     assertThat(inputFile.hasNoSonarAt(7)).isTrue();
@@ -1586,7 +1586,7 @@ class WebSensorTest {
       )
     );
     context.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(10, 9),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -2291,12 +2291,12 @@ class WebSensorTest {
   }
 
   private void setSonarLintRuntime(SensorContextTester context) {
-    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(8, 9)));
+    context.setRuntime(TestSonarRuntime.forSonarLint(Version.create(8, 9)));
   }
 
   private void setSonarQubeRuntime(SensorContextTester context) {
     context.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(9, 3),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY

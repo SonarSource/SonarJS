@@ -34,7 +34,7 @@ import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
 import org.sonar.plugins.javascript.analyzeproject.grpc.Location;
@@ -78,7 +78,7 @@ public class CacheTestUtils {
     var context = SensorContextTester.create(baseDir.toRealPath());
     context.fileSystem().setWorkDir(workDir);
     context.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(9, 6),
         SonarQubeSide.SCANNER,
         SonarEdition.ENTERPRISE

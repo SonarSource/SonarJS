@@ -13,6 +13,7 @@
   },
   "tags": [
     "type-dependent",
+    "es2020",
     "editable-source"
   ],
   "defaultSeverity": "Minor",

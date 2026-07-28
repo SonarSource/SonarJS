@@ -30,7 +30,7 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.PropertyDefinition;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
 
@@ -44,7 +44,7 @@ class JavaScriptPluginTest {
   @Test
   void count_extensions_lts() {
     Plugin.Context context = setupContext(
-      SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)
+      TestSonarRuntime.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)
     );
     assertThat(context.getExtensions()).isNotEmpty();
   }
@@ -56,7 +56,7 @@ class JavaScriptPluginTest {
 
   @Test
   void count_extensions_for_sonarlint() {
-    Plugin.Context context = setupContext(SonarRuntimeImpl.forSonarLint(LTS_VERSION));
+    Plugin.Context context = setupContext(TestSonarRuntime.forSonarLint(LTS_VERSION));
     assertThat(context.getExtensions()).isNotEmpty();
   }
 
@@ -157,7 +157,7 @@ class JavaScriptPluginTest {
 
   private List<PropertyDefinition> properties() {
     var extensions = setupContext(
-      SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)
+      TestSonarRuntime.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)
     ).getExtensions();
 
     return extensions

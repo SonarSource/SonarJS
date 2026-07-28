@@ -1,0 +1,11 @@
+{
+"vitest:packages/ui/client/components/FileDetails.vue": [
+249,
+259,
+276,
+286
+],
+"vitest:packages/ui/client/components/IconButton.vue": [
+11
+]
+}

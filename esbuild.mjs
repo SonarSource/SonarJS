@@ -19,6 +19,7 @@ import { buildBundle } from './esbuild-common.mjs';
 await buildBundle({
   entryPoint: './server.mjs',
   outfile: './bin/server.cjs',
+  metafilePath: './target/esbuild-metafile.json',
   additionalAssets: [
     // We copy run-node into the bundle, as it's used from the java side on Mac
     {

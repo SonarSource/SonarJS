@@ -38,6 +38,8 @@ const VITEST_MODULES = ['vitest'];
 const JASMINE_MODULES = ['jasmine'];
 const JASMINE_DEPENDENCIES = ['jasmine', 'jasmine-core', 'jasmine-node', 'karma-jasmine'];
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
+const BUN_MODULES = ['bun:test'];
+const NODE_TEST_MODULES = ['node:test'];
 
 const TEST_FUNCTION_NAMES = new Set([
   'it',
@@ -58,6 +60,18 @@ const TEST_FUNCTION_NAMES = new Set([
   '@playwright.test.test',
   '@playwright.test.test.only',
   '@playwright.test.test.skip',
+  'bun:test.it',
+  'bun:test.it.only',
+  'bun:test.it.skip',
+  'bun:test.test',
+  'bun:test.test.only',
+  'bun:test.test.skip',
+  'test.it',
+  'test.it.only',
+  'test.it.skip',
+  'test.test',
+  'test.test.only',
+  'test.test.skip',
 ]);
 
 const PLAYWRIGHT_ASYNC_MATCHERS = new Set([
@@ -97,6 +111,8 @@ type Frameworks = {
   vitest: boolean;
   jasmine: boolean;
   playwright: boolean;
+  bun: boolean;
+  nodeTest: boolean;
 };
 
 type FunctionArgument = estree.FunctionExpression | estree.ArrowFunctionExpression;
@@ -110,6 +126,8 @@ export const rule: Rule.RuleModule = {
       vitest: importsOrDependsOnModule(context, VITEST_MODULES, VITEST_MODULES),
       jasmine: importsOrDependsOnModule(context, JASMINE_MODULES, JASMINE_DEPENDENCIES),
       playwright: importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES),
+      bun: importsOrDependsOnModule(context, BUN_MODULES, BUN_MODULES),
+      nodeTest: importsOrDependsOnModule(context, NODE_TEST_MODULES, NODE_TEST_MODULES),
     };
 
     if (!Object.values(frameworks).some(Boolean)) {
@@ -128,7 +146,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        if (usesDoneCallback(callback)) {
+        if (usesDoneCallback(context, call, callback, frameworks)) {
           return;
         }
 
@@ -173,15 +191,41 @@ function isFunctionArgument(node: estree.Node | estree.SpreadElement): node is F
 }
 
 /**
- * Jest/Jasmine/Vitest pass a `done` callback whenever the test function declares a parameter
- * (arity-based, regardless of its name). Mixing that with an awaited/returned assertion makes
- * the runtime throw ("cannot both take a 'done' callback and return something"), so the fix this
- * rule suggests doesn't apply to such tests. Playwright's fixtures parameter is always a
- * destructuring pattern, never a plain identifier, so it isn't mistaken for a done callback.
+ * Jest/Jasmine/Vitest and Bun pass a `done` callback whenever the test function declares a
+ * parameter (arity-based, regardless of its name). Mixing that with an awaited/returned assertion
+ * makes the runtime throw ("cannot both take a 'done' callback and return something"), so the fix
+ * this rule suggests doesn't apply to such tests. Node's first callback parameter is a
+ * `TestContext`, while a second parameter is the `done` callback, so node:test calls are excluded
+ * from this heuristic only when they have a single callback parameter.
+ * Playwright's fixtures parameter is always a destructuring pattern, never a plain identifier, so
+ * it isn't mistaken for a done callback.
  */
-function usesDoneCallback(callback: estree.Function): boolean {
+function usesDoneCallback(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+  callback: estree.Function,
+  frameworks: Frameworks,
+): boolean {
+  if (frameworks.nodeTest && isNodeTestCall(context, call)) {
+    return callback.params.length >= 2;
+  }
   const [firstParam] = callback.params;
   return firstParam?.type === 'Identifier';
+}
+
+function isNodeTestCall(context: Rule.RuleContext, call: estree.CallExpression): boolean {
+  const fqn = getFullyQualifiedName(context, call.callee);
+  return (
+    fqn === 'test' ||
+    fqn === 'test.only' ||
+    fqn === 'test.skip' ||
+    fqn === 'test.it' ||
+    fqn === 'test.it.only' ||
+    fqn === 'test.it.skip' ||
+    fqn === 'test.test' ||
+    fqn === 'test.test.only' ||
+    fqn === 'test.test.skip'
+  );
 }
 
 function forEachExpressionStatement(
@@ -243,6 +287,7 @@ function getAsyncAssertionNode(
   return (
     getJestOrVitestAsyncNode(context, unwrapped, frameworks) ??
     getJasmineAsyncNode(context, unwrapped, frameworks) ??
+    getNodeAssertAsyncNode(context, unwrapped, frameworks) ??
     getPlaywrightAsyncNode(context, unwrapped, frameworks)
   );
 }
@@ -252,7 +297,7 @@ function getJestOrVitestAsyncNode(
   call: estree.CallExpression,
   frameworks: Frameworks,
 ): estree.Node | null {
-  if (!frameworks.jest && !frameworks.vitest) {
+  if (!frameworks.jest && !frameworks.vitest && !frameworks.bun) {
     return null;
   }
 
@@ -270,6 +315,24 @@ function getJestOrVitestAsyncNode(
   }
 
   return asyncSegment.node;
+}
+
+function getNodeAssertAsyncNode(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+  frameworks: Frameworks,
+): estree.Node | null {
+  if (!frameworks.nodeTest) {
+    return null;
+  }
+
+  const fqn = getFullyQualifiedName(context, call.callee);
+  return fqn === 'assert.rejects' ||
+    fqn === 'assert.doesNotReject' ||
+    fqn === 'assert.strict.rejects' ||
+    fqn === 'assert.strict.doesNotReject'
+    ? call.callee
+    : null;
 }
 
 function getJasmineAsyncNode(
@@ -324,8 +387,10 @@ function isExpectCall(
       : fqn === 'expect' ||
           fqn === '@jest.globals.expect' ||
           fqn === 'vitest.expect' ||
+          fqn === 'bun:test.expect' ||
           (frameworks.jest && isIdentifier(call.callee, 'expect')) ||
-          (frameworks.vitest && isIdentifier(call.callee, 'expect'));
+          (frameworks.vitest && isIdentifier(call.callee, 'expect')) ||
+          (frameworks.bun && isIdentifier(call.callee, 'expect'));
   }
 
   return !playwrightOnly && isIdentifier(call.callee, 'expect');

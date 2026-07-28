@@ -157,6 +157,19 @@ describe('S2068', () => {
           code: `let url = "https://example.com?password=foo";`,
           options,
         },
+        // Excluded by shared secret patterns despite high entropy
+        {
+          code: `const apiPassword = 'xK9cafebabevL5nQ8wR3';`,
+          options,
+        },
+        {
+          code: `const dbPassword = '\${API_SECRET_TOKEN}';`,
+          options,
+        },
+        {
+          code: `const configPassword = 'arn:aws:secretsmanager:us-east-1:123456789012:secret:MyAppSecret';`,
+          options,
+        },
       ],
       invalid: [
         // High-entropy random-looking strings
@@ -281,7 +294,7 @@ describe('S2068', () => {
         },
         // UUID used as password
         {
-          code: `const password_uuid = '550e8400-e29b-41d4-a716-446655440000';`,
+          code: `const password_uuid = '7c4a8d09-ca37-4273-8ecb-312b7b4e2b19';`,
           options,
           errors: 1,
         },
