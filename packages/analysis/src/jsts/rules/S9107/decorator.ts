@@ -50,7 +50,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
  * 'not-a-real-type' that produces broken code (`not - a - real - type`). Skip the fix
  * whenever the replacement text isn't a plain identifier. Requiring an uppercase first
  * letter also rules out reserved words like 'class' or 'default', which would otherwise
- * match as valid identifiers but produce invalid code when substituted in.
+ * match as valid identifiers but produce invalid code when substituted in. 'null' is
+ * allowed as a special case: it's a valid propType per the Vue docs and the RSPEC
+ * exceptions, so 'null' -> null is a safe fix despite not matching the identifier pattern.
  */
 function withSafeIdentifierFix(fix: Rule.ReportFixer): Rule.ReportFixer {
   return fixer => {
@@ -59,7 +61,9 @@ function withSafeIdentifierFix(fix: Rule.ReportFixer): Rule.ReportFixer {
       return null;
     }
     const edits = isSingleFix(result) ? [result] : Array.from(result);
-    return edits.every(edit => IDENTIFIER_PATTERN.test(edit.text)) ? result : null;
+    return edits.every(edit => edit.text === 'null' || IDENTIFIER_PATTERN.test(edit.text))
+      ? result
+      : null;
   };
 }
 

@@ -234,6 +234,38 @@ export default {
           ],
         },
         {
+          // Options API: 'null' string literal is a valid propType exception and is
+          // still autofixed to the bare null literal
+          code: `
+<script>
+export default {
+  props: {
+    title: {
+      type: 'null'
+    }
+  }
+}
+</script>
+`,
+          output: `
+<script>
+export default {
+  props: {
+    title: {
+      type: null
+    }
+  }
+}
+</script>
+`,
+          errors: [
+            {
+              message:
+                'Replace this value with a constructor, e.g. String or Number, for the "title" prop\'s type.',
+            },
+          ],
+        },
+        {
           // Composition API: defineProps string literal standing in for a constructor
           code: `
 <script setup>
