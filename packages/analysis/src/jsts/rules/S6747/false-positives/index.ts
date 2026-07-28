@@ -18,6 +18,10 @@ import type estree from 'estree';
 import type { DependenciesList } from '../../helpers/dependency-manifests/resolvers/types.js';
 import { isTypeOnlyImport } from '../../helpers/ast.js';
 
+type ImportSpecifierWithKind = estree.ImportDeclaration['specifiers'][number] & {
+  importKind?: string | null;
+};
+
 type FalsePositiveSignals = {
   dependencies: DependenciesList;
   imports: estree.ImportDeclaration[];
@@ -63,9 +67,23 @@ export function getIgnoredProps(signals: FalsePositiveSignals): string[] {
 function hasRuntimeImport(signals: FalsePositiveSignals, moduleNames: readonly string[]): boolean {
   return signals.imports.some(
     importDeclaration =>
-      !isTypeOnlyImport(importDeclaration) &&
+      !isTypeOnlyImportDeclaration(importDeclaration) &&
       moduleNames.includes(String(importDeclaration.source.value)),
   );
+}
+
+function isTypeOnlyImportDeclaration(importDeclaration: estree.ImportDeclaration): boolean {
+  return (
+    isTypeOnlyImport(importDeclaration) ||
+    (importDeclaration.specifiers.length > 0 &&
+      importDeclaration.specifiers.every(isTypeOnlyImportSpecifier))
+  );
+}
+
+function isTypeOnlyImportSpecifier(
+  specifier: estree.ImportDeclaration['specifiers'][number],
+): boolean {
+  return (specifier as ImportSpecifierWithKind).importKind === 'type';
 }
 
 function hasDependencyOrRuntimeImport(

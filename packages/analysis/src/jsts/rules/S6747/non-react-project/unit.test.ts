@@ -67,6 +67,12 @@ describe('S6947', () => {
           errors: 1,
         },
         {
+          code: `import { type Theme } from 'theme-ui';
+<div sx={{ color: "primary" }}></div>;`,
+          filename: join(dirname, 'filename.tsx'),
+          errors: 1,
+        },
+        {
           code: `import type styled from 'styled-components';
 <div css={{ color: "red" }}></div>;`,
           filename: join(dirname, 'filename.tsx'),
