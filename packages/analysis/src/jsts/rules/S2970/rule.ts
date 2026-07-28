@@ -32,58 +32,72 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       ExpressionStatement(node: estree.Node) {
-        const exprStatement = node as estree.ExpressionStatement;
-        let expr = exprStatement.expression;
-        if (expr.type === 'AwaitExpression') {
-          expr = expr.argument;
-        }
-
-        if (expr.type === 'MemberExpression') {
-          const { property } = expr;
-          if (isExpectStaticMethod(expr) && isIdentifier(property)) {
-            context.report({
-              node: property,
-              message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
-            });
-          } else if (isTestAssertion(expr)) {
-            if (
-              isIdentifier(property, ...assertionFunctions) &&
-              !(isIdentifier(property, 'rejects') && isExpectAssertion(expr.object))
-            ) {
-              context.report({
-                node: property,
-                message: `Call this '${property.name}' assertion.`,
-              });
-            } else if (isIdentifier(property, ...gettersOrModifiers)) {
-              context.report({
-                node: property,
-                message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
-              });
-            }
-          }
-        }
-        if (isExpectCall(expr)) {
-          context.report({
-            node: expr.callee,
-            message: `Complete this assertion; '${expr.callee.name}' doesn't assert anything by itself.`,
-          });
-        } else if (
-          expr.type === 'CallExpression' &&
-          expr.callee.type === 'MemberExpression' &&
-          isExpectStaticMethod(expr.callee)
-        ) {
-          const { property } = expr.callee;
-          if (isIdentifier(property)) {
-            context.report({
-              node: property,
-              message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
-            });
-          }
-        }
+        const expr = unwrapAwait((node as estree.ExpressionStatement).expression);
+        reportIncompleteMemberAssertion(context, expr);
+        reportIncompleteExpectCall(context, expr);
       },
     };
   },
 };
+
+function unwrapAwait(expr: estree.Expression): estree.Expression {
+  return expr.type === 'AwaitExpression' ? expr.argument : expr;
+}
+
+function reportIncompleteMemberAssertion(context: Rule.RuleContext, expr: estree.Expression) {
+  if (expr.type !== 'MemberExpression') {
+    return;
+  }
+  const { property } = expr;
+  if (isExpectStaticMethod(expr) && isIdentifier(property)) {
+    context.report({
+      node: property,
+      message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
+    });
+    return;
+  }
+  if (!isTestAssertion(expr)) {
+    return;
+  }
+  if (
+    isIdentifier(property, ...assertionFunctions) &&
+    !(isIdentifier(property, 'rejects') && isExpectAssertion(expr.object))
+  ) {
+    context.report({
+      node: property,
+      message: `Call this '${property.name}' assertion.`,
+    });
+  } else if (isIdentifier(property, ...gettersOrModifiers)) {
+    context.report({
+      node: property,
+      message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
+    });
+  }
+}
+
+function reportIncompleteExpectCall(context: Rule.RuleContext, expr: estree.Expression) {
+  if (isExpectCall(expr)) {
+    context.report({
+      node: expr.callee,
+      message: `Complete this assertion; '${expr.callee.name}' doesn't assert anything by itself.`,
+    });
+    return;
+  }
+  if (
+    expr.type !== 'CallExpression' ||
+    expr.callee.type !== 'MemberExpression' ||
+    !isExpectStaticMethod(expr.callee)
+  ) {
+    return;
+  }
+  const { property } = expr.callee;
+  if (isIdentifier(property)) {
+    context.report({
+      node: property,
+      message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
+    });
+  }
+}
 
 function isTestAssertion(node: estree.MemberExpression): boolean {
   const { object, property } = node;
