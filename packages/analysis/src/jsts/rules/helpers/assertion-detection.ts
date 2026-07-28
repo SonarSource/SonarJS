@@ -37,6 +37,7 @@ import * as Sinon from './sinon.js';
 import * as Vitest from './vitest.js';
 import * as Supertest from './supertest.js';
 import * as Cypress from './cypress.js';
+import * as Uvu from './uvu.js';
 import { getParent } from './ancestor.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
 import { getFullyQualifiedNameTS, importsModuleTS } from './module-ts.js';
@@ -145,20 +146,6 @@ const CHAI_TERMINAL_PROPERTY_NAMES = new Set([
   'undefined',
 ]);
 
-const UVU_ASSERT_METHOD_NAMES = new Set([
-  'equal',
-  'fixture',
-  'instance',
-  'is',
-  'match',
-  'not',
-  'ok',
-  'snapshot',
-  'throws',
-  'type',
-  'unreachable',
-]);
-
 /**
  * Whether the linted file imports or the project depends on a supported
  * assertion library / test runner. Rules use this to avoid raising issues in
@@ -200,7 +187,7 @@ const SCRIPT_CAPABLE_DETECTORS: AssertionDetector[] = [
   Sinon.isAssertion,
   Supertest.isAssertion,
   isFunctionCallFromNodeAssert,
-  isFunctionCallFromUvuAssert,
+  Uvu.isAssertion,
 ];
 
 const RUNNER_BOUND_DETECTORS: AssertionDetector[] = [
@@ -278,7 +265,7 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
     Sinon.isTSAssertion(services, node) ||
     Supertest.isTSAssertion(services, node) ||
     Vitest.isTSAssertion(services, node) ||
-    isFunctionCallFromUvuAssertTS(services, node) ||
+    Uvu.isTSAssertion(services, node) ||
     Cypress.isTSAssertion(node)
   );
 }
@@ -336,13 +323,6 @@ function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.No
   }
   const fullyQualifiedName = getFullyQualifiedName(context, node);
   return fullyQualifiedName?.split('.')[0] === 'assert';
-}
-
-function isFunctionCallFromUvuAssert(context: Rule.RuleContext, node: estree.Node): boolean {
-  if (node.type !== 'CallExpression') {
-    return false;
-  }
-  return isUvuAssertFqn(getFullyQualifiedName(context, node));
 }
 
 function isShouldMember(node: estree.Node): node is estree.MemberExpression {
@@ -496,34 +476,4 @@ function isFunctionCallFromNodeAssertTS(
   const fqn = getFullyQualifiedNameTS(services, node);
   const root = fqn?.split('.')[0];
   return root === 'assert' || root === 'assert/strict';
-}
-
-function isFunctionCallFromUvuAssertTS(
-  services: ParserServicesWithTypeInformation,
-  node: ts.Node,
-): boolean {
-  if (node.kind !== ts.SyntaxKind.CallExpression) {
-    return false;
-  }
-  return isUvuAssertFqn(getFullyQualifiedNameTS(services, node));
-}
-
-function isUvuAssertFqn(fqn: string | null | undefined): boolean {
-  const normalized = fqn?.replaceAll('/', '.');
-  const prefix = 'uvu.assert.';
-  if (!normalized?.startsWith(prefix)) {
-    return false;
-  }
-
-  const parts = normalized.slice(prefix.length).split('.');
-  if (parts[0] === 'default') {
-    parts.shift();
-  }
-  if (parts[0] === 'not') {
-    if (parts.length === 1) {
-      return true;
-    }
-    parts.shift();
-  }
-  return parts[0] !== undefined && UVU_ASSERT_METHOD_NAMES.has(parts[0]);
 }
