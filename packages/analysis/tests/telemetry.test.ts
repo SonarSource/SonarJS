@@ -180,4 +180,15 @@ describe('project analysis telemetry', () => {
       ],
     });
   });
+
+  it('should count files importing each package', () => {
+    const collector = new ProjectAnalysisTelemetryCollector();
+    collector.recordPackageImports(['react', '@angular/core']);
+    collector.recordPackageImports(['react']);
+
+    expect(collector.getTelemetry().packageImportFileCounts).toEqual({
+      '@angular/core': 1,
+      react: 2,
+    });
+  });
 });
