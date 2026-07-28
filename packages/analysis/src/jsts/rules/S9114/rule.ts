@@ -191,9 +191,6 @@ function getReportNode(callee: estree.Expression | estree.Super): estree.Node {
     return getReportNode(callee.expression);
   }
   if (callee.type === 'MemberExpression') {
-    if (isIdentifier(callee.property)) {
-      return callee.property;
-    }
     return callee.property;
   }
   return callee;
