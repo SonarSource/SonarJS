@@ -99,6 +99,7 @@ function computeCurrentFileImports(sourceCode: SourceCode): void {
  * import lodash = require('lodash');
  * require('lodash');
  * import('lodash').then(lodash => ...);
+ * type Props = import('lodash').SomeType;
  */
 function computeCurrentFileModuleReferences(sourceCode: SourceCode): void {
   if (CURRENT_FILE_MODULE_REFERENCES.sourceCode === sourceCode) {
@@ -159,6 +160,9 @@ function getReferencedModuleName(sourceCode: SourceCode, node: estree.Node): str
     ) {
       return moduleReference.expression.value;
     }
+  }
+  if ((node as TSESTree.Node).type === 'TSImportType') {
+    return (node as unknown as TSESTree.TSImportType).source.value;
   }
   return getUnshadowedRequireModuleName(sourceCode, node) ?? getDynamicImportModuleName(node);
 }

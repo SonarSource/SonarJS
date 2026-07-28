@@ -16,10 +16,11 @@
  */
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { Linter, type Rule } from 'eslint';
+import { Linter, type Linter as LinterNS, type Rule } from 'eslint';
+import tsParser from '@typescript-eslint/parser';
 import { getCurrentFileModuleReferences } from '../../../../src/jsts/rules/helpers/module.js';
 
-function collectModuleReferences(source: string): Set<string> {
+function collectModuleReferences(source: string, parser?: LinterNS.Parser): Set<string> {
   let imports = new Set<string>();
   const captureImports: Rule.RuleModule = {
     create(context) {
@@ -35,6 +36,7 @@ function collectModuleReferences(source: string): Set<string> {
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
+      parser,
     },
     plugins: {
       test: {
@@ -75,6 +77,18 @@ describe('getCurrentFileModuleReferences', () => {
         'nested-dynamic',
       ]),
     );
+  });
+
+  it('collects inline type-only import references in TypeScript', () => {
+    const imports = collectModuleReferences(
+      `
+        type Props = import('inline-type-import').ComponentProps<'div'>;
+        type Local = import('./local-types').Thing;
+      `,
+      tsParser,
+    );
+
+    expect(imports).toEqual(new Set(['inline-type-import', './local-types']));
   });
 
   it('handles AST nodes with very large child arrays', () => {

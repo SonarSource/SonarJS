@@ -99,7 +99,6 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     { additionalRules, additionalSettings },
   );
   getOptionalProjectAnalysisTelemetryCollector()?.recordPackageImports(
-    filePath,
     Linter.collectPackageImports(parseResult.sourceCode, filePath),
   );
   const extendedMetrics = computeExtendedMetrics(
