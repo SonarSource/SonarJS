@@ -18,10 +18,11 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { isIdentifier, isMethodCall } from '../helpers/ast.js';
+import { hasParent, isIdentifier, isMethodCall } from '../helpers/ast.js';
 import { chainStartsWithCy } from '../helpers/cypress.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
+import { removeNodeWithLeadingWhitespaces } from '../helpers/quickfix.js';
 import { isTestRelatedFile } from '../helpers/test-file-pattern.js';
 import * as meta from './generated-meta.js';
 
@@ -47,6 +48,7 @@ export const rule: Rule.RuleModule = {
     messages: {
       removeDebugCommand: 'Remove this debug command from the test.',
     },
+    fixable: 'code',
   }),
   create(context: Rule.RuleContext) {
     if (!isTestRelatedFile(context.filename, context.settings?.testFileExtensions as string[])) {
@@ -115,5 +117,68 @@ function reportDebugCommand(
   context.report({
     node: reportNode,
     messageId: 'removeDebugCommand',
+    fix: fixer => removeDebugCommand(context, call, fixer),
   });
+}
+
+/**
+ * Removes the whole statement only for root debug calls used as standalone statements, e.g.
+ * `cy.pause();`, `await page.pause();`, `screen.debug();`, or `prettyDOM(el);`. For Cypress chains, only the `.pause()`/`.debug()`
+ * link is spliced out, e.g. `cy.get('x').debug().click();` -> `cy.get('x').click();` and
+ * `cy.get('x').pause();` -> `cy.get('x');`.
+ */
+function removeDebugCommand(
+  context: Rule.RuleContext,
+  call: estree.CallExpression,
+  fixer: Rule.RuleFixer,
+): Rule.Fix | null {
+  const statement = unwrapToStatementExpression(call);
+  if (call.callee.type === 'MemberExpression') {
+    if (isRootDebugReceiver(call.callee.object) && hasParent(statement)) {
+      const { parent } = statement;
+      if (parent.type === 'ExpressionStatement' && parent.expression === statement) {
+        return removeNodeWithLeadingWhitespaces(context, parent, fixer);
+      }
+    }
+    const objectRange = call.callee.object.range;
+    const callRange = call.range;
+    if (!objectRange || !callRange) {
+      return null;
+    }
+    return fixer.removeRange([objectRange[1], callRange[1]]);
+  } else if (hasParent(statement)) {
+    const { parent } = statement;
+    if (parent.type === 'ExpressionStatement' && parent.expression === statement) {
+      return removeNodeWithLeadingWhitespaces(context, parent, fixer);
+    }
+  }
+  return null;
+}
+
+function unwrapToStatementExpression(node: estree.Node): estree.Node {
+  let current = node;
+  while (hasParent(current)) {
+    const { parent } = current;
+    if (
+      (parent.type === 'ChainExpression' && parent.expression === current) ||
+      (parent.type === 'AwaitExpression' && parent.argument === current)
+    ) {
+      current = parent;
+    } else {
+      break;
+    }
+  }
+  return current;
+}
+
+function isRootDebugReceiver(node: estree.Node): boolean {
+  return isIdentifier(unwrapChainExpression(node), 'cy', 'page', 'screen');
+}
+
+function unwrapChainExpression(node: estree.Node): estree.Node {
+  let current = node;
+  while (current.type === 'ChainExpression') {
+    current = current.expression;
+  }
+  return current;
 }

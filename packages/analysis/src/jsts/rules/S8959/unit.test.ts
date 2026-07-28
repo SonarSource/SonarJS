@@ -138,6 +138,12 @@ describe('S8959', () => {
           `,
           filename: 'cypress/e2e/save-user.cy.js',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            it('saves a user', () => {
+              cy.get('button.save').click();
+              cy.contains('Saved').should('be.visible');
+            });
+          `,
         },
         {
           code: `
@@ -148,6 +154,12 @@ describe('S8959', () => {
           `,
           filename: 'cypress/e2e/save-user.cy.js',
           errors: [{ messageId: 'removeDebugCommand' }, { messageId: 'removeDebugCommand' }],
+          // only the first fix applies in a single pass, since the two statements are adjacent
+          output: `
+            it('uses Cypress debug helpers', () => {
+              cy.debug();
+            });
+          `,
         },
         {
           code: `
@@ -158,6 +170,12 @@ describe('S8959', () => {
           `,
           filename: 'tests/save-user.spec.js',
           errors: [{ messageId: 'removeDebugCommand' }, { messageId: 'removeDebugCommand' }],
+          output: `
+            it('uses Cypress chain debug helpers', () => {
+              cy.get('button.save');
+              cy.contains('Saved');
+            });
+          `,
         },
         {
           code: `
@@ -167,6 +185,11 @@ describe('S8959', () => {
           `,
           filename: 'cypress/e2e/visit.cy.js',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            it('uses chained Cypress pause helpers', () => {
+              cy.visit('/');
+            });
+          `,
         },
         {
           code: `
@@ -176,6 +199,11 @@ describe('S8959', () => {
           `,
           filename: 'tests/debug-tail.spec.js',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            it('keeps preceding Cypress chain when debug ends the statement', () => {
+              cy.contains('Saved');
+            });
+          `,
         },
         {
           code: `
@@ -185,6 +213,10 @@ describe('S8959', () => {
           `,
           filename: 'tests/save-user.spec.ts',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            test('uses Playwright pause', async ({ page }) => {
+            });
+          `,
         },
         {
           code: `
@@ -194,6 +226,10 @@ describe('S8959', () => {
           `,
           filename: 'tests/non-awaited.spec.ts',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            test('reports non-awaited Playwright pause', () => {
+            });
+          `,
         },
         {
           code: `
@@ -204,6 +240,12 @@ describe('S8959', () => {
           `,
           filename: 'cypress/e2e/save-user.cy.js',
           errors: [{ messageId: 'removeDebugCommand' }, { messageId: 'removeDebugCommand' }],
+          // only the first fix applies in a single pass, since the two statements are adjacent
+          output: `
+            it('uses Cypress debug helpers via optional chaining', () => {
+              cy?.get('button.save');
+            });
+          `,
         },
         {
           code: `
@@ -213,6 +255,11 @@ describe('S8959', () => {
           `,
           filename: 'cypress/e2e/optional-tail.cy.js',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            it('keeps optional Cypress chain tail when debug ends the statement', () => {
+              cy?.contains('Saved');
+            });
+          `,
         },
         {
           code: `
@@ -224,6 +271,12 @@ describe('S8959', () => {
           `,
           filename: 'tests/tl-debug.test.tsx',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            import { screen } from '@testing-library/react';
+
+            test('uses Testing Library screen.debug', () => {
+            });
+          `,
         },
         {
           code: `
@@ -235,6 +288,12 @@ describe('S8959', () => {
           `,
           filename: 'tests/tl-pure-debug.test.tsx',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            import { screen } from '@testing-library/react/pure';
+
+            test('uses Testing Library screen.debug from a subpath entrypoint', () => {
+            });
+          `,
         },
         {
           code: `
@@ -247,6 +306,13 @@ describe('S8959', () => {
           `,
           filename: 'tests/tl-render-debug.test.tsx',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            import { render } from '@testing-library/react';
+
+            test('uses the debug method returned by render', () => {
+              const { debug } = render(<Component />);
+            });
+          `,
         },
         {
           code: `
@@ -258,6 +324,13 @@ describe('S8959', () => {
           `,
           filename: 'tests/tl-render-inline-debug.test.tsx',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            import { render } from '@testing-library/react';
+
+            test('uses the debug method returned by render inline', () => {
+              render(<Component />);
+            });
+          `,
         },
         {
           code: `
@@ -269,6 +342,12 @@ describe('S8959', () => {
           `,
           filename: 'tests/tl-playground.test.tsx',
           errors: [{ messageId: 'removeDebugCommand' }],
+          output: `
+            import { screen } from '@testing-library/react';
+
+            test('uses Testing Library logTestingPlaygroundURL', () => {
+            });
+          `,
         },
         {
           code: `
@@ -281,6 +360,13 @@ describe('S8959', () => {
           `,
           filename: 'tests/tl-helpers.test.tsx',
           errors: [{ messageId: 'removeDebugCommand' }, { messageId: 'removeDebugCommand' }],
+          output: `
+            import { prettyDOM, logRoles } from '@testing-library/dom';
+
+            test('uses Testing Library standalone prettyDOM and logRoles', () => {
+              logRoles(container);
+            });
+          `,
         },
       ],
     });
