@@ -35,7 +35,7 @@ jobs:
     steps:
       - &checkout
         name: Checkout source code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Generate Node.js version matrix from package.json
         id: generate-matrix
         run: |
@@ -107,11 +107,11 @@ jobs:
           lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+        uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2025.11.2
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -153,9 +153,9 @@ jobs:
     steps:
       - *checkout
       - &mise
-        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+        uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2025.11.2
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -180,6 +180,12 @@ jobs:
         with:
           cache-month: ${{ needs.setup.outputs.cache-month }}
           maven-hash: ${{ needs.setup.outputs.maven-hash }}
+      - &cyclonedx_cli_cache
+        name: Cache CycloneDX CLI
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cache/cyclonedx-cli
+          key: cyclonedx-cli-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/merge-cyclonedx-bom.sh') }}
       - &config_maven
         name: Configure Maven
         id: config-maven
@@ -196,7 +202,7 @@ jobs:
             development/kv/data/sign key | SIGN_KEY;
             development/kv/data/sign passphrase | PGP_PASSPHRASE;
       - name: Build, test and deploy Maven artifacts
-        run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release -T1C
+        run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom -T1C
         env:
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
@@ -243,9 +249,10 @@ jobs:
       - *npm_cache
       - *download_rspec_rule_data
       - *maven_cache
+      - *cyclonedx_cli_cache
       - *config_maven
       - name: Build and test Maven (no deploy)
-        run: mvn verify -T1C
+        run: mvn verify -Psbom -T1C
 
   prepare_rspec_rule_data:
     runs-on: sonar-xs
@@ -385,9 +392,9 @@ jobs:
             node-label: 'min supported'
     steps:
       - *checkout
-      - uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+      - uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2025.11.2
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -442,11 +449,11 @@ jobs:
           key: js-coverage-${{ runner.os }}-${{ needs.setup.outputs.js-files-hash }}
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+        uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2025.11.2
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -506,11 +513,11 @@ jobs:
           lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+        uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2025.11.2
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -549,7 +556,7 @@ jobs:
     steps:
       - &checkout_with_tags
         name: Checkout source code with tags
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: '0'
           fetch-tags: 'true'
@@ -670,9 +677,9 @@ jobs:
     steps:
       - *checkout
       - &mise_java_matrix_node
-        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+        uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2025.11.2
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -742,9 +749,9 @@ jobs:
       - *checkout
       - &mise_java_only
         name: Setup Java and Maven
-        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+        uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2025.11.2
+          version: 2026.7.11
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -833,9 +840,9 @@ jobs:
           chown -R sonar:sonar /github/home
       - &alpine_setup_maven
         name: Setup Maven
-        uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+        uses: jdx/mise-action@dad1bfd3df957f44999b559dd69dc1671cb4e9ea # v4.2.1
         with:
-          version: 2025.11.2
+          version: 2026.7.11
           cache_save: true
           mise_toml: |
             [tools]
@@ -1061,7 +1068,7 @@ jobs:
     steps:
       - &checkout_with_submodules
         name: Checkout source code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           submodules: true
       - *mise
@@ -1175,6 +1182,15 @@ jobs:
     env: *shared_build_number
     steps:
       - *checkout
+      - name: Reject root rspec.sha
+        if: >-
+          (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master') ||
+          (github.event_name == 'merge_group' && github.event.merge_group.base_ref == 'refs/heads/master')
+        run: |
+          if [ -e rspec.sha ]; then
+            echo "::error file=rspec.sha::Root rspec.sha must be removed before merging to master"
+            exit 1
+          fi
       - *mise
       - uses: SonarSource/ci-github-actions/promote@v1
         with:

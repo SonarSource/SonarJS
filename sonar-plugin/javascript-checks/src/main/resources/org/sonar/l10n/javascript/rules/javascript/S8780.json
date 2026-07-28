@@ -9,7 +9,13 @@
   "tags": [
     "tests",
     "async-await",
-    "promise"
+    "promise",
+    "jest",
+    "vitest",
+    "jasmine",
+    "bun",
+    "node",
+    "playwright"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-8780",

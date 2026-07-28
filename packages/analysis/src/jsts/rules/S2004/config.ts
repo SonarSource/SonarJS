@@ -18,12 +18,14 @@
 
 import type { ESLintConfiguration } from '../helpers/configs.js';
 
+export const DEFAULT_THRESHOLD = 5;
+
 export const fields = [
   [
     {
       field: 'threshold',
       description: 'Maximum depth of allowed nested functions.',
-      default: 4,
+      default: DEFAULT_THRESHOLD,
       displayName: 'max',
     },
   ],

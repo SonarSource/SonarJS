@@ -34,6 +34,20 @@ describe('S2004', () => {
       }`,
         },
         {
+          code: `
+      function f1() {
+        function f2() {
+          function f3() {
+            function f4() {
+              function f5() {
+
+              }
+            }
+          }
+        }
+      }`,
+        },
+        {
           // JS-486: Test framework functions should not count toward nesting depth
           code: `
       describe("Foo", () => {
@@ -91,6 +105,23 @@ describe('S2004', () => {
         },
       ],
       invalid: [
+        {
+          code: `
+        function f1() {
+          function f2() {
+            function f3() {
+              function f4() {
+                function f5() {
+                  function f6() {
+
+                  }
+                }
+              }
+            }
+          }
+        }`,
+          errors: 1,
+        },
         {
           code: `
         function f1() {

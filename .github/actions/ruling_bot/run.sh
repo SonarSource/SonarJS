@@ -12,6 +12,7 @@ FIX_PR_URL=""
 FIX_BRANCH_EXISTS="false"
 HAS_DIFFERENCES="false"
 STASHED_CHANGES="false"
+INPUT_BASE_SHA="${BASE_SHA}"
 
 if [ "${IS_PULL_REQUEST}" = "true" ]; then
   FIX_PR_TITLE="Update ruling results for PR #${PR_NUMBER}"
@@ -56,6 +57,9 @@ write_pr_comment() {
         echo "**Ruling needs updating.** A fix PR has been created: ${FIX_PR_URL}"
         echo ""
         echo "Please review and merge it into your branch."
+      elif [ "$RULING_FAILED" = "false" ]; then
+        echo "---"
+        echo "**Ruling passed with these expected-result updates already present in the branch. No fix PR was needed.**"
       fi
     } > comment.md
   else
@@ -103,12 +107,25 @@ write_summary() {
 }
 
 git fetch origin "$BASE_REF"
-if [ -n "${BASE_SHA}" ]; then
-  git fetch origin "$BASE_SHA" || true
-  if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
-    echo "::error::Failed to fetch PR base SHA: $BASE_SHA"
+
+REPORT_BASE_SHA=""
+if [ "$IS_PULL_REQUEST" = "true" ]; then
+  # Pull request runs execute on GitHub's synthetic merge ref.
+  # Align the ruling report baseline with the merge tree that was actually tested.
+  REPORT_BASE_SHA="$(git merge-base HEAD "origin/$BASE_REF" 2>/dev/null || true)"
+fi
+
+if [ -z "$REPORT_BASE_SHA" ] && [ -n "${INPUT_BASE_SHA}" ]; then
+  git fetch origin "$INPUT_BASE_SHA" || true
+  if ! git cat-file -e "$INPUT_BASE_SHA^{commit}" 2>/dev/null; then
+    echo "::error::Failed to fetch PR base SHA: $INPUT_BASE_SHA"
     exit 1
   fi
+  REPORT_BASE_SHA="$INPUT_BASE_SHA"
+fi
+
+if [ -n "$REPORT_BASE_SHA" ]; then
+  echo "Using ruling report base SHA: $REPORT_BASE_SHA"
 fi
 
 if [ "$RULING_FAILED" = "true" ]; then
@@ -121,7 +138,7 @@ if [ "$RULING_FAILED" = "true" ]; then
   node "$ACTION_PATH/sync-results.mjs" "$NEW_RESULTS_PATH" "$OLD_RESULTS_PATH"
 fi
 
-BASE_REF="$BASE_REF" BASE_SHA="$BASE_SHA" node "$ACTION_PATH/generate-report.mjs" "$OLD_RESULTS_PATH" > ruling-report.md
+BASE_REF="$BASE_REF" BASE_SHA="$REPORT_BASE_SHA" node "$ACTION_PATH/generate-report.mjs" "$OLD_RESULTS_PATH" > ruling-report.md
 if [ -s ruling-report.md ]; then
   HAS_DIFFERENCES="true"
 fi
@@ -136,7 +153,9 @@ if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
   git fetch origin "$TARGET_REF"
   git config user.name "github-actions[bot]"
   git config user.email "github-actions[bot]@users.noreply.github.com"
-  git checkout -B "$FIX_BRANCH" "origin/$TARGET_REF"
+  # Ruling preparation can modify generated files outside the expected-results directory.
+  # Those changes must not prevent switching from the tested merge ref to the PR branch.
+  git checkout -f -B "$FIX_BRANCH" "origin/$TARGET_REF"
   restore_ruling_changes
 
   git add -- "$OLD_RESULTS_PATH"

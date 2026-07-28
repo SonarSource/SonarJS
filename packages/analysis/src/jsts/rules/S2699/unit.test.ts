@@ -28,6 +28,15 @@ describe('S2699', () => {
       valid: [
         {
           code: `
+import { test, expect } from 'bun:test';
+
+test('includes a Bun expectation', () => {
+  expect(1).toBe(1);
+});
+          `,
+        },
+        {
+          code: `
 const chai = require('chai');
 const { expect } = chai;
 describe('chai test cases', () => {
@@ -283,8 +292,38 @@ describe('Observable error handling with object syntax', () => {
 });
 `,
         },
+        {
+          code: `
+import { expect as playwrightExpect, test } from '@playwright/test';
+test('aliased expect import', async ({ page }) => {
+  await playwrightExpect(page.locator('div')).toBeVisible();
+});
+`,
+        },
+        {
+          code: `
+import { expect, test } from '@playwright/test';
+import { expect as playwrightExpect } from '@playwright/test';
+
+test('member-based playwright expect entrypoints', async ({ page }) => {
+  await test.expect.configure({ timeout: 1000 })(page.locator('div')).toBeVisible();
+  await expect.configure({ timeout: 1000 })(page.locator('div')).toBeVisible();
+  await playwrightExpect.soft(page.locator('div')).toBeVisible();
+  await playwrightExpect.poll(() => 1).toBe(1);
+  await playwrightExpect.configure({ timeout: 1000 })(page.locator('div')).toBeVisible();
+});
+`,
+        },
       ],
       invalid: [
+        {
+          code: `
+import { test } from 'bun:test';
+
+test('has no Bun assertion', () => {});
+          `,
+          errors: 1,
+        },
         {
           code: `
 const chai = require('chai');
@@ -783,6 +822,28 @@ describe('Observable error handling with object syntax', () => {
       complete: () => { done(); }
     });
   });
+});
+`,
+        },
+        {
+          code: `
+import { expect as playwrightExpect, test } from '@playwright/test';
+test('aliased expect import', async ({ page }) => {
+  await playwrightExpect(page.locator('div')).toBeVisible();
+});
+`,
+        },
+        {
+          code: `
+import { expect, test } from '@playwright/test';
+import { expect as playwrightExpect } from '@playwright/test';
+
+test('member-based playwright expect entrypoints', async ({ page }) => {
+  await test.expect.configure({ timeout: 1000 })(page.locator('div')).toBeVisible();
+  await expect.configure({ timeout: 1000 })(page.locator('div')).toBeVisible();
+  await playwrightExpect.soft(page.locator('div')).toBeVisible();
+  await playwrightExpect.poll(() => 1).toBe(1);
+  await playwrightExpect.configure({ timeout: 1000 })(page.locator('div')).toBeVisible();
 });
 `,
         },

@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RuleParamType;
@@ -32,7 +32,7 @@ import org.sonar.api.utils.Version;
 
 class CssRulesDefinitionTest {
 
-  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(
+  private static final SonarRuntime sonarRuntime = TestSonarRuntime.forSonarLint(
     Version.create(9, 3)
   );
 

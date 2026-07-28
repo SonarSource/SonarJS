@@ -60,25 +60,25 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.DefaultTextPointer;
-import org.sonar.api.batch.fs.internal.DefaultTextRange;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultTextPointer;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultTextRange;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import org.sonar.api.batch.rule.CheckFactory;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.rule.internal.NewActiveRule;
+import org.sonar.scanner.plugin.api.impl.rule.ActiveRulesBuilder;
+import org.sonar.scanner.plugin.api.impl.rule.NewActiveRule;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.cache.ReadCache;
 import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.IssueLocation;
-import org.sonar.api.batch.sensor.issue.internal.DefaultNoSonarFilter;
-import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.impl.utils.DefaultTempFolder;
-import org.sonar.api.internal.SonarRuntimeImpl;
+import org.sonar.scanner.plugin.api.impl.sensor.issue.DefaultNoSonarFilter;
+import org.sonar.scanner.plugin.api.impl.config.MapSettings;
+import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -174,7 +174,7 @@ class WebSensorTest {
 
     context = createSensorContext(baseDir);
     context.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(9, 3),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -1245,7 +1245,7 @@ class WebSensorTest {
       }
     );
     context.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(9, 1),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -1403,7 +1403,7 @@ class WebSensorTest {
       }
     );
 
-    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(4, 4)));
+    context.setRuntime(TestSonarRuntime.forSonarLint(Version.create(4, 4)));
     executeSensorMockingResponse(createSonarLintSensor(), expectedResponse);
 
     assertThat(inputFile.hasNoSonarAt(7)).isTrue();
@@ -1586,7 +1586,7 @@ class WebSensorTest {
       )
     );
     context.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(10, 9),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY
@@ -2291,12 +2291,12 @@ class WebSensorTest {
   }
 
   private void setSonarLintRuntime(SensorContextTester context) {
-    context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(8, 9)));
+    context.setRuntime(TestSonarRuntime.forSonarLint(Version.create(8, 9)));
   }
 
   private void setSonarQubeRuntime(SensorContextTester context) {
     context.setRuntime(
-      SonarRuntimeImpl.forSonarQube(
+      TestSonarRuntime.forSonarQube(
         Version.create(9, 3),
         SonarQubeSide.SCANNER,
         SonarEdition.COMMUNITY

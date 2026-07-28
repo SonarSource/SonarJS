@@ -99,6 +99,7 @@ export type ProjectAnalysisTelemetry = {
   esmFileCount: number;
   cjsFileCount: number;
   denoImportCounts: Record<string, number>;
+  packageImportFileCounts: Record<string, number>;
   generatedSources: GeneratedSourcesTelemetry;
 };
 
@@ -134,6 +135,7 @@ export class ProjectAnalysisTelemetryCollector {
   private esmFileCount = 0;
   private cjsFileCount = 0;
   private readonly denoImportCountsByProtocol = new Map<string, number>();
+  private readonly packageImportFileCounts = new Map<string, number>();
   private generatedSources = createEmptyGeneratedSourcesTelemetry();
 
   constructor() {
@@ -177,6 +179,13 @@ export class ProjectAnalysisTelemetryCollector {
     this.denoImportCountsByProtocol.set(protocol, currentCount + 1);
   }
 
+  recordPackageImports(packageNames: Iterable<string>): void {
+    for (const packageName of packageNames) {
+      const currentCount = this.packageImportFileCounts.get(packageName) ?? 0;
+      this.packageImportFileCounts.set(packageName, currentCount + 1);
+    }
+  }
+
   recordModuleType(moduleType: ModuleType | undefined) {
     if (moduleType === 'module') {
       this.esmFileCount += 1;
@@ -210,6 +219,9 @@ export class ProjectAnalysisTelemetryCollector {
       esmFileCount: this.esmFileCount,
       cjsFileCount: this.cjsFileCount,
       denoImportCounts: Object.fromEntries(this.denoImportCountsByProtocol),
+      packageImportFileCounts: Object.fromEntries(
+        [...this.packageImportFileCounts].sort(([left], [right]) => left.localeCompare(right)),
+      ),
       generatedSources: cloneGeneratedSourcesTelemetry(this.generatedSources),
     };
   }

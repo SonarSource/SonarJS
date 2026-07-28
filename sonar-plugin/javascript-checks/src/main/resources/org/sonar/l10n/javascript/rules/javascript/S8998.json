@@ -1,0 +1,35 @@
+{
+  "title": "Parameterized tests should not have empty datasets",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "tests",
+    "pitfall",
+    "jest",
+    "vitest",
+    "bun"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8998",
+  "sqKey": "S8998",
+  "scope": "Tests",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM",
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

@@ -26,11 +26,6 @@
       <artifactId>sonar-plugin-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.sslr</groupId>
-      <artifactId>sslr-core</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
     </dependency>
@@ -47,8 +42,14 @@
       <artifactId>sonar-analyzer-commons</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.sonarqube</groupId>
-      <artifactId>sonar-plugin-api-impl</artifactId>
+      <groupId>org.sonarsource.scanner.engine</groupId>
+      <artifactId>plugin-api-scanner-impl</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.sonarsource.scanner.engine</groupId>
+      <artifactId>sensor-test-fixtures</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.api.plugin</groupId>

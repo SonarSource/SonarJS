@@ -11,7 +11,7 @@ function Form() {
 // the local binding name, confirming detection is based on where `act`
 // actually comes from rather than a hardcoded identifier name `act`.
 function aliasedTestingLibraryAct() {
-    tlAct(() => { // Noncompliant {{Avoid wrapping Testing Library util calls in `act`}}
+    tlAct(() => { // Noncompliant {{Remove this redundant `act()` call; the wrapped call already flushes its own updates.}}
         testingLibraryRender(<Form />);
     });
 }

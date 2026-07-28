@@ -1,8 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "noImplicitAny": false,
-    "resolveJsonModule": true
+    "noImplicitAny": false
   },
   "references": [
     {

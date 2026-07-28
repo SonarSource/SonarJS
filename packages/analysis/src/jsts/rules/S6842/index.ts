@@ -15,4 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rules } from '../external/a11y.js';
-export const rule = rules['no-noninteractive-element-to-interactive-role'];
+import { decorate } from './decorator.js';
+
+export const rule = decorate(rules['no-noninteractive-element-to-interactive-role']);

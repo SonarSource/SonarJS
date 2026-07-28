@@ -6,23 +6,23 @@ function Form() {
 }
 
 function submitsForm() {
-    act(() => { // Noncompliant {{Avoid wrapping Testing Library util calls in `act`}}
+    act(() => { // Noncompliant {{Remove this redundant `act()` call; the wrapped call already flushes its own updates.}}
         render(<Form />);
     });
 
-    act(() => { // Noncompliant {{Avoid wrapping Testing Library util calls in `act`}}
+    act(() => { // Noncompliant {{Remove this redundant `act()` call; the wrapped call already flushes its own updates.}}
         fireEvent.click(screen.getByRole('button'));
     });
 
-    act(() => screen.getByRole('button')); // Noncompliant {{Avoid wrapping Testing Library util calls in `act`}}
+    act(() => screen.getByRole('button')); // Noncompliant {{Remove this redundant `act()` call; the wrapped call already flushes its own updates.}}
 }
 
 async function usesUserEventAndWaitFor() {
-    await act(async () => { // Noncompliant {{Avoid wrapping Testing Library util calls in `act`}}
+    await act(async () => { // Noncompliant {{Remove this redundant `act()` call; the wrapped call already flushes its own updates.}}
         await userEvent.click(screen.getByRole('button'));
     });
 
-    await act(async () => { // Noncompliant {{Avoid wrapping Testing Library util calls in `act`}}
+    await act(async () => { // Noncompliant {{Remove this redundant `act()` call; the wrapped call already flushes its own updates.}}
         await waitFor(() => screen.getByText('done'));
     });
 }

@@ -1,0 +1,40 @@
+{
+  "title": "Side effects should not be performed inside \"waitFor\" callbacks",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "testing-library"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "@testing-library/dom",
+      "@testing-library/react",
+      "@testing-library/vue",
+      "@testing-library/angular",
+      "@testing-library/svelte"
+    ]
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8985",
+  "sqKey": "S8985",
+  "scope": "Tests",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

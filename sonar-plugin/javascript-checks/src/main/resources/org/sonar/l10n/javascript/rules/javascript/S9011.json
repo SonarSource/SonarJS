@@ -1,0 +1,31 @@
+{
+  "title": "\"<button>\" elements should have an explicit \"type\" attribute",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "react",
+    "vue"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-9011",
+  "sqKey": "S9011",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
