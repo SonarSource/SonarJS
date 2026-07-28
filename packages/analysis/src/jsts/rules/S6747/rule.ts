@@ -91,10 +91,11 @@ export const rule: Rule.RuleModule = {
   }),
 
   create(context: Rule.RuleContext) {
-    const frameworkIgnoredProps = fp.getIgnoredProps({
+    const signals: fp.FalsePositiveSignals = {
       dependencies: getDependenciesSanitizePaths(context),
       imports: getImportDeclarations(context),
-    });
+    };
+    const frameworkIgnoredProps = fp.getIgnoredProps(signals);
 
     // If we have framework-specific props, create a modified context with updated options
     let effectiveContext = context;

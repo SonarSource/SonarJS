@@ -43,6 +43,11 @@ describe('S6947', () => {
 <div sx={{ color: "primary" }}></div>;`,
           filename: join(dirname, 'filename.jsx'),
         },
+        {
+          code: `import { type Theme, useThemeUI } from 'theme-ui';
+<div sx={{ color: "primary" }}></div>;`,
+          filename: join(dirname, 'filename.tsx'),
+        },
       ],
       invalid: [
         {

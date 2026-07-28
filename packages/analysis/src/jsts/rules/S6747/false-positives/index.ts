@@ -16,13 +16,9 @@
  */
 import type estree from 'estree';
 import type { DependenciesList } from '../../helpers/dependency-manifests/resolvers/types.js';
-import { isTypeOnlyImport } from '../../helpers/ast.js';
+import { isTypeOnlyImportDeclaration } from '../../helpers/ast.js';
 
-type ImportSpecifierWithKind = estree.ImportDeclaration['specifiers'][number] & {
-  importKind?: string | null;
-};
-
-type FalsePositiveSignals = {
+export type FalsePositiveSignals = {
   dependencies: DependenciesList;
   imports: estree.ImportDeclaration[];
 };
@@ -34,6 +30,18 @@ type FalsePositiveEscape = {
 
 const TAILWIND_JSX_MODULES = ['next/og', '@vercel/og', 'satori', 'twin.macro'] as const;
 
+/**
+ * Escapes are activated by one of three signals, depending on how widely the props they cover
+ * are valid:
+ *
+ * - project dependency only: the props are valid anywhere in that framework's project, so the
+ *   manifest alone is enough (`jsx`, `global` for styled-jsx).
+ * - project dependency or import in the current file: the props are valid project-wide, but the
+ *   import is also honoured so that the exception still applies when no manifest could be
+ *   resolved (`css` for Emotion and styled-components, `sx` for Theme UI).
+ * - import in the current file only: file-specific APIs such as ImageResponse or twin.macro,
+ *   whose props must not be ignored in files that do not use them (`tw`).
+ */
 const FALSE_POSITIVE_ESCAPES: readonly FalsePositiveEscape[] = [
   {
     isActive: ({ dependencies }) => dependencies.has('next') || dependencies.has('styled-jsx'),
@@ -55,13 +63,9 @@ const FALSE_POSITIVE_ESCAPES: readonly FalsePositiveEscape[] = [
 ];
 
 export function getIgnoredProps(signals: FalsePositiveSignals): string[] {
-  return [
-    ...new Set(
-      FALSE_POSITIVE_ESCAPES.filter(falsePositiveEscape =>
-        falsePositiveEscape.isActive(signals),
-      ).flatMap(falsePositiveEscape => falsePositiveEscape.ignoredProps),
-    ),
-  ];
+  return FALSE_POSITIVE_ESCAPES.filter(falsePositiveEscape =>
+    falsePositiveEscape.isActive(signals),
+  ).flatMap(falsePositiveEscape => falsePositiveEscape.ignoredProps);
 }
 
 function hasRuntimeImport(signals: FalsePositiveSignals, moduleNames: readonly string[]): boolean {
@@ -70,20 +74,6 @@ function hasRuntimeImport(signals: FalsePositiveSignals, moduleNames: readonly s
       !isTypeOnlyImportDeclaration(importDeclaration) &&
       moduleNames.includes(String(importDeclaration.source.value)),
   );
-}
-
-function isTypeOnlyImportDeclaration(importDeclaration: estree.ImportDeclaration): boolean {
-  return (
-    isTypeOnlyImport(importDeclaration) ||
-    (importDeclaration.specifiers.length > 0 &&
-      importDeclaration.specifiers.every(isTypeOnlyImportSpecifier))
-  );
-}
-
-function isTypeOnlyImportSpecifier(
-  specifier: estree.ImportDeclaration['specifiers'][number],
-): boolean {
-  return (specifier as ImportSpecifierWithKind).importKind === 'type';
 }
 
 function hasDependencyOrRuntimeImport(
