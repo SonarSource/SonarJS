@@ -679,8 +679,8 @@ describe('S6819', () => {
           code: `<div role="listbox"><div role="group">Europe</div></div>`,
           errors: 2,
         },
-        // True positive: a bare function child renders nothing, so neither the group nor
-        // the option it contains is owned by the listbox.
+        // True positive: a bare function child renders nothing, so the group owns no options
+        // and neither it nor the listbox forms a widget. The option keeps its listbox context.
         {
           code: `
             <div role="listbox" aria-label="Cities">
@@ -689,9 +689,10 @@ describe('S6819', () => {
               </div>
             </div>
           `,
-          errors: 3,
+          errors: 2,
         },
-        // True positive: option in an unused initializer is not rendered as a descendant
+        // True positive: option in an unused initializer is not rendered, so the listbox has
+        // no option descendant to own.
         {
           code: `
             <div role="listbox">
@@ -701,7 +702,7 @@ describe('S6819', () => {
               })()}
             </div>
           `,
-          errors: 2,
+          errors: 1,
         },
         // True positive: forEach ignores callback return values, so no option is rendered.
         {
@@ -712,7 +713,7 @@ describe('S6819', () => {
               </div>
             </div>
           `,
-          errors: 3,
+          errors: 2,
         },
         // True positive: nested listbox option is not owned by outer group
         {
@@ -727,7 +728,9 @@ describe('S6819', () => {
           `,
           errors: 1,
         },
-        // True positive: render prop option is not owned by the group/listbox
+        // True positive: a render prop hides the options from the group and the listbox, so
+        // neither can claim to own them. The option itself keeps its listbox context, since
+        // <option> would be no more valid there than it is now.
         {
           code: `
             <div role="listbox" aria-label="Cities">
@@ -736,9 +739,10 @@ describe('S6819', () => {
               </div>
             </div>
           `,
-          errors: 3,
+          errors: 2,
         },
-        // True positive: group returned from a render prop is not owned by the listbox
+        // True positive: the listbox cannot see the group returned from a render prop, but the
+        // group owns its own options and both it and the option stay inside the listbox.
         {
           code: `
             <div role="listbox" aria-label="Cities">
@@ -751,7 +755,7 @@ describe('S6819', () => {
               />
             </div>
           `,
-          errors: 3,
+          errors: 1,
         },
       ],
     });

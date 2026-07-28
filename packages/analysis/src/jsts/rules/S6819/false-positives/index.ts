@@ -17,8 +17,7 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXOpeningElement } from 'estree-jsx';
-import pkg from 'jsx-ast-utils-x';
-import { getElementName } from '../helpers.js';
+import { getElementName, getRole } from '../helpers.js';
 import { isCustomCompositeWidget, isGroupedListboxSubgroup } from './composite-widgets.js';
 import { isDecorativeSvg, isSemanticSvgImg } from './svg.js';
 import {
@@ -30,25 +29,17 @@ import {
   isSeparatorWithChildren,
 } from './widget-patterns.js';
 
-const { getLiteralPropValue, getProp } = pkg;
-
 /**
  * Checks if the element uses a valid ARIA pattern where suggesting a semantic
  * element would be inappropriate.
  */
 export function isFalsePositive(node: TSESTree.JSXOpeningElement): boolean {
+  const role = getRole(node);
+  if (role === null) {
+    return false;
+  }
+
   const attributes = (node as JSXOpeningElement).attributes;
-  const roleProp = getProp(attributes, 'role');
-  if (!roleProp) {
-    return false;
-  }
-
-  const roleValue = getLiteralPropValue(roleProp);
-  if (typeof roleValue !== 'string') {
-    return false;
-  }
-
-  const role = roleValue.toLowerCase();
   const elementName = getElementName(node);
 
   return (

@@ -115,46 +115,41 @@ export function hasChildren(node: TSESTree.JSXOpeningElement): boolean {
   return false;
 }
 
-export function hasRenderedAncestorWithRole(
+export function hasEnclosingAncestorWithRole(
   node: TSESTree.JSXOpeningElement,
   role: string,
 ): boolean {
-  return hasRenderedAncestorMatchingRole(node, ancestorRole => ancestorRole === role);
+  return hasEnclosingAncestorMatchingRole(node, ancestorRole => ancestorRole === role);
 }
 
-export function hasRenderedAncestorWithOneOfRoles(
+export function hasEnclosingAncestorWithOneOfRoles(
   node: TSESTree.JSXOpeningElement,
   roles: Set<string>,
 ): boolean {
-  return hasRenderedAncestorMatchingRole(node, role => roles.has(role));
+  return hasEnclosingAncestorMatchingRole(node, role => roles.has(role));
 }
 
 /**
- * Walks up the enclosing JSX, stopping at the first position that does not render
- * its child, and reports whether a rendering ancestor carries a matching role.
+ * Walks up the enclosing JSX and reports whether an ancestor carries a matching role.
+ *
+ * Lexical nesting is deliberate, unlike the rendered-position descendant search below. The
+ * two directions answer different questions. Downwards, a container claims to own its
+ * children, and a wrong claim suppresses a report that was actionable. Upwards, a child role
+ * asks whether a report is actionable at all, and the tags this rule suggests for those roles
+ * are invalid outside their container: `<Widget renderOption={() => <div role="option"/>}/>`
+ * inside a listbox is the standard virtualized-list shape, and "use <option> instead" is not
+ * a fix anyone can apply there, so the JSX attribute holding it must not end the walk.
  */
-function hasRenderedAncestorMatchingRole(
+function hasEnclosingAncestorMatchingRole(
   node: TSESTree.JSXOpeningElement,
   predicate: (role: string) => boolean,
 ): boolean {
-  const jsxElement = node.parent;
-  if (jsxElement?.type !== 'JSXElement') {
-    return false;
-  }
-
-  let child: TSESTree.Node = jsxElement;
-  let parent: TSESTree.Node | undefined = child.parent;
-  while (parent) {
-    if (!renderedChildPositions(parent).includes(child)) {
-      return false;
-    }
-
-    if (parent.type === 'JSXElement' && roleMatches(parent, predicate)) {
+  let current: TSESTree.Node | undefined = node.parent?.parent;
+  while (current) {
+    if (current.type === 'JSXElement' && roleMatches(current, predicate)) {
       return true;
     }
-
-    child = parent;
-    parent = parent.parent;
+    current = current.parent;
   }
 
   return false;
@@ -214,9 +209,10 @@ function hasDescendantMatchingRole(
 /**
  * Lists the direct child positions of `node` whose contents React renders.
  *
- * This is the single description of JSX rendering positions used by this rule, read
- * downwards by the descendant search and upwards by the ancestor walk, so both agree
- * on what "rendered" means.
+ * This is the single description of JSX rendering positions used by this rule. Only the
+ * descendant search reads it: deciding that a container owns a child role is a claim about
+ * structure, so it is made from positions React actually renders. The ancestor walk above
+ * deliberately does not, see its comment.
  *
  * Accepted: `<A><B /></A>`, `{cond && <B />}`, `{cond ? <B /> : null}`, `{[<B />]}`,
  * `{items.map(i => <B />)}`, and `{items.flatMap(i => <B />)}`.
@@ -253,7 +249,7 @@ function renderedChildPositions(node: TSESTree.Node): TSESTree.Node[] {
     case 'ArrowFunctionExpression':
     case 'FunctionExpression':
       // Only a function that something invokes renders; a bare `{() => <B />}` does not.
-      return node.parent?.type === 'CallExpression' ? [node.body] : [];
+      return isArgumentOfRenderingCall(node) ? [node.body] : [];
     case 'BlockStatement':
       return [...node.body];
     case 'ReturnStatement':
@@ -277,6 +273,21 @@ function isInvokedFunction(
   return node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression';
 }
 
+/**
+ * Checks that the function is passed as an argument to a call that renders what it returns.
+ *
+ * Stated in full rather than relying on the `CallExpression` case to only ever hand over
+ * mapping-call arguments, so extending that case cannot silently widen this one.
+ */
+function isArgumentOfRenderingCall(node: TSESTree.Node): boolean {
+  const parent = node.parent;
+  return (
+    parent?.type === 'CallExpression' &&
+    parent.arguments.some(argument => argument === node) &&
+    isRenderingArrayMappingCall(parent)
+  );
+}
+
 function isRenderingArrayMappingCall(node: TSESTree.CallExpression): boolean {
   const callee = node.callee;
   if (
@@ -295,11 +306,10 @@ function roleMatches(element: TSESTree.JSXElement, predicate: (role: string) => 
 }
 
 /**
- * Gets the role attribute value from a JSXElement.
+ * Gets the literal role attribute value, or null when absent or not a literal string.
  */
-function getJSXElementRole(element: TSESTree.JSXElement): string | null {
-  const openingElement = element.openingElement;
-  const attributes = (openingElement as JSXOpeningElement).attributes;
+export function getRole(node: TSESTree.JSXOpeningElement): string | null {
+  const attributes = (node as JSXOpeningElement).attributes;
   const roleProp = getProp(attributes, 'role');
   if (!roleProp) {
     return null;
@@ -309,4 +319,8 @@ function getJSXElementRole(element: TSESTree.JSXElement): string | null {
     return null;
   }
   return roleValue.toLowerCase();
+}
+
+function getJSXElementRole(element: TSESTree.JSXElement): string | null {
+  return getRole(element.openingElement);
 }
