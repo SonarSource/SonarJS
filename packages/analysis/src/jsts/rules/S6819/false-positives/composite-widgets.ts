@@ -17,12 +17,11 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
-  getJSXElementRole,
   hasDescendantWithOneOfRoles,
   hasDescendantWithRoleBeforeBoundary,
+  hasRenderedAncestorWithOneOfRoles,
   hasRenderedAncestorWithRole,
 } from '../helpers.js';
-import { findFirstMatchingAncestor } from '../../helpers/ancestor.js';
 
 const COMPOSITE_CONTAINER_ROLES = new Set(['table', 'grid', 'listbox']);
 const COMPOSITE_CHILD_ROLES = new Set([
@@ -50,6 +49,9 @@ export function isGroupedListboxSubgroup(role: string, node: TSESTree.JSXOpening
  * - Container roles (table, grid, listbox) when they have descendant child roles
  * - Child roles (row, option, etc.) when they have an ancestor container role
  *
+ * Both directions require the relationship to be rendered, so a container and its
+ * children agree on whether they form a widget.
+ *
  * No element-name restriction: any HTML tag (div, ul, li, span, etc.) qualifies.
  */
 export function isCustomCompositeWidget(role: string, node: TSESTree.JSXOpeningElement): boolean {
@@ -58,19 +60,8 @@ export function isCustomCompositeWidget(role: string, node: TSESTree.JSXOpeningE
   }
 
   if (COMPOSITE_CHILD_ROLES.has(role)) {
-    return hasAncestorCompositeContainerRole(node);
+    return hasRenderedAncestorWithOneOfRoles(node, COMPOSITE_CONTAINER_ROLES);
   }
 
   return false;
-}
-
-function hasAncestorCompositeContainerRole(node: TSESTree.JSXOpeningElement): boolean {
-  const ancestor = findFirstMatchingAncestor(node, n => {
-    if (n.type !== 'JSXElement') {
-      return false;
-    }
-    const role = getJSXElementRole(n);
-    return role !== null && COMPOSITE_CONTAINER_ROLES.has(role);
-  });
-  return ancestor !== undefined;
 }
