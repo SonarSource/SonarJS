@@ -96,6 +96,30 @@ export function isTypeOnlyImport(node: estree.ImportDeclaration): boolean {
   return (node as ImportDeclarationWithKind).importKind === 'type';
 }
 
+/**
+ * Whether a single specifier is type-only, as in `import { type A } from 'module'`.
+ */
+export function isTypeOnlyImportSpecifier(
+  specifier: estree.ImportDeclaration['specifiers'][number],
+): boolean {
+  const tsSpecifier = specifier as TSESTree.ImportClause;
+  return tsSpecifier.type === 'ImportSpecifier' && tsSpecifier.importKind === 'type';
+}
+
+/**
+ * Whether an import declaration brings nothing into the runtime, either because the whole
+ * declaration is type-only (`import type A from 'module'`) or because every one of its
+ * specifiers is (`import { type A, type B } from 'module'`).
+ *
+ * A declaration without specifiers is a side-effect import, hence a runtime one.
+ */
+export function isTypeOnlyImportDeclaration(node: estree.ImportDeclaration): boolean {
+  return (
+    isTypeOnlyImport(node) ||
+    (node.specifiers.length > 0 && node.specifiers.every(isTypeOnlyImportSpecifier))
+  );
+}
+
 export function getProgramStatements(program: estree.Program) {
   return program.body.filter((node): node is estree.Statement => !isModuleDeclaration(node));
 }
