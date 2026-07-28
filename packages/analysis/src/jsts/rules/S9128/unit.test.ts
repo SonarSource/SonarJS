@@ -208,6 +208,30 @@ export default {
 `,
           errors: [{ message: "Duplicate key 'name'." }, { message: "Duplicate key 'id'." }],
         },
+        {
+          // Composition API: renaming a prop via a *separate* toRefs(props) destructuring
+          // (as opposed to destructuring defineProps()'s return value directly) doesn't
+          // register as a rename - the prop is still exposed to the template under its
+          // original name, so a local binding reusing that name still collides
+          code: `
+<script setup>
+const props = defineProps({ size: String });
+const { size: sizeName } = toRefs(props);
+const size = computed(() => sizeName.value.toUpperCase());
+</script>
+`,
+          errors: [{ message: "Duplicate key 'size'." }],
+        },
+        {
+          // Composition API: prop colliding with a function declaration of the same name
+          code: `
+<script setup>
+const props = defineProps({ open: Boolean });
+function open() {}
+</script>
+`,
+          errors: [{ message: "Duplicate key 'open'." }],
+        },
       ],
     });
 
