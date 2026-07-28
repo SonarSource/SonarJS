@@ -18,9 +18,9 @@ package org.sonar.plugins.javascript.rules;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RuleParamType;
@@ -95,9 +95,7 @@ class JavaScriptRulesDefinitionTest {
   private void assertAllRuleParametersHaveDescription(Repository repository) {
     for (Rule rule : repository.rules()) {
       for (Param param : rule.params()) {
-        assertThat(param.description())
-          .as("description for " + param.key())
-          .isNotEmpty();
+        assertThat(param.description()).as("description for " + param.key()).isNotEmpty();
       }
     }
   }

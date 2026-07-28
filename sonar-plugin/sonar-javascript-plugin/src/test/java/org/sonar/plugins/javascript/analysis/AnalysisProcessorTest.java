@@ -22,9 +22,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -32,7 +29,11 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.InputFile;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.IssueResolution;
+import org.sonar.scanner.plugin.api.impl.config.MapSettings;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
@@ -53,7 +54,6 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResul
 import org.sonar.plugins.javascript.analyzeproject.grpc.SonarResolveComment;
 import org.sonar.plugins.javascript.analyzeproject.grpc.TextType;
 import org.sonar.plugins.javascript.api.Language;
-import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 
 class AnalysisProcessorTest {
 

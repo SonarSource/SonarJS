@@ -18,11 +18,11 @@ package org.sonar.css;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.Context;
 import org.sonar.api.server.rule.RulesDefinition;

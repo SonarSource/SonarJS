@@ -52,7 +52,9 @@ interface SuiteFrame {
 }
 
 type FunctionNode =
-  estree.FunctionDeclaration | estree.FunctionExpression | estree.ArrowFunctionExpression;
+  | estree.FunctionDeclaration
+  | estree.FunctionExpression
+  | estree.ArrowFunctionExpression;
 type CallbackFunctionNode = estree.FunctionExpression | estree.ArrowFunctionExpression;
 
 export const rule: Rule.RuleModule = {

@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
@@ -31,6 +30,7 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.PropertyDefinition;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
 

@@ -19,7 +19,6 @@ package org.sonar.plugins.javascript.rules;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.gson.Gson;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RulesDefinition.Param;
@@ -80,10 +80,7 @@ class TypeScriptRulesDefinitionTest {
       String key = ((org.sonar.check.Rule) ruleAnnotation).key();
 
       RuleJson ruleJson = getRuleJson(key);
-      assertThat(ruleJson.compatibleLanguages)
-        .as("For rule " + key)
-        .isNotNull()
-        .isNotEmpty();
+      assertThat(ruleJson.compatibleLanguages).as("For rule " + key).isNotNull().isNotEmpty();
       List<String> expected = new ArrayList<>();
       if (isTypeScriptCheck) {
         expected.add("ts");
@@ -92,9 +89,7 @@ class TypeScriptRulesDefinitionTest {
         expected.add("js");
       }
 
-      assertThat(ruleJson.compatibleLanguages)
-        .as("Failed for  " + key)
-        .containsAll(expected);
+      assertThat(ruleJson.compatibleLanguages).as("Failed for  " + key).containsAll(expected);
     });
   }
 
@@ -143,9 +138,7 @@ class TypeScriptRulesDefinitionTest {
   private void assertAllRuleParametersHaveDescription(Repository repository) {
     for (Rule rule : repository.rules()) {
       for (Param param : rule.params()) {
-        assertThat(param.description())
-          .as("description for " + param.key())
-          .isNotEmpty();
+        assertThat(param.description()).as("description for " + param.key()).isNotEmpty();
       }
     }
   }

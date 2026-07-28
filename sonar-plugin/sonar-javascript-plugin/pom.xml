@@ -79,16 +79,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.sonarsource.scanner.engine</groupId>
-      <artifactId>plugin-api-scanner-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.sonarsource.scanner.engine</groupId>
-      <artifactId>sensor-test-fixtures</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.sonarsource.analyzer-commons</groupId>
       <artifactId>sonar-analyzer-commons</artifactId>
     </dependency>

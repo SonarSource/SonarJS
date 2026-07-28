@@ -128,7 +128,10 @@ function handleVariableDeclarator(context: Rule.RuleContext, node: estree.Variab
 function findKeySuspect(node: estree.Node): string | undefined {
   if (isIdentifier(node) && secretWordRegexps.some(pattern => pattern.test(node.name))) {
     return node.name;
-  } else if (isStringLiteral(node) && secretWordRegexps.some(pattern => pattern.test(node.value))) {
+  } else if (
+    isStringLiteral(node) &&
+    secretWordRegexps.some(pattern => pattern.test(node.value))
+  ) {
     return node.value;
   } else if (node.type === 'MemberExpression') {
     return findKeySuspect(node.property);
