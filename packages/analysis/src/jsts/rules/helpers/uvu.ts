@@ -21,13 +21,14 @@ import ts from 'typescript';
 import { getFullyQualifiedName } from './module.js';
 import { getFullyQualifiedNameTS } from './module-ts.js';
 
+// The documented `uvu/assert` API: https://github.com/lukeed/uvu/blob/master/docs/api.assert.md
+// `is` and `not` are absent because both are handled on their own in `isFQNAssertion`:
+// they are callable *and* carry sub-assertions (`is.not`, `not.equal`, ...).
 const ASSERT_METHOD_NAMES = new Set([
   'equal',
   'fixture',
   'instance',
-  'is',
   'match',
-  'not',
   'ok',
   'snapshot',
   'throws',
@@ -35,16 +36,11 @@ const ASSERT_METHOD_NAMES = new Set([
   'unreachable',
 ]);
 
-const NEGATED_ASSERT_METHOD_NAMES = new Set([
-  'equal',
-  'fixture',
-  'instance',
-  'match',
-  'ok',
-  'snapshot',
-  'throws',
-  'type',
-]);
+// `not.*` mirrors the positive methods — including `not.ok`, an alias of `not` itself —
+// except `unreachable`, which has no negated form.
+const NEGATED_ASSERT_METHOD_NAMES = new Set(
+  [...ASSERT_METHOD_NAMES].filter(name => name !== 'unreachable'),
+);
 
 export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   if (node.type !== 'CallExpression') {
@@ -75,10 +71,7 @@ function isFQNAssertion(fqn: string | null | undefined): boolean {
     return parts.length === 1 || (parts.length === 2 && parts[1] === 'not');
   }
   if (parts[0] === 'not') {
-    return (
-      parts.length === 1 ||
-      (parts.length === 2 && parts[1] !== 'not' && NEGATED_ASSERT_METHOD_NAMES.has(parts[1]))
-    );
+    return parts.length === 1 || (parts.length === 2 && NEGATED_ASSERT_METHOD_NAMES.has(parts[1]));
   }
-  return parts.length === 1 && parts[0] !== undefined && ASSERT_METHOD_NAMES.has(parts[0]);
+  return parts.length === 1 && ASSERT_METHOD_NAMES.has(parts[0]);
 }

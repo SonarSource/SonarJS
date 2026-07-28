@@ -22,10 +22,9 @@ import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 import { join } from 'node:path';
 
-const uvuOnlyFixture = join(
-  import.meta.dirname,
-  '../../../../tests/jsts/tools/testers/fixtures/s2699-uvu-only/test.js',
-);
+// The file itself never has to exist: the path only anchors the nearest-`package.json`
+// lookup to a manifest with no dependencies, so uvu is detected from imports alone.
+const uvuOnlyFixture = join(import.meta.dirname, 'fixtures', 'uvu-only', 'test.js');
 
 describe('S2699', () => {
   it('S2699', () => {
@@ -155,17 +154,51 @@ const assert = require('uvu/assert');
 const { describe, it } = require('node:test');
 
 describe('uvu assert methods', () => {
-  it('recognizes documented methods', () => {
+  it('recognizes instance', () => {
     function Constructor() {}
-    const value = new Constructor();
-    assert.instance(value, Constructor);
-    assert.is(value, value);
-    assert.ok(value);
+    assert.instance(new Constructor(), Constructor);
+  });
+  it('recognizes is', () => {
+    assert.is('ready', 'ready');
+  });
+  it('recognizes ok', () => {
+    assert.ok('ready');
+  });
+  it('recognizes equal', () => {
     assert.equal({ status: 'ready' }, { status: 'ready' });
-    assert.match({ enabled: true }, { enabled: true });
+  });
+  it('recognizes match', () => {
+    assert.match('ready', /ready/);
+  });
+  it('recognizes type', () => {
+    assert.type('ready', 'string');
+  });
+  it('recognizes snapshot', () => {
+    assert.snapshot('ready', 'ready');
+  });
+  it('recognizes fixture', () => {
+    assert.fixture('ready', 'ready');
+  });
+  it('recognizes throws', () => {
     assert.throws(() => { throw new Error('expected'); });
+  });
+  it('recognizes unreachable', () => {
+    assert.unreachable('unexpected');
+  });
+  it('recognizes is.not', () => {
     assert.is.not('ready', 'failed');
+  });
+  it('recognizes bare not', () => {
+    assert.not(false);
+  });
+  it('recognizes not.ok', () => {
+    assert.not.ok(false);
+  });
+  it('recognizes not.equal', () => {
     assert.not.equal('ready', 'failed');
+  });
+  it('recognizes not.type', () => {
+    assert.not.type('ready', 'number');
   });
 });
           `,
@@ -803,17 +836,51 @@ import { describe, it } from 'node:test';
 import assert from 'uvu/assert';
 
 describe('typed uvu assert methods', () => {
-  it('recognizes documented methods', () => {
+  it('recognizes instance', () => {
     class Constructor {}
-    const value = new Constructor();
-    assert.instance(value, Constructor);
-    assert.is(value, value);
-    assert.ok(value);
+    assert.instance(new Constructor(), Constructor);
+  });
+  it('recognizes is', () => {
+    assert.is('ready', 'ready');
+  });
+  it('recognizes ok', () => {
+    assert.ok('ready');
+  });
+  it('recognizes equal', () => {
     assert.equal({ status: 'ready' }, { status: 'ready' });
-    assert.match({ enabled: true }, { enabled: true });
+  });
+  it('recognizes match', () => {
+    assert.match('ready', /ready/);
+  });
+  it('recognizes type', () => {
+    assert.type('ready', 'string');
+  });
+  it('recognizes snapshot', () => {
+    assert.snapshot('ready', 'ready');
+  });
+  it('recognizes fixture', () => {
+    assert.fixture('ready', 'ready');
+  });
+  it('recognizes throws', () => {
     assert.throws(() => { throw new Error('expected'); });
+  });
+  it('recognizes unreachable', () => {
+    assert.unreachable('unexpected');
+  });
+  it('recognizes is.not', () => {
     assert.is.not('ready', 'failed');
+  });
+  it('recognizes bare not', () => {
+    assert.not(false);
+  });
+  it('recognizes not.ok', () => {
+    assert.not.ok(false);
+  });
+  it('recognizes not.equal', () => {
     assert.not.equal('ready', 'failed');
+  });
+  it('recognizes not.type', () => {
+    assert.not.type('ready', 'number');
   });
 });
 `,
@@ -994,6 +1061,17 @@ import assert from 'node:assert/strict';
 
 test('has no assertions', () => {
   const x = 1 + 2;
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { test } from 'uvu';
+import assert from 'uvu/assert';
+
+test('native uvu tests without assertions are reported', () => {
+  const value = 1 + 2;
 });
 `,
           errors: 1,
