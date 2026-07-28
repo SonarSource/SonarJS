@@ -164,6 +164,7 @@ describe('uvu assert methods', () => {
     assert.equal({ status: 'ready' }, { status: 'ready' });
     assert.match({ enabled: true }, { enabled: true });
     assert.throws(() => { throw new Error('expected'); });
+    assert.is.not('ready', 'failed');
     assert.not.equal('ready', 'failed');
   });
 });
@@ -468,6 +469,30 @@ const { describe, it } = require('node:test');
 describe('chained unknown uvu assert methods', () => {
   it('raises when a whitelisted method has an unknown chained member', () => {
     assert.equal.custom('ready');
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const assert = require('uvu/assert');
+const { describe, it } = require('node:test');
+
+describe('unsupported uvu negated assert forms', () => {
+  it('raises when the negated method is outside the documented API', () => {
+    assert.not.is('actual', 'expected');
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const assert = require('uvu/assert');
+const { describe, it } = require('node:test');
+
+describe('unsupported uvu negated assert forms', () => {
+  it('raises when the negated method is outside the documented API', () => {
+    assert.not.unreachable('unexpected');
   });
 });`,
           errors: 1,
@@ -787,6 +812,7 @@ describe('typed uvu assert methods', () => {
     assert.equal({ status: 'ready' }, { status: 'ready' });
     assert.match({ enabled: true }, { enabled: true });
     assert.throws(() => { throw new Error('expected'); });
+    assert.is.not('ready', 'failed');
     assert.not.equal('ready', 'failed');
   });
 });
@@ -993,6 +1019,32 @@ import assert from 'uvu/assert';
 describe('typed chained unknown uvu assert methods', () => {
   it('raises when a whitelisted method has an unknown chained member', () => {
     assert.equal.custom('ready');
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, it } from 'node:test';
+import assert from 'uvu/assert';
+
+describe('typed unsupported uvu negated assert forms', () => {
+  it('raises when the negated method is outside the documented API', () => {
+    assert.not.is('actual', 'expected');
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, it } from 'node:test';
+import assert from 'uvu/assert';
+
+describe('typed unsupported uvu negated assert forms', () => {
+  it('raises when the negated method is outside the documented API', () => {
+    assert.not.unreachable('unexpected');
   });
 });
 `,

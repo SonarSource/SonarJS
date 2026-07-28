@@ -35,6 +35,17 @@ const ASSERT_METHOD_NAMES = new Set([
   'unreachable',
 ]);
 
+const NEGATED_ASSERT_METHOD_NAMES = new Set([
+  'equal',
+  'fixture',
+  'instance',
+  'match',
+  'ok',
+  'snapshot',
+  'throws',
+  'type',
+]);
+
 export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   if (node.type !== 'CallExpression') {
     return false;
@@ -60,10 +71,13 @@ function isFQNAssertion(fqn: string | null | undefined): boolean {
   if (parts[0] === 'default') {
     parts.shift();
   }
+  if (parts[0] === 'is') {
+    return parts.length === 1 || (parts.length === 2 && parts[1] === 'not');
+  }
   if (parts[0] === 'not') {
     return (
       parts.length === 1 ||
-      (parts.length === 2 && parts[1] !== 'not' && ASSERT_METHOD_NAMES.has(parts[1]))
+      (parts.length === 2 && parts[1] !== 'not' && NEGATED_ASSERT_METHOD_NAMES.has(parts[1]))
     );
   }
   return parts.length === 1 && parts[0] !== undefined && ASSERT_METHOD_NAMES.has(parts[0]);
