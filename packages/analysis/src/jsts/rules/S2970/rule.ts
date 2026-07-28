@@ -62,12 +62,23 @@ export const rule: Rule.RuleModule = {
             }
           }
         }
-        if (isExpectCall(expr) || isExpectStaticMethodCall(expr)) {
-          const reportNode = getExpectCallReportNode(expr);
+        if (isExpectCall(expr)) {
           context.report({
-            node: reportNode,
-            message: `Complete this assertion; '${reportNode.name}' doesn't assert anything by itself.`,
+            node: expr.callee,
+            message: `Complete this assertion; '${expr.callee.name}' doesn't assert anything by itself.`,
           });
+        } else if (
+          expr.type === 'CallExpression' &&
+          expr.callee.type === 'MemberExpression' &&
+          isExpectStaticMethod(expr.callee)
+        ) {
+          const { property } = expr.callee;
+          if (isIdentifier(property)) {
+            context.report({
+              node: property,
+              message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
+            });
+          }
         }
       },
     };
@@ -80,29 +91,37 @@ function isTestAssertion(node: estree.MemberExpression): boolean {
   if (isIdentifier(object) && isIdentifier(property, 'should')) {
     return true;
   }
-  if (
-    isExpectCall(object) ||
-    isExpectStaticMethodCall(object) ||
-    isIdentifier(object, 'assert', 'expect', 'should')
-  ) {
+  if (isExpectCall(object) || isIdentifier(object, 'assert', 'expect', 'should')) {
     return true;
-  } else if (object.type === 'MemberExpression') {
+  }
+  if (object.type === 'MemberExpression') {
     return isTestAssertion(object);
-  } else if (object.type === 'CallExpression' && object.callee.type === 'MemberExpression') {
-    return isTestAssertion(object.callee);
+  }
+  if (object.type === 'CallExpression') {
+    if (isExpectStaticMethod(object.callee)) {
+      return true;
+    }
+    if (object.callee.type === 'MemberExpression') {
+      return isTestAssertion(object.callee);
+    }
   }
   return false;
 }
 
 function isExpectAssertion(node: estree.Node): boolean {
-  if (isExpectCall(node) || isExpectStaticMethodCall(node) || isIdentifier(node, 'expect')) {
+  if (isExpectCall(node) || isIdentifier(node, 'expect')) {
     return true;
   }
   if (node.type === 'MemberExpression') {
     return isExpectAssertion(node.object);
   }
-  if (node.type === 'CallExpression' && node.callee.type === 'MemberExpression') {
-    return isExpectAssertion(node.callee.object);
+  if (node.type === 'CallExpression') {
+    if (isExpectStaticMethod(node.callee)) {
+      return true;
+    }
+    if (node.callee.type === 'MemberExpression') {
+      return isExpectAssertion(node.callee.object);
+    }
   }
   return false;
 }
@@ -122,7 +141,7 @@ function isExpectCall(
  * `expect.soft(locator)`, `expect.poll(fn)`, `expect.soft.poll(fn)`.
  * @see https://playwright.dev/docs/test-assertions
  */
-function isExpectStaticMethod(node: estree.Node): node is estree.MemberExpression {
+function isExpectStaticMethod(node: estree.Node): boolean {
   if (node.type !== 'MemberExpression' || !isIdentifier(node.property, ...expectStaticMethods)) {
     return false;
   }
@@ -131,19 +150,4 @@ function isExpectStaticMethod(node: estree.Node): node is estree.MemberExpressio
   }
   // Nested forms such as `expect.soft.poll`
   return isExpectStaticMethod(node.object);
-}
-
-function isExpectStaticMethodCall(node: estree.Node): node is estree.CallExpression {
-  return node.type === 'CallExpression' && isExpectStaticMethod(node.callee);
-}
-
-function getExpectCallReportNode(
-  node: estree.CallExpression,
-): estree.Identifier {
-  if (isIdentifier(node.callee)) {
-    return node.callee;
-  }
-  // Prefer the last static method in the chain (`poll` in `expect.soft.poll(...)`)
-  const { property } = node.callee as estree.MemberExpression;
-  return property as estree.Identifier;
 }
