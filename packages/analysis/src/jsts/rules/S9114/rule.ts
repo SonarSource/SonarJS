@@ -172,24 +172,23 @@ function isFunctionComponent(functionNode: estree.Node): boolean {
 }
 
 function isClassComponentRenderMethod(functionNode: estree.Node): boolean {
-  const methodDefinition = getNodeParent(functionNode);
-  if (!isRenderMethod(methodDefinition)) {
+  const renderMember = getNodeParent(functionNode);
+  if (!isRenderMember(renderMember)) {
     return false;
   }
 
   const enclosingClass = findFirstMatchingAncestor(
-    methodDefinition as TSESTree.Node,
+    renderMember as TSESTree.Node,
     ancestor => ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression',
   );
   return enclosingClass !== undefined && isReactClassComponent(enclosingClass as estree.Node);
 }
 
-function isRenderMethod(node: estree.Node): boolean {
+function isRenderMember(node: estree.Node): boolean {
   return (
-    node.type === 'MethodDefinition' &&
+    (node.type === 'MethodDefinition' || node.type === 'PropertyDefinition') &&
     !node.computed &&
     !node.static &&
-    node.kind === 'method' &&
     isIdentifier(node.key, 'render')
   );
 }
