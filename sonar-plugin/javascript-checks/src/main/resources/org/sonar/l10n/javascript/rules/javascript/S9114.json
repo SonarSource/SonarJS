@@ -1,5 +1,5 @@
 {
-  "title": "React components should not recreate debounced or throttled functions on every render",
+  "title": "Lodash and Underscore.js debounced or throttled functions should not be recreated on every React render",
   "type": "BUG",
   "code": {
     "impacts": {
