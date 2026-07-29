@@ -92,6 +92,81 @@ describe('S9073', () => {
         {
           code: `values.every(value => value && value.active);`,
         },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(primaryColumns[0] && primaryColumns[0].length > 0);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(typeof value === 'object' && value !== null);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(value !== null && typeof value === 'object');
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(Array.isArray(value) && value.length > 0);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(value instanceof Error && value.message);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert('create' in rule && typeof rule.create === 'function');
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(isNonEmpty(list) && list[0].id);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(typeof value === 'object' && value.property);
+          `,
+        },
+        {
+          // Exempt because `value !== null` checks the reference that both operands use.
+          code: `
+            import assert from 'node:assert/strict';
+            assert(typeof value !== 'object' && value !== null);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(rule && typeof rule === 'object' && typeof rule.create === 'function');
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(isPlainObject(object) && typeof object === 'object' && object !== null);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(value && value.property).toBeTruthy();
+            expect(value && value.property).not.toBeFalsy();
+            expect(!(value && value.property)).toBeFalsy();
+          `,
+        },
       ],
       invalid: [
         {
@@ -163,6 +238,71 @@ describe('S9073', () => {
         {
           filename: jestFixture,
           code: `expect(a && b).toBeTruthy();`,
+          errors: [expectedIssue],
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(value && value.property && independentCondition);
+          `,
+          errors: [expectedIssue],
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(result.kind === 'success' && result.value);
+          `,
+          errors: [expectedIssue],
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(value && other.value);
+          `,
+          errors: [expectedIssue],
+        },
+        {
+          // A single-argument call is only a guard when its name signals a predicate; an
+          // arbitrary call establishes nothing about its argument.
+          code: `
+            import assert from 'node:assert/strict';
+            assert(compute(value) && value.ok);
+          `,
+          errors: [expectedIssue],
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(value === null && value.property);
+          `,
+          errors: [expectedIssue],
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(values[index++] && values[index++].property);
+          `,
+          errors: [expectedIssue],
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(value && items.every(value => value.ready));
+          `,
+          errors: [expectedIssue],
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert(b >= 0n && b < 2n ** 32n);
+          `,
+          errors: [expectedIssue],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(token.createdAt >= now && token.createdAt <= Date.now()).toBeTruthy();
+          `,
           errors: [expectedIssue],
         },
       ],
