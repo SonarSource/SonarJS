@@ -45,6 +45,32 @@ test('recognizes AWS CDK template assertions', () => {
         },
         {
           code: `
+import test from 'node:test';
+import { Annotations, Tags, Template } from 'aws-cdk-lib/assertions';
+
+test('recognizes documented AWS CDK assertion APIs', () => {
+  Template.fromStack({}).resourcePropertiesCountIs('AWS::S3::Bucket', {}, 1);
+  Template.fromJSON({}).hasResource('AWS::S3::Bucket', {});
+  Template.fromJSON({}).allResources('AWS::S3::Bucket', {});
+  Template.fromJSON({}).allResourcesProperties('AWS::S3::Bucket', {});
+  Template.fromJSON({}).hasParameter('parameter', {});
+  Template.fromJSON({}).hasOutput('output', {});
+  Template.fromJSON({}).hasMapping('mapping', {});
+  Template.fromJSON({}).hasCondition('condition', {});
+  Template.fromString('{}').templateMatches({});
+  Annotations.fromStack({}).hasError('*', 'error');
+  Annotations.fromStack({}).hasNoError('*', 'error');
+  Annotations.fromStack({}).hasWarning('*', 'warning');
+  Annotations.fromStack({}).hasNoWarning('*', 'warning');
+  Annotations.fromStack({}).hasInfo('*', 'info');
+  Annotations.fromStack({}).hasNoInfo('*', 'info');
+  Tags.fromStack({}).hasValues({});
+  Tags.fromStack({}).hasNone();
+});
+`,
+        },
+        {
+          code: `
 import { test, expect } from 'bun:test';
 
 test('includes a Bun expectation', () => {
@@ -676,6 +702,32 @@ test('recognizes typed AWS CDK template assertions', () => {
 `,
         },
         {
+          code: `
+import test from 'node:test';
+import { Annotations, Tags, Template } from 'aws-cdk-lib/assertions';
+
+test('recognizes typed AWS CDK assertion APIs', () => {
+  Template.fromStack({}).resourcePropertiesCountIs('AWS::S3::Bucket', {}, 1);
+  Template.fromJSON({}).hasResource('AWS::S3::Bucket', {});
+  Template.fromJSON({}).allResources('AWS::S3::Bucket', {});
+  Template.fromJSON({}).allResourcesProperties('AWS::S3::Bucket', {});
+  Template.fromJSON({}).hasParameter('parameter', {});
+  Template.fromJSON({}).hasOutput('output', {});
+  Template.fromJSON({}).hasMapping('mapping', {});
+  Template.fromJSON({}).hasCondition('condition', {});
+  Template.fromString('{}').templateMatches({});
+  Annotations.fromStack({}).hasError('*', 'error');
+  Annotations.fromStack({}).hasNoError('*', 'error');
+  Annotations.fromStack({}).hasWarning('*', 'warning');
+  Annotations.fromStack({}).hasNoWarning('*', 'warning');
+  Annotations.fromStack({}).hasInfo('*', 'info');
+  Annotations.fromStack({}).hasNoInfo('*', 'info');
+  Tags.fromStack({}).hasValues({});
+  Tags.fromStack({}).hasNone();
+});
+`,
+        },
+        {
           code: `import { Mock } from "vitest";
           const input = Math.sqrt(4)
 describe('no import from test library', () => {
@@ -1095,6 +1147,19 @@ import { Template } from 'aws-cdk-lib/assertions';
 
 test('does not treat Template setup as an assertion', () => {
   Template.fromStack({});
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
+import { Template } from 'aws-cdk-lib/assertions';
+
+test('does not treat AWS CDK template query APIs as assertions', () => {
+  Template.fromJSON({}).findResources('AWS::S3::Bucket');
+  Template.fromString('{}').toJSON();
+  Template.fromStack({}).getResourceId('AWS::S3::Bucket');
 });
 `,
           errors: 1,
