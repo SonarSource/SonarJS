@@ -21,8 +21,30 @@ import ts from 'typescript';
 import { getFullyQualifiedName } from './module.js';
 import { getFullyQualifiedNameTS } from './module-ts.js';
 
-const ASSERTION_METHOD_NAMES = new Set(['hasResourceProperties', 'resourceCountIs']);
-const TEMPLATE_PREFIX = 'aws-cdk-lib.assertions.Template.fromStack.';
+const TEMPLATE_ASSERTION_METHOD_NAMES = new Set([
+  'resourceCountIs',
+  'resourcePropertiesCountIs',
+  'hasResourceProperties',
+  'hasResource',
+  'allResources',
+  'allResourcesProperties',
+  'hasParameter',
+  'hasOutput',
+  'hasMapping',
+  'hasCondition',
+  'templateMatches',
+]);
+
+const ASSERTION_METHODS_BY_FACTORY = new Map<string, ReadonlySet<string>>([
+  ['aws-cdk-lib.assertions.Template.fromStack', TEMPLATE_ASSERTION_METHOD_NAMES],
+  ['aws-cdk-lib.assertions.Template.fromJSON', TEMPLATE_ASSERTION_METHOD_NAMES],
+  ['aws-cdk-lib.assertions.Template.fromString', TEMPLATE_ASSERTION_METHOD_NAMES],
+  [
+    'aws-cdk-lib.assertions.Annotations.fromStack',
+    new Set(['hasError', 'hasNoError', 'hasWarning', 'hasNoWarning', 'hasInfo', 'hasNoInfo']),
+  ],
+  ['aws-cdk-lib.assertions.Tags.fromStack', new Set(['hasValues', 'hasNone'])],
+]);
 
 export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   return node.type === 'CallExpression' && isFQNAssertion(getFullyQualifiedName(context, node));
@@ -37,9 +59,12 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
 
 function isFQNAssertion(fqn: string | null): boolean {
   const normalized = fqn?.replaceAll('/', '.');
-  return (
-    normalized !== undefined &&
-    normalized.startsWith(TEMPLATE_PREFIX) &&
-    ASSERTION_METHOD_NAMES.has(normalized.slice(TEMPLATE_PREFIX.length))
-  );
+  if (normalized === undefined) {
+    return false;
+  }
+
+  const lastDot = normalized.lastIndexOf('.');
+  const factory = normalized.slice(0, lastDot);
+  const method = normalized.slice(lastDot + 1);
+  return ASSERTION_METHODS_BY_FACTORY.get(factory)?.has(method) ?? false;
 }
