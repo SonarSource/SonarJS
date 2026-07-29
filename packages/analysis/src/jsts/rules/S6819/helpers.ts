@@ -189,8 +189,7 @@ function hasDescendantMatchingRole(
 
   // Grows while iterating: every visited position appends its own rendered positions.
   const pending = renderedChildPositions(jsxElement);
-  for (let i = 0; i < pending.length; i++) {
-    const current = pending[i];
+  for (const current of pending) {
     if (current.type === 'JSXElement') {
       const role = getJSXElementRole(current);
       if (role !== null && predicate(role)) {
@@ -279,11 +278,13 @@ function isInvokedFunction(
  * Stated in full rather than relying on the `CallExpression` case to only ever hand over
  * mapping-call arguments, so extending that case cannot silently widen this one.
  */
-function isArgumentOfRenderingCall(node: TSESTree.Node): boolean {
+function isArgumentOfRenderingCall(
+  node: TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression,
+): boolean {
   const parent = node.parent;
   return (
     parent?.type === 'CallExpression' &&
-    parent.arguments.some(argument => argument === node) &&
+    parent.arguments.includes(node) &&
     isRenderingArrayMappingCall(parent)
   );
 }
