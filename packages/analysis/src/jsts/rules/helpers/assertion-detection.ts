@@ -38,6 +38,7 @@ import * as Vitest from './vitest.js';
 import * as Supertest from './supertest.js';
 import * as Cypress from './cypress.js';
 import * as Uvu from './uvu.js';
+import * as AwsCdk from './aws-cdk.js';
 import { getParent } from './ancestor.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
 import { getFullyQualifiedNameTS, importsModuleTS } from './module-ts.js';
@@ -53,6 +54,7 @@ const ASSERTION_LIBRARIES = [
   'bun:test',
   'node:assert',
   'node:assert/strict',
+  'aws-cdk-lib/assertions',
   'uvu/assert',
 ];
 // runners that expose assertion APIs as globals (no import required).
@@ -190,6 +192,7 @@ const SCRIPT_CAPABLE_DETECTORS: AssertionDetector[] = [
   Supertest.isAssertion,
   isFunctionCallFromNodeAssert,
   Uvu.isAssertion,
+  AwsCdk.isAssertion,
 ];
 
 const RUNNER_BOUND_DETECTORS: AssertionDetector[] = [
@@ -268,6 +271,7 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
     Supertest.isTSAssertion(services, node) ||
     Vitest.isTSAssertion(services, node) ||
     Uvu.isTSAssertion(services, node) ||
+    AwsCdk.isTSAssertion(services, node) ||
     Cypress.isTSAssertion(node)
   );
 }
