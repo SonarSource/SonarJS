@@ -46,26 +46,47 @@ Runtime import detection must ignore type-only imports. Type-only coverage curre
 
 Use this table for libraries that were investigated and deliberately not added. This avoids revisiting the same large or unsafe candidates in later passes.
 
-| Library / framework  | Domain              | Reason for exclusion                                                                                                                                                                                                                 | Revisit condition                                                                                                               |
-| -------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| `@react-three/fiber` | Canvas / 3D         | Team decision: the JSX attribute surface is too large and unmanageable for S6747. A previous JS-1793 approach required report-level suppression plus a generated three.js element list, which is too much maintenance for this rule. | Revisit only if the team accepts a larger maintained allowlist/suppression model, or if a small documented prop subset emerges. |
-| `@react-three/drei`  | Canvas / 3D         | Helper component ecosystem built on R3F; skip while the underlying R3F model is excluded.                                                                                                                                            | Revisit only if R3F itself becomes accepted.                                                                                    |
-| `goober`             | Styling / CSS-in-JS | The core package is popular, but its raw JSX `css` prop requires `@agney/babel-plugin-goober-css-prop`, whose package signal is too weak to justify an S6747 exception.                                                              | Revisit only if the CSS prop becomes part of a widely adopted Goober setup or the enabling package becomes popular.             |
-| `@stitches/react`    | Styling / CSS-in-JS | The `css` prop is for Stitches styled components, not a raw intrinsic JSX prop exception.                                                                                                                                            | Revisit only if official docs show `css` is valid on intrinsic JSX elements handled by S6747.                                   |
+| Library / framework                                                                    | Domain              | Reason for exclusion                                                                                                                                                                                                                 | Revisit condition                                                                                                               |
+| -------------------------------------------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| `@react-three/fiber`                                                                   | Canvas / 3D         | Team decision: the JSX attribute surface is too large and unmanageable for S6747. A previous JS-1793 approach required report-level suppression plus a generated three.js element list, which is too much maintenance for this rule. | Revisit only if the team accepts a larger maintained allowlist/suppression model, or if a small documented prop subset emerges. |
+| `@react-three/drei`                                                                    | Canvas / 3D         | Helper component ecosystem built on R3F; skip while the underlying R3F model is excluded.                                                                                                                                            | Revisit only if R3F itself becomes accepted.                                                                                    |
+| `goober`                                                                               | Styling / CSS-in-JS | The core package is popular, but its raw JSX `css` prop requires `@agney/babel-plugin-goober-css-prop`, whose package signal is too weak to justify an S6747 exception.                                                              | Revisit only if the CSS prop becomes part of a widely adopted Goober setup or the enabling package becomes popular.             |
+| `@stitches/react`                                                                      | Styling / CSS-in-JS | The `css` prop is for Stitches styled components, not a raw intrinsic JSX prop exception.                                                                                                                                            | Revisit only if official docs show `css` is valid on intrinsic JSX elements handled by S6747.                                   |
+| `react-konva`                                                                          | Canvas / graphics   | Konva props such as `x`, `y`, `fill`, and `draggable` are documented on imported capitalized React components like `<Stage>`, `<Layer>`, and `<Rect>`, not intrinsic JSX elements reported by S6747.                                 | Revisit only if official docs show lowercase/custom host JSX elements handled by S6747.                                         |
+| `@pixi/react`                                                                          | Canvas / WebGL      | Pixi React v8 uses lowercase custom host elements such as `<pixiContainer>` and `<pixiSprite>`, but the valid prop surface follows Pixi object/class properties and extensions, which is too broad and version-sensitive for S6747.  | Revisit only if a small documented prop subset emerges, or if the team accepts a larger maintained allowlist/suppression model. |
+| `@react-spring/konva`                                                                  | Canvas / animation  | React Spring's Konva target animates react-konva components and wrappers; it does not make a small raw intrinsic JSX prop valid.                                                                                                     | Revisit only if docs show a raw intrinsic or custom host prop affected by S6747.                                                |
+| `react-native-web`                                                                     | Mobile / platform   | React Native Web props are documented on capitalized primitives such as `<View>` and `<Text>`, which the wrapped upstream rule does not treat like DOM intrinsic elements.                                                           | Revisit only with a concrete lowercase/custom-host false-positive report and an observable narrow signal.                       |
+| `@expo/html-elements`                                                                  | Mobile / platform   | The main API is capitalized semantic components. Its Babel plugin can rewrite lowercase DOM/SVG source to native components, but that path is config-bound and no small documented prop subset was identified.                       | Revisit only with a concrete user report plus a narrow, observable activation signal.                                           |
+| `@linaria/react`                                                                       | Styling / CSS-in-JS | Linaria React exposes styled components and class-name generation; official usage applies generated classes through `className`, not a raw JSX `css` prop on intrinsic elements.                                                     | Revisit only if official docs show a supported raw intrinsic JSX prop.                                                          |
+| `@linaria/core` / `@linaria/atomic` / `@linaria/server`                                | Styling / CSS-in-JS | Adjacent Linaria packages expose class extraction, atomic CSS, or server utilities, with no supported raw JSX prop surface for S6747.                                                                                                | Revisit only if an adjacent Linaria package documents a raw intrinsic JSX prop.                                                 |
+| `babel-plugin-css-prop`                                                                | Styling / CSS-in-JS | This old third-party Linaria-adjacent plugin can enable a raw `css` prop only through Babel configuration, and its package signal is too weak to justify an exception.                                                               | Revisit only if the package or setup becomes widely adopted and detectable.                                                     |
+| `@vanilla-extract/css`                                                                 | Styling / CSS-in-JS | Vanilla-extract generates class names that are applied with normal `className`; it is not a JSX prop-first styling system.                                                                                                           | Revisit only if official docs introduce a raw intrinsic JSX prop.                                                               |
+| `@vanilla-extract/sprinkles` / `@vanilla-extract/recipes` / `@vanilla-extract/dynamic` | Styling / CSS-in-JS | Official vanilla-extract utility packages return class names or normal `style` values, not invalid named JSX props needing an S6747 exception.                                                                                       | Revisit only if official docs introduce a raw intrinsic JSX prop.                                                               |
+| `rainbow-sprinkles` / `@dessert-box/react`                                             | Styling / CSS-in-JS | These community vanilla-extract wrappers expose style props through custom components such as `Box`, not raw intrinsic JSX elements.                                                                                                 | Revisit only if they document raw intrinsic JSX props and become important enough to support.                                   |
+| `@mui/material` / `@mui/system`                                                        | UI system           | MUI's `sx` prop is for MUI/System components such as `Box`, not raw DOM elements. Ignoring `sx` across an MUI dependency would suppress legitimate raw DOM issues.                                                                   | Revisit only if official docs show `sx` is valid on intrinsic JSX elements handled by S6747.                                    |
+| `@chakra-ui/react`                                                                     | UI system           | Chakra style props apply to Chakra components and `chakra.*` factory components, not raw intrinsic JSX elements that need a global ignore list.                                                                                      | Revisit only if official docs show a raw intrinsic JSX prop affected by S6747.                                                  |
+| `antd` / `react-bootstrap`                                                             | UI system           | Custom props are documented on imported component APIs, not raw intrinsic JSX elements.                                                                                                                                              | Revisit only with a concrete raw intrinsic false-positive report.                                                               |
+| `recharts` / `react-chartjs-2`                                                         | Charts / dataviz    | Chart props such as `data`, `dataKey`, and `options` are component props on imported chart components.                                                                                                                               | Revisit only with a concrete raw intrinsic or custom host false-positive report.                                                |
+| `framer-motion`                                                                        | Animation           | Motion props such as `animate`, `initial`, and `whileHover` apply to `motion.*` member-expression components; adding them as global ignores would be too broad.                                                                      | Revisit only if a narrow raw intrinsic/custom host signal emerges.                                                              |
+| `@react-spring/web`                                                                    | Animation           | Animated values are passed through `animated.*` wrapper components or normal `style`, not raw invalid JSX props.                                                                                                                     | Revisit only with a concrete raw intrinsic false-positive report.                                                               |
+| `@use-gesture/react`                                                                   | Gesture             | The React package returns spread event bindings from hooks; there is no fixed invalid prop name for S6747 to ignore.                                                                                                                 | Revisit only if a stable documented prop name becomes relevant.                                                                 |
+| `@tiptap/react` / `lexical` / `draft-js`                                               | Rich text / editors | Editor props are on library components and plugin APIs, not raw intrinsic JSX elements.                                                                                                                                              | Revisit only with a concrete raw intrinsic false-positive report.                                                               |
+| `slate`                                                                                | Rich text / editors | Slate render callbacks spread documented attributes such as `data-slate-*`, `dir`, `ref`, and `contentEditable` onto DOM nodes; no unsupported named prop exception was identified.                                                  | Revisit only if a specific invalid named prop is documented and reported.                                                       |
 
 ## Research funnel
 
 1. Pick a domain.
 2. List dominant React libraries in that domain.
-3. Rank by npm weekly downloads first; use GitHub stars and ecosystem visibility as tie-breakers.
-4. Check official docs/examples for custom JSX props.
-5. Classify detection:
+3. Discover candidates before classification; do not limit the pass to the seed examples in the domain map.
+4. Rank by npm weekly downloads first; use GitHub stars and ecosystem visibility as tie-breakers.
+5. Check official docs/examples for custom JSX props.
+6. Classify detection:
    - `dependency`: package presence is enough.
    - `runtime import`: current file must import the API.
    - `config`: pragma, `jsxImportSource`, Babel/SWC plugin, or framework config required.
    - `unsafe`: too broad or not detectable with current S6747 signals.
-6. Recommend one of the allowed decisions from the parallel research workflow.
-7. If the coordinator accepts a candidate, implement it with tests:
+7. Recommend one of the allowed decisions from the parallel research workflow.
+8. If the coordinator accepts a candidate, implement it with tests:
    - valid with signal;
    - invalid without signal;
    - invalid with type-only import when using import detection;
@@ -90,6 +111,8 @@ Suggested subagent split:
 - Canvas, graphics, and custom renderers, excluding R3F unless the team decision changes.
 - Mobile and platform abstractions.
 - Popular libraries likely to be skipped: UI systems, charts, animation, gesture, rich text.
+
+Each subagent must first discover plausible libraries in its domain, then classify the most promising ones. Seed libraries are starting points, not a closed list.
 
 Each subagent must return findings in this format:
 
@@ -121,57 +144,65 @@ Subagents should not implement code. The coordinator implements accepted candida
 | Mobile / responsive      | May introduce platform-like elements or responsive props.                                 | react-native-web, react-responsive, Expo HTML elements     |
 | UI component systems     | Very popular, but props often apply only to library components. High false-negative risk. | MUI, Chakra UI, Ant Design, React Bootstrap                |
 
+## Open candidates for next pass
+
+Use this table for candidates that are not accepted yet but should be investigated before more exclusions are added.
+
+| Library / framework | Domain              | Why it is open                                                                                                                                                                                                                                                       | Next decision question                                                                                                                                                         |
+| ------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `@stylexjs/stylex`  | Styling / CSS-in-JS | StyleX's Babel plugin documents `sxPropName`, defaulting to `sx`, and shows `<div sx={styles.root} />` transforming to `<div {...stylex.props(styles.root)} />`. That makes the shorthand a real raw intrinsic JSX prop candidate, unlike component-only `sx` props. | Decide whether S6747 can safely activate a StyleX `sx` exception from dependency/import signals, or whether the Babel-plugin configuration requirement is too hard to observe. |
+
 ## Initial npm popularity snapshot
 
 Source: `api.npmjs.org/downloads/point/last-week/<package>`, fetched 2026-07-29. Use as triage signal only; refresh before making final decisions.
 
-| Package                         |            Domain | npm last-week downloads | Known/suspected JSX prop surface                          | Status / decision                                                |
-| ------------------------------- | ----------------: | ----------------------: | --------------------------------------------------------- | ---------------------------------------------------------------- |
-| `styled-jsx`                    |           Styling |                   46.5M | `jsx`, `global` on `<style>`                              | already covered, dependency                                      |
-| `@emotion/react`                |           Styling |                   20.0M | `css`                                                     | already covered, dependency/import                               |
-| `styled-components`             |           Styling |                   11.3M | `css`                                                     | covered, dependency/import                                       |
-| `goober`                        |           Styling |                    8.2M | `css` prop requires `@agney/babel-plugin-goober-css-prop` | excluded; see Excluded libraries                                 |
-| `@vanilla-extract/css`          |           Styling |                    2.3M | class extraction, not JSX prop-first                      | probably skip                                                    |
-| `@stitches/react`               |           Styling |                    1.1M | `css` prop on Stitches styled components                  | excluded; see Excluded libraries                                 |
-| `@compiled/react`               |           Styling |                    730k | `css` prop                                                | covered, dependency/import                                       |
-| `@linaria/react`                |           Styling |                    455k | styled components / css helper                            | likely skip unless intrinsic repro exists                        |
-| `theme-ui` / `@theme-ui/core`   |           Styling |               77k / 86k | `sx`                                                      | already covered, dependency/import                               |
-| `twin.macro`                    |           Styling |                     57k | `tw`                                                      | already covered, runtime import                                  |
-| `@react-three/fiber`            |       Canvas / 3D |                    4.6M | custom JSX host elements and 3D props                     | excluded; see Excluded libraries                                 |
-| `@react-three/drei`             |       Canvas / 3D |                    3.5M | R3F helper components                                     | excluded; see Excluded libraries                                 |
-| `react-konva`                   | Canvas / graphics |                    1.7M | canvas element/component props                            | inspect                                                          |
-| `framer-motion`                 |         Animation |                   40.9M | `motion.*` components, not raw DOM props                  | probably skip                                                    |
-| `@react-spring/web`             |         Animation |                    5.4M | animated components/style props                           | probably skip                                                    |
-| `@use-gesture/react`            |           Gesture |                    5.8M | hook returns event bindings                               | probably skip                                                    |
-| `recharts`                      |            Charts |                   54.8M | chart component props                                     | probably skip                                                    |
-| `react-chartjs-2`               |            Charts |                    4.1M | chart component props                                     | probably skip                                                    |
-| `@tiptap/react`                 |         Rich text |                   12.3M | editor components                                         | probably skip                                                    |
-| `lexical`                       |         Rich text |                    4.5M | editor APIs/components                                    | probably skip                                                    |
-| `react-native-web`              |   Mobile/platform |                    4.8M | RN-style props on RN primitives                           | inspect only if S6747 sees them as JSX intrinsic/custom elements |
-| `@mui/material` / `@mui/system` |         UI system |           10.3M / 11.1M | `sx` on MUI/System components                             | likely skip for raw DOM exception                                |
-| `@chakra-ui/react`              |         UI system |                    1.8M | style props on Chakra components                          | likely skip for raw DOM exception                                |
-| `antd`                          |         UI system |                    3.8M | component props                                           | skip                                                             |
-| `react-bootstrap`               |         UI system |                    1.6M | component props                                           | skip                                                             |
+| Package                         |            Domain | npm last-week downloads | Known/suspected JSX prop surface                          | Status / decision                  |
+| ------------------------------- | ----------------: | ----------------------: | --------------------------------------------------------- | ---------------------------------- |
+| `styled-jsx`                    |           Styling |                   46.5M | `jsx`, `global` on `<style>`                              | already covered, dependency        |
+| `@emotion/react`                |           Styling |                   20.0M | `css`                                                     | already covered, dependency/import |
+| `styled-components`             |           Styling |                   11.3M | `css`                                                     | covered, dependency/import         |
+| `goober`                        |           Styling |                    8.2M | `css` prop requires `@agney/babel-plugin-goober-css-prop` | excluded; see Excluded libraries   |
+| `@vanilla-extract/css`          |           Styling |                    2.3M | class extraction, not JSX prop-first                      | excluded; see Excluded libraries   |
+| `@stylexjs/stylex`              |           Styling |                    1.2M | `sx` shorthand on raw JSX through StyleX Babel plugin     | needs coordinator decision         |
+| `@stitches/react`               |           Styling |                    1.1M | `css` prop on Stitches styled components                  | excluded; see Excluded libraries   |
+| `@compiled/react`               |           Styling |                    730k | `css` prop                                                | covered, dependency/import         |
+| `@linaria/react`                |           Styling |                    455k | styled components / css helper                            | excluded; see Excluded libraries   |
+| `theme-ui` / `@theme-ui/core`   |           Styling |               77k / 86k | `sx`                                                      | already covered, dependency/import |
+| `twin.macro`                    |           Styling |                     57k | `tw`                                                      | already covered, runtime import    |
+| `@react-three/fiber`            |       Canvas / 3D |                    4.6M | custom JSX host elements and 3D props                     | excluded; see Excluded libraries   |
+| `@react-three/drei`             |       Canvas / 3D |                    3.5M | R3F helper components                                     | excluded; see Excluded libraries   |
+| `react-konva`                   | Canvas / graphics |                    1.7M | canvas component props                                    | excluded; see Excluded libraries   |
+| `@pixi/react`                   | Canvas / graphics |                     76k | lowercase Pixi host elements with large prop surface      | excluded; see Excluded libraries   |
+| `framer-motion`                 |         Animation |                   40.9M | `motion.*` components, not raw DOM props                  | excluded; see Excluded libraries   |
+| `@react-spring/web`             |         Animation |                    5.4M | animated components/style props                           | excluded; see Excluded libraries   |
+| `@use-gesture/react`            |           Gesture |                    5.8M | hook returns event bindings                               | excluded; see Excluded libraries   |
+| `recharts`                      |            Charts |                   54.8M | chart component props                                     | excluded; see Excluded libraries   |
+| `react-chartjs-2`               |            Charts |                    4.1M | chart component props                                     | excluded; see Excluded libraries   |
+| `@tiptap/react`                 |         Rich text |                   12.3M | editor components                                         | excluded; see Excluded libraries   |
+| `lexical`                       |         Rich text |                    4.5M | editor APIs/components                                    | excluded; see Excluded libraries   |
+| `slate`                         |         Rich text |                    2.8M | editor attributes via spread                              | excluded; see Excluded libraries   |
+| `react-native-web`              |   Mobile/platform |                    4.8M | RN-style props on RN primitives                           | excluded; see Excluded libraries   |
+| `@expo/html-elements`           |   Mobile/platform |                    208k | semantic components; optional lowercase Babel rewrite     | excluded; see Excluded libraries   |
+| `@mui/material` / `@mui/system` |         UI system |           10.3M / 11.1M | `sx` on MUI/System components                             | excluded; see Excluded libraries   |
+| `@chakra-ui/react`              |         UI system |                    1.8M | style props on Chakra components                          | excluded; see Excluded libraries   |
+| `antd`                          |         UI system |                    3.8M | component props                                           | excluded; see Excluded libraries   |
+| `react-bootstrap`               |         UI system |                    1.6M | component props                                           | excluded; see Excluded libraries   |
 
-## Recommended next pass
+## 2026-07-29 parallel pass outcome
 
-Prioritize investigations in this order:
+The recommended parallel pass was completed across canvas/custom renderers, mobile/platform abstractions, styling leftovers, and popular skip candidates. No library from that seeded candidate batch met the threshold for a new simple S6747 prop exception.
 
-1. Canvas / custom renderer space:
-   - `react-konva`
-2. Mobile/platform:
-   - `react-native-web`
-   - `@expo/html-elements`
-3. Styling leftovers:
-   - `@linaria/react`
-   - `@vanilla-extract/css`
-4. Popular skip audit:
-   - UI systems
-   - charts
-   - animation and gesture
-   - rich text editors
+Follow-up sanity check: the pass over-constrained subagents to preselected libraries instead of requiring open-ended discovery per domain. StyleX was then found outside the seed list and added as an open candidate for the restart.
 
-Use the parallel research workflow table as the canonical per-library output format.
+Coordinator decisions:
+
+- `react-konva`, `react-native-web`, UI systems, charts, animation wrappers, and rich text editor packages are component-only or spread-based for S6747's purposes.
+- `@pixi/react` and the earlier R3F family are real custom-renderer overlaps, but their prop surfaces are too large and version-sensitive for the current ignore-list model.
+- `@expo/html-elements` has a possible lowercase-source path through Babel configuration, but the signal is not observable through dependency/import alone and no small documented prop subset was identified.
+- Linaria and vanilla-extract packages are class-name/extraction APIs, not raw JSX prop systems.
+- StyleX needs a focused coordinator decision because its documented `sx` shorthand is raw-intrinsic relevant, but it is Babel-plugin/config driven.
+
+Next work should restart from discovery-first domain prompts, with StyleX as the first styling candidate.
 
 ## Decision thresholds
 
