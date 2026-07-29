@@ -21,41 +21,21 @@ import { describe } from 'node:test';
 
 describe('S6747', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
-  process.chdir(dirname);
+  process.chdir(dirname); // change current working dir to avoid the package.json lookup going up the tree
   const ruleTester = new NoTypeCheckingRuleTester();
-  ruleTester.run('S6747 ignores tw prop when twin.macro is imported', rule, {
+  ruleTester.run('S6747 ignores css prop for legacy Emotion core projects', rule, {
     valid: [
       {
-        // twin.macro processes the tw prop at build time to generate CSS-in-JS styles
-        code: `import 'twin.macro';
-<button tw="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg">Click</button>;`,
-        filename: join(dirname, 'filename.jsx'),
-      },
-      {
-        code: `import tw from 'twin.macro';
-<div tw="flex flex-col shadow-lg rounded-xl p-8 bg-white"><h2 tw="text-2xl font-bold">Title</h2></div>;`,
+        // Emotion core uses the css prop with its JSX pragma/runtime.
+        code: `<div css={{ color: 'red' }}>Hello</div>;`,
         filename: join(dirname, 'filename.jsx'),
       },
     ],
     invalid: [
       {
-        // tw is still flagged in twin.macro projects when the current file does not import its API
-        code: `<div tw="flex items-center">Hello</div>;`,
+        // Other unknown props are still flagged in Emotion core projects.
+        code: `<div invalidProp={{ color: 'red' }}>Hello</div>;`,
         filename: join(dirname, 'filename.jsx'),
-        errors: 1,
-      },
-      {
-        // Other unknown props are still flagged in twin.macro projects
-        code: `import 'twin.macro';
-<div class="foo">Hello</div>;`,
-        filename: join(dirname, 'filename.jsx'),
-        errors: 1,
-      },
-      {
-        // A type-only specifier brings nothing into the runtime, so the tw prop is not processed
-        code: `import { type TwStyle } from 'twin.macro';
-<div tw="flex items-center">Hello</div>;`,
-        filename: join(dirname, 'filename.tsx'),
         errors: 1,
       },
     ],
