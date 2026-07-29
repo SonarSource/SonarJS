@@ -33,6 +33,18 @@ describe('S2699', () => {
       valid: [
         {
           code: `
+import test from 'node:test';
+import { Template } from 'aws-cdk-lib/assertions';
+
+test('recognizes AWS CDK template assertions', () => {
+  const template = Template.fromStack({});
+  template.hasResourceProperties('AWS::S3::Bucket', {});
+  template.resourceCountIs('AWS::S3::Bucket', 1);
+});
+`,
+        },
+        {
+          code: `
 import { test, expect } from 'bun:test';
 
 test('includes a Bun expectation', () => {
@@ -652,6 +664,18 @@ describe('async tests with RxJS finalize', () => {
     typedRuleTester.run('Test cases must have assertions', rule, {
       valid: [
         {
+          code: `
+import test from 'node:test';
+import { Template } from 'aws-cdk-lib/assertions';
+
+test('recognizes typed AWS CDK template assertions', () => {
+  const template = Template.fromStack({});
+  template.hasResourceProperties('AWS::S3::Bucket', {});
+  template.resourceCountIs('AWS::S3::Bucket', 1);
+});
+`,
+        },
+        {
           code: `import { Mock } from "vitest";
           const input = Math.sqrt(4)
 describe('no import from test library', () => {
@@ -1064,6 +1088,17 @@ test('member-based playwright expect entrypoints', async ({ page }) => {
         },
       ],
       invalid: [
+        {
+          code: `
+import test from 'node:test';
+import { Template } from 'aws-cdk-lib/assertions';
+
+test('does not treat Template setup as an assertion', () => {
+  Template.fromStack({});
+});
+`,
+          errors: 1,
+        },
         {
           code: `
 import test from 'node:test';
