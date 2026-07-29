@@ -38,7 +38,7 @@ const TAILWIND_JSX_MODULES = ['next/og', '@vercel/og', 'satori', 'twin.macro'] a
  *   manifest alone is enough (`jsx`, `global` for styled-jsx).
  * - project dependency or import in the current file: the props are valid project-wide, but the
  *   import is also honoured so that the exception still applies when no manifest could be
- *   resolved (`css` for Emotion and styled-components, `sx` for Theme UI).
+ *   resolved (`css` for Emotion and styled-components, `sx` for Theme UI and StyleX).
  * - import in the current file only: file-specific APIs such as ImageResponse or twin.macro,
  *   whose props must not be ignored in files that do not use them (`tw`).
  */
@@ -57,7 +57,8 @@ const FALSE_POSITIVE_ESCAPES: readonly FalsePositiveEscape[] = [
     ignoredProps: ['css'],
   },
   {
-    isActive: signals => hasDependencyOrRuntimeImport(signals, ['theme-ui', '@theme-ui/core']),
+    isActive: signals =>
+      hasDependencyOrRuntimeImport(signals, ['theme-ui', '@theme-ui/core', '@stylexjs/stylex']),
     ignoredProps: ['sx'],
   },
   {

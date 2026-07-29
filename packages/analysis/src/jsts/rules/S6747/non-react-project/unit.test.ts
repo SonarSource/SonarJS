@@ -53,6 +53,11 @@ describe('S6747', () => {
 <div sx={{ color: "primary" }}></div>;`,
           filename: join(dirname, 'filename.tsx'),
         },
+        {
+          code: `import * as stylex from '@stylexjs/stylex';
+<div sx={styles.root}></div>;`,
+          filename: join(dirname, 'filename.jsx'),
+        },
       ],
       invalid: [
         {
@@ -79,6 +84,12 @@ describe('S6747', () => {
         {
           code: `import { type Theme } from 'theme-ui';
 <div sx={{ color: "primary" }}></div>;`,
+          filename: join(dirname, 'filename.tsx'),
+          errors: 1,
+        },
+        {
+          code: `import type * as stylex from '@stylexjs/stylex';
+<div sx={styles.root}></div>;`,
           filename: join(dirname, 'filename.tsx'),
           errors: 1,
         },

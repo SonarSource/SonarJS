@@ -29,6 +29,7 @@ The rule currently builds a list of props to ignore for the wrapped `react/no-un
 | `styled-components` | CSS-in-JS library that can consume a JSX `css` prop for inline component styling.    | `css`           | dependency or runtime import | `styled-components-project/unit.test.ts`, `non-react-project/unit.test.ts` |
 | `theme-ui`          | Theme-aware styling library that exposes the `sx` prop.                              | `sx`            | dependency or runtime import | `theme-ui-project/unit.test.ts`, `non-react-project/unit.test.ts`          |
 | `@theme-ui/core`    | Core Theme UI package that also exposes the `sx` prop.                               | `sx`            | dependency or runtime import | `theme-ui-core-project/unit.test.ts`, `non-react-project/unit.test.ts`     |
+| `@stylexjs/stylex`  | Meta's compile-time styling library whose Babel plugin can transform an `sx` prop.   | `sx`            | dependency or runtime import | `stylex-project/unit.test.ts`, `non-react-project/unit.test.ts`            |
 | `next/og`           | Next.js Open Graph image API using Satori-style JSX rendering.                       | `tw`            | runtime import only          | `next-og-project/unit.test.ts`                                             |
 | `@vercel/og`        | Vercel Open Graph image API using Satori-style JSX rendering.                        | `tw`            | runtime import only          | `vercel-og-project/unit.test.ts`                                           |
 | `satori`            | JSX-to-image renderer that accepts Tailwind-style `tw` styling props.                | `tw`            | runtime import only          | `satori-project/unit.test.ts`                                              |
@@ -148,9 +149,7 @@ Subagents should not implement code. The coordinator implements accepted candida
 
 Use this table for candidates that are not accepted yet but should be investigated before more exclusions are added.
 
-| Library / framework | Domain              | Why it is open                                                                                                                                                                                                                                                       | Next decision question                                                                                                                                                         |
-| ------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `@stylexjs/stylex`  | Styling / CSS-in-JS | StyleX's Babel plugin documents `sxPropName`, defaulting to `sx`, and shows `<div sx={styles.root} />` transforming to `<div {...stylex.props(styles.root)} />`. That makes the shorthand a real raw intrinsic JSX prop candidate, unlike component-only `sx` props. | Decide whether S6747 can safely activate a StyleX `sx` exception from dependency/import signals, or whether the Babel-plugin configuration requirement is too hard to observe. |
+No open candidates currently.
 
 ## Initial npm popularity snapshot
 
@@ -163,7 +162,7 @@ Source: `api.npmjs.org/downloads/point/last-week/<package>`, fetched 2026-07-29.
 | `styled-components`             |           Styling |                   11.3M | `css`                                                     | covered, dependency/import         |
 | `goober`                        |           Styling |                    8.2M | `css` prop requires `@agney/babel-plugin-goober-css-prop` | excluded; see Excluded libraries   |
 | `@vanilla-extract/css`          |           Styling |                    2.3M | class extraction, not JSX prop-first                      | excluded; see Excluded libraries   |
-| `@stylexjs/stylex`              |           Styling |                    1.2M | `sx` shorthand on raw JSX through StyleX Babel plugin     | needs coordinator decision         |
+| `@stylexjs/stylex`              |           Styling |                    1.2M | `sx` shorthand on raw JSX through StyleX Babel plugin     | covered, dependency/import         |
 | `@stitches/react`               |           Styling |                    1.1M | `css` prop on Stitches styled components                  | excluded; see Excluded libraries   |
 | `@compiled/react`               |           Styling |                    730k | `css` prop                                                | covered, dependency/import         |
 | `@linaria/react`                |           Styling |                    455k | styled components / css helper                            | excluded; see Excluded libraries   |
@@ -200,9 +199,9 @@ Coordinator decisions:
 - `@pixi/react` and the earlier R3F family are real custom-renderer overlaps, but their prop surfaces are too large and version-sensitive for the current ignore-list model.
 - `@expo/html-elements` has a possible lowercase-source path through Babel configuration, but the signal is not observable through dependency/import alone and no small documented prop subset was identified.
 - Linaria and vanilla-extract packages are class-name/extraction APIs, not raw JSX prop systems.
-- StyleX needs a focused coordinator decision because its documented `sx` shorthand is raw-intrinsic relevant, but it is Babel-plugin/config driven.
+- StyleX's documented `sx` shorthand is raw-intrinsic relevant and is covered with the same dependency/import activation model as the existing Theme UI `sx` exception.
 
-Next work should restart from discovery-first domain prompts, with StyleX as the first styling candidate.
+Next discovery work should restart from discovery-first domain prompts.
 
 ## Decision thresholds
 
