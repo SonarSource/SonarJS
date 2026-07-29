@@ -44,6 +44,8 @@ export const rule: Rule.RuleModule = {
     messages: {
       recreatedPerRender:
         'This {{kind}} function is recreated on every render, which resets its timer and defeats {{purpose}}. Move it outside the component or wrap it in useMemo.',
+      recreatedInClassRender:
+        'This {{kind}} function is recreated on every render, which resets its timer and defeats {{purpose}}. Initialize it in the constructor or as an instance property.',
     },
   }),
   create(context: Rule.RuleContext) {
@@ -65,7 +67,12 @@ export const rule: Rule.RuleModule = {
         }
 
         const enclosingFunction = findFirstEnclosingFunction(call);
-        if (enclosingFunction === undefined || !isRenderFunction(enclosingFunction)) {
+        if (enclosingFunction === undefined) {
+          return;
+        }
+
+        const componentType = getComponentType(enclosingFunction);
+        if (componentType === undefined) {
           return;
         }
 
@@ -75,7 +82,7 @@ export const rule: Rule.RuleModule = {
 
         context.report({
           node: getReportNode(call.callee),
-          messageId: 'recreatedPerRender',
+          messageId: componentType === 'function' ? 'recreatedPerRender' : 'recreatedInClassRender',
           data: {
             kind: methodName === 'debounce' ? 'debounced' : 'throttled',
             purpose: methodName === 'debounce' ? 'debouncing' : 'throttling',
@@ -162,8 +169,11 @@ function findFirstEnclosingFunction(node: estree.Node): estree.Node | undefined 
   ) as estree.Node | undefined;
 }
 
-function isRenderFunction(functionNode: estree.Node): boolean {
-  return isFunctionComponent(functionNode) || isClassComponentRenderMethod(functionNode);
+function getComponentType(functionNode: estree.Node): 'function' | 'class' | undefined {
+  if (isFunctionComponent(functionNode)) {
+    return 'function';
+  }
+  return isClassComponentRenderMethod(functionNode) ? 'class' : undefined;
 }
 
 function isFunctionComponent(functionNode: estree.Node): boolean {

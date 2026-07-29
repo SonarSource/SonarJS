@@ -26,7 +26,7 @@ const ForwardedSearch = React.forwardRef((props, ref) => {
 
 class ClassSearch extends React.Component {
   render() {
-    const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or wrap it in useMemo.}}
+    const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Initialize it in the constructor or as an instance property.}}
 //                   ^^^^^^^^
     return <input onChange={onChange} />;
   }
@@ -34,7 +34,7 @@ class ClassSearch extends React.Component {
 
 class ArrowClassSearch extends React.Component {
   render = () => {
-    const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or wrap it in useMemo.}}
+    const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Initialize it in the constructor or as an instance property.}}
 //                   ^^^^^^^^
     return <input onChange={onChange} />;
   };
