@@ -29,6 +29,14 @@ describe('cypress assertions', () => {
     cy.get('button').click();
   });
 
+  it('does not treat cy.contains() as an assertion', () => { // Noncompliant {{Add at least one assertion to this test case.}}
+    cy.contains('Saved');
+  });
+
+  it('does not treat cy.contains().click() as an assertion', () => { // Noncompliant {{Add at least one assertion to this test case.}}
+    cy.contains('Saved').click();
+  });
+
   it('should recognize issue', () => { // Noncompliant {{Add at least one assertion to this test case.}}
     cy.visit('/');
   });

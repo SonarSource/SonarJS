@@ -37,6 +37,7 @@ import * as Sinon from './sinon.js';
 import * as Vitest from './vitest.js';
 import * as Supertest from './supertest.js';
 import * as Cypress from './cypress.js';
+import * as Uvu from './uvu.js';
 import { getParent } from './ancestor.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
 import { getFullyQualifiedNameTS, importsModuleTS } from './module-ts.js';
@@ -52,6 +53,7 @@ const ASSERTION_LIBRARIES = [
   'bun:test',
   'node:assert',
   'node:assert/strict',
+  'uvu/assert',
 ];
 // runners that expose assertion APIs as globals (no import required).
 const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', '@playwright/test'];
@@ -68,6 +70,7 @@ const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
   'node:test',
   'sinon',
   'supertest',
+  'uvu',
   'vitest',
 ];
 
@@ -84,6 +87,7 @@ const SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES = [
   'mocha',
   'sinon',
   'supertest',
+  'uvu',
   'vitest',
 ];
 
@@ -170,7 +174,7 @@ type AssertionDetector = (context: Rule.RuleContext, node: estree.Node) => boole
  * the script-capable ones. A new library is one classified entry here, so the two
  * predicates can never drift apart.
  *
- * Script-capable — node `assert`, chai, sinon, supertest — are ordinary libraries
+ * Script-capable — node `assert`, chai, sinon, supertest, uvu — are ordinary libraries
  * usable in a plain `node file.js`. Runner-bound — vitest, cypress, global
  * `expect*(...)` chains — only exist because a runner executes the file.
  *
@@ -185,6 +189,7 @@ const SCRIPT_CAPABLE_DETECTORS: AssertionDetector[] = [
   Sinon.isAssertion,
   Supertest.isAssertion,
   isFunctionCallFromNodeAssert,
+  Uvu.isAssertion,
 ];
 
 const RUNNER_BOUND_DETECTORS: AssertionDetector[] = [
@@ -209,7 +214,7 @@ export function isAssertion(context: Rule.RuleContext, node: estree.Node): boole
 
 /**
  * Whether `node` is an assertion from a library that runs in a plain script with
- * no test runner (node `assert`, chai, sinon, supertest). The complement among
+ * no test runner (node `assert`, chai, sinon, supertest, uvu). The complement among
  * assertions — vitest, cypress, global `expect` — is "runner-bound". Callers
  * deciding "is this runner-bound?" should test
  * `isAssertion(...) && !isScriptCapableAssertion(...)`.
@@ -262,6 +267,7 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
     Sinon.isTSAssertion(services, node) ||
     Supertest.isTSAssertion(services, node) ||
     Vitest.isTSAssertion(services, node) ||
+    Uvu.isTSAssertion(services, node) ||
     Cypress.isTSAssertion(node)
   );
 }
