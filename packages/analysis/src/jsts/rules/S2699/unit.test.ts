@@ -703,6 +703,21 @@ test('recognizes typed AWS CDK template assertions', () => {
         },
         {
           code: `
+import test, { beforeEach } from 'node:test';
+import { Template } from 'aws-cdk-lib/assertions';
+
+let template: Template;
+beforeEach(() => {
+  template = Template.fromStack({});
+});
+
+test('recognizes setup-initialized AWS CDK assertions', () => {
+  template.hasResourceProperties('AWS::S3::Bucket', {});
+});
+`,
+        },
+        {
+          code: `
 import test from 'node:test';
 import { Annotations, Tags, Template } from 'aws-cdk-lib/assertions';
 

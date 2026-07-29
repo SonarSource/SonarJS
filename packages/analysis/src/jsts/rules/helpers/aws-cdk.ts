@@ -50,11 +50,24 @@ export function isAssertion(context: Rule.RuleContext, node: estree.Node): boole
   return node.type === 'CallExpression' && isFQNAssertion(getFullyQualifiedName(context, node));
 }
 
-export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node): boolean {
-  return (
-    node.kind === ts.SyntaxKind.CallExpression &&
-    isFQNAssertion(getFullyQualifiedNameTS(services, node))
-  );
+export function isTSAssertion(
+  services: ParserServicesWithTypeInformation,
+  node: ts.Node,
+  context?: Rule.RuleContext,
+): boolean {
+  if (node.kind !== ts.SyntaxKind.CallExpression) {
+    return false;
+  }
+  if (isFQNAssertion(getFullyQualifiedNameTS(services, node))) {
+    return true;
+  }
+  if (context === undefined) {
+    return false;
+  }
+  // The type-aware resolver only follows declaration initializers. Reuse the ESTree resolver to
+  // follow a unique later assignment, such as an assertion object initialized in `beforeEach`.
+  const estreeNode = services.tsNodeToESTreeNodeMap.get(node);
+  return estreeNode !== undefined && isAssertion(context, estreeNode as estree.Node);
 }
 
 function isFQNAssertion(fqn: string | null): boolean {

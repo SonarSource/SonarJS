@@ -229,7 +229,7 @@ class TestCaseAssertionVisitor {
       return visitedTSNodes.get(node)!;
     }
     visitedTSNodes.set(node, false);
-    if (isTSAssertion(services, node)) {
+    if (isTSAssertion(services, node, this.context)) {
       visitedTSNodes.set(node, true);
       return true;
     }
