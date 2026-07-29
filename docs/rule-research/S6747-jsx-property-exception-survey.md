@@ -115,6 +115,14 @@ Suggested subagent split:
 
 Each subagent must first discover plausible libraries in its domain, then classify the most promising ones. Seed libraries are starting points, not a closed list.
 
+Candidate discovery should explicitly check for:
+
+- compile-time styling systems and CSS-in-JS compilers;
+- Babel, SWC, or bundler plugins that introduce JSX props;
+- `jsxImportSource`, pragma, or custom JSX runtime APIs;
+- renderer libraries with lowercase custom host tags;
+- adjacent packages and ecosystem successors to already covered or excluded libraries.
+
 Each subagent must return findings in this format:
 
 | Library | Domain | Purpose / owner | Popularity signal | JSX prop behavior | Intrinsic/custom host element? | Detection signal | Decision | Notes |
