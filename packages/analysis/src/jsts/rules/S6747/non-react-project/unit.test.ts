@@ -34,6 +34,11 @@ describe('S6747', () => {
           filename: join(dirname, 'filename.jsx'),
         },
         {
+          code: `import { css } from '@compiled/react';
+<div css={css({ color: "red" })}></div>;`,
+          filename: join(dirname, 'filename.jsx'),
+        },
+        {
           code: `import { ThemeUIProvider } from 'theme-ui';
 <div sx={{ color: "primary" }}></div>;`,
           filename: join(dirname, 'filename.jsx'),
@@ -79,6 +84,12 @@ describe('S6747', () => {
         },
         {
           code: `import type styled from 'styled-components';
+<div css={{ color: "red" }}></div>;`,
+          filename: join(dirname, 'filename.tsx'),
+          errors: 1,
+        },
+        {
+          code: `import type { CSSObject } from '@compiled/react';
 <div css={{ color: "red" }}></div>;`,
           filename: join(dirname, 'filename.tsx'),
           errors: 1,

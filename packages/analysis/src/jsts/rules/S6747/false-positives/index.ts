@@ -49,7 +49,11 @@ const FALSE_POSITIVE_ESCAPES: readonly FalsePositiveEscape[] = [
   },
   {
     isActive: signals =>
-      hasDependencyOrRuntimeImport(signals, ['@emotion/react', 'styled-components']),
+      hasDependencyOrRuntimeImport(signals, [
+        '@compiled/react',
+        '@emotion/react',
+        'styled-components',
+      ]),
     ignoredProps: ['css'],
   },
   {
