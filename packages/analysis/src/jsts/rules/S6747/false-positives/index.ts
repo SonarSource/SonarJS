@@ -51,6 +51,7 @@ const FALSE_POSITIVE_ESCAPES: readonly FalsePositiveEscape[] = [
     isActive: signals =>
       hasDependencyOrRuntimeImport(signals, [
         '@compiled/react',
+        '@emotion/core',
         '@emotion/react',
         'styled-components',
       ]),
