@@ -19,11 +19,18 @@
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type estree from 'estree';
-import { findFirstMatchingLocalAncestor } from '../helpers/ancestor.js';
+import {
+  findFirstMatchingAncestor,
+  findFirstMatchingLocalAncestor,
+  getNodeParent,
+} from '../helpers/ancestor.js';
 import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName, isRequire } from '../helpers/module.js';
-import { getComponentIdentifier } from '../helpers/react/component-analysis.js';
+import {
+  getComponentIdentifier,
+  isReactClassComponent,
+} from '../helpers/react/component-analysis.js';
 import * as meta from './generated-meta.js';
 
 const supportedModules = new Set(['lodash', 'lodash-es', 'underscore']);
@@ -58,7 +65,7 @@ export const rule: Rule.RuleModule = {
         }
 
         const enclosingFunction = findFirstEnclosingFunction(call);
-        if (enclosingFunction === undefined || !isFunctionComponent(enclosingFunction)) {
+        if (enclosingFunction === undefined || !isRenderFunction(enclosingFunction)) {
           return;
         }
 
@@ -155,9 +162,36 @@ function findFirstEnclosingFunction(node: estree.Node): estree.Node | undefined 
   ) as estree.Node | undefined;
 }
 
+function isRenderFunction(functionNode: estree.Node): boolean {
+  return isFunctionComponent(functionNode) || isClassComponentRenderMethod(functionNode);
+}
+
 function isFunctionComponent(functionNode: estree.Node): boolean {
   const identifier = getComponentIdentifier(functionNode);
   return identifier !== undefined && componentNamePattern.test(identifier.name);
+}
+
+function isClassComponentRenderMethod(functionNode: estree.Node): boolean {
+  const methodDefinition = getNodeParent(functionNode);
+  if (!isRenderMethod(methodDefinition)) {
+    return false;
+  }
+
+  const enclosingClass = findFirstMatchingAncestor(
+    methodDefinition as TSESTree.Node,
+    ancestor => ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression',
+  );
+  return enclosingClass !== undefined && isReactClassComponent(enclosingClass as estree.Node);
+}
+
+function isRenderMethod(node: estree.Node): boolean {
+  return (
+    node.type === 'MethodDefinition' &&
+    !node.computed &&
+    !node.static &&
+    node.kind === 'method' &&
+    isIdentifier(node.key, 'render')
+  );
 }
 
 const memoHooks = new Set(['useMemo', 'useCallback']);
