@@ -21,128 +21,83 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier, isNumberLiteral } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
-
-const assertionFunctions = [
-  'a',
-  'an',
-  'include',
-  'includes',
-  'contain',
-  'contains',
-  'equal',
-  'equals',
-  'eq',
-  'eql',
-  'eqls',
-  'above',
-  'gt',
-  'greaterThan',
-  'least',
-  'gte',
-  'below',
-  'lt',
-  'lessThan',
-  'most',
-  'lte',
-  'within',
-  'instanceof',
-  'instanceOf',
-  'property',
-  'ownPropertyDescriptor',
-  'haveOwnPropertyDescriptor',
-  'lengthOf',
-  'length',
-  'match',
-  'matches',
-  'string',
-  'key',
-  'keys',
-  'throw',
-  'throws',
-  'Throw',
-  'respondTo',
-  'respondsTo',
-  'satisfy',
-  'satisfies',
-  'closeTo',
-  'approximately',
-  'members',
-  'oneOf',
-  'change',
-  'changes',
-  'increase',
-  'increases',
-  'decrease',
-  'decreases',
-  'by',
-  'fail',
-];
-
-const gettersOrModifiers = [
-  'to',
-  'be',
-  'been',
-  'is',
-  'that',
-  'which',
-  'and',
-  'has',
-  'have',
-  'with',
-  'at',
-  'of',
-  'same',
-  'but',
-  'does',
-  'still',
-
-  // Modifier functions
-  'not',
-  'deep',
-  'nested',
-  'own',
-  'ordered',
-  'any',
-  'all',
-  'itself',
-
-  'should',
-];
+import {
+  assertionFunctions,
+  expectStaticMethods,
+  gettersOrModifiers,
+} from './matchers.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
     return {
       ExpressionStatement(node: estree.Node) {
-        const exprStatement = node as estree.ExpressionStatement;
-        if (exprStatement.expression.type === 'MemberExpression') {
-          const { property } = exprStatement.expression;
-          if (isTestAssertion(exprStatement.expression)) {
-            if (isIdentifier(property, ...assertionFunctions)) {
-              context.report({
-                node: property,
-                message: `Call this '${property.name}' assertion.`,
-              });
-            }
-            if (isIdentifier(property, ...gettersOrModifiers)) {
-              context.report({
-                node: property,
-                message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
-              });
-            }
-          }
-        }
-        if (isExpectCall(exprStatement.expression)) {
-          const { callee } = exprStatement.expression;
-          context.report({
-            node: callee,
-            message: `Complete this assertion; '${callee.name}' doesn't assert anything by itself.`,
-          });
-        }
+        const expr = unwrapAwait((node as estree.ExpressionStatement).expression);
+        reportIncompleteMemberAssertion(context, expr);
+        reportIncompleteExpectCall(context, expr);
       },
     };
   },
 };
+
+function unwrapAwait(expr: estree.Expression): estree.Expression {
+  return expr.type === 'AwaitExpression' ? expr.argument : expr;
+}
+
+function reportIncompleteMemberAssertion(context: Rule.RuleContext, expr: estree.Expression) {
+  if (expr.type !== 'MemberExpression') {
+    return;
+  }
+  const { property } = expr;
+  if (isExpectStaticMethod(expr) && isIdentifier(property)) {
+    context.report({
+      node: property,
+      message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
+    });
+    return;
+  }
+  if (!isTestAssertion(expr)) {
+    return;
+  }
+  if (
+    isIdentifier(property, ...assertionFunctions) &&
+    !(isIdentifier(property, 'rejects') && isExpectAssertion(expr.object))
+  ) {
+    context.report({
+      node: property,
+      message: `Call this '${property.name}' assertion.`,
+    });
+  } else if (isIdentifier(property, ...gettersOrModifiers)) {
+    context.report({
+      node: property,
+      message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
+    });
+  }
+}
+
+function reportIncompleteExpectCall(context: Rule.RuleContext, expr: estree.Expression) {
+  if (isExpectCall(expr)) {
+    context.report({
+      node: expr.callee,
+      message: `Complete this assertion; '${expr.callee.name}' doesn't assert anything by itself.`,
+    });
+    return;
+  }
+  if (
+    expr.type !== 'CallExpression' ||
+    expr.callee.type !== 'MemberExpression' ||
+    !isExpectStaticMethod(expr.callee)
+  ) {
+    return;
+  }
+  const { property } = expr.callee;
+  if (isIdentifier(property)) {
+    context.report({
+      node: property,
+      message: `Complete this assertion; '${property.name}' doesn't assert anything by itself.`,
+    });
+  }
+}
 
 function isTestAssertion(node: estree.MemberExpression): boolean {
   const { object, property } = node;
@@ -152,10 +107,35 @@ function isTestAssertion(node: estree.MemberExpression): boolean {
   }
   if (isExpectCall(object) || isIdentifier(object, 'assert', 'expect', 'should')) {
     return true;
-  } else if (object.type === 'MemberExpression') {
+  }
+  if (object.type === 'MemberExpression') {
     return isTestAssertion(object);
-  } else if (object.type === 'CallExpression' && object.callee.type === 'MemberExpression') {
-    return isTestAssertion(object.callee);
+  }
+  if (object.type === 'CallExpression') {
+    if (isExpectStaticMethod(object.callee)) {
+      return true;
+    }
+    if (object.callee.type === 'MemberExpression') {
+      return isTestAssertion(object.callee);
+    }
+  }
+  return false;
+}
+
+function isExpectAssertion(node: estree.Node): boolean {
+  if (isExpectCall(node) || isIdentifier(node, 'expect')) {
+    return true;
+  }
+  if (node.type === 'MemberExpression') {
+    return isExpectAssertion(node.object);
+  }
+  if (node.type === 'CallExpression') {
+    if (isExpectStaticMethod(node.callee)) {
+      return true;
+    }
+    if (node.callee.type === 'MemberExpression') {
+      return isExpectAssertion(node.callee.object);
+    }
   }
   return false;
 }
@@ -168,4 +148,20 @@ function isExpectCall(
     isIdentifier(node.callee, 'expect') &&
     !isNumberLiteral(node.arguments[0])
   );
+}
+
+/**
+ * Playwright (and Vitest) expose `soft` / `poll` as static methods on `expect`:
+ * `expect.soft(locator)`, `expect.poll(fn)`, `expect.soft.poll(fn)`.
+ * @see https://playwright.dev/docs/test-assertions
+ */
+function isExpectStaticMethod(node: estree.Node): boolean {
+  if (node.type !== 'MemberExpression' || !isIdentifier(node.property, ...expectStaticMethods)) {
+    return false;
+  }
+  if (isIdentifier(node.object, 'expect')) {
+    return true;
+  }
+  // Nested forms such as `expect.soft.poll`
+  return isExpectStaticMethod(node.object);
 }
