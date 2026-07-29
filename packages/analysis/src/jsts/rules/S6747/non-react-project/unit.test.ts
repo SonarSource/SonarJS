@@ -19,7 +19,7 @@ import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
-describe('S6947', () => {
+describe('S6747', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname); // change current working dir to avoid the package.json lookup to up in the tree
   const ruleTester = new NoTypeCheckingRuleTester();
