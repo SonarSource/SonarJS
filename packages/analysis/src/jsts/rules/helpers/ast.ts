@@ -99,7 +99,7 @@ export function isTypeOnlyImport(node: estree.ImportDeclaration): boolean {
 /**
  * Whether a single specifier is type-only, as in `import { type A } from 'module'`.
  */
-export function isTypeOnlyImportSpecifier(specifier: TSESTree.ImportClause): boolean {
+function isTypeOnlyImportSpecifier(specifier: TSESTree.ImportClause): boolean {
   return specifier.type === 'ImportSpecifier' && specifier.importKind === 'type';
 }
 
