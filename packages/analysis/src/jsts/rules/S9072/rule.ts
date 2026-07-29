@@ -24,7 +24,6 @@ import {
   isFunctionNode,
   isIdentifier,
   isTypeOnlyImport,
-  isTypeOnlyImportSpecifier,
 } from '../helpers/ast.js';
 import { collectCallChain, unwrapChainExpression } from '../helpers/expect-call-chain.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -219,8 +218,8 @@ function isRuntimeBinding(context: Rule.RuleContext, node: estree.Node): boolean
   const importDefinition = variable?.defs.find(def => def.type === 'ImportBinding');
   if (importDefinition?.type === 'ImportBinding') {
     const declaration = importDefinition.parent;
-    const specifier = importDefinition.node as estree.ImportDeclaration['specifiers'][number];
-    return !isTypeOnlyImport(declaration) && !isTypeOnlyImportSpecifier(specifier);
+    const specifier = importDefinition.node as estree.ImportSpecifier & { importKind?: string };
+    return !isTypeOnlyImport(declaration) && specifier.importKind !== 'type';
   }
 
   return variable?.defs.some(def => def.type === 'Variable') ?? false;
