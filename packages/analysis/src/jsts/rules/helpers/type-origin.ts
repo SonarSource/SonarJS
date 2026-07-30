@@ -35,10 +35,13 @@ export type TypeOrigin = {
  * Classification rules per top-level member:
  * - Keyword / literal types -> internal (the user wrote them directly).
  * - TSTypeReference -> resolves the type name to a symbol and inspects its
- *   declarations. A reference is external only when ALL declarations live in
- *   files that satisfy `isSourceFileFromExternalLibrary` or
- *   `isSourceFileDefaultLibrary`. Any local declaration (declaration-merging
- *   escape hatch) makes the reference internal.
+ *   declarations.
+ * - TSIndexedAccessType with a literal property name -> resolves the accessed
+ *   property symbol and inspects its declarations.
+ *   Both forms are external only when ALL declarations live in files that
+ *   satisfy `isSourceFileFromExternalLibrary` or `isSourceFileDefaultLibrary`.
+ *   Any local declaration (declaration-merging escape hatch) makes the member
+ *   internal.
  * - Any other composite constructor (TSIntersectionType, TSArrayType,
  *   TSTypeLiteral, TSConditionalType, ...) -> internal at the top level. We
  *   do not recurse; callers can if they need to.
@@ -64,12 +67,16 @@ export function classifyTypesByOrigin(
 }
 
 function isExternalMember(member: TSESTree.TypeNode, services: RequiredParserServices): boolean {
-  if (member.type !== 'TSTypeReference') {
+  const checker = services.program.getTypeChecker();
+  const tsNode = services.esTreeNodeToTSNodeMap.get(member);
+  let symbol: ts.Symbol | undefined;
+  if (member.type === 'TSTypeReference' && ts.isTypeReferenceNode(tsNode)) {
+    symbol = checker.getSymbolAtLocation(tsNode.typeName);
+  } else if (member.type === 'TSIndexedAccessType' && ts.isIndexedAccessTypeNode(tsNode)) {
+    symbol = getIndexedPropertySymbol(tsNode, checker);
+  } else {
     return false;
   }
-  const checker = services.program.getTypeChecker();
-  const tsNode = services.esTreeNodeToTSNodeMap.get(member) as ts.TypeReferenceNode;
-  let symbol = checker.getSymbolAtLocation(tsNode.typeName);
   // Imported names resolve to a local alias symbol pointing at the import
   // statement; without following the alias, external imports would look local.
   if (symbol && symbol.flags & ts.SymbolFlags.Alias) {
@@ -86,4 +93,19 @@ function isExternalMember(member: TSESTree.TypeNode, services: RequiredParserSer
       program.isSourceFileDefaultLibrary(sourceFile)
     );
   });
+}
+
+function getIndexedPropertySymbol(
+  node: ts.IndexedAccessTypeNode,
+  checker: ts.TypeChecker,
+): ts.Symbol | undefined {
+  if (!ts.isLiteralTypeNode(node.indexType)) {
+    return undefined;
+  }
+  const { literal } = node.indexType;
+  if (!ts.isStringLiteral(literal) && !ts.isNumericLiteral(literal)) {
+    return undefined;
+  }
+  const objectType = checker.getTypeAtLocation(node.objectType);
+  return checker.getPropertyOfType(objectType, literal.text);
 }

@@ -159,6 +159,28 @@ describe('classifyTypesByOrigin', () => {
     expect(result.internal).toHaveLength(0);
   });
 
+  it('classifies indexed access to an external property as external', () => {
+    const parsed = parse(`
+      import type { FakeExternalProperties } from 'fake-lib';
+      type Subject = FakeExternalProperties['optional'];
+    `);
+    const result = classifyTypesByOrigin(findAliasType(parsed, 'Subject'), parsed.services);
+    expect(result.external).toHaveLength(1);
+    expect(result.internal).toHaveLength(0);
+  });
+
+  it('classifies indexed access to a local property as internal', () => {
+    const parsed = parse(`
+      interface LocalProperties {
+        optional?: string;
+      }
+      type Subject = LocalProperties['optional'];
+    `);
+    const result = classifyTypesByOrigin(findAliasType(parsed, 'Subject'), parsed.services);
+    expect(result.external).toHaveLength(0);
+    expect(result.internal).toHaveLength(1);
+  });
+
   it('classifies a qualified name from node_modules as external', () => {
     const parsed = parse(`
       import type * as FakeLib from 'fake-lib';

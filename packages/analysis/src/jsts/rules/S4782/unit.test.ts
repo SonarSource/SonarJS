@@ -461,6 +461,17 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
           },
           {
+            // JS-2192: an imported optional property resolves to a union with
+            // undefined, but its declaration cannot be changed locally.
+            code: `
+            import type { FakeExternalProperties } from 'fake-lib';
+            interface Example {
+              attribute?: FakeExternalProperties['optional'];
+            };
+            `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
+          {
             // JS-1789 Peach-comment reproducer: React.ReactNode resolves to a
             // union containing undefined, but the user cannot edit React's
             // declaration. Suppress.
@@ -527,6 +538,38 @@ describe('S4782', () => {
           },
         ],
         invalid: [
+          {
+            // The same indexed-access form remains reportable when its
+            // optional property is declared in the project.
+            code: `
+            interface LocalProperties {
+              optional?: string;
+            }
+            interface Example {
+              attribute?: LocalProperties['optional'];
+            };
+            `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `
+            interface LocalProperties {
+              optional?: string;
+            }
+            interface Example {
+              attribute: LocalProperties['optional'];
+            };
+            `,
+                  },
+                ],
+              },
+            ],
+          },
           {
             code: `
             import type { FakeUndefinedUnion } from 'fake-lib';
