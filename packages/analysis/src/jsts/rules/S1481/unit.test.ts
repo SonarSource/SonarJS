@@ -76,6 +76,21 @@ describe('S1481', () => {
           `,
           options: [{ args: 'all', argsIgnorePattern: '^_' }],
         },
+        {
+          code: `
+            function render(icon) {
+              const Icon = icon;
+              return <Icon />;
+            }
+          `,
+        },
+        {
+          code: `
+            import { foo } from './foo';
+
+            console.log('used');
+          `,
+        },
       ],
       invalid: [
         {
@@ -136,13 +151,14 @@ describe('S1481', () => {
         },
         {
           code: `
-            import { foo } from './foo';
+            function render(icon) {
+              const UsedIcon = icon;
+              const UnusedIcon = icon;
 
-            console.log('used');
+              return <UsedIcon />;
+            }
           `,
-          options: [{ enableAutofixRemoval: { imports: true } }],
-          output: null,
-          errors: [{ message: "'foo' is defined but never used.", suggestions: [] }],
+          errors: [{ message: "'UnusedIcon' is assigned a value but never used." }],
         },
       ],
     });
