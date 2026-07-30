@@ -28,10 +28,15 @@ const defaultOptions = [
   {
     args: 'none',
     caughtErrors: 'none',
+    vars: 'local',
   },
 ];
 const ruleWithoutQuickFixes = interceptReport(baseRule, (context, descriptor) => {
-  if (isLegacyIgnoredRestSibling(descriptor)) {
+  if (
+    isLegacyIgnoredRestSibling(descriptor) ||
+    isExplicitGlobalDirectiveReport(descriptor) ||
+    isTopLevelVariableOrFunctionReport(descriptor)
+  ) {
     return;
   }
   const { fix: _fix, suggest: _suggest, ...rest } = descriptor;
@@ -49,6 +54,19 @@ export const rule: Rule.RuleModule = {
 };
 
 type NodeWithParent = estree.Node & { parent?: NodeWithParent };
+
+function isExplicitGlobalDirectiveReport(descriptor: Rule.ReportDescriptor) {
+  return 'node' in descriptor && descriptor.node.type === 'Program';
+}
+
+function isTopLevelVariableOrFunctionReport(descriptor: Rule.ReportDescriptor) {
+  if (!('node' in descriptor) || descriptor.node.type !== 'Identifier') {
+    return false;
+  }
+
+  const declaration = getEnclosingDeclaration(descriptor.node);
+  return declaration !== undefined && isTopLevelDeclaration(declaration);
+}
 
 function isLegacyIgnoredRestSibling(descriptor: Rule.ReportDescriptor) {
   if (!('node' in descriptor) || descriptor.node.type !== 'Identifier') {
@@ -83,6 +101,47 @@ function isInsideVariableDeclarationPattern(node: NodeWithParent) {
   }
 
   return false;
+}
+
+function getEnclosingDeclaration(node: NodeWithParent) {
+  let current: NodeWithParent | undefined = node;
+
+  while (current?.parent) {
+    if (current.parent.type === 'VariableDeclarator') {
+      return current.parent.id === current ? current.parent : undefined;
+    }
+
+    if (current.parent.type === 'FunctionDeclaration') {
+      return current.parent.id === current ? current.parent : undefined;
+    }
+    current = current.parent;
+  }
+
+  return undefined;
+}
+
+function isTopLevelDeclaration(node: NodeWithParent) {
+  if (node.type === 'VariableDeclarator') {
+    const variableDeclaration = getParent(node);
+    if (variableDeclaration?.type !== 'VariableDeclaration') {
+      return false;
+    }
+    return isTopLevelStatement(variableDeclaration);
+  }
+
+  return isTopLevelStatement(node);
+}
+
+function isTopLevelStatement(node: NodeWithParent) {
+  const parent = getParent(node);
+  if (parent?.type === 'Program') {
+    return true;
+  }
+
+  return (
+    (parent?.type === 'ExportDefaultDeclaration' || parent?.type === 'ExportNamedDeclaration') &&
+    getParent(parent)?.type === 'Program'
+  );
 }
 
 function getParent(node: estree.Node) {

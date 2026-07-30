@@ -26,9 +26,29 @@ describe('S1481', () => {
       valid: [
         {
           code: `
-            const _unused = 1;
+            function wrapper() {
+              const _unused = 1;
+            }
           `,
           options: [{ varsIgnorePattern: '^_' }],
+        },
+        {
+          code: `
+            var topLevelUnused = 1;
+            let topLevelUnusedToo = 1;
+            function topLevelHelper() {}
+          `,
+        },
+        {
+          code: `
+            export let exportedTopLevelUnused = 1;
+          `,
+        },
+        {
+          code: `
+            /*global foo*/
+          `,
+          languageOptions: { sourceType: 'script' },
         },
         {
           code: `
@@ -60,9 +80,27 @@ describe('S1481', () => {
       invalid: [
         {
           code: `
-            const _unused = 1;
+            function wrapper() {
+              const _unused = 1;
+            }
           `,
           errors: [{ message: "'_unused' is assigned a value but never used." }],
+        },
+        {
+          code: `
+            function wrapper() {
+              var localUnused = 1;
+            }
+          `,
+          errors: [{ message: "'localUnused' is assigned a value but never used." }],
+        },
+        {
+          code: `
+            function wrapper() {
+              function inner() {}
+            }
+          `,
+          errors: [{ message: "'inner' is defined but never used." }],
         },
         {
           code: `
@@ -77,18 +115,22 @@ describe('S1481', () => {
         },
         {
           code: `
-            const { query: _query, ...queryParamsForCache } = queryParams;
+            function buildQuery(queryParams) {
+              const { query: _query, ...queryParamsForCache } = queryParams;
 
-            console.log(queryParamsForCache);
+              console.log(queryParamsForCache);
+            }
           `,
           errors: [{ message: "'_query' is assigned a value but never used." }],
         },
         {
           code: `
-            let a, rest;
+            function assign(foo) {
+              let a, rest;
 
-            ({ a, ...rest } = foo);
-            console.log(rest);
+              ({ a, ...rest } = foo);
+              console.log(rest);
+            }
           `,
           errors: [{ message: "'a' is assigned a value but never used." }],
         },
