@@ -379,6 +379,7 @@ jobs:
     needs: [setup, build_eslint_plugin]
     permissions: *read_permissions
     strategy:
+      fail-fast: false
       matrix:
         include:
           - eslint-version: 10
@@ -1176,12 +1177,16 @@ jobs:
       - ruling
       - js_ts_ruling
     if: >-
-      !failure() && !cancelled() &&
+      always() &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     permissions: *read_permissions
     env: *shared_build_number
     steps:
       - *checkout
+      - name: Validate upstream jobs
+        env:
+          NEEDS_CONTEXT: ${{ toJson(needs) }}
+        run: node tools/validate-workflow-needs.mjs
       - name: Reject root rspec.sha
         if: >-
           (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master') ||
