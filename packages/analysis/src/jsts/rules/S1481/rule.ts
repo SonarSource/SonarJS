@@ -16,8 +16,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1481/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -31,18 +32,6 @@ const defaultOptions = [
     vars: 'local',
   },
 ];
-const ruleWithoutQuickFixes = interceptReport(baseRule, (context, descriptor) => {
-  if (
-    isLegacyIgnoredRestSibling(descriptor) ||
-    isExplicitGlobalDirectiveReport(descriptor) ||
-    isTopLevelVariableOrFunctionReport(descriptor)
-  ) {
-    return;
-  }
-  const { fix: _fix, suggest: _suggest, ...rest } = descriptor;
-  context.report(rest);
-});
-
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     ...baseRule.meta,
@@ -50,13 +39,60 @@ export const rule: Rule.RuleModule = {
     fixable: undefined,
     hasSuggestions: undefined,
   }),
-  create: ruleWithoutQuickFixes.create,
+  create(context: Rule.RuleContext) {
+    const jsxUsedVariables = new Set<Scope.Variable>();
+    const baseListeners = interceptReport(baseRule, (reportContext, descriptor) => {
+      const reportedVariable = getReportedVariable(reportContext.sourceCode, descriptor);
+      if (
+        isLegacyIgnoredRestSibling(descriptor) ||
+        isExplicitGlobalDirectiveReport(descriptor) ||
+        isTopLevelVariableOrFunctionReport(descriptor) ||
+        isUnusedImportReport(reportedVariable) ||
+        isUsedInJsx(reportedVariable, jsxUsedVariables)
+      ) {
+        return;
+      }
+      const { fix: _fix, suggest: _suggest, ...rest } = descriptor;
+      reportContext.report(rest);
+    }).create(context);
+
+    const baseJsxIdentifierListener = (
+      baseListeners as Record<string, ((node: estree.Node) => void) | undefined>
+    )['JSXIdentifier'];
+
+    return {
+      ...baseListeners,
+      JSXIdentifier(node: estree.Node) {
+        recordJsxUsage(context.sourceCode, node as TSESTree.JSXIdentifier, jsxUsedVariables);
+        baseJsxIdentifierListener?.(node);
+      },
+    };
+  },
 };
 
 type NodeWithParent = estree.Node & { parent?: NodeWithParent };
 
 function isExplicitGlobalDirectiveReport(descriptor: Rule.ReportDescriptor) {
   return 'node' in descriptor && descriptor.node.type === 'Program';
+}
+
+function isUnusedImportReport(variable: Scope.Variable | null) {
+  return variable?.defs.some(def => def.type === 'ImportBinding') ?? false;
+}
+
+function isUsedInJsx(variable: Scope.Variable | null, jsxUsedVariables: Set<Scope.Variable>) {
+  return variable != null && jsxUsedVariables.has(variable);
+}
+
+function getReportedVariable(
+  sourceCode: Rule.RuleContext['sourceCode'],
+  descriptor: Rule.ReportDescriptor,
+) {
+  if (!('node' in descriptor) || descriptor.node.type !== 'Identifier') {
+    return null;
+  }
+
+  return findDeclaredVariable(descriptor.node, sourceCode.getScope(descriptor.node));
 }
 
 function isTopLevelVariableOrFunctionReport(descriptor: Rule.ReportDescriptor) {
@@ -146,4 +182,49 @@ function isTopLevelStatement(node: NodeWithParent) {
 
 function getParent(node: estree.Node) {
   return (node as NodeWithParent).parent;
+}
+
+function recordJsxUsage(
+  sourceCode: Rule.RuleContext['sourceCode'],
+  node: TSESTree.JSXIdentifier,
+  jsxUsedVariables: Set<Scope.Variable>,
+) {
+  if (isJSXAttributeName(node)) {
+    return;
+  }
+
+  const variable = findJSXVariableInScope(node, sourceCode.getScope(node));
+  if (variable) {
+    jsxUsedVariables.add(variable);
+  }
+}
+
+function findDeclaredVariable(
+  node: estree.Identifier,
+  scope: Scope.Scope | null,
+): Scope.Variable | null {
+  if (scope == null) {
+    return null;
+  }
+
+  return (
+    scope.variables.find(variable => variable.identifiers.includes(node)) ??
+    findDeclaredVariable(node, scope.upper)
+  );
+}
+
+function findJSXVariableInScope(
+  node: TSESTree.JSXIdentifier,
+  scope: Scope.Scope | null,
+): Scope.Variable | null {
+  return (
+    scope &&
+    (scope.variables.find(variable => variable.name === node.name) ??
+      findJSXVariableInScope(node, scope.upper))
+  );
+}
+
+function isJSXAttributeName(node: TSESTree.JSXIdentifier) {
+  const parent = node.parent;
+  return parent?.type === 'JSXAttribute' && parent.name === node;
 }
