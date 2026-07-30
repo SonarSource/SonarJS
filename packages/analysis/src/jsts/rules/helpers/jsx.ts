@@ -48,6 +48,13 @@ function flattenJsxShortCircuitNodes(
   }
 }
 
+/**
+ * Checks whether a JSX element has a matching descendant in a rendered child position.
+ *
+ * This follows JSX children, expressions, conditionals, arrays, TypeScript wrappers, and
+ * map/flatMap callbacks. It deliberately excludes JSX attributes, non-rendering callbacks,
+ * and bare function children.
+ */
 export function someRenderedJsxDescendant(
   element: TSESTree.JSXElement,
   predicate: (element: TSESTree.JSXElement) => boolean,

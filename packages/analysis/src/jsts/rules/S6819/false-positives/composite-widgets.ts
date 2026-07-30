@@ -72,7 +72,10 @@ export function isCustomCompositeWidget(role: string, node: TSESTree.JSXOpeningE
   }
 
   if (COMPOSITE_CHILD_ROLES.has(role)) {
-    return hasEnclosingAncestorWithOneOfRoles(node, COMPOSITE_CONTAINER_ROLES);
+    return (
+      element?.type === 'JSXElement' &&
+      hasEnclosingAncestorWithOneOfRoles(element, COMPOSITE_CONTAINER_ROLES)
+    );
   }
 
   return false;
@@ -88,12 +91,12 @@ function hasEnclosingAncestorWithRole(element: TSESTree.JSXElement, role: string
 }
 
 function hasEnclosingAncestorWithOneOfRoles(
-  node: TSESTree.JSXOpeningElement,
+  element: TSESTree.JSXElement,
   roles: Set<string>,
 ): boolean {
   return Boolean(
     findFirstMatchingAncestor(
-      node,
+      element,
       ancestor =>
         ancestor.type === 'JSXElement' && roles.has(getRole(ancestor.openingElement) ?? ''),
     ),

@@ -47,6 +47,9 @@ export function getRole(node: TSESTree.JSXOpeningElement): string | null {
   return roleValue.toLowerCase();
 }
 
+/**
+ * Checks whether an accessible-name attribute has a statically non-empty or dynamic value.
+ */
 export function hasAccessibleNameAttribute(
   attributes: JSXOpeningElement['attributes'],
   name: string,
