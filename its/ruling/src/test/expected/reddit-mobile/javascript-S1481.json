@@ -10,20 +10,6 @@
 "reddit-mobile:assets/js/trackingEvents.es6.js": [
 37
 ],
-"reddit-mobile:buildTasks/js.js": [
-4,
-17
-],
-"reddit-mobile:buildTasks/watcher.js": [
-4
-],
-"reddit-mobile:index.js": [
-7,
-9
-],
-"reddit-mobile:src/propTypes.es6.js": [
-3
-],
 "reddit-mobile:src/server/config.es6.js": [
 4
 ],

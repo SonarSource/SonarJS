@@ -33,15 +33,6 @@
 75,
 239
 ],
-"Ghost:core/client/tests/integration/components/gh-alerts-test.js": [
-10
-],
-"Ghost:core/client/tests/integration/components/gh-navitem-test.js": [
-8
-],
-"Ghost:core/client/tests/integration/components/gh-notifications-test.js": [
-10
-],
 "Ghost:core/client/tests/integration/components/gh-tags-management-container-test.js": [
 8
 ],
@@ -68,10 +59,6 @@
 "Ghost:core/server/middleware/auth.js": [
 27
 ],
-"Ghost:core/test/functional/base.js": [
-31,
-47
-],
 "Ghost:core/test/functional/routes/api/authentication_spec.js": [
 12
 ],
@@ -97,9 +84,6 @@
 40,
 40,
 280
-],
-"Ghost:core/test/utils/fixtures/app/nested/goodnested.js": [
-2
 ],
 "Ghost:core/test/utils/index.js": [
 49
