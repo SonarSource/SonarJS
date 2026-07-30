@@ -16,12 +16,9 @@
  */
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  hasDescendantWithOneOfRoles,
-  hasDescendantWithRoleBeforeBoundary,
-  hasEnclosingAncestorWithOneOfRoles,
-  hasEnclosingAncestorWithRole,
-} from '../helpers.js';
+import { findFirstMatchingAncestor } from '../../helpers/ancestor.js';
+import { getRole } from '../../helpers/accessibility.js';
+import { someRenderedJsxDescendant } from '../../helpers/jsx.js';
 
 const COMPOSITE_CONTAINER_ROLES = new Set(['table', 'grid', 'listbox']);
 const COMPOSITE_CHILD_ROLES = new Set([
@@ -42,10 +39,12 @@ const COMPOSITE_CHILD_ROLES = new Set([
  * of a custom listbox has no semantic equivalent to migrate to.
  */
 export function isGroupedListboxSubgroup(role: string, node: TSESTree.JSXOpeningElement): boolean {
+  const element = node.parent;
   return (
     role === 'group' &&
-    hasEnclosingAncestorWithRole(node, 'listbox') &&
-    hasDescendantWithRoleBeforeBoundary(node, 'option', 'listbox')
+    element?.type === 'JSXElement' &&
+    hasEnclosingAncestorWithRole(element, 'listbox') &&
+    hasDescendantWithRoleBeforeBoundary(element, 'option', 'listbox')
   );
 }
 
@@ -59,10 +58,17 @@ export function isGroupedListboxSubgroup(role: string, node: TSESTree.JSXOpening
  * No element-name restriction: any HTML tag (div, ul, li, span, etc.) qualifies.
  */
 export function isCustomCompositeWidget(role: string, node: TSESTree.JSXOpeningElement): boolean {
+  const element = node.parent;
+
   if (COMPOSITE_CONTAINER_ROLES.has(role)) {
     // Intentionally boundary-free: a container nested in another container is malformed
     // markup, and reporting the outer one would suggest a tag that cannot hold it either.
-    return hasDescendantWithOneOfRoles(node, COMPOSITE_CHILD_ROLES);
+    return (
+      element?.type === 'JSXElement' &&
+      someRenderedJsxDescendant(element, descendant =>
+        elementHasOneOfRoles(descendant, COMPOSITE_CHILD_ROLES),
+      )
+    );
   }
 
   if (COMPOSITE_CHILD_ROLES.has(role)) {
@@ -70,4 +76,42 @@ export function isCustomCompositeWidget(role: string, node: TSESTree.JSXOpeningE
   }
 
   return false;
+}
+
+function hasEnclosingAncestorWithRole(element: TSESTree.JSXElement, role: string): boolean {
+  return Boolean(
+    findFirstMatchingAncestor(
+      element,
+      ancestor => ancestor.type === 'JSXElement' && getRole(ancestor.openingElement) === role,
+    ),
+  );
+}
+
+function hasEnclosingAncestorWithOneOfRoles(
+  node: TSESTree.JSXOpeningElement,
+  roles: Set<string>,
+): boolean {
+  return Boolean(
+    findFirstMatchingAncestor(
+      node,
+      ancestor =>
+        ancestor.type === 'JSXElement' && roles.has(getRole(ancestor.openingElement) ?? ''),
+    ),
+  );
+}
+
+function hasDescendantWithRoleBeforeBoundary(
+  element: TSESTree.JSXElement,
+  role: string,
+  boundaryRole: string,
+): boolean {
+  return someRenderedJsxDescendant(
+    element,
+    descendant => getRole(descendant.openingElement) === role,
+    descendant => getRole(descendant.openingElement) === boundaryRole,
+  );
+}
+
+function elementHasOneOfRoles(element: TSESTree.JSXElement, roles: Set<string>): boolean {
+  return roles.has(getRole(element.openingElement) ?? '');
 }

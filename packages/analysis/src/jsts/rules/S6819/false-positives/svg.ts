@@ -18,7 +18,7 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
-import { hasAccessibleNameAttribute, hasTitleChild } from '../helpers.js';
+import { hasAccessibleNameAttribute } from '../../helpers/accessibility.js';
 
 const { getLiteralPropValue, getProp } = pkg;
 
@@ -61,4 +61,25 @@ export function isSemanticSvgImg(
     return true;
   }
   return hasTitleChild(node);
+}
+
+function hasTitleChild(node: TSESTree.JSXOpeningElement): boolean {
+  const parent = node.parent;
+  if (parent?.type !== 'JSXElement') {
+    return false;
+  }
+  return parent.children.some(
+    child =>
+      child.type === 'JSXElement' &&
+      child.openingElement.name.type === 'JSXIdentifier' &&
+      child.openingElement.name.name === 'title' &&
+      child.children.some(
+        c =>
+          (c.type === 'JSXText' && c.value.trim() !== '') ||
+          (c.type === 'JSXExpressionContainer' &&
+            c.expression.type !== 'JSXEmptyExpression' &&
+            !(c.expression.type === 'Literal' && !c.expression.value) &&
+            !(c.expression.type === 'Identifier' && c.expression.name === 'undefined')),
+      ),
+  );
 }

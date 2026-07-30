@@ -15,6 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
+import { isDotNotation, isFunctionNode, isIdentifier, unwrapTypeScriptExpression } from './ast.js';
+
+type ArrayElement = NonNullable<TSESTree.ArrayExpression['elements'][number]>;
 
 export function getJsxShortCircuitNodes(logicalExpression: TSESTree.LogicalExpression) {
   if (logicalExpression.parent?.type === 'JSXExpressionContainer') {
@@ -43,4 +46,89 @@ function flattenJsxShortCircuitNodes(
   } else {
     return [];
   }
+}
+
+export function someRenderedJsxDescendant(
+  element: TSESTree.JSXElement,
+  predicate: (element: TSESTree.JSXElement) => boolean,
+  shouldPrune: (element: TSESTree.JSXElement) => boolean = () => false,
+): boolean {
+  // Grows while iterating: every visited position appends its own rendered positions.
+  const pending = renderedChildPositions(element);
+  for (const current of pending) {
+    if (current.type === 'JSXElement') {
+      if (predicate(current)) {
+        return true;
+      }
+      if (shouldPrune(current)) {
+        continue;
+      }
+    }
+    pending.push(...renderedChildPositions(current));
+  }
+  return false;
+}
+
+function renderedChildPositions(node: TSESTree.Node): TSESTree.Node[] {
+  const unwrapped = unwrapTypeScriptExpression(node);
+  if (unwrapped !== node) {
+    return [unwrapped];
+  }
+
+  switch (node.type) {
+    case 'JSXElement':
+    case 'JSXFragment':
+      return [...node.children];
+    case 'JSXExpressionContainer':
+      return node.expression.type === 'JSXEmptyExpression' ? [] : [node.expression];
+    case 'ConditionalExpression':
+      return [node.consequent, node.alternate];
+    case 'LogicalExpression':
+      if (node.operator === '&&') {
+        return [node.right];
+      }
+      if (node.operator === '||' || node.operator === '??') {
+        return [node.left, node.right];
+      }
+      return [];
+    case 'ArrayExpression':
+      return node.elements.filter(isArrayElement);
+    case 'ChainExpression':
+      return [node.expression];
+    case 'CallExpression':
+      return isRenderingArrayMappingCall(node) ? node.arguments.filter(isFunctionNode) : [];
+    case 'ArrowFunctionExpression':
+    case 'FunctionExpression':
+      // Only a function that something invokes renders; a bare `{() => <B />}` does not.
+      return isArgumentOfRenderingCall(node) ? [node.body] : [];
+    case 'BlockStatement':
+      return [...node.body];
+    case 'ReturnStatement':
+      return node.argument === null ? [] : [node.argument];
+    case 'IfStatement':
+      return node.alternate === null ? [node.consequent] : [node.consequent, node.alternate];
+    default:
+      return [];
+  }
+}
+
+function isArrayElement(
+  element: TSESTree.ArrayExpression['elements'][number],
+): element is ArrayElement {
+  return element !== null;
+}
+
+function isArgumentOfRenderingCall(
+  node: TSESTree.FunctionExpression | TSESTree.ArrowFunctionExpression,
+): boolean {
+  const parent = node.parent;
+  return (
+    parent?.type === 'CallExpression' &&
+    parent.arguments.includes(node) &&
+    isRenderingArrayMappingCall(parent)
+  );
+}
+
+function isRenderingArrayMappingCall(node: TSESTree.CallExpression): boolean {
+  return isDotNotation(node.callee) && isIdentifier(node.callee.property, 'map', 'flatMap');
 }

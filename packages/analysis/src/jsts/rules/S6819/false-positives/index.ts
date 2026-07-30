@@ -17,7 +17,7 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXOpeningElement } from 'estree-jsx';
-import { getElementName, getRole } from '../helpers.js';
+import { getRole } from '../../helpers/accessibility.js';
 import { isCustomCompositeWidget, isGroupedListboxSubgroup } from './composite-widgets.js';
 import { isDecorativeSvg, isSemanticSvgImg } from './svg.js';
 import {
@@ -40,7 +40,7 @@ export function isFalsePositive(node: TSESTree.JSXOpeningElement): boolean {
   }
 
   const attributes = (node as JSXOpeningElement).attributes;
-  const elementName = getElementName(node);
+  const elementName = node.name.type === 'JSXIdentifier' ? node.name.name.toLowerCase() : null;
 
   return (
     isDecorativeSvg(elementName, role, attributes) ||

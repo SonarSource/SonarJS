@@ -18,9 +18,8 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
-import { hasAnyProp, hasBackgroundImageStyle, hasChildren } from '../helpers.js';
 
-const { getProp } = pkg;
+const { getProp, getPropValue, hasAnyProp } = pkg;
 
 export function isLiveRegionStatus(
   role: string,
@@ -90,4 +89,18 @@ export function isImgRoleWithValidPattern(
   }
 
   return hasChildren(node) || hasBackgroundImageStyle(attributes);
+}
+
+function hasChildren(node: TSESTree.JSXOpeningElement): boolean {
+  const parent = node.parent;
+  return parent?.type === 'JSXElement' && parent.children.length > 0;
+}
+
+function hasBackgroundImageStyle(attributes: JSXOpeningElement['attributes']): boolean {
+  const styleProp = getProp(attributes, 'style');
+  if (!styleProp) {
+    return false;
+  }
+  const styleValue = getPropValue(styleProp);
+  return Boolean(styleValue && typeof styleValue === 'object' && 'backgroundImage' in styleValue);
 }

@@ -18,10 +18,10 @@ import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
-const { getProp, getLiteralPropValue, getPropValue } = pkg;
+const { getProp, getLiteralPropValue } = pkg;
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getElementType } from '../helpers/accessibility.js';
+import { getElementType, hasAccessibleNameAttribute } from '../helpers/accessibility.js';
 import * as meta from './generated-meta.js';
 
 // Elements that the ARIA in HTML conformance table lets take any role.
@@ -195,57 +195,6 @@ function hasAccessibleName(opening: TSESTree.JSXOpeningElement): boolean {
     hasAccessibleNameAttribute(attributes, 'alt') ||
     hasAccessibleNameAttribute(attributes, 'aria-label') ||
     hasAccessibleNameAttribute(attributes, 'aria-labelledby')
-  );
-}
-
-function hasAccessibleNameAttribute(
-  attributes: JSXOpeningElement['attributes'],
-  name: string,
-): boolean {
-  const attribute = getAttribute(attributes, name);
-  if (!attribute) {
-    return false;
-  }
-  if (
-    isNonEmptyStringAttribute(attribute) ||
-    isPotentiallyNonEmptyTemplateLiteralAttribute(attribute)
-  ) {
-    return true;
-  }
-
-  // Dynamic expressions are unknown statically, but nullish values should not suppress.
-  return getLiteralPropValue(attribute) === null && getPropValue(attribute) != null;
-}
-
-function isNonEmptyStringAttribute(attribute: JSXAttribute): boolean {
-  if (attribute.value?.type === 'Literal') {
-    return typeof attribute.value.value === 'string' && attribute.value.value.trim() !== '';
-  }
-
-  if (
-    attribute.value?.type === 'JSXExpressionContainer' &&
-    attribute.value.expression.type === 'Literal'
-  ) {
-    return (
-      typeof attribute.value.expression.value === 'string' &&
-      attribute.value.expression.value.trim() !== ''
-    );
-  }
-
-  return false;
-}
-
-function isPotentiallyNonEmptyTemplateLiteralAttribute(attribute: JSXAttribute): boolean {
-  if (
-    attribute.value?.type !== 'JSXExpressionContainer' ||
-    attribute.value.expression.type !== 'TemplateLiteral'
-  ) {
-    return false;
-  }
-
-  return (
-    attribute.value.expression.expressions.length > 0 ||
-    attribute.value.expression.quasis.some(quasi => quasi.value.cooked?.trim() !== '')
   );
 }
 
