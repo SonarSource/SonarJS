@@ -46,6 +46,11 @@ describe('S1481', () => {
         },
         {
           code: `
+            class TopLevelUnused {}
+          `,
+        },
+        {
+          code: `
             /*global foo*/
           `,
           languageOptions: { sourceType: 'script' },

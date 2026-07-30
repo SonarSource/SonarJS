@@ -46,7 +46,7 @@ export const rule: Rule.RuleModule = {
       if (
         isLegacyIgnoredRestSibling(descriptor) ||
         isExplicitGlobalDirectiveReport(descriptor) ||
-        isTopLevelVariableOrFunctionReport(descriptor) ||
+        isTopLevelVariableFunctionOrClassReport(descriptor) ||
         isUnusedImportReport(reportedVariable) ||
         isUsedInJsx(reportedVariable, jsxUsedVariables)
       ) {
@@ -95,7 +95,7 @@ function getReportedVariable(
   return findDeclaredVariable(descriptor.node, sourceCode.getScope(descriptor.node));
 }
 
-function isTopLevelVariableOrFunctionReport(descriptor: Rule.ReportDescriptor) {
+function isTopLevelVariableFunctionOrClassReport(descriptor: Rule.ReportDescriptor) {
   if (!('node' in descriptor) || descriptor.node.type !== 'Identifier') {
     return false;
   }
@@ -148,6 +148,10 @@ function getEnclosingDeclaration(node: NodeWithParent) {
     }
 
     if (current.parent.type === 'FunctionDeclaration') {
+      return current.parent.id === current ? current.parent : undefined;
+    }
+
+    if (current.parent.type === 'ClassDeclaration') {
       return current.parent.id === current ? current.parent : undefined;
     }
     current = current.parent;
