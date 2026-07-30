@@ -18,116 +18,217 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
+import type { TSESTree } from '@typescript-eslint/utils';
+import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
+const baseRule = tsEslintRules['no-unused-vars'];
+const defaultOptions = [
+  {
+    args: 'none',
+    caughtErrors: 'none',
+    vars: 'local',
+  },
+];
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
-    messages: {
-      unusedFunction: `Remove unused function '{{symbol}}'.`,
-      unusedVariable: `Remove the declaration of the unused '{{symbol}}' variable.`,
-    },
+    ...baseRule.meta,
+    defaultOptions,
+    fixable: undefined,
+    hasSuggestions: undefined,
   }),
   create(context: Rule.RuleContext) {
-    let toIgnore: estree.Identifier[] = [];
-    let jsxComponentsToIgnore: string[] = [];
-
-    function checkVariable(v: Scope.Variable, toCheck: 'let-const-function' | 'all') {
-      if (v.defs.length === 0) {
+    const jsxUsedVariables = new Set<Scope.Variable>();
+    const baseListeners = interceptReport(baseRule, (reportContext, descriptor) => {
+      const reportedVariable = getReportedVariable(reportContext.sourceCode, descriptor);
+      if (
+        isLegacyIgnoredRestSibling(descriptor) ||
+        isExplicitGlobalDirectiveReport(descriptor) ||
+        isTopLevelVariableFunctionOrClassReport(descriptor) ||
+        isUnusedImportReport(reportedVariable) ||
+        isUsedInJsx(reportedVariable, jsxUsedVariables)
+      ) {
         return;
       }
-      const type = v.defs[0].type;
-      if (type !== 'Variable' && type !== 'FunctionName') {
-        return;
-      }
-      if (toCheck === 'let-const-function') {
-        const def = v.defs[0];
-        if (def.parent?.type === 'VariableDeclaration' && def.parent.kind === 'var') {
-          return;
-        }
-      }
+      const { fix: _fix, suggest: _suggest, ...rest } = descriptor;
+      reportContext.report(rest);
+    }).create(context);
 
-      const defs = v.defs.map(def => def.name);
-      const unused = v.references.every(ref => defs.includes(ref.identifier));
-
-      if (unused && !toIgnore.includes(defs[0]) && !jsxComponentsToIgnore.includes(v.name)) {
-        const messageAndData =
-          type === 'FunctionName'
-            ? getUnusedFunctionMessageAndData(v.name)
-            : getUnusedVariableMessageAndData(v.name);
-        for (const def of defs) {
-          context.report({
-            node: def,
-            ...messageAndData,
-          });
-        }
-      }
-    }
-
-    function checkScope(
-      scope: Scope.Scope,
-      checkedInParent: 'nothing' | 'let-const-function' | 'all',
-    ) {
-      let toCheck = checkedInParent;
-      if (scope.type === 'function' && !isParentOfModuleScope(scope)) {
-        toCheck = 'all';
-      } else if (checkedInParent === 'nothing' && scope.type === 'block') {
-        toCheck = 'let-const-function';
-      }
-
-      if (toCheck !== 'nothing' && scope.type !== 'function-expression-name') {
-        for (const v of scope.variables) {
-          checkVariable(v, toCheck);
-        }
-      }
-
-      for (const childScope of scope.childScopes) {
-        checkScope(childScope, toCheck);
-      }
-    }
+    const baseJsxIdentifierListener = (
+      baseListeners as Record<string, ((node: estree.Node) => void) | undefined>
+    )['JSXIdentifier'];
 
     return {
-      ObjectPattern: (node: estree.Node) => {
-        const elements = (node as estree.ObjectPattern).properties;
-        const hasRest = elements.some(element => (element as any).type === 'RestElement');
-
-        if (!hasRest) {
-          return;
-        }
-
-        for (const element of elements) {
-          if (
-            element.type === 'Property' &&
-            element.shorthand &&
-            element.value.type === 'Identifier'
-          ) {
-            toIgnore.push(element.value);
-          }
-        }
-      },
-
-      JSXIdentifier: (node: estree.Node) => {
-        // using 'any' as standard typings for AST don't provide types for JSX
-        jsxComponentsToIgnore.push((node as any).name);
-      },
-
-      'Program:exit': (node: estree.Node) => {
-        checkScope(context.sourceCode.getScope(node), 'nothing');
-        toIgnore = [];
-        jsxComponentsToIgnore = [];
+      ...baseListeners,
+      JSXIdentifier(node: estree.Node) {
+        recordJsxUsage(context.sourceCode, node as TSESTree.JSXIdentifier, jsxUsedVariables);
+        baseJsxIdentifierListener?.(node);
       },
     };
   },
 };
 
-function isParentOfModuleScope(scope: Scope.Scope) {
-  return scope.childScopes.some(s => s.type === 'module');
+type NodeWithParent = estree.Node & { parent?: NodeWithParent };
+
+function isExplicitGlobalDirectiveReport(descriptor: Rule.ReportDescriptor) {
+  return 'node' in descriptor && descriptor.node.type === 'Program';
 }
 
-function getUnusedFunctionMessageAndData(name: string) {
-  return { messageId: 'unusedFunction', data: { symbol: name } };
+function isUnusedImportReport(variable: Scope.Variable | null) {
+  return variable?.defs.some(def => def.type === 'ImportBinding') ?? false;
 }
 
-function getUnusedVariableMessageAndData(name: string) {
-  return { messageId: 'unusedVariable', data: { symbol: name } };
+function isUsedInJsx(variable: Scope.Variable | null, jsxUsedVariables: Set<Scope.Variable>) {
+  return variable != null && jsxUsedVariables.has(variable);
+}
+
+function getReportedVariable(
+  sourceCode: Rule.RuleContext['sourceCode'],
+  descriptor: Rule.ReportDescriptor,
+) {
+  if (!('node' in descriptor) || descriptor.node.type !== 'Identifier') {
+    return null;
+  }
+
+  return findDeclaredVariable(descriptor.node, sourceCode.getScope(descriptor.node));
+}
+
+function isTopLevelVariableFunctionOrClassReport(descriptor: Rule.ReportDescriptor) {
+  if (!('node' in descriptor) || descriptor.node.type !== 'Identifier') {
+    return false;
+  }
+
+  const declaration = getEnclosingDeclaration(descriptor.node);
+  return declaration !== undefined && isTopLevelDeclaration(declaration);
+}
+
+function isLegacyIgnoredRestSibling(descriptor: Rule.ReportDescriptor) {
+  if (!('node' in descriptor) || descriptor.node.type !== 'Identifier') {
+    return false;
+  }
+
+  const property = getParent(descriptor.node);
+  const objectPattern = property ? getParent(property) : undefined;
+  if (
+    property?.type !== 'Property' ||
+    !property.shorthand ||
+    property.value !== descriptor.node ||
+    objectPattern?.type !== 'ObjectPattern'
+  ) {
+    return false;
+  }
+
+  return (
+    objectPattern.properties.at(-1)?.type === 'RestElement' &&
+    isInsideVariableDeclarationPattern(objectPattern)
+  );
+}
+
+function isInsideVariableDeclarationPattern(node: NodeWithParent) {
+  let current: NodeWithParent | undefined = node;
+
+  while (current?.parent) {
+    if (current.parent.type === 'VariableDeclarator') {
+      return current.parent.id === current;
+    }
+    current = current.parent;
+  }
+
+  return false;
+}
+
+function getEnclosingDeclaration(node: NodeWithParent) {
+  let current: NodeWithParent | undefined = node;
+
+  while (current?.parent) {
+    if (current.parent.type === 'VariableDeclarator') {
+      return current.parent.id === current ? current.parent : undefined;
+    }
+
+    if (current.parent.type === 'FunctionDeclaration') {
+      return current.parent.id === current ? current.parent : undefined;
+    }
+
+    if (current.parent.type === 'ClassDeclaration') {
+      return current.parent.id === current ? current.parent : undefined;
+    }
+    current = current.parent;
+  }
+
+  return undefined;
+}
+
+function isTopLevelDeclaration(node: NodeWithParent) {
+  if (node.type === 'VariableDeclarator') {
+    const variableDeclaration = getParent(node);
+    if (variableDeclaration?.type !== 'VariableDeclaration') {
+      return false;
+    }
+    return isTopLevelStatement(variableDeclaration);
+  }
+
+  return isTopLevelStatement(node);
+}
+
+function isTopLevelStatement(node: NodeWithParent) {
+  const parent = getParent(node);
+  if (parent?.type === 'Program') {
+    return true;
+  }
+
+  return (
+    (parent?.type === 'ExportDefaultDeclaration' || parent?.type === 'ExportNamedDeclaration') &&
+    getParent(parent)?.type === 'Program'
+  );
+}
+
+function getParent(node: estree.Node) {
+  return (node as NodeWithParent).parent;
+}
+
+function recordJsxUsage(
+  sourceCode: Rule.RuleContext['sourceCode'],
+  node: TSESTree.JSXIdentifier,
+  jsxUsedVariables: Set<Scope.Variable>,
+) {
+  if (isJSXAttributeName(node)) {
+    return;
+  }
+
+  const variable = findJSXVariableInScope(node, sourceCode.getScope(node));
+  if (variable) {
+    jsxUsedVariables.add(variable);
+  }
+}
+
+function findDeclaredVariable(
+  node: estree.Identifier,
+  scope: Scope.Scope | null,
+): Scope.Variable | null {
+  if (scope == null) {
+    return null;
+  }
+
+  return (
+    scope.variables.find(variable => variable.identifiers.includes(node)) ??
+    findDeclaredVariable(node, scope.upper)
+  );
+}
+
+function findJSXVariableInScope(
+  node: TSESTree.JSXIdentifier,
+  scope: Scope.Scope | null,
+): Scope.Variable | null {
+  return (
+    scope &&
+    (scope.variables.find(variable => variable.name === node.name) ??
+      findJSXVariableInScope(node, scope.upper))
+  );
+}
+
+function isJSXAttributeName(node: TSESTree.JSXIdentifier) {
+  const parent = node.parent;
+  return parent?.type === 'JSXAttribute' && parent.name === node;
 }
