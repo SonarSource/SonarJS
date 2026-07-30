@@ -1,15 +1,10 @@
 {
 "Ghost:core/client/tests/acceptance/authentication-test.js": [
-12,
-12,
 40,
 78,
 134
 ],
 "Ghost:core/client/tests/acceptance/posts/post-test.js": [
-12,
-13,
-13,
 29,
 56
 ],
@@ -22,36 +17,14 @@
 81
 ],
 "Ghost:core/client/tests/acceptance/setup-test.js": [
-9,
 28
 ],
 "Ghost:core/client/tests/acceptance/team-test.js": [
-9,
 38,
 52,
 67,
 75,
 239
-],
-"Ghost:core/client/tests/integration/components/gh-tags-management-container-test.js": [
-8
-],
-"Ghost:core/client/tests/integration/services/ajax-test.js": [
-7
-],
-"Ghost:core/client/tests/unit/components/gh-trim-focus-input_test.js": [
-1
-],
-"Ghost:core/client/tests/unit/helpers/gh-user-can-admin-test.js": [
-2
-],
-"Ghost:core/client/tests/unit/mixins/validation-engine-test.js": [
-2,
-7,
-8
-],
-"Ghost:core/client/tests/unit/validators/tag-settings-test.js": [
-8
 ],
 "Ghost:core/server/helpers/foreach.js": [
 65
