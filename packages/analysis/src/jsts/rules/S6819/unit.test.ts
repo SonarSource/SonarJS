@@ -34,6 +34,19 @@ describe('S6819 upstream sentinel', () => {
         { code: `<div role="listbox"><div role="option">Item</div></div>`, errors: 2 },
         // ul/li listbox/option — suppressed by decorator, raised by upstream
         { code: `<ul role="listbox"><li role="option">Item</li></ul>`, errors: 2 },
+        // grouped listbox — suppressed by decorator, raised by upstream
+        {
+          code: `<div role="listbox"><ul role="group"><li role="option">Item</li></ul></div>`,
+          errors: 3,
+        },
+        {
+          code: `<section role="listbox"><div role="group"><div role="option">Item</div></div></section>`,
+          errors: 3,
+        },
+        {
+          code: `<div role="listbox"><div role="group">{items.map(item => <div role="option">{item}</div>)}</div></div>`,
+          errors: 3,
+        },
       ],
     });
   });
@@ -490,6 +503,160 @@ describe('S6819', () => {
             </ul>
           `,
         },
+        {
+          // Compliant: grouped listbox
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <ul role="group" aria-label="Europe">
+                <li role="option" aria-selected="true">Paris</li>
+                <li role="option" aria-selected="false">Berlin</li>
+              </ul>
+            </div>
+          `,
+        },
+        {
+          // Compliant: generic grouped listbox
+          code: `
+            <section role="listbox" aria-label="Projects">
+              <div role="group" aria-label="Active projects">
+                <div role="option" aria-selected="true">Apollo</div>
+                <div role="option" aria-selected="false">Gemini</div>
+              </div>
+            </section>
+          `,
+        },
+        {
+          // Compliant: expression-contained option in a conditional branch
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {isOpen ? <div role="option">Paris</div> : null}
+            </div>
+          `,
+        },
+        {
+          // Compliant: expression-contained option in a logical OR fallback
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {selectedOption || <div role="option">Paris</div>}
+            </div>
+          `,
+        },
+        {
+          // Compliant: expression-contained option in a conditional alternate branch
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {isClosed ? null : <div role="option">Paris</div>}
+            </div>
+          `,
+        },
+        {
+          // Compliant: expression-contained option in a nullish coalescing fallback
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {selectedOption ?? <div role="option">Paris</div>}
+            </div>
+          `,
+        },
+        {
+          // Compliant: expression-contained option in an array literal
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {[<div role="option">Paris</div>]}
+            </div>
+          `,
+        },
+        {
+          // Compliant: group is rendered through a TypeScript expression wrapper
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {(<div role="group" aria-label="Europe">
+                <div role="option" aria-selected="true">Paris</div>
+              </div> as JSX.Element)}
+            </div>
+          `,
+        },
+        {
+          // Compliant: group is rendered through a non-null expression wrapper
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {(<div role="group" aria-label="Europe">
+                <div role="option" aria-selected="true">Paris</div>
+              </div>)!}
+            </div>
+          `,
+        },
+        {
+          // Compliant: group is rendered through a JSX expression child of the listbox
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {isOpen && (
+                <div role="group" aria-label="Europe">
+                  <div role="option" aria-selected="true">Paris</div>
+                </div>
+              )}
+            </div>
+          `,
+        },
+        {
+          // Compliant: group is rendered through a satisfies expression wrapper
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {(<div role="group" aria-label="Europe">
+                <div role="option" aria-selected="true">Paris</div>
+              </div>) satisfies JSX.Element}
+            </div>
+          `,
+        },
+        {
+          // Compliant: options come from an iteration callback, the usual grouped listbox shape
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                {cities.map(city => (
+                  <div role="option" aria-selected={city === 'Paris'} key={city}>
+                    {city}
+                  </div>
+                ))}
+              </div>
+            </div>
+          `,
+        },
+        {
+          // Compliant: iteration callback with a block body returning the option
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                {cities.map(city => {
+                  return <div role="option" key={city}>{city}</div>;
+                })}
+              </div>
+            </div>
+          `,
+        },
+        {
+          // Compliant: ungrouped listbox whose options come from an iteration callback
+          code: `
+            <div role="listbox" aria-label="Cities">
+              {cities.map(city => <div role="option" key={city}>{city}</div>)}
+            </div>
+          `,
+        },
+        {
+          // Compliant: options come from a flattened iteration callback
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                {cityGroups.flatMap(group =>
+                  group.cities.map(city => (
+                    <div role="option" aria-selected={city === 'Paris'} key={city}>
+                      {city}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          `,
+        },
       ],
       invalid: [
         // True positive: option without listbox ancestor (use <option>)
@@ -500,6 +667,94 @@ describe('S6819', () => {
         // True positive: listbox without option descendants (use <select>)
         {
           code: `<div role="listbox"><div>hello</div></div>`,
+          errors: 1,
+        },
+        // True positive: group without listbox ancestor
+        {
+          code: `<div role="group"><div role="option">Item</div></div>`,
+          errors: 2,
+        },
+        // True positive: group inside listbox without option descendants
+        {
+          code: `<div role="listbox"><div role="group">Europe</div></div>`,
+          errors: 2,
+        },
+        // True positive: a bare function child renders nothing, so the group owns no options
+        // and neither it nor the listbox forms a widget. The option keeps its listbox context.
+        {
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                {() => <div role="option">Paris</div>}
+              </div>
+            </div>
+          `,
+          errors: 2,
+        },
+        // True positive: option in an unused initializer is not rendered, so the listbox has
+        // no option descendant to own.
+        {
+          code: `
+            <div role="listbox">
+              {(() => {
+                const unused = <div role="option">Paris</div>;
+                return null;
+              })()}
+            </div>
+          `,
+          errors: 1,
+        },
+        // True positive: forEach ignores callback return values, so no option is rendered.
+        {
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                {cities.forEach(city => <div role="option" key={city}>{city}</div>)}
+              </div>
+            </div>
+          `,
+          errors: 2,
+        },
+        // True positive: nested listbox option is not owned by outer group
+        {
+          code: `
+            <div role="listbox">
+              <div role="group">
+                <div role="listbox">
+                  <div role="option">Nested</div>
+                </div>
+              </div>
+            </div>
+          `,
+          errors: 1,
+        },
+        // True positive: a render prop hides the options from the group and the listbox, so
+        // neither can claim to own them. The option itself keeps its listbox context, since
+        // <option> would be no more valid there than it is now.
+        {
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <div role="group" aria-label="Europe">
+                <Widget renderOption={() => <div role="option">Paris</div>} />
+              </div>
+            </div>
+          `,
+          errors: 2,
+        },
+        // True positive: the listbox cannot see the group returned from a render prop, but the
+        // group owns its own options and both it and the option stay inside the listbox.
+        {
+          code: `
+            <div role="listbox" aria-label="Cities">
+              <Widget
+                renderGroup={() => (
+                  <div role="group" aria-label="Europe">
+                    <div role="option" aria-selected="true">Paris</div>
+                  </div>
+                )}
+              />
+            </div>
+          `,
           errors: 1,
         },
       ],

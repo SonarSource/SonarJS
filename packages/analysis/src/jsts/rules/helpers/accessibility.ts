@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import pkg from 'jsx-ast-utils-x';
-const { getProp, getLiteralPropValue, elementType } = pkg;
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { JSXOpeningElement } from 'estree-jsx';
+import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import type { Rule } from 'eslint';
+import pkg from 'jsx-ast-utils-x';
+const { getProp, getLiteralPropValue, getPropValue, elementType } = pkg;
 
 export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JSXOpeningElement) {
   const DISALLOWED_VALUES = ['presentation', 'none'];
@@ -33,6 +33,72 @@ export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JS
   const roleValue = String(getLiteralPropValue(role));
 
   return DISALLOWED_VALUES.includes(roleValue?.toLowerCase());
+}
+
+export function getRole(node: TSESTree.JSXOpeningElement): string | null {
+  const roleProp = getProp((node as JSXOpeningElement).attributes, 'role');
+  if (!roleProp) {
+    return null;
+  }
+  const roleValue = getLiteralPropValue(roleProp);
+  if (typeof roleValue !== 'string') {
+    return null;
+  }
+  return roleValue.toLowerCase();
+}
+
+/**
+ * Checks whether an accessible-name attribute has a statically non-empty or dynamic value.
+ */
+export function hasAccessibleNameAttribute(
+  attributes: JSXOpeningElement['attributes'],
+  name: string,
+): boolean {
+  const attribute = getProp(attributes, name);
+  if (!attribute) {
+    return false;
+  }
+  if (
+    isNonEmptyStringAttribute(attribute) ||
+    isPotentiallyNonEmptyTemplateLiteralAttribute(attribute)
+  ) {
+    return true;
+  }
+
+  // Dynamic expressions are unknown statically, but nullish values should not suppress.
+  return getLiteralPropValue(attribute) === null && getPropValue(attribute) != null;
+}
+
+function isNonEmptyStringAttribute(attribute: JSXAttribute): boolean {
+  if (attribute.value?.type === 'Literal') {
+    return typeof attribute.value.value === 'string' && attribute.value.value.trim() !== '';
+  }
+
+  if (
+    attribute.value?.type === 'JSXExpressionContainer' &&
+    attribute.value.expression.type === 'Literal'
+  ) {
+    return (
+      typeof attribute.value.expression.value === 'string' &&
+      attribute.value.expression.value.trim() !== ''
+    );
+  }
+
+  return false;
+}
+
+function isPotentiallyNonEmptyTemplateLiteralAttribute(attribute: JSXAttribute): boolean {
+  if (
+    attribute.value?.type !== 'JSXExpressionContainer' ||
+    attribute.value.expression.type !== 'TemplateLiteral'
+  ) {
+    return false;
+  }
+
+  return (
+    attribute.value.expression.expressions.length > 0 ||
+    attribute.value.expression.quasis.some(quasi => quasi.value.cooked?.trim() !== '')
+  );
 }
 
 export const getElementType = (
