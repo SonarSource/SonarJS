@@ -19,7 +19,9 @@ import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 import { getFullyQualifiedName } from './module.js';
-import { getFullyQualifiedNameTS } from './module-ts.js';
+import { getFullyQualifiedNameTS, importsModuleTS } from './module-ts.js';
+
+const ASSERTIONS_MODULE = 'aws-cdk-lib/assertions';
 
 const TEMPLATE_ASSERTION_METHOD_NAMES = new Set([
   'resourceCountIs',
@@ -53,7 +55,7 @@ export function isAssertion(context: Rule.RuleContext, node: estree.Node): boole
 export function isTSAssertion(
   services: ParserServicesWithTypeInformation,
   node: ts.Node,
-  context?: Rule.RuleContext,
+  context: Rule.RuleContext,
 ): boolean {
   if (node.kind !== ts.SyntaxKind.CallExpression) {
     return false;
@@ -61,7 +63,9 @@ export function isTSAssertion(
   if (isFQNAssertion(getFullyQualifiedNameTS(services, node))) {
     return true;
   }
-  if (context === undefined) {
+  // The ESTree fallback below resolves names by walking scopes on every call expression, so it is
+  // gated on the file actually importing the module. `importsModuleTS` caches per source file.
+  if (!importsModuleTS(node.getSourceFile(), [ASSERTIONS_MODULE])) {
     return false;
   }
   // The type-aware resolver only follows declaration initializers. Reuse the ESTree resolver to
@@ -70,7 +74,7 @@ export function isTSAssertion(
   return estreeNode !== undefined && isAssertion(context, estreeNode as estree.Node);
 }
 
-function isFQNAssertion(fqn: string | null): boolean {
+function isFQNAssertion(fqn: string | null | undefined): boolean {
   const normalized = fqn?.replaceAll('/', '.');
   if (normalized === undefined) {
     return false;

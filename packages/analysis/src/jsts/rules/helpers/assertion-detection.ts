@@ -38,7 +38,7 @@ import * as Vitest from './vitest.js';
 import * as Supertest from './supertest.js';
 import * as Cypress from './cypress.js';
 import * as Uvu from './uvu.js';
-import * as AwsCdk from './aws-cdk.js';
+import * as AwsCdk from './assertions-aws-cdk.js';
 import { getParent } from './ancestor.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
 import { getFullyQualifiedNameTS, importsModuleTS } from './module-ts.js';
@@ -261,6 +261,10 @@ export function isIncompleteShouldAccess(context: Rule.RuleContext, node: estree
 /**
  * Type-checker-aware counterpart of {@link isAssertion}, operating on TypeScript
  * AST nodes. Used when parser services are available to follow resolved types.
+ *
+ * `context` is optional only for callers that have no rule context (helper unit tests).
+ * Omitting it disables the detectors that need to fall back to the ESTree name resolver,
+ * so rules must always pass it.
  */
 export function isTSAssertion(
   services: ParserServicesWithTypeInformation,
@@ -275,8 +279,9 @@ export function isTSAssertion(
     Supertest.isTSAssertion(services, node) ||
     Vitest.isTSAssertion(services, node) ||
     Uvu.isTSAssertion(services, node) ||
-    AwsCdk.isTSAssertion(services, node, context) ||
-    Cypress.isTSAssertion(node)
+    Cypress.isTSAssertion(node) ||
+    // Last: the only detector that may fall back to the (more expensive) ESTree name resolver.
+    (context !== undefined && AwsCdk.isTSAssertion(services, node, context))
   );
 }
 

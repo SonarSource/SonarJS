@@ -1182,6 +1182,24 @@ test('does not treat AWS CDK template query APIs as assertions', () => {
         {
           code: `
 import test from 'node:test';
+import { Match } from 'aws-cdk-lib/assertions';
+
+class Template {
+  static fromStack(stack: unknown) {
+    return new Template();
+  }
+  hasResourceProperties(type: string, props: unknown) {}
+}
+
+test('does not treat a local Template look-alike as an assertion', () => {
+  Template.fromStack({}).hasResourceProperties('AWS::S3::Bucket', {});
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
 import assert from 'node:assert/strict';
 
 test('has no assertions', () => {
