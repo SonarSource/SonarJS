@@ -84,13 +84,7 @@ function renderedChildPositions(node: TSESTree.Node): TSESTree.Node[] {
     case 'ConditionalExpression':
       return [node.consequent, node.alternate];
     case 'LogicalExpression':
-      if (node.operator === '&&') {
-        return [node.right];
-      }
-      if (node.operator === '||' || node.operator === '??') {
-        return [node.left, node.right];
-      }
-      return [];
+      return renderedLogicalExpressionPositions(node);
     case 'ArrayExpression':
       return node.elements.filter(isArrayElement);
     case 'ChainExpression':
@@ -110,6 +104,16 @@ function renderedChildPositions(node: TSESTree.Node): TSESTree.Node[] {
     default:
       return [];
   }
+}
+
+function renderedLogicalExpressionPositions(node: TSESTree.LogicalExpression): TSESTree.Node[] {
+  if (node.operator === '&&') {
+    return [node.right];
+  }
+  if (node.operator === '||' || node.operator === '??') {
+    return [node.left, node.right];
+  }
+  return [];
 }
 
 function isArrayElement(
