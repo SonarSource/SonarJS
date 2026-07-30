@@ -1176,12 +1176,30 @@ jobs:
       - ruling
       - js_ts_ruling
     if: >-
-      !failure() && !cancelled() &&
+      always() &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     permissions: *read_permissions
     env: *shared_build_number
     steps:
       - *checkout
+      - name: Validate upstream jobs
+        env:
+          NEEDS_CONTEXT: ${{ toJson(needs) }}
+        run: |
+          blocking_jobs="$(
+            jq -r '
+              to_entries
+              | map(select(.value.result != "success" and .value.result != "skipped"))
+              | map("- \(.key): \(.value.result)")
+              | join("\n")
+            ' <<<"$NEEDS_CONTEXT"
+          )"
+
+          if [ -n "$blocking_jobs" ]; then
+            echo "Promotion is blocked because required upstream jobs did not complete successfully:"
+            echo "$blocking_jobs"
+            exit 1
+          fi
       - name: Reject root rspec.sha
         if: >-
           (github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'master') ||
