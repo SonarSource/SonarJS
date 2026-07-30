@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import { isDotNotation, isFunctionNode, isIdentifier, unwrapTypeScriptExpression } from './ast.js';
+import { unwrapTypeScriptExpression } from './ast.js';
 
 type ArrayElement = NonNullable<TSESTree.ArrayExpression['elements'][number]>;
 
@@ -96,7 +96,7 @@ function renderedChildPositions(node: TSESTree.Node): TSESTree.Node[] {
     case 'ChainExpression':
       return [node.expression];
     case 'CallExpression':
-      return isRenderingArrayMappingCall(node) ? node.arguments.filter(isFunctionNode) : [];
+      return isRenderingArrayMappingCall(node) ? node.arguments.filter(isRenderingCallback) : [];
     case 'ArrowFunctionExpression':
     case 'FunctionExpression':
       // Only a function that something invokes renders; a bare `{() => <B />}` does not.
@@ -118,6 +118,12 @@ function isArrayElement(
   return element !== null;
 }
 
+function isRenderingCallback(
+  node: TSESTree.CallExpressionArgument,
+): node is TSESTree.FunctionExpression | TSESTree.ArrowFunctionExpression {
+  return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
+}
+
 function isArgumentOfRenderingCall(
   node: TSESTree.FunctionExpression | TSESTree.ArrowFunctionExpression,
 ): boolean {
@@ -130,5 +136,10 @@ function isArgumentOfRenderingCall(
 }
 
 function isRenderingArrayMappingCall(node: TSESTree.CallExpression): boolean {
-  return isDotNotation(node.callee) && isIdentifier(node.callee.property, 'map', 'flatMap');
+  return (
+    node.callee.type === 'MemberExpression' &&
+    !node.callee.computed &&
+    node.callee.property.type === 'Identifier' &&
+    (node.callee.property.name === 'map' || node.callee.property.name === 'flatMap')
+  );
 }
