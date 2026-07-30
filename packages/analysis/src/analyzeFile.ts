@@ -57,6 +57,8 @@ import { error, info } from '../../shared/src/helpers/logging.js';
  * @param pendingFiles - Set of files not yet analyzed (for progress tracking)
  * @param progressReport - Progress reporter for logging
  * @param incrementalResultsChannel - Optional callback for incremental result streaming
+ * @param detectedEsYear - ES year inferred from lib/runtime signals
+ * @param targetEsYear - Raw TypeScript compiler target when available
  */
 export async function analyzeFile(
   fileName: NormalizedAbsolutePath,
@@ -68,6 +70,7 @@ export async function analyzeFile(
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
   detectedEsYear?: number,
+  targetEsYear?: number,
 ) {
   progressReport.nextFile(fileName);
 
@@ -97,6 +100,7 @@ export async function analyzeFile(
     tsConfigs: [],
     program,
     detectedEsYear,
+    targetEsYear,
   };
   const embeddedInput: EmbeddedAnalysisInput = {
     filePath: input.filePath,

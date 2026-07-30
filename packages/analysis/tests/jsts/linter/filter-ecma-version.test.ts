@@ -35,6 +35,7 @@ const baseContext: RuleFilterContext = {
   fileLanguage: 'ts',
   analysisMode: 'DEFAULT',
   detectedEsYear: 2019,
+  targetEsYear: 2019,
   detectedModuleType: undefined,
   detectGeneratedCode: true,
   isGeneratedSource: false,
@@ -62,6 +63,7 @@ const apiMeta = {
   implementation: 'original',
   requiredDependency: [],
   requiredEcmaVersion: 2022,
+  downlevelableSyntax: false,
 } satisfies SonarMeta;
 
 describe('filterEcmaVersion', () => {
@@ -91,6 +93,33 @@ describe('filterEcmaVersion', () => {
     expect(filterEcmaVersion(ruleConfig, apiMeta, baseContext)).toBe(false);
   });
 
+  it('should use the raw TypeScript target for rules that require it when it is available', () => {
+    expect(
+      filterEcmaVersion(ruleConfig, apiMeta, {
+        ...baseContext,
+        detectedEsYear: 2022,
+        targetEsYear: 2021,
+      }),
+    ).toBe(false);
+    expect(
+      filterEcmaVersion(ruleConfig, apiMeta, {
+        ...baseContext,
+        detectedEsYear: 2022,
+        targetEsYear: 2022,
+      }),
+    ).toBe(true);
+  });
+
+  it('should fall back to the detected ES year when no raw TypeScript target is available', () => {
+    expect(
+      filterEcmaVersion(ruleConfig, apiMeta, {
+        ...baseContext,
+        detectedEsYear: 2022,
+        targetEsYear: undefined,
+      }),
+    ).toBe(true);
+  });
+
   it('should keep rules with no ES-year requirement', () => {
     const meta = { ...syntaxMeta, requiredEcmaVersion: undefined } satisfies SonarMeta;
     expect(filterEcmaVersion(ruleConfig, meta, { ...baseContext, fileLanguage: 'js' })).toBe(true);
@@ -98,7 +127,11 @@ describe('filterEcmaVersion', () => {
 
   it('should keep rules when no ES year was detected', () => {
     expect(
-      filterEcmaVersion(ruleConfig, apiMeta, { ...baseContext, detectedEsYear: undefined }),
+      filterEcmaVersion(ruleConfig, apiMeta, {
+        ...baseContext,
+        detectedEsYear: undefined,
+        targetEsYear: undefined,
+      }),
     ).toBe(true);
   });
 });

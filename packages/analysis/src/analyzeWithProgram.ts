@@ -33,6 +33,7 @@ import {
   esLibToYear,
   groupFilesByResolvedLib,
   MISSING_EXTENDED_TSCONFIG,
+  tsTargetToEsYear,
   type ProgramOptions,
 } from './jsts/program/tsconfig/options.js';
 import { getProgramCacheManager } from './jsts/program/cache/programCache.js';
@@ -181,6 +182,7 @@ async function analyzeFilesFromEntryPoint(
     telemetry.recordProgramCreationAttempt();
     const tsProgram = createStandardProgram(programOptions);
     const detectedEsYear = esLibToYear(programOptions.options.lib);
+    const targetEsYear = tsTargetToEsYear(programOptions.options.target);
     telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
 
     for (const fileName of groupRootNames) {
@@ -198,6 +200,7 @@ async function analyzeFilesFromEntryPoint(
         progressReport,
         incrementalResultsChannel,
         detectedEsYear ?? undefined,
+        targetEsYear ?? undefined,
       );
     }
   };
@@ -298,6 +301,7 @@ async function analyzeFilesFromTsConfig(
   );
   const tsProgram = createStandardProgram(programOptions);
   const detectedEsYear = esLibToYear(programOptions.options.lib);
+  const targetEsYear = tsTargetToEsYear(programOptions.options.target);
   telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
 
   // TypeScript normalizes file paths internally, so we can safely cast them
@@ -337,6 +341,7 @@ async function analyzeFilesFromTsConfig(
       progressReport,
       incrementalResultsChannel,
       detectedEsYear ?? undefined,
+      targetEsYear ?? undefined,
     );
   }
 }
