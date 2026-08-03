@@ -24,6 +24,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getTypeAsString } from '../helpers/type.js';
 import {
   getValueOfExpression,
+  getUniqueWriteUsageOrNode,
   isIdentifier,
   isIfStatement,
   resolveFunction,
@@ -33,6 +34,7 @@ import * as meta from './generated-meta.js';
 
 const POST_MESSAGE = 'postMessage';
 const ADD_EVENT_LISTENER = 'addEventListener';
+const ON_MESSAGE = 'onmessage';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -53,6 +55,9 @@ export const rule: Rule.RuleModule = {
         },
       [`CallExpression[callee.property.name="${ADD_EVENT_LISTENER}"]`]: (node: estree.Node) => {
         checkAddEventListenerCall(node as estree.CallExpression, context);
+      },
+      AssignmentExpression: (node: estree.Node) => {
+        checkOnMessageAssignment(node as estree.AssignmentExpression, context);
       },
     };
   },
@@ -100,9 +105,36 @@ function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rul
     return;
   }
 
-  let listener = resolveFunction(context, args[1]);
+  checkMessageListener(context, args[1], callee);
+}
+
+function checkOnMessageAssignment(
+  assignment: estree.AssignmentExpression,
+  context: Rule.RuleContext,
+) {
+  const { left } = assignment;
+  if (
+    assignment.operator !== '=' ||
+    left.type !== 'MemberExpression' ||
+    left.computed ||
+    left.property.type !== 'Identifier' ||
+    left.property.name !== ON_MESSAGE ||
+    !isWindowObject(left.object, context)
+  ) {
+    return;
+  }
+
+  checkMessageListener(context, assignment.right, left);
+}
+
+function checkMessageListener(
+  context: Rule.RuleContext,
+  listenerNode: estree.Node,
+  reportNode: estree.Node,
+) {
+  let listener = resolveFunction(context, getUniqueWriteUsageOrNode(context, listenerNode));
   if (listener?.body.type === 'CallExpression') {
-    listener = resolveFunction(context, listener.body);
+    listener = resolveFunction(context, getUniqueWriteUsageOrNode(context, listener.body));
   }
   if (!listener || listener.params.length === 0) {
     return;
@@ -115,7 +147,7 @@ function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rul
 
   if (!hasVerifiedOrigin(context, listener, event)) {
     context.report({
-      node: callee,
+      node: reportNode,
       messageId: 'verifyOrigin',
     });
   }

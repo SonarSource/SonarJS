@@ -68,6 +68,42 @@ describe('S2819', () => {
         },
         {
           code: `
+      window.onmessage = function(event) {
+        if (event.origin !== "http://example.org")
+          return;
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          code: `
+      function handleMessage(event) {
+        if (event.origin !== "http://example.org")
+          return;
+      }
+      globalThis.onmessage = handleMessage;
+            `,
+        },
+        {
+          code: `
+      const target = window;
+      const handleMessage = event => {
+        if (event.origin !== "http://example.org")
+          return;
+      };
+      target.onmessage = handleMessage;
+            `,
+        },
+        {
+          code: `
+      const socket = new WebSocket('wss://example.org');
+      socket.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          code: `
       window.addEventListener("missing listener");
       window.addEventListener("message", "not a function");
       not_a_win_dow.addEventListener("message", () => {});
@@ -190,6 +226,33 @@ describe('S2819', () => {
       window.addEventListener("message", function(event) {
         console.log(event.data);
       });
+            `,
+          errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
+          code: `
+      window.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+          errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
+          code: `
+      function handleMessage(event) {
+        console.log(event.data);
+      }
+      globalThis.onmessage = handleMessage;
+            `,
+          errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
+          code: `
+      const target = window;
+      const handleMessage = function (event) {
+        console.log(event.data);
+      };
+      target.onmessage = handleMessage;
             `,
           errors: [{ messageId: 'verifyOrigin' }],
         },
