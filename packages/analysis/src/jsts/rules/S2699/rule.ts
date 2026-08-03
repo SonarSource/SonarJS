@@ -34,11 +34,11 @@ import {
   followTypeScriptCallToImplementation,
 } from '../helpers/call-to-declaration.js';
 import {
-  hasSupportedAssertionLibrary,
+  hasAssertionLibraryIncludingUnclassified,
   hasSupportedTestFramework,
-  isAssertion,
+  isAssertionIncludingUnclassified,
   isIncompleteShouldAccess,
-  isTSAssertionWithAssignmentFallback,
+  isTSAssertionIncludingUnclassified,
 } from '../helpers/assertion-detection.js';
 import * as meta from './generated-meta.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
@@ -52,7 +52,7 @@ import ts from 'typescript';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    if (!hasSupportedTestFramework(context) || !hasSupportedAssertionLibrary(context)) {
+    if (!hasSupportedTestFramework(context) || !hasAssertionLibraryIncludingUnclassified(context)) {
       return {};
     }
     const visitedNodes: Map<estree.Node, boolean> = new Map();
@@ -229,7 +229,7 @@ class TestCaseAssertionVisitor {
       return visitedTSNodes.get(node)!;
     }
     visitedTSNodes.set(node, false);
-    if (isTSAssertionWithAssignmentFallback(services, node, this.context)) {
+    if (isTSAssertionIncludingUnclassified(this.context, services, node)) {
       visitedTSNodes.set(node, true);
       return true;
     }
@@ -273,7 +273,10 @@ class TestCaseAssertionVisitor {
       return visitedNodes.get(node)!;
     }
     visitedNodes.set(node, false);
-    if (isAssertion(context, node) && !isIncompleteShouldAccess(context, node)) {
+    if (
+      isAssertionIncludingUnclassified(context, node) &&
+      !isIncompleteShouldAccess(context, node)
+    ) {
       visitedNodes.set(node, true);
       return true;
     }

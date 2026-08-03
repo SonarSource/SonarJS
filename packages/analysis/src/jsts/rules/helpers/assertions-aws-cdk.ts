@@ -60,9 +60,9 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
 }
 
 export function isTSAssertionWithAssignmentFallback(
+  context: Rule.RuleContext,
   services: ParserServicesWithTypeInformation,
   node: ts.Node,
-  context: Rule.RuleContext,
 ): boolean {
   if (node.kind !== ts.SyntaxKind.CallExpression) {
     return false;
@@ -75,6 +75,10 @@ export function isTSAssertionWithAssignmentFallback(
   // The type-aware resolver only follows declaration initializers. `isAssertion` delegates to
   // `getFullyQualifiedName`, whose ESTree scope resolver follows a variable's unique write, such
   // as an assertion object assigned in `beforeEach`.
+  // The map only holds nodes converted from the linted file, so `undefined` here means `node`
+  // belongs to another file (the caller follows calls into their implementation) and the
+  // `context`-bound scope resolver could not be used on it anyway. The cast is the usual
+  // TSESTree-to-ESTree widening: `isAssertion` only reads `type` and the shared node shape.
   const estreeNode = services.tsNodeToESTreeNodeMap.get(node);
   return estreeNode !== undefined && isAssertion(context, estreeNode as estree.Node);
 }
