@@ -112,6 +112,24 @@ describe('S2819', () => {
         },
         {
           code: `
+      /* eslint-env worker */
+      self.onmessage = function(event) {
+        console.log(event.data);
+      };
+      window.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          code: `
+      self.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          code: `
       window.addEventListener("missing listener");
       window.addEventListener("message", "not a function");
       not_a_win_dow.addEventListener("message", () => {});

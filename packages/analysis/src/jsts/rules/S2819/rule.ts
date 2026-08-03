@@ -124,12 +124,27 @@ function checkOnMessageAssignment(
     left.computed ||
     left.property.type !== 'Identifier' ||
     left.property.name !== ON_MESSAGE ||
-    !isWindowObject(left.object, context, false)
+    !isWindowMessageReceiver(left.object, context)
   ) {
     return;
   }
 
   checkMessageListener(context, assignment.right, left);
+}
+
+function isWindowMessageReceiver(node: estree.Node, context: Rule.RuleContext) {
+  if (isWorkerEnvironment(context) || (node.type === 'Identifier' && node.name === 'self')) {
+    return false;
+  }
+
+  const type = getTypeAsString(node, context.sourceCode.parserServices);
+  return type.match(/window/i) || (node.type === 'Identifier' && node.name === 'globalThis');
+}
+
+function isWorkerEnvironment(context: Rule.RuleContext) {
+  return context.sourceCode
+    .getAllComments()
+    .some(comment => /eslint-env\s+.*\bworker\b/i.test(comment.value));
 }
 
 function checkMessageListener(
