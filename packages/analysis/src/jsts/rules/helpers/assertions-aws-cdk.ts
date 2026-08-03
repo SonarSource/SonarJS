@@ -52,16 +52,20 @@ export function isAssertion(context: Rule.RuleContext, node: estree.Node): boole
   return node.type === 'CallExpression' && isFQNAssertion(getFullyQualifiedName(context, node));
 }
 
-export function isTSAssertion(
+export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node): boolean {
+  if (node.kind !== ts.SyntaxKind.CallExpression) {
+    return false;
+  }
+  return isFQNAssertion(getFullyQualifiedNameTS(services, node));
+}
+
+export function isTSAssertionWithAssignmentFallback(
   services: ParserServicesWithTypeInformation,
   node: ts.Node,
   context: Rule.RuleContext,
 ): boolean {
   if (node.kind !== ts.SyntaxKind.CallExpression) {
     return false;
-  }
-  if (isFQNAssertion(getFullyQualifiedNameTS(services, node))) {
-    return true;
   }
   // The ESTree fallback below resolves names by walking scopes on every call expression, so it is
   // gated on the file actually importing the module. `importsModuleTS` caches per source file.

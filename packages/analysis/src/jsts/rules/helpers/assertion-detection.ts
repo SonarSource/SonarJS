@@ -261,16 +261,8 @@ export function isIncompleteShouldAccess(context: Rule.RuleContext, node: estree
 /**
  * Type-checker-aware counterpart of {@link isAssertion}, operating on TypeScript
  * AST nodes. Used when parser services are available to follow resolved types.
- *
- * `context` is optional only for callers that have no rule context (helper unit tests).
- * Omitting it disables the detectors that need to fall back to the ESTree name resolver,
- * so rules must always pass it.
  */
-export function isTSAssertion(
-  services: ParserServicesWithTypeInformation,
-  node: ts.Node,
-  context?: Rule.RuleContext,
-): boolean {
+export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node): boolean {
   return (
     isGlobalTSAssertion(services, node) ||
     isExtendedTSShouldAccess(node) ||
@@ -280,8 +272,23 @@ export function isTSAssertion(
     Vitest.isTSAssertion(services, node) ||
     Uvu.isTSAssertion(services, node) ||
     Cypress.isTSAssertion(node) ||
-    // Last: the only detector that may fall back to the (more expensive) ESTree name resolver.
-    (context !== undefined && AwsCdk.isTSAssertion(services, node, context))
+    AwsCdk.isTSAssertion(services, node)
+  );
+}
+
+/**
+ * Like {@link isTSAssertion}, but also follows a unique assignment through the ESTree scope.
+ *
+ * This is currently needed only for AWS CDK assertions initialized in test setup.
+ */
+export function isTSAssertionWithAssignmentFallback(
+  services: ParserServicesWithTypeInformation,
+  node: ts.Node,
+  context: Rule.RuleContext,
+): boolean {
+  return (
+    isTSAssertion(services, node) ||
+    AwsCdk.isTSAssertionWithAssignmentFallback(services, node, context)
   );
 }
 

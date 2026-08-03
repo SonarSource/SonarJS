@@ -38,7 +38,7 @@ import {
   hasSupportedTestFramework,
   isAssertion,
   isIncompleteShouldAccess,
-  isTSAssertion,
+  isTSAssertionWithAssignmentFallback,
 } from '../helpers/assertion-detection.js';
 import * as meta from './generated-meta.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
@@ -229,7 +229,7 @@ class TestCaseAssertionVisitor {
       return visitedTSNodes.get(node)!;
     }
     visitedTSNodes.set(node, false);
-    if (isTSAssertion(services, node, this.context)) {
+    if (isTSAssertionWithAssignmentFallback(services, node, this.context)) {
       visitedTSNodes.set(node, true);
       return true;
     }
