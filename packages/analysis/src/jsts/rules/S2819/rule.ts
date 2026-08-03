@@ -21,7 +21,7 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { childrenOf, findFirstMatchingLocalAncestor } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getTypeAsString } from '../helpers/type.js';
+import { getTypeAsString, getTypeFromTreeNode } from '../helpers/type.js';
 import {
   getValueOfExpression,
   getUniqueWriteUsageOrNode,
@@ -138,9 +138,19 @@ function isWindowMessageReceiver(node: estree.Node, context: Rule.RuleContext) {
   }
 
   const receiver = getUniqueWriteUsageOrNode(context, node, true);
-  return (
-    receiver.type === 'Identifier' &&
-    (receiver.name === 'window' || receiver.name === 'globalThis')
+  if (
+    receiver.type !== 'Identifier' ||
+    (receiver.name !== 'window' && receiver.name !== 'globalThis')
+  ) {
+    return false;
+  }
+
+  const onMessage = getTypeFromTreeNode(
+    receiver,
+    context.sourceCode.parserServices,
+  ).getProperty(ON_MESSAGE);
+  return onMessage?.declarations?.some(declaration =>
+    declaration.getSourceFile().fileName.endsWith('lib.dom.d.ts'),
   );
 }
 
