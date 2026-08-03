@@ -279,7 +279,7 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
 /**
  * Like {@link isTSAssertion}, but also follows a unique assignment through the ESTree scope.
  *
- * This is currently needed only for AWS CDK assertions initialized in test setup.
+ * This is currently used only for AWS CDK assertion objects assigned in test setup.
  */
 export function isTSAssertionWithAssignmentFallback(
   services: ParserServicesWithTypeInformation,

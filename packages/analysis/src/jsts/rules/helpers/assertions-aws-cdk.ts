@@ -72,8 +72,9 @@ export function isTSAssertionWithAssignmentFallback(
   if (!importsModuleTS(node.getSourceFile(), [ASSERTIONS_MODULE])) {
     return false;
   }
-  // The type-aware resolver only follows declaration initializers. Reuse the ESTree resolver to
-  // follow a unique later assignment, such as an assertion object initialized in `beforeEach`.
+  // The type-aware resolver only follows declaration initializers. `isAssertion` delegates to
+  // `getFullyQualifiedName`, whose ESTree scope resolver follows a variable's unique write, such
+  // as an assertion object assigned in `beforeEach`.
   const estreeNode = services.tsNodeToESTreeNodeMap.get(node);
   return estreeNode !== undefined && isAssertion(context, estreeNode as estree.Node);
 }
