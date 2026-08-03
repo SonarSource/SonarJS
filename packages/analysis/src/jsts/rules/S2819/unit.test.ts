@@ -130,6 +130,14 @@ describe('S2819', () => {
         },
         {
           code: `
+      const target = self;
+      target.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          code: `
       window.addEventListener("missing listener");
       window.addEventListener("message", "not a function");
       not_a_win_dow.addEventListener("message", () => {});

@@ -133,12 +133,15 @@ function checkOnMessageAssignment(
 }
 
 function isWindowMessageReceiver(node: estree.Node, context: Rule.RuleContext) {
-  if (isWorkerEnvironment(context) || (node.type === 'Identifier' && node.name === 'self')) {
+  if (isWorkerEnvironment(context)) {
     return false;
   }
 
-  const type = getTypeAsString(node, context.sourceCode.parserServices);
-  return type.match(/window/i) || (node.type === 'Identifier' && node.name === 'globalThis');
+  const receiver = getUniqueWriteUsageOrNode(context, node, true);
+  return (
+    receiver.type === 'Identifier' &&
+    (receiver.name === 'window' || receiver.name === 'globalThis')
+  );
 }
 
 function isWorkerEnvironment(context: Rule.RuleContext) {
