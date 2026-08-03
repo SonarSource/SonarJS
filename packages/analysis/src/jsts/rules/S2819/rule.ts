@@ -27,6 +27,7 @@ import {
   getUniqueWriteUsageOrNode,
   isIdentifier,
   isIfStatement,
+  functionLike,
   resolveFunction,
 } from '../helpers/ast.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
@@ -133,7 +134,7 @@ function checkOnMessageAssignment(
 }
 
 function isWindowMessageReceiver(node: estree.Node, context: Rule.RuleContext) {
-  if (isWorkerEnvironment(context)) {
+  if (isWorkerEnvironment(context) || isWindowAliasedToWorkerGlobal(node, context)) {
     return false;
   }
 
@@ -151,6 +152,23 @@ function isWindowMessageReceiver(node: estree.Node, context: Rule.RuleContext) {
   ).getProperty(ON_MESSAGE);
   return onMessage?.declarations?.some(declaration =>
     declaration.getSourceFile().fileName.endsWith('lib.dom.d.ts'),
+  );
+}
+
+function isWindowAliasedToWorkerGlobal(node: estree.Node, context: Rule.RuleContext) {
+  const receiverFunction = findFirstMatchingLocalAncestor(
+    node as TSESTree.Node,
+    ancestor => functionLike.has(ancestor.type),
+  );
+  return context.sourceCode.getScope(node).through.some(
+    reference =>
+      reference.isWrite() &&
+      reference.identifier.name === 'window' &&
+      findFirstMatchingLocalAncestor(reference.identifier as TSESTree.Node, ancestor =>
+        functionLike.has(ancestor.type),
+      ) === receiverFunction &&
+      (isIdentifier(reference.writeExpr ?? undefined, 'self') ||
+        isIdentifier(reference.writeExpr ?? undefined, 'global')),
   );
 }
 

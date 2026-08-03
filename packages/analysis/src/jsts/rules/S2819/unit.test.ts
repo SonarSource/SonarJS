@@ -138,6 +138,16 @@ describe('S2819', () => {
         },
         {
           code: `
+      if (typeof window === 'undefined') {
+        window = self;
+      }
+      window.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          code: `
       type WorkerScope = { onmessage: (event: MessageEvent) => void };
       function register(globalThis: WorkerScope) {
         globalThis.onmessage = function(event) {
@@ -275,6 +285,19 @@ describe('S2819', () => {
         },
         {
           code: `
+      window.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+          errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
+          code: `
+      function bootstrapWorker() {
+        if (typeof window === 'undefined') {
+          window = self;
+        }
+      }
       window.onmessage = function(event) {
         console.log(event.data);
       };
