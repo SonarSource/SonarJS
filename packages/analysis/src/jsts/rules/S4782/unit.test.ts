@@ -472,6 +472,17 @@ describe('S4782', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
           },
           {
+            // JS-2192: the access resolves through an index signature declared
+            // externally, so the `undefined` is just as unremovable.
+            code: `
+            import type { FakeExternalRecord } from 'fake-lib';
+            interface Example {
+              attribute?: FakeExternalRecord['anyKey'];
+            };
+            `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
+          {
             // JS-1789 Peach-comment reproducer: React.ReactNode resolves to a
             // union containing undefined, but the user cannot edit React's
             // declaration. Suppress.
@@ -563,6 +574,68 @@ describe('S4782', () => {
             }
             interface Example {
               attribute: LocalProperties['optional'];
+            };
+            `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            // An index signature declared in the project stays reportable: the
+            // user can drop `| undefined` from their own signature.
+            code: `
+            interface LocalIndexed {
+              [key: string]: string | undefined;
+            }
+            interface Example {
+              attribute?: LocalIndexed['anyKey'];
+            };
+            `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `
+            interface LocalIndexed {
+              [key: string]: string | undefined;
+            }
+            interface Example {
+              attribute: LocalIndexed['anyKey'];
+            };
+            `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            // A non-literal index cannot be resolved to a declaration, so the
+            // access stays reportable even against an external type.
+            code: `
+            import type { FakeExternalProperties } from 'fake-lib';
+            type Key = 'optional';
+            interface Example {
+              attribute?: FakeExternalProperties[Key];
+            };
+            `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `
+            import type { FakeExternalProperties } from 'fake-lib';
+            type Key = 'optional';
+            interface Example {
+              attribute: FakeExternalProperties[Key];
             };
             `,
                   },

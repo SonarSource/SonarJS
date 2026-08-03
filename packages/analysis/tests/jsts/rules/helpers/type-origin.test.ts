@@ -181,6 +181,59 @@ describe('classifyTypesByOrigin', () => {
     expect(result.internal).toHaveLength(1);
   });
 
+  it('classifies indexed access through an external index signature as external', () => {
+    const parsed = parse(`
+      import type { FakeExternalIndexed } from 'fake-lib';
+      type Subject = FakeExternalIndexed['anyKey'];
+    `);
+    const result = classifyTypesByOrigin(findAliasType(parsed, 'Subject'), parsed.services);
+    expect(result.external).toHaveLength(1);
+    expect(result.internal).toHaveLength(0);
+  });
+
+  it('classifies indexed access through an external mapped type as external', () => {
+    const parsed = parse(`
+      import type { FakeExternalRecord } from 'fake-lib';
+      type Subject = FakeExternalRecord['anyKey'];
+    `);
+    const result = classifyTypesByOrigin(findAliasType(parsed, 'Subject'), parsed.services);
+    expect(result.external).toHaveLength(1);
+    expect(result.internal).toHaveLength(0);
+  });
+
+  it('classifies indexed access through a local index signature as internal', () => {
+    const parsed = parse(`
+      interface LocalIndexed {
+        [key: string]: string | undefined;
+      }
+      type Subject = LocalIndexed['anyKey'];
+    `);
+    const result = classifyTypesByOrigin(findAliasType(parsed, 'Subject'), parsed.services);
+    expect(result.external).toHaveLength(0);
+    expect(result.internal).toHaveLength(1);
+  });
+
+  it('classifies indexed access through a local mapped type as internal', () => {
+    const parsed = parse(`
+      type LocalRecord = Record<string, string | undefined>;
+      type Subject = LocalRecord['anyKey'];
+    `);
+    const result = classifyTypesByOrigin(findAliasType(parsed, 'Subject'), parsed.services);
+    expect(result.external).toHaveLength(0);
+    expect(result.internal).toHaveLength(1);
+  });
+
+  it('classifies indexed access with a non-literal index as internal', () => {
+    const parsed = parse(`
+      import type { FakeExternalProperties } from 'fake-lib';
+      type Key = 'optional';
+      type Subject = FakeExternalProperties[Key];
+    `);
+    const result = classifyTypesByOrigin(findAliasType(parsed, 'Subject'), parsed.services);
+    expect(result.external).toHaveLength(0);
+    expect(result.internal).toHaveLength(1);
+  });
+
   it('classifies a qualified name from node_modules as external', () => {
     const parsed = parse(`
       import type * as FakeLib from 'fake-lib';
