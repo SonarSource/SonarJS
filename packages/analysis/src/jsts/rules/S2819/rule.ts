@@ -63,9 +63,14 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
+function isWindowObject(
+  node: estree.Node,
+  context: Rule.RuleContext,
+  allowWindowNameMatch = true,
+) {
   const type = getTypeAsString(node, context.sourceCode.parserServices);
-  const hasWindowName = WindowNameVisitor.containsWindowName(node, context);
+  const hasWindowName =
+    allowWindowNameMatch && WindowNameVisitor.containsWindowName(node, context);
   return type.match(/window/i) || type.match(/globalThis/i) || hasWindowName;
 }
 
@@ -119,7 +124,7 @@ function checkOnMessageAssignment(
     left.computed ||
     left.property.type !== 'Identifier' ||
     left.property.name !== ON_MESSAGE ||
-    !isWindowObject(left.object, context)
+    !isWindowObject(left.object, context, false)
   ) {
     return;
   }
