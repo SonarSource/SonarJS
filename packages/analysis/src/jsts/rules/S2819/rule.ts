@@ -64,14 +64,9 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function isWindowObject(
-  node: estree.Node,
-  context: Rule.RuleContext,
-  allowWindowNameMatch = true,
-) {
+function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
   const type = getTypeAsString(node, context.sourceCode.parserServices);
-  const hasWindowName =
-    allowWindowNameMatch && WindowNameVisitor.containsWindowName(node, context);
+  const hasWindowName = WindowNameVisitor.containsWindowName(node, context);
   return type.match(/window/i) || type.match(/globalThis/i) || hasWindowName;
 }
 
@@ -133,8 +128,15 @@ function checkOnMessageAssignment(
   checkMessageListener(context, assignment.right, left);
 }
 
+/**
+ * Unlike `isWindowObject`, which also accepts any identifier whose name contains 'window',
+ * the receiver of an `onmessage` assignment must resolve to `window` or `globalThis` itself.
+ * The name heuristic is too coarse here: `onmessage` is also a property of unrelated
+ * transports such as WebSocket, so a `wsWindowChannel.onmessage` assignment would be
+ * reported without this restriction.
+ */
 function isWindowMessageReceiver(node: estree.Node, context: Rule.RuleContext) {
-  if (isWorkerEnvironment(context) || isWindowAliasedToWorkerGlobal(node, context)) {
+  if (isWindowAliasedToWorkerGlobal(node, context)) {
     return false;
   }
 
@@ -146,47 +148,37 @@ function isWindowMessageReceiver(node: estree.Node, context: Rule.RuleContext) {
     return false;
   }
 
-  const onMessage = getTypeFromTreeNode(
-    receiver,
-    context.sourceCode.parserServices,
-  ).getProperty(ON_MESSAGE);
+  const onMessage = getTypeFromTreeNode(receiver, context.sourceCode.parserServices).getProperty(
+    ON_MESSAGE,
+  );
   return onMessage?.declarations?.some(declaration =>
     declaration.getSourceFile().fileName.endsWith('lib.dom.d.ts'),
   );
 }
 
+/**
+ * Detects `window = self` / `window = global` shims used by scripts meant to run in a Worker.
+ *
+ * Such a write only surfaces in `through` as long as `window` is an unresolved reference, which
+ * is the case for the global scope of an analyzed file. The write is only relevant when it can
+ * reach the receiver, hence the comparison of enclosing functions: a shim confined to another
+ * function does not make the receiver a Worker global.
+ */
 function isWindowAliasedToWorkerGlobal(node: estree.Node, context: Rule.RuleContext) {
-  const receiverFunction = findFirstMatchingLocalAncestor(
-    node as TSESTree.Node,
-    ancestor => functionLike.has(ancestor.type),
+  const receiverFunction = findFirstMatchingLocalAncestor(node as TSESTree.Node, ancestor =>
+    functionLike.has(ancestor.type),
   );
-  return context.sourceCode.getScope(node).through.some(
-    reference =>
-      reference.isWrite() &&
-      reference.identifier.name === 'window' &&
-      findFirstMatchingLocalAncestor(reference.identifier as TSESTree.Node, ancestor =>
-        functionLike.has(ancestor.type),
-      ) === receiverFunction &&
-      (isIdentifier(reference.writeExpr ?? undefined, 'self') ||
-        isIdentifier(reference.writeExpr ?? undefined, 'global')),
-  );
-}
-
-function isWorkerEnvironment(context: Rule.RuleContext) {
-  const eslintEnv = 'eslint-env';
-  return context.sourceCode.getAllComments().some(comment => {
-    const content = comment.value.toLowerCase();
-    const envStart = content.indexOf(eslintEnv);
-    const variablesStart = envStart + eslintEnv.length;
-    return (
-      envStart >= 0 &&
-      /\s/.test(content[variablesStart] ?? '') &&
-      content
-        .slice(variablesStart)
-        .split(/[\s,]+/)
-        .includes('worker')
+  return context.sourceCode
+    .getScope(node)
+    .through.some(
+      reference =>
+        reference.isWrite() &&
+        reference.identifier.name === 'window' &&
+        findFirstMatchingLocalAncestor(reference.identifier as TSESTree.Node, ancestor =>
+          functionLike.has(ancestor.type),
+        ) === receiverFunction &&
+        isIdentifier(reference.writeExpr ?? undefined, 'self', 'global'),
     );
-  });
 }
 
 function checkMessageListener(
@@ -196,7 +188,7 @@ function checkMessageListener(
 ) {
   let listener = resolveFunction(context, getUniqueWriteUsageOrNode(context, listenerNode));
   if (listener?.body.type === 'CallExpression') {
-    listener = resolveFunction(context, getUniqueWriteUsageOrNode(context, listener.body));
+    listener = resolveFunction(context, listener.body);
   }
   if (!listener || listener.params.length === 0) {
     return;
@@ -275,9 +267,9 @@ function hasVerifiedOrigin(
   function findUnionOrigin(eventRef: TSESTree.Node, eventIdentifiers: TSESTree.Identifier[]) {
     const memberExpr = eventRef.parent;
     // looks for event.origin in a LogicalExpr
-    if (
-      !(memberExpr?.type === 'MemberExpression' && memberExpr.parent?.type === 'LogicalExpression')
-    ) {
+    if (!(
+      memberExpr?.type === 'MemberExpression' && memberExpr.parent?.type === 'LogicalExpression'
+    )) {
       return null;
     }
     const logicalExpr = memberExpr.parent;
@@ -437,10 +429,7 @@ function findEventOriginalEvent(event: TSESTree.Identifier) {
     return null;
   }
   const { object: eventCandidate, property: originalEventIdentifierCandidate } = memberExpr;
-  if (
-    eventCandidate === event &&
-    isIdentifier(originalEventIdentifierCandidate, 'originalEvent')
-  ) {
+  if (eventCandidate === event && isIdentifier(originalEventIdentifierCandidate, 'originalEvent')) {
     return memberExpr;
   }
   return null;

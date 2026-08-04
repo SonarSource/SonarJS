@@ -111,14 +111,53 @@ describe('S2819', () => {
             `,
         },
         {
+          // compound assignments are out of scope
           code: `
-      /* eslint-env worker */
-      self.onmessage = function(event) {
+      window.onmessage ??= function(event) {
         console.log(event.data);
       };
+      window.onmessage ||= function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          // computed properties are out of scope
+          code: `
+      window['onmessage'] = function(event) {
+        console.log(event.data);
+      };
+      const property = 'onmessage';
+      window[property] = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          code: `
+      window.onmessage = null;
+      window.onmessage = "not a function";
+      window.onmessage = function() {}; // missing event parameter
+      window.onmessage = function(...not_an_identifier) {};
+            `,
+        },
+        {
+          code: `
       window.onmessage = function(event) {
-        console.log(event.data);
+        const e = event || event.originalEvent;
+        if (e.origin !== "http://example.org")
+          return;
+        console.log(e.data);
       };
+            `,
+        },
+        {
+          code: `
+      const handleMessage = event => {
+        if (event.origin !== "http://example.org")
+          return;
+      };
+      window.addEventListener("message", handleMessage);
             `,
         },
         {
@@ -320,6 +359,15 @@ describe('S2819', () => {
         console.log(event.data);
       };
       target.onmessage = handleMessage;
+            `,
+          errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
+          code: `
+      const handleMessage = event => {
+        console.log(event.data);
+      };
+      window.addEventListener("message", handleMessage);
             `,
           errors: [{ messageId: 'verifyOrigin' }],
         },
