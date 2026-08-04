@@ -21,9 +21,9 @@ import tsParser from '@typescript-eslint/parser';
 import { rule } from './rule.js';
 
 const LODASH_MESSAGE =
-  'Mutating a nested property of this _.clone() changes the original value; use structuredClone() or _.cloneDeep() when isolation is required.';
+  'Mutating a nested property of this shallow clone changes the original value; use structuredClone() or _.cloneDeep() when isolation is required.';
 const UNDERSCORE_MESSAGE =
-  'Mutating a nested property of this _.clone() changes the original value; use structuredClone() when isolation is required.';
+  'Mutating a nested property of this shallow clone changes the original value; use structuredClone() when isolation is required.';
 
 describe('S9135', () => {
   it('reports nested mutations of shallow clones and offers both suggestions', () => {

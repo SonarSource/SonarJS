@@ -30,9 +30,9 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
 const LODASH_MESSAGE =
-  'Mutating a nested property of this _.clone() changes the original value; use structuredClone() or _.cloneDeep() when isolation is required.';
+  'Mutating a nested property of this shallow clone changes the original value; use structuredClone() or _.cloneDeep() when isolation is required.';
 const UNDERSCORE_MESSAGE =
-  'Mutating a nested property of this _.clone() changes the original value; use structuredClone() when isolation is required.';
+  'Mutating a nested property of this shallow clone changes the original value; use structuredClone() when isolation is required.';
 const SECONDARY_MESSAGE = 'Shallow clone created here.';
 const NOSONAR_COMMENT = ' // NOSONAR: shared nested state is intentional';
 

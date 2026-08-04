@@ -1,4 +1,3 @@
-// Copyright 2026 The Closure Library Authors. All Rights Reserved.
 /*
  * SonarQube JavaScript Plugin
  * Copyright (C) SonarSource Sàrl
