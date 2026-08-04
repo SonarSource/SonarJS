@@ -173,9 +173,20 @@ function isWindowAliasedToWorkerGlobal(node: estree.Node, context: Rule.RuleCont
 }
 
 function isWorkerEnvironment(context: Rule.RuleContext) {
-  return context.sourceCode
-    .getAllComments()
-    .some(comment => /eslint-env\s+.*\bworker\b/i.test(comment.value));
+  const eslintEnv = 'eslint-env';
+  return context.sourceCode.getAllComments().some(comment => {
+    const content = comment.value.toLowerCase();
+    const envStart = content.indexOf(eslintEnv);
+    const variablesStart = envStart + eslintEnv.length;
+    return (
+      envStart >= 0 &&
+      /\s/.test(content[variablesStart] ?? '') &&
+      content
+        .slice(variablesStart)
+        .split(/[\s,]+/)
+        .includes('worker')
+    );
+  });
 }
 
 function checkMessageListener(
