@@ -1,8 +1,8 @@
 import { debounce } from 'lodash';
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 
 function Search() {
-  const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or wrap it in useMemo.}}
+  const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or hook, or wrap it in useMemo.}}
 //                 ^^^^^^^^
   return <input onChange={onChange} />;
 }
@@ -12,14 +12,32 @@ function CompliantSearch() {
   return <input onChange={onChange} />;
 }
 
+function useDebouncedSearch(onSearch) {
+  const onChange = debounce(onSearch, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or hook, or wrap it in useMemo.}}
+//                 ^^^^^^^^
+  return onChange;
+}
+
+function useMemoizedSearch(onSearch) {
+  return useMemo(() => debounce(onSearch, 300), [onSearch]);
+}
+
+function useRefSearch(onSearch) {
+  const ref = useRef(null);
+  if (!ref.current) {
+    ref.current = debounce(onSearch, 300); // Compliant: lazy ref initialization creates the wrapper once
+  }
+  return ref.current;
+}
+
 const MemoizedSearch = React.memo(function Search() {
-  const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or wrap it in useMemo.}}
+  const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or hook, or wrap it in useMemo.}}
 //                 ^^^^^^^^
   return <input onChange={onChange} />;
 });
 
 const ForwardedSearch = React.forwardRef((props, ref) => {
-  const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or wrap it in useMemo.}}
+  const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or hook, or wrap it in useMemo.}}
 //                 ^^^^^^^^
   return <input ref={ref} onChange={onChange} />;
 });
@@ -52,7 +70,8 @@ class CompliantClassComponent extends React.Component {
   }
 
   render() {
-    const handleClick = () => debounce(fetchResults, 300);
+    const handleClick = () =>
+      debounce(fetchResults, 300)(); // Compliant: known limitation, the call is nested inside an event handler
     return <input onClick={handleClick} />;
   }
 }

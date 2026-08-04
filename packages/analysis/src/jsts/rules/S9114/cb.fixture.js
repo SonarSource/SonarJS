@@ -5,37 +5,37 @@ import _ from 'underscore';
 import { useMemo, useCallback, useEffect } from 'react';
 
 function Search() {
-  const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or wrap it in useMemo.}}
+  const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or hook, or wrap it in useMemo.}}
 //                 ^^^^^^^^
   return null;
 }
 
 function VolumeControl() {
-  const onScroll = throttle(updateVolume, 100); // Noncompliant {{This throttled function is recreated on every render, which resets its timer and defeats throttling. Move it outside the component or wrap it in useMemo.}}
+  const onScroll = throttle(updateVolume, 100); // Noncompliant {{This throttled function is recreated on every render, which resets its timer and defeats throttling. Move it outside the component or hook, or wrap it in useMemo.}}
 //                 ^^^^^^^^
   return null;
 }
 
 function ActivityTracker() {
-  const trackScroll = _.throttle(logScrollPosition, 100); // Noncompliant {{This throttled function is recreated on every render, which resets its timer and defeats throttling. Move it outside the component or wrap it in useMemo.}}
+  const trackScroll = _.throttle(logScrollPosition, 100); // Noncompliant {{This throttled function is recreated on every render, which resets its timer and defeats throttling. Move it outside the component or hook, or wrap it in useMemo.}}
 //                      ^^^^^^^^
   return null;
 }
 
 function DefaultImportComponent() {
-  const handler = debounceMethod(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or wrap it in useMemo.}}
+  const handler = debounceMethod(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or hook, or wrap it in useMemo.}}
 //                ^^^^^^^^^^^^^^
   return null;
 }
 
 function LodashEsComponent() {
-  const handler = debounceEs(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or wrap it in useMemo.}}
+  const handler = debounceEs(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or hook, or wrap it in useMemo.}}
 //                ^^^^^^^^^^
   return null;
 }
 
 const ArrowComponent = () => {
-  const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or wrap it in useMemo.}}
+  const onChange = debounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or hook, or wrap it in useMemo.}}
 //                 ^^^^^^^^
   return null;
 };
@@ -44,8 +44,8 @@ const { debounce: requiredDebounce } = require('lodash');
 const requiredLodash = require('lodash');
 
 function RequireComponent() {
-  const onChange = requiredDebounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or wrap it in useMemo.}}
-  const onScroll = requiredLodash.throttle(updateVolume, 100); // Noncompliant {{This throttled function is recreated on every render, which resets its timer and defeats throttling. Move it outside the component or wrap it in useMemo.}}
+  const onChange = requiredDebounce(fetchResults, 300); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or hook, or wrap it in useMemo.}}
+  const onScroll = requiredLodash.throttle(updateVolume, 100); // Noncompliant {{This throttled function is recreated on every render, which resets its timer and defeats throttling. Move it outside the component or hook, or wrap it in useMemo.}}
 //                                ^^^^^^^^
   return null;
 }

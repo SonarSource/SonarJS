@@ -92,6 +92,15 @@ export function isIdentifier(
   return node?.type === 'Identifier' && (values.length === 0 || values.includes(node.name));
 }
 
+export function isCallResult(
+  node: estree.Expression | estree.Super,
+): node is estree.CallExpression {
+  if (node.type === 'ChainExpression') {
+    return isCallResult(node.expression);
+  }
+  return node.type === 'CallExpression';
+}
+
 export function isTypeOnlyImport(node: estree.ImportDeclaration): boolean {
   return (node as ImportDeclarationWithKind).importKind === 'type';
 }

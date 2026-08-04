@@ -24,7 +24,13 @@ import {
   findFirstMatchingLocalAncestor,
   getNodeParent,
 } from '../helpers/ancestor.js';
-import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
+import {
+  getVariableFromName,
+  isCallResult,
+  isFunctionNode,
+  isIdentifier,
+  isNullLiteral,
+} from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName, isRequire } from '../helpers/module.js';
 import {
@@ -36,6 +42,7 @@ import * as meta from './generated-meta.js';
 const supportedModules = new Set(['lodash', 'lodash-es', 'underscore']);
 const methodNames = new Set(['debounce', 'throttle']);
 const componentNamePattern = /^[A-Z]/;
+const customHookNamePattern = /^use[A-Z]/;
 
 type MethodName = 'debounce' | 'throttle';
 
@@ -43,7 +50,7 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
       recreatedPerRender:
-        'This {{kind}} function is recreated on every render, which resets its timer and defeats {{purpose}}. Move it outside the component or wrap it in useMemo.',
+        'This {{kind}} function is recreated on every render, which resets its timer and defeats {{purpose}}. Move it outside the component or hook, or wrap it in useMemo.',
       recreatedInClassRender:
         'This {{kind}} function is recreated on every render, which resets its timer and defeats {{purpose}}. Initialize it in the constructor or as an instance property.',
     },
@@ -59,9 +66,7 @@ export const rule: Rule.RuleModule = {
 
         const fullyQualifiedName = getFullyQualifiedName(context, call);
         const methodName =
-          fullyQualifiedName === null
-            ? undefined
-            : getSupportedMethodName(fullyQualifiedName, syntacticMethod);
+          fullyQualifiedName === null ? undefined : getSupportedMethodName(fullyQualifiedName);
         if (methodName === undefined) {
           return;
         }
@@ -76,7 +81,10 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        if (isWrappedInMemoHook(context, call, enclosingFunction)) {
+        if (
+          isWrappedInMemoHook(context, call, enclosingFunction) ||
+          isRefLazyInitialization(context, call)
+        ) {
           return;
         }
 
@@ -99,20 +107,13 @@ export const rule: Rule.RuleModule = {
  * the callee carries no usable syntactic name (aliased or destructured
  * import), so the fully qualified name alone decides.
  */
-function getSupportedMethodName(
-  fullyQualifiedName: string,
-  syntacticMethod: MethodName | null,
-): MethodName | undefined {
+function getSupportedMethodName(fullyQualifiedName: string): MethodName | undefined {
   const parts = fullyQualifiedName.replaceAll('/', '.').split('.');
   if (parts.length !== 2) {
     return undefined;
   }
   const [moduleName, qualifier] = parts;
-  if (
-    supportedModules.has(moduleName) &&
-    isMethodName(qualifier) &&
-    (syntacticMethod === null || syntacticMethod === qualifier)
-  ) {
+  if (supportedModules.has(moduleName) && isMethodName(qualifier)) {
     return qualifier;
   }
   return undefined;
@@ -150,13 +151,6 @@ function isMethodName(name: string): name is MethodName {
   return methodNames.has(name);
 }
 
-function isCallResult(node: estree.Expression | estree.Super): node is estree.CallExpression {
-  if (node.type === 'ChainExpression') {
-    return isCallResult(node.expression);
-  }
-  return node.type === 'CallExpression';
-}
-
 /**
  * Returns the innermost function that encloses `node`, or undefined when the
  * node sits at module scope. When that function is not the React component
@@ -178,7 +172,97 @@ function getComponentType(functionNode: estree.Node): 'function' | 'class' | und
 
 function isFunctionComponent(functionNode: estree.Node): boolean {
   const identifier = getComponentIdentifier(functionNode);
-  return identifier !== undefined && componentNamePattern.test(identifier.name);
+  return (
+    identifier !== undefined &&
+    (componentNamePattern.test(identifier.name) || customHookNamePattern.test(identifier.name))
+  );
+}
+
+function isRefLazyInitialization(context: Rule.RuleContext, call: estree.CallExpression): boolean {
+  const assignment = getNodeParent(call);
+  if (
+    assignment.type !== 'AssignmentExpression' ||
+    assignment.operator !== '=' ||
+    !isRefCurrentMember(assignment.left)
+  ) {
+    return false;
+  }
+
+  const refIdentifier = assignment.left.object;
+  if (!isReactUseRef(context, refIdentifier)) {
+    return false;
+  }
+
+  const statement = getNodeParent(assignment);
+  if (statement.type !== 'ExpressionStatement') {
+    return false;
+  }
+
+  const ifStatement = getGuardingIfStatement(statement);
+  return ifStatement !== undefined && isRefInitializationGuard(ifStatement.test, refIdentifier);
+}
+
+function getGuardingIfStatement(
+  statement: estree.ExpressionStatement,
+): estree.IfStatement | undefined {
+  const parent = getNodeParent(statement);
+  if (parent.type === 'IfStatement' && parent.consequent === statement) {
+    return parent;
+  }
+  if (parent.type !== 'BlockStatement') {
+    return undefined;
+  }
+  const ifStatement = getNodeParent(parent);
+  return ifStatement.type === 'IfStatement' && ifStatement.consequent === parent
+    ? ifStatement
+    : undefined;
+}
+
+function isReactUseRef(context: Rule.RuleContext, refIdentifier: estree.Identifier): boolean {
+  const variable = getVariableFromName(context, refIdentifier.name, refIdentifier);
+  if (variable?.defs.length !== 1 || variable.defs[0].type !== 'Variable') {
+    return false;
+  }
+  const init = variable.defs[0].node.init;
+  return init?.type === 'CallExpression' && getFullyQualifiedName(context, init) === 'react.useRef';
+}
+
+function isRefCurrentMember(
+  node: estree.Node,
+): node is estree.MemberExpression & { object: estree.Identifier; property: estree.Identifier } {
+  return (
+    node.type === 'MemberExpression' &&
+    !node.computed &&
+    isIdentifier(node.object) &&
+    isIdentifier(node.property, 'current')
+  );
+}
+
+function isRefInitializationGuard(
+  test: estree.Expression,
+  refIdentifier: estree.Identifier,
+): boolean {
+  if (
+    test.type === 'UnaryExpression' &&
+    test.operator === '!' &&
+    isRefCurrentMemberFor(test.argument, refIdentifier)
+  ) {
+    return true;
+  }
+  if (test.type !== 'BinaryExpression' || !['===', '=='].includes(test.operator)) {
+    return false;
+  }
+  return (
+    (isRefCurrentMemberFor(test.left, refIdentifier) && isNullLiteral(test.right)) ||
+    (isNullLiteral(test.left) && isRefCurrentMemberFor(test.right, refIdentifier))
+  );
+}
+
+function isRefCurrentMemberFor(
+  node: estree.Node,
+  refIdentifier: estree.Identifier,
+): node is estree.MemberExpression {
+  return isRefCurrentMember(node) && node.object.name === refIdentifier.name;
 }
 
 function isClassComponentRenderMethod(functionNode: estree.Node): boolean {
