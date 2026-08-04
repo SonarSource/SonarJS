@@ -16,6 +16,8 @@
  */
 import { describe, it } from 'node:test';
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { RuleTester as ESLintRuleTester } from 'eslint';
+import tsParser from '@typescript-eslint/parser';
 import { rule } from './rule.js';
 
 const LODASH_MESSAGE =
@@ -57,15 +59,6 @@ copy.address.city = 'Geneva';
 import _ from 'lodash';
 const copy = _.clone(user);
 function update() {
-  copy.address.city = 'Geneva';
-}
-`,
-        },
-        {
-          code: `
-import _ from 'lodash';
-for (const user of users) {
-  const copy = _.clone(user);
   copy.address.city = 'Geneva';
 }
 `,
@@ -199,6 +192,136 @@ copy.address.city = 'Geneva';
 import _ from 'underscore';
 const copy = _.clone(user);
 copy.address.city = 'Geneva'; // NOSONAR: shared nested state is intentional
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
+import _ from 'lodash';
+for (const user of users) {
+  const copy = _.clone(user);
+  copy.address.city = 'Geneva';
+}
+`,
+          errors: [
+            {
+              message: LODASH_MESSAGE,
+              suggestions: [
+                {
+                  desc: 'Replace the shallow clone with structuredClone()',
+                  output: `
+import _ from 'lodash';
+for (const user of users) {
+  const copy = structuredClone(user);
+  copy.address.city = 'Geneva';
+}
+`,
+                },
+                {
+                  desc: 'Add // NOSONAR: shared nested state is intentional',
+                  output: `
+import _ from 'lodash';
+for (const user of users) {
+  const copy = _.clone(user);
+  copy.address.city = 'Geneva'; // NOSONAR: shared nested state is intentional
+}
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+if (enabled) copy.address.city = 'Geneva'; else reset();
+`,
+          errors: [
+            {
+              message: LODASH_MESSAGE,
+              suggestions: [
+                {
+                  desc: 'Replace the shallow clone with structuredClone()',
+                  output: `
+import _ from 'lodash';
+const copy = structuredClone(user);
+if (enabled) copy.address.city = 'Geneva'; else reset();
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+const result = (copy.address.city = 'Geneva');
+`,
+          errors: [
+            {
+              message: LODASH_MESSAGE,
+              suggestions: [
+                {
+                  desc: 'Replace the shallow clone with structuredClone()',
+                  output: `
+import _ from 'lodash';
+const copy = structuredClone(user);
+const result = (copy.address.city = 'Geneva');
+`,
+                },
+                {
+                  desc: 'Add // NOSONAR: shared nested state is intentional',
+                  output: `
+import _ from 'lodash';
+const copy = _.clone(user);
+const result = (copy.address.city = 'Geneva'); // NOSONAR: shared nested state is intentional
+`,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('reports nested mutations through TypeScript non-null assertions', () => {
+    const ruleTester = new ESLintRuleTester({
+      languageOptions: { parser: tsParser },
+    });
+
+    ruleTester.run('avoid-mutating-nested-properties-of-shallow-clones', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address!.city = 'Geneva';
+`,
+          errors: [
+            {
+              message: LODASH_MESSAGE,
+              suggestions: [
+                {
+                  desc: 'Replace the shallow clone with structuredClone()',
+                  output: `
+import _ from 'lodash';
+const copy = structuredClone(user);
+copy.address!.city = 'Geneva';
+`,
+                },
+                {
+                  desc: 'Add // NOSONAR: shared nested state is intentional',
+                  output: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address!.city = 'Geneva'; // NOSONAR: shared nested state is intentional
 `,
                 },
               ],

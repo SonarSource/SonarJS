@@ -18,7 +18,11 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { getUniqueWriteReference, getVariableFromName } from '../helpers/ast.js';
+import {
+  getUniqueWriteReference,
+  getVariableFromName,
+  unwrapTypeScriptExpression,
+} from '../helpers/ast.js';
 import { getParent } from '../helpers/ancestor.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
@@ -36,14 +40,6 @@ const CLONE_LIBRARIES = new Map<string, 'lodash' | 'underscore'>([
   ['lodash.clone', 'lodash'],
   ['lodash-es.clone', 'lodash'],
   ['underscore.clone', 'underscore'],
-]);
-
-const LOOP_TYPES = new Set([
-  'DoWhileStatement',
-  'ForInStatement',
-  'ForOfStatement',
-  'ForStatement',
-  'WhileStatement',
 ]);
 
 type MutationNode = estree.AssignmentExpression | estree.UpdateExpression | estree.UnaryExpression;
@@ -81,7 +77,7 @@ function checkMutation(
   mutation: MutationNode,
 ): void {
   const statement = getMutationStatement(context, mutation);
-  if (statement === undefined || isInsideLoop(mutation)) {
+  if (statement === undefined) {
     return;
   }
 
@@ -91,11 +87,7 @@ function checkMutation(
   }
 
   const cloneCall = getCloneCall(context, memberChain.root);
-  if (
-    cloneCall === undefined ||
-    isInsideLoop(cloneCall) ||
-    getScopeBoundary(cloneCall) !== getScopeBoundary(mutation)
-  ) {
+  if (cloneCall === undefined || getScopeBoundary(cloneCall) !== getScopeBoundary(mutation)) {
     return;
   }
 
@@ -109,20 +101,25 @@ function checkMutation(
     return;
   }
 
+  const nosonarFix = getNosonarFix(context, statement, mutation);
   report(
     context,
     {
-      node: statement,
+      node: mutation,
       message: library === 'underscore' ? UNDERSCORE_MESSAGE : LODASH_MESSAGE,
       suggest: [
         {
           desc: 'Replace the shallow clone with structuredClone()',
           fix: replaceWithStructuredClone(cloneCall, argument, context),
         },
-        {
-          desc: 'Add // NOSONAR: shared nested state is intentional',
-          fix: addNosonarComment(statement),
-        },
+        ...(nosonarFix === undefined
+          ? []
+          : [
+              {
+                desc: 'Add // NOSONAR: shared nested state is intentional',
+                fix: nosonarFix,
+              },
+            ]),
       ],
     },
     [toSecondaryLocation(cloneCall, SECONDARY_MESSAGE)],
@@ -132,13 +129,19 @@ function checkMutation(
 function getMutationStatement(
   context: Rule.RuleContext,
   node: MutationNode,
-): estree.ExpressionStatement | undefined {
-  const parent = getParent(context, node);
-  return parent?.type === 'ExpressionStatement' ? parent : undefined;
+): estree.Node | undefined {
+  let parent = getParent(context, node);
+  while (parent !== undefined) {
+    if (parent.type.endsWith('Statement') || parent.type === 'VariableDeclaration') {
+      return parent;
+    }
+    parent = getParent(context, parent);
+  }
+  return undefined;
 }
 
 function getStaticMemberChain(node: estree.Node): StaticMemberChain | undefined {
-  let current: estree.Node = node;
+  let current: estree.Node = unwrapTypeScriptExpression(node);
   let depth = 0;
 
   while (current.type === 'MemberExpression') {
@@ -146,7 +149,7 @@ function getStaticMemberChain(node: estree.Node): StaticMemberChain | undefined 
       return undefined;
     }
     depth += 1;
-    current = current.object;
+    current = unwrapTypeScriptExpression(current.object);
   }
 
   return current.type === 'Identifier' && depth >= 2 ? { root: current, depth } : undefined;
@@ -169,20 +172,6 @@ function getCloneLibrary(
   cloneCall: estree.CallExpression,
 ): 'lodash' | 'underscore' | undefined {
   return CLONE_LIBRARIES.get(getFullyQualifiedName(context, cloneCall.callee) ?? '');
-}
-
-function isInsideLoop(node: estree.Node): boolean {
-  let current = getNodeParent(node);
-  while (current != null) {
-    if (LOOP_TYPES.has(current.type)) {
-      return true;
-    }
-    if (isFunctionLike(current)) {
-      return false;
-    }
-    current = getNodeParent(current);
-  }
-  return false;
 }
 
 function getScopeBoundary(node: estree.Node): estree.Node {
@@ -217,8 +206,29 @@ function replaceWithStructuredClone(
     fixer.replaceText(cloneCall, `structuredClone(${argumentText})`);
 }
 
-function addNosonarComment(statement: estree.ExpressionStatement): Rule.ReportFixer {
+function getNosonarFix(
+  context: Rule.RuleContext,
+  statement: estree.Node,
+  mutation: MutationNode,
+): Rule.ReportFixer | undefined {
+  if (
+    statement.loc?.start.line !== mutation.loc?.start.line ||
+    statement.loc?.end.line !== mutation.loc?.start.line ||
+    !hasNoTokensAfter(context, statement)
+  ) {
+    return undefined;
+  }
   return (fixer: Rule.RuleFixer): Rule.Fix => fixer.insertTextAfter(statement, NOSONAR_COMMENT);
+}
+
+function hasNoTokensAfter(context: Rule.RuleContext, node: estree.Node): boolean {
+  const range = node.range;
+  if (range === undefined) {
+    return false;
+  }
+  const source = context.sourceCode.getText();
+  const lineEnd = source.indexOf('\n', range[1]);
+  return source.slice(range[1], lineEnd === -1 ? source.length : lineEnd).trim() === '';
 }
 
 function getNodeParent(node: estree.Node): estree.Node {
