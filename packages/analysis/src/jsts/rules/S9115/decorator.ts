@@ -19,7 +19,6 @@
 import type { Rule } from 'eslint';
 import { gte, validRange } from 'semver';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 import { getProjectMinVersion } from '../helpers/validate-version.js';
 import { withStrictImportResolution } from '../helpers/testing-library.js';
@@ -47,21 +46,16 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       },
     }),
   };
-  const interceptedRule = interceptReport(decoratedRule, (_context, descriptor) => {
-    // The upstream report descriptor already uses the message IDs and fixes
-    // retained by the decorated metadata.
-    _context.report(descriptor);
-  });
 
   return {
-    ...interceptedRule,
+    ...decoratedRule,
     create(context: Rule.RuleContext): Rule.RuleListener {
       const dependencies = getDependenciesSanitizePaths(context);
       const versionRange = dependencies.get(USER_EVENT_MODULE);
       if (!supportsUserEvent(versionRange)) {
         return {};
       }
-      return interceptedRule.create(context);
+      return decoratedRule.create(context);
     },
   };
 }
