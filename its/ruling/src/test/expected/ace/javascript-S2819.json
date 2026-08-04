@@ -2,5 +2,8 @@
 "ace:lib/ace/mode/html/saxparser.js": [
 10389,
 10402
+],
+"ace:lib/ace/worker/worker_v2.js": [
+71
 ]
 }
