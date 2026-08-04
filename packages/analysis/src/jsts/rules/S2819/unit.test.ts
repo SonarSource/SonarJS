@@ -177,16 +177,6 @@ describe('S2819', () => {
         },
         {
           code: `
-      if (typeof window === 'undefined') {
-        window = self;
-      }
-      window.onmessage = function(event) {
-        console.log(event.data);
-      };
-            `,
-        },
-        {
-          code: `
       type WorkerScope = { onmessage: (event: MessageEvent) => void };
       function register(globalThis: WorkerScope) {
         globalThis.onmessage = function(event) {
@@ -331,11 +321,11 @@ describe('S2819', () => {
           errors: [{ messageId: 'verifyOrigin' }],
         },
         {
+          // a `window = self` Worker shim is not distinguishable by type when the DOM lib is
+          // loaded, so it is reported, consistently with `addEventListener("message", ...)`
           code: `
-      function bootstrapWorker() {
-        if (typeof window === 'undefined') {
-          window = self;
-        }
+      if (typeof window === 'undefined') {
+        window = self;
       }
       window.onmessage = function(event) {
         console.log(event.data);

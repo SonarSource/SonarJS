@@ -27,7 +27,6 @@ import {
   getUniqueWriteUsageOrNode,
   isIdentifier,
   isIfStatement,
-  functionLike,
   resolveFunction,
 } from '../helpers/ast.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
@@ -134,12 +133,14 @@ function checkOnMessageAssignment(
  * The name heuristic is too coarse here: `onmessage` is also a property of unrelated
  * transports such as WebSocket, so a `wsWindowChannel.onmessage` assignment would be
  * reported without this restriction.
+ *
+ * Requiring the property to come from `lib.dom.d.ts` leaves Worker and Node projects alone,
+ * as they compile against `lib.webworker.d.ts` or no DOM lib at all. A `window = self` shim
+ * in a project that does load the DOM lib is still reported: types cannot tell the two apart,
+ * since `self` and `window` are both `Window & typeof globalThis` there. That matches how
+ * `addEventListener("message", ...)` already behaves and is out of scope here.
  */
 function isWindowMessageReceiver(node: estree.Node, context: Rule.RuleContext) {
-  if (isWindowAliasedToWorkerGlobal(node, context)) {
-    return false;
-  }
-
   const receiver = getUniqueWriteUsageOrNode(context, node, true);
   if (
     receiver.type !== 'Identifier' ||
@@ -154,31 +155,6 @@ function isWindowMessageReceiver(node: estree.Node, context: Rule.RuleContext) {
   return onMessage?.declarations?.some(declaration =>
     declaration.getSourceFile().fileName.endsWith('lib.dom.d.ts'),
   );
-}
-
-/**
- * Detects `window = self` / `window = global` shims used by scripts meant to run in a Worker.
- *
- * Such a write only surfaces in `through` as long as `window` is an unresolved reference, which
- * is the case for the global scope of an analyzed file. The write is only relevant when it can
- * reach the receiver, hence the comparison of enclosing functions: a shim confined to another
- * function does not make the receiver a Worker global.
- */
-function isWindowAliasedToWorkerGlobal(node: estree.Node, context: Rule.RuleContext) {
-  const receiverFunction = findFirstMatchingLocalAncestor(node as TSESTree.Node, ancestor =>
-    functionLike.has(ancestor.type),
-  );
-  return context.sourceCode
-    .getScope(node)
-    .through.some(
-      reference =>
-        reference.isWrite() &&
-        reference.identifier.name === 'window' &&
-        findFirstMatchingLocalAncestor(reference.identifier as TSESTree.Node, ancestor =>
-          functionLike.has(ancestor.type),
-        ) === receiverFunction &&
-        isIdentifier(reference.writeExpr ?? undefined, 'self', 'global'),
-    );
 }
 
 function checkMessageListener(
