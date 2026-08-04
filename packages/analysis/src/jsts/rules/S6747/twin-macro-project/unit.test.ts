@@ -51,6 +51,13 @@ describe('S6747', () => {
         filename: join(dirname, 'filename.jsx'),
         errors: 1,
       },
+      {
+        // A type-only specifier brings nothing into the runtime, so the tw prop is not processed
+        code: `import { type TwStyle } from 'twin.macro';
+<div tw="flex items-center">Hello</div>;`,
+        filename: join(dirname, 'filename.tsx'),
+        errors: 1,
+      },
     ],
   });
 });

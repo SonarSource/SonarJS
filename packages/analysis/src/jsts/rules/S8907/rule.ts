@@ -20,7 +20,7 @@ import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getVariableFromName, isIdentifier } from '../helpers/ast.js';
+import { getVariableFromName, isCallResult, isIdentifier } from '../helpers/ast.js';
 import { getFullyQualifiedName, isRequire } from '../helpers/module.js';
 import {
   isRequiredParserServices,
@@ -338,13 +338,6 @@ function getSyntacticMethodName(
     return null;
   }
   return undefined;
-}
-
-function isCallResult(node: estree.Expression | estree.Super): node is estree.CallExpression {
-  if (node.type === 'ChainExpression') {
-    return isCallResult(node.expression);
-  }
-  return node.type === 'CallExpression';
 }
 
 function getLodashCall(

@@ -37,6 +37,8 @@ import * as Sinon from './sinon.js';
 import * as Vitest from './vitest.js';
 import * as Supertest from './supertest.js';
 import * as Cypress from './cypress.js';
+import * as Uvu from './uvu.js';
+import * as AwsCdk from './assertions-aws-cdk.js';
 import { getParent } from './ancestor.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
 import { getFullyQualifiedNameTS, importsModuleTS } from './module-ts.js';
@@ -52,9 +54,21 @@ const ASSERTION_LIBRARIES = [
   'bun:test',
   'node:assert',
   'node:assert/strict',
+  'uvu/assert',
 ];
 // runners that expose assertion APIs as globals (no import required).
 const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', '@playwright/test'];
+
+/**
+ * Assertion libraries with no script-capable / runner-bound classification yet.
+ *
+ * Whether a library's assertions work without a test runner (see
+ * {@link SCRIPT_CAPABLE_DETECTORS}) simply has no answer for the libraries listed here, so
+ * callers that reason about that classification must not use them — until the library is
+ * classified and moved into the arrays above. Callers that only need the plain "is this an
+ * assertion?" boolean are unaffected and free to include them.
+ */
+const UNCLASSIFIED_LIBRARIES = ['aws-cdk-lib/assertions'];
 
 const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
   '@jest/globals',
@@ -68,6 +82,7 @@ const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
   'node:test',
   'sinon',
   'supertest',
+  'uvu',
   'vitest',
 ];
 
@@ -84,6 +99,7 @@ const SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES = [
   'mocha',
   'sinon',
   'supertest',
+  'uvu',
   'vitest',
 ];
 
@@ -153,6 +169,19 @@ export function hasSupportedAssertionLibrary(context: Rule.RuleContext): boolean
   return importsOrDependsOnModule(context, ASSERTION_LIBRARIES, GLOBAL_ASSERTION_DEPENDENCIES);
 }
 
+/**
+ * Like {@link hasSupportedAssertionLibrary}, but also accepts the
+ * {@link UNCLASSIFIED_LIBRARIES}. Only for callers that do not reason about the
+ * script-capable / runner-bound classification.
+ */
+export function hasAssertionLibraryIncludingUnclassified(context: Rule.RuleContext): boolean {
+  return importsOrDependsOnModule(
+    context,
+    [...ASSERTION_LIBRARIES, ...UNCLASSIFIED_LIBRARIES],
+    GLOBAL_ASSERTION_DEPENDENCIES,
+  );
+}
+
 export function hasSupportedTestFramework(context: Rule.RuleContext): boolean {
   return importsOrDependsOnModule(
     context,
@@ -170,9 +199,12 @@ type AssertionDetector = (context: Rule.RuleContext, node: estree.Node) => boole
  * the script-capable ones. A new library is one classified entry here, so the two
  * predicates can never drift apart.
  *
- * Script-capable — node `assert`, chai, sinon, supertest — are ordinary libraries
+ * Script-capable — node `assert`, chai, sinon, supertest, uvu — are ordinary libraries
  * usable in a plain `node file.js`. Runner-bound — vitest, cypress, global
  * `expect*(...)` chains — only exist because a runner executes the file.
+ *
+ * Libraries that have not been classified yet are listed in {@link UNCLASSIFIED_LIBRARIES}
+ * instead, and are invisible to both predicates here.
  *
  * Classification is by library, not syntax: a chai `expect(x).to.equal(y)` is also
  * matched by the name-based global-`expect` detector (on the outer `.to.equal(...)`
@@ -185,6 +217,7 @@ const SCRIPT_CAPABLE_DETECTORS: AssertionDetector[] = [
   Sinon.isAssertion,
   Supertest.isAssertion,
   isFunctionCallFromNodeAssert,
+  Uvu.isAssertion,
 ];
 
 const RUNNER_BOUND_DETECTORS: AssertionDetector[] = [
@@ -200,7 +233,7 @@ const ASSERTION_DETECTORS: AssertionDetector[] = [
 
 /**
  * Whether the given AST node is an assertion call, recognised across chai,
- * sinon, vitest, supertest, cypress, global `expect*(...)` chains and node
+ * sinon, vitest, supertest, cypress, uvu, global `expect*(...)` chains and node
  * `assert`. Pure-AST: does not require type information.
  */
 export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
@@ -208,8 +241,19 @@ export function isAssertion(context: Rule.RuleContext, node: estree.Node): boole
 }
 
 /**
+ * Like {@link isAssertion}, but also matches the {@link UNCLASSIFIED_LIBRARIES}. Only for callers
+ * that do not reason about the script-capable / runner-bound classification.
+ */
+export function isAssertionIncludingUnclassified(
+  context: Rule.RuleContext,
+  node: estree.Node,
+): boolean {
+  return isAssertion(context, node) || AwsCdk.isAssertion(context, node);
+}
+
+/**
  * Whether `node` is an assertion from a library that runs in a plain script with
- * no test runner (node `assert`, chai, sinon, supertest). The complement among
+ * no test runner (node `assert`, chai, sinon, supertest, uvu). The complement among
  * assertions — vitest, cypress, global `expect` — is "runner-bound". Callers
  * deciding "is this runner-bound?" should test
  * `isAssertion(...) && !isScriptCapableAssertion(...)`.
@@ -262,7 +306,29 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
     Sinon.isTSAssertion(services, node) ||
     Supertest.isTSAssertion(services, node) ||
     Vitest.isTSAssertion(services, node) ||
+    Uvu.isTSAssertion(services, node) ||
     Cypress.isTSAssertion(node)
+  );
+}
+
+/**
+ * Like {@link isTSAssertion}, but also matches the {@link UNCLASSIFIED_LIBRARIES}. Only for callers
+ * that do not reason about the script-capable / runner-bound classification.
+ *
+ * The last operand is an assignment fallback, library-agnostic by design: the type-aware resolver
+ * only follows declaration initializers, so any library whose assertion object is assigned in test
+ * setup (rather than declared with an initializer) needs it. AWS CDK is simply the only one that
+ * does today.
+ */
+export function isTSAssertionIncludingUnclassified(
+  context: Rule.RuleContext,
+  services: ParserServicesWithTypeInformation,
+  node: ts.Node,
+): boolean {
+  return (
+    isTSAssertion(services, node) ||
+    AwsCdk.isTSAssertion(services, node) ||
+    AwsCdk.isTSAssertionWithAssignmentFallback(context, services, node)
   );
 }
 

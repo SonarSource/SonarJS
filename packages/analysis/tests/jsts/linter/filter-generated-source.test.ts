@@ -35,6 +35,7 @@ const baseContext: RuleFilterContext = {
   fileLanguage: 'ts',
   analysisMode: 'DEFAULT',
   detectedEsYear: undefined,
+  targetEsYear: undefined,
   detectedModuleType: undefined,
   detectGeneratedCode: true,
   isGeneratedSource: false,

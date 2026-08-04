@@ -20,12 +20,55 @@ import {
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
+import { join } from 'node:path';
+
+// The file itself never has to exist: the path only anchors the nearest-`package.json`
+// lookup to a manifest with no dependencies, so uvu is detected from imports alone.
+const uvuOnlyFixture = join(import.meta.dirname, 'fixtures', 'uvu-only', 'test.js');
 
 describe('S2699', () => {
   it('S2699', () => {
     const ruleTester = new DefaultParserRuleTester();
     ruleTester.run(`Test cases must have assertions`, rule, {
       valid: [
+        {
+          code: `
+import test from 'node:test';
+import { Template } from 'aws-cdk-lib/assertions';
+
+test('recognizes AWS CDK template assertions', () => {
+  const template = Template.fromStack({});
+  template.hasResourceProperties('AWS::S3::Bucket', {});
+  template.resourceCountIs('AWS::S3::Bucket', 1);
+});
+`,
+        },
+        {
+          code: `
+import test from 'node:test';
+import { Annotations, Tags, Template } from 'aws-cdk-lib/assertions';
+
+test('recognizes documented AWS CDK assertion APIs', () => {
+  Template.fromStack({}).resourcePropertiesCountIs('AWS::S3::Bucket', {}, 1);
+  Template.fromJSON({}).hasResource('AWS::S3::Bucket', {});
+  Template.fromJSON({}).allResources('AWS::S3::Bucket', {});
+  Template.fromJSON({}).allResourcesProperties('AWS::S3::Bucket', {});
+  Template.fromJSON({}).hasParameter('parameter', {});
+  Template.fromJSON({}).hasOutput('output', {});
+  Template.fromJSON({}).hasMapping('mapping', {});
+  Template.fromJSON({}).hasCondition('condition', {});
+  Template.fromString('{}').templateMatches({});
+  Annotations.fromStack({}).hasError('*', 'error');
+  Annotations.fromStack({}).hasNoError('*', 'error');
+  Annotations.fromStack({}).hasWarning('*', 'warning');
+  Annotations.fromStack({}).hasNoWarning('*', 'warning');
+  Annotations.fromStack({}).hasInfo('*', 'info');
+  Annotations.fromStack({}).hasNoInfo('*', 'info');
+  Tags.fromStack({}).hasValues({});
+  Tags.fromStack({}).hasNone();
+});
+`,
+        },
         {
           code: `
 import { test, expect } from 'bun:test';
@@ -145,6 +188,72 @@ describe('additional chai assert methods', () => {
         },
         {
           code: `
+const assert = require('uvu/assert');
+const { describe, it } = require('node:test');
+
+describe('uvu assert methods', () => {
+  it('recognizes instance', () => {
+    function Constructor() {}
+    assert.instance(new Constructor(), Constructor);
+  });
+  it('recognizes is', () => {
+    assert.is('ready', 'ready');
+  });
+  it('recognizes ok', () => {
+    assert.ok('ready');
+  });
+  it('recognizes equal', () => {
+    assert.equal({ status: 'ready' }, { status: 'ready' });
+  });
+  it('recognizes match', () => {
+    assert.match('ready', /ready/);
+  });
+  it('recognizes type', () => {
+    assert.type('ready', 'string');
+  });
+  it('recognizes snapshot', () => {
+    assert.snapshot('ready', 'ready');
+  });
+  it('recognizes fixture', () => {
+    assert.fixture('ready', 'ready');
+  });
+  it('recognizes throws', () => {
+    assert.throws(() => { throw new Error('expected'); });
+  });
+  it('recognizes unreachable', () => {
+    assert.unreachable('unexpected');
+  });
+  it('recognizes is.not', () => {
+    assert.is.not('ready', 'failed');
+  });
+  it('recognizes bare not', () => {
+    assert.not(false);
+  });
+  it('recognizes not.ok', () => {
+    assert.not.ok(false);
+  });
+  it('recognizes not.equal', () => {
+    assert.not.equal('ready', 'failed');
+  });
+  it('recognizes not.type', () => {
+    assert.not.type('ready', 'number');
+  });
+});
+          `,
+        },
+        {
+          code: `
+const { expect, expect: renamedExpect, test } = require('@playwright/test');
+
+test('recognizes Playwright expect.poll', async () => {
+  await expect.poll(() => 'ready').toBe('ready');
+  await renamedExpect.poll(() => 'ready').toEqual('ready');
+  await require('@playwright/test').expect.poll(() => 'ready').toBe('ready');
+});
+          `,
+        },
+        {
+          code: `
 describe('no import from test library', () => {
   it('should not fail', () => {
     // no-op
@@ -156,6 +265,16 @@ describe('no import from test library', () => {
           code: `
 const assert = require('assert');
 describe('assert imported without a supported test framework', () => {
+  it('should not activate the rule', () => {
+    const x = 1 + 2;
+  });
+});
+`,
+        },
+        {
+          code: `
+const assert = require('uvu/assert');
+describe('uvu/assert imported without a supported test framework', () => {
   it('should not activate the rule', () => {
     const x = 1 + 2;
   });
@@ -411,6 +530,75 @@ describe('shadowed assert helper', () => {
 });`,
           errors: 1,
         },
+        {
+          code: `
+const assert = require('uvu/assert');
+const { describe, it } = require('node:test');
+
+describe('unknown uvu assert methods', () => {
+  it('raises when the method is outside the whitelist', () => {
+    assert.custom('ready');
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const assert = require('uvu/assert');
+const { describe, it } = require('node:test');
+
+describe('chained unknown uvu assert methods', () => {
+  it('raises when a whitelisted method has an unknown chained member', () => {
+    assert.equal.custom('ready');
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const assert = require('uvu/assert');
+const { describe, it } = require('node:test');
+
+describe('unsupported uvu negated assert forms', () => {
+  it('raises when the negated method is outside the documented API', () => {
+    assert.not.is('actual', 'expected');
+  });
+});`,
+          errors: 1,
+        },
+        {
+          code: `
+const assert = require('uvu/assert');
+const { describe, it } = require('node:test');
+
+describe('unsupported uvu negated assert forms', () => {
+  it('raises when the negated method is outside the documented API', () => {
+    assert.not.unreachable('unexpected');
+  });
+});`,
+          errors: 1,
+        },
+        {
+          filename: uvuOnlyFixture,
+          code: `
+import { test } from 'uvu';
+import assert from 'uvu/assert';
+
+test('native uvu tests without assertions are reported', () => {
+  const value = 1 + 2;
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+const { expect, test } = require('@playwright/test');
+
+test('bare expect.poll does not assert', async () => {
+  await expect.poll(() => 'ready');
+});`,
+          errors: 1,
+        },
         // expectX function without chained assertion method should still raise
         {
           code: `
@@ -501,6 +689,59 @@ describe('async tests with RxJS finalize', () => {
     const typedRuleTester = new RuleTester();
     typedRuleTester.run('Test cases must have assertions', rule, {
       valid: [
+        {
+          code: `
+import test from 'node:test';
+import { Template } from 'aws-cdk-lib/assertions';
+
+test('recognizes typed AWS CDK template assertions', () => {
+  const template = Template.fromStack({});
+  template.hasResourceProperties('AWS::S3::Bucket', {});
+  template.resourceCountIs('AWS::S3::Bucket', 1);
+});
+`,
+        },
+        {
+          code: `
+import test, { beforeEach } from 'node:test';
+import { Template } from 'aws-cdk-lib/assertions';
+
+let template: Template;
+beforeEach(() => {
+  template = Template.fromStack({});
+});
+
+test('recognizes setup-initialized AWS CDK assertions', () => {
+  template.hasResourceProperties('AWS::S3::Bucket', {});
+});
+`,
+        },
+        {
+          code: `
+import test from 'node:test';
+import { Annotations, Tags, Template } from 'aws-cdk-lib/assertions';
+
+test('recognizes typed AWS CDK assertion APIs', () => {
+  Template.fromStack({}).resourcePropertiesCountIs('AWS::S3::Bucket', {}, 1);
+  Template.fromJSON({}).hasResource('AWS::S3::Bucket', {});
+  Template.fromJSON({}).allResources('AWS::S3::Bucket', {});
+  Template.fromJSON({}).allResourcesProperties('AWS::S3::Bucket', {});
+  Template.fromJSON({}).hasParameter('parameter', {});
+  Template.fromJSON({}).hasOutput('output', {});
+  Template.fromJSON({}).hasMapping('mapping', {});
+  Template.fromJSON({}).hasCondition('condition', {});
+  Template.fromString('{}').templateMatches({});
+  Annotations.fromStack({}).hasError('*', 'error');
+  Annotations.fromStack({}).hasNoError('*', 'error');
+  Annotations.fromStack({}).hasWarning('*', 'warning');
+  Annotations.fromStack({}).hasNoWarning('*', 'warning');
+  Annotations.fromStack({}).hasInfo('*', 'info');
+  Annotations.fromStack({}).hasNoInfo('*', 'info');
+  Tags.fromStack({}).hasValues({});
+  Tags.fromStack({}).hasNone();
+});
+`,
+        },
         {
           code: `import { Mock } from "vitest";
           const input = Math.sqrt(4)
@@ -692,6 +933,71 @@ test('has assertions', () => {
         },
         {
           code: `
+import { describe, it } from 'node:test';
+import assert from 'uvu/assert';
+
+describe('typed uvu assert methods', () => {
+  it('recognizes instance', () => {
+    class Constructor {}
+    assert.instance(new Constructor(), Constructor);
+  });
+  it('recognizes is', () => {
+    assert.is('ready', 'ready');
+  });
+  it('recognizes ok', () => {
+    assert.ok('ready');
+  });
+  it('recognizes equal', () => {
+    assert.equal({ status: 'ready' }, { status: 'ready' });
+  });
+  it('recognizes match', () => {
+    assert.match('ready', /ready/);
+  });
+  it('recognizes type', () => {
+    assert.type('ready', 'string');
+  });
+  it('recognizes snapshot', () => {
+    assert.snapshot('ready', 'ready');
+  });
+  it('recognizes fixture', () => {
+    assert.fixture('ready', 'ready');
+  });
+  it('recognizes throws', () => {
+    assert.throws(() => { throw new Error('expected'); });
+  });
+  it('recognizes unreachable', () => {
+    assert.unreachable('unexpected');
+  });
+  it('recognizes is.not', () => {
+    assert.is.not('ready', 'failed');
+  });
+  it('recognizes bare not', () => {
+    assert.not(false);
+  });
+  it('recognizes not.ok', () => {
+    assert.not.ok(false);
+  });
+  it('recognizes not.equal', () => {
+    assert.not.equal('ready', 'failed');
+  });
+  it('recognizes not.type', () => {
+    assert.not.type('ready', 'number');
+  });
+});
+`,
+        },
+        {
+          code: `
+import { expect, expect as renamedExpect, test } from '@playwright/test';
+
+test('recognizes typed Playwright expect.poll', async () => {
+  await expect.poll(() => 'ready').toBe('ready');
+  await renamedExpect.poll(() => 'ready').toEqual('ready');
+});
+`,
+        },
+        {
+          code: `
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -852,10 +1158,125 @@ test('member-based playwright expect entrypoints', async ({ page }) => {
         {
           code: `
 import test from 'node:test';
+import { Template } from 'aws-cdk-lib/assertions';
+
+test('does not treat Template setup as an assertion', () => {
+  Template.fromStack({});
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
+import { Template } from 'aws-cdk-lib/assertions';
+
+test('does not treat AWS CDK template query APIs as assertions', () => {
+  Template.fromJSON({}).findResources('AWS::S3::Bucket');
+  Template.fromString('{}').toJSON();
+  Template.fromStack({}).getResourceId('AWS::S3::Bucket');
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
+import { Match } from 'aws-cdk-lib/assertions';
+
+class Template {
+  static fromStack(stack: unknown) {
+    return new Template();
+  }
+  hasResourceProperties(type: string, props: unknown) {}
+}
+
+test('does not treat a local Template look-alike as an assertion', () => {
+  Template.fromStack({}).hasResourceProperties('AWS::S3::Bucket', {});
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
 import assert from 'node:assert/strict';
 
 test('has no assertions', () => {
   const x = 1 + 2;
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { test } from 'uvu';
+import assert from 'uvu/assert';
+
+test('native uvu tests without assertions are reported', () => {
+  const value = 1 + 2;
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, it } from 'node:test';
+import assert from 'uvu/assert';
+
+describe('typed unknown uvu assert methods', () => {
+  it('raises when the method is outside the whitelist', () => {
+    assert.custom('ready');
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, it } from 'node:test';
+import assert from 'uvu/assert';
+
+describe('typed chained unknown uvu assert methods', () => {
+  it('raises when a whitelisted method has an unknown chained member', () => {
+    assert.equal.custom('ready');
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, it } from 'node:test';
+import assert from 'uvu/assert';
+
+describe('typed unsupported uvu negated assert forms', () => {
+  it('raises when the negated method is outside the documented API', () => {
+    assert.not.is('actual', 'expected');
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, it } from 'node:test';
+import assert from 'uvu/assert';
+
+describe('typed unsupported uvu negated assert forms', () => {
+  it('raises when the negated method is outside the documented API', () => {
+    assert.not.unreachable('unexpected');
+  });
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { expect, test } from '@playwright/test';
+
+test('typed bare expect.poll does not assert', async () => {
+  await expect.poll(() => 'ready');
 });
 `,
           errors: 1,

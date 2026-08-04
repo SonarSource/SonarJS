@@ -232,6 +232,7 @@ export class Linter {
    * @param detectedEsYear ecmascript version for the file
    * @param detectedModuleType module type for the file
    * @param lintOptions additional rules and settings for linting
+   * @param targetEsYear raw TypeScript compiler target for the file
    * @returns linting issues
    */
   static lint(
@@ -244,6 +245,7 @@ export class Linter {
     detectedEsYear?: number,
     detectedModuleType?: ModuleType,
     lintOptions: LintOptions = {},
+    targetEsYear?: number,
   ): LintResult {
     if (!Linter.linter) {
       throw APIError.linterError(`Linter does not exist.`);
@@ -260,6 +262,7 @@ export class Linter {
       detectedEsYear,
       detectedModuleType,
       sourceCode,
+      targetEsYear,
     );
     const rules = lintOptions.additionalRules
       ? { ...lintOptions.additionalRules, ...baseRules }
@@ -336,6 +339,7 @@ export class Linter {
     detectedEsYear?: number,
     detectedModuleType?: ModuleType,
     sourceCode?: SourceCode,
+    targetEsYear?: number,
   ): ESLintLinter.RulesRecord {
     const normalizedFilePath = normalizeToAbsolutePath(filePath);
     if (detectedModuleType === undefined) {
@@ -356,6 +360,7 @@ export class Linter {
       fileLanguage,
       analysisMode,
       detectedEsYear,
+      targetEsYear,
       detectedModuleType,
       detectGeneratedCode: Linter.detectGeneratedCode,
       isGeneratedSource,
@@ -501,6 +506,7 @@ function createLinterConfigKey(
     | 'fileLanguage'
     | 'analysisMode'
     | 'detectedEsYear'
+    | 'targetEsYear'
     | 'detectedModuleType'
     | 'detectGeneratedCode'
     | 'isGeneratedSource'
@@ -513,5 +519,5 @@ function createLinterConfigKey(
     baseDir,
   );
   const linterConfigKey = `${context.fileType}-${context.fileLanguage}-${context.analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
-  return `${linterConfigKey}:${context.detectedEsYear ?? 'esnext'}:${context.detectedModuleType ?? 'unknown'}:${context.detectGeneratedCode === false ? 'generated-off' : 'generated-on'}:${context.isGeneratedSource === true ? 'generated' : 'regular'}`;
+  return `${linterConfigKey}:${context.detectedEsYear ?? 'esnext'}:${context.targetEsYear ?? 'target-unknown'}:${context.detectedModuleType ?? 'unknown'}:${context.detectGeneratedCode === false ? 'generated-off' : 'generated-on'}:${context.isGeneratedSource === true ? 'generated' : 'regular'}`;
 }
