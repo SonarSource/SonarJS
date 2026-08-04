@@ -103,9 +103,8 @@ export const rule: Rule.RuleModule = {
 
 /**
  * Returns the debounce/throttle method name when `fullyQualifiedName` points to
- * a supported module, or undefined otherwise. A null `syntacticMethod` means
- * the callee carries no usable syntactic name (aliased or destructured
- * import), so the fully qualified name alone decides.
+ * a supported module (`lodash`, `lodash-es`, or `underscore`), or undefined
+ * otherwise.
  */
 function getSupportedMethodName(fullyQualifiedName: string): MethodName | undefined {
   const parts = fullyQualifiedName.replaceAll('/', '.').split('.');
