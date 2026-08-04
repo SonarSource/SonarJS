@@ -50,6 +50,8 @@ _.select([], async item => true);
 _.filter['call']([], async item => true);
 const filterAlias = _.filter;
 filterAlias([], async item => true);
+const lodashAlias = _;
+lodashAlias.filter([], async item => true);
 _.chain([]).filter(async item => true).value();
 _([]).filter(async item => true).value();
 

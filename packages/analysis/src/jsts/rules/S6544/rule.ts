@@ -170,9 +170,6 @@ function isSupportedLibraryPredicateCall(
   if (methodName === undefined || !isDirectCallee(context, call.callee)) {
     return false;
   }
-  if (hasShadowedRequireReference(context, call.callee)) {
-    return false;
-  }
   const fqn = getFullyQualifiedName(context, call)?.replaceAll('/', '.');
   return fqn !== null && fqn !== undefined && SUPPORTED_LIBRARY_PREDICATES.has(fqn);
 }
@@ -200,7 +197,7 @@ function isDirectCallee(
   callee: estree.Expression | estree.Super,
 ): boolean {
   if (callee.type === 'MemberExpression') {
-    return !callee.computed;
+    return !callee.computed && isDirectReceiver(context, callee.object);
   }
   if (callee.type !== 'Identifier') {
     return false;
@@ -214,6 +211,24 @@ function isDirectCallee(
     return false;
   }
   return isDirectRequireReference(context, definition.node.init);
+}
+
+function isDirectReceiver(
+  context: Rule.RuleContext,
+  receiver: estree.Expression | estree.Super,
+): boolean {
+  if (receiver.type === 'CallExpression') {
+    return isRequire(receiver) && isUnshadowedRequire(context, receiver);
+  }
+  if (receiver.type !== 'Identifier') {
+    return false;
+  }
+  const variable = getVariableFromName(context, receiver.name, receiver);
+  const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+  if (definition?.type === 'ImportBinding') {
+    return true;
+  }
+  return definition?.type === 'Variable' && isDirectRequireReference(context, definition.node.init);
 }
 
 function isDirectRequireReference(
@@ -245,29 +260,6 @@ function isUnshadowedRequire(
 ): boolean {
   const variable = getVariableFromName(context, 'require', requireCall);
   return variable === undefined || variable.defs.length === 0;
-}
-
-function hasShadowedRequireReference(
-  context: Rule.RuleContext,
-  callee: estree.Expression | estree.Super,
-): boolean {
-  let root: estree.Expression | estree.Super = callee;
-  while (root.type === 'MemberExpression') {
-    root = root.object;
-  }
-  if (root.type === 'CallExpression' && isRequire(root)) {
-    return !isUnshadowedRequire(context, root);
-  }
-  if (root.type !== 'Identifier') {
-    return false;
-  }
-  const variable = getVariableFromName(context, root.name, root);
-  const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
-  if (definition?.type !== 'Variable') {
-    return false;
-  }
-  const requireCall = getRequireCall(definition.node.init);
-  return requireCall !== null && !isUnshadowedRequire(context, requireCall);
 }
 
 function resolveAsyncPredicate(
