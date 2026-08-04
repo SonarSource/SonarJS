@@ -55,20 +55,10 @@ const ASSERTION_LIBRARIES = [
   'node:assert',
   'node:assert/strict',
   'uvu/assert',
+  'aws-cdk-lib/assertions',
 ];
 // runners that expose assertion APIs as globals (no import required).
 const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', '@playwright/test'];
-
-/**
- * Assertion libraries with no script-capable / runner-bound classification yet.
- *
- * Whether a library's assertions work without a test runner (see
- * {@link SCRIPT_CAPABLE_DETECTORS}) simply has no answer for the libraries listed here, so
- * callers that reason about that classification must not use them — until the library is
- * classified and moved into the arrays above. Callers that only need the plain "is this an
- * assertion?" boolean are unaffected and free to include them.
- */
-const UNCLASSIFIED_LIBRARIES = ['aws-cdk-lib/assertions'];
 
 const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
   '@jest/globals',
@@ -169,19 +159,6 @@ export function hasSupportedAssertionLibrary(context: Rule.RuleContext): boolean
   return importsOrDependsOnModule(context, ASSERTION_LIBRARIES, GLOBAL_ASSERTION_DEPENDENCIES);
 }
 
-/**
- * Like {@link hasSupportedAssertionLibrary}, but also accepts the
- * {@link UNCLASSIFIED_LIBRARIES}. Only for callers that do not reason about the
- * script-capable / runner-bound classification.
- */
-export function hasAssertionLibraryIncludingUnclassified(context: Rule.RuleContext): boolean {
-  return importsOrDependsOnModule(
-    context,
-    [...ASSERTION_LIBRARIES, ...UNCLASSIFIED_LIBRARIES],
-    GLOBAL_ASSERTION_DEPENDENCIES,
-  );
-}
-
 export function hasSupportedTestFramework(context: Rule.RuleContext): boolean {
   return importsOrDependsOnModule(
     context,
@@ -203,9 +180,6 @@ type AssertionDetector = (context: Rule.RuleContext, node: estree.Node) => boole
  * usable in a plain `node file.js`. Runner-bound — vitest, cypress, global
  * `expect*(...)` chains — only exist because a runner executes the file.
  *
- * Libraries that have not been classified yet are listed in {@link UNCLASSIFIED_LIBRARIES}
- * instead, and are invisible to both predicates here.
- *
  * Classification is by library, not syntax: a chai `expect(x).to.equal(y)` is also
  * matched by the name-based global-`expect` detector (on the outer `.to.equal(...)`
  * call), so the script-capable Chai detector (on the inner `chai.expect(...)` call)
@@ -218,6 +192,7 @@ const SCRIPT_CAPABLE_DETECTORS: AssertionDetector[] = [
   Supertest.isAssertion,
   isFunctionCallFromNodeAssert,
   Uvu.isAssertion,
+  AwsCdk.isAssertion,
 ];
 
 const RUNNER_BOUND_DETECTORS: AssertionDetector[] = [
@@ -238,17 +213,6 @@ const ASSERTION_DETECTORS: AssertionDetector[] = [
  */
 export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   return ASSERTION_DETECTORS.some(detect => detect(context, node));
-}
-
-/**
- * Like {@link isAssertion}, but also matches the {@link UNCLASSIFIED_LIBRARIES}. Only for callers
- * that do not reason about the script-capable / runner-bound classification.
- */
-export function isAssertionIncludingUnclassified(
-  context: Rule.RuleContext,
-  node: estree.Node,
-): boolean {
-  return isAssertion(context, node) || AwsCdk.isAssertion(context, node);
 }
 
 /**
@@ -307,28 +271,8 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
     Supertest.isTSAssertion(services, node) ||
     Vitest.isTSAssertion(services, node) ||
     Uvu.isTSAssertion(services, node) ||
-    Cypress.isTSAssertion(node)
-  );
-}
-
-/**
- * Like {@link isTSAssertion}, but also matches the {@link UNCLASSIFIED_LIBRARIES}. Only for callers
- * that do not reason about the script-capable / runner-bound classification.
- *
- * The last operand is an assignment fallback, library-agnostic by design: the type-aware resolver
- * only follows declaration initializers, so any library whose assertion object is assigned in test
- * setup (rather than declared with an initializer) needs it. AWS CDK is simply the only one that
- * does today.
- */
-export function isTSAssertionIncludingUnclassified(
-  context: Rule.RuleContext,
-  services: ParserServicesWithTypeInformation,
-  node: ts.Node,
-): boolean {
-  return (
-    isTSAssertion(services, node) ||
-    AwsCdk.isTSAssertion(services, node) ||
-    AwsCdk.isTSAssertionWithAssignmentFallback(context, services, node)
+    Cypress.isTSAssertion(node) ||
+    AwsCdk.isTSAssertion(services, node)
   );
 }
 
