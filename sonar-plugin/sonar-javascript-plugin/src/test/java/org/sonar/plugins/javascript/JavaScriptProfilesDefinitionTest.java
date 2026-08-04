@@ -20,11 +20,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.PROFILES_JSON;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY_RULE_KEYS_METHOD_NAME;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_JASMIN_RULES_CLASS_NAME;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_JSON;
+import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_JS_JSON;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.getSecurityRuleKeys;
 
 import com.google.gson.JsonParser;
 import com.sonar.plugins.jasmin.api.JsRules;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +36,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
@@ -79,20 +79,17 @@ class JavaScriptProfilesDefinitionTest {
 
   @BeforeEach
   public void setUp() {
-    new JavaScriptProfilesDefinition(
-      new ProfileRegistrar[] {
-        new ProfileRegistrar() {
-          @Override
-          public void register(RegistrarContext registrarContext) {
-            registrarContext.registerDefaultQualityProfileRules(
-              Language.JAVASCRIPT,
-              List.of(RuleKey.of("additionalRepository", "additionalRule"))
-            );
-          }
-        },
-      }
-    )
-      .define(context);
+    new JavaScriptProfilesDefinition(new ProfileRegistrar[] {
+      new ProfileRegistrar() {
+        @Override
+        public void register(RegistrarContext registrarContext) {
+          registrarContext.registerDefaultQualityProfileRules(
+            Language.JAVASCRIPT,
+            List.of(RuleKey.of("additionalRepository", "additionalRule"))
+          );
+        }
+      },
+    }).define(context);
   }
 
   @Test
@@ -108,6 +105,9 @@ class JavaScriptProfilesDefinitionTest {
       .extracting("repoKey")
       .containsOnly(CheckList.JS_REPOSITORY_KEY, "additionalRepository");
     assertThat(profile.rules().size()).isGreaterThan(100);
+    assertThat(profile.rules())
+      .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
+      .doesNotContain("S8754", "S5976", "S5906", "S8960");
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedJsRules)).isEmpty();
   }
@@ -137,9 +137,23 @@ class JavaScriptProfilesDefinitionTest {
     assertThat(profile.rules()).hasSizeGreaterThan(100);
     assertThat(profile.rules())
       .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
-      .contains("S5122");
+      .contains("S5122", "S8754", "S5976", "S5906")
+      .doesNotContain("S8960");
 
     assertThat(deprecatedRulesInProfile(profile, deprecatedTsRules)).isEmpty();
+  }
+
+  @Test
+  void sonar_agentic_ai_profiles() {
+    BuiltInQualityProfile jsProfile = context.profile(JavaScriptLanguage.KEY, "Sonar agentic AI");
+    BuiltInQualityProfile tsProfile = context.profile(TypeScriptLanguage.KEY, "Sonar agentic AI");
+
+    assertThat(jsProfile.rules())
+      .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
+      .contains("S5906");
+    assertThat(tsProfile.rules())
+      .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
+      .contains("S5906");
   }
 
   @Test
@@ -153,7 +167,7 @@ class JavaScriptProfilesDefinitionTest {
       .collect(Collectors.toSet());
 
     Set<String> sonarWayKeys = BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(
-      SONAR_WAY_JSON
+      SONAR_WAY_JS_JSON
     );
 
     assertThat(sonarWayKeys).isSubsetOf(allKeys);
@@ -173,21 +187,18 @@ class JavaScriptProfilesDefinitionTest {
   @Test
   void should_add_profile_specific_rules_using_profile_name_api() {
     var profileContext = new BuiltInQualityProfilesDefinition.Context();
-    new JavaScriptProfilesDefinition(
-      new ProfileRegistrar[] {
-        new ProfileRegistrar() {
-          @Override
-          public void register(RegistrarContext registrarContext) {
-            registrarContext.registerQualityProfileRules(
-              JavaScriptProfilesDefinition.SONAR_WAY,
-              Language.JAVASCRIPT,
-              List.of(RuleKey.of("additionalRepository", "profileSpecificRule"))
-            );
-          }
-        },
-      }
-    )
-      .define(profileContext);
+    new JavaScriptProfilesDefinition(new ProfileRegistrar[] {
+      new ProfileRegistrar() {
+        @Override
+        public void register(RegistrarContext registrarContext) {
+          registrarContext.registerQualityProfileRules(
+            JavaScriptProfilesDefinition.SONAR_WAY,
+            Language.JAVASCRIPT,
+            List.of(RuleKey.of("additionalRepository", "profileSpecificRule"))
+          );
+        }
+      },
+    }).define(profileContext);
 
     BuiltInQualityProfile jsTargetProfile = profileContext.profile(
       JavaScriptLanguage.KEY,
@@ -210,21 +221,18 @@ class JavaScriptProfilesDefinitionTest {
   @Test
   void should_ignore_unknown_profile_contributions() {
     var profileContext = new BuiltInQualityProfilesDefinition.Context();
-    new JavaScriptProfilesDefinition(
-      new ProfileRegistrar[] {
-        new ProfileRegistrar() {
-          @Override
-          public void register(RegistrarContext registrarContext) {
-            registrarContext.registerQualityProfileRules(
-              "Unknown profile",
-              Language.JAVASCRIPT,
-              List.of(RuleKey.of("additionalRepository", "unknownRule"))
-            );
-          }
-        },
-      }
-    )
-      .define(profileContext);
+    new JavaScriptProfilesDefinition(new ProfileRegistrar[] {
+      new ProfileRegistrar() {
+        @Override
+        public void register(RegistrarContext registrarContext) {
+          registrarContext.registerQualityProfileRules(
+            "Unknown profile",
+            Language.JAVASCRIPT,
+            List.of(RuleKey.of("additionalRepository", "unknownRule"))
+          );
+        }
+      },
+    }).define(profileContext);
 
     loadProfileNames().forEach(profileName -> {
       assertThat(profileContext.profile(JavaScriptLanguage.KEY, profileName).rules())

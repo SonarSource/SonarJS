@@ -52,7 +52,8 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   static final String SONAR_WAY = "Sonar way";
 
   public static final String RESOURCE_PATH = "org/sonar/l10n/javascript/rules/javascript";
-  public static final String SONAR_WAY_JSON = RESOURCE_PATH + "/Sonar_way_profile.json";
+  public static final String SONAR_WAY_JS_JSON = RESOURCE_PATH + "/Sonar_way_js_profile.json";
+  public static final String SONAR_WAY_TS_JSON = RESOURCE_PATH + "/Sonar_way_ts_profile.json";
   public static final String PROFILES_JSON = RESOURCE_PATH + "/profiles.json";
 
   private static final List<ProfileDefinition> PROFILES = loadProfiles();
@@ -123,7 +124,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
       profile.name(),
       language
     );
-    activateBuiltInRules(newProfile, profile.path());
+    activateBuiltInRules(newProfile, profile.pathFor(Language.of(language)));
     activateAdditionalRules(newProfile, profile.name());
     if (SONAR_WAY.equals(profile.name())) {
       activateSecurityRules(newProfile, language);
@@ -154,8 +155,9 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
 
   private static List<ProfileDefinition> loadProfiles() {
     try (
-      InputStream inputStream =
-        JavaScriptProfilesDefinition.class.getClassLoader().getResourceAsStream(PROFILES_JSON)
+      InputStream inputStream = JavaScriptProfilesDefinition.class
+        .getClassLoader()
+        .getResourceAsStream(PROFILES_JSON)
     ) {
       if (inputStream == null) {
         throw new IllegalStateException("Missing built-in quality profile index: " + PROFILES_JSON);
@@ -167,14 +169,22 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
       profiles.forEach(profile -> {
         JsonObject profileJson = profile.getAsJsonObject();
         String name = profileJson.get("name").getAsString();
-        String fileName = profileJson.get("fileName").getAsString();
-        definitions.add(new ProfileDefinition(name, RESOURCE_PATH + "/" + fileName));
+        JsonObject fileNames = profileJson.getAsJsonObject("fileNames");
+        Map<Language, String> paths = new EnumMap<>(Language.class);
+        for (Language language : List.of(Language.JAVASCRIPT, Language.TYPESCRIPT)) {
+          String fileName = fileNames.get(language.toString()).getAsString();
+          paths.put(language, RESOURCE_PATH + "/" + fileName);
+        }
+        definitions.add(new ProfileDefinition(name, paths));
       });
       if (
         definitions
           .stream()
           .noneMatch(
-            profile -> SONAR_WAY.equals(profile.name()) && SONAR_WAY_JSON.equals(profile.path())
+            profile ->
+              SONAR_WAY.equals(profile.name()) &&
+              SONAR_WAY_JS_JSON.equals(profile.pathFor(Language.JAVASCRIPT)) &&
+              SONAR_WAY_TS_JSON.equals(profile.pathFor(Language.TYPESCRIPT))
           )
       ) {
         throw new IllegalStateException(
@@ -257,18 +267,22 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   private static class ProfileDefinition {
 
     private final String name;
-    private final String path;
+    private final Map<Language, String> paths;
 
-    private ProfileDefinition(String name, String path) {
+    private ProfileDefinition(String name, Map<Language, String> paths) {
       this.name = name;
-      this.path = path;
+      this.paths = paths;
     }
 
     String name() {
       return name;
     }
 
-    String path() {
+    String pathFor(Language language) {
+      String path = paths.get(language);
+      if (path == null) {
+        throw new IllegalStateException("Missing profile resource for language: " + language);
+      }
       return path;
     }
   }

@@ -42,7 +42,7 @@ public class JavaScriptRulesDefinition implements RulesDefinition {
 
     RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(
       METADATA_LOCATION,
-      JavaScriptProfilesDefinition.SONAR_WAY_JSON,
+      JavaScriptProfilesDefinition.SONAR_WAY_JS_JSON,
       sonarRuntime
     );
     ruleMetadataLoader.addRulesByAnnotatedClass(

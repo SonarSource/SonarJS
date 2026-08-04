@@ -30,8 +30,17 @@ import {
 import { readFile } from 'fs/promises';
 import ts from 'typescript';
 
-const sonarWayProfile = JSON.parse(
-  await readFile(join(METADATA_FOLDER, `Sonar_way_profile.json`), 'utf-8'),
+const sonarWayRuleKeys = new Set<string>(
+  (
+    await Promise.all(
+      (['js', 'ts'] as const).map(async language => {
+        const profile = JSON.parse(
+          await readFile(join(METADATA_FOLDER, `Sonar_way_${language}_profile.json`), 'utf-8'),
+        ) as { ruleKeys: string[] };
+        return profile.ruleKeys;
+      }),
+    )
+  ).flat(),
 );
 
 /**
@@ -67,7 +76,7 @@ export async function generateMetaForRule(
       ___RULE_TYPE___: typeMatrix[ruleRspecMeta.type],
       ___RULE_KEY___: sonarKey,
       ___DESCRIPTION___: ruleRspecMeta.title.replace(/'/g, "\\'"),
-      ___RECOMMENDED___: sonarWayProfile.ruleKeys.includes(sonarKey),
+      ___RECOMMENDED___: sonarWayRuleKeys.has(sonarKey),
       ___TYPE_CHECKING___: `${tags.includes('type-dependent')}`,
       ___FIXABLE___: ruleRspecMeta.quickfix === 'covered' ? "'code'" : undefined,
       ___DEPRECATED___: `${ruleRspecMeta.status === 'deprecated'}`,
@@ -127,35 +136,44 @@ function getExportedStringArrayLiteral(
   exportName: string,
 ): string[] | undefined {
   for (const statement of sourceFile.statements) {
-    if (
-      !ts.isVariableStatement(statement) ||
-      !statement.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword)
-    ) {
-      continue;
-    }
-
-    for (const declaration of statement.declarationList.declarations) {
-      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== exportName) {
-        continue;
-      }
-
-      const initializer = unwrapConstAssertion(declaration.initializer);
-      if (!initializer || !ts.isArrayLiteralExpression(initializer)) {
-        return undefined;
-      }
-
-      const values: string[] = [];
-      for (const element of initializer.elements) {
-        if (!ts.isStringLiteralLike(element)) {
-          return undefined;
-        }
-        values.push(element.text);
-      }
-      return values;
+    const declaration = findExportedVariableDeclaration(statement, exportName);
+    if (declaration) {
+      return extractStringArrayLiteral(declaration.initializer);
     }
   }
 
   return undefined;
+}
+
+function findExportedVariableDeclaration(
+  statement: ts.Statement,
+  exportName: string,
+): ts.VariableDeclaration | undefined {
+  if (
+    !ts.isVariableStatement(statement) ||
+    !statement.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword)
+  ) {
+    return undefined;
+  }
+  return statement.declarationList.declarations.find(
+    declaration => ts.isIdentifier(declaration.name) && declaration.name.text === exportName,
+  );
+}
+
+function extractStringArrayLiteral(expression: ts.Expression | undefined): string[] | undefined {
+  const initializer = unwrapConstAssertion(expression);
+  if (!initializer || !ts.isArrayLiteralExpression(initializer)) {
+    return undefined;
+  }
+
+  const values: string[] = [];
+  for (const element of initializer.elements) {
+    if (!ts.isStringLiteralLike(element)) {
+      return undefined;
+    }
+    values.push(element.text);
+  }
+  return values;
 }
 
 function unwrapConstAssertion(expression: ts.Expression | undefined): ts.Expression | undefined {

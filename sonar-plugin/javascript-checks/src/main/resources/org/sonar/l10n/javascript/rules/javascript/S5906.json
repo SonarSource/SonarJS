@@ -33,8 +33,13 @@
     "js",
     "ts"
   ],
-  "defaultQualityProfiles": [
-    "Sonar agentic AI",
-    "Sonar way"
-  ]
+  "defaultQualityProfiles": {
+    "js": [
+      "Sonar agentic AI"
+    ],
+    "ts": [
+      "Sonar way",
+      "Sonar agentic AI"
+    ]
+  }
 }

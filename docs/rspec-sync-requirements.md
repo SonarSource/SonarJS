@@ -29,7 +29,9 @@ especially:
 - SonarJS must generate rule data from `SonarSource/rspec` for both JavaScript and CSS.
 - RSPEC metadata must remain the source of truth for generated rule JSON and generated profiles.
 - Generated profile content such as `defaultQualityProfiles` must come from RSPEC metadata rather
-  than local hardcoded lists.
+  than local hardcoded lists. A legacy string array applies to every compatible language. A
+  language-to-array object applies the profile list independently to each language and must declare
+  every compatible language, including those with no default profile.
 - For the normal local `npm run bbf` workflow, the already-present tracked rule JSON in the
   workspace is the build input for TypeScript metadata generation.
 - Fetching the latest RSPEC revision must be an explicit refresh action rather than an implicit side
