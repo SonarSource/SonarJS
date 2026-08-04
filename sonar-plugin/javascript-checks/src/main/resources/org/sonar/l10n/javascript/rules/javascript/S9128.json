@@ -1,5 +1,5 @@
 {
-  "title": "Promises returned by Testing Library async events should be handled",
+  "title": "Vue component field names should not be duplicated",
   "type": "BUG",
   "status": "ready",
   "remediation": {
@@ -7,19 +7,18 @@
     "constantCost": "5min"
   },
   "tags": [
-    "tests",
-    "testing-library"
+    "vue"
   ],
   "extra": {
     "requiredDependency": [
-      "@testing-library/user-event"
+      "vue"
     ]
   },
   "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-9115",
-  "sqKey": "S9115",
-  "scope": "Tests",
-  "quickfix": "covered",
+  "ruleSpecification": "RSPEC-9128",
+  "sqKey": "S9128",
+  "scope": "Main",
+  "quickfix": "infeasible",
   "code": {
     "impacts": {
       "RELIABILITY": "MEDIUM"

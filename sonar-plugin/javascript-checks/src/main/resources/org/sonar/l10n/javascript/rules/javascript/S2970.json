@@ -14,7 +14,12 @@
   },
   "tags": [
     "tests",
-    "editable-source"
+    "jest",
+    "vitest",
+    "bun",
+    "playwright",
+    "node",
+    "chai"
   ],
   "extra": {
     "replacementRules": [],
