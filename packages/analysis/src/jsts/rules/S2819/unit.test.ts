@@ -177,6 +177,60 @@ describe('S2819', () => {
         },
         {
           code: `
+      if (typeof window === 'undefined') {
+        window = self;
+      }
+      window.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          // a shim anywhere in the file disqualifies every receiver in it, since it mutates
+          // the global itself
+          code: `
+      function bootstrapWorker() {
+        if (typeof window === 'undefined') {
+          window = self;
+        }
+      }
+      window.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          // the shape found in the wild: shim and receiver inside a module factory
+          code: `
+      define(function (require, exports, module) {
+        if (typeof window == "undefined") {
+          if (typeof self != "undefined") window = self;
+          if (typeof global != "undefined") window = global;
+        }
+        window.onmessage = function (event) {
+          console.log(event.data);
+        };
+      });
+            `,
+        },
+        {
+          // the shim is also found when the configuration declares 'window' as a global, in
+          // which case the write is reached through the variable rather than through the scope
+          code: `
+      if (typeof window === 'undefined') {
+        window = self;
+      }
+      window.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+          languageOptions: {
+            sourceType: 'script',
+            globals: { window: 'writable', self: 'readonly' },
+          },
+        },
+        {
+          code: `
       type WorkerScope = { onmessage: (event: MessageEvent) => void };
       function register(globalThis: WorkerScope) {
         globalThis.onmessage = function(event) {
@@ -314,19 +368,6 @@ describe('S2819', () => {
         },
         {
           code: `
-      window.onmessage = function(event) {
-        console.log(event.data);
-      };
-            `,
-          errors: [{ messageId: 'verifyOrigin' }],
-        },
-        {
-          // a `window = self` Worker shim is not distinguishable by type when the DOM lib is
-          // loaded, so it is reported, consistently with `addEventListener("message", ...)`
-          code: `
-      if (typeof window === 'undefined') {
-        window = self;
-      }
       window.onmessage = function(event) {
         console.log(event.data);
       };
