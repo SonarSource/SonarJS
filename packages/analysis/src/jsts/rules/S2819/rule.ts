@@ -134,12 +134,12 @@ function checkOnMessageAssignment(
  * The name heuristic is too coarse here: `onmessage` is also a property of unrelated
  * transports such as WebSocket, so a `wsWindowChannel.onmessage` assignment would be
  * reported without this restriction.
+ *
+ * The conditions are ordered by cost: the receiver name rejects the vast majority of `onmessage`
+ * assignments without touching the type checker or the scope chain, and the Worker shim lookup
+ * comes last so that only a receiver that is otherwise a DOM `Window` pays for it.
  */
 function isWindowMessageReceiver(node: estree.Node, context: Rule.RuleContext) {
-  if (isWindowAliasedToWorkerGlobal(node, context)) {
-    return false;
-  }
-
   const receiver = getUniqueWriteUsageOrNode(context, node, true);
   if (
     receiver.type !== 'Identifier' ||
@@ -151,9 +151,10 @@ function isWindowMessageReceiver(node: estree.Node, context: Rule.RuleContext) {
   const onMessage = getTypeFromTreeNode(receiver, context.sourceCode.parserServices).getProperty(
     ON_MESSAGE,
   );
-  return onMessage?.declarations?.some(declaration =>
+  const isDomWindow = onMessage?.declarations?.some(declaration =>
     declaration.getSourceFile().fileName.endsWith('lib.dom.d.ts'),
   );
+  return isDomWindow === true && !isWindowAliasedToWorkerGlobal(node, context);
 }
 
 /**
