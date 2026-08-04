@@ -111,7 +111,9 @@ describe('S9115', () => {
           code: `
             import userEvent from '@testing-library/user-event';
             await userEvent.click(button);
-            return userEvent.type(input, 'Ada');
+            function handled() {
+              return userEvent.type(input, 'Ada');
+            }
             userEvent.copy(input).then(() => {});
             await Promise.all([userEvent.hover(button)]);
             await Promise.allSettled([userEvent.tab()]);
