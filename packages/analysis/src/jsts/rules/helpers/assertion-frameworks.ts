@@ -47,6 +47,19 @@ type AssertionFrameworkDefinition = {
   isTSAssertion?: TypeScriptAssertionDetector;
 };
 
+/**
+ * Every assertion framework the analyzer can recognise, keyed by a stable profile name.
+ *
+ * This is the single catalog: a framework is added once here — its module specifiers and its AST
+ * and type-aware detectors — and rules opt in by listing its key in a profile. Nothing here decides
+ * what a match *means*; that is the rule's job, expressed as the profile's extension value (see
+ * {@link AssertionExecution} for S8784's script-capable / runner-bound split). A rule that never
+ * lists a key is blind to that framework, both for `imports`/`dependencies` gating and detection.
+ *
+ * `imports` are module specifiers whose presence in the linted file proves the framework is in
+ * play; `dependencies` are packages that expose their assertion API as globals, so a manifest
+ * dependency is enough and no import appears in the file.
+ */
 export const assertionFrameworks = {
   chai: {
     imports: ['chai'],
@@ -86,7 +99,9 @@ export const assertionFrameworks = {
     isTSAssertion: Vitest.isTSAssertion,
   },
   cypress: {
-    imports: ['cypress'],
+    // Cypress exposes `cy` as a global, so a manifest dependency is the only signal — the spec
+    // file never imports the package.
+    imports: [],
     dependencies: ['cypress'],
     isAssertion: (_context, node) => Cypress.isAssertion(node),
     isTSAssertion: (_services, node) => Cypress.isTSAssertion(node),
@@ -107,10 +122,27 @@ export const assertionFrameworks = {
 } satisfies Record<string, AssertionFrameworkDefinition>;
 
 export type AssertionFrameworkKey = keyof typeof assertionFrameworks;
-export type AssertionFrameworkProfile<T = Record<never, never>> = Partial<
-  Record<AssertionFrameworkKey, T>
->;
 
+/**
+ * A rule's selection of frameworks from {@link assertionFrameworks}, each mapped to whatever that
+ * rule needs to know about it (`T`). Rules declare one as a module constant, so the set of
+ * frameworks a rule reacts to is readable in one place instead of being implied by which helper it
+ * happens to call.
+ *
+ * Rules use the two concrete aliases below, never this generic directly: `T` is what makes an
+ * evidence profile and an execution profile different types, and picking `T` per call site is how
+ * they would drift back into being interchangeable.
+ */
+type AssertionFrameworkProfile<T> = Partial<Record<AssertionFrameworkKey, T>>;
+
+/**
+ * Extra per-framework detection a rule can bolt onto the catalog's own detectors.
+ *
+ * `isTSAssertionFallback` runs when the catalog's type-aware detector misses. It is
+ * library-agnostic by design: the type-aware resolver only follows declaration initializers, so
+ * any framework whose assertion object is *assigned* in test setup rather than declared with an
+ * initializer needs it. AWS CDK is simply the only one that does today.
+ */
 export type AssertionEvidenceExtension = {
   isTSAssertionFallback?: (
     context: Rule.RuleContext,
@@ -119,28 +151,63 @@ export type AssertionEvidenceExtension = {
   ) => boolean;
 };
 
+/**
+ * Whether a framework's assertions can run without a test runner. Script-capable ones are ordinary
+ * libraries usable in a plain `node file.js`; runner-bound ones only exist because a runner
+ * executes the file. Used as a profile extension by rules that treat the two differently.
+ */
 export type AssertionExecution = 'script-capable' | 'runner-bound';
 
+/**
+ * Profile for rules that only ask whether an assertion is present. `{}` selects a framework with no
+ * extra behaviour; see {@link AssertionEvidenceExtension} for what an entry may carry.
+ */
+export type AssertionEvidenceProfile = AssertionFrameworkProfile<AssertionEvidenceExtension>;
+
+/**
+ * Profile for rules that additionally reason about {@link AssertionExecution}.
+ *
+ * Deliberately not interchangeable with {@link AssertionEvidenceProfile}: an execution profile
+ * carries strings, which do not satisfy the evidence extension's object shape, so passing one to an
+ * evidence entry point is a compile error rather than a silently ignored extension.
+ */
+export type AssertionExecutionProfile = AssertionFrameworkProfile<AssertionExecution>;
+
+/**
+ * Whether the linted file imports, or the project depends on, any framework in `profile`. Rules
+ * gate on this to stay silent in files that are not tests, before doing any per-node work.
+ */
 export function hasAssertionEvidenceSource(
   context: Rule.RuleContext,
-  profile: AssertionFrameworkProfile,
+  profile: AssertionEvidenceProfile,
 ): boolean {
   return hasAssertionFrameworkSource(context, profile);
 }
 
+/**
+ * Whether `node` is an assertion call from any framework in `profile`. Pure-AST: needs no type
+ * information. Frameworks outside the profile are invisible, so this answers "did the rule see an
+ * assertion it cares about?", not "is this an assertion?".
+ */
 export function isAssertionEvidence(
   context: Rule.RuleContext,
   node: estree.Node,
-  profile: AssertionFrameworkProfile,
+  profile: AssertionEvidenceProfile,
 ): boolean {
   return getFrameworkEntries(profile).some(({ framework }) => framework.isAssertion(context, node));
 }
 
+/**
+ * Type-checker-aware counterpart of {@link isAssertionEvidence}, operating on TypeScript AST nodes.
+ * Used when parser services are available to follow resolved types across declarations, and falls
+ * back to each profile entry's {@link AssertionEvidenceExtension.isTSAssertionFallback} when the
+ * catalog's own type-aware detector misses.
+ */
 export function isTypeScriptAssertionEvidence(
   context: Rule.RuleContext,
   services: ParserServicesWithTypeInformation,
   node: ts.Node,
-  profile: AssertionFrameworkProfile<AssertionEvidenceExtension>,
+  profile: AssertionEvidenceProfile,
 ): boolean {
   return getFrameworkEntries(profile).some(
     ({ framework, extension }) =>
@@ -149,25 +216,41 @@ export function isTypeScriptAssertionEvidence(
   );
 }
 
+/**
+ * {@link hasAssertionEvidenceSource} for profiles carrying an {@link AssertionExecution}. Same
+ * check — the separate name keeps a rule's gating call and its per-node call reading against the
+ * same vocabulary.
+ */
 export function hasAssertionExecutionSource(
   context: Rule.RuleContext,
-  profile: AssertionFrameworkProfile<AssertionExecution>,
+  profile: AssertionExecutionProfile,
 ): boolean {
   return hasAssertionFrameworkSource(context, profile);
 }
 
+/**
+ * The `extension` of the first profile framework that claims `node`, or `undefined` if none does.
+ *
+ * Classification is per *node*, not per statement, and a single assertion statement often has
+ * several matching nodes that do not agree. A chai `expect(x).to.equal(y)` matches the Chai
+ * detector on the inner `chai.expect(...)` call and the name-based global-`expect` detector on
+ * the outer `.to.equal(...)` call, so with an {@link AssertionExecution} profile the same
+ * statement yields both `script-capable` and `runner-bound`. Callers that reason about the
+ * classification must combine the nodes of a statement themselves — see how S8784 ORs
+ * `script-capable` across a statement rather than trusting any single node.
+ */
 export function getAssertionExecution(
   context: Rule.RuleContext,
   node: estree.Node,
-  profile: AssertionFrameworkProfile<AssertionExecution>,
+  profile: AssertionExecutionProfile,
 ): AssertionExecution | undefined {
   return getFrameworkEntries(profile).find(({ framework }) => framework.isAssertion(context, node))
     ?.extension;
 }
 
-function hasAssertionFrameworkSource(
+function hasAssertionFrameworkSource<T>(
   context: Rule.RuleContext,
-  profile: AssertionFrameworkProfile,
+  profile: AssertionFrameworkProfile<T>,
 ): boolean {
   const entries = getFrameworkEntries(profile);
   return importsOrDependsOnModule(
@@ -177,11 +260,28 @@ function hasAssertionFrameworkSource(
   );
 }
 
+/**
+ * Profiles are module constants, but the detection entry points run on every visited node, so the
+ * resolved entries are cached per profile object rather than rebuilt per call.
+ */
+const frameworkEntriesCache = new WeakMap<object, unknown[]>();
+
 function getFrameworkEntries<T>(profile: AssertionFrameworkProfile<T>) {
-  return Object.entries(profile).flatMap(([key, extension]) => {
+  const cached = frameworkEntriesCache.get(profile);
+  if (cached !== undefined) {
+    return cached as FrameworkEntry<T>[];
+  }
+  const entries = Object.entries(profile).flatMap(([key, extension]) => {
     if (extension === undefined) {
       return [];
     }
     return [{ framework: assertionFrameworks[key as AssertionFrameworkKey], extension }];
   });
+  frameworkEntriesCache.set(profile, entries);
+  return entries;
 }
+
+type FrameworkEntry<T> = {
+  framework: (typeof assertionFrameworks)[AssertionFrameworkKey];
+  extension: T;
+};

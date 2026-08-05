@@ -15,53 +15,38 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it } from 'node:test';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect } from 'expect';
 import { Linter, type Rule } from 'eslint';
 import type estree from 'estree';
 import {
-  assertionFrameworks,
   hasAssertionEvidenceSource,
   isAssertionEvidence,
-  type AssertionFrameworkKey,
-  type AssertionFrameworkProfile,
+  type AssertionEvidenceProfile,
 } from '../../../../src/jsts/rules/helpers/assertion-frameworks.js';
 
-const awsCdk: AssertionFrameworkKey = 'awsCdk';
-
 const AWS_CDK_PROFILE = {
-  [awsCdk]: {},
-} satisfies AssertionFrameworkProfile;
+  awsCdk: {},
+} satisfies AssertionEvidenceProfile;
 
 const NODE_ASSERT_PROFILE = {
   nodeAssert: {},
-} satisfies AssertionFrameworkProfile;
+} satisfies AssertionEvidenceProfile;
 
-const EMPTY_PROFILE = {} satisfies AssertionFrameworkProfile;
+/** Selects a framework the fixture neither imports nor depends on. */
+const CHAI_PROFILE = {
+  chai: {},
+} satisfies AssertionEvidenceProfile;
 
-const source = `
-  import assert from 'node:assert';
-  import { Template } from 'aws-cdk-lib/assertions';
-  assert.equal(actual, expected);
-  Template.fromStack(stack).hasResourceProperties('AWS::S3::Bucket', {});
-`;
+const EMPTY_PROFILE = {} satisfies AssertionEvidenceProfile;
 
-const filename = join(import.meta.dirname, 'assertion-frameworks.fixture.js');
+const filename = join(import.meta.dirname, 'fixtures', 'assertion-frameworks.js');
+const source = readFileSync(filename, 'utf8');
 
-function detectedAssertions(profile: AssertionFrameworkProfile): string[] {
-  const detected: string[] = [];
-  const collect: Rule.RuleModule = {
-    create(context) {
-      return {
-        CallExpression(node: estree.CallExpression) {
-          if (isAssertionEvidence(context, node, profile)) {
-            detected.push(context.sourceCode.getText(node));
-          }
-        },
-      };
-    },
-  };
-
+/** Runs `visit` as an ESLint rule over the fixture, so the callback gets a real rule context. */
+function lintFixture(visit: (context: Rule.RuleContext) => Rule.RuleListener): void {
+  const collect: Rule.RuleModule = { create: visit };
   new Linter().verify(
     source,
     {
@@ -71,37 +56,30 @@ function detectedAssertions(profile: AssertionFrameworkProfile): string[] {
     },
     { filename },
   );
+}
 
+function detectedAssertions(profile: AssertionEvidenceProfile): string[] {
+  const detected: string[] = [];
+  lintFixture(context => ({
+    CallExpression(node: estree.CallExpression) {
+      if (isAssertionEvidence(context, node, profile)) {
+        detected.push(context.sourceCode.getText(node));
+      }
+    },
+  }));
   return detected;
 }
 
-function hasEvidenceSource(profile: AssertionFrameworkProfile): boolean {
+function hasEvidenceSource(profile: AssertionEvidenceProfile): boolean {
   let hasSource = false;
-  const collect: Rule.RuleModule = {
-    create(context) {
-      hasSource = hasAssertionEvidenceSource(context, profile);
-      return {};
-    },
-  };
-
-  new Linter().verify(
-    source,
-    {
-      languageOptions: { ecmaVersion: 'latest', sourceType: 'module' },
-      plugins: { test: { rules: { collect } } },
-      rules: { 'test/collect': 'error' },
-    },
-    { filename },
-  );
-
+  lintFixture(context => {
+    hasSource = hasAssertionEvidenceSource(context, profile);
+    return {};
+  });
   return hasSource;
 }
 
 describe('assertion framework profiles', () => {
-  it('derives profile keys from the framework catalog', () => {
-    expect(assertionFrameworks[awsCdk].imports).toContain('aws-cdk-lib/assertions');
-  });
-
   it('only exposes assertion evidence selected by the profile', () => {
     expect(detectedAssertions(AWS_CDK_PROFILE)).toEqual([
       "Template.fromStack(stack).hasResourceProperties('AWS::S3::Bucket', {})",
@@ -113,6 +91,7 @@ describe('assertion framework profiles', () => {
   it('only treats selected framework modules as assertion evidence sources', () => {
     expect(hasEvidenceSource(AWS_CDK_PROFILE)).toEqual(true);
     expect(hasEvidenceSource(NODE_ASSERT_PROFILE)).toEqual(true);
+    expect(hasEvidenceSource(CHAI_PROFILE)).toEqual(false);
     expect(hasEvidenceSource(EMPTY_PROFILE)).toEqual(false);
   });
 });

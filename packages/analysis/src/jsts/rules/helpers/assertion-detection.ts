@@ -213,6 +213,10 @@ export function isGlobalExpectAssertion(
   );
 }
 
+/**
+ * Whether `node` is a call rooted at the node `assert` module — `assert(...)` itself or any of its
+ * methods. Pure-AST counterpart of {@link isNodeAssertTSAssertion}.
+ */
 export function isNodeAssertAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   if (node.type !== 'CallExpression') {
     return false;
@@ -325,6 +329,11 @@ function isTSChaiShouldChainContinuation(
   );
 }
 
+/**
+ * Type-checker-aware counterpart of {@link isGlobalExpectAssertion}: a resolved global
+ * `expect*(...)` chain. Node `assert` is deliberately not covered here — it is its own catalog
+ * entry, {@link isNodeAssertTSAssertion}.
+ */
 export function isGlobalTSExpectAssertion(
   services: ParserServicesWithTypeInformation,
   node: ts.Node,
@@ -364,6 +373,10 @@ function isGlobalExpectExpression(
   );
 }
 
+/**
+ * Type-checker-aware counterpart of {@link isNodeAssertAssertion}, also accepting the
+ * `assert/strict` entry point.
+ */
 export function isNodeAssertTSAssertion(
   services: ParserServicesWithTypeInformation,
   node: ts.Node,

@@ -34,6 +34,10 @@ import {
   type RequiredParserServices,
 } from '../helpers/parser-services.js';
 import { TEST_FRAMEWORK_STRUCTURE_FUNCTIONS } from '../helpers/test-frameworks.js';
+import {
+  isAssertionEvidence,
+  type AssertionEvidenceProfile,
+} from '../helpers/assertion-frameworks.js';
 import * as meta from './generated-meta.js';
 import {
   findFirstTopLevelAwait,
@@ -54,6 +58,23 @@ import {
  * must be treated like `jest`, mirroring S8780.
  */
 const SUPPORTED_FRAMEWORKS = ['jest', '@jest/globals', 'mocha', 'cypress'];
+
+/**
+ * Every known assertion framework. This rule does not reason about how a framework executes, only
+ * about whether a call is a library assertion — an external API that is never the local async
+ * helper this rule resolves — so it opts into all of them. See {@link shouldSkipHelperResolution}.
+ */
+const ASSERTION_PROFILE = {
+  chai: {},
+  sinon: {},
+  supertest: {},
+  nodeAssert: {},
+  uvu: {},
+  vitest: {},
+  cypress: {},
+  globalExpect: {},
+  awsCdk: {},
+} satisfies AssertionEvidenceProfile;
 
 /**
  * Suite-defining identifiers whose callback runs during discovery. `xdescribe`/`xcontext` (skip
@@ -450,6 +471,11 @@ function findNextTopLevelAwaitAfter(
   return undefined;
 }
 
+/**
+ * Whether `call` is known not to be the local async helper this rule looks for, so resolution can
+ * stop before walking to a declaration. Two kinds qualify: a test/suite registration from a
+ * supported framework, and any library assertion — both are external APIs.
+ */
 function shouldSkipHelperResolution(
   context: Rule.RuleContext,
   call: estree.CallExpression,
@@ -459,7 +485,7 @@ function shouldSkipHelperResolution(
     calleeParts !== undefined &&
     TEST_FRAMEWORK_STRUCTURE_FUNCTIONS.has(calleeParts.base.name) &&
     isSupportedFrameworkConstruct(context, calleeParts.base);
-  return isKnownFrameworkRegistration;
+  return isKnownFrameworkRegistration || isAssertionEvidence(context, call, ASSERTION_PROFILE);
 }
 
 /**

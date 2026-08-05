@@ -21,14 +21,14 @@ import type { Rule } from 'eslint';
 import ts from 'typescript';
 import {
   isTypeScriptAssertionEvidence,
-  type AssertionFrameworkProfile,
+  type AssertionEvidenceProfile,
 } from '../../../../src/jsts/rules/helpers/assertion-frameworks.js';
 import type { RequiredParserServices } from '../../../../src/jsts/rules/helpers/parser-services.js';
 import { createProgramFromSingleFile } from '../../../../src/jsts/program/factory.js';
 
 const CHAI_ASSERTION_EVIDENCE = {
   chai: {},
-} satisfies AssertionFrameworkProfile;
+} satisfies AssertionEvidenceProfile;
 
 describe('assertion-detection', () => {
   it('recognizes TypeScript chai should chains ending in properties or calls', () => {

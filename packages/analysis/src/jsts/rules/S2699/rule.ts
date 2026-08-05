@@ -42,8 +42,7 @@ import {
   hasAssertionEvidenceSource,
   isAssertionEvidence,
   isTypeScriptAssertionEvidence,
-  type AssertionEvidenceExtension,
-  type AssertionFrameworkProfile,
+  type AssertionEvidenceProfile,
 } from '../helpers/assertion-frameworks.js';
 import * as meta from './generated-meta.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
@@ -61,7 +60,7 @@ const ASSERTION_EVIDENCE_PROFILE = {
   awsCdk: {
     isTSAssertionFallback: AwsCdk.isTSAssertionWithAssignmentFallback,
   },
-} satisfies AssertionFrameworkProfile<AssertionEvidenceExtension>;
+} satisfies AssertionEvidenceProfile;
 
 /**
  * We assume that the user is using a single assertion library per file,

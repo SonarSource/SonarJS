@@ -30,8 +30,7 @@ import { isTypeLevelAssertion } from '../helpers/assertion-detection.js';
 import {
   getAssertionExecution,
   hasAssertionExecutionSource,
-  type AssertionExecution,
-  type AssertionFrameworkProfile,
+  type AssertionExecutionProfile,
 } from '../helpers/assertion-frameworks.js';
 import * as meta from './generated-meta.js';
 
@@ -42,6 +41,20 @@ const messages = {
 const SCRIPT_CAPABLE = 'script-capable';
 const RUNNER_BOUND = 'runner-bound';
 
+/**
+ * Assertion frameworks this rule recognises, classified by whether their assertion API can run
+ * without a test runner. Script-capable — node `assert`, chai, sinon, supertest, uvu, AWS CDK —
+ * are ordinary libraries usable in a plain `node file.js`, so a top-level assertion IS the test.
+ * Runner-bound — vitest, cypress, global `expect*(...)` chains — only exist because a runner
+ * executes the file, so a top-level occurrence is genuinely misplaced.
+ *
+ * Classification is by library, not by syntax, and one statement can produce nodes that disagree:
+ * a chai `expect(x).to.equal(y)` is `script-capable` on the inner `chai.expect(...)` call but
+ * `runner-bound` on the outer `.to.equal(...)` call, which the name-based global-`expect` detector
+ * also claims. This is why `topLevelStatements` ORs `script-capable` over every matched call in a
+ * statement instead of classifying the statement from a single node — see
+ * `no-test-structure.fixture.js`, where a top-level chai assertion must stay compliant.
+ */
 const ASSERTION_EXECUTION_PROFILE = {
   chai: SCRIPT_CAPABLE,
   sinon: SCRIPT_CAPABLE,
@@ -52,7 +65,7 @@ const ASSERTION_EXECUTION_PROFILE = {
   vitest: RUNNER_BOUND,
   cypress: RUNNER_BOUND,
   globalExpect: RUNNER_BOUND,
-} satisfies AssertionFrameworkProfile<AssertionExecution>;
+} satisfies AssertionExecutionProfile;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
