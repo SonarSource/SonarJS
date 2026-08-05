@@ -17,10 +17,18 @@
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { parseForESLint } from '@typescript-eslint/parser';
+import type { Rule } from 'eslint';
 import ts from 'typescript';
-import { isTSAssertion } from '../../../../src/jsts/rules/helpers/assertion-detection.js';
+import {
+  isTypeScriptAssertionEvidence,
+  type AssertionFrameworkProfile,
+} from '../../../../src/jsts/rules/helpers/assertion-frameworks.js';
 import type { RequiredParserServices } from '../../../../src/jsts/rules/helpers/parser-services.js';
 import { createProgramFromSingleFile } from '../../../../src/jsts/program/factory.js';
+
+const CHAI_ASSERTION_EVIDENCE = {
+  chai: {},
+} satisfies AssertionFrameworkProfile;
 
 describe('assertion-detection', () => {
   it('recognizes TypeScript chai should chains ending in properties or calls', () => {
@@ -52,21 +60,23 @@ describe('assertion-detection', () => {
 
     const { services, program } = createProgramFromSource(sourceCode);
 
-    expect(isTSAssertion(services, findTSNodeByText(program, 'user.should'))).toEqual(true);
+    expect(isAssertionEvidence(services, findTSNodeByText(program, 'user.should'))).toEqual(true);
     expect(
-      isTSAssertion(services, findTSNodeByText(program, 'warning.isVisible().should')),
+      isAssertionEvidence(services, findTSNodeByText(program, 'warning.isVisible().should')),
     ).toEqual(true);
-    expect(isTSAssertion(services, findTSNodeByText(program, 'status.should'))).toEqual(true);
-    expect(isTSAssertion(services, findTSNodeByText(program, 'payload.should'))).toEqual(true);
-    expect(isTSAssertion(services, findTSNodeByText(program, 'rechainedPayload.should'))).toEqual(
+    expect(isAssertionEvidence(services, findTSNodeByText(program, 'status.should'))).toEqual(true);
+    expect(isAssertionEvidence(services, findTSNodeByText(program, 'payload.should'))).toEqual(
       true,
     );
-    expect(isTSAssertion(services, findTSNodeByText(program, 'promiseResult.should'))).toEqual(
-      true,
-    );
-    expect(isTSAssertion(services, findTSNodeByText(program, 'submitPassword.should'))).toEqual(
-      true,
-    );
+    expect(
+      isAssertionEvidence(services, findTSNodeByText(program, 'rechainedPayload.should')),
+    ).toEqual(true);
+    expect(
+      isAssertionEvidence(services, findTSNodeByText(program, 'promiseResult.should')),
+    ).toEqual(true);
+    expect(
+      isAssertionEvidence(services, findTSNodeByText(program, 'submitPassword.should')),
+    ).toEqual(true);
   });
 
   it('rejects incomplete or unknown TypeScript chai should chains', () => {
@@ -94,14 +104,27 @@ describe('assertion-detection', () => {
 
     const { services, program } = createProgramFromSource(sourceCode);
 
-    expect(isTSAssertion(services, findTSNodeByText(program, 'bare.should'))).toEqual(false);
-    expect(isTSAssertion(services, findTSNodeByText(program, 'incomplete.should'))).toEqual(false);
-    expect(isTSAssertion(services, findTSNodeByText(program, 'unknown.should'))).toEqual(false);
-    expect(isTSAssertion(services, findTSNodeByText(program, 'terminalFollowed.should'))).toEqual(
+    expect(isAssertionEvidence(services, findTSNodeByText(program, 'bare.should'))).toEqual(false);
+    expect(isAssertionEvidence(services, findTSNodeByText(program, 'incomplete.should'))).toEqual(
       false,
     );
+    expect(isAssertionEvidence(services, findTSNodeByText(program, 'unknown.should'))).toEqual(
+      false,
+    );
+    expect(
+      isAssertionEvidence(services, findTSNodeByText(program, 'terminalFollowed.should')),
+    ).toEqual(false);
   });
 });
+
+function isAssertionEvidence(services: RequiredParserServices, node: ts.Node): boolean {
+  return isTypeScriptAssertionEvidence(
+    {} as Rule.RuleContext,
+    services,
+    node,
+    CHAI_ASSERTION_EVIDENCE,
+  );
+}
 
 function createProgramFromSource(sourceCode: string): {
   services: RequiredParserServices;

@@ -20,7 +20,6 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import { childrenOf } from '../helpers/ancestor.js';
-import { isAssertion } from '../helpers/assertion-detection.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { importsOrDependsOnModule, getFullyQualifiedName } from '../helpers/module.js';
@@ -460,7 +459,7 @@ function shouldSkipHelperResolution(
     calleeParts !== undefined &&
     TEST_FRAMEWORK_STRUCTURE_FUNCTIONS.has(calleeParts.base.name) &&
     isSupportedFrameworkConstruct(context, calleeParts.base);
-  return isKnownFrameworkRegistration || isAssertion(context, call);
+  return isKnownFrameworkRegistration;
 }
 
 /**

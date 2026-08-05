@@ -26,22 +26,35 @@ import {
   SUITE_FUNCTION_NAMES,
   TEST_FUNCTION_NAMES,
 } from '../helpers/mocha-style-test-frameworks.js';
+import { isTypeLevelAssertion } from '../helpers/assertion-detection.js';
 import {
-  hasSupportedAssertionLibrary,
-  isAssertion,
-  isScriptCapableAssertion,
-  isTypeLevelAssertion,
-} from '../helpers/assertion-detection.js';
+  getAssertionExecution,
+  hasAssertionExecutionSource,
+  type AssertionExecution,
+  type AssertionFrameworkProfile,
+} from '../helpers/assertion-frameworks.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
   moveAssertion: 'Move this assertion into a test case or a lifecycle hook.',
 };
 
+const ASSERTION_EXECUTION_PROFILE = {
+  chai: 'script-capable',
+  sinon: 'script-capable',
+  supertest: 'script-capable',
+  nodeAssert: 'script-capable',
+  uvu: 'script-capable',
+  awsCdk: 'script-capable',
+  vitest: 'runner-bound',
+  cypress: 'runner-bound',
+  globalExpect: 'runner-bound',
+} satisfies AssertionFrameworkProfile<AssertionExecution>;
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
-    if (!hasSupportedAssertionLibrary(context)) {
+    if (!hasAssertionExecutionSource(context, ASSERTION_EXECUTION_PROFILE)) {
       return {};
     }
     // Dedupe by enclosing statement: a single `expect(x).toBe(y)` produces two
@@ -67,7 +80,8 @@ export const rule: Rule.RuleModule = {
         if (isTestStructureConstruct(context, node)) {
           hasTestStructure = true;
         }
-        if (!isAssertion(context, node)) {
+        const execution = getAssertionExecution(context, node, ASSERTION_EXECUTION_PROFILE);
+        if (execution === undefined) {
           return;
         }
         if (isTypeLevelAssertion(context, node)) {
@@ -85,8 +99,7 @@ export const rule: Rule.RuleModule = {
             return;
           case 'top-level': {
             const scriptCapable =
-              (topLevelStatements.get(statement) ?? false) ||
-              isScriptCapableAssertion(context, node);
+              (topLevelStatements.get(statement) ?? false) || execution === 'script-capable';
             topLevelStatements.set(statement, scriptCapable);
             break;
           }
