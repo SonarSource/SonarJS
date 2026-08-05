@@ -60,7 +60,7 @@ type AssertionFrameworkDefinition = {
  * play; `dependencies` are packages that expose their assertion API as globals, so a manifest
  * dependency is enough and no import appears in the file.
  */
-export const assertionFrameworks = {
+const assertionFrameworks = {
   chai: {
     imports: ['chai'],
     dependencies: [],
@@ -121,7 +121,7 @@ export const assertionFrameworks = {
   },
 } satisfies Record<string, AssertionFrameworkDefinition>;
 
-export type AssertionFrameworkKey = keyof typeof assertionFrameworks;
+type AssertionFrameworkKey = keyof typeof assertionFrameworks;
 
 /**
  * A rule's selection of frameworks from {@link assertionFrameworks}, each mapped to whatever that
@@ -143,7 +143,7 @@ type AssertionFrameworkProfile<T> = Partial<Record<AssertionFrameworkKey, T>>;
  * any framework whose assertion object is *assigned* in test setup rather than declared with an
  * initializer needs it. AWS CDK is simply the only one that does today.
  */
-export type AssertionEvidenceExtension = {
+type AssertionEvidenceExtension = {
   isTSAssertionFallback?: (
     context: Rule.RuleContext,
     services: ParserServicesWithTypeInformation,
