@@ -178,8 +178,10 @@ function hasAssertionFrameworkSource(
 }
 
 function getFrameworkEntries<T>(profile: AssertionFrameworkProfile<T>) {
-  return (Object.keys(profile) as AssertionFrameworkKey[]).map(key => ({
-    framework: assertionFrameworks[key],
-    extension: profile[key]!,
-  }));
+  return Object.entries(profile).flatMap(([key, extension]) => {
+    if (extension === undefined) {
+      return [];
+    }
+    return [{ framework: assertionFrameworks[key as AssertionFrameworkKey], extension }];
+  });
 }

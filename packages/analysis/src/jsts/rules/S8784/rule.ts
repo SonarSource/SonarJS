@@ -39,16 +39,19 @@ const messages = {
   moveAssertion: 'Move this assertion into a test case or a lifecycle hook.',
 };
 
+const SCRIPT_CAPABLE = 'script-capable';
+const RUNNER_BOUND = 'runner-bound';
+
 const ASSERTION_EXECUTION_PROFILE = {
-  chai: 'script-capable',
-  sinon: 'script-capable',
-  supertest: 'script-capable',
-  nodeAssert: 'script-capable',
-  uvu: 'script-capable',
-  awsCdk: 'script-capable',
-  vitest: 'runner-bound',
-  cypress: 'runner-bound',
-  globalExpect: 'runner-bound',
+  chai: SCRIPT_CAPABLE,
+  sinon: SCRIPT_CAPABLE,
+  supertest: SCRIPT_CAPABLE,
+  nodeAssert: SCRIPT_CAPABLE,
+  uvu: SCRIPT_CAPABLE,
+  awsCdk: SCRIPT_CAPABLE,
+  vitest: RUNNER_BOUND,
+  cypress: RUNNER_BOUND,
+  globalExpect: RUNNER_BOUND,
 } satisfies AssertionFrameworkProfile<AssertionExecution>;
 
 export const rule: Rule.RuleModule = {
@@ -99,7 +102,7 @@ export const rule: Rule.RuleModule = {
             return;
           case 'top-level': {
             const scriptCapable =
-              (topLevelStatements.get(statement) ?? false) || execution === 'script-capable';
+              (topLevelStatements.get(statement) ?? false) || execution === SCRIPT_CAPABLE;
             topLevelStatements.set(statement, scriptCapable);
             break;
           }
