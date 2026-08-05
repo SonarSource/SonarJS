@@ -176,9 +176,9 @@ type AssertionDetector = (context: Rule.RuleContext, node: estree.Node) => boole
  * the script-capable ones. A new library is one classified entry here, so the two
  * predicates can never drift apart.
  *
- * Script-capable — node `assert`, chai, sinon, supertest, uvu — are ordinary libraries
- * usable in a plain `node file.js`. Runner-bound — vitest, cypress, global
- * `expect*(...)` chains — only exist because a runner executes the file.
+ * Script-capable — node `assert`, chai, sinon, supertest, uvu, `aws-cdk-lib/assertions` —
+ * are ordinary libraries usable in a plain `node file.js`. Runner-bound — vitest, cypress,
+ * global `expect*(...)` chains — only exist because a runner executes the file.
  *
  * Classification is by library, not syntax: a chai `expect(x).to.equal(y)` is also
  * matched by the name-based global-`expect` detector (on the outer `.to.equal(...)`
@@ -208,8 +208,9 @@ const ASSERTION_DETECTORS: AssertionDetector[] = [
 
 /**
  * Whether the given AST node is an assertion call, recognised across chai,
- * sinon, vitest, supertest, cypress, uvu, global `expect*(...)` chains and node
- * `assert`. Pure-AST: does not require type information.
+ * sinon, vitest, supertest, cypress, uvu, `aws-cdk-lib/assertions`, global
+ * `expect*(...)` chains and node `assert`. Pure-AST: does not require type
+ * information.
  */
 export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   return ASSERTION_DETECTORS.some(detect => detect(context, node));
@@ -217,7 +218,8 @@ export function isAssertion(context: Rule.RuleContext, node: estree.Node): boole
 
 /**
  * Whether `node` is an assertion from a library that runs in a plain script with
- * no test runner (node `assert`, chai, sinon, supertest, uvu). The complement among
+ * no test runner (node `assert`, chai, sinon, supertest, uvu,
+ * `aws-cdk-lib/assertions`). The complement among
  * assertions — vitest, cypress, global `expect` — is "runner-bound". Callers
  * deciding "is this runner-bound?" should test
  * `isAssertion(...) && !isScriptCapableAssertion(...)`.

@@ -12,6 +12,14 @@ describe('AWS CDK assertions', () => {
   Annotations.fromStack(stack).hasError('*', 'error'); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
   Tags.fromStack(stack).hasValues({}); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}
 
+  // The idiomatic CDK setup: the template is synthesized once in the suite body.
+  // A factory call is not an assertion, so hoisting it is not flagged.
+  const template = Template.fromStack(stack); // Compliant
+
+  beforeEach(() => {
+    template.hasResource('AWS::S3::Bucket', {}); // Compliant
+  });
+
   it('allows assertions in a test case', () => {
     Template.fromStack(stack).resourceCountIs('AWS::S3::Bucket', 1); // Compliant
   });
