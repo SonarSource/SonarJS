@@ -60,6 +60,10 @@ const ASSERTION_EXECUTION_PROFILE = {
   sinon: SCRIPT_CAPABLE,
   supertest: SCRIPT_CAPABLE,
   nodeAssert: SCRIPT_CAPABLE,
+  // Moot in practice: `t.assert.*` needs the runner-supplied context parameter, so it cannot occur
+  // at top level or in a suite body, which is the only place the classification is consulted. Set
+  // to script-capable for consistency with the rest of the node built-ins.
+  nodeTest: SCRIPT_CAPABLE,
   uvu: SCRIPT_CAPABLE,
   awsCdk: SCRIPT_CAPABLE,
   vitest: RUNNER_BOUND,

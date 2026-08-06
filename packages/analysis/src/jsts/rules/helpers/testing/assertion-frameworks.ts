@@ -29,6 +29,7 @@ import {
   isNodeAssertTSAssertion,
 } from './assertion-detection.js';
 import { importsOrDependsOnModule } from '../module.js';
+import * as NodeTest from './node-test.js';
 import * as Sinon from './sinon.js';
 import * as Supertest from './supertest.js';
 import * as Uvu from './uvu.js';
@@ -85,6 +86,20 @@ const assertionFrameworks = {
     dependencies: [],
     isAssertion: isNodeAssertAssertion,
     isTSAssertion: isNodeAssertTSAssertion,
+  },
+  nodeTest: {
+    // `node:test`'s own `t.assert.*`. Separate from `nodeAssert`: same underlying methods, but
+    // reached through the runner-supplied test context, so neither the import nor the receiver
+    // looks like `node:assert`.
+    //
+    // `imports` is deliberately empty even though `node:test` would qualify. Listing it would make
+    // every `node:test` file an assertion-evidence source, which is a gating change — rules would
+    // start analysing files they skip today. This entry exists to stop `t.assert.*` being missed in
+    // files already under analysis, not to widen which files those are.
+    imports: [],
+    dependencies: [],
+    isAssertion: NodeTest.isAssertion,
+    isTSAssertion: NodeTest.isTSAssertion,
   },
   uvu: {
     imports: ['uvu/assert'],

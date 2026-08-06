@@ -433,9 +433,8 @@ test('member-based playwright expect entrypoints', async ({ page }) => {
 });
 `,
         },
-      ],
-      invalid: [
         {
+          // `node:test` hands the test its own assertion API on the context parameter.
           code: `
 import test from 'node:test';
 import { startVitest } from 'vitest/node';
@@ -449,6 +448,29 @@ await test('importing vitest in the global setup is reported as an error', async
   const modules = vitest.state.getTestModules();
   t.assert.equal(modules.length, 1);
   t.assert.equal(modules[0].state(), 'passed');
+});
+`,
+        },
+        {
+          code: `
+import { it } from 'node:test';
+
+it('recognizes the context assertion in a named entry point', ctx => {
+  ctx.assert.ok(value);
+});
+`,
+        },
+      ],
+      invalid: [
+        {
+          // `assert` here is an unrelated local, not the runner-supplied test context.
+          code: `
+import test from 'node:test';
+import assert from 'node:assert';
+
+test('a lookalike receiver is not a test context', () => {
+  const helper = { assert: { equal() {} } };
+  helper.assert.equal(1, 1);
 });
 `,
           errors: 1,
