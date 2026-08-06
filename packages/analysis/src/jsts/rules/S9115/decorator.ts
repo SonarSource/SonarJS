@@ -35,13 +35,14 @@ const messages = {
 };
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  const ruleMeta = rule.meta ?? {};
   const upstreamRule = withUserEventOnly(withStrictImportResolution(rule));
   const decoratedRule = {
     ...upstreamRule,
     meta: generateMeta(meta, {
-      ...(rule.meta ?? {}),
+      ...ruleMeta,
       messages: {
-        ...(rule.meta?.messages ?? {}),
+        ...ruleMeta.messages,
         ...messages,
       },
     }),
