@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 function Form() {
@@ -35,6 +35,31 @@ function doesNotUseTestingLibrary() {
 function wrapsNonTestingLibraryCode() {
     act(() => {
         onlyNonTestingLibraryCode();
+    });
+}
+
+function flushesHookStateBeforeReadingIt(id: string | undefined) {
+    const { result } = renderHook(() => ({ dismiss: (_id: string) => {} }));
+
+    act(() => {
+        if (id) result.current.dismiss(id);
+    });
+}
+
+function flushesHookStateAndRenders(id: string | undefined) {
+    const { result } = renderHook(() => ({ dismiss: (_id: string) => {} }));
+
+    act(() => {
+        if (id) result.current.dismiss(id);
+        render(<Form />);
+    });
+}
+
+function rerendersHook(id: string | undefined) {
+    const { rerender } = renderHook(() => ({}));
+
+    act(() => { // Noncompliant {{Remove this redundant `act()` call; the wrapped call already flushes its own updates.}}
+        if (id) rerender();
     });
 }
 
