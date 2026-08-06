@@ -26,7 +26,7 @@ import {
   getParameterizedTestFrameworks,
   hasSupportedParameterizedCallback,
   isSupportedParameterizedDeclaration,
-} from '../helpers/mocha-style-test-frameworks.js';
+} from '../helpers/testing/mocha-style-test-frameworks.js';
 import * as meta from './generated-meta.js';
 
 const messages = {

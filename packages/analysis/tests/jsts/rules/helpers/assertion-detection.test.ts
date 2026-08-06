@@ -22,7 +22,7 @@ import ts from 'typescript';
 import {
   isTypeScriptAssertionEvidence,
   type AssertionEvidenceProfile,
-} from '../../../../src/jsts/rules/helpers/assertion-frameworks.js';
+} from '../../../../src/jsts/rules/helpers/testing/assertion-frameworks.js';
 import type { RequiredParserServices } from '../../../../src/jsts/rules/helpers/parser-services.js';
 import { createProgramFromSingleFile } from '../../../../src/jsts/program/factory.js';
 

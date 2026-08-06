@@ -32,7 +32,7 @@ import {
   getStaticTitle,
   hasCallback,
   isMochaTestConstruct,
-} from '../helpers/mocha-style-test-frameworks.js';
+} from '../helpers/testing/mocha-style-test-frameworks.js';
 import * as meta from './generated-meta.js';
 
 const MOCHA_TEST_AND_SUITE_NAMES = [...TEST_FUNCTION_NAMES, ...SUITE_FUNCTION_NAMES];

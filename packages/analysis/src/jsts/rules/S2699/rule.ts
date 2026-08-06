@@ -27,8 +27,8 @@ import {
   resolveFunction,
 } from '../helpers/ast.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
-import * as Mocha from '../helpers/mocha.js';
-import * as Vitest from '../helpers/vitest.js';
+import * as Mocha from '../helpers/testing/mocha.js';
+import * as Vitest from '../helpers/testing/vitest.js';
 import {
   followCallToImplementation,
   followTypeScriptCallToImplementation,
@@ -36,14 +36,14 @@ import {
 import {
   hasSupportedTestFramework,
   isIncompleteShouldAccess,
-} from '../helpers/assertion-detection.js';
-import * as AwsCdk from '../helpers/assertions-aws-cdk.js';
+} from '../helpers/testing/assertion-detection.js';
+import * as AwsCdk from '../helpers/testing/assertions-aws-cdk.js';
 import {
   hasAssertionEvidenceSource,
   isAssertionEvidence,
   isTypeScriptAssertionEvidence,
   type AssertionEvidenceProfile,
-} from '../helpers/assertion-frameworks.js';
+} from '../helpers/testing/assertion-frameworks.js';
 import * as meta from './generated-meta.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';

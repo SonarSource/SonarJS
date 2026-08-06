@@ -18,13 +18,11 @@ import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { childrenOf } from '../helpers/ancestor.js';
 import { isFunctionNode } from '../helpers/ast.js';
-import { getMochaCalleeParts } from '../helpers/mocha-style-test-frameworks.js';
+import { getMochaCalleeParts } from '../helpers/testing/mocha-style-test-frameworks.js';
 
 /** Any function-like node, including named declarations used as async helpers. */
 export type FunctionLike =
-  | estree.FunctionDeclaration
-  | estree.FunctionExpression
-  | estree.ArrowFunctionExpression;
+  estree.FunctionDeclaration | estree.FunctionExpression | estree.ArrowFunctionExpression;
 
 /** Type guard for any function-like node, including named function declarations used as helpers. */
 export function isFunctionLike(node: estree.Node): node is FunctionLike {

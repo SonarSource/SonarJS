@@ -24,7 +24,7 @@ import {
   hasAssertionEvidenceSource,
   isAssertionEvidence,
   type AssertionEvidenceProfile,
-} from '../../../../src/jsts/rules/helpers/assertion-frameworks.js';
+} from '../../../../src/jsts/rules/helpers/testing/assertion-frameworks.js';
 
 const AWS_CDK_PROFILE = {
   awsCdk: {},

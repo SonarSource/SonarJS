@@ -28,7 +28,7 @@ import {
   isNodeAssertAssertion,
   isNodeAssertTSAssertion,
 } from './assertion-detection.js';
-import { importsOrDependsOnModule } from './module.js';
+import { importsOrDependsOnModule } from '../module.js';
 import * as Sinon from './sinon.js';
 import * as Supertest from './supertest.js';
 import * as Uvu from './uvu.js';

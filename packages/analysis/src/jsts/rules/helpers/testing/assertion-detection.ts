@@ -29,9 +29,9 @@ import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils
 import ts from 'typescript';
 import * as Playwright from './playwright.js';
 import * as Vitest from './vitest.js';
-import { getParent } from './ancestor.js';
-import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
-import { getFullyQualifiedNameTS, importsModuleTS } from './module-ts.js';
+import { getParent } from '../ancestor.js';
+import { getFullyQualifiedName, importsOrDependsOnModule } from '../module.js';
+import { getFullyQualifiedNameTS, importsModuleTS } from '../module-ts.js';
 
 const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
   '@jest/globals',

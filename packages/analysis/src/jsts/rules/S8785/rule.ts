@@ -28,16 +28,16 @@ import {
   getMochaCalleeParts,
   SUITE_FUNCTION_NAMES,
   TEST_FUNCTION_NAMES,
-} from '../helpers/mocha-style-test-frameworks.js';
+} from '../helpers/testing/mocha-style-test-frameworks.js';
 import {
   isRequiredParserServices,
   type RequiredParserServices,
 } from '../helpers/parser-services.js';
-import { TEST_FRAMEWORK_STRUCTURE_FUNCTIONS } from '../helpers/test-frameworks.js';
+import { TEST_FRAMEWORK_STRUCTURE_FUNCTIONS } from '../helpers/testing/test-frameworks.js';
 import {
   isAssertionEvidence,
   type AssertionEvidenceProfile,
-} from '../helpers/assertion-frameworks.js';
+} from '../helpers/testing/assertion-frameworks.js';
 import * as meta from './generated-meta.js';
 import {
   findFirstTopLevelAwait,

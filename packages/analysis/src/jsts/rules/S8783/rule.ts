@@ -19,7 +19,7 @@
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { getProperty, getValueOfExpression, isMethodCall } from '../helpers/ast.js';
-import { chainStartsWithCy } from '../helpers/cypress.js';
+import { chainStartsWithCy } from '../helpers/testing/cypress.js';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { importsOrDependsOnModule } from '../helpers/module.js';

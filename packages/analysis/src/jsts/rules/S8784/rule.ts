@@ -25,13 +25,13 @@ import {
   isMochaTestConstruct,
   SUITE_FUNCTION_NAMES,
   TEST_FUNCTION_NAMES,
-} from '../helpers/mocha-style-test-frameworks.js';
-import { isTypeLevelAssertion } from '../helpers/assertion-detection.js';
+} from '../helpers/testing/mocha-style-test-frameworks.js';
+import { isTypeLevelAssertion } from '../helpers/testing/assertion-detection.js';
 import {
   getAssertionExecution,
   hasAssertionExecutionSource,
   type AssertionExecutionProfile,
-} from '../helpers/assertion-frameworks.js';
+} from '../helpers/testing/assertion-frameworks.js';
 import * as meta from './generated-meta.js';
 
 const messages = {

@@ -18,8 +18,8 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
-import { getFullyQualifiedName } from './module.js';
-import { getFullyQualifiedNameTS, importsModuleTS } from './module-ts.js';
+import { getFullyQualifiedName } from '../module.js';
+import { getFullyQualifiedNameTS, importsModuleTS } from '../module-ts.js';
 
 const ASSERTIONS_MODULE = 'aws-cdk-lib/assertions';
 
