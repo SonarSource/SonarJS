@@ -69,10 +69,7 @@ export function isAssertion(context: Rule.RuleContext, node: estree.Node): boole
  * repository's own type-aware rule tests. Matching the shape keeps the two paths in agreement
  * instead of making recognition depend on whether types happen to be installed.
  */
-export function isTSAssertion(
-  services: ParserServicesWithTypeInformation,
-  node: ts.Node,
-): boolean {
+export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node): boolean {
   if (node.kind !== ts.SyntaxKind.CallExpression) {
     return false;
   }
@@ -165,9 +162,9 @@ function getAssertReceiver(callee: estree.Node): estree.Identifier | undefined {
 }
 
 /**
- * Whether `name` is the first parameter of an enclosing function that a `node:test` entry point
- * receives as an argument — i.e. the runner-supplied `TestContext`, rather than an unrelated local
- * that happens to expose an `assert` member.
+ * Whether `receiver` resolves to the first parameter of an enclosing `node:test` callback — i.e.
+ * the runner-supplied `TestContext`, rather than an unrelated local that happens to expose an
+ * `assert` member.
  */
 function isTestContextParameter(
   context: Rule.RuleContext,
