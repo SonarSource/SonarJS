@@ -30,7 +30,7 @@ import ts from 'typescript';
 import * as Playwright from './playwright.js';
 import * as Vitest from './vitest.js';
 import { getParent } from '../ancestor.js';
-import { getFullyQualifiedName, importsOrDependsOnModule } from '../module.js';
+import { getFullyQualifiedName, importsModule, importsOrDependsOnModule } from '../module.js';
 import { getFullyQualifiedNameTS, importsModuleTS } from '../module-ts.js';
 
 const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
@@ -135,6 +135,7 @@ export function hasSupportedTestFramework(context: Rule.RuleContext): boolean {
 // `expectTypeOf`/`assertType` and the standalone `expect-type` package's
 // `expectTypeOf` (which Vitest uses internally and may be imported directly).
 const TYPE_LEVEL_ASSERTION_ROOTS = [...Vitest.TYPE_LEVEL_ROOTS, 'expect-type.expectTypeOf'];
+const NODE_ASSERT_MODULES = ['assert', 'assert/strict', 'node:assert', 'node:assert/strict'];
 
 /**
  * Whether `node` is a compile-time-only type check that must not be flagged for
@@ -219,6 +220,9 @@ export function isGlobalExpectAssertion(
  */
 export function isNodeAssertAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   if (node.type !== 'CallExpression') {
+    return false;
+  }
+  if (!importsModule(context, NODE_ASSERT_MODULES)) {
     return false;
   }
   const fullyQualifiedName = getFullyQualifiedName(context, node);
@@ -381,6 +385,9 @@ export function isNodeAssertTSAssertion(
   services: ParserServicesWithTypeInformation,
   node: ts.Node,
 ): boolean {
+  if (!importsModuleTS(node.getSourceFile(), NODE_ASSERT_MODULES)) {
+    return false;
+  }
   const fqn = getFullyQualifiedNameTS(services, node);
   const root = fqn?.split('.')[0];
   return root === 'assert' || root === 'assert/strict';

@@ -93,7 +93,7 @@ const assertionFrameworks = {
     isTSAssertion: Uvu.isTSAssertion,
   },
   vitest: {
-    imports: ['vitest'],
+    imports: ['vitest', 'vitest/node'],
     dependencies: [],
     isAssertion: Vitest.isAssertion,
     isTSAssertion: Vitest.isTSAssertion,
