@@ -31,5 +31,8 @@
 ],
 "vitest:test/core/test/mocked.test.js": [
 36
+],
+"vitest:test/node-runner/test/cli.test.js": [
+4
 ]
 }

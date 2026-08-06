@@ -96,6 +96,9 @@
 "vitest:test/cli/fixtures/config-loader/node/basic.test.ts": [
 3
 ],
+"vitest:test/cli/fixtures/console/trace.test.ts": [
+3
+],
 "vitest:test/cli/fixtures/fails/no-assertions.test.ts": [
 3
 ],
