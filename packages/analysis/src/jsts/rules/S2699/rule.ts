@@ -39,28 +39,26 @@ import {
 } from '../helpers/testing/assertion-detection.js';
 import * as AwsCdk from '../helpers/testing/assertions-aws-cdk.js';
 import {
+  allAssertionFrameworks,
   hasAssertionEvidenceSource,
   isAssertionEvidence,
   isTypeScriptAssertionEvidence,
-  type AssertionEvidenceProfile,
 } from '../helpers/testing/assertion-frameworks.js';
 import * as meta from './generated-meta.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
-const ASSERTION_EVIDENCE_PROFILE = {
-  chai: {},
-  sinon: {},
-  supertest: {},
-  nodeAssert: {},
-  uvu: {},
-  vitest: {},
-  cypress: {},
-  globalExpect: {},
+/**
+ * Every known assertion framework: any assertion at all clears this rule, so it has no reason to be
+ * selective. AWS CDK additionally needs the assignment fallback, because a CDK template is
+ * conventionally assigned in `beforeEach` rather than declared with an initializer, which is all
+ * the type-aware resolver follows.
+ */
+const ASSERTION_EVIDENCE_PROFILE = allAssertionFrameworks({
   awsCdk: {
     isTSAssertionFallback: AwsCdk.isTSAssertionWithAssignmentFallback,
   },
-} satisfies AssertionEvidenceProfile;
+});
 
 /**
  * We assume that the user is using a single assertion library per file,

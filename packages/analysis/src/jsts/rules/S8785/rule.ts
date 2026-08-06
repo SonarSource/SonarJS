@@ -35,8 +35,8 @@ import {
 } from '../helpers/parser-services.js';
 import { TEST_FRAMEWORK_STRUCTURE_FUNCTIONS } from '../helpers/testing/test-frameworks.js';
 import {
+  allAssertionFrameworks,
   isAssertionEvidence,
-  type AssertionEvidenceProfile,
 } from '../helpers/testing/assertion-frameworks.js';
 import * as meta from './generated-meta.js';
 import {
@@ -64,17 +64,7 @@ const SUPPORTED_FRAMEWORKS = ['jest', '@jest/globals', 'mocha', 'cypress'];
  * about whether a call is a library assertion — an external API that is never the local async
  * helper this rule resolves — so it opts into all of them. See {@link shouldSkipHelperResolution}.
  */
-const ASSERTION_PROFILE = {
-  chai: {},
-  sinon: {},
-  supertest: {},
-  nodeAssert: {},
-  uvu: {},
-  vitest: {},
-  cypress: {},
-  globalExpect: {},
-  awsCdk: {},
-} satisfies AssertionEvidenceProfile;
+const ASSERTION_PROFILE = allAssertionFrameworks();
 
 /**
  * Suite-defining identifiers whose callback runs during discovery. `xdescribe`/`xcontext` (skip

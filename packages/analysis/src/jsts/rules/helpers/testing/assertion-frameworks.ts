@@ -123,6 +123,8 @@ const assertionFrameworks = {
 
 type AssertionFrameworkKey = keyof typeof assertionFrameworks;
 
+const ASSERTION_FRAMEWORK_KEYS = Object.keys(assertionFrameworks) as AssertionFrameworkKey[];
+
 /**
  * A rule's selection of frameworks from {@link assertionFrameworks}, each mapped to whatever that
  * rule needs to know about it (`T`). Rules declare one as a module constant, so the set of
@@ -134,6 +136,22 @@ type AssertionFrameworkKey = keyof typeof assertionFrameworks;
  * they would drift back into being interchangeable.
  */
 type AssertionFrameworkProfile<T> = Partial<Record<AssertionFrameworkKey, T>>;
+
+/**
+ * A profile covering every framework in {@link assertionFrameworks}, for rules that react to all of
+ * them. Derived from the catalog rather than written out at the call site, so a framework added to
+ * the catalog reaches those rules instead of being silently invisible to them — an opt-in catalog
+ * makes an omission a false negative with nothing to fail.
+ *
+ * `overrides` carries the extension for the frameworks that need one; every other key gets `{}`.
+ * Call it once per rule, at module scope: {@link getFrameworkEntries} caches on profile identity,
+ * so a fresh object per `create()` would rebuild the entries for every linted file.
+ */
+export function allAssertionFrameworks(
+  overrides: AssertionEvidenceProfile = {},
+): AssertionEvidenceProfile {
+  return Object.fromEntries(ASSERTION_FRAMEWORK_KEYS.map(key => [key, overrides[key] ?? {}]));
+}
 
 /**
  * Extra per-framework detection a rule can bolt onto the catalog's own detectors.
@@ -170,8 +188,13 @@ export type AssertionEvidenceProfile = AssertionFrameworkProfile<AssertionEviden
  * Deliberately not interchangeable with {@link AssertionEvidenceProfile}: an execution profile
  * carries strings, which do not satisfy the evidence extension's object shape, so passing one to an
  * evidence entry point is a compile error rather than a silently ignored extension.
+ *
+ * Total, unlike the other profiles: classifying a framework is a judgement no default can stand in
+ * for, so a framework added to {@link assertionFrameworks} must be classified here — a missing key
+ * is a compile error rather than a framework the rule quietly stops seeing. Rules needing every
+ * framework with uniform behaviour use {@link allAssertionFrameworks} instead.
  */
-export type AssertionExecutionProfile = AssertionFrameworkProfile<AssertionExecution>;
+export type AssertionExecutionProfile = Record<AssertionFrameworkKey, AssertionExecution>;
 
 /**
  * Whether the linted file imports, or the project depends on, any framework in `profile`. Rules

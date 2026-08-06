@@ -21,6 +21,7 @@ import { expect } from 'expect';
 import { Linter, type Rule } from 'eslint';
 import type estree from 'estree';
 import {
+  allAssertionFrameworks,
   hasAssertionEvidenceSource,
   isAssertionEvidence,
   type AssertionEvidenceProfile,
@@ -86,6 +87,22 @@ describe('assertion framework profiles', () => {
     ]);
     expect(detectedAssertions(NODE_ASSERT_PROFILE)).toEqual(['assert.equal(actual, expected)']);
     expect(detectedAssertions(EMPTY_PROFILE)).toEqual([]);
+  });
+
+  it('covers every catalog framework in the all-frameworks profile', () => {
+    // The fixture imports two unrelated frameworks, so a profile built from the catalog must see
+    // both without either being named at this call site.
+    expect(detectedAssertions(allAssertionFrameworks())).toEqual([
+      'assert.equal(actual, expected)',
+      "Template.fromStack(stack).hasResourceProperties('AWS::S3::Bucket', {})",
+    ]);
+    expect(hasEvidenceSource(allAssertionFrameworks())).toEqual(true);
+  });
+
+  it('applies all-frameworks overrides only to the framework they name', () => {
+    const overridden = allAssertionFrameworks({ awsCdk: { isTSAssertionFallback: () => true } });
+    expect(overridden.awsCdk?.isTSAssertionFallback).toBeDefined();
+    expect(overridden.nodeAssert?.isTSAssertionFallback).toBeUndefined();
   });
 
   it('only treats selected framework modules as assertion evidence sources', () => {
