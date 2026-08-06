@@ -460,6 +460,16 @@ it('recognizes the context assertion in a named entry point', ctx => {
 });
 `,
         },
+        {
+          code: `
+import test from 'node:test';
+import { startVitest } from 'vitest/node';
+
+test.skip('recognizes a context assertion in a skipped test', t => {
+  t.assert.ok(startVitest);
+});
+`,
+        },
       ],
       invalid: [
         {
@@ -738,6 +748,16 @@ test('recognizes typed AWS CDK template assertions', () => {
   const template = Template.fromStack({});
   template.hasResourceProperties('AWS::S3::Bucket', {});
   template.resourceCountIs('AWS::S3::Bucket', 1);
+});
+`,
+        },
+        {
+          code: `
+import test from 'node:test';
+import { startVitest } from 'vitest/node';
+
+test.only('recognizes a typed context assertion in a focused test', t => {
+  t.assert.ok(startVitest);
 });
 `,
         },
@@ -1195,6 +1215,20 @@ test('member-based playwright expect entrypoints', async ({ page }) => {
         },
       ],
       invalid: [
+        {
+          code: `
+import test from 'node:test';
+import { startVitest } from 'vitest/node';
+
+test('does not treat a typed shadowed context name as an assertion', t => {
+  (() => {
+    const t = { assert: { ok() {} } };
+    t.assert.ok(startVitest);
+  })();
+});
+`,
+          errors: 1,
+        },
         {
           code: `
 import { test } from 'vitest';

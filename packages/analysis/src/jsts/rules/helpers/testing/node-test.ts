@@ -32,7 +32,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
-import { isFunctionNode, isIdentifier } from '../ast.js';
+import { getVariableFromScope, isFunctionNode, isIdentifier } from '../ast.js';
 import { getFullyQualifiedName } from '../module.js';
 import { importsModuleTS } from '../module-ts.js';
 
@@ -56,8 +56,8 @@ export function isAssertion(context: Rule.RuleContext, node: estree.Node): boole
   if (node.type !== 'CallExpression') {
     return false;
   }
-  const contextName = getAssertReceiverName(node.callee);
-  return contextName !== undefined && isTestContextParameter(context, node, contextName);
+  const receiver = getAssertReceiver(node.callee);
+  return receiver !== undefined && isTestContextParameter(context, node, receiver);
 }
 
 /**
@@ -70,23 +70,23 @@ export function isAssertion(context: Rule.RuleContext, node: estree.Node): boole
  * instead of making recognition depend on whether types happen to be installed.
  */
 export function isTSAssertion(
-  _services: ParserServicesWithTypeInformation,
+  services: ParserServicesWithTypeInformation,
   node: ts.Node,
 ): boolean {
   if (node.kind !== ts.SyntaxKind.CallExpression) {
     return false;
   }
   const call = node as ts.CallExpression;
-  const contextName = getAssertReceiverNameTS(call.expression);
+  const receiver = getAssertReceiverTS(call.expression);
   return (
-    contextName !== undefined &&
+    receiver !== undefined &&
     importsModuleTS(node.getSourceFile(), [TEST_MODULE]) &&
-    isTestContextParameterTS(call, contextName)
+    isTestContextParameterTS(services, call, receiver)
   );
 }
 
-/** {@link getAssertReceiverName} on a TypeScript callee. */
-function getAssertReceiverNameTS(callee: ts.Expression): string | undefined {
+/** {@link getAssertReceiver} on a TypeScript callee. */
+function getAssertReceiverTS(callee: ts.Expression): ts.Identifier | undefined {
   if (!ts.isPropertyAccessExpression(callee)) {
     return undefined;
   }
@@ -98,17 +98,30 @@ function getAssertReceiverNameTS(callee: ts.Expression): string | undefined {
   ) {
     return undefined;
   }
-  return assertAccess.expression.text;
+  return assertAccess.expression;
 }
 
 /** {@link isTestContextParameter} on the TypeScript AST. */
-function isTestContextParameterTS(node: ts.Node, name: string): boolean {
+function isTestContextParameterTS(
+  services: ParserServicesWithTypeInformation,
+  node: ts.Node,
+  receiver: ts.Identifier,
+): boolean {
+  const checker = services.program.getTypeChecker();
+  const receiverSymbol = checker.getSymbolAtLocation(receiver);
+  if (receiverSymbol === undefined) {
+    return false;
+  }
   for (let current = node.parent; current !== undefined; current = current.parent) {
     if (!ts.isFunctionExpression(current) && !ts.isArrowFunction(current)) {
       continue;
     }
     const [first] = current.parameters;
-    if (first === undefined || !ts.isIdentifier(first.name) || first.name.text !== name) {
+    if (
+      first === undefined ||
+      !ts.isIdentifier(first.name) ||
+      checker.getSymbolAtLocation(first.name) !== receiverSymbol
+    ) {
       continue;
     }
     const parent = current.parent;
@@ -128,11 +141,14 @@ function isNodeTestCalleeTS(callee: ts.Expression): boolean {
   if (ts.isIdentifier(callee)) {
     return TEST_FUNCTION_NAMES.has(callee.text);
   }
-  return ts.isPropertyAccessExpression(callee) && TEST_FUNCTION_NAMES.has(callee.name.text);
+  return (
+    ts.isPropertyAccessExpression(callee) &&
+    (TEST_FUNCTION_NAMES.has(callee.name.text) || isNodeTestCalleeTS(callee.expression))
+  );
 }
 
 /** The `t` of a `t.assert.<method>` callee, or `undefined` if `callee` is not that shape. */
-function getAssertReceiverName(callee: estree.Node): string | undefined {
+function getAssertReceiver(callee: estree.Node): estree.Identifier | undefined {
   if (callee.type !== 'MemberExpression' || callee.computed) {
     return undefined;
   }
@@ -145,7 +161,7 @@ function getAssertReceiverName(callee: estree.Node): string | undefined {
   ) {
     return undefined;
   }
-  return assertAccess.object.name;
+  return assertAccess.object;
 }
 
 /**
@@ -156,8 +172,15 @@ function getAssertReceiverName(callee: estree.Node): string | undefined {
 function isTestContextParameter(
   context: Rule.RuleContext,
   node: estree.Node,
-  name: string,
+  receiver: estree.Identifier,
 ): boolean {
+  const receiverVariable = getVariableFromScope(
+    context.sourceCode.getScope(receiver),
+    receiver.name,
+  );
+  if (receiverVariable === undefined) {
+    return false;
+  }
   const ancestors = context.sourceCode.getAncestors(
     node as Parameters<typeof context.sourceCode.getAncestors>[0],
   );
@@ -167,7 +190,10 @@ function isTestContextParameter(
       continue;
     }
     const [first] = enclosing.params;
-    if (first?.type !== 'Identifier' || first.name !== name) {
+    if (
+      first?.type !== 'Identifier' ||
+      getVariableFromScope(context.sourceCode.getScope(first), first.name) !== receiverVariable
+    ) {
       // A nearer function shadowing nothing keeps the search going; one that binds `name` to
       // something else means the receiver is not a test context.
       continue;

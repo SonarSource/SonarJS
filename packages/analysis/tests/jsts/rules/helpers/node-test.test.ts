@@ -68,6 +68,16 @@ test('nested', async t => {
     ).toEqual(['t.assert.deepStrictEqual(c, expected)']);
   });
 
+  it('recognizes assertions in skipped and focused tests', () => {
+    expect(
+      detected(`
+import test from 'node:test';
+test.skip('skipped', t => { t.assert.ok(value); });
+test.only('focused', t => { t.assert.equal(actual, expected); });
+`),
+    ).toEqual(['t.assert.ok(value)', 't.assert.equal(actual, expected)']);
+  });
+
   it('ignores a receiver that is not the context parameter', () => {
     // Same shape, but `helper` is a local object and `t` here is an ordinary parameter of a
     // function nobody passed to node:test.
@@ -112,5 +122,19 @@ test('outer', t => {
 });
 `),
     ).toEqual(['t.assert.ok(1)']);
+  });
+
+  it('rejects a lexical binding that shadows the context parameter', () => {
+    expect(
+      detected(`
+import test from 'node:test';
+test('shadowed', t => {
+  (() => {
+    const t = { assert: { ok() {} } };
+    t.assert.ok(true);
+  })();
+});
+`),
+    ).toEqual([]);
   });
 });
