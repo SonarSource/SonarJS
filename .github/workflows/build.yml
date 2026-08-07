@@ -1080,22 +1080,43 @@ jobs:
           npm run generate-meta
           npm run grpc:generate-proto
           npm run ruling
-      - name: Update ruling and notify
-        if: always() && (github.event_name == 'pull_request' || github.ref_name == github.event.repository.default_branch)
-        uses: ./.github/actions/ruling_bot
+      - name: Upload JS/TS ruling artifacts
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          github-token: ${{ github.token }}
-          pr-number: ${{ github.event.pull_request.number || '' }}
-          target-ref: ${{ github.head_ref || github.ref_name }}
-          base-ref: ${{ github.base_ref || github.event.repository.default_branch }}
-          base-sha: ${{ github.event.pull_request.base.sha || '' }}
-          is-pull-request: ${{ github.event_name == 'pull_request' }}
-          ruling-failed: ${{ steps.ruling.outcome == 'failure' }}
-          new-results-path: packages/ruling/actual
-          old-results-path: its/ruling/src/test/expected
-          sources-path: its/sources
-          sources-repo-url: https://github.com/SonarSource/jsts-test-sources/blob/master
-          rspec-base-url: https://musical-adventure-r9qk65j.pages.github.io/rspec/#
+          name: actual_jsts_ruling
+          path: packages/ruling/actual/
+          retention-days: 30
+          if-no-files-found: ignore
+
+  js_ts_ruling_update_notify:
+    runs-on: sonar-l
+    name: JS/TS Ruling Update and Notify
+    needs: js_ts_ruling
+    if: always() && github.event_name == 'pull_request'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Download JS/TS ruling artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: actual_*
+          merge-multiple: true
+      - name: Update ruling and notify
+        uses: SonarSource/core-languages-tooling-public/ruling-update-and-notify@master
+        with:
+          pr-number: ${{ github.event.pull_request.number }}
+          ruling-failed: ${{ needs.js_ts_ruling.result == 'failure' }}
+          ruling-root: 'packages/ruling/expected'
+          sources-root: 'its/sources'
+        env:
+          GH_TOKEN: ${{ github.token }}
 
   ruling:
     runs-on: sonar-xl
@@ -1115,6 +1136,7 @@ jobs:
         with:
           save: 'false'
       - name: Run Ruling Tests
+        id: ruling
         run: |
           cd its/ruling
           # Cap ruling parallelism explicitly: using all CPUs on sonar-xl can
@@ -1123,12 +1145,43 @@ jobs:
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
-      - name: Upload ruling differences
-        if: failure()
+      - name: Upload ruling artifacts
+        if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: ruling-differences
+          name: actual_ruling
           path: its/ruling/target/actual/
+          retention-days: 30
+          if-no-files-found: ignore
+
+  ruling_update_notify:
+    runs-on: sonar-l
+    name: Ruling Update and Notify
+    needs: ruling
+    if: always() && github.event_name == 'pull_request'
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Download ruling artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          pattern: actual_*
+          merge-multiple: true
+      - name: Update ruling and notify
+        uses: SonarSource/core-languages-tooling-public/ruling-update-and-notify@master
+        with:
+          pr-number: ${{ github.event.pull_request.number }}
+          ruling-failed: ${{ needs.ruling.result == 'failure' }}
+          ruling-root: 'its/ruling/src/test/expected'
+          sources-root: 'its/sources'
+        env:
+          GH_TOKEN: ${{ github.token }}
 
   # IRIS tasks (nightly only)
   run_iris:
