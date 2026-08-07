@@ -20,7 +20,7 @@ import {
   extractTestCase,
   isTestCase,
   isTestConstruct,
-} from '../../../../src/jsts/rules/helpers/mocha.js';
+} from '../../../../src/jsts/rules/helpers/testing/mocha.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 

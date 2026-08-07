@@ -25,23 +25,56 @@ import {
   isMochaTestConstruct,
   SUITE_FUNCTION_NAMES,
   TEST_FUNCTION_NAMES,
-} from '../helpers/mocha-style-test-frameworks.js';
+} from '../helpers/testing/mocha-style-test-frameworks.js';
+import { isTypeLevelAssertion } from '../helpers/testing/assertion-detection.js';
 import {
-  hasSupportedAssertionLibrary,
-  isAssertion,
-  isScriptCapableAssertion,
-  isTypeLevelAssertion,
-} from '../helpers/assertion-detection.js';
+  getAssertionExecution,
+  hasAssertionExecutionSource,
+  type AssertionExecutionProfile,
+} from '../helpers/testing/assertion-frameworks.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
   moveAssertion: 'Move this assertion into a test case or a lifecycle hook.',
 };
 
+const SCRIPT_CAPABLE = 'script-capable';
+const RUNNER_BOUND = 'runner-bound';
+
+/**
+ * Assertion frameworks this rule recognises, classified by whether their assertion API can run
+ * without a test runner. Script-capable — node `assert`, chai, sinon, supertest, uvu, AWS CDK —
+ * are ordinary libraries usable in a plain `node file.js`, so a top-level assertion IS the test.
+ * Runner-bound — vitest, cypress, global `expect*(...)` chains — only exist because a runner
+ * executes the file, so a top-level occurrence is genuinely misplaced.
+ *
+ * Classification is by library, not by syntax, and one statement can produce nodes that disagree:
+ * a chai `expect(x).to.equal(y)` is `script-capable` on the inner `chai.expect(...)` call but
+ * `runner-bound` on the outer `.to.equal(...)` call, which the name-based global-`expect` detector
+ * also claims. This is why `topLevelStatements` ORs `script-capable` over every matched call in a
+ * statement instead of classifying the statement from a single node — see
+ * `no-test-structure.fixture.js`, where a top-level chai assertion must stay compliant.
+ */
+const ASSERTION_EXECUTION_PROFILE = {
+  chai: SCRIPT_CAPABLE,
+  sinon: SCRIPT_CAPABLE,
+  supertest: SCRIPT_CAPABLE,
+  nodeAssert: SCRIPT_CAPABLE,
+  // Unobservable: `t.assert.*` needs the runner-supplied context parameter, so it only ever
+  // appears inside a test callback — never at top level, the one placement whose handling reads
+  // this classification. Script-capable for consistency with the other node built-in.
+  nodeTest: SCRIPT_CAPABLE,
+  uvu: SCRIPT_CAPABLE,
+  awsCdk: SCRIPT_CAPABLE,
+  vitest: RUNNER_BOUND,
+  cypress: RUNNER_BOUND,
+  globalExpect: RUNNER_BOUND,
+} satisfies AssertionExecutionProfile;
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
-    if (!hasSupportedAssertionLibrary(context)) {
+    if (!hasAssertionExecutionSource(context, ASSERTION_EXECUTION_PROFILE)) {
       return {};
     }
     // Dedupe by enclosing statement: a single `expect(x).toBe(y)` produces two
@@ -67,7 +100,8 @@ export const rule: Rule.RuleModule = {
         if (isTestStructureConstruct(context, node)) {
           hasTestStructure = true;
         }
-        if (!isAssertion(context, node)) {
+        const execution = getAssertionExecution(context, node, ASSERTION_EXECUTION_PROFILE);
+        if (execution === undefined) {
           return;
         }
         if (isTypeLevelAssertion(context, node)) {
@@ -85,8 +119,7 @@ export const rule: Rule.RuleModule = {
             return;
           case 'top-level': {
             const scriptCapable =
-              (topLevelStatements.get(statement) ?? false) ||
-              isScriptCapableAssertion(context, node);
+              (topLevelStatements.get(statement) ?? false) || execution === SCRIPT_CAPABLE;
             topLevelStatements.set(statement, scriptCapable);
             break;
           }

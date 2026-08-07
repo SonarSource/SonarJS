@@ -20,7 +20,12 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { FUNCTION_NODES } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isDescribeCase, isLifecycleHook, isTestCase, isTestConstruct } from '../helpers/mocha.js';
+import {
+  isDescribeCase,
+  isLifecycleHook,
+  isTestCase,
+  isTestConstruct,
+} from '../helpers/testing/mocha.js';
 import * as meta from './generated-meta.js';
 
 const AFTER_HOOK_CONSTRUCTS = ['after', 'afterAll', 'afterEach'];

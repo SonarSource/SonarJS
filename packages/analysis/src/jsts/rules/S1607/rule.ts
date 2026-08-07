@@ -34,7 +34,7 @@ import * as meta from './generated-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 import { getPackageJsonManifestsSanitizePaths } from '../helpers/dependency-manifests/all-in-parent-dirs.js';
-import * as Playwright from '../helpers/playwright.js';
+import * as Playwright from '../helpers/testing/playwright.js';
 
 const mochaSkipFunctionNames = ['it', 'describe', 'context', 'specify'];
 const mochaXFunctionNames = ['xit', 'xdescribe', 'xcontext', 'xspecify'];

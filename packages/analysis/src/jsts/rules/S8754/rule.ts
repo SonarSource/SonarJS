@@ -38,7 +38,7 @@ import {
   hasCallback,
   isConcreteMochaTestModifier,
   isMochaTestConstruct,
-} from '../helpers/mocha-style-test-frameworks.js';
+} from '../helpers/testing/mocha-style-test-frameworks.js';
 import * as meta from './generated-meta.js';
 
 const PLAYWRIGHT_DISABLED_DESCRIBE_MODIFIERS = new Set(['skip', 'fixme']);
@@ -52,9 +52,7 @@ interface SuiteFrame {
 }
 
 type FunctionNode =
-  | estree.FunctionDeclaration
-  | estree.FunctionExpression
-  | estree.ArrowFunctionExpression;
+  estree.FunctionDeclaration | estree.FunctionExpression | estree.ArrowFunctionExpression;
 type CallbackFunctionNode = estree.FunctionExpression | estree.ArrowFunctionExpression;
 
 export const rule: Rule.RuleModule = {

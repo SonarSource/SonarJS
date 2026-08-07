@@ -18,7 +18,7 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { Linter, type Rule } from 'eslint';
 import type estree from 'estree';
-import { isAssertion } from '../../../../src/jsts/rules/helpers/uvu.js';
+import { isAssertion } from '../../../../src/jsts/rules/helpers/testing/uvu.js';
 
 /**
  * The callees of every call `isAssertion` recognizes in `source`. Member expressions are

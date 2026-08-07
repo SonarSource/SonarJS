@@ -18,8 +18,8 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
-import { getFullyQualifiedName } from './module.js';
-import { getFullyQualifiedNameTS } from './module-ts.js';
+import { getFullyQualifiedName } from '../module.js';
+import { getFullyQualifiedNameTS } from '../module-ts.js';
 
 // The documented `uvu/assert` API: https://github.com/lukeed/uvu/blob/master/docs/api.assert.md
 // `is` and `not` are absent because both are handled on their own in `isFQNAssertion`:

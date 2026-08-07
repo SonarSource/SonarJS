@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { hasParent, isIdentifier, isMethodCall } from '../helpers/ast.js';
-import { chainStartsWithCy } from '../helpers/cypress.js';
+import { chainStartsWithCy } from '../helpers/testing/cypress.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { removeNodeWithLeadingWhitespaces } from '../helpers/quickfix.js';

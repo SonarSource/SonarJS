@@ -16,59 +16,22 @@
  */
 
 /**
- * Shared assertion detection used by rules that need to recognise assertion
- * calls and gate on the presence of an assertion library / test runner
- * (e.g. S2699 "tests should include assertions" and S8784 "assertions should
- * be inside test cases or hooks").
+ * Low-level assertion detector primitives used by the framework catalog.
  *
  * This is intentionally distinct from `assertions.ts`, which extracts the
  * *structure* of an assertion (subject, predicate, comparison) for rules that
- * reason about assertion arguments. Here we only answer two yes/no questions:
- * "does this file use a supported assertion library?" and "is this node an
- * assertion call?".
+ * reason about assertion arguments. Framework selection and rule-specific
+ * interpretation live in `assertion-frameworks.ts`.
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
-import * as Chai from './chai.js';
 import * as Playwright from './playwright.js';
-import * as Sinon from './sinon.js';
 import * as Vitest from './vitest.js';
-import * as Supertest from './supertest.js';
-import * as Cypress from './cypress.js';
-import * as Uvu from './uvu.js';
-import * as AwsCdk from './assertions-aws-cdk.js';
-import { getParent } from './ancestor.js';
-import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
-import { getFullyQualifiedNameTS, importsModuleTS } from './module-ts.js';
-
-const ASSERTION_LIBRARIES = [
-  'chai',
-  'sinon',
-  'vitest',
-  'supertest',
-  '@playwright/test',
-  'assert',
-  'assert/strict',
-  'bun:test',
-  'node:assert',
-  'node:assert/strict',
-  'uvu/assert',
-];
-// runners that expose assertion APIs as globals (no import required).
-const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', '@playwright/test'];
-
-/**
- * Assertion libraries with no script-capable / runner-bound classification yet.
- *
- * Whether a library's assertions work without a test runner (see
- * {@link SCRIPT_CAPABLE_DETECTORS}) simply has no answer for the libraries listed here, so
- * callers that reason about that classification must not use them — until the library is
- * classified and moved into the arrays above. Callers that only need the plain "is this an
- * assertion?" boolean are unaffected and free to include them.
- */
-const UNCLASSIFIED_LIBRARIES = ['aws-cdk-lib/assertions'];
+import { getParent } from '../ancestor.js';
+import { getFullyQualifiedName, importsModule, importsOrDependsOnModule } from '../module.js';
+import { getFullyQualifiedNameTS, importsModuleTS } from '../module-ts.js';
 
 const SUPPORTED_TEST_FRAMEWORK_IMPORTS = [
   '@jest/globals',
@@ -160,28 +123,6 @@ const CHAI_TERMINAL_PROPERTY_NAMES = new Set([
   'undefined',
 ]);
 
-/**
- * Whether the linted file imports or the project depends on a supported
- * assertion library / test runner. Rules use this to avoid raising issues in
- * files that are not tests.
- */
-export function hasSupportedAssertionLibrary(context: Rule.RuleContext): boolean {
-  return importsOrDependsOnModule(context, ASSERTION_LIBRARIES, GLOBAL_ASSERTION_DEPENDENCIES);
-}
-
-/**
- * Like {@link hasSupportedAssertionLibrary}, but also accepts the
- * {@link UNCLASSIFIED_LIBRARIES}. Only for callers that do not reason about the
- * script-capable / runner-bound classification.
- */
-export function hasAssertionLibraryIncludingUnclassified(context: Rule.RuleContext): boolean {
-  return importsOrDependsOnModule(
-    context,
-    [...ASSERTION_LIBRARIES, ...UNCLASSIFIED_LIBRARIES],
-    GLOBAL_ASSERTION_DEPENDENCIES,
-  );
-}
-
 export function hasSupportedTestFramework(context: Rule.RuleContext): boolean {
   return importsOrDependsOnModule(
     context,
@@ -190,82 +131,11 @@ export function hasSupportedTestFramework(context: Rule.RuleContext): boolean {
   );
 }
 
-type AssertionDetector = (context: Rule.RuleContext, node: estree.Node) => boolean;
-
-/**
- * AST assertion detectors, classified by whether the assertion API can run
- * without a test runner. This is the single source of truth for the split:
- * {@link isAssertion} matches any detector, {@link isScriptCapableAssertion} only
- * the script-capable ones. A new library is one classified entry here, so the two
- * predicates can never drift apart.
- *
- * Script-capable — node `assert`, chai, sinon, supertest, uvu — are ordinary libraries
- * usable in a plain `node file.js`. Runner-bound — vitest, cypress, global
- * `expect*(...)` chains — only exist because a runner executes the file.
- *
- * Libraries that have not been classified yet are listed in {@link UNCLASSIFIED_LIBRARIES}
- * instead, and are invisible to both predicates here.
- *
- * Classification is by library, not syntax: a chai `expect(x).to.equal(y)` is also
- * matched by the name-based global-`expect` detector (on the outer `.to.equal(...)`
- * call), so the script-capable Chai detector (on the inner `chai.expect(...)` call)
- * must be able to claim it — which it does, because `isScriptCapableAssertion`
- * checks the script-capable detectors directly.
- */
-const SCRIPT_CAPABLE_DETECTORS: AssertionDetector[] = [
-  Chai.isAssertion,
-  Sinon.isAssertion,
-  Supertest.isAssertion,
-  isFunctionCallFromNodeAssert,
-  Uvu.isAssertion,
-];
-
-const RUNNER_BOUND_DETECTORS: AssertionDetector[] = [
-  Vitest.isAssertion,
-  (_context, node) => Cypress.isAssertion(node),
-  (context, node) => node.type === 'CallExpression' && isGlobalExpectExpressionJS(context, node),
-];
-
-const ASSERTION_DETECTORS: AssertionDetector[] = [
-  ...SCRIPT_CAPABLE_DETECTORS,
-  ...RUNNER_BOUND_DETECTORS,
-];
-
-/**
- * Whether the given AST node is an assertion call, recognised across chai,
- * sinon, vitest, supertest, cypress, uvu, global `expect*(...)` chains and node
- * `assert`. Pure-AST: does not require type information.
- */
-export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  return ASSERTION_DETECTORS.some(detect => detect(context, node));
-}
-
-/**
- * Like {@link isAssertion}, but also matches the {@link UNCLASSIFIED_LIBRARIES}. Only for callers
- * that do not reason about the script-capable / runner-bound classification.
- */
-export function isAssertionIncludingUnclassified(
-  context: Rule.RuleContext,
-  node: estree.Node,
-): boolean {
-  return isAssertion(context, node) || AwsCdk.isAssertion(context, node);
-}
-
-/**
- * Whether `node` is an assertion from a library that runs in a plain script with
- * no test runner (node `assert`, chai, sinon, supertest, uvu). The complement among
- * assertions — vitest, cypress, global `expect` — is "runner-bound". Callers
- * deciding "is this runner-bound?" should test
- * `isAssertion(...) && !isScriptCapableAssertion(...)`.
- */
-export function isScriptCapableAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  return SCRIPT_CAPABLE_DETECTORS.some(detect => detect(context, node));
-}
-
 // All FQN roots whose calls are compile-time-only type checks: Vitest's
 // `expectTypeOf`/`assertType` and the standalone `expect-type` package's
 // `expectTypeOf` (which Vitest uses internally and may be imported directly).
 const TYPE_LEVEL_ASSERTION_ROOTS = [...Vitest.TYPE_LEVEL_ROOTS, 'expect-type.expectTypeOf'];
+const NODE_ASSERT_MODULES = ['assert', 'assert/strict', 'node:assert', 'node:assert/strict'];
 
 /**
  * Whether `node` is a compile-time-only type check that must not be flagged for
@@ -295,44 +165,9 @@ export function isIncompleteShouldAccess(context: Rule.RuleContext, node: estree
 }
 
 /**
- * Type-checker-aware counterpart of {@link isAssertion}, operating on TypeScript
- * AST nodes. Used when parser services are available to follow resolved types.
+ * Whether a typed Chai `should` property access ends in a complete assertion.
  */
-export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node): boolean {
-  return (
-    isGlobalTSAssertion(services, node) ||
-    isExtendedTSShouldAccess(node) ||
-    Chai.isTSAssertion(services, node) ||
-    Sinon.isTSAssertion(services, node) ||
-    Supertest.isTSAssertion(services, node) ||
-    Vitest.isTSAssertion(services, node) ||
-    Uvu.isTSAssertion(services, node) ||
-    Cypress.isTSAssertion(node)
-  );
-}
-
-/**
- * Like {@link isTSAssertion}, but also matches the {@link UNCLASSIFIED_LIBRARIES}. Only for callers
- * that do not reason about the script-capable / runner-bound classification.
- *
- * The last operand is an assignment fallback, library-agnostic by design: the type-aware resolver
- * only follows declaration initializers, so any library whose assertion object is assigned in test
- * setup (rather than declared with an initializer) needs it. AWS CDK is simply the only one that
- * does today.
- */
-export function isTSAssertionIncludingUnclassified(
-  context: Rule.RuleContext,
-  services: ParserServicesWithTypeInformation,
-  node: ts.Node,
-): boolean {
-  return (
-    isTSAssertion(services, node) ||
-    AwsCdk.isTSAssertion(services, node) ||
-    AwsCdk.isTSAssertionWithAssignmentFallback(context, services, node)
-  );
-}
-
-function isExtendedTSShouldAccess(node: ts.Node): boolean {
+export function isChaiShouldTSAssertion(node: ts.Node): boolean {
   return (
     isTSShouldAccess(node) &&
     importsModuleTS(node.getSourceFile(), ['chai']) &&
@@ -352,7 +187,7 @@ function isTSShouldAccess(node: ts.Node): node is ts.PropertyAccessExpression {
  *
  * This mirrors the TypeScript isGlobalExpectExpression function logic.
  */
-function isGlobalExpectExpressionJS(
+export function isGlobalExpectAssertion(
   context: Rule.RuleContext,
   node: estree.CallExpression,
 ): boolean {
@@ -379,8 +214,15 @@ function isGlobalExpectExpressionJS(
   );
 }
 
-function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node): boolean {
+/**
+ * Whether `node` is a call rooted at the node `assert` module — `assert(...)` itself or any of its
+ * methods. Pure-AST counterpart of {@link isNodeAssertTSAssertion}.
+ */
+export function isNodeAssertAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   if (node.type !== 'CallExpression') {
+    return false;
+  }
+  if (!importsModule(context, NODE_ASSERT_MODULES)) {
     return false;
   }
   const fullyQualifiedName = getFullyQualifiedName(context, node);
@@ -491,16 +333,20 @@ function isTSChaiShouldChainContinuation(
   );
 }
 
-function isGlobalTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
+/**
+ * Type-checker-aware counterpart of {@link isGlobalExpectAssertion}: a resolved global
+ * `expect*(...)` chain. Node `assert` is deliberately not covered here — it is its own catalog
+ * entry, {@link isNodeAssertTSAssertion}.
+ */
+export function isGlobalTSExpectAssertion(
+  services: ParserServicesWithTypeInformation,
+  node: ts.Node,
+) {
   if (node.kind !== ts.SyntaxKind.CallExpression) {
     return false;
   }
   const callExpressionNode = node as ts.CallExpression;
-  // check for global expect
-  if (isGlobalExpectExpression(services, callExpressionNode)) {
-    return true;
-  }
-  return isFunctionCallFromNodeAssertTS(services, node);
+  return isGlobalExpectExpression(services, callExpressionNode);
 }
 
 function isGlobalExpectExpression(
@@ -531,10 +377,17 @@ function isGlobalExpectExpression(
   );
 }
 
-function isFunctionCallFromNodeAssertTS(
+/**
+ * Type-checker-aware counterpart of {@link isNodeAssertAssertion}, also accepting the
+ * `assert/strict` entry point.
+ */
+export function isNodeAssertTSAssertion(
   services: ParserServicesWithTypeInformation,
   node: ts.Node,
 ): boolean {
+  if (!importsModuleTS(node.getSourceFile(), NODE_ASSERT_MODULES)) {
+    return false;
+  }
   const fqn = getFullyQualifiedNameTS(services, node);
   const root = fqn?.split('.')[0];
   return root === 'assert' || root === 'assert/strict';

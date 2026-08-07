@@ -15,17 +15,18 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
+import { getFullyQualifiedName } from '../module.js';
+import { getFullyQualifiedNameTS } from '../module-ts.js';
 import type estree from 'estree';
-import { getFullyQualifiedName } from './module.js';
-import { getFullyQualifiedNameTS } from './module-ts.js';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
-export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-  return isAssertUsage(context, node);
+export function isAssertion(context: Rule.RuleContext, node: estree.Node) {
+  const fqn = extractFQNForCallExpression(context, node);
+  return isFQNAssertion(fqn);
 }
 
-export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node): boolean {
+export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
   if (node.kind !== ts.SyntaxKind.CallExpression) {
     return false;
   }
@@ -33,23 +34,25 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
   return isFQNAssertion(fqn);
 }
 
-function isAssertUsage(context: Rule.RuleContext, node: estree.Node) {
-  // assert.<expr>(), sinon.assert.<expr>()
-  const fqn = extractFQNforCallExpression(context, node);
-  return isFQNAssertion(fqn);
-}
-
 function isFQNAssertion(fqn: string | null | undefined) {
   if (!fqn) {
     return false;
   }
+
   const names = fqn.split('.');
-  return names.length === 3 && names[0] === 'sinon' && names[1] === 'assert';
+
+  /**
+   * supertest assertions look like `[supertest instance](...).[HTTP verb](...).expect(...)`, typically:
+   * `supertest(application).get('/foo').expect(200)`
+   * hence only the first and third values matter, the second one being an HTTP verb irrelevant for assertion detection
+   */
+  return names.length >= 3 && names[0] === 'supertest' && names[2] === 'expect';
 }
 
-function extractFQNforCallExpression(context: Rule.RuleContext, node: estree.Node) {
+function extractFQNForCallExpression(context: Rule.RuleContext, node: estree.Node) {
   if (node.type !== 'CallExpression') {
     return undefined;
   }
+
   return getFullyQualifiedName(context, node);
 }

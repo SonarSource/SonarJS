@@ -146,6 +146,17 @@ describe('user service', () => {
           `,
           filename: 'nested.test.ts',
         },
+        {
+          // Assertion-library calls are external APIs, not local async helpers to resolve.
+          code: `
+import { describe } from 'mocha';
+import { Template } from 'aws-cdk-lib/assertions';
+describe('stack', () => {
+  Template.fromStack(stack).hasResourceProperties('AWS::S3::Bucket', {});
+});
+          `,
+          filename: 'aws-cdk.test.ts',
+        },
       ],
       invalid: [
         {

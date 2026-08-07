@@ -16,8 +16,8 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { getFullyQualifiedName } from './module.js';
-import { getFullyQualifiedNameTS } from './module-ts.js';
+import { getFullyQualifiedName } from '../module.js';
+import { getFullyQualifiedNameTS } from '../module-ts.js';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 

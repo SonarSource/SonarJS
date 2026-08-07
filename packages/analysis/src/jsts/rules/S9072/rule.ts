@@ -34,7 +34,7 @@ import {
   isAnyOrUnknownType,
   isThenableOrThenableUnion,
 } from '../helpers/type.js';
-import { TEST_FUNCTION_NAMES } from '../helpers/mocha-style-test-frameworks.js';
+import { TEST_FUNCTION_NAMES } from '../helpers/testing/mocha-style-test-frameworks.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
