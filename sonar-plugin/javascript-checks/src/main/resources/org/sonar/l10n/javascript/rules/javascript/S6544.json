@@ -22,7 +22,7 @@
   "ruleSpecification": "RSPEC-6544",
   "sqKey": "S6544",
   "scope": "Main",
-  "quickfix": "partial",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
