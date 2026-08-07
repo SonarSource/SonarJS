@@ -16,7 +16,7 @@
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-9073",
   "sqKey": "S9073",
-  "scope": "Tests",
+  "scope": "Main",
   "defaultQualityProfiles": [
     "Sonar way"
   ],
