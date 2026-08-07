@@ -14,18 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-/**
- * This is the entry point of the ESLint Plugin.
- * Said differently, this is the public API of the ESLint Plugin.
- */
-import type { ESLint } from 'eslint';
-import { createConfigs, meta } from './plugin-factory.js';
-import { rules } from './plugin-rules.js';
+import { readFile, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
 
-export const configs = createConfigs(rules);
-export { meta };
-
-const plugin: ESLint.Plugin = { rules, configs, meta };
-export default plugin;
-
-export { rules } from './plugin-rules.js';
+const packagePath = resolve(process.argv[2] ?? 'lib/package.json');
+const manifest = JSON.parse(await readFile(packagePath, 'utf8'));
+manifest.main = './cjs/plugin-full.js';
+manifest.types = './types/plugin-full.d.ts';
+await writeFile(packagePath, `${JSON.stringify(manifest, null, 2)}\n`);

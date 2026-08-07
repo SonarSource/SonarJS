@@ -15,6 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { configs, meta } from '../../../src/jsts/rules/plugin.js';
+import {
+  configs as fullConfigs,
+  ruleKeys as fullRuleKeys,
+  rules as fullRules,
+} from '../../../src/jsts/rules/plugin-full.js';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { valid } from 'semver';
@@ -29,6 +34,25 @@ import {
 import { SonarMeta } from '../../../src/jsts/rules/helpers/generate-meta.js';
 
 describe('Plugin public API', () => {
+  it('should expose every rule through the full plugin API', async () => {
+    const ruleFolder = path.join(import.meta.dirname, '../../../src/jsts/rules');
+    const ruleIds = (await readdir(ruleFolder)).filter(name => /^S\d+/.test(name));
+
+    for (const ruleId of ruleIds) {
+      const metadata = (await import(
+        pathToFileURL(path.join(ruleFolder, ruleId, 'generated-meta.js')).toString()
+      )) as SonarMeta;
+      const ruleKey = fullRuleKeys[metadata.sonarKey];
+      const ruleConfig = fullConfigs.recommended.rules![`sonarjs/${ruleKey}`];
+
+      expect(fullRules).toHaveProperty(ruleKey);
+      expect({ ruleId, ruleConfig }).toEqual({
+        ruleId,
+        ruleConfig: metadata.meta.docs?.recommended ? 'error' : 'off',
+      });
+    }
+  });
+
   it('should map keys to rules definitions', async () => {
     const ruleFolder = path.join(import.meta.dirname, '../../../src/jsts/rules');
     const ruleIds = (await readdir(ruleFolder)).filter(name => /^S\d+/.test(name));

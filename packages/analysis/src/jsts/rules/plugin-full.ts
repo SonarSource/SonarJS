@@ -14,18 +14,22 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-/**
- * This is the entry point of the ESLint Plugin.
- * Said differently, this is the public API of the ESLint Plugin.
- */
 import type { ESLint } from 'eslint';
 import { createConfigs, meta } from './plugin-factory.js';
-import { rules } from './plugin-rules.js';
+import * as metas from './metas.js';
+import { ruleKeys, rules } from './plugin-rules-full.js';
 
-export const configs = createConfigs(rules);
+const recommendedRules = new Set(
+  Object.values(metas)
+    .filter(ruleMetadata => ruleMetadata.meta.docs?.recommended)
+    .map(ruleMetadata => ruleKeys[ruleMetadata.sonarKey]),
+);
+
+export const configs = createConfigs(rules, recommendedRules);
 export { meta };
 
 const plugin: ESLint.Plugin = { rules, configs, meta };
 export default plugin;
 
-export { rules } from './plugin-rules.js';
+export { rules } from './plugin-rules-full.js';
+export { ruleKeys } from './plugin-rules-full.js';

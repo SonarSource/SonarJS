@@ -42,11 +42,23 @@ import { join } from 'node:path/posix';
 export async function updateIndexes() {
   const allRules: string[] = [];
   const pluginRules: string[] = [];
+  const fullPluginRules: { sonarKey: string; ruleKey: string }[] = [];
   const eslintIds: Record<string, string> = {};
+  const allRulesMetadata = await getAllRulesMetadata();
+  const eslintIdCounts = new Map<string, number>();
 
-  (await getAllRulesMetadata()).forEach(metadata => {
+  allRulesMetadata.forEach(metadata => {
+    eslintIdCounts.set(metadata.eslintId, (eslintIdCounts.get(metadata.eslintId) ?? 0) + 1);
+  });
+
+  allRulesMetadata.forEach(metadata => {
     eslintIds[metadata.sonarKey] = metadata.eslintId;
     allRules.push(metadata.sonarKey);
+    const ruleKey =
+      eslintIdCounts.get(metadata.eslintId) === 1
+        ? metadata.eslintId
+        : `${metadata.eslintId}-${metadata.sonarKey}`;
+    fullPluginRules.push({ sonarKey: metadata.sonarKey, ruleKey });
     if (metadata.implementation === 'original') {
       pluginRules.push(metadata.sonarKey);
     }
@@ -82,6 +94,23 @@ export async function updateIndexes() {
         .map(id => `import { rule as ${id} } from './${id}/index.js';\n`)
         .join(''),
       ___EXPORTS___: pluginRules.map(id => `'${eslintIds[id]}': ${id},\n`).join(''),
+      ___HEADER___: header,
+    },
+  );
+
+  await inflateTemplateToFile(
+    join(TS_TEMPLATES_FOLDER, 'plugin-rules-full.template'),
+    join(RULES_FOLDER, './plugin-rules-full.ts'),
+    {
+      ___IMPORTS___: fullPluginRules
+        .map(({ sonarKey }) => `import { rule as ${sonarKey} } from './${sonarKey}/index.js';\n`)
+        .join(''),
+      ___RULE_KEYS___: fullPluginRules
+        .map(({ sonarKey, ruleKey }) => `'${sonarKey}': '${ruleKey}',\n`)
+        .join(''),
+      ___EXPORTS___: fullPluginRules
+        .map(({ sonarKey, ruleKey }) => `'${ruleKey}': ${sonarKey},\n`)
+        .join(''),
       ___HEADER___: header,
     },
   );

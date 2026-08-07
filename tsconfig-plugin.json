@@ -14,9 +14,12 @@
     "skipLibCheck": true,
     "ignoreDeprecations": "6.0",
     "useUnknownInCatchVariables": false,
-    "types": ["node", "jsx-ast-utils-x"],
+    "types": ["node", "jsx-ast-utils-x", "eslint-plugin-jsx-a11y"],
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["./node_modules/@types", "./typings"]
   },
-  "include": ["packages/analysis/src/jsts/rules/plugin.ts"]
+  "include": [
+    "packages/analysis/src/jsts/rules/plugin.ts",
+    "packages/analysis/src/jsts/rules/plugin-full.ts"
+  ]
 }
