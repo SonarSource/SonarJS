@@ -1,0 +1,36 @@
+{
+  "title": "Promises returned by Testing Library async events should be handled",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "testing-library"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "@testing-library/user-event"
+    ]
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-9115",
+  "sqKey": "S9115",
+  "scope": "Tests",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

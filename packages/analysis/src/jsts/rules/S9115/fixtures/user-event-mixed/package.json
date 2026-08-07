@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@testing-library/user-event": "^13.0.0 || ^14.0.0"
+  }
+}
