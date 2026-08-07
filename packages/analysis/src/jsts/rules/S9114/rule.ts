@@ -232,56 +232,12 @@ function isDirectRefInitializer(context: Rule.RuleContext, call: estree.CallExpr
   return (
     parent.type === 'CallExpression' &&
     parent.arguments[0] === call &&
-    isDirectReactUseRefCall(context, parent)
+    isReactUseRefCall(context, parent)
   );
 }
 
 function isReactUseRefCall(context: Rule.RuleContext, call: estree.CallExpression): boolean {
   return getFullyQualifiedName(context, call) === 'react.useRef';
-}
-
-function isDirectReactUseRefCall(context: Rule.RuleContext, call: estree.CallExpression): boolean {
-  const { callee } = call;
-  if (callee.type === 'Identifier') {
-    return isReactUseRefImport(context, callee);
-  }
-  return (
-    callee.type === 'MemberExpression' &&
-    !callee.computed &&
-    isIdentifier(callee.property, 'useRef') &&
-    isReactModuleReference(context, callee.object)
-  );
-}
-
-function isReactUseRefImport(context: Rule.RuleContext, identifier: estree.Identifier): boolean {
-  const definition = getVariableFromName(context, identifier.name, identifier)?.defs[0];
-  return (
-    definition?.type === 'ImportBinding' &&
-    definition.node.type === 'ImportSpecifier' &&
-    definition.node.imported.type === 'Identifier' &&
-    definition.node.imported.name === 'useRef' &&
-    definition.node.local.name === 'useRef' &&
-    isReactImportDeclaration(definition.parent)
-  );
-}
-
-function isReactModuleReference(context: Rule.RuleContext, node: estree.Node): boolean {
-  if (!isIdentifier(node)) {
-    return false;
-  }
-  const definition = getVariableFromName(context, node.name, node)?.defs[0];
-  if (definition?.type === 'ImportBinding') {
-    return (
-      (definition.node.type === 'ImportDefaultSpecifier' ||
-        definition.node.type === 'ImportNamespaceSpecifier') &&
-      isReactImportDeclaration(definition.parent)
-    );
-  }
-  return false;
-}
-
-function isReactImportDeclaration(node: estree.Node): boolean {
-  return node.type === 'ImportDeclaration' && node.source.value === 'react';
 }
 
 function isRefCurrentMember(

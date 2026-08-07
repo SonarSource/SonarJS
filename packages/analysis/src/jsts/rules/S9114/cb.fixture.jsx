@@ -69,14 +69,12 @@ function NonFirstUseRefArgument() {
 
 function LocalUseRefAlias() {
   const localRef = useRef;
-  const onChange = localRef(debounce(fetchResults, 300)); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or hook, or wrap it in useMemo.}}
-//                          ^^^^^^^^
+  const onChange = localRef(debounce(fetchResults, 300)); // Compliant: React useRef alias
   return <input onChange={onChange.current} />;
 }
 
 function AliasedUseRefImport() {
-  const onChange = aliasedUseRef(debounce(fetchResults, 300)); // Noncompliant {{This debounced function is recreated on every render, which resets its timer and defeats debouncing. Move it outside the component or hook, or wrap it in useMemo.}}
-//                               ^^^^^^^^
+  const onChange = aliasedUseRef(debounce(fetchResults, 300)); // Compliant: aliased React useRef initializer
   return <input onChange={onChange.current} />;
 }
 
