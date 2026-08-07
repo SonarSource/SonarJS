@@ -31,8 +31,18 @@ const messages = {
     'Replace this deprecated Vue class-based component pattern with the Composition API.',
 };
 
+const VUE_CLASS_COMPONENT_MODULE = 'vue-class-component';
 const VUE_FQN = 'vue-class-component.Vue';
-const DECORATOR_FQNS = new Set(['vue-class-component.Component', 'vue-class-component.Options']);
+const DECORATOR_FQNS = new Set([
+  'vue-class-component.Component',
+  'vue-class-component.Options',
+  // vue-class-component v7 (the Vue 2.7-compatible release) only exports `Component`, and as a
+  // default export: `import Component from 'vue-class-component'`. getFullyQualifiedName()
+  // resolves a default import to the bare module name, not a `.Component`-suffixed FQN. `Vue`
+  // itself is never re-exported by vue-class-component in any version (v7 imports it from `vue`
+  // directly, v8 exposes it as a named export), so this bare FQN only ever means the decorator.
+  VUE_CLASS_COMPONENT_MODULE,
+]);
 const PROPERTY_DECORATOR_FQNS = new Set(
   [
     'Prop',
@@ -95,9 +105,10 @@ function extendsVueClassComponent(context: Rule.RuleContext, classNode: ClassNod
 
 /**
  * Whether the class carries a `@Component` or `@Options` decorator imported from
- * `vue-class-component`, whether used bare (`@Component`) or called (`@Options({...})`).
- * Resolved by import origin so lookalikes from other libraries (e.g. `vue-facing-decorator`)
- * or locally-defined decorators of the same name are not flagged.
+ * `vue-class-component` (named or, for v7's `Component`, default import), whether used bare
+ * (`@Component`) or called (`@Options({...})`). Resolved by import origin so lookalikes from
+ * other libraries (e.g. `vue-facing-decorator`) or locally-defined decorators of the same name
+ * are not flagged.
  */
 function hasVueClassComponentDecorator(context: Rule.RuleContext, classNode: ClassNode): boolean {
   return (classNode.decorators ?? []).some(decorator =>

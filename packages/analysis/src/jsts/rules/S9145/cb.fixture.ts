@@ -2,6 +2,8 @@ import { Options, Vue } from 'vue-class-component';
 import { Component as VueComponent, Vue as VueBase } from 'vue-class-component';
 import { Component as FacingComponent } from 'vue-facing-decorator';
 import { Vue as PropertyDecoratorVue, Prop, Watch as VueWatch } from 'vue-property-decorator';
+import DefaultComponent from 'vue-class-component';
+import RealVue from 'vue';
 
 @Options({
   props: {
@@ -31,6 +33,13 @@ class AliasedSuperclass extends VueBase { // Noncompliant {{Replace this depreca
 const AnonymousClassExpression = class extends Vue { // Noncompliant {{Replace this deprecated Vue class-based component pattern with the Composition API.}}
   count = 0;
 };
+
+// vue-class-component v7 (the Vue 2.7-compatible release) only exports `Component`, as a default
+// export; `Vue` itself is imported from the `vue` package directly, not from vue-class-component
+@DefaultComponent
+export class CanonicalV7Component extends RealVue { // Noncompliant {{Replace this deprecated Vue class-based component pattern with the Composition API.}}
+  count = 0;
+}
 
 function Component(_unused: unknown) {
   return () => {};
