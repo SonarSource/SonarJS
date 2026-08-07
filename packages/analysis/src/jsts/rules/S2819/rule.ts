@@ -21,9 +21,11 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { childrenOf, findFirstMatchingLocalAncestor } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getTypeAsString } from '../helpers/type.js';
+import { getTypeAsString, getTypeFromTreeNode } from '../helpers/type.js';
 import {
   getValueOfExpression,
+  getUniqueWriteUsageOrNode,
+  getVariableFromName,
   isIdentifier,
   isIfStatement,
   resolveFunction,
@@ -33,6 +35,7 @@ import * as meta from './generated-meta.js';
 
 const POST_MESSAGE = 'postMessage';
 const ADD_EVENT_LISTENER = 'addEventListener';
+const ON_MESSAGE = 'onmessage';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -53,6 +56,9 @@ export const rule: Rule.RuleModule = {
         },
       [`CallExpression[callee.property.name="${ADD_EVENT_LISTENER}"]`]: (node: estree.Node) => {
         checkAddEventListenerCall(node as estree.CallExpression, context);
+      },
+      AssignmentExpression: (node: estree.Node) => {
+        checkOnMessageAssignment(node as estree.AssignmentExpression, context);
       },
     };
   },
@@ -100,7 +106,88 @@ function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rul
     return;
   }
 
-  let listener = resolveFunction(context, args[1]);
+  checkMessageListener(context, args[1], callee);
+}
+
+function checkOnMessageAssignment(
+  assignment: estree.AssignmentExpression,
+  context: Rule.RuleContext,
+) {
+  const { left } = assignment;
+  if (
+    assignment.operator !== '=' ||
+    left.type !== 'MemberExpression' ||
+    left.computed ||
+    left.property.type !== 'Identifier' ||
+    left.property.name !== ON_MESSAGE ||
+    !isWindowMessageReceiver(left.object, context)
+  ) {
+    return;
+  }
+
+  checkMessageListener(context, assignment.right, left);
+}
+
+/**
+ * Unlike `isWindowObject`, which also accepts any identifier whose name contains 'window',
+ * the receiver of an `onmessage` assignment must resolve to `window` or `globalThis` itself.
+ * The name heuristic is too coarse here: `onmessage` is also a property of unrelated
+ * transports such as WebSocket, so a `wsWindowChannel.onmessage` assignment would be
+ * reported without this restriction.
+ *
+ * The conditions are ordered by cost: the receiver name rejects the vast majority of `onmessage`
+ * assignments without touching the type checker or the scope chain, and the Worker shim lookup
+ * comes last so that only a receiver that is otherwise a DOM `Window` pays for it.
+ */
+function isWindowMessageReceiver(node: estree.Node, context: Rule.RuleContext) {
+  const receiver = getUniqueWriteUsageOrNode(context, node, true);
+  if (
+    receiver.type !== 'Identifier' ||
+    (receiver.name !== 'window' && receiver.name !== 'globalThis')
+  ) {
+    return false;
+  }
+
+  const onMessage = getTypeFromTreeNode(receiver, context.sourceCode.parserServices).getProperty(
+    ON_MESSAGE,
+  );
+  const isDomWindow = onMessage?.declarations?.some(declaration =>
+    declaration.getSourceFile().fileName.endsWith('lib.dom.d.ts'),
+  );
+  return isDomWindow === true && !isWindowAliasedToWorkerGlobal(node, context);
+}
+
+/**
+ * Detects `window = self` / `window = global` shims, used by scripts meant to run in a Worker
+ * while written against browser idioms. Such a file mutates the global itself, so any shim in
+ * it disqualifies every `window` receiver, wherever the write sits.
+ *
+ * Types cannot answer this: with the DOM lib loaded, `self` and `window` are both
+ * `Window & typeof globalThis`, so the shim has to be found syntactically.
+ *
+ * The write is looked up on the `window` variable when the analysis configuration declares it as
+ * a global, and among the unresolved references of the enclosing scope otherwise. Only the second
+ * case is known to occur in practice; the first is covered so that the check does not depend on
+ * whether `window` happens to be declared.
+ */
+function isWindowAliasedToWorkerGlobal(node: estree.Node, context: Rule.RuleContext) {
+  const variable = getVariableFromName(context, 'window', node);
+  const writes = variable
+    ? variable.references.filter(reference => reference.isWrite())
+    : context.sourceCode.getScope(node).through.filter(reference => reference.isWrite());
+  return writes.some(
+    reference =>
+      reference.identifier.name === 'window' &&
+      isIdentifier(reference.writeExpr ?? undefined, 'self', 'global'),
+  );
+}
+
+function checkMessageListener(
+  context: Rule.RuleContext,
+  listenerNode: estree.Node,
+  reportNode: estree.Node,
+) {
+  let listener = resolveFunction(context, getUniqueWriteUsageOrNode(context, listenerNode));
   if (listener?.body.type === 'CallExpression') {
     listener = resolveFunction(context, listener.body);
   }
@@ -115,7 +202,7 @@ function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rul
 
   if (!hasVerifiedOrigin(context, listener, event)) {
     context.report({
-      node: callee,
+      node: reportNode,
       messageId: 'verifyOrigin',
     });
   }
@@ -181,9 +268,9 @@ function hasVerifiedOrigin(
   function findUnionOrigin(eventRef: TSESTree.Node, eventIdentifiers: TSESTree.Identifier[]) {
     const memberExpr = eventRef.parent;
     // looks for event.origin in a LogicalExpr
-    if (
-      !(memberExpr?.type === 'MemberExpression' && memberExpr.parent?.type === 'LogicalExpression')
-    ) {
+    if (!(
+      memberExpr?.type === 'MemberExpression' && memberExpr.parent?.type === 'LogicalExpression'
+    )) {
       return null;
     }
     const logicalExpr = memberExpr.parent;
@@ -343,10 +430,7 @@ function findEventOriginalEvent(event: TSESTree.Identifier) {
     return null;
   }
   const { object: eventCandidate, property: originalEventIdentifierCandidate } = memberExpr;
-  if (
-    eventCandidate === event &&
-    isIdentifier(originalEventIdentifierCandidate, 'originalEvent')
-  ) {
+  if (eventCandidate === event && isIdentifier(originalEventIdentifierCandidate, 'originalEvent')) {
     return memberExpr;
   }
   return null;

@@ -68,6 +68,179 @@ describe('S2819', () => {
         },
         {
           code: `
+      window.onmessage = function(event) {
+        if (event.origin !== "http://example.org")
+          return;
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          code: `
+      function handleMessage(event) {
+        if (event.origin !== "http://example.org")
+          return;
+      }
+      globalThis.onmessage = handleMessage;
+            `,
+        },
+        {
+          code: `
+      const target = window;
+      const handleMessage = event => {
+        if (event.origin !== "http://example.org")
+          return;
+      };
+      target.onmessage = handleMessage;
+            `,
+        },
+        {
+          code: `
+      const socket = new WebSocket('wss://example.org');
+      socket.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          code: `
+      const eventWindowChannel = new WebSocket('wss://example.org');
+      eventWindowChannel.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          // compound assignments are out of scope
+          code: `
+      window.onmessage ??= function(event) {
+        console.log(event.data);
+      };
+      window.onmessage ||= function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          // computed properties are out of scope
+          code: `
+      window['onmessage'] = function(event) {
+        console.log(event.data);
+      };
+      const property = 'onmessage';
+      window[property] = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          code: `
+      window.onmessage = null;
+      window.onmessage = "not a function";
+      window.onmessage = function() {}; // missing event parameter
+      window.onmessage = function(...not_an_identifier) {};
+            `,
+        },
+        {
+          code: `
+      window.onmessage = function(event) {
+        const e = event || event.originalEvent;
+        if (e.origin !== "http://example.org")
+          return;
+        console.log(e.data);
+      };
+            `,
+        },
+        {
+          code: `
+      const handleMessage = event => {
+        if (event.origin !== "http://example.org")
+          return;
+      };
+      window.addEventListener("message", handleMessage);
+            `,
+        },
+        {
+          code: `
+      self.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          code: `
+      const target = self;
+      target.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          code: `
+      if (typeof window === 'undefined') {
+        window = self;
+      }
+      window.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          // a shim anywhere in the file disqualifies every receiver in it, since it mutates
+          // the global itself
+          code: `
+      function bootstrapWorker() {
+        if (typeof window === 'undefined') {
+          window = self;
+        }
+      }
+      window.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+        },
+        {
+          // the shape found in the wild: shim and receiver inside a module factory
+          code: `
+      define(function (require, exports, module) {
+        if (typeof window == "undefined") {
+          if (typeof self != "undefined") window = self;
+          if (typeof global != "undefined") window = global;
+        }
+        window.onmessage = function (event) {
+          console.log(event.data);
+        };
+      });
+            `,
+        },
+        {
+          // the shim is also found when the configuration declares 'window' as a global, in
+          // which case the write is reached through the variable rather than through the scope
+          code: `
+      if (typeof window === 'undefined') {
+        window = self;
+      }
+      window.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+          languageOptions: {
+            sourceType: 'script',
+            globals: { window: 'writable', self: 'readonly' },
+          },
+        },
+        {
+          code: `
+      type WorkerScope = { onmessage: (event: MessageEvent) => void };
+      function register(globalThis: WorkerScope) {
+        globalThis.onmessage = function(event) {
+          console.log(event.data);
+        };
+      }
+            `,
+        },
+        {
+          code: `
       window.addEventListener("missing listener");
       window.addEventListener("message", "not a function");
       not_a_win_dow.addEventListener("message", () => {});
@@ -190,6 +363,42 @@ describe('S2819', () => {
       window.addEventListener("message", function(event) {
         console.log(event.data);
       });
+            `,
+          errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
+          code: `
+      window.onmessage = function(event) {
+        console.log(event.data);
+      };
+            `,
+          errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
+          code: `
+      function handleMessage(event) {
+        console.log(event.data);
+      }
+      globalThis.onmessage = handleMessage;
+            `,
+          errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
+          code: `
+      const target = window;
+      const handleMessage = function (event) {
+        console.log(event.data);
+      };
+      target.onmessage = handleMessage;
+            `,
+          errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
+          code: `
+      const handleMessage = event => {
+        console.log(event.data);
+      };
+      window.addEventListener("message", handleMessage);
             `,
           errors: [{ messageId: 'verifyOrigin' }],
         },
