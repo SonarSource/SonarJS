@@ -1,5 +1,12 @@
 import $ from 'jquery';
 import * as jQuery from 'jquery';
+import jq from 'jquery';
+import jquerySlim from 'jquery/slim';
+import jquerySlimDeep from 'jquery/dist/jquery.slim';
+import jquerySlimDeepJs from 'jquery/dist/jquery.slim.js';
+import { slim as jqueryNamedSlim } from 'jquery';
+import type typeOnlyJq from 'jquery';
+import { type default as typeOnlySpecifier } from 'jquery';
 
 const source = '{"name":"Sonar"}';
 const input = '  Sonar  ';
@@ -20,6 +27,20 @@ jQuery.trim(input); // Noncompliant {{Use String.prototype.trim() instead of dep
 jQuery.inArray('Sonar', values, 0); // Noncompliant {{Use Array.prototype.indexOf() instead of jQuery.inArray() to reduce dependence on jQuery.}}
 //     ^^^^^^^
 
+jq.trim(input); // Noncompliant {{Use String.prototype.trim() instead of deprecated jQuery.trim().}}
+// ^^^^
+
+jquerySlim.trim(input); // Noncompliant {{Use String.prototype.trim() instead of deprecated jQuery.trim().}}
+//         ^^^^
+
+jquerySlimDeep.trim(input); // Noncompliant {{Use String.prototype.trim() instead of deprecated jQuery.trim().}}
+//             ^^^^
+
+jquerySlimDeepJs.trim(input); // Noncompliant {{Use String.prototype.trim() instead of deprecated jQuery.trim().}}
+//               ^^^^
+
+jqueryNamedSlim.trim(input);
+
 Array.isArray(values);
 JSON.parse(source);
 Date.now();
@@ -28,6 +49,11 @@ values.indexOf('Sonar', 0);
 
 const jQueryFromAnotherModule = { trim: (value: string): string => value };
 jQueryFromAnotherModule.trim(input);
+
+typeOnlyJq.trim(input);
+const typeOnlyAlias = typeOnlyJq;
+typeOnlyAlias.trim(input);
+typeOnlySpecifier.trim(input);
 
 function shadowedRequire(): void {
   function require(_module: string): { trim: (value: string) => string } {

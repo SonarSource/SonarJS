@@ -18,10 +18,16 @@ jQuery.inArray('Sonar', values, 0); // Noncompliant {{Use Array.prototype.indexO
 //     ^^^^^^^
 
 {
-  const $ = require('jquery');
-  $.trim(input); // Noncompliant {{Use String.prototype.trim() instead of deprecated jQuery.trim().}}
-  //^^^^
+  const jq = require('jquery');
+  jq.trim(input); // Noncompliant {{Use String.prototype.trim() instead of deprecated jQuery.trim().}}
+  // ^^^^
 }
+
+const jquerySlimProperty = require('jquery').slim;
+jquerySlimProperty.trim(input);
+
+$.trim(input); // Noncompliant {{Use String.prototype.trim() instead of deprecated jQuery.trim().}}
+//^^^^
 
 Array.isArray(values);
 JSON.parse(source);
@@ -29,10 +35,10 @@ Date.now();
 input.trim();
 values.indexOf('Sonar', 0);
 
-$.trim(input);
 $('p').trim();
 jQuery['trim'](input);
 jQuery?.trim(input);
+jQuery.trim?.(input);
 jQuery.trim.call(null, input);
 require('jquery').trim(input);
 
@@ -42,4 +48,13 @@ function shadowedJQuery(jQuery) {
 
 function shadowedDollar($) {
   $.trim(input);
+}
+
+function shadowedRequireThroughAliasChain() {
+  function require(_module) {
+    return { trim: value => value };
+  }
+  const jq = require('jquery');
+  const alias = jq;
+  alias.trim(input);
 }

@@ -17,7 +17,13 @@
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { type Node, getUniqueWriteReference, getVariableFromScope, isIdentifier } from './ast.js';
+import {
+  type Node,
+  getUniqueWriteReference,
+  getVariableFromScope,
+  isIdentifier,
+  isTypeOnlyImport,
+} from './ast.js';
 import {
   getDependenciesSanitizePaths,
   setCurrentFileInlineDependencies,
@@ -358,7 +364,7 @@ function getFullyQualifiedNameRaw(
       const qualifiers: string[] = [];
       const maybeRequire = reduceTo('CallExpression', node.callee, qualifiers);
       const module = getModuleNameFromRequire(maybeRequire);
-      if (typeof module?.value === 'string') {
+      if (typeof module?.value === 'string' && isUnshadowedRequire(context, maybeRequire)) {
         qualifiers.unshift(module.value);
         return qualifiers.join('.');
       }
@@ -415,6 +421,16 @@ function checkFqnFromImport(
   if (definition.type === 'ImportBinding') {
     const specifier = definition.node;
     const importDeclaration = definition.parent;
+    const importDeclarationNode = importDeclaration as TSESTree.Node;
+    if (
+      (importDeclaration.type === 'ImportDeclaration' && isTypeOnlyImport(importDeclaration)) ||
+      (specifier.type === 'ImportSpecifier' &&
+        (specifier as TSESTree.ImportSpecifier).importKind === 'type') ||
+      (importDeclarationNode.type === 'TSImportEqualsDeclaration' &&
+        (importDeclaration as unknown as TSESTree.TSImportEqualsDeclaration).importKind === 'type')
+    ) {
+      return null;
+    }
     // import {default as cdk} from 'aws-cdk-lib';
     // vs.
     // import { aws_s3 as s3 } from 'aws-cdk-lib';
@@ -480,7 +496,7 @@ function checkFqnFromRequire(
     }
     const nodeToCheck = reduceTo('CallExpression', value, fqn);
     const module = getModuleNameFromRequire(nodeToCheck)?.value;
-    if (typeof module === 'string') {
+    if (typeof module === 'string' && isUnshadowedRequire(context, nodeToCheck)) {
       const importedQualifiers = module.split('/');
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
@@ -490,6 +506,11 @@ function checkFqnFromRequire(
     }
   }
   return null;
+}
+
+function isUnshadowedRequire(context: Rule.RuleContext, node: estree.Node): boolean {
+  const requireVariable = getVariableFromScope(context.sourceCode.getScope(node), 'require');
+  return requireVariable === undefined || requireVariable.defs.length === 0;
 }
 
 /**
