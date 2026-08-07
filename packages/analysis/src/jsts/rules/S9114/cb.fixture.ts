@@ -1,5 +1,5 @@
 import { debounce } from 'lodash';
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 
 interface SearchProps {
   onSearch: (query: string) => void;
@@ -25,6 +25,11 @@ const TypedFC: React.FC<SearchProps> = ({ onSearch }) => {
 function CompliantTyped({ onSearch }: SearchProps) {
   const onChange = useMemo(() => debounce(onSearch, 300), [onSearch]);
   return null;
+}
+
+function CompliantTypedRef({ onSearch }: SearchProps) {
+  const onChange = useRef(debounce(onSearch, 300) as any);
+  return onChange;
 }
 
 function CompliantReactNamespace({ onSearch }: SearchProps) {

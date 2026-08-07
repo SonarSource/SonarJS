@@ -30,6 +30,7 @@ import {
   isFunctionNode,
   isIdentifier,
   isNullLiteral,
+  unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName, isRequire } from '../helpers/module.js';
@@ -228,11 +229,15 @@ function isReactUseRef(context: Rule.RuleContext, refIdentifier: estree.Identifi
 }
 
 function isDirectRefInitializer(context: Rule.RuleContext, call: estree.CallExpression): boolean {
-  const parent = getNodeParent(call);
+  const parent = findFirstMatchingLocalAncestor(
+    call as TSESTree.Node,
+    ancestor => ancestor.type === 'CallExpression',
+  );
   return (
-    parent.type === 'CallExpression' &&
-    parent.arguments[0] === call &&
-    isReactUseRefCall(context, parent)
+    parent?.type === 'CallExpression' &&
+    unwrapTypeScriptExpression(parent.arguments[0]) === call &&
+    // Safe: the preceding type guard narrows parent to a CallExpression.
+    isReactUseRefCall(context, parent as unknown as estree.CallExpression)
   );
 }
 
