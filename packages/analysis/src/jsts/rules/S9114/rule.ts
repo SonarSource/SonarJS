@@ -30,6 +30,7 @@ import {
   isFunctionNode,
   isIdentifier,
   isNullLiteral,
+  unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName, isRequire } from '../helpers/module.js';
@@ -83,7 +84,8 @@ export const rule: Rule.RuleModule = {
 
         if (
           isWrappedInMemoHook(context, call, enclosingFunction) ||
-          isRefLazyInitialization(context, call)
+          isRefLazyInitialization(context, call) ||
+          isDirectRefInitializer(context, call)
         ) {
           return;
         }
@@ -223,7 +225,24 @@ function isReactUseRef(context: Rule.RuleContext, refIdentifier: estree.Identifi
     return false;
   }
   const init = variable.defs[0].node.init;
-  return init?.type === 'CallExpression' && getFullyQualifiedName(context, init) === 'react.useRef';
+  return init?.type === 'CallExpression' && isReactUseRefCall(context, init);
+}
+
+function isDirectRefInitializer(context: Rule.RuleContext, call: estree.CallExpression): boolean {
+  const parent = findFirstMatchingLocalAncestor(
+    call as TSESTree.Node,
+    ancestor => ancestor.type === 'CallExpression',
+  );
+  return (
+    parent?.type === 'CallExpression' &&
+    unwrapTypeScriptExpression(parent.arguments[0]) === call &&
+    // Safe: the preceding type guard narrows parent to a CallExpression.
+    isReactUseRefCall(context, parent as unknown as estree.CallExpression)
+  );
+}
+
+function isReactUseRefCall(context: Rule.RuleContext, call: estree.CallExpression): boolean {
+  return getFullyQualifiedName(context, call) === 'react.useRef';
 }
 
 function isRefCurrentMember(
