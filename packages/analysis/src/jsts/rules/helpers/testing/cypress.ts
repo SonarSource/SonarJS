@@ -18,7 +18,7 @@ import type estree from 'estree';
 import { isIdentifier } from '../ast.js';
 import ts from 'typescript';
 
-const ASSERTION_METHODS = ['should', 'and'];
+const ASSERTION_METHODS = new Set(['should', 'and']);
 
 /**
  * Detects Cypress assertion calls on the global `cy` chain, e.g.:
@@ -48,7 +48,7 @@ export function isTSAssertion(node: ts.Node): boolean {
     return false;
   }
   const member = call.expression as ts.PropertyAccessExpression;
-  if (!ASSERTION_METHODS.includes(member.name.text)) {
+  if (!ASSERTION_METHODS.has(member.name.text)) {
     return false;
   }
   return tsChainStartsWithCy(member.expression);
