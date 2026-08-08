@@ -158,11 +158,22 @@ async function writeIssues(
     projectDir,
     `${languagePrefix[language]}-${handleS124(ruleId, language)}.json`,
   );
+  const sortedIssues = sortIssueLines(issues);
   await fs.writeFile(
     issueFilename,
     // we space at the beginning of lines
     // and we sort the keys
-    JSON.stringify(issues, Object.keys(issues).sort(), 1).replaceAll(/\n\s+/g, '\n') + '\n',
+    JSON.stringify(sortedIssues, Object.keys(sortedIssues).sort(), 1).replaceAll(/\n\s+/g, '\n') +
+      '\n',
+  );
+}
+
+function sortIssueLines(issues: FileIssues): FileIssues {
+  return Object.fromEntries(
+    Object.entries(issues).map(([filename, lines]) => [
+      filename,
+      [...lines].sort((left, right) => left - right),
+    ]),
   );
 }
 
