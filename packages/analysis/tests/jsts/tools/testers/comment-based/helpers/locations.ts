@@ -25,19 +25,19 @@ const COUNT = String.raw`(?<count>\d+)`;
 const DIRECTION = '(?<direction>[<>])';
 const MESSAGE_CONTENT = String.raw`(?:(?!\}\}(?!\})).)*`;
 const LOCATION_PATTERN = new RegExp(
-  String.raw`^ *` +
+  `^ *` +
     // highlighted range, ex: ^^^^ |OR| ^^^@12 |OR| ^^^@-2
     String.raw`(?<range>\^(?:\[(?<params>[^\]]+)\]|\^+)?)` +
     LINE_ADJUSTMENT +
     // count, ex: 3 |OR| direction
-    String.raw` *(?:` +
+    ` *(?:` +
     COUNT +
-    String.raw`|` +
+    `|` +
     DIRECTION +
-    String.raw`)?` +
+    `)?` +
     // message, ex: {{msg}}
     String.raw` *(?:\{\{` +
-    String.raw`(?<message>${MESSAGE_CONTENT})` +
+    `(?<message>${MESSAGE_CONTENT})` +
     String.raw`\}\})? *` +
     String.raw`(?:\r?\n)?`,
 );
