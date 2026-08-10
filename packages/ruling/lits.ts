@@ -163,8 +163,11 @@ async function writeIssues(
     issueFilename,
     // we space at the beginning of lines
     // and we sort the keys
-    JSON.stringify(sortedIssues, Object.keys(sortedIssues).sort(), 1).replaceAll(/\n\s+/g, '\n') +
-      '\n',
+    JSON.stringify(
+      sortedIssues,
+      Object.keys(sortedIssues).sort((left, right) => left.localeCompare(right)),
+      1,
+    ).replaceAll(/\n\s+/g, '\n') + '\n',
   );
 }
 
