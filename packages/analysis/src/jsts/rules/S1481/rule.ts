@@ -145,7 +145,7 @@ function getEnclosingDeclaration(node: NodeWithParent) {
   let current: NodeWithParent | undefined = node;
 
   while (current?.parent) {
-    const parent = current.parent;
+    const parent: NodeWithParent = current.parent;
     if (isEnclosingDeclaration(parent)) {
       return parent.id === current ? parent : undefined;
     }
