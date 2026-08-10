@@ -9,6 +9,9 @@
 "ace:demo/kitchen-sink/layout.js": [
 55
 ],
+"ace:demo/kitchen-sink/util.js": [
+82
+],
 "ace:demo/scrollable-page.html": [
 87
 ],
@@ -32,8 +35,12 @@
 "ace:doc/template/resources/javascripts/disqus-ext.js": [
 8
 ],
+"ace:doc/template/resources/javascripts/jquery-scrollspy.js": [
+50
+],
 "ace:doc/template/resources/javascripts/ux.js": [
-46
+46,
+64
 ],
 "ace:experiments/animate_folding.html": [
 122
@@ -52,13 +59,16 @@
 5901
 ],
 "ace:lib/ace/mode/html/saxparser.js": [
-2359
+2359,
+9877
 ],
 "ace:lib/ace/mode/html_worker.js": [
 35
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
-4479
+4479,
+12946,
+18685
 ],
 "ace:lib/ace/mode/jsoniq.js": [
 122,
@@ -111,7 +121,8 @@
 451
 ],
 "ace:src/ext/beautify.js": [
-45
+45,
+82
 ],
 "ace:src/ext/menu_tools/get_editor_keyboard_shortcuts.js": [
 33
