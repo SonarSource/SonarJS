@@ -35,11 +35,7 @@ describe('writeResults', () => {
     const filePath = '/project/src/styles.css' as NormalizedAbsolutePath;
     const files = createFileResults();
     files[filePath] = {
-      issues: [
-        createCssIssue(6),
-        createCssIssue(4),
-        createCssIssue(328),
-      ],
+      issues: [createCssIssue(6), createCssIssue(4), createCssIssue(328)],
     };
     const results: ProjectAnalysisOutput = {
       files,
@@ -55,6 +51,28 @@ describe('writeResults', () => {
     expect(output).toEqual({
       'ace:src/styles.css': [4, 6, 328],
     });
+  });
+
+  it('should write issue filenames in ascending order', async () => {
+    const files = createFileResults();
+    files['/project/src/z.css' as NormalizedAbsolutePath] = {
+      issues: [createCssIssue(4)],
+    };
+    files['/project/src/a.css' as NormalizedAbsolutePath] = {
+      issues: [createCssIssue(6)],
+    };
+    const results: ProjectAnalysisOutput = {
+      files,
+      meta: { warnings: [] },
+    };
+
+    await writeResults('/project', 'ace', results, actualPath);
+
+    const output = JSON.parse(
+      await fs.readFile(path.join(actualPath, 'css-S4656.json'), 'utf8'),
+    ) as Record<string, number[]>;
+
+    expect(Object.keys(output)).toEqual(['ace:src/a.css', 'ace:src/z.css']);
   });
 });
 
