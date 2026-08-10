@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier, isMethodCall } from '../helpers/ast.js';
-import * as Playwright from '../helpers/playwright.js';
+import * as Playwright from '../helpers/testing/playwright.js';
 import * as meta from './generated-meta.js';
 
 const exclusiveTestFunctionNames = ['context', 'describe', 'it', 'specify', 'test'];

@@ -27,22 +27,38 @@ import {
   resolveFunction,
 } from '../helpers/ast.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
-import * as Mocha from '../helpers/mocha.js';
-import * as Vitest from '../helpers/vitest.js';
+import * as Mocha from '../helpers/testing/mocha.js';
+import * as Vitest from '../helpers/testing/vitest.js';
 import {
   followCallToImplementation,
   followTypeScriptCallToImplementation,
 } from '../helpers/call-to-declaration.js';
 import {
-  hasSupportedAssertionLibrary,
   hasSupportedTestFramework,
-  isAssertion,
   isIncompleteShouldAccess,
-  isTSAssertion,
-} from '../helpers/assertion-detection.js';
+} from '../helpers/testing/assertion-detection.js';
+import * as AwsCdk from '../helpers/testing/assertions-aws-cdk.js';
+import {
+  allAssertionFrameworks,
+  hasAssertionEvidenceSource,
+  isAssertionEvidence,
+  isTypeScriptAssertionEvidence,
+} from '../helpers/testing/assertion-frameworks.js';
 import * as meta from './generated-meta.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
+
+/**
+ * Every known assertion framework: any assertion at all clears this rule, so it has no reason to be
+ * selective. AWS CDK additionally needs the assignment fallback, because a CDK template is
+ * conventionally assigned in `beforeEach` rather than declared with an initializer, which is all
+ * the type-aware resolver follows.
+ */
+const ASSERTION_EVIDENCE_PROFILE = allAssertionFrameworks({
+  awsCdk: {
+    isTSAssertionFallback: AwsCdk.isTSAssertionWithAssignmentFallback,
+  },
+});
 
 /**
  * We assume that the user is using a single assertion library per file,
@@ -52,7 +68,10 @@ import ts from 'typescript';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    if (!hasSupportedTestFramework(context) || !hasSupportedAssertionLibrary(context)) {
+    if (
+      !hasSupportedTestFramework(context) ||
+      !hasAssertionEvidenceSource(context, ASSERTION_EVIDENCE_PROFILE)
+    ) {
       return {};
     }
     const visitedNodes: Map<estree.Node, boolean> = new Map();
@@ -229,7 +248,7 @@ class TestCaseAssertionVisitor {
       return visitedTSNodes.get(node)!;
     }
     visitedTSNodes.set(node, false);
-    if (isTSAssertion(services, node)) {
+    if (isTypeScriptAssertionEvidence(this.context, services, node, ASSERTION_EVIDENCE_PROFILE)) {
       visitedTSNodes.set(node, true);
       return true;
     }
@@ -273,7 +292,10 @@ class TestCaseAssertionVisitor {
       return visitedNodes.get(node)!;
     }
     visitedNodes.set(node, false);
-    if (isAssertion(context, node) && !isIncompleteShouldAccess(context, node)) {
+    if (
+      isAssertionEvidence(context, node, ASSERTION_EVIDENCE_PROFILE) &&
+      !isIncompleteShouldAccess(context, node)
+    ) {
       visitedNodes.set(node, true);
       return true;
     }

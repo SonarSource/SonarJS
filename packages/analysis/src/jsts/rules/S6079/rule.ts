@@ -19,7 +19,7 @@
 import type { Rule, Scope } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
-import { type TestCase, extractTestCase } from '../helpers/mocha.js';
+import { type TestCase, extractTestCase } from '../helpers/testing/mocha.js';
 import { report as contextReport, toSecondaryLocation } from '../helpers/location.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';

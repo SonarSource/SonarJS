@@ -1,0 +1,36 @@
+{
+  "title": "Vue components should not use the deprecated \"vue-class-component\" or \"vue-property-decorator\" libraries",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "vue"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "vue-class-component",
+      "vue-property-decorator"
+    ]
+  },
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-9145",
+  "sqKey": "S9145",
+  "scope": "Main",
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

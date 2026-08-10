@@ -28,7 +28,10 @@ import {
   importsModule,
   importsOrDependsOnModule,
 } from '../helpers/module.js';
-import { getMochaCalleeParts, getStaticTitle } from '../helpers/mocha-style-test-frameworks.js';
+import {
+  getMochaCalleeParts,
+  getStaticTitle,
+} from '../helpers/testing/mocha-style-test-frameworks.js';
 import * as meta from './generated-meta.js';
 
 const messages = {

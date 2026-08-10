@@ -21,7 +21,7 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
 import { isIdentifier } from '../helpers/ast.js';
-import { isTestConstruct } from '../helpers/mocha.js';
+import { isTestConstruct } from '../helpers/testing/mocha.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

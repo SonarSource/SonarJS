@@ -67,7 +67,8 @@ interface AnalysisLinterOptions {
  */
 export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysisOutput> {
   debug(`Analyzing file "${input.filePath}"`);
-  const { filePath, fileType, analysisMode, fileStatus, language, detectedEsYear } = input;
+  const { filePath, fileType, analysisMode, fileStatus, language, detectedEsYear, targetEsYear } =
+    input;
   const detectedModuleType = Linter.detectModuleType(filePath);
   getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
 
@@ -97,6 +98,7 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     detectedEsYear,
     detectedModuleType,
     { additionalRules, additionalSettings },
+    targetEsYear,
   );
   getOptionalProjectAnalysisTelemetryCollector()?.recordPackageImports(
     Linter.collectPackageImports(parseResult.sourceCode, filePath),

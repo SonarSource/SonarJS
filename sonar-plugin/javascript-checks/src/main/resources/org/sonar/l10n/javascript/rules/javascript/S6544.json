@@ -16,13 +16,15 @@
     "promise",
     "async",
     "type-dependent",
-    "es2017"
+    "es2017",
+    "lodash",
+    "underscore.js"
   ],
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-6544",
   "sqKey": "S6544",
   "scope": "Main",
-  "quickfix": "partial",
+  "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"

@@ -45,6 +45,23 @@ describe('S1135', () => {
         },
         {
           code: `
+        // Todo el mundo
+
+        // No puedo saber. Todo el mundo...
+
+        // esta todo bien
+
+        // Todo just do it
+
+        /*
+          Todo em um comentario de bloco
+
+          esta todo bem
+        */
+        `,
+        },
+        {
+          code: `
         /* eslint-disable-next-line rule-to-test/todo-tag */
         // TODO whatever
         `,
@@ -100,13 +117,6 @@ describe('S1135', () => {
               column: 7,
               endColumn: 11,
             },
-            {
-              message: 'Complete the task associated to this "TODO" comment.',
-              line: 4,
-              endLine: 4,
-              column: 18,
-              endColumn: 22,
-            },
           ],
         },
         {
@@ -126,16 +136,50 @@ describe('S1135', () => {
           ],
         },
         {
+          code: `// todo comment`,
+          errors: [
+            {
+              message: 'Complete the task associated to this "TODO" comment.',
+              line: 1,
+              endLine: 1,
+              column: 4,
+              endColumn: 8,
+            },
+          ],
+        },
+        {
+          code: `// todo: things to do`,
+          errors: 1,
+        },
+        {
+          code: `// No puedo saber. todo el mundo...`,
+          errors: 1,
+        },
+        {
+          code: `// esta Todo bien`,
+          errors: 1,
+        },
+        {
+          code: `// ToDo just do it`,
+          errors: 1,
+        },
+        {
+          code: `// Todo el mundo. TODO fix this later`,
+          errors: [
+            {
+              message: 'Complete the task associated to this "TODO" comment.',
+              line: 1,
+              endLine: 1,
+              column: 19,
+              endColumn: 23,
+            },
+          ],
+        },
+        {
           code: `
       // TODO just do it
 
-      // Todo just do it
-
-      //todo comment
-
       // This is a TODO just do it
-
-      // todo: things to do
 
       // :TODO: things to do
 
@@ -153,7 +197,7 @@ describe('S1135', () => {
 
       // valid end of file TODO
         `,
-          errors: 11,
+          errors: 6,
         },
       ],
     });

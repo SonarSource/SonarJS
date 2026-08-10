@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { isImported as isChaiImported } from '../helpers/chai.js';
+import { isImported as isChaiImported } from '../helpers/testing/chai.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
   getUniqueWriteUsageOrNode,
@@ -27,7 +27,7 @@ import {
   isNumberLiteral,
   isThisExpression,
 } from '../helpers/ast.js';
-import { isTestConstruct } from '../helpers/mocha.js';
+import { isTestConstruct } from '../helpers/testing/mocha.js';
 import * as meta from './generated-meta.js';
 
 const MESSAGE =

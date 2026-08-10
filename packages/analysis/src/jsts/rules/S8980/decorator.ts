@@ -48,11 +48,18 @@ const RECOGNIZED_MODULE_PREFIXES = [
   '@testing-library.user-event',
   'react-dom.test-utils',
 ];
+const RENDER_HOOK_RESULT_FQN = '@testing-library.react.renderHook.result';
+
+function isRenderHookResultCall(context: Rule.RuleContext, node: estree.Node): boolean {
+  const fqn = getFullyQualifiedName(context, node);
+  return fqn === RENDER_HOOK_RESULT_FQN || fqn?.startsWith(`${RENDER_HOOK_RESULT_FQN}.`) === true;
+}
 
 function isRecognizedTestingLibraryCall(context: Rule.RuleContext, node: estree.Node): boolean {
   const fqn = getFullyQualifiedName(context, node);
   return (
     fqn != null &&
+    !isRenderHookResultCall(context, node) &&
     RECOGNIZED_MODULE_PREFIXES.some(prefix => fqn === prefix || fqn.startsWith(`${prefix}.`))
   );
 }
@@ -120,7 +127,10 @@ function actCallbackHasNoRecognizedTestingLibraryCall(
     return false;
   }
   const calls = collectCallExpressions(callback.body);
-  return !calls.some(call => isRecognizedTestingLibraryCall(context, call));
+  return (
+    calls.some(call => isRenderHookResultCall(context, call)) ||
+    !calls.some(call => isRecognizedTestingLibraryCall(context, call))
+  );
 }
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

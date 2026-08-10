@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@testing-library/user-event": "^15.0.0"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@testing-library/user-event": "not-a-version"
+  }
+}

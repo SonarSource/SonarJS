@@ -38,6 +38,10 @@ describe('playwright assertions', () => {
     await expect.poll(() => 1).toBe(1);
   });
 
+  test('bare expect.poll is not an assertion', async () => { // Noncompliant {{Add at least one assertion to this test case.}}
+    await expect.poll(() => 'ready');
+  });
+
   test('recognizes expect.configure() from imported expect', async ({ page }) => { // Compliant
     await expect.configure({ timeout: 1000 })(page.locator('h1')).toHaveText('Hello');
   });

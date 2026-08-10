@@ -1,5 +1,21 @@
 {
+"custom-jsts:FutureReservedWords.js": [
+13
+],
+"custom-jsts:S2123.js": [
+2
+],
+"custom-jsts:S3500.js": [
+2
+],
 "custom-jsts:S3854.js": [
+222,
+228,
+234,
+240,
+248,
+254,
+260,
 320,
 329,
 336

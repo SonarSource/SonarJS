@@ -24,7 +24,7 @@ import {
   isMethodCall,
   isNumberLiteral,
 } from '../helpers/ast.js';
-import { chainStartsWithCy } from '../helpers/cypress.js';
+import { chainStartsWithCy } from '../helpers/testing/cypress.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isTestRelatedFile } from '../helpers/test-file-pattern.js';
 import * as meta from './generated-meta.js';

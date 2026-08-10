@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier, isLiteral, isMethodCall } from '../helpers/ast.js';
-import { isTestCase } from '../helpers/mocha.js';
+import { isTestCase } from '../helpers/testing/mocha.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 

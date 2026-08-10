@@ -22,7 +22,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { RuleContext } from '../helpers/type.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getMainFunctionTokenLocation, report, toSecondaryLocation } from '../helpers/location.js';
-import { isTestFrameworkCall } from '../helpers/test-frameworks.js';
+import { isTestFrameworkCall } from '../helpers/testing/test-frameworks.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 import { DEFAULT_THRESHOLD } from './config.js';

@@ -22,6 +22,7 @@ import {
   type FunctionNodeType,
   getValueOfExpression,
   isIdentifier,
+  isCallResult,
   isNullLiteral,
   isUndefined,
   resolveFunction,
@@ -145,13 +146,6 @@ function getPropertyName(member: estree.MemberExpression): string | undefined {
     return member.property.value;
   }
   return undefined;
-}
-
-function isCallResult(node: estree.Expression | estree.Super): node is estree.CallExpression {
-  if (node.type === 'ChainExpression') {
-    return isCallResult(node.expression);
-  }
-  return node.type === 'CallExpression';
 }
 
 function isMemoizeCall(
