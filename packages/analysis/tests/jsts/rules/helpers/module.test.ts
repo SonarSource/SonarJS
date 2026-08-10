@@ -18,7 +18,10 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { Linter, type Linter as LinterNS, type Rule } from 'eslint';
 import tsParser from '@typescript-eslint/parser';
-import { getCurrentFileModuleReferences } from '../../../../src/jsts/rules/helpers/module.js';
+import {
+  getCurrentFileModuleReferences,
+  getFullyQualifiedName,
+} from '../../../../src/jsts/rules/helpers/module.js';
 
 function collectModuleReferences(source: string, parser?: LinterNS.Parser): Set<string> {
   let imports = new Set<string>();
@@ -51,6 +54,48 @@ function collectModuleReferences(source: string, parser?: LinterNS.Parser): Set<
   });
 
   return imports;
+}
+
+function collectFullyQualifiedNames(
+  source: string,
+  identifiers: string[],
+): Map<string, string | null> {
+  const fullyQualifiedNames = new Map<string, string | null>();
+  const captureNames: Rule.RuleModule = {
+    create(context) {
+      return {
+        Identifier(node) {
+          if (
+            identifiers.includes(node.name) &&
+            node.parent?.type === 'MemberExpression' &&
+            node.parent.object === node
+          ) {
+            fullyQualifiedNames.set(node.name, getFullyQualifiedName(context, node));
+          }
+        },
+      };
+    },
+  };
+
+  new Linter().verify(source, {
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      parser: tsParser,
+    },
+    plugins: {
+      test: {
+        rules: {
+          captureNames,
+        },
+      },
+    },
+    rules: {
+      'test/captureNames': 'error',
+    },
+  });
+
+  return fullyQualifiedNames;
 }
 
 describe('getCurrentFileModuleReferences', () => {
@@ -98,5 +143,30 @@ describe('getCurrentFileModuleReferences', () => {
     );
 
     expect(imports).toEqual(new Set(['large-array-import']));
+  });
+});
+
+describe('getFullyQualifiedName', () => {
+  it('does not resolve type-only imports', () => {
+    const fullyQualifiedNames = collectFullyQualifiedNames(
+      `
+        import type DefaultType from 'default-module';
+        import { type NamedType } from 'named-module';
+        import type EqualsType = require('equals-module');
+
+        DefaultType.use();
+        NamedType.use();
+        EqualsType.use();
+      `,
+      ['DefaultType', 'NamedType', 'EqualsType'],
+    );
+
+    expect(fullyQualifiedNames).toEqual(
+      new Map([
+        ['DefaultType', null],
+        ['NamedType', null],
+        ['EqualsType', null],
+      ]),
+    );
   });
 });

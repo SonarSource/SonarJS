@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import * as jQuery from 'jquery';
 import jq from 'jquery';
+import { default as jqueryDefaultAlias } from 'jquery';
 import jquerySlim from 'jquery/slim';
 import jquerySlimDeep from 'jquery/dist/jquery.slim';
 import jquerySlimDeepJs from 'jquery/dist/jquery.slim.js';
@@ -31,6 +32,9 @@ jQuery.inArray('Sonar', values, 0); // Noncompliant {{Use Array.prototype.indexO
 jq.trim(input); // Noncompliant {{Use String.prototype.trim() instead of deprecated jQuery.trim().}}
 // ^^^^
 
+jqueryDefaultAlias.trim(input); // Noncompliant {{Use String.prototype.trim() instead of deprecated jQuery.trim().}}
+//                 ^^^^
+
 jquerySlim.trim(input); // Noncompliant {{Use String.prototype.trim() instead of deprecated jQuery.trim().}}
 //         ^^^^
 
@@ -56,6 +60,10 @@ values.indexOf('Sonar', 0);
 
 const jQueryFromAnotherModule = { trim: (value: string): string => value };
 jQueryFromAnotherModule.trim(input);
+
+const jqFromRequire = require('jquery');
+const jqueryAlias = jqFromRequire;
+jqueryAlias.trim(input);
 
 typeOnlyJq.trim(input);
 const typeOnlyAlias = typeOnlyJq;
@@ -88,3 +96,6 @@ jQuery['trim'](input);
 jQuery?.trim(input);
 jQuery.trim.call(null, input);
 require('jquery').trim(input);
+
+const { trim } = jQuery;
+trim(input);
