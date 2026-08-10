@@ -19,7 +19,12 @@
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { getUniqueWriteReference, getVariableFromName, isIdentifier } from '../helpers/ast.js';
+import {
+  getUniqueWriteReference,
+  getVariableFromName,
+  isIdentifier,
+  isMethodCall,
+} from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName, isRequire } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
@@ -97,22 +102,19 @@ function getJQueryMethod(
   context: Rule.RuleContext,
   jqueryReceivers: Map<Scope.Variable, boolean>,
 ): { method: JQueryMethod; property: estree.Identifier } | undefined {
-  const { callee } = call;
   if (
     call.type !== 'CallExpression' ||
     call.optional ||
-    callee.type !== 'MemberExpression' ||
-    callee.computed ||
-    callee.optional ||
-    !isIdentifier(callee.object) ||
-    !isIdentifier(callee.property) ||
-    !isJQueryReceiver(callee.object, context, jqueryReceivers)
+    !isMethodCall(call) ||
+    call.callee.optional ||
+    !isIdentifier(call.callee.object) ||
+    !isJQueryReceiver(call.callee.object, context, jqueryReceivers)
   ) {
     return undefined;
   }
 
-  const method = JQUERY_METHODS.get(callee.property.name);
-  return method === undefined ? undefined : { method, property: callee.property };
+  const method = JQUERY_METHODS.get(call.callee.property.name);
+  return method === undefined ? undefined : { method, property: call.callee.property };
 }
 
 function isJQueryReceiver(
