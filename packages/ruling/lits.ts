@@ -180,10 +180,16 @@ function sortIssueLines(issues: FileIssues): FileIssues {
 }
 
 function compareIssueKeys(left: string, right: string) {
-  if (left === right) {
-    return left.localeCompare(right);
+  const sharedLength = Math.min(left.length, right.length);
+
+  for (let index = 0; index < sharedLength; index++) {
+    const difference = left.charCodeAt(index) - right.charCodeAt(index);
+    if (difference !== 0) {
+      return difference;
+    }
   }
-  return left < right ? -1 : 1;
+
+  return left.length - right.length;
 }
 
 function handleS124(ruleId: string, language: 'js' | 'ts' | 'css' = 'js') {

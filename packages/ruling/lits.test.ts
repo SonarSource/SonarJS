@@ -64,6 +64,9 @@ describe('writeResults', () => {
     files['/project/src/a.css' as NormalizedAbsolutePath] = {
       issues: [createCssIssue(6)],
     };
+    files['/project/src/aa.css' as NormalizedAbsolutePath] = {
+      issues: [createCssIssue(7)],
+    };
     const results: ProjectAnalysisOutput = {
       files,
       meta: { warnings: [] },
@@ -75,7 +78,12 @@ describe('writeResults', () => {
       await fs.readFile(path.join(actualPath, 'css-S4656.json'), 'utf8'),
     ) as Record<string, number[]>;
 
-    expect(Object.keys(output)).toEqual(['ace:src/Z.css', 'ace:src/a.css', 'ace:src/z.css']);
+    expect(Object.keys(output)).toEqual([
+      'ace:src/Z.css',
+      'ace:src/a.css',
+      'ace:src/aa.css',
+      'ace:src/z.css',
+    ]);
   });
 });
 
