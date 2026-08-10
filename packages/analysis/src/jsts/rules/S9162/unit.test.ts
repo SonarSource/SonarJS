@@ -118,6 +118,21 @@ describe('S9162', () => {
             });
           `,
         },
+        {
+          filename: fixtureFile,
+          code: `
+            const externalPrototype = {
+              get text() {
+                initializePlugin();
+                return 'Ready';
+              },
+            };
+            cy.get('input').then($input => {
+              const values = { __proto__: externalPrototype };
+              expect(values.text).to.equal('Ready');
+            });
+          `,
+        },
       ],
       invalid: [
         {

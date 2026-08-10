@@ -223,7 +223,7 @@ function retrySafeKind(
     case 'Literal':
       return typeof node.value === 'string' ? 'string' : 'value';
     case 'Identifier':
-      return bindings.get(node.name) ?? 'value';
+      return bindings.get(node.name) ?? null;
     case 'TemplateLiteral':
       return allRetrySafe(node.expressions, bindings) ? 'string' : null;
     case 'UnaryExpression':
@@ -275,7 +275,9 @@ function allRetrySafe(
   expressions: estree.Node[],
   bindings: ReadonlyMap<string, RetrySafeKind>,
 ): boolean {
-  return expressions.every(expression => retrySafeKind(expression, bindings) !== null);
+  return expressions.every(
+    (expression: estree.Node): boolean => retrySafeKind(expression, bindings) !== null,
+  );
 }
 
 function isRetrySafeArray(
@@ -299,7 +301,15 @@ function isRetrySafeObject(
       property.kind === 'init' &&
       !property.computed &&
       !property.method &&
+      !isPrototypeProperty(property) &&
       retrySafeKind(property.value, bindings) !== null,
+  );
+}
+
+function isPrototypeProperty(property: estree.Property): boolean {
+  return (
+    (property.key.type === 'Identifier' && property.key.name === '__proto__') ||
+    (property.key.type === 'Literal' && property.key.value === '__proto__')
   );
 }
 
