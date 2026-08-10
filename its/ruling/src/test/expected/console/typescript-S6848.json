@@ -24,6 +24,10 @@
 "console:src/components/NodeSelector/NodeSelector.tsx": [
 72
 ],
+"console:src/components/onboarding/OnboardingPopup/OnboardingPopup.tsx": [
+40,
+46
+],
 "console:src/components/Popup.tsx": [
 40
 ],
@@ -60,9 +64,8 @@
 103,
 106
 ],
-"console:src/components/onboarding/OnboardingPopup/OnboardingPopup.tsx": [
-40,
-46
+"console:src/views/account/AccountView/SettingsTab.tsx": [
+61
 ],
 "console:src/views/ActionsView/ActionBoxes.tsx": [
 328
@@ -74,11 +77,11 @@
 67,
 100
 ],
-"console:src/views/ActionsView/ActionTriggerBox.tsx": [
-58
-],
 "console:src/views/ActionsView/ActionsView.tsx": [
 57
+],
+"console:src/views/ActionsView/ActionTriggerBox.tsx": [
+58
 ],
 "console:src/views/AfterSignUpView/AfterSignUpView.tsx": [
 185
@@ -147,6 +150,111 @@
 "console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupHeader.tsx": [
 53
 ],
+"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
+60,
+71,
+98,
+124,
+141
+],
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
+173,
+302,
+313,
+318
+],
+"console:src/views/models/DatabrowserView/Cell.tsx": [
+104,
+353
+],
+"console:src/views/models/DatabrowserView/Cell/NullableCell.tsx": [
+29
+],
+"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
+212
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCellFooter.tsx": [
+43,
+47,
+49
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Tabs.tsx": [
+28
+],
+"console:src/views/models/DatabrowserView/CheckboxCell.tsx": [
+20
+],
+"console:src/views/models/DatabrowserView/DataActionRow/DeleteNodeRow.tsx": [
+47,
+50
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+239,
+295
+],
+"console:src/views/models/DatabrowserView/HeaderCell.tsx": [
+59
+],
+"console:src/views/models/DatabrowserView/LightCell.tsx": [
+24
+],
+"console:src/views/models/DatabrowserView/NewRow.tsx": [
+80
+],
+"console:src/views/models/DatabrowserView/NewRowInactive.tsx": [
+64
+],
+"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
+112,
+118,
+124,
+134,
+156
+],
+"console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
+192
+],
+"console:src/views/models/FieldPopup/BaseSettings.tsx": [
+165,
+300
+],
+"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
+200,
+250,
+256,
+262
+],
+"console:src/views/models/FieldPopup/EditValueInput.tsx": [
+72,
+89
+],
+"console:src/views/models/FieldPopup/FieldHorizontalSelect.tsx": [
+130
+],
+"console:src/views/models/FieldPopup/FieldLabel.tsx": [
+132,
+145
+],
+"console:src/views/models/FieldPopup/FieldPopupFooter.tsx": [
+122,
+127,
+141,
+172,
+230
+],
+"console:src/views/models/FieldPopup/FieldPopupHeader.tsx": [
+62,
+90
+],
+"console:src/views/models/FieldPopup/HorizontalSelect.tsx": [
+40
+],
+"console:src/views/models/FieldPopup/OptionInput.tsx": [
+12
+],
+"console:src/views/models/ModelDescription.tsx": [
+56
+],
 "console:src/views/PermissionsView/PermissionPopup/AffectedFields.tsx": [
 73,
 122,
@@ -188,17 +296,18 @@
 "console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermissionLabel.tsx": [
 45
 ],
+"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupClientChooser.tsx": [
+47
+],
+"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupEnvironmentChooser.tsx": [
+45
+],
 "console:src/views/ProjectRootView/AddProjectPopup.tsx": [
 201,
 202
 ],
 "console:src/views/ProjectRootView/EndpointPopup.tsx": [
 183
-],
-"console:src/views/ProjectRootView/OnboardSideNav.tsx": [
-33,
-83,
-111
 ],
 "console:src/views/ProjectRootView/Onboarding/ExampleChooser.tsx": [
 51
@@ -211,6 +320,11 @@
 ],
 "console:src/views/ProjectRootView/Onboarding/SelectExample.tsx": [
 120
+],
+"console:src/views/ProjectRootView/OnboardSideNav.tsx": [
+33,
+83,
+111
 ],
 "console:src/views/ProjectRootView/RootRedirectView.tsx": [
 42
@@ -373,119 +487,5 @@
 ],
 "console:src/views/Tooltip/Tooltip.tsx": [
 52
-],
-"console:src/views/account/AccountView/SettingsTab.tsx": [
-61
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
-60,
-71,
-98,
-124,
-141
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-173,
-302,
-313,
-318
-],
-"console:src/views/models/DatabrowserView/Cell.tsx": [
-104,
-353
-],
-"console:src/views/models/DatabrowserView/Cell/NullableCell.tsx": [
-29
-],
-"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
-212
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCellFooter.tsx": [
-43,
-47,
-49
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Tabs.tsx": [
-28
-],
-"console:src/views/models/DatabrowserView/CheckboxCell.tsx": [
-20
-],
-"console:src/views/models/DatabrowserView/DataActionRow/DeleteNodeRow.tsx": [
-47,
-50
-],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-239,
-295
-],
-"console:src/views/models/DatabrowserView/HeaderCell.tsx": [
-59
-],
-"console:src/views/models/DatabrowserView/LightCell.tsx": [
-24
-],
-"console:src/views/models/DatabrowserView/NewRow.tsx": [
-80
-],
-"console:src/views/models/DatabrowserView/NewRowInactive.tsx": [
-64
-],
-"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
-112,
-118,
-124,
-134,
-156
-],
-"console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
-192
-],
-"console:src/views/models/FieldPopup/BaseSettings.tsx": [
-165,
-300
-],
-"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
-200,
-250,
-256,
-262
-],
-"console:src/views/models/FieldPopup/EditValueInput.tsx": [
-72,
-89
-],
-"console:src/views/models/FieldPopup/FieldHorizontalSelect.tsx": [
-130
-],
-"console:src/views/models/FieldPopup/FieldLabel.tsx": [
-132,
-145
-],
-"console:src/views/models/FieldPopup/FieldPopupFooter.tsx": [
-122,
-127,
-141,
-172,
-230
-],
-"console:src/views/models/FieldPopup/FieldPopupHeader.tsx": [
-62,
-90
-],
-"console:src/views/models/FieldPopup/HorizontalSelect.tsx": [
-40
-],
-"console:src/views/models/FieldPopup/OptionInput.tsx": [
-12
-],
-"console:src/views/models/ModelDescription.tsx": [
-56
-],
-"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupClientChooser.tsx": [
-47
-],
-"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupEnvironmentChooser.tsx": [
-45
 ]
 }

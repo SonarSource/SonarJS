@@ -48,6 +48,9 @@
 "fireact:src/pages/auth/accounts/DeleteAccount/index.js": [
 74
 ],
+"fireact:src/pages/auth/accounts/images/ImageList.js": [
+43
+],
 "fireact:src/pages/auth/accounts/PaymentList/index.js": [
 155
 ],
@@ -64,9 +67,6 @@
 ],
 "fireact:src/pages/auth/accounts/UserRole/index.js": [
 98
-],
-"fireact:src/pages/auth/accounts/images/ImageList.js": [
-43
 ],
 "fireact:src/pages/auth/user/Invite/index.js": [
 86

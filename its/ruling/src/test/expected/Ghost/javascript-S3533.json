@@ -1,14 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-8,
-9,
-10,
-11,
-12,
-13,
-14,
-15
-],
 "Ghost:config.example.js": [
 6
 ],
@@ -1842,6 +1832,16 @@
 13,
 16
 ],
+"Ghost:core/test/unit/server_helpers_index_spec.js": [
+4,
+5,
+6
+],
+"Ghost:core/test/unit/server_helpers_template_spec.js": [
+3,
+4,
+7
+],
 "Ghost:core/test/unit/server_helpers/asset_spec.js": [
 3,
 4,
@@ -2049,16 +2049,6 @@
 9,
 12
 ],
-"Ghost:core/test/unit/server_helpers_index_spec.js": [
-4,
-5,
-6
-],
-"Ghost:core/test/unit/server_helpers_template_spec.js": [
-3,
-4,
-7
-],
 "Ghost:core/test/unit/server_spec.js": [
 3,
 4,
@@ -2190,6 +2180,16 @@
 "Ghost:core/test/utils/tempfile.js": [
 5,
 7
+],
+"Ghost:Gruntfile.js": [
+8,
+9,
+10,
+11,
+12,
+13,
+14,
+15
 ],
 "Ghost:index.js": [
 9,

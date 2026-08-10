@@ -2,10 +2,6 @@
 "rxjs:src/InnerSubscriber.ts": [
 17
 ],
-"rxjs:src/Subscription.ts": [
-89,
-108
-],
 "rxjs:src/observable/IteratorObservable.ts": [
 96,
 113
@@ -111,6 +107,10 @@
 "rxjs:src/scheduler/AsapScheduler.ts": [
 20,
 25
+],
+"rxjs:src/Subscription.ts": [
+89,
+108
 ],
 "rxjs:src/util/Immediate.ts": [
 110

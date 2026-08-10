@@ -20,10 +20,10 @@
 "fresh:packages/examples/src/shared.tsx": [
 0
 ],
-"fresh:packages/fresh/src/app.ts": [
+"fresh:packages/fresh/src/app_test.tsx": [
 0
 ],
-"fresh:packages/fresh/src/app_test.tsx": [
+"fresh:packages/fresh/src/app.ts": [
 0
 ],
 "fresh:packages/fresh/src/build_cache.ts": [
@@ -32,61 +32,61 @@
 "fresh:packages/fresh/src/commands.ts": [
 0
 ],
-"fresh:packages/fresh/src/compat.ts": [
-0
-],
 "fresh:packages/fresh/src/compat_test.tsx": [
 0
 ],
-"fresh:packages/fresh/src/config.ts": [
+"fresh:packages/fresh/src/compat.ts": [
 0
 ],
 "fresh:packages/fresh/src/config_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/constants.ts": [
+"fresh:packages/fresh/src/config.ts": [
 0
 ],
-"fresh:packages/fresh/src/context.ts": [
+"fresh:packages/fresh/src/constants.ts": [
 0
 ],
 "fresh:packages/fresh/src/context_test.tsx": [
 0
 ],
-"fresh:packages/fresh/src/define.ts": [
+"fresh:packages/fresh/src/context.ts": [
 0
 ],
 "fresh:packages/fresh/src/define_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/dev/builder.ts": [
+"fresh:packages/fresh/src/define.ts": [
 0
 ],
 "fresh:packages/fresh/src/dev/builder_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/dev/check.ts": [
+"fresh:packages/fresh/src/dev/builder.ts": [
 0
 ],
-"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
+"fresh:packages/fresh/src/dev/check.ts": [
 0
 ],
 "fresh:packages/fresh/src/dev/dev_build_cache_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/dev/esbuild.ts": [
+"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
 0
 ],
-"fresh:packages/fresh/src/dev/file_transformer.ts": [
+"fresh:packages/fresh/src/dev/esbuild.ts": [
 0
 ],
 "fresh:packages/fresh/src/dev/file_transformer_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/dev/fs_crawl.ts": [
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
 0
 ],
 "fresh:packages/fresh/src/dev/fs_crawl_test.ts": [
+0
+],
+"fresh:packages/fresh/src/dev/fs_crawl.ts": [
 0
 ],
 "fresh:packages/fresh/src/dev/middlewares/automatic_workspace_folders.ts": [
@@ -95,10 +95,10 @@
 "fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
 0
 ],
-"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware.tsx": [
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware_test.tsx": [
 0
 ],
-"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware_test.tsx": [
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware.tsx": [
 0
 ],
 "fresh:packages/fresh/src/dev/middlewares/error_overlay/overlay.tsx": [
@@ -110,40 +110,40 @@
 "fresh:packages/fresh/src/dev/mod.ts": [
 0
 ],
-"fresh:packages/fresh/src/dev/update_check.ts": [
-0
-],
 "fresh:packages/fresh/src/dev/update_check_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/error.ts": [
+"fresh:packages/fresh/src/dev/update_check.ts": [
 0
 ],
 "fresh:packages/fresh/src/error_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/file_url.ts": [
+"fresh:packages/fresh/src/error.ts": [
 0
 ],
 "fresh:packages/fresh/src/file_url_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/fs.ts": [
-0
-],
-"fresh:packages/fresh/src/fs_routes.ts": [
+"fresh:packages/fresh/src/file_url.ts": [
 0
 ],
 "fresh:packages/fresh/src/fs_routes_test.tsx": [
 0
 ],
+"fresh:packages/fresh/src/fs_routes.ts": [
+0
+],
+"fresh:packages/fresh/src/fs.ts": [
+0
+],
 "fresh:packages/fresh/src/handlers.ts": [
 0
 ],
-"fresh:packages/fresh/src/internals.ts": [
+"fresh:packages/fresh/src/internals_dev.ts": [
 0
 ],
-"fresh:packages/fresh/src/internals_dev.ts": [
+"fresh:packages/fresh/src/internals.ts": [
 0
 ],
 "fresh:packages/fresh/src/jsonify/constants.ts": [
@@ -158,46 +158,46 @@
 "fresh:packages/fresh/src/jsonify/round_trip_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/jsonify/stringify.ts": [
-0
-],
 "fresh:packages/fresh/src/jsonify/stringify_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/middlewares/cors.ts": [
+"fresh:packages/fresh/src/jsonify/stringify.ts": [
 0
 ],
 "fresh:packages/fresh/src/middlewares/cors_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/middlewares/csp.ts": [
+"fresh:packages/fresh/src/middlewares/cors.ts": [
 0
 ],
 "fresh:packages/fresh/src/middlewares/csp_test.tsx": [
 0
 ],
-"fresh:packages/fresh/src/middlewares/csrf.ts": [
+"fresh:packages/fresh/src/middlewares/csp.ts": [
 0
 ],
 "fresh:packages/fresh/src/middlewares/csrf_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/middlewares/ip_filter.ts": [
+"fresh:packages/fresh/src/middlewares/csrf.ts": [
 0
 ],
 "fresh:packages/fresh/src/middlewares/ip_filter_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/middlewares/mod.ts": [
+"fresh:packages/fresh/src/middlewares/ip_filter.ts": [
 0
 ],
 "fresh:packages/fresh/src/middlewares/mod_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/middlewares/static_files.ts": [
+"fresh:packages/fresh/src/middlewares/mod.ts": [
 0
 ],
 "fresh:packages/fresh/src/middlewares/static_files_test.ts": [
+0
+],
+"fresh:packages/fresh/src/middlewares/static_files.ts": [
 0
 ],
 "fresh:packages/fresh/src/middlewares/trailing_slashes.ts": [
@@ -212,16 +212,16 @@
 "fresh:packages/fresh/src/render.ts": [
 0
 ],
-"fresh:packages/fresh/src/router.ts": [
-0
-],
 "fresh:packages/fresh/src/router_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/runtime/client/dev.ts": [
+"fresh:packages/fresh/src/router.ts": [
 0
 ],
 "fresh:packages/fresh/src/runtime/client/dev_hmr.ts": [
+0
+],
+"fresh:packages/fresh/src/runtime/client/dev.ts": [
 0
 ],
 "fresh:packages/fresh/src/runtime/client/mod.ts": [
@@ -242,16 +242,16 @@
 "fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
 0
 ],
-"fresh:packages/fresh/src/runtime/shared.ts": [
-0
-],
 "fresh:packages/fresh/src/runtime/shared_internal.ts": [
 0
 ],
-"fresh:packages/fresh/src/segments.ts": [
+"fresh:packages/fresh/src/runtime/shared.ts": [
 0
 ],
 "fresh:packages/fresh/src/segments_test.ts": [
+0
+],
+"fresh:packages/fresh/src/segments.ts": [
 0
 ],
 "fresh:packages/fresh/src/server/tailwind_aot_error_page.tsx": [
@@ -263,10 +263,10 @@
 "fresh:packages/fresh/src/types.ts": [
 0
 ],
-"fresh:packages/fresh/src/utils.ts": [
+"fresh:packages/fresh/src/utils_test.ts": [
 0
 ],
-"fresh:packages/fresh/src/utils_test.ts": [
+"fresh:packages/fresh/src/utils.ts": [
 0
 ],
 "fresh:packages/fresh/tests/active_links_test.tsx": [
@@ -512,19 +512,19 @@
 "fresh:packages/plugin-vite/demo/routes/tests/commonjs.tsx": [
 0
 ],
-"fresh:packages/plugin-vite/demo/routes/tests/css_modules.tsx": [
+"fresh:packages/plugin-vite/demo/routes/tests/css_modules_page2.tsx": [
 0
 ],
-"fresh:packages/plugin-vite/demo/routes/tests/css_modules_page2.tsx": [
+"fresh:packages/plugin-vite/demo/routes/tests/css_modules.tsx": [
 0
 ],
 "fresh:packages/plugin-vite/demo/routes/tests/dep_json.tsx": [
 0
 ],
-"fresh:packages/plugin-vite/demo/routes/tests/env.tsx": [
+"fresh:packages/plugin-vite/demo/routes/tests/env_files.tsx": [
 0
 ],
-"fresh:packages/plugin-vite/demo/routes/tests/env_files.tsx": [
+"fresh:packages/plugin-vite/demo/routes/tests/env.tsx": [
 0
 ],
 "fresh:packages/plugin-vite/demo/routes/tests/feed.tsx": [
@@ -566,10 +566,10 @@
 "fresh:packages/plugin-vite/demo/routes/tests/mime.tsx": [
 0
 ],
-"fresh:packages/plugin-vite/demo/routes/tests/partial.tsx": [
+"fresh:packages/plugin-vite/demo/routes/tests/partial_insert.tsx": [
 0
 ],
-"fresh:packages/plugin-vite/demo/routes/tests/partial_insert.tsx": [
+"fresh:packages/plugin-vite/demo/routes/tests/partial.tsx": [
 0
 ],
 "fresh:packages/plugin-vite/demo/routes/tests/pg.tsx": [
@@ -629,40 +629,40 @@
 "fresh:packages/plugin-vite/src/plugins/patches.ts": [
 0
 ],
-"fresh:packages/plugin-vite/src/plugins/patches/code_eval.ts": [
-0
-],
 "fresh:packages/plugin-vite/src/plugins/patches/code_eval_test.ts": [
 0
 ],
-"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
+"fresh:packages/plugin-vite/src/plugins/patches/code_eval.ts": [
 0
 ],
 "fresh:packages/plugin-vite/src/plugins/patches/commonjs_test.ts": [
 0
 ],
-"fresh:packages/plugin-vite/src/plugins/patches/http_absolute.ts": [
+"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
 0
 ],
 "fresh:packages/plugin-vite/src/plugins/patches/http_absolute_test.ts": [
 0
 ],
-"fresh:packages/plugin-vite/src/plugins/patches/inline_env_vars.ts": [
+"fresh:packages/plugin-vite/src/plugins/patches/http_absolute.ts": [
 0
 ],
 "fresh:packages/plugin-vite/src/plugins/patches/inline_env_vars_test.ts": [
 0
 ],
-"fresh:packages/plugin-vite/src/plugins/patches/jsx_comment.ts": [
+"fresh:packages/plugin-vite/src/plugins/patches/inline_env_vars.ts": [
 0
 ],
 "fresh:packages/plugin-vite/src/plugins/patches/jsx_comment_test.ts": [
 0
 ],
-"fresh:packages/plugin-vite/src/plugins/patches/remove_polyfills.ts": [
+"fresh:packages/plugin-vite/src/plugins/patches/jsx_comment.ts": [
 0
 ],
 "fresh:packages/plugin-vite/src/plugins/patches/remove_polyfills_test.ts": [
+0
+],
+"fresh:packages/plugin-vite/src/plugins/patches/remove_polyfills.ts": [
 0
 ],
 "fresh:packages/plugin-vite/src/plugins/server_entry.ts": [
@@ -830,10 +830,10 @@
 "fresh:packages/update/src/mod.ts": [
 0
 ],
-"fresh:packages/update/src/update.ts": [
+"fresh:packages/update/src/update_test.ts": [
 0
 ],
-"fresh:packages/update/src/update_test.ts": [
+"fresh:packages/update/src/update.ts": [
 0
 ],
 "fresh:packages/update/src/utils.ts": [
@@ -875,25 +875,10 @@
 "fresh:www/components/Header.tsx": [
 0
 ],
-"fresh:www/components/Icons.tsx": [
-0
-],
-"fresh:www/components/NavigationBar.tsx": [
-0
-],
-"fresh:www/components/PageSection.tsx": [
-0
-],
-"fresh:www/components/SideBySide.tsx": [
-0
-],
-"fresh:www/components/WaveTank.ts": [
+"fresh:www/components/homepage/CodeExampleBox.tsx": [
 0
 ],
 "fresh:www/components/homepage/CTA.tsx": [
-0
-],
-"fresh:www/components/homepage/CodeExampleBox.tsx": [
 0
 ],
 "fresh:www/components/homepage/DemoBox.tsx": [
@@ -932,6 +917,21 @@
 "fresh:www/components/homepage/SocialProof.tsx": [
 0
 ],
+"fresh:www/components/Icons.tsx": [
+0
+],
+"fresh:www/components/NavigationBar.tsx": [
+0
+],
+"fresh:www/components/PageSection.tsx": [
+0
+],
+"fresh:www/components/SideBySide.tsx": [
+0
+],
+"fresh:www/components/WaveTank.ts": [
+0
+],
 "fresh:www/data/docs.ts": [
 0
 ],
@@ -962,10 +962,10 @@
 "fresh:www/islands/ThemeToggle.tsx": [
 0
 ],
-"fresh:www/main.ts": [
+"fresh:www/main_test.ts": [
 0
 ],
-"fresh:www/main_test.ts": [
+"fresh:www/main.ts": [
 0
 ],
 "fresh:www/routes/_app.tsx": [
@@ -977,13 +977,13 @@
 "fresh:www/routes/_middleware.ts": [
 0
 ],
-"fresh:www/routes/docs/[...slug].tsx": [
-0
-],
 "fresh:www/routes/docs/_layout.tsx": [
 0
 ],
 "fresh:www/routes/docs/_middleware.ts": [
+0
+],
+"fresh:www/routes/docs/[...slug].tsx": [
 0
 ],
 "fresh:www/routes/docs/index.tsx": [
@@ -1022,10 +1022,10 @@
 "fresh:www/utils/prism.ts": [
 0
 ],
-"fresh:www/utils/screenshot.ts": [
+"fresh:www/utils/screenshot_test.ts": [
 0
 ],
-"fresh:www/utils/screenshot_test.ts": [
+"fresh:www/utils/screenshot.ts": [
 0
 ],
 "fresh:www/utils/state.ts": [

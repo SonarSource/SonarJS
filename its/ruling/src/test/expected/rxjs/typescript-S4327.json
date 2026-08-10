@@ -1,12 +1,12 @@
 {
-"rxjs:src/Subscriber.ts": [
-177
-],
 "rxjs:src/observable/dom/WebSocketSubject.ts": [
 124
 ],
 "rxjs:src/operator/windowTime.ts": [
 247
+],
+"rxjs:src/Subscriber.ts": [
+177
 ],
 "rxjs:src/testing/ColdObservable.ts": [
 24

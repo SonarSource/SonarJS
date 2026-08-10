@@ -49,9 +49,6 @@
 "p5.js:src/webgl/p5.RendererGL.Immediate.js": [
 39
 ],
-"p5.js:src/webgl/p5.RendererGL.Retained.js": [
-19
-],
 "p5.js:src/webgl/p5.RendererGL.js": [
 51,
 503,
@@ -63,6 +60,9 @@
 1258,
 1296,
 1325
+],
+"p5.js:src/webgl/p5.RendererGL.Retained.js": [
+19
 ],
 "p5.js:src/webgl/p5.Shader.js": [
 21,

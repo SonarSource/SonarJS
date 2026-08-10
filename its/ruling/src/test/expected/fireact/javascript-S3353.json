@@ -31,19 +31,6 @@
 "fireact:src/components/templates/AccountTemplate/index.js": [
 23
 ],
-"fireact:src/pages/auth/Home/index.js": [
-21,
-23
-],
-"fireact:src/pages/auth/accounts/PaymentList/index.js": [
-44
-],
-"fireact:src/pages/auth/accounts/Plans/index.js": [
-76
-],
-"fireact:src/pages/auth/accounts/UserList/index.js": [
-73
-],
 "fireact:src/pages/auth/accounts/images/ImageCreate.js": [
 28
 ],
@@ -58,6 +45,19 @@
 ],
 "fireact:src/pages/auth/accounts/images/ImagesApis.js": [
 9
+],
+"fireact:src/pages/auth/accounts/PaymentList/index.js": [
+44
+],
+"fireact:src/pages/auth/accounts/Plans/index.js": [
+76
+],
+"fireact:src/pages/auth/accounts/UserList/index.js": [
+73
+],
+"fireact:src/pages/auth/Home/index.js": [
+21,
+23
 ],
 "fireact:src/pages/auth/user/ViewLogs/index.js": [
 36

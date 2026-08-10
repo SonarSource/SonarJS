@@ -47,11 +47,11 @@
 "ace:src/layer/decorators.js": [
 129
 ],
-"ace:src/mode/bibtex.js": [
-18
-],
 "ace:src/mode/bibtex_highlight_rules.js": [
 184
+],
+"ace:src/mode/bibtex.js": [
+18
 ],
 "ace:tool/regexp_tokenizer.js": [
 113

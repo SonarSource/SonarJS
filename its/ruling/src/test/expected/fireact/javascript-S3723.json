@@ -119,13 +119,6 @@
 30,
 57
 ],
-"fireact:src/pages/auth/Home/index.js": [
-30,
-43,
-48,
-49,
-80
-],
 "fireact:src/pages/auth/accounts/AddUser/index.js": [
 20,
 33,
@@ -143,6 +136,35 @@
 41,
 42,
 73
+],
+"fireact:src/pages/auth/accounts/images/ImageCreate.js": [
+50,
+55,
+60,
+65,
+66
+],
+"fireact:src/pages/auth/accounts/images/ImageEdit.js": [
+46,
+51,
+56,
+61,
+62
+],
+"fireact:src/pages/auth/accounts/images/ImageList.js": [
+53,
+78,
+126,
+132,
+145,
+150,
+155,
+156
+],
+"fireact:src/pages/auth/accounts/images/ImagesApis.js": [
+17,
+24,
+83
 ],
 "fireact:src/pages/auth/accounts/NewAccount/index.js": [
 15,
@@ -213,34 +235,12 @@
 51,
 97
 ],
-"fireact:src/pages/auth/accounts/images/ImageCreate.js": [
-50,
-55,
-60,
-65,
-66
-],
-"fireact:src/pages/auth/accounts/images/ImageEdit.js": [
-46,
-51,
-56,
-61,
-62
-],
-"fireact:src/pages/auth/accounts/images/ImageList.js": [
-53,
-78,
-126,
-132,
-145,
-150,
-155,
-156
-],
-"fireact:src/pages/auth/accounts/images/ImagesApis.js": [
-17,
-24,
-83
+"fireact:src/pages/auth/Home/index.js": [
+30,
+43,
+48,
+49,
+80
 ],
 "fireact:src/pages/auth/user/DeleteUser/index.js": [
 16,

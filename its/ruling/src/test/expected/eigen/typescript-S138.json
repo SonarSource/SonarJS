@@ -28,17 +28,23 @@
 "eigen:src/app/Components/Bidding/Screens/Registration.tests.tsx": [
 170
 ],
+"eigen:src/app/navigation/navigate.tests.tsx": [
+30
+],
+"eigen:src/app/navigation/routes.tests.tsx": [
+4
+],
 "eigen:src/app/Scenes/Artwork/Artwork.tests.tsx": [
 66
 ],
 "eigen:src/app/Scenes/Artwork/Components/ArtworkExtraLinks/index.tests.tsx": [
 48
 ],
-"eigen:src/app/Scenes/Artwork/Components/ArtworkTombstone.tests.tsx": [
-14
-],
 "eigen:src/app/Scenes/Artwork/Components/ArtworksInSeriesRail.tests.tsx": [
 15
+],
+"eigen:src/app/Scenes/Artwork/Components/ArtworkTombstone.tests.tsx": [
+14
 ],
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/BidButton.tests.tsx": [
 41
@@ -85,18 +91,12 @@
 "eigen:src/app/Scenes/SavedAddresses/SavedAddresses.tests.tsx": [
 13
 ],
-"eigen:src/app/Scenes/Search/Search.tests.tsx": [
-59,
-217
-],
 "eigen:src/app/Scenes/Search/components/AutosuggestSearchResult.tests.tsx": [
 46
 ],
-"eigen:src/app/navigation/navigate.tests.tsx": [
-30
-],
-"eigen:src/app/navigation/routes.tests.tsx": [
-4
+"eigen:src/app/Scenes/Search/Search.tests.tsx": [
+59,
+217
 ],
 "eigen:src/app/store/AuthModel.tests.ts": [
 30

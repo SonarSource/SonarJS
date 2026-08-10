@@ -23,6 +23,10 @@
 "vuetify:packages/vuetify/cypress/support/mount.ts": [
 32
 ],
+"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
+35,
+65
+],
 "vuetify:packages/vuetify/src/components/VBtnToggle/VBtnToggle.tsx": [
 49
 ],
@@ -63,10 +67,6 @@
 163,
 179
 ],
-"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
-35,
-65
-],
 "vuetify:packages/vuetify/src/composables/display.ts": [
 150
 ],
@@ -84,12 +84,12 @@
 27,
 27
 ],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/items.ts": [
+31
+],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRows.tsx": [
 106,
 125
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/items.ts": [
-31
 ],
 "vuetify:packages/vuetify/src/util/helpers.ts": [
 121,

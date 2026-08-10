@@ -163,10 +163,6 @@
 "eigen:src/app/Components/Bidding/Screens/ConfirmBid/BidderPositionQuery.ts": [
 1
 ],
-"eigen:src/app/Components/Bidding/Screens/ConfirmBid/PriceSummary.tsx": [
-9,
-10
-],
 "eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx": [
 1,
 2,
@@ -174,6 +170,10 @@
 4,
 5,
 6
+],
+"eigen:src/app/Components/Bidding/Screens/ConfirmBid/PriceSummary.tsx": [
+9,
+10
 ],
 "eigen:src/app/Components/Bidding/Screens/Registration.tests.tsx": [
 22,
@@ -460,17 +460,17 @@
 "eigen:src/app/Scenes/Artwork/Components/ArtworkHistory.tsx": [
 1
 ],
-"eigen:src/app/Scenes/Artwork/Components/ArtworkTombstone.tests.tsx": [
-1
-],
-"eigen:src/app/Scenes/Artwork/Components/ArtworkTombstone.tsx": [
-1
-],
 "eigen:src/app/Scenes/Artwork/Components/ArtworksInSeriesRail.tests.tsx": [
 1
 ],
 "eigen:src/app/Scenes/Artwork/Components/ArtworksInSeriesRail.tsx": [
 2
+],
+"eigen:src/app/Scenes/Artwork/Components/ArtworkTombstone.tests.tsx": [
+1
+],
+"eigen:src/app/Scenes/Artwork/Components/ArtworkTombstone.tsx": [
+1
 ],
 "eigen:src/app/Scenes/Artwork/Components/AuctionPrice.tests.tsx": [
 1
@@ -665,6 +665,9 @@
 "eigen:src/app/Scenes/Collection/Collection.tsx": [
 1
 ],
+"eigen:src/app/Scenes/Collection/Components/__fixtures__/CollectionFixture.ts": [
+1
+],
 "eigen:src/app/Scenes/Collection/Components/CollectionArtworksFilter.tsx": [
 1
 ],
@@ -682,12 +685,12 @@
 2,
 3
 ],
-"eigen:src/app/Scenes/Collection/Components/CollectionHubsRails/OtherCollections/OtherCollectionsRail.tsx": [
-1
-],
 "eigen:src/app/Scenes/Collection/Components/CollectionHubsRails/index.tsx": [
 1,
 2
+],
+"eigen:src/app/Scenes/Collection/Components/CollectionHubsRails/OtherCollections/OtherCollectionsRail.tsx": [
+1
 ],
 "eigen:src/app/Scenes/Collection/Components/FeaturedArtists.tests.tsx": [
 1
@@ -701,9 +704,6 @@
 "eigen:src/app/Scenes/Collection/Components/FullFeaturedArtistList.tsx": [
 1,
 2
-],
-"eigen:src/app/Scenes/Collection/Components/__fixtures__/CollectionFixture.ts": [
-1
 ],
 "eigen:src/app/Scenes/Collection/Screens/CollectionArtworks.tests.tsx": [
 1
@@ -811,15 +811,15 @@
 1,
 12
 ],
-"eigen:src/app/Scenes/Feature/Feature.tsx": [
-1,
-2
-],
 "eigen:src/app/Scenes/Feature/components/FeatureFeaturedLink.tsx": [
 1
 ],
 "eigen:src/app/Scenes/Feature/components/FeatureHeader.tsx": [
 1
+],
+"eigen:src/app/Scenes/Feature/Feature.tsx": [
+1,
+2
 ],
 "eigen:src/app/Scenes/Gene/Gene.tests.tsx": [
 2
@@ -927,14 +927,14 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tsx": [
 1
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
-11
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tests.tsx": [
 1
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tsx": [
 2
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
+11
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/EditionSelectBox.tsx": [
 2
@@ -1064,6 +1064,9 @@
 1,
 2
 ],
+"eigen:src/app/Scenes/Map/bucketCityResults.ts": [
+1
+],
 "eigen:src/app/Scenes/Map/GlobalMap.tsx": [
 3,
 568
@@ -1071,10 +1074,10 @@
 "eigen:src/app/Scenes/Map/MapRenderer.tsx": [
 1
 ],
-"eigen:src/app/Scenes/Map/bucketCityResults.ts": [
+"eigen:src/app/Scenes/Map/types.ts": [
 1
 ],
-"eigen:src/app/Scenes/Map/types.ts": [
+"eigen:src/app/Scenes/MyAccount/deleteUserAccount.ts": [
 1
 ],
 "eigen:src/app/Scenes/MyAccount/MyAccount.tests.tsx": [
@@ -1099,9 +1102,6 @@
 1
 ],
 "eigen:src/app/Scenes/MyAccount/MyAccountEditPhone.tsx": [
-1
-],
-"eigen:src/app/Scenes/MyAccount/deleteUserAccount.ts": [
 1
 ],
 "eigen:src/app/Scenes/MyAccount/updateMyUserProfile.ts": [
@@ -1144,6 +1144,18 @@
 ],
 "eigen:src/app/Scenes/MyCollection/Components/MyCollectionArtworkListItem.tsx": [
 2
+],
+"eigen:src/app/Scenes/MyCollection/mutations/deleteArtworkImage.ts": [
+1
+],
+"eigen:src/app/Scenes/MyCollection/mutations/myCollectionCreateArtwork.ts": [
+1
+],
+"eigen:src/app/Scenes/MyCollection/mutations/myCollectionDeleteArtwork.ts": [
+1
+],
+"eigen:src/app/Scenes/MyCollection/mutations/myCollectionUpdateArtwork.ts": [
+1
 ],
 "eigen:src/app/Scenes/MyCollection/MyCollection.tests.tsx": [
 3
@@ -1301,18 +1313,6 @@
 1
 ],
 "eigen:src/app/Scenes/MyCollection/State/MyCollectionArtworkModel.tsx": [
-1
-],
-"eigen:src/app/Scenes/MyCollection/mutations/deleteArtworkImage.ts": [
-1
-],
-"eigen:src/app/Scenes/MyCollection/mutations/myCollectionCreateArtwork.ts": [
-1
-],
-"eigen:src/app/Scenes/MyCollection/mutations/myCollectionDeleteArtwork.ts": [
-1
-],
-"eigen:src/app/Scenes/MyCollection/mutations/myCollectionUpdateArtwork.ts": [
 1
 ],
 "eigen:src/app/Scenes/MyCollection/utils/initializeSubmissionArtworkForm.ts": [
@@ -1590,6 +1590,19 @@
 1,
 2
 ],
+"eigen:src/app/Scenes/SavedAddresses/mutations/addNewAddress.ts": [
+1
+],
+"eigen:src/app/Scenes/SavedAddresses/mutations/deleteSavedAddress.ts": [
+1
+],
+"eigen:src/app/Scenes/SavedAddresses/mutations/setAsDefaultAddress.ts": [
+1
+],
+"eigen:src/app/Scenes/SavedAddresses/mutations/updateUserAddress.ts": [
+1,
+2
+],
 "eigen:src/app/Scenes/SavedAddresses/SavedAddresses.tests.tsx": [
 2
 ],
@@ -1604,18 +1617,10 @@
 2,
 3
 ],
-"eigen:src/app/Scenes/SavedAddresses/mutations/addNewAddress.ts": [
-1
-],
-"eigen:src/app/Scenes/SavedAddresses/mutations/deleteSavedAddress.ts": [
-1
-],
-"eigen:src/app/Scenes/SavedAddresses/mutations/setAsDefaultAddress.ts": [
-1
-],
-"eigen:src/app/Scenes/SavedAddresses/mutations/updateUserAddress.ts": [
+"eigen:src/app/Scenes/SavedSearchAlert/containers/CreateSavedSearchContentContainer.tsx": [
 1,
-2
+4,
+5
 ],
 "eigen:src/app/Scenes/SavedSearchAlert/EditSavedSearchAlert.tsx": [
 2,
@@ -1623,14 +1628,6 @@
 4,
 5,
 6
-],
-"eigen:src/app/Scenes/SavedSearchAlert/SavedSearchAlert.tsx": [
-1
-],
-"eigen:src/app/Scenes/SavedSearchAlert/containers/CreateSavedSearchContentContainer.tsx": [
-1,
-4,
-5
 ],
 "eigen:src/app/Scenes/SavedSearchAlert/mutations/createSavedSearchAlert.ts": [
 1
@@ -1645,6 +1642,9 @@
 1
 ],
 "eigen:src/app/Scenes/SavedSearchAlert/queries/getSavedSearchIdByCriteria.ts": [
+1
+],
+"eigen:src/app/Scenes/SavedSearchAlert/SavedSearchAlert.tsx": [
 1
 ],
 "eigen:src/app/Scenes/SavedSearchAlertsList/Components/SavedSearchesList.tests.tsx": [
@@ -1664,6 +1664,12 @@
 2,
 3
 ],
+"eigen:src/app/Scenes/Search/components/CityGuideCTA.tsx": [
+10
+],
+"eigen:src/app/Scenes/Search/components/CityGuideCTANew.tsx": [
+7
+],
 "eigen:src/app/Scenes/Search/Search.tsx": [
 2
 ],
@@ -1679,12 +1685,6 @@
 "eigen:src/app/Scenes/Search/UserPrefsModel.tsx": [
 1
 ],
-"eigen:src/app/Scenes/Search/components/CityGuideCTA.tsx": [
-10
-],
-"eigen:src/app/Scenes/Search/components/CityGuideCTANew.tsx": [
-7
-],
 "eigen:src/app/Scenes/SellWithArtsy/Components/ArtistList.tests.tsx": [
 6
 ],
@@ -1696,6 +1696,15 @@
 ],
 "eigen:src/app/Scenes/SellWithArtsy/Components/RecentlySold.tsx": [
 2
+],
+"eigen:src/app/Scenes/SellWithArtsy/mutations/createConsignSubmissionMutation.ts": [
+1
+],
+"eigen:src/app/Scenes/SellWithArtsy/mutations/removeAssetFromConsignmentSubmissionMutation.ts": [
+1
+],
+"eigen:src/app/Scenes/SellWithArtsy/mutations/updateConsignSubmissionMutation.ts": [
+1
 ],
 "eigen:src/app/Scenes/SellWithArtsy/SellWithArtsyHome.tsx": [
 2,
@@ -1723,15 +1732,6 @@
 1
 ],
 "eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/UploadPhotos/utils/gemini/getGeminiCredentialsForEnvironment.ts": [
-1
-],
-"eigen:src/app/Scenes/SellWithArtsy/mutations/createConsignSubmissionMutation.ts": [
-1
-],
-"eigen:src/app/Scenes/SellWithArtsy/mutations/removeAssetFromConsignmentSubmissionMutation.ts": [
-1
-],
-"eigen:src/app/Scenes/SellWithArtsy/mutations/updateConsignSubmissionMutation.ts": [
 1
 ],
 "eigen:src/app/Scenes/Show/Components/ShowArtworks.tsx": [
@@ -1822,18 +1822,6 @@
 "eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomHeader.tsx": [
 1
 ],
-"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomSubsections.tests.tsx": [
-1
-],
-"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomSubsections.tsx": [
-1
-],
-"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomViewWorksButton.tests.tsx": [
-1
-],
-"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomViewWorksButton.tsx": [
-2
-],
 "eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomsHomeRail.tsx": [
 1,
 2
@@ -1846,6 +1834,18 @@
 ],
 "eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomsListItem.tsx": [
 1
+],
+"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomSubsections.tests.tsx": [
+1
+],
+"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomSubsections.tsx": [
+1
+],
+"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomViewWorksButton.tests.tsx": [
+1
+],
+"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomViewWorksButton.tsx": [
+2
 ],
 "eigen:src/app/Scenes/ViewingRoom/ViewingRoom.tests.tsx": [
 1
@@ -1880,6 +1880,10 @@
 "eigen:src/app/store/persistence.ts": [
 4
 ],
+"eigen:src/app/tests/createMockNetworkLayer/index.ts": [
+9,
+14
+],
 "eigen:src/app/tests/MockRelayRenderer.tsx": [
 3
 ],
@@ -1888,27 +1892,11 @@
 2,
 3
 ],
-"eigen:src/app/tests/createMockNetworkLayer/index.ts": [
-9,
-14
-],
 "eigen:src/app/utils/ArtworkInquiry/ArtworkInquiryStore.tsx": [
 1
 ],
 "eigen:src/app/utils/ArtworkInquiry/ArtworkInquiryTypes.ts": [
 1
-],
-"eigen:src/app/utils/LinkedAccounts/apple.ts": [
-5,
-6
-],
-"eigen:src/app/utils/LinkedAccounts/facebook.ts": [
-1,
-2
-],
-"eigen:src/app/utils/LinkedAccounts/google.ts": [
-2,
-3
 ],
 "eigen:src/app/utils/artworkRarityClassifications.ts": [
 1
@@ -1922,6 +1910,18 @@
 "eigen:src/app/utils/getTrackingUrl.ts": [
 1,
 2
+],
+"eigen:src/app/utils/LinkedAccounts/apple.ts": [
+5,
+6
+],
+"eigen:src/app/utils/LinkedAccounts/facebook.ts": [
+1,
+2
+],
+"eigen:src/app/utils/LinkedAccounts/google.ts": [
+2,
+3
 ],
 "eigen:src/app/utils/useAlgoliaIndices.ts": [
 1

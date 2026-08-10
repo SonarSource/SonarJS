@@ -1,7 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-17
-],
 "Ghost:core/client/app/components/gh-navitem-url-input.js": [
 18,
 18,
@@ -54,5 +51,8 @@
 ],
 "Ghost:core/shared/ghost-url.js": [
 58
+],
+"Ghost:Gruntfile.js": [
+17
 ]
 }

@@ -2,22 +2,6 @@
 "Joust:ts/components/EventLogLine.tsx": [
 22
 ],
-"Joust:ts/components/GameWrapper.tsx": [
-46,
-158
-],
-"Joust:ts/components/SetupWidget.tsx": [
-40
-],
-"Joust:ts/components/SpeedSelector.tsx": [
-21
-],
-"Joust:ts/components/Tooltipper.tsx": [
-63,
-64,
-65,
-66
-],
 "Joust:ts/components/game/EntityInPlay.tsx": [
 18,
 57,
@@ -42,11 +26,27 @@
 2,
 3
 ],
+"Joust:ts/components/game/visuals/InHandCardArt.tsx": [
+80
+],
 "Joust:ts/components/game/Weapon.tsx": [
 7
 ],
-"Joust:ts/components/game/visuals/InHandCardArt.tsx": [
-80
+"Joust:ts/components/GameWrapper.tsx": [
+46,
+158
+],
+"Joust:ts/components/SetupWidget.tsx": [
+40
+],
+"Joust:ts/components/SpeedSelector.tsx": [
+21
+],
+"Joust:ts/components/Tooltipper.tsx": [
+63,
+64,
+65,
+66
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 71

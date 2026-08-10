@@ -16,14 +16,6 @@
 24,
 25
 ],
-"rxjs:src/observable/ForkJoinObservable.ts": [
-25,
-26,
-27,
-31,
-32,
-33
-],
 "rxjs:src/observable/combineLatest.ts": [
 11,
 12,
@@ -32,6 +24,14 @@
 18,
 19,
 20
+],
+"rxjs:src/observable/ForkJoinObservable.ts": [
+25,
+26,
+27,
+31,
+32,
+33
 ],
 "rxjs:src/operator/combineLatest.ts": [
 15,

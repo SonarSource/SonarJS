@@ -8,6 +8,9 @@
 "console:src/utils/valueparser.ts": [
 93
 ],
+"console:src/views/account/AccountView/SettingsTab.tsx": [
+41
+],
 "console:src/views/ActionsView/ActionBoxes.tsx": [
 73
 ],
@@ -23,6 +26,25 @@
 ],
 "console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndexes.tsx": [
 30
+],
+"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
+173
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+308,
+394
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
+176,
+214,
+219
+],
+"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
+240
+],
+"console:src/views/models/FieldPopup/FieldHorizontalSelect.tsx": [
+123,
+141
 ],
 "console:src/views/PermissionsView/PermissionPopup/AffectedFields.tsx": [
 113
@@ -66,27 +88,5 @@
 169,
 193,
 195
-],
-"console:src/views/account/AccountView/SettingsTab.tsx": [
-41
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
-173
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-308,
-394
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
-176,
-214,
-219
-],
-"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
-240
-],
-"console:src/views/models/FieldPopup/FieldHorizontalSelect.tsx": [
-123,
-141
 ]
 }

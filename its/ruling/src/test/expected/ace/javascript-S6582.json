@@ -1,14 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-319,
-334,
-347,
-394,
-584,
-626,
-665,
-666
-],
 "ace:demo/kitchen-sink/doclist.js": [
 82,
 95,
@@ -157,9 +147,10 @@
 4169,
 5297
 ],
-"ace:lib/ace/worker/worker.js": [
-24,
-28
+"ace:lib/ace/worker/worker_client_v2.js": [
+145,
+151,
+185
 ],
 "ace:lib/ace/worker/worker_client.js": [
 132,
@@ -167,15 +158,24 @@
 172,
 174
 ],
-"ace:lib/ace/worker/worker_client_v2.js": [
-145,
-151,
-185
-],
 "ace:lib/ace/worker/worker_v2.js": [
 29,
 33,
 76
+],
+"ace:lib/ace/worker/worker.js": [
+24,
+28
+],
+"ace:Makefile.dryice.js": [
+319,
+334,
+347,
+394,
+584,
+626,
+665,
+666
 ],
 "ace:src/ace.js": [
 45
@@ -260,6 +260,9 @@
 308,
 361
 ],
+"ace:src/ext/code_lens_test.js": [
+37
+],
 "ace:src/ext/code_lens.js": [
 45,
 47,
@@ -269,9 +272,6 @@
 103,
 162,
 163
-],
-"ace:src/ext/code_lens_test.js": [
-37
 ],
 "ace:src/ext/emmet.js": [
 200,
@@ -329,14 +329,23 @@
 66,
 79
 ],
+"ace:src/keyboard/textinput_test.js": [
+42,
+61
+],
 "ace:src/keyboard/textinput.js": [
 90,
 120,
 336
 ],
-"ace:src/keyboard/textinput_test.js": [
-42,
-61
+"ace:src/keyboard/vim_ace_test.js": [
+71,
+326
+],
+"ace:src/keyboard/vim_test.js": [
+43,
+44,
+330
 ],
 "ace:src/keyboard/vim.js": [
 172,
@@ -373,15 +382,6 @@
 6647,
 6656
 ],
-"ace:src/keyboard/vim_ace_test.js": [
-71,
-326
-],
-"ace:src/keyboard/vim_test.js": [
-43,
-44,
-330
-],
 "ace:src/layer/font_metrics.js": [
 141,
 147
@@ -408,13 +408,13 @@
 240,
 240
 ],
+"ace:src/lib/event_emitter.js": [
+40
+],
 "ace:src/lib/event.js": [
 80,
 82,
 83
-],
-"ace:src/lib/event_emitter.js": [
-40
 ],
 "ace:src/line_widgets.js": [
 25,
@@ -602,18 +602,21 @@
 "ace:src/test/mockrenderer.js": [
 75
 ],
-"ace:src/tokenizer.js": [
-279
-],
 "ace:src/tokenizer_dev.js": [
 94,
 112
+],
+"ace:src/tokenizer.js": [
+279
 ],
 "ace:src/tooltip.js": [
 109
 ],
 "ace:src/undomanager.js": [
 189
+],
+"ace:src/virtual_renderer_test.js": [
+42
 ],
 "ace:src/virtual_renderer.js": [
 414,
@@ -627,9 +630,6 @@
 1670,
 1671,
 1703
-],
-"ace:src/virtual_renderer_test.js": [
-42
 ],
 "ace:tool/lib.js": [
 29

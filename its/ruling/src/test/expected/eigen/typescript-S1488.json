@@ -10,6 +10,9 @@
 "eigen:src/app/Components/ArtworkFilter/ArtworkFilterStore.tsx": [
 272
 ],
+"eigen:src/app/Components/ArtworkFilter/components/ArtworkFilterOptionCheckboxItem.tests.tsx": [
+60
+],
 "eigen:src/app/Components/ArtworkFilter/Filters/AggregationOptionCommonValidation.tsx": [
 32
 ],
@@ -22,9 +25,6 @@
 "eigen:src/app/Components/ArtworkFilter/Filters/SortOptions.tests.tsx": [
 40
 ],
-"eigen:src/app/Components/ArtworkFilter/components/ArtworkFilterOptionCheckboxItem.tests.tsx": [
-60
-],
 "eigen:src/app/Components/HeaderArtworksFilter/HeaderArtworksFilterWithTotalArtworks.tests.tsx": [
 42
 ],
@@ -33,6 +33,9 @@
 ],
 "eigen:src/app/Components/ShareSheet/helpers.ts": [
 20
+],
+"eigen:src/app/navigation/routes.tsx": [
+257
 ],
 "eigen:src/app/Scenes/Artist/Artist.tests.tsx": [
 29
@@ -143,15 +146,6 @@
 "eigen:src/app/Scenes/ViewingRoom/ViewingRoomArtwork.tests.tsx": [
 32
 ],
-"eigen:src/app/Websockets/GravityWebsocketContext.tsx": [
-51
-],
-"eigen:src/app/Websockets/auctions/AuctionSocketContext.tsx": [
-118
-],
-"eigen:src/app/navigation/routes.tsx": [
-257
-],
 "eigen:src/app/tests/mockFetchNotificationPermissions.ts": [
 5
 ],
@@ -161,6 +155,12 @@
 "eigen:src/app/utils/relayHelpers.ts": [
 28,
 39
+],
+"eigen:src/app/Websockets/auctions/AuctionSocketContext.tsx": [
+118
+],
+"eigen:src/app/Websockets/GravityWebsocketContext.tsx": [
+51
 ],
 "eigen:src/palette/Theme.tsx": [
 70,

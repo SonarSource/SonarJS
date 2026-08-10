@@ -1,4 +1,9 @@
 {
+"eigen:src/app/relay/middlewares/cacheMiddleware.tests.ts": [
+41,
+70,
+96
+],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tests.tsx": [
 21
 ],
@@ -14,11 +19,6 @@
 ],
 "eigen:src/app/Scenes/MyCollection/Screens/ArtworkList/MyCollectionArtworkGridItem.tests.tsx": [
 107
-],
-"eigen:src/app/relay/middlewares/cacheMiddleware.tests.ts": [
-41,
-70,
-96
 ],
 "eigen:src/app/tests/fetchMockHelpers.ts": [
 4

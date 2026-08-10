@@ -21,9 +21,6 @@
 84,
 120
 ],
-"console:src/views/PermissionsView/PermissionPopup/ast.ts": [
-95
-],
 "console:src/views/models/DatabrowserView/Cell.tsx": [
 140,
 147
@@ -31,5 +28,8 @@
 "console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
 651,
 656
+],
+"console:src/views/PermissionsView/PermissionPopup/ast.ts": [
+95
 ]
 }

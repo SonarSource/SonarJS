@@ -124,6 +124,11 @@
 481,
 490
 ],
+"ant-design:site/theme/template/Content/index.jsx": [
+12,
+19,
+21
+],
 "ant-design:site/theme/template/Content/MainContent.jsx": [
 24,
 31,
@@ -138,11 +143,6 @@
 "ant-design:site/theme/template/Content/PrevAndNext.jsx": [
 5,
 10
-],
-"ant-design:site/theme/template/Content/index.jsx": [
-12,
-19,
-21
 ],
 "ant-design:site/theme/template/Layout/index.jsx": [
 73,

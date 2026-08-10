@@ -79,11 +79,11 @@
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/BuyNowButton.tsx": [
 69
 ],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/MakeOfferButton.tsx": [
-76
-],
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/helpers.ts": [
 26
+],
+"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/MakeOfferButton.tsx": [
+76
 ],
 "eigen:src/app/Scenes/Artwork/Components/CommercialEditionSetInformation.tsx": [
 24,
@@ -179,11 +179,11 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tsx": [
 74
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
-89
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tsx": [
 201
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
+89
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryMakeOfferButton.tsx": [
 62

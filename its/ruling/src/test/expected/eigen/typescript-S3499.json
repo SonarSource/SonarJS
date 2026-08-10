@@ -64,6 +64,10 @@
 "eigen:src/app/NativeModules/LegacyNativeModules.tsx": [
 103
 ],
+"eigen:src/app/relay/middlewares/cacheMiddleware.tests.ts": [
+136,
+156
+],
 "eigen:src/app/Scenes/Artwork/Components/CommercialInformation.tsx": [
 87,
 94,
@@ -178,10 +182,6 @@
 "eigen:src/app/Scenes/Show/Components/ShowArtworks.tsx": [
 157
 ],
-"eigen:src/app/relay/middlewares/cacheMiddleware.tests.ts": [
-136,
-156
-],
 "eigen:src/app/store/AuthModel.ts": [
 402,
 468,
@@ -204,11 +204,11 @@
 10,
 61
 ],
-"eigen:src/app/utils/PushNotification.ts": [
-64
-],
 "eigen:src/app/utils/googleMaps.ts": [
 78
+],
+"eigen:src/app/utils/PushNotification.ts": [
+64
 ],
 "eigen:src/app/utils/useAlgoliaIndices.ts": [
 35

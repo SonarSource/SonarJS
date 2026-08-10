@@ -16,6 +16,10 @@
 126,
 127
 ],
+"vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
+38,
+63
+],
 "vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
 14
 ],
@@ -31,10 +35,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VWindow/VWindowItem.tsx": [
 86
-],
-"vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
-38,
-63
 ],
 "vuetify:packages/vuetify/src/composables/touch.ts": [
 4

@@ -26,12 +26,12 @@
 "oak:http_server_bun.ts": [
 192
 ],
-"oak:http_server_native.ts": [
-25
-],
 "oak:http_server_native_request.ts": [
 17,
 49
+],
+"oak:http_server_native.ts": [
+25
 ],
 "oak:http_server_node.ts": [
 88

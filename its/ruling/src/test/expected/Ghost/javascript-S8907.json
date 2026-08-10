@@ -1,7 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-448
-],
 "Ghost:core/server/api/notifications.js": [
 90,
 138
@@ -183,5 +180,8 @@
 246,
 277,
 360
+],
+"Ghost:Gruntfile.js": [
+448
 ]
 }

@@ -1,7 +1,4 @@
 {
-"jquery:Gruntfile.js": [
-15
-],
 "jquery:build/release.js": [
 3
 ],
@@ -33,5 +30,8 @@
 ],
 "jquery:build/tasks/sourcemap.js": [
 3
+],
+"jquery:Gruntfile.js": [
+15
 ]
 }

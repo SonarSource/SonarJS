@@ -69,12 +69,6 @@
 4,
 4
 ],
-"fireact:src/components/UserAvatar/index.js": [
-3,
-3,
-3,
-3
-],
 "fireact:src/components/routers/AuthRouter/index.js": [
 7,
 7,
@@ -99,6 +93,12 @@
 "fireact:src/components/user/UserPageLayout/index.js": [
 7,
 8
+],
+"fireact:src/components/UserAvatar/index.js": [
+3,
+3,
+3,
+3
 ],
 "fireact:src/pages/auth/accounts/images/ImageList.js": [
 12,

@@ -210,6 +210,10 @@
 200,
 240
 ],
+"ag-grid:src/ts/rowModels/infinite/infiniteBlock.ts": [
+74,
+90
+],
 "ag-grid:src/ts/rowModels/inMemory/flattenStage.ts": [
 24,
 27,
@@ -219,10 +223,6 @@
 100,
 113,
 136
-],
-"ag-grid:src/ts/rowModels/infinite/infiniteBlock.ts": [
-74,
-90
 ],
 "ag-grid:src/ts/rowModels/pagination/paginationComp.ts": [
 139,

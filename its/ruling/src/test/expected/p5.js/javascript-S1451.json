@@ -1,7 +1,4 @@
 {
-"p5.js:Gruntfile.js": [
-0
-],
 "p5.js:bench/math/random-fe-off.bench.js": [
 0
 ],
@@ -30,6 +27,9 @@
 0
 ],
 "p5.js:grunt-karma.js": [
+0
+],
+"p5.js:Gruntfile.js": [
 0
 ],
 "p5.js:karma.conf.js": [
@@ -236,10 +236,10 @@
 "p5.js:src/webgl/p5.RendererGL.Immediate.js": [
 0
 ],
-"p5.js:src/webgl/p5.RendererGL.Retained.js": [
+"p5.js:src/webgl/p5.RendererGL.js": [
 0
 ],
-"p5.js:src/webgl/p5.RendererGL.js": [
+"p5.js:src/webgl/p5.RendererGL.Retained.js": [
 0
 ],
 "p5.js:src/webgl/p5.Shader.js": [

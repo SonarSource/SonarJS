@@ -25,18 +25,18 @@
 "ace:src/keyboard/emacs.js": [
 213
 ],
+"ace:src/keyboard/vim_test.js": [
+3879,
+3907,
+3919,
+3929
+],
 "ace:src/keyboard/vim.js": [
 1425,
 3684,
 3807,
 3846,
 4031
-],
-"ace:src/keyboard/vim_test.js": [
-3879,
-3907,
-3919,
-3929
 ],
 "ace:src/layer/gutter.js": [
 87

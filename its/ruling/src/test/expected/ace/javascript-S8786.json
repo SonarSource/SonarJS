@@ -1,8 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-262,
-271
-],
 "ace:demo/kitchen-sink/demo.js": [
 201,
 215
@@ -34,12 +30,16 @@
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 4169
 ],
+"ace:lib/ace/worker/worker_client.js": [
+98
+],
 "ace:lib/ace/worker/worker.js": [
 45,
 89
 ],
-"ace:lib/ace/worker/worker_client.js": [
-98
+"ace:Makefile.dryice.js": [
+262,
+271
 ],
 "ace:src/autocomplete_test.js": [
 54
@@ -59,11 +59,11 @@
 26,
 50
 ],
-"ace:src/ext/whitespace.js": [
-117
-],
 "ace:src/ext/whitespace_test.js": [
 210
+],
+"ace:src/ext/whitespace.js": [
+117
 ],
 "ace:src/keyboard/vim.js": [
 1829,
@@ -294,11 +294,11 @@
 103,
 106
 ],
-"ace:src/mode/ruby.js": [
-38
-],
 "ace:src/mode/ruby_highlight_rules.js": [
 277
+],
+"ace:src/mode/ruby.js": [
+38
 ],
 "ace:src/mode/sac_highlight_rules.js": [
 44,

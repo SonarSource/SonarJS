@@ -1,4 +1,7 @@
 {
+"knockout:build/fragments/source-references.js": [
+59
+],
 "knockout:Gruntfile.js": [
 21,
 23,
@@ -12,9 +15,6 @@
 113,
 154,
 172
-],
-"knockout:build/fragments/source-references.js": [
-59
 ],
 "knockout:src/binding/bindingAttributeSyntax.js": [
 18,

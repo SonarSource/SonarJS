@@ -1,33 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-116,
-139,
-140,
-141,
-142,
-143,
-144,
-145,
-146,
-147,
-148,
-149,
-150,
-151,
-152,
-153,
-154,
-155,
-157,
-161,
-167,
-211,
-273,
-515,
-522,
-599,
-606
-],
 "ace:demo/kitchen-sink/dev_util.js": [
 18,
 348
@@ -87,8 +58,12 @@
 "ace:lib/ace/mode/xml/dom.js": [
 34
 ],
-"ace:lib/ace/worker/worker.js": [
-72
+"ace:lib/ace/worker/worker_client_v2.js": [
+145,
+145,
+151,
+151,
+193
 ],
 "ace:lib/ace/worker/worker_client.js": [
 132,
@@ -97,12 +72,37 @@
 138,
 177
 ],
-"ace:lib/ace/worker/worker_client_v2.js": [
+"ace:lib/ace/worker/worker.js": [
+72
+],
+"ace:Makefile.dryice.js": [
+116,
+139,
+140,
+141,
+142,
+143,
+144,
 145,
-145,
+146,
+147,
+148,
+149,
+150,
 151,
-151,
-193
+152,
+153,
+154,
+155,
+157,
+161,
+167,
+211,
+273,
+515,
+522,
+599,
+606
 ],
 "ace:src/apply_delta.js": [
 4
@@ -116,11 +116,11 @@
 217,
 221
 ],
-"ace:src/edit_session.js": [
-1677
-],
 "ace:src/edit_session_test.js": [
 1110
+],
+"ace:src/edit_session.js": [
+1677
 ],
 "ace:src/ext/elastic_tabstops_lite.js": [
 121
@@ -128,14 +128,14 @@
 "ace:src/keyboard/hash_handler.js": [
 179
 ],
+"ace:src/keyboard/vim_test.js": [
+5500
+],
 "ace:src/keyboard/vim.js": [
 61,
 674,
 1878,
 7142
-],
-"ace:src/keyboard/vim_test.js": [
-5500
 ],
 "ace:src/layer/gutter.js": [
 38,

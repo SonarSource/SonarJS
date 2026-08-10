@@ -10,9 +10,6 @@
 "fireact:src/components/DataList/index.js": [
 17
 ],
-"fireact:src/pages/auth/Home/index.js": [
-24
-],
 "fireact:src/pages/auth/accounts/AddUser/index.js": [
 91,
 95,
@@ -22,6 +19,10 @@
 "fireact:src/pages/auth/accounts/DeleteAccount/index.js": [
 74,
 78
+],
+"fireact:src/pages/auth/accounts/images/ImageEdit.js": [
+66,
+74
 ],
 "fireact:src/pages/auth/accounts/NewAccount/index.js": [
 65,
@@ -48,9 +49,8 @@
 52,
 56
 ],
-"fireact:src/pages/auth/accounts/images/ImageEdit.js": [
-66,
-74
+"fireact:src/pages/auth/Home/index.js": [
+24
 ],
 "fireact:src/pages/auth/user/DeleteUser/index.js": [
 37,

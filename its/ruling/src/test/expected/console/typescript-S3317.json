@@ -35,6 +35,18 @@
 "console:src/views/FunctionsView/FunctionLogs/Log.tsx": [
 0
 ],
+"console:src/views/models/AuthProviderPopup/auth.ts": [
+0
+],
+"console:src/views/models/DatabrowserView/DataActionRow.tsx": [
+0
+],
+"console:src/views/models/DatabrowserView/DataActionRow/DeleteNodeRow.tsx": [
+0
+],
+"console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
+0
+],
 "console:src/views/PermissionsView/PermissionPopup/OldPermissionPopupFooter.tsx": [
 0
 ],
@@ -63,18 +75,6 @@
 0
 ],
 "console:src/views/Tooltip/Tooltip.tsx": [
-0
-],
-"console:src/views/models/AuthProviderPopup/auth.ts": [
-0
-],
-"console:src/views/models/DatabrowserView/DataActionRow.tsx": [
-0
-],
-"console:src/views/models/DatabrowserView/DataActionRow/DeleteNodeRow.tsx": [
-0
-],
-"console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
 0
 ]
 }

@@ -1,7 +1,4 @@
 {
-"p5.js:Gruntfile.js": [
-496
-],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 130,
 2261,
@@ -36,6 +33,9 @@
 ],
 "p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
 22
+],
+"p5.js:Gruntfile.js": [
+496
 ],
 "p5.js:karma.conf.js": [
 28

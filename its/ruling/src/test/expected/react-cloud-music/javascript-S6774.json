@@ -198,6 +198,16 @@
 17,
 67
 ],
+"react-cloud-music:src/application/User/Login/index.jsx": [
+13,
+14,
+15,
+16,
+17,
+18,
+26,
+31
+],
 "react-cloud-music:src/application/User/Login/LoginForm/index.jsx": [
 8,
 8,
@@ -219,16 +229,6 @@
 8,
 8,
 52
-],
-"react-cloud-music:src/application/User/Login/index.jsx": [
-13,
-14,
-15,
-16,
-17,
-18,
-26,
-31
 ],
 "react-cloud-music:src/baseUI/confirm/index.jsx": [
 80,

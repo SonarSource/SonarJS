@@ -1,9 +1,4 @@
 {
-"angular.js:Gruntfile.js": [
-552,
-553,
-554
-],
 "angular.js:benchmarks/event-delegation-bp/app.js": [
 21
 ],
@@ -15,6 +10,11 @@
 ],
 "angular.js:docs/app/e2e/app.scenario.js": [
 21
+],
+"angular.js:Gruntfile.js": [
+552,
+553,
+554
 ],
 "angular.js:karma-shared.conf.js": [
 238

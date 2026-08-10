@@ -172,13 +172,13 @@
 33,
 72
 ],
-"searchkit:packages/searchkit-sdk/src/facets/VisibilityRules/index.ts": [
-8,
-23
-],
 "searchkit:packages/searchkit-sdk/src/facets/utils/index.ts": [
 1,
 5
+],
+"searchkit:packages/searchkit-sdk/src/facets/VisibilityRules/index.ts": [
+8,
+23
 ],
 "searchkit:packages/searchkit-sdk/src/filters/TermFilter.ts": [
 24

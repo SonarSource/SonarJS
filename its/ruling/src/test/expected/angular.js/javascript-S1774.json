@@ -1,9 +1,4 @@
 {
-"angular.js:Gruntfile.js": [
-72,
-98,
-118
-],
 "angular.js:docs/app/assets/js/angular-bootstrap/dropdown-toggle.js": [
 77,
 81,
@@ -42,6 +37,11 @@
 ],
 "angular.js:docs/config/services/deployments/production.js": [
 16
+],
+"angular.js:Gruntfile.js": [
+72,
+98,
+118
 ],
 "angular.js:karma-jquery.conf-factory.js": [
 11
@@ -532,6 +532,10 @@
 254,
 292
 ],
+"angular.js:src/ngCookies/cookies.js": [
+63,
+121
+],
 "angular.js:src/ngCookies/cookieWriter.js": [
 22,
 32,
@@ -539,10 +543,6 @@
 34,
 35,
 36
-],
-"angular.js:src/ngCookies/cookies.js": [
-63,
-121
 ],
 "angular.js:src/ngMessageFormat/messageFormatCommon.js": [
 54

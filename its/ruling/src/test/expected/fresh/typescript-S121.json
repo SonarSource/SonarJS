@@ -23,12 +23,12 @@
 "fresh:packages/fresh/src/dev/esbuild.ts": [
 211
 ],
-"fresh:packages/fresh/src/dev/file_transformer.ts": [
-116
-],
 "fresh:packages/fresh/src/dev/file_transformer_test.ts": [
 14,
 21
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+116
 ],
 "fresh:packages/fresh/src/dev/fs_crawl.ts": [
 110
@@ -50,8 +50,8 @@
 39,
 72
 ],
-"fresh:packages/fresh/src/fs.ts": [
-23
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+89
 ],
 "fresh:packages/fresh/src/fs_routes.ts": [
 46,
@@ -68,8 +68,8 @@
 283,
 284
 ],
-"fresh:packages/fresh/src/fs_routes_test.tsx": [
-89
+"fresh:packages/fresh/src/fs.ts": [
+23
 ],
 "fresh:packages/fresh/src/jsonify/parse.ts": [
 19,
@@ -89,11 +89,11 @@
 "fresh:packages/fresh/src/middlewares/csrf_test.ts": [
 27
 ],
-"fresh:packages/fresh/src/middlewares/mod.ts": [
-95
-],
 "fresh:packages/fresh/src/middlewares/mod_test.ts": [
 210
+],
+"fresh:packages/fresh/src/middlewares/mod.ts": [
+95
 ],
 "fresh:packages/fresh/src/middlewares/static_files.ts": [
 19

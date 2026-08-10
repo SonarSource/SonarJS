@@ -11,11 +11,48 @@
 "console:src/views/Integrations/Algolia/AlgoliaView.tsx": [
 227
 ],
+"console:src/views/models/DatabrowserView/Cell/EnumCell.tsx": [
+14,
+38
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+140,
+141,
+142,
+177,
+213,
+309
+],
+"console:src/views/models/DatabrowserView/NewRowInactive.tsx": [
+39
+],
+"console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
+264
+],
+"console:src/views/models/FieldPopup/BaseSettings.tsx": [
+45
+],
+"console:src/views/models/FieldPopup/Constraints.tsx": [
+304,
+310
+],
+"console:src/views/models/FieldPopup/EditValueInput.tsx": [
+149
+],
+"console:src/views/models/ModelHeader.tsx": [
+313
+],
 "console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
 391
 ],
 "console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopup.tsx": [
 328
+],
+"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
+89,
+90,
+105,
+169
 ],
 "console:src/views/ProjectRootView/SideNav.tsx": [
 448,
@@ -48,42 +85,5 @@
 348,
 354,
 356
-],
-"console:src/views/models/DatabrowserView/Cell/EnumCell.tsx": [
-14,
-38
-],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-140,
-141,
-142,
-177,
-213,
-309
-],
-"console:src/views/models/DatabrowserView/NewRowInactive.tsx": [
-39
-],
-"console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
-264
-],
-"console:src/views/models/FieldPopup/BaseSettings.tsx": [
-45
-],
-"console:src/views/models/FieldPopup/Constraints.tsx": [
-304,
-310
-],
-"console:src/views/models/FieldPopup/EditValueInput.tsx": [
-149
-],
-"console:src/views/models/ModelHeader.tsx": [
-313
-],
-"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
-89,
-90,
-105,
-169
 ]
 }

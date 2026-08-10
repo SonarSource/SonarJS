@@ -1,4 +1,7 @@
 {
+"Joust:ts/components/game/EndTurnButton.tsx": [
+30
+],
 "Joust:ts/components/Scrubber.tsx": [
 228,
 232,
@@ -10,8 +13,5 @@
 280,
 285,
 289
-],
-"Joust:ts/components/game/EndTurnButton.tsx": [
-30
 ]
 }

@@ -68,12 +68,12 @@
 5,
 10
 ],
-"ag-grid:src/ts/rendering/cellRendererService.ts": [
-2
-],
 "ag-grid:src/ts/rendering/cellRenderers/groupCellRenderer.ts": [
 13,
 19
+],
+"ag-grid:src/ts/rendering/cellRendererService.ts": [
+2
 ],
 "ag-grid:src/ts/rendering/checkboxSelectionComponent.ts": [
 5

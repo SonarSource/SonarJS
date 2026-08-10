@@ -1,7 +1,4 @@
 {
-"Joust:ts/components/GameWrapper.tsx": [
-99
-],
 "Joust:ts/components/game/Hero.tsx": [
 27
 ],
@@ -10,5 +7,8 @@
 ],
 "Joust:ts/components/game/visuals/InPlayCardArt.tsx": [
 22
+],
+"Joust:ts/components/GameWrapper.tsx": [
+99
 ]
 }

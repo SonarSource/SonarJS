@@ -10,11 +10,6 @@
 "rxjs:src/Observable.ts": [
 130
 ],
-"rxjs:src/Subject.ts": [
-143,
-150,
-157
-],
 "rxjs:src/observable/dom/WebSocketSubject.ts": [
 176,
 196,
@@ -29,5 +24,10 @@
 ],
 "rxjs:src/operator/zip.ts": [
 252
+],
+"rxjs:src/Subject.ts": [
+143,
+150,
+157
 ]
 }

@@ -22,6 +22,11 @@
 55,
 92
 ],
+"console:src/components/onboarding/Steps.tsx": [
+91,
+97,
+101
+],
 "console:src/components/ProjectSelection/ProjectSelection.tsx": [
 363,
 368,
@@ -36,10 +41,14 @@
 39,
 128
 ],
-"console:src/components/onboarding/Steps.tsx": [
-91,
-97,
-101
+"console:src/views/account/AccountView/SettingsTab.tsx": [
+58,
+115
+],
+"console:src/views/account/ResetPasswordView/ResetPasswordView.tsx": [
+26,
+47,
+82
 ],
 "console:src/views/ActionsView/ActionBoxes.tsx": [
 108,
@@ -124,6 +133,109 @@
 117,
 123
 ],
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
+66,
+328,
+377,
+383,
+399,
+424,
+436
+],
+"console:src/views/models/DatabrowserView/Cell.tsx": [
+375
+],
+"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
+224,
+326,
+364,
+371,
+375,
+390
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+275,
+279,
+419,
+428
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
+215
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+188,
+707
+],
+"console:src/views/models/DatabrowserView/NewRow.tsx": [
+180
+],
+"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
+108,
+114,
+120,
+126,
+199,
+250,
+255
+],
+"console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
+245,
+249,
+261,
+265
+],
+"console:src/views/models/FieldPopup/BaseSettings.tsx": [
+143,
+325
+],
+"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
+224,
+258
+],
+"console:src/views/models/FieldPopup/Constraints.tsx": [
+44,
+305,
+311
+],
+"console:src/views/models/FieldPopup/EditValueInput.tsx": [
+74,
+91,
+92,
+93,
+134,
+138,
+151,
+155
+],
+"console:src/views/models/FieldPopup/FieldLabel.tsx": [
+101,
+134,
+147,
+148,
+149,
+172,
+176
+],
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
+347,
+353,
+373,
+396,
+401,
+413,
+447,
+470,
+516,
+526
+],
+"console:src/views/models/ModelDescription.tsx": [
+58,
+68,
+73
+],
+"console:src/views/models/ModelHeader.tsx": [
+314
+],
 "console:src/views/PermissionsView/PermissionPopup/OperationChooser.tsx": [
 104
 ],
@@ -166,6 +278,9 @@
 390,
 401,
 411
+],
+"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
+160
 ],
 "console:src/views/ProjectRootView/AddModelPopup.tsx": [
 165
@@ -461,120 +576,5 @@
 54,
 55,
 56
-],
-"console:src/views/account/AccountView/SettingsTab.tsx": [
-58,
-115
-],
-"console:src/views/account/ResetPasswordView/ResetPasswordView.tsx": [
-26,
-47,
-82
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-66,
-328,
-377,
-383,
-399,
-424,
-436
-],
-"console:src/views/models/DatabrowserView/Cell.tsx": [
-375
-],
-"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
-224,
-326,
-364,
-371,
-375,
-390
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-275,
-279,
-419,
-428
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
-215
-],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-188,
-707
-],
-"console:src/views/models/DatabrowserView/NewRow.tsx": [
-180
-],
-"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
-108,
-114,
-120,
-126,
-199,
-250,
-255
-],
-"console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
-245,
-249,
-261,
-265
-],
-"console:src/views/models/FieldPopup/BaseSettings.tsx": [
-143,
-325
-],
-"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
-224,
-258
-],
-"console:src/views/models/FieldPopup/Constraints.tsx": [
-44,
-305,
-311
-],
-"console:src/views/models/FieldPopup/EditValueInput.tsx": [
-74,
-91,
-92,
-93,
-134,
-138,
-151,
-155
-],
-"console:src/views/models/FieldPopup/FieldLabel.tsx": [
-101,
-134,
-147,
-148,
-149,
-172,
-176
-],
-"console:src/views/models/FieldPopup/FieldPopup.tsx": [
-347,
-353,
-373,
-396,
-401,
-413,
-447,
-470,
-516,
-526
-],
-"console:src/views/models/ModelDescription.tsx": [
-58,
-68,
-73
-],
-"console:src/views/models/ModelHeader.tsx": [
-314
-],
-"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
-160
 ]
 }

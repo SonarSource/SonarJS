@@ -61,6 +61,12 @@
 482,
 545
 ],
+"ant-design:components/list/__tests__/empty.test.js": [
+7
+],
+"ant-design:components/list/__tests__/index.test.js": [
+20
+],
 "ant-design:components/list/__tests__/Item.test.js": [
 25,
 41,
@@ -71,12 +77,6 @@
 159,
 183,
 184
-],
-"ant-design:components/list/__tests__/empty.test.js": [
-7
-],
-"ant-design:components/list/__tests__/index.test.js": [
-20
 ],
 "ant-design:components/list/__tests__/loading.test.js": [
 13,

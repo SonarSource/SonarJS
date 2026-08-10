@@ -19,11 +19,11 @@
 "fireact:src/components/FirebaseAuth/index.js": [
 18
 ],
-"fireact:src/components/UserAvatar/index.js": [
-7
-],
 "fireact:src/components/routers/AuthRouter/index.js": [
 18
+],
+"fireact:src/components/UserAvatar/index.js": [
+7
 ],
 "fireact:src/pages/auth/accounts/AddUser/index.js": [
 133

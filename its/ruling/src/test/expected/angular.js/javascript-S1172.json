@@ -1,8 +1,4 @@
 {
-"angular.js:Gruntfile.js": [
-97,
-117
-],
 "angular.js:benchmarks/bootstrap-compile-bp/app.js": [
 18
 ],
@@ -76,6 +72,10 @@
 ],
 "angular.js:docs/config/tag-defs/tutorial-step.js": [
 5
+],
+"angular.js:Gruntfile.js": [
+97,
+117
 ],
 "angular.js:lib/grunt/utils.js": [
 292

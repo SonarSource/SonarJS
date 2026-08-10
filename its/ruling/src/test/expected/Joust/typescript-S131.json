@@ -18,9 +18,6 @@
 136,
 221
 ],
-"Joust:ts/components/LoadingScreen.tsx": [
-109
-],
 "Joust:ts/components/game/Card.tsx": [
 111,
 165,
@@ -41,6 +38,9 @@
 ],
 "Joust:ts/components/game/visuals/HeroArt.tsx": [
 81
+],
+"Joust:ts/components/LoadingScreen.tsx": [
+109
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 94

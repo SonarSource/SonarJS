@@ -32,16 +32,13 @@
 "reddit-mobile:index.js": [
 0
 ],
-"reddit-mobile:src/EUCountries.es6.js": [
-0
-],
 "reddit-mobile:src/config.es6.js": [
 0
 ],
 "reddit-mobile:src/constants.es6.js": [
 0
 ],
-"reddit-mobile:src/lib/TrackingPixel.es6.js": [
+"reddit-mobile:src/EUCountries.es6.js": [
 0
 ],
 "reddit-mobile:src/lib/errorLog.es6.js": [
@@ -69,6 +66,9 @@
 0
 ],
 "reddit-mobile:src/lib/titleCase.es6.js": [
+0
+],
+"reddit-mobile:src/lib/TrackingPixel.es6.js": [
 0
 ],
 "reddit-mobile:src/propTypes.es6.js": [

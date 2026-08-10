@@ -53,11 +53,11 @@
 "ant-design:components/list/index.tsx": [
 73
 ],
-"ant-design:components/menu/MenuItem.tsx": [
-40
-],
 "ant-design:components/menu/index.tsx": [
 48
+],
+"ant-design:components/menu/MenuItem.tsx": [
+40
 ],
 "ant-design:components/modal/ConfirmDialog.tsx": [
 18
@@ -82,9 +82,6 @@
 "ant-design:components/space/Item.tsx": [
 14
 ],
-"ant-design:components/table/Table.tsx": [
-108
-],
 "ant-design:components/table/hooks/useFilter/FilterDropdown.tsx": [
 122
 ],
@@ -94,6 +91,9 @@
 ],
 "ant-design:components/table/hooks/useSorter.tsx": [
 116
+],
+"ant-design:components/table/Table.tsx": [
+108
 ],
 "ant-design:components/tooltip/index.tsx": [
 130

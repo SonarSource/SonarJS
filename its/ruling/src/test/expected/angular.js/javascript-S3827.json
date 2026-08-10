@@ -35,6 +35,9 @@
 "angular.js:docs/app/test/errorsSpec.js": [
 16
 ],
+"angular.js:src/angular.bind.js": [
+11
+],
 "angular.js:src/Angular.js": [
 158,
 873,
@@ -76,9 +79,6 @@
 164,
 165,
 168
-],
-"angular.js:src/angular.bind.js": [
-11
 ],
 "angular.js:src/apis.js": [
 27,

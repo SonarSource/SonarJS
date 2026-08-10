@@ -1,7 +1,4 @@
 {
-"jquery:Gruntfile.js": [
-174
-],
 "jquery:build/tasks/dist.js": [
 46,
 48,
@@ -9,6 +6,9 @@
 ],
 "jquery:build/tasks/testswarm.js": [
 20
+],
+"jquery:Gruntfile.js": [
+174
 ],
 "jquery:src/ajax.js": [
 741,

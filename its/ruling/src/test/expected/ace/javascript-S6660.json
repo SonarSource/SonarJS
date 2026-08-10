@@ -35,6 +35,9 @@
 "ace:src/ext/rtl.js": [
 77
 ],
+"ace:src/keyboard/vim_test.js": [
+4794
+],
 "ace:src/keyboard/vim.js": [
 2301,
 2419,
@@ -46,9 +49,6 @@
 5685,
 5915,
 6269
-],
-"ace:src/keyboard/vim_test.js": [
-4794
 ],
 "ace:src/keyboard/vscode.js": [
 32,

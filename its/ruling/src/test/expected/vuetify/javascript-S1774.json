@@ -6,9 +6,6 @@
 18,
 37
 ],
-"vuetify:packages/docs/src/components/app/Figure.vue": [
-29
-],
 "vuetify:packages/docs/src/components/app/bar/JobsLink.vue": [
 43
 ],
@@ -18,6 +15,9 @@
 "vuetify:packages/docs/src/components/app/bar/ThemeToggle.vue": [
 24,
 31
+],
+"vuetify:packages/docs/src/components/app/Figure.vue": [
+29
 ],
 "vuetify:packages/docs/src/components/doc/UpNext.vue": [
 78,

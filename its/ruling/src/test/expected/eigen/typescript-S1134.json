@@ -18,6 +18,9 @@
 "eigen:src/app/Components/LotsByArtistsYouFollowRail/LotsByFollowedArtistsRail.tsx": [
 43
 ],
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+73
+],
 "eigen:src/app/Scenes/Artwork/Components/CreateArtworkAlertButtonsSection.tsx": [
 26
 ],
@@ -102,9 +105,6 @@
 ],
 "eigen:src/app/Scenes/ViewingRoom/ViewingRoomArtworks.tsx": [
 116
-],
-"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
-73
 ],
 "eigen:src/app/tests/MockRelayRendererFixtures.tsx": [
 32

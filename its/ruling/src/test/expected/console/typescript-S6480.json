@@ -19,6 +19,9 @@
 92,
 93
 ],
+"console:src/components/onboarding/Steps.tsx": [
+79
+],
 "console:src/components/PopupHeader.tsx": [
 85
 ],
@@ -28,20 +31,17 @@
 321,
 411
 ],
-"console:src/components/onboarding/Steps.tsx": [
-79
-],
 "console:src/routes.tsx": [
 156,
 157
-],
-"console:src/views/ActionsView/ActionTriggerBox.tsx": [
-37
 ],
 "console:src/views/ActionsView/ActionsView.tsx": [
 77,
 85,
 92
+],
+"console:src/views/ActionsView/ActionTriggerBox.tsx": [
+37
 ],
 "console:src/views/AuthView/AuthView.tsx": [
 25
@@ -69,6 +69,80 @@
 "console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupFooter.tsx": [
 38
 ],
+"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
+162
+],
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
+215,
+216,
+227,
+228,
+267,
+268,
+279,
+280,
+291,
+292
+],
+"console:src/views/models/DatabrowserView/AddFieldCell.tsx": [
+18
+],
+"console:src/views/models/DatabrowserView/Cell.tsx": [
+374,
+379
+],
+"console:src/views/models/DatabrowserView/Cell/BooleanCell.tsx": [
+14
+],
+"console:src/views/models/DatabrowserView/Cell/cellgenerator.tsx": [
+61
+],
+"console:src/views/models/DatabrowserView/Cell/DateTimeCell.tsx": [
+24,
+25,
+30
+],
+"console:src/views/models/DatabrowserView/Cell/EnumCell.tsx": [
+40,
+42
+],
+"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
+200,
+248,
+275,
+297
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
+123
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+278,
+332,
+333,
+335,
+339,
+340,
+341,
+489,
+511,
+538,
+539,
+553,
+554
+],
+"console:src/views/models/DatabrowserView/HeaderCell.tsx": [
+81
+],
+"console:src/views/models/DatabrowserView/NewRow.tsx": [
+154
+],
+"console:src/views/models/FieldPopup/BaseSettings.tsx": [
+143,
+227
+],
+"console:src/views/models/FieldPopup/FieldPopupHeader.tsx": [
+56
+],
 "console:src/views/PermissionsView/PermissionPopup/AffectedFields.tsx": [
 113
 ],
@@ -90,6 +164,13 @@
 ],
 "console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopupHeader.tsx": [
 85
+],
+"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopup.tsx": [
+42
+],
+"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupCode.tsx": [
+38,
+52
 ],
 "console:src/views/ProjectRootView/AddModelPopup.tsx": [
 138,
@@ -152,86 +233,5 @@
 "console:src/views/Settings/Team/EmptyRow.tsx": [
 94,
 105
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
-162
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-215,
-216,
-227,
-228,
-267,
-268,
-279,
-280,
-291,
-292
-],
-"console:src/views/models/DatabrowserView/AddFieldCell.tsx": [
-18
-],
-"console:src/views/models/DatabrowserView/Cell.tsx": [
-374,
-379
-],
-"console:src/views/models/DatabrowserView/Cell/BooleanCell.tsx": [
-14
-],
-"console:src/views/models/DatabrowserView/Cell/DateTimeCell.tsx": [
-24,
-25,
-30
-],
-"console:src/views/models/DatabrowserView/Cell/EnumCell.tsx": [
-40,
-42
-],
-"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
-200,
-248,
-275,
-297
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
-123
-],
-"console:src/views/models/DatabrowserView/Cell/cellgenerator.tsx": [
-61
-],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-278,
-332,
-333,
-335,
-339,
-340,
-341,
-489,
-511,
-538,
-539,
-553,
-554
-],
-"console:src/views/models/DatabrowserView/HeaderCell.tsx": [
-81
-],
-"console:src/views/models/DatabrowserView/NewRow.tsx": [
-154
-],
-"console:src/views/models/FieldPopup/BaseSettings.tsx": [
-143,
-227
-],
-"console:src/views/models/FieldPopup/FieldPopupHeader.tsx": [
-56
-],
-"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopup.tsx": [
-42
-],
-"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupCode.tsx": [
-38,
-52
 ]
 }

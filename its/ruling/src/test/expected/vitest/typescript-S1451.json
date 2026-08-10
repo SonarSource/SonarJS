@@ -254,10 +254,10 @@
 "vitest:packages/browser/src/client/tester/expect/toBeInTheDocument.ts": [
 0
 ],
-"vitest:packages/browser/src/client/tester/expect/toBeInViewport.ts": [
+"vitest:packages/browser/src/client/tester/expect/toBeInvalid.ts": [
 0
 ],
-"vitest:packages/browser/src/client/tester/expect/toBeInvalid.ts": [
+"vitest:packages/browser/src/client/tester/expect/toBeInViewport.ts": [
 0
 ],
 "vitest:packages/browser/src/client/tester/expect/toBePartiallyChecked.ts": [
@@ -596,16 +596,16 @@
 "vitest:packages/pretty-format/src/plugins/Immutable.ts": [
 0
 ],
-"vitest:packages/pretty-format/src/plugins/ReactElement.ts": [
-0
-],
-"vitest:packages/pretty-format/src/plugins/ReactTestComponent.ts": [
-0
-],
 "vitest:packages/pretty-format/src/plugins/lib/escapeHTML.ts": [
 0
 ],
 "vitest:packages/pretty-format/src/plugins/lib/markup.ts": [
+0
+],
+"vitest:packages/pretty-format/src/plugins/ReactElement.ts": [
+0
+],
+"vitest:packages/pretty-format/src/plugins/ReactTestComponent.ts": [
 0
 ],
 "vitest:packages/pretty-format/src/types.ts": [
@@ -725,6 +725,39 @@
 "vitest:packages/ui/client/components/AnnotationAttachmentImage.vue": [
 0
 ],
+"vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/ArtifactTemplate.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.spec.ts": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabsPane.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegression.spec.ts": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegression.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionImage.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionImageContainer.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.spec.ts": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.vue": [
+0
+],
 "vitest:packages/ui/client/components/Badge.vue": [
 0
 ],
@@ -746,7 +779,31 @@
 "vitest:packages/ui/client/components/Dashboard.vue": [
 0
 ],
+"vitest:packages/ui/client/components/dashboard/DashboardEntry.spec.ts": [
+0
+],
+"vitest:packages/ui/client/components/dashboard/DashboardEntry.vue": [
+0
+],
+"vitest:packages/ui/client/components/dashboard/ErrorEntry.vue": [
+0
+],
+"vitest:packages/ui/client/components/dashboard/TestFilesEntry.vue": [
+0
+],
+"vitest:packages/ui/client/components/dashboard/TestsEntry.vue": [
+0
+],
+"vitest:packages/ui/client/components/dashboard/TestsFilesContainer.vue": [
+0
+],
 "vitest:packages/ui/client/components/DetailsHeaderButtons.vue": [
+0
+],
+"vitest:packages/ui/client/components/explorer/Explorer.vue": [
+0
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
 0
 ],
 "vitest:packages/ui/client/components/FailureScreenshot.vue": [
@@ -783,63 +840,6 @@
 0
 ],
 "vitest:packages/ui/client/components/StatusIcon.vue": [
-0
-],
-"vitest:packages/ui/client/components/artifacts/ArtifactTemplate.vue": [
-0
-],
-"vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
-0
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.spec.ts": [
-0
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.vue": [
-0
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabsPane.vue": [
-0
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegression.spec.ts": [
-0
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegression.vue": [
-0
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionImage.vue": [
-0
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionImageContainer.vue": [
-0
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.spec.ts": [
-0
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.vue": [
-0
-],
-"vitest:packages/ui/client/components/dashboard/DashboardEntry.spec.ts": [
-0
-],
-"vitest:packages/ui/client/components/dashboard/DashboardEntry.vue": [
-0
-],
-"vitest:packages/ui/client/components/dashboard/ErrorEntry.vue": [
-0
-],
-"vitest:packages/ui/client/components/dashboard/TestFilesEntry.vue": [
-0
-],
-"vitest:packages/ui/client/components/dashboard/TestsEntry.vue": [
-0
-],
-"vitest:packages/ui/client/components/dashboard/TestsFilesContainer.vue": [
-0
-],
-"vitest:packages/ui/client/components/explorer/Explorer.vue": [
-0
-],
-"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
 0
 ],
 "vitest:packages/ui/client/components/views/ScreenshotError.vue": [
@@ -1559,9 +1559,6 @@
 "vitest:packages/vitest/src/runtime/runBaseTests.ts": [
 0
 ],
-"vitest:packages/vitest/src/runtime/runVmTests.ts": [
-0
-],
 "vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
 0
 ],
@@ -1569,6 +1566,9 @@
 0
 ],
 "vitest:packages/vitest/src/runtime/runners/test.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/runVmTests.ts": [
 0
 ],
 "vitest:packages/vitest/src/runtime/setup-common.ts": [

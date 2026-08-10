@@ -46,8 +46,38 @@
 "console:src/views/FunctionsView/FunctionPopup/TestPopup.tsx": [
 272
 ],
-"console:src/views/PermissionsView/PermissionPopup/PermissionPopupState.ts": [
-11
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
+348
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+255,
+298,
+400
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
+195
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+146
+],
+"console:src/views/models/FieldPopup/BaseSettings.tsx": [
+273,
+273,
+273,
+273,
+273,
+273
+],
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
+514
+],
+"console:src/views/models/FieldPopup/FieldPopupState.ts": [
+29,
+278,
+279
+],
+"console:src/views/models/utils.ts": [
+69
 ],
 "console:src/views/PermissionsView/PermissionPopup/ast.ts": [
 9,
@@ -55,6 +85,9 @@
 66,
 98,
 102
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionPopupState.ts": [
+11
 ],
 "console:src/views/PermissionsView/PermissionsList/ModelPermissions/ModelPermissionsHeader.tsx": [
 21
@@ -90,38 +123,5 @@
 ],
 "console:src/views/Settings/Team/Team.tsx": [
 33
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-348
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-255,
-298,
-400
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
-195
-],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-146
-],
-"console:src/views/models/FieldPopup/BaseSettings.tsx": [
-273,
-273,
-273,
-273,
-273,
-273
-],
-"console:src/views/models/FieldPopup/FieldPopup.tsx": [
-514
-],
-"console:src/views/models/FieldPopup/FieldPopupState.ts": [
-29,
-278,
-279
-],
-"console:src/views/models/utils.ts": [
-69
 ]
 }

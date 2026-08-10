@@ -24,18 +24,6 @@
 "console:src/components/ToggleButton/ToggleButton.tsx": [
 59
 ],
-"console:src/views/ProjectRootView/AddModelPopup.tsx": [
-139
-],
-"console:src/views/ProjectRootView/EditModelPopup.tsx": [
-145
-],
-"console:src/views/ProjectSettingsView/ProjectSettingsView.tsx": [
-82
-],
-"console:src/views/RootView/RootView.tsx": [
-50
-],
 "console:src/views/models/DatabrowserView/Cell.tsx": [
 116
 ],
@@ -54,5 +42,17 @@
 "console:src/views/models/DatabrowserView/Cell/StringCell.tsx": [
 49,
 71
+],
+"console:src/views/ProjectRootView/AddModelPopup.tsx": [
+139
+],
+"console:src/views/ProjectRootView/EditModelPopup.tsx": [
+145
+],
+"console:src/views/ProjectSettingsView/ProjectSettingsView.tsx": [
+82
+],
+"console:src/views/RootView/RootView.tsx": [
+50
 ]
 }

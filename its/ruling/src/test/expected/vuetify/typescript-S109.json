@@ -16,13 +16,6 @@
 "vuetify:packages/docs/src/components/app/Banner.vue": [
 93
 ],
-"vuetify:packages/docs/src/components/app/Markup.vue": [
-135
-],
-"vuetify:packages/docs/src/components/app/Toc.vue": [
-132,
-200
-],
 "vuetify:packages/docs/src/components/app/bar/NotificationsMenu.vue": [
 166,
 166,
@@ -30,6 +23,13 @@
 ],
 "vuetify:packages/docs/src/components/app/list/List.vue": [
 68
+],
+"vuetify:packages/docs/src/components/app/Markup.vue": [
+135
+],
+"vuetify:packages/docs/src/components/app/Toc.vue": [
+132,
+200
 ],
 "vuetify:packages/docs/src/components/introduction/EnterpriseForm.vue": [
 191
@@ -60,6 +60,15 @@
 150,
 152
 ],
+"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
+41,
+50,
+71,
+81,
+141,
+142,
+142
+],
 "vuetify:packages/vuetify/src/components/VBadge/VBadge.tsx": [
 72
 ],
@@ -80,15 +89,15 @@
 "vuetify:packages/vuetify/src/components/VMenu/VMenu.tsx": [
 70
 ],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
-183
-],
 "vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts": [
 111,
 112,
 117,
 150,
 151
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
+183
 ],
 "vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
 160,
@@ -106,15 +115,6 @@
 "vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 104
 ],
-"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
-41,
-50,
-71,
-81,
-141,
-142,
-142
-],
 "vuetify:packages/vuetify/src/composables/layout.ts": [
 291
 ],
@@ -131,11 +131,11 @@
 141,
 155
 ],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
-57
-],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/virtual.ts": [
 75
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
+57
 ],
 "vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScroll.tsx": [
 74,

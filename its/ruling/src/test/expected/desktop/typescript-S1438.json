@@ -316,13 +316,13 @@
 660,
 661
 ],
+"desktop:app/src/lib/__mocks__/window-state.ts": [
+1
+],
 "desktop:app/src/lib/2fa.ts": [
 2,
 4,
 25
-],
-"desktop:app/src/lib/__mocks__/window-state.ts": [
-1
 ],
 "desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
 20,

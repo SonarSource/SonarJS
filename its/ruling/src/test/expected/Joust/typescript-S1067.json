@@ -1,7 +1,4 @@
 {
-"Joust:ts/Entity.ts": [
-122
-],
 "Joust:ts/components/EventLog.tsx": [
 32,
 74
@@ -10,9 +7,6 @@
 28,
 174,
 212
-],
-"Joust:ts/components/Scrubber.tsx": [
-81
 ],
 "Joust:ts/components/game/Card.tsx": [
 29
@@ -34,6 +28,12 @@
 ],
 "Joust:ts/components/game/visuals/InPlayCardArt.tsx": [
 10
+],
+"Joust:ts/components/Scrubber.tsx": [
+81
+],
+"Joust:ts/Entity.ts": [
+122
 ],
 "Joust:ts/state/plugins/CoinDetector.ts": [
 28

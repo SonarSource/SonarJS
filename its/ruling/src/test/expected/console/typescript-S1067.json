@@ -9,6 +9,21 @@
 231,
 305
 ],
+"console:src/views/models/DatabrowserView/Cell.tsx": [
+361
+],
+"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
+69
+],
+"console:src/views/models/FieldPopup/FieldLabel.tsx": [
+115
+],
+"console:src/views/models/FieldPopup/FieldPopupFooter.tsx": [
+203
+],
+"console:src/views/models/FieldPopup/FieldPopupState.ts": [
+61
+],
 "console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
 233
 ],
@@ -40,20 +55,5 @@
 ],
 "console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
 478
-],
-"console:src/views/models/DatabrowserView/Cell.tsx": [
-361
-],
-"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
-69
-],
-"console:src/views/models/FieldPopup/FieldLabel.tsx": [
-115
-],
-"console:src/views/models/FieldPopup/FieldPopupFooter.tsx": [
-203
-],
-"console:src/views/models/FieldPopup/FieldPopupState.ts": [
-61
 ]
 }

@@ -189,13 +189,6 @@
 499,
 500
 ],
-"vitest:packages/ui/client/components/FailureScreenshot.vue": [
-17,
-17
-],
-"vitest:packages/ui/client/components/ModuleTransformResultView.vue": [
-85
-],
 "vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
 17
 ],
@@ -206,6 +199,13 @@
 "vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
 78,
 93
+],
+"vitest:packages/ui/client/components/FailureScreenshot.vue": [
+17,
+17
+],
+"vitest:packages/ui/client/components/ModuleTransformResultView.vue": [
+85
 ],
 "vitest:packages/ui/client/components/views/ViewEditor.vue": [
 94,

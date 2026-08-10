@@ -1,8 +1,8 @@
 {
-"sizzle:Gruntfile.js": [
+"sizzle:build/release.js": [
 4
 ],
-"sizzle:build/release.js": [
+"sizzle:Gruntfile.js": [
 4
 ],
 "sizzle:tasks/commit.js": [

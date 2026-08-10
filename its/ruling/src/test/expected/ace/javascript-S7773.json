@@ -114,14 +114,14 @@
 223,
 224
 ],
-"ace:src/keyboard/textinput.js": [
-586,
-587
-],
 "ace:src/keyboard/textinput_test.js": [
 194,
 195,
 196
+],
+"ace:src/keyboard/textinput.js": [
+586,
+587
 ],
 "ace:src/keyboard/vim.js": [
 1927,

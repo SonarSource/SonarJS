@@ -38,6 +38,9 @@
 "jira-clone:api/src/entities/Comment.ts": [
 0
 ],
+"jira-clone:api/src/entities/index.ts": [
+0
+],
 "jira-clone:api/src/entities/Issue.ts": [
 0
 ],
@@ -45,9 +48,6 @@
 0
 ],
 "jira-clone:api/src/entities/User.ts": [
-0
-],
-"jira-clone:api/src/entities/index.ts": [
 0
 ],
 "jira-clone:api/src/errors/asyncCatch.ts": [

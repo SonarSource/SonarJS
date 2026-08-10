@@ -11,19 +11,6 @@
 116,
 135
 ],
-"Joust:ts/components/GameWidget.tsx": [
-214
-],
-"Joust:ts/components/GameWrapper.tsx": [
-53
-],
-"Joust:ts/components/Scrubber.tsx": [
-112,
-225
-],
-"Joust:ts/components/Turn.tsx": [
-15
-],
 "Joust:ts/components/game/Card.tsx": [
 42,
 265
@@ -47,6 +34,19 @@
 ],
 "Joust:ts/components/game/visuals/InPlayCardArt.tsx": [
 20
+],
+"Joust:ts/components/GameWidget.tsx": [
+214
+],
+"Joust:ts/components/GameWrapper.tsx": [
+53
+],
+"Joust:ts/components/Scrubber.tsx": [
+112,
+225
+],
+"Joust:ts/components/Turn.tsx": [
+15
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 88,

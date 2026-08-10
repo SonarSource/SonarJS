@@ -14,6 +14,12 @@
 "eigen:src/app/Components/ReadMore.tsx": [
 4
 ],
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+5
+],
+"eigen:src/app/relay/RelayCache.ts": [
+2
+],
 "eigen:src/app/Scenes/Articles/ArticlesList.tsx": [
 11
 ],
@@ -41,12 +47,6 @@
 "eigen:src/app/Scenes/ViewingRoom/ViewingRoomsList.tsx": [
 10
 ],
-"eigen:src/app/relay/RelayCache.ts": [
-2
-],
-"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
-5
-],
 "eigen:src/app/store/migration.tests.ts": [
 2
 ],
@@ -56,9 +56,6 @@
 "eigen:src/app/utils/sendEmail.ts": [
 1
 ],
-"eigen:src/palette/Theme.tsx": [
-2
-],
 "eigen:src/palette/elements/Input/Input.tsx": [
 3
 ],
@@ -67,5 +64,8 @@
 ],
 "eigen:src/palette/elements/Text/index.tsx": [
 1
+],
+"eigen:src/palette/Theme.tsx": [
+2
 ]
 }

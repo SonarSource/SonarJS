@@ -71,6 +71,11 @@
 "courselit:packages/rich-text/src/EditorWithToolbar.js": [
 212
 ],
+"courselit:packages/rich-text/src/index.js": [
+11,
+40,
+57
+],
 "courselit:packages/rich-text/src/Renderers/Blockquote.js": [
 10
 ],
@@ -80,11 +85,6 @@
 "courselit:packages/rich-text/src/Renderers/Media.js": [
 42,
 44
-],
-"courselit:packages/rich-text/src/index.js": [
-11,
-40,
-57
 ],
 "courselit:packages/rich-text/src/styles.js": [
 10,
@@ -122,15 +122,15 @@
 151,
 155
 ],
-"courselit:packages/widget-buttondown/src/Widget.js": [
-116,
-120
-],
 "courselit:packages/widget-buttondown/src/index.js": [
 8
 ],
 "courselit:packages/widget-buttondown/src/metadata.js": [
 6
+],
+"courselit:packages/widget-buttondown/src/Widget.js": [
+116,
+120
 ],
 "courselit:packages/widget-buttondown/webpack.config.js": [
 11,

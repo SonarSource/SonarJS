@@ -8,11 +8,11 @@
 "console:src/views/Integrations/Algolia/AlgoliaHeader.tsx": [
 42
 ],
-"console:src/views/ProjectRootView/OnboardSideNav.tsx": [
-95
-],
 "console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
 134,
 151
+],
+"console:src/views/ProjectRootView/OnboardSideNav.tsx": [
+95
 ]
 }

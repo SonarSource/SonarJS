@@ -1,10 +1,4 @@
 {
-"Joust:ts/components/Scrubber.tsx": [
-284
-],
-"Joust:ts/components/SetupWidget.tsx": [
-51
-],
 "Joust:ts/components/game/EntityInPlay.tsx": [
 111,
 112
@@ -15,6 +9,12 @@
 "Joust:ts/components/game/Player.tsx": [
 61,
 270
+],
+"Joust:ts/components/Scrubber.tsx": [
+284
+],
+"Joust:ts/components/SetupWidget.tsx": [
+51
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 323

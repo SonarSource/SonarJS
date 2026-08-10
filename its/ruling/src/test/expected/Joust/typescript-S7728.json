@@ -2,9 +2,6 @@
 "Joust:tests.webpack.ts": [
 2
 ],
-"Joust:ts/Launcher.tsx": [
-312
-],
 "Joust:ts/components/EventLog.tsx": [
 52,
 130,
@@ -15,10 +12,6 @@
 189,
 194,
 221
-],
-"Joust:ts/components/GameWidget.tsx": [
-172,
-205
 ],
 "Joust:ts/components/game/Card.tsx": [
 347
@@ -46,6 +39,13 @@
 123,
 157,
 240
+],
+"Joust:ts/components/GameWidget.tsx": [
+172,
+205
+],
+"Joust:ts/Launcher.tsx": [
+312
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 203,

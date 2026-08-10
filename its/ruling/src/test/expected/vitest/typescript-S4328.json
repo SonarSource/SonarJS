@@ -2,6 +2,23 @@
 "vitest:packages/ui/client/components/AnnotationAttachmentImage.vue": [
 4
 ],
+"vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
+5
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.vue": [
+2,
+4
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabsPane.vue": [
+2,
+4
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionImage.vue": [
+4
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.vue": [
+4
+],
 "vitest:packages/ui/client/components/BrowserIframe.vue": [
 2,
 5,
@@ -25,9 +42,37 @@
 2,
 3
 ],
+"vitest:packages/ui/client/components/dashboard/TestFilesEntry.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/dashboard/TestsEntry.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/dashboard/TestsFilesContainer.vue": [
+2,
+3
+],
 "vitest:packages/ui/client/components/DetailsHeaderButtons.vue": [
 2,
 3
+],
+"vitest:packages/ui/client/components/explorer/Explorer.vue": [
+8,
+9,
+10,
+11
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+3,
+6,
+7,
+8,
+9,
+10,
+11,
+12
 ],
 "vitest:packages/ui/client/components/FailureScreenshot.vue": [
 4,
@@ -67,51 +112,6 @@
 "vitest:packages/ui/client/components/ProgressBar.vue": [
 4,
 5
-],
-"vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
-5
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.vue": [
-2,
-4
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabsPane.vue": [
-2,
-4
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionImage.vue": [
-4
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.vue": [
-4
-],
-"vitest:packages/ui/client/components/dashboard/TestFilesEntry.vue": [
-2,
-3
-],
-"vitest:packages/ui/client/components/dashboard/TestsEntry.vue": [
-2,
-3
-],
-"vitest:packages/ui/client/components/dashboard/TestsFilesContainer.vue": [
-2,
-3
-],
-"vitest:packages/ui/client/components/explorer/Explorer.vue": [
-8,
-9,
-10,
-11
-],
-"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
-3,
-6,
-7,
-8,
-9,
-10,
-11,
-12
 ],
 "vitest:packages/ui/client/components/views/ViewConsoleOutput.vue": [
 4,

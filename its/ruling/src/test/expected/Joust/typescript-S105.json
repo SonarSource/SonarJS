@@ -5,24 +5,6 @@
 "Joust:ts/Choices.ts": [
 6
 ],
-"Joust:ts/Entity.ts": [
-5
-],
-"Joust:ts/Launcher.tsx": [
-16
-],
-"Joust:ts/MetaData.ts": [
-5
-],
-"Joust:ts/Option.ts": [
-3
-],
-"Joust:ts/Player.ts": [
-6
-],
-"Joust:ts/TexturePreloader.ts": [
-6
-],
 "Joust:ts/components/DebugApplication.tsx": [
 11
 ],
@@ -33,42 +15,6 @@
 5
 ],
 "Joust:ts/components/EventLogLine.tsx": [
-6
-],
-"Joust:ts/components/GameWidget.tsx": [
-14
-],
-"Joust:ts/components/GameWrapper.tsx": [
-4
-],
-"Joust:ts/components/LoadingScreen.tsx": [
-5
-],
-"Joust:ts/components/LocaleSelector.tsx": [
-5
-],
-"Joust:ts/components/MessagePicker.tsx": [
-4
-],
-"Joust:ts/components/Scrubber.tsx": [
-11
-],
-"Joust:ts/components/Settings.tsx": [
-5
-],
-"Joust:ts/components/SetupWidget.tsx": [
-16
-],
-"Joust:ts/components/SpeedSelector.tsx": [
-5
-],
-"Joust:ts/components/Timeline.tsx": [
-8
-],
-"Joust:ts/components/Tooltipper.tsx": [
-5
-],
-"Joust:ts/components/Turn.tsx": [
 6
 ],
 "Joust:ts/components/game/Card.tsx": [
@@ -107,12 +53,6 @@
 "Joust:ts/components/game/Player.tsx": [
 20
 ],
-"Joust:ts/components/game/TwoPlayerGame.tsx": [
-5
-],
-"Joust:ts/components/game/Weapon.tsx": [
-12
-],
 "Joust:ts/components/game/stats/Armor.tsx": [
 4
 ],
@@ -137,6 +77,9 @@
 "Joust:ts/components/game/stats/SecretText.tsx": [
 4
 ],
+"Joust:ts/components/game/TwoPlayerGame.tsx": [
+5
+],
 "Joust:ts/components/game/visuals/CardArt.tsx": [
 6
 ],
@@ -158,8 +101,62 @@
 "Joust:ts/components/game/visuals/WeaponArt.tsx": [
 9
 ],
+"Joust:ts/components/game/Weapon.tsx": [
+12
+],
+"Joust:ts/components/GameWidget.tsx": [
+14
+],
+"Joust:ts/components/GameWrapper.tsx": [
+4
+],
+"Joust:ts/components/LoadingScreen.tsx": [
+5
+],
+"Joust:ts/components/LocaleSelector.tsx": [
+5
+],
+"Joust:ts/components/MessagePicker.tsx": [
+4
+],
+"Joust:ts/components/Scrubber.tsx": [
+11
+],
+"Joust:ts/components/Settings.tsx": [
+5
+],
+"Joust:ts/components/SetupWidget.tsx": [
+16
+],
+"Joust:ts/components/SpeedSelector.tsx": [
+5
+],
+"Joust:ts/components/Timeline.tsx": [
+8
+],
+"Joust:ts/components/Tooltipper.tsx": [
+5
+],
+"Joust:ts/components/Turn.tsx": [
+6
+],
 "Joust:ts/debug.tsx": [
 7
+],
+"Joust:ts/Entity.ts": [
+5
+],
+"Joust:ts/Launcher.tsx": [
+16
+],
+"Joust:ts/MetaData.ts": [
+5
+],
+"Joust:ts/Option.ts": [
+3
+],
+"Joust:ts/Player.ts": [
+6
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 28
@@ -244,5 +241,8 @@
 ],
 "Joust:ts/state/plugins/Timer.ts": [
 19
+],
+"Joust:ts/TexturePreloader.ts": [
+6
 ]
 }

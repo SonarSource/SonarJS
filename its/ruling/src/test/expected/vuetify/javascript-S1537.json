@@ -79,38 +79,6 @@
 "vuetify:packages/docs/src/components/app/BackToTop.vue": [
 37
 ],
-"vuetify:packages/docs/src/components/app/Btn.vue": [
-31,
-32
-],
-"vuetify:packages/docs/src/components/app/Caption.vue": [
-14,
-15
-],
-"vuetify:packages/docs/src/components/app/Figure.vue": [
-26,
-34
-],
-"vuetify:packages/docs/src/components/app/Heading.vue": [
-31,
-37
-],
-"vuetify:packages/docs/src/components/app/Headline.vue": [
-18,
-22,
-26,
-30,
-31
-],
-"vuetify:packages/docs/src/components/app/Markdown.vue": [
-16,
-44,
-101,
-103
-],
-"vuetify:packages/docs/src/components/app/Table.vue": [
-13
-],
 "vuetify:packages/docs/src/components/app/bar/EcosystemMenu.vue": [
 32,
 37,
@@ -155,8 +123,37 @@
 "vuetify:packages/docs/src/components/app/bar/TeamLink.vue": [
 27
 ],
+"vuetify:packages/docs/src/components/app/Btn.vue": [
+31,
+32
+],
+"vuetify:packages/docs/src/components/app/Caption.vue": [
+14,
+15
+],
 "vuetify:packages/docs/src/components/app/drawer/Drawer.vue": [
 65
+],
+"vuetify:packages/docs/src/components/app/Figure.vue": [
+26,
+34
+],
+"vuetify:packages/docs/src/components/app/Heading.vue": [
+31,
+37
+],
+"vuetify:packages/docs/src/components/app/Headline.vue": [
+18,
+22,
+26,
+30,
+31
+],
+"vuetify:packages/docs/src/components/app/Markdown.vue": [
+16,
+44,
+101,
+103
 ],
 "vuetify:packages/docs/src/components/app/settings/Api.vue": [
 19,
@@ -167,6 +164,9 @@
 19,
 23,
 24
+],
+"vuetify:packages/docs/src/components/app/Table.vue": [
+13
 ],
 "vuetify:packages/docs/src/components/doc/UpNext.vue": [
 79

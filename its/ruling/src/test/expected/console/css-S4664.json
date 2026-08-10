@@ -24,10 +24,6 @@
 "console:src/views/ActionsView/ActionsView.scss": [
 39
 ],
-"console:src/views/ProjectSettingsView/ProjectSettingsView.scss": [
-121,
-140
-],
 "console:src/views/models/DatabrowserView/DatabrowserView.scss": [
 71,
 90,
@@ -47,5 +43,9 @@
 "console:src/views/models/DatabrowserView/RelationsPopup.scss": [
 91,
 98
+],
+"console:src/views/ProjectSettingsView/ProjectSettingsView.scss": [
+121,
+140
 ]
 }

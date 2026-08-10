@@ -1,7 +1,4 @@
 {
-"jquery:Gruntfile.js": [
-1
-],
 "jquery:build/release.js": [
 1
 ],
@@ -39,6 +36,9 @@
 1
 ],
 "jquery:build/tasks/testswarm.js": [
+1
+],
+"jquery:Gruntfile.js": [
 1
 ],
 "jquery:src/wrapper.js": [

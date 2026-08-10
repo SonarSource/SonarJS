@@ -89,10 +89,10 @@
 "ag-grid:src/ts/entities/rowNode.ts": [
 0
 ],
-"ag-grid:src/ts/eventService.ts": [
+"ag-grid:src/ts/events.ts": [
 0
 ],
-"ag-grid:src/ts/events.ts": [
+"ag-grid:src/ts/eventService.ts": [
 0
 ],
 "ag-grid:src/ts/exportParams.ts": [
@@ -317,9 +317,6 @@
 "ag-grid:src/ts/rendering/cellRendererFactory.ts": [
 0
 ],
-"ag-grid:src/ts/rendering/cellRendererService.ts": [
-0
-],
 "ag-grid:src/ts/rendering/cellRenderers/animateShowChangeCellRenderer.ts": [
 0
 ],
@@ -330,6 +327,9 @@
 0
 ],
 "ag-grid:src/ts/rendering/cellRenderers/iCellRenderer.ts": [
+0
+],
+"ag-grid:src/ts/rendering/cellRendererService.ts": [
 0
 ],
 "ag-grid:src/ts/rendering/checkboxSelectionComponent.ts": [
@@ -377,6 +377,15 @@
 "ag-grid:src/ts/rowModels/iDatasource.ts": [
 0
 ],
+"ag-grid:src/ts/rowModels/infinite/infiniteBlock.ts": [
+0
+],
+"ag-grid:src/ts/rowModels/infinite/infiniteCache.ts": [
+0
+],
+"ag-grid:src/ts/rowModels/infinite/infiniteRowModel.ts": [
+0
+],
 "ag-grid:src/ts/rowModels/inMemory/filterStage.ts": [
 0
 ],
@@ -390,15 +399,6 @@
 0
 ],
 "ag-grid:src/ts/rowModels/inMemory/sortStage.ts": [
-0
-],
-"ag-grid:src/ts/rowModels/infinite/infiniteBlock.ts": [
-0
-],
-"ag-grid:src/ts/rowModels/infinite/infiniteCache.ts": [
-0
-],
-"ag-grid:src/ts/rowModels/infinite/infiniteRowModel.ts": [
 0
 ],
 "ag-grid:src/ts/rowModels/pagination/paginationComp.ts": [

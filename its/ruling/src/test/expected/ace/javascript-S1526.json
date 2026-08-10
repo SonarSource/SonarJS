@@ -1,7 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-514
-],
 "ace:demo/kitchen-sink/demo.js": [
 116,
 229,
@@ -88,18 +85,21 @@
 4671,
 4977
 ],
-"ace:lib/ace/worker/worker.js": [
-43
+"ace:lib/ace/worker/worker_client_v2.js": [
+242
 ],
 "ace:lib/ace/worker/worker_client.js": [
 227
 ],
-"ace:lib/ace/worker/worker_client_v2.js": [
-242
-],
 "ace:lib/ace/worker/worker_v2.js": [
 60,
 61
+],
+"ace:lib/ace/worker/worker.js": [
+43
+],
+"ace:Makefile.dryice.js": [
+514
 ],
 "ace:src/autocomplete.js": [
 261
@@ -111,22 +111,22 @@
 "ace:src/config.js": [
 126
 ],
+"ace:src/edit_session_test.js": [
+866,
+872
+],
 "ace:src/edit_session.js": [
 1717,
 1719,
 1795
 ],
-"ace:src/edit_session_test.js": [
-866,
-872
-],
-"ace:src/editor.js": [
-2809
-],
 "ace:src/editor_change_document_test.js": [
 65,
 95,
 114
+],
+"ace:src/editor.js": [
+2809
 ],
 "ace:src/ext/language_tools.js": [
 94,
@@ -147,6 +147,10 @@
 335,
 599
 ],
+"ace:src/keyboard/vim_test.js": [
+301,
+307
+],
 "ace:src/keyboard/vim.js": [
 91,
 830,
@@ -159,10 +163,6 @@
 1794,
 2478,
 2624
-],
-"ace:src/keyboard/vim_test.js": [
-301,
-307
 ],
 "ace:src/lib/event.js": [
 33
@@ -181,13 +181,13 @@
 "ace:src/mouse/dragdrop_handler.js": [
 102
 ],
+"ace:src/mouse/mouse_handler_test.js": [
+42
+],
 "ace:src/mouse/mouse_handler.js": [
 130,
 131,
 132
-],
-"ace:src/mouse/mouse_handler_test.js": [
-42
 ],
 "ace:src/mouse/multi_select_handler.js": [
 145

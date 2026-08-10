@@ -1,12 +1,4 @@
 {
-"p5.js:Gruntfile.js": [
-336,
-337,
-363,
-364,
-390,
-391
-],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 107,
 108,
@@ -45,6 +37,14 @@
 3351,
 3409,
 3411
+],
+"p5.js:Gruntfile.js": [
+336,
+337,
+363,
+364,
+390,
+391
 ],
 "p5.js:src/color/p5.Color.js": [
 658,

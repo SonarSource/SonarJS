@@ -48,15 +48,18 @@
 "jira-clone:client/src/Project/Board/IssueDetails/Styles.js": [
 38
 ],
-"jira-clone:client/src/Project/Board/IssueDetails/Title/Styles.js": [
-30
-],
 "jira-clone:client/src/Project/Board/IssueDetails/Title/index.jsx": [
 24
+],
+"jira-clone:client/src/Project/Board/IssueDetails/Title/Styles.js": [
+30
 ],
 "jira-clone:client/src/Project/Board/IssueDetails/Type/Styles.js": [
 10,
 20
+],
+"jira-clone:client/src/Project/Board/Lists/List/index.jsx": [
+66
 ],
 "jira-clone:client/src/Project/Board/Lists/List/Issue/Styles.js": [
 35,
@@ -65,9 +68,6 @@
 "jira-clone:client/src/Project/Board/Lists/List/Styles.js": [
 19,
 25
-],
-"jira-clone:client/src/Project/Board/Lists/List/index.jsx": [
-66
 ],
 "jira-clone:client/src/Project/IssueCreate/Styles.js": [
 12
@@ -153,19 +153,19 @@
 10,
 83
 ],
+"jira-clone:client/src/shared/components/Textarea/Styles.js": [
+17
+],
 "jira-clone:client/src/shared/components/TextEditedContent/Styles.js": [
 7
-],
-"jira-clone:client/src/shared/components/TextEditor/Styles.js": [
-16
 ],
 "jira-clone:client/src/shared/components/TextEditor/index.jsx": [
 78,
 78,
 78
 ],
-"jira-clone:client/src/shared/components/Textarea/Styles.js": [
-17
+"jira-clone:client/src/shared/components/TextEditor/Styles.js": [
+16
 ],
 "jira-clone:client/src/shared/utils/styles.js": [
 181

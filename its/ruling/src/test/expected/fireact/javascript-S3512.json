@@ -12,9 +12,6 @@
 "fireact:src/components/Loader/index.js": [
 10
 ],
-"fireact:src/components/UserAvatar/index.js": [
-4
-],
 "fireact:src/components/menus/AccountMenu/index.js": [
 24,
 33,
@@ -26,9 +23,8 @@
 "fireact:src/components/templates/AccountTemplate/index.js": [
 80
 ],
-"fireact:src/pages/auth/Home/index.js": [
-74,
-76
+"fireact:src/components/UserAvatar/index.js": [
+4
 ],
 "fireact:src/pages/auth/accounts/AddUser/index.js": [
 36,
@@ -41,6 +37,24 @@
 29,
 34,
 88
+],
+"fireact:src/pages/auth/accounts/images/ImageCreate.js": [
+37,
+53,
+58
+],
+"fireact:src/pages/auth/accounts/images/ImageEdit.js": [
+49,
+54,
+73,
+91
+],
+"fireact:src/pages/auth/accounts/images/ImageList.js": [
+15,
+66,
+104,
+148,
+167
 ],
 "fireact:src/pages/auth/accounts/NewAccount/index.js": [
 68
@@ -77,23 +91,9 @@
 110,
 137
 ],
-"fireact:src/pages/auth/accounts/images/ImageCreate.js": [
-37,
-53,
-58
-],
-"fireact:src/pages/auth/accounts/images/ImageEdit.js": [
-49,
-54,
-73,
-91
-],
-"fireact:src/pages/auth/accounts/images/ImageList.js": [
-15,
-66,
-104,
-148,
-167
+"fireact:src/pages/auth/Home/index.js": [
+74,
+76
 ],
 "fireact:src/pages/auth/user/Invite/index.js": [
 66

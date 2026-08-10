@@ -43,14 +43,14 @@
 9257,
 9475
 ],
+"ace:lib/ace/mode/javascript_worker.js": [
+118
+],
 "ace:lib/ace/mode/javascript/jshint.js": [
 94,
 11263,
 18045,
 18283
-],
-"ace:lib/ace/mode/javascript_worker.js": [
-118
 ],
 "ace:lib/ace/mode/xquery.js": [
 138
@@ -69,6 +69,11 @@
 ],
 "ace:src/document.js": [
 520
+],
+"ace:src/edit_session_test.js": [
+38,
+356,
+677
 ],
 "ace:src/edit_session.js": [
 332,
@@ -90,11 +95,6 @@
 378,
 669
 ],
-"ace:src/edit_session_test.js": [
-38,
-356,
-677
-],
 "ace:src/editor.js": [
 1710
 ],
@@ -107,6 +107,11 @@
 ],
 "ace:src/ext/options.js": [
 276
+],
+"ace:src/keyboard/vim_test.js": [
+156,
+296,
+5542
 ],
 "ace:src/keyboard/vim.js": [
 56,
@@ -125,11 +130,6 @@
 6163,
 6612,
 6852
-],
-"ace:src/keyboard/vim_test.js": [
-156,
-296,
-5542
 ],
 "ace:src/layer/decorators.js": [
 80,
@@ -176,12 +176,12 @@
 98,
 164
 ],
+"ace:src/mode/text_highlight_rules.js": [
+30
+],
 "ace:src/mode/text.js": [
 72,
 256
-],
-"ace:src/mode/text_highlight_rules.js": [
-30
 ],
 "ace:src/mode/vbscript.js": [
 38
@@ -193,13 +193,13 @@
 "ace:src/occur.js": [
 107
 ],
-"ace:src/search.js": [
-141,
-143
-],
 "ace:src/search_test.js": [
 440,
 449
+],
+"ace:src/search.js": [
+141,
+143
 ],
 "ace:src/snippets.js": [
 778,

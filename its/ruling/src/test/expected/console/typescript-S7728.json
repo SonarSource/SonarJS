@@ -21,6 +21,15 @@
 "console:src/utils/relay.ts": [
 42
 ],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+393
+],
+"console:src/views/models/FieldPopup/FieldPopupState.ts": [
+76
+],
+"console:src/views/models/utils.ts": [
+172
+],
 "console:src/views/PermissionsView/PermissionsList/ModelPermissions/ModelPermissionsHeader.tsx": [
 23
 ],
@@ -33,14 +42,5 @@
 "console:src/views/SchemaView/SchemaViewer.tsx": [
 55,
 62
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-393
-],
-"console:src/views/models/FieldPopup/FieldPopupState.ts": [
-76
-],
-"console:src/views/models/utils.ts": [
-172
 ]
 }

@@ -1,11 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-691,
-821,
-823,
-825,
-826
-],
 "ace:doc/site/js/main.js": [
 81
 ],
@@ -18,6 +11,10 @@
 9552,
 9778,
 9865
+],
+"ace:lib/ace/mode/javascript_worker.js": [
+50,
+65
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
 479,
@@ -38,10 +35,6 @@
 18360,
 18586,
 18673
-],
-"ace:lib/ace/mode/javascript_worker.js": [
-50,
-65
 ],
 "ace:lib/ace/mode/php/php.js": [
 194,
@@ -93,6 +86,13 @@
 3875,
 4185
 ],
+"ace:Makefile.dryice.js": [
+691,
+821,
+823,
+825,
+826
+],
 "ace:src/commands/default_commands.js": [
 427,
 435
@@ -121,14 +121,6 @@
 ],
 "ace:src/ext/searchbox.js": [
 35
-],
-"ace:src/keyboard/vim.js": [
-435,
-1297,
-2372,
-2372,
-4027,
-6290
 ],
 "ace:src/keyboard/vim_test.js": [
 2994,
@@ -187,6 +179,14 @@
 4650,
 4655,
 4660
+],
+"ace:src/keyboard/vim.js": [
+435,
+1297,
+2372,
+2372,
+4027,
+6290
 ],
 "ace:src/lib/lang.js": [
 102
@@ -388,14 +388,6 @@
 "ace:src/mode/behaviour/behaviour_test.js": [
 129
 ],
-"ace:src/mode/c9search_highlight_rules.js": [
-63,
-120,
-120,
-136,
-142,
-147
-],
 "ace:src/mode/c_cpp_highlight_rules.js": [
 8,
 75,
@@ -412,6 +404,14 @@
 168,
 173,
 178
+],
+"ace:src/mode/c9search_highlight_rules.js": [
+63,
+120,
+120,
+136,
+142,
+147
 ],
 "ace:src/mode/clojure_highlight_rules.js": [
 103,
@@ -569,9 +569,6 @@
 139,
 145
 ],
-"ace:src/mode/diff.js": [
-10
-],
 "ace:src/mode/diff_highlight_rules.js": [
 12,
 16,
@@ -582,6 +579,9 @@
 55,
 61,
 64
+],
+"ace:src/mode/diff.js": [
+10
 ],
 "ace:src/mode/django.js": [
 37,
@@ -953,10 +953,6 @@
 52,
 55
 ],
-"ace:src/mode/gherkin.js": [
-22,
-36
-],
 "ace:src/mode/gherkin_highlight_rules.js": [
 3,
 30,
@@ -968,6 +964,10 @@
 67,
 71,
 89
+],
+"ace:src/mode/gherkin.js": [
+22,
+36
 ],
 "ace:src/mode/gobstones_highlight_rules.js": [
 28,
@@ -1321,10 +1321,6 @@
 130,
 131
 ],
-"ace:src/mode/latex.js": [
-34,
-34
-],
 "ace:src/mode/latex_highlight_rules.js": [
 17,
 21,
@@ -1339,6 +1335,10 @@
 77,
 84,
 91
+],
+"ace:src/mode/latex.js": [
+34,
+34
 ],
 "ace:src/mode/latte_highlight_rules.js": [
 16,
@@ -1588,9 +1588,6 @@
 469,
 492
 ],
-"ace:src/mode/mushcode.js": [
-11
-],
 "ace:src/mode/mushcode_highlight_rules.js": [
 503,
 505,
@@ -1606,6 +1603,9 @@
 554,
 557,
 560
+],
+"ace:src/mode/mushcode.js": [
+11
 ],
 "ace:src/mode/mysql_highlight_rules.js": [
 53,
@@ -1758,10 +1758,6 @@
 64,
 89
 ],
-"ace:src/mode/perl.js": [
-13,
-13
-],
 "ace:src/mode/perl_highlight_rules.js": [
 53,
 57,
@@ -1778,6 +1774,10 @@
 101,
 111,
 121
+],
+"ace:src/mode/perl.js": [
+13,
+13
 ],
 "ace:src/mode/pgsql_highlight_rules.js": [
 420,
@@ -1811,9 +1811,6 @@
 575,
 576,
 577
-],
-"ace:src/mode/php.js": [
-30
 ],
 "ace:src/mode/php_completions.js": [
 58,
@@ -1870,9 +1867,8 @@
 145,
 153
 ],
-"ace:src/mode/powershell.js": [
-14,
-14
+"ace:src/mode/php.js": [
+30
 ],
 "ace:src/mode/powershell_highlight_rules.js": [
 198,
@@ -1888,6 +1884,10 @@
 234,
 237,
 247
+],
+"ace:src/mode/powershell.js": [
+14,
+14
 ],
 "ace:src/mode/praat_highlight_rules.js": [
 19,
@@ -1973,9 +1973,6 @@
 132,
 138
 ],
-"ace:src/mode/python.js": [
-11
-],
 "ace:src/mode/python_highlight_rules.js": [
 47,
 49,
@@ -2005,6 +2002,9 @@
 386,
 389
 ],
+"ace:src/mode/python.js": [
+11
+],
 "ace:src/mode/qml_highlight_rules.js": [
 141,
 155,
@@ -2033,10 +2033,6 @@
 166,
 200
 ],
-"ace:src/mode/raku.js": [
-13,
-13
-],
 "ace:src/mode/raku_highlight_rules.js": [
 169,
 174,
@@ -2060,6 +2056,10 @@
 258,
 261,
 267
+],
+"ace:src/mode/raku.js": [
+13,
+13
 ],
 "ace:src/mode/razor_highlight_rules.js": [
 22,
@@ -2693,9 +2693,6 @@
 417,
 418
 ],
-"ace:src/mode/vbscript.js": [
-54
-],
 "ace:src/mode/vbscript_highlight_rules.js": [
 60,
 79,
@@ -2708,6 +2705,9 @@
 129,
 138,
 142
+],
+"ace:src/mode/vbscript.js": [
+54
 ],
 "ace:src/mode/velocity_highlight_rules.js": [
 39,
@@ -2800,15 +2800,23 @@
 78,
 84
 ],
-"ace:src/search.js": [
-369
-],
 "ace:src/search_test.js": [
 249,
 262,
 276,
 343,
 356
+],
+"ace:src/search.js": [
+369
+],
+"ace:src/snippets_test.js": [
+31,
+37,
+38,
+39,
+72,
+73
 ],
 "ace:src/snippets.js": [
 110,
@@ -2819,14 +2827,6 @@
 182,
 217,
 642
-],
-"ace:src/snippets_test.js": [
-31,
-37,
-38,
-39,
-72,
-73
 ],
 "ace:src/test/mockdom.js": [
 550,

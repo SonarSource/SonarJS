@@ -412,12 +412,6 @@
 55,
 57
 ],
-"vitest:packages/browser/src/client/tester/expect/toBeInViewport.ts": [
-23,
-39,
-43,
-45
-],
 "vitest:packages/browser/src/client/tester/expect/toBeInvalid.ts": [
 45,
 59,
@@ -427,6 +421,12 @@
 85,
 89,
 91
+],
+"vitest:packages/browser/src/client/tester/expect/toBeInViewport.ts": [
+23,
+39,
+43,
+45
 ],
 "vitest:packages/browser/src/client/tester/expect/toBePartiallyChecked.ts": [
 23,
@@ -1590,6 +1590,12 @@
 171,
 182
 ],
+"vitest:packages/pretty-format/src/plugins/lib/markup.ts": [
+19,
+70,
+87,
+88
+],
 "vitest:packages/pretty-format/src/plugins/ReactElement.ts": [
 16,
 34,
@@ -1605,12 +1611,6 @@
 61,
 71,
 75
-],
-"vitest:packages/pretty-format/src/plugins/lib/markup.ts": [
-19,
-70,
-87,
-88
 ],
 "vitest:packages/pretty-format/src/types.ts": [
 148,
@@ -2036,55 +2036,6 @@
 699,
 734
 ],
-"vitest:packages/ui/client/components/BrowserIframe.vue": [
-12,
-19,
-51
-],
-"vitest:packages/ui/client/components/CodeMirrorContainer.vue": [
-33,
-56,
-57
-],
-"vitest:packages/ui/client/components/ConnectionOverlay.vue": [
-6
-],
-"vitest:packages/ui/client/components/DetailsHeaderButtons.vue": [
-8
-],
-"vitest:packages/ui/client/components/FailureScreenshot.vue": [
-27
-],
-"vitest:packages/ui/client/components/FileDetails.vue": [
-14,
-51,
-115,
-127,
-130,
-135,
-155,
-190
-],
-"vitest:packages/ui/client/components/ModuleGraphImportBreakdown.vue": [
-48
-],
-"vitest:packages/ui/client/components/ModuleTransformResultView.vue": [
-65,
-70,
-75,
-169,
-173,
-178,
-180,
-191,
-194
-],
-"vitest:packages/ui/client/components/Navigation.vue": [
-17
-],
-"vitest:packages/ui/client/components/ProgressBar.vue": [
-11
-],
 "vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
 26
 ],
@@ -2153,15 +2104,64 @@
 18,
 21
 ],
+"vitest:packages/ui/client/components/BrowserIframe.vue": [
+12,
+19,
+51
+],
+"vitest:packages/ui/client/components/CodeMirrorContainer.vue": [
+33,
+56,
+57
+],
+"vitest:packages/ui/client/components/ConnectionOverlay.vue": [
+6
+],
 "vitest:packages/ui/client/components/dashboard/DashboardEntry.spec.ts": [
 19,
 20
+],
+"vitest:packages/ui/client/components/DetailsHeaderButtons.vue": [
+8
 ],
 "vitest:packages/ui/client/components/explorer/Explorer.vue": [
 64
 ],
 "vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
 32
+],
+"vitest:packages/ui/client/components/FailureScreenshot.vue": [
+27
+],
+"vitest:packages/ui/client/components/FileDetails.vue": [
+14,
+51,
+115,
+127,
+130,
+135,
+155,
+190
+],
+"vitest:packages/ui/client/components/ModuleGraphImportBreakdown.vue": [
+48
+],
+"vitest:packages/ui/client/components/ModuleTransformResultView.vue": [
+65,
+70,
+75,
+169,
+173,
+178,
+180,
+191,
+194
+],
+"vitest:packages/ui/client/components/Navigation.vue": [
+17
+],
+"vitest:packages/ui/client/components/ProgressBar.vue": [
+11
 ],
 "vitest:packages/ui/client/components/views/ViewConsoleOutputEntry.spec.ts": [
 15,
@@ -4378,17 +4378,6 @@
 79,
 88
 ],
-"vitest:packages/vitest/src/runtime/runVmTests.ts": [
-15,
-30,
-38,
-43,
-66,
-77,
-104,
-117,
-126
-],
 "vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
 6,
 14,
@@ -4425,6 +4414,17 @@
 227,
 232,
 257
+],
+"vitest:packages/vitest/src/runtime/runVmTests.ts": [
+15,
+30,
+38,
+43,
+66,
+77,
+104,
+117,
+126
 ],
 "vitest:packages/vitest/src/runtime/setup-common.ts": [
 46,

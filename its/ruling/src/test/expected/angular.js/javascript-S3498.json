@@ -1,9 +1,4 @@
 {
-"angular.js:Gruntfile.js": [
-82,
-97,
-117
-],
 "angular.js:benchmarks/animation-bp/app.js": [
 22,
 31,
@@ -144,6 +139,11 @@
 ],
 "angular.js:docs/config/tag-defs/tutorial-step.js": [
 5
+],
+"angular.js:Gruntfile.js": [
+82,
+97,
+117
 ],
 "angular.js:lib/browserstack/start_tunnel.js": [
 21,

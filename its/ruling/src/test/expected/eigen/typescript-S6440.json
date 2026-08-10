@@ -55,6 +55,9 @@
 "eigen:src/app/Components/StickyTabPage/StickyTabPage.tsx": [
 82
 ],
+"eigen:src/app/navigation/useReloadedDevNavigationState.ts": [
+58
+],
 "eigen:src/app/Scenes/ArtistSeries/ArtistSeries.tests.tsx": [
 19
 ],
@@ -131,14 +134,6 @@
 29,
 66
 ],
-"eigen:src/app/Websockets/auctions/useArtworkBidding.tsx": [
-19,
-26,
-28
-],
-"eigen:src/app/navigation/useReloadedDevNavigationState.ts": [
-58
-],
 "eigen:src/app/utils/AboveTheFoldQueryRenderer.tsx": [
 62
 ],
@@ -158,6 +153,11 @@
 "eigen:src/app/utils/useGlobalState.ts": [
 28,
 29
+],
+"eigen:src/app/Websockets/auctions/useArtworkBidding.tsx": [
+19,
+26,
+28
 ],
 "eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx": [
 107,

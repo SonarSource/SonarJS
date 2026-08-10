@@ -27,12 +27,12 @@
 "fresh:packages/fresh/src/dev/update_check.ts": [
 56
 ],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+43
+],
 "fresh:packages/fresh/src/fs_routes.ts": [
 67,
 205
-],
-"fresh:packages/fresh/src/fs_routes_test.tsx": [
-43
 ],
 "fresh:packages/fresh/src/jsonify/parse.ts": [
 25

@@ -12,11 +12,11 @@
 4236,
 5194
 ],
-"ace:src/document.js": [
-276
-],
 "ace:src/document_test.js": [
 84
+],
+"ace:src/document.js": [
+276
 ],
 "ace:src/ext/options.js": [
 353
@@ -43,13 +43,13 @@
 446,
 447
 ],
-"ace:src/lib/event.js": [
-34
-],
 "ace:src/lib/event_emitter.js": [
 124,
 125,
 126
+],
+"ace:src/lib/event.js": [
+34
 ],
 "ace:src/line_widgets.js": [
 103

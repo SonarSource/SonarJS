@@ -11,14 +11,14 @@
 13,
 14
 ],
-"vuetify:packages/docs/src/components/app/Markdown.vue": [
-23
-],
 "vuetify:packages/docs/src/components/app/bar/SettingsToggle.vue": [
 30
 ],
 "vuetify:packages/docs/src/components/app/drawer/Drawer.vue": [
 60
+],
+"vuetify:packages/docs/src/components/app/Markdown.vue": [
+23
 ],
 "vuetify:packages/docs/src/components/doc/UpNext.vue": [
 60,

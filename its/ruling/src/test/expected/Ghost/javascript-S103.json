@@ -1,7 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-871
-],
 "Ghost:core/client/app/assets/lib/uploader.js": [
 136
 ],
@@ -42,5 +39,8 @@
 42,
 285,
 286
+],
+"Ghost:Gruntfile.js": [
+871
 ]
 }

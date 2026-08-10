@@ -32,21 +32,6 @@
 76,
 80
 ],
-"vuetify:packages/docs/src/components/app/Link.vue": [
-22
-],
-"vuetify:packages/docs/src/components/app/Markup.vue": [
-71,
-75,
-76,
-77
-],
-"vuetify:packages/docs/src/components/app/Toc.vue": [
-98,
-102,
-103,
-108
-],
 "vuetify:packages/docs/src/components/app/bar/LanguageMenu.vue": [
 28
 ],
@@ -59,8 +44,17 @@
 118,
 121
 ],
+"vuetify:packages/docs/src/components/app/Link.vue": [
+22
+],
 "vuetify:packages/docs/src/components/app/list/List.vue": [
 42
+],
+"vuetify:packages/docs/src/components/app/Markup.vue": [
+71,
+75,
+76,
+77
 ],
 "vuetify:packages/docs/src/components/app/menu/Menu.vue": [
 22
@@ -70,6 +64,12 @@
 ],
 "vuetify:packages/docs/src/components/app/settings/Theme.vue": [
 16
+],
+"vuetify:packages/docs/src/components/app/Toc.vue": [
+98,
+102,
+103,
+108
 ],
 "vuetify:packages/docs/src/components/components/ListItem.vue": [
 22

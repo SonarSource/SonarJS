@@ -26,6 +26,9 @@
 "fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
 101
 ],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+89
+],
 "fresh:packages/fresh/src/fs_routes.ts": [
 78,
 86,
@@ -40,9 +43,6 @@
 177,
 239,
 252
-],
-"fresh:packages/fresh/src/fs_routes_test.tsx": [
-89
 ],
 "fresh:packages/fresh/src/jsonify/parse.ts": [
 119

@@ -34,12 +34,12 @@
 "ace:src/mode/gobstones_highlight_rules.js": [
 27
 ],
+"ace:src/mode/json_highlight_rules.js": [
+46
+],
 "ace:src/mode/json5_highlight_rules.js": [
 14,
 14
-],
-"ace:src/mode/json_highlight_rules.js": [
-46
 ],
 "ace:src/mode/kotlin_highlight_rules.js": [
 45,

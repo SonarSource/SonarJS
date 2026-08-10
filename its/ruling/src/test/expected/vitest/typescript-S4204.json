@@ -781,16 +781,16 @@
 507,
 511
 ],
+"vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
+12,
+13,
+13
+],
 "vitest:packages/ui/client/components/CodeMirrorContainer.vue": [
 22
 ],
 "vitest:packages/ui/client/components/ModuleTransformResultView.vue": [
 75
-],
-"vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
-12,
-13,
-13
 ],
 "vitest:packages/ui/client/components/views/ViewEditor.vue": [
 91

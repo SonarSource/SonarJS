@@ -14,28 +14,6 @@
 "console:src/views/FunctionsView/FunctionPopup/TestLog.tsx": [
 90
 ],
-"console:src/views/PermissionsView/PermissionsList/ModelPermissions/ModelPermissionList.tsx": [
-13
-],
-"console:src/views/PermissionsView/PermissionsView.tsx": [
-44
-],
-"console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermissionList.tsx": [
-13
-],
-"console:src/views/RelationsPopup/RelationPopup.tsx": [
-121,
-126
-],
-"console:src/views/SchemaView/SchemaEditor.tsx": [
-264
-],
-"console:src/views/Settings/Export/Export.tsx": [
-15,
-103,
-106,
-110
-],
 "console:src/views/models/DatabrowserView/Cell/IntCell.tsx": [
 23
 ],
@@ -53,7 +31,29 @@
 230,
 233
 ],
+"console:src/views/PermissionsView/PermissionsList/ModelPermissions/ModelPermissionList.tsx": [
+13
+],
+"console:src/views/PermissionsView/PermissionsView.tsx": [
+44
+],
+"console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermissionList.tsx": [
+13
+],
 "console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
 127
+],
+"console:src/views/RelationsPopup/RelationPopup.tsx": [
+121,
+126
+],
+"console:src/views/SchemaView/SchemaEditor.tsx": [
+264
+],
+"console:src/views/Settings/Export/Export.tsx": [
+15,
+103,
+106,
+110
 ]
 }

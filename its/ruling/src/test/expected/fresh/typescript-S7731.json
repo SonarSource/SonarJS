@@ -9,12 +9,12 @@
 152,
 338
 ],
+"fresh:packages/fresh/src/dev/file_transformer_test.ts": [
+37
+],
 "fresh:packages/fresh/src/dev/file_transformer.ts": [
 161,
 189
-],
-"fresh:packages/fresh/src/dev/file_transformer_test.ts": [
-37
 ],
 "fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
 60,

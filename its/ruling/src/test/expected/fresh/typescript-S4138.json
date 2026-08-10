@@ -20,15 +20,15 @@
 "fresh:packages/fresh/src/dev/esbuild.ts": [
 96
 ],
+"fresh:packages/fresh/src/dev/file_transformer_test.ts": [
+37
+],
 "fresh:packages/fresh/src/dev/file_transformer.ts": [
 81,
 120,
 131,
 161,
 189
-],
-"fresh:packages/fresh/src/dev/file_transformer_test.ts": [
-37
 ],
 "fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
 90

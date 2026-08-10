@@ -1,9 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-553,
-573,
-612
-],
 "ace:demo/kitchen-sink/demo.js": [
 389
 ],
@@ -36,6 +31,11 @@
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 5315
 ],
+"ace:Makefile.dryice.js": [
+553,
+573,
+612
+],
 "ace:src/ext/emmet.js": [
 354
 ],
@@ -58,13 +58,13 @@
 "ace:src/keyboard/hash_handler.js": [
 44
 ],
+"ace:src/keyboard/vim_test.js": [
+5396
+],
 "ace:src/keyboard/vim.js": [
 330,
 1603,
 6062
-],
-"ace:src/keyboard/vim_test.js": [
-5396
 ],
 "ace:src/layer/marker.js": [
 47
@@ -125,12 +125,12 @@
 "ace:src/mode/smarty_highlight_rules.js": [
 86
 ],
-"ace:src/mode/text.js": [
-312
-],
 "ace:src/mode/text_highlight_rules.js": [
 28,
 58
+],
+"ace:src/mode/text.js": [
+312
 ],
 "ace:src/mode/twig_highlight_rules.js": [
 28

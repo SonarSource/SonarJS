@@ -65,11 +65,11 @@
 "ag-grid:src/ts/rendering/cellEditorFactory.ts": [
 71
 ],
-"ag-grid:src/ts/rendering/cellRendererService.ts": [
-71
-],
 "ag-grid:src/ts/rendering/cellRenderers/groupCellRenderer.ts": [
 225
+],
+"ag-grid:src/ts/rendering/cellRendererService.ts": [
+71
 ],
 "ag-grid:src/ts/rendering/renderedCell.ts": [
 139,

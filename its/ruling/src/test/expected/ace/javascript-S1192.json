@@ -84,14 +84,14 @@
 250,
 1115
 ],
-"ace:src/editor.js": [
-2875
-],
 "ace:src/editor_commands_test.js": [
 98,
 132,
 137,
 352
+],
+"ace:src/editor.js": [
+2875
 ],
 "ace:src/ext/beautify_test.js": [
 20,
@@ -108,11 +108,6 @@
 555,
 559,
 563
-],
-"ace:src/keyboard/vim.js": [
-1174,
-1360,
-3396
 ],
 "ace:src/keyboard/vim_ace_test.js": [
 125
@@ -144,6 +139,11 @@
 4517,
 4521,
 4610
+],
+"ace:src/keyboard/vim.js": [
+1174,
+1360,
+3396
 ],
 "ace:src/keyboard/vscode.js": [
 28

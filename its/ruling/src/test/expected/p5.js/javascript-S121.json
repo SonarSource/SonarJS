@@ -131,9 +131,6 @@
 "p5.js:src/webgl/p5.RendererGL.Immediate.js": [
 150
 ],
-"p5.js:src/webgl/p5.RendererGL.Retained.js": [
-76
-],
 "p5.js:src/webgl/p5.RendererGL.js": [
 719,
 1239,
@@ -141,6 +138,9 @@
 1354,
 1356,
 1430
+],
+"p5.js:src/webgl/p5.RendererGL.Retained.js": [
+76
 ],
 "p5.js:src/webgl/text.js": [
 64,

@@ -43,6 +43,9 @@
 70,
 73
 ],
+"vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
+291
+],
 "vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx": [
 122,
 123
@@ -53,9 +56,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VSlider/VSliderTrack.tsx": [
 128
-],
-"vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
-291
 ],
 "vuetify:packages/vuetify/src/components/VTimeline/VTimeline.tsx": [
 79
@@ -85,9 +85,6 @@
 "vuetify:packages/vuetify/src/composables/ssrBoot.ts": [
 14
 ],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableFooter.tsx": [
-106
-],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/expand.ts": [
 46
 ],
@@ -96,6 +93,9 @@
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
 38
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableFooter.tsx": [
+106
 ],
 "vuetify:packages/vuetify/src/util/colorUtils.ts": [
 160

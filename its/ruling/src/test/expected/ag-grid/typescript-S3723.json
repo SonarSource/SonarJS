@@ -263,9 +263,6 @@
 "ag-grid:src/ts/rowModels/cache/rowNodeBlockLoader.ts": [
 77
 ],
-"ag-grid:src/ts/rowModels/inMemory/inMemoryRowModel.ts": [
-106
-],
 "ag-grid:src/ts/rowModels/infinite/infiniteBlock.ts": [
 52,
 81
@@ -273,6 +270,9 @@
 "ag-grid:src/ts/rowModels/infinite/infiniteRowModel.ts": [
 38,
 175
+],
+"ag-grid:src/ts/rowModels/inMemory/inMemoryRowModel.ts": [
+106
 ],
 "ag-grid:src/ts/rowModels/pagination/serverPaginationService.ts": [
 262

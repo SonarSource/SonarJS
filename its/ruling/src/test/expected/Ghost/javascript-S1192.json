@@ -1,7 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-595
-],
 "Ghost:core/client/app/assets/lib/uploader.js": [
 24,
 28,
@@ -492,5 +489,8 @@
 "Ghost:core/test/utils/fixtures/filter-param/index.js": [
 17,
 75
+],
+"Ghost:Gruntfile.js": [
+595
 ]
 }

@@ -43,6 +43,13 @@
 119,
 133
 ],
+"courselit:packages/rich-text/src/index.js": [
+8,
+10,
+14,
+22,
+47
+],
 "courselit:packages/rich-text/src/Renderers/Blockquote.js": [
 4,
 4
@@ -53,13 +60,6 @@
 ],
 "courselit:packages/rich-text/src/Renderers/Media.js": [
 4
-],
-"courselit:packages/rich-text/src/index.js": [
-8,
-10,
-14,
-22,
-47
 ],
 "courselit:packages/widget-buttondown/src/AdminWidget.js": [
 7,

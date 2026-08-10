@@ -1,9 +1,4 @@
 {
-"qunit:Gruntfile.js": [
-3,
-4,
-5
-],
 "qunit:bin/qunit.js": [
 5,
 6,
@@ -15,6 +10,11 @@
 ],
 "qunit:build/tasks/test-on-node.js": [
 4
+],
+"qunit:Gruntfile.js": [
+3,
+4,
+5
 ],
 "qunit:rollup.config.js": [
 3,

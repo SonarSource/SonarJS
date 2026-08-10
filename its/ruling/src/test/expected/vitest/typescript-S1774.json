@@ -90,17 +90,17 @@
 49,
 55
 ],
-"vitest:packages/browser/src/client/tester/expect/toBeInViewport.ts": [
-32,
-33,
-34,
-37
-],
 "vitest:packages/browser/src/client/tester/expect/toBeInvalid.ts": [
 54,
 57,
 80,
 83
+],
+"vitest:packages/browser/src/client/tester/expect/toBeInViewport.ts": [
+32,
+33,
+34,
+37
 ],
 "vitest:packages/browser/src/client/tester/expect/toBePartiallyChecked.ts": [
 50,
@@ -495,6 +495,11 @@
 148,
 171
 ],
+"vitest:packages/pretty-format/src/plugins/lib/markup.ts": [
+68,
+118,
+120
+],
 "vitest:packages/pretty-format/src/plugins/ReactElement.ts": [
 86,
 93,
@@ -506,11 +511,6 @@
 49,
 53,
 64
-],
-"vitest:packages/pretty-format/src/plugins/lib/markup.ts": [
-68,
-118,
-120
 ],
 "vitest:packages/runner/src/collect.ts": [
 21,
@@ -685,6 +685,15 @@
 15,
 18
 ],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+98,
+129,
+131,
+140,
+147,
+149,
+153
+],
 "vitest:packages/ui/client/components/FileDetails.vue": [
 38,
 122
@@ -705,15 +714,6 @@
 17,
 21,
 29
-],
-"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
-98,
-129,
-131,
-140,
-147,
-149,
-153
 ],
 "vitest:packages/ui/client/components/views/ViewConsoleOutput.vue": [
 25
@@ -1396,9 +1396,6 @@
 "vitest:packages/vitest/src/runtime/runBaseTests.ts": [
 61
 ],
-"vitest:packages/vitest/src/runtime/runVmTests.ts": [
-99
-],
 "vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
 82,
 98
@@ -1410,6 +1407,9 @@
 63,
 195,
 265
+],
+"vitest:packages/vitest/src/runtime/runVmTests.ts": [
+99
 ],
 "vitest:packages/vitest/src/runtime/utils.ts": [
 61

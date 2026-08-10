@@ -146,11 +146,11 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tsx": [
 72
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
-81
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tests.tsx": [
 33
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
+81
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryMakeOfferButton.tests.tsx": [
 51
@@ -255,14 +255,14 @@
 34,
 71
 ],
-"eigen:src/app/utils/PushNotification.ts": [
-266
-],
 "eigen:src/app/utils/getTrackingUrl.ts": [
 22
 ],
 "eigen:src/app/utils/hideBackButtonOnScroll.tsx": [
 52
+],
+"eigen:src/app/utils/PushNotification.ts": [
+266
 ],
 "eigen:src/app/utils/renderMarkdown.tests.tsx": [
 160

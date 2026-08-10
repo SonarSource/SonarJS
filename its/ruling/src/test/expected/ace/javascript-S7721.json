@@ -1,9 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-68,
-723,
-817
-],
 "ace:demo/static-highlighter.html": [
 64
 ],
@@ -57,6 +52,9 @@
 10530,
 10620
 ],
+"ace:lib/ace/mode/html_worker.js": [
+70
+],
 "ace:lib/ace/mode/html/saxparser.js": [
 4,
 35,
@@ -104,8 +102,8 @@
 10362,
 10416
 ],
-"ace:lib/ace/mode/html_worker.js": [
-70
+"ace:lib/ace/mode/javascript_worker.js": [
+38
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
 106,
@@ -194,9 +192,6 @@
 19297,
 19311
 ],
-"ace:lib/ace/mode/javascript_worker.js": [
-38
-],
 "ace:lib/ace/mode/php/php.js": [
 195
 ],
@@ -251,6 +246,9 @@
 572,
 582
 ],
+"ace:lib/ace/mode/xquery_worker.js": [
+39
+],
 "ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
 4246,
 4369
@@ -258,9 +256,6 @@
 "ace:lib/ace/mode/xquery/xquery_lexer.js": [
 4201,
 4315
-],
-"ace:lib/ace/mode/xquery_worker.js": [
-39
 ],
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 46,
@@ -331,17 +326,22 @@
 5889,
 5906
 ],
-"ace:lib/ace/worker/worker.js": [
-167
+"ace:lib/ace/worker/worker_client_v2.js": [
+39
 ],
 "ace:lib/ace/worker/worker_client.js": [
 66
 ],
-"ace:lib/ace/worker/worker_client_v2.js": [
-39
-],
 "ace:lib/ace/worker/worker_v2.js": [
 38
+],
+"ace:lib/ace/worker/worker.js": [
+167
+],
+"ace:Makefile.dryice.js": [
+68,
+723,
+817
 ],
 "ace:src/ace_test.js": [
 92
@@ -381,16 +381,16 @@
 "ace:src/keyboard/sublime.js": [
 45
 ],
+"ace:src/keyboard/vim_test.js": [
+292,
+310
+],
 "ace:src/keyboard/vim.js": [
 41,
 360,
 1646,
 4817,
 4959
-],
-"ace:src/keyboard/vim_test.js": [
-292,
-310
 ],
 "ace:src/layer/decorators.js": [
 60
@@ -460,13 +460,13 @@
 "ace:src/selection_test.js": [
 438
 ],
+"ace:src/snippets_test.js": [
+308
+],
 "ace:src/snippets.js": [
 103,
 109,
 595
-],
-"ace:src/snippets_test.js": [
-308
 ],
 "ace:src/test/asyncjs/test.js": [
 89
@@ -475,12 +475,12 @@
 389,
 523
 ],
-"ace:src/virtual_renderer.js": [
-1336
-],
 "ace:src/virtual_renderer_test.js": [
 220,
 330
+],
+"ace:src/virtual_renderer.js": [
+1336
 ],
 "ace:tool/mode_creator.js": [
 127,

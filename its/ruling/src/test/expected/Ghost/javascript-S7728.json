@@ -1,7 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-30
-],
 "Ghost:core/client/app/adapters/embedded-relation-adapter.js": [
 105
 ],
@@ -160,5 +157,8 @@
 ],
 "Ghost:core/test/utils/jscs-rules/disallow-object-controller.js": [
 24
+],
+"Ghost:Gruntfile.js": [
+30
 ]
 }

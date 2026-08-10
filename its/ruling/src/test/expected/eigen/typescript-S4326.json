@@ -1,4 +1,10 @@
 {
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+131
+],
+"eigen:src/app/relay/middlewares/uploadMiddleware.ts": [
+59
+],
 "eigen:src/app/Scenes/Artwork/Components/ArtworkActions.tests.tsx": [
 129
 ],
@@ -30,12 +36,6 @@
 "eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ArtworkDetails/utils/createOrUpdateSubmission.ts": [
 49,
 55
-],
-"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
-131
-],
-"eigen:src/app/relay/middlewares/uploadMiddleware.ts": [
-59
 ],
 "eigen:src/app/store/AuthModel.ts": [
 256,

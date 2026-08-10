@@ -6,12 +6,12 @@
 "TypeScript:scripts/tslint/noBomRule.ts": [
 5
 ],
-"TypeScript:scripts/tslint/noInOperatorRule.ts": [
-5
-],
 "TypeScript:scripts/tslint/noIncrementDecrementRule.ts": [
 5,
 6
+],
+"TypeScript:scripts/tslint/noInOperatorRule.ts": [
+5
 ],
 "TypeScript:scripts/tslint/noTypeAssertionWhitespaceRule.ts": [
 5

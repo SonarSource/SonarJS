@@ -362,9 +362,6 @@
 "vitest:packages/vitest/src/runtime/moduleRunner/errorCatcher.ts": [
 12
 ],
-"vitest:packages/vitest/src/runtime/runVmTests.ts": [
-53
-],
 "vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
 106
 ],
@@ -372,6 +369,9 @@
 99,
 115,
 118
+],
+"vitest:packages/vitest/src/runtime/runVmTests.ts": [
+53
 ],
 "vitest:packages/vitest/src/runtime/setup-common.ts": [
 101

@@ -46,6 +46,9 @@
 10147,
 10219
 ],
+"ace:lib/ace/mode/javascript_worker.js": [
+105
+],
 "ace:lib/ace/mode/javascript/jshint.js": [
 161,
 1002,
@@ -109,9 +112,6 @@
 18893,
 18951,
 19026
-],
-"ace:lib/ace/mode/javascript_worker.js": [
-105
 ],
 "ace:lib/ace/mode/json/json_parse.js": [
 147
@@ -240,13 +240,16 @@
 "ace:src/keyboard/sublime.js": [
 5
 ],
+"ace:src/keyboard/textinput_test.js": [
+27
+],
 "ace:src/keyboard/textinput.js": [
 151,
 262,
 651
 ],
-"ace:src/keyboard/textinput_test.js": [
-27
+"ace:src/keyboard/vim_test.js": [
+5508
 ],
 "ace:src/keyboard/vim.js": [
 189,
@@ -288,9 +291,6 @@
 6346,
 6665,
 6997
-],
-"ace:src/keyboard/vim_test.js": [
-5508
 ],
 "ace:src/layer/decorators.js": [
 44
@@ -386,13 +386,13 @@
 "ace:src/mode/scheme.js": [
 30
 ],
-"ace:src/mode/text.js": [
-157,
-307
-],
 "ace:src/mode/text_highlight_rules.js": [
 22,
 93
+],
+"ace:src/mode/text.js": [
+157,
+307
 ],
 "ace:src/mode/vbscript.js": [
 34
@@ -415,11 +415,11 @@
 "ace:src/placeholder.js": [
 119
 ],
-"ace:src/range.js": [
-266
-],
 "ace:src/range_list.js": [
 153
+],
+"ace:src/range.js": [
+266
 ],
 "ace:src/search.js": [
 102,
@@ -444,12 +444,12 @@
 "ace:src/test/user.js": [
 110
 ],
+"ace:src/tokenizer_dev.js": [
+18
+],
 "ace:src/tokenizer.js": [
 17,
 199
-],
-"ace:src/tokenizer_dev.js": [
-18
 ],
 "ace:src/undomanager.js": [
 280,

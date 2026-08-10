@@ -383,18 +383,6 @@
 "rxjs:src/add/operator/zipAll.ts": [
 11
 ],
-"rxjs:src/observable/ForkJoinObservable.ts": [
-143
-],
-"rxjs:src/observable/FromEventPatternObservable.ts": [
-110
-],
-"rxjs:src/observable/PairsObservable.ts": [
-95
-],
-"rxjs:src/observable/UsingObservable.ts": [
-57
-],
 "rxjs:src/observable/bindCallback.ts": [
 3
 ],
@@ -422,6 +410,9 @@
 "rxjs:src/observable/forkJoin.ts": [
 3
 ],
+"rxjs:src/observable/ForkJoinObservable.ts": [
+143
+],
 "rxjs:src/observable/from.ts": [
 3
 ],
@@ -430,6 +421,9 @@
 ],
 "rxjs:src/observable/fromEventPattern.ts": [
 3
+],
+"rxjs:src/observable/FromEventPatternObservable.ts": [
+110
 ],
 "rxjs:src/observable/fromPromise.ts": [
 3
@@ -452,6 +446,9 @@
 "rxjs:src/observable/pairs.ts": [
 3
 ],
+"rxjs:src/observable/PairsObservable.ts": [
+95
+],
 "rxjs:src/observable/range.ts": [
 3
 ],
@@ -463,6 +460,9 @@
 ],
 "rxjs:src/observable/using.ts": [
 3
+],
+"rxjs:src/observable/UsingObservable.ts": [
+57
 ],
 "rxjs:src/observable/zip.ts": [
 3
@@ -479,18 +479,6 @@
 "rxjs:src/testing/TestMessage.ts": [
 6
 ],
-"rxjs:src/util/FastMap.ts": [
-30
-],
-"rxjs:src/util/Map.ts": [
-4
-],
-"rxjs:src/util/MapPolyfill.ts": [
-43
-],
-"rxjs:src/util/Set.ts": [
-40
-],
 "rxjs:src/util/applyMixins.ts": [
 10
 ],
@@ -500,13 +488,25 @@
 "rxjs:src/util/errorObject.ts": [
 2
 ],
+"rxjs:src/util/FastMap.ts": [
+30
+],
 "rxjs:src/util/isArrayLike.ts": [
 1
+],
+"rxjs:src/util/Map.ts": [
+4
+],
+"rxjs:src/util/MapPolyfill.ts": [
+43
 ],
 "rxjs:src/util/not.ts": [
 8
 ],
 "rxjs:src/util/root.ts": [
 31
+],
+"rxjs:src/util/Set.ts": [
+40
 ]
 }

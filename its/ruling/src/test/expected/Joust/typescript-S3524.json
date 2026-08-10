@@ -1,19 +1,4 @@
 {
-"Joust:ts/Entity.ts": [
-148
-],
-"Joust:ts/Launcher.tsx": [
-55,
-56,
-317,
-320,
-326,
-365
-],
-"Joust:ts/Option.ts": [
-27,
-27
-],
 "Joust:ts/components/DebugApplication.tsx": [
 67
 ],
@@ -22,6 +7,19 @@
 ],
 "Joust:ts/components/EventLogLine.tsx": [
 92
+],
+"Joust:ts/components/game/EntityInPlay.tsx": [
+135,
+136,
+137,
+138
+],
+"Joust:ts/components/game/Player.tsx": [
+45,
+250
+],
+"Joust:ts/components/game/visuals/CardArt.tsx": [
+142
 ],
 "Joust:ts/components/GameWidget.tsx": [
 124,
@@ -64,18 +62,20 @@
 65,
 66
 ],
-"Joust:ts/components/game/EntityInPlay.tsx": [
-135,
-136,
-137,
-138
+"Joust:ts/Entity.ts": [
+148
 ],
-"Joust:ts/components/game/Player.tsx": [
-45,
-250
+"Joust:ts/Launcher.tsx": [
+55,
+56,
+317,
+320,
+326,
+365
 ],
-"Joust:ts/components/game/visuals/CardArt.tsx": [
-142
+"Joust:ts/Option.ts": [
+27,
+27
 ],
 "Joust:ts/protocol/KettleDecoder.ts": [
 40,

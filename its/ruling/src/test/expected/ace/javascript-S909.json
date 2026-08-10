@@ -22,6 +22,10 @@
 6641,
 10282
 ],
+"ace:lib/ace/mode/javascript_worker.js": [
+121,
+136
+],
 "ace:lib/ace/mode/javascript/jshint.js": [
 4147,
 7937,
@@ -31,10 +35,6 @@
 13358,
 15464,
 19089
-],
-"ace:lib/ace/mode/javascript_worker.js": [
-121,
-136
 ],
 "ace:lib/ace/mode/php/php.js": [
 1210
@@ -107,6 +107,10 @@
 "ace:src/keyboard/sublime.js": [
 30
 ],
+"ace:src/keyboard/vim_test.js": [
+5546,
+5556
+],
 "ace:src/keyboard/vim.js": [
 334,
 342,
@@ -120,10 +124,6 @@
 5462,
 6074,
 6459
-],
-"ace:src/keyboard/vim_test.js": [
-5546,
-5556
 ],
 "ace:src/layer/cursor.js": [
 186
@@ -209,12 +209,12 @@
 80,
 183
 ],
+"ace:src/search_highlight.js": [
+45
+],
 "ace:src/search.js": [
 122,
 132
-],
-"ace:src/search_highlight.js": [
-45
 ],
 "ace:src/snippets.js": [
 311,
@@ -236,12 +236,12 @@
 164,
 174
 ],
+"ace:src/tokenizer_dev.js": [
+73
+],
 "ace:src/tokenizer.js": [
 39,
 245
-],
-"ace:src/tokenizer_dev.js": [
-73
 ],
 "ace:src/undomanager.js": [
 292,

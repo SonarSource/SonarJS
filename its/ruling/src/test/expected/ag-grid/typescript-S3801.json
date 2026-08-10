@@ -45,13 +45,13 @@
 "ag-grid:src/ts/rendering/renderedCell.ts": [
 593
 ],
+"ag-grid:src/ts/rowModels/infinite/infiniteRowModel.ts": [
+298
+],
 "ag-grid:src/ts/rowModels/inMemory/inMemoryNodeManager.ts": [
 71,
 155,
 177
-],
-"ag-grid:src/ts/rowModels/infinite/infiniteRowModel.ts": [
-298
 ],
 "ag-grid:src/ts/selectionController.ts": [
 182

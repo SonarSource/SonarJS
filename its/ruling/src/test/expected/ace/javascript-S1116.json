@@ -21,12 +21,12 @@
 "ace:lib/ace/mode/xml/sax.js": [
 572
 ],
-"ace:src/keyboard/vim.js": [
-4233
-],
 "ace:src/keyboard/vim_test.js": [
 255,
 344
+],
+"ace:src/keyboard/vim.js": [
+4233
 ],
 "ace:tool/tmtheme.js": [
 163

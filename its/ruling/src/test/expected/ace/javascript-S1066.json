@@ -167,11 +167,11 @@
 "ace:src/mouse/fold_handler.js": [
 22
 ],
-"ace:src/range.js": [
-267
-],
 "ace:src/range_list.js": [
 186
+],
+"ace:src/range.js": [
+267
 ],
 "ace:src/test/mockdom.js": [
 621

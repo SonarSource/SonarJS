@@ -20,12 +20,12 @@
 92,
 93
 ],
-"console:src/components/ProjectSelection/ProjectSelection.tsx": [
-177
-],
 "console:src/components/onboarding/Steps.tsx": [
 56,
 69
+],
+"console:src/components/ProjectSelection/ProjectSelection.tsx": [
+177
 ],
 "console:src/reducers/databrowser/data.ts": [
 106
@@ -50,11 +50,11 @@
 125,
 560
 ],
-"console:src/views/FunctionsView/FunctionPopup/WebhookEditor.tsx": [
-179
-],
 "console:src/views/FunctionsView/FunctionPopup/functionPopupState.ts": [
 4
+],
+"console:src/views/FunctionsView/FunctionPopup/WebhookEditor.tsx": [
+179
 ],
 "console:src/views/Integrations/Algolia/AlgoliaQuery.tsx": [
 110
@@ -78,8 +78,34 @@
 "console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndex.tsx": [
 59
 ],
+"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
+193
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+240
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/headerRenderer.tsx": [
+9,
+11,
+14
+],
+"console:src/views/models/DatabrowserView/NewRow.tsx": [
+167
+],
+"console:src/views/models/DatabrowserView/NewRowInactive.tsx": [
+68
+],
+"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
+202
+],
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
+560
+],
 "console:src/views/PermissionsView/PermissionPopup/ast.ts": [
 62
+],
+"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
+126
 ],
 "console:src/views/ProjectRootView/AddProjectPopup.tsx": [
 65
@@ -117,31 +143,5 @@
 ],
 "console:src/views/Settings/Export/Export.tsx": [
 130
-],
-"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
-193
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-240
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/headerRenderer.tsx": [
-9,
-11,
-14
-],
-"console:src/views/models/DatabrowserView/NewRow.tsx": [
-167
-],
-"console:src/views/models/DatabrowserView/NewRowInactive.tsx": [
-68
-],
-"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
-202
-],
-"console:src/views/models/FieldPopup/FieldPopup.tsx": [
-560
-],
-"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
-126
 ]
 }

@@ -45,11 +45,11 @@
 3252,
 4072
 ],
-"ace:lib/ace/worker/worker_client.js": [
-117
-],
 "ace:lib/ace/worker/worker_client_v2.js": [
 130
+],
+"ace:lib/ace/worker/worker_client.js": [
+117
 ],
 "ace:src/apply_delta.js": [
 51

@@ -1,7 +1,4 @@
 {
-"p5.js:Gruntfile.js": [
-99
-],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 210,
 236,
@@ -87,6 +84,9 @@
 ],
 "p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
 41
+],
+"p5.js:Gruntfile.js": [
+99
 ],
 "p5.js:lib/addons/p5.sound.js": [
 119,

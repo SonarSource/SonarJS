@@ -50,12 +50,6 @@
 12,
 15
 ],
-"vuetify:packages/docs/src/components/app/Toc.vue": [
-121,
-125,
-139,
-191
-],
 "vuetify:packages/docs/src/components/app/list/List.vue": [
 74,
 103
@@ -70,6 +64,12 @@
 71,
 83,
 97
+],
+"vuetify:packages/docs/src/components/app/Toc.vue": [
+121,
+125,
+139,
+191
 ],
 "vuetify:packages/docs/src/components/doc/Releases.vue": [
 114,
@@ -129,6 +129,9 @@
 289,
 293
 ],
+"vuetify:packages/vuetify/src/components/transitions/createTransition.ts": [
+80
+],
 "vuetify:packages/vuetify/src/components/VAppBar/VAppBar.tsx": [
 38
 ],
@@ -165,17 +168,6 @@
 "vuetify:packages/vuetify/src/components/VChipGroup/VChipGroup.tsx": [
 38
 ],
-"vuetify:packages/vuetify/src/components/VColorPicker/VColorPicker.tsx": [
-51,
-73
-],
-"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerCanvas.tsx": [
-39
-],
-"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerEdit.tsx": [
-16,
-41
-],
 "vuetify:packages/vuetify/src/components/VColorPicker/util/index.ts": [
 19,
 43,
@@ -187,6 +179,17 @@
 95,
 97,
 98
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPicker.tsx": [
+51,
+73
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerCanvas.tsx": [
+39
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerEdit.tsx": [
+16,
+41
 ],
 "vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 56,
@@ -246,10 +249,6 @@
 "vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
 77
 ],
-"vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
-78,
-319
-],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 62
 ],
@@ -261,6 +260,10 @@
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/useActivator.tsx": [
 30
+],
+"vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
+78,
+319
 ],
 "vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
 50,
@@ -311,16 +314,16 @@
 "vuetify:packages/vuetify/src/components/VTabs/VTabs.tsx": [
 23
 ],
+"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
+39,
+50,
+54
+],
 "vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
 29,
 29,
 35,
 284
-],
-"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
-39,
-50,
-54
 ],
 "vuetify:packages/vuetify/src/components/VTimeline/VTimeline.tsx": [
 29,
@@ -339,9 +342,6 @@
 "vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
 71,
 98
-],
-"vuetify:packages/vuetify/src/components/transitions/createTransition.ts": [
-80
 ],
 "vuetify:packages/vuetify/src/composables/density.ts": [
 23
@@ -423,27 +423,6 @@
 "vuetify:packages/vuetify/src/iconsets/mdi.ts": [
 50
 ],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTable.tsx": [
-73,
-76,
-77,
-78,
-79
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableServer.tsx": [
-51,
-54,
-55,
-56,
-57
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableVirtual.tsx": [
-53,
-54,
-55,
-56,
-57
-],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/expand.ts": [
 32
 ],
@@ -470,6 +449,27 @@
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/types.ts": [
 4
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTable.tsx": [
+73,
+76,
+77,
+78,
+79
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableServer.tsx": [
+51,
+54,
+55,
+56,
+57
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableVirtual.tsx": [
+53,
+54,
+55,
+56,
+57
 ],
 "vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScroll.tsx": [
 69

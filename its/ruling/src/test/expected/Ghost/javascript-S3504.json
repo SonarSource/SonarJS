@@ -382,6 +382,10 @@
 "Ghost:core/test/unit/models_plugins/access-rules_spec.js": [
 3
 ],
+"Ghost:core/test/unit/server_helpers_template_spec.js": [
+3,
+13
+],
 "Ghost:core/test/unit/server_helpers/asset_spec.js": [
 3,
 13
@@ -401,10 +405,6 @@
 "Ghost:core/test/unit/server_helpers/utils.js": [
 9,
 16
-],
-"Ghost:core/test/unit/server_helpers_template_spec.js": [
-3,
-13
 ],
 "Ghost:core/test/unit/server_spec.js": [
 3,

@@ -1,18 +1,4 @@
 {
-"rxjs:spec/Subject-spec.ts": [
-42,
-303,
-305,
-307
-],
-"rxjs:spec/Subscription-spec.ts": [
-124,
-127
-],
-"rxjs:spec/observables/IteratorObservable-spec.ts": [
-44,
-156
-],
 "rxjs:spec/observables/combineLatest-spec.ts": [
 38
 ],
@@ -30,6 +16,10 @@
 119,
 145,
 146
+],
+"rxjs:spec/observables/IteratorObservable-spec.ts": [
+44,
+156
 ],
 "rxjs:spec/operators/audit-spec.ts": [
 306,
@@ -115,11 +105,21 @@
 202,
 234
 ],
+"rxjs:spec/Subject-spec.ts": [
+42,
+303,
+305,
+307
+],
 "rxjs:spec/subjects/BehaviorSubject-spec.ts": [
 94,
 130,
 132,
 134
+],
+"rxjs:spec/Subscription-spec.ts": [
+124,
+127
 ],
 "rxjs:spec/util/FastMap-spec.ts": [
 77,

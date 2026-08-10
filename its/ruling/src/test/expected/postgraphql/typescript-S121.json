@@ -81,12 +81,6 @@
 34,
 36
 ],
-"postgraphql:src/interface/Inventory.ts": [
-31,
-83,
-86,
-89
-],
 "postgraphql:src/interface/__ideas__/01-new-types.ts": [
 74
 ],
@@ -94,6 +88,12 @@
 42,
 49,
 52
+],
+"postgraphql:src/interface/Inventory.ts": [
+31,
+83,
+86,
+89
 ],
 "postgraphql:src/interface/type/BasicObjectType.ts": [
 43,
@@ -163,6 +163,10 @@
 121,
 133
 ],
+"postgraphql:src/postgres/introspection/introspectDatabase.ts": [
+14,
+15
+],
 "postgraphql:src/postgres/introspection/PgCatalog.ts": [
 71,
 106,
@@ -173,10 +177,6 @@
 206,
 218,
 243
-],
-"postgraphql:src/postgres/introspection/introspectDatabase.ts": [
-14,
-15
 ],
 "postgraphql:src/postgres/inventory/addPgCatalogToInventory.ts": [
 54
@@ -219,6 +219,12 @@
 18,
 21
 ],
+"postgraphql:src/postgres/inventory/type/getTypeFromPgType.ts": [
+73,
+83,
+87,
+134
+],
 "postgraphql:src/postgres/inventory/type/PgClassType.ts": [
 46,
 78,
@@ -237,12 +243,6 @@
 172,
 173,
 187
-],
-"postgraphql:src/postgres/inventory/type/getTypeFromPgType.ts": [
-73,
-83,
-87,
-134
 ],
 "postgraphql:src/postgres/inventory/type/scalar/pgBooleanType.ts": [
 11

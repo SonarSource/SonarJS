@@ -1467,14 +1467,6 @@
 28,
 29
 ],
-"tailwindcss:src/plugins/placeItems.js": [
-22,
-23
-],
-"tailwindcss:src/plugins/placeSelf.js": [
-22,
-23
-],
 "tailwindcss:src/plugins/placeholderColor.js": [
 1,
 2,
@@ -1497,6 +1489,14 @@
 15,
 17,
 18
+],
+"tailwindcss:src/plugins/placeItems.js": [
+22,
+23
+],
+"tailwindcss:src/plugins/placeSelf.js": [
+22,
+23
 ],
 "tailwindcss:src/plugins/pointerEvents.js": [
 9,

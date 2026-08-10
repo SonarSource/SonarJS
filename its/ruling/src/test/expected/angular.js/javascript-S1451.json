@@ -1,7 +1,4 @@
 {
-"angular.js:Gruntfile.js": [
-0
-],
 "angular.js:angularFiles.js": [
 0
 ],
@@ -212,6 +209,9 @@
 "angular.js:docs/protractor-conf.js": [
 0
 ],
+"angular.js:Gruntfile.js": [
+0
+],
 "angular.js:karma-docs.conf.js": [
 0
 ],
@@ -281,13 +281,13 @@
 "angular.js:scripts/docs.angularjs.org-firebase/functions/index.js": [
 0
 ],
+"angular.js:src/angular.bind.js": [
+0
+],
 "angular.js:src/Angular.js": [
 0
 ],
 "angular.js:src/AngularPublic.js": [
-0
-],
-"angular.js:src/angular.bind.js": [
 0
 ],
 "angular.js:src/apis.js": [
@@ -557,10 +557,10 @@
 "angular.js:src/ngComponentRouter/Router.js": [
 0
 ],
-"angular.js:src/ngCookies/cookieWriter.js": [
+"angular.js:src/ngCookies/cookies.js": [
 0
 ],
-"angular.js:src/ngCookies/cookies.js": [
+"angular.js:src/ngCookies/cookieWriter.js": [
 0
 ],
 "angular.js:src/ngMessageFormat/messageFormatCommon.js": [

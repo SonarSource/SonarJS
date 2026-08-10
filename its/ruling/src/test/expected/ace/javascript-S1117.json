@@ -1,19 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-48,
-61,
-178,
-187,
-197,
-280,
-291,
-543,
-553,
-587,
-597,
-620,
-817
-],
 "ace:demo/code_lens.html": [
 37,
 44
@@ -555,6 +540,21 @@
 92,
 109
 ],
+"ace:Makefile.dryice.js": [
+48,
+61,
+178,
+187,
+197,
+280,
+291,
+543,
+553,
+587,
+597,
+620,
+817
+],
 "ace:src/autocomplete.js": [
 269,
 274,
@@ -577,15 +577,15 @@
 112,
 116
 ],
+"ace:src/edit_session_test.js": [
+672
+],
 "ace:src/edit_session.js": [
 1179,
 1712
 ],
 "ace:src/edit_session/folding.js": [
 417
-],
-"ace:src/edit_session_test.js": [
-672
 ],
 "ace:src/editor.js": [
 160,
@@ -664,6 +664,11 @@
 76,
 77
 ],
+"ace:src/keyboard/textinput_test.js": [
+238,
+359,
+422
+],
 "ace:src/keyboard/textinput.js": [
 65,
 238,
@@ -672,46 +677,6 @@
 635,
 635,
 635
-],
-"ace:src/keyboard/textinput_test.js": [
-238,
-359,
-422
-],
-"ace:src/keyboard/vim.js": [
-41,
-119,
-300,
-369,
-570,
-655,
-819,
-896,
-1646,
-2268,
-2284,
-2287,
-2292,
-2308,
-2318,
-4744,
-4745,
-4745,
-4749,
-4829,
-4829,
-4877,
-4877,
-4959,
-4980,
-4980,
-5042,
-5042,
-5488,
-5809,
-6117,
-6226,
-6796
 ],
 "ace:src/keyboard/vim_ace_test.js": [
 17,
@@ -1187,6 +1152,41 @@
 5542,
 5543
 ],
+"ace:src/keyboard/vim.js": [
+41,
+119,
+300,
+369,
+570,
+655,
+819,
+896,
+1646,
+2268,
+2284,
+2287,
+2292,
+2308,
+2318,
+4744,
+4745,
+4745,
+4749,
+4829,
+4829,
+4877,
+4877,
+4959,
+4980,
+4980,
+5042,
+5042,
+5488,
+5809,
+6117,
+6226,
+6796
+],
 "ace:src/layer/font_metrics.js": [
 151,
 176,
@@ -1256,13 +1256,13 @@
 188,
 287
 ],
-"ace:src/multi_select.js": [
-735
-],
 "ace:src/multi_select_test.js": [
 25,
 43,
 46
+],
+"ace:src/multi_select.js": [
+735
 ],
 "ace:src/scrollbar_custom.js": [
 133,

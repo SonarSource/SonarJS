@@ -8,6 +8,9 @@
 "console:src/utils/valueparser.ts": [
 143
 ],
+"console:src/views/account/AccountView/AccountView.tsx": [
+33
+],
 "console:src/views/ActionsView/ActionsView.tsx": [
 160
 ],
@@ -34,6 +37,41 @@
 "console:src/views/Integrations/IntegrationsView.tsx": [
 33
 ],
+"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
+188
+],
+"console:src/views/models/DatabrowserView/Cell.tsx": [
+76
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+789,
+790
+],
+"console:src/views/models/FieldPopup/constants.ts": [
+52,
+66
+],
+"console:src/views/models/FieldPopup/EditValueInput.tsx": [
+128
+],
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
+73,
+565,
+566,
+567
+],
+"console:src/views/models/FieldPopup/FieldPopupHeader.tsx": [
+96
+],
+"console:src/views/models/FieldPopup/FieldPopupState.ts": [
+63
+],
+"console:src/views/models/ModelHeader.tsx": [
+333
+],
+"console:src/views/models/ModelRedirectView.tsx": [
+53
+],
 "console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
 573,
 574
@@ -44,6 +82,9 @@
 "console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopup.tsx": [
 479,
 480
+],
+"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
+231
 ],
 "console:src/views/ProjectRootView/CloneProjectPopup.tsx": [
 284
@@ -95,46 +136,5 @@
 ],
 "console:src/views/Settings/Team/Team.tsx": [
 118
-],
-"console:src/views/account/AccountView/AccountView.tsx": [
-33
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
-188
-],
-"console:src/views/models/DatabrowserView/Cell.tsx": [
-76
-],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-789,
-790
-],
-"console:src/views/models/FieldPopup/EditValueInput.tsx": [
-128
-],
-"console:src/views/models/FieldPopup/FieldPopup.tsx": [
-73,
-565,
-566,
-567
-],
-"console:src/views/models/FieldPopup/FieldPopupHeader.tsx": [
-96
-],
-"console:src/views/models/FieldPopup/FieldPopupState.ts": [
-63
-],
-"console:src/views/models/FieldPopup/constants.ts": [
-52,
-66
-],
-"console:src/views/models/ModelHeader.tsx": [
-333
-],
-"console:src/views/models/ModelRedirectView.tsx": [
-53
-],
-"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
-231
 ]
 }

@@ -26,9 +26,6 @@
 217,
 223
 ],
-"ant-design:components/anchor/Anchor.tsx": [
-258
-],
 "ant-design:components/anchor/__tests__/Anchor.test.tsx": [
 412,
 419,
@@ -51,6 +48,9 @@
 663,
 667,
 668
+],
+"ant-design:components/anchor/Anchor.tsx": [
+258
 ],
 "ant-design:components/avatar/avatar.tsx": [
 124,
@@ -134,9 +134,6 @@
 "ant-design:components/segmented/__tests__/index.test.tsx": [
 118
 ],
-"ant-design:components/statistic/Countdown.tsx": [
-8
-],
 "ant-design:components/statistic/__tests__/index.test.tsx": [
 30,
 32,
@@ -152,6 +149,9 @@
 87,
 87
 ],
+"ant-design:components/statistic/Countdown.tsx": [
+8
+],
 "ant-design:components/statistic/utils.tsx": [
 27,
 28
@@ -166,15 +166,15 @@
 48,
 59
 ],
+"ant-design:components/typography/__tests__/copy.test.tsx": [
+247
+],
 "ant-design:components/typography/Base/index.tsx": [
 215
 ],
 "ant-design:components/typography/Title.tsx": [
 7,
 7
-],
-"ant-design:components/typography/__tests__/copy.test.tsx": [
-247
 ],
 "ant-design:components/upload/UploadList/ListItem.tsx": [
 81

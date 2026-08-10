@@ -19,6 +19,16 @@
 "console:src/views/FunctionsView/FunctionPopup/TestPopup.tsx": [
 325
 ],
+"console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
+233
+],
+"console:src/views/models/FieldPopup/EditValueInput.tsx": [
+119,
+154
+],
+"console:src/views/models/FieldPopup/FieldLabel.tsx": [
+175
+],
 "console:src/views/ProjectRootView/ProjectRootView.tsx": [
 169
 ],
@@ -60,15 +70,5 @@
 ],
 "console:src/views/Settings/Team/MemberRow.tsx": [
 96
-],
-"console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
-233
-],
-"console:src/views/models/FieldPopup/EditValueInput.tsx": [
-119,
-154
-],
-"console:src/views/models/FieldPopup/FieldLabel.tsx": [
-175
 ]
 }

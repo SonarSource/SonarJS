@@ -50,10 +50,10 @@
 "oak:utils/clone_state.test.ts": [
 0
 ],
-"oak:utils/decode.test.ts": [
+"oak:utils/decode_component.test.ts": [
 0
 ],
-"oak:utils/decode_component.test.ts": [
+"oak:utils/decode.test.ts": [
 0
 ],
 "oak:utils/resolve_path.test.ts": [

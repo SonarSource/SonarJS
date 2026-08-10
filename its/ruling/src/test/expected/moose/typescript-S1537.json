@@ -26,6 +26,14 @@
 "moose:main/enums/FileType.ts": [
 5
 ],
+"moose:main/helpers/createWindow.ts": [
+4,
+19,
+33,
+50,
+80,
+81
+],
 "moose:main/helpers/Description.ts": [
 21,
 35,
@@ -37,14 +45,6 @@
 82,
 87,
 89
-],
-"moose:main/helpers/createWindow.ts": [
-4,
-19,
-33,
-50,
-80,
-81
 ],
 "moose:main/modules/cast.ts": [
 15

@@ -95,15 +95,15 @@
 "vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 147
 ],
-"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
-184,
-185,
-186
-],
 "vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
 231,
 232,
 233
+],
+"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
+184,
+185,
+186
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTable.tsx": [
 159

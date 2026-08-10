@@ -140,11 +140,11 @@
 "ag-grid:src/ts/rendering/cellEditors/textCellEditor.ts": [
 89
 ],
-"ag-grid:src/ts/rendering/cellRendererService.ts": [
-91
-],
 "ag-grid:src/ts/rendering/cellRenderers/iCellRenderer.ts": [
 40
+],
+"ag-grid:src/ts/rendering/cellRendererService.ts": [
+91
 ],
 "ag-grid:src/ts/rendering/columnAnimationService.ts": [
 88
@@ -158,6 +158,9 @@
 "ag-grid:src/ts/rendering/valueFormatterService.ts": [
 40
 ],
+"ag-grid:src/ts/rowModels/infinite/infiniteCache.ts": [
+142
+],
 "ag-grid:src/ts/rowModels/inMemory/flattenStage.ts": [
 154
 ],
@@ -166,9 +169,6 @@
 ],
 "ag-grid:src/ts/rowModels/inMemory/sortStage.ts": [
 23
-],
-"ag-grid:src/ts/rowModels/infinite/infiniteCache.ts": [
-142
 ],
 "ag-grid:src/ts/rowModels/pagination/paginationComp.ts": [
 176

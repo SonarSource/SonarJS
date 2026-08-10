@@ -2,6 +2,9 @@
 "ace:experiments/dom.html": [
 354
 ],
+"ace:lib/ace/mode/javascript_worker.js": [
+39
+],
 "ace:lib/ace/mode/javascript/jshint.js": [
 248,
 363,
@@ -23,9 +26,6 @@
 3731,
 4161,
 4201
-],
-"ace:lib/ace/mode/javascript_worker.js": [
-39
 ],
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 4037,

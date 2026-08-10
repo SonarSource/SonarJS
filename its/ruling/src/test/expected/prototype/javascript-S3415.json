@@ -321,6 +321,12 @@
 452,
 453
 ],
+"prototype:test/unit/tests/event_handler.test.js": [
+47,
+49,
+52,
+100
+],
 "prototype:test/unit/tests/event.test.js": [
 13,
 111,
@@ -338,12 +344,6 @@
 184,
 279,
 289
-],
-"prototype:test/unit/tests/event_handler.test.js": [
-47,
-49,
-52,
-100
 ],
 "prototype:test/unit/tests/form.test.js": [
 16,
@@ -572,9 +572,6 @@
 38,
 42
 ],
-"prototype:test/unit/tests/selector.test.js": [
-388
-],
 "prototype:test/unit/tests/selector_engine.test.js": [
 13,
 14,
@@ -586,6 +583,9 @@
 37,
 43,
 44
+],
+"prototype:test/unit/tests/selector.test.js": [
+388
 ],
 "prototype:test/unit/tests/string.test.js": [
 17,

@@ -13,21 +13,21 @@
 18,
 22
 ],
-"ant-design:components/locale-provider/LocaleReceiver.tsx": [
-18,
-22
-],
 "ant-design:components/locale-provider/index.tsx": [
 57
 ],
-"ant-design:components/menu/MenuItem.tsx": [
-21
+"ant-design:components/locale-provider/LocaleReceiver.tsx": [
+18,
+22
 ],
 "ant-design:components/menu/index.tsx": [
 180,
 182,
 184,
 186
+],
+"ant-design:components/menu/MenuItem.tsx": [
+21
 ],
 "ant-design:components/spin/index.tsx": [
 79

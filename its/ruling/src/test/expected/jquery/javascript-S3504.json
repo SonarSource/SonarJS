@@ -1,8 +1,4 @@
 {
-"jquery:Gruntfile.js": [
-5,
-15
-],
 "jquery:build/tasks/lib/spawn_test.js": [
 7
 ],
@@ -13,6 +9,10 @@
 "jquery:build/tasks/testswarm.js": [
 6
 ],
+"jquery:Gruntfile.js": [
+5,
+15
+],
 "jquery:src/ajax/load.js": [
 14
 ],
@@ -22,16 +22,16 @@
 "jquery:src/ajax/script.js": [
 45
 ],
-"jquery:src/core/DOMEval.js": [
-3,
-13
-],
 "jquery:src/core/access.js": [
 6,
 7
 ],
 "jquery:src/core/camelCase.js": [
 2
+],
+"jquery:src/core/DOMEval.js": [
+3,
+13
 ],
 "jquery:src/core/init.js": [
 9,

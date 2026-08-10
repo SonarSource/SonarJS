@@ -1,7 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-819
-],
 "ace:lib/ace/mode/css/csslint.js": [
 4251,
 4271,
@@ -140,12 +137,19 @@
 3358,
 3373
 ],
+"ace:Makefile.dryice.js": [
+819
+],
 "ace:src/bidihandler.js": [
 144
 ],
 "ace:src/edit_session.js": [
 1910,
 1954
+],
+"ace:src/keyboard/vim_test.js": [
+5411,
+5493
 ],
 "ace:src/keyboard/vim.js": [
 949,
@@ -155,10 +159,6 @@
 6384,
 6394,
 7008
-],
-"ace:src/keyboard/vim_test.js": [
-5411,
-5493
 ],
 "ace:src/lib/bidiutil.js": [
 249

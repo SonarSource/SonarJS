@@ -707,30 +707,6 @@
 216,
 217
 ],
-"ag-grid:src/ts/rowModels/inMemory/filterStage.ts": [
-13
-],
-"ag-grid:src/ts/rowModels/inMemory/flattenStage.ts": [
-20,
-64,
-65,
-68,
-70,
-71,
-72,
-73,
-90
-],
-"ag-grid:src/ts/rowModels/inMemory/inMemoryNodeManager.ts": [
-132,
-168,
-169
-],
-"ag-grid:src/ts/rowModels/inMemory/inMemoryRowModel.ts": [
-102,
-114,
-183
-],
 "ag-grid:src/ts/rowModels/infinite/infiniteBlock.ts": [
 26
 ],
@@ -756,6 +732,30 @@
 "ag-grid:src/ts/rowModels/infinite/infiniteRowModel.ts": [
 146,
 153
+],
+"ag-grid:src/ts/rowModels/inMemory/filterStage.ts": [
+13
+],
+"ag-grid:src/ts/rowModels/inMemory/flattenStage.ts": [
+20,
+64,
+65,
+68,
+70,
+71,
+72,
+73,
+90
+],
+"ag-grid:src/ts/rowModels/inMemory/inMemoryNodeManager.ts": [
+132,
+168,
+169
+],
+"ag-grid:src/ts/rowModels/inMemory/inMemoryRowModel.ts": [
+102,
+114,
+183
 ],
 "ag-grid:src/ts/rowModels/pagination/paginationComp.ts": [
 67,

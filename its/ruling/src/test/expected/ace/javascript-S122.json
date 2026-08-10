@@ -1,10 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-254,
-255,
-273,
-387
-],
 "ace:demo/kitchen-sink/demo.js": [
 402,
 403,
@@ -132,6 +126,12 @@
 "ace:lib/ace/worker/worker_client.js": [
 233
 ],
+"ace:Makefile.dryice.js": [
+254,
+255,
+273,
+387
+],
 "ace:src/ace_test.js": [
 70
 ],
@@ -171,6 +171,9 @@
 205,
 222
 ],
+"ace:src/edit_session_test.js": [
+541
+],
 "ace:src/edit_session.js": [
 805,
 810
@@ -178,14 +181,11 @@
 "ace:src/edit_session/bracket_match.js": [
 253
 ],
-"ace:src/edit_session_test.js": [
-541
+"ace:src/editor_highlight_selected_word_test.js": [
+36
 ],
 "ace:src/editor.js": [
 2277
-],
-"ace:src/editor_highlight_selected_word_test.js": [
-36
 ],
 "ace:src/ext/elastic_tabstops_lite.js": [
 88
@@ -220,25 +220,29 @@
 163,
 172
 ],
-"ace:src/keyboard/emacs.js": [
-71,
-444
-],
 "ace:src/keyboard/emacs_test.js": [
 30,
 110
 ],
+"ace:src/keyboard/emacs.js": [
+71,
+444
+],
 "ace:src/keyboard/hash_handler.js": [
 163
+],
+"ace:src/keyboard/textinput_test.js": [
+110,
+111
 ],
 "ace:src/keyboard/textinput.js": [
 50,
 258,
 259
 ],
-"ace:src/keyboard/textinput_test.js": [
-110,
-111
+"ace:src/keyboard/vim_test.js": [
+295,
+3871
 ],
 "ace:src/keyboard/vim.js": [
 92,
@@ -341,10 +345,6 @@
 7043,
 7137
 ],
-"ace:src/keyboard/vim_test.js": [
-295,
-3871
-],
 "ace:src/layer/font_metrics.js": [
 176,
 177,
@@ -361,12 +361,12 @@
 "ace:src/lib/bidiutil.js": [
 187
 ],
-"ace:src/lib/event.js": [
-148
-],
 "ace:src/lib/event_emitter.js": [
 4,
 5
+],
+"ace:src/lib/event.js": [
+148
 ],
 "ace:src/mode/_test/highlight_rules_test.js": [
 88,
@@ -397,13 +397,13 @@
 453,
 454
 ],
+"ace:src/snippets_test.js": [
+196
+],
 "ace:src/snippets.js": [
 395,
 404,
 696
-],
-"ace:src/snippets_test.js": [
-196
 ],
 "ace:src/test/all_browser.js": [
 117

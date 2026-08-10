@@ -8,10 +8,10 @@
 "courselit:apps/web/models/Widget.ts": [
 0
 ],
-"courselit:apps/web/pages/404.tsx": [
+"courselit:apps/web/pages/_document.tsx": [
 0
 ],
-"courselit:apps/web/pages/_document.tsx": [
+"courselit:apps/web/pages/404.tsx": [
 0
 ],
 "courselit:apps/web/pages/dashboard/courses/edit/[[...id]].tsx": [

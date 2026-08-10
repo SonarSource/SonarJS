@@ -1747,12 +1747,6 @@
 "courselit:apps/web/models/Widget.ts": [
 5
 ],
-"courselit:apps/web/pages/404.tsx": [
-1,
-2,
-3,
-4
-],
 "courselit:apps/web/pages/_app.tsx": [
 1,
 2,
@@ -1792,6 +1786,12 @@
 18,
 18,
 47
+],
+"courselit:apps/web/pages/404.tsx": [
+1,
+2,
+3,
+4
 ],
 "courselit:apps/web/pages/api/auth/login.ts": [
 1,

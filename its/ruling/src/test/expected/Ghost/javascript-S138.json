@@ -1,7 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-26
-],
 "Ghost:core/client/app/assets/lib/uploader.js": [
 8
 ],
@@ -138,5 +135,8 @@
 ],
 "Ghost:core/test/unit/sitemap_spec.js": [
 20
+],
+"Ghost:Gruntfile.js": [
+26
 ]
 }

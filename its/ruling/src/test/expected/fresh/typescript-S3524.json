@@ -5,10 +5,6 @@
 "fresh:packages/examples/src/app2.tsx": [
 12
 ],
-"fresh:packages/fresh/src/app.ts": [
-75,
-172
-],
 "fresh:packages/fresh/src/app_test.tsx": [
 8,
 12,
@@ -44,14 +40,14 @@
 859,
 879
 ],
+"fresh:packages/fresh/src/app.ts": [
+75,
+172
+],
 "fresh:packages/fresh/src/commands.ts": [
 132,
 288,
 316
-],
-"fresh:packages/fresh/src/context.ts": [
-290,
-376
 ],
 "fresh:packages/fresh/src/context_test.tsx": [
 32,
@@ -70,16 +66,14 @@
 220,
 236
 ],
+"fresh:packages/fresh/src/context.ts": [
+290,
+376
+],
 "fresh:packages/fresh/src/define_test.ts": [
 9,
 18,
 37
-],
-"fresh:packages/fresh/src/dev/builder.ts": [
-134,
-207,
-211,
-280
 ],
 "fresh:packages/fresh/src/dev/builder_test.ts": [
 183,
@@ -94,6 +88,12 @@
 729,
 814,
 963
+],
+"fresh:packages/fresh/src/dev/builder.ts": [
+134,
+207,
+211,
+280
 ],
 "fresh:packages/fresh/src/dev/check.ts": [
 44,
@@ -118,9 +118,6 @@
 213,
 229
 ],
-"fresh:packages/fresh/src/dev/file_transformer.ts": [
-254
-],
 "fresh:packages/fresh/src/dev/file_transformer_test.ts": [
 13,
 20,
@@ -134,15 +131,18 @@
 218,
 239
 ],
-"fresh:packages/fresh/src/dev/fs_crawl.ts": [
-20,
-133,
-142
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+254
 ],
 "fresh:packages/fresh/src/dev/fs_crawl_test.ts": [
 13,
 15,
 35
+],
+"fresh:packages/fresh/src/dev/fs_crawl.ts": [
+20,
+133,
+142
 ],
 "fresh:packages/fresh/src/dev/middlewares/automatic_workspace_folders.ts": [
 27
@@ -150,11 +150,11 @@
 "fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
 4
 ],
-"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware.tsx": [
-8
-],
 "fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware_test.tsx": [
 66
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware.tsx": [
+8
 ],
 "fresh:packages/fresh/src/dev/middlewares/live_reload.ts": [
 8
@@ -162,9 +162,6 @@
 "fresh:packages/fresh/src/dev/update_check_test.ts": [
 40,
 110
-],
-"fresh:packages/fresh/src/fs_routes.ts": [
-151
 ],
 "fresh:packages/fresh/src/fs_routes_test.tsx": [
 24,
@@ -247,6 +244,9 @@
 1640,
 1641
 ],
+"fresh:packages/fresh/src/fs_routes.ts": [
+151
+],
 "fresh:packages/fresh/src/jsonify/custom_test.ts": [
 15,
 29,
@@ -267,13 +267,6 @@
 98,
 187
 ],
-"fresh:packages/fresh/src/middlewares/csp.ts": [
-87,
-89,
-105,
-116,
-123
-],
 "fresh:packages/fresh/src/middlewares/csp_test.tsx": [
 94,
 130,
@@ -282,19 +275,21 @@
 220,
 246
 ],
-"fresh:packages/fresh/src/middlewares/csrf.ts": [
-80
+"fresh:packages/fresh/src/middlewares/csp.ts": [
+87,
+89,
+105,
+116,
+123
 ],
 "fresh:packages/fresh/src/middlewares/csrf_test.ts": [
 95
 ],
+"fresh:packages/fresh/src/middlewares/csrf.ts": [
+80
+],
 "fresh:packages/fresh/src/middlewares/ip_filter_test.ts": [
 86
-],
-"fresh:packages/fresh/src/middlewares/mod.ts": [
-95,
-141,
-145
 ],
 "fresh:packages/fresh/src/middlewares/mod_test.ts": [
 9,
@@ -324,6 +319,11 @@
 227,
 243,
 268
+],
+"fresh:packages/fresh/src/middlewares/mod.ts": [
+95,
+141,
+145
 ],
 "fresh:packages/fresh/src/middlewares/static_files_test.ts": [
 238,

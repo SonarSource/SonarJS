@@ -256,14 +256,14 @@
 88,
 101
 ],
-"react-cloud-music:src/application/User/Login/PhoneForm/index.jsx": [
-16
-],
 "react-cloud-music:src/application/User/Login/index.jsx": [
 18,
 94,
 110,
 116
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/index.jsx": [
+16
 ],
 "react-cloud-music:src/application/User/Login/store/actionCreators.js": [
 4,

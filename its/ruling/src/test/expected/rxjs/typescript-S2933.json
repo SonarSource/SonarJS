@@ -5,12 +5,6 @@
 "rxjs:src/Notification.ts": [
 18
 ],
-"rxjs:src/ReplaySubject.ts": [
-12
-],
-"rxjs:src/Scheduler.ts": [
-24
-],
 "rxjs:src/observable/ArrayLikeObservable.ts": [
 13
 ],
@@ -29,6 +23,9 @@
 "rxjs:src/observable/DeferObservable.ts": [
 12,
 73
+],
+"rxjs:src/observable/dom/AjaxObservable.ts": [
+100
 ],
 "rxjs:src/observable/EmptyObservable.ts": [
 15
@@ -85,9 +82,6 @@
 "rxjs:src/observable/UsingObservable.ts": [
 12,
 38
-],
-"rxjs:src/observable/dom/AjaxObservable.ts": [
-100
 ],
 "rxjs:src/operator/audit.ts": [
 55,
@@ -371,6 +365,12 @@
 233,
 256,
 288
+],
+"rxjs:src/ReplaySubject.ts": [
+12
+],
+"rxjs:src/Scheduler.ts": [
+24
 ],
 "rxjs:src/testing/TestScheduler.ts": [
 21

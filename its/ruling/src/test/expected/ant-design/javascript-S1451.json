@@ -131,15 +131,6 @@
 "ant-design:components/date-picker/__tests__/DatePicker.test.js": [
 0
 ],
-"ant-design:components/date-picker/__tests__/QuarterPicker.test.js": [
-0
-],
-"ant-design:components/date-picker/__tests__/RangePicker.test.js": [
-0
-],
-"ant-design:components/date-picker/__tests__/WeekPicker.test.js": [
-0
-],
 "ant-design:components/date-picker/__tests__/demo.test.js": [
 0
 ],
@@ -149,7 +140,16 @@
 "ant-design:components/date-picker/__tests__/other.test.js": [
 0
 ],
+"ant-design:components/date-picker/__tests__/QuarterPicker.test.js": [
+0
+],
+"ant-design:components/date-picker/__tests__/RangePicker.test.js": [
+0
+],
 "ant-design:components/date-picker/__tests__/utils.js": [
+0
+],
+"ant-design:components/date-picker/__tests__/WeekPicker.test.js": [
 0
 ],
 "ant-design:components/descriptions/__tests__/demo.test.js": [
@@ -164,6 +164,9 @@
 "ant-design:components/divider/__tests__/index.test.js": [
 0
 ],
+"ant-design:components/drawer/__tests__/demo.test.js": [
+0
+],
 "ant-design:components/drawer/__tests__/Drawer.test.js": [
 0
 ],
@@ -171,9 +174,6 @@
 0
 ],
 "ant-design:components/drawer/__tests__/MultiDrawer.test.js": [
-0
-],
-"ant-design:components/drawer/__tests__/demo.test.js": [
 0
 ],
 "ant-design:components/dropdown/__tests__/demo.test.js": [
@@ -227,13 +227,13 @@
 "ant-design:components/input-number/__tests__/prefix.test.js": [
 0
 ],
+"ant-design:components/input/__tests__/demo.test.js": [
+0
+],
 "ant-design:components/input/__tests__/Password.test.js": [
 0
 ],
 "ant-design:components/input/__tests__/Search.test.js": [
-0
-],
-"ant-design:components/input/__tests__/demo.test.js": [
 0
 ],
 "ant-design:components/input/__tests__/textarea.test.js": [
@@ -245,9 +245,6 @@
 "ant-design:components/layout/__tests__/index.test.js": [
 0
 ],
-"ant-design:components/list/__tests__/Item.test.js": [
-0
-],
 "ant-design:components/list/__tests__/demo.test.js": [
 0
 ],
@@ -255,6 +252,9 @@
 0
 ],
 "ant-design:components/list/__tests__/index.test.js": [
+0
+],
+"ant-design:components/list/__tests__/Item.test.js": [
 0
 ],
 "ant-design:components/list/__tests__/loading.test.js": [
@@ -410,6 +410,12 @@
 "ant-design:components/switch/__tests__/wave.test.js": [
 0
 ],
+"ant-design:components/table/__tests__/demo.test.js": [
+0
+],
+"ant-design:components/table/__tests__/empty.test.js": [
+0
+],
 "ant-design:components/table/__tests__/Table.expand.test.js": [
 0
 ],
@@ -429,12 +435,6 @@
 0
 ],
 "ant-design:components/table/__tests__/Table.test.js": [
-0
-],
-"ant-design:components/table/__tests__/demo.test.js": [
-0
-],
-"ant-design:components/table/__tests__/empty.test.js": [
 0
 ],
 "ant-design:components/tabs/__tests__/demo.test.js": [
@@ -617,13 +617,13 @@
 "ant-design:site/theme/template/Color/ColorBlock.jsx": [
 0
 ],
+"ant-design:site/theme/template/Color/ColorPalettes.jsx": [
+0
+],
 "ant-design:site/theme/template/Color/ColorPaletteTool.jsx": [
 0
 ],
 "ant-design:site/theme/template/Color/ColorPaletteToolDark.jsx": [
-0
-],
-"ant-design:site/theme/template/Color/ColorPalettes.jsx": [
 0
 ],
 "ant-design:site/theme/template/Color/ColorPatterns.jsx": [
@@ -647,10 +647,13 @@
 "ant-design:site/theme/template/Content/Demo/CodeSandboxIcon.jsx": [
 0
 ],
+"ant-design:site/theme/template/Content/Demo/index.jsx": [
+0
+],
 "ant-design:site/theme/template/Content/Demo/RiddleIcon.jsx": [
 0
 ],
-"ant-design:site/theme/template/Content/Demo/index.jsx": [
+"ant-design:site/theme/template/Content/index.jsx": [
 0
 ],
 "ant-design:site/theme/template/Content/MainContent.jsx": [
@@ -660,9 +663,6 @@
 0
 ],
 "ant-design:site/theme/template/Content/ThemeIcon.jsx": [
-0
-],
-"ant-design:site/theme/template/Content/index.jsx": [
 0
 ],
 "ant-design:site/theme/template/Icon/index.jsx": [

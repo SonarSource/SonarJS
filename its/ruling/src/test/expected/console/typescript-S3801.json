@@ -18,6 +18,15 @@
 "console:src/views/Integrations/Algolia/AlgoliaView.tsx": [
 168
 ],
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
+444
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+317
+],
+"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
+67
+],
 "console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
 336
 ],
@@ -35,14 +44,5 @@
 ],
 "console:src/views/Settings/Team/MemberRow.tsx": [
 91
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-444
-],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-317
-],
-"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
-67
 ]
 }

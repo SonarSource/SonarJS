@@ -1,8 +1,4 @@
 {
-"Joust:ts/Launcher.tsx": [
-302,
-419
-],
 "Joust:ts/components/DebugApplication.tsx": [
 107,
 108,
@@ -19,14 +15,18 @@
 85,
 86
 ],
+"Joust:ts/components/game/visuals/HeroArt.tsx": [
+94
+],
 "Joust:ts/components/GameWidget.tsx": [
 97
 ],
 "Joust:ts/components/Scrubber.tsx": [
 57
 ],
-"Joust:ts/components/game/visuals/HeroArt.tsx": [
-94
+"Joust:ts/Launcher.tsx": [
+302,
+419
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 214,

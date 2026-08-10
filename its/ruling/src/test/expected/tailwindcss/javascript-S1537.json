@@ -427,6 +427,13 @@
 24,
 25
 ],
+"tailwindcss:src/plugins/placeholderColor.js": [
+16
+],
+"tailwindcss:src/plugins/placeholderOpacity.js": [
+11,
+12
+],
 "tailwindcss:src/plugins/placeItems.js": [
 6,
 9,
@@ -442,13 +449,6 @@
 15,
 18,
 19
-],
-"tailwindcss:src/plugins/placeholderColor.js": [
-16
-],
-"tailwindcss:src/plugins/placeholderOpacity.js": [
-11,
-12
 ],
 "tailwindcss:src/plugins/pointerEvents.js": [
 6

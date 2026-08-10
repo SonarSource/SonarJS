@@ -11,20 +11,20 @@
 "ant-design:components/collapse/Collapse.tsx": [
 32
 ],
-"ant-design:components/config-provider/DisabledContext.tsx": [
-8
-],
-"ant-design:components/config-provider/SizeContext.tsx": [
-8
-],
 "ant-design:components/config-provider/context.tsx": [
 41,
 43
+],
+"ant-design:components/config-provider/DisabledContext.tsx": [
+8
 ],
 "ant-design:components/config-provider/index.tsx": [
 83,
 85,
 87
+],
+"ant-design:components/config-provider/SizeContext.tsx": [
+8
 ],
 "ant-design:components/date-picker/generatePicker/index.tsx": [
 82

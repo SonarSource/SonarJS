@@ -27,13 +27,6 @@
 "console:src/views/FunctionsView/FunctionPopup/functionPopupState.ts": [
 9
 ],
-"console:src/views/ProjectRootView/ProjectRootView.tsx": [
-124,
-146
-],
-"console:src/views/ProjectSettingsView/ProjectSettingsView.tsx": [
-182
-],
 "console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
 172
 ],
@@ -49,11 +42,18 @@
 "console:src/views/models/DatabrowserView/NewRowInactive.tsx": [
 173
 ],
-"console:src/views/models/FieldPopup/FieldPopup.tsx": [
-515
-],
 "console:src/views/models/FieldPopup/constants.ts": [
 52,
 66
+],
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
+515
+],
+"console:src/views/ProjectRootView/ProjectRootView.tsx": [
+124,
+146
+],
+"console:src/views/ProjectSettingsView/ProjectSettingsView.tsx": [
+182
 ]
 }

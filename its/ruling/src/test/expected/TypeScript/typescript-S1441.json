@@ -659,11 +659,11 @@
 5,
 13
 ],
-"TypeScript:scripts/tslint/noInOperatorRule.ts": [
+"TypeScript:scripts/tslint/noIncrementDecrementRule.ts": [
 1,
 2
 ],
-"TypeScript:scripts/tslint/noIncrementDecrementRule.ts": [
+"TypeScript:scripts/tslint/noInOperatorRule.ts": [
 1,
 2
 ],

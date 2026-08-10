@@ -1,11 +1,11 @@
 {
-"knockout:Gruntfile.js": [
-77
-],
 "knockout:build/knockout-raw.js": [
 3,
 4,
 29
+],
+"knockout:Gruntfile.js": [
+77
 ],
 "knockout:src/binding/defaultBindings/textInput.js": [
 3,

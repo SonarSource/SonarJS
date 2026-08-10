@@ -363,6 +363,13 @@
 228,
 231
 ],
+"ant-design:components/date-picker/__tests__/other.test.js": [
+21,
+22,
+31,
+65,
+73
+],
 "ant-design:components/date-picker/__tests__/QuarterPicker.test.js": [
 17
 ],
@@ -370,13 +377,6 @@
 50,
 84,
 87
-],
-"ant-design:components/date-picker/__tests__/other.test.js": [
-21,
-22,
-31,
-65,
-73
 ],
 "ant-design:components/descriptions/__tests__/index.test.js": [
 30,
@@ -671,6 +671,9 @@
 283,
 298
 ],
+"ant-design:components/list/__tests__/index.test.js": [
+20
+],
 "ant-design:components/list/__tests__/Item.test.js": [
 17,
 18,
@@ -695,9 +698,6 @@
 178,
 185,
 203
-],
-"ant-design:components/list/__tests__/index.test.js": [
-20
 ],
 "ant-design:components/list/__tests__/loading.test.js": [
 10,
@@ -1086,6 +1086,15 @@
 ],
 "ant-design:components/switch/__tests__/index.test.js": [
 28
+],
+"ant-design:components/table/__tests__/empty.test.js": [
+13,
+22,
+29,
+43,
+44,
+55,
+67
 ],
 "ant-design:components/table/__tests__/Table.expand.test.js": [
 10,
@@ -1987,15 +1996,6 @@
 274,
 275
 ],
-"ant-design:components/table/__tests__/empty.test.js": [
-13,
-22,
-29,
-43,
-44,
-55,
-67
-],
 "ant-design:components/tabs/__tests__/index.test.js": [
 35,
 62,
@@ -2679,15 +2679,6 @@
 10,
 16
 ],
-"ant-design:site/theme/template/Color/ColorPaletteTool.jsx": [
-12,
-19
-],
-"ant-design:site/theme/template/Color/ColorPaletteToolDark.jsx": [
-14,
-21,
-28
-],
 "ant-design:site/theme/template/Color/ColorPalettes.jsx": [
 13,
 19,
@@ -2703,6 +2694,15 @@
 79,
 80,
 83
+],
+"ant-design:site/theme/template/Color/ColorPaletteTool.jsx": [
+12,
+19
+],
+"ant-design:site/theme/template/Color/ColorPaletteToolDark.jsx": [
+14,
+21,
+28
 ],
 "ant-design:site/theme/template/Color/Palette.jsx": [
 37,

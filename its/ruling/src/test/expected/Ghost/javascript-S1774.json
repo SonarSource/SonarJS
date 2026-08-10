@@ -1,10 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-17,
-448,
-548,
-962
-],
 "Ghost:core/client/app/adapters/embedded-relation-adapter.js": [
 103
 ],
@@ -409,5 +403,11 @@
 115,
 120,
 547
+],
+"Ghost:Gruntfile.js": [
+17,
+448,
+548,
+962
 ]
 }

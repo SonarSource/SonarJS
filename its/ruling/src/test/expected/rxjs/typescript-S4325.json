@@ -1,11 +1,6 @@
 {
-"rxjs:src/Subscriber.ts": [
-71,
-75,
-180,
-182,
-183,
-184
+"rxjs:src/observable/dom/WebSocketSubject.ts": [
+90
 ],
 "rxjs:src/observable/ForkJoinObservable.ts": [
 64
@@ -19,9 +14,6 @@
 "rxjs:src/observable/TimerObservable.ts": [
 94,
 104
-],
-"rxjs:src/observable/dom/WebSocketSubject.ts": [
-90
 ],
 "rxjs:src/operator/bufferTime.ts": [
 224
@@ -51,6 +43,14 @@
 ],
 "rxjs:src/operator/timeout.ts": [
 22
+],
+"rxjs:src/Subscriber.ts": [
+71,
+75,
+180,
+182,
+183,
+184
 ],
 "rxjs:src/util/isPromise.ts": [
 2,

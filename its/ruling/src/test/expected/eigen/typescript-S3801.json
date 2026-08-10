@@ -61,6 +61,9 @@
 "eigen:src/app/NativeModules/triggerCamera.tsx": [
 4
 ],
+"eigen:src/app/navigation/useReloadedDevNavigationState.ts": [
+50
+],
 "eigen:src/app/Scenes/Artist/Artist.tests.tsx": [
 30
 ],
@@ -191,13 +194,13 @@
 "eigen:src/app/Scenes/Inbox/Screens/Conversation.tests.tsx": [
 50
 ],
+"eigen:src/app/Scenes/Map/bucketCityResults.ts": [
+45
+],
 "eigen:src/app/Scenes/Map/GlobalMap.tsx": [
 313,
 321,
 334
-],
-"eigen:src/app/Scenes/Map/bucketCityResults.ts": [
-45
 ],
 "eigen:src/app/Scenes/MyAccount/MyAccount.tests.tsx": [
 52
@@ -272,21 +275,15 @@
 "eigen:src/app/Scenes/Show/ShowViewingRoom.tests.tsx": [
 32
 ],
-"eigen:src/app/Websockets/auctions/AuctionSocketContext.tsx": [
-50
-],
-"eigen:src/app/navigation/useReloadedDevNavigationState.ts": [
-50
+"eigen:src/app/store/config/EchoModel.tsx": [
+72,
+87
 ],
 "eigen:src/app/store/GlobalStore.tsx": [
 161
 ],
 "eigen:src/app/store/PropsStore.ts": [
 7
-],
-"eigen:src/app/store/config/EchoModel.tsx": [
-72,
-87
 ],
 "eigen:src/app/tests/setupTestWrapper.tsx": [
 31,
@@ -298,8 +295,8 @@
 "eigen:src/app/utils/getTestWrapper.tsx": [
 13
 ],
-"eigen:src/palette/Theme.tsx": [
-136
+"eigen:src/app/Websockets/auctions/AuctionSocketContext.tsx": [
+50
 ],
 "eigen:src/palette/elements/Button/Button.tsx": [
 100
@@ -310,6 +307,9 @@
 ],
 "eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx": [
 142
+],
+"eigen:src/palette/Theme.tsx": [
+136
 ],
 "eigen:src/shared/utils/ArtsyKeyboardAvoidingView.tsx": [
 74

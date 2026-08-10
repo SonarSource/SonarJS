@@ -51,6 +51,11 @@
 124,
 125
 ],
+"console:src/components/onboarding/OnboardingPopup/OnboardingPopup.tsx": [
+81,
+87,
+87
+],
 "console:src/components/ProgressIndicator/ProgressIndicator.tsx": [
 28
 ],
@@ -78,19 +83,11 @@
 "console:src/components/ToggleButton/ToggleButton.tsx": [
 82
 ],
-"console:src/components/onboarding/OnboardingPopup/OnboardingPopup.tsx": [
-81,
-87,
-87
-],
 "console:src/main.tsx": [
 53
 ],
 "console:src/types/gettingStarted.ts": [
 116
-],
-"console:src/utils/QueryHistoryStorage.ts": [
-16
 ],
 "console:src/utils/components.tsx": [
 5
@@ -100,6 +97,9 @@
 ],
 "console:src/utils/polyfils.ts": [
 120
+],
+"console:src/utils/QueryHistoryStorage.ts": [
+16
 ],
 "console:src/utils/relay.ts": [
 152,
@@ -114,6 +114,22 @@
 33,
 151
 ],
+"console:src/views/account/AccountView/SettingsTab.tsx": [
+97,
+121,
+132,
+132
+],
+"console:src/views/account/ResetPasswordView/ResetPasswordView.tsx": [
+37,
+44,
+82,
+83
+],
+"console:src/views/ActionsView/ActionsView.tsx": [
+80,
+80
+],
 "console:src/views/ActionsView/ActionTrigger.tsx": [
 51,
 81,
@@ -122,10 +138,6 @@
 "console:src/views/ActionsView/ActionTriggerBox.tsx": [
 37,
 58
-],
-"console:src/views/ActionsView/ActionsView.tsx": [
-80,
-80
 ],
 "console:src/views/AfterSignUpView/AfterSignUpView.tsx": [
 100
@@ -176,6 +188,108 @@
 "console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndex.tsx": [
 59
 ],
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
+463,
+478,
+486,
+509,
+516,
+545,
+545
+],
+"console:src/views/models/DatabrowserView/Cell.tsx": [
+112
+],
+"console:src/views/models/DatabrowserView/Cell/BooleanCell.tsx": [
+14
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+278,
+312
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
+175
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+178,
+332,
+333,
+335,
+634,
+676,
+680,
+776,
+777,
+779,
+782,
+783,
+784
+],
+"console:src/views/models/DatabrowserView/NewRow.tsx": [
+50,
+63,
+90,
+193,
+193
+],
+"console:src/views/models/DatabrowserView/NewRowInactive.tsx": [
+45
+],
+"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
+79,
+80,
+81,
+172,
+190,
+194,
+196
+],
+"console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
+244
+],
+"console:src/views/models/FieldPopup/BaseSettings.tsx": [
+143,
+272
+],
+"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
+202
+],
+"console:src/views/models/FieldPopup/EditValueInput.tsx": [
+133,
+149
+],
+"console:src/views/models/FieldPopup/ErrorInfo.tsx": [
+4
+],
+"console:src/views/models/FieldPopup/FieldLabel.tsx": [
+170
+],
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
+363,
+468,
+524
+],
+"console:src/views/models/ModelDescription.tsx": [
+88,
+100,
+100
+],
+"console:src/views/models/ModelHeader.tsx": [
+281,
+305
+],
+"console:src/views/models/ModelRedirectView.tsx": [
+39,
+40,
+44
+],
+"console:src/views/models/utils.ts": [
+108,
+110,
+111,
+133,
+134
+],
 "console:src/views/PermissionsView/PermissionPopup/AffectedFields.tsx": [
 139
 ],
@@ -208,6 +322,26 @@
 ],
 "console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermission.tsx": [
 114
+],
+"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupClientChooser.tsx": [
+22
+],
+"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupCode.tsx": [
+38,
+52
+],
+"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupEnvironmentChooser.tsx": [
+20
+],
+"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupHeader.tsx": [
+10
+],
+"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
+158,
+159,
+217,
+223,
+223
 ],
 "console:src/views/ProjectRootView/AddModelPopup.tsx": [
 200
@@ -409,139 +543,5 @@
 "console:src/views/Settings/Team/Team.tsx": [
 55,
 105
-],
-"console:src/views/account/AccountView/SettingsTab.tsx": [
-97,
-121,
-132,
-132
-],
-"console:src/views/account/ResetPasswordView/ResetPasswordView.tsx": [
-37,
-44,
-82,
-83
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-463,
-478,
-486,
-509,
-516,
-545,
-545
-],
-"console:src/views/models/DatabrowserView/Cell.tsx": [
-112
-],
-"console:src/views/models/DatabrowserView/Cell/BooleanCell.tsx": [
-14
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-278,
-312
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
-175
-],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-178,
-332,
-333,
-335,
-634,
-676,
-680,
-776,
-777,
-779,
-782,
-783,
-784
-],
-"console:src/views/models/DatabrowserView/NewRow.tsx": [
-50,
-63,
-90,
-193,
-193
-],
-"console:src/views/models/DatabrowserView/NewRowInactive.tsx": [
-45
-],
-"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
-79,
-80,
-81,
-172,
-190,
-194,
-196
-],
-"console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
-244
-],
-"console:src/views/models/FieldPopup/BaseSettings.tsx": [
-143,
-272
-],
-"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
-202
-],
-"console:src/views/models/FieldPopup/EditValueInput.tsx": [
-133,
-149
-],
-"console:src/views/models/FieldPopup/ErrorInfo.tsx": [
-4
-],
-"console:src/views/models/FieldPopup/FieldLabel.tsx": [
-170
-],
-"console:src/views/models/FieldPopup/FieldPopup.tsx": [
-363,
-468,
-524
-],
-"console:src/views/models/ModelDescription.tsx": [
-88,
-100,
-100
-],
-"console:src/views/models/ModelHeader.tsx": [
-281,
-305
-],
-"console:src/views/models/ModelRedirectView.tsx": [
-39,
-40,
-44
-],
-"console:src/views/models/utils.ts": [
-108,
-110,
-111,
-133,
-134
-],
-"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupClientChooser.tsx": [
-22
-],
-"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupCode.tsx": [
-38,
-52
-],
-"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupEnvironmentChooser.tsx": [
-20
-],
-"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopupHeader.tsx": [
-10
-],
-"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
-158,
-159,
-217,
-223,
-223
 ]
 }

@@ -1,12 +1,4 @@
 {
-"angular.js:Gruntfile.js": [
-21,
-29,
-42,
-379,
-420,
-435
-],
 "angular.js:benchmarks/largetable-bp/app.js": [
 123
 ],
@@ -114,6 +106,14 @@
 62,
 63,
 140
+],
+"angular.js:Gruntfile.js": [
+21,
+29,
+42,
+379,
+420,
+435
 ],
 "angular.js:karma-jquery.conf-factory.js": [
 12

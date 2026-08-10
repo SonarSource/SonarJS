@@ -8,6 +8,12 @@
 "eigen:src/app/Components/ReadMore.tsx": [
 143
 ],
+"eigen:src/app/relay/middlewares/cacheMiddleware.ts": [
+8
+],
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+17
+],
 "eigen:src/app/Scenes/Artwork/Artwork.tsx": [
 233
 ],
@@ -31,12 +37,6 @@
 ],
 "eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tsx": [
 283
-],
-"eigen:src/app/relay/middlewares/cacheMiddleware.ts": [
-8
-],
-"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
-17
 ],
 "eigen:src/app/store/AuthModel.ts": [
 658

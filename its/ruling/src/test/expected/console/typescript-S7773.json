@@ -17,6 +17,10 @@
 163,
 163
 ],
+"console:src/views/models/FieldPopup/BaseSettings.tsx": [
+257,
+258
+],
 "console:src/views/SchemaView/ComingSoonTag.tsx": [
 7
 ],
@@ -28,9 +32,5 @@
 ],
 "console:src/views/SchemaView/SchemaView.tsx": [
 38
-],
-"console:src/views/models/FieldPopup/BaseSettings.tsx": [
-257,
-258
 ]
 }

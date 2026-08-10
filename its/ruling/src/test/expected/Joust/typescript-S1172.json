@@ -1,14 +1,4 @@
 {
-"Joust:ts/Launcher.tsx": [
-97,
-365
-],
-"Joust:ts/Player.ts": [
-45
-],
-"Joust:ts/TexturePreloader.ts": [
-25
-],
 "Joust:ts/components/DebugApplication.tsx": [
 98
 ],
@@ -19,28 +9,6 @@
 ],
 "Joust:ts/components/EventLogCard.tsx": [
 10
-],
-"Joust:ts/components/GameWidget.tsx": [
-331
-],
-"Joust:ts/components/Scrubber.tsx": [
-68,
-74,
-74,
-80
-],
-"Joust:ts/components/Settings.tsx": [
-39
-],
-"Joust:ts/components/SpeedSelector.tsx": [
-17
-],
-"Joust:ts/components/Timeline.tsx": [
-76
-],
-"Joust:ts/components/Tooltipper.tsx": [
-45,
-49
 ],
 "Joust:ts/components/game/Card.tsx": [
 27,
@@ -77,6 +45,35 @@
 14,
 14
 ],
+"Joust:ts/components/GameWidget.tsx": [
+331
+],
+"Joust:ts/components/Scrubber.tsx": [
+68,
+74,
+74,
+80
+],
+"Joust:ts/components/Settings.tsx": [
+39
+],
+"Joust:ts/components/SpeedSelector.tsx": [
+17
+],
+"Joust:ts/components/Timeline.tsx": [
+76
+],
+"Joust:ts/components/Tooltipper.tsx": [
+45,
+49
+],
+"Joust:ts/Launcher.tsx": [
+97,
+365
+],
+"Joust:ts/Player.ts": [
+45
+],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 75
 ],
@@ -101,5 +98,8 @@
 13,
 24,
 24
+],
+"Joust:ts/TexturePreloader.ts": [
+25
 ]
 }

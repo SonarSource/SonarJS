@@ -145,6 +145,15 @@
 343,
 359
 ],
+"oak:deps_test.ts": [
+3,
+4,
+5,
+6,
+7,
+8,
+9
+],
 "oak:deps.ts": [
 7,
 8,
@@ -164,15 +173,6 @@
 62,
 70,
 79
-],
-"oak:deps_test.ts": [
-3,
-4,
-5,
-6,
-7,
-8,
-9
 ],
 "oak:examples/closeServer.ts": [
 6,
@@ -379,6 +379,18 @@
 231,
 231
 ],
+"oak:http_server_native_request.ts": [
+9,
+10,
+17,
+17,
+49,
+86,
+100,
+112,
+120,
+123
+],
 "oak:http_server_native.ts": [
 9,
 10,
@@ -392,18 +404,6 @@
 102,
 113,
 113
-],
-"oak:http_server_native_request.ts": [
-9,
-10,
-17,
-17,
-49,
-86,
-100,
-112,
-120,
-123
 ],
 "oak:http_server_node.ts": [
 16,

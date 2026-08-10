@@ -1,7 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-134
-],
 "ace:demo/kitchen-sink/doclist.js": [
 126
 ],
@@ -39,11 +36,14 @@
 1608,
 2970
 ],
+"ace:lib/ace/worker/worker_client_v2.js": [
+184
+],
 "ace:lib/ace/worker/worker_client.js": [
 171
 ],
-"ace:lib/ace/worker/worker_client_v2.js": [
-184
+"ace:Makefile.dryice.js": [
+134
 ],
 "ace:src/anchor.js": [
 116
@@ -51,6 +51,9 @@
 "ace:src/autocomplete.js": [
 150,
 532
+],
+"ace:src/edit_session_test.js": [
+861
 ],
 "ace:src/edit_session.js": [
 943
@@ -61,18 +64,15 @@
 "ace:src/edit_session/folding.js": [
 132
 ],
-"ace:src/edit_session_test.js": [
-861
+"ace:src/editor_commands_test.js": [
+273,
+459
 ],
 "ace:src/editor.js": [
 51,
 182,
 776,
 1545
-],
-"ace:src/editor_commands_test.js": [
-273,
-459
 ],
 "ace:src/ext/emmet.js": [
 36,
@@ -87,6 +87,13 @@
 ],
 "ace:src/keyboard/textarea.js": [
 17
+],
+"ace:src/keyboard/vim_test.js": [
+494,
+1968,
+2142,
+2886,
+4326
 ],
 "ace:src/keyboard/vim.js": [
 14,
@@ -107,13 +114,6 @@
 5118,
 5166,
 6582
-],
-"ace:src/keyboard/vim_test.js": [
-494,
-1968,
-2142,
-2886,
-4326
 ],
 "ace:src/keyboard/vscode.js": [
 224,

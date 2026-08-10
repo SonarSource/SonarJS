@@ -16,11 +16,11 @@
 "ace:src/anchor_test.js": [
 5
 ],
-"ace:src/autocomplete.js": [
-438
-],
 "ace:src/autocomplete_test.js": [
 6
+],
+"ace:src/autocomplete.js": [
+438
 ],
 "ace:src/background_tokenizer_test.js": [
 5
@@ -209,11 +209,11 @@
 "ace:src/tokenizer_test.js": [
 5
 ],
-"ace:src/undomanager.js": [
-300
-],
 "ace:src/undomanager_test.js": [
 6
+],
+"ace:src/undomanager.js": [
+300
 ],
 "ace:src/virtual_renderer_test.js": [
 6

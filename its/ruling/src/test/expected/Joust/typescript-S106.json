@@ -1,11 +1,6 @@
 {
-"Joust:ts/Entity.ts": [
-137,
-153
-],
-"Joust:ts/Launcher.tsx": [
-41,
-98
+"Joust:ts/components/game/Player.tsx": [
+247
 ],
 "Joust:ts/components/GameWidget.tsx": [
 125,
@@ -15,8 +10,13 @@
 170,
 175
 ],
-"Joust:ts/components/game/Player.tsx": [
-247
+"Joust:ts/Entity.ts": [
+137,
+153
+],
+"Joust:ts/Launcher.tsx": [
+41,
+98
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 125,

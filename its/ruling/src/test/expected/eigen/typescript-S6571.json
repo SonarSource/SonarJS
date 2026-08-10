@@ -25,12 +25,6 @@
 7,
 7
 ],
-"eigen:src/app/Websockets/GravityWebsocketContext.tsx": [
-8,
-9,
-20,
-21
-],
 "eigen:src/app/store/GlobalStore.tsx": [
 186
 ],
@@ -41,6 +35,12 @@
 ],
 "eigen:src/app/utils/plainTextFromTree.ts": [
 3
+],
+"eigen:src/app/Websockets/GravityWebsocketContext.tsx": [
+8,
+9,
+20,
+21
 ],
 "eigen:src/palette/elements/Select/Select.tsx": [
 200

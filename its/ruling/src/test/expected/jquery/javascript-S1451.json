@@ -1,7 +1,4 @@
 {
-"jquery:Gruntfile.js": [
-0
-],
 "jquery:build/release.js": [
 0
 ],
@@ -39,6 +36,9 @@
 0
 ],
 "jquery:build/tasks/testswarm.js": [
+0
+],
+"jquery:Gruntfile.js": [
 0
 ],
 "jquery:src/ajax.js": [
@@ -89,13 +89,13 @@
 "jquery:src/core.js": [
 0
 ],
-"jquery:src/core/DOMEval.js": [
-0
-],
 "jquery:src/core/access.js": [
 0
 ],
 "jquery:src/core/camelCase.js": [
+0
+],
+"jquery:src/core/DOMEval.js": [
 0
 ],
 "jquery:src/core/init.js": [
@@ -203,10 +203,10 @@
 "jquery:src/effects.js": [
 0
 ],
-"jquery:src/effects/Tween.js": [
+"jquery:src/effects/animatedSelector.js": [
 0
 ],
-"jquery:src/effects/animatedSelector.js": [
+"jquery:src/effects/Tween.js": [
 0
 ],
 "jquery:src/event.js": [
@@ -302,9 +302,6 @@
 "jquery:src/traversing/var/siblings.js": [
 0
 ],
-"jquery:src/var/ObjectFunctionString.js": [
-0
-],
 "jquery:src/var/arr.js": [
 0
 ],
@@ -336,6 +333,9 @@
 0
 ],
 "jquery:src/var/isWindow.js": [
+0
+],
+"jquery:src/var/ObjectFunctionString.js": [
 0
 ],
 "jquery:src/var/pnum.js": [

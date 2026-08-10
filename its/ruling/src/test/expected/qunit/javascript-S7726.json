@@ -1,7 +1,4 @@
 {
-"qunit:Gruntfile.js": [
-15
-],
 "qunit:build/release.js": [
 2
 ],
@@ -10,5 +7,8 @@
 ],
 "qunit:build/tasks/test-on-node.js": [
 6
+],
+"qunit:Gruntfile.js": [
+15
 ]
 }

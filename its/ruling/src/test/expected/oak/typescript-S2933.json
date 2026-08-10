@@ -12,10 +12,10 @@
 89,
 169
 ],
-"oak:http_server_native.ts": [
+"oak:http_server_native_request.ts": [
 33
 ],
-"oak:http_server_native_request.ts": [
+"oak:http_server_native.ts": [
 33
 ],
 "oak:http_server_node.ts": [

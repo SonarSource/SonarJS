@@ -247,6 +247,9 @@
 113,
 118
 ],
+"ag-grid:src/ts/rowModels/infinite/infiniteRowModel.ts": [
+44
+],
 "ag-grid:src/ts/rowModels/inMemory/flattenStage.ts": [
 62,
 111
@@ -265,9 +268,6 @@
 376,
 395,
 419
-],
-"ag-grid:src/ts/rowModels/infinite/infiniteRowModel.ts": [
-44
 ],
 "ag-grid:src/ts/rowModels/pagination/serverPaginationService.ts": [
 122

@@ -43,15 +43,15 @@
 "ant-design:components/statistic/Number.tsx": [
 19
 ],
-"ant-design:components/table/Table.tsx": [
-222
-],
 "ant-design:components/table/hooks/useFilter/FilterDropdown.tsx": [
 147
 ],
 "ant-design:components/table/hooks/useSelection.tsx": [
 532,
 533
+],
+"ant-design:components/table/Table.tsx": [
+222
 ],
 "ant-design:components/transfer/list.tsx": [
 173

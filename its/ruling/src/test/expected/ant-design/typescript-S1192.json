@@ -67,11 +67,11 @@
 126,
 131
 ],
-"ant-design:components/upload/UploadList/ListItem.tsx": [
-94
-],
 "ant-design:components/upload/UploadList/index.tsx": [
 57
+],
+"ant-design:components/upload/UploadList/ListItem.tsx": [
+94
 ],
 "ant-design:site/theme/template/Layout/Header/Navigation.tsx": [
 43

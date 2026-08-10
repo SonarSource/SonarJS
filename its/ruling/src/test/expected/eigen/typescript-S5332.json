@@ -1,32 +1,4 @@
 {
-"eigen:src/app/Components/Markdown.tests.tsx": [
-49
-],
-"eigen:src/app/Scenes/Collection/Components/__fixtures__/CollectionFixture.ts": [
-13,
-248
-],
-"eigen:src/app/Scenes/Collection/Components/__fixtures__/index.ts": [
-6
-],
-"eigen:src/app/Scenes/Collection/Screens/CollectionHeader.tests.tsx": [
-56
-],
-"eigen:src/app/Scenes/Sales/Components/SaleListItem.tests.tsx": [
-52
-],
-"eigen:src/app/Scenes/Show/ShowContextCard.tests.tsx": [
-69,
-72,
-85,
-86,
-145,
-146,
-147,
-161,
-162,
-163
-],
 "eigen:src/app/__fixtures__/CityFixture.ts": [
 400,
 438,
@@ -80,6 +52,34 @@
 2223,
 2271,
 2315
+],
+"eigen:src/app/Components/Markdown.tests.tsx": [
+49
+],
+"eigen:src/app/Scenes/Collection/Components/__fixtures__/CollectionFixture.ts": [
+13,
+248
+],
+"eigen:src/app/Scenes/Collection/Components/__fixtures__/index.ts": [
+6
+],
+"eigen:src/app/Scenes/Collection/Screens/CollectionHeader.tests.tsx": [
+56
+],
+"eigen:src/app/Scenes/Sales/Components/SaleListItem.tests.tsx": [
+52
+],
+"eigen:src/app/Scenes/Show/ShowContextCard.tests.tsx": [
+69,
+72,
+85,
+86,
+145,
+146,
+147,
+161,
+162,
+163
 ],
 "eigen:src/app/tests/MockRelayRenderer.tests.tsx": [
 27,

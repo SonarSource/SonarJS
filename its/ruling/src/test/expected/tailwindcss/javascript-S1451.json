@@ -353,16 +353,16 @@
 "tailwindcss:src/plugins/placeContent.js": [
 0
 ],
-"tailwindcss:src/plugins/placeItems.js": [
-0
-],
-"tailwindcss:src/plugins/placeSelf.js": [
-0
-],
 "tailwindcss:src/plugins/placeholderColor.js": [
 0
 ],
 "tailwindcss:src/plugins/placeholderOpacity.js": [
+0
+],
+"tailwindcss:src/plugins/placeItems.js": [
+0
+],
+"tailwindcss:src/plugins/placeSelf.js": [
 0
 ],
 "tailwindcss:src/plugins/pointerEvents.js": [

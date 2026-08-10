@@ -5,13 +5,13 @@
 "fresh:packages/fresh/src/dev/dev_build_cache.ts": [
 520
 ],
-"fresh:packages/fresh/src/fs_routes.ts": [
-149
-],
 "fresh:packages/fresh/src/fs_routes_test.tsx": [
 1545,
 1549,
 1554
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+149
 ],
 "fresh:packages/fresh/src/middlewares/csrf.ts": [
 85,
@@ -43,11 +43,11 @@
 "fresh:packages/fresh/tests/test_utils.tsx": [
 61
 ],
-"fresh:packages/init/src/init.ts": [
-165
-],
 "fresh:packages/init/src/init_test.ts": [
 20
+],
+"fresh:packages/init/src/init.ts": [
+165
 ],
 "fresh:packages/plugin-vite/demo/routes/tests/middlewares/_middleware.ts": [
 5,

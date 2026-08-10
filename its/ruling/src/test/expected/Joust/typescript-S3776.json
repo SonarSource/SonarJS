@@ -6,12 +6,6 @@
 "Joust:ts/components/EventLogLine.tsx": [
 135
 ],
-"Joust:ts/components/Scrubber.tsx": [
-112
-],
-"Joust:ts/components/Turn.tsx": [
-15
-],
 "Joust:ts/components/game/Card.tsx": [
 42,
 347
@@ -31,6 +25,12 @@
 ],
 "Joust:ts/components/game/visuals/InPlayCardArt.tsx": [
 20
+],
+"Joust:ts/components/Scrubber.tsx": [
+112
+],
+"Joust:ts/components/Turn.tsx": [
+15
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 159

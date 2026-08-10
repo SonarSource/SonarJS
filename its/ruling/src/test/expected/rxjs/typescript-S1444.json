@@ -4,6 +4,9 @@
 175,
 176
 ],
+"rxjs:src/observable/dom/AjaxObservable.ts": [
+127
+],
 "rxjs:src/Scheduler.ts": [
 26
 ],
@@ -12,8 +15,5 @@
 ],
 "rxjs:src/Subscription.ts": [
 32
-],
-"rxjs:src/observable/dom/AjaxObservable.ts": [
-127
 ]
 }

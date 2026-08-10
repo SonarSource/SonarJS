@@ -55,6 +55,9 @@
 367,
 384
 ],
+"ace:lib/ace/mode/xquery_worker.js": [
+69
+],
 "ace:lib/ace/mode/xquery.js": [
 120,
 164
@@ -65,23 +68,20 @@
 "ace:lib/ace/mode/xquery/xquery_lexer.js": [
 34
 ],
-"ace:lib/ace/mode/xquery_worker.js": [
-69
+"ace:lib/ace/mode/yaml_worker.js": [
+27
 ],
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 1
 ],
-"ace:lib/ace/mode/yaml_worker.js": [
-27
-],
 "ace:lib/ace/worker/mirror.js": [
 13
 ],
-"ace:lib/ace/worker/worker.js": [
-136
-],
 "ace:lib/ace/worker/worker_client_v2.js": [
 235
+],
+"ace:lib/ace/worker/worker.js": [
+136
 ],
 "ace:src/background_tokenizer.js": [
 30
@@ -93,15 +93,15 @@
 "ace:src/edit_session/folding.js": [
 666
 ],
+"ace:src/editor_change_document_test.js": [
+128
+],
 "ace:src/editor.js": [
 228,
 497,
 1694,
 2667,
 2732
-],
-"ace:src/editor_change_document_test.js": [
-128
 ],
 "ace:src/ext/elastic_tabstops_lite.js": [
 5

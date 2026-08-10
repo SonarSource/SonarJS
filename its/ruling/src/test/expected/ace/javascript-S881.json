@@ -1,8 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-506,
-540
-],
 "ace:experiments/cut_copy.html": [
 121
 ],
@@ -157,11 +153,15 @@
 5355,
 5392
 ],
+"ace:lib/ace/worker/worker_client_v2.js": [
+174
+],
 "ace:lib/ace/worker/worker_client.js": [
 161
 ],
-"ace:lib/ace/worker/worker_client_v2.js": [
-174
+"ace:Makefile.dryice.js": [
+506,
+540
 ],
 "ace:src/autocomplete.js": [
 212
@@ -184,15 +184,15 @@
 "ace:src/edit_session/folding.js": [
 661
 ],
+"ace:src/editor_commands_test.js": [
+19
+],
 "ace:src/editor.js": [
 45,
 876,
 1880,
 2379,
 2399
-],
-"ace:src/editor_commands_test.js": [
-19
 ],
 "ace:src/ext/emmet.js": [
 249
@@ -219,6 +219,9 @@
 "ace:src/keyboard/keybinding.js": [
 75
 ],
+"ace:src/keyboard/vim_test.js": [
+86
+],
 "ace:src/keyboard/vim.js": [
 370,
 504,
@@ -228,9 +231,6 @@
 6226,
 6623
 ],
-"ace:src/keyboard/vim_test.js": [
-86
-],
 "ace:src/layer/cursor.js": [
 25,
 31,
@@ -239,12 +239,12 @@
 "ace:src/layer/gutter.js": [
 127
 ],
+"ace:src/layer/text_test.js": [
+65
+],
 "ace:src/layer/text.js": [
 198,
 218
-],
-"ace:src/layer/text_test.js": [
-65
 ],
 "ace:src/lib/dom.js": [
 146
@@ -318,16 +318,19 @@
 67,
 72
 ],
-"ace:src/mode/text.js": [
-112,
-117
-],
 "ace:src/mode/text_highlight_rules.js": [
 125,
 185
 ],
+"ace:src/mode/text.js": [
+112,
+117
+],
 "ace:src/mouse/touch_handler.js": [
 300
+],
+"ace:src/multi_select_test.js": [
+20
 ],
 "ace:src/multi_select.js": [
 129,
@@ -342,9 +345,6 @@
 710,
 713
 ],
-"ace:src/multi_select_test.js": [
-20
-],
 "ace:src/placeholder.js": [
 158,
 173
@@ -355,12 +355,12 @@
 "ace:src/renderloop.js": [
 31
 ],
+"ace:src/search_highlight.js": [
+42
+],
 "ace:src/search.js": [
 198,
 274
-],
-"ace:src/search_highlight.js": [
-42
 ],
 "ace:src/selection.js": [
 874,
@@ -379,11 +379,11 @@
 "ace:src/test/asyncjs/test.js": [
 180
 ],
-"ace:src/tokenizer.js": [
-300
-],
 "ace:src/tokenizer_dev.js": [
 75
+],
+"ace:src/tokenizer.js": [
+300
 ],
 "ace:src/undomanager.js": [
 45,

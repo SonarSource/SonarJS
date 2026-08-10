@@ -7,6 +7,9 @@
 "console:src/utils/utils.ts": [
 146
 ],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+75
+],
 "console:src/views/PermissionsView/PermissionPopup/ast.ts": [
 28,
 85,
@@ -69,8 +72,5 @@
 ],
 "console:src/views/Settings/Team/Team.tsx": [
 93
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-75
 ]
 }

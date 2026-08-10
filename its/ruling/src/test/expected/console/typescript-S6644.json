@@ -4,14 +4,14 @@
 184,
 197
 ],
+"console:src/views/models/DatabrowserView/Cell/BooleanCell.tsx": [
+14
+],
 "console:src/views/ProjectRootView/SideNavElement.tsx": [
 64
 ],
 "console:src/views/RelationsPopup/RelationPopup.tsx": [
 83,
 90
-],
-"console:src/views/models/DatabrowserView/Cell/BooleanCell.tsx": [
-14
 ]
 }

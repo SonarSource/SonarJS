@@ -1,19 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-88,
-187,
-197,
-285,
-292,
-331,
-346,
-519,
-618,
-674,
-677,
-799,
-861
-],
 "ace:demo/kitchen-sink/demo.js": [
 458
 ],
@@ -46,13 +31,13 @@
 "ace:lib/ace/mode/coffee/parser_test.js": [
 49
 ],
+"ace:lib/ace/mode/css_worker.js": [
+80
+],
 "ace:lib/ace/mode/css/csslint.js": [
 3014,
 8261,
 10190
-],
-"ace:lib/ace/mode/css_worker.js": [
-80
 ],
 "ace:lib/ace/mode/html/saxparser.js": [
 4,
@@ -68,6 +53,9 @@
 5923,
 5970,
 9773
+],
+"ace:lib/ace/mode/javascript_worker.js": [
+105
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
 1432,
@@ -98,9 +86,6 @@
 13010,
 15298,
 18581
-],
-"ace:lib/ace/mode/javascript_worker.js": [
-105
 ],
 "ace:lib/ace/mode/jsoniq.js": [
 26,
@@ -137,6 +122,21 @@
 ],
 "ace:lib/ace/worker/worker_client_v2.js": [
 84
+],
+"ace:Makefile.dryice.js": [
+88,
+187,
+197,
+285,
+292,
+331,
+346,
+519,
+618,
+674,
+677,
+799,
+861
 ],
 "ace:src/autocomplete.js": [
 139,
@@ -222,6 +222,9 @@
 "ace:src/keyboard/sublime.js": [
 5
 ],
+"ace:src/keyboard/textinput_test.js": [
+27
+],
 "ace:src/keyboard/textinput.js": [
 74,
 333,
@@ -229,8 +232,13 @@
 370,
 490
 ],
-"ace:src/keyboard/textinput_test.js": [
-27
+"ace:src/keyboard/vim_ace_test.js": [
+63
+],
+"ace:src/keyboard/vim_test.js": [
+4784,
+5438,
+5508
 ],
 "ace:src/keyboard/vim.js": [
 90,
@@ -270,14 +278,6 @@
 6997,
 7176
 ],
-"ace:src/keyboard/vim_ace_test.js": [
-63
-],
-"ace:src/keyboard/vim_test.js": [
-4784,
-5438,
-5508
-],
 "ace:src/layer/cursor.js": [
 87
 ],
@@ -308,13 +308,13 @@
 74,
 86
 ],
-"ace:src/lib/event.js": [
-132,
-180
-],
 "ace:src/lib/event_emitter.js": [
 8,
 48
+],
+"ace:src/lib/event.js": [
+132,
+180
 ],
 "ace:src/mode/_test/highlight_rules_test.js": [
 20,
@@ -426,12 +426,12 @@
 "ace:src/mode/folding/velocity.js": [
 12
 ],
-"ace:src/mode/html.js": [
-51
-],
 "ace:src/mode/html_completions.js": [
 212,
 222
+],
+"ace:src/mode/html.js": [
+51
 ],
 "ace:src/mode/latex.js": [
 23
@@ -558,6 +558,9 @@
 125,
 261
 ],
+"ace:src/virtual_renderer_test.js": [
+220
+],
 "ace:src/virtual_renderer.js": [
 331,
 807,
@@ -565,9 +568,6 @@
 1400,
 1476,
 1668
-],
-"ace:src/virtual_renderer_test.js": [
-220
 ],
 "ace:static.js": [
 32,

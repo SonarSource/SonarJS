@@ -12,22 +12,22 @@
 "rxjs:src/Observable.ts": [
 28
 ],
-"rxjs:src/Scheduler.ts": [
-60
-],
-"rxjs:src/SubjectSubscription.ts": [
-11
-],
-"rxjs:src/Subscriber.ts": [
-41,
-42,
-44
-],
-"rxjs:src/Subscription.ts": [
-41
-],
 "rxjs:src/observable/ConnectableObservable.ts": [
 13
+],
+"rxjs:src/observable/dom/AjaxObservable.ts": [
+185
+],
+"rxjs:src/observable/dom/MiscJSDoc.ts": [
+15,
+23,
+27,
+31,
+39,
+43,
+47,
+51,
+72
 ],
 "rxjs:src/observable/IntervalObservable.ts": [
 46,
@@ -51,20 +51,6 @@
 "rxjs:src/observable/TimerObservable.ts": [
 82,
 83
-],
-"rxjs:src/observable/dom/AjaxObservable.ts": [
-185
-],
-"rxjs:src/observable/dom/MiscJSDoc.ts": [
-15,
-23,
-27,
-31,
-39,
-43,
-47,
-51,
-72
 ],
 "rxjs:src/operator/audit.ts": [
 72
@@ -252,6 +238,9 @@
 "rxjs:src/operator/windowTime.ts": [
 148
 ],
+"rxjs:src/Scheduler.ts": [
+60
+],
 "rxjs:src/scheduler/Action.ts": [
 32
 ],
@@ -291,6 +280,17 @@
 58,
 72,
 80
+],
+"rxjs:src/SubjectSubscription.ts": [
+11
+],
+"rxjs:src/Subscriber.ts": [
+41,
+42,
+44
+],
+"rxjs:src/Subscription.ts": [
+41
 ],
 "rxjs:src/testing/TestScheduler.ts": [
 10,

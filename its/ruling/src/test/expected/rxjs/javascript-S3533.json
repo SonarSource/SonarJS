@@ -287,10 +287,6 @@
 1,
 2
 ],
-"rxjs:perf/micro/immediate-scheduler/observable/fromPromise.js": [
-1,
-2
-],
 "rxjs:perf/micro/immediate-scheduler/observable/fromevent.js": [
 1,
 2,
@@ -300,6 +296,10 @@
 1,
 2,
 3
+],
+"rxjs:perf/micro/immediate-scheduler/observable/fromPromise.js": [
+1,
+2
 ],
 "rxjs:perf/micro/immediate-scheduler/observable/interval.js": [
 1,

@@ -1,4 +1,7 @@
 {
+"custom-jsts:boundOrAssignedEvalOrArguments.js": [
+0
+],
 "custom-jsts:S1068.js": [
 0
 ],
@@ -213,9 +216,6 @@
 0
 ],
 "custom-jsts:S9114.js": [
-0
-],
-"custom-jsts:boundOrAssignedEvalOrArguments.js": [
 0
 ]
 }

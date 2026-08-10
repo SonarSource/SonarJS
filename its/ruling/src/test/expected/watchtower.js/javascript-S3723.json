@@ -16,12 +16,12 @@
 "watchtower.js:src/dirty_checking.js": [
 7
 ],
-"watchtower.js:src/watch.js": [
-2
-],
 "watchtower.js:src/watch_record.js": [
 6,
 10
+],
+"watchtower.js:src/watch.js": [
+2
 ],
 "watchtower.js:test/matchers.js": [
 59,

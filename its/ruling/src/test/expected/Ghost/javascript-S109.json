@@ -1,7 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-813
-],
 "Ghost:core/client/app/adapters/base.js": [
 59
 ],
@@ -1234,5 +1231,8 @@
 "Ghost:core/test/utils/tempfile.js": [
 14,
 14
+],
+"Ghost:Gruntfile.js": [
+813
 ]
 }

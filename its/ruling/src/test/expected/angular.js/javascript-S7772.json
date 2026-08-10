@@ -1,12 +1,12 @@
 {
-"angular.js:Gruntfile.js": [
-10
-],
 "angular.js:docs/app/e2e/app.scenario.js": [
 21
 ],
 "angular.js:docs/config/processors/keywords.js": [
 4
+],
+"angular.js:Gruntfile.js": [
+10
 ],
 "angular.js:lib/browserstack/start_tunnel.js": [
 3,

@@ -14,6 +14,10 @@
 12,
 19
 ],
+"jira-clone:client/src/Project/Board/index.jsx": [
+16,
+23
+],
 "jira-clone:client/src/Project/Board/IssueDetails/AssigneesReporter/index.jsx": [
 12
 ],
@@ -25,11 +29,11 @@
 18,
 23
 ],
-"jira-clone:client/src/Project/Board/IssueDetails/Comments/Create/ProTip/index.jsx": [
-10
-],
 "jira-clone:client/src/Project/Board/IssueDetails/Comments/Create/index.jsx": [
 14
+],
+"jira-clone:client/src/Project/Board/IssueDetails/Comments/Create/ProTip/index.jsx": [
+10
 ],
 "jira-clone:client/src/Project/Board/IssueDetails/Comments/index.jsx": [
 12
@@ -43,12 +47,17 @@
 "jira-clone:client/src/Project/Board/IssueDetails/Description/index.jsx": [
 11
 ],
-"jira-clone:client/src/Project/Board/IssueDetails/EstimateTracking/TrackingWidget/index.jsx": [
-8
-],
 "jira-clone:client/src/Project/Board/IssueDetails/EstimateTracking/index.jsx": [
 16,
 21
+],
+"jira-clone:client/src/Project/Board/IssueDetails/EstimateTracking/TrackingWidget/index.jsx": [
+8
+],
+"jira-clone:client/src/Project/Board/IssueDetails/index.jsx": [
+26,
+34,
+53
 ],
 "jira-clone:client/src/Project/Board/IssueDetails/Priority/index.jsx": [
 12,
@@ -65,27 +74,22 @@
 11,
 23
 ],
-"jira-clone:client/src/Project/Board/IssueDetails/index.jsx": [
-26,
-34,
-53
-],
-"jira-clone:client/src/Project/Board/Lists/List/Issue/index.jsx": [
-13
-],
-"jira-clone:client/src/Project/Board/Lists/List/index.jsx": [
-16,
-20
-],
 "jira-clone:client/src/Project/Board/Lists/index.jsx": [
 16,
 30,
 33,
 88
 ],
-"jira-clone:client/src/Project/Board/index.jsx": [
+"jira-clone:client/src/Project/Board/Lists/List/index.jsx": [
 16,
-23
+20
+],
+"jira-clone:client/src/Project/Board/Lists/List/Issue/index.jsx": [
+13
+],
+"jira-clone:client/src/Project/index.jsx": [
+35,
+36
 ],
 "jira-clone:client/src/Project/IssueCreate/index.jsx": [
 9,
@@ -114,10 +118,6 @@
 17,
 21
 ],
-"jira-clone:client/src/Project/index.jsx": [
-35,
-36
-],
 "jira-clone:client/src/shared/components/Avatar/index.jsx": [
 10,
 17,
@@ -127,13 +127,13 @@
 "jira-clone:client/src/shared/components/Breadcrumbs/index.jsx": [
 7
 ],
-"jira-clone:client/src/shared/components/Button/Styles.js": [
-77
-],
 "jira-clone:client/src/shared/components/Button/index.jsx": [
 17,
 28,
 59
+],
+"jira-clone:client/src/shared/components/Button/Styles.js": [
+77
 ],
 "jira-clone:client/src/shared/components/ConfirmModal/index.jsx": [
 14,
@@ -148,14 +148,14 @@
 48,
 103
 ],
+"jira-clone:client/src/shared/components/DatePicker/index.jsx": [
+16,
+22
+],
 "jira-clone:client/src/shared/components/DatePicker/TimeSection.jsx": [
 13,
 17,
 32
-],
-"jira-clone:client/src/shared/components/DatePicker/index.jsx": [
-16,
-22
 ],
 "jira-clone:client/src/shared/components/Form/Field.jsx": [
 18,
@@ -190,16 +190,16 @@
 6,
 11
 ],
-"jira-clone:client/src/shared/components/Modal/Styles.js": [
-29,
-51,
-87
-],
 "jira-clone:client/src/shared/components/Modal/index.jsx": [
 19,
 30,
 42,
 90
+],
+"jira-clone:client/src/shared/components/Modal/Styles.js": [
+29,
+51,
+87
 ],
 "jira-clone:client/src/shared/components/ProjectAvatar.jsx": [
 6,
@@ -223,6 +223,10 @@
 9,
 15
 ],
+"jira-clone:client/src/shared/components/Textarea/index.jsx": [
+12,
+20
+],
 "jira-clone:client/src/shared/components/TextEditedContent/index.jsx": [
 9
 ],
@@ -233,10 +237,6 @@
 80,
 81,
 82
-],
-"jira-clone:client/src/shared/components/Textarea/index.jsx": [
-12,
-20
 ],
 "jira-clone:client/src/shared/components/Tooltip/index.jsx": [
 14,

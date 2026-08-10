@@ -91,24 +91,6 @@
 "fireact:src/components/Logo/index.js": [
 1
 ],
-"fireact:src/components/Pagination/index.js": [
-2,
-48,
-48,
-52,
-52,
-62,
-62,
-77,
-77,
-81,
-81
-],
-"fireact:src/components/UserAvatar/index.js": [
-1,
-4,
-4
-],
 "fireact:src/components/menus/AccountMenu/index.js": [
 1,
 2,
@@ -126,6 +108,19 @@
 5,
 53,
 61
+],
+"fireact:src/components/Pagination/index.js": [
+2,
+48,
+48,
+52,
+52,
+62,
+62,
+77,
+77,
+81,
+81
 ],
 "fireact:src/components/routers/AuthRouter/index.js": [
 2,
@@ -180,18 +175,16 @@
 115,
 115
 ],
+"fireact:src/components/UserAvatar/index.js": [
+1,
+4,
+4
+],
 "fireact:src/libs/log/index.js": [
 1
 ],
 "fireact:src/libs/user/index.js": [
 1
-],
-"fireact:src/pages/auth/Home/index.js": [
-1,
-3,
-6,
-41,
-42
 ],
 "fireact:src/pages/auth/accounts/AddUser/index.js": [
 1,
@@ -232,6 +225,58 @@
 34,
 88,
 88
+],
+"fireact:src/pages/auth/accounts/images/ImageCreate.js": [
+4,
+9,
+48,
+49,
+53,
+53,
+58,
+58,
+74,
+74,
+84,
+99
+],
+"fireact:src/pages/auth/accounts/images/ImageEdit.js": [
+3,
+44,
+45,
+49,
+49,
+54,
+54,
+108,
+108,
+118,
+133
+],
+"fireact:src/pages/auth/accounts/images/ImageList.js": [
+1,
+3,
+5,
+9,
+26,
+58,
+58,
+62,
+143,
+144,
+148,
+148,
+165,
+167,
+167
+],
+"fireact:src/pages/auth/accounts/images/ImagesApis.js": [
+1,
+46,
+48,
+57,
+59,
+71
 ],
 "fireact:src/pages/auth/accounts/NewAccount/index.js": [
 1,
@@ -367,57 +412,12 @@
 137,
 137
 ],
-"fireact:src/pages/auth/accounts/images/ImageCreate.js": [
-4,
-9,
-48,
-49,
-53,
-53,
-58,
-58,
-74,
-74,
-84,
-99
-],
-"fireact:src/pages/auth/accounts/images/ImageEdit.js": [
-3,
-44,
-45,
-49,
-49,
-54,
-54,
-108,
-108,
-118,
-133
-],
-"fireact:src/pages/auth/accounts/images/ImageList.js": [
+"fireact:src/pages/auth/Home/index.js": [
 1,
 3,
-5,
-9,
-26,
-58,
-58,
-62,
-143,
-144,
-148,
-148,
-165,
-167,
-167
-],
-"fireact:src/pages/auth/accounts/images/ImagesApis.js": [
-1,
-46,
-48,
-57,
-59,
-71
+6,
+41,
+42
 ],
 "fireact:src/pages/auth/user/DeleteUser/index.js": [
 1,

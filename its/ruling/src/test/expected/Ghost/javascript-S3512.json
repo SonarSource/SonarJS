@@ -1,8 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-343,
-459
-],
 "Ghost:core/client/lib/asset-delivery/index.js": [
 19,
 19
@@ -363,5 +359,9 @@
 90,
 308,
 312
+],
+"Ghost:Gruntfile.js": [
+343,
+459
 ]
 }

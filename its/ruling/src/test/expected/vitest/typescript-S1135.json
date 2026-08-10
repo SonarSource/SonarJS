@@ -62,11 +62,11 @@
 "vitest:packages/snapshot/src/port/utils.ts": [
 16
 ],
-"vitest:packages/ui/client/components/ModuleTransformResultView.vue": [
-207
-],
 "vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
 17
+],
+"vitest:packages/ui/client/components/ModuleTransformResultView.vue": [
+207
 ],
 "vitest:packages/ui/client/components/views/ViewEditor.vue": [
 194

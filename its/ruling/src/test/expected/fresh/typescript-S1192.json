@@ -65,12 +65,12 @@
 40,
 44
 ],
-"fresh:packages/fresh/src/middlewares/static_files.ts": [
-55
-],
 "fresh:packages/fresh/src/middlewares/static_files_test.ts": [
 68,
 114
+],
+"fresh:packages/fresh/src/middlewares/static_files.ts": [
+55
 ],
 "fresh:packages/fresh/src/router_test.ts": [
 23,
@@ -105,14 +105,14 @@
 1709,
 2970
 ],
-"fresh:packages/init/src/init.ts": [
-675,
-721
-],
 "fresh:packages/init/src/init_test.ts": [
 176,
 301,
 373
+],
+"fresh:packages/init/src/init.ts": [
+675,
+721
 ],
 "fresh:packages/plugin-vite/src/plugins/client_snapshot.ts": [
 7

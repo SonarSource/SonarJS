@@ -79,11 +79,11 @@
 1,
 5195
 ],
-"ace:lib/ace/worker/worker.js": [
-44
-],
 "ace:lib/ace/worker/worker_client.js": [
 96
+],
+"ace:lib/ace/worker/worker.js": [
+44
 ],
 "ace:src/ace.js": [
 50
@@ -370,6 +370,11 @@
 166,
 167
 ],
+"ace:src/search_test.js": [
+442,
+443,
+444
+],
 "ace:src/search.js": [
 120,
 141,
@@ -377,11 +382,6 @@
 270,
 302,
 326
-],
-"ace:src/search_test.js": [
-442,
-443,
-444
 ],
 "ace:src/selection.js": [
 445,
@@ -402,11 +402,11 @@
 "ace:src/test/user.js": [
 122
 ],
-"ace:src/tokenizer.js": [
-201
-],
 "ace:src/tokenizer_dev.js": [
 20
+],
+"ace:src/tokenizer.js": [
+201
 ],
 "ace:static.js": [
 83

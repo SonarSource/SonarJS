@@ -1,8 +1,8 @@
 {
-"eigen:src/app/Components/ArtworkFilter/ArtworkFiltersStore.tests.tsx": [
+"eigen:src/app/__fixtures__/CityFixture.ts": [
 0
 ],
-"eigen:src/app/__fixtures__/CityFixture.ts": [
+"eigen:src/app/Components/ArtworkFilter/ArtworkFiltersStore.tests.tsx": [
 0
 ],
 "eigen:src/app/navigation/routes.tests.tsx": [

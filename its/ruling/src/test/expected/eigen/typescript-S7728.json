@@ -27,6 +27,10 @@
 "eigen:src/app/Components/PrefetchFlatList.tsx": [
 50
 ],
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+60,
+62
+],
 "eigen:src/app/Scenes/Artist/Artist.tsx": [
 94
 ],
@@ -84,10 +88,6 @@
 36,
 112
 ],
-"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
-60,
-62
-],
 "eigen:src/app/store/config/features.tests.ts": [
 6,
 49
@@ -98,9 +98,6 @@
 "eigen:src/app/utils/track/providers.tsx": [
 53
 ],
-"eigen:src/palette/Theme.tsx": [
-136
-],
 "eigen:src/palette/animation/CssTransition.tsx": [
 61
 ],
@@ -109,6 +106,9 @@
 ],
 "eigen:src/palette/elements/Tabs/NavigationalTabs.tsx": [
 37
+],
+"eigen:src/palette/Theme.tsx": [
+136
 ],
 "eigen:src/setupJest.ts": [
 74,

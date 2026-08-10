@@ -3,16 +3,11 @@
 180,
 190
 ],
-"rxjs:src/Observer.ts": [
-33
+"rxjs:src/observable/dom/AjaxObservable.ts": [
+92
 ],
-"rxjs:src/OuterSubscriber.ts": [
-10,
-11,
-11,
-12,
-16,
-20
+"rxjs:src/observable/dom/MiscJSDoc.ts": [
+66
 ],
 "rxjs:src/observable/ForkJoinObservable.ts": [
 110,
@@ -21,11 +16,8 @@
 "rxjs:src/observable/NeverObservable.ts": [
 50
 ],
-"rxjs:src/observable/dom/AjaxObservable.ts": [
-92
-],
-"rxjs:src/observable/dom/MiscJSDoc.ts": [
-66
+"rxjs:src/Observer.ts": [
+33
 ],
 "rxjs:src/operator/audit.ts": [
 107,
@@ -216,6 +208,14 @@
 332,
 333,
 338
+],
+"rxjs:src/OuterSubscriber.ts": [
+10,
+11,
+11,
+12,
+16,
+20
 ],
 "rxjs:src/scheduler/Action.ts": [
 19,

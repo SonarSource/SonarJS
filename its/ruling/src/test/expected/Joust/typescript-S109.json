@@ -1,13 +1,19 @@
 {
-"Joust:ts/Launcher.tsx": [
-301
-],
 "Joust:ts/components/EventLog.tsx": [
 106,
 251
 ],
 "Joust:ts/components/EventLogLine.tsx": [
 100
+],
+"Joust:ts/components/game/Card.tsx": [
+324,
+335,
+335
+],
+"Joust:ts/components/game/visuals/RankArt.tsx": [
+8,
+15
 ],
 "Joust:ts/components/GameWidget.tsx": [
 77
@@ -39,14 +45,8 @@
 184,
 187
 ],
-"Joust:ts/components/game/Card.tsx": [
-324,
-335,
-335
-],
-"Joust:ts/components/game/visuals/RankArt.tsx": [
-8,
-15
+"Joust:ts/Launcher.tsx": [
+301
 ],
 "Joust:ts/protocol/KettleEncoder.ts": [
 37,

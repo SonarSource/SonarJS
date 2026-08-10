@@ -1,7 +1,4 @@
 {
-"qunit:Gruntfile.js": [
-16
-],
 "qunit:bin/qunit.js": [
 21
 ],
@@ -16,6 +13,9 @@
 ],
 "qunit:build/tasks/test-on-node.js": [
 7
+],
+"qunit:Gruntfile.js": [
+16
 ],
 "qunit:reporter/diff.js": [
 33

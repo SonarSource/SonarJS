@@ -57,12 +57,12 @@
 "ag-grid:src/ts/rowModels/iDatasource.ts": [
 5
 ],
+"ag-grid:src/ts/rowModels/infinite/infiniteRowModel.ts": [
+233
+],
 "ag-grid:src/ts/rowModels/inMemory/inMemoryRowModel.ts": [
 61,
 169
-],
-"ag-grid:src/ts/rowModels/infinite/infiniteRowModel.ts": [
-233
 ],
 "ag-grid:src/ts/utils.ts": [
 743,

@@ -1,7 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-18
-],
 "Ghost:core/test/unit/importer_spec.js": [
 379,
 379,
@@ -22,5 +19,8 @@
 478,
 481,
 481
+],
+"Ghost:Gruntfile.js": [
+18
 ]
 }

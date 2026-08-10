@@ -1,4 +1,10 @@
 {
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+314
+],
+"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
+214
+],
 "console:src/views/RelationsPopup/ConfirmPopup.tsx": [
 123
 ],
@@ -9,11 +15,5 @@
 209,
 220,
 231
-],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-314
-],
-"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
-214
 ]
 }

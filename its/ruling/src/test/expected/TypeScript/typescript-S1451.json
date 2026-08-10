@@ -17,10 +17,10 @@
 "TypeScript:scripts/tslint/noBomRule.ts": [
 0
 ],
-"TypeScript:scripts/tslint/noInOperatorRule.ts": [
+"TypeScript:scripts/tslint/noIncrementDecrementRule.ts": [
 0
 ],
-"TypeScript:scripts/tslint/noIncrementDecrementRule.ts": [
+"TypeScript:scripts/tslint/noInOperatorRule.ts": [
 0
 ],
 "TypeScript:scripts/tslint/noTypeAssertionWhitespaceRule.ts": [
@@ -51,9 +51,6 @@
 0
 ],
 "TypeScript:src/services/classifier.ts": [
-0
-],
-"TypeScript:src/services/codeFixProvider.ts": [
 0
 ],
 "TypeScript:src/services/codefixes/disableJsDiagnostics.ts": [
@@ -90,6 +87,9 @@
 0
 ],
 "TypeScript:src/services/codefixes/unusedIdentifierFixes.ts": [
+0
+],
+"TypeScript:src/services/codeFixProvider.ts": [
 0
 ],
 "TypeScript:src/services/documentHighlights.ts": [

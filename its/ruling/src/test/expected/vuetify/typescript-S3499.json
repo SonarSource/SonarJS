@@ -8,6 +8,9 @@
 "vuetify:packages/vuetify/dev/Playground.datatable.vue": [
 143
 ],
+"vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
+18
+],
 "vuetify:packages/vuetify/src/components/VItemGroup/VItem.tsx": [
 22
 ],
@@ -34,9 +37,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VSnackbar/VSnackbar.tsx": [
 105
-],
-"vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
-18
 ],
 "vuetify:packages/vuetify/src/composables/form.ts": [
 142
@@ -65,15 +65,15 @@
 "vuetify:packages/vuetify/src/composables/theme.ts": [
 350
 ],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
+64
+],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRows.tsx": [
 106,
 125
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableVirtual.tsx": [
 99
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
-64
 ],
 "vuetify:packages/vuetify/src/locale/adapters/vue-i18n.ts": [
 51,

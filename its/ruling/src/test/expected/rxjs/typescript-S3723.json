@@ -1,12 +1,4 @@
 {
-"rxjs:src/Observer.ts": [
-35
-],
-"rxjs:src/Rx.ts": [
-197,
-216,
-221
-],
 "rxjs:src/observable/ArrayLikeObservable.ts": [
 63
 ],
@@ -15,6 +7,13 @@
 ],
 "rxjs:src/observable/ConnectableObservable.ts": [
 67
+],
+"rxjs:src/observable/dom/AjaxObservable.ts": [
+157,
+219
+],
+"rxjs:src/observable/dom/WebSocketSubject.ts": [
+211
 ],
 "rxjs:src/observable/ErrorObservable.ts": [
 76
@@ -47,12 +46,8 @@
 "rxjs:src/observable/TimerObservable.ts": [
 112
 ],
-"rxjs:src/observable/dom/AjaxObservable.ts": [
-157,
-219
-],
-"rxjs:src/observable/dom/WebSocketSubject.ts": [
-211
+"rxjs:src/Observer.ts": [
+35
 ],
 "rxjs:src/operator/bufferTime.ts": [
 90
@@ -101,6 +96,11 @@
 ],
 "rxjs:src/operator/windowToggle.ts": [
 68
+],
+"rxjs:src/Rx.ts": [
+197,
+216,
+221
 ],
 "rxjs:src/scheduler/AnimationFrameAction.ts": [
 28

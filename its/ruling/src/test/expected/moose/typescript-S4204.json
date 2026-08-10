@@ -4,13 +4,13 @@
 10,
 10
 ],
-"moose:main/helpers/Description.ts": [
-101
-],
 "moose:main/helpers/createWindow.ts": [
 37,
 37,
 54
+],
+"moose:main/helpers/Description.ts": [
+101
 ],
 "moose:renderer/components/FilesList/FilesList.tsx": [
 86

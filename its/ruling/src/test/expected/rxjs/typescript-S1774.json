@@ -1,16 +1,4 @@
 {
-"rxjs:src/ReplaySubject.ts": [
-21,
-22
-],
-"rxjs:src/Scheduler.ts": [
-26
-],
-"rxjs:src/Subscription.ts": [
-81,
-97,
-221
-],
 "rxjs:src/observable/BoundCallbackObservable.ts": [
 213,
 251
@@ -18,6 +6,18 @@
 "rxjs:src/observable/BoundNodeCallbackObservable.ts": [
 196,
 246
+],
+"rxjs:src/observable/dom/AjaxObservable.ts": [
+150,
+259,
+347,
+348,
+355,
+415,
+425
+],
+"rxjs:src/observable/dom/WebSocketSubject.ts": [
+162
 ],
 "rxjs:src/observable/ForkJoinObservable.ts": [
 137
@@ -38,18 +38,6 @@
 ],
 "rxjs:src/observable/TimerObservable.ts": [
 102
-],
-"rxjs:src/observable/dom/AjaxObservable.ts": [
-150,
-259,
-347,
-348,
-355,
-415,
-425
-],
-"rxjs:src/observable/dom/WebSocketSubject.ts": [
-162
 ],
 "rxjs:src/operator/bufferTime.ts": [
 195
@@ -110,8 +98,20 @@
 130,
 271
 ],
+"rxjs:src/ReplaySubject.ts": [
+21,
+22
+],
+"rxjs:src/Scheduler.ts": [
+26
+],
 "rxjs:src/scheduler/QueueAction.ts": [
 28
+],
+"rxjs:src/Subscription.ts": [
+81,
+97,
+221
 ],
 "rxjs:src/symbol/rxSubscriber.ts": [
 5
@@ -127,10 +127,10 @@
 "rxjs:src/util/MapPolyfill.ts": [
 8
 ],
-"rxjs:src/util/UnsubscriptionError.ts": [
-8
-],
 "rxjs:src/util/subscribeToResult.ts": [
 78
+],
+"rxjs:src/util/UnsubscriptionError.ts": [
+8
 ]
 }

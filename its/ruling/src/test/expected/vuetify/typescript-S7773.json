@@ -2,6 +2,9 @@
 "vuetify:packages/docs/src/main.ts": [
 91
 ],
+"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
+115
+],
 "vuetify:packages/vuetify/src/components/VAppBar/VAppBar.tsx": [
 66
 ],
@@ -27,11 +30,11 @@
 "vuetify:packages/vuetify/src/components/VLayout/VLayoutItem.tsx": [
 33
 ],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
-164
-],
 "vuetify:packages/vuetify/src/components/VNavigationDrawer/sticky.ts": [
 43
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
+164
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 137,
@@ -66,9 +69,6 @@
 "vuetify:packages/vuetify/src/components/VRating/VRating.tsx": [
 99
 ],
-"vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx": [
-75
-],
 "vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
 157,
 158,
@@ -80,6 +80,9 @@
 286,
 301,
 302
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx": [
+75
 ],
 "vuetify:packages/vuetify/src/components/VSystemBar/VSystemBar.tsx": [
 41
@@ -100,9 +103,6 @@
 "vuetify:packages/vuetify/src/components/VToolbar/VToolbar.tsx": [
 83,
 90
-],
-"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
-115
 ],
 "vuetify:packages/vuetify/src/composables/delay.ts": [
 31

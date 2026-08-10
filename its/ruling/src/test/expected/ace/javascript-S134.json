@@ -279,6 +279,9 @@
 "ace:src/keyboard/textinput.js": [
 196
 ],
+"ace:src/keyboard/vim_test.js": [
+5554
+],
 "ace:src/keyboard/vim.js": [
 338,
 1693,
@@ -306,9 +309,6 @@
 6679,
 6683,
 7009
-],
-"ace:src/keyboard/vim_test.js": [
-5554
 ],
 "ace:src/layer/decorators.js": [
 89
@@ -393,16 +393,16 @@
 "ace:src/mode/scheme.js": [
 58
 ],
-"ace:src/mode/text.js": [
-299,
-315
-],
 "ace:src/mode/text_highlight_rules.js": [
 33,
 37,
 122,
 124,
 142
+],
+"ace:src/mode/text.js": [
+299,
+315
 ],
 "ace:src/mode/vbscript.js": [
 43
@@ -436,6 +436,14 @@
 "ace:src/test/user.js": [
 172
 ],
+"ace:src/tokenizer_dev.js": [
+65,
+87,
+93,
+112,
+120,
+123
+],
 "ace:src/tokenizer.js": [
 49,
 63,
@@ -448,14 +456,6 @@
 287,
 290,
 309
-],
-"ace:src/tokenizer_dev.js": [
-65,
-87,
-93,
-112,
-120,
-123
 ],
 "ace:src/undomanager.js": [
 296,

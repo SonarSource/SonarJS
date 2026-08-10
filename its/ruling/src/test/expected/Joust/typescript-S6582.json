@@ -1,9 +1,4 @@
 {
-"Joust:ts/Launcher.tsx": [
-50,
-194,
-424
-],
 "Joust:ts/components/DebugApplication.tsx": [
 126
 ],
@@ -22,20 +17,6 @@
 174,
 212,
 213
-],
-"Joust:ts/components/GameWidget.tsx": [
-333
-],
-"Joust:ts/components/GameWrapper.tsx": [
-148
-],
-"Joust:ts/components/LoadingScreen.tsx": [
-108
-],
-"Joust:ts/components/Scrubber.tsx": [
-122,
-160,
-163
 ],
 "Joust:ts/components/game/Card.tsx": [
 48,
@@ -68,6 +49,25 @@
 ],
 "Joust:ts/components/game/Weapon.tsx": [
 20
+],
+"Joust:ts/components/GameWidget.tsx": [
+333
+],
+"Joust:ts/components/GameWrapper.tsx": [
+148
+],
+"Joust:ts/components/LoadingScreen.tsx": [
+108
+],
+"Joust:ts/components/Scrubber.tsx": [
+122,
+160,
+163
+],
+"Joust:ts/Launcher.tsx": [
+50,
+194,
+424
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 422

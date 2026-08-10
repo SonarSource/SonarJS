@@ -2,14 +2,14 @@
 "eigen:scripts/algolia-example-galleries-near-me.ts": [
 35
 ],
+"eigen:src/app/Components/ArtworkFilter/components/ArtworkFilterOptionCheckboxItem.tests.tsx": [
+56
+],
 "eigen:src/app/Components/ArtworkFilter/Filters/ColorsOptions.tests.tsx": [
 187
 ],
 "eigen:src/app/Components/ArtworkFilter/Filters/YearOptions.tsx": [
 75
-],
-"eigen:src/app/Components/ArtworkFilter/components/ArtworkFilterOptionCheckboxItem.tests.tsx": [
-56
 ],
 "eigen:src/app/Components/Bidding/Screens/ConfirmBid.tests.tsx": [
 229

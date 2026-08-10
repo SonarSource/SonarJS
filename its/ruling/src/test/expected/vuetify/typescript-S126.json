@@ -18,6 +18,10 @@
 "vuetify:packages/vuetify/cypress/templates/generateStories.tsx": [
 75
 ],
+"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
+122,
+129
+],
 "vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
 185
 ],
@@ -51,6 +55,9 @@
 "vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
 185
 ],
+"vuetify:packages/vuetify/src/components/VSlideGroup/helpers.ts": [
+32
+],
 "vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
 135,
 176,
@@ -58,13 +65,6 @@
 237,
 244,
 267
-],
-"vuetify:packages/vuetify/src/components/VSlideGroup/helpers.ts": [
-32
-],
-"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
-122,
-129
 ],
 "vuetify:packages/vuetify/src/composables/border.ts": [
 25

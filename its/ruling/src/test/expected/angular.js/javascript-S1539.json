@@ -1,7 +1,4 @@
 {
-"angular.js:Gruntfile.js": [
-1
-],
 "angular.js:angularFiles.js": [
 1
 ],
@@ -198,6 +195,9 @@
 1
 ],
 "angular.js:docs/protractor-conf.js": [
+1
+],
+"angular.js:Gruntfile.js": [
 1
 ],
 "angular.js:karma-docs.conf.js": [
@@ -539,10 +539,10 @@
 "angular.js:src/ngAria/aria.js": [
 1
 ],
-"angular.js:src/ngCookies/cookieWriter.js": [
+"angular.js:src/ngCookies/cookies.js": [
 1
 ],
-"angular.js:src/ngCookies/cookies.js": [
+"angular.js:src/ngCookies/cookieWriter.js": [
 1
 ],
 "angular.js:src/ngMessageFormat/messageFormatCommon.js": [

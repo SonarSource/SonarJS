@@ -167,14 +167,14 @@
 "rxjs:perf/micro/immediate-scheduler/observable/from-with-string.js": [
 22
 ],
-"rxjs:perf/micro/immediate-scheduler/observable/fromPromise.js": [
-23
-],
 "rxjs:perf/micro/immediate-scheduler/observable/fromevent.js": [
 27
 ],
 "rxjs:perf/micro/immediate-scheduler/observable/fromeventpattern.js": [
 40
+],
+"rxjs:perf/micro/immediate-scheduler/observable/fromPromise.js": [
+23
 ],
 "rxjs:perf/micro/immediate-scheduler/observable/interval.js": [
 18

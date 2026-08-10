@@ -26,15 +26,15 @@
 "vuetify:packages/vuetify/src/components/VList/VListItem.tsx": [
 118
 ],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
-264
-],
 "vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts": [
 40,
 50,
 67,
 73,
 168
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
+264
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 327

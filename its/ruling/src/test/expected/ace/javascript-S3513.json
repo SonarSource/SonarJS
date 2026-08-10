@@ -86,24 +86,24 @@
 5393,
 5475
 ],
-"ace:lib/ace/worker/worker.js": [
-10
-],
 "ace:lib/ace/worker/worker_client.js": [
 68
 ],
 "ace:lib/ace/worker/worker_v2.js": [
 13
 ],
+"ace:lib/ace/worker/worker.js": [
+10
+],
+"ace:src/keyboard/vim_test.js": [
+294,
+5541
+],
 "ace:src/keyboard/vim.js": [
 57,
 4001,
 4007,
 5458
-],
-"ace:src/keyboard/vim_test.js": [
-294,
-5541
 ],
 "ace:src/lib/app_config.js": [
 56

@@ -115,27 +115,6 @@
 "vuetify:packages/docs/src/components/app/Banner.vue": [
 106
 ],
-"vuetify:packages/docs/src/components/app/Link.vue": [
-27,
-28,
-38,
-39,
-58
-],
-"vuetify:packages/docs/src/components/app/Markup.vue": [
-85,
-89,
-90,
-95
-],
-"vuetify:packages/docs/src/components/app/Toc.vue": [
-184
-],
-"vuetify:packages/docs/src/components/app/TooltipBtn.vue": [
-45,
-46,
-54
-],
 "vuetify:packages/docs/src/components/app/bar/LanguageMenu.vue": [
 38,
 41
@@ -145,6 +124,13 @@
 38,
 43,
 44
+],
+"vuetify:packages/docs/src/components/app/Link.vue": [
+27,
+28,
+38,
+39,
+58
 ],
 "vuetify:packages/docs/src/components/app/list/List.vue": [
 69,
@@ -156,6 +142,12 @@
 114,
 129,
 137
+],
+"vuetify:packages/docs/src/components/app/Markup.vue": [
+85,
+89,
+90,
+95
 ],
 "vuetify:packages/docs/src/components/app/menu/Menu.vue": [
 30,
@@ -176,6 +168,14 @@
 39,
 40,
 64
+],
+"vuetify:packages/docs/src/components/app/Toc.vue": [
+184
+],
+"vuetify:packages/docs/src/components/app/TooltipBtn.vue": [
+45,
+46,
+54
 ],
 "vuetify:packages/docs/src/components/components/ListItem.vue": [
 26
@@ -532,6 +532,41 @@
 75,
 76
 ],
+"vuetify:packages/vuetify/src/components/transitions/createTransition.ts": [
+22,
+26,
+27,
+48,
+71,
+74,
+89,
+90,
+98,
+101
+],
+"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
+11,
+21,
+39,
+42,
+48,
+51,
+69,
+72,
+79,
+82,
+88,
+103,
+150
+],
+"vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
+24,
+58,
+69
+],
+"vuetify:packages/vuetify/src/components/transitions/index.ts": [
+3
+],
 "vuetify:packages/vuetify/src/components/VAlert/VAlert.tsx": [
 57,
 59,
@@ -804,6 +839,33 @@
 69,
 75
 ],
+"vuetify:packages/vuetify/src/components/VColorPicker/util/index.ts": [
+9,
+104,
+112,
+119,
+126,
+133,
+134,
+137,
+142,
+148,
+156,
+163,
+170,
+177,
+178,
+181,
+186,
+191,
+197,
+198,
+201,
+210,
+211,
+212,
+221
+],
 "vuetify:packages/vuetify/src/components/VColorPicker/VColorPicker.tsx": [
 33,
 38,
@@ -860,33 +922,6 @@
 52,
 60,
 90
-],
-"vuetify:packages/vuetify/src/components/VColorPicker/util/index.ts": [
-9,
-104,
-112,
-119,
-126,
-133,
-134,
-137,
-142,
-148,
-156,
-163,
-170,
-177,
-178,
-181,
-186,
-191,
-197,
-198,
-201,
-210,
-211,
-212,
-221
 ],
 "vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 96,
@@ -954,6 +989,16 @@
 93,
 122
 ],
+"vuetify:packages/vuetify/src/components/VExpansionPanel/VExpansionPanels.tsx": [
+32,
+38,
+42,
+54,
+57,
+58,
+66,
+73
+],
 "vuetify:packages/vuetify/src/components/VExpansionPanel/VExpansionPanelText.tsx": [
 16,
 42
@@ -968,16 +1013,6 @@
 76,
 78,
 104
-],
-"vuetify:packages/vuetify/src/components/VExpansionPanel/VExpansionPanels.tsx": [
-32,
-38,
-42,
-54,
-57,
-58,
-66,
-73
 ],
 "vuetify:packages/vuetify/src/components/VField/VField.tsx": [
 29,
@@ -1153,6 +1188,9 @@
 60,
 73
 ],
+"vuetify:packages/vuetify/src/components/VList/list.ts": [
+33
+],
 "vuetify:packages/vuetify/src/components/VList/VList.tsx": [
 49,
 58,
@@ -1228,9 +1266,6 @@
 35,
 49
 ],
-"vuetify:packages/vuetify/src/components/VList/list.ts": [
-33
-],
 "vuetify:packages/vuetify/src/components/VLocaleProvider/VLocaleProvider.tsx": [
 19,
 20,
@@ -1261,6 +1296,14 @@
 56,
 76
 ],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/sticky.ts": [
+21
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts": [
+158,
+173,
+180
+],
 "vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
 52,
 57,
@@ -1283,40 +1326,8 @@
 277,
 279
 ],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/sticky.ts": [
-21
-],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts": [
-158,
-173,
-180
-],
 "vuetify:packages/vuetify/src/components/VNoSsr/VNoSsr.tsx": [
 15
-],
-"vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
-35,
-45,
-66,
-86,
-97,
-101,
-110,
-123,
-129,
-138,
-163,
-170,
-230,
-233,
-242,
-243,
-258,
-261,
-286,
-290,
-311,
-313
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 17,
@@ -1358,6 +1369,30 @@
 24,
 32,
 70
+],
+"vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
+35,
+45,
+66,
+86,
+97,
+101,
+110,
+123,
+129,
+138,
+163,
+170,
+230,
+233,
+242,
+243,
+258,
+261,
+286,
+290,
+311,
+313
 ],
 "vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
 46,
@@ -1546,6 +1581,10 @@
 66,
 73
 ],
+"vuetify:packages/vuetify/src/components/VSlideGroup/helpers.ts": [
+13,
+44
+],
 "vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
 47,
 51,
@@ -1574,9 +1613,24 @@
 39,
 41
 ],
-"vuetify:packages/vuetify/src/components/VSlideGroup/helpers.ts": [
-13,
-44
+"vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
+81,
+85,
+89,
+95,
+99,
+104,
+107,
+111,
+118,
+123,
+129,
+130,
+139,
+202,
+295,
+303,
+343
 ],
 "vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx": [
 38,
@@ -1629,25 +1683,6 @@
 160,
 161,
 172
-],
-"vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
-81,
-85,
-89,
-95,
-99,
-104,
-107,
-111,
-118,
-123,
-129,
-130,
-139,
-202,
-295,
-303,
-343
 ],
 "vuetify:packages/vuetify/src/components/VSnackbar/VSnackbar.tsx": [
 36,
@@ -1720,19 +1755,6 @@
 110,
 124
 ],
-"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
-45,
-49,
-67,
-163,
-164,
-180,
-201,
-209,
-250,
-271,
-278
-],
 "vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
 50,
 54,
@@ -1749,13 +1771,22 @@
 316,
 323
 ],
+"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
+45,
+49,
+67,
+163,
+164,
+180,
+201,
+209,
+250,
+271,
+278
+],
 "vuetify:packages/vuetify/src/components/VThemeProvider/VThemeProvider.tsx": [
 18,
 33
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/index.ts": [
-11,
-12
 ],
 "vuetify:packages/vuetify/src/components/VTimeline/VTimeline.tsx": [
 29,
@@ -1796,6 +1827,10 @@
 67,
 71,
 103
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/index.ts": [
+11,
+12
 ],
 "vuetify:packages/vuetify/src/components/VToolbar/VToolbar.tsx": [
 38,
@@ -1875,41 +1910,6 @@
 118,
 129,
 139
-],
-"vuetify:packages/vuetify/src/components/transitions/createTransition.ts": [
-22,
-26,
-27,
-48,
-71,
-74,
-89,
-90,
-98,
-101
-],
-"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
-11,
-21,
-39,
-42,
-48,
-51,
-69,
-72,
-79,
-82,
-88,
-103,
-150
-],
-"vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
-24,
-58,
-69
-],
-"vuetify:packages/vuetify/src/components/transitions/index.ts": [
-3
 ],
 "vuetify:packages/vuetify/src/composables/border.ts": [
 12,
@@ -2260,6 +2260,53 @@
 45,
 50
 ],
+"vuetify:packages/vuetify/src/labs/index.ts": [
+4
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/expand.ts": [
+17,
+18
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
+13,
+14,
+35,
+120
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
+13,
+14,
+78,
+110
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/items.ts": [
+17,
+18,
+31
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/options.ts": [
+14,
+28
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/paginate.ts": [
+14,
+18,
+19
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/select.ts": [
+17,
+18
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
+16,
+19
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/virtual.ts": [
+11,
+15,
+16,
+97
+],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTable.tsx": [
 49,
 54,
@@ -2363,50 +2410,6 @@
 160,
 164
 ],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/expand.ts": [
-17,
-18
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
-13,
-14,
-35,
-120
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
-13,
-14,
-78,
-110
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/items.ts": [
-17,
-18,
-31
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/options.ts": [
-14,
-28
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/paginate.ts": [
-14,
-18,
-19
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/select.ts": [
-17,
-18
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
-16,
-19
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/virtual.ts": [
-11,
-15,
-16,
-97
-],
 "vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScroll.tsx": [
 19,
 45,
@@ -2420,9 +2423,6 @@
 13,
 17,
 45
-],
-"vuetify:packages/vuetify/src/labs/index.ts": [
-4
 ],
 "vuetify:packages/vuetify/src/locale/adapters/vue-i18n.ts": [
 44,
@@ -3215,12 +3215,6 @@
 22,
 50
 ],
-"vuetify:packages/vuetify/src/util/colorUtils.ts": [
-31,
-60,
-160,
-202
-],
 "vuetify:packages/vuetify/src/util/colors.ts": [
 15,
 32,
@@ -3243,6 +3237,12 @@
 309,
 315,
 338
+],
+"vuetify:packages/vuetify/src/util/colorUtils.ts": [
+31,
+60,
+160,
+202
 ],
 "vuetify:packages/vuetify/src/util/console.ts": [
 11

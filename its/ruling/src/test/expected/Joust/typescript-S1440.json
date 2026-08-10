@@ -1,7 +1,4 @@
 {
-"Joust:ts/TexturePreloader.ts": [
-93
-],
 "Joust:ts/components/EventLog.tsx": [
 64,
 65,
@@ -58,17 +55,6 @@
 138,
 174
 ],
-"Joust:ts/components/MessagePicker.tsx": [
-31
-],
-"Joust:ts/components/Scrubber.tsx": [
-123,
-123,
-123
-],
-"Joust:ts/components/Turn.tsx": [
-33
-],
 "Joust:ts/components/game/EntityInPlay.tsx": [
 56,
 59,
@@ -90,10 +76,24 @@
 "Joust:ts/components/game/visuals/HeroArt.tsx": [
 99
 ],
+"Joust:ts/components/MessagePicker.tsx": [
+31
+],
+"Joust:ts/components/Scrubber.tsx": [
+123,
+123,
+123
+],
+"Joust:ts/components/Turn.tsx": [
+33
+],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 237
 ],
 "Joust:ts/state/GameStateScrubber.ts": [
 135
+],
+"Joust:ts/TexturePreloader.ts": [
+93
 ]
 }

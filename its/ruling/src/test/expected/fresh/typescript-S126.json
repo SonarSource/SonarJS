@@ -84,11 +84,11 @@
 "fresh:packages/fresh/tests/test_utils.tsx": [
 194
 ],
-"fresh:packages/init/src/init.ts": [
-626
-],
 "fresh:packages/init/src/init_test.ts": [
 128
+],
+"fresh:packages/init/src/init.ts": [
+626
 ],
 "fresh:packages/plugin-vite/src/plugins/client_entry.ts": [
 32

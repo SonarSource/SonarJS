@@ -1,8 +1,4 @@
 {
-"rxjs:src/Rx.ts": [
-193,
-213
-],
 "rxjs:src/add/observable/bindCallback.ts": [
 8
 ],
@@ -77,5 +73,9 @@
 ],
 "rxjs:src/add/observable/zip.ts": [
 8
+],
+"rxjs:src/Rx.ts": [
+193,
+213
 ]
 }

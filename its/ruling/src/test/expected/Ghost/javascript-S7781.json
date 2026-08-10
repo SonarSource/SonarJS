@@ -1,8 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-854,
-855
-],
 "Ghost:core/server/config/url.js": [
 35
 ],
@@ -22,5 +18,9 @@
 ],
 "Ghost:core/test/functional/base.js": [
 381
+],
+"Ghost:Gruntfile.js": [
+854,
+855
 ]
 }

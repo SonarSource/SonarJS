@@ -1,7 +1,4 @@
 {
-"angular.js:Gruntfile.js": [
-55
-],
 "angular.js:benchmarks/animation-bp/bp.conf.js": [
 5
 ],
@@ -31,6 +28,9 @@
 ],
 "angular.js:benchmarks/select-ng-value-bp/bp.conf.js": [
 5
+],
+"angular.js:Gruntfile.js": [
+55
 ],
 "angular.js:karma-docs.conf.js": [
 5

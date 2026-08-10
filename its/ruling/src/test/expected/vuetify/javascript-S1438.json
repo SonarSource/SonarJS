@@ -69,17 +69,6 @@
 3,
 20
 ],
-"vuetify:packages/docs/src/components/Alert.vue": [
-17
-],
-"vuetify:packages/docs/src/components/Backmatter.vue": [
-37,
-38,
-39,
-42,
-45,
-47
-],
 "vuetify:packages/docs/src/components/about/TeamMembers.vue": [
 23,
 26,
@@ -87,6 +76,9 @@
 31,
 32,
 33
+],
+"vuetify:packages/docs/src/components/Alert.vue": [
+17
 ],
 "vuetify:packages/docs/src/components/api/NameCell.vue": [
 18
@@ -96,99 +88,6 @@
 28,
 31,
 38
-],
-"vuetify:packages/docs/src/components/app/Btn.vue": [
-24,
-33,
-35
-],
-"vuetify:packages/docs/src/components/app/Caption.vue": [
-16
-],
-"vuetify:packages/docs/src/components/app/Figure.vue": [
-21,
-23,
-27,
-29,
-35
-],
-"vuetify:packages/docs/src/components/app/Heading.vue": [
-24,
-32,
-38,
-40,
-41
-],
-"vuetify:packages/docs/src/components/app/Headline.vue": [
-12,
-32,
-34
-],
-"vuetify:packages/docs/src/components/app/Markdown.vue": [
-9,
-10,
-11,
-17,
-20,
-23,
-25,
-28,
-32,
-34,
-36,
-40,
-45,
-46,
-48,
-49,
-50,
-53,
-54,
-55,
-58,
-59,
-60,
-61,
-64,
-65,
-66,
-67,
-70,
-71,
-73,
-75,
-76,
-77,
-79,
-80,
-81,
-83,
-84,
-86,
-87,
-88,
-89,
-92,
-96,
-104,
-106
-],
-"vuetify:packages/docs/src/components/app/PwaSnackbar.vue": [
-35,
-37
-],
-"vuetify:packages/docs/src/components/app/Table.vue": [
-14
-],
-"vuetify:packages/docs/src/components/app/V2Banner.vue": [
-38,
-39,
-40,
-42,
-45,
-47,
-48,
-51
 ],
 "vuetify:packages/docs/src/components/app/bar/Bar.vue": [
 57,
@@ -322,6 +221,14 @@
 30,
 31
 ],
+"vuetify:packages/docs/src/components/app/Btn.vue": [
+24,
+33,
+35
+],
+"vuetify:packages/docs/src/components/app/Caption.vue": [
+16
+],
 "vuetify:packages/docs/src/components/app/drawer/Drawer.vue": [
 42,
 45,
@@ -335,6 +242,78 @@
 60,
 66,
 67
+],
+"vuetify:packages/docs/src/components/app/Figure.vue": [
+21,
+23,
+27,
+29,
+35
+],
+"vuetify:packages/docs/src/components/app/Heading.vue": [
+24,
+32,
+38,
+40,
+41
+],
+"vuetify:packages/docs/src/components/app/Headline.vue": [
+12,
+32,
+34
+],
+"vuetify:packages/docs/src/components/app/Markdown.vue": [
+9,
+10,
+11,
+17,
+20,
+23,
+25,
+28,
+32,
+34,
+36,
+40,
+45,
+46,
+48,
+49,
+50,
+53,
+54,
+55,
+58,
+59,
+60,
+61,
+64,
+65,
+66,
+67,
+70,
+71,
+73,
+75,
+76,
+77,
+79,
+80,
+81,
+83,
+84,
+86,
+87,
+88,
+89,
+92,
+96,
+104,
+106
+],
+"vuetify:packages/docs/src/components/app/PwaSnackbar.vue": [
+35,
+37
 ],
 "vuetify:packages/docs/src/components/app/settings/Api.vue": [
 7,
@@ -365,6 +344,27 @@
 13,
 15,
 25
+],
+"vuetify:packages/docs/src/components/app/Table.vue": [
+14
+],
+"vuetify:packages/docs/src/components/app/V2Banner.vue": [
+38,
+39,
+40,
+42,
+45,
+47,
+48,
+51
+],
+"vuetify:packages/docs/src/components/Backmatter.vue": [
+37,
+38,
+39,
+42,
+45,
+47
 ],
 "vuetify:packages/docs/src/components/doc/Contribute.vue": [
 14,
@@ -3708,6 +3708,23 @@
 8,
 15
 ],
+"vuetify:packages/vuetify/dev/index.js": [
+1,
+2,
+3,
+5,
+6,
+7,
+8,
+9,
+11,
+14,
+17,
+18,
+19,
+21,
+22
+],
 "vuetify:packages/vuetify/dev/Playground.items.vue": [
 183,
 185,
@@ -3753,23 +3770,6 @@
 "vuetify:packages/vuetify/dev/Playground.template.vue": [
 15,
 17
-],
-"vuetify:packages/vuetify/dev/index.js": [
-1,
-2,
-3,
-5,
-6,
-7,
-8,
-9,
-11,
-14,
-17,
-18,
-19,
-21,
-22
 ],
 "vuetify:packages/vuetify/dev/router.js": [
 1,

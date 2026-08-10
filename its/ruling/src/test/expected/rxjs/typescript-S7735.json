@@ -1,20 +1,15 @@
 {
-"rxjs:src/Subscriber.ts": [
-215,
-222,
-239
-],
 "rxjs:src/observable/BoundCallbackObservable.ts": [
 198
 ],
 "rxjs:src/observable/BoundNodeCallbackObservable.ts": [
 177
 ],
-"rxjs:src/observable/FromEventPatternObservable.ts": [
-76
-],
 "rxjs:src/observable/dom/AjaxObservable.ts": [
 29
+],
+"rxjs:src/observable/FromEventPatternObservable.ts": [
+76
 ],
 "rxjs:src/operator/combineLatest.ts": [
 145
@@ -33,6 +28,11 @@
 ],
 "rxjs:src/operator/scan.ts": [
 93
+],
+"rxjs:src/Subscriber.ts": [
+215,
+222,
+239
 ],
 "rxjs:src/testing/TestScheduler.ts": [
 200

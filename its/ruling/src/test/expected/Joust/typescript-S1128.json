@@ -1,15 +1,9 @@
 {
-"Joust:ts/TexturePreloader.ts": [
-2
-],
 "Joust:ts/components/game/HeroPower.tsx": [
 7
 ],
 "Joust:ts/components/game/TwoPlayerGame.tsx": [
 14
-],
-"Joust:ts/components/game/Weapon.tsx": [
-8
 ],
 "Joust:ts/components/game/visuals/HeroPowerArt.tsx": [
 2,
@@ -25,6 +19,9 @@
 3,
 6
 ],
+"Joust:ts/components/game/Weapon.tsx": [
+8
+],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 11
 ],
@@ -33,5 +30,8 @@
 6,
 6,
 6
+],
+"Joust:ts/TexturePreloader.ts": [
+2
 ]
 }

@@ -47,16 +47,16 @@
 189,
 190
 ],
-"watchtower.js:src/watch.js": [
-20,
-26
-],
 "watchtower.js:src/watch_record.js": [
 116,
 128,
 204,
 277,
 316
+],
+"watchtower.js:src/watch.js": [
+20,
+26
 ],
 "watchtower.js:test/matchers.js": [
 38,

@@ -20,10 +20,10 @@
 "watchtower.js:src/linked_list.js": [
 0
 ],
-"watchtower.js:src/watch.js": [
+"watchtower.js:src/watch_record.js": [
 0
 ],
-"watchtower.js:src/watch_record.js": [
+"watchtower.js:src/watch.js": [
 0
 ],
 "watchtower.js:test/helpers.js": [

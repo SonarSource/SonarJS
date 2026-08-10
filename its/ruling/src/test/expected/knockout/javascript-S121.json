@@ -1,13 +1,13 @@
 {
+"knockout:build/knockout-raw.js": [
+19,
+31
+],
 "knockout:Gruntfile.js": [
 50,
 151,
 167,
 169
-],
-"knockout:build/knockout-raw.js": [
-19,
-31
 ],
 "knockout:spec/runner.html": [
 93

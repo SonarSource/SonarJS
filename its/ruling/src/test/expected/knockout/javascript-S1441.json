@@ -1,4 +1,11 @@
 {
+"knockout:build/knockout-raw.js": [
+9,
+10,
+13,
+14,
+21
+],
 "knockout:Gruntfile.js": [
 19,
 20,
@@ -10,13 +17,6 @@
 162,
 169,
 169
-],
-"knockout:build/knockout-raw.js": [
-9,
-10,
-13,
-14,
-21
 ],
 "knockout:src/binding/bindingAttributeSyntax.js": [
 95,

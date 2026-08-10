@@ -1,7 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-438
-],
 "ace:demo/autoresize.html": [
 36,
 44
@@ -51,11 +48,11 @@
 3336,
 5901
 ],
-"ace:lib/ace/mode/html/saxparser.js": [
-2359
-],
 "ace:lib/ace/mode/html_worker.js": [
 35
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+2359
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
 4479
@@ -64,6 +61,9 @@
 122,
 138,
 139
+],
+"ace:lib/ace/mode/xml_worker.js": [
+35
 ],
 "ace:lib/ace/mode/xml/dom-parser.js": [
 119
@@ -86,9 +86,6 @@
 "ace:lib/ace/mode/xml/sax.js": [
 516
 ],
-"ace:lib/ace/mode/xml_worker.js": [
-35
-],
 "ace:lib/ace/mode/xquery.js": [
 164,
 180,
@@ -105,6 +102,9 @@
 1,
 1,
 4
+],
+"ace:Makefile.dryice.js": [
+438
 ],
 "ace:src/edit_session_test.js": [
 439,

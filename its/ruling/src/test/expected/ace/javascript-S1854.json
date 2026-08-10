@@ -1,7 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-438
-],
 "ace:demo/autoresize.html": [
 36,
 44
@@ -58,11 +55,11 @@
 4984,
 5901
 ],
-"ace:lib/ace/mode/html/saxparser.js": [
-2359
-],
 "ace:lib/ace/mode/html_worker.js": [
 35
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+2359
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
 4479,
@@ -76,6 +73,9 @@
 ],
 "ace:lib/ace/mode/php/php.js": [
 1103
+],
+"ace:lib/ace/mode/xml_worker.js": [
+35
 ],
 "ace:lib/ace/mode/xml/dom-parser.js": [
 119
@@ -99,9 +99,6 @@
 "ace:lib/ace/mode/xml/sax.js": [
 516
 ],
-"ace:lib/ace/mode/xml_worker.js": [
-35
-],
 "ace:lib/ace/mode/xquery.js": [
 180,
 181
@@ -114,6 +111,9 @@
 2041,
 2159,
 2438
+],
+"ace:Makefile.dryice.js": [
+438
 ],
 "ace:src/edit_session_test.js": [
 439,
@@ -136,16 +136,16 @@
 "ace:src/ext/whitespace_test.js": [
 98
 ],
-"ace:src/keyboard/vim.js": [
-553,
-4578
-],
 "ace:src/keyboard/vim_test.js": [
 1438,
 1515,
 1526,
 1537,
 1548
+],
+"ace:src/keyboard/vim.js": [
+553,
+4578
 ],
 "ace:src/layer/text.js": [
 583

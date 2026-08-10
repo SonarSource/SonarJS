@@ -2,9 +2,6 @@
 "react-cloud-music:ewas.config.ts": [
 0
 ],
-"react-cloud-music:ts-music/src/App.tsx": [
-0
-],
 "react-cloud-music:ts-music/src/api/config.ts": [
 0
 ],
@@ -12,6 +9,9 @@
 0
 ],
 "react-cloud-music:ts-music/src/api/utils.ts": [
+0
+],
+"react-cloud-music:ts-music/src/App.tsx": [
 0
 ],
 "react-cloud-music:ts-music/src/application/Recommend/index.tsx": [

@@ -26,13 +26,10 @@
 "vuetify:packages/docs/jest.config.js": [
 0
 ],
-"vuetify:packages/docs/src/components/Alert.vue": [
-0
-],
-"vuetify:packages/docs/src/components/Backmatter.vue": [
-0
-],
 "vuetify:packages/docs/src/components/about/TeamMembers.vue": [
+0
+],
+"vuetify:packages/docs/src/components/Alert.vue": [
 0
 ],
 "vuetify:packages/docs/src/components/api/ApiSearch.vue": [
@@ -42,45 +39,6 @@
 0
 ],
 "vuetify:packages/docs/src/components/app/BackToTop.vue": [
-0
-],
-"vuetify:packages/docs/src/components/app/Btn.vue": [
-0
-],
-"vuetify:packages/docs/src/components/app/Caption.vue": [
-0
-],
-"vuetify:packages/docs/src/components/app/Divider.vue": [
-0
-],
-"vuetify:packages/docs/src/components/app/Figure.vue": [
-0
-],
-"vuetify:packages/docs/src/components/app/Heading.vue": [
-0
-],
-"vuetify:packages/docs/src/components/app/Headline.vue": [
-0
-],
-"vuetify:packages/docs/src/components/app/Markdown.vue": [
-0
-],
-"vuetify:packages/docs/src/components/app/PwaSnackbar.vue": [
-0
-],
-"vuetify:packages/docs/src/components/app/Sheet.vue": [
-0
-],
-"vuetify:packages/docs/src/components/app/Table.vue": [
-0
-],
-"vuetify:packages/docs/src/components/app/Title.vue": [
-0
-],
-"vuetify:packages/docs/src/components/app/V2Banner.vue": [
-0
-],
-"vuetify:packages/docs/src/components/app/VerticalDivider.vue": [
 0
 ],
 "vuetify:packages/docs/src/components/app/bar/Bar.vue": [
@@ -119,7 +77,31 @@
 "vuetify:packages/docs/src/components/app/bar/ThemeToggle.vue": [
 0
 ],
+"vuetify:packages/docs/src/components/app/Btn.vue": [
+0
+],
+"vuetify:packages/docs/src/components/app/Caption.vue": [
+0
+],
+"vuetify:packages/docs/src/components/app/Divider.vue": [
+0
+],
 "vuetify:packages/docs/src/components/app/drawer/Drawer.vue": [
+0
+],
+"vuetify:packages/docs/src/components/app/Figure.vue": [
+0
+],
+"vuetify:packages/docs/src/components/app/Heading.vue": [
+0
+],
+"vuetify:packages/docs/src/components/app/Headline.vue": [
+0
+],
+"vuetify:packages/docs/src/components/app/Markdown.vue": [
+0
+],
+"vuetify:packages/docs/src/components/app/PwaSnackbar.vue": [
 0
 ],
 "vuetify:packages/docs/src/components/app/settings/Api.vue": [
@@ -132,6 +114,24 @@
 0
 ],
 "vuetify:packages/docs/src/components/app/settings/Rtl.vue": [
+0
+],
+"vuetify:packages/docs/src/components/app/Sheet.vue": [
+0
+],
+"vuetify:packages/docs/src/components/app/Table.vue": [
+0
+],
+"vuetify:packages/docs/src/components/app/Title.vue": [
+0
+],
+"vuetify:packages/docs/src/components/app/V2Banner.vue": [
+0
+],
+"vuetify:packages/docs/src/components/app/VerticalDivider.vue": [
+0
+],
+"vuetify:packages/docs/src/components/Backmatter.vue": [
 0
 ],
 "vuetify:packages/docs/src/components/doc/Contribute.vue": [
@@ -2597,6 +2597,9 @@
 "vuetify:packages/vuetify/dev/App.vue": [
 0
 ],
+"vuetify:packages/vuetify/dev/index.js": [
+0
+],
 "vuetify:packages/vuetify/dev/Playground.items.vue": [
 0
 ],
@@ -2610,9 +2613,6 @@
 0
 ],
 "vuetify:packages/vuetify/dev/Playground.template.vue": [
-0
-],
-"vuetify:packages/vuetify/dev/index.js": [
 0
 ],
 "vuetify:packages/vuetify/dev/router.js": [

@@ -11,11 +11,11 @@
 "ace:src/edit_session/folding.js": [
 438
 ],
-"ace:src/editor.js": [
-140
-],
 "ace:src/editor_commands_test.js": [
 342
+],
+"ace:src/editor.js": [
+140
 ],
 "ace:src/ext/hardwrap.js": [
 7

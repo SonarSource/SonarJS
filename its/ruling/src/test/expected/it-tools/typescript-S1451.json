@@ -500,9 +500,6 @@
 "it-tools:src/tools/math-evaluator/math-evaluator.vue": [
 0
 ],
-"it-tools:src/tools/meta-tag-generator/OGSchemaType.type.ts": [
-0
-],
 "it-tools:src/tools/meta-tag-generator/index.ts": [
 0
 ],
@@ -552,6 +549,9 @@
 0
 ],
 "it-tools:src/tools/meta-tag-generator/og-schemas/website.ts": [
+0
+],
+"it-tools:src/tools/meta-tag-generator/OGSchemaType.type.ts": [
 0
 ],
 "it-tools:src/tools/mime-types/index.ts": [

@@ -1,7 +1,4 @@
 {
-"Joust:ts/Launcher.tsx": [
-434
-],
 "Joust:ts/components/DebugApplication.tsx": [
 12
 ],
@@ -13,22 +10,6 @@
 ],
 "Joust:ts/components/EventLogLine.tsx": [
 21
-],
-"Joust:ts/components/GameWidget.tsx": [
-259
-],
-"Joust:ts/components/GameWrapper.tsx": [
-10
-],
-"Joust:ts/components/MessagePicker.tsx": [
-22
-],
-"Joust:ts/components/SetupWidget.tsx": [
-39
-],
-"Joust:ts/components/Timeline.tsx": [
-30,
-127
 ],
 "Joust:ts/components/game/EntityInPlay.tsx": [
 17
@@ -88,8 +69,27 @@
 16,
 26
 ],
+"Joust:ts/components/GameWidget.tsx": [
+259
+],
+"Joust:ts/components/GameWrapper.tsx": [
+10
+],
+"Joust:ts/components/MessagePicker.tsx": [
+22
+],
+"Joust:ts/components/SetupWidget.tsx": [
+39
+],
+"Joust:ts/components/Timeline.tsx": [
+30,
+127
+],
 "Joust:ts/debug.tsx": [
 9
+],
+"Joust:ts/Launcher.tsx": [
+434
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 146,

@@ -102,6 +102,9 @@
 287,
 327
 ],
+"ace:src/edit_session_test.js": [
+807
+],
 "ace:src/edit_session.js": [
 332,
 741,
@@ -141,8 +144,13 @@
 "ace:src/edit_session/folding.js": [
 88
 ],
-"ace:src/edit_session_test.js": [
-807
+"ace:src/editor_highlight_selected_word_test.js": [
+156
+],
+"ace:src/editor_text_edit_test.js": [
+144,
+219,
+220
 ],
 "ace:src/editor.js": [
 926,
@@ -151,14 +159,6 @@
 1501,
 1516,
 1561
-],
-"ace:src/editor_highlight_selected_word_test.js": [
-156
-],
-"ace:src/editor_text_edit_test.js": [
-144,
-219,
-220
 ],
 "ace:src/ext/code_lens_test.js": [
 213
@@ -185,6 +185,14 @@
 "ace:src/keyboard/emacs.js": [
 287
 ],
+"ace:src/keyboard/vim_test.js": [
+80,
+5403,
+5410,
+5417,
+5421,
+5504
+],
 "ace:src/keyboard/vim.js": [
 409,
 661,
@@ -210,14 +218,6 @@
 6154,
 6163
 ],
-"ace:src/keyboard/vim_test.js": [
-80,
-5403,
-5410,
-5417,
-5421,
-5504
-],
 "ace:src/layer/cursor.js": [
 182
 ],
@@ -227,6 +227,9 @@
 ],
 "ace:src/layer/marker.js": [
 135
+],
+"ace:src/layer/text_test.js": [
+50
 ],
 "ace:src/layer/text.js": [
 143,
@@ -246,9 +249,6 @@
 663,
 665,
 718
-],
-"ace:src/layer/text_test.js": [
-50
 ],
 "ace:src/lib/bidiutil.js": [
 322,
@@ -358,6 +358,10 @@
 "ace:src/mode/sqlserver_highlight_rules.js": [
 164
 ],
+"ace:src/mode/text_highlight_rules.js": [
+28,
+66
+],
 "ace:src/mode/text.js": [
 79,
 80,
@@ -375,10 +379,6 @@
 256,
 285,
 323
-],
-"ace:src/mode/text_highlight_rules.js": [
-28,
-66
 ],
 "ace:src/mode/vala.js": [
 49
@@ -414,10 +414,6 @@
 145,
 146
 ],
-"ace:src/range.js": [
-349,
-354
-],
 "ace:src/range_list.js": [
 169,
 195,
@@ -441,14 +437,9 @@
 148,
 151
 ],
-"ace:src/search.js": [
-143,
-153,
-153,
-285,
-320,
-338,
-345
+"ace:src/range.js": [
+349,
+354
 ],
 "ace:src/search_test.js": [
 178,
@@ -458,12 +449,21 @@
 452,
 453
 ],
-"ace:src/selection.js": [
-445,
-864
+"ace:src/search.js": [
+143,
+153,
+153,
+285,
+320,
+338,
+345
 ],
 "ace:src/selection_test.js": [
 237
+],
+"ace:src/selection.js": [
+445,
+864
 ],
 "ace:src/snippets_test.js": [
 62,
@@ -515,10 +515,6 @@
 116,
 138
 ],
-"ace:src/tokenizer.js": [
-208,
-290
-],
 "ace:src/tokenizer_dev.js": [
 23,
 123
@@ -530,6 +526,10 @@
 21,
 23,
 53
+],
+"ace:src/tokenizer.js": [
+208,
+290
 ],
 "ace:tool/lib.js": [
 74,

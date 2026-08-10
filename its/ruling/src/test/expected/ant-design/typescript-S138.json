@@ -24,12 +24,12 @@
 77,
 355
 ],
-"ant-design:components/typography/Base/index.tsx": [
-118
-],
 "ant-design:components/typography/__tests__/copy.test.tsx": [
 9,
 16
+],
+"ant-design:components/typography/Base/index.tsx": [
+118
 ],
 "ant-design:components/upload/UploadList/ListItem.tsx": [
 74

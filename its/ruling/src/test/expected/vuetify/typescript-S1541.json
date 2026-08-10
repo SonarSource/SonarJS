@@ -12,6 +12,9 @@
 "vuetify:packages/docs/src/util/helpers.ts": [
 46
 ],
+"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
+112
+],
 "vuetify:packages/vuetify/src/components/VAlert/VAlert.tsx": [
 133
 ],
@@ -76,9 +79,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 64
-],
-"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
-112
 ],
 "vuetify:packages/vuetify/src/composables/display.ts": [
 163

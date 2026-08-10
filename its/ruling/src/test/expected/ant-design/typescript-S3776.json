@@ -17,12 +17,12 @@
 "ant-design:components/statistic/Number.tsx": [
 9
 ],
-"ant-design:components/table/Table.tsx": [
-108
-],
 "ant-design:components/table/hooks/useSelection.tsx": [
 355,
 529
+],
+"ant-design:components/table/Table.tsx": [
+108
 ],
 "ant-design:components/tree/utils/iconUtil.tsx": [
 11

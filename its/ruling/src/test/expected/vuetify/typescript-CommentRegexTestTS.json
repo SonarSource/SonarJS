@@ -17,6 +17,9 @@
 "vuetify:packages/docs/src/components/introduction/EnterpriseForm.vue": [
 181
 ],
+"vuetify:packages/vuetify/src/components/transitions/createTransition.ts": [
+97
+],
 "vuetify:packages/vuetify/src/components/VAppBar/VAppBar.tsx": [
 24
 ],
@@ -48,9 +51,6 @@
 "vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
 88
 ],
-"vuetify:packages/vuetify/src/components/transitions/createTransition.ts": [
-97
-],
 "vuetify:packages/vuetify/src/composables/group.ts": [
 191
 ],
@@ -63,10 +63,6 @@
 "vuetify:packages/vuetify/src/iconsets/fa-svg.ts": [
 16
 ],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
-57,
-58
-],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
 131
 ],
@@ -78,6 +74,10 @@
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/virtual.ts": [
 27
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
+57,
+58
 ],
 "vuetify:packages/vuetify/src/locale/adapters/vuetify.ts": [
 63

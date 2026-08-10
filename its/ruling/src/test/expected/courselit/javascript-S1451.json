@@ -32,6 +32,9 @@
 "courselit:packages/rich-text/src/EditorWithToolbar.js": [
 0
 ],
+"courselit:packages/rich-text/src/index.js": [
+0
+],
 "courselit:packages/rich-text/src/Multidecorator.js": [
 0
 ],
@@ -42,9 +45,6 @@
 0
 ],
 "courselit:packages/rich-text/src/Renderers/Media.js": [
-0
-],
-"courselit:packages/rich-text/src/index.js": [
 0
 ],
 "courselit:packages/rich-text/src/styles.js": [
@@ -62,13 +62,13 @@
 "courselit:packages/widget-buttondown/src/AdminWidget.js": [
 0
 ],
-"courselit:packages/widget-buttondown/src/Widget.js": [
-0
-],
 "courselit:packages/widget-buttondown/src/index.js": [
 0
 ],
 "courselit:packages/widget-buttondown/src/metadata.js": [
+0
+],
+"courselit:packages/widget-buttondown/src/Widget.js": [
 0
 ],
 "courselit:packages/widget-buttondown/webpack.config.js": [

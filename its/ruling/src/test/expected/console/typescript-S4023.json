@@ -77,6 +77,12 @@
 "console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndexes.tsx": [
 20
 ],
+"console:src/views/models/DatabrowserView/DataActionRow/DeleteNodeRow.tsx": [
+16
+],
+"console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
+27
+],
 "console:src/views/ProjectRootView/Onboarding/FinalPopup.tsx": [
 17
 ],
@@ -103,11 +109,5 @@
 ],
 "console:src/views/Settings/Billing/CurrentPlan.tsx": [
 6
-],
-"console:src/views/models/DatabrowserView/DataActionRow/DeleteNodeRow.tsx": [
-16
-],
-"console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
-27
 ]
 }

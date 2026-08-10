@@ -2,9 +2,6 @@
 "rxjs:src/BehaviorSubject.ts": [
 38
 ],
-"rxjs:src/ReplaySubject.ts": [
-49
-],
 "rxjs:src/operator/audit.ts": [
 88
 ],
@@ -55,6 +52,9 @@
 ],
 "rxjs:src/operator/windowWhen.ts": [
 136
+],
+"rxjs:src/ReplaySubject.ts": [
+49
 ],
 "rxjs:src/scheduler/AnimationFrameScheduler.ts": [
 17

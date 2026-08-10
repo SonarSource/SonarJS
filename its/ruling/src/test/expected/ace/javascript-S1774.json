@@ -1,10 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-332,
-367,
-382,
-403
-],
 "ace:demo/kitchen-sink/demo.js": [
 336,
 350,
@@ -54,6 +48,9 @@
 "ace:kitchen-sink.html": [
 64
 ],
+"ace:lib/ace/mode/css_worker.js": [
+92
+],
 "ace:lib/ace/mode/css/csslint.js": [
 318,
 350,
@@ -102,9 +99,6 @@
 10325,
 10546,
 10686
-],
-"ace:lib/ace/mode/css_worker.js": [
-92
 ],
 "ace:lib/ace/mode/html/saxparser.js": [
 2,
@@ -482,6 +476,12 @@
 "ace:lib/ace/worker/worker.js": [
 41
 ],
+"ace:Makefile.dryice.js": [
+332,
+367,
+382,
+403
+],
 "ace:src/anchor.js": [
 87,
 94,
@@ -703,6 +703,20 @@
 580,
 581
 ],
+"ace:src/keyboard/vim_ace_test.js": [
+26,
+28,
+52,
+56
+],
+"ace:src/keyboard/vim_test.js": [
+57,
+1391,
+3013,
+4480,
+5494,
+5500
+],
 "ace:src/keyboard/vim.js": [
 123,
 169,
@@ -859,20 +873,6 @@
 7210,
 7210
 ],
-"ace:src/keyboard/vim_ace_test.js": [
-26,
-28,
-52,
-56
-],
-"ace:src/keyboard/vim_test.js": [
-57,
-1391,
-3013,
-4480,
-5494,
-5500
-],
 "ace:src/keyboard/vscode.js": [
 20
 ],
@@ -957,6 +957,9 @@
 113,
 115
 ],
+"ace:src/lib/event_emitter.js": [
+105
+],
 "ace:src/lib/event.js": [
 173,
 173,
@@ -964,9 +967,6 @@
 173,
 193,
 210
-],
-"ace:src/lib/event_emitter.js": [
-105
 ],
 "ace:src/lib/useragent.js": [
 30,
@@ -1015,12 +1015,12 @@
 "ace:src/mode/folding/c9search.js": [
 20
 ],
-"ace:src/mode/folding/coffee.js": [
-57
-],
 "ace:src/mode/folding/coffee_test.js": [
 22,
 22
+],
+"ace:src/mode/folding/coffee.js": [
+57
 ],
 "ace:src/mode/folding/latex.js": [
 66,
@@ -1105,15 +1105,15 @@
 71,
 82
 ],
-"ace:src/mode/text.js": [
-154,
-290
-],
 "ace:src/mode/text_highlight_rules.js": [
 50,
 65,
 150,
 194
+],
+"ace:src/mode/text.js": [
+154,
+290
 ],
 "ace:src/mouse/default_handlers.js": [
 220,
@@ -1129,11 +1129,11 @@
 "ace:src/mouse/mouse_event.js": [
 92
 ],
-"ace:src/mouse/mouse_handler.js": [
-189
-],
 "ace:src/mouse/mouse_handler_test.js": [
 16
+],
+"ace:src/mouse/mouse_handler.js": [
+189
 ],
 "ace:src/mouse/multi_select_handler.js": [
 54
@@ -1143,6 +1143,12 @@
 129,
 181,
 208
+],
+"ace:src/multi_select_test.js": [
+37,
+41,
+51,
+53
 ],
 "ace:src/multi_select.js": [
 164,
@@ -1164,31 +1170,20 @@
 807,
 812
 ],
-"ace:src/multi_select_test.js": [
-37,
-41,
-51,
-53
-],
 "ace:src/occur.js": [
 136
 ],
 "ace:src/placeholder.js": [
 127
 ],
+"ace:src/range_list.js": [
+23
+],
 "ace:src/range.js": [
 269,
 269,
 280,
 283
-],
-"ace:src/range_list.js": [
-23
-],
-"ace:src/scrollbar.js": [
-46,
-109,
-207
 ],
 "ace:src/scrollbar_custom.js": [
 80,
@@ -1197,6 +1192,14 @@
 ],
 "ace:src/scrollbar_test.js": [
 13
+],
+"ace:src/scrollbar.js": [
+46,
+109,
+207
+],
+"ace:src/search_highlight.js": [
+39
 ],
 "ace:src/search.js": [
 109,
@@ -1207,9 +1210,6 @@
 266,
 267,
 303
-],
-"ace:src/search_highlight.js": [
-39
 ],
 "ace:src/selection.js": [
 144,
@@ -1273,12 +1273,12 @@
 "ace:src/token_iterator.js": [
 26
 ],
+"ace:src/tokenizer_dev.js": [
+145
+],
 "ace:src/tokenizer.js": [
 151,
 331
-],
-"ace:src/tokenizer_dev.js": [
-145
 ],
 "ace:src/undomanager.js": [
 284,

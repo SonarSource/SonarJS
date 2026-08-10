@@ -2,6 +2,9 @@
 "paper.js:examples/Games/Paperoids.html": [
 508
 ],
+"paper.js:examples/Scripts/BooleanOperations.html": [
+455
+],
 "paper.js:examples/SVG Import/Inkscape.html": [
 76
 ],
@@ -17,8 +20,5 @@
 "paper.js:examples/SVG Import/Text Testing.html": [
 14,
 15
-],
-"paper.js:examples/Scripts/BooleanOperations.html": [
-455
 ]
 }

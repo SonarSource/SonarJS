@@ -24,16 +24,16 @@
 37,
 43
 ],
+"templating:src/lib/index_ce_di.js": [
+5,
+9
+],
 "templating:src/lib/index.js": [
 6,
 11,
 14,
 17,
 20
-],
-"templating:src/lib/index_ce_di.js": [
-5,
-9
 ],
 "templating:src/lib/load_barrier.js": [
 68,

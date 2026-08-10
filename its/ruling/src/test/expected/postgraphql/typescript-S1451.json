@@ -95,12 +95,6 @@
 "postgraphql:src/index.ts": [
 0
 ],
-"postgraphql:src/interface/Inventory.ts": [
-0
-],
-"postgraphql:src/interface/Paginator.ts": [
-0
-],
 "postgraphql:src/interface/collection/Collection.ts": [
 0
 ],
@@ -116,6 +110,12 @@
 "postgraphql:src/interface/index.ts": [
 0
 ],
+"postgraphql:src/interface/Inventory.ts": [
+0
+],
+"postgraphql:src/interface/Paginator.ts": [
+0
+],
 "postgraphql:src/interface/type/AdapterType.ts": [
 0
 ],
@@ -128,6 +128,12 @@
 "postgraphql:src/interface/type/EnumType.ts": [
 0
 ],
+"postgraphql:src/interface/type/getNamedType.ts": [
+0
+],
+"postgraphql:src/interface/type/getNonNullableType.ts": [
+0
+],
 "postgraphql:src/interface/type/ListType.ts": [
 0
 ],
@@ -138,18 +144,6 @@
 0
 ],
 "postgraphql:src/interface/type/ObjectType.ts": [
-0
-],
-"postgraphql:src/interface/type/ScalarType.ts": [
-0
-],
-"postgraphql:src/interface/type/Type.ts": [
-0
-],
-"postgraphql:src/interface/type/getNamedType.ts": [
-0
-],
-"postgraphql:src/interface/type/getNonNullableType.ts": [
 0
 ],
 "postgraphql:src/interface/type/scalar/booleanType.ts": [
@@ -167,7 +161,13 @@
 "postgraphql:src/interface/type/scalar/stringType.ts": [
 0
 ],
+"postgraphql:src/interface/type/ScalarType.ts": [
+0
+],
 "postgraphql:src/interface/type/switchType.ts": [
+0
+],
+"postgraphql:src/interface/type/Type.ts": [
 0
 ],
 "postgraphql:src/postgraphql/cli.ts": [
@@ -191,9 +191,6 @@
 "postgraphql:src/postgraphql/schema/exportPostGraphQLSchema.ts": [
 0
 ],
-"postgraphql:src/postgraphql/schema/procedures/PgProcedurePaginator.ts": [
-0
-],
 "postgraphql:src/postgraphql/schema/procedures/createPgProcedureFixtures.ts": [
 0
 ],
@@ -212,6 +209,9 @@
 "postgraphql:src/postgraphql/schema/procedures/getPgProcedureComputedClass.ts": [
 0
 ],
+"postgraphql:src/postgraphql/schema/procedures/PgProcedurePaginator.ts": [
+0
+],
 "postgraphql:src/postgraphql/watch/watchPgSchemas.ts": [
 0
 ],
@@ -219,9 +219,6 @@
 0
 ],
 "postgraphql:src/postgres/index.ts": [
-0
-],
-"postgraphql:src/postgres/introspection/PgCatalog.ts": [
 0
 ],
 "postgraphql:src/postgres/introspection/index.ts": [
@@ -251,7 +248,7 @@
 "postgraphql:src/postgres/introspection/object/PgCatalogType.ts": [
 0
 ],
-"postgraphql:src/postgres/inventory/Options.ts": [
+"postgraphql:src/postgres/introspection/PgCatalog.ts": [
 0
 ],
 "postgraphql:src/postgres/inventory/addPgCatalogToInventory.ts": [
@@ -269,6 +266,9 @@
 "postgraphql:src/postgres/inventory/conditionToSql.ts": [
 0
 ],
+"postgraphql:src/postgres/inventory/Options.ts": [
+0
+],
 "postgraphql:src/postgres/inventory/paginator/PgCollectionPaginator.ts": [
 0
 ],
@@ -279,6 +279,24 @@
 0
 ],
 "postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingOffset.ts": [
+0
+],
+"postgraphql:src/postgres/inventory/type/custom/pgBigIntType.ts": [
+0
+],
+"postgraphql:src/postgres/inventory/type/custom/pgDatetimeType.ts": [
+0
+],
+"postgraphql:src/postgres/inventory/type/custom/pgDateType.ts": [
+0
+],
+"postgraphql:src/postgres/inventory/type/custom/pgTimeType.ts": [
+0
+],
+"postgraphql:src/postgres/inventory/type/custom/pgUuidType.ts": [
+0
+],
+"postgraphql:src/postgres/inventory/type/getTypeFromPgType.ts": [
 0
 ],
 "postgraphql:src/postgres/inventory/type/PgAliasType.ts": [
@@ -300,24 +318,6 @@
 0
 ],
 "postgraphql:src/postgres/inventory/type/PgType.ts": [
-0
-],
-"postgraphql:src/postgres/inventory/type/custom/pgBigIntType.ts": [
-0
-],
-"postgraphql:src/postgres/inventory/type/custom/pgDateType.ts": [
-0
-],
-"postgraphql:src/postgres/inventory/type/custom/pgDatetimeType.ts": [
-0
-],
-"postgraphql:src/postgres/inventory/type/custom/pgTimeType.ts": [
-0
-],
-"postgraphql:src/postgres/inventory/type/custom/pgUuidType.ts": [
-0
-],
-"postgraphql:src/postgres/inventory/type/getTypeFromPgType.ts": [
 0
 ],
 "postgraphql:src/postgres/inventory/type/scalar/pgBooleanType.ts": [

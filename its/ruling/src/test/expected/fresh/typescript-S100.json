@@ -1,10 +1,10 @@
 {
+"fresh:packages/fresh/src/app_test.tsx": [
+797
+],
 "fresh:packages/fresh/src/app.ts": [
 47,
 160
-],
-"fresh:packages/fresh/src/app_test.tsx": [
-797
 ],
 "fresh:packages/fresh/src/commands.ts": [
 21,

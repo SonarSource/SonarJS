@@ -1,43 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-92,
-110,
-166,
-196,
-206,
-230,
-232,
-317,
-336,
-345,
-353,
-354,
-357,
-364,
-366,
-370,
-376,
-384,
-386,
-388,
-393,
-396,
-417,
-500,
-502,
-520,
-522,
-577,
-586,
-637,
-672,
-683,
-741,
-753,
-755,
-758,
-775
-],
 "ace:demo/autoresize.html": [
 58
 ],
@@ -293,25 +254,29 @@
 36,
 45
 ],
+"ace:lib/ace/mode/coffee_worker.js": [
+6,
+17
+],
 "ace:lib/ace/mode/coffee/parser_test.js": [
 6,
 17,
 61,
 67
 ],
-"ace:lib/ace/mode/coffee_worker.js": [
+"ace:lib/ace/mode/css_worker_test.js": [
 6,
-17
+17,
+55
 ],
 "ace:lib/ace/mode/css_worker.js": [
 6,
 17,
 74
 ],
-"ace:lib/ace/mode/css_worker_test.js": [
+"ace:lib/ace/mode/html_worker.js": [
 6,
-17,
-55
+17
 ],
 "ace:lib/ace/mode/html/saxparser.js": [
 5810,
@@ -336,14 +301,6 @@
 6590,
 6628
 ],
-"ace:lib/ace/mode/html_worker.js": [
-6,
-17
-],
-"ace:lib/ace/mode/javascript_worker.js": [
-6,
-17
-],
 "ace:lib/ace/mode/javascript_worker_test.js": [
 6,
 17,
@@ -351,11 +308,15 @@
 91,
 96
 ],
-"ace:lib/ace/mode/json_worker.js": [
+"ace:lib/ace/mode/javascript_worker.js": [
 6,
 17
 ],
 "ace:lib/ace/mode/json_worker_test.js": [
+6,
+17
+],
+"ace:lib/ace/mode/json_worker.js": [
 6,
 17
 ],
@@ -379,6 +340,11 @@
 6,
 17,
 49
+],
+"ace:lib/ace/mode/xml_worker.js": [
+6,
+17,
+85
 ],
 "ace:lib/ace/mode/xml/dom-parser.js": [
 9,
@@ -414,10 +380,12 @@
 530,
 553
 ],
-"ace:lib/ace/mode/xml_worker.js": [
+"ace:lib/ace/mode/xquery_worker.js": [
 6,
 17,
-85
+30,
+33,
+95
 ],
 "ace:lib/ace/mode/xquery.js": [
 6,
@@ -462,13 +430,6 @@
 4275,
 4434
 ],
-"ace:lib/ace/mode/xquery_worker.js": [
-6,
-17,
-30,
-33,
-95
-],
 "ace:lib/ace/worker/mirror.js": [
 6,
 10,
@@ -482,6 +443,12 @@
 63,
 67,
 71
+],
+"ace:lib/ace/worker/worker_client_v2.js": [
+95
+],
+"ace:lib/ace/worker/worker_client.js": [
+136
 ],
 "ace:lib/ace/worker/worker.js": [
 14,
@@ -500,11 +467,44 @@
 188,
 190
 ],
-"ace:lib/ace/worker/worker_client.js": [
-136
-],
-"ace:lib/ace/worker/worker_client_v2.js": [
-95
+"ace:Makefile.dryice.js": [
+92,
+110,
+166,
+196,
+206,
+230,
+232,
+317,
+336,
+345,
+353,
+354,
+357,
+364,
+366,
+370,
+376,
+384,
+386,
+388,
+393,
+396,
+417,
+500,
+502,
+520,
+522,
+577,
+586,
+637,
+672,
+683,
+741,
+753,
+755,
+758,
+775
 ],
 "ace:src/ace_test.js": [
 18,
@@ -517,16 +517,6 @@
 73,
 82,
 86
-],
-"ace:src/anchor.js": [
-26,
-81,
-85,
-90,
-98,
-106,
-114,
-117
 ],
 "ace:src/anchor_test.js": [
 17,
@@ -574,11 +564,29 @@
 179,
 182
 ],
+"ace:src/anchor.js": [
+26,
+81,
+85,
+90,
+98,
+106,
+114,
+117
+],
 "ace:src/apply_delta.js": [
 17,
 30,
 35,
 47
+],
+"ace:src/autocomplete_test.js": [
+24,
+27,
+34,
+47,
+51,
+55
 ],
 "ace:src/autocomplete.js": [
 59,
@@ -596,22 +604,6 @@
 2,
 18
 ],
-"ace:src/autocomplete_test.js": [
-24,
-27,
-34,
-47,
-51,
-55
-],
-"ace:src/background_tokenizer.js": [
-8,
-9,
-43,
-62,
-65,
-101
-],
 "ace:src/background_tokenizer_test.js": [
 32,
 33,
@@ -627,6 +619,14 @@
 81,
 88,
 104
+],
+"ace:src/background_tokenizer.js": [
+8,
+9,
+43,
+62,
+65,
+101
 ],
 "ace:src/bidihandler.js": [
 69,
@@ -650,11 +650,6 @@
 163,
 597
 ],
-"ace:src/config.js": [
-52,
-124,
-131
-],
 "ace:src/config_test.js": [
 17,
 21,
@@ -669,6 +664,19 @@
 79,
 83,
 88
+],
+"ace:src/config.js": [
+52,
+124,
+131
+],
+"ace:src/document_test.js": [
+73,
+88,
+298,
+308,
+326,
+335
 ],
 "ace:src/document.js": [
 10,
@@ -728,13 +736,20 @@
 621,
 648
 ],
-"ace:src/document_test.js": [
-73,
-88,
-298,
-308,
-326,
-335
+"ace:src/edit_session_test.js": [
+360,
+366,
+396,
+476,
+956,
+973,
+976,
+998,
+1074,
+1082,
+1086,
+1090,
+1107
 ],
 "ace:src/edit_session.js": [
 126,
@@ -775,13 +790,13 @@
 166,
 223
 ],
-"ace:src/edit_session/fold.js": [
-84
-],
 "ace:src/edit_session/fold_line.js": [
 165,
 168,
 172
+],
+"ace:src/edit_session/fold.js": [
+84
 ],
 "ace:src/edit_session/folding.js": [
 92,
@@ -820,20 +835,45 @@
 825,
 831
 ],
-"ace:src/edit_session_test.js": [
-360,
-366,
-396,
+"ace:src/editor_change_document_test.js": [
+22,
+23,
+126,
+129,
+133,
+136,
+139,
+145
+],
+"ace:src/editor_commands_test.js": [
+42
+],
+"ace:src/editor_navigation_test.js": [
+148,
+154
+],
+"ace:src/editor_text_edit_test.js": [
+96,
+123,
+164,
+417,
+420,
+424,
+427,
+430,
+434,
+437,
+440,
+444,
+447,
+450,
+455,
+458,
+461,
+467,
+470,
 476,
-956,
-973,
-976,
-998,
-1074,
-1082,
-1086,
-1090,
-1107
+479
 ],
 "ace:src/editor.js": [
 66,
@@ -884,45 +924,10 @@
 2761,
 2803
 ],
-"ace:src/editor_change_document_test.js": [
-22,
-23,
-126,
-129,
-133,
-136,
-139,
-145
-],
-"ace:src/editor_commands_test.js": [
-42
-],
-"ace:src/editor_navigation_test.js": [
-148,
-154
-],
-"ace:src/editor_text_edit_test.js": [
-96,
-123,
-164,
-417,
-420,
-424,
-427,
-430,
-434,
-437,
-440,
-444,
-447,
-450,
-455,
-458,
-461,
-467,
-470,
-476,
-479
+"ace:src/ext/beautify_test.js": [
+309,
+314,
+399
 ],
 "ace:src/ext/beautify.js": [
 59,
@@ -931,13 +936,12 @@
 338,
 377
 ],
-"ace:src/ext/beautify_test.js": [
-309,
-314,
-399
-],
 "ace:src/ext/code_lens.js": [
 168
+],
+"ace:src/ext/emmet_test.js": [
+20,
+24
 ],
 "ace:src/ext/emmet.js": [
 135,
@@ -949,9 +953,10 @@
 331,
 338
 ],
-"ace:src/ext/emmet_test.js": [
-20,
-24
+"ace:src/ext/error_marker_test.js": [
+2,
+42,
+45
 ],
 "ace:src/ext/error_marker.js": [
 29,
@@ -972,17 +977,6 @@
 144,
 146
 ],
-"ace:src/ext/error_marker_test.js": [
-2,
-42,
-45
-],
-"ace:src/ext/hardwrap.js": [
-8,
-11,
-13,
-96
-],
 "ace:src/ext/hardwrap_test.js": [
 31,
 35,
@@ -991,6 +985,12 @@
 47,
 52,
 57
+],
+"ace:src/ext/hardwrap.js": [
+8,
+11,
+13,
+96
 ],
 "ace:src/ext/keybinding_menu.js": [
 30
@@ -1058,6 +1058,13 @@
 338,
 343
 ],
+"ace:src/ext/static_highlight_test.js": [
+93,
+104,
+112,
+116,
+119
+],
 "ace:src/ext/static_highlight.js": [
 43,
 72,
@@ -1065,13 +1072,6 @@
 189,
 192,
 200
-],
-"ace:src/ext/static_highlight_test.js": [
-93,
-104,
-112,
-116,
-119
 ],
 "ace:src/ext/statusbar.js": [
 15,
@@ -1081,11 +1081,6 @@
 ],
 "ace:src/ext/textarea.js": [
 290
-],
-"ace:src/ext/whitespace.js": [
-27,
-36,
-97
 ],
 "ace:src/ext/whitespace_test.js": [
 28,
@@ -1109,15 +1104,20 @@
 184,
 194
 ],
+"ace:src/ext/whitespace.js": [
+27,
+36,
+97
+],
 "ace:src/incremental_search.js": [
 73
+],
+"ace:src/keyboard/emacs_test.js": [
+114
 ],
 "ace:src/keyboard/emacs.js": [
 285,
 505
-],
-"ace:src/keyboard/emacs_test.js": [
-114
 ],
 "ace:src/keyboard/hash_handler.js": [
 23,
@@ -1139,6 +1139,9 @@
 102,
 105
 ],
+"ace:src/keyboard/sublime_test.js": [
+28
+],
 "ace:src/keyboard/sublime.js": [
 44,
 56,
@@ -1158,11 +1161,33 @@
 371,
 407
 ],
-"ace:src/keyboard/sublime_test.js": [
-28
-],
 "ace:src/keyboard/textarea.js": [
 37
+],
+"ace:src/keyboard/textinput_test.js": [
+2,
+28,
+32,
+47,
+54,
+57,
+71,
+95,
+113,
+131,
+155,
+235,
+244,
+365,
+429,
+460,
+589,
+609,
+616,
+621,
+627,
+630,
+656
 ],
 "ace:src/keyboard/textinput.js": [
 36,
@@ -1212,30 +1237,16 @@
 690,
 697
 ],
-"ace:src/keyboard/textinput_test.js": [
+"ace:src/keyboard/vim_ace_test.js": [
 2,
-28,
-32,
+52,
+66,
+78,
+81
+],
+"ace:src/keyboard/vim_test.js": [
 47,
-54,
-57,
-71,
-95,
-113,
-131,
-155,
-235,
-244,
-365,
-429,
-460,
-589,
-609,
-616,
-621,
-627,
-630,
-656
+2651
 ],
 "ace:src/keyboard/vim.js": [
 945,
@@ -1252,17 +1263,6 @@
 7033,
 7163,
 7192
-],
-"ace:src/keyboard/vim_ace_test.js": [
-2,
-52,
-66,
-78,
-81
-],
-"ace:src/keyboard/vim_test.js": [
-47,
-2651
 ],
 "ace:src/keyboard/vscode.js": [
 249
@@ -1399,6 +1399,12 @@
 202,
 205
 ],
+"ace:src/lib/event_emitter.js": [
+33,
+67,
+75,
+85
+],
 "ace:src/lib/event.js": [
 13,
 14,
@@ -1412,12 +1418,6 @@
 288,
 296,
 317
-],
-"ace:src/lib/event_emitter.js": [
-33,
-67,
-75,
-85
 ],
 "ace:src/lib/keys.js": [
 50,
@@ -1494,12 +1494,6 @@
 218,
 266
 ],
-"ace:src/mode/abap.js": [
-17,
-19,
-23,
-24
-],
 "ace:src/mode/abap_highlight_rules.js": [
 19,
 46,
@@ -1508,6 +1502,12 @@
 70,
 82,
 83
+],
+"ace:src/mode/abap.js": [
+17,
+19,
+23,
+24
 ],
 "ace:src/mode/abc.js": [
 21
@@ -1563,13 +1563,13 @@
 186,
 220
 ],
-"ace:src/mode/asciidoc.js": [
-10,
-11
-],
 "ace:src/mode/asciidoc_highlight_rules.js": [
 144,
 147
+],
+"ace:src/mode/asciidoc.js": [
+10,
+11
 ],
 "ace:src/mode/assembly_x86_highlight_rules.js": [
 16,
@@ -1654,8 +1654,13 @@
 "ace:src/mode/bibtex_highlight_rules.js": [
 178
 ],
-"ace:src/mode/c9search.js": [
-17
+"ace:src/mode/c_cpp_highlight_rules.js": [
+16,
+57,
+61,
+82,
+93,
+175
 ],
 "ace:src/mode/c9search_highlight_rules.js": [
 32,
@@ -1666,13 +1671,12 @@
 122,
 131
 ],
-"ace:src/mode/c_cpp_highlight_rules.js": [
-16,
-57,
-61,
-82,
-93,
-175
+"ace:src/mode/c9search.js": [
+17
+],
+"ace:src/mode/coffee_highlight_rules.js": [
+148,
+149
 ],
 "ace:src/mode/coffee.js": [
 20,
@@ -1686,13 +1690,6 @@
 72,
 76
 ],
-"ace:src/mode/coffee_highlight_rules.js": [
-148,
-149
-],
-"ace:src/mode/coldfusion.js": [
-12
-],
 "ace:src/mode/coldfusion_highlight_rules.js": [
 20,
 29,
@@ -1701,6 +1698,9 @@
 ],
 "ace:src/mode/coldfusion_test.js": [
 13
+],
+"ace:src/mode/coldfusion.js": [
+12
 ],
 "ace:src/mode/csharp.js": [
 19,
@@ -1731,9 +1731,6 @@
 248,
 254
 ],
-"ace:src/mode/dart.js": [
-19
-],
 "ace:src/mode/dart_highlight_rules.js": [
 101,
 106,
@@ -1742,17 +1739,17 @@
 132,
 136
 ],
+"ace:src/mode/dart.js": [
+19
+],
 "ace:src/mode/doc_comment_highlight_rules.js": [
 11
-],
-"ace:src/mode/dockerfile.js": [
-10
 ],
 "ace:src/mode/dockerfile_highlight_rules.js": [
 20
 ],
-"ace:src/mode/edifact.js": [
-8
+"ace:src/mode/dockerfile.js": [
+10
 ],
 "ace:src/mode/edifact_highlight_rules.js": [
 2,
@@ -1768,6 +1765,9 @@
 81,
 86,
 88
+],
+"ace:src/mode/edifact.js": [
+8
 ],
 "ace:src/mode/ejs.js": [
 9,
@@ -1988,6 +1988,18 @@
 76,
 81
 ],
+"ace:src/mode/folding/cstyle_test.js": [
+18,
+22,
+26,
+30,
+37,
+41,
+45,
+49,
+64,
+68
+],
 "ace:src/mode/folding/cstyle.js": [
 20,
 26,
@@ -2007,18 +2019,6 @@
 128,
 131,
 140
-],
-"ace:src/mode/folding/cstyle_test.js": [
-18,
-22,
-26,
-30,
-37,
-41,
-45,
-49,
-64,
-68
 ],
 "ace:src/mode/folding/drools.js": [
 14,
@@ -2098,10 +2098,6 @@
 60,
 69
 ],
-"ace:src/mode/folding/xml.js": [
-13,
-48
-],
 "ace:src/mode/folding/xml_test.js": [
 18,
 22,
@@ -2115,6 +2111,10 @@
 62,
 68
 ],
+"ace:src/mode/folding/xml.js": [
+13,
+48
+],
 "ace:src/mode/forth_highlight_rules.js": [
 118
 ],
@@ -2125,15 +2125,15 @@
 59,
 62
 ],
+"ace:src/mode/gherkin_highlight_rules.js": [
+18,
+25
+],
 "ace:src/mode/gherkin.js": [
 21,
 29,
 38,
 40
-],
-"ace:src/mode/gherkin_highlight_rules.js": [
-18,
-25
 ],
 "ace:src/mode/gitignore_highlight_rules.js": [
 18
@@ -2141,14 +2141,14 @@
 "ace:src/mode/glsl.js": [
 13
 ],
-"ace:src/mode/golang.js": [
-17,
-31
-],
 "ace:src/mode/golang_highlight_rules.js": [
 27,
 53,
 71
+],
+"ace:src/mode/golang.js": [
+17,
+31
 ],
 "ace:src/mode/haml.js": [
 21
@@ -2156,10 +2156,6 @@
 "ace:src/mode/haxe.js": [
 12,
 22
-],
-"ace:src/mode/html.js": [
-23,
-28
 ],
 "ace:src/mode/html_completions.js": [
 251,
@@ -2176,6 +2172,10 @@
 "ace:src/mode/html_test.js": [
 13
 ],
+"ace:src/mode/html.js": [
+23,
+28
+],
 "ace:src/mode/io_highlight_rules.js": [
 16,
 21,
@@ -2188,9 +2188,6 @@
 "ace:src/mode/jack_highlight_rules.js": [
 105
 ],
-"ace:src/mode/jade.js": [
-15
-],
 "ace:src/mode/jade_highlight_rules.js": [
 16,
 36,
@@ -2199,15 +2196,15 @@
 192,
 214
 ],
-"ace:src/mode/java.js": [
-16
+"ace:src/mode/jade.js": [
+15
 ],
 "ace:src/mode/java_highlight_rules.js": [
 103,
 151
 ],
-"ace:src/mode/javascript.js": [
-13
+"ace:src/mode/java.js": [
+16
 ],
 "ace:src/mode/javascript_test.js": [
 13,
@@ -2220,16 +2217,19 @@
 105,
 120
 ],
+"ace:src/mode/javascript.js": [
+13
+],
 "ace:src/mode/js_regex_highlight_rules.js": [
 24,
 52,
 86
 ],
-"ace:src/mode/json.js": [
-23
-],
 "ace:src/mode/json_highlight_rules.js": [
 74
+],
+"ace:src/mode/json.js": [
+23
 ],
 "ace:src/mode/jssm_highlight_rules.js": [
 148
@@ -2260,10 +2260,6 @@
 114,
 124
 ],
-"ace:src/mode/latex.js": [
-18,
-22
-],
 "ace:src/mode/latex_highlight_rules.js": [
 6,
 10,
@@ -2272,30 +2268,30 @@
 78,
 97
 ],
-"ace:src/mode/less.js": [
-25
+"ace:src/mode/latex.js": [
+18,
+22
 ],
 "ace:src/mode/less_highlight_rules.js": [
 10,
 23
 ],
-"ace:src/mode/liquid.js": [
-21
+"ace:src/mode/less.js": [
+25
 ],
 "ace:src/mode/liquid_highlight_rules.js": [
 25
 ],
-"ace:src/mode/lisp.js": [
-18,
-20
+"ace:src/mode/liquid.js": [
+21
 ],
 "ace:src/mode/lisp_highlight_rules.js": [
 25,
 47
 ],
-"ace:src/mode/logiql.js": [
-30,
-47
+"ace:src/mode/lisp.js": [
+18,
+20
 ],
 "ace:src/mode/logiql_highlight_rules.js": [
 12,
@@ -2307,6 +2303,10 @@
 "ace:src/mode/logiql_test.js": [
 12,
 26
+],
+"ace:src/mode/logiql.js": [
+30,
+47
 ],
 "ace:src/mode/logtalk_highlight_rules.js": [
 22,
@@ -2321,6 +2321,10 @@
 172,
 186
 ],
+"ace:src/mode/lua_highlight_rules.js": [
+115,
+152
+],
 "ace:src/mode/lua.js": [
 12,
 19,
@@ -2329,28 +2333,21 @@
 137,
 141
 ],
-"ace:src/mode/lua_highlight_rules.js": [
-115,
-152
-],
 "ace:src/mode/luapage.js": [
 10
-],
-"ace:src/mode/makefile.js": [
-20,
-21,
-23
 ],
 "ace:src/mode/makefile_highlight_rules.js": [
 19,
 56,
 60
 ],
+"ace:src/mode/makefile.js": [
+20,
+21,
+23
+],
 "ace:src/mode/markdown_highlight_rules.js": [
 40
-],
-"ace:src/mode/mask.js": [
-19
 ],
 "ace:src/mode/mask_highlight_rules.js": [
 40,
@@ -2370,6 +2367,9 @@
 181,
 190
 ],
+"ace:src/mode/mask.js": [
+19
+],
 "ace:src/mode/matlab_highlight_rules.js": [
 137,
 157,
@@ -2378,12 +2378,12 @@
 "ace:src/mode/mediawiki_highlight_rules.js": [
 548
 ],
-"ace:src/mode/mysql.js": [
-11
-],
 "ace:src/mode/mysql_highlight_rules.js": [
 22,
 40
+],
+"ace:src/mode/mysql.js": [
+11
 ],
 "ace:src/mode/nix.js": [
 20
@@ -2406,11 +2406,11 @@
 21,
 27
 ],
-"ace:src/mode/perl.js": [
-11
-],
 "ace:src/mode/perl_highlight_rules.js": [
 120
+],
+"ace:src/mode/perl.js": [
+11
 ],
 "ace:src/mode/pgsql.js": [
 15
@@ -2428,13 +2428,13 @@
 "ace:src/mode/pig_highlight_rules.js": [
 133
 ],
-"ace:src/mode/powershell.js": [
-22,
-32
-],
 "ace:src/mode/powershell_highlight_rules.js": [
 169,
 170
+],
+"ace:src/mode/powershell.js": [
+22,
+32
 ],
 "ace:src/mode/prisma_highlight_rules.js": [
 314
@@ -2479,6 +2479,13 @@
 "ace:src/mode/puppet.js": [
 24
 ],
+"ace:src/mode/python_highlight_rules.js": [
+87
+],
+"ace:src/mode/python_test.js": [
+13,
+35
+],
 "ace:src/mode/python.js": [
 47,
 53,
@@ -2486,13 +2493,6 @@
 61,
 64,
 71
-],
-"ace:src/mode/python_highlight_rules.js": [
-87
-],
-"ace:src/mode/python_test.js": [
-13,
-35
 ],
 "ace:src/mode/raku_highlight_rules.js": [
 153,
@@ -2506,9 +2506,6 @@
 277,
 297
 ],
-"ace:src/mode/razor.js": [
-23
-],
 "ace:src/mode/razor_completions.js": [
 30,
 38,
@@ -2517,6 +2514,9 @@
 49,
 54,
 56
+],
+"ace:src/mode/razor.js": [
+23
 ],
 "ace:src/mode/rdoc_highlight_rules.js": [
 79
@@ -2540,9 +2540,6 @@
 172,
 173
 ],
-"ace:src/mode/redshift.js": [
-15
-],
 "ace:src/mode/redshift_highlight_rules.js": [
 12,
 13,
@@ -2555,6 +2552,9 @@
 26,
 27
 ],
+"ace:src/mode/redshift.js": [
+15
+],
 "ace:src/mode/rhtml.js": [
 44,
 71
@@ -2562,32 +2562,28 @@
 "ace:src/mode/robot.js": [
 2
 ],
-"ace:src/mode/sass.js": [
-15
-],
 "ace:src/mode/sass_highlight_rules.js": [
 25
 ],
+"ace:src/mode/sass.js": [
+15
+],
 "ace:src/mode/scad_highlight_rules.js": [
 102
-],
-"ace:src/mode/scheme.js": [
-16,
-93
 ],
 "ace:src/mode/scheme_highlight_rules.js": [
 22,
 44
 ],
-"ace:src/mode/scrypt.js": [
-24
+"ace:src/mode/scheme.js": [
+16,
+93
 ],
 "ace:src/mode/scrypt_highlight_rules.js": [
 99
 ],
-"ace:src/mode/scss.js": [
-22,
-50
+"ace:src/mode/scrypt.js": [
+24
 ],
 "ace:src/mode/scss_highlight_rules.js": [
 9,
@@ -2604,11 +2600,15 @@
 35,
 36
 ],
-"ace:src/mode/sh.js": [
-19
+"ace:src/mode/scss.js": [
+22,
+50
 ],
 "ace:src/mode/sh_highlight_rules.js": [
 211
+],
+"ace:src/mode/sh.js": [
+19
 ],
 "ace:src/mode/sjs_highlight_rules.js": [
 119,
@@ -2616,9 +2616,6 @@
 ],
 "ace:src/mode/slim_highlight_rules.js": [
 45
-],
-"ace:src/mode/smarty.js": [
-15
 ],
 "ace:src/mode/smarty_highlight_rules.js": [
 14,
@@ -2640,11 +2637,14 @@
 89,
 94
 ],
-"ace:src/mode/smithy.js": [
-30
+"ace:src/mode/smarty.js": [
+15
 ],
 "ace:src/mode/smithy_highlight_rules.js": [
 274
+],
+"ace:src/mode/smithy.js": [
+30
 ],
 "ace:src/mode/snippets.js": [
 89
@@ -2709,21 +2709,17 @@
 300,
 308
 ],
-"ace:src/mode/space.js": [
-16
-],
 "ace:src/mode/space_highlight_rules.js": [
 49
+],
+"ace:src/mode/space.js": [
+16
 ],
 "ace:src/mode/sparql_highlight_rules.js": [
 145
 ],
 "ace:src/mode/sql_highlight_rules.js": [
 19
-],
-"ace:src/mode/sqlserver.js": [
-18,
-25
 ],
 "ace:src/mode/sqlserver_highlight_rules.js": [
 17,
@@ -2748,8 +2744,9 @@
 174,
 194
 ],
-"ace:src/mode/stylus.js": [
-22
+"ace:src/mode/sqlserver.js": [
+18,
+25
 ],
 "ace:src/mode/stylus_highlight_rules.js": [
 60,
@@ -2763,14 +2760,14 @@
 144,
 149
 ],
+"ace:src/mode/stylus.js": [
+22
+],
 "ace:src/mode/svg.js": [
 13,
 15,
 19,
 32
-],
-"ace:src/mode/swift.js": [
-25
 ],
 "ace:src/mode/swift_highlight_rules.js": [
 27,
@@ -2787,8 +2784,8 @@
 157,
 162
 ],
-"ace:src/mode/tcl.js": [
-31
+"ace:src/mode/swift.js": [
+25
 ],
 "ace:src/mode/tcl_highlight_rules.js": [
 75,
@@ -2797,8 +2794,15 @@
 120,
 129
 ],
+"ace:src/mode/tcl.js": [
+31
+],
 "ace:src/mode/terraform.js": [
 24
+],
+"ace:src/mode/text_highlight_rules.js": [
+167,
+189
 ],
 "ace:src/mode/text.js": [
 86,
@@ -2809,10 +2813,6 @@
 320,
 337
 ],
-"ace:src/mode/text_highlight_rules.js": [
-167,
-189
-],
 "ace:src/mode/textile.js": [
 20,
 31
@@ -2820,15 +2820,12 @@
 "ace:src/mode/turtle_highlight_rules.js": [
 121
 ],
-"ace:src/mode/typescript.js": [
-16
-],
 "ace:src/mode/typescript_highlight_rules.js": [
 28,
 36
 ],
-"ace:src/mode/vala.js": [
-18
+"ace:src/mode/typescript.js": [
+16
 ],
 "ace:src/mode/vala_highlight_rules.js": [
 16,
@@ -2905,6 +2902,9 @@
 410,
 414
 ],
+"ace:src/mode/vala.js": [
+18
+],
 "ace:src/mode/vhdl_highlight_rules.js": [
 9,
 21,
@@ -2920,11 +2920,11 @@
 "ace:src/mode/xml.js": [
 39
 ],
-"ace:src/mode/yaml.js": [
-21
-],
 "ace:src/mode/yaml_highlight_rules.js": [
 50
+],
+"ace:src/mode/yaml.js": [
+21
 ],
 "ace:src/mouse/default_gutter_handler.js": [
 125
@@ -2960,10 +2960,6 @@
 84,
 91,
 95
-],
-"ace:src/mouse/mouse_handler.js": [
-98,
-154
 ],
 "ace:src/mouse/mouse_handler_test.js": [
 73,
@@ -3001,6 +2997,10 @@
 261,
 264
 ],
+"ace:src/mouse/mouse_handler.js": [
+98,
+154
+],
 "ace:src/mouse/multi_select_handler.js": [
 16,
 24,
@@ -3025,6 +3025,33 @@
 193,
 198,
 209
+],
+"ace:src/multi_select_test.js": [
+37,
+179,
+189,
+197,
+214,
+217,
+220,
+230,
+236,
+240,
+250,
+252,
+257,
+259,
+263,
+268,
+282,
+294,
+303,
+316,
+327,
+332,
+339,
+342,
+352
 ],
 "ace:src/multi_select.js": [
 37,
@@ -3056,32 +3083,20 @@
 700,
 714
 ],
-"ace:src/multi_select_test.js": [
-37,
-179,
-189,
-197,
-214,
-217,
-220,
-230,
-236,
-240,
-250,
-252,
-257,
-259,
-263,
-268,
-282,
-294,
-303,
-316,
-327,
-332,
-339,
-342,
-352
+"ace:src/placeholder_test.js": [
+22,
+24,
+39,
+41,
+46,
+50,
+52,
+68,
+70,
+82,
+92,
+101,
+107
 ],
 "ace:src/placeholder.js": [
 19,
@@ -3105,20 +3120,8 @@
 210,
 213
 ],
-"ace:src/placeholder_test.js": [
-22,
-24,
-39,
-41,
-46,
-50,
-52,
-68,
-70,
-82,
-92,
-101,
-107
+"ace:src/range_list_test.js": [
+44
 ],
 "ace:src/range_list.js": [
 66,
@@ -3131,9 +3134,6 @@
 205,
 227,
 230
-],
-"ace:src/range_list_test.js": [
-44
 ],
 "ace:src/range_test.js": [
 12,
@@ -3153,6 +3153,19 @@
 125,
 177
 ],
+"ace:src/search_highlight.js": [
+16
+],
+"ace:src/search_test.js": [
+305,
+306,
+430,
+438,
+460,
+472,
+475,
+480
+],
 "ace:src/search.js": [
 15,
 28,
@@ -3170,29 +3183,6 @@
 262,
 268,
 299
-],
-"ace:src/search_highlight.js": [
-16
-],
-"ace:src/search_test.js": [
-305,
-306,
-430,
-438,
-460,
-472,
-475,
-480
-],
-"ace:src/selection.js": [
-23,
-29,
-107,
-111,
-738,
-746,
-748,
-750
 ],
 "ace:src/selection_test.js": [
 18,
@@ -3212,6 +3202,31 @@
 525,
 549,
 554
+],
+"ace:src/selection.js": [
+23,
+29,
+107,
+111,
+738,
+746,
+748,
+750
+],
+"ace:src/snippets_test.js": [
+26,
+47,
+80,
+95,
+115,
+125,
+129,
+176,
+246,
+283,
+298,
+303,
+312
 ],
 "ace:src/snippets.js": [
 97,
@@ -3248,21 +3263,6 @@
 ],
 "ace:src/snippets/edifact.js": [
 2
-],
-"ace:src/snippets_test.js": [
-26,
-47,
-80,
-95,
-115,
-125,
-129,
-176,
-246,
-283,
-298,
-303,
-312
 ],
 "ace:src/split.js": [
 11,
@@ -3407,6 +3407,22 @@
 17,
 29
 ],
+"ace:src/test/mockdom_test.js": [
+16,
+19,
+21,
+24,
+27,
+31,
+48,
+53,
+58,
+62,
+68,
+73,
+77,
+82
+],
 "ace:src/test/mockdom.js": [
 11,
 164,
@@ -3424,22 +3440,6 @@
 868,
 877,
 878
-],
-"ace:src/test/mockdom_test.js": [
-16,
-19,
-21,
-24,
-27,
-31,
-48,
-53,
-58,
-62,
-68,
-73,
-77,
-82
 ],
 "ace:src/test/user.js": [
 75,
@@ -3477,18 +3477,6 @@
 123,
 133
 ],
-"ace:src/tokenizer.js": [
-52,
-92,
-97,
-110,
-187,
-191,
-260,
-324,
-334,
-336
-],
 "ace:src/tokenizer_dev.js": [
 44,
 51,
@@ -3502,8 +3490,24 @@
 41,
 59
 ],
+"ace:src/tokenizer.js": [
+52,
+92,
+97,
+110,
+187,
+191,
+260,
+324,
+334,
+336
+],
 "ace:src/tooltip.js": [
 106
+],
+"ace:src/undomanager_test.js": [
+36,
+80
 ],
 "ace:src/undomanager.js": [
 10,
@@ -3553,9 +3557,23 @@
 526,
 555
 ],
-"ace:src/undomanager_test.js": [
-36,
-80
+"ace:src/virtual_renderer_test.js": [
+74,
+78,
+80,
+83,
+89,
+98,
+102,
+106,
+111,
+114,
+119,
+129,
+147,
+156,
+163,
+172
 ],
 "ace:src/virtual_renderer.js": [
 27,
@@ -3628,24 +3646,6 @@
 1736,
 1748,
 1827
-],
-"ace:src/virtual_renderer_test.js": [
-74,
-78,
-80,
-83,
-89,
-98,
-102,
-106,
-111,
-114,
-119,
-129,
-147,
-156,
-163,
-172
 ],
 "ace:static.js": [
 23,

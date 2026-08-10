@@ -17,6 +17,9 @@
 "http:src/IInterceptResolution.js": [
 0
 ],
+"http:src/index.js": [
+0
+],
 "http:src/IRequest.js": [
 0
 ],
@@ -29,13 +32,7 @@
 "http:src/Utils.js": [
 0
 ],
-"http:src/index.js": [
-0
-],
 "http:test-main.js": [
-0
-],
-"http:test/TestUtils.js": [
 0
 ],
 "http:test/matchers.js": [
@@ -45,6 +42,9 @@
 0
 ],
 "http:test/mocks/Xhr.js": [
+0
+],
+"http:test/TestUtils.js": [
 0
 ]
 }

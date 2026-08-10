@@ -1,4 +1,7 @@
 {
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
+72
+],
 "console:src/views/ProjectRootView/EndpointPopup.tsx": [
 46
 ],
@@ -10,8 +13,5 @@
 ],
 "console:src/views/Settings/General/ProjectInfo.tsx": [
 57
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-72
 ]
 }

@@ -22,11 +22,11 @@
 59,
 103
 ],
-"react-cloud-music:src/application/User/Login/PhoneForm/index.jsx": [
-33
-],
 "react-cloud-music:src/application/User/Login/index.jsx": [
 40
+],
+"react-cloud-music:src/application/User/Login/PhoneForm/index.jsx": [
+33
 ],
 "react-cloud-music:src/application/User/Login/store/actionCreators.js": [
 43,

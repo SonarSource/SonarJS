@@ -18,12 +18,12 @@
 "vitest:packages/pretty-format/src/plugins/DOMCollection.ts": [
 47
 ],
+"vitest:packages/pretty-format/src/plugins/lib/markup.ts": [
+120
+],
 "vitest:packages/pretty-format/src/plugins/ReactTestComponent.ts": [
 53,
 64
-],
-"vitest:packages/pretty-format/src/plugins/lib/markup.ts": [
-120
 ],
 "vitest:packages/runner/src/suite.ts": [
 378,
@@ -36,12 +36,12 @@
 511,
 551
 ],
-"vitest:packages/ui/client/components/Navigation.vue": [
-61
-],
 "vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
 131,
 149
+],
+"vitest:packages/ui/client/components/Navigation.vue": [
+61
 ],
 "vitest:packages/utils/src/diff/getAlignedDiffs.ts": [
 25,

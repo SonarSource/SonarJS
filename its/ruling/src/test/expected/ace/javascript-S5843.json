@@ -1,7 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-590
-],
 "ace:lib/ace/mode/php/php.js": [
 192,
 193
@@ -12,6 +9,9 @@
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 3173,
 3867
+],
+"ace:Makefile.dryice.js": [
+590
 ],
 "ace:src/mode/alda_highlight_rules.js": [
 41
@@ -26,13 +26,13 @@
 "ace:src/mode/c_cpp_highlight_rules.js": [
 54
 ],
-"ace:src/mode/coffee.js": [
-42
-],
 "ace:src/mode/coffee_highlight_rules.js": [
 55,
 58,
 125
+],
+"ace:src/mode/coffee.js": [
+42
 ],
 "ace:src/mode/crystal_highlight_rules.js": [
 40

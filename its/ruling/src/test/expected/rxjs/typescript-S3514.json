@@ -1,7 +1,4 @@
 {
-"rxjs:src/ReplaySubject.ts": [
-72
-],
 "rxjs:src/observable/ArrayObservable.ts": [
 114
 ],
@@ -43,6 +40,9 @@
 ],
 "rxjs:src/operator/zip.ts": [
 173
+],
+"rxjs:src/ReplaySubject.ts": [
+72
 ],
 "rxjs:src/scheduler/AsyncAction.ts": [
 36,

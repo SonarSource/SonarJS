@@ -160,6 +160,9 @@
 64,
 76
 ],
+"eigen:src/app/errorReporting/sentrySetup.ts": [
+17
+],
 "eigen:src/app/NativeModules/ARScreenPresenterModule.tsx": [
 51,
 103,
@@ -179,6 +182,28 @@
 ],
 "eigen:src/app/NativeModules/triggerCamera.tsx": [
 9
+],
+"eigen:src/app/navigation/NavStack.tsx": [
+104
+],
+"eigen:src/app/navigation/routes.tsx": [
+53,
+78
+],
+"eigen:src/app/navigation/useReloadedDevNavigationState.ts": [
+43
+],
+"eigen:src/app/relay/middlewares/checkAuthenticationMiddleware.ts": [
+38
+],
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+63
+],
+"eigen:src/app/relay/middlewares/rateLimitMiddleware.ts": [
+15
+],
+"eigen:src/app/relay/middlewares/simpleLoggerMiddleware.ts": [
+15
 ],
 "eigen:src/app/Scenes/Artist/ArtistSavedSearch.tests.tsx": [
 17,
@@ -326,12 +351,12 @@
 45,
 56
 ],
+"eigen:src/app/Scenes/Favorites/Favorites.tsx": [
+75
+],
 "eigen:src/app/Scenes/Favorites/FavoriteShows.tsx": [
 44,
 55
-],
-"eigen:src/app/Scenes/Favorites/Favorites.tsx": [
-75
 ],
 "eigen:src/app/Scenes/Feature/Feature.tsx": [
 162
@@ -374,15 +399,15 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tests.tsx": [
 42
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
-68
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tests.tsx": [
 34
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tsx": [
 43,
 58
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
+68
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryMakeOfferButton.tests.tsx": [
 52
@@ -519,14 +544,14 @@
 "eigen:src/app/Scenes/SavedAddresses/SavedAddressesForm.tests.tsx": [
 30
 ],
+"eigen:src/app/Scenes/SavedSearchAlert/containers/CreateSavedSearchContentContainer.tsx": [
+143
+],
 "eigen:src/app/Scenes/SavedSearchAlert/SavedSearchAlertForm.tsx": [
 120,
 146,
 165,
 223
-],
-"eigen:src/app/Scenes/SavedSearchAlert/containers/CreateSavedSearchContentContainer.tsx": [
-143
 ],
 "eigen:src/app/Scenes/SavedSearchAlertsList/Components/SavedSearchesList.tsx": [
 109,
@@ -538,12 +563,12 @@
 "eigen:src/app/Scenes/Search/AutosuggestResults.tsx": [
 284
 ],
+"eigen:src/app/Scenes/Search/components/SearchResultList.tsx": [
+12
+],
 "eigen:src/app/Scenes/Search/UserPrefsModel.tsx": [
 51,
 58
-],
-"eigen:src/app/Scenes/Search/components/SearchResultList.tsx": [
-12
 ],
 "eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ContactInformation/ContactInformation.tests.tsx": [
 27
@@ -584,34 +609,12 @@
 "eigen:src/app/Scenes/ViewingRoom/ViewingRoomArtworks.tsx": [
 117
 ],
-"eigen:src/app/errorReporting/sentrySetup.ts": [
-17
-],
-"eigen:src/app/navigation/NavStack.tsx": [
-104
-],
-"eigen:src/app/navigation/routes.tsx": [
-53,
-78
-],
-"eigen:src/app/navigation/useReloadedDevNavigationState.ts": [
-43
-],
-"eigen:src/app/relay/middlewares/checkAuthenticationMiddleware.ts": [
-38
-],
-"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
-63
-],
-"eigen:src/app/relay/middlewares/rateLimitMiddleware.ts": [
-15
-],
-"eigen:src/app/relay/middlewares/simpleLoggerMiddleware.ts": [
-15
-],
 "eigen:src/app/store/AuthModel.ts": [
 760,
 761
+],
+"eigen:src/app/store/config/FeaturesModel.tsx": [
+47
 ],
 "eigen:src/app/store/GlobalStore.tsx": [
 37
@@ -620,9 +623,6 @@
 71,
 137,
 144
-],
-"eigen:src/app/store/config/FeaturesModel.tsx": [
-47
 ],
 "eigen:src/app/store/persistence.tests.ts": [
 51,
@@ -645,6 +645,15 @@
 "eigen:src/app/utils/CatchErrors.tsx": [
 7
 ],
+"eigen:src/app/utils/experiments/unleashClient.ts": [
+29
+],
+"eigen:src/app/utils/experiments/UnleashProvider.tsx": [
+31
+],
+"eigen:src/app/utils/getTestWrapper.tsx": [
+25
+],
 "eigen:src/app/utils/LocalImageStore.tests.ts": [
 69
 ],
@@ -656,15 +665,6 @@
 207,
 210,
 231
-],
-"eigen:src/app/utils/experiments/UnleashProvider.tsx": [
-31
-],
-"eigen:src/app/utils/experiments/unleashClient.ts": [
-29
-],
-"eigen:src/app/utils/getTestWrapper.tsx": [
-25
 ],
 "eigen:src/app/utils/queryPrefetching.ts": [
 59,
@@ -689,22 +689,19 @@
 "eigen:src/app/utils/useImageSearch.ts": [
 102
 ],
+"eigen:src/app/utils/userHadMeaningfulInteraction.tsx": [
+45,
+46
+],
 "eigen:src/app/utils/useSearchInsightsConfig.ts": [
 18
 ],
 "eigen:src/app/utils/useWebViewEvent.ts": [
 64
 ],
-"eigen:src/app/utils/userHadMeaningfulInteraction.tsx": [
-45,
-46
-],
 "eigen:src/app/utils/volleyClient.ts": [
 78,
 95
-],
-"eigen:src/palette/Theme.tsx": [
-293
 ],
 "eigen:src/palette/elements/Button/Button.stories.tsx": [
 38,
@@ -738,6 +735,9 @@
 ],
 "eigen:src/palette/svgs/sf/BoltCircleFill.tsx": [
 9
+],
+"eigen:src/palette/Theme.tsx": [
+293
 ],
 "eigen:src/setupJest.ts": [
 17,

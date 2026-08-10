@@ -365,13 +365,13 @@
 "courselit:apps/web/models/Widget.ts": [
 0
 ],
-"courselit:apps/web/pages/404.tsx": [
-0
-],
 "courselit:apps/web/pages/_app.tsx": [
 0
 ],
 "courselit:apps/web/pages/_document.tsx": [
+0
+],
+"courselit:apps/web/pages/404.tsx": [
 0
 ],
 "courselit:apps/web/pages/api/auth/login.ts": [

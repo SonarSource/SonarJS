@@ -1,14 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-730,
-731,
-733,
-734,
-734,
-736,
-850,
-850
-],
 "ace:demo/code_lens.html": [
 117,
 118
@@ -174,15 +164,6 @@
 5912,
 5912
 ],
-"ace:lib/ace/worker/worker_client.js": [
-46,
-46,
-46,
-58,
-58,
-132,
-138
-],
 "ace:lib/ace/worker/worker_client_v2.js": [
 63,
 63,
@@ -191,6 +172,15 @@
 72,
 145,
 151
+],
+"ace:lib/ace/worker/worker_client.js": [
+46,
+46,
+46,
+58,
+58,
+132,
+138
 ],
 "ace:lib/ace/worker/worker_v2.js": [
 6,
@@ -222,6 +212,16 @@
 83,
 88
 ],
+"ace:Makefile.dryice.js": [
+730,
+731,
+733,
+734,
+734,
+736,
+850,
+850
+],
 "ace:src/ace.js": [
 69,
 71
@@ -233,13 +233,13 @@
 "ace:src/ext/code_lens_test.js": [
 16
 ],
-"ace:src/ext/emmet.js": [
-19
-],
 "ace:src/ext/emmet_test.js": [
 21,
 27,
 42
+],
+"ace:src/ext/emmet.js": [
+19
 ],
 "ace:src/ext/static_highlight_test.js": [
 22
@@ -249,19 +249,19 @@
 24,
 95
 ],
+"ace:src/keyboard/textinput_test.js": [
+19
+],
 "ace:src/keyboard/textinput.js": [
 352
 ],
-"ace:src/keyboard/textinput_test.js": [
-19
+"ace:src/keyboard/vim_test.js": [
+31
 ],
 "ace:src/keyboard/vim.js": [
 1803,
 1804,
 1810
-],
-"ace:src/keyboard/vim_test.js": [
-31
 ],
 "ace:src/layer/font_metrics.js": [
 75,
@@ -312,6 +312,10 @@
 107,
 117
 ],
+"ace:src/test/mockdom_test.js": [
+64,
+66
+],
 "ace:src/test/mockdom.js": [
 830,
 831,
@@ -320,10 +324,6 @@
 838,
 892,
 897
-],
-"ace:src/test/mockdom_test.js": [
-64,
-66
 ],
 "ace:src/test/user.js": [
 122

@@ -29,6 +29,15 @@
 14,
 32
 ],
+"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
+35,
+65
+],
+"vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
+29,
+80,
+81
+],
 "vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
 60,
 92,
@@ -73,15 +82,6 @@
 "vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
 163,
 179
-],
-"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
-35,
-65
-],
-"vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
-29,
-80,
-81
 ],
 "vuetify:packages/vuetify/src/composables/layout.ts": [
 237,
@@ -143,15 +143,15 @@
 "vuetify:packages/vuetify/src/directives/touch/index.ts": [
 128
 ],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
+98
+],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
 108
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRow.tsx": [
 54,
 65
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
-98
 ],
 "vuetify:packages/vuetify/src/util/defineComponent.tsx": [
 64,

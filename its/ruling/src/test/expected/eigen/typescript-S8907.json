@@ -18,6 +18,9 @@
 "eigen:src/app/Components/Markdown.tsx": [
 12
 ],
+"eigen:src/app/relay/RelayCache.ts": [
+12
+],
 "eigen:src/app/Scenes/Artwork/Components/OtherWorks/OtherWorks.tsx": [
 21
 ],
@@ -28,11 +31,11 @@
 16,
 21
 ],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-311
-],
 "eigen:src/app/Scenes/Map/bucketCityResults.ts": [
 17
+],
+"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
+311
 ],
 "eigen:src/app/Scenes/MyProfile/MyProfileEditForm.tsx": [
 171
@@ -42,9 +45,6 @@
 ],
 "eigen:src/app/Scenes/ViewingRoom/ViewingRoomArtwork.tsx": [
 66
-],
-"eigen:src/app/relay/RelayCache.ts": [
-12
 ],
 "eigen:src/app/store/persistence.ts": [
 23

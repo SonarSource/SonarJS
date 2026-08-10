@@ -1,7 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-13
-],
 "Ghost:config.example.js": [
 6
 ],
@@ -207,5 +204,8 @@
 "Ghost:core/test/utils/tempfile.js": [
 5,
 7
+],
+"Ghost:Gruntfile.js": [
+13
 ]
 }

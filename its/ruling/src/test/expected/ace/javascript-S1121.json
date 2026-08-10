@@ -1,7 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-639
-],
 "ace:lib/ace/mode/html/saxparser.js": [
 552,
 6639,
@@ -21,6 +18,9 @@
 "ace:lib/ace/mode/xml/sax.js": [
 31,
 376
+],
+"ace:Makefile.dryice.js": [
+639
 ],
 "ace:src/autocomplete.js": [
 155,
@@ -63,11 +63,6 @@
 "ace:src/ext/language_tools.js": [
 24
 ],
-"ace:src/keyboard/vim.js": [
-883,
-3937,
-5458
-],
 "ace:src/keyboard/vim_test.js": [
 65,
 69,
@@ -75,6 +70,11 @@
 5442,
 5444,
 5446
+],
+"ace:src/keyboard/vim.js": [
+883,
+3937,
+5458
 ],
 "ace:src/layer/font_metrics.js": [
 87

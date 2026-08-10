@@ -47,6 +47,15 @@
 514,
 831
 ],
+"ace:src/keyboard/vim_ace_test.js": [
+157,
+200
+],
+"ace:src/keyboard/vim_test.js": [
+40,
+5385,
+5486
+],
 "ace:src/keyboard/vim.js": [
 4836,
 4884,
@@ -58,15 +67,6 @@
 5049,
 5054,
 5102
-],
-"ace:src/keyboard/vim_ace_test.js": [
-157,
-200
-],
-"ace:src/keyboard/vim_test.js": [
-40,
-5385,
-5486
 ],
 "ace:tool/regexp_tokenizer.js": [
 24

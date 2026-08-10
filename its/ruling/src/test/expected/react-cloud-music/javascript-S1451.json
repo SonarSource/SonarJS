@@ -38,9 +38,6 @@
 "react-cloud-music:server.js": [
 0
 ],
-"react-cloud-music:src/App.jsx": [
-0
-],
 "react-cloud-music:src/api/config.js": [
 0
 ],
@@ -54,6 +51,9 @@
 0
 ],
 "react-cloud-music:src/api/utils.js": [
+0
+],
+"react-cloud-music:src/App.jsx": [
 0
 ],
 "react-cloud-music:src/application/Album/index.jsx": [
@@ -200,6 +200,9 @@
 "react-cloud-music:src/application/SongList/style.js": [
 0
 ],
+"react-cloud-music:src/application/User/Login/index.jsx": [
+0
+],
 "react-cloud-music:src/application/User/Login/LoginForm/index.jsx": [
 0
 ],
@@ -219,9 +222,6 @@
 0
 ],
 "react-cloud-music:src/application/User/Login/PhoneForm/style.js": [
-0
-],
-"react-cloud-music:src/application/User/Login/index.jsx": [
 0
 ],
 "react-cloud-music:src/application/User/Login/store/actionCreators.js": [

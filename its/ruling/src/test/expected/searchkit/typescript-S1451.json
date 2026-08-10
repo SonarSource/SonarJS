@@ -56,6 +56,9 @@
 "searchkit:packages/searchkit-elastic-ui/src/Facets/RangeSliderFacet/index.tsx": [
 0
 ],
+"searchkit:packages/searchkit-elastic-ui/src/index.tsx": [
+0
+],
 "searchkit:packages/searchkit-elastic-ui/src/Pagination/index.tsx": [
 0
 ],
@@ -69,9 +72,6 @@
 0
 ],
 "searchkit:packages/searchkit-elastic-ui/src/SortingSelector/index.tsx": [
-0
-],
-"searchkit:packages/searchkit-elastic-ui/src/index.tsx": [
 0
 ],
 "searchkit:packages/searchkit-schema/src/core/QueryManager.ts": [
@@ -89,13 +89,13 @@
 "searchkit:packages/searchkit-schema/src/resolvers/HitsResolver.ts": [
 0
 ],
+"searchkit:packages/searchkit-schema/src/resolvers/index.ts": [
+0
+],
 "searchkit:packages/searchkit-schema/src/resolvers/ResultsResolver.ts": [
 0
 ],
 "searchkit:packages/searchkit-schema/src/resolvers/SummaryResolver.ts": [
-0
-],
-"searchkit:packages/searchkit-schema/src/resolvers/index.ts": [
 0
 ],
 "searchkit:packages/searchkit-schema/src/schema.ts": [
@@ -131,6 +131,9 @@
 "searchkit:packages/searchkit-sdk/src/facets/HierarchicalMenuFacet.ts": [
 0
 ],
+"searchkit:packages/searchkit-sdk/src/facets/index.ts": [
+0
+],
 "searchkit:packages/searchkit-sdk/src/facets/MultiQueryOptionsFacet.ts": [
 0
 ],
@@ -140,13 +143,10 @@
 "searchkit:packages/searchkit-sdk/src/facets/RefinementSelectFacet.ts": [
 0
 ],
-"searchkit:packages/searchkit-sdk/src/facets/VisibilityRules/index.ts": [
-0
-],
-"searchkit:packages/searchkit-sdk/src/facets/index.ts": [
-0
-],
 "searchkit:packages/searchkit-sdk/src/facets/utils/index.ts": [
+0
+],
+"searchkit:packages/searchkit-sdk/src/facets/VisibilityRules/index.ts": [
 0
 ],
 "searchkit:packages/searchkit-sdk/src/filters/BaseFilter.ts": [
@@ -155,13 +155,13 @@
 "searchkit:packages/searchkit-sdk/src/filters/GeoBoundingBoxFilter.ts": [
 0
 ],
+"searchkit:packages/searchkit-sdk/src/filters/index.ts": [
+0
+],
 "searchkit:packages/searchkit-sdk/src/filters/NumericRangeFilter.ts": [
 0
 ],
 "searchkit:packages/searchkit-sdk/src/filters/TermFilter.ts": [
-0
-],
-"searchkit:packages/searchkit-sdk/src/filters/index.ts": [
 0
 ],
 "searchkit:packages/searchkit-sdk/src/index.ts": [
@@ -173,13 +173,13 @@
 "searchkit:packages/searchkit-sdk/src/query/CustomQuery.ts": [
 0
 ],
+"searchkit:packages/searchkit-sdk/src/query/index.ts": [
+0
+],
 "searchkit:packages/searchkit-sdk/src/query/MultiMatchQuery.ts": [
 0
 ],
 "searchkit:packages/searchkit-sdk/src/query/PrefixQuery.ts": [
-0
-],
-"searchkit:packages/searchkit-sdk/src/query/index.ts": [
 0
 ],
 "searchkit:packages/searchkit-sdk/src/react-hooks/index.ts": [

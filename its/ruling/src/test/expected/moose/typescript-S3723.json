@@ -19,12 +19,12 @@
 70,
 79
 ],
+"moose:main/helpers/createWindow.ts": [
+11
+],
 "moose:main/helpers/Description.ts": [
 74,
 96
-],
-"moose:main/helpers/createWindow.ts": [
-11
 ],
 "moose:main/modules/cast.ts": [
 41

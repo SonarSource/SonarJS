@@ -64,9 +64,6 @@
 "ag-grid:src/ts/rowModels/cache/rowNodeBlock.ts": [
 176
 ],
-"ag-grid:src/ts/rowModels/inMemory/inMemoryRowModel.ts": [
-216
-],
 "ag-grid:src/ts/rowModels/infinite/infiniteRowModel.ts": [
 257,
 263,
@@ -74,6 +71,9 @@
 268,
 268,
 273
+],
+"ag-grid:src/ts/rowModels/inMemory/inMemoryRowModel.ts": [
+216
 ],
 "ag-grid:src/ts/selectionController.ts": [
 60,

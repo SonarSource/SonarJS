@@ -5,6 +5,13 @@
 70,
 87
 ],
+"eigen:src/app/__fixtures__/CityFixture.ts": [
+607,
+1093
+],
+"eigen:src/app/__fixtures__/FairBoothShowFixture.ts": [
+445
+],
 "eigen:src/app/Components/Artist/ArtistArtworks/ArtistNotableWorksRail.tests.tsx": [
 86,
 88,
@@ -53,6 +60,9 @@
 ],
 "eigen:src/app/Icons/SearchIcon.tsx": [
 7
+],
+"eigen:src/app/ignoreLogs.ts": [
+6
 ],
 "eigen:src/app/Scenes/Artwork/Components/AboutWork.tests.tsx": [
 57
@@ -108,16 +118,6 @@
 ],
 "eigen:src/app/Scenes/SavedSearchAlert/SavedSearchAlertForm.tsx": [
 199
-],
-"eigen:src/app/__fixtures__/CityFixture.ts": [
-607,
-1093
-],
-"eigen:src/app/__fixtures__/FairBoothShowFixture.ts": [
-445
-],
-"eigen:src/app/ignoreLogs.ts": [
-6
 ],
 "eigen:src/app/utils/PushNotification.ts": [
 126
@@ -238,6 +238,31 @@
 "eigen:src/palette/svgs/SettingsIcon.tsx": [
 10
 ],
+"eigen:src/palette/svgs/sf/BoltCircleFill.tsx": [
+25,
+31,
+35
+],
+"eigen:src/palette/svgs/sf/BoltFill.tsx": [
+10
+],
+"eigen:src/palette/svgs/sf/BookmarkFill.tsx": [
+11
+],
+"eigen:src/palette/svgs/sf/ClockFill.tsx": [
+11
+],
+"eigen:src/palette/svgs/sf/ExclamationMarkCircleFill.tsx": [
+12
+],
+"eigen:src/palette/svgs/sf/StarCircleFill.tsx": [
+23,
+30,
+34
+],
+"eigen:src/palette/svgs/sf/Stopwatch.tsx": [
+11
+],
 "eigen:src/palette/svgs/ShareIcon.tsx": [
 10
 ],
@@ -266,31 +291,6 @@
 ],
 "eigen:src/palette/svgs/XCircleIcon.tsx": [
 14
-],
-"eigen:src/palette/svgs/sf/BoltCircleFill.tsx": [
-25,
-31,
-35
-],
-"eigen:src/palette/svgs/sf/BoltFill.tsx": [
-10
-],
-"eigen:src/palette/svgs/sf/BookmarkFill.tsx": [
-11
-],
-"eigen:src/palette/svgs/sf/ClockFill.tsx": [
-11
-],
-"eigen:src/palette/svgs/sf/ExclamationMarkCircleFill.tsx": [
-12
-],
-"eigen:src/palette/svgs/sf/StarCircleFill.tsx": [
-23,
-30,
-34
-],
-"eigen:src/palette/svgs/sf/Stopwatch.tsx": [
-11
 ],
 "eigen:src/shared/utils/normalizeText.ts": [
 21,

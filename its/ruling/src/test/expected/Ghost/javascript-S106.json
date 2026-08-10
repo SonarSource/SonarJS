@@ -1,9 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-509,
-797,
-799
-],
 "Ghost:core/client/tests/integration/components/gh-tag-settings-form-test.js": [
 46
 ],
@@ -75,5 +70,10 @@
 ],
 "Ghost:core/test/unit/server_helpers/prev_post_spec.js": [
 59
+],
+"Ghost:Gruntfile.js": [
+509,
+797,
+799
 ]
 }

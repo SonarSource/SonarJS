@@ -5,6 +5,12 @@
 "eigen:src/app/Components/FancyModal/FancyModalContext.tsx": [
 19
 ],
+"eigen:src/app/relay/middlewares/errorMiddleware.ts": [
+56
+],
+"eigen:src/app/relay/RelayCache.ts": [
+36
+],
 "eigen:src/app/Scenes/Artwork/Components/ArtworkTombstone.tests.tsx": [
 387
 ],
@@ -17,26 +23,20 @@
 "eigen:src/app/Scenes/Search/SearchArtworksGrid.tsx": [
 39
 ],
-"eigen:src/app/relay/RelayCache.ts": [
-36
-],
-"eigen:src/app/relay/middlewares/errorMiddleware.ts": [
-56
-],
 "eigen:src/app/store/AuthModel.tests.ts": [
 19
 ],
 "eigen:src/app/utils/ExecutionQueue.ts": [
 2
 ],
+"eigen:src/app/utils/formatLargeNumber.ts": [
+1
+],
 "eigen:src/app/utils/PushNotification.tests.ts": [
 16
 ],
 "eigen:src/app/utils/PushNotification.ts": [
 46
-],
-"eigen:src/app/utils/formatLargeNumber.ts": [
-1
 ],
 "eigen:src/app/utils/requestPhotos.ts": [
 9,

@@ -3,13 +3,6 @@
 99,
 107
 ],
-"Joust:ts/components/Scrubber.tsx": [
-259,
-294
-],
-"Joust:ts/components/Turn.tsx": [
-33
-],
 "Joust:ts/components/game/Card.tsx": [
 219,
 335
@@ -30,5 +23,12 @@
 ],
 "Joust:ts/components/game/stats/Health.tsx": [
 20
+],
+"Joust:ts/components/Scrubber.tsx": [
+259,
+294
+],
+"Joust:ts/components/Turn.tsx": [
+33
 ]
 }

@@ -1,7 +1,4 @@
 {
-"jquery:Gruntfile.js": [
-31
-],
 "jquery:build/release.js": [
 39,
 50,
@@ -19,6 +16,9 @@
 50,
 52,
 53
+],
+"jquery:Gruntfile.js": [
+31
 ],
 "jquery:src/ajax.js": [
 368,

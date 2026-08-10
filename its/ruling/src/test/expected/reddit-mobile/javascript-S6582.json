@@ -6,9 +6,6 @@
 "reddit-mobile:assets/js/trackingEvents.es6.js": [
 44
 ],
-"reddit-mobile:src/lib/TrackingPixel.es6.js": [
-33
-],
 "reddit-mobile:src/lib/errorLog.es6.js": [
 36
 ],
@@ -17,6 +14,9 @@
 ],
 "reddit-mobile:src/lib/timing.es6.js": [
 4
+],
+"reddit-mobile:src/lib/TrackingPixel.es6.js": [
+33
 ],
 "reddit-mobile:src/server/config.es6.js": [
 7

@@ -1,7 +1,4 @@
 {
-"rxjs:src/observable/IteratorObservable.ts": [
-135
-],
 "rxjs:src/observable/dom/AjaxObservable.ts": [
 43,
 347,
@@ -9,6 +6,9 @@
 355,
 358,
 358
+],
+"rxjs:src/observable/IteratorObservable.ts": [
+135
 ],
 "rxjs:src/operator/bufferTime.ts": [
 74

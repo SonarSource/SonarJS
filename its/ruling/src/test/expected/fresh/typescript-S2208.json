@@ -8,12 +8,12 @@
 "fresh:packages/fresh/src/config.ts": [
 1
 ],
+"fresh:packages/fresh/src/dev/builder_test.ts": [
+2
+],
 "fresh:packages/fresh/src/dev/builder.ts": [
 8,
 9
-],
-"fresh:packages/fresh/src/dev/builder_test.ts": [
-2
 ],
 "fresh:packages/fresh/src/dev/check.ts": [
 1,
@@ -32,13 +32,13 @@
 "fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
 1
 ],
+"fresh:packages/fresh/src/dev/update_check_test.ts": [
+1
+],
 "fresh:packages/fresh/src/dev/update_check.ts": [
 1,
 2,
 3
-],
-"fresh:packages/fresh/src/dev/update_check_test.ts": [
-1
 ],
 "fresh:packages/fresh/src/file_url.ts": [
 1,
@@ -73,13 +73,13 @@
 3,
 7
 ],
+"fresh:packages/init/src/init_test.ts": [
+9
+],
 "fresh:packages/init/src/init.ts": [
 2,
 3,
 4
-],
-"fresh:packages/init/src/init_test.ts": [
-9
 ],
 "fresh:packages/plugin-tailwindcss-v3/src/mod.ts": [
 6
@@ -167,14 +167,14 @@
 2,
 5
 ],
+"fresh:packages/update/src/update_test.ts": [
+1
+],
 "fresh:packages/update/src/update.ts": [
 1,
 2,
 3,
 4
-],
-"fresh:packages/update/src/update_test.ts": [
-1
 ],
 "fresh:packages/update/src/utils.ts": [
 1

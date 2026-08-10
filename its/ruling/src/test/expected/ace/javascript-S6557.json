@@ -1,12 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-56,
-198,
-200,
-692,
-855,
-855
-],
 "ace:demo/kitchen-sink/doclist.js": [
 160
 ],
@@ -27,19 +19,27 @@
 211,
 554
 ],
+"ace:Makefile.dryice.js": [
+56,
+198,
+200,
+692,
+855,
+855
+],
 "ace:src/ext/emmet.js": [
 276
 ],
 "ace:src/keyboard/textinput_test.js": [
 61
 ],
+"ace:src/keyboard/vim_test.js": [
+134
+],
 "ace:src/keyboard/vim.js": [
 1212,
 3847,
 5463
-],
-"ace:src/keyboard/vim_test.js": [
-134
 ],
 "ace:src/lib/dom.js": [
 40

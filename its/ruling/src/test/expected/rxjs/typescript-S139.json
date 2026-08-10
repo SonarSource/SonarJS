@@ -1,7 +1,4 @@
 {
-"rxjs:src/Subscriber.ts": [
-45
-],
 "rxjs:src/add/observable/of.ts": [
 8
 ],
@@ -13,5 +10,8 @@
 ],
 "rxjs:src/scheduler/AsyncScheduler.ts": [
 36
+],
+"rxjs:src/Subscriber.ts": [
+45
 ]
 }

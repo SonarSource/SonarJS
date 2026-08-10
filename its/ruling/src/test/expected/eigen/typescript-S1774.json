@@ -85,6 +85,10 @@
 "eigen:src/app/Components/ArtworkFilter/ArtworkFilterOptionsScreen.tsx": [
 90
 ],
+"eigen:src/app/Components/ArtworkFilter/components/ArtworkFilterApplyButton.tsx": [
+30,
+38
+],
 "eigen:src/app/Components/ArtworkFilter/Filters/AdditionalGeneIDsOptions.tsx": [
 55
 ],
@@ -109,6 +113,9 @@
 ],
 "eigen:src/app/Components/ArtworkFilter/Filters/GalleriesAndInstitutionsOptions.tsx": [
 39
+],
+"eigen:src/app/Components/ArtworkFilter/Filters/helpers.ts": [
+15
 ],
 "eigen:src/app/Components/ArtworkFilter/Filters/KeywordFilter.tsx": [
 87
@@ -141,21 +148,14 @@
 "eigen:src/app/Components/ArtworkFilter/Filters/TimePeriodOptions.tsx": [
 42
 ],
-"eigen:src/app/Components/ArtworkFilter/Filters/WaysToBuyOptions.tsx": [
-84
-],
-"eigen:src/app/Components/ArtworkFilter/Filters/helpers.ts": [
-15
-],
 "eigen:src/app/Components/ArtworkFilter/Filters/useMultiSelect.ts": [
 36
 ],
+"eigen:src/app/Components/ArtworkFilter/Filters/WaysToBuyOptions.tsx": [
+84
+],
 "eigen:src/app/Components/ArtworkFilter/SavedSearch/constants.ts": [
 32
-],
-"eigen:src/app/Components/ArtworkFilter/components/ArtworkFilterApplyButton.tsx": [
-30,
-38
 ],
 "eigen:src/app/Components/ArtworkFilter/useArtworkFilters.ts": [
 61
@@ -287,9 +287,6 @@
 14,
 56
 ],
-"eigen:src/app/Components/FPSCounter.tsx": [
-31
-],
 "eigen:src/app/Components/FadeIn.tsx": [
 22
 ],
@@ -312,6 +309,9 @@
 76,
 86,
 89
+],
+"eigen:src/app/Components/FPSCounter.tsx": [
+31
 ],
 "eigen:src/app/Components/Gene/About.tsx": [
 17
@@ -515,6 +515,12 @@
 108,
 119
 ],
+"eigen:src/app/errorReporting/hooks.ts": [
+8
+],
+"eigen:src/app/errorReporting/sentrySetup.ts": [
+9
+],
 "eigen:src/app/Icons/Pin.tsx": [
 16,
 17,
@@ -538,6 +544,36 @@
 41,
 47,
 54
+],
+"eigen:src/app/navigation/BackButton.tsx": [
+16,
+20,
+27,
+46
+],
+"eigen:src/app/navigation/NavStack.tsx": [
+64,
+89,
+91
+],
+"eigen:src/app/navigation/routes.tsx": [
+28,
+109
+],
+"eigen:src/app/relay/createEnvironment.ts": [
+39
+],
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+27,
+38,
+46
+],
+"eigen:src/app/relay/middlewares/rateLimitMiddleware.ts": [
+26
+],
+"eigen:src/app/relay/middlewares/simpleLoggerMiddleware.ts": [
+23,
+35
 ],
 "eigen:src/app/Scenes/About/About.tsx": [
 60
@@ -714,6 +750,11 @@
 16,
 17
 ],
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/geometry.ts": [
+69,
+72,
+76
+],
 "eigen:src/app/Scenes/Artwork/Components/ImageCarousel/ImageCarousel.tsx": [
 50,
 68
@@ -724,11 +765,6 @@
 ],
 "eigen:src/app/Scenes/Artwork/Components/ImageCarousel/ImageCarouselPaginationIndicator.tsx": [
 39
-],
-"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/geometry.ts": [
-69,
-72,
-76
 ],
 "eigen:src/app/Scenes/Artwork/Components/InstagramStoryViewShot.tsx": [
 64
@@ -772,6 +808,9 @@
 191,
 196
 ],
+"eigen:src/app/Scenes/City/cityTabs.ts": [
+9
+],
 "eigen:src/app/Scenes/City/Components/Event/index.tsx": [
 46,
 48,
@@ -794,9 +833,6 @@
 "eigen:src/app/Scenes/City/Components/TabFairItemRow/index.tsx": [
 20,
 43
-],
-"eigen:src/app/Scenes/City/cityTabs.ts": [
-9
 ],
 "eigen:src/app/Scenes/Collection/Collection.tsx": [
 36,
@@ -853,11 +889,6 @@
 "eigen:src/app/Scenes/Favorites/FavoriteShows.tsx": [
 101
 ],
-"eigen:src/app/Scenes/Feature/Feature.tsx": [
-117,
-117,
-171
-],
 "eigen:src/app/Scenes/Feature/components/FeatureFeaturedLink.tsx": [
 22
 ],
@@ -867,6 +898,11 @@
 32,
 67,
 69
+],
+"eigen:src/app/Scenes/Feature/Feature.tsx": [
+117,
+117,
+171
 ],
 "eigen:src/app/Scenes/ForceUpdate/ForceUpdate.tsx": [
 15
@@ -922,11 +958,6 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Avatar.tsx": [
 17
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/CTAPopUp.tsx": [
-7,
-16,
-26
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tsx": [
 23,
 87
@@ -934,13 +965,18 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tsx": [
 74
 ],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tsx": [
+92,
+132
+],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
 114,
 132
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tsx": [
-92,
-132
+"eigen:src/app/Scenes/Inbox/Components/Conversations/CTAPopUp.tsx": [
+7,
+16,
+26
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/EditionSelectBox.tsx": [
 39,
@@ -1092,11 +1128,11 @@
 "eigen:src/app/Scenes/MyBids/Components/WatchedLot.tsx": [
 30
 ],
-"eigen:src/app/Scenes/MyBids/MyBids.tsx": [
-68
-],
 "eigen:src/app/Scenes/MyBids/helpers/timely.ts": [
 51
+],
+"eigen:src/app/Scenes/MyBids/MyBids.tsx": [
+68
 ],
 "eigen:src/app/Scenes/MyCollection/Components/MyCollectionArtworkList.tsx": [
 66
@@ -1428,11 +1464,11 @@
 "eigen:src/app/Scenes/SavedSearchAlert/Components/Form.tsx": [
 136
 ],
-"eigen:src/app/Scenes/SavedSearchAlert/SavedSearchAlertForm.tsx": [
-84
-],
 "eigen:src/app/Scenes/SavedSearchAlert/helpers.ts": [
 64
+],
+"eigen:src/app/Scenes/SavedSearchAlert/SavedSearchAlertForm.tsx": [
+84
 ],
 "eigen:src/app/Scenes/SavedSearchAlertsList/Components/SavedSearchesList.tsx": [
 78
@@ -1442,17 +1478,6 @@
 142,
 149
 ],
-"eigen:src/app/Scenes/Search/RecentSearches.tsx": [
-15
-],
-"eigen:src/app/Scenes/Search/Search.tsx": [
-193,
-212,
-233
-],
-"eigen:src/app/Scenes/Search/SearchArtworksGrid.tsx": [
-98
-],
 "eigen:src/app/Scenes/Search/components/AlgoliaSearchResults.tsx": [
 81,
 101,
@@ -1460,6 +1485,9 @@
 ],
 "eigen:src/app/Scenes/Search/components/AutosuggestSearchResult.tsx": [
 87
+],
+"eigen:src/app/Scenes/Search/components/placeholders/AlgoliaSearchPlaceholder.tsx": [
+22
 ],
 "eigen:src/app/Scenes/Search/components/ResultWithHighlight.tsx": [
 22,
@@ -1474,8 +1502,16 @@
 "eigen:src/app/Scenes/Search/components/SearchResultImage.tsx": [
 19
 ],
-"eigen:src/app/Scenes/Search/components/placeholders/AlgoliaSearchPlaceholder.tsx": [
-22
+"eigen:src/app/Scenes/Search/RecentSearches.tsx": [
+15
+],
+"eigen:src/app/Scenes/Search/Search.tsx": [
+193,
+212,
+233
+],
+"eigen:src/app/Scenes/Search/SearchArtworksGrid.tsx": [
+98
 ],
 "eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ArtworkDetails/ArtworkDetailsForm.tsx": [
 236
@@ -1531,15 +1567,15 @@
 52,
 82
 ],
-"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomViewWorksButton.tsx": [
-27
-],
 "eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomsHomeRail.tsx": [
 49,
 101
 ],
 "eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomsListFeatured.tsx": [
 75
+],
+"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomViewWorksButton.tsx": [
+27
 ],
 "eigen:src/app/Scenes/ViewingRoom/ViewingRoomArtworks.tsx": [
 59,
@@ -1548,45 +1584,6 @@
 "eigen:src/app/Scenes/ViewingRoom/ViewingRoomsList.tsx": [
 56,
 156
-],
-"eigen:src/app/Websockets/GravityWebsocketContext.tsx": [
-24
-],
-"eigen:src/app/errorReporting/hooks.ts": [
-8
-],
-"eigen:src/app/errorReporting/sentrySetup.ts": [
-9
-],
-"eigen:src/app/navigation/BackButton.tsx": [
-16,
-20,
-27,
-46
-],
-"eigen:src/app/navigation/NavStack.tsx": [
-64,
-89,
-91
-],
-"eigen:src/app/navigation/routes.tsx": [
-28,
-109
-],
-"eigen:src/app/relay/createEnvironment.ts": [
-39
-],
-"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
-27,
-38,
-46
-],
-"eigen:src/app/relay/middlewares/rateLimitMiddleware.ts": [
-26
-],
-"eigen:src/app/relay/middlewares/simpleLoggerMiddleware.ts": [
-23,
-35
 ],
 "eigen:src/app/store/AuthModel.ts": [
 65,
@@ -1614,6 +1611,18 @@
 744,
 766
 ],
+"eigen:src/app/store/config/EchoModel.tsx": [
+68
+],
+"eigen:src/app/store/config/EnvironmentModel.tsx": [
+80
+],
+"eigen:src/app/store/config/features.tests.ts": [
+13
+],
+"eigen:src/app/store/config/UserIsDevModel.tsx": [
+23
+],
 "eigen:src/app/store/GlobalStore.tsx": [
 68,
 231
@@ -1622,29 +1631,14 @@
 132,
 139
 ],
-"eigen:src/app/store/NativeModel.ts": [
-71
-],
-"eigen:src/app/store/config/EchoModel.tsx": [
-68
-],
-"eigen:src/app/store/config/EnvironmentModel.tsx": [
-80
-],
-"eigen:src/app/store/config/UserIsDevModel.tsx": [
-23
-],
-"eigen:src/app/store/config/features.tests.ts": [
-13
-],
 "eigen:src/app/store/migration.ts": [
 87
 ],
+"eigen:src/app/store/NativeModel.ts": [
+71
+],
 "eigen:src/app/store/persistence.ts": [
 70
-],
-"eigen:src/app/tests/MockRelayRenderer.tsx": [
-164
 ],
 "eigen:src/app/tests/createMockNetworkLayer/index.ts": [
 69,
@@ -1654,6 +1648,9 @@
 ],
 "eigen:src/app/tests/mockFetchNotificationPermissions.ts": [
 5
+],
+"eigen:src/app/tests/MockRelayRenderer.tsx": [
+164
 ],
 "eigen:src/app/tests/renderRelayTree.tsx": [
 129
@@ -1681,18 +1678,6 @@
 "eigen:src/app/utils/ArtworkInquiry/ArtworkInquiryStore.tsx": [
 30,
 44
-],
-"eigen:src/app/utils/LinkedAccounts/apple.ts": [
-101,
-106
-],
-"eigen:src/app/utils/LocalImageStore.ts": [
-63
-],
-"eigen:src/app/utils/PushNotification.ts": [
-62,
-171,
-269
 ],
 "eigen:src/app/utils/convertCityToGeoJSON.ts": [
 32
@@ -1728,6 +1713,18 @@
 "eigen:src/app/utils/hideBackButtonOnScroll.tsx": [
 33,
 33
+],
+"eigen:src/app/utils/LinkedAccounts/apple.ts": [
+101,
+106
+],
+"eigen:src/app/utils/LocalImageStore.ts": [
+63
+],
+"eigen:src/app/utils/PushNotification.ts": [
+62,
+171,
+269
 ],
 "eigen:src/app/utils/renderMarkdown.tsx": [
 80,
@@ -1796,18 +1793,21 @@
 "eigen:src/app/utils/volleyClient.ts": [
 70
 ],
-"eigen:src/palette/ClassTheme.tsx": [
-13
+"eigen:src/app/Websockets/GravityWebsocketContext.tsx": [
+24
 ],
 "eigen:src/palette/atoms/BackButton/BackButton.tsx": [
 13,
 33
 ],
+"eigen:src/palette/atoms/space.stories.tsx": [
+13
+],
 "eigen:src/palette/atoms/Spacer/Spacer.stories.tsx": [
 21,
 41
 ],
-"eigen:src/palette/atoms/space.stories.tsx": [
+"eigen:src/palette/ClassTheme.tsx": [
 13
 ],
 "eigen:src/palette/elements/Button/Button.stories.tsx": [
@@ -1952,6 +1952,10 @@
 43,
 45
 ],
+"eigen:src/palette/elements/Text/index.tsx": [
+35,
+77
+],
 "eigen:src/palette/elements/Text/Text.stories.tsx": [
 61,
 62
@@ -1962,10 +1966,6 @@
 ],
 "eigen:src/palette/elements/Text/Typography-v1.tsx": [
 76
-],
-"eigen:src/palette/elements/Text/index.tsx": [
-35,
-77
 ],
 "eigen:src/palette/elements/Touchable/Touchable.tsx": [
 37,

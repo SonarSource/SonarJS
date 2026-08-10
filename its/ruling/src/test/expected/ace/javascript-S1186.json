@@ -40,11 +40,11 @@
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 4226
 ],
-"ace:lib/ace/worker/worker.js": [
-167
-],
 "ace:lib/ace/worker/worker_v2.js": [
 38
+],
+"ace:lib/ace/worker/worker.js": [
+167
 ],
 "ace:src/commands/occur_commands.js": [
 42

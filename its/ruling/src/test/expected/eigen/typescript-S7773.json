@@ -3,13 +3,13 @@
 47,
 48
 ],
-"eigen:src/app/Components/ArtworkFilter/Filters/PriceRangeOptions.tsx": [
-60,
-135
-],
 "eigen:src/app/Components/ArtworkFilter/Filters/helpers.ts": [
 77,
 94
+],
+"eigen:src/app/Components/ArtworkFilter/Filters/PriceRangeOptions.tsx": [
+60,
+135
 ],
 "eigen:src/app/Components/Bidding/Components/ArtworkAuctionProgressBar.tsx": [
 27,

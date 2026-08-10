@@ -3,8 +3,12 @@
 56,
 145
 ],
-"rxjs:src/Subject.ts": [
-42
+"rxjs:src/observable/dom/AjaxObservable.ts": [
+128
+],
+"rxjs:src/observable/dom/WebSocketSubject.ts": [
+190,
+191
 ],
 "rxjs:src/observable/PromiseObservable.ts": [
 62,
@@ -13,12 +17,8 @@
 95,
 100
 ],
-"rxjs:src/observable/dom/AjaxObservable.ts": [
-128
-],
-"rxjs:src/observable/dom/WebSocketSubject.ts": [
-190,
-191
+"rxjs:src/Subject.ts": [
+42
 ],
 "rxjs:src/testing/TestScheduler.ts": [
 64,

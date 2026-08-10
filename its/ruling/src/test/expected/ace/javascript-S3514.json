@@ -41,12 +41,12 @@
 "ace:src/edit_session.js": [
 1583
 ],
+"ace:src/edit_session/fold_line.js": [
+170
+],
 "ace:src/edit_session/fold.js": [
 51,
 68
-],
-"ace:src/edit_session/fold_line.js": [
-170
 ],
 "ace:src/edit_session/folding.js": [
 38
@@ -76,6 +76,9 @@
 272,
 658
 ],
+"ace:src/keyboard/vim_test.js": [
+168
+],
 "ace:src/keyboard/vim.js": [
 324,
 2262,
@@ -93,9 +96,6 @@
 4511,
 6008,
 6973
-],
-"ace:src/keyboard/vim_test.js": [
-168
 ],
 "ace:src/layer/gutter.js": [
 64,
@@ -133,11 +133,11 @@
 "ace:src/placeholder.js": [
 61
 ],
-"ace:src/range.js": [
-85
-],
 "ace:src/range_list.js": [
 154
+],
+"ace:src/range.js": [
+85
 ],
 "ace:src/search.js": [
 108,

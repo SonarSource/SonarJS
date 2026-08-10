@@ -1,7 +1,4 @@
 {
-"console:src/views/RelationsPopup/ConfirmPopup.tsx": [
-120
-],
 "console:src/views/account/ResetPasswordView/ResetPasswordView.tsx": [
 85
 ],
@@ -11,5 +8,8 @@
 ],
 "console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
 211
+],
+"console:src/views/RelationsPopup/ConfirmPopup.tsx": [
+120
 ]
 }

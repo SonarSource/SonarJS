@@ -34,6 +34,9 @@
 "console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndex.tsx": [
 63
 ],
+"console:src/views/models/DatabrowserView/Cell.tsx": [
+424
+],
 "console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
 80,
 427
@@ -46,8 +49,5 @@
 ],
 "console:src/views/SchemaView/SchemaOverview/AddType.tsx": [
 401
-],
-"console:src/views/models/DatabrowserView/Cell.tsx": [
-424
 ]
 }

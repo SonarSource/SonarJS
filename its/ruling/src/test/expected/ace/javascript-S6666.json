@@ -1,7 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-312
-],
 "ace:demo/static-highlighter.html": [
 65
 ],
@@ -37,22 +34,25 @@
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 5398
 ],
-"ace:lib/ace/worker/worker.js": [
-204,
-206
+"ace:lib/ace/worker/worker_client_v2.js": [
+145,
+253
 ],
 "ace:lib/ace/worker/worker_client.js": [
 68,
 132,
 238
 ],
-"ace:lib/ace/worker/worker_client_v2.js": [
-145,
-253
-],
 "ace:lib/ace/worker/worker_v2.js": [
 76,
 77
+],
+"ace:lib/ace/worker/worker.js": [
+204,
+206
+],
+"ace:Makefile.dryice.js": [
+312
 ],
 "ace:src/apply_delta.js": [
 58
@@ -73,13 +73,13 @@
 "ace:src/ext/language_tools.js": [
 74
 ],
-"ace:src/keyboard/vim.js": [
-4001,
-4007
-],
 "ace:src/keyboard/vim_test.js": [
 5545,
 5555
+],
+"ace:src/keyboard/vim.js": [
+4001,
+4007
 ],
 "ace:src/layer/gutter.js": [
 89
@@ -139,13 +139,13 @@
 "ace:src/mode/soy_template_highlight_rules.js": [
 303
 ],
-"ace:src/mode/text.js": [
-274,
-286
-],
 "ace:src/mode/text_highlight_rules.js": [
 144,
 162
+],
+"ace:src/mode/text.js": [
+274,
+286
 ],
 "ace:src/range_list.js": [
 50

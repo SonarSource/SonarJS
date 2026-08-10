@@ -260,14 +260,14 @@
 31,
 32
 ],
-"postgraphql:src/interface/type/ListType.ts": [
-13
-],
 "postgraphql:src/interface/type/getNamedType.ts": [
 18
 ],
 "postgraphql:src/interface/type/getNonNullableType.ts": [
 10
+],
+"postgraphql:src/interface/type/ListType.ts": [
+13
 ],
 "postgraphql:src/interface/type/scalar/booleanType.ts": [
 23
@@ -319,10 +319,6 @@
 7,
 25
 ],
-"postgraphql:src/postgraphql/schema/procedures/PgProcedurePaginator.ts": [
-23,
-39
-],
 "postgraphql:src/postgraphql/schema/procedures/createPgProcedureFixtures.ts": [
 40,
 62
@@ -369,6 +365,10 @@
 ],
 "postgraphql:src/postgraphql/schema/procedures/getPgProcedureComputedClass.ts": [
 22
+],
+"postgraphql:src/postgraphql/schema/procedures/PgProcedurePaginator.ts": [
+23,
+39
 ],
 "postgraphql:src/postgraphql/withPostGraphQLContext.ts": [
 40,
@@ -435,36 +435,14 @@
 144,
 156
 ],
-"postgraphql:src/postgres/inventory/type/PgClassType.ts": [
-21,
-59,
-95
-],
-"postgraphql:src/postgres/inventory/type/PgRangeType.ts": [
-28,
-47,
-61,
-65,
-66,
-67,
-74,
-79,
-80,
-98,
-113,
-120,
-197,
-201,
-202
-],
 "postgraphql:src/postgres/inventory/type/custom/pgBigIntType.ts": [
 10
 ],
-"postgraphql:src/postgres/inventory/type/custom/pgDateType.ts": [
-7
-],
 "postgraphql:src/postgres/inventory/type/custom/pgDatetimeType.ts": [
 8
+],
+"postgraphql:src/postgres/inventory/type/custom/pgDateType.ts": [
+7
 ],
 "postgraphql:src/postgres/inventory/type/custom/pgIntervalType.ts": [
 39,
@@ -487,6 +465,28 @@
 51,
 106,
 116
+],
+"postgraphql:src/postgres/inventory/type/PgClassType.ts": [
+21,
+59,
+95
+],
+"postgraphql:src/postgres/inventory/type/PgRangeType.ts": [
+28,
+47,
+61,
+65,
+66,
+67,
+74,
+79,
+80,
+98,
+113,
+120,
+197,
+201,
+202
 ],
 "postgraphql:src/postgres/inventory/type/scalar/pgBooleanType.ts": [
 16

@@ -1,10 +1,10 @@
 {
+"qunit:build/tasks/test-on-node.js": [
+123
+],
 "qunit:Gruntfile.js": [
 133,
 209
-],
-"qunit:build/tasks/test-on-node.js": [
-123
 ],
 "qunit:reporter/diff.js": [
 196,

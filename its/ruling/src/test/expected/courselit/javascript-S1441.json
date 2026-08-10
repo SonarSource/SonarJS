@@ -145,6 +145,13 @@
 81,
 92
 ],
+"courselit:packages/rich-text/src/index.js": [
+1,
+2,
+3,
+4,
+5
+],
 "courselit:packages/rich-text/src/Multidecorator.js": [
 5,
 6,
@@ -164,13 +171,6 @@
 32,
 33,
 34
-],
-"courselit:packages/rich-text/src/index.js": [
-1,
-2,
-3,
-4,
-5
 ],
 "courselit:packages/rich-text/src/styles.js": [
 8,
@@ -241,17 +241,6 @@
 118,
 127
 ],
-"courselit:packages/widget-buttondown/src/Widget.js": [
-1,
-2,
-3,
-4,
-5,
-34,
-88,
-96,
-101
-],
 "courselit:packages/widget-buttondown/src/index.js": [
 1,
 2,
@@ -264,6 +253,17 @@
 4,
 5,
 6
+],
+"courselit:packages/widget-buttondown/src/Widget.js": [
+1,
+2,
+3,
+4,
+5,
+34,
+88,
+96,
+101
 ],
 "courselit:packages/widget-buttondown/webpack.config.js": [
 1,

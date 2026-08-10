@@ -211,10 +211,6 @@
 22,
 31
 ],
-"searchkit:examples/next/pages/[...index].jsx": [
-1,
-3
-],
 "searchkit:examples/next/pages/_app.jsx": [
 1,
 2,
@@ -233,6 +229,10 @@
 "searchkit:examples/next/pages/_document.jsx": [
 1,
 32
+],
+"searchkit:examples/next/pages/[...index].jsx": [
+1,
+3
 ],
 "searchkit:examples/next/pages/api/graphql.js": [
 1,

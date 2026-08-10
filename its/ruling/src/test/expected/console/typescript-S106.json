@@ -26,6 +26,16 @@
 241,
 256
 ],
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
+482,
+513
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+439
+],
+"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
+244
+],
 "console:src/views/PermissionsView/PermissionsList/ModelPermissions/ModelPermission.tsx": [
 103
 ],
@@ -46,15 +56,5 @@
 ],
 "console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
 433
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-482,
-513
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-439
-],
-"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
-244
 ]
 }

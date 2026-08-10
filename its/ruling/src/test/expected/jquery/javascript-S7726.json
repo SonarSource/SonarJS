@@ -1,7 +1,4 @@
 {
-"jquery:Gruntfile.js": [
-3
-],
 "jquery:build/release.js": [
 5
 ],
@@ -33,6 +30,9 @@
 5
 ],
 "jquery:build/tasks/testswarm.js": [
+3
+],
+"jquery:Gruntfile.js": [
 3
 ],
 "jquery:src/css/var/getStyles.js": [

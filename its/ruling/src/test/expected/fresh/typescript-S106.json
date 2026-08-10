@@ -7,12 +7,12 @@
 112,
 117
 ],
-"fresh:packages/fresh/src/dev/builder.ts": [
-389
-],
 "fresh:packages/fresh/src/dev/builder_test.ts": [
 802,
 804
+],
+"fresh:packages/fresh/src/dev/builder.ts": [
+389
 ],
 "fresh:packages/fresh/src/dev/dev_build_cache.ts": [
 604
@@ -20,14 +20,14 @@
 "fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware.tsx": [
 26
 ],
+"fresh:packages/fresh/src/dev/update_check_test.ts": [
+281
+],
 "fresh:packages/fresh/src/dev/update_check.ts": [
 110,
 130,
 134,
 138
-],
-"fresh:packages/fresh/src/dev/update_check_test.ts": [
-281
 ],
 "fresh:packages/fresh/src/fs_routes.ts": [
 193
@@ -69,6 +69,10 @@
 287,
 316
 ],
+"fresh:packages/init/src/init_test.ts": [
+98,
+100
+],
 "fresh:packages/init/src/init.ts": [
 32,
 95,
@@ -86,10 +90,6 @@
 738,
 739,
 821
-],
-"fresh:packages/init/src/init_test.ts": [
-98,
-100
 ],
 "fresh:packages/plugin-vite/demo/islands/tests/Mime.tsx": [
 8

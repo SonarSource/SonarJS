@@ -41,10 +41,10 @@
 "desktop:app/src/crash/shared.ts": [
 0
 ],
-"desktop:app/src/lib/2fa.ts": [
+"desktop:app/src/lib/__mocks__/window-state.ts": [
 0
 ],
-"desktop:app/src/lib/__mocks__/window-state.ts": [
+"desktop:app/src/lib/2fa.ts": [
 0
 ],
 "desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [

@@ -956,9 +956,6 @@
 "courselit:apps/web/models/Widget.ts": [
 16
 ],
-"courselit:apps/web/pages/404.tsx": [
-14
-],
 "courselit:apps/web/pages/_app.tsx": [
 12,
 34,
@@ -969,6 +966,9 @@
 "courselit:apps/web/pages/_document.tsx": [
 38,
 56
+],
+"courselit:apps/web/pages/404.tsx": [
+14
 ],
 "courselit:apps/web/pages/api/auth/login.ts": [
 22,

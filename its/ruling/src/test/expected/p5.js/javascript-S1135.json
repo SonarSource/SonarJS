@@ -36,14 +36,14 @@
 "p5.js:src/webgl/p5.RendererGL.Immediate.js": [
 47
 ],
-"p5.js:src/webgl/p5.RendererGL.Retained.js": [
-19
-],
 "p5.js:src/webgl/p5.RendererGL.js": [
 689,
 694,
 1258,
 1296
+],
+"p5.js:src/webgl/p5.RendererGL.Retained.js": [
+19
 ],
 "p5.js:src/webgl/p5.Shader.js": [
 21,

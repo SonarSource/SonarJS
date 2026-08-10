@@ -25,6 +25,24 @@
 "console:src/views/Integrations/Algolia/ConfirmOperationsPopup.tsx": [
 110
 ],
+"console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
+67
+],
+"console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
+206
+],
+"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
+256
+],
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
+412
+],
+"console:src/views/models/FieldPopup/FieldPopupHeader.tsx": [
+47
+],
+"console:src/views/models/ModelRedirectView.tsx": [
+18
+],
 "console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
 401
 ],
@@ -55,23 +73,5 @@
 ],
 "console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
 494
-],
-"console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
-67
-],
-"console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
-206
-],
-"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
-256
-],
-"console:src/views/models/FieldPopup/FieldPopup.tsx": [
-412
-],
-"console:src/views/models/FieldPopup/FieldPopupHeader.tsx": [
-47
-],
-"console:src/views/models/ModelRedirectView.tsx": [
-18
 ]
 }

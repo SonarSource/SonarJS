@@ -13,12 +13,12 @@
 151,
 337
 ],
+"fresh:packages/fresh/src/dev/file_transformer_test.ts": [
+45
+],
 "fresh:packages/fresh/src/dev/file_transformer.ts": [
 173,
 215
-],
-"fresh:packages/fresh/src/dev/file_transformer_test.ts": [
-45
 ],
 "fresh:packages/fresh/src/middlewares/static_files.ts": [
 23

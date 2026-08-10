@@ -9,6 +9,12 @@
 "console:src/views/AfterSignUpView/AfterSignUpView.tsx": [
 227
 ],
+"console:src/views/models/FieldPopup/FieldPopupHeader.tsx": [
+94
+],
+"console:src/views/models/utils.ts": [
+113
+],
 "console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
 433
 ],
@@ -49,11 +55,5 @@
 ],
 "console:src/views/Settings/Team/EmptyRow.tsx": [
 171
-],
-"console:src/views/models/FieldPopup/FieldPopupHeader.tsx": [
-94
-],
-"console:src/views/models/utils.ts": [
-113
 ]
 }

@@ -3,11 +3,11 @@
 93,
 94
 ],
-"ant-design:components/locale-provider/LocaleReceiver.tsx": [
-19
-],
 "ant-design:components/locale-provider/index.tsx": [
 58
+],
+"ant-design:components/locale-provider/LocaleReceiver.tsx": [
+19
 ],
 "ant-design:components/popconfirm/index.tsx": [
 167,

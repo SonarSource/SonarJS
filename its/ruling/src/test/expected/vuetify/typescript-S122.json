@@ -7,9 +7,6 @@
 131,
 143
 ],
-"vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
-278
-],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 276,
 277,
@@ -20,6 +17,9 @@
 285,
 286,
 300
+],
+"vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
+278
 ],
 "vuetify:packages/vuetify/src/composables/theme.ts": [
 314

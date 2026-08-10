@@ -1,8 +1,8 @@
 {
-"prettier-vscode:src/PrettierEditProvider.ts": [
+"prettier-vscode:src/extension.ts": [
 0
 ],
-"prettier-vscode:src/extension.ts": [
+"prettier-vscode:src/PrettierEditProvider.ts": [
 0
 ],
 "prettier-vscode:src/requirePkg.ts": [

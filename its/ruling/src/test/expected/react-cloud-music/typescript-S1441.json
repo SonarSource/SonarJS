@@ -1,15 +1,4 @@
 {
-"react-cloud-music:ts-music/src/App.tsx": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9
-],
 "react-cloud-music:ts-music/src/api/config.ts": [
 4,
 16,
@@ -152,6 +141,17 @@
 1,
 4,
 8
+],
+"react-cloud-music:ts-music/src/App.tsx": [
+1,
+2,
+3,
+4,
+5,
+6,
+7,
+8,
+9
 ],
 "react-cloud-music:ts-music/src/application/Recommend/index.tsx": [
 3,

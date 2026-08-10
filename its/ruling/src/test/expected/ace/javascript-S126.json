@@ -1,8 +1,4 @@
 {
-"ace:Makefile.dryice.js": [
-56,
-133
-],
 "ace:demo/kitchen-sink/demo.js": [
 55,
 231,
@@ -67,6 +63,9 @@
 10132,
 10238,
 10274
+],
+"ace:lib/ace/mode/javascript_worker.js": [
+148
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
 3289,
@@ -147,9 +146,6 @@
 19045,
 19081
 ],
-"ace:lib/ace/mode/javascript_worker.js": [
-148
-],
 "ace:lib/ace/mode/php/php.js": [
 1348,
 1403
@@ -177,16 +173,20 @@
 3257,
 4951
 ],
+"ace:lib/ace/worker/worker_client_v2.js": [
+254
+],
+"ace:lib/ace/worker/worker_client.js": [
+239
+],
 "ace:lib/ace/worker/worker.js": [
 90,
 110,
 210
 ],
-"ace:lib/ace/worker/worker_client.js": [
-239
-],
-"ace:lib/ace/worker/worker_client_v2.js": [
-254
+"ace:Makefile.dryice.js": [
+56,
+133
 ],
 "ace:src/ace.js": [
 54
@@ -314,6 +314,9 @@
 252,
 687
 ],
+"ace:src/keyboard/vim_test.js": [
+5464
+],
 "ace:src/keyboard/vim.js": [
 290,
 423,
@@ -357,9 +360,6 @@
 6926,
 7064
 ],
-"ace:src/keyboard/vim_test.js": [
-5464
-],
 "ace:src/layer/decorators.js": [
 92,
 120
@@ -387,12 +387,12 @@
 165,
 182
 ],
+"ace:src/lib/event_emitter.js": [
+89
+],
 "ace:src/lib/event.js": [
 162,
 197
-],
-"ace:src/lib/event_emitter.js": [
-89
 ],
 "ace:src/mode/asciidoc_highlight_rules.js": [
 194
@@ -408,11 +408,11 @@
 "ace:src/mode/behaviour/liquid.js": [
 55
 ],
-"ace:src/mode/c9search_highlight_rules.js": [
-53
-],
 "ace:src/mode/c_cpp.js": [
 42
+],
+"ace:src/mode/c9search_highlight_rules.js": [
+53
 ],
 "ace:src/mode/clojure.js": [
 43,
@@ -460,22 +460,22 @@
 "ace:src/mode/gherkin.js": [
 36
 ],
-"ace:src/mode/javascript.js": [
-42
-],
 "ace:src/mode/javascript_highlight_rules.js": [
 389,
 468
+],
+"ace:src/mode/javascript.js": [
+42
 ],
 "ace:src/mode/lua.js": [
 52,
 79
 ],
-"ace:src/mode/php.js": [
-51
-],
 "ace:src/mode/php_highlight_rules.js": [
 955
+],
+"ace:src/mode/php.js": [
+51
 ],
 "ace:src/mode/red.js": [
 39
@@ -487,12 +487,12 @@
 43,
 63
 ],
+"ace:src/mode/text_highlight_rules.js": [
+130
+],
 "ace:src/mode/text.js": [
 140,
 319
-],
-"ace:src/mode/text_highlight_rules.js": [
-130
 ],
 "ace:src/mode/vala.js": [
 45
@@ -531,20 +531,20 @@
 "ace:src/placeholder.js": [
 143
 ],
-"ace:src/range.js": [
-348,
-353
-],
 "ace:src/range_list.js": [
 224,
 249
 ],
-"ace:src/scrollbar.js": [
-135
+"ace:src/range.js": [
+348,
+353
 ],
 "ace:src/scrollbar_custom.js": [
 174,
 326
+],
+"ace:src/scrollbar.js": [
+135
 ],
 "ace:src/selection.js": [
 743

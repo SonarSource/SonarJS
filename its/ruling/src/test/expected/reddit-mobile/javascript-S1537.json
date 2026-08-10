@@ -45,15 +45,15 @@
 81,
 256
 ],
-"reddit-mobile:src/EUCountries.es6.js": [
-32
-],
 "reddit-mobile:src/config.es6.js": [
 53
 ],
 "reddit-mobile:src/constants.es6.js": [
 22,
 23
+],
+"reddit-mobile:src/EUCountries.es6.js": [
+32
 ],
 "reddit-mobile:src/lib/errorLog.es6.js": [
 52

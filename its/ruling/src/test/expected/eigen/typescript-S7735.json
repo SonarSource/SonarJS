@@ -37,6 +37,9 @@
 98,
 133
 ],
+"eigen:src/app/errorReporting/hooks.ts": [
+8
+],
 "eigen:src/app/NativeModules/ARScreenPresenterModule.tsx": [
 122
 ],
@@ -191,9 +194,6 @@
 "eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomHeader.tsx": [
 82
 ],
-"eigen:src/app/errorReporting/hooks.ts": [
-8
-],
 "eigen:src/app/store/GlobalStore.tsx": [
 116,
 254
@@ -201,11 +201,11 @@
 "eigen:src/app/utils/AdminMenu.tsx": [
 383
 ],
-"eigen:src/app/utils/PushNotification.ts": [
-51
-],
 "eigen:src/app/utils/getUrgencyTag.ts": [
 3
+],
+"eigen:src/app/utils/PushNotification.ts": [
+51
 ],
 "eigen:src/app/utils/renderWithPlaceholder.tsx": [
 42

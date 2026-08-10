@@ -1,7 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-0
-],
 "Ghost:config.example.js": [
 0
 ],
@@ -1784,6 +1781,12 @@
 "Ghost:core/test/unit/rss_spec.js": [
 0
 ],
+"Ghost:core/test/unit/server_helpers_index_spec.js": [
+0
+],
+"Ghost:core/test/unit/server_helpers_template_spec.js": [
+0
+],
 "Ghost:core/test/unit/server_helpers/asset_spec.js": [
 0
 ],
@@ -1868,12 +1871,6 @@
 "Ghost:core/test/unit/server_helpers/utils.js": [
 0
 ],
-"Ghost:core/test/unit/server_helpers_index_spec.js": [
-0
-],
-"Ghost:core/test/unit/server_helpers_template_spec.js": [
-0
-],
 "Ghost:core/test/unit/server_spec.js": [
 0
 ],
@@ -1944,6 +1941,9 @@
 0
 ],
 "Ghost:core/test/utils/tempfile.js": [
+0
+],
+"Ghost:Gruntfile.js": [
 0
 ],
 "Ghost:index.js": [

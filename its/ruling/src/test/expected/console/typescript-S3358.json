@@ -14,19 +14,6 @@
 "console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
 255
 ],
-"console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermission.tsx": [
-69
-],
-"console:src/views/RelationsPopup/RelationPopup.tsx": [
-83,
-90
-],
-"console:src/views/SchemaView/EnumsOverview/AddEnum.tsx": [
-200
-],
-"console:src/views/SchemaView/SchemaOverview/AddType.tsx": [
-232
-],
 "console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
 278
 ],
@@ -50,7 +37,20 @@
 69,
 164
 ],
+"console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermission.tsx": [
+69
+],
 "console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
 114
+],
+"console:src/views/RelationsPopup/RelationPopup.tsx": [
+83,
+90
+],
+"console:src/views/SchemaView/EnumsOverview/AddEnum.tsx": [
+200
+],
+"console:src/views/SchemaView/SchemaOverview/AddType.tsx": [
+232
 ]
 }

@@ -1,7 +1,4 @@
 {
-"angular.js:Gruntfile.js": [
-333
-],
 "angular.js:docs/app/src/directives.js": [
 27
 ],
@@ -10,6 +7,9 @@
 ],
 "angular.js:docs/config/processors/pages-data.js": [
 49
+],
+"angular.js:Gruntfile.js": [
+333
 ],
 "angular.js:karma-shared.conf.js": [
 15,

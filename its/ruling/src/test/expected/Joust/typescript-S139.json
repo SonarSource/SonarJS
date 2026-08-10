@@ -1,9 +1,4 @@
 {
-"Joust:ts/Launcher.tsx": [
-340,
-341,
-342
-],
 "Joust:ts/components/GameWidget.tsx": [
 47,
 298
@@ -27,6 +22,11 @@
 153,
 154,
 155
+],
+"Joust:ts/Launcher.tsx": [
+340,
+341,
+342
 ],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 359,

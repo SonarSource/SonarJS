@@ -32,13 +32,13 @@
 "fresh:packages/plugin-vite/demo/routes/tests/commonjs.tsx": [
 0
 ],
-"fresh:packages/plugin-vite/demo/routes/tests/css.tsx": [
+"fresh:packages/plugin-vite/demo/routes/tests/css_modules_page2.tsx": [
 0
 ],
 "fresh:packages/plugin-vite/demo/routes/tests/css_modules.tsx": [
 0
 ],
-"fresh:packages/plugin-vite/demo/routes/tests/css_modules_page2.tsx": [
+"fresh:packages/plugin-vite/demo/routes/tests/css.tsx": [
 0
 ],
 "fresh:packages/plugin-vite/demo/routes/tests/env.tsx": [
@@ -77,10 +77,10 @@
 "fresh:packages/plugin-vite/demo/routes/tests/mime.tsx": [
 0
 ],
-"fresh:packages/plugin-vite/demo/routes/tests/partial.tsx": [
+"fresh:packages/plugin-vite/demo/routes/tests/partial_insert.tsx": [
 0
 ],
-"fresh:packages/plugin-vite/demo/routes/tests/partial_insert.tsx": [
+"fresh:packages/plugin-vite/demo/routes/tests/partial.tsx": [
 0
 ],
 "fresh:packages/plugin-vite/demo/routes/tests/pg.tsx": [

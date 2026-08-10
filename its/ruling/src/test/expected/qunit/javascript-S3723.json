@@ -1,4 +1,16 @@
 {
+"qunit:bin/qunit.js": [
+50
+],
+"qunit:build/release.js": [
+21,
+27
+],
+"qunit:build/tasks/test-on-node.js": [
+33,
+65,
+100
+],
 "qunit:Gruntfile.js": [
 42,
 43,
@@ -48,18 +60,6 @@
 267,
 268,
 293
-],
-"qunit:bin/qunit.js": [
-50
-],
-"qunit:build/release.js": [
-21,
-27
-],
-"qunit:build/tasks/test-on-node.js": [
-33,
-65,
-100
 ],
 "qunit:reporter/diff.js": [
 73,

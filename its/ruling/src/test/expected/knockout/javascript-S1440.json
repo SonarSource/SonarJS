@@ -1,9 +1,9 @@
 {
-"knockout:Gruntfile.js": [
-47
-],
 "knockout:build/knockout-raw.js": [
 18
+],
+"knockout:Gruntfile.js": [
+47
 ],
 "knockout:src/binding/bindingAttributeSyntax.js": [
 230,

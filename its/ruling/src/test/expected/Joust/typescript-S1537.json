@@ -1,9 +1,4 @@
 {
-"Joust:ts/Launcher.tsx": [
-53,
-328,
-422
-],
 "Joust:ts/components/DebugApplication.tsx": [
 41,
 111,
@@ -13,6 +8,33 @@
 ],
 "Joust:ts/components/EventLogLine.tsx": [
 88
+],
+"Joust:ts/components/game/Hero.tsx": [
+96
+],
+"Joust:ts/components/game/visuals/CardArt.tsx": [
+27
+],
+"Joust:ts/components/game/visuals/HeroArt.tsx": [
+33,
+38,
+44,
+51,
+58,
+65,
+74,
+95,
+102,
+109,
+115
+],
+"Joust:ts/components/game/visuals/InHandCardArt.tsx": [
+79,
+87,
+93
+],
+"Joust:ts/components/game/Weapon.tsx": [
+38
 ],
 "Joust:ts/components/GameWidget.tsx": [
 48,
@@ -42,32 +64,10 @@
 "Joust:ts/components/Tooltipper.tsx": [
 22
 ],
-"Joust:ts/components/game/Hero.tsx": [
-96
-],
-"Joust:ts/components/game/Weapon.tsx": [
-38
-],
-"Joust:ts/components/game/visuals/CardArt.tsx": [
-27
-],
-"Joust:ts/components/game/visuals/HeroArt.tsx": [
-33,
-38,
-44,
-51,
-58,
-65,
-74,
-95,
-102,
-109,
-115
-],
-"Joust:ts/components/game/visuals/InHandCardArt.tsx": [
-79,
-87,
-93
+"Joust:ts/Launcher.tsx": [
+53,
+328,
+422
 ],
 "Joust:ts/protocol/KettleEncoder.ts": [
 37,

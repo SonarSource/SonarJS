@@ -1,11 +1,11 @@
 {
-"knockout:Gruntfile.js": [
-0
-],
 "knockout:build/fragments/source-references.js": [
 0
 ],
 "knockout:build/knockout-raw.js": [
+0
+],
+"knockout:Gruntfile.js": [
 0
 ],
 "knockout:src/binding/bindingAttributeSyntax.js": [

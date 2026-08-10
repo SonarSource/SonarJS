@@ -1,7 +1,4 @@
 {
-"Ghost:Gruntfile.js": [
-14
-],
 "Ghost:core/client/app/components/gh-fullscreen-modal.js": [
 5
 ],
@@ -322,5 +319,8 @@
 ],
 "Ghost:core/test/utils/index.js": [
 1
+],
+"Ghost:Gruntfile.js": [
+14
 ]
 }

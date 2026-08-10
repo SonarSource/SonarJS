@@ -147,18 +147,6 @@
 184,
 210
 ],
-"vitest:packages/ui/client/components/BrowserIframe.vue": [
-17,
-17,
-18,
-18,
-19,
-19
-],
-"vitest:packages/ui/client/components/ModuleGraphImportBreakdown.vue": [
-55,
-58
-],
 "vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegression.spec.ts": [
 31,
 96,
@@ -170,6 +158,18 @@
 ],
 "vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.vue": [
 24
+],
+"vitest:packages/ui/client/components/BrowserIframe.vue": [
+17,
+17,
+18,
+18,
+19,
+19
+],
+"vitest:packages/ui/client/components/ModuleGraphImportBreakdown.vue": [
+55,
+58
 ],
 "vitest:packages/ui/client/components/views/ViewModuleGraph.vue": [
 93,

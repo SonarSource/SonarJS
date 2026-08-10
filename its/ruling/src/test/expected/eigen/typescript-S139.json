@@ -121,6 +121,14 @@
 "eigen:src/app/Containers/Inquiry.tsx": [
 216
 ],
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+33,
+34,
+47
+],
+"eigen:src/app/relay/middlewares/types.ts": [
+4
+],
 "eigen:src/app/Scenes/Artwork/Components/ArtworkActions.tests.tsx": [
 208
 ],
@@ -217,18 +225,14 @@
 "eigen:src/app/Scenes/Show/Components/ShowContextCard.tsx": [
 99
 ],
-"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
-33,
-34,
-47
-],
-"eigen:src/app/relay/middlewares/types.ts": [
-4
-],
 "eigen:src/app/store/AuthModel.ts": [
 554,
 637,
 733
+],
+"eigen:src/app/store/config/EchoModel.tsx": [
+12,
+13
 ],
 "eigen:src/app/store/GlobalStore.tsx": [
 240
@@ -236,21 +240,23 @@
 "eigen:src/app/store/RequestedPriceEstimatesModel.ts": [
 5
 ],
-"eigen:src/app/store/config/EchoModel.tsx": [
-12,
-13
-],
-"eigen:src/app/tests/MockRelayRenderer.tests.tsx": [
-47
-],
 "eigen:src/app/tests/createMockNetworkLayer/index.ts": [
 154,
 156
+],
+"eigen:src/app/tests/MockRelayRenderer.tests.tsx": [
+47
 ],
 "eigen:src/app/tests/renderWithWrappers.tsx": [
 21,
 22,
 24
+],
+"eigen:src/app/utils/experiments/unleashClient.ts": [
+41
+],
+"eigen:src/app/utils/hardware.ts": [
+13
 ],
 "eigen:src/app/utils/PushNotification.tests.ts": [
 11,
@@ -260,12 +266,6 @@
 124,
 126,
 127
-],
-"eigen:src/app/utils/experiments/unleashClient.ts": [
-41
-],
-"eigen:src/app/utils/hardware.ts": [
-13
 ],
 "eigen:src/app/utils/renderMarkdown.tsx": [
 219,
@@ -278,17 +278,6 @@
 30,
 40,
 41
-],
-"eigen:src/palette/Theme.tsx": [
-32,
-238,
-239,
-241,
-242,
-243,
-244,
-245,
-246
 ],
 "eigen:src/palette/elements/Button/Button.tsx": [
 93,
@@ -317,6 +306,17 @@
 204,
 213,
 219
+],
+"eigen:src/palette/Theme.tsx": [
+32,
+238,
+239,
+241,
+242,
+243,
+244,
+245,
+246
 ],
 "eigen:src/setupJest.ts": [
 86,

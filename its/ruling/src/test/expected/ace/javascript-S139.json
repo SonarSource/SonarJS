@@ -248,6 +248,10 @@
 "ace:src/anchor.js": [
 97
 ],
+"ace:src/edit_session_test.js": [
+366,
+774
+],
 "ace:src/edit_session.js": [
 1187,
 1855
@@ -272,10 +276,6 @@
 632,
 635
 ],
-"ace:src/edit_session_test.js": [
-366,
-774
-],
 "ace:src/editor.js": [
 198,
 199,
@@ -284,11 +284,11 @@
 947,
 951
 ],
-"ace:src/incremental_search.js": [
-108
-],
 "ace:src/incremental_search_test.js": [
 99
+],
+"ace:src/incremental_search.js": [
+108
 ],
 "ace:src/keyboard/emacs.js": [
 49,
@@ -306,6 +306,14 @@
 ],
 "ace:src/keyboard/textinput.js": [
 222
+],
+"ace:src/keyboard/vim_test.js": [
+1418,
+2142,
+4571,
+4572,
+4764,
+4811
 ],
 "ace:src/keyboard/vim.js": [
 296,
@@ -327,14 +335,6 @@
 6555,
 7039,
 7061
-],
-"ace:src/keyboard/vim_test.js": [
-1418,
-2142,
-4571,
-4572,
-4764,
-4811
 ],
 "ace:src/layer/gutter.js": [
 98,
@@ -385,9 +385,6 @@
 24,
 25
 ],
-"ace:src/mode/c9search_highlight_rules.js": [
-141
-],
 "ace:src/mode/c_cpp_highlight_rules.js": [
 50,
 52,
@@ -400,6 +397,9 @@
 137,
 172,
 177
+],
+"ace:src/mode/c9search_highlight_rules.js": [
+141
 ],
 "ace:src/mode/clojure_highlight_rules.js": [
 111,
@@ -493,12 +493,12 @@
 "ace:src/mode/gitignore_highlight_rules.js": [
 13
 ],
-"ace:src/mode/golang.js": [
-40
-],
 "ace:src/mode/golang_highlight_rules.js": [
 38,
 42
+],
+"ace:src/mode/golang.js": [
+40
 ],
 "ace:src/mode/groovy_highlight_rules.js": [
 73,
@@ -614,11 +614,11 @@
 527,
 541
 ],
-"ace:src/mode/mysql.js": [
-12
-],
 "ace:src/mode/mysql_highlight_rules.js": [
 45
+],
+"ace:src/mode/mysql.js": [
+12
 ],
 "ace:src/mode/nix_highlight_rules.js": [
 67
@@ -643,9 +643,6 @@
 66,
 69
 ],
-"ace:src/mode/pgsql.js": [
-19
-],
 "ace:src/mode/pgsql_highlight_rules.js": [
 419,
 422,
@@ -663,6 +660,9 @@
 557,
 563,
 567
+],
+"ace:src/mode/pgsql.js": [
+19
 ],
 "ace:src/mode/php_highlight_rules.js": [
 890,
@@ -727,9 +727,6 @@
 89,
 90
 ],
-"ace:src/mode/redshift.js": [
-19
-],
 "ace:src/mode/redshift_highlight_rules.js": [
 46,
 49,
@@ -751,6 +748,9 @@
 175,
 181,
 185
+],
+"ace:src/mode/redshift.js": [
+19
 ],
 "ace:src/mode/ruby_highlight_rules.js": [
 13,
@@ -905,15 +905,15 @@
 95,
 98
 ],
-"ace:src/scrollbar.js": [
-251,
-252,
-253
-],
 "ace:src/scrollbar_custom.js": [
 379,
 380,
 381
+],
+"ace:src/scrollbar.js": [
+251,
+252,
+253
 ],
 "ace:src/test/asyncjs/assert.js": [
 199

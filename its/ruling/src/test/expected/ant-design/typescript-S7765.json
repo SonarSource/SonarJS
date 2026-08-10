@@ -43,10 +43,6 @@
 191,
 191
 ],
-"ant-design:components/transfer/ListBody.tsx": [
-74,
-147
-],
 "ant-design:components/transfer/index.tsx": [
 159,
 160,
@@ -56,6 +52,10 @@
 "ant-design:components/transfer/list.tsx": [
 112,
 164
+],
+"ant-design:components/transfer/ListBody.tsx": [
+74,
+147
 ],
 "ant-design:components/tree/utils/dictUtil.ts": [
 69

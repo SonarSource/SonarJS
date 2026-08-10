@@ -13,6 +13,15 @@
 "console:src/views/FunctionsView/FunctionPopup/WebhookEditor.tsx": [
 111
 ],
+"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
+169
+],
+"console:src/views/models/FieldPopup/BaseSettings.tsx": [
+205
+],
+"console:src/views/models/FieldPopup/FieldHorizontalSelect.tsx": [
+125
+],
 "console:src/views/ProjectRootView/Onboarding/ExampleChooser.tsx": [
 51
 ],
@@ -25,14 +34,5 @@
 "console:src/views/SchemaView/MigrationMessages.tsx": [
 36,
 47
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-169
-],
-"console:src/views/models/FieldPopup/BaseSettings.tsx": [
-205
-],
-"console:src/views/models/FieldPopup/FieldHorizontalSelect.tsx": [
-125
 ]
 }

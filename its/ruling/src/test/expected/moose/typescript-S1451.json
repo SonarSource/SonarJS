@@ -17,10 +17,10 @@
 "moose:main/enums/FileType.ts": [
 0
 ],
-"moose:main/helpers/Description.ts": [
+"moose:main/helpers/createWindow.ts": [
 0
 ],
-"moose:main/helpers/createWindow.ts": [
+"moose:main/helpers/Description.ts": [
 0
 ],
 "moose:main/modules/cast.ts": [
@@ -38,13 +38,13 @@
 "moose:main/server.ts": [
 0
 ],
-"moose:main/utils/Cast.ts": [
-0
-],
 "moose:main/utils/analytics.ts": [
 0
 ],
 "moose:main/utils/autoUpdate.ts": [
+0
+],
+"moose:main/utils/Cast.ts": [
 0
 ],
 "moose:main/utils/isMovieOrShow.ts": [
@@ -113,52 +113,52 @@
 "moose:renderer/components/Header/index.ts": [
 0
 ],
-"moose:renderer/components/Message/Message.tsx": [
-0
-],
 "moose:renderer/components/Message/index.ts": [
 0
 ],
-"moose:renderer/components/MiniPlayer/MiniPlayer.tsx": [
+"moose:renderer/components/Message/Message.tsx": [
 0
 ],
 "moose:renderer/components/MiniPlayer/index.ts": [
 0
 ],
-"moose:renderer/components/Modal/Modal.tsx": [
+"moose:renderer/components/MiniPlayer/MiniPlayer.tsx": [
 0
 ],
 "moose:renderer/components/Modal/index.ts": [
 0
 ],
-"moose:renderer/components/Player/Player.tsx": [
+"moose:renderer/components/Modal/Modal.tsx": [
 0
 ],
 "moose:renderer/components/Player/index.ts": [
 0
 ],
-"moose:renderer/components/Preferences/Preferences.tsx": [
+"moose:renderer/components/Player/Player.tsx": [
 0
 ],
 "moose:renderer/components/Preferences/index.ts": [
 0
 ],
-"moose:renderer/components/Settings/Settings.tsx": [
+"moose:renderer/components/Preferences/Preferences.tsx": [
 0
 ],
 "moose:renderer/components/Settings/index.tsx": [
 0
 ],
-"moose:renderer/components/Toast/Toast.tsx": [
+"moose:renderer/components/Settings/Settings.tsx": [
 0
 ],
 "moose:renderer/components/Toast/index.ts": [
 0
 ],
-"moose:renderer/components/TorrentDetails/TorrentDetails.tsx": [
+"moose:renderer/components/Toast/Toast.tsx": [
 0
 ],
 "moose:renderer/components/TorrentDetails/index.ts": [
+0
+],
+"moose:renderer/components/TorrentDetails/TorrentDetails.tsx": [
 0
 ],
 "moose:renderer/contexts/SelectedCast.ts": [
@@ -182,9 +182,6 @@
 "moose:renderer/pages/settings.tsx": [
 0
 ],
-"moose:renderer/utils/WebTorrent.ts": [
-0
-],
 "moose:renderer/utils/animations.ts": [
 0
 ],
@@ -204,6 +201,9 @@
 0
 ],
 "moose:renderer/utils/url.ts": [
+0
+],
+"moose:renderer/utils/WebTorrent.ts": [
 0
 ],
 "moose:sample/descriptions.ts": [

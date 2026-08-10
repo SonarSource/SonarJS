@@ -258,6 +258,13 @@
 549,
 553
 ],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.vue": [
+14,
+23
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+97
+],
 "vitest:packages/ui/client/components/FileDetails.vue": [
 55,
 59,
@@ -265,13 +272,6 @@
 ],
 "vitest:packages/ui/client/components/ModuleTransformResultView.vue": [
 166
-],
-"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.vue": [
-14,
-23
-],
-"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
-97
 ],
 "vitest:packages/ui/client/components/views/ViewEditor.vue": [
 144
@@ -650,10 +650,6 @@
 "vitest:packages/vitest/src/runtime/runBaseTests.ts": [
 43
 ],
-"vitest:packages/vitest/src/runtime/runVmTests.ts": [
-53,
-82
-],
 "vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
 73,
 96,
@@ -665,6 +661,10 @@
 99,
 125,
 142
+],
+"vitest:packages/vitest/src/runtime/runVmTests.ts": [
+53,
+82
 ],
 "vitest:packages/vitest/src/runtime/setup-common.ts": [
 78

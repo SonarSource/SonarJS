@@ -47,10 +47,6 @@
 "vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
 78
 ],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
-112,
-156
-],
 "vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts": [
 41,
 42,
@@ -67,6 +63,10 @@
 169,
 170,
 171
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
+112,
+156
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 161,
@@ -104,10 +104,10 @@
 90,
 90
 ],
-"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
+"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
 110
 ],
-"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
+"vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
 110
 ],
 "vuetify:packages/vuetify/src/components/VTimeline/VTimeline.tsx": [
@@ -157,11 +157,11 @@
 "vuetify:packages/vuetify/src/directives/scroll/index.ts": [
 21
 ],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
-57
-],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
 40
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
+57
 ],
 "vuetify:packages/vuetify/src/util/anchor.ts": [
 25

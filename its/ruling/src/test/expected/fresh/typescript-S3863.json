@@ -3,13 +3,13 @@
 17,
 18
 ],
-"fresh:packages/fresh/src/fs_routes.ts": [
-3,
-6
-],
 "fresh:packages/fresh/src/fs_routes_test.tsx": [
 3,
 4
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+3,
+6
 ],
 "fresh:packages/fresh/src/middlewares/csp_test.tsx": [
 3,

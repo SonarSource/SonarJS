@@ -5,10 +5,10 @@
 "console:src/utils/utils.ts": [
 45
 ],
-"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
-332
-],
 "console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
 405
+],
+"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
+332
 ]
 }

@@ -6,14 +6,14 @@
 106,
 110
 ],
-"console:src/views/SchemaView/SchemaEditor.tsx": [
-340,
-344
-],
 "console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
 405
 ],
 "console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
 659
+],
+"console:src/views/SchemaView/SchemaEditor.tsx": [
+340,
+344
 ]
 }

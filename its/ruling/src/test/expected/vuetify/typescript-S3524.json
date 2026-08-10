@@ -132,11 +132,8 @@
 "vuetify:packages/vuetify/src/entry-bundler.ts": [
 7
 ],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableGroupHeaderRow.tsx": [
-39
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableVirtual.tsx": [
-95
+"vuetify:packages/vuetify/src/labs/entry-bundler.ts": [
+9
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/expand.ts": [
 37,
@@ -146,8 +143,11 @@
 34,
 36
 ],
-"vuetify:packages/vuetify/src/labs/entry-bundler.ts": [
-9
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableGroupHeaderRow.tsx": [
+39
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableVirtual.tsx": [
+95
 ],
 "vuetify:packages/vuetify/src/locale/adapters/vuetify.ts": [
 12

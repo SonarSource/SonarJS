@@ -57,11 +57,11 @@
 "ag-grid:src/ts/rendering/rowRenderer.ts": [
 390
 ],
-"ag-grid:src/ts/rowModels/inMemory/inMemoryRowModel.ts": [
-348
-],
 "ag-grid:src/ts/rowModels/infinite/infiniteRowModel.ts": [
 233
+],
+"ag-grid:src/ts/rowModels/inMemory/inMemoryRowModel.ts": [
+348
 ],
 "ag-grid:src/ts/utils.ts": [
 94

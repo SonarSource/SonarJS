@@ -138,6 +138,9 @@
 314,
 343
 ],
+"ace:src/keyboard/vim_test.js": [
+5476
+],
 "ace:src/keyboard/vim.js": [
 190,
 257,
@@ -149,9 +152,6 @@
 3934,
 6099,
 6117
-],
-"ace:src/keyboard/vim_test.js": [
-5476
 ],
 "ace:src/layer/gutter.js": [
 293
