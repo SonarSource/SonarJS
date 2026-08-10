@@ -53,10 +53,13 @@ describe('writeResults', () => {
     });
   });
 
-  it('should write issue filenames in ascending order', async () => {
+  it('should preserve stable issue filename ordering', async () => {
     const files = createFileResults();
     files['/project/src/z.css' as NormalizedAbsolutePath] = {
       issues: [createCssIssue(4)],
+    };
+    files['/project/src/Z.css' as NormalizedAbsolutePath] = {
+      issues: [createCssIssue(5)],
     };
     files['/project/src/a.css' as NormalizedAbsolutePath] = {
       issues: [createCssIssue(6)],
@@ -72,7 +75,7 @@ describe('writeResults', () => {
       await fs.readFile(path.join(actualPath, 'css-S4656.json'), 'utf8'),
     ) as Record<string, number[]>;
 
-    expect(Object.keys(output)).toEqual(['ace:src/a.css', 'ace:src/z.css']);
+    expect(Object.keys(output)).toEqual(['ace:src/Z.css', 'ace:src/a.css', 'ace:src/z.css']);
   });
 });
 

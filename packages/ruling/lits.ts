@@ -162,12 +162,11 @@ async function writeIssues(
   await fs.writeFile(
     issueFilename,
     // we space at the beginning of lines
-    // and we sort the keys
-    JSON.stringify(
-      sortedIssues,
-      Object.keys(sortedIssues).sort((left, right) => left.localeCompare(right)),
-      1,
-    ).replaceAll(/\n\s+/g, '\n') + '\n',
+    // and we sort the keys while preserving the historical snapshot order
+    JSON.stringify(sortedIssues, Object.keys(sortedIssues).sort(compareIssueKeys), 1).replaceAll(
+      /\n\s+/g,
+      '\n',
+    ) + '\n',
   );
 }
 
@@ -178,6 +177,13 @@ function sortIssueLines(issues: FileIssues): FileIssues {
       [...lines].sort((left, right) => left - right),
     ]),
   );
+}
+
+function compareIssueKeys(left: string, right: string) {
+  if (left === right) {
+    return left.localeCompare(right);
+  }
+  return left < right ? -1 : 1;
 }
 
 function handleS124(ruleId: string, language: 'js' | 'ts' | 'css' = 'js') {
