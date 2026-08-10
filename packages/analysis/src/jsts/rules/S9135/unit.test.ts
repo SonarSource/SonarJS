@@ -57,10 +57,9 @@ copy.address.city = 'Geneva';
         {
           code: `
 import _ from 'lodash';
-const copy = _.clone(user);
-function update() {
-  copy.address.city = 'Geneva';
-}
+let copy = _.clone(user);
+copy.address.city = 'Geneva'; // Compliant: later reassignment
+copy = other;
 `,
         },
         {
@@ -73,7 +72,7 @@ copy.address.city = 'Geneva';
           code: `
 import _ from 'lodash';
 const copy = _.clone(user);
-copy['address'].city = 'Geneva';
+copy[address].city = 'Geneva';
 `,
         },
       ],
@@ -102,6 +101,144 @@ copy.address.city = 'Geneva';
 import _ from 'lodash';
 const copy = _.clone(user);
 copy.address.city = 'Geneva'; // NOSONAR: shared nested state is intentional
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
+import _ from 'lodash';
+function process() {
+  const copy = _.clone(user);
+  items.forEach(() => {
+    copy.address.city = 'Geneva';
+  });
+}
+`,
+          errors: [
+            {
+              message: LODASH_MESSAGE,
+              suggestions: [
+                {
+                  desc: 'Replace the shallow clone with structuredClone()',
+                  output: `
+import _ from 'lodash';
+function process() {
+  const copy = structuredClone(user);
+  items.forEach(() => {
+    copy.address.city = 'Geneva';
+  });
+}
+`,
+                },
+                {
+                  desc: 'Add // NOSONAR: shared nested state is intentional',
+                  output: `
+import _ from 'lodash';
+function process() {
+  const copy = _.clone(user);
+  items.forEach(() => {
+    copy.address.city = 'Geneva'; // NOSONAR: shared nested state is intentional
+  });
+}
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+function update() {
+  copy.address.city = 'Geneva';
+}
+`,
+          errors: [
+            {
+              message: LODASH_MESSAGE,
+              suggestions: [
+                {
+                  desc: 'Replace the shallow clone with structuredClone()',
+                  output: `
+import _ from 'lodash';
+const copy = structuredClone(user);
+function update() {
+  copy.address.city = 'Geneva';
+}
+`,
+                },
+                {
+                  desc: 'Add // NOSONAR: shared nested state is intentional',
+                  output: `
+import _ from 'lodash';
+const copy = _.clone(user);
+function update() {
+  copy.address.city = 'Geneva'; // NOSONAR: shared nested state is intentional
+}
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.items[0].name = 'x';
+`,
+          errors: [
+            {
+              message: LODASH_MESSAGE,
+              suggestions: [
+                {
+                  desc: 'Replace the shallow clone with structuredClone()',
+                  output: `
+import _ from 'lodash';
+const copy = structuredClone(user);
+copy.items[0].name = 'x';
+`,
+                },
+                {
+                  desc: 'Add // NOSONAR: shared nested state is intentional',
+                  output: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.items[0].name = 'x'; // NOSONAR: shared nested state is intentional
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy['address'].city = 'Geneva';
+`,
+          errors: [
+            {
+              message: LODASH_MESSAGE,
+              suggestions: [
+                {
+                  desc: 'Replace the shallow clone with structuredClone()',
+                  output: `
+import _ from 'lodash';
+const copy = structuredClone(user);
+copy['address'].city = 'Geneva';
+`,
+                },
+                {
+                  desc: 'Add // NOSONAR: shared nested state is intentional',
+                  output: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy['address'].city = 'Geneva'; // NOSONAR: shared nested state is intentional
 `,
                 },
               ],

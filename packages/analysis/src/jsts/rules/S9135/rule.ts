@@ -87,7 +87,7 @@ function checkMutation(
   }
 
   const cloneCall = getCloneCall(context, memberChain.root);
-  if (cloneCall === undefined || getScopeBoundary(cloneCall) !== getScopeBoundary(mutation)) {
+  if (cloneCall === undefined) {
     return;
   }
 
@@ -145,7 +145,7 @@ function getStaticMemberChain(node: estree.Node): StaticMemberChain | undefined 
   let depth = 0;
 
   while (current.type === 'MemberExpression') {
-    if (current.computed || current.property.type !== 'Identifier') {
+    if (!isStaticMember(current)) {
       return undefined;
     }
     depth += 1;
@@ -153,6 +153,16 @@ function getStaticMemberChain(node: estree.Node): StaticMemberChain | undefined 
   }
 
   return current.type === 'Identifier' && depth >= 2 ? { root: current, depth } : undefined;
+}
+
+function isStaticMember(member: estree.MemberExpression): boolean {
+  if (!member.computed) {
+    return member.property.type === 'Identifier';
+  }
+  return (
+    member.property.type === 'Literal' &&
+    (typeof member.property.value === 'string' || typeof member.property.value === 'number')
+  );
 }
 
 function getCloneCall(
@@ -172,28 +182,6 @@ function getCloneLibrary(
   cloneCall: estree.CallExpression,
 ): 'lodash' | 'underscore' | undefined {
   return CLONE_LIBRARIES.get(getFullyQualifiedName(context, cloneCall.callee) ?? '');
-}
-
-function getScopeBoundary(node: estree.Node): estree.Node {
-  let current = node;
-  while (getNodeParent(current) != null) {
-    const parent = getNodeParent(current);
-    if (parent.type === 'Program' || isFunctionLike(parent)) {
-      return parent;
-    }
-    current = parent;
-  }
-  return current;
-}
-
-function isFunctionLike(
-  node: estree.Node,
-): node is estree.ArrowFunctionExpression | estree.FunctionDeclaration | estree.FunctionExpression {
-  return (
-    node.type === 'ArrowFunctionExpression' ||
-    node.type === 'FunctionDeclaration' ||
-    node.type === 'FunctionExpression'
-  );
 }
 
 function replaceWithStructuredClone(
@@ -229,8 +217,4 @@ function hasNoTokensAfter(context: Rule.RuleContext, node: estree.Node): boolean
   const source = context.sourceCode.getText();
   const lineEnd = source.indexOf('\n', range[1]);
   return source.slice(range[1], lineEnd === -1 ? source.length : lineEnd).trim() === '';
-}
-
-function getNodeParent(node: estree.Node): estree.Node {
-  return (node as estree.Node & { parent: estree.Node }).parent;
 }
