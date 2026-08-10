@@ -1,0 +1,80 @@
+import {
+  screen as tlScreen,
+  waitForElementToBeRemoved as wait,
+} from '@testing-library/react';
+import * as vueTestingLibrary from '@testing-library/vue';
+import {
+  screen as pureScreen,
+  waitForElementToBeRemoved as pureWait,
+} from '@testing-library/react/pure';
+
+await wait(() => tlScreen.getByRole('alert')); // Noncompliant {{This callback cannot observe removal because getBy* throws when the element is absent.}}
+//                        ^^^^^^^^^
+await wait(() => {
+  return tlScreen.getAllByRole('alert'); // Noncompliant {{This callback cannot observe removal because getBy* throws when the element is absent.}}
+});
+await wait(function () {
+  return tlScreen.getByText('alert'); // Noncompliant {{This callback cannot observe removal because getBy* throws when the element is absent.}}
+});
+
+await wait(tlScreen.findByRole('alert')); // Noncompliant {{A findBy* query returns a promise, not the element required by this disappearance wait.}}
+await wait(tlScreen.findAllByRole('alert')); // Noncompliant {{A findBy* query returns a promise, not the element required by this disappearance wait.}}
+await wait(() => tlScreen.findByText('alert')); // Noncompliant {{A findBy* query returns a promise, not the element required by this disappearance wait.}}
+await wait(function () {
+  return tlScreen.findAllByText('alert'); // Noncompliant {{A findBy* query returns a promise, not the element required by this disappearance wait.}}
+});
+await vueTestingLibrary.waitForElementToBeRemoved(
+  () => vueTestingLibrary.screen.findByRole('alert'), // Noncompliant {{A findBy* query returns a promise, not the element required by this disappearance wait.}}
+);
+await pureWait(() => pureScreen.getAllByRole('alert')); // Noncompliant {{This callback cannot observe removal because getBy* throws when the element is absent.}}
+
+await wait(() => tlScreen.queryByRole('alert'));
+await wait(() => tlScreen.queryAllByRole('alert'));
+await wait(tlScreen.getByRole('alert'));
+await wait(tlScreen.getAllByRole('alert'));
+await wait(await tlScreen.findByRole('alert'));
+await wait(tlScreen.getByRole('alert'), tlScreen.findAllByRole('alert'));
+await wait(() => tlScreen['getByRole']('alert'));
+await wait(() => tlScreen?.getByRole('alert'));
+await wait(async () => tlScreen.getByRole('alert'));
+await wait(function* () {
+  return tlScreen.getByRole('alert');
+});
+await wait(() => {
+  const alert = tlScreen.getByRole('alert');
+  return alert;
+});
+await wait(() => (ready ? tlScreen.getByRole('alert') : null));
+
+import { screen as customScreen, waitForElementToBeRemoved as customWait } from './test-utils';
+await customWait(() => customScreen.getByRole('alert'));
+
+const localScreen = tlScreen;
+const localWait = wait;
+await localWait(() => localScreen.getByRole('alert'));
+
+import defaultTestingLibrary from '@testing-library/react';
+await defaultTestingLibrary.waitForElementToBeRemoved(
+  () => defaultTestingLibrary.screen.getByRole('alert'),
+);
+
+const { screen: requiredScreen, waitForElementToBeRemoved: requiredWait } = require(
+  '@testing-library/react',
+);
+await requiredWait(() => requiredScreen.getByRole('alert'));
+
+const requiredNamespace = require('@testing-library/react');
+await requiredNamespace.waitForElementToBeRemoved(
+  () => requiredNamespace.screen.getByRole('alert'),
+);
+
+import { screen as preactScreen, waitForElementToBeRemoved as preactWait } from '@testing-library/preact';
+await preactWait(() => preactScreen.getByRole('alert'));
+
+import { screen as nativeScreen, waitForElementToBeRemoved as nativeWait } from '@testing-library/react-native';
+await nativeWait(() => nativeScreen.getByRole('alert'));
+
+{
+  const wait = (): void => {};
+  await wait(() => tlScreen.getByRole('alert'));
+}
