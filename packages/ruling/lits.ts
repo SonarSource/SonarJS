@@ -183,7 +183,7 @@ function compareIssueKeys(left: string, right: string) {
   const sharedLength = Math.min(left.length, right.length);
 
   for (let index = 0; index < sharedLength; index++) {
-    const difference = left.charCodeAt(index) - right.charCodeAt(index);
+    const difference = left[index]!.codePointAt(0)! - right[index]!.codePointAt(0)!;
     if (difference !== 0) {
       return difference;
     }
