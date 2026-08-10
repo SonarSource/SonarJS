@@ -71,6 +71,8 @@ export const rule: Rule.RuleModule = {
 };
 
 type NodeWithParent = estree.Node & { parent?: NodeWithParent };
+type EnclosingDeclaration =
+  estree.VariableDeclarator | estree.FunctionDeclaration | estree.ClassDeclaration;
 
 function isExplicitGlobalDirectiveReport(descriptor: Rule.ReportDescriptor) {
   return 'node' in descriptor && descriptor.node.type === 'Program';
@@ -143,21 +145,22 @@ function getEnclosingDeclaration(node: NodeWithParent) {
   let current: NodeWithParent | undefined = node;
 
   while (current?.parent) {
-    if (current.parent.type === 'VariableDeclarator') {
-      return current.parent.id === current ? current.parent : undefined;
+    const parent = current.parent;
+    if (isEnclosingDeclaration(parent)) {
+      return parent.id === current ? parent : undefined;
     }
-
-    if (current.parent.type === 'FunctionDeclaration') {
-      return current.parent.id === current ? current.parent : undefined;
-    }
-
-    if (current.parent.type === 'ClassDeclaration') {
-      return current.parent.id === current ? current.parent : undefined;
-    }
-    current = current.parent;
+    current = parent;
   }
 
   return undefined;
+}
+
+function isEnclosingDeclaration(node: NodeWithParent): node is EnclosingDeclaration {
+  return (
+    node.type === 'VariableDeclarator' ||
+    node.type === 'FunctionDeclaration' ||
+    node.type === 'ClassDeclaration'
+  );
 }
 
 function isTopLevelDeclaration(node: NodeWithParent) {
