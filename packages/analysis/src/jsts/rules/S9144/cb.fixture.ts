@@ -4,6 +4,7 @@ import jq from 'jquery';
 import jquerySlim from 'jquery/slim';
 import jquerySlimDeep from 'jquery/dist/jquery.slim';
 import jquerySlimDeepJs from 'jquery/dist/jquery.slim.js';
+import { $ as jqueryNamedDollar, jQuery as jqueryNamedJQuery } from 'jquery';
 import { slim as jqueryNamedSlim } from 'jquery';
 import type typeOnlyJq from 'jquery';
 import { type default as typeOnlySpecifier } from 'jquery';
@@ -38,6 +39,12 @@ jquerySlimDeep.trim(input); // Noncompliant {{Use String.prototype.trim() instea
 
 jquerySlimDeepJs.trim(input); // Noncompliant {{Use String.prototype.trim() instead of deprecated jQuery.trim().}}
 //               ^^^^
+
+jqueryNamedDollar.trim(input); // Noncompliant {{Use String.prototype.trim() instead of deprecated jQuery.trim().}}
+//                ^^^^
+
+jqueryNamedJQuery.trim(input); // Noncompliant {{Use String.prototype.trim() instead of deprecated jQuery.trim().}}
+//                ^^^^
 
 jqueryNamedSlim.trim(input);
 

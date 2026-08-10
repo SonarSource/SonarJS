@@ -36,6 +36,16 @@ const JQUERY_MODULES = new Set([
   'jquery.dist.jquery.slim',
   'jquery.dist.jquery.slim.js',
 ]);
+const JQUERY_NAMED_IMPORTS = new Set([
+  'jquery.$',
+  'jquery.jQuery',
+  'jquery.slim.$',
+  'jquery.slim.jQuery',
+  'jquery.dist.jquery.slim.$',
+  'jquery.dist.jquery.slim.jQuery',
+  'jquery.dist.jquery.slim.js.$',
+  'jquery.dist.jquery.slim.js.jQuery',
+]);
 const JQUERY_METHODS = new Map<string, JQueryMethod>([
   ['isArray', { alternative: 'Array.isArray()', messageId: 'deprecated' }],
   ['parseJSON', { alternative: 'JSON.parse()', messageId: 'deprecated' }],
@@ -120,10 +130,17 @@ function isJQueryReceiver(
   }
 
   const isReceiver =
-    isDirectJQueryModuleBinding(variable) &&
-    JQUERY_MODULES.has(getFullyQualifiedName(context, identifier) ?? '');
+    isDirectJQueryModuleBinding(variable) && isJQueryModuleReference(context, identifier);
   jqueryReceivers.set(variable, isReceiver);
   return isReceiver;
+}
+
+function isJQueryModuleReference(
+  context: Rule.RuleContext,
+  identifier: estree.Identifier,
+): boolean {
+  const fullyQualifiedName = getFullyQualifiedName(context, identifier) ?? '';
+  return JQUERY_MODULES.has(fullyQualifiedName) || JQUERY_NAMED_IMPORTS.has(fullyQualifiedName);
 }
 
 function isDirectJQueryModuleBinding(variable: Scope.Variable): boolean {
@@ -154,7 +171,18 @@ function isDirectJQueryImportBinding(definition: Scope.Definition): boolean {
     declaration.type === 'ImportDeclaration' &&
     (specifier.type === 'ImportDefaultSpecifier' ||
       specifier.type === 'ImportNamespaceSpecifier' ||
-      (specifier.type === 'ImportSpecifier' && isDefaultImportSpecifier(specifier)))
+      (specifier.type === 'ImportSpecifier' && isJQueryImportSpecifier(specifier)))
+  );
+}
+
+function isJQueryImportSpecifier(specifier: estree.ImportSpecifier): boolean {
+  if (isDefaultImportSpecifier(specifier)) {
+    return true;
+  }
+
+  return (
+    specifier.imported.type === 'Identifier' &&
+    (specifier.imported.name === '$' || specifier.imported.name === 'jQuery')
   );
 }
 
