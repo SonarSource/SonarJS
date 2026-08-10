@@ -21,9 +21,11 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
-const todoPattern = 'TODO';
+const todoPattern = 'todo';
 const letterPattern = /[\p{Letter}]/u;
 const jiraIssueKeyPattern = /\b[A-Z][A-Z0-9]+-\d+\b/u;
+const commentStartPattern = /^[\s*]*$/u;
+const sentenceStartPattern = /[.!?][\s([{"'*]*$/u;
 
 type IgnorePatternMatch = (line: string, start: number, pattern: string) => boolean;
 
@@ -36,7 +38,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       'Program:exit': () => {
-        reportPatternInComment(context, todoPattern, 'completeTODO', true, isJiraAnchoredTodo);
+        reportPatternInComment(context, todoPattern, 'completeTODO', false, shouldIgnoreTodo);
       },
     };
   },
@@ -94,16 +96,19 @@ function findPatternPosition(
   pattern: string,
   shouldIgnoreMatch: IgnorePatternMatch,
 ) {
-  const index = line.indexOf(pattern);
-  if (
-    index < 0 ||
-    isLetterAround(line, index, pattern) ||
-    shouldIgnoreMatch(originalLine, index, pattern)
-  ) {
-    return [];
+  let searchStart = 0;
+  while (searchStart < line.length) {
+    const index = line.indexOf(pattern, searchStart);
+    if (index < 0) {
+      return [];
+    }
+    if (!isLetterAround(line, index, pattern) && !shouldIgnoreMatch(originalLine, index, pattern)) {
+      return [getPatternPosition(lineIdx, index, comment, pattern)];
+    }
+    searchStart = index + pattern.length;
   }
 
-  return [getPatternPosition(lineIdx, index, comment, pattern)];
+  return [];
 }
 
 /**
@@ -115,6 +120,25 @@ function findPatternPosition(
  */
 function isJiraAnchoredTodo(line: string, start: number, pattern: string) {
   return jiraIssueKeyPattern.test(line.slice(start + pattern.length));
+}
+
+function shouldIgnoreTodo(line: string, start: number, pattern: string) {
+  return isJiraAnchoredTodo(line, start, pattern) || isProseTodo(line, start, pattern);
+}
+
+function isProseTodo(line: string, start: number, pattern: string) {
+  const matchedText = line.slice(start, start + pattern.length);
+  const startsSentenceOrComment = isSentenceOrCommentStart(line, start);
+
+  return (
+    (matchedText === 'Todo' && startsSentenceOrComment) ||
+    (matchedText === 'todo' && !startsSentenceOrComment)
+  );
+}
+
+function isSentenceOrCommentStart(line: string, start: number) {
+  const prefix = line.slice(0, start);
+  return commentStartPattern.test(prefix) || sentenceStartPattern.test(prefix);
 }
 
 function isLetterAround(line: string, start: number, pattern: string) {

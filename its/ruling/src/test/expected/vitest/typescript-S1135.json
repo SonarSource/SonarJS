@@ -71,6 +71,9 @@
 "vitest:packages/ui/client/components/views/ViewEditor.vue": [
 194
 ],
+"vitest:packages/ui/client/composables/explorer/collector.ts": [
+450
+],
 "vitest:packages/ui/client/composables/navigation.ts": [
 160
 ],

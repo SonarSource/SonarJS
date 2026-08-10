@@ -13,6 +13,10 @@
 ],
 "ace:lib/ace/mode/html/saxparser.js": [
 2462,
+3366,
+3616,
+4873,
+4989,
 5346,
 10427
 ],
@@ -52,8 +56,13 @@
 150,
 532
 ],
+"ace:src/config.js": [
+53
+],
 "ace:src/edit_session.js": [
-943
+421,
+943,
+2330
 ],
 "ace:src/edit_session/fold_line.js": [
 142
@@ -66,24 +75,42 @@
 ],
 "ace:src/editor.js": [
 51,
+96,
 182,
 776,
-1545
+1545,
+2316
 ],
 "ace:src/editor_commands_test.js": [
+206,
 273,
 459
+],
+"ace:src/ext/elastic_tabstops_lite.js": [
+85,
+106
 ],
 "ace:src/ext/emmet.js": [
 36,
 385
 ],
+"ace:src/ext/modelist.js": [
+43
+],
 "ace:src/ext/searchbox.js": [
 362
 ],
+"ace:src/ext/spellcheck.js": [
+50
+],
+"ace:src/ext/whitespace.js": [
+191
+],
 "ace:src/keyboard/emacs.js": [
 258,
-259
+259,
+339,
+386
 ],
 "ace:src/keyboard/textarea.js": [
 17
@@ -91,6 +118,8 @@
 "ace:src/keyboard/vim.js": [
 14,
 17,
+296,
+757,
 1257,
 1614,
 1644,
@@ -202,6 +231,9 @@
 "ace:src/mode/mips.js": [
 10
 ],
+"ace:src/mode/mysql.js": [
+12
+],
 "ace:src/mode/pascal.js": [
 10
 ],
@@ -221,6 +253,9 @@
 "ace:src/mode/python_highlight_rules.js": [
 2,
 343
+],
+"ace:src/mode/r.js": [
+58
 ],
 "ace:src/mode/redshift_highlight_rules.js": [
 56
@@ -246,6 +281,9 @@
 ],
 "ace:src/mode/terraform_highlight_rules.js": [
 140
+],
+"ace:src/mode/text.js": [
+209
 ],
 "ace:src/mode/turtle.js": [
 10
@@ -285,6 +323,10 @@
 "ace:src/virtual_renderer.js": [
 267,
 844
+],
+"ace:tool/regexp_tokenizer.js": [
+5,
+21
 ],
 "ace:tool/tmtheme.js": [
 408

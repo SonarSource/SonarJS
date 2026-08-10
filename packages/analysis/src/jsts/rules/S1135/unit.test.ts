@@ -53,10 +53,6 @@ describe('S1135', () => {
 
         // Todo just do it
 
-        //todo comment
-
-        // todo: things to do
-
         /*
           Todo em um comentario de bloco
 
@@ -136,6 +132,46 @@ describe('S1135', () => {
               endLine: 1,
               column: 4,
               endColumn: 8,
+            },
+          ],
+        },
+        {
+          code: `// todo comment`,
+          errors: [
+            {
+              message: 'Complete the task associated to this "TODO" comment.',
+              line: 1,
+              endLine: 1,
+              column: 4,
+              endColumn: 8,
+            },
+          ],
+        },
+        {
+          code: `// todo: things to do`,
+          errors: 1,
+        },
+        {
+          code: `// No puedo saber. todo el mundo...`,
+          errors: 1,
+        },
+        {
+          code: `// esta Todo bien`,
+          errors: 1,
+        },
+        {
+          code: `// ToDo just do it`,
+          errors: 1,
+        },
+        {
+          code: `// Todo el mundo. TODO fix this later`,
+          errors: [
+            {
+              message: 'Complete the task associated to this "TODO" comment.',
+              line: 1,
+              endLine: 1,
+              column: 19,
+              endColumn: 23,
             },
           ],
         },

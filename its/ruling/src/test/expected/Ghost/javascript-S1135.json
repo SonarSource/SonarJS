@@ -156,6 +156,9 @@
 "Ghost:core/server/data/xml/sitemap/user-generator.js": [
 41
 ],
+"Ghost:core/server/data/xml/xmlrpc.js": [
+10
+],
 "Ghost:core/server/errors/index.js": [
 28,
 118,
