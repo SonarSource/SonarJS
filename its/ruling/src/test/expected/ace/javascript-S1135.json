@@ -13,17 +13,8 @@
 ],
 "ace:lib/ace/mode/html/saxparser.js": [
 2462,
-2980,
-3273,
-3354,
 3366,
 3616,
-3664,
-3681,
-3803,
-4035,
-4359,
-4505,
 4873,
 4989,
 5346,
@@ -279,9 +270,6 @@
 "ace:src/mode/sh_highlight_rules.js": [
 65
 ],
-"ace:src/mode/space_highlight_rules.js": [
-8
-],
 "ace:src/mode/sparql.js": [
 10
 ],
@@ -314,7 +302,6 @@
 373
 ],
 "ace:src/multi_select.js": [
-10,
 906
 ],
 "ace:src/placeholder.js": [

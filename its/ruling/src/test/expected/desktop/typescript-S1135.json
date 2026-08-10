@@ -5,20 +5,11 @@
 "desktop:app/src/lib/diff-parser.ts": [
 175
 ],
-"desktop:app/src/lib/git/cherry-pick.ts": [
-233
-],
 "desktop:app/src/lib/git/diff.ts": [
 443
 ],
 "desktop:app/src/lib/git/for-each-ref.ts": [
 31
-],
-"desktop:app/src/lib/git/rebase.ts": [
-527,
-528,
-530,
-576
 ],
 "desktop:app/src/lib/git/stash.ts": [
 261
@@ -28,7 +19,6 @@
 ],
 "desktop:app/src/lib/stores/app-store.ts": [
 1358,
-1820,
 3681
 ],
 "desktop:app/src/lib/stores/git-store.ts": [
