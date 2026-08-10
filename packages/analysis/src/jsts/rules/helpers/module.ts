@@ -364,7 +364,7 @@ function getFullyQualifiedNameRaw(
       const qualifiers: string[] = [];
       const maybeRequire = reduceTo('CallExpression', node.callee, qualifiers);
       const module = getModuleNameFromRequire(maybeRequire);
-      if (typeof module?.value === 'string' && isUnshadowedRequire(context, maybeRequire)) {
+      if (typeof module?.value === 'string') {
         qualifiers.unshift(module.value);
         return qualifiers.join('.');
       }
@@ -496,7 +496,7 @@ function checkFqnFromRequire(
     }
     const nodeToCheck = reduceTo('CallExpression', value, fqn);
     const module = getModuleNameFromRequire(nodeToCheck)?.value;
-    if (typeof module === 'string' && isUnshadowedRequire(context, nodeToCheck)) {
+    if (typeof module === 'string') {
       const importedQualifiers = module.split('/');
       fqn.unshift(...importedQualifiers);
       return fqn.join('.');
@@ -506,11 +506,6 @@ function checkFqnFromRequire(
     }
   }
   return null;
-}
-
-function isUnshadowedRequire(context: Rule.RuleContext, node: estree.Node): boolean {
-  const requireVariable = getVariableFromScope(context.sourceCode.getScope(node), 'require');
-  return requireVariable === undefined || requireVariable.defs.length === 0;
 }
 
 /**

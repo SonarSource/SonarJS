@@ -22,6 +22,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import {
   getUniqueWriteReference,
   getVariableFromName,
+  getVariableFromScope,
   isIdentifier,
   isMethodCall,
 } from '../helpers/ast.js';
@@ -132,7 +133,7 @@ function isJQueryReceiver(
   }
 
   const isReceiver =
-    isDirectJQueryModuleBinding(variable) && isJQueryModuleReference(context, identifier);
+    isDirectJQueryModuleBinding(variable, context) && isJQueryModuleReference(context, identifier);
   jqueryReceivers.set(variable, isReceiver);
   return isReceiver;
 }
@@ -145,14 +146,15 @@ function isJQueryModuleReference(
   return JQUERY_MODULES.has(fullyQualifiedName) || JQUERY_NAMED_IMPORTS.has(fullyQualifiedName);
 }
 
-function isDirectJQueryModuleBinding(variable: Scope.Variable): boolean {
+function isDirectJQueryModuleBinding(variable: Scope.Variable, context: Rule.RuleContext): boolean {
   if (variable.defs.length !== 1) {
     return false;
   }
 
   const [definition] = variable.defs;
   return (
-    isDirectJQueryImportBinding(definition) || isDirectJQueryRequireBinding(variable, definition)
+    isDirectJQueryImportBinding(definition) ||
+    isDirectJQueryRequireBinding(variable, definition, context)
   );
 }
 
@@ -198,12 +200,19 @@ function isDefaultImportSpecifier(specifier: estree.ImportSpecifier): boolean {
 function isDirectJQueryRequireBinding(
   variable: Scope.Variable,
   definition: Scope.Definition,
+  context: Rule.RuleContext,
 ): boolean {
   const value = getUniqueWriteReference(variable);
   return (
     definition.type === 'Variable' &&
     definition.node.id.type === 'Identifier' &&
     value !== undefined &&
-    isRequire(value)
+    isRequire(value) &&
+    isUnshadowedRequire(context, value)
   );
+}
+
+function isUnshadowedRequire(context: Rule.RuleContext, node: estree.Node): boolean {
+  const requireVariable = getVariableFromScope(context.sourceCode.getScope(node), 'require');
+  return requireVariable === undefined || requireVariable.defs.length === 0;
 }
