@@ -49,6 +49,16 @@ function localNamespace(vi: { mock(name: string): void }, vitest: { mock(name: s
   vitest.mock('local-vitest-module');
 }
 
+function requireDestructuring(): void {
+  const { vi } = require('vitest');
+  vi.mock('required-module'); // Noncompliant {{Move this call to module scope or replace it with vi.doMock(); vi.mock is hoisted and cannot provide runtime or per-test mocking.}}
+}
+
+function requireNamespace(): void {
+  const vitest = require('vitest');
+  vitest.vi.mock('required-namespace-module'); // Noncompliant {{Move this call to module scope or replace it with vi.doMock(); vi.mock is hoisted and cannot provide runtime or per-test mocking.}}
+}
+
 function otherImport(): void {
   otherVi.mock('other-module');
 }
