@@ -18,16 +18,15 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { intersects, validRange } from 'semver';
 import {
   getValueOfExpression,
   getVariableFromName,
   isIdentifier,
   isStringLiteral,
 } from '../helpers/ast.js';
-import { getVueVersion } from '../helpers/dependency-manifests/dependencies.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { type IssueLocation, report, toSecondaryLocation } from '../helpers/location.js';
+import { lacksCompositionApi } from '../helpers/vue.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -35,7 +34,6 @@ const messages = {
   mixinDefinedHere: 'Mixin defined here. Extract it into a composable.',
 };
 
-const VUE_WITH_COMPOSITION_API_RANGE = '>=2.7.0';
 const MIXINS_PROPERTY_NAME = 'mixins';
 
 export const rule: Rule.RuleModule = {
@@ -164,24 +162,4 @@ function unwrapToObjectExpression(
     return node.arguments[0];
   }
   return undefined;
-}
-
-/**
- * Returns true when the project's Vue dependency range cannot possibly resolve to a version
- * that has the Composition API.
- *
- * Mixins remain the only cross-component logic-reuse mechanism in Vue versions that predate the
- * Composition API, so the "use a composable instead" premise only holds once it is available.
- * Vue backported the Composition API and `<script setup>` into 2.7, not just 3.0, so that is the
- * real cutoff, not the Vue 3 major version. Ranges that could resolve to a version on either side
- * of that cutoff (e.g. ">=2.6.0", "^2.7.0 || ^3.0.0") are treated as "the Composition API is
- * possible", so the rule keeps reporting. Unknown/unparseable ranges (catalog:, workspace:, git:,
- * missing dependency, ...) also keep reporting.
- */
-function lacksCompositionApi(context: Rule.RuleContext): boolean {
-  const vueVersionRange = getVueVersion(context);
-  if (!vueVersionRange || !validRange(vueVersionRange)) {
-    return false;
-  }
-  return !intersects(vueVersionRange, VUE_WITH_COMPOSITION_API_RANGE);
 }

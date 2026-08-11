@@ -19,11 +19,10 @@
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type estree from 'estree';
-import { intersects, validRange } from 'semver';
 import { isFunctionCall, isIdentifier } from '../helpers/ast.js';
-import { getVueVersion } from '../helpers/dependency-manifests/dependencies.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
+import { lacksCompositionApi } from '../helpers/vue.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -59,7 +58,6 @@ const PROPERTY_DECORATOR_FQNS = new Set(
     'VModel',
   ].map(name => `vue-property-decorator.${name}`),
 );
-const VUE_WITH_COMPOSITION_API_RANGE = '>=2.7.0';
 
 type ClassNode = TSESTree.ClassDeclaration | TSESTree.ClassExpression;
 
@@ -149,24 +147,4 @@ function isDecoratorFromModule(
 
 function getReportNode(classNode: ClassNode): estree.Node {
   return (classNode.id ?? classNode) as unknown as estree.Node;
-}
-
-/**
- * Returns true when the project's Vue dependency range cannot possibly resolve to a version
- * that has the Composition API.
- *
- * vue-class-component's (and vue-property-decorator's) class API was the standard, recommended
- * way to write components before the Composition API existed, so it is not deprecated on
- * versions that predate it. Vue backported the Composition API and `<script setup>` into 2.7,
- * not just 3.0, so that is the real cutoff, not the Vue 3 major version. Ranges that could
- * resolve to a version on either side of that cutoff (e.g. ">=2.6.0", "^2.7.0 || ^3.0.0") are
- * treated as "the Composition API is possible", so the rule keeps reporting. Unknown/unparseable
- * ranges (catalog:, workspace:, git:, missing dependency, ...) also keep reporting.
- */
-function lacksCompositionApi(context: Rule.RuleContext): boolean {
-  const vueVersionRange = getVueVersion(context);
-  if (!vueVersionRange || !validRange(vueVersionRange)) {
-    return false;
-  }
-  return !intersects(vueVersionRange, VUE_WITH_COMPOSITION_API_RANGE);
 }
