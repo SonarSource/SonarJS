@@ -1,5 +1,5 @@
 {
-  "title": "Nested properties of Lodash and Underscore.js clone results should not be mutated",
+  "title": "Vue components should not use mixins",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -7,19 +7,23 @@
     "constantCost": "5min"
   },
   "tags": [
-    "lodash",
-    "underscore.js"
+    "vue"
   ],
-  "defaultSeverity": "Major",
-  "ruleSpecification": "RSPEC-9135",
-  "sqKey": "S9135",
+  "extra": {
+    "requiredDependency": [
+      "vue"
+    ]
+  },
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-9150",
+  "sqKey": "S9150",
   "scope": "Main",
-  "quickfix": "covered",
+  "quickfix": "infeasible",
   "code": {
     "impacts": {
-      "RELIABILITY": "MEDIUM"
+      "MAINTAINABILITY": "LOW"
     },
-    "attribute": "LOGICAL"
+    "attribute": "CONVENTIONAL"
   },
   "compatibleLanguages": [
     "js",

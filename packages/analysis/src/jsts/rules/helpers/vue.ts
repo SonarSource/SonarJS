@@ -16,9 +16,13 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { intersects, validRange } from 'semver';
 import type { AST } from 'vue-eslint-parser';
+import { getVueVersion } from './dependency-manifests/dependencies.js';
 
 type VChildElement = AST.VElement | AST.VText | AST.VExpressionContainer | AST.VStyleElement;
+
+const VUE_WITH_COMPOSITION_API_RANGE = '>=2.7.0';
 
 function isVueSetupScript(element: VChildElement): boolean {
   return (
@@ -37,4 +41,22 @@ export function isInsideVueSetupScript(node: estree.Node, ctx: Rule.RuleContext)
     setupScript.range[0] <= node.range[0] &&
     setupScript.range[1] >= node.range[1]
   );
+}
+
+/**
+ * Returns true when the project's Vue dependency range cannot possibly resolve to a version
+ * that has the Composition API.
+ *
+ * Vue backported the Composition API and `<script setup>` into 2.7, not just 3.0, so that is the
+ * real cutoff, not the Vue 3 major version. Ranges that could resolve to a version on either side
+ * of that cutoff (e.g. ">=2.6.0", "^2.7.0 || ^3.0.0") are treated as "the Composition API is
+ * possible", so callers should keep reporting. Unknown/unparseable ranges (catalog:, workspace:,
+ * git:, missing dependency, ...) also keep reporting.
+ */
+export function lacksCompositionApi(context: Rule.RuleContext): boolean {
+  const vueVersionRange = getVueVersion(context);
+  if (!vueVersionRange || !validRange(vueVersionRange)) {
+    return false;
+  }
+  return !intersects(vueVersionRange, VUE_WITH_COMPOSITION_API_RANGE);
 }

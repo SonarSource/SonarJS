@@ -19,6 +19,39 @@ import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 
 describe('S125', () => {
+  it('detects commented-out code with TypeScript project service', () => {
+    const ruleTester = new NoTypeCheckingRuleTester({
+      parserOptions: {
+        projectService: true,
+      },
+    });
+    ruleTester.run('Sections of code should not be commented out', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+export const activeCode = (a: number, b: number): number => a + b;
+
+// const total = computeTotal(amount, rate);`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [
+                {
+                  desc: 'Remove this commented out code',
+                  output: `
+export const activeCode = (a: number, b: number): number => a + b;
+
+`,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  });
+
   it('S125', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('Sections of code should not be commented out', rule, {
