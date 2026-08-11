@@ -1,5 +1,5 @@
 {
-  "title": "Avoid mutating nested properties of shallow clones",
+  "title": "Nested properties of Lodash and Underscore.js clone results should not be mutated",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
