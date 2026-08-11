@@ -44,6 +44,11 @@ onUpdated(() => {
   stableCount.value = 3; // compliant: converges after a single call, ref's setter bails out via Object.is
 });
 
+const identityCount = ref(0);
+onUpdated(() => {
+  identityCount.value = identityCount.value; // compliant: a bare identity assignment is as stable as a literal, unlike "= identityCount.value + 1"
+});
+
 const timestamp = ref(0);
 onUpdated(() => {
   timestamp.value = Date.now(); // Noncompliant {{Don't unconditionally mutate reactive state in this hook; this can trigger an infinite update loop.}}

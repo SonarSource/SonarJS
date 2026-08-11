@@ -274,7 +274,10 @@ function terminatesControlFlow(statement: TSESTree.Statement): boolean {
  * compound assignment, a self-reference to the same binding being mutated, or a call to a known
  * non-deterministic builtin. A plain assignment of a literal or otherwise-stable value (`count.value
  * = 3`) converges after one call (Vue's ref/reactive setters bail out via Object.is) and is left
- * unflagged.
+ * unflagged. A bare identity assignment (`count.value = count.value`, RHS is nothing but the same
+ * target) is exactly as stable as a literal for the same reason, so it's exempted too; a
+ * self-reference embedded in a larger expression (`count.value = count.value + 1`) is still caught
+ * below, since that one *does* change the value.
  */
 function hasRedFlagShape(
   mutation: Mutation,
@@ -286,6 +289,9 @@ function hasRedFlagShape(
   }
   if (mutation.operator !== '=') {
     return true;
+  }
+  if (mutation.right.type === 'MemberExpression' && isSameTarget(mutation.right, target)) {
+    return false;
   }
   return containsRedFlag(mutation.right, target, visitorKeys);
 }
