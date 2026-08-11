@@ -106,4 +106,24 @@ const logicalCount = ref(0);
 onUpdated(() => {
   logicalCount.value < 10 && logicalCount.value++; // compliant: guarded by a logical "&&"
 });
+
+// Unlike the three compliant examples above, a mutation in the *test* of an if/ternary, or the
+// *left* operand of a logical expression, always executes regardless of the guard's outcome - it
+// isn't actually guarded, so it must still be flagged.
+const ifTestCount = ref(0);
+onUpdated(() => {
+  if (ifTestCount.value++ > 100) { // Noncompliant {{Don't unconditionally mutate reactive state in this hook; this can trigger an infinite update loop.}}
+    console.log('checked');
+  }
+});
+
+const ternaryTestCount = ref(0);
+onUpdated(() => {
+  ternaryTestCount.value++ ? console.log('a') : console.log('b'); // Noncompliant {{Don't unconditionally mutate reactive state in this hook; this can trigger an infinite update loop.}}
+});
+
+const logicalLeftCount = ref(0);
+onUpdated(() => {
+  logicalLeftCount.value++ && console.log('checked'); // Noncompliant {{Don't unconditionally mutate reactive state in this hook; this can trigger an infinite update loop.}}
+});
 </script>
