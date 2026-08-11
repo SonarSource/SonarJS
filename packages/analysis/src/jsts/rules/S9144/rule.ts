@@ -128,7 +128,7 @@ function isJQueryReceiver(
   }
 
   if (jqueryReceivers.has(variable)) {
-    return jqueryReceivers.get(variable)!;
+    return jqueryReceivers.get(variable) ?? false;
   }
 
   const isReceiver =

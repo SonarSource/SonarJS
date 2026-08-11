@@ -69,23 +69,38 @@ function computeCurrentFileImports(sourceCode: SourceCode): void {
   CURRENT_FILE_IMPORTS.sourceCode = sourceCode;
   CURRENT_FILE_IMPORTS.imports.clear();
 
+  collectStaticImports(sourceCode);
+  collectScopedVariableImports(sourceCode);
+}
+
+function collectStaticImports(sourceCode: SourceCode): void {
   for (const node of sourceCode.ast.body) {
     if (node.type === 'ImportDeclaration' && typeof node.source.value === 'string') {
       CURRENT_FILE_IMPORTS.imports.add(node.source.value);
     }
   }
+}
 
+function collectScopedVariableImports(sourceCode: SourceCode): void {
   for (const scope of sourceCode.scopeManager.scopes) {
-    for (const variable of scope.variables) {
-      for (const def of variable.defs) {
-        if (def.type === 'Variable' && def.node.init) {
-          const name =
-            getRequireModuleName(def.node.init) ?? getDynamicImportModuleName(def.node.init);
-          if (name !== undefined) {
-            CURRENT_FILE_IMPORTS.imports.add(name);
-          }
-        }
-      }
+    collectScopeImports(scope);
+  }
+}
+
+function collectScopeImports(scope: Scope.Scope): void {
+  for (const variable of scope.variables) {
+    collectVariableImports(variable);
+  }
+}
+
+function collectVariableImports(variable: Scope.Variable): void {
+  for (const def of variable.defs) {
+    if (def.type !== 'Variable' || !def.node.init) {
+      continue;
+    }
+    const name = getRequireModuleName(def.node.init) ?? getDynamicImportModuleName(def.node.init);
+    if (name !== undefined) {
+      CURRENT_FILE_IMPORTS.imports.add(name);
     }
   }
 }
@@ -424,61 +439,87 @@ function checkFqnFromImport(
   fqn: string[],
   visitedVars: Scope.Variable[],
 ) {
-  if (definition.type === 'ImportBinding') {
-    const specifier = definition.node;
-    const importDeclaration = definition.parent;
-    const importDeclarationNode = importDeclaration as TSESTree.Node;
-    if (
-      (importDeclaration.type === 'ImportDeclaration' && isTypeOnlyImport(importDeclaration)) ||
-      (specifier.type === 'ImportSpecifier' &&
-        (specifier as TSESTree.ImportSpecifier).importKind === 'type') ||
-      (importDeclarationNode.type === 'TSImportEqualsDeclaration' &&
-        (importDeclaration as unknown as TSESTree.TSImportEqualsDeclaration).importKind === 'type')
-    ) {
-      return null;
-    }
-    // import {default as cdk} from 'aws-cdk-lib';
-    // vs.
-    // import { aws_s3 as s3 } from 'aws-cdk-lib';
-    if (
-      specifier.type === 'ImportSpecifier' &&
-      specifier.imported.type === 'Identifier' &&
-      specifier.imported?.name !== 'default'
-    ) {
-      fqn.unshift(specifier.imported?.name);
-    }
-    if (typeof importDeclaration.source?.value === 'string') {
-      const importedQualifiers = importDeclaration.source.value.split('/');
-      fqn.unshift(...importedQualifiers);
-      return fqn.join('.');
-    }
-    // example: import s3 = require('aws-cdk-lib/aws-s3');
-    if ((importDeclaration as TSESTree.Node).type === 'TSImportEqualsDeclaration') {
-      const importedModule = (importDeclaration as unknown as TSESTree.TSImportEqualsDeclaration)
-        .moduleReference;
-      if (
-        importedModule.type === 'TSExternalModuleReference' &&
-        importedModule.expression.type === 'Literal' &&
-        typeof importedModule.expression.value === 'string'
-      ) {
-        const importedQualifiers = importedModule.expression.value.split('/');
-        fqn.unshift(...importedQualifiers);
-        return fqn.join('.');
-      }
-      // example: import s3 = cdk.aws_s3;
-      if (importedModule.type === 'TSQualifiedName') {
-        visitedVars.push(variable);
-        return getFullyQualifiedNameRaw(
-          context,
-          importedModule as unknown as estree.Node,
-          fqn,
-          variable.scope,
-          visitedVars,
-        );
-      }
-    }
+  if (definition.type !== 'ImportBinding') {
+    return null;
+  }
+
+  const specifier = definition.node;
+  const importDeclaration = definition.parent;
+  if (
+    isTypeOnlyImportBinding(specifier as TSESTree.Node, importDeclaration as TSESTree.Node | null)
+  ) {
+    return null;
+  }
+  addImportSpecifierQualifier(specifier as TSESTree.Node, fqn);
+  if (typeof importDeclaration?.source?.value === 'string') {
+    const importedQualifiers = importDeclaration.source.value.split('/');
+    fqn.unshift(...importedQualifiers);
+    return fqn.join('.');
+  }
+  return checkFqnFromTsImportEquals(
+    variable,
+    importDeclaration as TSESTree.Node | null,
+    context,
+    fqn,
+    visitedVars,
+  );
+}
+
+function addImportSpecifierQualifier(specifier: TSESTree.Node, fqn: string[]): void {
+  if (
+    specifier.type === 'ImportSpecifier' &&
+    specifier.imported.type === 'Identifier' &&
+    specifier.imported.name !== 'default'
+  ) {
+    fqn.unshift(specifier.imported.name);
+  }
+}
+
+function checkFqnFromTsImportEquals(
+  variable: Scope.Variable,
+  importDeclaration: TSESTree.Node | null,
+  context: Rule.RuleContext,
+  fqn: string[],
+  visitedVars: Scope.Variable[],
+) {
+  if (importDeclaration?.type !== 'TSImportEqualsDeclaration') {
+    return null;
+  }
+
+  const importedModule = importDeclaration.moduleReference;
+  if (
+    importedModule.type === 'TSExternalModuleReference' &&
+    importedModule.expression.type === 'Literal' &&
+    typeof importedModule.expression.value === 'string'
+  ) {
+    const importedQualifiers = importedModule.expression.value.split('/');
+    fqn.unshift(...importedQualifiers);
+    return fqn.join('.');
+  }
+  if (importedModule.type === 'TSQualifiedName') {
+    visitedVars.push(variable);
+    return getFullyQualifiedNameRaw(
+      context,
+      importedModule as unknown as estree.Node,
+      fqn,
+      variable.scope,
+      visitedVars,
+    );
   }
   return null;
+}
+
+function isTypeOnlyImportBinding(
+  specifier: TSESTree.Node,
+  importDeclaration: TSESTree.Node | null,
+): boolean {
+  return (
+    (importDeclaration?.type === 'ImportDeclaration' && isTypeOnlyImport(importDeclaration)) ||
+    (specifier.type === 'ImportSpecifier' &&
+      (specifier as TSESTree.ImportSpecifier).importKind === 'type') ||
+    (importDeclaration?.type === 'TSImportEqualsDeclaration' &&
+      (importDeclaration as TSESTree.TSImportEqualsDeclaration).importKind === 'type')
+  );
 }
 
 function checkFqnFromRequire(
@@ -562,13 +603,7 @@ function reduceTo<T extends estree.Node['type']>(
 
   while (nodeToCheck.type !== type) {
     if (nodeToCheck.type === 'MemberExpression') {
-      const { property } = nodeToCheck;
-      if (property.type === 'Literal' && typeof property.value === 'string') {
-        fqn.unshift(property.value);
-      } else if (property.type === 'Identifier') {
-        fqn.unshift(property.name);
-      }
-      nodeToCheck = nodeToCheck.object;
+      nodeToCheck = reduceMemberExpression(nodeToCheck, fqn);
     } else if (nodeToCheck.type === 'CallExpression' && !getModuleNameFromRequire(nodeToCheck)) {
       nodeToCheck = nodeToCheck.callee;
     } else if (nodeToCheck.type === 'TaggedTemplateExpression') {
@@ -591,4 +626,17 @@ function reduceTo<T extends estree.Node['type']>(
   }
 
   return nodeToCheck;
+}
+
+function reduceMemberExpression(
+  node: estree.MemberExpression,
+  fqn: string[],
+): estree.Expression | estree.Super {
+  const { property } = node;
+  if (property.type === 'Literal' && typeof property.value === 'string') {
+    fqn.unshift(property.value);
+  } else if (property.type === 'Identifier') {
+    fqn.unshift(property.name);
+  }
+  return node.object;
 }
