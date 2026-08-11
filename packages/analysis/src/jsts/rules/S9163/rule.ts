@@ -19,12 +19,7 @@
 import type { Rule, SourceCode } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type estree from 'estree';
-import {
-  childrenOf,
-  findFirstMatchingLocalAncestor,
-  getNodeParent,
-  localAncestorsChain,
-} from '../helpers/ancestor.js';
+import { childrenOf, getNodeParent, localAncestorsChain } from '../helpers/ancestor.js';
 import {
   getVariableFromName,
   isIdentifier,
@@ -207,10 +202,38 @@ function resolveMutationTarget(
  */
 function isGuarded(mutation: Mutation): boolean {
   const node = mutation as unknown as TSESTree.Node;
-  if (findFirstMatchingLocalAncestor(node, ancestor => GUARD_ANCESTOR_TYPES.has(ancestor.type))) {
+  if (hasGuardingAncestor(node)) {
     return true;
   }
   return isReachedThroughEarlyReturnGuard(node);
+}
+
+/**
+ * Walks up the local ancestor chain looking for a guard whose conditionally-executed branch
+ * actually contains the mutation. Ancestors are only exempting if the child leading to `node` sits
+ * in a branch that doesn't always execute; e.g. an `IfStatement`'s `test`, a `ConditionalExpression`'s
+ * `test`, or a `LogicalExpression`'s left operand always run regardless of the guard's outcome, so
+ * they don't count as guarding positions.
+ */
+function hasGuardingAncestor(node: TSESTree.Node): boolean {
+  let childBelow: TSESTree.Node = node;
+  for (const ancestor of localAncestorsChain(node)) {
+    if (GUARD_ANCESTOR_TYPES.has(ancestor.type) && !isAlwaysExecutedChild(ancestor, childBelow)) {
+      return true;
+    }
+    childBelow = ancestor;
+  }
+  return false;
+}
+
+function isAlwaysExecutedChild(ancestor: TSESTree.Node, child: TSESTree.Node): boolean {
+  if (ancestor.type === 'IfStatement' || ancestor.type === 'ConditionalExpression') {
+    return ancestor.test === (child as unknown as TSESTree.Expression);
+  }
+  if (ancestor.type === 'LogicalExpression') {
+    return ancestor.left === (child as unknown as TSESTree.Expression);
+  }
+  return false;
 }
 
 function isReachedThroughEarlyReturnGuard(node: TSESTree.Node): boolean {
