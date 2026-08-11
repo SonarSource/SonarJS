@@ -534,6 +534,22 @@ describe('suite', () => {
           errors: [{ messageId: 'asyncHelperCall' }],
         },
         {
+          // AWS CDK assertion boundary
+          code: `import { describe, it } from 'mocha';
+import { Template } from 'aws-cdk-lib/assertions';
+
+async function registerTests() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+
+describe('stack', () => {
+  Template.fromStack({}).hasResourceProperties('AWS::S3::Bucket', {});
+  registerTests();
+});`,
+          errors: [{ messageId: 'asyncHelperCall' }],
+        },
+        {
           // User-defined async helper named after a framework hook (e.g. 'before') must be
           // reported — the bare-name match against TEST_FRAMEWORK_STRUCTURE_FUNCTIONS must not
           // exempt it without verifying import provenance.
