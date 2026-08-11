@@ -89,6 +89,15 @@ function handleUpdate() {
 }
 onUpdated(handleUpdate);
 
+// Unlike handleUpdate above (a function declaration, resolved via resolveFunction()'s FunctionName
+// branch), this is a variable initialized with an arrow function - resolved by the fallback branch
+// in resolveHookFunction() that resolveFunction() alone doesn't cover.
+const arrowHandlerCount = ref(0);
+const arrowHandler = () => {
+  arrowHandlerCount.value++; // Noncompliant {{Don't unconditionally mutate reactive state in this hook; this can trigger an infinite update loop.}}
+};
+onUpdated(arrowHandler);
+
 const indirectCount = ref(0);
 function performIncrement() {
   indirectCount.value++;
