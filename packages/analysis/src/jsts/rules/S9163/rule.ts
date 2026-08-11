@@ -38,6 +38,7 @@ const messages = {
 };
 
 const VUE_ON_UPDATED_FQN = 'vue.onUpdated';
+const VUE_DEFINE_COMPONENT_FQN = 'vue.defineComponent';
 const UPDATED_HOOK_NAME = 'updated';
 const REF_VALUE_PROPERTY = 'value';
 const FUNCTION_BOUNDARIES = new Set([
@@ -82,7 +83,12 @@ export const rule: Rule.RuleModule = {
         const isUpdatedKey =
           isIdentifier(node.key, UPDATED_HOOK_NAME) ||
           (isStringLiteral(node.key) && node.key.value === UPDATED_HOOK_NAME);
-        if (isUpdatedKey && getNodeParent(node)?.type === 'ObjectExpression') {
+        const parent = getNodeParent(node);
+        if (
+          isUpdatedKey &&
+          parent?.type === 'ObjectExpression' &&
+          isVueComponentOptionsObject(context, parent)
+        ) {
           registerHook(node.value);
         }
       },
@@ -97,6 +103,32 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+/**
+ * Whether `node` is recognizable as a Vue component options object, so an unrelated object that
+ * merely happens to have an `updated` key (a cache, a "last updated" flag, an event handler map,
+ * ...) isn't treated as a lifecycle hook just because of the key's name. Recognized shapes: the
+ * sole argument to `defineComponent(...)`, or a module's default export (`export default {...}`;
+ * `export default defineComponent({...})` is already covered by the first branch, since that's the
+ * object literal's direct parent). Legacy Vue 2 patterns such as `Vue.extend({...})` are
+ * intentionally not covered - never guess when a narrower, well-understood signal is available.
+ */
+function isVueComponentOptionsObject(
+  context: Rule.RuleContext,
+  node: estree.ObjectExpression,
+): boolean {
+  const parent = getNodeParent(node);
+  if (!parent) {
+    return false;
+  }
+  if (parent.type === 'ExportDefaultDeclaration') {
+    return true;
+  }
+  return (
+    parent.type === 'CallExpression' &&
+    getFullyQualifiedName(context, parent) === VUE_DEFINE_COMPONENT_FQN
+  );
+}
 
 /**
  * Resolves the function backing a hook registration: an inline arrow/function literal, or a named
