@@ -534,8 +534,11 @@ describe('suite', () => {
           errors: [{ messageId: 'asyncHelperCall' }],
         },
         {
-          // AWS CDK assertion boundary
+          // AWS CDK assertion boundary: the assertion must not be resolved as a local helper,
+          // while the adjacent local async helper is still reported.
           code: `import { describe, it } from 'mocha';
+import { Stack } from 'aws-cdk-lib';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
 import { Template } from 'aws-cdk-lib/assertions';
 
 async function registerTests() {
@@ -544,7 +547,11 @@ async function registerTests() {
 }
 
 describe('stack', () => {
-  Template.fromStack({}).hasResourceProperties('AWS::S3::Bucket', {});
+  const stack = new Stack();
+  new Bucket(stack, 'Bucket', { bucketName: 'example-bucket' });
+  Template.fromStack(stack).hasResourceProperties('AWS::S3::Bucket', {
+    BucketName: 'example-bucket',
+  });
   registerTests();
 });`,
           errors: [{ messageId: 'asyncHelperCall' }],
