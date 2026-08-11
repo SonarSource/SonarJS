@@ -71,7 +71,11 @@ function findMixinsProperty(node: estree.ObjectExpression): estree.Property | un
   return node.properties.find(
     (property): property is estree.Property =>
       property.type === 'Property' &&
-      (isIdentifier(property.key, MIXINS_PROPERTY_NAME) ||
+      // a computed identifier key, e.g. `{ [mixins]: [...] }`, reads a variable named `mixins`
+      // rather than declaring a `mixins` property, so it's excluded here. A computed string
+      // literal key, e.g. `{ ['mixins']: [...] }`, does mean the same thing as a plain `mixins:`
+      // key, so it's still accepted by the isStringLiteral() branch below regardless of `computed`.
+      ((!property.computed && isIdentifier(property.key, MIXINS_PROPERTY_NAME)) ||
         (isStringLiteral(property.key) && property.key.value === MIXINS_PROPERTY_NAME)),
   );
 }

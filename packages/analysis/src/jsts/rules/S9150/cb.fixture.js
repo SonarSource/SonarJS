@@ -13,3 +13,13 @@ export const CompliantComponent = {
     return { count, increment };
   },
 };
+
+const mixins = ['not', 'a', 'real', 'mixins', 'array'];
+
+export const ComputedIdentifierKey = {
+  [mixins]: [counterMixin], // compliant: computed key reads the "mixins" variable, does not declare a "mixins" property
+};
+
+export const ComputedStringLiteralKey = {
+  ['mixins']: [counterMixin], // Noncompliant {{Replace this mixin with a Vue composable.}}
+};
