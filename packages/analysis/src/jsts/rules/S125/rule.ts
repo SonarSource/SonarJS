@@ -180,6 +180,7 @@ function containsCode(value: string, context: Rule.RuleContext) {
     filePath: `placeholder${path.extname(context.filename)}`,
     programs: undefined,
     project: undefined,
+    projectService: undefined,
   };
   //In case of Vue parser: we will use the JS/TS parser instead of the Vue parser
   const parser = context.languageOptions?.parserOptions?.parser ?? context.languageOptions?.parser;
