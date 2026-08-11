@@ -18,3 +18,4 @@
 
 export const implementation = 'original';
 export const eslintId = 'testing-library-prefer-query-by-disappearance';
+export const quickFixMessage = 'Replace getBy* with queryBy*';

@@ -23,7 +23,7 @@
   "ruleSpecification": "RSPEC-9153",
   "sqKey": "S9153",
   "scope": "Tests",
-  "quickfix": "unknown",
+  "quickfix": "partial",
   "code": {
     "impacts": {
       "RELIABILITY": "MEDIUM"

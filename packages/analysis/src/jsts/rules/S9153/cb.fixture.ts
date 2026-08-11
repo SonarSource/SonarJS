@@ -8,13 +8,16 @@ import {
   waitForElementToBeRemoved as pureWait,
 } from '@testing-library/react/pure';
 
-await wait(() => tlScreen.getByRole('alert')); // Noncompliant {{This callback cannot observe removal because getBy* throws when the element is absent.}}
+await wait(() => tlScreen.getByRole('alert')); // Noncompliant [[get_by!]] {{Use a queryBy* callback so waitForElementToBeRemoved can report a clear error when the element is already absent.}}
 //                        ^^^^^^^^^
+// edit@get_by [[sc=26;ec=29]] {{query}}
 await wait(() => {
-  return tlScreen.getAllByRole('alert'); // Noncompliant {{This callback cannot observe removal because getBy* throws when the element is absent.}}
+  return tlScreen.getAllByRole('alert'); // Noncompliant [[get_all_by!]] {{Use a queryBy* callback so waitForElementToBeRemoved can report a clear error when the element is already absent.}}
 });
+// edit@get_all_by [[sc=18;ec=21]] {{query}}
 await wait(function () {
-  return tlScreen.getByText('alert'); // Noncompliant {{This callback cannot observe removal because getBy* throws when the element is absent.}}
+  return tlScreen.getByText('alert'); // Noncompliant [[get_by_text!]] {{Use a queryBy* callback so waitForElementToBeRemoved can report a clear error when the element is already absent.}}
+  // edit@get_by_text [[sc=18;ec=21]] {{query}}
 });
 
 await wait(tlScreen.findByRole('alert')); // Noncompliant {{A findBy* query returns a promise, not the element required by this disappearance wait.}}
@@ -26,7 +29,8 @@ await wait(function () {
 await vueTestingLibrary.waitForElementToBeRemoved(
   () => vueTestingLibrary.screen.findByRole('alert'), // Noncompliant {{A findBy* query returns a promise, not the element required by this disappearance wait.}}
 );
-await pureWait(() => pureScreen.getAllByRole('alert')); // Noncompliant {{This callback cannot observe removal because getBy* throws when the element is absent.}}
+await pureWait(() => pureScreen.getAllByRole('alert')); // Noncompliant [[pure_get_all_by!]] {{Use a queryBy* callback so waitForElementToBeRemoved can report a clear error when the element is already absent.}}
+// edit@pure_get_all_by [[sc=32;ec=35]] {{query}}
 
 await wait(() => tlScreen.queryByRole('alert'));
 await wait(() => tlScreen.queryAllByRole('alert'));

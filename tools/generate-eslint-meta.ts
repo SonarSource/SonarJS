@@ -69,7 +69,10 @@ export async function generateMetaForRule(
       ___DESCRIPTION___: ruleRspecMeta.title.replace(/'/g, "\\'"),
       ___RECOMMENDED___: sonarWayProfile.ruleKeys.includes(sonarKey),
       ___TYPE_CHECKING___: `${tags.includes('type-dependent')}`,
-      ___FIXABLE___: ruleRspecMeta.quickfix === 'covered' ? "'code'" : undefined,
+      ___FIXABLE___:
+        ruleRspecMeta.quickfix === 'covered' || ruleRspecMeta.quickfix === 'partial'
+          ? "'code'"
+          : undefined,
       ___DEPRECATED___: `${ruleRspecMeta.status === 'deprecated'}`,
       ___DEFAULT_OPTIONS___: JSON.stringify(defaultOptions(eslintConfiguration), null, 2),
       ___LANGUAGES___: JSON.stringify(ruleRspecMeta.compatibleLanguages),
