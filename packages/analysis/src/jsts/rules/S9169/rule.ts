@@ -74,7 +74,8 @@ function isDirectProgramExpression(
   node: estree.CallExpression,
 ): boolean {
   const ancestors = context.sourceCode.getAncestors(node);
-  const [grandparent, parent] = ancestors.slice(-2);
+  const parent = ancestors.at(-1);
+  const grandparent = parent ? context.sourceCode.getAncestors(parent).at(-1) : undefined;
   return (
     parent?.type === 'ExpressionStatement' &&
     parent.expression === node &&
