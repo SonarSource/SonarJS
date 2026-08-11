@@ -25,7 +25,7 @@ import {
   getRootCall,
   unwrapChainExpression,
 } from '../helpers/expect-call-chain.js';
-import { extractTestCase } from '../helpers/mocha.js';
+import { extractTestCase } from '../helpers/testing/mocha.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 

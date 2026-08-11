@@ -5,9 +5,6 @@
 "Ghost:core/client/app/adapters/user.js": [
 9
 ],
-"Ghost:core/client/app/components/gh-profile-image.js": [
-119
-],
 "Ghost:core/client/app/components/modals/invite-new-user.js": [
 45,
 54,

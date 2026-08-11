@@ -23,8 +23,8 @@ import {
   isIdentifier,
   isStaticTemplateLiteral,
   isStringLiteral,
-} from './ast.js';
-import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
+} from '../ast.js';
+import { getFullyQualifiedName, importsOrDependsOnModule } from '../module.js';
 
 export const SUPPORTED_TEST_FRAMEWORKS = [
   'bun:test',

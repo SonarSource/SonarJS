@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
-import { isIdentifier } from './ast.js';
+import { isIdentifier } from '../ast.js';
 
 const describeModifiers = ['parallel', 'serial'];
 const EXPECT_FQN_ROOTS = [

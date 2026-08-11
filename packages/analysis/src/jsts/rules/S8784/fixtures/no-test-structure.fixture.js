@@ -4,9 +4,10 @@
 // it/test/specify, no Playwright test/describe). The fate of a top-level assertion
 // then depends entirely on its library:
 //
-//  * script-capable (node `assert`, chai, sinon, supertest) runs in a plain
-//    `node file.js`, so a top-level assertion IS the test — a standalone smoke
-//    test (e.g. jquery's `node_smoke_tests/document_missing.js`). NOT flagged.
+//  * script-capable (node `assert`, chai, sinon, supertest, AWS CDK) runs in a
+//    plain `node file.js`, so a top-level assertion IS the test — a standalone
+//    smoke test (e.g. jquery's `node_smoke_tests/document_missing.js`), or a CDK
+//    template check run as a deployment gate. NOT flagged.
 //  * runner-bound (global `expect`, cypress `cy`) cannot exist without a runner
 //    executing the file, so a top-level occurrence is genuinely misplaced even
 //    with no describe/it anywhere (rspec example #1). STILL flagged — staying
@@ -18,6 +19,7 @@ const assert = require('node:assert');
 const { expect: chaiExpect } = require('chai');
 const sinon = require('sinon');
 const supertest = require('supertest');
+const { Template } = require('aws-cdk-lib/assertions');
 
 // --- script-capable: standalone-script semantics, not flagged ---
 assert.throws(() => {
@@ -27,6 +29,7 @@ assert.strictEqual(a, b); // Compliant
 chaiExpect(value).to.equal(1); // Compliant
 sinon.assert.calledOnce(spy); // Compliant
 supertest(app).get('/').expect(200); // Compliant
+Template.fromStack(stack).hasResourceProperties('AWS::S3::Bucket', {}); // Compliant
 
 // --- runner-bound: still flagged ---
 expect(value).toBe(1); // Noncompliant {{Move this assertion into a test case or a lifecycle hook.}}

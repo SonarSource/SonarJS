@@ -20,14 +20,14 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { FUNCTION_NODES, isIdentifier } from '../helpers/ast.js';
-import { isTestCase } from '../helpers/mocha.js';
+import { isTestCase } from '../helpers/testing/mocha.js';
 import {
   isMochaTestConstruct,
   collectMemberChain,
   getPlaywrightTestQualifiers,
   PLAYWRIGHT_TEST_MODIFIERS,
   TEST_FUNCTION_NAMES,
-} from '../helpers/mocha-style-test-frameworks.js';
+} from '../helpers/testing/mocha-style-test-frameworks.js';
 import { importsModule, importsOrDependsOnModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 

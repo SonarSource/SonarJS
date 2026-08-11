@@ -22,7 +22,7 @@ import { getVariableFromScope, isIdentifier } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
-import { getMochaCalleeParts } from '../helpers/mocha-style-test-frameworks.js';
+import { getMochaCalleeParts } from '../helpers/testing/mocha-style-test-frameworks.js';
 import * as meta from './generated-meta.js';
 
 const messages = {

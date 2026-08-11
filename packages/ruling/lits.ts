@@ -158,12 +158,38 @@ async function writeIssues(
     projectDir,
     `${languagePrefix[language]}-${handleS124(ruleId, language)}.json`,
   );
+  const sortedIssues = sortIssueLines(issues);
   await fs.writeFile(
     issueFilename,
     // we space at the beginning of lines
-    // and we sort the keys
-    JSON.stringify(issues, Object.keys(issues).sort(), 1).replaceAll(/\n\s+/g, '\n') + '\n',
+    // and we sort the keys while preserving the historical snapshot order
+    JSON.stringify(sortedIssues, Object.keys(sortedIssues).sort(compareIssueKeys), 1).replaceAll(
+      /\n\s+/g,
+      '\n',
+    ) + '\n',
   );
+}
+
+function sortIssueLines(issues: FileIssues): FileIssues {
+  return Object.fromEntries(
+    Object.entries(issues).map(([filename, lines]) => [
+      filename,
+      [...lines].sort((left, right) => left - right),
+    ]),
+  );
+}
+
+function compareIssueKeys(left: string, right: string) {
+  const sharedLength = Math.min(left.length, right.length);
+
+  for (let index = 0; index < sharedLength; index++) {
+    const difference = (left[index]?.codePointAt(0) ?? -1) - (right[index]?.codePointAt(0) ?? -1);
+    if (difference !== 0) {
+      return difference;
+    }
+  }
+
+  return left.length - right.length;
 }
 
 function handleS124(ruleId: string, language: 'js' | 'ts' | 'css' = 'js') {

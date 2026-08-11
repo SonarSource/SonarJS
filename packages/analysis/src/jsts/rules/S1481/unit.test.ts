@@ -14,270 +14,156 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rule } from './rule.js';
-import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
 describe('S1481', () => {
-  it('S1481', () => {
-    const ruleTester = new DefaultParserRuleTester();
+  it('S1481 (decorated: typescript-eslint/no-unused-vars)', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
 
-    ruleTester.run('Local variables should be used', rule, {
+    ruleTester.run('S1481', rule, {
       valid: [
         {
           code: `
-      var a = 0;                // OK, global
-      export let b = 0          // OK, global
+            function wrapper() {
+              const _unused = 1;
+            }
+          `,
+          options: [{ varsIgnorePattern: '^_' }],
+        },
+        {
+          code: `
+            var topLevelUnused = 1;
+            let topLevelUnusedToo = 1;
+            function topLevelHelper() {}
+          `,
+        },
+        {
+          code: `
+            export let exportedTopLevelUnused = 1;
+          `,
+        },
+        {
+          code: `
+            class TopLevelUnused {}
+          `,
+        },
+        {
+          code: `
+            /*global foo*/
+          `,
+          languageOptions: { sourceType: 'script' },
+        },
+        {
+          code: `
+            function f(unused, used) {
+              return used;
+            }
 
-      function fun() {
-        function f1() { console.log("f1"); }        // OK
-        f1();
-      }
+            console.log(f(1, 2));
+          `,
+        },
+        {
+          code: `
+            const { a, ...rest } = foo;
 
-      function bar(){
-        try {
-        } catch (e) {               // OK
-        }
+            console.log(rest);
+          `,
+        },
+        {
+          code: `
+            function f(_unused, used) {
+              return used;
+            }
 
-        bar(function unusedFunctionExpression() {});  // OK, ignore function expression
-      }
-      
-      function foo(){
-        var x1 = 1,              // OK
-         y1 = -x1;               // OK
-        foo(y1);
-      }
- 
-      function Person() {
-        this.name = null;
+            console.log(f(1, 2));
+          `,
+          options: [{ args: 'all', argsIgnorePattern: '^_' }],
+        },
+        {
+          code: `
+            function render(icon) {
+              const Icon = icon;
+              return <Icon />;
+            }
+          `,
+        },
+        {
+          code: `
+            import { foo } from './foo';
 
-        this.getName = function() {   // OK
-          return name;
-        }
-      }
-      
-      function used_in_template_string() {
-        const foo = '.';
-        return new RegExp(\`\${foo}\`);
-      }
-      `,
+            console.log('used');
+          `,
         },
       ],
       invalid: [
         {
           code: `
-      function fun() {
-        var a = 0;              // Noncompliant
-        var b = 1;              // OK
-        return b;
-      }`,
-          errors: [
-            {
-              message: `Remove the declaration of the unused 'a' variable.`,
-              line: 3,
-              endLine: 3,
-              column: 13,
-              endColumn: 14,
-            },
-          ],
+            function wrapper() {
+              const _unused = 1;
+            }
+          `,
+          errors: [{ message: "'_unused' is assigned a value but never used." }],
         },
         {
           code: `
-      function fun1() {
-        var a = 0;              // OK
-        function nested() {     // Noncompliant
-          a =  1;
-        }
-      }
-      
-      function fun2() {
-        var a = 0;              // Noncompliant
-        function nested(a) {    // Noncompliant
-          a =  1;
-        }
-      }
-      
-      function fun3() {
-          let a = 0;              // Noncompliant
-          const b = 1;            // Noncompliant
-          let c                   // OK
-          return c;
-      }
-      
-      function* fun4() {
-          var a = 0;              // Noncompliant
-          var b = 1;              // OK
-          return b;
-      }`,
-          errors: [
-            {
-              message: `Remove unused function 'nested'.`,
-              line: 4,
-            },
-            {
-              messageId: 'unusedVariable',
-              line: 10,
-            },
-            {
-              messageId: 'unusedFunction',
-              line: 11,
-            },
-            {
-              messageId: 'unusedVariable',
-              line: 17,
-            },
-            {
-              messageId: 'unusedVariable',
-              line: 18,
-            },
-            {
-              messageId: 'unusedVariable',
-              line: 24,
-            },
-          ],
+            function wrapper() {
+              var localUnused = 1;
+            }
+          `,
+          errors: [{ message: "'localUnused' is assigned a value but never used." }],
         },
         {
           code: `
-      function fun1() {
-        var f1 = function() { console.log("f1"); }  // Noncompliant
-      }
-      
-      function fun2() {
-        function f1() { console.log("f1"); }        // Noncompliant
-      }
-      
-      class C {
-          f() {
-              var a;              // Noncompliant
-          }
-      }
-      
-      var f = (p) => {
-          var x;                  // Noncompliant
-          var y = p.y;            // Noncompliant
-      }
-      
-      var f = p => {
-        var x;                    // Noncompliant
-      }   
-
-      function foo(){
-        var x = 1;               // Noncompliant
-        var x = 2;              // Noncompliant
-      
-        class A {}      // OK, ignore anything except variables and functions
-      }
-      `,
-          errors: [
-            {
-              messageId: 'unusedVariable',
-              line: 3,
-            },
-            {
-              messageId: 'unusedFunction',
-              line: 7,
-            },
-            {
-              messageId: 'unusedVariable',
-              line: 12,
-            },
-            {
-              messageId: 'unusedVariable',
-              line: 17,
-            },
-            {
-              messageId: 'unusedVariable',
-              line: 18,
-            },
-            {
-              messageId: 'unusedVariable',
-              line: 22,
-            },
-            {
-              messageId: 'unusedVariable',
-              line: 26,
-            },
-            {
-              messageId: 'unusedVariable',
-              line: 27,
-            },
-          ],
+            function wrapper() {
+              function inner() {}
+            }
+          `,
+          errors: [{ message: "'inner' is defined but never used." }],
         },
         {
           code: `
-      function objectDestructuringException(obj) {
-        var {a, b, c, ...interestingProps} = obj; // OK
-        foo(interestingProps);
-      
-        var {a1, b1, c1} = obj; // Noncompliant, b1
+            function f(_unused, used) {
+              return used;
+            }
 
-        foo(a1, c1);
-      
-        var {a2, b2, c2, ...interestingProps2} = obj; // Noncompliant, interestingProps2
-
-      
-        var {a3, b: b3, c3, ...interestingProps3} = obj; // Noncompliant, b3
-
-        foo(interestingProps3);
-      
-        var {} = obj;
-      }`,
-          errors: [
-            {
-              message: `Remove the declaration of the unused 'b1' variable.`,
-              line: 6,
-              column: 18,
-            },
-            {
-              message: `Remove the declaration of the unused 'interestingProps2' variable.`,
-              line: 10,
-              column: 29,
-            },
-            {
-              message: `Remove the declaration of the unused 'b3' variable.`,
-              line: 13,
-              column: 21,
-            },
-          ],
+            console.log(f(1, 2));
+          `,
+          options: [{ args: 'all' }],
+          errors: [{ message: "'_unused' is defined but never used." }],
         },
         {
           code: `
-    const constUsed = "this is used";
-    let letUsed = "this is used";
-    var varUsed = "this is used";
-    if(constUsed && letUsed && varUsed) {
-      const constUsed = "unused"; // Noncompliant
-      let letUsed = "unused";     // Noncompliant
-      var varUsed = "used";
+            function buildQuery(queryParams) {
+              const { query: _query, ...queryParamsForCache } = queryParams;
 
-      function unusedFunc() {     // Noncompliant
-
-      }
-    }`,
-          errors: [
-            { messageId: 'unusedVariable', line: 6 },
-            { messageId: 'unusedVariable', line: 7 },
-            { messageId: 'unusedFunction', line: 10 },
-          ],
+              console.log(queryParamsForCache);
+            }
+          `,
+          errors: [{ message: "'_query' is assigned a value but never used." }],
         },
         {
           code: `
-      function used_in_jsx(icon) {
-        const UsedIcon   = icon;
-        const UnusedIcon = icon; // Noncompliant
-        const lowerCased = icon;
-        const tagContent = "content"
-        const tagAttribute = "attribute";
+            function assign(foo) {
+              let a, rest;
 
-        // even if React requires user-defined components to start from capital letter
-        // let's test name starting from lower-cased letter
-        <lowerCased />;
-        return <UsedIcon someAttr={tagAttribute}>{tagContent}</UsedIcon>;
-      }
-      `,
-          errors: [
-            { line: 4, message: `Remove the declaration of the unused \'UnusedIcon\' variable.` },
-          ],
+              ({ a, ...rest } = foo);
+              console.log(rest);
+            }
+          `,
+          errors: [{ message: "'a' is assigned a value but never used." }],
+        },
+        {
+          code: `
+            function render(icon) {
+              const UsedIcon = icon;
+              const UnusedIcon = icon;
+
+              return <UsedIcon />;
+            }
+          `,
+          errors: [{ message: "'UnusedIcon' is assigned a value but never used." }],
         },
       ],
     });

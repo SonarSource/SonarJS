@@ -433,8 +433,58 @@ test('member-based playwright expect entrypoints', async ({ page }) => {
 });
 `,
         },
+        {
+          // `node:test` hands the test its own assertion API on the context parameter.
+          code: `
+import test from 'node:test';
+import { startVitest } from 'vitest/node';
+
+await test('importing vitest in the global setup is reported as an error', async t => {
+  const vitest = await startVitest('test', [], {
+    root: './fixtures/globalSetup',
+    globalSetup: ['./failing.ts'],
+    reporters: [{}],
+  });
+  const modules = vitest.state.getTestModules();
+  t.assert.equal(modules.length, 1);
+  t.assert.equal(modules[0].state(), 'passed');
+});
+`,
+        },
+        {
+          code: `
+import { it } from 'node:test';
+
+it('recognizes the context assertion in a named entry point', ctx => {
+  ctx.assert.ok(value);
+});
+`,
+        },
+        {
+          code: `
+import test from 'node:test';
+import { startVitest } from 'vitest/node';
+
+test.skip('recognizes a context assertion in a skipped test', t => {
+  t.assert.ok(startVitest);
+});
+`,
+        },
       ],
       invalid: [
+        {
+          // `assert` here is an unrelated local, not the runner-supplied test context.
+          code: `
+import test from 'node:test';
+import assert from 'node:assert';
+
+test('a lookalike receiver is not a test context', () => {
+  const helper = { assert: { equal() {} } };
+  helper.assert.equal(1, 1);
+});
+`,
+          errors: 1,
+        },
         {
           code: `
 import { test } from 'bun:test';
@@ -698,6 +748,16 @@ test('recognizes typed AWS CDK template assertions', () => {
   const template = Template.fromStack({});
   template.hasResourceProperties('AWS::S3::Bucket', {});
   template.resourceCountIs('AWS::S3::Bucket', 1);
+});
+`,
+        },
+        {
+          code: `
+import test from 'node:test';
+import { startVitest } from 'vitest/node';
+
+test.only('recognizes a typed context assertion in a focused test', t => {
+  t.assert.ok(startVitest);
 });
 `,
         },
@@ -1155,6 +1215,37 @@ test('member-based playwright expect entrypoints', async ({ page }) => {
         },
       ],
       invalid: [
+        {
+          code: `
+import test from 'node:test';
+import { startVitest } from 'vitest/node';
+
+test('does not treat a typed shadowed context name as an assertion', t => {
+  (() => {
+    const t = { assert: { ok() {} } };
+    t.assert.ok(startVitest);
+  })();
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import { test } from 'vitest';
+
+test('logging to stdout', () => {
+  console.log('log with trace');
+  console.info('info with trace');
+  console.debug('debug with trace');
+  console.dir({ hello: 'from dir with trace' });
+  console.warn('warn with trace');
+  console.assert(false, 'assert with trace');
+  console.error('error with trace');
+  console.trace('trace with trace');
+});
+`,
+          errors: 1,
+        },
         {
           code: `
 import test from 'node:test';

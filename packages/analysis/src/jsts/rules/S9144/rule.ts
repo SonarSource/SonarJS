@@ -22,12 +22,11 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import {
   getUniqueWriteReference,
   getVariableFromName,
-  getVariableFromScope,
   isIdentifier,
   isMethodCall,
 } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getFullyQualifiedName, isRequire } from '../helpers/module.js';
+import { getFullyQualifiedName, isRequire, isRequireShadowed } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 
 type JQueryMethod = {
@@ -208,11 +207,6 @@ function isDirectJQueryRequireBinding(
     definition.node.id.type === 'Identifier' &&
     value !== undefined &&
     isRequire(value) &&
-    isUnshadowedRequire(context, value)
+    !isRequireShadowed(context.sourceCode, value)
   );
-}
-
-function isUnshadowedRequire(context: Rule.RuleContext, node: estree.Node): boolean {
-  const requireVariable = getVariableFromScope(context.sourceCode.getScope(node), 'require');
-  return requireVariable === undefined || requireVariable.defs.length === 0;
 }

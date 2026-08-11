@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
-import { isAssertion, isTSAssertion } from '../../../../src/jsts/rules/helpers/cypress.js';
+import { isAssertion, isTSAssertion } from '../../../../src/jsts/rules/helpers/testing/cypress.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';

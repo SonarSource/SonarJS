@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { areEquivalent } from '../helpers/equivalence.js';
-import { isImported as isChaiImported } from '../helpers/chai.js';
+import { isImported as isChaiImported } from '../helpers/testing/chai.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier, isLiteral } from '../helpers/ast.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
@@ -101,11 +101,7 @@ function checkShould(context: Rule.RuleContext, expression: estree.Expression) {
 function findDuplicates(context: Rule.RuleContext, args: estree.Node[]) {
   for (let i = 0; i < args.length; i++) {
     for (let j = i + 1; j < args.length; j++) {
-      const duplicates = areEquivalent(
-        args[i],
-        args[j],
-        context.sourceCode,
-      );
+      const duplicates = areEquivalent(args[i], args[j], context.sourceCode);
       if (duplicates && !isLiteral(args[i])) {
         report(context, { message: `Replace this argument or its duplicate.`, node: args[i] }, [
           toSecondaryLocation(args[j]),

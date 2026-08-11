@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
-import { isIdentifier } from './ast.js';
+import { isIdentifier } from '../ast.js';
 import ts from 'typescript';
 
 const ASSERTION_METHODS = ['should', 'and'];

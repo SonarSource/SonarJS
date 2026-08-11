@@ -181,14 +181,20 @@ function getUnshadowedRequireModuleName(
   if (requireCall === undefined) {
     return undefined;
   }
-  const requireVariable = getVariableFromScope(sourceCode.getScope(requireCall), 'require');
-  if (requireVariable?.defs.length) {
+  if (isRequireShadowed(sourceCode, requireCall)) {
     return undefined;
   }
   const moduleName = requireCall.arguments[0];
   return moduleName?.type === 'Literal' && typeof moduleName.value === 'string'
     ? moduleName.value
     : undefined;
+}
+
+export function isRequireShadowed(
+  sourceCode: SourceCode,
+  requireCall: estree.CallExpression,
+): boolean {
+  return !!getVariableFromScope(sourceCode.getScope(requireCall), 'require')?.defs.length;
 }
 
 function isNode(value: unknown): value is estree.Node {

@@ -21,6 +21,7 @@ import tsParser from '@typescript-eslint/parser';
 import {
   getCurrentFileModuleReferences,
   getFullyQualifiedName,
+  isRequireShadowed,
 } from '../../../../src/jsts/rules/helpers/module.js';
 
 function collectModuleReferences(source: string, parser?: LinterNS.Parser): Set<string> {
@@ -170,3 +171,46 @@ describe('getFullyQualifiedName', () => {
     );
   });
 });
+
+describe('isRequireShadowed', () => {
+  it('returns false for the global require', () => {
+    expect(getRequireShadowing("require('lodash');")).toBe(false);
+  });
+
+  it('returns true for a require parameter', () => {
+    expect(getRequireShadowing("function load(require) { require('lodash'); }")).toBe(true);
+  });
+});
+
+function getRequireShadowing(source: string): boolean | undefined {
+  let shadowed: boolean | undefined;
+  const captureRequire: Rule.RuleModule = {
+    create(context) {
+      return {
+        CallExpression(node) {
+          if (node.callee.type === 'Identifier' && node.callee.name === 'require') {
+            shadowed = isRequireShadowed(context.sourceCode, node);
+          }
+        },
+      };
+    },
+  };
+
+  new Linter().verify(source, {
+    languageOptions: {
+      ecmaVersion: 'latest',
+    },
+    plugins: {
+      test: {
+        rules: {
+          captureRequire,
+        },
+      },
+    },
+    rules: {
+      'test/captureRequire': 'error',
+    },
+  });
+
+  return shadowed;
+}

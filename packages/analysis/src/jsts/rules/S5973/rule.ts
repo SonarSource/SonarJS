@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { isIdentifier, isMethodInvocation } from '../helpers/ast.js';
-import { isDescribeCase } from '../helpers/mocha.js';
+import { isDescribeCase } from '../helpers/testing/mocha.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
