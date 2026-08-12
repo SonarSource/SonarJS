@@ -364,6 +364,9 @@ export class Linter {
       detectedModuleType,
       detectGeneratedCode: Linter.detectGeneratedCode,
       isGeneratedSource,
+      isTypeScriptParser:
+        sourceCode?.parserServices?.esTreeNodeToTSNodeMap != null &&
+        sourceCode?.parserServices?.tsNodeToESTreeNodeMap != null,
     };
     const linterConfigKey = createLinterConfigKey(filePath, Linter.baseDir, baseContext);
     let baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey);
@@ -510,6 +513,7 @@ function createLinterConfigKey(
     | 'detectedModuleType'
     | 'detectGeneratedCode'
     | 'isGeneratedSource'
+    | 'isTypeScriptParser'
   >,
 ): string {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
@@ -519,5 +523,5 @@ function createLinterConfigKey(
     baseDir,
   );
   const linterConfigKey = `${context.fileType}-${context.fileLanguage}-${context.analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
-  return `${linterConfigKey}:${context.detectedEsYear ?? 'esnext'}:${context.targetEsYear ?? 'target-unknown'}:${context.detectedModuleType ?? 'unknown'}:${context.detectGeneratedCode === false ? 'generated-off' : 'generated-on'}:${context.isGeneratedSource === true ? 'generated' : 'regular'}`;
+  return `${linterConfigKey}:${context.detectedEsYear ?? 'esnext'}:${context.targetEsYear ?? 'target-unknown'}:${context.detectedModuleType ?? 'unknown'}:${context.detectGeneratedCode === false ? 'generated-off' : 'generated-on'}:${context.isGeneratedSource === true ? 'generated' : 'regular'}:${context.isTypeScriptParser ? 'typescript-parser' : 'babel-parser'}`;
 }
