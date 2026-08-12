@@ -168,10 +168,14 @@ function isWindowMessageReceiver(node: estree.Node, context: Rule.RuleContext) {
  * The write is looked up on the `window` variable when the analysis configuration declares it as
  * a global, and among the unresolved references of the enclosing scope otherwise. Only the second
  * case is known to occur in practice; the first is covered so that the check does not depend on
- * whether `window` happens to be declared.
+ * whether `window` happens to be declared. A locally declared `window` is ignored because it does
+ * not mutate the global.
  */
 function isWindowAliasedToWorkerGlobal(node: estree.Node, context: Rule.RuleContext) {
   const variable = getVariableFromName(context, 'window', node);
+  if (variable?.defs.length) {
+    return false;
+  }
   const writes = variable
     ? variable.references.filter(reference => reference.isWrite())
     : context.sourceCode.getScope(node).through.filter(reference => reference.isWrite());

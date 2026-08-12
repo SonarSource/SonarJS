@@ -385,6 +385,16 @@ describe('S2819', () => {
         },
         {
           code: `
+      const window = self;
+      globalThis.onmessage = event => {
+        console.log(event.data);
+      };
+            `,
+          languageOptions: { sourceType: 'module' },
+          errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
+          code: `
       const target = window;
       const handleMessage = function (event) {
         console.log(event.data);
