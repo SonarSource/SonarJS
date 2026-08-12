@@ -1,3 +1,5 @@
+import { test, expect } from '@playwright/test';
+
 test('opens the dashboard', async ({ page }) => {
   await page.goto('/dashboard');
   await page.waitForLoadState('networkidle');
