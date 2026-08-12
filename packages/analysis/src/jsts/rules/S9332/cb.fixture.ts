@@ -61,6 +61,22 @@ test('options object via variable', async ({ page }): Promise<void> => {
   await page.goto('/dashboard', options);
 });
 
+test('options object wrapped with as const', async ({ page }): Promise<void> => {
+  await page.goto('/dashboard', { waitUntil: 'networkidle' } as const); // Noncompliant {{Replace this "networkidle" wait with a web-first assertion or a specific readiness condition.}}
+  //                                         ^^^^^^^^^^^^^
+});
+
+test('options object via variable wrapped with as const', async ({ page }): Promise<void> => {
+  const options = { waitUntil: 'networkidle' } as const; // Noncompliant {{Replace this "networkidle" wait with a web-first assertion or a specific readiness condition.}}
+  //                           ^^^^^^^^^^^^^
+  await page.goto('/dashboard', options);
+});
+
+test('options object wrapped with satisfies', async ({ page }): Promise<void> => {
+  await page.goto('/dashboard', { waitUntil: 'networkidle' } satisfies object); // Noncompliant {{Replace this "networkidle" wait with a web-first assertion or a specific readiness condition.}}
+  //                                         ^^^^^^^^^^^^^
+});
+
 test('waitForLoadState state via variable with as const', async ({ page }): Promise<void> => {
   const state = 'networkidle' as const; // Noncompliant {{Replace this "networkidle" wait with a web-first assertion or a specific readiness condition.}}
   //            ^^^^^^^^^^^^^

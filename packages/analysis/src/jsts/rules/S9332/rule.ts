@@ -21,7 +21,6 @@ import type estree from 'estree';
 import {
   getProperty,
   getUniqueWriteUsage,
-  getValueOfExpression,
   isMethodCall,
   isStringLiteral,
   unwrapTypeScriptExpression,
@@ -80,7 +79,7 @@ function reportWaitForLoadState(context: Rule.RuleContext, call: estree.CallExpr
   if (!stateArgument || stateArgument.type === 'SpreadElement') {
     return;
   }
-  const stateLiteral = resolveLiteralValue(context, stateArgument);
+  const stateLiteral = resolveExpression(context, stateArgument);
   if (isNetworkidleLiteral(stateLiteral)) {
     context.report({ node: stateLiteral, message: MESSAGE });
   }
@@ -93,29 +92,33 @@ function reportWaitUntilOption(
   if (!optionsArgument || optionsArgument.type === 'SpreadElement') {
     return;
   }
-  const optionsObject = getValueOfExpression(context, optionsArgument, 'ObjectExpression');
-  if (!optionsObject) {
+  // Prefer resolveExpression over getValueOfExpression so TS wrappers on the
+  // options object itself (e.g. `{ waitUntil: 'networkidle' } as const`) are
+  // unwrapped before the ObjectExpression check.
+  const optionsObject = resolveExpression(context, optionsArgument);
+  if (!optionsObject || optionsObject.type !== 'ObjectExpression') {
     return;
   }
   const waitUntilProperty = getProperty(optionsObject, 'waitUntil', context);
   if (!waitUntilProperty) {
     return;
   }
-  const waitUntilValue = resolveLiteralValue(context, waitUntilProperty.value);
+  const waitUntilValue = resolveExpression(context, waitUntilProperty.value);
   if (isNetworkidleLiteral(waitUntilValue)) {
     context.report({ node: waitUntilValue, message: MESSAGE });
   }
 }
 
 /**
- * Resolves `expr` to its underlying literal value, unwrapping TypeScript wrapper
- * expressions (e.g. `as const`) at every step of identifier resolution. Unlike
- * `getValueOfExpression(context, expr, 'Literal')`, which only matches when the
- * resolved write expression is *directly* a `Literal` node, this also follows
- * a variable whose own initializer is TS-wrapped (e.g. `const s = 'x' as const`).
+ * Resolves `expr` to its underlying value, unwrapping TypeScript wrapper
+ * expressions (e.g. `as const`, `satisfies`) at every step of identifier
+ * resolution. Unlike `getValueOfExpression`, which only matches when the
+ * resolved write expression is *directly* the requested node type, this also
+ * follows a variable whose own initializer is TS-wrapped
+ * (e.g. `const options = { waitUntil: 'networkidle' } as const`).
  * Guards against reference cycles (e.g. `let a = a`) with a visited set.
  */
-function resolveLiteralValue(
+function resolveExpression(
   context: Rule.RuleContext,
   expr: estree.Node | undefined | null,
 ): estree.Node | undefined {
