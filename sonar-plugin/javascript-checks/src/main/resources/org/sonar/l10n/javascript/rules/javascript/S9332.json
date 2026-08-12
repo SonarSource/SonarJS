@@ -1,0 +1,32 @@
+{
+  "title": "Playwright \"networkidle\" waits should not be used",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "bad-practice",
+    "playwright"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-9332",
+  "sqKey": "S9332",
+  "scope": "Tests",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "COMPLETE"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
