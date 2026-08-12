@@ -68,3 +68,8 @@ vi.unmock('unmock-module');
 vi.hoisted((): void => {});
 vi.mocked(service).mock();
 someObject.mock();
+
+function destructuredMock(): void {
+  const { mock } = vi;
+  mock('destructured-module'); // Compliant: destructuring loses the vi/vitest receiver, out of scope
+}

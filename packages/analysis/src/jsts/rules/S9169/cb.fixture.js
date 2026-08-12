@@ -103,3 +103,8 @@ vi['mock']('computed-module');
 vi?.mock('optional-module');
 vi.mock?.('optional-call-module');
 ns.mock('namespace-member-module');
+
+function destructuredMock() {
+  const { mock } = vi;
+  mock('destructured-module'); // Compliant: destructuring loses the vi/vitest receiver, out of scope
+}

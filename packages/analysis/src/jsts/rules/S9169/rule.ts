@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { getVariableFromName, isIdentifier } from '../helpers/ast.js';
-import { getFullyQualifiedName } from '../helpers/module.js';
+import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
@@ -27,6 +27,7 @@ const MESSAGE =
   'Move this call to module scope or replace it with vi.doMock(); vi.mock is hoisted and cannot provide runtime or per-test mocking.';
 const VITEST_MOCK_FQNS = new Set(['vitest.vi.mock', 'vitest.vitest.mock']);
 const VITEST_NAMESPACE_MEMBERS = new Set(['vi', 'vitest']);
+const VITEST_MODULES = ['vitest'];
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
@@ -54,8 +55,8 @@ function isVitestMockCall(context: Rule.RuleContext, call: estree.CallExpression
   }
 
   const fqn = getFullyQualifiedName(context, call);
-  if (fqn !== null) {
-    return VITEST_MOCK_FQNS.has(fqn);
+  if (fqn !== null && VITEST_MOCK_FQNS.has(fqn)) {
+    return true;
   }
 
   return isGlobalVitestNamespace(context, call.callee.object);
@@ -66,7 +67,10 @@ function isGlobalVitestNamespace(context: Rule.RuleContext, receiver: estree.Nod
     return false;
   }
   const variable = getVariableFromName(context, receiver.name, receiver);
-  return variable === undefined || variable.defs.length === 0;
+  if (variable !== undefined && variable.defs.length > 0) {
+    return false;
+  }
+  return importsOrDependsOnModule(context, VITEST_MODULES, VITEST_MODULES);
 }
 
 function isDirectProgramExpression(
