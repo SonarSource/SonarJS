@@ -18,55 +18,6 @@ import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/r
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
-const RESERVED_WORDS = [
-  'await',
-  'break',
-  'case',
-  'catch',
-  'class',
-  'const',
-  'continue',
-  'debugger',
-  'default',
-  'delete',
-  'do',
-  'else',
-  'enum',
-  'export',
-  'extends',
-  'false',
-  'finally',
-  'for',
-  'function',
-  'if',
-  'implements',
-  'import',
-  'in',
-  'instanceof',
-  'interface',
-  'let',
-  'new',
-  'null',
-  'package',
-  'private',
-  'protected',
-  'public',
-  'return',
-  'static',
-  'super',
-  'switch',
-  'this',
-  'throw',
-  'true',
-  'try',
-  'typeof',
-  'var',
-  'void',
-  'while',
-  'with',
-  'yield',
-];
-
 describe('S7649', () => {
   it('does not report an input alias that is a JavaScript reserved word', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
@@ -83,14 +34,17 @@ describe('S7649', () => {
           `,
         },
         {
+          // future-reserved word and a contextual keyword, still whitelisted
           code: `
             @Directive()
             class ExampleDirective {
-              ${RESERVED_WORDS.map((word, i) => `@Input('${word}') member${i} = '';`).join('\n              ')}
+              @Input('enum') kind = '';
+              @Input('yield') step = '';
             }
           `,
         },
         {
+          // backtick-quoted alias (TemplateElement, not a plain string Literal)
           code: `
             @Directive()
             class ExampleDirective {
@@ -99,6 +53,7 @@ describe('S7649', () => {
           `,
         },
         {
+          // signal-based input()/input.required() alias form
           code: `
             @Component({ selector: 'app-example', template: '' })
             class ExampleComponent {
@@ -110,6 +65,7 @@ describe('S7649', () => {
       ],
       invalid: [
         {
+          // non-keyword aliases must remain reported
           code: `
             @Component({ selector: 'app-example', template: '' })
             class ExampleComponent {

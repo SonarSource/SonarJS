@@ -77,25 +77,16 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
-      if ('node' in reportDescriptor && isReservedWordAlias(reportDescriptor.node)) {
-        return;
+      if (!('node' in reportDescriptor) || !isReservedWordAlias(reportDescriptor.node)) {
+        context.report(reportDescriptor);
       }
-      context.report(reportDescriptor);
     },
   );
 }
 
 function isReservedWordAlias(node: estree.Node): boolean {
-  const alias = getAliasValue(node);
-  return alias !== undefined && RESERVED_WORDS.has(alias);
-}
-
-function getAliasValue(node: estree.Node): string | undefined {
   if (isStringLiteral(node)) {
-    return node.value;
+    return RESERVED_WORDS.has(node.value);
   }
-  if (node.type === 'TemplateElement') {
-    return node.value.cooked ?? undefined;
-  }
-  return undefined;
+  return node.type === 'TemplateElement' && RESERVED_WORDS.has(node.value.cooked ?? '');
 }
