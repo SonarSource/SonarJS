@@ -534,6 +534,29 @@ describe('suite', () => {
           errors: [{ messageId: 'asyncHelperCall' }],
         },
         {
+          // AWS CDK assertion boundary: the assertion must not be resolved as a local helper,
+          // while the adjacent local async helper is still reported.
+          code: `import { describe, it } from 'mocha';
+import { Stack } from 'aws-cdk-lib';
+import { Bucket } from 'aws-cdk-lib/aws-s3';
+import { Template } from 'aws-cdk-lib/assertions';
+
+async function registerTests() {
+  await Promise.resolve();
+  it('dropped', () => {});
+}
+
+describe('stack', () => {
+  const stack = new Stack();
+  new Bucket(stack, 'Bucket', { bucketName: 'example-bucket' });
+  Template.fromStack(stack).hasResourceProperties('AWS::S3::Bucket', {
+    BucketName: 'example-bucket',
+  });
+  registerTests();
+});`,
+          errors: [{ messageId: 'asyncHelperCall' }],
+        },
+        {
           // User-defined async helper named after a framework hook (e.g. 'before') must be
           // reported — the bare-name match against TEST_FRAMEWORK_STRUCTURE_FUNCTIONS must not
           // exempt it without verifying import provenance.
