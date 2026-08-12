@@ -18,9 +18,13 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { getVariableFromName, isIdentifier, unwrapTypeScriptExpression } from '../helpers/ast.js';
+import { isDotNotation, isIdentifier, unwrapTypeScriptExpression } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
+import {
+  isDirectTestingLibraryBinding,
+  TESTING_LIBRARY_MODULES,
+} from '../helpers/testing-library.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -28,14 +32,6 @@ const messages = {
     'A presence assertion should use a `getBy*` query so a missing element produces Testing Library diagnostics.',
   absence: 'An absence assertion should use a `queryBy*` so it can observe a missing element.',
 };
-
-const TESTING_LIBRARY_MODULES = new Set([
-  '@testing-library/dom',
-  '@testing-library/react',
-  '@testing-library/vue',
-  '@testing-library/angular',
-  '@testing-library/svelte',
-]);
 
 const PRESENCE_MATCHERS = new Set(['toBeInTheDocument', 'toBeTruthy', 'toBeDefined']);
 const ABSENCE_MATCHERS = new Set(['toBeNull', 'toBeFalsy']);
@@ -162,9 +158,7 @@ function getQueryCall(actual: estree.Expression): estree.CallExpression | null {
 
 function getQueryMethod(query: estree.CallExpression): estree.Identifier | null {
   if (
-    query.callee.type !== 'MemberExpression' ||
-    query.callee.computed ||
-    !isIdentifier(query.callee.property) ||
+    !isDotNotation(query.callee) ||
     !/^(get|query)(All)?By[A-Z]/.test(query.callee.property.name)
   ) {
     return null;
@@ -176,25 +170,10 @@ function isDirectTestingLibraryScreen(
   context: Rule.RuleContext,
   receiver: estree.Expression,
 ): boolean {
-  if (!isIdentifier(receiver)) {
-    return false;
-  }
-
-  const variable = getVariableFromName(context, receiver.name, receiver);
-  const definition = variable?.defs[0];
-  if (
-    variable?.defs.length !== 1 ||
-    definition?.type !== 'ImportBinding' ||
-    definition.node.type !== 'ImportSpecifier' ||
-    !isIdentifier(definition.node.imported, 'screen') ||
-    definition.parent.type !== 'ImportDeclaration' ||
-    typeof definition.parent.source.value !== 'string' ||
-    !TESTING_LIBRARY_MODULES.has(definition.parent.source.value)
-  ) {
-    return false;
-  }
-
-  return true;
+  return isDirectTestingLibraryBinding(context, receiver, 'screen', {
+    allowNamespaceImport: false,
+    allowSubpathImport: false,
+  });
 }
 
 function isInTestingLibraryWaitFor(context: Rule.RuleContext, node: estree.Node): boolean {
@@ -218,6 +197,6 @@ function isTestingLibraryWaitFor(context: Rule.RuleContext, node: estree.CallExp
   const fqn = getFullyQualifiedName(context, node.callee);
   return (
     fqn != null &&
-    [...TESTING_LIBRARY_MODULES].some(module => fqn === `${module.replace('/', '.')}.waitFor`)
+    TESTING_LIBRARY_MODULES.some(module => fqn === `${module.replace('/', '.')}.waitFor`)
   );
 }
