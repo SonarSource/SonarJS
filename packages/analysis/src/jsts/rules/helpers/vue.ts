@@ -19,10 +19,17 @@ import type estree from 'estree';
 import { intersects, validRange } from 'semver';
 import type { AST } from 'vue-eslint-parser';
 import { getVueVersion } from './dependency-manifests/dependencies.js';
+import { getVariableFromName } from './ast.js';
+import { getFullyQualifiedName } from './module.js';
 
 type VChildElement = AST.VElement | AST.VText | AST.VExpressionContainer | AST.VStyleElement;
 
+export type VueReactiveBindingKind = 'ref' | 'reactive';
+
 const VUE_WITH_COMPOSITION_API_RANGE = '>=2.7.0';
+
+const VUE_REF_FQN = 'vue.ref';
+const VUE_REACTIVE_FQN = 'vue.reactive';
 
 function isVueSetupScript(element: VChildElement): boolean {
   return (
@@ -59,4 +66,34 @@ export function lacksCompositionApi(context: Rule.RuleContext): boolean {
     return false;
   }
   return !intersects(vueVersionRange, VUE_WITH_COMPOSITION_API_RANGE);
+}
+
+/**
+ * Resolves `identifier` to the variable it references and, if that variable is initialized by a
+ * call to `ref()` or `reactive()` imported from 'vue', returns which one. Used to recognize
+ * mutations of tracked reactive state without requiring the enclosing code to be independently
+ * proven to be a Vue component: an import-resolved `ref`/`reactive` binding is itself a strong
+ * enough Vue signal.
+ */
+export function getVueReactiveBindingKind(
+  context: Rule.RuleContext,
+  identifier: estree.Identifier,
+): VueReactiveBindingKind | undefined {
+  const variable = getVariableFromName(context, identifier.name, identifier);
+  const definition = variable?.defs[0];
+  if (definition?.type !== 'Variable') {
+    return undefined;
+  }
+  const init = (definition.node as estree.VariableDeclarator).init;
+  if (init?.type !== 'CallExpression') {
+    return undefined;
+  }
+  const fqn = getFullyQualifiedName(context, init);
+  if (fqn === VUE_REF_FQN) {
+    return 'ref';
+  }
+  if (fqn === VUE_REACTIVE_FQN) {
+    return 'reactive';
+  }
+  return undefined;
 }

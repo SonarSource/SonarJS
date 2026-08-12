@@ -5,6 +5,7 @@
     "react": "19.1.0",
     "aws-cdk-lib": "2.200.1",
     "vue": "3.5.0",
-    "@testing-library/user-event": "14.0.0"
+    "@testing-library/user-event": "14.0.0",
+    "@testing-library/dom": "10.4.1"
   }
 }
