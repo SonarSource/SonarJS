@@ -20,6 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
   getProperty,
+  getUniqueWriteUsage,
   getValueOfExpression,
   isMethodCall,
   isStringLiteral,
@@ -79,8 +80,7 @@ function reportWaitForLoadState(context: Rule.RuleContext, call: estree.CallExpr
   if (!stateArgument || stateArgument.type === 'SpreadElement') {
     return;
   }
-  const resolved = getValueOfExpression(context, stateArgument, 'Literal') ?? stateArgument;
-  const stateLiteral = unwrapTypeScriptExpression(resolved);
+  const stateLiteral = resolveLiteralValue(context, stateArgument);
   if (isNetworkidleLiteral(stateLiteral)) {
     context.report({ node: stateLiteral, message: MESSAGE });
   }
@@ -101,12 +101,38 @@ function reportWaitUntilOption(
   if (!waitUntilProperty) {
     return;
   }
-  const resolved =
-    getValueOfExpression(context, waitUntilProperty.value, 'Literal') ?? waitUntilProperty.value;
-  const waitUntilValue = unwrapTypeScriptExpression(resolved);
+  const waitUntilValue = resolveLiteralValue(context, waitUntilProperty.value);
   if (isNetworkidleLiteral(waitUntilValue)) {
     context.report({ node: waitUntilValue, message: MESSAGE });
   }
+}
+
+/**
+ * Resolves `expr` to its underlying literal value, unwrapping TypeScript wrapper
+ * expressions (e.g. `as const`) at every step of identifier resolution. Unlike
+ * `getValueOfExpression(context, expr, 'Literal')`, which only matches when the
+ * resolved write expression is *directly* a `Literal` node, this also follows
+ * a variable whose own initializer is TS-wrapped (e.g. `const s = 'x' as const`).
+ * Guards against reference cycles (e.g. `let a = a`) with a visited set.
+ */
+function resolveLiteralValue(
+  context: Rule.RuleContext,
+  expr: estree.Node | undefined | null,
+): estree.Node | undefined {
+  if (!expr) {
+    return undefined;
+  }
+  const visited = new Set<estree.Node>();
+  let current: estree.Node = unwrapTypeScriptExpression(expr);
+  while (current.type === 'Identifier' && !visited.has(current)) {
+    visited.add(current);
+    const usage = getUniqueWriteUsage(context, current.name, current);
+    if (!usage) {
+      break;
+    }
+    current = unwrapTypeScriptExpression(usage);
+  }
+  return current;
 }
 
 function isNetworkidleLiteral(node: estree.Node | undefined | null): node is estree.Literal {

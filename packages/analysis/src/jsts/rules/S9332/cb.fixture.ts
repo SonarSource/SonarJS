@@ -61,6 +61,18 @@ test('options object via variable', async ({ page }): Promise<void> => {
   await page.goto('/dashboard', options);
 });
 
+test('waitForLoadState state via variable with as const', async ({ page }): Promise<void> => {
+  const state = 'networkidle' as const; // Noncompliant {{Replace this "networkidle" wait with a web-first assertion or a specific readiness condition.}}
+  //            ^^^^^^^^^^^^^
+  await page.waitForLoadState(state);
+});
+
+test('waitUntil value via variable with as const', async ({ page }): Promise<void> => {
+  const waitUntilValue = 'networkidle' as const; // Noncompliant {{Replace this "networkidle" wait with a web-first assertion or a specific readiness condition.}}
+  //                     ^^^^^^^^^^^^^
+  await page.goto('/dashboard', { waitUntil: waitUntilValue });
+});
+
 test('unrelated networkidle strings', async ({ page }): Promise<void> => {
   const label = 'networkidle';
   void label;
