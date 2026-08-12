@@ -364,9 +364,7 @@ export class Linter {
       detectedModuleType,
       detectGeneratedCode: Linter.detectGeneratedCode,
       isGeneratedSource,
-      isTypeScriptParser:
-        sourceCode?.parserServices?.esTreeNodeToTSNodeMap != null &&
-        sourceCode?.parserServices?.tsNodeToESTreeNodeMap != null,
+      isTypeScriptParser: hasTypeScriptParserServices(sourceCode),
     };
     const linterConfigKey = createLinterConfigKey(filePath, Linter.baseDir, baseContext);
     let baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey);
@@ -468,6 +466,13 @@ function getPredefinedGlobals(detectedEsYear?: number): string[] {
 
 function hasRequiredDependencies(ruleMeta: SonarMeta | undefined): boolean {
   return (ruleMeta?.requiredDependency.length ?? 0) > 0;
+}
+
+function hasTypeScriptParserServices(sourceCode: SourceCode | undefined): boolean {
+  return (
+    sourceCode?.parserServices?.esTreeNodeToTSNodeMap != null &&
+    sourceCode?.parserServices?.tsNodeToESTreeNodeMap != null
+  );
 }
 
 // Matches a valid URL scheme per RFC 3986: letter followed by letters, digits, '+', '-', or '.'
