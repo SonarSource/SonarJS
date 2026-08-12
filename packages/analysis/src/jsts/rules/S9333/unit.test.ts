@@ -52,6 +52,16 @@ describe('S9333', () => {
             }
           `,
         },
+        {
+          // Exercises the decorator FQN filter: upstream matches getByRole by name,
+          // but the callee resolves outside @testing-library.*.
+          code: `
+            import { page } from '@playwright/test';
+            async function clickSave() {
+              await page.getByRole('button', { name: 'Save' });
+            }
+          `,
+        },
       ],
       invalid: [
         {
