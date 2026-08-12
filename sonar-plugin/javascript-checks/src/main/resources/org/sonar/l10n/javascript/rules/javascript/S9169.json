@@ -10,6 +10,11 @@
     "tests",
     "vitest"
   ],
+  "extra": {
+    "requiredDependency": [
+      "vitest"
+    ]
+  },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-9169",
   "sqKey": "S9169",
