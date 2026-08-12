@@ -14,9 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { isStringLiteral } from '../helpers/ast.js';
+import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
@@ -70,11 +72,37 @@ const RESERVED_WORDS = new Set([
   'yield',
 ]);
 
-function isReservedWordAlias(node: estree.Node): boolean {
+function getEnclosingMemberName(node: estree.Node): string | undefined {
+  const member = findFirstMatchingAncestor(
+    node as TSESTree.Node,
+    ancestor => ancestor.type === 'PropertyDefinition' || ancestor.type === 'MethodDefinition',
+  );
+  return member && 'key' in member && member.key.type === 'Identifier'
+    ? member.key.name
+    : undefined;
+}
+
+function getAliasName(node: estree.Node): string | undefined {
   if (isStringLiteral(node)) {
-    return RESERVED_WORDS.has(node.value);
+    return node.value;
   }
-  return node.type === 'TemplateElement' && RESERVED_WORDS.has(node.value.cooked ?? '');
+  if (node.type === 'TemplateElement') {
+    return node.value.cooked ?? undefined;
+  }
+  return undefined;
+}
+
+function isReservedWordRename(node: estree.Node): boolean {
+  if (isStringLiteral(node) && (node as TSESTree.Node).parent?.type === 'ArrayExpression') {
+    // `inputs: ['propertyName: aliasName']` metadata form: both names share one literal
+    const [propertyName, aliasName] = node.value.split(':').map(part => part.trim());
+    return aliasName !== undefined && RESERVED_WORDS.has(aliasName) && aliasName !== propertyName;
+  }
+  const aliasName = getAliasName(node);
+  if (aliasName === undefined || !RESERVED_WORDS.has(aliasName)) {
+    return false;
+  }
+  return getEnclosingMemberName(node) !== aliasName;
 }
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -84,7 +112,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
-      if (!('node' in reportDescriptor) || !isReservedWordAlias(reportDescriptor.node)) {
+      if (!('node' in reportDescriptor) || !isReservedWordRename(reportDescriptor.node)) {
         context.report(reportDescriptor);
       }
     },

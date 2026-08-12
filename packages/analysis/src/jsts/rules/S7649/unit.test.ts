@@ -17,6 +17,10 @@
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
+import pkg from '@angular-eslint/eslint-plugin';
+import type { Rule } from 'eslint';
+
+const { rules: upstreamRules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };
 
 describe('S7649', () => {
   it('does not report an input alias that is a JavaScript reserved word', () => {
@@ -62,23 +66,105 @@ describe('S7649', () => {
             }
           `,
         },
+        {
+          // JS-2234: reserved-word alias declared via the `inputs` metadata array form
+          code: `
+            @Directive({ selector: 'app-x', inputs: ['panelClass: class'] })
+            class ExampleDirective {
+              panelClass = '';
+            }
+          `,
+        },
       ],
       invalid: [
         {
-          // non-keyword aliases must remain reported
+          // non-keyword aliases must remain reported, with the upstream suggestions preserved
           code: `
             @Component({ selector: 'app-example', template: '' })
             class ExampleComponent {
               @Input('disabled') isDisabled = false;
             }
           `,
-          errors: 1,
+          errors: [
+            {
+              messageId: 'noInputRename',
+              suggestions: [
+                {
+                  messageId: 'suggestRemoveAliasName',
+                  output: `
+            @Component({ selector: 'app-example', template: '' })
+            class ExampleComponent {
+              @Input() isDisabled = false;
+            }
+          `,
+                },
+                {
+                  messageId: 'suggestReplaceOriginalNameWithAliasName',
+                  output: `
+            @Component({ selector: 'app-example', template: '' })
+            class ExampleComponent {
+              @Input() disabled = false;
+            }
+          `,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `
             @Component({ selector: 'app-example', template: '' })
             class ExampleComponent {
               hrefInput = input('', { alias: 'href' });
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // JS-2234: a reserved word used as a redundant alias (member has the same name)
+          // is not a rename, so it must still be reported with the upstream safe auto-fix
+          code: `
+            @Component({ selector: 'app-example', template: '' })
+            class ExampleComponent {
+              @Input('class') class = '';
+            }
+          `,
+          errors: 1,
+          output: `
+            @Component({ selector: 'app-example', template: '' })
+            class ExampleComponent {
+              @Input() class = '';
+            }
+          `,
+        },
+        {
+          // non-reserved alias via the `inputs` metadata array form must remain reported
+          code: `
+            @Directive({ selector: 'app-x', inputs: ['isDisabled: disabled'] })
+            class ExampleDirective {
+              isDisabled = false;
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('relies on the upstream rule still reporting reserved-word aliases', () => {
+    // Sentinel: the `valid` cases above only prove suppression as long as the undecorated
+    // upstream rule reports these aliases in the first place. If upstream ever stops, this
+    // fails instead of the whitelist silently going vacuous.
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-input-rename', upstreamRules['no-input-rename'], {
+      valid: [],
+      invalid: [
+        {
+          code: `
+            @Component({ selector: 'app-example', template: '' })
+            class ExampleComponent {
+              @Input('class') panelClass = '';
             }
           `,
           errors: 1,
