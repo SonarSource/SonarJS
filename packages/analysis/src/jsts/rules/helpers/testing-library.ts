@@ -88,7 +88,7 @@ function isDirectNamespaceImport(
   );
 }
 
-export function isTestingLibraryModule(moduleName: string, allowSubpathImport: boolean): boolean {
+function isTestingLibraryModule(moduleName: string, allowSubpathImport: boolean): boolean {
   return TESTING_LIBRARY_MODULES.some(
     (module: string): boolean =>
       moduleName === module || (allowSubpathImport && moduleName.startsWith(`${module}/`)),
