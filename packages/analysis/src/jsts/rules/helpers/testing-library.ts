@@ -17,6 +17,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { getVariableFromName, isIdentifier } from './ast.js';
+import { getCurrentFileImports } from './module.js';
 
 export const TESTING_LIBRARY_MODULES = [
   '@testing-library/dom',
@@ -91,6 +92,12 @@ export function isTestingLibraryModule(moduleName: string, allowSubpathImport: b
   return TESTING_LIBRARY_MODULES.some(
     (module: string): boolean =>
       moduleName === module || (allowSubpathImport && moduleName.startsWith(`${module}/`)),
+  );
+}
+
+export function importsTestingLibrary(context: Rule.RuleContext): boolean {
+  return [...getCurrentFileImports(context.sourceCode)].some(moduleName =>
+    isTestingLibraryModule(moduleName, true),
   );
 }
 

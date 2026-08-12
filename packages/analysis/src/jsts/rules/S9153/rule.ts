@@ -18,9 +18,12 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { isIdentifier } from '../helpers/ast.js';
+import { isDotNotation, unwrapTypeScriptExpression } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isDirectTestingLibraryBinding } from '../helpers/testing-library.js';
+import {
+  importsTestingLibrary,
+  isDirectTestingLibraryBinding,
+} from '../helpers/testing-library.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -41,6 +44,10 @@ interface Query {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages, fixable: 'code' }),
   create(context: Rule.RuleContext): Rule.RuleListener {
+    if (!importsTestingLibrary(context)) {
+      return {};
+    }
+
     return {
       CallExpression(node: estree.Node): void {
         if (
@@ -104,11 +111,10 @@ function getSimpleCallbackQuery(context: Rule.RuleContext, node: estree.Expressi
 }
 
 function getQuery(context: Rule.RuleContext, node: estree.Node): Query | null {
+  node = unwrapTypeScriptExpression(node);
   if (
     node.type !== 'CallExpression' ||
-    node.callee.type !== 'MemberExpression' ||
-    node.callee.computed ||
-    !isIdentifier(node.callee.property) ||
+    !isDotNotation(node.callee) ||
     !isTestingLibraryBinding(context, node.callee.object, 'screen')
   ) {
     return null;

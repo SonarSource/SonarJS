@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { isIdentifier, unwrapTypeScriptExpression } from '../helpers/ast.js';
+import { isDotNotation, isIdentifier, unwrapTypeScriptExpression } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import {
@@ -158,9 +158,7 @@ function getQueryCall(actual: estree.Expression): estree.CallExpression | null {
 
 function getQueryMethod(query: estree.CallExpression): estree.Identifier | null {
   if (
-    query.callee.type !== 'MemberExpression' ||
-    query.callee.computed ||
-    !isIdentifier(query.callee.property) ||
+    !isDotNotation(query.callee) ||
     !/^(get|query)(All)?By[A-Z]/.test(query.callee.property.name)
   ) {
     return null;

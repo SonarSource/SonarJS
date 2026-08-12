@@ -26,6 +26,9 @@ await wait(() => tlScreen.findByText('alert')); // Noncompliant {{A findBy* quer
 await wait(function () {
   return tlScreen.findAllByText('alert'); // Noncompliant {{A findBy* query returns a promise, not the element required by this disappearance wait.}}
 });
+await wait(() => tlScreen.getByRole('alert')!); // Noncompliant [[get_by_non_null!]] {{Use a queryBy* callback so waitForElementToBeRemoved can report a clear error when the element is already absent.}}
+// edit@get_by_non_null [[sc=26;ec=29]] {{query}}
+await wait(tlScreen.findByRole('alert') as HTMLElement); // Noncompliant {{A findBy* query returns a promise, not the element required by this disappearance wait.}}
 await vueTestingLibrary.waitForElementToBeRemoved(
   () => vueTestingLibrary.screen.findByRole('alert'), // Noncompliant {{A findBy* query returns a promise, not the element required by this disappearance wait.}}
 );
