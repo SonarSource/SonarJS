@@ -15,11 +15,62 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S9332/javascript
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
+import path from 'node:path';
 import { test } from '../../../../tests/jsts/tools/testers/comment-based/checker.js';
+import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import * as meta from './generated-meta.js';
 
+const EXPECTED_MESSAGE =
+  'Replace this "networkidle" wait with a web-first assertion or a specific readiness condition.';
+
 describe('Rule S9332', (): void => {
   test(meta, rule, import.meta.dirname);
+
+  it('only reports when the file imports or depends on Playwright', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    const noDependencyFile = path.join(
+      import.meta.dirname,
+      'fixtures',
+      'no-dependency',
+      'router.js',
+    );
+    const playwrightDependencyFile = path.join(
+      import.meta.dirname,
+      'fixtures',
+      'playwright',
+      'test.spec.ts',
+    );
+
+    ruleTester.run('no-networkidle-wait', rule, {
+      valid: [
+        {
+          // No Playwright import and no Playwright dependency in the closest package.json:
+          // the method-name + literal match alone must not be enough to raise an issue.
+          code: `
+            class CustomRouter {
+              goBack(opts) {}
+            }
+            const router = new CustomRouter();
+            router.goBack({ waitUntil: 'networkidle' });
+          `,
+          filename: noDependencyFile,
+        },
+      ],
+      invalid: [
+        {
+          // Playwright is only declared as a dependency in the closest package.json
+          // (no import statement in this file), which must still be enough to report.
+          code: `
+            test('reloads', async ({ page }) => {
+              await page.reload({ waitUntil: 'networkidle' });
+            });
+          `,
+          filename: playwrightDependencyFile,
+          errors: [{ message: EXPECTED_MESSAGE, line: 3 }],
+        },
+      ],
+    });
+  });
 });

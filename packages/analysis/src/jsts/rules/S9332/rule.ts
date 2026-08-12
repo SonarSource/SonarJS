@@ -26,7 +26,10 @@ import {
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { importsOrDependsOnModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
+
+const PLAYWRIGHT_MODULES = ['@playwright/test'];
 
 const NETWORKIDLE = 'networkidle';
 
@@ -42,6 +45,9 @@ const MESSAGE =
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext): Rule.RuleListener {
+    if (!importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES)) {
+      return {};
+    }
     return {
       CallExpression(node: estree.Node): void {
         const call = node as estree.CallExpression;
