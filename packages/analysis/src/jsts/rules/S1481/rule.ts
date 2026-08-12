@@ -19,12 +19,27 @@
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
+import { getESLintCoreRule } from '../external/core.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
-const baseRule = tsEslintRules['no-unused-vars'];
+// @typescript-eslint/no-unused-vars crashes with "Cannot read properties of undefined
+// (reading 'type')" on plain .js files that use Flow generics. Its `defToVariableType` switch
+// has no `default` branch, so it returns `undefined` for any scope-manager definition type it
+// doesn't know, and the caller immediately reads `.type` off that. @babel/eslint-parser — the
+// parser used for .js files, never @typescript-eslint/parser — emits `def.type ===
+// 'TypeParameter'` for Flow type parameters, which that switch does not handle. Any *unused*
+// Flow type parameter triggers it, whatever form carries it (type alias, arrow, function or
+// class declaration).
+//
+// ESLint core's own no-unused-vars makes no such assumption. S1481 is a JavaScript-only rule
+// (see `languages` in generated-meta.ts), so the TypeScript-specific handling that the
+// typescript-eslint variant adds on top of it is not needed here.
+const baseRule = getESLintCoreRule('no-unused-vars');
+// `Scope.Definition['type']` in @types/eslint predates Flow/TS definition kinds, so this value
+// is not in the union.
+const TYPE_PARAMETER_DEF = 'TypeParameter';
 const defaultOptions = [
   {
     args: 'none',
@@ -48,6 +63,7 @@ export const rule: Rule.RuleModule = {
         isExplicitGlobalDirectiveReport(descriptor) ||
         isTopLevelVariableFunctionOrClassReport(descriptor) ||
         isUnusedImportReport(reportedVariable) ||
+        isTypeParameterReport(reportedVariable) ||
         isUsedInJsx(reportedVariable, jsxUsedVariables)
       ) {
         return;
@@ -80,6 +96,15 @@ function isExplicitGlobalDirectiveReport(descriptor: Rule.ReportDescriptor) {
 
 function isUnusedImportReport(variable: Scope.Variable | null) {
   return variable?.defs.some(def => def.type === 'ImportBinding') ?? false;
+}
+
+/**
+ * Flow type parameters (`type A<U> = ...`, `<U>(x) => x`) are not local variables or functions,
+ * so they are out of scope for S1481. ESLint core's no-unused-vars has no notion of type
+ * positions and would report them; the pre-existing SonarJS implementation never did.
+ */
+function isTypeParameterReport(variable: Scope.Variable | null) {
+  return variable?.defs.some(def => (def.type as string) === TYPE_PARAMETER_DEF) ?? false;
 }
 
 function isUsedInJsx(variable: Scope.Variable | null, jsxUsedVariables: Set<Scope.Variable>) {

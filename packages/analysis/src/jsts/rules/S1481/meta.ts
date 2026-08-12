@@ -16,4 +16,4 @@
  */
 export const implementation = 'decorated';
 export const eslintId = 'no-unused-vars';
-export const externalRules = [{ externalPlugin: 'typescript-eslint', externalRule: eslintId }];
+export const externalRules = [{ externalPlugin: 'eslint', externalRule: eslintId }];
