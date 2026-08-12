@@ -16,6 +16,8 @@
  */
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { shouldSkipOnGeneratedSource } from '../src/jsts/rules/helpers/generated-source.js';
 
 describe('generated-source RSPEC metadata', () => {
@@ -25,5 +27,18 @@ describe('generated-source RSPEC metadata', () => {
 
   it('should keep generated-source suppression disabled when editable-source tag is absent', () => {
     expect(shouldSkipOnGeneratedSource(['es2022', 'type-dependent'])).toBe(false);
+  });
+});
+
+describe('generated ESLint metadata source', () => {
+  it('should preserve TypeScript parser requirements from local metadata', async () => {
+    const rulesFolder = fileURLToPath(new URL('../src/jsts/rules/', import.meta.url));
+    const [s1481, s100] = await Promise.all([
+      readFile(`${rulesFolder}S1481/generated-meta.ts`, 'utf8'),
+      readFile(`${rulesFolder}S100/generated-meta.ts`, 'utf8'),
+    ]);
+
+    expect(s1481).toContain('export const requiresTypeScriptParser = true;');
+    expect(s100).not.toContain('requiresTypeScriptParser');
   });
 });
