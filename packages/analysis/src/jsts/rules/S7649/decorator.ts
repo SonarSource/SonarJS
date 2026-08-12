@@ -70,6 +70,13 @@ const RESERVED_WORDS = new Set([
   'yield',
 ]);
 
+function isReservedWordAlias(node: estree.Node): boolean {
+  if (isStringLiteral(node)) {
+    return RESERVED_WORDS.has(node.value);
+  }
+  return node.type === 'TemplateElement' && RESERVED_WORDS.has(node.value.cooked ?? '');
+}
+
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
@@ -82,11 +89,4 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }
     },
   );
-}
-
-function isReservedWordAlias(node: estree.Node): boolean {
-  if (isStringLiteral(node)) {
-    return RESERVED_WORDS.has(node.value);
-  }
-  return node.type === 'TemplateElement' && RESERVED_WORDS.has(node.value.cooked ?? '');
 }
