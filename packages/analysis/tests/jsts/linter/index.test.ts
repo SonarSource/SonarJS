@@ -36,6 +36,36 @@ import { toInternalMetricsSettings } from '../../../src/jsts/rules/helpers/inter
 import { jsTsInput } from '../tools/helpers/input.js';
 
 describe('Linter', () => {
+  it('should not reuse Babel rule activation for files parsed by TypeScript', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S1481',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+
+    const fixturesDir = path.join(import.meta.dirname, 'fixtures', 'index');
+    const flowPath = normalizeToAbsolutePath(path.join(fixturesDir, 'flow-generic.js'));
+    const regularPath = normalizeToAbsolutePath(path.join(fixturesDir, 'unused-local.js'));
+
+    const flowResult = Linter.lint(await parseJavaScriptSourceFile(flowPath), flowPath);
+    const regularResult = Linter.lint(await parseJavaScriptSourceFile(regularPath), regularPath);
+
+    expect(flowResult.issues).toEqual([]);
+    expect(regularResult.issues).toEqual([
+      expect.objectContaining({
+        ruleId: 'S1481',
+        message: "'unused' is assigned a value but never used.",
+      }),
+    ]);
+  });
+
   it('should initialize the linter wrapper', async ({ mock }) => {
     console.log = mock.fn(console.log);
 

@@ -43,6 +43,7 @@ export type SonarMeta = {
   requiredEcmaVersion?: number;
   downlevelableSyntax?: boolean;
   requiredModuleType?: ModuleType;
+  requiresTypeScriptParser?: boolean;
 };
 
 export function generateMeta(sonarMeta: SonarMeta, ruleMeta?: RulesMeta): RulesMeta {

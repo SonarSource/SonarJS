@@ -86,6 +86,10 @@ export async function generateMetaForRule(
         requiredEcmaVersion !== undefined
           ? `export const requiredEcmaVersion = ${requiredEcmaVersion};`
           : '',
+      ___REQUIRES_TYPESCRIPT_PARSER_EXPORT___:
+        localMetadataOverrides.requiresTypeScriptParser === true
+          ? 'export const requiresTypeScriptParser = true;'
+          : '',
     },
   );
 }
@@ -110,6 +114,7 @@ function getRequiredModuleType(
 
 type LocalMetadataOverrides = {
   requiredDependency?: string[];
+  requiresTypeScriptParser?: boolean;
 };
 
 async function getLocalMetadataOverrides(sonarKey: string): Promise<LocalMetadataOverrides> {
@@ -119,6 +124,7 @@ async function getLocalMetadataOverrides(sonarKey: string): Promise<LocalMetadat
 
   return {
     requiredDependency: getExportedStringArrayLiteral(sourceFile, 'requiredDependency'),
+    requiresTypeScriptParser: getExportedBooleanLiteral(sourceFile, 'requiresTypeScriptParser'),
   };
 }
 
@@ -126,6 +132,43 @@ function getExportedStringArrayLiteral(
   sourceFile: ts.SourceFile,
   exportName: string,
 ): string[] | undefined {
+  const initializer = getExportedInitializer(sourceFile, exportName);
+  if (!initializer || !ts.isArrayLiteralExpression(initializer)) {
+    return undefined;
+  }
+
+  const values: string[] = [];
+  for (const element of initializer.elements) {
+    if (!ts.isStringLiteralLike(element)) {
+      return undefined;
+    }
+    values.push(element.text);
+  }
+  return values;
+}
+
+function getExportedBooleanLiteral(
+  sourceFile: ts.SourceFile,
+  exportName: string,
+): boolean | undefined {
+  const initializer = getExportedInitializer(sourceFile, exportName);
+  if (!initializer) {
+    return undefined;
+  }
+
+  if (initializer.kind === ts.SyntaxKind.TrueKeyword) {
+    return true;
+  }
+  if (initializer.kind === ts.SyntaxKind.FalseKeyword) {
+    return false;
+  }
+  return undefined;
+}
+
+function getExportedInitializer(
+  sourceFile: ts.SourceFile,
+  exportName: string,
+): ts.Expression | undefined {
   for (const statement of sourceFile.statements) {
     if (
       !ts.isVariableStatement(statement) ||
@@ -139,19 +182,7 @@ function getExportedStringArrayLiteral(
         continue;
       }
 
-      const initializer = unwrapConstAssertion(declaration.initializer);
-      if (!initializer || !ts.isArrayLiteralExpression(initializer)) {
-        return undefined;
-      }
-
-      const values: string[] = [];
-      for (const element of initializer.elements) {
-        if (!ts.isStringLiteralLike(element)) {
-          return undefined;
-        }
-        values.push(element.text);
-      }
-      return values;
+      return unwrapConstAssertion(declaration.initializer);
     }
   }
 

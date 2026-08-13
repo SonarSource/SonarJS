@@ -17,22 +17,22 @@
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import type { RuleConfig } from '../../../src/jsts/linter/config/rule-config.js';
-import { filterGeneratedSource } from '../../../src/jsts/linter/filters/filter-generated-source.js';
+import { filterTypeScriptParser } from '../../../src/jsts/linter/filters/filter-typescript-parser.js';
 import type { RuleFilterContext } from '../../../src/jsts/linter/filters/index.js';
 import type { SonarMeta } from '../../../src/jsts/rules/helpers/generate-meta.js';
 
 const ruleConfig = {
-  key: 'S3776',
+  key: 'S1481',
   configurations: [],
   fileTypeTargets: ['MAIN'],
-  language: 'ts',
+  language: 'js',
   analysisModes: ['DEFAULT'],
 } satisfies RuleConfig;
 
 const baseContext: RuleFilterContext = {
-  extensionName: '.ts',
+  extensionName: '.js',
   fileType: 'MAIN',
-  fileLanguage: 'ts',
+  fileLanguage: 'js',
   analysisMode: 'DEFAULT',
   detectedEsYear: undefined,
   targetEsYear: undefined,
@@ -43,47 +43,34 @@ const baseContext: RuleFilterContext = {
   dependencies: new Map(),
 };
 
-const generatedSourceMeta = {
+const requiresTypeScriptParserMeta = {
   meta: { type: 'problem', docs: {} },
-  sonarKey: 'S3776',
-  eslintId: 'cognitive-complexity',
+  sonarKey: 'S1481',
+  eslintId: 'no-unused-vars',
   scope: 'All',
-  languages: ['ts'],
-  skipOnGeneratedSource: true,
-  implementation: 'original',
+  languages: ['js', 'ts'],
+  implementation: 'external',
   requiredDependency: [],
+  requiresTypeScriptParser: true,
 } satisfies SonarMeta;
 
-describe('filterGeneratedSource', () => {
-  it('should keep rules for non-generated files', () => {
-    expect(filterGeneratedSource(ruleConfig, generatedSourceMeta, baseContext)).toBe(true);
+describe('filterTypeScriptParser', () => {
+  it('should disable opted-in rules when Babel is the selected parser', () => {
+    expect(filterTypeScriptParser(ruleConfig, requiresTypeScriptParserMeta, baseContext)).toBe(
+      false,
+    );
   });
 
-  it('should keep rules that do not opt out on generated files', () => {
+  it('should keep opted-in rules when the TypeScript parser is selected', () => {
     expect(
-      filterGeneratedSource(ruleConfig, undefined, {
+      filterTypeScriptParser(ruleConfig, requiresTypeScriptParserMeta, {
         ...baseContext,
-        isGeneratedSource: true,
+        isTypeScriptParser: true,
       }),
     ).toBe(true);
   });
 
-  it('should disable rules that opt out on generated files', () => {
-    expect(
-      filterGeneratedSource(ruleConfig, generatedSourceMeta, {
-        ...baseContext,
-        isGeneratedSource: true,
-      }),
-    ).toBe(false);
-  });
-
-  it('should keep opt-out rules when generated-code detection is disabled', () => {
-    expect(
-      filterGeneratedSource(ruleConfig, generatedSourceMeta, {
-        ...baseContext,
-        detectGeneratedCode: false,
-        isGeneratedSource: true,
-      }),
-    ).toBe(true);
+  it('should keep rules that do not require the TypeScript parser', () => {
+    expect(filterTypeScriptParser(ruleConfig, undefined, baseContext)).toBe(true);
   });
 });

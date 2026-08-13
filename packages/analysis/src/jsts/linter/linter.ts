@@ -364,6 +364,7 @@ export class Linter {
       detectedModuleType,
       detectGeneratedCode: Linter.detectGeneratedCode,
       isGeneratedSource,
+      isTypeScriptParser: hasTypeScriptParserServices(sourceCode),
     };
     const linterConfigKey = createLinterConfigKey(filePath, Linter.baseDir, baseContext);
     let baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey);
@@ -467,6 +468,13 @@ function hasRequiredDependencies(ruleMeta: SonarMeta | undefined): boolean {
   return (ruleMeta?.requiredDependency.length ?? 0) > 0;
 }
 
+function hasTypeScriptParserServices(sourceCode: SourceCode | undefined): boolean {
+  return (
+    sourceCode?.parserServices?.esTreeNodeToTSNodeMap != null &&
+    sourceCode?.parserServices?.tsNodeToESTreeNodeMap != null
+  );
+}
+
 // Matches a valid URL scheme per RFC 3986: letter followed by letters, digits, '+', '-', or '.'
 // Minimum length of 2 avoids matching Windows drive letters (e.g. "C:").
 const URL_SCHEME_RE = /^([a-z][a-z0-9+.-]+):/;
@@ -510,6 +518,7 @@ function createLinterConfigKey(
     | 'detectedModuleType'
     | 'detectGeneratedCode'
     | 'isGeneratedSource'
+    | 'isTypeScriptParser'
   >,
 ): string {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
@@ -519,5 +528,5 @@ function createLinterConfigKey(
     baseDir,
   );
   const linterConfigKey = `${context.fileType}-${context.fileLanguage}-${context.analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
-  return `${linterConfigKey}:${context.detectedEsYear ?? 'esnext'}:${context.targetEsYear ?? 'target-unknown'}:${context.detectedModuleType ?? 'unknown'}:${context.detectGeneratedCode === false ? 'generated-off' : 'generated-on'}:${context.isGeneratedSource === true ? 'generated' : 'regular'}`;
+  return `${linterConfigKey}:${context.detectedEsYear ?? 'esnext'}:${context.targetEsYear ?? 'target-unknown'}:${context.detectedModuleType ?? 'unknown'}:${context.detectGeneratedCode === false ? 'generated-off' : 'generated-on'}:${context.isGeneratedSource === true ? 'generated' : 'regular'}:${context.isTypeScriptParser ? 'typescript-parser' : 'babel-parser'}`;
 }
