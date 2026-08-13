@@ -28,5 +28,10 @@
   ],
   "defaultQualityProfiles": [
     "Sonar way"
-  ]
+  ],
+  "extra": {
+    "requiredDependency": [
+      "cypress"
+    ]
+  }
 }
