@@ -19,11 +19,14 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
+  FUNCTION_NODES,
   getUniqueWriteReference,
   getVariableFromName,
+  isIdentifier,
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
 import { getParent } from '../helpers/ancestor.js';
+import { areEquivalent } from '../helpers/equivalence.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -44,10 +47,15 @@ const CLONE_LIBRARIES = new Map<string, 'lodash' | 'underscore'>([
 
 type MutationNode = estree.AssignmentExpression | estree.UpdateExpression | estree.UnaryExpression;
 
+type IsolationKind = 'deep' | 'shallow';
+
 type StaticMemberChain = {
   root: estree.Identifier;
   depth: number;
 };
+
+const DEEP_CLONE_FQNS = new Set(['lodash.cloneDeep', 'lodash-es.cloneDeep']);
+const SHALLOW_CLONE_FQNS = new Set(['lodash.clone', 'lodash-es.clone', 'underscore.clone']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { hasSuggestions: true }),
@@ -98,6 +106,10 @@ function checkMutation(
 
   const argument = cloneCall.arguments[0];
   if (argument === undefined || argument.type === 'SpreadElement') {
+    return;
+  }
+
+  if (hasIsolatingPrefixAssignment(context, mutatedNode, mutation)) {
     return;
   }
 
@@ -217,4 +229,185 @@ function hasNoTokensAfter(context: Rule.RuleContext, node: estree.Node): boolean
   const source = context.sourceCode.getText();
   const lineEnd = source.indexOf('\n', range[1]);
   return source.slice(range[1], lineEnd === -1 ? source.length : lineEnd).trim() === '';
+}
+
+function hasIsolatingPrefixAssignment(
+  context: Rule.RuleContext,
+  mutatedNode: estree.Node,
+  mutation: MutationNode,
+): boolean {
+  const target = unwrapTypeScriptExpression(mutatedNode);
+  if (target.type !== 'MemberExpression') {
+    return false;
+  }
+
+  let extraDepth = 1;
+  let prefix: estree.Node = unwrapTypeScriptExpression(target.object);
+
+  while (prefix.type === 'MemberExpression') {
+    const isolation = findDominatingIsolation(context, prefix, mutation);
+    if (isolation === 'deep' || (isolation === 'shallow' && extraDepth === 1)) {
+      return true;
+    }
+    extraDepth += 1;
+    prefix = unwrapTypeScriptExpression(prefix.object);
+  }
+
+  return false;
+}
+
+function findDominatingIsolation(
+  context: Rule.RuleContext,
+  prefix: estree.Node,
+  mutation: MutationNode,
+): IsolationKind | undefined {
+  let current: estree.Node | undefined = mutation;
+  let best: IsolationKind | undefined;
+
+  while (current !== undefined) {
+    const parent = getParent(context, current);
+    if (parent === undefined || FUNCTION_NODES.includes(parent.type)) {
+      break;
+    }
+
+    if (parent.type === 'SequenceExpression') {
+      const index = parent.expressions.indexOf(current as estree.Expression);
+      if (index > 0) {
+        best = strongerIsolation(
+          best,
+          isolationInNodes(parent.expressions.slice(0, index), prefix, context),
+        );
+      }
+    } else {
+      const statements = getBlockStatements(parent);
+      if (statements !== undefined) {
+        const index = statements.indexOf(current);
+        if (index > 0) {
+          best = strongerIsolation(
+            best,
+            isolationInStatements(statements.slice(0, index), prefix, context),
+          );
+        }
+      }
+    }
+
+    if (best === 'deep') {
+      return 'deep';
+    }
+    current = parent;
+  }
+
+  return best;
+}
+
+function getBlockStatements(node: estree.Node): estree.Node[] | undefined {
+  if (node.type === 'BlockStatement' || node.type === 'Program') {
+    return node.body;
+  }
+  if (node.type === 'SwitchCase') {
+    return node.consequent;
+  }
+  return undefined;
+}
+
+function isolationInStatements(
+  statements: estree.Node[],
+  prefix: estree.Node,
+  context: Rule.RuleContext,
+): IsolationKind | undefined {
+  let best: IsolationKind | undefined;
+  for (const statement of statements) {
+    best = strongerIsolation(best, statementAssignsPrefix(statement, prefix, context));
+    if (best === 'deep') {
+      return 'deep';
+    }
+  }
+  return best;
+}
+
+function isolationInNodes(
+  nodes: estree.Node[],
+  prefix: estree.Node,
+  context: Rule.RuleContext,
+): IsolationKind | undefined {
+  let best: IsolationKind | undefined;
+  for (const node of nodes) {
+    best = strongerIsolation(best, expressionAssignsPrefix(node, prefix, context));
+    if (best === 'deep') {
+      return 'deep';
+    }
+  }
+  return best;
+}
+
+function statementAssignsPrefix(
+  statement: estree.Node,
+  prefix: estree.Node,
+  context: Rule.RuleContext,
+): IsolationKind | undefined {
+  if (statement.type === 'ExpressionStatement') {
+    return expressionAssignsPrefix(statement.expression, prefix, context);
+  }
+  if (statement.type === 'BlockStatement') {
+    return isolationInStatements(statement.body, prefix, context);
+  }
+  return undefined;
+}
+
+function expressionAssignsPrefix(
+  expression: estree.Node,
+  prefix: estree.Node,
+  context: Rule.RuleContext,
+): IsolationKind | undefined {
+  const value = unwrapTypeScriptExpression(expression);
+  if (value.type === 'SequenceExpression') {
+    return isolationInNodes(value.expressions, prefix, context);
+  }
+  if (value.type !== 'AssignmentExpression') {
+    return undefined;
+  }
+  if (
+    !areEquivalent(
+      unwrapTypeScriptExpression(value.left),
+      unwrapTypeScriptExpression(prefix),
+      context.sourceCode,
+    )
+  ) {
+    return undefined;
+  }
+  return getFreshObjectIsolation(context, value.right);
+}
+
+function getFreshObjectIsolation(
+  context: Rule.RuleContext,
+  rhs: estree.Node,
+): IsolationKind | undefined {
+  const value = unwrapTypeScriptExpression(rhs);
+  if (value.type === 'ObjectExpression' || value.type === 'ArrayExpression') {
+    return 'shallow';
+  }
+  if (value.type !== 'CallExpression') {
+    return undefined;
+  }
+  if (isIdentifier(value.callee, 'structuredClone')) {
+    return 'deep';
+  }
+  const fqn = getFullyQualifiedName(context, value.callee) ?? '';
+  if (DEEP_CLONE_FQNS.has(fqn)) {
+    return 'deep';
+  }
+  if (SHALLOW_CLONE_FQNS.has(fqn)) {
+    return 'shallow';
+  }
+  return undefined;
+}
+
+function strongerIsolation(
+  current: IsolationKind | undefined,
+  candidate: IsolationKind | undefined,
+): IsolationKind | undefined {
+  if (current === 'deep' || candidate === 'deep') {
+    return 'deep';
+  }
+  return candidate ?? current;
 }
