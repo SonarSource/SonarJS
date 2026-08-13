@@ -75,6 +75,24 @@ describe('S7649', () => {
             }
           `,
         },
+        {
+          // reserved-word alias on a setter input (MethodDefinition), distinct member name
+          code: `
+            @Directive()
+            class ExampleDirective {
+              @Input('class') set panelClass(value: string) {}
+            }
+          `,
+        },
+        {
+          // reserved-word alias declared via the `@Input({ alias })` object form
+          code: `
+            @Component({ selector: 'app-example', template: '' })
+            class ExampleComponent {
+              @Input({ alias: 'class' }) panelClass = '';
+            }
+          `,
+        },
       ],
       invalid: [
         {
@@ -146,6 +164,55 @@ describe('S7649', () => {
             }
           `,
           errors: 1,
+        },
+        {
+          // redundant reserved-word alias on a setter (member has the same name) is not a rename,
+          // so it must still be reported with the upstream safe auto-fix
+          code: `
+            @Directive()
+            class ExampleDirective {
+              @Input('class') set class(value: string) {}
+            }
+          `,
+          errors: 1,
+          output: `
+            @Directive()
+            class ExampleDirective {
+              @Input() set class(value: string) {}
+            }
+          `,
+        },
+        {
+          // redundant reserved-word alias via the signal input() form must remain reported
+          code: `
+            @Component({ selector: 'app-example', template: '' })
+            class ExampleComponent {
+              class = input('', { alias: 'class' });
+            }
+          `,
+          errors: 1,
+          output: `
+            @Component({ selector: 'app-example', template: '' })
+            class ExampleComponent {
+              class = input('');
+            }
+          `,
+        },
+        {
+          // redundant reserved-word alias via the `inputs` metadata array form must remain reported
+          code: `
+            @Directive({ selector: 'app-x', inputs: ['class: class'] })
+            class ExampleDirective {
+              class = '';
+            }
+          `,
+          errors: 1,
+          output: `
+            @Directive({ selector: 'app-x', inputs: ['class'] })
+            class ExampleDirective {
+              class = '';
+            }
+          `,
         },
       ],
     });
