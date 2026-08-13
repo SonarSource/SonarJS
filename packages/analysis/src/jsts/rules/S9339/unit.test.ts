@@ -16,7 +16,10 @@
  */
 import { describe, it } from 'node:test';
 import { rule } from './index.js';
-import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 
 const ALL_MESSAGE =
   'axios.all() is a deprecated Axios helper; Promise.all() is the native equivalent.';
@@ -243,6 +246,30 @@ const Promise = {};
 axios.all([one]);
 `,
           errors: [{ message: ALL_MESSAGE, suggestions: [] }],
+        },
+      ],
+    });
+  });
+
+  it('does not suggest rewriting spread callbacks that have a return type', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-native-axios-alternative', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+import axios from 'axios';
+axios.spread((left, right): number => left + right);
+`,
+          errors: [{ message: SPREAD_MESSAGE, suggestions: [] }],
+        },
+        {
+          code: `
+import axios from 'axios';
+axios.spread(function (left, right): number { return left + right; });
+`,
+          errors: [{ message: SPREAD_MESSAGE, suggestions: [] }],
         },
       ],
     });

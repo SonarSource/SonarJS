@@ -199,10 +199,16 @@ function rewriteSpreadCallback(
   context: Rule.RuleContext,
   callback: estree.FunctionExpression | estree.ArrowFunctionExpression,
 ): string | null {
-  if (callback.params.length === 0 || !callback.params.every(isSimpleIdentifierParam)) {
+  if (
+    hasReturnTypeAnnotation(callback) ||
+    callback.params.length === 0 ||
+    !callback.params.every(isSimpleIdentifierParam)
+  ) {
     return null;
   }
-  const names = callback.params.map((param: estree.Pattern) => (param as estree.Identifier).name);
+  const names = callback.params.map(
+    (param: estree.Pattern): string => (param as estree.Identifier).name,
+  );
   const pattern = `[${names.join(', ')}]`;
   const source = context.sourceCode;
   if (callback.type === 'ArrowFunctionExpression') {
@@ -223,6 +229,13 @@ function isSimpleIdentifierParam(param: estree.Pattern): param is estree.Identif
   }
   const tsParam = param as TSESTree.Identifier;
   return tsParam.typeAnnotation === undefined;
+}
+
+function hasReturnTypeAnnotation(
+  callback: estree.FunctionExpression | estree.ArrowFunctionExpression,
+): boolean {
+  const tsCallback = callback as TSESTree.FunctionExpression | TSESTree.ArrowFunctionExpression;
+  return tsCallback.returnType !== undefined;
 }
 
 function isPromiseShadowed(context: Rule.RuleContext, node: estree.Node): boolean {
