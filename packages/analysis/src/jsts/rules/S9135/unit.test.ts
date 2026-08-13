@@ -120,6 +120,16 @@ if (enabled) {
 }
 `,
         },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+{
+  copy.address = _.cloneDeep(user.address);
+}
+copy.address.city = 'Geneva'; // Compliant: same binding
+`,
+        },
       ],
       invalid: [
         {
@@ -518,6 +528,27 @@ copy.address.city = 'Geneva';
 import _ from 'lodash';
 const copy = _.clone(user);
 copy.address ??= {};
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address &&= {};
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+{
+  const copy = other;
+  copy.address = _.cloneDeep(user.address);
+}
 copy.address.city = 'Geneva';
 `,
           errors: 1,

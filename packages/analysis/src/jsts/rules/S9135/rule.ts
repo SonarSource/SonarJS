@@ -367,19 +367,41 @@ function expressionAssignsPrefix(
   if (value.type !== 'AssignmentExpression') {
     return undefined;
   }
-  if (
-    !areEquivalent(
-      unwrapTypeScriptExpression(value.left),
-      unwrapTypeScriptExpression(prefix),
-      context.sourceCode,
-    )
-  ) {
+  if (!isSameBoundMember(value.left, prefix, context)) {
     return undefined;
   }
   if (value.operator !== '=') {
     return null;
   }
   return getFreshObjectIsolation(context, value.right) ?? null;
+}
+
+function isSameBoundMember(
+  assignmentLeft: estree.Node,
+  prefix: estree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  const left = unwrapTypeScriptExpression(assignmentLeft);
+  const target = unwrapTypeScriptExpression(prefix);
+  if (!areEquivalent(left, target, context.sourceCode)) {
+    return false;
+  }
+  const leftRoot = getStaticRootIdentifier(left);
+  const prefixRoot = getStaticRootIdentifier(target);
+  if (leftRoot === undefined || prefixRoot === undefined) {
+    return false;
+  }
+  const leftVariable = getVariableFromName(context, leftRoot.name, leftRoot);
+  const prefixVariable = getVariableFromName(context, prefixRoot.name, prefixRoot);
+  return leftVariable !== undefined && leftVariable === prefixVariable;
+}
+
+function getStaticRootIdentifier(node: estree.Node): estree.Identifier | undefined {
+  let current: estree.Node = unwrapTypeScriptExpression(node);
+  while (current.type === 'MemberExpression') {
+    current = unwrapTypeScriptExpression(current.object);
+  }
+  return current.type === 'Identifier' ? current : undefined;
 }
 
 function getFreshObjectIsolation(
