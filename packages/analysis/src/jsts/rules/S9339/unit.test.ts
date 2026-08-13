@@ -114,9 +114,9 @@ Promise.all([axios.get('/a'), axios.get('/b')])
                   output: `
 import axios from 'axios';
 Promise.all([axios.get('/a'), axios.get('/b')])
-  .then(([a, b]) => {
+  .then((([a, b]) => {
     console.log(a.data, b.data);
-  });
+  }));
 `,
                 },
               ],
@@ -167,7 +167,7 @@ new CancelToken(cancel => {});
                   output: `
 import { all, spread, CancelToken } from 'axios';
 all([one, two]);
-([left, right]) => left + right;
+(([left, right]) => (left + right));
 CancelToken.source();
 new CancelToken(cancel => {});
 `,
@@ -238,6 +238,73 @@ import axios from 'axios';
 axios.spread(handler);
 `,
           errors: [{ message: SPREAD_MESSAGE, suggestions: [] }],
+        },
+        {
+          code: `
+import axios from 'axios';
+axios.spread(function (left, right) { return left + right; });
+`,
+          errors: [{ message: SPREAD_MESSAGE, suggestions: [] }],
+        },
+        {
+          code: `
+import axios from 'axios';
+axios.spread((a, b) => ({ a, b }));
+`,
+          errors: [
+            {
+              message: SPREAD_MESSAGE,
+              suggestions: [
+                {
+                  desc: 'Replace axios.spread() with array destructuring.',
+                  output: `
+import axios from 'axios';
+(([a, b]) => ({ a, b }));
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
+import axios from 'axios';
+fallback || axios.spread((a, b) => a);
+`,
+          errors: [
+            {
+              message: SPREAD_MESSAGE,
+              suggestions: [
+                {
+                  desc: 'Replace axios.spread() with array destructuring.',
+                  output: `
+import axios from 'axios';
+fallback || (([a, b]) => (a));
+`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `
+import axios from 'axios';
+axios.spread((a, b) => a + b)(pair);
+`,
+          errors: [
+            {
+              message: SPREAD_MESSAGE,
+              suggestions: [
+                {
+                  desc: 'Replace axios.spread() with array destructuring.',
+                  output: `
+import axios from 'axios';
+(([a, b]) => (a + b))(pair);
+`,
+                },
+              ],
+            },
+          ],
         },
         {
           code: `

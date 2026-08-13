@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getVariableFromName, isFunctionNode, isIdentifier } from '../helpers/ast.js';
+import { getVariableFromName, isIdentifier } from '../helpers/ast.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 
@@ -72,7 +72,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function visitCallExpression(context: Rule.RuleContext, call: estree.CallExpression): void {
-  if (hasComputedMember(call.callee)) {
+  if (hasComputedMember(call.callee) || isCallOfCall(call)) {
     return;
   }
   const fqn = getFullyQualifiedName(context, call);
@@ -185,7 +185,7 @@ function getSpreadFix(
   call: estree.CallExpression,
 ): ((fixer: Rule.RuleFixer) => Rule.Fix) | null {
   const callback = call.arguments[0];
-  if (callback === undefined || callback.type === 'SpreadElement' || !isFunctionNode(callback)) {
+  if (callback === undefined || callback.type !== 'ArrowFunctionExpression') {
     return null;
   }
   const rewritten = rewriteSpreadCallback(context, callback);
@@ -197,7 +197,7 @@ function getSpreadFix(
 
 function rewriteSpreadCallback(
   context: Rule.RuleContext,
-  callback: estree.FunctionExpression | estree.ArrowFunctionExpression,
+  callback: estree.ArrowFunctionExpression,
 ): string | null {
   if (
     hasReturnTypeAnnotation(callback) ||
@@ -210,17 +210,16 @@ function rewriteSpreadCallback(
     (param: estree.Pattern): string => (param as estree.Identifier).name,
   );
   const pattern = `[${names.join(', ')}]`;
-  const source = context.sourceCode;
-  if (callback.type === 'ArrowFunctionExpression') {
-    const prefix = callback.async ? 'async ' : '';
-    const bodyText = source.getText(callback.body);
-    return `${prefix}(${pattern}) => ${bodyText}`;
-  }
-  const name = callback.id === null || callback.id === undefined ? '' : ` ${callback.id.name}`;
-  const asyncPrefix = callback.async ? 'async ' : '';
-  const generator = callback.generator ? '*' : '';
-  const bodyText = source.getText(callback.body);
-  return `${asyncPrefix}function${generator}${name}(${pattern}) ${bodyText}`;
+  const prefix = callback.async ? 'async ' : '';
+  return `(${prefix}(${pattern}) => ${formatArrowBody(context, callback)})`;
+}
+
+function formatArrowBody(
+  context: Rule.RuleContext,
+  callback: estree.ArrowFunctionExpression,
+): string {
+  const bodyText = context.sourceCode.getText(callback.body);
+  return callback.body.type === 'BlockStatement' ? bodyText : `(${bodyText})`;
 }
 
 function isSimpleIdentifierParam(param: estree.Pattern): param is estree.Identifier {
@@ -231,11 +230,17 @@ function isSimpleIdentifierParam(param: estree.Pattern): param is estree.Identif
   return tsParam.typeAnnotation === undefined;
 }
 
-function hasReturnTypeAnnotation(
-  callback: estree.FunctionExpression | estree.ArrowFunctionExpression,
-): boolean {
-  const tsCallback = callback as TSESTree.FunctionExpression | TSESTree.ArrowFunctionExpression;
+function hasReturnTypeAnnotation(callback: estree.ArrowFunctionExpression): boolean {
+  const tsCallback = callback as TSESTree.ArrowFunctionExpression;
   return tsCallback.returnType !== undefined;
+}
+
+function isCallOfCall(call: estree.CallExpression): boolean {
+  return unwrapChain(call.callee).type === 'CallExpression';
+}
+
+function unwrapChain(node: estree.Expression | estree.Super): estree.Expression | estree.Super {
+  return node.type === 'ChainExpression' ? unwrapChain(node.expression) : node;
 }
 
 function isPromiseShadowed(context: Rule.RuleContext, node: estree.Node): boolean {
