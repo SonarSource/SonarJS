@@ -169,6 +169,33 @@ describe('S9162', () => {
           `,
           errors: 1,
         },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get('form').find('input').then($input => {
+              expect($input.text()).to.equal('Ready');
+            });
+          `,
+          errors: 1,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get('li').eq(0).then($item => {
+              expect($item.text()).to.equal('Ready');
+            });
+          `,
+          errors: 1,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get('li').first().then($item => {
+              expect($item.text()).to.equal('Ready');
+            });
+          `,
+          errors: 1,
+        },
       ],
     });
   });
@@ -309,6 +336,14 @@ describe('S9162', () => {
           code: `
             cy.wrap({ text: () => initializePlugin() }).then(value => {
               expect(value.text()).to.equal('Ready');
+            });
+          `,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.wrap($input).find('span').then($span => {
+              expect($span.text()).to.equal('Ready');
             });
           `,
         },

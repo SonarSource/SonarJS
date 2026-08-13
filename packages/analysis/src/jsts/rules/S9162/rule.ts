@@ -38,7 +38,31 @@ const messages = {
 type RetrySafeKind = 'value' | 'yielded' | 'string' | 'record';
 
 const STRING_METHODS = new Set(['trim', 'toLowerCase', 'toUpperCase']);
-const CYPRESS_DOM_QUERY_COMMANDS = new Set(['contains', 'get']);
+const CYPRESS_DOM_QUERY_COMMANDS = new Set([
+  'children',
+  'closest',
+  'contains',
+  'eq',
+  'filter',
+  'find',
+  'first',
+  'focused',
+  'get',
+  'last',
+  'next',
+  'nextAll',
+  'nextUntil',
+  'not',
+  'parent',
+  'parents',
+  'parentsUntil',
+  'prev',
+  'prevAll',
+  'prevUntil',
+  'root',
+  'shadow',
+  'siblings',
+]);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages, hasSuggestions: true }),
@@ -86,21 +110,50 @@ function isCandidateThenCall(
     !hasTypeArguments(call) &&
     call.callee.property.name === 'then' &&
     call.arguments.length === 1 &&
-    isGlobalCypressDomQuery(context, call.callee.object)
+    isRetryableCypressDomQueryChain(context, call.callee.object)
   );
 }
 
-function isGlobalCypressDomQuery(context: Rule.RuleContext, node: estree.Node): boolean {
-  const query = unwrapTypeScriptExpression(node);
-  if (
-    query.type !== 'CallExpression' ||
-    !isMethodCall(query) ||
-    !CYPRESS_DOM_QUERY_COMMANDS.has(query.callee.property.name) ||
-    !isGlobalCyChain(context, query.callee.object)
-  ) {
+function isRetryableCypressDomQueryChain(context: Rule.RuleContext, node: estree.Node): boolean {
+  let current: estree.Node = node;
+  let sawQuery = false;
+  while (true) {
+    current = unwrapTypeScriptExpression(current);
+    if (current.type === 'ChainExpression') {
+      current = current.expression;
+      continue;
+    }
+    if (current.type !== 'CallExpression') {
+      break;
+    }
+    if (!isRetryableDomQueryCall(current)) {
+      return false;
+    }
+    sawQuery = true;
+    current = current.callee.object;
+  }
+  return sawQuery && isUnshadowedGlobalCy(context, current);
+}
+
+function isRetryableDomQueryCall(call: estree.CallExpression): call is estree.CallExpression & {
+  callee: estree.MemberExpression & { property: estree.Identifier };
+} {
+  return (
+    isMethodCall(call) &&
+    !isOptionalCall(call) &&
+    !hasTypeArguments(call) &&
+    CYPRESS_DOM_QUERY_COMMANDS.has(call.callee.property.name) &&
+    (call.callee.property.name !== 'get' || isSelectorArgument(call.arguments[0]))
+  );
+}
+
+function isUnshadowedGlobalCy(context: Rule.RuleContext, node: estree.Node): boolean {
+  const root = unwrapTypeScriptExpression(node);
+  if (root.type !== 'Identifier' || root.name !== 'cy') {
     return false;
   }
-  return query.callee.property.name !== 'get' || isSelectorArgument(query.arguments[0]);
+  const variable = getVariableFromName(context, 'cy', root);
+  return !variable || variable.defs.length === 0;
 }
 
 function isSelectorArgument(
@@ -124,15 +177,6 @@ function hasTypeArguments(call: estree.CallExpression): boolean {
     typeParameters?: unknown;
   };
   return typescriptCall.typeArguments != null || typescriptCall.typeParameters != null;
-}
-
-function isGlobalCyChain(context: Rule.RuleContext, node: estree.Node): boolean {
-  const root = findChainRoot(node);
-  if (root.type !== 'Identifier' || root.name !== 'cy') {
-    return false;
-  }
-  const variable = getVariableFromName(context, 'cy', root);
-  return !variable || variable.defs.length === 0;
 }
 
 function findChainRoot(node: estree.Node): estree.Node {
