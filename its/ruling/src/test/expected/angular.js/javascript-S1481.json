@@ -2,12 +2,7 @@
 "angular.js:docs/app/assets/js/angular-bootstrap/dropdown-toggle.js": [
 34
 ],
-"angular.js:src/Angular.js": [
-170
-],
-"angular.js:src/ngAnimate/shared.js": [
-33,
-37,
-42
+"angular.js:src/jqLite.js": [
+199
 ]
 }
