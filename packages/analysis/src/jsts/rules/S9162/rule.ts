@@ -18,7 +18,12 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { getVariableFromName, isMethodCall, unwrapTypeScriptExpression } from '../helpers/ast.js';
+import {
+  getVariableFromName,
+  isMethodCall,
+  isStringLiteral,
+  unwrapTypeScriptExpression,
+} from '../helpers/ast.js';
 import { extractChaiAssertion } from '../helpers/assertions-chai.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isTestRelatedFile } from '../helpers/test-file-pattern.js';
@@ -33,6 +38,7 @@ const messages = {
 type RetrySafeKind = 'value' | 'yielded' | 'string' | 'record';
 
 const STRING_METHODS = new Set(['trim', 'toLowerCase', 'toUpperCase']);
+const CYPRESS_DOM_QUERY_COMMANDS = new Set(['contains', 'get']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages, hasSuggestions: true }),
@@ -80,7 +86,31 @@ function isCandidateThenCall(
     !hasTypeArguments(call) &&
     call.callee.property.name === 'then' &&
     call.arguments.length === 1 &&
-    isGlobalCyChain(context, call.callee.object)
+    isGlobalCypressDomQuery(context, call.callee.object)
+  );
+}
+
+function isGlobalCypressDomQuery(context: Rule.RuleContext, node: estree.Node): boolean {
+  const query = unwrapTypeScriptExpression(node);
+  if (
+    query.type !== 'CallExpression' ||
+    !isMethodCall(query) ||
+    !CYPRESS_DOM_QUERY_COMMANDS.has(query.callee.property.name) ||
+    !isGlobalCyChain(context, query.callee.object)
+  ) {
+    return false;
+  }
+  return query.callee.property.name !== 'get' || isSelectorArgument(query.arguments[0]);
+}
+
+function isSelectorArgument(
+  argument: estree.CallExpression['arguments'][number] | undefined,
+): boolean {
+  return (
+    argument != null &&
+    argument.type !== 'SpreadElement' &&
+    isStringLiteral(argument) &&
+    !argument.value.startsWith('@')
   );
 }
 
@@ -199,18 +229,19 @@ function acceptRetrySafeDeclaration(
   declaration: estree.VariableDeclaration,
   bindings: Map<string, RetrySafeKind>,
 ): boolean {
-  if (declaration.kind !== 'const' || declaration.declarations.length !== 1) {
+  if (declaration.kind !== 'const') {
     return false;
   }
-  const [declarator] = declaration.declarations;
-  if (declarator.id.type !== 'Identifier' || !declarator.init) {
-    return false;
+  for (const declarator of declaration.declarations) {
+    if (declarator.id.type !== 'Identifier' || !declarator.init) {
+      return false;
+    }
+    const kind = retrySafeKind(declarator.init, bindings);
+    if (kind === null) {
+      return false;
+    }
+    bindings.set(declarator.id.name, kind);
   }
-  const kind = retrySafeKind(declarator.init, bindings);
-  if (kind === null) {
-    return false;
-  }
-  bindings.set(declarator.id.name, kind);
   return true;
 }
 

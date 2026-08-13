@@ -46,15 +46,6 @@ describe('S9162', () => {
         {
           filename: fixtureFile,
           code: `
-            cy.get('input').then($input => {
-              const text = $input.text(), expected = 'Ready';
-              expect(text).to.equal(expected);
-            });
-          `,
-        },
-        {
-          filename: fixtureFile,
-          code: `
             cy.get('input').then(({ value }) => {
               expect(value).to.equal('Ready');
             });
@@ -159,6 +150,25 @@ describe('S9162', () => {
             },
           ],
         },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get('input').then($input => {
+              const text = $input.text(), expected = 'Ready';
+              expect(text).to.equal(expected);
+            });
+          `,
+          errors: 1,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.contains('Ready').then($status => {
+              expect($status.text()).to.equal('Ready');
+            });
+          `,
+          errors: 1,
+        },
       ],
     });
   });
@@ -192,6 +202,56 @@ describe('S9162', () => {
           code: `
             cy.get('[data-cy=status]').then($status => {
               expect($status.text()).to.equal('Ready');
+            });
+          `,
+          errors: 1,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get('[data-cy=status]').then($status => {
+              const text = \`\${$status.text().trim()}!\`;
+              expect(text).to.equal('Ready!');
+            });
+          `,
+          errors: 1,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get('[data-cy=status]').then($status => {
+              const isEmpty = !$status.text().trim();
+              expect(isEmpty).to.equal(false);
+            });
+          `,
+          errors: 1,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get('[data-cy=status]').then($status => {
+              const isReady = $status.text() === 'Ready';
+              expect(isReady).to.equal(true);
+            });
+          `,
+          errors: 1,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get('[data-cy=status]').then($status => {
+              const text = $status.text() || 'Loading';
+              expect(text).to.equal('Ready');
+            });
+          `,
+          errors: 1,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get('[data-cy=status]').then($status => {
+              const status = $status.text() ? 'Ready' : 'Loading';
+              expect(status).to.equal('Ready');
             });
           `,
           errors: 1,
@@ -241,6 +301,22 @@ describe('S9162', () => {
           code: `
             cy.get('input').then($input => {
               cy.wrap($input).should('be.visible');
+            });
+          `,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.wrap({ text: () => initializePlugin() }).then(value => {
+              expect(value.text()).to.equal('Ready');
+            });
+          `,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get('@customSubject').then(value => {
+              expect(value.text()).to.equal('Ready');
             });
           `,
         },
