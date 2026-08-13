@@ -504,6 +504,34 @@ copy.address.geo.lat = 1;
 `,
           errors: 1,
         },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address ||= {};
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address ??= {};
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+copy.address = user.address;
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
+        },
       ],
     });
   });

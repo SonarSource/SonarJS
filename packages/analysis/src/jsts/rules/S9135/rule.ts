@@ -48,6 +48,7 @@ const CLONE_LIBRARIES = new Map<string, 'lodash' | 'underscore'>([
 type MutationNode = estree.AssignmentExpression | estree.UpdateExpression | estree.UnaryExpression;
 
 type IsolationKind = 'deep' | 'shallow';
+type PrefixIsolation = IsolationKind | null | undefined;
 
 type StaticMemberChain = {
   root: estree.Identifier;
@@ -262,7 +263,7 @@ function findDominatingIsolation(
   mutation: MutationNode,
 ): IsolationKind | undefined {
   let current: estree.Node | undefined = mutation;
-  let best: IsolationKind | undefined;
+  let latest: PrefixIsolation;
 
   while (current !== undefined) {
     const parent = getParent(context, current);
@@ -273,31 +274,31 @@ function findDominatingIsolation(
     if (parent.type === 'SequenceExpression') {
       const index = parent.expressions.indexOf(current as estree.Expression);
       if (index > 0) {
-        best = strongerIsolation(
-          best,
-          isolationInNodes(parent.expressions.slice(0, index), prefix, context),
-        );
+        const candidate = isolationInNodes(parent.expressions.slice(0, index), prefix, context);
+        if (latest === undefined && candidate !== undefined) {
+          latest = candidate;
+        }
       }
     } else {
       const statements = getBlockStatements(parent);
       if (statements !== undefined) {
         const index = statements.indexOf(current);
         if (index > 0) {
-          best = strongerIsolation(
-            best,
-            isolationInStatements(statements.slice(0, index), prefix, context),
-          );
+          const candidate = isolationInStatements(statements.slice(0, index), prefix, context);
+          if (latest === undefined && candidate !== undefined) {
+            latest = candidate;
+          }
         }
       }
     }
 
-    if (best === 'deep') {
+    if (latest === 'deep') {
       return 'deep';
     }
     current = parent;
   }
 
-  return best;
+  return latest === null ? undefined : latest;
 }
 
 function getBlockStatements(node: estree.Node): estree.Node[] | undefined {
@@ -314,37 +315,37 @@ function isolationInStatements(
   statements: estree.Node[],
   prefix: estree.Node,
   context: Rule.RuleContext,
-): IsolationKind | undefined {
-  let best: IsolationKind | undefined;
+): PrefixIsolation {
+  let latest: PrefixIsolation;
   for (const statement of statements) {
-    best = strongerIsolation(best, statementAssignsPrefix(statement, prefix, context));
-    if (best === 'deep') {
-      return 'deep';
+    const candidate = statementAssignsPrefix(statement, prefix, context);
+    if (candidate !== undefined) {
+      latest = candidate;
     }
   }
-  return best;
+  return latest;
 }
 
 function isolationInNodes(
   nodes: estree.Node[],
   prefix: estree.Node,
   context: Rule.RuleContext,
-): IsolationKind | undefined {
-  let best: IsolationKind | undefined;
+): PrefixIsolation {
+  let latest: PrefixIsolation;
   for (const node of nodes) {
-    best = strongerIsolation(best, expressionAssignsPrefix(node, prefix, context));
-    if (best === 'deep') {
-      return 'deep';
+    const candidate = expressionAssignsPrefix(node, prefix, context);
+    if (candidate !== undefined) {
+      latest = candidate;
     }
   }
-  return best;
+  return latest;
 }
 
 function statementAssignsPrefix(
   statement: estree.Node,
   prefix: estree.Node,
   context: Rule.RuleContext,
-): IsolationKind | undefined {
+): PrefixIsolation {
   if (statement.type === 'ExpressionStatement') {
     return expressionAssignsPrefix(statement.expression, prefix, context);
   }
@@ -358,7 +359,7 @@ function expressionAssignsPrefix(
   expression: estree.Node,
   prefix: estree.Node,
   context: Rule.RuleContext,
-): IsolationKind | undefined {
+): PrefixIsolation {
   const value = unwrapTypeScriptExpression(expression);
   if (value.type === 'SequenceExpression') {
     return isolationInNodes(value.expressions, prefix, context);
@@ -375,7 +376,10 @@ function expressionAssignsPrefix(
   ) {
     return undefined;
   }
-  return getFreshObjectIsolation(context, value.right);
+  if (value.operator !== '=') {
+    return null;
+  }
+  return getFreshObjectIsolation(context, value.right) ?? null;
 }
 
 function getFreshObjectIsolation(
@@ -400,14 +404,4 @@ function getFreshObjectIsolation(
     return 'shallow';
   }
   return undefined;
-}
-
-function strongerIsolation(
-  current: IsolationKind | undefined,
-  candidate: IsolationKind | undefined,
-): IsolationKind | undefined {
-  if (current === 'deep' || candidate === 'deep') {
-    return 'deep';
-  }
-  return candidate ?? current;
 }
