@@ -271,25 +271,9 @@ function findDominatingIsolation(
       break;
     }
 
-    if (parent.type === 'SequenceExpression') {
-      const index = parent.expressions.indexOf(current as estree.Expression);
-      if (index > 0) {
-        const candidate = isolationInNodes(parent.expressions.slice(0, index), prefix, context);
-        if (latest === undefined && candidate !== undefined) {
-          latest = candidate;
-        }
-      }
-    } else {
-      const statements = getBlockStatements(parent);
-      if (statements !== undefined) {
-        const index = statements.indexOf(current);
-        if (index > 0) {
-          const candidate = isolationInStatements(statements.slice(0, index), prefix, context);
-          if (latest === undefined && candidate !== undefined) {
-            latest = candidate;
-          }
-        }
-      }
+    const candidate = getPriorIsolation(context, parent, current, prefix);
+    if (latest === undefined && candidate !== undefined) {
+      latest = candidate;
     }
 
     if (latest === 'deep') {
@@ -299,6 +283,27 @@ function findDominatingIsolation(
   }
 
   return latest === null ? undefined : latest;
+}
+
+function getPriorIsolation(
+  context: Rule.RuleContext,
+  parent: estree.Node,
+  current: estree.Node,
+  prefix: estree.Node,
+): PrefixIsolation {
+  if (parent.type === 'SequenceExpression') {
+    const index = parent.expressions.indexOf(current as estree.Expression);
+    return index > 0
+      ? isolationInNodes(parent.expressions.slice(0, index), prefix, context)
+      : undefined;
+  }
+
+  const statements = getBlockStatements(parent);
+  if (statements === undefined) {
+    return undefined;
+  }
+  const index = statements.indexOf(current);
+  return index > 0 ? isolationInStatements(statements.slice(0, index), prefix, context) : undefined;
 }
 
 function getBlockStatements(node: estree.Node): estree.Node[] | undefined {
