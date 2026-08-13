@@ -15,6 +15,91 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
+import type estree from 'estree';
+import { getVariableFromName, isIdentifier } from './ast.js';
+import { getCurrentFileImports } from './module.js';
+
+export const TESTING_LIBRARY_MODULES = [
+  '@testing-library/dom',
+  '@testing-library/react',
+  '@testing-library/vue',
+  '@testing-library/angular',
+  '@testing-library/svelte',
+] as const;
+
+interface DirectTestingLibraryBindingOptions {
+  allowNamespaceImport: boolean;
+  allowSubpathImport: boolean;
+}
+
+export function isDirectTestingLibraryBinding(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  importedName: string,
+  options: DirectTestingLibraryBindingOptions,
+): boolean {
+  if (isIdentifier(node)) {
+    return isDirectNamedImport(context, node, importedName, options.allowSubpathImport);
+  }
+
+  return (
+    options.allowNamespaceImport &&
+    node.type === 'MemberExpression' &&
+    !node.computed &&
+    isIdentifier(node.object) &&
+    isIdentifier(node.property, importedName) &&
+    isDirectNamespaceImport(context, node.object, options.allowSubpathImport)
+  );
+}
+
+function isDirectNamedImport(
+  context: Rule.RuleContext,
+  node: estree.Identifier,
+  importedName: string,
+  allowSubpathImport: boolean,
+): boolean {
+  const variable = getVariableFromName(context, node.name, node);
+  const definition = variable?.defs[0];
+  return (
+    variable?.defs.length === 1 &&
+    definition?.type === 'ImportBinding' &&
+    definition.node.type === 'ImportSpecifier' &&
+    isIdentifier(definition.node.imported, importedName) &&
+    definition.parent.type === 'ImportDeclaration' &&
+    typeof definition.parent.source.value === 'string' &&
+    isTestingLibraryModule(definition.parent.source.value, allowSubpathImport)
+  );
+}
+
+function isDirectNamespaceImport(
+  context: Rule.RuleContext,
+  node: estree.Identifier,
+  allowSubpathImport: boolean,
+): boolean {
+  const variable = getVariableFromName(context, node.name, node);
+  const definition = variable?.defs[0];
+  return (
+    variable?.defs.length === 1 &&
+    definition?.type === 'ImportBinding' &&
+    definition.node.type === 'ImportNamespaceSpecifier' &&
+    definition.parent.type === 'ImportDeclaration' &&
+    typeof definition.parent.source.value === 'string' &&
+    isTestingLibraryModule(definition.parent.source.value, allowSubpathImport)
+  );
+}
+
+function isTestingLibraryModule(moduleName: string, allowSubpathImport: boolean): boolean {
+  return TESTING_LIBRARY_MODULES.some(
+    (module: string): boolean =>
+      moduleName === module || (allowSubpathImport && moduleName.startsWith(`${module}/`)),
+  );
+}
+
+export function importsTestingLibrary(context: Rule.RuleContext): boolean {
+  return [...getCurrentFileImports(context.sourceCode)].some(moduleName =>
+    isTestingLibraryModule(moduleName, true),
+  );
+}
 
 // Without any `testing-library/*` settings, the upstream `eslint-plugin-testing-library`
 // rules fall back to "aggressive" name-based heuristics for `waitFor`, `fireEvent`,
