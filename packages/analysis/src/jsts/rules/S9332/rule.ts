@@ -96,7 +96,7 @@ function reportWaitUntilOption(
   // options object itself (e.g. `{ waitUntil: 'networkidle' } as const`) are
   // unwrapped before the ObjectExpression check.
   const optionsObject = resolveExpression(context, optionsArgument);
-  if (!optionsObject || optionsObject.type !== 'ObjectExpression') {
+  if (optionsObject?.type !== 'ObjectExpression') {
     return;
   }
   const waitUntilProperty = getProperty(optionsObject, 'waitUntil', context);
