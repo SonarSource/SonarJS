@@ -25,7 +25,7 @@ import {
   isIdentifier,
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
-import { getParent } from '../helpers/ancestor.js';
+import { childrenOf, getParent } from '../helpers/ancestor.js';
 import { areEquivalent } from '../helpers/equivalence.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
@@ -357,7 +357,10 @@ function statementAssignsPrefix(
   if (statement.type === 'BlockStatement') {
     return isolationInStatements(statement.body, prefix, context);
   }
-  return undefined;
+  if (statement.type === 'LabeledStatement') {
+    return statementAssignsPrefix(statement.body, prefix, context);
+  }
+  return containsPrefixWrite(statement, prefix, context) ? null : undefined;
 }
 
 function expressionAssignsPrefix(
@@ -369,16 +372,47 @@ function expressionAssignsPrefix(
   if (value.type === 'SequenceExpression') {
     return isolationInNodes(value.expressions, prefix, context);
   }
-  if (value.type !== 'AssignmentExpression') {
-    return undefined;
+  if (value.type === 'AssignmentExpression') {
+    if (isSameBoundMember(value.left, prefix, context)) {
+      if (value.operator !== '=') {
+        return null;
+      }
+      return getFreshObjectIsolation(context, value.right) ?? null;
+    }
+    return containsPrefixWrite(value.right, prefix, context) ? null : undefined;
   }
-  if (!isSameBoundMember(value.left, prefix, context)) {
-    return undefined;
+  return containsPrefixWrite(value, prefix, context) ? null : undefined;
+}
+
+function containsPrefixWrite(
+  node: estree.Node,
+  prefix: estree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  const current = unwrapTypeScriptExpression(node);
+  if (FUNCTION_NODES.includes(current.type)) {
+    return false;
   }
-  if (value.operator !== '=') {
-    return null;
+  if (isPrefixWrite(current, prefix, context)) {
+    return true;
   }
-  return getFreshObjectIsolation(context, value.right) ?? null;
+  return childrenOf(current, context.sourceCode.visitorKeys).some((child: estree.Node) =>
+    containsPrefixWrite(child, prefix, context),
+  );
+}
+
+function isPrefixWrite(node: estree.Node, prefix: estree.Node, context: Rule.RuleContext): boolean {
+  if (node.type === 'AssignmentExpression') {
+    return isSameBoundMember(node.left, prefix, context);
+  }
+  if (node.type === 'UpdateExpression') {
+    return isSameBoundMember(node.argument, prefix, context);
+  }
+  return (
+    node.type === 'UnaryExpression' &&
+    node.operator === 'delete' &&
+    isSameBoundMember(node.argument, prefix, context)
+  );
 }
 
 function isSameBoundMember(

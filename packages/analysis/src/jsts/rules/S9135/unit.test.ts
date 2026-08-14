@@ -563,6 +563,85 @@ copy.address.city = 'Geneva';
 `,
           errors: 1,
         },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+if (cond) { copy.address = user.address; }
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+try { copy.address = user.address; } catch (e) {}
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+for (const x of xs) { copy.address = user.address; }
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+switch (cond) { case 1: copy.address = user.address; }
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+label: copy.address = user.address;
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+cond && (copy.address = user.address);
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+cond ? (copy.address = user.address) : 0;
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+if (cond) copy.address = _.cloneDeep(user.address);
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
+        },
       ],
     });
   });
