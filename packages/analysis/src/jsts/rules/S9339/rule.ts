@@ -185,7 +185,7 @@ function getSpreadFix(
   call: estree.CallExpression,
 ): ((fixer: Rule.RuleFixer) => Rule.Fix) | null {
   const callback = call.arguments[0];
-  if (callback === undefined || callback.type !== 'ArrowFunctionExpression') {
+  if (callback?.type !== 'ArrowFunctionExpression') {
     return null;
   }
   const rewritten = rewriteSpreadCallback(context, callback);

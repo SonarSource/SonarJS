@@ -14,10 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S7649/javascript
-export const implementation = 'decorated';
-export const eslintId = 'no-input-rename';
-export const externalRules = [
-  { externalPlugin: '@angular-eslint', externalRule: 'no-input-rename' },
-];
-export const quickFixMessage = 'Remove input alias';
+import { rules as testingLibraryRules } from '../external/testing-library.js';
+import { decorate } from './decorator.js';
+
+export const rule = decorate(testingLibraryRules['no-await-sync-queries']);

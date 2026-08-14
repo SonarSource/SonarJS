@@ -14,10 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S7649/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S9333/javascript
 export const implementation = 'decorated';
-export const eslintId = 'no-input-rename';
+export const eslintId = 'no-await-sync-queries';
 export const externalRules = [
-  { externalPlugin: '@angular-eslint', externalRule: 'no-input-rename' },
+  { externalPlugin: 'testing-library', externalRule: 'no-await-sync-queries' },
 ];
-export const quickFixMessage = 'Remove input alias';
+export const requiredDependency = [
+  '@testing-library/dom',
+  '@testing-library/react',
+  '@testing-library/vue',
+  '@testing-library/angular',
+  '@testing-library/svelte',
+  'storybook',
+] as const;
+export const quickFixMessage = 'Remove the unnecessary await';

@@ -14,10 +14,5 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S7649/javascript
-export const implementation = 'decorated';
-export const eslintId = 'no-input-rename';
-export const externalRules = [
-  { externalPlugin: '@angular-eslint', externalRule: 'no-input-rename' },
-];
-export const quickFixMessage = 'Remove input alias';
+export const implementation = 'original';
+export const eslintId = 'vitest-mock-at-module-scope';
