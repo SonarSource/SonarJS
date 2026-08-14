@@ -28,7 +28,11 @@ jobs:
         env:
           VERSION: ${{ inputs.version }}
         run: |
-          snapshot_version="${VERSION}-SNAPSHOT"
+          version="${VERSION}"
+          if [[ "$version" =~ ^[0-9]+\.[0-9]+$ ]]; then
+            version="${version}.0"
+          fi
+          snapshot_version="${version}-SNAPSHOT"
           # Update the revision property in root pom.xml to the new snapshot version
           sed -i "s/<revision>.*-SNAPSHOT<\/revision>/<revision>${snapshot_version}<\/revision>/" pom.xml
       - uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
