@@ -23,7 +23,7 @@ const ruleTester = new NoTypeCheckingRuleTester();
 const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'cypress', 'e2e', 'status.cy.js');
 
 describe('S9162', () => {
-  it('reports assertion-only Cypress then callbacks', () => {
+  it('reports retryable assertion-only Cypress callbacks', () => {
     ruleTester.run('prefer-cypress-should', rule, {
       valid: [
         {
@@ -196,14 +196,6 @@ describe('S9162', () => {
           `,
           errors: 1,
         },
-      ],
-    });
-  });
-
-  it('accepts retry-safe local calculations', () => {
-    ruleTester.run('prefer-cypress-should', rule, {
-      valid: [],
-      invalid: [
         {
           filename: fixtureFile,
           code: `
@@ -220,15 +212,6 @@ describe('S9162', () => {
             cy.get('[data-cy=status]').then($status => {
               const expected = { text: 'Ready', codes: [200] };
               expect($status.text()).to.equal(expected.text);
-            });
-          `,
-          errors: 1,
-        },
-        {
-          filename: path.join(import.meta.dirname, 'fixtures-no-package', 'status.cy.js'),
-          code: `
-            cy.get('[data-cy=status]').then($status => {
-              expect($status.text()).to.equal('Ready');
             });
           `,
           errors: 1,
@@ -283,11 +266,38 @@ describe('S9162', () => {
           `,
           errors: 1,
         },
+        {
+          filename: fixtureFile.replace(/\.js$/, '.ts'),
+          code: `
+            cy.get<HTMLInputElement>('input').then($input => {
+              expect($input.text()).to.equal('Ready');
+            });
+          `,
+          errors: 1,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get(\`[data-cy=\${name}]\`).then($status => {
+              expect($status.text()).to.equal('Ready');
+            });
+          `,
+          errors: 1,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy?.get('input').then($input => {
+              expect($input.text()).to.equal('Ready');
+            });
+          `,
+          errors: 1,
+        },
       ],
     });
   });
 
-  it('ignores callbacks that are unsafe or not Cypress assertions', () => {
+  it('distinguishes supported assertions from unsafe or irrelevant callbacks', () => {
     ruleTester.run('prefer-cypress-should', rule, {
       valid: [
         {
@@ -344,6 +354,14 @@ describe('S9162', () => {
           code: `
             cy.wrap($input).find('span').then($span => {
               expect($span.text()).to.equal('Ready');
+            });
+          `,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get('li').filter((_, element) => sideEffect(element)).then($element => {
+              expect($element.text()).to.equal('Ready');
             });
           `,
         },
@@ -423,6 +441,40 @@ describe('S9162', () => {
           `,
         },
         {
+          filename: fixtureFile,
+          code: `
+            cy.get('input').then($input => {
+              expect(1).to.equal(2);
+            });
+          `,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get('input').then($input => {
+              const expected = { text: 'Ready' };
+              expect(expected).to.deep.equal({ text: 'Ready' });
+            });
+          `,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            cy.get('input').then(() => {
+              expect(1).to.equal(2);
+            });
+          `,
+        },
+        {
+          filename: fixtureFile,
+          code: `
+            const expected = 'Ready';
+            cy.get('input').then($input => {
+              expect(expected).to.equal('Ready');
+            });
+          `,
+        },
+        {
           filename: fixtureFile.replace(/\.js$/, '.ts'),
           code: `
             cy.get('input').then<string>($input => {
@@ -431,13 +483,6 @@ describe('S9162', () => {
           `,
         },
       ],
-      invalid: [],
-    });
-  });
-
-  it('supports the conservative Chai and TypeScript assertion forms', () => {
-    ruleTester.run('prefer-cypress-should', rule, {
-      valid: [],
       invalid: [
         {
           filename: fixtureFile,

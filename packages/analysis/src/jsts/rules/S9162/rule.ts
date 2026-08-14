@@ -16,8 +16,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S9162/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
+import { childrenOf } from '../helpers/ancestor.js';
 import {
   getVariableFromName,
   isMethodCall,
@@ -38,6 +39,7 @@ const messages = {
 type RetrySafeKind = 'value' | 'yielded' | 'string' | 'record';
 
 const STRING_METHODS = new Set(['trim', 'toLowerCase', 'toUpperCase']);
+const NO_RETRY_SAFE_BINDINGS = new Map<string, RetrySafeKind>();
 const CYPRESS_DOM_QUERY_COMMANDS = new Set([
   'children',
   'closest',
@@ -141,9 +143,12 @@ function isRetryableDomQueryCall(call: estree.CallExpression): call is estree.Ca
   return (
     isMethodCall(call) &&
     !isOptionalCall(call) &&
-    !hasTypeArguments(call) &&
     CYPRESS_DOM_QUERY_COMMANDS.has(call.callee.property.name) &&
-    (call.callee.property.name !== 'get' || isSelectorArgument(call.arguments[0]))
+    call.arguments.every((argument, index) =>
+      call.callee.property.name === 'get' && index === 0
+        ? isSelectorArgument(argument)
+        : isRetrySafeQueryArgument(argument),
+    )
   );
 }
 
@@ -162,8 +167,21 @@ function isSelectorArgument(
   return (
     argument != null &&
     argument.type !== 'SpreadElement' &&
-    isStringLiteral(argument) &&
-    !argument.value.startsWith('@')
+    ((isStringLiteral(argument) && !argument.value.startsWith('@')) || isTemplateSelector(argument))
+  );
+}
+
+function isTemplateSelector(argument: estree.Node): boolean {
+  if (argument.type !== 'TemplateLiteral') {
+    return false;
+  }
+  const prefix = argument.quasis[0]?.value.cooked;
+  return prefix != null && prefix.length > 0 && !prefix.startsWith('@');
+}
+
+function isRetrySafeQueryArgument(argument: estree.CallExpression['arguments'][number]): boolean {
+  return (
+    argument.type !== 'SpreadElement' && retrySafeKind(argument, NO_RETRY_SAFE_BINDINGS) !== null
   );
 }
 
@@ -211,10 +229,19 @@ function isAssertionOnlyCallback(
   }
 
   const bindings = new Map<string, RetrySafeKind>([[callback.params[0].name, 'yielded']]);
+  const yieldedBindings = new Set([callback.params[0].name]);
   let assertionCount = 0;
+  let hasYieldedAssertion = false;
   for (const statement of callback.body.body) {
     if (statement.type === 'VariableDeclaration') {
-      if (!acceptRetrySafeDeclaration(statement, bindings)) {
+      if (
+        !acceptRetrySafeDeclaration(
+          statement,
+          bindings,
+          yieldedBindings,
+          context.sourceCode.visitorKeys,
+        )
+      ) {
         return false;
       }
       continue;
@@ -233,9 +260,26 @@ function isAssertionOnlyCallback(
     ) {
       return false;
     }
+    hasYieldedAssertion ||= assertionUsesYieldedBinding(
+      assertion,
+      yieldedBindings,
+      context.sourceCode.visitorKeys,
+    );
     assertionCount++;
   }
-  return assertionCount > 0;
+  return assertionCount > 0 && hasYieldedAssertion;
+}
+
+function assertionUsesYieldedBinding(
+  assertion: { actual: estree.Node; expected?: estree.Node },
+  yieldedBindings: ReadonlySet<string>,
+  visitorKeys: SourceCode.VisitorKeys,
+): boolean {
+  return (
+    usesYieldedBinding(assertion.actual, yieldedBindings, visitorKeys) ||
+    (assertion.expected != null &&
+      usesYieldedBinding(assertion.expected, yieldedBindings, visitorKeys))
+  );
 }
 
 function assertionArgumentsAreRetrySafe(
@@ -272,6 +316,8 @@ function isGlobalCypressAssertion(context: Rule.RuleContext, node: estree.Node):
 function acceptRetrySafeDeclaration(
   declaration: estree.VariableDeclaration,
   bindings: Map<string, RetrySafeKind>,
+  yieldedBindings: Set<string>,
+  visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
   if (declaration.kind !== 'const') {
     return false;
@@ -285,8 +331,37 @@ function acceptRetrySafeDeclaration(
       return false;
     }
     bindings.set(declarator.id.name, kind);
+    if (usesYieldedBinding(declarator.init, yieldedBindings, visitorKeys)) {
+      yieldedBindings.add(declarator.id.name);
+    }
   }
   return true;
+}
+
+function usesYieldedBinding(
+  expression: estree.Node,
+  yieldedBindings: ReadonlySet<string>,
+  visitorKeys: SourceCode.VisitorKeys,
+): boolean {
+  const node = unwrapTypeScriptExpression(expression);
+  if (node.type === 'Identifier') {
+    return yieldedBindings.has(node.name);
+  }
+  if (node.type === 'MemberExpression') {
+    return (
+      usesYieldedBinding(node.object, yieldedBindings, visitorKeys) ||
+      (node.computed && usesYieldedBinding(node.property, yieldedBindings, visitorKeys))
+    );
+  }
+  if (node.type === 'Property') {
+    return (
+      usesYieldedBinding(node.value, yieldedBindings, visitorKeys) ||
+      (node.computed && usesYieldedBinding(node.key, yieldedBindings, visitorKeys))
+    );
+  }
+  return childrenOf(node, visitorKeys).some(child =>
+    usesYieldedBinding(child, yieldedBindings, visitorKeys),
+  );
 }
 
 function retrySafeKind(
