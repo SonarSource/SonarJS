@@ -51,6 +51,20 @@ axios.create({ cancelToken: source.token });
         },
         {
           code: `
+import axios from 'axios';
+axios.post('/jobs', { cancelToken: job.cancelToken });
+axios.put('/jobs/1', { cancelToken: job.cancelToken });
+axios.patch('/jobs/1', { cancelToken: job.cancelToken });
+`,
+        },
+        {
+          code: `
+import axios from 'axios';
+axios.get({ cancelToken: source.token });
+`,
+        },
+        {
+          code: `
 const client = { all(values) { return values; } };
 client.all([1, 2]);
 `,
@@ -131,6 +145,21 @@ axios.get('/user', { cancelToken: source.token });
 source.cancel();
 `,
           errors: [
+            { message: CANCEL_MESSAGE },
+            { message: CANCEL_MESSAGE },
+          ],
+        },
+        {
+          code: `
+import axios from 'axios';
+axios.post('/jobs', payload, { cancelToken: source.token });
+axios.put('/jobs/1', payload, { cancelToken: source.token });
+axios.patch('/jobs/1', payload, { cancelToken: source.token });
+axios.request({ url: '/user', cancelToken: source.token });
+`,
+          errors: [
+            { message: CANCEL_MESSAGE },
+            { message: CANCEL_MESSAGE },
             { message: CANCEL_MESSAGE },
             { message: CANCEL_MESSAGE },
           ],
@@ -318,7 +347,7 @@ axios.all([one]);
     });
   });
 
-  it('does not suggest rewriting spread callbacks that have a return type', () => {
+  it('does not suggest rewriting spread callbacks that carry type syntax', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('prefer-native-axios-alternative', rule, {
@@ -335,6 +364,13 @@ axios.spread((left, right): number => left + right);
           code: `
 import axios from 'axios';
 axios.spread(function (left, right): number { return left + right; });
+`,
+          errors: [{ message: SPREAD_MESSAGE, suggestions: [] }],
+        },
+        {
+          code: `
+import axios from 'axios';
+axios.spread(<T,>(a, b) => convert<T>(a));
 `,
           errors: [{ message: SPREAD_MESSAGE, suggestions: [] }],
         },

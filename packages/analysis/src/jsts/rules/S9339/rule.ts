@@ -29,16 +29,18 @@ const AXIOS_ALL = `${AXIOS_MODULE}.all`;
 const AXIOS_SPREAD = `${AXIOS_MODULE}.spread`;
 const AXIOS_CANCEL_TOKEN = `${AXIOS_MODULE}.CancelToken`;
 const AXIOS_CANCEL_TOKEN_SOURCE = `${AXIOS_CANCEL_TOKEN}.source`;
-const AXIOS_REQUEST_METHODS = new Set([
-  AXIOS_MODULE,
-  `${AXIOS_MODULE}.get`,
-  `${AXIOS_MODULE}.delete`,
-  `${AXIOS_MODULE}.head`,
-  `${AXIOS_MODULE}.options`,
-  `${AXIOS_MODULE}.post`,
-  `${AXIOS_MODULE}.put`,
-  `${AXIOS_MODULE}.patch`,
-  `${AXIOS_MODULE}.request`,
+// Position of the request config argument, which differs per method: the body-taking
+// methods push it after the payload.
+const AXIOS_CONFIG_ARGUMENT_INDEX = new Map([
+  [AXIOS_MODULE, 0],
+  [`${AXIOS_MODULE}.request`, 0],
+  [`${AXIOS_MODULE}.get`, 1],
+  [`${AXIOS_MODULE}.delete`, 1],
+  [`${AXIOS_MODULE}.head`, 1],
+  [`${AXIOS_MODULE}.options`, 1],
+  [`${AXIOS_MODULE}.post`, 2],
+  [`${AXIOS_MODULE}.put`, 2],
+  [`${AXIOS_MODULE}.patch`, 2],
 ]);
 
 export const rule: Rule.RuleModule = {
@@ -125,12 +127,12 @@ function visitCancelTokenProperty(context: Rule.RuleContext, property: estree.Pr
   if (property.computed || !isCancelTokenKey(property.key)) {
     return;
   }
-  const call = getDirectArgumentCall(context, property);
-  if (call === null) {
+  const argument = getDirectArgumentCall(context, property);
+  if (argument === null) {
     return;
   }
-  const fqn = getFullyQualifiedName(context, call);
-  if (fqn === null || !AXIOS_REQUEST_METHODS.has(fqn)) {
+  const fqn = getFullyQualifiedName(context, argument.call);
+  if (fqn === null || AXIOS_CONFIG_ARGUMENT_INDEX.get(fqn) !== argument.index) {
     return;
   }
   context.report({
@@ -200,7 +202,7 @@ function rewriteSpreadCallback(
   callback: estree.ArrowFunctionExpression,
 ): string | null {
   if (
-    hasReturnTypeAnnotation(callback) ||
+    hasTypeAnnotations(callback) ||
     callback.params.length === 0 ||
     !callback.params.every(isSimpleIdentifierParam)
   ) {
@@ -230,9 +232,11 @@ function isSimpleIdentifierParam(param: estree.Pattern): param is estree.Identif
   return tsParam.typeAnnotation === undefined;
 }
 
-function hasReturnTypeAnnotation(callback: estree.ArrowFunctionExpression): boolean {
+// The suggestion rebuilds the arrow from param names and body text, so any type syntax
+// living outside those two parts would be silently dropped.
+function hasTypeAnnotations(callback: estree.ArrowFunctionExpression): boolean {
   const tsCallback = callback as TSESTree.ArrowFunctionExpression;
-  return tsCallback.returnType !== undefined;
+  return tsCallback.returnType !== undefined || tsCallback.typeParameters !== undefined;
 }
 
 function isCallOfCall(call: estree.CallExpression): boolean {
@@ -318,7 +322,7 @@ function isCancelTokenMemberCoveredByCallOrConstruct(
 function getDirectArgumentCall(
   context: Rule.RuleContext,
   property: estree.Property,
-): estree.CallExpression | null {
+): { call: estree.CallExpression; index: number } | null {
   const objectExpression = getParent(context, property);
   if (objectExpression?.type !== 'ObjectExpression') {
     return null;
@@ -327,7 +331,8 @@ function getDirectArgumentCall(
   if (call?.type !== 'CallExpression') {
     return null;
   }
-  return call.arguments.includes(objectExpression) ? call : null;
+  const index = call.arguments.indexOf(objectExpression);
+  return index === -1 ? null : { call, index };
 }
 
 function isCancelTokenKey(key: estree.Expression | estree.PrivateIdentifier): boolean {
