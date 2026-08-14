@@ -16,5 +16,6 @@
  */
 import pkg from '@angular-eslint/eslint-plugin';
 import type { Rule } from 'eslint';
+import { decorate } from './decorator.js';
 const { rules } = pkg as unknown as { rules: Record<string, Rule.RuleModule> };
-export const rule = rules['no-input-rename'];
+export const rule = decorate(rules['no-input-rename']);
