@@ -29,18 +29,19 @@ const AXIOS_ALL = `${AXIOS_MODULE}.all`;
 const AXIOS_SPREAD = `${AXIOS_MODULE}.spread`;
 const AXIOS_CANCEL_TOKEN = `${AXIOS_MODULE}.CancelToken`;
 const AXIOS_CANCEL_TOKEN_SOURCE = `${AXIOS_CANCEL_TOKEN}.source`;
-// Position of the request config argument, which differs per method: the body-taking
-// methods push it after the payload.
-const AXIOS_CONFIG_ARGUMENT_INDEX = new Map([
-  [AXIOS_MODULE, 0],
-  [`${AXIOS_MODULE}.request`, 0],
-  [`${AXIOS_MODULE}.get`, 1],
-  [`${AXIOS_MODULE}.delete`, 1],
-  [`${AXIOS_MODULE}.head`, 1],
-  [`${AXIOS_MODULE}.options`, 1],
-  [`${AXIOS_MODULE}.post`, 2],
-  [`${AXIOS_MODULE}.put`, 2],
-  [`${AXIOS_MODULE}.patch`, 2],
+// Positions of the request config argument. The callable axios instance accepts
+// either a config object or a URL followed by a config object; body-taking methods
+// put the config after the payload.
+const AXIOS_CONFIG_ARGUMENT_INDICES = new Map<string, readonly number[]>([
+  [AXIOS_MODULE, [0, 1]],
+  [`${AXIOS_MODULE}.request`, [0]],
+  [`${AXIOS_MODULE}.get`, [1]],
+  [`${AXIOS_MODULE}.delete`, [1]],
+  [`${AXIOS_MODULE}.head`, [1]],
+  [`${AXIOS_MODULE}.options`, [1]],
+  [`${AXIOS_MODULE}.post`, [2]],
+  [`${AXIOS_MODULE}.put`, [2]],
+  [`${AXIOS_MODULE}.patch`, [2]],
 ]);
 
 export const rule: Rule.RuleModule = {
@@ -132,7 +133,7 @@ function visitCancelTokenProperty(context: Rule.RuleContext, property: estree.Pr
     return;
   }
   const fqn = getFullyQualifiedName(context, argument.call);
-  if (fqn === null || AXIOS_CONFIG_ARGUMENT_INDEX.get(fqn) !== argument.index) {
+  if (fqn === null || !AXIOS_CONFIG_ARGUMENT_INDICES.get(fqn)?.includes(argument.index)) {
     return;
   }
   context.report({

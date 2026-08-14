@@ -264,6 +264,13 @@ axios({ url: '/user', cancelToken: source.token });
         {
           code: `
 import axios from 'axios';
+axios('/user', { cancelToken: source.token });
+`,
+          errors: [{ message: CANCEL_MESSAGE }],
+        },
+        {
+          code: `
+import axios from 'axios';
 axios.spread(handler);
 `,
           errors: [{ message: SPREAD_MESSAGE, suggestions: [] }],
