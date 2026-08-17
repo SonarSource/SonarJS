@@ -75,6 +75,61 @@ const copy = _.clone(user);
 copy[address].city = 'Geneva';
 `,
         },
+        {
+          code: `
+import _ from 'lodash';
+const config = _.clone(tlConfig);
+if (offset) {
+  config.time = _.cloneDeep(tlConfig.time);
+  config.time.from = offsetTime(config.time.from, offset); // Compliant: nested object replaced
+  config.time.to = offsetTime(config.time.to, offset);
+}
+`,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = structuredClone(user.address);
+copy.address.city = 'Geneva'; // Compliant: nested object replaced
+`,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = {};
+copy.address.city = 'Geneva'; // Compliant: nested object replaced
+`,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.clone(user.address);
+copy.address.city = 'Geneva'; // Compliant: one-level write on replaced object
+`,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+if (enabled) {
+  copy.address.geo.lat = 1; // Compliant: dominating deep clone
+}
+`,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+{
+  copy.address = _.cloneDeep(user.address);
+}
+copy.address.city = 'Geneva'; // Compliant: same binding
+`,
+        },
       ],
       invalid: [
         {
@@ -422,6 +477,170 @@ const result = (copy.address.city = 'Geneva'); // NOSONAR: shared nested state i
               ],
             },
           ],
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+if (!copy.address) copy.address = {};
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.meta = _.cloneDeep(user.meta);
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address.city = 'Geneva';
+copy.address = _.cloneDeep(user.address);
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.clone(user.address);
+copy.address.geo.lat = 1;
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address ||= {};
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address ??= {};
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address &&= {};
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+{
+  const copy = other;
+  copy.address = _.cloneDeep(user.address);
+}
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+copy.address = user.address;
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+if (cond) { copy.address = user.address; }
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+try { copy.address = user.address; } catch (e) {}
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+for (const x of xs) { copy.address = user.address; }
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+switch (cond) { case 1: copy.address = user.address; }
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+label: copy.address = user.address;
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+cond && (copy.address = user.address);
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+copy.address = _.cloneDeep(user.address);
+cond ? (copy.address = user.address) : 0;
+copy.address.city = 'a';
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import _ from 'lodash';
+const copy = _.clone(user);
+if (cond) copy.address = _.cloneDeep(user.address);
+copy.address.city = 'Geneva';
+`,
+          errors: 1,
         },
       ],
     });
