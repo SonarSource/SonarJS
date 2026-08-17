@@ -230,7 +230,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
     'at-rule-no-unknown',
     'ignoreAtRules',
     'Comma-separated list of "at-rules" to consider as valid.',
-    'value,at-root,content,debug,each,else,error,for,function,if,include,mixin,return,warn,while,extend,use,forward,tailwind,apply,layer,container,theme,utility,custom-variant,source,plugin,config,reference,variant,/^@.*/',
+    'value,tailwind,screen,responsive,variants,apply,theme,source,utility,variant,custom-variant,reference,config,plugin',
   ),
   ...buildSimpleRules({
     S4663: 'comment-no-empty',

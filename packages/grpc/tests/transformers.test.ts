@@ -288,6 +288,35 @@ describe('CSS rule configurations', () => {
     ]);
   });
 
+  it('should map S4662 with supported CSS tool directives', () => {
+    expect(buildCssRuleConfigurations('S4662', [])).toEqual([
+      {
+        key: 'at-rule-no-unknown',
+        configurations: [
+          true,
+          {
+            ignoreAtRules: [
+              'value',
+              'tailwind',
+              'screen',
+              'responsive',
+              'variants',
+              'apply',
+              'theme',
+              'source',
+              'utility',
+              'variant',
+              'custom-variant',
+              'reference',
+              'config',
+              'plugin',
+            ],
+          },
+        ],
+      },
+    ]);
+  });
+
   it('should map S8775 to at-rule-descriptor-value-no-unknown', () => {
     const result = buildCssRuleConfigurations('S8775', []);
     expect(result).toEqual([{ key: 'at-rule-descriptor-value-no-unknown', configurations: [] }]);
