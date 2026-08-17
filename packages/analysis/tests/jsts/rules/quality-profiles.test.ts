@@ -79,6 +79,10 @@ describe('profileNameToFileName', () => {
     assert.equal(profileNameToFileName('Sonar way', 'js'), 'Sonar_way_js_profile.json');
   });
 
+  it('uses the fallback name when the profile name contains no alphanumeric character', () => {
+    assert.equal(profileNameToFileName('---', 'js'), 'Profile_js_profile.json');
+  });
+
   it('keeps the shared profile filename when no language is provided', () => {
     assert.equal(profileNameToFileName('Sonar way'), 'Sonar_way_profile.json');
   });
