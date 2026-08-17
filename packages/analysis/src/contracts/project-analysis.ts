@@ -37,36 +37,36 @@ type ProjectParsingResult = {
 
 export type ProjectFailureResult = ProjectParsingResult | { error: string };
 
-function isParsingErrorCode(code: ErrorCode | undefined): code is ParsingErrorCode {
-  return (
-    code === ErrorCode.Parsing ||
-    code === ErrorCode.FailingTypeScript ||
-    code === ErrorCode.LinterInitialization
-  );
-}
-
 export function toProjectFailureResult(
   failure: unknown,
   language: ParsingErrorLanguage,
 ): ProjectFailureResult {
   if (failure instanceof APIError) {
-    if (isParsingErrorCode(failure.code)) {
-      const message =
-        failure.code === ErrorCode.Parsing ? failure.message : handleError(failure).error;
-      return {
-        issues: [],
-        parsingErrors: [
-          {
-            message,
-            code: failure.code,
-            line: failure.data?.line,
-            column: failure.data?.column,
-            language,
-          },
-        ],
-      };
+    const { code } = failure;
+    let message: string;
+    switch (code) {
+      case ErrorCode.Parsing:
+        message = failure.message;
+        break;
+      case ErrorCode.FailingTypeScript:
+      case ErrorCode.LinterInitialization:
+        message = handleError(failure).error;
+        break;
+      default:
+        return handleError(failure);
     }
-    return handleError(failure);
+    return {
+      issues: [],
+      parsingErrors: [
+        {
+          message,
+          code,
+          line: failure.data?.line,
+          column: failure.data?.column,
+          language,
+        },
+      ],
+    };
   }
 
   if (failure instanceof Error) {
