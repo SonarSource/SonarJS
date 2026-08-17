@@ -18,9 +18,7 @@ import { APIError, ErrorCode } from './error.js';
 import { handleError } from '../../../shared/src/helpers/error.js';
 
 type ParsingErrorCode =
-  | ErrorCode.Parsing
-  | ErrorCode.FailingTypeScript
-  | ErrorCode.LinterInitialization;
+  ErrorCode.Parsing | ErrorCode.FailingTypeScript | ErrorCode.LinterInitialization;
 
 export type ParsingErrorLanguage = 'js' | 'ts' | 'css';
 
@@ -53,12 +51,13 @@ export function toProjectFailureResult(
 ): ProjectFailureResult {
   if (failure instanceof APIError) {
     if (isParsingErrorCode(failure.code)) {
-      const { error } = handleError(failure);
+      const message =
+        failure.code === ErrorCode.Parsing ? failure.message : handleError(failure).error;
       return {
         issues: [],
         parsingErrors: [
           {
-            message: error,
+            message,
             code: failure.code,
             line: failure.data?.line,
             column: failure.data?.column,
