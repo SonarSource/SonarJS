@@ -1,0 +1,23 @@
+packages/analysis/src/css/linter/css-only-rules.ts
+  s_704b100c1eb019::t_9cdcd3c19cbf80 34
+packages/analysis/src/css/rules/metadata.ts
+  s_704b100c1eb019::t_891a96deae28eb 233
+packages/grpc/tests/transformers.test.ts
+  s_704b100c1eb019::t_2f8ff3dc1bd788 291-319
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "8151373ffb5e2b0db67fad357fa98f4e4b278dc4",
+  "prompts": {},
+  "sessions": {
+    "s_704b100c1eb019": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00fbf-86e3-7911-a9f0-4b396dafb705",
+        "model": "unknown"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
