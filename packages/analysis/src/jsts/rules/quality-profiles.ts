@@ -59,10 +59,16 @@ export function generateLanguageProfiles(
 }
 
 export function profileNameToFileName(profileName: string, language?: string): string {
-  const normalizedProfileName = profileName
-    .replace(/[^A-Za-z0-9]+/g, '_')
-    .replace(/^_+/, '')
-    .replace(/_+$/, '');
+  const replacedProfileName = profileName.replace(/[^A-Za-z0-9]+/g, '_');
+  let start = 0;
+  let end = replacedProfileName.length;
+  while (start < end && replacedProfileName[start] === '_') {
+    start++;
+  }
+  while (end > start && replacedProfileName[end - 1] === '_') {
+    end--;
+  }
+  const normalizedProfileName = replacedProfileName.slice(start, end);
   const fileName = normalizedProfileName.length > 0 ? normalizedProfileName : 'Profile';
   const languageSuffix = language === undefined ? '' : `_${language}`;
   return `${fileName}${languageSuffix}_profile.json`;

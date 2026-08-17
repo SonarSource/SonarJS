@@ -48,6 +48,29 @@ describe('generateLanguageProfiles', () => {
     ]);
   });
 
+  it('excludes rules with an empty array profile from every language', () => {
+    const profiles = generateLanguageProfiles(
+      [
+        {
+          ruleKey: 'S100',
+          compatibleLanguages: ['js', 'ts'],
+          defaultQualityProfiles: [],
+        },
+        {
+          ruleKey: 'S200',
+          compatibleLanguages: ['js', 'ts'],
+          defaultQualityProfiles: ['Sonar way'],
+        },
+      ],
+      ['js', 'ts'],
+    );
+
+    assert.deepEqual(profiles, [
+      { name: 'Sonar way', language: 'js', ruleKeys: ['S200'] },
+      { name: 'Sonar way', language: 'ts', ruleKeys: ['S200'] },
+    ]);
+  });
+
   it('selects object profiles independently for each language', () => {
     const profiles = generateLanguageProfiles(
       [
