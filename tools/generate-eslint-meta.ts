@@ -29,9 +29,22 @@ import {
 } from './helpers.js';
 import { readFile } from 'fs/promises';
 import ts from 'typescript';
+import {
+  aggregateProfileRuleKeys,
+  profileNameToFileName,
+} from '../packages/analysis/src/jsts/rules/quality-profiles.js';
 
-const sonarWayProfile = JSON.parse(
-  await readFile(join(METADATA_FOLDER, `Sonar_way_profile.json`), 'utf-8'),
+const sonarWayRuleKeys = aggregateProfileRuleKeys(
+  await Promise.all(
+    ['js', 'ts'].map(async language =>
+      JSON.parse(
+        await readFile(
+          join(METADATA_FOLDER, profileNameToFileName('Sonar way', language)),
+          'utf-8',
+        ),
+      ),
+    ),
+  ),
 );
 
 /**
@@ -67,7 +80,7 @@ export async function generateMetaForRule(
       ___RULE_TYPE___: typeMatrix[ruleRspecMeta.type],
       ___RULE_KEY___: sonarKey,
       ___DESCRIPTION___: ruleRspecMeta.title.replace(/'/g, "\\'"),
-      ___RECOMMENDED___: sonarWayProfile.ruleKeys.includes(sonarKey),
+      ___RECOMMENDED___: sonarWayRuleKeys.has(sonarKey),
       ___TYPE_CHECKING___: `${tags.includes('type-dependent')}`,
       ___FIXABLE___: ruleRspecMeta.quickfix === 'covered' ? "'code'" : undefined,
       ___DEPRECATED___: `${ruleRspecMeta.status === 'deprecated'}`,

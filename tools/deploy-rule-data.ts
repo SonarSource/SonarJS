@@ -29,6 +29,12 @@ import { homedir } from 'node:os';
 import { join as joinNative } from 'node:path';
 import { dirname, join, resolve } from 'node:path/posix';
 import { cssRulesMeta } from '../packages/analysis/src/css/rules/metadata.js';
+import {
+  generateLanguageProfiles,
+  profileNameToFileName,
+  type DefaultQualityProfiles,
+  type RuleProfileMetadata,
+} from '../packages/analysis/src/jsts/rules/quality-profiles.js';
 
 const sourceFolder = resolve('resources/rule-data');
 
@@ -72,20 +78,19 @@ const cssRuleNames = [...new Set([...cssRulesMeta.map(rule => rule.sqKey), 'S226
 );
 
 type RuleManifest = {
-  defaultQualityProfiles?: Array<string>;
+  compatibleLanguages?: Array<string>;
+  defaultQualityProfiles?: DefaultQualityProfiles;
   status?: string;
 };
 
 const SONAR_WAY = 'Sonar way';
-const SONAR_AGENTIC_AI_PROFILE_FILENAME = 'Sonar_agentic_AI_profile.json';
 const SONAR_WAY_PROFILE_FILENAME = 'Sonar_way_profile.json';
-const PRETTY_PRINTED_JS_PROFILE_FILENAMES = new Set([
-  SONAR_AGENTIC_AI_PROFILE_FILENAME,
-  SONAR_WAY_PROFILE_FILENAME,
-]);
+const JS_PROFILE_LANGUAGES = ['js', 'ts'];
+const PRETTY_PRINTED_JS_PROFILE_NAMES = new Set(['Sonar agentic AI', SONAR_WAY]);
 
 type GeneratedProfile = {
   fileName: string;
+  language?: string;
   name: string;
   ruleKeys: Array<string>;
 };
@@ -119,6 +124,7 @@ async function syncRuleData(sourceFolder: string, targetFolder: string, ruleName
   });
 
   const profileRuleKeys = new Map<string, Set<string>>();
+  const languageProfileRules: Array<RuleProfileMetadata> = [];
 
   for (const ruleName of ruleNames) {
     const sourceJsonPath = join(sourceFolder, `${ruleName}.json`);
@@ -127,23 +133,43 @@ async function syncRuleData(sourceFolder: string, targetFolder: string, ruleName
     const manifest = writeNormalizedManifest(sourceJsonPath, targetJsonPath, existingManifest);
     copyFileSync(join(sourceFolder, `${ruleName}.html`), join(targetFolder, `${ruleName}.html`));
 
-    for (const qualityProfileName of manifest.defaultQualityProfiles ?? []) {
-      if (!qualityProfileName) {
-        continue;
+    if (targetFolder === JS_RULE_DATA_FOLDER) {
+      languageProfileRules.push({
+        ruleKey: ruleName,
+        compatibleLanguages: manifest.compatibleLanguages ?? [],
+        defaultQualityProfiles: manifest.defaultQualityProfiles,
+      });
+    } else {
+      if (
+        manifest.defaultQualityProfiles !== undefined &&
+        !Array.isArray(manifest.defaultQualityProfiles)
+      ) {
+        throw new Error(`Language-specific quality profiles are not supported in ${sourceFolder}`);
       }
-      const ruleKeys = profileRuleKeys.get(qualityProfileName) ?? new Set<string>();
-      ruleKeys.add(ruleName);
-      profileRuleKeys.set(qualityProfileName, ruleKeys);
+      for (const qualityProfileName of manifest.defaultQualityProfiles ?? []) {
+        if (!qualityProfileName) {
+          continue;
+        }
+        const ruleKeys = profileRuleKeys.get(qualityProfileName) ?? new Set<string>();
+        ruleKeys.add(ruleName);
+        profileRuleKeys.set(qualityProfileName, ruleKeys);
+      }
     }
   }
 
-  const generatedProfiles: Array<GeneratedProfile> = [...profileRuleKeys.entries()]
-    .sort(([leftName], [rightName]) => leftName.localeCompare(rightName))
-    .map(([name, ruleKeys]) => ({
-      fileName: profileNameToFileName(name),
-      name,
-      ruleKeys: [...ruleKeys].sort(),
-    }));
+  const generatedProfiles: Array<GeneratedProfile> =
+    targetFolder === JS_RULE_DATA_FOLDER
+      ? generateLanguageProfiles(languageProfileRules, JS_PROFILE_LANGUAGES).map(profile => ({
+          ...profile,
+          fileName: profileNameToFileName(profile.name, profile.language),
+        }))
+      : [...profileRuleKeys.entries()]
+          .sort(([leftName], [rightName]) => leftName.localeCompare(rightName))
+          .map(([name, ruleKeys]) => ({
+            fileName: profileNameToFileName(name),
+            name,
+            ruleKeys: [...ruleKeys].sort(),
+          }));
 
   const duplicateFileNames = findDuplicates(generatedProfiles.map(profile => profile.fileName));
   if (duplicateFileNames.length > 0) {
@@ -152,9 +178,26 @@ async function syncRuleData(sourceFolder: string, targetFolder: string, ruleName
     );
   }
 
-  const sonarWayProfile = generatedProfiles.find(profile => profile.name === SONAR_WAY);
-  if (!sonarWayProfile || sonarWayProfile.fileName !== SONAR_WAY_PROFILE_FILENAME) {
-    throw new Error(`Missing required "Sonar way" profile definition in ${sourceFolder}`);
+  if (targetFolder === JS_RULE_DATA_FOLDER) {
+    for (const language of JS_PROFILE_LANGUAGES) {
+      const fileName = profileNameToFileName(SONAR_WAY, language);
+      const sonarWayProfile = generatedProfiles.find(
+        profile =>
+          profile.name === SONAR_WAY &&
+          profile.language === language &&
+          profile.fileName === fileName,
+      );
+      if (!sonarWayProfile) {
+        throw new Error(
+          `Missing required "Sonar way" profile definition for ${language} in ${sourceFolder}`,
+        );
+      }
+    }
+  } else {
+    const sonarWayProfile = generatedProfiles.find(profile => profile.name === SONAR_WAY);
+    if (!sonarWayProfile || sonarWayProfile.fileName !== SONAR_WAY_PROFILE_FILENAME) {
+      throw new Error(`Missing required "Sonar way" profile definition in ${sourceFolder}`);
+    }
   }
 
   for (const generatedProfile of generatedProfiles) {
@@ -164,7 +207,7 @@ async function syncRuleData(sourceFolder: string, targetFolder: string, ruleName
     };
     const shouldPrettyPrintProfile =
       targetFolder === JS_RULE_DATA_FOLDER &&
-      PRETTY_PRINTED_JS_PROFILE_FILENAMES.has(generatedProfile.fileName);
+      PRETTY_PRINTED_JS_PROFILE_NAMES.has(generatedProfile.name);
     if (shouldPrettyPrintProfile) {
       await writePrettyFile(
         join(targetFolder, generatedProfile.fileName),
@@ -178,8 +221,9 @@ async function syncRuleData(sourceFolder: string, targetFolder: string, ruleName
   writeFileSync(
     join(targetFolder, 'profiles.json'),
     JSON.stringify(
-      generatedProfiles.map(({ fileName, name }) => ({
+      generatedProfiles.map(({ fileName, language, name }) => ({
         fileName,
+        ...(language === undefined ? {} : { language }),
         name,
       })),
     ),
@@ -375,12 +419,6 @@ function groupRulesByStatus(
     ruleKeys.sort(sortRuleKeys);
   }
   return grouped;
-}
-
-function profileNameToFileName(profileName: string): string {
-  const normalizedProfileName = profileName.replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-  const fileName = normalizedProfileName.length > 0 ? normalizedProfileName : 'Profile';
-  return `${fileName}_profile.json`;
 }
 
 function findDuplicates(values: Array<string>): Array<string> {
