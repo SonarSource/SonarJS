@@ -18,9 +18,9 @@ package org.sonar.css;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RuleParamType;
@@ -81,7 +81,6 @@ class CssRulesDefinitionTest {
     // AtRuleNoUnknown
     Param param = repository.rule("S4662").param("ignoreAtRules");
     assertThat(param).isNotNull();
-    assertThat(param.defaultValue()).startsWith("value,at-root,content");
     assertThat(param.description()).isEqualTo(
       "Comma-separated list of \"at-rules\" to consider as valid."
     );
@@ -100,7 +99,9 @@ class CssRulesDefinitionTest {
   private void assertAllRuleParametersHaveDescription(Repository repository) {
     for (Rule rule : repository.rules()) {
       for (Param param : rule.params()) {
-        assertThat(param.description()).as("description for " + param.key()).isNotEmpty();
+        assertThat(param.description())
+          .as("description for " + param.key())
+          .isNotEmpty();
       }
     }
   }

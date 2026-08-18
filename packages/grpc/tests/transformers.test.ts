@@ -20,7 +20,10 @@ import { transformRequestToProjectInput } from '../src/transformers/request.js';
 import { transformProjectOutputToResponse } from '../src/transformers/response.js';
 import { buildRuleConfigurations as buildCssRuleConfigurations } from '../src/transformers/rule-configurations/css.js';
 import { buildRuleConfigurations as buildJstsRuleConfigurations } from '../src/transformers/rule-configurations/jsts.js';
-import { reverseCssRuleKeyMap } from '../../analysis/src/css/rules/metadata.js';
+import {
+  reverseCssRuleKeyMap,
+  supportedCssToolDirectives,
+} from '../../analysis/src/css/rules/metadata.js';
 import { analyzer } from '../src/proto/language_analyzer.js';
 
 describe('transformRequestToProjectInput', () => {
@@ -284,6 +287,20 @@ describe('CSS rule configurations', () => {
       {
         key: 'at-rule-descriptor-no-unknown',
         configurations: [],
+      },
+    ]);
+  });
+
+  it('should map S4662 with supported CSS tool directives', () => {
+    expect(buildCssRuleConfigurations('S4662', [])).toEqual([
+      {
+        key: 'at-rule-no-unknown',
+        configurations: [
+          true,
+          {
+            ignoreAtRules: supportedCssToolDirectives,
+          },
+        ],
       },
     ]);
   });
