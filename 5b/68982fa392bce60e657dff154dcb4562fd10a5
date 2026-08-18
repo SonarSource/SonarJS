@@ -1,0 +1,19 @@
+packages/analysis/tests/css/linter/at-rule-no-unknown.test.ts
+  s_704b100c1eb019::t_bc2ff1c5261480 98-103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "5b68982fa392bce60e657dff154dcb4562fd10a5",
+  "prompts": {},
+  "sessions": {
+    "s_704b100c1eb019": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00fbf-86e3-7911-a9f0-4b396dafb705",
+        "model": "unknown"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
