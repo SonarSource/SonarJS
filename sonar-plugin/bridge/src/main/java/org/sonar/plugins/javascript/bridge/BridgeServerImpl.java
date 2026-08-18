@@ -442,6 +442,12 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public void analyzeProject(ProjectAnalysisHandler handler) {
     var grpcRequest = enrichAnalyzeProjectRequest(handler.getRequest());
+    if (grpcRequest.getFilesCount() == 0) {
+      LOG.debug("Skipping project analysis because there are no files to analyze");
+      handler.getFuture().complete(null);
+      ensureProjectAnalysisCompleted(handler);
+      return;
+    }
     var analyzeContext = Context.current().withCancellation();
     var finished = new AtomicBoolean(false);
     var cancellationWatcher = startStreamCancellationWatcher(handler, analyzeContext, finished);
