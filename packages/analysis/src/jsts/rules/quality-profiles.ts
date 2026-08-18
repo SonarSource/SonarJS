@@ -80,6 +80,15 @@ export function aggregateProfileRuleKeys(
   return new Set(profiles.flatMap(profile => profile.ruleKeys));
 }
 
+/**
+ * Whether the rule belongs in eslint-plugin-sonarjs `configs.recommended`.
+ *
+ * ESLint `meta.docs.recommended` is a single boolean, and the plugin ships one
+ * shared recommended config rather than per-language configs. A language-map
+ * rule is therefore recommended if any language lists "Sonar way". That matches
+ * the previous generate-meta behaviour, which unioned the JS and TS Sonar way
+ * profile files.
+ */
 export function isInSonarWay(defaultQualityProfiles?: DefaultQualityProfiles): boolean {
   if (defaultQualityProfiles === undefined) {
     return false;
