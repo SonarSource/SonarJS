@@ -1,0 +1,19 @@
+packages/grpc/tests/transformers.test.ts
+  s_704b100c1eb019::t_8186eafc7c2750 23-26,301
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "e7f5be8cdaf074ba7b083cbc37a3890b94daa8f9",
+  "prompts": {},
+  "sessions": {
+    "s_704b100c1eb019": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00fbf-86e3-7911-a9f0-4b396dafb705",
+        "model": "unknown"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
