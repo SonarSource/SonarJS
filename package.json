@@ -56,7 +56,7 @@
   },
   "homepage": "https://github.com/SonarSource/SonarJS#readme",
   "engines": {
-    "node": "^20.12.0 || ^22.11.0 || ^24.0.0"
+    "node": "^22.12.0 || ^24.0.0"
   },
   "type": "module",
   "devDependencies": {
@@ -132,7 +132,7 @@
     "lodash.merge": "4.6.2",
     "minimatch": "10.2.6",
     "postcss": "8.5.26",
-    "postcss-html": "1.8.1",
+    "postcss-html": "2.0.0",
     "postcss-less": "6.0.0",
     "postcss-sass": "0.5.0",
     "postcss-scss": "4.0.9",
@@ -142,7 +142,7 @@
     "scslre": "0.3.0",
     "semver": "7.8.5",
     "stylelint": "17.14.1",
-    "stylelint-config-html": "1.1.0",
+    "stylelint-config-html": "2.0.0",
     "ts-api-utils": "2.5.0",
     "typescript": "6.0.3",
     "vue-eslint-parser": "10.4.1",
