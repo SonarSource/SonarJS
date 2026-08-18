@@ -1,0 +1,21 @@
+packages/analysis/src/css/rules/metadata.ts
+  s_704b100c1eb019::t_7c9edbf778ad21 50-68,248,254
+packages/analysis/tests/css/linter/at-rule-no-unknown.test.ts
+  s_704b100c1eb019::t_4fe1f511379f4f 22,31,43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "6c0d0701db919117bdde944afe2204e8dc08670d",
+  "prompts": {},
+  "sessions": {
+    "s_704b100c1eb019": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00fbf-86e3-7911-a9f0-4b396dafb705",
+        "model": "unknown"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
