@@ -433,7 +433,7 @@ jobs:
       - name: Run knip
         run: |
           npm run bbf
-          npx knip
+          npx knip --no-gitignore
 
   test_js:
     runs-on: sonar-m
