@@ -42,7 +42,7 @@ public class TypeScriptRulesDefinition implements RulesDefinition {
 
     RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(
       METADATA_LOCATION,
-      JavaScriptProfilesDefinition.SONAR_WAY_JSON,
+      JavaScriptProfilesDefinition.SONAR_WAY_TS_JSON,
       sonarRuntime
     );
     ruleMetadataLoader.addRulesByAnnotatedClass(

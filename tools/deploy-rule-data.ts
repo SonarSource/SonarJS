@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { execFileSync } from 'node:child_process';
-import { listRulesDir, writePrettyFile } from './helpers.js';
+import { listRulesDir } from './helpers.js';
 import {
   copyFileSync,
   existsSync,
@@ -29,6 +29,7 @@ import { homedir } from 'node:os';
 import { join as joinNative } from 'node:path';
 import { dirname, join, resolve } from 'node:path/posix';
 import { cssRulesMeta } from '../packages/analysis/src/css/rules/metadata.js';
+import { sortRuleKeys } from '../packages/analysis/src/jsts/rules/quality-profiles.js';
 
 const sourceFolder = resolve('resources/rule-data');
 
@@ -72,22 +73,9 @@ const cssRuleNames = [...new Set([...cssRulesMeta.map(rule => rule.sqKey), 'S226
 );
 
 type RuleManifest = {
-  defaultQualityProfiles?: Array<string>;
+  compatibleLanguages?: Array<string>;
+  defaultQualityProfiles?: string[] | Record<string, string[]>;
   status?: string;
-};
-
-const SONAR_WAY = 'Sonar way';
-const SONAR_AGENTIC_AI_PROFILE_FILENAME = 'Sonar_agentic_AI_profile.json';
-const SONAR_WAY_PROFILE_FILENAME = 'Sonar_way_profile.json';
-const PRETTY_PRINTED_JS_PROFILE_FILENAMES = new Set([
-  SONAR_AGENTIC_AI_PROFILE_FILENAME,
-  SONAR_WAY_PROFILE_FILENAME,
-]);
-
-type GeneratedProfile = {
-  fileName: string;
-  name: string;
-  ruleKeys: Array<string>;
 };
 
 type JsonValue = JsonObject | Array<JsonValue> | boolean | number | string | null;
@@ -95,11 +83,11 @@ type JsonObject = {
   [key: string]: JsonValue;
 };
 
-await syncRuleData(join(sourceFolder, 'javascript'), JS_RULE_DATA_FOLDER, jsRuleNames);
-await syncRuleData(join(sourceFolder, 'css'), CSS_RULE_DATA_FOLDER, cssRuleNames);
+syncRuleData(join(sourceFolder, 'javascript'), JS_RULE_DATA_FOLDER, jsRuleNames);
+syncRuleData(join(sourceFolder, 'css'), CSS_RULE_DATA_FOLDER, cssRuleNames);
 syncRspecSha();
 
-async function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: string[]) {
+function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: string[]) {
   warnOnRulesWithoutImplementation(sourceFolder, ruleNames);
   const existingManifests = new Map(
     ruleNames
@@ -118,72 +106,13 @@ async function syncRuleData(sourceFolder: string, targetFolder: string, ruleName
     recursive: true,
   });
 
-  const profileRuleKeys = new Map<string, Set<string>>();
-
   for (const ruleName of ruleNames) {
     const sourceJsonPath = join(sourceFolder, `${ruleName}.json`);
     const targetJsonPath = join(targetFolder, `${ruleName}.json`);
     const existingManifest = existingManifests.get(ruleName);
-    const manifest = writeNormalizedManifest(sourceJsonPath, targetJsonPath, existingManifest);
+    writeNormalizedManifest(sourceJsonPath, targetJsonPath, existingManifest);
     copyFileSync(join(sourceFolder, `${ruleName}.html`), join(targetFolder, `${ruleName}.html`));
-
-    for (const qualityProfileName of manifest.defaultQualityProfiles ?? []) {
-      if (!qualityProfileName) {
-        continue;
-      }
-      const ruleKeys = profileRuleKeys.get(qualityProfileName) ?? new Set<string>();
-      ruleKeys.add(ruleName);
-      profileRuleKeys.set(qualityProfileName, ruleKeys);
-    }
   }
-
-  const generatedProfiles: Array<GeneratedProfile> = [...profileRuleKeys.entries()]
-    .sort(([leftName], [rightName]) => leftName.localeCompare(rightName))
-    .map(([name, ruleKeys]) => ({
-      fileName: profileNameToFileName(name),
-      name,
-      ruleKeys: [...ruleKeys].sort(),
-    }));
-
-  const duplicateFileNames = findDuplicates(generatedProfiles.map(profile => profile.fileName));
-  if (duplicateFileNames.length > 0) {
-    throw new Error(
-      `Generated profile file name collision(s): ${duplicateFileNames.join(', ')} in ${sourceFolder}`,
-    );
-  }
-
-  const sonarWayProfile = generatedProfiles.find(profile => profile.name === SONAR_WAY);
-  if (!sonarWayProfile || sonarWayProfile.fileName !== SONAR_WAY_PROFILE_FILENAME) {
-    throw new Error(`Missing required "Sonar way" profile definition in ${sourceFolder}`);
-  }
-
-  for (const generatedProfile of generatedProfiles) {
-    const profileContents = {
-      name: generatedProfile.name,
-      ruleKeys: generatedProfile.ruleKeys,
-    };
-    const shouldPrettyPrintProfile =
-      targetFolder === JS_RULE_DATA_FOLDER &&
-      PRETTY_PRINTED_JS_PROFILE_FILENAMES.has(generatedProfile.fileName);
-    if (shouldPrettyPrintProfile) {
-      await writePrettyFile(
-        join(targetFolder, generatedProfile.fileName),
-        JSON.stringify(profileContents),
-      );
-    } else {
-      writeFileSync(join(targetFolder, generatedProfile.fileName), JSON.stringify(profileContents));
-    }
-  }
-
-  writeFileSync(
-    join(targetFolder, 'profiles.json'),
-    JSON.stringify(
-      generatedProfiles.map(({ fileName, name }) => ({
-        fileName,
-        name,
-      })),
-    ),
-  );
 }
 
 function syncRspecSha() {
@@ -375,22 +304,4 @@ function groupRulesByStatus(
     ruleKeys.sort(sortRuleKeys);
   }
   return grouped;
-}
-
-function profileNameToFileName(profileName: string): string {
-  const normalizedProfileName = profileName.replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
-  const fileName = normalizedProfileName.length > 0 ? normalizedProfileName : 'Profile';
-  return `${fileName}_profile.json`;
-}
-
-function findDuplicates(values: Array<string>): Array<string> {
-  const counts = new Map<string, number>();
-  for (const value of values) {
-    counts.set(value, (counts.get(value) ?? 0) + 1);
-  }
-  return [...counts.entries()].filter(([, count]) => count > 1).map(([value]) => value);
-}
-
-function sortRuleKeys(left: string, right: string): number {
-  return Number.parseInt(left.slice(1), 10) - Number.parseInt(right.slice(1), 10);
 }

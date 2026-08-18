@@ -240,6 +240,7 @@ It skips:
 - `npm run validate-quickfix`
 - `tools/sync-nodejs-versions.mjs`
 - `npm run generate-meta`
+- `npm run generate-profiles`
 - `npm run generate-java-rule-classes`
 - `npm run count-rules`
 - bridge `npm run bridge:compile`
@@ -297,8 +298,9 @@ The clean phase removes the derived outputs that make the fast loop work:
 
 Important detail:
 
-- The committed JSON/profile rule metadata under `sonar-plugin/*/src/main/resources/**/rules/**`
-  is preserved by `clean`.
+- The committed rule JSON under `sonar-plugin/*/src/main/resources/**/rules/**`
+  is preserved by `clean`. Built-in quality profile JSON files are generated during
+  `generate-resources` into each module's `target/generated-resources/profiles` directory.
 - Because of that, `npm run bbf` after `mvn clean` still reuses the tracked rule JSON and does not
   trigger an RSPEC refresh.
 - The per-language `rspec.sha` files are still meaningful in built release artifacts even though
@@ -325,6 +327,7 @@ Because of that, a common workflow is:
 
 `generate-resources`
 
+- runs `npm run generate-profiles`
 - runs `npm run generate-meta`
 - runs `npm run generate-java-rule-classes`
 - runs `npm run count-rules`

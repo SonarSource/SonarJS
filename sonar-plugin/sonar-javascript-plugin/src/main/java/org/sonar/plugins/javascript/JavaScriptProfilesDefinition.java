@@ -52,7 +52,8 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   static final String SONAR_WAY = "Sonar way";
 
   public static final String RESOURCE_PATH = "org/sonar/l10n/javascript/rules/javascript";
-  public static final String SONAR_WAY_JSON = RESOURCE_PATH + "/Sonar_way_profile.json";
+  public static final String SONAR_WAY_JS_JSON = RESOURCE_PATH + "/Sonar_way_js_profile.json";
+  public static final String SONAR_WAY_TS_JSON = RESOURCE_PATH + "/Sonar_way_ts_profile.json";
   public static final String PROFILES_JSON = RESOURCE_PATH + "/profiles.json";
 
   private static final List<ProfileDefinition> PROFILES = loadProfiles();
@@ -115,7 +116,9 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   }
 
   private void createProfiles(String language, Context context) {
-    PROFILES.forEach(profile -> createProfile(profile, language, context));
+    PROFILES.stream()
+      .filter(profile -> profile.language().equals(language))
+      .forEach(profile -> createProfile(profile, language, context));
   }
 
   private void createProfile(ProfileDefinition profile, String language, Context context) {
@@ -154,8 +157,9 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
 
   private static List<ProfileDefinition> loadProfiles() {
     try (
-      InputStream inputStream =
-        JavaScriptProfilesDefinition.class.getClassLoader().getResourceAsStream(PROFILES_JSON)
+      InputStream inputStream = JavaScriptProfilesDefinition.class
+        .getClassLoader()
+        .getResourceAsStream(PROFILES_JSON)
     ) {
       if (inputStream == null) {
         throw new IllegalStateException("Missing built-in quality profile index: " + PROFILES_JSON);
@@ -167,19 +171,36 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
       profiles.forEach(profile -> {
         JsonObject profileJson = profile.getAsJsonObject();
         String name = profileJson.get("name").getAsString();
+        String language = profileJson.get("language").getAsString();
         String fileName = profileJson.get("fileName").getAsString();
-        definitions.add(new ProfileDefinition(name, RESOURCE_PATH + "/" + fileName));
+        definitions.add(new ProfileDefinition(name, language, RESOURCE_PATH + "/" + fileName));
       });
-      if (
-        definitions
-          .stream()
-          .noneMatch(
-            profile -> SONAR_WAY.equals(profile.name()) && SONAR_WAY_JSON.equals(profile.path())
-          )
-      ) {
-        throw new IllegalStateException(
-          "Missing required built-in quality profile in " + PROFILES_JSON + ": " + SONAR_WAY
-        );
+      Map<String, String> sonarWayPathByLanguage = Map.of(
+        JavaScriptLanguage.KEY,
+        SONAR_WAY_JS_JSON,
+        TypeScriptLanguage.KEY,
+        SONAR_WAY_TS_JSON
+      );
+      for (var entry : sonarWayPathByLanguage.entrySet()) {
+        if (
+          definitions
+            .stream()
+            .noneMatch(
+              profile ->
+                SONAR_WAY.equals(profile.name()) &&
+                entry.getKey().equals(profile.language()) &&
+                entry.getValue().equals(profile.path())
+            )
+        ) {
+          throw new IllegalStateException(
+            "Missing required built-in quality profile in " +
+              PROFILES_JSON +
+              ": " +
+              SONAR_WAY +
+              " for " +
+              entry.getKey()
+          );
+        }
       }
       return definitions;
     } catch (IOException e) {
@@ -257,15 +278,21 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   private static class ProfileDefinition {
 
     private final String name;
+    private final String language;
     private final String path;
 
-    private ProfileDefinition(String name, String path) {
+    private ProfileDefinition(String name, String language, String path) {
       this.name = name;
+      this.language = language;
       this.path = path;
     }
 
     String name() {
       return name;
+    }
+
+    String language() {
+      return language;
     }
 
     String path() {

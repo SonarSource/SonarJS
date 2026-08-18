@@ -16,6 +16,7 @@ packages/analysis/src/jsts/parsers/estree.d.ts
 
 # Auto-generated RSPEC rule data (by npm run rspec:refresh)
 # Keep generated RSPEC JSON tracked; ignore rendered HTML.
+# Built-in quality profile JSON is generated at build time and is not tracked.
 sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/*.html
 rspec.sha
 sonar-plugin/javascript-checks/src/main/resources/rspec.sha

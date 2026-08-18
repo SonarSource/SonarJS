@@ -22,17 +22,13 @@ import {
   getRspecMeta,
   header,
   inflateTemplateToFile,
-  METADATA_FOLDER,
   RULES_FOLDER,
   TS_TEMPLATES_FOLDER,
   typeMatrix,
 } from './helpers.js';
 import { readFile } from 'fs/promises';
 import ts from 'typescript';
-
-const sonarWayProfile = JSON.parse(
-  await readFile(join(METADATA_FOLDER, `Sonar_way_profile.json`), 'utf-8'),
-);
+import { isInSonarWay } from '../packages/analysis/src/jsts/rules/quality-profiles.js';
 
 /**
  * From the RSPEC json file, creates a generated-meta.ts file with ESLint formatted metadata
@@ -67,7 +63,7 @@ export async function generateMetaForRule(
       ___RULE_TYPE___: typeMatrix[ruleRspecMeta.type],
       ___RULE_KEY___: sonarKey,
       ___DESCRIPTION___: ruleRspecMeta.title.replace(/'/g, "\\'"),
-      ___RECOMMENDED___: sonarWayProfile.ruleKeys.includes(sonarKey),
+      ___RECOMMENDED___: `${isInSonarWay(ruleRspecMeta.defaultQualityProfiles)}`,
       ___TYPE_CHECKING___: `${tags.includes('type-dependent')}`,
       ___FIXABLE___: ruleRspecMeta.quickfix === 'covered' ? "'code'" : undefined,
       ___DEPRECATED___: `${ruleRspecMeta.status === 'deprecated'}`,

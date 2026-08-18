@@ -21,6 +21,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 //@ts-ignore
 import { prettier as prettierOpts } from '../package.json';
 import { ESLintConfiguration } from '../packages/analysis/src/jsts/rules/helpers/configs.js';
+import type { DefaultQualityProfiles } from '../packages/analysis/src/jsts/rules/quality-profiles.js';
 import { mkdir } from 'node:fs/promises';
 import prettierPluginJava from 'prettier-plugin-java';
 
@@ -30,7 +31,7 @@ const REPOSITORY_ROOT = join(DIRNAME, '..');
 export const TS_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'ts');
 export const JAVA_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'java');
 export const RULES_FOLDER = join(REPOSITORY_ROOT, 'packages', 'analysis', 'src', 'jsts', 'rules');
-export const METADATA_FOLDER = join(
+const METADATA_FOLDER = join(
   REPOSITORY_ROOT,
   'sonar-plugin',
   'javascript-checks',
@@ -61,6 +62,7 @@ type rspecMeta = {
   tags: string[];
   scope: 'Main' | 'Tests';
   compatibleLanguages: ('js' | 'ts')[];
+  defaultQualityProfiles?: DefaultQualityProfiles;
   extra?: {
     requiredDependency?: string[];
   };
