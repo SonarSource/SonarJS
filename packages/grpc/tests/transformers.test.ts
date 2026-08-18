@@ -20,7 +20,10 @@ import { transformRequestToProjectInput } from '../src/transformers/request.js';
 import { transformProjectOutputToResponse } from '../src/transformers/response.js';
 import { buildRuleConfigurations as buildCssRuleConfigurations } from '../src/transformers/rule-configurations/css.js';
 import { buildRuleConfigurations as buildJstsRuleConfigurations } from '../src/transformers/rule-configurations/jsts.js';
-import { reverseCssRuleKeyMap } from '../../analysis/src/css/rules/metadata.js';
+import {
+  reverseCssRuleKeyMap,
+  supportedCssToolDirectives,
+} from '../../analysis/src/css/rules/metadata.js';
 import { analyzer } from '../src/proto/language_analyzer.js';
 
 describe('transformRequestToProjectInput', () => {
@@ -295,22 +298,7 @@ describe('CSS rule configurations', () => {
         configurations: [
           true,
           {
-            ignoreAtRules: [
-              'value',
-              'tailwind',
-              'screen',
-              'responsive',
-              'variants',
-              'apply',
-              'theme',
-              'source',
-              'utility',
-              'variant',
-              'custom-variant',
-              'reference',
-              'config',
-              'plugin',
-            ],
+            ignoreAtRules: supportedCssToolDirectives,
           },
         ],
       },
