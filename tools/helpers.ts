@@ -21,6 +21,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 //@ts-ignore
 import { prettier as prettierOpts } from '../package.json';
 import { ESLintConfiguration } from '../packages/analysis/src/jsts/rules/helpers/configs.js';
+import type { DefaultQualityProfiles } from '../packages/analysis/src/jsts/rules/quality-profiles.js';
 import { mkdir } from 'node:fs/promises';
 import prettierPluginJava from 'prettier-plugin-java';
 
@@ -61,6 +62,7 @@ type rspecMeta = {
   tags: string[];
   scope: 'Main' | 'Tests';
   compatibleLanguages: ('js' | 'ts')[];
+  defaultQualityProfiles?: DefaultQualityProfiles;
   extra?: {
     requiredDependency?: string[];
   };

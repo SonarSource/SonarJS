@@ -19,6 +19,7 @@ import { describe, it } from 'node:test';
 import {
   aggregateProfileRuleKeys,
   generateLanguageProfiles,
+  isInSonarWay,
   profileNameToFileName,
 } from '../../../src/jsts/rules/quality-profiles.js';
 
@@ -117,5 +118,20 @@ describe('aggregateProfileRuleKeys', () => {
       aggregateProfileRuleKeys([{ ruleKeys: ['S100', 'S200'] }, { ruleKeys: ['S200', 'S300'] }]),
       new Set(['S100', 'S200', 'S300']),
     );
+  });
+});
+
+describe('isInSonarWay', () => {
+  it('treats a shared Sonar way array as recommended', () => {
+    assert.equal(isInSonarWay(['Sonar way']), true);
+  });
+
+  it('treats an empty array as not recommended', () => {
+    assert.equal(isInSonarWay([]), false);
+  });
+
+  it('treats a language map as recommended when any language includes Sonar way', () => {
+    assert.equal(isInSonarWay({ js: [], ts: ['Sonar way'] }), true);
+    assert.equal(isInSonarWay({ js: ['Sonar agentic AI'], ts: [] }), false);
   });
 });

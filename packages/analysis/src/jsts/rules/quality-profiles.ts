@@ -80,6 +80,16 @@ export function aggregateProfileRuleKeys(
   return new Set(profiles.flatMap(profile => profile.ruleKeys));
 }
 
+export function isInSonarWay(defaultQualityProfiles?: DefaultQualityProfiles): boolean {
+  if (defaultQualityProfiles === undefined) {
+    return false;
+  }
+  if (Array.isArray(defaultQualityProfiles)) {
+    return defaultQualityProfiles.includes('Sonar way');
+  }
+  return Object.values(defaultQualityProfiles).some(profiles => profiles.includes('Sonar way'));
+}
+
 function profilesForLanguage(
   defaultQualityProfiles: DefaultQualityProfiles | undefined,
   language: string,
