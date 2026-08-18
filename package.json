@@ -7,7 +7,6 @@
     "check-format": "prettier --list-different .",
     "new-rule": "tsx tools/new-rule.mts",
     "generate-meta": "tsx tools/generate-meta.ts",
-    "generate-profiles": "tsx tools/generate-profiles.ts",
     "rspec:refresh": "mvn -q -ntp -N -P rspec-refresh -DskipTests generate-resources",
     "validate-quickfix": "tsx tools/validate-quickfix.ts",
     "generate-java-rule-classes": "tsx tools/generate-java-rule-classes.ts",

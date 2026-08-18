@@ -24,11 +24,24 @@ import {
   inflateTemplateToFile,
   RULES_FOLDER,
   TS_TEMPLATES_FOLDER,
+  type RspecMeta,
   typeMatrix,
 } from './helpers.js';
 import { readFile } from 'fs/promises';
 import ts from 'typescript';
-import { isInSonarWay } from '../packages/analysis/src/jsts/rules/quality-profiles.js';
+
+/**
+ * ESLint exposes one shared recommended config rather than per-language configs, so a rule is
+ * recommended when any language includes it in Sonar way.
+ */
+function isInSonarWay(defaultQualityProfiles: RspecMeta['defaultQualityProfiles']): boolean {
+  if (defaultQualityProfiles === undefined) {
+    return false;
+  }
+  return Array.isArray(defaultQualityProfiles)
+    ? defaultQualityProfiles.includes('Sonar way')
+    : Object.values(defaultQualityProfiles).some(profiles => profiles.includes('Sonar way'));
+}
 
 /**
  * From the RSPEC json file, creates a generated-meta.ts file with ESLint formatted metadata

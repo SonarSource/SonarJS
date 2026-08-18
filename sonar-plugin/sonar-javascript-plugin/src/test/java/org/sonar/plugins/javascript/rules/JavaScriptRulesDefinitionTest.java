@@ -18,9 +18,9 @@ package org.sonar.plugins.javascript.rules;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction.Type;
 import org.sonar.api.server.rule.RuleParamType;
@@ -29,7 +29,9 @@ import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
 import org.sonar.api.utils.Version;
 import org.sonar.javascript.checks.CheckList;
+import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
 import org.sonar.plugins.javascript.TestUtils;
+import org.sonar.plugins.javascript.api.Language;
 
 class JavaScriptRulesDefinitionTest {
 
@@ -60,8 +62,18 @@ class JavaScriptRulesDefinitionTest {
       "javascript",
       new JavaScriptRulesDefinition(sonarRuntime)
     );
-    assertThat(repository.rule("S909").activatedByDefault()).isFalse();
-    assertThat(repository.rule("S930").activatedByDefault()).isTrue();
+    var sonarWayRules = CheckList.getDefaultQualityProfileRuleKeys(
+      JavaScriptProfilesDefinition.SONAR_WAY,
+      Language.JAVASCRIPT
+    );
+
+    repository
+      .rules()
+      .forEach(rule ->
+        assertThat(rule.activatedByDefault())
+          .as("activatedByDefault for %s", rule.key())
+          .isEqualTo(sonarWayRules.contains(rule.key()))
+      );
   }
 
   private void assertSecurityStandards(Repository repository) {
@@ -95,7 +107,9 @@ class JavaScriptRulesDefinitionTest {
   private void assertAllRuleParametersHaveDescription(Repository repository) {
     for (Rule rule : repository.rules()) {
       for (Param param : rule.params()) {
-        assertThat(param.description()).as("description for " + param.key()).isNotEmpty();
+        assertThat(param.description())
+          .as("description for " + param.key())
+          .isNotEmpty();
       }
     }
   }
