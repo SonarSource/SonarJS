@@ -1,0 +1,19 @@
+sonar-plugin/css/src/test/java/org/sonar/css/CssRulesDefinitionTest.java
+  s_704b100c1eb019::t_d9e31d887e766c 21,84-86,105-107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "746c1f595514a9e62844b45e4b9e8d38a55beccb",
+  "prompts": {},
+  "sessions": {
+    "s_704b100c1eb019": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a00fbf-86e3-7911-a9f0-4b396dafb705",
+        "model": "unknown"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
