@@ -225,6 +225,8 @@ export const cssRulesMeta: CssRuleMeta[] = [
     ),
   ),
   simpleRule('S4661', 'media-feature-name-no-unknown'),
+  // Stylelint already recognizes standard CSS at-rules. These defaults cover directives used
+  // in plain CSS by css-loader and current/legacy Tailwind versions.
   ignoreAtRulesRule(
     'S4662',
     'at-rule-no-unknown',
