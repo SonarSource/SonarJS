@@ -20,12 +20,14 @@ import { APIError, ErrorCode } from '../../src/contracts/error.js';
 import { toProjectFailureResult } from '../../src/contracts/project-analysis.js';
 
 describe('toProjectFailureResult', () => {
-  it('should convert parsing API errors to parsingErrors and log stack trace', ({ mock }) => {
+  it('should convert parsing API errors to parsingErrors without logging stack trace', ({
+    mock,
+  }) => {
     const apiError = APIError.parsingError('Unexpected token', { line: 7, column: 3 });
     apiError.stack = 'stack-trace';
     console.error = mock.fn(() => {}) as Mock<typeof console.error>;
 
-    expect(toProjectFailureResult(apiError, 'ts')).toEqual({
+    expect(toProjectFailureResult(apiError, 'css')).toEqual({
       issues: [],
       parsingErrors: [
         {
@@ -33,6 +35,26 @@ describe('toProjectFailureResult', () => {
           code: ErrorCode.Parsing,
           line: 7,
           column: 3,
+          language: 'css',
+        },
+      ],
+    });
+    expect((console.error as Mock<typeof console.error>).mock.calls).toHaveLength(0);
+  });
+
+  it('should log stack trace for non-recoverable API errors', ({ mock }) => {
+    const apiError = APIError.failingTypeScriptError('TypeScript failure');
+    apiError.stack = 'stack-trace';
+    console.error = mock.fn(() => {}) as Mock<typeof console.error>;
+
+    expect(toProjectFailureResult(apiError, 'ts')).toEqual({
+      issues: [],
+      parsingErrors: [
+        {
+          message: 'TypeScript failure',
+          code: ErrorCode.FailingTypeScript,
+          line: undefined,
+          column: undefined,
           language: 'ts',
         },
       ],
