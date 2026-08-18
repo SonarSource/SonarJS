@@ -1,0 +1,37 @@
+{
+  "title": "Cypress assertions should be retryable",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "cypress"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-9162",
+  "sqKey": "S9162",
+  "scope": "Tests",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM",
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "TESTED"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "cypress"
+    ]
+  }
+}
