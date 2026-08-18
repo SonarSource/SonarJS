@@ -29,6 +29,7 @@ import { homedir } from 'node:os';
 import { join as joinNative } from 'node:path';
 import { dirname, join, resolve } from 'node:path/posix';
 import { cssRulesMeta } from '../packages/analysis/src/css/rules/metadata.js';
+import { sortRuleKeys } from '../packages/analysis/src/jsts/rules/quality-profiles.js';
 
 const sourceFolder = resolve('resources/rule-data');
 
@@ -303,8 +304,4 @@ function groupRulesByStatus(
     ruleKeys.sort(sortRuleKeys);
   }
   return grouped;
-}
-
-function sortRuleKeys(left: string, right: string): number {
-  return Number.parseInt(left.slice(1), 10) - Number.parseInt(right.slice(1), 10);
 }

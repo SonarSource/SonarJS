@@ -21,6 +21,7 @@ import {
   generateLanguageProfiles,
   isInSonarWay,
   profileNameToFileName,
+  sortRuleKeys,
 } from '../../../src/jsts/rules/quality-profiles.js';
 
 describe('generateLanguageProfiles', () => {
@@ -133,5 +134,11 @@ describe('isInSonarWay', () => {
   it('treats a language map as recommended when any language includes Sonar way', () => {
     assert.equal(isInSonarWay({ js: [], ts: ['Sonar way'] }), true);
     assert.equal(isInSonarWay({ js: ['Sonar agentic AI'], ts: [] }), false);
+  });
+});
+
+describe('sortRuleKeys', () => {
+  it('orders rule keys by numeric id', () => {
+    assert.deepEqual(['S1000', 'S20', 'S3'].toSorted(sortRuleKeys), ['S3', 'S20', 'S1000']);
   });
 });

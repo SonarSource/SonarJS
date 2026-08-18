@@ -109,6 +109,6 @@ function profilesForLanguage(
   return defaultQualityProfiles[language] ?? [];
 }
 
-function sortRuleKeys(left: string, right: string): number {
+export function sortRuleKeys(left: string, right: string): number {
   return Number.parseInt(left.slice(1), 10) - Number.parseInt(right.slice(1), 10);
 }

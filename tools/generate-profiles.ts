@@ -19,6 +19,7 @@ import { join } from 'node:path/posix';
 import {
   generateLanguageProfiles,
   profileNameToFileName,
+  sortRuleKeys,
   type DefaultQualityProfiles,
   type RuleProfileMetadata,
 } from '../packages/analysis/src/jsts/rules/quality-profiles.js';
@@ -238,8 +239,4 @@ function findDuplicates(values: Array<string>): Array<string> {
     counts.set(value, (counts.get(value) ?? 0) + 1);
   }
   return [...counts.entries()].filter(([, count]) => count > 1).map(([value]) => value);
-}
-
-function sortRuleKeys(left: string, right: string): number {
-  return Number.parseInt(left.slice(1), 10) - Number.parseInt(right.slice(1), 10);
 }

@@ -12,7 +12,6 @@
   ],
   "project": ["packages/**/*.ts", "tools/**/*.ts"],
   "ignoreDependencies": [
-    "nyc",
     "@istanbuljs/esm-loader-hook",
     "esbuild",
     "esbuild-plugin-copy",

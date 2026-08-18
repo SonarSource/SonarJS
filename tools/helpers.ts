@@ -31,7 +31,7 @@ const REPOSITORY_ROOT = join(DIRNAME, '..');
 export const TS_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'ts');
 export const JAVA_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'java');
 export const RULES_FOLDER = join(REPOSITORY_ROOT, 'packages', 'analysis', 'src', 'jsts', 'rules');
-export const METADATA_FOLDER = join(
+const METADATA_FOLDER = join(
   REPOSITORY_ROOT,
   'sonar-plugin',
   'javascript-checks',
