@@ -96,7 +96,7 @@
     "pretty-quick": "4.2.2",
     "protobufjs-cli": "2.6.2",
     "rimraf": "6.1.3",
-    "tsx": "4.23.3",
+    "tsx": "4.23.12",
     "type-fest": "5.8.0"
   },
   "dependencies": {
