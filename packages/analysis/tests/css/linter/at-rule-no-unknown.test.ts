@@ -95,6 +95,12 @@ describe('at-rule-no-unknown', () => {
       expect(issues[0].ruleId).toBe('at-rule-no-unknown');
     });
 
+    it('reports on a lang="css" style block', async () => {
+      const { issues } = await linter.lint(vueFile, '<style lang="css">@unknown {}</style>');
+      expect(issues).toHaveLength(1);
+      expect(issues[0].ruleId).toBe('at-rule-no-unknown');
+    });
+
     for (const lang of ['scss', 'sass', 'less']) {
       it(`does not report on a ${lang} style block`, async () => {
         const { issues } = await linter.lint(
