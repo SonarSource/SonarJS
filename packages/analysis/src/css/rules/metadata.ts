@@ -47,6 +47,25 @@ export type CssRuleMeta = {
   booleanParam?: StylelintBooleanParam;
 };
 
+export const supportedCssToolDirectives = [
+  'value',
+  'tailwind',
+  'screen',
+  'responsive',
+  'variants',
+  'apply',
+  'theme',
+  'source',
+  'utility',
+  'variant',
+  'custom-variant',
+  'reference',
+  'config',
+  'plugin',
+  'define-mixin',
+  'mixin',
+];
+
 function simpleRule(sqKey: string, stylelintKey: string): CssRuleMeta {
   return { sqKey, stylelintKey };
 }
@@ -226,13 +245,13 @@ export const cssRulesMeta: CssRuleMeta[] = [
   ),
   simpleRule('S4661', 'media-feature-name-no-unknown'),
   // Stylelint already recognizes standard CSS at-rules. These defaults cover directives used
-  // in plain CSS by css-loader and current/legacy Tailwind versions.
+  // in plain CSS by css-loader, current/legacy Tailwind versions, and postcss-mixins.
   ignoreAtRulesRule(
     'S4662',
     'at-rule-no-unknown',
     'ignoreAtRules',
     'Comma-separated list of "at-rules" to consider as valid.',
-    'value,tailwind,screen,responsive,variants,apply,theme,source,utility,variant,custom-variant,reference,config,plugin',
+    supportedCssToolDirectives.join(','),
   ),
   ...buildSimpleRules({
     S4663: 'comment-no-empty',

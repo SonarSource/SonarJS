@@ -19,31 +19,16 @@ import { expect } from 'expect';
 import { LinterWrapper } from '../../../src/css/linter/wrapper.js';
 import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { StylelintRuleTester } from '../tools/tester/tester.js';
+import { supportedCssToolDirectives } from '../../../src/css/rules/metadata.js';
 
 const ruleTester = new StylelintRuleTester('at-rule-no-unknown');
 const configuredRuleTester = new StylelintRuleTester('at-rule-no-unknown', [
   true,
   { ignoreAtRules: ['custom', '/^project-/'] },
 ]);
-const supportedToolDirectives = [
-  'value',
-  'tailwind',
-  'screen',
-  'responsive',
-  'variants',
-  'apply',
-  'theme',
-  'source',
-  'utility',
-  'variant',
-  'custom-variant',
-  'reference',
-  'config',
-  'plugin',
-];
 const supportedToolRuleTester = new StylelintRuleTester('at-rule-no-unknown', [
   true,
-  { ignoreAtRules: supportedToolDirectives },
+  { ignoreAtRules: supportedCssToolDirectives },
 ]);
 
 describe('at-rule-no-unknown', () => {
@@ -55,7 +40,7 @@ describe('at-rule-no-unknown', () => {
       ruleTester.valid({ code: `@${directive} example {}` }));
   }
 
-  for (const directive of supportedToolDirectives) {
+  for (const directive of supportedCssToolDirectives) {
     it(`accepts the supported @${directive} tool directive`, () =>
       supportedToolRuleTester.valid({ code: `@${directive} value;` }));
   }

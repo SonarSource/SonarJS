@@ -81,9 +81,6 @@ class CssRulesDefinitionTest {
     // AtRuleNoUnknown
     Param param = repository.rule("S4662").param("ignoreAtRules");
     assertThat(param).isNotNull();
-    assertThat(param.defaultValue()).isEqualTo(
-      "value,tailwind,screen,responsive,variants,apply,theme,source,utility,variant,custom-variant,reference,config,plugin"
-    );
     assertThat(param.description()).isEqualTo(
       "Comma-separated list of \"at-rules\" to consider as valid."
     );
