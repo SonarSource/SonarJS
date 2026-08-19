@@ -1,0 +1,23 @@
+packages/analysis/src/css/linter/issues/transform.ts
+  s_04c98e2f3fcfcc::t_fad0a5bf5b885a 132,138-147,151-153,155
+packages/analysis/tests/css/linter/issues/transform.test.ts
+  s_04c98e2f3fcfcc::t_807564c9f82393 388-400
+tools/generate-java-rule-classes.ts
+  s_04c98e2f3fcfcc::t_3a8ebae3c89fd6 688
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "58f493c9a146aff5349a939c319b74f2d473eb6d",
+  "prompts": {},
+  "sessions": {
+    "s_04c98e2f3fcfcc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01509-175b-7912-b50c-f57f3798830d",
+        "model": "unknown"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
