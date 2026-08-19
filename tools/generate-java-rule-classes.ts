@@ -57,7 +57,7 @@ const JAVA_CHECKS_FOLDER = join(
   'checks',
 );
 
-export async function generateParsingErrorClass() {
+async function generateParsingErrorClass() {
   await inflateTemplateToFile(
     join(JAVA_TEMPLATES_FOLDER, 'parsingError.template'),
     join(JAVA_CHECKS_FOLDER, `S2260.java`),
@@ -277,58 +277,60 @@ function generateJavaScriptProfileRuleKeys(profiles: QualityProfileRuleKeys<'js'
     .join(',');
 }
 
-const allChecks = [];
-const javaScriptRuleProfiles: RuleQualityProfileMetadata<'js' | 'ts'>[] = [];
+async function generateJavaScriptRuleClasses() {
+  const allChecks = [];
+  const javaScriptRuleProfiles: RuleQualityProfileMetadata<'js' | 'ts'>[] = [];
 
-for (const file of await listRulesDir()) {
-  if (file === 'S1541') {
-    allChecks.push(`${file}Js`);
-    allChecks.push(`${file}Ts`);
-  } else {
-    allChecks.push(file);
+  for (const file of await listRulesDir()) {
+    if (file === 'S1541') {
+      allChecks.push(`${file}Js`);
+      allChecks.push(`${file}Ts`);
+    } else {
+      allChecks.push(file);
+    }
+
+    const metadata = await generateJavaCheckClass(file);
+    javaScriptRuleProfiles.push({
+      ruleKey: file,
+      compatibleLanguages: metadata.compatibleLanguages,
+      defaultQualityProfiles: metadata.defaultQualityProfiles,
+    });
   }
 
-  const metadata = await generateJavaCheckClass(file);
-  javaScriptRuleProfiles.push({
-    ruleKey: file,
-    compatibleLanguages: metadata.compatibleLanguages,
-    defaultQualityProfiles: metadata.defaultQualityProfiles,
+  await generateParsingErrorClass();
+  allChecks.push('S2260');
+  const parsingErrorMetadata = await getRspecMeta('S2260', {
+    compatibleLanguages: ['js', 'ts'],
   });
+  javaScriptRuleProfiles.push({
+    ruleKey: 'S2260',
+    compatibleLanguages: parsingErrorMetadata.compatibleLanguages,
+    defaultQualityProfiles: parsingErrorMetadata.defaultQualityProfiles,
+  });
+
+  const javaScriptProfileRuleKeys = buildQualityProfileRuleKeys(
+    javaScriptRuleProfiles,
+    ['js', 'ts'],
+    sonarKeySorter,
+  );
+
+  await inflateTemplateToFile(
+    join(JAVA_TEMPLATES_FOLDER, 'allchecks.template'),
+    join(JAVA_CHECKS_FOLDER, 'AllChecks.java'),
+    {
+      ___JAVACHECKS_CLASSES___: allChecks
+        .toSorted(sonarKeySorter)
+        .map(rule => `${rule}.class`)
+        .join(','),
+      ___DEFAULT_QUALITY_PROFILE_NAMES___: javaStringCollection('List', [
+        ...javaScriptProfileRuleKeys.keys(),
+      ]),
+      ___DEFAULT_QUALITY_PROFILE_RULE_KEYS___:
+        generateJavaScriptProfileRuleKeys(javaScriptProfileRuleKeys),
+      ___HEADER___: header,
+    },
+  );
 }
-
-await generateParsingErrorClass();
-allChecks.push('S2260');
-const parsingErrorMetadata = await getRspecMeta('S2260', {
-  compatibleLanguages: ['js', 'ts'],
-});
-javaScriptRuleProfiles.push({
-  ruleKey: 'S2260',
-  compatibleLanguages: parsingErrorMetadata.compatibleLanguages,
-  defaultQualityProfiles: parsingErrorMetadata.defaultQualityProfiles,
-});
-
-const javaScriptProfileRuleKeys = buildQualityProfileRuleKeys(
-  javaScriptRuleProfiles,
-  ['js', 'ts'],
-  sonarKeySorter,
-);
-
-await inflateTemplateToFile(
-  join(JAVA_TEMPLATES_FOLDER, 'allchecks.template'),
-  join(JAVA_CHECKS_FOLDER, 'AllChecks.java'),
-  {
-    ___JAVACHECKS_CLASSES___: allChecks
-      .toSorted(sonarKeySorter)
-      .map(rule => `${rule}.class`)
-      .join(','),
-    ___DEFAULT_QUALITY_PROFILE_NAMES___: javaStringCollection('List', [
-      ...javaScriptProfileRuleKeys.keys(),
-    ]),
-    ___DEFAULT_QUALITY_PROFILE_RULE_KEYS___:
-      generateJavaScriptProfileRuleKeys(javaScriptProfileRuleKeys),
-    ___HEADER___: header,
-  },
-);
 
 // ===== CSS rule class generation =====
 
@@ -759,84 +761,93 @@ function generateCssRuleTestBody(
   return { perRuleTests: testMethods.join('\n'), rulesWithOptionsClasses, propertiesCount };
 }
 
-// Group cssRulesMeta by sqKey; multi-member groups become single multi-binding classes
-const cssRuleGroups = new Map<string, CssRuleMeta[]>();
-for (const rule of cssRulesMeta) {
-  const group = cssRuleGroups.get(rule.sqKey) ?? [];
-  group.push(rule);
-  cssRuleGroups.set(rule.sqKey, group);
-}
-const cssMultiBindingGroups = new Map(
-  [...cssRuleGroups.entries()].filter(([, metas]) => metas.length > 1),
-);
-
-for (const [sqKey, metas] of cssRuleGroups) {
-  if (metas.length === 1) {
-    await generateCssJavaCheckClass(metas[0]);
-  } else {
-    await generateCssMultiBindingJavaCheckClass(sqKey, metas);
+async function generateCssRuleClasses() {
+  // Group cssRulesMeta by sqKey; multi-member groups become single multi-binding classes
+  const cssRuleGroups = new Map<string, CssRuleMeta[]>();
+  for (const rule of cssRulesMeta) {
+    const group = cssRuleGroups.get(rule.sqKey) ?? [];
+    group.push(rule);
+    cssRuleGroups.set(rule.sqKey, group);
   }
-}
-await generateCssParsingErrorClass();
+  const cssMultiBindingGroups = new Map(
+    [...cssRuleGroups.entries()].filter(([, metas]) => metas.length > 1),
+  );
 
-// Generate CssRules.java
-const sortedCssRuleKeys = [
-  ...new Set([...cssRulesMeta.map(rule => rule.sqKey), CSS_PARSING_ERROR_RULE_KEY]),
-].toSorted(sonarKeySorter);
-
-const cssRuleProfiles: RuleQualityProfileMetadata<'css'>[] = [];
-for (const ruleKey of sortedCssRuleKeys) {
-  const defaultQualityProfiles = await getCssRspecDefaultQualityProfiles(ruleKey);
-  if (defaultQualityProfiles !== undefined && !Array.isArray(defaultQualityProfiles)) {
-    throw new Error(`Language-specific quality profiles are not supported for CSS rule ${ruleKey}`);
+  for (const [sqKey, metas] of cssRuleGroups) {
+    if (metas.length === 1) {
+      await generateCssJavaCheckClass(metas[0]);
+    } else {
+      await generateCssMultiBindingJavaCheckClass(sqKey, metas);
+    }
   }
-  cssRuleProfiles.push({
-    ruleKey,
-    compatibleLanguages: ['css'],
-    defaultQualityProfiles,
-  });
+  await generateCssParsingErrorClass();
+
+  // Generate CssRules.java
+  const sortedCssRuleKeys = [
+    ...new Set([...cssRulesMeta.map(rule => rule.sqKey), CSS_PARSING_ERROR_RULE_KEY]),
+  ].toSorted(sonarKeySorter);
+
+  const cssRuleProfiles: RuleQualityProfileMetadata<'css'>[] = [];
+  for (const ruleKey of sortedCssRuleKeys) {
+    const defaultQualityProfiles = await getCssRspecDefaultQualityProfiles(ruleKey);
+    if (defaultQualityProfiles !== undefined && !Array.isArray(defaultQualityProfiles)) {
+      throw new Error(
+        `Language-specific quality profiles are not supported for CSS rule ${ruleKey}`,
+      );
+    }
+    cssRuleProfiles.push({
+      ruleKey,
+      compatibleLanguages: ['css'],
+      defaultQualityProfiles,
+    });
+  }
+  const cssProfileRuleKeys = buildQualityProfileRuleKeys(cssRuleProfiles, ['css'], sonarKeySorter);
+  const generatedCssProfileRuleKeys = [...cssProfileRuleKeys]
+    .map(
+      ([profileName, rulesByLanguage]) =>
+        `Map.entry("${escapeJavaString(profileName)}", ${javaStringCollection(
+          'List',
+          rulesByLanguage.get('css') ?? [],
+        )})`,
+    )
+    .join(',');
+
+  const cssRuleImports = sortedCssRuleKeys
+    .map(ruleKey => `import org.sonar.css.rules.${ruleKey};`)
+    .join('\n');
+
+  const cssRuleClasses = sortedCssRuleKeys.map(ruleKey => `${ruleKey}.class`).join(',\n        ');
+
+  await inflateTemplateToFile(
+    join(JAVA_TEMPLATES_FOLDER, 'css-rules.template'),
+    join(CSS_JAVA_FOLDER, 'CssRules.java'),
+    {
+      ___HEADER___: header,
+      ___IMPORTS___: cssRuleImports,
+      ___RULE_CLASSES___: cssRuleClasses,
+      ___DEFAULT_QUALITY_PROFILE_RULE_KEYS___: generatedCssProfileRuleKeys,
+    },
+  );
+
+  // Generate CssRuleTest.java
+  const { perRuleTests, rulesWithOptionsClasses, propertiesCount } = generateCssRuleTestBody(
+    cssRulesMeta,
+    cssMultiBindingGroups,
+  );
+
+  await inflateTemplateToFile(
+    join(JAVA_TEMPLATES_FOLDER, 'css-rule-test.template'),
+    join(CSS_JAVA_TEST_FOLDER, 'CssRuleTest.java'),
+    {
+      ___HEADER___: header,
+      ___RULES_WITH_OPTIONS_CLASSES___: rulesWithOptionsClasses,
+      ___RULES_PROPERTIES_COUNT___: String(propertiesCount),
+      ___PER_RULE_TESTS___: perRuleTests,
+    },
+  );
 }
-const cssProfileRuleKeys = buildQualityProfileRuleKeys(cssRuleProfiles, ['css'], sonarKeySorter);
-const generatedCssProfileRuleKeys = [...cssProfileRuleKeys]
-  .map(
-    ([profileName, rulesByLanguage]) =>
-      `Map.entry("${escapeJavaString(profileName)}", ${javaStringCollection(
-        'List',
-        rulesByLanguage.get('css') ?? [],
-      )})`,
-  )
-  .join(',');
 
-const cssRuleImports = sortedCssRuleKeys
-  .map(ruleKey => `import org.sonar.css.rules.${ruleKey};`)
-  .join('\n');
-
-const cssRuleClasses = sortedCssRuleKeys.map(ruleKey => `${ruleKey}.class`).join(',\n        ');
-
-await inflateTemplateToFile(
-  join(JAVA_TEMPLATES_FOLDER, 'css-rules.template'),
-  join(CSS_JAVA_FOLDER, 'CssRules.java'),
-  {
-    ___HEADER___: header,
-    ___IMPORTS___: cssRuleImports,
-    ___RULE_CLASSES___: cssRuleClasses,
-    ___DEFAULT_QUALITY_PROFILE_RULE_KEYS___: generatedCssProfileRuleKeys,
-  },
-);
-
-// Generate CssRuleTest.java
-const { perRuleTests, rulesWithOptionsClasses, propertiesCount } = generateCssRuleTestBody(
-  cssRulesMeta,
-  cssMultiBindingGroups,
-);
-
-await inflateTemplateToFile(
-  join(JAVA_TEMPLATES_FOLDER, 'css-rule-test.template'),
-  join(CSS_JAVA_TEST_FOLDER, 'CssRuleTest.java'),
-  {
-    ___HEADER___: header,
-    ___RULES_WITH_OPTIONS_CLASSES___: rulesWithOptionsClasses,
-    ___RULES_PROPERTIES_COUNT___: String(propertiesCount),
-    ___PER_RULE_TESTS___: perRuleTests,
-  },
-);
+export async function generateJavaRuleClasses() {
+  await generateJavaScriptRuleClasses();
+  await generateCssRuleClasses();
+}
