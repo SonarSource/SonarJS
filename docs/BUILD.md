@@ -146,7 +146,9 @@ Local builds and CI do not consume RSPEC data the same way:
   `rspec-rule-data-${github.sha}` artifact. Downstream jobs use that refreshed artifact instead of
   the tracked JSON from the branch.
 - The nightly `generated_files_freshness` workflow keeps the tracked JSON on `master` reasonably
-  fresh, but pull request CI does not wait for those tracked files to be updated.
+  fresh, but pull request CI does not wait for those tracked files to be updated. That job also
+  regenerates the tracked README files and opens or updates the generated-files PR. README
+  generation is intentionally not part of the normal Maven lifecycle.
 
 Because of that, pull request CI can fail even when the tracked JSON in the branch still looks
 consistent.
@@ -241,7 +243,6 @@ It skips:
 - `tools/sync-nodejs-versions.mjs`
 - `npm run generate-meta`
 - `npm run generate-java-rule-classes`
-- `npm run count-rules`
 - bridge `npm run bridge:compile`
 - bridge `npm run bridge:bundle`
 - bridge `npm pack`
@@ -328,7 +329,6 @@ Because of that, a common workflow is:
 
 - runs `npm run generate-meta`
 - runs `npm run generate-java-rule-classes`
-- runs `npm run count-rules`
 - builds, bundles, and packs the bridge
 - generates `bridge/src/main/resources/org/sonar/plugins/javascript/bridge/node-info.properties`
 
