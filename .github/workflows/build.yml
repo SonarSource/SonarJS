@@ -288,7 +288,7 @@ jobs:
           retention-days: 1
 
   build_eslint_plugin:
-    runs-on: github-ubuntu-latest-s
+    runs-on: warp-custom-ubuntu-24-04
     needs: [setup, prepare_rspec_rule_data]
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -332,7 +332,7 @@ jobs:
           retention-days: 1
 
   generated_files_freshness:
-    runs-on: github-ubuntu-latest-s
+    runs-on: warp-custom-ubuntu-24-04
     needs: [prepare_rspec_rule_data, build_eslint_plugin]
     name: Generated Files Freshness
     if: github.event_name == 'schedule'
@@ -374,7 +374,7 @@ jobs:
           delete-branch: true
 
   test_eslint_plugin:
-    runs-on: github-ubuntu-latest-s
+    runs-on: warp-custom-ubuntu-24-04
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
     needs: [setup, build_eslint_plugin]
     permissions: *read_permissions
