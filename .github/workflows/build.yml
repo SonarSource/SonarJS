@@ -310,6 +310,9 @@ jobs:
       - *download_rspec_rule_data
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
+      - name: Regenerate tracked README files
+        if: github.event_name == 'schedule'
+        run: npm run count-rules
       - name: Upload ESLint plugin tarball
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -317,36 +320,33 @@ jobs:
           path: lib/eslint-plugin-sonarjs-0.0.0-SNAPSHOT.tgz
           if-no-files-found: error
           retention-days: 1
+      - name: Upload generated README files
+        if: github.event_name == 'schedule'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: generated-readmes-${{ github.sha }}
+          path: |
+            README.md
+            packages/analysis/src/jsts/rules/README.md
+          if-no-files-found: error
+          retention-days: 1
 
   generated_files_freshness:
     runs-on: github-ubuntu-latest-s
-    needs: [setup, populate_npm_cache, prepare_rspec_rule_data]
+    needs: [prepare_rspec_rule_data, build_eslint_plugin]
     name: Generated Files Freshness
     if: github.event_name == 'schedule'
     permissions:
-      id-token: write
       contents: write
       pull-requests: write
     steps:
       - *checkout
-      - *mise
-      - id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
-      - *npm_cache
       - *download_rspec_rule_data
-      - name: Regenerate tracked generated files
-        run: |
-          npm install --no-save builtin-modules@3.3.0
-          npm run eslint-plugin:compile
-          npm run count-rules
+      - name: Download generated README files
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: generated-readmes-${{ github.sha }}
+          path: .
       - name: Open or update generated files refresh PR
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
