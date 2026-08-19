@@ -19,7 +19,7 @@ import type PostCSS from 'postcss';
 import { debug, warn } from '../../../../../shared/src/helpers/logging.js';
 import type { CssIssue } from './issue.js';
 import type { NormalizedAbsolutePath } from '../../../../../shared/src/helpers/files.js';
-import { cssOnlyRuleKeys, sassOnlyRuleKeys } from '../css-only-rules.js';
+import { cssOnlyRuleKeys, scssOnlyRuleKeys } from '../css-only-rules.js';
 
 const NON_CSS_LANGS = new Set(['scss', 'sass', 'less', 'stylus', 'styl']);
 
@@ -118,7 +118,7 @@ function isInNonCssEmbeddedBlock(
   return false;
 }
 
-function isOutsideSassEmbeddedBlock(
+function isOutsideScssEmbeddedBlock(
   warning: stylelint.Warning,
   result: stylelint.LintResult,
 ): boolean {
@@ -129,7 +129,7 @@ function isOutsideSassEmbeddedBlock(
     return false;
   }
 
-  let hasSassBlockWithIncompleteRange = false;
+  let hasScssBlockWithIncompleteRange = false;
   for (const child of (root as PostCSS.Document).nodes) {
     if (child.type !== 'root') {
       continue;
@@ -137,22 +137,22 @@ function isOutsideSassEmbeddedBlock(
     const source = (child as PostCSS.Root).source;
     const lang = getEmbeddedBlockLang(source);
     if (
-      (lang === 'scss' || lang === 'sass') &&
+      lang === 'scss' &&
       (!isValidPosition(source?.start?.line) ||
         !isValidPosition(source?.start?.column) ||
         !isValidPosition(source?.end?.line) ||
         !isValidPosition(source?.end?.column))
     ) {
-      hasSassBlockWithIncompleteRange = true;
+      hasScssBlockWithIncompleteRange = true;
     }
     if (!isWithinSourceRange(warning, source as EmbeddedBlockSource)) {
       continue;
     }
-    if (lang === 'scss' || lang === 'sass') {
+    if (lang === 'scss') {
       return false;
     }
   }
-  return !hasSassBlockWithIncompleteRange;
+  return !hasScssBlockWithIncompleteRange;
 }
 
 /**
@@ -183,7 +183,7 @@ export function transform(
       if (cssOnlyRuleKeys.has(warning.rule) && isInNonCssEmbeddedBlock(warning, result)) {
         continue;
       }
-      if (sassOnlyRuleKeys.has(warning.rule) && isOutsideSassEmbeddedBlock(warning, result)) {
+      if (scssOnlyRuleKeys.has(warning.rule) && isOutsideScssEmbeddedBlock(warning, result)) {
         continue;
       }
 

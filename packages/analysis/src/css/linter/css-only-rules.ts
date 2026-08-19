@@ -37,5 +37,5 @@ export const cssOnlyRuleKeys = new Set<string>([
   'at-rule-prelude-no-invalid',
 ]);
 
-/** Keys of stylelint rules that are appropriate only for Sass syntaxes. */
-export const sassOnlyRuleKeys = new Set<string>(['scss/at-rule-no-unknown']);
+/** Keys of stylelint rules that are appropriate only for SCSS syntax. */
+export const scssOnlyRuleKeys = new Set<string>(['scss/at-rule-no-unknown']);

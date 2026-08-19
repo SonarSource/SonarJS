@@ -141,36 +141,23 @@ describe('scss/at-rule-no-unknown', () => {
       codeFilename: 'styles.scss',
     }));
 
-  it('accepts user-defined mixins in indented Sass', () =>
-    sassRuleTester.valid({
-      code: `@mixin themed($color)
-  color: $color
-
-.button
-  @include themed(red)
-`,
-      codeFilename: 'styles.sass',
+  it('reports unknown at-rules in SCSS', () =>
+    sassRuleTester.invalid({
+      code: '@unknown value;\n',
+      codeFilename: 'styles.scss',
+      errors: [
+        {
+          text: 'Unexpected unknown at-rule "@unknown" (scss/at-rule-no-unknown)',
+          line: 1,
+        },
+      ],
     }));
-
-  for (const codeFilename of ['styles.scss', 'styles.sass']) {
-    it(`reports unknown at-rules in ${codeFilename}`, () =>
-      sassRuleTester.invalid({
-        code: '@unknown value\n',
-        codeFilename,
-        errors: [
-          {
-            text: 'Unexpected unknown at-rule "@unknown" (scss/at-rule-no-unknown)',
-            line: 1,
-          },
-        ],
-      }));
-  }
 
   it('accepts configured names and regular expressions', async () => {
     await configuredSassRuleTester.valid({ code: '@custom {}', codeFilename: 'styles.scss' });
     await configuredSassRuleTester.valid({
       code: '@project-extension value\n',
-      codeFilename: 'styles.sass',
+      codeFilename: 'styles.scss',
     });
   });
 
@@ -192,18 +179,16 @@ describe('scss/at-rule-no-unknown', () => {
     linter.initialize([{ key: 'scss/at-rule-no-unknown', configurations: [] }]);
     const vueFile = normalizeToAbsolutePath('/tmp/component.vue');
 
-    for (const lang of ['scss', 'sass']) {
-      it(`reports on a lang="${lang}" style block`, async () => {
-        const { issues } = await linter.lint(
-          vueFile,
-          `<style lang="${lang}">\n@unknown value\n</style>`,
-        );
-        expect(issues).toHaveLength(1);
-        expect(issues[0].ruleId).toBe('scss/at-rule-no-unknown');
-      });
-    }
+    it('reports on a lang="scss" style block', async () => {
+      const { issues } = await linter.lint(
+        vueFile,
+        '<style lang="scss">\n@unknown value;\n</style>',
+      );
+      expect(issues).toHaveLength(1);
+      expect(issues[0].ruleId).toBe('scss/at-rule-no-unknown');
+    });
 
-    for (const lang of [undefined, 'css', 'less']) {
+    for (const lang of [undefined, 'css', 'sass', 'less']) {
       it(`does not report on a ${lang ?? 'plain CSS'} style block`, async () => {
         const attribute = lang ? ` lang="${lang}"` : '';
         const { issues } = await linter.lint(vueFile, `<style${attribute}>@unknown value</style>`);

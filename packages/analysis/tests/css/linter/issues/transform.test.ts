@@ -19,7 +19,7 @@ import { transform } from '../../../../src/css/linter/issues/transform.js';
 import { describe, it, beforeEach, afterEach, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
-import { cssOnlyRuleKeys, sassOnlyRuleKeys } from '../../../../src/css/linter/css-only-rules.js';
+import { cssOnlyRuleKeys, scssOnlyRuleKeys } from '../../../../src/css/linter/css-only-rules.js';
 
 describe('transform', () => {
   it('should transform Stylelint results into issues', () => {
@@ -228,8 +228,8 @@ describe('transform', () => {
 
     beforeEach(() => cssOnlyRuleKeys.add('css-only-rule'));
     afterEach(() => cssOnlyRuleKeys.delete('css-only-rule'));
-    beforeEach(() => sassOnlyRuleKeys.add('sass-only-rule'));
-    afterEach(() => sassOnlyRuleKeys.delete('sass-only-rule'));
+    beforeEach(() => scssOnlyRuleKeys.add('scss-only-rule'));
+    afterEach(() => scssOnlyRuleKeys.delete('scss-only-rule'));
 
     function makeDocumentResult(
       blocks: Array<{
@@ -314,21 +314,23 @@ describe('transform', () => {
       expect(transform([result], filePath)).toHaveLength(0);
     });
 
-    it('reports Sass-only warnings from scss and sass blocks', () => {
+    it('reports SCSS-only warnings from scss blocks', () => {
       const result = makeDocumentResult(
         [
           { lang: 'scss', startLine: 1, endLine: 5 },
           { lang: 'SASS', startLine: 7, endLine: 12 },
         ],
         [
-          { rule: 'sass-only-rule', line: 3 },
-          { rule: 'sass-only-rule', line: 9 },
+          { rule: 'scss-only-rule', line: 3 },
+          { rule: 'scss-only-rule', line: 9 },
         ],
       );
-      expect(transform([result], filePath)).toHaveLength(2);
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(1);
+      expect(issues[0].line).toBe(3);
     });
 
-    it('suppresses Sass-only warnings from CSS, Less, and unrelated blocks', () => {
+    it('suppresses SCSS-only warnings from CSS, Less, and unrelated blocks', () => {
       const result = makeDocumentResult(
         [
           { startLine: 1, endLine: 5 },
@@ -337,10 +339,10 @@ describe('transform', () => {
           { lang: 'stylus', startLine: 20, endLine: 24 },
         ],
         [
-          { rule: 'sass-only-rule', line: 3 },
-          { rule: 'sass-only-rule', line: 9 },
-          { rule: 'sass-only-rule', line: 16 },
-          { rule: 'sass-only-rule', line: 22 },
+          { rule: 'scss-only-rule', line: 3 },
+          { rule: 'scss-only-rule', line: 9 },
+          { rule: 'scss-only-rule', line: 16 },
+          { rule: 'scss-only-rule', line: 22 },
         ],
       );
       expect(transform([result], filePath)).toHaveLength(0);
@@ -385,13 +387,13 @@ describe('transform', () => {
       expect(issues[0].line).toBe(5);
     });
 
-    it('does not suppress Sass-only warnings when a Sass block has no explicit end position', () => {
+    it('does not suppress SCSS-only warnings when an SCSS block has no explicit end position', () => {
       const result = makeDocumentResult(
         [
           { lang: 'scss', startLine: 1 }, // missing end → cannot safely match
           { startLine: 5, endLine: 6 },
         ],
-        [{ rule: 'sass-only-rule', line: 5, column: 3 }],
+        [{ rule: 'scss-only-rule', line: 5, column: 3 }],
       );
       const issues = transform([result], filePath);
       expect(issues).toHaveLength(1);

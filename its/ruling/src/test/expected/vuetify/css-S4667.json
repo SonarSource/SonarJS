@@ -2,6 +2,12 @@
 "vuetify:packages/vuetify/src/components/VTreeview/_mixins.sass": [
 1
 ],
+"vuetify:packages/vuetify/src/styles/elements/_index.sass": [
+1
+],
+"vuetify:packages/vuetify/src/styles/settings/_index.sass": [
+1
+],
 "vuetify:packages/vuetify/src/styles/tools/_absolute.sass": [
 1
 ],
@@ -9,6 +15,12 @@
 1
 ],
 "vuetify:packages/vuetify/src/styles/tools/_border.sass": [
+1
+],
+"vuetify:packages/vuetify/src/styles/tools/_display.sass": [
+1
+],
+"vuetify:packages/vuetify/src/styles/tools/_index.sass": [
 1
 ],
 "vuetify:packages/vuetify/src/styles/tools/_position.sass": [
@@ -24,6 +36,9 @@
 1
 ],
 "vuetify:packages/vuetify/src/styles/tools/_typography.sass": [
+1
+],
+"vuetify:packages/vuetify/src/styles/tools/_variant.sass": [
 1
 ]
 }
