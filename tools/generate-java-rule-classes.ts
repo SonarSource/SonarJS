@@ -57,7 +57,7 @@ const JAVA_CHECKS_FOLDER = join(
   'checks',
 );
 
-export async function generateParsingErrorClass() {
+async function generateParsingErrorClass() {
   await inflateTemplateToFile(
     join(JAVA_TEMPLATES_FOLDER, 'parsingError.template'),
     join(JAVA_CHECKS_FOLDER, `S2260.java`),
