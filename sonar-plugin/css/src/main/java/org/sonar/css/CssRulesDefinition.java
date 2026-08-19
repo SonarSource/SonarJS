@@ -45,9 +45,19 @@ public class CssRulesDefinition implements RulesDefinition {
       sonarRuntime
     );
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, CssRules.getRuleClasses());
-    CssRules.getDefaultQualityProfileRuleKeys(CssProfileDefinition.PROFILE_NAME).forEach(key ->
-      repository.rule(key).setActivatedByDefault(true)
-    );
+    CssRules.getDefaultQualityProfileRuleKeys(CssProfileDefinition.PROFILE_NAME).forEach(key -> {
+      NewRule rule = repository.rule(key);
+      if (rule == null) {
+        throw new IllegalStateException(
+          "Rule " +
+            key +
+            " is declared in the " +
+            CssProfileDefinition.PROFILE_NAME +
+            " profile for CSS but is not registered"
+        );
+      }
+      rule.setActivatedByDefault(true);
+    });
     repository.done();
 
     StylelintReportSensor.getStylelintRuleLoader().createExternalRuleRepository(context);
