@@ -1,1 +1,3 @@
-<style scoped lang="sass"></style>
+<style scoped lang="sass">
+@unknown value
+</style>

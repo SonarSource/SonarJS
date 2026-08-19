@@ -106,7 +106,7 @@ class CssIssuesTest {
         tuple("css:S4667", "src/empty2.less"),
         tuple("css:S4667", "src/empty3.scss"),
         tuple("css:S2260", "src/file-with-parsing-error.css"),
-        tuple("css:S4667", "src/emptySass.vue"),
+        tuple("css:S4662", "src/emptySass.vue"),
         tuple("css:S1128", "src/file1.css"),
         tuple("css:S1116", "src/file1.css"),
         tuple("css:S4664", "src/file1.css"),
@@ -169,6 +169,7 @@ class CssIssuesTest {
         tuple("css:S4651", "src/file3.scss"),
         tuple("css:S4666", "src/file3.scss"),
         tuple("css:S4670", "src/file3.scss"),
+        tuple("css:S4662", "src/file3.scss"),
         tuple("css:S4655", "src/file3.scss"),
         tuple("css:S4658", "src/file3.scss"),
         tuple("css:S4661", "src/file3.scss"),
@@ -182,7 +183,8 @@ class CssIssuesTest {
         tuple("css:S8767", "src/file1.css"),
         tuple("css:S8767", "src/file1.css"),
         tuple("css:S8767", "src/file2.less"),
-        tuple("css:S8767", "src/file3.scss")
+        tuple("css:S8767", "src/file3.scss"),
+        tuple("css:S4662", "src/file8.sass")
       );
   }
 }

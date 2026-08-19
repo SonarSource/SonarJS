@@ -19,7 +19,7 @@ import type PostCSS from 'postcss';
 import { debug, warn } from '../../../../../shared/src/helpers/logging.js';
 import type { CssIssue } from './issue.js';
 import type { NormalizedAbsolutePath } from '../../../../../shared/src/helpers/files.js';
-import { cssOnlyRuleKeys } from '../css-only-rules.js';
+import { cssOnlyRuleKeys, sassOnlyRuleKeys } from '../css-only-rules.js';
 
 const NON_CSS_LANGS = new Set(['scss', 'sass', 'less', 'stylus', 'styl']);
 
@@ -96,9 +96,7 @@ function isInNonCssEmbeddedBlock(
   result: stylelint.LintResult,
 ): boolean {
   const root = (result as { _postcssResult?: { root?: unknown } })._postcssResult?.root as
-    | PostCSS.Root
-    | PostCSS.Document
-    | undefined;
+    PostCSS.Root | PostCSS.Document | undefined;
 
   if (root?.type !== 'document') {
     return false;
@@ -118,6 +116,31 @@ function isInNonCssEmbeddedBlock(
     }
   }
   return false;
+}
+
+function isOutsideSassEmbeddedBlock(
+  warning: stylelint.Warning,
+  result: stylelint.LintResult,
+): boolean {
+  const root = (result as { _postcssResult?: { root?: unknown } })._postcssResult?.root as
+    PostCSS.Root | PostCSS.Document | undefined;
+
+  if (root?.type !== 'document') {
+    return false;
+  }
+
+  for (const child of (root as PostCSS.Document).nodes) {
+    if (child.type !== 'root') {
+      continue;
+    }
+    const source = (child as PostCSS.Root).source;
+    if (!isWithinSourceRange(warning, source as EmbeddedBlockSource)) {
+      continue;
+    }
+    const lang = getEmbeddedBlockLang(source);
+    return lang !== 'scss' && lang !== 'sass';
+  }
+  return true;
 }
 
 /**
@@ -146,6 +169,9 @@ export function transform(
     for (const warning of result.warnings) {
       // CSS-only rules must not report on non-CSS embedded blocks (e.g. <style lang="scss">).
       if (cssOnlyRuleKeys.has(warning.rule) && isInNonCssEmbeddedBlock(warning, result)) {
+        continue;
+      }
+      if (sassOnlyRuleKeys.has(warning.rule) && isOutsideSassEmbeddedBlock(warning, result)) {
         continue;
       }
 

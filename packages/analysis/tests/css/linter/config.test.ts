@@ -18,7 +18,7 @@ import { sonarRules } from '../../../src/css/rules/index.js';
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import { expect } from 'expect';
 import { createStylelintConfig, RuleConfig } from '../../../src/css/linter/config.js';
-import { cssOnlyRuleKeys } from '../../../src/css/linter/css-only-rules.js';
+import { cssOnlyRuleKeys, sassOnlyRuleKeys } from '../../../src/css/linter/css-only-rules.js';
 
 describe('createStylelintConfig', () => {
   it('should create a Stylelint config', () => {
@@ -55,9 +55,7 @@ describe('createStylelintConfig', () => {
 
     it('includes CSS-only rules in the **/*.css override', () => {
       const config = createStylelintConfig([{ key: 'css-only-rule', configurations: [] }]);
-      const cssOverride = config.overrides?.find(o =>
-        (o.files as string[])?.includes('**/*.css'),
-      );
+      const cssOverride = config.overrides?.find(o => (o.files as string[])?.includes('**/*.css'));
       expect(cssOverride?.rules).toHaveProperty('css-only-rule', true);
     });
 
@@ -77,6 +75,34 @@ describe('createStylelintConfig', () => {
       for (const override of preprocessorOverrides ?? []) {
         expect(override.rules ?? {}).not.toHaveProperty('css-only-rule');
       }
+    });
+  });
+
+  describe('Sass-only rule routing', () => {
+    beforeEach(() => sassOnlyRuleKeys.add('sass-only-rule'));
+    afterEach(() => sassOnlyRuleKeys.delete('sass-only-rule'));
+
+    it('routes Sass-only rules to scss, sass, and embedded overrides', () => {
+      const config = createStylelintConfig([{ key: 'sass-only-rule', configurations: [] }]);
+      expect(config.rules).not.toHaveProperty('sass-only-rule');
+
+      const cssOverride = config.overrides?.find(o => (o.files as string[])?.includes('**/*.css'));
+      expect(cssOverride?.rules ?? {}).not.toHaveProperty('sass-only-rule');
+
+      for (const pattern of ['**/*.scss', '**/*.sass']) {
+        const override = config.overrides?.find(o => (o.files as string[])?.includes(pattern));
+        expect(override?.rules).toHaveProperty('sass-only-rule', true);
+      }
+
+      const lessOverride = config.overrides?.find(o =>
+        (o.files as string[])?.includes('**/*.less'),
+      );
+      expect(lessOverride?.rules ?? {}).not.toHaveProperty('sass-only-rule');
+
+      const embeddedOverride = config.overrides?.find(
+        o => o.customSyntax != null && !(o.files as string[])?.includes('**/*.css'),
+      );
+      expect(embeddedOverride?.rules).toHaveProperty('sass-only-rule', true);
     });
   });
 });

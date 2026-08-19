@@ -1,0 +1,35 @@
+diff --git a/node_modules/postcss-sass/parser.js b/node_modules/postcss-sass/parser.js
+index 3c99928..519620c 100644
+--- a/node_modules/postcss-sass/parser.js
++++ b/node_modules/postcss-sass/parser.js
+@@ -439,8 +439,28 @@ class SassParser {
+         let supportedNode = node.content[0].content.some(contentNode =>
+             SUPPORTED_AT_KEYWORDS.includes(contentNode.content)
+         )
+-        if (!supportedNode) return
+-
++        if (!supportedNode) {
++            let source = this.extractSource(node.start, node.end)
++            let [header] = source.split(/\r?\n/, 1)
++            let match = header.trim().match(/^@([\w-]+)(?:\s+(.+))?$/)
++            if (!match) return
++            let atrule = postcss.atRule({
++                name: match[1],
++                params: match[2] || ''
++            })
++            atrule.source = {
++                start: node.start,
++                end: node.end,
++                input: this.input
++            }
++            atrule.raws = {
++                before: this.raws.before || DEFAULT_RAWS_RULE.before,
++                afterName: match[2] ? ' ' : ''
++            }
++            parent.nodes.push(atrule)
++            return
++        }
++
+         let atrule = postcss.rule()
+         atrule.selector = ''
+         atrule.raws = {

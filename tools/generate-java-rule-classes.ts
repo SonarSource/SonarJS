@@ -450,17 +450,23 @@ async function generateCssMultiBindingJavaCheckClass(
 
   const lines: string[] = [];
 
-  // @RuleProperty fields — one per listParam entry across all bindings
-  for (const meta of metas) {
-    for (const param of meta.listParam ?? []) {
-      lines.push(`@RuleProperty(`);
-      lines.push(`  key = "${param.sqKey}",`);
-      lines.push(`  description = "${escapeJavaString(param.description)}",`);
-      lines.push(`  defaultValue = ""`);
-      lines.push(`)`);
-      lines.push(`String ${param.javaField} = "";`);
-      lines.push('');
-    }
+  const uniqueParams = [
+    ...new Map(
+      metas
+        .flatMap(meta => meta.listParam ?? [])
+        .map(param => [`${param.sqKey}:${param.javaField}`, param]),
+    ).values(),
+  ];
+
+  // @RuleProperty fields — one per distinct listParam across all bindings
+  for (const param of uniqueParams) {
+    lines.push(`@RuleProperty(`);
+    lines.push(`  key = "${param.sqKey}",`);
+    lines.push(`  description = "${escapeJavaString(param.description)}",`);
+    lines.push(`  defaultValue = "${escapeJavaString(param.default)}"`);
+    lines.push(`)`);
+    lines.push(`String ${param.javaField} = "${escapeJavaString(param.default)}";`);
+    lines.push('');
   }
 
   // stylelintRules() override — one entry per binding.
@@ -468,10 +474,8 @@ async function generateCssMultiBindingJavaCheckClass(
   // that would arise from passing it to both toOptions() and the option class constructor.
   lines.push('@Override');
   lines.push('public List<StylelintRule> stylelintRules() {');
-  for (const meta of metas) {
-    for (const param of meta.listParam ?? []) {
-      lines.push(`  List<String> ${param.javaField}Split = splitAndTrim(${param.javaField});`);
-    }
+  for (const param of uniqueParams) {
+    lines.push(`  List<String> ${param.javaField}Split = splitAndTrim(${param.javaField});`);
   }
   lines.push('  return Arrays.asList(');
   for (let i = 0; i < metas.length; i++) {
@@ -496,10 +500,13 @@ async function generateCssMultiBindingJavaCheckClass(
   lines.push('');
 
   // Inner option classes — one per binding with listParams, covering all listParam fields
+  const generatedOptionClasses = new Set<string>();
   for (const meta of metas) {
     const params = meta.listParam ?? [];
     if (!params.length) continue;
     const optClass = `${capitalize(params[0].stylelintOptionKey)}IgnoreOption`;
+    if (generatedOptionClasses.has(optClass)) continue;
+    generatedOptionClasses.add(optClass);
     lines.push(`private static class ${optClass} {`);
     lines.push('');
     for (const param of params) {
