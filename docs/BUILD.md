@@ -101,8 +101,8 @@ Refresh tracked RSPEC rule data explicitly:
 npm run rspec:refresh
 ```
 
-That refresh uses a dedicated root Maven profile. It syncs RSPEC once and generates both JavaScript
-and CSS rule data from the same checkout.
+That refresh uses a dedicated root Maven profile. It syncs RSPEC once during `generate-resources`,
+then deploys the JavaScript and CSS rule data during `process-resources`.
 
 Override the default RSPEC branch for one refresh run:
 
@@ -338,9 +338,9 @@ Because of that, a common workflow is:
 Explicit RSPEC refresh
 
 - `npm run rspec:refresh`
-- runs a root, non-recursive Maven profile
-- syncs RSPEC once for JavaScript and CSS
-- runs `npm run deploy-rule-data`
+- runs a root-owned, non-recursive Maven profile
+- syncs RSPEC once for JavaScript and CSS during `generate-resources`
+- runs `npm run deploy-rule-data` during `process-resources`
 - does not depend on the `javascript-checks` module lifecycle or hidden file-missing profiles
 
 `process-resources`

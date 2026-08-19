@@ -410,6 +410,7 @@
             <groupId>org.sonarsource.rspec</groupId>
             <artifactId>rspec-maven-plugin</artifactId>
             <version>${rspec-maven-plugin.version}</version>
+            <inherited>false</inherited>
             <configuration>
               <githubToken>${env.GITHUB_TOKEN}</githubToken>
               <rspecSha>${rspec.sha}</rspecSha>
@@ -441,10 +442,11 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
+            <inherited>false</inherited>
             <executions>
               <execution>
                 <id>deploy-rule-data</id>
-                <phase>generate-resources</phase>
+                <phase>process-resources</phase>
                 <goals>
                   <goal>exec</goal>
                 </goals>
