@@ -16,8 +16,6 @@
  */
 package org.sonar.css;
 
-import static org.sonar.css.CssProfileDefinition.PROFILE_PATH;
-
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
@@ -28,6 +26,7 @@ public class CssRulesDefinition implements RulesDefinition {
   public static final String RULE_REPOSITORY_NAME = "SonarQube";
 
   public static final String RESOURCE_FOLDER = "org/sonar/l10n/css/rules/";
+  private static final String RULE_METADATA_FOLDER = RESOURCE_FOLDER + REPOSITORY_KEY;
 
   private final SonarRuntime sonarRuntime;
 
@@ -42,11 +41,23 @@ public class CssRulesDefinition implements RulesDefinition {
       .setName(RULE_REPOSITORY_NAME);
 
     RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(
-      RESOURCE_FOLDER + REPOSITORY_KEY,
-      PROFILE_PATH,
+      RULE_METADATA_FOLDER,
       sonarRuntime
     );
     ruleMetadataLoader.addRulesByAnnotatedClass(repository, CssRules.getRuleClasses());
+    CssRules.getDefaultQualityProfileRuleKeys(CssProfileDefinition.PROFILE_NAME).forEach(key -> {
+      NewRule rule = repository.rule(key);
+      if (rule == null) {
+        throw new IllegalStateException(
+          "Rule " +
+            key +
+            " is declared in the " +
+            CssProfileDefinition.PROFILE_NAME +
+            " profile for CSS but is not registered"
+        );
+      }
+      rule.setActivatedByDefault(true);
+    });
     repository.done();
 
     StylelintReportSensor.getStylelintRuleLoader().createExternalRuleRepository(context);

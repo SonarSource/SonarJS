@@ -31,7 +31,7 @@ const REPOSITORY_ROOT = join(DIRNAME, '..');
 export const TS_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'ts');
 export const JAVA_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'java');
 export const RULES_FOLDER = join(REPOSITORY_ROOT, 'packages', 'analysis', 'src', 'jsts', 'rules');
-const METADATA_FOLDER = join(
+const JAVASCRIPT_METADATA_FOLDER = join(
   REPOSITORY_ROOT,
   'sonar-plugin',
   'javascript-checks',
@@ -45,6 +45,20 @@ const METADATA_FOLDER = join(
   'rules',
   'javascript',
 );
+const CSS_METADATA_FOLDER = join(
+  REPOSITORY_ROOT,
+  'sonar-plugin',
+  'css',
+  'src',
+  'main',
+  'resources',
+  'org',
+  'sonar',
+  'l10n',
+  'css',
+  'rules',
+  'css',
+);
 export const header = await readFile(join(DIRNAME, 'header.ts'), 'utf8');
 
 export const typeMatrix = {
@@ -54,7 +68,7 @@ export const typeMatrix = {
   VULNERABILITY: 'problem',
 } as const;
 
-type rspecMeta = {
+export type RspecMeta = {
   type: keyof typeof typeMatrix;
   status: 'ready' | 'beta' | 'closed' | 'deprecated' | 'superseded';
   title: string;
@@ -122,14 +136,14 @@ export async function getESLintDefaultConfiguration(
 
 export async function getRspecMeta(
   sonarKey: string,
-  defaults: { compatibleLanguages?: ('js' | 'ts')[]; scope?: 'Main' | 'Tests' },
-): Promise<rspecMeta> {
-  const rspecFile = join(METADATA_FOLDER, `${sonarKey}.json`);
+  defaults: { compatibleLanguages?: ('js' | 'ts')[]; scope?: 'Main' | 'Tests' } = {},
+): Promise<RspecMeta> {
+  const rspecFile = join(JAVASCRIPT_METADATA_FOLDER, `${sonarKey}.json`);
   const rspecFileExists = await exists(rspecFile);
   if (!rspecFileExists) {
     console.log(`RSPEC metadata not found for rule ${sonarKey}.`);
   }
-  const meta: rspecMeta = rspecFileExists
+  const meta: RspecMeta = rspecFileExists
     ? JSON.parse(await readFile(rspecFile, 'utf-8'))
     : {
         // Dummy data to create compilable new rule metadata
@@ -148,6 +162,19 @@ export async function getRspecMeta(
     );
   }
   return meta;
+}
+
+export async function getCssRspecDefaultQualityProfiles(
+  sonarKey: string,
+): Promise<DefaultQualityProfiles | undefined> {
+  const rspecFile = join(CSS_METADATA_FOLDER, `${sonarKey}.json`);
+  if (!(await exists(rspecFile))) {
+    throw new Error(`RSPEC metadata not found for CSS rule ${sonarKey}`);
+  }
+  const metadata = JSON.parse(await readFile(rspecFile, 'utf-8')) as {
+    defaultQualityProfiles?: DefaultQualityProfiles;
+  };
+  return metadata.defaultQualityProfiles;
 }
 
 /**

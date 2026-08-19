@@ -20,8 +20,14 @@ import {
   ESLintConfigurationProperty,
   ESLintConfigurationSQProperty,
 } from '../packages/analysis/src/jsts/rules/helpers/configs.js';
+import {
+  buildQualityProfileRuleKeys,
+  type QualityProfileRuleKeys,
+  type RuleQualityProfileMetadata,
+} from '../packages/analysis/src/jsts/rules/quality-profiles.js';
 import assert from 'node:assert';
 import {
+  getCssRspecDefaultQualityProfiles,
   getESLintDefaultConfiguration,
   getRspecMeta,
   getRuleMetadata,
@@ -29,6 +35,7 @@ import {
   inflateTemplateToFile,
   JAVA_TEMPLATES_FOLDER,
   listRulesDir,
+  type RspecMeta,
   sonarKeySorter,
   writePrettyFile,
 } from './helpers.js';
@@ -88,12 +95,12 @@ async function inflate1541() {
 export async function generateJavaCheckClass(
   sonarKey: string,
   defaults?: { compatibleLanguages?: ('js' | 'ts')[]; scope?: 'Main' | 'Tests' },
-) {
+): Promise<RspecMeta> {
+  const ruleRspecMeta = await getRspecMeta(sonarKey, defaults);
   if (sonarKey === 'S1541') {
     await inflate1541();
-    return;
+    return ruleRspecMeta;
   }
-  const ruleRspecMeta = await getRspecMeta(sonarKey, defaults);
   const imports: Set<string> = new Set();
   const decorators = [];
   let javaCheckClass: string;
@@ -129,6 +136,7 @@ export async function generateJavaCheckClass(
       ___BODY___: body.join('\n'),
     },
   );
+  return ruleRspecMeta;
 }
 
 function isSonarSQProperty(
@@ -254,7 +262,23 @@ function generateBody(
   return result;
 }
 
+function javaStringCollection(type: 'List' | 'Set', values: string[]): string {
+  return `${type}.of(${values.map(value => `"${escapeJavaString(value)}"`).join(',')})`;
+}
+
+function generateJavaScriptProfileRuleKeys(profiles: QualityProfileRuleKeys<'js' | 'ts'>): string {
+  return [...profiles]
+    .map(
+      ([profileName, rulesByLanguage]) =>
+        `Map.entry("${escapeJavaString(profileName)}", Map.of(` +
+        `Language.JAVASCRIPT, ${javaStringCollection('Set', rulesByLanguage.get('js') ?? [])}, ` +
+        `Language.TYPESCRIPT, ${javaStringCollection('Set', rulesByLanguage.get('ts') ?? [])}))`,
+    )
+    .join(',');
+}
+
 const allChecks = [];
+const javaScriptRuleProfiles: RuleQualityProfileMetadata<'js' | 'ts'>[] = [];
 
 for (const file of await listRulesDir()) {
   if (file === 'S1541') {
@@ -264,11 +288,30 @@ for (const file of await listRulesDir()) {
     allChecks.push(file);
   }
 
-  await generateJavaCheckClass(file);
+  const metadata = await generateJavaCheckClass(file);
+  javaScriptRuleProfiles.push({
+    ruleKey: file,
+    compatibleLanguages: metadata.compatibleLanguages,
+    defaultQualityProfiles: metadata.defaultQualityProfiles,
+  });
 }
 
 await generateParsingErrorClass();
 allChecks.push('S2260');
+const parsingErrorMetadata = await getRspecMeta('S2260', {
+  compatibleLanguages: ['js', 'ts'],
+});
+javaScriptRuleProfiles.push({
+  ruleKey: 'S2260',
+  compatibleLanguages: parsingErrorMetadata.compatibleLanguages,
+  defaultQualityProfiles: parsingErrorMetadata.defaultQualityProfiles,
+});
+
+const javaScriptProfileRuleKeys = buildQualityProfileRuleKeys(
+  javaScriptRuleProfiles,
+  ['js', 'ts'],
+  sonarKeySorter,
+);
 
 await inflateTemplateToFile(
   join(JAVA_TEMPLATES_FOLDER, 'allchecks.template'),
@@ -278,6 +321,11 @@ await inflateTemplateToFile(
       .toSorted(sonarKeySorter)
       .map(rule => `${rule}.class`)
       .join(','),
+    ___DEFAULT_QUALITY_PROFILE_NAMES___: javaStringCollection('List', [
+      ...javaScriptProfileRuleKeys.keys(),
+    ]),
+    ___DEFAULT_QUALITY_PROFILE_RULE_KEYS___:
+      generateJavaScriptProfileRuleKeys(javaScriptProfileRuleKeys),
     ___HEADER___: header,
   },
 );
@@ -736,6 +784,29 @@ const sortedCssRuleKeys = [
   ...new Set([...cssRulesMeta.map(rule => rule.sqKey), CSS_PARSING_ERROR_RULE_KEY]),
 ].toSorted(sonarKeySorter);
 
+const cssRuleProfiles: RuleQualityProfileMetadata<'css'>[] = [];
+for (const ruleKey of sortedCssRuleKeys) {
+  const defaultQualityProfiles = await getCssRspecDefaultQualityProfiles(ruleKey);
+  if (defaultQualityProfiles !== undefined && !Array.isArray(defaultQualityProfiles)) {
+    throw new Error(`Language-specific quality profiles are not supported for CSS rule ${ruleKey}`);
+  }
+  cssRuleProfiles.push({
+    ruleKey,
+    compatibleLanguages: ['css'],
+    defaultQualityProfiles,
+  });
+}
+const cssProfileRuleKeys = buildQualityProfileRuleKeys(cssRuleProfiles, ['css'], sonarKeySorter);
+const generatedCssProfileRuleKeys = [...cssProfileRuleKeys]
+  .map(
+    ([profileName, rulesByLanguage]) =>
+      `Map.entry("${escapeJavaString(profileName)}", ${javaStringCollection(
+        'List',
+        rulesByLanguage.get('css') ?? [],
+      )})`,
+  )
+  .join(',');
+
 const cssRuleImports = sortedCssRuleKeys
   .map(ruleKey => `import org.sonar.css.rules.${ruleKey};`)
   .join('\n');
@@ -749,6 +820,7 @@ await inflateTemplateToFile(
     ___HEADER___: header,
     ___IMPORTS___: cssRuleImports,
     ___RULE_CLASSES___: cssRuleClasses,
+    ___DEFAULT_QUALITY_PROFILE_RULE_KEYS___: generatedCssProfileRuleKeys,
   },
 );
 

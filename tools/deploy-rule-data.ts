@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { execFileSync } from 'node:child_process';
-import { listRulesDir } from './helpers.js';
+import { listRulesDir, sonarKeySorter } from './helpers.js';
 import {
   copyFileSync,
   existsSync,
@@ -29,7 +29,6 @@ import { homedir } from 'node:os';
 import { join as joinNative } from 'node:path';
 import { dirname, join, resolve } from 'node:path/posix';
 import { cssRulesMeta } from '../packages/analysis/src/css/rules/metadata.js';
-import { sortRuleKeys } from '../packages/analysis/src/jsts/rules/quality-profiles.js';
 
 const sourceFolder = resolve('resources/rule-data');
 
@@ -67,14 +66,12 @@ const GENERATED_RSPEC_SHA_TARGETS = [
 ];
 const ROOT_RSPEC_SHA_PATH = 'rspec.sha';
 
-const jsRuleNames = [...new Set([...(await listRulesDir()), 'S2260'])].sort(sortRuleKeys);
+const jsRuleNames = [...new Set([...(await listRulesDir()), 'S2260'])].sort(sonarKeySorter);
 const cssRuleNames = [...new Set([...cssRulesMeta.map(rule => rule.sqKey), 'S2260'])].sort(
-  sortRuleKeys,
+  sonarKeySorter,
 );
 
 type RuleManifest = {
-  compatibleLanguages?: Array<string>;
-  defaultQualityProfiles?: string[] | Record<string, string[]>;
   status?: string;
 };
 
@@ -167,11 +164,10 @@ function writeNormalizedManifest(
   sourcePath: string,
   targetPath: string,
   existingManifest: JsonValue | undefined,
-): RuleManifest {
+) {
   const manifest = JSON.parse(readFileSync(sourcePath, 'utf-8')) as JsonValue;
   const normalizedManifest = reorderJsonLike(manifest, existingManifest);
   writeFileSync(targetPath, `${JSON.stringify(normalizedManifest, null, 2)}\n`);
-  return normalizedManifest as RuleManifest;
 }
 
 function readJsonIfExists(path: string): JsonValue | undefined {
@@ -251,7 +247,7 @@ function warnOnRulesWithoutImplementation(sourceFolder: string, ruleNames: strin
       ruleName,
       status: readRuleStatus(sourceFolder, ruleName),
     }))
-    .sort((left, right) => sortRuleKeys(left.ruleName, right.ruleName));
+    .sort((left, right) => sonarKeySorter(left.ruleName, right.ruleName));
   const missingImplementations = rspecRules.filter(rule => !ruleNameSet.has(rule.ruleName));
 
   if (missingImplementations.length > 0) {
@@ -301,7 +297,7 @@ function groupRulesByStatus(
     grouped.set(missingRule.status, ruleKeys);
   }
   for (const [, ruleKeys] of grouped.entries()) {
-    ruleKeys.sort(sortRuleKeys);
+    ruleKeys.sort(sonarKeySorter);
   }
   return grouped;
 }

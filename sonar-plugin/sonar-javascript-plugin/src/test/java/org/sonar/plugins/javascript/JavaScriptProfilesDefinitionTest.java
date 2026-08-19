@@ -17,20 +17,12 @@
 package org.sonar.plugins.javascript;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.PROFILES_JSON;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY_RULE_KEYS_METHOD_NAME;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_JASMIN_RULES_CLASS_NAME;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_JS_JSON;
-import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_TS_JSON;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.getSecurityRuleKeys;
 
-import com.google.gson.JsonParser;
 import com.sonar.plugins.jasmin.api.JsRules;
 import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
-import java.io.InputStreamReader;
-import java.lang.annotation.Annotation;
-import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,13 +35,11 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.Version;
-import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.api.ProfileRegistrar;
 import org.sonar.plugins.javascript.rules.JavaScriptRulesDefinition;
 import org.sonar.plugins.javascript.rules.TypeScriptRulesDefinition;
-import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
 class JavaScriptProfilesDefinitionTest {
 
@@ -141,25 +131,7 @@ class JavaScriptProfilesDefinitionTest {
   }
 
   @Test
-  void no_legacy_Key_in_profile_json() {
-    Set<String> allKeys = CheckList.getAllChecks()
-      .stream()
-      .map(c -> {
-        Annotation ruleAnnotation = c.getAnnotation(Rule.class);
-        return ((Rule) ruleAnnotation).key();
-      })
-      .collect(Collectors.toSet());
-
-    assertThat(
-      BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(SONAR_WAY_JS_JSON)
-    ).isSubsetOf(allKeys);
-    assertThat(
-      BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(SONAR_WAY_TS_JSON)
-    ).isSubsetOf(allKeys);
-  }
-
-  @Test
-  void should_define_all_profiles_from_generated_index() {
+  void should_define_all_profiles_from_rule_metadata() {
     Set<String> profileNames = loadProfileNames();
 
     assertThat(profileNames).isNotEmpty();
@@ -261,13 +233,6 @@ class JavaScriptProfilesDefinitionTest {
   }
 
   private Set<String> loadProfileNames() {
-    var profilesIndex = getClass().getClassLoader().getResourceAsStream(PROFILES_JSON);
-    assertThat(profilesIndex).isNotNull();
-
-    Set<String> profileNames = new HashSet<>();
-    JsonParser.parseReader(new InputStreamReader(profilesIndex, StandardCharsets.UTF_8))
-      .getAsJsonArray()
-      .forEach(profile -> profileNames.add(profile.getAsJsonObject().get("name").getAsString()));
-    return profileNames;
+    return Set.copyOf(CheckList.getDefaultQualityProfileNames());
   }
 }

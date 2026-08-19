@@ -15,100 +15,89 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
+export const SONAR_WAY = 'Sonar way';
+
 export type DefaultQualityProfiles = string[] | Record<string, string[]>;
 
-export type RuleProfileMetadata = {
+export type RuleQualityProfileMetadata<Language extends string> = {
   ruleKey: string;
-  compatibleLanguages: Array<string>;
+  compatibleLanguages: Language[];
   defaultQualityProfiles?: DefaultQualityProfiles;
 };
 
-export type LanguageProfile = {
-  name: string;
-  language: string;
-  ruleKeys: Array<string>;
-};
+export type QualityProfileRuleKeys<Language extends string> = Map<string, Map<Language, string[]>>;
 
-export function generateLanguageProfiles(
-  rules: Array<RuleProfileMetadata>,
-  languages: Array<string>,
-): Array<LanguageProfile> {
-  const profileNames = [
-    ...new Set(
-      rules.flatMap(rule =>
-        Array.isArray(rule.defaultQualityProfiles)
-          ? rule.defaultQualityProfiles
-          : Object.values(rule.defaultQualityProfiles ?? {}).flat(),
-      ),
-    ),
-  ]
-    .filter(Boolean)
-    .sort((left, right) => left.localeCompare(right));
-
-  return profileNames.flatMap(name =>
-    languages.map(language => ({
-      name,
-      language,
-      ruleKeys: rules
-        .filter(rule => rule.compatibleLanguages.includes(language))
-        .filter(rule => profilesForLanguage(rule.defaultQualityProfiles, language).includes(name))
-        .map(rule => rule.ruleKey)
-        .sort(sortRuleKeys),
-    })),
+export function buildQualityProfileRuleKeys<Language extends string>(
+  rules: RuleQualityProfileMetadata<Language>[],
+  languages: Language[],
+  ruleKeySorter: (left: string, right: string) => number,
+): QualityProfileRuleKeys<Language> {
+  const profileNames = new Set(
+    rules
+      .flatMap(rule => {
+        const profiles = rule.defaultQualityProfiles;
+        return profiles === undefined
+          ? []
+          : Array.isArray(profiles)
+            ? profiles
+            : Object.values(profiles).flat();
+      })
+      .filter(profile => profile.trim().length > 0),
   );
-}
-
-export function profileNameToFileName(profileName: string, language?: string): string {
-  const replacedProfileName = profileName.replace(/[^A-Za-z0-9]+/g, '_');
-  let start = 0;
-  let end = replacedProfileName.length;
-  while (start < end && replacedProfileName[start] === '_') {
-    start++;
+  if (!profileNames.has(SONAR_WAY)) {
+    throw new Error(`Missing required built-in quality profile: ${SONAR_WAY}`);
   }
-  while (end > start && replacedProfileName[end - 1] === '_') {
-    end--;
-  }
-  const normalizedProfileName = replacedProfileName.slice(start, end);
-  const fileName = normalizedProfileName.length > 0 ? normalizedProfileName : 'Profile';
-  const languageSuffix = language === undefined ? '' : `_${language}`;
-  return `${fileName}${languageSuffix}_profile.json`;
-}
 
-export function aggregateProfileRuleKeys(
-  profiles: Array<{ ruleKeys: Array<string> }>,
-): Set<string> {
-  return new Set(profiles.flatMap(profile => profile.ruleKeys));
+  const profiles: QualityProfileRuleKeys<Language> = new Map(
+    [...profileNames]
+      .sort()
+      .map(
+        profileName =>
+          [
+            profileName,
+            new Map<Language, string[]>(languages.map(language => [language, []])),
+          ] as const,
+      ),
+  );
+
+  for (const rule of rules) {
+    for (const language of languages) {
+      if (!rule.compatibleLanguages.includes(language)) {
+        continue;
+      }
+      for (const profileName of profilesForLanguage(rule.defaultQualityProfiles, language)) {
+        profiles.get(profileName)?.get(language)?.push(rule.ruleKey);
+      }
+    }
+  }
+
+  for (const rulesByLanguage of profiles.values()) {
+    for (const [language, ruleKeys] of rulesByLanguage) {
+      rulesByLanguage.set(language, [...new Set(ruleKeys)].toSorted(ruleKeySorter));
+    }
+  }
+  return profiles;
 }
 
 /**
- * Whether the rule belongs in eslint-plugin-sonarjs `configs.recommended`.
- *
- * ESLint `meta.docs.recommended` is a single boolean, and the plugin ships one
- * shared recommended config rather than per-language configs. A language-map
- * rule is therefore recommended if any language lists "Sonar way". That matches
- * the previous generate-meta behaviour, which unioned the JS and TS Sonar way
- * profile files.
+ * ESLint exposes one shared recommended config rather than per-language configs, so a rule is
+ * recommended when any language includes it in Sonar way.
  */
 export function isInSonarWay(defaultQualityProfiles?: DefaultQualityProfiles): boolean {
   if (defaultQualityProfiles === undefined) {
     return false;
   }
-  if (Array.isArray(defaultQualityProfiles)) {
-    return defaultQualityProfiles.includes('Sonar way');
-  }
-  return Object.values(defaultQualityProfiles).some(profiles => profiles.includes('Sonar way'));
+  return Array.isArray(defaultQualityProfiles)
+    ? defaultQualityProfiles.includes(SONAR_WAY)
+    : Object.values(defaultQualityProfiles).some(profiles => profiles.includes(SONAR_WAY));
 }
 
 function profilesForLanguage(
   defaultQualityProfiles: DefaultQualityProfiles | undefined,
   language: string,
-): Array<string> {
+): string[] {
   if (defaultQualityProfiles === undefined || Array.isArray(defaultQualityProfiles)) {
     return defaultQualityProfiles ?? [];
   }
   return defaultQualityProfiles[language] ?? [];
-}
-
-export function sortRuleKeys(left: string, right: string): number {
-  return Number.parseInt(left.slice(1), 10) - Number.parseInt(right.slice(1), 10);
 }

@@ -78,42 +78,4 @@
     </dependency>
   </dependencies>
 
-  <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-      </resource>
-      <resource>
-        <directory>${project.build.directory}/generated-resources/profiles</directory>
-      </resource>
-    </resources>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.6.3</version>
-        <executions>
-          <execution>
-            <id>Generate built-in quality profiles</id>
-            <phase>${node.build.phase}</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>npm</executable>
-              <workingDirectory>${maven.multiModuleProjectDirectory}</workingDirectory>
-              <arguments>
-                <argument>run</argument>
-                <argument>generate-profiles</argument>
-                <argument>--</argument>
-                <argument>--module</argument>
-                <argument>css</argument>
-              </arguments>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-
 </project>

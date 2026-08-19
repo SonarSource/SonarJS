@@ -16,47 +16,28 @@
  */
 package org.sonar.plugins.javascript;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
-import org.sonar.check.Rule;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.api.ProfileRegistrar;
-import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
 public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefinition {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptProfilesDefinition.class);
 
-  static final String SONAR_WAY = "Sonar way";
-
-  public static final String RESOURCE_PATH = "org/sonar/l10n/javascript/rules/javascript";
-  public static final String SONAR_WAY_JS_JSON = RESOURCE_PATH + "/Sonar_way_js_profile.json";
-  public static final String SONAR_WAY_TS_JSON = RESOURCE_PATH + "/Sonar_way_ts_profile.json";
-  public static final String PROFILES_JSON = RESOURCE_PATH + "/profiles.json";
-
-  private static final List<ProfileDefinition> PROFILES = loadProfiles();
+  public static final String SONAR_WAY = "Sonar way";
   static final String SONAR_JASMIN_RULES_CLASS_NAME = "com.sonar.plugins.jasmin.api.JsRules";
   public static final String SECURITY_RULE_KEYS_METHOD_NAME = "getSecurityRuleKeys";
 
@@ -111,25 +92,30 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
 
   @Override
   public void define(Context context) {
-    createProfiles(JavaScriptLanguage.KEY, context);
-    createProfiles(TypeScriptLanguage.KEY, context);
+    createProfiles(Language.JAVASCRIPT, JavaScriptLanguage.KEY, context);
+    createProfiles(Language.TYPESCRIPT, TypeScriptLanguage.KEY, context);
   }
 
-  private void createProfiles(String language, Context context) {
-    PROFILES.stream()
-      .filter(profile -> profile.language().equals(language))
-      .forEach(profile -> createProfile(profile, language, context));
-  }
-
-  private void createProfile(ProfileDefinition profile, String language, Context context) {
-    NewBuiltInQualityProfile newProfile = context.createBuiltInQualityProfile(
-      profile.name(),
-      language
+  private void createProfiles(Language language, String languageKey, Context context) {
+    CheckList.getDefaultQualityProfileNames().forEach(profileName ->
+      createProfile(profileName, language, languageKey, context)
     );
-    activateBuiltInRules(newProfile, profile.path());
-    activateAdditionalRules(newProfile, profile.name());
-    if (SONAR_WAY.equals(profile.name())) {
-      activateSecurityRules(newProfile, language);
+  }
+
+  private void createProfile(
+    String profileName,
+    Language language,
+    String languageKey,
+    Context context
+  ) {
+    NewBuiltInQualityProfile newProfile = context.createBuiltInQualityProfile(
+      profileName,
+      languageKey
+    );
+    activateBuiltInRules(newProfile, profileName, language);
+    activateAdditionalRules(newProfile, profileName);
+    if (SONAR_WAY.equals(profileName)) {
+      activateSecurityRules(newProfile, languageKey);
     }
     newProfile.done();
   }
@@ -141,71 +127,13 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
    */
   private static void activateBuiltInRules(
     NewBuiltInQualityProfile profile,
-    String jsonProfilePath
+    String profileName,
+    Language language
   ) {
-    var language = Language.of(profile.language());
     String repositoryKey = REPO_BY_LANGUAGE.get(language);
-    Set<String> activeKeys = BuiltInQualityProfileJsonLoader.loadActiveKeysFromJsonProfile(
-      jsonProfilePath
+    CheckList.getDefaultQualityProfileRuleKeys(profileName, language).forEach(key ->
+      profile.activateRule(repositoryKey, key)
     );
-
-    ruleKeys(CheckList.getChecksForLanguage(language))
-      .stream()
-      .filter(activeKeys::contains)
-      .forEach(key -> profile.activateRule(repositoryKey, key));
-  }
-
-  private static List<ProfileDefinition> loadProfiles() {
-    try (
-      InputStream inputStream = JavaScriptProfilesDefinition.class
-        .getClassLoader()
-        .getResourceAsStream(PROFILES_JSON)
-    ) {
-      if (inputStream == null) {
-        throw new IllegalStateException("Missing built-in quality profile index: " + PROFILES_JSON);
-      }
-      JsonArray profiles = JsonParser.parseReader(
-        new InputStreamReader(inputStream, StandardCharsets.UTF_8)
-      ).getAsJsonArray();
-      List<ProfileDefinition> definitions = new ArrayList<>();
-      profiles.forEach(profile -> {
-        JsonObject profileJson = profile.getAsJsonObject();
-        String name = profileJson.get("name").getAsString();
-        String language = profileJson.get("language").getAsString();
-        String fileName = profileJson.get("fileName").getAsString();
-        definitions.add(new ProfileDefinition(name, language, RESOURCE_PATH + "/" + fileName));
-      });
-      Map<String, String> sonarWayPathByLanguage = Map.of(
-        JavaScriptLanguage.KEY,
-        SONAR_WAY_JS_JSON,
-        TypeScriptLanguage.KEY,
-        SONAR_WAY_TS_JSON
-      );
-      for (var entry : sonarWayPathByLanguage.entrySet()) {
-        if (
-          definitions
-            .stream()
-            .noneMatch(
-              profile ->
-                SONAR_WAY.equals(profile.name()) &&
-                entry.getKey().equals(profile.language()) &&
-                entry.getValue().equals(profile.path())
-            )
-        ) {
-          throw new IllegalStateException(
-            "Missing required built-in quality profile in " +
-              PROFILES_JSON +
-              ": " +
-              SONAR_WAY +
-              " for " +
-              entry.getKey()
-          );
-        }
-      }
-      return definitions;
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to load built-in quality profile index", e);
-    }
   }
 
   /**
@@ -264,39 +192,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     return Collections.emptySet();
   }
 
-  private static Set<String> ruleKeys(List<Class<? extends EslintHook>> checks) {
-    return checks
-      .stream()
-      .map(c -> c.getAnnotation(Rule.class).key())
-      .collect(Collectors.toSet());
-  }
-
   private static String securityRuleMessage(Exception e) {
     return "no security rules added to builtin profile: " + e.getMessage();
-  }
-
-  private static class ProfileDefinition {
-
-    private final String name;
-    private final String language;
-    private final String path;
-
-    private ProfileDefinition(String name, String language, String path) {
-      this.name = name;
-      this.language = language;
-      this.path = path;
-    }
-
-    String name() {
-      return name;
-    }
-
-    String language() {
-      return language;
-    }
-
-    String path() {
-      return path;
-    }
   }
 }

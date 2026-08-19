@@ -17,41 +17,43 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
-  aggregateProfileRuleKeys,
-  generateLanguageProfiles,
+  buildQualityProfileRuleKeys,
   isInSonarWay,
-  profileNameToFileName,
-  sortRuleKeys,
+  SONAR_WAY,
 } from '../../../src/jsts/rules/quality-profiles.js';
 
-describe('generateLanguageProfiles', () => {
+const sortRuleKeys = (left: string, right: string) => left.localeCompare(right);
+
+describe('buildQualityProfileRuleKeys', () => {
   it('applies array profiles to every compatible language', () => {
-    const profiles = generateLanguageProfiles(
+    const profiles = buildQualityProfileRuleKeys(
       [
         {
           ruleKey: 'S100',
           compatibleLanguages: ['js', 'ts'],
-          defaultQualityProfiles: ['Sonar way'],
+          defaultQualityProfiles: [SONAR_WAY],
         },
         {
           ruleKey: 'S200',
-          compatibleLanguages: ['ts'],
-          defaultQualityProfiles: ['Sonar agentic AI'],
+          compatibleLanguages: ['js'],
+          defaultQualityProfiles: [SONAR_WAY],
         },
       ],
       ['js', 'ts'],
+      sortRuleKeys,
     );
 
-    assert.deepEqual(profiles, [
-      { name: 'Sonar agentic AI', language: 'js', ruleKeys: [] },
-      { name: 'Sonar agentic AI', language: 'ts', ruleKeys: ['S200'] },
-      { name: 'Sonar way', language: 'js', ruleKeys: ['S100'] },
-      { name: 'Sonar way', language: 'ts', ruleKeys: ['S100'] },
-    ]);
+    assert.deepEqual(
+      profiles.get(SONAR_WAY),
+      new Map([
+        ['js', ['S100', 'S200']],
+        ['ts', ['S100']],
+      ]),
+    );
   });
 
-  it('excludes rules with an empty array profile from every language', () => {
-    const profiles = generateLanguageProfiles(
+  it('excludes empty array memberships from every language', () => {
+    const profiles = buildQualityProfileRuleKeys(
       [
         {
           ruleKey: 'S100',
@@ -61,84 +63,52 @@ describe('generateLanguageProfiles', () => {
         {
           ruleKey: 'S200',
           compatibleLanguages: ['js', 'ts'],
-          defaultQualityProfiles: ['Sonar way'],
+          defaultQualityProfiles: [SONAR_WAY],
         },
       ],
       ['js', 'ts'],
+      sortRuleKeys,
     );
 
-    assert.deepEqual(profiles, [
-      { name: 'Sonar way', language: 'js', ruleKeys: ['S200'] },
-      { name: 'Sonar way', language: 'ts', ruleKeys: ['S200'] },
-    ]);
+    assert.deepEqual(
+      profiles.get(SONAR_WAY),
+      new Map([
+        ['js', ['S200']],
+        ['ts', ['S200']],
+      ]),
+    );
   });
 
   it('selects object profiles independently for each language', () => {
-    const profiles = generateLanguageProfiles(
+    const profiles = buildQualityProfileRuleKeys(
       [
         {
           ruleKey: 'S100',
           compatibleLanguages: ['js', 'ts'],
-          defaultQualityProfiles: { js: [], ts: ['Sonar way', 'Sonar agentic AI'] },
+          defaultQualityProfiles: { js: [], ts: [SONAR_WAY] },
         },
         {
           ruleKey: 'S200',
           compatibleLanguages: ['js', 'ts'],
-          defaultQualityProfiles: { js: ['Sonar way'], ts: [] },
+          defaultQualityProfiles: { js: [SONAR_WAY], ts: [] },
         },
       ],
       ['js', 'ts'],
+      sortRuleKeys,
     );
 
-    assert.deepEqual(profiles, [
-      { name: 'Sonar agentic AI', language: 'js', ruleKeys: [] },
-      { name: 'Sonar agentic AI', language: 'ts', ruleKeys: ['S100'] },
-      { name: 'Sonar way', language: 'js', ruleKeys: ['S200'] },
-      { name: 'Sonar way', language: 'ts', ruleKeys: ['S100'] },
-    ]);
-  });
-});
-
-describe('profileNameToFileName', () => {
-  it('includes the language when one is provided', () => {
-    assert.equal(profileNameToFileName('Sonar way', 'js'), 'Sonar_way_js_profile.json');
-  });
-
-  it('uses the fallback name when the profile name contains no alphanumeric character', () => {
-    assert.equal(profileNameToFileName('---', 'js'), 'Profile_js_profile.json');
-  });
-
-  it('keeps the shared profile filename when no language is provided', () => {
-    assert.equal(profileNameToFileName('Sonar way'), 'Sonar_way_profile.json');
-  });
-});
-
-describe('aggregateProfileRuleKeys', () => {
-  it('returns the union of language-specific profile rule keys', () => {
     assert.deepEqual(
-      aggregateProfileRuleKeys([{ ruleKeys: ['S100', 'S200'] }, { ruleKeys: ['S200', 'S300'] }]),
-      new Set(['S100', 'S200', 'S300']),
+      profiles.get(SONAR_WAY),
+      new Map([
+        ['js', ['S200']],
+        ['ts', ['S100']],
+      ]),
     );
   });
 });
 
 describe('isInSonarWay', () => {
-  it('treats a shared Sonar way array as recommended', () => {
-    assert.equal(isInSonarWay(['Sonar way']), true);
-  });
-
-  it('treats an empty array as not recommended', () => {
-    assert.equal(isInSonarWay([]), false);
-  });
-
-  it('treats a language map as recommended when any language includes Sonar way', () => {
-    assert.equal(isInSonarWay({ js: [], ts: ['Sonar way'] }), true);
-    assert.equal(isInSonarWay({ js: ['Sonar agentic AI'], ts: [] }), false);
-  });
-});
-
-describe('sortRuleKeys', () => {
-  it('orders rule keys by numeric id', () => {
-    assert.deepEqual(['S1000', 'S20', 'S3'].toSorted(sortRuleKeys), ['S3', 'S20', 'S1000']);
+  it('accepts a language map when any language includes Sonar way', () => {
+    assert.equal(isInSonarWay({ js: [], ts: [SONAR_WAY] }), true);
   });
 });

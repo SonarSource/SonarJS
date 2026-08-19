@@ -69,6 +69,27 @@ class CssRulesDefinitionTest {
     assertAllRuleParametersHaveDescription(repository);
   }
 
+  @Test
+  void should_activate_sonar_way_rules_from_generated_catalog() {
+    Repository repository = buildRepository("css", new CssRulesDefinition(sonarRuntime));
+
+    assertThat(repository.rule("S4647").activatedByDefault()).isTrue();
+    assertThat(repository.rule("S2260").activatedByDefault()).isFalse();
+    assertThat(repository.rules())
+      .filteredOn(Rule::activatedByDefault)
+      .extracting(Rule::key)
+      .containsExactlyInAnyOrderElementsOf(
+        CssRules.getDefaultQualityProfileRuleKeys(CssProfileDefinition.PROFILE_NAME)
+      );
+  }
+
+  @Test
+  void should_load_sonar_way_rules_from_generated_catalog() {
+    assertThat(CssRules.getDefaultQualityProfileRuleKeys(CssProfileDefinition.PROFILE_NAME))
+      .contains("S4647")
+      .doesNotContain("S2260");
+  }
+
   private void assertRuleProperties(Repository repository) {
     Rule rule = repository.rule("S4647");
     assertThat(rule).isNotNull();

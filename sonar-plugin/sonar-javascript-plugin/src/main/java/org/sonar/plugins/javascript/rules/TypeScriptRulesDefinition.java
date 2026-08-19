@@ -24,6 +24,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
+import org.sonar.plugins.javascript.api.Language;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
 public class TypeScriptRulesDefinition implements RulesDefinition {
@@ -40,15 +41,26 @@ public class TypeScriptRulesDefinition implements RulesDefinition {
       .createRepository(CheckList.TS_REPOSITORY_KEY, TypeScriptLanguage.KEY)
       .setName(CheckList.REPOSITORY_NAME);
 
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(
-      METADATA_LOCATION,
-      JavaScriptProfilesDefinition.SONAR_WAY_TS_JSON,
-      sonarRuntime
-    );
+    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, sonarRuntime);
     ruleMetadataLoader.addRulesByAnnotatedClass(
       repository,
       Collections.unmodifiableList(CheckList.getTypeScriptChecks())
     );
+
+    for (String ruleKey : CheckList.getDefaultQualityProfileRuleKeys(
+      JavaScriptProfilesDefinition.SONAR_WAY,
+      Language.TYPESCRIPT
+    )) {
+      NewRule rule = repository.rule(ruleKey);
+      if (rule == null) {
+        throw new IllegalStateException(
+          "Rule " +
+            ruleKey +
+            " is declared in the Sonar way profile for TypeScript but is not registered"
+        );
+      }
+      rule.setActivatedByDefault(true);
+    }
 
     NewRule commentRegularExpression = repository.rule("S124");
     commentRegularExpression.setTemplate(true);

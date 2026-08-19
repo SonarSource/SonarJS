@@ -17,6 +17,7 @@
 import { join } from 'node:path/posix';
 import { defaultOptions } from '../packages/analysis/src/jsts/rules/helpers/configs.js';
 import { shouldSkipOnGeneratedSource } from '../packages/analysis/src/jsts/rules/helpers/generated-source.js';
+import { isInSonarWay } from '../packages/analysis/src/jsts/rules/quality-profiles.js';
 import {
   getESLintDefaultConfiguration,
   getRspecMeta,
@@ -28,7 +29,6 @@ import {
 } from './helpers.js';
 import { readFile } from 'fs/promises';
 import ts from 'typescript';
-import { isInSonarWay } from '../packages/analysis/src/jsts/rules/quality-profiles.js';
 
 /**
  * From the RSPEC json file, creates a generated-meta.ts file with ESLint formatted metadata
