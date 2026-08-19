@@ -389,15 +389,23 @@ describe('transform', () => {
 
     it('does not suppress SCSS-only warnings when an SCSS block has no explicit end position', () => {
       const result = makeDocumentResult(
+        [{ lang: 'scss', startLine: 1 }], // missing end → cannot safely match
+        [{ rule: 'scss-only-rule', line: 3, column: 3 }],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(1);
+      expect(issues[0].line).toBe(3);
+    });
+
+    it('suppresses SCSS-only warnings that match a complete non-SCSS block', () => {
+      const result = makeDocumentResult(
         [
-          { lang: 'scss', startLine: 1 }, // missing end → cannot safely match
+          { lang: 'scss', startLine: 1 },
           { startLine: 5, endLine: 6 },
         ],
         [{ rule: 'scss-only-rule', line: 5, column: 3 }],
       );
-      const issues = transform([result], filePath);
-      expect(issues).toHaveLength(1);
-      expect(issues[0].line).toBe(5);
+      expect(transform([result], filePath)).toHaveLength(0);
     });
 
     it('uses columns to distinguish adjacent blocks on the same line', () => {

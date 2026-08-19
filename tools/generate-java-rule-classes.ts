@@ -579,11 +579,16 @@ function generateCssRuleTestBody(
     .map(r => `${r.sqKey}.class`)
     .join(',\n      ');
 
-  let propertiesCount = 0;
+  const propertyKeys = new Set<string>();
   for (const rule of rules) {
-    propertiesCount += rule.listParam?.length ?? 0;
-    if (rule.booleanParam) propertiesCount += 1;
+    for (const param of rule.listParam ?? []) {
+      propertyKeys.add(`${rule.sqKey}:${param.javaField}`);
+    }
+    if (rule.booleanParam) {
+      propertyKeys.add(`${rule.sqKey}:${rule.booleanParam.javaField}`);
+    }
   }
+  const propertiesCount = propertyKeys.size;
 
   const testMethods: string[] = [];
 
@@ -601,6 +606,9 @@ function generateCssRuleTestBody(
           p.default.trim() === '' ? [] : p.default.split(',').map(v => v.trim());
       }
       const defaultJson = JSON.stringify([true, defaultOptionObj]).replace(/"/g, '\\"');
+      const hasNonEmptyDefault = (meta.listParam ?? []).some(
+        bindingParam => bindingParam.default.trim() !== '',
+      );
 
       testMethods.push(`  @Test`);
       testMethods.push(`  void ${methodPrefix}_default() {`);
@@ -687,12 +695,26 @@ function generateCssRuleTestBody(
       if (!param) continue;
       const bindingPrefix = `${methodPrefix}_${i}_${param.javaField.toLowerCase()}`;
 
-      // Empty default → empty configurations
+      const defaultOptionObj: Record<string, string[]> = {};
+      for (const bindingParam of meta.listParam ?? []) {
+        defaultOptionObj[bindingParam.stylelintOptionKey] = bindingParam.default
+          .split(',')
+          .map(value => value.trim())
+          .filter(Boolean);
+      }
+      const defaultJson = JSON.stringify([true, defaultOptionObj]).replace(/"/g, '\\"');
+
       testMethods.push(`  @Test`);
-      testMethods.push(`  void ${bindingPrefix}_empty() {`);
+      testMethods.push(`  void ${bindingPrefix}_default() {`);
       testMethods.push(`    StylelintRule sr = new ${sqKey}().stylelintRules().get(${i});`);
       testMethods.push(`    assertThat(sr.getKey()).isEqualTo("${meta.stylelintKey}");`);
-      testMethods.push(`    assertThat(sr.getConfigurations()).isEmpty();`);
+      if (hasNonEmptyDefault) {
+        testMethods.push(
+          `    assertThat(GSON.toJson(sr.getConfigurations())).isEqualTo("${defaultJson}");`,
+        );
+      } else {
+        testMethods.push(`    assertThat(sr.getConfigurations()).isEmpty();`);
+      }
       testMethods.push(`  }`);
       testMethods.push('');
 

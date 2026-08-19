@@ -148,9 +148,7 @@ function isOutsideScssEmbeddedBlock(
     if (!isWithinSourceRange(warning, source as EmbeddedBlockSource)) {
       continue;
     }
-    if (lang === 'scss') {
-      return false;
-    }
+    return lang !== 'scss';
   }
   return !hasScssBlockWithIncompleteRange;
 }
