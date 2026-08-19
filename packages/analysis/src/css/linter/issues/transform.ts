@@ -129,18 +129,30 @@ function isOutsideSassEmbeddedBlock(
     return false;
   }
 
+  let hasSassBlockWithIncompleteRange = false;
   for (const child of (root as PostCSS.Document).nodes) {
     if (child.type !== 'root') {
       continue;
     }
     const source = (child as PostCSS.Root).source;
+    const lang = getEmbeddedBlockLang(source);
+    if (
+      (lang === 'scss' || lang === 'sass') &&
+      (!isValidPosition(source?.start?.line) ||
+        !isValidPosition(source?.start?.column) ||
+        !isValidPosition(source?.end?.line) ||
+        !isValidPosition(source?.end?.column))
+    ) {
+      hasSassBlockWithIncompleteRange = true;
+    }
     if (!isWithinSourceRange(warning, source as EmbeddedBlockSource)) {
       continue;
     }
-    const lang = getEmbeddedBlockLang(source);
-    return lang !== 'scss' && lang !== 'sass';
+    if (lang === 'scss' || lang === 'sass') {
+      return false;
+    }
   }
-  return true;
+  return !hasSassBlockWithIncompleteRange;
 }
 
 /**

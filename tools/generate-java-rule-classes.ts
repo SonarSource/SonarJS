@@ -685,7 +685,7 @@ function generateCssRuleTestBody(
       const meta = metas[i];
       const param = meta.listParam?.[0];
       if (!param) continue;
-      const bindingPrefix = `${methodPrefix}_${param.javaField.toLowerCase()}`;
+      const bindingPrefix = `${methodPrefix}_${i}_${param.javaField.toLowerCase()}`;
 
       // Empty default → empty configurations
       testMethods.push(`  @Test`);

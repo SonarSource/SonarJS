@@ -385,6 +385,19 @@ describe('transform', () => {
       expect(issues[0].line).toBe(5);
     });
 
+    it('does not suppress Sass-only warnings when a Sass block has no explicit end position', () => {
+      const result = makeDocumentResult(
+        [
+          { lang: 'scss', startLine: 1 }, // missing end → cannot safely match
+          { startLine: 5, endLine: 6 },
+        ],
+        [{ rule: 'sass-only-rule', line: 5, column: 3 }],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(1);
+      expect(issues[0].line).toBe(5);
+    });
+
     it('uses columns to distinguish adjacent blocks on the same line', () => {
       const result = makeDocumentResult(
         [
