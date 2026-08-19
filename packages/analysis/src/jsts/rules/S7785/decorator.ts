@@ -79,16 +79,18 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         const isThenableType = isThenable(receiver, services);
         const supportsReportedMethod =
           methodName === 'then' || typeHasMethod(receiver, methodName, services);
-        const chainCall = memberExpr.parent;
-        // Suppress when the chain is handed off to a Promise/PromiseLike-typed destination
-        // (a typed call argument or assignment target) to be awaited later, rather than
-        // floating at the top level.
-        const isStoredForLaterConsumption =
-          chainCall?.type === 'CallExpression' &&
-          chainCall.callee === memberExpr &&
-          isContextualTypeThenable(chainCall, services);
-        if (isThenableType && supportsReportedMethod && !isStoredForLaterConsumption) {
-          context.report(descriptor);
+        if (isThenableType && supportsReportedMethod) {
+          const chainCall = memberExpr.parent;
+          // Suppress when the chain is handed off to a Promise/PromiseLike-typed destination
+          // (a typed call argument or assignment target) to be awaited later, rather than
+          // floating at the top level.
+          const isStoredForLaterConsumption =
+            chainCall?.type === 'CallExpression' &&
+            chainCall.callee === memberExpr &&
+            isContextualTypeThenable(chainCall, services);
+          if (!isStoredForLaterConsumption) {
+            context.report(descriptor);
+          }
         }
 
         // Suppress otherwise (e.g. ZodString, unknown, or stored for later consumption).

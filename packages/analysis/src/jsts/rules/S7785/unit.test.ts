@@ -15,11 +15,40 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { rules } from '../external/unicorn.js';
 import {
   NoTypeCheckingRuleTester,
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+
+const upstreamRule = rules['prefer-top-level-await'];
+
+// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator's isStoredForLaterConsumption suppression can be safely removed.
+describe('S7785 upstream sentinel', () => {
+  it('upstream prefer-top-level-await raises on chains handed to a Promise-typed destination that decorator suppresses', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('prefer-top-level-await', upstreamRule, {
+      valid: [],
+      invalid: [
+        // typed call argument — suppressed by decorator, raised by upstream
+        {
+          code: `function doWork(arg: Promise<number>) {}
+                 doWork(Promise.resolve(42).then(x => x).catch(() => 0));`,
+          errors: 1,
+        },
+        // typed assignment target — suppressed by decorator, raised by upstream
+        {
+          code: `const holder: { promise: Promise<number> } = { promise: Promise.resolve(0) };
+                 holder.promise = Promise.resolve(42).then(x => x).catch(() => 0);`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
 
 describe('S7785', () => {
   it('should report in ES modules (sourceType: module)', () => {
