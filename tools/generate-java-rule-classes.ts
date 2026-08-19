@@ -20,6 +20,11 @@ import {
   ESLintConfigurationProperty,
   ESLintConfigurationSQProperty,
 } from '../packages/analysis/src/jsts/rules/helpers/configs.js';
+import {
+  buildQualityProfileRuleKeys,
+  type QualityProfileRuleKeys,
+  type RuleQualityProfileMetadata,
+} from '../packages/analysis/src/jsts/rules/quality-profiles.js';
 import assert from 'node:assert';
 import {
   getCssRspecDefaultQualityProfiles,
@@ -30,7 +35,6 @@ import {
   inflateTemplateToFile,
   JAVA_TEMPLATES_FOLDER,
   listRulesDir,
-  type DefaultQualityProfiles,
   type RspecMeta,
   sonarKeySorter,
   writePrettyFile,
@@ -258,68 +262,6 @@ function generateBody(
   return result;
 }
 
-type RuleQualityProfileMetadata<Language extends string> = {
-  ruleKey: string;
-  compatibleLanguages: Language[];
-  defaultQualityProfiles?: DefaultQualityProfiles;
-};
-
-type QualityProfileRuleKeys<Language extends string> = Map<string, Map<Language, string[]>>;
-
-function buildQualityProfileRuleKeys<Language extends string>(
-  rules: RuleQualityProfileMetadata<Language>[],
-  languages: Language[],
-): QualityProfileRuleKeys<Language> {
-  const profileNames = new Set(
-    rules
-      .flatMap(rule => {
-        const profiles = rule.defaultQualityProfiles;
-        return profiles === undefined
-          ? []
-          : Array.isArray(profiles)
-            ? profiles
-            : Object.values(profiles).flat();
-      })
-      .filter(profile => profile.trim().length > 0),
-  );
-  if (!profileNames.has('Sonar way')) {
-    throw new Error('Missing required built-in quality profile: Sonar way');
-  }
-
-  const profiles: QualityProfileRuleKeys<Language> = new Map(
-    [...profileNames]
-      .sort()
-      .map(
-        profileName =>
-          [
-            profileName,
-            new Map<Language, string[]>(languages.map(language => [language, []])),
-          ] as const,
-      ),
-  );
-
-  for (const rule of rules) {
-    for (const language of languages) {
-      if (!rule.compatibleLanguages.includes(language)) {
-        continue;
-      }
-      const ruleProfiles = Array.isArray(rule.defaultQualityProfiles)
-        ? rule.defaultQualityProfiles
-        : (rule.defaultQualityProfiles?.[language] ?? []);
-      for (const profileName of ruleProfiles) {
-        profiles.get(profileName)?.get(language)?.push(rule.ruleKey);
-      }
-    }
-  }
-
-  for (const rulesByLanguage of profiles.values()) {
-    for (const [language, ruleKeys] of rulesByLanguage) {
-      rulesByLanguage.set(language, [...new Set(ruleKeys)].toSorted(sonarKeySorter));
-    }
-  }
-  return profiles;
-}
-
 function javaStringCollection(type: 'List' | 'Set', values: string[]): string {
   return `${type}.of(${values.map(value => `"${escapeJavaString(value)}"`).join(',')})`;
 }
@@ -365,7 +307,11 @@ javaScriptRuleProfiles.push({
   defaultQualityProfiles: parsingErrorMetadata.defaultQualityProfiles,
 });
 
-const javaScriptProfileRuleKeys = buildQualityProfileRuleKeys(javaScriptRuleProfiles, ['js', 'ts']);
+const javaScriptProfileRuleKeys = buildQualityProfileRuleKeys(
+  javaScriptRuleProfiles,
+  ['js', 'ts'],
+  sonarKeySorter,
+);
 
 await inflateTemplateToFile(
   join(JAVA_TEMPLATES_FOLDER, 'allchecks.template'),
@@ -850,7 +796,7 @@ for (const ruleKey of sortedCssRuleKeys) {
     defaultQualityProfiles,
   });
 }
-const cssProfileRuleKeys = buildQualityProfileRuleKeys(cssRuleProfiles, ['css']);
+const cssProfileRuleKeys = buildQualityProfileRuleKeys(cssRuleProfiles, ['css'], sonarKeySorter);
 const generatedCssProfileRuleKeys = [...cssProfileRuleKeys]
   .map(
     ([profileName, rulesByLanguage]) =>
