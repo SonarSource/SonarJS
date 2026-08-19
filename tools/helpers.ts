@@ -24,8 +24,8 @@ import { ESLintConfiguration } from '../packages/analysis/src/jsts/rules/helpers
 import type { DefaultQualityProfiles } from '../packages/analysis/src/jsts/rules/quality-profiles.js';
 import { mkdir } from 'node:fs/promises';
 import prettierPluginJava from 'prettier-plugin-java';
+import { isRuleKey } from './rule-key.js';
 
-export const ruleRegex = /^S\d+/;
 const DIRNAME = dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = join(DIRNAME, '..');
 export const TS_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'ts');
@@ -204,7 +204,7 @@ export async function getRuleMetadata(sonarKey: string) {
 export async function listRulesDir() {
   const files = await readdir(RULES_FOLDER, { withFileTypes: true });
   return files
-    .filter(file => ruleRegex.test(file.name) && file.isDirectory())
+    .filter(file => isRuleKey(file.name) && file.isDirectory())
     .map(file => file.name)
     .sort(sonarKeySorter);
 }

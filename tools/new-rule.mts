@@ -15,8 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { checkbox, input, select } from '@inquirer/prompts';
-import { ruleRegex, verifyRuleName } from './helpers.js';
+import { verifyRuleName } from './helpers.js';
 import { createNewRule } from './create-rule-boilerplate.js';
+import { isRuleKey, ruleKeyRegex } from './rule-key.js';
 
 const sonarKey = await input({ message: 'Enter the Sonar key for the new rule (SXXXX)' });
 const eslintId = await input({ message: 'Enter the ESLint ID for the rule' });
@@ -77,8 +78,8 @@ const hasSecondaries = await select({
 });
 
 function verifyRspecId(sonarKey: string) {
-  if (!ruleRegex.exec(sonarKey)) {
-    throw new Error(`Invalid rspec key: it should match ${ruleRegex}, but got "${sonarKey}"`);
+  if (!isRuleKey(sonarKey)) {
+    throw new Error(`Invalid rspec key: it should match ${ruleKeyRegex}, but got "${sonarKey}"`);
   }
 }
 
