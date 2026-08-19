@@ -21,7 +21,13 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
-import { getTypeFromTreeNode, isAny, isThenable, typeHasMethod } from '../helpers/type.js';
+import {
+  getTypeFromTreeNode,
+  isAny,
+  isContextualTypeThenable,
+  isThenable,
+  typeHasMethod,
+} from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 /**
@@ -73,11 +79,19 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         const isThenableType = isThenable(receiver, services);
         const supportsReportedMethod =
           methodName === 'then' || typeHasMethod(receiver, methodName, services);
-        if (isThenableType && supportsReportedMethod) {
+        const chainCall = memberExpr.parent;
+        // Suppress when the chain is handed off to a Promise/PromiseLike-typed destination
+        // (a typed call argument or assignment target) to be awaited later, rather than
+        // floating at the top level.
+        const isStoredForLaterConsumption =
+          chainCall?.type === 'CallExpression' &&
+          chainCall.callee === memberExpr &&
+          isContextualTypeThenable(chainCall, services);
+        if (isThenableType && supportsReportedMethod && !isStoredForLaterConsumption) {
           context.report(descriptor);
         }
 
-        // Suppress otherwise (e.g. ZodString, unknown).
+        // Suppress otherwise (e.g. ZodString, unknown, or stored for later consumption).
       } else {
         context.report(descriptor);
       }
