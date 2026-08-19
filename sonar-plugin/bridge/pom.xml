@@ -19,12 +19,6 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>api</artifactId>
     </dependency>
-    <!-- Build-order dependency: javascript-checks runs generate-meta before bridge compiles -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>javascript-checks</artifactId>
-      <scope>provided</scope>
-    </dependency>
     <dependency>
       <groupId>org.sonarsource.api.plugin</groupId>
       <artifactId>sonar-plugin-api</artifactId>
