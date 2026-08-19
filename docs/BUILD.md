@@ -320,7 +320,7 @@ Because of that, a common workflow is:
 `initialize`
 
 - validates quickfix declarations
-- generates and reads `node-info.properties` for the plugin module
+- generates `node-info.properties` for the plugin module
 
 `generate-sources`
 
@@ -329,6 +329,7 @@ Because of that, a common workflow is:
 
 `generate-resources`
 
+- reads the plugin module's generated `node-info.properties`
 - runs `npm run generate-meta`
 - runs `npm run generate-java-rule-classes`
 - builds, bundles, and packs the bridge
