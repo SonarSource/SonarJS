@@ -225,8 +225,10 @@ The `sonar-plugin` reactor builds modules in this order:
 5. `sonar-javascript-plugin`
 6. `standalone`
 
-`javascript-checks` stays before `bridge` because bridge generation consumes rule metadata prepared
-earlier in the build. The explicit RSPEC refresh path is not part of this normal reactor flow.
+Shared rule metadata and Java rule classes are generated once by the `sonar-plugin` aggregator
+before the child modules build. The bridge therefore does not need an artificial dependency on
+`javascript-checks` to order metadata generation. The explicit RSPEC refresh path is not part of
+this normal reactor flow.
 
 ## Fast Java iteration flags
 

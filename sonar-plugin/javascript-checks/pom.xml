@@ -45,40 +45,6 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>3.5.0</version>
-        <configuration>
-          <filesets>
-            <fileset>
-              <directory>${maven.multiModuleProjectDirectory}/resources/rule-data</directory>
-            </fileset>
-            <fileset>
-              <directory>${project.basedir}/src/main/resources</directory>
-              <includes>
-                <include>org/sonar/l10n/javascript/rules/javascript/*.html</include>
-                <include>rspec.sha</include>
-              </includes>
-            </fileset>
-            <fileset>
-              <directory>${project.basedir}/../css/src/main/resources</directory>
-              <includes>
-                <include>org/sonar/l10n/css/rules/css/*.html</include>
-                <include>rspec.sha</include>
-              </includes>
-            </fileset>
-            <fileset>
-              <directory>${maven.multiModuleProjectDirectory}/packages/analysis/src/jsts/rules</directory>
-              <includes>
-                <include>**/generated-meta.ts</include>
-                <include>metas.ts</include>
-                <include>plugin-rules.ts</include>
-                <include>rules.ts</include>
-              </includes>
-            </fileset>
-          </filesets>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>${jacoco.version}</version>
@@ -88,43 +54,6 @@
             <exclude>org/sonar/javascript/checks/S*</exclude>
           </excludes>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>3.6.3</version>
-        <executions>
-          <execution>
-            <id>Generate rule metadata</id>
-            <phase>${node.build.phase}</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>npm</executable>
-              <workingDirectory>../..</workingDirectory>
-              <arguments>
-                <argument>run</argument>
-                <argument>generate-meta</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>Generate the Java Check classes</id>
-            <phase>${java.generation.phase}</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>npm</executable>
-              <workingDirectory>../..</workingDirectory>
-              <arguments>
-                <argument>run</argument>
-                <argument>generate-java-rule-classes</argument>
-              </arguments>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
