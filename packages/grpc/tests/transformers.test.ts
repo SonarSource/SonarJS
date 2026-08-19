@@ -302,6 +302,32 @@ describe('CSS rule configurations', () => {
           },
         ],
       },
+      {
+        key: 'scss/at-rule-no-unknown',
+        configurations: [
+          true,
+          {
+            ignoreAtRules: supportedCssToolDirectives,
+          },
+        ],
+      },
+    ]);
+    expect(reverseCssRuleKeyMap.get('at-rule-no-unknown')).toBe('S4662');
+    expect(reverseCssRuleKeyMap.get('scss/at-rule-no-unknown')).toBe('S4662');
+  });
+
+  it('should pass configured S4662 exclusions to both implementations', () => {
+    expect(
+      buildCssRuleConfigurations('S4662', [{ key: 'ignoreAtRules', value: 'custom,/^project-/' }]),
+    ).toEqual([
+      {
+        key: 'at-rule-no-unknown',
+        configurations: [true, { ignoreAtRules: ['custom', '/^project-/'] }],
+      },
+      {
+        key: 'scss/at-rule-no-unknown',
+        configurations: [true, { ignoreAtRules: ['custom', '/^project-/'] }],
+      },
     ]);
   });
 

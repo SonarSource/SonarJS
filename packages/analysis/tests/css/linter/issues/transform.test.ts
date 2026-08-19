@@ -19,7 +19,7 @@ import { transform } from '../../../../src/css/linter/issues/transform.js';
 import { describe, it, beforeEach, afterEach, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
-import { cssOnlyRuleKeys } from '../../../../src/css/linter/css-only-rules.js';
+import { cssOnlyRuleKeys, sassOnlyRuleKeys } from '../../../../src/css/linter/css-only-rules.js';
 
 describe('transform', () => {
   it('should transform Stylelint results into issues', () => {
@@ -228,6 +228,8 @@ describe('transform', () => {
 
     beforeEach(() => cssOnlyRuleKeys.add('css-only-rule'));
     afterEach(() => cssOnlyRuleKeys.delete('css-only-rule'));
+    beforeEach(() => sassOnlyRuleKeys.add('sass-only-rule'));
+    afterEach(() => sassOnlyRuleKeys.delete('sass-only-rule'));
 
     function makeDocumentResult(
       blocks: Array<{
@@ -307,6 +309,38 @@ describe('transform', () => {
           { rule: 'css-only-rule', line: 9 },
           { rule: 'css-only-rule', line: 16 },
           { rule: 'css-only-rule', line: 22 },
+        ],
+      );
+      expect(transform([result], filePath)).toHaveLength(0);
+    });
+
+    it('reports Sass-only warnings from scss and sass blocks', () => {
+      const result = makeDocumentResult(
+        [
+          { lang: 'scss', startLine: 1, endLine: 5 },
+          { lang: 'SASS', startLine: 7, endLine: 12 },
+        ],
+        [
+          { rule: 'sass-only-rule', line: 3 },
+          { rule: 'sass-only-rule', line: 9 },
+        ],
+      );
+      expect(transform([result], filePath)).toHaveLength(2);
+    });
+
+    it('suppresses Sass-only warnings from CSS, Less, and unrelated blocks', () => {
+      const result = makeDocumentResult(
+        [
+          { startLine: 1, endLine: 5 },
+          { lang: 'css', startLine: 7, endLine: 12 },
+          { lang: 'less', startLine: 14, endLine: 18 },
+          { lang: 'stylus', startLine: 20, endLine: 24 },
+        ],
+        [
+          { rule: 'sass-only-rule', line: 3 },
+          { rule: 'sass-only-rule', line: 9 },
+          { rule: 'sass-only-rule', line: 16 },
+          { rule: 'sass-only-rule', line: 22 },
         ],
       );
       expect(transform([result], filePath)).toHaveLength(0);

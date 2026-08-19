@@ -30,6 +30,15 @@ const supportedToolRuleTester = new StylelintRuleTester('at-rule-no-unknown', [
   true,
   { ignoreAtRules: supportedCssToolDirectives },
 ]);
+const sassRuleTester = new StylelintRuleTester('scss/at-rule-no-unknown');
+const configuredSassRuleTester = new StylelintRuleTester('scss/at-rule-no-unknown', [
+  true,
+  { ignoreAtRules: ['custom', '/^project-/'] },
+]);
+const supportedToolSassRuleTester = new StylelintRuleTester('scss/at-rule-no-unknown', [
+  true,
+  { ignoreAtRules: supportedCssToolDirectives },
+]);
 
 describe('at-rule-no-unknown', () => {
   it('accepts standard CSS at-rules', () =>
@@ -92,6 +101,112 @@ describe('at-rule-no-unknown', () => {
           vueFile,
           `<style lang="${lang}">@unknown value</style>`,
         );
+        expect(issues).toHaveLength(0);
+      });
+    }
+  });
+});
+
+describe('scss/at-rule-no-unknown', () => {
+  for (const directive of [
+    'at-root',
+    'content',
+    'debug',
+    'each',
+    'else',
+    'error',
+    'extend',
+    'for',
+    'forward',
+    'function',
+    'if',
+    'include',
+    'mixin',
+    'return',
+    'use',
+    'warn',
+    'while',
+  ]) {
+    it(`accepts the standard Sass @${directive} directive`, () =>
+      sassRuleTester.valid({ code: `@${directive} value;`, codeFilename: 'styles.scss' }));
+  }
+
+  it('accepts user-defined mixins and functions in SCSS', () =>
+    sassRuleTester.valid({
+      code: `
+        @mixin themed($color) { color: $color; }
+        @function spacing($n) { @return $n * 1rem; }
+        .button { @include themed(red); margin: spacing(2); }
+      `,
+      codeFilename: 'styles.scss',
+    }));
+
+  it('accepts user-defined mixins in indented Sass', () =>
+    sassRuleTester.valid({
+      code: `@mixin themed($color)
+  color: $color
+
+.button
+  @include themed(red)
+`,
+      codeFilename: 'styles.sass',
+    }));
+
+  for (const codeFilename of ['styles.scss', 'styles.sass']) {
+    it(`reports unknown at-rules in ${codeFilename}`, () =>
+      sassRuleTester.invalid({
+        code: '@unknown value\n',
+        codeFilename,
+        errors: [
+          {
+            text: 'Unexpected unknown at-rule "@unknown" (scss/at-rule-no-unknown)',
+            line: 1,
+          },
+        ],
+      }));
+  }
+
+  it('accepts configured names and regular expressions', async () => {
+    await configuredSassRuleTester.valid({ code: '@custom {}', codeFilename: 'styles.scss' });
+    await configuredSassRuleTester.valid({
+      code: '@project-extension value\n',
+      codeFilename: 'styles.sass',
+    });
+  });
+
+  for (const directive of supportedCssToolDirectives) {
+    it(`accepts the supported @${directive} tool directive`, () =>
+      supportedToolSassRuleTester.valid({
+        code: `@${directive} value;`,
+        codeFilename: 'styles.scss',
+      }));
+  }
+
+  for (const codeFilename of ['styles.css', 'styles.less']) {
+    it(`does not run on ${codeFilename}`, () =>
+      sassRuleTester.valid({ code: '@unknown value', codeFilename }));
+  }
+
+  describe('Vue file embedded blocks', () => {
+    const linter = new LinterWrapper();
+    linter.initialize([{ key: 'scss/at-rule-no-unknown', configurations: [] }]);
+    const vueFile = normalizeToAbsolutePath('/tmp/component.vue');
+
+    for (const lang of ['scss', 'sass']) {
+      it(`reports on a lang="${lang}" style block`, async () => {
+        const { issues } = await linter.lint(
+          vueFile,
+          `<style lang="${lang}">\n@unknown value\n</style>`,
+        );
+        expect(issues).toHaveLength(1);
+        expect(issues[0].ruleId).toBe('scss/at-rule-no-unknown');
+      });
+    }
+
+    for (const lang of [undefined, 'css', 'less']) {
+      it(`does not report on a ${lang ?? 'plain CSS'} style block`, async () => {
+        const attribute = lang ? ` lang="${lang}"` : '';
+        const { issues } = await linter.lint(vueFile, `<style${attribute}>@unknown value</style>`);
         expect(issues).toHaveLength(0);
       });
     }

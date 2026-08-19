@@ -23,7 +23,8 @@ import postcssHtmlConfig from 'stylelint-config-html/html.js';
 import postcssVueConfig from 'stylelint-config-html/vue.js';
 import { sonarRules } from '../rules/index.js';
 import stylisticPlugins from '@stylistic/stylelint-plugin';
-import { cssOnlyRuleKeys } from './css-only-rules.js';
+import scssPlugins from 'stylelint-scss';
+import { cssOnlyRuleKeys, sassOnlyRuleKeys } from './css-only-rules.js';
 
 /**
  * A Stylelint rule configuration
@@ -57,16 +58,22 @@ type ConfigRules = {
  *    out warnings from non-CSS embedded blocks).
  *  - Never enabled for .scss/.sass/.less files.
  *
+ * Rules in sassOnlyRuleKeys are enabled for .scss/.sass files and HTML/Vue
+ * files, where transform.ts retains warnings only from matching Sass blocks.
+ *
  * @param rules the rules from the active quality profile
  * @returns the created Stylelint configuration
  */
 export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
   const configRules: ConfigRules = {};
   const cssOnlyRules: ConfigRules = {};
+  const sassOnlyRules: ConfigRules = {};
   for (const { key, configurations } of rules) {
     const value = configurations.length === 0 ? true : configurations;
     if (cssOnlyRuleKeys.has(key)) {
       cssOnlyRules[key] = value;
+    } else if (sassOnlyRuleKeys.has(key)) {
+      sassOnlyRules[key] = value;
     } else {
       configRules[key] = value;
     }
@@ -90,16 +97,18 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
           sass: postcssSass,
           less: postcssLess,
         }),
-        rules: cssOnlyRules,
+        rules: { ...cssOnlyRules, ...sassOnlyRules },
       },
-      // scss/sass/less: no CSS-only rules.
+      // scss/sass: Sass-only rules; less: neither CSS-only nor Sass-only rules.
       {
         files: ['**/*.scss'],
         customSyntax: postcssScss,
+        rules: sassOnlyRules,
       },
       {
         files: ['**/*.sass'],
         customSyntax: postcssSass,
+        rules: sassOnlyRules,
       },
       {
         files: ['**/*.less'],
@@ -107,6 +116,6 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
       },
     ],
     rules: configRules,
-    plugins: [...sonarRules, ...stylisticPlugins],
+    plugins: [...sonarRules, ...stylisticPlugins, ...scssPlugins],
   };
 }
