@@ -1,0 +1,35 @@
+its/plugin/fast-tests/src/test/java/com/sonar/javascript/it/plugin/CssIssuesTest.java
+  s_04c98e2f3fcfcc::t_41d27d468baa09 186
+its/ruling/src/test/expected/bulma/css-S4667.json
+  s_04c98e2f3fcfcc::t_44d0034ac84c5b 1-26
+its/ruling/src/test/expected/vuetify/css-S4667.json
+  s_04c98e2f3fcfcc::t_56882d6fdccb6e 5-10,20-25,40-42
+packages/analysis/src/css/linter/config.ts
+  s_04c98e2f3fcfcc::t_ee4a62286e6fa9 27,61-62,70,75-76,100,102,106
+packages/analysis/src/css/linter/css-only-rules.ts
+  s_04c98e2f3fcfcc::t_27fb98adb00c46 40-41
+packages/analysis/src/css/linter/issues/transform.ts
+  s_04c98e2f3fcfcc::t_f01cb8476564b4 22,121,132,140,146,151,155,186
+packages/analysis/tests/css/linter/at-rule-no-unknown.test.ts
+  s_04c98e2f3fcfcc::t_422d82398821ef 144-153,160,182-189,191
+packages/analysis/tests/css/linter/config.test.ts
+  s_04c98e2f3fcfcc::t_d54a7fd08df611 21,81-83,85-87,90,92-100,105,110
+packages/analysis/tests/css/linter/issues/transform.test.ts
+  s_04c98e2f3fcfcc::t_cf67ae6a9e1370 22,231-232,317,324-325,328-330,333,342-345,390,396
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "a0e6a31741c83073c399c2d90fa7e50e27d8e167",
+  "prompts": {},
+  "sessions": {
+    "s_04c98e2f3fcfcc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01509-175b-7912-b50c-f57f3798830d",
+        "model": "unknown"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
