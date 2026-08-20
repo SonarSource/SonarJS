@@ -31,6 +31,21 @@ import {
 import * as meta from './generated-meta.js';
 
 /**
+ * A TypeScript assertion wrapper (`x as T`, `x satisfies T`, `x!`, `<T>x`) forces a contextual
+ * type onto the wrapped expression without actually consuming or awaiting it. Such a chain is
+ * still floating, so the assertion must not be mistaken for storage-for-later-consumption.
+ */
+function isAssertionWrapper(node: Rule.Node) {
+  const type = node.type as string;
+  return (
+    type === 'TSAsExpression' ||
+    type === 'TSSatisfiesExpression' ||
+    type === 'TSNonNullExpression' ||
+    type === 'TSTypeAssertion'
+  );
+}
+
+/**
  * Decorates the unicorn/prefer-top-level-await rule to suppress false positives for synchronous
  * APIs that overlap with Promise methods when type information is available.
  *
@@ -87,6 +102,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
           const isStoredForLaterConsumption =
             chainCall?.type === 'CallExpression' &&
             chainCall.callee === memberExpr &&
+            !isAssertionWrapper(chainCall.parent) &&
             isContextualTypeThenable(chainCall, services);
           if (!isStoredForLaterConsumption) {
             context.report(descriptor);

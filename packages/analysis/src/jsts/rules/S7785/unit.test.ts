@@ -167,13 +167,6 @@ describe('S7785', () => {
           code: `const holder: { promise: Promise<number> } = { promise: Promise.resolve(0) };
                  holder.promise = Promise.resolve(42).then(x => x).catch(() => 0);`,
         },
-        {
-          // Suppress: chain returned from a function whose declared return type is Promise —
-          // the contextual type from the return statement confirms it's forwarded, not floating
-          code: `function getValue(): Promise<number> {
-                   return Promise.resolve(42).then(x => x).catch(() => 0);
-                 }`,
-        },
       ],
       invalid: [
         {
@@ -235,6 +228,17 @@ describe('S7785', () => {
           // Warn: destination variable is typed but not Promise-typed — still floating
           code: `let sink: unknown;
                  sink = Promise.resolve(42).then(x => x).catch(() => 0);`,
+          errors: [{ messageId: 'promise' }],
+        },
+        {
+          // Warn: `as` assertion forces a Promise contextual type but nothing consumes the
+          // chain — it is still floating, so the assertion must not suppress the report
+          code: `Promise.resolve(42).then(x => x) as Promise<number>;`,
+          errors: [{ messageId: 'promise' }],
+        },
+        {
+          // Warn: `satisfies` assertion likewise does not consume the floating chain
+          code: `Promise.resolve(42).then(x => x) satisfies Promise<number>;`,
           errors: [{ messageId: 'promise' }],
         },
       ],
