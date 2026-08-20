@@ -21,6 +21,7 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
+import type { RequiredParserServices } from '../helpers/parser-services.js';
 import {
   getTypeFromTreeNode,
   isAny,
@@ -46,6 +47,87 @@ function isAssertionWrapper(node: Rule.Node) {
 }
 
 /**
+ * Determines whether the promise chain rooted at `memberExpr` is handed off to a
+ * Promise/PromiseLike-typed destination (a typed call argument or assignment target)
+ * to be awaited later, rather than floating at the top level.
+ *
+ * A TS assertion (`as`/`satisfies`/`!`/`<T>`) does not consume the chain and only pins
+ * its type, so look through any assertion wrappers to the node that occupies the real
+ * syntactic slot before reading the contextual type of that slot. This keeps a floating
+ * `chain as Promise<T>;` reported while still suppressing a chain that is both asserted
+ * and genuinely stored (e.g. `sink = chain as Promise<T>`).
+ */
+function isStoredForLaterConsumption(
+  memberExpr: estree.MemberExpression & Rule.NodeParentExtension,
+  services: RequiredParserServices,
+): boolean {
+  const chainCall = memberExpr.parent;
+  if (chainCall?.type !== 'CallExpression' || chainCall.callee !== memberExpr) {
+    return false;
+  }
+  let consumed: Rule.Node = chainCall;
+  let parent: Rule.Node | null = consumed.parent;
+  while (parent && isAssertionWrapper(parent)) {
+    consumed = parent;
+    parent = consumed.parent;
+  }
+  return isContextualTypeThenable(consumed, services);
+}
+
+/**
+ * Decides whether a 'promise' report should be raised. Returns true to report and false
+ * to suppress the false positive. Non-'promise' reports (iife/identifier) and untyped
+ * analysis always pass through unchanged.
+ */
+function shouldReportPromiseChain(
+  context: Rule.RuleContext,
+  descriptor: Rule.ReportDescriptor,
+): boolean {
+  // Only filter 'promise' reports (.then/.catch/.finally chains).
+  // Let iife and identifier reports pass through unchanged.
+  if (
+    !('messageId' in descriptor) ||
+    descriptor.messageId !== 'promise' ||
+    !('node' in descriptor)
+  ) {
+    return true;
+  }
+
+  const methodNode = descriptor.node as estree.Identifier;
+  const methodName = methodNode.name; // 'then', 'catch', or 'finally'
+  const memberExpr = (methodNode as Rule.Node).parent;
+  if (memberExpr?.type !== 'MemberExpression') {
+    return true;
+  }
+
+  const services = context.sourceCode.parserServices;
+  if (!isRequiredParserServices(services)) {
+    return true;
+  }
+
+  // Type-checker mode: use structural assignability to PromiseLike / Promise.
+  const receiver = memberExpr.object;
+  const type = getTypeFromTreeNode(receiver, services);
+  if (isAny(type)) {
+    // 'any' could be a Promise — warn conservatively.
+    return true;
+  }
+
+  // Thenable types can be awaited. For `catch`/`finally`, also require
+  // that the reported method exists on the receiver type.
+  const isThenableType = isThenable(receiver, services);
+  const supportsReportedMethod =
+    methodName === 'then' || typeHasMethod(receiver, methodName, services);
+  if (!isThenableType || !supportsReportedMethod) {
+    // Suppress otherwise (e.g. ZodString, unknown).
+    return false;
+  }
+
+  // Suppress when the chain is stored for later consumption rather than floating.
+  return !isStoredForLaterConsumption(memberExpr, services);
+}
+
+/**
  * Decorates the unicorn/prefer-top-level-await rule to suppress false positives for synchronous
  * APIs that overlap with Promise methods when type information is available.
  *
@@ -53,77 +135,12 @@ function isAssertionWrapper(node: Rule.Node) {
  * Zod/schema suppression is now provided upstream by Unicorn.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  const intercepted = interceptReport(
+  return interceptReport(
     { ...rule, meta: generateMeta(meta, rule.meta) },
     (context, descriptor) => {
-      // Only filter 'promise' reports (.then/.catch/.finally chains).
-      // Let iife and identifier reports pass through unchanged.
-      if (!('messageId' in descriptor) || descriptor.messageId !== 'promise') {
-        context.report(descriptor);
-        return;
-      }
-
-      if (!('node' in descriptor)) {
-        context.report(descriptor);
-        return;
-      }
-
-      const methodNode = descriptor.node as estree.Identifier;
-      const methodName = methodNode.name; // 'then', 'catch', or 'finally'
-      const memberExpr = (methodNode as Rule.Node).parent;
-
-      if (memberExpr?.type !== 'MemberExpression') {
-        context.report(descriptor);
-        return;
-      }
-
-      const receiver = memberExpr.object;
-      const services = context.sourceCode.parserServices;
-
-      if (isRequiredParserServices(services)) {
-        // Type-checker mode: use structural assignability to PromiseLike / Promise.
-        const type = getTypeFromTreeNode(receiver, services);
-        if (isAny(type)) {
-          // 'any' could be a Promise — warn conservatively.
-          context.report(descriptor);
-          return;
-        }
-
-        // Thenable types can be awaited. For `catch`/`finally`, also require
-        // that the reported method exists on the receiver type.
-        const isThenableType = isThenable(receiver, services);
-        const supportsReportedMethod =
-          methodName === 'then' || typeHasMethod(receiver, methodName, services);
-        if (isThenableType && supportsReportedMethod) {
-          const chainCall = memberExpr.parent;
-          // Suppress when the chain is handed off to a Promise/PromiseLike-typed destination
-          // (a typed call argument or assignment target) to be awaited later, rather than
-          // floating at the top level.
-          let isStoredForLaterConsumption = false;
-          if (chainCall?.type === 'CallExpression' && chainCall.callee === memberExpr) {
-            // A TS assertion (`as`/`satisfies`/`!`/`<T>`) does not consume the chain and only
-            // pins its type, so look through any assertion wrappers to the node that occupies
-            // the real syntactic slot before reading the contextual type of that slot. This
-            // keeps a floating `chain as Promise<T>;` reported while still suppressing a chain
-            // that is both asserted and genuinely stored (e.g. `sink = chain as Promise<T>`).
-            let consumed: Rule.Node = chainCall;
-            let parent: Rule.Node | null = consumed.parent;
-            while (parent && isAssertionWrapper(parent)) {
-              consumed = parent;
-              parent = consumed.parent;
-            }
-            isStoredForLaterConsumption = isContextualTypeThenable(consumed, services);
-          }
-          if (!isStoredForLaterConsumption) {
-            context.report(descriptor);
-          }
-        }
-
-        // Suppress otherwise (e.g. ZodString, unknown, or stored for later consumption).
-      } else {
+      if (shouldReportPromiseChain(context, descriptor)) {
         context.report(descriptor);
       }
     },
   );
-  return intercepted;
 }
