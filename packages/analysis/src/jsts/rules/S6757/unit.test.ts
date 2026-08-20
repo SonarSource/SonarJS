@@ -53,6 +53,48 @@ describe('S6757', () => {
     ruleTester.run('Stateless functional components should not use `this`', rule, {
       valid: [
         {
+          // Compliant: `this` is lexically owned by an ordinary class method.
+          code: `
+class View {
+  render() {
+    const Row = item => <span>{this.format(item)}</span>;
+    return <section>{[1].map(Row)}</section>;
+  }
+}
+          `,
+        },
+        {
+          // Compliant: arrow closure preserves the ordinary class instance receiver.
+          code: `
+class NonReactView extends View {
+  render() {
+    const Row = item => <span>{this.props.format(item)}</span>;
+    return <section>{this.items.map(Row)}</section>;
+  }
+}
+          `,
+        },
+        {
+          // Compliant: nested ordinary class member owns the receiver through its arrow closure.
+          code: `
+const React = { Component: class {} };
+class View {}
+
+class Outer extends React.Component {
+  render() {
+    class Inner extends View {
+      draw() {
+        const Row = item => <span>{this.props.format(item)}</span>;
+        return <section>{this.items.map(Row)}</section>;
+      }
+    }
+
+    return new Inner().draw();
+  }
+}
+          `,
+        },
+        {
           // Compliant: class callback
           code: `
 const React = { Component: class {} };
@@ -167,37 +209,6 @@ class ComponentWithNestedFunction extends React.Component {
     }
 
     return <NestedComponent />;
-  }
-}
-          `,
-          errors: 1,
-        },
-        {
-          code: `
-class NonReactView extends View {
-  render() {
-    const Row = item => <span>{this.props.format(item)}</span>;
-    return <section>{this.items.map(Row)}</section>;
-  }
-}
-          `,
-          errors: 1,
-        },
-        {
-          code: `
-const React = { Component: class {} };
-class View {}
-
-class Outer extends React.Component {
-  render() {
-    class Inner extends View {
-      draw() {
-        const Row = item => <span>{this.props.format(item)}</span>;
-        return <section>{this.items.map(Row)}</section>;
-      }
-    }
-
-    return new Inner().draw();
   }
 }
           `,
