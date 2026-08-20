@@ -135,7 +135,7 @@ jobs:
         run: npm ci
 
   populate_npm_cache_win:
-    runs-on: github-windows-latest-s
+    runs-on: warp-custom-windows-2022-s
     name: Populate NPM cache for Windows
     needs: [setup, get_build_number]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -237,7 +237,7 @@ jobs:
 
   # Windows builds and tests
   build_win:
-    runs-on: github-windows-latest-m
+    runs-on: warp-custom-windows-2022-m
     name: Build SonarJS on Windows
     needs: [setup, get_build_number, populate_npm_cache_win, prepare_rspec_rule_data]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -499,7 +499,7 @@ jobs:
           retention-days: 1
 
   test_js_win:
-    runs-on: github-windows-latest-m
+    runs-on: warp-custom-windows-2022-m
     name: Unit tests JavaScript on Windows
     needs: [setup, populate_npm_cache_win, prepare_rspec_rule_data]
     permissions: *read_permissions
@@ -953,7 +953,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_win:
-    runs-on: github-windows-latest-m
+    runs-on: warp-custom-windows-2022-m
     name: QA on Windows (${{ matrix.group }})
     needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -994,7 +994,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_sonarlint_win:
-    runs-on: github-windows-latest-m
+    runs-on: warp-custom-windows-2022-m
     name: QA SonarLint on Windows
     needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -1014,7 +1014,7 @@ jobs:
           SONARSOURCE_QA: true
 
   plugin_qa_win_fast_with_node:
-    runs-on: github-windows-latest-m
+    runs-on: warp-custom-windows-2022-m
     name: Fast QA on Windows with Node (${{ matrix.group }})
     needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
