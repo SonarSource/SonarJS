@@ -15,7 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it } from 'node:test';
+import assert from 'node:assert';
+import stylelint from 'stylelint';
+import postcssScss from 'postcss-scss';
+import scssPlugin from 'stylelint-scss';
 import { StylelintRuleTester } from '../../../../tests/css/tools/tester/tester.js';
+import { rule } from './rule.js';
 
 const ruleTester = new StylelintRuleTester('sonar/annotation-no-unknown');
 const ruleTesterWithIgnore = new StylelintRuleTester('sonar/annotation-no-unknown', [
@@ -76,4 +81,24 @@ a { color: red !imprtant; }
 </style>`,
       errors: [{ text: 'Unknown annotation "!imprtant" (sonar/annotation-no-unknown)', line: 3 }],
     }));
+
+  it('does not relabel warnings emitted concurrently by other rules', async () => {
+    const result = await stylelint.lint({
+      code: '@unknown {}',
+      codeFilename: 'styles.scss',
+      customSyntax: postcssScss,
+      config: {
+        plugins: [rule, ...scssPlugin],
+        rules: {
+          'sonar/annotation-no-unknown': true,
+          'scss/at-rule-no-unknown': true,
+        },
+      },
+    });
+
+    assert.deepStrictEqual(
+      result.results[0].warnings.map(warning => warning.rule),
+      ['scss/at-rule-no-unknown'],
+    );
+  });
 });

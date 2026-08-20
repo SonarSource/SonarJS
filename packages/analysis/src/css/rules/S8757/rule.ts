@@ -45,8 +45,12 @@ function isSassAnnotationWarning(text: string): boolean {
 
 function relabelWarnings(result: PostcssResult, from: number): void {
   for (const w of result.warnings().slice(from)) {
+    const warning = w as unknown as { rule: string };
+    if (warning.rule !== UPSTREAM_RULE) {
+      continue;
+    }
     w.text = w.text.replace(` (${UPSTREAM_RULE})`, ` (${SONAR_RULE})`);
-    (w as unknown as { rule: string }).rule = SONAR_RULE;
+    warning.rule = SONAR_RULE;
   }
 }
 
