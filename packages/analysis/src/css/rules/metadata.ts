@@ -128,13 +128,6 @@ function ignoreAtRulesRule(
   );
 }
 
-const s4662IgnoreAtRules = listParam(
-  'ignoreAtRules',
-  'ignoreAtRules',
-  'Comma-separated list of "at-rules" to consider as valid.',
-  supportedCssToolDirectives.join(','),
-);
-
 export const cssRulesMeta: CssRuleMeta[] = [
   ...buildSimpleRules({
     S125: 'sonar/no-commented-code',
@@ -251,10 +244,15 @@ export const cssRulesMeta: CssRuleMeta[] = [
     ),
   ),
   simpleRule('S4661', 'media-feature-name-no-unknown'),
-  // Stylelint already recognizes standard CSS at-rules, while stylelint-scss recognizes Sass
-  // directives. These shared defaults cover css-loader, Tailwind, and postcss-mixins directives.
-  singleListParamRule('S4662', 'at-rule-no-unknown', s4662IgnoreAtRules),
-  singleListParamRule('S4662', 'scss/at-rule-no-unknown', s4662IgnoreAtRules),
+  // Stylelint already recognizes standard CSS at-rules. These defaults cover directives used
+  // in plain CSS by css-loader, current/legacy Tailwind versions, and postcss-mixins.
+  ignoreAtRulesRule(
+    'S4662',
+    'at-rule-no-unknown',
+    'ignoreAtRules',
+    'Comma-separated list of "at-rules" to consider as valid.',
+    supportedCssToolDirectives.join(','),
+  ),
   ...buildSimpleRules({
     S4663: 'comment-no-empty',
     S4664: 'no-descending-specificity',
@@ -336,3 +334,4 @@ export const cssRulesMeta: CssRuleMeta[] = [
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
 export const reverseCssRuleKeyMap = new Map(cssRulesMeta.map(r => [r.stylelintKey, r.sqKey]));
+reverseCssRuleKeyMap.set('scss/at-rule-no-unknown', 'S4662');

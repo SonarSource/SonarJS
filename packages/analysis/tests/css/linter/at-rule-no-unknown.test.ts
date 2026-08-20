@@ -70,7 +70,7 @@ describe('at-rule-no-unknown', () => {
     await configuredRuleTester.valid({ code: '@project-extension {}' });
   });
 
-  for (const codeFilename of ['styles.scss', 'styles.sass', 'styles.less']) {
+  for (const codeFilename of ['styles.sass', 'styles.less']) {
     it(`does not run on ${codeFilename}`, () =>
       ruleTester.valid({
         code: '@unknown value',
@@ -95,7 +95,7 @@ describe('at-rule-no-unknown', () => {
       expect(issues[0].ruleId).toBe('at-rule-no-unknown');
     });
 
-    for (const lang of ['scss', 'sass', 'less']) {
+    for (const lang of ['sass', 'less']) {
       it(`does not report on a ${lang} style block`, async () => {
         const { issues } = await linter.lint(
           vueFile,

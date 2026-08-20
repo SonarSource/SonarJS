@@ -58,8 +58,8 @@ type ConfigRules = {
  *    out warnings from non-CSS embedded blocks).
  *  - Never enabled for .scss/.sass/.less files.
  *
- * Rules in scssOnlyRuleKeys are enabled for .scss files and HTML/Vue files,
- * where transform.ts retains warnings only from matching SCSS blocks.
+ * S4662's SCSS companion rule is derived from the configured CSS implementation and enabled for
+ * .scss files and HTML/Vue files. transform.ts retains its warnings only from matching SCSS blocks.
  *
  * @param rules the rules from the active quality profile
  * @returns the created Stylelint configuration
@@ -72,6 +72,9 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
     const value = configurations.length === 0 ? true : configurations;
     if (cssOnlyRuleKeys.has(key)) {
       cssOnlyRules[key] = value;
+      if (key === 'at-rule-no-unknown') {
+        scssOnlyRules['scss/at-rule-no-unknown'] = value;
+      }
     } else if (scssOnlyRuleKeys.has(key)) {
       scssOnlyRules[key] = value;
     } else {

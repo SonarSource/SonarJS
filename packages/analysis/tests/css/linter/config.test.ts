@@ -18,7 +18,7 @@ import { sonarRules } from '../../../src/css/rules/index.js';
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import { expect } from 'expect';
 import { createStylelintConfig, RuleConfig } from '../../../src/css/linter/config.js';
-import { cssOnlyRuleKeys, scssOnlyRuleKeys } from '../../../src/css/linter/css-only-rules.js';
+import { cssOnlyRuleKeys } from '../../../src/css/linter/css-only-rules.js';
 
 describe('createStylelintConfig', () => {
   it('should create a Stylelint config', () => {
@@ -78,36 +78,33 @@ describe('createStylelintConfig', () => {
     });
   });
 
-  describe('SCSS-only rule routing', () => {
-    beforeEach(() => scssOnlyRuleKeys.add('scss-only-rule'));
-    afterEach(() => scssOnlyRuleKeys.delete('scss-only-rule'));
-
-    it('routes SCSS-only rules to scss and embedded overrides', () => {
-      const config = createStylelintConfig([{ key: 'scss-only-rule', configurations: [] }]);
-      expect(config.rules).not.toHaveProperty('scss-only-rule');
+  describe('S4662 SCSS companion routing', () => {
+    it('derives the SCSS rule for scss and embedded overrides', () => {
+      const configurations = [true, { ignoreAtRules: ['custom'] }];
+      const config = createStylelintConfig([{ key: 'at-rule-no-unknown', configurations }]);
 
       const cssOverride = config.overrides?.find(o => (o.files as string[])?.includes('**/*.css'));
-      expect(cssOverride?.rules ?? {}).not.toHaveProperty('scss-only-rule');
+      expect(cssOverride?.rules).toHaveProperty('at-rule-no-unknown', configurations);
 
       const scssOverride = config.overrides?.find(o =>
         (o.files as string[])?.includes('**/*.scss'),
       );
-      expect(scssOverride?.rules).toHaveProperty('scss-only-rule', true);
+      expect(scssOverride?.rules).toHaveProperty('scss/at-rule-no-unknown', configurations);
 
       const sassOverride = config.overrides?.find(o =>
         (o.files as string[])?.includes('**/*.sass'),
       );
-      expect(sassOverride?.rules ?? {}).not.toHaveProperty('scss-only-rule');
+      expect(sassOverride?.rules ?? {}).not.toHaveProperty('scss/at-rule-no-unknown');
 
       const lessOverride = config.overrides?.find(o =>
         (o.files as string[])?.includes('**/*.less'),
       );
-      expect(lessOverride?.rules ?? {}).not.toHaveProperty('scss-only-rule');
+      expect(lessOverride?.rules ?? {}).not.toHaveProperty('scss/at-rule-no-unknown');
 
       const embeddedOverride = config.overrides?.find(
         o => o.customSyntax != null && !(o.files as string[])?.includes('**/*.css'),
       );
-      expect(embeddedOverride?.rules).toHaveProperty('scss-only-rule', true);
+      expect(embeddedOverride?.rules).toHaveProperty('scss/at-rule-no-unknown', configurations);
     });
   });
 });
