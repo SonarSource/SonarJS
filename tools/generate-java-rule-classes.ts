@@ -606,9 +606,6 @@ function generateCssRuleTestBody(
           p.default.trim() === '' ? [] : p.default.split(',').map(v => v.trim());
       }
       const defaultJson = JSON.stringify([true, defaultOptionObj]).replace(/"/g, '\\"');
-      const hasNonEmptyDefault = (meta.listParam ?? []).some(
-        bindingParam => bindingParam.default.trim() !== '',
-      );
 
       testMethods.push(`  @Test`);
       testMethods.push(`  void ${methodPrefix}_default() {`);
@@ -703,6 +700,9 @@ function generateCssRuleTestBody(
           .filter(Boolean);
       }
       const defaultJson = JSON.stringify([true, defaultOptionObj]).replace(/"/g, '\\"');
+      const hasNonEmptyDefault = (meta.listParam ?? []).some(
+        bindingParam => bindingParam.default.trim() !== '',
+      );
 
       testMethods.push(`  @Test`);
       testMethods.push(`  void ${bindingPrefix}_default() {`);
