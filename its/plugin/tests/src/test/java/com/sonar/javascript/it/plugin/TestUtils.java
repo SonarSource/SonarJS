@@ -19,6 +19,7 @@ package com.sonar.javascript.it.plugin;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.ServerSocket;
 import java.nio.file.CopyOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -129,6 +130,14 @@ public class TestUtils {
         targetDirectory.resolve(sourceFile.getFileName()),
         StandardCopyOption.REPLACE_EXISTING
       );
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
+
+  public static int findOpenPort() {
+    try (ServerSocket socket = new ServerSocket(0)) {
+      return socket.getLocalPort();
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

@@ -52,6 +52,9 @@ import org.sonarqube.ws.Issues;
 
 class PRAnalysisTest {
 
+  // Later Jasmin versions use the profile-aware API introduced after SonarJS 11.8.
+  private static final String JASMIN_PLUGIN_VERSION = "1.14.1.10054";
+
   private static Orchestrator orchestrator;
 
   @TempDir
@@ -197,6 +200,9 @@ class PRAnalysisTest {
     var builder = OrchestratorExtension.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(version)
+      // The shared suite orchestrator may already be running on the default web port.
+      // Reserve a dedicated port for this private instance to avoid test order dependent clashes.
+      .setServerProperty("sonar.web.port", Integer.toString(TestUtils.findOpenPort()))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
       .addPlugin(
         FileLocation.byWildcardMavenFilename(
@@ -206,7 +212,9 @@ class PRAnalysisTest {
       )
       .setEdition(Edition.ENTERPRISE_LW)
       .activateLicense()
-      .addPlugin(MavenLocation.of("com.sonarsource.armor", "sonar-jasmin-plugin", version))
+      .addPlugin(
+        MavenLocation.of("com.sonarsource.armor", "sonar-jasmin-plugin", JASMIN_PLUGIN_VERSION)
+      )
       .addPlugin(
         MavenLocation.of("org.sonarsource.config", "sonar-config-plugin", "LATEST_RELEASE")
       );

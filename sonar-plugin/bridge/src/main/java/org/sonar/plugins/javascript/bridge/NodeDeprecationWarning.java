@@ -41,7 +41,7 @@ public class NodeDeprecationWarning {
 
   static {
     Properties props = loadProperties(NODE_PROPERTIES_FILE);
-    MIN_SUPPORTED_NODE_VERSION = Version.parse(props.getProperty("node.version.min"));
+    MIN_SUPPORTED_NODE_VERSION = Version.parse(props.getProperty("node.min.version"));
     RECOMMENDED_NODE_VERSIONS = Arrays.asList(
       props.getProperty("node.recommended.versions").split(",")
     );
