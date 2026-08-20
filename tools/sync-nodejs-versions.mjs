@@ -35,7 +35,7 @@ const minVersion = semver.minVersion(range).version;
 // 2. Prepare the properties content
 const propertiesContent =
   `# This file is auto-generated from package.json\n` +
-  `node.min.version=${minVersion}\n` +
+  `node.version.min=${minVersion}\n` +
   `node.recommended.versions=${rangeSantized}\n`;
 
 // 3. Ensure the resources directory exists
