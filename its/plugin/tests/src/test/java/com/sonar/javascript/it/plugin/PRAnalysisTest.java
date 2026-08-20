@@ -197,6 +197,9 @@ class PRAnalysisTest {
     var builder = OrchestratorExtension.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(version)
+      // The shared suite orchestrator may already be running on the default web port.
+      // Reserve a dedicated port for this private instance to avoid test order dependent clashes.
+      .setServerProperty("sonar.web.port", Integer.toString(TestUtils.findOpenPort()))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
       .addPlugin(
         FileLocation.byWildcardMavenFilename(

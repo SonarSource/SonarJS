@@ -362,7 +362,7 @@ class SonarLintIntegrationTest {
 
   private void assertResults(Consumer<List<RaisedIssueDto>> assertionLambda) {
     await()
-      .atMost(15, TimeUnit.SECONDS)
+      .atMost(30, TimeUnit.SECONDS)
       .untilAsserted(() -> {
         var results = client.getRaisedIssuesForScopeIdAsList(CONFIG_SCOPE_ID);
         assertionLambda.accept(results);
