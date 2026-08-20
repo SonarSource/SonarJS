@@ -31,9 +31,9 @@ import {
 import * as meta from './generated-meta.js';
 
 /**
- * A TypeScript assertion wrapper (`x as T`, `x satisfies T`, `x!`, `<T>x`) forces a contextual
- * type onto the wrapped expression without actually consuming or awaiting it. Such a chain is
- * still floating, so the assertion must not be mistaken for storage-for-later-consumption.
+ * A TypeScript assertion wrapper (`x as T`, `x satisfies T`, `x!`, `<T>x`) only pins the type of
+ * the wrapped expression; it neither consumes nor awaits it. Such wrappers must be looked through
+ * to find the node that occupies the real syntactic slot when deciding whether a chain is stored.
  */
 function isAssertionWrapper(node: Rule.Node) {
   const type = node.type as string;
@@ -99,11 +99,21 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
           // Suppress when the chain is handed off to a Promise/PromiseLike-typed destination
           // (a typed call argument or assignment target) to be awaited later, rather than
           // floating at the top level.
-          const isStoredForLaterConsumption =
-            chainCall?.type === 'CallExpression' &&
-            chainCall.callee === memberExpr &&
-            !isAssertionWrapper(chainCall.parent) &&
-            isContextualTypeThenable(chainCall, services);
+          let isStoredForLaterConsumption = false;
+          if (chainCall?.type === 'CallExpression' && chainCall.callee === memberExpr) {
+            // A TS assertion (`as`/`satisfies`/`!`/`<T>`) does not consume the chain and only
+            // pins its type, so look through any assertion wrappers to the node that occupies
+            // the real syntactic slot before reading the contextual type of that slot. This
+            // keeps a floating `chain as Promise<T>;` reported while still suppressing a chain
+            // that is both asserted and genuinely stored (e.g. `sink = chain as Promise<T>`).
+            let consumed: Rule.Node = chainCall;
+            let parent: Rule.Node | null = consumed.parent;
+            while (parent && isAssertionWrapper(parent)) {
+              consumed = parent;
+              parent = consumed.parent;
+            }
+            isStoredForLaterConsumption = isContextualTypeThenable(consumed, services);
+          }
           if (!isStoredForLaterConsumption) {
             context.report(descriptor);
           }

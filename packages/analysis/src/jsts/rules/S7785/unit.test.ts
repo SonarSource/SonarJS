@@ -167,6 +167,18 @@ describe('S7785', () => {
           code: `const holder: { promise: Promise<number> } = { promise: Promise.resolve(0) };
                  holder.promise = Promise.resolve(42).then(x => x).catch(() => 0);`,
         },
+        {
+          // Suppress: chain is both asserted (`as`) and genuinely stored — the assignment to a
+          // Promise-typed target is the real consumer, so the assertion must not force a report
+          code: `let sink: Promise<number>;
+                 sink = Promise.resolve(42).then(x => x).catch(() => 0) as Promise<number>;`,
+        },
+        {
+          // Suppress: chain is both asserted and passed to a Promise-typed parameter — still
+          // handed off for later consumption, the assertion is incidental
+          code: `function doWork(arg: Promise<number>) {}
+                 doWork(Promise.resolve(42).then(x => x).catch(() => 0) as Promise<number>);`,
+        },
       ],
       invalid: [
         {
