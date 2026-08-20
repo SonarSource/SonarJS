@@ -1,0 +1,29 @@
+packages/analysis/src/css/linter/config.ts
+  s_04c98e2f3fcfcc::t_f453897d15daf0 61-62,75-77
+packages/analysis/src/css/rules/metadata.ts
+  s_04c98e2f3fcfcc::t_70dc6540279954 247-255,337
+packages/analysis/tests/css/linter/at-rule-no-unknown.test.ts
+  s_04c98e2f3fcfcc::t_0f7c90447c255e 73,98
+packages/analysis/tests/css/linter/config.test.ts
+  s_04c98e2f3fcfcc::t_38a330e8960d8b 21,81-84,87,92,97,102,107
+packages/grpc/tests/transformers.test.ts
+  s_04c98e2f3fcfcc::t_5c1f259acd8e7a 310
+tools/generate-java-rule-classes.ts
+  s_04c98e2f3fcfcc::t_c0876fdf866b3b 453-463,471-474,575,577-578,681,683,685,688
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "283c4c155b83de6ec2bb5a914a40e5ef22fa94aa",
+  "prompts": {},
+  "sessions": {
+    "s_04c98e2f3fcfcc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01509-175b-7912-b50c-f57f3798830d",
+        "model": "unknown"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
