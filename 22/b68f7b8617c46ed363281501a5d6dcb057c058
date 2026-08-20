@@ -1,0 +1,19 @@
+tools/generate-java-rule-classes.ts
+  s_04c98e2f3fcfcc::t_b7aa0450198e80 703-705
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "22b68f7b8617c46ed363281501a5d6dcb057c058",
+  "prompts": {},
+  "sessions": {
+    "s_04c98e2f3fcfcc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01509-175b-7912-b50c-f57f3798830d",
+        "model": "unknown"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
