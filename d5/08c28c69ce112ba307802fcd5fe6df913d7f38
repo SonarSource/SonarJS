@@ -1,0 +1,19 @@
+packages/analysis/src/css/rules/index.ts
+  s_04c98e2f3fcfcc::t_04efe2bd14a13b 28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.23",
+  "base_commit_sha": "d508c28c69ce112ba307802fcd5fe6df913d7f38",
+  "prompts": {},
+  "sessions": {
+    "s_04c98e2f3fcfcc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01509-175b-7912-b50c-f57f3798830d",
+        "model": "unknown"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
