@@ -1,0 +1,19 @@
+tools/templates/java/css-rules.template
+  s_04c98e2f3fcfcc::t_aa9d8eb157b683 43-46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "0009968ad33457ac16691c13e51931cf00dd7e6f",
+  "prompts": {},
+  "sessions": {
+    "s_04c98e2f3fcfcc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01509-175b-7912-b50c-f57f3798830d",
+        "model": "unknown"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
