@@ -1,0 +1,25 @@
+packages/analysis/src/css/linter/wrapper.ts
+  s_04c98e2f3fcfcc::t_0ee3263d6e23a1 25,98
+packages/analysis/src/css/rules/S8757/rule.ts
+  s_04c98e2f3fcfcc::t_c4a37e02891d6e 23-27,74-76
+packages/analysis/src/css/rules/S8757/unit.test.ts
+  s_04c98e2f3fcfcc::t_64d9c305037e1f 17,23,32-33
+packages/analysis/src/css/rules/index.ts
+  s_04c98e2f3fcfcc::t_de22871edbb9d7 22,28,30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "365eb2aa8320fb81d63f9d1e0decfca78ff00780",
+  "prompts": {},
+  "sessions": {
+    "s_04c98e2f3fcfcc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01509-175b-7912-b50c-f57f3798830d",
+        "model": "unknown"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
