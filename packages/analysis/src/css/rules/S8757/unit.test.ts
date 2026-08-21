@@ -29,6 +29,26 @@ const ruleTesterWithIgnore = new StylelintRuleTester('sonar/annotation-no-unknow
 ]);
 
 describe('S8757 (sonar/annotation-no-unknown)', () => {
+  it('does not relabel warnings emitted concurrently by other rules', async () => {
+    const result = await stylelint.lint({
+      code: '@unknown {}',
+      codeFilename: 'styles.scss',
+      customSyntax: postcssScss,
+      config: {
+        plugins: [rule, ...scssPlugin],
+        rules: {
+          'sonar/annotation-no-unknown': true,
+          'scss/at-rule-no-unknown': true,
+        },
+      },
+    });
+
+    assert.deepStrictEqual(
+      result.results[0].warnings.map(warning => warning.rule),
+      ['scss/at-rule-no-unknown'],
+    );
+  });
+
   it('accepts !important in CSS', () => ruleTester.valid({ code: 'a { color: red !important; }' }));
 
   it('reports unknown annotation in CSS', () =>
@@ -81,24 +101,4 @@ a { color: red !imprtant; }
 </style>`,
       errors: [{ text: 'Unknown annotation "!imprtant" (sonar/annotation-no-unknown)', line: 3 }],
     }));
-
-  it('does not relabel warnings emitted concurrently by other rules', async () => {
-    const result = await stylelint.lint({
-      code: '@unknown {}',
-      codeFilename: 'styles.scss',
-      customSyntax: postcssScss,
-      config: {
-        plugins: [rule, ...scssPlugin],
-        rules: {
-          'sonar/annotation-no-unknown': true,
-          'scss/at-rule-no-unknown': true,
-        },
-      },
-    });
-
-    assert.deepStrictEqual(
-      result.results[0].warnings.map(warning => warning.rule),
-      ['scss/at-rule-no-unknown'],
-    );
-  });
 });
