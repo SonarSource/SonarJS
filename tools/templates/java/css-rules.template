@@ -40,6 +40,10 @@ public class CssRules {
         stylelintKeyToRuleKey.put(sr.getKey(), ruleKey);
       }
     }
+    RuleKey atRuleNoUnknownRuleKey = stylelintKeyToRuleKey.get("at-rule-no-unknown");
+    if (atRuleNoUnknownRuleKey != null) {
+      stylelintKeyToRuleKey.put("scss/at-rule-no-unknown", atRuleNoUnknownRuleKey);
+    }
   }
 
   public static List<Class<?>> getRuleClasses() {
