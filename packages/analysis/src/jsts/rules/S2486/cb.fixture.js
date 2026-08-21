@@ -20,9 +20,9 @@ function h() {
     try {
         doSomething();
         doSomethingElse();
-    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+    } catch (err) {
 
-    }
+    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
 }
 
 function i() {
@@ -71,9 +71,9 @@ function nestedTryBody() {
 
 function emptyTryBody() {
     try {
-    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+    } catch (err) {
 
-    }
+    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
 }
 
 function forLoopBody() {
@@ -82,9 +82,9 @@ function forLoopBody() {
             doSomething(x);
             doSomethingElse(x);
         }
-    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+    } catch (err) {
 
-    }
+    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
 }
 
 function whileLoopBody() {
@@ -92,9 +92,9 @@ function whileLoopBody() {
         while (condition()) {
             doSomething();
         }
-    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+    } catch (err) {
 
-    }
+    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
 }
 
 function switchBody() {
@@ -103,9 +103,9 @@ function switchBody() {
             case 'a': stepOne(); stepTwo(); break;
             default: fallback();
         }
-    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+    } catch (err) {
 
-    }
+    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
 }
 
 function blockBody() {
@@ -114,9 +114,9 @@ function blockBody() {
             doSomething();
             doSomethingElse();
         }
-    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+    } catch (err) {
 
-    }
+    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
 }
 
 function labeledLoopBody() {
@@ -124,9 +124,9 @@ function labeledLoopBody() {
         outer: for (const x of xs) {
             doSomething(x);
         }
-    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+    } catch (err) {
 
-    }
+    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
 }
 
 function commentOnlySingleLine() {
@@ -187,6 +187,30 @@ function blockCommentOnlyMultiLine() {
          * This exception is
          * ignored on purpose
          */
+    }
+}
+
+function commentOnlySameLine() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch (err) { // documented
+    }
+}
+
+function blockCommentOnlySameLine() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch (err) { /* documented */ }
+}
+
+function commentTrailingCodeSameLine() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+        doCleanup(); // some comment
     }
 }
 

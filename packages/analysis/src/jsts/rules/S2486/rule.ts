@@ -45,13 +45,7 @@ function isSingleSimpleStatement(body: estree.Statement[]): boolean {
 }
 
 function isDocumentedEmptyCatch(context: Rule.RuleContext, node: estree.CatchClause): boolean {
-  if (node.body.body.length !== 0) {
-    return false;
-  }
-  const openingBraceLine = node.body.loc!.start.line;
-  return context.sourceCode
-    .getCommentsInside(node.body)
-    .some(comment => comment.loc!.start.line > openingBraceLine);
+  return node.body.body.length === 0 && context.sourceCode.getCommentsInside(node.body).length > 0;
 }
 
 export const rule: Rule.RuleModule = {
