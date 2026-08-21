@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import org.sonar.check.Rule;
 import org.sonar.check.RuleProperty;
 import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.Language;
@@ -106,6 +107,29 @@ class CheckListTest {
     assertThat(CheckList.getChecksForLanguage(Language.TYPESCRIPT)).isEqualTo(
       CheckList.getTypeScriptChecks()
     );
+  }
+
+  @Test
+  void testDefaultQualityProfiles() {
+    assertThat(CheckList.getDefaultQualityProfileNames())
+      .contains("Sonar way")
+      .doesNotHaveDuplicates();
+
+    for (var language : Language.values()) {
+      Set<String> implementedRuleKeys = CheckList.getChecksForLanguage(language)
+        .stream()
+        .map(check -> check.getAnnotation(Rule.class).key())
+        .collect(Collectors.toSet());
+      for (var profileName : CheckList.getDefaultQualityProfileNames()) {
+        assertThat(CheckList.getDefaultQualityProfileRuleKeys(profileName, language))
+          .as("%s rules for %s", profileName, language)
+          .isSubsetOf(implementedRuleKeys);
+      }
+    }
+
+    assertThat(
+      CheckList.getDefaultQualityProfileRuleKeys("Unknown profile", Language.JAVASCRIPT)
+    ).isEmpty();
   }
 
   @Test

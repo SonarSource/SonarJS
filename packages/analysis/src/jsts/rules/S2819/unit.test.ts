@@ -241,6 +241,40 @@ describe('S2819', () => {
         },
         {
           code: `
+      if (typeof window === 'undefined') {
+        window = self;
+      }
+      window.addEventListener("message", function(event) {
+        console.log(event.data);
+      });
+            `,
+        },
+        {
+          code: `
+      if (typeof window === 'undefined') {
+        window = global;
+      }
+      window.addEventListener("message", function(event) {
+        console.log(event.data);
+      });
+            `,
+        },
+        {
+          // the shape found in the wild: shim and addEventListener inside a module factory
+          code: `
+      define(function (require, exports, module) {
+        if (typeof window == "undefined") {
+          if (typeof self != "undefined") window = self;
+          if (typeof global != "undefined") window = global;
+        }
+        window.addEventListener("message", function (event) {
+          console.log(event.data);
+        });
+      });
+            `,
+        },
+        {
+          code: `
       window.addEventListener("missing listener");
       window.addEventListener("message", "not a function");
       not_a_win_dow.addEventListener("message", () => {});
@@ -409,6 +443,15 @@ describe('S2819', () => {
         console.log(event.data);
       };
       window.addEventListener("message", handleMessage);
+            `,
+          errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
+          code: `
+      const window = self;
+      window.addEventListener("message", function(event) {
+        console.log(event.data);
+      });
             `,
           errors: [{ messageId: 'verifyOrigin' }],
         },

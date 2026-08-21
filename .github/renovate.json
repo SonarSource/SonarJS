@@ -3,6 +3,7 @@
   "extends": [
     "github>SonarSource/renovate-config:quality-corelang-squad"
   ],
+  "npmrc": "registry=https://registry.npmjs.org/\n",
   "ignorePaths": [
     "its/sources/**",
     "its/plugin/projects/**",
@@ -33,6 +34,15 @@
       ],
       "groupName": "{{#if sourceRepo}}{{sourceRepo}} monorepo{{else}}{{depName}}{{/if}}",
       "groupSlug": "{{#if sourceRepo}}{{sourceRepo}}{{else}}{{depName}}{{/if}}"
+    },
+    {
+      "description": "Resolve npm packages directly from npmjs.org instead of the Repox registry inherited from the shared preset",
+      "matchDatasources": [
+        "npm"
+      ],
+      "registryUrls": [
+        "https://registry.npmjs.org/"
+      ]
     },
     {
       "description": "@typescript/native-preview - dev builds update daily, limit to weekly",

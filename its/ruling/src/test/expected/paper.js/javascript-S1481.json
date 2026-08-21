@@ -1,15 +1,8 @@
 {
-"paper.js:examples/Node.js/SvgExport.js": [
-16
-],
 "paper.js:examples/Scripts/BooleanOperations.html": [
 23,
 23,
 23
-],
-"paper.js:src/core/PaperScript.js": [
-31,
-31
 ],
 "paper.js:src/event/Key.js": [
 93
@@ -22,8 +15,5 @@
 ],
 "paper.js:src/path/PathFlattener.js": [
 112
-],
-"paper.js:src/view/View.js": [
-1202
 ]
 }

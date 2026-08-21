@@ -53,9 +53,9 @@ To refresh the tracked RSPEC rule data explicitly, run:
 npm run rspec:refresh
 ```
 
-That command uses a root, non-recursive Maven profile dedicated to RSPEC refresh. It performs one
-RSPEC sync for both JavaScript and CSS, then deploys the generated JSON and HTML into the tracked
-plugin resource directories.
+That command uses a root-owned, non-recursive Maven profile dedicated to RSPEC refresh. It performs
+one RSPEC sync for both JavaScript and CSS during `generate-resources`, then deploys the generated
+JSON and HTML into the tracked plugin resource directories during `process-resources`.
 
 On an unpinned branch, it refreshes to the latest intended RSPEC revision using either your GitHub
 CLI auth or `GITHUB_TOKEN`.
@@ -603,9 +603,7 @@ export const implementation = 'decorated';
 export const eslintId = 'max-params';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'max-params' }];
 export * from './config.js';
-export const schema = {
-  /* ... */
-} as const satisfies JSONSchema4;
+export const schema = {/* ... */} as const satisfies JSONSchema4;
 ```
 
 #### `external`

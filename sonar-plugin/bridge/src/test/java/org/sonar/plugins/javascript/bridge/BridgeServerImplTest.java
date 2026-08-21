@@ -39,6 +39,8 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FO
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
 import com.google.protobuf.ByteString;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.Status;
@@ -66,11 +68,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedStatic;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
-import org.sonar.scanner.plugin.api.impl.config.MapSettings;
-import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
@@ -92,6 +89,9 @@ import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
+import org.sonar.scanner.plugin.api.impl.config.MapSettings;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 
 class BridgeServerImplTest {
 
@@ -601,6 +601,29 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void should_skip_streaming_analysis_when_there_are_no_files_to_analyze() {
+    bridgeServer = createUnitBridgeServer();
+    var future = new CompletableFuture<Void>();
+    var handler = mock(ProjectAnalysisHandler.class);
+    when(handler.getRequest()).thenReturn(AnalyzeProjectRequest.getDefaultInstance());
+    when(handler.getFuture()).thenReturn(future);
+
+    try (
+      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockStatic(
+        AnalyzeProjectServiceGrpc.class
+      )
+    ) {
+      bridgeServer.analyzeProject(handler);
+
+      mockedGrpc.verifyNoInteractions();
+      assertThat(future).isCompleted();
+      assertThat(logTester.logs(DEBUG)).contains(
+        "Skipping project analysis because there are no files to analyze"
+      );
+    }
+  }
+
+  @Test
   void should_cancel_streaming_analysis_while_waiting_for_the_next_message() throws Exception {
     bridgeServer = createBridgeServer("slowStream.js", SHORT_STARTUP_TIMEOUT_SECONDS);
     bridgeServer.startServer(serverConfig);
@@ -658,10 +681,11 @@ class BridgeServerImplTest {
     var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
 
     var future = new CompletableFuture<Void>();
+    var request = createProjectRequest(createInputFile(), false);
     var handler = new ProjectAnalysisHandler() {
       @Override
       public AnalyzeProjectRequest getRequest() {
-        return AnalyzeProjectRequest.getDefaultInstance();
+        return request;
       }
 
       @Override
@@ -712,10 +736,11 @@ class BridgeServerImplTest {
     bridgeServer = createUnitBridgeServer();
     var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
     var future = new CompletableFuture<Void>();
+    var request = createProjectRequest(createInputFile(), false);
     var handler = new ProjectAnalysisHandler() {
       @Override
       public AnalyzeProjectRequest getRequest() {
-        return AnalyzeProjectRequest.getDefaultInstance();
+        return request;
       }
 
       @Override
