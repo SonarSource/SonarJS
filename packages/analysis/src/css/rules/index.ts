@@ -25,6 +25,6 @@ import { rule as S8757, ruleReady as S8757Ready } from './S8757/rule.js';
  * The set of internal Stylelint-based rules
  */
 const sonarRules = [S125, S5362, S7923, S7924, S7925, S8757];
-const sonarRulesReady = Promise.all([S8757Ready]);
+const sonarRulesReady = S8757Ready;
 
 export { sonarRules, sonarRulesReady };
