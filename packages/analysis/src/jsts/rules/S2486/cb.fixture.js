@@ -128,3 +128,73 @@ function labeledLoopBody() {
 
     }
 }
+
+function commentOnlySingleLine() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch (err) { // Compliant
+        // ignored on purpose
+    }
+}
+
+function commentOnlyMultiLine() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch (err) { // Compliant
+        // This exception is
+        // ignored on purpose
+    }
+}
+
+function commentAndCodeSingleLine() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+        // does not use err
+        doCleanup();
+    }
+}
+
+function commentAndCodeMultiLine() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+        // This cleanup logic
+        // does not reference err
+        doCleanup();
+    }
+}
+
+function blockCommentOnlySingleLine() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch (err) { // Compliant
+        /* ignored on purpose */
+    }
+}
+
+function blockCommentOnlyMultiLine() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch (err) { // Compliant
+        /*
+         * This exception is
+         * ignored on purpose
+         */
+    }
+}
+
+function noBindingCatch() {
+    try {
+        doSomething();
+        return 0;
+    } catch { // Compliant, no exception parameter is declared
+        return -1;
+    }
+}
