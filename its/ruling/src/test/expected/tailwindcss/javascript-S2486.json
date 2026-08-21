@@ -5,9 +5,6 @@
 "tailwindcss:src/index.postcss7.js": [
 43
 ],
-"tailwindcss:src/lib/getModuleDependencies.js": [
-32
-],
 "tailwindcss:src/plugins/gradientColorStops.js": [
 21
 ],
