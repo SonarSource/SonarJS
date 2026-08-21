@@ -1,0 +1,21 @@
+packages/analysis/src/css/rules/S8757/rule.ts
+  s_04c98e2f3fcfcc::t_7b43ebdae3f537 23,70,72,76,83,90,94
+packages/analysis/src/css/rules/S8757/unit.test.ts
+  s_04c98e2f3fcfcc::t_9e8e60bf109dd0 32-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "8b39deaf4bec6ddf7aca7962eb6dd97b33c0e566",
+  "prompts": {},
+  "sessions": {
+    "s_04c98e2f3fcfcc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a01509-175b-7912-b50c-f57f3798830d",
+        "model": "unknown"
+      },
+      "human_author": "David Andersson <david.andersson@sonarsource.com>"
+    }
+  }
+}
