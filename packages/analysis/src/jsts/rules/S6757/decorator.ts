@@ -18,11 +18,9 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
-import type estree from 'estree';
-import { ancestorsChain, findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { ancestorsChain } from '../helpers/ancestor.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isReactClassComponent } from '../helpers/react/component-analysis.js';
 import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -34,7 +32,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     (context, reportDescriptor) => {
       const { node } = reportDescriptor as { node?: TSESTree.Node };
 
-      if (isThisMemberExpression(node) && isLexicallyBoundToReactClassComponent(node)) {
+      if (isThisMemberExpression(node) && isLexicallyBoundToClassMember(node)) {
         return;
       }
 
@@ -49,27 +47,34 @@ function isThisMemberExpression(
   return node?.type === 'MemberExpression' && node.object.type === 'ThisExpression';
 }
 
-function isLexicallyBoundToReactClassComponent(node: TSESTree.MemberExpression): boolean {
+function isLexicallyBoundToClassMember(node: TSESTree.MemberExpression): boolean {
+  let previous: TSESTree.Node = node;
+
   for (const current of ancestorsChain(node, new Set<string>())) {
     if (isClassMember(current)) {
-      const enclosingClass = findFirstMatchingAncestor(
-        current,
-        ancestor => ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression',
-      );
-
-      return enclosingClass !== undefined && isReactClassComponent(enclosingClass as estree.Node);
+      // Only the member value owns the instance receiver. A computed key or a member
+      // decorator is evaluated in the enclosing scope, which may be a functional component.
+      return previous === current.value;
     }
 
     if (isNonLexicalFunctionBoundary(current)) {
       return false;
     }
+
+    previous = current;
   }
 
   return false;
 }
 
-function isClassMember(node: TSESTree.Node): boolean {
-  return node.type === 'MethodDefinition' || node.type === 'PropertyDefinition';
+function isClassMember(
+  node: TSESTree.Node,
+): node is TSESTree.MethodDefinition | TSESTree.PropertyDefinition | TSESTree.AccessorProperty {
+  return (
+    node.type === 'MethodDefinition' ||
+    node.type === 'PropertyDefinition' ||
+    node.type === 'AccessorProperty'
+  );
 }
 
 function isNonLexicalFunctionBoundary(node: TSESTree.Node): boolean {
