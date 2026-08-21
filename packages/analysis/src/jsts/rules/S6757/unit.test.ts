@@ -137,7 +137,10 @@ class MethodReturnsArrowRendererExample extends Component {
           `,
         },
         {
-          // Compliant: class property
+          // Compliant: class property.
+          // Regression guard only: upstream never classifies a class-field arrow as a
+          // component, so this case does not reach the decorator. See the next case for
+          // actual `PropertyDefinition` coverage.
           code: `
 const React = { Component: class {} };
 
@@ -145,6 +148,30 @@ class PropertyArrowRendererExample extends React.Component {
   renderItem = () => (
     <li>{this.props.value}</li>
   );
+}
+          `,
+        },
+        {
+          // Compliant: an auto-accessor field owns the receiver just like a plain field.
+          code: `
+class Service {
+  accessor make = () => {
+    const Row = item => <li>{this.props.format(item)}</li>;
+    return Row;
+  };
+}
+          `,
+        },
+        {
+          // Compliant: class-field initializer owns the receiver for the arrow component
+          // it builds. Upstream reports here, so this exercises the `PropertyDefinition`
+          // branch of the decorator.
+          code: `
+class Service {
+  make = () => {
+    const Row = item => <li>{this.props.format(item)}</li>;
+    return Row;
+  };
 }
           `,
         },
@@ -190,10 +217,55 @@ class SettingsPanel extends PureComponent {
       ],
       invalid: [
         {
+          // Noncompliant: a computed member key is evaluated in the enclosing component scope,
+          // so `this` is the functional component receiver, not the class instance.
+          code: `
+function MyComponent() {
+  class Holder {
+    [this.props.key]() {
+      return 1;
+    }
+  }
+
+  return <div>{Holder.name}</div>;
+}
+          `,
+          errors: 1,
+        },
+        {
+          // Noncompliant: same for a computed class-field key.
+          code: `
+function MyComponent() {
+  class Holder {
+    [this.props.key] = 1;
+  }
+
+  return <div>{Holder.name}</div>;
+}
+          `,
+          errors: 1,
+        },
+        {
           code: `
 function FunctionalComponent() {
   const value = this.props.value;
   return <div>{value}</div>;
+}
+          `,
+          errors: 1,
+        },
+        {
+          // Noncompliant: a nested function declaration creates its own `this`, so the
+          // boundary holds in ordinary classes too, not only in React components.
+          code: `
+class Service {
+  build() {
+    function Row() {
+      return <li>{this.props.value}</li>;
+    }
+
+    return <Row />;
+  }
 }
           `,
           errors: 1,

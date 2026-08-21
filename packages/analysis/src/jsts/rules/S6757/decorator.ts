@@ -48,21 +48,33 @@ function isThisMemberExpression(
 }
 
 function isLexicallyBoundToClassMember(node: TSESTree.MemberExpression): boolean {
+  let previous: TSESTree.Node = node;
+
   for (const current of ancestorsChain(node, new Set<string>())) {
     if (isClassMember(current)) {
-      return true;
+      // Only the member value owns the instance receiver. A computed key or a member
+      // decorator is evaluated in the enclosing scope, which may be a functional component.
+      return previous === current.value;
     }
 
     if (isNonLexicalFunctionBoundary(current)) {
       return false;
     }
+
+    previous = current;
   }
 
   return false;
 }
 
-function isClassMember(node: TSESTree.Node): boolean {
-  return node.type === 'MethodDefinition' || node.type === 'PropertyDefinition';
+function isClassMember(
+  node: TSESTree.Node,
+): node is TSESTree.MethodDefinition | TSESTree.PropertyDefinition | TSESTree.AccessorProperty {
+  return (
+    node.type === 'MethodDefinition' ||
+    node.type === 'PropertyDefinition' ||
+    node.type === 'AccessorProperty'
+  );
 }
 
 function isNonLexicalFunctionBoundary(node: TSESTree.Node): boolean {
