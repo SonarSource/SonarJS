@@ -20,7 +20,11 @@ import type PostCSS from 'postcss';
 
 const SONAR_RULE = 'sonar/annotation-no-unknown';
 const UPSTREAM_RULE = 'annotation-no-unknown';
-const upstreamRule = (await stylelint.rules[UPSTREAM_RULE]) as stylelint.Rule;
+let upstreamRule: stylelint.Rule | undefined;
+
+export const ruleReady = stylelint.rules[UPSTREAM_RULE].then(rule => {
+  upstreamRule = rule as stylelint.Rule;
+});
 
 // Sass-specific value annotations that are only valid in .scss / .sass files
 const SASS_ANNOTATIONS = new Set(['!default', '!global']);
@@ -67,6 +71,9 @@ function removeSassAnnotationWarnings(result: PostcssResult, from: number): void
 }
 
 const ruleImpl: stylelint.RuleBase = (primary, secondaryOptions, context) => {
+  if (!upstreamRule) {
+    throw new Error(`${SONAR_RULE} was not initialized`);
+  }
   const upstream = upstreamRule(primary, secondaryOptions, context);
 
   const runOnBlock = (block: PostCSS.Root, result: PostcssResult, sass: boolean): void => {

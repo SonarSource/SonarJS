@@ -14,13 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { describe, it } from 'node:test';
+import { before, describe, it } from 'node:test';
 import assert from 'node:assert';
 import stylelint from 'stylelint';
 import postcssScss from 'postcss-scss';
 import scssPlugin from 'stylelint-scss';
 import { StylelintRuleTester } from '../../../../tests/css/tools/tester/tester.js';
-import { rule } from './rule.js';
+import { rule, ruleReady } from './rule.js';
 
 const ruleTester = new StylelintRuleTester('sonar/annotation-no-unknown');
 const ruleTesterWithIgnore = new StylelintRuleTester('sonar/annotation-no-unknown', [
@@ -29,6 +29,8 @@ const ruleTesterWithIgnore = new StylelintRuleTester('sonar/annotation-no-unknow
 ]);
 
 describe('S8757 (sonar/annotation-no-unknown)', () => {
+  before(() => ruleReady);
+
   it('does not relabel warnings emitted concurrently by other rules', async () => {
     const result = await stylelint.lint({
       code: '@unknown {}',
