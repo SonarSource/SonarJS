@@ -334,3 +334,4 @@ export const cssRulesMeta: CssRuleMeta[] = [
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
 export const reverseCssRuleKeyMap = new Map(cssRulesMeta.map(r => [r.stylelintKey, r.sqKey]));
+reverseCssRuleKeyMap.set('scss/at-rule-no-unknown', 'S4662');
