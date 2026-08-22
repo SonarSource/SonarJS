@@ -573,7 +573,7 @@ public class BridgeServerImpl implements BridgeServer {
     Context.CancellableContext analyzeContext,
     AtomicBoolean finished
   ) {
-    Thread watcher = new Thread(() -> {
+    return Thread.ofVirtual().name("bridge-analyze-project-cancel").start(() -> {
       while (!finished.get()) {
         if (handler.getContext().isCancelled()) {
           analyzeContext.cancel(new CancellationException(ANALYSIS_CANCELLED_MESSAGE));
@@ -587,10 +587,6 @@ public class BridgeServerImpl implements BridgeServer {
         }
       }
     });
-    watcher.setName("bridge-analyze-project-cancel");
-    watcher.setDaemon(true);
-    watcher.start();
-    return watcher;
   }
 
   public boolean isAlive() {
