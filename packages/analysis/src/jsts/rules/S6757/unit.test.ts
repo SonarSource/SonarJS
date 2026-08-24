@@ -116,6 +116,17 @@ class RenderArrowCallbackExample extends React.Component {
           `,
         },
         {
+          // Compliant: getter owns the receiver through its arrow closure.
+          code: `
+class View {
+  get rows() {
+    const Row = item => <span>{this.format(item)}</span>;
+    return <section>{[1].map(Row)}</section>;
+  }
+}
+          `,
+        },
+        {
           // Compliant: class state
           code: `
 const Component = class {};
@@ -246,10 +257,67 @@ function MyComponent() {
           errors: 1,
         },
         {
+          // Noncompliant: computed auto-accessor keys are evaluated in the enclosing scope.
+          code: `
+function MyComponent() {
+  class Holder {
+    accessor [this.props.key] = 1;
+  }
+
+  return <div>{Holder.name}</div>;
+}
+          `,
+          errors: 1,
+        },
+        {
+          // Noncompliant: static blocks currently do not own the receiver.
+          code: `
+function MyComponent() {
+  class Holder {
+    static {
+      this.x;
+    }
+  }
+
+  return <div>{Holder.name}</div>;
+}
+          `,
+          errors: 1,
+        },
+        {
+          // Noncompliant: member decorators are evaluated in the enclosing scope.
+          code: `
+function MyComponent() {
+  class Holder {
+    @this.decorate
+    field = 1;
+  }
+
+  return <div>{Holder.name}</div>;
+}
+          `,
+          errors: 1,
+        },
+        {
           code: `
 function FunctionalComponent() {
   const value = this.props.value;
   return <div>{value}</div>;
+}
+          `,
+          errors: 1,
+        },
+        {
+          // Noncompliant: a function expression creates its own receiver boundary.
+          code: `
+class Service {
+  build() {
+    const Row = function () {
+      return <li>{this.props.value}</li>;
+    };
+
+    return <Row />;
+  }
 }
           `,
           errors: 1,
