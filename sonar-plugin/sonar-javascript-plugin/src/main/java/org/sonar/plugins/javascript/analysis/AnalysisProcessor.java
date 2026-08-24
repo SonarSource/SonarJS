@@ -470,16 +470,18 @@ public class AnalysisProcessor {
         state = parser.consumeLine(lineNumber, commentLines[lastConsumedIndex]);
       }
 
-      if (state == SonarResolve.StreamingParser.State.COMPLETE) {
-        saveIssueResolution(context, parser.result());
-      } else if (state == SonarResolve.StreamingParser.State.INVALID) {
-        logInvalidDirective(directiveLine, parser.errorMessage());
-      } else {
-        var finalState = parser.finish();
-        if (finalState == SonarResolve.StreamingParser.State.COMPLETE) {
-          saveIssueResolution(context, parser.result());
-        } else if (finalState == SonarResolve.StreamingParser.State.INVALID) {
-          logInvalidDirective(directiveLine, parser.errorMessage());
+      switch (state) {
+        case COMPLETE -> saveIssueResolution(context, parser.result());
+        case INVALID -> logInvalidDirective(directiveLine, parser.errorMessage());
+        default -> {
+          var finalState = parser.finish();
+          switch (finalState) {
+            case COMPLETE -> saveIssueResolution(context, parser.result());
+            case INVALID -> logInvalidDirective(directiveLine, parser.errorMessage());
+            default -> {
+              // INCOMPLETE state after finish - no action needed
+            }
+          }
         }
       }
 
