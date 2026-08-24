@@ -16,6 +16,7 @@
  */
 import path from 'node:path/posix';
 import fs from 'node:fs/promises';
+import { isRuleKey } from './rule-key.js';
 
 /**
  * Script to count the rules in SonarJS for CSS, JS and TS and update the README.md file.
@@ -89,7 +90,7 @@ async function getJsonFiles(pathToRules: string) {
   const filenames = await fs.readdir(pathToRules);
   return Promise.all(
     filenames
-      .filter(filename => filename.endsWith('.json') && filename.length <= 'S1234.json'.length)
+      .filter(filename => filename.endsWith('.json') && isRuleKey(path.basename(filename, '.json')))
       .map(async file => JSON.parse(await fs.readFile(path.join(pathToRules, file), 'utf-8'))),
   );
 }

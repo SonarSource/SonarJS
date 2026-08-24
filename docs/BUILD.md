@@ -101,8 +101,8 @@ Refresh tracked RSPEC rule data explicitly:
 npm run rspec:refresh
 ```
 
-That refresh uses a dedicated root Maven profile. It syncs RSPEC once and generates both JavaScript
-and CSS rule data from the same checkout.
+That refresh uses a dedicated root Maven profile. It syncs RSPEC once during `generate-resources`,
+then deploys the JavaScript and CSS rule data during `process-resources`.
 
 Override the default RSPEC branch for one refresh run:
 
@@ -146,7 +146,9 @@ Local builds and CI do not consume RSPEC data the same way:
   `rspec-rule-data-${github.sha}` artifact. Downstream jobs use that refreshed artifact instead of
   the tracked JSON from the branch.
 - The nightly `generated_files_freshness` workflow keeps the tracked JSON on `master` reasonably
-  fresh, but pull request CI does not wait for those tracked files to be updated.
+  fresh, but pull request CI does not wait for those tracked files to be updated. That job also
+  regenerates the tracked README files and opens or updates the generated-files PR. README
+  generation is intentionally not part of the normal Maven lifecycle.
 
 Because of that, pull request CI can fail even when the tracked JSON in the branch still looks
 consistent.
@@ -223,8 +225,10 @@ The `sonar-plugin` reactor builds modules in this order:
 5. `sonar-javascript-plugin`
 6. `standalone`
 
-`javascript-checks` stays before `bridge` because bridge generation consumes rule metadata prepared
-earlier in the build. The explicit RSPEC refresh path is not part of this normal reactor flow.
+Shared rule metadata and Java rule classes are generated once by the `sonar-plugin` aggregator
+before the child modules build. The bridge therefore does not need an artificial dependency on
+`javascript-checks` to order metadata generation. The explicit RSPEC refresh path is not part of
+this normal reactor flow.
 
 ## Fast Java iteration flags
 
@@ -241,7 +245,6 @@ It skips:
 - `tools/sync-nodejs-versions.mjs`
 - `npm run generate-meta`
 - `npm run generate-java-rule-classes`
-- `npm run count-rules`
 - bridge `npm run bridge:compile`
 - bridge `npm run bridge:bundle`
 - bridge `npm pack`
@@ -297,8 +300,9 @@ The clean phase removes the derived outputs that make the fast loop work:
 
 Important detail:
 
-- The committed JSON/profile rule metadata under `sonar-plugin/*/src/main/resources/**/rules/**`
-  is preserved by `clean`.
+- The committed rule JSON under `sonar-plugin/*/src/main/resources/**/rules/**` is preserved by
+  `clean`; `generate-java-rule-classes` compiles its profile metadata into the generated Java rule
+  indexes used to define built-in quality profiles.
 - Because of that, `npm run bbf` after `mvn clean` still reuses the tracked rule JSON and does not
   trigger an RSPEC refresh.
 - The per-language `rspec.sha` files are still meaningful in built release artifacts even though
@@ -316,7 +320,7 @@ Because of that, a common workflow is:
 `initialize`
 
 - validates quickfix declarations
-- generates and reads `node-info.properties` for the plugin module
+- generates `node-info.properties` for the plugin module
 
 `generate-sources`
 
@@ -325,18 +329,18 @@ Because of that, a common workflow is:
 
 `generate-resources`
 
+- reads the plugin module's generated `node-info.properties`
 - runs `npm run generate-meta`
 - runs `npm run generate-java-rule-classes`
-- runs `npm run count-rules`
 - builds, bundles, and packs the bridge
 - generates `bridge/src/main/resources/org/sonar/plugins/javascript/bridge/node-info.properties`
 
 Explicit RSPEC refresh
 
 - `npm run rspec:refresh`
-- runs a root, non-recursive Maven profile
-- syncs RSPEC once for JavaScript and CSS
-- runs `npm run deploy-rule-data`
+- runs a root-owned, non-recursive Maven profile
+- syncs RSPEC once for JavaScript and CSS during `generate-resources`
+- runs `npm run deploy-rule-data` during `process-resources`
 - does not depend on the `javascript-checks` module lifecycle or hidden file-missing profiles
 
 `process-resources`

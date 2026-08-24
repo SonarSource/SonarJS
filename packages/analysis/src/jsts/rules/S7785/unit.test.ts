@@ -15,11 +15,40 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { rules } from '../external/unicorn.js';
 import {
   NoTypeCheckingRuleTester,
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+
+const upstreamRule = rules['prefer-top-level-await'];
+
+// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator's isStoredForLaterConsumption suppression can be safely removed.
+describe('S7785 upstream sentinel', () => {
+  it('upstream prefer-top-level-await raises on chains handed to a Promise-typed destination that decorator suppresses', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('prefer-top-level-await', upstreamRule, {
+      valid: [],
+      invalid: [
+        // typed call argument — suppressed by decorator, raised by upstream
+        {
+          code: `function doWork(arg: Promise<number>) {}
+                 doWork(Promise.resolve(42).then(x => x).catch(() => 0));`,
+          errors: 1,
+        },
+        // typed assignment target — suppressed by decorator, raised by upstream
+        {
+          code: `const holder: { promise: Promise<number> } = { promise: Promise.resolve(0) };
+                 holder.promise = Promise.resolve(42).then(x => x).catch(() => 0);`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
 
 describe('S7785', () => {
   it('should report in ES modules (sourceType: module)', () => {
@@ -126,6 +155,30 @@ describe('S7785', () => {
                  const schema = new Schema();
                  schema.finally(() => {});`,
         },
+        {
+          // FP repro: chain passed to a parameter explicitly typed as Promise —
+          // intentionally handed off to be awaited later, not a floating top-level chain
+          code: `function doWork(arg: Promise<number>) {}
+                 doWork(Promise.resolve(42).then(x => x).catch(() => 0));`,
+        },
+        {
+          // FP repro: chain assigned to a property explicitly typed as Promise —
+          // intentionally stored to be awaited later, not a floating top-level chain
+          code: `const holder: { promise: Promise<number> } = { promise: Promise.resolve(0) };
+                 holder.promise = Promise.resolve(42).then(x => x).catch(() => 0);`,
+        },
+        {
+          // Suppress: chain is both asserted (`as`) and genuinely stored — the assignment to a
+          // Promise-typed target is the real consumer, so the assertion must not force a report
+          code: `let sink: Promise<number>;
+                 sink = Promise.resolve(42).then(x => x).catch(() => 0) as Promise<number>;`,
+        },
+        {
+          // Suppress: chain is both asserted and passed to a Promise-typed parameter — still
+          // handed off for later consumption, the assertion is incidental
+          code: `function doWork(arg: Promise<number>) {}
+                 doWork(Promise.resolve(42).then(x => x).catch(() => 0) as Promise<number>);`,
+        },
       ],
       invalid: [
         {
@@ -175,6 +228,29 @@ describe('S7785', () => {
           // Warn: 'any' type — warn conservatively since it may be a Promise
           code: `declare const x: any;
                  x.then(console.log);`,
+          errors: [{ messageId: 'promise' }],
+        },
+        {
+          // Warn: destination parameter is typed but not Promise-typed — still floating
+          code: `function log(arg: unknown) {}
+                 log(Promise.resolve(42).then(x => x).catch(() => 0));`,
+          errors: [{ messageId: 'promise' }],
+        },
+        {
+          // Warn: destination variable is typed but not Promise-typed — still floating
+          code: `let sink: unknown;
+                 sink = Promise.resolve(42).then(x => x).catch(() => 0);`,
+          errors: [{ messageId: 'promise' }],
+        },
+        {
+          // Warn: `as` assertion forces a Promise contextual type but nothing consumes the
+          // chain — it is still floating, so the assertion must not suppress the report
+          code: `Promise.resolve(42).then(x => x) as Promise<number>;`,
+          errors: [{ messageId: 'promise' }],
+        },
+        {
+          // Warn: `satisfies` assertion likewise does not consume the floating chain
+          code: `Promise.resolve(42).then(x => x) satisfies Promise<number>;`,
           errors: [{ messageId: 'promise' }],
         },
       ],

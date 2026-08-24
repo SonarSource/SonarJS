@@ -14,25 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.css;
 
-import static org.sonar.css.CssRulesDefinition.REPOSITORY_KEY;
+export const ruleKeyRegex = /^S\d+$/;
 
-import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
-
-public class CssProfileDefinition implements BuiltInQualityProfilesDefinition {
-
-  public static final String PROFILE_NAME = "Sonar way";
-
-  @Override
-  public void define(Context context) {
-    NewBuiltInQualityProfile profile = context.createBuiltInQualityProfile(
-      PROFILE_NAME,
-      CssLanguage.KEY
-    );
-    CssRules.getDefaultQualityProfileRuleKeys(PROFILE_NAME).forEach(key ->
-      profile.activateRule(REPOSITORY_KEY, key)
-    );
-    profile.done();
-  }
+export function isRuleKey(value: string) {
+  return ruleKeyRegex.test(value);
 }

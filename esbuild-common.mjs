@@ -135,12 +135,15 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [], 
           ['config.parser = espreePath;', ''],
         ],
       }),
-      // Remove dynamic import of unused stylelint extensions
+      // Make stylelint syntax resolvers bundleable and remove unused extensions
       textReplace({
         include: /node_modules[/\\]postcss-html[/\\]lib[/\\]syntax[/\\]build-syntax-resolver\.js$/,
         pattern: [
-          ['sugarss: () => require("sugarss"),', ''],
-          ['"postcss-styl": () => require("postcss-styl"),', ''],
+          ['import { createRequire } from "node:module";', ''],
+          ['const requireFromHere = createRequire(import.meta.url);', ''],
+          ['sugarss: () => requireFromHere("sugarss"),', ''],
+          ['"postcss-styl": () => requireFromHere("postcss-styl"),', ''],
+          ['requireFromHere(', 'require('],
         ],
       }),
       // Remove createRequire from rolldown, used by tsdown, used by @stylistic

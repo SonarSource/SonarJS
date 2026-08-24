@@ -99,9 +99,11 @@ function checkPostMessageCall(callExpr: estree.CallExpression, context: Rule.Rul
 function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rule.RuleContext) {
   const { callee, arguments: args } = callExpr;
   if (
+    callee.type !== 'MemberExpression' ||
     !isWindowObject(callee, context) ||
     args.length < 2 ||
-    !isMessageTypeEvent(args[0], context)
+    !isMessageTypeEvent(args[0], context) ||
+    isWindowAliasedToWorkerGlobal(callee.object, context)
   ) {
     return;
   }
