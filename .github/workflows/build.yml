@@ -272,10 +272,37 @@ jobs:
         with:
           secrets: |
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
+      - name: Resolve RSPEC revision
+        id: rspec-revision
+        env:
+          GH_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+        run: |
+          # Pin the moving branch before using the cached clone so a non-fast-forward branch update
+          # cannot leave sonar-rule-api on a stale remote-tracking ref.
+          rspec_branch="$(mvn -q -N -Dstyle.color=never help:evaluate -Dexpression=rspec.branch -DforceStdout)"
+          rspec_sha="$(
+            gh api repos/SonarSource/rspec/commits \
+              --method GET \
+              -f sha="$rspec_branch" \
+              -f per_page=1 \
+              --jq '.[0].sha'
+          )"
+          test -n "$rspec_sha"
+          echo "sha=$rspec_sha" >> "$GITHUB_OUTPUT"
       - name: Refresh and deploy RSPEC rule data
-        run: npm run rspec:refresh
+        run: npm run rspec:refresh -- -Drspec.sha="$RSPEC_SHA"
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+          RSPEC_SHA: ${{ steps.rspec-revision.outputs.sha }}
+      - name: Verify refreshed RSPEC revision
+        env:
+          RSPEC_SHA: ${{ steps.rspec-revision.outputs.sha }}
+        run: |
+          actual_rspec_sha="$(git -C "$RULE_API_CACHE_DIR/rspec" rev-parse HEAD)"
+          if [ "$actual_rspec_sha" != "$RSPEC_SHA" ]; then
+            echo "::error::Expected RSPEC revision $RSPEC_SHA, got $actual_rspec_sha"
+            exit 1
+          fi
       - name: Upload prepared RSPEC rule data
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
