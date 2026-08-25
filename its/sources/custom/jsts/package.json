@@ -4,6 +4,7 @@
   "dependencies": {
     "react": "19.1.0",
     "aws-cdk-lib": "2.200.1",
+    "cypress": "15.4.0",
     "vue": "3.5.0",
     "vitest": "3.0.0",
     "@testing-library/user-event": "14.0.0",
