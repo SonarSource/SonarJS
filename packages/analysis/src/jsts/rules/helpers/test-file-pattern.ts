@@ -42,30 +42,37 @@ function testRelatedFilePattern(extensions?: string[]): RegExp {
   );
 }
 
-const ENVIRONMENT_CONFIG_FILE_PATTERN = /(?:^|[\\/])environment\.(?:test|spec|cy)\.[^\\/]+$/;
+const ENVIRONMENT_CONFIG_FILE_PATTERN =
+  /(?:^|[\\/])environments?[\\/]environment\.(?:test|spec|cy)\.[^\\/]+$/;
+
+const TEST_DIRECTORY_PATTERN = /(?:^|[\\/])(?:__tests__|__mocks__)[\\/]/;
+
+function isEnvironmentConfigFile(filePath: string): boolean {
+  return ENVIRONMENT_CONFIG_FILE_PATTERN.test(filePath) && !TEST_DIRECTORY_PATTERN.test(filePath);
+}
 
 /**
  * Checks whether a file path matches a test file pattern.
- * Excludes Angular-style per-environment config files (e.g. `environment.test.ts`), which
- * coincidentally match the pattern but are not test files.
+ * Excludes Angular-style per-environment config files (e.g. `environments/environment.test.ts`),
+ * which coincidentally match the pattern but are not test files.
  *
  * @param filePath the file path to test.
  * @param extensions the allowed test file extensions.
  * @returns true when the path looks like a test file.
  */
 export function isTestFile(filePath: string, extensions?: string[]): boolean {
-  return (
-    testFilePattern(extensions).test(filePath) && !ENVIRONMENT_CONFIG_FILE_PATTERN.test(filePath)
-  );
+  return testFilePattern(extensions).test(filePath) && !isEnvironmentConfigFile(filePath);
 }
 
 /**
  * Checks whether a file path looks test-related.
+ * Excludes Angular-style per-environment config files (e.g. `environments/environment.test.ts`),
+ * which coincidentally match the pattern but are not test files.
  *
  * @param filePath the file path to test.
  * @param extensions the allowed test file extensions.
  * @returns true when the path looks test-related.
  */
 export function isTestRelatedFile(filePath: string, extensions?: string[]): boolean {
-  return testRelatedFilePattern(extensions).test(filePath);
+  return testRelatedFilePattern(extensions).test(filePath) && !isEnvironmentConfigFile(filePath);
 }

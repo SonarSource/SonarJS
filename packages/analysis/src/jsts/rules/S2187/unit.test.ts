@@ -34,15 +34,6 @@ describe('S2187', () => {
           production: false,
           apiUrl: 'https://api.test.example.com',
         };`,
-          filename: 'environment.test.ts',
-        },
-        {
-          // JS-2311: same shape nested under a typical Angular environments folder
-          code: `
-        export const environment = {
-          production: false,
-          apiUrl: 'https://api.test.example.com',
-        };`,
           filename: 'src/environments/environment.test.ts',
         },
         {
@@ -264,6 +255,16 @@ describe('S2187', () => {
         {
           code: `it['coverage']();`,
           filename: 'foo.spec.js',
+          errors: 1,
+        },
+        {
+          // JS-2311: outside an "environments" folder, this is a real test file and should still be flagged
+          code: `
+        export const environment = {
+          production: false,
+          apiUrl: 'https://api.test.example.com',
+        };`,
+          filename: 'environment.test.ts',
           errors: 1,
         },
       ],
