@@ -236,6 +236,12 @@ new Notice('Hello from Obsidian plugin!');`,
 new Widget(element);`,
           },
           {
+            // DOM attachment: variable initialized from a selected canvas context
+            code: `const canvas = document.querySelector('#chart');
+const context = canvas.getContext('2d');
+new Chart(context);`,
+          },
+          {
             // DOM attachment: variable with TypeScript type assertion
             code: `const el = document.getElementById('app') as HTMLElement;
 new AppController(el);`,
@@ -354,6 +360,38 @@ new DragInstance(params, startEvent, eBody);`,
           {
             // Local window parameter must not suppress window.ClipboardJS
             code: `function bind(window) { new window.ClipboardJS('.copy-button'); }`,
+            errors: 1,
+          },
+          {
+            // Reassigned DOM selection must not suppress the report
+            code: `let canvas = document.querySelector('#chart');
+canvas = unrelated;
+const context = canvas.getContext('2d');
+new Chart(context);`,
+            errors: 1,
+          },
+          {
+            // Local document objects must not suppress the report
+            code: `const document = { querySelector: () => ({ getContext: () => ({}) }) };
+const canvas = document.querySelector('#chart');
+const context = canvas.getContext('2d');
+new Chart(context);`,
+            errors: 1,
+          },
+          {
+            // Local $ functions must not suppress the report through a variable chain
+            code: `const $ = () => ({ getContext: () => ({}) });
+const canvas = $('#chart');
+const context = canvas.getContext('2d');
+new Chart(context);`,
+            errors: 1,
+          },
+          {
+            // Local jQuery functions must not suppress the report through a variable chain
+            code: `const jQuery = () => ({ getContext: () => ({}) });
+const canvas = jQuery('#chart');
+const context = canvas.getContext('2d');
+new Chart(context);`,
             errors: 1,
           },
           {

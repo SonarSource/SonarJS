@@ -338,34 +338,45 @@ function hasDomSelectionArgument(node: estree.NewExpression, context: Rule.RuleC
  * Recursively checks if a node contains a DOM selection call.
  * Also resolves variables to check if they were initialized from DOM selection.
  */
-function containsDomSelection(node: estree.Node, scope: Scope.Scope): boolean {
+function containsDomSelection(
+  node: estree.Node,
+  scope: Scope.Scope,
+  visitedVariables = new Set<Scope.Variable>(),
+): boolean {
   if (node.type === 'CallExpression') {
-    return isDomSelectionCall(node);
+    return (
+      isDomSelectionCall(node, scope) ||
+      (node.callee.type === 'MemberExpression' &&
+        containsDomSelection(node.callee.object, scope, visitedVariables))
+    );
   }
   if (node.type === 'Identifier') {
     // Resolve variable to check its initializer
-    return isVariableFromDomSelection(node, scope);
+    return isVariableFromDomSelection(node, scope, visitedVariables);
   }
   if (node.type === 'MemberExpression') {
     // Check if object is a DOM selection call (e.g., document.querySelector(...).dataset)
-    return containsDomSelection(node.object, scope);
+    return containsDomSelection(node.object, scope, visitedVariables);
   }
   if (node.type === 'ObjectExpression') {
     // Check properties for DOM selection calls (e.g., {element: $('foo')})
     return node.properties.some(prop => {
       if (prop.type === 'Property') {
-        return containsDomSelection(prop.value, scope);
+        return containsDomSelection(prop.value, scope, visitedVariables);
       }
       return false;
     });
   }
   if (node.type === 'ArrayExpression') {
     // Check array elements for DOM selection calls (e.g., [$('foo'), $('bar')])
-    return node.elements.some(elem => elem !== null && containsDomSelection(elem, scope));
+    return node.elements.some(
+      elem => elem !== null && containsDomSelection(elem, scope, visitedVariables),
+    );
   }
   if (node.type === 'ConditionalExpression') {
     return (
-      containsDomSelection(node.consequent, scope) || containsDomSelection(node.alternate, scope)
+      containsDomSelection(node.consequent, scope, visitedVariables) ||
+      containsDomSelection(node.alternate, scope, visitedVariables)
     );
   }
   return false;
@@ -374,22 +385,26 @@ function containsDomSelection(node: estree.Node, scope: Scope.Scope): boolean {
 /**
  * Checks if a variable was initialized from a DOM selection call.
  */
-function isVariableFromDomSelection(node: estree.Identifier, scope: Scope.Scope): boolean {
+function isVariableFromDomSelection(
+  node: estree.Identifier,
+  scope: Scope.Scope,
+  visitedVariables: Set<Scope.Variable>,
+): boolean {
   const variable = getVariableFromIdentifier(node, scope);
-  if (!variable) {
+  if (!variable || visitedVariables.has(variable)) {
     return false;
   }
-  // Check each definition of the variable
-  for (const def of variable.defs) {
-    if (def.type === 'Variable' && def.node.init) {
-      // Check if the initializer is a DOM selection call (possibly wrapped in type assertion)
-      const initExpr = unwrapTypeAssertion(def.node.init);
-      if (initExpr.type === 'CallExpression' && isDomSelectionCall(initExpr)) {
-        return true;
-      }
-    }
+  visitedVariables.add(variable);
+
+  const writeReferences = variable.references.filter(reference => reference.isWrite());
+  const definition = variable.defs.find(def => def.type === 'Variable' && def.node.init);
+  if (writeReferences.length !== 1 || !definition || definition.type !== 'Variable') {
+    return false;
   }
-  return false;
+
+  // Follow a local initializer only. This permits DOM-derived member/call chains
+  // without performing interprocedural analysis.
+  return containsDomSelection(unwrapTypeAssertion(definition.node.init!), scope, visitedVariables);
 }
 
 /**
@@ -411,12 +426,12 @@ function unwrapTypeAssertion(node: estree.Node): estree.Node {
  * Matches: document.querySelector, document.getElementById, $(), jQuery(), this.$(),
  * and any call to DOM selection methods on any object (e.g., myDocument.querySelector)
  */
-function isDomSelectionCall(node: estree.CallExpression): boolean {
+function isDomSelectionCall(node: estree.CallExpression, scope: Scope.Scope): boolean {
   const { callee } = node;
 
   // Check for $() or jQuery()
   if (isIdentifier(callee, ...JQUERY_IDENTIFIERS)) {
-    return true;
+    return !getVariableFromScope(scope, callee.name)?.defs.length;
   }
 
   // Check for *.querySelector, *.getElementById, etc. on any object
@@ -425,6 +440,12 @@ function isDomSelectionCall(node: estree.CallExpression): boolean {
     callee.type === 'MemberExpression' &&
     isIdentifier(callee.property, ...DOM_SELECTION_METHODS)
   ) {
+    if (
+      isIdentifier(callee.object, 'document') &&
+      getVariableFromScope(scope, callee.object.name)?.defs.length
+    ) {
+      return false;
+    }
     return true;
   }
 
