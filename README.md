@@ -9,7 +9,7 @@ This repository now hosts [eslint-plugin-sonarjs](packages/analysis/src/jsts/rul
 # Features
 
 - Advanced rules based on pattern matching and control flow analysis
-- [520 JS rules](https://rules.sonarsource.com/javascript) and [538 TS rules](https://rules.sonarsource.com/typescript)
+- [526 JS rules](https://rules.sonarsource.com/javascript) and [544 TS rules](https://rules.sonarsource.com/typescript)
 - [43 CSS rules](https://rules.sonarsource.com/css)
 - Compatible with ECMAScript 2015-2020
 - React JSX, Flow, Vue, and AWS lambda functions support for JavaScript and TypeScript
@@ -34,7 +34,7 @@ If you want to report a bug, request a feature, or provide other kind of feedbac
 
 To work on this project, it is required to have the following tools installed:
 
-- [JDK 17](https://docs.aws.amazon.com/corretto/latest/corretto-17-ug/what-is-corretto-17.html)
+- [JDK 21](https://docs.aws.amazon.com/corretto/latest/corretto-21-ug/what-is-corretto-21.html)
 - [Node.js](https://nodejs.org/en) >= 22
 - [npm](https://www.npmjs.com/) >= 8
 - [Maven](https://maven.apache.org/) >= 3.8

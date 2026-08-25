@@ -1,7 +1,7 @@
 {
   "ignore": [
-    "packages/analysis/src/jsts/rules/*/meta.ts",
-    "packages/analysis/src/jsts/rules/*/config.ts",
+    "packages/analysis/src/jsts/parsers/estree.d.ts",
+    "packages/grpc/src/proto/*.d.ts",
     "packages/analysis/src/jsts/rules/plugin.ts",
     "packages/analysis/src/jsts/rules/*/*.fixture.*",
     "**/fixtures/**",

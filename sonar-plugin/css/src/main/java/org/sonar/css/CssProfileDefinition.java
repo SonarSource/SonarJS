@@ -17,16 +17,12 @@
 package org.sonar.css;
 
 import static org.sonar.css.CssRulesDefinition.REPOSITORY_KEY;
-import static org.sonar.css.CssRulesDefinition.RESOURCE_FOLDER;
 
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
-import org.sonarsource.analyzer.commons.BuiltInQualityProfileJsonLoader;
 
 public class CssProfileDefinition implements BuiltInQualityProfilesDefinition {
 
   public static final String PROFILE_NAME = "Sonar way";
-  public static final String PROFILE_PATH =
-    RESOURCE_FOLDER + CssRulesDefinition.REPOSITORY_KEY + "/Sonar_way_profile.json";
 
   @Override
   public void define(Context context) {
@@ -34,7 +30,9 @@ public class CssProfileDefinition implements BuiltInQualityProfilesDefinition {
       PROFILE_NAME,
       CssLanguage.KEY
     );
-    BuiltInQualityProfileJsonLoader.load(profile, REPOSITORY_KEY, PROFILE_PATH);
+    CssRules.getDefaultQualityProfileRuleKeys(PROFILE_NAME).forEach(key ->
+      profile.activateRule(REPOSITORY_KEY, key)
+    );
     profile.done();
   }
 }

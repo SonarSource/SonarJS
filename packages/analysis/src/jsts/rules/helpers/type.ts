@@ -177,6 +177,17 @@ export function isThenable(node: estree.Node, services: RequiredParserServices) 
 }
 
 /**
+ * Returns true when `node`'s contextual type - the type expected by its surrounding position,
+ * e.g. a typed call argument or an assignment target - is thenable.
+ */
+export function isContextualTypeThenable(node: estree.Node, services: RequiredParserServices) {
+  const mapped = services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node);
+  const checker = services.program.getTypeChecker();
+  const contextualType = checker.getContextualType(mapped as ts.Expression);
+  return contextualType != null && hasThenMethod(contextualType, checker);
+}
+
+/**
  * Returns true when any constituent of the type resolved by `node` is thenable.
  */
 export function isThenableOrThenableUnion(node: estree.Node, services: RequiredParserServices) {

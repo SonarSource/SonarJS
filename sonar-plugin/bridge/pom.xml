@@ -12,18 +12,12 @@
   <properties>
     <protobuf.version>4.35.1</protobuf.version>
     <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-    <grpc.version>1.82.2</grpc.version>
+    <grpc.version>1.83.1</grpc.version>
   </properties>
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>api</artifactId>
-    </dependency>
-    <!-- Build-order dependency: javascript-checks runs generate-meta before bridge compiles -->
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>javascript-checks</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.api.plugin</groupId>

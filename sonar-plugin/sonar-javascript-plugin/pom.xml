@@ -26,7 +26,7 @@
 
   <properties>
     <artifactoryToken/>
-    <nodejs.runtime.version>24.11.0.70</nodejs.runtime.version>
+    <nodejs.runtime.version>24.19.0.141</nodejs.runtime.version>
     <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
 
@@ -211,7 +211,10 @@
         <version>1.3.0</version>
         <executions>
           <execution>
-            <phase>${node.init.phase}</phase>
+            <id>Read Node.js properties node-info.properties</id>
+            <!-- Maven orders plugins by their position in the effective POM, so read the file in a
+                 later phase than the exec-maven-plugin execution that generates it. -->
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>read-project-properties</goal>
             </goals>

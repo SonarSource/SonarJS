@@ -18,6 +18,8 @@ package org.sonar.javascript.checks;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.sonar.plugins.javascript.api.EslintHook;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.Language;
@@ -59,5 +61,18 @@ public final class CheckList {
 
   public static List<Class<? extends EslintHook>> getAllChecks() {
     return AllChecks.rules;
+  }
+
+  public static List<String> getDefaultQualityProfileNames() {
+    return AllChecks.defaultQualityProfileNames;
+  }
+
+  public static Set<String> getDefaultQualityProfileRuleKeys(
+    String profileName,
+    Language language
+  ) {
+    return AllChecks.defaultQualityProfileRuleKeys
+      .getOrDefault(profileName, Map.of())
+      .getOrDefault(language, Set.of());
   }
 }

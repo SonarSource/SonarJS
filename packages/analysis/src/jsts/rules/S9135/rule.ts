@@ -19,11 +19,14 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
+  FUNCTION_NODES,
   getUniqueWriteReference,
   getVariableFromName,
+  isIdentifier,
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
-import { getParent } from '../helpers/ancestor.js';
+import { childrenOf, getParent } from '../helpers/ancestor.js';
+import { areEquivalent } from '../helpers/equivalence.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -44,10 +47,16 @@ const CLONE_LIBRARIES = new Map<string, 'lodash' | 'underscore'>([
 
 type MutationNode = estree.AssignmentExpression | estree.UpdateExpression | estree.UnaryExpression;
 
+type IsolationKind = 'deep' | 'shallow';
+type PrefixIsolation = IsolationKind | null | undefined;
+
 type StaticMemberChain = {
   root: estree.Identifier;
   depth: number;
 };
+
+const DEEP_CLONE_FQNS = new Set(['lodash.cloneDeep', 'lodash-es.cloneDeep']);
+const SHALLOW_CLONE_FQNS = new Set(['lodash.clone', 'lodash-es.clone', 'underscore.clone']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { hasSuggestions: true }),
@@ -98,6 +107,10 @@ function checkMutation(
 
   const argument = cloneCall.arguments[0];
   if (argument === undefined || argument.type === 'SpreadElement') {
+    return;
+  }
+
+  if (hasIsolatingPrefixAssignment(context, mutatedNode, mutation)) {
     return;
   }
 
@@ -217,4 +230,239 @@ function hasNoTokensAfter(context: Rule.RuleContext, node: estree.Node): boolean
   const source = context.sourceCode.getText();
   const lineEnd = source.indexOf('\n', range[1]);
   return source.slice(range[1], lineEnd === -1 ? source.length : lineEnd).trim() === '';
+}
+
+function hasIsolatingPrefixAssignment(
+  context: Rule.RuleContext,
+  mutatedNode: estree.Node,
+  mutation: MutationNode,
+): boolean {
+  const target = unwrapTypeScriptExpression(mutatedNode);
+  if (target.type !== 'MemberExpression') {
+    return false;
+  }
+
+  let extraDepth = 1;
+  let prefix: estree.Node = unwrapTypeScriptExpression(target.object);
+
+  while (prefix.type === 'MemberExpression') {
+    const isolation = findDominatingIsolation(context, prefix, mutation);
+    if (isolation === 'deep' || (isolation === 'shallow' && extraDepth === 1)) {
+      return true;
+    }
+    extraDepth += 1;
+    prefix = unwrapTypeScriptExpression(prefix.object);
+  }
+
+  return false;
+}
+
+function findDominatingIsolation(
+  context: Rule.RuleContext,
+  prefix: estree.Node,
+  mutation: MutationNode,
+): IsolationKind | undefined {
+  let current: estree.Node | undefined = mutation;
+  let latest: PrefixIsolation;
+
+  while (current !== undefined) {
+    const parent = getParent(context, current);
+    if (parent === undefined || FUNCTION_NODES.includes(parent.type)) {
+      break;
+    }
+
+    const candidate = getPriorIsolation(context, parent, current, prefix);
+    if (latest === undefined && candidate !== undefined) {
+      latest = candidate;
+    }
+
+    if (latest === 'deep') {
+      return 'deep';
+    }
+    current = parent;
+  }
+
+  return latest === null ? undefined : latest;
+}
+
+function getPriorIsolation(
+  context: Rule.RuleContext,
+  parent: estree.Node,
+  current: estree.Node,
+  prefix: estree.Node,
+): PrefixIsolation {
+  if (parent.type === 'SequenceExpression') {
+    const index = parent.expressions.indexOf(current as estree.Expression);
+    return index > 0
+      ? isolationInNodes(parent.expressions.slice(0, index), prefix, context)
+      : undefined;
+  }
+
+  const statements = getBlockStatements(parent);
+  if (statements === undefined) {
+    return undefined;
+  }
+  const index = statements.indexOf(current);
+  return index > 0 ? isolationInStatements(statements.slice(0, index), prefix, context) : undefined;
+}
+
+function getBlockStatements(node: estree.Node): estree.Node[] | undefined {
+  if (node.type === 'BlockStatement' || node.type === 'Program') {
+    return node.body;
+  }
+  if (node.type === 'SwitchCase') {
+    return node.consequent;
+  }
+  return undefined;
+}
+
+function isolationInStatements(
+  statements: estree.Node[],
+  prefix: estree.Node,
+  context: Rule.RuleContext,
+): PrefixIsolation {
+  let latest: PrefixIsolation;
+  for (const statement of statements) {
+    const candidate = statementAssignsPrefix(statement, prefix, context);
+    if (candidate !== undefined) {
+      latest = candidate;
+    }
+  }
+  return latest;
+}
+
+function isolationInNodes(
+  nodes: estree.Node[],
+  prefix: estree.Node,
+  context: Rule.RuleContext,
+): PrefixIsolation {
+  let latest: PrefixIsolation;
+  for (const node of nodes) {
+    const candidate = expressionAssignsPrefix(node, prefix, context);
+    if (candidate !== undefined) {
+      latest = candidate;
+    }
+  }
+  return latest;
+}
+
+function statementAssignsPrefix(
+  statement: estree.Node,
+  prefix: estree.Node,
+  context: Rule.RuleContext,
+): PrefixIsolation {
+  if (statement.type === 'ExpressionStatement') {
+    return expressionAssignsPrefix(statement.expression, prefix, context);
+  }
+  if (statement.type === 'BlockStatement') {
+    return isolationInStatements(statement.body, prefix, context);
+  }
+  if (statement.type === 'LabeledStatement') {
+    return statementAssignsPrefix(statement.body, prefix, context);
+  }
+  return containsPrefixWrite(statement, prefix, context) ? null : undefined;
+}
+
+function expressionAssignsPrefix(
+  expression: estree.Node,
+  prefix: estree.Node,
+  context: Rule.RuleContext,
+): PrefixIsolation {
+  const value = unwrapTypeScriptExpression(expression);
+  if (value.type === 'SequenceExpression') {
+    return isolationInNodes(value.expressions, prefix, context);
+  }
+  if (value.type === 'AssignmentExpression') {
+    if (isSameBoundMember(value.left, prefix, context)) {
+      if (value.operator !== '=') {
+        return null;
+      }
+      return getFreshObjectIsolation(context, value.right) ?? null;
+    }
+    return containsPrefixWrite(value.right, prefix, context) ? null : undefined;
+  }
+  return containsPrefixWrite(value, prefix, context) ? null : undefined;
+}
+
+function containsPrefixWrite(
+  node: estree.Node,
+  prefix: estree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  const current = unwrapTypeScriptExpression(node);
+  if (FUNCTION_NODES.includes(current.type)) {
+    return false;
+  }
+  if (isPrefixWrite(current, prefix, context)) {
+    return true;
+  }
+  return childrenOf(current, context.sourceCode.visitorKeys).some((child: estree.Node) =>
+    containsPrefixWrite(child, prefix, context),
+  );
+}
+
+function isPrefixWrite(node: estree.Node, prefix: estree.Node, context: Rule.RuleContext): boolean {
+  if (node.type === 'AssignmentExpression') {
+    return isSameBoundMember(node.left, prefix, context);
+  }
+  if (node.type === 'UpdateExpression') {
+    return isSameBoundMember(node.argument, prefix, context);
+  }
+  return (
+    node.type === 'UnaryExpression' &&
+    node.operator === 'delete' &&
+    isSameBoundMember(node.argument, prefix, context)
+  );
+}
+
+function isSameBoundMember(
+  assignmentLeft: estree.Node,
+  prefix: estree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  const left = unwrapTypeScriptExpression(assignmentLeft);
+  const target = unwrapTypeScriptExpression(prefix);
+  if (!areEquivalent(left, target, context.sourceCode)) {
+    return false;
+  }
+  const leftRoot = getStaticRootIdentifier(left);
+  const prefixRoot = getStaticRootIdentifier(target);
+  if (leftRoot === undefined || prefixRoot === undefined) {
+    return false;
+  }
+  const leftVariable = getVariableFromName(context, leftRoot.name, leftRoot);
+  const prefixVariable = getVariableFromName(context, prefixRoot.name, prefixRoot);
+  return leftVariable !== undefined && leftVariable === prefixVariable;
+}
+
+function getStaticRootIdentifier(node: estree.Node): estree.Identifier | undefined {
+  let current: estree.Node = unwrapTypeScriptExpression(node);
+  while (current.type === 'MemberExpression') {
+    current = unwrapTypeScriptExpression(current.object);
+  }
+  return current.type === 'Identifier' ? current : undefined;
+}
+
+function getFreshObjectIsolation(
+  context: Rule.RuleContext,
+  rhs: estree.Node,
+): IsolationKind | undefined {
+  const value = unwrapTypeScriptExpression(rhs);
+  if (value.type === 'ObjectExpression' || value.type === 'ArrayExpression') {
+    return 'shallow';
+  }
+  if (value.type !== 'CallExpression') {
+    return undefined;
+  }
+  if (isIdentifier(value.callee, 'structuredClone')) {
+    return 'deep';
+  }
+  const fqn = getFullyQualifiedName(context, value.callee) ?? '';
+  if (DEEP_CLONE_FQNS.has(fqn)) {
+    return 'deep';
+  }
+  if (SHALLOW_CLONE_FQNS.has(fqn)) {
+    return 'shallow';
+  }
+  return undefined;
 }

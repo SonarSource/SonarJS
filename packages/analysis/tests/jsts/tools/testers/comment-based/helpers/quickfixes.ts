@@ -25,7 +25,7 @@ const BRACED_TEXT_CONTENT = String.raw`(?:(?!\}\}(?!\})).)*`;
 // Legacy fixtures support line adjustments both as `@+1` and `+1`.
 const QUICKFIX_LINE_ADJUSTMENT = String.raw`(?:@?(?<lineAdjustment>(?<relativeAdjustment>[+-])?\d+))?`;
 const QUICKFIX_DESCRIPTION_PATTERN = new RegExp(
-  String.raw`^ *` +
+  '^ *' +
     // quickfix description, ex: fix@qf1 {{Replace with foo}}
     String.raw`fix@(?<quickfixId>\w+)` +
     // message, ex: {{msg}}
@@ -34,7 +34,7 @@ const QUICKFIX_DESCRIPTION_PATTERN = new RegExp(
 );
 
 const QUICKFIX_CHANGE_PATTERN = new RegExp(
-  String.raw`^ *` +
+  '^ *' +
     // quickfix edit, ex: edit@qf1
     String.raw`(?<type>edit|add|del)@(?<quickfixId>\w+)` +
     QUICKFIX_LINE_ADJUSTMENT +

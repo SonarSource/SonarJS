@@ -1,0 +1,32 @@
+{
+  "title": "Native APIs should be preferred over Axios utility methods",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "convention",
+    "modernize",
+    "axios"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-9339",
+  "sqKey": "S9339",
+  "scope": "Main",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

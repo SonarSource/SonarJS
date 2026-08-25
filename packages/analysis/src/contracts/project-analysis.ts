@@ -18,9 +18,7 @@ import { APIError, ErrorCode } from './error.js';
 import { handleError } from '../../../shared/src/helpers/error.js';
 
 type ParsingErrorCode =
-  | ErrorCode.Parsing
-  | ErrorCode.FailingTypeScript
-  | ErrorCode.LinterInitialization;
+  ErrorCode.Parsing | ErrorCode.FailingTypeScript | ErrorCode.LinterInitialization;
 
 export type ParsingErrorLanguage = 'js' | 'ts' | 'css';
 
@@ -39,35 +37,36 @@ type ProjectParsingResult = {
 
 export type ProjectFailureResult = ProjectParsingResult | { error: string };
 
-function isParsingErrorCode(code: ErrorCode | undefined): code is ParsingErrorCode {
-  return (
-    code === ErrorCode.Parsing ||
-    code === ErrorCode.FailingTypeScript ||
-    code === ErrorCode.LinterInitialization
-  );
-}
-
 export function toProjectFailureResult(
   failure: unknown,
   language: ParsingErrorLanguage,
 ): ProjectFailureResult {
   if (failure instanceof APIError) {
-    if (isParsingErrorCode(failure.code)) {
-      const { error } = handleError(failure);
-      return {
-        issues: [],
-        parsingErrors: [
-          {
-            message: error,
-            code: failure.code,
-            line: failure.data?.line,
-            column: failure.data?.column,
-            language,
-          },
-        ],
-      };
+    const { code } = failure;
+    let message: string;
+    switch (code) {
+      case ErrorCode.Parsing:
+        message = failure.message;
+        break;
+      case ErrorCode.FailingTypeScript:
+      case ErrorCode.LinterInitialization:
+        message = handleError(failure).error;
+        break;
+      default:
+        return handleError(failure);
     }
-    return handleError(failure);
+    return {
+      issues: [],
+      parsingErrors: [
+        {
+          message,
+          code,
+          line: failure.data?.line,
+          column: failure.data?.column,
+          language,
+        },
+      ],
+    };
   }
 
   if (failure instanceof Error) {

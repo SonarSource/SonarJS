@@ -601,6 +601,27 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void should_skip_streaming_analysis_when_there_are_no_files_to_analyze() {
+    bridgeServer = createUnitBridgeServer();
+    var future = new CompletableFuture<Void>();
+    var handler = mock(ProjectAnalysisHandler.class);
+    when(handler.getRequest()).thenReturn(AnalyzeProjectRequest.getDefaultInstance());
+    when(handler.getFuture()).thenReturn(future);
+
+    try (MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockStatic(
+      AnalyzeProjectServiceGrpc.class
+    )) {
+      bridgeServer.analyzeProject(handler);
+
+      mockedGrpc.verifyNoInteractions();
+      assertThat(future).isCompleted();
+      assertThat(logTester.logs(DEBUG)).contains(
+        "Skipping project analysis because there are no files to analyze"
+      );
+    }
+  }
+
+  @Test
   void should_cancel_streaming_analysis_while_waiting_for_the_next_message() throws Exception {
     bridgeServer = createBridgeServer("slowStream.js", SHORT_STARTUP_TIMEOUT_SECONDS);
     bridgeServer.startServer(serverConfig);
@@ -658,10 +679,11 @@ class BridgeServerImplTest {
     var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
 
     var future = new CompletableFuture<Void>();
+    var request = createProjectRequest(createInputFile(), false);
     var handler = new ProjectAnalysisHandler() {
       @Override
       public AnalyzeProjectRequest getRequest() {
-        return AnalyzeProjectRequest.getDefaultInstance();
+        return request;
       }
 
       @Override
@@ -712,10 +734,11 @@ class BridgeServerImplTest {
     bridgeServer = createUnitBridgeServer();
     var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
     var future = new CompletableFuture<Void>();
+    var request = createProjectRequest(createInputFile(), false);
     var handler = new ProjectAnalysisHandler() {
       @Override
       public AnalyzeProjectRequest getRequest() {
-        return AnalyzeProjectRequest.getDefaultInstance();
+        return request;
       }
 
       @Override

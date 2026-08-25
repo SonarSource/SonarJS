@@ -442,6 +442,12 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public void analyzeProject(ProjectAnalysisHandler handler) {
     var grpcRequest = enrichAnalyzeProjectRequest(handler.getRequest());
+    if (grpcRequest.getFilesCount() == 0) {
+      LOG.debug("Skipping project analysis because there are no files to analyze");
+      handler.getFuture().complete(null);
+      ensureProjectAnalysisCompleted(handler);
+      return;
+    }
     var analyzeContext = Context.current().withCancellation();
     var finished = new AtomicBoolean(false);
     var cancellationWatcher = startStreamCancellationWatcher(handler, analyzeContext, finished);
@@ -567,7 +573,7 @@ public class BridgeServerImpl implements BridgeServer {
     Context.CancellableContext analyzeContext,
     AtomicBoolean finished
   ) {
-    Thread watcher = new Thread(() -> {
+    return Thread.ofVirtual().name("bridge-analyze-project-cancel").start(() -> {
       while (!finished.get()) {
         if (handler.getContext().isCancelled()) {
           analyzeContext.cancel(new CancellationException(ANALYSIS_CANCELLED_MESSAGE));
@@ -581,10 +587,6 @@ public class BridgeServerImpl implements BridgeServer {
         }
       }
     });
-    watcher.setName("bridge-analyze-project-cancel");
-    watcher.setDaemon(true);
-    watcher.start();
-    return watcher;
   }
 
   public boolean isAlive() {

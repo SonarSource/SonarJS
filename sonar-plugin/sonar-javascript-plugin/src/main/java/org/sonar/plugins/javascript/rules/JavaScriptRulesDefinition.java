@@ -22,6 +22,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.JavaScriptProfilesDefinition;
+import org.sonar.plugins.javascript.api.Language;
 import org.sonarsource.analyzer.commons.RuleMetadataLoader;
 
 public class JavaScriptRulesDefinition implements RulesDefinition {
@@ -40,15 +41,26 @@ public class JavaScriptRulesDefinition implements RulesDefinition {
       .createRepository(CheckList.JS_REPOSITORY_KEY, JavaScriptLanguage.KEY)
       .setName(CheckList.REPOSITORY_NAME);
 
-    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(
-      METADATA_LOCATION,
-      JavaScriptProfilesDefinition.SONAR_WAY_JSON,
-      sonarRuntime
-    );
+    RuleMetadataLoader ruleMetadataLoader = new RuleMetadataLoader(METADATA_LOCATION, sonarRuntime);
     ruleMetadataLoader.addRulesByAnnotatedClass(
       repository,
       Collections.unmodifiableList(CheckList.getJavaScriptChecks())
     );
+
+    for (String ruleKey : CheckList.getDefaultQualityProfileRuleKeys(
+      JavaScriptProfilesDefinition.SONAR_WAY,
+      Language.JAVASCRIPT
+    )) {
+      NewRule rule = repository.rule(ruleKey);
+      if (rule == null) {
+        throw new IllegalStateException(
+          "Rule " +
+            ruleKey +
+            " is declared in the Sonar way profile for JavaScript but is not registered"
+        );
+      }
+      rule.setActivatedByDefault(true);
+    }
 
     NewRule commentRegularExpression = repository.rule("S124");
     commentRegularExpression.setTemplate(true);

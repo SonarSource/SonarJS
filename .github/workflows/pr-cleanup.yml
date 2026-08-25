@@ -11,7 +11,7 @@ env:
 jobs:
   cleanup:
     name: Cleanup PR caches and artifacts
-    runs-on: github-ubuntu-latest-s
+    runs-on: warp-custom-ubuntu-24-04
     permissions:
       actions: write
     steps:

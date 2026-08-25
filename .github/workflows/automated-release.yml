@@ -68,7 +68,7 @@ jobs:
       pm-email: "geoffray.adde@sonarsource.com"
       slack-channel: "squad-corelang-releases"
       release-automation-secret-name: "SonarJS-release-automation"
-      runner-environment: "github-ubuntu-latest-s"
+      runner-environment: "warp-custom-ubuntu-24-04"
       verbose: true
       use-jira-sandbox: false
       is-draft-release: false
@@ -77,7 +77,7 @@ jobs:
     name: Derive SQAA build number
     needs: release
     if: ${{ needs.release.result == 'success' && github.event.inputs.sqaa-integration == 'true' }}
-    runs-on: github-ubuntu-latest-s
+    runs-on: warp-custom-ubuntu-24-04
     outputs:
       build-number: ${{ steps.derive.outputs.build-number }}
     steps:
