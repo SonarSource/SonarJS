@@ -100,6 +100,10 @@ const APIs = new Set([
   'it.prop',
   // eslint rule tester
   'ruleTester.run',
+  // Deno test runner
+  'Deno.test',
+  'Deno.test.only',
+  'Deno.test.ignore',
 ]);
 
 const APIS_WITH_TEST_TITLE = new Set([
