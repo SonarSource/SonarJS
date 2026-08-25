@@ -88,7 +88,12 @@ describe('S8951', () => {
         };
       </script>
       `,
-          errors: 1,
+          errors: [
+            {
+              message:
+                'Emit an event and register a listener for it in the parent, instead of mutating the "foo" prop directly.',
+            },
+          ],
         },
         {
           // Options API - nested prop mutation
