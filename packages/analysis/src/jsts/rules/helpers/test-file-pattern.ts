@@ -42,15 +42,21 @@ function testRelatedFilePattern(extensions?: string[]): RegExp {
   );
 }
 
+const ENVIRONMENT_CONFIG_FILE_PATTERN = /(?:^|[\\/])environment\.(?:test|spec|cy)\.[^\\/]+$/;
+
 /**
  * Checks whether a file path matches a test file pattern.
+ * Excludes Angular-style per-environment config files (e.g. `environment.test.ts`), which
+ * coincidentally match the pattern but are not test files.
  *
  * @param filePath the file path to test.
  * @param extensions the allowed test file extensions.
  * @returns true when the path looks like a test file.
  */
 export function isTestFile(filePath: string, extensions?: string[]): boolean {
-  return testFilePattern(extensions).test(filePath);
+  return (
+    testFilePattern(extensions).test(filePath) && !ENVIRONMENT_CONFIG_FILE_PATTERN.test(filePath)
+  );
 }
 
 /**
