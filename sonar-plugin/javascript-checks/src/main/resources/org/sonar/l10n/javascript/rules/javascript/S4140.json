@@ -28,5 +28,8 @@
     "js",
     "ts"
   ],
-  "defaultQualityProfiles": []
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
+  ]
 }
