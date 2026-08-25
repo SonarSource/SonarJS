@@ -23,7 +23,7 @@ import parser from 'vue-eslint-parser';
 const ruleTesterVue = new NoTypeCheckingRuleTester({ parser });
 
 describe('S8951', () => {
-  it('S8951 (external: vue/no-mutating-props)', () => {
+  it('S8951', () => {
     ruleTesterVue.run('Vue component props should not be mutated', rule, {
       valid: [
         {
