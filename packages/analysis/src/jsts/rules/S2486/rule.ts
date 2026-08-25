@@ -45,13 +45,17 @@ function isSingleSimpleStatement(body: estree.Statement[]): boolean {
 }
 
 function isDocumentedEmptyCatch(context: Rule.RuleContext, node: estree.CatchClause): boolean {
-  return node.body.body.length === 0 && context.sourceCode.getCommentsInside(node.body).length > 0;
+  return (
+    node.body.body.length === 0 &&
+    context.sourceCode.getCommentsInside(node.body).some(comment => comment.value.trim().length > 0)
+  );
 }
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      handleException: "Handle this exception or don't catch it at all.",
+      handleException:
+        "Handle this exception, don't catch it at all, or explain in a comment why it is ignored.",
     },
   }),
   create(context: Rule.RuleContext) {

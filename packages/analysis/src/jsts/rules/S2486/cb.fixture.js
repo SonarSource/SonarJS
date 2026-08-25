@@ -1,9 +1,9 @@
 function f() {
     try {
         doSomething();
-    } catch (err) { // Compliant
+    } catch (err) {
 
-    }
+    } // Compliant: try guards a single simple statement
 }
 
 function g() {
@@ -11,9 +11,9 @@ function g() {
         if (condition) {
             doSomething();
         }
-    } catch (err) { // Compliant
+    } catch (err) {
 
-    }
+    } // Compliant: try guards a single simple statement
 }
 
 function h() {
@@ -22,7 +22,7 @@ function h() {
         doSomethingElse();
     } catch (err) {
 
-    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
+    } // Noncompliant@-2 {{Handle this exception, don't catch it at all, or explain in a comment why it is ignored.}}
 }
 
 function i() {
@@ -36,25 +36,25 @@ function i() {
 function assignmentBody() {
     try {
         n = String(name || "");
-    } catch (err) { // Compliant
+    } catch (err) {
 
-    }
+    } // Compliant: try guards a single simple statement
 }
 
 function variableDeclarationBody() {
     try {
         const parsed = JSON.parse(raw);
-    } catch (err) { // Compliant
+    } catch (err) {
 
-    }
+    } // Compliant: try guards a single simple statement
 }
 
 function throwBody() {
     try {
         throw new Error("boom");
-    } catch (err) { // Compliant
+    } catch (err) {
 
-    }
+    } // Compliant: try guards a single simple statement
 }
 
 function nestedTryBody() {
@@ -64,16 +64,16 @@ function nestedTryBody() {
         } catch (inner) {
             handle(inner);
         }
-    } catch (err) { // Compliant
+    } catch (err) {
 
-    }
+    } // Compliant: try guards a single simple statement
 }
 
 function emptyTryBody() {
     try {
     } catch (err) {
 
-    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
+    } // Noncompliant@-2 {{Handle this exception, don't catch it at all, or explain in a comment why it is ignored.}}
 }
 
 function forLoopBody() {
@@ -84,7 +84,7 @@ function forLoopBody() {
         }
     } catch (err) {
 
-    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
+    } // Noncompliant@-2 {{Handle this exception, don't catch it at all, or explain in a comment why it is ignored.}}
 }
 
 function whileLoopBody() {
@@ -94,7 +94,7 @@ function whileLoopBody() {
         }
     } catch (err) {
 
-    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
+    } // Noncompliant@-2 {{Handle this exception, don't catch it at all, or explain in a comment why it is ignored.}}
 }
 
 function switchBody() {
@@ -105,7 +105,7 @@ function switchBody() {
         }
     } catch (err) {
 
-    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
+    } // Noncompliant@-2 {{Handle this exception, don't catch it at all, or explain in a comment why it is ignored.}}
 }
 
 function blockBody() {
@@ -116,7 +116,7 @@ function blockBody() {
         }
     } catch (err) {
 
-    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
+    } // Noncompliant@-2 {{Handle this exception, don't catch it at all, or explain in a comment why it is ignored.}}
 }
 
 function labeledLoopBody() {
@@ -126,45 +126,24 @@ function labeledLoopBody() {
         }
     } catch (err) {
 
-    } // Noncompliant@-2 {{Handle this exception or don't catch it at all.}}
+    } // Noncompliant@-2 {{Handle this exception, don't catch it at all, or explain in a comment why it is ignored.}}
 }
 
 function commentOnlySingleLine() {
     try {
         doSomething();
         doSomethingElse();
-    } catch (err) { // Compliant
+    } catch (err) {
         // ignored on purpose
-    }
-}
-
-function commentOnlyMultiLine() {
-    try {
-        doSomething();
-        doSomethingElse();
-    } catch (err) { // Compliant
-        // This exception is
-        // ignored on purpose
-    }
+    } // Compliant
 }
 
 function commentAndCodeSingleLine() {
     try {
         doSomething();
         doSomethingElse();
-    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
+    } catch (err) { // Noncompliant {{Handle this exception, don't catch it at all, or explain in a comment why it is ignored.}}
         // does not use err
-        doCleanup();
-    }
-}
-
-function commentAndCodeMultiLine() {
-    try {
-        doSomething();
-        doSomethingElse();
-    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
-        // This cleanup logic
-        // does not reference err
         doCleanup();
     }
 }
@@ -173,21 +152,9 @@ function blockCommentOnlySingleLine() {
     try {
         doSomething();
         doSomethingElse();
-    } catch (err) { // Compliant
+    } catch (err) {
         /* ignored on purpose */
-    }
-}
-
-function blockCommentOnlyMultiLine() {
-    try {
-        doSomething();
-        doSomethingElse();
-    } catch (err) { // Compliant
-        /*
-         * This exception is
-         * ignored on purpose
-         */
-    }
+    } // Compliant
 }
 
 function commentOnlySameLine() {
@@ -205,20 +172,54 @@ function blockCommentOnlySameLine() {
     } catch (err) { /* documented */ }
 }
 
-function commentTrailingCodeSameLine() {
-    try {
-        doSomething();
-        doSomethingElse();
-    } catch (err) { // Noncompliant {{Handle this exception or don't catch it at all.}}
-        doCleanup(); // some comment
-    }
-}
-
 function noBindingCatch() {
     try {
         doSomething();
         return 0;
-    } catch { // Compliant, no exception parameter is declared
+    } catch {
         return -1;
+    } // Compliant, no exception parameter is declared
+}
+
+function destructuredParamCatch() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch ({ message }) {
+    } // Compliant, catch clause parameter is not a simple identifier
+}
+
+function pragmaOnlyCatch() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch (err) {
+        // eslint-disable-next-line no-empty
+    } // Compliant: comment content is not inspected beyond being non-empty
+}
+
+function emptyCommentCatch() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch (err) {
+        //
+    } // Noncompliant@-2 {{Handle this exception, don't catch it at all, or explain in a comment why it is ignored.}}
+}
+
+function emptyStatementWithComment() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch (err) { // Noncompliant {{Handle this exception, don't catch it at all, or explain in a comment why it is ignored.}}
+        ; // c
     }
+}
+
+function commentBetweenParamAndBody() {
+    try {
+        doSomething();
+        doSomethingElse();
+    } catch (err) /* c */ {
+    } // Noncompliant@-1 {{Handle this exception, don't catch it at all, or explain in a comment why it is ignored.}}
 }
