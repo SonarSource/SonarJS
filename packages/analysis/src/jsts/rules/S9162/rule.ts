@@ -254,9 +254,7 @@ function isAssertionOnlyCallback(
       !assertion ||
       (assertion.style !== 'chai-bdd' && assertion.style !== 'chai-assert') ||
       !isGlobalCypressAssertion(context, assertion.node) ||
-      !assertionArgumentsAreRetrySafe(assertion.node, bindings) ||
-      retrySafeKind(assertion.actual, bindings) === null ||
-      (assertion.kind === 'comparison' && retrySafeKind(assertion.expected, bindings) === null)
+      !assertionArgumentsAreRetrySafe(assertion.node, bindings)
     ) {
       return false;
     }
