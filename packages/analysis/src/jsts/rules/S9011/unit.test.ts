@@ -251,6 +251,28 @@ function SearchForm({ onSearch }) {
             },
           ],
         },
+        {
+          // a non-primitive type value (a regex literal) must render as its own
+          // readable form, not the default "[object Object]" object stringification
+          code: `const b = <button type={/foo/}>Search</button>;`,
+          errors: [
+            {
+              message:
+                'Replace this invalid "type" value "/foo/" with one of "button", "submit", or "reset".',
+            },
+          ],
+        },
+        {
+          // known limitation: source-file co-occurrence isn't DOM reachability - this
+          // form and button are mutually exclusive ternary branches and can never
+          // actually render together, so the button has no real form owner, but the
+          // id match alone is enough for us to (falsely) treat them as associated
+          code: `
+function Toggle({ showForm }) {
+  return showForm ? <form id="search" /> : <button form="search">Search</button>;
+}`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
       ],
     });
   });
@@ -429,6 +451,18 @@ function SearchForm({ onSearch }) {
     <form id="search-form" />
     <button :form="'search-form'">Search</button>
   </div>
+</template>`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // known limitation: source-file co-occurrence isn't DOM reachability - this
+          // form and button are mutually exclusive v-if/v-else siblings and can never
+          // actually render together, so the button has no real form owner, but the
+          // id match alone is enough for us to (falsely) treat them as associated
+          code: `
+<template>
+  <form v-if="showForm" id="search" />
+  <button v-else form="search">Search</button>
 </template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },

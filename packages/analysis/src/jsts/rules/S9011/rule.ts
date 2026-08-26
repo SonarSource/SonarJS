@@ -42,6 +42,16 @@ function invalidTypeMessage(value: string) {
   return `Replace this invalid "type" value "${value}" with one of "button", "submit", or "reset".`;
 }
 
+function describeTypeValue(value: unknown): string {
+  if (value === null || typeof value !== 'object') {
+    return String(value);
+  }
+  if (value instanceof RegExp) {
+    return value.toString();
+  }
+  return JSON.stringify(value) ?? '[unrepresentable value]';
+}
+
 /**
  * A missing (or effectively missing, e.g. empty) type is only flagged for buttons
  * associated with a `<form>`: that's the only case where it can actually cause an
@@ -85,6 +95,14 @@ function isJsxElementNamed(node: TSESTree.Node, tagName: string): node is TSESTr
  * Walks the whole file once looking for `<form id="...">` elements, so a button's own
  * `form="..."` attribute can be resolved against every form in the file regardless of
  * where each sits in the tree.
+ *
+ * This is source-file co-occurrence, not DOM reachability: a form and a button that can
+ * never actually render together (e.g. mutually exclusive ternary/conditional branches)
+ * are still treated as associated if their ids match. Ruling that out in general would
+ * mean resolving arbitrary control flow (ternaries, `&&`, switches, early returns...),
+ * which isn't worth the complexity here - the same "false negatives beyond literal
+ * nesting" trade-off this rule already accepts elsewhere just runs in the other
+ * direction for this specific approximation.
  */
 function collectReactFormIds(context: Rule.RuleContext): Set<string> {
   const ids = new Set<string>();
@@ -173,6 +191,10 @@ function getNearestVElement(node: AST.Node | undefined): AST.VElement | undefine
  * Walks the whole template once looking for `<form id="...">` elements, so a button's
  * own `form="..."` attribute (or bound `:form="'...'"`) can be resolved against every
  * form in the template regardless of where each sits in the tree.
+ *
+ * Same source-file-co-occurrence approximation as collectReactFormIds: a form and a
+ * button that can never actually render together (e.g. `v-if`/`v-else` siblings) are
+ * still treated as associated if their ids match. See that function's comment for why.
  */
 function collectVueFormIds(context: Rule.RuleContext): Set<string> {
   const ids = new Set<string>();
@@ -268,7 +290,7 @@ function createOnReport(isInsideForm: (node: unknown) => boolean) {
       }
       // A non-string type value (e.g. `type={42}`) is never a valid button type;
       // stringify it before comparing/reporting rather than assuming it's a string.
-      const stringValue = typeof value === 'string' ? value : String(value);
+      const stringValue = typeof value === 'string' ? value : describeTypeValue(value);
       // The HTML type attribute is an enumerated attribute, matched ASCII
       // case-insensitively, so `type="Submit"` is spec-valid - but both base rules
       // compare case-sensitively and treat it as invalid.
