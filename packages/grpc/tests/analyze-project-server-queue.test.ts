@@ -214,4 +214,64 @@ describe('analyze-project request queue', () => {
 
     expect(cancellationRequests).toBe(1);
   });
+
+  it('should retry active cancellation after it is not acknowledged', async () => {
+    const activeRelease = createDeferred<void>();
+    let cancellationRequests = 0;
+    const queue = new AnalysisRequestQueue();
+    const active = acceptedSubmission(
+      queue.enqueue(
+        () => activeRelease.promise,
+        async () => ++cancellationRequests > 1,
+      ),
+    );
+
+    const firstCancellation = queue.cancelActiveAnalysis();
+    expect(firstCancellation.active).toBe(true);
+    if (firstCancellation.active) {
+      await expect(firstCancellation.result).resolves.toBe(false);
+    }
+    const secondCancellation = queue.cancelActiveAnalysis();
+    expect(secondCancellation.active).toBe(true);
+    if (secondCancellation.active) {
+      await expect(secondCancellation.result).resolves.toBe(true);
+    }
+
+    activeRelease.resolve();
+    await active.result;
+    expect(cancellationRequests).toBe(2);
+  });
+
+  it('should retry active cancellation after signaling fails', async () => {
+    const activeRelease = createDeferred<void>();
+    let cancellationRequests = 0;
+    const queue = new AnalysisRequestQueue();
+    const active = acceptedSubmission(
+      queue.enqueue(
+        () => activeRelease.promise,
+        async () => {
+          cancellationRequests += 1;
+          if (cancellationRequests === 1) {
+            throw new Error('Cancellation signal failed');
+          }
+          return true;
+        },
+      ),
+    );
+
+    const firstCancellation = queue.cancelActiveAnalysis();
+    expect(firstCancellation.active).toBe(true);
+    if (firstCancellation.active) {
+      await expect(firstCancellation.result).rejects.toThrow('Cancellation signal failed');
+    }
+    const secondCancellation = queue.cancelActiveAnalysis();
+    expect(secondCancellation.active).toBe(true);
+    if (secondCancellation.active) {
+      await expect(secondCancellation.result).resolves.toBe(true);
+    }
+
+    activeRelease.resolve();
+    await active.result;
+    expect(cancellationRequests).toBe(2);
+  });
 });

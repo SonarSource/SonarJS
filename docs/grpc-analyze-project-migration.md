@@ -203,8 +203,9 @@ The old heartbeat ping is replaced by a long-lived `Lease` stream.
 - A cancellation acknowledgement only confirms that the cancellation signal was accepted. The queue
   advances only after the active analysis finishes, so analyses never overlap in the worker.
 - Cancellation does not shut down the gRPC server. If an analysis is stuck and cannot reach a
-  cancellation checkpoint, the queue remains blocked; recovering from that case requires supervised
-  worker replacement rather than tearing down the server and its Java client connection.
+  cancellation checkpoint, its execution and queued successors remain blocked. No recovery for that
+  case is implemented today; supervised worker replacement would be required and is out of scope for
+  this migration.
 
 ### Worker Decision
 

@@ -170,11 +170,25 @@ export class AnalysisRequestQueue {
     }
 
     if (!entry.cancellationResult) {
+      let cancellationResult: Promise<boolean>;
       try {
-        entry.cancellationResult = Promise.resolve(entry.requestCancellation());
+        cancellationResult = Promise.resolve(entry.requestCancellation());
       } catch (error) {
-        entry.cancellationResult = Promise.reject(error);
+        cancellationResult = Promise.reject(error);
       }
+      entry.cancellationResult = cancellationResult;
+      void cancellationResult.then(
+        acknowledged => {
+          if (!acknowledged && entry.cancellationResult === cancellationResult) {
+            entry.cancellationResult = undefined;
+          }
+        },
+        () => {
+          if (entry.cancellationResult === cancellationResult) {
+            entry.cancellationResult = undefined;
+          }
+        },
+      );
     }
     return { active: true, result: entry.cancellationResult };
   }
