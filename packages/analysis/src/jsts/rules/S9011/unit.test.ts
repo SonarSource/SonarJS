@@ -109,6 +109,19 @@ function Orphan() {
   );
 }`,
         },
+        {
+          // an explicit `form` attribute always determines the owner form, per the
+          // HTML form-association algorithm - even when literally nested in another
+          // form, an unresolved `form` reference means no form owner at all
+          code: `
+function Detached() {
+  return (
+    <form id="real-form">
+      <button form="typo-id">Search</button>
+    </form>
+  );
+}`,
+        },
       ],
       invalid: [
         {
@@ -219,6 +232,16 @@ function SearchForm({ onSearch }) {
 }`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
+        {
+          // a non-string type value (e.g. a numeric literal) must not crash the rule
+          code: `const b = <button type={42}>Search</button>;`,
+          errors: [
+            {
+              message:
+                'Replace this invalid "type" value "42" with one of "button", "submit", or "reset".',
+            },
+          ],
+        },
       ],
     });
   });
@@ -288,6 +311,17 @@ function SearchForm({ onSearch }) {
     <form id="other-form" />
     <button form="missing-form">Search</button>
   </div>
+</template>`,
+        },
+        {
+          // an explicit `form` attribute always determines the owner form, per the
+          // HTML form-association algorithm - even when literally nested in another
+          // form, an unresolved `form` reference means no form owner at all
+          code: `
+<template>
+  <form id="real-form">
+    <button form="typo-id">Search</button>
+  </form>
 </template>`,
         },
       ],

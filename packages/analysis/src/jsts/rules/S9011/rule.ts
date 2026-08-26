@@ -20,6 +20,8 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { AST } from 'vue-eslint-parser';
 import type { TSESTree } from '@typescript-eslint/utils';
+import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
+import pkg from 'jsx-ast-utils-x';
 import { rules as reactRules } from '../external/react.js';
 import { rules as vueRules } from '../external/vue.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -27,6 +29,8 @@ import { interceptReport, interceptReportForReact } from '../helpers/decorators/
 import { mergeRules } from '../helpers/decorators/merger.js';
 import { childrenOf, findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
+
+const { getProp, getLiteralPropValue } = pkg;
 
 const reactBaseRule = reactRules['button-has-type'];
 const vueBaseRule = vueRules['html-button-has-type'];
@@ -54,22 +58,19 @@ function getJsxAttributeStringValue(
   attributes: TSESTree.JSXOpeningElement['attributes'],
   name: string,
 ): string | undefined {
-  const attribute = attributes.find(
-    (attr): attr is TSESTree.JSXAttribute =>
-      attr.type === 'JSXAttribute' && attr.name.name === name,
-  );
-  const value = attribute?.value;
-  if (value?.type === 'Literal' && typeof value.value === 'string') {
-    return value.value;
+  const attribute = getProp(attributes as JSXOpeningElement['attributes'], name);
+  if (!attribute) {
+    return undefined;
   }
-  if (
-    value?.type === 'JSXExpressionContainer' &&
-    value.expression.type === 'Literal' &&
-    typeof value.expression.value === 'string'
-  ) {
-    return value.expression.value;
-  }
-  return undefined;
+  const value = getLiteralPropValue(attribute as JSXAttribute);
+  return typeof value === 'string' ? value : undefined;
+}
+
+function hasJsxAttribute(
+  attributes: TSESTree.JSXOpeningElement['attributes'],
+  name: string,
+): boolean {
+  return getProp(attributes as JSXOpeningElement['attributes'], name) !== undefined;
 }
 
 function isJsxElementNamed(node: TSESTree.Node, tagName: string): node is TSESTree.JSXElement {
@@ -108,11 +109,15 @@ function collectReactFormIds(context: Rule.RuleContext): Set<string> {
 
 function isInsideReactForm(node: unknown, formIds: Set<string>): boolean {
   const jsxNode = node as TSESTree.Node;
-  if (jsxNode?.type === 'JSXElement') {
+  if (
+    jsxNode?.type === 'JSXElement' &&
+    hasJsxAttribute(jsxNode.openingElement.attributes, 'form')
+  ) {
+    // An explicit `form` attribute always determines the button's owner form, per the
+    // HTML form-association algorithm - even when it doesn't resolve to one, ancestor
+    // nesting is irrelevant once it's set.
     const formId = getJsxAttributeStringValue(jsxNode.openingElement.attributes, 'form');
-    if (formId !== undefined && formIds.has(formId)) {
-      return true;
-    }
+    return formId !== undefined && formIds.has(formId);
   }
   return (
     findFirstMatchingAncestor(jsxNode, ancestor => isJsxElementNamed(ancestor, 'form')) !==
@@ -140,6 +145,17 @@ function getVueAttributeStringValue(element: AST.VElement, name: string): string
     return expression.value;
   }
   return undefined;
+}
+
+function hasVueAttribute(element: AST.VElement, name: string): boolean {
+  return element.startTag.attributes.some(
+    attribute =>
+      (!attribute.directive && attribute.key.name === name) ||
+      (attribute.directive &&
+        attribute.key.name.name === 'bind' &&
+        attribute.key.argument?.type === 'VIdentifier' &&
+        attribute.key.argument.name === name),
+  );
 }
 
 function getNearestVElement(node: AST.Node | undefined): AST.VElement | undefined {
@@ -188,11 +204,12 @@ function collectVueFormIds(context: Rule.RuleContext): Set<string> {
 
 function isInsideVueForm(node: unknown, formIds: Set<string>): boolean {
   const button = getNearestVElement(node as AST.Node | undefined);
-  if (button) {
+  if (button && hasVueAttribute(button, 'form')) {
+    // An explicit `form` attribute always determines the button's owner form, per the
+    // HTML form-association algorithm - even when it doesn't resolve to one, ancestor
+    // nesting is irrelevant once it's set.
     const formId = getVueAttributeStringValue(button, 'form');
-    if (formId !== undefined && formIds.has(formId)) {
-      return true;
-    }
+    return formId !== undefined && formIds.has(formId);
   }
   let current = (node as AST.Node | undefined)?.parent;
   while (current) {
@@ -240,7 +257,7 @@ function createOnReport(isInsideForm: (node: unknown) => boolean) {
       return;
     }
     if (INVALID_TYPE_MESSAGE_IDS.has(messageId)) {
-      const { value } = data as { value: string };
+      const { value } = data as { value: unknown };
       // React reports an empty type="" as an "invalid value" rather than a missing
       // one; treat it like a missing type (form-scoped) rather than a validated one.
       if (value === '') {
@@ -249,14 +266,17 @@ function createOnReport(isInsideForm: (node: unknown) => boolean) {
         }
         return;
       }
+      // A non-string type value (e.g. `type={42}`) is never a valid button type;
+      // stringify it before comparing/reporting rather than assuming it's a string.
+      const stringValue = typeof value === 'string' ? value : String(value);
       // The HTML type attribute is an enumerated attribute, matched ASCII
       // case-insensitively, so `type="Submit"` is spec-valid - but both base rules
       // compare case-sensitively and treat it as invalid.
-      if (VALID_BUTTON_TYPES.has(value.toLowerCase())) {
+      if (VALID_BUTTON_TYPES.has(stringValue.toLowerCase())) {
         return;
       }
       // An explicit-but-wrong type is always worth flagging, in or out of a form.
-      context.report({ ...rest, message: invalidTypeMessage(value) });
+      context.report({ ...rest, message: invalidTypeMessage(stringValue) });
     }
   };
 }
