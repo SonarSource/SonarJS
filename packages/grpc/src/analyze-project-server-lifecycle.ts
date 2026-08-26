@@ -39,7 +39,14 @@ type HandleRequestInCurrentThread = (
   incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
 ) => Promise<RequestResult<AnalyzeProjectResponse | void>>;
 
+type AnalysisCompletion = {
+  promise: Promise<void>;
+  resolve: () => void;
+};
+
 type AnalyzeProjectServerState = {
+  analysisCancellationRequested: boolean;
+  analysisCompletion: AnalysisCompletion | null;
   analysisInProgress: boolean;
   leaseCall: grpc.ServerDuplexStream<LeaseRequest, LeaseResponse> | null;
   nextWorkerRequestId: number;
@@ -125,6 +132,8 @@ export async function waitForWorkerCompletion(
 
 export function createServerState(): AnalyzeProjectServerState {
   return {
+    analysisCancellationRequested: false,
+    analysisCompletion: null,
     analysisInProgress: false,
     leaseCall: null,
     nextWorkerRequestId: 0,

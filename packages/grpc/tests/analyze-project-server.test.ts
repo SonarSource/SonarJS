@@ -30,6 +30,7 @@ import {
   analyzeProjectServerInternals,
   startAnalyzeProjectServer,
 } from '../src/analyze-project-server.js';
+import { createServerState } from '../src/analyze-project-server-lifecycle.js';
 import { createAnalyzeProjectWorker } from '../src/analyze-project-worker/create-worker.js';
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
 import type {
@@ -444,10 +445,9 @@ function createUnitServerState({
   startupShutdownTimeout?: NodeJS.Timeout | null;
 } = {}) {
   return {
+    ...createServerState(),
     analysisInProgress,
     leaseCall: leaseCall as unknown as grpc.ServerDuplexStream<LeaseRequest, LeaseResponse> | null,
-    nextWorkerRequestId: 0,
-    shuttingDown: false,
     startupShutdownTimeout,
   };
 }
@@ -792,6 +792,75 @@ describe('analyze-project gRPC server', () => {
       });
       await activeResponsesPromise;
     });
+  });
+
+  it('should wait for a cancelled stream to complete before starting its replacement', async () => {
+    const firstRequestStarted = createDeferred<string>();
+    const replacementRequestStarted = createDeferred<string>();
+    let startedRequestCount = 0;
+    const worker = new FakeWorker(message => {
+      if (message.type === 'analyze-stream') {
+        startedRequestCount += 1;
+        (startedRequestCount === 1 ? firstRequestStarted : replacementRequestStarted).resolve(
+          message.requestId,
+        );
+      }
+    });
+    const state = createUnitServerState();
+    const streamHandler = analyzeProjectServerInternals.createAnalyzeProjectStreamHandler({
+      handleRequestInCurrentThread: async () => {
+        throw new Error('Unexpected in-process analyze-project request');
+      },
+      lifecycle: {
+        clearStartupShutdownTimeout: () => {},
+        requestCancel: async () => true,
+        scheduleStartupShutdownTimeout: () => {},
+        shutdown: async () => {},
+      },
+      newWorkerRequestId: (() => {
+        let requestId = 0;
+        return () => String(++requestId);
+      })(),
+      state,
+      worker: worker as unknown as Worker,
+    });
+    const firstCall = new FakeAnalyzeProjectStreamCall(createAnalyzeProjectRequest());
+    const replacementCall = new FakeAnalyzeProjectStreamCall(createAnalyzeProjectRequest());
+
+    streamHandler(
+      firstCall as unknown as grpc.ServerWritableStream<
+        AnalyzeProjectRequest,
+        AnalyzeProjectStreamResponse
+      >,
+    );
+    const firstRequestId = await firstRequestStarted.promise;
+    firstCall.emit('cancelled');
+    streamHandler(
+      replacementCall as unknown as grpc.ServerWritableStream<
+        AnalyzeProjectRequest,
+        AnalyzeProjectStreamResponse
+      >,
+    );
+    await delay(0);
+
+    expect(replacementCall.error).toBeUndefined();
+    expect(startedRequestCount).toBe(1);
+
+    worker.emitMessage({
+      requestId: firstRequestId,
+      result: { result: undefined, type: 'success' },
+      type: 'stream-complete',
+    });
+    const replacementRequestId = await replacementRequestStarted.promise;
+    worker.emitMessage({
+      requestId: replacementRequestId,
+      result: { result: undefined, type: 'success' },
+      type: 'stream-complete',
+    });
+    await delay(0);
+
+    expect(replacementCall.ended).toBe(true);
+    expect(state.analysisInProgress).toBe(false);
   });
 
   it('should release the analysis slot before ending a completed stream', async t => {
