@@ -246,6 +246,12 @@ function Pagination({ pages, onSelect }) {
           // an empty type is treated like a missing one, so it's scoped too
           code: `<template><button type="">Search</button></template>`,
         },
+        {
+          // an empty bound literal is likewise treated like a missing type, even
+          // though it's evaluated by our own custom literal check rather than the
+          // base rule's directive check
+          code: `<template><button :type="''">Search</button></template>`,
+        },
       ],
       invalid: [
         {
@@ -254,6 +260,10 @@ function Pagination({ pages, onSelect }) {
         },
         {
           code: `<template><form><button type="">Search</button></form></template>`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          code: `<template><form><button :type="''">Search</button></form></template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {

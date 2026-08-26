@@ -170,6 +170,17 @@ function checkVueTypeBinding(context: Rule.RuleContext, node: AST.VElement) {
   }
   const literals = evaluateVueTypeLiterals(expression as AST.ESLintExpression);
   for (const value of literals ?? []) {
+    // An empty literal (e.g. `:type="''"`) is as good as missing, so it's form-scoped
+    // like any other missing type rather than always flagged as an invalid value.
+    if (value === '') {
+      if (isInsideVueForm(node)) {
+        context.report({
+          node: expression as unknown as estree.Node,
+          message: MISSING_TYPE_MESSAGE,
+        });
+      }
+      continue;
+    }
     if (!VALID_BUTTON_TYPES.has(value.toLowerCase())) {
       context.report({
         node: expression as unknown as estree.Node,
