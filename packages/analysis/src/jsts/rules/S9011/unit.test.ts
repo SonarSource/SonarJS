@@ -126,6 +126,19 @@ function Detached() {
   );
 }`,
         },
+        {
+          // an empty id/form value is never a usable reference - HTML ids can't be
+          // empty - so it must not be treated as a match against each other
+          code: `
+function EmptyIds() {
+  return (
+    <div>
+      <form id="" />
+      <button form="">Search</button>
+    </div>
+  );
+}`,
+        },
       ],
       invalid: [
         {
@@ -353,6 +366,17 @@ function Toggle({ showForm }) {
   <form id="real-form">
     <button form="typo-id">Search</button>
   </form>
+</template>`,
+        },
+        {
+          // an empty id/form value is never a usable reference - HTML ids can't be
+          // empty - so it must not be treated as a match against each other
+          code: `
+<template>
+  <div>
+    <form id="" />
+    <button form="">Search</button>
+  </div>
 </template>`,
         },
       ],

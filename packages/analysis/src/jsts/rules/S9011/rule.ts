@@ -73,7 +73,9 @@ function getJsxAttributeStringValue(
     return undefined;
   }
   const value = getLiteralPropValue(attribute as JSXAttribute);
-  return typeof value === 'string' ? value : undefined;
+  // An id/form reference can't be an empty string - HTML ids must contain at least
+  // one character - so treat it the same as absent.
+  return typeof value === 'string' && value !== '' ? value : undefined;
 }
 
 function hasJsxAttribute(
@@ -148,8 +150,11 @@ function getVueAttributeStringValue(element: AST.VElement, name: string): string
   const staticAttribute = attributes.find(
     (attribute): attribute is AST.VAttribute => !attribute.directive && attribute.key.name === name,
   );
+  // An id/form reference can't be an empty string - HTML ids must contain at least
+  // one character - so treat it the same as absent.
   if (staticAttribute) {
-    return staticAttribute.value?.value;
+    const value = staticAttribute.value?.value;
+    return value || undefined;
   }
   const boundAttribute = attributes.find(
     (attribute): attribute is AST.VDirective =>
@@ -159,7 +164,11 @@ function getVueAttributeStringValue(element: AST.VElement, name: string): string
       attribute.key.argument.name === name,
   );
   const expression = boundAttribute?.value?.expression;
-  if (expression?.type === 'Literal' && typeof expression.value === 'string') {
+  if (
+    expression?.type === 'Literal' &&
+    typeof expression.value === 'string' &&
+    expression.value !== ''
+  ) {
     return expression.value;
   }
   return undefined;
