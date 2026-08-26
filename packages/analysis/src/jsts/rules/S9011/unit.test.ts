@@ -89,6 +89,10 @@ function ModalFooter({ isSaving, onSave }) {
           code: `const b = <button type="">Search</button>;`,
         },
         {
+          // React removes a null type entirely, so it's just as absent as ""
+          code: `const b = <button type={null}>Search</button>;`,
+        },
+        {
           code: `React.createElement('button', {});`,
         },
         {
@@ -156,6 +160,11 @@ function SearchForm() {
           // the confusing "replace this invalid value """ wording - and scope it
           // like a missing type since it's just as absent
           code: `const b = <form><button type="">Search</button></form>;`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // same as type="" above, but with a null value instead of an empty string
+          code: `const b = <form><button type={null}>Search</button></form>;`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {

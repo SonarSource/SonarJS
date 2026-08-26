@@ -259,8 +259,8 @@ function createOnReport(isInsideForm: (node: unknown) => boolean) {
     if (INVALID_TYPE_MESSAGE_IDS.has(messageId)) {
       const { value } = data as { value: unknown };
       // React reports an empty type="" as an "invalid value" rather than a missing
-      // one; treat it like a missing type (form-scoped) rather than a validated one.
-      if (value === '') {
+      // one; the same holds for `type={null}`, which React doesn't render at all.
+      if (value === '' || value === null || value === undefined) {
         if (isInsideForm(node)) {
           context.report({ ...rest, message: MISSING_TYPE_MESSAGE });
         }
