@@ -398,13 +398,17 @@ function isVariableFromDomSelection(
 
   const writeReferences = variable.references.filter(reference => reference.isWrite());
   const definition = variable.defs.find(def => def.type === 'Variable' && def.node.init);
-  if (writeReferences.length !== 1 || !definition || definition.type !== 'Variable') {
+  if (
+    writeReferences.length !== 1 ||
+    definition?.type !== 'Variable' ||
+    !definition.node.init
+  ) {
     return false;
   }
 
   // Follow a local initializer only. This permits DOM-derived member/call chains
   // without performing interprocedural analysis.
-  return containsDomSelection(unwrapTypeAssertion(definition.node.init!), scope, visitedVariables);
+  return containsDomSelection(unwrapTypeAssertion(definition.node.init), scope, visitedVariables);
 }
 
 /**
