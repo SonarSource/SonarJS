@@ -44,10 +44,18 @@ function isSingleSimpleStatement(body: estree.Statement[]): boolean {
   return !NON_SIMPLE_STATEMENT_TYPES.has(stmt.type);
 }
 
+function isDocumentedEmptyCatch(context: Rule.RuleContext, node: estree.CatchClause): boolean {
+  return (
+    node.body.body.length === 0 &&
+    context.sourceCode.getCommentsInside(node.body).some(comment => comment.value.trim().length > 0)
+  );
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      handleException: "Handle this exception or don't catch it at all.",
+      handleException:
+        "Handle this exception, don't catch it at all, or explain in a comment why it is ignored.",
     },
   }),
   create(context: Rule.RuleContext) {
@@ -58,7 +66,10 @@ export const rule: Rule.RuleModule = {
         const variable = getVariableFromScope(scope, param.name);
         if (variable?.references.length === 0) {
           const tryStatement = getParent(context, node) as estree.TryStatement;
-          if (!isSingleSimpleStatement(tryStatement.block.body)) {
+          if (
+            !isDocumentedEmptyCatch(context, node) &&
+            !isSingleSimpleStatement(tryStatement.block.body)
+          ) {
             context.report({
               messageId: 'handleException',
               node,
