@@ -73,16 +73,7 @@ function getJsxAttributeStringValue(
     return undefined;
   }
   const value = getLiteralPropValue(attribute as JSXAttribute);
-  // An id/form reference can't be an empty string - HTML ids must contain at least
-  // one character - so treat it the same as absent.
-  return typeof value === 'string' && value !== '' ? value : undefined;
-}
-
-function hasJsxAttribute(
-  attributes: TSESTree.JSXOpeningElement['attributes'],
-  name: string,
-): boolean {
-  return getProp(attributes as JSXOpeningElement['attributes'], name) !== undefined;
+  return typeof value === 'string' ? value : undefined;
 }
 
 function isJsxElementNamed(node: TSESTree.Node, tagName: string): node is TSESTree.JSXElement {
@@ -117,8 +108,11 @@ function collectReactFormIds(context: Rule.RuleContext): Set<string> {
     }
     const node = current as unknown as TSESTree.Node;
     if (isJsxElementNamed(node, 'form')) {
+      // An empty id is never a usable reference - HTML ids must contain at least one
+      // character - so it's excluded here rather than at the button's `form` side:
+      // the button's own value still needs to be told apart from an unresolvable one.
       const id = getJsxAttributeStringValue(node.openingElement.attributes, 'id');
-      if (id !== undefined) {
+      if (id) {
         ids.add(id);
       }
     }
@@ -129,15 +123,16 @@ function collectReactFormIds(context: Rule.RuleContext): Set<string> {
 
 function isInsideReactForm(node: unknown, formIds: Set<string>): boolean {
   const jsxNode = node as TSESTree.Node;
-  if (
-    jsxNode?.type === 'JSXElement' &&
-    hasJsxAttribute(jsxNode.openingElement.attributes, 'form')
-  ) {
-    // An explicit `form` attribute always determines the button's owner form, per the
-    // HTML form-association algorithm - even when it doesn't resolve to one, ancestor
-    // nesting is irrelevant once it's set.
+  if (jsxNode?.type === 'JSXElement') {
     const formId = getJsxAttributeStringValue(jsxNode.openingElement.attributes, 'form');
-    return formId !== undefined && formIds.has(formId);
+    if (formId !== undefined) {
+      // A statically-resolvable `form` attribute always determines the button's owner
+      // form, per the HTML form-association algorithm - even when it doesn't resolve
+      // to one (e.g. an empty value, which can never be a valid id). A dynamic value
+      // can't be resolved, so it falls through to the ancestor check below instead,
+      // same as when there's no `form` attribute at all.
+      return formIds.has(formId);
+    }
   }
   return (
     findFirstMatchingAncestor(jsxNode, ancestor => isJsxElementNamed(ancestor, 'form')) !==
@@ -150,11 +145,8 @@ function getVueAttributeStringValue(element: AST.VElement, name: string): string
   const staticAttribute = attributes.find(
     (attribute): attribute is AST.VAttribute => !attribute.directive && attribute.key.name === name,
   );
-  // An id/form reference can't be an empty string - HTML ids must contain at least
-  // one character - so treat it the same as absent.
   if (staticAttribute) {
-    const value = staticAttribute.value?.value;
-    return value || undefined;
+    return staticAttribute.value?.value;
   }
   const boundAttribute = attributes.find(
     (attribute): attribute is AST.VDirective =>
@@ -164,25 +156,10 @@ function getVueAttributeStringValue(element: AST.VElement, name: string): string
       attribute.key.argument.name === name,
   );
   const expression = boundAttribute?.value?.expression;
-  if (
-    expression?.type === 'Literal' &&
-    typeof expression.value === 'string' &&
-    expression.value !== ''
-  ) {
+  if (expression?.type === 'Literal' && typeof expression.value === 'string') {
     return expression.value;
   }
   return undefined;
-}
-
-function hasVueAttribute(element: AST.VElement, name: string): boolean {
-  return element.startTag.attributes.some(
-    attribute =>
-      (!attribute.directive && attribute.key.name === name) ||
-      (attribute.directive &&
-        attribute.key.name.name === 'bind' &&
-        attribute.key.argument?.type === 'VIdentifier' &&
-        attribute.key.argument.name === name),
-  );
 }
 
 function getNearestVElement(node: AST.Node | undefined): AST.VElement | undefined {
@@ -219,8 +196,11 @@ function collectVueFormIds(context: Rule.RuleContext): Set<string> {
       break;
     }
     if (current.rawName === 'form') {
+      // An empty id is never a usable reference - HTML ids must contain at least one
+      // character - so it's excluded here rather than at the button's `form` side:
+      // the button's own value still needs to be told apart from an unresolvable one.
       const id = getVueAttributeStringValue(current, 'id');
-      if (id !== undefined) {
+      if (id) {
         ids.add(id);
       }
     }
@@ -235,12 +215,16 @@ function collectVueFormIds(context: Rule.RuleContext): Set<string> {
 
 function isInsideVueForm(node: unknown, formIds: Set<string>): boolean {
   const button = getNearestVElement(node as AST.Node | undefined);
-  if (button && hasVueAttribute(button, 'form')) {
-    // An explicit `form` attribute always determines the button's owner form, per the
-    // HTML form-association algorithm - even when it doesn't resolve to one, ancestor
-    // nesting is irrelevant once it's set.
+  if (button) {
     const formId = getVueAttributeStringValue(button, 'form');
-    return formId !== undefined && formIds.has(formId);
+    if (formId !== undefined) {
+      // A statically-resolvable `form` attribute always determines the button's owner
+      // form, per the HTML form-association algorithm - even when it doesn't resolve
+      // to one (e.g. an empty value, which can never be a valid id). A dynamic value
+      // can't be resolved, so it falls through to the ancestor check below instead,
+      // same as when there's no `form` attribute at all.
+      return formIds.has(formId);
+    }
   }
   let current = (node as AST.Node | undefined)?.parent;
   while (current) {

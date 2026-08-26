@@ -158,6 +158,20 @@ function SearchForm() {
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
+          // a dynamic (non-literal) `form` value can't be resolved statically, so it
+          // must fall back to the ancestor check instead of being treated as "no
+          // owner" - the button here is still nested in a form
+          code: `
+function SearchForm({ formId }) {
+  return (
+    <form>
+      <button form={formId}>Search</button>
+    </form>
+  );
+}`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
           // an explicit but invalid type is always flagged, form or no form
           code: `const b = <button type="action">Save</button>;`,
           errors: [
@@ -395,6 +409,13 @@ function Toggle({ showForm }) {
         },
         {
           code: `<template><form><button :type="">Search</button></form></template>`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // a dynamic (non-literal) `:form` value can't be resolved statically, so it
+          // must fall back to the ancestor check instead of being treated as "no
+          // owner" - the button here is still nested in a form
+          code: `<template><form><button :form="formId">Search</button></form></template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
