@@ -1,6 +1,6 @@
 {
   "title": "Vue component props should not be mutated directly",
-  "type": "CODE_SMELL",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
@@ -20,7 +20,7 @@
   "scope": "Main",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "MEDIUM"
+      "RELIABILITY": "MEDIUM"
     },
     "attribute": "LOGICAL"
   },

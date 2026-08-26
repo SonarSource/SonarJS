@@ -35,7 +35,10 @@
     "js",
     "ts"
   ],
-  "defaultQualityProfiles": [
-    "Sonar way"
-  ]
+  "defaultQualityProfiles": {
+    "js": [
+      "Sonar way"
+    ],
+    "ts": []
+  }
 }
