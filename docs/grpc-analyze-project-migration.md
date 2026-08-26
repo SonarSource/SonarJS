@@ -200,9 +200,11 @@ The old heartbeat ping is replaced by a long-lived `Lease` stream.
   - Calling `CancelAnalysis` targets whichever request is active at that moment and never cancels a
     pending request.
 - If both paths target the same active request, the worker cancellation signal is deduplicated.
-- If cancellation is not acknowledged, or the active analysis does not finish within the two-minute
-  cancellation grace period, the server shuts down and rejects queued requests so that the Java
-  owner can recover instead of waiting forever.
+- A cancellation acknowledgement only confirms that the cancellation signal was accepted. The queue
+  advances only after the active analysis finishes, so analyses never overlap in the worker.
+- Cancellation does not shut down the gRPC server. If an analysis is stuck and cannot reach a
+  cancellation checkpoint, the queue remains blocked; recovering from that case requires supervised
+  worker replacement rather than tearing down the server and its Java client connection.
 
 ### Worker Decision
 

@@ -32,7 +32,6 @@ import type {
   AnalyzeProjectWorkerOutMessage,
 } from './analyze-project-worker/messages.js';
 import {
-  ANALYSIS_CANCELLATION_GRACE_MS,
   AnalysisRequestQueue,
   MAX_PENDING_ANALYSIS_REQUESTS,
 } from './analyze-project-server-queue.js';
@@ -129,20 +128,12 @@ export async function waitForWorkerCompletion(
 }
 
 export function createServerState({
-  cancellationGraceMs = ANALYSIS_CANCELLATION_GRACE_MS,
   maxPendingAnalysisRequests = MAX_PENDING_ANALYSIS_REQUESTS,
-  onCancellationFailure = () => {},
 }: {
-  cancellationGraceMs?: number;
   maxPendingAnalysisRequests?: number;
-  onCancellationFailure?: () => void | Promise<void>;
 } = {}): AnalyzeProjectServerState {
   return {
-    analysisQueue: new AnalysisRequestQueue(
-      maxPendingAnalysisRequests,
-      cancellationGraceMs,
-      onCancellationFailure,
-    ),
+    analysisQueue: new AnalysisRequestQueue(maxPendingAnalysisRequests),
     leaseCall: null,
     nextWorkerRequestId: 0,
     shuttingDown: false,

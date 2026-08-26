@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-export const ANALYSIS_CANCELLATION_GRACE_MS = 120_000;
 export const MAX_PENDING_ANALYSIS_REQUESTS = 4;
 
 export class AnalysisQueueClosedError extends Error {
@@ -33,9 +32,7 @@ export class AnalysisTransportCancelledError extends Error {
 type ActiveAnalysisCancellation = { active: false } | { active: true; result: Promise<boolean> };
 
 type AnalysisQueueEntry = {
-  cancellationEscalated?: boolean;
   cancellationResult?: Promise<boolean>;
-  cancellationGraceTimeout?: NodeJS.Timeout;
   reject: (error: unknown) => void;
   requestCancellation: () => Promise<boolean>;
   resolve: (result: unknown) => void;
@@ -57,11 +54,7 @@ export class AnalysisRequestQueue {
   private closed = false;
   private readonly pending: AnalysisQueueEntry[] = [];
 
-  constructor(
-    private readonly maxPending = MAX_PENDING_ANALYSIS_REQUESTS,
-    private readonly cancellationGraceMs = ANALYSIS_CANCELLATION_GRACE_MS,
-    private readonly onCancellationFailure: () => void | Promise<void> = () => {},
-  ) {
+  constructor(private readonly maxPending = MAX_PENDING_ANALYSIS_REQUESTS) {
     if (!Number.isInteger(maxPending) || maxPending < 0) {
       throw new Error('Maximum pending analysis requests must be a non-negative integer');
     }
@@ -121,7 +114,6 @@ export class AnalysisRequestQueue {
     this.active = undefined;
     this.pending.length = 0;
     for (const entry of entries) {
-      this.clearCancellationGraceTimeout(entry);
       entry.state = 'settled';
       entry.reject(error);
     }
@@ -154,7 +146,6 @@ export class AnalysisRequestQueue {
     if (entry.state !== 'active' || this.active !== entry) {
       return;
     }
-    this.clearCancellationGraceTimeout(entry);
     entry.state = 'settled';
     this.active = undefined;
     const next = this.pending.shift();
@@ -184,37 +175,7 @@ export class AnalysisRequestQueue {
       } catch (error) {
         entry.cancellationResult = Promise.reject(error);
       }
-      void entry.cancellationResult.then(
-        acknowledged => {
-          if (!acknowledged) {
-            this.escalateCancellation(entry);
-          }
-        },
-        () => this.escalateCancellation(entry),
-      );
-      if (this.cancellationGraceMs > 0) {
-        entry.cancellationGraceTimeout = setTimeout(
-          () => this.escalateCancellation(entry),
-          this.cancellationGraceMs,
-        );
-      }
     }
     return { active: true, result: entry.cancellationResult };
-  }
-
-  private escalateCancellation(entry: AnalysisQueueEntry) {
-    if (entry.cancellationEscalated || entry.state !== 'active' || this.active !== entry) {
-      return;
-    }
-    entry.cancellationEscalated = true;
-    this.clearCancellationGraceTimeout(entry);
-    void Promise.resolve(this.onCancellationFailure()).catch(() => {});
-  }
-
-  private clearCancellationGraceTimeout(entry: AnalysisQueueEntry) {
-    if (entry.cancellationGraceTimeout) {
-      clearTimeout(entry.cancellationGraceTimeout);
-      entry.cancellationGraceTimeout = undefined;
-    }
   }
 }

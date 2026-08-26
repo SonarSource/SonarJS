@@ -404,10 +404,7 @@ export async function startAnalyzeProjectServer(
     resolveClosed = resolve;
   });
   const server = new grpc.Server(GRPC_SERVER_OPTIONS);
-  let handleCancellationFailure = () => {};
-  const state = createServerState({
-    onCancellationFailure: () => handleCancellationFailure(),
-  });
+  const state = createServerState();
   const handleRequestInCurrentThread = createHandleRequestInCurrentThread(workerData);
   const newWorkerRequestId = () => getNextWorkerRequestId(state);
   const lifecycle = createLifecycle({
@@ -420,9 +417,6 @@ export async function startAnalyzeProjectServer(
     unregisterGarbageCollectionObserver,
     worker,
   });
-  handleCancellationFailure = () => {
-    void lifecycle.shutdown('analysis cancellation failed');
-  };
 
   attachWorkerLifecycleHandlers(worker, lifecycle, state);
   server.addService(

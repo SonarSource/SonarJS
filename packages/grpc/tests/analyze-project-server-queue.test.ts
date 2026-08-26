@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import { setTimeout as delay } from 'node:timers/promises';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import {
@@ -157,33 +156,36 @@ describe('analyze-project request queue', () => {
     });
   });
 
-  it('should report when a transport-cancelled analysis does not finish', async () => {
-    const cancellationGraceExceeded = createDeferred<void>();
+  it('should keep queued analyses blocked until the cancelled active analysis finishes', async () => {
     const activeRelease = createDeferred<void>();
-    let cancellationRequests = 0;
-    const queue = new AnalysisRequestQueue(1, 5, () => cancellationGraceExceeded.resolve());
+    let pendingStarted = false;
+    const queue = new AnalysisRequestQueue();
     const active = acceptedSubmission(
       queue.enqueue(
         () => activeRelease.promise,
+        async () => true,
+      ),
+    );
+    const pending = acceptedSubmission(
+      queue.enqueue(
         async () => {
-          cancellationRequests += 1;
-          return true;
+          pendingStarted = true;
         },
+        async () => true,
       ),
     );
 
     const cancellation = active.cancelTransportCall();
     expect(cancellation.active).toBe(true);
-    await Promise.race([
-      cancellationGraceExceeded.promise,
-      delay(1_000).then(() => {
-        throw new Error('Timed out waiting for cancellation grace period');
-      }),
-    ]);
-    activeRelease.resolve();
-    await active.result;
+    if (cancellation.active) {
+      await expect(cancellation.result).resolves.toBe(true);
+    }
+    expect(pendingStarted).toBe(false);
 
-    expect(cancellationRequests).toBe(1);
+    activeRelease.resolve();
+    await Promise.all([active.result, pending.result]);
+
+    expect(pendingStarted).toBe(true);
   });
 
   it('should deduplicate transport and explicit active-analysis cancellation', async () => {
@@ -211,27 +213,5 @@ describe('analyze-project request queue', () => {
     await active.result;
 
     expect(cancellationRequests).toBe(1);
-  });
-
-  it('should report when transport cancellation is not acknowledged', async () => {
-    const cancellationFailure = createDeferred<void>();
-    const activeRelease = createDeferred<void>();
-    const queue = new AnalysisRequestQueue(1, 1_000, () => cancellationFailure.resolve());
-    const active = acceptedSubmission(
-      queue.enqueue(
-        () => activeRelease.promise,
-        async () => false,
-      ),
-    );
-
-    active.cancelTransportCall();
-    await Promise.race([
-      cancellationFailure.promise,
-      delay(100).then(() => {
-        throw new Error('Timed out waiting for cancellation failure');
-      }),
-    ]);
-    activeRelease.resolve();
-    await active.result;
   });
 });

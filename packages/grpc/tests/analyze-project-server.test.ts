@@ -456,25 +456,17 @@ class FakeAnalyzeProjectUnaryCall extends EventEmitter {
 
 function createUnitServerState({
   activeAnalysis = false,
-  cancellationGraceMs,
   leaseCall = null,
   maxPendingAnalysisRequests,
-  onCancellationFailure,
   startupShutdownTimeout = null,
 }: {
   activeAnalysis?: boolean;
-  cancellationGraceMs?: number;
   leaseCall?: { end: () => void } | null;
   maxPendingAnalysisRequests?: number;
-  onCancellationFailure?: () => void | Promise<void>;
   startupShutdownTimeout?: NodeJS.Timeout | null;
 } = {}) {
   const state = {
-    ...createServerState({
-      cancellationGraceMs,
-      maxPendingAnalysisRequests,
-      onCancellationFailure,
-    }),
+    ...createServerState({ maxPendingAnalysisRequests }),
     leaseCall: leaseCall as unknown as grpc.ServerDuplexStream<LeaseRequest, LeaseResponse> | null,
     startupShutdownTimeout,
   };
