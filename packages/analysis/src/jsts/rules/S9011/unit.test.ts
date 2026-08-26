@@ -80,17 +80,42 @@ function ModalFooter({ isSaving, onSave }) {
   );
 }`,
         },
-      ],
-      invalid: [
         {
+          // a missing type is only scoped to forms: no report outside one
           code: `const b = <button>Search</button>;`,
-          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // an empty type is treated like a missing one, so it's scoped too
+          code: `const b = <button type="">Search</button>;`,
         },
         {
           code: `React.createElement('button', {});`,
+        },
+        {
+          // known limitation: a button/form pair built entirely with createElement,
+          // with no JSX involved, can't be resolved to a form ancestor
+          code: `React.createElement('form', {}, React.createElement('button', {}));`,
+        },
+      ],
+      invalid: [
+        {
+          code: `const b = <form><button>Search</button></form>;`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
+          // a createElement button still resolves to its enclosing JSX form
+          code: `
+function SearchForm() {
+  return (
+    <form>
+      {React.createElement('button', {})}
+    </form>
+  );
+}`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // an explicit but invalid type is always flagged, form or no form
           code: `const b = <button type="action">Save</button>;`,
           errors: [
             {
@@ -102,12 +127,14 @@ function ModalFooter({ isSaving, onSave }) {
         {
           // React's own rule reports type="" as an "invalid value" rather than a
           // missing one; align the message with the missing-type case instead of
-          // the confusing "replace this invalid value """ wording
-          code: `const b = <button type="">Search</button>;`,
+          // the confusing "replace this invalid value """ wording - and scope it
+          // like a missing type since it's just as absent
+          code: `const b = <form><button type="">Search</button></form>;`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
-          // ternary with one invalid literal branch is still statically analyzable
+          // ternary with one invalid literal branch is still statically analyzable,
+          // and - like any explicit invalid value - flagged regardless of form scope
           code: `const b = <button type={isSubmit ? 'submit' : 'action'}>Go</button>;`,
           errors: [
             {
@@ -121,21 +148,27 @@ function ModalFooter({ isSaving, onSave }) {
           code: `
 function ToolbarButton({ onClick, icon, title }) {
   return (
-    <button className="toolbar-button" onClick={onClick} title={title}>
-      <Icon path={icon} size={0.72} />
-    </button>
+    <form>
+      <button className="toolbar-button" onClick={onClick} title={title}>
+        <Icon path={icon} size={0.72} />
+      </button>
+    </form>
   );
 }`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
           // real-world pattern: two conditionally-rendered button variants (a play/pause
-          // toggle), neither one typed
+          // toggle) inside a form, neither one typed
           code: `
 function PlayPauseButton({ playing, canPlay, canInteract, onPlay, onPause }) {
-  return playing
-    ? <button onClick={onPause} disabled={!canInteract}><Icon name="pause" /></button>
-    : <button onClick={onPlay} disabled={!canPlay}><Icon name="play" /></button>;
+  return (
+    <form>
+      {playing
+        ? <button onClick={onPause} disabled={!canInteract}><Icon name="pause" /></button>
+        : <button onClick={onPlay} disabled={!canPlay}><Icon name="play" /></button>}
+    </form>
+  );
 }`,
           errors: [
             { message: 'Add an explicit "type" attribute to this button.' },
@@ -143,18 +176,18 @@ function PlayPauseButton({ playing, canPlay, canInteract, onPlay, onPause }) {
           ],
         },
         {
-          // real-world pattern: list of buttons rendered from an array (e.g. pagination),
-          // none of them typed
+          // real-world pattern: list of buttons rendered from an array (e.g. pagination)
+          // inside a form, none of them typed
           code: `
 function Pagination({ pages, onSelect }) {
   return (
-    <div className="pagination">
+    <form className="pagination">
       {pages.map(page => (
         <button key={page} className="page-link" onClick={() => onSelect(page)}>
           {page}
         </button>
       ))}
-    </div>
+    </form>
   );
 }`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
@@ -205,21 +238,30 @@ function Pagination({ pages, onSelect }) {
           // directive check never inspects the bound expression's contents
           code: `<template><button :type="isSubmit ? 'submit' : 'button'" @click="handleClick">{{ label }}</button></template>`,
         },
+        {
+          // a missing type is only scoped to forms: no report outside one
+          code: `<template><button>Search</button></template>`,
+        },
+        {
+          // an empty type is treated like a missing one, so it's scoped too
+          code: `<template><button type="">Search</button></template>`,
+        },
       ],
       invalid: [
         {
-          code: `<template><button>Search</button></template>`,
+          code: `<template><form><button>Search</button></form></template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
-          code: `<template><button type="">Search</button></template>`,
+          code: `<template><form><button type="">Search</button></form></template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
-          code: `<template><button :type="">Search</button></template>`,
+          code: `<template><form><button :type="">Search</button></form></template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
+          // an explicit but invalid type is always flagged, form or no form
           code: `<template><button type="action">Save</button></template>`,
           errors: [
             {
@@ -230,7 +272,8 @@ function Pagination({ pages, onSelect }) {
         },
         {
           // bound type is a string literal: eslint-plugin-vue's own check never
-          // inspects it, so we evaluate it ourselves
+          // inspects it, so we evaluate it ourselves - and flag it regardless of
+          // form scope, like any other explicit invalid value
           code: `<template><button :type="'action'">Save</button></template>`,
           errors: [
             {
@@ -253,21 +296,25 @@ function Pagination({ pages, onSelect }) {
           // real-world pattern: icon-only button component using a slot, no type
           code: `
 <template>
-  <button :aria-label="title" role="button" :disabled="disabled" class="icon-button">
-    <slot />
-  </button>
+  <form>
+    <button :aria-label="title" role="button" :disabled="disabled" class="icon-button">
+      <slot />
+    </button>
+  </form>
 </template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
-          // real-world pattern: v-for rendered action buttons, none of them typed
+          // real-world pattern: v-for rendered action buttons inside a form, none typed
           code: `
 <template>
-  <ul class="filters">
-    <li v-for="tag in tags" :key="tag.id">
-      <button @click="toggleTag(tag)">{{ tag.name }}</button>
-    </li>
-  </ul>
+  <form>
+    <ul class="filters">
+      <li v-for="tag in tags" :key="tag.id">
+        <button @click="toggleTag(tag)">{{ tag.name }}</button>
+      </li>
+    </ul>
+  </form>
 </template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
