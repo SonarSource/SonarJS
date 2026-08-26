@@ -204,6 +204,22 @@ export function getVueVersion(context: Rule.RuleContext): string | null {
 }
 
 /**
+ * Determines whether the linted file belongs to an Angular project, based on the
+ * presence of `@angular/core` in the closest dependency manifest.
+ *
+ * Used to scope Angular-specific carve-outs — such as treating
+ * `environments/environment.<env>.ts` config files as non-test files — to
+ * projects that actually follow the Angular `environment.<env>.ts` convention,
+ * where the path is otherwise indistinguishable from a real colocated test.
+ *
+ * @param context ESLint rule context
+ * @returns true when `@angular/core` is declared as a dependency
+ */
+export function isAngularProject(context: Rule.RuleContext): boolean {
+  return getDependenciesSanitizePaths(context).has('@angular/core');
+}
+
+/**
  * Coerces a dependency version string or range (e.g., "^18.0.0", "19.0") to a
  * valid semver version. Returns null for non-semver strings such as pnpm
  * catalog references (e.g., "catalog:frontend").

@@ -62,55 +62,82 @@ describe('isTestFile', () => {
     expect(isTestFile('testimony.ts')).toBe(false);
   });
 
-  it('does not match Angular-style per-environment config files under an environments folder', () => {
-    expect(isTestFile('src/environments/environment.test.ts')).toBe(false);
-    expect(isTestFile('src/environments/environment.spec.ts')).toBe(false);
-    expect(isTestFile('src/environments/environment.cy.ts')).toBe(false);
-    expect(isTestFile('src\\environments\\environment.test.ts')).toBe(false);
-    expect(isTestFile('src/environment/environment.test.ts')).toBe(false);
+  it('treats Angular-style per-environment config files as test files when not an Angular project', () => {
+    // isAngularProject defaults to false: the carve-out must not apply, so these
+    // env-config-shaped paths are still reported as ordinary test files.
+    expect(isTestFile('src/environments/environment.test.ts')).toBe(true);
+    expect(isTestFile('src/environments/environment.spec.ts')).toBe(true);
+    expect(isTestFile('src/environments/environment.cy.ts')).toBe(true);
+  });
+
+  it('does not match Angular-style per-environment config files in an Angular project', () => {
+    expect(isTestFile('src/environments/environment.test.ts', undefined, true)).toBe(false);
+    expect(isTestFile('src/environments/environment.spec.ts', undefined, true)).toBe(false);
+    expect(isTestFile('src/environments/environment.cy.ts', undefined, true)).toBe(false);
+    expect(isTestFile('src\\environments\\environment.test.ts', undefined, true)).toBe(false);
+    expect(isTestFile('src/environment/environment.test.ts', undefined, true)).toBe(false);
   });
 
   it('does not exclude a bare environment config filename with no environments folder', () => {
-    expect(isTestFile('environment.test.ts')).toBe(true);
-    expect(isTestFile('environment.spec.ts')).toBe(true);
-    expect(isTestFile('environment.cy.ts')).toBe(true);
+    expect(isTestFile('environment.test.ts', undefined, true)).toBe(true);
+    expect(isTestFile('environment.spec.ts', undefined, true)).toBe(true);
+    expect(isTestFile('environment.cy.ts', undefined, true)).toBe(true);
   });
 
   it('excludes environment config files across every default test extension', () => {
     for (const ext of ['.js', '.mjs', '.cjs', '.jsx', '.vue', '.ts', '.mts', '.cts', '.tsx']) {
       for (const marker of ['test', 'spec', 'cy']) {
-        expect(isTestFile(`src/environments/environment.${marker}${ext}`)).toBe(false);
+        expect(isTestFile(`src/environments/environment.${marker}${ext}`, undefined, true)).toBe(
+          false,
+        );
       }
     }
   });
 
   it('excludes environment config files under absolute POSIX and Windows paths', () => {
-    expect(isTestFile('/home/user/project/src/environments/environment.test.ts')).toBe(false);
-    expect(isTestFile('C:\\project\\src\\environments\\environment.spec.ts')).toBe(false);
+    expect(
+      isTestFile('/home/user/project/src/environments/environment.test.ts', undefined, true),
+    ).toBe(false);
+    expect(isTestFile('C:\\project\\src\\environments\\environment.spec.ts', undefined, true)).toBe(
+      false,
+    );
   });
 
   it('excludes environment config files with custom extensions too', () => {
-    expect(isTestFile('src/environments/environment.test.dummy', ['.dummy'])).toBe(false);
+    expect(isTestFile('src/environments/environment.test.dummy', ['.dummy'], true)).toBe(false);
   });
 
   it('is case-sensitive: a differently-cased "Environment" file is not excluded', () => {
-    expect(isTestFile('src/environments/Environment.test.ts')).toBe(true);
+    expect(isTestFile('src/environments/Environment.test.ts', undefined, true)).toBe(true);
   });
 
   it('still excludes a double-suffix environment file (matches on the trailing suffix)', () => {
-    expect(isTestFile('src/environments/environment.test.spec.ts')).toBe(false);
+    expect(isTestFile('src/environments/environment.test.spec.ts', undefined, true)).toBe(false);
   });
 
   it('still matches filenames that only resemble the environment config shape', () => {
-    expect(isTestFile('myenvironment.test.ts')).toBe(true);
-    expect(isTestFile('environment.util.test.ts')).toBe(true);
-    expect(isTestFile('environments.test.ts')).toBe(true);
-    expect(isTestFile('src/environments/myenvironment.test.ts')).toBe(true);
+    expect(isTestFile('myenvironment.test.ts', undefined, true)).toBe(true);
+    expect(isTestFile('environment.util.test.ts', undefined, true)).toBe(true);
+    expect(isTestFile('environments.test.ts', undefined, true)).toBe(true);
+    expect(isTestFile('src/environments/myenvironment.test.ts', undefined, true)).toBe(true);
   });
 
-  it('still matches environment config files placed under __tests__ or __mocks__', () => {
-    expect(isTestFile('src/environments/__tests__/environment.test.ts')).toBe(true);
-    expect(isTestFile('src/environments/__mocks__/environment.spec.ts')).toBe(true);
+  it('still matches test-directory files that resemble environment config', () => {
+    // A nested __tests__/__mocks__ folder breaks the `environments/environment.`
+    // adjacency, so the env-config pattern never matches these to begin with.
+    expect(isTestFile('src/environments/__tests__/environment.test.ts', undefined, true)).toBe(
+      true,
+    );
+    expect(isTestFile('src/environments/__mocks__/environment.spec.ts', undefined, true)).toBe(
+      true,
+    );
+    // When __tests__/__mocks__ is an ANCESTOR of environments/, the env-config
+    // pattern does match, and it is the test-directory guard that keeps the file
+    // classified as a test rather than an Angular config.
+    expect(isTestFile('__tests__/environments/environment.test.ts', undefined, true)).toBe(true);
+    expect(isTestFile('src/__mocks__/environments/environment.spec.ts', undefined, true)).toBe(
+      true,
+    );
   });
 });
 
@@ -140,17 +167,33 @@ describe('isTestRelatedFile', () => {
     expect(isTestRelatedFile('src/__mocks__/style.css', ['.dummy'])).toBe(true);
   });
 
-  it('does not match Angular-style per-environment config files under an environments folder', () => {
-    expect(isTestRelatedFile('src/environments/environment.test.ts')).toBe(false);
-    expect(isTestRelatedFile('src/environments/environment.spec.ts')).toBe(false);
-    expect(isTestRelatedFile('src\\environments\\environment.test.ts')).toBe(false);
+  it('treats Angular-style per-environment config files as test-related when not an Angular project', () => {
+    // isAngularProject defaults to false: the carve-out must not apply here, so
+    // the MAIN/TEST classification in filter-path.ts stays unchanged.
+    expect(isTestRelatedFile('src/environments/environment.test.ts')).toBe(true);
+    expect(isTestRelatedFile('src/environments/environment.spec.ts')).toBe(true);
+  });
+
+  it('does not match Angular-style per-environment config files in an Angular project', () => {
+    expect(isTestRelatedFile('src/environments/environment.test.ts', undefined, true)).toBe(false);
+    expect(isTestRelatedFile('src/environments/environment.spec.ts', undefined, true)).toBe(false);
+    expect(isTestRelatedFile('src\\environments\\environment.test.ts', undefined, true)).toBe(
+      false,
+    );
   });
 
   it('does not exclude a bare environment config filename with no environments folder', () => {
-    expect(isTestRelatedFile('environment.test.ts')).toBe(true);
+    expect(isTestRelatedFile('environment.test.ts', undefined, true)).toBe(true);
   });
 
-  it('still matches environment config files placed under __tests__ or __mocks__', () => {
-    expect(isTestRelatedFile('src/environments/__tests__/environment.test.ts')).toBe(true);
+  it('still matches test-directory files that resemble environment config', () => {
+    // Nested __tests__ breaks the `environments/environment.` adjacency...
+    expect(
+      isTestRelatedFile('src/environments/__tests__/environment.test.ts', undefined, true),
+    ).toBe(true);
+    // ...and an ancestor __tests__ matches the pattern but is kept by the guard.
+    expect(isTestRelatedFile('__tests__/environments/environment.test.ts', undefined, true)).toBe(
+      true,
+    );
   });
 });
