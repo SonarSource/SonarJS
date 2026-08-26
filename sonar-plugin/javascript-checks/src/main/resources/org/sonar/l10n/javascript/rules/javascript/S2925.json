@@ -27,9 +27,12 @@
   "ruleSpecification": "RSPEC-2925",
   "sqKey": "S2925",
   "scope": "Tests",
-  "defaultQualityProfiles": [
-    "Sonar way"
-  ],
+  "defaultQualityProfiles": {
+    "js": [],
+    "ts": [
+      "Sonar way"
+    ]
+  },
   "quickfix": "infeasible",
   "compatibleLanguages": [
     "js",
