@@ -111,7 +111,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
         with:
-          version: 2026.8.9
+          version: 2026.8.10
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -155,7 +155,7 @@ jobs:
       - &mise
         uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
         with:
-          version: 2026.8.9
+          version: 2026.8.10
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -395,7 +395,7 @@ jobs:
       - *checkout
       - uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
         with:
-          version: 2026.8.9
+          version: 2026.8.10
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -464,7 +464,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
         with:
-          version: 2026.8.9
+          version: 2026.8.10
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -528,7 +528,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
         with:
-          version: 2026.8.9
+          version: 2026.8.10
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -690,7 +690,7 @@ jobs:
       - &mise_java_matrix_node
         uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
         with:
-          version: 2026.8.9
+          version: 2026.8.10
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -762,7 +762,7 @@ jobs:
         name: Setup Java and Maven
         uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
         with:
-          version: 2026.8.9
+          version: 2026.8.10
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           mise_toml: |
             [tools]
@@ -853,7 +853,7 @@ jobs:
         name: Setup Maven
         uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
         with:
-          version: 2026.8.9
+          version: 2026.8.10
           cache_save: true
           mise_toml: |
             [tools]
