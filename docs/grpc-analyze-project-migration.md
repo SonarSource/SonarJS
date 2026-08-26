@@ -191,10 +191,13 @@ The old heartbeat ping is replaced by a long-lived `Lease` stream.
 ### Cancellation
 
 - Runtime analysis stays single-flight.
-- Java cancellation triggers `CancelAnalysis`, and the Node worker stops the active analysis.
-- Concurrent analyze-project requests are rejected with gRPC `RESOURCE_EXHAUSTED`.
-- A replacement request submitted while cancellation is in progress waits for the active worker
-  request to complete before it acquires the analysis slot.
+- Analyze-project requests are queued in arrival order while another analysis is active.
+- The pending queue is bounded because requests can retain project file contents in memory;
+  requests beyond its capacity are rejected with gRPC `RESOURCE_EXHAUSTED`.
+- Cancelling an analyze-project transport call removes that request from the queue, or asks the
+  Node worker to stop it when it is active. `CancelAnalysis` explicitly targets the active request.
+- If an active analysis does not finish within the cancellation grace period, the server shuts
+  down and rejects queued requests so that the Java owner can recover instead of waiting forever.
 
 ### Worker Decision
 

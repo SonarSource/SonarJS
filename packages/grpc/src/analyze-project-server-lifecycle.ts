@@ -31,23 +31,19 @@ import type {
   AnalyzeProjectWorkerInMessage,
   AnalyzeProjectWorkerOutMessage,
 } from './analyze-project-worker/messages.js';
-
-const WORKER_RESPONSE_TIMEOUT_MS = 15_000;
+import {
+  ANALYSIS_CANCELLATION_TIMEOUT_MS,
+  AnalysisRequestQueue,
+  MAX_PENDING_ANALYSIS_REQUESTS,
+} from './analyze-project-server-queue.js';
 
 type HandleRequestInCurrentThread = (
   request: AnalyzeProjectRuntimeRequest,
   incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
 ) => Promise<RequestResult<AnalyzeProjectResponse | void>>;
 
-type AnalysisCompletion = {
-  promise: Promise<void>;
-  resolve: () => void;
-};
-
 type AnalyzeProjectServerState = {
-  analysisCancellationRequested: boolean;
-  analysisCompletion: AnalysisCompletion | null;
-  analysisInProgress: boolean;
+  analysisQueue: AnalysisRequestQueue;
   leaseCall: grpc.ServerDuplexStream<LeaseRequest, LeaseResponse> | null;
   nextWorkerRequestId: number;
   shuttingDown: boolean;
@@ -130,11 +126,21 @@ export async function waitForWorkerCompletion(
   });
 }
 
-export function createServerState(): AnalyzeProjectServerState {
+export function createServerState({
+  cancellationTimeoutMs = ANALYSIS_CANCELLATION_TIMEOUT_MS,
+  maxPendingAnalysisRequests = MAX_PENDING_ANALYSIS_REQUESTS,
+  onCancellationTimeout = () => {},
+}: {
+  cancellationTimeoutMs?: number;
+  maxPendingAnalysisRequests?: number;
+  onCancellationTimeout?: () => void | Promise<void>;
+} = {}): AnalyzeProjectServerState {
   return {
-    analysisCancellationRequested: false,
-    analysisCompletion: null,
-    analysisInProgress: false,
+    analysisQueue: new AnalysisRequestQueue(
+      maxPendingAnalysisRequests,
+      cancellationTimeoutMs,
+      onCancellationTimeout,
+    ),
     leaseCall: null,
     nextWorkerRequestId: 0,
     shuttingDown: false,
@@ -164,10 +170,10 @@ function clearStartupShutdownTimeout(state: AnalyzeProjectServerState) {
 async function cancelAnalysisOnShutdown(
   handleRequestInCurrentThread: HandleRequestInCurrentThread,
   newWorkerRequestId: () => string,
-  state: AnalyzeProjectServerState,
+  hadActiveAnalysis: boolean,
   worker?: Worker,
 ) {
-  if (!state.analysisInProgress) {
+  if (!hadActiveAnalysis) {
     return;
   }
 
@@ -231,7 +237,7 @@ export function createLifecycle({
       requestId,
       () =>
         worker.postMessage({ type: 'cancel', requestId } satisfies AnalyzeProjectWorkerInMessage),
-      WORKER_RESPONSE_TIMEOUT_MS,
+      ANALYSIS_CANCELLATION_TIMEOUT_MS,
     );
     return completion.type === 'cancel-complete' && completion.result.type === 'success';
   };
@@ -258,7 +264,14 @@ export function createLifecycle({
     clearStartupShutdownTimeout(state);
     closeLeaseCall();
     unregisterGarbageCollectionObserver();
-    await cancelAnalysisOnShutdown(handleRequestInCurrentThread, newWorkerRequestId, state, worker);
+    const hadActiveAnalysis = state.analysisQueue.hasActive;
+    state.analysisQueue.close();
+    await cancelAnalysisOnShutdown(
+      handleRequestInCurrentThread,
+      newWorkerRequestId,
+      hadActiveAnalysis,
+      worker,
+    );
     await closeWorker(worker);
 
     server.forceShutdown();
