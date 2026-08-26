@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { basename } from 'node:path/posix';
-import type { FileStore } from '../store-type.js';
+import type { FileStore, FileStoreContext } from '../store-type.js';
 import type { DependencyManifestStore } from '../dependency-manifests.js';
 import {
   getProjectFileDiscoveryConfigKey,
@@ -42,7 +42,10 @@ import {
   logMatchedGeneratedSourceFiles,
   logGeneratedSourceObservability,
 } from './observability.js';
-import { shouldCaptureGeneratedSourceSnapshotPath } from './snapshot-files.js';
+import {
+  shouldCaptureGeneratedSourceSnapshotPath,
+  shouldPreloadGeneratedSourceSnapshotPath,
+} from './snapshot-files.js';
 
 type DependencyManifestLookup = Pick<DependencyManifestStore, 'getPackageJsons'>;
 
@@ -57,6 +60,7 @@ export class GeneratedSourceStore implements FileStore {
   private derivedFamilyByFile = new Map<NormalizedAbsolutePath, string>();
   private configPaths = new Set<NormalizedAbsolutePath>();
   private watchedConfigPaths = new Set<NormalizedAbsolutePath>();
+  private preloadCandidatePaths = new Set<NormalizedAbsolutePath>();
   private preloadedFiles = new Map<NormalizedAbsolutePath, File>();
   private sourceFiles = new Set<NormalizedAbsolutePath>();
   private walkedDirectories = new Set<NormalizedAbsolutePath>();
@@ -166,8 +170,12 @@ export class GeneratedSourceStore implements FileStore {
   }
 
   wantsFile(filename: NormalizedAbsolutePath, configuration: Configuration) {
-    if (shouldCaptureGeneratedSourceSnapshotPath(filename)) {
+    if (shouldPreloadGeneratedSourceSnapshotPath(filename)) {
       return 'content';
+    }
+
+    if (shouldCaptureGeneratedSourceSnapshotPath(filename)) {
+      return 'deferred-content';
     }
 
     return isJsTsFile(filename, configuration) ? 'path' : false;
@@ -178,6 +186,10 @@ export class GeneratedSourceStore implements FileStore {
     configuration: Configuration,
     file?: File,
   ): Promise<void> {
+    if (shouldCaptureGeneratedSourceSnapshotPath(filename)) {
+      this.preloadCandidatePaths.add(filename);
+    }
+
     if (isJsTsFile(filename, configuration)) {
       this.sourceFiles.add(filename);
     }
@@ -191,7 +203,7 @@ export class GeneratedSourceStore implements FileStore {
     this.walkedDirectories.add(dir);
   }
 
-  async postProcess(configuration: Configuration) {
+  async postProcess(configuration: Configuration, context: FileStoreContext) {
     if (!configuration.detectGeneratedCode) {
       this.clearCache();
       return;
@@ -207,11 +219,12 @@ export class GeneratedSourceStore implements FileStore {
       const packageJsons = this.dependencyManifestStore.getPackageJsons();
       const packageContexts = await collectGeneratedSourcePackageContexts(baseDir, packageJsons);
       this.addPackageJsonsToSnapshot(packageJsons);
-      const projectSnapshot = this.createProjectSnapshot();
       this.watchedConfigPaths = await collectGeneratedSourceDeclaredPreloadPaths(
         baseDir,
         packageContexts,
       );
+      await this.preloadDeclaredConfigFiles(context);
+      const projectSnapshot = this.createProjectSnapshot();
       const derived = await deriveGeneratedSources(baseDir, packageJsons, {
         packageContexts,
         projectSnapshot,
@@ -261,6 +274,7 @@ export class GeneratedSourceStore implements FileStore {
   }
 
   private clearSnapshotState() {
+    this.preloadCandidatePaths = new Set();
     this.preloadedFiles = new Map();
     this.sourceFiles = new Set();
     this.walkedDirectories = new Set();
@@ -269,6 +283,15 @@ export class GeneratedSourceStore implements FileStore {
   private addPackageJsonsToSnapshot(packageJsons: ReadonlyMap<NormalizedAbsolutePath, File>) {
     for (const file of packageJsons.values()) {
       this.preloadedFiles.set(file.filePath, file);
+    }
+  }
+
+  private async preloadDeclaredConfigFiles(context: FileStoreContext) {
+    for (const filePath of this.watchedConfigPaths) {
+      if (!this.preloadCandidatePaths.has(filePath) || this.preloadedFiles.has(filePath)) {
+        continue;
+      }
+      this.preloadedFiles.set(filePath, await context.getFile(filePath));
     }
   }
 

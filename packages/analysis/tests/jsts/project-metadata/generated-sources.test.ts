@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import fs from 'node:fs';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -43,7 +44,10 @@ import {
   collectGeneratedSourceTaskInvocations,
   getGeneratedSourceWatchedFilenames,
 } from '../../../src/file-stores/generated-sources/index.js';
-import { shouldCaptureGeneratedSourceSnapshotPath } from '../../../src/file-stores/generated-sources/snapshot-files.js';
+import {
+  shouldCaptureGeneratedSourceSnapshotPath,
+  shouldPreloadGeneratedSourceSnapshotPath,
+} from '../../../src/file-stores/generated-sources/snapshot-files.js';
 import {
   joinPaths,
   normalizeToAbsolutePath,
@@ -225,23 +229,61 @@ describe('generated sources project metadata', () => {
     );
   });
 
-  it('preloads detector inputs without snapshotting package.json or plain TSX source files', () => {
+  it('tracks config candidates while preloading only detector-specific inputs', () => {
     const baseDir = normalizeToAbsolutePath('/project');
+    const customConfigPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
+    const packageJsonPath = joinPaths(baseDir, 'package.json');
+    const openApiManifestPath = joinPaths(baseDir, 'src', '.openapi-generator', 'FILES');
+    const sourcePath = joinPaths(baseDir, 'src', 'App.tsx');
 
-    expect(
-      shouldCaptureGeneratedSourceSnapshotPath(joinPaths(baseDir, 'config', 'custom-codegen.ts')),
-    ).toBe(true);
-    expect(shouldCaptureGeneratedSourceSnapshotPath(joinPaths(baseDir, 'package.json'))).toBe(
-      false,
-    );
-    expect(
-      shouldCaptureGeneratedSourceSnapshotPath(
-        joinPaths(baseDir, 'src', '.openapi-generator', 'FILES'),
-      ),
-    ).toBe(true);
-    expect(shouldCaptureGeneratedSourceSnapshotPath(joinPaths(baseDir, 'src', 'App.tsx'))).toBe(
-      false,
-    );
+    expect(shouldCaptureGeneratedSourceSnapshotPath(customConfigPath)).toBe(true);
+    expect(shouldPreloadGeneratedSourceSnapshotPath(customConfigPath)).toBe(false);
+    expect(shouldCaptureGeneratedSourceSnapshotPath(packageJsonPath)).toBe(false);
+    expect(shouldPreloadGeneratedSourceSnapshotPath(packageJsonPath)).toBe(false);
+    expect(shouldCaptureGeneratedSourceSnapshotPath(openApiManifestPath)).toBe(true);
+    expect(shouldPreloadGeneratedSourceSnapshotPath(openApiManifestPath)).toBe(true);
+    expect(shouldCaptureGeneratedSourceSnapshotPath(sourcePath)).toBe(false);
+    expect(shouldPreloadGeneratedSourceSnapshotPath(sourcePath)).toBe(false);
+  });
+
+  it('does not read unrelated config candidates when scanner files are provided', async ({
+    mock,
+  }) => {
+    const baseDir = await createTempBaseDir();
+    const jsonPath = joinPaths(baseDir, 'benchmark-data.json');
+    const yamlPath = joinPaths(baseDir, 'test-data.yaml');
+    const htmlPath = joinPaths(baseDir, 'Documentation', 'swagger.html');
+
+    try {
+      await writeFixtureFile(jsonPath, '{}');
+      await writeFixtureFile(yamlPath, 'fixture: true\n');
+      await writeFixtureFile(htmlPath, '<html></html>');
+      const configuration = createConfiguration({ baseDir });
+      const { files: inputFiles } = await sanitizeRawInputFiles(
+        {
+          [htmlPath]: {
+            filePath: htmlPath,
+            fileType: 'MAIN',
+            fileContent: '<html></html>',
+          },
+        },
+        configuration,
+      );
+      const originalReadFile = fs.promises.readFile;
+      let unrelatedReadCount = 0;
+      mock.method(fs.promises, 'readFile', async (path, options) => {
+        if (path === jsonPath || path === yamlPath) {
+          unrelatedReadCount++;
+        }
+        return Reflect.apply(originalReadFile, fs.promises, [path, options]);
+      });
+
+      await initFileStores(configuration, inputFiles);
+
+      expect(unrelatedReadCount).toEqual(0);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
   });
 
   it('collects and normalizes package.json task invocations', async () => {
@@ -753,6 +795,53 @@ export default config;
       );
 
       expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('reads an explicit GraphQL config only once across file stores', async ({ mock }) => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        joinPaths(baseDir, 'package.json'),
+        JSON.stringify({
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            codegen: 'graphql-codegen --config ./config/custom-codegen.ts',
+          },
+        }),
+      );
+      await writeFixtureFile(
+        configPath,
+        `export default {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+      const originalReadFile = fs.promises.readFile;
+      let configReadCount = 0;
+      mock.method(fs.promises, 'readFile', async (path, options) => {
+        if (path === configPath) {
+          configReadCount++;
+        }
+        return Reflect.apply(originalReadFile, fs.promises, [path, options]);
+      });
+
+      await initFileStores(createConfiguration({ baseDir }));
+
+      expect(generatedSourceStore.getFamily(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(configReadCount).toEqual(1);
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
