@@ -175,6 +175,30 @@ describe('S2187', () => {
         },
         {
           code: `
+        /* a Deno test file using 'Deno.test' */
+        Deno.test('1 + 2 should give 3', async () => {
+            assertEquals(1 + 2, 3);
+        });`,
+          filename: 'foo.test.ts',
+        },
+        {
+          code: `
+        /* a Deno test file using 'Deno.test.only' */
+        Deno.test.only('1 + 2 should give 3', async () => {
+            assertEquals(1 + 2, 3);
+        });`,
+          filename: 'foo.test.ts',
+        },
+        {
+          code: `
+        /* a Deno test file using 'Deno.test.ignore' */
+        Deno.test.ignore('1 + 2 should give 3', async () => {
+            assertEquals(1 + 2, 3);
+        });`,
+          filename: 'foo.test.ts',
+        },
+        {
+          code: `
         const ruleTester = new NoTypeCheckingRuleTester();
         ruleTester.run('Sections of code should not be commented out', rule, {
           valid: [
