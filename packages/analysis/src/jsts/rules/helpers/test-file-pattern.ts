@@ -61,19 +61,24 @@ function isEnvironmentConfigFile(filePath: string): boolean {
  * by the caller so this predicate stays a pure function of the path; outside
  * Angular projects the same path may well be a real colocated test.
  *
+ * `isAngularProject` is a lazy provider: it is only invoked once the path is
+ * known to match the environment-config shape, so callers whose signal is
+ * expensive to compute (a dependency-manifest lookup) don't pay for it on the
+ * overwhelming majority of paths that can never trigger the carve-out.
+ *
  * @param filePath the file path to test.
  * @param extensions the allowed test file extensions.
- * @param isAngularProject whether the file belongs to an Angular project.
+ * @param isAngularProject lazily reports whether the file belongs to an Angular project.
  * @returns true when the path looks like a test file.
  */
 export function isTestFile(
   filePath: string,
   extensions?: string[],
-  isAngularProject = false,
+  isAngularProject: () => boolean = () => false,
 ): boolean {
   return (
     testFilePattern(extensions).test(filePath) &&
-    !(isAngularProject && isEnvironmentConfigFile(filePath))
+    !(isEnvironmentConfigFile(filePath) && isAngularProject())
   );
 }
 
@@ -83,20 +88,21 @@ export function isTestFile(
  * In Angular projects only, Angular-style per-environment config files (e.g.
  * `environments/environment.test.ts`) are not considered test-related, for the
  * same reason as {@link isTestFile}. The `isAngularProject` signal is passed in
- * by the caller so this predicate stays a pure function of the path.
+ * by the caller so this predicate stays a pure function of the path, and is a
+ * lazy provider only invoked once the path matches the environment-config shape.
  *
  * @param filePath the file path to test.
  * @param extensions the allowed test file extensions.
- * @param isAngularProject whether the file belongs to an Angular project.
+ * @param isAngularProject lazily reports whether the file belongs to an Angular project.
  * @returns true when the path looks test-related.
  */
 export function isTestRelatedFile(
   filePath: string,
   extensions?: string[],
-  isAngularProject = false,
+  isAngularProject: () => boolean = () => false,
 ): boolean {
   return (
     testRelatedFilePattern(extensions).test(filePath) &&
-    !(isAngularProject && isEnvironmentConfigFile(filePath))
+    !(isEnvironmentConfigFile(filePath) && isAngularProject())
   );
 }

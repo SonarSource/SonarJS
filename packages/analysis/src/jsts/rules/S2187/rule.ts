@@ -122,9 +122,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const { filename, settings } = context;
     if (
-      !isTestFile(
-        filename,
-        settings?.testFileExtensions as string[] | undefined,
+      !isTestFile(filename, settings?.testFileExtensions as string[] | undefined, () =>
         isAngularProject(context),
       )
     ) {
