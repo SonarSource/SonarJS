@@ -1,6 +1,6 @@
 {
-  "title": "\"<button>\" elements should have an explicit \"type\" attribute",
-  "type": "CODE_SMELL",
+  "title": "\"<button>\" elements should have a valid \"type\" attribute, explicitly set when associated with a \"<form>\"",
+  "type": "BUG",
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
