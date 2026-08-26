@@ -96,6 +96,19 @@ function ModalFooter({ isSaving, onSave }) {
           // with no JSX involved, can't be resolved to a form ancestor
           code: `React.createElement('form', {}, React.createElement('button', {}));`,
         },
+        {
+          // a button's `form` attribute referencing an id that doesn't match any
+          // form in the file isn't associated with one
+          code: `
+function Orphan() {
+  return (
+    <div>
+      <form id="other-form" />
+      <button form="missing-form">Search</button>
+    </div>
+  );
+}`,
+        },
       ],
       invalid: [
         {
@@ -192,6 +205,20 @@ function Pagination({ pages, onSelect }) {
 }`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
+        {
+          // HTML lets a button submit a form it isn't nested in via the `form`
+          // attribute, referencing the form's id
+          code: `
+function SearchForm({ onSearch }) {
+  return (
+    <div>
+      <form id="search-form" onSubmit={onSearch} />
+      <button form="search-form">Search</button>
+    </div>
+  );
+}`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
       ],
     });
   });
@@ -251,6 +278,17 @@ function Pagination({ pages, onSelect }) {
           // though it's evaluated by our own custom literal check rather than the
           // base rule's directive check
           code: `<template><button :type="''">Search</button></template>`,
+        },
+        {
+          // a button's `form` attribute referencing an id that doesn't match any
+          // form in the template isn't associated with one
+          code: `
+<template>
+  <div>
+    <form id="other-form" />
+    <button form="missing-form">Search</button>
+  </div>
+</template>`,
         },
       ],
       invalid: [
@@ -325,6 +363,29 @@ function Pagination({ pages, onSelect }) {
       </li>
     </ul>
   </form>
+</template>`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // HTML lets a button submit a form it isn't nested in via the `form`
+          // attribute, referencing the form's id
+          code: `
+<template>
+  <div>
+    <form id="search-form" />
+    <button form="search-form">Search</button>
+  </div>
+</template>`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // the association also resolves through a bound `:form` literal
+          code: `
+<template>
+  <div>
+    <form id="search-form" />
+    <button :form="'search-form'">Search</button>
+  </div>
 </template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },

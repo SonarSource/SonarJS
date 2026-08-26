@@ -25,7 +25,7 @@ import { rules as vueRules } from '../external/vue.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport, interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { mergeRules } from '../helpers/decorators/merger.js';
-import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { childrenOf, findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
 
 const reactBaseRule = reactRules['button-has-type'];
@@ -40,26 +40,160 @@ function invalidTypeMessage(value: string) {
 
 /**
  * A missing (or effectively missing, e.g. empty) type is only flagged for buttons
- * literally nested inside a `<form>`: that's the only case where it can actually cause
- * an unintended submission. An explicit-but-invalid type is always flagged, form or no
- * form, since that's a mistake regardless of context.
+ * associated with a `<form>`: that's the only case where it can actually cause an
+ * unintended submission. A button is associated with a form either by being literally
+ * nested inside one, or by referencing the form's id through its own `form` attribute
+ * (HTML allows a button to submit a form it isn't nested in that way). An
+ * explicit-but-invalid type is always flagged, form or no form, since that's a mistake
+ * regardless of context.
  *
  * This accepts false negatives for buttons rendered by a custom component that itself
- * sits inside a form, since that composition can't be resolved statically.
+ * is associated with a form, since that composition can't be resolved statically.
  */
-function isInsideReactForm(node: unknown): boolean {
+function getJsxAttributeStringValue(
+  attributes: TSESTree.JSXOpeningElement['attributes'],
+  name: string,
+): string | undefined {
+  const attribute = attributes.find(
+    (attr): attr is TSESTree.JSXAttribute =>
+      attr.type === 'JSXAttribute' && attr.name.name === name,
+  );
+  const value = attribute?.value;
+  if (value?.type === 'Literal' && typeof value.value === 'string') {
+    return value.value;
+  }
+  if (
+    value?.type === 'JSXExpressionContainer' &&
+    value.expression.type === 'Literal' &&
+    typeof value.expression.value === 'string'
+  ) {
+    return value.expression.value;
+  }
+  return undefined;
+}
+
+function isJsxElementNamed(node: TSESTree.Node, tagName: string): node is TSESTree.JSXElement {
   return (
-    findFirstMatchingAncestor(
-      node as TSESTree.Node,
-      ancestor =>
-        ancestor.type === 'JSXElement' &&
-        ancestor.openingElement.name.type === 'JSXIdentifier' &&
-        ancestor.openingElement.name.name === 'form',
-    ) !== undefined
+    node.type === 'JSXElement' &&
+    node.openingElement.name.type === 'JSXIdentifier' &&
+    node.openingElement.name.name === tagName
   );
 }
 
-function isInsideVueForm(node: unknown): boolean {
+/**
+ * Walks the whole file once looking for `<form id="...">` elements, so a button's own
+ * `form="..."` attribute can be resolved against every form in the file regardless of
+ * where each sits in the tree.
+ */
+function collectReactFormIds(context: Rule.RuleContext): Set<string> {
+  const ids = new Set<string>();
+  const visitorKeys = context.sourceCode.visitorKeys;
+  const stack: estree.Node[] = [context.sourceCode.ast];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current) {
+      break;
+    }
+    const node = current as unknown as TSESTree.Node;
+    if (isJsxElementNamed(node, 'form')) {
+      const id = getJsxAttributeStringValue(node.openingElement.attributes, 'id');
+      if (id !== undefined) {
+        ids.add(id);
+      }
+    }
+    stack.push(...childrenOf(current, visitorKeys));
+  }
+  return ids;
+}
+
+function isInsideReactForm(node: unknown, formIds: Set<string>): boolean {
+  const jsxNode = node as TSESTree.Node;
+  if (jsxNode?.type === 'JSXElement') {
+    const formId = getJsxAttributeStringValue(jsxNode.openingElement.attributes, 'form');
+    if (formId !== undefined && formIds.has(formId)) {
+      return true;
+    }
+  }
+  return (
+    findFirstMatchingAncestor(jsxNode, ancestor => isJsxElementNamed(ancestor, 'form')) !==
+    undefined
+  );
+}
+
+function getVueAttributeStringValue(element: AST.VElement, name: string): string | undefined {
+  const attributes = element.startTag.attributes;
+  const staticAttribute = attributes.find(
+    (attribute): attribute is AST.VAttribute => !attribute.directive && attribute.key.name === name,
+  );
+  if (staticAttribute) {
+    return staticAttribute.value?.value;
+  }
+  const boundAttribute = attributes.find(
+    (attribute): attribute is AST.VDirective =>
+      attribute.directive &&
+      attribute.key.name.name === 'bind' &&
+      attribute.key.argument?.type === 'VIdentifier' &&
+      attribute.key.argument.name === name,
+  );
+  const expression = boundAttribute?.value?.expression;
+  if (expression?.type === 'Literal' && typeof expression.value === 'string') {
+    return expression.value;
+  }
+  return undefined;
+}
+
+function getNearestVElement(node: AST.Node | undefined): AST.VElement | undefined {
+  let current: AST.Node | null | undefined = node;
+  while (current) {
+    if (current.type === 'VElement') {
+      return current;
+    }
+    current = current.parent;
+  }
+  return undefined;
+}
+
+/**
+ * Walks the whole template once looking for `<form id="...">` elements, so a button's
+ * own `form="..."` attribute (or bound `:form="'...'"`) can be resolved against every
+ * form in the template regardless of where each sits in the tree.
+ */
+function collectVueFormIds(context: Rule.RuleContext): Set<string> {
+  const ids = new Set<string>();
+  const templateBody = (context.sourceCode.ast as unknown as { templateBody?: AST.VElement })
+    .templateBody;
+  if (!templateBody) {
+    return ids;
+  }
+  const stack: AST.VElement[] = [templateBody];
+  while (stack.length > 0) {
+    const current = stack.pop();
+    if (!current) {
+      break;
+    }
+    if (current.rawName === 'form') {
+      const id = getVueAttributeStringValue(current, 'id');
+      if (id !== undefined) {
+        ids.add(id);
+      }
+    }
+    for (const child of current.children) {
+      if (child.type === 'VElement') {
+        stack.push(child);
+      }
+    }
+  }
+  return ids;
+}
+
+function isInsideVueForm(node: unknown, formIds: Set<string>): boolean {
+  const button = getNearestVElement(node as AST.Node | undefined);
+  if (button) {
+    const formId = getVueAttributeStringValue(button, 'form');
+    if (formId !== undefined && formIds.has(formId)) {
+      return true;
+    }
+  }
   let current = (node as AST.Node | undefined)?.parent;
   while (current) {
     if (current.type === 'VElement' && current.rawName === 'form') {
@@ -149,7 +283,7 @@ function evaluateVueTypeLiterals(expression: AST.ESLintExpression): string[] | n
   return null;
 }
 
-function checkVueTypeBinding(context: Rule.RuleContext, node: AST.VElement) {
+function checkVueTypeBinding(context: Rule.RuleContext, node: AST.VElement, formIds: Set<string>) {
   const attributes = node.startTag.attributes;
   const hasStaticTypeAttribute = attributes.some(
     attribute => !attribute.directive && attribute.key.name === 'type',
@@ -173,7 +307,7 @@ function checkVueTypeBinding(context: Rule.RuleContext, node: AST.VElement) {
     // An empty literal (e.g. `:type="''"`) is as good as missing, so it's form-scoped
     // like any other missing type rather than always flagged as an invalid value.
     if (value === '') {
-      if (isInsideVueForm(node)) {
+      if (isInsideVueForm(node, formIds)) {
         context.report({
           node: expression as unknown as estree.Node,
           message: MISSING_TYPE_MESSAGE,
@@ -190,9 +324,6 @@ function checkVueTypeBinding(context: Rule.RuleContext, node: AST.VElement) {
   }
 }
 
-const reactRule = interceptReportForReact(reactBaseRule, createOnReport(isInsideReactForm));
-const vueRule = interceptReport(vueBaseRule, createOnReport(isInsideVueForm));
-
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
@@ -201,6 +332,22 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
+    // Collecting every `<form id="...">` in the file requires a full-tree walk, so it's
+    // only done once, lazily, the first time a report actually needs to check it.
+    let reactFormIds: Set<string> | undefined;
+    const getReactFormIds = () => (reactFormIds ??= collectReactFormIds(context));
+    let vueFormIds: Set<string> | undefined;
+    const getVueFormIds = () => (vueFormIds ??= collectVueFormIds(context));
+
+    const reactRule = interceptReportForReact(
+      reactBaseRule,
+      createOnReport(node => isInsideReactForm(node, getReactFormIds())),
+    );
+    const vueRule = interceptReport(
+      vueBaseRule,
+      createOnReport(node => isInsideVueForm(node, getVueFormIds())),
+    );
+
     const listeners = mergeRules(reactRule.create(context), vueRule.create(context));
     const parserServices = context.sourceCode.parserServices;
     if (!parserServices?.defineTemplateBodyVisitor) {
@@ -209,7 +356,8 @@ export const rule: Rule.RuleModule = {
     return mergeRules(
       listeners,
       parserServices.defineTemplateBodyVisitor({
-        "VElement[rawName='button']": (node: AST.VElement) => checkVueTypeBinding(context, node),
+        "VElement[rawName='button']": (node: AST.VElement) =>
+          checkVueTypeBinding(context, node, getVueFormIds()),
       }),
     );
   },
