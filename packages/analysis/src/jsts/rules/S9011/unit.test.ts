@@ -80,17 +80,99 @@ function ModalFooter({ isSaving, onSave }) {
   );
 }`,
         },
-      ],
-      invalid: [
         {
+          // a missing type is only scoped to forms: no report outside one
           code: `const b = <button>Search</button>;`,
-          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // an empty type is treated like a missing one, so it's scoped too
+          code: `const b = <button type="">Search</button>;`,
+        },
+        {
+          // React removes a null type entirely, so it's just as absent as ""
+          code: `const b = <button type={null}>Search</button>;`,
         },
         {
           code: `React.createElement('button', {});`,
+        },
+        {
+          // known limitation: a button/form pair built entirely with createElement,
+          // with no JSX involved, can't be resolved to a form ancestor
+          code: `React.createElement('form', {}, React.createElement('button', {}));`,
+        },
+        {
+          // a button's `form` attribute referencing an id that doesn't match any
+          // form in the file isn't associated with one
+          code: `
+function Orphan() {
+  return (
+    <div>
+      <form id="other-form" />
+      <button form="missing-form">Search</button>
+    </div>
+  );
+}`,
+        },
+        {
+          // an explicit `form` attribute always determines the owner form, per the
+          // HTML form-association algorithm - even when literally nested in another
+          // form, an unresolved `form` reference means no form owner at all
+          code: `
+function Detached() {
+  return (
+    <form id="real-form">
+      <button form="typo-id">Search</button>
+    </form>
+  );
+}`,
+        },
+        {
+          // an empty id/form value is never a usable reference - HTML ids can't be
+          // empty - so it must not be treated as a match against each other
+          code: `
+function EmptyIds() {
+  return (
+    <div>
+      <form id="" />
+      <button form="">Search</button>
+    </div>
+  );
+}`,
+        },
+      ],
+      invalid: [
+        {
+          code: `const b = <form><button>Search</button></form>;`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
+          // a createElement button still resolves to its enclosing JSX form
+          code: `
+function SearchForm() {
+  return (
+    <form>
+      {React.createElement('button', {})}
+    </form>
+  );
+}`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // a dynamic (non-literal) `form` value can't be resolved statically, so it
+          // must fall back to the ancestor check instead of being treated as "no
+          // owner" - the button here is still nested in a form
+          code: `
+function SearchForm({ formId }) {
+  return (
+    <form>
+      <button form={formId}>Search</button>
+    </form>
+  );
+}`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // an explicit but invalid type is always flagged, form or no form
           code: `const b = <button type="action">Save</button>;`,
           errors: [
             {
@@ -102,12 +184,19 @@ function ModalFooter({ isSaving, onSave }) {
         {
           // React's own rule reports type="" as an "invalid value" rather than a
           // missing one; align the message with the missing-type case instead of
-          // the confusing "replace this invalid value """ wording
-          code: `const b = <button type="">Search</button>;`,
+          // the confusing "replace this invalid value """ wording - and scope it
+          // like a missing type since it's just as absent
+          code: `const b = <form><button type="">Search</button></form>;`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
-          // ternary with one invalid literal branch is still statically analyzable
+          // same as type="" above, but with a null value instead of an empty string
+          code: `const b = <form><button type={null}>Search</button></form>;`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // ternary with one invalid literal branch is still statically analyzable,
+          // and - like any explicit invalid value - flagged regardless of form scope
           code: `const b = <button type={isSubmit ? 'submit' : 'action'}>Go</button>;`,
           errors: [
             {
@@ -121,21 +210,27 @@ function ModalFooter({ isSaving, onSave }) {
           code: `
 function ToolbarButton({ onClick, icon, title }) {
   return (
-    <button className="toolbar-button" onClick={onClick} title={title}>
-      <Icon path={icon} size={0.72} />
-    </button>
+    <form>
+      <button className="toolbar-button" onClick={onClick} title={title}>
+        <Icon path={icon} size={0.72} />
+      </button>
+    </form>
   );
 }`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
           // real-world pattern: two conditionally-rendered button variants (a play/pause
-          // toggle), neither one typed
+          // toggle) inside a form, neither one typed
           code: `
 function PlayPauseButton({ playing, canPlay, canInteract, onPlay, onPause }) {
-  return playing
-    ? <button onClick={onPause} disabled={!canInteract}><Icon name="pause" /></button>
-    : <button onClick={onPlay} disabled={!canPlay}><Icon name="play" /></button>;
+  return (
+    <form>
+      {playing
+        ? <button onClick={onPause} disabled={!canInteract}><Icon name="pause" /></button>
+        : <button onClick={onPlay} disabled={!canPlay}><Icon name="play" /></button>}
+    </form>
+  );
 }`,
           errors: [
             { message: 'Add an explicit "type" attribute to this button.' },
@@ -143,19 +238,65 @@ function PlayPauseButton({ playing, canPlay, canInteract, onPlay, onPause }) {
           ],
         },
         {
-          // real-world pattern: list of buttons rendered from an array (e.g. pagination),
-          // none of them typed
+          // real-world pattern: list of buttons rendered from an array (e.g. pagination)
+          // inside a form, none of them typed
           code: `
 function Pagination({ pages, onSelect }) {
   return (
-    <div className="pagination">
+    <form className="pagination">
       {pages.map(page => (
         <button key={page} className="page-link" onClick={() => onSelect(page)}>
           {page}
         </button>
       ))}
+    </form>
+  );
+}`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // HTML lets a button submit a form it isn't nested in via the `form`
+          // attribute, referencing the form's id
+          code: `
+function SearchForm({ onSearch }) {
+  return (
+    <div>
+      <form id="search-form" onSubmit={onSearch} />
+      <button form="search-form">Search</button>
     </div>
   );
+}`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // a non-string type value (e.g. a numeric literal) must not crash the rule
+          code: `const b = <button type={42}>Search</button>;`,
+          errors: [
+            {
+              message:
+                'Replace this invalid "type" value "42" with one of "button", "submit", or "reset".',
+            },
+          ],
+        },
+        {
+          // a non-primitive type value (a regex literal) must render as its own
+          // readable form, not the default "[object Object]" object stringification
+          code: `const b = <button type={/foo/}>Search</button>;`,
+          errors: [
+            {
+              message:
+                'Replace this invalid "type" value "/foo/" with one of "button", "submit", or "reset".',
+            },
+          ],
+        },
+        {
+          // known limitation: source-file co-occurrence isn't DOM reachability - this
+          // form and button are mutually exclusive ternary branches and can never
+          // actually render together, so the button has no real form owner, but the
+          // id match alone is enough for us to (falsely) treat them as associated
+          code: `
+function Toggle({ showForm }) {
+  return showForm ? <form id="search" /> : <button form="search">Search</button>;
 }`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
@@ -205,21 +346,80 @@ function Pagination({ pages, onSelect }) {
           // directive check never inspects the bound expression's contents
           code: `<template><button :type="isSubmit ? 'submit' : 'button'" @click="handleClick">{{ label }}</button></template>`,
         },
+        {
+          // a missing type is only scoped to forms: no report outside one
+          code: `<template><button>Search</button></template>`,
+        },
+        {
+          // an empty type is treated like a missing one, so it's scoped too
+          code: `<template><button type="">Search</button></template>`,
+        },
+        {
+          // an empty bound literal is likewise treated like a missing type, even
+          // though it's evaluated by our own custom literal check rather than the
+          // base rule's directive check
+          code: `<template><button :type="''">Search</button></template>`,
+        },
+        {
+          // a button's `form` attribute referencing an id that doesn't match any
+          // form in the template isn't associated with one
+          code: `
+<template>
+  <div>
+    <form id="other-form" />
+    <button form="missing-form">Search</button>
+  </div>
+</template>`,
+        },
+        {
+          // an explicit `form` attribute always determines the owner form, per the
+          // HTML form-association algorithm - even when literally nested in another
+          // form, an unresolved `form` reference means no form owner at all
+          code: `
+<template>
+  <form id="real-form">
+    <button form="typo-id">Search</button>
+  </form>
+</template>`,
+        },
+        {
+          // an empty id/form value is never a usable reference - HTML ids can't be
+          // empty - so it must not be treated as a match against each other
+          code: `
+<template>
+  <div>
+    <form id="" />
+    <button form="">Search</button>
+  </div>
+</template>`,
+        },
       ],
       invalid: [
         {
-          code: `<template><button>Search</button></template>`,
+          code: `<template><form><button>Search</button></form></template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
-          code: `<template><button type="">Search</button></template>`,
+          code: `<template><form><button type="">Search</button></form></template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
-          code: `<template><button :type="">Search</button></template>`,
+          code: `<template><form><button :type="''">Search</button></form></template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
+          code: `<template><form><button :type="">Search</button></form></template>`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // a dynamic (non-literal) `:form` value can't be resolved statically, so it
+          // must fall back to the ancestor check instead of being treated as "no
+          // owner" - the button here is still nested in a form
+          code: `<template><form><button :form="formId">Search</button></form></template>`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // an explicit but invalid type is always flagged, form or no form
           code: `<template><button type="action">Save</button></template>`,
           errors: [
             {
@@ -230,7 +430,8 @@ function Pagination({ pages, onSelect }) {
         },
         {
           // bound type is a string literal: eslint-plugin-vue's own check never
-          // inspects it, so we evaluate it ourselves
+          // inspects it, so we evaluate it ourselves - and flag it regardless of
+          // form scope, like any other explicit invalid value
           code: `<template><button :type="'action'">Save</button></template>`,
           errors: [
             {
@@ -253,21 +454,60 @@ function Pagination({ pages, onSelect }) {
           // real-world pattern: icon-only button component using a slot, no type
           code: `
 <template>
-  <button :aria-label="title" role="button" :disabled="disabled" class="icon-button">
-    <slot />
-  </button>
+  <form>
+    <button :aria-label="title" role="button" :disabled="disabled" class="icon-button">
+      <slot />
+    </button>
+  </form>
 </template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
         {
-          // real-world pattern: v-for rendered action buttons, none of them typed
+          // real-world pattern: v-for rendered action buttons inside a form, none typed
           code: `
 <template>
-  <ul class="filters">
-    <li v-for="tag in tags" :key="tag.id">
-      <button @click="toggleTag(tag)">{{ tag.name }}</button>
-    </li>
-  </ul>
+  <form>
+    <ul class="filters">
+      <li v-for="tag in tags" :key="tag.id">
+        <button @click="toggleTag(tag)">{{ tag.name }}</button>
+      </li>
+    </ul>
+  </form>
+</template>`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // HTML lets a button submit a form it isn't nested in via the `form`
+          // attribute, referencing the form's id
+          code: `
+<template>
+  <div>
+    <form id="search-form" />
+    <button form="search-form">Search</button>
+  </div>
+</template>`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // the association also resolves through a bound `:form` literal
+          code: `
+<template>
+  <div>
+    <form id="search-form" />
+    <button :form="'search-form'">Search</button>
+  </div>
+</template>`,
+          errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
+        },
+        {
+          // known limitation: source-file co-occurrence isn't DOM reachability - this
+          // form and button are mutually exclusive v-if/v-else siblings and can never
+          // actually render together, so the button has no real form owner, but the
+          // id match alone is enough for us to (falsely) treat them as associated
+          code: `
+<template>
+  <form v-if="showForm" id="search" />
+  <button v-else form="search">Search</button>
 </template>`,
           errors: [{ message: 'Add an explicit "type" attribute to this button.' }],
         },
