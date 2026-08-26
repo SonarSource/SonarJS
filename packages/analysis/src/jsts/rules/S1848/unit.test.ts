@@ -242,6 +242,37 @@ const context = canvas.getContext('2d');
 new Chart(context);`,
           },
           {
+            // DOM attachment: imported jQuery selector
+            code: `import $ from 'jquery';
+new Widget($('#container'));`,
+          },
+          {
+            // DOM attachment: CommonJS jQuery selector
+            code: `const jQuery = require('jquery');
+new Widget(jQuery('#container'));`,
+          },
+          {
+            // DOM attachment: document alias in browser wrappers
+            code: `const document = window.document;
+new Widget(document.querySelector('#container'));`,
+          },
+          {
+            // DOM attachment: optional chained DOM-derived context
+            code: `new Chart(document.querySelector('#chart')?.getContext('2d'));`,
+          },
+          {
+            // DOM attachment: non-null asserted DOM selection variable
+            code: `const canvas = document.querySelector('#chart')!;
+const context = canvas.getContext('2d');
+new Chart(context);`,
+          },
+          {
+            // DOM attachment: reassignment after the constructor does not affect its argument
+            code: `let canvas = document.querySelector('#chart');
+new Chart(canvas);
+canvas = null;`,
+          },
+          {
             // DOM attachment: variable with TypeScript type assertion
             code: `const el = document.getElementById('app') as HTMLElement;
 new AppController(el);`,

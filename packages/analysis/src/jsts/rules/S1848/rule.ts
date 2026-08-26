@@ -21,7 +21,12 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
-import { getVariableFromName, getVariableFromScope, isIdentifier } from '../helpers/ast.js';
+import {
+  getVariableFromName,
+  getVariableFromScope,
+  isIdentifier,
+  isRequireModule,
+} from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 /**
@@ -343,6 +348,7 @@ function containsDomSelection(
   scope: Scope.Scope,
   visitedVariables = new Set<Scope.Variable>(),
 ): boolean {
+  node = unwrapTypeAssertion(node);
   if (node.type === 'CallExpression') {
     return (
       isDomSelectionCall(node, scope) ||
@@ -396,7 +402,16 @@ function isVariableFromDomSelection(
   }
   visitedVariables.add(variable);
 
-  const writeReferences = variable.references.filter(reference => reference.isWrite());
+  const writeReferences = variable.references.filter(reference => {
+    const writeEnd = reference.identifier.range?.[1];
+    const useStart = node.range?.[0];
+    return (
+      reference.isWrite() &&
+      writeEnd !== undefined &&
+      useStart !== undefined &&
+      writeEnd <= useStart
+    );
+  });
   const definition = variable.defs.find(def => def.type === 'Variable' && def.node.init);
   if (
     writeReferences.length !== 1 ||
@@ -413,12 +428,17 @@ function isVariableFromDomSelection(
 
 /**
  * Unwraps TypeScript type assertions to get the underlying expression.
- * Handles: x as Type, <Type>x
+ * Handles: x as Type, <Type>x, x!, and optional chains.
  */
 function unwrapTypeAssertion(node: estree.Node): estree.Node {
   // TypeScript AST types TSAsExpression and TSTypeAssertion are not in estree
   const nodeType = node.type as string;
-  if (nodeType === 'TSAsExpression' || nodeType === 'TSTypeAssertion') {
+  if (
+    nodeType === 'TSAsExpression' ||
+    nodeType === 'TSTypeAssertion' ||
+    nodeType === 'TSNonNullExpression' ||
+    nodeType === 'ChainExpression'
+  ) {
     const expr = (node as unknown as { expression: estree.Node }).expression;
     return expr ? unwrapTypeAssertion(expr) : node;
   }
@@ -435,7 +455,7 @@ function isDomSelectionCall(node: estree.CallExpression, scope: Scope.Scope): bo
 
   // Check for $() or jQuery()
   if (isIdentifier(callee, ...JQUERY_IDENTIFIERS)) {
-    return !getVariableFromScope(scope, callee.name)?.defs.length;
+    return isTrustedJQueryBinding(scope, callee.name);
   }
 
   // Check for *.querySelector, *.getElementById, etc. on any object
@@ -446,7 +466,7 @@ function isDomSelectionCall(node: estree.CallExpression, scope: Scope.Scope): bo
   ) {
     if (
       isIdentifier(callee.object, 'document') &&
-      getVariableFromScope(scope, callee.object.name)?.defs.length
+      !isTrustedDocumentBinding(scope)
     ) {
       return false;
     }
@@ -463,4 +483,39 @@ function isDomSelectionCall(node: estree.CallExpression, scope: Scope.Scope): bo
   }
 
   return false;
+}
+
+function isTrustedJQueryBinding(scope: Scope.Scope, name: string): boolean {
+  const variable = getVariableFromScope(scope, name);
+  if (!variable?.defs.length) {
+    return true;
+  }
+
+  return variable.defs.some(def => {
+    if (def.type === 'ImportBinding') {
+      return def.parent.type === 'ImportDeclaration' && def.parent.source.value === 'jquery';
+    }
+    return (
+      def.type === 'Variable' &&
+      def.node.init?.type === 'CallExpression' &&
+      isRequireModule(def.node.init, 'jquery')
+    );
+  });
+}
+
+function isTrustedDocumentBinding(scope: Scope.Scope): boolean {
+  const variable = getVariableFromScope(scope, 'document');
+  if (!variable?.defs.length) {
+    return true;
+  }
+
+  return variable.defs.some(def => {
+    const init = def.type === 'Variable' ? unwrapTypeAssertion(def.node.init ?? def.node) : undefined;
+    return (
+      init?.type === 'MemberExpression' &&
+      isIdentifier(init.object, 'window') &&
+      isIdentifier(init.property, 'document') &&
+      !getVariableFromScope(scope, 'window')?.defs.length
+    );
+  });
 }
