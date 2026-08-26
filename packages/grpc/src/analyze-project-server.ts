@@ -118,6 +118,9 @@ function createAnalyzeProjectStreamHandler({
         cancelSubmission(submission);
       }
     });
+    if (cancelled) {
+      return;
+    }
 
     const writeResponse = (response: AnalyzeProjectStreamResponse) => {
       if (cancelled) {
@@ -237,6 +240,9 @@ function createAnalyzeProjectUnaryHandler({
         cancelSubmission(submission);
       }
     });
+    if (cancelled) {
+      return;
+    }
 
     const admission = state.analysisQueue.enqueue(
       async () => {
@@ -375,6 +381,7 @@ function createAnalyzeProjectImplementation(
 
 export const analyzeProjectServerInternals = {
   createAnalyzeProjectStreamHandler,
+  createAnalyzeProjectUnaryHandler,
   createLifecycle,
   waitForWorkerCompletion,
 };
@@ -397,9 +404,9 @@ export async function startAnalyzeProjectServer(
     resolveClosed = resolve;
   });
   const server = new grpc.Server(GRPC_SERVER_OPTIONS);
-  let handleCancellationTimeout = () => {};
+  let handleCancellationFailure = () => {};
   const state = createServerState({
-    onCancellationTimeout: () => handleCancellationTimeout(),
+    onCancellationFailure: () => handleCancellationFailure(),
   });
   const handleRequestInCurrentThread = createHandleRequestInCurrentThread(workerData);
   const newWorkerRequestId = () => getNextWorkerRequestId(state);
@@ -413,8 +420,8 @@ export async function startAnalyzeProjectServer(
     unregisterGarbageCollectionObserver,
     worker,
   });
-  handleCancellationTimeout = () => {
-    void lifecycle.shutdown('analysis cancellation timeout');
+  handleCancellationFailure = () => {
+    void lifecycle.shutdown('analysis cancellation failed');
   };
 
   attachWorkerLifecycleHandlers(worker, lifecycle, state);

@@ -158,10 +158,10 @@ describe('analyze-project request queue', () => {
   });
 
   it('should report when a cancelled analysis does not finish', async () => {
-    const cancellationTimeout = createDeferred<void>();
+    const cancellationGraceExceeded = createDeferred<void>();
     const activeRelease = createDeferred<void>();
     let cancellationRequests = 0;
-    const queue = new AnalysisRequestQueue(1, 5, () => cancellationTimeout.resolve());
+    const queue = new AnalysisRequestQueue(1, 5, () => cancellationGraceExceeded.resolve());
     const active = acceptedSubmission(
       queue.enqueue(
         () => activeRelease.promise,
@@ -177,14 +177,36 @@ describe('analyze-project request queue', () => {
     expect(firstCancellation.active).toBe(true);
     expect(secondCancellation.active).toBe(true);
     await Promise.race([
-      cancellationTimeout.promise,
+      cancellationGraceExceeded.promise,
       delay(1_000).then(() => {
-        throw new Error('Timed out waiting for cancellation timeout');
+        throw new Error('Timed out waiting for cancellation grace period');
       }),
     ]);
     activeRelease.resolve();
     await active.result;
 
     expect(cancellationRequests).toBe(1);
+  });
+
+  it('should report when cancellation is not acknowledged', async () => {
+    const cancellationFailure = createDeferred<void>();
+    const activeRelease = createDeferred<void>();
+    const queue = new AnalysisRequestQueue(1, 1_000, () => cancellationFailure.resolve());
+    const active = acceptedSubmission(
+      queue.enqueue(
+        () => activeRelease.promise,
+        async () => false,
+      ),
+    );
+
+    active.cancel();
+    await Promise.race([
+      cancellationFailure.promise,
+      delay(100).then(() => {
+        throw new Error('Timed out waiting for cancellation failure');
+      }),
+    ]);
+    activeRelease.resolve();
+    await active.result;
   });
 });

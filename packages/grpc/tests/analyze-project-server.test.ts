@@ -420,6 +420,7 @@ class FakeWorker extends EventEmitter {
 }
 
 class FakeAnalyzeProjectStreamCall extends EventEmitter {
+  public cancelled = false;
   public ended = false;
   public error: grpc.ServiceError | undefined;
   public readonly responses: AnalyzeProjectStreamResponse[] = [];
@@ -444,26 +445,35 @@ class FakeAnalyzeProjectStreamCall extends EventEmitter {
   }
 }
 
+class FakeAnalyzeProjectUnaryCall extends EventEmitter {
+  constructor(
+    public readonly request: AnalyzeProjectRequest,
+    public cancelled = false,
+  ) {
+    super();
+  }
+}
+
 function createUnitServerState({
   activeAnalysis = false,
-  cancellationTimeoutMs,
+  cancellationGraceMs,
   leaseCall = null,
   maxPendingAnalysisRequests,
-  onCancellationTimeout,
+  onCancellationFailure,
   startupShutdownTimeout = null,
 }: {
   activeAnalysis?: boolean;
-  cancellationTimeoutMs?: number;
+  cancellationGraceMs?: number;
   leaseCall?: { end: () => void } | null;
   maxPendingAnalysisRequests?: number;
-  onCancellationTimeout?: () => void | Promise<void>;
+  onCancellationFailure?: () => void | Promise<void>;
   startupShutdownTimeout?: NodeJS.Timeout | null;
 } = {}) {
   const state = {
     ...createServerState({
-      cancellationTimeoutMs,
+      cancellationGraceMs,
       maxPendingAnalysisRequests,
-      onCancellationTimeout,
+      onCancellationFailure,
     }),
     leaseCall: leaseCall as unknown as grpc.ServerDuplexStream<LeaseRequest, LeaseResponse> | null,
     startupShutdownTimeout,
@@ -765,6 +775,57 @@ describe('analyze-project gRPC server', () => {
         });
       });
     }
+  });
+
+  it('should ignore analyze-project calls cancelled before handling', async t => {
+    const workerMessages: AnalyzeProjectWorkerInMessage[] = [];
+    const worker = new FakeWorker(message => workerMessages.push(message));
+    const state = createUnitServerState();
+    const dependencies = {
+      handleRequestInCurrentThread: async () => {
+        throw new Error('Unexpected in-process analyze-project request');
+      },
+      lifecycle: {
+        clearStartupShutdownTimeout: () => {},
+        requestCancel: async () => true,
+        scheduleStartupShutdownTimeout: () => {},
+        shutdown: async () => {},
+      },
+      newWorkerRequestId: () => '1',
+      state,
+      worker: worker as unknown as Worker,
+    };
+
+    await t.test('stream', async () => {
+      const call = new FakeAnalyzeProjectStreamCall(createAnalyzeProjectRequest());
+      call.cancelled = true;
+
+      await analyzeProjectServerInternals.createAnalyzeProjectStreamHandler(dependencies)(
+        call as unknown as grpc.ServerWritableStream<
+          AnalyzeProjectRequest,
+          AnalyzeProjectStreamResponse
+        >,
+      );
+
+      expect(call.ended).toBe(false);
+    });
+
+    await t.test('unary', async () => {
+      const call = new FakeAnalyzeProjectUnaryCall(createAnalyzeProjectRequest(), true);
+      let callbackCalled = false;
+
+      await analyzeProjectServerInternals.createAnalyzeProjectUnaryHandler(dependencies)(
+        call as unknown as grpc.ServerUnaryCall<AnalyzeProjectRequest, AnalyzeProjectUnaryResponse>,
+        () => {
+          callbackCalled = true;
+        },
+      );
+
+      expect(callbackCalled).toBe(false);
+    });
+
+    expect(workerMessages).toEqual([]);
+    expect(state.analysisQueue.hasActive).toBe(false);
   });
 
   it('should queue concurrent stream and unary requests in arrival order', async () => {

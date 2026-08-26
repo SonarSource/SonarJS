@@ -196,8 +196,9 @@ The old heartbeat ping is replaced by a long-lived `Lease` stream.
   requests beyond its capacity are rejected with gRPC `RESOURCE_EXHAUSTED`.
 - Cancelling an analyze-project transport call removes that request from the queue, or asks the
   Node worker to stop it when it is active. `CancelAnalysis` explicitly targets the active request.
-- If an active analysis does not finish within the cancellation grace period, the server shuts
-  down and rejects queued requests so that the Java owner can recover instead of waiting forever.
+- If cancellation is not acknowledged, or the active analysis does not finish within the two-minute
+  cancellation grace period, the server shuts down and rejects queued requests so that the Java
+  owner can recover instead of waiting forever.
 
 ### Worker Decision
 

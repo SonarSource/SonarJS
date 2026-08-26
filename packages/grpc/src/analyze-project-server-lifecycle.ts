@@ -32,10 +32,12 @@ import type {
   AnalyzeProjectWorkerOutMessage,
 } from './analyze-project-worker/messages.js';
 import {
-  ANALYSIS_CANCELLATION_TIMEOUT_MS,
+  ANALYSIS_CANCELLATION_GRACE_MS,
   AnalysisRequestQueue,
   MAX_PENDING_ANALYSIS_REQUESTS,
 } from './analyze-project-server-queue.js';
+
+const WORKER_RESPONSE_TIMEOUT_MS = 15_000;
 
 type HandleRequestInCurrentThread = (
   request: AnalyzeProjectRuntimeRequest,
@@ -127,19 +129,19 @@ export async function waitForWorkerCompletion(
 }
 
 export function createServerState({
-  cancellationTimeoutMs = ANALYSIS_CANCELLATION_TIMEOUT_MS,
+  cancellationGraceMs = ANALYSIS_CANCELLATION_GRACE_MS,
   maxPendingAnalysisRequests = MAX_PENDING_ANALYSIS_REQUESTS,
-  onCancellationTimeout = () => {},
+  onCancellationFailure = () => {},
 }: {
-  cancellationTimeoutMs?: number;
+  cancellationGraceMs?: number;
   maxPendingAnalysisRequests?: number;
-  onCancellationTimeout?: () => void | Promise<void>;
+  onCancellationFailure?: () => void | Promise<void>;
 } = {}): AnalyzeProjectServerState {
   return {
     analysisQueue: new AnalysisRequestQueue(
       maxPendingAnalysisRequests,
-      cancellationTimeoutMs,
-      onCancellationTimeout,
+      cancellationGraceMs,
+      onCancellationFailure,
     ),
     leaseCall: null,
     nextWorkerRequestId: 0,
@@ -237,7 +239,7 @@ export function createLifecycle({
       requestId,
       () =>
         worker.postMessage({ type: 'cancel', requestId } satisfies AnalyzeProjectWorkerInMessage),
-      ANALYSIS_CANCELLATION_TIMEOUT_MS,
+      WORKER_RESPONSE_TIMEOUT_MS,
     );
     return completion.type === 'cancel-complete' && completion.result.type === 'success';
   };
