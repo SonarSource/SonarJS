@@ -55,7 +55,7 @@ import {
 } from './analyze-project-server-lifecycle.js';
 import {
   AnalysisQueueClosedError,
-  AnalysisRequestCancelledError,
+  AnalysisTransportCancelledError,
   type AnalysisQueueSubmission,
 } from './analyze-project-server-queue.js';
 type UnaryCompleteMessage = Extract<AnalyzeProjectWorkerOutMessage, { type: 'unary-complete' }>;
@@ -70,7 +70,7 @@ function toAnalysisServiceError(error: unknown): grpc.ServiceError {
   if (error instanceof AnalysisQueueClosedError) {
     return toGrpcError(error.message, grpc.status.UNAVAILABLE);
   }
-  if (error instanceof AnalysisRequestCancelledError) {
+  if (error instanceof AnalysisTransportCancelledError) {
     return toGrpcError(error.message, grpc.status.CANCELLED);
   }
   if (
@@ -90,11 +90,11 @@ function queueAdmissionError(reason: 'closed' | 'full') {
     : toGrpcError('Analyze-project request queue is closed', grpc.status.UNAVAILABLE);
 }
 
-function cancelSubmission<T>(submission: AnalysisQueueSubmission<T>) {
-  const cancellation = submission.cancel();
+function cancelSubmissionForTransportCall<T>(submission: AnalysisQueueSubmission<T>) {
+  const cancellation = submission.cancelTransportCall();
   if (cancellation.active) {
     void cancellation.result.catch(error => {
-      debug(`Failed to cancel analyze-project request: ${error}`);
+      debug(`Failed to propagate analyze-project transport cancellation: ${error}`);
     });
   }
 }
@@ -109,21 +109,21 @@ function createAnalyzeProjectStreamHandler({
   return async (
     call: grpc.ServerWritableStream<AnalyzeProjectRequest, AnalyzeProjectStreamResponse>,
   ) => {
-    let cancelled = Boolean(call.cancelled);
+    let transportCancelled = Boolean(call.cancelled);
     let submission: AnalysisQueueSubmission<void> | undefined;
 
     call.on('cancelled', () => {
-      cancelled = true;
+      transportCancelled = true;
       if (submission) {
-        cancelSubmission(submission);
+        cancelSubmissionForTransportCall(submission);
       }
     });
-    if (cancelled) {
+    if (transportCancelled) {
       return;
     }
 
     const writeResponse = (response: AnalyzeProjectStreamResponse) => {
-      if (cancelled) {
+      if (transportCancelled) {
         return;
       }
       try {
@@ -134,7 +134,7 @@ function createAnalyzeProjectStreamHandler({
     };
 
     const failResponse = (error: grpc.ServiceError) => {
-      if (cancelled) {
+      if (transportCancelled) {
         return;
       }
       try {
@@ -145,7 +145,7 @@ function createAnalyzeProjectStreamHandler({
     };
 
     const endResponse = () => {
-      if (cancelled) {
+      if (transportCancelled) {
         return;
       }
       try {
@@ -199,21 +199,21 @@ function createAnalyzeProjectStreamHandler({
       () => lifecycle.requestCancel(),
     );
     if (!admission.accepted) {
-      if (!cancelled) {
+      if (!transportCancelled) {
         failResponse(queueAdmissionError(admission.reason));
       }
       return;
     }
 
     submission = admission.submission;
-    if (cancelled) {
-      cancelSubmission(submission);
+    if (transportCancelled) {
+      cancelSubmissionForTransportCall(submission);
     }
     try {
       await submission.result;
       endResponse();
     } catch (error) {
-      if (!cancelled) {
+      if (!transportCancelled) {
         failResponse(toAnalysisServiceError(error));
       }
     }
@@ -231,16 +231,16 @@ function createAnalyzeProjectUnaryHandler({
     call: grpc.ServerUnaryCall<AnalyzeProjectRequest, AnalyzeProjectUnaryResponse>,
     callback: grpc.sendUnaryData<AnalyzeProjectUnaryResponse>,
   ) => {
-    let cancelled = Boolean(call.cancelled);
+    let transportCancelled = Boolean(call.cancelled);
     let submission: AnalysisQueueSubmission<AnalyzeProjectUnaryResponse> | undefined;
 
     call.on('cancelled', () => {
-      cancelled = true;
+      transportCancelled = true;
       if (submission) {
-        cancelSubmission(submission);
+        cancelSubmissionForTransportCall(submission);
       }
     });
-    if (cancelled) {
+    if (transportCancelled) {
       return;
     }
 
@@ -283,23 +283,23 @@ function createAnalyzeProjectUnaryHandler({
       () => lifecycle.requestCancel(),
     );
     if (!admission.accepted) {
-      if (!cancelled) {
+      if (!transportCancelled) {
         callback(queueAdmissionError(admission.reason));
       }
       return;
     }
 
     submission = admission.submission;
-    if (cancelled) {
-      cancelSubmission(submission);
+    if (transportCancelled) {
+      cancelSubmissionForTransportCall(submission);
     }
     try {
       const result = await submission.result;
-      if (!cancelled) {
+      if (!transportCancelled) {
         callback(null, result);
       }
     } catch (error) {
-      if (!cancelled) {
+      if (!transportCancelled) {
         callback(toAnalysisServiceError(error));
       }
     }
@@ -311,7 +311,7 @@ function createCancelAnalysisHandler({ state }: AnalyzeProjectImplementationDepe
     _: grpc.ServerUnaryCall<CancelAnalysisRequest, CancelAnalysisResponse>,
     callback: grpc.sendUnaryData<CancelAnalysisResponse>,
   ) => {
-    const cancellation = state.analysisQueue.cancelActive();
+    const cancellation = state.analysisQueue.cancelActiveAnalysis();
     if (!cancellation.active) {
       callback(null, { cancelled: false });
       return;

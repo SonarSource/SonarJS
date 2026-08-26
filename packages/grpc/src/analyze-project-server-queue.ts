@@ -24,13 +24,13 @@ export class AnalysisQueueClosedError extends Error {
   }
 }
 
-export class AnalysisRequestCancelledError extends Error {
+export class AnalysisTransportCancelledError extends Error {
   constructor() {
-    super('Analyze-project request was cancelled before it started');
+    super('Analyze-project transport was cancelled before its request started');
   }
 }
 
-type AnalysisCancellation = { active: false } | { active: true; result: Promise<boolean> };
+type ActiveAnalysisCancellation = { active: false } | { active: true; result: Promise<boolean> };
 
 type AnalysisQueueEntry = {
   cancellationEscalated?: boolean;
@@ -44,7 +44,7 @@ type AnalysisQueueEntry = {
 };
 
 export type AnalysisQueueSubmission<T> = {
-  cancel: () => AnalysisCancellation;
+  cancelTransportCall: () => ActiveAnalysisCancellation;
   result: Promise<T>;
 };
 
@@ -101,14 +101,14 @@ export class AnalysisRequestQueue {
     return {
       accepted: true,
       submission: {
-        cancel: () => this.cancel(entry),
+        cancelTransportCall: () => this.cancelEntry(entry),
         result,
       },
     };
   }
 
-  cancelActive(): AnalysisCancellation {
-    return this.active ? this.cancel(this.active) : { active: false };
+  cancelActiveAnalysis(): ActiveAnalysisCancellation {
+    return this.active ? this.cancelEntry(this.active) : { active: false };
   }
 
   close() {
@@ -164,14 +164,14 @@ export class AnalysisRequestQueue {
     settle();
   }
 
-  private cancel(entry: AnalysisQueueEntry): AnalysisCancellation {
+  private cancelEntry(entry: AnalysisQueueEntry): ActiveAnalysisCancellation {
     if (entry.state === 'pending') {
       const index = this.pending.indexOf(entry);
       if (index !== -1) {
         this.pending.splice(index, 1);
       }
       entry.state = 'settled';
-      entry.reject(new AnalysisRequestCancelledError());
+      entry.reject(new AnalysisTransportCancelledError());
       return { active: false };
     }
     if (entry.state !== 'active' || this.active !== entry) {

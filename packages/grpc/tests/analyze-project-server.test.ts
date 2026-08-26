@@ -947,7 +947,7 @@ describe('analyze-project gRPC server', () => {
     expect(state.analysisQueue.hasActive).toBe(false);
   });
 
-  it('should remove a cancelled request from the pending queue', async () => {
+  it('should remove a transport-cancelled request from the pending queue', async () => {
     const startedRequests = [createDeferred<string>(), createDeferred<string>()];
     let startedRequestCount = 0;
     let cancelCalls = 0;
@@ -1084,7 +1084,7 @@ describe('analyze-project gRPC server', () => {
     expect(calls[1].ended).toBe(true);
   });
 
-  it('should cancel an active unary request before starting the next request', async () => {
+  it('should propagate active unary transport cancellation before starting the next request', async () => {
     const unaryRequestId = createDeferred<string>();
     const replacementRequestId = createDeferred<string>();
     let replacementStarted = false;
@@ -1206,7 +1206,7 @@ describe('analyze-project gRPC server', () => {
     }
   });
 
-  it('should cancel an active worker analysis through the cancel RPC', async () => {
+  it('should cancel an active worker analysis through the explicit CancelAnalysis RPC', async () => {
     const streamRequestId = createDeferred<string>();
     const worker = new FakeWorker(message => {
       if (message.type === 'analyze-stream') {

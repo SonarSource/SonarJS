@@ -20,7 +20,7 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import {
   AnalysisQueueClosedError,
-  AnalysisRequestCancelledError,
+  AnalysisTransportCancelledError,
   AnalysisRequestQueue,
   type AnalysisQueueAdmission,
   type AnalysisQueueSubmission,
@@ -69,7 +69,7 @@ describe('analyze-project request queue', () => {
     }
   });
 
-  it('should remove a cancelled pending analysis', async () => {
+  it('should remove a transport-cancelled pending analysis', async () => {
     const activeRelease = createDeferred<void>();
     let pendingStarted = false;
     const queue = new AnalysisRequestQueue();
@@ -88,8 +88,8 @@ describe('analyze-project request queue', () => {
       ),
     );
 
-    expect(pending.cancel()).toEqual({ active: false });
-    await expect(pending.result).rejects.toBeInstanceOf(AnalysisRequestCancelledError);
+    expect(pending.cancelTransportCall()).toEqual({ active: false });
+    await expect(pending.result).rejects.toBeInstanceOf(AnalysisTransportCancelledError);
     activeRelease.resolve();
     await active.result;
 
@@ -157,7 +157,7 @@ describe('analyze-project request queue', () => {
     });
   });
 
-  it('should report when a cancelled analysis does not finish', async () => {
+  it('should report when a transport-cancelled analysis does not finish', async () => {
     const cancellationGraceExceeded = createDeferred<void>();
     const activeRelease = createDeferred<void>();
     let cancellationRequests = 0;
@@ -172,10 +172,8 @@ describe('analyze-project request queue', () => {
       ),
     );
 
-    const firstCancellation = active.cancel();
-    const secondCancellation = active.cancel();
-    expect(firstCancellation.active).toBe(true);
-    expect(secondCancellation.active).toBe(true);
+    const cancellation = active.cancelTransportCall();
+    expect(cancellation.active).toBe(true);
     await Promise.race([
       cancellationGraceExceeded.promise,
       delay(1_000).then(() => {
@@ -188,7 +186,34 @@ describe('analyze-project request queue', () => {
     expect(cancellationRequests).toBe(1);
   });
 
-  it('should report when cancellation is not acknowledged', async () => {
+  it('should deduplicate transport and explicit active-analysis cancellation', async () => {
+    const activeRelease = createDeferred<void>();
+    let cancellationRequests = 0;
+    const queue = new AnalysisRequestQueue();
+    const active = acceptedSubmission(
+      queue.enqueue(
+        () => activeRelease.promise,
+        async () => {
+          cancellationRequests += 1;
+          return true;
+        },
+      ),
+    );
+
+    const transportCancellation = active.cancelTransportCall();
+    const explicitCancellation = queue.cancelActiveAnalysis();
+    expect(transportCancellation.active).toBe(true);
+    expect(explicitCancellation.active).toBe(true);
+    if (transportCancellation.active && explicitCancellation.active) {
+      await Promise.all([transportCancellation.result, explicitCancellation.result]);
+    }
+    activeRelease.resolve();
+    await active.result;
+
+    expect(cancellationRequests).toBe(1);
+  });
+
+  it('should report when transport cancellation is not acknowledged', async () => {
     const cancellationFailure = createDeferred<void>();
     const activeRelease = createDeferred<void>();
     const queue = new AnalysisRequestQueue(1, 1_000, () => cancellationFailure.resolve());
@@ -199,7 +224,7 @@ describe('analyze-project request queue', () => {
       ),
     );
 
-    active.cancel();
+    active.cancelTransportCall();
     await Promise.race([
       cancellationFailure.promise,
       delay(100).then(() => {
