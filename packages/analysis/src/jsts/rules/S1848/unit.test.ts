@@ -402,6 +402,24 @@ new Chart(context);`,
             errors: 1,
           },
           {
+            // A captured DOM-derived variable cannot prove the argument is DOM-derived.
+            code: `const element = document.querySelector('.widget');
+function createWidget() {
+  new Widget(element);
+}
+createWidget();`,
+            errors: 1,
+          },
+          {
+            // A DOM-derived write in a nested function cannot prove the argument is DOM-derived.
+            code: `let element;
+function setElement() {
+  element = document.querySelector('.widget');
+}
+new Widget(element);`,
+            errors: 1,
+          },
+          {
             // Local document objects must not suppress the report
             code: `const document = { querySelector: () => ({ getContext: () => ({}) }) };
 const canvas = document.querySelector('#chart');

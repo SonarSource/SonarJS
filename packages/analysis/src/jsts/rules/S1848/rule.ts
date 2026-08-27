@@ -22,12 +22,19 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
 import {
-  getUniqueWriteReference,
   getVariableFromName,
   getVariableFromScope,
   isIdentifier,
-  isRequireModule,
 } from '../helpers/ast.js';
+import {
+  getNearestFunctionScope,
+  getUniqueWriteReferenceBefore,
+  unwrapTypeAssertion,
+} from './false-positives/helpers.js';
+import {
+  isTrustedDocumentBinding,
+  isTrustedJQueryBinding,
+} from './false-positives/trusted-dom-bindings.js';
 import * as meta from './generated-meta.js';
 
 /**
@@ -403,69 +410,24 @@ function isVariableFromDomSelection(
   }
   visitedVariables.add(variable);
 
-  // When the read happens inside a function nested below the variable's own
-  // declaring function (e.g. a helper invoked later), lexical write/read
-  // order no longer reflects execution order, so fall back to requiring a
-  // single write across the whole variable lifetime instead of "before use".
-  const isDeferredRead = nearestFunctionScope(scope) !== nearestFunctionScope(variable.scope);
+  // A read from a nested function can happen before or after a write in the
+  // enclosing function, so source order cannot prove the variable's value.
+  const readFunctionScope = getNearestFunctionScope(scope);
+  if (readFunctionScope !== getNearestFunctionScope(variable.scope)) {
+    return false;
+  }
 
-  const writeExpr = isDeferredRead
-    ? getUniqueWriteReference(variable)
-    : getUniqueWriteReferenceBefore(variable, node);
-  if (!writeExpr) {
+  const writeReference = getUniqueWriteReferenceBefore(variable, node);
+  if (
+    !writeReference?.writeExpr ||
+    getNearestFunctionScope(writeReference.from) !== readFunctionScope
+  ) {
     return false;
   }
 
   // Follow a local initializer only. This permits DOM-derived member/call chains
   // without performing interprocedural analysis.
-  return containsDomSelection(unwrapTypeAssertion(writeExpr), scope, visitedVariables);
-}
-
-function nearestFunctionScope(scope: Scope.Scope): Scope.Scope {
-  let current = scope;
-  while (current.type !== 'function' && current.type !== 'module' && current.type !== 'global') {
-    if (!current.upper) {
-      return current;
-    }
-    current = current.upper;
-  }
-  return current;
-}
-
-function getUniqueWriteReferenceBefore(
-  variable: Scope.Variable,
-  node: estree.Identifier,
-): estree.Node | undefined {
-  const useStart = node.range?.[0];
-  const writeReferences = variable.references.filter(reference => {
-    const writeEnd = reference.identifier.range?.[1];
-    return (
-      reference.isWrite() &&
-      writeEnd !== undefined &&
-      useStart !== undefined &&
-      writeEnd <= useStart
-    );
-  });
-  return writeReferences.length === 1 ? writeReferences[0].writeExpr ?? undefined : undefined;
-}
-
-/**
- * Unwraps TypeScript type assertions to get the underlying expression.
- * Handles: x as Type, <Type>x, x!, and optional chains.
- */
-function unwrapTypeAssertion(node: estree.Node): estree.Node {
-  // TypeScript AST types TSAsExpression and TSTypeAssertion are not in estree
-  const nodeType = node.type as string;
-  if (
-    nodeType === 'TSAsExpression' ||
-    nodeType === 'TSTypeAssertion' ||
-    nodeType === 'TSNonNullExpression' ||
-    nodeType === 'ChainExpression'
-  ) {
-    const expr = (node as unknown as { expression: estree.Node }).expression;
-    return expr ? unwrapTypeAssertion(expr) : node;
-  }
-  return node;
+  return containsDomSelection(unwrapTypeAssertion(writeReference.writeExpr), scope, visitedVariables);
 }
 
 /**
@@ -487,10 +449,7 @@ function isDomSelectionCall(node: estree.CallExpression, scope: Scope.Scope): bo
     callee.type === 'MemberExpression' &&
     isIdentifier(callee.property, ...DOM_SELECTION_METHODS)
   ) {
-    if (
-      isIdentifier(callee.object, 'document') &&
-      !isTrustedDocumentBinding(scope)
-    ) {
+    if (isIdentifier(callee.object, 'document') && !isTrustedDocumentBinding(scope)) {
       return false;
     }
     return true;
@@ -506,39 +465,4 @@ function isDomSelectionCall(node: estree.CallExpression, scope: Scope.Scope): bo
   }
 
   return false;
-}
-
-function isTrustedJQueryBinding(scope: Scope.Scope, name: string): boolean {
-  const variable = getVariableFromScope(scope, name);
-  if (!variable?.defs.length) {
-    return true;
-  }
-
-  return variable.defs.some(def => {
-    if (def.type === 'ImportBinding') {
-      return def.parent.type === 'ImportDeclaration' && def.parent.source.value === 'jquery';
-    }
-    return (
-      def.type === 'Variable' &&
-      def.node.init?.type === 'CallExpression' &&
-      isRequireModule(def.node.init, 'jquery')
-    );
-  });
-}
-
-function isTrustedDocumentBinding(scope: Scope.Scope): boolean {
-  const variable = getVariableFromScope(scope, 'document');
-  if (!variable?.defs.length) {
-    return true;
-  }
-
-  return variable.defs.some(def => {
-    const init = def.type === 'Variable' ? unwrapTypeAssertion(def.node.init ?? def.node) : undefined;
-    return (
-      init?.type === 'MemberExpression' &&
-      isIdentifier(init.object, 'window') &&
-      isIdentifier(init.property, 'document') &&
-      !getVariableFromScope(scope, 'window')?.defs.length
-    );
-  });
 }
