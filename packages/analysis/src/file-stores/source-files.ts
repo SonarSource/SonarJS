@@ -34,20 +34,41 @@ import {
   type NormalizedAbsolutePath,
   type File,
 } from '../../../shared/src/helpers/files.js';
-import { filterPathAndGetFileType, getRuleFileType } from '../common/filter/filter-path.js';
+import { filterPathAndGetFileType, getFileTypeForRules } from '../common/filter/filter-path.js';
 import { dirname } from 'node:path/posix';
 import type { FileType } from '../contracts/file.js';
 
 export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call loadFiles() first.';
+
+type ResolvedFileTypes = {
+  filePath: NormalizedAbsolutePath;
+  fileType: FileType;
+  ruleFileType: FileType;
+};
+
+function resolveFileTypes(
+  filename: NormalizedAbsolutePath,
+  configuration: Configuration,
+): ResolvedFileTypes | undefined {
+  const filterPathParams = getFilterPathParams(configuration);
+  const fileType = filterPathAndGetFileType(filename, filterPathParams);
+  if (!fileType) {
+    return;
+  }
+
+  return {
+    filePath: filename,
+    fileType,
+    ruleFileType: getFileTypeForRules(filename, fileType, filterPathParams),
+  };
+}
 
 export class SourceFileStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
   private readonly ignoredPaths = new Set<string>();
-  private pendingFileTypes:
-    { filePath: NormalizedAbsolutePath; fileType: FileType; ruleFileType: FileType } | undefined =
-    undefined;
+  private pendingFileTypes: ResolvedFileTypes | undefined = undefined;
   private files: AnalyzableFiles | undefined = undefined;
   private readonly directoryIndex = new DirectoryIndex();
 
@@ -117,42 +138,34 @@ export class SourceFileStore implements FileStore {
       return false;
     }
 
-    const filterPathParams = getFilterPathParams(configuration);
-    const fileType = filterPathAndGetFileType(filename, filterPathParams);
-    if (!fileType) {
+    const fileTypes = resolveFileTypes(filename, configuration);
+    if (!fileTypes) {
       return false;
     }
 
-    this.pendingFileTypes = {
-      filePath: filename,
-      fileType,
-      ruleFileType: getRuleFileType(filename, fileType, filterPathParams),
-    };
+    this.pendingFileTypes = fileTypes;
     return 'content';
   }
 
   async processFile(filename: NormalizedAbsolutePath, configuration: Configuration, file?: File) {
     const pendingFileTypes = this.pendingFileTypes;
     this.pendingFileTypes = undefined;
-    const filterPathParams = getFilterPathParams(configuration);
-    const fileType =
+    const fileTypes =
       pendingFileTypes?.filePath === filename
-        ? pendingFileTypes.fileType
-        : filterPathAndGetFileType(filename, filterPathParams);
+        ? pendingFileTypes
+        : resolveFileTypes(filename, configuration);
     // we don't call shouldIgnoreFile because the isJsTsExcluded method has already been
     // called while walking the project tree
     if (
       file &&
-      fileType &&
+      fileTypes &&
       accept(filename, file.fileContent, getShouldIgnoreParams(configuration))
     ) {
       // Promote the shared walk entry in place so helper stores can reuse the same object.
       this.files![filename] = promoteToAnalyzableFile(
         file,
-        fileType,
-        pendingFileTypes?.filePath === filename
-          ? pendingFileTypes.ruleFileType
-          : getRuleFileType(filename, fileType, filterPathParams),
+        fileTypes.fileType,
+        fileTypes.ruleFileType,
         JSTS_ANALYSIS_DEFAULTS.fileStatus,
       );
       this.directoryIndex.addFile(filename);

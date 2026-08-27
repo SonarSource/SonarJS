@@ -79,11 +79,11 @@ export function filterPathAndGetFileType(
 }
 
 /**
- * Determines which rule set applies to a file. The filename heuristic deliberately affects only
+ * Returns the file type used for rule selection. The filename heuristic deliberately affects only
  * this classification: metrics and other file artifacts continue to use the scanner/path-derived
  * file type.
  */
-export function getRuleFileType(
+export function getFileTypeForRules(
   filePath: NormalizedAbsolutePath,
   fileType: FileType,
   params: FilterPathParams,

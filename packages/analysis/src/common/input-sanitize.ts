@@ -27,7 +27,7 @@ import {
   getFilterPathParams,
   getShouldIgnoreParams,
 } from './configuration.js';
-import { filterPathAndGetFileType, getRuleFileType } from './filter/filter-path.js';
+import { filterPathAndGetFileType, getFileTypeForRules } from './filter/filter-path.js';
 import { shouldIgnoreFile } from './filter/filter.js';
 import {
   isObject,
@@ -168,7 +168,7 @@ export async function sanitizeInputFiles(
       filePath,
       fileContent,
       fileType,
-      ruleFileType: getRuleFileType(filePath, fileType, filterPathParams),
+      ruleFileType: getFileTypeForRules(filePath, fileType, filterPathParams),
       fileStatus: rawFileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
     };
     pathMap.set(filePath, key);
