@@ -34,7 +34,7 @@ import {
   type NormalizedAbsolutePath,
   type File,
 } from '../../../shared/src/helpers/files.js';
-import { filterPathAndGetFileType } from '../common/filter/filter-path.js';
+import { filterPathAndGetFileType, getRuleFileType } from '../common/filter/filter-path.js';
 import { dirname } from 'node:path/posix';
 import type { FileType } from '../contracts/file.js';
 
@@ -45,7 +45,8 @@ export class SourceFileStore implements FileStore {
   private canAccessFileSystem: boolean | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
   private readonly ignoredPaths = new Set<string>();
-  private pendingFileType: { filePath: NormalizedAbsolutePath; fileType: FileType } | undefined =
+  private pendingFileTypes:
+    { filePath: NormalizedAbsolutePath; fileType: FileType; ruleFileType: FileType } | undefined =
     undefined;
   private files: AnalyzableFiles | undefined = undefined;
   private readonly directoryIndex = new DirectoryIndex();
@@ -99,7 +100,7 @@ export class SourceFileStore implements FileStore {
     this.analyzableFilesConfigKey = undefined;
     this.files = undefined;
     this.ignoredPaths.clear();
-    this.pendingFileType = undefined;
+    this.pendingFileTypes = undefined;
     this.directoryIndex.clear();
   }
 
@@ -121,17 +122,22 @@ export class SourceFileStore implements FileStore {
       return false;
     }
 
-    this.pendingFileType = { filePath: filename, fileType };
+    this.pendingFileTypes = {
+      filePath: filename,
+      fileType,
+      ruleFileType: getRuleFileType(filename, fileType, getFilterPathParams(configuration)),
+    };
     return 'content';
   }
 
   async processFile(filename: NormalizedAbsolutePath, configuration: Configuration, file?: File) {
-    const pendingFileType = this.pendingFileType;
-    this.pendingFileType = undefined;
+    const pendingFileTypes = this.pendingFileTypes;
+    this.pendingFileTypes = undefined;
+    const filterPathParams = getFilterPathParams(configuration);
     const fileType =
-      pendingFileType?.filePath === filename
-        ? pendingFileType.fileType
-        : filterPathAndGetFileType(filename, getFilterPathParams(configuration));
+      pendingFileTypes?.filePath === filename
+        ? pendingFileTypes.fileType
+        : filterPathAndGetFileType(filename, filterPathParams);
     // we don't call shouldIgnoreFile because the isJsTsExcluded method has already been
     // called while walking the project tree
     if (
@@ -143,6 +149,9 @@ export class SourceFileStore implements FileStore {
       this.files![filename] = promoteToAnalyzableFile(
         file,
         fileType,
+        pendingFileTypes?.filePath === filename
+          ? pendingFileTypes.ruleFileType
+          : getRuleFileType(filename, fileType, filterPathParams),
         JSTS_ANALYSIS_DEFAULTS.fileStatus,
       );
       this.directoryIndex.addFile(filename);
@@ -157,7 +166,7 @@ export class SourceFileStore implements FileStore {
   }
 
   async postProcess(_configuration: Configuration) {
-    this.pendingFileType = undefined;
+    this.pendingFileTypes = undefined;
   }
 
   private anyParentIsIgnored(filePath: NormalizedAbsolutePath) {

@@ -27,7 +27,7 @@ import {
   getFilterPathParams,
   getShouldIgnoreParams,
 } from './configuration.js';
-import { filterPathAndGetFileType } from './filter/filter-path.js';
+import { filterPathAndGetFileType, getRuleFileType } from './filter/filter-path.js';
 import { shouldIgnoreFile } from './filter/filter.js';
 import {
   isObject,
@@ -146,17 +146,18 @@ export async function sanitizeInputFiles(
   for (const [key, fileInput] of Object.entries(inputFiles)) {
     const filePath = normalizeToAbsolutePath(fileInput.filePath, baseDir);
     const fileContent = fileInput.fileContent ?? (await readFile(filePath));
+    const filterPathParams = getFilterPathParams(configuration);
     let rawFileType: FileType | undefined = fileInput.fileType;
     if (rawFileType !== 'TEST') {
-      // We cannot trust the caller to provide the correct fileType, so we attempt to infer it from the file path if not explicitly set to 'TEST'.
-      const inferredFileType = filterPathAndGetFileType(
-        filePath,
-        getFilterPathParams(configuration),
-      );
+      // We cannot trust the caller to provide the correct fileType, so we attempt to infer it from
+      // configured source/test paths if not explicitly set to 'TEST'. Filename heuristics are kept
+      // separate because they must only affect rule selection.
+      const inferredFileType = filterPathAndGetFileType(filePath, filterPathParams);
       if (inferredFileType) {
         rawFileType = inferredFileType;
       }
     }
+    const fileType = rawFileType ?? JSTS_ANALYSIS_DEFAULTS.fileType;
     const rawFileStatus = fileInput.fileStatus;
 
     if (await shouldIgnoreFile({ filePath, fileContent }, getShouldIgnoreParams(configuration))) {
@@ -166,7 +167,8 @@ export async function sanitizeInputFiles(
     files[filePath] = {
       filePath,
       fileContent,
-      fileType: rawFileType ?? JSTS_ANALYSIS_DEFAULTS.fileType,
+      fileType,
+      ruleFileType: getRuleFileType(filePath, fileType, filterPathParams),
       fileStatus: rawFileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
     };
     pathMap.set(filePath, key);

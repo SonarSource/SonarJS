@@ -50,7 +50,7 @@ import { error, info } from '../../shared/src/helpers/logging.js';
  * which is set up in analyzeProject before any files are analyzed.
  *
  * @param fileName - The normalized absolute path of the file to analyze
- * @param file - The stored file data (filePath, fileContent, fileType, fileStatus)
+ * @param file - The stored file data (filePath, fileContent, fileType, ruleFileType, fileStatus)
  * @param configFields - Configuration fields for analysis behavior (from caller's config source)
  * @param program - Optional TypeScript program for type-checking
  * @param results - Output object to accumulate analysis results
@@ -89,12 +89,13 @@ export async function analyzeFile(
 
   // Build complete analysis input from stored file and provided configuration
   // jsTsConfigFields provides config-based values (analysisMode, skipAst, etc.)
-  // Per-file fields (filePath, fileContent, fileType, fileStatus) come from the stored file
+  // Per-file fields (filePath, fileContent, fileType, ruleFileType, fileStatus) come from the stored file
   const input: JsTsAnalysisInput = {
     ...jsTsConfigFields,
     filePath: file.filePath,
     fileContent: file.fileContent,
     fileType: file.fileType,
+    ruleFileType: file.ruleFileType,
     fileStatus: file.fileStatus,
     language: inferLanguageForProjectAnalysis(file.filePath, file.fileContent),
     tsConfigs: [],
@@ -114,6 +115,7 @@ export async function analyzeFile(
       filePath: input.filePath,
       fileContent: input.fileContent,
       fileType: input.fileType,
+      ruleFileType: input.ruleFileType,
       sonarlint: input.sonarlint,
     });
   } else if (isHtmlFile(fileName, htmlSuffixes)) {
@@ -167,6 +169,7 @@ async function mergeAdditionalCssAnalysis(
       filePath: input.filePath,
       fileContent: input.fileContent,
       fileType: input.fileType,
+      ruleFileType: input.ruleFileType,
       sonarlint: input.sonarlint,
     },
     false,

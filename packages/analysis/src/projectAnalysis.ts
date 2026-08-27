@@ -61,6 +61,7 @@ type FileErrorResult = { error: string };
  */
 export type AnalyzableFile = File & {
   fileType: FileType;
+  ruleFileType: FileType;
   fileStatus: FileStatus;
 };
 
@@ -88,9 +89,10 @@ export function createAnalyzableFiles(): AnalyzableFiles {
 export function promoteToAnalyzableFile(
   file: File,
   fileType: FileType,
+  ruleFileType: FileType,
   fileStatus: FileStatus,
 ): AnalyzableFile {
-  return Object.assign(file, { fileType, fileStatus });
+  return Object.assign(file, { fileType, ruleFileType, fileStatus });
 }
 
 /**

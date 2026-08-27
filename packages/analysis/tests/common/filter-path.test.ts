@@ -16,7 +16,11 @@
  */
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
-import { filterPathAndGetFileType, isJsTsExcluded } from '../../src/common/filter/filter-path.js';
+import {
+  filterPathAndGetFileType,
+  getRuleFileType,
+  isJsTsExcluded,
+} from '../../src/common/filter/filter-path.js';
 import { createConfiguration, getFilterPathParams } from '../../src/common/configuration.js';
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
@@ -183,7 +187,16 @@ describe('filter path', () => {
     expect(result).toBe('MAIN');
   });
 
-  describe('test-file heuristic fallback (no sonar.tests configured)', () => {
+  it('should keep a test-like source file MAIN for metrics', () => {
+    const filePath = normalizeToAbsolutePath('/project/src/file.test.js');
+    const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
+
+    const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+
+    expect(result).toBe('MAIN');
+  });
+
+  describe('test-file rule heuristic fallback (no sonar.tests configured)', () => {
     const testLikeFilenames = [
       '/project/src/foo.test.ts',
       '/project/src/bar.spec.js',
@@ -200,7 +213,7 @@ describe('filter path', () => {
       it(`should classify ${path} as TEST via heuristic when no test config is set`, () => {
         const filePath = normalizeToAbsolutePath(path);
         const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
-        const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+        const result = getRuleFileType(filePath, 'MAIN', getFilterPathParams(config));
         expect(result).toBe('TEST');
       });
     }
@@ -208,14 +221,14 @@ describe('filter path', () => {
     it('should classify a non-test filename as MAIN when no test config is set', () => {
       const filePath = normalizeToAbsolutePath('/project/src/regular.ts');
       const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
-      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      const result = getRuleFileType(filePath, 'MAIN', getFilterPathParams(config));
       expect(result).toBe('MAIN');
     });
 
     it('should not be fooled by filenames that merely contain "test"', () => {
       const filePath = normalizeToAbsolutePath('/project/src/testimony.ts');
       const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
-      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      const result = getRuleFileType(filePath, 'MAIN', getFilterPathParams(config));
       expect(result).toBe('MAIN');
     });
 
@@ -227,7 +240,7 @@ describe('filter path', () => {
         sources: ['src'],
         tests: ['test'],
       });
-      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      const result = getRuleFileType(filePath, 'MAIN', getFilterPathParams(config));
       expect(result).toBe('MAIN');
     });
 
@@ -241,7 +254,7 @@ describe('filter path', () => {
         sources: ['src'],
         testInclusions: ['**/*IntegrationTest.ts'],
       });
-      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      const result = getRuleFileType(filePath, 'MAIN', getFilterPathParams(config));
       expect(result).toBe('TEST');
     });
 
@@ -255,7 +268,7 @@ describe('filter path', () => {
         sources: ['src'],
         testExclusions: ['**/fixtures/**'],
       });
-      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      const result = getRuleFileType(filePath, 'MAIN', getFilterPathParams(config));
       expect(result).toBe('TEST');
     });
 
@@ -267,7 +280,7 @@ describe('filter path', () => {
         sources: ['src'],
         inclusions: ['**/*.test.ts'],
       });
-      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      const result = getRuleFileType(filePath, 'MAIN', getFilterPathParams(config));
       expect(result).toBe('MAIN');
     });
 
@@ -278,14 +291,14 @@ describe('filter path', () => {
         sources: ['src'],
         jsSuffixes: ['.js', '.dummy'],
       });
-      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      const result = getRuleFileType(filePath, 'MAIN', getFilterPathParams(config));
       expect(result).toBe('TEST');
     });
 
     it('should not classify .test.<unconfiguredSuffix> as TEST', () => {
       const filePath = normalizeToAbsolutePath('/project/src/foo.test.dummy');
       const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
-      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      const result = getRuleFileType(filePath, 'MAIN', getFilterPathParams(config));
       expect(result).toBe('MAIN');
     });
 
@@ -297,7 +310,7 @@ describe('filter path', () => {
         jsSuffixes: ['.js'],
         tsSuffixes: [],
       });
-      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      const result = getRuleFileType(filePath, 'MAIN', getFilterPathParams(config));
       expect(result).toBe('TEST');
     });
 
@@ -309,7 +322,7 @@ describe('filter path', () => {
         jsSuffixes: [],
         tsSuffixes: ['.ts'],
       });
-      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      const result = getRuleFileType(filePath, 'MAIN', getFilterPathParams(config));
       expect(result).toBe('TEST');
     });
   });

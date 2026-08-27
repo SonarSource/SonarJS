@@ -57,6 +57,7 @@ export async function analyzeCSS(
   includeMetrics = true,
 ): Promise<CssAnalysisOutput> {
   const { filePath, fileContent, fileType } = input;
+  const ruleFileType = input.ruleFileType ?? fileType;
 
   const isTestFile = fileType === 'TEST';
 
@@ -71,7 +72,7 @@ export async function analyzeCSS(
     .replaceAll(/\r(?!\n)/g, '\n');
 
   // TEST files keep highlighting (parity with old CssMetricSensor), but issues remain suppressed.
-  const lintResult = await linter.lint(filePath, sanitizedCode, fileType);
+  const lintResult = await linter.lint(filePath, sanitizedCode, ruleFileType);
   const { root, issues: lintingIssues } = lintResult;
   throwIfCssParsingError(lintingIssues);
   const issues = isTestFile ? [] : lintingIssues;

@@ -56,9 +56,11 @@ describe('files', () => {
     expect(sourceFileStore.getFiles()).toMatchObject({
       [file1]: {
         fileType: 'MAIN',
+        ruleFileType: 'MAIN',
       },
       [file2]: {
         fileType: 'TEST',
+        ruleFileType: 'TEST',
       },
     });
   });
@@ -97,15 +99,16 @@ describe('files', () => {
     ]).toEqual(['second.ts']);
   });
 
-  it('should promote shared walk files without allocating a wrapper', async () => {
+  it('should promote shared walk files without applying the rule heuristic to file type', async () => {
     const baseDir = normalizeToAbsolutePath('/project');
     const configuration = createConfiguration({ baseDir });
     const file: File = {
-      filePath: normalizeToAbsolutePath('/project/src/app.js'),
+      filePath: normalizeToAbsolutePath('/project/src/app.test.js'),
       fileContent: 'console.log("shared");\n',
     };
 
     sourceFileStore.setup(configuration);
+    expect(sourceFileStore.wantsFile(file.filePath, configuration)).toBe('content');
     await sourceFileStore.processFile(file.filePath, configuration, file);
 
     const storedFile = sourceFileStore.getFiles()[file.filePath];
@@ -114,6 +117,7 @@ describe('files', () => {
       filePath: file.filePath,
       fileContent: file.fileContent,
       fileType: 'MAIN',
+      ruleFileType: 'TEST',
       fileStatus: 'SAME',
     });
   });
