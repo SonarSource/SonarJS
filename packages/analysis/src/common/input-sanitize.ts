@@ -143,10 +143,10 @@ export async function sanitizeInputFiles(
     };
   }
 
+  const filterPathParams = getFilterPathParams(configuration);
   for (const [key, fileInput] of Object.entries(inputFiles)) {
     const filePath = normalizeToAbsolutePath(fileInput.filePath, baseDir);
     const fileContent = fileInput.fileContent ?? (await readFile(filePath));
-    const filterPathParams = getFilterPathParams(configuration);
     let rawFileType: FileType | undefined = fileInput.fileType;
     if (rawFileType !== 'TEST') {
       // We cannot trust the caller to provide the correct fileType, so we attempt to infer it from

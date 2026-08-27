@@ -37,8 +37,8 @@ import { extractSonarResolveCommentsFromCssRoot } from '../../common/sonar-resol
  * The input must be fully sanitized (all fields required) before calling this function.
  *
  * Stylelint config comes from the pre-initialized linter
- * (`LinterWrapper.initialize()`). For TEST files, rules are overridden to an
- * empty config to suppress issues while preserving parsing/highlighting behavior.
+ * (`LinterWrapper.initialize()`). Rule selection uses `ruleFileType`: when it is TEST, rules are
+ * overridden to an empty config to suppress issues. Metrics and highlighting follow `fileType`.
  * The CSS linter must be initialized before calling this function.
  *
  * Behavior:
@@ -46,6 +46,7 @@ import { extractSonarResolveCommentsFromCssRoot } from '../../common/sonar-resol
  * CSS in HTML/Vue MAIN: linted for issues, no CSS metrics.
  * CSS in HTML/Vue TEST: not linted (noMetrics + TEST early return), so no CSS issues.
  * Pure CSS MAIN: issues + metrics/highlighting.
+ * Pure CSS MAIN with TEST rule selection: no issues, metrics/highlighting kept.
  * Pure CSS TEST: no issues/metrics, highlighting only
  *
  * @param input the sanitized CSS analysis input to analyze

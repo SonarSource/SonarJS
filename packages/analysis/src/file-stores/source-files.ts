@@ -117,7 +117,8 @@ export class SourceFileStore implements FileStore {
       return false;
     }
 
-    const fileType = filterPathAndGetFileType(filename, getFilterPathParams(configuration));
+    const filterPathParams = getFilterPathParams(configuration);
+    const fileType = filterPathAndGetFileType(filename, filterPathParams);
     if (!fileType) {
       return false;
     }
@@ -125,7 +126,7 @@ export class SourceFileStore implements FileStore {
     this.pendingFileTypes = {
       filePath: filename,
       fileType,
-      ruleFileType: getRuleFileType(filename, fileType, getFilterPathParams(configuration)),
+      ruleFileType: getRuleFileType(filename, fileType, filterPathParams),
     };
     return 'content';
   }
