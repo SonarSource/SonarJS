@@ -207,6 +207,10 @@ The old heartbeat ping is replaced by a long-lived `Lease` stream.
   case is implemented today; supervised worker replacement would be required and is out of scope for
   this migration.
 
+The [SonarLint analyze-project concurrency note](sonarlint-analyze-project-concurrency.md) describes
+the complete SonarLint scheduling and cancellation handoff, the reason the Node.js queue is required,
+and the related race and corner-case audit.
+
 ### Worker Decision
 
 The worker is retained for production runtime isolation and cancellation responsiveness.
