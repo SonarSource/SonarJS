@@ -19,7 +19,7 @@ import { DependencyManifestStore } from './dependency-manifests.js';
 import { GeneratedSourceStore } from './generated-sources/index.js';
 import { TsConfigStore } from './tsconfigs.js';
 import { findFiles } from '../common/find-files.js';
-import type { FileStore } from './store-type.js';
+import type { FileStore, FileStoreContext } from './store-type.js';
 import type { Configuration } from '../common/configuration.js';
 import {
   isRoot,
@@ -63,6 +63,8 @@ export async function initFileStores(configuration: Configuration, inputFiles?: 
     return;
   }
 
+  const context = createFileStoreContext(inputFiles);
+
   for (const store of pendingStores) {
     store.setup(configuration);
   }
@@ -76,14 +78,14 @@ export async function initFileStores(configuration: Configuration, inputFiles?: 
       }
 
       if (entry.isFile()) {
-        await processPendingFileStores(pendingStores, filePath, configuration);
+        await processPendingFileStores(pendingStores, filePath, configuration, context);
       }
     });
   } else if (inputFiles) {
-    await simulateFromInputFiles(inputFiles, configuration, pendingStores);
+    await simulateFromInputFiles(inputFiles, configuration, pendingStores, context);
   }
   for (const store of pendingStores) {
-    await store.postProcess(configuration);
+    await store.postProcess(configuration, context);
   }
 }
 
@@ -91,6 +93,7 @@ export async function simulateFromInputFiles(
   inputFiles: AnalyzableFiles,
   configuration: Configuration,
   pendingStores: FileStore[],
+  context = createFileStoreContext(inputFiles),
 ) {
   const { baseDir } = configuration;
   // simulate file system traversal from baseDir to each given input file
@@ -121,6 +124,7 @@ export async function simulateFromInputFiles(
       pendingStores,
       filePath,
       configuration,
+      context,
       inputFiles[filePath].fileContent,
     );
   }
@@ -130,19 +134,51 @@ async function processPendingFileStores(
   pendingStores: FileStore[],
   filePath: NormalizedAbsolutePath,
   configuration: Configuration,
+  context: FileStoreContext,
   fileContent?: string,
 ) {
+  const storeRequests = pendingStores.map(store => ({
+    store,
+    request: store.wantsFile(filePath, configuration),
+  }));
+  if (storeRequests.some(({ request }) => request === 'deferred-content')) {
+    context.retainFile(filePath);
+  }
+
   let sharedFile: File | undefined;
-  for (const store of pendingStores) {
-    const storeWantsFile = store.wantsFile(filePath, configuration);
+  for (const { store, request: storeWantsFile } of storeRequests) {
     if (storeWantsFile === 'content') {
-      sharedFile ??= {
-        filePath,
-        fileContent: fileContent ?? (await readFile(filePath)),
-      };
+      sharedFile ??= await context.getFile(filePath, fileContent);
       await store.processFile(filePath, configuration, sharedFile);
-    } else if (storeWantsFile === 'path') {
+    } else if (storeWantsFile === 'path' || storeWantsFile === 'deferred-content') {
       await store.processFile(filePath, configuration);
     }
   }
+}
+
+function createFileStoreContext(inputFiles?: AnalyzableFiles): FileStoreContext {
+  const retainedPaths = new Set<NormalizedAbsolutePath>();
+  const files = new Map<NormalizedAbsolutePath, Promise<File>>();
+
+  return {
+    retainFile(filePath) {
+      retainedPaths.add(filePath);
+    },
+    getFile(filePath, fileContent) {
+      let file = files.get(filePath);
+      if (!file) {
+        const inputFile = inputFiles?.[filePath];
+        file = inputFile
+          ? Promise.resolve(inputFile)
+          : Promise.resolve(fileContent ?? readFile(filePath)).then(fileContent => ({
+              filePath,
+              fileContent,
+            }));
+        if (retainedPaths.has(filePath)) {
+          files.set(filePath, file);
+        }
+      }
+      return file;
+    },
+  };
 }

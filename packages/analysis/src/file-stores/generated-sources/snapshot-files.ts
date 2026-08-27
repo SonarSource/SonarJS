@@ -30,7 +30,7 @@ const GENERATED_SOURCE_SOURCE_CONFIG_EXTENSIONS = new Set([
 const GENERATED_SOURCE_STRUCTURED_CONFIG_EXTENSIONS = new Set(['.json', '.yaml', '.yml']);
 
 export function shouldCaptureGeneratedSourceSnapshotPath(filePath: NormalizedAbsolutePath) {
-  if (basename(filePath).toLowerCase() === PACKAGE_JSON) {
+  if (isPackageJsonPath(filePath)) {
     return false;
   }
 
@@ -43,4 +43,12 @@ export function shouldCaptureGeneratedSourceSnapshotPath(filePath: NormalizedAbs
     GENERATED_SOURCE_SOURCE_CONFIG_EXTENSIONS.has(extension) ||
     GENERATED_SOURCE_STRUCTURED_CONFIG_EXTENSIONS.has(extension)
   );
+}
+
+export function shouldPreloadGeneratedSourceSnapshotPath(filePath: NormalizedAbsolutePath) {
+  return !isPackageJsonPath(filePath) && shouldPreloadGeneratedSourcePath(filePath);
+}
+
+function isPackageJsonPath(filePath: NormalizedAbsolutePath) {
+  return basename(filePath).toLowerCase() === PACKAGE_JSON;
 }
