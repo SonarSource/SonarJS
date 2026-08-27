@@ -40,6 +40,10 @@ export const rule: Rule.RuleModule = {
     hasSuggestions: undefined,
   }),
   create(context: Rule.RuleContext) {
+    if (hasUnusedFlowTypeParameter(context.sourceCode)) {
+      return {};
+    }
+
     const jsxUsedVariables = new Set<Scope.Variable>();
     const baseListeners = interceptReport(baseRule, (reportContext, descriptor) => {
       const reportedVariable = getReportedVariable(reportContext.sourceCode, descriptor);
@@ -69,6 +73,18 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function hasUnusedFlowTypeParameter(sourceCode: Rule.RuleContext['sourceCode']) {
+  return sourceCode.scopeManager.scopes.some(scope =>
+    scope.variables.some(
+      variable =>
+        variable.references.length === 0 &&
+        // Babel adds this Flow-specific definition type, which ESLint's public Scope.Definition
+        // union does not declare.
+        variable.defs.some(definition => (definition.type as string) === 'TypeParameter'),
+    ),
+  );
+}
 
 type NodeWithParent = estree.Node & { parent?: NodeWithParent };
 type EnclosingDeclaration =

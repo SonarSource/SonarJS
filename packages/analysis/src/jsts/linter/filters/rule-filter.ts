@@ -34,7 +34,6 @@ export interface RuleFilterContext {
   detectedModuleType: ModuleType | undefined;
   detectGeneratedCode: boolean;
   isGeneratedSource: boolean;
-  isTypeScriptParser: boolean;
   dependencies: DependenciesList;
 }
 

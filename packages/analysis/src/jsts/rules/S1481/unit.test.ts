@@ -14,11 +14,40 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { parsersMap } from '../../parsers/eslint.js';
+import { buildBabelParserOptions } from '../../parsers/options.js';
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
 describe('S1481', () => {
+  it('should skip Babel files with unused Flow type parameters', () => {
+    const ruleTester = new DefaultParserRuleTester({
+      parser: parsersMap.javascript,
+      parserOptions: buildBabelParserOptions(),
+    });
+
+    ruleTester.run('S1481', rule, {
+      valid: [
+        {
+          code: 'function f<T>() {}',
+        },
+        {
+          code: 'type A<T> = number',
+        },
+      ],
+      invalid: [
+        {
+          code: 'function f<T>(value: T) { const unused = 1; return value; }',
+          errors: [{ message: "'unused' is assigned a value but never used." }],
+        },
+      ],
+    });
+  });
+
   it('S1481 (decorated: typescript-eslint/no-unused-vars)', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 

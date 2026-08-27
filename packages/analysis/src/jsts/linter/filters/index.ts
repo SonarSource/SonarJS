@@ -19,7 +19,6 @@ import type { RuleFilter } from './rule-filter.js';
 import { filterFileType } from './filter-file-type.js';
 import { filterAnalysisMode } from './filter-analysis-mode.js';
 import { filterLanguage } from './filter-language.js';
-import { filterTypeScriptParser } from './filter-typescript-parser.js';
 import { filterBlacklistedExtensions } from './filter-blacklisted-extensions.js';
 import { filterReactVue } from './filter-react-vue.js';
 import { filterEcmaVersion } from './filter-ecma-version.js';
@@ -39,7 +38,6 @@ export const DEPENDENCY_INDEPENDENT_RULE_FILTERS: readonly RuleFilter[] = [
   filterFileType,
   filterAnalysisMode,
   filterLanguage,
-  filterTypeScriptParser,
   filterBlacklistedExtensions,
   filterGeneratedSource,
   filterEcmaVersion,

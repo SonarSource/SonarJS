@@ -39,7 +39,6 @@ const baseContext: RuleFilterContext = {
   detectedModuleType: undefined,
   detectGeneratedCode: true,
   isGeneratedSource: false,
-  isTypeScriptParser: false,
   dependencies: new Map(),
 };
 
