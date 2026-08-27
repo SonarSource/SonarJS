@@ -31,6 +31,7 @@ function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
   return {
     configuration: {
       baseDir: '/project',
+      canAccessFileSystem: false,
     },
     files: {},
     rules: [],
