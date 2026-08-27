@@ -31,6 +31,10 @@ import type {
   AnalyzeProjectWorkerInMessage,
   AnalyzeProjectWorkerOutMessage,
 } from './analyze-project-worker/messages.js';
+import {
+  AnalysisRequestQueue,
+  MAX_PENDING_ANALYSIS_REQUESTS,
+} from './analyze-project-server-queue.js';
 
 const WORKER_RESPONSE_TIMEOUT_MS = 15_000;
 
@@ -40,7 +44,7 @@ type HandleRequestInCurrentThread = (
 ) => Promise<RequestResult<AnalyzeProjectResponse | void>>;
 
 type AnalyzeProjectServerState = {
-  analysisInProgress: boolean;
+  analysisQueue: AnalysisRequestQueue;
   leaseCall: grpc.ServerDuplexStream<LeaseRequest, LeaseResponse> | null;
   nextWorkerRequestId: number;
   shuttingDown: boolean;
@@ -123,9 +127,13 @@ export async function waitForWorkerCompletion(
   });
 }
 
-export function createServerState(): AnalyzeProjectServerState {
+export function createServerState({
+  maxPendingAnalysisRequests = MAX_PENDING_ANALYSIS_REQUESTS,
+}: {
+  maxPendingAnalysisRequests?: number;
+} = {}): AnalyzeProjectServerState {
   return {
-    analysisInProgress: false,
+    analysisQueue: new AnalysisRequestQueue(maxPendingAnalysisRequests),
     leaseCall: null,
     nextWorkerRequestId: 0,
     shuttingDown: false,
@@ -155,10 +163,10 @@ function clearStartupShutdownTimeout(state: AnalyzeProjectServerState) {
 async function cancelAnalysisOnShutdown(
   handleRequestInCurrentThread: HandleRequestInCurrentThread,
   newWorkerRequestId: () => string,
-  state: AnalyzeProjectServerState,
+  hadActiveAnalysis: boolean,
   worker?: Worker,
 ) {
-  if (!state.analysisInProgress) {
+  if (!hadActiveAnalysis) {
     return;
   }
 
@@ -249,7 +257,14 @@ export function createLifecycle({
     clearStartupShutdownTimeout(state);
     closeLeaseCall();
     unregisterGarbageCollectionObserver();
-    await cancelAnalysisOnShutdown(handleRequestInCurrentThread, newWorkerRequestId, state, worker);
+    const hadActiveAnalysis = state.analysisQueue.hasActive;
+    state.analysisQueue.close();
+    await cancelAnalysisOnShutdown(
+      handleRequestInCurrentThread,
+      newWorkerRequestId,
+      hadActiveAnalysis,
+      worker,
+    );
     await closeWorker(worker);
 
     server.forceShutdown();

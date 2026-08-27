@@ -15,7 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import { analyzeProject, cancelAnalysis } from '../../analysis/src/analyzeProject.js';
+import {
+  analyzeProject,
+  cancelAnalysis,
+  withAnalysisCancellation,
+} from '../../analysis/src/analyzeProject.js';
 import { logHeapStatistics } from './analyze-project-memory.js';
 import {
   type AnalyzeProjectIncrementalEvent,
@@ -41,40 +45,45 @@ export async function handleAnalyzeProjectRequest(
   try {
     switch (request.type) {
       case 'on-analyze-project': {
-        logHeapStatistics(workerData?.debugMemory);
-        const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
-        const wrappedIncrementalResultsChannel = incrementalResultsChannel
-          ? (event: AnalyzeProjectIncrementalEvent['event']) =>
-              incrementalResultsChannel({
-                event,
-                pathMap: sanitizedInput.pathMap,
-              })
-          : undefined;
+        return await withAnalysisCancellation(async () => {
+          logHeapStatistics(workerData?.debugMemory);
+          const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
+          const wrappedIncrementalResultsChannel = incrementalResultsChannel
+            ? (event: AnalyzeProjectIncrementalEvent['event']) =>
+                incrementalResultsChannel({
+                  event,
+                  pathMap: sanitizedInput.pathMap,
+                })
+            : undefined;
 
-        const output = await analyzeProject(
-          {
-            rules: sanitizedInput.rules,
-            cssRules: sanitizedInput.cssRules,
-            bundles: sanitizedInput.bundles,
-            rulesWorkdir: sanitizedInput.rulesWorkdir,
-          },
-          sanitizedInput.configuration,
-          wrappedIncrementalResultsChannel,
-        );
-        logHeapStatistics(workerData?.debugMemory);
-        return {
-          type: 'success',
-          result: {
-            output,
-            pathMap: sanitizedInput.pathMap,
-          },
-        };
+          const output = await analyzeProject(
+            {
+              rules: sanitizedInput.rules,
+              cssRules: sanitizedInput.cssRules,
+              bundles: sanitizedInput.bundles,
+              rulesWorkdir: sanitizedInput.rulesWorkdir,
+            },
+            sanitizedInput.configuration,
+            wrappedIncrementalResultsChannel,
+          );
+          logHeapStatistics(workerData?.debugMemory);
+          return {
+            type: 'success',
+            result: {
+              output,
+              pathMap: sanitizedInput.pathMap,
+            },
+          };
+        });
       }
       case 'on-cancel-analysis': {
-        cancelAnalysis();
-        // This internal request only acknowledges that the cancel signal was delivered.
-        // The public CancelAnalysis RPC computes the outward-facing { cancelled } response.
-        return { type: 'success', result: undefined };
+        return cancelAnalysis()
+          ? { type: 'success', result: undefined }
+          : {
+              type: 'failure',
+              error: serializeError(new Error('No analysis to cancel')),
+              reason: 'runtime',
+            };
       }
       default: {
         // Handle unknown request types
