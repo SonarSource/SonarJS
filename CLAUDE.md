@@ -47,10 +47,6 @@ See `/build` for the full build pipeline reference.
 - 2 spaces indentation, LF line endings, single quotes, trailing commas
 - Formatting enforced via pre-commit hooks
 
-## Pull Requests
-
-- Always add `SonarSource/quality-web-squad` as a reviewer when creating PRs
-
 ## Repo-wide agent guidance
 
 - The guidance in this section applies to any automated coding agent working in this repository, not
