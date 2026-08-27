@@ -25,7 +25,10 @@ import type { AnalyzableFiles } from '../projectAnalysis.js';
 export type FileProcessingMode = 'path' | 'content' | 'deferred-content';
 
 export type FileStoreContext = {
-  /** Preserve a file if another store reads it, without triggering a read itself. */
+  /**
+   * Mark a file path so its content is cached on its first `getFile` call.
+   * Must be called before the first `getFile` call for that path.
+   */
   retainFile(filePath: NormalizedAbsolutePath): void;
   getFile(filePath: NormalizedAbsolutePath, fileContent?: string): Promise<File>;
 };
