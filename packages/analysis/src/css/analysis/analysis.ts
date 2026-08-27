@@ -28,6 +28,7 @@ import type { CssIssue } from '../linter/issues/issue.js';
  */
 export interface CssAnalysisInput extends AnalysisInput {
   fileType?: FileType;
+  ruleFileType?: FileType;
 }
 
 /**

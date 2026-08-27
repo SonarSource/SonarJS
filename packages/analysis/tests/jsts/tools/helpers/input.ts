@@ -30,6 +30,7 @@ type TestJsTsInput = {
   filePath: string;
   fileContent?: string;
   fileType?: 'MAIN' | 'TEST';
+  ruleFileType?: 'MAIN' | 'TEST';
   fileStatus?: 'SAME' | 'CHANGED' | 'ADDED';
   language?: 'js' | 'ts';
   analysisMode?: 'DEFAULT' | 'SKIP_UNCHANGED';
@@ -58,6 +59,7 @@ export async function jsTsInput(input: TestJsTsInput): Promise<JsTsAnalysisInput
     program: input.program,
     // Allow test-specific overrides
     ...(input.fileType !== undefined && { fileType: input.fileType }),
+    ruleFileType: input.ruleFileType ?? input.fileType ?? JSTS_ANALYSIS_DEFAULTS.ruleFileType,
     ...(input.fileStatus !== undefined && { fileStatus: input.fileStatus }),
     ...(input.analysisMode !== undefined && { analysisMode: input.analysisMode }),
     ...(input.ignoreHeaderComments !== undefined && {

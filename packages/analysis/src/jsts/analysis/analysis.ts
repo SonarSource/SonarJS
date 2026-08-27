@@ -50,6 +50,7 @@ import type { CssIssue } from '../../css/linter/issues/issue.js';
  */
 export interface JsTsAnalysisInput extends AnalysisInput {
   fileType: FileType;
+  ruleFileType: FileType;
   fileStatus: FileStatus;
   language: JsTsLanguage;
   analysisMode: AnalysisMode;
@@ -79,6 +80,7 @@ export type FileStatus = 'SAME' | 'CHANGED' | 'ADDED';
  * - skipAst: true - skip AST serialization by default for performance
  * - clearDependenciesCache: false - preserve cache by default
  * - fileType: 'MAIN' - assume main source file unless told otherwise
+ * - ruleFileType: 'MAIN' - select main-file rules unless told otherwise
  */
 export const JSTS_ANALYSIS_DEFAULTS = {
   fileStatus: 'SAME' as FileStatus,
@@ -90,6 +92,7 @@ export const JSTS_ANALYSIS_DEFAULTS = {
   clearDependenciesCache: false,
   reportNclocForTestFiles: false,
   fileType: 'MAIN' as FileType,
+  ruleFileType: 'MAIN' as FileType,
 } as const;
 
 /**
