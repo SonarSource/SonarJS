@@ -40,7 +40,10 @@ export const rule: Rule.RuleModule = {
     hasSuggestions: undefined,
   }),
   create(context: Rule.RuleContext) {
-    if (hasUnusedFlowTypeParameter(context.sourceCode)) {
+    if (
+      !context.sourceCode.parserServices?.esTreeNodeToTSNodeMap &&
+      hasUnusedFlowTypeParameter(context.sourceCode)
+    ) {
       return {};
     }
 
@@ -75,6 +78,8 @@ export const rule: Rule.RuleModule = {
 };
 
 function hasUnusedFlowTypeParameter(sourceCode: Rule.RuleContext['sourceCode']) {
+  // This is called only for Babel fallbacks. The upstream rule crashes while processing this
+  // Flow-specific definition, so S1481 cannot report any unused variables in the same file.
   return sourceCode.scopeManager.scopes.some(scope =>
     scope.variables.some(
       variable =>
