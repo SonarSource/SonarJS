@@ -77,10 +77,13 @@ export async function handleAnalyzeProjectRequest(
         });
       }
       case 'on-cancel-analysis': {
-        cancelAnalysis();
-        // This internal request only acknowledges that the cancel signal was delivered.
-        // The public CancelAnalysis RPC computes the outward-facing { cancelled } response.
-        return { type: 'success', result: undefined };
+        return cancelAnalysis()
+          ? { type: 'success', result: undefined }
+          : {
+              type: 'failure',
+              error: serializeError(new Error('No analysis to cancel')),
+              reason: 'runtime',
+            };
       }
       default: {
         // Handle unknown request types

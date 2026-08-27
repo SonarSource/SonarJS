@@ -66,10 +66,12 @@ export async function withAnalysisCancellation<T>(operation: () => Promise<T>): 
   }
 }
 
-export function cancelAnalysis() {
-  if (analysisStatus) {
-    analysisStatus.cancelled = true;
+export function cancelAnalysis(): boolean {
+  if (!analysisStatus) {
+    return false;
   }
+  analysisStatus.cancelled = true;
+  return true;
 }
 
 export function isAnalysisCancelled() {
