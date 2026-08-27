@@ -42,16 +42,38 @@ import {
   resetProjectAnalysisTelemetry,
 } from './telemetry.js';
 
-const analysisStatus = {
-  cancelled: false,
+type AnalysisStatus = {
+  cancelled: boolean;
 };
 
+let analysisStatus: AnalysisStatus | undefined;
+
+/**
+ * Runs an operation in a fresh cancellation scope.
+ *
+ * Request handlers can use this to make cancellation effective while they prepare an analysis,
+ * before calling {@link analyzeProject}.
+ */
+export async function withAnalysisCancellation<T>(operation: () => Promise<T>): Promise<T> {
+  const currentAnalysisStatus: AnalysisStatus = { cancelled: false };
+  analysisStatus = currentAnalysisStatus;
+  try {
+    return await operation();
+  } finally {
+    if (analysisStatus === currentAnalysisStatus) {
+      analysisStatus = undefined;
+    }
+  }
+}
+
 export function cancelAnalysis() {
-  analysisStatus.cancelled = true;
+  if (analysisStatus) {
+    analysisStatus.cancelled = true;
+  }
 }
 
 export function isAnalysisCancelled() {
-  return analysisStatus.cancelled;
+  return analysisStatus?.cancelled ?? false;
 }
 
 /**
@@ -67,7 +89,19 @@ export async function analyzeProject(
   configuration: Configuration,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
-  analysisStatus.cancelled = false;
+  if (!analysisStatus) {
+    return withAnalysisCancellation(() =>
+      analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel),
+    );
+  }
+  return analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel);
+}
+
+async function analyzeProjectWithCancellation(
+  input: ProjectAnalysisInput,
+  configuration: Configuration,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+): Promise<ProjectAnalysisOutput> {
   const { rules, bundles, rulesWorkdir } = input;
   const filesToAnalyze = sourceFileStore.getFiles();
 
@@ -156,7 +190,7 @@ export async function analyzeProject(
     }
   }
   progressReport.stop();
-  if (analysisStatus.cancelled) {
+  if (isAnalysisCancelled()) {
     error('Analysis has been cancelled');
     incrementalResultsChannel?.({ messageType: 'cancelled' });
   } else {
