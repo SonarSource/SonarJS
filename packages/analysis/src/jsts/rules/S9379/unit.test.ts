@@ -34,6 +34,11 @@ const VALID_CASES = [
   { code: `<Dialog><div><input autoFocus /></div></Dialog>;` },
   { code: `<DialogContent><input autoFocus /></DialogContent>;` },
   { code: `<CustomModal autoFocus></CustomModal>;` },
+  // An ARIA `dialog`/`alertdialog` role is a valid modal context too, whether it is an
+  // ancestor or the autofocus-bearing element itself.
+  { code: `<div role="dialog"><input autoFocus /></div>;` },
+  { code: `<div role="alertdialog"><input autoFocus /></div>;` },
+  { code: `<div role="dialog" autoFocus></div>;` },
 ];
 
 const INVALID_CASES = [
@@ -52,6 +57,8 @@ const INVALID_CASES = [
   { code: `<div><input autoFocus /></div>;`, errors: 1 },
   // A lowercase continuation right after the keyword is a different word, not a modal wrapper.
   { code: `<Dialogue><input autoFocus /></Dialogue>;`, errors: 1 },
+  // A non-modal ARIA role does not exempt it.
+  { code: `<div role="tooltip"><input autoFocus /></div>;`, errors: 1 },
 ];
 
 describe('S9379', () => {

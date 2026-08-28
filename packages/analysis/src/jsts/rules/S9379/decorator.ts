@@ -21,7 +21,7 @@ import pkg from 'jsx-ast-utils-x';
 const { getProp } = pkg;
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getElementType } from '../helpers/accessibility.js';
+import { getElementType, getRole } from '../helpers/accessibility.js';
 import * as meta from './generated-meta.js';
 
 // Keyword must be the first or the last word of the PascalCase identifier, so
@@ -32,6 +32,9 @@ const MODAL_COMPONENT_NAME_PATTERN =
 // (or their children) is a real issue.
 const MODAL_TRIGGER_NAME_PATTERN = /(?:Trigger|Button|Link|Toggle|Opener)$/;
 
+// ARIA roles that mark a hand-rolled (non-native-`<dialog>`) modal, per the WAI-ARIA spec.
+const MODAL_ROLES = new Set(['dialog', 'alertdialog']);
+
 // Mirrors the sonar-html S9379 message ("Remove this "autofocus" attribute, as it can reduce
 // usability and accessibility for users."), spelling the attribute the JSX way.
 const MESSAGE =
@@ -39,11 +42,12 @@ const MESSAGE =
 
 /**
  * Decorates the jsx-a11y `no-autofocus` rule so that autofocusing a `dialog` element, an
- * element carrying a `popover` attribute, a component whose name identifies it as a modal
- * wrapper (`Modal`, `Dialog`, `Popup`, `Drawer`, `Sheet`, `Popover`, e.g. `DialogContent`),
- * or any element inside one of those, is not reported: moving focus into a freshly opened
- * modal or popover is expected, and the modal/popover element itself is a valid autofocus
- * target when it should receive focus as soon as it opens.
+ * element carrying a `popover` attribute, an element with an ARIA `dialog`/`alertdialog` role,
+ * a component whose name identifies it as a modal wrapper (`Modal`, `Dialog`, `Popup`,
+ * `Drawer`, `Sheet`, `Popover`, e.g. `DialogContent`), or any element inside one of those, is
+ * not reported: moving focus into a freshly opened modal or popover is expected, and the
+ * modal/popover element itself is a valid autofocus target when it should receive focus as
+ * soon as it opens.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
@@ -103,6 +107,10 @@ function isModalOpeningElement(
     return true;
   }
   if (getProp((opening as unknown as JSXOpeningElement).attributes, 'popover') !== undefined) {
+    return true;
+  }
+  const role = getRole(opening);
+  if (role !== null && MODAL_ROLES.has(role)) {
     return true;
   }
   return MODAL_COMPONENT_NAME_PATTERN.test(tag) && !MODAL_TRIGGER_NAME_PATTERN.test(tag);
