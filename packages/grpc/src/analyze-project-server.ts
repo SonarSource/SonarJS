@@ -260,18 +260,15 @@ function createAnalyzeProjectUnaryHandler({
           return toAnalyzeProjectUnaryResponse(result.result.output, result.result.pathMap);
         }
 
-        const result = (
-          await (() => {
-            const requestId = newWorkerRequestId();
-            return waitForWorkerCompletion(worker, 'unary-complete', requestId, () =>
-              worker.postMessage({
-                type: 'analyze-unary',
-                requestId,
-                request: call.request,
-              } satisfies AnalyzeProjectWorkerInMessage),
-            ) as Promise<UnaryCompleteMessage>;
-          })()
-        ).result;
+        const requestId = newWorkerRequestId();
+        const completion = (await waitForWorkerCompletion(worker, 'unary-complete', requestId, () =>
+          worker.postMessage({
+            type: 'analyze-unary',
+            requestId,
+            request: call.request,
+          } satisfies AnalyzeProjectWorkerInMessage),
+        )) as UnaryCompleteMessage;
+        const result = completion.result;
         if (result.type === 'failure') {
           throw toGrpcErrorFromFailure(result);
         }
