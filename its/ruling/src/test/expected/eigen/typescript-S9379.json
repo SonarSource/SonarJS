@@ -1,0 +1,51 @@
+{
+"eigen:src/app/Containers/Inquiry.tsx": [
+249
+],
+"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/LocationAutocomplete.tsx": [
+55
+],
+"eigen:src/app/Scenes/MyAccount/MyAccountEditEmail.tsx": [
+60
+],
+"eigen:src/app/Scenes/MyAccount/MyAccountEditName.tsx": [
+43
+],
+"eigen:src/app/Scenes/MyAccount/MyAccountEditPassword.tsx": [
+98
+],
+"eigen:src/app/Scenes/MyAccount/MyAccountEditPhone.tsx": [
+50
+],
+"eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/ArtworkInsights/RequestForPriceEstimate/RequestForPriceEstimateForm.tsx": [
+74
+],
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/Components/ArtistAutosuggest.tsx": [
+33
+],
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/Components/ArtworkAutosuggest.tsx": [
+38
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccountEmail.tsx": [
+38
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccountName.tsx": [
+36
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccountPassword.tsx": [
+34
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingLogin.tsx": [
+93,
+123
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingLoginWithOTP.tsx": [
+75
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingPersonalization/OnboardingPersonalizationModal.tsx": [
+111
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingSocialLink.tsx": [
+180
+]
+}

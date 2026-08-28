@@ -1,0 +1,26 @@
+{
+"desktop:app/src/ui/diff/diff-search-input.tsx": [
+37
+],
+"desktop:app/src/ui/lib/authentication-form.tsx": [
+107
+],
+"desktop:app/src/ui/lib/enterprise-server-entry.tsx": [
+58
+],
+"desktop:app/src/ui/lib/fancy-text-box.tsx": [
+44
+],
+"desktop:app/src/ui/lib/filter-list.tsx": [
+253
+],
+"desktop:app/src/ui/lib/text-area.tsx": [
+77
+],
+"desktop:app/src/ui/lib/text-box.tsx": [
+305
+],
+"desktop:app/src/ui/lib/two-factor-authentication.tsx": [
+81
+]
+}
