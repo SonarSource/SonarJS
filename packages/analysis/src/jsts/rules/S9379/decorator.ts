@@ -24,12 +24,15 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getElementType, getRole } from '../helpers/accessibility.js';
 import * as meta from './generated-meta.js';
 
-// Keyword must be the first or the last word of the PascalCase identifier, so
-// `DialogContent`/`CustomModal` match while `StyleSheetManager`/`Dialogue` do not.
-const MODAL_COMPONENT_NAME_PATTERN =
-  /^(?:Modal|Dialog|Popup|Drawer|Sheet|Popover)(?![a-z])|(?:Modal|Dialog|Popup|Drawer|Sheet|Popover)$/;
-// Trigger/opener wrappers live in the page, not in the overlay, so autofocusing them
-// (or their children) is a real issue.
+// A capitalized keyword occurring anywhere in a PascalCase identifier is a real word boundary
+// by convention, so `CustomModal`, `DialogContent`, and `AppModalWrapper` all match; the
+// trailing negative lookahead rejects a lowercase continuation right after the keyword, so
+// `Dialogue`/`Modality` do not. `Sheet` is deliberately not in this list: it collides with too
+// many unrelated names (`StyleSheet`, `TimeSheet`, `SpreadSheet`, `BalanceSheet`) to be a
+// reliable modal signal, unlike the others.
+const MODAL_COMPONENT_NAME_PATTERN = /(?:Modal|Dialog|Popup|Drawer|Popover)(?![a-z])/;
+// Trigger/opener wrappers live in the page, not in the overlay, so autofocusing them, or an
+// element inside them, is a real issue even when they sit inside a matching modal ancestor.
 const MODAL_TRIGGER_NAME_PATTERN = /(?:Trigger|Button|Link|Toggle|Opener)$/;
 
 // ARIA roles that mark a hand-rolled (non-native-`<dialog>`) modal, per the WAI-ARIA spec.
@@ -44,10 +47,12 @@ const MESSAGE =
  * Decorates the jsx-a11y `no-autofocus` rule so that autofocusing a `dialog` element, an
  * element carrying a `popover` attribute, an element with an ARIA `dialog`/`alertdialog` role,
  * a component whose name identifies it as a modal wrapper (`Modal`, `Dialog`, `Popup`,
- * `Drawer`, `Sheet`, `Popover`, e.g. `DialogContent`), or any element inside one of those, is
- * not reported: moving focus into a freshly opened modal or popover is expected, and the
+ * `Drawer`, `Popover`, e.g. `DialogContent`), or any element inside one of those, is not
+ * reported: moving focus into a freshly opened modal or popover is expected, and the
  * modal/popover element itself is a valid autofocus target when it should receive focus as
- * soon as it opens.
+ * soon as it opens. A modal-named trigger/opener component (`DialogTrigger`, `ModalToggle`,
+ * …) is never treated as the modal itself, even when it sits inside one, since it lives in
+ * the page rather than in the overlay it opens.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
@@ -90,8 +95,16 @@ function isExemptFromReport(
   }
   let node: TSESTree.Node | undefined = opening.parent?.parent;
   while (node) {
-    if (node.type === 'JSXElement' && isModalOpeningElement(context, node.openingElement)) {
-      return true;
+    if (node.type === 'JSXElement') {
+      const tag = getElementType(context)(node.openingElement);
+      // A modal-named trigger/opener lives in the page, not in the overlay: stop climbing
+      // here so an enclosing `<Dialog>` cannot exempt what is autofocused inside the trigger.
+      if (MODAL_COMPONENT_NAME_PATTERN.test(tag) && MODAL_TRIGGER_NAME_PATTERN.test(tag)) {
+        return false;
+      }
+      if (isModalOpeningElement(context, node.openingElement)) {
+        return true;
+      }
     }
     node = node.parent;
   }

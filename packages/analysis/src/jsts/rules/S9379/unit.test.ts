@@ -39,6 +39,9 @@ const VALID_CASES = [
   { code: `<div role="dialog"><input autoFocus /></div>;` },
   { code: `<div role="alertdialog"><input autoFocus /></div>;` },
   { code: `<div role="dialog" autoFocus></div>;` },
+  // The modal keyword does not have to be the first or the last word of the identifier.
+  { code: `<AppModalWrapper><input autoFocus /></AppModalWrapper>;` },
+  { code: `<StyledDialogContent><input autoFocus /></StyledDialogContent>;` },
 ];
 
 const INVALID_CASES = [
@@ -59,6 +62,13 @@ const INVALID_CASES = [
   { code: `<Dialogue><input autoFocus /></Dialogue>;`, errors: 1 },
   // A non-modal ARIA role does not exempt it.
   { code: `<div role="tooltip"><input autoFocus /></div>;`, errors: 1 },
+  // `Sheet` is not a recognized keyword: too many unrelated names end in it.
+  { code: `<StyleSheetManager><input autoFocus /></StyleSheetManager>;`, errors: 1 },
+  // A modal-named trigger/opener is never the modal itself, whether standalone or nested
+  // inside a real modal wrapper — the ancestor walk must not skip past it.
+  { code: `<DialogTrigger><input autoFocus /></DialogTrigger>;`, errors: 1 },
+  { code: `<Dialog><DialogTrigger><input autoFocus /></DialogTrigger></Dialog>;`, errors: 1 },
+  { code: `<ModalToggle autoFocus></ModalToggle>;`, errors: 1 },
 ];
 
 describe('S9379', () => {
