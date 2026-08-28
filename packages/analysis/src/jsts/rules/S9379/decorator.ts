@@ -24,13 +24,13 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getElementType } from '../helpers/accessibility.js';
 import * as meta from './generated-meta.js';
 
-// Matches a component name that identifies it as a modal/overlay wrapper (native `dialog`
-// and `popover` are handled separately, since JSX lowercase tags are never custom components).
-// No leading anchor: a capitalized keyword occurring anywhere in a PascalCase identifier is a
-// real word boundary by convention, so this matches both `ModalWrapper` and `CustomModal`. The
-// trailing negative lookahead rejects a lowercase continuation right after the keyword, so
-// `DialogContent`/`ConfirmDialog` match but `Dialogue`/`Modality` do not.
-const MODAL_COMPONENT_NAME_PATTERN = /(Modal|Dialog|Popup|Drawer|Sheet|Popover)(?![a-z])/;
+// Keyword must be the first or the last word of the PascalCase identifier, so
+// `DialogContent`/`CustomModal` match while `StyleSheetManager`/`Dialogue` do not.
+const MODAL_COMPONENT_NAME_PATTERN =
+  /^(?:Modal|Dialog|Popup|Drawer|Sheet|Popover)(?![a-z])|(?:Modal|Dialog|Popup|Drawer|Sheet|Popover)$/;
+// Trigger/opener wrappers live in the page, not in the overlay, so autofocusing them
+// (or their children) is a real issue.
+const MODAL_TRIGGER_NAME_PATTERN = /(?:Trigger|Button|Link|Toggle|Opener)$/;
 
 // Mirrors the sonar-html S9379 message ("Remove this "autofocus" attribute, as it can reduce
 // usability and accessibility for users."), spelling the attribute the JSX way.
@@ -105,5 +105,5 @@ function isModalOpeningElement(
   if (getProp((opening as unknown as JSXOpeningElement).attributes, 'popover') !== undefined) {
     return true;
   }
-  return MODAL_COMPONENT_NAME_PATTERN.test(tag);
+  return MODAL_COMPONENT_NAME_PATTERN.test(tag) && !MODAL_TRIGGER_NAME_PATTERN.test(tag);
 }
