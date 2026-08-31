@@ -29,6 +29,8 @@ import {
 import {
   getNearestFunctionScope,
   getUniqueWriteReferenceBefore,
+  hasSingleWrite,
+  isDescendantOrSameScope,
   unwrapTypeAssertion,
 } from './false-positives/helpers.js';
 import {
@@ -411,16 +413,32 @@ function isVariableFromDomSelection(
   visitedVariables.add(variable);
 
   // A read from a nested function can happen before or after a write in the
-  // enclosing function, so source order cannot prove the variable's value.
+  // enclosing function, so source order cannot prove a reassignable variable's
+  // value. A single-write binding (const, or a let/var written only once) has
+  // only one possible value once its write executes, and a read nested inside
+  // (or in) the write's own function is guaranteed to observe it, so the
+  // scope check only needs to require that the read stays within the write's
+  // function rather than matching it exactly.
+  const singleWrite = hasSingleWrite(variable);
   const readFunctionScope = getNearestFunctionScope(scope);
-  if (readFunctionScope !== getNearestFunctionScope(variable.scope)) {
+  const declFunctionScope = getNearestFunctionScope(variable.scope);
+  if (
+    singleWrite
+      ? !isDescendantOrSameScope(readFunctionScope, declFunctionScope)
+      : readFunctionScope !== declFunctionScope
+  ) {
     return false;
   }
 
   const writeReference = getUniqueWriteReferenceBefore(variable, node);
+  if (!writeReference?.writeExpr) {
+    return false;
+  }
+  const writeFunctionScope = getNearestFunctionScope(writeReference.from);
   if (
-    !writeReference?.writeExpr ||
-    getNearestFunctionScope(writeReference.from) !== readFunctionScope
+    singleWrite
+      ? !isDescendantOrSameScope(readFunctionScope, writeFunctionScope)
+      : writeFunctionScope !== readFunctionScope
   ) {
     return false;
   }

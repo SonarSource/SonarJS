@@ -33,6 +33,30 @@ export function getNearestFunctionScope(scope: Scope.Scope): Scope.Scope {
 }
 
 /**
+ * Returns whether a variable is written exactly once in its entire lifetime
+ * (e.g. a `const`, or a `let`/`var` that is never reassigned). Such a binding
+ * has only one possible value once its write executes, so its value can be
+ * trusted across function boundaries regardless of when a reader closure runs.
+ */
+export function hasSingleWrite(variable: Scope.Variable): boolean {
+  return variable.references.filter(reference => reference.isWrite()).length === 1;
+}
+
+/**
+ * Returns whether `scope` is `ancestor` or is nested within it.
+ */
+export function isDescendantOrSameScope(scope: Scope.Scope, ancestor: Scope.Scope): boolean {
+  let current: Scope.Scope | null = scope;
+  while (current) {
+    if (current === ancestor) {
+      return true;
+    }
+    current = current.upper;
+  }
+  return false;
+}
+
+/**
  * Returns a variable's sole write reference before a given identifier use.
  */
 export function getUniqueWriteReferenceBefore(

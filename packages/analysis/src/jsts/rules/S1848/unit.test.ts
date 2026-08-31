@@ -303,6 +303,21 @@ new DragInstance(params, startEvent, eBody);`,
             // Global-form exception: paperScope.* global namespace
             code: `new paperScope.Path.Line({ from: [0, 0], to: [40, 40], strokeColor: 'black' });`,
           },
+          {
+            // DOM attachment: const selected once at module scope, used in a later event handler
+            code: `const chart = document.querySelector('#chart');
+document.getElementById('btn').addEventListener('click', () => {
+  new Chart(chart);
+});`,
+          },
+          {
+            // DOM attachment: single-write const captured by a nested function
+            code: `const element = document.querySelector('.widget');
+function createWidget() {
+  new Widget(element);
+}
+createWidget();`,
+          },
         ],
         invalid: [
           {
@@ -402,21 +417,28 @@ new Chart(context);`,
             errors: 1,
           },
           {
-            // A captured DOM-derived variable cannot prove the argument is DOM-derived.
-            code: `const element = document.querySelector('.widget');
-function createWidget() {
-  new Widget(element);
-}
-createWidget();`,
-            errors: 1,
-          },
-          {
-            // A DOM-derived write in a nested function cannot prove the argument is DOM-derived.
+            // A DOM-derived write in a nested function cannot prove the argument is DOM-derived:
+            // the write's function scope is nested below the read's, so nothing guarantees it
+            // ran before this read.
             code: `let element;
 function setElement() {
   element = document.querySelector('.widget');
 }
 new Widget(element);`,
+            errors: 1,
+          },
+          {
+            // A reassignable (multi-write) variable read from a nested function still cannot
+            // be trusted, even though one of its writes is DOM-derived.
+            code: `let element = document.querySelector('.widget');
+function reset() {
+  element = null;
+}
+function createWidget() {
+  new Widget(element);
+}
+reset();
+createWidget();`,
             errors: 1,
           },
           {
