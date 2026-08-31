@@ -20,7 +20,6 @@ import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
-import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
 import {
   getVariableFromName,
   getVariableFromScope,
@@ -406,19 +405,20 @@ function isVariableFromDomSelection(
   scope: Scope.Scope,
   visitedVariables: Set<Scope.Variable>,
 ): boolean {
-  const variable = getVariableFromIdentifier(node, scope);
+  const variable = getVariableFromScope(scope, node.name);
   if (!variable || visitedVariables.has(variable)) {
     return false;
   }
   visitedVariables.add(variable);
 
   // A read from a nested function can happen before or after a write in the
-  // enclosing function, so source order cannot prove a reassignable variable's
-  // value. A single-write binding (const, or a let/var written only once) has
-  // only one possible value once its write executes, and a read nested inside
-  // (or in) the write's own function is guaranteed to observe it, so the
-  // scope check only needs to require that the read stays within the write's
-  // function rather than matching it exactly.
+  // enclosing function, so source order alone cannot prove a reassignable
+  // variable's value. A single-write binding (const, or a let/var written only
+  // once) has only one possible value once its write executes; requiring that
+  // write to also precede the read lexically (below) guarantees any later
+  // closure execution observes it, so the scope check only needs to require
+  // that the read stays within the write's function rather than matching it
+  // exactly.
   const singleWrite = hasSingleWrite(variable);
   const readFunctionScope = getNearestFunctionScope(scope);
   const declFunctionScope = getNearestFunctionScope(variable.scope);
@@ -444,8 +444,15 @@ function isVariableFromDomSelection(
   }
 
   // Follow a local initializer only. This permits DOM-derived member/call chains
-  // without performing interprocedural analysis.
-  return containsDomSelection(unwrapTypeAssertion(writeReference.writeExpr), scope, visitedVariables);
+  // without performing interprocedural analysis. The write expression must be
+  // resolved in the scope where the write happens, not where the read happens,
+  // because a single-write binding may be read from a nested (possibly shadowing)
+  // function scope.
+  return containsDomSelection(
+    unwrapTypeAssertion(writeReference.writeExpr),
+    writeReference.from,
+    visitedVariables,
+  );
 }
 
 /**

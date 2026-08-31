@@ -318,6 +318,27 @@ function createWidget() {
 }
 createWidget();`,
           },
+          {
+            // DOM attachment: write expression must resolve in its own scope, not the
+            // reader's, even when the reader shadows an identifier used by the write
+            code: `const element = document.querySelector('.widget');
+function f() {
+  const document = { querySelector: () => ({}) };
+  new Widget(element);
+}
+f();`,
+          },
+          {
+            // DOM attachment: single-write const read from two nested function levels deep
+            code: `const element = document.querySelector('.widget');
+function outer() {
+  function inner() {
+    new Widget(element);
+  }
+  inner();
+}
+outer();`,
+          },
         ],
         invalid: [
           {

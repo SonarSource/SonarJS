@@ -36,7 +36,8 @@ export function getNearestFunctionScope(scope: Scope.Scope): Scope.Scope {
  * Returns whether a variable is written exactly once in its entire lifetime
  * (e.g. a `const`, or a `let`/`var` that is never reassigned). Such a binding
  * has only one possible value once its write executes, so its value can be
- * trusted across function boundaries regardless of when a reader closure runs.
+ * trusted from a reader nested inside the write's function scope, as long as
+ * the write also textually precedes the read.
  */
 export function hasSingleWrite(variable: Scope.Variable): boolean {
   return variable.references.filter(reference => reference.isWrite()).length === 1;
