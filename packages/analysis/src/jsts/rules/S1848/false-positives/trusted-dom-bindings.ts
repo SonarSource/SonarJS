@@ -19,7 +19,26 @@ import type { Scope } from 'eslint';
 import { getVariableFromScope, isIdentifier, isRequireModule } from '../../helpers/ast.js';
 import { unwrapTypeAssertion } from './helpers.js';
 
-export function isTrustedJQueryBinding(scope: Scope.Scope, name: string): boolean {
+/**
+ * Returns whether a `Variable`-def's declaration is an ambient, type-only
+ * declaration (`declare const $: JQueryStatic;`). A plain uninitialized binding
+ * (`let $;`) or a for-of/for-in binding also has a null `init`, so the TypeScript
+ * `declare` flag - not a null init - is what actually distinguishes the two.
+ */
+function isAmbientDeclaration(def: Scope.Definition & { type: 'Variable' }): boolean {
+  return (def.parent as { declare?: boolean } | null)?.declare === true;
+}
+
+export function isTrustedJQueryBinding(
+  scope: Scope.Scope,
+  name: string,
+  seen: Set<string> = new Set(),
+): boolean {
+  if (seen.has(name)) {
+    return false;
+  }
+  seen.add(name);
+
   const variable = getVariableFromScope(scope, name);
   if (!variable?.defs.length) {
     return true;
@@ -33,14 +52,13 @@ export function isTrustedJQueryBinding(scope: Scope.Scope, name: string): boolea
       return false;
     }
     if (def.node.init == null) {
-      // Ambient/type-only declaration, e.g. `declare const $: JQueryStatic;`
-      return true;
+      return isAmbientDeclaration(def);
     }
     const init = unwrapTypeAssertion(def.node.init);
     return (
       (init.type === 'CallExpression' && isRequireModule(init, 'jquery')) ||
-      // `const $ = jQuery;` aliasing the (untouched) jQuery global
-      (isIdentifier(init, 'jQuery') && !getVariableFromScope(scope, 'jQuery')?.defs.length)
+      // `const $ = jQuery;` aliasing an already-trusted jQuery binding
+      (isIdentifier(init, 'jQuery') && isTrustedJQueryBinding(scope, 'jQuery', seen))
     );
   });
 }
@@ -57,8 +75,7 @@ export function isTrustedDocumentBinding(scope: Scope.Scope): boolean {
       return false;
     }
     if (def.node.init == null) {
-      // Ambient/type-only declaration, e.g. `declare const document: Document;`
-      return true;
+      return isAmbientDeclaration(def);
     }
     if (!windowNotShadowed) {
       return false;

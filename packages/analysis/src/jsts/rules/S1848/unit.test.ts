@@ -267,6 +267,12 @@ new Widget(document.querySelector('#container'));`,
 new Widget($('#container'));`,
           },
           {
+            // DOM attachment: jQuery aliased to an already-trusted import binding
+            code: `import jQuery from 'jquery';
+const $ = jQuery;
+new Widget($('#container'));`,
+          },
+          {
             // DOM attachment: ambient type-only jQuery/document declarations
             code: `declare const $: JQueryStatic;
 declare const document: Document;
@@ -501,6 +507,27 @@ new Chart(context);`,
 const canvas = jQuery('#chart');
 const context = canvas.getContext('2d');
 new Chart(context);`,
+            errors: 1,
+          },
+          {
+            // A plain uninitialized `$` is not an ambient declaration and must not be trusted
+            code: `let $;
+$ = getUntrustedValue();
+new Widget($('#container'));`,
+            errors: 1,
+          },
+          {
+            // A plain uninitialized `document` is not an ambient declaration and must not be trusted
+            code: `let document;
+document = getUntrustedValue();
+new Widget(document.querySelector('#container'));`,
+            errors: 1,
+          },
+          {
+            // A for-of bound `document` is not an ambient declaration and must not be trusted
+            code: `for (const document of untrustedList) {
+  new Widget(document.querySelector('#container'));
+}`,
             errors: 1,
           },
           {
