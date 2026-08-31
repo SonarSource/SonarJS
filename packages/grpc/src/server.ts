@@ -100,6 +100,9 @@ export function createGrpcServer(): grpc.Server {
 
 /**
  * Start the gRPC server on the specified port; pass 0 to let the OS pick a free one.
+ *
+ * Also called from grpc-server.mjs (bundled to bin/grpc-server.cjs) — check that file too
+ * when changing this signature.
  */
 export function startServer(port: number): Promise<{ server: grpc.Server; port: number }> {
   return new Promise((resolve, reject) => {
