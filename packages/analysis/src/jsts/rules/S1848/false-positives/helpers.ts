@@ -17,6 +17,7 @@
 
 import type { Scope } from 'eslint';
 import type estree from 'estree';
+import { unwrapTypeScriptExpression } from '../../helpers/ast.js';
 
 /**
  * Returns the nearest enclosing function, module, or global scope.
@@ -59,6 +60,10 @@ export function isDescendantOrSameScope(scope: Scope.Scope, ancestor: Scope.Scop
 
 /**
  * Returns a variable's sole write reference before a given identifier use.
+ * Unlike the generic `getUniqueWriteReference` in `helpers/ast.ts` (which finds
+ * a variable's one and only write in its entire lifetime), this also accepts
+ * a `node` to bound the search to writes preceding that specific use, which
+ * this rule's cross-function scope check relies on.
  */
 export function getUniqueWriteReferenceBefore(
   variable: Scope.Variable,
@@ -78,22 +83,17 @@ export function getUniqueWriteReferenceBefore(
 }
 
 /**
- * Unwraps TypeScript type assertions to get the underlying expression.
- * Handles TypeScript expression wrappers: TSAsExpression (`x as Type`),
- * TSTypeAssertion (`<Type>x`), and TSNonNullExpression (`x!`), as well as
- * ChainExpression (`x?.property`) produced by optional chaining; unwrapping it returns the
- * contained optional MemberExpression (`x?.property`), not its object (`x`).
+ * Unwraps TypeScript type assertions (delegating to the shared
+ * `unwrapTypeScriptExpression`, which handles TSAsExpression, TSSatisfiesExpression,
+ * TSTypeAssertion, and TSNonNullExpression) as well as ChainExpression (`x?.property`)
+ * produced by optional chaining; unwrapping it returns the contained optional
+ * MemberExpression (`x?.property`), not its object (`x`). The two kinds of wrapper
+ * can nest in either order, so this alternates between them until neither applies.
  */
 export function unwrapTypeAssertion(node: estree.Node): estree.Node {
-  const nodeType = node.type as string;
-  if (
-    nodeType === 'TSAsExpression' ||
-    nodeType === 'TSTypeAssertion' ||
-    nodeType === 'TSNonNullExpression' ||
-    nodeType === 'ChainExpression'
-  ) {
-    const expr = (node as unknown as { expression: estree.Node }).expression;
-    return expr ? unwrapTypeAssertion(expr) : node;
+  let current = unwrapTypeScriptExpression(node);
+  while (current.type === 'ChainExpression') {
+    current = unwrapTypeScriptExpression(current.expression);
   }
-  return node;
+  return current;
 }

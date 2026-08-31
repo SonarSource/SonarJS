@@ -257,6 +257,23 @@ new Widget(jQuery('#container'));`,
 new Widget(document.querySelector('#container'));`,
           },
           {
+            // DOM attachment: document destructured from window
+            code: `const { document } = window;
+new Widget(document.querySelector('#container'));`,
+          },
+          {
+            // DOM attachment: jQuery aliased to the untouched global
+            code: `const $ = jQuery;
+new Widget($('#container'));`,
+          },
+          {
+            // DOM attachment: ambient type-only jQuery/document declarations
+            code: `declare const $: JQueryStatic;
+declare const document: Document;
+new Widget($('#container'));
+new OtherWidget(document.querySelector('#container'));`,
+          },
+          {
             // DOM attachment: optional chained DOM-derived context
             code: `new Chart(document.querySelector('#chart')?.getContext('2d'));`,
           },
