@@ -18,13 +18,9 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
+import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
-import {
-  getVariableFromName,
-  getVariableFromScope,
-  isIdentifier,
-} from '../helpers/ast.js';
 import {
   getNearestFunctionScope,
   getUniqueWriteReferenceBefore,
@@ -36,6 +32,16 @@ import {
   isTrustedDocumentBinding,
   isTrustedJQueryBinding,
 } from './false-positives/trusted-dom-bindings.js';
+import {
+  getVariableFromName,
+  getVariableFromScope,
+  isIdentifier,
+} from '../helpers/ast.js';
+import { getSignatureFromCallee, getTypeFromTreeNode } from '../helpers/type.js';
+import {
+  type RequiredParserServices,
+  isRequiredParserServices,
+} from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
 /**
@@ -76,6 +82,7 @@ const DOM_SELECTION_METHODS = [
 const JQUERY_IDENTIFIERS = ['$', 'jQuery'];
 const STATEMENT_ANCESTOR_OFFSET = 1;
 const CONTAINER_ANCESTOR_OFFSET = 2;
+const CONSTRUCTS_PACKAGE_PATH = /[\\/]node_modules[\\/]constructs[\\/]/;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -99,6 +106,10 @@ export const rule: Rule.RuleModule = {
         if (isRegExpValidation(node, context)) {
           return;
         }
+        const services = context.sourceCode.parserServices;
+        if (isRequiredParserServices(services) && isCdkConstructCreation(node, services)) {
+          return;
+        }
         const { callee } = node;
         if (callee.type === 'Identifier' || callee.type === 'MemberExpression') {
           const calleeText = sourceCode.getText(callee);
@@ -118,6 +129,142 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+/**
+ * Checks whether a construction registers a construct in its construct-tree parent.
+ *
+ * @param node discarded constructor invocation
+ * @param services TypeScript parser services
+ * @return whether the constructed value and its first argument derive from `constructs.Construct`
+ */
+function isCdkConstructCreation(
+  node: estree.NewExpression,
+  services: RequiredParserServices,
+): boolean {
+  const parentArgument = node.arguments[0];
+  if (!parentArgument) {
+    return false;
+  }
+
+  const signature = getSignatureFromCallee(node, services);
+  if (!signature) {
+    return false;
+  }
+
+  const parentType = getConstructParentType(parentArgument, services);
+  if (!parentType) {
+    return false;
+  }
+
+  const checker = services.program.getTypeChecker();
+  return (
+    derivesFromConstruct(signature.getReturnType(), checker) &&
+    derivesFromConstruct(parentType, checker, true)
+  );
+}
+
+function getConstructParentType(
+  argument: estree.Expression | estree.SpreadElement,
+  services: RequiredParserServices,
+): ts.Type | undefined {
+  if (argument.type !== 'SpreadElement') {
+    return getTypeFromTreeNode(argument, services);
+  }
+
+  const checker = services.program.getTypeChecker();
+  const spreadType = getTypeFromTreeNode(argument.argument, services);
+  if (!checker.isTupleType(spreadType)) {
+    return undefined;
+  }
+
+  return checker.getTypeArguments(spreadType as ts.TypeReference)[0];
+}
+
+/**
+ * Checks whether a type directly or transitively derives from `constructs.Construct`.
+ *
+ * @param type TypeScript type to inspect
+ * @param allowConstructInterface whether to also accept the canonical IConstruct interface
+ * @return whether the type inherits from the canonical Construct declaration
+ */
+function derivesFromConstruct(
+  type: ts.Type,
+  checker: ts.TypeChecker,
+  allowConstructInterface = false,
+): boolean {
+  const typesToVisit = [type];
+  const visitedTypes = new Set<ts.Type>();
+
+  for (const currentType of typesToVisit) {
+    if (visitedTypes.has(currentType)) {
+      continue;
+    }
+    visitedTypes.add(currentType);
+
+    if (currentType.isUnion()) {
+      if (
+        currentType.types.every(part =>
+          derivesFromConstruct(part, checker, allowConstructInterface),
+        )
+      ) {
+        return true;
+      }
+      continue;
+    }
+
+    if (currentType.isIntersection()) {
+      typesToVisit.push(...currentType.types);
+      continue;
+    }
+
+    if (isConstructType(currentType, allowConstructInterface)) {
+      return true;
+    }
+
+    enqueueTypeParameterConstraint(currentType, typesToVisit);
+    typesToVisit.push(...getBaseTypes(currentType, checker));
+  }
+
+  return false;
+}
+
+function isConstructType(type: ts.Type, allowConstructInterface: boolean): boolean {
+  const symbol = type.getSymbol();
+  return (
+    (symbol?.name === 'Construct' || (allowConstructInterface && symbol?.name === 'IConstruct')) &&
+    symbol.declarations?.some(declaration =>
+      CONSTRUCTS_PACKAGE_PATH.test(declaration.getSourceFile().fileName),
+    ) === true
+  );
+}
+
+function enqueueTypeParameterConstraint(type: ts.Type, typesToVisit: ts.Type[]): void {
+  if (!type.isTypeParameter()) {
+    return;
+  }
+
+  const constraint = type.getConstraint();
+  if (constraint) {
+    typesToVisit.push(constraint);
+  }
+}
+
+function getBaseTypes(type: ts.Type, checker: ts.TypeChecker): ts.BaseType[] {
+  if (!(type.flags & ts.TypeFlags.Object)) {
+    return [];
+  }
+
+  const objectType = type as ts.ObjectType;
+  const baseTypeOwner =
+    objectType.objectFlags & ts.ObjectFlags.Reference
+      ? (type as ts.TypeReference).target
+      : objectType;
+  if (!(baseTypeOwner.objectFlags & ts.ObjectFlags.ClassOrInterface)) {
+    return [];
+  }
+
+  return checker.getBaseTypes(baseTypeOwner as ts.InterfaceType) ?? [];
+}
 
 function isTryable(node: estree.Node, context: Rule.RuleContext) {
   const ancestors = context.sourceCode.getAncestors(node);

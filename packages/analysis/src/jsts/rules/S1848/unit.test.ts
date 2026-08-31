@@ -14,7 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import path from 'node:path';
+import {
+  NoTypeCheckingRuleTester,
+  RuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 
@@ -641,6 +645,144 @@ new Widget(document.querySelector('#container'));`,
       }
       `,
             errors: 1,
+          },
+        ],
+      },
+    );
+  });
+
+  it('ignores discarded constructions registered in a construct tree', () => {
+    const fixtureDirectory = path.join(import.meta.dirname, 'fixtures');
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: path.join(fixtureDirectory, 'tsconfig.json'),
+      },
+    });
+
+    ruleTester.run(
+      'Objects should not be created to be dropped immediately without being used',
+      rule,
+      {
+        valid: [
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct as BaseConstruct, type IConstruct } from 'constructs';
+
+class App extends BaseConstruct {}
+class MyStack extends BaseConstruct {
+  addConstruct() {
+    new BaseConstruct(this, 'ThisType');
+  }
+}
+class Foundation extends BaseConstruct {}
+class CompanyService extends Foundation {}
+class GenericStack extends BaseConstruct {}
+class GenericChild<T> extends BaseConstruct {}
+class AnotherStack extends BaseConstruct {}
+interface Taggable {
+  tag: string;
+}
+
+declare const app: App;
+declare const stack: MyStack;
+declare const interfaceScope: IConstruct;
+declare const stackConstructor: typeof GenericStack | typeof AnotherStack;
+declare const stackArguments: [BaseConstruct, string];
+declare const intersectionScope: BaseConstruct & Taggable;
+
+new BaseConstruct(stack, 'DirectConstruct');
+new MyStack(app, 'MyStack');
+new CompanyService(stack, 'CompanyService');
+new GenericStack(interfaceScope, 'InterfaceScope');
+new GenericChild<string>(stack, 'GenericChild');
+new stackConstructor(stack, 'StackFromUnion');
+new GenericStack(...stackArguments);
+new GenericStack(intersectionScope, 'IntersectionScope');
+
+function addGenericStack<T extends BaseConstruct>(scope: T) {
+  new GenericStack(scope, 'GenericStack');
+}
+
+function addUnionStack<T extends GenericStack | AnotherStack>(scope: T) {
+  new GenericStack(scope, 'UnionConstraint');
+}
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.js'),
+            code: `
+import { Construct } from 'constructs';
+
+class Foundation extends Construct {}
+class CompanyService extends Foundation {}
+
+/** @type {Construct} */
+const scope = null;
+
+new CompanyService(scope, 'CompanyService');
+`,
+          },
+        ],
+        invalid: [
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct, type IConstruct } from 'constructs';
+
+class PlainClass {
+  constructor(scope: Construct) {}
+}
+
+class GenericStack extends Construct {}
+
+class ConstructWithPlainParent extends Construct {
+  constructor(parent: object, id: string) {
+    super(parent as Construct, id);
+  }
+}
+
+class ConstructLike implements IConstruct {
+  readonly node = {};
+
+  constructor(scope: Construct, id: string) {}
+}
+
+declare const scope: Construct;
+declare const wrongConstructor: typeof GenericStack | typeof PlainClass;
+declare const wrongArguments: [object, string];
+
+new PlainClass(scope);
+new ConstructWithPlainParent({}, 'WrongParent');
+new ConstructLike(scope, 'ConstructLike');
+new wrongConstructor(scope, 'UnionWithNonConstruct');
+new GenericStack(...wrongArguments);
+
+function addUnconstrained<T extends object>(scope: T) {
+  new GenericStack(scope, 'Unconstrained');
+}
+`,
+            errors: 6,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.js'),
+            code: `
+import { Construct as BaseConstruct } from 'constructs';
+
+class Construct {}
+class FakeChild extends Construct {}
+
+/** @type {BaseConstruct} */
+const scope = null;
+const fakeScope = new Construct();
+
+new FakeChild(fakeScope);
+class PlainClass {
+  constructor(parent) {}
+}
+new PlainClass(scope);
+`,
+            errors: 2,
           },
         ],
       },
