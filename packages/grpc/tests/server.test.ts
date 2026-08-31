@@ -20,8 +20,6 @@ import * as grpc from '@grpc/grpc-js';
 import { startServer } from '../src/server.js';
 import { analyzer } from '../src/proto/language_analyzer.js';
 
-// Use a random high port to avoid conflicts
-const TEST_PORT = 50151;
 const SERVICE_NAME = 'analyzer.LanguageAnalyzerService';
 
 /**
@@ -89,8 +87,10 @@ describe('gRPC server', () => {
   }
 
   before(async () => {
-    server = await startServer(TEST_PORT);
-    client = createClient(TEST_PORT);
+    // Port 0 lets the OS assign a free ephemeral port, avoiding fixed-port collisions.
+    const bound = await startServer(0);
+    server = bound.server;
+    client = createClient(bound.port);
   });
 
   after(async () => {
