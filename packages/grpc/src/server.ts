@@ -99,9 +99,9 @@ export function createGrpcServer(): grpc.Server {
 }
 
 /**
- * Start the gRPC server on the specified port
+ * Start the gRPC server on the specified port; pass 0 to let the OS pick a free one.
  */
-export function startServer(port: number): Promise<grpc.Server> {
+export function startServer(port: number): Promise<{ server: grpc.Server; port: number }> {
   return new Promise((resolve, reject) => {
     const server = createGrpcServer();
 
@@ -117,7 +117,7 @@ export function startServer(port: number): Promise<grpc.Server> {
 
         info(`gRPC server listening on port ${boundPort}`);
         info(`Services: ${ANALYZER_SERVICE_NAME}, ${HEALTH_SERVICE_NAME}`);
-        resolve(server);
+        resolve({ server, port: boundPort });
       },
     );
   });
