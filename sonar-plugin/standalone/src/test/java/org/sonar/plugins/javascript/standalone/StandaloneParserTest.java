@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.sonar.plugins.javascript.api.estree.ESTree.Program;
 
+
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
@@ -99,6 +100,42 @@ class StandaloneParserTest {
       Program program = builtParser.parse("var x = 1;");
       assertThat(program.body()).hasSize(1);
     }
+  }
+
+  @Test
+  void test_existing_node_port_out_of_range_throws() {
+    assertThatThrownBy(() ->
+      StandaloneParser.builder().existingNodeProcessPort("70000")
+    )
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("between 1 and 65535");
+  }
+
+  @Test
+  void test_existing_node_port_not_a_number_throws() {
+    assertThatThrownBy(() ->
+      StandaloneParser.builder().existingNodeProcessPort("not-a-port")
+    )
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("Invalid existingNodeProcessPort");
+  }
+
+  @Test
+  void test_existing_node_port_zero_throws() {
+    assertThatThrownBy(() ->
+      StandaloneParser.builder().existingNodeProcessPort("0")
+    )
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("between 1 and 65535");
+  }
+
+  @Test
+  void test_existing_node_port_blank_throws() {
+    assertThatThrownBy(() ->
+      StandaloneParser.builder().existingNodeProcessPort("  ")
+    )
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("blank");
   }
 
   @Test

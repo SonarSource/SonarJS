@@ -117,6 +117,9 @@ public class BridgeServerImpl implements BridgeServer {
    */
   private boolean ownsNodeProcess;
 
+  @Nullable
+  private String existingNodeProcessPortOverride;
+
   // Used by pico container for dependency injection
   public BridgeServerImpl(
     NodeCommandBuilder nodeCommandBuilder,
@@ -396,6 +399,7 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public void startServerLazily(BridgeServerConfig serverConfig) throws IOException {
+    existingNodeProcessPortOverride = serverConfig.existingNodeProcessPort();
     if (status == Status.FAILED) {
       if (shouldRestartFailedServer()) {
         // Reset the status, which will cause the server to retry deployment
@@ -414,6 +418,11 @@ public class BridgeServerImpl implements BridgeServer {
       if (!waitChannelReady(timeoutSeconds * 1000)) {
         status = Status.FAILED;
         closeChannel();
+        if (existingNodeProcessPortOverride != null) {
+          throw new IllegalStateException(
+            "Could not connect to existing Node.js process on " + hostAddress + ":" + port
+          );
+        }
         throw new ServerAlreadyFailedException();
       }
       serverHasStarted();
@@ -812,7 +821,9 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   public String getExistingNodeProcessPort() {
-    return System.getenv(SONARJS_EXISTING_NODE_PROCESS_PORT);
+    return existingNodeProcessPortOverride != null
+      ? existingNodeProcessPortOverride
+      : System.getenv(SONARJS_EXISTING_NODE_PROCESS_PORT);
   }
 
   static class LogOutputConsumer implements Consumer<String> {

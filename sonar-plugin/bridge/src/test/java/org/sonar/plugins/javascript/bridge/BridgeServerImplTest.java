@@ -503,6 +503,13 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void test_getExistingNodeProcessPort_falls_back_to_env_var_when_config_null() {
+    bridgeServer = createUnitBridgeServer();
+    assertThat(bridgeServer.getExistingNodeProcessPort())
+      .isEqualTo(System.getenv(BridgeServerImpl.SONARJS_EXISTING_NODE_PROCESS_PORT));
+  }
+
+  @Test
   void isAlive_should_not_require_a_lease_for_an_existing_node_process() throws Exception {
     bridgeServer = createUnitBridgeServer();
     var channel = mock(ManagedChannel.class);
