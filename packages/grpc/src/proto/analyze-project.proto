@@ -10,8 +10,14 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 
 service AnalyzeProjectService {
+  // Analysis calls are executed one at a time in arrival order. The server keeps a bounded
+  // pending queue and returns RESOURCE_EXHAUSTED only when that queue is full.
+  // Cancelling either RPC transport cancels only that submitted request: a pending request is
+  // removed from the queue, while an active request asks the worker to stop its analysis.
   rpc AnalyzeProject(AnalyzeProjectRequest) returns (stream AnalyzeProjectStreamResponse);
   rpc AnalyzeProjectUnary(AnalyzeProjectRequest) returns (AnalyzeProjectUnaryResponse);
+  // Explicitly cancels whichever analysis is active. This is distinct from transport cancellation
+  // above and never targets a pending request.
   rpc CancelAnalysis(CancelAnalysisRequest) returns (CancelAnalysisResponse);
   rpc Lease(stream LeaseRequest) returns (stream LeaseResponse);
 }

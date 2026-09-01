@@ -20,8 +20,18 @@ import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
-import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
 import { getVariableFromName, getVariableFromScope, isIdentifier } from '../helpers/ast.js';
+import {
+  getNearestFunctionScope,
+  getUniqueWriteReferenceBefore,
+  hasSingleWrite,
+  isDescendantOrSameScope,
+  unwrapTypeAssertion,
+} from './false-positives/helpers.js';
+import {
+  isTrustedDocumentBinding,
+  isTrustedJQueryBinding,
+} from './false-positives/trusted-dom-bindings.js';
 import * as meta from './generated-meta.js';
 
 /**
@@ -338,34 +348,46 @@ function hasDomSelectionArgument(node: estree.NewExpression, context: Rule.RuleC
  * Recursively checks if a node contains a DOM selection call.
  * Also resolves variables to check if they were initialized from DOM selection.
  */
-function containsDomSelection(node: estree.Node, scope: Scope.Scope): boolean {
+function containsDomSelection(
+  node: estree.Node,
+  scope: Scope.Scope,
+  visitedVariables = new Set<Scope.Variable>(),
+): boolean {
+  node = unwrapTypeAssertion(node);
   if (node.type === 'CallExpression') {
-    return isDomSelectionCall(node);
+    return (
+      isDomSelectionCall(node, scope) ||
+      (node.callee.type === 'MemberExpression' &&
+        containsDomSelection(node.callee.object, scope, visitedVariables))
+    );
   }
   if (node.type === 'Identifier') {
     // Resolve variable to check its initializer
-    return isVariableFromDomSelection(node, scope);
+    return isVariableFromDomSelection(node, scope, visitedVariables);
   }
   if (node.type === 'MemberExpression') {
     // Check if object is a DOM selection call (e.g., document.querySelector(...).dataset)
-    return containsDomSelection(node.object, scope);
+    return containsDomSelection(node.object, scope, visitedVariables);
   }
   if (node.type === 'ObjectExpression') {
     // Check properties for DOM selection calls (e.g., {element: $('foo')})
     return node.properties.some(prop => {
       if (prop.type === 'Property') {
-        return containsDomSelection(prop.value, scope);
+        return containsDomSelection(prop.value, scope, visitedVariables);
       }
       return false;
     });
   }
   if (node.type === 'ArrayExpression') {
     // Check array elements for DOM selection calls (e.g., [$('foo'), $('bar')])
-    return node.elements.some(elem => elem !== null && containsDomSelection(elem, scope));
+    return node.elements.some(
+      elem => elem !== null && containsDomSelection(elem, scope, visitedVariables),
+    );
   }
   if (node.type === 'ConditionalExpression') {
     return (
-      containsDomSelection(node.consequent, scope) || containsDomSelection(node.alternate, scope)
+      containsDomSelection(node.consequent, scope, visitedVariables) ||
+      containsDomSelection(node.alternate, scope, visitedVariables)
     );
   }
   return false;
@@ -374,36 +396,59 @@ function containsDomSelection(node: estree.Node, scope: Scope.Scope): boolean {
 /**
  * Checks if a variable was initialized from a DOM selection call.
  */
-function isVariableFromDomSelection(node: estree.Identifier, scope: Scope.Scope): boolean {
-  const variable = getVariableFromIdentifier(node, scope);
-  if (!variable) {
+function isVariableFromDomSelection(
+  node: estree.Identifier,
+  scope: Scope.Scope,
+  visitedVariables: Set<Scope.Variable>,
+): boolean {
+  const variable = getVariableFromScope(scope, node.name);
+  if (!variable || visitedVariables.has(variable)) {
     return false;
   }
-  // Check each definition of the variable
-  for (const def of variable.defs) {
-    if (def.type === 'Variable' && def.node.init) {
-      // Check if the initializer is a DOM selection call (possibly wrapped in type assertion)
-      const initExpr = unwrapTypeAssertion(def.node.init);
-      if (initExpr.type === 'CallExpression' && isDomSelectionCall(initExpr)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
+  visitedVariables.add(variable);
 
-/**
- * Unwraps TypeScript type assertions to get the underlying expression.
- * Handles: x as Type, <Type>x
- */
-function unwrapTypeAssertion(node: estree.Node): estree.Node {
-  // TypeScript AST types TSAsExpression and TSTypeAssertion are not in estree
-  const nodeType = node.type as string;
-  if (nodeType === 'TSAsExpression' || nodeType === 'TSTypeAssertion') {
-    const expr = (node as unknown as { expression: estree.Node }).expression;
-    return expr ? unwrapTypeAssertion(expr) : node;
+  // A read from a nested function can happen before or after a write in the
+  // enclosing function, so source order alone cannot prove a reassignable
+  // variable's value. A single-write binding (const, or a let/var written only
+  // once) has only one possible value once its write executes; requiring that
+  // write to also precede the read lexically (below) guarantees any later
+  // closure execution observes it, so the scope check only needs to require
+  // that the read stays within the write's function rather than matching it
+  // exactly.
+  const singleWrite = hasSingleWrite(variable);
+  const readFunctionScope = getNearestFunctionScope(scope);
+  const declFunctionScope = getNearestFunctionScope(variable.scope);
+  if (
+    singleWrite
+      ? !isDescendantOrSameScope(readFunctionScope, declFunctionScope)
+      : readFunctionScope !== declFunctionScope
+  ) {
+    return false;
   }
-  return node;
+
+  const writeReference = getUniqueWriteReferenceBefore(variable, node);
+  if (!writeReference?.writeExpr) {
+    return false;
+  }
+  const writeFunctionScope = getNearestFunctionScope(writeReference.from);
+  if (
+    singleWrite
+      ? !isDescendantOrSameScope(readFunctionScope, writeFunctionScope)
+      : writeFunctionScope !== readFunctionScope
+  ) {
+    return false;
+  }
+
+  // Follow a local initializer only. This permits DOM-derived member/call chains
+  // without performing interprocedural analysis. The write expression must be
+  // resolved in the scope where the write happens, not where the read happens,
+  // because a single-write binding may be read from a nested (possibly shadowing)
+  // function scope.
+  return containsDomSelection(
+    unwrapTypeAssertion(writeReference.writeExpr),
+    writeReference.from,
+    visitedVariables,
+  );
 }
 
 /**
@@ -411,12 +456,12 @@ function unwrapTypeAssertion(node: estree.Node): estree.Node {
  * Matches: document.querySelector, document.getElementById, $(), jQuery(), this.$(),
  * and any call to DOM selection methods on any object (e.g., myDocument.querySelector)
  */
-function isDomSelectionCall(node: estree.CallExpression): boolean {
+function isDomSelectionCall(node: estree.CallExpression, scope: Scope.Scope): boolean {
   const { callee } = node;
 
   // Check for $() or jQuery()
   if (isIdentifier(callee, ...JQUERY_IDENTIFIERS)) {
-    return true;
+    return isTrustedJQueryBinding(scope, callee.name);
   }
 
   // Check for *.querySelector, *.getElementById, etc. on any object
@@ -425,6 +470,9 @@ function isDomSelectionCall(node: estree.CallExpression): boolean {
     callee.type === 'MemberExpression' &&
     isIdentifier(callee.property, ...DOM_SELECTION_METHODS)
   ) {
+    if (isIdentifier(callee.object, 'document') && !isTrustedDocumentBinding(scope)) {
+      return false;
+    }
     return true;
   }
 

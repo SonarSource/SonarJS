@@ -191,8 +191,25 @@ The old heartbeat ping is replaced by a long-lived `Lease` stream.
 ### Cancellation
 
 - Runtime analysis stays single-flight.
-- Java cancellation triggers `CancelAnalysis`, and the Node worker stops the active analysis.
-- Concurrent analyze-project requests are rejected with gRPC `RESOURCE_EXHAUSTED`.
+- Analyze-project requests are queued in arrival order while another analysis is active.
+- The pending queue is bounded because requests can retain project file contents in memory;
+  requests beyond its capacity are rejected with gRPC `RESOURCE_EXHAUSTED`.
+- The two cancellation paths are intentionally distinct:
+  - Cancelling an `AnalyzeProject` or `AnalyzeProjectUnary` transport call targets only that submitted
+    request. It removes the request when pending, or asks the Node worker to stop it when active.
+  - Calling `CancelAnalysis` targets whichever request is active at that moment and never cancels a
+    pending request.
+- If both paths target the same active request, the worker cancellation signal is deduplicated.
+- A cancellation acknowledgement only confirms that the cancellation signal was accepted. The queue
+  advances only after the active analysis finishes, so analyses never overlap in the worker.
+- Cancellation does not shut down the gRPC server. If an analysis is stuck and cannot reach a
+  cancellation checkpoint, its execution and queued successors remain blocked. No recovery for that
+  case is implemented today; supervised worker replacement would be required and is out of scope for
+  this migration.
+
+The [SonarLint analyze-project concurrency note](sonarlint-analyze-project-concurrency.md) describes
+the complete SonarLint scheduling and cancellation handoff, the reason the Node.js queue is required,
+and the related race and corner-case audit.
 
 ### Worker Decision
 

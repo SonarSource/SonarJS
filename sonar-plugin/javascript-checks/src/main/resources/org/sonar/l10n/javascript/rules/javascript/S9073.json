@@ -17,9 +17,7 @@
   "ruleSpecification": "RSPEC-9073",
   "sqKey": "S9073",
   "scope": "Tests",
-  "defaultQualityProfiles": [
-    "Sonar way"
-  ],
+  "defaultQualityProfiles": [],
   "quickfix": "infeasible",
   "code": {
     "impacts": {

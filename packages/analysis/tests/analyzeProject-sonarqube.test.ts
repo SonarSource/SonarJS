@@ -86,6 +86,52 @@ describe('SonarQube project analysis', () => {
     ).toBe(true);
   });
 
+  it('should apply the test-file heuristic only to rule selection', async () => {
+    const baseDir = join(fixtures, 'basic');
+    const filePath = join(baseDir, 'heuristic.test.js');
+    const heuristicRules: RuleConfig[] = [
+      {
+        key: 'S1116',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+      {
+        key: 'S3504',
+        configurations: [],
+        fileTypeTargets: ['TEST'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+    const configuration = await initForTest(
+      { baseDir, disableTypeChecking: true },
+      {
+        [filePath]: {
+          filePath,
+          fileType: 'MAIN',
+          fileContent: 'var foo = 42;;',
+        },
+      },
+    );
+
+    const result = await analyzeProject({ rules: heuristicRules, bundles: [] }, configuration);
+    const fileResult = result.files[normalizeToAbsolutePath(filePath)];
+
+    expect(fileResult).toBeDefined();
+    expect(fileResult && 'issues' in fileResult).toBe(true);
+    if (fileResult && 'issues' in fileResult) {
+      expect(fileResult.issues).toEqual([expect.objectContaining({ ruleId: 'S3504' })]);
+      expect(fileResult.metrics).toEqual(
+        expect.objectContaining({
+          ncloc: [1],
+          statements: expect.any(Number),
+        }),
+      );
+    }
+  });
+
   it('should analyze files from referenced tsconfigs', async () => {
     const baseDir = join(fixtures, 'referenced');
     const mainFile = join(baseDir, 'main.ts');
@@ -749,6 +795,32 @@ describe('SonarQube project analysis', () => {
     }
     if (fileResult && 'highlights' in fileResult && fileResult.highlights) {
       expect(fileResult.highlights.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('should preserve CSS metrics when the heuristic selects test rules', async () => {
+    const baseDir = join(fixtures, 'css');
+    const cssFile = join(baseDir, '__tests__/heuristic.css');
+    const cssRules: CssRuleConfig[] = [{ key: 'no-extra-semicolons', configurations: [] }];
+    const configuration = await initForTest(
+      { baseDir },
+      {
+        [cssFile]: {
+          filePath: cssFile,
+          fileType: 'MAIN',
+          fileContent: 'a { color: red;; }',
+        },
+      },
+    );
+
+    const result = await analyzeProject({ rules: [], cssRules, bundles: [] }, configuration);
+    const fileResult = result.files[normalizeToAbsolutePath(cssFile)];
+
+    expect(fileResult).toBeDefined();
+    expect(fileResult && 'issues' in fileResult && 'metrics' in fileResult).toBe(true);
+    if (fileResult && 'issues' in fileResult && 'metrics' in fileResult) {
+      expect(fileResult.issues).toEqual([]);
+      expect(fileResult.metrics?.ncloc).toEqual([1]);
     }
   });
 

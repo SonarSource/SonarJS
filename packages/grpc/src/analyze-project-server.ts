@@ -53,12 +53,51 @@ import {
   waitForWorkerCompletion,
   type AnalyzeProjectImplementationDependencies,
 } from './analyze-project-server-lifecycle.js';
+import {
+  AnalysisQueueClosedError,
+  AnalysisTransportCancelledError,
+  type AnalysisQueueSubmission,
+} from './analyze-project-server-queue.js';
 type UnaryCompleteMessage = Extract<AnalyzeProjectWorkerOutMessage, { type: 'unary-complete' }>;
+type StreamCompleteMessage = Extract<AnalyzeProjectWorkerOutMessage, { type: 'stream-complete' }>;
 
 type AnalyzeProjectServerResult = {
   server: grpc.Server;
   serverClosed: Promise<void>;
 };
+
+function toAnalysisServiceError(error: unknown): grpc.ServiceError {
+  if (error instanceof AnalysisQueueClosedError) {
+    return toGrpcError(error.message, grpc.status.UNAVAILABLE);
+  }
+  if (error instanceof AnalysisTransportCancelledError) {
+    return toGrpcError(error.message, grpc.status.CANCELLED);
+  }
+  if (
+    error instanceof Error &&
+    'code' in error &&
+    typeof error.code === 'number' &&
+    'details' in error
+  ) {
+    return error as grpc.ServiceError;
+  }
+  return toGrpcError(error instanceof Error ? error.message : String(error));
+}
+
+function queueAdmissionError(reason: 'closed' | 'full') {
+  return reason === 'full'
+    ? toGrpcError('Analyze-project request queue is full', grpc.status.RESOURCE_EXHAUSTED)
+    : toGrpcError('Analyze-project request queue is closed', grpc.status.UNAVAILABLE);
+}
+
+function cancelSubmissionForTransportCall<T>(submission: AnalysisQueueSubmission<T>) {
+  const cancellation = submission.cancelTransportCall();
+  if (cancellation.active) {
+    void cancellation.result.catch(error => {
+      debug(`Failed to propagate analyze-project transport cancellation: ${error}`);
+    });
+  }
+}
 
 function createAnalyzeProjectStreamHandler({
   handleRequestInCurrentThread,
@@ -67,46 +106,24 @@ function createAnalyzeProjectStreamHandler({
   state,
   worker,
 }: AnalyzeProjectImplementationDependencies) {
-  return (call: grpc.ServerWritableStream<AnalyzeProjectRequest, AnalyzeProjectStreamResponse>) => {
-    if (state.analysisInProgress) {
-      failStreamingCall(
-        call,
-        toGrpcError('Another analysis is already running', grpc.status.RESOURCE_EXHAUSTED),
-      );
+  return async (
+    call: grpc.ServerWritableStream<AnalyzeProjectRequest, AnalyzeProjectStreamResponse>,
+  ) => {
+    let transportCancelled = Boolean(call.cancelled);
+    let submission: AnalysisQueueSubmission<void> | undefined;
+
+    call.on('cancelled', () => {
+      transportCancelled = true;
+      if (submission) {
+        cancelSubmissionForTransportCall(submission);
+      }
+    });
+    if (transportCancelled) {
       return;
     }
 
-    state.analysisInProgress = true;
-    const requestId = newWorkerRequestId();
-    let completed = false;
-    let cancelled = false;
-    let onWorkerMessage: ((message: AnalyzeProjectWorkerOutMessage) => void) | undefined;
-
-    const complete = () => {
-      if (completed) {
-        return;
-      }
-      completed = true;
-      state.analysisInProgress = false;
-      if (worker && onWorkerMessage) {
-        worker.off('message', onWorkerMessage);
-      }
-    };
-
-    const finish = (error?: grpc.ServiceError) => {
-      // Release the single-analysis slot before ending the gRPC call. The Java client can
-      // observe end-of-stream and immediately start the next module analysis before this
-      // event-loop turn finishes, so ending first can transiently expose a false overlap.
-      complete();
-      if (error) {
-        failResponse(error);
-      } else {
-        endResponse();
-      }
-    };
-
     const writeResponse = (response: AnalyzeProjectStreamResponse) => {
-      if (cancelled) {
+      if (transportCancelled) {
         return;
       }
       try {
@@ -117,7 +134,7 @@ function createAnalyzeProjectStreamHandler({
     };
 
     const failResponse = (error: grpc.ServiceError) => {
-      if (cancelled) {
+      if (transportCancelled) {
         return;
       }
       try {
@@ -128,7 +145,7 @@ function createAnalyzeProjectStreamHandler({
     };
 
     const endResponse = () => {
-      if (cancelled) {
+      if (transportCancelled) {
         return;
       }
       try {
@@ -138,67 +155,74 @@ function createAnalyzeProjectStreamHandler({
       }
     };
 
-    call.on('cancelled', () => {
-      cancelled = true;
-      if (completed) {
-        return;
-      }
-      void lifecycle.requestCancel().catch(error => {
-        debug(`Failed to cancel analyze-project request: ${error}`);
-      });
-    });
-
-    if (worker) {
-      onWorkerMessage = (message: AnalyzeProjectWorkerOutMessage) => {
-        if (message.requestId !== requestId) {
-          return;
-        }
-        switch (message.type) {
-          case 'event':
-            writeResponse(message.response);
-            return;
-          case 'stream-complete':
-            if (message.result.type === 'failure') {
-              finish(toGrpcErrorFromFailure(message.result));
-              return;
+    const admission = state.analysisQueue.enqueue(
+      async () => {
+        if (worker) {
+          const requestId = newWorkerRequestId();
+          const onWorkerMessage = (message: AnalyzeProjectWorkerOutMessage) => {
+            if (message.type === 'event' && message.requestId === requestId) {
+              writeResponse(message.response);
             }
-            finish();
+          };
+          worker.on('message', onWorkerMessage);
+          try {
+            const completion = (await waitForWorkerCompletion(
+              worker,
+              'stream-complete',
+              requestId,
+              () =>
+                // Structured clone strips protobufjs Long helpers (for example int64
+                // maxFileSize), so worker normalization also accepts plain Long-shaped values.
+                worker.postMessage({
+                  type: 'analyze-stream',
+                  requestId,
+                  request: call.request,
+                } satisfies AnalyzeProjectWorkerInMessage),
+            )) as StreamCompleteMessage;
+            if (completion.result.type === 'failure') {
+              throw toGrpcErrorFromFailure(completion.result);
+            }
             return;
-          default:
-            return;
+          } finally {
+            worker.off('message', onWorkerMessage);
+          }
         }
-      };
 
-      worker.on('message', onWorkerMessage);
-      // Structured clone strips protobufjs Long helpers (for example int64 maxFileSize), so
-      // request normalization in the worker must also accept plain { low, high, unsigned } values.
-      worker.postMessage({
-        type: 'analyze-stream',
-        requestId,
-        request: call.request,
-      } satisfies AnalyzeProjectWorkerInMessage);
+        const result = await handleRequestInCurrentThread(
+          { type: 'on-analyze-project', data: call.request },
+          event => writeResponse(toAnalyzeProjectStreamResponse(event.event, event.pathMap)),
+        );
+        if (result.type === 'failure') {
+          throw toGrpcErrorFromFailure(result);
+        }
+      },
+      () => lifecycle.requestCancel(),
+    );
+    if (!admission.accepted) {
+      if (!transportCancelled) {
+        failResponse(queueAdmissionError(admission.reason));
+      }
       return;
     }
 
-    void handleRequestInCurrentThread({ type: 'on-analyze-project', data: call.request }, event =>
-      writeResponse(toAnalyzeProjectStreamResponse(event.event, event.pathMap)),
-    )
-      .then(result => {
-        if (result.type === 'failure') {
-          finish(toGrpcErrorFromFailure(result));
-        } else {
-          finish();
-        }
-      })
-      .catch(error => {
-        finish(toGrpcError(error instanceof Error ? error.message : String(error)));
-      })
-      .finally(complete);
+    submission = admission.submission;
+    if (transportCancelled) {
+      cancelSubmissionForTransportCall(submission);
+    }
+    try {
+      await submission.result;
+      endResponse();
+    } catch (error) {
+      if (!transportCancelled) {
+        failResponse(toAnalysisServiceError(error));
+      }
+    }
   };
 }
 
 function createAnalyzeProjectUnaryHandler({
   handleRequestInCurrentThread,
+  lifecycle,
   newWorkerRequestId,
   state,
   worker,
@@ -207,77 +231,90 @@ function createAnalyzeProjectUnaryHandler({
     call: grpc.ServerUnaryCall<AnalyzeProjectRequest, AnalyzeProjectUnaryResponse>,
     callback: grpc.sendUnaryData<AnalyzeProjectUnaryResponse>,
   ) => {
-    if (state.analysisInProgress) {
-      callback(toGrpcError('Another analysis is already running', grpc.status.RESOURCE_EXHAUSTED));
+    let transportCancelled = Boolean(call.cancelled);
+    let submission: AnalysisQueueSubmission<AnalyzeProjectUnaryResponse> | undefined;
+
+    call.on('cancelled', () => {
+      transportCancelled = true;
+      if (submission) {
+        cancelSubmissionForTransportCall(submission);
+      }
+    });
+    if (transportCancelled) {
       return;
     }
 
-    state.analysisInProgress = true;
-    try {
-      if (worker) {
-        const result = (
-          await (() => {
-            const requestId = newWorkerRequestId();
-            return waitForWorkerCompletion(worker, 'unary-complete', requestId, () =>
-              worker.postMessage({
-                type: 'analyze-unary',
-                requestId,
-                request: call.request,
-              } satisfies AnalyzeProjectWorkerInMessage),
-            ) as Promise<UnaryCompleteMessage>;
-          })()
-        ).result;
+    const admission = state.analysisQueue.enqueue(
+      async () => {
+        if (!worker) {
+          const result = await handleRequestInCurrentThread({
+            type: 'on-analyze-project',
+            data: call.request,
+          });
+          if (result.type === 'failure') {
+            throw toGrpcErrorFromFailure(result);
+          }
+          if (result.result == null) {
+            throw toGrpcError('Missing analyze-project unary result');
+          }
+          return toAnalyzeProjectUnaryResponse(result.result.output, result.result.pathMap);
+        }
+
+        const requestId = newWorkerRequestId();
+        const completion = (await waitForWorkerCompletion(worker, 'unary-complete', requestId, () =>
+          worker.postMessage({
+            type: 'analyze-unary',
+            requestId,
+            request: call.request,
+          } satisfies AnalyzeProjectWorkerInMessage),
+        )) as UnaryCompleteMessage;
+        const result = completion.result;
         if (result.type === 'failure') {
-          callback(toGrpcErrorFromFailure(result));
-          return;
+          throw toGrpcErrorFromFailure(result);
         }
-
         if (result.result == null) {
-          callback(toGrpcError('Missing analyze-project unary result'));
-          return;
+          throw toGrpcError('Missing analyze-project unary result');
         }
-
-        callback(null, result.result);
-        return;
+        return result.result;
+      },
+      () => lifecycle.requestCancel(),
+    );
+    if (!admission.accepted) {
+      if (!transportCancelled) {
+        callback(queueAdmissionError(admission.reason));
       }
+      return;
+    }
 
-      const result = await handleRequestInCurrentThread({
-        type: 'on-analyze-project',
-        data: call.request,
-      });
-      if (result.type === 'failure') {
-        callback(toGrpcErrorFromFailure(result));
-        return;
+    submission = admission.submission;
+    if (transportCancelled) {
+      cancelSubmissionForTransportCall(submission);
+    }
+    try {
+      const result = await submission.result;
+      if (!transportCancelled) {
+        callback(null, result);
       }
-
-      if (result.result == null) {
-        callback(toGrpcError('Missing analyze-project unary result'));
-        return;
+    } catch (error) {
+      if (!transportCancelled) {
+        callback(toAnalysisServiceError(error));
       }
-
-      callback(null, toAnalyzeProjectUnaryResponse(result.result.output, result.result.pathMap));
-    } catch (e) {
-      callback(toGrpcError(e instanceof Error ? e.message : String(e)));
-    } finally {
-      state.analysisInProgress = false;
     }
   };
 }
 
-function createCancelAnalysisHandler({
-  lifecycle,
-  state,
-}: AnalyzeProjectImplementationDependencies) {
+function createCancelAnalysisHandler({ state }: AnalyzeProjectImplementationDependencies) {
   return async (
     _: grpc.ServerUnaryCall<CancelAnalysisRequest, CancelAnalysisResponse>,
     callback: grpc.sendUnaryData<CancelAnalysisResponse>,
   ) => {
-    const hadActiveAnalysis = state.analysisInProgress;
+    const cancellation = state.analysisQueue.cancelActiveAnalysis();
+    if (!cancellation.active) {
+      callback(null, { cancelled: false });
+      return;
+    }
     try {
-      const cancelled = await lifecycle.requestCancel();
-      callback(null, {
-        cancelled: hadActiveAnalysis && cancelled,
-      });
+      callback(null, { cancelled: await cancellation.result });
     } catch (e) {
       callback(toGrpcError(e instanceof Error ? e.message : String(e)));
     }
@@ -341,6 +378,7 @@ function createAnalyzeProjectImplementation(
 
 export const analyzeProjectServerInternals = {
   createAnalyzeProjectStreamHandler,
+  createAnalyzeProjectUnaryHandler,
   createLifecycle,
   waitForWorkerCompletion,
 };

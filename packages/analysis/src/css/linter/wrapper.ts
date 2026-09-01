@@ -36,7 +36,7 @@ const testFileConfig = createStylelintConfig([]);
 export class LinterWrapper {
   /**
    * The stored Stylelint configuration from the active quality profile.
-   * Set by `initialize()` and consumed by `lint()` for MAIN files.
+   * Set by `initialize()` and consumed by `lint()` for files using MAIN rule selection.
    */
   private config: stylelint.Config | undefined;
 
@@ -70,24 +70,24 @@ export class LinterWrapper {
    * The PostCSS root from Stylelint's internal parse is returned so callers
    * can compute metrics and highlighting without parsing the file a second time.
    *
-   * MAIN files use the stored config from `initialize()`.
-   * TEST files use a shared empty-rules config.
+   * Files using MAIN rule selection use the stored config from `initialize()`.
+   * Files using TEST rule selection use a shared empty-rules config.
    *
    * @param filePath the path of the stylesheet
    * @param fileContent the stylesheet source code
-   * @param fileType whether the file is MAIN or TEST
+   * @param ruleFileType whether MAIN or TEST rules should be selected
    * @returns the found issues and the PostCSS AST root
    */
   async lint(
     filePath: NormalizedAbsolutePath,
     fileContent: string,
-    fileType: FileType = 'MAIN',
+    ruleFileType: FileType = 'MAIN',
   ): Promise<LintResult> {
     if (!this.config) {
       throw APIError.linterError(`Linter does not exist.`);
     }
 
-    const config = fileType === 'TEST' ? testFileConfig : this.config;
+    const config = ruleFileType === 'TEST' ? testFileConfig : this.config;
     const options: stylelint.LinterOptions = {
       code: fileContent,
       codeFilename: filePath,

@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'no-mutating-props';
-export const externalPlugin = 'vue';
+export const externalRules = [{ externalPlugin: 'vue', externalRule: 'no-mutating-props' }];
 export const requiredDependency = ['vue'] as const;

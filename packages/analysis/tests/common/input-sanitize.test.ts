@@ -30,7 +30,7 @@ function buildInput(absolutePath: string, fileType?: 'MAIN' | 'TEST') {
   };
 }
 
-async function resolveFileType(
+async function resolveFileTypes(
   absolutePath: string,
   configurationInput: Parameters<typeof createConfiguration>[0],
   inputFileType?: 'MAIN' | 'TEST',
@@ -41,59 +41,60 @@ async function resolveFileType(
     configuration,
   );
   const normalized = normalizeToAbsolutePath(absolutePath, configuration.baseDir);
-  return files[normalized]?.fileType;
+  const file = files[normalized];
+  return file && { fileType: file.fileType, ruleFileType: file.ruleFileType };
 }
 
 describe('sanitizeInputFiles fileType resolution', () => {
   describe('No sonar.tests configured', () => {
-    it('upgrades MAIN to TEST when filename matches heuristic', async () => {
-      const result = await resolveFileType(
+    it('uses TEST rules but preserves MAIN metrics when filename matches heuristic', async () => {
+      const result = await resolveFileTypes(
         '/project/src/login.test.ts',
         { baseDir: '/project', sources: ['src'] },
         'MAIN',
       );
-      expect(result).toBe('TEST');
+      expect(result).toEqual({ fileType: 'MAIN', ruleFileType: 'TEST' });
     });
 
-    it('upgrades undefined fileType to TEST when filename matches heuristic', async () => {
-      const result = await resolveFileType('/project/src/login.spec.js', {
+    it('uses TEST rules but infers MAIN metrics for a test-like source file', async () => {
+      const result = await resolveFileTypes('/project/src/login.spec.js', {
         baseDir: '/project',
         sources: ['src'],
       });
-      expect(result).toBe('TEST');
+      expect(result).toEqual({ fileType: 'MAIN', ruleFileType: 'TEST' });
     });
 
     it('keeps MAIN for a non-test filename', async () => {
-      const result = await resolveFileType(
+      const result = await resolveFileTypes(
         '/project/src/auth.ts',
         { baseDir: '/project', sources: ['src'] },
         'MAIN',
       );
-      expect(result).toBe('MAIN');
+      expect(result).toEqual({ fileType: 'MAIN', ruleFileType: 'MAIN' });
     });
   });
 
   describe('explicit classification is authoritative', () => {
     it('preserves explicit TEST regardless of filename', async () => {
-      const result = await resolveFileType(
+      const result = await resolveFileTypes(
         '/project/src/auth.ts',
         { baseDir: '/project', sources: ['src'] },
         'TEST',
       );
-      expect(result).toBe('TEST');
+      expect(result).toEqual({ fileType: 'TEST', ruleFileType: 'TEST' });
     });
 
     it('preserves explicit MAIN for a test-named file when sonar.tests is configured', async () => {
-      const result = await resolveFileType(
+      const result = await resolveFileTypes(
         '/project/src/login.test.ts',
         { baseDir: '/project', sources: ['src'], tests: ['test'] },
         'MAIN',
       );
-      expect(result).toBe('MAIN');
+      expect(result).toEqual({ fileType: 'MAIN', ruleFileType: 'MAIN' });
     });
 
     it('preserves explicit MAIN for a test-named file when sonar.inclusions is configured', async () => {
-      const result = await resolveFileType(
+      const result = await resolveFileTypes(
         '/project/src/login.test.ts',
         {
           baseDir: '/project',
@@ -102,34 +103,34 @@ describe('sanitizeInputFiles fileType resolution', () => {
         },
         'MAIN',
       );
-      expect(result).toBe('MAIN');
+      expect(result).toEqual({ fileType: 'MAIN', ruleFileType: 'MAIN' });
     });
   });
 
   describe('path-based resolution still works', () => {
     it('upgrades undefined fileType to TEST when file lives under sonar.tests', async () => {
-      const result = await resolveFileType('/project/test/login.ts', {
+      const result = await resolveFileTypes('/project/test/login.ts', {
         baseDir: '/project',
         sources: ['src'],
         tests: ['test'],
       });
-      expect(result).toBe('TEST');
+      expect(result).toEqual({ fileType: 'TEST', ruleFileType: 'TEST' });
     });
 
     it('resolves to MAIN via sourcesPaths when no explicit fileType is provided', async () => {
-      const result = await resolveFileType('/project/src/auth.ts', {
+      const result = await resolveFileTypes('/project/src/auth.ts', {
         baseDir: '/project',
         sources: ['src'],
       });
-      expect(result).toBe('MAIN');
+      expect(result).toEqual({ fileType: 'MAIN', ruleFileType: 'MAIN' });
     });
 
     it('falls back to JSTS_ANALYSIS_DEFAULTS.fileType when nothing else resolves the type', async () => {
-      const result = await resolveFileType('/project/orphan/file.ts', {
+      const result = await resolveFileTypes('/project/orphan/file.ts', {
         baseDir: '/project',
         sources: ['src'],
       });
-      expect(result).toBe('MAIN');
+      expect(result).toEqual({ fileType: 'MAIN', ruleFileType: 'MAIN' });
     });
   });
 });

@@ -14,7 +14,23 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rules } from '../external/vue.js';
-import { decorate } from './decorator.js';
+// https://sonarsource.github.io/rspec/#/rspec/S8951/javascript
 
-export const rule = decorate(rules['no-mutating-props']);
+import type { Rule } from 'eslint';
+import { generateMeta } from '../helpers/generate-meta.js';
+import * as meta from './generated-meta.js';
+
+// Rewording the upstream message, which only describes the problem, into an actionable one.
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  return {
+    ...rule,
+    meta: generateMeta(meta, {
+      ...rule.meta,
+      messages: {
+        ...rule.meta?.messages,
+        unexpectedMutation:
+          'Emit an event and register a listener for it in the parent, instead of mutating the "{{key}}" prop directly.',
+      },
+    }),
+  };
+}

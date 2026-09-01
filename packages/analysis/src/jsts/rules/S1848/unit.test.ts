@@ -236,6 +236,66 @@ new Notice('Hello from Obsidian plugin!');`,
 new Widget(element);`,
           },
           {
+            // DOM attachment: variable initialized from a selected canvas context
+            code: `const canvas = document.querySelector('#chart');
+const context = canvas.getContext('2d');
+new Chart(context);`,
+          },
+          {
+            // DOM attachment: imported jQuery selector
+            code: `import $ from 'jquery';
+new Widget($('#container'));`,
+          },
+          {
+            // DOM attachment: CommonJS jQuery selector
+            code: `const jQuery = require('jquery');
+new Widget(jQuery('#container'));`,
+          },
+          {
+            // DOM attachment: document alias in browser wrappers
+            code: `const document = window.document;
+new Widget(document.querySelector('#container'));`,
+          },
+          {
+            // DOM attachment: document destructured from window
+            code: `const { document } = window;
+new Widget(document.querySelector('#container'));`,
+          },
+          {
+            // DOM attachment: jQuery aliased to the untouched global
+            code: `const $ = jQuery;
+new Widget($('#container'));`,
+          },
+          {
+            // DOM attachment: jQuery aliased to an already-trusted import binding
+            code: `import jQuery from 'jquery';
+const $ = jQuery;
+new Widget($('#container'));`,
+          },
+          {
+            // DOM attachment: ambient type-only jQuery/document declarations
+            code: `declare const $: JQueryStatic;
+declare const document: Document;
+new Widget($('#container'));
+new OtherWidget(document.querySelector('#container'));`,
+          },
+          {
+            // DOM attachment: optional chained DOM-derived context
+            code: `new Chart(document.querySelector('#chart')?.getContext('2d'));`,
+          },
+          {
+            // DOM attachment: non-null asserted DOM selection variable
+            code: `const canvas = document.querySelector('#chart')!;
+const context = canvas.getContext('2d');
+new Chart(context);`,
+          },
+          {
+            // DOM attachment: reassignment after the constructor does not affect its argument
+            code: `let canvas = document.querySelector('#chart');
+new Chart(canvas);
+canvas = null;`,
+          },
+          {
             // DOM attachment: variable with TypeScript type assertion
             code: `const el = document.getElementById('app') as HTMLElement;
 new AppController(el);`,
@@ -265,6 +325,42 @@ new DragInstance(params, startEvent, eBody);`,
           {
             // Global-form exception: paperScope.* global namespace
             code: `new paperScope.Path.Line({ from: [0, 0], to: [40, 40], strokeColor: 'black' });`,
+          },
+          {
+            // DOM attachment: const selected once at module scope, used in a later event handler
+            code: `const chart = document.querySelector('#chart');
+document.getElementById('btn').addEventListener('click', () => {
+  new Chart(chart);
+});`,
+          },
+          {
+            // DOM attachment: single-write const captured by a nested function
+            code: `const element = document.querySelector('.widget');
+function createWidget() {
+  new Widget(element);
+}
+createWidget();`,
+          },
+          {
+            // DOM attachment: write expression must resolve in its own scope, not the
+            // reader's, even when the reader shadows an identifier used by the write
+            code: `const element = document.querySelector('.widget');
+function f() {
+  const document = { querySelector: () => ({}) };
+  new Widget(element);
+}
+f();`,
+          },
+          {
+            // DOM attachment: single-write const read from two nested function levels deep
+            code: `const element = document.querySelector('.widget');
+function outer() {
+  function inner() {
+    new Widget(element);
+  }
+  inner();
+}
+outer();`,
           },
         ],
         invalid: [
@@ -354,6 +450,84 @@ new DragInstance(params, startEvent, eBody);`,
           {
             // Local window parameter must not suppress window.ClipboardJS
             code: `function bind(window) { new window.ClipboardJS('.copy-button'); }`,
+            errors: 1,
+          },
+          {
+            // Reassigned DOM selection must not suppress the report
+            code: `let canvas = document.querySelector('#chart');
+canvas = unrelated;
+const context = canvas.getContext('2d');
+new Chart(context);`,
+            errors: 1,
+          },
+          {
+            // A DOM-derived write in a nested function cannot prove the argument is DOM-derived:
+            // the write's function scope is nested below the read's, so nothing guarantees it
+            // ran before this read.
+            code: `let element;
+function setElement() {
+  element = document.querySelector('.widget');
+}
+new Widget(element);`,
+            errors: 1,
+          },
+          {
+            // A reassignable (multi-write) variable read from a nested function still cannot
+            // be trusted, even though one of its writes is DOM-derived.
+            code: `let element = document.querySelector('.widget');
+function reset() {
+  element = null;
+}
+function createWidget() {
+  new Widget(element);
+}
+reset();
+createWidget();`,
+            errors: 1,
+          },
+          {
+            // Local document objects must not suppress the report
+            code: `const document = { querySelector: () => ({ getContext: () => ({}) }) };
+const canvas = document.querySelector('#chart');
+const context = canvas.getContext('2d');
+new Chart(context);`,
+            errors: 1,
+          },
+          {
+            // Local $ functions must not suppress the report through a variable chain
+            code: `const $ = () => ({ getContext: () => ({}) });
+const canvas = $('#chart');
+const context = canvas.getContext('2d');
+new Chart(context);`,
+            errors: 1,
+          },
+          {
+            // Local jQuery functions must not suppress the report through a variable chain
+            code: `const jQuery = () => ({ getContext: () => ({}) });
+const canvas = jQuery('#chart');
+const context = canvas.getContext('2d');
+new Chart(context);`,
+            errors: 1,
+          },
+          {
+            // A plain uninitialized `$` is not an ambient declaration and must not be trusted
+            code: `let $;
+$ = getUntrustedValue();
+new Widget($('#container'));`,
+            errors: 1,
+          },
+          {
+            // A plain uninitialized `document` is not an ambient declaration and must not be trusted
+            code: `let document;
+document = getUntrustedValue();
+new Widget(document.querySelector('#container'));`,
+            errors: 1,
+          },
+          {
+            // A for-of bound `document` is not an ambient declaration and must not be trusted
+            code: `for (const document of untrustedList) {
+  new Widget(document.querySelector('#container'));
+}`,
             errors: 1,
           },
           {

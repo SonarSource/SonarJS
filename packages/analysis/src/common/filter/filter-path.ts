@@ -26,8 +26,8 @@ import { isAngularProject } from '../../jsts/rules/helpers/dependency-manifests/
  * Angular per-environment config files follow the `environments/environment.<env>.ts` convention.
  * When an environment is named `test`/`spec`/`cy`/`e2e`/`mock`, the path is indistinguishable by
  * shape from a real colocated test — so this pattern is only a *candidate* check, gated on the
- * project actually being Angular (see {@link matchesTestPath}). The markers mirror those recognised
- * by `isTestRelatedFile`.
+ * project actually being Angular (see {@link matchesTestFileHeuristic}). The markers mirror those
+ * recognised by `isTestRelatedFile`.
  */
 const ANGULAR_ENVIRONMENT_CONFIG_PATTERN =
   /(?:^|\/)environments?\/environment\.(?:test|spec|cy|e2e|mock)\.[^/]+$/;
@@ -78,7 +78,7 @@ export function filterPathAndGetFileType(
   filePath: NormalizedAbsolutePath,
   params: FilterPathParams,
 ): FileType | undefined {
-  if (matchesTestPath(filePath, params, true)) {
+  if (matchesTestPath(filePath, params)) {
     return 'TEST';
   }
 
@@ -89,58 +89,32 @@ export function filterPathAndGetFileType(
   debug(`File ignored due to analysis scope filters: ${filePath}`);
 }
 
+/**
+ * Returns the file type used for rule selection. The filename heuristic deliberately affects only
+ * this classification: metrics and other file artifacts continue to use the scanner/path-derived
+ * file type.
+ */
+export function getFileTypeForRules(
+  filePath: NormalizedAbsolutePath,
+  fileType: FileType,
+  params: FilterPathParams,
+): FileType {
+  if (fileType === 'TEST' || !matchesTestFileHeuristic(filePath, params)) {
+    return fileType;
+  }
+
+  debug(
+    `Test file detected: ${filePath}. If this file should not use test rules, please configure sonar.tests or adjust your sonar.sources/sonar.inclusions to explicitly include it as MAIN.`,
+  );
+  return 'TEST';
+}
+
 function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolutePath[]): boolean {
   return paths.some(path => filePath === path || filePath.startsWith(`${path}/`));
 }
 
-function matchesTestPath(
-  filePath: NormalizedAbsolutePath,
-  params: FilterPathParams,
-  logHeuristicTestDetection: boolean,
-): boolean {
-  const {
-    baseDir,
-    testPaths,
-    testExclusions,
-    testInclusions,
-    inclusions,
-    sourcesPaths,
-    testFileExtensions,
-  } = params;
-
-  // If `sonar.tests` is not configured, fall back to the filename heuristic — unless the file
-  // qualifies as MAIN via the user's `sonar.inclusions` (which narrows `sonar.sources`), in which
-  // case the user has explicitly opted it into MAIN scope and we should not second-guess them.
-  if (!testPaths.length) {
-    if (
-      inclusions.length > 0 &&
-      fileIsUnder(filePath, sourcesPaths) &&
-      inclusions.some(inclusion => inclusion.match(filePath))
-    ) {
-      return false;
-    }
-    // Angular per-environment config files (`environments/environment.<env>.ts`) match the test
-    // heuristic by coincidence when the environment is named test/spec/cy/e2e/mock. In an Angular
-    // project they are production config, not tests, so classify them as non-TEST here — the single
-    // place that owns MAIN/TEST scope. `filterFileType` then keeps every Test-scoped rule
-    // (S2187/S2925/S8959/S9162) off them, so rules need no scope logic of their own. The Angular
-    // check is gated behind the cheap path match, and its manifest lookup is cached.
-    let doesLookLikeTestFile = isTestRelatedFile(filePath, testFileExtensions);
-    if (
-      doesLookLikeTestFile &&
-      ANGULAR_ENVIRONMENT_CONFIG_PATTERN.test(filePath) &&
-      fileIsUnder(filePath, [baseDir]) &&
-      isAngularProject(filePath, baseDir)
-    ) {
-      doesLookLikeTestFile = false;
-    }
-    if (doesLookLikeTestFile && logHeuristicTestDetection) {
-      debug(
-        `Test file detected: ${filePath}. If this file should not be treated as a test, please configure sonar.tests or adjust your sonar.sources/sonar.inclusions to explicitly include it as MAIN.`,
-      );
-    }
-    return doesLookLikeTestFile;
-  }
+function matchesTestPath(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
+  const { testPaths, testExclusions, testInclusions } = params;
 
   if (!fileIsUnder(filePath, testPaths)) {
     return false;
@@ -151,6 +125,47 @@ function matchesTestPath(
   if (testInclusions?.length) {
     return testInclusions.some(inclusion => inclusion.match(filePath));
   }
+  return true;
+}
+
+function matchesTestFileHeuristic(
+  filePath: NormalizedAbsolutePath,
+  params: FilterPathParams,
+): boolean {
+  const { baseDir, testPaths, inclusions, sourcesPaths, testFileExtensions } = params;
+  if (testPaths.length) {
+    return false;
+  }
+
+  // `sonar.inclusions` narrows `sonar.sources`, so a matching file has been explicitly opted into
+  // MAIN rule selection and should not be second-guessed by the filename heuristic.
+  if (
+    inclusions.length > 0 &&
+    fileIsUnder(filePath, sourcesPaths) &&
+    inclusions.some(inclusion => inclusion.match(filePath))
+  ) {
+    return false;
+  }
+
+  if (!isTestRelatedFile(filePath, testFileExtensions)) {
+    return false;
+  }
+
+  // Angular per-environment config files (`environments/environment.<env>.ts`) match the filename
+  // heuristic by coincidence when the environment is named test/spec/cy/e2e/mock. In an Angular
+  // project they are production config, not tests, so keep them out of the test rule-selection
+  // classification: this drops every Test-scoped rule (S2187/S2925/S8959/S9162) for them without
+  // any rule needing its own scope logic. Because the carve-out lives here (rule selection only),
+  // the scanner/path-derived file type used for metrics is unaffected. The Angular check is gated
+  // behind the cheap path match, and its manifest lookup is cached.
+  if (
+    ANGULAR_ENVIRONMENT_CONFIG_PATTERN.test(filePath) &&
+    fileIsUnder(filePath, [baseDir]) &&
+    isAngularProject(filePath, baseDir)
+  ) {
+    return false;
+  }
+
   return true;
 }
 
