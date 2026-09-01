@@ -22,6 +22,7 @@ import type { CssIssue } from './issues/issue.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { APIError } from '../../contracts/error.js';
 import type { FileType } from '../../contracts/file.js';
+import { sonarRulesReady } from '../rules/index.js';
 
 interface LintResult {
   issues: CssIssue[];
@@ -94,6 +95,7 @@ export class LinterWrapper {
       config,
     };
 
+    await sonarRulesReady;
     return stylelint
       .lint(options)
       .catch(err => {

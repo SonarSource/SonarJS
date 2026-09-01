@@ -55,9 +55,7 @@ describe('createStylelintConfig', () => {
 
     it('includes CSS-only rules in the **/*.css override', () => {
       const config = createStylelintConfig([{ key: 'css-only-rule', configurations: [] }]);
-      const cssOverride = config.overrides?.find(o =>
-        (o.files as string[])?.includes('**/*.css'),
-      );
+      const cssOverride = config.overrides?.find(o => (o.files as string[])?.includes('**/*.css'));
       expect(cssOverride?.rules).toHaveProperty('css-only-rule', true);
     });
 
@@ -77,6 +75,36 @@ describe('createStylelintConfig', () => {
       for (const override of preprocessorOverrides ?? []) {
         expect(override.rules ?? {}).not.toHaveProperty('css-only-rule');
       }
+    });
+  });
+
+  describe('S4662 SCSS companion routing', () => {
+    it('derives the SCSS rule for scss and embedded overrides', () => {
+      const configurations = [true, { ignoreAtRules: ['custom'] }];
+      const config = createStylelintConfig([{ key: 'at-rule-no-unknown', configurations }]);
+
+      const cssOverride = config.overrides?.find(o => (o.files as string[])?.includes('**/*.css'));
+      expect(cssOverride?.rules).toHaveProperty('at-rule-no-unknown', configurations);
+
+      const scssOverride = config.overrides?.find(o =>
+        (o.files as string[])?.includes('**/*.scss'),
+      );
+      expect(scssOverride?.rules).toHaveProperty('scss/at-rule-no-unknown', configurations);
+
+      const sassOverride = config.overrides?.find(o =>
+        (o.files as string[])?.includes('**/*.sass'),
+      );
+      expect(sassOverride?.rules ?? {}).not.toHaveProperty('scss/at-rule-no-unknown');
+
+      const lessOverride = config.overrides?.find(o =>
+        (o.files as string[])?.includes('**/*.less'),
+      );
+      expect(lessOverride?.rules ?? {}).not.toHaveProperty('scss/at-rule-no-unknown');
+
+      const embeddedOverride = config.overrides?.find(
+        o => o.customSyntax != null && !(o.files as string[])?.includes('**/*.css'),
+      );
+      expect(embeddedOverride?.rules).toHaveProperty('scss/at-rule-no-unknown', configurations);
     });
   });
 });

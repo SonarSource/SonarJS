@@ -20,6 +20,11 @@ import type PostCSS from 'postcss';
 
 const SONAR_RULE = 'sonar/annotation-no-unknown';
 const UPSTREAM_RULE = 'annotation-no-unknown';
+let upstreamRule: stylelint.Rule | undefined;
+
+export const ruleReady = stylelint.rules[UPSTREAM_RULE].then(rule => {
+  upstreamRule = rule as stylelint.Rule;
+});
 
 // Sass-specific value annotations that are only valid in .scss / .sass files
 const SASS_ANNOTATIONS = new Set(['!default', '!global']);
@@ -45,8 +50,12 @@ function isSassAnnotationWarning(text: string): boolean {
 
 function relabelWarnings(result: PostcssResult, from: number): void {
   for (const w of result.warnings().slice(from)) {
+    const warning = w as unknown as { rule: string };
+    if (warning.rule !== UPSTREAM_RULE) {
+      continue;
+    }
     w.text = w.text.replace(` (${UPSTREAM_RULE})`, ` (${SONAR_RULE})`);
-    (w as unknown as { rule: string }).rule = SONAR_RULE;
+    warning.rule = SONAR_RULE;
   }
 }
 
@@ -62,47 +71,34 @@ function removeSassAnnotationWarnings(result: PostcssResult, from: number): void
 }
 
 const ruleImpl: stylelint.RuleBase = (primary, secondaryOptions, context) => {
-  let upstream: ReturnType<stylelint.RuleBase> | undefined;
+  if (!upstreamRule) {
+    throw new Error(`${SONAR_RULE} was not initialized`);
+  }
+  const upstream = upstreamRule(primary, secondaryOptions, context);
 
-  const getUpstream = async () => {
-    if (!upstream) {
-      const factory = (await stylelint.rules[UPSTREAM_RULE]) as stylelint.Rule;
-      upstream = factory(primary, secondaryOptions, context);
-    }
-    return upstream;
-  };
-
-  const runOnBlock = async (
-    block: PostCSS.Root,
-    result: PostcssResult,
-    sass: boolean,
-  ): Promise<void> => {
-    const delegated = await getUpstream();
+  const runOnBlock = (block: PostCSS.Root, result: PostcssResult, sass: boolean): void => {
     const messages = (result as unknown as { messages: object[] }).messages;
     const msgCount = messages.length;
     const warnCount = result.warnings().length;
-    await (delegated as (root: PostCSS.Root, result: PostcssResult) => Promise<void>)(
-      block,
-      result,
-    );
+    (upstream as (root: PostCSS.Root, result: PostcssResult) => void)(block, result);
     if (sass) {
       removeSassAnnotationWarnings(result, msgCount);
     }
     relabelWarnings(result, warnCount);
   };
 
-  return async (root: PostCSS.Root | PostCSS.Document, result) => {
+  return (root: PostCSS.Root | PostCSS.Document, result) => {
     if ((root as PostCSS.Node).type === 'document') {
       for (const child of (root as PostCSS.Document).nodes) {
         if ((child as PostCSS.Node).type !== 'root') {
           continue;
         }
         const childRoot = child as unknown as PostCSS.Root;
-        await runOnBlock(childRoot, result, isSassBlock(childRoot, result));
+        runOnBlock(childRoot, result, isSassBlock(childRoot, result));
       }
       return;
     }
-    await runOnBlock(root as PostCSS.Root, result, isSassBlock(root as PostCSS.Root, result));
+    runOnBlock(root as PostCSS.Root, result, isSassBlock(root as PostCSS.Root, result));
   };
 };
 
