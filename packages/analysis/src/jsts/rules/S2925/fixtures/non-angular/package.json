@@ -1,0 +1,6 @@
+{
+  "name": "non-angular-fixture",
+  "dependencies": {
+    "react": "latest"
+  }
+}

@@ -43,7 +43,7 @@ function testRelatedFilePattern(extensions?: string[]): RegExp {
 }
 
 const ENVIRONMENT_CONFIG_FILE_PATTERN =
-  /(?:^|[\\/])environments?[\\/]environment\.(?:test|spec|cy)\.[^\\/]+$/;
+  /(?:^|[\\/])environments?[\\/]environment\.(?:test|spec|cy|e2e|mock)\.[^\\/]+$/;
 
 const TEST_DIRECTORY_PATTERN = /(?:^|[\\/])(?:__tests__|__mocks__)[\\/]/;
 

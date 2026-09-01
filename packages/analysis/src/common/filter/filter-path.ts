@@ -107,10 +107,11 @@ function matchesTestPath(
     ) {
       return false;
     }
-    // No `RuleContext` is available here, so we cannot detect Angular projects and intentionally
-    // keep the path-only classification: Angular `environments/environment.<env>.ts` files stay
-    // treated as test-related by this scope heuristic. The Angular carve-out is applied only where
-    // a `RuleContext` exists (the rule call sites of `isTestFile`/`isTestRelatedFile`).
+    // The Angular carve-out is intentionally not applied here: this module lives in `common/` and
+    // must not depend on `jsts/rules/helpers` (dependency-manifest lookup), so scope classification
+    // stays purely path-based. Consequence: in Angular projects with `sonar.tests` unset,
+    // `environments/environment.<env>.ts` is still typed TEST, so MAIN-only rules are skipped on it.
+    // The carve-out is applied at the rule call sites of `isTestFile`/`isTestRelatedFile`.
     const doesLookLikeTestFile = isTestRelatedFile(filePath, testFileExtensions);
     if (doesLookLikeTestFile && logHeuristicTestDetection) {
       debug(

@@ -208,6 +208,23 @@ describe('isTestRelatedFile', () => {
     );
   });
 
+  it('excludes environment config files using the e2e / mock markers that only test-related files match', () => {
+    // testRelatedFilePattern also recognises `.e2e.`/`.mock.` (unlike testFilePattern),
+    // so the Angular carve-out must cover the common `environment.e2e.ts` fileReplacements
+    // target and `environment.mock.ts` too, not just test/spec/cy.
+    expect(isTestRelatedFile('src/environments/environment.e2e.ts', undefined, () => true)).toBe(
+      false,
+    );
+    expect(isTestRelatedFile('src/environments/environment.mock.ts', undefined, () => true)).toBe(
+      false,
+    );
+  });
+
+  it('treats e2e / mock environment config files as test-related when not an Angular project', () => {
+    expect(isTestRelatedFile('src/environments/environment.e2e.ts')).toBe(true);
+    expect(isTestRelatedFile('src/environments/environment.mock.ts')).toBe(true);
+  });
+
   it('does not exclude a bare environment config filename with no environments folder', () => {
     expect(isTestRelatedFile('environment.test.ts', undefined, () => true)).toBe(true);
   });

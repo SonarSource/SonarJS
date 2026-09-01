@@ -15,8 +15,19 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it } from 'node:test';
+import path from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
+import { normalizeToAbsolutePath } from '../helpers/files.js';
+
+// JS-2311: the Angular carve-out consults the closest package.json, so these cases
+// use absolute filenames nested under fixtures whose package.json declares (or omits)
+// `@angular/core`. Scope the lookup to this rule's fixtures.
+const dir = normalizeToAbsolutePath(import.meta.dirname);
+const f = (name: string) => path.join(dir, name);
+const angularEnvConfig = f('fixtures/angular/src/environments/environment.test.ts');
+const nonAngularEnvConfig = f('fixtures/non-angular/src/environments/environment.test.ts');
+process.chdir(import.meta.dirname);
 
 const ruleTester = new NoTypeCheckingRuleTester();
 
@@ -153,6 +164,13 @@ describe('S2925', () => {
           filename: 'tests/debug-cypress.spec.js',
         },
         {
+          // JS-2311: in an Angular project, an environments/environment.<env>.ts
+          // config file is not a test file, so the rule does not activate on it even
+          // though the fixed wait would otherwise be flagged.
+          code: `cy.wait(1000);`,
+          filename: angularEnvConfig,
+        },
+        {
           code: `
             test('keeps Playwright pause out of scope', async ({ page }) => {
               await page.pause();
@@ -234,6 +252,14 @@ describe('S2925', () => {
             });
           `,
           filename: 'tests/non-awaited.spec.ts',
+          errors: [{ messageId: 'fixedWait' }],
+        },
+        {
+          // JS-2311: same environments/environment.test.ts path shape, but the project
+          // is not Angular (no @angular/core), so it stays a real test file and the
+          // fixed wait is still reported.
+          code: `cy.wait(1000);`,
+          filename: nonAngularEnvConfig,
           errors: [{ messageId: 'fixedWait' }],
         },
       ],
