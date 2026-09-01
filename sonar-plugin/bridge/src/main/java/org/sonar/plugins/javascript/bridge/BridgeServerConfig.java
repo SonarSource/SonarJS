@@ -31,7 +31,7 @@ public record BridgeServerConfig(
   Configuration config,
   String workDirAbsolutePath,
   SonarProduct product,
-  @Nullable String existingNodeProcessPort
+  @Nullable Integer existingNodeProcessPort
 ) {
   public static BridgeServerConfig fromSensorContext(SensorContext context) {
     return new BridgeServerConfig(

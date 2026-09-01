@@ -113,7 +113,7 @@ public class StandaloneParser implements AutoCloseable {
     private String[] nodeJsArgs;
 
     @Nullable
-    private String existingNodeProcessPort;
+    private Integer existingNodeProcessPort;
 
     private Builder() {}
 
@@ -137,25 +137,12 @@ public class StandaloneParser implements AutoCloseable {
       return this;
     }
 
-    public Builder existingNodeProcessPort(@Nullable String existingNodeProcessPort) {
-      if (existingNodeProcessPort != null) {
-        if (existingNodeProcessPort.isBlank()) {
-          throw new IllegalArgumentException("existingNodeProcessPort must not be blank");
-        }
-        int port;
-        try {
-          port = Integer.parseInt(existingNodeProcessPort);
-        } catch (NumberFormatException e) {
-          throw new IllegalArgumentException(
-            "Invalid existingNodeProcessPort: " + existingNodeProcessPort,
-            e
-          );
-        }
-        if (port < 1 || port > 65535) {
-          throw new IllegalArgumentException(
-            "existingNodeProcessPort should be a number between 1 and 65535, got " + port
-          );
-        }
+    public Builder existingNodeProcessPort(int existingNodeProcessPort) {
+      if (existingNodeProcessPort < 1 || existingNodeProcessPort > 65535) {
+        throw new IllegalArgumentException(
+          "existingNodeProcessPort should be a number between 1 and 65535, got " +
+          existingNodeProcessPort
+        );
       }
       this.existingNodeProcessPort = existingNodeProcessPort;
       return this;

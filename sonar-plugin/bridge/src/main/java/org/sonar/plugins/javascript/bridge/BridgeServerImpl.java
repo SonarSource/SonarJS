@@ -118,7 +118,7 @@ public class BridgeServerImpl implements BridgeServer {
   private boolean ownsNodeProcess;
 
   @Nullable
-  private String existingNodeProcessPortOverride;
+  private Integer existingNodeProcessPortOverride;
 
   // Used by pico container for dependency injection
   public BridgeServerImpl(
@@ -822,7 +822,7 @@ public class BridgeServerImpl implements BridgeServer {
 
   public String getExistingNodeProcessPort() {
     return existingNodeProcessPortOverride != null
-      ? existingNodeProcessPortOverride
+      ? String.valueOf(existingNodeProcessPortOverride)
       : System.getenv(SONARJS_EXISTING_NODE_PROCESS_PORT);
   }
 

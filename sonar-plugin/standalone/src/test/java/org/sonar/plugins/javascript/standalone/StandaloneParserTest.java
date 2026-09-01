@@ -105,37 +105,19 @@ class StandaloneParserTest {
   @Test
   void test_existing_node_port_out_of_range_throws() {
     assertThatThrownBy(() ->
-      StandaloneParser.builder().existingNodeProcessPort("70000")
+      StandaloneParser.builder().existingNodeProcessPort(70000)
     )
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("between 1 and 65535");
-  }
-
-  @Test
-  void test_existing_node_port_not_a_number_throws() {
-    assertThatThrownBy(() ->
-      StandaloneParser.builder().existingNodeProcessPort("not-a-port")
-    )
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("Invalid existingNodeProcessPort");
   }
 
   @Test
   void test_existing_node_port_zero_throws() {
     assertThatThrownBy(() ->
-      StandaloneParser.builder().existingNodeProcessPort("0")
+      StandaloneParser.builder().existingNodeProcessPort(0)
     )
       .isInstanceOf(IllegalArgumentException.class)
       .hasMessageContaining("between 1 and 65535");
-  }
-
-  @Test
-  void test_existing_node_port_blank_throws() {
-    assertThatThrownBy(() ->
-      StandaloneParser.builder().existingNodeProcessPort("  ")
-    )
-      .isInstanceOf(IllegalArgumentException.class)
-      .hasMessageContaining("blank");
   }
 
   @Test
