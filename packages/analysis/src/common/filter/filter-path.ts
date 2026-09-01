@@ -107,6 +107,10 @@ function matchesTestPath(
     ) {
       return false;
     }
+    // No `RuleContext` is available here, so we cannot detect Angular projects and intentionally
+    // keep the path-only classification: Angular `environments/environment.<env>.ts` files stay
+    // treated as test-related by this scope heuristic. The Angular carve-out is applied only where
+    // a `RuleContext` exists (the rule call sites of `isTestFile`/`isTestRelatedFile`).
     const doesLookLikeTestFile = isTestRelatedFile(filePath, testFileExtensions);
     if (doesLookLikeTestFile && logHeuristicTestDetection) {
       debug(

@@ -24,6 +24,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { removeNodeWithLeadingWhitespaces } from '../helpers/quickfix.js';
 import { isTestRelatedFile } from '../helpers/test-file-pattern.js';
+import { isAngularProject } from '../helpers/dependency-manifests/dependencies.js';
 import * as meta from './generated-meta.js';
 
 const TESTING_LIBRARY_MODULES = [
@@ -51,7 +52,11 @@ export const rule: Rule.RuleModule = {
     fixable: 'code',
   }),
   create(context: Rule.RuleContext) {
-    if (!isTestRelatedFile(context.filename, context.settings?.testFileExtensions as string[])) {
+    if (
+      !isTestRelatedFile(context.filename, context.settings?.testFileExtensions as string[], () =>
+        isAngularProject(context),
+      )
+    ) {
       return {};
     }
 

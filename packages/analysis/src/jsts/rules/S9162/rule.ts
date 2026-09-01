@@ -28,6 +28,7 @@ import {
 import { extractChaiAssertion } from '../helpers/assertions-chai.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isTestRelatedFile } from '../helpers/test-file-pattern.js';
+import { isAngularProject } from '../helpers/dependency-manifests/dependencies.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -69,7 +70,11 @@ const CYPRESS_DOM_QUERY_COMMANDS = new Set([
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages, hasSuggestions: true }),
   create(context: Rule.RuleContext): Rule.RuleListener {
-    if (!isTestRelatedFile(context.filename, context.settings?.testFileExtensions as string[])) {
+    if (
+      !isTestRelatedFile(context.filename, context.settings?.testFileExtensions as string[], () =>
+        isAngularProject(context),
+      )
+    ) {
       return {};
     }
 

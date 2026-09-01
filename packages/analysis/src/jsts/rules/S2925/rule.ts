@@ -27,6 +27,7 @@ import {
 import { chainStartsWithCy } from '../helpers/testing/cypress.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isTestRelatedFile } from '../helpers/test-file-pattern.js';
+import { isAngularProject } from '../helpers/dependency-manifests/dependencies.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -36,7 +37,11 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    if (!isTestRelatedFile(context.filename, context.settings?.testFileExtensions as string[])) {
+    if (
+      !isTestRelatedFile(context.filename, context.settings?.testFileExtensions as string[], () =>
+        isAngularProject(context),
+      )
+    ) {
       return {};
     }
 
