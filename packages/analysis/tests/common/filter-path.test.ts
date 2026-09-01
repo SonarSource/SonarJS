@@ -313,4 +313,61 @@ describe('filter path', () => {
       expect(result).toBe('TEST');
     });
   });
+
+  // JS-2311: Angular per-environment config files (environments/environment.<env>.ts) match the
+  // test-file heuristic by coincidence. In an Angular project they are production config, so the
+  // classifier carves them out to MAIN (proved by a real on-disk package.json declaring
+  // @angular/core); everywhere else they stay TEST.
+  describe('Angular environment-config carve-out (no sonar.tests configured)', () => {
+    const commonDir = normalizeToAbsolutePath(import.meta.dirname);
+    const angularBaseDir = `${commonDir}/fixtures/angular-project`;
+    const nonAngularBaseDir = `${commonDir}/fixtures/non-angular-project`;
+
+    it('classifies an Angular environments/environment.test.ts as MAIN', () => {
+      const filePath = normalizeToAbsolutePath(
+        `${angularBaseDir}/src/environments/environment.test.ts`,
+      );
+      const config = createConfiguration({ baseDir: angularBaseDir });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('MAIN');
+    });
+
+    it('carves out the e2e / mock environment markers too', () => {
+      const config = createConfiguration({ baseDir: angularBaseDir });
+      for (const marker of ['spec', 'cy', 'e2e', 'mock']) {
+        const filePath = normalizeToAbsolutePath(
+          `${angularBaseDir}/src/environments/environment.${marker}.ts`,
+        );
+        const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+        expect(result).toBe('MAIN');
+      }
+    });
+
+    it('keeps environments/environment.test.ts as TEST in a non-Angular project', () => {
+      const filePath = normalizeToAbsolutePath(
+        `${nonAngularBaseDir}/src/environments/environment.test.ts`,
+      );
+      const config = createConfiguration({ baseDir: nonAngularBaseDir });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
+
+    it('still classifies a real colocated test in an Angular project as TEST', () => {
+      // The carve-out is scoped to the environments/ folder; ordinary test files stay TEST.
+      const filePath = normalizeToAbsolutePath(`${angularBaseDir}/src/app/app.component.spec.ts`);
+      const config = createConfiguration({ baseDir: angularBaseDir });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
+
+    it('respects an explicit sonar.tests configuration over the Angular carve-out', () => {
+      // When the user explicitly marks the path as a test via sonar.tests, we do not second-guess.
+      const filePath = normalizeToAbsolutePath(
+        `${angularBaseDir}/src/environments/environment.test.ts`,
+      );
+      const config = createConfiguration({ baseDir: angularBaseDir, tests: ['src'] });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
+  });
 });

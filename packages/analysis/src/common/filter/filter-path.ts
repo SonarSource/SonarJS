@@ -20,6 +20,17 @@ import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { FileType } from '../../contracts/file.js';
 import { type FilterPathParams } from '../configuration.js';
 import { isTestRelatedFile } from '../../jsts/rules/helpers/test-file-pattern.js';
+import { isAngularProject } from '../../jsts/rules/helpers/dependency-manifests/dependencies.js';
+
+/**
+ * Angular per-environment config files follow the `environments/environment.<env>.ts` convention.
+ * When an environment is named `test`/`spec`/`cy`/`e2e`/`mock`, the path is indistinguishable by
+ * shape from a real colocated test — so this pattern is only a *candidate* check, gated on the
+ * project actually being Angular (see {@link matchesTestPath}). The markers mirror those recognised
+ * by `isTestRelatedFile`.
+ */
+const ANGULAR_ENVIRONMENT_CONFIG_PATTERN =
+  /(?:^|\/)environments?\/environment\.(?:test|spec|cy|e2e|mock)\.[^/]+$/;
 
 /**
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
@@ -88,6 +99,7 @@ function matchesTestPath(
   logHeuristicTestDetection: boolean,
 ): boolean {
   const {
+    baseDir,
     testPaths,
     testExclusions,
     testInclusions,
@@ -107,12 +119,21 @@ function matchesTestPath(
     ) {
       return false;
     }
-    // The Angular carve-out is intentionally not applied here: this module lives in `common/` and
-    // must not depend on `jsts/rules/helpers` (dependency-manifest lookup), so scope classification
-    // stays purely path-based. Consequence: in Angular projects with `sonar.tests` unset,
-    // `environments/environment.<env>.ts` is still typed TEST, so MAIN-only rules are skipped on it.
-    // The carve-out is applied at the rule call sites of `isTestFile`/`isTestRelatedFile`.
-    const doesLookLikeTestFile = isTestRelatedFile(filePath, testFileExtensions);
+    // Angular per-environment config files (`environments/environment.<env>.ts`) match the test
+    // heuristic by coincidence when the environment is named test/spec/cy/e2e/mock. In an Angular
+    // project they are production config, not tests, so classify them as non-TEST here — the single
+    // place that owns MAIN/TEST scope. `filterFileType` then keeps every Test-scoped rule
+    // (S2187/S2925/S8959/S9162) off them, so rules need no scope logic of their own. The Angular
+    // check is gated behind the cheap path match, and its manifest lookup is cached.
+    let doesLookLikeTestFile = isTestRelatedFile(filePath, testFileExtensions);
+    if (
+      doesLookLikeTestFile &&
+      ANGULAR_ENVIRONMENT_CONFIG_PATTERN.test(filePath) &&
+      fileIsUnder(filePath, [baseDir]) &&
+      isAngularProject(filePath, baseDir)
+    ) {
+      doesLookLikeTestFile = false;
+    }
     if (doesLookLikeTestFile && logHeuristicTestDetection) {
       debug(
         `Test file detected: ${filePath}. If this file should not be treated as a test, please configure sonar.tests or adjust your sonar.sources/sonar.inclusions to explicitly include it as MAIN.`,

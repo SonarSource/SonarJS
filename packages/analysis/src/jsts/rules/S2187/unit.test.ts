@@ -17,19 +17,6 @@
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
-import path from 'node:path/posix';
-import { normalizeToAbsolutePath } from '../helpers/files.js';
-
-// The rule consults the closest package.json to detect Angular projects, so the
-// test filenames must be absolute and nested under the working directory.
-const dir = normalizeToAbsolutePath(import.meta.dirname);
-const f = (name: string) => path.join(dir, name);
-// JS-2311: same `environments/environment.test.ts` shape, resolved against two
-// fixtures whose package.json declares (or omits) `@angular/core`.
-const angularEnvConfig = f('fixtures/angular/src/environments/environment.test.ts');
-const nonAngularEnvConfig = f('fixtures/non-angular/src/environments/environment.test.ts');
-
-process.chdir(import.meta.dirname); // keep the package.json lookup scoped to this rule's fixtures
 
 describe('S2187', () => {
   it('S2187', () => {
@@ -38,17 +25,7 @@ describe('S2187', () => {
       valid: [
         {
           code: `/* empty main file */`,
-          filename: f('foo.js'),
-        },
-        {
-          // JS-2311: Angular-style per-environment config file in an Angular
-          // project (its package.json declares @angular/core), not a test file
-          code: `
-        export const environment = {
-          production: false,
-          apiUrl: 'https://api.test.example.com',
-        };`,
-          filename: angularEnvConfig,
+          filename: 'foo.js',
         },
         {
           code: `
@@ -56,7 +33,7 @@ describe('S2187', () => {
         it('1 + 2 should give 3', () => {
             expect(1 + 2).toBe(3)
         });`,
-          filename: f('foo.test.js'),
+          filename: 'foo.test.js',
         },
         {
           code: `
@@ -64,7 +41,7 @@ describe('S2187', () => {
         it.only('1 + 2 should give 3', () => {
             expect(1 + 2).toBe(3)
         });`,
-          filename: f('foo.test.js'),
+          filename: 'foo.test.js',
         },
         {
           code: `
@@ -72,7 +49,7 @@ describe('S2187', () => {
         test('1 + 2 should give 3', () => {
             expect(1 + 2).toBe(3)
         });`,
-          filename: f('foo.test.js'),
+          filename: 'foo.test.js',
         },
         {
           code: `
@@ -80,7 +57,7 @@ describe('S2187', () => {
         test.only('1 + 2 should give 3', () => {
             expect(1 + 2).toBe(3)
         });`,
-          filename: f('foo.test.js'),
+          filename: 'foo.test.js',
         },
         {
           code: `
@@ -88,7 +65,7 @@ describe('S2187', () => {
         it('1 + 2 should give 3', () => {
             expect(1 + 2).toBe(3)
         });`,
-          filename: f('foo.spec.js'),
+          filename: 'foo.spec.js',
         },
         {
           code: `
@@ -96,7 +73,7 @@ describe('S2187', () => {
         specify('1 + 2 should give 3', () => {
             expect(1 + 2).toBe(3)
         });`,
-          filename: f('foo.cy.js'),
+          filename: 'foo.cy.js',
         },
         {
           code: `
@@ -104,7 +81,7 @@ describe('S2187', () => {
         specify.skip('1 + 2 should give 3', () => {
             expect(1 + 2).toBe(3)
         });`,
-          filename: f('foo.spec.js'),
+          filename: 'foo.spec.js',
         },
         {
           code: `
@@ -112,7 +89,7 @@ describe('S2187', () => {
         specify.only('1 + 2 should give 3', () => {
             expect(1 + 2).toBe(3)
         });`,
-          filename: f('foo.cy.ts'),
+          filename: 'foo.cy.ts',
         },
         {
           code: `
@@ -120,7 +97,7 @@ describe('S2187', () => {
         xspecify('1 + 2 should give 3', () => {
             expect(1 + 2).toBe(3)
         });`,
-          filename: f('foo.spec.js'),
+          filename: 'foo.spec.js',
         },
         {
           code: `test.for([
@@ -130,7 +107,7 @@ describe('S2187', () => {
         ])('add(%i, %i) -> %i', ([a, b, expected]) => {
           expect(a + b).toBe(expected)
         })`,
-          filename: f('foo.spec.js'),
+          filename: 'foo.spec.js',
         },
         {
           code: `
@@ -138,7 +115,7 @@ describe('S2187', () => {
         test.skipIf(isWindows)('uses POSIX paths', () => {
             expect(path).toBe('/tmp')
         });`,
-          filename: f('foo.test.js'),
+          filename: 'foo.test.js',
         },
         {
           code: `
@@ -146,7 +123,7 @@ describe('S2187', () => {
         test.fails('documents a known failure', () => {
             expect(fn).toThrow()
         });`,
-          filename: f('foo.test.js'),
+          filename: 'foo.test.js',
         },
         {
           code: `
@@ -154,7 +131,7 @@ describe('S2187', () => {
         test.skip('should do something', async ({ page }) => {
             await page.goto('https://example.com')
         });`,
-          filename: f('foo.spec.ts'),
+          filename: 'foo.spec.ts',
         },
         {
           code: `
@@ -162,7 +139,7 @@ describe('S2187', () => {
         test.fixme('should do something', async ({ page }) => {
             await page.goto('https://example.com')
         });`,
-          filename: f('foo.spec.ts'),
+          filename: 'foo.spec.ts',
         },
         {
           code: `
@@ -170,7 +147,7 @@ describe('S2187', () => {
         test.fail('should do something', async ({ page }) => {
             await page.goto('https://example.com')
         });`,
-          filename: f('foo.spec.ts'),
+          filename: 'foo.spec.ts',
         },
         {
           code: `
@@ -178,7 +155,7 @@ describe('S2187', () => {
         test.fixme(\`should do something\`, async ({ page }) => {
             await page.goto('https://example.com')
         });`,
-          filename: f('foo.spec.ts'),
+          filename: 'foo.spec.ts',
         },
         {
           code: `
@@ -186,7 +163,7 @@ describe('S2187', () => {
         test.prop([fc.string(), fc.string(), fc.string()])('should detect substrings', (a, b, c) => {
             expect((a + b + c).includes(b)).toBe(true)
         });`,
-          filename: f('foo.test.js'),
+          filename: 'foo.test.js',
         },
         {
           code: `
@@ -194,7 +171,31 @@ describe('S2187', () => {
         it.prop([fc.nat()])('should be positive', (n) => {
             expect(n).toBeGreaterThanOrEqual(0)
         });`,
-          filename: f('foo.test.js'),
+          filename: 'foo.test.js',
+        },
+        {
+          code: `
+        /* a Deno test file using 'Deno.test' */
+        Deno.test('1 + 2 should give 3', async () => {
+            assertEquals(1 + 2, 3);
+        });`,
+          filename: 'foo.test.ts',
+        },
+        {
+          code: `
+        /* a Deno test file using 'Deno.test.only' */
+        Deno.test.only('1 + 2 should give 3', async () => {
+            assertEquals(1 + 2, 3);
+        });`,
+          filename: 'foo.test.ts',
+        },
+        {
+          code: `
+        /* a Deno test file using 'Deno.test.ignore' */
+        Deno.test.ignore('1 + 2 should give 3', async () => {
+            assertEquals(1 + 2, 3);
+        });`,
+          filename: 'foo.test.ts',
         },
         {
           code: `
@@ -204,7 +205,7 @@ describe('S2187', () => {
             {}
           ],
         });`,
-          filename: f('unit.test.ts'),
+          filename: 'unit.test.ts',
         },
         {
           code: `
@@ -217,7 +218,7 @@ describe('S2187', () => {
             const result = TextUtils.doSomething(text);
             expect(result).toStrictEqual(expected);
         });
-
+        
         test.each\`
           a    | b    | expected
           ${1} | ${1} | ${2}
@@ -226,13 +227,13 @@ describe('S2187', () => {
         \`('returns $expected when $a is added to $b', ({a, b, expected}) => {
           expect(a + b).toBe(expected);
         });`,
-          filename: f('foo.test.js'),
+          filename: 'foo.test.js',
         },
       ],
       invalid: [
         {
           code: `/* empty test file */`,
-          filename: f('foo.test.js'),
+          filename: 'foo.test.js',
           errors: [
             {
               message: 'Add some tests to this file or delete it.',
@@ -243,61 +244,32 @@ describe('S2187', () => {
         },
         {
           code: `/* empty spec file */`,
-          filename: f('foo.spec.js'),
+          filename: 'foo.spec.js',
           errors: 1,
         },
         {
           code: `/* empty Cypress test file */`,
-          filename: f('foo.cy.ts'),
+          filename: 'foo.cy.ts',
           errors: 1,
         },
         {
           code: `test.skip(browserName === 'webkit', 'reason');`,
-          filename: f('foo.spec.ts'),
+          filename: 'foo.spec.ts',
           errors: 1,
         },
         {
           code: `test.skip(({ browserName }) => browserName === 'webkit', 'reason');`,
-          filename: f('foo.spec.ts'),
+          filename: 'foo.spec.ts',
           errors: 1,
         },
         {
           code: `test.fail(browserName === 'webkit', 'reason');`,
-          filename: f('foo.spec.ts'),
+          filename: 'foo.spec.ts',
           errors: 1,
         },
         {
           code: `it['coverage']();`,
-          filename: f('foo.spec.js'),
-          errors: 1,
-        },
-        {
-          // JS-2311: outside an "environments" folder, this is a real test file and should still be flagged
-          code: `
-        export const environment = {
-          production: false,
-          apiUrl: 'https://api.test.example.com',
-        };`,
-          filename: f('environment.test.ts'),
-          errors: 1,
-        },
-        {
-          // JS-2311: same "environments/environment.test.ts" path shape but the
-          // project is not Angular (no @angular/core), so this is treated as a
-          // real — and empty — colocated test file and should still be flagged
-          code: `
-        export const environment = {
-          production: false,
-          apiUrl: 'https://api.test.example.com',
-        };`,
-          filename: nonAngularEnvConfig,
-          errors: 1,
-        },
-        {
-          // JS-2311: the Angular carve-out is scoped to environment config files;
-          // an ordinary empty test file in the same Angular project is still flagged
-          code: `/* empty test file in an Angular project */`,
-          filename: f('fixtures/angular/src/app/app.component.spec.ts'),
+          filename: 'foo.spec.js',
           errors: 1,
         },
       ],

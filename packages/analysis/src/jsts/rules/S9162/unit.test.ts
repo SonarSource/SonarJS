@@ -21,34 +21,11 @@ import { rule } from './rule.js';
 
 const ruleTester = new NoTypeCheckingRuleTester();
 const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'cypress', 'e2e', 'status.cy.js');
-// JS-2311: the Angular carve-out consults the closest package.json, so these cases use
-// absolute filenames nested under fixtures whose package.json declares (or omits)
-// `@angular/core`. Scope the lookup to this rule's fixtures.
-const angularEnvConfig = path.join(
-  import.meta.dirname,
-  'fixtures/angular/src/environments/environment.test.ts',
-);
-const nonAngularEnvConfig = path.join(
-  import.meta.dirname,
-  'fixtures/non-angular/src/environments/environment.test.ts',
-);
-process.chdir(import.meta.dirname);
 
 describe('S9162', () => {
   it('reports retryable assertion-only Cypress callbacks', () => {
     ruleTester.run('prefer-cypress-should', rule, {
       valid: [
-        {
-          // JS-2311: in an Angular project, an environments/environment.<env>.ts config
-          // file is not a test file, so the rule does not activate on it even though the
-          // assertion-only .then() callback would otherwise be flagged.
-          filename: angularEnvConfig,
-          code: `
-            cy.get('[data-cy=status]').then($status => {
-              expect($status.text()).to.equal('Ready');
-            });
-          `,
-        },
         {
           filename: fixtureFile,
           code: `
@@ -312,18 +289,6 @@ describe('S9162', () => {
           code: `
             cy?.get('input').then($input => {
               expect($input.text()).to.equal('Ready');
-            });
-          `,
-          errors: 1,
-        },
-        {
-          // JS-2311: same environments/environment.test.ts path shape, but the project
-          // is not Angular (no @angular/core), so it stays a real test file and the
-          // assertion-only .then() callback is still reported.
-          filename: nonAngularEnvConfig,
-          code: `
-            cy.get('[data-cy=status]').then($status => {
-              expect($status.text()).to.equal('Ready');
             });
           `,
           errors: 1,

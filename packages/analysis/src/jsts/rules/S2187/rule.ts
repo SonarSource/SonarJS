@@ -22,7 +22,6 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { hasStringFirstArgument } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 import { isTestFile } from '../helpers/test-file-pattern.js';
-import { isAngularProject } from '../helpers/dependency-manifests/dependencies.js';
 
 const APIs = new Set([
   // Jasmine test cases: it(...), fit(...), xit(...).
@@ -101,6 +100,10 @@ const APIs = new Set([
   'it.prop',
   // eslint rule tester
   'ruleTester.run',
+  // Deno test runner
+  'Deno.test',
+  'Deno.test.only',
+  'Deno.test.ignore',
 ]);
 
 const APIS_WITH_TEST_TITLE = new Set([
@@ -121,11 +124,7 @@ export const rule: Rule.RuleModule = {
   }),
   create(context: Rule.RuleContext) {
     const { filename, settings } = context;
-    if (
-      !isTestFile(filename, settings?.testFileExtensions as string[] | undefined, () =>
-        isAngularProject(context),
-      )
-    ) {
+    if (!isTestFile(filename, settings?.testFileExtensions as string[] | undefined)) {
       return {};
     }
 

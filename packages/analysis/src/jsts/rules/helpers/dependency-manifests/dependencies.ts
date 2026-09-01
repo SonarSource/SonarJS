@@ -156,6 +156,26 @@ export function getDependenciesSanitizePaths(context: Rule.RuleContext): Depende
 }
 
 /**
+ * Determines whether a file belongs to an Angular project, based on the presence of
+ * `@angular/core` in the closest dependency manifest.
+ *
+ * This is a path-based predicate (no `Rule.RuleContext`), so it can be used both by the
+ * scope-classification heuristic in `common/filter/filter-path.ts` — which decides MAIN/TEST
+ * before any rule runs — and, if needed, by rules. Keeping the Angular signal in one shared
+ * helper avoids duplicating the dependency list, and the underlying lookup is cached.
+ *
+ * @param filePath normalized absolute path of the file
+ * @param topDir normalized absolute directory bounding the upward manifest search (project base dir)
+ * @returns true when `@angular/core` is declared in the closest manifest
+ */
+export function isAngularProject(
+  filePath: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath,
+): boolean {
+  return getDependencies(dirnamePath(filePath), topDir).has('@angular/core');
+}
+
+/**
  * Gets the React version from the closest package.json.
  *
  * @param context ESLint rule context
@@ -201,22 +221,6 @@ export function getVueVersion(context: Rule.RuleContext): string | null {
     getDependencies(dir, normalizeToAbsolutePath(context.cwd)),
   );
   return dependencies.get('vue') ?? null;
-}
-
-/**
- * Determines whether the linted file belongs to an Angular project, based on the
- * presence of `@angular/core` in the closest dependency manifest.
- *
- * Used to scope Angular-specific carve-outs — such as treating
- * `environments/environment.<env>.ts` config files as non-test files — to
- * projects that actually follow the Angular `environment.<env>.ts` convention,
- * where the path is otherwise indistinguishable from a real colocated test.
- *
- * @param context ESLint rule context
- * @returns true when `@angular/core` is declared as a dependency
- */
-export function isAngularProject(context: Rule.RuleContext): boolean {
-  return getDependenciesSanitizePaths(context).has('@angular/core');
 }
 
 /**
