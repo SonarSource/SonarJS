@@ -663,7 +663,7 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     env:
-      <<: *shared_build_number
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
       MISE_NODE_VERSION: ${{ matrix.node-version }}
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
@@ -706,7 +706,7 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     env:
-      <<: *shared_build_number
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
       MISE_NODE_VERSION: ${{ matrix.node-version }}
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
