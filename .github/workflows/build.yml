@@ -743,10 +743,7 @@ jobs:
         with:
           version: 2026.8.14
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
-          mise_toml: |
-            [tools]
-            java = "21.0"
-            maven = "3.9"
+          install_args: java maven
       - *maven_cache
       - *download_sonarjs_m2
       - *config_maven
@@ -834,9 +831,7 @@ jobs:
         with:
           version: 2026.8.14
           cache_save: true
-          mise_toml: |
-            [tools]
-            maven = "3.9"
+          install_args: maven
       - *maven_cache
       - *download_sonarjs_m2
       - *config_maven

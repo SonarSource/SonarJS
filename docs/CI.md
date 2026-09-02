@@ -818,7 +818,7 @@ These are the most important reusable components in the current pipeline.
 | `SonarSource/ci-github-actions/promote`                    | 1                           | Artifactory/Repox promotion                                                                                | downstream of all build/test gates                     |
 | `SonarSource/gh-action_releasability/releasability-status` | 1                           | releasability commit status                                                                                | none                                                   |
 
-Default Java/Maven/Node versions are declared once in the repo-root `mise.toml` and picked up by `jdx/mise-action` automatically; a job only passes its own `mise_toml` input when it needs a different tool set (e.g. no Node) or overrides a single tool at runtime via a `MISE_<TOOL>_VERSION` env var (e.g. matrix Node versions), rather than restating every version inline.
+Default Java/Maven/Node versions are declared once in the repo-root `mise.toml` and picked up by `jdx/mise-action` automatically — no job passes its own `mise_toml` input, since doing so would overwrite the tracked file on the runner. A job that only needs a subset of tools restricts installation with `install_args` (e.g. `install_args: java maven` to skip Node) instead, and a job that needs a different version of one tool overrides it at runtime via a `MISE_<TOOL>_VERSION` env var (e.g. matrix Node versions), rather than restating every version inline.
 
 ## PR Cleanup Workflow
 
