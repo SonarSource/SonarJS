@@ -61,6 +61,14 @@ const INVALID_CASES = [
   // A component whose name merely suggests a modal wrapper is not treated as one: only real
   // `dialog`/`popover` elements and ARIA `dialog`/`alertdialog` roles are exempt.
   { code: `<Dialog><input autoFocus /></Dialog>;`, errors: 1 },
+  // Known limitation, documented on `isExemptFromReport`: the ancestor walk follows the JSX
+  // AST's `.parent` chain, so a subtree first assigned to a local variable and only spliced
+  // into the dialog later via `{button}` is not seen as a descendant, even though it renders
+  // inside the dialog at runtime. This is a false positive we knowingly accept.
+  {
+    code: `function C() { const button = <input autoFocus />; return <dialog>{button}</dialog>; }`,
+    errors: 1,
+  },
 ];
 
 describe('S9379', () => {

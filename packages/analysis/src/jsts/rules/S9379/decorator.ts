@@ -89,6 +89,16 @@ function openingElementOf(
   return undefined;
 }
 
+/**
+ * Known limitation: the walk below follows the JSX AST's `.parent` chain, which reflects
+ * lexical nesting, not runtime composition. When a JSX subtree is first assigned to a local
+ * variable and only spliced into the modal later via `{variableName}` (a common React idiom
+ * for conditional buttons/rows), the variable's own JSX node never has the modal as an
+ * ancestor in the parsed AST, even though it renders inside it at runtime - so this walk
+ * cannot see it and a false positive is reported. Resolving this in general would require
+ * tracing the variable back to its assignment (data-flow analysis), which is out of scope for
+ * this decorator.
+ */
 function isExemptFromReport(
   context: Rule.RuleContext,
   opening: TSESTree.JSXOpeningElement,
