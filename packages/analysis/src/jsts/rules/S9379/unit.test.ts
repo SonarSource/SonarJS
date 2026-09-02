@@ -40,10 +40,10 @@ const VALID_CASES = [
   { code: `<Input autoFocus />;` },
   // A custom element is not a recognized DOM tag either, even written all-lowercase.
   { code: `<my-input autoFocus />;` },
-  // Known limitation, documented on `withIgnoreNonDOM`: a custom component can forward
+  // Known limitation, documented on `isExemptFromReport`: a custom component can forward
   // `autoFocus` straight to a real DOM element it renders internally (e.g. a design-system
-  // `Input.Search` built on a native `<input>`), which is a genuine issue we cannot see and
-  // knowingly miss, since `ignoreNonDOM` only looks at the JSX tag name.
+  // `Input.Search` built on a native `<input>`), which is a genuine issue the non-DOM check
+  // cannot see and knowingly misses, since it only looks at the JSX tag name.
   { code: `<Input.Search autoFocus />;` },
 ];
 
@@ -84,6 +84,13 @@ const INVALID_CASES = [
   },
   {
     code: `function C({ isEditing }) { return isEditing ? <input autoFocus /> : null; }`,
+    errors: 1,
+  },
+  // Same known limitation, guarded by an `if` early return instead of a JSX-level `&&`/ternary
+  // (the shape flagged on redux's TodoTextInput.js, shared between an always-visible input and
+  // one that only mounts in edit mode).
+  {
+    code: `function C({ isEditing }) { if (isEditing) { return <input autoFocus />; } return null; }`,
     errors: 1,
   },
 ];
