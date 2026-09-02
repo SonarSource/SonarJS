@@ -29,6 +29,7 @@ import {
   dirnamePath,
 } from '../../../shared/src/helpers/files.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
+import { clearSourceFileContentCache } from '../jsts/program/cache/sourceFileCache.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const dependencyManifestStore = new DependencyManifestStore();
@@ -42,11 +43,27 @@ const fileStores: FileStore[] = [
   tsConfigStore,
 ];
 
-export function resetFileStores() {
+function resetFileStores() {
   sourceFileStore.clearCache();
   dependencyManifestStore.clearCache();
   generatedSourceStore.clearCache();
   tsConfigStore.clearCache();
+}
+
+/**
+ * Initializes the shared caches for a project analysis.
+ * Scanner analyses are independent, while SonarQube for IDE analyses reuse
+ * caches across requests for incremental performance.
+ */
+export async function initFileStoresForAnalysis(
+  configuration: Configuration,
+  inputFiles?: AnalyzableFiles,
+) {
+  if (!configuration.sonarlint) {
+    resetFileStores();
+    clearSourceFileContentCache();
+  }
+  await initFileStores(configuration, inputFiles);
 }
 
 export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {

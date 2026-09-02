@@ -22,21 +22,11 @@ import {
 } from './transformers/request.js';
 import { transformProjectOutputToResponse } from './transformers/response.js';
 import { analyzeProject } from '../../analysis/src/analyzeProject.js';
-import { initFileStores, resetFileStores } from '../../analysis/src/file-stores/index.js';
+import { initFileStoresForAnalysis } from '../../analysis/src/file-stores/index.js';
 import { info, error as logError } from '../../shared/src/helpers/logging.js';
 import { createConfiguration } from '../../analysis/src/common/configuration.js';
 import { ROOT_PATH } from '../../shared/src/helpers/files.js';
 import { sanitizeRawInputFiles } from '../../analysis/src/common/input-sanitize.js';
-import { clearSourceFileContentCache } from '../../analysis/src/jsts/program/cache/sourceFileCache.js';
-
-/**
- * gRPC requests are independent analyses. Reset all shared caches to avoid
- * leaking data between requests with overlapping file paths.
- */
-function resetGrpcCaches() {
-  resetFileStores();
-  clearSourceFileContentCache();
-}
 
 /**
  * gRPC handler for the Analyze RPC
@@ -52,8 +42,6 @@ export async function analyzeFileHandler(
       `Received Analyze request (${request.analysisId ?? 'no id'}) with ${request.sourceFiles?.length ?? 0} files`,
     );
 
-    resetGrpcCaches();
-
     // Create configuration for gRPC context
     // gRPC requests contain all file contents inline - no filesystem access needed
     const configuration = createConfiguration({
@@ -65,7 +53,7 @@ export async function analyzeFileHandler(
     // Transform, sanitize source files, and initialize file stores
     const rawFiles = transformSourceFilesToRawInputFiles(request.sourceFiles || []);
     const { files, pathMap } = await sanitizeRawInputFiles(rawFiles, configuration);
-    await initFileStores(configuration, files);
+    await initFileStoresForAnalysis(configuration, files);
 
     const projectInput = transformRequestToProjectInput(request);
 

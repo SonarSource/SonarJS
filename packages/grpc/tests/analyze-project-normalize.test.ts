@@ -219,8 +219,9 @@ describe('normalizeAnalyzeProjectRequest', () => {
     expect(normalized.configuration.maxFileSize).toBe(64);
   });
 
-  it('should reset the generated-source store before filesystem rediscovery', async () => {
+  it('should reset the generated-source store before a scanner analysis', async () => {
     const baseDir = await createBaseDir();
+    const sourceFile = normalizeToAbsolutePath(join(baseDir, 'src', 'main.ts'), baseDir);
     const staleGeneratedFile = normalizeToAbsolutePath(
       join(baseDir, 'src', 'generated.ts'),
       baseDir,
@@ -241,6 +242,13 @@ describe('normalizeAnalyzeProjectRequest', () => {
       configuration: {
         baseDir,
         canAccessFileSystem: true,
+        sonarlint: false,
+      },
+      files: {
+        [sourceFile]: {
+          fileContent: 'export const value = 1;',
+          fileType: FileType.FILE_TYPE_MAIN,
+        },
       },
       rules: [],
       cssRules: [],
@@ -248,6 +256,43 @@ describe('normalizeAnalyzeProjectRequest', () => {
     });
 
     expect(generatedSourceStore.getFamily(staleGeneratedFile)).toBeUndefined();
+  });
+
+  it('should preserve the generated-source store before a SonarQube for IDE analysis', async () => {
+    const baseDir = await createBaseDir();
+    const sourceFile = normalizeToAbsolutePath(join(baseDir, 'src', 'main.ts'), baseDir);
+    const generatedFile = normalizeToAbsolutePath(join(baseDir, 'src', 'generated.ts'), baseDir);
+    const generatedSourceState = generatedSourceStore as unknown as {
+      derivedFamilyByFile: Map<NormalizedAbsolutePath, string>;
+    };
+
+    generatedSourceStore.setup(
+      createConfiguration({
+        baseDir,
+        canAccessFileSystem: true,
+        sonarlint: true,
+      }),
+    );
+    generatedSourceState.derivedFamilyByFile = new Map([[generatedFile, 'generated-family']]);
+
+    await normalizeAnalyzeProjectRequest({
+      configuration: {
+        baseDir,
+        canAccessFileSystem: true,
+        sonarlint: true,
+      },
+      files: {
+        [sourceFile]: {
+          fileContent: 'export const value = 1;',
+          fileType: FileType.FILE_TYPE_MAIN,
+        },
+      },
+      rules: [],
+      cssRules: [],
+      bundles: [],
+    });
+
+    expect(generatedSourceStore.getFamily(generatedFile)).toBe('generated-family');
   });
 
   it('should keep empty files explicit when filesystem access is disabled', async () => {

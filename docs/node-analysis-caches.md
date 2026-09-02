@@ -168,9 +168,10 @@ The main entrypoints are:
 - `sanitizeProjectAnalysisInput()` in `packages/analysis/src/common/input-sanitize.ts`
 - `normalizeAnalyzeProjectRequest()` in `packages/grpc/src/analyze-project-normalize.ts`
 
-One additional nuance in `normalizeAnalyzeProjectRequest()`:
+All entrypoints initialize their file stores through `initFileStoresForAnalysis()`:
 
-- when the request has no explicit files and filesystem access is enabled, it explicitly resets the four file stores before rediscovering the project from disk
+- scanner analyses reset the shared caches before initializing the request
+- SonarQube for IDE analyses retain the caches for incremental reuse
 
 There is also a standalone gRPC path in `packages/grpc/src/service.ts` that always resets the shared caches before analyzing an inline virtual project rooted at `/`.
 
@@ -399,7 +400,7 @@ This is the path where the cache architecture matters most for latency.
 
 ### Standalone gRPC Service
 
-`packages/grpc/src/service.ts` intentionally does not share state between requests:
+`packages/grpc/src/service.ts` uses the same scanner initialization path and intentionally does not share state between requests:
 
 - it resets all four file stores
 - it clears the compiler-side source-file cache

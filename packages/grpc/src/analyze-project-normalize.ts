@@ -21,7 +21,7 @@ import {
   type ConfigurationInput,
   type JsTsLanguage as InternalJsTsLanguage,
 } from '../../analysis/src/common/configuration.js';
-import { initFileStores, resetFileStores } from '../../analysis/src/file-stores/index.js';
+import { initFileStoresForAnalysis } from '../../analysis/src/file-stores/index.js';
 import {
   sanitizeInputFiles,
   type ProjectAnalysisFileInput as SanitizableProjectFileInput,
@@ -62,10 +62,7 @@ export async function normalizeAnalyzeProjectRequest(
   const bundles = normalizePathList(request.bundles, configuration.baseDir);
   const rulesWorkdir = normalizeOptionalPath(request.rulesWorkdir, configuration.baseDir);
 
-  if (!filesPresent && configuration.canAccessFileSystem) {
-    resetFileStores();
-  }
-  await initFileStores(configuration, sanitizedFiles?.files);
+  await initFileStoresForAnalysis(configuration, sanitizedFiles?.files);
 
   return {
     rules,
