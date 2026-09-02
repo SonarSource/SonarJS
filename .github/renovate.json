@@ -52,6 +52,19 @@
       "extends": [
         "schedule:weekly"
       ]
+    },
+    {
+      "description": "Re-enable patch updates for the pinned mise Node version: it is pinned exactly (not fuzzy) so that mise.toml's text always matches the resolved runtime, keeping the JS test skip-cache and mise-action cache keys honest. That only works if patch releases land as real commits, so this overrides the shared preset's blanket 'no mise patch updates' rule for this one dependency.",
+      "matchManagers": [
+        "mise"
+      ],
+      "matchDepNames": [
+        "node"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "enabled": true
     }
   ]
 }
