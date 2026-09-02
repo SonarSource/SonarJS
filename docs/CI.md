@@ -31,7 +31,7 @@ This document focuses on the main `Build` workflow:
 - [`../.github/actions/orchestrator-cache/action.yml`](../.github/actions/orchestrator-cache/action.yml)
 - [`../.github/actions/rule-api-cache/action.yml`](../.github/actions/rule-api-cache/action.yml)
 
-Other workflows exist in `.github/workflows/`, but they are out of scope unless they directly affect the `build.yml` lifecycle.
+Other workflows exist in `.github/workflows/`, but they are out of scope unless they directly affect the `build.yml` lifecycle. The exception is [`../mise.toml`](../mise.toml), which is in scope: it is the single declared source of the Java/Maven/Node versions `build.yml` provisions — see [Toolchain Provisioning (mise)](#toolchain-provisioning-mise).
 
 ## Cache And Artifact Model
 
@@ -818,13 +818,87 @@ These are the most important reusable components in the current pipeline.
 | `SonarSource/ci-github-actions/promote`                    | 1                           | Artifactory/Repox promotion                                                                                | downstream of all build/test gates                     |
 | `SonarSource/gh-action_releasability/releasability-status` | 1                           | releasability commit status                                                                                | none                                                   |
 
-Default Java/Maven/Node versions are declared once in the repo-root `mise.toml` and picked up by `jdx/mise-action` automatically in jobs of `build.yml` — no job there passes its own `mise_toml` input, since doing so would overwrite the tracked file on the runner. A job that only needs a subset of tools restricts installation with `install_args` (e.g. `install_args: java maven` to skip Node) instead, rather than restating every version inline.
+## Toolchain Provisioning (mise)
 
-A job that needs a different version of one tool overrides it at runtime with a `MISE_<TOOL>_VERSION` env var (e.g. matrix Node versions). Declare that env var at **job** level, not on the mise-action step: the action puts mise's shim directory on `PATH` for every later step, and those shims resolve versions at invocation time, so a step-scoped override silently reverts to the `mise.toml` default for the rest of the job. Such a job **must** also pass `cache_key: '{{default}}-{{env.MISE_<TOOL>_VERSION}}'`. The default cache key folds in the platform, the mise version, an `install_args` hash, and a hash of the mise config files — but nothing in it reflects a `MISE_<TOOL>_VERSION` override, and the tracked `mise.toml` is now identical across matrix legs, so without that template every leg would share one cache entry instead of keeping its own.
+Java, Maven, and Node for CI are declared exactly once, in the repo-root [`mise.toml`](../mise.toml):
 
-Because the tool versions no longer live in `build.yml`, `mise.toml` is included in the `js-files-hash` computed by the `setup` job — the JS unit-test jobs use that hash as a skip-cache key, and would otherwise reuse cached results (and republish stale coverage) after a toolchain bump without ever re-running on the new runtime.
+```toml
+[tools]
+java = "21.0"
+maven = "3.9"
+node = "24.11"
+```
 
-The exception to all of the above is `sqaa-release.yml`, which is `workflow_call`-only and checks out `ref: ${{ inputs.ref }}`. Its callers pass a ref decoupled from the workflow file's own ref (`automated-release.yml` passes `refs/tags/<version>`, `docker-sqaa.yml` passes an arbitrary branch), so that checkout can predate this convention and it keeps an explicit `mise_toml` block. Workflows triggered by `workflow_dispatch` without a `ref` input do **not** need this: the workflow file and the checkout always come from the same commit. Keep that block in sync with `mise.toml` by hand — Renovate's `mise` manager updates `mise.toml` but not inline `mise_toml` blocks.
+Every `jdx/mise-action` step in `build.yml` picks this up automatically — **no job in `build.yml` passes its own `mise_toml` input.** Passing that input would overwrite the tracked file on the runner (`mise-action` writes it to `mise.toml` in the working directory), which is exactly what jobs used to do before this file existed, each restating the same three versions inline.
+
+### Installing only a subset of tools
+
+A job that does not need every tool restricts installation with `install_args` instead of restating versions:
+
+| Job(s)                                                                                                   | `install_args`                 | Why                                                                         |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------ | --------------------------------------------------------------------------- |
+| `build`, `build_win`, `prepare_rspec_rule_data`, most QA jobs (the `&mise` anchor)                       | _(none — installs everything)_ | needs Java, Maven, and Node                                                 |
+| `plugin_qa_without_node*` (the `&mise_java_only` anchor)                                                 | `java maven`                   | Node must be absent so "QA without Node" actually tests without Node        |
+| `plugin_qa_without_node_alpine`, `plugin_qa_fast_without_node_alpine` (the `&alpine_setup_maven` anchor) | `maven`                        | the Alpine container image already ships its own JDK; only Maven is missing |
+| `test_eslint_plugin`                                                                                     | `node`                         | ESLint plugin tests only need Node, at a matrix-driven version (see below)  |
+
+A tool declared in `mise.toml` but omitted from `install_args` is simply left uninstalled: `mise ls` reports it `(missing)`, no shim is created for it, and `mise env` does not export it (confirmed against the pinned Alpine image — the container's own `JAVA_HOME` survives untouched). This is what makes the Alpine/`_only` rows above safe even though `mise.toml` also declares tools they don't want.
+
+### Overriding one tool's version per job (matrix Node versions)
+
+`plugin_qa_with_node`, `plugin_qa_fast_with_node`, and `test_eslint_plugin` each need a _different_ Node version per matrix leg instead of `mise.toml`'s default. They override it at runtime with a `MISE_<TOOL>_VERSION` env var, e.g.:
+
+```yaml
+plugin_qa_with_node:
+  env:
+    BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+    MISE_NODE_VERSION: ${{ matrix.node-version }}
+  steps:
+    - uses: jdx/mise-action@...
+      with:
+        cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
+```
+
+Two rules, both load-bearing — get either wrong and the override silently stops applying with no test failure to catch it:
+
+1. **Declare the env var at job level, not on the mise-action step.** `mise-action` puts mise's shim directory on `PATH` for every later step in the job (not just its own). Those shims resolve the tool version at invocation time from whatever's in the environment then. A step-scoped `env:` on the mise-action step only exists while that one step runs, so every subsequent step (npm scripts, the Maven QA run, ...) would silently fall back to `mise.toml`'s default version instead of the matrix leg's.
+2. **Pass an explicit `cache_key` that includes the env var.** `mise-action`'s default cache key is `{{cache_key_prefix}}-{{platform}}-{{version}}[-{{mise_env}}][-{{install_args_hash}}][-{{bootstrap_hash}}]-{{file_hash}}` — `file_hash` is a hash of the mise config files, and nothing in that template reflects a `MISE_<TOOL>_VERSION` override. Since `mise.toml` is now identical across every matrix leg, all legs would resolve to the _same_ default key and share one cache entry instead of keeping their own, unless `cache_key` is overridden to fold the env var in explicitly (as shown above).
+
+Also note: `install_args_hash` already differentiates jobs with different `install_args` sets (e.g. the `java maven`-only jobs never collide with the full-install jobs), so the explicit `cache_key` above is only needed for the _env-var-override_ case, not for the `install_args`-restriction case.
+
+### Keeping the JS unit-test skip-cache honest
+
+`setup`'s `js-files-hash` step (`build.yml`, "Compute JS test hash for skip caching") hashes a `find` list that includes `mise.toml`. This matters because `test_js`/`test_js_win` use that hash as their skip-cache key: on a hit, the checkout/mise/npm/test steps are all skipped, but the coverage-upload step still runs — publishing whatever coverage was in the restored cache. Before this file existed, the tool versions lived inside `build.yml` itself, which _is_ in that hash, so a version bump correctly invalidated the skip cache and forced a real re-run. `mise.toml` has to stay in that `find` list for the same property to hold: without it, bumping `mise.toml` alone would hit the stale cache, run zero tests on the new toolchain, and still report green with the old coverage.
+
+### The one workflow that keeps its own inline `mise_toml`
+
+[`sqaa-release.yml`](../.github/workflows/sqaa-release.yml) is `workflow_call`-only and checks out `ref: ${{ inputs.ref }}` — a ref supplied by its callers (`automated-release.yml` passes `refs/tags/<version>`, `docker-sqaa.yml` passes an arbitrary branch) that is **decoupled** from the workflow file's own ref. That checkout can land on a tag or branch that predates `mise.toml`, so this one workflow keeps an explicit inline block, matching `mise.toml`'s values by hand:
+
+```yaml
+mise_toml: |
+  [tools]
+  java = "21.0"
+  maven = "3.9"
+  node = "24.11"
+```
+
+No other workflow needs this. In particular, [`release_eslint_plugin.yml`](../.github/workflows/release_eslint_plugin.yml) looks superficially similar (it's also a manually-triggered release workflow) but is _not_ exposed: it is `workflow_dispatch`-only with no `ref` input, and its checkout takes no `ref:` either, so the workflow file and the checked-out tree always come from the same commit — dispatching an old ref just runs _that ref's own_ copy of the file. Don't add the inline block back there.
+
+Renovate's built-in `mise` manager keeps `mise.toml` itself up to date, but it does **not** reach into `sqaa-release.yml`'s inline block — that has to be updated by hand whenever `mise.toml` changes, or the SQAA release path will silently drift onto a different toolchain than the rest of CI.
+
+### Why every version is a fuzzy minor spec, not a patch pin
+
+`mise.toml` uses `java = "21.0"`, `maven = "3.9"`, `node = "24.11"` — minor-precision, not `"24.11.0"`. This isn't just style: the repo's shared Renovate preset explicitly disables _patch_-level updates for mise-managed tools (so Renovate can bump `21.0` → `21.1` but will never touch a patch digit). A patch-pinned tool would silently stop receiving any Renovate updates at all, unlike the other two — so all three tools are kept at the same minor-precision shape on purpose.
+
+### Gotcha: GitHub Actions does not support YAML merge keys
+
+`build.yml` uses YAML anchors/aliases extensively (`&name` / `*name`) to reuse step and job fragments, and that works fine on GitHub Actions. **Merge keys (`<<: *anchor`) do not** — GitHub's workflow parser rejects them, even though most local YAML tooling (`js-yaml`, `pyyaml`, etc.) accepts merge keys and will validate the file successfully. A workflow file broken this way doesn't show up as a failed `Build` check: GitHub can't parse the file well enough to know which triggers apply, so it emits a separate `push`-triggered run named after the workflow file itself (visible via `gh run list`, not in the PR's check list) and the real `Build` workflow simply never runs on that commit — which can look like unrelated checks (SCA/Gitar/security scans) are green when the thing that actually matters isn't running at all. If you need to combine an anchored base mapping with per-job overrides, write the keys out explicitly instead of merging.
+
+### Jobs the nightly schedule gates — no PR run ever exercises them
+
+Several jobs/steps are guarded by `if: github.event_name == 'schedule'`, and GitHub only fires `schedule` on the default branch — so they don't run on `push`, `pull_request`, or even a manual `workflow_dispatch`: `plugin_qa_without_node_dev`, `plugin_qa_without_node_alpine`, `plugin_qa_fast_without_node_dev`, `plugin_qa_fast_without_node_alpine`, `analyze_shadows`, `run_iris`, `generated_files_freshness`, and the nightly steps inside `build_eslint_plugin`. A change that only affects one of these (like an Alpine-container `install_args` tweak) gets **no CI signal at all** until the first post-merge nightly.
+
+Do not "fix" this by dispatching `build.yml` manually to force them — a `workflow_dispatch` run satisfies `github.event_name != 'pull_request'`, so it will also run `build`'s `mvn deploy -Pdeploy-sonarsource,sign,release` and the `promote` job, publishing and promoting real artifacts in Repox from a throwaway ref. For container-specific behavior (e.g. the Alpine jobs), reproduce it locally instead: run the exact pinned container image with the exact pinned `mise` version (`curl https://mise.run | MISE_VERSION=v<pinned> sh`) and mount in `mise.toml`, rather than the version installed on your own machine.
 
 ## PR Cleanup Workflow
 
