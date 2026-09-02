@@ -25,6 +25,7 @@ import { type ExtendedParseResult, type LanguageParser, build } from '../builder
 import { debug } from '../../../../../shared/src/helpers/logging.js';
 import { extractSonarResolveCommentsFromJsTsComments } from '../../../common/sonar-resolve.js';
 import type { SonarResolveComment } from '../../../contracts/analysis.js';
+import { childrenOf } from '../../rules/helpers/ancestor.js';
 
 /**
  * Analyzes a file containing JS snippets
@@ -83,6 +84,7 @@ export async function analyzeEmbedded(
     if (extendedParseResult.sharesGlobalScope) {
       for (const name of collectTopLevelBindingNames(
         extendedParseResult.sourceCode.ast as estree.Program,
+        extendedParseResult.sourceCode.visitorKeys,
       )) {
         sharedGlobalScopeNames.add(name);
       }
@@ -126,8 +128,17 @@ function analyzeSnippet(
  * Collects the names bound at the top level of a script by "var", "let", "const", "class" and
  * named "function" declarations. In a classic (non-module) script, all of these become bindings
  * of the shared global scope, visible to other classic scripts of the same HTML document.
+ *
+ * A "var" declared inside a nested block (if/for/try/switch/...) at the top level of the script
+ * also hoists to that shared scope, so such statements are additionally walked to collect any
+ * "var" declaration they contain, stopping at function boundaries since those introduce their own
+ * "var" scope. "let"/"const"/"class" declared inside a nested block stay block-scoped and are
+ * correctly not collected there.
  */
-function collectTopLevelBindingNames(program: estree.Program): string[] {
+function collectTopLevelBindingNames(
+  program: estree.Program,
+  visitorKeys: SourceCode.VisitorKeys,
+): string[] {
   const names: string[] = [];
   for (const statement of program.body) {
     switch (statement.type) {
@@ -142,9 +153,36 @@ function collectTopLevelBindingNames(program: estree.Program): string[] {
           names.push(statement.id.name);
         }
         break;
+      default:
+        collectNestedVarNames(statement, visitorKeys, names);
+        break;
     }
   }
   return names;
+}
+
+const FUNCTION_BOUNDARIES = new Set([
+  'FunctionDeclaration',
+  'FunctionExpression',
+  'ArrowFunctionExpression',
+]);
+
+function collectNestedVarNames(
+  node: estree.Node,
+  visitorKeys: SourceCode.VisitorKeys,
+  names: string[],
+): void {
+  if (node.type === 'VariableDeclaration' && node.kind === 'var') {
+    for (const declarator of node.declarations) {
+      collectPatternNames(declarator.id, names);
+    }
+  }
+  if (FUNCTION_BOUNDARIES.has(node.type)) {
+    return;
+  }
+  for (const child of childrenOf(node, visitorKeys)) {
+    collectNestedVarNames(child, visitorKeys, names);
+  }
 }
 
 function collectPatternNames(pattern: estree.Pattern, names: string[]): void {

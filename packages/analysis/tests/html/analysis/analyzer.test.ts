@@ -337,6 +337,52 @@ describe('analyzeHTML', () => {
       expect(issues).toEqual([]);
     });
 
+    it('should not flag a write to a "var" hoisted out of a nested block in an earlier classic script block', async () => {
+      await Linter.initialize({
+        baseDir: fixturesPath,
+        rules: [
+          {
+            key: 'S2703',
+            configurations: [],
+            fileTypeTargets: ['MAIN'],
+            language: 'js',
+            analysisModes: ['DEFAULT'],
+          },
+        ],
+      });
+      const { issues } = await analyzeEmbedded(
+        await embeddedInput({
+          filePath: normalizeToAbsolutePath(
+            join(fixturesPath, 'shared-global-scope-var-nested-block.html'),
+          ),
+        }),
+        parseHTML,
+      );
+      expect(issues).toEqual([]);
+    });
+
+    it('should not flag a write relying on a "let" declared in a "defer" script block, since "defer" has no effect on inline scripts', async () => {
+      await Linter.initialize({
+        baseDir: fixturesPath,
+        rules: [
+          {
+            key: 'S2703',
+            configurations: [],
+            fileTypeTargets: ['MAIN'],
+            language: 'js',
+            analysisModes: ['DEFAULT'],
+          },
+        ],
+      });
+      const { issues } = await analyzeEmbedded(
+        await embeddedInput({
+          filePath: normalizeToAbsolutePath(join(fixturesPath, 'shared-global-scope-defer.html')),
+        }),
+        parseHTML,
+      );
+      expect(issues).toEqual([]);
+    });
+
     it('should still flag a write relying on a "let" declared in a "type=module" script block', async () => {
       await Linter.initialize({
         baseDir: fixturesPath,
@@ -383,34 +429,6 @@ describe('analyzeHTML', () => {
           filePath: normalizeToAbsolutePath(
             join(fixturesPath, 'shared-global-scope-wrong-order.html'),
           ),
-        }),
-        parseHTML,
-      );
-      expect(issues).toEqual([
-        expect.objectContaining({
-          ruleId: 'S2703',
-          message:
-            'Add the "let", "const" or "var" keyword to this declaration of "TOKEN" to make it explicit.',
-        }),
-      ]);
-    });
-
-    it('should still flag a write relying on a "let" declared in a "defer" script block', async () => {
-      await Linter.initialize({
-        baseDir: fixturesPath,
-        rules: [
-          {
-            key: 'S2703',
-            configurations: [],
-            fileTypeTargets: ['MAIN'],
-            language: 'js',
-            analysisModes: ['DEFAULT'],
-          },
-        ],
-      });
-      const { issues } = await analyzeEmbedded(
-        await embeddedInput({
-          filePath: normalizeToAbsolutePath(join(fixturesPath, 'defer-script-not-shared.html')),
         }),
         parseHTML,
       );
