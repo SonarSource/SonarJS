@@ -19,33 +19,33 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
 const { getProp } = pkg;
+import { dom } from 'aria-query';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getElementType, getRole } from '../helpers/accessibility.js';
 import * as meta from './generated-meta.js';
 
-// ARIA roles that mark a hand-rolled (non-native-`<dialog>`) modal, per the WAI-ARIA spec.
+// ARIA roles for hand-rolled (non-`<dialog>`) modals.
 const MODAL_ROLES = new Set(['dialog', 'alertdialog']);
 
-// Mirrors the sonar-html S9379 message ("Remove this "autofocus" attribute, as it can reduce
-// usability and accessibility for users."), spelling the attribute the JSX way.
+// Mirrors sonar-html's S9379 message, spelled the JSX way.
 const MESSAGE =
   'Remove this "autoFocus" attribute, as it can reduce usability and accessibility for users.';
 
 /**
- * Decorates the jsx-a11y `no-autofocus` rule so that autofocusing a `dialog` element, an
- * element carrying a `popover` attribute, an element with an ARIA `dialog`/`alertdialog` role,
- * or any element inside one of those, is not reported: moving focus into a freshly opened
- * modal or popover is expected, and the modal/popover element itself is a valid autofocus
- * target when it should receive focus as soon as it opens. An `autoFocus`-named prop on a
- * custom component (e.g. a design-system `<Input autoFocus>`) is never reported either, since
- * it says nothing about real DOM focus behavior - enforced by always forcing upstream's own
- * `ignoreNonDOM` option on, rather than exposing it as a user-configurable field.
+ * Decorates jsx-a11y's `no-autofocus` so autofocusing a `dialog`, a `popover` element, an
+ * ARIA `dialog`/`alertdialog` role, or anything inside one, is not reported - moving focus
+ * into a freshly opened modal/popover is expected. Non-DOM elements (e.g. `<Input autoFocus>`)
+ * are exempt too, since `autoFocus` there isn't the DOM attribute.
+ *
+ * Known limitation: conditionally-mounted autofocus (e.g. `{isEditing && <input autoFocus/>}`)
+ * is still reported, even though it's functionally the same "freshly revealed UI" case as
+ * dialog/popover - see JS-2333.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     {
-      ...withIgnoreNonDOM(rule),
+      ...rule,
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
@@ -56,30 +56,6 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       context.report({ ...reportDescriptor, message: MESSAGE });
     },
   );
-}
-
-/**
- * Known limitation (tradeoff, not just an upside): this also silences genuine issues on a
- * custom component that renders a real DOM element with `autoFocus` under the hood (e.g. a
- * design-system `<Input.Search autoFocus>` that forwards the prop straight to a native
- * `<input>`) - `ignoreNonDOM` only looks at the JSX tag name, so it cannot tell such a
- * pass-through wrapper apart from a component where `autoFocus` is just an unrelated prop.
- * Accepted deliberately: telling the two apart would require resolving the component's own
- * implementation, which is out of scope for this decorator.
- */
-function withIgnoreNonDOM(rule: Rule.RuleModule): Rule.RuleModule {
-  return {
-    ...rule,
-    create(context: Rule.RuleContext): Rule.RuleListener {
-      const overriddenContext = Object.create(context, {
-        options: {
-          value: [{ ignoreNonDOM: true }],
-          enumerable: true,
-        },
-      }) as Rule.RuleContext;
-      return rule.create(overriddenContext);
-    },
-  };
 }
 
 function openingElementOf(
@@ -99,19 +75,21 @@ function openingElementOf(
 }
 
 /**
- * Known limitation: the walk below follows the JSX AST's `.parent` chain, which reflects
- * lexical nesting, not runtime composition. When a JSX subtree is first assigned to a local
- * variable and only spliced into the modal later via `{variableName}` (a common React idiom
- * for conditional buttons/rows), the variable's own JSX node never has the modal as an
- * ancestor in the parsed AST, even though it renders inside it at runtime - so this walk
- * cannot see it and a false positive is reported. Resolving this in general would require
- * tracing the variable back to its assignment (data-flow analysis), which is out of scope for
- * this decorator.
+ * Known limitations:
+ * - Can't tell a pass-through wrapper (e.g. `<Input.Search autoFocus>` on a native `<input>`)
+ *   from an unrelated `autoFocus` prop - both look identical from the JSX tag alone.
+ * - The ancestor walk follows the AST's `.parent` chain, so a JSX subtree assigned to a
+ *   variable and spliced in later via `{button}` isn't seen as a descendant, even though it
+ *   renders inside the modal at runtime.
  */
 function isExemptFromReport(
   context: Rule.RuleContext,
   opening: TSESTree.JSXOpeningElement,
 ): boolean {
+  // An `autoFocus`-named prop on a non-DOM element is not the DOM boolean attribute.
+  if (!dom.has(getElementType(context)(opening))) {
+    return true;
+  }
   if (isModalOpeningElement(context, opening)) {
     return true;
   }
@@ -129,8 +107,7 @@ function isModalOpeningElement(
   context: Rule.RuleContext,
   opening: TSESTree.JSXOpeningElement,
 ): boolean {
-  // Native HTML tags are always written lowercase in JSX; a custom component (e.g. `Dialog`)
-  // is never mistaken for the real `<dialog>` element.
+  // Native tags are lowercase in JSX, so a custom `Dialog` component isn't mistaken for it.
   if (getElementType(context)(opening) === 'dialog') {
     return true;
   }

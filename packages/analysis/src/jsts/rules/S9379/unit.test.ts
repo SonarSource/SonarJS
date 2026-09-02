@@ -74,6 +74,18 @@ const INVALID_CASES = [
     code: `function C() { const button = <input autoFocus />; return <dialog>{button}</dialog>; }`,
     errors: 1,
   },
+  // Known limitation, documented on `decorate`: upstream flags `autoFocus` presence
+  // regardless of whether the element only mounts in response to a user action (functionally
+  // the same "freshly revealed UI" case dialog/popover already allows) or is unconditionally
+  // on the page. Distinguishing the two would need real control-flow analysis (JS-2333).
+  {
+    code: `function C({ isEditing }) { return isEditing && <input autoFocus />; }`,
+    errors: 1,
+  },
+  {
+    code: `function C({ isEditing }) { return isEditing ? <input autoFocus /> : null; }`,
+    errors: 1,
+  },
 ];
 
 describe('S9379', () => {
