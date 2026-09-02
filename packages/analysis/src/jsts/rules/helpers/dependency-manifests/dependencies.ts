@@ -157,7 +157,13 @@ export function getDependenciesSanitizePaths(context: Rule.RuleContext): Depende
 
 /**
  * Determines whether a file belongs to an Angular project, based on the presence of
- * `@angular/core` in the closest dependency manifest.
+ * `@angular/core` in the dependency manifests visible to the file: the closest `package.json` and
+ * every ancestor manifest up to `topDir`, unioned (see {@link getDependencies}). A root manifest
+ * that declares `@angular/core` therefore also marks nested packages as Angular — intentional, so
+ * the common monorepo layout where Angular is declared only at the workspace root (e.g. Nx) is
+ * still detected. The trade-off is that a nested non-Angular package inheriting a root Angular
+ * dependency is also treated as Angular; this only matters for paths already matching the narrow
+ * `environments/environment.<env>.ts` shape, so the practical over-reach is negligible.
  *
  * This is a path-based predicate (no `Rule.RuleContext`), so it can be used both by the
  * scope-classification heuristic in `common/filter/filter-path.ts` — which decides MAIN/TEST
@@ -166,7 +172,7 @@ export function getDependenciesSanitizePaths(context: Rule.RuleContext): Depende
  *
  * @param filePath normalized absolute path of the file
  * @param topDir normalized absolute directory bounding the upward manifest search (project base dir)
- * @returns true when `@angular/core` is declared in the closest manifest
+ * @returns true when `@angular/core` is declared in the file's closest manifest or any ancestor up to `topDir`
  */
 export function isAngularProject(
   filePath: NormalizedAbsolutePath,
