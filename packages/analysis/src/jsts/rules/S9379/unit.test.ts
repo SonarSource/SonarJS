@@ -28,20 +28,11 @@ const VALID_CASES = [
   // The `dialog`/`popover` element itself is a valid autofocus target.
   { code: `<dialog autoFocus></dialog>;` },
   { code: `<div popover autoFocus></div>;` },
-  // A component whose name identifies it as a modal/overlay wrapper is exempt too, whether
-  // it is an ancestor or the autofocus-bearing element itself.
-  { code: `<CustomModal><input autoFocus /></CustomModal>;` },
-  { code: `<Dialog><div><input autoFocus /></div></Dialog>;` },
-  { code: `<DialogContent><input autoFocus /></DialogContent>;` },
-  { code: `<CustomModal autoFocus></CustomModal>;` },
   // An ARIA `dialog`/`alertdialog` role is a valid modal context too, whether it is an
   // ancestor or the autofocus-bearing element itself.
   { code: `<div role="dialog"><input autoFocus /></div>;` },
   { code: `<div role="alertdialog"><input autoFocus /></div>;` },
   { code: `<div role="dialog" autoFocus></div>;` },
-  // The modal keyword does not have to be the first or the last word of the identifier.
-  { code: `<AppModalWrapper><input autoFocus /></AppModalWrapper>;` },
-  { code: `<StyledDialogContent><input autoFocus /></StyledDialogContent>;` },
 ];
 
 const INVALID_CASES = [
@@ -58,17 +49,11 @@ const INVALID_CASES = [
   { code: `<input autoFocus={undefined} />;`, errors: 1 },
   // Autofocus outside any dialog/popover ancestor is still reported, even inside an unrelated wrapper.
   { code: `<div><input autoFocus /></div>;`, errors: 1 },
-  // A lowercase continuation right after the keyword is a different word, not a modal wrapper.
-  { code: `<Dialogue><input autoFocus /></Dialogue>;`, errors: 1 },
   // A non-modal ARIA role does not exempt it.
   { code: `<div role="tooltip"><input autoFocus /></div>;`, errors: 1 },
-  // `Sheet` is not a recognized keyword: too many unrelated names end in it.
-  { code: `<StyleSheetManager><input autoFocus /></StyleSheetManager>;`, errors: 1 },
-  // A modal-named trigger/opener is never the modal itself, whether standalone or nested
-  // inside a real modal wrapper — the ancestor walk must not skip past it.
-  { code: `<DialogTrigger><input autoFocus /></DialogTrigger>;`, errors: 1 },
-  { code: `<Dialog><DialogTrigger><input autoFocus /></DialogTrigger></Dialog>;`, errors: 1 },
-  { code: `<ModalToggle autoFocus></ModalToggle>;`, errors: 1 },
+  // A component whose name merely suggests a modal wrapper is not treated as one: only real
+  // `dialog`/`popover` elements and ARIA `dialog`/`alertdialog` roles are exempt.
+  { code: `<Dialog><input autoFocus /></Dialog>;`, errors: 1 },
 ];
 
 describe('S9379', () => {

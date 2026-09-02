@@ -15,6 +15,15 @@
 "console:src/views/PermissionsView/PermissionPopup/PermissionConditions.tsx": [
 229
 ],
+"console:src/views/ProjectRootView/AddModelPopup.tsx": [
+135
+],
+"console:src/views/ProjectRootView/AddProjectPopup.tsx": [
+178
+],
+"console:src/views/ProjectRootView/CloneProjectPopup.tsx": [
+143
+],
 "console:src/views/ProjectRootView/EditModelPopup.tsx": [
 141
 ],
