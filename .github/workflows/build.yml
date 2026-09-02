@@ -53,7 +53,7 @@ jobs:
       - name: Compute JS test hash for skip caching
         id: compute-js-hash
         run: |
-          HASH=$(find .github/workflows/build.yml packages patches sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules tools typings .nycrc package.json package-lock.json server.mjs -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          HASH=$(find .github/workflows/build.yml mise.toml packages patches sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules tools typings .nycrc package.json package-lock.json server.mjs -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
           echo "hash=$HASH" >> $GITHUB_OUTPUT
           echo "Computed JS test hash: $HASH"
       - name: Compute Maven hash for cache key
