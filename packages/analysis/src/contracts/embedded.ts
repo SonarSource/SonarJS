@@ -36,5 +36,10 @@ export type EmbeddedJS = {
   format: 'PLAIN' | 'BLOCK_FOLDED' | 'BLOCK_LITERAL';
   extras: {
     resourceName?: string;
+    /**
+     * Whether this snippet is a classic (non-module, non-deferred) script that shares the
+     * page's global lexical scope with other classic scripts of the same HTML document.
+     */
+    sharesGlobalScope?: boolean;
   };
 };

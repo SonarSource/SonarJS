@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { SourceCode } from 'eslint';
+import type estree from 'estree';
 import type { Position } from 'estree';
 import type { JsTsIssue } from '../../linter/issues/issue.js';
 import { Linter, type LintResult } from '../../linter/linter.js';
@@ -57,19 +58,35 @@ export async function analyzeEmbedded(
   const aggregatedSuppressedIssues: NonNullable<EmbeddedAnalysisOutput['suppressedIssues']> = [];
   const aggregatedSonarResolveComments: SonarResolveComment[] = [];
   let ncloc: number[] = [];
+  // Names bound at the top level (var/let/const/class/function) by classic script blocks seen so
+  // far, in document order. Classic (non-module, non-deferred) <script> blocks of the same HTML
+  // document share one global lexical/variable environment in real browsers, so a later classic
+  // block writing to a name declared by an earlier one is not an implicit global.
+  const sharedGlobalScopeNames = new Set<string>();
   for (const extendedParseResult of extendedParseResults) {
+    const additionalSettings =
+      extendedParseResult.sharesGlobalScope && sharedGlobalScopeNames.size > 0
+        ? { precedingScriptGlobals: [...sharedGlobalScopeNames] }
+        : undefined;
     const {
       issues,
       suppressedIssues,
       ncloc: singleNcLoc,
       sonarResolveComments: singleSonarResolveComments,
-    } = analyzeSnippet(extendedParseResult);
+    } = analyzeSnippet(extendedParseResult, additionalSettings);
     ncloc = ncloc.concat(singleNcLoc);
     const { issues: filteredIssues, suppressedIssues: filteredSuppressedIssues } =
       filterSnippetIssues(extendedParseResult.sourceCode, { issues, suppressedIssues });
     aggregatedIssues.push(...filteredIssues);
     aggregatedSuppressedIssues.push(...filteredSuppressedIssues);
     aggregatedSonarResolveComments.push(...singleSonarResolveComments);
+    if (extendedParseResult.sharesGlobalScope) {
+      for (const name of collectTopLevelBindingNames(
+        extendedParseResult.sourceCode.ast as estree.Program,
+      )) {
+        sharedGlobalScopeNames.add(name);
+      }
+    }
   }
   return {
     issues: aggregatedIssues,
@@ -83,17 +100,80 @@ export async function analyzeEmbedded(
   };
 }
 
-function analyzeSnippet(extendedParseResult: ExtendedParseResult) {
+function analyzeSnippet(
+  extendedParseResult: ExtendedParseResult,
+  additionalSettings?: Record<string, unknown>,
+) {
   const { issues, suppressedIssues } = Linter.lint(
     extendedParseResult,
     extendedParseResult.syntheticFilePath,
     'MAIN',
+    'CHANGED',
+    'DEFAULT',
+    'js',
+    undefined,
+    undefined,
+    additionalSettings ? { additionalSettings } : {},
   );
   const ncloc = collectNclocLines(extendedParseResult.sourceCode);
   const sonarResolveComments = extractSonarResolveCommentsFromJsTsComments(
     extendedParseResult.sourceCode.ast.comments ?? [],
   );
   return { issues, suppressedIssues, ncloc, sonarResolveComments };
+}
+
+/**
+ * Collects the names bound at the top level of a script by "var", "let", "const", "class" and
+ * named "function" declarations. In a classic (non-module) script, all of these become bindings
+ * of the shared global scope, visible to other classic scripts of the same HTML document.
+ */
+function collectTopLevelBindingNames(program: estree.Program): string[] {
+  const names: string[] = [];
+  for (const statement of program.body) {
+    switch (statement.type) {
+      case 'VariableDeclaration':
+        for (const declarator of statement.declarations) {
+          collectPatternNames(declarator.id, names);
+        }
+        break;
+      case 'ClassDeclaration':
+      case 'FunctionDeclaration':
+        if (statement.id) {
+          names.push(statement.id.name);
+        }
+        break;
+    }
+  }
+  return names;
+}
+
+function collectPatternNames(pattern: estree.Pattern, names: string[]): void {
+  switch (pattern.type) {
+    case 'Identifier':
+      names.push(pattern.name);
+      break;
+    case 'ObjectPattern':
+      for (const property of pattern.properties) {
+        collectPatternNames(
+          property.type === 'Property' ? (property.value as estree.Pattern) : property.argument,
+          names,
+        );
+      }
+      break;
+    case 'ArrayPattern':
+      for (const element of pattern.elements) {
+        if (element) {
+          collectPatternNames(element, names);
+        }
+      }
+      break;
+    case 'AssignmentPattern':
+      collectPatternNames(pattern.left, names);
+      break;
+    case 'RestElement':
+      collectPatternNames(pattern.argument, names);
+      break;
+  }
 }
 
 function filterSnippetIssues(sourceCode: SourceCode, { issues, suppressedIssues }: LintResult) {

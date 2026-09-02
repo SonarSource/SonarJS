@@ -32,13 +32,15 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
+    const { precedingScriptGlobals } = context.settings as { precedingScriptGlobals?: string[] };
+    const sharedGlobals = new Set(precedingScriptGlobals);
     return {
       'Program:exit'(node: estree.Node) {
         const globalScope = context.sourceCode.getScope(node);
         const alreadyReported: Set<string> = new Set();
         for (const ref of globalScope.through.filter(ref => ref.isWrite())) {
           const name = ref.identifier.name;
-          if (!alreadyReported.has(name) && !excludedNames.has(name)) {
+          if (!alreadyReported.has(name) && !excludedNames.has(name) && !sharedGlobals.has(name)) {
             alreadyReported.add(name);
             context.report({
               messageId: 'explicitModifier',

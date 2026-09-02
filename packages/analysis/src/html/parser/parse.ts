@@ -57,9 +57,10 @@ export function parseHTML(code: string): EmbeddedJS[] {
   let jsSnippetStartIndex = 0;
   let jsSnippetEndIndex = 0;
   let inScript = false;
+  let isClassicScript = false;
 
   const parser = new htmlparser.Parser({
-    onopentag(name: string, attrs: { src: string; type?: string }) {
+    onopentag(name: string, attrs: { src: string; type?: string; defer?: string }) {
       // Test if current tag is a valid <script> tag.
       if (name !== 'script') {
         return;
@@ -72,6 +73,9 @@ export function parseHTML(code: string): EmbeddedJS[] {
       }
 
       inScript = true;
+      // A classic script (no "module" type, no "defer") shares the page's global lexical
+      // scope with other classic scripts of the same document; module/deferred scripts don't.
+      isClassicScript = attrs.type !== 'module' && attrs.defer === undefined;
 
       jsSnippetStartIndex = parser.endIndex + 1;
     },
@@ -93,7 +97,7 @@ export function parseHTML(code: string): EmbeddedJS[] {
         lineStarts,
         format: 'PLAIN',
         text: code,
-        extras: {},
+        extras: { sharesGlobalScope: isClassicScript },
       });
 
       jsSnippetStartIndex = jsSnippetEndIndex;

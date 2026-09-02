@@ -291,4 +291,136 @@ describe('analyzeHTML', () => {
       }),
     );
   });
+
+  describe('S2703 and shared global scope across classic script blocks (JS-2371)', () => {
+    it('should not flag a write to a "let" declared in an earlier classic script block', async () => {
+      await Linter.initialize({
+        baseDir: fixturesPath,
+        rules: [
+          {
+            key: 'S2703',
+            configurations: [],
+            fileTypeTargets: ['MAIN'],
+            language: 'js',
+            analysisModes: ['DEFAULT'],
+          },
+        ],
+      });
+      const { issues } = await analyzeEmbedded(
+        await embeddedInput({
+          filePath: normalizeToAbsolutePath(join(fixturesPath, 'shared-global-scope.html')),
+        }),
+        parseHTML,
+      );
+      expect(issues).toEqual([]);
+    });
+
+    it('should not flag a write to a "var" declared in an earlier classic script block', async () => {
+      await Linter.initialize({
+        baseDir: fixturesPath,
+        rules: [
+          {
+            key: 'S2703',
+            configurations: [],
+            fileTypeTargets: ['MAIN'],
+            language: 'js',
+            analysisModes: ['DEFAULT'],
+          },
+        ],
+      });
+      const { issues } = await analyzeEmbedded(
+        await embeddedInput({
+          filePath: normalizeToAbsolutePath(join(fixturesPath, 'shared-global-scope-var.html')),
+        }),
+        parseHTML,
+      );
+      expect(issues).toEqual([]);
+    });
+
+    it('should still flag a write relying on a "let" declared in a "type=module" script block', async () => {
+      await Linter.initialize({
+        baseDir: fixturesPath,
+        rules: [
+          {
+            key: 'S2703',
+            configurations: [],
+            fileTypeTargets: ['MAIN'],
+            language: 'js',
+            analysisModes: ['DEFAULT'],
+          },
+        ],
+      });
+      const { issues } = await analyzeEmbedded(
+        await embeddedInput({
+          filePath: normalizeToAbsolutePath(join(fixturesPath, 'module-script-not-shared.html')),
+        }),
+        parseHTML,
+      );
+      expect(issues).toEqual([
+        expect.objectContaining({
+          ruleId: 'S2703',
+          message:
+            'Add the "let", "const" or "var" keyword to this declaration of "TOKEN" to make it explicit.',
+        }),
+      ]);
+    });
+
+    it('should still flag a write to a "let" declared only in a later classic script block', async () => {
+      await Linter.initialize({
+        baseDir: fixturesPath,
+        rules: [
+          {
+            key: 'S2703',
+            configurations: [],
+            fileTypeTargets: ['MAIN'],
+            language: 'js',
+            analysisModes: ['DEFAULT'],
+          },
+        ],
+      });
+      const { issues } = await analyzeEmbedded(
+        await embeddedInput({
+          filePath: normalizeToAbsolutePath(
+            join(fixturesPath, 'shared-global-scope-wrong-order.html'),
+          ),
+        }),
+        parseHTML,
+      );
+      expect(issues).toEqual([
+        expect.objectContaining({
+          ruleId: 'S2703',
+          message:
+            'Add the "let", "const" or "var" keyword to this declaration of "TOKEN" to make it explicit.',
+        }),
+      ]);
+    });
+
+    it('should still flag a write relying on a "let" declared in a "defer" script block', async () => {
+      await Linter.initialize({
+        baseDir: fixturesPath,
+        rules: [
+          {
+            key: 'S2703',
+            configurations: [],
+            fileTypeTargets: ['MAIN'],
+            language: 'js',
+            analysisModes: ['DEFAULT'],
+          },
+        ],
+      });
+      const { issues } = await analyzeEmbedded(
+        await embeddedInput({
+          filePath: normalizeToAbsolutePath(join(fixturesPath, 'defer-script-not-shared.html')),
+        }),
+        parseHTML,
+      );
+      expect(issues).toEqual([
+        expect.objectContaining({
+          ruleId: 'S2703',
+          message:
+            'Add the "let", "const" or "var" keyword to this declaration of "TOKEN" to make it explicit.',
+        }),
+      ]);
+    });
+  });
 });
