@@ -24,6 +24,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import {
+  getVariableFromScope,
   isArrayExpression,
   isFunctionCall,
   isIdentifier,
@@ -72,9 +73,9 @@ const AMD_FACTORY_TRAILING_ARGUMENTS = 2;
  * Its parameters are module dependencies injected by the loader, one per entry of the
  * preceding dependency array, not a hand-written signature.
  */
-function isAmdFactoryCallback(functionLike: TSESTree.FunctionLike) {
+function isAmdFactoryCallback(context: Rule.RuleContext, functionLike: TSESTree.FunctionLike) {
   const call = functionLike.parent;
-  if (!isAmdDefineOrRequireCall(call)) {
+  if (!isAmdDefineOrRequireCall(context, call)) {
     return false;
   }
 
@@ -85,6 +86,7 @@ function isAmdFactoryCallback(functionLike: TSESTree.FunctionLike) {
 }
 
 function isAmdDefineOrRequireCall(
+  context: Rule.RuleContext,
   node: TSESTree.Node | undefined,
 ): node is TSESTree.CallExpression {
   if (node?.type !== 'CallExpression') {
@@ -92,11 +94,20 @@ function isAmdDefineOrRequireCall(
   }
   const callee = node.callee as estree.Node;
   return (
-    isIdentifier(callee, 'define', 'require') ||
+    (isIdentifier(callee, 'define', 'require') && !isShadowed(context, callee)) ||
     (callee.type === 'MemberExpression' &&
       isIdentifier(callee.property, 'define') &&
       isMemberExpression(callee.object as estree.Node, 'sap', 'ui'))
   );
+}
+
+/**
+ * True when `identifier` resolves to a local binding, e.g., a local `function define(...) {}`
+ * or a test double named `require`, rather than the global AMD loader function of that name.
+ */
+function isShadowed(context: Rule.RuleContext, identifier: estree.Identifier) {
+  return !!getVariableFromScope(context.sourceCode.getScope(identifier), identifier.name)?.defs
+    .length;
 }
 
 /**
@@ -121,7 +132,7 @@ const ruleDecoration: Rule.RuleModule = interceptReport(
       return (
         isBeyondMaxParams(functionLike) ||
         isAngularConstructor(functionLike) ||
-        isAmdFactoryCallback(functionLike)
+        isAmdFactoryCallback(context, functionLike)
       );
     }
 
@@ -145,9 +156,7 @@ const ruleDecoration: Rule.RuleModule = interceptReport(
       return true;
 
       function isConstructor(node: TSESTree.Node | undefined): node is TSESTree.MethodDefinition {
-        return (
-          node?.type === 'MethodDefinition' && isIdentifier(node.key, 'constructor')
-        );
+        return node?.type === 'MethodDefinition' && isIdentifier(node.key, 'constructor');
       }
 
       function isAngularComponent(node: TSESTree.Node | undefined) {

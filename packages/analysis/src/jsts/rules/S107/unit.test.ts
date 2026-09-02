@@ -192,13 +192,23 @@ describe('S107', () => {
           options: createOptions(MAX_PARAMS_3),
           errors: [
             {
-              message: "Function has too many parameters (5). Maximum allowed is 3.",
+              message: 'Function has too many parameters (5). Maximum allowed is 3.',
               line: 1,
               column: 22,
               endLine: 1,
               endColumn: 31,
             },
           ],
+        },
+        {
+          // JS-2373: the AMD factory-callback carve-out must not apply when 'define'/'require'
+          // is shadowed by a local binding unrelated to the AMD loader
+          code: `
+      function define(factory) { return factory; }
+      define(["a", "b", "c"], function (a, b, c, d, e) {});
+      `,
+          options: createOptions(MAX_PARAMS_3),
+          errors: 1,
         },
       ],
     });
