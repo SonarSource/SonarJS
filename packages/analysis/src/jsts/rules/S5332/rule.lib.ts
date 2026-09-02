@@ -54,9 +54,41 @@ const INSECURE_PROTOCOLS = Object.keys(CLEARTEXT_PROTOCOL_ALTERNATIVES).map(s =>
 const SAFE_HOSTS =
   /(?:^localhost|^127(?:\.\d+){1,3}|^\[(?:0*:){7}:?0*1]|^\[::1]|^169\.254\.\d+\.\d+|^\[fd00:ec2::254]|^168\.63\.129\.16|^100\.100\.100\.200|^metadata\.google\.internal|^metadata\.internal|^host\.docker\.internal|^gateway\.docker\.internal|\.svc\.cluster\.local)(?=:|$)/i;
 
-// XML namespace URI authorities — port of CleartextProtocolFilter.NAMESPACE_URI_AUTHORITIES, extended with pre-existing sonar-js exceptions
-const NAMESPACE_URI_AUTHORITIES =
-  /(?:^www\.w3\.org|^schemas\.android\.com|^schemas\.microsoft\.com|^schemas\.xmlsoap\.org|^www\.sap\.com|^www\.opengis\.net|^hl7\.org|^unitsofmeasure\.org|^purl\.org|^docs\.oasis-open\.org|^xmlns\.com|^json-ld\.org|^schema\.org|^www\.springframework\.org|^maven\.apache\.org|^dublincore\.org|^ogp\.me|^xml\.apache\.org|^schemas\.openxmlformats\.org|^rdfs\.org|^schemas\.google\.com|^a9\.com|^ns\.adobe\.com|^ltsc\.ieee\.org|^docbook\.org|^graphml\.graphdrawing\.org|^json-schema\.org)(?=:|$)/i;
+// Namespace / spec-mandated identifier URI authorities — port of CleartextProtocolFilter.NAMESPACE_URI_AUTHORITIES, extended with pre-existing sonar-js exceptions
+const NAMESPACE_URI_AUTHORITIES = [
+  'www.w3.org',
+  'schemas.android.com',
+  'schemas.microsoft.com',
+  'schemas.xmlsoap.org',
+  'www.sap.com',
+  'www.opengis.net',
+  'hl7.org',
+  'unitsofmeasure.org',
+  'purl.org',
+  'docs.oasis-open.org',
+  'xmlns.com',
+  'json-ld.org',
+  'schema.org',
+  'www.springframework.org',
+  'maven.apache.org',
+  'dublincore.org',
+  'ogp.me',
+  'xml.apache.org',
+  'schemas.openxmlformats.org',
+  'rdfs.org',
+  'schemas.google.com',
+  'a9.com',
+  'ns.adobe.com',
+  'ltsc.ieee.org',
+  'docbook.org',
+  'graphml.graphdrawing.org',
+  'json-schema.org',
+  'cyclonedx.org',
+  'snomed.info',
+  'adlnet.gov',
+  'jabber.org',
+  'etherx.jabber.org',
+];
 
 // IANA-reserved documentation / placeholder domains — port of CleartextProtocolFilter.DOCUMENTATION_HOSTS
 const DOCUMENTATION_HOSTS =
@@ -255,6 +287,12 @@ function hasExceptionHost(value: string) {
 
 function isSafeHost(host: string) {
   return (
-    SAFE_HOSTS.test(host) || NAMESPACE_URI_AUTHORITIES.test(host) || DOCUMENTATION_HOSTS.test(host)
+    SAFE_HOSTS.test(host) ||
+    NAMESPACE_URI_AUTHORITIES.some(authority => isNamespaceAuthority(host, authority)) ||
+    DOCUMENTATION_HOSTS.test(host)
   );
+}
+
+function isNamespaceAuthority(host: string, authority: string) {
+  return host === authority || host.startsWith(`${authority}:`);
 }

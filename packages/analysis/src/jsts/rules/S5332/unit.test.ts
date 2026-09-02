@@ -216,6 +216,22 @@ describe('S5332', () => {
       });`,
         },
         {
+          // JS-2368: $schema identifier mandated verbatim by the CycloneDX spec, never dereferenced
+          code: `
+      const bom = { "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json" };
+      `,
+        },
+        {
+          // JS-2368: coding-system identifier, only ever compared, never fetched
+          code: `
+      const SNOMED_SYSTEM = "http://snomed.info/sct";
+
+      function isSnomed(coding) {
+        return coding.system === SNOMED_SYSTEM;
+      }
+      `,
+        },
+        {
           code: `
         // Namespace URI authorities — existing entries
         url = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/groups';
@@ -231,6 +247,11 @@ describe('S5332', () => {
         url = 'http://www.springframework.org/schema/beans';
         url = 'http://maven.apache.org/POM/4.0.0';
         url = 'http://ogp.me/ns#';
+
+        // Namespace URI authorities — added for JS-2368 (spec-mandated identifiers, never dereferenced)
+        url = 'http://adlnet.gov/expapi/verbs/completed';
+        url = 'http://jabber.org/protocol/muc';
+        url = 'http://etherx.jabber.org/streams';
       `,
         },
       ],
@@ -343,8 +364,15 @@ describe('S5332', () => {
       url = "http://metadata.google.internal.evil.com";
       url = "http://www.w3.org.evil.com/x";
       url = "http://schema.org.evil.com/Person";
+
+      // JS-2368: same attack against the newly-added namespace authorities
+      url = "http://cyclonedx.org.evil.com/schema/bom-1.5.schema.json";
+      url = "http://snomed.info.evil.com/sct";
+      url = "http://adlnet.gov.evil.com/expapi/verbs/completed";
+      url = "http://jabber.org.evil.com/protocol/muc";
+      url = "http://etherx.jabber.org.evil.com/streams";
       `,
-          errors: 6,
+          errors: 11,
         },
         {
           code: `
