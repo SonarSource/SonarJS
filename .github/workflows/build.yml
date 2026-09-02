@@ -53,7 +53,7 @@ jobs:
       - name: Compute JS test hash for skip caching
         id: compute-js-hash
         run: |
-          HASH=$(find .github/workflows/build.yml packages patches sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules tools typings .nycrc package.json package-lock.json server.mjs -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          HASH=$(find .github/workflows/build.yml mise.toml packages patches sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules tools typings .nycrc package.json package-lock.json server.mjs -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
           echo "hash=$HASH" >> $GITHUB_OUTPUT
           echo "Computed JS test hash: $HASH"
       - name: Compute Maven hash for cache key
@@ -113,11 +113,6 @@ jobs:
         with:
           version: 2026.8.14
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
-          mise_toml: |
-            [tools]
-            java = "21.0"
-            maven = "3.9"
-            node = "24.11.0"
       - if: steps.cache.outputs.cache-hit != 'true'
         id: secrets
         name: Access vault secrets
@@ -157,11 +152,6 @@ jobs:
         with:
           version: 2026.8.14
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
-          mise_toml: |
-            [tools]
-            java = "21.0"
-            maven = "3.9"
-            node = "24.11.0"
       - &npm_cache
         name: Restore NPM dependencies
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -378,6 +368,8 @@ jobs:
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
     needs: [setup, build_eslint_plugin]
     permissions: *read_permissions
+    env:
+      MISE_NODE_VERSION: ${{ matrix.node-version }}
     strategy:
       fail-fast: false
       matrix:
@@ -397,9 +389,8 @@ jobs:
         with:
           version: 2026.8.14
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
-          mise_toml: |
-            [tools]
-            node = "${{ matrix.node-version }}"
+          cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
+          install_args: node
       - name: Download ESLint plugin tarball
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
@@ -466,11 +457,6 @@ jobs:
         with:
           version: 2026.8.14
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
-          mise_toml: |
-            [tools]
-            java = "21.0"
-            maven = "3.9"
-            node = "24.11.0"
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -530,11 +516,6 @@ jobs:
         with:
           version: 2026.8.14
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
-          mise_toml: |
-            [tools]
-            java = "21.0"
-            maven = "3.9"
-            node = "24.11.0"
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -682,7 +663,9 @@ jobs:
     needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    env: *shared_build_number
+    env:
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+      MISE_NODE_VERSION: ${{ matrix.node-version }}
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
@@ -692,11 +675,7 @@ jobs:
         with:
           version: 2026.8.14
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
-          mise_toml: |
-            [tools]
-            java = "21.0"
-            maven = "3.9"
-            node = "${{ matrix.node-version }}"
+          cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
       - *maven_cache
       - &download_sonarjs_m2
         name: Download SonarJS artifacts
@@ -728,7 +707,9 @@ jobs:
     needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    env: *shared_build_number
+    env:
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+      MISE_NODE_VERSION: ${{ matrix.node-version }}
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
@@ -764,10 +745,7 @@ jobs:
         with:
           version: 2026.8.14
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
-          mise_toml: |
-            [tools]
-            java = "21.0"
-            maven = "3.9"
+          install_args: java maven
       - *maven_cache
       - *download_sonarjs_m2
       - *config_maven
@@ -855,9 +833,7 @@ jobs:
         with:
           version: 2026.8.14
           cache_save: true
-          mise_toml: |
-            [tools]
-            maven = "3.9"
+          install_args: maven
       - *maven_cache
       - *download_sonarjs_m2
       - *config_maven
