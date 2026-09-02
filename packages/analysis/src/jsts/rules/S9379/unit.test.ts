@@ -25,13 +25,16 @@ const VALID_CASES = [
   { code: `<dialog><input autoFocus /></dialog>;` },
   { code: `<dialog><div><input autoFocus /></div></dialog>;` },
   { code: `<div popover><input autoFocus /></div>;` },
+  { code: `<div popover><div><input autoFocus /></div></div>;` },
   // The `dialog`/`popover` element itself is a valid autofocus target.
   { code: `<dialog autoFocus></dialog>;` },
   { code: `<div popover autoFocus></div>;` },
   // An ARIA `dialog`/`alertdialog` role is a valid modal context too, whether it is an
-  // ancestor or the autofocus-bearing element itself.
+  // ancestor (direct child or nested descendant) or the autofocus-bearing element itself.
   { code: `<div role="dialog"><input autoFocus /></div>;` },
+  { code: `<div role="dialog"><div><input autoFocus /></div></div>;` },
   { code: `<div role="alertdialog"><input autoFocus /></div>;` },
+  { code: `<div role="alertdialog"><div><input autoFocus /></div></div>;` },
   { code: `<div role="dialog" autoFocus></div>;` },
   // An `autoFocus`-named prop on a custom component is not the DOM boolean attribute.
   { code: `<Input autoFocus />;` },
