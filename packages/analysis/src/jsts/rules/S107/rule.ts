@@ -23,7 +23,12 @@ import { getESLintCoreRule } from '../external/core.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
-import { isFunctionCall, isIdentifier } from '../helpers/ast.js';
+import {
+  isArrayExpression,
+  isFunctionCall,
+  isIdentifier,
+  isMemberExpression,
+} from '../helpers/ast.js';
 import { mergeRules } from '../helpers/decorators/merger.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
@@ -54,6 +59,46 @@ function getMax(options: FromSchema<typeof meta.schema>[0]) {
   }
   return DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
 }
+
+/**
+ * The two trailing arguments inspected for an AMD/UI5 factory-callback shape: the
+ * dependency array literal followed by the factory function itself.
+ */
+const AMD_FACTORY_TRAILING_ARGUMENTS = 2;
+
+/**
+ * An AMD/UI5 factory callback, e.g., `define([...], function (a, b) {})`,
+ * `require([...], function (a, b) {})` or `sap.ui.define([...], function (a, b) {})`.
+ * Its parameters are module dependencies injected by the loader, one per entry of the
+ * preceding dependency array, not a hand-written signature.
+ */
+function isAmdFactoryCallback(functionLike: TSESTree.FunctionLike) {
+  const call = functionLike.parent;
+  if (!isAmdDefineOrRequireCall(call)) {
+    return false;
+  }
+
+  const [precedingArg, lastArgument] = call.arguments.slice(-AMD_FACTORY_TRAILING_ARGUMENTS);
+  return (
+    lastArgument === functionLike && isArrayExpression(precedingArg as estree.Node | undefined)
+  );
+}
+
+function isAmdDefineOrRequireCall(
+  node: TSESTree.Node | undefined,
+): node is TSESTree.CallExpression {
+  if (node?.type !== 'CallExpression') {
+    return false;
+  }
+  const callee = node.callee as estree.Node;
+  return (
+    isIdentifier(callee, 'define', 'require') ||
+    (callee.type === 'MemberExpression' &&
+      isIdentifier(callee.property, 'define') &&
+      isMemberExpression(callee.object as estree.Node, 'sap', 'ui'))
+  );
+}
+
 /**
  * Decorates ESLint `max-params` to ignore TypeScript constructor when its parameters
  * are all parameter properties, e.g., `constructor(private a: any, public b: any) {}`.
@@ -73,7 +118,11 @@ const ruleDecoration: Rule.RuleModule = interceptReport(
     }
 
     function isException(functionLike: TSESTree.FunctionLike) {
-      return isBeyondMaxParams(functionLike) || isAngularConstructor(functionLike);
+      return (
+        isBeyondMaxParams(functionLike) ||
+        isAngularConstructor(functionLike) ||
+        isAmdFactoryCallback(functionLike)
+      );
     }
 
     function isBeyondMaxParams(functionLike: TSESTree.FunctionLike) {
