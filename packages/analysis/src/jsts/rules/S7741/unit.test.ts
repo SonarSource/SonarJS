@@ -32,15 +32,6 @@ describe('S7741', () => {
             }
           `,
         },
-        // JS-2369: the base of the member access chain has no reaching declaration either,
-        // so accessing `.flag` on it is just as unsafe to rewrite
-        {
-          code: `
-            if (typeof SOME_UNDECLARED_NAMESPACE.flag === "undefined") {
-              init();
-            }
-          `,
-        },
       ],
       invalid: [
         // A declared identifier is safe to compare directly against `undefined`
@@ -70,6 +61,23 @@ describe('S7741', () => {
           output: `
             const obj = {};
             if (obj.prop === undefined) {
+              init();
+            }
+          `,
+          errors: 1,
+        },
+        // JS-2369: even though SOME_UNDECLARED_NAMESPACE has no reaching declaration, `typeof`
+        // does not protect the member access: `SOME_UNDECLARED_NAMESPACE.flag` already throws
+        // a ReferenceError while evaluating the `typeof` operand, exactly like the rewrite does.
+        // So the rewrite is always safe here and this must still be flagged and fixed.
+        {
+          code: `
+            if (typeof SOME_UNDECLARED_NAMESPACE.flag === "undefined") {
+              init();
+            }
+          `,
+          output: `
+            if (SOME_UNDECLARED_NAMESPACE.flag === undefined) {
               init();
             }
           `,

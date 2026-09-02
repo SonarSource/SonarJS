@@ -33,8 +33,15 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
 function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
   if ('node' in descriptor && hasNoReachingDeclaration(descriptor.node as estree.Node, context)) {
-    // the `typeof` operand has no reaching declaration, so it may be an undeclared
-    // global: rewriting to a plain `=== undefined` comparison would throw a ReferenceError
+    // the `typeof` operand is a bare identifier with no reaching declaration, so it may be an
+    // undeclared global: `typeof` is the only way to probe it without throwing a ReferenceError,
+    // since rewriting to a plain `=== undefined` comparison would throw instead.
+    //
+    // Note this carve-out only applies to bare identifiers: `typeof` does not protect a
+    // member-expression operand (e.g. `typeof ns.flag`) from throwing either, because
+    // evaluating `ns.flag` already needs to resolve `ns` first. So `typeof ns.flag === "undefined"`
+    // and `ns.flag === undefined` throw the exact same error when `ns` has no reaching
+    // declaration, and the rewrite is always safe to suggest for member-expression operands.
     return;
   }
   context.report(descriptor);
@@ -44,18 +51,11 @@ function hasNoReachingDeclaration(node: estree.Node, context: Rule.RuleContext):
   if (
     node.type !== 'BinaryExpression' ||
     node.left.type !== 'UnaryExpression' ||
-    node.left.operator !== 'typeof'
+    node.left.operator !== 'typeof' ||
+    node.left.argument.type !== 'Identifier'
   ) {
     return false;
   }
-  const root = getRootIdentifier(node.left.argument as estree.Node);
-  return root !== null && getVariableFromName(context, root.name, root) === undefined;
-}
-
-function getRootIdentifier(node: estree.Node): estree.Identifier | null {
-  let current = node;
-  while (current.type === 'MemberExpression') {
-    current = current.object as estree.Node;
-  }
-  return current.type === 'Identifier' ? current : null;
+  const root = node.left.argument;
+  return getVariableFromName(context, root.name, root) === undefined;
 }
