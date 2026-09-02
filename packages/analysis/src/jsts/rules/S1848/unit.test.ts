@@ -667,45 +667,130 @@ new Widget(document.querySelector('#container'));`,
           {
             filename: path.join(fixtureDirectory, 'placeholder.ts'),
             code: `
-import { Construct as BaseConstruct, type IConstruct } from 'constructs';
+import { Construct } from 'constructs';
 
-class App extends BaseConstruct {}
-class MyStack extends BaseConstruct {
+declare const scope: Construct;
+new Construct(scope, 'DirectConstruct');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack extends Construct {
   addConstruct() {
-    new BaseConstruct(this, 'ThisType');
+    new Construct(this, 'ThisType');
   }
 }
-class Foundation extends BaseConstruct {}
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class App extends Construct {}
+class MyStack extends Construct {}
+
+declare const app: App;
+new MyStack(app, 'MyStack');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Foundation extends Construct {}
 class CompanyService extends Foundation {}
-class GenericStack extends BaseConstruct {}
-class GenericChild<T> extends BaseConstruct {}
-class AnotherStack extends BaseConstruct {}
+
+declare const scope: Construct;
+new CompanyService(scope, 'CompanyService');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct, type IConstruct } from 'constructs';
+
+class Stack extends Construct {}
+
+declare const scope: IConstruct;
+new Stack(scope, 'InterfaceScope');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack<T> extends Construct {}
+
+declare const scope: Construct;
+new Stack<string>(scope, 'GenericChild');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class FirstStack extends Construct {}
+class SecondStack extends Construct {}
+
+declare const scope: Construct;
+declare const Stack: typeof FirstStack | typeof SecondStack;
+new Stack(scope, 'StackFromUnion');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack extends Construct {}
+
+declare const arguments_: [Construct, string];
+new Stack(...arguments_);
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack extends Construct {}
 interface Taggable {
   tag: string;
 }
 
-declare const app: App;
-declare const stack: MyStack;
-declare const interfaceScope: IConstruct;
-declare const stackConstructor: typeof GenericStack | typeof AnotherStack;
-declare const stackArguments: [BaseConstruct, string];
-declare const intersectionScope: BaseConstruct & Taggable;
+declare const scope: Construct & Taggable;
+new Stack(scope, 'IntersectionScope');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
 
-new BaseConstruct(stack, 'DirectConstruct');
-new MyStack(app, 'MyStack');
-new CompanyService(stack, 'CompanyService');
-new GenericStack(interfaceScope, 'InterfaceScope');
-new GenericChild<string>(stack, 'GenericChild');
-new stackConstructor(stack, 'StackFromUnion');
-new GenericStack(...stackArguments);
-new GenericStack(intersectionScope, 'IntersectionScope');
+class Stack extends Construct {}
 
-function addGenericStack<T extends BaseConstruct>(scope: T) {
-  new GenericStack(scope, 'GenericStack');
+function addStack<T extends Construct>(scope: T) {
+  new Stack(scope, 'GenericStack');
 }
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
 
-function addUnionStack<T extends GenericStack | AnotherStack>(scope: T) {
-  new GenericStack(scope, 'UnionConstraint');
+class FirstStack extends Construct {}
+class SecondStack extends Construct {}
+
+function addStack<T extends FirstStack | SecondStack>(scope: T) {
+  new FirstStack(scope, 'UnionConstraint');
 }
 `,
           },
@@ -728,19 +813,36 @@ new CompanyService(scope, 'CompanyService');
           {
             filename: path.join(fixtureDirectory, 'placeholder.ts'),
             code: `
-import { Construct, type IConstruct } from 'constructs';
+import { Construct } from 'constructs';
 
 class PlainClass {
   constructor(scope: Construct) {}
 }
 
-class GenericStack extends Construct {}
+declare const scope: Construct;
+new PlainClass(scope);
+`,
+            errors: 1,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
 
 class ConstructWithPlainParent extends Construct {
   constructor(parent: object, id: string) {
     super(parent as Construct, id);
   }
 }
+
+new ConstructWithPlainParent({}, 'WrongParent');
+`,
+            errors: 1,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct, type IConstruct } from 'constructs';
 
 class ConstructLike implements IConstruct {
   readonly node = {};
@@ -749,20 +851,50 @@ class ConstructLike implements IConstruct {
 }
 
 declare const scope: Construct;
-declare const wrongConstructor: typeof GenericStack | typeof PlainClass;
-declare const wrongArguments: [object, string];
-
-new PlainClass(scope);
-new ConstructWithPlainParent({}, 'WrongParent');
 new ConstructLike(scope, 'ConstructLike');
-new wrongConstructor(scope, 'UnionWithNonConstruct');
-new GenericStack(...wrongArguments);
+`,
+            errors: 1,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
 
-function addUnconstrained<T extends object>(scope: T) {
-  new GenericStack(scope, 'Unconstrained');
+class Stack extends Construct {}
+class PlainClass {
+  constructor(scope: Construct) {}
+}
+
+declare const scope: Construct;
+declare const constructor_: typeof Stack | typeof PlainClass;
+new constructor_(scope, 'UnionWithNonConstruct');
+`,
+            errors: 1,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack extends Construct {}
+
+declare const arguments_: [object, string];
+new Stack(...arguments_);
+`,
+            errors: 1,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack extends Construct {}
+
+function addStack<T extends object>(scope: T) {
+  new Stack(scope, 'Unconstrained');
 }
 `,
-            errors: 6,
+            errors: 1,
           },
           {
             filename: path.join(fixtureDirectory, 'placeholder.js'),
@@ -774,15 +906,24 @@ class FakeChild extends Construct {}
 
 /** @type {BaseConstruct} */
 const scope = null;
-const fakeScope = new Construct();
+new FakeChild(scope);
+`,
+            errors: 1,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.js'),
+            code: `
+import { Construct } from 'constructs';
 
-new FakeChild(fakeScope);
 class PlainClass {
   constructor(parent) {}
 }
+
+/** @type {Construct} */
+const scope = null;
 new PlainClass(scope);
 `,
-            errors: 2,
+            errors: 1,
           },
         ],
       },
