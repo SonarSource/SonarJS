@@ -25,5 +25,7 @@
   "compatibleLanguages": [
     "ts"
   ],
-  "defaultQualityProfiles": []
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
 }
