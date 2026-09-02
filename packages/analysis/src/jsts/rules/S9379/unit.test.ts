@@ -40,6 +40,11 @@ const VALID_CASES = [
   { code: `<Input autoFocus />;` },
   // A custom element is not a recognized DOM tag either, even written all-lowercase.
   { code: `<my-input autoFocus />;` },
+  // Known limitation, documented on `withIgnoreNonDOM`: a custom component can forward
+  // `autoFocus` straight to a real DOM element it renders internally (e.g. a design-system
+  // `Input.Search` built on a native `<input>`), which is a genuine issue we cannot see and
+  // knowingly miss, since `ignoreNonDOM` only looks at the JSX tag name.
+  { code: `<Input.Search autoFocus />;` },
 ];
 
 const INVALID_CASES = [

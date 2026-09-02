@@ -58,6 +58,15 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   );
 }
 
+/**
+ * Known limitation (tradeoff, not just an upside): this also silences genuine issues on a
+ * custom component that renders a real DOM element with `autoFocus` under the hood (e.g. a
+ * design-system `<Input.Search autoFocus>` that forwards the prop straight to a native
+ * `<input>`) - `ignoreNonDOM` only looks at the JSX tag name, so it cannot tell such a
+ * pass-through wrapper apart from a component where `autoFocus` is just an unrelated prop.
+ * Accepted deliberately: telling the two apart would require resolving the component's own
+ * implementation, which is out of scope for this decorator.
+ */
 function withIgnoreNonDOM(rule: Rule.RuleModule): Rule.RuleModule {
   return {
     ...rule,
