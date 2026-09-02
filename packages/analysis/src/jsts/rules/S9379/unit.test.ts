@@ -33,6 +33,10 @@ const VALID_CASES = [
   { code: `<div role="dialog"><input autoFocus /></div>;` },
   { code: `<div role="alertdialog"><input autoFocus /></div>;` },
   { code: `<div role="dialog" autoFocus></div>;` },
+  // An `autoFocus`-named prop on a custom component is not the DOM boolean attribute.
+  { code: `<Input autoFocus />;` },
+  // A custom element is not a recognized DOM tag either, even written all-lowercase.
+  { code: `<my-input autoFocus />;` },
 ];
 
 const INVALID_CASES = [

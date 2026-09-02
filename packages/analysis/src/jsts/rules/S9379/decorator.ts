@@ -37,12 +37,15 @@ const MESSAGE =
  * element carrying a `popover` attribute, an element with an ARIA `dialog`/`alertdialog` role,
  * or any element inside one of those, is not reported: moving focus into a freshly opened
  * modal or popover is expected, and the modal/popover element itself is a valid autofocus
- * target when it should receive focus as soon as it opens.
+ * target when it should receive focus as soon as it opens. An `autoFocus`-named prop on a
+ * custom component (e.g. a design-system `<Input autoFocus>`) is never reported either, since
+ * it says nothing about real DOM focus behavior - enforced by always forcing upstream's own
+ * `ignoreNonDOM` option on, rather than exposing it as a user-configurable field.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     {
-      ...rule,
+      ...withIgnoreNonDOM(rule),
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
@@ -53,6 +56,21 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       context.report({ ...reportDescriptor, message: MESSAGE });
     },
   );
+}
+
+function withIgnoreNonDOM(rule: Rule.RuleModule): Rule.RuleModule {
+  return {
+    ...rule,
+    create(context: Rule.RuleContext): Rule.RuleListener {
+      const overriddenContext = Object.create(context, {
+        options: {
+          value: [{ ignoreNonDOM: true }],
+          enumerable: true,
+        },
+      }) as Rule.RuleContext;
+      return rule.create(overriddenContext);
+    },
+  };
 }
 
 function openingElementOf(
