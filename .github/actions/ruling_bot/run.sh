@@ -12,7 +12,6 @@ FIX_PR_URL=""
 FIX_BRANCH_EXISTS="false"
 HAS_DIFFERENCES="false"
 STASHED_CHANGES="false"
-INPUT_BASE_SHA="${BASE_SHA}"
 
 if [ "${IS_PULL_REQUEST}" = "true" ]; then
   FIX_PR_TITLE="Update ruling results for PR #${PR_NUMBER}"
@@ -108,21 +107,7 @@ write_summary() {
 
 git fetch origin "$BASE_REF"
 
-REPORT_BASE_SHA=""
-if [ "$IS_PULL_REQUEST" = "true" ]; then
-  # Pull request runs execute on GitHub's synthetic merge ref.
-  # Align the ruling report baseline with the merge tree that was actually tested.
-  REPORT_BASE_SHA="$(git merge-base HEAD "origin/$BASE_REF" 2>/dev/null || true)"
-fi
-
-if [ -z "$REPORT_BASE_SHA" ] && [ -n "${INPUT_BASE_SHA}" ]; then
-  git fetch origin "$INPUT_BASE_SHA" || true
-  if ! git cat-file -e "$INPUT_BASE_SHA^{commit}" 2>/dev/null; then
-    echo "::error::Failed to fetch PR base SHA: $INPUT_BASE_SHA"
-    exit 1
-  fi
-  REPORT_BASE_SHA="$INPUT_BASE_SHA"
-fi
+REPORT_BASE_SHA="$(bash "$ACTION_PATH/resolve-report-base.sh" "$IS_PULL_REQUEST")"
 
 if [ -n "$REPORT_BASE_SHA" ]; then
   echo "Using ruling report base SHA: $REPORT_BASE_SHA"

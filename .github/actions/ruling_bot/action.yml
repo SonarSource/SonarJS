@@ -15,10 +15,6 @@ inputs:
   base-ref:
     description: Base branch or ref used for ruling comparison
     required: true
-  base-sha:
-    description: Exact base SHA when available
-    required: false
-    default: ''
   is-pull-request:
     description: Whether the current workflow run is for a pull request
     required: true
@@ -59,7 +55,6 @@ runs:
         PR_NUMBER: ${{ inputs.pr-number }}
         TARGET_REF: ${{ inputs.target-ref }}
         BASE_REF: ${{ inputs.base-ref }}
-        BASE_SHA: ${{ inputs.base-sha }}
         IS_PULL_REQUEST: ${{ inputs.is-pull-request }}
         RULING_FAILED: ${{ inputs.ruling-failed }}
         NEW_RESULTS_PATH: ${{ inputs.new-results-path }}
