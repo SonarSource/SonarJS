@@ -14,7 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import path from 'node:path';
+import {
+  NoTypeCheckingRuleTester,
+  RuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 
@@ -640,6 +644,285 @@ new Widget(document.querySelector('#container'));`,
         }
       }
       `,
+            errors: 1,
+          },
+        ],
+      },
+    );
+  });
+
+  it('ignores discarded constructions registered in a construct tree', () => {
+    const fixtureDirectory = path.join(import.meta.dirname, 'fixtures');
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: path.join(fixtureDirectory, 'tsconfig.json'),
+      },
+    });
+
+    ruleTester.run(
+      'Objects should not be created to be dropped immediately without being used',
+      rule,
+      {
+        valid: [
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+declare const scope: Construct;
+new Construct(scope, 'DirectConstruct');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack extends Construct {
+  addConstruct() {
+    new Construct(this, 'ThisType');
+  }
+}
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class App extends Construct {}
+class MyStack extends Construct {}
+
+declare const app: App;
+new MyStack(app, 'MyStack');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Foundation extends Construct {}
+class CompanyService extends Foundation {}
+
+declare const scope: Construct;
+new CompanyService(scope, 'CompanyService');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct, type IConstruct } from 'constructs';
+
+class Stack extends Construct {}
+
+declare const scope: IConstruct;
+new Stack(scope, 'InterfaceScope');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack<T> extends Construct {}
+
+declare const scope: Construct;
+new Stack<string>(scope, 'GenericChild');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class FirstStack extends Construct {}
+class SecondStack extends Construct {}
+
+declare const scope: Construct;
+declare const Stack: typeof FirstStack | typeof SecondStack;
+new Stack(scope, 'StackFromUnion');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack extends Construct {}
+
+declare const arguments_: [Construct, string];
+new Stack(...arguments_);
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack extends Construct {}
+interface Taggable {
+  tag: string;
+}
+
+declare const scope: Construct & Taggable;
+new Stack(scope, 'IntersectionScope');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack extends Construct {}
+
+function addStack<T extends Construct>(scope: T) {
+  new Stack(scope, 'GenericStack');
+}
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class FirstStack extends Construct {}
+class SecondStack extends Construct {}
+
+function addStack<T extends FirstStack | SecondStack>(scope: T) {
+  new FirstStack(scope, 'UnionConstraint');
+}
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.js'),
+            code: `
+import { Construct } from 'constructs';
+
+class Foundation extends Construct {}
+class CompanyService extends Foundation {}
+
+/** @type {Construct} */
+const scope = null;
+
+new CompanyService(scope, 'CompanyService');
+`,
+          },
+        ],
+        invalid: [
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class PlainClass {
+  constructor(scope: Construct) {}
+}
+
+declare const scope: Construct;
+new PlainClass(scope);
+`,
+            errors: 1,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class ConstructWithPlainParent extends Construct {
+  constructor(parent: object, id: string) {
+    super(parent as Construct, id);
+  }
+}
+
+new ConstructWithPlainParent({}, 'WrongParent');
+`,
+            errors: 1,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct, type IConstruct } from 'constructs';
+
+class ConstructLike implements IConstruct {
+  readonly node = {};
+
+  constructor(scope: Construct, id: string) {}
+}
+
+declare const scope: Construct;
+new ConstructLike(scope, 'ConstructLike');
+`,
+            errors: 1,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack extends Construct {}
+class PlainClass {
+  constructor(scope: Construct) {}
+}
+
+declare const scope: Construct;
+declare const constructor_: typeof Stack | typeof PlainClass;
+new constructor_(scope, 'UnionWithNonConstruct');
+`,
+            errors: 1,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack extends Construct {}
+
+declare const arguments_: [object, string];
+new Stack(...arguments_);
+`,
+            errors: 1,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+
+class Stack extends Construct {}
+
+function addStack<T extends object>(scope: T) {
+  new Stack(scope, 'Unconstrained');
+}
+`,
+            errors: 1,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.js'),
+            code: `
+import { Construct as BaseConstruct } from 'constructs';
+
+class Construct {}
+class FakeChild extends Construct {}
+
+/** @type {BaseConstruct} */
+const scope = null;
+new FakeChild(scope);
+`,
+            errors: 1,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.js'),
+            code: `
+import { Construct } from 'constructs';
+
+class PlainClass {
+  constructor(parent) {}
+}
+
+/** @type {Construct} */
+const scope = null;
+new PlainClass(scope);
+`,
             errors: 1,
           },
         ],

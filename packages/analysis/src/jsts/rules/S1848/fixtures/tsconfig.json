@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": false
+  },
+  "files": ["placeholder.ts", "placeholder.js"]
+}
