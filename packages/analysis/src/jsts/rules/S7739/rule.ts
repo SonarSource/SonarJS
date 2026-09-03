@@ -378,23 +378,39 @@ function isInterfaceShapeDescriptor(node: Node): boolean {
 }
 
 /**
- * Checks if a class method named 'then' belongs to a class that explicitly declares
- * a thenable contract, via JSDoc `@implements {IThenable}` (or `Thenable`/`PromiseLike`)
- * or a TypeScript `implements` heritage clause naming one of those same contracts.
- *
- * Uses the nearest MethodDefinition/class ancestors (via getAncestorsWithParent, which
- * walks the parent chain innermost-first) so that a `then` method declared on a class
- * nested inside another class's method is attributed to its own declaration, not to an
- * unrelated enclosing class that happens to declare the contract itself.
+ * Checks if a class member key node is the 'then' key of a MethodDefinition or
+ * PropertyDefinition (covers `then() {}`, `then = ...`, and statically-known string
+ * keys like `'then'() {}`, matching how the upstream unicorn rule resolves the key).
  */
-function isClassThenMethodWithThenableContract(context: Rule.RuleContext, node: Node): boolean {
-  if (!isIdentifier(node, 'then')) {
+function isThenMemberKey(member: Node & { computed?: boolean; key?: Node }, node: Node): boolean {
+  if (member.key !== node) {
     return false;
   }
+  if (!member.computed) {
+    return isIdentifier(node, 'then') || (node.type === 'Literal' && node.value === 'then');
+  }
+  return node.type === 'Literal' && node.value === 'then';
+}
 
+/**
+ * Checks if a class method or field named 'then' belongs to a class that explicitly
+ * declares a thenable contract, via JSDoc `@implements {IThenable}` (or
+ * `Thenable`/`PromiseLike`) or a TypeScript `implements` heritage clause naming one of
+ * those same contracts.
+ *
+ * Uses the nearest MethodDefinition/PropertyDefinition/class ancestors (via
+ * getAncestorsWithParent, which walks the parent chain innermost-first) so that a `then`
+ * member declared on a class nested inside another class's method is attributed to its
+ * own declaration, not to an unrelated enclosing class that happens to declare the
+ * contract itself.
+ */
+function isClassThenMethodWithThenableContract(context: Rule.RuleContext, node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
-  const method = ancestors[0];
-  if (method?.type !== 'MethodDefinition' || method.computed || method.key !== node) {
+  const member = ancestors[0] as (Node & { computed?: boolean; key?: Node }) | undefined;
+  if (
+    (member?.type !== 'MethodDefinition' && member?.type !== 'PropertyDefinition') ||
+    !isThenMemberKey(member, node)
+  ) {
     return false;
   }
 
@@ -436,13 +452,17 @@ function hasImplementsThenableContract(comment: string): boolean {
 
 /**
  * Checks the class's TypeScript `implements` heritage clause for an entry naming a
- * thenable contract.
+ * thenable contract. Tests only the implemented interface name (the heritage entry's
+ * `expression`), not its type arguments, so a class implementing an unrelated interface
+ * merely parameterized by a thenable type (e.g. `implements Cache<PromiseLike<Data>>`)
+ * is not mistaken for an explicit thenable contract.
  */
 function hasTypeScriptThenableContract(context: Rule.RuleContext, classNode: Node): boolean {
   const heritageEntries = (classNode as Node & { implements?: Node[] }).implements ?? [];
-  return heritageEntries.some(entry =>
-    THENABLE_CONTRACT_PATTERN.test(context.sourceCode.getText(entry)),
-  );
+  return heritageEntries.some(entry => {
+    const name = (entry as Node & { expression?: Node }).expression ?? entry;
+    return THENABLE_CONTRACT_PATTERN.test(context.sourceCode.getText(name));
+  });
 }
 
 /**

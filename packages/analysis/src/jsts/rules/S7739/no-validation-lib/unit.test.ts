@@ -326,6 +326,16 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // Explicit thenable contract on a class field (PropertyDefinition), not a method.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          class FieldThenable {
+            then = (onResolve, onReject) => onResolve('ready');
+          }
+        `,
+          filename: testFilePath,
+        },
       ],
       invalid: [
         {
@@ -520,6 +530,21 @@ describe('S7739', () => {
         {
           code: `
           class Sequencer {
+            then(callback: () => void) {
+              this.callback = callback;
+              return this;
+            }
+          }
+        `,
+          filename: tsTestFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: the implemented interface is unrelated; it is merely parameterized
+        // by a thenable type. The contract match must not look inside type arguments.
+        {
+          code: `
+          interface Cache<T> {}
+          class Store implements Cache<PromiseLike<string>> {
             then(callback: () => void) {
               this.callback = callback;
               return this;
