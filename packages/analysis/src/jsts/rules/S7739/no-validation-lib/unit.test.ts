@@ -336,6 +336,18 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // Explicit thenable contract with a quoted (statically-known) string key.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          class QuotedKeyThenable {
+            'then'(onResolve, onReject) {
+              return onResolve('ready');
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
       ],
       invalid: [
         {
@@ -521,6 +533,15 @@ describe('S7739', () => {
             ): PromiseLike<TResult1 | TResult2> {
               return Promise.resolve(this.value).then(onfulfilled, onrejected);
             }
+          }
+        `,
+          filename: tsTestFilePath,
+        },
+        // Explicit thenable contract on a class field (PropertyDefinition), not a method.
+        {
+          code: `
+          class FieldPromiseLike implements PromiseLike<string> {
+            then = (onfulfilled?: (value: string) => unknown) => Promise.resolve(this.value).then(onfulfilled);
           }
         `,
           filename: tsTestFilePath,
