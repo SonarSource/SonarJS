@@ -1,0 +1,29 @@
+{
+  "title": "Async functions should use async features",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "async",
+    "type-dependent"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-7503",
+  "sqKey": "S7503",
+  "scope": "Main",
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM",
+      "RELIABILITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "ts"
+  ],
+  "defaultQualityProfiles": []
+}
