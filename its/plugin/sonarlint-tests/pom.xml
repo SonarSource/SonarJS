@@ -13,10 +13,26 @@
 
   <properties>
     <surefire.argLine>-server</surefire.argLine>
+    <!-- Latest Plugin API version supported by every SQ IDE flavor. -->
+    <sonarlint.sonar.api.version>13.4.2.4284</sonarlint.sonar.api.version>
     <!-- sonar scanner properties -->
     <sonar.sources/>
     <sonar.tests>src/test</sonar.tests>
   </properties>
+
+  <!--
+  The analyzer is compiled against the Plugin API managed by the root project. Override only the API
+  supplied to the SonarLint test runtime so that these tests detect accidental use of newer APIs.
+  -->
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sonarsource.api.plugin</groupId>
+        <artifactId>sonar-plugin-api</artifactId>
+        <version>${sonarlint.sonar.api.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <!--
   This module doesn't depend on sonar-plugin-api to avoid conflicts with packages embedded in sonarlint-core dependency
