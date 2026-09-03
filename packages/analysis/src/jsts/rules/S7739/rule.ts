@@ -428,26 +428,42 @@ function isClassThenMethodWithThenableContract(context: Rule.RuleContext, node: 
 }
 
 /**
- * Checks the JSDoc block comment leading the class (or its `export`/`export default`
- * wrapper, when the JSDoc precedes that instead) for an `@implements` tag naming a
- * thenable contract.
+ * Checks the JSDoc block comment leading the class for an `@implements` tag naming a
+ * thenable contract. Walks up through the class's `const`/`let`/`var` declarator and
+ * declaration, and any `export`/`export default` wrapper, since the JSDoc precedes
+ * whichever of those is outermost rather than the `class` keyword itself (e.g.
+ * `/** @implements {IThenable} *\/ const Foo = class { ... }`).
  */
 function hasJSDocThenableContract(context: Rule.RuleContext, classNode: Node): boolean {
-  const parent = (classNode as Node & { parent?: Node }).parent;
-  const commentTarget =
-    parent?.type === 'ExportNamedDeclaration' || parent?.type === 'ExportDefaultDeclaration'
-      ? parent
-      : classNode;
+  let commentTarget = classNode;
+  let parent = (commentTarget as Node & { parent?: Node }).parent;
+  while (
+    parent?.type === 'VariableDeclarator' ||
+    parent?.type === 'VariableDeclaration' ||
+    parent?.type === 'ExportNamedDeclaration' ||
+    parent?.type === 'ExportDefaultDeclaration'
+  ) {
+    commentTarget = parent;
+    parent = (commentTarget as Node & { parent?: Node }).parent;
+  }
 
   return context.sourceCode
     .getCommentsBefore(commentTarget)
     .some(comment => comment.type === 'Block' && hasImplementsThenableContract(comment.value));
 }
 
+/**
+ * Matches an `@implements` JSDoc tag and captures only the braced type it names, so the
+ * thenable-contract pattern is tested against that type and not against unrelated prose
+ * elsewhere on the same line.
+ */
+const IMPLEMENTS_TAG_PATTERN = /@implements\s*\{([^}]*)\}/;
+
 function hasImplementsThenableContract(comment: string): boolean {
-  return comment
-    .split(/\r?\n/)
-    .some(line => line.includes('@implements') && THENABLE_CONTRACT_PATTERN.test(line));
+  return comment.split(/\r?\n/).some(line => {
+    const match = IMPLEMENTS_TAG_PATTERN.exec(line);
+    return match !== null && THENABLE_CONTRACT_PATTERN.test(match[1]);
+  });
 }
 
 /**

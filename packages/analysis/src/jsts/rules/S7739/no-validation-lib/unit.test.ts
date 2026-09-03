@@ -348,6 +348,19 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // Explicit thenable contract on a class expression assigned to a variable: the
+        // JSDoc precedes the 'const' declaration, not the 'class' keyword itself.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          const AssignedThenable = class {
+            then(onResolve, onReject) {
+              return onResolve('ready');
+            }
+          };
+        `,
+          filename: testFilePath,
+        },
       ],
       invalid: [
         {
@@ -511,6 +524,24 @@ describe('S7739', () => {
                 }
               }
               return Inner;
+            }
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: the JSDoc mentions 'PromiseLike' outside of the @implements tag's
+        // braces. The thenable-contract match must be scoped to the named type, not to
+        // any word appearing elsewhere on the same comment line.
+        {
+          code: `
+          /**
+           * @implements {Sequencer} -- not a real PromiseLike, just a chaining helper
+           */
+          class Sequencer {
+            then(callback) {
+              this.callback = callback;
+              return this;
             }
           }
         `,
