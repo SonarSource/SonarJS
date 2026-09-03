@@ -40,6 +40,10 @@ const EXCEPTION_LIBRARIES = ['yup', 'joi'];
 // false negatives for unrelated packages that happen to export a member named 'yup' or 'joi'.
 const TRUSTED_REEXPORT_LIB_PREFIXES = ['strapi-utils.yup', '@strapi/utils.yup'];
 
+// Matches the contract names used by JSDoc `@implements` annotations and TypeScript
+// `implements` heritage clauses to declare an intentional thenable implementation.
+const THENABLE_CONTRACT_PATTERN = /\b(?:IThenable|Thenable|PromiseLike)\b/;
+
 /**
  * Checks if a node is inside a call expression from one of the exception libraries.
  * Uses two detection strategies:
@@ -374,17 +378,86 @@ function isInterfaceShapeDescriptor(node: Node): boolean {
 }
 
 /**
+ * Checks if a class method named 'then' belongs to a class that explicitly declares
+ * a thenable contract, via JSDoc `@implements {IThenable}` (or `Thenable`/`PromiseLike`)
+ * or a TypeScript `implements` heritage clause naming one of those same contracts.
+ *
+ * Uses the nearest MethodDefinition/class ancestors (via getAncestorsWithParent, which
+ * walks the parent chain innermost-first) so that a `then` method declared on a class
+ * nested inside another class's method is attributed to its own declaration, not to an
+ * unrelated enclosing class that happens to declare the contract itself.
+ */
+function isClassThenMethodWithThenableContract(context: Rule.RuleContext, node: Node): boolean {
+  if (!isIdentifier(node, 'then')) {
+    return false;
+  }
+
+  const ancestors = getAncestorsWithParent(node);
+  const method = ancestors[0];
+  if (method?.type !== 'MethodDefinition' || method.computed || method.key !== node) {
+    return false;
+  }
+
+  const containingClass = ancestors.find(
+    ancestor => ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression',
+  );
+  if (!containingClass) {
+    return false;
+  }
+
+  return (
+    hasJSDocThenableContract(context, containingClass) ||
+    hasTypeScriptThenableContract(context, containingClass)
+  );
+}
+
+/**
+ * Checks the JSDoc block comment leading the class (or its `export`/`export default`
+ * wrapper, when the JSDoc precedes that instead) for an `@implements` tag naming a
+ * thenable contract.
+ */
+function hasJSDocThenableContract(context: Rule.RuleContext, classNode: Node): boolean {
+  const parent = (classNode as Node & { parent?: Node }).parent;
+  const commentTarget =
+    parent?.type === 'ExportNamedDeclaration' || parent?.type === 'ExportDefaultDeclaration'
+      ? parent
+      : classNode;
+
+  return context.sourceCode
+    .getCommentsBefore(commentTarget)
+    .some(comment => comment.type === 'Block' && hasImplementsThenableContract(comment.value));
+}
+
+function hasImplementsThenableContract(comment: string): boolean {
+  return comment
+    .split(/\r?\n/)
+    .some(line => line.includes('@implements') && THENABLE_CONTRACT_PATTERN.test(line));
+}
+
+/**
+ * Checks the class's TypeScript `implements` heritage clause for an entry naming a
+ * thenable contract.
+ */
+function hasTypeScriptThenableContract(context: Rule.RuleContext, classNode: Node): boolean {
+  const heritageEntries = (classNode as Node & { implements?: Node[] }).implements ?? [];
+  return heritageEntries.some(entry =>
+    THENABLE_CONTRACT_PATTERN.test(context.sourceCode.getText(entry)),
+  );
+}
+
+/**
  * Checks if the reported node represents an intentional thenable implementation
  * that should not be flagged.
  */
-function isIntentionalThenableImplementation(node: Node): boolean {
+function isIntentionalThenableImplementation(context: Rule.RuleContext, node: Node): boolean {
   return (
     isDelegatingToPromiseThen(node) ||
     isInsidePromiseOrDeferredDefinition(node) ||
     isPrototypeThenAssignment(node) ||
     hasSiblingThenableMethods(node) ||
     isJsonSchemaConditional(node) ||
-    isInterfaceShapeDescriptor(node)
+    isInterfaceShapeDescriptor(node) ||
+    isClassThenMethodWithThenableContract(context, node)
   );
 }
 
@@ -406,7 +479,7 @@ export const rule: Rule.RuleModule = interceptReport(
     }
 
     // Skip reporting for intentional thenable implementations
-    if (isIntentionalThenableImplementation(node)) {
+    if (isIntentionalThenableImplementation(context, node)) {
       return;
     }
 
