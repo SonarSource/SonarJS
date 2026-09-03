@@ -19,18 +19,11 @@ import { type NormalizedAbsolutePath } from '../../../../shared/src/helpers/file
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { FileType } from '../../contracts/file.js';
 import { type FilterPathParams } from '../configuration.js';
-import { isTestRelatedFile } from '../../jsts/rules/helpers/test-file-pattern.js';
+import {
+  isAngularEnvironmentConfigFileCandidate,
+  isTestRelatedFile,
+} from '../../jsts/rules/helpers/test-file-pattern.js';
 import { isAngularProject } from '../../jsts/rules/helpers/dependency-manifests/dependencies.js';
-
-/**
- * Angular per-environment config files follow the `environments/environment.<env>.ts` convention.
- * When an environment is named `test`/`spec`/`cy`/`e2e`/`mock`, the path is indistinguishable by
- * shape from a real colocated test — so this pattern is only a *candidate* check, gated on the
- * project actually being Angular (see {@link matchesTestFileHeuristic}). The markers mirror those
- * recognised by `isTestRelatedFile`.
- */
-const ANGULAR_ENVIRONMENT_CONFIG_PATTERN =
-  /(?:^|\/)environments?\/environment\.(?:test|spec|cy|e2e|mock)\.[^/]+$/;
 
 /**
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
@@ -151,15 +144,13 @@ function matchesTestFileHeuristic(
     return false;
   }
 
-  // Angular per-environment config files (`environments/environment.<env>.ts`) match the filename
-  // heuristic by coincidence when the environment is named test/spec/cy/e2e/mock. In an Angular
-  // project they are production config, not tests, so keep them out of the test rule-selection
-  // classification: this drops every Test-scoped rule (S2187/S2925/S8959/S9162) for them without
-  // any rule needing its own scope logic. Because the carve-out lives here (rule selection only),
-  // the scanner/path-derived file type used for metrics is unaffected. The Angular check is gated
-  // behind the cheap path match, and its manifest lookup is cached.
+  // Angular environment-config candidates can match the filename heuristic by coincidence.
+  // When `@angular/core` is visible to the file, keep them MAIN for rule selection so test-scoped
+  // rules do not run. This affects only rule selection; the scanner/path-derived file type used
+  // for metrics is unchanged. The Angular check is gated by the cheap path predicate, and the
+  // underlying manifest lookup is cached.
   if (
-    ANGULAR_ENVIRONMENT_CONFIG_PATTERN.test(filePath) &&
+    isAngularEnvironmentConfigFileCandidate(filePath) &&
     fileIsUnder(filePath, [baseDir]) &&
     isAngularProject(filePath, baseDir)
   ) {

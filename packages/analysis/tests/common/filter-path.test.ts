@@ -327,12 +327,10 @@ describe('filter path', () => {
     });
   });
 
-  // JS-2311: Angular per-environment config files (environments/environment.<env>.ts) match the
-  // filename heuristic by coincidence. In an Angular project they are production config, so the
-  // heuristic used for rule selection carves them out (proved by a real on-disk package.json
-  // declaring @angular/core) — keeping them MAIN so Test-scoped rules do not run on them, while
-  // the scanner/path-derived file type used for metrics is untouched. Everywhere else they stay
-  // TEST for rule selection.
+  // JS-2311: When sonar.tests is not configured, Angular environment-config filenames can match
+  // the test-file heuristic by coincidence. If `@angular/core` is visible to the file, keep these
+  // candidates MAIN for rule selection. The scanner/path-derived file type used for metrics is
+  // unchanged; non-Angular candidates continue through the normal test-file heuristic.
   describe('Angular environment-config carve-out (rule-selection heuristic)', () => {
     const commonDir = normalizeToAbsolutePath(import.meta.dirname);
     const angularBaseDir = `${commonDir}/fixtures/angular-project`;
@@ -385,8 +383,8 @@ describe('filter path', () => {
       expect(result).toBe('MAIN');
     });
 
-    it('respects an explicit TEST classification (sonar.tests) over the Angular carve-out', () => {
-      // When the scanner already typed the file as TEST, rule selection keeps it TEST.
+    it('preserves an existing TEST classification over the Angular carve-out', () => {
+      // An upstream TEST classification takes precedence over the filename heuristic.
       const filePath = normalizeToAbsolutePath(
         `${angularBaseDir}/src/environments/environment.test.ts`,
       );
