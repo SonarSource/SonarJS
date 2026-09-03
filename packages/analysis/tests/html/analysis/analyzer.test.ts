@@ -292,13 +292,18 @@ describe('analyzeHTML', () => {
     );
   });
 
-  describe('S2703 and shared global scope across classic script blocks (JS-2371)', () => {
-    it('should not flag a write to a "let" declared in an earlier classic script block', async () => {
+  describe('shared global scope across the script blocks of one HTML page (JS-2371)', () => {
+    const implicitGlobalMessage =
+      'Add the "let", "const" or "var" keyword to this declaration of "TOKEN" to make it explicit.';
+    const undeclaredTokenMessage =
+      '"TOKEN" does not exist. Change its name or declare it so that its usage doesn\'t result in a "ReferenceError".';
+
+    async function analyzeFixtureWithRule(ruleKey: string, fixture: string) {
       await Linter.initialize({
         baseDir: fixturesPath,
         rules: [
           {
-            key: 'S2703',
+            key: ruleKey,
             configurations: [],
             fileTypeTargets: ['MAIN'],
             language: 'js',
@@ -308,137 +313,79 @@ describe('analyzeHTML', () => {
       });
       const { issues } = await analyzeEmbedded(
         await embeddedInput({
-          filePath: normalizeToAbsolutePath(join(fixturesPath, 'shared-global-scope.html')),
+          filePath: normalizeToAbsolutePath(join(fixturesPath, fixture)),
         }),
         parseHTML,
       );
-      expect(issues).toEqual([]);
+      return issues;
+    }
+
+    describe('S2703', () => {
+      it('should not flag a write to a "let" declared in an earlier classic script block', async () => {
+        expect(await analyzeFixtureWithRule('S2703', 'shared-global-scope.html')).toEqual([]);
+      });
+
+      it('should not flag a write to a "var" declared in an earlier classic script block', async () => {
+        expect(await analyzeFixtureWithRule('S2703', 'shared-global-scope-var.html')).toEqual([]);
+      });
+
+      it('should not flag a write to a "var" hoisted out of a nested block in an earlier classic script block', async () => {
+        expect(
+          await analyzeFixtureWithRule('S2703', 'shared-global-scope-var-nested-block.html'),
+        ).toEqual([]);
+      });
+
+      it('should not flag a write to a "function" hoisted out of a nested block in an earlier classic script block', async () => {
+        expect(
+          await analyzeFixtureWithRule('S2703', 'shared-global-scope-nested-function.html'),
+        ).toEqual([]);
+      });
+
+      it('should not flag a write relying on a "let" declared in a "defer" script block, since "defer" has no effect on inline scripts', async () => {
+        expect(await analyzeFixtureWithRule('S2703', 'shared-global-scope-defer.html')).toEqual([]);
+      });
+
+      it('should not flag a write from a "type=module" script block to a "let" declared in an earlier classic script block', async () => {
+        expect(
+          await analyzeFixtureWithRule('S2703', 'module-script-shares-classic-globals.html'),
+        ).toEqual([]);
+      });
+
+      it('should not flag a write from a "type=module" script block to a "let" declared in a later classic script block, since modules are deferred', async () => {
+        expect(
+          await analyzeFixtureWithRule('S2703', 'module-script-shares-later-classic-globals.html'),
+        ).toEqual([]);
+      });
+
+      it('should still flag a write relying on a "let" declared in a "type=module" script block', async () => {
+        expect(await analyzeFixtureWithRule('S2703', 'module-script-not-shared.html')).toEqual([
+          expect.objectContaining({ ruleId: 'S2703', message: implicitGlobalMessage }),
+        ]);
+      });
+
+      it('should still flag a write relying on a "var" declared in a class static block, which is its own "var" scope', async () => {
+        expect(await analyzeFixtureWithRule('S2703', 'static-block-var-not-shared.html')).toEqual([
+          expect.objectContaining({ ruleId: 'S2703', message: implicitGlobalMessage }),
+        ]);
+      });
+
+      it('should still flag a write to a "let" declared only in a later classic script block', async () => {
+        expect(
+          await analyzeFixtureWithRule('S2703', 'shared-global-scope-wrong-order.html'),
+        ).toEqual([expect.objectContaining({ ruleId: 'S2703', message: implicitGlobalMessage })]);
+      });
     });
 
-    it('should not flag a write to a "var" declared in an earlier classic script block', async () => {
-      await Linter.initialize({
-        baseDir: fixturesPath,
-        rules: [
-          {
-            key: 'S2703',
-            configurations: [],
-            fileTypeTargets: ['MAIN'],
-            language: 'js',
-            analysisModes: ['DEFAULT'],
-          },
-        ],
+    describe('S3827', () => {
+      it('should not report a read of a name declared in an earlier classic script block', async () => {
+        expect(await analyzeFixtureWithRule('S3827', 'shared-global-scope-read.html')).toEqual([]);
       });
-      const { issues } = await analyzeEmbedded(
-        await embeddedInput({
-          filePath: normalizeToAbsolutePath(join(fixturesPath, 'shared-global-scope-var.html')),
-        }),
-        parseHTML,
-      );
-      expect(issues).toEqual([]);
-    });
 
-    it('should not flag a write to a "var" hoisted out of a nested block in an earlier classic script block', async () => {
-      await Linter.initialize({
-        baseDir: fixturesPath,
-        rules: [
-          {
-            key: 'S2703',
-            configurations: [],
-            fileTypeTargets: ['MAIN'],
-            language: 'js',
-            analysisModes: ['DEFAULT'],
-          },
-        ],
+      it('should still report a read of a name declared only in a later classic script block', async () => {
+        expect(
+          await analyzeFixtureWithRule('S3827', 'shared-global-scope-read-wrong-order.html'),
+        ).toEqual([expect.objectContaining({ ruleId: 'S3827', message: undeclaredTokenMessage })]);
       });
-      const { issues } = await analyzeEmbedded(
-        await embeddedInput({
-          filePath: normalizeToAbsolutePath(
-            join(fixturesPath, 'shared-global-scope-var-nested-block.html'),
-          ),
-        }),
-        parseHTML,
-      );
-      expect(issues).toEqual([]);
-    });
-
-    it('should not flag a write relying on a "let" declared in a "defer" script block, since "defer" has no effect on inline scripts', async () => {
-      await Linter.initialize({
-        baseDir: fixturesPath,
-        rules: [
-          {
-            key: 'S2703',
-            configurations: [],
-            fileTypeTargets: ['MAIN'],
-            language: 'js',
-            analysisModes: ['DEFAULT'],
-          },
-        ],
-      });
-      const { issues } = await analyzeEmbedded(
-        await embeddedInput({
-          filePath: normalizeToAbsolutePath(join(fixturesPath, 'shared-global-scope-defer.html')),
-        }),
-        parseHTML,
-      );
-      expect(issues).toEqual([]);
-    });
-
-    it('should still flag a write relying on a "let" declared in a "type=module" script block', async () => {
-      await Linter.initialize({
-        baseDir: fixturesPath,
-        rules: [
-          {
-            key: 'S2703',
-            configurations: [],
-            fileTypeTargets: ['MAIN'],
-            language: 'js',
-            analysisModes: ['DEFAULT'],
-          },
-        ],
-      });
-      const { issues } = await analyzeEmbedded(
-        await embeddedInput({
-          filePath: normalizeToAbsolutePath(join(fixturesPath, 'module-script-not-shared.html')),
-        }),
-        parseHTML,
-      );
-      expect(issues).toEqual([
-        expect.objectContaining({
-          ruleId: 'S2703',
-          message:
-            'Add the "let", "const" or "var" keyword to this declaration of "TOKEN" to make it explicit.',
-        }),
-      ]);
-    });
-
-    it('should still flag a write to a "let" declared only in a later classic script block', async () => {
-      await Linter.initialize({
-        baseDir: fixturesPath,
-        rules: [
-          {
-            key: 'S2703',
-            configurations: [],
-            fileTypeTargets: ['MAIN'],
-            language: 'js',
-            analysisModes: ['DEFAULT'],
-          },
-        ],
-      });
-      const { issues } = await analyzeEmbedded(
-        await embeddedInput({
-          filePath: normalizeToAbsolutePath(
-            join(fixturesPath, 'shared-global-scope-wrong-order.html'),
-          ),
-        }),
-        parseHTML,
-      );
-      expect(issues).toEqual([
-        expect.objectContaining({
-          ruleId: 'S2703',
-          message:
-            'Add the "let", "const" or "var" keyword to this declaration of "TOKEN" to make it explicit.',
-        }),
-      ]);
     });
   });
 });

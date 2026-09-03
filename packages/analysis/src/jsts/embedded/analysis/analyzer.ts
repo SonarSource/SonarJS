@@ -59,16 +59,33 @@ export async function analyzeEmbedded(
   const aggregatedSuppressedIssues: NonNullable<EmbeddedAnalysisOutput['suppressedIssues']> = [];
   const aggregatedSonarResolveComments: SonarResolveComment[] = [];
   let ncloc: number[] = [];
-  // Names bound at the top level (var/let/const/class/function) by classic script blocks seen so
-  // far, in document order. Classic (non-module, non-deferred) <script> blocks of the same HTML
-  // document share one global lexical/variable environment in real browsers, so a later classic
-  // block writing to a name declared by an earlier one is not an implicit global.
-  const sharedGlobalScopeNames = new Set<string>();
-  for (const extendedParseResult of extendedParseResults) {
+  // Names bound at the top level (var/let/const/class/function) by each snippet, contributed to the
+  // page's shared global scope. Classic (non-module) <script> blocks of the same HTML document
+  // share one global lexical/variable environment in real browsers, so a block writing to a name
+  // declared by another one is not an implicit global. "defer" and "async" have no effect on inline
+  // scripts, so they do not exclude a block from that shared environment. A module block has an
+  // isolated module scope and therefore contributes nothing.
+  const contributedNamesPerSnippet = extendedParseResults.map(extendedParseResult =>
+    extendedParseResult.scriptKind === 'classic'
+      ? collectTopLevelBindingNames(
+          extendedParseResult.sourceCode.ast as estree.Program,
+          extendedParseResult.sourceCode.visitorKeys,
+        )
+      : [],
+  );
+  // Module scripts are always deferred, so they run after every inline classic block of the
+  // document and see the names of all of them, whatever the source order.
+  const allClassicNames = new Set(contributedNamesPerSnippet.flat());
+  // Names a classic block can see: only those contributed by strictly preceding classic blocks.
+  const precedingClassicNames = new Set<string>();
+  for (const [index, extendedParseResult] of extendedParseResults.entries()) {
+    const visibleNames = sharedGlobalScopeNamesFor(
+      extendedParseResult.scriptKind,
+      precedingClassicNames,
+      allClassicNames,
+    );
     const additionalSettings =
-      extendedParseResult.sharesGlobalScope && sharedGlobalScopeNames.size > 0
-        ? { precedingScriptGlobals: [...sharedGlobalScopeNames] }
-        : undefined;
+      visibleNames.length > 0 ? { precedingScriptGlobals: visibleNames } : undefined;
     const {
       issues,
       suppressedIssues,
@@ -81,13 +98,8 @@ export async function analyzeEmbedded(
     aggregatedIssues.push(...filteredIssues);
     aggregatedSuppressedIssues.push(...filteredSuppressedIssues);
     aggregatedSonarResolveComments.push(...singleSonarResolveComments);
-    if (extendedParseResult.sharesGlobalScope) {
-      for (const name of collectTopLevelBindingNames(
-        extendedParseResult.sourceCode.ast as estree.Program,
-        extendedParseResult.sourceCode.visitorKeys,
-      )) {
-        sharedGlobalScopeNames.add(name);
-      }
+    for (const name of contributedNamesPerSnippet[index]) {
+      precedingClassicNames.add(name);
     }
   }
   return {
@@ -100,6 +112,27 @@ export async function analyzeEmbedded(
       ? { sonarResolveComments: aggregatedSonarResolveComments }
       : {}),
   };
+}
+
+/**
+ * Returns the shared global scope names visible to a snippet, given the names contributed by the
+ * classic script blocks preceding it in document order and the names contributed by all of them.
+ *
+ * A snippet that is not an inline HTML script (YAML, ...) has no such shared scope at all.
+ */
+function sharedGlobalScopeNamesFor(
+  scriptKind: ExtendedParseResult['scriptKind'],
+  precedingClassicNames: Set<string>,
+  allClassicNames: Set<string>,
+): string[] {
+  switch (scriptKind) {
+    case 'classic':
+      return [...precedingClassicNames];
+    case 'module':
+      return [...allClassicNames];
+    default:
+      return [];
+  }
 }
 
 function analyzeSnippet(
@@ -130,10 +163,10 @@ function analyzeSnippet(
  * of the shared global scope, visible to other classic scripts of the same HTML document.
  *
  * A "var" declared inside a nested block (if/for/try/switch/...) at the top level of the script
- * also hoists to that shared scope, so such statements are additionally walked to collect any
- * "var" declaration they contain, stopping at function boundaries since those introduce their own
- * "var" scope. "let"/"const"/"class" declared inside a nested block stay block-scoped and are
- * correctly not collected there.
+ * also hoists to that shared scope, and so does the name of a "function" declared inside such a
+ * block (Annex B function hoisting in sloppy mode). Those statements are therefore additionally
+ * walked to collect both kinds of name. "let"/"const"/"class" declared inside a nested block stay
+ * block-scoped and are correctly not collected there.
  */
 function collectTopLevelBindingNames(
   program: estree.Program,
@@ -154,20 +187,26 @@ function collectTopLevelBindingNames(
         }
         break;
       default:
-        collectNestedVarNames(statement, visitorKeys, names);
+        collectNestedHoistedNames(statement, visitorKeys, names);
         break;
     }
   }
   return names;
 }
 
-const FUNCTION_BOUNDARIES = new Set([
+/**
+ * Nodes introducing their own "var" scope: a "var" declaration or a block-nested "function"
+ * declaration inside one of them hoists to that node, not to the enclosing script scope. A class
+ * static block is such a scope too, even though it is not a function.
+ */
+const VAR_SCOPE_BOUNDARIES = new Set([
   'FunctionDeclaration',
   'FunctionExpression',
   'ArrowFunctionExpression',
+  'StaticBlock',
 ]);
 
-function collectNestedVarNames(
+function collectNestedHoistedNames(
   node: estree.Node,
   visitorKeys: SourceCode.VisitorKeys,
   names: string[],
@@ -176,12 +215,16 @@ function collectNestedVarNames(
     for (const declarator of node.declarations) {
       collectPatternNames(declarator.id, names);
     }
+  } else if (node.type === 'FunctionDeclaration' && node.id) {
+    // Per Annex B sloppy-mode semantics, the name of a function declared inside a block hoists to
+    // the enclosing "var" scope, hence to the script's shared global scope here.
+    names.push(node.id.name);
   }
-  if (FUNCTION_BOUNDARIES.has(node.type)) {
+  if (VAR_SCOPE_BOUNDARIES.has(node.type)) {
     return;
   }
   for (const child of childrenOf(node, visitorKeys)) {
-    collectNestedVarNames(child, visitorKeys, names);
+    collectNestedHoistedNames(child, visitorKeys, names);
   }
 }
 

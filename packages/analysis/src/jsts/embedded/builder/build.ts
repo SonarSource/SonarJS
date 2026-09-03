@@ -27,7 +27,7 @@ import { debug } from '../../../../../shared/src/helpers/logging.js';
 
 export type ExtendedParseResult = ParseResult & {
   syntheticFilePath: NormalizedAbsolutePath;
-  sharesGlobalScope?: boolean;
+  scriptKind?: EmbeddedJS['extras']['scriptKind'];
 };
 export type LanguageParser = (text: string) => EmbeddedJS[];
 
@@ -79,7 +79,7 @@ export function build(
         parser: parseResult.parser,
         parserOptions: parseResult.parserOptions,
         syntheticFilePath,
-        sharesGlobalScope: embeddedJS.extras.sharesGlobalScope,
+        scriptKind: embeddedJS.extras.scriptKind,
       });
     } catch (error) {
       throw patchParsingError(error, embeddedJS);

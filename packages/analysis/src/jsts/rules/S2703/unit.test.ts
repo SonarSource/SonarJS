@@ -60,6 +60,11 @@ describe('S2703', () => {
         {
           code: `jQuery = $ = $$`,
         },
+        {
+          // declared by another <script> block sharing the global scope of the same HTML page
+          code: `TOKEN = refreshToken();`,
+          settings: { precedingScriptGlobals: ['TOKEN'] },
+        },
       ],
       invalid: [
         {

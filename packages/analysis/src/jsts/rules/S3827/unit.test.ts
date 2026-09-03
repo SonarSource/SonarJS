@@ -66,6 +66,11 @@ describe('S3827', () => {
       }
             `,
         },
+        {
+          // declared by another <script> block sharing the global scope of the same HTML page
+          code: `String(TOKEN);`,
+          settings: { precedingScriptGlobals: ['TOKEN'] },
+        },
       ],
       invalid: [
         {
