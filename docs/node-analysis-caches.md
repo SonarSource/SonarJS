@@ -155,7 +155,7 @@ All project-style entrypoints go through the same basic sequence:
 
 1. Build a normalized `Configuration`.
 2. Sanitize explicit request files if they were provided.
-3. Call `initFileStores(configuration, inputFiles?)`.
+3. Call `initFileStoresForAnalysis(configuration, inputFiles?)`.
 4. Read the final analyzable file set from `sourceFileStore`.
 5. Seed compiler-side request context with `setSourceFilesContext(filesToAnalyze)`.
 6. Analyze with:
@@ -370,8 +370,8 @@ There is also a narrower per-analysis switch in `analyzer.ts`: `clearDependencie
 
 The compiler-side source-file content cache and parsed AST cache are cleared when:
 
-- `analyzeWithProgram()` finishes a SonarQube-style batch analysis
-- the standalone gRPC service resets all shared caches before a request
+- `initFileStoresForAnalysis()` starts a scanner analysis, including the standalone gRPC path
+- `analyzeWithProgram()` finishes a SonarQube-style batch analysis with a populated program cache
 
 They are intentionally kept warm across `analyzeWithIncrementalProgram()` calls.
 
@@ -383,8 +383,9 @@ The same codebase serves different lifecycles.
 
 The SonarQube path usually behaves closer to a per-analysis cache model:
 
+- `initFileStoresForAnalysis()` resets the file stores and compiler-side caches before analysis
 - `analyzeProject()` chooses `analyzeWithProgram()`
-- `analyzeWithProgram()` clears the program cache and the source-file content / AST cache at the end
+- `analyzeWithProgram()` also clears a populated program cache and the source-file content / AST cache at the end
 - file stores and tsconfig / manifest caches are still useful during the analysis itself, but the long-lived reuse story is limited
 
 ### SonarLint / SonarQube For IDE
