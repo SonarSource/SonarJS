@@ -35,7 +35,7 @@ import {
   isStringArray,
   sanitizePaths,
 } from '../../../shared/src/helpers/sanitize.js';
-import { initFileStores } from '../file-stores/index.js';
+import { initFileStoresForAnalysis } from '../file-stores/index.js';
 import { type FileStatus, JSTS_ANALYSIS_DEFAULTS } from '../jsts/analysis/analysis.js';
 import type { RuleConfig as CssRuleConfig } from '../css/linter/config.js';
 import type { RuleConfig } from '../jsts/linter/config/rule-config.js';
@@ -101,7 +101,7 @@ export async function sanitizeProjectAnalysisInput(
     ? await sanitizeRawInputFiles(raw.files, configuration)
     : undefined;
 
-  await initFileStores(configuration, sanitizedFiles?.files);
+  await initFileStoresForAnalysis(configuration, sanitizedFiles?.files);
 
   return {
     rules: isJsTsRuleConfigArray(raw.rules) ? (raw.rules as RuleConfig[]) : [],

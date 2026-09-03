@@ -155,7 +155,7 @@ All project-style entrypoints go through the same basic sequence:
 
 1. Build a normalized `Configuration`.
 2. Sanitize explicit request files if they were provided.
-3. Call `initFileStores(configuration, inputFiles?)`.
+3. Call `initFileStoresForAnalysis(configuration, inputFiles?)`.
 4. Read the final analyzable file set from `sourceFileStore`.
 5. Seed compiler-side request context with `setSourceFilesContext(filesToAnalyze)`.
 6. Analyze with:
@@ -168,9 +168,10 @@ The main entrypoints are:
 - `sanitizeProjectAnalysisInput()` in `packages/analysis/src/common/input-sanitize.ts`
 - `normalizeAnalyzeProjectRequest()` in `packages/grpc/src/analyze-project-normalize.ts`
 
-One additional nuance in `normalizeAnalyzeProjectRequest()`:
+All entrypoints initialize their file stores through `initFileStoresForAnalysis()`:
 
-- when the request has no explicit files and filesystem access is enabled, it explicitly resets the four file stores before rediscovering the project from disk
+- scanner analyses reset the shared caches before initializing the request
+- SonarQube for IDE analyses retain the caches for incremental reuse
 
 There is also a standalone gRPC path in `packages/grpc/src/service.ts` that always resets the shared caches before analyzing an inline virtual project rooted at `/`.
 
@@ -369,8 +370,8 @@ There is also a narrower per-analysis switch in `analyzer.ts`: `clearDependencie
 
 The compiler-side source-file content cache and parsed AST cache are cleared when:
 
-- `analyzeWithProgram()` finishes a SonarQube-style batch analysis
-- the standalone gRPC service resets all shared caches before a request
+- `initFileStoresForAnalysis()` starts a scanner analysis, including the standalone gRPC path
+- `analyzeWithProgram()` finishes a SonarQube-style batch analysis with a populated program cache
 
 They are intentionally kept warm across `analyzeWithIncrementalProgram()` calls.
 
@@ -382,8 +383,9 @@ The same codebase serves different lifecycles.
 
 The SonarQube path usually behaves closer to a per-analysis cache model:
 
+- `initFileStoresForAnalysis()` resets the file stores and compiler-side caches before analysis
 - `analyzeProject()` chooses `analyzeWithProgram()`
-- `analyzeWithProgram()` clears the program cache and the source-file content / AST cache at the end
+- `analyzeWithProgram()` also clears a populated program cache and the source-file content / AST cache at the end
 - file stores and tsconfig / manifest caches are still useful during the analysis itself, but the long-lived reuse story is limited
 
 ### SonarLint / SonarQube For IDE
@@ -399,7 +401,7 @@ This is the path where the cache architecture matters most for latency.
 
 ### Standalone gRPC Service
 
-`packages/grpc/src/service.ts` intentionally does not share state between requests:
+`packages/grpc/src/service.ts` uses the same scanner initialization path and intentionally does not share state between requests:
 
 - it resets all four file stores
 - it clears the compiler-side source-file cache
