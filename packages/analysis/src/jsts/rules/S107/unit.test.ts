@@ -90,6 +90,17 @@ describe('S107', () => {
           code: `require(["a", "b", "c", "d"], function (a, b, c, d) {});`,
           options: createOptions(MAX_PARAMS_3),
         },
+        {
+          // JS-2373: same carve-out applies to the UI5 asynchronous loader 'sap.ui.require'
+          code: `sap.ui.require(["a", "b", "c", "d"], function (a, b, c, d) {});`,
+          options: createOptions(MAX_PARAMS_3),
+        },
+        {
+          // JS-2373: in the RequireJS 'require([deps], factory, errback)' form the factory is
+          // not the last argument, yet its parameters are still injected dependencies
+          code: `require(["a", "b", "c", "d"], function (a, b, c, d) {}, function (err) {});`,
+          options: createOptions(MAX_PARAMS_3),
+        },
       ],
       invalid: [
         {
@@ -188,15 +199,15 @@ describe('S107', () => {
         {
           // JS-2373: the AMD factory-callback carve-out must not extend to unrelated calls that
           // merely happen to have an array literal preceding a function argument
-          code: `foo(["a", "b", "c"], function (a, b, c, d, e) {});`,
+          code: `foo(["a", "b", "c", "d", "e"], function (a, b, c, d, e) {});`,
           options: createOptions(MAX_PARAMS_3),
           errors: [
             {
               message: 'Function has too many parameters (5). Maximum allowed is 3.',
               line: 1,
-              column: 22,
+              column: 32,
               endLine: 1,
-              endColumn: 31,
+              endColumn: 41,
             },
           ],
         },
@@ -205,8 +216,15 @@ describe('S107', () => {
           // is shadowed by a local binding unrelated to the AMD loader
           code: `
       function define(factory) { return factory; }
-      define(["a", "b", "c"], function (a, b, c, d, e) {});
+      define(["a", "b", "c", "d", "e"], function (a, b, c, d, e) {});
       `,
+          options: createOptions(MAX_PARAMS_3),
+          errors: 1,
+        },
+        {
+          // JS-2373: only the parameters injected by the loader are exempted; a factory declaring
+          // more parameters than the dependency array provides is still hand-written
+          code: `define(["a", "b", "c", "d"], function (a, b, c, d, e) {});`,
           options: createOptions(MAX_PARAMS_3),
           errors: 1,
         },

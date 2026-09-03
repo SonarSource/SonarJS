@@ -62,16 +62,13 @@ function getMax(options: FromSchema<typeof meta.schema>[0]) {
 }
 
 /**
- * The two trailing arguments inspected for an AMD/UI5 factory-callback shape: the
- * dependency array literal followed by the factory function itself.
- */
-const AMD_FACTORY_TRAILING_ARGUMENTS = 2;
-
-/**
  * An AMD/UI5 factory callback, e.g., `define([...], function (a, b) {})`,
- * `require([...], function (a, b) {})` or `sap.ui.define([...], function (a, b) {})`.
- * Its parameters are module dependencies injected by the loader, one per entry of the
- * preceding dependency array, not a hand-written signature.
+ * `require([...], function (a, b) {})`, `sap.ui.define([...], function (a, b) {})` or
+ * `sap.ui.require([...], function (a, b) {})`. Its parameters are module dependencies
+ * injected by the loader, one per entry of the immediately preceding dependency array,
+ * not a hand-written signature. The factory is not necessarily the last argument: the
+ * RequireJS `require([...], factory, errback)` form appends an error callback after it.
+ * Parameters beyond the dependency count are hand-written and remain reported.
  */
 function isAmdFactoryCallback(context: Rule.RuleContext, functionLike: TSESTree.FunctionLike) {
   const call = functionLike.parent;
@@ -79,9 +76,11 @@ function isAmdFactoryCallback(context: Rule.RuleContext, functionLike: TSESTree.
     return false;
   }
 
-  const [precedingArg, lastArgument] = call.arguments.slice(-AMD_FACTORY_TRAILING_ARGUMENTS);
+  const factoryIndex = call.arguments.indexOf(functionLike as TSESTree.CallExpressionArgument);
+  const dependencies = (factoryIndex > 0 ? call.arguments[factoryIndex - 1] : undefined) as
+    estree.Node | undefined;
   return (
-    lastArgument === functionLike && isArrayExpression(precedingArg as estree.Node | undefined)
+    isArrayExpression(dependencies) && functionLike.params.length <= dependencies.elements.length
   );
 }
 
@@ -96,7 +95,7 @@ function isAmdDefineOrRequireCall(
   return (
     (isIdentifier(callee, 'define', 'require') && !isShadowed(context, callee)) ||
     (callee.type === 'MemberExpression' &&
-      isIdentifier(callee.property, 'define') &&
+      isIdentifier(callee.property, 'define', 'require') &&
       isMemberExpression(callee.object as estree.Node, 'sap', 'ui'))
   );
 }
