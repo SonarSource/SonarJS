@@ -503,6 +503,30 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void test_getExistingNodeProcessPort_returns_config_value_when_set() throws IOException {
+    // The override is assigned at the top of startServerLazily, before any connection attempt,
+    // so getExistingNodeProcessPort() reflects the config value even after the expected throw.
+    bridgeServer = createUnitBridgeServer(1);
+    var configWithPort = new BridgeServerConfig(
+      serverConfig.config(),
+      serverConfig.workDirAbsolutePath(),
+      serverConfig.product(),
+      12345
+    );
+    assertThatThrownBy(() -> bridgeServer.startServerLazily(configWithPort))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("12345");
+    assertThat(bridgeServer.getExistingNodeProcessPort()).isEqualTo("12345");
+  }
+
+  @Test
+  void test_getExistingNodeProcessPort_falls_back_to_env_var_when_config_null() {
+    bridgeServer = createUnitBridgeServer();
+    assertThat(bridgeServer.getExistingNodeProcessPort())
+      .isEqualTo(System.getenv(BridgeServerImpl.SONARJS_EXISTING_NODE_PROCESS_PORT));
+  }
+
+  @Test
   void isAlive_should_not_require_a_lease_for_an_existing_node_process() throws Exception {
     bridgeServer = createUnitBridgeServer();
     var channel = mock(ManagedChannel.class);
