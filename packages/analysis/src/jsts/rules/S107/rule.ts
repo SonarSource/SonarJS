@@ -23,7 +23,13 @@ import { getESLintCoreRule } from '../external/core.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
-import { isFunctionCall, isIdentifier } from '../helpers/ast.js';
+import {
+  getVariableFromScope,
+  isArrayExpression,
+  isFunctionCall,
+  isIdentifier,
+  isMemberExpression,
+} from '../helpers/ast.js';
 import { mergeRules } from '../helpers/decorators/merger.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
@@ -54,6 +60,55 @@ function getMax(options: FromSchema<typeof meta.schema>[0]) {
   }
   return DEFAULT_MAXIMUM_FUNCTION_PARAMETERS;
 }
+
+/**
+ * An AMD/UI5 factory callback, e.g., `define([...], function (a, b) {})`,
+ * `require([...], function (a, b) {})`, `sap.ui.define([...], function (a, b) {})` or
+ * `sap.ui.require([...], function (a, b) {})`. Its parameters are module dependencies
+ * injected by the loader, one per entry of the immediately preceding dependency array,
+ * not a hand-written signature. The factory is not necessarily the last argument: the
+ * RequireJS `require([...], factory, errback)` form appends an error callback after it.
+ * Parameters beyond the dependency count are hand-written and remain reported.
+ */
+function isAmdFactoryCallback(context: Rule.RuleContext, functionLike: TSESTree.FunctionLike) {
+  const call = functionLike.parent;
+  if (!isAmdDefineOrRequireCall(context, call)) {
+    return false;
+  }
+
+  const factoryIndex = call.arguments.indexOf(functionLike as TSESTree.CallExpressionArgument);
+  const dependencies = (factoryIndex > 0 ? call.arguments[factoryIndex - 1] : undefined) as
+    estree.Node | undefined;
+  return (
+    isArrayExpression(dependencies) && functionLike.params.length <= dependencies.elements.length
+  );
+}
+
+function isAmdDefineOrRequireCall(
+  context: Rule.RuleContext,
+  node: TSESTree.Node | undefined,
+): node is TSESTree.CallExpression {
+  if (node?.type !== 'CallExpression') {
+    return false;
+  }
+  const callee = node.callee as estree.Node;
+  return (
+    (isIdentifier(callee, 'define', 'require') && !isShadowed(context, callee)) ||
+    (callee.type === 'MemberExpression' &&
+      isIdentifier(callee.property, 'define', 'require') &&
+      isMemberExpression(callee.object as estree.Node, 'sap', 'ui'))
+  );
+}
+
+/**
+ * True when `identifier` resolves to a local binding, e.g., a local `function define(...) {}`
+ * or a test double named `require`, rather than the global AMD loader function of that name.
+ */
+function isShadowed(context: Rule.RuleContext, identifier: estree.Identifier) {
+  return !!getVariableFromScope(context.sourceCode.getScope(identifier), identifier.name)?.defs
+    .length;
+}
+
 /**
  * Decorates ESLint `max-params` to ignore TypeScript constructor when its parameters
  * are all parameter properties, e.g., `constructor(private a: any, public b: any) {}`.
@@ -73,7 +128,11 @@ const ruleDecoration: Rule.RuleModule = interceptReport(
     }
 
     function isException(functionLike: TSESTree.FunctionLike) {
-      return isBeyondMaxParams(functionLike) || isAngularConstructor(functionLike);
+      return (
+        isBeyondMaxParams(functionLike) ||
+        isAngularConstructor(functionLike) ||
+        isAmdFactoryCallback(context, functionLike)
+      );
     }
 
     function isBeyondMaxParams(functionLike: TSESTree.FunctionLike) {
@@ -96,9 +155,7 @@ const ruleDecoration: Rule.RuleModule = interceptReport(
       return true;
 
       function isConstructor(node: TSESTree.Node | undefined): node is TSESTree.MethodDefinition {
-        return (
-          node?.type === 'MethodDefinition' && isIdentifier(node.key, 'constructor')
-        );
+        return node?.type === 'MethodDefinition' && isIdentifier(node.key, 'constructor');
       }
 
       function isAngularComponent(node: TSESTree.Node | undefined) {
