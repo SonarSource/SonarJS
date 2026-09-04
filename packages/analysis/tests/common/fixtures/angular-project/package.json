@@ -1,0 +1,6 @@
+{
+  "name": "angular-project-fixture",
+  "dependencies": {
+    "@angular/core": "latest"
+  }
+}
