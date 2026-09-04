@@ -1559,7 +1559,7 @@ class WebSensorTest {
   }
 
   @Test
-  void log_debug_if_already_failed_server() throws Exception {
+  void should_skip_analysis_when_managed_bridge_server_already_failed() throws Exception {
     doThrow(new ServerAlreadyFailedException()).when(bridgeServerMock).startServerLazily(any());
     createSensor().execute(context);
 
@@ -1567,6 +1567,19 @@ class WebSensorTest {
       "Skipping the start of the bridge server as it failed to start during the first analysis or it's not answering anymore",
       "No rules will be executed"
     );
+  }
+
+  @Test
+  void should_fail_analysis_when_external_bridge_server_is_unavailable() throws Exception {
+    doThrow(new ServerAlreadyFailedException()).when(bridgeServerMock).startServerLazily(any());
+    when(bridgeServerMock.isExternalNodeProcessConfigured()).thenReturn(true);
+
+    assertThatThrownBy(() -> createSensor().execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis of JS/TS files failed")
+      .hasCauseInstanceOf(ServerAlreadyFailedException.class);
+
+    assertThat(logTester.logs(Level.ERROR)).contains("Failure during analysis");
   }
 
   @Test

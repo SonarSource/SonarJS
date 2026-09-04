@@ -32,6 +32,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.slf4j.event.Level.DEBUG;
+import static org.slf4j.event.Level.ERROR;
 import static org.slf4j.event.Level.INFO;
 import static org.slf4j.event.Level.WARN;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
@@ -471,6 +472,7 @@ class BridgeServerImplTest {
     clearInvocations(bridgeServerMock);
 
     doReturn("60000").when(bridgeServerMock).getExistingNodeProcessPort();
+    assertThat(bridgeServerMock.isExternalNodeProcessConfigured()).isTrue();
     doReturn(true).when(bridgeServerMock).waitChannelReady(startupTimeoutMillis);
     doReturn(true).when(bridgeServerMock).isAlive();
     bridgeServerMock.startServerLazily(serverConfig);
@@ -488,6 +490,7 @@ class BridgeServerImplTest {
     var bridgeServerMock = bridgeServer;
 
     doReturn("0").when(bridgeServerMock).getExistingNodeProcessPort();
+    assertThat(bridgeServerMock.isExternalNodeProcessConfigured()).isFalse();
     doReturn(false).when(bridgeServerMock).isAlive();
     doAnswer(invocation -> null)
       .when(bridgeServerMock)
@@ -500,6 +503,23 @@ class BridgeServerImplTest {
 
     verify(bridgeServerMock).deploy(serverConfig.config());
     verify(bridgeServerMock).startServer(serverConfig);
+  }
+
+  @Test
+  void should_log_configured_port_when_existing_node_is_unavailable() {
+    bridgeServer = spy(createUnitBridgeServer(SHORT_STARTUP_TIMEOUT_SECONDS));
+    var bridgeServerMock = bridgeServer;
+    var startupTimeoutMillis = (int) TimeUnit.SECONDS.toMillis(SHORT_STARTUP_TIMEOUT_SECONDS);
+
+    doReturn("60000").when(bridgeServerMock).getExistingNodeProcessPort();
+    doReturn(false).when(bridgeServerMock).waitChannelReady(startupTimeoutMillis);
+
+    assertThatThrownBy(() -> bridgeServerMock.startServerLazily(serverConfig)).isInstanceOf(
+      ServerAlreadyFailedException.class
+    );
+    assertThat(logTester.logs(ERROR)).contains(
+      "Failed to connect to the existing Node.js process on port 60000 configured through environment variable SONARJS_EXISTING_NODE_PROCESS_PORT"
+    );
   }
 
   @Test

@@ -414,6 +414,11 @@ public class BridgeServerImpl implements BridgeServer {
       if (!waitChannelReady(timeoutSeconds * 1000)) {
         status = Status.FAILED;
         closeChannel();
+        LOG.error(
+          "Failed to connect to the existing Node.js process on port {} configured through environment variable {}",
+          port,
+          SONARJS_EXISTING_NODE_PROCESS_PORT
+        );
         throw new ServerAlreadyFailedException();
       }
       serverHasStarted();
@@ -601,6 +606,11 @@ public class BridgeServerImpl implements BridgeServer {
       latestOKIsAliveTimestamp = System.currentTimeMillis();
     }
     return result;
+  }
+
+  @Override
+  public boolean isExternalNodeProcessConfigured() {
+    return nodeAlreadyRunningPort() != 0;
   }
 
   private boolean shouldRestartFailedServer() {
