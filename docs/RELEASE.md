@@ -1,41 +1,34 @@
 # Release Guide
 
-SonarJS currently has two distinct release targets:
+The automated SonarJS analyzer release publishes the standard SonarQube plugin. SonarQube Server,
+SonarQube Cloud, and SQAA all consume that same released plugin version; SQAA does not have a
+separate release artifact.
 
-| Target                      | Artifact                                   | Main workflow                             | Notes                                      |
-| --------------------------- | ------------------------------------------ | ----------------------------------------- | ------------------------------------------ |
-| Standard SonarQube analyzer | Maven/JAR release artifacts                | `.github/workflows/automated-release.yml` | This is the normal SonarJS release flow.   |
-| SQAA (previously A3S)       | Docker image for `LanguageAnalyzerService` | `.github/workflows/docker-sqaa.yml`       | Manual SQAA-only entry point and fallback. |
-
-## Terminology
-
-- `SQAA` is the current name for what older docs and repository names still call `A3S`.
-- Some external identifiers still keep the legacy `a3s` name for compatibility. The important ones are:
-  - the Docker repository path `a3s/analysis/javascript`
-  - `packages/grpc/src/proto/language_analyzer.proto` with `option java_package = "com.sonarsource.a3s.analyzer.grpc";`
-- Do not rename those compatibility-sensitive identifiers as part of a routine release.
+`SQAA` is the current name for what older documentation and repository names still call `A3S`.
 
 ## Standard SonarQube Analyzer Release
-
-This is the regular SonarJS analyzer release. It produces the standard SonarQube analyzer artifacts and can also automate the SQAA handoff using the same build number.
 
 ### Entry points
 
 1. Start `.github/workflows/automated-release.yml`.
-2. That workflow orchestrates the release and then calls `.github/workflows/release.yml` for the actual artifact publication.
-3. After the release succeeds, `.github/workflows/bump-versions.yml` opens the next development iteration PR.
+2. That workflow orchestrates the release and calls `.github/workflows/release.yml` for artifact
+   publication.
+3. After the release succeeds, `.github/workflows/bump-versions.yml` opens the next development
+   iteration PR.
 
 ### What `.github/workflows/automated-release.yml` does
 
-The SonarJS workflow is a thin wrapper around `SonarSource/release-github-actions/.github/workflows/automated-release.yml@v1` with SonarJS-specific inputs:
+The SonarJS workflow is a thin wrapper around
+`SonarSource/release-github-actions/.github/workflows/automated-release.yml@v1` with SonarJS-specific
+inputs:
 
 - project name `SonarJS`
 - plugin name `javascript`
 - Jira project `JS`
-- optional SQC and SQS integration PRs
-- optional SQAA integration, enabled in the SonarJS wrapper and implemented by a custom local workflow
+- optional SQC, SQS, and SQAA integration PRs
+- SQAA artifact name `js`, which maps to the `sonar-js` version in
+  `sonar-analysis-as-a-service/gradle/sonar-plugins.versions.toml`
 - SLVS, SLVSCODE, SLE, and SLI integration tickets enabled
-- the generic `release-github-actions` SQAA integration explicitly disabled, because SonarJS uses `analysis/js_ts_image_tag` instead of `gradle/sonar-plugins.versions.toml`
 
 The reusable workflow performs the following steps:
 
@@ -43,44 +36,42 @@ The reusable workflow performs the following steps:
 2. Run the releasability checks with `SonarSource/gh-action_releasability@v3`.
 3. Resolve the release version with `get-release-version`.
 4. Resolve the Jira version with `get-jira-version`.
-5. Generate Jira-based release notes with `get-jira-release-notes` unless explicit notes were provided.
+5. Generate Jira-based release notes with `get-jira-release-notes` unless explicit notes were
+   provided.
 6. Create the REL Jira ticket with `create-jira-release-ticket`.
 7. Publish the GitHub release with `publish-github-release`.
 8. Unfreeze the branch.
-9. Release the Jira version, create the next Jira version, and move the REL ticket to `Technical Release Done`.
+9. Release the Jira version, create the next Jira version, and move the REL ticket to
+   `Technical Release Done`.
 10. Create integration tickets.
 11. Open analyzer update PRs for SQS and SQC.
-
-After that reusable workflow succeeds, SonarJS runs a custom `sqaa_release` job that:
-
-1. Reuses the released `X.Y.Z.BuildNumber` version from the standard release.
-2. Extracts the Docker tag from the final `.BuildNumber` suffix.
-3. Checks out the release tag `refs/tags/<release-version>` so the SQAA image is built from the exact released commit.
-4. Runs the SQAA Docker build and push flow.
-5. Opens the `sonar-analysis-as-a-service` PR that updates `analysis/js_ts_image_tag`.
-
-The `Prepare next development iteration` PR waits for this SonarJS-specific SQAA automation to finish, so a failed SQAA handoff blocks the end of the automated release run.
+12. When both SQC and SQAA integration are enabled, open a PR in
+    `SonarSource/sonar-analysis-as-a-service` that updates the full `sonar-js` plugin version.
 
 ### What `publish-github-release` does in practice
 
-`SonarSource/release-github-actions/publish-github-release` is the handoff from orchestration to artifact publication:
+`SonarSource/release-github-actions/publish-github-release` is the handoff from orchestration to
+artifact publication:
 
 1. It creates or reuses a draft GitHub release for the target version.
 2. It can attach Repox artifacts to that release if artifact paths were provided.
-3. It inspects `.github/workflows/release.yml` and detects that SonarJS uses the `gh-action_release` v7 draft-first flow.
-4. It triggers `.github/workflows/release.yml` with `version=<release-version>` and `dryRun=<draft flag>`.
-5. It waits for that workflow to finish and fails the orchestration run if the publication workflow fails.
+3. It inspects `.github/workflows/release.yml` and detects that SonarJS uses the
+   `gh-action_release` v7 draft-first flow.
+4. It triggers `.github/workflows/release.yml` with `version=<release-version>` and
+   `dryRun=<draft flag>`.
+5. It waits for that workflow to finish and fails the orchestration run if publication fails.
 
 ### What `.github/workflows/release.yml` does
 
-`release.yml` is the workflow that actually publishes the standard analyzer release artifacts. It calls `SonarSource/gh-action_release/.github/workflows/main.yaml@7.4.0` with:
+`release.yml` publishes the standard analyzer artifacts through
+`SonarSource/gh-action_release/.github/workflows/main.yaml@7.4.0` with:
 
 - `publishToBinaries: true`
 - `mavenCentralSync: true`
 - the release version
 - the dry-run flag
 
-That reusable workflow follows the v7 draft-first release model:
+The reusable workflow follows the v7 draft-first release model:
 
 1. Create or reuse the draft GitHub release.
 2. Run releasability checks again inside the publication workflow.
@@ -90,188 +81,46 @@ That reusable workflow follows the v7 draft-first release model:
 6. Publish the draft GitHub release.
 7. Push release telemetry to Datadog.
 
-Because this is a draft-first flow, failures after the draft release exists are normally retried by rerunning the workflow. You do not create a new release version just because one publication attempt failed.
+Because this is a draft-first flow, failures after the draft release exists are normally retried by
+rerunning the workflow. Do not create a new release version solely because one publication attempt
+failed.
 
 ### What `.github/workflows/bump-versions.yml` does
 
-SonarJS does **not** use the generic `release-github-actions` version bump action. Instead, after the automated release job finishes, SonarJS runs its own reusable workflow:
+SonarJS does not use the generic `release-github-actions` version bump action. After the automated
+release job finishes, SonarJS runs its own reusable workflow:
 
 1. Check out the repository.
 2. Update the root `pom.xml` `<revision>` to `${version}-SNAPSHOT`.
-3. Open a PR with `peter-evans/create-pull-request@v8` titled `Prepare next development iteration`.
+3. Open a PR with `peter-evans/create-pull-request@v8` titled
+   `Prepare next development iteration`.
 
-### Standard release checklist
+## SQAA Integration
+
+SQAA uses the standard `sonar-javascript-plugin` artifact. SonarJS no longer builds or publishes a
+separate SQAA Docker image.
+
+When `sqaa-integration` is enabled together with `sqc-integration`, the shared automated-release
+workflow:
+
+1. Uses the full released SonarJS version in `X.Y.Z.BuildNumber` format.
+2. Resolves the configured SQAA artifact name `js` to the `sonar-js` entry in
+   `gradle/sonar-plugins.versions.toml` in `SonarSource/sonar-analysis-as-a-service`.
+3. Opens a PR that updates that version entry.
+
+After that PR is merged, `sonar-analysis-as-a-service` resolves the released
+`org.sonarsource.javascript:sonar-javascript-plugin` artifact. The plugin contains the Node.js bridge
+used by the SQAA mutualized analysis service, keeping the Java sensor and Node.js bridge on the same
+released version.
+
+## Release Checklist
 
 1. Run `.github/workflows/automated-release.yml`, usually from `master`.
 2. Monitor the GitHub release publication kicked off through `.github/workflows/release.yml`.
 3. Verify the REL ticket and Jira release were updated.
-4. Verify that the promoted `sonar-javascript-plugin-<version>-cyclonedx.json` classifier is present,
-   signed, valid, and contains `pkg:npm` components.
-5. If `sqaa-integration` was enabled, verify the SQAA Docker image was built from the release tag and that the `sonar-analysis-as-a-service` PR was created.
+4. Verify that the promoted `sonar-javascript-plugin-<version>-cyclonedx.json` classifier is
+   present, signed, valid, and contains `pkg:npm` components.
+5. If SQAA integration was enabled, verify that the `sonar-analysis-as-a-service` PR updates only
+   the `sonar-js` entry to the full released version.
 6. Merge the `Prepare next development iteration` PR.
 7. Merge the SQS, SQC, and SQAA integration PRs created by the release automation.
-
-## SQAA Release
-
-SQAA (previously A3S) can be released in two ways:
-
-- automatically from `.github/workflows/automated-release.yml`, reusing the standard release build number and release tag
-- manually from `.github/workflows/docker-sqaa.yml` for SQAA-only rebuilds or exceptional reruns
-
-In both cases, the SonarJS side only builds and publishes the Docker image to Repox. The deployment handoff happens afterwards in `SonarSource/sonar-analysis-as-a-service`.
-
-### Artifact
-
-The SQAA artifact is the Docker image built from the repository root `Dockerfile`.
-
-Relevant implementation details:
-
-- `npm run grpc:build` runs `bridge:build:fast` and then `grpc:bundle`
-- `grpc:bundle` produces `bin/grpc-server.cjs`
-- the Docker image copies `bin/` and starts `node ./bin/grpc-server.cjs 50051`
-- the published image tag is the SonarJS build number
-
-### SonarJS workflow
-
-Run `.github/workflows/docker-sqaa.yml` manually when you need an SQAA-only build outside the standard automated release.
-
-This workflow does the following:
-
-1. Resolve the Docker tag:
-   - use the explicit `build-number` input when provided
-   - otherwise get a SonarJS build number with `SonarSource/ci-github-actions/get-build-number@master`
-2. Check out the requested branch or tag.
-3. Install toolchains with `jdx/mise-action@v4.2.0`:
-   - Java 21
-   - Maven 3.9
-   - Node 24.11.0
-4. Configure Maven with `SonarSource/ci-github-actions/config-maven@master`.
-5. Configure the npm registry for Repox with the Artifactory private-reader token.
-6. Read Vault secrets:
-   - Repox QA deployer credentials
-   - RSPEC GitHub token
-7. Run `npm ci`.
-8. Refresh RSPEC rule data with `npm run rspec:refresh`.
-9. Run `npm run grpc:build`.
-10. Log in to `repox-sonarsource-docker-builds.jfrog.io`.
-11. If `publish-to-release-repo` is enabled, also log in to `repox-sonarsource-docker-releases.jfrog.io`.
-12. Build and push the Docker image once, with one or two registry tags depending on
-    `publish-to-release-repo`.
-
-For an official release, the resulting command is equivalent to:
-
-```bash
-docker buildx build --platform linux/arm64 \
-  --tag "repox-sonarsource-docker-builds.jfrog.io/a3s/analysis/javascript:<build_number>" \
-  --tag "repox-sonarsource-docker-releases.jfrog.io/a3s/analysis/javascript:<build_number>" \
-  --push .
-```
-
-The image is pushed to:
-
-```text
-repox-sonarsource-docker-builds.jfrog.io/a3s/analysis/javascript:<build_number>
-```
-
-When `publish-to-release-repo=true`, the same tag is also pushed to:
-
-```text
-repox-sonarsource-docker-releases.jfrog.io/a3s/analysis/javascript:<build_number>
-```
-
-#### Why official releases currently use both registries
-
-The two registry entries are two tags for one Docker Buildx result, not two independently built
-analyzers. The workflow always adds the builds-registry tag. When
-`publish-to-release-repo=true`, it adds the releases-registry tag to the same `docker buildx build`
-invocation before pushing. Both tags therefore come from the same source ref, build number, and
-Docker build.
-
-The registries serve different lifecycle purposes:
-
-| Registry                                     | Purpose                                                                                                                                                                    |
-| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `repox-sonarsource-docker-builds.jfrog.io`   | Historical SQAA destination for branch, ad hoc, and staging images. Its artifacts expire after 90 days, so it must not be the source of an official long-lived deployment. |
-| `repox-sonarsource-docker-releases.jfrog.io` | Durable source for images produced from an official SonarJS release tag. `sonar-analysis-as-a-service` must pull released JSTS versions from here.                         |
-
-Before durable publication was added, SonarJS published only to the builds registry and
-`sonar-analysis-as-a-service` pulled JSTS from that location. The release workflow initially kept
-the builds tag while adding the releases tag so the producer and consumer could be migrated across
-repositories without breaking the existing handoff. This makes the dual publication a
-compatibility bridge, not a requirement to maintain two independent release artifacts.
-
-The standard automated release sets `publish-to-release-repo=true`, so it currently publishes both
-tags. The manual workflow defaults the input to `false`, which publishes only to the builds
-registry for ordinary branch or ad hoc builds. A manual rerun of an official release must reuse the
-original build number and set the input to `true` so the durable image is restored.
-
-The same `qa-deployer` credentials intentionally authenticate to both endpoints. Their existing
-`repox-qa-deployers` permissions authorize both pushes; the registry names describe artifact
-retention and intended use, not separate Vault identities. Do not introduce a second
-`docker-release` Vault role for this workflow.
-
-Downstream consumers must not rely on the expiring builds copy of an official release. The
-SonarJS-to-SQAA handoff passes the numeric tag through `analysis/js_ts_image_tag`, while
-`sonar-analysis-as-a-service` owns the registry selection and must choose the releases registry.
-Once no compatibility consumer needs official tags in the builds registry, the official release
-path can be simplified to publish only to the releases registry; branch and ad hoc builds should
-continue to use the builds registry.
-
-The `a3s` repository segment is still intentional legacy naming. Do not change it during a routine SQAA release.
-
-### SQAA automation from the standard release
-
-When SQAA automation is enabled in `.github/workflows/automated-release.yml`:
-
-1. The standard release produces a version in the format `X.Y.Z.BuildNumber`.
-2. SonarJS reuses that exact `.BuildNumber` suffix for the SQAA Docker tag.
-3. The SQAA image is built from the release tag `refs/tags/<release-version>`, not from the moving branch head.
-4. The same Docker tag is published to the durable Repox release registry `repox-sonarsource-docker-releases.jfrog.io`.
-5. The same run opens the `sonar-analysis-as-a-service` PR that updates `analysis/js_ts_image_tag`.
-
-This keeps the Java artifacts and the SQAA Docker image on the same released commit and build number.
-
-### Handoff to `sonar-analysis-as-a-service`
-
-After the SonarJS workflow succeeds:
-
-1. Take the SonarJS build number from the SQAA workflow run.
-2. Open a PR in `SonarSource/sonar-analysis-as-a-service`, or let the automated release create it for you.
-3. Update only `analysis/js_ts_image_tag` to that new build number.
-
-Example:
-
-- PR title: `SC-51805 Update JSTS analyzer to 42780`
-- diff: `analysis/js_ts_image_tag` changed from `39440` to `42780`
-
-### What happens after that PR is merged
-
-In `SonarSource/sonar-analysis-as-a-service`:
-
-1. `.github/workflows/build.yml` reads `analysis/js_ts_image_tag`.
-2. It calls `.github/workflows/pull-and-push-analyzer-image.yml`.
-3. That reusable workflow must pull the official release image from the durable release registry:
-
-```text
-repox-sonarsource-docker-releases.jfrog.io/a3s/analysis/javascript:${source_tag}
-```
-
-4. This pull-source switch is implemented in `SonarSource/sonar-analysis-as-a-service`, not in SonarJS.
-5. It then re-tags that image with the `sonar-analysis-as-a-service` build number and pushes it to ECR.
-6. The merge to `master` also triggers `.github/workflows/master-deployment.yml`, which starts the deployment workflow for the environments.
-
-### Important warning
-
-Do **not** use the generic `SonarSource/release-github-actions/update-analysis-as-a-service` action for the SonarJS SQAA release.
-
-That generic action updates `gradle/sonar-plugins.versions.toml` in `sonar-analysis-as-a-service`. The current JS/TS SQAA rollout does **not** use that file. The real SonarJS handoff is the PR that updates `analysis/js_ts_image_tag`, whether that PR is created automatically or manually.
-
-### SQAA release checklist
-
-1. For the normal release path, run `.github/workflows/automated-release.yml` with `sqaa-integration` enabled.
-2. For a manual SQAA-only path, run `.github/workflows/docker-sqaa.yml`.
-3. Note the SonarJS build number used as the Docker tag.
-4. If the flow was a manual rerun for an official release, pass the original release build number and enable `publish-to-release-repo`.
-5. If the flow was manual, open a PR in `SonarSource/sonar-analysis-as-a-service` and update `analysis/js_ts_image_tag` to that build number.
-6. Merge the PR to `master`.
-7. Let `sonar-analysis-as-a-service` build and deployment workflows roll out the new image.
