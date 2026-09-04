@@ -12,7 +12,6 @@ FIX_PR_URL=""
 FIX_BRANCH_EXISTS="false"
 HAS_DIFFERENCES="false"
 STASHED_CHANGES="false"
-INPUT_BASE_SHA="${BASE_SHA}"
 
 if [ "${IS_PULL_REQUEST}" = "true" ]; then
   FIX_PR_TITLE="Update ruling results for PR #${PR_NUMBER}"
@@ -110,18 +109,13 @@ git fetch origin "$BASE_REF"
 
 REPORT_BASE_SHA=""
 if [ "$IS_PULL_REQUEST" = "true" ]; then
-  # Pull request runs execute on GitHub's synthetic merge ref.
-  # Align the ruling report baseline with the merge tree that was actually tested.
-  REPORT_BASE_SHA="$(git merge-base HEAD "origin/$BASE_REF" 2>/dev/null || true)"
-fi
-
-if [ -z "$REPORT_BASE_SHA" ] && [ -n "${INPUT_BASE_SHA}" ]; then
-  git fetch origin "$INPUT_BASE_SHA" || true
-  if ! git cat-file -e "$INPUT_BASE_SHA^{commit}" 2>/dev/null; then
-    echo "::error::Failed to fetch PR base SHA: $INPUT_BASE_SHA"
+  # Pull request workflows test GitHub's synthetic merge commit. Its first parent
+  # is the exact base tree included in the analysis, even if the base branch moves.
+  if ! REPORT_BASE_SHA="$(git rev-parse --verify 'HEAD^1^{commit}' 2>/dev/null)" ||
+    ! git rev-parse --verify 'HEAD^2^{commit}' >/dev/null 2>&1; then
+    echo "::error::The ruling bot expected a synthetic merge commit with both parents available. Ensure the checkout fetch depth is at least 2." >&2
     exit 1
   fi
-  REPORT_BASE_SHA="$INPUT_BASE_SHA"
 fi
 
 if [ -n "$REPORT_BASE_SHA" ]; then
