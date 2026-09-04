@@ -31,6 +31,9 @@ const VALID_CASES = [
   { code: `<CustomCell scope="row">Total</CustomCell>;` },
   // `<TH>` reads as the `th` tag but JSX treats it as a component reference, so it's skipped too.
   { code: `<TH scope="row">Total</TH>;` },
+  { code: `<DIV scope="row">Total</DIV>;` },
+  // A hyphenated custom element is valid JSX but not in aria-query's DOM tag set, so it's skipped too.
+  { code: `<my-element scope="row">Total</my-element>;` },
 ];
 
 const INVALID_CASES = [
