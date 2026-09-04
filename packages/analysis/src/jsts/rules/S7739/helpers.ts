@@ -32,7 +32,7 @@ export function getAncestorsWithParent(node: Node): Node[] {
 /**
  * Extracts the property name from a Property node's key.
  */
-export function getPropertyKeyName(prop: Node & { type: 'Property'; key: Node }): string | null {
+function getPropertyKeyName(prop: Node & { type: 'Property'; key: Node }): string | null {
   const { key } = prop;
   if (key.type === 'Identifier') {
     return key.name;
