@@ -16,17 +16,24 @@
  */
 import { rule } from '../rule.js';
 import { join } from 'node:path/posix';
-import { DefaultParserRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 const TEST_FILENAME = 'filename.js';
+const TS_TEST_FILENAME = 'filename.ts';
 const NO_THENABLE_OBJECT_ERROR = 'no-thenable-object';
+const NO_THENABLE_CLASS_ERROR = 'no-thenable-class';
 
 describe('S7739', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname); // change current working dir to avoid the package.json lookup going up the tree
   const ruleTester = new DefaultParserRuleTester();
+  const tsRuleTester = new NoTypeCheckingRuleTester();
   const testFilePath = join(dirname, TEST_FILENAME);
+  const tsTestFilePath = join(dirname, TS_TEST_FILENAME);
   it('S7739 reports when no validation library is a dependency', () => {
     ruleTester.run('S7739 reports when no validation library is a dependency', rule, {
       valid: [
@@ -264,6 +271,96 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // Explicit thenable contract: JSDoc @implements {IThenable<?>}
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          class CountingThenable {
+            then(onResolve, onReject) {
+              return onResolve('ready');
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
+        // Explicit thenable contract: JSDoc @implements {Thenable<string>}
+        {
+          code: `
+          /** @implements {Thenable<string>} */
+          class CustomThenable {
+            then(onResolve, onReject) {
+              return onResolve('ready');
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
+        // Explicit thenable contract on an exported class: the JSDoc precedes the
+        // 'export' keyword, not the class declaration itself.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          export class ExportedThenable {
+            then(onResolve, onReject) {
+              return onResolve('ready');
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
+        // Explicit thenable contract on a class nested inside another class's method:
+        // the contract is attributed to the nearest (inner) class, not the outer one.
+        {
+          code: `
+          class Outer {
+            method() {
+              /** @implements {IThenable<?>} */
+              class Inner {
+                then(onResolve) {
+                  return onResolve(1);
+                }
+              }
+              return Inner;
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
+        // Explicit thenable contract on a class field (PropertyDefinition), not a method.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          class FieldThenable {
+            then = (onResolve, onReject) => onResolve('ready');
+          }
+        `,
+          filename: testFilePath,
+        },
+        // Explicit thenable contract with a quoted (statically-known) string key.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          class QuotedKeyThenable {
+            'then'(onResolve, onReject) {
+              return onResolve('ready');
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
+        // Explicit thenable contract on a class expression assigned to a variable: the
+        // JSDoc precedes the 'const' declaration, not the 'class' keyword itself.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          const AssignedThenable = class {
+            then(onResolve, onReject) {
+              return onResolve('ready');
+            }
+          };
+        `,
+          filename: testFilePath,
+        },
       ],
       invalid: [
         {
@@ -385,6 +482,196 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: ordinary class 'then' with no thenable contract declared
+        {
+          code: `
+          class Sequencer {
+            then(callback) {
+              this.callback = callback;
+              return this;
+            }
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: @implements names an unrelated interface, not a thenable contract
+        {
+          code: `
+          /** @implements {Matcher} */
+          class MatcherSequencer {
+            then(matcher) {
+              return MatcherSequencer.seq(this, matcher);
+            }
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: the thenable contract is declared on the outer class, but the
+        // reported 'then' method belongs to an unannotated nested class. The contract
+        // must not leak from the outer class to the inner one.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          class Outer {
+            method() {
+              class Inner {
+                then(callback) {
+                  this.callback = callback;
+                  return this;
+                }
+              }
+              return Inner;
+            }
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: the JSDoc mentions 'PromiseLike' outside of the @implements tag's
+        // braces. The thenable-contract match must be scoped to the named type, not to
+        // any word appearing elsewhere on the same comment line.
+        {
+          code: `
+          /**
+           * @implements {Sequencer} -- not a real PromiseLike, just a chaining helper
+           */
+          class Sequencer {
+            then(callback) {
+              this.callback = callback;
+              return this;
+            }
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: the named JSDoc type is unrelated; it is merely parameterized by
+        // a thenable type. The contract match must not look inside type arguments.
+        {
+          code: `
+          /** @implements {Cache<PromiseLike<string>>} */
+          class Store {
+            then(callback) {
+              this.callback = callback;
+              return this;
+            }
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: the thenable contract is declared on the class, but the reported
+        // 'then' is a static member. An instance-side contract does not cover the class
+        // object itself, so the static 'then' must still be reported.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          class WithStaticThen {
+            static then(onResolve) {
+              return onResolve('ready');
+            }
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: same as above, but the static 'then' is a class field
+        // (PropertyDefinition) rather than a method.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          class WithStaticFieldThen {
+            static then = (onResolve) => onResolve('ready');
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+      ],
+    });
+  });
+
+  it('S7739 accepts TypeScript thenable contracts', () => {
+    tsRuleTester.run('S7739 accepts TypeScript thenable contracts', rule, {
+      valid: [
+        {
+          code: `
+          class CustomPromiseLike implements PromiseLike<string> {
+            then<TResult1 = string, TResult2 = never>(
+              onfulfilled?: ((value: string) => TResult1 | PromiseLike<TResult1>) | null,
+              onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+            ): PromiseLike<TResult1 | TResult2> {
+              return Promise.resolve(this.value).then(onfulfilled, onrejected);
+            }
+          }
+        `,
+          filename: tsTestFilePath,
+        },
+        // Explicit thenable contract on a class field (PropertyDefinition), not a method.
+        {
+          code: `
+          class FieldPromiseLike implements PromiseLike<string> {
+            then = (onfulfilled?: (value: string) => unknown) => Promise.resolve(this.value).then(onfulfilled);
+          }
+        `,
+          filename: tsTestFilePath,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+          class Sequencer {
+            then(callback: () => void) {
+              this.callback = callback;
+              return this;
+            }
+          }
+        `,
+          filename: tsTestFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: the implemented interface is unrelated; it is merely parameterized
+        // by a thenable type. The contract match must not look inside type arguments.
+        {
+          code: `
+          interface Cache<T> {}
+          class Store implements Cache<PromiseLike<string>> {
+            then(callback: () => void) {
+              this.callback = callback;
+              return this;
+            }
+          }
+        `,
+          filename: tsTestFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: the thenable contract is declared on the class, but the reported
+        // 'then' is a static member. An instance-side contract does not cover the class
+        // object itself, so the static 'then' must still be reported.
+        {
+          code: `
+          class WithStaticThen implements PromiseLike<string> {
+            static then(callback: () => void) {
+              return callback();
+            }
+          }
+        `,
+          filename: tsTestFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: same as above, but the static 'then' is a class field
+        // (PropertyDefinition) rather than a method.
+        {
+          code: `
+          class WithStaticFieldThen implements PromiseLike<string> {
+            static then = (callback: () => void) => callback();
+          }
+        `,
+          filename: tsTestFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
         },
       ],
     });
