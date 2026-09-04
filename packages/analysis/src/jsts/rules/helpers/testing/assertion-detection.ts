@@ -66,13 +66,15 @@ const SUPPORTED_TEST_FRAMEWORK_DEPENDENCIES = [
   'vitest',
 ];
 
-// Known global `expect*(...)` entry points: the universal `expect`, rxjs marble
-// testing's `expectObservable`/`expectSubscriptions`, and vitest's `expectTypeOf`.
+// Known global `expect*(...)` entry points: the universal `expect`, Jasmine's
+// `expectAsync`, rxjs marble testing's `expectObservable`/`expectSubscriptions`,
+// and vitest's `expectTypeOf`.
 // Matched by exact name (not an `expect`-prefix) so unrelated identifiers such as
 // `expectation(...)` or `expected(...)` in production code are not treated as
 // assertions.
 const GLOBAL_EXPECT_NAMES = new Set([
   'expect',
+  'expectAsync',
   'expectObservable',
   'expectSubscriptions',
   'expectTypeOf',
