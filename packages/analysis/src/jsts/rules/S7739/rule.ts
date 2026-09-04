@@ -403,12 +403,20 @@ function isThenMemberKey(member: Node & { computed?: boolean; key?: Node }, node
  * member declared on a class nested inside another class's method is attributed to its
  * own declaration, not to an unrelated enclosing class that happens to declare the
  * contract itself.
+ *
+ * Excludes static members: an `implements`/`@implements` thenable contract describes the
+ * instance shape, not the class object itself, so a `static then` still makes the class
+ * object thenable (e.g. `await import()` of a module default-exporting it) and must
+ * remain reported regardless of the instance-side contract.
  */
 function isClassThenMethodWithThenableContract(context: Rule.RuleContext, node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
-  const member = ancestors[0] as (Node & { computed?: boolean; key?: Node }) | undefined;
+  const member = ancestors[0] as
+    | (Node & { computed?: boolean; static?: boolean; key?: Node })
+    | undefined;
   if (
     (member?.type !== 'MethodDefinition' && member?.type !== 'PropertyDefinition') ||
+    member.static ||
     !isThenMemberKey(member, node)
   ) {
     return false;

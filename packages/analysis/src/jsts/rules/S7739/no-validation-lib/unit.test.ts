@@ -563,6 +563,33 @@ describe('S7739', () => {
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
         },
+        // True Positive: the thenable contract is declared on the class, but the reported
+        // 'then' is a static member. An instance-side contract does not cover the class
+        // object itself, so the static 'then' must still be reported.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          class WithStaticThen {
+            static then(onResolve) {
+              return onResolve('ready');
+            }
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: same as above, but the static 'then' is a class field
+        // (PropertyDefinition) rather than a method.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          class WithStaticFieldThen {
+            static then = (onResolve) => onResolve('ready');
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
       ],
     });
   });
@@ -616,6 +643,31 @@ describe('S7739', () => {
               this.callback = callback;
               return this;
             }
+          }
+        `,
+          filename: tsTestFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: the thenable contract is declared on the class, but the reported
+        // 'then' is a static member. An instance-side contract does not cover the class
+        // object itself, so the static 'then' must still be reported.
+        {
+          code: `
+          class WithStaticThen implements PromiseLike<string> {
+            static then(callback: () => void) {
+              return callback();
+            }
+          }
+        `,
+          filename: tsTestFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: same as above, but the static 'then' is a class field
+        // (PropertyDefinition) rather than a method.
+        {
+          code: `
+          class WithStaticFieldThen implements PromiseLike<string> {
+            static then = (callback: () => void) => callback();
           }
         `,
           filename: tsTestFilePath,
