@@ -603,6 +603,11 @@ public class BridgeServerImpl implements BridgeServer {
     return result;
   }
 
+  @Override
+  public boolean isExternalNodeProcessConfigured() {
+    return getExistingNodeProcessPort() != null;
+  }
+
   private boolean shouldRestartFailedServer() {
     return (
       latestOKIsAliveTimestamp != null &&
