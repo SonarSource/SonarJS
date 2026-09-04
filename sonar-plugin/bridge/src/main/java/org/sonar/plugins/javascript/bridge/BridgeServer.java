@@ -39,6 +39,9 @@ public interface BridgeServer extends Startable {
 
   boolean isAlive();
 
+  /** Returns whether the bridge is configured to use an externally managed Node.js process. */
+  boolean isExternalNodeProcessConfigured();
+
   TelemetryData getTelemetry();
 
   void analyzeProject(ProjectAnalysisHandler handler);

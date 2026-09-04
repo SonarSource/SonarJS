@@ -180,6 +180,9 @@ public class WebSensor implements ProjectSensor {
       // do not propagate the exception
       LOG.info(e.toString());
     } catch (ServerAlreadyFailedException e) {
+      if (bridgeServer.isExternalNodeProcessConfigured()) {
+        throw analysisFailure(e);
+      }
       LOG.debug(
         "Skipping the start of the bridge server " +
           "as it failed to start during the first analysis or it's not answering anymore"
@@ -199,12 +202,16 @@ public class WebSensor implements ProjectSensor {
         e
       );
     } catch (Exception e) {
-      LOG.error("Failure during analysis", e);
-      throw new IllegalStateException("Analysis of " + LANG + " files failed", e);
+      throw analysisFailure(e);
     } finally {
       moduleConfiguration.clear();
       CacheStrategies.logReport();
     }
+  }
+
+  private static IllegalStateException analysisFailure(Exception e) {
+    LOG.error("Failure during analysis", e);
+    return new IllegalStateException("Analysis of " + LANG + " files failed", e);
   }
 
   private JsTsContext<SensorContext> contextWithCollectedTsConfigPaths(

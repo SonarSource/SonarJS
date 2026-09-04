@@ -471,6 +471,7 @@ class BridgeServerImplTest {
     clearInvocations(bridgeServerMock);
 
     doReturn("60000").when(bridgeServerMock).getExistingNodeProcessPort();
+    assertThat(bridgeServerMock.isExternalNodeProcessConfigured()).isTrue();
     doReturn(true).when(bridgeServerMock).waitChannelReady(startupTimeoutMillis);
     doReturn(true).when(bridgeServerMock).isAlive();
     bridgeServerMock.startServerLazily(serverConfig);
