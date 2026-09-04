@@ -874,31 +874,6 @@ Also note: `install_args_hash` already differentiates jobs with different `insta
 
 Being _in_ the hash isn't sufficient on its own, though — the hash is over `mise.toml`'s _text_, not the version mise actually resolves at runtime. A fuzzy spec like `node = "24.11"` has the same declared text before and after a new `24.11.x` patch ships, so the skip-cache key wouldn't change even though the Node runtime under test would. That's why `node` is pinned to an exact version (`24.11.1`) above rather than left fuzzy like `java`/`maven`: `java`/`maven`'s exact patch doesn't affect `test_js`'s behavior (that job never touches Maven, and Java only matters to Maven-based jobs, which have no equivalent skip-cache), but Node's does, so Node's declared and resolved versions have to be the same value at all times. See [Why Node is pinned exactly, and every other version is a fuzzy minor spec](#why-node-is-pinned-exactly-and-every-other-version-is-a-fuzzy-minor-spec) below.
 
-### The one workflow that only conditionally needs an inline `mise_toml`
-
-[`sqaa-release.yml`](../.github/workflows/sqaa-release.yml) is `workflow_call`-only and checks out `ref: ${{ inputs.ref }}` — a ref supplied by its callers (`automated-release.yml` passes `refs/tags/<version>`, `docker-sqaa.yml` passes `${{ inputs.branch || github.ref }}`) that is **decoupled** from the workflow file's own ref. That checkout can land on a tag or branch that predates `mise.toml`.
-
-Rather than keep a hand-maintained inline block that has to be updated every time `mise.toml` changes (an early version of this section documented exactly that approach, and it already drifted once within this same PR), the workflow instead checks whether the _checked-out ref_ has its own `mise.toml` and only falls back to a hardcoded snapshot when it genuinely doesn't:
-
-```yaml
-- name: Fall back to a pinned toolchain only if the checked-out ref predates mise.toml
-  id: mise-fallback
-  run: |
-    if [ -f mise.toml ]; then
-      echo "toml=" >> "$GITHUB_OUTPUT"
-    else
-      { echo "toml<<MISE_TOML_EOF"; echo '[tools]'; echo 'java = "21.0"'; echo 'maven = "3.9"'; echo 'node = "24.11.1"'; echo "MISE_TOML_EOF"; } >> "$GITHUB_OUTPUT"
-    fi
-
-- uses: jdx/mise-action@...
-  with:
-    mise_toml: ${{ steps.mise-fallback.outputs.toml }}
-```
-
-An empty `mise_toml` input is falsy, so `mise-action` skips writing it and just reads whatever `mise.toml` the checkout brought with it — no drift possible for any ref recent enough to have the file. The hardcoded fallback only ever applies to refs old enough to predate `mise.toml` entirely, so it's a frozen historical snapshot, not something that needs to track future bumps.
-
-No other workflow needs any of this. In particular, [`release_eslint_plugin.yml`](../.github/workflows/release_eslint_plugin.yml) looks superficially similar (it's also a manually-triggered release workflow) but is _not_ exposed: it is `workflow_dispatch`-only with no `ref` input, and its checkout takes no `ref:` either, so the workflow file and the checked-out tree always come from the same commit — dispatching an old ref just runs _that ref's own_ copy of the file. Don't add a `mise_toml` block back there.
-
 ### Why Node is pinned exactly, and every other version is a fuzzy minor spec
 
 `mise.toml` uses `java = "21.0"` and `maven = "3.9"` — minor-precision fuzzy specs — but pins `node = "24.11.1"` to an exact patch. This isn't an inconsistency; each is deliberate, for different reasons:
