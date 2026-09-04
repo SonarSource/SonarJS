@@ -1057,13 +1057,12 @@ jobs:
         name: Checkout source code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # Required by the ruling bot to inspect the synthetic PR merge commit's parents.
           fetch-depth: 2
           submodules: true
       - *mise
       - *npm_cache
       - *download_rspec_rule_data
-      - name: Test ruling bot
-        run: node --test .github/actions/ruling_bot/*.test.mjs
       - name: Run JS/TS Ruling
         id: ruling
         run: |

@@ -678,7 +678,7 @@ Important details:
 
 Responsibilities:
 
-- checkout with submodules
+- checkout with submodules and preserve the synthetic PR merge parents required by the ruling bot
 - restore `node_modules`
 - download refreshed RSPEC data
 - run JS/TS ruling

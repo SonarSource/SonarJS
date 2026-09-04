@@ -107,7 +107,16 @@ write_summary() {
 
 git fetch origin "$BASE_REF"
 
-REPORT_BASE_SHA="$(bash "$ACTION_PATH/resolve-report-base.sh" "$IS_PULL_REQUEST")"
+REPORT_BASE_SHA=""
+if [ "$IS_PULL_REQUEST" = "true" ]; then
+  # Pull request workflows test GitHub's synthetic merge commit. Its first parent
+  # is the exact base tree included in the analysis, even if the base branch moves.
+  if ! REPORT_BASE_SHA="$(git rev-parse --verify 'HEAD^1^{commit}' 2>/dev/null)" ||
+    ! git rev-parse --verify 'HEAD^2^{commit}' >/dev/null 2>&1; then
+    echo "::error::The ruling bot expected a synthetic merge commit with both parents available. Ensure the checkout fetch depth is at least 2." >&2
+    exit 1
+  fi
+fi
 
 if [ -n "$REPORT_BASE_SHA" ]; then
   echo "Using ruling report base SHA: $REPORT_BASE_SHA"
