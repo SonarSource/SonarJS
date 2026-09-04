@@ -910,6 +910,24 @@ describe('RxJS marble testing with types', () => {
 });
 `,
         },
+        {
+          code: `
+declare function expectAsync<T>(promise: Promise<T>): {
+  toBeResolved: () => Promise<void>;
+  not: { toBeResolved: () => Promise<void> };
+};
+
+describe('Jasmine async matchers', () => {
+  it('should recognize expectAsync as an assertion', async () => {
+    await expectAsync(Promise.resolve(1)).toBeResolved();
+  });
+
+  it('should recognize chained not.toBeResolved', async () => {
+    await expectAsync(Promise.reject(1)).not.toBeResolved();
+  });
+});
+`,
+        },
         // expectTypeOf in TypeScript
         {
           code: `
