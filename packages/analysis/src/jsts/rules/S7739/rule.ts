@@ -22,7 +22,7 @@ import { rules } from '../external/unicorn.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
-import { isIdentifier } from '../helpers/ast.js';
+import { isIdentifier, isStringLiteral } from '../helpers/ast.js';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 import * as meta from './generated-meta.js';
 
@@ -387,9 +387,9 @@ function isThenMemberKey(member: Node & { computed?: boolean; key?: Node }, node
     return false;
   }
   if (!member.computed) {
-    return isIdentifier(node, 'then') || (node.type === 'Literal' && node.value === 'then');
+    return isIdentifier(node, 'then') || (isStringLiteral(node) && node.value === 'then');
   }
-  return node.type === 'Literal' && node.value === 'then';
+  return isStringLiteral(node) && node.value === 'then';
 }
 
 /**
@@ -421,10 +421,23 @@ function isClassThenMethodWithThenableContract(context: Rule.RuleContext, node: 
     return false;
   }
 
-  return (
-    hasJSDocThenableContract(context, containingClass) ||
-    hasTypeScriptThenableContract(context, containingClass)
-  );
+  return hasExplicitThenableContract(context, containingClass);
+}
+
+// Caches the explicit-thenable-contract check per class, since a class can have more than
+// one 'then'-named member (e.g. a shadowed field) and the JSDoc/heritage-clause lookup is
+// otherwise redone from scratch for each one.
+const thenableContractCache = new WeakMap<Node, boolean>();
+
+function hasExplicitThenableContract(context: Rule.RuleContext, classNode: Node): boolean {
+  const cached = thenableContractCache.get(classNode);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const result =
+    hasJSDocThenableContract(context, classNode) || hasTypeScriptThenableContract(context, classNode);
+  thenableContractCache.set(classNode, result);
+  return result;
 }
 
 /**
@@ -462,7 +475,15 @@ const IMPLEMENTS_TAG_PATTERN = /@implements\s*\{([^}]*)\}/;
 function hasImplementsThenableContract(comment: string): boolean {
   return comment.split(/\r?\n/).some(line => {
     const match = IMPLEMENTS_TAG_PATTERN.exec(line);
-    return match !== null && THENABLE_CONTRACT_PATTERN.test(match[1]);
+    if (match === null) {
+      return false;
+    }
+    // Test only the named type, not its type arguments, so a class implementing an
+    // unrelated interface merely parameterized by a thenable type (e.g.
+    // `@implements {Cache<PromiseLike<Data>>}`) isn't mistaken for an explicit contract —
+    // mirrors hasTypeScriptThenableContract's exclusion of heritage-clause type arguments.
+    const typeName = match[1].split('<')[0].trim();
+    return THENABLE_CONTRACT_PATTERN.test(typeName);
   });
 }
 

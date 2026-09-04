@@ -548,6 +548,21 @@ describe('S7739', () => {
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
         },
+        // True Positive: the named JSDoc type is unrelated; it is merely parameterized by
+        // a thenable type. The contract match must not look inside type arguments.
+        {
+          code: `
+          /** @implements {Cache<PromiseLike<string>>} */
+          class Store {
+            then(callback) {
+              this.callback = callback;
+              return this;
+            }
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
       ],
     });
   });
