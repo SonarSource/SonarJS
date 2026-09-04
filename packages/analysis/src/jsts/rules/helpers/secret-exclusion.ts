@@ -18,16 +18,33 @@ import secretPatterns from '@sonarsource/analyzer-commons-configurations/secret-
 
 const { exactMatchGroups, patternGroups } = secretPatterns;
 
-const compiledPatterns = patternGroups.flatMap(group =>
-  group.patterns.flatMap(pattern => {
+const compiled: RegExp[] = [];
+const unsupported: string[] = [];
+
+for (const group of patternGroups) {
+  for (const pattern of group.patterns) {
     try {
-      return [new RegExp(pattern, 'i')];
+      compiled.push(new RegExp(pattern, 'i'));
     } catch {
-      // Skip patterns using regex syntax unsupported by the JS engine.
-      return [];
+      // Patterns using regex syntax unsupported by the JS engine.
+      unsupported.push(pattern);
     }
-  }),
-);
+  }
+}
+
+/**
+ * The upstream patterns this engine could compile. Exported so that tests can check every one of
+ * them against the corpus shipped alongside the patterns.
+ */
+export const compiledPatterns: readonly RegExp[] = compiled;
+
+/**
+ * The upstream patterns this engine could not compile, and which therefore exclude nothing at
+ * analysis time. Dropping one is never expected: it turns values upstream considers non-sensitive
+ * back into reported hardcoded secrets. We keep analysis running rather than failing at load time,
+ * and let the test suite fail on a non-empty list.
+ */
+export const unsupportedPatterns: readonly string[] = unsupported;
 
 const exactMatchValues = new Set(
   exactMatchGroups.flatMap(group => group.values.map(value => value.toLowerCase())),

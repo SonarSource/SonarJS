@@ -16,47 +16,66 @@
  */
 import { test, describe } from 'node:test';
 import assert from 'node:assert';
-import { isExcludedSecretValue } from '../../../../src/jsts/rules/helpers/secret-exclusion.js';
+import corpus from '@sonarsource/analyzer-commons-configurations/secret-exclusion-corpus.json' with { type: 'json' };
+import {
+  compiledPatterns,
+  isExcludedSecretValue,
+  unsupportedPatterns,
+} from '../../../../src/jsts/rules/helpers/secret-exclusion.js';
+
+/**
+ * The corpus ships with the patterns it validates, so these tests compare this engine against the
+ * upstream JVM implementation: `knownNonSecrets` are the values the patterns must suppress, and
+ * `secretCandidates` the values they must leave alone. The `category` of a known non-secret records
+ * which group suppresses it upstream, where matching is first-match-wins; it is informational, so
+ * nothing here asserts on it.
+ */
+const { knownNonSecrets, secretCandidates } = corpus;
+
+describe('secret exclusion patterns', () => {
+  test('the corpus is populated, so the checks below are not vacuous', () => {
+    assert.ok(knownNonSecrets.length > 0, 'corpus declares no known non-secrets');
+    assert.ok(secretCandidates.length > 0, 'corpus declares no secret candidates');
+    assert.ok(compiledPatterns.length > 0, 'no upstream pattern was compiled');
+  });
+
+  test('every upstream pattern compiles in this engine', () => {
+    assert.deepStrictEqual(
+      unsupportedPatterns,
+      [],
+      'patterns rejected by the JS engine exclude nothing, so the values they cover get reported as hardcoded secrets',
+    );
+  });
+
+  test('every compiled pattern is exercised by the corpus', () => {
+    const unexercised = compiledPatterns
+      .filter(pattern => !knownNonSecrets.some(({ value }) => pattern.test(value)))
+      .map(pattern => pattern.source);
+
+    assert.deepStrictEqual(
+      unexercised,
+      [],
+      'upstream guarantees each pattern matches at least one known non-secret, so these behave differently here than on the JVM',
+    );
+  });
+});
 
 describe('isExcludedSecretValue', () => {
-  test('excludes exact-match placeholder values regardless of case', () => {
-    assert.strictEqual(isExcludedSecretValue('changeit'), true);
-    assert.strictEqual(isExcludedSecretValue('CHANGEIT'), true);
-    assert.strictEqual(isExcludedSecretValue('Token'), true);
-    assert.strictEqual(isExcludedSecretValue('hunter2'), true);
+  test('excludes every known non-secret', () => {
+    const reported = knownNonSecrets
+      .map(({ value }) => value)
+      .filter(value => !isExcludedSecretValue(value));
+
+    assert.deepStrictEqual(
+      reported,
+      [],
+      'these non-secrets would be reported as hardcoded secrets',
+    );
   });
 
-  test('excludes fake-looking values', () => {
-    assert.strictEqual(isExcludedSecretValue('short'), true);
-    assert.strictEqual(isExcludedSecretValue('sample-value-here'), true);
-    assert.strictEqual(isExcludedSecretValue('yourApiKey'), true);
-    assert.strictEqual(isExcludedSecretValue('wwww'), true);
-    assert.strictEqual(isExcludedSecretValue('aaaaaaaaaa'), true);
-    assert.strictEqual(isExcludedSecretValue('some...value'), true);
-  });
+  test('excludes no secret candidate', () => {
+    const suppressed = secretCandidates.filter(value => isExcludedSecretValue(value));
 
-  test('excludes placeholder-shaped values', () => {
-    assert.strictEqual(isExcludedSecretValue('${HMAC_KEY}'), true);
-    assert.strictEqual(isExcludedSecretValue('<your-secret-here>'), true);
-    assert.strictEqual(isExcludedSecretValue('%SECRET_ENV_VAR%'), true);
-    assert.strictEqual(isExcludedSecretValue('process.env.SECRET'), true);
-  });
-
-  test('excludes encrypted-looking values', () => {
-    assert.strictEqual(isExcludedSecretValue('{cipher}QJ8fGXwPz'), true);
-    assert.strictEqual(isExcludedSecretValue('enc[QJ8fGXwPz]'), true);
-  });
-
-  test('excludes reference-shaped values', () => {
-    assert.strictEqual(isExcludedSecretValue('arn:aws:secretsmanager:us-east-1:1234'), true);
-    assert.strictEqual(isExcludedSecretValue('vault[secret/data]'), true);
-  });
-
-  test('excludes structured-format values such as semantic versions', () => {
-    assert.strictEqual(isExcludedSecretValue('1.2.3'), true);
-  });
-
-  test('does not exclude values that look like real hardcoded secrets', () => {
-    assert.strictEqual(isExcludedSecretValue('zQ9mPfXtRk3wDbnJhKp2LmQaWz'), false);
+    assert.deepStrictEqual(suppressed, [], 'these real-looking secrets would be silently hidden');
   });
 });
