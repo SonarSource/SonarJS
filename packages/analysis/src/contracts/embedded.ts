@@ -36,5 +36,18 @@ export type EmbeddedJS = {
   format: 'PLAIN' | 'BLOCK_FOLDED' | 'BLOCK_LITERAL';
   extras: {
     resourceName?: string;
+    /**
+     * For a snippet extracted from an inline HTML `<script>` block, the kind of script it is.
+     * Left undefined for snippets extracted from other host formats (YAML, ...).
+     *
+     * All classic (non-module) `<script>` blocks of the same HTML document share one global
+     * lexical/variable environment, so their top-level declarations are visible to each other.
+     * A `module` block has its own isolated module scope: it contributes nothing to that shared
+     * environment, but its free identifiers still resolve through it.
+     *
+     * `defer` and `async` have no effect on inline scripts (they only apply to scripts with a
+     * `src` attribute, which are not extracted at all), so they do not affect this classification.
+     */
+    scriptKind?: 'classic' | 'module';
   };
 };

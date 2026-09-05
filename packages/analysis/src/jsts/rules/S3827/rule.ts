@@ -39,6 +39,12 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const excludedNames = new Set();
     const undeclaredIdentifiersByName: Map<string, estree.Identifier[]> = new Map();
+    /**
+     * Names bound by the other <script> blocks sharing the global scope of the same HTML page,
+     * which are analyzed as separate snippets and hence invisible to this snippet's scope analysis.
+     */
+    const { precedingScriptGlobals } = context.settings as { precedingScriptGlobals?: string[] };
+    const sharedGlobals = new Set(precedingScriptGlobals);
     return {
       'Program:exit'(node: estree.Node) {
         excludedNames.clear();
@@ -46,7 +52,7 @@ export const rule: Rule.RuleModule = {
         const globalScope = context.sourceCode.getScope(node);
         for (const ref of globalScope.through) {
           const identifier = ref.identifier;
-          if (excludedNames.has(identifier.name)) {
+          if (excludedNames.has(identifier.name) || sharedGlobals.has(identifier.name)) {
             continue;
           }
           if (
