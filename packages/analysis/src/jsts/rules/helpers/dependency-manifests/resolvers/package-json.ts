@@ -40,6 +40,8 @@ export const packageJsonManifestResolver: ManifestResolver = {
       return [];
     }
     let parsedPackageJson = parsePackageJson(packageJson) ?? {};
+    // Captured before the pnpm injection below, which would otherwise fake a workspace root.
+    const isWorkspaceRoot = !!parsedPackageJson.workspaces;
     const pnpmWorkspaceFile = closestPatternCache
       .get(PNPM_WORKSPACE_YAML, fileSystem)
       .get(topDir)
@@ -52,9 +54,11 @@ export const packageJsonManifestResolver: ManifestResolver = {
       parsedPackageJson = injectWorkspacePackages(parsedPackageJson, parsedPnpmWorkspace);
     }
 
-    // Bun only reads catalogs from the workspace root, so a parent package.json with catalogs
-    // wins; the current one may serve its own catalogs only when no such parent exists.
-    const closestParent = findClosestParentPackageJsonWithCatalogs(dir, topDir, fileSystem);
+    // Bun only reads catalogs from the workspace root: a package.json declaring `workspaces` is
+    // itself a root, otherwise the closest parent package.json with catalogs is the root.
+    const closestParent = isWorkspaceRoot
+      ? undefined
+      : findClosestParentPackageJsonWithCatalogs(dir, topDir, fileSystem);
     let catalogSource = closestParent
       ? getCatalogSource(closestParent)
       : getCatalogSource(parsedPackageJson);

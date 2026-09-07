@@ -468,6 +468,56 @@ describe('files', () => {
     );
   });
 
+  describe('nested workspace root under an ancestor that declares catalogs', () => {
+    const fixture = 'bun-nested-workspace-root-under-ancestor-catalog';
+
+    it('should let the nested workspace root serve its own catalog', async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const subDir = normalizeToAbsolutePath(join(baseDir, 'sub'));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(subDir, baseDir);
+      expect(manifests[0].dependencies).toEqual(
+        new Map<string | Minimatch, string | undefined>([
+          ['sub-root', '*'],
+          ['react', '^18.0.0'],
+          [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
+        ]),
+      );
+    });
+
+    it('should resolve a member of the nested workspace root from that root catalog', async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const appDir = normalizeToAbsolutePath(join(baseDir, 'sub/packages/my-app'));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(appDir, baseDir);
+      expect(manifests[0].dependencies).toEqual(
+        new Map([
+          ['my-app', '*'],
+          ['react', '^18.0.0'],
+        ]),
+      );
+    });
+
+    it('should still resolve a plain member from the ancestor catalog', async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const memberDir = normalizeToAbsolutePath(join(baseDir, 'plain-member'));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(memberDir, baseDir);
+      expect(manifests[0].dependencies).toEqual(
+        new Map([
+          ['plain-member', '*'],
+          ['react', '^17.0.0'],
+        ]),
+      );
+    });
+  });
+
   it('should prefer the catalog of the current package.json over the pnpm workspace catalog', async () => {
     const baseDir = normalizeToAbsolutePath(
       join(fixtures, 'bun-workspace-own-catalog-over-pnpm-workspace'),
