@@ -399,6 +399,8 @@ export function getShouldIgnoreParams(configuration: Configuration): FilterFileP
  */
 
 export interface FilterPathParams {
+  /** project base directory (sonar.projectBaseDir); bounds the upward Angular-manifest lookup */
+  baseDir: NormalizedAbsolutePath;
   /** sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */
   jsTsExclusions: Minimatch[];
   /** sonar.sources - absolute paths to look for files */
@@ -426,6 +428,7 @@ export interface FilterPathParams {
  */
 export function getFilterPathParams(configuration: Configuration): FilterPathParams {
   return {
+    baseDir: configuration.baseDir,
     jsTsExclusions: configuration.jsTsExclusions,
     sourcesPaths:
       configuration.sources.length > 0 ? configuration.sources : [configuration.baseDir],

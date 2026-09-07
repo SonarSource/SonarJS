@@ -32,11 +32,7 @@ import {
   isTrustedDocumentBinding,
   isTrustedJQueryBinding,
 } from './false-positives/trusted-dom-bindings.js';
-import {
-  getVariableFromName,
-  getVariableFromScope,
-  isIdentifier,
-} from '../helpers/ast.js';
+import { getVariableFromName, getVariableFromScope, isIdentifier } from '../helpers/ast.js';
 import { getSignatureFromCallee, getTypeFromTreeNode } from '../helpers/type.js';
 import {
   type RequiredParserServices,

@@ -19,7 +19,11 @@ import { type NormalizedAbsolutePath } from '../../../../shared/src/helpers/file
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { FileType } from '../../contracts/file.js';
 import { type FilterPathParams } from '../configuration.js';
-import { isTestRelatedFile } from '../../jsts/rules/helpers/test-file-pattern.js';
+import {
+  isAngularEnvironmentConfigFileCandidate,
+  isTestRelatedFile,
+} from '../../jsts/rules/helpers/test-file-pattern.js';
+import { isAngularProject } from '../../jsts/rules/helpers/dependency-manifests/dependencies.js';
 
 /**
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
@@ -121,7 +125,7 @@ function matchesTestFileHeuristic(
   filePath: NormalizedAbsolutePath,
   params: FilterPathParams,
 ): boolean {
-  const { testPaths, inclusions, sourcesPaths, testFileExtensions } = params;
+  const { baseDir, testPaths, inclusions, sourcesPaths, testFileExtensions } = params;
   if (testPaths.length) {
     return false;
   }
@@ -135,7 +139,25 @@ function matchesTestFileHeuristic(
   ) {
     return false;
   }
-  return isTestRelatedFile(filePath, testFileExtensions);
+
+  if (!isTestRelatedFile(filePath, testFileExtensions)) {
+    return false;
+  }
+
+  // Angular environment-config candidates can match the filename heuristic by coincidence.
+  // When `@angular/core` is visible to the file, keep them MAIN for rule selection so test-scoped
+  // rules do not run. This affects only rule selection; the scanner/path-derived file type used
+  // for metrics is unchanged. The Angular check is gated by the cheap path predicate, and the
+  // underlying manifest lookup is cached.
+  if (
+    isAngularEnvironmentConfigFileCandidate(filePath) &&
+    fileIsUnder(filePath, [baseDir]) &&
+    isAngularProject(filePath, baseDir)
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 function matchesMainPath(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {

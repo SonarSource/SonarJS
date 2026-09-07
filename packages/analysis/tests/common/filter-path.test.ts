@@ -326,4 +326,71 @@ describe('filter path', () => {
       expect(result).toBe('TEST');
     });
   });
+
+  // JS-2311: When sonar.tests is not configured, Angular environment-config filenames can match
+  // the test-file heuristic by coincidence. If `@angular/core` is visible to the file, keep these
+  // candidates MAIN for rule selection. The scanner/path-derived file type used for metrics is
+  // unchanged; non-Angular candidates continue through the normal test-file heuristic.
+  describe('Angular environment-config carve-out (rule-selection heuristic)', () => {
+    const commonDir = normalizeToAbsolutePath(import.meta.dirname);
+    const angularBaseDir = `${commonDir}/fixtures/angular-project`;
+    const nonAngularBaseDir = `${commonDir}/fixtures/non-angular-project`;
+
+    it('keeps an Angular environments/environment.test.ts as MAIN for rule selection', () => {
+      const filePath = normalizeToAbsolutePath(
+        `${angularBaseDir}/src/environments/environment.test.ts`,
+      );
+      const config = createConfiguration({ baseDir: angularBaseDir });
+      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
+      expect(result).toBe('MAIN');
+    });
+
+    it('carves out the spec / cy / e2e / mock environment markers too', () => {
+      const config = createConfiguration({ baseDir: angularBaseDir });
+      for (const marker of ['spec', 'cy', 'e2e', 'mock']) {
+        const filePath = normalizeToAbsolutePath(
+          `${angularBaseDir}/src/environments/environment.${marker}.ts`,
+        );
+        const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
+        expect(result).toBe('MAIN');
+      }
+    });
+
+    it('promotes environments/environment.test.ts to TEST in a non-Angular project', () => {
+      const filePath = normalizeToAbsolutePath(
+        `${nonAngularBaseDir}/src/environments/environment.test.ts`,
+      );
+      const config = createConfiguration({ baseDir: nonAngularBaseDir });
+      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
+
+    it('still promotes a real colocated test in an Angular project to TEST', () => {
+      // The carve-out is scoped to the environments/ folder; ordinary test files stay TEST.
+      const filePath = normalizeToAbsolutePath(`${angularBaseDir}/src/app/app.component.spec.ts`);
+      const config = createConfiguration({ baseDir: angularBaseDir });
+      const result = getFileTypeForRules(filePath, 'MAIN', getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
+
+    it('leaves the base/metrics file type of the Angular env config as MAIN', () => {
+      // The carve-out lives in the rule-selection heuristic only; base classification is unchanged.
+      const filePath = normalizeToAbsolutePath(
+        `${angularBaseDir}/src/environments/environment.test.ts`,
+      );
+      const config = createConfiguration({ baseDir: angularBaseDir });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('MAIN');
+    });
+
+    it('preserves an existing TEST classification over the Angular carve-out', () => {
+      // An upstream TEST classification takes precedence over the filename heuristic.
+      const filePath = normalizeToAbsolutePath(
+        `${angularBaseDir}/src/environments/environment.test.ts`,
+      );
+      const config = createConfiguration({ baseDir: angularBaseDir });
+      const result = getFileTypeForRules(filePath, 'TEST', getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
+  });
 });
