@@ -266,9 +266,7 @@ function declaresWorkspaceDir(
   const relativeDir = dir.slice(ancestorDir.length + 1);
   const normalizedPatterns = patterns.map(pattern => {
     const isExclusion = pattern.startsWith('!');
-    const workspacePattern = (isExclusion ? pattern.slice(1) : pattern)
-      .replace(/^\.\//, '')
-      .replace(/\/+$/, '');
+    const workspacePattern = normalizeWorkspacePattern(isExclusion ? pattern.slice(1) : pattern);
     return { isExclusion, workspacePattern };
   });
   const matches = (workspacePattern: string) =>
@@ -282,6 +280,14 @@ function declaresWorkspaceDir(
       ({ isExclusion, workspacePattern }) => isExclusion && matches(workspacePattern),
     )
   );
+}
+
+function normalizeWorkspacePattern(pattern: string): string {
+  let normalizedPattern = pattern.startsWith('./') ? pattern.slice(2) : pattern;
+  while (normalizedPattern.endsWith('/')) {
+    normalizedPattern = normalizedPattern.slice(0, -1);
+  }
+  return normalizedPattern;
 }
 
 function hasCatalogs(packageJson: ExtendedPackageJson): boolean {
