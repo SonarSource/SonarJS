@@ -54,8 +54,12 @@ const INSECURE_PROTOCOLS = Object.keys(CLEARTEXT_PROTOCOL_ALTERNATIVES).map(s =>
 const SAFE_HOSTS =
   /(?:^localhost|^127(?:\.\d+){1,3}|^\[(?:0*:){7}:?0*1]|^\[::1]|^169\.254\.\d+\.\d+|^\[fd00:ec2::254]|^168\.63\.129\.16|^100\.100\.100\.200|^metadata\.google\.internal|^metadata\.internal|^host\.docker\.internal|^gateway\.docker\.internal|\.svc\.cluster\.local)(?=:|$)/i;
 
+// A plain string exempts the whole host; `{ host, pathPrefix }` exempts only the paths
+// reserved for namespace identifiers, so that real endpoints on the same host stay reported.
+type NamespaceAuthority = string | { host: string; pathPrefix: string };
+
 // Namespace / spec-mandated identifier URI authorities — port of CleartextProtocolFilter.NAMESPACE_URI_AUTHORITIES, extended with pre-existing sonar-js exceptions
-const NAMESPACE_URI_AUTHORITIES = [
+const NAMESPACE_URI_AUTHORITIES: NamespaceAuthority[] = [
   'www.w3.org',
   'schemas.android.com',
   'schemas.microsoft.com',
@@ -86,7 +90,10 @@ const NAMESPACE_URI_AUTHORITIES = [
   'cyclonedx.org',
   'snomed.info',
   'adlnet.gov',
-  'jabber.org',
+  // jabber.org is also a live public XMPP server, not just a namespace string — only exempt its
+  // well-known XEP namespaces (all registered under /protocol/); anything else on this host,
+  // e.g. the BOSH endpoint http://jabber.org/http-bind, is a real cleartext network target.
+  { host: 'jabber.org', pathPrefix: '/protocol/' },
   'etherx.jabber.org',
 ];
 
@@ -265,10 +272,14 @@ function getMessageAndData(protocol: string) {
 
 function hasExceptionHost(value: string) {
   let host: string;
+  // Left undefined when only the lenient fallback could extract the authority: path-scoped
+  // authorities then fail closed rather than being exempted on an unknown path.
+  let pathname: string | undefined;
 
   try {
     const url = new URL(value);
     host = url.hostname;
+    pathname = url.pathname;
     if (host.length === 0) {
       return false;
     }
@@ -282,17 +293,25 @@ function hasExceptionHost(value: string) {
     host = match[1];
   }
 
-  return isSafeHost(host);
+  return isSafeHost(host, pathname);
 }
 
-function isSafeHost(host: string) {
+function isSafeHost(host: string, pathname: string | undefined) {
   return (
     SAFE_HOSTS.test(host) ||
-    NAMESPACE_URI_AUTHORITIES.some(authority => isNamespaceAuthority(host, authority)) ||
+    NAMESPACE_URI_AUTHORITIES.some(entry => isNamespaceAuthority(host, pathname, entry)) ||
     DOCUMENTATION_HOSTS.test(host)
   );
 }
 
-function isNamespaceAuthority(host: string, authority: string) {
-  return host === authority || host.startsWith(`${authority}:`);
+function isNamespaceAuthority(
+  host: string,
+  pathname: string | undefined,
+  entry: NamespaceAuthority,
+) {
+  const authority = typeof entry === 'string' ? entry : entry.host;
+  if (host !== authority && !host.startsWith(`${authority}:`)) {
+    return false;
+  }
+  return typeof entry === 'string' || pathname?.startsWith(entry.pathPrefix) === true;
 }

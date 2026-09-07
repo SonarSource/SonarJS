@@ -254,6 +254,16 @@ describe('S5332', () => {
         url = 'http://etherx.jabber.org/streams';
       `,
         },
+        {
+          // Namespace authorities carrying a port: only reachable through the lenient fallback,
+          // since a template placeholder makes strict URL parsing fail. Host matching is
+          // case-insensitive there too, as the literal is lower-cased before the lookup.
+          code: `
+        url = "http://cyclonedx.org:\${port}/schema/bom-1.5.schema.json";
+        url = "HTTP://CYCLONEDX.ORG:\${port}/schema/bom-1.5.schema.json";
+        url = "http://www.w3.org:\${port}/2001/XMLSchema";
+      `,
+        },
       ],
       invalid: [
         {
@@ -373,6 +383,18 @@ describe('S5332', () => {
       url = "http://etherx.jabber.org.evil.com/streams";
       `,
           errors: 11,
+        },
+        {
+          code: `
+      // jabber.org is a live public XMPP server: only its /protocol/ XEP namespaces are exempt,
+      // real endpoints on that host stay reported
+      url = "http://jabber.org/http-bind";
+      url = "http://jabber.org:5280/http-bind";
+      url = "http://jabber.org";
+      // the lenient fallback cannot see the path, so a path-scoped authority fails closed
+      url = "http://jabber.org:\${port}/protocol/muc";
+      `,
+          errors: 4,
         },
         {
           code: `
