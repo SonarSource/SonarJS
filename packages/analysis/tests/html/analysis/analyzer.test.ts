@@ -368,13 +368,13 @@ describe('analyzeHTML', () => {
         ).toEqual([]);
       });
 
-      it('should still flag a write from an "async" "type=module" script block to a "let" declared in a later classic script block, since "async" modules are not deferred', async () => {
+      it('should not flag a write from an "async" "type=module" script block to a "let" declared in a later classic script block, since a module block never evaluates synchronously in document order', async () => {
         expect(
           await analyzeFixtureWithRule(
             'S2703',
-            'async-module-script-not-shared-with-later-classic.html',
+            'async-module-script-shares-later-classic-globals.html',
           ),
-        ).toEqual([expect.objectContaining({ ruleId: 'S2703', message: implicitGlobalMessage })]);
+        ).toEqual([]);
       });
 
       it('should not flag a write relying on a "let" declared in a "defer" script block, since "defer" has no effect on inline scripts', async () => {

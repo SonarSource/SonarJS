@@ -60,7 +60,7 @@ export function parseHTML(code: string): EmbeddedJS[] {
   let scriptKind: NonNullable<EmbeddedJS['extras']['scriptKind']>;
 
   const parser = new htmlparser.Parser({
-    onopentag(name: string, attrs: { src: string; type?: string; async?: string }) {
+    onopentag(name: string, attrs: { src: string; type?: string }) {
       // Test if current tag is a valid <script> tag.
       if (name !== 'script') {
         return;
@@ -111,20 +111,13 @@ export function parseHTML(code: string): EmbeddedJS[] {
  * script blocks of the same document.
  *
  * A classic (non-module) script shares the page's global lexical scope with the other classic
- * scripts of the document, while a module script has its own isolated module scope. "defer" has no
- * effect without a "src" attribute, and scripts with "src" are not extracted at all, so an inline
- * classic script always runs synchronously in document order. "async" is ignored on an inline
- * classic script as well, but it is honoured on an inline module one, which then evaluates as soon
- * as it is ready instead of after the whole document has been parsed.
+ * scripts of the document, while a module script has its own isolated module scope. Only "type"
+ * matters here: "defer" has no effect without a "src" attribute, and scripts with "src" are not
+ * extracted at all, so an inline classic script always runs synchronously in document order, while
+ * an inline module one never does whether or not it carries "async".
  */
-function classifyScript(attrs: {
-  type?: string;
-  async?: string;
-}): NonNullable<EmbeddedJS['extras']['scriptKind']> {
-  if (attrs.type !== 'module') {
-    return 'classic';
-  }
-  return attrs.async === undefined ? 'module' : 'asyncModule';
+function classifyScript(attrs: { type?: string }): NonNullable<EmbeddedJS['extras']['scriptKind']> {
+  return attrs.type === 'module' ? 'module' : 'classic';
 }
 
 function computeLine(offset: number, fileLineStarts: number[]) {

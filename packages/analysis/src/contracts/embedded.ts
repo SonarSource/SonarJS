@@ -45,13 +45,12 @@ export type EmbeddedJS = {
      * A module block has its own isolated module scope: it contributes nothing to that shared
      * environment, but its free identifiers still resolve through it.
      *
-     * `defer` has no effect on an inline script (it only applies to scripts with a `src`
-     * attribute, which are not extracted at all), so it never affects this classification.
-     * `async` is ignored on an inline classic script too, but it *is* honoured on an inline
-     * module one, which then evaluates as soon as it is ready instead of being deferred until
-     * the document has been parsed. `asyncModule` distinguishes that case, since such a block can
-     * run before the classic blocks that follow it.
+     * Neither `defer` nor `async` affects this classification. `defer` has no effect on an inline
+     * script at all (it only applies to scripts with a `src` attribute, which are not extracted),
+     * and `async` — ignored on an inline classic script, honoured on an inline module one — only
+     * changes *when* a module block evaluates, never the fact that it evaluates off the parsing
+     * task rather than synchronously in document order.
      */
-    scriptKind?: 'classic' | 'module' | 'asyncModule';
+    scriptKind?: 'classic' | 'module';
   };
 };

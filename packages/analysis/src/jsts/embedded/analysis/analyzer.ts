@@ -66,6 +66,10 @@ export async function analyzeEmbedded(
   // declared by another one is not an implicit global. "defer" and "async" do not exclude a classic
   // block from that shared environment, since neither has any effect on an inline classic script.
   // A module block has an isolated module scope and therefore contributes nothing.
+  //
+  // Only snippets that `build` kept are seen here: a block rejected as minified-looking
+  // (see `acceptSnippet`) contributes no name, so a hand-written block relying on a global that a
+  // minified inline block declares is still reported.
   const contributedNamesPerSnippet = extendedParseResults.map(extendedParseResult =>
     extendedParseResult.scriptKind === 'classic'
       ? collectTopLevelBindingNames(
@@ -74,8 +78,8 @@ export async function analyzeEmbedded(
         )
       : [],
   );
-  // A module script without "async" is deferred, so it runs after every inline classic block of
-  // the document and sees the names of all of them, whatever the source order.
+  // A module script never runs synchronously at its position in the document, so it sees the names
+  // of every inline classic block, whatever the source order.
   const allClassicNames = new Set(contributedNamesPerSnippet.flat());
   // Names a classic block can see: only those contributed by strictly preceding classic blocks.
   const precedingClassicNames = new Set<string>();
@@ -119,9 +123,14 @@ export async function analyzeEmbedded(
  * Returns the shared global scope names visible to a snippet, given the names contributed by the
  * classic script blocks preceding it in document order and the names contributed by all of them.
  *
- * A deferred module block runs after the whole document has been parsed, hence after every classic
- * block, whatever the source order. An `async` module block evaluates as soon as it is ready, so it
- * can only rely on the classic blocks preceding it, just like a classic block does.
+ * A classic block runs synchronously at its position in the document, so it can only rely on the
+ * classic blocks preceding it.
+ *
+ * A module block sees all of them, whatever the source order: without `async` it is deferred until
+ * the document has been parsed, and with `async` it is evaluated as soon as its module graph is
+ * ready — which, fetching and linking being off the parsing task, is still after the parser has
+ * moved on. The exact point is unspecified, so the names of every classic block are assumed
+ * visible rather than risking a false positive on a name that does exist by the time it runs.
  *
  * A snippet that is not an inline HTML script (YAML, ...) has no such shared scope at all.
  */
@@ -132,7 +141,6 @@ function sharedGlobalScopeNamesFor(
 ): string[] {
   switch (scriptKind) {
     case 'classic':
-    case 'asyncModule':
       return [...precedingClassicNames];
     case 'module':
       return [...allClassicNames];
@@ -149,11 +157,14 @@ function analyzeSnippet(
     extendedParseResult,
     extendedParseResult.syntheticFilePath,
     'MAIN',
-    'CHANGED',
-    'DEFAULT',
-    'js',
-    undefined,
-    undefined,
+    // Restating `Linter.lint`'s own defaults, only to reach its `lintOptions` parameter. These are
+    // positional and all but the last two are string-literal unions, so they must be kept in sync
+    // with that signature: reordering it would silently mis-assign them here without a type error.
+    /* fileStatus */ 'CHANGED',
+    /* analysisMode */ 'DEFAULT',
+    /* language */ 'js',
+    /* detectedEsYear */ undefined,
+    /* detectedModuleType */ undefined,
     additionalSettings ? { additionalSettings } : {},
   );
   const ncloc = collectNclocLines(extendedParseResult.sourceCode);
