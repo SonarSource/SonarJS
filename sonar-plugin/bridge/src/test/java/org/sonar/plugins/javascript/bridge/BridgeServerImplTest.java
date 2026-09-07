@@ -40,6 +40,8 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FO
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
 import com.google.protobuf.ByteString;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.Status;
@@ -67,11 +69,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedStatic;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
-import org.sonar.scanner.plugin.api.impl.config.MapSettings;
-import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
@@ -93,6 +90,9 @@ import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
+import org.sonar.scanner.plugin.api.impl.config.MapSettings;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 
 class BridgeServerImplTest {
 
@@ -523,6 +523,24 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void should_log_configured_port_when_existing_node_stops_after_connection() {
+    bridgeServer = spy(createUnitBridgeServer(SHORT_STARTUP_TIMEOUT_SECONDS));
+    var bridgeServerMock = bridgeServer;
+    var startupTimeoutMillis = (int) TimeUnit.SECONDS.toMillis(SHORT_STARTUP_TIMEOUT_SECONDS);
+
+    doReturn("60000").when(bridgeServerMock).getExistingNodeProcessPort();
+    doReturn(true).when(bridgeServerMock).waitChannelReady(startupTimeoutMillis);
+    doReturn(false).when(bridgeServerMock).isAlive();
+
+    assertThatThrownBy(() -> bridgeServerMock.startServerLazily(serverConfig)).isInstanceOf(
+      ServerAlreadyFailedException.class
+    );
+    assertThat(logTester.logs(ERROR)).contains(
+      "Failed to connect to the existing Node.js process on port 60000 configured through environment variable SONARJS_EXISTING_NODE_PROCESS_PORT"
+    );
+  }
+
+  @Test
   void isAlive_should_not_require_a_lease_for_an_existing_node_process() throws Exception {
     bridgeServer = createUnitBridgeServer();
     var channel = mock(ManagedChannel.class);
@@ -628,9 +646,11 @@ class BridgeServerImplTest {
     when(handler.getRequest()).thenReturn(AnalyzeProjectRequest.getDefaultInstance());
     when(handler.getFuture()).thenReturn(future);
 
-    try (MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockStatic(
-      AnalyzeProjectServiceGrpc.class
-    )) {
+    try (
+      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockStatic(
+        AnalyzeProjectServiceGrpc.class
+      )
+    ) {
       bridgeServer.analyzeProject(handler);
 
       mockedGrpc.verifyNoInteractions();
