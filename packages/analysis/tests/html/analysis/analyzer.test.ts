@@ -341,6 +341,42 @@ describe('analyzeHTML', () => {
         ).toEqual([]);
       });
 
+      it('should not flag a write to a name destructured in an earlier classic script block', async () => {
+        expect(
+          await analyzeFixtureWithRule('S2703', 'shared-global-scope-destructuring.html'),
+        ).toEqual([]);
+      });
+
+      it('should not flag a write to a "let" declared in an earlier strict classic script block', async () => {
+        expect(
+          await analyzeFixtureWithRule('S2703', 'strict-script-shared-global-scope.html'),
+        ).toEqual([]);
+      });
+
+      it('should still flag a write relying on a "function" declared in a nested block of a strict script block, where Annex B hoisting does not apply', async () => {
+        expect(
+          await analyzeFixtureWithRule('S2703', 'strict-script-nested-function-not-shared.html'),
+        ).toEqual([expect.objectContaining({ ruleId: 'S2703', message: implicitGlobalMessage })]);
+      });
+
+      it('should not flag a write from an "async" "type=module" script block to a "let" declared in an earlier classic script block', async () => {
+        expect(
+          await analyzeFixtureWithRule(
+            'S2703',
+            'async-module-script-shares-preceding-classic-globals.html',
+          ),
+        ).toEqual([]);
+      });
+
+      it('should still flag a write from an "async" "type=module" script block to a "let" declared in a later classic script block, since "async" modules are not deferred', async () => {
+        expect(
+          await analyzeFixtureWithRule(
+            'S2703',
+            'async-module-script-not-shared-with-later-classic.html',
+          ),
+        ).toEqual([expect.objectContaining({ ruleId: 'S2703', message: implicitGlobalMessage })]);
+      });
+
       it('should not flag a write relying on a "let" declared in a "defer" script block, since "defer" has no effect on inline scripts', async () => {
         expect(await analyzeFixtureWithRule('S2703', 'shared-global-scope-defer.html')).toEqual([]);
       });

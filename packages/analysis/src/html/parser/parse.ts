@@ -60,7 +60,7 @@ export function parseHTML(code: string): EmbeddedJS[] {
   let scriptKind: NonNullable<EmbeddedJS['extras']['scriptKind']>;
 
   const parser = new htmlparser.Parser({
-    onopentag(name: string, attrs: { src: string; type?: string }) {
+    onopentag(name: string, attrs: { src: string; type?: string; async?: string }) {
       // Test if current tag is a valid <script> tag.
       if (name !== 'script') {
         return;
@@ -73,12 +73,7 @@ export function parseHTML(code: string): EmbeddedJS[] {
       }
 
       inScript = true;
-      // A classic (non-module) script shares the page's global lexical scope with other classic
-      // scripts of the same document, while a module script has its own isolated module scope.
-      // "defer" (like "async") has no effect without a "src" attribute, and scripts with "src" are
-      // already excluded above, so every script reaching this point is inline and always runs
-      // synchronously in document order regardless of "defer".
-      scriptKind = attrs.type === 'module' ? 'module' : 'classic';
+      scriptKind = classifyScript(attrs);
 
       jsSnippetStartIndex = parser.endIndex + 1;
     },
@@ -109,6 +104,27 @@ export function parseHTML(code: string): EmbeddedJS[] {
 
   parser.parseComplete(code);
   return embeddedJSs;
+}
+
+/**
+ * Classifies an inline `<script>` block with respect to the global scope it shares with the other
+ * script blocks of the same document.
+ *
+ * A classic (non-module) script shares the page's global lexical scope with the other classic
+ * scripts of the document, while a module script has its own isolated module scope. "defer" has no
+ * effect without a "src" attribute, and scripts with "src" are not extracted at all, so an inline
+ * classic script always runs synchronously in document order. "async" is ignored on an inline
+ * classic script as well, but it is honoured on an inline module one, which then evaluates as soon
+ * as it is ready instead of after the whole document has been parsed.
+ */
+function classifyScript(attrs: {
+  type?: string;
+  async?: string;
+}): NonNullable<EmbeddedJS['extras']['scriptKind']> {
+  if (attrs.type !== 'module') {
+    return 'classic';
+  }
+  return attrs.async === undefined ? 'module' : 'asyncModule';
 }
 
 function computeLine(offset: number, fileLineStarts: number[]) {

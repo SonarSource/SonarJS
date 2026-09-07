@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { Position } from 'estree';
@@ -62,9 +63,9 @@ export async function analyzeEmbedded(
   // Names bound at the top level (var/let/const/class/function) by each snippet, contributed to the
   // page's shared global scope. Classic (non-module) <script> blocks of the same HTML document
   // share one global lexical/variable environment in real browsers, so a block writing to a name
-  // declared by another one is not an implicit global. "defer" and "async" have no effect on inline
-  // scripts, so they do not exclude a block from that shared environment. A module block has an
-  // isolated module scope and therefore contributes nothing.
+  // declared by another one is not an implicit global. "defer" and "async" do not exclude a classic
+  // block from that shared environment, since neither has any effect on an inline classic script.
+  // A module block has an isolated module scope and therefore contributes nothing.
   const contributedNamesPerSnippet = extendedParseResults.map(extendedParseResult =>
     extendedParseResult.scriptKind === 'classic'
       ? collectTopLevelBindingNames(
@@ -73,8 +74,8 @@ export async function analyzeEmbedded(
         )
       : [],
   );
-  // Module scripts are always deferred, so they run after every inline classic block of the
-  // document and see the names of all of them, whatever the source order.
+  // A module script without "async" is deferred, so it runs after every inline classic block of
+  // the document and sees the names of all of them, whatever the source order.
   const allClassicNames = new Set(contributedNamesPerSnippet.flat());
   // Names a classic block can see: only those contributed by strictly preceding classic blocks.
   const precedingClassicNames = new Set<string>();
@@ -118,6 +119,10 @@ export async function analyzeEmbedded(
  * Returns the shared global scope names visible to a snippet, given the names contributed by the
  * classic script blocks preceding it in document order and the names contributed by all of them.
  *
+ * A deferred module block runs after the whole document has been parsed, hence after every classic
+ * block, whatever the source order. An `async` module block evaluates as soon as it is ready, so it
+ * can only rely on the classic blocks preceding it, just like a classic block does.
+ *
  * A snippet that is not an inline HTML script (YAML, ...) has no such shared scope at all.
  */
 function sharedGlobalScopeNamesFor(
@@ -127,6 +132,7 @@ function sharedGlobalScopeNamesFor(
 ): string[] {
   switch (scriptKind) {
     case 'classic':
+    case 'asyncModule':
       return [...precedingClassicNames];
     case 'module':
       return [...allClassicNames];
@@ -164,15 +170,17 @@ function analyzeSnippet(
  *
  * A "var" declared inside a nested block (if/for/try/switch/...) at the top level of the script
  * also hoists to that shared scope, and so does the name of a "function" declared inside such a
- * block (Annex B function hoisting in sloppy mode). Those statements are therefore additionally
- * walked to collect both kinds of name. "let"/"const"/"class" declared inside a nested block stay
- * block-scoped and are correctly not collected there.
+ * block — but the latter only in sloppy mode, since it relies on Annex B function hoisting. Those
+ * statements are therefore additionally walked to collect both kinds of name.
+ * "let"/"const"/"class" declared inside a nested block stay block-scoped and are correctly not
+ * collected there.
  */
 function collectTopLevelBindingNames(
   program: estree.Program,
   visitorKeys: SourceCode.VisitorKeys,
 ): string[] {
   const names: string[] = [];
+  const annexBFunctionHoisting = !isStrictScript(program);
   for (const statement of program.body) {
     switch (statement.type) {
       case 'VariableDeclaration':
@@ -187,11 +195,22 @@ function collectTopLevelBindingNames(
         }
         break;
       default:
-        collectNestedHoistedNames(statement, visitorKeys, names);
+        collectNestedHoistedNames(statement, visitorKeys, names, annexBFunctionHoisting);
         break;
     }
   }
   return names;
+}
+
+/**
+ * Whether the script's directive prologue contains a "use strict" directive. The parser only sets
+ * the "directive" property on the expression statements forming that prologue, so a "use strict"
+ * string expression appearing anywhere else is correctly not taken for a directive.
+ */
+function isStrictScript(program: estree.Program): boolean {
+  return program.body.some(
+    statement => (statement as TSESTree.ExpressionStatement).directive === 'use strict',
+  );
 }
 
 /**
@@ -210,21 +229,23 @@ function collectNestedHoistedNames(
   node: estree.Node,
   visitorKeys: SourceCode.VisitorKeys,
   names: string[],
+  annexBFunctionHoisting: boolean,
 ): void {
   if (node.type === 'VariableDeclaration' && node.kind === 'var') {
     for (const declarator of node.declarations) {
       collectPatternNames(declarator.id, names);
     }
-  } else if (node.type === 'FunctionDeclaration' && node.id) {
+  } else if (annexBFunctionHoisting && node.type === 'FunctionDeclaration' && node.id) {
     // Per Annex B sloppy-mode semantics, the name of a function declared inside a block hoists to
-    // the enclosing "var" scope, hence to the script's shared global scope here.
+    // the enclosing "var" scope, hence to the script's shared global scope here. In strict mode the
+    // binding stays block-scoped instead, so the name is not contributed at all.
     names.push(node.id.name);
   }
   if (VAR_SCOPE_BOUNDARIES.has(node.type)) {
     return;
   }
   for (const child of childrenOf(node, visitorKeys)) {
-    collectNestedHoistedNames(child, visitorKeys, names);
+    collectNestedHoistedNames(child, visitorKeys, names, annexBFunctionHoisting);
   }
 }
 

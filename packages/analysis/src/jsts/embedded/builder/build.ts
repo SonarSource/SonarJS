@@ -27,7 +27,7 @@ import { debug } from '../../../../../shared/src/helpers/logging.js';
 
 export type ExtendedParseResult = ParseResult & {
   syntheticFilePath: NormalizedAbsolutePath;
-  scriptKind?: EmbeddedJS['extras']['scriptKind'];
+  scriptKind?: NonNullable<EmbeddedJS['extras']['scriptKind']>;
 };
 export type LanguageParser = (text: string) => EmbeddedJS[];
 
