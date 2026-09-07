@@ -196,7 +196,7 @@ function getUnshadowedRequireModuleName(
   if (requireCall === undefined) {
     return undefined;
   }
-  if (isRequireShadowed(sourceCode, requireCall)) {
+  if (isGlobalShadowed(sourceCode, requireCall, 'require')) {
     return undefined;
   }
   const moduleName = requireCall.arguments[0];
@@ -205,11 +205,13 @@ function getUnshadowedRequireModuleName(
     : undefined;
 }
 
-export function isRequireShadowed(
-  sourceCode: SourceCode,
-  requireCall: estree.CallExpression,
-): boolean {
-  return !!getVariableFromScope(sourceCode.getScope(requireCall), 'require')?.defs.length;
+/**
+ * True when `name` resolves to a local binding in the scope of `node`, e.g., a test double named
+ * `require`, a local `function define(...) {}` or a mocked `sap` object, rather than to the
+ * ambient global of that name.
+ */
+export function isGlobalShadowed(sourceCode: SourceCode, node: estree.Node, name: string): boolean {
+  return !!getVariableFromScope(sourceCode.getScope(node), name)?.defs.length;
 }
 
 function isNode(value: unknown): value is estree.Node {

@@ -21,10 +21,9 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { getESLintCoreRule } from '../external/core.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getFullyQualifiedName } from '../helpers/module.js';
+import { getFullyQualifiedName, isGlobalShadowed } from '../helpers/module.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import {
-  getVariableFromScope,
   isArrayExpression,
   isFunctionCall,
   isIdentifier,
@@ -92,21 +91,21 @@ function isAmdDefineOrRequireCall(
     return false;
   }
   const callee = node.callee as estree.Node;
-  return (
-    (isIdentifier(callee, 'define', 'require') && !isShadowed(context, callee)) ||
-    (callee.type === 'MemberExpression' &&
-      isIdentifier(callee.property, 'define', 'require') &&
-      isMemberExpression(callee.object as estree.Node, 'sap', 'ui'))
-  );
-}
-
-/**
- * True when `identifier` resolves to a local binding, e.g., a local `function define(...) {}`
- * or a test double named `require`, rather than the global AMD loader function of that name.
- */
-function isShadowed(context: Rule.RuleContext, identifier: estree.Identifier) {
-  return !!getVariableFromScope(context.sourceCode.getScope(identifier), identifier.name)?.defs
-    .length;
+  if (isIdentifier(callee, 'define', 'require')) {
+    return !isGlobalShadowed(context.sourceCode, callee, callee.name);
+  }
+  if (
+    callee.type !== 'MemberExpression' ||
+    !isIdentifier(callee.property, 'define', 'require') ||
+    !isMemberExpression(callee.object as estree.Node, 'sap', 'ui')
+  ) {
+    return false;
+  }
+  /**
+   * `sap` is an ambient global injected by the UI5 bootstrap, just like `define`/`require`,
+   * so the root of the member chain can be shadowed by a local mock as well.
+   */
+  return !isGlobalShadowed(context.sourceCode, callee, 'sap');
 }
 
 /**

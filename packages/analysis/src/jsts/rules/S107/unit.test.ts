@@ -222,6 +222,16 @@ describe('S107', () => {
           errors: 1,
         },
         {
+          // JS-2373: 'sap' is an ambient global as well, so the carve-out must not apply when the
+          // root of the 'sap.ui.define' member chain is shadowed by a local mock
+          code: `
+      var sap = { ui: { define: function (deps, factory) { return factory(); } } };
+      sap.ui.define(["a", "b", "c", "d", "e"], function (a, b, c, d, e) {});
+      `,
+          options: createOptions(MAX_PARAMS_3),
+          errors: 1,
+        },
+        {
           // JS-2373: only the parameters injected by the loader are exempted; a factory declaring
           // more parameters than the dependency array provides is still hand-written
           code: `define(["a", "b", "c", "d"], function (a, b, c, d, e) {});`,
