@@ -361,6 +361,30 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // Explicit thenable contract with a computed, statically-known string-literal key.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          class ComputedLiteralKeyThenable {
+            ['then'](onResolve, onReject) {
+              return onResolve('ready');
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
+        // Explicit thenable contract with a computed key resolved from a template literal.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          class ComputedTemplateKeyThenable {
+            [\`then\`](onResolve, onReject) {
+              return onResolve('ready');
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
       ],
       invalid: [
         {
@@ -503,6 +527,21 @@ describe('S7739', () => {
           class MatcherSequencer {
             then(matcher) {
               return MatcherSequencer.seq(this, matcher);
+            }
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: computed 'then' key with no thenable contract declared. The
+        // contract exception must widen the accepted key *shapes*, not the name it
+        // requires — an unannotated class is still reported regardless of key shape.
+        {
+          code: `
+          class Sequencer {
+            ['then'](callback) {
+              this.callback = callback;
+              return this;
             }
           }
         `,

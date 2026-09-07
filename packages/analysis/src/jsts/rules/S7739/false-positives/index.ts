@@ -17,7 +17,7 @@
 import type { Rule } from 'eslint';
 import type { AssignmentExpression, CallExpression, Node } from 'estree';
 import { getFullyQualifiedName } from '../../helpers/module.js';
-import { isIdentifier, isStringLiteral } from '../../helpers/ast.js';
+import { isIdentifier } from '../../helpers/ast.js';
 import { getDependenciesSanitizePaths } from '../../helpers/dependency-manifests/dependencies.js';
 import { collectPropertyNames, getAncestorsWithParent } from '../helpers.js';
 
@@ -328,18 +328,15 @@ function isInterfaceShapeDescriptor(node: Node): boolean {
 }
 
 /**
- * Checks if a class member key node is the 'then' key of a MethodDefinition or
- * PropertyDefinition (covers `then() {}`, `then = ...`, and statically-known string
- * keys like `'then'() {}`, matching how the upstream unicorn rule resolves the key).
+ * Checks if the reported node is the key of the MethodDefinition/PropertyDefinition it
+ * belongs to. The upstream unicorn rule resolves class member keys with
+ * getPropertyName/getStaticValue before reporting, so it only ever reports a key it has
+ * already determined to be 'then' — including quoted and statically-known computed keys
+ * (`['then']`, `` [`then`] ``, `[KEY]` where `KEY = 'then'`) — so no further name check is
+ * needed here.
  */
-function isThenMemberKey(member: Node & { computed?: boolean; key?: Node }, node: Node): boolean {
-  if (member.key !== node) {
-    return false;
-  }
-  if (!member.computed) {
-    return isIdentifier(node, 'then') || (isStringLiteral(node) && node.value === 'then');
-  }
-  return isStringLiteral(node) && node.value === 'then';
+function isThenMemberKey(member: Node & { key?: Node }, node: Node): boolean {
+  return member.key === node;
 }
 
 /**
@@ -361,8 +358,7 @@ function isThenMemberKey(member: Node & { computed?: boolean; key?: Node }, node
  */
 function isClassThenMethodWithThenableContract(context: Rule.RuleContext, node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
-  const member = ancestors[0] as
-    (Node & { computed?: boolean; static?: boolean; key?: Node }) | undefined;
+  const member = ancestors[0] as (Node & { static?: boolean; key?: Node }) | undefined;
   if (
     (member?.type !== 'MethodDefinition' && member?.type !== 'PropertyDefinition') ||
     member.static ||
