@@ -97,8 +97,7 @@ release job finishes, SonarJS runs its own reusable workflow:
 
 ## SQAA Integration
 
-SQAA uses the standard `sonar-javascript-plugin` artifact. SonarJS no longer builds or publishes a
-separate SQAA Docker image.
+SQAA uses the standard `sonar-javascript-plugin` artifact.
 
 When `sqaa-integration` is enabled together with `sqc-integration`, the shared automated-release
 workflow:
