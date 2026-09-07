@@ -363,6 +363,18 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // Two 'then'-named members on one annotated class: the second report is served
+        // from the per-class thenable-contract cache rather than re-reading the JSDoc.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          class AccessorThenable {
+            get then() { return this._then; }
+            set then(fn) { this._then = fn; }
+          }
+        `,
+          filename: testFilePath,
+        },
         // Explicit thenable contract with a quoted (statically-known) string key.
         {
           code: `
