@@ -1,0 +1,17 @@
+{
+"moose:main/controllers/delete.ts": [
+5
+],
+"moose:main/controllers/stream.ts": [
+23
+],
+"moose:main/modules/menu.ts": [
+4
+],
+"moose:main/modules/playOnVlc.ts": [
+7
+],
+"moose:renderer/components/Downloads/Downloads.tsx": [
+53
+]
+}
