@@ -25,6 +25,7 @@ const VALID_CASES = [
   { code: `<th scope="col">Total</th>;` },
   { code: `<th scope="rowgroup">Total</th>;` },
   { code: `<th scope="colgroup">Total</th>;` },
+  // We don't check if the scope has a valid field
   { code: `<th scope="invalid">Total</th>;` },
   // An element with no `scope` attribute at all is irrelevant to this rule.
   { code: `<div>Total</div>;` },
