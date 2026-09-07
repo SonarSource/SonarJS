@@ -52,17 +52,15 @@ export const packageJsonManifestResolver: ManifestResolver = {
       parsedPackageJson = injectWorkspacePackages(parsedPackageJson, parsedPnpmWorkspace);
     }
 
-    // Bun allows catalogs to be defined in the current root package.json.
-    let catalogSource = getCatalogSource(parsedPackageJson);
-    if (!catalogSource) {
-      const closestParent = findClosestParentPackageJsonWithCatalogs(dir, topDir, fileSystem);
-      if (closestParent) {
-        // If the closest parent package.json has catalogs defined, we use it as the catalog source for resolving catalog references.
-        catalogSource = getCatalogSource(closestParent);
-      } else if (parsedPnpmWorkspace) {
-        // No package.json with catalogs found, we check if there's a pnpm workspace file that we can use as a catalog source.
-        catalogSource = parsedPnpmWorkspace;
-      }
+    // Bun only reads catalogs from the workspace root, so a parent package.json with catalogs
+    // wins; the current one may serve its own catalogs only when no such parent exists.
+    const closestParent = findClosestParentPackageJsonWithCatalogs(dir, topDir, fileSystem);
+    let catalogSource = closestParent
+      ? getCatalogSource(closestParent)
+      : getCatalogSource(parsedPackageJson);
+    if (!catalogSource && parsedPnpmWorkspace) {
+      // No package.json with catalogs found, we check if there's a pnpm workspace file that we can use as a catalog source.
+      catalogSource = parsedPnpmWorkspace;
     }
 
     parsedPackageJson = resolveCatalogReferences(parsedPackageJson, catalogSource);

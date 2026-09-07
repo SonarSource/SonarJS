@@ -450,8 +450,8 @@ describe('files', () => {
     );
   });
 
-  it('should prefer the catalog of the current package.json over a parent catalog', async () => {
-    const fixture = 'bun-workspace-own-catalog-over-parent';
+  it('should prefer the workspace root catalog over a nested package catalog', async () => {
+    const fixture = 'bun-workspace-root-catalog-over-nested-catalog';
     const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
     const appBaseDir = normalizeToAbsolutePath(join(fixtures, `${fixture}/packages/my-app`));
     const configuration = createConfiguration({ baseDir });
@@ -462,8 +462,8 @@ describe('files', () => {
     expect(manifests[0].dependencies).toEqual(
       new Map([
         ['my-app', '*'],
-        ['react', '^18.0.0'],
-        ['react-dom', '^19.0.0'],
+        ['react', '^17.0.0'],
+        ['react-dom', '^17.0.0'],
       ]),
     );
   });
