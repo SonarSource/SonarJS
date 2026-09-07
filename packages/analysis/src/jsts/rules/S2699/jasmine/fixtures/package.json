@@ -1,5 +1,5 @@
 {
   "devDependencies": {
-    "jasmine-core": "5.7.1"
+    "jasmine": "5.7.1"
   }
 }

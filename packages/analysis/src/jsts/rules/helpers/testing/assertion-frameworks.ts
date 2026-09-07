@@ -123,15 +123,7 @@ const assertionFrameworks = {
   },
   globalExpect: {
     imports: ['bun:test', '@playwright/test'],
-    dependencies: [
-      'jasmine',
-      'jasmine-core',
-      'jasmine-node',
-      'karma-jasmine',
-      'jest',
-      'cypress',
-      '@playwright/test',
-    ],
+    dependencies: ['jasmine', 'jest', 'cypress', '@playwright/test'],
     isAssertion: (context, node) =>
       node.type === 'CallExpression' && isGlobalExpectAssertion(context, node),
     isTSAssertion: isGlobalTSExpectAssertion,
