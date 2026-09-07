@@ -73,6 +73,23 @@ describe('isExcludedSecretValue', () => {
     );
   });
 
+  test('excludes exact-match values regardless of case', () => {
+    // A known non-secret no pattern matches can only be suppressed by the exact-match set, and the
+    // patterns are compiled case-insensitively, so its uppercase form is still reachable through
+    // that set alone. This therefore fails if `isExcludedSecretValue` stops normalising its input.
+    const exactMatchOnly = knownNonSecrets
+      .map(({ value }) => value)
+      .filter(value => !compiledPatterns.some(pattern => pattern.test(value)));
+
+    assert.ok(exactMatchOnly.length > 0, 'no known non-secret relies on the exact-match set alone');
+
+    const reported = exactMatchOnly
+      .map(value => value.toUpperCase())
+      .filter(value => !isExcludedSecretValue(value));
+
+    assert.deepStrictEqual(reported, [], 'exact-match exclusion is no longer case-insensitive');
+  });
+
   test('excludes no secret candidate', () => {
     const suppressed = secretCandidates.filter(value => isExcludedSecretValue(value));
 
