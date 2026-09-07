@@ -32,6 +32,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.slf4j.event.Level.DEBUG;
+import static org.slf4j.event.Level.ERROR;
 import static org.slf4j.event.Level.INFO;
 import static org.slf4j.event.Level.WARN;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
@@ -39,6 +40,8 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FO
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
 import com.google.protobuf.ByteString;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.Status;
@@ -66,11 +69,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedStatic;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
-import org.sonar.scanner.plugin.api.impl.config.MapSettings;
-import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
@@ -92,6 +90,9 @@ import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapper;
 import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
+import org.sonar.scanner.plugin.api.impl.config.MapSettings;
+import org.sonar.scanner.plugin.api.impl.fs.DefaultInputFile;
+import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 
 class BridgeServerImplTest {
 
@@ -471,6 +472,7 @@ class BridgeServerImplTest {
     clearInvocations(bridgeServerMock);
 
     doReturn("60000").when(bridgeServerMock).getExistingNodeProcessPort();
+    assertThat(bridgeServerMock.isExternalNodeProcessConfigured()).isTrue();
     doReturn(true).when(bridgeServerMock).waitChannelReady(startupTimeoutMillis);
     doReturn(true).when(bridgeServerMock).isAlive();
     bridgeServerMock.startServerLazily(serverConfig);
@@ -488,6 +490,7 @@ class BridgeServerImplTest {
     var bridgeServerMock = bridgeServer;
 
     doReturn("0").when(bridgeServerMock).getExistingNodeProcessPort();
+    assertThat(bridgeServerMock.isExternalNodeProcessConfigured()).isFalse();
     doReturn(false).when(bridgeServerMock).isAlive();
     doAnswer(invocation -> null)
       .when(bridgeServerMock)
@@ -500,6 +503,63 @@ class BridgeServerImplTest {
 
     verify(bridgeServerMock).deploy(serverConfig.config());
     verify(bridgeServerMock).startServer(serverConfig);
+  }
+
+  @Test
+  void should_log_configured_port_when_existing_node_is_unavailable() {
+    bridgeServer = spy(createUnitBridgeServer(SHORT_STARTUP_TIMEOUT_SECONDS));
+    var bridgeServerMock = bridgeServer;
+    var startupTimeoutMillis = (int) TimeUnit.SECONDS.toMillis(SHORT_STARTUP_TIMEOUT_SECONDS);
+    var expectedMessage =
+      "Failed to connect to the existing Node.js process on port 60000 configured through environment variable SONARJS_EXISTING_NODE_PROCESS_PORT";
+
+    doReturn("60000").when(bridgeServerMock).getExistingNodeProcessPort();
+    doReturn(false).when(bridgeServerMock).waitChannelReady(startupTimeoutMillis);
+
+    assertThatThrownBy(() -> bridgeServerMock.startServerLazily(serverConfig)).isInstanceOf(
+      ServerAlreadyFailedException.class
+    );
+    assertThat(logTester.logs(ERROR)).contains(expectedMessage);
+
+    logTester.clear();
+    assertThatThrownBy(() -> bridgeServerMock.startServerLazily(serverConfig)).isInstanceOf(
+      ServerAlreadyFailedException.class
+    );
+    assertThat(logTester.logs(ERROR)).contains(expectedMessage);
+  }
+
+  @Test
+  void should_log_configured_port_when_existing_node_stops_after_connection() {
+    bridgeServer = spy(createUnitBridgeServer(SHORT_STARTUP_TIMEOUT_SECONDS));
+    var bridgeServerMock = bridgeServer;
+    var startupTimeoutMillis = (int) TimeUnit.SECONDS.toMillis(SHORT_STARTUP_TIMEOUT_SECONDS);
+
+    doReturn("60000").when(bridgeServerMock).getExistingNodeProcessPort();
+    doReturn(true).when(bridgeServerMock).waitChannelReady(startupTimeoutMillis);
+    doReturn(false).when(bridgeServerMock).isAlive();
+
+    assertThatThrownBy(() -> bridgeServerMock.startServerLazily(serverConfig)).isInstanceOf(
+      ServerAlreadyFailedException.class
+    );
+    assertThat(logTester.logs(ERROR)).contains(
+      "Failed to connect to the existing Node.js process on port 60000 configured through environment variable SONARJS_EXISTING_NODE_PROCESS_PORT"
+    );
+  }
+
+  @Test
+  void should_not_log_external_node_failure_when_managed_bridge_stops() throws Exception {
+    bridgeServer = spy(createUnitBridgeServer(SHORT_STARTUP_TIMEOUT_SECONDS));
+    var bridgeServerMock = bridgeServer;
+
+    doReturn("0").when(bridgeServerMock).getExistingNodeProcessPort();
+    bridgeServerMock.serverHasStarted();
+    setPrivateBooleanField(bridgeServerMock, "ownsNodeProcess", true);
+    doReturn(false).when(bridgeServerMock).isAlive();
+
+    assertThatThrownBy(() -> bridgeServerMock.startServerLazily(serverConfig)).isInstanceOf(
+      ServerAlreadyFailedException.class
+    );
+    assertThat(logTester.logs(ERROR)).isEmpty();
   }
 
   @Test
@@ -608,9 +668,11 @@ class BridgeServerImplTest {
     when(handler.getRequest()).thenReturn(AnalyzeProjectRequest.getDefaultInstance());
     when(handler.getFuture()).thenReturn(future);
 
-    try (MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockStatic(
-      AnalyzeProjectServiceGrpc.class
-    )) {
+    try (
+      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockStatic(
+        AnalyzeProjectServiceGrpc.class
+      )
+    ) {
       bridgeServer.analyzeProject(handler);
 
       mockedGrpc.verifyNoInteractions();

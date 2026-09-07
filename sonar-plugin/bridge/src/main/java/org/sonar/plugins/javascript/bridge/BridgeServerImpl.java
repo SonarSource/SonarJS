@@ -402,6 +402,9 @@ public class BridgeServerImpl implements BridgeServer {
         status = Status.NOT_STARTED;
       } else {
         // required for SonarLint context to avoid restarting already failed server
+        if (isExternalNodeProcessConfigured()) {
+          logExternalNodeProcessConnectionFailure();
+        }
         throw new ServerAlreadyFailedException();
       }
     }
@@ -414,6 +417,7 @@ public class BridgeServerImpl implements BridgeServer {
       if (!waitChannelReady(timeoutSeconds * 1000)) {
         status = Status.FAILED;
         closeChannel();
+        logExternalNodeProcessConnectionFailure();
         throw new ServerAlreadyFailedException();
       }
       serverHasStarted();
@@ -429,6 +433,9 @@ public class BridgeServerImpl implements BridgeServer {
         return;
       } else if (status == Status.STARTED) {
         status = Status.FAILED;
+        if (!ownsNodeProcess) {
+          logExternalNodeProcessConnectionFailure();
+        }
         throw new ServerAlreadyFailedException();
       }
       deploy(serverConfig.config());
@@ -437,6 +444,14 @@ public class BridgeServerImpl implements BridgeServer {
       status = Status.FAILED;
       throw e;
     }
+  }
+
+  private void logExternalNodeProcessConnectionFailure() {
+    LOG.error(
+      "Failed to connect to the existing Node.js process on port {} configured through environment variable {}",
+      port,
+      SONARJS_EXISTING_NODE_PROCESS_PORT
+    );
   }
 
   @Override
@@ -573,20 +588,22 @@ public class BridgeServerImpl implements BridgeServer {
     Context.CancellableContext analyzeContext,
     AtomicBoolean finished
   ) {
-    return Thread.ofVirtual().name("bridge-analyze-project-cancel").start(() -> {
-      while (!finished.get()) {
-        if (handler.getContext().isCancelled()) {
-          analyzeContext.cancel(new CancellationException(ANALYSIS_CANCELLED_MESSAGE));
-          return;
+    return Thread.ofVirtual()
+      .name("bridge-analyze-project-cancel")
+      .start(() -> {
+        while (!finished.get()) {
+          if (handler.getContext().isCancelled()) {
+            analyzeContext.cancel(new CancellationException(ANALYSIS_CANCELLED_MESSAGE));
+            return;
+          }
+          try {
+            Thread.sleep(STREAM_CANCELLATION_POLL_INTERVAL_MS);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return;
+          }
         }
-        try {
-          Thread.sleep(STREAM_CANCELLATION_POLL_INTERVAL_MS);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          return;
-        }
-      }
-    });
+      });
   }
 
   public boolean isAlive() {
@@ -595,12 +612,17 @@ public class BridgeServerImpl implements BridgeServer {
     }
     var state = channel.getState(false);
     var result =
-      (state == ConnectivityState.READY) &&
+      state == ConnectivityState.READY &&
       (!ownsNodeProcess || (leaseObserver != null && !leaseTerminated));
     if (result) {
       latestOKIsAliveTimestamp = System.currentTimeMillis();
     }
     return result;
+  }
+
+  @Override
+  public boolean isExternalNodeProcessConfigured() {
+    return nodeAlreadyRunningPort() != 0;
   }
 
   private boolean shouldRestartFailedServer() {
