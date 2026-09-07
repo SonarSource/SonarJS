@@ -165,6 +165,17 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // False Positive Pattern 5f: Arrow assigned to a namespaced Promise property
+        {
+          code: `
+          exports.Promise = () => {
+            this.then = function (resolve, reject) {
+              return this._promise.then(resolve, reject);
+            };
+          };
+        `,
+          filename: testFilePath,
+        },
         // False Positive Pattern 6: Object with then AND catch methods
         // Having both then and catch methods indicates an intentional thenable implementation.
         {
@@ -395,6 +406,16 @@ describe('S7739', () => {
             is: true,
             then: (schema) => schema,
           });
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: computed member target is NOT treated as a Promise/Deferred name
+        {
+          code: `
+          ns[Deferred] = function () {
+            this.then = function (cb) { this.cb = cb; };
+          };
         `,
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
