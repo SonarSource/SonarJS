@@ -1,0 +1,38 @@
+{
+"sonar-web:src/main/js/apps/overview/components/domain-bubble-chart.js": [
+31
+],
+"sonar-web:src/main/js/apps/overview/components/domain-timeline.js": [
+36
+],
+"sonar-web:src/main/js/apps/overview/components/domain-treemap.js": [
+24
+],
+"sonar-web:src/main/js/apps/overview/components/language-distribution.js": [
+20
+],
+"sonar-web:src/main/js/apps/overview/domains/debt-domain.js": [
+40
+],
+"sonar-web:src/main/js/apps/overview/main/main.js": [
+59
+],
+"sonar-web:src/main/js/apps/projects/main.js": [
+66,
+79,
+93,
+160
+],
+"sonar-web:src/main/js/apps/system/item-log-level.js": [
+13
+],
+"sonar-web:src/main/js/apps/system/main.js": [
+11
+],
+"sonar-web:src/main/js/main/nav/app.js": [
+32
+],
+"sonar-web:src/main/js/main/nav/component/component-nav.js": [
+20
+]
+}
