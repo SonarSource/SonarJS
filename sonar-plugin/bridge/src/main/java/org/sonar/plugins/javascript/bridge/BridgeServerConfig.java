@@ -16,6 +16,7 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.config.Configuration;
@@ -29,13 +30,15 @@ import org.sonar.api.config.Configuration;
 public record BridgeServerConfig(
   Configuration config,
   String workDirAbsolutePath,
-  SonarProduct product
+  SonarProduct product,
+  @Nullable Integer existingNodeProcessPort
 ) {
   public static BridgeServerConfig fromSensorContext(SensorContext context) {
     return new BridgeServerConfig(
       context.config(),
       context.fileSystem().workDir().getAbsolutePath(),
-      context.runtime().getProduct()
+      context.runtime().getProduct(),
+      null
     );
   }
 }

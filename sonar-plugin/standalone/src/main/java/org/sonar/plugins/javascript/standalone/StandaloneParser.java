@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import org.sonar.api.SonarProduct;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectUnaryResponse;
@@ -91,7 +92,8 @@ public class StandaloneParser implements AutoCloseable {
         new BridgeServerConfig(
           builder.configuration,
           temporaryFolder.newDir().getAbsolutePath(),
-          SonarProduct.SONARLINT
+          SonarProduct.SONARLINT,
+          builder.existingNodeProcessPort
         )
       );
     } catch (IOException e) {
@@ -109,6 +111,9 @@ public class StandaloneParser implements AutoCloseable {
     private int maxOldSpaceSize = -1;
     private org.sonar.api.config.Configuration configuration = new EmptyConfiguration();
     private String[] nodeJsArgs;
+
+    @Nullable
+    private Integer existingNodeProcessPort;
 
     private Builder() {}
 
@@ -129,6 +134,17 @@ public class StandaloneParser implements AutoCloseable {
 
     public Builder nodeJsArgs(String... nodeJsArgs) {
       this.nodeJsArgs = nodeJsArgs;
+      return this;
+    }
+
+    public Builder existingNodeProcessPort(int existingNodeProcessPort) {
+      if (existingNodeProcessPort < 1 || existingNodeProcessPort > 65535) {
+        throw new IllegalArgumentException(
+          "existingNodeProcessPort should be a number between 1 and 65535, got " +
+          existingNodeProcessPort
+        );
+      }
+      this.existingNodeProcessPort = existingNodeProcessPort;
       return this;
     }
 
