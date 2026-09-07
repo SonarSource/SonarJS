@@ -119,6 +119,15 @@ function isPromiseOrDeferredFunctionDeclaration(ancestor: Node): boolean {
   );
 }
 
+function isPromiseOrDeferredAssignmentTarget(target: Node): boolean {
+  return (
+    (target.type === 'Identifier' && isIdentifier(target, 'Promise', 'Deferred')) ||
+    (target.type === 'MemberExpression' &&
+      !target.computed &&
+      isIdentifier(target.property, 'Promise', 'Deferred'))
+  );
+}
+
 /**
  * Checks if an ancestor is a function expression/arrow assigned to 'Promise' or 'Deferred'.
  */
@@ -138,11 +147,10 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node): boolean {
   ) {
     return true;
   }
-  // Promise = function() { ... } or Promise = () => { ... }
+  // Promise = function() { ... } or ns.Deferred = () => { ... }
   return (
     funcParent.type === 'AssignmentExpression' &&
-    funcParent.left.type === 'Identifier' &&
-    isIdentifier(funcParent.left, 'Promise', 'Deferred')
+    isPromiseOrDeferredAssignmentTarget(funcParent.left)
   );
 }
 
@@ -150,10 +158,16 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node): boolean {
  * Checks if an ancestor is a class named 'Promise' or 'Deferred'.
  */
 function isPromiseOrDeferredClass(ancestor: Node): boolean {
+  if (ancestor.type !== 'ClassDeclaration' && ancestor.type !== 'ClassExpression') {
+    return false;
+  }
+  if (ancestor.id !== null && isIdentifier(ancestor.id, 'Promise', 'Deferred')) {
+    return true;
+  }
+  const classParent = (ancestor as Node & { parent?: Node }).parent;
   return (
-    (ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression') &&
-    ancestor.id !== null &&
-    isIdentifier(ancestor.id, 'Promise', 'Deferred')
+    classParent?.type === 'AssignmentExpression' &&
+    isPromiseOrDeferredAssignmentTarget(classParent.left)
   );
 }
 

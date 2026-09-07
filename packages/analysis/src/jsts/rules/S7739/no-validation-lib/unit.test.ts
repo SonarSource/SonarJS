@@ -159,6 +159,30 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // False Positive Pattern 5e: Function expression assigned to a namespaced Deferred
+        // property (e.g. jQuery-style `ns.Deferred = function () {...}`), rather than a bare
+        // declaration name.
+        {
+          code: `
+          ns.Deferred = function () {
+            this.then = function (resolve, reject) {
+              return this._promise.then(resolve, reject);
+            };
+          };
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5f: Class expression assigned to a namespaced Promise property
+        {
+          code: `
+          ns.Promise = class {
+            then(resolve, reject) {
+              return this._promise.then(resolve, reject);
+            }
+          };
+        `,
+          filename: testFilePath,
+        },
         // False Positive Pattern 6: Object with then AND catch methods
         // Having both then and catch methods indicates an intentional thenable implementation.
         {
