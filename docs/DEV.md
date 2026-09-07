@@ -207,6 +207,10 @@ You can run your own Node.js process manually and set the environment variable
 When set, SonarJS will not start a new Node process and will send the analysis requests to the
 specified port instead.
 
+The root `Dockerfile` and the `docker:build` and `docker:run` npm scripts package this gRPC server
+for local development and debugging. The resulting `sonarjs:latest` image is a development
+convenience rather than a separately published SQAA artifact.
+
 When using this for the ruling tests, make sure that you run them in series (and not in parallel),
 by removing `@Execution(ExecutionMode.CONCURRENT)` from the ruling test.
 
