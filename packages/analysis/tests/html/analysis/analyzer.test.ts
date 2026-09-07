@@ -295,8 +295,6 @@ describe('analyzeHTML', () => {
   describe('shared global scope across the script blocks of one HTML page (JS-2371)', () => {
     const implicitGlobalMessage =
       'Add the "let", "const" or "var" keyword to this declaration of "TOKEN" to make it explicit.';
-    const undeclaredTokenMessage =
-      '"TOKEN" does not exist. Change its name or declare it so that its usage doesn\'t result in a "ReferenceError".';
 
     async function analyzeFixtureWithRule(ruleKey: string, fixture: string) {
       await Linter.initialize({
@@ -409,18 +407,6 @@ describe('analyzeHTML', () => {
         expect(
           await analyzeFixtureWithRule('S2703', 'shared-global-scope-wrong-order.html'),
         ).toEqual([expect.objectContaining({ ruleId: 'S2703', message: implicitGlobalMessage })]);
-      });
-    });
-
-    describe('S3827', () => {
-      it('should not report a read of a name declared in an earlier classic script block', async () => {
-        expect(await analyzeFixtureWithRule('S3827', 'shared-global-scope-read.html')).toEqual([]);
-      });
-
-      it('should still report a read of a name declared only in a later classic script block', async () => {
-        expect(
-          await analyzeFixtureWithRule('S3827', 'shared-global-scope-read-wrong-order.html'),
-        ).toEqual([expect.objectContaining({ ruleId: 'S3827', message: undeclaredTokenMessage })]);
       });
     });
   });

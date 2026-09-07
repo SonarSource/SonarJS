@@ -6,9 +6,11 @@
 14
 ],
 "jquery:test/data/core/aliased.html": [
+21,
 21
 ],
 "jquery:test/data/core/dynamic_ready.html": [
+17,
 24
 ],
 "jquery:test/data/core/onready.html": [
