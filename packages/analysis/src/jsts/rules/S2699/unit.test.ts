@@ -912,6 +912,8 @@ describe('RxJS marble testing with types', () => {
         },
         {
           code: `
+import { expect } from 'chai';
+
 declare function expectAsync<T>(promise: Promise<T>): {
   toBeResolved: () => Promise<void>;
   not: { toBeResolved: () => Promise<void> };
