@@ -23,6 +23,9 @@ const VALID_CASES = [
   // The only conforming target for `scope`.
   { code: `<th scope="row">Total</th>;` },
   { code: `<th scope="col">Total</th>;` },
+  { code: `<th scope="rowgroup">Total</th>;` },
+  { code: `<th scope="colgroup">Total</th>;` },
+  { code: `<th scope="invalid">Total</th>;` },
   // An element with no `scope` attribute at all is irrelevant to this rule.
   { code: `<div>Total</div>;` },
   // Known limitation: a non-DOM (custom) component is not resolvable to the DOM element it
@@ -46,6 +49,9 @@ const INVALID_CASES = [
   // The `td` case: valid in HTML4, deprecated in HTML5 - still reported, matching upstream.
   { code: `<td scope="row">Total</td>;`, errors: 1 },
   { code: `<span scope="col">Total</span>;`, errors: 1 },
+  { code: `<div scope="rowgroup">Total</div>;`, errors: 1 },
+  { code: `<h1 scope="colgroup">Total</h1>;`, errors: 1 },
+  { code: `<table scope="invalid">Total</table>;`, errors: 1 },
   // Attribute-name casing does not exempt it: upstream compares case-insensitively.
   { code: `<div Scope="row">Total</div>;`, errors: 1 },
 ];
