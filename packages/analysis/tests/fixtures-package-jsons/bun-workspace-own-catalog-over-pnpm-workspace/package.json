@@ -2,7 +2,8 @@
   "name": "my-monorepo",
   "dependencies": {
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "typescript": "catalog:tooling"
   },
   "catalog": {
     "react": "^18.0.0",

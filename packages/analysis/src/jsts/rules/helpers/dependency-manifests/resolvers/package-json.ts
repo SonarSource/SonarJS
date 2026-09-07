@@ -63,13 +63,10 @@ export const packageJsonManifestResolver: ManifestResolver = {
     const closestParent = isWorkspaceRoot
       ? undefined
       : findClosestParentPackageJsonWithCatalogs(dir, topDir, fileSystem);
-    let catalogSource = closestParent
-      ? getCatalogSource(closestParent)
-      : getCatalogSource(parsedPackageJson);
-    if (!catalogSource && parsedPnpmWorkspace) {
-      // No package.json with catalogs found, we check if there's a pnpm workspace file that we can use as a catalog source.
-      catalogSource = parsedPnpmWorkspace;
-    }
+    const catalogSource = mergeCatalogSources(
+      closestParent ? getCatalogSource(closestParent) : getCatalogSource(parsedPackageJson),
+      parsedPnpmWorkspace,
+    );
 
     parsedPackageJson = resolveCatalogReferences(parsedPackageJson, catalogSource);
 
@@ -240,7 +237,7 @@ function isIncludedInAncestorWorkspace(
       return false;
     }
 
-    const ancestorDir = dirnamePath(file.path);
+    const ancestorDir = dirnamePath(file.filePath);
     const parsed = parsePackageJson(file);
     if (parsed && declaresWorkspaceDir(parsed, ancestorDir, dir)) {
       return true;
@@ -265,8 +262,26 @@ function declaresWorkspaceDir(
   if (!patterns?.length || !dir.startsWith(`${ancestorDir}/`)) {
     return false;
   }
+
   const relativeDir = dir.slice(ancestorDir.length + 1);
-  return patterns.some(pattern => new Minimatch(pattern).match(relativeDir));
+  const normalizedPatterns = patterns.map(pattern => {
+    const isExclusion = pattern.startsWith('!');
+    const workspacePattern = (isExclusion ? pattern.slice(1) : pattern)
+      .replace(/^\.\//, '')
+      .replace(/\/+$/, '');
+    return { isExclusion, workspacePattern };
+  });
+  const matches = (workspacePattern: string) =>
+    new Minimatch(workspacePattern, { nonegate: true }).match(relativeDir);
+
+  return (
+    normalizedPatterns.some(
+      ({ isExclusion, workspacePattern }) => !isExclusion && matches(workspacePattern),
+    ) &&
+    !normalizedPatterns.some(
+      ({ isExclusion, workspacePattern }) => isExclusion && matches(workspacePattern),
+    )
+  );
 }
 
 function hasCatalogs(packageJson: ExtendedPackageJson): boolean {
@@ -289,4 +304,12 @@ function getCatalogSource(packageJson: ExtendedPackageJson): CatalogSource | und
     catalog: workspaces?.catalog ?? packageJson.catalog,
     catalogs: workspaces?.catalogs ?? packageJson.catalogs,
   };
+}
+
+function mergeCatalogSources(
+  ...sources: Array<CatalogSource | undefined>
+): CatalogSource | undefined {
+  const catalog = sources.find(source => source?.catalog)?.catalog;
+  const catalogs = sources.find(source => source?.catalogs)?.catalogs;
+  return catalog || catalogs ? { catalog, catalogs } : undefined;
 }

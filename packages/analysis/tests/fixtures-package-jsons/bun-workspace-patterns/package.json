@@ -1,0 +1,7 @@
+{
+  "name": "outer",
+  "workspaces": ["./dot-member", "trailing-member/", "sub/*", "!sub/excluded"],
+  "catalog": {
+    "react": "^17.0.0"
+  }
+}

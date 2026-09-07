@@ -504,6 +504,44 @@ describe('files', () => {
     });
   });
 
+  describe('Bun workspace patterns', () => {
+    const fixture = 'bun-workspace-patterns';
+
+    for (const directory of ['dot-member', 'trailing-member']) {
+      it(`should resolve ${directory} from the ancestor catalog`, async () => {
+        const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+        const memberDir = normalizeToAbsolutePath(join(baseDir, directory));
+        const configuration = createConfiguration({ baseDir });
+        await initFileStores(configuration);
+
+        const manifests = getDependencyManifests(memberDir, baseDir);
+        expect(manifests[0].dependencies).toEqual(
+          new Map<string | Minimatch, string | undefined>([
+            [directory, '*'],
+            ['react', '^17.0.0'],
+            [new Minimatch('child', { nocase: true, matchBase: true }), undefined],
+          ]),
+        );
+      });
+    }
+
+    it('should let a workspace excluded by a negated pattern serve its own catalog', async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const memberDir = normalizeToAbsolutePath(join(baseDir, 'sub/excluded'));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(memberDir, baseDir);
+      expect(manifests[0].dependencies).toEqual(
+        new Map<string | Minimatch, string | undefined>([
+          ['excluded', '*'],
+          ['react', '^18.0.0'],
+          [new Minimatch('child', { nocase: true, matchBase: true }), undefined],
+        ]),
+      );
+    });
+  });
+
   describe('nested workspace root under an ancestor that declares catalogs', () => {
     const fixture = 'bun-nested-workspace-root-under-ancestor-catalog';
 
@@ -554,7 +592,7 @@ describe('files', () => {
     });
   });
 
-  it('should prefer the catalog of the current package.json over the pnpm workspace catalog', async () => {
+  it('should prefer catalog fields of the current package.json over pnpm workspace fields', async () => {
     const baseDir = normalizeToAbsolutePath(
       join(fixtures, 'bun-workspace-own-catalog-over-pnpm-workspace'),
     );
@@ -568,6 +606,25 @@ describe('files', () => {
         ['my-monorepo', '*'],
         ['react', '^18.0.0'],
         ['react-dom', '^19.0.0'],
+        ['typescript', '^5.9.0'],
+        [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
+      ]),
+    );
+  });
+
+  it('should use the pnpm catalog field missing from the current package.json', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      join(fixtures, 'bun-workspace-named-catalog-with-pnpm-default'),
+    );
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests[0].dependencies).toEqual(
+      new Map<string | Minimatch, string | undefined>([
+        ['my-monorepo', '*'],
+        ['vue', '^3.5.0'],
+        ['typescript', '^5.9.0'],
         [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
       ]),
     );
