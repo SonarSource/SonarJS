@@ -510,6 +510,8 @@ class BridgeServerImplTest {
     bridgeServer = spy(createUnitBridgeServer(SHORT_STARTUP_TIMEOUT_SECONDS));
     var bridgeServerMock = bridgeServer;
     var startupTimeoutMillis = (int) TimeUnit.SECONDS.toMillis(SHORT_STARTUP_TIMEOUT_SECONDS);
+    var expectedMessage =
+      "Failed to connect to the existing Node.js process on port 60000 configured through environment variable SONARJS_EXISTING_NODE_PROCESS_PORT";
 
     doReturn("60000").when(bridgeServerMock).getExistingNodeProcessPort();
     doReturn(false).when(bridgeServerMock).waitChannelReady(startupTimeoutMillis);
@@ -517,9 +519,13 @@ class BridgeServerImplTest {
     assertThatThrownBy(() -> bridgeServerMock.startServerLazily(serverConfig)).isInstanceOf(
       ServerAlreadyFailedException.class
     );
-    assertThat(logTester.logs(ERROR)).contains(
-      "Failed to connect to the existing Node.js process on port 60000 configured through environment variable SONARJS_EXISTING_NODE_PROCESS_PORT"
+    assertThat(logTester.logs(ERROR)).contains(expectedMessage);
+
+    logTester.clear();
+    assertThatThrownBy(() -> bridgeServerMock.startServerLazily(serverConfig)).isInstanceOf(
+      ServerAlreadyFailedException.class
     );
+    assertThat(logTester.logs(ERROR)).contains(expectedMessage);
   }
 
   @Test
@@ -538,6 +544,22 @@ class BridgeServerImplTest {
     assertThat(logTester.logs(ERROR)).contains(
       "Failed to connect to the existing Node.js process on port 60000 configured through environment variable SONARJS_EXISTING_NODE_PROCESS_PORT"
     );
+  }
+
+  @Test
+  void should_not_log_external_node_failure_when_managed_bridge_stops() throws Exception {
+    bridgeServer = spy(createUnitBridgeServer(SHORT_STARTUP_TIMEOUT_SECONDS));
+    var bridgeServerMock = bridgeServer;
+
+    doReturn("0").when(bridgeServerMock).getExistingNodeProcessPort();
+    bridgeServerMock.serverHasStarted();
+    setPrivateBooleanField(bridgeServerMock, "ownsNodeProcess", true);
+    doReturn(false).when(bridgeServerMock).isAlive();
+
+    assertThatThrownBy(() -> bridgeServerMock.startServerLazily(serverConfig)).isInstanceOf(
+      ServerAlreadyFailedException.class
+    );
+    assertThat(logTester.logs(ERROR)).isEmpty();
   }
 
   @Test

@@ -402,6 +402,9 @@ public class BridgeServerImpl implements BridgeServer {
         status = Status.NOT_STARTED;
       } else {
         // required for SonarLint context to avoid restarting already failed server
+        if (isExternalNodeProcessConfigured()) {
+          logExternalNodeProcessConnectionFailure();
+        }
         throw new ServerAlreadyFailedException();
       }
     }
