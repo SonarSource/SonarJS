@@ -309,7 +309,9 @@ describe('S7739', () => {
           filename: testFilePath,
         },
         // Explicit thenable contract on a class nested inside another class's method:
-        // the contract is attributed to the nearest (inner) class, not the outer one.
+        // the inner class's own JSDoc is resolved independently of its enclosing scope
+        // (the corresponding invalid case below covers the reverse: an outer class's
+        // contract must not leak down to an unannotated inner class).
         {
           code: `
           class Outer {
@@ -321,6 +323,31 @@ describe('S7739', () => {
                 }
               }
               return Inner;
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
+        // Explicit thenable contract with the bare contract name, no generic type argument.
+        {
+          code: `
+          /** @implements {IThenable} */
+          class BareThenable {
+            then(onResolve, onReject) {
+              return onResolve('ready');
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
+        // Explicit thenable contract on a default-exported class: the JSDoc precedes the
+        // 'export default' keywords, not the class declaration itself.
+        {
+          code: `
+          /** @implements {IThenable<?>} */
+          export default class DefaultExportedThenable {
+            then(onResolve, onReject) {
+              return onResolve('ready');
             }
           }
         `,
@@ -361,24 +388,14 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
-        // Explicit thenable contract with a computed, statically-known string-literal key.
+        // Explicit thenable contract with a computed, statically-known key. Key resolution
+        // itself is delegated entirely to the upstream unicorn rule (see isThenMemberKey),
+        // so one representative computed shape is enough to cover this contract check.
         {
           code: `
           /** @implements {IThenable<?>} */
           class ComputedLiteralKeyThenable {
             ['then'](onResolve, onReject) {
-              return onResolve('ready');
-            }
-          }
-        `,
-          filename: testFilePath,
-        },
-        // Explicit thenable contract with a computed key resolved from a template literal.
-        {
-          code: `
-          /** @implements {IThenable<?>} */
-          class ComputedTemplateKeyThenable {
-            [\`then\`](onResolve, onReject) {
               return onResolve('ready');
             }
           }
@@ -654,6 +671,30 @@ describe('S7739', () => {
           code: `
           class FieldPromiseLike implements PromiseLike<string> {
             then = (onfulfilled?: (value: string) => unknown) => Promise.resolve(this.value).then(onfulfilled);
+          }
+        `,
+          filename: tsTestFilePath,
+        },
+        // Explicit thenable contract with the bare interface name, no generic type argument.
+        {
+          code: `
+          class BarePromiseLike implements PromiseLike {
+            then(onfulfilled?: (value: unknown) => unknown) {
+              return Promise.resolve(this.value).then(onfulfilled);
+            }
+          }
+        `,
+          filename: tsTestFilePath,
+        },
+        // Explicit thenable contract as one entry among several in the heritage clause:
+        // the check must scan every implemented interface, not just the first one.
+        {
+          code: `
+          interface Marker {}
+          class MultiHeritageThenable implements Marker, PromiseLike<string> {
+            then(onfulfilled?: (value: string) => unknown) {
+              return Promise.resolve(this.value).then(onfulfilled);
+            }
           }
         `,
           filename: tsTestFilePath,
