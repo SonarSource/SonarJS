@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { Minimatch } from 'minimatch';
 import type { PackageJson } from 'type-fest';
 import type {
   CatalogSource,
@@ -41,7 +42,7 @@ export const packageJsonManifestResolver: ManifestResolver = {
     }
     let parsedPackageJson = parsePackageJson(packageJson) ?? {};
     // Captured before the pnpm injection below, which would otherwise fake a workspace root.
-    const isWorkspaceRoot = !!parsedPackageJson.workspaces;
+    const declaresWorkspaces = !!parsedPackageJson.workspaces;
     const pnpmWorkspaceFile = closestPatternCache
       .get(PNPM_WORKSPACE_YAML, fileSystem)
       .get(topDir)
@@ -55,7 +56,10 @@ export const packageJsonManifestResolver: ManifestResolver = {
     }
 
     // Bun only reads catalogs from the workspace root: a package.json declaring `workspaces` is
-    // itself a root, otherwise the closest parent package.json with catalogs is the root.
+    // itself a root unless an ancestor workspace already includes it, otherwise the closest
+    // parent package.json with catalogs is the root.
+    const isWorkspaceRoot =
+      declaresWorkspaces && !isIncludedInAncestorWorkspace(dir, topDir, fileSystem);
     const closestParent = isWorkspaceRoot
       ? undefined
       : findClosestParentPackageJsonWithCatalogs(dir, topDir, fileSystem);
@@ -209,6 +213,60 @@ function findClosestParentPackageJsonWithCatalogs(
   }
 
   return undefined;
+}
+
+/**
+ * Check whether an ancestor package.json declares this directory as one of its workspaces.
+ * @param dir Directory of the package.json being resolved
+ * @param topDir Top directory to stop the search at
+ * @param fileSystem Filesystem to use for the search
+ * @returns True when an ancestor workspace includes this directory, false otherwise
+ */
+function isIncludedInAncestorWorkspace(
+  dir: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath,
+  fileSystem?: Filesystem,
+): boolean {
+  if (dir === topDir) {
+    return false;
+  }
+
+  let currentDir = getParentDirPath(dir);
+  const cache = closestPatternCache.get(PACKAGE_JSON, fileSystem).get(topDir);
+
+  while (currentDir !== null) {
+    const file = cache.get(currentDir);
+    if (!file) {
+      return false;
+    }
+
+    const ancestorDir = dirnamePath(file.path);
+    const parsed = parsePackageJson(file);
+    if (parsed && declaresWorkspaceDir(parsed, ancestorDir, dir)) {
+      return true;
+    }
+
+    if (ancestorDir === topDir) {
+      return false;
+    }
+    currentDir = getParentDirPath(ancestorDir);
+  }
+
+  return false;
+}
+
+function declaresWorkspaceDir(
+  packageJson: ExtendedPackageJson,
+  ancestorDir: NormalizedAbsolutePath,
+  dir: NormalizedAbsolutePath,
+): boolean {
+  const { workspaces } = packageJson;
+  const patterns = Array.isArray(workspaces) ? workspaces : workspaces?.packages;
+  if (!patterns?.length || !dir.startsWith(`${ancestorDir}/`)) {
+    return false;
+  }
+  const relativeDir = dir.slice(ancestorDir.length + 1);
+  return patterns.some(pattern => new Minimatch(pattern).match(relativeDir));
 }
 
 function hasCatalogs(packageJson: ExtendedPackageJson): boolean {

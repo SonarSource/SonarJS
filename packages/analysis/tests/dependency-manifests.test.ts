@@ -468,6 +468,42 @@ describe('files', () => {
     );
   });
 
+  describe('nested workspace root included in an ancestor workspace', () => {
+    const fixture = 'bun-nested-workspace-root-included-in-ancestor';
+
+    it('should resolve an included member without catalogs from the ancestor catalog', async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const memberDir = normalizeToAbsolutePath(join(baseDir, 'member-no-catalog'));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(memberDir, baseDir);
+      expect(manifests[0].dependencies).toEqual(
+        new Map<string | Minimatch, string | undefined>([
+          ['member-no-catalog', '*'],
+          ['react', '^17.0.0'],
+          [new Minimatch('child', { nocase: true, matchBase: true }), undefined],
+        ]),
+      );
+    });
+
+    it('should prefer the ancestor catalog over an included member own catalog', async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const memberDir = normalizeToAbsolutePath(join(baseDir, 'member-with-catalog'));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(memberDir, baseDir);
+      expect(manifests[0].dependencies).toEqual(
+        new Map<string | Minimatch, string | undefined>([
+          ['member-with-catalog', '*'],
+          ['react', '^17.0.0'],
+          [new Minimatch('child', { nocase: true, matchBase: true }), undefined],
+        ]),
+      );
+    });
+  });
+
   describe('nested workspace root under an ancestor that declares catalogs', () => {
     const fixture = 'bun-nested-workspace-root-under-ancestor-catalog';
 
