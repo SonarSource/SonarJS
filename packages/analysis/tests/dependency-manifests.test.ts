@@ -450,6 +450,43 @@ describe('files', () => {
     );
   });
 
+  it('should prefer the catalog of the current package.json over a parent catalog', async () => {
+    const fixture = 'bun-workspace-own-catalog-over-parent';
+    const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+    const appBaseDir = normalizeToAbsolutePath(join(fixtures, `${fixture}/packages/my-app`));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(appBaseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json', 'package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map([
+        ['my-app', '*'],
+        ['react', '^18.0.0'],
+        ['react-dom', '^19.0.0'],
+      ]),
+    );
+  });
+
+  it('should prefer the catalog of the current package.json over the pnpm workspace catalog', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      join(fixtures, 'bun-workspace-own-catalog-over-pnpm-workspace'),
+    );
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map<string | Minimatch, string | undefined>([
+        ['my-monorepo', '*'],
+        ['react', '^18.0.0'],
+        ['react-dom', '^19.0.0'],
+        [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
+      ]),
+    );
+  });
+
   it('should not resolve bun named catalog references when catalog is missing', async ({
     mock,
   }) => {

@@ -1,0 +1,11 @@
+{
+  "name": "my-app",
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "catalog": {
+    "react": "^18.0.0",
+    "react-dom": "^19.0.0"
+  }
+}
