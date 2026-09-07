@@ -18,6 +18,7 @@ import angularPlugin from '@angular-eslint/eslint-plugin';
 import stylistic from '@stylistic/eslint-plugin';
 import type { Rule } from 'eslint';
 import { rules as importRules } from 'eslint-plugin-import';
+import promisePlugin from 'eslint-plugin-promise';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import { rules as a11yRules } from './a11y.js';
 import { getESLintCoreRule } from './core.js';
@@ -31,6 +32,7 @@ const { rules: angularRules } = angularPlugin;
 const indexableA11yRules = a11yRules as Record<string, Rule.RuleModule>;
 const indexableAngularRules = angularRules as unknown as Record<string, Rule.RuleModule>;
 const indexableImportRules = importRules as Record<string, Rule.RuleModule>;
+const indexablePromiseRules = promisePlugin.rules;
 const indexableReactRules = reactRules as Record<string, Rule.RuleModule>;
 const indexableStylisticRules = stylistic.rules as Record<string, Rule.RuleModule> | undefined;
 const indexableTestingLibraryRules = testingLibraryRules as Record<string, Rule.RuleModule>;
@@ -43,6 +45,7 @@ const externalRuleDefinitions = {
   'typescript-eslint': (ruleId: string) => indexableTSEslintRules[ruleId],
   'jsx-a11y': (ruleId: string) => indexableA11yRules[ruleId],
   import: (ruleId: string) => indexableImportRules[ruleId],
+  promise: (ruleId: string) => indexablePromiseRules[ruleId],
   react: (ruleId: string) => indexableReactRules[ruleId],
   'react-hooks': (ruleId: string) =>
     (reactHooksPlugin as { rules?: Record<string, Rule.RuleModule> }).rules?.[ruleId],
