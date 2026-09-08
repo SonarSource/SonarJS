@@ -247,9 +247,8 @@ override the API supplied transitively by SonarLint Core. Test plugins and fast 
 compile against the analyzer API declare that version explicitly. Other shared dependency
 management still applies to the integration tests.
 
-Before analysis, the SonarLint suite checks the loaded API version against Core's published
-POM and logs its JAR location. Keep API dependency management out of the shared parent POMs
-so Core upgrades continue to select their own API version.
+Keep API dependency management out of the shared parent POMs so Core upgrades continue to
+select their own API version.
 
 After building the plugin locally, run:
 

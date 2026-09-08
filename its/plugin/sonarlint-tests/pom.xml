@@ -18,7 +18,9 @@
     <sonar.tests>src/test</sonar.tests>
   </properties>
 
-  <!-- Let SonarLint Core supply its Sonar API version transitively. -->
+  <!--
+  This module doesn't depend on sonar-plugin-api to avoid conflicts with packages embedded in sonarlint-core dependency
+  -->
   <!--
   Keep sonar-javascript-plugin out of the test classpath: the QA profile copies the built plugin artifact below,
   and declaring it here also leaks its embedded gRPC transport jars into Surefire's parent classloader.
@@ -62,31 +64,6 @@
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>copy-core-api-declaration</id>
-            <phase>generate-test-resources</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.sonarsource.sonarlint.core</groupId>
-                  <artifactId>sonarlint-core-parent</artifactId>
-                  <version>${sonarlint.plugin.api.version}</version>
-                  <type>pom</type>
-                  <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
-                  <destFileName>sonarlint-core-pom.xml</destFileName>
-                  <overWrite>true</overWrite>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
