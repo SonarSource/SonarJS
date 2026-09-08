@@ -2,7 +2,11 @@ declare function fetchData(): Promise<string>;
 declare const subscribers: { notify(): Promise<void> }[];
 
 function floatingStatement() {
-  fetchData(); // Noncompliant {{Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.}}
+  fetchData(); // Noncompliant [[qf1,qf2=0]] {{Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.}}
+  // fix@qf1 {{Add void operator to ignore.}}
+  // edit@qf1 {{  void fetchData();}}
+  // fix@qf2 {{Add await operator.}}
+  // edit@qf2 {{  await fetchData();}}
 }
 
 async function awaited() {
@@ -22,7 +26,11 @@ function thenWithRejectionHandler() {
 }
 
 function thenWithoutRejectionHandler() {
-  fetchData().then(value => console.log(value)); // Noncompliant {{Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.}}
+  fetchData().then(value => console.log(value)); // Noncompliant [[qf3,qf4=0]] {{Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.}}
+  // fix@qf3 {{Add void operator to ignore.}}
+  // edit@qf3 {{  void fetchData().then(value => console.log(value));}}
+  // fix@qf4 {{Add await operator.}}
+  // edit@qf4 {{  await fetchData().then(value => console.log(value));}}
 }
 
 function explicitlyIgnoredWithVoid() {
@@ -38,7 +46,11 @@ async function handledPromiseArray() {
 }
 
 function floatingAsyncIife() {
-  (async () => { // Noncompliant {{Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.}}
+  (async () => { // Noncompliant [[qf5,qf6=0]] {{Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.}}
+  // fix@qf5 {{Add void operator to ignore.}}
+  // edit@qf5 {{  void (async () =>}}
+  // fix@qf6 {{Add await operator.}}
+  // edit@qf6 {{  await (async () =>}}
     await fetchData();
   })();
 }

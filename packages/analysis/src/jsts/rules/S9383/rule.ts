@@ -19,24 +19,13 @@
 import type { Rule } from 'eslint';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { interceptReport } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
 
 const noFloatingPromisesRule = tsEslintRules['no-floating-promises'];
 
-/**
- * Upstream offers "add await"/"add void" suggestions for some messages. Quick fix
- * support isn't implemented yet (RSPEC quickfix is "unknown"), so suggestions are
- * stripped here rather than left dangling with no tested fix output.
- */
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, { ...noFloatingPromisesRule.meta, hasSuggestions: false }),
+  meta: generateMeta(meta, { ...noFloatingPromisesRule.meta }),
   create(context: Rule.RuleContext) {
-    return interceptReport(noFloatingPromisesRule, (ctx, descriptor) => {
-      const { suggest: _suggest, ...rest } = descriptor as Rule.ReportDescriptor & {
-        suggest?: unknown;
-      };
-      ctx.report(rest);
-    }).create(context);
+    return noFloatingPromisesRule.create(context);
   },
 };
