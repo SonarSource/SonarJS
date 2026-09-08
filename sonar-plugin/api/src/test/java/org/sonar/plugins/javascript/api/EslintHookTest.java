@@ -14,7 +14,29 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-@ParametersAreNonnullByDefault
-package org.sonar.samples.javascript;
+package org.sonar.plugins.javascript.api;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.fs.InputFile;
+
+class EslintHookTest {
+
+  static class CustomCheck implements EslintHook {
+
+    @Override
+    public String eslintKey() {
+      return "key";
+    }
+  }
+
+  @Test
+  void test() {
+    var check = new CustomCheck();
+
+    assertThat(check.eslintKey()).isEqualTo("key");
+    assertThat(check.configurations()).isEmpty();
+    assertThat(check.targets()).containsExactly(InputFile.Type.MAIN);
+  }
+}

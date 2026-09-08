@@ -49,7 +49,8 @@ done
 
 ## Version Matrix
 
-> **Last updated**: 2026-01-26
+> **Product version coverage last expanded**: 2026-01-26. Historical API mappings rechecked:
+> 2026-09-08.
 
 ### SonarQube Community Edition (from `sonarqube` repo)
 
@@ -63,20 +64,20 @@ These versions are from the public `SonarSource/sonarqube` repository.
 
 #### Community 25.x
 
-| Version | Tag              | SonarJS Version | Notable Changes                 |
-| ------- | ---------------- | --------------- | ------------------------------- |
-| 25.12.0 | `25.12.0.117093` | 11.7.1.36988    |                                 |
-| 25.11.0 | `25.11.0.114957` | 11.5.0.35357    |                                 |
-| 25.10.0 | `25.10.0.114319` | 11.4.1.34873    |                                 |
-| 25.9.0  | `25.9.0.112764`  | 11.3.0.34350    | **First SonarJS 11.x**          |
-| 25.8.0  | `25.8.0.112029`  | 10.25.0.33900   |                                 |
-| 25.7.0  | `25.7.0.110598`  | 10.23.0.32711   |                                 |
-| 25.6.0  | `25.6.0.109173`  | 10.23.0.32711   | **First with `EslintHook` API** |
-| 25.5.0  | `25.5.0.107428`  | 10.22.0.32148   | `languages()` deprecated        |
-| 25.4.0  | `25.4.0.105899`  | 10.21.1.30825   | No `EslintHook`                 |
-| 25.3.0  | `25.3.0.104237`  | 10.20.x         |                                 |
-| 25.2.0  | `25.2.0.102705`  | 10.19.x         |                                 |
-| 25.1.0  | `25.1.0.102122`  | 10.20.0.29356   |                                 |
+| Version | Tag              | SonarJS Version | Notable Changes                              |
+| ------- | ---------------- | --------------- | -------------------------------------------- |
+| 25.12.0 | `25.12.0.117093` | 11.7.1.36988    |                                              |
+| 25.11.0 | `25.11.0.114957` | 11.5.0.35357    |                                              |
+| 25.10.0 | `25.10.0.114319` | 11.4.1.34873    |                                              |
+| 25.9.0  | `25.9.0.112764`  | 11.3.0.34350    | **First SonarJS 11.x**                       |
+| 25.8.0  | `25.8.0.112029`  | 10.25.0.33900   |                                              |
+| 25.7.0  | `25.7.0.110598`  | 10.23.0.32711   |                                              |
+| 25.6.0  | `25.6.0.109173`  | 10.23.0.32711   | **First listed with `EslintHook` interface** |
+| 25.5.0  | `25.5.0.107428`  | 10.22.0.32148   | `languages()` deprecated                     |
+| 25.4.0  | `25.4.0.105899`  | 10.21.1.30825   | No `EslintHook`                              |
+| 25.3.0  | `25.3.0.104237`  | 10.21.1.30825   |                                              |
+| 25.2.0  | `25.2.0.102705`  | 10.20.0.29356   |                                              |
+| 25.1.0  | `25.1.0.102122`  | 10.20.0.29356   |                                              |
 
 #### Community 24.x
 
@@ -110,25 +111,25 @@ These versions are from the private `SonarSource/sonar-enterprise` repository.
 
 #### Server 2025.x
 
-| Version  | Tag                   | SonarJS Version | Notable Changes             |
-| -------- | --------------------- | --------------- | --------------------------- |
-| 2025.6.1 | `sqs-2025.6.1.117629` | 11.7.1.36988    |                             |
-| 2025.6.0 | `sqs-2025.6.0.117042` | 11.7.1.36988    |                             |
-| 2025.5.0 | `sqs-2025.5.0.113872` | 11.4.0.34681    |                             |
-| 2025.4.4 | `sqs-2025.4.4.119049` | 10.26.0.35551   |                             |
-| 2025.4.3 | `sqs-2025.4.3.113915` | 10.25.0.33900   |                             |
-| 2025.4.2 | `sqs-2025.4.2.112048` | 10.25.0.33900   |                             |
-| 2025.4.1 | `sqs-2025.4.1.111832` | 10.25.0.33900   |                             |
-| 2025.4.0 | `sqs-2025.4.0.111749` | 10.25.0.33900   | **First with `EslintHook`** |
-| 2025.3.1 | `sqs-2025.3.1.109879` | 10.23.0.32711   |                             |
-| 2025.3.0 | `sqs-2025.3.0.108892` | 10.23.0.32711   |                             |
-| 2025.2.0 | `sqs-2025.2.0.105476` | 10.21.1.30825   | No `EslintHook`             |
-| 2025.1.5 | `sqs-2025.1.5.119025` | 10.21.2.35552   |                             |
-| 2025.1.4 | `sqs-2025.1.4.113907` | 10.21.1.30825   |                             |
-| 2025.1.3 | `sqs-2025.1.3.110580` | 10.21.1.30825   |                             |
-| 2025.1.2 | `sqs-2025.1.2.108896` | 10.21.1.30825   |                             |
-| 2025.1.1 | `sqs-2025.1.1.104738` | 10.21.1.30825   |                             |
-| 2025.1.0 | `sqs-2025.1.0.102418` | 10.20.0.29356   |                             |
+| Version  | Tag                   | SonarJS Version | Notable Changes                              |
+| -------- | --------------------- | --------------- | -------------------------------------------- |
+| 2025.6.1 | `sqs-2025.6.1.117629` | 11.7.1.36988    |                                              |
+| 2025.6.0 | `sqs-2025.6.0.117042` | 11.7.1.36988    |                                              |
+| 2025.5.0 | `sqs-2025.5.0.113872` | 11.4.0.34681    |                                              |
+| 2025.4.4 | `sqs-2025.4.4.119049` | 10.26.0.35551   |                                              |
+| 2025.4.3 | `sqs-2025.4.3.113915` | 10.25.0.33900   |                                              |
+| 2025.4.2 | `sqs-2025.4.2.112048` | 10.25.0.33900   |                                              |
+| 2025.4.1 | `sqs-2025.4.1.111832` | 10.25.0.33900   |                                              |
+| 2025.4.0 | `sqs-2025.4.0.111749` | 10.25.0.33900   |                                              |
+| 2025.3.1 | `sqs-2025.3.1.109879` | 10.23.0.32711   |                                              |
+| 2025.3.0 | `sqs-2025.3.0.108892` | 10.23.0.32711   | **First listed with `EslintHook` interface** |
+| 2025.2.0 | `sqs-2025.2.0.105476` | 10.21.1.30825   | No `EslintHook`                              |
+| 2025.1.5 | `sqs-2025.1.5.119025` | 10.21.2.35552   |                                              |
+| 2025.1.4 | `sqs-2025.1.4.113907` | 10.21.1.30825   |                                              |
+| 2025.1.3 | `sqs-2025.1.3.110580` | 10.21.1.30825   |                                              |
+| 2025.1.2 | `sqs-2025.1.2.108896` | 10.21.1.30825   |                                              |
+| 2025.1.1 | `sqs-2025.1.1.104738` | 10.21.1.30825   |                                              |
+| 2025.1.0 | `sqs-2025.1.0.102418` | 10.20.0.29356   |                                              |
 
 #### Server 10.8.x
 
@@ -139,36 +140,54 @@ These versions are from the private `SonarSource/sonar-enterprise` repository.
 
 ## SonarJS API Milestones
 
-| SonarJS Version | Change                                                | Impact                                   |
-| --------------- | ----------------------------------------------------- | ---------------------------------------- |
-| 9.x             | API classes in `javascript-checks` module             | Dependency: `javascript-checks` artifact |
-| 10.15.0+        | API moved to `sonar-plugin/api` module                | Dependency: `api` artifact               |
-| 10.22.0         | `CustomRuleRepository.languages()` deprecated         | Use `compatibleLanguages()` instead      |
-| **10.23.0**     | **`EslintHook` and `EslintHookRegistrar` introduced** | New API for hooks                        |
-| 10.23.0+        | `languages()` method removed                          | Breaking change for old plugins          |
-| 11.6.0          | `EslintBasedCheck`, `JavaScriptCheck` deprecated      | Use `EslintHook` instead                 |
+| SonarJS Version     | Change                                                                      | Impact                                                                              |
+| ------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| 9.x                 | API classes in `javascript-checks` module                                   | Dependency: `javascript-checks` artifact                                            |
+| 10.15.0+            | API moved to `sonar-plugin/api` module                                      | Dependency: `api` artifact                                                          |
+| 10.22.0             | `CustomRuleRepository.languages()` deprecated                               | Use `compatibleLanguages()` instead                                                 |
+| **10.23.0**         | **`EslintHook` and `EslintHookRegistrar` introduced**                       | Direct registrar hooks available; repository rules still require `EslintBasedCheck` |
+| 11.1.0              | `languages()` method removed                                                | Breaking change for old plugins                                                     |
+| 11.6.0              | Repository checks switch to `EslintHook`; legacy check API deprecated       | Direct `EslintHook` repository rules supported                                      |
+| 12.2.0              | Named-profile registration added to `ProfileRegistrar`                      | `registerQualityProfileRules(...)` available                                        |
+| 14.0.0 (unreleased) | `Check`, `EslintBasedCheck`, `JavaScriptCheck`, and `TestFileCheck` removed | Plugins must migrate to `EslintHook`                                                |
+
+The product tables above intentionally do not assign SonarJS 14.0.0 to a SonarQube version. Add
+that mapping only after a released SonarQube tag and its bundled SonarJS version can be verified.
 
 ## Compatibility Notes for Plugin Developers
 
 ### Minimum SonarJS Version for Features
 
-| Feature                 | Minimum SonarJS |
-| ----------------------- | --------------- |
-| `EslintHook` API        | 10.23.0         |
-| `EslintHookRegistrar`   | 10.23.0         |
-| `compatibleLanguages()` | 10.22.0         |
-| Separate API module     | 10.15.0         |
+| Feature                                 | Minimum SonarJS |
+| --------------------------------------- | --------------- |
+| Separate API module                     | 10.15.0         |
+| `compatibleLanguages()`                 | 10.22.0         |
+| Default-profile `ProfileRegistrar`      | 10.22.0         |
+| `EslintHook` interface                  | 10.23.0         |
+| `EslintHookRegistrar`                   | 10.23.0         |
+| `EslintHook` via `CustomRuleRepository` | 11.6.0          |
+| Named-profile `ProfileRegistrar`        | 12.2.0          |
 
 ### Breaking Changes Timeline
 
-1. **SonarJS 10.22+**: `languages()` deprecated
-2. **SonarJS 10.23+**: `languages()` removed, `EslintHook` available
-3. **SonarJS 11.6+**: `EslintBasedCheck`/`JavaScriptCheck` deprecated, `JsTsChecks` uses `checkFactory.<EslintHook>`
+1. **SonarJS 10.22.0+**: `languages()` deprecated
+2. **SonarJS 10.23.0+**: `EslintHook` API and direct registrar hooks available; repository rule classes still require `EslintBasedCheck`
+3. **SonarJS 11.1.0+**: `languages()` removed
+4. **SonarJS 11.6.0+**: Direct `EslintHook` repository rule classes supported; legacy check API deprecated
+5. **Current SonarJS 14.0.0-SNAPSHOT (unreleased)**: Legacy check API removed; plugins must
+   implement `EslintHook`
 
 ### Plugin Compatibility Matrix
 
-| Plugin compiled against           | Implements         | SonarJS 10.23-11.5                        | SonarJS 11.6+         |
-| --------------------------------- | ------------------ | ----------------------------------------- | --------------------- |
-| SonarJS 9.x (`javascript-checks`) | `EslintBasedCheck` | ❌ ClassCastException                     | ❌ ClassCastException |
-| SonarJS 10.23+ (`api` module)     | `EslintBasedCheck` | ✅                                        | ✅ (deprecated)       |
-| SonarJS 10.23+ (`api` module)     | `EslintHook` only  | ❌ CheckFactory expects `JavaScriptCheck` | ✅                    |
+| Registration path                                                       | SonarJS 10.23.0 - 11.5.x                           | SonarJS 11.6.0 - 13.x | SonarJS 14.0.0-SNAPSHOT (unreleased) |
+| ----------------------------------------------------------------------- | -------------------------------------------------- | --------------------- | ------------------------------------ |
+| `EslintHook` via `EslintHookRegistrar` (non-rule hook)                  | ✅                                                 | ✅                    | ✅                                   |
+| `EslintHook` directly via `CustomRuleRepository` (issue-producing rule) | ❌ Repository pipeline requires `EslintBasedCheck` | ✅                    | ✅                                   |
+| `EslintBasedCheck` via `CustomRuleRepository`                           | ✅                                                 | ✅ (deprecated)       | ❌ Type removed                      |
+
+Plugins that still reference a removed legacy type must migrate to `EslintHook` directly and
+recompile. Compile against the oldest SonarJS API you intend to support (11.6.0 or later for direct
+repository rules), and test the resulting plugin with the current SonarJS 14.0.0-SNAPSHOT build or
+with SonarJS 14.0.0 once released. The same check contract works from SonarJS 11.6.0 onward, subject
+to Java and platform compatibility. Publish a separate legacy plugin release only if SonarJS
+11.5.x or earlier must remain supported.

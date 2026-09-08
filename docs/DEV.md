@@ -278,9 +278,9 @@ It will also update some files which are not tracked by Git as they are automati
      - You can use a `MyRuleCheckTest.java` test case to verify how the configurations will be
        serialized to JSON as shown
        [here](https://github.com/SonarSource/SonarJS/blob/master/sonar-plugin/javascript-checks/src/test/java/org/sonar/javascript/checks/NoEmptyClassCheckTest.java#L30)
-   - If writing a rule for the test files, replace `extends Check` with `extends TestFileCheck` in
-     the Java class. This will be done by the `new-rule` script, but make sure you are extending the
-     right base class.
+   - If writing a rule for test files, make sure the Java class extends the internal
+     `org.sonar.javascript.checks.TestFileCheck` instead of `MainFileCheck`. The `new-rule`
+     script selects the appropriate base class automatically.
 3. Implement the rule logic in `S1234/rule.ts`
    - Prefer using `meta.messages` to specify messages through `messageId`s. Message can be part of
      the RSPEC description, like
@@ -608,9 +608,7 @@ export const implementation = 'decorated';
 export const eslintId = 'max-params';
 export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'max-params' }];
 export * from './config.js';
-export const schema = {
-  /* ... */
-} as const satisfies JSONSchema4;
+export const schema = {/* ... */} as const satisfies JSONSchema4;
 ```
 
 #### `external`

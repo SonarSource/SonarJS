@@ -1,6 +1,0 @@
-{
-  "name": "custom-eslint-based-rules",
-  "version": "1.0.0",
-  "description": "Custom rules for SonarJS using ESLint",
-  "main": "dist/rules.js"
-}

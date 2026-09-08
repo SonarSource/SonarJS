@@ -2,7 +2,11 @@
 
 This document describes the recommended approach for creating custom rules that integrate with SonarJS analysis using the `EslintHook` interface.
 
-> **Requires SonarJS 11.6+** (SonarQube 25.12+ or SonarCloud). For older versions, see [Supporting Older SonarJS Versions](#supporting-older-sonarjs-versions) below.
+> **The repository-backed custom-rule API described here requires SonarJS 11.6 or later.**
+> `EslintHook` and `EslintHookRegistrar` were introduced in SonarJS 10.23, but SonarJS 10.23-11.5.x
+> still required issue-producing rule classes registered through `CustomRuleRepository` to
+> implement `EslintBasedCheck`. This guide reflects the current SonarJS 14.0.0-SNAPSHOT API;
+> SonarJS 14.0.0 has not been released yet.
 
 ## Overview
 
@@ -276,18 +280,24 @@ public class MyCustomRulesPlugin implements Plugin {
 
 Add the SonarJS API dependency to your `pom.xml`:
 
+Set `sonarjs.version` to the complete version published to Maven Central. SonarJS artifacts include
+a build number, so a 14.0 release uses a version such as `14.0.0.<build>`, not bare `14.0.0`.
+
 ```xml
 <dependency>
   <groupId>org.sonarsource.javascript</groupId>
   <artifactId>api</artifactId>
-  <version>11.6.0</version>
+  <version>${sonarjs.version}</version>
   <scope>provided</scope>
 </dependency>
 ```
 
 ### 9. Optional: Activate Rules in Built-In Profiles
 
-If you want your rules to be active by default in built-in quality profiles, implement `ProfileRegistrar`:
+If you want your rules to be active by default in built-in quality profiles, implement
+`ProfileRegistrar`. `ProfileRegistrar` and `registerDefaultQualityProfileRules(...)` are available
+since SonarJS 10.22. Named-profile registration with `registerQualityProfileRules(...)` requires
+SonarJS 12.2 or later.
 
 ```java
 package com.example.plugin;
@@ -301,7 +311,7 @@ public class MyProfileRegistrar implements ProfileRegistrar {
 
   @Override
   public void register(RegistrarContext registrarContext) {
-    // Backward-compatible shortcut for "Sonar way"
+    // Available since SonarJS 10.22; contributes to "Sonar way"
     registrarContext.registerDefaultQualityProfileRules(
       Language.JAVASCRIPT,
       List.of(RuleKey.of(MyRuleRepository.REPOSITORY_KEY, "S1234"))
@@ -310,16 +320,23 @@ public class MyProfileRegistrar implements ProfileRegistrar {
       Language.TYPESCRIPT,
       List.of(RuleKey.of(MyRuleRepository.REPOSITORY_KEY, "S1234"))
     );
-
-    // Profile-aware activation using the rspec profile name
-    registrarContext.registerQualityProfileRules(
-      "Agentic",
-      Language.JAVASCRIPT,
-      List.of(RuleKey.of(MyRuleRepository.REPOSITORY_KEY, "S1234"))
-    );
   }
 }
 ```
+
+For a plugin whose minimum SonarJS version is 12.2 or later, add named-profile activation when
+needed:
+
+```java
+registrarContext.registerQualityProfileRules(
+  "Agentic", // Must match the RSPEC profile name
+  Language.JAVASCRIPT,
+  List.of(RuleKey.of(MyRuleRepository.REPOSITORY_KEY, "S1234"))
+);
+```
+
+Calling `registerQualityProfileRules(...)` makes 12.2 the minimum SonarJS version for that plugin.
+Omit the call and compile against the older API if the same plugin must support SonarJS 11.6-12.1.
 
 Register it in your plugin:
 
@@ -363,11 +380,11 @@ Notes:
 
 ### ProfileRegistrar Interface (Optional)
 
-| Method                                    | Description                                                                 |
-| ----------------------------------------- | --------------------------------------------------------------------------- |
-| `register(RegistrarContext)`              | Called on server side to contribute additional built-in profile activations |
-| `registerDefaultQualityProfileRules(...)` | Adds rule keys to the built-in default profile (`Sonar way`) for JS or TS   |
-| `registerQualityProfileRules(...)`        | Adds rule keys to a specific built-in profile by name for JS or TS          |
+| Method                                    | Since | Description                                                                 |
+| ----------------------------------------- | ----- | --------------------------------------------------------------------------- |
+| `register(RegistrarContext)`              | 10.22 | Called on server side to contribute additional built-in profile activations |
+| `registerDefaultQualityProfileRules(...)` | 10.22 | Adds rule keys to the built-in default profile (`Sonar way`) for JS or TS   |
+| `registerQualityProfileRules(...)`        | 12.2  | Adds rule keys to a specific built-in profile by name for JS or TS          |
 
 ## Best Practices
 
@@ -387,63 +404,28 @@ See the integration test plugin in SonarJS for a complete working example:
 
 ---
 
-## Supporting Older SonarJS Versions
+## SonarJS Version Support
 
-If you need to support SonarJS versions **before 11.6**, you must use `EslintBasedCheck` instead of `EslintHook`.
+| Capability                                                                      | Minimum SonarJS              |
+| ------------------------------------------------------------------------------- | ---------------------------- |
+| Default-profile activation with `ProfileRegistrar`                              | 10.22                        |
+| Direct data hooks through `EslintHookRegistrar`                                 | 10.23                        |
+| Custom rules implementing `EslintHook` through `CustomRuleRepository`           | 11.6                         |
+| Named-profile activation with `registerQualityProfileRules(...)`                | 12.2                         |
+| API without `Check`, `EslintBasedCheck`, `JavaScriptCheck`, and `TestFileCheck` | 14.0.0-SNAPSHOT (unreleased) |
 
-> See [SONARQUBE_VERSION_MATRIX.md](../SONARQUBE_VERSION_MATRIX.md) for SonarQube ↔ SonarJS version mapping.
+`EslintHook` and `EslintHookRegistrar` were introduced in SonarJS 10.23. In SonarJS 10.23 through
+11.5.x, a class implementing only `EslintHook` can be registered only through
+`EslintHookRegistrar`, whose hooks cannot raise Sonar issues. Repository-backed custom rules still
+had to implement the historical `EslintBasedCheck` contract. Since SonarJS 11.6,
+`CustomRuleRepository` accepts classes that implement `EslintHook` directly.
 
-### Why This Is Needed
-
-| SonarJS Version  | CheckFactory Type                | Required Interface                                                   |
-| ---------------- | -------------------------------- | -------------------------------------------------------------------- |
-| **10.23 - 11.5** | `checkFactory.<JavaScriptCheck>` | `EslintBasedCheck` (extends both `EslintHook` and `JavaScriptCheck`) |
-| **11.6+**        | `checkFactory.<EslintHook>`      | `EslintHook` (or `EslintBasedCheck` for compatibility)               |
-
-`EslintBasedCheck` extends both interfaces, so it works with all versions. It is deprecated in 11.6+ but still functional.
-
-### Example Using EslintBasedCheck
-
-```java
-package com.example.plugin.rules;
-
-import java.util.List;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.check.Rule;
-import org.sonar.plugins.javascript.api.AnalysisMode;
-import org.sonar.plugins.javascript.api.EslintBasedCheck;
-import org.sonar.plugins.javascript.api.JavaScriptRule;
-import org.sonar.plugins.javascript.api.TypeScriptRule;
-
-@Rule(key = "S1234")
-@JavaScriptRule
-@TypeScriptRule
-public class MyCustomCheck implements EslintBasedCheck {
-
-  @Override
-  public String eslintKey() {
-    return "my-custom-rule";
-  }
-
-  @Override
-  public List<InputFile.Type> targets() {
-    return List.of(InputFile.Type.MAIN);
-  }
-
-  @Override
-  public List<AnalysisMode> analysisModes() {
-    return List.of(AnalysisMode.DEFAULT, AnalysisMode.SKIP_UNCHANGED);
-  }
-}
-```
-
-The rest of the implementation (repository, bundle, plugin class) remains the same as shown above.
-
-### Recommendation
-
-- **New projects targeting 11.6+**: Use `EslintHook` directly
-- **Projects needing backward compatibility**: Use `EslintBasedCheck`
-- **Migrating from `EslintBasedCheck` to `EslintHook`**: Simply change `implements EslintBasedCheck` to `implements EslintHook` - the API is identical
+This guide reflects the current SonarJS 14.0.0-SNAPSHOT API; SonarJS 14.0.0 has not been released
+yet. For this API migration, a separate legacy build is needed only when SonarJS 11.5.x or earlier
+must remain supported; the direct `EslintHook` repository contract is available from SonarJS 11.6
+onward, subject to normal Java and platform compatibility. See the
+[legacy API migration page](CUSTOM_RULES_LEGACY.md) for the upgrade steps and the
+[API changelog](CUSTOM_RULES_API_CHANGELOG.md) for the complete history.
 
 ---
 
@@ -632,6 +614,7 @@ When the bridge returns an issue, `AnalysisProcessor` converts it to a Sonar iss
 
 ```java
 var ruleKey = checks.ruleKeyByEslintKey(issue.ruleId(), language);
+
 if (ruleKey != null) {
   newIssue.at(location).forRule(ruleKey).save();
 }
@@ -726,7 +709,7 @@ This is why `CustomRuleRepository` rules can raise issues: their `eslintKey` is 
 | ------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------- |
 | `EslintHook`                   | `sonar-plugin/api/.../EslintHook.java`                                       | Rule interface                        |
 | `CustomRuleRepository`         | `sonar-plugin/api/.../CustomRuleRepository.java`                             | Interface for rule repositories       |
-| `ProfileRegistrar`             | `sonar-plugin/api/.../ProfileRegistrar.java`                                 | Optional default-profile activations  |
+| `ProfileRegistrar`             | `sonar-plugin/api/.../ProfileRegistrar.java`                                 | Optional built-in-profile activations |
 | `RulesBundle`                  | `sonar-plugin/api/.../RulesBundle.java`                                      | Interface for JS bundle location      |
 | `JsTsChecks.addCustomChecks()` | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java`                   | Processes custom repositories         |
 | `JsTsChecks.doAddChecks()`     | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java`                   | Instantiates checks via CheckFactory  |
