@@ -252,6 +252,11 @@ describe('S5332', () => {
         url = 'http://adlnet.gov/expapi/verbs/completed';
         url = 'http://jabber.org/protocol/muc';
         url = 'http://etherx.jabber.org/streams';
+
+        // XMPP stream-feature namespaces live under /features/, not /protocol/
+        url = 'http://jabber.org/features/iq-auth';
+        url = 'http://jabber.org/features/iq-register';
+        url = 'http://jabber.org/features/compress';
       `,
         },
         {
@@ -386,15 +391,17 @@ describe('S5332', () => {
         },
         {
           code: `
-      // jabber.org is a live public XMPP server: only its /protocol/ XEP namespaces are exempt,
-      // real endpoints on that host stay reported
+      // jabber.org is a live public XMPP server: only its /protocol/ and /features/ XEP
+      // namespaces are exempt, real endpoints on that host stay reported
       url = "http://jabber.org/http-bind";
       url = "http://jabber.org:5280/http-bind";
       url = "http://jabber.org";
+      // the path prefixes are anchored on the trailing slash
+      url = "http://jabber.org/features";
       // the lenient fallback cannot see the path, so a path-scoped authority fails closed
       url = "http://jabber.org:\${port}/protocol/muc";
       `,
-          errors: 4,
+          errors: 5,
         },
         {
           code: `

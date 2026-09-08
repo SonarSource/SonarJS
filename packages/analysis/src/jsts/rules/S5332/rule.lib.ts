@@ -90,10 +90,12 @@ const NAMESPACE_URI_AUTHORITIES: NamespaceAuthority[] = [
   'cyclonedx.org',
   'snomed.info',
   'adlnet.gov',
-  // jabber.org is also a live public XMPP server, not just a namespace string — only exempt its
-  // well-known XEP namespaces (all registered under /protocol/); anything else on this host,
-  // e.g. the BOSH endpoint http://jabber.org/http-bind, is a real cleartext network target.
+  // jabber.org is also a live public XMPP server, not just a namespace string — only exempt the
+  // paths reserved for XEP namespaces (/protocol/ for protocol namespaces, /features/ for stream
+  // features); anything else on this host, e.g. the BOSH endpoint http://jabber.org/http-bind,
+  // is a real cleartext network target.
   { host: 'jabber.org', pathPrefix: '/protocol/' },
+  { host: 'jabber.org', pathPrefix: '/features/' },
   'etherx.jabber.org',
 ];
 
