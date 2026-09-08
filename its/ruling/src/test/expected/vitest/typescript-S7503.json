@@ -1,0 +1,140 @@
+{
+"vitest:examples/fastify/src/app.ts": [
+9
+],
+"vitest:examples/lit/test/basic.test.ts": [
+6
+],
+"vitest:examples/opentelemetry/src/basic.test.ts": [
+9
+],
+"vitest:examples/projects/packages/server/src/app.ts": [
+9
+],
+"vitest:packages/browser-preview/src/preview.ts": [
+50
+],
+"vitest:packages/browser-webdriverio/src/webdriverio.ts": [
+270
+],
+"vitest:packages/browser/src/client/orchestrator.ts": [
+328
+],
+"vitest:packages/browser/src/client/tester/context.ts": [
+161,
+222,
+245
+],
+"vitest:packages/browser/src/node/commands/fs.ts": [
+28
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+39,
+295,
+314,
+356
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+141,
+214
+],
+"vitest:packages/browser/src/node/utils.ts": [
+67
+],
+"vitest:packages/mocker/src/browser/interceptor-msw.ts": [
+58
+],
+"vitest:packages/mocker/src/node/mockerPlugin.ts": [
+52
+],
+"vitest:packages/snapshot/src/env/node.ts": [
+16,
+20,
+36
+],
+"vitest:packages/ui/client/composables/client/static.ts": [
+51,
+73
+],
+"vitest:packages/ui/client/composables/codemirror.ts": [
+67
+],
+"vitest:packages/vitest/src/api/setup.ts": [
+68,
+74,
+247,
+257,
+267
+],
+"vitest:packages/vitest/src/integrations/env/loader.ts": [
+47
+],
+"vitest:packages/vitest/src/integrations/env/node.ts": [
+123
+],
+"vitest:packages/vitest/src/node/core.ts": [
+377
+],
+"vitest:packages/vitest/src/node/coverage.ts": [
+223,
+227,
+572
+],
+"vitest:packages/vitest/src/node/plugins/index.ts": [
+26,
+44
+],
+"vitest:packages/vitest/src/node/plugins/vitestResolver.ts": [
+45
+],
+"vitest:packages/vitest/src/node/pools/workers/forksWorker.ts": [
+44
+],
+"vitest:packages/vitest/src/node/pools/workers/threadsWorker.ts": [
+40
+],
+"vitest:packages/vitest/src/node/pools/workers/typecheckWorker.ts": [
+151
+],
+"vitest:packages/vitest/src/node/project.ts": [
+544
+],
+"vitest:packages/vitest/src/node/projects/resolveProjects.ts": [
+203
+],
+"vitest:packages/vitest/src/node/reporters/junit.ts": [
+159
+],
+"vitest:packages/vitest/src/node/sequencers/BaseSequencer.ts": [
+16,
+35
+],
+"vitest:packages/vitest/src/node/sequencers/RandomSequencer.ts": [
+6
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/bareModuleMocker.ts": [
+287,
+291
+],
+"vitest:packages/vitest/src/runtime/nodejsWorkerLoader.ts": [
+13
+],
+"vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
+177
+],
+"vitest:packages/vitest/src/runtime/runners/test.ts": [
+142
+],
+"vitest:packages/vitest/src/runtime/workers/base.ts": [
+44
+],
+"vitest:packages/vitest/src/typecheck/parse.ts": [
+6
+],
+"vitest:packages/vitest/src/typecheck/typechecker.ts": [
+272
+],
+"vitest:packages/vitest/src/utils/graph.ts": [
+6
+]
+}

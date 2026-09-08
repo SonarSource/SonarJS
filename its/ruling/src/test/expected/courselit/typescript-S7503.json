@@ -1,0 +1,17 @@
+{
+"courselit:apps/web/components/admin/courses/index.tsx": [
+134
+],
+"courselit:apps/web/lib/graphql.ts": [
+102
+],
+"courselit:apps/web/pages/api/auth/logout.ts": [
+4
+],
+"courselit:apps/web/payments/stripe-payment.ts": [
+23
+],
+"courselit:packages/state-management/src/action-creators.ts": [
+35
+]
+}
