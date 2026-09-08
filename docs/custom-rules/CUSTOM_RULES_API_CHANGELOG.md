@@ -10,11 +10,11 @@ This document tracks all changes to the SonarJS Custom Rules API that may impact
 # Find history of a specific API file
 git log --oneline --all -- "**/api/**/FileName.java"
 
-# Find which version introduced a commit
-git tag --contains <commit-hash> | head -3
+# Find the first release tag containing a commit
+git tag --contains <commit-hash> --sort=version:refname | head -1
 
-# Find which version does NOT have a commit (last version before change)
-git tag --no-contains <commit-hash> | tail -3
+# Find the nearest release tag before the commit on its ancestry
+git describe --tags --abbrev=0 <commit-hash>^
 
 # View commit details
 git show <commit-hash> --stat
@@ -23,11 +23,11 @@ git show <commit-hash> --stat
 ### Key API Files to Track
 
 - `sonar-plugin/api/src/main/java/org/sonar/plugins/javascript/api/`
-  - `EslintHook.java` - New hook interface (10.23.0+)
+  - `EslintHook.java` - Hook contract (10.23.0+); directly supported for
+    `CustomRuleRepository` checks in 11.6.0+
   - `EslintHookRegistrar.java` - Hook registration (10.23.0+)
-  - `ProfileRegistrar.java` - Default profile activation SPI (10.22.0+)
-  - `EslintBasedCheck.java` - Check interface (deprecated 11.6.0)
-  - `JavaScriptCheck.java` - Marker interface (deprecated 11.6.0)
+  - `ProfileRegistrar.java` - Default profile activation SPI (10.22.0+); named profile activation
+    (12.2.0+)
   - `CustomRuleRepository.java` - Rule repository interface
   - `RulesBundle.java` - JS bundle interface
   - `Language.java` - Language enum (10.22.0+)
@@ -45,17 +45,68 @@ git show <commit-hash> --stat
 
 ---
 
+### SonarJS 14.0.0 (unreleased)
+
+| Change                        | Details                                                 | Commit |
+| ----------------------------- | ------------------------------------------------------- | ------ |
+| ❌ `Check` removed            | Implement `EslintHook` and provide `eslintKey()`        | —      |
+| ❌ `EslintBasedCheck` removed | Implement `EslintHook` directly                         | —      |
+| ❌ `JavaScriptCheck` removed  | Use `EslintHook` as the check contract                  | —      |
+| ❌ `TestFileCheck` removed    | Implement `EslintHook` and target `InputFile.Type.TEST` | —      |
+
+These types were deprecated for removal in 11.6.0 and are absent from the current
+14.0.0-SNAPSHOT API. That API is not binary-compatible with plugin classes that reference them;
+loading such a class can fail with `NoClassDefFoundError`. Plugins whose rule classes implement
+`EslintHook` directly and whose classes and signatures do not otherwise reference a removed type
+are unaffected by this API removal. SonarJS 14.0.0 has not been released yet.
+
+**Migration from SonarJS 13.x**:
+
+1. Change each legacy rule class to implement `EslintHook` directly and keep declaring it in
+   `CustomRuleRepository.checkClasses()`.
+2. Implement `eslintKey()` so it matches the rule ID exported by the JavaScript bundle. For a class
+   that extended `Check`, returning the same constant used by `@Rule(key = ...)` preserves the
+   former behavior.
+3. For a class that extended `TestFileCheck`, override `targets()` and return
+   `List.of(InputFile.Type.TEST)`.
+4. Remove every import, superclass, interface, field, and method signature that refers to `Check`,
+   `EslintBasedCheck`, `JavaScriptCheck`, or `TestFileCheck`. Compile against the oldest SonarJS API
+   you intend to support (11.6.0 or later for direct repository rules), and test the resulting
+   plugin with the current SonarJS 14.0.0-SNAPSHOT build or with SonarJS 14.0.0 once released.
+
+One implementation using only the direct `EslintHook` contract can support SonarJS 11.6.0 and
+later, subject to normal Java and platform compatibility. Supporting SonarJS 11.5.x or earlier
+requires a separate legacy build, normally using `EslintBasedCheck`.
+
+`CustomRuleRepository` remains supported. See [ESLINT_HOOKS.md](ESLINT_HOOKS.md) for the complete
+current custom-rule API.
+
+---
+
+### SonarJS 12.2.0 (March 2026)
+
+| Change                              | Details                                                 | Commit       |
+| ----------------------------------- | ------------------------------------------------------- | ------------ |
+| ✅ Named profile registration added | `registerQualityProfileRules(...)` on registrar context | `3eb58ad7ec` |
+
+The earlier `registerDefaultQualityProfileRules(...)` shortcut remains available for the default
+`Sonar way` profile. Use the named method only when the runtime contains SonarJS 12.2.0 or later.
+
+---
+
 ### SonarJS 11.6.0 (November 2025)
 
 | Change                                 | Details                                                            | Commit        |
 | -------------------------------------- | ------------------------------------------------------------------ | ------------- |
 | ⚠️ `EslintBasedCheck` deprecated       | Use `EslintHook` instead                                           | `9324ae345fc` |
 | ⚠️ `JavaScriptCheck` deprecated        | Use `EslintHook` instead                                           | `9324ae345fc` |
-| ⚠️ `TypeScriptCheck` deprecated        | Use `EslintHook` instead                                           | `9324ae345fc` |
+| ⚠️ `Check` deprecated                  | Use `EslintHook` instead                                           | `9324ae345fc` |
 | ⚠️ `TestFileCheck` deprecated          | Use `EslintHook` instead                                           | `9324ae345fc` |
 | 🔄 `JsTsChecks` uses `EslintHook` type | `checkFactory.<EslintHook>create()` instead of `<JavaScriptCheck>` | `9324ae345fc` |
 
-**Migration**: Replace `implements EslintBasedCheck` with `implements EslintHook`.
+**Migration**: New repository checks may implement `EslintHook` directly from this release.
+Existing `EslintBasedCheck`, `Check`, and `TestFileCheck` implementations still work in 11.6-13.x
+but are deprecated; migrate them before upgrading to 14.0.
 
 **Impact**: Plugins must implement `EslintHook` (directly or via `EslintBasedCheck`) for the CheckFactory cast to succeed.
 
@@ -68,7 +119,10 @@ git show <commit-hash> --stat
 | ❌ `CustomRuleRepository.languages()` removed   | Method and inner `Language` enum removed                | `0218b04b5ca` |
 | ❌ `CustomRuleRepository.Language` enum removed | Use `org.sonar.plugins.javascript.api.Language` instead | `0218b04b5ca` |
 
-**Breaking Change**: Plugins using `languages()` will fail at runtime.
+**Breaking change**: Source code using `languages()` or `CustomRuleRepository.Language` no longer
+compiles. In a previously compiled plugin, the old `languages()` override is no longer consulted;
+the new `compatibleLanguages()` default selects JavaScript only, so TypeScript registration can be
+lost. Resolving the removed inner enum can also fail at runtime.
 
 **Migration**:
 
@@ -88,25 +142,35 @@ public Set<org.sonar.plugins.javascript.api.Language> compatibleLanguages() {
 
 ---
 
-### SonarJS 10.23.0 (April 2025)
+### SonarJS 10.23.0 (May 2025)
 
-| Change                                         | Details                                                | Commit        |
-| ---------------------------------------------- | ------------------------------------------------------ | ------------- |
-| ✅ `EslintHook` interface added                | New base interface for all checks/hooks                | `83ef267372c` |
-| ✅ `EslintHookRegistrar` interface added       | For registering hooks without `@Rule` annotation       | `83ef267372c` |
-| 🔄 `EslintBasedCheck` now extends `EslintHook` | `EslintBasedCheck extends EslintHook, JavaScriptCheck` | `83ef267372c` |
+| Change                                         | Details                                                                 | Commit        |
+| ---------------------------------------------- | ----------------------------------------------------------------------- | ------------- |
+| ✅ `EslintHook` interface added                | Contract for direct registrar hooks; `EslintBasedCheck` also extends it | `83ef267372c` |
+| ✅ `EslintHookRegistrar` interface added       | Registers non-rule hooks that cannot raise issues                       | `83ef267372c` |
+| 🔄 `EslintBasedCheck` now extends `EslintHook` | `EslintBasedCheck extends EslintHook, JavaScriptCheck`                  | `83ef267372c` |
 
-**Note**: `JsTsChecks` still uses `checkFactory.<JavaScriptCheck>` in this version. The change to `<EslintHook>` happened in 11.6.0.
+In 10.23.0-11.5.x, direct registrar hooks use `EslintHook`, but issue-producing classes returned by
+`CustomRuleRepository.checkClasses()` must implement `EslintBasedCheck`. The repository pipeline
+filters out other implementations when it builds the ESLint rule set and issue mapping. Direct
+`EslintHook` repository checks are supported from 11.6.0.
 
-**New Features in `EslintHook`**:
+**Methods exposed by `EslintHook` in this release**:
 
+- `eslintKey()` - Identify the ESLint rule to execute
+- `configurations()` - Pass configuration to the ESLint rule
+- `targets()` - Select main and test files
 - `analysisModes()` - Control when hook runs (DEFAULT, SKIP_UNCHANGED)
 - `blacklistedExtensions()` - Skip certain file extensions
 - `isEnabled()` - Dynamically enable/disable hook
 
+Only `isEnabled()` was a new capability in 10.23.0. The other methods had already appeared on the
+legacy public check contract: `eslintKey()` and `configurations()` by 6.5.0, `targets()` by 8.5.0,
+and `analysisModes()` and `blacklistedExtensions()` by 10.22.0.
+
 ---
 
-### SonarJS 10.22.0 (March 2025)
+### SonarJS 10.22.0 (April 2025)
 
 | Change                                  | Details                                                            | Commit        |
 | --------------------------------------- | ------------------------------------------------------------------ | ------------- |
@@ -120,11 +184,12 @@ public Set<org.sonar.plugins.javascript.api.Language> compatibleLanguages() {
 
 ---
 
-### SonarJS 10.15.0 (May 2024)
+### SonarJS 10.15.0 (September 2024)
 
-| Change                          | Details                           | Commit        |
-| ------------------------------- | --------------------------------- | ------------- |
-| 🔄 API moved to separate module | `sonar-plugin/api` module created | `968bed25aeb` |
+| Change                          | Details                                                  | Commit        |
+| ------------------------------- | -------------------------------------------------------- | ------------- |
+| 🔄 API moved to separate module | `sonar-plugin/api` module created                        | `968bed25aeb` |
+| ✅ `Check` class added          | Convenience implementation deriving its key from `@Rule` | `a9a8c41c26`  |
 
 **Impact**: Dependency artifact changed.
 
@@ -145,15 +210,26 @@ public Set<org.sonar.plugins.javascript.api.Language> compatibleLanguages() {
 
 ---
 
-### SonarJS 6.x (September 2020)
+### SonarJS 8.5.0 (October 2021)
 
-| Change                           | Details                                  | Commit        |
-| -------------------------------- | ---------------------------------------- | ------------- |
-| ✅ `RulesBundle` interface added | For providing custom ESLint rule bundles | `18a8b1e9481` |
+| Change                         | Details                               | Commit       |
+| ------------------------------ | ------------------------------------- | ------------ |
+| ✅ `TestFileCheck` class added | Convenience base class for test rules | `6d5e398040` |
 
 ---
 
-### SonarJS 6.x (September 2019)
+### SonarJS 6.5.0 (September 2020)
+
+| Change                             | Details                                | Commit        |
+| ---------------------------------- | -------------------------------------- | ------------- |
+| ✅ Public `EslintBasedCheck` added | Public contract for ESLint-based rules | `4ee504ce23`  |
+| ✅ `RulesBundle` interface added   | Provides custom ESLint rule bundles    | `18a8b1e9481` |
+
+The similarly named class added in SonarJS 5.0 was internal; it was not the public custom-rule API.
+
+---
+
+### SonarJS 6.0.0 (October 2019)
 
 | Change                               | Details                     | Commit        |
 | ------------------------------------ | --------------------------- | ------------- |
@@ -163,15 +239,7 @@ public Set<org.sonar.plugins.javascript.api.Language> compatibleLanguages() {
 
 ---
 
-### SonarJS 5.0.0 (September 2018)
-
-| Change                                | Details                | Commit        |
-| ------------------------------------- | ---------------------- | ------------- |
-| ✅ `EslintBasedCheck` interface added | For ESLint-based rules | `123780d706d` |
-
----
-
-### SonarJS 5.0.0 (July 2018)
+### SonarJS 4.2.0 (July 2018)
 
 | Change                                    | Details                                    | Commit        |
 | ----------------------------------------- | ------------------------------------------ | ------------- |
@@ -179,7 +247,7 @@ public Set<org.sonar.plugins.javascript.api.Language> compatibleLanguages() {
 
 ---
 
-### SonarJS 2.x (March 2015)
+### SonarJS 2.6 (May 2015)
 
 | Change                               | Details                              | Commit        |
 | ------------------------------------ | ------------------------------------ | ------------- |
@@ -203,21 +271,28 @@ JavaScriptCheck (marker interface)
 EslintHook (new base interface)
     │
     └── EslintBasedCheck (extends EslintHook, JavaScriptCheck)
-            └── Your custom check (either interface works)
+            └── Your custom check (implements EslintBasedCheck)
 
-JavaScriptCheck (marker, still functional)
+JavaScriptCheck (marker retained; not sufficient by itself for an ESLint repository rule)
 ```
 
-### 11.6.0+ (Current)
+### 11.6.0 - 13.x
 
 ```
-EslintHook (recommended)
+EslintHook
     └── Your custom check
 
-EslintBasedCheck (deprecated, extends EslintHook)
+EslintBasedCheck (deprecated, extends EslintHook and JavaScriptCheck)
     └── Legacy custom checks (still works)
 
 JavaScriptCheck (deprecated, marker only)
+```
+
+### 14.0.0-SNAPSHOT (unreleased)
+
+```
+EslintHook
+    └── Your custom check
 ```
 
 ---
@@ -226,18 +301,24 @@ JavaScriptCheck (deprecated, marker only)
 
 > **Note**: Community Edition and Server have different version numbers. See `SONARQUBE_VERSION_MATRIX.md` for details.
 
-### By SonarJS Version (what you compile against)
+### By SonarJS Runtime Version
 
-| Compiled Against                  | Implements         | Community 25.6-25.11                    | Community 25.12+      | Server 2025.4 LTA                       |
-| --------------------------------- | ------------------ | --------------------------------------- | --------------------- | --------------------------------------- |
-| SonarJS 9.x (`javascript-checks`) | `EslintBasedCheck` | ❌ ClassCastException                   | ❌ ClassCastException | ❌ ClassCastException                   |
-| SonarJS 10.23+ (`api` module)     | `EslintBasedCheck` | ✅                                      | ✅                    | ✅                                      |
-| SonarJS 10.23+ (`api` module)     | `EslintHook` only  | ❌ CheckFactory expects JavaScriptCheck | ✅                    | ❌ CheckFactory expects JavaScriptCheck |
+| Registration path                                                       | SonarJS 10.23-11.5.x                               | SonarJS 11.6-13.x | SonarJS 14.0.0-SNAPSHOT (unreleased) |
+| ----------------------------------------------------------------------- | -------------------------------------------------- | ----------------- | ------------------------------------ |
+| `EslintHook` via `EslintHookRegistrar` (non-rule hook)                  | ✅                                                 | ✅                | ✅                                   |
+| `EslintHook` directly via `CustomRuleRepository` (issue-producing rule) | ❌ Repository pipeline requires `EslintBasedCheck` | ✅                | ✅                                   |
+| `EslintBasedCheck` via `CustomRuleRepository`                           | ✅                                                 | ✅ (deprecated)   | ❌ Type removed                      |
 
-**Key insight**: `JsTsChecks` uses `checkFactory.<JavaScriptCheck>` until SonarJS 11.6.0, then switches to `checkFactory.<EslintHook>`.
+**Key insight**: Through SonarJS 11.5.x, `JsTsChecks` creates `Checks<JavaScriptCheck>` and selects
+only `EslintBasedCheck` instances for ESLint execution and issue mapping. SonarJS 11.6.0 switches
+that pipeline to `EslintHook`.
 
-- **SonarJS 10.23 - 11.5**: Must implement `EslintBasedCheck` (extends both `EslintHook` and `JavaScriptCheck`)
-- **SonarJS 11.6+**: Can implement `EslintHook` directly
+- **SonarJS 10.23-11.5.x**: `EslintHookRegistrar` can register direct non-rule hooks, but repository
+  rules must implement `EslintBasedCheck`.
+- **SonarJS 11.6+**: Repository rules can implement `EslintHook` directly.
+- **Current SonarJS 14.0.0-SNAPSHOT**: Plugins that reference a removed type must migrate and
+  recompile. A separate legacy build is needed only when SonarJS 11.5.x or earlier must remain
+  supported.
 
 **Legend**: ✅ Works | ❌ Does not work
 
@@ -245,46 +326,50 @@ JavaScriptCheck (deprecated, marker only)
 
 ## Minimum Version Requirements
 
-| Feature                              | Min SonarJS | Min SonarQube |
-| ------------------------------------ | ----------- | ------------- |
-| `CustomRuleRepository`               | 5.0.0       | -             |
-| `EslintBasedCheck`                   | 5.0.0       | -             |
-| `RulesBundle`                        | 6.x         | -             |
-| Separate API module                  | 10.15.0     | -             |
-| `compatibleLanguages()`              | 10.22.0     | 25.5.0        |
-| `ProfileRegistrar`                   | 10.22.0     | 25.5.0        |
-| `EslintHook` / `EslintHookRegistrar` | 10.23.0     | 25.6.0        |
-| `languages()` removed                | 11.1.0      | 25.9.0        |
-| `EslintBasedCheck` deprecated        | 11.6.0      | 25.12.0       |
+| Feature                                               | First SonarJS | First listed Community | First listed Server |
+| ----------------------------------------------------- | ------------- | ---------------------- | ------------------- |
+| `JavaScriptCheck`                                     | 2.6           | -                      | -                   |
+| `CustomRuleRepository`                                | 4.2.0         | -                      | -                   |
+| `EslintBasedCheck`                                    | 6.5.0         | -                      | -                   |
+| `RulesBundle`                                         | 6.5.0         | -                      | -                   |
+| `TestFileCheck`                                       | 8.5.0         | -                      | -                   |
+| Separate `api` artifact                               | 10.15.0       | -                      | -                   |
+| `Check`                                               | 10.15.0       | -                      | -                   |
+| `compatibleLanguages()`                               | 10.22.0       | 25.5.0                 | 2025.3.0            |
+| Default-profile `ProfileRegistrar` registration       | 10.22.0       | 25.5.0                 | 2025.3.0            |
+| `EslintHook` contract / `EslintHookRegistrar`         | 10.23.0       | 25.6.0                 | 2025.3.0            |
+| `languages()` removed                                 | 11.1.0        | 25.9.0                 | 2025.5.0            |
+| Direct `EslintHook` checks via `CustomRuleRepository` | 11.6.0        | 25.12.0                | 2025.6.0            |
+| Legacy check types deprecated                         | 11.6.0        | 25.12.0                | 2025.6.0            |
+| Named-profile `ProfileRegistrar` registration         | 12.2.0        | Not mapped             | Not mapped          |
+| Legacy check types removed                            | 14.0.0        | Not mapped             | Not mapped          |
 
 ---
 
 ## Migration Guides
 
-### Migrating from SonarJS 9.x to 11.x
+### Migrating to SonarJS 14.0
 
-1. **Change dependency artifact**:
+The `api` artifact has been required since 10.15.0, and `compatibleLanguages()` since
+`languages()` was removed in 11.1.0; neither the dependency coordinate nor the repository API
+change is new in 14.0.
 
-   ```xml
-   <artifactId>api</artifactId>
-   ```
+1. Change each legacy rule class to implement `EslintHook` directly and keep declaring it in
+   `CustomRuleRepository.checkClasses()`.
+2. Implement `eslintKey()` so it matches the rule ID exported by the JavaScript bundle. For a class
+   that extended `Check`, return the same constant used by `@Rule(key = ...)`.
+3. For a class that extended `TestFileCheck`, override `targets()` and return
+   `List.of(InputFile.Type.TEST)`.
+4. Remove every reference to `Check`, `EslintBasedCheck`, `JavaScriptCheck`, and `TestFileCheck`.
+   Compile against the oldest SonarJS API you intend to support (11.6.0 or later for direct
+   repository rules), and test the resulting plugin with the current SonarJS 14.0.0-SNAPSHOT build
+   or with SonarJS 14.0.0 once released.
 
-2. **Update `CustomRuleRepository`**:
-   - Replace `languages()` with `compatibleLanguages()`
-   - Use `org.sonar.plugins.javascript.api.Language` enum
+### Supporting Multiple SonarJS Versions
 
-3. **Update check classes**:
-   - For **maximum compatibility** (SonarJS 10.23 - 11.x): Use `implements EslintBasedCheck`
-   - For **SonarJS 11.6+ only**: Use `implements EslintHook`
-
-   > **Why?** `JsTsChecks` uses `checkFactory.<JavaScriptCheck>` until 11.6.0. `EslintBasedCheck` extends both `EslintHook` and `JavaScriptCheck`, so it works everywhere.
-
-4. **Recompile** against the new API version
-
-### Supporting Multiple SonarQube Versions
-
-Due to classloader isolation, you **cannot** support both SonarQube 9.9 LTA and 25.x with a single JAR. Options:
-
-1. **Separate releases**: Maintain different plugin versions for different SQ versions
-2. **Drop old LTA support**: Only support SonarQube 25.4+ (current LTA)
-3. **Minimum 25.6+**: If using `EslintHook` API, require SonarQube 25.6+
+A plugin whose rule classes implement `EslintHook` directly and whose classes and signatures do not
+reference a removed type can use the same check contract on SonarJS 11.6.0 and later, subject to
+normal Java and platform compatibility. To support SonarJS 11.5.x or earlier, publish a separate
+legacy build compiled against the older API, normally using `EslintBasedCheck`. Use
+[SONARQUBE_VERSION_MATRIX.md](../SONARQUBE_VERSION_MATRIX.md) to identify the SonarJS version bundled
+in a listed SonarQube release.
