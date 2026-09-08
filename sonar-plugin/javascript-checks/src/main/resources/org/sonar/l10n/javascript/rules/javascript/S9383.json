@@ -22,7 +22,7 @@
   "ruleSpecification": "RSPEC-9383",
   "sqKey": "S9383",
   "scope": "Main",
-  "quickfix": "partial",
+  "quickfix": "covered",
   "compatibleLanguages": [
     "js",
     "ts"
