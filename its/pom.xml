@@ -62,6 +62,7 @@
     <!-- sonar scanner properties -->
     <sonar.sources>src/main</sonar.sources>
     <sonar.tests>src/test</sonar.tests>
+    <sonar.test.exclusions>../**/packages/**/*.test.ts</sonar.test.exclusions>
     <sonar.javascript.lcov.reportPaths/>
     <sonar.typescript.tsconfigPath/>
   </properties>

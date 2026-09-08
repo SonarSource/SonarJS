@@ -25,7 +25,7 @@
     <sonar.tests>src/test</sonar.tests>
     <sonar.javascript.lcov.reportPaths/>
     <sonar.typescript.tsconfigPath/>
-    <sonar.test.exclusions>tests/**/fixtures/**/*,tests/**/rules/comment-based/**/*</sonar.test.exclusions>
+    <sonar.test.exclusions>tests/**/fixtures/**/*,tests/**/rules/comment-based/**/*,../**/packages/**/*.test.ts</sonar.test.exclusions>
   </properties>
 
 
