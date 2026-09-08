@@ -70,6 +70,44 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>4.6</version>
+        <configuration>
+          <encoding>${project.build.sourceEncoding}</encoding>
+          <strictCheck>true</strictCheck>
+          <licenseSets>
+            <licenseSet>
+              <header>sonarsource/licenseheaders/SSALv1.txt</header>
+              <includes>
+                <include>src/*/java/**/*.java</include>
+              </includes>
+            </licenseSet>
+          </licenseSets>
+          <properties>
+            <license.owner>SonarSource Sàrl</license.owner>
+            <license.title>SonarQube JavaScript Plugin</license.title>
+            <license.mailto>mailto:info AT sonarsource DOT com</license.mailto>
+          </properties>
+        </configuration>
+        <executions>
+          <execution>
+            <id>enforce-license-headers</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.sonarsource.license-headers</groupId>
+            <artifactId>license-headers</artifactId>
+            <version>1.7.0.32</version>
+          </dependency>
+        </dependencies>
+      </plugin>
+      <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.13.0</version>
       </plugin>
@@ -144,6 +182,27 @@
       </activation>
       <build>
         <plugins>
+          <plugin>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+              <execution>
+                <id>require-sonarjs-version</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <requireProperty>
+                      <property>sonarjs.version</property>
+                      <message>Set -Dsonarjs.version to the built SonarJS plugin version when using -Pqa or SONARSOURCE_QA=true.</message>
+                    </requireProperty>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
           <plugin>
             <artifactId>maven-dependency-plugin</artifactId>
             <executions>
