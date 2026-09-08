@@ -23,7 +23,8 @@ import postcssHtmlConfig from 'stylelint-config-html/html.js';
 import postcssVueConfig from 'stylelint-config-html/vue.js';
 import { sonarRules } from '../rules/index.js';
 import stylisticPlugins from '@stylistic/stylelint-plugin';
-import { cssOnlyRuleKeys } from './css-only-rules.js';
+import scssPlugins from 'stylelint-scss';
+import { cssOnlyRuleKeys, scssOnlyRuleKeys } from './css-only-rules.js';
 
 /**
  * A Stylelint rule configuration
@@ -57,16 +58,25 @@ type ConfigRules = {
  *    out warnings from non-CSS embedded blocks).
  *  - Never enabled for .scss/.sass/.less files.
  *
+ * S4662's SCSS companion rule is derived from the configured CSS implementation and enabled for
+ * .scss files and HTML/Vue files. transform.ts retains its warnings only from matching SCSS blocks.
+ *
  * @param rules the rules from the active quality profile
  * @returns the created Stylelint configuration
  */
 export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
   const configRules: ConfigRules = {};
   const cssOnlyRules: ConfigRules = {};
+  const scssOnlyRules: ConfigRules = {};
   for (const { key, configurations } of rules) {
     const value = configurations.length === 0 ? true : configurations;
     if (cssOnlyRuleKeys.has(key)) {
       cssOnlyRules[key] = value;
+      if (key === 'at-rule-no-unknown') {
+        scssOnlyRules['scss/at-rule-no-unknown'] = value;
+      }
+    } else if (scssOnlyRuleKeys.has(key)) {
+      scssOnlyRules[key] = value;
     } else {
       configRules[key] = value;
     }
@@ -90,12 +100,13 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
           sass: postcssSass,
           less: postcssLess,
         }),
-        rules: cssOnlyRules,
+        rules: { ...cssOnlyRules, ...scssOnlyRules },
       },
-      // scss/sass/less: no CSS-only rules.
+      // SCSS-only rules run on .scss; Sass and Less remain excluded.
       {
         files: ['**/*.scss'],
         customSyntax: postcssScss,
+        rules: scssOnlyRules,
       },
       {
         files: ['**/*.sass'],
@@ -107,6 +118,6 @@ export function createStylelintConfig(rules: RuleConfig[]): stylelint.Config {
       },
     ],
     rules: configRules,
-    plugins: [...sonarRules, ...stylisticPlugins],
+    plugins: [...sonarRules, ...stylisticPlugins, ...scssPlugins],
   };
 }

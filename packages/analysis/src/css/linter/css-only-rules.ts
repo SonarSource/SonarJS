@@ -36,3 +36,6 @@ export const cssOnlyRuleKeys = new Set<string>([
   'at-rule-descriptor-value-no-unknown',
   'at-rule-prelude-no-invalid',
 ]);
+
+/** Keys of stylelint rules that are appropriate only for SCSS syntax. */
+export const scssOnlyRuleKeys = new Set<string>(['scss/at-rule-no-unknown']);
