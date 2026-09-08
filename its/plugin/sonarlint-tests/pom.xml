@@ -25,7 +25,7 @@
 
   <!-- Let the published Core artifacts supply sonar-plugin-api and their other runtime dependencies. -->
   <!--
-  Keep sonar-javascript-plugin out of the test classpath: the QA profile copies the built plugin artifact below,
+  Keep sonar-javascript-plugin out of the test classpath: the copy-plugin profile copies the built plugin artifact below,
   and declaring it here also leaks its embedded gRPC transport jars into Surefire's parent classloader.
   -->
   <dependencies>
@@ -173,35 +173,21 @@
 
   <profiles>
     <profile>
-      <id>qa</id>
+      <id>copy-plugin</id>
       <activation>
         <property>
-          <name>env.SONARSOURCE_QA</name>
-          <value>true</value>
+          <name>sonarjs.version</name>
         </property>
       </activation>
       <build>
         <plugins>
           <plugin>
-            <artifactId>maven-enforcer-plugin</artifactId>
-            <version>3.5.0</version>
-            <executions>
-              <execution>
-                <id>require-sonarjs-version</id>
-                <phase>validate</phase>
-                <goals>
-                  <goal>enforce</goal>
-                </goals>
-                <configuration>
-                  <rules>
-                    <requireProperty>
-                      <property>sonarjs.version</property>
-                      <message>Set -Dsonarjs.version to the built SonarJS plugin version when using -Pqa or SONARSOURCE_QA=true.</message>
-                    </requireProperty>
-                  </rules>
-                </configuration>
-              </execution>
-            </executions>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <sonarjs.version>${sonarjs.version}</sonarjs.version>
+              </systemPropertyVariables>
+            </configuration>
           </plugin>
           <plugin>
             <artifactId>maven-dependency-plugin</artifactId>

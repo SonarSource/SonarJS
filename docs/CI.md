@@ -247,21 +247,22 @@ Core test harness and its runtime dependencies, including `sonar-plugin-api`. Th
 from the API versions used to compile the analyzer. Do not add analyzer dependency overrides
 to this module.
 
-CI passes `-Dsonarjs.version=<built-plugin-version>` when `SONARSOURCE_QA=true` to copy the exact
-plugin JARs produced by the build. The plugin is loaded by Core rather than placed on the test
-classpath. Before analysis, the suite logs the API version and JAR location and checks them
-against the API version declared by the selected Core release.
+CI passes `-Dsonarjs.version=<built-plugin-version>` to activate the `copy-plugin` profile and
+copy the exact plugin JARs produced by the build. The plugin is loaded by Core rather than
+placed on the test classpath. Before analysis, the suite logs the API version and JAR location
+and checks them against the API version declared by the selected Core release.
 
-After building the plugin locally, run the suite with `SONARSOURCE_QA` unset:
+After building the plugin locally, run the suite without supplying a version:
 
 ```shell
 mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false verify
 ```
 
-This uses the plugin already present in `sonar-plugin/sonar-javascript-plugin/target`. To enable
-artifact copying with `-Pqa` or `SONARSOURCE_QA=true`, also supply
-`-Dsonarjs.version=<built-plugin-version>`; Maven validation rejects a missing version. This
-explicit input avoids keeping a second analyzer release version in the independent QA POM.
+Like `OrchestratorStarter` in the SQ-Server tests, this discovers the plugin JAR already present
+in `sonar-plugin/sonar-javascript-plugin/target`. `SONARSOURCE_QA` does not activate artifact
+copying in this module. To test a specific installed or published analyzer, optionally add
+`-Dsonarjs.version=<version>`; this copies its JARs and selects that exact version even if older
+JARs remain in `target`.
 
 The usual `SONARJS_ARTIFACT` setting selects a plugin with an embedded Node runtime. The QA
 module also checks the SSAL headers of its Java sources independently of the parent build.
