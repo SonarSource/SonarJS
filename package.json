@@ -138,7 +138,7 @@
     "postcss-less": "6.0.0",
     "postcss-sass": "0.5.0",
     "postcss-scss": "4.0.9",
-    "postcss-selector-parser": "7.1.5",
+    "postcss-selector-parser": "7.1.6",
     "postcss-value-parser": "4.2.0",
     "protobufjs": "8.8.0",
     "scslre": "0.3.0",
