@@ -56,19 +56,10 @@ public class TestUtils {
   }
 
   private static Pattern pluginFilenameMatcher() {
-    var version = System.getProperty("sonarjs.version");
-    var classifier = System.getenv("SONARJS_ARTIFACT");
-    if (version != null && !version.isBlank()) {
+    if (System.getenv("SONARJS_ARTIFACT") != null) {
       return Pattern.compile(
-        "sonar-javascript-plugin-" +
-          Pattern.quote(version) +
-          (classifier == null ? "" : "-" + Pattern.quote(classifier)) +
-          "\\.jar"
+        String.format("sonar-javascript-plugin-.*-%s\\.jar", System.getenv("SONARJS_ARTIFACT"))
       );
-    }
-
-    if (classifier != null) {
-      return Pattern.compile(String.format("sonar-javascript-plugin-.*-%s\\.jar", classifier));
     }
 
     return Pattern.compile("sonar-javascript-plugin-[0-9.]*(?:-SNAPSHOT)?\\.jar");

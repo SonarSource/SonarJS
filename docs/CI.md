@@ -239,33 +239,27 @@ flowchart TD
   promote --> releasability["releasability"]
 ```
 
-## SQ-IDE QA runtime
+## SQ-IDE QA API
 
-The `its/plugin/sonarlint-tests` module is aggregated by the main Maven reactor, but its POM does
-not inherit SonarJS dependency management. Its `sonarlint.core.version` selects the published
-Core test harness and its runtime dependencies, including `sonar-plugin-api`. This is separate
-from the API versions used to compile the analyzer. Do not add analyzer dependency overrides
-to this module.
+The SonarLint integration tests inherit the usual SonarJS build configuration. The analyzer's
+`sonar-plugin-api` dependency management is scoped to `sonar-plugin/pom.xml`, so it does not
+override the API supplied transitively by SonarLint Core. Test plugins and fast tests that
+compile against the analyzer API declare that version explicitly. Other shared dependency
+management still applies to the integration tests.
 
-CI passes `-Dsonarjs.version=<built-plugin-version>` to activate the `copy-plugin` profile and
-copy the exact plugin JARs produced by the build. The plugin is loaded by Core rather than
-placed on the test classpath. Before analysis, the suite logs the API version and JAR location
-and checks them against the API version declared by the selected Core release.
+Before analysis, the SonarLint suite checks the loaded API version against Core's published
+POM and logs its JAR location. Keep API dependency management out of the shared parent POMs
+so Core upgrades continue to select their own API version.
 
-After building the plugin locally, run the suite without supplying a version:
+After building the plugin locally, run:
 
 ```shell
 mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false verify
 ```
 
-Like `OrchestratorStarter` in the SQ-Server tests, this discovers the plugin JAR already present
-in `sonar-plugin/sonar-javascript-plugin/target`. `SONARSOURCE_QA` does not activate artifact
-copying in this module. To test a specific installed or published analyzer, optionally add
-`-Dsonarjs.version=<version>`; this copies its JARs and selects that exact version even if older
-JARs remain in `target`.
-
-The usual `SONARJS_ARTIFACT` setting selects a plugin with an embedded Node runtime. The QA
-module also checks the SSAL headers of its Java sources independently of the parent build.
+Local runs discover the built JAR in `sonar-plugin/sonar-javascript-plugin/target`. In CI,
+`SONARSOURCE_QA=true` activates the existing Maven copy step, which uses the inherited project
+version to populate that directory from the downloaded Maven artifacts.
 
 ## Job Index
 
@@ -307,16 +301,16 @@ module also checks the SSAL headers of its Java sources independently of the par
 
 These are the small data items passed as job outputs or step outputs, not bulky file payloads.
 
-| Producer           | Data                | Consumers                                                                                                                                                                       | Meaning                                                                                        |
-| ------------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `setup`            | `node-matrix`       | Node-matrix plugin QA jobs                                                                                                                                                      | Derived from `package.json` engine range                                                       |
-| `setup`            | `js-files-hash`     | `test_js`, `test_js_win`                                                                                                                                                        | Cache key seed for JS coverage and Windows JS marker, including workflow and dependency inputs |
-| `setup`            | `maven-hash`        | all `maven-cache` users                                                                                                                                                         | Cache key seed for Maven dependencies                                                          |
-| `setup`            | `npm-hash`          | all `node_modules` producers/consumers                                                                                                                                          | Exact cache key seed for installed Node dependencies                                           |
-| `setup`            | `cache-month`       | `maven-cache`                                                                                                                                                                   | Monthly key rotation value                                                                     |
-| `setup`            | `is-default-branch` | most `mise-action` calls                                                                                                                                                        | Controls when tool caches may be saved                                                         |
-| `get_build_number` | `build-number`      | build, QA, analysis, promotion, and shared env anchor users                                                                                                                     | One build number is minted once and reused consistently                                        |
-| `config-maven`     | `project-version`   | `analyze_primary`, `analyze_shadows`, `plugin_qa_with_node`, `plugin_qa_without_node`, `plugin_qa_without_node_dev`, `plugin_qa_without_node_alpine`, `plugin_qa_sonarlint_win` | Sonar analysis version and exact built plugin version copied for SQ-IDE QA                     |
+| Producer           | Data                | Consumers                                                   | Meaning                                                                                        |
+| ------------------ | ------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `setup`            | `node-matrix`       | Node-matrix plugin QA jobs                                  | Derived from `package.json` engine range                                                       |
+| `setup`            | `js-files-hash`     | `test_js`, `test_js_win`                                    | Cache key seed for JS coverage and Windows JS marker, including workflow and dependency inputs |
+| `setup`            | `maven-hash`        | all `maven-cache` users                                     | Cache key seed for Maven dependencies                                                          |
+| `setup`            | `npm-hash`          | all `node_modules` producers/consumers                      | Exact cache key seed for installed Node dependencies                                           |
+| `setup`            | `cache-month`       | `maven-cache`                                               | Monthly key rotation value                                                                     |
+| `setup`            | `is-default-branch` | most `mise-action` calls                                    | Controls when tool caches may be saved                                                         |
+| `get_build_number` | `build-number`      | build, QA, analysis, promotion, and shared env anchor users | One build number is minted once and reused consistently                                        |
+| `config-maven`     | `project-version`   | `analyze_primary`, `analyze_shadows`                        | Sonar analysis version value                                                                   |
 
 ### Important internal detail: build number cache
 

@@ -247,12 +247,6 @@
 
       <!-- Provided dependencies -->
       <dependency>
-        <groupId>org.sonarsource.api.plugin</groupId>
-        <artifactId>sonar-plugin-api</artifactId>
-        <version>${sonar.api.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.sonarsource.scanner.engine</groupId>
         <artifactId>plugin-api-scanner-impl</artifactId>
         <version>${scanner-engine.version}</version>
@@ -270,14 +264,6 @@
         <type>sonar-plugin</type>
         <version>${project.version}</version>
         <scope>provided</scope>
-      </dependency>
-
-
-      <dependency>
-        <groupId>org.sonarsource.api.plugin</groupId>
-        <artifactId>sonar-plugin-api-test-fixtures</artifactId>
-        <version>${sonar.api.version}</version>
-        <scope>test</scope>
       </dependency>
 
     </dependencies>
