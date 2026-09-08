@@ -45,6 +45,20 @@ describe('S9382', () => {
         baz(x);
       }
     }`),
+
+        valid(`
+    async function foo(arr) {
+      for (const x of arr) {
+        promises.push((async () => { await bar(x); })()); // Compliant: await is inside a nested function
+      }
+    }`),
+
+        valid(`
+    async function foo() {
+      for await (const x of await getAsyncIterable()) {
+        bar(x); // Compliant: the await in the for-await-of header is not reported either
+      }
+    }`),
       ],
 
       invalid: [
