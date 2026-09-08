@@ -23,9 +23,10 @@
     <!-- sonar scanner properties -->
     <sonar.sources>src/main</sonar.sources>
     <sonar.tests>src/test</sonar.tests>
+    <sonar.test.inclusions>**/*.test.ts</sonar.test.inclusions>
     <sonar.javascript.lcov.reportPaths/>
     <sonar.typescript.tsconfigPath/>
-    <sonar.test.exclusions>tests/**/fixtures/**/*,tests/**/rules/comment-based/**/*,../**/packages/**/*.test.ts</sonar.test.exclusions>
+    <sonar.test.exclusions>tests/**/fixtures/**/*,tests/**/rules/comment-based/**/*</sonar.test.exclusions>
   </properties>
 
 
