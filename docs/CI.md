@@ -239,6 +239,27 @@ flowchart TD
   promote --> releasability["releasability"]
 ```
 
+## SQ-IDE QA runtime
+
+The `its/plugin/sonarlint-tests` module is aggregated by the main Maven reactor, but its POM does
+not inherit SonarJS dependency management. Its `sonarlint.core.version` selects the published
+Core test harness and its runtime dependencies, including `sonar-plugin-api`. This is separate
+from the API versions used to compile the analyzer. Do not add analyzer dependency overrides
+to this module.
+
+CI passes `-Dsonarjs.version=<built-plugin-version>` when `SONARSOURCE_QA=true` to copy the exact
+plugin JARs produced by the build. The plugin is loaded by Core rather than placed on the test
+classpath. Before analysis, the suite logs the API version and JAR location and checks them
+against the API version declared by the selected Core release.
+
+After building the plugin locally, run the suite with:
+
+```shell
+mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false verify
+```
+
+The usual `SONARJS_ARTIFACT` setting selects a plugin with an embedded Node runtime.
+
 ## Job Index
 
 | Job                                  | Runner                     | Needs                                                                            | Condition                                                             |

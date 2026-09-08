@@ -2,25 +2,28 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.sonarsource.javascript</groupId>
-    <artifactId>javascript-it-plugin</artifactId>
-    <version>${revision}</version>
-  </parent>
+  <!-- Aggregated by SonarJS, but deliberately independent of its dependency management. -->
+  <groupId>org.sonarsource.javascript</groupId>
+  <version>1.0-SNAPSHOT</version>
 
   <artifactId>javascript-it-plugin-sonarlint-tests</artifactId>
   <name>JavaScript :: IT :: Plugin :: SonarLint Tests</name>
 
   <properties>
-    <surefire.argLine>-server</surefire.argLine>
+    <!-- Select the Core runtime independently of the analyzer's compilation dependencies. -->
+    <sonarlint.core.version>11.9.0.86162</sonarlint.core.version>
+    <junit.version>6.1.3</junit.version>
+    <maven.compiler.release>21</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.deploy.skip>true</maven.deploy.skip>
+    <skipTests>true</skipTests>
+    <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <!-- sonar scanner properties -->
     <sonar.sources/>
     <sonar.tests>src/test</sonar.tests>
   </properties>
 
-  <!--
-  This module doesn't depend on sonar-plugin-api to avoid conflicts with packages embedded in sonarlint-core dependency
-  -->
+  <!-- Let the published Core artifacts supply sonar-plugin-api and their other runtime dependencies. -->
   <!--
   Keep sonar-javascript-plugin out of the test classpath: the QA profile copies the built plugin artifact below,
   and declaring it here also leaks its embedded gRPC transport jars into Surefire's parent classloader.
@@ -29,41 +32,103 @@
     <dependency>
       <groupId>org.sonarsource.sonarlint.core</groupId>
       <artifactId>sonarlint-core-test-utils</artifactId>
-      <version>${sonarlint.plugin.api.version}</version>
+      <version>${sonarlint.core.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarlint.core</groupId>
       <artifactId>sonarlint-rpc-java-client</artifactId>
-      <version>${sonarlint.plugin.api.version}</version>
+      <version>${sonarlint.core.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarlint.core</groupId>
       <artifactId>sonarlint-rpc-protocol</artifactId>
-      <version>${sonarlint.plugin.api.version}</version>
+      <version>${sonarlint.core.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.awaitility</groupId>
       <artifactId>awaitility</artifactId>
+      <version>4.3.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
+      <version>3.27.7</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+      </plugin>
+      <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.1.2</version>
+        <configuration>
+          <failIfNoTests>true</failIfNoTests>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>3.5.5</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.3.1</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.4.2</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.4.0</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>3.1.3</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>3.1.3</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.8.1</version>
+        <executions>
+          <execution>
+            <id>copy-core-runtime-declaration</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.sonarsource.sonarlint.core</groupId>
+                  <artifactId>sonarlint-core-parent</artifactId>
+                  <version>${sonarlint.core.version}</version>
+                  <type>pom</type>
+                  <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                  <destFileName>sonarlint-core-pom.xml</destFileName>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -93,35 +158,40 @@
                     <artifactItem>
                       <groupId>${project.groupId}</groupId>
                       <artifactId>sonar-javascript-plugin</artifactId>
-                      <type>sonar-plugin</type>
+                      <version>${sonarjs.version}</version>
+                      <type>jar</type>
                       <overWrite>true</overWrite>
                     </artifactItem>
                     <artifactItem>
                       <groupId>${project.groupId}</groupId>
                       <artifactId>sonar-javascript-plugin</artifactId>
+                      <version>${sonarjs.version}</version>
                       <classifier>win-x64</classifier>
-                      <type>sonar-plugin</type>
+                      <type>jar</type>
                       <overWrite>true</overWrite>
                     </artifactItem>
                     <artifactItem>
                       <groupId>${project.groupId}</groupId>
                       <artifactId>sonar-javascript-plugin</artifactId>
+                      <version>${sonarjs.version}</version>
                       <classifier>linux-x64</classifier>
-                      <type>sonar-plugin</type>
+                      <type>jar</type>
                       <overWrite>true</overWrite>
                     </artifactItem>
                     <artifactItem>
                       <groupId>${project.groupId}</groupId>
                       <artifactId>sonar-javascript-plugin</artifactId>
+                      <version>${sonarjs.version}</version>
                       <classifier>linux-x64-musl</classifier>
-                      <type>sonar-plugin</type>
+                      <type>jar</type>
                       <overWrite>true</overWrite>
                     </artifactItem>
                     <artifactItem>
                       <groupId>${project.groupId}</groupId>
                       <artifactId>sonar-javascript-plugin</artifactId>
+                      <version>${sonarjs.version}</version>
                       <classifier>multi</classifier>
-                      <type>sonar-plugin</type>
+                      <type>jar</type>
                       <overWrite>true</overWrite>
                     </artifactItem>
                   </artifactItems>
