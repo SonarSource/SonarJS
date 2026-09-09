@@ -1,0 +1,7 @@
+{
+  "name": "star",
+  "workspaces": ["child"],
+  "dependencies": {
+    "react": "catalog:"
+  }
+}

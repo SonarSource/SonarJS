@@ -1,0 +1,6 @@
+{
+  "name": "plain-member",
+  "dependencies": {
+    "react": "catalog:"
+  }
+}

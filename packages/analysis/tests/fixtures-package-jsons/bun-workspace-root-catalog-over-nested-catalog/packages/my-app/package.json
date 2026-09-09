@@ -1,8 +1,5 @@
 {
-  "name": "my-monorepo",
-  "workspaces": {
-    "packages": ["packages/*"]
-  },
+  "name": "my-app",
   "dependencies": {
     "react": "catalog:",
     "react-dom": "catalog:"
