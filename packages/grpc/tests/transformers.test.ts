@@ -314,7 +314,12 @@ describe('CSS rule configurations', () => {
     expect(buildCssRuleConfigurations('S8777', [])).toEqual([
       {
         key: 'at-rule-prelude-no-invalid',
-        configurations: [],
+        configurations: [
+          true,
+          {
+            ignoreAtRules: supportedCssToolDirectives,
+          },
+        ],
       },
     ]);
   });
