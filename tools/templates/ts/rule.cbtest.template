@@ -1,5 +1,5 @@
 ___HEADER___// https://sonarsource.github.io/rspec/#/rspec/___RULE_KEY___/javascript
-import { test } from '../../../tests/tools/testers/comment-based/checker.js';
+import { test } from '../../../../tests/jsts/tools/testers/comment-based/checker.js';
 import { rule } from './index.js';
 import { describe } from 'node:test';
 import * as meta from './generated-meta.js';
