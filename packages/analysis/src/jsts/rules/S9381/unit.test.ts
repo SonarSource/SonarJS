@@ -80,6 +80,39 @@ readUser(options).then(function (result) {
 });
 `,
         },
+        {
+          // a Promise executor is not itself a promise callback either - its parent is
+          // a NewExpression, not a .then()/.catch() call - so the inner .then()/.catch()
+          // adopting the constructed promise is not avoidable sequential nesting.
+          code: `
+doThing().then(user => {
+  return new Promise((resolve, reject) => {
+    save(user).then(resolve).catch(reject);
+  });
+});
+`,
+        },
+        {
+          // known limitation, not a case this decorator is meant to fix: nesting
+          // inside a plain named function that is declared and then invoked
+          // synchronously nearby (not deferred, not an intervening callback handed to
+          // another API) is still suppressed, because the decorator can't tell "called
+          // synchronously right here" apart from "called later, by someone else".
+          code: `
+doThing().then(function (result) {
+  function render() {
+    return renderStep(result).then(function () {
+      return finish();
+    });
+  }
+
+  if (result.shouldRender) {
+    return render();
+  }
+  return skip();
+});
+`,
+        },
       ],
       invalid: [
         {
