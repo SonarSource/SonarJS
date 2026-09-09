@@ -199,6 +199,16 @@ jobs:
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
           SIGN_KEY: ${{ fromJSON(steps.deployer-secrets.outputs.vault).SIGN_KEY }}
           PGP_PASSPHRASE: ${{ fromJSON(steps.deployer-secrets.outputs.vault).PGP_PASSPHRASE }}
+
+      # PVF: publish the concrete deployed plugin version so pvf-comment.yml can dispatch a performance-validation run into peachee-js.
+      - name: Export candidate version for PVF
+        run: printf '%s\n' "${{ steps.config-maven.outputs.project-version }}" > candidate-version.txt
+      - name: Upload candidate-version artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: candidate-version
+          path: candidate-version.txt
+
       - name: Upload SonarJS artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
