@@ -308,7 +308,7 @@ function normalizeWorkspacePattern(pattern: string): string {
 }
 
 function normalizeLiteralWorkspacePath(pattern: string): string {
-  return path.posix.normalize(pattern.replaceAll('\\', '/'));
+  return path.posix.normalize(pattern.replace(/\\(.)/g, '$1'));
 }
 
 function hasWorkspaceGlobSyntax(pattern: string): boolean {

@@ -569,7 +569,7 @@ describe('files', () => {
     const baseDir = normalizeToAbsolutePath(
       join(fixtures, 'bun-workspace-patterns-escaped-literal'),
     );
-    const memberDir = normalizeToAbsolutePath(join(baseDir, 'sub/*'));
+    const memberDir = normalizeToAbsolutePath(join(baseDir, 'sub/[star]'));
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
 

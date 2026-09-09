@@ -1,6 +1,6 @@
 {
   "name": "outer",
-  "workspaces": ["sub/\\*"],
+  "workspaces": ["sub/\\[star\\]"],
   "catalog": {
     "react": "^17.0.0"
   }
