@@ -1,0 +1,9 @@
+{
+"vitest:packages/ui/client/components/FilterStatus.vue": [
+47
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+296,
+299
+]
+}
