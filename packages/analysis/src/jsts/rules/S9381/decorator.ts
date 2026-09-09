@@ -14,7 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S9381/javascript
-export const implementation = 'decorated';
-export const eslintId = 'no-nesting';
-export const externalRules = [{ externalPlugin: 'promise', externalRule: 'no-nesting' }];
+import type { Rule } from 'eslint';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import * as meta from './generated-meta.js';
+
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(
+    { ...rule, meta: generateMeta(meta, rule.meta!) },
+    (context, descriptor) => {
+      context.report(descriptor);
+    },
+  );
+}

@@ -15,4 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import promisePlugin from 'eslint-plugin-promise';
-export const rule = promisePlugin.rules['no-nesting'];
+import { decorate } from './decorator.js';
+
+export const rule = decorate(promisePlugin.rules['no-nesting']);
