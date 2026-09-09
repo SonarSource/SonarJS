@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Minimatch } from 'minimatch';
+import path from 'node:path';
 import type { PackageJson } from 'type-fest';
 import type {
   CatalogSource,
@@ -269,7 +270,10 @@ function declaresWorkspaceDir(
   // Bun resolves literal workspace paths before expanding workspace globs. A negated glob only
   // filters glob expansion, so it cannot remove a workspace explicitly listed by its path.
   if (
-    normalizedPatterns.some(pattern => !hasWorkspaceGlobSyntax(pattern) && pattern === relativeDir)
+    normalizedPatterns.some(
+      pattern =>
+        !hasWorkspaceGlobSyntax(pattern) && normalizeLiteralWorkspacePath(pattern) === relativeDir,
+    )
   ) {
     return true;
   }
@@ -301,6 +305,10 @@ function normalizeWorkspacePattern(pattern: string): string {
     normalizedPattern = normalizedPattern.slice(0, -1);
   }
   return isExclusion ? `!${normalizedPattern}` : normalizedPattern;
+}
+
+function normalizeLiteralWorkspacePath(pattern: string): string {
+  return path.posix.normalize(pattern.replaceAll('\\', '/'));
 }
 
 function hasWorkspaceGlobSyntax(pattern: string): boolean {

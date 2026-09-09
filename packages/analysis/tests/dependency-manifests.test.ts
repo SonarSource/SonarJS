@@ -565,6 +565,24 @@ describe('files', () => {
     }
   });
 
+  it('should resolve an escaped literal workspace path from the ancestor catalog', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      join(fixtures, 'bun-workspace-patterns-escaped-literal'),
+    );
+    const memberDir = normalizeToAbsolutePath(join(baseDir, 'sub/*'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(memberDir, baseDir);
+    expect(manifests[0].dependencies).toEqual(
+      new Map<string | Minimatch, string | undefined>([
+        ['star', '*'],
+        ['react', '^17.0.0'],
+        [new Minimatch('child', { nocase: true, matchBase: true }), undefined],
+      ]),
+    );
+  });
+
   describe('nested workspace root under an ancestor that declares catalogs', () => {
     const fixture = 'bun-nested-workspace-root-under-ancestor-catalog';
 
