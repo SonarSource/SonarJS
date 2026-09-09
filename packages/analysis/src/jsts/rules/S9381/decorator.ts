@@ -36,7 +36,7 @@ function isPromiseCallback(fn: TSESTree.Node): boolean {
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
-    { ...rule, meta: generateMeta(meta, rule.meta!) },
+    { ...rule, meta: generateMeta(meta, rule.meta) },
     (context, descriptor) => {
       const node = (descriptor as unknown as { node: TSESTree.Node }).node;
       const enclosingFunction = findFirstMatchingAncestor(node, n =>
