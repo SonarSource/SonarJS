@@ -264,30 +264,71 @@ function declaresWorkspaceDir(
   }
 
   const relativeDir = dir.slice(ancestorDir.length + 1);
-  const normalizedPatterns = patterns.map(pattern => {
-    const isExclusion = pattern.startsWith('!');
-    const workspacePattern = normalizeWorkspacePattern(isExclusion ? pattern.slice(1) : pattern);
-    return { isExclusion, workspacePattern };
-  });
+  const normalizedPatterns = patterns.map(normalizeWorkspacePattern);
+
+  // Bun resolves literal workspace paths before expanding workspace globs. A negated glob only
+  // filters glob expansion, so it cannot remove a workspace explicitly listed by its path.
+  if (
+    normalizedPatterns.some(pattern => !hasWorkspaceGlobSyntax(pattern) && pattern === relativeDir)
+  ) {
+    return true;
+  }
+
+  const workspaceGlobs = normalizedPatterns.filter(hasWorkspaceGlobSyntax).map(pattern => ({
+    isExclusion: pattern.startsWith('!'),
+    workspacePattern: pattern.startsWith('!') ? pattern.slice(1) : pattern,
+  }));
   const matches = (workspacePattern: string) =>
     new Minimatch(workspacePattern, { nonegate: true }).match(relativeDir);
 
-  return (
-    normalizedPatterns.some(
-      ({ isExclusion, workspacePattern }) => !isExclusion && matches(workspacePattern),
-    ) &&
-    !normalizedPatterns.some(
-      ({ isExclusion, workspacePattern }) => isExclusion && matches(workspacePattern),
-    )
+  return workspaceGlobs.some(
+    ({ isExclusion, workspacePattern }, index) =>
+      !isExclusion &&
+      matches(workspacePattern) &&
+      !workspaceGlobs
+        .slice(index + 1)
+        .some(({ isExclusion, workspacePattern }) => isExclusion && matches(workspacePattern)),
   );
 }
 
 function normalizeWorkspacePattern(pattern: string): string {
-  let normalizedPattern = pattern.startsWith('./') ? pattern.slice(2) : pattern;
+  const isExclusion = pattern.startsWith('!');
+  let normalizedPattern = isExclusion ? pattern.slice(1) : pattern;
+  normalizedPattern = normalizedPattern.startsWith('./')
+    ? normalizedPattern.slice(2)
+    : normalizedPattern;
   while (normalizedPattern.endsWith('/')) {
     normalizedPattern = normalizedPattern.slice(0, -1);
   }
-  return normalizedPattern;
+  return isExclusion ? `!${normalizedPattern}` : normalizedPattern;
+}
+
+function hasWorkspaceGlobSyntax(pattern: string): boolean {
+  if (pattern.startsWith('!')) {
+    return true;
+  }
+  return ['*', '{', '[', '?'].some(token => containsUnescapedToken(pattern, token));
+}
+
+function containsUnescapedToken(pattern: string, token: string): boolean {
+  for (
+    let index = pattern.indexOf(token);
+    index !== -1;
+    index = pattern.indexOf(token, index + 1)
+  ) {
+    let slashCount = 0;
+    for (
+      let slashIndex = index - 1;
+      slashIndex >= 0 && pattern[slashIndex] === '\\';
+      slashIndex--
+    ) {
+      slashCount++;
+    }
+    if (slashCount % 2 === 0) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function hasCatalogs(packageJson: ExtendedPackageJson): boolean {

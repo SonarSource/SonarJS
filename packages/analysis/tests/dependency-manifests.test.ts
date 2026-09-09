@@ -542,6 +542,29 @@ describe('files', () => {
     });
   });
 
+  describe('Bun workspace pattern precedence', () => {
+    for (const fixture of [
+      'bun-workspace-patterns-explicit-member',
+      'bun-workspace-patterns-explicit-member-final-negation',
+    ]) {
+      it(`should resolve an explicitly listed workspace member from the ancestor catalog (${fixture})`, async () => {
+        const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+        const memberDir = normalizeToAbsolutePath(join(baseDir, 'sub/excluded'));
+        const configuration = createConfiguration({ baseDir });
+        await initFileStores(configuration);
+
+        const manifests = getDependencyManifests(memberDir, baseDir);
+        expect(manifests[0].dependencies).toEqual(
+          new Map<string | Minimatch, string | undefined>([
+            ['excluded', '*'],
+            ['react', '^17.0.0'],
+            [new Minimatch('child', { nocase: true, matchBase: true }), undefined],
+          ]),
+        );
+      });
+    }
+  });
+
   describe('nested workspace root under an ancestor that declares catalogs', () => {
     const fixture = 'bun-nested-workspace-root-under-ancestor-catalog';
 
