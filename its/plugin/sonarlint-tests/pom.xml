@@ -64,6 +64,34 @@
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <failIfNoTests>true</failIfNoTests>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-core-api-declaration</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.sonarsource.sonarlint.core</groupId>
+                  <artifactId>sonarlint-core-parent</artifactId>
+                  <version>${sonarlint.plugin.api.version}</version>
+                  <type>pom</type>
+                  <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                  <destFileName>sonarlint-core-pom.xml</destFileName>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

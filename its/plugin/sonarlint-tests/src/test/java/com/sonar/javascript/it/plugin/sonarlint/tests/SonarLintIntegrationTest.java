@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -28,7 +29,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPathFactory;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.io.TempDir;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonarsource.sonarlint.core.plugin.commons.ApiVersions;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.file.DidCloseFileParams;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.file.DidOpenFileParams;
 import org.sonarsource.sonarlint.core.rpc.protocol.backend.file.DidUpdateFileSystemParams;
@@ -48,6 +55,49 @@ class SonarLintIntegrationTest {
   private static final String CONFIG_SCOPE_ID = "CONFIG_SCOPE_ID";
   private SonarLintBackendFixture.FakeSonarLintRpcClient client;
   private SonarLintTestRpcServer backend;
+
+  @BeforeAll
+  static void verify_sonarlint_runtime() throws Exception {
+    var factory = DocumentBuilderFactory.newDefaultInstance();
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
+    try (var pom = SonarLintIntegrationTest.class.getResourceAsStream("/sonarlint-core-pom.xml")) {
+      assertThat(pom).as("Published SonarLint Core POM copied by Maven").isNotNull();
+      var document = factory.newDocumentBuilder().parse(pom);
+      var xpath = XPathFactory.newDefaultInstance().newXPath();
+      var coreVersion = xpath.evaluate("/project/version", document);
+      var expectedApiVersion = xpath.evaluate(
+        "/project/properties/sonar-plugin-api.version",
+        document
+      );
+      assertThat(expectedApiVersion)
+        .as("Sonar API version declared by SonarLint Core %s", coreVersion)
+        .isNotBlank()
+        .doesNotContain("${");
+
+      var actualApiVersion = ApiVersions.loadSonarPluginApiVersion().toString();
+      var apiLocation = SensorContext.class.getProtectionDomain().getCodeSource().getLocation();
+      System.out.printf(
+        "SQ-IDE QA: SonarLint Core %s expects Sonar API %s; runtime API %s loaded from %s%n",
+        coreVersion,
+        expectedApiVersion,
+        actualApiVersion,
+        apiLocation
+      );
+      assertThat(actualApiVersion)
+        .as("Sonar API provided by SonarLint Core %s, loaded from %s", coreVersion, apiLocation)
+        .isEqualTo(expectedApiVersion);
+
+      var versionResource = ApiVersions.class.getResource("/sonar-api-version.txt");
+      assertThat(versionResource).isNotNull();
+      var versionConnection = versionResource.openConnection();
+      assertThat(versionConnection).isInstanceOf(JarURLConnection.class);
+      assertThat(((JarURLConnection) versionConnection).getJarFileURL())
+        .as("Sonar API classes and version metadata must come from the same JAR")
+        .isEqualTo(apiLocation);
+    }
+  }
 
   @SonarLintTest
   void should_report_issues(SonarLintTestHarness harness, @TempDir Path baseDir) {
