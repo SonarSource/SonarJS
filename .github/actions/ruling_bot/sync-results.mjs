@@ -49,49 +49,87 @@ if (!sourceStat?.isDirectory()) {
   throw new Error(`Source directory does not exist or is not a directory: ${sourceDirectory}`);
 }
 
-await mirrorDirectory(sourceDirectory, destinationDirectory);
+/**
+ * Sync results from source (<project>/<language>/<ruleId>.json)
+ * to destination (<language>/<project>/<ruleId>.json).
+ */
+await syncTransposed(sourceDirectory, destinationDirectory);
 
 console.log(
-  `Mirrored ${path.relative(repositoryRoot, sourceDirectory)} -> ${path.relative(repositoryRoot, destinationDirectory)}`,
+  `Synced ${path.relative(repositoryRoot, sourceDirectory)} -> ${path.relative(repositoryRoot, destinationDirectory)}`,
 );
 
-async function mirrorDirectory(source, destination) {
-  await mkdir(destination, { recursive: true });
+async function syncTransposed(source, destination) {
+  const projectEntries = await readdir(source, { withFileTypes: true });
 
-  const [sourceEntries, destinationEntries] = await Promise.all([
-    readdir(source, { withFileTypes: true }),
-    readdir(destination, { withFileTypes: true }),
-  ]);
+  // Collect all language/project/file triples from the source
+  const allFiles = new Map(); // key: "<language>/<project>/<file>", value: source path
 
-  const sourceEntryNames = new Set(sourceEntries.map(entry => entry.name));
+  for (const projectEntry of projectEntries) {
+    if (!projectEntry.isDirectory()) {
+      continue;
+    }
+    const project = projectEntry.name;
+    const projectDir = path.join(source, project);
+    const langEntries = await readdir(projectDir, { withFileTypes: true });
 
-  for (const destinationEntry of destinationEntries) {
-    if (!sourceEntryNames.has(destinationEntry.name)) {
-      await rm(path.join(destination, destinationEntry.name), { recursive: true, force: true });
+    for (const langEntry of langEntries) {
+      if (!langEntry.isDirectory()) {
+        continue;
+      }
+      const language = langEntry.name;
+      const langDir = path.join(projectDir, language);
+      const fileEntries = await readdir(langDir, { withFileTypes: true });
+
+      for (const fileEntry of fileEntries) {
+        if (fileEntry.isFile()) {
+          const destKey = path.join(language, project, fileEntry.name);
+          allFiles.set(destKey, path.join(langDir, fileEntry.name));
+        }
+      }
     }
   }
 
-  for (const sourceEntry of sourceEntries) {
-    const sourceEntryPath = path.join(source, sourceEntry.name);
-    const destinationEntryPath = path.join(destination, sourceEntry.name);
-    const destinationEntryStat = await safeLstat(destinationEntryPath);
-
-    if (sourceEntry.isDirectory()) {
-      if (destinationEntryStat && !destinationEntryStat.isDirectory()) {
-        await rm(destinationEntryPath, { recursive: true, force: true });
+  // Remove destination files that no longer exist in source
+  const destStat = await safeLstat(destination);
+  if (destStat?.isDirectory()) {
+    const destLangEntries = await readdir(destination, { withFileTypes: true });
+    for (const langEntry of destLangEntries) {
+      if (!langEntry.isDirectory()) {
+        continue;
       }
-      await mirrorDirectory(sourceEntryPath, destinationEntryPath);
-      continue;
+      const language = langEntry.name;
+      const destLangDir = path.join(destination, language);
+      const destProjectEntries = await readdir(destLangDir, { withFileTypes: true });
+      for (const projectEntry of destProjectEntries) {
+        if (!projectEntry.isDirectory()) {
+          continue;
+        }
+        const project = projectEntry.name;
+        const destProjectDir = path.join(destLangDir, project);
+        const destFileEntries = await readdir(destProjectDir, { withFileTypes: true });
+        for (const fileEntry of destFileEntries) {
+          if (fileEntry.isFile()) {
+            const key = path.join(language, project, fileEntry.name);
+            if (!allFiles.has(key)) {
+              await rm(path.join(destProjectDir, fileEntry.name), { force: true });
+            }
+          }
+        }
+        // Remove empty project directories
+        const remaining = await readdir(destProjectDir);
+        if (remaining.length === 0) {
+          await rm(destProjectDir, { recursive: true, force: true });
+        }
+      }
     }
+  }
 
-    if (destinationEntryStat?.isDirectory()) {
-      await rm(destinationEntryPath, { recursive: true, force: true });
-    }
-
-    await cp(sourceEntryPath, destinationEntryPath, {
-      force: true,
-      preserveTimestamps: true,
-    });
+  // Copy source files to destination
+  for (const [destKey, sourcePath] of allFiles) {
+    const destPath = path.join(destination, destKey);
+    await mkdir(path.dirname(destPath), { recursive: true });
+    await cp(sourcePath, destPath, { force: true, preserveTimestamps: true });
   }
 }
 

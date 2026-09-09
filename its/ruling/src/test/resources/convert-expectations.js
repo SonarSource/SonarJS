@@ -1,11 +1,12 @@
 // absolute path to a snapshot file from SonarTS
 const source = process.argv[2];
-// absolute path to a directory with expectation for TS projects
+// absolute path to a directory with expectations (e.g. src/test/resources/expected)
 const destination = process.argv[3];
 
 const ruleKey = process.argv[4];
 
 const fs = require('fs');
+const path = require('path');
 
 const data  = fs.readFileSync(source).toString().trim();
 const resultsByProject = {};
@@ -29,12 +30,10 @@ data.split("\n").forEach(line => {
 projects.forEach(projectKey => {
   const result = resultsByProject[projectKey];
   let json = JSON.stringify(result, null, 2);
-  const dir = destination + projectKey;
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir);
-  }
+  const dir = path.join(destination, "typescript", projectKey);
+  fs.mkdirSync(dir, { recursive: true });
   json = json.split(" ").join("");
   json = json.split("\"").join("'");
   json = json.split("\n]").join(",\n]");
-  fs.writeFileSync(dir + "/typescript-" + ruleKey + ".json", json);
+  fs.writeFileSync(path.join(dir, ruleKey + ".json"), json);
 });

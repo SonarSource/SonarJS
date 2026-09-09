@@ -1080,7 +1080,7 @@ jobs:
           is-pull-request: ${{ github.event_name == 'pull_request' }}
           ruling-failed: ${{ steps.ruling.outcome == 'failure' }}
           new-results-path: packages/ruling/actual
-          old-results-path: its/ruling/src/test/expected
+          old-results-path: its/ruling/src/test/resources/expected
           sources-path: its/sources
           sources-repo-url: https://github.com/SonarSource/jsts-test-sources/blob/master
           rspec-base-url: https://musical-adventure-r9qk65j.pages.github.io/rspec/#

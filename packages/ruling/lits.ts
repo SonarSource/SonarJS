@@ -52,7 +52,6 @@ export async function writeResults(
   try {
     await fs.rm(actualPath, { recursive: true });
   } catch {}
-  await fs.mkdir(actualPath, { recursive: true });
   const litsResults = transformResults(projectPath, projectName, results);
   for (const [ruleId, { js: jsIssues, ts: tsIssues, css: cssIssues }] of Object.entries(
     litsResults,
@@ -154,10 +153,9 @@ async function writeIssues(
   if (Object.keys(issues).length === 0) {
     return;
   }
-  const issueFilename = path.join(
-    projectDir,
-    `${languagePrefix[language]}-${handleS124(ruleId, language)}.json`,
-  );
+  const langDir = path.join(projectDir, languagePrefix[language]);
+  await fs.mkdir(langDir, { recursive: true });
+  const issueFilename = path.join(langDir, `${handleS124(ruleId, language)}.json`);
   const sortedIssues = sortIssueLines(issues);
   await fs.writeFile(
     issueFilename,

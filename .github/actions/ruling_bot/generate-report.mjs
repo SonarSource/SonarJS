@@ -97,19 +97,25 @@ function getRulingChanges(filePath, oldResultsDir) {
 
 function parseResultMetadata(filePath, oldResultsDir) {
   const resultFile = toGitPath(path.relative(oldResultsDir, path.join(repositoryRoot, filePath)));
-  const project = path.posix.dirname(resultFile);
-  const fileName = path.posix.basename(resultFile, '.json');
-  const separatorIndex = fileName.indexOf('-');
+  const parts = resultFile.split(path.posix.sep);
 
-  if (project === '.' || separatorIndex <= 0 || separatorIndex === fileName.length - 1) {
+  // Expected format: <language>/<project>/<ruleId>.json
+  if (parts.length !== 3) {
+    return undefined;
+  }
+
+  const [language, project, fileName] = parts;
+  const rule = path.posix.basename(fileName, '.json');
+
+  if (!language || !project || !rule) {
     return undefined;
   }
 
   return {
     resultFile,
     project,
-    language: fileName.slice(0, separatorIndex),
-    rule: fileName.slice(separatorIndex + 1),
+    language,
+    rule,
   };
 }
 

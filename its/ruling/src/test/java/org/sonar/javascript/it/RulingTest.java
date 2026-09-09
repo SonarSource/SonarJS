@@ -29,7 +29,9 @@ import com.sonar.orchestrator.locator.MavenLocation;
 import com.sonar.orchestrator.util.Version;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -250,6 +252,8 @@ class RulingTest {
     runRulingTest(project, sourceDir, exclusions, testDir);
   }
 
+  private static final String[] LANGUAGES = {"javascript", "typescript", "css"};
+
   static void runRulingTest(String projectKey, String sources, String exclusions, String testDir)
     throws IOException {
     orchestrator.getServer().provisionProject(projectKey, projectKey);
@@ -268,6 +272,7 @@ class RulingTest {
       actualExclusions += "," + testDir + "/**/*";
     }
 
+    var expectedDir = mergeExpectedDir(projectKey);
     var differencesPath = Path.of("target", projectKey + "-differences").toAbsolutePath();
     SonarScanner build = SonarScanner.create(sourcesLocation)
       .setProjectKey(projectKey)
@@ -277,10 +282,7 @@ class RulingTest {
       .setTestDirs(testDir)
       .setSourceEncoding("utf-8")
       .setScannerVersion(SCANNER_VERSION)
-      .setProperty(
-        "sonar.lits.dump.old",
-        FileLocation.of("src/test/expected/" + projectKey).getFile().getAbsolutePath()
-      )
+      .setProperty("sonar.lits.dump.old", expectedDir.toAbsolutePath().toString())
       .setProperty(
         "sonar.lits.dump.new",
         FileLocation.of("target/actual/" + projectKey).getFile().getAbsolutePath()
@@ -295,6 +297,34 @@ class RulingTest {
 
     orchestrator.executeBuild(build);
     assertThat(differencesPath).hasContent("");
+  }
+
+  /**
+   * Merges expectation files from {@code src/test/resources/expected/<language>/<projectKey>/}
+   * into a single flat directory at {@code target/expected/<projectKey>/} with LITS-compatible
+   * file names ({@code <language>-<ruleId>.json}).
+   */
+  private static Path mergeExpectedDir(String projectKey) throws IOException {
+    var targetDir = Path.of("target", "expected", projectKey);
+    Files.createDirectories(targetDir);
+    for (String language : LANGUAGES) {
+      var langDir = Path.of("src", "test", "resources", "expected", language, projectKey);
+      if (Files.isDirectory(langDir)) {
+        try (var files = Files.list(langDir)) {
+          files
+            .filter(p -> p.toString().endsWith(".json"))
+            .forEach(source -> {
+              var targetFile = targetDir.resolve(language + "-" + source.getFileName());
+              try {
+                Files.copy(source, targetFile, StandardCopyOption.REPLACE_EXISTING);
+              } catch (IOException e) {
+                throw new RuntimeException("Failed to copy expectation file: " + source, e);
+              }
+            });
+        }
+      }
+    }
+    return targetDir;
   }
 
   private static void instantiateTemplateRule(
