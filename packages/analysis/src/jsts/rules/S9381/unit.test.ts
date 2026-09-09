@@ -38,6 +38,48 @@ doThing()
 doThing().then(a => getB(a).then(b => getC(a, b)));
 `,
         },
+        {
+          // fan-out via .map() building independent promises for Promise.all() - the
+          // intervening .map() callback is not itself a promise callback, so this is
+          // not avoidable sequential nesting relative to the outer .then().
+          code: `
+doThing().then(() => {
+  return Promise.all(
+    users.map(user => {
+      return save(user).then(() => {
+        return { user, success: true };
+      });
+    })
+  );
+});
+`,
+        },
+        {
+          // a deferred event-handler closure - the inner .then() runs later, on a
+          // click, not as part of resolving the outer .then().
+          code: `
+fetchImages().then(images => {
+  const handleDeletion = id => {
+    deleteImage(id).then(() => {
+      refresh();
+    });
+  };
+});
+`,
+        },
+        {
+          // nesting forced by a transaction callback contract - the inner .then()
+          // belongs to the transaction's own body, bound to handle \`t\`.
+          code: `
+readUser(options).then(function (result) {
+  return db.transaction(function (t) {
+    return destroyStuff(options).then(function () {
+      t.commit();
+    });
+  });
+});
+`,
+        },
       ],
       invalid: [
         {
@@ -63,48 +105,21 @@ doThing().catch(function (err) {
           errors: [{ messageId: 'avoidNesting' }],
         },
         {
-          // FP: fan-out via .map() building independent promises for Promise.all() -
-          // the intervening .map() callback is not itself a promise callback, so this
-          // is not avoidable sequential nesting. Currently still flagged; will move to
-          // `valid` once the decorator suppresses intervening-non-promise-function cases.
+          // genuine nesting still reported *inside* an intervening function: relative
+          // to its own nearest enclosing callback (`item => {...}`, itself a promise
+          // callback via `.then()`), this nesting is exactly the ordinary case and must
+          // not be swallowed by the fan-out suppression above.
           code: `
 doThing().then(() => {
   return Promise.all(
-    users.map(user => {
-      return save(user).then(() => {
-        return { user, success: true };
+    items.map(item => {
+      return step1(item).then(x => {
+        return step2(x).then(y => {
+          return y;
+        });
       });
     })
   );
-});
-`,
-          errors: [{ messageId: 'avoidNesting' }],
-        },
-        {
-          // FP: a deferred event-handler closure - the inner .then() runs later, on a
-          // click, not as part of resolving the outer .then(). Currently still flagged.
-          code: `
-fetchImages().then(images => {
-  const handleDeletion = id => {
-    deleteImage(id).then(() => {
-      refresh();
-    });
-  };
-});
-`,
-          errors: [{ messageId: 'avoidNesting' }],
-        },
-        {
-          // FP: nesting forced by a transaction callback contract - the inner .then()
-          // belongs to the transaction's own body, bound to handle `t`. Currently still
-          // flagged.
-          code: `
-readUser(options).then(function (result) {
-  return db.transaction(function (t) {
-    return destroyStuff(options).then(function () {
-      t.commit();
-    });
-  });
 });
 `,
           errors: [{ messageId: 'avoidNesting' }],

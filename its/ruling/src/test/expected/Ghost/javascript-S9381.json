@@ -24,8 +24,6 @@
 119
 ],
 "Ghost:core/client/app/controllers/setup/three.js": [
-175,
-180,
 187
 ],
 "Ghost:core/client/app/controllers/setup/two.js": [
@@ -38,8 +36,6 @@
 94
 ],
 "Ghost:core/client/app/controllers/signup.js": [
-39,
-39,
 70,
 71,
 75,
@@ -69,7 +65,6 @@
 273
 ],
 "Ghost:core/server/api/roles.js": [
-65,
 68
 ],
 "Ghost:core/server/api/settings.js": [
@@ -83,13 +78,9 @@
 277,
 327,
 340,
-341,
-399,
-401,
-403
+341
 ],
 "Ghost:core/server/apps/index.js": [
-74,
 87
 ],
 "Ghost:core/server/apps/loader.js": [
@@ -99,15 +90,13 @@
 22
 ],
 "Ghost:core/server/controllers/frontend/index.js": [
-128,
-190
+128
 ],
 "Ghost:core/server/data/export/index.js": [
 56
 ],
 "Ghost:core/server/data/import/data-importer.js": [
 89,
-95,
 155
 ],
 "Ghost:core/server/data/import/utils.js": [
@@ -119,13 +108,10 @@
 318
 ],
 "Ghost:core/server/data/migration/fixtures/permissions/index.js": [
-96,
 102
 ],
 "Ghost:core/server/data/migration/index.js": [
-89,
-176,
-184
+89
 ],
 "Ghost:core/server/data/schema/versioning.js": [
 36
@@ -146,9 +132,6 @@
 ],
 "Ghost:core/server/models/index.js": [
 57
-],
-"Ghost:core/server/models/post.js": [
-551
 ],
 "Ghost:core/server/models/user.js": [
 321,

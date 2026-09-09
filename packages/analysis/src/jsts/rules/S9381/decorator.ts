@@ -14,15 +14,40 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
+import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { FUNCTION_NODES } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
+
+function isPromiseCallback(fn: TSESTree.Node): boolean {
+  const parent = fn.parent;
+  return (
+    !!parent &&
+    parent.type === 'CallExpression' &&
+    parent.callee.type === 'MemberExpression' &&
+    !parent.callee.computed &&
+    parent.callee.property.type === 'Identifier' &&
+    (parent.callee.property.name === 'then' || parent.callee.property.name === 'catch')
+  );
+}
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     { ...rule, meta: generateMeta(meta, rule.meta!) },
     (context, descriptor) => {
+      const node = (descriptor as unknown as { node: TSESTree.Node }).node;
+      const enclosingFunction = findFirstMatchingAncestor(node, n =>
+        FUNCTION_NODES.includes(n.type),
+      );
+      if (enclosingFunction && !isPromiseCallback(enclosingFunction)) {
+        // An intervening non-promise function (a `.map()` callback, an event
+        // handler, a transaction callback, ...) separates this call from its
+        // enclosing promise callback: not avoidable sequential nesting.
+        return;
+      }
       context.report(descriptor);
     },
   );
