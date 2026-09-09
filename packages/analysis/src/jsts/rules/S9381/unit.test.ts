@@ -113,6 +113,25 @@ doThing().then(function (result) {
 });
 `,
         },
+        {
+          // deliberate, not a gap: a .finally() callback is not treated as a promise
+          // callback either, so nesting inside one is suppressed. Unlike .then()/
+          // .catch(), flattening this would change behavior: .finally() always passes
+          // through the *original* settled value to whatever follows it, discarding
+          // its own callback's resolution - so pulling the inner .then() out to sit
+          // after the .finally() would feed it a completely different value (verified
+          // at runtime: `Promise.resolve('X').finally(() => Promise.resolve('Y').then(y
+          // => ...)).then(v => ...)` - the outer .then() sees "X", never "Y").
+          code: `
+doThing().then(() => {
+  return step().finally(() => {
+    return cleanup().then(() => {
+      return afterCleanup();
+    });
+  });
+});
+`,
+        },
       ],
       invalid: [
         {
