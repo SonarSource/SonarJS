@@ -9,7 +9,8 @@
   "tags": [
     "confusing",
     "es2015",
-    "editable-source"
+    "editable-source",
+    "promise"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-9381",
@@ -26,5 +27,7 @@
     },
     "attribute": "CLEAR"
   },
-  "defaultQualityProfiles": []
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
 }
