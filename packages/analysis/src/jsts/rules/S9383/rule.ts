@@ -17,15 +17,90 @@
 // https://sonarsource.github.io/rspec/#/rspec/S9383/javascript
 
 import type { Rule } from 'eslint';
+import { AST_NODE_TYPES, type TSESTree } from '@typescript-eslint/utils';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { isAny } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 const noFloatingPromisesRule = tsEslintRules['no-floating-promises'];
 
+// messageIds upstream uses when it decided the rejection handler isn't a function
+const NON_FUNCTION_HANDLER_MESSAGE_IDS = new Set([
+  'floatingUselessRejectionHandler',
+  'floatingUselessRejectionHandlerVoid',
+]);
+
+function unwrapChain(node: TSESTree.Node): TSESTree.Node {
+  return node.type === AST_NODE_TYPES.ChainExpression ? node.expression : node;
+}
+
+// Finds the direct `expr.catch(handler)`/`expr.then(onFulfilled, handler)` argument; handlers
+// reached only via a ternary/logical/sequence branch are out of scope and still get reported.
+function findRejectionHandler(node: TSESTree.Node): TSESTree.Node | null {
+  let expression = unwrapChain(
+    node.type === AST_NODE_TYPES.ExpressionStatement ? node.expression : node,
+  );
+  if (expression.type === AST_NODE_TYPES.UnaryExpression && expression.operator === 'void') {
+    expression = unwrapChain(expression.argument);
+  }
+  if (expression.type !== AST_NODE_TYPES.CallExpression) {
+    return null;
+  }
+  const { callee, arguments: args } = expression;
+  if (
+    callee.type !== AST_NODE_TYPES.MemberExpression ||
+    callee.property.type !== AST_NODE_TYPES.Identifier
+  ) {
+    return null;
+  }
+  if (callee.property.name === 'catch') {
+    return args[0] ?? null;
+  }
+  if (callee.property.name === 'then') {
+    return args[1] ?? null;
+  }
+  return null;
+}
+
+// `any` has no call signatures though it's callable at runtime; upstream closed this
+// as working-as-intended (typescript-eslint/typescript-eslint#12848), so fix it here.
+function isAnyTypedRejectionHandler(
+  context: Rule.RuleContext,
+  reportedNode: TSESTree.Node,
+): boolean {
+  const parserServices = context.sourceCode.parserServices;
+  if (!isRequiredParserServices(parserServices)) {
+    return false;
+  }
+  const handler = findRejectionHandler(reportedNode);
+  if (!handler) {
+    return false;
+  }
+  const tsNode = parserServices.esTreeNodeToTSNodeMap.get(handler);
+  return isAny(parserServices.program.getTypeChecker().getTypeAtLocation(tsNode));
+}
+
+const decoratedNoFloatingPromisesRule = interceptReport(
+  noFloatingPromisesRule,
+  (context, descriptor) => {
+    if (
+      'node' in descriptor &&
+      'messageId' in descriptor &&
+      NON_FUNCTION_HANDLER_MESSAGE_IDS.has(descriptor.messageId) &&
+      isAnyTypedRejectionHandler(context, descriptor.node as unknown as TSESTree.Node)
+    ) {
+      return;
+    }
+    context.report(descriptor);
+  },
+);
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { ...noFloatingPromisesRule.meta }),
   create(context: Rule.RuleContext) {
-    return noFloatingPromisesRule.create(context);
+    return decoratedNoFloatingPromisesRule.create(context);
   },
 };
