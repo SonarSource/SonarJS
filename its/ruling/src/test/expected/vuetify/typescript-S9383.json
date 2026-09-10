@@ -1,0 +1,34 @@
+{
+"vuetify:packages/api-generator/src/index.ts": [
+182
+],
+"vuetify:packages/docs/src/plugins/pwa.ts": [
+32,
+34
+],
+"vuetify:packages/vuetify/src/components/VField/VField.tsx": [
+169
+],
+"vuetify:packages/vuetify/src/components/VForm/VForm.tsx": [
+44
+],
+"vuetify:packages/vuetify/src/components/VOverlay/useActivator.tsx": [
+97,
+101,
+113,
+119,
+147,
+151,
+173,
+178
+],
+"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
+54,
+74
+],
+"vuetify:packages/vuetify/src/composables/validation.ts": [
+123,
+126,
+136
+]
+}
