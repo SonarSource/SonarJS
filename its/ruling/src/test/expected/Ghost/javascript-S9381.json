@@ -1,0 +1,209 @@
+{
+"Ghost:core/client/app/components/gh-user-invited.js": [
+55,
+58
+],
+"Ghost:core/client/app/components/modals/invite-new-user.js": [
+58,
+106,
+116
+],
+"Ghost:core/client/app/components/modals/re-authenticate.js": [
+49,
+52
+],
+"Ghost:core/client/app/controllers/post-settings-menu.js": [
+74,
+78
+],
+"Ghost:core/client/app/controllers/reset.js": [
+52,
+56
+],
+"Ghost:core/client/app/controllers/settings/navigation.js": [
+119
+],
+"Ghost:core/client/app/controllers/setup/three.js": [
+187
+],
+"Ghost:core/client/app/controllers/setup/two.js": [
+121,
+134,
+139
+],
+"Ghost:core/client/app/controllers/signin.js": [
+91,
+94
+],
+"Ghost:core/client/app/controllers/signup.js": [
+70,
+71,
+75,
+78
+],
+"Ghost:core/client/app/mixins/editor-base-controller.js": [
+323
+],
+"Ghost:core/client/app/routes/application.js": [
+97
+],
+"Ghost:core/server/api/authentication.js": [
+31,
+85,
+88,
+93,
+106,
+108,
+138,
+146,
+148,
+181,
+189,
+192,
+194,
+215,
+273
+],
+"Ghost:core/server/api/roles.js": [
+68
+],
+"Ghost:core/server/api/settings.js": [
+239,
+410,
+413
+],
+"Ghost:core/server/api/users.js": [
+206,
+271,
+277,
+327,
+340,
+341
+],
+"Ghost:core/server/apps/index.js": [
+87
+],
+"Ghost:core/server/apps/loader.js": [
+68
+],
+"Ghost:core/server/apps/permissions.js": [
+22
+],
+"Ghost:core/server/controllers/frontend/index.js": [
+128
+],
+"Ghost:core/server/data/export/index.js": [
+56
+],
+"Ghost:core/server/data/import/data-importer.js": [
+89,
+155
+],
+"Ghost:core/server/data/import/utils.js": [
+201,
+314
+],
+"Ghost:core/server/data/migration/fixtures/index.js": [
+194,
+318
+],
+"Ghost:core/server/data/migration/fixtures/permissions/index.js": [
+102
+],
+"Ghost:core/server/data/migration/index.js": [
+89
+],
+"Ghost:core/server/data/schema/versioning.js": [
+36
+],
+"Ghost:core/server/data/xml/rss/index.js": [
+212
+],
+"Ghost:core/server/index.js": [
+40,
+204
+],
+"Ghost:core/server/middleware/auth-strategies.js": [
+43
+],
+"Ghost:core/server/middleware/oauth.js": [
+31,
+65
+],
+"Ghost:core/server/models/index.js": [
+57
+],
+"Ghost:core/server/models/user.js": [
+321,
+539,
+557
+],
+"Ghost:core/server/update-check.js": [
+199,
+200
+],
+"Ghost:core/test/functional/client/app_test.js": [
+218
+],
+"Ghost:core/test/integration/api/api_db_spec.js": [
+26,
+31,
+45,
+50
+],
+"Ghost:core/test/integration/api/api_notifications_spec.js": [
+89,
+95,
+105,
+111,
+132,
+153
+],
+"Ghost:core/test/integration/api/api_users_spec.js": [
+110,
+119,
+485,
+647,
+876,
+882,
+896,
+902,
+916,
+922,
+938,
+944,
+958,
+964,
+978,
+984,
+996,
+998
+],
+"Ghost:core/test/integration/import_spec.js": [
+255,
+300,
+419,
+463
+],
+"Ghost:core/test/integration/migration_spec.js": [
+23,
+24
+],
+"Ghost:core/test/integration/model/model_tags_spec.js": [
+54,
+59
+],
+"Ghost:core/test/integration/model/model_users_spec.js": [
+83,
+87,
+89,
+153,
+159,
+165,
+171
+],
+"Ghost:core/test/unit/permissions_spec.js": [
+236,
+238
+]
+}
