@@ -33,19 +33,12 @@ const NON_FUNCTION_HANDLER_MESSAGE_IDS = new Set([
   'floatingUselessRejectionHandlerVoid',
 ]);
 
-function unwrapChain(node: TSESTree.Node): TSESTree.Node {
-  return node.type === AST_NODE_TYPES.ChainExpression ? node.expression : node;
-}
-
 // Finds the direct `expr.catch(handler)`/`expr.then(onFulfilled, handler)` argument; handlers
-// reached only via a ternary/logical/sequence branch are out of scope and still get reported.
+// reached only via optional chaining, `void`, or a ternary/logical/sequence branch are out of
+// scope (none of the 4 real-world FPs from the ruling review took those shapes) and still get
+// reported as before.
 function findRejectionHandler(node: TSESTree.Node): TSESTree.Node | null {
-  let expression = unwrapChain(
-    node.type === AST_NODE_TYPES.ExpressionStatement ? node.expression : node,
-  );
-  if (expression.type === AST_NODE_TYPES.UnaryExpression && expression.operator === 'void') {
-    expression = unwrapChain(expression.argument);
-  }
+  const expression = node.type === AST_NODE_TYPES.ExpressionStatement ? node.expression : node;
   if (expression.type !== AST_NODE_TYPES.CallExpression) {
     return null;
   }
