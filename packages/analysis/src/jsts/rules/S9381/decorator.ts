@@ -16,8 +16,9 @@
  */
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
+import type estree from 'estree';
 import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
-import { FUNCTION_NODES } from '../helpers/ast.js';
+import { isFunctionNode } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
@@ -40,7 +41,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     (context, descriptor) => {
       const node = (descriptor as unknown as { node: TSESTree.Node }).node;
       const enclosingFunction = findFirstMatchingAncestor(node, n =>
-        FUNCTION_NODES.includes(n.type),
+        isFunctionNode(n as unknown as estree.Node),
       );
       if (enclosingFunction && !isPromiseCallback(enclosingFunction)) {
         // An intervening non-promise function (a `.map()` callback, an event
