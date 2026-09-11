@@ -49,6 +49,13 @@ const INVALID_CASES = [
   },
   // The `td` case: valid in HTML4, deprecated in HTML5 - still reported, matching upstream.
   { code: `<td scope="row">Total</td>;`, errors: 1 },
+  // Other table-related elements are just as invalid a target as any non-`th` element.
+  { code: `<tr scope="row">Total</tr>;`, errors: 1 },
+  { code: `<col scope="col">Total</col>;`, errors: 1 },
+  { code: `<colgroup scope="colgroup">Total</colgroup>;`, errors: 1 },
+  { code: `<tbody scope="rowgroup">Total</tbody>;`, errors: 1 },
+  { code: `<tfoot scope="rowgroup">Total</tfoot>;`, errors: 1 },
+  { code: `<caption scope="col">Total</caption>;`, errors: 1 },
   { code: `<span scope="col">Total</span>;`, errors: 1 },
   { code: `<div scope="rowgroup">Total</div>;`, errors: 1 },
   { code: `<h1 scope="colgroup">Total</h1>;`, errors: 1 },
