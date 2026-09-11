@@ -239,6 +239,32 @@ flowchart TD
   promote --> releasability["releasability"]
 ```
 
+## SQ-IDE QA API
+
+The SonarLint integration tests inherit the usual SonarJS build configuration. The analyzer's
+`sonar-plugin-api` dependency management is scoped to `sonar-plugin/pom.xml`, so it does not
+override the API supplied transitively by SonarLint Core. Test plugins and fast tests that
+compile against the analyzer API declare that version explicitly. Other shared dependency
+management still applies to the integration tests.
+
+The SonarLint suite includes a dedicated runtime test that checks the loaded API version against
+Core's published POM and logs its JAR location. Keep API dependency management out of the root
+POM and the `its/**` parent POMs; it belongs in `sonar-plugin/pom.xml` so Core upgrades continue
+to select their own API version.
+
+After building the plugin locally, run:
+
+```shell
+mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false verify
+```
+
+Local runs discover the built JAR in `sonar-plugin/sonar-javascript-plugin/target`; set
+`SONARJS_ARTIFACT=<classifier>` (for example, `multi`) to select a plugin with an embedded Node
+runtime rather than the classifier-less JAR. In CI,
+`SONARSOURCE_QA=true` activates the existing Maven copy step, which uses the inherited project
+version to populate that directory from the downloaded Maven artifacts. The without-Node CI jobs
+set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the artifact under test.
+
 ## Job Index
 
 | Job                                  | Runner                     | Needs                                                                            | Condition                                                             |
