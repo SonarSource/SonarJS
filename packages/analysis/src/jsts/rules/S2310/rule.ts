@@ -50,10 +50,15 @@ export const rule: Rule.RuleModule = {
           if (isIntentionalSkipAhead(ref.identifier, block)) {
             continue;
           }
+          const loc = ref.identifier.loc!;
           report(
             context,
             {
               node: ref.identifier,
+              loc: {
+                start: { line: loc.start.line + 1, column: loc.start.column },
+                end: { line: loc.end.line + 1, column: loc.end.column },
+              },
               message: `Remove this assignment of "${counter.name}".`,
             },
 
