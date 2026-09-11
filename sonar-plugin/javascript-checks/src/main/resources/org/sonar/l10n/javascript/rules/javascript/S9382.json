@@ -1,0 +1,31 @@
+{
+  "title": "Promises should not be awaited sequentially in a loop",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "performance",
+    "async",
+    "promise",
+    "es2017"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-9382",
+  "sqKey": "S9382",
+  "scope": "Main",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "EFFICIENT"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "defaultQualityProfiles": []
+}
