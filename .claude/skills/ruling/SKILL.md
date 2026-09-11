@@ -32,7 +32,7 @@ sh tools/ruling-debug-script.sh
 Results:
 
 - Actual: `packages/ruling/actual/`
-- Expected: `its/ruling/src/test/expected/`
+- Expected: `its/ruling/src/test/resources/expected/<language>/<project>/`
 
 ## Java Ruling (Old Way)
 
@@ -44,13 +44,13 @@ mvn verify -Dtest=RulingTest -Dmaven.test.redirectTestOutputToFile=false
 Copy actual to expected:
 
 ```bash
-cp -R target/actual/ src/test/expected/
+cp -R target/expected/ src/test/resources/expected/
 ```
 
 Review diff:
 
 ```bash
-diff -rq src/test/expected target/actual
+diff -rq src/test/resources/expected target/expected
 ```
 
 ## Custom Source Files for New Rules

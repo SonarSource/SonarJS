@@ -2,7 +2,7 @@
 
 default_actual_dir="packages/ruling/actual"
 
-expected_dir="its/ruling/src/test/expected"
+expected_dir="its/ruling/src/test/resources/expected"
 actual_dir="${1:-$default_actual_dir}"
 
 # Differing files
