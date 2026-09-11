@@ -14,12 +14,5 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S7739/javascript
-
-import type { Rule } from 'eslint';
-import { rules } from '../external/unicorn.js';
-import { decorate } from './decorator.js';
-
-const noThenable = rules['no-thenable'];
-
-export const rule: Rule.RuleModule = decorate(noThenable);
+export { isInsideExceptionLibraryCall } from './exception-libraries.js';
+export { isIntentionalThenableImplementation } from './intentional-thenable.js';
