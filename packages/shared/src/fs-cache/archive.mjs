@@ -24,8 +24,10 @@ export const FS_CACHE_MAGIC = 'sonarjs-filesystem-cache';
 export const FS_CACHE_FORMAT_VERSION = 1;
 
 const nativeFs = {
+  closeSync: fs.closeSync.bind(fs),
   existsSync: fs.existsSync.bind(fs),
   mkdirSync: fs.mkdirSync.bind(fs),
+  openSync: fs.openSync.bind(fs),
   readFileSync: fs.readFileSync.bind(fs),
   renameSync: fs.renameSync.bind(fs),
   unlinkSync: fs.unlinkSync.bind(fs),
@@ -180,34 +182,68 @@ export class FsCacheArchive {
       return;
     }
 
-    const entries = [...this.entries.entries()]
-      .sort(([left], [right]) => left.localeCompare(right))
-      .map(([entryPath, operations]) => ({
-        path: entryPath,
-        operations: Object.fromEntries(
-          Object.entries(operations).sort(([left], [right]) => left.localeCompare(right)),
-        ),
-      }));
-    const document = {
-      magic: FS_CACHE_MAGIC,
-      formatVersion: FS_CACHE_FORMAT_VERSION,
-      analyzerVersion: this.analyzerVersion,
-      createdAt: this.createdAt,
-      updatedAt: new Date().toISOString(),
-      entries,
-    };
-    const bytes = gzipSync(Buffer.from(JSON.stringify(document)), { mtime: 0 });
     const directory = path.dirname(this.archivePath);
-    const temporaryPath = `${this.archivePath}.${process.pid}.${randomUUID()}.tmp`;
-
     nativeFs.mkdirSync(directory, { recursive: true });
+    const lockPath = `${this.archivePath}.lock`;
+    let lockDescriptor;
+    const lockWaiter = new Int32Array(new SharedArrayBuffer(4));
     try {
-      nativeFs.writeFileSync(temporaryPath, bytes, { mode: 0o600 });
-      nativeFs.renameSync(temporaryPath, this.archivePath);
-      this.dirty = false;
+      for (let attempt = 0; attempt < 1_000; attempt++) {
+        try {
+          lockDescriptor = nativeFs.openSync(lockPath, 'wx', 0o600);
+          break;
+        } catch (error) {
+          if (error?.code !== 'EEXIST') throw error;
+          if (attempt === 999) {
+            throw new FsCacheArchiveError(
+              `Timed out waiting to write filesystem cache archive: ${this.archivePath}`,
+              { cause: error },
+            );
+          }
+          Atomics.wait(lockWaiter, 0, 0, 10);
+        }
+      }
+
+      const ownEntries = this.entries;
+      this.entries = new Map();
+      this.load();
+      for (const [entryPath, operations] of ownEntries) {
+        this.entries.set(entryPath, { ...this.entries.get(entryPath), ...operations });
+      }
+
+      const entries = [...this.entries.entries()]
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([entryPath, operations]) => ({
+          path: entryPath,
+          operations: Object.fromEntries(
+            Object.entries(operations).sort(([left], [right]) => left.localeCompare(right)),
+          ),
+        }));
+      const document = {
+        magic: FS_CACHE_MAGIC,
+        formatVersion: FS_CACHE_FORMAT_VERSION,
+        analyzerVersion: this.analyzerVersion,
+        createdAt: this.createdAt,
+        updatedAt: new Date().toISOString(),
+        entries,
+      };
+      const bytes = gzipSync(Buffer.from(JSON.stringify(document)), { mtime: 0 });
+      const temporaryPath = `${this.archivePath}.${process.pid}.${randomUUID()}.tmp`;
+      try {
+        nativeFs.writeFileSync(temporaryPath, bytes, { mode: 0o600 });
+        nativeFs.renameSync(temporaryPath, this.archivePath);
+        this.dirty = false;
+      } finally {
+        if (nativeFs.existsSync(temporaryPath)) {
+          nativeFs.unlinkSync(temporaryPath);
+        }
+      }
     } finally {
-      if (nativeFs.existsSync(temporaryPath)) {
-        nativeFs.unlinkSync(temporaryPath);
+      if (lockDescriptor !== undefined) {
+        nativeFs.closeSync(lockDescriptor);
+        if (nativeFs.existsSync(lockPath)) {
+          nativeFs.unlinkSync(lockPath);
+        }
       }
     }
   }

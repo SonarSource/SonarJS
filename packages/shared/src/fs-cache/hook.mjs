@@ -34,6 +34,8 @@ const originalFs = Object.fromEntries(
     'lstatSync',
     'open',
     'openSync',
+    'opendir',
+    'opendirSync',
     'read',
     'readFile',
     'readFileSync',
@@ -52,10 +54,9 @@ originalFs.realpathNative = fs.realpath.native.bind(fs.realpath);
 originalFs.realpathSyncNative = fs.realpathSync.native.bind(fs.realpathSync);
 
 const originalPromises = Object.fromEntries(
-  ['access', 'lstat', 'open', 'readFile', 'readdir', 'readlink', 'realpath', 'stat'].map(name => [
-    name,
-    fs.promises[name].bind(fs.promises),
-  ]),
+  ['access', 'lstat', 'open', 'opendir', 'readFile', 'readdir', 'readlink', 'realpath', 'stat'].map(
+    name => [name, fs.promises[name].bind(fs.promises)],
+  ),
 );
 
 function pathDisplay(input) {
@@ -214,6 +215,10 @@ function snapshotStat(stat) {
     'mtimeMs',
     'ctimeMs',
     'birthtimeMs',
+    'atimeNs',
+    'mtimeNs',
+    'ctimeNs',
+    'birthtimeNs',
   ];
   return {
     fields: Object.fromEntries(
@@ -232,7 +237,10 @@ function snapshotStat(stat) {
 }
 
 function restoreStat(snapshot, bigint = false) {
-  const convert = value => (bigint ? BigInt(value) : Number(value));
+  const convert = value => {
+    if (!bigint) return Number(value);
+    return /^-?\d+$/.test(value) ? BigInt(value) : BigInt(Math.trunc(Number(value)));
+  };
   const stat = Object.create(fs.Stats.prototype);
   for (const [field, value] of Object.entries(snapshot.fields)) {
     if (value !== undefined) {
@@ -240,7 +248,11 @@ function restoreStat(snapshot, bigint = false) {
     }
   }
   for (const field of ['atime', 'mtime', 'ctime', 'birthtime']) {
-    stat[field] = new Date(Number(snapshot.fields[`${field}Ms`]));
+    const milliseconds = Number(snapshot.fields[`${field}Ms`]);
+    stat[field] = new Date(milliseconds);
+    if (bigint && stat[`${field}Ns`] === undefined) {
+      stat[`${field}Ns`] = BigInt(Math.trunc(milliseconds * 1_000_000));
+    }
   }
   stat.isBlockDevice = () => snapshot.types.blockDevice;
   stat.isCharacterDevice = () => snapshot.types.characterDevice;
@@ -253,7 +265,8 @@ function restoreStat(snapshot, bigint = false) {
 }
 
 function statOperation(name, options) {
-  return `${name}:${options?.bigint ? 'bigint' : 'number'}`;
+  const result = options?.throwIfNoEntry === false ? 'soft' : 'throw';
+  return `${name}:${options?.bigint ? 'bigint' : 'number'}:${result}`;
 }
 
 function snapshotName(name) {
@@ -342,13 +355,19 @@ function readonlyFlags(flags) {
 
 function readArguments(buffer, args) {
   if (args[0] && typeof args[0] === 'object') {
+    const offset = args[0].offset ?? 0;
     return {
-      offset: args[0].offset ?? 0,
-      length: args[0].length ?? buffer.byteLength,
+      offset,
+      length: args[0].length ?? buffer.byteLength - offset,
       position: args[0].position ?? null,
     };
   }
-  return { offset: args[0], length: args[1], position: args[2] };
+  const offset = args[0] ?? 0;
+  return {
+    offset,
+    length: args[1] ?? buffer.byteLength - offset,
+    position: args[2] ?? null,
+  };
 }
 
 function installPatches(archive) {
@@ -371,6 +390,7 @@ function installPatches(archive) {
   function readFileSync(input, options) {
     const tracked = typeof input === 'number' ? fileDescriptors.get(input) : undefined;
     if (tracked?.virtual) {
+      if (tracked.readError) throw restoreError(tracked.readError, tracked.input);
       const remaining = tracked.content.subarray(tracked.position);
       tracked.position = tracked.content.length;
       return returnReadBuffer(remaining, options);
@@ -404,7 +424,14 @@ function installPatches(archive) {
       callback = options;
       options = undefined;
     }
-    readFilePromise(input, options).then(
+    const tracked = typeof input === 'number' ? fileDescriptors.get(input) : undefined;
+    if (typeof input === 'number' && !tracked?.virtual) {
+      return originalFs.readFile(input, options, callback);
+    }
+    const result = tracked?.virtual
+      ? Promise.resolve().then(() => readFileSync(input, options))
+      : readFilePromise(input, options);
+    result.then(
       value => callback(null, value),
       error => callback(error),
     );
@@ -570,7 +597,11 @@ function installPatches(archive) {
 
   class CachedDir {
     constructor(dirPath, entries) {
-      this.path = pathDisplay(dirPath);
+      Object.defineProperty(this, 'path', {
+        configurable: true,
+        enumerable: true,
+        value: pathDisplay(dirPath),
+      });
       this.entries = entries;
       this.index = 0;
       this.closed = false;
@@ -622,14 +653,13 @@ function installPatches(archive) {
       this.closed = true;
     }
 
-    *[Symbol.iterator]() {
-      let entry;
-      while ((entry = this.readSync()) !== null) yield entry;
-    }
-
     async *[Symbol.asyncIterator]() {
-      let entry;
-      while ((entry = this.readSync()) !== null) yield entry;
+      try {
+        let entry;
+        while ((entry = this.readSync()) !== null) yield entry;
+      } finally {
+        if (!this.closed) this.closeSync();
+      }
     }
 
     async [Symbol.asyncDispose]() {
@@ -640,34 +670,72 @@ function installPatches(archive) {
       if (!this.closed) this.closeSync();
     }
   }
+  Object.setPrototypeOf(CachedDir.prototype, fs.Dir.prototype);
 
   function opendirOptions(options) {
     return {
       encoding: typeof options === 'string' ? options : options?.encoding,
+      recursive: Boolean(options?.recursive),
       withFileTypes: true,
     };
   }
 
+  function opendirOperation(options) {
+    return `opendir:${getEncoding(options) || 'utf8'}:${Boolean(options?.recursive)}`;
+  }
+
   function opendirSync(input, options) {
-    const entries = executor.runSync(
-      input,
-      `opendir:${getEncoding(options) || 'utf8'}`,
-      () => originalFs.readdirSync(input, opendirOptions(options)),
-      value => snapshotDirectoryResult(value, archive),
-      value => restoreDirectoryResult(value, archive),
+    const operation = opendirOperation(options);
+    const replayed = executor.replay(input, operation, value =>
+      restoreDirectoryResult(value, archive),
     );
-    return new CachedDir(input, entries);
+    if (replayed !== MISSING) return new CachedDir(input, replayed);
+
+    const key = archive.keyFor(input);
+    try {
+      const directory = originalFs.opendirSync(input, options);
+      if (archive.mode === 'record' && key !== undefined) {
+        try {
+          const entries = originalFs.readdirSync(input, opendirOptions(options));
+          archive.set(key, operation, success(snapshotDirectoryResult(entries, archive)));
+        } catch {
+          // Auxiliary capture must not alter a successful opendir call.
+        }
+      }
+      return directory;
+    } catch (error) {
+      if (archive.mode === 'record' && key !== undefined) {
+        archive.set(key, operation, failure(error));
+      }
+      throw error;
+    }
   }
 
   async function opendirPromise(input, options) {
-    const entries = await executor.runAsync(
-      input,
-      `opendir:${getEncoding(options) || 'utf8'}`,
-      () => originalPromises.readdir(input, opendirOptions(options)),
-      value => snapshotDirectoryResult(value, archive),
-      value => restoreDirectoryResult(value, archive),
+    const operation = opendirOperation(options);
+    const replayed = executor.replay(input, operation, value =>
+      restoreDirectoryResult(value, archive),
     );
-    return new CachedDir(input, entries);
+    if (replayed !== MISSING) return new CachedDir(input, replayed);
+
+    const key = archive.keyFor(input);
+    try {
+      const directory = await originalPromises.opendir(input, options);
+      if (archive.mode === 'record' && key !== undefined) {
+        try {
+          const entries = await originalPromises.readdir(input, opendirOptions(options));
+          archive.set(key, operation, success(snapshotDirectoryResult(entries, archive)));
+        } catch {
+          // Auxiliary capture must not alter a successful opendir call.
+        }
+      }
+      return directory;
+    } catch (error) {
+      if (archive.mode === 'record' && key !== undefined) {
+        archive.set(key, operation, failure(error));
+      }
+      throw error;
+    }
   }
 
   function opendir(input, options, callback) {
@@ -687,13 +755,29 @@ function installPatches(archive) {
       return;
     }
     try {
-      const content = originalFs.readFileSync(input);
+      const chunks = [];
+      let position = 0;
+      let bytesRead;
+      do {
+        const chunk = Buffer.allocUnsafe(64 * 1024);
+        bytesRead = originalFs.readSync(fd, chunk, 0, chunk.length, position);
+        if (bytesRead > 0) {
+          chunks.push(chunk.subarray(0, bytesRead));
+          position += bytesRead;
+        }
+      } while (bytesRead > 0);
+      const content = Buffer.concat(chunks);
       archive.set(key, 'readFile', success(content.toString('base64')));
-    } catch {
-      // A directory can be opened successfully but cannot be captured as file content.
+    } catch (error) {
+      archive.set(key, 'readFile', failure(error));
     }
     try {
-      archive.set(key, 'fstat:number', success(snapshotStat(originalFs.fstatSync(fd))));
+      archive.set(key, statOperation('fstat'), success(snapshotStat(originalFs.fstatSync(fd))));
+      archive.set(
+        key,
+        statOperation('fstat', { bigint: true }),
+        success(snapshotStat(originalFs.fstatSync(fd, { bigint: true }))),
+      );
     } catch {
       // The original open already succeeded; auxiliary capture must not alter its result.
     }
@@ -710,15 +794,17 @@ function installPatches(archive) {
     }
     if (!outcome.ok) throw restoreError(outcome.error, input);
     const file = archive.get(key, 'readFile');
-    if (!file?.ok) {
+    if (file === undefined) {
       if (archive.strict) throw cacheMiss('readFile', input);
       return MISSING;
     }
     const fd = nextFileDescriptor--;
     fileDescriptors.set(fd, {
-      content: Buffer.from(file.value, 'base64'),
+      content: file.ok ? Buffer.from(file.value, 'base64') : undefined,
+      input: pathDisplay(input),
       key,
       position: 0,
+      readError: file.ok ? undefined : file.error,
       virtual: true,
     });
     return fd;
@@ -750,7 +836,11 @@ function installPatches(archive) {
   }
 
   function open(input, flags, mode, callback) {
-    if (typeof mode === 'function') {
+    if (typeof flags === 'function') {
+      callback = flags;
+      flags = 'r';
+      mode = undefined;
+    } else if (typeof mode === 'function') {
       callback = mode;
       mode = undefined;
     }
@@ -783,10 +873,14 @@ function installPatches(archive) {
   function readVirtual(fd, buffer, args) {
     const tracked = fileDescriptors.get(fd);
     if (!tracked?.virtual) return undefined;
+    if (tracked.readError) throw restoreError(tracked.readError, tracked.input);
     const { offset, length, position } = readArguments(buffer, args);
-    const start = position === null || position === undefined ? tracked.position : position;
-    const bytesRead = tracked.content.copy(buffer, offset, start, start + length);
-    if (position === null || position === undefined) tracked.position += bytesRead;
+    const sequential = position === null || position === undefined;
+    const requestedStart = Number(sequential ? tracked.position : position);
+    const start = Math.max(0, Math.min(tracked.content.length, requestedStart));
+    const end = Math.min(tracked.content.length, start + Number(length));
+    const bytesRead = tracked.content.copy(buffer, offset, start, Math.max(start, end));
+    if (sequential) tracked.position = start + bytesRead;
     return bytesRead;
   }
 
@@ -794,14 +888,27 @@ function installPatches(archive) {
     return readVirtual(fd, buffer, args) ?? originalFs.readSync(fd, buffer, ...args);
   }
 
-  function read(fd, buffer, ...args) {
+  function read(fd, ...args) {
+    const tracked = fileDescriptors.get(fd);
+    if (!tracked?.virtual) return originalFs.read(fd, ...args);
+
     const callback = args.pop();
-    const bytesRead = readVirtual(fd, buffer, args);
-    if (bytesRead !== undefined) {
-      queueMicrotask(() => callback(null, bytesRead, buffer));
-      return;
+    let buffer;
+    let readArgs;
+    if (ArrayBuffer.isView(args[0])) {
+      [buffer] = args;
+      readArgs = args.slice(1);
+    } else {
+      const options = args[0] || {};
+      buffer = options.buffer || Buffer.alloc(16_384);
+      readArgs = [options];
     }
-    originalFs.read(fd, buffer, ...args, callback);
+    try {
+      const bytesRead = readVirtual(fd, buffer, readArgs);
+      queueMicrotask(() => callback(null, bytesRead, buffer));
+    } catch (error) {
+      queueMicrotask(() => callback(error, 0, buffer));
+    }
   }
 
   function fstatSync(fd, options) {
@@ -842,7 +949,7 @@ function installPatches(archive) {
     const tracked = fileDescriptors.get(fd);
     fileDescriptors.delete(fd);
     if (tracked?.virtual) {
-      queueMicrotask(() => callback(null));
+      if (callback) queueMicrotask(() => callback(null));
     } else {
       originalFs.close(fd, callback);
     }
