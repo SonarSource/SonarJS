@@ -535,6 +535,9 @@ You can simply copy and paste compliant and non-compliant examples from your RSP
 
 This section explains how rule options (configurations) work across the SonarJS stack.
 
+See [Rule Configuration Patterns](./rule-configuration-patterns.md) for the supported JS/TS and
+CSS option shapes, generation rules, and end-to-end typed transport flow.
+
 ### Overview
 
 Rule options reach Node.js through the typed analyze-project gRPC contract:
