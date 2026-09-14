@@ -667,13 +667,13 @@ This is why `CustomRuleRepository` rules can raise issues: their `eslintKey` is 
 │             ▼                          ▼                                    │
 │  ┌──────────────────────────────────────────────────────────────┐           │
 │  │                   BridgeServerImpl                           │           │
-│  │  - Sends ProjectAnalysisRequest via WebSocket                │           │
+│  │  - Sends AnalyzeProjectRequest via gRPC                      │           │
 │  │  - Request contains: rules[], bundles[], files{}             │           │
 │  └──────────────────────────────────────────────────────────────┘           │
 │                                   │                                         │
 └───────────────────────────────────┼─────────────────────────────────────────┘
-                                    │ WebSocket
-                                    │ { type: "on-analyze-project", data: {...} }
+                                    │ gRPC
+                                    │ AnalyzeProjectRequest protobuf
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                        NODE.JS SIDE (Bridge)                                │

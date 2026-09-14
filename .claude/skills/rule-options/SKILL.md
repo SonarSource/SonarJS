@@ -5,21 +5,14 @@ description: Add or modify rule options in SonarJS, including the fields array, 
 
 ## Architecture Overview
 
-Rule options flow through two parallel paths:
-
-**SonarQube (HTTP/WebSocket):**
+Rule options flow through one typed path:
 
 ```
-SonarQube UI → Java Check Class → configurations() → analyzeProject() → ESLint Linter
+SonarQube UI → Java Check Class → configurations() → AnalyzeProjectRequest → normalizeJsTsRules() → ESLint Linter
 ```
 
-**External/gRPC:**
-
-```
-External Client → gRPC → transformers.ts → parseParamValue() → ESLint Linter
-```
-
-SonarQube sends typed values; gRPC sends string key-value pairs that need type parsing.
+The Java bridge encodes rule configurations as protobuf `Value` messages. Node.js receives numbers,
+booleans, strings, arrays, and objects with their types preserved.
 
 ## Key Files per Rule
 
@@ -131,17 +124,15 @@ export const fields = [
 // SQ sends: "password,pwd,secret" → ESLint: [{ passwordWords: ['password','pwd','secret'] }]
 ```
 
-## Type Parsing (gRPC)
+## Typed gRPC Values
 
-String params from gRPC are parsed based on `default` type:
+The gRPC normalizer does not parse rule options from strings. The generated Java check converts
+SonarQube parameters to their runtime types before building the protobuf request. In particular,
+array parameters entered as comma-separated text in SonarQube are split and trimmed on the Java
+side, then received by Node.js as protobuf lists.
 
-| Default Type | Input       | Parsed          |
-| ------------ | ----------- | --------------- |
-| `number`     | `"5"`       | `5`             |
-| `boolean`    | `"true"`    | `true`          |
-| `string`     | `"pattern"` | `"pattern"`     |
-| `string[]`   | `"a,b,c"`   | `["a","b","c"]` |
-| `number[]`   | `"1,2,3"`   | `[1,2,3]`       |
+See `docs/rule-configuration-patterns.md` for the supported option shapes and materialization
+rules.
 
 ## JSON Schema vs `fields`
 
@@ -195,4 +186,6 @@ When SQ and ESLint use different names:
 { field: 'max', displayName: 'maximumFunctionParameters', ... }
 ```
 
-`transformers.ts` handles the SQ key → ESLint key mapping at runtime.
+`displayName` controls the generated SonarQube parameter key, while `field` remains the key in the
+materialized ESLint option. The generated Java check sends the typed ESLint-shaped configuration,
+which Node.js merges with the rule defaults.

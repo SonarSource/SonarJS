@@ -75,7 +75,7 @@ They are initialized through `initFileStores(configuration, inputFiles?)`.
 | `sourceFileStore`         | analyzable files, file contents, file types, file statuses, ignored dirs, `DirectoryIndex` | filesystem walk or explicit request files                 | `baseDir` change, or direct reseeding from `inputFiles`                                |
 | `dependencyManifestStore` | raw preloadable manifest contents plus directory-parent graph                              | filesystem walk or simulated traversal from request files | `baseDir` change, manifest-shaped `fsEvents`                                           |
 | `generatedSourceStore`    | project-derived generated-source families plus watched config/output paths                 | post-process derivation from discovered project metadata  | `baseDir` change, JS/TS suffix changes, project discovery changes, relevant `fsEvents` |
-| `tsConfigStore`           | discovered `tsconfig.json` files and provided `tsConfigPaths` matches                      | filesystem walk or simulated traversal from request files | `baseDir` change, `tsConfigPaths` change, `clearTsConfigCache`, relevant `fsEvents`    |
+| `tsConfigStore`           | discovered `tsconfig.json` files and provided `tsConfigPaths` matches                      | filesystem walk or simulated traversal from request files | `baseDir` change, `tsConfigPaths` change, relevant `fsEvents`                          |
 
 ### `sourceFileStore`
 
@@ -329,7 +329,6 @@ It is also directly reseeded when explicit `inputFiles` are provided. That resee
 
 - `baseDir` changes
 - `sonar.typescript.tsconfigPaths` changes
-- `clearTsConfigCache` is set
 - an `fsEvent` points at:
   - an already-known tsconfig
   - a `tsconfig.json` candidate in lookup mode
@@ -358,8 +357,6 @@ When it clears, it also calls `clearDependenciesCache()`, which resets:
 - derived dependency caches
 - module-type caches
 - minimatch helpers used by manifest resolution
-
-There is also a narrower per-analysis switch in `analyzer.ts`: `clearDependenciesCache` can force the helper caches to be cleared before linting a file.
 
 ### `sourceFileCache`
 
@@ -390,7 +387,7 @@ The IDE path is the main target for warm caches:
 - `analyzeProject()` chooses `analyzeWithIncrementalProgram()`
 - builder programs stay in `ProgramCacheManager`
 - source-file contents and parsed ASTs stay in `sourceFileCache`
-- `fsEvents`, `clearTsConfigCache`, and manifest invalidation are what keep the warm state correct
+- `fsEvents` and manifest invalidation are what keep the warm state correct
 
 This is the path where the cache architecture matters most for latency.
 

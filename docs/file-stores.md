@@ -147,7 +147,6 @@ It depends on:
 - the explicit `tsConfigPaths` setting changes
 - the project-file-discovery configuration changes
 - `fsEvents` mention an existing or potentially relevant tsconfig
-- `clearTsConfigCache` is requested
 
 The important point is that `tsconfigs` does **not** refresh just because a different subset of source files is being analyzed. It refreshes when tsconfig discovery itself may have changed.
 

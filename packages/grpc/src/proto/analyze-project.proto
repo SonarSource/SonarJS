@@ -87,9 +87,6 @@ message ProjectConfiguration {
   optional bool disable_type_checking = 28;
   optional bool skip_node_module_lookup_outside_base_dir = 29;
   optional string ecma_script_version = 30;
-  optional bool clear_dependencies_cache = 31;
-  optional bool clear_ts_config_cache = 32;
-  optional bool report_ncloc_for_test_files = 33;
   optional bool detect_generated_code = 34;
 }
 

@@ -27,7 +27,6 @@ import {
   collectNoSonarMetrics,
   collectTestFileArtifacts,
 } from './file-artifacts.js';
-import { clearDependenciesCache } from '../rules/helpers/dependency-manifests/index.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import {
   toProjectFailureResult,
@@ -90,10 +89,6 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
 
   const parserContext: ParserContext = { detectedEsYear };
   const parseResult = build(input, parserContext);
-  if (input.clearDependenciesCache) {
-    debug('Clearing dependencies cache');
-    clearDependenciesCache();
-  }
   const { additionalRules, additionalSettings, metricsSink } = prepareLinterOptions(input);
   const { issues, suppressedIssues } = Linter.lint(
     parseResult,
@@ -200,6 +195,6 @@ function computeExtendedMetrics(
   if (fileType === 'MAIN') {
     return collectMainFileArtifacts(sourceCode, ignoreHeaderComments, cognitiveComplexity);
   } else {
-    return collectTestFileArtifacts(sourceCode, input.reportNclocForTestFiles);
+    return collectTestFileArtifacts(sourceCode);
   }
 }

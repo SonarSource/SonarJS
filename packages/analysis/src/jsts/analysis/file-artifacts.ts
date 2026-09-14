@@ -288,15 +288,12 @@ export function collectMainFileArtifacts(
   };
 }
 
-export function collectTestFileArtifacts(
-  sourceCode: SourceCode,
-  reportNclocForTestFiles: boolean,
-): TestFileArtifacts {
+export function collectTestFileArtifacts(sourceCode: SourceCode): TestFileArtifacts {
   const collected = collectArtifacts(sourceCode, {
     includeStructuralMetrics: false,
     includeCommentLines: false,
     includeNoSonar: true,
-    includeNcloc: reportNclocForTestFiles,
+    includeNcloc: false,
     includeHighlights: true,
     includeSymbolHighlights: true,
     includeCpdTokens: false,
@@ -304,9 +301,7 @@ export function collectTestFileArtifacts(
   });
 
   return {
-    metrics: reportNclocForTestFiles
-      ? { nosonarLines: collected.nosonarLines, ncloc: collected.ncloc }
-      : { nosonarLines: collected.nosonarLines },
+    metrics: { nosonarLines: collected.nosonarLines },
     highlights: collected.highlights,
     highlightedSymbols: collected.highlightedSymbols,
   };

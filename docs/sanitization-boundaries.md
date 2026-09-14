@@ -47,6 +47,14 @@ through `normalizeAnalyzeProjectRequest()`:
 
 ```typescript
 const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
+const wrappedIncrementalResultsChannel = incrementalResultsChannel
+  ? (event: AnalyzeProjectIncrementalEvent['event']) =>
+      incrementalResultsChannel({
+        event,
+        pathMap: sanitizedInput.pathMap,
+      })
+  : undefined;
+
 const output = await analyzeProject(
   {
     rules: sanitizedInput.rules,

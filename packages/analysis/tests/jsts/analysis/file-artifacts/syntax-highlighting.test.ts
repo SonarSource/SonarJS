@@ -111,7 +111,7 @@ describe('collectTestFileArtifacts (syntax highlights)', () => {
 async function highlighting(filename: string): Promise<SyntaxHighlight[]> {
   const filePath = path.join(import.meta.dirname, 'fixtures', 'syntax-highlighting', filename);
   const { sourceCode } = await parseTypeScriptSourceFile(filePath, []);
-  return collectTestFileArtifacts(sourceCode, false).highlights;
+  return collectTestFileArtifacts(sourceCode).highlights;
 }
 
 function highlight(
