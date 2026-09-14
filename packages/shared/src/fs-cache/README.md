@@ -34,4 +34,7 @@ The cache exists only when Node is explicitly started with this preload. Standar
 unaware of it, and SonarLint must not enable the preload. Callable `fs` exports that did not exist
 in the minimum supported Node 22.12 runtime fail when invoked while the hook is active. This
 prevents a newer Node filesystem API from silently bypassing recording or replay before its
-semantics have been explicitly reviewed.
+semantics have been explicitly reviewed. Synchronous APIs throw
+`ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION`; `fs/promises` APIs return a rejected promise with the
+same error, matching their native call contract. An unhandled rejection therefore terminates Node
+normally.
