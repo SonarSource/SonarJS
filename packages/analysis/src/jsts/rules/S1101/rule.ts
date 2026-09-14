@@ -129,7 +129,10 @@ function checkLinks(context: Rule.RuleContext, links: LinkInfo[]) {
 }
 
 function registerBaseline(siblingBaselines: Map<string, LinkInfo>, link: LinkInfo) {
-  if (!link.conditional) {
+  const existing = siblingBaselines.get(link.name);
+  // An unconditional link always wins; a conditional one only seeds an empty slot,
+  // so ordering does not change whether a conflict is detected.
+  if (!link.conditional || !existing) {
     siblingBaselines.set(link.name, link);
   }
 }
