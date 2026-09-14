@@ -48,10 +48,38 @@ const callbackSize = await new Promise((resolve, reject) =>
   stat(file, (error, value) => (error ? reject(error) : resolve(value.size))),
 );
 
+const optionalRead = await new Promise((resolve, reject) => {
+  fsDefault.open(file, (openError, optionalFd) => {
+    if (openError) return reject(openError);
+    fsDefault.read(optionalFd, (readError, count, buffer) => {
+      if (readError) return reject(readError);
+      const pastEnd = fsDefault.readSync(optionalFd, Buffer.alloc(4), 0, 4, 10_000);
+      fsDefault.close(optionalFd);
+      resolve({ content: buffer.subarray(0, count).toString(), pastEnd });
+    });
+  });
+});
+
+const callbackFdReadFile = await new Promise((resolve, reject) => {
+  fsDefault.open(file, 'r', (openError, readFileFd) => {
+    if (openError) return reject(openError);
+    fsDefault.readFile(readFileFd, 'utf8', (readError, content) => {
+      fsDefault.closeSync(readFileFd);
+      if (readError) return reject(readError);
+      resolve(content);
+    });
+  });
+});
+
 const fd = openSync(file, 'r');
 const fdBuffer = Buffer.alloc(7);
 const bytesRead = readSync(fd, fdBuffer, 0, fdBuffer.length, 0);
 const fdSize = fstatSync(fd).size;
+const fdBigintStat = fstatSync(fd, { bigint: true });
+const fdBigint = {
+  nanoseconds: typeof fdBigintStat.atimeNs,
+  size: String(fdBigintStat.size),
+};
 closeSync(fd);
 
 const callbackFdRead = await new Promise((resolve, reject) => {
@@ -83,6 +111,7 @@ try {
 } catch (error) {
   missingStatCode = error.code;
 }
+const missingSoft = statSync(missing, { throwIfNoEntry: false }) === undefined;
 
 const dynamicFs = await import('node:fs');
 const directoryEntries = readdirSync(directory, { withFileTypes: true }).map(entry => ({
@@ -90,18 +119,23 @@ const directoryEntries = readdirSync(directory, { withFileTypes: true }).map(ent
   file: entry.isFile(),
   name: entry.name,
 }));
-const openedDirectory = fsDefault.opendirSync(directory);
-const openedDirectoryEntries = [...openedDirectory].map(entry => entry.name);
+const openedDirectory = fsDefault.opendirSync(directory, { recursive: true });
+const openedDirectoryIsDir = openedDirectory instanceof fsDefault.Dir;
+const openedDirectoryEntries = [];
+let openedEntry;
+while ((openedEntry = openedDirectory.readSync()) !== null) {
+  openedDirectoryEntries.push(openedEntry.name);
+}
 openedDirectory.closeSync();
 const promisedDirectory = await fsDefault.promises.opendir(directory);
 const promisedDirectoryEntries = [];
 for await (const entry of promisedDirectory) promisedDirectoryEntries.push(entry.name);
-await promisedDirectory.close();
 
 accessSync(file);
 const result = {
   callback: callbackRead,
   callbackFdRead,
+  callbackFdReadFile,
   callbackSize,
   commonjs: commonJsFs.readFileSync(file, 'utf8'),
   default: fsDefault.readFileSync(file, 'utf8'),
@@ -109,15 +143,19 @@ const result = {
   dynamic: dynamicFs.readFileSync(file, 'utf8'),
   exists: existsSync(file),
   fd: fdBuffer.subarray(0, bytesRead).toString(),
+  fdBigint,
   fdSize,
   handle: handleBuffer.subarray(0, handleRead.bytesRead).toString(),
   handleSize,
   lstatSize: lstatSync(file).size,
   missingExists: existsSync(missing),
+  missingSoft,
   missingStatCode,
   named: readFileSync(file, 'utf8'),
   namespace: fsNamespace.readFileSync(file, 'utf8'),
   openedDirectoryEntries,
+  openedDirectoryIsDir,
+  optionalRead,
   outside: readFileSync(process.env.FS_CACHE_OUTSIDE_FILE, 'utf8'),
   promise: await readFilePromise(file, 'utf8'),
   promisedDirectoryEntries,
