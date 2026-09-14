@@ -36,7 +36,9 @@ function wrapperSource(moduleExports, requireExpression, objectName) {
   ];
 
   for (const [name, value] of Object.entries(moduleExports)) {
-    if (!/^[$A-Z_a-z][$\w]*$/.test(name) || name === 'default') continue;
+    if (!/^[$A-Z_a-z][$\w]*$/.test(name) || name === 'default') {
+      continue;
+    }
     if (typeof value === 'function' && !classes.has(name)) {
       lines.push(`export function ${name}(...args) { return ${objectName}.${name}(...args); }`);
     } else {
