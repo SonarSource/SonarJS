@@ -208,9 +208,16 @@ When set, SonarJS will not start a new Node process and will send the analysis r
 specified port instead. If that process cannot be reached, the analysis fails instead of silently
 skipping the affected analysis.
 
-The root `Dockerfile` and the `docker:build` and `docker:run` npm scripts package this gRPC server
-for local development and debugging. The resulting `sonarjs:latest` image is a development
-convenience rather than a separately published SQAA artifact.
+Build and start the same analyze-project runtime that the scanner normally launches:
+
+```sh
+npm run bridge:build:fast
+npm run bridge:bundle
+node bin/server.cjs 50051 127.0.0.1
+```
+
+Then set `SONARJS_EXISTING_NODE_PROCESS_PORT=50051` in the scanner environment. The manually
+started process is not owned by the scanner and keeps running after the scan finishes.
 
 When using this for the ruling tests, make sure that you run them in series (and not in parallel),
 by removing `@Execution(ExecutionMode.CONCURRENT)` from the ruling test.
@@ -530,28 +537,14 @@ This section explains how rule options (configurations) work across the SonarJS 
 
 ### Overview
 
-There are two parallel workflows for requesting JS/TS analysis from Node.js:
-
-**1. SonarQube workflow (HTTP bridge via WebSocket):**
+Rule options reach Node.js through the typed analyze-project gRPC contract:
 
 ```
-SonarQube UI → Java Check Class → HTTP/WebSocket → analyzeProject() → ESLint Linter
-                     ↓
-              configurations() returns
-              typed objects (int, boolean, etc.)
+SonarQube UI → Java Check Class → AnalyzeProjectService → analyzeProject() → ESLint Linter
+                     ↓                       ↓
+              configurations()       protobuf Value keeps
+              returns typed values   the original types
 ```
-
-**2. External workflow (gRPC - without SonarQube):**
-
-```
-External Client → gRPC → transformers.ts → analyzeProject() → ESLint Linter
-                              ↓
-                   parseParamValue() converts
-                   string params to typed values
-```
-
-The key difference is that SonarQube's Java side sends already-typed values via `configurations()`,
-while the gRPC endpoint receives string key-value pairs that need type parsing.
 
 Each rule can have configurable options defined in several places that serve different purposes.
 
@@ -710,7 +703,9 @@ When SonarQube and ESLint use different names for the same option:
 | `maximumFunctionParameters` | `max`      | `displayName: 'maximumFunctionParameters'` in config.ts |
 | `format`                    | `format`   | No `displayName` needed (same name)                     |
 
-The transformation layer (`packages/grpc/src/transformers.ts`) handles this mapping at runtime.
+The generated Java rule class reads the SonarQube property named by `displayName` and emits a typed
+configuration object using the ESLint `field` name. `AnalyzeProjectMessages` preserves that object
+as protobuf `Value` messages.
 
 ### JSON Schema vs `fields`
 
@@ -744,7 +739,7 @@ This is extracted using the `defaultOptions()` helper from `helpers/configs.ts`.
 
 ### How Options Flow at Runtime
 
-#### SonarQube workflow (gRPC)
+#### SonarQube workflow
 
 1. **Java Side**: `@RuleProperty` fields are read, `configurations()` returns typed `List<Object>`
    (e.g., `Map.of("max", 7)`)
@@ -757,26 +752,6 @@ This is extracted using the `defaultOptions()` helper from `helpers/configs.ts`.
      ...merge(defaultOptions(ruleMeta.fields), rule.configurations),
    ];
    ```
-
-#### gRPC workflow (external clients)
-
-1. **Client**: Sends rule params as string key-value pairs via proto3
-2. **Transformer**: `transformers.ts` maps SQ keys → ESLint keys and parses string values to proper
-   types
-3. **Linter**: Same merging as above
-
-### Type Parsing from Strings (gRPC only)
-
-The gRPC workflow receives all param values as strings. The transformer parses them based on the
-`default` value type in `fields`:
-
-| Default Type | Input String | Parsed Result     |
-| ------------ | ------------ | ----------------- |
-| `number`     | `"5"`        | `5`               |
-| `boolean`    | `"true"`     | `true`            |
-| `string`     | `"pattern"`  | `"pattern"`       |
-| `string[]`   | `"a,b,c"`    | `["a", "b", "c"]` |
-| `number[]`   | `"1,2,3"`    | `[1, 2, 3]`       |
 
 ### Adding Options to an Existing Rule
 

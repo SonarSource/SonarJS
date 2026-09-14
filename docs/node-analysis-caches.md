@@ -17,7 +17,6 @@ This document covers the Node-side layers under:
 - `packages/analysis/src/analyzeWithIncrementalProgram.ts`
 - `packages/analysis/src/common/input-sanitize.ts`
 - `packages/grpc/src/analyze-project-normalize.ts`
-- `packages/grpc/src/service.ts`
 
 It does not describe:
 
@@ -163,17 +162,13 @@ All project-style entrypoints go through the same basic sequence:
    - `analyzeWithProgram()` for SonarQube full-project mode
    - `analyzeWithoutProgram()` for files that are not covered by any TypeScript program
 
-The main entrypoints are:
+The scanner and SonarQube for IDE entrypoint is `normalizeAnalyzeProjectRequest()` in
+`packages/grpc/src/analyze-project-normalize.ts`.
 
-- `sanitizeProjectAnalysisInput()` in `packages/analysis/src/common/input-sanitize.ts`
-- `normalizeAnalyzeProjectRequest()` in `packages/grpc/src/analyze-project-normalize.ts`
-
-All entrypoints initialize their file stores through `initFileStoresForAnalysis()`:
+It initializes the file stores through `initFileStoresForAnalysis()`:
 
 - scanner analyses reset the shared caches before initializing the request
 - SonarQube for IDE analyses retain the caches for incremental reuse
-
-There is also a standalone gRPC path in `packages/grpc/src/service.ts` that always resets the shared caches before analyzing an inline virtual project rooted at `/`.
 
 ## How `initFileStores()` Works
 
@@ -370,12 +365,12 @@ There is also a narrower per-analysis switch in `analyzer.ts`: `clearDependencie
 
 The compiler-side source-file content cache and parsed AST cache are cleared when:
 
-- `initFileStoresForAnalysis()` starts a scanner analysis, including the standalone gRPC path
+- `initFileStoresForAnalysis()` starts a scanner analysis
 - `analyzeWithProgram()` finishes a SonarQube-style batch analysis with a populated program cache
 
 They are intentionally kept warm across `analyzeWithIncrementalProgram()` calls.
 
-## SonarQube, SonarLint, And Standalone gRPC
+## SonarQube And SonarLint
 
 The same codebase serves different lifecycles.
 
@@ -398,16 +393,6 @@ The IDE path is the main target for warm caches:
 - `fsEvents`, `clearTsConfigCache`, and manifest invalidation are what keep the warm state correct
 
 This is the path where the cache architecture matters most for latency.
-
-### Standalone gRPC Service
-
-`packages/grpc/src/service.ts` uses the same scanner initialization path and intentionally does not share state between requests:
-
-- it resets all four file stores
-- it clears the compiler-side source-file cache
-- it analyzes an inline request-only virtual project
-
-That path is intentionally conservative because requests are independent and may reuse overlapping synthetic paths.
 
 ## Practical Rules
 
