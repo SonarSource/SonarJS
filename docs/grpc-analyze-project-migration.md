@@ -16,23 +16,21 @@ Move the internal Java -> Node.js analyze-project communication from HTTP/WebSoc
   - Standalone parser unary analyze-project flow.
   - Build-time proto generation and generated-artifact handling.
 - Out of scope:
-  - `LanguageAnalyzerService` and `language_analyzer.proto`.
   - Backward compatibility with the removed HTTP/WebSocket transport.
 
 ## Clarifications Captured From The Request
 
-1. `LanguageAnalyzerService` stays unchanged.
-2. `StandaloneParser` can be refactored.
-3. Native gRPC patterns are preferred over preserving old HTTP/WebSocket behavior.
-4. Any activity from Java should keep the runtime considered alive.
-5. Cancellation must stop the in-flight Node analysis work, not only close the client stream.
-6. Single-flight analysis remains the supported runtime model.
-7. Insecure loopback gRPC is acceptable.
-8. `SONARJS_EXISTING_NODE_PROCESS_PORT` should still support attaching Java to an already running Node process for debugging.
-9. No transport backward compatibility is required. HTTP is dropped.
-10. HTTP/WebSocket runtime dependencies should be removed in the same change.
-11. Worker retention is a design choice, not a compatibility constraint.
-12. The protocol should be designed around analyze-project needs, not around the external SQAA (previously A3S) contract.
+1. `StandaloneParser` can be refactored.
+2. Native gRPC patterns are preferred over preserving old HTTP/WebSocket behavior.
+3. Any activity from Java should keep the runtime considered alive.
+4. Cancellation must stop the in-flight Node analysis work, not only close the client stream.
+5. Single-flight analysis remains the supported runtime model.
+6. Insecure loopback gRPC is acceptable.
+7. `SONARJS_EXISTING_NODE_PROCESS_PORT` should still support attaching Java to an already running Node process for debugging.
+8. No transport backward compatibility is required. HTTP is dropped.
+9. HTTP/WebSocket runtime dependencies should be removed in the same change.
+10. Worker retention is a design choice, not a compatibility constraint.
+11. The protocol should be designed around analyze-project needs.
 
 ## Final Protocol Design
 
@@ -47,7 +45,7 @@ Move the internal Java -> Node.js analyze-project communication from HTTP/WebSoc
 
 ### Request
 
-`AnalyzeProjectRequest` mirrors the internal analyze-project input, not `language_analyzer.proto`:
+`AnalyzeProjectRequest` mirrors the internal analyze-project input:
 
 - `ProjectConfiguration configuration`
 - `map<string, ProjectFileInput> files`
@@ -104,7 +102,7 @@ The analyze-project gRPC path no longer uses:
 - `response_json`
 - `JSON.parse`
 - raw-object transport validation
-- `sanitizeProjectAnalysisInput(raw)` as a gRPC entrypoint
+- raw-object project sanitization as a gRPC entrypoint
 
 ### Added
 
@@ -178,7 +176,6 @@ AST bytes are decoded from protobuf bytes instead of going through base64.
 The old heartbeat ping is replaced by a long-lived `Lease` stream.
 
 - Java opens the lease only for the spawned `server.mjs` runtime that it owns.
-- `grpc-server.mjs` / `LanguageAnalyzerService` is not affected.
 - If the Java process exits and the gRPC connection closes, the lease ends and the owned Node runtime shuts down.
 - When `SONARJS_EXISTING_NODE_PROCESS_PORT` is set, Java skips the lease entirely and does not own the external debug process.
 
@@ -215,7 +212,7 @@ and the related race and corner-case audit.
 
 The worker is retained for production runtime isolation and cancellation responsiveness.
 
-At the same time, `startAnalyzeProjectServer(...)` supports running without a worker for unit tests and debugging, matching the old HTTP server behavior where analyze-project could execute in-process.
+At the same time, `startAnalyzeProjectServer(...)` supports running without a worker for unit tests and debugging.
 
 ## Build And Generated Artifacts
 

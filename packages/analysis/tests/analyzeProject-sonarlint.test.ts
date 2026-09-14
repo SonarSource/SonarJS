@@ -22,18 +22,29 @@ import { tmpdir } from 'node:os';
 import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { analyzeProject, cancelAnalysis } from '../src/analyzeProject.js';
 import { ErrorCode } from '../src/contracts/error.js';
-import { sourceFileStore, tsConfigStore } from '../src/file-stores/index.js';
+import {
+  initFileStoresForAnalysis,
+  sourceFileStore,
+  tsConfigStore,
+} from '../src/file-stores/index.js';
 import type { RuleConfig } from '../src/jsts/linter/config/rule-config.js';
 import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../src/jsts/program/cache/programOptionsCache.js';
-import { sanitizeProjectAnalysisInput } from '../src/common/input-sanitize.js';
+import { sanitizeInputFiles, type ProjectAnalysisFileInput } from '../src/common/input-sanitize.js';
+import {
+  createConfigurationFromInput,
+  type ConfigurationInput,
+} from '../src/common/configuration.js';
 
-// Helper to initialize file stores for tests - wraps sanitizeProjectAnalysisInput
-async function initForTest(configOptions: object, rawFiles: object) {
-  const { configuration } = await sanitizeProjectAnalysisInput({
-    configuration: configOptions,
-    files: rawFiles,
-  });
+async function initForTest(
+  configOptions: ConfigurationInput,
+  inputFiles?: Record<string, ProjectAnalysisFileInput>,
+) {
+  const configuration = createConfigurationFromInput(configOptions);
+  const sanitizedFiles = inputFiles
+    ? await sanitizeInputFiles(inputFiles, configuration)
+    : undefined;
+  await initFileStoresForAnalysis(configuration, sanitizedFiles?.files);
   return configuration;
 }
 
@@ -119,7 +130,7 @@ describe('SonarLint tsconfig change detection', () => {
 
     // Step 5: Second analysis - should use default options since no tsconfig matches
     configuration = await initForTest(
-      { baseDir: tempDir, sonarlint: true, fsEvents: { [tsconfigPath]: 'MODIFIED' } },
+      { baseDir: tempDir, sonarlint: true, fsEvents: [tsconfigPath] },
       { [filePath]: { filePath, fileContent: 'const x: number = 1;' } },
     );
 
@@ -209,7 +220,7 @@ describe('SonarLint tsconfig change detection', () => {
 
     // Step 5: Second analysis - should use default options
     configuration = await initForTest(
-      { baseDir: tempDir, sonarlint: true, fsEvents: { [tsconfigPath]: 'DELETED' } },
+      { baseDir: tempDir, sonarlint: true, fsEvents: [tsconfigPath] },
       { [filePath]: { filePath, fileContent: 'const x: number = 1;' } },
     );
 
@@ -345,7 +356,7 @@ describe('SonarLint tsconfig change detection', () => {
     consoleLogMock.calls.length = 0;
 
     configuration = await initForTest(
-      { baseDir: tempDir, sonarlint: true, fsEvents: { [filePath]: 'MODIFIED' } },
+      { baseDir: tempDir, sonarlint: true, fsEvents: [filePath] },
       { [filePath]: { filePath, fileContent: modifiedContent } },
     );
 

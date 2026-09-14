@@ -19,7 +19,7 @@ import { expect } from 'expect';
 import { join } from 'node:path/posix';
 import { initFileStores, sourceFileStore } from '../src/file-stores/index.js';
 import { createConfiguration } from '../src/common/configuration.js';
-import { sanitizeRawInputFiles } from '../src/common/input-sanitize.js';
+import { sanitizeInputFiles } from '../src/common/input-sanitize.js';
 import {
   normalizePath,
   normalizeToAbsolutePath,
@@ -69,7 +69,7 @@ describe('files', () => {
     const baseDir = normalizeToAbsolutePath('/project');
     const configuration = createConfiguration({ baseDir, canAccessFileSystem: false });
 
-    const { files: firstInputFiles } = await sanitizeRawInputFiles(
+    const { files: firstInputFiles } = await sanitizeInputFiles(
       {
         first: {
           filePath: '/project/src/first.ts',
@@ -83,7 +83,7 @@ describe('files', () => {
       ...sourceFileStore.getFilesInDirectory(normalizeToAbsolutePath('/project/src'))!,
     ]).toEqual(['first.ts']);
 
-    const { files: secondInputFiles } = await sanitizeRawInputFiles(
+    const { files: secondInputFiles } = await sanitizeInputFiles(
       {
         second: {
           filePath: '/project/src/second.ts',
