@@ -432,6 +432,7 @@ function normalizeName(value: string): string {
 
 function normalizeDestination(href: string): string {
   const hasScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(href);
+  const isProtocolRelative = href.startsWith('//');
   let url: URL;
   try {
     url = new URL(href, DUMMY_BASE);
@@ -439,8 +440,9 @@ function normalizeDestination(href: string): string {
     return href;
   }
   const scheme = hasScheme ? normalizeScheme(url.protocol) : '';
+  const authority = (hasScheme || isProtocolRelative) && url.host ? `//${url.host}` : '';
   const keepFragment = ROUTING_FRAGMENT_PATTERN.test(url.hash);
-  return `${scheme}${url.pathname}${url.search}${keepFragment ? url.hash : ''}`;
+  return `${scheme}${authority}${url.pathname}${url.search}${keepFragment ? url.hash : ''}`;
 }
 
 function normalizeScheme(protocol: string): string {
