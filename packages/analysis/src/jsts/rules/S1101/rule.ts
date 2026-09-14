@@ -51,6 +51,8 @@ interface LinkInfo {
   node: TSESTree.JSXOpeningElement;
   scope: TSESTree.Node;
   conditional: boolean;
+  conditionalRoot: TSESTree.Node | undefined;
+  followsGuard: boolean;
 }
 
 export const rule: Rule.RuleModule = {
@@ -87,9 +89,17 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        const { scope, conditional } = resolveScope(element);
+        const { scope, conditional, conditionalRoot, followsGuard } = resolveScope(element);
 
-        links.push({ name, href: normalizeDestination(href), node: opening, scope, conditional });
+        links.push({
+          name,
+          href: normalizeDestination(href),
+          node: opening,
+          scope,
+          conditional,
+          conditionalRoot,
+          followsGuard,
+        });
       },
 
       'Program:exit'() {
@@ -111,9 +121,7 @@ function checkLinks(context: Rule.RuleContext, links: LinkInfo[]) {
     }
 
     const baseline = siblingBaselines.get(link.name);
-    if (!baseline) {
-      registerBaseline(siblingBaselines, link);
-    } else if (link.href !== baseline.href && !(link.conditional && baseline.conditional)) {
+    if (baseline && link.href !== baseline.href && !shareConditionalRoot(link, baseline)) {
       report(
         context,
         {
@@ -124,9 +132,18 @@ function checkLinks(context: Rule.RuleContext, links: LinkInfo[]) {
         },
         [toSecondaryLocation(baseline.node, 'Link with the same text.')],
       );
-      registerBaseline(siblingBaselines, link);
     }
+    // Always register, even on a match, so an unconditional link can solidify the baseline.
+    registerBaseline(siblingBaselines, link);
   }
+}
+
+// Only two links sharing the same root are exclusive, and not when both merely follow it as a guard.
+function shareConditionalRoot(a: LinkInfo, b: LinkInfo): boolean {
+  if (a.conditionalRoot === undefined || a.conditionalRoot !== b.conditionalRoot) {
+    return false;
+  }
+  return !(a.followsGuard && b.followsGuard);
 }
 
 function registerBaseline(siblingBaselines: Map<string, LinkInfo>, link: LinkInfo) {
@@ -137,29 +154,70 @@ function registerBaseline(siblingBaselines: Map<string, LinkInfo>, link: LinkInf
   }
 }
 
-// Finds the nearest shared JSX container (or, failing that, the enclosing function/file) and whether any step passed through a mutually exclusive conditional branch.
-function resolveScope(anchor: TSESTree.JSXElement): { scope: TSESTree.Node; conditional: boolean } {
+// Finds the nearest shared JSX container (or enclosing function/file) and the closest conditional branch, if any.
+interface ConditionalMatch {
+  root: TSESTree.Node;
+  followsGuard: boolean;
+}
+
+function resolveScope(anchor: TSESTree.JSXElement): {
+  scope: TSESTree.Node;
+  conditional: boolean;
+  conditionalRoot: TSESTree.Node | undefined;
+  followsGuard: boolean;
+} {
   let node: TSESTree.Node = anchor;
   let conditional = false;
+  let match: ConditionalMatch | undefined;
   for (;;) {
     const parent: TSESTree.Node | undefined = node.parent;
     if (!parent) {
-      return { scope: node, conditional };
+      return finalizeScope(node, conditional, match);
     }
     if (parent.type === 'JSXElement' || parent.type === 'JSXFragment') {
-      return { scope: parent, conditional };
+      return finalizeScope(parent, conditional, match);
     }
-    if (isConditionalBranchPosition(parent, node)) {
+    const found = matchConditional(parent, node);
+    if (found) {
       conditional = true;
-    }
-    if (parent.type === 'BlockStatement' && followsEarlyReturnGuard(parent, node)) {
-      conditional = true;
+      match ??= found;
     }
     if (isScopeBoundary(parent)) {
-      return { scope: parent, conditional };
+      return finalizeScope(parent, conditional, match);
     }
     node = parent;
   }
+}
+
+function finalizeScope(
+  scope: TSESTree.Node,
+  conditional: boolean,
+  match: ConditionalMatch | undefined,
+) {
+  return {
+    scope,
+    conditional,
+    conditionalRoot: match?.root,
+    followsGuard: match?.followsGuard ?? false,
+  };
+}
+
+// `child` is conditional if it's a direct branch of `parent`, or follows a guard inside it.
+function matchConditional(
+  parent: TSESTree.Node,
+  child: TSESTree.Node,
+): ConditionalMatch | undefined {
+  const branchRoot = getConditionalRoot(parent, child);
+  if (branchRoot) {
+    return { root: branchRoot, followsGuard: false };
+  }
+  if (parent.type === 'BlockStatement') {
+    const guard = findEarlyReturnGuard(parent, child);
+    if (guard) {
+      return { root: guard, followsGuard: true };
+    }
+  }
+  return undefined;
 }
 
 function isScopeBoundary(node: TSESTree.Node): boolean {
@@ -175,14 +233,22 @@ function isScopeBoundary(node: TSESTree.Node): boolean {
   return true;
 }
 
-// True when an earlier sibling statement is an else-less `if` whose consequent always exits
-// (return/throw), making `statement` the implicit "else" and thus mutually exclusive with it.
-function followsEarlyReturnGuard(
+// Finds the closest earlier else-less `if` that always exits, whose implicit "else" this is.
+function findEarlyReturnGuard(
   block: TSESTree.BlockStatement,
   statement: TSESTree.Node,
-): boolean {
+): TSESTree.IfStatement | undefined {
   const index = block.body.indexOf(statement as TSESTree.Statement);
-  return index > 0 && block.body.slice(0, index).some(isEarlyReturnGuard);
+  if (index <= 0) {
+    return undefined;
+  }
+  for (let i = index - 1; i >= 0; i--) {
+    const candidate = block.body[i];
+    if (isEarlyReturnGuard(candidate)) {
+      return candidate as TSESTree.IfStatement;
+    }
+  }
+  return undefined;
 }
 
 function isEarlyReturnGuard(statement: TSESTree.Node): boolean {
@@ -211,20 +277,29 @@ function alwaysExits(statement: TSESTree.Node): boolean {
   }
 }
 
-function isConditionalBranchPosition(parent: TSESTree.Node, child: TSESTree.Node): boolean {
+// Returns the conditional's root node if `child` is one of `parent`'s branches, else undefined.
+function getConditionalRoot(
+  parent: TSESTree.Node,
+  child: TSESTree.Node,
+): TSESTree.Node | undefined {
   switch (parent.type) {
     case 'ConditionalExpression':
-      return parent.consequent === child || parent.alternate === child;
-    case 'LogicalExpression':
-      return parent.operator === '&&'
-        ? parent.right === child
-        : parent.left === child || parent.right === child;
+      return parent.consequent === child || parent.alternate === child ? parent : undefined;
+    case 'LogicalExpression': {
+      const isBranch =
+        parent.operator === '&&'
+          ? parent.right === child
+          : parent.left === child || parent.right === child;
+      return isBranch ? parent : undefined;
+    }
     case 'IfStatement':
-      return parent.consequent === child || parent.alternate === child;
+      return parent.consequent === child || parent.alternate === child ? parent : undefined;
     case 'SwitchCase':
-      return (parent.consequent as TSESTree.Node[]).includes(child);
+      return (parent.consequent as TSESTree.Node[]).includes(child)
+        ? (parent.parent ?? parent)
+        : undefined;
     default:
-      return false;
+      return undefined;
   }
 }
 

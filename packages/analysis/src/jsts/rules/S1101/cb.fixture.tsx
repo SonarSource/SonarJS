@@ -242,6 +242,33 @@ const baselineVsConditional = (
   </div>
 );
 
+// Reports an issue: two unrelated conditions (isAdmin, loggedIn) are not mutually exclusive -
+// both can be true at once, so these can render together with the same text and different targets.
+function RoleMenu({ isAdmin, loggedIn }) {
+  return (
+    <ul>
+      {[
+        isAdmin && <a href="/admin">Settings</a>,
+                 //^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
+        loggedIn && <a href="/user">Settings</a>, // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 251.}}
+      ]}
+    </ul>
+  );
+}
+
+// Reports an issue: both anchors merely follow the same early-return guard (an implicit "else"
+// for the unrelated "Retry" link) - they are not mutually exclusive with each other, only each is
+// exclusive with the guard's own branch.
+function AfterGuard({ hasError }) {
+  if (hasError) {
+    return <a href="/retry">Retry</a>;
+  }
+  const first = <a href="/guard/1">Track</a>;
+              //^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
+  logAnalytics('track-shown');
+  return <a href="/guard/2">Track</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 266.}}
+}
+
 // ---------------------------------------------------------------------------------------------
 // No enclosing JSX element: falls back to the nearest enclosing function.
 // ---------------------------------------------------------------------------------------------
@@ -250,7 +277,7 @@ const baselineVsConditional = (
 function Footer() {
   <a href="/footer/1">Contact</a>;
 //^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
-  return <a href="/footer/2">Contact</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 251.}}
+  return <a href="/footer/2">Contact</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 278.}}
 }
 
 // Compliant: anchors returned by two different components are never compared.
