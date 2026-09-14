@@ -31,4 +31,7 @@ is written atomically during normal process exit or when
 intentionally outside the scope of this hook.
 
 The cache exists only when Node is explicitly started with this preload. Standard analyzer code is
-unaware of it, and SonarLint must not enable the preload.
+unaware of it, and SonarLint must not enable the preload. Callable `fs` exports that did not exist
+in the minimum supported Node 22.12 runtime fail when invoked while the hook is active. This
+prevents a newer Node filesystem API from silently bypassing recording or replay before its
+semantics have been explicitly reviewed.

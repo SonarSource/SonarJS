@@ -28,6 +28,9 @@ const register = pathToFileURL(
 ).href;
 const fixture = path.resolve(import.meta.dirname, 'fixtures/exercise-hook.mjs');
 const workerFixture = path.resolve(import.meta.dirname, 'fixtures/exercise-worker-hook.mjs');
+const futureFsMethodFixture = pathToFileURL(
+  path.resolve(import.meta.dirname, 'fixtures/add-future-fs-method.mjs'),
+).href;
 const temporaryDirectories: string[] = [];
 
 function temporaryDirectory() {
@@ -805,5 +808,97 @@ describe('filesystem cache preload', () => {
     });
     expect(strict.status).not.toBe(0);
     expect(strict.stderr).toContain('ERR_SONARJS_FS_CACHE_MISS');
+  });
+
+  it('rejects callable filesystem exports added after the Node 22.12 baseline', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = path.join(temporary, 'analysis.fscache');
+    fs.mkdirSync(root);
+    const script = `
+      import fs from 'node:fs';
+      import fsPromises from 'node:fs/promises';
+      import { createRequire } from 'node:module';
+      const commonJsFs = createRequire(import.meta.url)('node:fs');
+      const fsNamespace = await import('node:fs');
+      const fsPromisesNamespace = await import('node:fs/promises');
+      const capture = async operation => {
+        try {
+          await operation();
+          return { calledNative: true };
+        } catch (error) {
+          return { code: error.code, message: error.message, name: error.name };
+        }
+      };
+      console.log(JSON.stringify({
+        runtime: {
+          fs: typeof fsNamespace.mkdtempDisposableSync === 'function'
+            ? await capture(() => fsNamespace.mkdtempDisposableSync('unused'))
+            : null,
+          promises: typeof fsPromisesNamespace.mkdtempDisposable === 'function'
+            ? await capture(() => fsPromisesNamespace.mkdtempDisposable('unused'))
+            : null,
+        },
+        simulated: await Promise.all([
+          capture(() => fs.futureRead()),
+          capture(() => commonJsFs.futureRead()),
+          capture(() => fsPromises.futureRead()),
+        ]),
+      }));
+    `;
+    const result = spawnSync(
+      process.execPath,
+      ['--import', futureFsMethodFixture, '--import', register, '--eval', script],
+      {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          SONARJS_FS_CACHE_ANALYZER_VERSION: 'test-analyzer',
+          SONARJS_FS_CACHE_ARCHIVE: archive,
+          SONARJS_FS_CACHE_MODE: 'record',
+          SONARJS_FS_CACHE_ROOT: root,
+          SONARJS_FS_CACHE_STRICT: '1',
+        },
+      },
+    );
+
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    const output = JSON.parse(result.stdout);
+    expect(output.simulated).toEqual([
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.futureRead from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.futureRead from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs/promises.futureRead from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+    ]);
+    if (typeof fs.mkdtempDisposableSync === 'function') {
+      expect(output.runtime.fs).toEqual({
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.mkdtempDisposableSync from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      });
+    } else {
+      expect(output.runtime.fs).toBeNull();
+    }
+    if (typeof fs.promises.mkdtempDisposable === 'function') {
+      expect(output.runtime.promises).toEqual({
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs/promises.mkdtempDisposable from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      });
+    } else {
+      expect(output.runtime.promises).toBeNull();
+    }
   });
 });
