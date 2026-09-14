@@ -418,7 +418,12 @@ function getStaticText(value: JSXAttribute['value']): string | undefined {
 
 function getStaticTextFromExpression(expression: estree.Expression): string | undefined {
   if (expression.type === 'Literal') {
-    return typeof expression.value === 'string' ? expression.value : '';
+    const { value } = expression;
+    if (typeof value === 'string') {
+      return value;
+    }
+    // Numbers render as visible text; null/booleans render nothing.
+    return typeof value === 'number' || typeof value === 'bigint' ? String(value) : '';
   }
   if (expression.type === 'TemplateLiteral' && expression.expressions.length === 0) {
     return expression.quasis.map(quasi => quasi.value.cooked ?? '').join('');
