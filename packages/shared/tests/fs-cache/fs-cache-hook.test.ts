@@ -116,7 +116,14 @@ describe('filesystem cache preload', () => {
     const recordedResult = JSON.parse(recorded.stdout);
     expect(fs.statSync(archive).size).toBeGreaterThan(0);
     const archiveDocument = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
-    expect(archiveDocument.formatVersion).toBe(2);
+    expect(archiveDocument.formatVersion).toBe(3);
+    const inputNode = archiveDocument.entries.find(
+      (entry: { path: string }) => entry.path === 'src/input.ts',
+    ).node;
+    expect(inputNode.exists).toBe(true);
+    expect(inputNode.content.ok).toBe(true);
+    expect(inputNode.stats['stat:number'].ok).toBe(true);
+    expect(inputNode.operations).toBeUndefined();
     expect(recordedResult.openedDirectoryIsDir).toBe(true);
 
     fs.rmSync(recordRoot, { force: true, recursive: true });
@@ -137,6 +144,76 @@ describe('filesystem cache preload', () => {
     expect(replayedResult.openedDirectoryEntries).toContain('deep.ts');
     expect(replayedResult.optionalRead.pastEnd).toBe(0);
     expect(replayedResult.fdBigint.nanoseconds).toBe('bigint');
+  });
+
+  it('reuses consolidated filesystem state during record mode', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = path.join(temporary, 'consolidated.fscache');
+    const file = path.join(root, 'input.ts');
+    const directory = path.join(root, 'entries');
+    fs.mkdirSync(directory, { recursive: true });
+    fs.writeFileSync(file, 'cached content');
+    fs.writeFileSync(path.join(directory, 'child.ts'), 'child');
+    const script = `
+      import fs from 'node:fs';
+      const file = ${JSON.stringify(file)};
+      const directory = ${JSON.stringify(directory)};
+      const content = fs.readFileSync(file, 'utf8');
+      const size = fs.statSync(file).size;
+      fs.statSync(file, { bigint: true });
+      const names = fs.readdirSync(directory, { withFileTypes: true }).map(entry => entry.name);
+
+      // Mutations only make native fallbacks observable. Hooked analyses treat the root as stable.
+      fs.renameSync(file, file + '.moved');
+      fs.renameSync(directory, directory + '.moved');
+
+      const promisedContent = await fs.promises.readFile(file, 'utf8');
+      const promisedSize = (await fs.promises.stat(file)).size;
+      const descriptor = fs.openSync(file, 'r');
+      const descriptorContent = fs.readFileSync(descriptor, 'utf8');
+      const descriptorSize = fs.fstatSync(descriptor).size;
+      fs.closeSync(descriptor);
+      const opened = fs.opendirSync(directory);
+      const openedNames = [];
+      let entry;
+      while ((entry = opened.readSync()) !== null) openedNames.push(entry.name);
+      opened.closeSync();
+      const statistics = globalThis[Symbol.for('sonarjs.filesystemCache.installation')]
+        .getStatistics();
+      console.log(JSON.stringify({
+        content,
+        descriptorContent,
+        descriptorSize,
+        exists: fs.existsSync(file),
+        names,
+        openedNames,
+        promisedContent,
+        promisedSize,
+        size,
+        statistics,
+      }));
+    `;
+
+    const recorded = runInlineHook({ archive, mode: 'record', root, script });
+    expect(recorded.stderr).toBe('');
+    expect(recorded.status).toBe(0);
+    const result = JSON.parse(recorded.stdout);
+    expect(result.statistics.hits).toBeGreaterThanOrEqual(5);
+    expect(result.statistics.misses).toBeGreaterThanOrEqual(3);
+    expect(result.statistics.paths).toBe(2);
+    delete result.statistics;
+    expect(result).toEqual({
+      content: 'cached content',
+      descriptorContent: 'cached content',
+      descriptorSize: 14,
+      exists: true,
+      names: ['child.ts'],
+      openedNames: ['child.ts'],
+      promisedContent: 'cached content',
+      promisedSize: 14,
+      size: 14,
+    });
   });
 
   it('rejects corrupt and analyzer-incompatible archives', () => {
@@ -178,7 +255,7 @@ describe('filesystem cache preload', () => {
     fs.writeFileSync(archive, gzipSync(Buffer.from(JSON.stringify(oldDocument))));
     const oldFormat = runHook({ archive, mode: 'replay', outside, root });
     expect(oldFormat.status).not.toBe(0);
-    expect(oldFormat.stderr).toContain('Unsupported filesystem cache format 1; expected 2');
+    expect(oldFormat.stderr).toContain('Unsupported filesystem cache format 1; expected 3');
   });
 
   it('preserves native opendir order for non-alphabetically created entries', () => {

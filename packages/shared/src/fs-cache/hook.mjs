@@ -100,6 +100,27 @@ function cacheMiss(operation, input) {
   return error;
 }
 
+function missingPath(operation, input) {
+  if (operation === 'exists') {
+    return false;
+  }
+  if (
+    (operation.startsWith('stat:') || operation.startsWith('lstat:')) &&
+    operation.endsWith(':soft')
+  ) {
+    return undefined;
+  }
+  const currentPath = pathDisplay(input);
+  const name = operation.split(':', 1)[0];
+  const syscall = name === 'readFile' ? 'open' : name === 'readdir' ? 'scandir' : name;
+  const error = new Error(`ENOENT: no such file or directory, ${syscall} '${currentPath}'`);
+  error.code = 'ENOENT';
+  error.errno = -2;
+  error.path = currentPath;
+  error.syscall = syscall;
+  throw error;
+}
+
 function success(value) {
   return { ok: true, value };
 }
@@ -110,20 +131,23 @@ function failure(error) {
 
 function createExecutor(archive) {
   function replay(input, operation, decode = value => value) {
-    if (archive.mode !== 'replay') {
-      return MISSING;
-    }
     const key = archive.keyFor(input);
     if (key === undefined) {
       return MISSING;
     }
     const outcome = archive.get(key, operation);
     if (outcome === undefined) {
-      if (archive.strict) {
+      if (archive.getExists(key) === false) {
+        archive.recordCacheHit();
+        return missingPath(operation, input);
+      }
+      archive.recordCacheMiss();
+      if (archive.mode === 'replay' && archive.strict) {
         throw cacheMiss(operation, input);
       }
       return MISSING;
     }
+    archive.recordCacheHit();
     if (!outcome.ok) {
       throw restoreError(outcome.error, input);
     }
@@ -351,14 +375,13 @@ function readdirOperation(options) {
 
 function snapshotPathResult(value, archive) {
   return {
-    buffer: Buffer.isBuffer(value),
     path: archive.encodePortablePath(Buffer.isBuffer(value) ? value.toString() : value),
   };
 }
 
-function restorePathResult(value, archive) {
+function restorePathResult(value, archive, options) {
   const restored = archive.decodePortablePath(value.path);
-  return value.buffer ? Buffer.from(restored) : restored;
+  return getEncoding(options) === 'buffer' ? Buffer.from(restored) : restored;
 }
 
 function readonlyFlags(flags) {
@@ -406,7 +429,7 @@ function makeCallback(promiseFunction) {
 }
 
 function pathOperation(name, options) {
-  return `${name}:${getEncoding(options) || 'utf8'}`;
+  return name.startsWith('realpath') ? name : `${name}:${getEncoding(options) || 'utf8'}`;
 }
 
 function opendirOperation(options) {
@@ -574,7 +597,7 @@ function createBasicPatches(archive, executor) {
         pathOperation(name, options),
         () => original(input, options),
         value => snapshotPathResult(value, archive),
-        value => restorePathResult(value, archive),
+        value => restorePathResult(value, archive, options),
       );
   }
 
@@ -585,7 +608,7 @@ function createBasicPatches(archive, executor) {
         pathOperation(name, options),
         () => original(input, options),
         value => snapshotPathResult(value, archive),
-        value => restorePathResult(value, archive),
+        value => restorePathResult(value, archive, options),
       );
   }
 
@@ -846,56 +869,67 @@ function createOpenPatches(archive, fileDescriptors) {
     if (key === undefined || archive.mode !== 'record') {
       return;
     }
-    try {
-      const chunks = [];
-      let position = 0;
-      let bytesRead;
-      do {
-        const chunk = Buffer.allocUnsafe(64 * 1024);
-        bytesRead = originalFs.readSync(fd, chunk, 0, chunk.length, position);
-        if (bytesRead > 0) {
-          chunks.push(chunk.subarray(0, bytesRead));
-          position += bytesRead;
-        }
-      } while (bytesRead > 0);
-      const content = Buffer.concat(chunks);
-      archive.set(key, 'readFile', success(content.toString('base64')));
-    } catch (error) {
-      archive.set(key, 'readFile', failure(error));
+    if (archive.get(key, 'readFile') === undefined) {
+      try {
+        const chunks = [];
+        let position = 0;
+        let bytesRead;
+        do {
+          const chunk = Buffer.allocUnsafe(64 * 1024);
+          bytesRead = originalFs.readSync(fd, chunk, 0, chunk.length, position);
+          if (bytesRead > 0) {
+            chunks.push(chunk.subarray(0, bytesRead));
+            position += bytesRead;
+          }
+        } while (bytesRead > 0);
+        const content = Buffer.concat(chunks);
+        archive.set(key, 'readFile', success(content.toString('base64')));
+      } catch (error) {
+        archive.set(key, 'readFile', failure(error));
+      }
     }
     try {
-      archive.set(key, statOperation('fstat'), success(snapshotStat(originalFs.fstatSync(fd))));
-      archive.set(
-        key,
-        statOperation('fstat', { bigint: true }),
-        success(snapshotStat(originalFs.fstatSync(fd, { bigint: true }))),
-      );
+      const numberOperation = statOperation('fstat');
+      if (archive.get(key, numberOperation) === undefined) {
+        archive.set(key, numberOperation, success(snapshotStat(originalFs.fstatSync(fd))));
+      }
+      const bigintOperation = statOperation('fstat', { bigint: true });
+      if (archive.get(key, bigintOperation) === undefined) {
+        archive.set(
+          key,
+          bigintOperation,
+          success(snapshotStat(originalFs.fstatSync(fd, { bigint: true }))),
+        );
+      }
     } catch {
       // The original open already succeeded; auxiliary capture must not alter its result.
     }
   }
 
   function replayOpen(input, operation) {
-    if (archive.mode !== 'replay') {
-      return { found: false };
-    }
     const key = archive.keyFor(input);
     if (key === undefined) {
       return { found: false };
     }
     const outcome = archive.get(key, operation);
     if (outcome === undefined) {
-      if (archive.strict) {
+      if (archive.getExists(key) === false) {
+        archive.recordCacheHit();
+        missingPath(operation, input);
+      }
+      archive.recordCacheMiss();
+      if (archive.mode === 'replay' && archive.strict) {
         throw cacheMiss(operation, input);
       }
       return { found: false };
     }
+    archive.recordCacheHit();
     if (!outcome.ok) {
       throw restoreError(outcome.error, input);
     }
     const file = archive.get(key, 'readFile');
     if (file === undefined) {
-      if (archive.strict) {
+      if (archive.mode === 'replay' && archive.strict) {
         throw cacheMiss('readFile', input);
       }
       return { found: false };
@@ -951,7 +985,7 @@ function createOpenPatches(archive, fileDescriptors) {
     }
     try {
       const key = archive.keyFor(input);
-      if (readonlyFlags(flags) && archive.mode === 'replay' && key !== undefined) {
+      if (readonlyFlags(flags) && key !== undefined) {
         const fd = openSync(input, flags, mode);
         queueMicrotask(() => callback(null, fd));
         return;
@@ -1225,7 +1259,9 @@ export function installFsCache(options) {
   }
 
   const archive = new FsCacheArchive(options);
-  archive.load();
+  if (archive.mode === 'replay') {
+    archive.load();
+  }
   const uninstallPatches = installPatches(archive);
   const exitListener = () => {
     try {
@@ -1241,6 +1277,7 @@ export function installFsCache(options) {
   const installation = {
     archive,
     flush: () => archive.flush(),
+    getStatistics: () => archive.getStatistics(),
     uninstall() {
       process.removeListener('exit', exitListener);
       archive.flush();
