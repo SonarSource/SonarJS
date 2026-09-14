@@ -19,6 +19,18 @@ import type { CssMetrics } from './analysis.js';
 
 const NOSONAR_PATTERN = /NOSONAR/;
 
+interface ComputeMetricsOptions {
+  includeNcloc: boolean;
+  includeCommentLines: boolean;
+  includeNoSonar: boolean;
+}
+
+const ALL_METRICS: ComputeMetricsOptions = {
+  includeNcloc: true,
+  includeCommentLines: true,
+  includeNoSonar: true,
+};
+
 /**
  * Adds all line numbers from startLine to endLine (inclusive) into the target set.
  */
@@ -35,14 +47,17 @@ function addLine(target: Set<number>, line: number): void {
 /**
  * Computes metrics from a PostCSS AST root node.
  *
- * Walks all nodes in the tree to determine which lines contain code
- * and which contain only comments. Lines that contain both code and
- * comments are counted as code lines only.
+ * Walks all nodes in the tree to compute only the requested metrics.
+ * Lines that contain both code and comments are counted in both metrics.
  *
  * @param root the PostCSS AST root
+ * @param options metrics to include
  * @returns computed CSS metrics
  */
-export function computeMetrics(root: Root | Document): CssMetrics {
+export function computeMetrics(
+  root: Root | Document,
+  options: ComputeMetricsOptions = ALL_METRICS,
+): CssMetrics {
   const codeLines = new Set<number>();
   const commentCandidates = new Set<number>();
   const nosonarLines: number[] = [];
@@ -55,11 +70,13 @@ export function computeMetrics(root: Root | Document): CssMetrics {
     }
 
     if (node.type === 'comment') {
-      addLineRange(commentCandidates, start.line, end.line);
-      if (NOSONAR_PATTERN.test(node.text)) {
+      if (options.includeCommentLines) {
+        addLineRange(commentCandidates, start.line, end.line);
+      }
+      if (options.includeNoSonar && NOSONAR_PATTERN.test(node.text)) {
         nosonarLines.push(start.line);
       }
-    } else {
+    } else if (options.includeNcloc) {
       switch (node.type) {
         case 'decl':
         case 'atrule':

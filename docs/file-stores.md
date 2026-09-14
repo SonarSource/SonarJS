@@ -47,12 +47,10 @@ Its job is:
 
 This means a store is only recomputed when its own invalidation rules say it must be.
 
-The main entrypoints that do this are:
-
-- `sanitizeProjectAnalysisInput()` in `packages/analysis/src/common/input-sanitize.ts`
-- `normalizeAnalyzeProjectRequest()` in `packages/grpc/src/analyze-project-normalize.ts`
-
-Both normalize `Configuration`, optionally sanitize explicit request files, and then call `initFileStores()`.
+The scanner and SonarQube for IDE entrypoint is `normalizeAnalyzeProjectRequest()` in
+`packages/grpc/src/analyze-project-normalize.ts`. It normalizes `Configuration`, optionally
+sanitizes explicit request files, and then initializes the stores through
+`initFileStoresForAnalysis()`.
 
 ## Population Modes
 
@@ -149,7 +147,6 @@ It depends on:
 - the explicit `tsConfigPaths` setting changes
 - the project-file-discovery configuration changes
 - `fsEvents` mention an existing or potentially relevant tsconfig
-- `clearTsConfigCache` is requested
 
 The important point is that `tsconfigs` does **not** refresh just because a different subset of source files is being analyzed. It refreshes when tsconfig discovery itself may have changed.
 
