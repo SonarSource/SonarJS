@@ -171,6 +171,17 @@ const NODE_22_12_FS_PROMISE_CALLABLES = new Set([
   'writeFile',
 ]);
 
+const NODE_22_12_FS_EXPORTS = new Set([
+  ...NODE_22_12_FS_CALLABLES,
+  'F_OK',
+  'R_OK',
+  'W_OK',
+  'X_OK',
+  'constants',
+  'promises',
+]);
+const NODE_22_12_FS_PROMISE_EXPORTS = new Set([...NODE_22_12_FS_PROMISE_CALLABLES, 'constants']);
+
 const originalFs = Object.fromEntries(
   [
     'access',
@@ -609,9 +620,19 @@ function patch(target, savedDescriptors, name, value) {
   });
 }
 
-function guardUnknownCallableExports(target, savedDescriptors, knownCallables, moduleName) {
+function guardUnknownCallableExports(
+  target,
+  savedDescriptors,
+  knownExports,
+  moduleName,
+  reject = false,
+) {
   for (const [name, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(target))) {
-    if (typeof descriptor.value !== 'function' || knownCallables.has(name)) {
+    if (knownExports.has(name)) {
+      continue;
+    }
+    const value = typeof descriptor.get === 'function' ? target[name] : descriptor.value;
+    if (typeof value !== 'function') {
       continue;
     }
     patch(target, savedDescriptors, name, () => {
@@ -620,6 +641,9 @@ function guardUnknownCallableExports(target, savedDescriptors, knownCallables, m
       );
       error.name = 'UnsupportedFsOperationError';
       error.code = 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION';
+      if (reject) {
+        return Promise.reject(error);
+      }
       throw error;
     });
   }
@@ -1422,12 +1446,13 @@ function installPatches(archive) {
   patch(fs.promises, promiseDescriptors, 'opendir', directory.opendirPromise);
   patch(fs.promises, promiseDescriptors, 'open', openPromise);
 
-  guardUnknownCallableExports(fs, descriptors, NODE_22_12_FS_CALLABLES, 'fs');
+  guardUnknownCallableExports(fs, descriptors, NODE_22_12_FS_EXPORTS, 'fs');
   guardUnknownCallableExports(
     fs.promises,
     promiseDescriptors,
-    NODE_22_12_FS_PROMISE_CALLABLES,
+    NODE_22_12_FS_PROMISE_EXPORTS,
     'fs/promises',
+    true,
   );
 
   syncBuiltinESMExports();

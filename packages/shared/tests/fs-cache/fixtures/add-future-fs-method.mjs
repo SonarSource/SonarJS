@@ -22,6 +22,11 @@ Object.defineProperty(fs, 'futureRead', {
   value: () => 'unexpected native result',
   writable: true,
 });
+Object.defineProperty(fs, 'futureLazyRead', {
+  configurable: true,
+  enumerable: true,
+  get: () => () => 'unexpected native result',
+});
 Object.defineProperty(fs.promises, 'futureRead', {
   configurable: true,
   enumerable: true,
