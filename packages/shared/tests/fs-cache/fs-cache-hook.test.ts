@@ -133,7 +133,7 @@ describe('filesystem cache preload', () => {
     const recordedResult = JSON.parse(recorded.stdout);
     expect(fs.statSync(archive).size).toBeGreaterThan(0);
     const archiveDocument = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
-    expect(archiveDocument.formatVersion).toBe(3);
+    expect(archiveDocument.formatVersion).toBe(4);
     const inputNode = archiveDocument.entries.find(
       (entry: { path: string }) => entry.path === 'src/input.ts',
     ).node;
@@ -274,6 +274,65 @@ describe('filesystem cache preload', () => {
     expect(JSON.parse(recorded.stdout)).toEqual(nativeErrors);
   });
 
+  it('keeps dangling link existence separate from target existence', t => {
+    const temporary = temporaryDirectory();
+    const recordRoot = path.join(temporary, 'record-root');
+    const replayRoot = path.join(temporary, 'replay-root');
+    const archive = path.join(temporary, 'dangling-link.fscache');
+    const link = path.join(recordRoot, 'dangling-link');
+    fs.mkdirSync(recordRoot);
+    try {
+      fs.symlinkSync('missing-target', link, 'file');
+    } catch (error) {
+      if (process.platform === 'win32' && (error as NodeJS.ErrnoException).code === 'EPERM') {
+        t.skip('Creating symbolic links requires Windows Developer Mode or elevated privileges');
+        return;
+      }
+      throw error;
+    }
+
+    const script = `
+      import fs from 'node:fs';
+      import path from 'node:path';
+      const link = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'dangling-link');
+      let statCode;
+      try {
+        fs.statSync(link);
+      } catch (error) {
+        statCode = error.code;
+      }
+      console.log(JSON.stringify({
+        exists: fs.existsSync(link),
+        isSymbolicLink: fs.lstatSync(link).isSymbolicLink(),
+        statCode,
+        target: fs.readlinkSync(link),
+      }));
+    `;
+
+    const recorded = runInlineHook({ archive, mode: 'record', root: recordRoot, script });
+    expect(recorded.stderr).toBe('');
+    expect(recorded.status).toBe(0);
+    expect(JSON.parse(recorded.stdout)).toEqual({
+      exists: false,
+      isSymbolicLink: true,
+      statCode: 'ENOENT',
+      target: 'missing-target',
+    });
+    const archiveDocument = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
+    const linkNode = archiveDocument.entries.find(
+      (entry: { path: string }) => entry.path === 'dangling-link',
+    ).node;
+    expect(linkNode.exists).toBe(false);
+    expect(linkNode.linkExists).toBe(true);
+
+    fs.rmSync(recordRoot, { force: true, recursive: true });
+    fs.mkdirSync(replayRoot);
+    const replayed = runInlineHook({ archive, mode: 'replay', root: replayRoot, script });
+    expect(replayed.stderr).toBe('');
+    expect(replayed.status).toBe(0);
+    expect(JSON.parse(replayed.stdout)).toEqual(JSON.parse(recorded.stdout));
+  });
+
   it('reuses portable realpaths across result encodings', () => {
     const temporary = temporaryDirectory();
     const recordRoot = path.join(temporary, 'record-root');
@@ -400,9 +459,9 @@ describe('filesystem cache preload', () => {
     expect(changedAnalyzer.status).toBe(0);
     let document = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
     expect(document.analyzerVersion).toBe('analyzer-two');
-    expect(document.formatVersion).toBe(3);
+    expect(document.formatVersion).toBe(4);
 
-    document.formatVersion = 2;
+    document.formatVersion = 3;
     fs.writeFileSync(archive, gzipSync(Buffer.from(JSON.stringify(document))));
     const changedFormat = runInlineHook({
       analyzerVersion: 'analyzer-three',
@@ -415,7 +474,7 @@ describe('filesystem cache preload', () => {
     expect(changedFormat.status).toBe(0);
     document = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
     expect(document.analyzerVersion).toBe('analyzer-three');
-    expect(document.formatVersion).toBe(3);
+    expect(document.formatVersion).toBe(4);
   });
 
   it('rejects corrupt and analyzer-incompatible archives', () => {
@@ -457,7 +516,7 @@ describe('filesystem cache preload', () => {
     fs.writeFileSync(archive, gzipSync(Buffer.from(JSON.stringify(oldDocument))));
     const oldFormat = runHook({ archive, mode: 'replay', outside, root });
     expect(oldFormat.status).not.toBe(0);
-    expect(oldFormat.stderr).toContain('Unsupported filesystem cache format 1; expected 3');
+    expect(oldFormat.stderr).toContain('Unsupported filesystem cache format 1; expected 4');
   });
 
   it('preserves native opendir order for non-alphabetically created entries', () => {

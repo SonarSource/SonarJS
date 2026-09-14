@@ -145,7 +145,7 @@ function createExecutor(archive) {
     }
     const outcome = archive.get(key, operation);
     if (outcome === undefined) {
-      if (archive.getExists(key) === false) {
+      if (archive.getExists(key, operation) === false) {
         archive.recordCacheHit();
         return missingPath(operation, input);
       }
@@ -933,7 +933,7 @@ function createOpenPatches(archive, fileDescriptors) {
     }
     const outcome = archive.get(key, operation);
     if (outcome === undefined) {
-      if (archive.getExists(key) === false) {
+      if (archive.getExists(key, operation) === false) {
         archive.recordCacheHit();
         missingPath(operation, input);
       }
