@@ -19,4 +19,10 @@ import { buildBundle } from './esbuild-common.mjs';
 await buildBundle({
   entryPoint: './grpc-server.mjs',
   outfile: './bin/grpc-server.cjs',
+  additionalAssets: [
+    {
+      from: ['./packages/shared/src/fs-cache/*'],
+      to: ['./bin/fs-cache'],
+    },
+  ],
 });
