@@ -138,12 +138,12 @@ describe('analyzeCSS', () => {
     expect(result.highlights?.length).toBeGreaterThan(0);
   });
 
-  it('should override rules for TEST files and return highlights only', async () => {
-    const fileContent = 'p {}';
+  it('should override rules for TEST files and return NCLOC and highlights', async () => {
+    const fileContent = 'p {} /* NOSONAR */';
     const result = await analyzeCSS(await input('/some/fake/path', fileContent, rules, 'TEST'));
 
     expect(result.issues).toEqual([]);
-    expect(result.metrics).toBeUndefined();
+    expect(result.metrics).toEqual({ ncloc: [1], nosonarLines: [1] });
     expect(result.highlights).toBeDefined();
   });
 

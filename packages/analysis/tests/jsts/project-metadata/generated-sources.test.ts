@@ -22,7 +22,7 @@ import { beforeEach, describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { createConfiguration, isJsTsFile } from '../../../src/common/configuration.js';
 import { findFiles } from '../../../src/common/find-files.js';
-import { sanitizeRawInputFiles } from '../../../src/common/input-sanitize.js';
+import { sanitizeInputFiles } from '../../../src/common/input-sanitize.js';
 import {
   dependencyManifestStore,
   generatedSourceStore,
@@ -259,7 +259,7 @@ describe('generated sources project metadata', () => {
       await writeFixtureFile(yamlPath, 'fixture: true\n');
       await writeFixtureFile(htmlPath, '<html></html>');
       const configuration = createConfiguration({ baseDir });
-      const { files: inputFiles } = await sanitizeRawInputFiles(
+      const { files: inputFiles } = await sanitizeInputFiles(
         {
           [htmlPath]: {
             filePath: htmlPath,
@@ -1256,7 +1256,7 @@ export default config;
           [outputPath]: 'CREATED',
         },
       });
-      const { files: inputFiles } = await sanitizeRawInputFiles(
+      const { files: inputFiles } = await sanitizeInputFiles(
         {
           [outputPath]: {
             filePath: outputPath,
@@ -1317,7 +1317,7 @@ export default config;
           [outputPath]: 'CREATED',
         },
       });
-      const { files: inputFiles } = await sanitizeRawInputFiles(
+      const { files: inputFiles } = await sanitizeInputFiles(
         {
           [outputPath]: {
             filePath: outputPath,
@@ -1493,7 +1493,7 @@ export default config;
           [outputPath]: 'CREATED',
         },
       });
-      const { files: inputFiles } = await sanitizeRawInputFiles(
+      const { files: inputFiles } = await sanitizeInputFiles(
         {
           [outputPath]: {
             filePath: outputPath,
@@ -2602,7 +2602,7 @@ plugins = [
     const firstGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
     const secondGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'types', 'schema.ts');
     const configuration = createConfiguration({ baseDir });
-    const { files: firstInputFiles } = await sanitizeRawInputFiles(
+    const { files: firstInputFiles } = await sanitizeInputFiles(
       {
         [firstGeneratedFile]: {
           filePath: firstGeneratedFile,
@@ -2631,7 +2631,7 @@ plugins = [
       ],
     });
 
-    const { files: secondInputFiles } = await sanitizeRawInputFiles(
+    const { files: secondInputFiles } = await sanitizeInputFiles(
       {
         [secondGeneratedFile]: {
           filePath: secondGeneratedFile,
@@ -2925,7 +2925,7 @@ plugins = [
         baseDir,
         sources: ['src'],
       });
-      const { files: inputFiles } = await sanitizeRawInputFiles(
+      const { files: inputFiles } = await sanitizeInputFiles(
         {
           [firstGeneratedFile]: {
             filePath: firstGeneratedFile,
@@ -2999,7 +2999,7 @@ plugins = [
         sources: ['src'],
         maxFileSize: 1,
       });
-      const { files: inputFiles } = await sanitizeRawInputFiles(
+      const { files: inputFiles } = await sanitizeInputFiles(
         {
           [keptGeneratedFile]: {
             filePath: keptGeneratedFile,
@@ -3224,7 +3224,7 @@ plugins = [
         baseDir,
         sources: ['src'],
       });
-      const { files: firstInputFiles } = await sanitizeRawInputFiles(
+      const { files: firstInputFiles } = await sanitizeInputFiles(
         {
           [firstGeneratedFile]: {
             filePath: firstGeneratedFile,
@@ -3233,7 +3233,7 @@ plugins = [
         },
         configuration,
       );
-      const { files: secondInputFiles } = await sanitizeRawInputFiles(
+      const { files: secondInputFiles } = await sanitizeInputFiles(
         {
           [secondGeneratedFile]: {
             filePath: secondGeneratedFile,
@@ -3311,7 +3311,7 @@ plugins = [
         sources: ['src'],
         maxFileSize: 1,
       });
-      const { files: firstInputFiles } = await sanitizeRawInputFiles(
+      const { files: firstInputFiles } = await sanitizeInputFiles(
         {
           [keptGeneratedFile]: {
             filePath: keptGeneratedFile,
@@ -3320,7 +3320,7 @@ plugins = [
         },
         configuration,
       );
-      const { files: secondInputFiles } = await sanitizeRawInputFiles(
+      const { files: secondInputFiles } = await sanitizeInputFiles(
         {
           [keptGeneratedFile]: {
             filePath: keptGeneratedFile,
@@ -3431,11 +3431,11 @@ plugins = [
           fileType: 'MAIN' as const,
         },
       };
-      const { files: firstInputFiles } = await sanitizeRawInputFiles(
+      const { files: firstInputFiles } = await sanitizeInputFiles(
         requestedFiles,
         firstConfiguration,
       );
-      const { files: secondInputFiles } = await sanitizeRawInputFiles(
+      const { files: secondInputFiles } = await sanitizeInputFiles(
         requestedFiles,
         secondConfiguration,
       );

@@ -39,9 +39,7 @@ type TestJsTsInput = {
   tsConfigs?: NormalizedAbsolutePath[];
   program?: JsTsAnalysisInput['program'];
   skipAst?: boolean;
-  clearDependenciesCache?: boolean;
   sonarlint?: boolean;
-  reportNclocForTestFiles?: boolean;
 };
 
 /**
@@ -69,13 +67,7 @@ export async function jsTsInput(input: TestJsTsInput): Promise<JsTsAnalysisInput
       allowTsParserJsFiles: input.allowTsParserJsFiles,
     }),
     ...(input.skipAst !== undefined && { skipAst: input.skipAst }),
-    ...(input.clearDependenciesCache !== undefined && {
-      clearDependenciesCache: input.clearDependenciesCache,
-    }),
     ...(input.sonarlint !== undefined && { sonarlint: input.sonarlint }),
-    ...(input.reportNclocForTestFiles !== undefined && {
-      reportNclocForTestFiles: input.reportNclocForTestFiles,
-    }),
   };
 }
 

@@ -1,50 +1,38 @@
-# Sanitization Boundaries: Raw vs Internal Types
+# Sanitization Boundaries: Protobuf To Internal Types
 
 ## Overview
 
-This document describes the trust boundary in SonarJS where external payloads
-(JSON strings, protobuf messages, optional fields) are converted into validated
-internal state. Sanitization happens at entry points so deeper analysis code can
-assume normalized paths, initialized file stores, and fully shaped
-configuration objects.
+The `AnalyzeProjectService` gRPC boundary converts generated protobuf messages into normalized
+internal state. Sanitization happens before analysis so deeper code can assume normalized paths,
+initialized file stores, validated rule configurations, and a fully shaped `Configuration`.
 
-## Architecture Diagram
+## Architecture
 
 ```text
-External input
+AnalyzeProjectService (gRPC)
+  - AnalyzeProject
+  - AnalyzeProjectUnary
+  - CancelAnalysis
   |
-  +-- AnalyzeProjectService (gRPC runtime)
-  |     - AnalyzeProject
-  |     - AnalyzeProjectUnary
-  |     - CancelAnalysis
-  |     -> startAnalyzeProjectServer()
-  |     -> handleAnalyzeProjectRequest()
+  v
+startAnalyzeProjectServer()
   |
-  +-- LanguageAnalyzerService (gRPC)
-  |     - Analyze
-  |     -> analyzeFileHandler()
+  v
+handleAnalyzeProjectRequest()
   |
-  `-- CLI (future)
-        -> same sanitization layer
-
-Sanitization layer
-  - createConfiguration()
-  - sanitizeProjectAnalysisInput()
-  - sanitizeRawInputFiles()
-  - transformRequestToProjectInput()
-  - transformSourceFilesToRawInputFiles()
-  - normalizeToAbsolutePath()
-  - sanitizePaths()
-
-Internal analysis
-  - analyzeProject()
-  - analyzeJSTS()
-  - analyzeCSS()
+  v
+normalizeAnalyzeProjectRequest()
+  - createConfigurationFromProto()
+  - normalizeProtoInputFiles()
+  - sanitizeInputFiles()
+  - normalizeJsTsRules() / normalizeCssRules()
+  - initFileStoresForAnalysis()
+  |
+  v
+analyzeProject()
 ```
 
-## Entry Points
-
-### 1. Analyze-Project gRPC Runtime
+## Entry Point
 
 **Location:** `packages/grpc/src/`
 
@@ -54,12 +42,17 @@ Internal analysis
 | `AnalyzeProjectService` | `AnalyzeProjectUnary` | `startAnalyzeProjectServer()` |
 | `AnalyzeProjectService` | `CancelAnalysis`      | `startAnalyzeProjectServer()` |
 
-**Sanitization in `handleAnalyzeProjectRequest()`:**
+Both analysis RPCs eventually call `handleAnalyzeProjectRequest()`, which crosses the boundary
+through `normalizeAnalyzeProjectRequest()`:
 
 ```typescript
 const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
 const wrappedIncrementalResultsChannel = incrementalResultsChannel
-  ? event => incrementalResultsChannel({ event, pathMap: sanitizedInput.pathMap })
+  ? (event: AnalyzeProjectIncrementalEvent['event']) =>
+      incrementalResultsChannel({
+        event,
+        pathMap: sanitizedInput.pathMap,
+      })
   : undefined;
 
 const output = await analyzeProject(
@@ -74,194 +67,87 @@ const output = await analyzeProject(
 );
 ```
 
-`normalizeAnalyzeProjectRequest()` performs the main boundary crossing for the
-analyze-project runtime:
-
-- validates the typed gRPC `AnalyzeProjectRequest` payload,
-- creates a sanitized `Configuration` via `createConfigurationFromProto()`,
-- normalizes project file paths and bundle paths,
-- initializes the analysis file stores before `analyzeProject()` runs.
-
-### 2. LanguageAnalyzerService
-
-**Location:** `packages/grpc/src/`
-
-| Service                   | Method    | Handler                |
-| ------------------------- | --------- | ---------------------- |
-| `LanguageAnalyzerService` | `Analyze` | `analyzeFileHandler()` |
-
-**Sanitization in `analyzeFileHandler()`:**
-
-```typescript
-const configuration = createConfiguration({
-  baseDir: ROOT_PATH,
-  canAccessFileSystem: false,
-  reportNclocForTestFiles: true,
-});
-
-const rawFiles = transformSourceFilesToRawInputFiles(request.sourceFiles || []);
-const { files: inputFiles, pathMap } = await sanitizeRawInputFiles(rawFiles, configuration);
-await initFileStores(configuration, inputFiles);
-
-const projectInput = transformRequestToProjectInput(request);
-```
-
-This path uses the same sanitization helpers as the analyze-project runtime, but
-starts from protobuf request data instead of a JSON payload.
+The cancellation RPC does not carry project input and therefore does not cross this sanitization
+boundary.
 
 ## Type Transformations
 
-### External payloads to sanitized internal state
+| Protobuf input                        | Internal state                  | Main transformation                                     |
+| ------------------------------------- | ------------------------------- | ------------------------------------------------------- |
+| `ProjectConfiguration`                | validated `Configuration`       | `createConfigurationFromProto()`                        |
+| `map<string, ProjectFileInput> files` | sanitized analyzable files      | `normalizeProtoInputFiles()` and `sanitizeInputFiles()` |
+| `repeated JsTsRule rules`             | `RuleConfig[]`                  | `normalizeJsTsRules()`                                  |
+| `repeated CssRule css_rules`          | CSS `RuleConfig[]`              | `normalizeCssRules()`                                   |
+| path strings and map keys             | `NormalizedAbsolutePath`        | path normalization helpers                              |
+| protobuf `Value` configurations       | JavaScript configuration values | protobuf-value conversion                               |
 
-| External input                               | Internal state                            | Key transformations                                                  |
-| -------------------------------------------- | ----------------------------------------- | -------------------------------------------------------------------- |
-| Analyze-project gRPC `AnalyzeProjectRequest` | `Configuration` + initialized file stores | `normalizeAnalyzeProjectRequest()`, `createConfigurationFromProto()` |
-| gRPC `sourceFiles[]`                         | sanitized analyzable files                | `transformSourceFilesToRawInputFiles()`, `sanitizeRawInputFiles()`   |
-| gRPC `activeRules[]`                         | `RuleConfig[]` and `CssRuleConfig[]`      | `transformRequestToProjectInput()`                                   |
-| path strings                                 | `NormalizedAbsolutePath`                  | `normalizeToAbsolutePath()`, `sanitizePaths()`                       |
-| protobuf configuration fields                | validated `Configuration`                 | `createConfigurationFromProto()`, `createConfigurationFromInput()`   |
+`normalizeAnalyzeProjectRequest()` also:
 
-### Important boundary details
-
-- The analyze-project runtime stores sanitized files in the shared file stores
-  during sanitization. `analyzeProject()` then reads from those stores rather
-  than from the original raw payload.
-- `LanguageAnalyzerService` receives file contents inline over gRPC, converts
-  them into the same raw-file shape, and then reuses `sanitizeRawInputFiles()`.
-- Rule transformation stays at the transport edge:
-  `transformRequestToProjectInput()` converts protobuf rule payloads into the
-  internal JS/TS and CSS rule configuration types expected by analysis.
+- requires an absolute `configuration.base_dir`,
+- applies configuration defaults and validates scalar values,
+- reads file contents from disk when the request omits them and filesystem access is allowed,
+- infers file types when needed and defaults omitted file status to `SAME`,
+- normalizes bundle paths, `rules_workdir`, tsconfig paths, filesystem events, and file-map keys,
+- applies file filters and initializes the shared file stores before analysis.
 
 ## Sanitization Functions
 
 ### Configuration creation
 
-**Location:** `packages/analysis/src/common/configuration.ts`
+**Locations:** `packages/grpc/src/analyze-project-normalize.ts` and
+`packages/analysis/src/common/configuration.ts`
 
-```typescript
-createConfiguration(raw: unknown): Configuration
-```
+`createConfigurationFromProto()` converts protobuf presence and enum semantics into a
+`ConfigurationInput`. `createConfigurationFromInput()` then validates and normalizes the complete
+configuration.
 
-Responsibilities:
-
-- validates that the incoming value is an object,
-- normalizes `baseDir` and path arrays,
-- compiles glob-based filters,
-- applies defaults for omitted configuration fields.
-
-### Project payload sanitization
+### File sanitization
 
 **Location:** `packages/analysis/src/common/input-sanitize.ts`
 
 ```typescript
-sanitizeProjectAnalysisInput(raw: unknown): Promise<SanitizedProjectAnalysisInput>
-sanitizeRawInputFiles(rawFiles, configuration): Promise<SanitizedInputFiles>
+sanitizeInputFiles(inputFiles, configuration): Promise<SanitizedInputFiles>
 ```
 
 Responsibilities:
 
-- validate raw project payloads,
-- normalize file paths and optional `rulesWorkdir`,
-- validate file metadata such as `fileType` and `fileStatus`,
-- initialize file stores before analysis starts.
+- normalize file paths relative to `baseDir`,
+- read omitted contents from disk,
+- infer main/test classification where configuration provides a stronger answer,
+- apply ignore filtering,
+- build the normalized file map and the response path map.
 
-### gRPC request transformation
+### Request normalization
 
-**Location:** `packages/grpc/src/transformers/request.ts`
+**Location:** `packages/grpc/src/analyze-project-normalize.ts`
 
-```typescript
-transformSourceFilesToRawInputFiles(sourceFiles);
-transformRequestToProjectInput(request);
-```
-
-Responsibilities:
-
-- convert protobuf source files into the raw file structure expected by the
-  shared sanitization helpers,
-- split active rules into JS/TS and CSS rule configurations,
-- keep transport-specific translation out of core analysis code.
-
-### Path utilities
-
-**Location:** `packages/shared/src/helpers/files.ts` and
-`packages/shared/src/helpers/sanitize.ts`
-
-Key helpers:
-
-- `normalizeToAbsolutePath()`
-- `sanitizePaths()`
-- `ROOT_PATH`
-- `NormalizedAbsolutePath`
-
-## Flow Examples
-
-### Analyze-project runtime
-
-```text
-gRPC AnalyzeProject() / AnalyzeProjectUnary()
-  requestJson
-    -> startAnalyzeProjectServer()
-    -> handleAnalyzeProjectRequest()
-       -> sanitizeProjectAnalysisInput()
-          -> createConfiguration()
-          -> sanitizeRawInputFiles()
-          -> initFileStores()
-       -> analyzeProject()
-```
-
-### LanguageAnalyzerService
-
-```text
-gRPC Analyze()
-  IAnalyzeRequest
-    -> analyzeFileHandler()
-       -> createConfiguration({ baseDir: ROOT_PATH, canAccessFileSystem: false, ... })
-       -> transformSourceFilesToRawInputFiles()
-       -> sanitizeRawInputFiles()
-       -> initFileStores()
-       -> transformRequestToProjectInput()
-       -> analyzeProject()
-       -> transformProjectOutputToResponse()
-```
+Transport-specific validation and conversion remains at this edge. It covers protobuf enum
+handling, optional fields, numeric conversion, rule configuration values, file-map keys, and path
+lists. Core analysis code does not depend on protobuf message shapes.
 
 ## Key Principles
 
-### 1. Sanitize at entry points
-
-All sanitization happens in request handlers
-(`handleAnalyzeProjectRequest()` and `analyzeFileHandler()`), not in deeper
-analysis code.
-
-### 2. Normalize paths once
-
-External paths become `NormalizedAbsolutePath` before internal analysis logic
-sees them.
-
-### 3. Initialize file stores before analysis
-
-`analyzeProject()` expects callers to have loaded sanitized files into the file
-stores first.
-
-### 4. Keep transport translation at the edges
-
-JSON and protobuf shape conversion belongs in runtime handlers and transformer
-code, not in analysis modules.
+1. Sanitize once at the gRPC entry point, before calling analysis code.
+2. Convert paths to `NormalizedAbsolutePath` before internal consumers see them.
+3. Initialize file stores before `analyzeProject()` reads them.
+4. Keep protobuf translation in `packages/grpc`, outside analysis modules.
+5. Preserve typed rule configuration values across the Java-to-Node boundary.
 
 ## Files Reference
 
-| Category        | File                                                  | Purpose                                   |
-| --------------- | ----------------------------------------------------- | ----------------------------------------- |
-| Entry points    | `packages/grpc/src/analyze-project-server.ts`         | Analyze-project gRPC runtime              |
-|                 | `packages/grpc/src/analyze-project-handle-request.ts` | Analyze-project request handling          |
-|                 | `packages/grpc/src/service.ts`                        | `LanguageAnalyzerService` handler         |
-| Sanitization    | `packages/analysis/src/common/configuration.ts`       | Configuration validation and defaults     |
-|                 | `packages/analysis/src/common/input-sanitize.ts`      | Project payload and raw-file sanitization |
-| Transport layer | `packages/grpc/src/transformers/request.ts`           | gRPC request transformation               |
-| Path utilities  | `packages/shared/src/helpers/files.ts`                | Path normalization helpers                |
-|                 | `packages/shared/src/helpers/sanitize.ts`             | Shared path-array sanitization            |
-| Internal types  | `packages/analysis/src/projectAnalysis.ts`            | `ProjectAnalysisInput`                    |
+| Category        | File                                                  | Purpose                           |
+| --------------- | ----------------------------------------------------- | --------------------------------- |
+| Server          | `packages/grpc/src/analyze-project-server.ts`         | Analyze-project gRPC runtime      |
+| Request handler | `packages/grpc/src/analyze-project-handle-request.ts` | Analysis dispatch                 |
+| Normalization   | `packages/grpc/src/analyze-project-normalize.ts`      | Protobuf-to-internal boundary     |
+| Sanitization    | `packages/analysis/src/common/configuration.ts`       | Configuration validation/defaults |
+| Sanitization    | `packages/analysis/src/common/input-sanitize.ts`      | File normalization and filtering  |
+| File stores     | `packages/analysis/src/file-stores/index.ts`          | Per-analysis initialization       |
+| Internal types  | `packages/analysis/src/projectAnalysis.ts`            | Project analysis input/output     |
 
 ## Related Documentation
 
+- [gRPC Analyze-Project Migration](./grpc-analyze-project-migration.md)
+- [Node.js Analysis Caches And File Stores](./node-analysis-caches.md)
 - [Branded ProgramOptions](./branded-program-options.md)
 - [TypeScript Program Creation Guide](./typescript-program-creation-guide.md)

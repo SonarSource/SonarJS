@@ -57,8 +57,6 @@ export type Configuration = {
   baseDir: NormalizedAbsolutePath;
   canAccessFileSystem: boolean;
   sonarlint: boolean;
-  clearDependenciesCache: boolean;
-  clearTsConfigCache: boolean;
   fsEvents: NormalizedAbsolutePath[] /* Data filled in file watcher FSListenerImpl.java */;
   allowTsParserJsFiles: boolean;
   analysisMode: AnalysisMode;
@@ -87,15 +85,12 @@ export type Configuration = {
   disableTypeChecking: boolean /* sonar.javascript.disableTypeChecking - whether to completely disable TypeScript type checking */;
   skipNodeModuleLookupOutsideBaseDir: boolean /* sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir - whether to skip node_modules lookups outside baseDir in TS compiler host */;
   ecmaScriptVersion?: string /* sonar.javascript.ecmaScriptVersion - explicit ES version override e.g. 'ES2022' */;
-  reportNclocForTestFiles: boolean /* In gRPC/SQAA (previously A3S) context, ncloc for test files is computed by the analyzer. In SQ context, ncloc is not computed for tests. */;
 };
 
 export type ConfigurationInput = {
   baseDir: string;
   canAccessFileSystem?: boolean;
   sonarlint?: boolean;
-  clearDependenciesCache?: boolean;
-  clearTsConfigCache?: boolean;
   fsEvents?: string[];
   allowTsParserJsFiles?: boolean;
   analysisMode?: AnalysisMode;
@@ -124,7 +119,6 @@ export type ConfigurationInput = {
   disableTypeChecking?: boolean;
   skipNodeModuleLookupOutsideBaseDir?: boolean;
   ecmaScriptVersion?: string;
-  reportNclocForTestFiles?: boolean;
 };
 
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
@@ -242,8 +236,6 @@ export function createConfiguration(raw: unknown): Configuration {
     baseDir,
     canAccessFileSystem: getOptionalValue(raw, 'canAccessFileSystem', isBoolean),
     sonarlint: getOptionalValue(raw, 'sonarlint', isBoolean),
-    clearDependenciesCache: getOptionalValue(raw, 'clearDependenciesCache', isBoolean),
-    clearTsConfigCache: getOptionalValue(raw, 'clearTsConfigCache', isBoolean),
     fsEvents: sanitizeFsEvents(raw.fsEvents),
     allowTsParserJsFiles: getOptionalValue(raw, 'allowTsParserJsFiles', isBoolean),
     analysisMode: getOptionalValue(raw, 'analysisMode', isAnalysisMode),
@@ -280,7 +272,6 @@ export function createConfiguration(raw: unknown): Configuration {
       isBoolean,
     ),
     ecmaScriptVersion: getOptionalValue(raw, 'ecmaScriptVersion', isString),
-    reportNclocForTestFiles: getOptionalValue(raw, 'reportNclocForTestFiles', isBoolean),
   });
 }
 
@@ -294,8 +285,6 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
     baseDir,
     canAccessFileSystem: input.canAccessFileSystem ?? true,
     sonarlint: input.sonarlint ?? false,
-    clearDependenciesCache: input.clearDependenciesCache ?? false,
-    clearTsConfigCache: input.clearTsConfigCache ?? false,
     fsEvents: normalizeFsEvents(input.fsEvents, baseDir),
     allowTsParserJsFiles: input.allowTsParserJsFiles ?? DEFAULT_ALLOW_TS_PARSER_JS_FILES,
     analysisMode: input.analysisMode ?? DEFAULT_ANALYSIS_MODE,
@@ -327,7 +316,6 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
     disableTypeChecking: input.disableTypeChecking ?? false,
     skipNodeModuleLookupOutsideBaseDir: input.skipNodeModuleLookupOutsideBaseDir ?? false,
     ecmaScriptVersion: input.ecmaScriptVersion,
-    reportNclocForTestFiles: input.reportNclocForTestFiles ?? false,
   };
 }
 
@@ -642,7 +630,6 @@ export type JsTsConfigFields = {
   allowTsParserJsFiles: boolean;
   analysisMode: AnalysisMode;
   ignoreHeaderComments: boolean;
-  clearDependenciesCache: boolean;
   skipAst: boolean;
   sonarlint: boolean;
   shouldIgnoreParams: FilterFileParams;
@@ -650,7 +637,6 @@ export type JsTsConfigFields = {
   disableTypeChecking: boolean;
   skipNodeModuleLookupOutsideBaseDir: boolean;
   ecmaScriptVersion?: string /* sonar.javascript.ecmaScriptVersion */;
-  reportNclocForTestFiles: boolean;
 };
 
 /**
@@ -664,7 +650,6 @@ export function getJsTsConfigFields(configuration: Configuration): JsTsConfigFie
     allowTsParserJsFiles: configuration.allowTsParserJsFiles,
     analysisMode: configuration.analysisMode,
     ignoreHeaderComments: configuration.ignoreHeaderComments,
-    clearDependenciesCache: configuration.clearDependenciesCache,
     skipAst: configuration.skipAst,
     sonarlint: configuration.sonarlint,
     shouldIgnoreParams: getShouldIgnoreParams(configuration),
@@ -672,6 +657,5 @@ export function getJsTsConfigFields(configuration: Configuration): JsTsConfigFie
     disableTypeChecking: configuration.disableTypeChecking,
     skipNodeModuleLookupOutsideBaseDir: configuration.skipNodeModuleLookupOutsideBaseDir,
     ecmaScriptVersion: configuration.ecmaScriptVersion,
-    reportNclocForTestFiles: configuration.reportNclocForTestFiles,
   };
 }
