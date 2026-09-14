@@ -47,12 +47,10 @@ Its job is:
 
 This means a store is only recomputed when its own invalidation rules say it must be.
 
-The main entrypoints that do this are:
-
-- `sanitizeProjectAnalysisInput()` in `packages/analysis/src/common/input-sanitize.ts`
-- `normalizeAnalyzeProjectRequest()` in `packages/grpc/src/analyze-project-normalize.ts`
-
-Both normalize `Configuration`, optionally sanitize explicit request files, and then call `initFileStores()`.
+The scanner and SonarQube for IDE entrypoint is `normalizeAnalyzeProjectRequest()` in
+`packages/grpc/src/analyze-project-normalize.ts`. It normalizes `Configuration`, optionally
+sanitizes explicit request files, and then initializes the stores through
+`initFileStoresForAnalysis()`.
 
 ## Population Modes
 

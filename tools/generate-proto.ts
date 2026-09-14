@@ -29,16 +29,6 @@ const PROTO_FILES = [
     paths: ['packages'],
   },
   {
-    proto: 'packages/grpc/src/proto/language_analyzer.proto',
-    js: 'packages/grpc/src/proto/language_analyzer.js',
-    dts: 'packages/grpc/src/proto/language_analyzer.d.ts',
-  },
-  {
-    proto: 'packages/grpc/src/proto/health.proto',
-    js: 'packages/grpc/src/proto/health.js',
-    dts: 'packages/grpc/src/proto/health.d.ts',
-  },
-  {
     proto: 'packages/analysis/src/jsts/parsers/estree.proto',
     js: 'packages/analysis/src/jsts/parsers/estree.js',
     dts: 'packages/analysis/src/jsts/parsers/estree.d.ts',
