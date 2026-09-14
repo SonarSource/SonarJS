@@ -34,7 +34,8 @@ const messages = {
     'Use distinct texts or point to the same target for this link and the one at line {{line}}.',
 };
 
-// Props whose presence in an unresolved spread makes the anchor unresolvable, mirroring S6827's decorator.
+// Props whose presence in a spread makes the anchor unresolvable: they can change the accessible
+// name, the destination, or the visibility of the link.
 const RELEVANT_PROPS = ['href', 'aria-label', 'title', 'hidden', 'aria-hidden', 'style'];
 
 const ROUTING_FRAGMENT_PATTERN = /^#[!/]/;
@@ -278,7 +279,7 @@ function isDisplayNone(attributes: JsxAttributes, context: Rule.RuleContext): bo
   );
 }
 
-// False when a spread attribute could dynamically set href, aria-label or title, making the anchor unresolvable.
+// False when a spread attribute could dynamically set href, aria-label, title, or a visibility prop (hidden/aria-hidden/style), making the anchor unresolvable.
 function isSpreadSafe(attributes: JsxAttributes, context: Rule.RuleContext): boolean {
   return attributes
     .filter((attribute): attribute is JSXSpreadAttribute => attribute.type === 'JSXSpreadAttribute')
