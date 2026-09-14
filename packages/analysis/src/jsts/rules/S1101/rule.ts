@@ -35,7 +35,7 @@ const messages = {
 };
 
 // Props whose presence in an unresolved spread makes the anchor unresolvable, mirroring S6827's decorator.
-const RELEVANT_PROPS = ['href', 'aria-label', 'title'];
+const RELEVANT_PROPS = ['href', 'aria-label', 'title', 'hidden', 'aria-hidden', 'style'];
 
 const ROUTING_FRAGMENT_PATTERN = /^#[!/]/;
 const DUMMY_BASE = 'https://sonarjs-placeholder.invalid/';
