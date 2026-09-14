@@ -172,8 +172,8 @@ what you expect.
 npm run ruling
 ```
 
-The generated issues are written under `packages/ruling/actual/<project>/`. The expected issues are
-stored under `its/ruling/src/test/expected/<project>/`.
+The generated issues are written under `packages/ruling/actual/<project>/<language>/`. The expected issues are
+stored under `its/ruling/src/test/resources/expected/<language>/<project>/`.
 
 From the project root, run: `npm run ruling-sync`
 
@@ -192,9 +192,9 @@ the port in `orchestrator.properties files`, e.g. `orchestrator.container.port=9
 
 If everything looks good to you, you can copy the file with the actual issues located at
 `its/ruling/target/actual/` into the directory with the expected issues
-`its/ruling/src/test/expected/`.
+`its/ruling/src/test/resources/expected/`.
 
-You can review the Ruling difference by running `diff -rq src/test/expected target/actual` from
+You can review the Ruling difference by running `diff -rq src/test/resources/expected target/expected` from
 `its/ruling`.
 
 > :warning: Please note that running ruling tests will remove `node_modules` from the root to avoid

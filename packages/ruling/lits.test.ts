@@ -45,7 +45,7 @@ describe('writeResults', () => {
     await writeResults('/project', 'ace', results, actualPath);
 
     const output = JSON.parse(
-      await fs.readFile(path.join(actualPath, 'css-S4656.json'), 'utf8'),
+      await fs.readFile(path.join(actualPath, 'css', 'S4656.json'), 'utf8'),
     ) as Record<string, number[]>;
 
     expect(output).toEqual({
@@ -75,7 +75,7 @@ describe('writeResults', () => {
     await writeResults('/project', 'ace', results, actualPath);
 
     const output = JSON.parse(
-      await fs.readFile(path.join(actualPath, 'css-S4656.json'), 'utf8'),
+      await fs.readFile(path.join(actualPath, 'css', 'S4656.json'), 'utf8'),
     ) as Record<string, number[]>;
 
     expect(Object.keys(output)).toEqual([
