@@ -830,6 +830,10 @@ describe('filesystem cache preload', () => {
           return { code: error.code, message: error.message, name: error.name };
         }
       };
+      const captureRejection = operation => operation().then(
+        () => ({ calledNative: true }),
+        error => ({ code: error.code, message: error.message, name: error.name }),
+      );
       console.log(JSON.stringify({
         runtime: {
           fs: typeof fsNamespace.mkdtempDisposableSync === 'function'
@@ -842,7 +846,8 @@ describe('filesystem cache preload', () => {
         simulated: await Promise.all([
           capture(() => fs.futureRead()),
           capture(() => commonJsFs.futureRead()),
-          capture(() => fsPromises.futureRead()),
+          capture(() => fs.futureLazyRead()),
+          captureRejection(() => fsPromises.futureRead()),
         ]),
       }));
     `;
@@ -874,6 +879,11 @@ describe('filesystem cache preload', () => {
       {
         code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
         message: `Filesystem cache does not support fs.futureRead from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.futureLazyRead from Node ${process.version}`,
         name: 'UnsupportedFsOperationError',
       },
       {
