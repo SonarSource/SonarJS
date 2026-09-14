@@ -135,7 +135,8 @@ function isRenderingCallback(
   return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
 }
 
-function isArgumentOfRenderingCall(
+// True when `node` is the callback of a rendered `.map()`/`.flatMap()` call, e.g. `items.map(item => <a>...</a>)`.
+export function isArgumentOfRenderingCall(
   node: TSESTree.FunctionExpression | TSESTree.ArrowFunctionExpression,
 ): boolean {
   const parent = node.parent;
