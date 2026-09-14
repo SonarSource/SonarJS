@@ -67,12 +67,14 @@ function runHook({
 
 function runInlineHook({
   archive,
+  analyzerVersion = 'test-analyzer',
   mode,
   root,
   script,
   strict = true,
 }: {
   archive: string;
+  analyzerVersion?: string;
   mode: 'record' | 'replay';
   root: string;
   script: string;
@@ -82,7 +84,7 @@ function runInlineHook({
     encoding: 'utf8',
     env: {
       ...process.env,
-      SONARJS_FS_CACHE_ANALYZER_VERSION: 'test-analyzer',
+      SONARJS_FS_CACHE_ANALYZER_VERSION: analyzerVersion,
       SONARJS_FS_CACHE_ARCHIVE: archive,
       SONARJS_FS_CACHE_MODE: mode,
       SONARJS_FS_CACHE_ROOT: root,
@@ -325,6 +327,95 @@ describe('filesystem cache preload', () => {
       regular: encodedResults(recordedResult.regular.utf8.replace(recordRoot, replayRoot)),
       native: encodedResults(recordedResult.native.utf8.replace(recordRoot, replayRoot)),
     });
+  });
+
+  it('keeps merged archive entries out of the live recording cache after flush', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = path.join(temporary, 'flush-isolation.fscache');
+    const existing = path.join(root, 'existing.ts');
+    const current = path.join(root, 'current.ts');
+    fs.mkdirSync(root);
+    fs.writeFileSync(existing, 'previous analysis');
+    const initial = runInlineHook({
+      archive,
+      mode: 'record',
+      root,
+      script: `
+        import fs from 'node:fs';
+        fs.readFileSync(${JSON.stringify(existing)}, 'utf8');
+      `,
+    });
+    expect(initial.stderr).toBe('');
+    expect(initial.status).toBe(0);
+
+    fs.writeFileSync(existing, 'current analysis');
+    fs.writeFileSync(current, 'make the new archive dirty');
+    const afterFlush = runInlineHook({
+      archive,
+      mode: 'record',
+      root,
+      script: `
+        import fs from 'node:fs';
+        fs.readFileSync(${JSON.stringify(current)}, 'utf8');
+        globalThis[Symbol.for('sonarjs.filesystemCache.installation')].flush();
+        console.log(fs.readFileSync(${JSON.stringify(existing)}, 'utf8'));
+      `,
+    });
+    expect(afterFlush.stderr).toBe('');
+    expect(afterFlush.status).toBe(0);
+    expect(afterFlush.stdout.trim()).toBe('current analysis');
+  });
+
+  it('replaces valid archives that are incompatible with a new recording', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = path.join(temporary, 'incompatible.fscache');
+    const file = path.join(root, 'input.ts');
+    fs.mkdirSync(root);
+    fs.writeFileSync(file, 'content');
+    const script = `
+      import fs from 'node:fs';
+      fs.readFileSync(${JSON.stringify(file)}, 'utf8');
+    `;
+
+    const initial = runInlineHook({
+      analyzerVersion: 'analyzer-one',
+      archive,
+      mode: 'record',
+      root,
+      script,
+    });
+    expect(initial.stderr).toBe('');
+    expect(initial.status).toBe(0);
+
+    const changedAnalyzer = runInlineHook({
+      analyzerVersion: 'analyzer-two',
+      archive,
+      mode: 'record',
+      root,
+      script,
+    });
+    expect(changedAnalyzer.stderr).toBe('');
+    expect(changedAnalyzer.status).toBe(0);
+    let document = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
+    expect(document.analyzerVersion).toBe('analyzer-two');
+    expect(document.formatVersion).toBe(3);
+
+    document.formatVersion = 2;
+    fs.writeFileSync(archive, gzipSync(Buffer.from(JSON.stringify(document))));
+    const changedFormat = runInlineHook({
+      analyzerVersion: 'analyzer-three',
+      archive,
+      mode: 'record',
+      root,
+      script,
+    });
+    expect(changedFormat.stderr).toBe('');
+    expect(changedFormat.status).toBe(0);
+    document = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
+    expect(document.analyzerVersion).toBe('analyzer-three');
+    expect(document.formatVersion).toBe(3);
   });
 
   it('rejects corrupt and analyzer-incompatible archives', () => {
