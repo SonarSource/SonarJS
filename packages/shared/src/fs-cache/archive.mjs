@@ -23,6 +23,10 @@ import { gunzipSync, gzipSync } from 'node:zlib';
 export const FS_CACHE_MAGIC = 'sonarjs-filesystem-cache';
 export const FS_CACHE_FORMAT_VERSION = 1;
 
+const ARCHIVE_FILE_MODE = 0o600;
+const LOCK_RETRY_DELAY_MS = 10;
+const LOCK_RETRY_LIMIT = 1_000;
+
 const nativeFs = {
   closeSync: fs.closeSync.bind(fs),
   existsSync: fs.existsSync.bind(fs),
@@ -40,6 +44,29 @@ export class FsCacheArchiveError extends Error {
     this.name = 'FsCacheArchiveError';
     this.code = 'ERR_SONARJS_FS_CACHE_ARCHIVE';
   }
+}
+
+function acquireLock(lockPath, archivePath) {
+  const lockWaiter = new Int32Array(new SharedArrayBuffer(4));
+  for (let attempt = 0; attempt < LOCK_RETRY_LIMIT; attempt++) {
+    try {
+      return nativeFs.openSync(lockPath, 'wx', ARCHIVE_FILE_MODE);
+    } catch (error) {
+      if (error?.code !== 'EEXIST') {
+        throw error;
+      }
+      if (attempt === LOCK_RETRY_LIMIT - 1) {
+        throw new FsCacheArchiveError(
+          `Timed out waiting to write filesystem cache archive: ${archivePath}`,
+          { cause: error },
+        );
+      }
+      Atomics.wait(lockWaiter, 0, 0, LOCK_RETRY_DELAY_MS);
+    }
+  }
+  throw new FsCacheArchiveError(
+    `Timed out waiting to write filesystem cache archive: ${archivePath}`,
+  );
 }
 
 /**
@@ -185,25 +212,8 @@ export class FsCacheArchive {
     const directory = path.dirname(this.archivePath);
     nativeFs.mkdirSync(directory, { recursive: true });
     const lockPath = `${this.archivePath}.lock`;
-    let lockDescriptor;
-    const lockWaiter = new Int32Array(new SharedArrayBuffer(4));
+    const lockDescriptor = acquireLock(lockPath, this.archivePath);
     try {
-      for (let attempt = 0; attempt < 1_000; attempt++) {
-        try {
-          lockDescriptor = nativeFs.openSync(lockPath, 'wx', 0o600);
-          break;
-        } catch (error) {
-          if (error?.code !== 'EEXIST') throw error;
-          if (attempt === 999) {
-            throw new FsCacheArchiveError(
-              `Timed out waiting to write filesystem cache archive: ${this.archivePath}`,
-              { cause: error },
-            );
-          }
-          Atomics.wait(lockWaiter, 0, 0, 10);
-        }
-      }
-
       const ownEntries = this.entries;
       this.entries = new Map();
       this.load();
@@ -230,7 +240,7 @@ export class FsCacheArchive {
       const bytes = gzipSync(Buffer.from(JSON.stringify(document)), { mtime: 0 });
       const temporaryPath = `${this.archivePath}.${process.pid}.${randomUUID()}.tmp`;
       try {
-        nativeFs.writeFileSync(temporaryPath, bytes, { mode: 0o600 });
+        nativeFs.writeFileSync(temporaryPath, bytes, { mode: ARCHIVE_FILE_MODE });
         nativeFs.renameSync(temporaryPath, this.archivePath);
         this.dirty = false;
       } finally {
@@ -239,11 +249,9 @@ export class FsCacheArchive {
         }
       }
     } finally {
-      if (lockDescriptor !== undefined) {
-        nativeFs.closeSync(lockDescriptor);
-        if (nativeFs.existsSync(lockPath)) {
-          nativeFs.unlinkSync(lockPath);
-        }
+      nativeFs.closeSync(lockDescriptor);
+      if (nativeFs.existsSync(lockPath)) {
+        nativeFs.unlinkSync(lockPath);
       }
     }
   }
