@@ -24,6 +24,153 @@ const INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
 const CACHED_FILE_HANDLE = Symbol('cached filesystem file handle');
 const ENOENT_ERRNO = [...getSystemErrorMap()].find(([, [code]]) => code === 'ENOENT')?.[0] ?? -2;
 
+/**
+ * Callable exports available in the oldest supported analyzer runtime, Node 22.12.
+ *
+ * Existing operations that are not cache-aware intentionally retain their native behavior. A
+ * callable added by a newer Node runtime has no reviewed cache or pass-through semantics, so it is
+ * guarded below until support is explicitly decided.
+ */
+const NODE_22_12_FS_CALLABLES = new Set([
+  'Dir',
+  'Dirent',
+  'FSWatcher',
+  'FileReadStream',
+  'FileWriteStream',
+  'ReadStream',
+  'StatWatcher',
+  'Stats',
+  'WriteStream',
+  '_StatWatcher',
+  '_toUnixTimestamp',
+  'access',
+  'accessSync',
+  'appendFile',
+  'appendFileSync',
+  'chmod',
+  'chmodSync',
+  'chown',
+  'chownSync',
+  'close',
+  'closeSync',
+  'copyFile',
+  'copyFileSync',
+  'cp',
+  'cpSync',
+  'createReadStream',
+  'createWriteStream',
+  'exists',
+  'existsSync',
+  'fchmod',
+  'fchmodSync',
+  'fchown',
+  'fchownSync',
+  'fdatasync',
+  'fdatasyncSync',
+  'fstat',
+  'fstatSync',
+  'fsync',
+  'fsyncSync',
+  'ftruncate',
+  'ftruncateSync',
+  'futimes',
+  'futimesSync',
+  'glob',
+  'globSync',
+  'lchmod',
+  'lchmodSync',
+  'lchown',
+  'lchownSync',
+  'link',
+  'linkSync',
+  'lstat',
+  'lstatSync',
+  'lutimes',
+  'lutimesSync',
+  'mkdir',
+  'mkdirSync',
+  'mkdtemp',
+  'mkdtempSync',
+  'open',
+  'openAsBlob',
+  'openSync',
+  'opendir',
+  'opendirSync',
+  'read',
+  'readFile',
+  'readFileSync',
+  'readSync',
+  'readdir',
+  'readdirSync',
+  'readlink',
+  'readlinkSync',
+  'readv',
+  'readvSync',
+  'realpath',
+  'realpathSync',
+  'rename',
+  'renameSync',
+  'rm',
+  'rmSync',
+  'rmdir',
+  'rmdirSync',
+  'stat',
+  'statSync',
+  'statfs',
+  'statfsSync',
+  'symlink',
+  'symlinkSync',
+  'truncate',
+  'truncateSync',
+  'unlink',
+  'unlinkSync',
+  'unwatchFile',
+  'utimes',
+  'utimesSync',
+  'watch',
+  'watchFile',
+  'write',
+  'writeFile',
+  'writeFileSync',
+  'writeSync',
+  'writev',
+  'writevSync',
+]);
+
+const NODE_22_12_FS_PROMISE_CALLABLES = new Set([
+  'access',
+  'appendFile',
+  'chmod',
+  'chown',
+  'copyFile',
+  'cp',
+  'glob',
+  'lchmod',
+  'lchown',
+  'link',
+  'lstat',
+  'lutimes',
+  'mkdir',
+  'mkdtemp',
+  'open',
+  'opendir',
+  'readFile',
+  'readdir',
+  'readlink',
+  'realpath',
+  'rename',
+  'rm',
+  'rmdir',
+  'stat',
+  'statfs',
+  'symlink',
+  'truncate',
+  'unlink',
+  'utimes',
+  'watch',
+  'writeFile',
+]);
+
 const originalFs = Object.fromEntries(
   [
     'access',
@@ -460,6 +607,22 @@ function patch(target, savedDescriptors, name, value) {
     writable: true,
     value,
   });
+}
+
+function guardUnknownCallableExports(target, savedDescriptors, knownCallables, moduleName) {
+  for (const [name, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(target))) {
+    if (typeof descriptor.value !== 'function' || knownCallables.has(name)) {
+      continue;
+    }
+    patch(target, savedDescriptors, name, () => {
+      const error = new Error(
+        `Filesystem cache does not support ${moduleName}.${name} from Node ${process.version}`,
+      );
+      error.name = 'UnsupportedFsOperationError';
+      error.code = 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION';
+      throw error;
+    });
+  }
 }
 
 function createReadFilePatches(executor, fileDescriptors) {
@@ -1258,6 +1421,14 @@ function installPatches(archive) {
   patch(fs.promises, promiseDescriptors, 'readlink', basic.readlinkPromise);
   patch(fs.promises, promiseDescriptors, 'opendir', directory.opendirPromise);
   patch(fs.promises, promiseDescriptors, 'open', openPromise);
+
+  guardUnknownCallableExports(fs, descriptors, NODE_22_12_FS_CALLABLES, 'fs');
+  guardUnknownCallableExports(
+    fs.promises,
+    promiseDescriptors,
+    NODE_22_12_FS_PROMISE_CALLABLES,
+    'fs/promises',
+  );
 
   syncBuiltinESMExports();
 
