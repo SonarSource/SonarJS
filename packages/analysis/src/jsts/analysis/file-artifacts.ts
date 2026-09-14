@@ -293,7 +293,7 @@ export function collectTestFileArtifacts(sourceCode: SourceCode): TestFileArtifa
     includeStructuralMetrics: false,
     includeCommentLines: false,
     includeNoSonar: true,
-    includeNcloc: false,
+    includeNcloc: true,
     includeHighlights: true,
     includeSymbolHighlights: true,
     includeCpdTokens: false,
@@ -301,7 +301,7 @@ export function collectTestFileArtifacts(sourceCode: SourceCode): TestFileArtifa
   });
 
   return {
-    metrics: { nosonarLines: collected.nosonarLines },
+    metrics: { ncloc: collected.ncloc, nosonarLines: collected.nosonarLines },
     highlights: collected.highlights,
     highlightedSymbols: collected.highlightedSymbols,
   };

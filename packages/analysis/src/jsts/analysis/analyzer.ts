@@ -175,7 +175,7 @@ function serializeAst(sourceCode: SourceCode, filePath: NormalizedAbsolutePath) 
  *
  * - SonarLint doesn't care about code metrics except for `NOSONAR` comments
  * - All kinds of metrics are considered for main files.
- * - Symbol highlighting, syntax highlighting and `NOSONAR` comments are only consider
+ * - NCLOC, symbol highlighting, syntax highlighting and `NOSONAR` comments are considered
  *   for test files.
  *
  * @param input the JavaScript / TypeScript analysis input to analyze

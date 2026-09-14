@@ -47,7 +47,7 @@ import { extractSonarResolveCommentsFromCssRoot } from '../../common/sonar-resol
  * CSS in HTML/Vue TEST: not linted (noMetrics + TEST early return), so no CSS issues.
  * Pure CSS MAIN: issues + metrics/highlighting.
  * Pure CSS MAIN with TEST rule selection: no issues, metrics/highlighting kept.
- * Pure CSS TEST: no issues/metrics, highlighting only
+ * Pure CSS TEST: no issues, NCLOC/NOSONAR metrics and highlighting
  *
  * @param input the sanitized CSS analysis input to analyze
  * @param includeMetrics whether to include metrics calculation
@@ -99,17 +99,19 @@ export async function analyzeCSS(
       };
     } else {
       const highlights = computeHighlighting(root, sanitizedCode);
+      const metrics = computeMetrics(root);
       if (isTestFile) {
         return {
           issues,
           highlights,
+          metrics: { ncloc: metrics.ncloc, nosonarLines: metrics.nosonarLines },
           ...(sonarResolveComments.length > 0 ? { sonarResolveComments } : {}),
         };
       }
       return {
         issues,
         highlights,
-        metrics: computeMetrics(root),
+        metrics,
         ...(sonarResolveComments.length > 0 ? { sonarResolveComments } : {}),
       };
     }

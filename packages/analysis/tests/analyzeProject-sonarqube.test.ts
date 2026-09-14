@@ -852,7 +852,7 @@ describe('SonarQube project analysis', () => {
     expect(fileResult && 'parsingErrors' in fileResult).toBe(false);
   });
 
-  it('should not return issues or metrics for TEST CSS files, only highlights', async () => {
+  it('should return NCLOC and highlights but no issues for TEST CSS files', async () => {
     const baseDir = join(fixtures, 'css');
     const cssFile = join(baseDir, 'file.css');
 
@@ -867,17 +867,20 @@ describe('SonarQube project analysis', () => {
 
     const fileResult = result.files[normalizeToAbsolutePath(cssFile)];
     expect(fileResult).toBeDefined();
-    if (fileResult && 'issues' in fileResult) {
+    expect(
+      fileResult && 'issues' in fileResult && 'metrics' in fileResult && 'highlights' in fileResult,
+    ).toBe(true);
+    if (
+      fileResult &&
+      'issues' in fileResult &&
+      'metrics' in fileResult &&
+      'highlights' in fileResult
+    ) {
       // TEST files should have no issues (old CssRuleSensor never analyzed TEST files)
       expect(fileResult.issues).toEqual([]);
-    }
-    if (fileResult && 'highlights' in fileResult && fileResult.highlights) {
       // TEST files should still get highlighting (old CssMetricSensor did this)
-      expect(fileResult.highlights.length).toBeGreaterThan(0);
-    }
-    // Metrics should not be present for TEST files
-    if (fileResult && 'metrics' in fileResult) {
-      expect(fileResult.metrics).toBeUndefined();
+      expect(fileResult.highlights?.length).toBeGreaterThan(0);
+      expect(fileResult.metrics).toEqual({ ncloc: [1, 2, 3], nosonarLines: [] });
     }
   });
 

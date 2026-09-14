@@ -975,7 +975,7 @@ describe('await analyzeJSTS', () => {
     expect(metrics?.cognitiveComplexity).toEqual(0);
   });
 
-  it('should compute metrics on test files', async () => {
+  it('should compute NCLOC and NOSONAR metrics on test files', async () => {
     const rules: RuleConfig[] = [];
     const filePath = path.join(fixtures, 'metrics.js');
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
@@ -1015,6 +1015,7 @@ describe('await analyzeJSTS', () => {
         },
       ],
       metrics: {
+        ncloc: [1, 3, 4, 5, 6],
         nosonarLines: [4],
       },
     });
