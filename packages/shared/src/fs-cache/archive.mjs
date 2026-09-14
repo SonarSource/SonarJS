@@ -158,6 +158,7 @@ export class FsCacheArchiveError extends Error {
     super(message, options);
     this.name = 'FsCacheArchiveError';
     this.code = 'ERR_SONARJS_FS_CACHE_ARCHIVE';
+    this.incompatible = options?.incompatible === true;
   }
 }
 
@@ -260,11 +261,13 @@ export class FsCacheArchive {
     if (document.formatVersion !== FS_CACHE_FORMAT_VERSION) {
       throw new FsCacheArchiveError(
         `Unsupported filesystem cache format ${document.formatVersion}; expected ${FS_CACHE_FORMAT_VERSION}`,
+        { incompatible: true },
       );
     }
     if (this.analyzerVersion && document.analyzerVersion !== this.analyzerVersion) {
       throw new FsCacheArchiveError(
         `Filesystem cache analyzer version ${document.analyzerVersion || '<unspecified>'} does not match ${this.analyzerVersion}`,
+        { incompatible: true },
       );
     }
     if (!Array.isArray(document.entries)) {
@@ -409,17 +412,24 @@ export class FsCacheArchive {
     try {
       const ownEntries = this.entries;
       this.entries = new Map();
+      let mergedEntries;
       try {
         this.load();
+        mergedEntries = this.entries;
       } catch (error) {
+        if (error?.incompatible) {
+          mergedEntries = new Map();
+        } else {
+          throw error;
+        }
+      } finally {
         this.entries = ownEntries;
-        throw error;
       }
       for (const [entryPath, node] of ownEntries) {
-        this.entries.set(entryPath, mergeNodes(this.entries.get(entryPath), node));
+        mergedEntries.set(entryPath, mergeNodes(mergedEntries.get(entryPath), node));
       }
 
-      const entries = [...this.entries.entries()]
+      const entries = [...mergedEntries.entries()]
         .sort(([left], [right]) => left.localeCompare(right))
         .map(([entryPath, node]) => ({
           path: entryPath,
