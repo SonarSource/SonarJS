@@ -21,7 +21,7 @@ import { fileURLToPath } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
 
 export const FS_CACHE_MAGIC = 'sonarjs-filesystem-cache';
-export const FS_CACHE_FORMAT_VERSION = 3;
+export const FS_CACHE_FORMAT_VERSION = 4;
 
 const ARCHIVE_FILE_MODE = 0o600;
 const LOCK_RETRY_DELAY_MS = 10;
@@ -46,6 +46,9 @@ function createNode(node = {}) {
   const result = {};
   if (node.exists !== undefined) {
     result.exists = node.exists;
+  }
+  if (node.linkExists !== undefined) {
+    result.linkExists = node.linkExists;
   }
   if (node.content !== undefined) {
     result.content = node.content;
@@ -72,6 +75,9 @@ function sortedNode(node) {
   const result = {};
   if (node.exists !== undefined) {
     result.exists = node.exists;
+  }
+  if (node.linkExists !== undefined) {
+    result.linkExists = node.linkExists;
   }
   if (node.content !== undefined) {
     result.content = node.content;
@@ -141,6 +147,10 @@ function isMissingOutcome(operation, outcome) {
       outcome.ok &&
       outcome.value === null)
   );
+}
+
+function observesLink(operation) {
+  return operation.startsWith('lstat:') || operation.startsWith('readlink:');
 }
 
 function namesFromEntries(outcome) {
@@ -366,22 +376,38 @@ export class FsCacheArchive {
       this.entries.set(key, node);
     }
 
+    const missing = isMissingOutcome(operation, outcome);
+    const linkOperation = observesLink(operation);
     if (operation === 'exists' && outcome.ok) {
       node.exists = Boolean(outcome.value);
-    } else if (isMissingOutcome(operation, outcome)) {
-      node.exists = false;
+      if (outcome.value) {
+        node.linkExists = true;
+      }
+    } else if (missing) {
+      if (linkOperation) {
+        // A missing directory entry also means there is no target to follow.
+        node.linkExists = false;
+        node.exists = false;
+      } else {
+        // The target may be missing while a dangling symbolic link still exists.
+        node.exists = false;
+      }
     } else if (outcome.ok) {
-      node.exists = true;
+      node.linkExists = true;
+      if (!linkOperation) {
+        node.exists = true;
+      }
     }
 
-    if (operation !== 'exists' && !isMissingOutcome(operation, outcome)) {
+    if (operation !== 'exists' && !missing) {
       writeSlot(node, operationSlot(operation), outcome);
     }
     this.dirty = true;
   }
 
-  getExists(key) {
-    return this.entries.get(key)?.exists;
+  getExists(key, operation = '') {
+    const node = this.entries.get(key);
+    return observesLink(operation) ? node?.linkExists : node?.exists;
   }
 
   recordCacheHit() {
