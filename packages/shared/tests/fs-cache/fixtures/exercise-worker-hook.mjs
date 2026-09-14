@@ -19,8 +19,12 @@ import path from 'node:path';
 import { isMainThread, parentPort, Worker } from 'node:worker_threads';
 
 if (isMainThread) {
+  const main = readFileSync(
+    path.join(process.env.SONARJS_FS_CACHE_ROOT, 'main-input.ts'),
+    'utf8',
+  );
   const worker = new Worker(new URL(import.meta.url));
-  worker.once('message', message => console.log(message));
+  worker.once('message', message => console.log(`${main}|${message}`));
 } else {
   const file = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'worker-input.ts');
   parentPort.postMessage(readFileSync(file, 'utf8'));
