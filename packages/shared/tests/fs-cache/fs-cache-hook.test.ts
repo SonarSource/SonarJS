@@ -20,6 +20,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { afterEach, describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
+import { gunzipSync, gzipSync } from 'node:zlib';
 import { expect } from 'expect';
 
 const register = pathToFileURL(
@@ -64,6 +65,32 @@ function runHook({
   });
 }
 
+function runInlineHook({
+  archive,
+  mode,
+  root,
+  script,
+  strict = true,
+}: {
+  archive: string;
+  mode: 'record' | 'replay';
+  root: string;
+  script: string;
+  strict?: boolean;
+}) {
+  return spawnSync(process.execPath, ['--import', register, '--eval', script], {
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      SONARJS_FS_CACHE_ANALYZER_VERSION: 'test-analyzer',
+      SONARJS_FS_CACHE_ARCHIVE: archive,
+      SONARJS_FS_CACHE_MODE: mode,
+      SONARJS_FS_CACHE_ROOT: root,
+      SONARJS_FS_CACHE_STRICT: strict ? '1' : '0',
+    },
+  });
+}
+
 afterEach(() => {
   for (const directory of temporaryDirectories.splice(0)) {
     fs.rmSync(directory, { force: true, recursive: true });
@@ -88,6 +115,8 @@ describe('filesystem cache preload', () => {
     expect(recorded.status).toBe(0);
     const recordedResult = JSON.parse(recorded.stdout);
     expect(fs.statSync(archive).size).toBeGreaterThan(0);
+    const archiveDocument = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
+    expect(archiveDocument.formatVersion).toBe(2);
     expect(recordedResult.openedDirectoryIsDir).toBe(true);
 
     fs.rmSync(recordRoot, { force: true, recursive: true });
@@ -143,6 +172,181 @@ describe('filesystem cache preload', () => {
     });
     expect(incompatible.status).not.toBe(0);
     expect(incompatible.stderr).toContain('does not match analyzer-two');
+
+    const oldDocument = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
+    oldDocument.formatVersion = 1;
+    fs.writeFileSync(archive, gzipSync(Buffer.from(JSON.stringify(oldDocument))));
+    const oldFormat = runHook({ archive, mode: 'replay', outside, root });
+    expect(oldFormat.status).not.toBe(0);
+    expect(oldFormat.stderr).toContain('Unsupported filesystem cache format 1; expected 2');
+  });
+
+  it('preserves native opendir order for non-alphabetically created entries', () => {
+    const temporary = temporaryDirectory();
+    const recordRoot = path.join(temporary, 'record-root');
+    const replayRoot = path.join(temporary, 'replay-root');
+    const archive = path.join(temporary, 'directory-order.fscache');
+    const directory = path.join(recordRoot, 'entries');
+    fs.mkdirSync(directory, { recursive: true });
+    for (const name of ['zeta', 'beta', 'alpha', 'mid']) {
+      fs.writeFileSync(path.join(directory, name), name);
+    }
+    const script = `
+      import fs from 'node:fs';
+      import path from 'node:path';
+      const directory = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'entries');
+      const syncDirectory = fs.opendirSync(directory);
+      const sync = [];
+      let entry;
+      while ((entry = syncDirectory.readSync()) !== null) sync.push(entry.name);
+      syncDirectory.closeSync();
+      const promisedDirectory = await fs.promises.opendir(directory);
+      const promised = [];
+      for await (const promisedEntry of promisedDirectory) promised.push(promisedEntry.name);
+      console.log(JSON.stringify({ promised, sync }));
+    `;
+
+    const recorded = runInlineHook({ archive, mode: 'record', root: recordRoot, script });
+    expect(recorded.stderr).toBe('');
+    expect(recorded.status).toBe(0);
+    const recordedResult = JSON.parse(recorded.stdout);
+    expect(recordedResult.sync).toHaveLength(4);
+
+    fs.rmSync(recordRoot, { force: true, recursive: true });
+    fs.mkdirSync(replayRoot);
+    const replayed = runInlineHook({ archive, mode: 'replay', root: replayRoot, script });
+    expect(replayed.stderr).toBe('');
+    expect(replayed.status).toBe(0);
+    expect(JSON.parse(replayed.stdout)).toEqual(recordedResult);
+  });
+
+  it('supports omitted-buffer and options-only FileHandle reads during replay', () => {
+    const temporary = temporaryDirectory();
+    const recordRoot = path.join(temporary, 'record-root');
+    const replayRoot = path.join(temporary, 'replay-root');
+    const archive = path.join(temporary, 'file-handle-read.fscache');
+    fs.mkdirSync(recordRoot);
+    fs.writeFileSync(path.join(recordRoot, 'input.ts'), 'recorded content');
+    const script = `
+      import fs from 'node:fs';
+      import path from 'node:path';
+      const file = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'input.ts');
+      const defaultHandle = await fs.promises.open(file);
+      const defaultRead = await defaultHandle.read();
+      await defaultHandle.close();
+      const positionedHandle = await fs.promises.open(file);
+      const positionedRead = await positionedHandle.read({ position: 0 });
+      await positionedHandle.close();
+      console.log(JSON.stringify({
+        defaultRead: defaultRead.buffer.subarray(0, defaultRead.bytesRead).toString(),
+        positionedRead: positionedRead.buffer.subarray(0, positionedRead.bytesRead).toString(),
+      }));
+    `;
+
+    const recorded = runInlineHook({ archive, mode: 'record', root: recordRoot, script });
+    expect(recorded.stderr).toBe('');
+    expect(recorded.status).toBe(0);
+
+    fs.rmSync(recordRoot, { force: true, recursive: true });
+    fs.mkdirSync(replayRoot);
+    const replayed = runInlineHook({ archive, mode: 'replay', root: replayRoot, script });
+    expect(replayed.stderr).toBe('');
+    expect(replayed.status).toBe(0);
+    expect(JSON.parse(replayed.stdout)).toEqual(JSON.parse(recorded.stdout));
+  });
+
+  it('shares cache entries across equivalent read-only open flags and API forms', () => {
+    const temporary = temporaryDirectory();
+    const recordRoot = path.join(temporary, 'record-root');
+    const replayRoot = path.join(temporary, 'replay-root');
+    const archive = path.join(temporary, 'open-flags.fscache');
+    fs.mkdirSync(recordRoot);
+    fs.writeFileSync(path.join(recordRoot, 'input.ts'), 'recorded content');
+    const recordScript = `
+      import fs from 'node:fs';
+      import path from 'node:path';
+      const file = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'input.ts');
+      const fd = fs.openSync(file, fs.constants.O_RDONLY);
+      console.log(fs.readFileSync(fd, 'utf8'));
+      fs.closeSync(fd);
+    `;
+    const replayScript = `
+      import fs from 'node:fs';
+      import path from 'node:path';
+      const file = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'input.ts');
+      const handle = await fs.promises.open(file);
+      console.log(await handle.readFile('utf8'));
+      await handle.close();
+    `;
+
+    const recorded = runInlineHook({
+      archive,
+      mode: 'record',
+      root: recordRoot,
+      script: recordScript,
+    });
+    expect(recorded.stderr).toBe('');
+    expect(recorded.status).toBe(0);
+
+    fs.rmSync(recordRoot, { force: true, recursive: true });
+    fs.mkdirSync(replayRoot);
+    const replayed = runInlineHook({
+      archive,
+      mode: 'replay',
+      root: replayRoot,
+      script: replayScript,
+    });
+    expect(replayed.stderr).toBe('');
+    expect(replayed.status).toBe(0);
+    expect(replayed.stdout).toBe(recorded.stdout);
+  });
+
+  it('recovers stale archive locks', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = path.join(temporary, 'stale-lock.fscache');
+    const lock = `${archive}.lock`;
+    fs.mkdirSync(root);
+    fs.writeFileSync(path.join(root, 'input.ts'), 'recorded content');
+    fs.writeFileSync(lock, 'orphaned lock');
+    const staleTime = new Date(Date.now() - 60_000);
+    fs.utimesSync(lock, staleTime, staleTime);
+    const script = `
+      import fs from 'node:fs';
+      import path from 'node:path';
+      console.log(fs.readFileSync(path.join(process.env.SONARJS_FS_CACHE_ROOT, 'input.ts'), 'utf8'));
+    `;
+
+    const recorded = runInlineHook({ archive, mode: 'record', root, script });
+    expect(recorded.stderr).toBe('');
+    expect(recorded.status).toBe(0);
+    expect(recorded.stdout.trim()).toBe('recorded content');
+    expect(fs.existsSync(archive)).toBe(true);
+    expect(fs.existsSync(lock)).toBe(false);
+  });
+
+  it('keeps exit-time archive flush failures nonfatal', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = path.join(temporary, 'broken-at-exit.fscache');
+    fs.mkdirSync(root);
+    fs.writeFileSync(path.join(root, 'input.ts'), 'analysis result');
+    const script = `
+      import fs from 'node:fs';
+      import path from 'node:path';
+      const result = fs.readFileSync(
+        path.join(process.env.SONARJS_FS_CACHE_ROOT, 'input.ts'),
+        'utf8',
+      );
+      fs.writeFileSync(process.env.SONARJS_FS_CACHE_ARCHIVE, 'not an archive');
+      console.log(result);
+    `;
+
+    const recorded = runInlineHook({ archive, mode: 'record', root, script });
+    expect(recorded.status).toBe(0);
+    expect(recorded.stdout.trim()).toBe('analysis result');
+    expect(recorded.stderr).toContain('Cannot write filesystem cache archive');
+    expect(recorded.stderr).toContain('Cannot read filesystem cache archive');
   });
 
   it('records and replays filesystem access from an inherited worker preload', () => {

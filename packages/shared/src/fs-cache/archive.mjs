@@ -21,11 +21,12 @@ import { fileURLToPath } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
 
 export const FS_CACHE_MAGIC = 'sonarjs-filesystem-cache';
-export const FS_CACHE_FORMAT_VERSION = 1;
+export const FS_CACHE_FORMAT_VERSION = 2;
 
 const ARCHIVE_FILE_MODE = 0o600;
 const LOCK_RETRY_DELAY_MS = 10;
 const LOCK_RETRY_LIMIT = 1_000;
+const LOCK_STALE_AGE_MS = LOCK_RETRY_DELAY_MS * LOCK_RETRY_LIMIT;
 
 const nativeFs = {
   closeSync: fs.closeSync.bind(fs),
@@ -34,6 +35,7 @@ const nativeFs = {
   openSync: fs.openSync.bind(fs),
   readFileSync: fs.readFileSync.bind(fs),
   renameSync: fs.renameSync.bind(fs),
+  statSync: fs.statSync.bind(fs),
   unlinkSync: fs.unlinkSync.bind(fs),
   writeFileSync: fs.writeFileSync.bind(fs),
 };
@@ -46,6 +48,22 @@ export class FsCacheArchiveError extends Error {
   }
 }
 
+function removeStaleLock(lockPath) {
+  try {
+    const age = Date.now() - nativeFs.statSync(lockPath).mtimeMs;
+    if (age < LOCK_STALE_AGE_MS) {
+      return false;
+    }
+    nativeFs.unlinkSync(lockPath);
+    return true;
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      return true;
+    }
+    throw error;
+  }
+}
+
 function acquireLock(lockPath, archivePath) {
   const lockWaiter = new Int32Array(new SharedArrayBuffer(4));
   for (let attempt = 0; attempt < LOCK_RETRY_LIMIT; attempt++) {
@@ -54,6 +72,9 @@ function acquireLock(lockPath, archivePath) {
     } catch (error) {
       if (error?.code !== 'EEXIST') {
         throw error;
+      }
+      if (removeStaleLock(lockPath)) {
+        continue;
       }
       if (attempt === LOCK_RETRY_LIMIT - 1) {
         throw new FsCacheArchiveError(
@@ -216,7 +237,12 @@ export class FsCacheArchive {
     try {
       const ownEntries = this.entries;
       this.entries = new Map();
-      this.load();
+      try {
+        this.load();
+      } catch (error) {
+        this.entries = ownEntries;
+        throw error;
+      }
       for (const [entryPath, operations] of ownEntries) {
         this.entries.set(entryPath, { ...this.entries.get(entryPath), ...operations });
       }

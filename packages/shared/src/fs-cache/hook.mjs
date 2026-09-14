@@ -368,6 +368,13 @@ function readonlyFlags(flags) {
   return (flags & (fs.constants.O_WRONLY | fs.constants.O_RDWR | fs.constants.O_CREAT)) === 0;
 }
 
+function openOperation(flags) {
+  if (flags === undefined || flags === 'r' || flags === fs.constants.O_RDONLY) {
+    return 'open:r';
+  }
+  return `open:${String(flags)}`;
+}
+
 function readArguments(buffer, args) {
   if (args[0] && typeof args[0] === 'object') {
     const offset = args[0].offset ?? 0;
@@ -400,14 +407,6 @@ function makeCallback(promiseFunction) {
 
 function pathOperation(name, options) {
   return `${name}:${getEncoding(options) || 'utf8'}`;
-}
-
-function opendirOptions(options) {
-  return {
-    encoding: typeof options === 'string' ? options : options?.encoding,
-    recursive: Boolean(options?.recursive),
-    withFileTypes: true,
-  };
 }
 
 function opendirOperation(options) {
@@ -738,6 +737,34 @@ class CachedDir {
 }
 Object.setPrototypeOf(CachedDir.prototype, fs.Dir.prototype);
 
+function readDirectoryWithOpendirSync(input, options) {
+  const directory = originalFs.opendirSync(input, options);
+  try {
+    const entries = [];
+    let entry;
+    while ((entry = directory.readSync()) !== null) {
+      entries.push(entry);
+    }
+    return entries;
+  } finally {
+    directory.closeSync();
+  }
+}
+
+async function readDirectoryWithOpendir(input, options) {
+  const directory = await originalPromises.opendir(input, options);
+  try {
+    const entries = [];
+    let entry;
+    while ((entry = await directory.read()) !== null) {
+      entries.push(entry);
+    }
+    return entries;
+  } finally {
+    await directory.close();
+  }
+}
+
 function createDirectoryPatches(archive, executor) {
   function opendirSync(input, options) {
     const operation = opendirOperation(options);
@@ -753,7 +780,7 @@ function createDirectoryPatches(archive, executor) {
       const directory = originalFs.opendirSync(input, options);
       if (archive.mode === 'record' && key !== undefined) {
         try {
-          const entries = originalFs.readdirSync(input, opendirOptions(options));
+          const entries = readDirectoryWithOpendirSync(input, options);
           archive.set(key, operation, success(snapshotDirectoryResult(entries, archive)));
         } catch {
           // Auxiliary capture must not alter a successful opendir call.
@@ -782,7 +809,7 @@ function createDirectoryPatches(archive, executor) {
       const directory = await originalPromises.opendir(input, options);
       if (archive.mode === 'record' && key !== undefined) {
         try {
-          const entries = await originalPromises.readdir(input, opendirOptions(options));
+          const entries = await readDirectoryWithOpendir(input, options);
           archive.set(key, operation, success(snapshotDirectoryResult(entries, archive)));
         } catch {
           // Auxiliary capture must not alter a successful opendir call.
@@ -890,7 +917,7 @@ function createOpenPatches(archive, fileDescriptors) {
     if (!readonlyFlags(flags)) {
       return originalFs.openSync(input, flags, mode);
     }
-    const operation = `open:${String(flags)}`;
+    const operation = openOperation(flags);
     const key = archive.keyFor(input);
     const replayed = replayOpen(input, operation);
     if (replayed.found) {
@@ -937,7 +964,7 @@ function createOpenPatches(archive, fileDescriptors) {
     originalFs.open(input, flags, mode, (error, fd) => {
       const key = archive.keyFor(input);
       if (archive.mode === 'record' && key !== undefined && readonlyFlags(flags)) {
-        const operation = `open:${String(flags)}`;
+        const operation = openOperation(flags);
         archive.set(key, operation, error ? failure(error) : success(null));
         if (!error) {
           captureOpenedFile(input, fd);
@@ -1006,9 +1033,7 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
     if (!tracked?.virtual) {
       return originalFs.fstatSync(fd, options);
     }
-    const outcome =
-      archive.get(tracked.key, statOperation('fstat', options)) ||
-      archive.get(tracked.key, 'fstat:number');
+    const outcome = archive.get(tracked.key, statOperation('fstat', options));
     if (!outcome?.ok) {
       throw cacheMiss('fstat', tracked.key);
     }
@@ -1060,6 +1085,11 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
     }
 
     async read(buffer, ...args) {
+      if (!ArrayBuffer.isView(buffer)) {
+        const options = buffer ?? {};
+        const target = options.buffer ?? Buffer.alloc(16_384);
+        return { bytesRead: readVirtual(this.fd, target, [options]), buffer: target };
+      }
       return { bytesRead: readVirtual(this.fd, buffer, args), buffer };
     }
 
@@ -1095,7 +1125,7 @@ function createOpenPromise(archive, fileDescriptors, openPatches, CachedFileHand
   const { captureOpenedFile, replayOpen } = openPatches;
 
   async function openPromise(input, flags, mode) {
-    const operation = `open:${String(flags)}`;
+    const operation = openOperation(flags);
     if (readonlyFlags(flags)) {
       const replayed = replayOpen(input, operation);
       if (replayed.found) {
@@ -1197,7 +1227,15 @@ export function installFsCache(options) {
   const archive = new FsCacheArchive(options);
   archive.load();
   const uninstallPatches = installPatches(archive);
-  const exitListener = () => archive.flush();
+  const exitListener = () => {
+    try {
+      archive.flush();
+    } catch (error) {
+      process.stderr.write(
+        `Filesystem cache warning: Cannot write filesystem cache archive ${archive.archivePath}: ${error?.message ?? error}\n`,
+      );
+    }
+  };
   process.once('exit', exitListener);
 
   const installation = {
