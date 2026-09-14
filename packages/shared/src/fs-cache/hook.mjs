@@ -16,11 +16,13 @@
  */
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
+import { getSystemErrorMap } from 'node:util';
 import { FsCacheArchive } from './archive.mjs';
 
 const MISSING = Symbol('missing filesystem cache observation');
 const INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
 const CACHED_FILE_HANDLE = Symbol('cached filesystem file handle');
+const ENOENT_ERRNO = [...getSystemErrorMap()].find(([, [code]]) => code === 'ENOENT')?.[0] ?? -2;
 
 const originalFs = Object.fromEntries(
   [
@@ -112,10 +114,16 @@ function missingPath(operation, input) {
   }
   const currentPath = pathDisplay(input);
   const name = operation.split(':', 1)[0];
-  const syscall = name === 'readFile' ? 'open' : name === 'readdir' ? 'scandir' : name;
+  const syscall =
+    {
+      readFile: 'open',
+      readdir: 'scandir',
+      realpath: 'lstat',
+      'realpath.native': 'realpath',
+    }[name] || name;
   const error = new Error(`ENOENT: no such file or directory, ${syscall} '${currentPath}'`);
   error.code = 'ENOENT';
-  error.errno = -2;
+  error.errno = ENOENT_ERRNO;
   error.path = currentPath;
   error.syscall = syscall;
   throw error;
@@ -375,13 +383,21 @@ function readdirOperation(options) {
 
 function snapshotPathResult(value, archive) {
   return {
-    path: archive.encodePortablePath(Buffer.isBuffer(value) ? value.toString() : value),
+    path: archive.encodePortablePath(value.toString()),
   };
 }
 
-function restorePathResult(value, archive, options) {
-  const restored = archive.decodePortablePath(value.path);
-  return getEncoding(options) === 'buffer' ? Buffer.from(restored) : restored;
+function restorePathResult(value, archive) {
+  return Buffer.from(archive.decodePortablePath(value.path));
+}
+
+function withBufferEncoding(options) {
+  return options && typeof options === 'object' ? { ...options, encoding: 'buffer' } : 'buffer';
+}
+
+function returnPathBuffer(value, options) {
+  const encoding = getEncoding(options) || 'utf8';
+  return encoding === 'buffer' ? Buffer.from(value) : value.toString(encoding);
 }
 
 function readonlyFlags(flags) {
@@ -591,25 +607,29 @@ function createBasicPatches(archive, executor) {
   }
 
   function makeRealpathSync(name, original) {
-    return (input, options) =>
-      executor.runSync(
+    return (input, options) => {
+      const value = executor.runSync(
         input,
         pathOperation(name, options),
-        () => original(input, options),
+        () => original(input, withBufferEncoding(options)),
         value => snapshotPathResult(value, archive),
-        value => restorePathResult(value, archive, options),
+        value => restorePathResult(value, archive),
       );
+      return returnPathBuffer(value, options);
+    };
   }
 
   function makeRealpathPromise(name, original) {
-    return (input, options) =>
-      executor.runAsync(
+    return async (input, options) => {
+      const value = await executor.runAsync(
         input,
         pathOperation(name, options),
-        () => original(input, options),
+        () => original(input, withBufferEncoding(options)),
         value => snapshotPathResult(value, archive),
-        value => restorePathResult(value, archive, options),
+        value => restorePathResult(value, archive),
       );
+      return returnPathBuffer(value, options);
+    };
   }
 
   function readlinkSync(input, options) {

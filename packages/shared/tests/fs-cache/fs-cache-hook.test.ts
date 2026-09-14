@@ -91,6 +91,21 @@ function runInlineHook({
   });
 }
 
+function captureError(operation: () => unknown) {
+  try {
+    operation();
+  } catch (error) {
+    const filesystemError = error as NodeJS.ErrnoException;
+    return {
+      code: filesystemError.code,
+      errno: filesystemError.errno,
+      message: filesystemError.message,
+      syscall: filesystemError.syscall,
+    };
+  }
+  throw new Error('Expected a filesystem error');
+}
+
 afterEach(() => {
   for (const directory of temporaryDirectories.splice(0)) {
     fs.rmSync(directory, { force: true, recursive: true });
@@ -213,6 +228,102 @@ describe('filesystem cache preload', () => {
       promisedContent: 'cached content',
       promisedSize: 14,
       size: 14,
+    });
+  });
+
+  it('returns native-shaped errors when consolidated state says a path is absent', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = path.join(temporary, 'missing.fscache');
+    const missing = path.join(root, 'missing.ts');
+    fs.mkdirSync(root);
+    const nativeErrors = {
+      readFile: captureError(() => fs.readFileSync(missing)),
+      realpath: captureError(() => fs.realpathSync(missing)),
+      realpathNative: captureError(() => fs.realpathSync.native(missing)),
+    };
+    const script = `
+      import fs from 'node:fs';
+      const missing = ${JSON.stringify(missing)};
+      const captureError = operation => {
+        try {
+          operation();
+        } catch (error) {
+          return {
+            code: error.code,
+            errno: error.errno,
+            message: error.message,
+            syscall: error.syscall,
+          };
+        }
+        throw new Error('Expected a filesystem error');
+      };
+      fs.existsSync(missing);
+      console.log(JSON.stringify({
+        readFile: captureError(() => fs.readFileSync(missing)),
+        realpath: captureError(() => fs.realpathSync(missing)),
+        realpathNative: captureError(() => fs.realpathSync.native(missing)),
+      }));
+    `;
+
+    const recorded = runInlineHook({ archive, mode: 'record', root, script });
+    expect(recorded.stderr).toBe('');
+    expect(recorded.status).toBe(0);
+    expect(JSON.parse(recorded.stdout)).toEqual(nativeErrors);
+  });
+
+  it('reuses portable realpaths across result encodings', () => {
+    const temporary = temporaryDirectory();
+    const recordRoot = path.join(temporary, 'record-root');
+    const replayRoot = path.join(temporary, 'replay-root');
+    const archive = path.join(temporary, 'realpath-encodings.fscache');
+    const target = path.join(recordRoot, 'target');
+    fs.mkdirSync(target, { recursive: true });
+    const script = `
+      import fs from 'node:fs';
+      import path from 'node:path';
+      const target = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'target');
+      console.log(JSON.stringify({
+        regular: {
+          utf8: fs.realpathSync(target),
+          buffer: fs.realpathSync(target, 'buffer').toString(),
+          hex: fs.realpathSync(target, 'hex'),
+          base64: await fs.promises.realpath(target, 'base64'),
+        },
+        native: {
+          utf8: fs.realpathSync.native(target),
+          buffer: fs.realpathSync.native(target, 'buffer').toString(),
+          hex: fs.realpathSync.native(target, 'hex'),
+          base64: await new Promise((resolve, reject) =>
+            fs.realpath.native(target, 'base64', (error, value) =>
+              error ? reject(error) : resolve(value),
+            ),
+          ),
+        },
+      }));
+    `;
+    const encodedResults = (utf8: string) => ({
+      utf8,
+      buffer: utf8,
+      hex: Buffer.from(utf8).toString('hex'),
+      base64: Buffer.from(utf8).toString('base64'),
+    });
+
+    const recorded = runInlineHook({ archive, mode: 'record', root: recordRoot, script });
+    expect(recorded.stderr).toBe('');
+    expect(recorded.status).toBe(0);
+    const recordedResult = JSON.parse(recorded.stdout);
+    expect(recordedResult.regular).toEqual(encodedResults(recordedResult.regular.utf8));
+    expect(recordedResult.native).toEqual(encodedResults(recordedResult.native.utf8));
+
+    fs.rmSync(recordRoot, { force: true, recursive: true });
+    fs.mkdirSync(replayRoot);
+    const replayed = runInlineHook({ archive, mode: 'replay', root: replayRoot, script });
+    expect(replayed.stderr).toBe('');
+    expect(replayed.status).toBe(0);
+    expect(JSON.parse(replayed.stdout)).toEqual({
+      regular: encodedResults(recordedResult.regular.utf8.replace(recordRoot, replayRoot)),
+      native: encodedResults(recordedResult.native.utf8.replace(recordRoot, replayRoot)),
     });
   });
 
