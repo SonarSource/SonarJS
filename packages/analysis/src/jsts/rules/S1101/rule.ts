@@ -112,7 +112,7 @@ function checkLinks(context: Rule.RuleContext, links: LinkInfo[]) {
     const baseline = siblingBaselines.get(link.name);
     if (!baseline) {
       registerBaseline(siblingBaselines, link);
-    } else if (link.href !== baseline.href) {
+    } else if (link.href !== baseline.href && !(link.conditional && baseline.conditional)) {
       report(
         context,
         {
@@ -130,8 +130,7 @@ function checkLinks(context: Rule.RuleContext, links: LinkInfo[]) {
 
 function registerBaseline(siblingBaselines: Map<string, LinkInfo>, link: LinkInfo) {
   const existing = siblingBaselines.get(link.name);
-  // An unconditional link always wins; a conditional one only seeds an empty slot,
-  // so ordering does not change whether a conflict is detected.
+  // An unconditional link always wins; a conditional one only seeds an empty slot.
   if (!link.conditional || !existing) {
     siblingBaselines.set(link.name, link);
   }
@@ -152,6 +151,9 @@ function resolveScope(anchor: TSESTree.JSXElement): { scope: TSESTree.Node; cond
     if (isConditionalBranchPosition(parent, node)) {
       conditional = true;
     }
+    if (parent.type === 'BlockStatement' && followsEarlyReturnGuard(parent, node)) {
+      conditional = true;
+    }
     if (isScopeBoundary(parent)) {
       return { scope: parent, conditional };
     }
@@ -170,6 +172,42 @@ function isScopeBoundary(node: TSESTree.Node): boolean {
     return !isArgumentOfRenderingCall(node);
   }
   return true;
+}
+
+// True when an earlier sibling statement is an else-less `if` whose consequent always exits
+// (return/throw), making `statement` the implicit "else" and thus mutually exclusive with it.
+function followsEarlyReturnGuard(
+  block: TSESTree.BlockStatement,
+  statement: TSESTree.Node,
+): boolean {
+  const index = block.body.indexOf(statement as TSESTree.Statement);
+  return index > 0 && block.body.slice(0, index).some(isEarlyReturnGuard);
+}
+
+function isEarlyReturnGuard(statement: TSESTree.Node): boolean {
+  return (
+    statement.type === 'IfStatement' && !statement.alternate && alwaysExits(statement.consequent)
+  );
+}
+
+// Conservative: only recognizes the common return/throw and nested-if-with-both-branches shapes,
+// so an undetected exit path simply falls back to the previous (safe) unconditional treatment.
+function alwaysExits(statement: TSESTree.Node): boolean {
+  switch (statement.type) {
+    case 'ReturnStatement':
+    case 'ThrowStatement':
+      return true;
+    case 'BlockStatement':
+      return statement.body.length > 0 && alwaysExits(statement.body[statement.body.length - 1]);
+    case 'IfStatement':
+      return (
+        !!statement.alternate &&
+        alwaysExits(statement.consequent) &&
+        alwaysExits(statement.alternate)
+      );
+    default:
+      return false;
+  }
 }
 
 function isConditionalBranchPosition(parent: TSESTree.Node, child: TSESTree.Node): boolean {

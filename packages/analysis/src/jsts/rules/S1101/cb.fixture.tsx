@@ -12,10 +12,20 @@
   <a href="http://example.com/about">About us</a>;
   <a href="https://example.com/about">About us</a>;
 
+// A different host is a different destination, even with the same scheme and path: Noncompliant.
+  <a href="https://example.com/contact">Contact us</a>;
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
+  <a href="https://other.com/contact">Contact us</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 16.}}
+
+// A protocol-relative href keeps its host too, rather than collapsing onto the local path: Noncompliant.
+  <a href="//cdn.example.com/widget">Widget docs</a>;
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
+  <a href="/widget">Widget docs</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 21.}}
+
 // Different query string is a different destination: Noncompliant.
   <a href="/search?q=cats">Search</a>;
 //^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
-  <a href="/search?q=dogs">Search</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 16.}}
+  <a href="/search?q=dogs">Search</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 26.}}
 
 // A bare in-page fragment is discarded before comparing: compliant.
   <a href="/article#intro">Read more</a>;
@@ -24,7 +34,7 @@
 // A routing-style fragment (leading #/ or #!) is kept as significant: Noncompliant.
   <a href="/app#/profile">Account</a>;
 //^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
-  <a href="/app#/settings">Account</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 25.}}
+  <a href="/app#/settings">Account</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 35.}}
 
 // A dynamic href cannot be resolved statically: the anchor is excluded, never flagged.
   <a href={url}>Dashboard</a>;
@@ -33,7 +43,16 @@
 // aria-label establishes the accessible name, even when the visible text differs.
   <a href="/help/en" aria-label="Get help">FAQ</a>;
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
-  <a href="/help/fr" aria-label="Get help">Support</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 34.}}
+  <a href="/help/fr" aria-label="Get help">Support</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 44.}}
+
+// A numeric expression child renders as visible text and makes the names differ: compliant.
+  <a href="/items/1">Item {1}</a>;
+  <a href="/items/2">Item {2}</a>;
+
+// The numeric contribution is compared, not dropped: same number, different target is Noncompliant.
+  <a href="/items/3">Item {3}</a>;
+//^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
+  <a href="/items/4">Item {3}</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 53.}}
 
 // No accessible name at all: excluded from this rule (see S6827).
   <a href="/settings"><Icon /></a>;
@@ -42,17 +61,17 @@
 // The alt text of a nested image contributes to the accessible name.
   <a href="/team/alice"><img src="alice.png" alt="Team member" /></a>;
 //^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
-  <a href="/team/bob"><img src="bob.png" alt="Team member" /></a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 43.}}
+  <a href="/team/bob"><img src="bob.png" alt="Team member" /></a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 62.}}
 
 // Content hidden from screen readers is skipped when computing the accessible name.
   <a href="/cart"><span aria-hidden="true">→</span> View cart</a>;
 //^^^^^^^^^^^^^^^^> {{Link with the same text.}}
-  <a href="/checkout"><span aria-hidden="true">→</span> View cart</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 48.}}
+  <a href="/checkout"><span aria-hidden="true">→</span> View cart</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 67.}}
 
 // title is used as a last resort accessible name, when there is no text content.
   <a href="/download/en" title="Download the file" />;
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
-  <a href="/download/fr" title="Download the file" />; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 53.}}
+  <a href="/download/fr" title="Download the file" />; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 72.}}
 
 // Only native/JSX "a" elements are considered; role="link" is out of scope for v1.
   <span role="link" onClick={goHome}>Home</span>;
@@ -62,15 +81,20 @@
   <a {...linkProps} href="/one">Learn more</a>;
   <a href="/two">Learn more</a>;
 
+// A resolvable spread that could set a visibility prop (hidden/aria-hidden/style) is also treated
+// as unresolvable: excluded conservatively, so it is never wrongly compared as a visible link.
+  <a {...{ hidden: true }} href="/hidden-spread/1">Spread hidden</a>;
+  <a href="/hidden-spread/2">Spread hidden</a>;
+
 // Each mismatch reports against - and then replaces - the current baseline: every later
 // comparison is against the closest preceding link, not the original first occurrence.
   <a href="/plans/basic">View plans</a>;
 //^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
-  <a href="/plans/pro">View plans</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 67.}}
+  <a href="/plans/pro">View plans</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 91.}}
 //^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
-  <a href="/plans/basic">View plans</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 69.}}
+  <a href="/plans/basic">View plans</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 93.}}
 //^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
-  <a href="/plans/enterprise">View plans</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 71.}}
+  <a href="/plans/enterprise">View plans</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 95.}}
 
 // ---------------------------------------------------------------------------------------------
 // Parent-scoping: only anchors sharing the same immediate JSX parent are compared.
@@ -104,7 +128,7 @@ const sameParent = (
     {[
       <a href="/user/1/edit">Edit</a>,
     //^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
-      <a href="/user/2/edit">Edit</a>, // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 105.}}
+      <a href="/user/2/edit">Edit</a>, // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 129.}}
     ]}
   </div>
 );
@@ -177,6 +201,22 @@ function Toggle({ condition }) {
   return <a href="/toggle/2">Toggle</a>;
 }
 
+// Compliant: a ternary returned directly by a function falls back to the enclosing function as
+// scope, and its two branches are mutually exclusive.
+function renderAnchor(isHome) {
+  return isHome ? <a href="/home">Login</a> : <a href="/">Login</a>;
+}
+
+// Reports an issue: the guard's consequent does not always exit (no return/throw), so the
+// following link is not actually exclusive with it - both can render on the same pass.
+function NotAGuard({ condition }) {
+  if (condition) {
+    <a href="/notaguard/1">Track</a>;
+  //^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
+  }
+  return <a href="/notaguard/2">Track</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 214.}}
+}
+
 // Reports an issue: a conditional link is still checked against an unconditional baseline for
 // its parent and accessible name. Wrapped in an array so the trailing comments sit in expression
 // position rather than raw JSX-children text.
@@ -185,7 +225,19 @@ const conditionalVsBaseline = (
     {[
       <a href="/version/1">Version</a>,
     //^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
-      condition && <a href="/version/2">Version</a>, // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 186.}}
+      condition && <a href="/version/2">Version</a>, // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 226.}}
+    ]}
+  </div>
+);
+
+// Reports an issue: same case as above with the conditional link written first. Source order
+// must not change whether the conflict is detected.
+const baselineVsConditional = (
+  <div>
+    {[
+      condition && <a href="/release/1">Release</a>,
+                 //^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
+      <a href="/release/2">Release</a>, // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 238.}}
     ]}
   </div>
 );
@@ -198,7 +250,7 @@ const conditionalVsBaseline = (
 function Footer() {
   <a href="/footer/1">Contact</a>;
 //^^^^^^^^^^^^^^^^^^^^> {{Link with the same text.}}
-  return <a href="/footer/2">Contact</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 199.}}
+  return <a href="/footer/2">Contact</a>; // Noncompliant {{Use distinct texts or point to the same target for this link and the one at line 251.}}
 }
 
 // Compliant: anchors returned by two different components are never compared.
@@ -207,4 +259,20 @@ function FirstWidget() {
 }
 function SecondWidget() {
   return <a href="/widget/second">Widget</a>;
+}
+
+// ---------------------------------------------------------------------------------------------
+// Known limitations
+// ---------------------------------------------------------------------------------------------
+
+// Known limitation (false negative): a local variable's value isn't resolved for the accessible
+// name, so the first anchor is excluded and never compared, despite both rendering "Sign Out".
+function renderAnchorWithLocalConst(isLoggedIn) {
+  const title = 'Sign Out';
+  return (
+    <>
+      <a href="/logout">{title}</a>
+      <a href="/help">Sign Out</a>
+    </>
+  );
 }
