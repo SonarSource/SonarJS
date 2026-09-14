@@ -90,7 +90,11 @@ export async function analyzeCSS(
 
   try {
     if (input.sonarlint) {
-      const metrics = computeMetrics(root);
+      const metrics = computeMetrics(root, {
+        includeNcloc: false,
+        includeCommentLines: false,
+        includeNoSonar: true,
+      });
       // In SonarLint context, keep only NOSONAR lines (parity with JS/TS and old sensors).
       return {
         issues,
@@ -99,7 +103,11 @@ export async function analyzeCSS(
       };
     } else {
       const highlights = computeHighlighting(root, sanitizedCode);
-      const metrics = computeMetrics(root);
+      const metrics = computeMetrics(root, {
+        includeNcloc: true,
+        includeCommentLines: !isTestFile,
+        includeNoSonar: true,
+      });
       if (isTestFile) {
         return {
           issues,
