@@ -19,7 +19,11 @@ import { expect } from 'expect';
 import { join } from 'node:path/posix';
 import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { analyzeProject, cancelAnalysis } from '../src/analyzeProject.js';
-import { sourceFileStore, tsConfigStore } from '../src/file-stores/index.js';
+import {
+  initFileStoresForAnalysis,
+  sourceFileStore,
+  tsConfigStore,
+} from '../src/file-stores/index.js';
 import { ErrorCode } from '../src/contracts/error.js';
 import ts from 'typescript';
 import { valid } from 'semver';
@@ -27,15 +31,22 @@ import type { RuleConfig } from '../src/jsts/linter/config/rule-config.js';
 import type { RuleConfig as CssRuleConfig } from '../src/css/linter/config.js';
 import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../src/jsts/program/cache/programOptionsCache.js';
-import { sanitizeProjectAnalysisInput } from '../src/common/input-sanitize.js';
+import { sanitizeInputFiles, type ProjectAnalysisFileInput } from '../src/common/input-sanitize.js';
+import {
+  createConfigurationFromInput,
+  type ConfigurationInput,
+} from '../src/common/configuration.js';
 import { DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT } from '../src/jsts/linter/issues/transform.js';
 
-// Helper to initialize file stores for tests - wraps sanitizeProjectAnalysisInput
-async function initForTest(configOptions: object, rawFiles: object) {
-  const { configuration } = await sanitizeProjectAnalysisInput({
-    configuration: configOptions,
-    files: rawFiles,
-  });
+async function initForTest(
+  configOptions: ConfigurationInput,
+  inputFiles?: Record<string, ProjectAnalysisFileInput>,
+) {
+  const configuration = createConfigurationFromInput(configOptions);
+  const sanitizedFiles = inputFiles
+    ? await sanitizeInputFiles(inputFiles, configuration)
+    : undefined;
+  await initFileStoresForAnalysis(configuration, sanitizedFiles?.files);
   return configuration;
 }
 
@@ -167,7 +178,7 @@ describe('SonarQube project analysis', () => {
     const subFile = join(baseDir, 'subdir/file.ts');
 
     // Don't pass explicit files - let the system discover them from tsconfigs
-    const { configuration } = await sanitizeProjectAnalysisInput({ configuration: { baseDir } });
+    const configuration = await initForTest({ baseDir });
     const result = await analyzeProject({ rules, bundles: [] }, configuration);
 
     // Both files should be analyzed despite backslash in tsconfig reference
@@ -181,7 +192,7 @@ describe('SonarQube project analysis', () => {
     const baseDir = join(fixtures, 'nonexistent-reference');
     const filePath = join(baseDir, 'file.ts');
 
-    const { configuration } = await sanitizeProjectAnalysisInput({ configuration: { baseDir } });
+    const configuration = await initForTest({ baseDir });
     const result = await analyzeProject({ rules, bundles: [] }, configuration);
 
     // File should still be analyzed despite invalid reference
@@ -325,9 +336,7 @@ describe('SonarQube project analysis', () => {
     const baseDir = join(fixtures, 'basic');
 
     // Use canAccessFileSystem: false with no files to simulate an empty project
-    const { configuration } = await sanitizeProjectAnalysisInput({
-      configuration: { baseDir, canAccessFileSystem: false },
-    });
+    const configuration = await initForTest({ baseDir, canAccessFileSystem: false });
 
     const result = await analyzeProject({ rules, bundles: [] }, configuration);
 
@@ -379,7 +388,7 @@ describe('SonarQube project analysis', () => {
   it('should handle invalid tsconfig gracefully', async () => {
     const baseDir = join(fixtures, 'invalid-tsconfig');
 
-    const { configuration } = await sanitizeProjectAnalysisInput({ configuration: { baseDir } });
+    const configuration = await initForTest({ baseDir });
     const result = await analyzeProject({ rules, bundles: [] }, configuration);
 
     expect(result.meta.warnings.length).toEqual(1);
@@ -392,7 +401,7 @@ describe('SonarQube project analysis', () => {
   it('should warn when extended tsconfig is missing', async () => {
     const baseDir = join(fixtures, 'missing-extends');
 
-    const { configuration } = await sanitizeProjectAnalysisInput({ configuration: { baseDir } });
+    const configuration = await initForTest({ baseDir });
     const result = await analyzeProject({ rules, bundles: [] }, configuration);
 
     expect(result.meta.warnings.length).toEqual(1);
@@ -1036,7 +1045,7 @@ describe('SonarQube project analysis', () => {
       },
     ];
 
-    const { configuration } = await sanitizeProjectAnalysisInput({ configuration: { baseDir } });
+    const configuration = await initForTest({ baseDir });
     const result = await analyzeProject({ rules: collisionRules, bundles: [] }, configuration);
 
     const initialResult = result.files[normalizeToAbsolutePath(initialFile)];

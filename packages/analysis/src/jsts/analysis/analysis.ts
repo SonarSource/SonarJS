@@ -46,7 +46,6 @@ import type { CssIssue } from '../../css/linter/issues/issue.js';
  * @param tsConfigs a list of normalized absolute paths to TSConfig files
  * @param program an optional pre-created TypeScript Program instance
  * @param skipAst whether to skip AST serialization in the output
- * @param clearDependenciesCache whether to clear the dependencies cache before analysis
  */
 export interface JsTsAnalysisInput extends AnalysisInput {
   fileType: FileType;
@@ -59,8 +58,6 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   tsConfigs: NormalizedAbsolutePath[];
   program?: Program;
   skipAst: boolean;
-  clearDependenciesCache: boolean;
-  reportNclocForTestFiles: boolean;
   detectedEsYear?: number;
   targetEsYear?: number;
 }
@@ -78,7 +75,6 @@ export type FileStatus = 'SAME' | 'CHANGED' | 'ADDED';
  * - allowTsParserJsFiles: true - enable TypeScript parser for better JS analysis
  * - sonarlint: false - not running in SonarLint context by default
  * - skipAst: true - skip AST serialization by default for performance
- * - clearDependenciesCache: false - preserve cache by default
  * - fileType: 'MAIN' - assume main source file unless told otherwise
  * - ruleFileType: 'MAIN' - select main-file rules unless told otherwise
  */
@@ -89,8 +85,6 @@ export const JSTS_ANALYSIS_DEFAULTS = {
   allowTsParserJsFiles: true,
   sonarlint: false,
   skipAst: true,
-  clearDependenciesCache: false,
-  reportNclocForTestFiles: false,
   fileType: 'MAIN' as FileType,
   ruleFileType: 'MAIN' as FileType,
 } as const;

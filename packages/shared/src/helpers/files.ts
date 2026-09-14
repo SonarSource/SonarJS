@@ -25,7 +25,6 @@ import type { NormalizedAbsolutePath } from '../../../analysis/src/jsts/rules/he
 // Accepted layer inversion: shared re-exports rules-side path helpers so non-rules code can
 // import only from shared while keeping eslint-plugin-sonarjs binary generation scoped to rules.
 export {
-  ROOT_PATH,
   dirnamePath,
   isAbsolutePath,
   isRoot,

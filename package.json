@@ -25,8 +25,6 @@
     "bbf:latest": "npm run rspec:refresh && npm run bbf",
     "grpc:generate-proto": "tsx tools/generate-proto.ts",
     "grpc:copy-proto": "tsx tools/generate-proto.ts --copy",
-    "grpc:bundle": "node esbuild-grpc.mjs",
-    "grpc:build": "npm run bridge:build:fast && npm run grpc:bundle",
     "prepare": "husky",
     "precommit": "pretty-quick --staged",
     "postinstall": "patch-package",
@@ -42,8 +40,6 @@
     "eslint-docs": "rimraf --glob lib/docs/*.md && eslint-doc-generator lib --init-rule-docs && tsx tools/generate-external-rules-docs.ts",
     "deploy-rule-data": "tsx tools/deploy-rule-data.ts",
     "license-regeneration": "node license-management.mjs",
-    "docker:build": "npm run grpc:build && docker build -t sonarjs:latest .",
-    "docker:run": "docker run -p 50051:50051 sonarjs:latest",
     "cyclonedx:npm": "cyclonedx-npm --omit dev --spec-version 1.6 --validate --output-file target/bom-npm.json"
   },
   "repository": {
