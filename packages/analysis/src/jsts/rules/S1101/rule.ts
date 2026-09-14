@@ -486,7 +486,7 @@ function normalizeDestination(href: string): string {
   } catch {
     return href;
   }
-  const scheme = hasScheme ? normalizeScheme(url.protocol) : '';
+  const scheme = hasScheme || isProtocolRelative ? normalizeScheme(url.protocol) : '';
   const authority = (hasScheme || isProtocolRelative) && url.host ? `//${url.host}` : '';
   const keepFragment = ROUTING_FRAGMENT_PATTERN.test(url.hash);
   return `${scheme}${authority}${url.pathname}${url.search}${keepFragment ? url.hash : ''}`;
