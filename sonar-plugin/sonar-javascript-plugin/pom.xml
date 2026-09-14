@@ -687,10 +687,6 @@
                   <replacement>https://raw.githubusercontent.com/javaee/javax.annotation/master/LICENSE</replacement>
                 </licenseUrlReplacement>
                 <licenseUrlReplacement>
-                  <regexp>https://github.com/TooTallNate/Java-WebSocket/blob/master/LICENSE</regexp>
-                  <replacement>https://raw.githubusercontent.com/TooTallNate/Java-WebSocket/refs/heads/master/LICENSE</replacement>
-                </licenseUrlReplacement>
-                <licenseUrlReplacement>
                   <regexp>https://opensource.org/license/mit</regexp>
                   <replacement>https://spdx.org/licenses/MIT.txt</replacement>
                 </licenseUrlReplacement>

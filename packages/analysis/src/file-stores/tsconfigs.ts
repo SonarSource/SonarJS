@@ -80,8 +80,7 @@ export class TsConfigStore implements FileStore {
   }
 
   dirtyCachesIfNeeded(configuration: Configuration) {
-    const { baseDir, canAccessFileSystem, tsConfigPaths, fsEvents, clearTsConfigCache } =
-      configuration;
+    const { baseDir, canAccessFileSystem, tsConfigPaths, fsEvents } = configuration;
     if (
       this.baseDir !== baseDir ||
       this.canAccessFileSystem !== canAccessFileSystem ||
@@ -91,19 +90,15 @@ export class TsConfigStore implements FileStore {
       this.clearCache();
       return;
     }
-    let shouldClear = clearTsConfigCache;
     for (const filename of fsEvents) {
       if (
         this.getTsConfigs().includes(filename) ||
         (this.usingLookupTsConfigs() && this.filenameMatchesTsConfig(filename)) ||
         (this.usingPropertyTsConfigs() && this.filenameMatchesProvidedTsConfig(filename))
       ) {
-        shouldClear = true;
-        break;
+        this.clearCache();
+        return;
       }
-    }
-    if (shouldClear) {
-      this.clearCache();
     }
   }
 
