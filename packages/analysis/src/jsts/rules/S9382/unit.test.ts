@@ -59,6 +59,31 @@ describe('S9382', () => {
         bar(x); // Compliant: the await in the for-await-of header is not reported either
       }
     }`),
+
+        // Suppressed by the early-exit decorator (guillemsarda's motivating FP, PR #7900):
+        // the await is followed, elsewhere in the loop body, by a return that ends the loop.
+        valid(`
+    async function foo(arr) {
+      for (const x of arr) {
+        const r = await fetch(x);
+        if (r.ok) {
+          return r;
+        }
+      }
+    }`),
+
+        // Known accepted false negative: an independent per-item search-and-return-first-match
+        // loop hits the same later-return/break heuristic, even though each iteration is
+        // genuinely parallelizable (real corpus idiom, e.g. GitHub Desktop's editors/darwin.ts
+        // and find-account.ts).
+        valid(`
+    async function findInstalled(paths) {
+      for (const path of paths) {
+        if (await pathExists(path)) {
+          return path;
+        }
+      }
+    }`),
       ],
 
       invalid: [
@@ -94,31 +119,6 @@ describe('S9382', () => {
     async function foo(obj) {
       for (const key in obj) {
         await bar(key);
-      }
-    }`),
-
-        // To be suppressed once the early-exit decorator lands (guillemsarda's motivating FP, PR #7900):
-        // the await is followed, elsewhere in the loop body, by a return that ends the loop.
-        invalid(`
-    async function foo(arr) {
-      for (const x of arr) {
-        const r = await fetch(x);
-        if (r.ok) {
-          return r;
-        }
-      }
-    }`),
-
-        // Known accepted false negative once the decorator lands: an independent per-item
-        // search-and-return-first-match loop hits the same later-return/break heuristic,
-        // even though each iteration is genuinely parallelizable (real corpus idiom, e.g.
-        // GitHub Desktop's editors/darwin.ts and find-account.ts).
-        invalid(`
-    async function findInstalled(paths) {
-      for (const path of paths) {
-        if (await pathExists(path)) {
-          return path;
-        }
       }
     }`),
       ],
