@@ -37,10 +37,10 @@ available in Node 22.12 and operations added by a newer runtime. This prevents a
 from silently bypassing recording or replay before the operation's semantics have been explicitly
 implemented. `writeSync` passes through only for the stdout and stderr descriptors that Node uses
 for diagnostics; archive serialization uses privately captured native primitives. Write-capable
-opens, writes to other descriptors, and reads from unknown descriptors fail closed. Synchronous APIs throw
-`ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION`; `fs/promises` APIs return a rejected promise with the
-same error, matching their native call contract. An unhandled rejection therefore terminates Node
-normally.
+opens, writes to other descriptors, and reads from unknown descriptors fail closed. Synchronous
+APIs throw `ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION`. Promise-returning `fs/promises` APIs
+return a rejected promise with the same error; `glob` and `watch`, whose native contract returns an
+async iterable synchronously, throw immediately instead.
 
 The preload patches Node's builtin `fs` objects directly and synchronizes their ESM exports. It
 does not register Node customization hooks: those hooks intercept the entire module graph on a
