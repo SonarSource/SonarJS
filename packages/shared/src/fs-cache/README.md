@@ -31,10 +31,12 @@ is written atomically during normal process exit or when
 intentionally outside the scope of this hook.
 
 The cache exists only when Node is explicitly started with this preload. Standard analyzer code is
-unaware of it, and SonarLint must not enable the preload. Callable `fs` exports that did not exist
-in the minimum supported Node 22.12 runtime fail when invoked while the hook is active. This
-prevents a newer Node filesystem API from silently bypassing recording or replay before its
-semantics have been explicitly reviewed. Synchronous APIs throw
+unaware of it, and SonarLint must not enable the preload. Every callable filesystem operation that
+the cache does not patch fails when invoked while the hook is active, including operations already
+available in Node 22.12 and operations added by a newer runtime. This prevents a dependency update
+from silently bypassing recording or replay before the operation's semantics have been explicitly
+implemented. The only explicit native pass-through is `writeSync`, which Node itself uses for
+stdout and stderr; it cannot expose project filesystem state. Synchronous APIs throw
 `ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION`; `fs/promises` APIs return a rejected promise with the
 same error, matching their native call contract. An unhandled rejection therefore terminates Node
 normally.
