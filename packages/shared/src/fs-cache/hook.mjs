@@ -17,7 +17,7 @@
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { getSystemErrorMap } from 'node:util';
-import { FsCacheArchive } from './archive.mjs';
+import { createFsCacheArchive } from './archive-factory.mjs';
 
 const MISSING = Symbol('missing filesystem cache observation');
 const INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
@@ -1400,7 +1400,7 @@ export function installFsCache(options) {
     return globalThis[INSTALLATION];
   }
 
-  const archive = new FsCacheArchive(options);
+  const archive = createFsCacheArchive(options);
   if (archive.mode === 'replay') {
     archive.load();
   }
@@ -1442,6 +1442,7 @@ export function installFsCacheFromEnvironment(environment = process.env) {
     rootDir: environment.SONARJS_FS_CACHE_ROOT,
     strict: environment.SONARJS_FS_CACHE_STRICT === '1',
     analyzerVersion: environment.SONARJS_FS_CACHE_ANALYZER_VERSION,
+    archiveBackend: environment.SONARJS_FS_CACHE_ARCHIVE_BACKEND,
   });
 }
 

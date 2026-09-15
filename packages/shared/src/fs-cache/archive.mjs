@@ -54,7 +54,7 @@ function writeFileWithNativePrimitives(filePath, bytes, mode) {
 
 const MAP_FIELDS = ['access', 'directories', 'opens', 'readlinks', 'realpaths', 'stats', 'other'];
 
-function createNode(node = {}) {
+export function createNode(node = {}) {
   const result = {};
   if (node.exists !== undefined) {
     result.exists = node.exists;
@@ -73,7 +73,7 @@ function createNode(node = {}) {
   return result;
 }
 
-function mergeNodes(base = {}, update = {}) {
+export function mergeNodes(base = {}, update = {}) {
   const result = { ...base, ...update };
   for (const field of MAP_FIELDS) {
     if (base[field] || update[field]) {
@@ -83,7 +83,7 @@ function mergeNodes(base = {}, update = {}) {
   return result;
 }
 
-function sortedNode(node) {
+export function sortedNode(node) {
   const result = {};
   if (node.exists !== undefined) {
     result.exists = node.exists;
