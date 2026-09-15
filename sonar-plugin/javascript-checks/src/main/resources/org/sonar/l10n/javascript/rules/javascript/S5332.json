@@ -15,7 +15,8 @@
   },
   "tags": [
     "cwe",
-    "former-hotspot"
+    "former-hotspot",
+    "cryptography"
   ],
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-5332",
