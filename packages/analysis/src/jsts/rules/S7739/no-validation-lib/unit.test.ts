@@ -34,8 +34,8 @@ describe('S7739', () => {
   const tsRuleTester = new NoTypeCheckingRuleTester();
   const testFilePath = join(dirname, TEST_FILENAME);
   const tsTestFilePath = join(dirname, TS_TEST_FILENAME);
-  it('S7739 reports when no validation library is a dependency', () => {
-    ruleTester.run('S7739 reports when no validation library is a dependency', rule, {
+  it('S7739 in a project without a validation library dependency', () => {
+    ruleTester.run('S7739 in a project without a validation library dependency', rule, {
       valid: [
         {
           code: `const obj = { foo: 'bar' };`,
