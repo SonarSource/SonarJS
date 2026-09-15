@@ -75,6 +75,7 @@ function runInlineHook({
   archive,
   archiveBackend,
   analyzerVersion = 'test-analyzer',
+  diskMemoryLimitMb,
   mode,
   root,
   script,
@@ -83,6 +84,7 @@ function runInlineHook({
   archive: string;
   archiveBackend?: 'disk' | 'json';
   analyzerVersion?: string;
+  diskMemoryLimitMb?: number;
   mode: 'record' | 'replay';
   root: string;
   script: string;
@@ -95,6 +97,7 @@ function runInlineHook({
       SONARJS_FS_CACHE_ANALYZER_VERSION: analyzerVersion,
       SONARJS_FS_CACHE_ARCHIVE: archive,
       SONARJS_FS_CACHE_ARCHIVE_BACKEND: archiveBackend,
+      SONARJS_FS_CACHE_DISK_MEMORY_LIMIT_MB: diskMemoryLimitMb?.toString(),
       SONARJS_FS_CACHE_MODE: mode,
       SONARJS_FS_CACHE_ROOT: root,
       SONARJS_FS_CACHE_STRICT: strict ? '1' : '0',
@@ -218,6 +221,39 @@ describe('filesystem cache preload', () => {
     expect(JSON.parse(result.stdout)).toEqual({
       after: 'recorded content',
       before: 'recorded content',
+    });
+  });
+
+  it('bounds the disk backend hot-content cache', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = path.join(temporary, 'bounded-disk.fscache');
+    fs.mkdirSync(root);
+    fs.writeFileSync(path.join(root, 'first.ts'), '12345678');
+    fs.writeFileSync(path.join(root, 'second.ts'), 'abcdefgh');
+    const script = `
+      import fs from 'node:fs';
+      import path from 'node:path';
+      for (const name of ['first.ts', 'second.ts']) {
+        fs.readFileSync(path.join(process.env.SONARJS_FS_CACHE_ROOT, name));
+      }
+      console.log(JSON.stringify(
+        globalThis[Symbol.for('sonarjs.filesystemCache.installation')].getStatistics(),
+      ));
+    `;
+    const result = runInlineHook({
+      archive,
+      archiveBackend: 'disk',
+      diskMemoryLimitMb: 0.00001,
+      mode: 'record',
+      root,
+      script,
+    });
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout)).toMatchObject({
+      contentCacheBytes: 8,
+      contentCacheLimitBytes: 10,
     });
   });
 

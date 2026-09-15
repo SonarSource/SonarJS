@@ -18,8 +18,9 @@ syntax = "proto3";
 
 package sonarsource.sonarjs.fs_cache;
 
-// This index follows the compressed blob section of a disk archive. The fixed footer stores the
-// index offset and length, so readers never scan or deserialize file contents to find an entry.
+// A compressed encoding of this index follows the compressed blob section of a disk archive. The
+// fixed footer stores its offset and compressed length, so readers never scan or deserialize file
+// contents to find an entry.
 message DiskArchiveIndex {
   string magic = 1;
   uint32 format_version = 2;

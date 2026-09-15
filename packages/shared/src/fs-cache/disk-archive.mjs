@@ -27,7 +27,7 @@ import {
 } from './archive.mjs';
 
 const DISK_ARCHIVE_MAGIC = 'sonarjs-filesystem-cache-disk';
-const DISK_ARCHIVE_FORMAT_VERSION = 1;
+const DISK_ARCHIVE_FORMAT_VERSION = 2;
 const HEADER_MAGIC = Buffer.from('SJFSCB01');
 const FOOTER_MAGIC = Buffer.from('SJFSCEND');
 const FOOTER_LENGTH = FOOTER_MAGIC.length + 16;
@@ -328,28 +328,40 @@ function readIndex(archivePath) {
     ) {
       throw new FsCacheArchiveError('Filesystem cache disk archive index is out of bounds');
     }
-    return decodeIndex(readExact(descriptor, indexLength, indexOffset));
+    return decodeIndex(gunzipSync(readExact(descriptor, indexLength, indexOffset)));
   } finally {
     nativeFs.closeSync(descriptor);
   }
 }
 
-function copyBlob(source, targetDescriptor, targetOffset) {
-  const sourceDescriptor = nativeFs.openSync(source.sourcePath, 'r');
-  try {
-    const buffer = Buffer.allocUnsafe(Math.min(COPY_BUFFER_SIZE, source.compressedLength));
-    let copied = 0;
-    while (copied < source.compressedLength) {
-      const length = Math.min(buffer.length, source.compressedLength - copied);
-      const read = nativeFs.readSync(sourceDescriptor, buffer, 0, length, source.offset + copied);
-      if (read === 0) {
-        throw new FsCacheArchiveError('Filesystem cache compressed content ended unexpectedly');
-      }
-      writeAll(targetDescriptor, buffer.subarray(0, read), targetOffset + copied);
-      copied += read;
+function cachedDescriptor(descriptors, sourcePath) {
+  let descriptor = descriptors.get(sourcePath);
+  if (descriptor === undefined) {
+    descriptor = nativeFs.openSync(sourcePath, 'r');
+    descriptors.set(sourcePath, descriptor);
+  }
+  return descriptor;
+}
+
+function closeDescriptors(descriptors) {
+  for (const descriptor of descriptors.values()) {
+    nativeFs.closeSync(descriptor);
+  }
+  descriptors.clear();
+}
+
+function copyBlob(source, targetDescriptor, targetOffset, sourceDescriptors) {
+  const sourceDescriptor = cachedDescriptor(sourceDescriptors, source.sourcePath);
+  const buffer = Buffer.allocUnsafe(Math.min(COPY_BUFFER_SIZE, source.compressedLength));
+  let copied = 0;
+  while (copied < source.compressedLength) {
+    const length = Math.min(buffer.length, source.compressedLength - copied);
+    const read = nativeFs.readSync(sourceDescriptor, buffer, 0, length, source.offset + copied);
+    if (read === 0) {
+      throw new FsCacheArchiveError('Filesystem cache compressed content ended unexpectedly');
     }
-  } finally {
-    nativeFs.closeSync(sourceDescriptor);
+    writeAll(targetDescriptor, buffer.subarray(0, read), targetOffset + copied);
+    copied += read;
   }
 }
 
@@ -362,6 +374,16 @@ function copyBlob(source, targetDescriptor, targetOffset) {
 export class DiskFsCacheArchive extends FsCacheArchive {
   constructor(options) {
     super(options);
+    const memoryLimitMb = Number(options.diskMemoryLimitMb ?? 0);
+    if (!Number.isFinite(memoryLimitMb) || memoryLimitMb < 0) {
+      throw new FsCacheArchiveError(
+        `Invalid disk filesystem cache memory limit: ${options.diskMemoryLimitMb}`,
+      );
+    }
+    this.contentCacheLimit = Math.floor(memoryLimitMb * 1024 * 1024);
+    this.contentCache = new Map();
+    this.contentCacheBytes = 0;
+    this.sourceDescriptors = new Map();
     this.spoolPath = `${this.archivePath}.${process.pid}.${randomUUID()}.spool`;
     this.spoolDescriptor = undefined;
     this.spoolOffset = 0;
@@ -424,19 +446,23 @@ export class DiskFsCacheArchive extends FsCacheArchive {
     if (!blob) {
       return outcome;
     }
-    const descriptor = nativeFs.openSync(blob.sourcePath, 'r');
-    try {
-      const compressed = readExact(descriptor, blob.compressedLength, blob.offset);
-      const content = gunzipSync(compressed);
-      if (content.length !== blob.rawLength) {
-        throw new FsCacheArchiveError(
-          `Filesystem cache content length ${content.length} does not match ${blob.rawLength}`,
-        );
-      }
-      return { ok: true, value: content.toString('base64') };
-    } finally {
-      nativeFs.closeSync(descriptor);
+    const cacheKey = this.contentCacheKey(blob);
+    let content = this.contentCache.get(cacheKey);
+    if (content !== undefined) {
+      this.contentCache.delete(cacheKey);
+      this.contentCache.set(cacheKey, content);
+      return { ok: true, value: content };
     }
+    const descriptor = cachedDescriptor(this.sourceDescriptors, blob.sourcePath);
+    const compressed = readExact(descriptor, blob.compressedLength, blob.offset);
+    content = gunzipSync(compressed);
+    if (content.length !== blob.rawLength) {
+      throw new FsCacheArchiveError(
+        `Filesystem cache content length ${content.length} does not match ${blob.rawLength}`,
+      );
+    }
+    this.cacheContent(cacheKey, content);
+    return { ok: true, value: content };
   }
 
   set(key, operation, outcome) {
@@ -464,8 +490,45 @@ export class DiskFsCacheArchive extends FsCacheArchive {
           },
         },
       };
+      this.cacheContent(this.contentCacheKey(outcome.value[BLOB_REFERENCE]), content);
     }
     super.set(key, operation, outcome);
+  }
+
+  contentCacheKey(blob) {
+    return `${blob.sourcePath}\0${blob.offset}\0${blob.compressedLength}\0${blob.rawLength}`;
+  }
+
+  cacheContent(key, content) {
+    if (this.contentCacheLimit === 0 || content.length > this.contentCacheLimit) {
+      return;
+    }
+    const previous = this.contentCache.get(key);
+    if (previous !== undefined) {
+      this.contentCacheBytes -= previous.length;
+      this.contentCache.delete(key);
+    }
+    this.contentCache.set(key, content);
+    this.contentCacheBytes += content.length;
+    while (this.contentCacheBytes > this.contentCacheLimit) {
+      const oldestKey = this.contentCache.keys().next().value;
+      const oldest = this.contentCache.get(oldestKey);
+      this.contentCache.delete(oldestKey);
+      this.contentCacheBytes -= oldest.length;
+    }
+  }
+
+  clearContentCache() {
+    this.contentCache.clear();
+    this.contentCacheBytes = 0;
+  }
+
+  getStatistics() {
+    return {
+      ...super.getStatistics(),
+      contentCacheBytes: this.contentCacheBytes,
+      contentCacheLimitBytes: this.contentCacheLimit,
+    };
   }
 
   closeSpool() {
@@ -475,11 +538,18 @@ export class DiskFsCacheArchive extends FsCacheArchive {
     }
   }
 
+  close() {
+    this.closeSpool();
+    closeDescriptors(this.sourceDescriptors);
+    this.clearContentCache();
+  }
+
   flush() {
     if (this.mode !== 'record' || !this.dirty) {
       return;
     }
     this.closeSpool();
+    closeDescriptors(this.sourceDescriptors);
     const directory = path.dirname(this.archivePath);
     nativeFs.mkdirSync(directory, { recursive: true });
     const lockPath = `${this.archivePath}.lock`;
@@ -508,6 +578,7 @@ export class DiskFsCacheArchive extends FsCacheArchive {
       }
 
       const descriptor = nativeFs.openSync(temporaryPath, 'w', ARCHIVE_FILE_MODE);
+      const sourceDescriptors = new Map();
       try {
         writeAll(descriptor, HEADER_MAGIC, 0);
         let offset = HEADER_MAGIC.length;
@@ -519,20 +590,23 @@ export class DiskFsCacheArchive extends FsCacheArchive {
           const source = blobReference(node.content);
           const output = blobReference(outputNode.content);
           if (source && output) {
-            copyBlob(source, descriptor, offset);
+            copyBlob(source, descriptor, offset, sourceDescriptors);
             output.offset = offset;
             offset += output.compressedLength;
           }
           entries.push({ path: entryPath, node: outputNode });
         }
-        const index = encodeIndex({
-          magic: DISK_ARCHIVE_MAGIC,
-          formatVersion: DISK_ARCHIVE_FORMAT_VERSION,
-          analyzerVersion: this.analyzerVersion,
-          createdAt: this.createdAt,
-          updatedAt: new Date().toISOString(),
-          entries,
-        });
+        const index = gzipSync(
+          encodeIndex({
+            magic: DISK_ARCHIVE_MAGIC,
+            formatVersion: DISK_ARCHIVE_FORMAT_VERSION,
+            analyzerVersion: this.analyzerVersion,
+            createdAt: this.createdAt,
+            updatedAt: new Date().toISOString(),
+            entries,
+          }),
+          { mtime: 0 },
+        );
         writeAll(descriptor, index, offset);
         const footer = Buffer.alloc(FOOTER_LENGTH);
         FOOTER_MAGIC.copy(footer);
@@ -540,6 +614,7 @@ export class DiskFsCacheArchive extends FsCacheArchive {
         footer.writeBigUInt64LE(BigInt(index.length), FOOTER_MAGIC.length + 8);
         writeAll(descriptor, footer, offset + index.length);
       } finally {
+        closeDescriptors(sourceDescriptors);
         nativeFs.closeSync(descriptor);
       }
       nativeFs.renameSync(temporaryPath, this.archivePath);
@@ -548,6 +623,7 @@ export class DiskFsCacheArchive extends FsCacheArchive {
       }
       this.spoolPath = `${this.archivePath}.${process.pid}.${randomUUID()}.spool`;
       this.spoolOffset = 0;
+      this.clearContentCache();
       this.load();
       this.dirty = false;
     } finally {

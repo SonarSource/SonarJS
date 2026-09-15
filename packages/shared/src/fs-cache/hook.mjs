@@ -256,6 +256,10 @@ function returnReadBuffer(buffer, options) {
   return encoding ? buffer.toString(encoding) : Buffer.from(buffer);
 }
 
+function restoreContent(value) {
+  return Buffer.isBuffer(value) ? value : Buffer.from(value, 'base64');
+}
+
 function snapshotStat(stat) {
   const fields = [
     'dev',
@@ -547,7 +551,7 @@ function createReadFilePatches(executor, fileDescriptors, fileHandles) {
       'readFile',
       () => originalFs.readFileSync(input, withoutEncoding(options)),
       value => value.toString('base64'),
-      value => Buffer.from(value, 'base64'),
+      restoreContent,
     );
     return returnReadBuffer(buffer, options);
   }
@@ -564,7 +568,7 @@ function createReadFilePatches(executor, fileDescriptors, fileHandles) {
       'readFile',
       () => originalPromises.readFile(input, withoutEncoding(options)),
       value => value.toString('base64'),
-      value => Buffer.from(value, 'base64'),
+      restoreContent,
     );
     return returnReadBuffer(buffer, options);
   }
@@ -1032,7 +1036,7 @@ function createOpenPatches(archive, fileDescriptors) {
     const fd = nextFileDescriptor;
     nextFileDescriptor -= 1;
     fileDescriptors.set(fd, {
-      content: file.ok ? Buffer.from(file.value, 'base64') : undefined,
+      content: file.ok ? restoreContent(file.value) : undefined,
       input: pathDisplay(input),
       key,
       position: 0,
@@ -1412,6 +1416,8 @@ export function installFsCache(options) {
       process.stderr.write(
         `Filesystem cache warning: Cannot write filesystem cache archive ${archive.archivePath}: ${error?.message ?? error}\n`,
       );
+    } finally {
+      archive.close?.();
     }
   };
   process.once('exit', exitListener);
@@ -1423,6 +1429,7 @@ export function installFsCache(options) {
     uninstall() {
       process.removeListener('exit', exitListener);
       archive.flush();
+      archive.close?.();
       uninstallPatches();
       delete globalThis[INSTALLATION];
     },
@@ -1443,6 +1450,7 @@ export function installFsCacheFromEnvironment(environment = process.env) {
     strict: environment.SONARJS_FS_CACHE_STRICT === '1',
     analyzerVersion: environment.SONARJS_FS_CACHE_ANALYZER_VERSION,
     archiveBackend: environment.SONARJS_FS_CACHE_ARCHIVE_BACKEND,
+    diskMemoryLimitMb: environment.SONARJS_FS_CACHE_DISK_MEMORY_LIMIT_MB,
   });
 }
 

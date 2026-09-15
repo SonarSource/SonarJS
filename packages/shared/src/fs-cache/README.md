@@ -24,10 +24,17 @@ root instead of passing them through to the live filesystem. An optional
 - `json` (the default) preserves the original implementation. It retains semantic nodes and
   base64 file contents in memory, then writes one gzip-compressed JSON document at flush time.
 - `disk` compresses each observed file content immediately into a private spool file. It retains
-  only semantic metadata and blob offsets in memory, and finalizes one archive containing the
-  compressed blobs, a protobuf index, and a fixed footer locating that index. Replay seeks to and
-  decompresses only the requested blob. Protobuf supplies the versioned index encoding; compression
-  is per content blob so that the archive remains randomly readable.
+  semantic metadata, blob offsets, and a bounded hot-content cache in memory, and finalizes one
+  archive containing the compressed blobs, a compressed protobuf index, and a fixed footer locating
+  that index. Replay seeks to and decompresses only the requested blob. Protobuf supplies the
+  versioned index encoding; compression is per content blob so that the archive remains randomly
+  readable.
+
+The disk backend's raw-content LRU is disabled by default. Set
+`SONARJS_FS_CACHE_DISK_MEMORY_LIMIT_MB` to a positive size to trade a bounded amount of memory for
+hot content reads. The default forces every content hit through the compressed archive and keeps
+retained content memory independent of project size. The setting does not change which filesystem
+observations are recorded.
 
 Record and replay must use the same backend. Keeping the selection outside the hook contract lets
 the storage implementation change without making the analyzer or its file stores aware of it.
