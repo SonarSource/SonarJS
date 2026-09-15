@@ -118,6 +118,68 @@ afterEach(() => {
 });
 
 describe('filesystem cache preload', () => {
+  it('switches analysis archives while inactive filesystem calls stay native', () => {
+    const temporary = temporaryDirectory();
+    const recordRoot = path.join(temporary, 'record-root');
+    const replayRoot = path.join(temporary, 'replay-root');
+    const archive = path.join(temporary, 'analysis.fscache');
+    const inactiveFile = path.join(temporary, 'inactive.txt');
+    fs.mkdirSync(recordRoot);
+    fs.writeFileSync(path.join(recordRoot, 'input.ts'), 'recorded content');
+    const environment = { ...process.env };
+    delete environment.SONARJS_FS_CACHE_MODE;
+    delete environment.SONARJS_FS_CACHE_ARCHIVE;
+    delete environment.SONARJS_FS_CACHE_ROOT;
+    const script = `
+      import fs from 'node:fs';
+      const installation = globalThis[Symbol.for('sonarjs.filesystemCache.installation')];
+      const readFileSync = fs.readFileSync;
+      fs.writeFileSync(${JSON.stringify(inactiveFile)}, 'before');
+      const record = installation.beginAnalysis({
+        archivePath: ${JSON.stringify(archive)},
+        mode: 'record',
+        rootDir: ${JSON.stringify(recordRoot)},
+      });
+      let activeWriteError;
+      try {
+        fs.writeFileSync(${JSON.stringify(inactiveFile)}, 'during');
+      } catch (error) {
+        activeWriteError = error.code;
+      }
+      const recorded = readFileSync(${JSON.stringify(path.join(recordRoot, 'input.ts'))}, 'utf8');
+      record.end();
+      fs.rmSync(${JSON.stringify(recordRoot)}, { force: true, recursive: true });
+      fs.mkdirSync(${JSON.stringify(replayRoot)});
+      const replay = installation.beginAnalysis({
+        archivePath: ${JSON.stringify(archive)},
+        mode: 'replay',
+        rootDir: ${JSON.stringify(replayRoot)},
+        strict: true,
+      });
+      const replayed = readFileSync(${JSON.stringify(path.join(replayRoot, 'input.ts'))}, 'utf8');
+      replay.end();
+      fs.writeFileSync(${JSON.stringify(inactiveFile)}, 'after');
+      console.log(JSON.stringify({
+        activeWriteError,
+        inactive: readFileSync(${JSON.stringify(inactiveFile)}, 'utf8'),
+        recorded,
+        replayed,
+      }));
+    `;
+    const result = spawnSync(process.execPath, ['--import', register, '--eval', script], {
+      encoding: 'utf8',
+      env: environment,
+    });
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual({
+      activeWriteError: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+      inactive: 'after',
+      recorded: 'recorded content',
+      replayed: 'recorded content',
+    });
+  });
+
   it('records and replays all import styles and read APIs from another root', () => {
     const temporary = temporaryDirectory();
     const recordRoot = path.join(temporary, 'record-root');

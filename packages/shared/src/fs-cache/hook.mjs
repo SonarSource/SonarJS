@@ -22,6 +22,47 @@ import { FsCacheArchive } from './archive.mjs';
 const MISSING = Symbol('missing filesystem cache observation');
 const INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
 const CACHED_FILE_HANDLE = Symbol('cached filesystem file handle');
+let activeArchive;
+
+function requireActiveArchive() {
+  if (!activeArchive) {
+    throw new Error('No filesystem cache analysis is active');
+  }
+  return activeArchive;
+}
+
+const activeArchiveFacade = {
+  get mode() {
+    return activeArchive?.mode;
+  },
+  get strict() {
+    return activeArchive?.strict;
+  },
+  keyFor(input) {
+    return activeArchive?.keyFor(input);
+  },
+  get(key, operation) {
+    return requireActiveArchive().get(key, operation);
+  },
+  getExists(key, operation) {
+    return requireActiveArchive().getExists(key, operation);
+  },
+  set(key, operation, outcome) {
+    return requireActiveArchive().set(key, operation, outcome);
+  },
+  encodePortablePath(filePath) {
+    return requireActiveArchive().encodePortablePath(filePath);
+  },
+  decodePortablePath(filePath) {
+    return requireActiveArchive().decodePortablePath(filePath);
+  },
+  recordCacheHit() {
+    return requireActiveArchive().recordCacheHit();
+  },
+  recordCacheMiss() {
+    return requireActiveArchive().recordCacheMiss();
+  },
+};
 const ENOENT_ERRNO = [...getSystemErrorMap()].find(([, [code]]) => code === 'ENOENT')?.[0] ?? -2;
 
 /** Exports that are values or types rather than filesystem operations. */
@@ -484,13 +525,32 @@ function opendirOperation(options) {
   return `opendir:${getEncoding(options) || 'utf8'}:${Boolean(options?.recursive)}`;
 }
 
+function selectFilesystemImplementation(cachedValue, nativeValue, nativeThis) {
+  const selected = function (...args) {
+    return activeArchive
+      ? Reflect.apply(cachedValue, this, args)
+      : Reflect.apply(nativeValue, nativeThis, args);
+  };
+  if (typeof cachedValue.native === 'function' && typeof nativeValue.native === 'function') {
+    selected.native = selectFilesystemImplementation(
+      cachedValue.native,
+      nativeValue.native,
+      nativeValue,
+    );
+  }
+  return selected;
+}
+
 function patch(target, savedDescriptors, name, value) {
-  savedDescriptors.set(name, Object.getOwnPropertyDescriptor(target, name));
+  const savedDescriptor = Object.getOwnPropertyDescriptor(target, name);
+  savedDescriptors.set(name, savedDescriptor);
+  const nativeValue =
+    typeof savedDescriptor.get === 'function' ? target[name] : savedDescriptor.value;
   Object.defineProperty(target, name, {
     configurable: true,
     enumerable: true,
     writable: true,
-    value,
+    value: selectFilesystemImplementation(value, nativeValue, target),
   });
 }
 
@@ -1313,7 +1373,18 @@ function installPatches(archive) {
   const descriptors = new Map();
   const promiseDescriptors = new Map();
   const fileDescriptors = new Map();
-  const fileHandles = new WeakSet();
+  const fileHandles = {
+    values: new WeakSet(),
+    add(value) {
+      this.values.add(value);
+    },
+    clear() {
+      this.values = new WeakSet();
+    },
+    has(value) {
+      return this.values.has(value);
+    },
+  };
   const readFile = createReadFilePatches(executor, fileDescriptors, fileHandles);
   const basic = createBasicPatches(archive, executor);
   const directory = createDirectoryPatches(archive, executor);
@@ -1383,66 +1454,114 @@ function installPatches(archive) {
 
   syncBuiltinESMExports();
 
-  return () => {
+  const reset = () => {
+    fileDescriptors.clear();
+    fileHandles.clear();
+  };
+  const uninstall = () => {
     for (const [name, savedDescriptor] of descriptors) {
       Object.defineProperty(fs, name, savedDescriptor);
     }
     for (const [name, savedDescriptor] of promiseDescriptors) {
       Object.defineProperty(fs.promises, name, savedDescriptor);
     }
-    fileDescriptors.clear();
+    reset();
     syncBuiltinESMExports();
   };
+  return { reset, uninstall };
 }
 
 export function installFsCache(options) {
-  if (globalThis[INSTALLATION]) {
-    return globalThis[INSTALLATION];
+  const existingInstallation = globalThis[INSTALLATION];
+  if (existingInstallation) {
+    if (options) {
+      existingInstallation.beginAnalysis(options);
+    }
+    return existingInstallation;
   }
 
-  const archive = new FsCacheArchive(options);
-  if (archive.mode === 'replay') {
-    archive.load();
-  }
-  const uninstallPatches = installPatches(archive);
+  const patches = installPatches(activeArchiveFacade);
   const exitListener = () => {
+    if (!activeArchive) {
+      return;
+    }
     try {
-      archive.flush();
+      activeArchive.flush();
     } catch (error) {
       process.stderr.write(
-        `Filesystem cache warning: Cannot write filesystem cache archive ${archive.archivePath}: ${error?.message ?? error}\n`,
+        `Filesystem cache warning: Cannot write filesystem cache archive ${activeArchive.archivePath}: ${error?.message ?? error}\n`,
       );
     }
   };
   process.once('exit', exitListener);
 
   const installation = {
-    archive,
-    flush: () => archive.flush(),
-    getStatistics: () => archive.getStatistics(),
+    get archive() {
+      return activeArchive;
+    },
+    beginAnalysis(analysisOptions) {
+      if (activeArchive) {
+        throw new Error('A filesystem cache analysis is already active');
+      }
+      const archive = new FsCacheArchive(analysisOptions);
+      if (archive.mode === 'replay') {
+        archive.load();
+      }
+      activeArchive = archive;
+      let ended = false;
+      return {
+        archive,
+        end() {
+          if (ended) {
+            return;
+          }
+          if (activeArchive !== archive) {
+            throw new Error('The active filesystem cache analysis changed unexpectedly');
+          }
+          try {
+            archive.flush();
+          } finally {
+            patches.reset();
+            activeArchive = undefined;
+            ended = true;
+          }
+        },
+      };
+    },
+    flush: () => requireActiveArchive().flush(),
+    getStatistics: () => requireActiveArchive().getStatistics(),
     uninstall() {
       process.removeListener('exit', exitListener);
-      archive.flush();
-      uninstallPatches();
-      delete globalThis[INSTALLATION];
+      try {
+        activeArchive?.flush();
+      } finally {
+        activeArchive = undefined;
+        patches.uninstall();
+        delete globalThis[INSTALLATION];
+      }
     },
   };
   globalThis[INSTALLATION] = installation;
+  if (options) {
+    installation.beginAnalysis(options);
+  }
   return installation;
 }
 
 export function installFsCacheFromEnvironment(environment = process.env) {
   const mode = environment.SONARJS_FS_CACHE_MODE;
   if (!mode) {
-    throw new Error('SONARJS_FS_CACHE_MODE must be set to record or replay');
+    return installFsCache();
   }
-  return installFsCache({
+  const installation = installFsCache();
+  installation.beginAnalysis({
     mode,
     archivePath: environment.SONARJS_FS_CACHE_ARCHIVE,
     rootDir: environment.SONARJS_FS_CACHE_ROOT,
     strict: environment.SONARJS_FS_CACHE_STRICT === '1',
     analyzerVersion: environment.SONARJS_FS_CACHE_ANALYZER_VERSION,
   });
+  return installation;
 }
 
 export function getFsCacheInstallation() {

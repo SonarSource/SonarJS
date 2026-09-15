@@ -23,6 +23,7 @@ import {
 import { logHeapStatistics } from './analyze-project-memory.js';
 import {
   type AnalyzeProjectIncrementalEvent,
+  type AnalyzeProjectProtoRequest,
   type AnalyzeProjectResponse,
   type AnalyzeProjectRuntimeRequest,
   type RequestResult,
@@ -32,6 +33,71 @@ import {
   InvalidAnalyzeProjectRequestError,
   normalizeAnalyzeProjectRequest,
 } from './analyze-project-normalize.js';
+import { sonarjs } from './proto/analyze-project.js';
+
+const { FilesystemCacheMode } = sonarjs.analyzeproject.v1;
+const FS_CACHE_INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
+
+type FilesystemCacheSession = {
+  end: () => void;
+};
+
+type FilesystemCacheInstallation = {
+  beginAnalysis: (options: {
+    analyzerVersion?: string;
+    archivePath: string;
+    mode: 'record' | 'replay';
+    rootDir: string;
+    strict: boolean;
+  }) => FilesystemCacheSession;
+};
+
+function beginFilesystemCacheAnalysis(
+  request: AnalyzeProjectProtoRequest,
+): FilesystemCacheSession | undefined {
+  const cache = request.filesystemCache;
+  if (cache == null) {
+    return undefined;
+  }
+  if (request.configuration?.sonarlint === true) {
+    throw new InvalidAnalyzeProjectRequestError(
+      'filesystem_cache must not be configured for SonarQube for IDE analysis',
+    );
+  }
+  if (!cache.archivePath) {
+    throw new InvalidAnalyzeProjectRequestError('filesystem_cache.archive_path is required');
+  }
+  if (!request.configuration?.baseDir) {
+    throw new InvalidAnalyzeProjectRequestError('configuration.base_dir is required');
+  }
+
+  let mode: 'record' | 'replay';
+  switch (cache.mode) {
+    case FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD:
+      mode = 'record';
+      break;
+    case FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY:
+      mode = 'replay';
+      break;
+    default:
+      throw new InvalidAnalyzeProjectRequestError(
+        `Invalid filesystem cache mode: ${cache.mode ?? FilesystemCacheMode.FILESYSTEM_CACHE_MODE_UNSPECIFIED}`,
+      );
+  }
+
+  const installation = (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] as
+    FilesystemCacheInstallation | undefined;
+  if (!installation) {
+    throw new Error('Filesystem cache requested but the Node preload is not installed');
+  }
+  return installation.beginAnalysis({
+    analyzerVersion: cache.analyzerVersion || undefined,
+    archivePath: cache.archivePath,
+    mode,
+    rootDir: request.configuration.baseDir,
+    strict: mode === 'replay',
+  });
+}
 
 export type WorkerData = {
   debugMemory: boolean;
@@ -45,36 +111,41 @@ export async function handleAnalyzeProjectRequest(
   try {
     switch (request.type) {
       case 'on-analyze-project': {
-        return await withAnalysisCancellation(async () => {
-          logHeapStatistics(workerData?.debugMemory);
-          const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
-          const wrappedIncrementalResultsChannel = incrementalResultsChannel
-            ? (event: AnalyzeProjectIncrementalEvent['event']) =>
-                incrementalResultsChannel({
-                  event,
-                  pathMap: sanitizedInput.pathMap,
-                })
-            : undefined;
+        const filesystemCacheSession = beginFilesystemCacheAnalysis(request.data);
+        try {
+          return await withAnalysisCancellation(async () => {
+            logHeapStatistics(workerData?.debugMemory);
+            const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
+            const wrappedIncrementalResultsChannel = incrementalResultsChannel
+              ? (event: AnalyzeProjectIncrementalEvent['event']) =>
+                  incrementalResultsChannel({
+                    event,
+                    pathMap: sanitizedInput.pathMap,
+                  })
+              : undefined;
 
-          const output = await analyzeProject(
-            {
-              rules: sanitizedInput.rules,
-              cssRules: sanitizedInput.cssRules,
-              bundles: sanitizedInput.bundles,
-              rulesWorkdir: sanitizedInput.rulesWorkdir,
-            },
-            sanitizedInput.configuration,
-            wrappedIncrementalResultsChannel,
-          );
-          logHeapStatistics(workerData?.debugMemory);
-          return {
-            type: 'success',
-            result: {
-              output,
-              pathMap: sanitizedInput.pathMap,
-            },
-          };
-        });
+            const output = await analyzeProject(
+              {
+                rules: sanitizedInput.rules,
+                cssRules: sanitizedInput.cssRules,
+                bundles: sanitizedInput.bundles,
+                rulesWorkdir: sanitizedInput.rulesWorkdir,
+              },
+              sanitizedInput.configuration,
+              wrappedIncrementalResultsChannel,
+            );
+            logHeapStatistics(workerData?.debugMemory);
+            return {
+              type: 'success',
+              result: {
+                output,
+                pathMap: sanitizedInput.pathMap,
+              },
+            };
+          });
+        } finally {
+          filesystemCacheSession?.end();
+        }
       }
       case 'on-cancel-analysis': {
         return cancelAnalysis()
