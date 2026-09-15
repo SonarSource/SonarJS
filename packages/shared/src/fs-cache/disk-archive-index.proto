@@ -1,0 +1,38 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+syntax = "proto3";
+
+package sonarsource.sonarjs.fs_cache;
+
+// This index follows the compressed blob section of a disk archive. The fixed footer stores the
+// index offset and length, so readers never scan or deserialize file contents to find an entry.
+message DiskArchiveIndex {
+  string magic = 1;
+  uint32 format_version = 2;
+  string analyzer_version = 3;
+  string created_at = 4;
+  string updated_at = 5;
+  repeated DiskArchiveEntry entries = 6;
+}
+
+message DiskArchiveEntry {
+  string path = 1;
+
+  // Semantic nodes have intentionally flexible operation maps. Successful content outcomes use a
+  // blob reference containing offset, compressedLength, and rawLength instead of base64 data.
+  bytes node_json = 2;
+}
