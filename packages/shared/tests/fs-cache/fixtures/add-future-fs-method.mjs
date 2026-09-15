@@ -14,24 +14,22 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rmSync } from 'node:fs';
-import { buildBundle } from './esbuild-common.mjs';
+import fs from 'node:fs';
 
-rmSync(new URL('./bin/fs-cache', import.meta.url), { force: true, recursive: true });
-
-await buildBundle({
-  entryPoint: './server.mjs',
-  outfile: './bin/server.cjs',
-  metafilePath: './target/esbuild-metafile.json',
-  additionalAssets: [
-    // We copy run-node into the bundle, as it's used from the java side on Mac
-    {
-      from: ['./run-node'],
-      to: ['./bin'],
-    },
-    {
-      from: ['./packages/shared/src/fs-cache/*'],
-      to: ['./bin/fs-cache'],
-    },
-  ],
+Object.defineProperty(fs, 'futureRead', {
+  configurable: true,
+  enumerable: true,
+  value: () => 'unexpected native result',
+  writable: true,
+});
+Object.defineProperty(fs, 'futureLazyRead', {
+  configurable: true,
+  enumerable: true,
+  get: () => () => 'unexpected native result',
+});
+Object.defineProperty(fs.promises, 'futureRead', {
+  configurable: true,
+  enumerable: true,
+  value: async () => 'unexpected native result',
+  writable: true,
 });

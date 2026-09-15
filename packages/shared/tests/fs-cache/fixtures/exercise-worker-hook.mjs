@@ -14,24 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rmSync } from 'node:fs';
-import { buildBundle } from './esbuild-common.mjs';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { isMainThread, parentPort, Worker } from 'node:worker_threads';
 
-rmSync(new URL('./bin/fs-cache', import.meta.url), { force: true, recursive: true });
-
-await buildBundle({
-  entryPoint: './server.mjs',
-  outfile: './bin/server.cjs',
-  metafilePath: './target/esbuild-metafile.json',
-  additionalAssets: [
-    // We copy run-node into the bundle, as it's used from the java side on Mac
-    {
-      from: ['./run-node'],
-      to: ['./bin'],
-    },
-    {
-      from: ['./packages/shared/src/fs-cache/*'],
-      to: ['./bin/fs-cache'],
-    },
-  ],
-});
+if (isMainThread) {
+  const main = readFileSync(
+    path.join(process.env.SONARJS_FS_CACHE_ROOT, 'main-input.ts'),
+    'utf8',
+  );
+  const worker = new Worker(new URL(import.meta.url));
+  worker.once('message', message => console.log(`${main}|${message}`));
+} else {
+  const file = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'worker-input.ts');
+  parentPort.postMessage(readFileSync(file, 'utf8'));
+}
