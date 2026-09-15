@@ -15,7 +15,8 @@
   "tags": [
     "aws",
     "cwe",
-    "former-hotspot"
+    "former-hotspot",
+    "cryptography"
   ],
   "extra": {
     "requiredDependency": [

@@ -15,7 +15,8 @@
   "tags": [
     "cwe",
     "privacy",
-    "ssl"
+    "ssl",
+    "cryptography"
   ],
   "extra": {
     "replacementRules": [],
