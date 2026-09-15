@@ -24,14 +24,14 @@ const INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
 const CACHED_FILE_HANDLE = Symbol('cached filesystem file handle');
 const ENOENT_ERRNO = [...getSystemErrorMap()].find(([, [code]]) => code === 'ENOENT')?.[0] ?? -2;
 
-/**
- * Callable exports available in the oldest supported analyzer runtime, Node 22.12.
- *
- * Existing operations that are not cache-aware intentionally retain their native behavior. A
- * callable added by a newer Node runtime has no reviewed cache or pass-through semantics, so it is
- * guarded below until support is explicitly decided.
- */
-const NODE_22_12_FS_CALLABLES = new Set([
+/** Exports that are values or types rather than filesystem operations. */
+const FS_NON_OPERATION_EXPORTS = new Set([
+  'F_OK',
+  'R_OK',
+  'W_OK',
+  'X_OK',
+  'constants',
+  'promises',
   'Dir',
   'Dirent',
   'FSWatcher',
@@ -42,145 +42,7 @@ const NODE_22_12_FS_CALLABLES = new Set([
   'Stats',
   'WriteStream',
   '_StatWatcher',
-  '_toUnixTimestamp',
-  'access',
-  'accessSync',
-  'appendFile',
-  'appendFileSync',
-  'chmod',
-  'chmodSync',
-  'chown',
-  'chownSync',
-  'close',
-  'closeSync',
-  'copyFile',
-  'copyFileSync',
-  'cp',
-  'cpSync',
-  'createReadStream',
-  'createWriteStream',
-  'exists',
-  'existsSync',
-  'fchmod',
-  'fchmodSync',
-  'fchown',
-  'fchownSync',
-  'fdatasync',
-  'fdatasyncSync',
-  'fstat',
-  'fstatSync',
-  'fsync',
-  'fsyncSync',
-  'ftruncate',
-  'ftruncateSync',
-  'futimes',
-  'futimesSync',
-  'glob',
-  'globSync',
-  'lchmod',
-  'lchmodSync',
-  'lchown',
-  'lchownSync',
-  'link',
-  'linkSync',
-  'lstat',
-  'lstatSync',
-  'lutimes',
-  'lutimesSync',
-  'mkdir',
-  'mkdirSync',
-  'mkdtemp',
-  'mkdtempSync',
-  'open',
-  'openAsBlob',
-  'openSync',
-  'opendir',
-  'opendirSync',
-  'read',
-  'readFile',
-  'readFileSync',
-  'readSync',
-  'readdir',
-  'readdirSync',
-  'readlink',
-  'readlinkSync',
-  'readv',
-  'readvSync',
-  'realpath',
-  'realpathSync',
-  'rename',
-  'renameSync',
-  'rm',
-  'rmSync',
-  'rmdir',
-  'rmdirSync',
-  'stat',
-  'statSync',
-  'statfs',
-  'statfsSync',
-  'symlink',
-  'symlinkSync',
-  'truncate',
-  'truncateSync',
-  'unlink',
-  'unlinkSync',
-  'unwatchFile',
-  'utimes',
-  'utimesSync',
-  'watch',
-  'watchFile',
-  'write',
-  'writeFile',
-  'writeFileSync',
-  'writeSync',
-  'writev',
-  'writevSync',
 ]);
-
-const NODE_22_12_FS_PROMISE_CALLABLES = new Set([
-  'access',
-  'appendFile',
-  'chmod',
-  'chown',
-  'copyFile',
-  'cp',
-  'glob',
-  'lchmod',
-  'lchown',
-  'link',
-  'lstat',
-  'lutimes',
-  'mkdir',
-  'mkdtemp',
-  'open',
-  'opendir',
-  'readFile',
-  'readdir',
-  'readlink',
-  'realpath',
-  'rename',
-  'rm',
-  'rmdir',
-  'stat',
-  'statfs',
-  'symlink',
-  'truncate',
-  'unlink',
-  'utimes',
-  'watch',
-  'writeFile',
-]);
-
-const NODE_22_12_FS_EXPORTS = new Set([
-  ...NODE_22_12_FS_CALLABLES,
-  'F_OK',
-  'R_OK',
-  'W_OK',
-  'X_OK',
-  'constants',
-  'promises',
-]);
-const NODE_22_12_FS_PROMISE_EXPORTS = new Set([...NODE_22_12_FS_PROMISE_CALLABLES, 'constants']);
 
 const originalFs = Object.fromEntries(
   [
@@ -209,6 +71,7 @@ const originalFs = Object.fromEntries(
     'realpathSync',
     'stat',
     'statSync',
+    'writeSync',
   ].map(name => [name, fs[name].bind(fs)]),
 );
 originalFs.realpathNative = fs.realpath.native.bind(fs.realpath);
@@ -620,15 +483,15 @@ function patch(target, savedDescriptors, name, value) {
   });
 }
 
-function guardUnknownCallableExports(
+function guardUnhandledFilesystemOperations(
   target,
   savedDescriptors,
-  knownExports,
+  nonOperations,
   moduleName,
   reject = false,
 ) {
   for (const [name, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(target))) {
-    if (knownExports.has(name)) {
+    if (savedDescriptors.has(name) || nonOperations.has(name)) {
       continue;
     }
     const value = typeof descriptor.get === 'function' ? target[name] : descriptor.value;
@@ -1435,6 +1298,9 @@ function installPatches(archive) {
   patch(fs, descriptors, 'fstat', descriptor.fstat);
   patch(fs, descriptors, 'closeSync', descriptor.closeSync);
   patch(fs, descriptors, 'close', descriptor.close);
+  // Node stdout and stderr use this primitive. Keep it as an explicit native pass-through so
+  // unsupported-operation errors and archive warnings can still be reported.
+  patch(fs, descriptors, 'writeSync', originalFs.writeSync);
 
   patch(fs.promises, promiseDescriptors, 'readFile', readFile.readFilePromise);
   patch(fs.promises, promiseDescriptors, 'readdir', basic.readdirPromise);
@@ -1446,11 +1312,11 @@ function installPatches(archive) {
   patch(fs.promises, promiseDescriptors, 'opendir', directory.opendirPromise);
   patch(fs.promises, promiseDescriptors, 'open', openPromise);
 
-  guardUnknownCallableExports(fs, descriptors, NODE_22_12_FS_EXPORTS, 'fs');
-  guardUnknownCallableExports(
+  guardUnhandledFilesystemOperations(fs, descriptors, FS_NON_OPERATION_EXPORTS, 'fs');
+  guardUnhandledFilesystemOperations(
     fs.promises,
     promiseDescriptors,
-    NODE_22_12_FS_PROMISE_EXPORTS,
+    new Set(),
     'fs/promises',
     true,
   );

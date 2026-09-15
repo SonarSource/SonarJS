@@ -176,6 +176,7 @@ describe('filesystem cache preload', () => {
     fs.writeFileSync(file, 'cached content');
     fs.writeFileSync(path.join(directory, 'child.ts'), 'child');
     const script = `
+      import { execFileSync } from 'node:child_process';
       import fs from 'node:fs';
       const file = ${JSON.stringify(file)};
       const directory = ${JSON.stringify(directory)};
@@ -184,9 +185,14 @@ describe('filesystem cache preload', () => {
       fs.statSync(file, { bigint: true });
       const names = fs.readdirSync(directory, { withFileTypes: true }).map(entry => entry.name);
 
-      // Mutations only make native fallbacks observable. Hooked analyses treat the root as stable.
-      fs.renameSync(file, file + '.moved');
-      fs.renameSync(directory, directory + '.moved');
+      // Mutate from an unhooked child process to make reuse observable. The hooked filesystem
+      // rejects renameSync, and production analyses treat the root as stable.
+      execFileSync(process.execPath, [
+        '--eval',
+        "const fs = require('node:fs'); fs.renameSync(process.argv[1], process.argv[1] + '.moved'); fs.renameSync(process.argv[2], process.argv[2] + '.moved');",
+        file,
+        directory,
+      ]);
 
       const promisedContent = await fs.promises.readFile(file, 'utf8');
       const promisedSize = (await fs.promises.stat(file)).size;
@@ -673,13 +679,18 @@ describe('filesystem cache preload', () => {
     fs.mkdirSync(root);
     fs.writeFileSync(path.join(root, 'input.ts'), 'analysis result');
     const script = `
+      import { execFileSync } from 'node:child_process';
       import fs from 'node:fs';
       import path from 'node:path';
       const result = fs.readFileSync(
         path.join(process.env.SONARJS_FS_CACHE_ROOT, 'input.ts'),
         'utf8',
       );
-      fs.writeFileSync(process.env.SONARJS_FS_CACHE_ARCHIVE, 'not an archive');
+      execFileSync(process.execPath, [
+        '--eval',
+        "require('node:fs').writeFileSync(process.argv[1], 'not an archive')",
+        process.env.SONARJS_FS_CACHE_ARCHIVE,
+      ]);
       console.log(result);
     `;
 
@@ -810,7 +821,7 @@ describe('filesystem cache preload', () => {
     expect(strict.stderr).toContain('ERR_SONARJS_FS_CACHE_MISS');
   });
 
-  it('rejects callable filesystem exports added after the Node 22.12 baseline', () => {
+  it('rejects every unpatched filesystem operation', () => {
     const temporary = temporaryDirectory();
     const root = path.join(temporary, 'root');
     const archive = path.join(temporary, 'analysis.fscache');
@@ -835,6 +846,11 @@ describe('filesystem cache preload', () => {
         error => ({ code: error.code, message: error.message, name: error.name }),
       );
       console.log(JSON.stringify({
+        baseline: await Promise.all([
+          capture(() => fs.cpSync('unused-source', 'unused-target')),
+          capture(() => commonJsFs.createReadStream('unused')),
+          captureRejection(() => fsPromises.cp('unused-source', 'unused-target')),
+        ]),
         runtime: {
           fs: typeof fsNamespace.mkdtempDisposableSync === 'function'
             ? await capture(() => fsNamespace.mkdtempDisposableSync('unused'))
@@ -870,6 +886,23 @@ describe('filesystem cache preload', () => {
     expect(result.stderr).toBe('');
     expect(result.status).toBe(0);
     const output = JSON.parse(result.stdout);
+    expect(output.baseline).toEqual([
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.cpSync from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.createReadStream from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs/promises.cp from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+    ]);
     expect(output.simulated).toEqual([
       {
         code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
