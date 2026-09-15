@@ -14,6 +14,19 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'decorated';
-export const eslintId = 'no-await-in-loop';
-export const externalRules = [{ externalPlugin: 'eslint', externalRule: 'no-await-in-loop' }];
+import type { Rule } from 'eslint';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import * as meta from './generated-meta.js';
+
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(meta, rule.meta!),
+    },
+    (context, descriptor) => {
+      context.report(descriptor);
+    },
+  );
+}
