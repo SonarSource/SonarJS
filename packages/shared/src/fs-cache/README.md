@@ -1,4 +1,4 @@
-# Filesystem cache hook
+# Filesystem cache preload
 
 This directory contains a standalone Node preload that caches, records, and replays the read-side
 filesystem state used by a process. It has no dependency on the SonarJS analyzer or its file
@@ -38,3 +38,7 @@ semantics have been explicitly reviewed. Synchronous APIs throw
 `ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION`; `fs/promises` APIs return a rejected promise with the
 same error, matching their native call contract. An unhandled rejection therefore terminates Node
 normally.
+
+The preload patches Node's builtin `fs` objects directly and synchronizes their ESM exports. It
+does not register Node customization hooks: those hooks intercept the entire module graph on a
+dedicated loader thread, adding startup and module-loading overhead unrelated to filesystem calls.

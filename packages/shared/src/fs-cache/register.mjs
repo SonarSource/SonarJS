@@ -14,9 +14,5 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { register } from 'node:module';
-
-register('./fs-wrapper-loader.mjs', import.meta.url);
-
 const { installFsCacheFromEnvironment } = await import('./hook.mjs');
 installFsCacheFromEnvironment();
