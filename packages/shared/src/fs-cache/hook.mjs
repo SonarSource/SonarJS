@@ -44,6 +44,9 @@ const FS_NON_OPERATION_EXPORTS = new Set([
   '_StatWatcher',
 ]);
 
+/** fs/promises operations that synchronously return async iterables instead of promises. */
+const FS_PROMISE_ASYNC_ITERABLE_OPERATIONS = new Set(['glob', 'watch']);
+
 const originalFs = Object.fromEntries(
   [
     'access',
@@ -517,7 +520,7 @@ function guardUnhandledFilesystemOperations(
     }
     patch(target, savedDescriptors, name, () => {
       const error = unsupportedFilesystemOperation(moduleName, name);
-      if (reject) {
+      if (reject && !FS_PROMISE_ASYNC_ITERABLE_OPERATIONS.has(name)) {
         return Promise.reject(error);
       }
       throw error;
