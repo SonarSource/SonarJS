@@ -1,0 +1,58 @@
+# Filesystem cache preload
+
+This directory contains a Node preload that caches, records, and replays the read-side filesystem
+state used by one analysis at a time. It has no dependency on SonarJS file stores or individual
+filesystem call sites.
+
+Install the stable filesystem wrappers with Node's `--import` option. With no cache environment
+variables, the preload stays dormant and every call uses native `fs`. The analyze-project request
+handler activates one archive session when its optional `filesystem_cache` configuration is
+present, and ends that session before completing the response.
+
+The environment variables remain available for standalone use and tests:
+
+```shell
+SONARJS_FS_CACHE_MODE=record \
+SONARJS_FS_CACHE_ROOT=/workspace/project \
+SONARJS_FS_CACHE_ARCHIVE=/workspace/project.fscache \
+node --import ./bin/fs-cache/register.mjs ./bin/server.cjs
+```
+
+Use `SONARJS_FS_CACHE_MODE=replay` with another `SONARJS_FS_CACHE_ROOT` to restore the recorded
+paths relative to that root. Set `SONARJS_FS_CACHE_STRICT=1` to reject unrecorded reads inside the
+root instead of passing them through to the live filesystem. An optional
+`SONARJS_FS_CACHE_ANALYZER_VERSION` is persisted and checked during replay.
+
+For a long-lived Node process, `beginAnalysis()` selects the mode, archive, and root once per
+request. Stable wrappers consult that active session; they do not parse environment variables or
+replace filesystem functions on each call. `session.end()` flushes record mode and returns the
+wrappers to dormant native passthrough. Overlapping sessions are rejected as a lifecycle invariant.
+
+Record mode starts each session with a cold in-memory cache. The first read of a filesystem fact uses native
+`fs`; compatible later operations reuse the consolidated per-path state. For example, file content
+is shared by `readFile` and descriptor APIs, metadata by `stat` and `fstat`, and typed directory
+entries by `readdir` and `opendir`. This both avoids repeated filesystem work during normal CI
+analysis and produces the archive used by replay. The configured root is assumed to remain stable
+for the lifetime of the session; mutation tracking and invalidation are intentionally unsupported.
+
+The archive is a versioned gzip-compressed JSON document containing one semantic node per path. It
+is written atomically when the session ends, during normal process exit if a session is still
+active, or when `getFsCacheInstallation().flush()` is called. Archive storage and transfer by the
+scanner are intentionally outside the scope of this hook.
+
+The cache exists only when Node is explicitly started with this preload and a session is activated.
+Requests without `filesystem_cache` use native `fs`; SonarLint must not request a cache session.
+Every callable filesystem operation that the cache does not patch fails when invoked while a
+session is active, including operations already
+available in Node 22.12 and operations added by a newer runtime. This prevents a dependency update
+from silently bypassing recording or replay before the operation's semantics have been explicitly
+implemented. `writeSync` passes through only for the stdout and stderr descriptors that Node uses
+for diagnostics; archive serialization uses privately captured native primitives. Write-capable
+opens, writes to other descriptors, and reads from unknown descriptors fail closed. Synchronous
+APIs throw `ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION`. Promise-returning `fs/promises` APIs
+return a rejected promise with the same error; `glob` and `watch`, whose native contract returns an
+async iterable synchronously, throw immediately instead.
+
+The preload patches Node's builtin `fs` objects directly and synchronizes their ESM exports. It
+does not register Node customization hooks: those hooks intercept the entire module graph on a
+dedicated loader thread, adding startup and module-loading overhead unrelated to filesystem calls.
