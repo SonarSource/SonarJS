@@ -14,7 +14,8 @@
   },
   "tags": [
     "cwe",
-    "privacy"
+    "privacy",
+    "cryptography"
   ],
   "extra": {
     "requiredDependency": [
