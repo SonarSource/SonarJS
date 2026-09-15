@@ -17,7 +17,7 @@
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { getSystemErrorMap } from 'node:util';
-import { createFsCacheArchive } from './archive-factory.mjs';
+import { FsCacheArchive } from './archive.mjs';
 
 const MISSING = Symbol('missing filesystem cache observation');
 const INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
@@ -254,10 +254,6 @@ function withoutEncoding(options) {
 function returnReadBuffer(buffer, options) {
   const encoding = getEncoding(options);
   return encoding ? buffer.toString(encoding) : Buffer.from(buffer);
-}
-
-function restoreContent(value) {
-  return Buffer.isBuffer(value) ? value : Buffer.from(value, 'base64');
 }
 
 function snapshotStat(stat) {
@@ -551,7 +547,7 @@ function createReadFilePatches(executor, fileDescriptors, fileHandles) {
       'readFile',
       () => originalFs.readFileSync(input, withoutEncoding(options)),
       value => value.toString('base64'),
-      restoreContent,
+      value => Buffer.from(value, 'base64'),
     );
     return returnReadBuffer(buffer, options);
   }
@@ -568,7 +564,7 @@ function createReadFilePatches(executor, fileDescriptors, fileHandles) {
       'readFile',
       () => originalPromises.readFile(input, withoutEncoding(options)),
       value => value.toString('base64'),
-      restoreContent,
+      value => Buffer.from(value, 'base64'),
     );
     return returnReadBuffer(buffer, options);
   }
@@ -1036,7 +1032,7 @@ function createOpenPatches(archive, fileDescriptors) {
     const fd = nextFileDescriptor;
     nextFileDescriptor -= 1;
     fileDescriptors.set(fd, {
-      content: file.ok ? restoreContent(file.value) : undefined,
+      content: file.ok ? Buffer.from(file.value, 'base64') : undefined,
       input: pathDisplay(input),
       key,
       position: 0,
@@ -1404,7 +1400,7 @@ export function installFsCache(options) {
     return globalThis[INSTALLATION];
   }
 
-  const archive = createFsCacheArchive(options);
+  const archive = new FsCacheArchive(options);
   if (archive.mode === 'replay') {
     archive.load();
   }
@@ -1416,8 +1412,6 @@ export function installFsCache(options) {
       process.stderr.write(
         `Filesystem cache warning: Cannot write filesystem cache archive ${archive.archivePath}: ${error?.message ?? error}\n`,
       );
-    } finally {
-      archive.close?.();
     }
   };
   process.once('exit', exitListener);
@@ -1429,7 +1423,6 @@ export function installFsCache(options) {
     uninstall() {
       process.removeListener('exit', exitListener);
       archive.flush();
-      archive.close?.();
       uninstallPatches();
       delete globalThis[INSTALLATION];
     },
@@ -1449,8 +1442,6 @@ export function installFsCacheFromEnvironment(environment = process.env) {
     rootDir: environment.SONARJS_FS_CACHE_ROOT,
     strict: environment.SONARJS_FS_CACHE_STRICT === '1',
     analyzerVersion: environment.SONARJS_FS_CACHE_ANALYZER_VERSION,
-    archiveBackend: environment.SONARJS_FS_CACHE_ARCHIVE_BACKEND,
-    diskMemoryLimitMb: environment.SONARJS_FS_CACHE_DISK_MEMORY_LIMIT_MB,
   });
 }
 

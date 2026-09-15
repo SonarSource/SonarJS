@@ -41,7 +41,6 @@ function temporaryDirectory() {
 
 function runHook({
   archive,
-  archiveBackend,
   mode,
   outside,
   root,
@@ -49,7 +48,6 @@ function runHook({
   strict = true,
 }: {
   archive: string;
-  archiveBackend?: 'disk' | 'json';
   mode: 'record' | 'replay';
   outside: string;
   root: string;
@@ -63,7 +61,6 @@ function runHook({
       FS_CACHE_OUTSIDE_FILE: outside,
       SONARJS_FS_CACHE_ANALYZER_VERSION: analyzerVersion,
       SONARJS_FS_CACHE_ARCHIVE: archive,
-      SONARJS_FS_CACHE_ARCHIVE_BACKEND: archiveBackend,
       SONARJS_FS_CACHE_MODE: mode,
       SONARJS_FS_CACHE_ROOT: root,
       SONARJS_FS_CACHE_STRICT: strict ? '1' : '0',
@@ -73,18 +70,14 @@ function runHook({
 
 function runInlineHook({
   archive,
-  archiveBackend,
   analyzerVersion = 'test-analyzer',
-  diskMemoryLimitMb,
   mode,
   root,
   script,
   strict = true,
 }: {
   archive: string;
-  archiveBackend?: 'disk' | 'json';
   analyzerVersion?: string;
-  diskMemoryLimitMb?: number;
   mode: 'record' | 'replay';
   root: string;
   script: string;
@@ -96,8 +89,6 @@ function runInlineHook({
       ...process.env,
       SONARJS_FS_CACHE_ANALYZER_VERSION: analyzerVersion,
       SONARJS_FS_CACHE_ARCHIVE: archive,
-      SONARJS_FS_CACHE_ARCHIVE_BACKEND: archiveBackend,
-      SONARJS_FS_CACHE_DISK_MEMORY_LIMIT_MB: diskMemoryLimitMb?.toString(),
       SONARJS_FS_CACHE_MODE: mode,
       SONARJS_FS_CACHE_ROOT: root,
       SONARJS_FS_CACHE_STRICT: strict ? '1' : '0',
@@ -127,136 +118,6 @@ afterEach(() => {
 });
 
 describe('filesystem cache preload', () => {
-  it('rejects an unknown archive backend', () => {
-    const temporary = temporaryDirectory();
-    const root = path.join(temporary, 'root');
-    fs.mkdirSync(root);
-    const result = spawnSync(process.execPath, ['--import', register, '--eval', ''], {
-      encoding: 'utf8',
-      env: {
-        ...process.env,
-        SONARJS_FS_CACHE_ARCHIVE: path.join(temporary, 'analysis.fscache'),
-        SONARJS_FS_CACHE_ARCHIVE_BACKEND: 'unknown',
-        SONARJS_FS_CACHE_MODE: 'record',
-        SONARJS_FS_CACHE_ROOT: root,
-      },
-    });
-    expect(result.status).not.toBe(0);
-    expect(result.stderr).toContain('Unsupported filesystem cache archive backend: unknown');
-  });
-
-  it('records compressed contents on disk and replays them through the same hook contract', () => {
-    const temporary = temporaryDirectory();
-    const recordRoot = path.join(temporary, 'record-root');
-    const replayRoot = path.join(temporary, 'replay-root');
-    const archive = path.join(temporary, 'analysis-disk.fscache');
-    const outside = path.join(temporary, 'outside.txt');
-    fs.mkdirSync(path.join(recordRoot, 'src'), { recursive: true });
-    const content = 'const repeated = true;\n'.repeat(4_096);
-    fs.writeFileSync(path.join(recordRoot, 'src', 'input.ts'), content);
-    fs.mkdirSync(path.join(recordRoot, 'src', 'nested'));
-    fs.writeFileSync(path.join(recordRoot, 'src', 'nested', 'deep.ts'), 'nested content');
-    fs.writeFileSync(outside, 'outside during record');
-
-    const recorded = runHook({
-      archive,
-      archiveBackend: 'disk',
-      mode: 'record',
-      outside,
-      root: recordRoot,
-    });
-    expect(recorded.stderr).toBe('');
-    expect(recorded.status).toBe(0);
-    expect(fs.readFileSync(archive).subarray(0, 8).toString()).toBe('SJFSCB01');
-    expect(fs.statSync(archive).size).toBeLessThan(Buffer.byteLength(content));
-    expect(fs.readFileSync(archive).includes(Buffer.from(content))).toBe(false);
-
-    fs.rmSync(recordRoot, { force: true, recursive: true });
-    fs.mkdirSync(replayRoot, { recursive: true });
-    fs.writeFileSync(outside, 'outside during replay');
-    const replayed = runHook({
-      archive,
-      archiveBackend: 'disk',
-      mode: 'replay',
-      outside,
-      root: replayRoot,
-    });
-    expect(replayed.stderr).toBe('');
-    expect(replayed.status).toBe(0);
-    expect({ ...JSON.parse(replayed.stdout), outside: 'outside during record' }).toEqual(
-      JSON.parse(recorded.stdout),
-    );
-  });
-
-  it('keeps disk-backed observations readable after explicit finalization', () => {
-    const temporary = temporaryDirectory();
-    const root = path.join(temporary, 'root');
-    const archive = path.join(temporary, 'analysis-disk.fscache');
-    const file = path.join(root, 'input.ts');
-    fs.mkdirSync(root);
-    fs.writeFileSync(file, 'recorded content');
-    const script = `
-      import { execFileSync } from 'node:child_process';
-      import fs from 'node:fs';
-      const file = ${JSON.stringify(file)};
-      const before = fs.readFileSync(file, 'utf8');
-      globalThis[Symbol.for('sonarjs.filesystemCache.installation')].flush();
-      execFileSync(process.execPath, [
-        '--eval',
-        "require('node:fs').unlinkSync(process.argv[1])",
-        file,
-      ]);
-      const after = fs.readFileSync(file, 'utf8');
-      console.log(JSON.stringify({ after, before }));
-    `;
-    const result = runInlineHook({
-      archive,
-      archiveBackend: 'disk',
-      mode: 'record',
-      root,
-      script,
-    });
-    expect(result.stderr).toBe('');
-    expect(result.status).toBe(0);
-    expect(JSON.parse(result.stdout)).toEqual({
-      after: 'recorded content',
-      before: 'recorded content',
-    });
-  });
-
-  it('bounds the disk backend hot-content cache', () => {
-    const temporary = temporaryDirectory();
-    const root = path.join(temporary, 'root');
-    const archive = path.join(temporary, 'bounded-disk.fscache');
-    fs.mkdirSync(root);
-    fs.writeFileSync(path.join(root, 'first.ts'), '12345678');
-    fs.writeFileSync(path.join(root, 'second.ts'), 'abcdefgh');
-    const script = `
-      import fs from 'node:fs';
-      import path from 'node:path';
-      for (const name of ['first.ts', 'second.ts']) {
-        fs.readFileSync(path.join(process.env.SONARJS_FS_CACHE_ROOT, name));
-      }
-      console.log(JSON.stringify(
-        globalThis[Symbol.for('sonarjs.filesystemCache.installation')].getStatistics(),
-      ));
-    `;
-    const result = runInlineHook({
-      archive,
-      archiveBackend: 'disk',
-      diskMemoryLimitMb: 0.00001,
-      mode: 'record',
-      root,
-      script,
-    });
-    expect(result.stderr).toBe('');
-    expect(result.status).toBe(0);
-    expect(JSON.parse(result.stdout)).toMatchObject({
-      contentCacheBytes: 8,
-      contentCacheLimitBytes: 10,
-    });
-  });
-
   it('records and replays all import styles and read APIs from another root', () => {
     const temporary = temporaryDirectory();
     const recordRoot = path.join(temporary, 'record-root');
@@ -841,44 +702,41 @@ describe('filesystem cache preload', () => {
   });
 
   it('records and replays filesystem access from an inherited worker preload', () => {
-    for (const archiveBackend of ['json', 'disk']) {
-      const temporary = temporaryDirectory();
-      const recordRoot = path.join(temporary, 'record-root');
-      const replayRoot = path.join(temporary, 'replay-root');
-      const archive = path.join(temporary, `worker-${archiveBackend}.fscache`);
-      fs.mkdirSync(recordRoot);
-      fs.writeFileSync(path.join(recordRoot, 'main-input.ts'), 'read in main');
-      fs.writeFileSync(path.join(recordRoot, 'worker-input.ts'), 'read in worker');
-      const environment = {
-        ...process.env,
-        SONARJS_FS_CACHE_ANALYZER_VERSION: 'test-analyzer',
-        SONARJS_FS_CACHE_ARCHIVE: archive,
-        SONARJS_FS_CACHE_ARCHIVE_BACKEND: archiveBackend,
-        SONARJS_FS_CACHE_ROOT: recordRoot,
-        SONARJS_FS_CACHE_STRICT: '1',
-      };
+    const temporary = temporaryDirectory();
+    const recordRoot = path.join(temporary, 'record-root');
+    const replayRoot = path.join(temporary, 'replay-root');
+    const archive = path.join(temporary, 'worker.fscache');
+    fs.mkdirSync(recordRoot);
+    fs.writeFileSync(path.join(recordRoot, 'main-input.ts'), 'read in main');
+    fs.writeFileSync(path.join(recordRoot, 'worker-input.ts'), 'read in worker');
+    const environment = {
+      ...process.env,
+      SONARJS_FS_CACHE_ANALYZER_VERSION: 'test-analyzer',
+      SONARJS_FS_CACHE_ARCHIVE: archive,
+      SONARJS_FS_CACHE_ROOT: recordRoot,
+      SONARJS_FS_CACHE_STRICT: '1',
+    };
 
-      const recorded = spawnSync(process.execPath, ['--import', register, workerFixture], {
-        encoding: 'utf8',
-        env: { ...environment, SONARJS_FS_CACHE_MODE: 'record' },
-      });
-      expect(recorded.status).toBe(0);
-      expect(recorded.stdout.trim()).toBe('read in main|read in worker');
-      expect(fs.existsSync(archive)).toBe(true);
+    const recorded = spawnSync(process.execPath, ['--import', register, workerFixture], {
+      encoding: 'utf8',
+      env: { ...environment, SONARJS_FS_CACHE_MODE: 'record' },
+    });
+    expect(recorded.status).toBe(0);
+    expect(recorded.stdout.trim()).toBe('read in main|read in worker');
+    expect(fs.existsSync(archive)).toBe(true);
 
-      fs.rmSync(recordRoot, { force: true, recursive: true });
-      fs.mkdirSync(replayRoot);
-      const replayed = spawnSync(process.execPath, ['--import', register, workerFixture], {
-        encoding: 'utf8',
-        env: {
-          ...environment,
-          SONARJS_FS_CACHE_MODE: 'replay',
-          SONARJS_FS_CACHE_ROOT: replayRoot,
-        },
-      });
-      expect(replayed.status).toBe(0);
-      expect(replayed.stdout.trim()).toBe('read in main|read in worker');
-    }
+    fs.rmSync(recordRoot, { force: true, recursive: true });
+    fs.mkdirSync(replayRoot);
+    const replayed = spawnSync(process.execPath, ['--import', register, workerFixture], {
+      encoding: 'utf8',
+      env: {
+        ...environment,
+        SONARJS_FS_CACHE_MODE: 'replay',
+        SONARJS_FS_CACHE_ROOT: replayRoot,
+      },
+    });
+    expect(replayed.status).toBe(0);
+    expect(replayed.stdout.trim()).toBe('read in main|read in worker');
   });
 
   it('replays read errors for descriptors whose contents could not be captured', t => {
