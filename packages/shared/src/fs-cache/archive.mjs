@@ -37,8 +37,20 @@ const nativeFs = {
   renameSync: fs.renameSync.bind(fs),
   statSync: fs.statSync.bind(fs),
   unlinkSync: fs.unlinkSync.bind(fs),
-  writeFileSync: fs.writeFileSync.bind(fs),
+  writeSync: fs.writeSync.bind(fs),
 };
+
+function writeFileWithNativePrimitives(filePath, bytes, mode) {
+  const descriptor = nativeFs.openSync(filePath, 'w', mode);
+  try {
+    let offset = 0;
+    while (offset < bytes.length) {
+      offset += nativeFs.writeSync(descriptor, bytes, offset, bytes.length - offset, null);
+    }
+  } finally {
+    nativeFs.closeSync(descriptor);
+  }
+}
 
 const MAP_FIELDS = ['access', 'directories', 'opens', 'readlinks', 'realpaths', 'stats', 'other'];
 
@@ -472,7 +484,7 @@ export class FsCacheArchive {
       const bytes = gzipSync(Buffer.from(JSON.stringify(document)), { mtime: 0 });
       const temporaryPath = `${this.archivePath}.${process.pid}.${randomUUID()}.tmp`;
       try {
-        nativeFs.writeFileSync(temporaryPath, bytes, { mode: ARCHIVE_FILE_MODE });
+        writeFileWithNativePrimitives(temporaryPath, bytes, ARCHIVE_FILE_MODE);
         nativeFs.renameSync(temporaryPath, this.archivePath);
         this.dirty = false;
       } finally {

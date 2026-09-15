@@ -425,7 +425,15 @@ function readonlyFlags(flags) {
   if (typeof flags === 'string') {
     return flags === 'r' || flags === 'rs' || flags === 'sr';
   }
-  return (flags & (fs.constants.O_WRONLY | fs.constants.O_RDWR | fs.constants.O_CREAT)) === 0;
+  return (
+    (flags &
+      (fs.constants.O_WRONLY |
+        fs.constants.O_RDWR |
+        fs.constants.O_CREAT |
+        fs.constants.O_APPEND |
+        fs.constants.O_TRUNC)) ===
+    0
+  );
 }
 
 function openOperation(flags) {
@@ -483,6 +491,15 @@ function patch(target, savedDescriptors, name, value) {
   });
 }
 
+function unsupportedFilesystemOperation(moduleName, name) {
+  const error = new Error(
+    `Filesystem cache does not support ${moduleName}.${name} from Node ${process.version}`,
+  );
+  error.name = 'UnsupportedFsOperationError';
+  error.code = 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION';
+  return error;
+}
+
 function guardUnhandledFilesystemOperations(
   target,
   savedDescriptors,
@@ -499,11 +516,7 @@ function guardUnhandledFilesystemOperations(
       continue;
     }
     patch(target, savedDescriptors, name, () => {
-      const error = new Error(
-        `Filesystem cache does not support ${moduleName}.${name} from Node ${process.version}`,
-      );
-      error.name = 'UnsupportedFsOperationError';
-      error.code = 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION';
+      const error = unsupportedFilesystemOperation(moduleName, name);
       if (reject) {
         return Promise.reject(error);
       }
@@ -512,9 +525,12 @@ function guardUnhandledFilesystemOperations(
   }
 }
 
-function createReadFilePatches(executor, fileDescriptors) {
+function createReadFilePatches(executor, fileDescriptors, fileHandles) {
   function readFileSync(input, options) {
     const tracked = typeof input === 'number' ? fileDescriptors.get(input) : undefined;
+    if (typeof input === 'number' && !tracked) {
+      throw unsupportedFilesystemOperation('fs', 'readFileSync with an unknown descriptor');
+    }
     if (tracked?.virtual) {
       if (tracked.readError) {
         throw restoreError(tracked.readError, tracked.input);
@@ -537,6 +553,9 @@ function createReadFilePatches(executor, fileDescriptors) {
     if (input?.[CACHED_FILE_HANDLE]) {
       return input.readFile(options);
     }
+    if (typeof input?.fd === 'number' && !fileHandles.has(input)) {
+      throw unsupportedFilesystemOperation('fs/promises', 'readFile with an unknown FileHandle');
+    }
     const buffer = await executor.runAsync(
       input,
       'readFile',
@@ -553,7 +572,10 @@ function createReadFilePatches(executor, fileDescriptors) {
       options = undefined;
     }
     const tracked = typeof input === 'number' ? fileDescriptors.get(input) : undefined;
-    if (typeof input === 'number' && !tracked?.virtual) {
+    if (typeof input === 'number' && !tracked) {
+      throw unsupportedFilesystemOperation('fs', 'readFile with an unknown descriptor');
+    }
+    if (typeof input === 'number' && !tracked.virtual) {
       originalFs.readFile(input, options, callback);
     } else {
       const result = tracked?.virtual
@@ -1019,7 +1041,7 @@ function createOpenPatches(archive, fileDescriptors) {
 
   function openSync(input, flags, mode) {
     if (!readonlyFlags(flags)) {
-      return originalFs.openSync(input, flags, mode);
+      throw unsupportedFilesystemOperation('fs', 'openSync with write-capable flags');
     }
     const operation = openOperation(flags);
     const key = archive.keyFor(input);
@@ -1033,8 +1055,8 @@ function createOpenPatches(archive, fileDescriptors) {
       if (archive.mode === 'record' && key !== undefined) {
         archive.set(key, operation, success(null));
         captureOpenedFile(input, fd);
-        fileDescriptors.set(fd, { key, position: 0, virtual: false });
       }
+      fileDescriptors.set(fd, { key, position: 0, virtual: false });
       return fd;
     } catch (error) {
       if (archive.mode === 'record' && key !== undefined) {
@@ -1052,6 +1074,9 @@ function createOpenPatches(archive, fileDescriptors) {
     } else if (typeof mode === 'function') {
       callback = mode;
       mode = undefined;
+    }
+    if (!readonlyFlags(flags)) {
+      throw unsupportedFilesystemOperation('fs', 'open with write-capable flags');
     }
     try {
       const key = archive.keyFor(input);
@@ -1072,8 +1097,10 @@ function createOpenPatches(archive, fileDescriptors) {
         archive.set(key, operation, error ? failure(error) : success(null));
         if (!error) {
           captureOpenedFile(input, fd);
-          fileDescriptors.set(fd, { key, position: 0, virtual: false });
         }
+      }
+      if (!error) {
+        fileDescriptors.set(fd, { key, position: 0, virtual: false });
       }
       callback(error, fd);
     });
@@ -1104,12 +1131,19 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
   }
 
   function readSync(fd, buffer, ...args) {
+    const tracked = fileDescriptors.get(fd);
+    if (!tracked) {
+      throw unsupportedFilesystemOperation('fs', 'readSync with an unknown descriptor');
+    }
     return readVirtual(fd, buffer, args) ?? originalFs.readSync(fd, buffer, ...args);
   }
 
   function read(fd, ...args) {
     const tracked = fileDescriptors.get(fd);
-    if (!tracked?.virtual) {
+    if (!tracked) {
+      throw unsupportedFilesystemOperation('fs', 'read with an unknown descriptor');
+    }
+    if (!tracked.virtual) {
       originalFs.read(fd, ...args);
     } else {
       const callback = args.pop();
@@ -1134,7 +1168,10 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
 
   function fstatSync(fd, options) {
     const tracked = fileDescriptors.get(fd);
-    if (!tracked?.virtual) {
+    if (!tracked) {
+      throw unsupportedFilesystemOperation('fs', 'fstatSync with an unknown descriptor');
+    }
+    if (!tracked.virtual) {
       return originalFs.fstatSync(fd, options);
     }
     const outcome = archive.get(tracked.key, statOperation('fstat', options));
@@ -1150,6 +1187,9 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
       options = undefined;
     }
     const tracked = fileDescriptors.get(fd);
+    if (!tracked) {
+      throw unsupportedFilesystemOperation('fs', 'fstat with an unknown descriptor');
+    }
     if (tracked?.virtual) {
       try {
         const stat = fstatSync(fd, options);
@@ -1164,6 +1204,9 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
 
   function closeSync(fd) {
     const tracked = fileDescriptors.get(fd);
+    if (!tracked) {
+      throw unsupportedFilesystemOperation('fs', 'closeSync with an unknown descriptor');
+    }
     fileDescriptors.delete(fd);
     if (!tracked?.virtual) {
       originalFs.closeSync(fd);
@@ -1172,6 +1215,9 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
 
   function close(fd, callback) {
     const tracked = fileDescriptors.get(fd);
+    if (!tracked) {
+      throw unsupportedFilesystemOperation('fs', 'close with an unknown descriptor');
+    }
     fileDescriptors.delete(fd);
     if (tracked?.virtual) {
       if (callback) {
@@ -1225,10 +1271,13 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
   };
 }
 
-function createOpenPromise(archive, fileDescriptors, openPatches, CachedFileHandle) {
+function createOpenPromise(archive, fileDescriptors, fileHandles, openPatches, CachedFileHandle) {
   const { captureOpenedFile, replayOpen } = openPatches;
 
   async function openPromise(input, flags, mode) {
+    if (!readonlyFlags(flags)) {
+      throw unsupportedFilesystemOperation('fs/promises', 'open with write-capable flags');
+    }
     const operation = openOperation(flags);
     if (readonlyFlags(flags)) {
       const replayed = replayOpen(input, operation);
@@ -1243,6 +1292,7 @@ function createOpenPromise(archive, fileDescriptors, openPatches, CachedFileHand
         archive.set(key, operation, success(null));
         captureOpenedFile(input, handle.fd);
       }
+      fileHandles.add(handle);
       return handle;
     } catch (error) {
       if (archive.mode === 'record' && key !== undefined && readonlyFlags(flags)) {
@@ -1260,7 +1310,8 @@ function installPatches(archive) {
   const descriptors = new Map();
   const promiseDescriptors = new Map();
   const fileDescriptors = new Map();
-  const readFile = createReadFilePatches(executor, fileDescriptors);
+  const fileHandles = new WeakSet();
+  const readFile = createReadFilePatches(executor, fileDescriptors, fileHandles);
   const basic = createBasicPatches(archive, executor);
   const directory = createDirectoryPatches(archive, executor);
   const openPatches = createOpenPatches(archive, fileDescriptors);
@@ -1268,6 +1319,7 @@ function installPatches(archive) {
   const openPromise = createOpenPromise(
     archive,
     fileDescriptors,
+    fileHandles,
     openPatches,
     descriptor.CachedFileHandle,
   );
@@ -1298,9 +1350,14 @@ function installPatches(archive) {
   patch(fs, descriptors, 'fstat', descriptor.fstat);
   patch(fs, descriptors, 'closeSync', descriptor.closeSync);
   patch(fs, descriptors, 'close', descriptor.close);
-  // Node stdout and stderr use this primitive. Keep it as an explicit native pass-through so
-  // unsupported-operation errors and archive warnings can still be reported.
-  patch(fs, descriptors, 'writeSync', originalFs.writeSync);
+  // Node stdout and stderr use this primitive. Limit the native pass-through to their standard
+  // descriptors so diagnostics work without allowing project files to be mutated through an fd.
+  patch(fs, descriptors, 'writeSync', (fd, ...args) => {
+    if (fd !== 1 && fd !== 2) {
+      throw unsupportedFilesystemOperation('fs', 'writeSync outside stdout or stderr');
+    }
+    return originalFs.writeSync(fd, ...args);
+  });
 
   patch(fs.promises, promiseDescriptors, 'readFile', readFile.readFilePromise);
   patch(fs.promises, promiseDescriptors, 'readdir', basic.readdirPromise);

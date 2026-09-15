@@ -850,6 +850,14 @@ describe('filesystem cache preload', () => {
           capture(() => fs.cpSync('unused-source', 'unused-target')),
           capture(() => commonJsFs.createReadStream('unused')),
           captureRejection(() => fsPromises.cp('unused-source', 'unused-target')),
+          capture(() => fs.writeSync(42, 'unused')),
+          capture(() => fs.openSync('unused', 'w')),
+          capture(() => fs.readSync(42, Buffer.alloc(1), 0, 1, null)),
+          capture(() => fs.readFileSync(42)),
+          capture(() => fs.fstatSync(42)),
+          capture(() => fs.closeSync(42)),
+          captureRejection(() => fsPromises.open('unused', 'w')),
+          captureRejection(() => fsPromises.readFile({ fd: 42, readFile() {} })),
         ]),
         runtime: {
           fs: typeof fsNamespace.mkdtempDisposableSync === 'function'
@@ -900,6 +908,46 @@ describe('filesystem cache preload', () => {
       {
         code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
         message: `Filesystem cache does not support fs/promises.cp from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.writeSync outside stdout or stderr from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.openSync with write-capable flags from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.readSync with an unknown descriptor from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.readFileSync with an unknown descriptor from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.fstatSync with an unknown descriptor from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.closeSync with an unknown descriptor from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs/promises.open with write-capable flags from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs/promises.readFile with an unknown FileHandle from Node ${process.version}`,
         name: 'UnsupportedFsOperationError',
       },
     ]);
