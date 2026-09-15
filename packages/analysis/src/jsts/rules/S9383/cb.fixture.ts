@@ -57,6 +57,34 @@ function nonFunctionRejectionHandlerIsStillReported(next: string) {
   // edit@qf8 {{  await fetchData().catch(next);}}
 }
 
+declare const maybePromise: Promise<void> | undefined;
+
+function optionalChainingIsOutOfScopeAndStillReported(next: any) {
+  fetchData()?.catch(next); // Noncompliant [[qf9,qf10=0]] {{Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator. A rejection handler that is not a function will be ignored.}}
+  // fix@qf9 {{Add void operator to ignore.}}
+  // edit@qf9 {{  void fetchData()?.catch(next);}}
+  // fix@qf10 {{Add await operator.}}
+  // edit@qf10 {{  await fetchData()?.catch(next);}}
+  maybePromise?.then(undefined, next); // Noncompliant [[qf11,qf12=0]] {{Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator. A rejection handler that is not a function will be ignored.}}
+  // fix@qf11 {{Add void operator to ignore.}}
+  // edit@qf11 {{  void maybePromise?.then(undefined, next);}}
+  // fix@qf12 {{Add await operator.}}
+  // edit@qf12 {{  await maybePromise?.then(undefined, next);}}
+}
+
+function computedMemberAccessIsOutOfScopeAndStillReported(next: any) {
+  fetchData()['catch'](next); // Noncompliant [[qf13,qf14=0]] {{Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator. A rejection handler that is not a function will be ignored.}}
+  // fix@qf13 {{Add void operator to ignore.}}
+  // edit@qf13 {{  void fetchData()['catch'](next);}}
+  // fix@qf14 {{Add await operator.}}
+  // edit@qf14 {{  await fetchData()['catch'](next);}}
+  fetchData()[`then`](undefined, next); // Noncompliant [[qf15,qf16=0]] {{Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator. A rejection handler that is not a function will be ignored.}}
+  // fix@qf15 {{Add void operator to ignore.}}
+  // edit@qf15 {{  void fetchData()[`then`](undefined, next);}}
+  // fix@qf16 {{Add await operator.}}
+  // edit@qf16 {{  await fetchData()[`then`](undefined, next);}}
+}
+
 function floatingAsyncIife() {
   (async () => { // Noncompliant [[qf5,qf6=0]] {{Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator.}}
   // fix@qf5 {{Add void operator to ignore.}}
