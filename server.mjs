@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // This import must remain before the analyzer imports so workers install stable filesystem
 // wrappers before dependencies can retain references to native fs functions.
-import './packages/shared/src/fs-cache/worker-register.mjs';
+import './lib/shared/src/fs-cache/worker-register.mjs';
 import { isMainThread } from 'node:worker_threads';
 import { startAnalyzeProjectServer } from './lib/grpc/src/analyze-project-server.js';
 import { createAnalyzeProjectWorker } from './lib/grpc/src/analyze-project-worker/create-worker.js';
