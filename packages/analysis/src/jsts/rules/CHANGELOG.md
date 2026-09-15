@@ -1,3 +1,56 @@
+## 2026-09-15, Version 4.2.1
+
+* [[JS-2405](https://sonarsource.atlassian.net/browse/JS-2405)] - S2699: include Jasmine expectAsync in assertion detection
+* [[JS-2373](https://sonarsource.atlassian.net/browse/JS-2373)] - S107: False positive on the AMD/UI5 define() factory callback (dependency list counted as parameters)
+* [[JS-2368](https://sonarsource.atlassian.net/browse/JS-2368)] - S5332: False positive on http:// URLs used as schema/namespace identifiers (CycloneDX $schema, SNOMED/SOAP/XMPP/ESCO namespaces)
+* [[JS-2366](https://sonarsource.atlassian.net/browse/JS-2366)] - Implement a11y rule: links with identical text should lead to different destinations (JS/TS/JSX)
+* [[JS-2352](https://sonarsource.atlassian.net/browse/JS-2352)] - Implement rule S7503: Async functions should use async features
+* [[JS-2351](https://sonarsource.atlassian.net/browse/JS-2351)] - Fix S1848 false positives for project-local AWS CDK constructs
+* [[JS-2333](https://sonarsource.atlassian.net/browse/JS-2333)] - Implement a11y rule "no-autofocus" (decorated jsx-a11y rule)
+* [[JS-2313](https://sonarsource.atlassian.net/browse/JS-2313)] - S2187: False positive on Deno.test declarations
+* [[JS-2311](https://sonarsource.atlassian.net/browse/JS-2311)] - S2187: False positive on Angular-style "environment.<env>.ts" config files
+* [[JS-2298](https://sonarsource.atlassian.net/browse/JS-2298)] - Don't raise S2486 when the unused catch clause contains only comments
+* [[JS-2246](https://sonarsource.atlassian.net/browse/JS-2246)] - S9135: Avoid false positives when a nested object is replaced before mutation
+* [[JS-2240](https://sonarsource.atlassian.net/browse/JS-2240)] - S2819: Avoid false positives for Worker message handlers
+* [[JS-2237](https://sonarsource.atlassian.net/browse/JS-2237)] - S9333: Synchronous Testing Library queries should not be awaited
+* [[JS-2236](https://sonarsource.atlassian.net/browse/JS-2236)] - S9332: disallow Playwright networkidle waits
+* [[JS-2233](https://sonarsource.atlassian.net/browse/JS-2233)] - S9162: use retryable Cypress assertions
+* [[JS-2232](https://sonarsource.atlassian.net/browse/JS-2232)] - S9153: Testing Library disappearance waits should use non-throwing queries
+* [[JS-2228](https://sonarsource.atlassian.net/browse/JS-2228)] - Fix S125: false negative when ESLint uses parserOptions.projectService
+* [[JS-2222](https://sonarsource.atlassian.net/browse/JS-2222)] - S9144: Native APIs should be preferred over jQuery utility methods
+* [[JS-2221](https://sonarsource.atlassian.net/browse/JS-2221)] - S9163: Create Vue rule - avoid mutating reactive state in onUpdated callback
+* [[JS-2218](https://sonarsource.atlassian.net/browse/JS-2218)] - S9150: Create Vue rule - avoid mixins in Vue 2.7+ components
+* [[JS-2216](https://sonarsource.atlassian.net/browse/JS-2216)] - S9145: Create Vue rule - avoid vue-class-component in Vue 3 projects
+* [[JS-2210](https://sonarsource.atlassian.net/browse/JS-2210)] - Cover AWS CDK assertions in S8785 once the library is classified
+* [[JS-2209](https://sonarsource.atlassian.net/browse/JS-2209)] - Support AWS CDK assertions in S8784
+* [[JS-2207](https://sonarsource.atlassian.net/browse/JS-2207)] - S9135: Avoid mutating nested properties of shallow clones
+* [[JS-2206](https://sonarsource.atlassian.net/browse/JS-2206)] - S9115: Promises returned by Testing Library async events should be handled
+* [[JS-2205](https://sonarsource.atlassian.net/browse/JS-2205)] - Support Window onmessage in S2819
+* [[JS-2192](https://sonarsource.atlassian.net/browse/JS-2192)] - Fix FP on S4782: Fix S4782: false positive for indexed access to an imported optional property
+* [[JS-2191](https://sonarsource.atlassian.net/browse/JS-2191)] - USER-2352 Support AWS CDK assertions in S2699
+* [[JS-2176](https://sonarsource.atlassian.net/browse/JS-2176)] - Fix S6747 false positives for simple framework-specific JSX props
+* [[JS-2174](https://sonarsource.atlassian.net/browse/JS-2174)] - S9114: debounced and throttled functions should not be recreated on every render
+* [[JS-2168](https://sonarsource.atlassian.net/browse/JS-2168)] - NO-JIRA Align S8959 with partial quickfix metadata
+* [[JS-2151](https://sonarsource.atlassian.net/browse/JS-2151)] - Improve S1135: ignore TODO comments anchored by Jira issue keys
+* [[JS-2150](https://sonarsource.atlassian.net/browse/JS-2150)] - Fix FP S1135 (`todo-tag`): ignore Spanish/Portuguese prose uses of `todo`
+* [[JS-2149](https://sonarsource.atlassian.net/browse/JS-2149)] - S3504: suppress issues in files that consistently use var
+* [[JS-2140](https://sonarsource.atlassian.net/browse/JS-2140)] - S8959: Extend scope to Testing Library's debug utils
+* [[JS-2130](https://sonarsource.atlassian.net/browse/JS-2130)] - S9078: Disallow duplicate parameterized test cases
+* [[JS-2129](https://sonarsource.atlassian.net/browse/JS-2129)] - S9073: Composite assertions should be split
+* [[JS-2125](https://sonarsource.atlassian.net/browse/JS-2125)] - S2004: raise default nested-function threshold from 4 to 5 and document the parameter in RSPEC
+* [[JS-2117](https://sonarsource.atlassian.net/browse/JS-2117)] - S9072: Synchronous exception assertions should receive synchronous callbacks
+* [[JS-2115](https://sonarsource.atlassian.net/browse/JS-2115)] - S8998: Parameterized tests should not have empty datasets
+* [[JS-2101](https://sonarsource.atlassian.net/browse/JS-2101)] - Extend JavaScript test rules to Bun and node:test
+* [[JS-2089](https://sonarsource.atlassian.net/browse/JS-2089)] - Fix FP on S2699: Support test.expect and expect.* assertion entrypoints
+* [[JS-2087](https://sonarsource.atlassian.net/browse/JS-2087)] - S9027: Testing Library queries should match presence assertions
+* [[JS-2086](https://sonarsource.atlassian.net/browse/JS-2086)] - S9026: Promises returned by Testing Library async queries should be handled
+* [[JS-2066](https://sonarsource.atlassian.net/browse/JS-2066)] - S9020: Use "find*" to query Testing Library elements that may not be available yet
+* [[JS-2065](https://sonarsource.atlassian.net/browse/JS-2065)] - S9128: Create decorated rule for `vue/no-dupe-keys`
+* [[JS-2064](https://sonarsource.atlassian.net/browse/JS-2064)] - S9107: Create decorated rule for `vue/require-prop-type-constructor`
+* [[JS-2062](https://sonarsource.atlassian.net/browse/JS-2062)] - S9012: Snapshots should not be generated inside Testing Library async utilities
+* [[JS-2061](https://sonarsource.atlassian.net/browse/JS-2061)] - S9025: Create decorated rule for `vue/no-async-in-computed-properties`
+* [[JS-2060](https://sonarsource.atlassian.net/browse/JS-2060)] - S9019: Create decorated rule for `vue/no-ref-as-operand`
+
 ## 2026-07-14, Version 4.2.0
 
 - [[JS-2043](https://sonarsource.atlassian.net/browse/JS-2043)] - S8988: Create decorated rule for `vue/no-side-effects-in-computed-properties`
