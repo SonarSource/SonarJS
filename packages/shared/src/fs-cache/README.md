@@ -1,15 +1,16 @@
-# Filesystem cache preload
+# Filesystem cache hook
 
-This directory contains a Node preload that caches, records, and replays the read-side filesystem
-state used by one analysis at a time. It has no dependency on SonarJS file stores or individual
-filesystem call sites.
+This directory contains a Node filesystem hook that caches, records, and replays the read-side
+filesystem state used by one analysis at a time. It has no dependency on SonarJS file stores or
+individual filesystem call sites.
 
-Install the stable filesystem wrappers with Node's `--import` option. With no cache environment
-variables, the preload stays dormant and every call uses native `fs`. The analyze-project request
-handler activates one archive session when its optional `filesystem_cache` configuration is
-present, and ends that session before completing the response.
+The AnalyzeProject worker installs the stable filesystem wrappers before loading analyzer
+dependencies. With no cache request configuration, the hook stays dormant and every call uses
+native `fs`. The request handler activates one archive session when its optional
+`filesystem_cache` configuration is present, and ends that session before completing the response.
+Java and SQAA do not need to change the Node command line.
 
-The environment variables remain available for standalone use and tests:
+The `register.mjs` preload and environment variables remain available for standalone use and tests:
 
 ```shell
 SONARJS_FS_CACHE_MODE=record \
@@ -40,8 +41,8 @@ is written atomically when the session ends, during normal process exit if a ses
 active, or when `getFsCacheInstallation().flush()` is called. Archive storage and transfer by the
 scanner are intentionally outside the scope of this hook.
 
-The cache exists only when Node is explicitly started with this preload and a session is activated.
-Requests without `filesystem_cache` use native `fs`; SonarLint must not request a cache session.
+The cache is active only while an analysis session is activated. Requests without
+`filesystem_cache` use native `fs`; SonarLint must not request a cache session.
 Every callable filesystem operation that the cache does not patch fails when invoked while a
 session is active, including operations already
 available in Node 22.12 and operations added by a newer runtime. This prevents a dependency update

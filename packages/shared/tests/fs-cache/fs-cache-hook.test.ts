@@ -28,6 +28,10 @@ const register = pathToFileURL(
 ).href;
 const fixture = path.resolve(import.meta.dirname, 'fixtures/exercise-hook.mjs');
 const workerFixture = path.resolve(import.meta.dirname, 'fixtures/exercise-worker-hook.mjs');
+const workerBootstrapFixture = path.resolve(
+  import.meta.dirname,
+  'fixtures/exercise-worker-bootstrap.mjs',
+);
 const futureFsMethodFixture = pathToFileURL(
   path.resolve(import.meta.dirname, 'fixtures/add-future-fs-method.mjs'),
 ).href;
@@ -118,6 +122,26 @@ afterEach(() => {
 });
 
 describe('filesystem cache preload', () => {
+  it('installs dormant filesystem wrappers when the analysis worker starts', () => {
+    const environment = { ...process.env };
+    delete environment.SONARJS_FS_CACHE_MODE;
+    delete environment.SONARJS_FS_CACHE_ARCHIVE;
+    delete environment.SONARJS_FS_CACHE_ROOT;
+
+    const result = spawnSync(process.execPath, [workerBootstrapFixture], {
+      encoding: 'utf8',
+      env: environment,
+    });
+
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual({
+      active: false,
+      installed: true,
+      nativePassthrough: true,
+    });
+  });
+
   it('switches analysis archives while inactive filesystem calls stay native', () => {
     const temporary = temporaryDirectory();
     const recordRoot = path.join(temporary, 'record-root');

@@ -88,7 +88,7 @@ function beginFilesystemCacheAnalysis(
   const installation = (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] as
     FilesystemCacheInstallation | undefined;
   if (!installation) {
-    throw new Error('Filesystem cache requested but the Node preload is not installed');
+    throw new Error('Filesystem cache requested outside an initialized analysis worker');
   }
   return installation.beginAnalysis({
     analyzerVersion: cache.analyzerVersion || undefined,
