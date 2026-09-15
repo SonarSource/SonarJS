@@ -845,7 +845,20 @@ describe('filesystem cache preload', () => {
         () => ({ calledNative: true }),
         error => ({ code: error.code, message: error.message, name: error.name }),
       );
+      const captureSynchronousThrow = operation => {
+        try {
+          operation();
+          return { calledNative: true };
+        } catch (error) {
+          return { code: error.code, message: error.message, name: error.name };
+        }
+      };
+      fs.writeSync(1, 'stdio writeSync stays available\\n');
       console.log(JSON.stringify({
+        asyncIterables: [
+          captureSynchronousThrow(() => fsPromises.glob('*')),
+          captureSynchronousThrow(() => fsPromises.watch('.')),
+        ],
         baseline: await Promise.all([
           capture(() => fs.cpSync('unused-source', 'unused-target')),
           capture(() => commonJsFs.createReadStream('unused')),
@@ -893,7 +906,21 @@ describe('filesystem cache preload', () => {
 
     expect(result.stderr).toBe('');
     expect(result.status).toBe(0);
-    const output = JSON.parse(result.stdout);
+    const [writeSyncOutput, jsonOutput] = result.stdout.trimEnd().split(/\r?\n/);
+    expect(writeSyncOutput).toBe('stdio writeSync stays available');
+    const output = JSON.parse(jsonOutput);
+    expect(output.asyncIterables).toEqual([
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs/promises.glob from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+      {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs/promises.watch from Node ${process.version}`,
+        name: 'UnsupportedFsOperationError',
+      },
+    ]);
     expect(output.baseline).toEqual([
       {
         code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
