@@ -18,14 +18,11 @@
 
 import type { Rule } from 'eslint';
 import { AST_NODE_TYPES, type TSESTree } from '@typescript-eslint/utils';
-import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import { isAny } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
-
-const noFloatingPromisesRule = tsEslintRules['no-floating-promises'];
 
 // messageIds upstream uses when it decided the rejection handler isn't a function
 const NON_FUNCTION_HANDLER_MESSAGE_IDS = new Set([
@@ -76,24 +73,19 @@ function isAnyTypedRejectionHandler(
   return isAny(parserServices.program.getTypeChecker().getTypeAtLocation(tsNode));
 }
 
-const decoratedNoFloatingPromisesRule = interceptReport(
-  noFloatingPromisesRule,
-  (context, descriptor) => {
-    if (
-      'node' in descriptor &&
-      'messageId' in descriptor &&
-      NON_FUNCTION_HANDLER_MESSAGE_IDS.has(descriptor.messageId) &&
-      isAnyTypedRejectionHandler(context, descriptor.node as unknown as TSESTree.Node)
-    ) {
-      return;
-    }
-    context.report(descriptor);
-  },
-);
-
-export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, { ...noFloatingPromisesRule.meta }),
-  create(context: Rule.RuleContext) {
-    return decoratedNoFloatingPromisesRule.create(context);
-  },
-};
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(
+    { ...rule, meta: generateMeta(meta, { ...rule.meta! }) },
+    (context, descriptor) => {
+      if (
+        'node' in descriptor &&
+        'messageId' in descriptor &&
+        NON_FUNCTION_HANDLER_MESSAGE_IDS.has(descriptor.messageId) &&
+        isAnyTypedRejectionHandler(context, descriptor.node as unknown as TSESTree.Node)
+      ) {
+        return;
+      }
+      context.report(descriptor);
+    },
+  );
+}
