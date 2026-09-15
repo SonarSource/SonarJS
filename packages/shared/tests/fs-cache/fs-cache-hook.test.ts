@@ -23,17 +23,16 @@ import { pathToFileURL } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import { expect } from 'expect';
 
-const register = pathToFileURL(
-  path.resolve(import.meta.dirname, '../../src/fs-cache/register.mjs'),
-).href;
-const fixture = path.resolve(import.meta.dirname, 'fixtures/exercise-hook.mjs');
-const workerFixture = path.resolve(import.meta.dirname, 'fixtures/exercise-worker-hook.mjs');
+const register = pathToFileURL(path.resolve('packages/shared/src/fs-cache/register.mjs')).href;
+const fixture = path.resolve('packages/shared/tests/fs-cache/fixtures/exercise-hook.mjs');
+const workerFixture = path.resolve(
+  'packages/shared/tests/fs-cache/fixtures/exercise-worker-hook.mjs',
+);
 const workerBootstrapFixture = path.resolve(
-  import.meta.dirname,
-  'fixtures/exercise-worker-bootstrap.mjs',
+  'packages/shared/tests/fs-cache/fixtures/exercise-worker-bootstrap.mjs',
 );
 const futureFsMethodFixture = pathToFileURL(
-  path.resolve(import.meta.dirname, 'fixtures/add-future-fs-method.mjs'),
+  path.resolve('packages/shared/tests/fs-cache/fixtures/add-future-fs-method.mjs'),
 ).href;
 const temporaryDirectories: string[] = [];
 

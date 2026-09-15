@@ -14,10 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rmSync } from 'node:fs';
 import { buildBundle } from './esbuild-common.mjs';
-
-rmSync(new URL('./bin/fs-cache', import.meta.url), { force: true, recursive: true });
 
 await buildBundle({
   entryPoint: './server.mjs',
@@ -28,10 +25,6 @@ await buildBundle({
     {
       from: ['./run-node'],
       to: ['./bin'],
-    },
-    {
-      from: ['./packages/shared/src/fs-cache/*'],
-      to: ['./bin/fs-cache'],
     },
   ],
 });

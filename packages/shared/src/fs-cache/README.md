@@ -10,7 +10,8 @@ native `fs`. The request handler activates one archive session when its optional
 `filesystem_cache` configuration is present, and ends that session before completing the response.
 Java and SQAA do not need to change the Node command line.
 
-The `register.mjs` preload and environment variables remain available for standalone use and tests:
+The `register.mjs` preload and environment variables remain available from the source tree for
+standalone use and tests:
 
 ```shell
 SONARJS_FS_CACHE_MODE=record \
