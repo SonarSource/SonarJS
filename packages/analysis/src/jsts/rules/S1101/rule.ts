@@ -31,7 +31,7 @@ import * as meta from './generated-meta.js';
 
 const messages = {
   identicalTextDifferentTarget:
-    'Use distinct texts or point to the same target for this link and the one at line {{line}}.',
+    'Use a distinct text or label, or point to the same target for this link and the one on line {{line}}.',
 };
 
 // Props whose presence in a spread makes the anchor unresolvable: they can change the accessible
@@ -130,7 +130,7 @@ function checkLinks(context: Rule.RuleContext, links: LinkInfo[]) {
           messageId: 'identicalTextDifferentTarget',
           data: { line: String(baseline.node.loc.start.line) },
         },
-        [toSecondaryLocation(baseline.node, 'Link with the same text.')],
+        [toSecondaryLocation(baseline.node, 'Link with the same text or label.')],
       );
     }
     // Always register, even on a match, so an unconditional link can solidify the baseline.
