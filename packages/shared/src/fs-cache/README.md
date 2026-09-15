@@ -35,8 +35,9 @@ unaware of it, and SonarLint must not enable the preload. Every callable filesys
 the cache does not patch fails when invoked while the hook is active, including operations already
 available in Node 22.12 and operations added by a newer runtime. This prevents a dependency update
 from silently bypassing recording or replay before the operation's semantics have been explicitly
-implemented. The only explicit native pass-through is `writeSync`, which Node itself uses for
-stdout and stderr; it cannot expose project filesystem state. Synchronous APIs throw
+implemented. `writeSync` passes through only for the stdout and stderr descriptors that Node uses
+for diagnostics; archive serialization uses privately captured native primitives. Write-capable
+opens, writes to other descriptors, and reads from unknown descriptors fail closed. Synchronous APIs throw
 `ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION`; `fs/promises` APIs return a rejected promise with the
 same error, matching their native call contract. An unhandled rejection therefore terminates Node
 normally.
