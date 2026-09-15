@@ -29,6 +29,19 @@ message AnalyzeProjectRequest {
   repeated CssRule css_rules = 4;
   repeated string bundles = 5;
   optional string rules_workdir = 6;
+  FilesystemCache filesystem_cache = 7;
+}
+
+message FilesystemCache {
+  FilesystemCacheMode mode = 1;
+  string archive_path = 2;
+  optional string analyzer_version = 3;
+}
+
+enum FilesystemCacheMode {
+  FILESYSTEM_CACHE_MODE_UNSPECIFIED = 0;
+  FILESYSTEM_CACHE_MODE_RECORD = 1;
+  FILESYSTEM_CACHE_MODE_REPLAY = 2;
 }
 
 message AnalyzeProjectStreamResponse {
