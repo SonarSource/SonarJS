@@ -17,7 +17,18 @@
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { getSystemErrorMap } from 'node:util';
-import { DIRENT_TYPES, FS_TYPE_METHODS, FsCacheArchive } from './archive.js';
+import {
+  type ArchiveOptions,
+  type CachedDirectoryEntry,
+  type CachedName,
+  type CachedStat,
+  DIRENT_TYPES,
+  type FsCacheErrorSnapshot,
+  type FsCacheOutcome,
+  FS_TYPE_METHODS,
+  FsCacheArchive,
+  type PortablePath,
+} from './archive.js';
 
 const MISSING = Symbol('missing filesystem cache observation');
 const INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
@@ -30,7 +41,72 @@ type FsError = Error & {
   syscall?: string;
   path?: string;
 };
-type FunctionWithNative = ((...args: any[]) => any) & { native?: FunctionWithNative };
+type Callable = (...args: never[]) => unknown;
+type FunctionWithNative = Callable & { native?: FunctionWithNative };
+type EncodingOption = BufferEncoding | 'buffer' | null;
+type OperationOptions = {
+  encoding?: EncodingOption;
+  withFileTypes?: boolean;
+  recursive?: boolean;
+  bigint?: boolean;
+  throwIfNoEntry?: boolean;
+};
+type OperationOptionsInput = OperationOptions | BufferEncoding | 'buffer' | null | undefined;
+type ReadOptions = OperationOptions & {
+  buffer?: NodeJS.ArrayBufferView;
+  offset?: number;
+  length?: number;
+  position?: number | bigint | null;
+};
+type ReadArguments =
+  [ReadOptions] | [offset?: number, length?: number, position?: number | bigint | null];
+type CachedPathResult = { path: PortablePath };
+type DirectoryValue = string | Buffer | fs.Dirent<string | Buffer>;
+type CachedDirectoryValue = string | Buffer | fs.Dirent<string | Buffer>;
+type StatValue = fs.Stats | fs.BigIntStats;
+type ErrorCallback = (error: NodeJS.ErrnoException | null) => void;
+type ValueCallback<T> = (error: NodeJS.ErrnoException | null, value?: T) => void;
+type TrackedDescriptor =
+  | { key?: string; position: number; virtual: false }
+  | {
+      content?: Buffer;
+      input: string;
+      key: string;
+      position: number;
+      readError?: FsCacheErrorSnapshot;
+      virtual: true;
+    };
+type FileDescriptorMap = Map<number, TrackedDescriptor>;
+type FileHandleLike = { fd: number };
+type CacheInput = fs.PathLike | number | FileHandleLike;
+type FileHandleTracker = {
+  add(value: object): void;
+  clear(): void;
+  has(value: object): boolean;
+};
+type CacheExecutor = ReturnType<typeof createExecutor>;
+type ArchiveFacade = Pick<
+  FsCacheArchive,
+  | 'decodePortablePath'
+  | 'encodePortablePath'
+  | 'get'
+  | 'getExists'
+  | 'keyFor'
+  | 'recordCacheHit'
+  | 'recordCacheMiss'
+  | 'set'
+> & { readonly mode: FsCacheArchive['mode'] | undefined };
+type FsCacheSession = { archive: FsCacheArchive; end(): void };
+export type FsCacheInstallation = {
+  readonly archive: FsCacheArchive | undefined;
+  beginAnalysis(options: ArchiveOptions): FsCacheSession;
+  flush(): void;
+  getStatistics(): { hits: number; misses: number; paths: number };
+  uninstall(): void;
+};
+const installations = globalThis as typeof globalThis & {
+  [INSTALLATION]?: FsCacheInstallation;
+};
 
 function requireActiveArchive() {
   if (!activeArchive) {
@@ -39,26 +115,26 @@ function requireActiveArchive() {
   return activeArchive;
 }
 
-const activeArchiveFacade = {
+const activeArchiveFacade: ArchiveFacade = {
   get mode() {
     return activeArchive?.mode;
   },
-  keyFor(input) {
+  keyFor(input: fs.PathLike) {
     return activeArchive?.keyFor(input);
   },
-  get(key, operation) {
-    return requireActiveArchive().get(key, operation);
+  get<T = unknown>(key: string, operation: string) {
+    return requireActiveArchive().get<T>(key, operation);
   },
-  getExists(key, operation) {
+  getExists(key: string, operation?: string) {
     return requireActiveArchive().getExists(key, operation);
   },
-  set(key, operation, outcome) {
+  set<T>(key: string, operation: string, outcome: FsCacheOutcome<T>) {
     return requireActiveArchive().set(key, operation, outcome);
   },
-  encodePortablePath(filePath) {
+  encodePortablePath(filePath: fs.PathLike) {
     return requireActiveArchive().encodePortablePath(filePath);
   },
-  decodePortablePath(filePath) {
+  decodePortablePath(filePath: PortablePath) {
     return requireActiveArchive().decodePortablePath(filePath);
   },
   recordCacheHit() {
@@ -93,64 +169,70 @@ const FS_NON_OPERATION_EXPORTS = new Set([
 /** fs/promises operations that synchronously return async iterables instead of promises. */
 const FS_PROMISE_ASYNC_ITERABLE_OPERATIONS = new Set(['glob', 'watch']);
 
-const originalFs = Object.fromEntries(
-  [
-    'access',
-    'accessSync',
-    'close',
-    'closeSync',
-    'existsSync',
-    'fstat',
-    'fstatSync',
-    'lstat',
-    'lstatSync',
-    'open',
-    'openSync',
-    'opendir',
-    'opendirSync',
-    'read',
-    'readFile',
-    'readFileSync',
-    'readSync',
-    'readdir',
-    'readdirSync',
-    'readlink',
-    'readlinkSync',
-    'realpath',
-    'realpathSync',
-    'stat',
-    'statSync',
-    'writeSync',
-  ].map(name => [name, fs[name].bind(fs)]),
-);
-originalFs.realpathNative = fs.realpath.native.bind(fs.realpath);
-originalFs.realpathSyncNative = fs.realpathSync.native.bind(fs.realpathSync);
+const originalFs = {
+  access: fs.access.bind(fs),
+  accessSync: fs.accessSync.bind(fs),
+  close: fs.close.bind(fs),
+  closeSync: fs.closeSync.bind(fs),
+  existsSync: fs.existsSync.bind(fs),
+  fstat: fs.fstat.bind(fs),
+  fstatSync: fs.fstatSync.bind(fs),
+  lstat: fs.lstat.bind(fs),
+  lstatSync: fs.lstatSync.bind(fs),
+  open: fs.open.bind(fs),
+  openSync: fs.openSync.bind(fs),
+  opendir: fs.opendir.bind(fs),
+  opendirSync: fs.opendirSync.bind(fs),
+  read: fs.read.bind(fs),
+  readFile: fs.readFile.bind(fs),
+  readFileSync: fs.readFileSync.bind(fs),
+  readSync: fs.readSync.bind(fs),
+  readdir: fs.readdir.bind(fs),
+  readdirSync: fs.readdirSync.bind(fs),
+  readlink: fs.readlink.bind(fs),
+  readlinkSync: fs.readlinkSync.bind(fs),
+  realpath: fs.realpath.bind(fs),
+  realpathNative: fs.realpath.native.bind(fs.realpath),
+  realpathSync: fs.realpathSync.bind(fs),
+  realpathSyncNative: fs.realpathSync.native.bind(fs.realpathSync),
+  stat: fs.stat.bind(fs),
+  statSync: fs.statSync.bind(fs),
+  writeSync: fs.writeSync.bind(fs),
+};
 
-const originalPromises = Object.fromEntries(
-  ['access', 'lstat', 'open', 'opendir', 'readFile', 'readdir', 'readlink', 'realpath', 'stat'].map(
-    name => [name, fs.promises[name].bind(fs.promises)],
-  ),
-);
+const originalPromises = {
+  access: fs.promises.access.bind(fs.promises),
+  lstat: fs.promises.lstat.bind(fs.promises),
+  open: fs.promises.open.bind(fs.promises),
+  opendir: fs.promises.opendir.bind(fs.promises),
+  readFile: fs.promises.readFile.bind(fs.promises),
+  readdir: fs.promises.readdir.bind(fs.promises),
+  readlink: fs.promises.readlink.bind(fs.promises),
+  realpath: fs.promises.realpath.bind(fs.promises),
+  stat: fs.promises.stat.bind(fs.promises),
+};
 
-function pathDisplay(input) {
+function pathDisplay(input: fs.PathLike | number): string {
   if (Buffer.isBuffer(input)) {
     return input.toString();
   }
   return String(input);
 }
 
-function snapshotError(error) {
-  const errorPath = error?.path === undefined ? undefined : pathDisplay(error.path);
+function snapshotError(error: unknown): FsCacheErrorSnapshot {
+  const filesystemError = error as FsError;
+  const errorPath =
+    filesystemError?.path === undefined ? undefined : pathDisplay(filesystemError.path);
   return {
-    name: error?.name || 'Error',
-    message: String(error?.message || error).replaceAll(errorPath || '\0', '$PATH'),
-    code: error?.code,
-    errno: error?.errno,
-    syscall: error?.syscall,
+    name: filesystemError?.name || 'Error',
+    message: String(filesystemError?.message || error).replaceAll(errorPath || '\0', '$PATH'),
+    code: filesystemError?.code,
+    errno: filesystemError?.errno,
+    syscall: filesystemError?.syscall,
   };
 }
 
-function restoreError(snapshot, input) {
+function restoreError(snapshot: FsCacheErrorSnapshot, input: fs.PathLike | number): FsError {
   const currentPath = pathDisplay(input);
   const error = new Error(snapshot.message.replaceAll('$PATH', currentPath)) as FsError;
   error.name = snapshot.name;
@@ -161,7 +243,7 @@ function restoreError(snapshot, input) {
   return error;
 }
 
-function cacheMiss(operation, input) {
+function cacheMiss(operation: string, input: fs.PathLike | number): FsError {
   const error = new Error(
     `Filesystem cache has no ${operation} observation for '${pathDisplay(input)}'`,
   ) as FsError;
@@ -172,7 +254,7 @@ function cacheMiss(operation, input) {
   return error;
 }
 
-function missingPath(operation, input) {
+function missingPath(operation: string, input: fs.PathLike | number): false | undefined | never {
   if (operation === 'exists') {
     return false;
   }
@@ -201,46 +283,62 @@ function missingPath(operation, input) {
   throw error;
 }
 
-function success(value) {
+function success<T>(value: T): FsCacheOutcome<T> {
   return { ok: true, value };
 }
 
-function failure(error) {
+function failure(error: unknown): FsCacheOutcome<never> {
   return { ok: false, error: snapshotError(error) };
 }
 
-function createExecutor(archive) {
-  function replay(input, operation, decode = value => value) {
-    const key = archive.keyFor(input);
+function createExecutor(archive: ArchiveFacade) {
+  function replay<TStored, TResult = TStored>(
+    input: CacheInput,
+    operation: string,
+    decode: (value: TStored) => TResult = value => value as unknown as TResult,
+  ): TResult | typeof MISSING | false | undefined {
+    const key =
+      typeof input === 'number' || (typeof input === 'object' && 'fd' in input)
+        ? undefined
+        : archive.keyFor(input);
     if (key === undefined) {
       return MISSING;
     }
-    const outcome = archive.get(key, operation);
+    const outcome = archive.get<TStored>(key, operation);
     if (outcome === undefined) {
       if (archive.getExists(key, operation) === false) {
         archive.recordCacheHit();
-        return missingPath(operation, input);
+        return missingPath(operation, input as fs.PathLike | number) as TResult;
       }
       archive.recordCacheMiss();
       if (archive.mode === 'replay') {
-        throw cacheMiss(operation, input);
+        throw cacheMiss(operation, input as fs.PathLike | number);
       }
       return MISSING;
     }
     archive.recordCacheHit();
     if (!outcome.ok) {
-      throw restoreError(outcome.error, input);
+      throw restoreError(outcome.error, input as fs.PathLike | number);
     }
     return decode(outcome.value);
   }
 
-  function runSync(input, operation, producer, encode = value => value, decode = value => value) {
+  function runSync<TValue, TStored = TValue>(
+    input: CacheInput,
+    operation: string,
+    producer: () => TValue,
+    encode: (value: TValue) => TStored = value => value as unknown as TStored,
+    decode: (value: TStored) => TValue = value => value as unknown as TValue,
+  ): TValue {
     const replayed = replay(input, operation, decode);
     if (replayed !== MISSING) {
-      return replayed;
+      return replayed as TValue;
     }
 
-    const key = archive.keyFor(input);
+    const key =
+      typeof input === 'number' || (typeof input === 'object' && 'fd' in input)
+        ? undefined
+        : archive.keyFor(input);
     try {
       const value = producer();
       if (archive.mode === 'record' && key !== undefined) {
@@ -255,19 +353,22 @@ function createExecutor(archive) {
     }
   }
 
-  async function runAsync(
-    input,
-    operation,
-    producer,
-    encode = value => value,
-    decode = value => value,
-  ) {
+  async function runAsync<TValue, TStored = TValue>(
+    input: CacheInput,
+    operation: string,
+    producer: () => Promise<TValue>,
+    encode: (value: TValue) => TStored = value => value as unknown as TStored,
+    decode: (value: TStored) => TValue = value => value as unknown as TValue,
+  ): Promise<TValue> {
     const replayed = replay(input, operation, decode);
     if (replayed !== MISSING) {
-      return replayed;
+      return replayed as TValue;
     }
 
-    const key = archive.keyFor(input);
+    const key =
+      typeof input === 'number' || (typeof input === 'object' && 'fd' in input)
+        ? undefined
+        : archive.keyFor(input);
     try {
       const value = await producer();
       if (archive.mode === 'record' && key !== undefined) {
@@ -285,26 +386,29 @@ function createExecutor(archive) {
   return { replay, runAsync, runSync };
 }
 
-function getEncoding(options) {
+function getEncoding(options: OperationOptionsInput): EncodingOption | undefined {
   if (typeof options === 'string') {
     return options;
   }
   return options?.encoding || undefined;
 }
 
-function withoutEncoding(options) {
+function withoutEncoding(options: OperationOptionsInput): OperationOptions | null | undefined {
   if (typeof options === 'string') {
     return null;
   }
   return options && typeof options === 'object' ? { ...options, encoding: null } : options;
 }
 
-function returnReadBuffer(buffer, options) {
+function returnReadBuffer(buffer: Uint8Array, options: OperationOptionsInput): Buffer | string {
   const encoding = getEncoding(options);
-  return encoding ? buffer.toString(encoding) : Buffer.from(buffer);
+  return encoding && encoding !== 'buffer'
+    ? Buffer.from(buffer).toString(encoding)
+    : Buffer.from(buffer);
 }
 
-function snapshotStat(stat) {
+function snapshotStat(stat: StatValue): CachedStat {
+  const indexedStat = stat as unknown as Record<string, number | bigint | undefined>;
   const fields = [
     'dev',
     'ino',
@@ -324,10 +428,13 @@ function snapshotStat(stat) {
     'mtimeNs',
     'ctimeNs',
     'birthtimeNs',
-  ];
+  ] as const;
   return {
     fields: Object.fromEntries(
-      fields.map(field => [field, stat[field] === undefined ? undefined : String(stat[field])]),
+      fields.map(field => [
+        field,
+        indexedStat[field] === undefined ? undefined : String(indexedStat[field]),
+      ]),
     ),
     types: Object.fromEntries(
       Object.entries(FS_TYPE_METHODS).map(([type, method]) => [type, stat[method]()]),
@@ -335,8 +442,8 @@ function snapshotStat(stat) {
   };
 }
 
-function restoreStat(snapshot, bigint = false) {
-  const stat = Object.create(fs.Stats.prototype);
+function restoreStat(snapshot: CachedStat, bigint = false): StatValue {
+  const stat = Object.create(fs.Stats.prototype) as Record<string, unknown>;
   for (const [field, value] of Object.entries(snapshot.fields)) {
     if (value !== undefined) {
       if (bigint) {
@@ -357,30 +464,38 @@ function restoreStat(snapshot, bigint = false) {
   for (const [type, method] of Object.entries(FS_TYPE_METHODS)) {
     stat[method] = () => snapshot.types[type];
   }
-  return stat;
+  return stat as unknown as StatValue;
 }
 
-function statOperation(name, options: { bigint?: boolean; throwIfNoEntry?: boolean } = {}) {
+function statOperation(name: string, options: { bigint?: boolean; throwIfNoEntry?: boolean } = {}) {
   const result = options?.throwIfNoEntry === false ? 'soft' : 'throw';
   return `${name}:${options?.bigint ? 'bigint' : 'number'}:${result}`;
 }
 
-function snapshotName(name) {
+function snapshotName(name: string | Buffer): CachedName {
   return Buffer.isBuffer(name)
     ? { kind: 'buffer', value: name.toString('base64') }
     : { kind: 'string', value: name };
 }
 
-function restoreName(name) {
+function restoreName(name: CachedName): string | Buffer {
   return name.kind === 'buffer' ? Buffer.from(name.value, 'base64') : name.value;
 }
 
-function direntType(dirent) {
-  return DIRENT_TYPES.slice(1).find(type => dirent[FS_TYPE_METHODS[type]]()) || 'unknown';
+function direntType(dirent: fs.Dirent<string | Buffer>): string {
+  return (
+    DIRENT_TYPES.slice(1).find(type => {
+      const method = FS_TYPE_METHODS[type as keyof typeof FS_TYPE_METHODS];
+      return method ? dirent[method]() : false;
+    }) || 'unknown'
+  );
 }
 
-function snapshotDirectoryResult(result, archive) {
-  return result.map(entry => {
+function snapshotDirectoryResult(
+  result: DirectoryValue[],
+  archive: ArchiveFacade,
+): CachedDirectoryEntry[] {
+  return result.map((entry: DirectoryValue) => {
     if (typeof entry === 'string' || Buffer.isBuffer(entry)) {
       return { kind: 'name', name: snapshotName(entry) };
     }
@@ -388,53 +503,66 @@ function snapshotDirectoryResult(result, archive) {
       kind: 'dirent',
       name: snapshotName(entry.name),
       type: direntType(entry),
-      parentPath: archive.encodePortablePath(entry.parentPath || entry.path || ''),
+      parentPath: archive.encodePortablePath(
+        entry.parentPath || (entry as fs.Dirent<string | Buffer> & { path?: string }).path || '',
+      ),
     };
   });
 }
 
-function createDirent(snapshot, archive) {
-  const dirent = Object.create(fs.Dirent.prototype);
+function createDirent(
+  snapshot: Extract<CachedDirectoryEntry, { kind: 'dirent' }>,
+  archive: ArchiveFacade,
+) {
+  const dirent = Object.create(fs.Dirent.prototype) as fs.Dirent<string | Buffer> &
+    Record<string, unknown>;
   dirent.name = restoreName(snapshot.name);
   dirent.parentPath = archive.decodePortablePath(snapshot.parentPath);
   dirent.path = dirent.parentPath;
   for (const type of DIRENT_TYPES.slice(1)) {
-    dirent[FS_TYPE_METHODS[type]] = () => snapshot.type === type;
+    const method = FS_TYPE_METHODS[type as keyof typeof FS_TYPE_METHODS];
+    if (method) dirent[method] = () => snapshot.type === type;
   }
   return dirent;
 }
 
-function restoreDirectoryResult(result, archive) {
+function restoreDirectoryResult(
+  result: CachedDirectoryEntry[],
+  archive: ArchiveFacade,
+): CachedDirectoryValue[] {
   return result.map(entry =>
     entry.kind === 'name' ? restoreName(entry.name) : createDirent(entry, archive),
   );
 }
 
-function readdirOperation(options) {
+function readdirOperation(options: OperationOptionsInput): string {
   const normalized = typeof options === 'string' ? { encoding: options } : options || {};
   return `readdir:${normalized.encoding || 'utf8'}:${Boolean(normalized.withFileTypes)}:${Boolean(normalized.recursive)}`;
 }
 
-function snapshotPathResult(value, archive) {
+function snapshotPathResult(value: string | Buffer, archive: ArchiveFacade): CachedPathResult {
   return {
     path: archive.encodePortablePath(value.toString()),
   };
 }
 
-function restorePathResult(value, archive) {
+function restorePathResult(value: CachedPathResult, archive: ArchiveFacade): Buffer {
   return Buffer.from(archive.decodePortablePath(value.path));
 }
 
-function withBufferEncoding(options) {
+function withBufferEncoding(options: OperationOptionsInput): OperationOptions | 'buffer' {
   return options && typeof options === 'object' ? { ...options, encoding: 'buffer' } : 'buffer';
 }
 
-function returnPathBuffer(value, options) {
+function returnPathBuffer(value: Uint8Array, options: OperationOptionsInput): string | Buffer {
   const encoding = getEncoding(options) || 'utf8';
-  return encoding === 'buffer' ? Buffer.from(value) : value.toString(encoding);
+  return encoding === 'buffer' ? Buffer.from(value) : Buffer.from(value).toString(encoding);
 }
 
-function readonlyFlags(flags) {
+function readonlyFlags(flags: fs.OpenMode | undefined): boolean {
+  if (flags === undefined) {
+    return true;
+  }
   if (typeof flags === 'string') {
     return flags === 'r' || flags === 'rs' || flags === 'sr';
   }
@@ -449,14 +577,14 @@ function readonlyFlags(flags) {
   );
 }
 
-function openOperation(flags) {
+function openOperation(flags: fs.OpenMode | undefined): string {
   if (flags === undefined || flags === 'r' || flags === fs.constants.O_RDONLY) {
     return 'open:r';
   }
   return `open:${String(flags)}`;
 }
 
-function readArguments(buffer, args) {
+function readArguments(buffer: NodeJS.ArrayBufferView, args: ReadArguments) {
   if (args[0] && typeof args[0] === 'object') {
     const offset = args[0].offset ?? 0;
     return {
@@ -473,24 +601,30 @@ function readArguments(buffer, args) {
   };
 }
 
-function makeCallback(promiseFunction) {
-  return (input, options, callback) => {
+function makeCallback<T>(
+  promiseFunction: (input: fs.PathLike, options?: OperationOptions) => Promise<T>,
+) {
+  return (
+    input: fs.PathLike,
+    options: OperationOptions | ValueCallback<T> | undefined,
+    callback?: ValueCallback<T>,
+  ) => {
     if (typeof options === 'function') {
       callback = options;
       options = undefined;
     }
     promiseFunction(input, options).then(
-      value => callback(null, value),
-      error => callback(error),
+      value => callback!(null, value),
+      error => callback!(error),
     );
   };
 }
 
-function pathOperation(name, options) {
+function pathOperation(name: string, options: OperationOptionsInput): string {
   return name.startsWith('realpath') ? name : `${name}:${getEncoding(options) || 'utf8'}`;
 }
 
-function opendirOperation(options) {
+function opendirOperation(options: OperationOptions | undefined): string {
   return `opendir:${getEncoding(options) || 'utf8'}:${Boolean(options?.recursive)}`;
 }
 
@@ -499,7 +633,7 @@ function selectFilesystemImplementation(
   nativeValue: FunctionWithNative,
   nativeThis: unknown,
 ): FunctionWithNative {
-  const selected: FunctionWithNative = function (this: unknown, ...args) {
+  const selected: FunctionWithNative = function (this: unknown, ...args: unknown[]) {
     return activeArchive
       ? Reflect.apply(cachedValue, this, args)
       : Reflect.apply(nativeValue, nativeThis, args);
@@ -514,25 +648,36 @@ function selectFilesystemImplementation(
   return selected;
 }
 
-function patch(target, savedDescriptors, name, value) {
+function patch(
+  target: object,
+  savedDescriptors: Map<PropertyKey, PropertyDescriptor>,
+  name: PropertyKey,
+  value: Callable,
+): void {
   const savedDescriptor = Object.getOwnPropertyDescriptor(target, name);
   if (!savedDescriptor) {
-    throw new Error(`Cannot patch missing filesystem property: ${name}`);
+    throw new Error(`Cannot patch missing filesystem property: ${String(name)}`);
   }
   savedDescriptors.set(name, savedDescriptor);
   const nativeValue =
-    typeof savedDescriptor.get === 'function' ? target[name] : savedDescriptor.value;
+    typeof savedDescriptor.get === 'function'
+      ? (target as Record<PropertyKey, unknown>)[name]
+      : savedDescriptor.value;
   Object.defineProperty(target, name, {
     configurable: true,
     enumerable: true,
     writable: true,
-    value: selectFilesystemImplementation(value, nativeValue, target),
+    value: selectFilesystemImplementation(
+      value as FunctionWithNative,
+      nativeValue as FunctionWithNative,
+      target,
+    ),
   });
 }
 
-function unsupportedFilesystemOperation(moduleName, name) {
+function unsupportedFilesystemOperation(moduleName: string, name: PropertyKey): FsError {
   const error = new Error(
-    `Filesystem cache does not support ${moduleName}.${name} from Node ${process.version}`,
+    `Filesystem cache does not support ${moduleName}.${String(name)} from Node ${process.version}`,
   ) as FsError;
   error.name = 'UnsupportedFsOperationError';
   error.code = 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION';
@@ -540,17 +685,20 @@ function unsupportedFilesystemOperation(moduleName, name) {
 }
 
 function guardUnhandledFilesystemOperations(
-  target,
-  savedDescriptors,
-  nonOperations,
-  moduleName,
+  target: object,
+  savedDescriptors: Map<PropertyKey, PropertyDescriptor>,
+  nonOperations: Set<string>,
+  moduleName: string,
   reject = false,
 ) {
   for (const [name, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(target))) {
     if (savedDescriptors.has(name) || nonOperations.has(name)) {
       continue;
     }
-    const value = typeof descriptor.get === 'function' ? target[name] : descriptor.value;
+    const value =
+      typeof descriptor.get === 'function'
+        ? (target as Record<string, unknown>)[name]
+        : descriptor.value;
     if (typeof value !== 'function') {
       continue;
     }
@@ -564,12 +712,19 @@ function guardUnhandledFilesystemOperations(
   }
 }
 
-function decodeFileContent(value) {
+function decodeFileContent(value: Buffer | string): Buffer {
   return Buffer.isBuffer(value) ? value : Buffer.from(value, 'base64');
 }
 
-function createReadFilePatches(executor, fileDescriptors, fileHandles) {
-  function readFileSync(input, options) {
+function createReadFilePatches(
+  executor: CacheExecutor,
+  fileDescriptors: FileDescriptorMap,
+  fileHandles: FileHandleTracker,
+) {
+  function readFileSync(
+    input: fs.PathOrFileDescriptor,
+    options?: OperationOptionsInput,
+  ): Buffer | string {
     const tracked = typeof input === 'number' ? fileDescriptors.get(input) : undefined;
     if (typeof input === 'number' && !tracked) {
       throw unsupportedFilesystemOperation('fs', 'readFileSync with an unknown descriptor');
@@ -578,38 +733,61 @@ function createReadFilePatches(executor, fileDescriptors, fileHandles) {
       if (tracked.readError) {
         throw restoreError(tracked.readError, tracked.input);
       }
-      const remaining = tracked.content.subarray(tracked.position);
-      tracked.position = tracked.content.length;
+      const remaining = tracked.content!.subarray(tracked.position);
+      tracked.position = tracked.content!.length;
       return returnReadBuffer(remaining, options);
     }
     const buffer = executor.runSync(
       input,
       'readFile',
-      () => originalFs.readFileSync(input, withoutEncoding(options)),
+      () =>
+        (
+          originalFs.readFileSync as unknown as (
+            input: fs.PathOrFileDescriptor,
+            options?: OperationOptions | null,
+          ) => Buffer
+        )(input, withoutEncoding(options)),
       value => value,
       decodeFileContent,
     );
     return returnReadBuffer(buffer, options);
   }
 
-  async function readFilePromise(input, options) {
-    if (input?.[CACHED_FILE_HANDLE]) {
-      return input.readFile(options);
+  async function readFilePromise(
+    input: fs.PathLike | FileHandleLike,
+    options?: OperationOptionsInput,
+  ): Promise<Buffer | string> {
+    const cachedHandle = input as FileHandleLike & {
+      [CACHED_FILE_HANDLE]?: boolean;
+      readFile?: (options?: OperationOptionsInput) => Promise<Buffer | string>;
+    };
+    if (cachedHandle[CACHED_FILE_HANDLE]) {
+      return cachedHandle.readFile!(options);
     }
-    if (typeof input?.fd === 'number' && !fileHandles.has(input)) {
+    if (typeof input === 'object' && 'fd' in input && !fileHandles.has(input)) {
       throw unsupportedFilesystemOperation('fs/promises', 'readFile with an unknown FileHandle');
     }
     const buffer = await executor.runAsync(
       input,
       'readFile',
-      () => originalPromises.readFile(input, withoutEncoding(options)),
+      () =>
+        (
+          originalPromises.readFile as unknown as (
+            input: fs.PathLike | FileHandleLike,
+            options?: OperationOptions | null,
+          ) => Promise<Buffer>
+        )(input, withoutEncoding(options)),
       value => value,
       decodeFileContent,
     );
     return returnReadBuffer(buffer, options);
   }
 
-  function readFile(input, options, callback) {
+  function readFile(
+    input: fs.PathOrFileDescriptor,
+    options: OperationOptionsInput | ValueCallback<Buffer | string>,
+    callback?: ValueCallback<Buffer | string>,
+  ): void {
     if (typeof options === 'function') {
       callback = options;
       options = undefined;
@@ -618,15 +796,21 @@ function createReadFilePatches(executor, fileDescriptors, fileHandles) {
     if (typeof input === 'number' && !tracked) {
       throw unsupportedFilesystemOperation('fs', 'readFile with an unknown descriptor');
     }
-    if (typeof input === 'number' && !tracked.virtual) {
-      originalFs.readFile(input, options, callback);
+    if (typeof input === 'number' && !tracked!.virtual) {
+      (
+        originalFs.readFile as unknown as (
+          input: fs.PathOrFileDescriptor,
+          options: OperationOptionsInput,
+          callback: ValueCallback<Buffer | string>,
+        ) => void
+      )(input, options, callback!);
     } else {
       const result = tracked?.virtual
         ? Promise.resolve().then(() => readFileSync(input, options))
-        : readFilePromise(input, options);
+        : readFilePromise(input as fs.PathLike, options);
       result.then(
-        value => callback(null, value),
-        error => callback(error),
+        value => callback!(null, value),
+        error => callback!(error),
       );
     }
   }
@@ -634,65 +818,94 @@ function createReadFilePatches(executor, fileDescriptors, fileHandles) {
   return { readFile, readFilePromise, readFileSync };
 }
 
-function createBasicPatches(archive, executor) {
-  function makeStatSync(name, original) {
-    return (input, options) =>
+function createBasicPatches(archive: ArchiveFacade, executor: CacheExecutor) {
+  function makeStatSync(
+    name: string,
+    original: (input: fs.PathLike, options?: OperationOptions) => StatValue | undefined,
+  ) {
+    return (input: fs.PathLike, options?: OperationOptions) =>
       executor.runSync(
         input,
         statOperation(name, options),
         () => original(input, options),
-        value => (value === undefined ? null : snapshotStat(value)),
-        value => (value === null ? undefined : restoreStat(value, options?.bigint)),
+        (value: StatValue | undefined) => (value === undefined ? null : snapshotStat(value)),
+        (value: CachedStat | null) =>
+          value === null ? undefined : restoreStat(value, options?.bigint),
       );
   }
 
-  function makeStatPromise(name, original) {
-    return (input, options) =>
+  function makeStatPromise(
+    name: string,
+    original: (input: fs.PathLike, options?: OperationOptions) => Promise<StatValue>,
+  ) {
+    return (input: fs.PathLike, options?: OperationOptions) =>
       executor.runAsync(
         input,
         statOperation(name, options),
         () => original(input, options),
         snapshotStat,
-        value => restoreStat(value, options?.bigint),
+        (value: CachedStat) => restoreStat(value, options?.bigint),
       );
   }
 
-  function readdirSync(input, options) {
+  function readdirSync(
+    input: fs.PathLike,
+    options?: OperationOptionsInput,
+  ): CachedDirectoryValue[] {
     return executor.runSync(
       input,
       readdirOperation(options),
-      () => originalFs.readdirSync(input, options),
-      value => snapshotDirectoryResult(value, archive),
-      value => restoreDirectoryResult(value, archive),
+      () =>
+        (
+          originalFs.readdirSync as unknown as (
+            input: fs.PathLike,
+            options?: OperationOptionsInput,
+          ) => DirectoryValue[]
+        )(input, options),
+      (value: DirectoryValue[]) => snapshotDirectoryResult(value, archive),
+      (value: CachedDirectoryEntry[]) => restoreDirectoryResult(value, archive),
     );
   }
 
-  function readdirPromise(input, options) {
+  function readdirPromise(
+    input: fs.PathLike,
+    options?: OperationOptionsInput,
+  ): Promise<CachedDirectoryValue[]> {
     return executor.runAsync(
       input,
       readdirOperation(options),
-      () => originalPromises.readdir(input, options),
-      value => snapshotDirectoryResult(value, archive),
-      value => restoreDirectoryResult(value, archive),
+      () =>
+        (
+          originalPromises.readdir as unknown as (
+            input: fs.PathLike,
+            options?: OperationOptionsInput,
+          ) => Promise<DirectoryValue[]>
+        )(input, options),
+      (value: DirectoryValue[]) => snapshotDirectoryResult(value, archive),
+      (value: CachedDirectoryEntry[]) => restoreDirectoryResult(value, archive),
     );
   }
 
-  function readdir(input, options, callback) {
+  function readdir(
+    input: fs.PathLike,
+    options: OperationOptionsInput | ValueCallback<CachedDirectoryValue[]>,
+    callback?: ValueCallback<CachedDirectoryValue[]>,
+  ): void {
     if (typeof options === 'function') {
       callback = options;
       options = undefined;
     }
     readdirPromise(input, options).then(
-      value => callback(null, value),
-      error => callback(error),
+      value => callback!(null, value),
+      error => callback!(error),
     );
   }
 
-  function existsSync(input) {
+  function existsSync(input: fs.PathLike): boolean {
     return executor.runSync(input, 'exists', () => originalFs.existsSync(input));
   }
 
-  function exists(input, callback) {
+  function exists(input: fs.PathLike, callback: (exists: boolean) => void): void {
     let result;
     try {
       result = existsSync(input);
@@ -702,87 +915,134 @@ function createBasicPatches(archive, executor) {
     queueMicrotask(() => callback(result));
   }
 
-  function accessPromise(input, mode = fs.constants.F_OK) {
+  function accessPromise(input: fs.PathLike, mode = fs.constants.F_OK): Promise<void> {
     return executor.runAsync(input, `access:${mode}`, () => originalPromises.access(input, mode));
   }
 
-  function access(input, mode, callback) {
+  function access(
+    input: fs.PathLike,
+    mode: number | ErrorCallback,
+    callback?: ErrorCallback,
+  ): void {
     if (typeof mode === 'function') {
       callback = mode;
       mode = fs.constants.F_OK;
     }
     accessPromise(input, mode).then(
-      () => callback(null),
-      error => callback(error),
+      () => callback!(null),
+      error => callback!(error),
     );
   }
 
-  function accessSync(input, mode = fs.constants.F_OK) {
+  function accessSync(input: fs.PathLike, mode = fs.constants.F_OK): void {
     return executor.runSync(input, `access:${mode}`, () => originalFs.accessSync(input, mode));
   }
 
-  function makeRealpathSync(name, original) {
-    return (input, options) => {
+  function makeRealpathSync(
+    name: string,
+    original: (input: fs.PathLike, options: OperationOptions | 'buffer') => Buffer,
+  ) {
+    return (input: fs.PathLike, options?: OperationOptionsInput) => {
       const value = executor.runSync(
         input,
         pathOperation(name, options),
         () => original(input, withBufferEncoding(options)),
-        value => snapshotPathResult(value, archive),
-        value => restorePathResult(value, archive),
+        (value: Buffer) => snapshotPathResult(value, archive),
+        (value: CachedPathResult) => restorePathResult(value, archive),
       );
       return returnPathBuffer(value, options);
     };
   }
 
-  function makeRealpathPromise(name, original) {
-    return async (input, options) => {
+  function makeRealpathPromise(
+    name: string,
+    original: (input: fs.PathLike, options: OperationOptions | 'buffer') => Promise<Buffer>,
+  ) {
+    return async (input: fs.PathLike, options?: OperationOptionsInput) => {
       const value = await executor.runAsync(
         input,
         pathOperation(name, options),
         () => original(input, withBufferEncoding(options)),
-        value => snapshotPathResult(value, archive),
-        value => restorePathResult(value, archive),
+        (value: Buffer) => snapshotPathResult(value, archive),
+        (value: CachedPathResult) => restorePathResult(value, archive),
       );
       return returnPathBuffer(value, options);
     };
   }
 
-  function readlinkSync(input, options) {
+  function readlinkSync(input: fs.PathLike, options?: OperationOptionsInput) {
     return executor.runSync(
       input,
       pathOperation('readlink', options),
-      () => originalFs.readlinkSync(input, options),
+      () =>
+        (
+          originalFs.readlinkSync as unknown as (
+            input: fs.PathLike,
+            options?: OperationOptionsInput,
+          ) => string | Buffer
+        )(input, options),
       snapshotName,
       restoreName,
     );
   }
 
-  function readlinkPromise(input, options) {
+  function readlinkPromise(input: fs.PathLike, options?: OperationOptionsInput) {
     return executor.runAsync(
       input,
       pathOperation('readlink', options),
-      () => originalPromises.readlink(input, options),
+      () =>
+        (
+          originalPromises.readlink as unknown as (
+            input: fs.PathLike,
+            options?: OperationOptionsInput,
+          ) => Promise<string | Buffer>
+        )(input, options),
       snapshotName,
       restoreName,
     );
   }
 
-  const statSync = makeStatSync('stat', originalFs.statSync);
-  const lstatSync = makeStatSync('lstat', originalFs.lstatSync);
-  const statPromise = makeStatPromise('stat', originalPromises.stat);
-  const lstatPromise = makeStatPromise('lstat', originalPromises.lstat);
-  const realpathSync = makeRealpathSync('realpath', originalFs.realpathSync) as FunctionWithNative;
-  realpathSync.native = makeRealpathSync('realpath.native', originalFs.realpathSyncNative);
-  const realpathPromise = makeRealpathPromise('realpath', originalPromises.realpath);
+  const statSync = makeStatSync(
+    'stat',
+    originalFs.statSync as unknown as Parameters<typeof makeStatSync>[1],
+  );
+  const lstatSync = makeStatSync(
+    'lstat',
+    originalFs.lstatSync as unknown as Parameters<typeof makeStatSync>[1],
+  );
+  const statPromise = makeStatPromise(
+    'stat',
+    originalPromises.stat as unknown as Parameters<typeof makeStatPromise>[1],
+  );
+  const lstatPromise = makeStatPromise(
+    'lstat',
+    originalPromises.lstat as unknown as Parameters<typeof makeStatPromise>[1],
+  );
+  const realpathSync = makeRealpathSync(
+    'realpath',
+    originalFs.realpathSync as unknown as Parameters<typeof makeRealpathSync>[1],
+  ) as FunctionWithNative;
+  realpathSync.native = makeRealpathSync(
+    'realpath.native',
+    originalFs.realpathSyncNative as unknown as Parameters<typeof makeRealpathSync>[1],
+  );
+  const realpathPromise = makeRealpathPromise(
+    'realpath',
+    originalPromises.realpath as unknown as Parameters<typeof makeRealpathPromise>[1],
+  );
   const realpath = makeCallback(realpathPromise) as FunctionWithNative;
   realpath.native = makeCallback(
     makeRealpathPromise(
       'realpath.native',
       (input, options) =>
         new Promise((resolve, reject) =>
-          originalFs.realpathNative(input, options, (error, value) =>
-            error ? reject(error) : resolve(value),
-          ),
+          (
+            originalFs.realpathNative as unknown as (
+              input: fs.PathLike,
+              options: OperationOptions | 'buffer',
+              callback: ValueCallback<Buffer>,
+            ) => void
+          )(input, options, (error, value) => (error ? reject(error) : resolve(value!))),
         ),
     ),
   );
@@ -810,11 +1070,11 @@ function createBasicPatches(archive, executor) {
 
 class CachedDir {
   declare readonly path: string;
-  entries: any[];
+  entries: CachedDirectoryValue[];
   index: number;
   closed: boolean;
 
-  constructor(dirPath, entries) {
+  constructor(dirPath: fs.PathLike, entries: CachedDirectoryValue[]) {
     Object.defineProperty(this, 'path', {
       configurable: true,
       enumerable: true,
@@ -825,21 +1085,21 @@ class CachedDir {
     this.closed = false;
   }
 
-  read(callback?) {
+  read(callback?: ValueCallback<CachedDirectoryValue | null>) {
     const operation = () => this.readSync();
     if (callback) {
       try {
         const entry = operation();
         queueMicrotask(() => callback(null, entry));
       } catch (error) {
-        queueMicrotask(() => callback(error));
+        queueMicrotask(() => callback(error as NodeJS.ErrnoException));
       }
       return undefined;
     }
     return Promise.resolve().then(operation);
   }
 
-  readSync() {
+  readSync(): CachedDirectoryValue | null {
     if (this.closed) {
       const error = new Error('Directory handle was closed') as FsError;
       error.code = 'ERR_DIR_CLOSED';
@@ -850,21 +1110,21 @@ class CachedDir {
     return entry;
   }
 
-  close(callback?) {
+  close(callback?: ErrorCallback) {
     const operation = () => this.closeSync();
     if (callback) {
       try {
         operation();
         queueMicrotask(() => callback(null));
       } catch (error) {
-        queueMicrotask(() => callback(error));
+        queueMicrotask(() => callback(error as NodeJS.ErrnoException));
       }
       return undefined;
     }
     return Promise.resolve().then(operation);
   }
 
-  closeSync() {
+  closeSync(): void {
     if (this.closed) {
       const error = new Error('Directory handle was closed') as FsError;
       error.code = 'ERR_DIR_CLOSED';
@@ -900,11 +1160,13 @@ class CachedDir {
 }
 Object.setPrototypeOf(CachedDir.prototype, fs.Dir.prototype);
 
-function readDirectoryWithOpendirSync(input, options) {
-  const directory = originalFs.opendirSync(input, options);
+function readDirectoryWithOpendirSync(input: fs.PathLike, options?: OperationOptions): fs.Dirent[] {
+  const directory = (
+    originalFs.opendirSync as unknown as (input: fs.PathLike, options?: OperationOptions) => fs.Dir
+  )(input, options);
   try {
-    const entries: any[] = [];
-    let entry;
+    const entries: fs.Dirent[] = [];
+    let entry: fs.Dirent | null;
     while ((entry = directory.readSync()) !== null) {
       entries.push(entry);
     }
@@ -914,11 +1176,19 @@ function readDirectoryWithOpendirSync(input, options) {
   }
 }
 
-async function readDirectoryWithOpendir(input, options) {
-  const directory = await originalPromises.opendir(input, options);
+async function readDirectoryWithOpendir(
+  input: fs.PathLike,
+  options?: OperationOptions,
+): Promise<fs.Dirent[]> {
+  const directory = await (
+    originalPromises.opendir as unknown as (
+      input: fs.PathLike,
+      options?: OperationOptions,
+    ) => Promise<fs.Dir>
+  )(input, options);
   try {
-    const entries: any[] = [];
-    let entry;
+    const entries: fs.Dirent[] = [];
+    let entry: fs.Dirent | null;
     while ((entry = await directory.read()) !== null) {
       entries.push(entry);
     }
@@ -928,19 +1198,26 @@ async function readDirectoryWithOpendir(input, options) {
   }
 }
 
-function createDirectoryPatches(archive, executor) {
-  function opendirSync(input, options) {
+function createDirectoryPatches(archive: ArchiveFacade, executor: CacheExecutor) {
+  function opendirSync(input: fs.PathLike, options?: OperationOptions): fs.Dir | CachedDir {
     const operation = opendirOperation(options);
-    const replayed = executor.replay(input, operation, value =>
-      restoreDirectoryResult(value, archive),
+    const replayed = executor.replay<CachedDirectoryEntry[], CachedDirectoryValue[]>(
+      input,
+      operation,
+      value => restoreDirectoryResult(value, archive),
     );
     if (replayed !== MISSING) {
-      return new CachedDir(input, replayed);
+      return new CachedDir(input, replayed as CachedDirectoryValue[]);
     }
 
     const key = archive.keyFor(input);
     try {
-      const directory = originalFs.opendirSync(input, options);
+      const directory = (
+        originalFs.opendirSync as unknown as (
+          input: fs.PathLike,
+          options?: OperationOptions,
+        ) => fs.Dir
+      )(input, options);
       if (archive.mode === 'record' && key !== undefined) {
         try {
           const entries = readDirectoryWithOpendirSync(input, options);
@@ -958,18 +1235,28 @@ function createDirectoryPatches(archive, executor) {
     }
   }
 
-  async function opendirPromise(input, options) {
+  async function opendirPromise(
+    input: fs.PathLike,
+    options?: OperationOptions,
+  ): Promise<fs.Dir | CachedDir> {
     const operation = opendirOperation(options);
-    const replayed = executor.replay(input, operation, value =>
-      restoreDirectoryResult(value, archive),
+    const replayed = executor.replay<CachedDirectoryEntry[], CachedDirectoryValue[]>(
+      input,
+      operation,
+      value => restoreDirectoryResult(value, archive),
     );
     if (replayed !== MISSING) {
-      return new CachedDir(input, replayed);
+      return new CachedDir(input, replayed as CachedDirectoryValue[]);
     }
 
     const key = archive.keyFor(input);
     try {
-      const directory = await originalPromises.opendir(input, options);
+      const directory = await (
+        originalPromises.opendir as unknown as (
+          input: fs.PathLike,
+          options?: OperationOptions,
+        ) => Promise<fs.Dir>
+      )(input, options);
       if (archive.mode === 'record' && key !== undefined) {
         try {
           const entries = await readDirectoryWithOpendir(input, options);
@@ -987,24 +1274,30 @@ function createDirectoryPatches(archive, executor) {
     }
   }
 
-  function opendir(input, options, callback) {
+  function opendir(
+    input: fs.PathLike,
+    options: OperationOptions | ValueCallback<fs.Dir | CachedDir> | undefined,
+    callback?: ValueCallback<fs.Dir | CachedDir>,
+  ): void {
     if (typeof options === 'function') {
       callback = options;
       options = undefined;
     }
     opendirPromise(input, options).then(
-      value => callback(null, value),
-      error => callback(error),
+      value => callback!(null, value),
+      error => callback!(error),
     );
   }
 
   return { opendir, opendirPromise, opendirSync };
 }
 
-function createOpenPatches(archive, fileDescriptors) {
+type ReplayOpenResult = { found: false } | { fd: number; found: true };
+
+function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescriptorMap) {
   let nextFileDescriptor = 0x3fffffff;
 
-  function captureOpenedFile(input, fd) {
+  function captureOpenedFile(input: fs.PathLike, fd: number): void {
     const key = archive.keyFor(input);
     if (key === undefined || archive.mode !== 'record') {
       return;
@@ -1046,7 +1339,7 @@ function createOpenPatches(archive, fileDescriptors) {
     }
   }
 
-  function replayOpen(input, operation) {
+  function replayOpen(input: fs.PathLike, operation: string): ReplayOpenResult {
     const key = archive.keyFor(input);
     if (key === undefined) {
       return { found: false };
@@ -1067,7 +1360,7 @@ function createOpenPatches(archive, fileDescriptors) {
     if (!outcome.ok) {
       throw restoreError(outcome.error, input);
     }
-    const file = archive.get(key, 'readFile');
+    const file = archive.get<Buffer | string>(key, 'readFile');
     if (file === undefined) {
       if (archive.mode === 'replay') {
         throw cacheMiss('readFile', input);
@@ -1087,7 +1380,7 @@ function createOpenPatches(archive, fileDescriptors) {
     return { fd, found: true };
   }
 
-  function openSync(input, flags, mode) {
+  function openSync(input: fs.PathLike, flags: fs.OpenMode = 'r', mode?: fs.Mode): number {
     if (!readonlyFlags(flags)) {
       throw unsupportedFilesystemOperation('fs', 'openSync with write-capable flags');
     }
@@ -1114,7 +1407,12 @@ function createOpenPatches(archive, fileDescriptors) {
     }
   }
 
-  function open(input, flags, mode, callback) {
+  function open(
+    input: fs.PathLike,
+    flags: fs.OpenMode | ValueCallback<number>,
+    mode?: fs.Mode | ValueCallback<number>,
+    callback?: ValueCallback<number>,
+  ): void {
     if (typeof flags === 'function') {
       callback = flags;
       flags = 'r';
@@ -1130,15 +1428,22 @@ function createOpenPatches(archive, fileDescriptors) {
       const key = archive.keyFor(input);
       if (readonlyFlags(flags) && key !== undefined) {
         const fd = openSync(input, flags, mode);
-        queueMicrotask(() => callback(null, fd));
+        queueMicrotask(() => callback!(null, fd));
         return;
       }
     } catch (error) {
-      queueMicrotask(() => callback(error));
+      queueMicrotask(() => callback!(error as NodeJS.ErrnoException));
       return;
     }
 
-    originalFs.open(input, flags, mode, (error, fd) => {
+    (
+      originalFs.open as unknown as (
+        input: fs.PathLike,
+        flags: fs.OpenMode,
+        mode: fs.Mode | undefined,
+        callback: (error: NodeJS.ErrnoException | null, fd: number) => void,
+      ) => void
+    )(input, flags, mode, (error, fd) => {
       const key = archive.keyFor(input);
       if (archive.mode === 'record' && key !== undefined && readonlyFlags(flags)) {
         const operation = openOperation(flags);
@@ -1150,15 +1455,26 @@ function createOpenPatches(archive, fileDescriptors) {
       if (!error) {
         fileDescriptors.set(fd, { key, position: 0, virtual: false });
       }
-      callback(error, fd);
+      callback!(error, fd);
     });
   }
 
   return { captureOpenedFile, open, openSync, replayOpen };
 }
 
-function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
-  function readVirtual(fd, buffer, args) {
+function createDescriptorPatches(
+  archive: ArchiveFacade,
+  fileDescriptors: FileDescriptorMap,
+  readFileSync: (
+    input: fs.PathOrFileDescriptor,
+    options?: OperationOptionsInput,
+  ) => Buffer | string,
+) {
+  function readVirtual(
+    fd: number,
+    buffer: NodeJS.ArrayBufferView,
+    args: ReadArguments,
+  ): number | undefined {
     const tracked = fileDescriptors.get(fd);
     if (!tracked?.virtual) {
       return undefined;
@@ -1169,52 +1485,67 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
     const { offset, length, position } = readArguments(buffer, args);
     const sequential = position === null || position === undefined;
     const requestedStart = Number(sequential ? tracked.position : position);
-    const start = Math.max(0, Math.min(tracked.content.length, requestedStart));
-    const end = Math.min(tracked.content.length, start + Number(length));
-    const bytesRead = tracked.content.copy(buffer, offset, start, Math.max(start, end));
+    const content = tracked.content!;
+    const start = Math.max(0, Math.min(content.length, requestedStart));
+    const end = Math.min(content.length, start + Number(length));
+    const target = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    const bytesRead = content.copy(target, offset, start, Math.max(start, end));
     if (sequential) {
       tracked.position = start + bytesRead;
     }
     return bytesRead;
   }
 
-  function readSync(fd, buffer, ...args) {
+  function readSync(fd: number, buffer: NodeJS.ArrayBufferView, ...args: ReadArguments): number {
     const tracked = fileDescriptors.get(fd);
     if (!tracked) {
       throw unsupportedFilesystemOperation('fs', 'readSync with an unknown descriptor');
     }
-    return readVirtual(fd, buffer, args) ?? originalFs.readSync(fd, buffer, ...args);
+    return (
+      readVirtual(fd, buffer, args) ??
+      (
+        originalFs.readSync as unknown as (
+          fd: number,
+          buffer: NodeJS.ArrayBufferView,
+          ...args: ReadArguments
+        ) => number
+      )(fd, buffer, ...args)
+    );
   }
 
-  function read(fd, ...args) {
+  function read(fd: number, ...args: unknown[]): void {
     const tracked = fileDescriptors.get(fd);
     if (!tracked) {
       throw unsupportedFilesystemOperation('fs', 'read with an unknown descriptor');
     }
     if (!tracked.virtual) {
-      originalFs.read(fd, ...args);
+      (originalFs.read as unknown as (fd: number, ...args: unknown[]) => void)(fd, ...args);
     } else {
-      const callback = args.pop();
-      let buffer;
-      let readArgs;
+      const callback = args.pop() as (
+        error: NodeJS.ErrnoException | null,
+        bytesRead: number,
+        buffer: NodeJS.ArrayBufferView,
+      ) => void;
+      let buffer: NodeJS.ArrayBufferView;
+      let readArgs: ReadArguments;
       if (ArrayBuffer.isView(args[0])) {
-        [buffer] = args;
-        readArgs = args.slice(1);
+        buffer = args[0] as NodeJS.ArrayBufferView;
+        readArgs = args.slice(1) as ReadArguments;
       } else {
-        const options = args[0] || {};
+        const options = (args[0] || {}) as ReadOptions;
         buffer = options.buffer || Buffer.alloc(16_384);
         readArgs = [options];
       }
       try {
         const bytesRead = readVirtual(fd, buffer, readArgs);
-        queueMicrotask(() => callback(null, bytesRead, buffer));
+        queueMicrotask(() => callback(null, bytesRead ?? 0, buffer));
       } catch (error) {
-        queueMicrotask(() => callback(error, 0, buffer));
+        queueMicrotask(() => callback(error as NodeJS.ErrnoException, 0, buffer));
       }
     }
   }
 
-  function fstatSync(fd, options) {
+  function fstatSync(fd: number, options?: OperationOptions): StatValue {
     const tracked = fileDescriptors.get(fd);
     if (!tracked) {
       throw unsupportedFilesystemOperation('fs', 'fstatSync with an unknown descriptor');
@@ -1222,14 +1553,18 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
     if (!tracked.virtual) {
       return originalFs.fstatSync(fd, options);
     }
-    const outcome = archive.get(tracked.key, statOperation('fstat', options));
+    const outcome = archive.get<CachedStat>(tracked.key!, statOperation('fstat', options));
     if (!outcome?.ok) {
       throw cacheMiss('fstat', tracked.key);
     }
     return restoreStat(outcome.value, options?.bigint);
   }
 
-  function fstat(fd, options, callback) {
+  function fstat(
+    fd: number,
+    options: OperationOptions | ValueCallback<StatValue> | undefined,
+    callback?: ValueCallback<StatValue>,
+  ): void {
     if (typeof options === 'function') {
       callback = options;
       options = undefined;
@@ -1241,16 +1576,22 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
     if (tracked?.virtual) {
       try {
         const stat = fstatSync(fd, options);
-        queueMicrotask(() => callback(null, stat));
+        queueMicrotask(() => callback!(null, stat));
       } catch (error) {
-        queueMicrotask(() => callback(error));
+        queueMicrotask(() => callback!(error as NodeJS.ErrnoException));
       }
       return;
     }
-    originalFs.fstat(fd, options, callback);
+    (
+      originalFs.fstat as unknown as (
+        fd: number,
+        options: OperationOptions | undefined,
+        callback: ValueCallback<StatValue>,
+      ) => void
+    )(fd, options, callback!);
   }
 
-  function closeSync(fd) {
+  function closeSync(fd: number): void {
     const tracked = fileDescriptors.get(fd);
     if (!tracked) {
       throw unsupportedFilesystemOperation('fs', 'closeSync with an unknown descriptor');
@@ -1261,7 +1602,7 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
     }
   }
 
-  function close(fd, callback) {
+  function close(fd: number, callback?: ErrorCallback): void {
     const tracked = fileDescriptors.get(fd);
     if (!tracked) {
       throw unsupportedFilesystemOperation('fs', 'close with an unknown descriptor');
@@ -1280,25 +1621,28 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
     fd: number;
     [CACHED_FILE_HANDLE]: boolean;
 
-    constructor(fd) {
+    constructor(fd: number) {
       this.fd = fd;
       this[CACHED_FILE_HANDLE] = true;
     }
 
-    async read(buffer, ...args) {
+    async read(
+      buffer?: NodeJS.ArrayBufferView | ReadOptions,
+      ...args: ReadArguments
+    ): Promise<{ bytesRead: number | undefined; buffer: NodeJS.ArrayBufferView }> {
       if (!ArrayBuffer.isView(buffer)) {
-        const options = buffer ?? {};
+        const options = (buffer ?? {}) as ReadOptions;
         const target = options.buffer ?? Buffer.alloc(16_384);
         return { bytesRead: readVirtual(this.fd, target, [options]), buffer: target };
       }
       return { bytesRead: readVirtual(this.fd, buffer, args), buffer };
     }
 
-    async readFile(options) {
+    async readFile(options?: OperationOptionsInput) {
       return readFileSync(this.fd, options);
     }
 
-    async stat(options) {
+    async stat(options?: OperationOptions) {
       return fstatSync(this.fd, options);
     }
 
@@ -1322,10 +1666,19 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
   };
 }
 
-function createOpenPromise(archive, fileHandles, openPatches, CachedFileHandle) {
+function createOpenPromise(
+  archive: ArchiveFacade,
+  fileHandles: FileHandleTracker,
+  openPatches: ReturnType<typeof createOpenPatches>,
+  CachedFileHandle: new (fd: number) => FileHandleLike,
+) {
   const { captureOpenedFile, replayOpen } = openPatches;
 
-  async function openPromise(input, flags, mode) {
+  async function openPromise(
+    input: fs.PathLike,
+    flags: fs.OpenMode = 'r',
+    mode?: fs.Mode,
+  ): Promise<FileHandleLike> {
     if (!readonlyFlags(flags)) {
       throw unsupportedFilesystemOperation('fs/promises', 'open with write-capable flags');
     }
@@ -1356,20 +1709,20 @@ function createOpenPromise(archive, fileHandles, openPatches, CachedFileHandle) 
   return openPromise;
 }
 
-function installPatches(archive) {
+function installPatches(archive: ArchiveFacade) {
   const executor = createExecutor(archive);
-  const descriptors = new Map();
-  const promiseDescriptors = new Map();
-  const fileDescriptors = new Map();
-  const fileHandles = {
-    values: new WeakSet(),
-    add(value) {
+  const descriptors = new Map<PropertyKey, PropertyDescriptor>();
+  const promiseDescriptors = new Map<PropertyKey, PropertyDescriptor>();
+  const fileDescriptors: FileDescriptorMap = new Map();
+  const fileHandles: FileHandleTracker & { values: WeakSet<object> } = {
+    values: new WeakSet<object>(),
+    add(value: object) {
       this.values.add(value);
     },
     clear() {
-      this.values = new WeakSet();
+      this.values = new WeakSet<object>();
     },
-    has(value) {
+    has(value: object) {
       return this.values.has(value);
     },
   };
@@ -1413,11 +1766,14 @@ function installPatches(archive) {
   patch(fs, descriptors, 'close', descriptor.close);
   // Node stdout and stderr use this primitive. Limit the native pass-through to their standard
   // descriptors so diagnostics work without allowing project files to be mutated through an fd.
-  patch(fs, descriptors, 'writeSync', (fd, ...args) => {
+  patch(fs, descriptors, 'writeSync', (fd: number, ...args: unknown[]) => {
     if (fd !== 1 && fd !== 2) {
       throw unsupportedFilesystemOperation('fs', 'writeSync outside stdout or stderr');
     }
-    return originalFs.writeSync(fd, ...args);
+    return (originalFs.writeSync as unknown as (fd: number, ...args: unknown[]) => number)(
+      fd,
+      ...args,
+    );
   });
 
   patch(fs.promises, promiseDescriptors, 'readFile', readFile.readFilePromise);
@@ -1458,8 +1814,8 @@ function installPatches(archive) {
   return { reset, uninstall };
 }
 
-export function installFsCache(options?: ConstructorParameters<typeof FsCacheArchive>[0]) {
-  const existingInstallation = globalThis[INSTALLATION];
+export function installFsCache(options?: ArchiveOptions): FsCacheInstallation {
+  const existingInstallation = installations[INSTALLATION];
   if (existingInstallation) {
     if (options) {
       existingInstallation.beginAnalysis(options);
@@ -1474,19 +1830,20 @@ export function installFsCache(options?: ConstructorParameters<typeof FsCacheArc
     }
     try {
       activeArchive.flush();
-    } catch (error) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
       process.stderr.write(
-        `Filesystem cache warning: Cannot write filesystem cache archive ${activeArchive.archivePath}: ${error?.message ?? error}\n`,
+        `Filesystem cache warning: Cannot write filesystem cache archive ${activeArchive.archivePath}: ${message}\n`,
       );
     }
   };
   process.once('exit', exitListener);
 
-  const installation = {
+  const installation: FsCacheInstallation = {
     get archive() {
       return activeArchive;
     },
-    beginAnalysis(analysisOptions) {
+    beginAnalysis(analysisOptions: ArchiveOptions) {
       if (activeArchive) {
         throw new Error('A filesystem cache analysis is already active');
       }
@@ -1524,11 +1881,11 @@ export function installFsCache(options?: ConstructorParameters<typeof FsCacheArc
       } finally {
         activeArchive = undefined;
         patches.uninstall();
-        delete globalThis[INSTALLATION];
+        delete installations[INSTALLATION];
       }
     },
   };
-  globalThis[INSTALLATION] = installation;
+  installations[INSTALLATION] = installation;
   if (options) {
     installation.beginAnalysis(options);
   }

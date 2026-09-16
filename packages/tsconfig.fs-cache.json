@@ -1,7 +1,4 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "noImplicitAny": false
-  },
   "include": ["shared/src/fs-cache/*.ts", "../typings/**/*.d.ts"]
 }

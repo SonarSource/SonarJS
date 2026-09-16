@@ -209,9 +209,9 @@ describe('filesystem cache hook', () => {
     expect(fs.statSync(archive).size).toBeGreaterThan(0);
     const inputNode = loadArchive(archive, recordRoot).entries.get('src/input.ts')!;
     expect(inputNode.exists).toBe(true);
-    expect(inputNode.content.ok).toBe(true);
-    expect(inputNode.stats['stat:number'].ok).toBe(true);
-    expect(inputNode.operations).toBeUndefined();
+    expect(inputNode.content?.ok).toBe(true);
+    expect(inputNode.stats?.['stat:number'].ok).toBe(true);
+    expect('operations' in inputNode).toBe(false);
     expect(recordedResult.openedDirectoryIsDir).toBe(true);
 
     fs.rmSync(recordRoot, { force: true, recursive: true });
