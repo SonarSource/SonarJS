@@ -134,4 +134,22 @@ describe('S1101', () => {
       },
     ],
   });
+
+  ruleTester.run('conditional siblings compared beyond the immediate predecessor', rule, {
+    valid: [],
+    invalid: [
+      {
+        // The ternary's two branches are mutually exclusive with each other, so the "/b" branch
+        // must still be compared against the unrelated `isAdmin` guard further down - not just
+        // against its immediate predecessor, the "/a" branch it's exclusive with.
+        code: `
+          <div>
+            {cond ? <a href="/a">Same</a> : <a href="/b">Same</a>}
+            {isAdmin && <a href="/a">Same</a>}
+          </div>;
+        `,
+        errors: [{ messageId: 'identicalTextDifferentTarget', line: 4 }],
+      },
+    ],
+  });
 });
