@@ -1,0 +1,93 @@
+{
+"fresh:docs/check_images_test.ts": [
+41
+],
+"fresh:packages/fresh/src/app.ts": [
+136
+],
+"fresh:packages/fresh/src/context.ts": [
+233
+],
+"fresh:packages/fresh/src/dev/builder.ts": [
+382
+],
+"fresh:packages/fresh/src/dev/check.ts": [
+64
+],
+"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
+145,
+171,
+314,
+325,
+344
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+148
+],
+"fresh:packages/fresh/src/dev/update_check_test.ts": [
+44
+],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+65,
+71,
+78,
+84,
+92,
+94,
+114,
+120,
+127,
+133
+],
+"fresh:packages/fresh/src/middlewares/static_files_test.ts": [
+178,
+179,
+257,
+258
+],
+"fresh:packages/fresh/tests/test_utils.tsx": [
+331,
+337
+],
+"fresh:packages/plugin-tailwindcss-v3/src/mod.ts": [
+83
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+71,
+78,
+83,
+104,
+143,
+214
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+200,
+281,
+283,
+293,
+525,
+534
+],
+"fresh:packages/plugin-vite/tests/build_test.ts": [
+257,
+257,
+259,
+678,
+679,
+699,
+700
+],
+"fresh:packages/update/src/update.ts": [
+92,
+261
+],
+"fresh:tools/check_links.ts": [
+193,
+201
+],
+"fresh:www/vite.config.ts": [
+37,
+45,
+50
+]
+}

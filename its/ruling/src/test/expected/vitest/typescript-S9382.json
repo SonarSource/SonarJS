@@ -1,0 +1,162 @@
+{
+"vitest:packages/browser-playwright/src/commands/keyboard.ts": [
+47,
+74,
+81,
+87,
+90,
+96,
+108
+],
+"vitest:packages/browser-playwright/src/commands/wheel.ts": [
+19
+],
+"vitest:packages/browser-webdriverio/src/commands/keyboard.ts": [
+81,
+83
+],
+"vitest:packages/browser-webdriverio/src/commands/upload.ts": [
+31,
+32
+],
+"vitest:packages/browser/src/client/orchestrator.ts": [
+90,
+97
+],
+"vitest:packages/browser/src/client/tester/locators/index.ts": [
+360
+],
+"vitest:packages/browser/src/client/tester/tester.ts": [
+205
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/index.ts": [
+432,
+437
+],
+"vitest:packages/coverage-istanbul/src/provider.ts": [
+242
+],
+"vitest:packages/coverage-v8/src/provider.ts": [
+162,
+425
+],
+"vitest:packages/runner/src/collect.ts": [
+35,
+91
+],
+"vitest:packages/runner/src/fixture.ts": [
+248,
+275,
+399,
+411
+],
+"vitest:packages/runner/src/run.ts": [
+155,
+209,
+553,
+625,
+718,
+755,
+901,
+917,
+1023
+],
+"vitest:packages/runner/src/setup.ts": [
+17
+],
+"vitest:packages/runner/src/suite.ts": [
+555
+],
+"vitest:packages/snapshot/src/client.ts": [
+407,
+430
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.spec.ts": [
+90,
+91,
+94
+],
+"vitest:packages/vitest/src/integrations/chai/poll.ts": [
+154,
+158,
+159,
+165,
+169
+],
+"vitest:packages/vitest/src/integrations/mock/timers.ts": [
+99
+],
+"vitest:packages/vitest/src/node/core.ts": [
+631,
+676,
+1192,
+1479,
+1499
+],
+"vitest:packages/vitest/src/node/coverage.ts": [
+327,
+339,
+749
+],
+"vitest:packages/vitest/src/node/pool.ts": [
+209
+],
+"vitest:packages/vitest/src/node/pools/browser.ts": [
+143
+],
+"vitest:packages/vitest/src/node/pools/workers/typecheckWorker.ts": [
+166,
+189,
+247
+],
+"vitest:packages/vitest/src/node/project.ts": [
+244,
+267
+],
+"vitest:packages/vitest/src/node/projects/resolveProjects.ts": [
+388,
+397
+],
+"vitest:packages/vitest/src/node/reporters/blob.ts": [
+167
+],
+"vitest:packages/vitest/src/node/reporters/junit.ts": [
+205,
+228,
+251,
+254,
+264,
+375
+],
+"vitest:packages/vitest/src/node/test-run.ts": [
+94,
+137,
+303,
+304,
+307,
+308,
+309
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/bareModuleMocker.ts": [
+180
+],
+"vitest:packages/vitest/src/runtime/runBaseTests.ts": [
+63,
+69,
+76
+],
+"vitest:packages/vitest/src/runtime/runVmTests.ts": [
+101,
+107,
+114
+],
+"vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
+55,
+129,
+131
+],
+"vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
+144,
+161
+]
+}
