@@ -1,0 +1,20 @@
+{
+"eigen:index.android.js": [
+1
+],
+"eigen:scripts/changelog/cli.js": [
+35
+],
+"eigen:scripts/changelog/commitChangelog.js": [
+122
+],
+"eigen:scripts/detect-secrets.js": [
+111
+],
+"eigen:scripts/doctor.js": [
+153
+],
+"eigen:scripts/update-metaphysics.js": [
+43
+]
+}
