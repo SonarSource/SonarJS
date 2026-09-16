@@ -24,8 +24,8 @@ describe('S9145 on a caret-pinned pre-3.0 Vue 2 range', () => {
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
   ruleTester.run(
-    'S9145 is silenced on "^2.6.11": even though the caret range could technically resolve up ' +
-      'to (but excluding) 3.0.0, projects pinned this way stay on their pre-3.0 floor in practice',
+    'S9145 is silenced on "^2.6.11": the caret range\'s ceiling stops just below 3.0.0, so it ' +
+      'cannot resolve to Vue 3',
     rule,
     {
       valid: [

@@ -16,7 +16,7 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { lt, minVersion, validRange } from 'semver';
+import { intersects, validRange } from 'semver';
 import type { AST } from 'vue-eslint-parser';
 import { getVueVersion } from './dependency-manifests/dependencies.js';
 import { getVariableFromName } from './ast.js';
@@ -26,7 +26,8 @@ type VChildElement = AST.VElement | AST.VText | AST.VExpressionContainer | AST.V
 
 export type VueReactiveBindingKind = 'ref' | 'reactive';
 
-const VUE_COMPOSITION_API_MIN_VERSION = '3.0.0';
+// "-0" makes the lower bound prerelease-inclusive, so an exact pin like "3.0.0-rc.13" still counts as Vue 3+
+const VUE_3_OR_LATER_RANGE = '>=3.0.0-0';
 
 const VUE_REF_FQN = 'vue.ref';
 const VUE_REACTIVE_FQN = 'vue.reactive';
@@ -50,18 +51,16 @@ export function isInsideVueSetupScript(node: estree.Node, ctx: Rule.RuleContext)
   );
 }
 
-/**
- * Returns true when the project's Vue dependency range's floor is below 3.0.0. Vue 2 users are
- * not moving off the Options API just because 2.7 backported the Composition API, so Vue 3 is
- * treated as the real cutoff. Unparseable ranges keep reporting.
- */
+/** Returns true when the project's Vue dependency is missing or cannot resolve to Vue 3+: Vue 2 users aren't moving off the Options API just because 2.7 backported the Composition API. */
 export function lacksCompositionApi(context: Rule.RuleContext): boolean {
   const vueVersionRange = getVueVersion(context);
-  if (!vueVersionRange || !validRange(vueVersionRange)) {
+  if (!vueVersionRange) {
+    return true;
+  }
+  if (!validRange(vueVersionRange)) {
     return false;
   }
-  const floor = minVersion(vueVersionRange);
-  return floor === null || lt(floor, VUE_COMPOSITION_API_MIN_VERSION);
+  return !intersects(vueVersionRange, VUE_3_OR_LATER_RANGE);
 }
 
 /**

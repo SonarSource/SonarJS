@@ -24,12 +24,12 @@ describe('S9150 on a Vue 2.7/3 range', () => {
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
   ruleTester.run(
-    'S9150 is silenced on "^2.7.0 || ^3.0.0": even though the range also allows Vue 3+, its ' +
-      'floor (2.7.0) predates Vue 3, and projects declared this way stay on their pre-3.0 floor ' +
-      'in practice',
+    'S9150 still reports on "^2.7.0 || ^3.0.0": the range can resolve to Vue 3, even though its ' +
+      'floor predates it',
     rule,
     {
-      valid: [
+      valid: [],
+      invalid: [
         {
           code: `
             import counterMixin from './mixins/counter';
@@ -38,9 +38,9 @@ describe('S9150 on a Vue 2.7/3 range', () => {
             };
           `,
           filename: join(dirname, 'component.js'),
+          errors: 1,
         },
       ],
-      invalid: [],
     },
   );
 });

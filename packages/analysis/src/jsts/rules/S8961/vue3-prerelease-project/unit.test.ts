@@ -18,26 +18,22 @@ import { rule } from '../index.js';
 import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
+import parser from 'vue-eslint-parser';
 
-describe('S9145 on a Vue 2.7/3 range', () => {
+describe('S8961 on an exact Vue 3 prerelease pin', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
-  const ruleTester = new NoTypeCheckingRuleTester();
+  const ruleTester = new NoTypeCheckingRuleTester({ parser });
   ruleTester.run(
-    'S9145 still reports on "^2.7.0 || ^3.0.0": the range can resolve to Vue 3, even though its ' +
-      'floor predates it',
+    'S8961 still reports on "3.0.0-rc.13": an exact prerelease pin is Vue 3, even though ' +
+      'semver excludes it from a plain ">=3.0.0" comparator',
     rule,
     {
       valid: [],
       invalid: [
         {
-          code: `
-          import { Vue } from 'vue-class-component';
-          export default class MyComponent extends Vue {
-            count = 0;
-          }
-        `,
-          filename: join(dirname, 'component.ts'),
+          code: `<script>export default { methods: { submit() { this.$emit('leadFormSent'); } } };</script>`,
+          filename: join(dirname, 'component.tsx'),
           errors: 1,
         },
       ],

@@ -22,7 +22,8 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getVueVersion } from '../helpers/dependency-manifests/dependencies.js';
 import * as meta from './generated-meta.js';
 
-const VUE_3_OR_LATER_RANGE = '>=3.0.0';
+// "-0" makes the lower bound prerelease-inclusive, so an exact pin like "3.0.0-rc.13" still counts as Vue 3+
+const VUE_3_OR_LATER_RANGE = '>=3.0.0-0';
 
 /**
  * Decorates the vue/require-explicit-emits rule to silence it on Vue 2 projects.

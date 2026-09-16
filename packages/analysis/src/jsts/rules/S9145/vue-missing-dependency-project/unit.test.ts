@@ -19,33 +19,27 @@ import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
-describe('S9145 on pre-3.0 Vue 2', () => {
+describe('S9145 with no declared Vue dependency', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
-  ruleTester.run('S9145 is silenced on Vue versions that predate the Composition API', rule, {
-    valid: [
-      {
-        // vue-class-component's class API is the standard pattern on Vue 2; the Composition API alternative is only considered available from Vue 3 onward
-        code: `
-          import { Vue } from 'vue-class-component';
-          export default class MyComponent extends Vue {
-            count = 0;
-          }
-        `,
-        filename: join(dirname, 'component.ts'),
-      },
-      {
-        // same reasoning applies to vue-property-decorator, which targets the same Vue 2 class API
-        code: `
-          import { Prop } from 'vue-property-decorator';
-          export default class MyComponent {
-            @Prop() readonly msg!: string;
-          }
-        `,
-        filename: join(dirname, 'component2.ts'),
-      },
-    ],
-    invalid: [],
-  });
+  ruleTester.run(
+    'S9145 is silenced when no vue dependency can be resolved at all: without it, there is no ' +
+      'basis to assume the project is on Vue 3',
+    rule,
+    {
+      valid: [
+        {
+          code: `
+            import { Vue } from 'vue-class-component';
+            export default class MyComponent extends Vue {
+              count = 0;
+            }
+          `,
+          filename: join(dirname, 'component.ts'),
+        },
+      ],
+      invalid: [],
+    },
+  );
 });
