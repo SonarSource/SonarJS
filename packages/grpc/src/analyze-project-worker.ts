@@ -98,28 +98,24 @@ export function registerAnalyzeProjectWorkerMessageHandler(
  * references to filesystem functions while their modules are evaluated, so the ordering here is
  * part of the cache contract.
  */
-function startAnalyzeProjectWorker() {
-  if (!parentPort) {
-    return;
-  }
-  const workerParentPort = parentPort;
-  import('../../shared/src/fs-cache/hook.js')
-    .then(({ installFsCache }) => {
-      installFsCache();
-      // Do not make this a static import: the cache hook must be installed first.
-      return import('./analyze-project-handle-request.js');
-    })
-    .then(({ handleAnalyzeProjectRequest }) => {
-      registerAnalyzeProjectWorkerMessageHandler(
-        workerParentPort,
-        workerData as WorkerData,
-        handleAnalyzeProjectRequest,
-      );
-    });
+async function startAnalyzeProjectWorker(workerParentPort: NonNullable<typeof parentPort>) {
+  const { installFsCache } = await import('../../shared/src/fs-cache/hook.js');
+  installFsCache();
+  // Do not make this a static import: the cache hook must be installed first.
+  const { handleAnalyzeProjectRequest } = await import('./analyze-project-handle-request.js');
+  registerAnalyzeProjectWorkerMessageHandler(
+    workerParentPort,
+    workerData as WorkerData,
+    handleAnalyzeProjectRequest,
+  );
 }
 
 if (parentPort) {
-  void startAnalyzeProjectWorker();
+  startAnalyzeProjectWorker(parentPort).catch(error => {
+    process.nextTick(() => {
+      throw error;
+    });
+  });
 }
 
 function toUnaryResponseResult(
