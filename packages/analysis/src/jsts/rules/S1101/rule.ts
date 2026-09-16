@@ -356,10 +356,18 @@ function getStaticHref(value: JSXAttribute['value']): string | null {
       return expression.value;
     }
     if (expression.type === 'TemplateLiteral' && expression.expressions.length === 0) {
-      return expression.quasis.map(quasi => quasi.value.cooked ?? '').join('');
+      return cookTemplateLiteral(expression) ?? null;
     }
   }
   return null;
+}
+
+// Joins an expression-free template literal's quasis, or undefined if any has an unparsable escape sequence.
+function cookTemplateLiteral(expression: estree.TemplateLiteral): string | undefined {
+  const cooked = expression.quasis.map(quasi => quasi.value.cooked);
+  return cooked.every((value): value is string => value !== undefined)
+    ? cooked.join('')
+    : undefined;
 }
 
 // Accessible name precedence: aria-label > text content (skipping aria-hidden, using nested img alt) > title, per S6827.
@@ -518,7 +526,7 @@ function getStaticTextFromExpression(expression: estree.Expression): string | un
     return typeof value === 'number' || typeof value === 'bigint' ? String(value) : '';
   }
   if (expression.type === 'TemplateLiteral' && expression.expressions.length === 0) {
-    return expression.quasis.map(quasi => quasi.value.cooked ?? '').join('');
+    return cookTemplateLiteral(expression);
   }
   return undefined;
 }
