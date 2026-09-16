@@ -24,11 +24,12 @@ describe('S9145 on Vue 2.7', () => {
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
   ruleTester.run(
-    'S9145 reports class-based components on Vue 2.7, which backported the Composition API',
+    'S9145 is silenced on Vue 2.7: it backported the Composition API, but Vue 2 users are not ' +
+      'moving off the Options API just because it became available, so the Composition API is ' +
+      'only considered available from Vue 3 onward',
     rule,
     {
-      valid: [],
-      invalid: [
+      valid: [
         {
           code: `
             import { Vue } from 'vue-class-component';
@@ -37,9 +38,9 @@ describe('S9145 on Vue 2.7', () => {
             }
           `,
           filename: join(dirname, 'component.ts'),
-          errors: 1,
         },
       ],
+      invalid: [],
     },
   );
 });

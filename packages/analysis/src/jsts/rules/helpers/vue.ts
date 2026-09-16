@@ -26,7 +26,7 @@ type VChildElement = AST.VElement | AST.VText | AST.VExpressionContainer | AST.V
 
 export type VueReactiveBindingKind = 'ref' | 'reactive';
 
-const VUE_COMPOSITION_API_MIN_VERSION = '2.7.0';
+const VUE_COMPOSITION_API_MIN_VERSION = '3.0.0';
 
 const VUE_REF_FQN = 'vue.ref';
 const VUE_REACTIVE_FQN = 'vue.reactive';
@@ -51,18 +51,9 @@ export function isInsideVueSetupScript(node: estree.Node, ctx: Rule.RuleContext)
 }
 
 /**
- * Returns true when the project's Vue dependency range's floor (its minimum resolvable version)
- * is below the version that introduced the Composition API.
- *
- * Vue backported the Composition API and `<script setup>` into 2.7, not just 3.0, so that is the
- * real cutoff, not the Vue 3 major version. This looks at the range's floor rather than whether
- * the range could merely overlap 2.7+: a caret range's ceiling always reaches just under the next
- * major (e.g. "^2.6.11" allows up to, but excluding, 3.0.0), so any caret-pinned Vue 2 range would
- * technically overlap 2.7+ regardless of how old its floor is. In practice, such projects stay on
- * their pinned floor until someone deliberately bumps it, so the floor is what should gate the
- * rule. Ranges whose floor is already 2.7+ (e.g. "^2.7.0", "^2.7.0 || ^3.0.0", "^3.0.0") keep
- * reporting. Unknown/unparseable ranges (catalog:, workspace:, git:, missing dependency, ...) also
- * keep reporting.
+ * Returns true when the project's Vue dependency range's floor is below 3.0.0. Vue 2 users are
+ * not moving off the Options API just because 2.7 backported the Composition API, so Vue 3 is
+ * treated as the real cutoff. Unparseable ranges keep reporting.
  */
 export function lacksCompositionApi(context: Rule.RuleContext): boolean {
   const vueVersionRange = getVueVersion(context);

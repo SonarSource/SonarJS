@@ -19,15 +19,16 @@ import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
-describe('S9145 on pre-2.7 Vue 2', () => {
+describe('S9145 on pre-3.0 Vue 2', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
   ruleTester.run('S9145 is silenced on Vue versions that predate the Composition API', rule, {
     valid: [
       {
-        // vue-class-component's class API is the standard, recommended pattern before 2.7;
-        // the Composition API alternative this rule steers toward does not exist yet there
+        // vue-class-component's class API is the standard, recommended pattern on Vue 2;
+        // the Composition API alternative this rule steers toward is only considered
+        // available from Vue 3 onward
         code: `
           import { Vue } from 'vue-class-component';
           export default class MyComponent extends Vue {
@@ -37,7 +38,7 @@ describe('S9145 on pre-2.7 Vue 2', () => {
         filename: join(dirname, 'component.ts'),
       },
       {
-        // same reasoning applies to vue-property-decorator, which targets the same pre-2.7 class API
+        // same reasoning applies to vue-property-decorator, which targets the same Vue 2 class API
         code: `
           import { Prop } from 'vue-property-decorator';
           export default class MyComponent {

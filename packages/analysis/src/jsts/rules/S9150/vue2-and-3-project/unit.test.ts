@@ -19,16 +19,17 @@ import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
-describe('S9150 on a Vue 2/3 range', () => {
+describe('S9150 on a Vue 2.7/3 range', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
   ruleTester.run(
-    'S9150 still reports when the declared range also allows a version with the Composition API',
+    'S9150 is silenced on "^2.7.0 || ^3.0.0": even though the range also allows Vue 3+, its ' +
+      'floor (2.7.0) predates Vue 3, and projects declared this way stay on their pre-3.0 floor ' +
+      'in practice',
     rule,
     {
-      valid: [],
-      invalid: [
+      valid: [
         {
           code: `
             import counterMixin from './mixins/counter';
@@ -37,9 +38,9 @@ describe('S9150 on a Vue 2/3 range', () => {
             };
           `,
           filename: join(dirname, 'component.js'),
-          errors: 1,
         },
       ],
+      invalid: [],
     },
   );
 });
