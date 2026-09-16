@@ -30,10 +30,10 @@ data.split("\n").forEach(line => {
 projects.forEach(projectKey => {
   const result = resultsByProject[projectKey];
   let json = JSON.stringify(result, null, 2);
-  const dir = path.join(destination, "typescript", projectKey);
+  const dir = path.join(destination, projectKey);
   fs.mkdirSync(dir, { recursive: true });
   json = json.split(" ").join("");
   json = json.split("\"").join("'");
   json = json.split("\n]").join(",\n]");
-  fs.writeFileSync(path.join(dir, ruleKey + ".json"), json);
+  fs.writeFileSync(path.join(dir, "typescript-" + ruleKey + ".json"), json);
 });
