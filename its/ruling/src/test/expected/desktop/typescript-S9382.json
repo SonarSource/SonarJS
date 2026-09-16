@@ -1,0 +1,141 @@
+{
+"desktop:app/src/lib/api.ts": [
+1372,
+1378
+],
+"desktop:app/src/lib/ci-checks/ci-checks.ts": [
+77,
+376,
+398,
+409,
+508
+],
+"desktop:app/src/lib/databases/repositories-database.ts": [
+226
+],
+"desktop:app/src/lib/editors/darwin.ts": [
+141,
+151,
+176
+],
+"desktop:app/src/lib/editors/linux.ts": [
+65,
+79
+],
+"desktop:app/src/lib/editors/win32.ts": [
+459,
+481
+],
+"desktop:app/src/lib/find-account.ts": [
+102
+],
+"desktop:app/src/lib/git/cherry-pick.ts": [
+398
+],
+"desktop:app/src/lib/git/commit.ts": [
+62
+],
+"desktop:app/src/lib/git/lfs.ts": [
+92
+],
+"desktop:app/src/lib/git/rebase.ts": [
+442
+],
+"desktop:app/src/lib/git/reorder.ts": [
+70,
+89,
+108,
+113,
+122
+],
+"desktop:app/src/lib/git/squash.ts": [
+80,
+100,
+121,
+126
+],
+"desktop:app/src/lib/git/update-index.ts": [
+167
+],
+"desktop:app/src/lib/large-files.ts": [
+31
+],
+"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
+77
+],
+"desktop:app/src/lib/markdown-filters/node-filter.ts": [
+121,
+144
+],
+"desktop:app/src/lib/queue-work.ts": [
+33,
+42
+],
+"desktop:app/src/lib/stores/accounts-store.ts": [
+189
+],
+"desktop:app/src/lib/stores/alive-store.ts": [
+138
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+5406,
+5412,
+5434,
+5441,
+5443,
+5668
+],
+"desktop:app/src/lib/stores/git-store.ts": [
+302,
+794,
+1012,
+1065,
+1658
+],
+"desktop:app/src/lib/stores/helpers/branch-pruner.ts": [
+229
+],
+"desktop:app/src/lib/stores/helpers/repository-indicator-updater.ts": [
+94,
+101
+],
+"desktop:app/src/lib/stores/issues-store.ts": [
+122,
+127,
+132,
+137,
+139
+],
+"desktop:app/src/lib/stores/pull-request-store.ts": [
+178,
+179,
+281,
+303
+],
+"desktop:app/src/lib/stores/repositories-store.ts": [
+183
+],
+"desktop:app/src/main-process/desktop-file-transport.ts": [
+88
+],
+"desktop:app/src/main-process/ordered-webrequest.ts": [
+146,
+167,
+204
+],
+"desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx": [
+471
+],
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
+738
+],
+"desktop:script/changelog/parser.ts": [
+122
+],
+"desktop:script/generate-octicons.ts": [
+81
+],
+"desktop:script/validate-sass/validate-all.ts": [
+24
+]
+}

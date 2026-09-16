@@ -1,0 +1,126 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import type { Rule, SourceCode } from 'eslint';
+import type estree from 'estree';
+import { childrenOf, getNodeParent } from '../helpers/ancestor.js';
+import { isFunctionNode, type LoopLike } from '../helpers/ast.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import * as meta from './generated-meta.js';
+
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(
+    {
+      ...rule,
+      meta: generateMeta(meta, rule.meta!),
+    },
+    (context, descriptor) => {
+      if ('node' in descriptor) {
+        const loop = findEnclosingLoop(descriptor.node as estree.Node);
+        if (
+          loop &&
+          hasLaterLoopExit(loop, descriptor.node as estree.Node, context.sourceCode.visitorKeys)
+        ) {
+          return;
+        }
+      }
+      context.report(descriptor);
+    },
+  );
+}
+
+/** Mirrors ESLint core's own `isBoundary()` from no-await-in-loop. */
+function isBoundary(node: estree.Node): boolean {
+  return isFunctionNode(node) || (node.type === 'ForOfStatement' && node.await === true);
+}
+
+function isLoopLike(node: estree.Node): node is LoopLike {
+  return (
+    node.type === 'WhileStatement' ||
+    node.type === 'DoWhileStatement' ||
+    node.type === 'ForStatement' ||
+    node.type === 'ForOfStatement' ||
+    node.type === 'ForInStatement'
+  );
+}
+
+/** Mirrors ESLint core's own `isLooped()` from no-await-in-loop. */
+function isLooped(node: estree.Node, parent: LoopLike): boolean {
+  switch (parent.type) {
+    case 'ForStatement':
+      return node === parent.test || node === parent.update || node === parent.body;
+    case 'ForOfStatement':
+    case 'ForInStatement':
+      return node === parent.body;
+    case 'WhileStatement':
+    case 'DoWhileStatement':
+      return node === parent.test || node === parent.body;
+    default:
+      return false;
+  }
+}
+
+/**
+ * Re-walks the same climb ESLint core's rule already performed to decide to report,
+ * to find which loop it reported against.
+ */
+function findEnclosingLoop(node: estree.Node): LoopLike | null {
+  let current = node;
+  let parent = getNodeParent(current);
+  while (parent) {
+    if (isBoundary(parent)) {
+      return null;
+    }
+    if (isLoopLike(parent) && isLooped(current, parent)) {
+      return parent;
+    }
+    current = parent;
+    parent = getNodeParent(current);
+  }
+  return null;
+}
+
+/**
+ * Whether the loop body contains a `return`/`break` positioned after `afterNode`,
+ * without crossing into a nested function (or nested `for await`) boundary. Matches
+ * on any such statement regardless of which branch it's on, or whether a `break`
+ * actually targets this specific loop -- a deliberate, measured trade-off (see JS-2409):
+ * it also suppresses independent-iteration cases sharing the same shape (e.g.
+ * "search a list, return on first match"), accepted as a known false-negative class.
+ */
+function hasLaterLoopExit(
+  loop: LoopLike,
+  afterNode: estree.Node,
+  visitorKeys: SourceCode.VisitorKeys,
+): boolean {
+  const afterEnd = afterNode.range![1];
+
+  function search(node: estree.Node): boolean {
+    if (isBoundary(node)) {
+      return false;
+    }
+    if (
+      (node.type === 'ReturnStatement' || node.type === 'BreakStatement') &&
+      node.range![0] > afterEnd
+    ) {
+      return true;
+    }
+    return childrenOf(node, visitorKeys).some(search);
+  }
+
+  return search(loop.body);
+}
