@@ -95,15 +95,14 @@ const distinctAriaLabelsSameParent = (
   <a {...{ hidden: true }} href="/hidden-spread/1">Spread hidden</a>;
   <a href="/hidden-spread/2">Spread hidden</a>;
 
-// Each mismatch reports against - and then replaces - the current baseline: every later
-// comparison is against the closest preceding link, not the original first occurrence.
+// Each mismatch is reported against the closest preceding link, not the original first occurrence.
   <a href="/plans/basic">View plans</a>;
 //^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/plans/pro">View plans</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 100.}}
+  <a href="/plans/pro">View plans</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 99.}}
 //^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/plans/basic">View plans</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 102.}}
+  <a href="/plans/basic">View plans</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 101.}}
 //^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/plans/enterprise">View plans</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 104.}}
+  <a href="/plans/enterprise">View plans</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 103.}}
 
 // ---------------------------------------------------------------------------------------------
 // Parent-scoping: only anchors sharing the same immediate JSX parent are compared.
@@ -137,7 +136,7 @@ const sameParent = (
     {[
       <a href="/user/1/edit">Edit</a>,
     //^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-      <a href="/user/2/edit">Edit</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 138.}}
+      <a href="/user/2/edit">Edit</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 137.}}
     ]}
   </div>
 );
@@ -223,18 +222,16 @@ function NotAGuard({ condition }) {
     <a href="/notaguard/1">Track</a>;
   //^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
   }
-  return <a href="/notaguard/2">Track</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 223.}}
+  return <a href="/notaguard/2">Track</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 222.}}
 }
 
-// Reports an issue: a conditional link is still checked against an unconditional baseline for
-// its parent and accessible name. Wrapped in an array so the trailing comments sit in expression
-// position rather than raw JSX-children text.
+// Reports an issue: a conditional link is still compared against an unconditional sibling; wrapped in an array so trailing comments sit in expression position.
 const conditionalVsBaseline = (
   <div>
     {[
       <a href="/version/1">Version</a>,
     //^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-      condition && <a href="/version/2">Version</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 235.}}
+      condition && <a href="/version/2">Version</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 232.}}
     ]}
   </div>
 );
@@ -246,7 +243,7 @@ const baselineVsConditional = (
     {[
       condition && <a href="/release/1">Release</a>,
                  //^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-      <a href="/release/2">Release</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 247.}}
+      <a href="/release/2">Release</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 244.}}
     ]}
   </div>
 );
@@ -259,7 +256,7 @@ function RoleMenu({ isAdmin, loggedIn }) {
       {[
         isAdmin && <a href="/admin">Settings</a>,
                  //^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-        loggedIn && <a href="/user">Settings</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 260.}}
+        loggedIn && <a href="/user">Settings</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 257.}}
       ]}
     </ul>
   );
@@ -275,7 +272,7 @@ function AfterGuard({ hasError }) {
   const first = <a href="/guard/1">Track</a>;
               //^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
   logAnalytics('track-shown');
-  return <a href="/guard/2">Track</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 275.}}
+  return <a href="/guard/2">Track</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 272.}}
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -286,7 +283,7 @@ function AfterGuard({ hasError }) {
 function Footer() {
   <a href="/footer/1">Contact</a>;
 //^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  return <a href="/footer/2">Contact</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 287.}}
+  return <a href="/footer/2">Contact</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 284.}}
 }
 
 // Compliant: anchors returned by two different components are never compared.
