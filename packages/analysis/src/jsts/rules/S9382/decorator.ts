@@ -43,7 +43,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   );
 }
 
-/** Mirrors ESLint core's own `isBoundary()` from no-await-in-loop. */
+/**
+ * Mirrors ESLint core's own `isBoundary()` from no-await-in-loop:
+ * https://github.com/eslint/eslint/blob/v9.39.5/lib/rules/no-await-in-loop.js#L12-L25
+ */
 function isBoundary(node: estree.Node): boolean {
   return isFunctionNode(node) || (node.type === 'ForOfStatement' && node.await === true);
 }
@@ -58,14 +61,22 @@ function isLoopLike(node: estree.Node): node is LoopLike {
   );
 }
 
-/** Mirrors ESLint core's own `isLooped()` from no-await-in-loop. */
+/**
+ * Mirrors ESLint core's own `isLooped()` from no-await-in-loop:
+ * https://github.com/eslint/eslint/blob/v9.39.5/lib/rules/no-await-in-loop.js#L33-L56
+ */
 function isLooped(node: estree.Node, parent: LoopLike): boolean {
   switch (parent.type) {
     case 'ForStatement':
       return node === parent.test || node === parent.update || node === parent.body;
     case 'ForOfStatement':
     case 'ForInStatement':
-      return node === parent.body;
+      return (
+        node === parent.body ||
+        (node === parent.left &&
+          parent.left.type === 'VariableDeclaration' &&
+          parent.left.kind === 'await using')
+      );
     case 'WhileStatement':
     case 'DoWhileStatement':
       return node === parent.test || node === parent.body;

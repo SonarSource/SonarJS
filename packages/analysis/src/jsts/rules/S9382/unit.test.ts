@@ -20,7 +20,7 @@ import { describe, it } from 'node:test';
 
 describe('S9382', () => {
   it('S9382', () => {
-    const ruleTester = new DefaultParserRuleTester();
+    const ruleTester = new DefaultParserRuleTester({ ecmaVersion: 'latest' });
 
     ruleTester.run('no-await-in-loop', rule, {
       valid: [
@@ -84,6 +84,17 @@ describe('S9382', () => {
         }
       }
     }`),
+
+        // Suppressed by the early-exit decorator: same as the plain `for...of` case above,
+        // but the implicit await is on the `await using` declaration in the loop header itself.
+        valid(`
+    async function foo(iter) {
+      for (await using x of iter) {
+        if (cond) {
+          return x;
+        }
+      }
+    }`),
       ],
 
       invalid: [
@@ -119,6 +130,13 @@ describe('S9382', () => {
     async function foo(obj) {
       for (const key in obj) {
         await bar(key);
+      }
+    }`),
+
+        invalid(`
+    async function foo(iter) {
+      for (await using x of iter) {
+        bar(x);
       }
     }`),
       ],
