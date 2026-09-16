@@ -17,36 +17,32 @@
 import {
   basename as basenamePosix,
   dirname as dirnamePosix,
-  isAbsolute as isUnixAbsolute,
   join as joinPosix,
   parse as parsePosix,
-  resolve as resolvePosix,
 } from 'node:path/posix';
+import { parse as parseWin32 } from 'node:path/win32';
 import {
-  isAbsolute as isWinAbsolute,
-  parse as parseWin32,
-  resolve as resolveWin32,
-} from 'node:path/win32';
-
-export type NormalizedPath = string & { readonly __normalizedPathBrand: 'NormalizedPath' };
-export type NormalizedAbsolutePath = string & {
-  readonly __normalizedAbsolutePathBrand: 'NormalizedAbsolutePath';
-};
+  ROOT_PATH,
+  toUnixPath,
+  type NormalizedAbsolutePath,
+  type NormalizedPath,
+} from './path-normalization.js';
+export {
+  isAbsolutePath,
+  normalizePath,
+  normalizeToAbsolutePath,
+  ROOT_PATH,
+} from './path-normalization.js';
+export type { NormalizedAbsolutePath, NormalizedPath } from './path-normalization.js';
 export type File = {
   readonly filePath: NormalizedAbsolutePath;
   readonly fileContent: string;
 };
 
 /**
- * Root path constant for Unix filesystem
- */
-export const ROOT_PATH = '/' as NormalizedAbsolutePath;
-
-/**
  * Byte Order Marker
  */
 const BOM_BYTE = 0xfeff;
-const isWindows = process.platform === 'win32';
 
 /**
  * Removes any Byte Order Marker (BOM) from a string's head
@@ -61,48 +57,6 @@ export function stripBOM(str: string) {
     return str.slice(1);
   }
   return str;
-}
-
-/**
- * Normalizes a path to Unix format (forward slashes).
- * For absolute paths on Windows, resolves them to ensure they have a drive letter.
- * For relative paths, only converts slashes without resolving.
- * Cross-platform behavior:
- * - On Windows: all absolute paths are resolved with win32 to add drive letter
- * - On Linux: paths are only converted (slashes), no resolution needed
- * @param filePath the path to normalize
- * @returns the normalized path as a branded UnixPath type
- */
-export function normalizePath(filePath: string): NormalizedPath {
-  if (isWindows && isAbsolutePath(filePath)) {
-    // On Windows, resolve to add drive letter if missing
-    filePath = resolveWin32(filePath);
-  }
-  return toUnixPath(filePath) as NormalizedPath;
-}
-
-/**
- * Normalizes a path to an absolute Unix format.
- * Guarantees the returned path is absolute.
- * @param filePath the path to normalize
- * @param baseDir base directory to resolve relative paths against
- * @returns the normalized path as a branded AbsoluteUnixPath type
- */
-export function normalizeToAbsolutePath(
-  filePath: string,
-  baseDir = ROOT_PATH,
-): NormalizedAbsolutePath {
-  if (isAbsolutePath(filePath)) {
-    // On Windows, resolve to add drive letter if missing
-    filePath = resolveWin32(filePath);
-  } else {
-    filePath = isWindows ? resolveWin32(baseDir, filePath) : resolvePosix(baseDir, filePath);
-  }
-  return toUnixPath(filePath) as NormalizedAbsolutePath;
-}
-
-function toUnixPath(filePath: string) {
-  return filePath.replaceAll(/[\\/]+/g, '/');
 }
 
 function isParseResultRoot(result: { root: string; base: string; dir: string }) {
@@ -136,15 +90,6 @@ export function getPathRoot(filePath: NormalizedAbsolutePath): NormalizedAbsolut
     return toUnixPath(winRoot) as NormalizedAbsolutePath;
   }
   return ROOT_PATH;
-}
-
-export function isAbsolutePath(path: string) {
-  // Check for Windows drive letter (e.g., 'c:', 'C:', 'D:')
-  // Node's isAbsolute considers 'c:' as relative (drive-relative), but we treat it as absolute
-  if (/^[a-zA-Z]:/.test(path)) {
-    return true;
-  }
-  return isUnixAbsolute(path) || isWinAbsolute(path);
 }
 
 /**

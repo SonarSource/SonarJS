@@ -200,7 +200,7 @@ especially:
 The following were not justified as requirements by the PR history:
 
 - Running RSPEC generation twice for the same revision is not a requirement.
-- Running `grpc:generate-proto` twice during `bbf` is not a requirement.
+- Running `proto:generate` twice during `bbf` is not a requirement.
 - Keeping a SonarJS-specific `sync-rspec.ts` implementation forever is not a requirement.
 - Checking the latest RSPEC head during every local `npm run bbf` is not a requirement.
 - Keeping a repo-local lifecycle stamp such as `resources/rule-data-state.json` is not a

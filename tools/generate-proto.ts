@@ -33,6 +33,11 @@ const PROTO_FILES = [
     js: 'packages/analysis/src/jsts/parsers/estree.js',
     dts: 'packages/analysis/src/jsts/parsers/estree.d.ts',
   },
+  {
+    proto: 'packages/shared/src/fs-cache/archive.proto',
+    js: 'packages/shared/src/fs-cache/archive-proto.js',
+    dts: 'packages/shared/src/fs-cache/archive-proto.d.ts',
+  },
 ];
 
 function copyToLib(filePath: string) {

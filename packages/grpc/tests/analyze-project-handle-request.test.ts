@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import { describe, it } from 'node:test';
+import { afterEach, describe, it } from 'node:test';
 import { expect } from 'expect';
 import {
   handleAnalyzeProjectRequest,
@@ -23,9 +23,14 @@ import {
 } from '../src/analyze-project-handle-request.js';
 import type { AnalyzeProjectIncrementalEvent } from '../src/analyze-project-request.js';
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
+import { FS_CACHE_INSTALLATION } from '../../shared/src/fs-cache/hook.js';
 
 const workerData: WorkerData = { debugMemory: false };
 type AnalyzeProjectRequest = analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectRequest;
+
+afterEach(() => {
+  delete (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION];
+});
 
 function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
   return {
@@ -41,6 +46,106 @@ function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
 }
 
 describe('analyze-project request handler', () => {
+  it('activates and ends the request filesystem cache session', async () => {
+    const sessions: Array<Record<string, unknown>> = [];
+    (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = {
+      beginAnalysis(options: Record<string, unknown>) {
+        sessions.push({ ...options, event: 'begin' });
+        return {
+          end() {
+            sessions.push({ archivePath: options.archivePath, event: 'end' });
+          },
+        };
+      },
+    };
+    const request = createAnalyzeProjectRequest();
+    request.filesystemCache = {
+      archivePath: '/cache/first.fscache',
+    };
+
+    const result = await handleAnalyzeProjectRequest(
+      { type: 'on-analyze-project', data: request },
+      workerData,
+    );
+
+    expect(result).toMatchObject({ type: 'success' });
+    expect(sessions).toEqual([
+      {
+        archivePath: '/cache/first.fscache',
+        event: 'begin',
+        rootDir: '/project',
+      },
+      { archivePath: '/cache/first.fscache', event: 'end' },
+    ]);
+  });
+
+  it('rejects filesystem cache configuration without an archive', async () => {
+    const missingArchive = createAnalyzeProjectRequest();
+    missingArchive.filesystemCache = {};
+    expect(
+      await handleAnalyzeProjectRequest(
+        { type: 'on-analyze-project', data: missingArchive },
+        workerData,
+      ),
+    ).toMatchObject({ reason: 'invalid_request', type: 'failure' });
+  });
+
+  it('rejects filesystem cache configuration outside an analysis worker', async () => {
+    const request = createAnalyzeProjectRequest();
+    request.filesystemCache = { archivePath: '/cache/first.fscache' };
+
+    expect(
+      await handleAnalyzeProjectRequest({ type: 'on-analyze-project', data: request }, workerData),
+    ).toMatchObject({ reason: 'invalid_request', type: 'failure' });
+  });
+
+  it('ends the filesystem cache session when request normalization fails', async () => {
+    let ended = false;
+    (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = {
+      beginAnalysis() {
+        return {
+          end() {
+            ended = true;
+          },
+        };
+      },
+    };
+    const request = createAnalyzeProjectRequest();
+    request.filesystemCache = {
+      archivePath: '/cache/first.fscache',
+    };
+    request.rules = [{}];
+
+    const result = await handleAnalyzeProjectRequest(
+      { type: 'on-analyze-project', data: request },
+      workerData,
+    );
+
+    expect(result).toMatchObject({ reason: 'invalid_request', type: 'failure' });
+    expect(ended).toBe(true);
+  });
+
+  it('keeps SonarQube for IDE native and rejects cache configuration', async () => {
+    const nativeRequest = createAnalyzeProjectRequest();
+    nativeRequest.configuration!.sonarlint = true;
+    expect(
+      await handleAnalyzeProjectRequest(
+        { type: 'on-analyze-project', data: nativeRequest },
+        workerData,
+      ),
+    ).toMatchObject({ type: 'success' });
+
+    nativeRequest.filesystemCache = {
+      archivePath: '/cache/sonarlint.fscache',
+    };
+    expect(
+      await handleAnalyzeProjectRequest(
+        { type: 'on-analyze-project', data: nativeRequest },
+        workerData,
+      ),
+    ).toMatchObject({ reason: 'invalid_request', type: 'failure' });
+  });
+
   it('should preserve cancellation received while normalizing a request', async () => {
     const events: AnalyzeProjectIncrementalEvent[] = [];
     const analysisResult = handleAnalyzeProjectRequest(

@@ -29,6 +29,11 @@ message AnalyzeProjectRequest {
   repeated CssRule css_rules = 4;
   repeated string bundles = 5;
   optional string rules_workdir = 6;
+  FilesystemCache filesystem_cache = 7;
+}
+
+message FilesystemCache {
+  string archive_path = 1;
 }
 
 message AnalyzeProjectStreamResponse {
