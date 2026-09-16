@@ -21,7 +21,7 @@ import { fileURLToPath } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import { sonarjs } from './archive-proto.js';
 
-export const FS_CACHE_MAGIC = 'sonarjs-filesystem-cache';
+const FS_CACHE_MAGIC = 'sonarjs-filesystem-cache';
 export const FS_CACHE_FORMAT_VERSION = 5;
 
 const protobufArchive = sonarjs.fscache.Archive;
@@ -30,6 +30,11 @@ const ARCHIVE_FILE_MODE = 0o600;
 const LOCK_RETRY_DELAY_MS = 10;
 const LOCK_RETRY_LIMIT = 1_000;
 const LOCK_STALE_AGE_MS = LOCK_RETRY_DELAY_MS * LOCK_RETRY_LIMIT;
+
+type CacheRecord = Record<string, any>;
+type CacheNode = CacheRecord;
+type ArchiveMode = 'record' | 'replay';
+type ArchiveOptions = { archivePath: string; rootDir: string };
 
 const nativeFs = {
   closeSync: fs.closeSync.bind(fs),
@@ -72,18 +77,18 @@ export const DIRENT_TYPES = [
   ...['file', 'directory', 'symbolicLink', 'blockDevice', 'characterDevice', 'fifo', 'socket'],
 ];
 
-function restoreFsError(error) {
+function restoreFsError(error: CacheRecord) {
   return Object.fromEntries(Object.entries(error).filter(([, value]) => value !== null));
 }
 
-function typedVoid(entries = {}) {
+function typedVoid(entries: CacheRecord = {}) {
   return Object.entries(entries).map(([key, outcome]) => ({
     key,
     ...(outcome.ok ? { success: {} } : { error: outcome.error }),
   }));
 }
 
-function restoreVoid(entries) {
+function restoreVoid(entries: CacheRecord[]) {
   return Object.fromEntries(
     entries.map(entry => [
       entry.key,
@@ -94,7 +99,7 @@ function restoreVoid(entries) {
   );
 }
 
-function typedStats(entries = {}) {
+function typedStats(entries: CacheRecord = {}) {
   return Object.entries(entries).map(([key, outcome]) => ({
     key,
     ...(outcome.ok
@@ -111,7 +116,7 @@ function typedStats(entries = {}) {
   }));
 }
 
-function restoreStats(entries) {
+function restoreStats(entries: CacheRecord[]) {
   return Object.fromEntries(
     entries.map(entry => [
       entry.key,
@@ -134,7 +139,7 @@ function restoreStats(entries) {
   );
 }
 
-function typedDirectories(entries = {}) {
+function typedDirectories(entries: CacheRecord = {}) {
   return Object.entries(entries).map(([key, outcome]) => ({
     key,
     ...(outcome.ok
@@ -156,7 +161,7 @@ function typedDirectories(entries = {}) {
   }));
 }
 
-function restoreDirectories(entries) {
+function restoreDirectories(entries: CacheRecord[]) {
   return Object.fromEntries(
     entries.map(entry => [
       entry.key,
@@ -185,7 +190,7 @@ function restoreDirectories(entries) {
   );
 }
 
-function typedPaths(entries = {}) {
+function typedPaths(entries: CacheRecord = {}) {
   return Object.entries(entries).map(([key, outcome]) =>
     outcome.ok
       ? {
@@ -199,7 +204,7 @@ function typedPaths(entries = {}) {
   );
 }
 
-function restorePaths(entries) {
+function restorePaths(entries: CacheRecord[]) {
   return Object.fromEntries(
     entries.map(entry => [
       entry.key,
@@ -218,7 +223,7 @@ function restorePaths(entries) {
   );
 }
 
-function typedNames(entries = {}) {
+function typedNames(entries: CacheRecord = {}) {
   return Object.entries(entries).map(([key, outcome]) =>
     outcome.ok
       ? {
@@ -235,7 +240,7 @@ function typedNames(entries = {}) {
   );
 }
 
-function restoreNames(entries) {
+function restoreNames(entries: CacheRecord[]) {
   return Object.fromEntries(
     entries.map(entry => [
       entry.key,
@@ -254,7 +259,7 @@ function restoreNames(entries) {
   );
 }
 
-function serializeProtobufDocument(document) {
+function serializeProtobufDocument(document: CacheRecord) {
   const missingPaths = document.entries
     .filter(({ node }) => Object.keys(node).length === 1 && node.exists === false)
     .map(({ path }) => path);
@@ -303,7 +308,7 @@ function serializeProtobufDocument(document) {
     .finish();
 }
 
-function deserializeProtobufDocument(bytes) {
+function deserializeProtobufDocument(bytes: Uint8Array) {
   const document = protobufArchive.decode(bytes);
   return {
     magic: document.magic,
@@ -312,24 +317,26 @@ function deserializeProtobufDocument(bytes) {
     updatedAt: document.updatedAt,
     missingPaths: document.missingPaths,
     entries: document.entries.map(entry => {
-      const node = {};
+      const node: CacheNode = {};
       if (entry.exists !== null) node.exists = entry.exists;
       if (entry.linkExists !== null) node.linkExists = entry.linkExists;
-      if (entry.stats.length) node.stats = restoreStats(entry.stats);
-      if (entry.access.length) node.access = restoreVoid(entry.access);
-      if (entry.opens.length) node.opens = restoreVoid(entry.opens);
-      if (entry.directories.length) node.directories = restoreDirectories(entry.directories);
-      if (entry.realpaths.length) node.realpaths = restorePaths(entry.realpaths);
-      if (entry.readlinks.length) node.readlinks = restoreNames(entry.readlinks);
+      if (entry.stats?.length) node.stats = restoreStats(entry.stats as CacheRecord[]);
+      if (entry.access?.length) node.access = restoreVoid(entry.access as CacheRecord[]);
+      if (entry.opens?.length) node.opens = restoreVoid(entry.opens as CacheRecord[]);
+      if (entry.directories?.length) {
+        node.directories = restoreDirectories(entry.directories as CacheRecord[]);
+      }
+      if (entry.realpaths?.length) node.realpaths = restorePaths(entry.realpaths as CacheRecord[]);
+      if (entry.readlinks?.length) node.readlinks = restoreNames(entry.readlinks as CacheRecord[]);
       if (entry.contentResult === 'content') {
         node.content = {
           ok: true,
-          value: Buffer.isBuffer(entry.content) ? entry.content : Buffer.from(entry.content),
+          value: Buffer.isBuffer(entry.content) ? entry.content : Buffer.from(entry.content!),
         };
       } else if (entry.contentResult === 'contentError') {
         node.content = {
           ok: false,
-          error: restoreFsError(entry.contentError),
+          error: restoreFsError(entry.contentError!),
         };
       }
       return { path: entry.path, node };
@@ -337,8 +344,8 @@ function deserializeProtobufDocument(bytes) {
   };
 }
 
-function createNode(node = {}) {
-  const result = {};
+function createNode(node: CacheNode = {}): CacheNode {
+  const result: CacheNode = {};
   if (node.exists !== undefined) {
     result.exists = node.exists;
   }
@@ -356,7 +363,7 @@ function createNode(node = {}) {
   return result;
 }
 
-function mergeNodes(base = {}, update = {}) {
+function mergeNodes(base: CacheNode = {}, update: CacheNode = {}): CacheNode {
   const result = { ...base, ...update };
   for (const field of MAP_FIELDS) {
     if (base[field] || update[field]) {
@@ -366,8 +373,8 @@ function mergeNodes(base = {}, update = {}) {
   return result;
 }
 
-function sortedNode(node) {
-  const result = {};
+function sortedNode(node: CacheNode): CacheNode {
+  const result: CacheNode = {};
   if (node.exists !== undefined) {
     result.exists = node.exists;
   }
@@ -387,7 +394,7 @@ function sortedNode(node) {
   return result;
 }
 
-function operationSlot(operation) {
+function operationSlot(operation: string) {
   const [name, ...parts] = operation.split(':');
   if (name === 'readFile') {
     return { field: 'content' };
@@ -422,11 +429,11 @@ function operationSlot(operation) {
   throw new FsCacheArchiveError(`Unsupported filesystem cache operation: ${operation}`);
 }
 
-function readSlot(node, slot) {
+function readSlot(node: CacheNode, slot: { field: string; key?: string }) {
   return slot.key === undefined ? node[slot.field] : node[slot.field]?.[slot.key];
 }
 
-function writeSlot(node, slot, outcome) {
+function writeSlot(node: CacheNode, slot: { field: string; key?: string }, outcome: CacheRecord) {
   if (slot.key === undefined) {
     node[slot.field] = outcome;
     return;
@@ -458,8 +465,11 @@ function namesFromEntries(outcome) {
   };
 }
 
-export class FsCacheArchiveError extends Error {
-  constructor(message, options) {
+class FsCacheArchiveError extends Error {
+  code: string;
+  incompatible: boolean;
+
+  constructor(message: string, options?: ErrorOptions & { incompatible?: boolean }) {
     super(message, options);
     this.name = 'FsCacheArchiveError';
     this.code = 'ERR_SONARJS_FS_CACHE_ARCHIVE';
@@ -517,7 +527,19 @@ function acquireLock(lockPath, archivePath) {
  * analysis and replays those observations from another checkout root.
  */
 export class FsCacheArchive {
-  constructor({ archivePath, rootDir }) {
+  archivePath: string;
+  rootDir: string;
+  rootPrefix: string;
+  mode: ArchiveMode;
+  createdAt: string;
+  entries: Map<string, CacheNode>;
+  missingPaths: Set<string>;
+  pathKeys: Map<string, string>;
+  dirty: boolean;
+  cacheHits: number;
+  cacheMisses: number;
+
+  constructor({ archivePath, rootDir }: ArchiveOptions) {
     if (!archivePath) {
       throw new FsCacheArchiveError('The filesystem cache archive path is required');
     }
@@ -792,7 +814,8 @@ export class FsCacheArchive {
         entries,
       };
       const serialized = serializeProtobufDocument(document);
-      const bytes = gzipSync(serialized, { mtime: 0 });
+      const gzipOptions = { mtime: 0 } as Parameters<typeof gzipSync>[1];
+      const bytes = gzipSync(serialized, gzipOptions);
       const temporaryPath = `${this.archivePath}.${process.pid}.${randomUUID()}.tmp`;
       try {
         writeFileWithNativePrimitives(temporaryPath, bytes, ARCHIVE_FILE_MODE);

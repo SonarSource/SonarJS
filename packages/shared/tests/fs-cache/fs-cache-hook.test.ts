@@ -22,7 +22,7 @@ import { afterEach, describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import { expect } from 'expect';
-import { FS_CACHE_FORMAT_VERSION, FsCacheArchive } from '../../src/fs-cache/archive.mjs';
+import { FS_CACHE_FORMAT_VERSION, FsCacheArchive } from '../../src/fs-cache/archive.js';
 
 const fixture = path.resolve(import.meta.dirname, 'fixtures/exercise-hook.mjs');
 const fixtureRunner = path.resolve(import.meta.dirname, 'fixtures/run-with-fs-cache.mjs');
@@ -32,7 +32,7 @@ const workerBootstrapFixture = path.resolve(
   'fixtures/exercise-worker-bootstrap.mjs',
 );
 const hookModule = pathToFileURL(
-  path.resolve(import.meta.dirname, '../../src/fs-cache/hook.mjs'),
+  path.resolve(import.meta.dirname, '../../../../lib/shared/src/fs-cache/hook.js'),
 ).href;
 const futureFsMethodFixture = pathToFileURL(
   path.resolve(import.meta.dirname, 'fixtures/add-future-fs-method.mjs'),
@@ -207,7 +207,7 @@ describe('filesystem cache hook', () => {
     expect(recorded.status).toBe(0);
     const recordedResult = JSON.parse(recorded.stdout);
     expect(fs.statSync(archive).size).toBeGreaterThan(0);
-    const inputNode = loadArchive(archive, recordRoot).entries.get('src/input.ts');
+    const inputNode = loadArchive(archive, recordRoot).entries.get('src/input.ts')!;
     expect(inputNode.exists).toBe(true);
     expect(inputNode.content.ok).toBe(true);
     expect(inputNode.stats['stat:number'].ok).toBe(true);
@@ -395,7 +395,7 @@ describe('filesystem cache hook', () => {
       statCode: 'ENOENT',
       target: 'missing-target',
     });
-    const linkNode = loadArchive(archive, recordRoot).entries.get('dangling-link');
+    const linkNode = loadArchive(archive, recordRoot).entries.get('dangling-link')!;
     expect(linkNode.exists).toBe(false);
     expect(linkNode.linkExists).toBe(true);
 

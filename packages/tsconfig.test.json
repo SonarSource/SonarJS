@@ -9,9 +9,9 @@
     }
   ],
   "include": [
+    "shared/src/fs-cache/*.ts",
     "**/tests",
     "**/src/*/rules/tools",
-    "shared/src/fs-cache/*.mjs",
     "ruling/**/*",
     "**/src/*/rules/**/*.test.ts",
     "**/ruling/projects.json",

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { isMainThread } from 'node:worker_threads';
-import { installFsCache } from './hook.mjs';
+import { installFsCache } from './hook.js';
 
 if (!isMainThread) {
   installFsCache();

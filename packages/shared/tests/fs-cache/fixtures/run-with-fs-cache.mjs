@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { pathToFileURL } from 'node:url';
-import { installFsCache } from '../../../src/fs-cache/hook.mjs';
+import { installFsCache } from '../../../../../lib/shared/src/fs-cache/hook.js';
 
 const [archivePath, rootDir, target, ...targetArguments] = process.argv.slice(2);
 if (!archivePath || !rootDir || !target) {

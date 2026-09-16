@@ -26,7 +26,7 @@
     "bbf:latest": "npm run rspec:refresh && npm run bbf",
     "proto:generate": "tsx tools/generate-proto.ts",
     "proto:copy": "tsx tools/generate-proto.ts --copy",
-    "fs-cache:copy-assets": "cpy packages/shared/src/fs-cache/*.mjs lib/shared/src/fs-cache --flat && cpy packages/shared/tests/fs-cache/fixtures/*.mjs lib/shared/tests/fs-cache/fixtures --flat",
+    "fs-cache:copy-assets": "cpy packages/shared/src/fs-cache/worker-register.mjs lib/shared/src/fs-cache --flat && cpy packages/shared/tests/fs-cache/fixtures/*.mjs lib/shared/tests/fs-cache/fixtures --flat",
     "prepare": "husky",
     "precommit": "pretty-quick --staged",
     "postinstall": "patch-package",

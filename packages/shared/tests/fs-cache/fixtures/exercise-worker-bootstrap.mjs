@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import '../../../src/fs-cache/worker-register.mjs';
+import '../../../../../lib/shared/src/fs-cache/worker-register.mjs';
 import fs from 'node:fs';
 import { isMainThread, parentPort, Worker } from 'node:worker_threads';
 

@@ -17,7 +17,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { isMainThread, parentPort, Worker, workerData } from 'node:worker_threads';
-import { installFsCache } from '../../../src/fs-cache/hook.mjs';
+import { installFsCache } from '../../../../../lib/shared/src/fs-cache/hook.js';
 
 if (isMainThread) {
   const [root, archivePath] = process.argv.slice(2);

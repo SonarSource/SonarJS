@@ -127,7 +127,7 @@ async function beginFilesystemCacheSession(
     return undefined;
   }
 
-  const { installFsCache } = await import('../shared/src/fs-cache/hook.mjs');
+  const { installFsCache } = await import('../shared/src/fs-cache/hook.js');
   return installFsCache().beginAnalysis({
     archivePath,
     rootDir: baseDir,

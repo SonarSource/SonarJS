@@ -17,12 +17,20 @@
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { getSystemErrorMap } from 'node:util';
-import { DIRENT_TYPES, FS_TYPE_METHODS, FsCacheArchive } from './archive.mjs';
+import { DIRENT_TYPES, FS_TYPE_METHODS, FsCacheArchive } from './archive.js';
 
 const MISSING = Symbol('missing filesystem cache observation');
 const INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
 const CACHED_FILE_HANDLE = Symbol('cached filesystem file handle');
-let activeArchive;
+let activeArchive: FsCacheArchive | undefined;
+
+type FsError = Error & {
+  code?: string;
+  errno?: number;
+  syscall?: string;
+  path?: string;
+};
+type FunctionWithNative = ((...args: any[]) => any) & { native?: FunctionWithNative };
 
 function requireActiveArchive() {
   if (!activeArchive) {
@@ -144,7 +152,7 @@ function snapshotError(error) {
 
 function restoreError(snapshot, input) {
   const currentPath = pathDisplay(input);
-  const error = new Error(snapshot.message.replaceAll('$PATH', currentPath));
+  const error = new Error(snapshot.message.replaceAll('$PATH', currentPath)) as FsError;
   error.name = snapshot.name;
   error.code = snapshot.code;
   error.errno = snapshot.errno;
@@ -156,7 +164,7 @@ function restoreError(snapshot, input) {
 function cacheMiss(operation, input) {
   const error = new Error(
     `Filesystem cache has no ${operation} observation for '${pathDisplay(input)}'`,
-  );
+  ) as FsError;
   error.name = 'FsCacheMissError';
   error.code = 'ERR_SONARJS_FS_CACHE_MISS';
   error.path = pathDisplay(input);
@@ -183,7 +191,9 @@ function missingPath(operation, input) {
       realpath: 'lstat',
       'realpath.native': 'realpath',
     }[name] || name;
-  const error = new Error(`ENOENT: no such file or directory, ${syscall} '${currentPath}'`);
+  const error = new Error(
+    `ENOENT: no such file or directory, ${syscall} '${currentPath}'`,
+  ) as FsError;
   error.code = 'ENOENT';
   error.errno = ENOENT_ERRNO;
   error.path = currentPath;
@@ -330,7 +340,8 @@ function restoreStat(snapshot, bigint = false) {
   for (const [field, value] of Object.entries(snapshot.fields)) {
     if (value !== undefined) {
       if (bigint) {
-        stat[field] = /^-?\d+$/.test(value) ? BigInt(value) : BigInt(Math.trunc(Number(value)));
+        const text = String(value);
+        stat[field] = /^-?\d+$/.test(text) ? BigInt(text) : BigInt(Math.trunc(Number(value)));
       } else {
         stat[field] = Number(value);
       }
@@ -349,7 +360,7 @@ function restoreStat(snapshot, bigint = false) {
   return stat;
 }
 
-function statOperation(name, options) {
+function statOperation(name, options: { bigint?: boolean; throwIfNoEntry?: boolean } = {}) {
   const result = options?.throwIfNoEntry === false ? 'soft' : 'throw';
   return `${name}:${options?.bigint ? 'bigint' : 'number'}:${result}`;
 }
@@ -483,8 +494,12 @@ function opendirOperation(options) {
   return `opendir:${getEncoding(options) || 'utf8'}:${Boolean(options?.recursive)}`;
 }
 
-function selectFilesystemImplementation(cachedValue, nativeValue, nativeThis) {
-  const selected = function (...args) {
+function selectFilesystemImplementation(
+  cachedValue: FunctionWithNative,
+  nativeValue: FunctionWithNative,
+  nativeThis: unknown,
+): FunctionWithNative {
+  const selected: FunctionWithNative = function (this: unknown, ...args) {
     return activeArchive
       ? Reflect.apply(cachedValue, this, args)
       : Reflect.apply(nativeValue, nativeThis, args);
@@ -501,6 +516,9 @@ function selectFilesystemImplementation(cachedValue, nativeValue, nativeThis) {
 
 function patch(target, savedDescriptors, name, value) {
   const savedDescriptor = Object.getOwnPropertyDescriptor(target, name);
+  if (!savedDescriptor) {
+    throw new Error(`Cannot patch missing filesystem property: ${name}`);
+  }
   savedDescriptors.set(name, savedDescriptor);
   const nativeValue =
     typeof savedDescriptor.get === 'function' ? target[name] : savedDescriptor.value;
@@ -515,7 +533,7 @@ function patch(target, savedDescriptors, name, value) {
 function unsupportedFilesystemOperation(moduleName, name) {
   const error = new Error(
     `Filesystem cache does not support ${moduleName}.${name} from Node ${process.version}`,
-  );
+  ) as FsError;
   error.name = 'UnsupportedFsOperationError';
   error.code = 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION';
   return error;
@@ -753,10 +771,10 @@ function createBasicPatches(archive, executor) {
   const lstatSync = makeStatSync('lstat', originalFs.lstatSync);
   const statPromise = makeStatPromise('stat', originalPromises.stat);
   const lstatPromise = makeStatPromise('lstat', originalPromises.lstat);
-  const realpathSync = makeRealpathSync('realpath', originalFs.realpathSync);
+  const realpathSync = makeRealpathSync('realpath', originalFs.realpathSync) as FunctionWithNative;
   realpathSync.native = makeRealpathSync('realpath.native', originalFs.realpathSyncNative);
   const realpathPromise = makeRealpathPromise('realpath', originalPromises.realpath);
-  const realpath = makeCallback(realpathPromise);
+  const realpath = makeCallback(realpathPromise) as FunctionWithNative;
   realpath.native = makeCallback(
     makeRealpathPromise(
       'realpath.native',
@@ -791,6 +809,11 @@ function createBasicPatches(archive, executor) {
 }
 
 class CachedDir {
+  declare readonly path: string;
+  entries: any[];
+  index: number;
+  closed: boolean;
+
   constructor(dirPath, entries) {
     Object.defineProperty(this, 'path', {
       configurable: true,
@@ -802,7 +825,7 @@ class CachedDir {
     this.closed = false;
   }
 
-  read(callback) {
+  read(callback?) {
     const operation = () => this.readSync();
     if (callback) {
       try {
@@ -818,7 +841,7 @@ class CachedDir {
 
   readSync() {
     if (this.closed) {
-      const error = new Error('Directory handle was closed');
+      const error = new Error('Directory handle was closed') as FsError;
       error.code = 'ERR_DIR_CLOSED';
       throw error;
     }
@@ -827,7 +850,7 @@ class CachedDir {
     return entry;
   }
 
-  close(callback) {
+  close(callback?) {
     const operation = () => this.closeSync();
     if (callback) {
       try {
@@ -843,7 +866,7 @@ class CachedDir {
 
   closeSync() {
     if (this.closed) {
-      const error = new Error('Directory handle was closed');
+      const error = new Error('Directory handle was closed') as FsError;
       error.code = 'ERR_DIR_CLOSED';
       throw error;
     }
@@ -880,7 +903,7 @@ Object.setPrototypeOf(CachedDir.prototype, fs.Dir.prototype);
 function readDirectoryWithOpendirSync(input, options) {
   const directory = originalFs.opendirSync(input, options);
   try {
-    const entries = [];
+    const entries: any[] = [];
     let entry;
     while ((entry = directory.readSync()) !== null) {
       entries.push(entry);
@@ -894,7 +917,7 @@ function readDirectoryWithOpendirSync(input, options) {
 async function readDirectoryWithOpendir(input, options) {
   const directory = await originalPromises.opendir(input, options);
   try {
-    const entries = [];
+    const entries: any[] = [];
     let entry;
     while ((entry = await directory.read()) !== null) {
       entries.push(entry);
@@ -988,7 +1011,7 @@ function createOpenPatches(archive, fileDescriptors) {
     }
     if (archive.get(key, 'readFile') === undefined) {
       try {
-        const chunks = [];
+        const chunks: Buffer[] = [];
         let position = 0;
         let bytesRead;
         do {
@@ -1254,6 +1277,9 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
   }
 
   class CachedFileHandle {
+    fd: number;
+    [CACHED_FILE_HANDLE]: boolean;
+
     constructor(fd) {
       this.fd = fd;
       this[CACHED_FILE_HANDLE] = true;
@@ -1296,7 +1322,7 @@ function createDescriptorPatches(archive, fileDescriptors, readFileSync) {
   };
 }
 
-function createOpenPromise(archive, fileDescriptors, fileHandles, openPatches, CachedFileHandle) {
+function createOpenPromise(archive, fileHandles, openPatches, CachedFileHandle) {
   const { captureOpenedFile, replayOpen } = openPatches;
 
   async function openPromise(input, flags, mode) {
@@ -1354,7 +1380,6 @@ function installPatches(archive) {
   const descriptor = createDescriptorPatches(archive, fileDescriptors, readFile.readFileSync);
   const openPromise = createOpenPromise(
     archive,
-    fileDescriptors,
     fileHandles,
     openPatches,
     descriptor.CachedFileHandle,
@@ -1433,7 +1458,7 @@ function installPatches(archive) {
   return { reset, uninstall };
 }
 
-export function installFsCache(options) {
+export function installFsCache(options?: ConstructorParameters<typeof FsCacheArchive>[0]) {
   const existingInstallation = globalThis[INSTALLATION];
   if (existingInstallation) {
     if (options) {
@@ -1508,8 +1533,4 @@ export function installFsCache(options) {
     installation.beginAnalysis(options);
   }
   return installation;
-}
-
-export function getFsCacheInstallation() {
-  return globalThis[INSTALLATION];
 }
