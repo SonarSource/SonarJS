@@ -85,3 +85,4 @@ lcov.info
 .codex/*
 !.codex/skills/
 .mcp.json
+packages/ruling/filesystem-cache/

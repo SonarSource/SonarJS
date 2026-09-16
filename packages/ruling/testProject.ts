@@ -38,6 +38,12 @@ const actualBase = join(currentPath, 'actual');
 const ruleMetas = metas as unknown as Record<string, SonarMeta>;
 
 const DEFAULT_EXCLUSIONS = ['**/.*', '**/*.d.ts'];
+const RULING_FILESYSTEM_CACHE_MODE = process.env.SONARJS_RULING_FS_CACHE_MODE;
+const RULING_FILESYSTEM_CACHE_ARCHIVE_DIR = process.env.SONARJS_RULING_FS_CACHE_ARCHIVE_DIR;
+
+type FilesystemCacheSession = {
+  end(): void;
+};
 
 type ProjectsData = {
   name: string;
@@ -83,20 +89,50 @@ export async function testProject(projectName: string) {
     exclusions: exclusions ? DEFAULT_EXCLUSIONS.concat(exclusions.split(',')) : DEFAULT_EXCLUSIONS,
   });
 
-  await initFileStores(configuration);
+  const filesystemCacheSession = await beginFilesystemCacheSession(name, baseDir);
+  try {
+    await initFileStores(configuration);
 
-  const results = await analyzeProject(
-    {
-      rules,
-      cssRules: buildCssRules(),
-      bundles: [],
-    },
-    configuration,
-  );
+    const results = await analyzeProject(
+      {
+        rules,
+        cssRules: buildCssRules(),
+        bundles: [],
+      },
+      configuration,
+    );
 
-  await writeResults(baseDir, name, results, actualPath);
+    await writeResults(baseDir, name, results, actualPath);
+  } finally {
+    filesystemCacheSession?.end();
+  }
 
   return await compare(expectedPath, actualPath, { compareContent: true });
+}
+
+async function beginFilesystemCacheSession(
+  projectName: string,
+  baseDir: string,
+): Promise<FilesystemCacheSession | undefined> {
+  if (!RULING_FILESYSTEM_CACHE_MODE && !RULING_FILESYSTEM_CACHE_ARCHIVE_DIR) {
+    return undefined;
+  }
+  if (!RULING_FILESYSTEM_CACHE_MODE || !RULING_FILESYSTEM_CACHE_ARCHIVE_DIR) {
+    throw new Error(
+      'SONARJS_RULING_FS_CACHE_MODE and SONARJS_RULING_FS_CACHE_ARCHIVE_DIR must be configured together',
+    );
+  }
+  if (RULING_FILESYSTEM_CACHE_MODE !== 'record' && RULING_FILESYSTEM_CACHE_MODE !== 'replay') {
+    throw new Error(`Unsupported ruling filesystem cache mode: ${RULING_FILESYSTEM_CACHE_MODE}`);
+  }
+
+  const { installFsCache } = await import('../shared/src/fs-cache/hook.mjs');
+  return installFsCache().beginAnalysis({
+    mode: RULING_FILESYSTEM_CACHE_MODE,
+    archivePath: join(RULING_FILESYSTEM_CACHE_ARCHIVE_DIR, `${projectName}.fscache`),
+    rootDir: baseDir,
+    strict: RULING_FILESYSTEM_CACHE_MODE === 'replay',
+  });
 }
 
 export function ok(diff: Result) {
