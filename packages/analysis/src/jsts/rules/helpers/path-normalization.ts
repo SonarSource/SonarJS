@@ -22,27 +22,44 @@ export type NormalizedAbsolutePath = string & {
   readonly __normalizedAbsolutePathBrand: 'NormalizedAbsolutePath';
 };
 
+/**
+ * Root path constant for Unix filesystem
+ */
 export const ROOT_PATH = '/' as NormalizedAbsolutePath;
 
 const isWindows = process.platform === 'win32';
 
 /**
- * Normalizes a path to Unix format. On Windows, absolute paths are first resolved so they include
- * a drive letter; relative paths are not resolved.
+ * Normalizes a path to Unix format (forward slashes).
+ * For absolute paths on Windows, resolves them to ensure they have a drive letter.
+ * For relative paths, only converts slashes without resolving.
+ * Cross-platform behavior:
+ * - On Windows: all absolute paths are resolved with win32 to add drive letter
+ * - On Linux: paths are only converted (slashes), no resolution needed
+ * @param filePath the path to normalize
+ * @returns the normalized path as a branded UnixPath type
  */
 export function normalizePath(filePath: string): NormalizedPath {
   if (isWindows && isAbsolutePath(filePath)) {
+    // On Windows, resolve to add drive letter if missing
     filePath = resolveWin32(filePath);
   }
   return toUnixPath(filePath) as NormalizedPath;
 }
 
-/** Normalizes a path to an absolute Unix format. */
+/**
+ * Normalizes a path to an absolute Unix format.
+ * Guarantees the returned path is absolute.
+ * @param filePath the path to normalize
+ * @param baseDir base directory to resolve relative paths against
+ * @returns the normalized path as a branded AbsoluteUnixPath type
+ */
 export function normalizeToAbsolutePath(
   filePath: string,
   baseDir = ROOT_PATH,
 ): NormalizedAbsolutePath {
   if (isAbsolutePath(filePath)) {
+    // On Windows, resolve to add drive letter if missing
     filePath = resolveWin32(filePath);
   } else {
     filePath = isWindows ? resolveWin32(baseDir, filePath) : resolvePosix(baseDir, filePath);
@@ -50,14 +67,15 @@ export function normalizeToAbsolutePath(
   return toUnixPath(filePath) as NormalizedAbsolutePath;
 }
 
-/** Recognizes Unix, Windows drive-letter, and UNC absolute paths on every platform. */
-export function isAbsolutePath(filePath: string) {
-  if (/^[a-zA-Z]:/.test(filePath)) {
+export function isAbsolutePath(path: string) {
+  // Check for Windows drive letter (e.g., 'c:', 'C:', 'D:')
+  // Node's isAbsolute considers 'c:' as relative (drive-relative), but we treat it as absolute
+  if (/^[a-zA-Z]:/.test(path)) {
     return true;
   }
-  return isUnixAbsolute(filePath) || isWinAbsolute(filePath);
+  return isUnixAbsolute(path) || isWinAbsolute(path);
 }
 
-function toUnixPath(filePath: string) {
+export function toUnixPath(filePath: string) {
   return filePath.replaceAll(/[\\/]+/g, '/');
 }

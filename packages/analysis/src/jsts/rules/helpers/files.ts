@@ -22,8 +22,8 @@ import {
 } from 'node:path/posix';
 import { parse as parseWin32 } from 'node:path/win32';
 import {
-  normalizeToAbsolutePath,
   ROOT_PATH,
+  toUnixPath,
   type NormalizedAbsolutePath,
   type NormalizedPath,
 } from './path-normalization.js';
@@ -87,7 +87,7 @@ export function assertNestedPath(from: NormalizedAbsolutePath, topDir: Normalize
 export function getPathRoot(filePath: NormalizedAbsolutePath): NormalizedAbsolutePath {
   const winRoot = parseWin32(filePath).root;
   if (winRoot) {
-    return normalizeToAbsolutePath(winRoot);
+    return toUnixPath(winRoot) as NormalizedAbsolutePath;
   }
   return ROOT_PATH;
 }
