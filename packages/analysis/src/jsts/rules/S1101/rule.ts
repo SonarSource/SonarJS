@@ -50,7 +50,6 @@ interface LinkInfo {
   href: string;
   node: TSESTree.JSXOpeningElement;
   scope: TSESTree.Node;
-  conditional: boolean;
   conditionalRoot: TSESTree.Node | undefined;
   followsGuard: boolean;
 }
@@ -89,14 +88,13 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        const { scope, conditional, conditionalRoot, followsGuard } = resolveScope(element);
+        const { scope, conditionalRoot, followsGuard } = resolveScope(element);
 
         links.push({
           name,
           href: normalizeDestination(href),
           node: opening,
           scope,
-          conditional,
           conditionalRoot,
           followsGuard,
         });
@@ -110,32 +108,50 @@ export const rule: Rule.RuleModule = {
 };
 
 function checkLinks(context: Rule.RuleContext, links: LinkInfo[]) {
-  // Keyed by scope identity then accessible name; holds only unconditional links, the sole reliable baseline.
-  const baselinesByScope = new Map<TSESTree.Node, Map<string, LinkInfo>>();
+  // Keyed by scope identity then accessible name; holds every link seen so far, since a link may
+  // still need to be compared against one that isn't its immediate predecessor - e.g. two
+  // mutually exclusive conditional siblings must each still be compared against a later sibling.
+  const candidatesByScope = new Map<TSESTree.Node, Map<string, LinkInfo[]>>();
 
   for (const link of links) {
-    let siblingBaselines = baselinesByScope.get(link.scope);
-    if (!siblingBaselines) {
-      siblingBaselines = new Map();
-      baselinesByScope.set(link.scope, siblingBaselines);
+    let siblingCandidates = candidatesByScope.get(link.scope);
+    if (!siblingCandidates) {
+      siblingCandidates = new Map();
+      candidatesByScope.set(link.scope, siblingCandidates);
     }
 
-    const baseline = siblingBaselines.get(link.name);
-    if (baseline && link.href !== baseline.href && !shareConditionalRoot(link, baseline)) {
+    const candidates = siblingCandidates.get(link.name);
+    const conflict = candidates && findConflict(candidates, link);
+    if (conflict) {
       report(
         context,
         {
           node: link.node as unknown as estree.Node,
           message: messages.identicalTextDifferentTarget,
           messageId: 'identicalTextDifferentTarget',
-          data: { line: String(baseline.node.loc.start.line) },
+          data: { line: String(conflict.node.loc.start.line) },
         },
-        [toSecondaryLocation(baseline.node, 'Link with the same text or label.')],
+        [toSecondaryLocation(conflict.node, 'Link with the same text or label.')],
       );
     }
-    // Always register, even on a match, so an unconditional link can solidify the baseline.
-    registerBaseline(siblingBaselines, link);
+    if (candidates) {
+      candidates.push(link);
+    } else {
+      siblingCandidates.set(link.name, [link]);
+    }
   }
+}
+
+// The nearest preceding sibling that can render alongside `link` with a different target - not
+// necessarily the immediate predecessor, since that one may be mutually exclusive with `link`.
+function findConflict(candidates: LinkInfo[], link: LinkInfo): LinkInfo | undefined {
+  for (let i = candidates.length - 1; i >= 0; i--) {
+    const candidate = candidates[i];
+    if (candidate.href !== link.href && !shareConditionalRoot(link, candidate)) {
+      return candidate;
+    }
+  }
+  return undefined;
 }
 
 // Only two links sharing the same root are exclusive, and not when both merely follow it as a guard.
@@ -146,14 +162,6 @@ function shareConditionalRoot(a: LinkInfo, b: LinkInfo): boolean {
   return !(a.followsGuard && b.followsGuard);
 }
 
-function registerBaseline(siblingBaselines: Map<string, LinkInfo>, link: LinkInfo) {
-  const existing = siblingBaselines.get(link.name);
-  // An unconditional link always wins; a conditional one only seeds an empty slot.
-  if (!link.conditional || !existing) {
-    siblingBaselines.set(link.name, link);
-  }
-}
-
 // Finds the nearest shared JSX container (or enclosing function/file) and the closest conditional branch, if any.
 interface ConditionalMatch {
   root: TSESTree.Node;
@@ -162,41 +170,33 @@ interface ConditionalMatch {
 
 function resolveScope(anchor: TSESTree.JSXElement): {
   scope: TSESTree.Node;
-  conditional: boolean;
   conditionalRoot: TSESTree.Node | undefined;
   followsGuard: boolean;
 } {
   let node: TSESTree.Node = anchor;
-  let conditional = false;
   let match: ConditionalMatch | undefined;
   for (;;) {
     const parent: TSESTree.Node | undefined = node.parent;
     if (!parent) {
-      return finalizeScope(node, conditional, match);
+      return finalizeScope(node, match);
     }
     if (parent.type === 'JSXElement' || parent.type === 'JSXFragment') {
-      return finalizeScope(parent, conditional, match);
+      return finalizeScope(parent, match);
     }
     const found = matchConditional(parent, node);
     if (found) {
-      conditional = true;
       match ??= found;
     }
     if (isScopeBoundary(parent)) {
-      return finalizeScope(parent, conditional, match);
+      return finalizeScope(parent, match);
     }
     node = parent;
   }
 }
 
-function finalizeScope(
-  scope: TSESTree.Node,
-  conditional: boolean,
-  match: ConditionalMatch | undefined,
-) {
+function finalizeScope(scope: TSESTree.Node, match: ConditionalMatch | undefined) {
   return {
     scope,
-    conditional,
     conditionalRoot: match?.root,
     followsGuard: match?.followsGuard ?? false,
   };
