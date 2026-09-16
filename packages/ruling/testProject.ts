@@ -18,6 +18,7 @@ import { join, basename } from 'node:path/posix';
 import { writeResults } from './lits.js';
 import projects from './projects.json' with { type: 'json' };
 import { analyzeProject } from '../analysis/src/analyzeProject.js';
+import type { ProjectAnalysisOutput } from '../analysis/src/projectAnalysis.js';
 import { initFileStores } from '../analysis/src/file-stores/index.js';
 import { normalizePath, normalizeToAbsolutePath } from '../shared/src/helpers/files.js';
 import { createConfiguration } from '../analysis/src/common/configuration.js';
@@ -39,7 +40,8 @@ const filesystemCacheArchiveDirectory = join(currentPath, 'filesystem-cache');
 const ruleMetas = metas as unknown as Record<string, SonarMeta>;
 
 const DEFAULT_EXCLUSIONS = ['**/.*', '**/*.d.ts'];
-const RULING_FILESYSTEM_CACHE_MODE = Symbol.for('sonarjs.ruling.filesystemCacheMode');
+const RULING_FILESYSTEM_CACHE_RECORD_CONDITION = '--conditions=sonarjs-ruling-fs-cache-record';
+const RULING_FILESYSTEM_CACHE_REPLAY_CONDITION = '--conditions=sonarjs-ruling-fs-cache-replay';
 
 export type FilesystemCacheMode = 'record' | 'replay';
 
@@ -100,10 +102,11 @@ export async function testProject(projectName: string, options: TestProjectOptio
     baseDir,
     options.filesystemCacheMode ?? configuredFilesystemCacheMode(),
   );
+  let results: ProjectAnalysisOutput;
   try {
     await initFileStores(configuration);
 
-    const results = await analyzeProject(
+    results = await analyzeProject(
       {
         rules,
         cssRules: buildCssRules(),
@@ -111,11 +114,11 @@ export async function testProject(projectName: string, options: TestProjectOptio
       },
       configuration,
     );
-
-    await writeResults(baseDir, name, results, actualPath);
   } finally {
     filesystemCacheSession?.end();
   }
+
+  await writeResults(baseDir, name, results, actualPath);
 
   return await compare(expectedPath, actualPath, { compareContent: true });
 }
@@ -139,11 +142,18 @@ async function beginFilesystemCacheSession(
 }
 
 function configuredFilesystemCacheMode(): FilesystemCacheMode | undefined {
-  const mode = (globalThis as Record<symbol, unknown>)[RULING_FILESYSTEM_CACHE_MODE];
-  if (mode === undefined || mode === 'record' || mode === 'replay') {
-    return mode;
+  const record = process.execArgv.includes(RULING_FILESYSTEM_CACHE_RECORD_CONDITION);
+  const replay = process.execArgv.includes(RULING_FILESYSTEM_CACHE_REPLAY_CONDITION);
+  if (record && replay) {
+    throw new Error('Ruling filesystem cache cannot record and replay in the same test run');
   }
-  throw new Error(`Unsupported ruling filesystem cache mode: ${String(mode)}`);
+  if (record) {
+    return 'record';
+  }
+  if (replay) {
+    return 'replay';
+  }
+  return undefined;
 }
 
 export function ok(diff: Result) {
