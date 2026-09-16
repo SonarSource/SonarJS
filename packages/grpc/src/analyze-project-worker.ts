@@ -111,11 +111,7 @@ async function startAnalyzeProjectWorker(workerParentPort: NonNullable<typeof pa
 }
 
 if (parentPort) {
-  startAnalyzeProjectWorker(parentPort).catch(error => {
-    process.nextTick(() => {
-      throw error;
-    });
-  });
+  await startAnalyzeProjectWorker(parentPort);
 }
 
 function toUnaryResponseResult(
