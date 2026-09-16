@@ -152,4 +152,32 @@ describe('S1101', () => {
       },
     ],
   });
+
+  ruleTester.run('unresolvable aria-label falls back to text content', rule, {
+    valid: [
+      {
+        // An unresolvable aria-label alone never makes two anchors comparable: the fallback text
+        // content still differs, so nothing is reported.
+        code: `
+          <div>
+            <a href="/a" aria-label={dynamicLabel}>One</a>
+            <a href="/b">Two</a>
+          </div>;
+        `,
+      },
+    ],
+    invalid: [
+      {
+        // aria-label can't be resolved statically, so instead of excluding the anchor outright,
+        // its text content ("Same") is used - and it matches the sibling's, with a different href.
+        code: `
+          <div>
+            <a href="/a" aria-label={dynamicLabel}>Same</a>
+            <a href="/b">Same</a>
+          </div>;
+        `,
+        errors: [{ messageId: 'identicalTextDifferentTarget', line: 4 }],
+      },
+    ],
+  });
 });
