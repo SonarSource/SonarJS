@@ -19,7 +19,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
-import { normalizePath } from '../helpers/path-normalization.js';
+import { normalizePath } from '../../../analysis/src/jsts/rules/helpers/path-normalization.js';
 import { sonarjs } from './archive-proto.js';
 
 const FS_CACHE_MAGIC = 'sonarjs-filesystem-cache';

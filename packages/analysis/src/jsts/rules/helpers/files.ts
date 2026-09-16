@@ -26,17 +26,14 @@ import {
   ROOT_PATH,
   type NormalizedAbsolutePath,
   type NormalizedPath,
-} from '../../../../../shared/src/helpers/path-normalization.js';
+} from './path-normalization.js';
 export {
   isAbsolutePath,
   normalizePath,
   normalizeToAbsolutePath,
   ROOT_PATH,
-} from '../../../../../shared/src/helpers/path-normalization.js';
-export type {
-  NormalizedAbsolutePath,
-  NormalizedPath,
-} from '../../../../../shared/src/helpers/path-normalization.js';
+} from './path-normalization.js';
+export type { NormalizedAbsolutePath, NormalizedPath } from './path-normalization.js';
 export type File = {
   readonly filePath: NormalizedAbsolutePath;
   readonly fileContent: string;
