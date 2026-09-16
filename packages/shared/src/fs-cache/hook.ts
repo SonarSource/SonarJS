@@ -70,6 +70,11 @@ type CachedDirectoryValue = string | Buffer | fs.Dirent<string | Buffer>;
 type StatValue = fs.Stats | fs.BigIntStats;
 type ErrorCallback = (error: NodeJS.ErrnoException | null) => void;
 type ValueCallback<T> = (error: NodeJS.ErrnoException | null, value?: T) => void;
+type BufferedRealpath = (
+  input: fs.PathLike,
+  options: OperationOptions | 'buffer',
+  callback: ValueCallback<Buffer>,
+) => void;
 type TrackedDescriptor =
   | { key?: string; position: number; virtual: false }
   | {
@@ -641,6 +646,25 @@ function requireCallback<T>(callback: T | undefined, operation: string): T {
   return callback;
 }
 
+function realpathAsPromise(
+  original: BufferedRealpath,
+  input: fs.PathLike,
+  options: OperationOptions | 'buffer',
+  operation: string,
+) {
+  return new Promise<Buffer>((resolve, reject) =>
+    original(input, options, (error, value) => {
+      if (error) {
+        reject(error);
+      } else if (value === undefined) {
+        reject(new Error(`${operation} returned no path`));
+      } else {
+        resolve(value);
+      }
+    }),
+  );
+}
+
 function pathOperation(name: string, options: OperationOptionsInput): string {
   return name.startsWith('realpath') ? name : `${name}:${getEncoding(options) || 'utf8'}`;
 }
@@ -1088,31 +1112,27 @@ function createBasicPatches(archive: ArchiveFacade, executor: CacheExecutor) {
     originalFs.realpathSyncNative as unknown as Parameters<typeof makeRealpathSync>[1],
   );
   const realpathPromise = makeRealpathPromise(
-    'realpath',
+    'realpath.native',
     originalPromises.realpath as unknown as Parameters<typeof makeRealpathPromise>[1],
   );
-  const realpath = makeCallback(realpathPromise) as FunctionWithNative;
+  const realpath = makeCallback(
+    makeRealpathPromise('realpath', (input, options) =>
+      realpathAsPromise(
+        originalFs.realpath as unknown as BufferedRealpath,
+        input,
+        options,
+        'fs.realpath',
+      ),
+    ),
+  ) as FunctionWithNative;
   realpath.native = makeCallback(
-    makeRealpathPromise(
-      'realpath.native',
-      (input, options) =>
-        new Promise((resolve, reject) =>
-          (
-            originalFs.realpathNative as unknown as (
-              input: fs.PathLike,
-              options: OperationOptions | 'buffer',
-              callback: ValueCallback<Buffer>,
-            ) => void
-          )(input, options, (error, value) => {
-            if (error) {
-              reject(error);
-            } else if (value === undefined) {
-              reject(new Error('fs.realpath.native returned no path'));
-            } else {
-              resolve(value);
-            }
-          }),
-        ),
+    makeRealpathPromise('realpath.native', (input, options) =>
+      realpathAsPromise(
+        originalFs.realpathNative as unknown as BufferedRealpath,
+        input,
+        options,
+        'fs.realpath.native',
+      ),
     ),
   );
 

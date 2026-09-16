@@ -421,22 +421,35 @@ describe('filesystem cache hook', () => {
     const script = `
       import fs from 'node:fs';
       const missing = ${JSON.stringify(missing)};
+      const snapshotError = error => {
+        const errorPath = String(error.path);
+        return {
+          code: error.code,
+          errno: error.errno,
+          message: error.message.replaceAll(errorPath, '$PATH'),
+          syscall: error.syscall,
+        };
+      };
       const captureError = operation => {
         try {
           operation();
         } catch (error) {
-          const errorPath = String(error.path);
-          return {
-            code: error.code,
-            errno: error.errno,
-            message: error.message.replaceAll(errorPath, '$PATH'),
-            syscall: error.syscall,
-          };
+          return snapshotError(error);
+        }
+        throw new Error('Expected a filesystem error');
+      };
+      const captureAsyncError = async operation => {
+        try {
+          await operation();
+        } catch (error) {
+          return snapshotError(error);
         }
         throw new Error('Expected a filesystem error');
       };
       fs.existsSync(missing);
       console.log(JSON.stringify({
+        callback: await new Promise(resolve => fs.realpath(missing, error => resolve(snapshotError(error)))),
+        promise: await captureAsyncError(() => fs.promises.realpath(missing)),
         readFile: captureError(() => fs.readFileSync(missing)),
         realpath: captureError(() => fs.realpathSync(missing)),
         realpathNative: captureError(() => fs.realpathSync.native(missing)),
@@ -446,7 +459,11 @@ describe('filesystem cache hook', () => {
     const recorded = runInlineHook({ archive, root, script });
     expect(recorded.stderr).toBe('');
     expect(recorded.status).toBe(0);
-    expect(JSON.parse(recorded.stdout)).toEqual(nativeErrors);
+    expect(JSON.parse(recorded.stdout)).toEqual({
+      ...nativeErrors,
+      callback: nativeErrors.realpath,
+      promise: nativeErrors.realpathNative,
+    });
   });
 
   it('keeps dangling link existence separate from target existence', t => {
@@ -534,7 +551,11 @@ describe('filesystem cache hook', () => {
           utf8: fs.realpathSync(target),
           buffer: fs.realpathSync(target, 'buffer').toString(),
           hex: fs.realpathSync(target, 'hex'),
-          base64: await fs.promises.realpath(target, 'base64'),
+          base64: await new Promise((resolve, reject) =>
+            fs.realpath(target, 'base64', (error, value) =>
+              error ? reject(error) : resolve(value),
+            ),
+          ),
         },
         native: {
           utf8: fs.realpathSync.native(target),
@@ -545,6 +566,12 @@ describe('filesystem cache hook', () => {
               error ? reject(error) : resolve(value),
             ),
           ),
+        },
+        promise: {
+          utf8: await fs.promises.realpath(target),
+          buffer: (await fs.promises.realpath(target, 'buffer')).toString(),
+          hex: await fs.promises.realpath(target, 'hex'),
+          base64: await fs.promises.realpath(target, 'base64'),
         },
       }));
     `;
@@ -561,6 +588,7 @@ describe('filesystem cache hook', () => {
     const recordedResult = JSON.parse(recorded.stdout);
     expect(recordedResult.regular).toEqual(encodedResults(recordedResult.regular.utf8));
     expect(recordedResult.native).toEqual(encodedResults(recordedResult.native.utf8));
+    expect(recordedResult.promise).toEqual(encodedResults(recordedResult.native.utf8));
 
     fs.rmSync(recordRoot, { force: true, recursive: true });
     fs.mkdirSync(replayRoot);
@@ -570,6 +598,7 @@ describe('filesystem cache hook', () => {
     expect(JSON.parse(replayed.stdout)).toEqual({
       regular: encodedResults(path.join(replayRoot, 'target')),
       native: encodedResults(path.join(replayRoot, 'target')),
+      promise: encodedResults(path.join(replayRoot, 'target')),
     });
   });
 
