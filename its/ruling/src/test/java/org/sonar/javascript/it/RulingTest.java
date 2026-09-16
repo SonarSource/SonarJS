@@ -28,7 +28,6 @@ import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.MavenLocation;
 import com.sonar.orchestrator.util.Version;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -250,8 +249,7 @@ class RulingTest {
     runRulingTest(project, sourceDir, exclusions, testDir);
   }
 
-  static void runRulingTest(String projectKey, String sources, String exclusions, String testDir)
-    throws IOException {
+  static void runRulingTest(String projectKey, String sources, String exclusions, String testDir) {
     orchestrator.getServer().provisionProject(projectKey, projectKey);
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "js", "rules");
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "ts", "rules");
@@ -268,6 +266,7 @@ class RulingTest {
       actualExclusions += "," + testDir + "/**/*";
     }
 
+    var expectedDir = Path.of("src", "test", "resources", "expected", projectKey);
     var differencesPath = Path.of("target", projectKey + "-differences").toAbsolutePath();
     SonarScanner build = SonarScanner.create(sourcesLocation)
       .setProjectKey(projectKey)
@@ -277,10 +276,7 @@ class RulingTest {
       .setTestDirs(testDir)
       .setSourceEncoding("utf-8")
       .setScannerVersion(SCANNER_VERSION)
-      .setProperty(
-        "sonar.lits.dump.old",
-        FileLocation.of("src/test/expected/" + projectKey).getFile().getAbsolutePath()
-      )
+      .setProperty("sonar.lits.dump.old", expectedDir.toAbsolutePath().toString())
       .setProperty(
         "sonar.lits.dump.new",
         FileLocation.of("target/actual/" + projectKey).getFile().getAbsolutePath()
@@ -296,6 +292,8 @@ class RulingTest {
     orchestrator.executeBuild(build);
     assertThat(differencesPath).hasContent("");
   }
+
+
 
   private static void instantiateTemplateRule(
     String language,

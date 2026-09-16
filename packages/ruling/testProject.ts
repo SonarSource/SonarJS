@@ -33,7 +33,7 @@ const currentPath = normalizePath(import.meta.dirname);
 
 const SONARJS_ROOT = join(currentPath, '..', '..');
 const sourcesPath = join(SONARJS_ROOT, 'its', 'sources');
-const expectedBase = join(SONARJS_ROOT, 'its', 'ruling', 'src', 'test', 'expected');
+const expectedBase = join(SONARJS_ROOT, 'its', 'ruling', 'src', 'test', 'resources', 'expected');
 const actualBase = join(currentPath, 'actual');
 const ruleMetas = metas as unknown as Record<string, SonarMeta>;
 
@@ -67,7 +67,6 @@ export async function testProject(projectName: string) {
       }));
     })
     .map(applyRulingConfig);
-  const expectedPath = join(expectedBase, name);
   const actualPath = join(actualBase, name);
 
   const baseDir = normalizeToAbsolutePath(join(sourcesPath, folder ?? join('projects', name)));
@@ -96,6 +95,7 @@ export async function testProject(projectName: string) {
 
   await writeResults(baseDir, name, results, actualPath);
 
+  const expectedPath = join(expectedBase, name);
   return await compare(expectedPath, actualPath, { compareContent: true });
 }
 

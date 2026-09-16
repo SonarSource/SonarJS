@@ -17,7 +17,6 @@ its/plugin/projects
 its/plugin/tests/target
 
 its/ruling/src/test/resources
-its/ruling/src/test/expected
 its/ruling/target
 
 sonar-plugin/css/target
