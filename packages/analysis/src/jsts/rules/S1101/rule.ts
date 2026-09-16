@@ -388,7 +388,9 @@ function getStaticHref(value: JSXAttribute['value']): string | null {
   return null;
 }
 
-// Accessible name precedence: aria-label > text content (skipping aria-hidden, using nested img alt) > title, per S6827; null if unresolved or empty.
+// Accessible name precedence: aria-label > text content (skipping aria-hidden, using nested img alt) > title, per S6827.
+// An unresolvable aria-label falls back to the next tier rather than excluding the anchor; an
+// unresolvable text content or title still does, since there is nothing left to fall back to.
 function computeAccessibleName(
   element: TSESTree.JSXElement,
   attributes: JsxAttributes,
@@ -398,10 +400,9 @@ function computeAccessibleName(
   const ariaLabelAttribute = getProp(attributes, 'aria-label') as JSXAttribute | undefined;
   if (ariaLabelAttribute) {
     const staticValue = getStaticText(ariaLabelAttribute.value);
-    if (staticValue === undefined) {
-      return null;
-    }
-    const normalized = normalizeName(staticValue);
+    // An unresolvable aria-label doesn't abort the computation: we don't know whether it will be
+    // non-empty at runtime, so fall back to text content rather than excluding the anchor outright.
+    const normalized = staticValue !== undefined ? normalizeName(staticValue) : '';
     if (normalized) {
       return normalized;
     }
