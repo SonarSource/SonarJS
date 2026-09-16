@@ -16,7 +16,7 @@
  */
 
 import { parentPort, workerData } from 'node:worker_threads';
-import { handleAnalyzeProjectRequest, type WorkerData } from './analyze-project-handle-request.js';
+import type { handleAnalyzeProjectRequest, WorkerData } from './analyze-project-handle-request.js';
 import {
   toAnalyzeProjectStreamResponse,
   toAnalyzeProjectUnaryResponse,
@@ -42,7 +42,7 @@ type AnalyzeProjectUnaryResponse = sonarjs.analyzeproject.v1.IAnalyzeProjectUnar
 export function registerAnalyzeProjectWorkerMessageHandler(
   parentThread: AnalyzeProjectWorkerParentThread,
   data: WorkerData,
-  handleRequest: typeof handleAnalyzeProjectRequest = handleAnalyzeProjectRequest,
+  handleRequest: typeof handleAnalyzeProjectRequest,
 ) {
   parentThread.on('message', async (message: AnalyzeProjectWorkerInMessage) => {
     switch (message.type) {
@@ -93,6 +93,30 @@ export function registerAnalyzeProjectWorkerMessageHandler(
   });
 }
 
+/**
+ * Install the filesystem interception before loading the analyzer. Some dependencies retain
+ * references to filesystem functions while their modules are evaluated, so the ordering here is
+ * part of the cache contract.
+ */
+async function startAnalyzeProjectWorker() {
+  if (!parentPort) {
+    return;
+  }
+  const { installFsCache } = await import('../../shared/src/fs-cache/hook.js');
+  installFsCache();
+  // Do not make this a static import: the cache hook must be installed first.
+  const { handleAnalyzeProjectRequest } = await import('./analyze-project-handle-request.js');
+  registerAnalyzeProjectWorkerMessageHandler(
+    parentPort,
+    workerData as WorkerData,
+    handleAnalyzeProjectRequest,
+  );
+}
+
+if (parentPort) {
+  void startAnalyzeProjectWorker();
+}
+
 function toUnaryResponseResult(
   result: RequestResult<AnalyzeProjectResponse | void>,
 ): RequestResult<AnalyzeProjectUnaryResponse> {
@@ -116,8 +140,4 @@ function toVoidResult(result: RequestResult<AnalyzeProjectResponse | void>): Req
     type: 'success',
     result: undefined,
   };
-}
-
-if (parentPort) {
-  registerAnalyzeProjectWorkerMessageHandler(parentPort, workerData as WorkerData);
 }

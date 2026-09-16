@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import '../../../../../lib/shared/src/fs-cache/worker-register.mjs';
 import fs from 'node:fs';
 import { isMainThread, parentPort, Worker } from 'node:worker_threads';
 
@@ -22,10 +21,16 @@ if (isMainThread) {
   const worker = new Worker(new URL(import.meta.url));
   worker.once('message', message => console.log(JSON.stringify(message)));
 } else {
-  const installation = globalThis[Symbol.for('sonarjs.filesystemCache.installation')];
+  await import('../../../../../lib/grpc/src/analyze-project-worker.js');
+  const installationSymbol = Symbol.for('sonarjs.filesystemCache.installation');
+  while (globalThis[installationSymbol] === undefined) {
+    await new Promise(resolve => setImmediate(resolve));
+  }
+  const installation = globalThis[installationSymbol];
   parentPort.postMessage({
     active: installation?.archive !== undefined,
     installed: installation !== undefined,
     nativePassthrough: fs.existsSync(import.meta.filename),
   });
+  parentPort.close();
 }

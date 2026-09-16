@@ -22,6 +22,9 @@
   },
   "references": [
     {
+      "path": "./tsconfig.fs-cache.json"
+    },
+    {
       "path": "./tsconfig.app.json"
     },
     {

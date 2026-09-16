@@ -5,11 +5,13 @@
   },
   "references": [
     {
+      "path": "./tsconfig.fs-cache.json"
+    },
+    {
       "path": "./tsconfig.app.json"
     }
   ],
   "include": [
-    "shared/src/fs-cache/*.ts",
     "**/tests",
     "**/src/*/rules/tools",
     "ruling/**/*",

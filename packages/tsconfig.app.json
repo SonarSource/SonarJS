@@ -1,5 +1,10 @@
 {
   "extends": "./tsconfig.json",
+  "references": [
+    {
+      "path": "./tsconfig.fs-cache.json"
+    }
+  ],
   "include": [
     "*/src/**/*.ts",
     "*/src/**/*.json",

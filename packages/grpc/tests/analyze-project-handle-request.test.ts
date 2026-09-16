@@ -90,6 +90,15 @@ describe('analyze-project request handler', () => {
     ).toMatchObject({ reason: 'invalid_request', type: 'failure' });
   });
 
+  it('rejects filesystem cache configuration outside an analysis worker', async () => {
+    const request = createAnalyzeProjectRequest();
+    request.filesystemCache = { archivePath: '/cache/first.fscache' };
+
+    expect(
+      await handleAnalyzeProjectRequest({ type: 'on-analyze-project', data: request }, workerData),
+    ).toMatchObject({ reason: 'invalid_request', type: 'failure' });
+  });
+
   it('ends the filesystem cache session when request normalization fails', async () => {
     let ended = false;
     (globalThis as Record<symbol, unknown>)[filesystemCacheInstallation] = {
