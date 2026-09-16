@@ -815,9 +815,14 @@ export class FsCacheArchive {
       return undefined;
     }
 
-    const cachedKey = this.pathKeys.get(filePath);
+    const inputPath = filePath;
+    const cachedKey = this.pathKeys.get(inputPath);
     if (cachedKey !== undefined) {
       return cachedKey;
+    }
+
+    if (path.sep === '\\') {
+      filePath = filePath.replaceAll('/', path.sep);
     }
 
     let relativePath;
@@ -846,6 +851,7 @@ export class FsCacheArchive {
       return undefined;
     }
     const key = relativePath === '' ? '.' : relativePath.split(path.sep).join('/');
+    this.pathKeys.set(inputPath, key);
     this.pathKeys.set(filePath, key);
     return key;
   }

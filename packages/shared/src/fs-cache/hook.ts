@@ -16,7 +16,7 @@
  */
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
-import { getSystemErrorMap } from 'node:util';
+import { getSystemErrorMap, promisify } from 'node:util';
 import {
   type ArchiveOptions,
   type CachedDirectoryEntry,
@@ -45,6 +45,7 @@ type FsError = Error & {
 };
 type Callable = (...args: never[]) => unknown;
 type FunctionWithNative = Callable & { native?: FunctionWithNative };
+type CustomPromisifyFactory = (selected: FunctionWithNative) => Callable;
 type EncodingOption = BufferEncoding | 'buffer' | null;
 type OperationOptions = {
   encoding?: EncodingOption;
@@ -663,11 +664,36 @@ function selectFilesystemImplementation(
   return selected;
 }
 
+function preserveFunctionMetadata(
+  selected: FunctionWithNative,
+  nativeValue: FunctionWithNative,
+  customPromisifyFactory?: CustomPromisifyFactory,
+): void {
+  for (const symbol of Object.getOwnPropertySymbols(nativeValue)) {
+    if (symbol === promisify.custom) {
+      continue;
+    }
+    const descriptor = Object.getOwnPropertyDescriptor(nativeValue, symbol);
+    if (descriptor) {
+      Object.defineProperty(selected, symbol, descriptor);
+    }
+  }
+
+  const customPromisifyDescriptor = Object.getOwnPropertyDescriptor(nativeValue, promisify.custom);
+  if (customPromisifyDescriptor && customPromisifyFactory) {
+    Object.defineProperty(selected, promisify.custom, {
+      ...customPromisifyDescriptor,
+      value: customPromisifyFactory(selected),
+    });
+  }
+}
+
 function patch(
   target: object,
   savedDescriptors: Map<PropertyKey, PropertyDescriptor>,
   name: PropertyKey,
   value: Callable,
+  customPromisifyFactory?: CustomPromisifyFactory,
 ): void {
   const savedDescriptor = Object.getOwnPropertyDescriptor(target, name);
   if (!savedDescriptor) {
@@ -678,15 +704,17 @@ function patch(
     typeof savedDescriptor.get === 'function'
       ? (target as Record<PropertyKey, unknown>)[name]
       : savedDescriptor.value;
+  const selected = selectFilesystemImplementation(
+    value as FunctionWithNative,
+    nativeValue as FunctionWithNative,
+    target,
+  );
+  preserveFunctionMetadata(selected, nativeValue as FunctionWithNative, customPromisifyFactory);
   Object.defineProperty(target, name, {
     configurable: true,
     enumerable: true,
     writable: true,
-    value: selectFilesystemImplementation(
-      value as FunctionWithNative,
-      nativeValue as FunctionWithNative,
-      target,
-    ),
+    value: selected,
   });
 }
 
@@ -1794,7 +1822,12 @@ function installPatches(archive: ArchiveFacade) {
   patch(fs, descriptors, 'readdirSync', basic.readdirSync);
   patch(fs, descriptors, 'readdir', basic.readdir);
   patch(fs, descriptors, 'existsSync', basic.existsSync);
-  patch(fs, descriptors, 'exists', basic.exists);
+  patch(fs, descriptors, 'exists', basic.exists, selected => {
+    return ((input: fs.PathLike) =>
+      new Promise<boolean>(resolve => {
+        Reflect.apply(selected, fs, [input, resolve]);
+      })) as Callable;
+  });
   patch(fs, descriptors, 'accessSync', basic.accessSync);
   patch(fs, descriptors, 'access', basic.access);
   patch(fs, descriptors, 'statSync', basic.statSync);

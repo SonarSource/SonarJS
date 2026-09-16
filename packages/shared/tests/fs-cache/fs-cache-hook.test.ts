@@ -130,9 +130,72 @@ describe('filesystem cache hook', () => {
     expect(result.status).toBe(0);
     expect(JSON.parse(result.stdout)).toEqual({
       active: false,
+      existsPromisify: true,
       installed: true,
       nativePassthrough: true,
+      readPromisify: {
+        bufferPreserved: true,
+        bytesRead: 2,
+      },
     });
+  });
+
+  it('recognizes normalized forward-slash project paths on Windows', t => {
+    if (process.platform !== 'win32') {
+      t.skip('Windows path semantics only');
+      return;
+    }
+
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = new FsCacheArchive({
+      archivePath: path.join(temporary, 'analysis.fscache'),
+      rootDir: root,
+    });
+    const normalizedInput = path.join(root, 'src', 'input.ts').replaceAll('\\', '/');
+
+    expect(archive.keyFor(normalizedInput)).toBe('src/input.ts');
+  });
+
+  it('routes promisified filesystem calls through record and replay sessions', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = path.join(temporary, 'analysis.fscache');
+    const input = path.join(root, 'input.ts');
+    fs.mkdirSync(root);
+    fs.writeFileSync(input, 'content');
+    const script = `
+      import fs from 'node:fs';
+      import { promisify } from 'node:util';
+      const input = filesystemCacheRoot + '/input.ts';
+      const descriptor = fs.openSync(input, 'r');
+      const target = Buffer.alloc(3);
+      const result = await promisify(fs.read)(descriptor, target, 0, target.length, 0);
+      fs.closeSync(descriptor);
+      console.log(JSON.stringify({
+        bufferPreserved: result.buffer === target,
+        bytesRead: result.bytesRead,
+        content: target.toString(),
+        exists: await promisify(fs.exists)(input),
+      }));
+    `;
+    const expected = {
+      bufferPreserved: true,
+      bytesRead: 3,
+      content: 'con',
+      exists: true,
+    };
+
+    const recorded = runInlineHook({ archive, root, script });
+    expect(recorded.status).toBe(0);
+    expect(JSON.parse(recorded.stdout)).toEqual(expected);
+
+    fs.rmSync(root, { force: true, recursive: true });
+    fs.mkdirSync(root);
+    const replayed = runInlineHook({ archive, root, script });
+    expect(replayed.status).toBe(0);
+    expect(replayed.stderr).not.toContain('ERR_SONARJS_FS_CACHE_MISS');
+    expect(JSON.parse(replayed.stdout)).toEqual(expected);
   });
 
   it('switches analysis archives while inactive filesystem calls stay native', () => {

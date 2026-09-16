@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
+import { promisify } from 'node:util';
 import { isMainThread, parentPort, Worker } from 'node:worker_threads';
 
 if (isMainThread) {
@@ -27,10 +28,19 @@ if (isMainThread) {
     await new Promise(resolve => setImmediate(resolve));
   }
   const installation = globalThis[installationSymbol];
+  const descriptor = fs.openSync(import.meta.filename, 'r');
+  const readBuffer = Buffer.alloc(2);
+  const readResult = await promisify(fs.read)(descriptor, readBuffer, 0, readBuffer.length, 0);
+  fs.closeSync(descriptor);
   parentPort.postMessage({
     active: installation?.archive !== undefined,
+    existsPromisify: await promisify(fs.exists)(import.meta.filename),
     installed: installation !== undefined,
     nativePassthrough: fs.existsSync(import.meta.filename),
+    readPromisify: {
+      bufferPreserved: readResult.buffer === readBuffer,
+      bytesRead: readResult.bytesRead,
+    },
   });
   parentPort.close();
 }
