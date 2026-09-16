@@ -1082,7 +1082,7 @@ jobs:
         id: ruling
         run: |
           npm run generate-meta
-          npm run grpc:generate-proto
+          npm run proto:generate
           npm run ruling:cache
       - name: Upload JS/TS ruling filesystem snapshots
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -1129,7 +1129,7 @@ jobs:
       - name: Run JS/TS Ruling from filesystem snapshots
         run: |
           npm run generate-meta
-          npm run grpc:generate-proto
+          npm run proto:generate
           npm run ruling:cache
 
   ruling:
