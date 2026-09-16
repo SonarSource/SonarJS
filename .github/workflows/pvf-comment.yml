@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Get cross-repo dispatch token from Vault
         id: secrets
-        uses: SonarSource/vault-action-wrapper@3.7.0
+        uses: SonarSource/vault-action-wrapper@v3
         with:
           secrets: |
             development/github/token/{REPO_OWNER_NAME_DASH}-pvf-dispatch token | DISPATCH_TOKEN;
