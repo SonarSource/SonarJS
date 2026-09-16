@@ -123,8 +123,21 @@ export const FS_TYPE_METHODS = Object.freeze({
 const STAT_TYPES = Object.keys(FS_TYPE_METHODS);
 export const DIRENT_TYPES = [
   'unknown',
-  ...['file', 'directory', 'symbolicLink', 'blockDevice', 'characterDevice', 'fifo', 'socket'],
+  'file',
+  'directory',
+  'symbolicLink',
+  'blockDevice',
+  'characterDevice',
+  'fifo',
+  'socket',
 ];
+
+function required<T>(value: T | null | undefined, field: string): T {
+  if (value === null || value === undefined) {
+    throw new FsCacheArchiveError(`Filesystem cache archive is missing ${field}`);
+  }
+  return value;
+}
 
 function restoreFsError(error: sonarjs.fscache.FsError.$Properties): FsCacheErrorSnapshot {
   return Object.fromEntries(
@@ -145,7 +158,7 @@ function restoreVoid(entries: sonarjs.fscache.VoidObservation.$Properties[]): Ou
       entry.key,
       entry.result === 'success'
         ? { ok: true, value: null }
-        : { ok: false, error: restoreFsError(entry.error!) },
+        : { ok: false, error: restoreFsError(required(entry.error, 'void observation error')) },
     ]),
   ) as OutcomeMap<null>;
 }
@@ -171,27 +184,31 @@ function restoreStats(
   entries: sonarjs.fscache.StatObservation.$Properties[],
 ): OutcomeMap<CachedStat> {
   return Object.fromEntries(
-    entries.map(entry => [
-      entry.key,
-      entry.result === 'value'
-        ? {
-            ok: true,
-            value: {
-              fields: Object.fromEntries(
-                Object.entries(entry.value!).filter(
-                  ([field, value]) => field !== 'types' && value !== null,
-                ),
+    entries.map(entry => {
+      if (entry.result !== 'value') {
+        return [
+          entry.key,
+          { ok: false, error: restoreFsError(required(entry.error, 'stat observation error')) },
+        ];
+      }
+      const value = required(entry.value, 'stat observation value');
+      return [
+        entry.key,
+        {
+          ok: true,
+          value: {
+            fields: Object.fromEntries(
+              Object.entries(value).filter(
+                ([field, fieldValue]) => field !== 'types' && fieldValue !== null,
               ),
-              types: Object.fromEntries(
-                STAT_TYPES.map((type, index) => [
-                  type,
-                  Boolean((entry.value!.types ?? 0) & (1 << index)),
-                ]),
-              ),
-            },
-          }
-        : { ok: false, error: restoreFsError(entry.error!) },
-    ]),
+            ),
+            types: Object.fromEntries(
+              STAT_TYPES.map((type, index) => [type, Boolean((value.types ?? 0) & (1 << index))]),
+            ),
+          },
+        },
+      ];
+    }),
   ) as OutcomeMap<CachedStat>;
 }
 
@@ -231,30 +248,42 @@ function restoreDirectories(
   entries: sonarjs.fscache.DirectoryObservation.$Properties[],
 ): OutcomeMap<CachedDirectoryEntry[]> {
   return Object.fromEntries(
-    entries.map(entry => [
-      entry.key,
-      entry.result === 'value'
-        ? {
-            ok: true,
-            value: entry.value!.entries!.map(value => ({
-              kind: value.dirent ? 'dirent' : 'name',
-              name: {
-                kind: value.nameIsBuffer ? 'buffer' : 'string',
-                value: Buffer.from(value.name!).toString(value.nameIsBuffer ? 'base64' : 'utf8'),
-              },
-              ...(value.dirent ? { type: DIRENT_TYPES[value.type ?? 0] } : {}),
-              ...(value.parentPath
-                ? {
-                    parentPath: {
-                      kind: value.parentPath.relative ? 'relative' : 'absolute',
-                      path: value.parentPath.path,
-                    },
-                  }
-                : {}),
-            })),
-          }
-        : { ok: false, error: restoreFsError(entry.error!) },
-    ]),
+    entries.map(entry => {
+      if (entry.result !== 'value') {
+        return [
+          entry.key,
+          {
+            ok: false,
+            error: restoreFsError(required(entry.error, 'directory observation error')),
+          },
+        ];
+      }
+      const value = required(entry.value, 'directory observation value');
+      return [
+        entry.key,
+        {
+          ok: true,
+          value: required(value.entries, 'directory entries').map(directoryEntry => ({
+            kind: directoryEntry.dirent ? 'dirent' : 'name',
+            name: {
+              kind: directoryEntry.nameIsBuffer ? 'buffer' : 'string',
+              value: Buffer.from(required(directoryEntry.name, 'directory entry name')).toString(
+                directoryEntry.nameIsBuffer ? 'base64' : 'utf8',
+              ),
+            },
+            ...(directoryEntry.dirent ? { type: DIRENT_TYPES[directoryEntry.type ?? 0] } : {}),
+            ...(directoryEntry.parentPath
+              ? {
+                  parentPath: {
+                    kind: directoryEntry.parentPath.relative ? 'relative' : 'absolute',
+                    path: directoryEntry.parentPath.path,
+                  },
+                }
+              : {}),
+          })),
+        },
+      ];
+    }),
   ) as OutcomeMap<CachedDirectoryEntry[]>;
 }
 
@@ -276,20 +305,27 @@ function restorePaths(
   entries: sonarjs.fscache.PathObservation.$Properties[],
 ): OutcomeMap<{ path: PortablePath }> {
   return Object.fromEntries(
-    entries.map(entry => [
-      entry.key,
-      entry.result === 'value'
-        ? {
-            ok: true,
-            value: {
-              path: {
-                kind: entry.value!.relative ? 'relative' : 'absolute',
-                path: entry.value!.path!,
-              },
+    entries.map(entry => {
+      if (entry.result !== 'value') {
+        return [
+          entry.key,
+          { ok: false, error: restoreFsError(required(entry.error, 'path observation error')) },
+        ];
+      }
+      const value = required(entry.value, 'path observation value');
+      return [
+        entry.key,
+        {
+          ok: true,
+          value: {
+            path: {
+              kind: value.relative ? 'relative' : 'absolute',
+              path: required(value.path, 'portable path'),
             },
-          }
-        : { ok: false, error: restoreFsError(entry.error!) },
-    ]),
+          },
+        },
+      ];
+    }),
   ) as OutcomeMap<{ path: PortablePath }>;
 }
 
@@ -314,20 +350,27 @@ function restoreNames(
   entries: sonarjs.fscache.NameObservation.$Properties[],
 ): OutcomeMap<CachedName> {
   return Object.fromEntries(
-    entries.map(entry => [
-      entry.key,
-      entry.result === 'value'
-        ? {
-            ok: true,
-            value: {
-              kind: entry.value!.buffer ? 'buffer' : 'string',
-              value: Buffer.from(entry.value!.value!).toString(
-                entry.value!.buffer ? 'base64' : 'utf8',
-              ),
-            },
-          }
-        : { ok: false, error: restoreFsError(entry.error!) },
-    ]),
+    entries.map(entry => {
+      if (entry.result !== 'value') {
+        return [
+          entry.key,
+          { ok: false, error: restoreFsError(required(entry.error, 'name observation error')) },
+        ];
+      }
+      const value = required(entry.value, 'name observation value');
+      return [
+        entry.key,
+        {
+          ok: true,
+          value: {
+            kind: value.buffer ? 'buffer' : 'string',
+            value: Buffer.from(required(value.value, 'name observation bytes')).toString(
+              value.buffer ? 'base64' : 'utf8',
+            ),
+          },
+        },
+      ];
+    }),
   ) as OutcomeMap<CachedName>;
 }
 
@@ -362,7 +405,9 @@ function serializeProtobufDocument(document: ArchiveDocument) {
             realpaths: typedPaths(node.realpaths),
             readlinks: typedNames(node.readlinks),
           };
-          if (!content) return entry;
+          if (!content) {
+            return entry;
+          }
           if (!content.ok) {
             return {
               ...entry,
@@ -390,28 +435,44 @@ function deserializeProtobufDocument(bytes: Uint8Array) {
     missingPaths: document.missingPaths,
     entries: document.entries.map(entry => {
       const node: CacheNode = {};
-      if (entry.exists !== null) node.exists = entry.exists;
-      if (entry.linkExists !== null) node.linkExists = entry.linkExists;
-      if (entry.stats?.length) node.stats = restoreStats(entry.stats);
-      if (entry.access?.length) node.access = restoreVoid(entry.access);
-      if (entry.opens?.length) node.opens = restoreVoid(entry.opens);
+      if (entry.exists !== null) {
+        node.exists = entry.exists;
+      }
+      if (entry.linkExists !== null) {
+        node.linkExists = entry.linkExists;
+      }
+      if (entry.stats?.length) {
+        node.stats = restoreStats(entry.stats);
+      }
+      if (entry.access?.length) {
+        node.access = restoreVoid(entry.access);
+      }
+      if (entry.opens?.length) {
+        node.opens = restoreVoid(entry.opens);
+      }
       if (entry.directories?.length) {
         node.directories = restoreDirectories(entry.directories);
       }
-      if (entry.realpaths?.length) node.realpaths = restorePaths(entry.realpaths);
-      if (entry.readlinks?.length) node.readlinks = restoreNames(entry.readlinks);
+      if (entry.realpaths?.length) {
+        node.realpaths = restorePaths(entry.realpaths);
+      }
+      if (entry.readlinks?.length) {
+        node.readlinks = restoreNames(entry.readlinks);
+      }
       if (entry.contentResult === 'content') {
         node.content = {
           ok: true,
-          value: Buffer.isBuffer(entry.content) ? entry.content : Buffer.from(entry.content!),
+          value: Buffer.isBuffer(entry.content)
+            ? entry.content
+            : Buffer.from(required(entry.content, 'content bytes')),
         };
       } else if (entry.contentResult === 'contentError') {
         node.content = {
           ok: false,
-          error: restoreFsError(entry.contentError!),
+          error: restoreFsError(required(entry.contentError, 'content error')),
         };
       }
-      return { path: entry.path!, node };
+      return { path: required(entry.path, 'entry path'), node };
     }),
   };
 }
@@ -478,44 +539,48 @@ function mergeMapField<K extends MapField>(
 }
 
 function sortMapField<K extends MapField>(target: CacheNode, source: CacheNode, field: K): void {
+  const entries = source[field];
+  if (!entries) {
+    return;
+  }
   target[field] = Object.fromEntries(
-    Object.entries(source[field]!).sort(([left], [right]) => left.localeCompare(right)),
+    Object.entries(entries).sort(([left], [right]) => left.localeCompare(right)),
   ) as CacheNode[K];
 }
 
 function operationSlot(operation: string): OperationSlot {
   const [name, ...parts] = operation.split(':');
-  if (name === 'readFile') {
-    return { field: 'content' };
+  switch (name) {
+    case 'readFile':
+      return { field: 'content' };
+    case 'stat':
+    case 'lstat':
+      return { field: 'stats', key: `${name}:${parts[0] || 'number'}` };
+    case 'fstat':
+      return { field: 'stats', key: `stat:${parts[0] || 'number'}` };
+    case 'readdir': {
+      const [encoding = 'utf8', withFileTypes = 'false', recursive = 'false'] = parts;
+      const scope = recursive === 'true' ? 'readdir-recursive' : 'flat';
+      const kind = withFileTypes === 'true' ? 'entries' : 'names';
+      return { field: 'directories', key: `${scope}:${encoding}:${kind}` };
+    }
+    case 'opendir': {
+      const [encoding = 'utf8', recursive = 'false'] = parts;
+      const scope = recursive === 'true' ? 'opendir-recursive' : 'flat';
+      return { field: 'directories', key: `${scope}:${encoding}:entries` };
+    }
+    case 'access':
+      return { field: 'access', key: parts[0] || '0' };
+    case 'realpath':
+    case 'realpath.native':
+      return { field: 'realpaths', key: name };
+    case 'readlink':
+      return { field: 'readlinks', key: parts[0] || 'utf8' };
+    case 'open':
+      return { field: 'opens', key: parts.join(':') || 'r' };
+    default:
+      throw new FsCacheArchiveError(`Unsupported filesystem cache operation: ${operation}`);
   }
-  if (name === 'stat' || name === 'fstat' || name === 'lstat') {
-    const family = name === 'fstat' ? 'stat' : name;
-    return { field: 'stats', key: `${family}:${parts[0] || 'number'}` };
-  }
-  if (name === 'readdir') {
-    const [encoding = 'utf8', withFileTypes = 'false', recursive = 'false'] = parts;
-    const scope = recursive === 'true' ? 'readdir-recursive' : 'flat';
-    const kind = withFileTypes === 'true' ? 'entries' : 'names';
-    return { field: 'directories', key: `${scope}:${encoding}:${kind}` };
-  }
-  if (name === 'opendir') {
-    const [encoding = 'utf8', recursive = 'false'] = parts;
-    const scope = recursive === 'true' ? 'opendir-recursive' : 'flat';
-    return { field: 'directories', key: `${scope}:${encoding}:entries` };
-  }
-  if (name === 'access') {
-    return { field: 'access', key: parts[0] || '0' };
-  }
-  if (name === 'realpath' || name === 'realpath.native') {
-    return { field: 'realpaths', key: name };
-  }
-  if (name === 'readlink') {
-    return { field: 'readlinks', key: parts[0] || 'utf8' };
-  }
-  if (name === 'open') {
-    return { field: 'opens', key: parts.join(':') || 'r' };
-  }
-  throw new FsCacheArchiveError(`Unsupported filesystem cache operation: ${operation}`);
 }
 
 function readSlot(node: CacheNode, slot: OperationSlot): FsCacheOutcome<unknown> | undefined {
@@ -527,7 +592,12 @@ function writeSlot<T>(node: CacheNode, slot: OperationSlot, outcome: FsCacheOutc
     node.content = outcome as FsCacheOutcome<Buffer | string>;
     return;
   }
-  const entries = (node[slot.field] ||= {}) as OutcomeMap<T>;
+  const mapFields = node as Record<MapField, OutcomeMap<unknown> | undefined>;
+  let entries = mapFields[slot.field] as OutcomeMap<T> | undefined;
+  if (!entries) {
+    entries = {};
+    mapFields[slot.field] = entries as OutcomeMap<unknown>;
+  }
   entries[slot.key] = outcome;
 }
 
@@ -542,6 +612,36 @@ function isMissingOutcome(operation: string, outcome: FsCacheOutcome<unknown>) {
 
 function observesLink(operation: string) {
   return operation.startsWith('lstat:') || operation.startsWith('readlink:');
+}
+
+function updateExistence(
+  node: CacheNode,
+  operation: string,
+  outcome: FsCacheOutcome<unknown>,
+  missing: boolean,
+) {
+  const linkOperation = observesLink(operation);
+  if (operation === 'exists' && outcome.ok) {
+    node.exists = Boolean(outcome.value);
+    if (outcome.value) {
+      node.linkExists = true;
+    }
+    return;
+  }
+  if (missing) {
+    node.exists = false;
+    if (linkOperation) {
+      // A missing directory entry also means there is no target to follow.
+      node.linkExists = false;
+    }
+    return;
+  }
+  if (outcome.ok) {
+    node.linkExists = true;
+    if (!linkOperation) {
+      node.exists = true;
+    }
+  }
 }
 
 function namesFromEntries(
@@ -805,27 +905,7 @@ export class FsCacheArchive {
     }
 
     const missing = isMissingOutcome(operation, outcome);
-    const linkOperation = observesLink(operation);
-    if (operation === 'exists' && outcome.ok) {
-      node.exists = Boolean(outcome.value);
-      if (outcome.value) {
-        node.linkExists = true;
-      }
-    } else if (missing) {
-      if (linkOperation) {
-        // A missing directory entry also means there is no target to follow.
-        node.linkExists = false;
-        node.exists = false;
-      } else {
-        // The target may be missing while a dangling symbolic link still exists.
-        node.exists = false;
-      }
-    } else if (outcome.ok) {
-      node.linkExists = true;
-      if (!linkOperation) {
-        node.exists = true;
-      }
-    }
+    updateExistence(node, operation, outcome, missing);
 
     if (operation !== 'exists' && !missing) {
       writeSlot(node, operationSlot(operation), outcome);
