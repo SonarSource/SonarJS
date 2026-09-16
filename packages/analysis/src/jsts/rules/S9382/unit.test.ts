@@ -84,17 +84,6 @@ describe('S9382', () => {
         }
       }
     }`),
-
-        // Suppressed by the early-exit decorator: same as the plain `for...of` case above,
-        // but the implicit await is on the `await using` declaration in the loop header itself.
-        valid(`
-    async function foo(iter) {
-      for (await using x of iter) {
-        if (cond) {
-          return x;
-        }
-      }
-    }`),
       ],
 
       invalid: [
@@ -137,6 +126,15 @@ describe('S9382', () => {
     async function foo(iter) {
       for (await using x of iter) {
         bar(x);
+      }
+    }`),
+
+        invalid(`
+    async function foo(iter) {
+      for (await using x of iter) {
+        if (cond) {
+          return x;
+        }
       }
     }`),
 

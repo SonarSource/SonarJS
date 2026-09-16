@@ -30,10 +30,14 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     },
     (context, descriptor) => {
       if ('node' in descriptor) {
-        const loop = findEnclosingLoop(descriptor.node as estree.Node);
+        const enclosing = findEnclosingLoop(descriptor.node as estree.Node);
         if (
-          loop &&
-          hasLaterLoopExit(loop, descriptor.node as estree.Node, context.sourceCode.visitorKeys)
+          enclosing?.viaBody &&
+          hasLaterLoopExit(
+            enclosing.loop,
+            descriptor.node as estree.Node,
+            context.sourceCode.visitorKeys,
+          )
         ) {
           return;
         }
@@ -87,9 +91,13 @@ function isLooped(node: estree.Node, parent: LoopLike): boolean {
 
 /**
  * Re-walks the same climb ESLint core's rule already performed to decide to report,
- * to find which loop it reported against.
+ * to find which loop it reported against, and whether the awaited node sits in the
+ * loop's body rather than its header (test/update/left) - a header await always runs
+ * before the body does (or, for `await using`, its disposal is tied to scope exit, not
+ * position), so a later exit in the body doesn't relate to it the way the early-exit
+ * heuristic below intends.
  */
-function findEnclosingLoop(node: estree.Node): LoopLike | null {
+function findEnclosingLoop(node: estree.Node): { loop: LoopLike; viaBody: boolean } | null {
   let current = node;
   let parent = getNodeParent(current);
   while (parent) {
@@ -97,7 +105,7 @@ function findEnclosingLoop(node: estree.Node): LoopLike | null {
       return null;
     }
     if (isLoopLike(parent) && isLooped(current, parent)) {
-      return parent;
+      return { loop: parent, viaBody: current === parent.body };
     }
     current = parent;
     parent = getNodeParent(current);
