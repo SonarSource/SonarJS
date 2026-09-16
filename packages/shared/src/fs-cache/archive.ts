@@ -718,6 +718,29 @@ function acquireLock(lockPath: string, archivePath: string) {
   );
 }
 
+function resolvePhysicalRoots(rootDir: string) {
+  const physicalRootDirs: Partial<Record<RealpathOperation, string>> = {};
+  const rootAliases = [normalizeForComparison(rootDir)];
+  const physicalRootReaders: [RealpathOperation, (path: fs.PathLike) => string][] = [
+    ['realpath', nativeFs.realpathSync],
+    ['realpath.native', nativeFs.realpathSyncNative],
+  ];
+  for (const [operation, readPhysicalRoot] of physicalRootReaders) {
+    try {
+      const physicalRootDir = readPhysicalRoot(rootDir);
+      physicalRootDirs[operation] = physicalRootDir;
+      const physicalRoot = normalizeForComparison(physicalRootDir);
+      if (!rootAliases.includes(physicalRoot)) {
+        rootAliases.push(physicalRoot);
+      }
+    } catch {
+      // Resolving aliases is an optional portability optimization. Preserve native fs behavior
+      // when the root cannot be resolved, without adding analyzer errors or warnings.
+    }
+  }
+  return { physicalRootDirs, rootAliases };
+}
+
 function normalizeForComparison(filePath: string) {
   return path.sep === '\\' ? normalizePath(filePath) : filePath;
 }
@@ -760,27 +783,11 @@ export class FsCacheArchive {
     this.archivePath = path.resolve(archivePath);
     this.rootDir = path.resolve(rootDir);
     this.mode = nativeFs.existsSync(this.archivePath) ? 'replay' : 'record';
-    this.physicalRootDirs = {};
-    const rootAliases = [normalizeForComparison(this.rootDir)];
-    if (this.mode === 'record') {
-      const physicalRootReaders: [RealpathOperation, (path: fs.PathLike) => string][] = [
-        ['realpath', nativeFs.realpathSync],
-        ['realpath.native', nativeFs.realpathSyncNative],
-      ];
-      for (const [operation, readPhysicalRoot] of physicalRootReaders) {
-        try {
-          const physicalRootDir = readPhysicalRoot(this.rootDir);
-          this.physicalRootDirs[operation] = physicalRootDir;
-          const physicalRoot = normalizeForComparison(physicalRootDir);
-          if (!rootAliases.includes(physicalRoot)) {
-            rootAliases.push(physicalRoot);
-          }
-        } catch {
-          // Resolving aliases is an optional portability optimization. Preserve native fs behavior
-          // when the root cannot be resolved, without adding analyzer errors or warnings.
-        }
-      }
-    }
+    const { physicalRootDirs, rootAliases } =
+      this.mode === 'record'
+        ? resolvePhysicalRoots(this.rootDir)
+        : { physicalRootDirs: {}, rootAliases: [normalizeForComparison(this.rootDir)] };
+    this.physicalRootDirs = physicalRootDirs;
     this.comparisonRoots = rootAliases
       .map(comparisonRoot)
       .sort((left, right) => right.directory.length - left.directory.length);

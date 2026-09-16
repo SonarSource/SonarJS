@@ -119,7 +119,7 @@ function startAnalyzeProjectWorker() {
 }
 
 if (parentPort) {
-  startAnalyzeProjectWorker();
+  void startAnalyzeProjectWorker();
 }
 
 function toUnaryResponseResult(

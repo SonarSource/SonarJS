@@ -112,6 +112,12 @@ try {
   missingStatCode = error.code;
 }
 const missingSoft = statSync(missing, { throwIfNoEntry: false }) === undefined;
+let missingPromiseReadCode;
+try {
+  await fsDefault.promises.readFile(missing);
+} catch (error) {
+  missingPromiseReadCode = error.code;
+}
 
 const dynamicFs = await import('node:fs');
 const directoryEntries = readdirSync(directory, { withFileTypes: true }).map(entry => ({
@@ -131,12 +137,52 @@ const promisedDirectory = await fsDefault.promises.opendir(directory);
 const promisedDirectoryEntries = [];
 for await (const entry of promisedDirectory) promisedDirectoryEntries.push(entry.name);
 
+const callbackDirectory = await new Promise((resolve, reject) =>
+  fsDefault.opendir(directory, (error, value) => (error ? reject(error) : resolve(value))),
+);
+const callbackDirectoryEntry = await new Promise((resolve, reject) =>
+  callbackDirectory.read((error, value) => (error ? reject(error) : resolve(value.name))),
+);
+await new Promise((resolve, reject) =>
+  callbackDirectory.close(error => (error ? reject(error) : resolve())),
+);
+let callbackDirectoryReadClosedCode;
+try {
+  callbackDirectory.read(() => {});
+} catch (error) {
+  callbackDirectoryReadClosedCode = error.code;
+}
+const callbackDirectoryCloseClosedCode = await new Promise(resolve =>
+  callbackDirectory.close(error => resolve(error.code)),
+);
+
+const manualPromisedDirectory = await fsDefault.promises.opendir(directory);
+const manualPromisedDirectoryEntry = (await manualPromisedDirectory.read()).name;
+await manualPromisedDirectory.close();
+const promisedDirectoryReadClosedCode = await manualPromisedDirectory
+  .read()
+  .catch(error => error.code);
+const promisedDirectoryCloseClosedCode = await manualPromisedDirectory
+  .close()
+  .catch(error => error.code);
+
+const disposableDirectory = fsDefault.opendirSync(directory);
+disposableDirectory[Symbol.dispose]();
+disposableDirectory[Symbol.dispose]();
+const asyncDisposableDirectory = await fsDefault.promises.opendir(directory);
+await asyncDisposableDirectory[Symbol.asyncDispose]();
+await asyncDisposableDirectory[Symbol.asyncDispose]();
+
 accessSync(file);
 const result = {
   callback: callbackRead,
+  callbackDirectoryCloseClosedCode,
+  callbackDirectoryEntry,
+  callbackDirectoryReadClosedCode,
   callbackFdRead,
   callbackFdReadFile,
   callbackSize,
+  bufferPath: readFileSync(Buffer.from(file), 'utf8'),
   commonjs: commonJsFs.readFileSync(file, 'utf8'),
   default: fsDefault.readFileSync(file, 'utf8'),
   directoryEntries,
@@ -148,7 +194,9 @@ const result = {
   handle: handleBuffer.subarray(0, handleRead.bytesRead).toString(),
   handleSize,
   lstatSize: lstatSync(file).size,
+  manualPromisedDirectoryEntry,
   missingExists: existsSync(missing),
+  missingPromiseReadCode,
   missingSoft,
   missingStatCode,
   named: readFileSync(file, 'utf8'),
@@ -159,6 +207,8 @@ const result = {
   outside: readFileSync(outside, 'utf8'),
   promise: await readFilePromise(file, 'utf8'),
   promisedDirectoryEntries,
+  promisedDirectoryCloseClosedCode,
+  promisedDirectoryReadClosedCode,
   realpath: path.relative(root, realpathSync(file)).split(path.sep).join('/'),
   statSize: statSync(file).size,
 };

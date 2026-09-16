@@ -35,6 +35,7 @@ const MISSING = Symbol('missing filesystem cache observation');
 export const FS_CACHE_INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
 const CACHED_FILE_HANDLE = Symbol('cached filesystem file handle');
 const FS_PROMISES_MODULE = 'fs/promises';
+const REALPATH_NATIVE_OPERATION = 'realpath.native';
 const DEFAULT_ENOENT_ERRNO = -2;
 let activeArchive: FsCacheArchive | undefined;
 
@@ -1105,11 +1106,11 @@ function createBasicPatches(archive: ArchiveFacade, executor: CacheExecutor) {
     originalFs.realpathSync as unknown as Parameters<typeof makeRealpathSync>[1],
   ) as FunctionWithNative;
   realpathSync.native = makeRealpathSync(
-    'realpath.native',
+    REALPATH_NATIVE_OPERATION,
     originalFs.realpathSyncNative as unknown as Parameters<typeof makeRealpathSync>[1],
   );
   const realpathPromise = makeRealpathPromise(
-    'realpath.native',
+    REALPATH_NATIVE_OPERATION,
     originalPromises.realpath as unknown as Parameters<typeof makeRealpathPromise>[1],
   );
   const realpath = makeCallback(
@@ -1123,7 +1124,7 @@ function createBasicPatches(archive: ArchiveFacade, executor: CacheExecutor) {
     ),
   ) as FunctionWithNative;
   realpath.native = makeCallback(
-    makeRealpathPromise('realpath.native', (input, options) =>
+    makeRealpathPromise(REALPATH_NATIVE_OPERATION, (input, options) =>
       realpathAsPromise(
         originalFs.realpathNative as unknown as BufferedRealpath,
         input,
@@ -1174,12 +1175,8 @@ class CachedDir {
   read(callback?: ValueCallback<CachedDirectoryValue | null>) {
     const operation = () => this.readSync();
     if (callback) {
-      try {
-        const entry = operation();
-        queueMicrotask(() => callback(null, entry));
-      } catch (error) {
-        queueMicrotask(() => callback(error as NodeJS.ErrnoException));
-      }
+      const entry = operation();
+      queueMicrotask(() => callback(null, entry));
       return undefined;
     }
     return Promise.resolve().then(operation);
