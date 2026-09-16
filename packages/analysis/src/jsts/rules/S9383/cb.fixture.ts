@@ -49,6 +49,10 @@ function anyTypedRejectionHandlerIsAssumedCallable(next: any) {
   fetchData().catch(next);
 }
 
+function anyTypedRejectionHandlerViaThenIsAssumedCallable(next: any) {
+  fetchData().then(value => console.log(value), next);
+}
+
 function nonFunctionRejectionHandlerIsStillReported(next: string) {
   fetchData().catch(next); // Noncompliant [[qf7,qf8=0]] {{Promises must be awaited, end with a call to .catch, end with a call to .then with a rejection handler or be explicitly marked as ignored with the `void` operator. A rejection handler that is not a function will be ignored.}}
   // fix@qf7 {{Add void operator to ignore.}}
