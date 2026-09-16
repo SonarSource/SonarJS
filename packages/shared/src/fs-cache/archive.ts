@@ -41,6 +41,7 @@ export type FsCacheErrorSnapshot = {
 };
 export type FsCacheOutcome<T> = { ok: true; value: T } | { ok: false; error: FsCacheErrorSnapshot };
 export type PortablePath = { kind: 'absolute' | 'relative'; path: string };
+export type RealpathOperation = 'realpath' | 'realpath.native';
 export type CachedName = { kind: 'buffer'; value: string } | { kind: 'string'; value: string };
 export type CachedStat = {
   fields: Record<string, string | undefined>;
@@ -86,6 +87,7 @@ const nativeFs = {
   openSync: fs.openSync.bind(fs),
   readFileSync: fs.readFileSync.bind(fs),
   realpathSync: fs.realpathSync.bind(fs),
+  realpathSyncNative: fs.realpathSync.native.bind(fs.realpathSync),
   renameSync: fs.renameSync.bind(fs),
   statSync: fs.statSync.bind(fs),
   unlinkSync: fs.unlinkSync.bind(fs),
@@ -737,7 +739,7 @@ function comparisonRoot(directory: string): ComparisonRoot {
 export class FsCacheArchive {
   archivePath: string;
   rootDir: string;
-  physicalRootDir: string | undefined;
+  physicalRootDirs: Partial<Record<RealpathOperation, string>>;
   comparisonRoots: ComparisonRoot[];
   mode: ArchiveMode;
   createdAt: string;
@@ -758,18 +760,25 @@ export class FsCacheArchive {
     this.archivePath = path.resolve(archivePath);
     this.rootDir = path.resolve(rootDir);
     this.mode = nativeFs.existsSync(this.archivePath) ? 'replay' : 'record';
-    this.physicalRootDir = undefined;
+    this.physicalRootDirs = {};
     const rootAliases = [normalizeForComparison(this.rootDir)];
     if (this.mode === 'record') {
-      try {
-        this.physicalRootDir = nativeFs.realpathSync(this.rootDir);
-        const physicalRoot = normalizeForComparison(this.physicalRootDir);
-        if (!rootAliases.includes(physicalRoot)) {
-          rootAliases.push(physicalRoot);
+      const physicalRootReaders: [RealpathOperation, (path: fs.PathLike) => string][] = [
+        ['realpath', nativeFs.realpathSync],
+        ['realpath.native', nativeFs.realpathSyncNative],
+      ];
+      for (const [operation, readPhysicalRoot] of physicalRootReaders) {
+        try {
+          const physicalRootDir = readPhysicalRoot(this.rootDir);
+          this.physicalRootDirs[operation] = physicalRootDir;
+          const physicalRoot = normalizeForComparison(physicalRootDir);
+          if (!rootAliases.includes(physicalRoot)) {
+            rootAliases.push(physicalRoot);
+          }
+        } catch {
+          // Resolving aliases is an optional portability optimization. Preserve native fs behavior
+          // when the root cannot be resolved, without adding analyzer errors or warnings.
         }
-      } catch {
-        // Resolving aliases is an optional portability optimization. Preserve native fs behavior
-        // when the root cannot be resolved, without adding analyzer errors or warnings.
       }
     }
     this.comparisonRoots = rootAliases
@@ -895,8 +904,8 @@ export class FsCacheArchive {
       : { kind: 'relative', path: key };
   }
 
-  decodePortablePath(portablePath: PortablePath, physical = false): string {
-    const rootDir = physical ? (this.physicalRootDir ?? this.rootDir) : this.rootDir;
+  decodePortablePath(portablePath: PortablePath, operation?: RealpathOperation): string {
+    const rootDir = operation ? (this.physicalRootDirs[operation] ?? this.rootDir) : this.rootDir;
     return portablePath.kind === 'relative'
       ? this.absolutePathFor(portablePath.path, rootDir)
       : portablePath.path;

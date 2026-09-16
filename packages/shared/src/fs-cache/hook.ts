@@ -28,6 +28,7 @@ import {
   FS_TYPE_METHODS,
   FsCacheArchive,
   type PortablePath,
+  type RealpathOperation,
 } from './archive.js';
 
 const MISSING = Symbol('missing filesystem cache observation');
@@ -137,8 +138,8 @@ const activeArchiveFacade: ArchiveFacade = {
   encodePortablePath(filePath: fs.PathLike) {
     return requireActiveArchive().encodePortablePath(filePath);
   },
-  decodePortablePath(filePath: PortablePath, physical?: boolean) {
-    return requireActiveArchive().decodePortablePath(filePath, physical);
+  decodePortablePath(filePath: PortablePath, operation?: RealpathOperation) {
+    return requireActiveArchive().decodePortablePath(filePath, operation);
   },
   recordCacheHit() {
     return requireActiveArchive().recordCacheHit();
@@ -554,8 +555,12 @@ function snapshotPathResult(value: string | Buffer, archive: ArchiveFacade): Cac
   };
 }
 
-function restorePathResult(value: CachedPathResult, archive: ArchiveFacade): Buffer {
-  return Buffer.from(archive.decodePortablePath(value.path, archive.mode === 'record'));
+function restorePathResult(
+  value: CachedPathResult,
+  archive: ArchiveFacade,
+  operation: RealpathOperation,
+): Buffer {
+  return Buffer.from(archive.decodePortablePath(value.path, operation));
 }
 
 function withBufferEncoding(options: OperationOptionsInput): OperationOptions | 'buffer' {
@@ -995,7 +1000,7 @@ function createBasicPatches(archive: ArchiveFacade, executor: CacheExecutor) {
   }
 
   function makeRealpathSync(
-    name: string,
+    name: RealpathOperation,
     original: (input: fs.PathLike, options: OperationOptions | 'buffer') => Buffer,
   ) {
     return (input: fs.PathLike, options?: OperationOptionsInput) => {
@@ -1004,14 +1009,14 @@ function createBasicPatches(archive: ArchiveFacade, executor: CacheExecutor) {
         pathOperation(name, options),
         () => original(input, withBufferEncoding(options)),
         (value: Buffer) => snapshotPathResult(value, archive),
-        (value: CachedPathResult) => restorePathResult(value, archive),
+        (value: CachedPathResult) => restorePathResult(value, archive, name),
       );
       return returnPathBuffer(value, options);
     };
   }
 
   function makeRealpathPromise(
-    name: string,
+    name: RealpathOperation,
     original: (input: fs.PathLike, options: OperationOptions | 'buffer') => Promise<Buffer>,
   ) {
     return async (input: fs.PathLike, options?: OperationOptionsInput) => {
@@ -1020,7 +1025,7 @@ function createBasicPatches(archive: ArchiveFacade, executor: CacheExecutor) {
         pathOperation(name, options),
         () => original(input, withBufferEncoding(options)),
         (value: Buffer) => snapshotPathResult(value, archive),
-        (value: CachedPathResult) => restorePathResult(value, archive),
+        (value: CachedPathResult) => restorePathResult(value, archive, name),
       );
       return returnPathBuffer(value, options);
     };
