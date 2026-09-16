@@ -18,29 +18,24 @@ import { rule } from '../index.js';
 import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
+import parser from 'vue-eslint-parser';
 
-describe('S9145 on a Vue 2.7/3 range', () => {
+describe('S8961 with no declared Vue dependency', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
-  const ruleTester = new NoTypeCheckingRuleTester();
+  const ruleTester = new NoTypeCheckingRuleTester({ parser });
   ruleTester.run(
-    'S9145 still reports on "^2.7.0 || ^3.0.0": the range can resolve to Vue 3, even though its ' +
-      'floor predates it',
+    'S8961 is silenced when no vue dependency can be resolved at all: without it, there is no ' +
+      'basis to assume the project is on Vue 3',
     rule,
     {
-      valid: [],
-      invalid: [
+      valid: [
         {
-          code: `
-          import { Vue } from 'vue-class-component';
-          export default class MyComponent extends Vue {
-            count = 0;
-          }
-        `,
-          filename: join(dirname, 'component.ts'),
-          errors: 1,
+          code: `<script>export default { methods: { submit() { this.$emit('leadFormSent'); } } };</script>`,
+          filename: join(dirname, 'component.tsx'),
         },
       ],
+      invalid: [],
     },
   );
 });

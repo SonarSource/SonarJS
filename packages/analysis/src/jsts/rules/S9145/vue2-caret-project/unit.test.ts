@@ -19,13 +19,13 @@ import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
-describe('S9145 on a caret-pinned pre-2.7 Vue 2 range', () => {
+describe('S9145 on a caret-pinned pre-3.0 Vue 2 range', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
   ruleTester.run(
-    'S9145 is silenced on "^2.6.11": even though the caret range could technically resolve up ' +
-      'to (but excluding) 3.0.0, projects pinned this way stay on their pre-2.7 floor in practice',
+    'S9145 is silenced on "^2.6.11": the caret range\'s ceiling stops just below 3.0.0, so it ' +
+      'cannot resolve to Vue 3',
     rule,
     {
       valid: [

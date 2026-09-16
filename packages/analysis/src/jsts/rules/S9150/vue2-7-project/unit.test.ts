@@ -24,11 +24,12 @@ describe('S9150 on Vue 2.7', () => {
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
   ruleTester.run(
-    'S9150 reports mixins usage on Vue 2.7, which backported the Composition API',
+    'S9150 is silenced on Vue 2.7: it backported the Composition API, but Vue 2 users are not ' +
+      'moving off mixins just because it became available, so the Composition API is only ' +
+      'considered available from Vue 3 onward',
     rule,
     {
-      valid: [],
-      invalid: [
+      valid: [
         {
           code: `
             import counterMixin from './mixins/counter';
@@ -37,9 +38,9 @@ describe('S9150 on Vue 2.7', () => {
             };
           `,
           filename: join(dirname, 'component.js'),
-          errors: 1,
         },
       ],
+      invalid: [],
     },
   );
 });
