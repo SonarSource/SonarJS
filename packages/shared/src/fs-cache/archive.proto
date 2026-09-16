@@ -5,7 +5,7 @@ package sonarjs.fscache;
 message Archive {
   string magic = 1;
   uint32 format_version = 2;
-  string analyzer_version = 3;
+  reserved 3;
   string created_at = 4;
   string updated_at = 5;
   repeated Entry entries = 6;

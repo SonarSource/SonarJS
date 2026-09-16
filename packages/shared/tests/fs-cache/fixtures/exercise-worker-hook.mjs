@@ -16,16 +16,26 @@
  */
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { isMainThread, parentPort, Worker } from 'node:worker_threads';
+import { isMainThread, parentPort, Worker, workerData } from 'node:worker_threads';
+import { installFsCache } from '../../../src/fs-cache/hook.mjs';
 
 if (isMainThread) {
-  const main = readFileSync(
-    path.join(process.env.SONARJS_FS_CACHE_ROOT, 'main-input.ts'),
-    'utf8',
-  );
-  const worker = new Worker(new URL(import.meta.url));
-  worker.once('message', message => console.log(`${main}|${message}`));
+  const [root, archivePath] = process.argv.slice(2);
+  const main = readFileSync(path.join(root, 'main-input.ts'), 'utf8');
+  const worker = new Worker(new URL(import.meta.url), {
+    workerData: { archivePath, rootDir: root },
+  });
+  const message = await new Promise((resolve, reject) => {
+    worker.once('message', resolve);
+    worker.once('error', reject);
+  });
+  console.log(`${main}|${message}`);
 } else {
-  const file = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'worker-input.ts');
-  parentPort.postMessage(readFileSync(file, 'utf8'));
+  const session = installFsCache().beginAnalysis(workerData);
+  try {
+    const file = path.join(workerData.rootDir, 'worker-input.ts');
+    parentPort.postMessage(readFileSync(file, 'utf8'));
+  } finally {
+    session.end();
+  }
 }

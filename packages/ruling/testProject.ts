@@ -40,13 +40,10 @@ const filesystemCacheArchiveDirectory = join(currentPath, 'filesystem-cache');
 const ruleMetas = metas as unknown as Record<string, SonarMeta>;
 
 const DEFAULT_EXCLUSIONS = ['**/.*', '**/*.d.ts'];
-const RULING_FILESYSTEM_CACHE_RECORD_CONDITION = '--conditions=sonarjs-ruling-fs-cache-record';
-const RULING_FILESYSTEM_CACHE_REPLAY_CONDITION = '--conditions=sonarjs-ruling-fs-cache-replay';
-
-export type FilesystemCacheMode = 'record' | 'replay';
+const RULING_FILESYSTEM_CACHE_CONDITION = '--conditions=sonarjs-ruling-fs-cache';
 
 export type TestProjectOptions = {
-  filesystemCacheMode?: FilesystemCacheMode;
+  filesystemCacheArchive?: string;
 };
 
 type FilesystemCacheSession = {
@@ -98,9 +95,8 @@ export async function testProject(projectName: string, options: TestProjectOptio
   });
 
   const filesystemCacheSession = await beginFilesystemCacheSession(
-    name,
+    options.filesystemCacheArchive ?? configuredFilesystemCacheArchive(name),
     baseDir,
-    options.filesystemCacheMode ?? configuredFilesystemCacheMode(),
   );
   let results: ProjectAnalysisOutput;
   try {
@@ -124,36 +120,24 @@ export async function testProject(projectName: string, options: TestProjectOptio
 }
 
 async function beginFilesystemCacheSession(
-  projectName: string,
+  archivePath: string | undefined,
   baseDir: string,
-  mode: FilesystemCacheMode | undefined,
 ): Promise<FilesystemCacheSession | undefined> {
-  if (!mode) {
+  if (!archivePath) {
     return undefined;
   }
 
   const { installFsCache } = await import('../shared/src/fs-cache/hook.mjs');
   return installFsCache().beginAnalysis({
-    mode,
-    archivePath: join(filesystemCacheArchiveDirectory, `${projectName}.fscache`),
+    archivePath,
     rootDir: baseDir,
-    strict: mode === 'replay',
   });
 }
 
-function configuredFilesystemCacheMode(): FilesystemCacheMode | undefined {
-  const record = process.execArgv.includes(RULING_FILESYSTEM_CACHE_RECORD_CONDITION);
-  const replay = process.execArgv.includes(RULING_FILESYSTEM_CACHE_REPLAY_CONDITION);
-  if (record && replay) {
-    throw new Error('Ruling filesystem cache cannot record and replay in the same test run');
-  }
-  if (record) {
-    return 'record';
-  }
-  if (replay) {
-    return 'replay';
-  }
-  return undefined;
+function configuredFilesystemCacheArchive(projectName: string): string | undefined {
+  return process.execArgv.includes(RULING_FILESYSTEM_CACHE_CONDITION)
+    ? join(filesystemCacheArchiveDirectory, `${projectName}.fscache`)
+    : undefined;
 }
 
 export function ok(diff: Result) {

@@ -24,15 +24,16 @@ import { gunzipSync, gzipSync } from 'node:zlib';
 import { expect } from 'expect';
 import { FS_CACHE_FORMAT_VERSION, FsCacheArchive } from '../../src/fs-cache/archive.mjs';
 
-const register = pathToFileURL(
-  path.resolve(import.meta.dirname, '../../src/fs-cache/register.mjs'),
-).href;
 const fixture = path.resolve(import.meta.dirname, 'fixtures/exercise-hook.mjs');
+const fixtureRunner = path.resolve(import.meta.dirname, 'fixtures/run-with-fs-cache.mjs');
 const workerFixture = path.resolve(import.meta.dirname, 'fixtures/exercise-worker-hook.mjs');
 const workerBootstrapFixture = path.resolve(
   import.meta.dirname,
   'fixtures/exercise-worker-bootstrap.mjs',
 );
+const hookModule = pathToFileURL(
+  path.resolve(import.meta.dirname, '../../src/fs-cache/hook.mjs'),
+).href;
 const futureFsMethodFixture = pathToFileURL(
   path.resolve(import.meta.dirname, 'fixtures/add-future-fs-method.mjs'),
 ).href;
@@ -44,11 +45,9 @@ function temporaryDirectory() {
   return directory;
 }
 
-function loadArchive(archivePath: string, rootDir: string, analyzerVersion?: string) {
+function loadArchive(archivePath: string, rootDir: string) {
   const archive = new FsCacheArchive({
-    analyzerVersion,
     archivePath,
-    mode: 'replay',
     rootDir,
   });
   archive.load();
@@ -63,61 +62,41 @@ function rewriteArchiveFormatVersion(archivePath: string, version: number) {
   fs.writeFileSync(archivePath, gzipSync(bytes));
 }
 
-function runHook({
-  archive,
-  mode,
-  outside,
-  root,
-  analyzerVersion = 'test-analyzer',
-  strict = true,
-}: {
-  archive: string;
-  mode: 'record' | 'replay';
-  outside: string;
-  root: string;
-  analyzerVersion?: string;
-  strict?: boolean;
-}) {
-  return spawnSync(process.execPath, ['--import', register, fixture], {
+function runHook({ archive, outside, root }: { archive: string; outside: string; root: string }) {
+  return spawnSync(process.execPath, [fixtureRunner, archive, root, fixture, root, outside], {
     encoding: 'utf8',
-    env: {
-      ...process.env,
-      FS_CACHE_OUTSIDE_FILE: outside,
-      SONARJS_FS_CACHE_ANALYZER_VERSION: analyzerVersion,
-      SONARJS_FS_CACHE_ARCHIVE: archive,
-      SONARJS_FS_CACHE_MODE: mode,
-      SONARJS_FS_CACHE_ROOT: root,
-      SONARJS_FS_CACHE_STRICT: strict ? '1' : '0',
-    },
   });
 }
 
 function runInlineHook({
   archive,
-  analyzerVersion = 'test-analyzer',
-  mode,
+  preloads = [],
   root,
   script,
-  strict = true,
 }: {
   archive: string;
-  analyzerVersion?: string;
-  mode: 'record' | 'replay';
+  preloads?: string[];
   root: string;
   script: string;
-  strict?: boolean;
 }) {
-  return spawnSync(process.execPath, ['--import', register, '--eval', script], {
-    encoding: 'utf8',
-    env: {
-      ...process.env,
-      SONARJS_FS_CACHE_ANALYZER_VERSION: analyzerVersion,
-      SONARJS_FS_CACHE_ARCHIVE: archive,
-      SONARJS_FS_CACHE_MODE: mode,
-      SONARJS_FS_CACHE_ROOT: root,
-      SONARJS_FS_CACHE_STRICT: strict ? '1' : '0',
-    },
-  });
+  const scriptPath = path.join(temporaryDirectory(), 'inline.mjs');
+  fs.writeFileSync(
+    scriptPath,
+    `const [filesystemCacheRoot, filesystemCacheArchive] = process.argv.slice(2);\n${script}`,
+  );
+  return spawnSync(
+    process.execPath,
+    [
+      ...preloads.flatMap(preload => ['--import', preload]),
+      fixtureRunner,
+      archive,
+      root,
+      scriptPath,
+      root,
+      archive,
+    ],
+    { encoding: 'utf8' },
+  );
 }
 
 function captureError(operation: () => unknown) {
@@ -141,16 +120,10 @@ afterEach(() => {
   }
 });
 
-describe('filesystem cache preload', () => {
+describe('filesystem cache hook', () => {
   it('installs dormant filesystem wrappers when the analysis worker starts', () => {
-    const environment = { ...process.env };
-    delete environment.SONARJS_FS_CACHE_MODE;
-    delete environment.SONARJS_FS_CACHE_ARCHIVE;
-    delete environment.SONARJS_FS_CACHE_ROOT;
-
     const result = spawnSync(process.execPath, [workerBootstrapFixture], {
       encoding: 'utf8',
-      env: environment,
     });
 
     expect(result.stderr).toBe('');
@@ -170,18 +143,14 @@ describe('filesystem cache preload', () => {
     const inactiveFile = path.join(temporary, 'inactive.txt');
     fs.mkdirSync(recordRoot);
     fs.writeFileSync(path.join(recordRoot, 'input.ts'), 'recorded content');
-    const environment = { ...process.env };
-    delete environment.SONARJS_FS_CACHE_MODE;
-    delete environment.SONARJS_FS_CACHE_ARCHIVE;
-    delete environment.SONARJS_FS_CACHE_ROOT;
     const script = `
+      import { installFsCache } from ${JSON.stringify(hookModule)};
       import fs from 'node:fs';
-      const installation = globalThis[Symbol.for('sonarjs.filesystemCache.installation')];
+      const installation = installFsCache();
       const readFileSync = fs.readFileSync;
       fs.writeFileSync(${JSON.stringify(inactiveFile)}, 'before');
       const record = installation.beginAnalysis({
         archivePath: ${JSON.stringify(archive)},
-        mode: 'record',
         rootDir: ${JSON.stringify(recordRoot)},
       });
       let activeWriteError;
@@ -196,9 +165,7 @@ describe('filesystem cache preload', () => {
       fs.mkdirSync(${JSON.stringify(replayRoot)});
       const replay = installation.beginAnalysis({
         archivePath: ${JSON.stringify(archive)},
-        mode: 'replay',
         rootDir: ${JSON.stringify(replayRoot)},
-        strict: true,
       });
       const replayed = readFileSync(${JSON.stringify(path.join(replayRoot, 'input.ts'))}, 'utf8');
       replay.end();
@@ -210,10 +177,9 @@ describe('filesystem cache preload', () => {
         replayed,
       }));
     `;
-    const result = spawnSync(process.execPath, ['--import', register, '--eval', script], {
-      encoding: 'utf8',
-      env: environment,
-    });
+    const scriptPath = path.join(temporary, 'switch-archives.mjs');
+    fs.writeFileSync(scriptPath, script);
+    const result = spawnSync(process.execPath, [scriptPath], { encoding: 'utf8' });
     expect(result.stderr).toBe('');
     expect(result.status).toBe(0);
     expect(JSON.parse(result.stdout)).toEqual({
@@ -236,7 +202,7 @@ describe('filesystem cache preload', () => {
     fs.writeFileSync(path.join(recordRoot, 'src', 'nested', 'deep.ts'), 'nested content');
     fs.writeFileSync(outside, 'outside during record');
 
-    const recorded = runHook({ archive, mode: 'record', outside, root: recordRoot });
+    const recorded = runHook({ archive, outside, root: recordRoot });
     expect(recorded.stderr).toBe('');
     expect(recorded.status).toBe(0);
     const recordedResult = JSON.parse(recorded.stdout);
@@ -253,7 +219,7 @@ describe('filesystem cache preload', () => {
     fs.writeFileSync(path.join(replayRoot, 'missing.ts'), 'this did not exist during recording');
     fs.writeFileSync(outside, 'outside during replay');
 
-    const replayed = runHook({ archive, mode: 'replay', outside, root: replayRoot });
+    const replayed = runHook({ archive, outside, root: replayRoot });
     expect(replayed.stderr).toBe('');
     expect(replayed.status).toBe(0);
     const replayedResult = JSON.parse(replayed.stdout);
@@ -323,7 +289,7 @@ describe('filesystem cache preload', () => {
       }));
     `;
 
-    const recorded = runInlineHook({ archive, mode: 'record', root, script });
+    const recorded = runInlineHook({ archive, root, script });
     expect(recorded.stderr).toBe('');
     expect(recorded.status).toBe(0);
     const result = JSON.parse(recorded.stdout);
@@ -379,7 +345,7 @@ describe('filesystem cache preload', () => {
       }));
     `;
 
-    const recorded = runInlineHook({ archive, mode: 'record', root, script });
+    const recorded = runInlineHook({ archive, root, script });
     expect(recorded.stderr).toBe('');
     expect(recorded.status).toBe(0);
     expect(JSON.parse(recorded.stdout)).toEqual(nativeErrors);
@@ -405,7 +371,7 @@ describe('filesystem cache preload', () => {
     const script = `
       import fs from 'node:fs';
       import path from 'node:path';
-      const link = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'dangling-link');
+      const link = path.join(filesystemCacheRoot, 'dangling-link');
       let statCode;
       try {
         fs.statSync(link);
@@ -420,7 +386,7 @@ describe('filesystem cache preload', () => {
       }));
     `;
 
-    const recorded = runInlineHook({ archive, mode: 'record', root: recordRoot, script });
+    const recorded = runInlineHook({ archive, root: recordRoot, script });
     expect(recorded.stderr).toBe('');
     expect(recorded.status).toBe(0);
     expect(JSON.parse(recorded.stdout)).toEqual({
@@ -435,7 +401,7 @@ describe('filesystem cache preload', () => {
 
     fs.rmSync(recordRoot, { force: true, recursive: true });
     fs.mkdirSync(replayRoot);
-    const replayed = runInlineHook({ archive, mode: 'replay', root: replayRoot, script });
+    const replayed = runInlineHook({ archive, root: replayRoot, script });
     expect(replayed.stderr).toBe('');
     expect(replayed.status).toBe(0);
     expect(JSON.parse(replayed.stdout)).toEqual(JSON.parse(recorded.stdout));
@@ -451,7 +417,7 @@ describe('filesystem cache preload', () => {
     const script = `
       import fs from 'node:fs';
       import path from 'node:path';
-      const target = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'target');
+      const target = path.join(filesystemCacheRoot, 'target');
       console.log(JSON.stringify({
         regular: {
           utf8: fs.realpathSync(target),
@@ -478,7 +444,7 @@ describe('filesystem cache preload', () => {
       base64: Buffer.from(utf8).toString('base64'),
     });
 
-    const recorded = runInlineHook({ archive, mode: 'record', root: recordRoot, script });
+    const recorded = runInlineHook({ archive, root: recordRoot, script });
     expect(recorded.stderr).toBe('');
     expect(recorded.status).toBe(0);
     const recordedResult = JSON.parse(recorded.stdout);
@@ -487,7 +453,7 @@ describe('filesystem cache preload', () => {
 
     fs.rmSync(recordRoot, { force: true, recursive: true });
     fs.mkdirSync(replayRoot);
-    const replayed = runInlineHook({ archive, mode: 'replay', root: replayRoot, script });
+    const replayed = runInlineHook({ archive, root: replayRoot, script });
     expect(replayed.stderr).toBe('');
     expect(replayed.status).toBe(0);
     expect(JSON.parse(replayed.stdout)).toEqual({
@@ -496,7 +462,7 @@ describe('filesystem cache preload', () => {
     });
   });
 
-  it('keeps merged archive entries out of the live recording cache after flush', () => {
+  it('treats an existing archive as an immutable strict cache', () => {
     const temporary = temporaryDirectory();
     const root = path.join(temporary, 'root');
     const archive = path.join(temporary, 'flush-isolation.fscache');
@@ -506,7 +472,6 @@ describe('filesystem cache preload', () => {
     fs.writeFileSync(existing, 'previous analysis');
     const initial = runInlineHook({
       archive,
-      mode: 'record',
       root,
       script: `
         import fs from 'node:fs';
@@ -517,24 +482,22 @@ describe('filesystem cache preload', () => {
     expect(initial.status).toBe(0);
 
     fs.writeFileSync(existing, 'current analysis');
-    fs.writeFileSync(current, 'make the new archive dirty');
-    const afterFlush = runInlineHook({
+    fs.writeFileSync(current, 'not present in the archive');
+    const replay = runInlineHook({
       archive,
-      mode: 'record',
       root,
       script: `
         import fs from 'node:fs';
-        fs.readFileSync(${JSON.stringify(current)}, 'utf8');
-        globalThis[Symbol.for('sonarjs.filesystemCache.installation')].flush();
         console.log(fs.readFileSync(${JSON.stringify(existing)}, 'utf8'));
+        fs.readFileSync(${JSON.stringify(current)}, 'utf8');
       `,
     });
-    expect(afterFlush.stderr).toBe('');
-    expect(afterFlush.status).toBe(0);
-    expect(afterFlush.stdout.trim()).toBe('current analysis');
+    expect(replay.status).not.toBe(0);
+    expect(replay.stdout.trim()).toBe('previous analysis');
+    expect(replay.stderr).toContain('ERR_SONARJS_FS_CACHE_MISS');
   });
 
-  it('replaces valid archives that are incompatible with a new recording', () => {
+  it('does not replace an incompatible existing archive', () => {
     const temporary = temporaryDirectory();
     const root = path.join(temporary, 'root');
     const archive = path.join(temporary, 'incompatible.fscache');
@@ -547,40 +510,22 @@ describe('filesystem cache preload', () => {
     `;
 
     const initial = runInlineHook({
-      analyzerVersion: 'analyzer-one',
       archive,
-      mode: 'record',
       root,
       script,
     });
     expect(initial.stderr).toBe('');
     expect(initial.status).toBe(0);
 
-    const changedAnalyzer = runInlineHook({
-      analyzerVersion: 'analyzer-two',
-      archive,
-      mode: 'record',
-      root,
-      script,
-    });
-    expect(changedAnalyzer.stderr).toBe('');
-    expect(changedAnalyzer.status).toBe(0);
-    loadArchive(archive, root, 'analyzer-two');
-
     rewriteArchiveFormatVersion(archive, FS_CACHE_FORMAT_VERSION - 1);
-    const changedFormat = runInlineHook({
-      analyzerVersion: 'analyzer-three',
-      archive,
-      mode: 'record',
-      root,
-      script,
-    });
-    expect(changedFormat.stderr).toBe('');
-    expect(changedFormat.status).toBe(0);
-    loadArchive(archive, root, 'analyzer-three');
+    const incompatible = runInlineHook({ archive, root, script });
+    expect(incompatible.status).not.toBe(0);
+    expect(incompatible.stderr).toContain(
+      `Unsupported filesystem cache format ${FS_CACHE_FORMAT_VERSION - 1}`,
+    );
   });
 
-  it('rejects corrupt and analyzer-incompatible archives', () => {
+  it('rejects corrupt and incompatible archives', () => {
     const temporary = temporaryDirectory();
     const root = path.join(temporary, 'root');
     const archive = path.join(temporary, 'analysis.fscache');
@@ -590,32 +535,17 @@ describe('filesystem cache preload', () => {
     fs.writeFileSync(outside, 'outside');
 
     fs.writeFileSync(archive, 'not an archive');
-    const corrupt = runHook({ archive, mode: 'replay', outside, root });
+    const corrupt = runHook({ archive, outside, root });
     expect(corrupt.status).not.toBe(0);
     expect(corrupt.stderr).toContain('Cannot read filesystem cache archive');
 
     fs.rmSync(archive);
-    const recorded = runHook({
-      analyzerVersion: 'analyzer-one',
-      archive,
-      mode: 'record',
-      outside,
-      root,
-    });
+    const recorded = runHook({ archive, outside, root });
     expect(recorded.stderr).toBe('');
     expect(recorded.status).toBe(0);
-    const incompatible = runHook({
-      analyzerVersion: 'analyzer-two',
-      archive,
-      mode: 'replay',
-      outside,
-      root,
-    });
-    expect(incompatible.status).not.toBe(0);
-    expect(incompatible.stderr).toContain('does not match analyzer-two');
 
     rewriteArchiveFormatVersion(archive, 1);
-    const oldFormat = runHook({ archive, mode: 'replay', outside, root });
+    const oldFormat = runHook({ archive, outside, root });
     expect(oldFormat.status).not.toBe(0);
     expect(oldFormat.stderr).toContain(
       `Unsupported filesystem cache format 1; expected ${FS_CACHE_FORMAT_VERSION}`,
@@ -635,7 +565,7 @@ describe('filesystem cache preload', () => {
     const script = `
       import fs from 'node:fs';
       import path from 'node:path';
-      const directory = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'entries');
+      const directory = path.join(filesystemCacheRoot, 'entries');
       const syncDirectory = fs.opendirSync(directory);
       const sync = [];
       let entry;
@@ -647,7 +577,7 @@ describe('filesystem cache preload', () => {
       console.log(JSON.stringify({ promised, sync }));
     `;
 
-    const recorded = runInlineHook({ archive, mode: 'record', root: recordRoot, script });
+    const recorded = runInlineHook({ archive, root: recordRoot, script });
     expect(recorded.stderr).toBe('');
     expect(recorded.status).toBe(0);
     const recordedResult = JSON.parse(recorded.stdout);
@@ -655,7 +585,7 @@ describe('filesystem cache preload', () => {
 
     fs.rmSync(recordRoot, { force: true, recursive: true });
     fs.mkdirSync(replayRoot);
-    const replayed = runInlineHook({ archive, mode: 'replay', root: replayRoot, script });
+    const replayed = runInlineHook({ archive, root: replayRoot, script });
     expect(replayed.stderr).toBe('');
     expect(replayed.status).toBe(0);
     expect(JSON.parse(replayed.stdout)).toEqual(recordedResult);
@@ -671,7 +601,7 @@ describe('filesystem cache preload', () => {
     const script = `
       import fs from 'node:fs';
       import path from 'node:path';
-      const file = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'input.ts');
+      const file = path.join(filesystemCacheRoot, 'input.ts');
       const defaultHandle = await fs.promises.open(file);
       const defaultRead = await defaultHandle.read();
       await defaultHandle.close();
@@ -684,13 +614,13 @@ describe('filesystem cache preload', () => {
       }));
     `;
 
-    const recorded = runInlineHook({ archive, mode: 'record', root: recordRoot, script });
+    const recorded = runInlineHook({ archive, root: recordRoot, script });
     expect(recorded.stderr).toBe('');
     expect(recorded.status).toBe(0);
 
     fs.rmSync(recordRoot, { force: true, recursive: true });
     fs.mkdirSync(replayRoot);
-    const replayed = runInlineHook({ archive, mode: 'replay', root: replayRoot, script });
+    const replayed = runInlineHook({ archive, root: replayRoot, script });
     expect(replayed.stderr).toBe('');
     expect(replayed.status).toBe(0);
     expect(JSON.parse(replayed.stdout)).toEqual(JSON.parse(recorded.stdout));
@@ -706,7 +636,7 @@ describe('filesystem cache preload', () => {
     const recordScript = `
       import fs from 'node:fs';
       import path from 'node:path';
-      const file = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'input.ts');
+      const file = path.join(filesystemCacheRoot, 'input.ts');
       const fd = fs.openSync(file, fs.constants.O_RDONLY);
       console.log(fs.readFileSync(fd, 'utf8'));
       fs.closeSync(fd);
@@ -714,7 +644,7 @@ describe('filesystem cache preload', () => {
     const replayScript = `
       import fs from 'node:fs';
       import path from 'node:path';
-      const file = path.join(process.env.SONARJS_FS_CACHE_ROOT, 'input.ts');
+      const file = path.join(filesystemCacheRoot, 'input.ts');
       const handle = await fs.promises.open(file);
       console.log(await handle.readFile('utf8'));
       await handle.close();
@@ -722,7 +652,6 @@ describe('filesystem cache preload', () => {
 
     const recorded = runInlineHook({
       archive,
-      mode: 'record',
       root: recordRoot,
       script: recordScript,
     });
@@ -733,7 +662,6 @@ describe('filesystem cache preload', () => {
     fs.mkdirSync(replayRoot);
     const replayed = runInlineHook({
       archive,
-      mode: 'replay',
       root: replayRoot,
       script: replayScript,
     });
@@ -755,10 +683,10 @@ describe('filesystem cache preload', () => {
     const script = `
       import fs from 'node:fs';
       import path from 'node:path';
-      console.log(fs.readFileSync(path.join(process.env.SONARJS_FS_CACHE_ROOT, 'input.ts'), 'utf8'));
+      console.log(fs.readFileSync(path.join(filesystemCacheRoot, 'input.ts'), 'utf8'));
     `;
 
-    const recorded = runInlineHook({ archive, mode: 'record', root, script });
+    const recorded = runInlineHook({ archive, root, script });
     expect(recorded.stderr).toBe('');
     expect(recorded.status).toBe(0);
     expect(recorded.stdout.trim()).toBe('recorded content');
@@ -776,26 +704,36 @@ describe('filesystem cache preload', () => {
       import { execFileSync } from 'node:child_process';
       import fs from 'node:fs';
       import path from 'node:path';
+      import { installFsCache } from ${JSON.stringify(hookModule)};
+      const [filesystemCacheRoot, filesystemCacheArchive] = process.argv.slice(2);
+      installFsCache().beginAnalysis({
+        archivePath: filesystemCacheArchive,
+        rootDir: filesystemCacheRoot,
+      });
       const result = fs.readFileSync(
-        path.join(process.env.SONARJS_FS_CACHE_ROOT, 'input.ts'),
+        path.join(filesystemCacheRoot, 'input.ts'),
         'utf8',
       );
       execFileSync(process.execPath, [
         '--eval',
         "require('node:fs').writeFileSync(process.argv[1], 'not an archive')",
-        process.env.SONARJS_FS_CACHE_ARCHIVE,
+        filesystemCacheArchive,
       ]);
       console.log(result);
     `;
 
-    const recorded = runInlineHook({ archive, mode: 'record', root, script });
+    const scriptPath = path.join(temporary, 'fail-exit-flush.mjs');
+    fs.writeFileSync(scriptPath, script);
+    const recorded = spawnSync(process.execPath, [scriptPath, root, archive], {
+      encoding: 'utf8',
+    });
     expect(recorded.status).toBe(0);
     expect(recorded.stdout.trim()).toBe('analysis result');
     expect(recorded.stderr).toContain('Cannot write filesystem cache archive');
     expect(recorded.stderr).toContain('Cannot read filesystem cache archive');
   });
 
-  it('records and replays filesystem access from an inherited worker preload', () => {
+  it('records and replays filesystem access from a worker session', () => {
     const temporary = temporaryDirectory();
     const recordRoot = path.join(temporary, 'record-root');
     const replayRoot = path.join(temporary, 'replay-root');
@@ -803,32 +741,23 @@ describe('filesystem cache preload', () => {
     fs.mkdirSync(recordRoot);
     fs.writeFileSync(path.join(recordRoot, 'main-input.ts'), 'read in main');
     fs.writeFileSync(path.join(recordRoot, 'worker-input.ts'), 'read in worker');
-    const environment = {
-      ...process.env,
-      SONARJS_FS_CACHE_ANALYZER_VERSION: 'test-analyzer',
-      SONARJS_FS_CACHE_ARCHIVE: archive,
-      SONARJS_FS_CACHE_ROOT: recordRoot,
-      SONARJS_FS_CACHE_STRICT: '1',
-    };
-
-    const recorded = spawnSync(process.execPath, ['--import', register, workerFixture], {
-      encoding: 'utf8',
-      env: { ...environment, SONARJS_FS_CACHE_MODE: 'record' },
-    });
+    const recorded = spawnSync(
+      process.execPath,
+      [fixtureRunner, archive, recordRoot, workerFixture, recordRoot, archive],
+      { encoding: 'utf8' },
+    );
+    expect(recorded.stderr).toBe('');
     expect(recorded.status).toBe(0);
     expect(recorded.stdout.trim()).toBe('read in main|read in worker');
     expect(fs.existsSync(archive)).toBe(true);
 
     fs.rmSync(recordRoot, { force: true, recursive: true });
     fs.mkdirSync(replayRoot);
-    const replayed = spawnSync(process.execPath, ['--import', register, workerFixture], {
-      encoding: 'utf8',
-      env: {
-        ...environment,
-        SONARJS_FS_CACHE_MODE: 'replay',
-        SONARJS_FS_CACHE_ROOT: replayRoot,
-      },
-    });
+    const replayed = spawnSync(
+      process.execPath,
+      [fixtureRunner, archive, replayRoot, workerFixture, replayRoot, archive],
+      { encoding: 'utf8' },
+    );
     expect(replayed.status).toBe(0);
     expect(replayed.stdout.trim()).toBe('read in main|read in worker');
   });
@@ -845,7 +774,7 @@ describe('filesystem cache preload', () => {
     fs.mkdirSync(root);
     const script = `
       import fs from 'node:fs';
-      const fd = fs.openSync(process.env.SONARJS_FS_CACHE_ROOT, 'r');
+      const fd = fs.openSync(filesystemCacheRoot, 'r');
       try {
         fs.readSync(fd, Buffer.alloc(1), 0, 1, null);
       } catch (error) {
@@ -854,31 +783,17 @@ describe('filesystem cache preload', () => {
         fs.closeSync(fd);
       }
     `;
-    const environment = {
-      ...process.env,
-      SONARJS_FS_CACHE_ANALYZER_VERSION: 'test-analyzer',
-      SONARJS_FS_CACHE_ARCHIVE: archive,
-      SONARJS_FS_CACHE_ROOT: root,
-      SONARJS_FS_CACHE_STRICT: '1',
-    };
-
-    const recorded = spawnSync(process.execPath, ['--import', register, '--eval', script], {
-      encoding: 'utf8',
-      env: { ...environment, SONARJS_FS_CACHE_MODE: 'record' },
-    });
+    const recorded = runInlineHook({ archive, root, script });
     expect(recorded.status).toBe(0);
     expect(recorded.stdout.trim()).toBe('EISDIR');
 
-    const replayed = spawnSync(process.execPath, ['--import', register, '--eval', script], {
-      encoding: 'utf8',
-      env: { ...environment, SONARJS_FS_CACHE_MODE: 'replay' },
-    });
+    const replayed = runInlineHook({ archive, root, script });
     expect(replayed.status).toBe(0);
     expect(replayed.stdout.trim()).toBe('EISDIR');
     expect(replayed.stderr).not.toContain('ERR_SONARJS_FS_CACHE_MISS');
   });
 
-  it('passes unrecorded paths through unless strict replay is requested', () => {
+  it('rejects unrecorded paths when an archive already exists', () => {
     const temporary = temporaryDirectory();
     const root = path.join(temporary, 'root');
     const archive = path.join(temporary, 'analysis.fscache');
@@ -886,33 +801,16 @@ describe('filesystem cache preload', () => {
     fs.mkdirSync(path.join(root, 'src'), { recursive: true });
     fs.writeFileSync(path.join(root, 'src', 'input.ts'), 'content');
     fs.writeFileSync(outside, 'outside');
-    const recorded = runHook({ archive, mode: 'record', outside, root });
+    const recorded = runHook({ archive, outside, root });
     expect(recorded.stderr).toBe('');
     expect(recorded.status).toBe(0);
 
     const document = path.join(root, 'unrecorded.json');
     fs.writeFileSync(document, '{}');
     const script = `import fs from 'node:fs'; console.log(fs.readFileSync(${JSON.stringify(document)}, 'utf8'));`;
-    const baseEnvironment = {
-      ...process.env,
-      SONARJS_FS_CACHE_ANALYZER_VERSION: 'test-analyzer',
-      SONARJS_FS_CACHE_ARCHIVE: archive,
-      SONARJS_FS_CACHE_MODE: 'replay',
-      SONARJS_FS_CACHE_ROOT: root,
-    };
-    const passthrough = spawnSync(process.execPath, ['--import', register, '--eval', script], {
-      encoding: 'utf8',
-      env: { ...baseEnvironment, SONARJS_FS_CACHE_STRICT: '0' },
-    });
-    expect(passthrough.status).toBe(0);
-    expect(passthrough.stdout.trim()).toBe('{}');
-
-    const strict = spawnSync(process.execPath, ['--import', register, '--eval', script], {
-      encoding: 'utf8',
-      env: { ...baseEnvironment, SONARJS_FS_CACHE_STRICT: '1' },
-    });
-    expect(strict.status).not.toBe(0);
-    expect(strict.stderr).toContain('ERR_SONARJS_FS_CACHE_MISS');
+    const replayed = runInlineHook({ archive, root, script });
+    expect(replayed.status).not.toBe(0);
+    expect(replayed.stderr).toContain('ERR_SONARJS_FS_CACHE_MISS');
   });
 
   it('rejects every unpatched filesystem operation', () => {
@@ -982,21 +880,7 @@ describe('filesystem cache preload', () => {
         ]),
       }));
     `;
-    const result = spawnSync(
-      process.execPath,
-      ['--import', futureFsMethodFixture, '--import', register, '--eval', script],
-      {
-        encoding: 'utf8',
-        env: {
-          ...process.env,
-          SONARJS_FS_CACHE_ANALYZER_VERSION: 'test-analyzer',
-          SONARJS_FS_CACHE_ARCHIVE: archive,
-          SONARJS_FS_CACHE_MODE: 'record',
-          SONARJS_FS_CACHE_ROOT: root,
-          SONARJS_FS_CACHE_STRICT: '1',
-        },
-      },
-    );
+    const result = runInlineHook({ archive, preloads: [futureFsMethodFixture], root, script });
 
     expect(result.stderr).toBe('');
     expect(result.status).toBe(0);

@@ -33,9 +33,6 @@ import {
   InvalidAnalyzeProjectRequestError,
   normalizeAnalyzeProjectRequest,
 } from './analyze-project-normalize.js';
-import { sonarjs } from './proto/analyze-project.js';
-
-const { FilesystemCacheMode } = sonarjs.analyzeproject.v1;
 const FS_CACHE_INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
 
 type FilesystemCacheSession = {
@@ -43,13 +40,7 @@ type FilesystemCacheSession = {
 };
 
 type FilesystemCacheInstallation = {
-  beginAnalysis: (options: {
-    analyzerVersion?: string;
-    archivePath: string;
-    mode: 'record' | 'replay';
-    rootDir: string;
-    strict: boolean;
-  }) => FilesystemCacheSession;
+  beginAnalysis: (options: { archivePath: string; rootDir: string }) => FilesystemCacheSession;
 };
 
 function beginFilesystemCacheAnalysis(
@@ -71,31 +62,14 @@ function beginFilesystemCacheAnalysis(
     throw new InvalidAnalyzeProjectRequestError('configuration.base_dir is required');
   }
 
-  let mode: 'record' | 'replay';
-  switch (cache.mode) {
-    case FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD:
-      mode = 'record';
-      break;
-    case FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY:
-      mode = 'replay';
-      break;
-    default:
-      throw new InvalidAnalyzeProjectRequestError(
-        `Invalid filesystem cache mode: ${cache.mode ?? FilesystemCacheMode.FILESYSTEM_CACHE_MODE_UNSPECIFIED}`,
-      );
-  }
-
   const installation = (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] as
     FilesystemCacheInstallation | undefined;
   if (!installation) {
     throw new Error('Filesystem cache requested outside an initialized analysis worker');
   }
   return installation.beginAnalysis({
-    analyzerVersion: cache.analyzerVersion || undefined,
     archivePath: cache.archivePath,
-    mode,
     rootDir: request.configuration.baseDir,
-    strict: mode === 'replay',
   });
 }
 

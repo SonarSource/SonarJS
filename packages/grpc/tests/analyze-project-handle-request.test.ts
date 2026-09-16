@@ -26,7 +26,6 @@ import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js'
 
 const workerData: WorkerData = { debugMemory: false };
 type AnalyzeProjectRequest = analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectRequest;
-const { FilesystemCacheMode } = analyzeProjectProto.analyzeproject.v1;
 const filesystemCacheInstallation = Symbol.for('sonarjs.filesystemCache.installation');
 
 afterEach(() => {
@@ -61,9 +60,7 @@ describe('analyze-project request handler', () => {
     };
     const request = createAnalyzeProjectRequest();
     request.filesystemCache = {
-      analyzerVersion: 'test-analyzer',
       archivePath: '/cache/first.fscache',
-      mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD,
     };
 
     const result = await handleAnalyzeProjectRequest(
@@ -74,54 +71,20 @@ describe('analyze-project request handler', () => {
     expect(result).toMatchObject({ type: 'success' });
     expect(sessions).toEqual([
       {
-        analyzerVersion: 'test-analyzer',
         archivePath: '/cache/first.fscache',
         event: 'begin',
-        mode: 'record',
         rootDir: '/project',
-        strict: false,
       },
       { archivePath: '/cache/first.fscache', event: 'end' },
     ]);
   });
 
-  it('enables strict replay for the request archive', async () => {
-    let receivedOptions: Record<string, unknown> | undefined;
-    (globalThis as Record<symbol, unknown>)[filesystemCacheInstallation] = {
-      beginAnalysis(options: Record<string, unknown>) {
-        receivedOptions = options;
-        return { end() {} };
-      },
-    };
-    const request = createAnalyzeProjectRequest();
-    request.filesystemCache = {
-      archivePath: '/cache/replay.fscache',
-      mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
-    };
-
-    expect(
-      await handleAnalyzeProjectRequest({ type: 'on-analyze-project', data: request }, workerData),
-    ).toMatchObject({ type: 'success' });
-    expect(receivedOptions).toMatchObject({ mode: 'replay', strict: true });
-  });
-
-  it('rejects incomplete filesystem cache configuration', async () => {
+  it('rejects filesystem cache configuration without an archive', async () => {
     const missingArchive = createAnalyzeProjectRequest();
-    missingArchive.filesystemCache = {
-      mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD,
-    };
+    missingArchive.filesystemCache = {};
     expect(
       await handleAnalyzeProjectRequest(
         { type: 'on-analyze-project', data: missingArchive },
-        workerData,
-      ),
-    ).toMatchObject({ reason: 'invalid_request', type: 'failure' });
-
-    const missingMode = createAnalyzeProjectRequest();
-    missingMode.filesystemCache = { archivePath: '/cache/unspecified.fscache' };
-    expect(
-      await handleAnalyzeProjectRequest(
-        { type: 'on-analyze-project', data: missingMode },
         workerData,
       ),
     ).toMatchObject({ reason: 'invalid_request', type: 'failure' });
@@ -141,7 +104,6 @@ describe('analyze-project request handler', () => {
     const request = createAnalyzeProjectRequest();
     request.filesystemCache = {
       archivePath: '/cache/first.fscache',
-      mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
     };
     request.rules = [{}];
 
@@ -166,7 +128,6 @@ describe('analyze-project request handler', () => {
 
     nativeRequest.filesystemCache = {
       archivePath: '/cache/sonarlint.fscache',
-      mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
     };
     expect(
       await handleAnalyzeProjectRequest(

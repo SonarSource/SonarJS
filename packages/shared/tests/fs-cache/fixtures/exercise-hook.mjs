@@ -36,7 +36,7 @@ import path from 'node:path';
 
 const require = createRequire(import.meta.url);
 const commonJsFs = require('node:fs');
-const root = process.env.SONARJS_FS_CACHE_ROOT;
+const [root, outside] = process.argv.slice(2);
 const file = path.join(root, 'src', 'input.ts');
 const directory = path.join(root, 'src');
 const missing = path.join(root, 'missing.ts');
@@ -156,7 +156,7 @@ const result = {
   openedDirectoryEntries,
   openedDirectoryIsDir,
   optionalRead,
-  outside: readFileSync(process.env.FS_CACHE_OUTSIDE_FILE, 'utf8'),
+  outside: readFileSync(outside, 'utf8'),
   promise: await readFilePromise(file, 'utf8'),
   promisedDirectoryEntries,
   realpath: path.relative(root, realpathSync(file)).split(path.sep).join('/'),

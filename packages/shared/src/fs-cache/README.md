@@ -10,31 +10,37 @@ native `fs`. The request handler activates one archive session when its optional
 `filesystem_cache` configuration is present, and ends that session before completing the response.
 Java and SQAA do not need to change the Node command line.
 
-The `register.mjs` preload and environment variables remain available for standalone use and tests:
+Call `beginAnalysis()` with the analysis root and archive path to activate the cache explicitly:
 
-```shell
-SONARJS_FS_CACHE_MODE=record \
-SONARJS_FS_CACHE_ROOT=/workspace/project \
-SONARJS_FS_CACHE_ARCHIVE=/workspace/project.fscache \
-node --import ./bin/fs-cache/register.mjs ./bin/server.cjs
+```js
+const session = installFsCache().beginAnalysis({
+  archivePath: '/workspace/project.fscache',
+  rootDir: '/workspace/project',
+});
+try {
+  await analyzeProject();
+} finally {
+  session.end();
+}
 ```
 
-Use `SONARJS_FS_CACHE_MODE=replay` with another `SONARJS_FS_CACHE_ROOT` to restore the recorded
-paths relative to that root. Set `SONARJS_FS_CACHE_STRICT=1` to reject unrecorded reads inside the
-root instead of passing them through to the live filesystem. An optional
-`SONARJS_FS_CACHE_ANALYZER_VERSION` is persisted and checked during replay.
+If the archive does not exist when the session starts, the cache records native filesystem
+observations and creates it. If the archive exists, it is treated as an immutable strict cache:
+unrecorded reads inside the root fail instead of touching the live filesystem. Delete an archive
+explicitly to regenerate it. Corrupt and format-incompatible archives are never replaced silently.
 
-For a long-lived Node process, `beginAnalysis()` selects the mode, archive, and root once per
-request. Stable wrappers consult that active session; they do not parse environment variables or
-replace filesystem functions on each call. `session.end()` flushes record mode and returns the
+For a long-lived Node process, `beginAnalysis()` selects the archive and root once per request.
+Stable wrappers consult that active session; they do not parse environment variables or replace
+filesystem functions on each call. `session.end()` flushes a newly created archive and returns the
 wrappers to dormant native passthrough. Overlapping sessions are rejected as a lifecycle invariant.
 
-Record mode starts each session with a cold in-memory cache. The first read of a filesystem fact uses native
-`fs`; compatible later operations reuse the consolidated per-path state. For example, file content
-is shared by `readFile` and descriptor APIs, metadata by `stat` and `fstat`, and typed directory
-entries by `readdir` and `opendir`. This both avoids repeated filesystem work during normal CI
-analysis and produces the archive used by replay. The configured root is assumed to remain stable
-for the lifetime of the session; mutation tracking and invalidation are intentionally unsupported.
+Creating an archive starts with a cold in-memory cache. The first read of a filesystem fact uses
+native `fs`; compatible later operations reuse the consolidated per-path state. For example, file
+content is shared by `readFile` and descriptor APIs, metadata by `stat` and `fstat`, and typed
+directory entries by `readdir` and `opendir`. This both avoids repeated filesystem work during
+normal CI analysis and produces the archive used by later sessions. The configured root is assumed
+to remain stable for the lifetime of the session; mutation tracking and invalidation are
+intentionally unsupported.
 
 The archive is a versioned gzip-compressed Protocol Buffers document. Its typed schema stores raw
 file bytes, filesystem errors, stats, directory entries, paths, and link observations without JSON

@@ -14,5 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-const { installFsCacheFromEnvironment } = await import('./hook.mjs');
-installFsCacheFromEnvironment();
+import { pathToFileURL } from 'node:url';
+import { installFsCache } from '../../../src/fs-cache/hook.mjs';
+
+const [archivePath, rootDir, target, ...targetArguments] = process.argv.slice(2);
+if (!archivePath || !rootDir || !target) {
+  throw new Error('Expected filesystem cache archive, root, and target module arguments');
+}
+
+process.argv = [process.argv[0], target, ...targetArguments];
+const session = installFsCache().beginAnalysis({ archivePath, rootDir });
+try {
+  await import(pathToFileURL(target).href);
+} finally {
+  session.end();
+}

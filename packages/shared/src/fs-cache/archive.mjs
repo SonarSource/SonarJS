@@ -308,7 +308,6 @@ function deserializeProtobufDocument(bytes) {
   return {
     magic: document.magic,
     formatVersion: document.formatVersion,
-    analyzerVersion: document.analyzerVersion,
     createdAt: document.createdAt,
     updatedAt: document.updatedAt,
     missingPaths: document.missingPaths,
@@ -518,10 +517,7 @@ function acquireLock(lockPath, archivePath) {
  * analysis and replays those observations from another checkout root.
  */
 export class FsCacheArchive {
-  constructor({ archivePath, rootDir, mode, strict = false, analyzerVersion }) {
-    if (mode !== 'record' && mode !== 'replay') {
-      throw new FsCacheArchiveError(`Unsupported filesystem cache mode: ${mode}`);
-    }
+  constructor({ archivePath, rootDir }) {
     if (!archivePath) {
       throw new FsCacheArchiveError('The filesystem cache archive path is required');
     }
@@ -531,9 +527,7 @@ export class FsCacheArchive {
     this.archivePath = path.resolve(archivePath);
     this.rootDir = path.resolve(rootDir);
     this.rootPrefix = this.rootDir.endsWith(path.sep) ? this.rootDir : `${this.rootDir}${path.sep}`;
-    this.mode = mode;
-    this.strict = strict;
-    this.analyzerVersion = analyzerVersion || undefined;
+    this.mode = nativeFs.existsSync(this.archivePath) ? 'replay' : 'record';
     this.createdAt = new Date().toISOString();
     this.entries = new Map();
     this.missingPaths = new Set();
@@ -570,12 +564,6 @@ export class FsCacheArchive {
     if (document.formatVersion !== FS_CACHE_FORMAT_VERSION) {
       throw new FsCacheArchiveError(
         `Unsupported filesystem cache format ${document.formatVersion}; expected ${FS_CACHE_FORMAT_VERSION}`,
-        { incompatible: true },
-      );
-    }
-    if (this.analyzerVersion && document.analyzerVersion !== this.analyzerVersion) {
-      throw new FsCacheArchiveError(
-        `Filesystem cache analyzer version ${document.analyzerVersion || '<unspecified>'} does not match ${this.analyzerVersion}`,
         { incompatible: true },
       );
     }
@@ -774,13 +762,6 @@ export class FsCacheArchive {
         this.load();
         mergedEntries = this.entries;
         mergedMissingPaths = this.missingPaths;
-      } catch (error) {
-        if (error?.incompatible) {
-          mergedEntries = new Map();
-          mergedMissingPaths = new Set();
-        } else {
-          throw error;
-        }
       } finally {
         this.entries = ownEntries;
         this.missingPaths = ownMissingPaths;
@@ -806,7 +787,6 @@ export class FsCacheArchive {
       const document = {
         magic: FS_CACHE_MAGIC,
         formatVersion: FS_CACHE_FORMAT_VERSION,
-        analyzerVersion: this.analyzerVersion,
         createdAt: this.createdAt,
         updatedAt: new Date().toISOString(),
         entries,

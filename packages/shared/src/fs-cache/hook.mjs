@@ -35,9 +35,6 @@ const activeArchiveFacade = {
   get mode() {
     return activeArchive?.mode;
   },
-  get strict() {
-    return activeArchive?.strict;
-  },
   keyFor(input) {
     return activeArchive?.keyFor(input);
   },
@@ -215,7 +212,7 @@ function createExecutor(archive) {
         return missingPath(operation, input);
       }
       archive.recordCacheMiss();
-      if (archive.mode === 'replay' && archive.strict) {
+      if (archive.mode === 'replay') {
         throw cacheMiss(operation, input);
       }
       return MISSING;
@@ -1038,7 +1035,7 @@ function createOpenPatches(archive, fileDescriptors) {
         missingPath(operation, input);
       }
       archive.recordCacheMiss();
-      if (archive.mode === 'replay' && archive.strict) {
+      if (archive.mode === 'replay') {
         throw cacheMiss(operation, input);
       }
       return { found: false };
@@ -1049,7 +1046,7 @@ function createOpenPatches(archive, fileDescriptors) {
     }
     const file = archive.get(key, 'readFile');
     if (file === undefined) {
-      if (archive.mode === 'replay' && archive.strict) {
+      if (archive.mode === 'replay') {
         throw cacheMiss('readFile', input);
       }
       return { found: false };
@@ -1510,22 +1507,6 @@ export function installFsCache(options) {
   if (options) {
     installation.beginAnalysis(options);
   }
-  return installation;
-}
-
-export function installFsCacheFromEnvironment(environment = process.env) {
-  const mode = environment.SONARJS_FS_CACHE_MODE;
-  if (!mode) {
-    return installFsCache();
-  }
-  const installation = installFsCache();
-  installation.beginAnalysis({
-    mode,
-    archivePath: environment.SONARJS_FS_CACHE_ARCHIVE,
-    rootDir: environment.SONARJS_FS_CACHE_ROOT,
-    strict: environment.SONARJS_FS_CACHE_STRICT === '1',
-    analyzerVersion: environment.SONARJS_FS_CACHE_ANALYZER_VERSION,
-  });
   return installation;
 }
 
