@@ -104,10 +104,11 @@ function captureError(operation: () => unknown) {
     operation();
   } catch (error) {
     const filesystemError = error as NodeJS.ErrnoException;
+    const errorPath = String(filesystemError.path);
     return {
       code: filesystemError.code,
       errno: filesystemError.errno,
-      message: filesystemError.message,
+      message: filesystemError.message.replaceAll(errorPath, '$PATH'),
       syscall: filesystemError.syscall,
     };
   }
@@ -172,6 +173,17 @@ describe('filesystem cache hook', () => {
 
     expect(archive.keyFor(path.join(root, 'src\\input.ts'))).toBe('src\\input.ts');
     expect(archive.keyFor(path.join(root, 'src', 'input.ts'))).toBe('src/input.ts');
+  });
+
+  it('silently falls back to lexical paths when the cache root cannot be resolved', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'missing-root');
+    const archive = new FsCacheArchive({
+      archivePath: path.join(temporary, 'analysis.fscache'),
+      rootDir: root,
+    });
+
+    expect(archive.keyFor(path.join(root, 'input.ts'))).toBe('input.ts');
   });
 
   it('routes promisified filesystem calls through record and replay sessions', () => {
@@ -304,7 +316,12 @@ describe('filesystem cache hook', () => {
     expect(replayed.status).toBe(0);
     const replayedResult = JSON.parse(replayed.stdout);
 
-    expect({ ...replayedResult, outside: recordedResult.outside }).toEqual(recordedResult);
+    expect(replayedResult.realpath).toBe('src/input.ts');
+    expect({
+      ...replayedResult,
+      outside: recordedResult.outside,
+      realpath: recordedResult.realpath,
+    }).toEqual(recordedResult);
     expect(replayedResult.outside).toBe('outside during replay');
     expect(replayedResult.missingExists).toBe(false);
     expect(replayedResult.missingSoft).toBe(true);
@@ -408,10 +425,11 @@ describe('filesystem cache hook', () => {
         try {
           operation();
         } catch (error) {
+          const errorPath = String(error.path);
           return {
             code: error.code,
             errno: error.errno,
-            message: error.message,
+            message: error.message.replaceAll(errorPath, '$PATH'),
             syscall: error.syscall,
           };
         }
@@ -487,13 +505,26 @@ describe('filesystem cache hook', () => {
     expect(JSON.parse(replayed.stdout)).toEqual(JSON.parse(recorded.stdout));
   });
 
-  it('reuses portable realpaths across result encodings', () => {
+  it('reuses portable realpaths across result encodings and root aliases', t => {
     const temporary = temporaryDirectory();
+    const physicalRecordRoot = path.join(temporary, 'record-storage');
     const recordRoot = path.join(temporary, 'record-root');
     const replayRoot = path.join(temporary, 'replay-root');
     const archive = path.join(temporary, 'realpath-encodings.fscache');
-    const target = path.join(recordRoot, 'target');
-    fs.mkdirSync(target, { recursive: true });
+    fs.mkdirSync(path.join(physicalRecordRoot, 'target'), { recursive: true });
+    try {
+      fs.symlinkSync(
+        physicalRecordRoot,
+        recordRoot,
+        process.platform === 'win32' ? 'junction' : 'dir',
+      );
+    } catch (error) {
+      if (process.platform === 'win32' && (error as NodeJS.ErrnoException).code === 'EPERM') {
+        t.skip('Creating directory aliases requires Windows Developer Mode or elevated privileges');
+        return;
+      }
+      throw error;
+    }
     const script = `
       import fs from 'node:fs';
       import path from 'node:path';
@@ -537,8 +568,8 @@ describe('filesystem cache hook', () => {
     expect(replayed.stderr).toBe('');
     expect(replayed.status).toBe(0);
     expect(JSON.parse(replayed.stdout)).toEqual({
-      regular: encodedResults(recordedResult.regular.utf8.replace(recordRoot, replayRoot)),
-      native: encodedResults(recordedResult.native.utf8.replace(recordRoot, replayRoot)),
+      regular: encodedResults(path.join(replayRoot, 'target')),
+      native: encodedResults(path.join(replayRoot, 'target')),
     });
   });
 

@@ -137,8 +137,8 @@ const activeArchiveFacade: ArchiveFacade = {
   encodePortablePath(filePath: fs.PathLike) {
     return requireActiveArchive().encodePortablePath(filePath);
   },
-  decodePortablePath(filePath: PortablePath) {
-    return requireActiveArchive().decodePortablePath(filePath);
+  decodePortablePath(filePath: PortablePath, physical?: boolean) {
+    return requireActiveArchive().decodePortablePath(filePath, physical);
   },
   recordCacheHit() {
     return requireActiveArchive().recordCacheHit();
@@ -555,7 +555,7 @@ function snapshotPathResult(value: string | Buffer, archive: ArchiveFacade): Cac
 }
 
 function restorePathResult(value: CachedPathResult, archive: ArchiveFacade): Buffer {
-  return Buffer.from(archive.decodePortablePath(value.path));
+  return Buffer.from(archive.decodePortablePath(value.path, archive.mode === 'record'));
 }
 
 function withBufferEncoding(options: OperationOptionsInput): OperationOptions | 'buffer' {

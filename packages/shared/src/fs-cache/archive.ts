@@ -85,11 +85,14 @@ const nativeFs = {
   mkdirSync: fs.mkdirSync.bind(fs),
   openSync: fs.openSync.bind(fs),
   readFileSync: fs.readFileSync.bind(fs),
+  realpathSync: fs.realpathSync.bind(fs),
   renameSync: fs.renameSync.bind(fs),
   statSync: fs.statSync.bind(fs),
   unlinkSync: fs.unlinkSync.bind(fs),
   writeSync: fs.writeSync.bind(fs),
 };
+
+type ComparisonRoot = { directory: string; prefix: string };
 
 function writeFileWithNativePrimitives(filePath: fs.PathLike, bytes: Uint8Array, mode: number) {
   const descriptor = nativeFs.openSync(filePath, 'w', mode);
@@ -717,6 +720,13 @@ function normalizeForComparison(filePath: string) {
   return path.sep === '\\' ? normalizePath(filePath) : filePath;
 }
 
+function comparisonRoot(directory: string): ComparisonRoot {
+  return {
+    directory,
+    prefix: directory.endsWith('/') ? directory : `${directory}/`,
+  };
+}
+
 /**
  * A versioned, portable record of filesystem observations.
  *
@@ -727,8 +737,8 @@ function normalizeForComparison(filePath: string) {
 export class FsCacheArchive {
   archivePath: string;
   rootDir: string;
-  comparisonRootDir: string;
-  comparisonRootPrefix: string;
+  physicalRootDir: string | undefined;
+  comparisonRoots: ComparisonRoot[];
   mode: ArchiveMode;
   createdAt: string;
   entries: Map<string, CacheNode>;
@@ -747,11 +757,24 @@ export class FsCacheArchive {
     }
     this.archivePath = path.resolve(archivePath);
     this.rootDir = path.resolve(rootDir);
-    this.comparisonRootDir = normalizeForComparison(this.rootDir);
-    this.comparisonRootPrefix = this.comparisonRootDir.endsWith('/')
-      ? this.comparisonRootDir
-      : `${this.comparisonRootDir}/`;
     this.mode = nativeFs.existsSync(this.archivePath) ? 'replay' : 'record';
+    this.physicalRootDir = undefined;
+    const rootAliases = [normalizeForComparison(this.rootDir)];
+    if (this.mode === 'record') {
+      try {
+        this.physicalRootDir = nativeFs.realpathSync(this.rootDir);
+        const physicalRoot = normalizeForComparison(this.physicalRootDir);
+        if (!rootAliases.includes(physicalRoot)) {
+          rootAliases.push(physicalRoot);
+        }
+      } catch {
+        // Resolving aliases is an optional portability optimization. Preserve native fs behavior
+        // when the root cannot be resolved, without adding analyzer errors or warnings.
+      }
+    }
+    this.comparisonRoots = rootAliases
+      .map(comparisonRoot)
+      .sort((left, right) => right.directory.length - left.directory.length);
     this.createdAt = new Date().toISOString();
     this.entries = new Map();
     this.missingPaths = new Set();
@@ -839,13 +862,16 @@ export class FsCacheArchive {
       comparisonFilePath.endsWith('/..') ||
       comparisonFilePath.includes('//');
     if (path.isAbsolute(comparisonFilePath) && !needsNormalization) {
-      if (comparisonFilePath === this.comparisonRootDir) {
-        relativePath = '';
-      } else if (comparisonFilePath.startsWith(this.comparisonRootPrefix)) {
-        relativePath = comparisonFilePath.slice(this.comparisonRootPrefix.length);
-      } else {
+      const root = this.comparisonRoots.find(
+        candidate =>
+          comparisonFilePath === candidate.directory ||
+          comparisonFilePath.startsWith(candidate.prefix),
+      );
+      if (!root) {
         return undefined;
       }
+      relativePath =
+        comparisonFilePath === root.directory ? '' : comparisonFilePath.slice(root.prefix.length);
     } else {
       relativePath = normalizeForComparison(path.relative(this.rootDir, path.resolve(filePath)));
     }
@@ -858,8 +884,8 @@ export class FsCacheArchive {
     return key;
   }
 
-  absolutePathFor(key: string): string {
-    return key === '.' ? this.rootDir : path.join(this.rootDir, ...key.split('/'));
+  absolutePathFor(key: string, rootDir = this.rootDir): string {
+    return key === '.' ? rootDir : path.join(rootDir, ...key.split('/'));
   }
 
   encodePortablePath(filePath: fs.PathLike): PortablePath {
@@ -869,9 +895,10 @@ export class FsCacheArchive {
       : { kind: 'relative', path: key };
   }
 
-  decodePortablePath(portablePath: PortablePath): string {
+  decodePortablePath(portablePath: PortablePath, physical = false): string {
+    const rootDir = physical ? (this.physicalRootDir ?? this.rootDir) : this.rootDir;
     return portablePath.kind === 'relative'
-      ? this.absolutePathFor(portablePath.path)
+      ? this.absolutePathFor(portablePath.path, rootDir)
       : portablePath.path;
   }
 
