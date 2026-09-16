@@ -13,9 +13,6 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-  # Pull-request tokens may be read-only despite job-level contents permissions. The workflow run
-  # number is unique and stable across reruns, so nested shared actions can use it without writing refs.
-  BUILD_NUMBER: ${{ github.event_name == 'pull_request' && github.run_number || '' }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
