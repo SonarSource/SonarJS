@@ -36,10 +36,13 @@ entries by `readdir` and `opendir`. This both avoids repeated filesystem work du
 analysis and produces the archive used by replay. The configured root is assumed to remain stable
 for the lifetime of the session; mutation tracking and invalidation are intentionally unsupported.
 
-The archive is a versioned gzip-compressed JSON document containing one semantic node per path. It
-is written atomically when the session ends, during normal process exit if a session is still
-active, or when `getFsCacheInstallation().flush()` is called. Archive storage and transfer by the
-scanner are intentionally outside the scope of this hook.
+The archive is a versioned gzip-compressed Protocol Buffers document. Its typed schema stores raw
+file bytes, filesystem errors, stats, directory entries, paths, and link observations without JSON
+or Base64 serialization. Paths observed only as missing use a compact, canonical list instead of
+otherwise empty per-path nodes. The archive is written atomically when the session ends, during
+normal process exit if a session is still active, or when `getFsCacheInstallation().flush()` is
+called. Archive storage and transfer by the scanner are intentionally outside the scope of this
+hook.
 
 The cache is active only while an analysis session is activated. Requests without
 `filesystem_cache` use native `fs`; SonarLint must not request a cache session.

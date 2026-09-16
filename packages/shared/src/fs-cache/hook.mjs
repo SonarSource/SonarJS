@@ -17,7 +17,7 @@
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { getSystemErrorMap } from 'node:util';
-import { FsCacheArchive } from './archive.mjs';
+import { DIRENT_TYPES, FS_TYPE_METHODS, FsCacheArchive } from './archive.mjs';
 
 const MISSING = Symbol('missing filesystem cache observation');
 const INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
@@ -322,15 +322,9 @@ function snapshotStat(stat) {
     fields: Object.fromEntries(
       fields.map(field => [field, stat[field] === undefined ? undefined : String(stat[field])]),
     ),
-    types: {
-      blockDevice: stat.isBlockDevice(),
-      characterDevice: stat.isCharacterDevice(),
-      directory: stat.isDirectory(),
-      fifo: stat.isFIFO(),
-      file: stat.isFile(),
-      socket: stat.isSocket(),
-      symbolicLink: stat.isSymbolicLink(),
-    },
+    types: Object.fromEntries(
+      Object.entries(FS_TYPE_METHODS).map(([type, method]) => [type, stat[method]()]),
+    ),
   };
 }
 
@@ -352,13 +346,9 @@ function restoreStat(snapshot, bigint = false) {
       stat[`${field}Ns`] = BigInt(Math.trunc(milliseconds * 1_000_000));
     }
   }
-  stat.isBlockDevice = () => snapshot.types.blockDevice;
-  stat.isCharacterDevice = () => snapshot.types.characterDevice;
-  stat.isDirectory = () => snapshot.types.directory;
-  stat.isFIFO = () => snapshot.types.fifo;
-  stat.isFile = () => snapshot.types.file;
-  stat.isSocket = () => snapshot.types.socket;
-  stat.isSymbolicLink = () => snapshot.types.symbolicLink;
+  for (const [type, method] of Object.entries(FS_TYPE_METHODS)) {
+    stat[method] = () => snapshot.types[type];
+  }
   return stat;
 }
 
@@ -378,28 +368,7 @@ function restoreName(name) {
 }
 
 function direntType(dirent) {
-  if (dirent.isFile()) {
-    return 'file';
-  }
-  if (dirent.isDirectory()) {
-    return 'directory';
-  }
-  if (dirent.isSymbolicLink()) {
-    return 'symbolicLink';
-  }
-  if (dirent.isBlockDevice()) {
-    return 'blockDevice';
-  }
-  if (dirent.isCharacterDevice()) {
-    return 'characterDevice';
-  }
-  if (dirent.isFIFO()) {
-    return 'fifo';
-  }
-  if (dirent.isSocket()) {
-    return 'socket';
-  }
-  return 'unknown';
+  return DIRENT_TYPES.slice(1).find(type => dirent[FS_TYPE_METHODS[type]]()) || 'unknown';
 }
 
 function snapshotDirectoryResult(result, archive) {
@@ -421,16 +390,8 @@ function createDirent(snapshot, archive) {
   dirent.name = restoreName(snapshot.name);
   dirent.parentPath = archive.decodePortablePath(snapshot.parentPath);
   dirent.path = dirent.parentPath;
-  for (const [method, type] of [
-    ['isBlockDevice', 'blockDevice'],
-    ['isCharacterDevice', 'characterDevice'],
-    ['isDirectory', 'directory'],
-    ['isFIFO', 'fifo'],
-    ['isFile', 'file'],
-    ['isSocket', 'socket'],
-    ['isSymbolicLink', 'symbolicLink'],
-  ]) {
-    dirent[method] = () => snapshot.type === type;
+  for (const type of DIRENT_TYPES.slice(1)) {
+    dirent[FS_TYPE_METHODS[type]] = () => snapshot.type === type;
   }
   return dirent;
 }
@@ -588,6 +549,10 @@ function guardUnhandledFilesystemOperations(
   }
 }
 
+function decodeFileContent(value) {
+  return Buffer.isBuffer(value) ? value : Buffer.from(value, 'base64');
+}
+
 function createReadFilePatches(executor, fileDescriptors, fileHandles) {
   function readFileSync(input, options) {
     const tracked = typeof input === 'number' ? fileDescriptors.get(input) : undefined;
@@ -606,8 +571,8 @@ function createReadFilePatches(executor, fileDescriptors, fileHandles) {
       input,
       'readFile',
       () => originalFs.readFileSync(input, withoutEncoding(options)),
-      value => value.toString('base64'),
-      value => Buffer.from(value, 'base64'),
+      value => value,
+      decodeFileContent,
     );
     return returnReadBuffer(buffer, options);
   }
@@ -623,8 +588,8 @@ function createReadFilePatches(executor, fileDescriptors, fileHandles) {
       input,
       'readFile',
       () => originalPromises.readFile(input, withoutEncoding(options)),
-      value => value.toString('base64'),
-      value => Buffer.from(value, 'base64'),
+      value => value,
+      decodeFileContent,
     );
     return returnReadBuffer(buffer, options);
   }
@@ -1038,7 +1003,7 @@ function createOpenPatches(archive, fileDescriptors) {
           }
         } while (bytesRead > 0);
         const content = Buffer.concat(chunks);
-        archive.set(key, 'readFile', success(content.toString('base64')));
+        archive.set(key, 'readFile', success(content));
       } catch (error) {
         archive.set(key, 'readFile', failure(error));
       }
@@ -1092,7 +1057,7 @@ function createOpenPatches(archive, fileDescriptors) {
     const fd = nextFileDescriptor;
     nextFileDescriptor -= 1;
     fileDescriptors.set(fd, {
-      content: file.ok ? Buffer.from(file.value, 'base64') : undefined,
+      content: file.ok ? decodeFileContent(file.value) : undefined,
       input: pathDisplay(input),
       key,
       position: 0,

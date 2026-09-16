@@ -19,9 +19,12 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
+import { sonarjs } from './archive-proto.js';
 
 export const FS_CACHE_MAGIC = 'sonarjs-filesystem-cache';
-export const FS_CACHE_FORMAT_VERSION = 4;
+export const FS_CACHE_FORMAT_VERSION = 5;
+
+const protobufArchive = sonarjs.fscache.Archive;
 
 const ARCHIVE_FILE_MODE = 0o600;
 const LOCK_RETRY_DELAY_MS = 10;
@@ -52,7 +55,288 @@ function writeFileWithNativePrimitives(filePath, bytes, mode) {
   }
 }
 
-const MAP_FIELDS = ['access', 'directories', 'opens', 'readlinks', 'realpaths', 'stats', 'other'];
+const MAP_FIELDS = ['access', 'directories', 'opens', 'readlinks', 'realpaths', 'stats'];
+
+export const FS_TYPE_METHODS = Object.freeze({
+  blockDevice: 'isBlockDevice',
+  characterDevice: 'isCharacterDevice',
+  directory: 'isDirectory',
+  fifo: 'isFIFO',
+  file: 'isFile',
+  socket: 'isSocket',
+  symbolicLink: 'isSymbolicLink',
+});
+const STAT_TYPES = Object.keys(FS_TYPE_METHODS);
+export const DIRENT_TYPES = [
+  'unknown',
+  ...['file', 'directory', 'symbolicLink', 'blockDevice', 'characterDevice', 'fifo', 'socket'],
+];
+
+function restoreFsError(error) {
+  return Object.fromEntries(Object.entries(error).filter(([, value]) => value !== null));
+}
+
+function typedVoid(entries = {}) {
+  return Object.entries(entries).map(([key, outcome]) => ({
+    key,
+    ...(outcome.ok ? { success: {} } : { error: outcome.error }),
+  }));
+}
+
+function restoreVoid(entries) {
+  return Object.fromEntries(
+    entries.map(entry => [
+      entry.key,
+      entry.result === 'success'
+        ? { ok: true, value: null }
+        : { ok: false, error: restoreFsError(entry.error) },
+    ]),
+  );
+}
+
+function typedStats(entries = {}) {
+  return Object.entries(entries).map(([key, outcome]) => ({
+    key,
+    ...(outcome.ok
+      ? {
+          value: {
+            ...outcome.value.fields,
+            types: STAT_TYPES.reduce(
+              (mask, type, index) => mask | (outcome.value.types[type] ? 1 << index : 0),
+              0,
+            ),
+          },
+        }
+      : { error: outcome.error }),
+  }));
+}
+
+function restoreStats(entries) {
+  return Object.fromEntries(
+    entries.map(entry => [
+      entry.key,
+      entry.result === 'value'
+        ? {
+            ok: true,
+            value: {
+              fields: Object.fromEntries(
+                Object.entries(entry.value).filter(
+                  ([field, value]) => field !== 'types' && value !== null,
+                ),
+              ),
+              types: Object.fromEntries(
+                STAT_TYPES.map((type, index) => [type, Boolean(entry.value.types & (1 << index))]),
+              ),
+            },
+          }
+        : { ok: false, error: restoreFsError(entry.error) },
+    ]),
+  );
+}
+
+function typedDirectories(entries = {}) {
+  return Object.entries(entries).map(([key, outcome]) => ({
+    key,
+    ...(outcome.ok
+      ? {
+          value: {
+            entries: outcome.value.map(entry => ({
+              dirent: entry.kind === 'dirent',
+              nameIsBuffer: entry.name.kind === 'buffer',
+              name: Buffer.from(entry.name.value, entry.name.kind === 'buffer' ? 'base64' : 'utf8'),
+              type: DIRENT_TYPES.indexOf(entry.type),
+              parentPath: entry.parentPath && {
+                relative: entry.parentPath.kind === 'relative',
+                path: entry.parentPath.path,
+              },
+            })),
+          },
+        }
+      : { error: outcome.error }),
+  }));
+}
+
+function restoreDirectories(entries) {
+  return Object.fromEntries(
+    entries.map(entry => [
+      entry.key,
+      entry.result === 'value'
+        ? {
+            ok: true,
+            value: entry.value.entries.map(value => ({
+              kind: value.dirent ? 'dirent' : 'name',
+              name: {
+                kind: value.nameIsBuffer ? 'buffer' : 'string',
+                value: Buffer.from(value.name).toString(value.nameIsBuffer ? 'base64' : 'utf8'),
+              },
+              ...(value.dirent ? { type: DIRENT_TYPES[value.type] } : {}),
+              ...(value.parentPath
+                ? {
+                    parentPath: {
+                      kind: value.parentPath.relative ? 'relative' : 'absolute',
+                      path: value.parentPath.path,
+                    },
+                  }
+                : {}),
+            })),
+          }
+        : { ok: false, error: restoreFsError(entry.error) },
+    ]),
+  );
+}
+
+function typedPaths(entries = {}) {
+  return Object.entries(entries).map(([key, outcome]) =>
+    outcome.ok
+      ? {
+          key,
+          value: {
+            relative: outcome.value.path.kind === 'relative',
+            path: outcome.value.path.path,
+          },
+        }
+      : { key, error: outcome.error },
+  );
+}
+
+function restorePaths(entries) {
+  return Object.fromEntries(
+    entries.map(entry => [
+      entry.key,
+      entry.result === 'value'
+        ? {
+            ok: true,
+            value: {
+              path: {
+                kind: entry.value.relative ? 'relative' : 'absolute',
+                path: entry.value.path,
+              },
+            },
+          }
+        : { ok: false, error: restoreFsError(entry.error) },
+    ]),
+  );
+}
+
+function typedNames(entries = {}) {
+  return Object.entries(entries).map(([key, outcome]) =>
+    outcome.ok
+      ? {
+          key,
+          value: {
+            buffer: outcome.value.kind === 'buffer',
+            value: Buffer.from(
+              outcome.value.value,
+              outcome.value.kind === 'buffer' ? 'base64' : 'utf8',
+            ),
+          },
+        }
+      : { key, error: outcome.error },
+  );
+}
+
+function restoreNames(entries) {
+  return Object.fromEntries(
+    entries.map(entry => [
+      entry.key,
+      entry.result === 'value'
+        ? {
+            ok: true,
+            value: {
+              kind: entry.value.buffer ? 'buffer' : 'string',
+              value: Buffer.from(entry.value.value).toString(
+                entry.value.buffer ? 'base64' : 'utf8',
+              ),
+            },
+          }
+        : { ok: false, error: restoreFsError(entry.error) },
+    ]),
+  );
+}
+
+function serializeProtobufDocument(document) {
+  const missingPaths = document.entries
+    .filter(({ node }) => Object.keys(node).length === 1 && node.exists === false)
+    .map(({ path }) => path);
+  return protobufArchive
+    .encode({
+      ...document,
+      missingPaths,
+      entries: document.entries
+        .filter(({ node }) => !(Object.keys(node).length === 1 && node.exists === false))
+        .map(({ path, node }) => {
+          const { content } = node;
+          const unsupportedFields = Object.keys(node).filter(
+            field => !['exists', 'linkExists', 'content', ...MAP_FIELDS].includes(field),
+          );
+          if (unsupportedFields.length > 0) {
+            throw new TypeError(
+              `Filesystem cache path '${path}' has unsupported fields: ${unsupportedFields.join(', ')}`,
+            );
+          }
+          const entry = {
+            path,
+            exists: node.exists,
+            linkExists: node.linkExists,
+            stats: typedStats(node.stats),
+            access: typedVoid(node.access),
+            opens: typedVoid(node.opens),
+            directories: typedDirectories(node.directories),
+            realpaths: typedPaths(node.realpaths),
+            readlinks: typedNames(node.readlinks),
+          };
+          if (!content) return entry;
+          if (!content.ok) {
+            return {
+              ...entry,
+              contentError: content.error,
+            };
+          }
+          return {
+            ...entry,
+            content: Buffer.isBuffer(content.value)
+              ? content.value
+              : Buffer.from(content.value, 'base64'),
+          };
+        }),
+    })
+    .finish();
+}
+
+function deserializeProtobufDocument(bytes) {
+  const document = protobufArchive.decode(bytes);
+  return {
+    magic: document.magic,
+    formatVersion: document.formatVersion,
+    analyzerVersion: document.analyzerVersion,
+    createdAt: document.createdAt,
+    updatedAt: document.updatedAt,
+    missingPaths: document.missingPaths,
+    entries: document.entries.map(entry => {
+      const node = {};
+      if (entry.exists !== null) node.exists = entry.exists;
+      if (entry.linkExists !== null) node.linkExists = entry.linkExists;
+      if (entry.stats.length) node.stats = restoreStats(entry.stats);
+      if (entry.access.length) node.access = restoreVoid(entry.access);
+      if (entry.opens.length) node.opens = restoreVoid(entry.opens);
+      if (entry.directories.length) node.directories = restoreDirectories(entry.directories);
+      if (entry.realpaths.length) node.realpaths = restorePaths(entry.realpaths);
+      if (entry.readlinks.length) node.readlinks = restoreNames(entry.readlinks);
+      if (entry.contentResult === 'content') {
+        node.content = {
+          ok: true,
+          value: Buffer.isBuffer(entry.content) ? entry.content : Buffer.from(entry.content),
+        };
+      } else if (entry.contentResult === 'contentError') {
+        node.content = {
+          ok: false,
+          error: restoreFsError(entry.contentError),
+        };
+      }
+      return { path: entry.path, node };
+    }),
+  };
+}
 
 function createNode(node = {}) {
   const result = {};
@@ -136,7 +420,7 @@ function operationSlot(operation) {
   if (name === 'open') {
     return { field: 'opens', key: parts.join(':') || 'r' };
   }
-  return { field: 'other', key: operation };
+  throw new FsCacheArchiveError(`Unsupported filesystem cache operation: ${operation}`);
 }
 
 function readSlot(node, slot) {
@@ -244,14 +528,16 @@ export class FsCacheArchive {
     if (!rootDir) {
       throw new FsCacheArchiveError('The filesystem cache root directory is required');
     }
-
     this.archivePath = path.resolve(archivePath);
     this.rootDir = path.resolve(rootDir);
+    this.rootPrefix = this.rootDir.endsWith(path.sep) ? this.rootDir : `${this.rootDir}${path.sep}`;
     this.mode = mode;
     this.strict = strict;
     this.analyzerVersion = analyzerVersion || undefined;
     this.createdAt = new Date().toISOString();
     this.entries = new Map();
+    this.missingPaths = new Set();
+    this.pathKeys = new Map();
     this.dirty = false;
     this.cacheHits = 0;
     this.cacheMisses = 0;
@@ -270,7 +556,8 @@ export class FsCacheArchive {
     let document;
     try {
       const compressed = nativeFs.readFileSync(this.archivePath);
-      document = JSON.parse(gunzipSync(compressed).toString('utf8'));
+      const bytes = gunzipSync(compressed);
+      document = deserializeProtobufDocument(bytes);
     } catch (error) {
       throw new FsCacheArchiveError(`Cannot read filesystem cache archive: ${this.archivePath}`, {
         cause: error,
@@ -297,6 +584,9 @@ export class FsCacheArchive {
     }
 
     this.createdAt = document.createdAt || this.createdAt;
+    for (const missingPath of document.missingPaths || []) {
+      this.missingPaths.add(missingPath);
+    }
     for (const entry of document.entries) {
       if (
         !entry ||
@@ -322,8 +612,29 @@ export class FsCacheArchive {
       return undefined;
     }
 
-    const absolutePath = path.resolve(filePath);
-    const relativePath = path.relative(this.rootDir, absolutePath);
+    const cachedKey = this.pathKeys.get(filePath);
+    if (cachedKey !== undefined) {
+      return cachedKey;
+    }
+
+    let relativePath;
+    const needsNormalization =
+      filePath.includes(`${path.sep}.${path.sep}`) ||
+      filePath.endsWith(`${path.sep}.`) ||
+      filePath.includes(`${path.sep}..${path.sep}`) ||
+      filePath.endsWith(`${path.sep}..`) ||
+      filePath.includes(`${path.sep}${path.sep}`);
+    if (path.isAbsolute(filePath) && !needsNormalization) {
+      if (filePath === this.rootDir) {
+        relativePath = '';
+      } else if (filePath.startsWith(this.rootPrefix)) {
+        relativePath = filePath.slice(this.rootPrefix.length);
+      } else {
+        return undefined;
+      }
+    } else {
+      relativePath = path.relative(this.rootDir, path.resolve(filePath));
+    }
     if (
       relativePath === '..' ||
       relativePath.startsWith(`..${path.sep}`) ||
@@ -331,7 +642,9 @@ export class FsCacheArchive {
     ) {
       return undefined;
     }
-    return relativePath === '' ? '.' : relativePath.split(path.sep).join('/');
+    const key = relativePath === '' ? '.' : relativePath.split(path.sep).join('/');
+    this.pathKeys.set(filePath, key);
+    return key;
   }
 
   absolutePathFor(key) {
@@ -384,7 +697,7 @@ export class FsCacheArchive {
   set(key, operation, outcome) {
     let node = this.entries.get(key);
     if (!node) {
-      node = createNode();
+      node = this.missingPaths.delete(key) ? createNode({ exists: false }) : createNode();
       this.entries.set(key, node);
     }
 
@@ -419,6 +732,9 @@ export class FsCacheArchive {
 
   getExists(key, operation = '') {
     const node = this.entries.get(key);
+    if (!node && this.missingPaths.has(key)) {
+      return false;
+    }
     return observesLink(operation) ? node?.linkExists : node?.exists;
   }
 
@@ -434,7 +750,7 @@ export class FsCacheArchive {
     return {
       hits: this.cacheHits,
       misses: this.cacheMisses,
-      paths: this.entries.size,
+      paths: this.entries.size + this.missingPaths.size,
     };
   }
 
@@ -449,25 +765,39 @@ export class FsCacheArchive {
     const lockDescriptor = acquireLock(lockPath, this.archivePath);
     try {
       const ownEntries = this.entries;
+      const ownMissingPaths = this.missingPaths;
       this.entries = new Map();
+      this.missingPaths = new Set();
       let mergedEntries;
+      let mergedMissingPaths;
       try {
         this.load();
         mergedEntries = this.entries;
+        mergedMissingPaths = this.missingPaths;
       } catch (error) {
         if (error?.incompatible) {
           mergedEntries = new Map();
+          mergedMissingPaths = new Set();
         } else {
           throw error;
         }
       } finally {
         this.entries = ownEntries;
+        this.missingPaths = ownMissingPaths;
+      }
+      for (const missingPath of ownMissingPaths) {
+        mergedEntries.delete(missingPath);
+        mergedMissingPaths.add(missingPath);
       }
       for (const [entryPath, node] of ownEntries) {
+        mergedMissingPaths.delete(entryPath);
         mergedEntries.set(entryPath, mergeNodes(mergedEntries.get(entryPath), node));
       }
 
-      const entries = [...mergedEntries.entries()]
+      const entries = [
+        ...[...mergedMissingPaths].map(entryPath => [entryPath, { exists: false }]),
+        ...mergedEntries.entries(),
+      ]
         .sort(([left], [right]) => left.localeCompare(right))
         .map(([entryPath, node]) => ({
           path: entryPath,
@@ -481,7 +811,8 @@ export class FsCacheArchive {
         updatedAt: new Date().toISOString(),
         entries,
       };
-      const bytes = gzipSync(Buffer.from(JSON.stringify(document)), { mtime: 0 });
+      const serialized = serializeProtobufDocument(document);
+      const bytes = gzipSync(serialized, { mtime: 0 });
       const temporaryPath = `${this.archivePath}.${process.pid}.${randomUUID()}.tmp`;
       try {
         writeFileWithNativePrimitives(temporaryPath, bytes, ARCHIVE_FILE_MODE);

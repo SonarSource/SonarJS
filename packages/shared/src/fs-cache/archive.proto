@@ -1,0 +1,135 @@
+syntax = "proto3";
+
+package sonarjs.fscache;
+
+message Archive {
+  string magic = 1;
+  uint32 format_version = 2;
+  string analyzer_version = 3;
+  string created_at = 4;
+  string updated_at = 5;
+  repeated Entry entries = 6;
+  repeated string missing_paths = 7;
+}
+
+message Entry {
+  string path = 1;
+  reserved 2;
+  oneof content_result {
+    bytes content = 3;
+    FsError content_error = 4;
+  }
+  repeated StatObservation stats = 5;
+  repeated DirectoryObservation directories = 6;
+  repeated VoidObservation access = 7;
+  repeated VoidObservation opens = 8;
+  repeated PathObservation realpaths = 9;
+  optional bool exists = 10;
+  optional bool link_exists = 11;
+  repeated NameObservation readlinks = 12;
+}
+
+message VoidObservation {
+  string key = 1;
+  oneof result {
+    Empty success = 2;
+    FsError error = 3;
+  }
+}
+
+message PathObservation {
+  string key = 1;
+  oneof result {
+    PortablePath value = 2;
+    FsError error = 3;
+  }
+}
+
+message NameObservation {
+  string key = 1;
+  oneof result {
+    NameValue value = 2;
+    FsError error = 3;
+  }
+}
+
+message NameValue {
+  bool buffer = 1;
+  bytes value = 2;
+}
+
+message StatObservation {
+  string key = 1;
+  oneof result {
+    StatSnapshot value = 2;
+    FsError error = 3;
+  }
+}
+
+message StatSnapshot {
+  optional string dev = 1;
+  optional string ino = 2;
+  optional string mode = 3;
+  optional string nlink = 4;
+  optional string uid = 5;
+  optional string gid = 6;
+  optional string rdev = 7;
+  optional string size = 8;
+  optional string blksize = 9;
+  optional string blocks = 10;
+  optional string atime_ms = 11;
+  optional string mtime_ms = 12;
+  optional string ctime_ms = 13;
+  optional string birthtime_ms = 14;
+  optional string atime_ns = 15;
+  optional string mtime_ns = 16;
+  optional string ctime_ns = 17;
+  optional string birthtime_ns = 18;
+  uint32 types = 19;
+}
+
+message DirectoryObservation {
+  string key = 1;
+  oneof result {
+    DirectoryEntries value = 2;
+    FsError error = 3;
+  }
+}
+
+message DirectoryEntries {
+  repeated DirectoryEntry entries = 1;
+}
+
+message DirectoryEntry {
+  bool dirent = 1;
+  bool name_is_buffer = 2;
+  bytes name = 3;
+  DirentType type = 4;
+  PortablePath parent_path = 5;
+}
+
+message PortablePath {
+  bool relative = 1;
+  string path = 2;
+}
+
+message FsError {
+  string name = 1;
+  string message = 2;
+  optional string code = 3;
+  optional sint32 errno = 4;
+  optional string syscall = 5;
+}
+
+message Empty {}
+
+enum DirentType {
+  DIRENT_TYPE_UNKNOWN = 0;
+  DIRENT_TYPE_FILE = 1;
+  DIRENT_TYPE_DIRECTORY = 2;
+  DIRENT_TYPE_SYMBOLIC_LINK = 3;
+  DIRENT_TYPE_BLOCK_DEVICE = 4;
+  DIRENT_TYPE_CHARACTER_DEVICE = 5;
+  DIRENT_TYPE_FIFO = 6;
+  DIRENT_TYPE_SOCKET = 7;
+}

@@ -22,6 +22,7 @@ import { afterEach, describe, it } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import { expect } from 'expect';
+import { FS_CACHE_FORMAT_VERSION, FsCacheArchive } from '../../src/fs-cache/archive.mjs';
 
 const register = pathToFileURL(
   path.resolve(import.meta.dirname, '../../src/fs-cache/register.mjs'),
@@ -41,6 +42,25 @@ function temporaryDirectory() {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'sonarjs-fs-cache-'));
   temporaryDirectories.push(directory);
   return directory;
+}
+
+function loadArchive(archivePath: string, rootDir: string, analyzerVersion?: string) {
+  const archive = new FsCacheArchive({
+    analyzerVersion,
+    archivePath,
+    mode: 'replay',
+    rootDir,
+  });
+  archive.load();
+  return archive;
+}
+
+function rewriteArchiveFormatVersion(archivePath: string, version: number) {
+  const bytes = gunzipSync(fs.readFileSync(archivePath));
+  const marker = bytes.indexOf(Buffer.from([0x10, FS_CACHE_FORMAT_VERSION]));
+  expect(marker).toBeGreaterThanOrEqual(0);
+  bytes[marker + 1] = version;
+  fs.writeFileSync(archivePath, gzipSync(bytes));
 }
 
 function runHook({
@@ -221,11 +241,7 @@ describe('filesystem cache preload', () => {
     expect(recorded.status).toBe(0);
     const recordedResult = JSON.parse(recorded.stdout);
     expect(fs.statSync(archive).size).toBeGreaterThan(0);
-    const archiveDocument = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
-    expect(archiveDocument.formatVersion).toBe(4);
-    const inputNode = archiveDocument.entries.find(
-      (entry: { path: string }) => entry.path === 'src/input.ts',
-    ).node;
+    const inputNode = loadArchive(archive, recordRoot).entries.get('src/input.ts');
     expect(inputNode.exists).toBe(true);
     expect(inputNode.content.ok).toBe(true);
     expect(inputNode.stats['stat:number'].ok).toBe(true);
@@ -413,10 +429,7 @@ describe('filesystem cache preload', () => {
       statCode: 'ENOENT',
       target: 'missing-target',
     });
-    const archiveDocument = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
-    const linkNode = archiveDocument.entries.find(
-      (entry: { path: string }) => entry.path === 'dangling-link',
-    ).node;
+    const linkNode = loadArchive(archive, recordRoot).entries.get('dangling-link');
     expect(linkNode.exists).toBe(false);
     expect(linkNode.linkExists).toBe(true);
 
@@ -552,12 +565,9 @@ describe('filesystem cache preload', () => {
     });
     expect(changedAnalyzer.stderr).toBe('');
     expect(changedAnalyzer.status).toBe(0);
-    let document = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
-    expect(document.analyzerVersion).toBe('analyzer-two');
-    expect(document.formatVersion).toBe(4);
+    loadArchive(archive, root, 'analyzer-two');
 
-    document.formatVersion = 3;
-    fs.writeFileSync(archive, gzipSync(Buffer.from(JSON.stringify(document))));
+    rewriteArchiveFormatVersion(archive, FS_CACHE_FORMAT_VERSION - 1);
     const changedFormat = runInlineHook({
       analyzerVersion: 'analyzer-three',
       archive,
@@ -567,9 +577,7 @@ describe('filesystem cache preload', () => {
     });
     expect(changedFormat.stderr).toBe('');
     expect(changedFormat.status).toBe(0);
-    document = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
-    expect(document.analyzerVersion).toBe('analyzer-three');
-    expect(document.formatVersion).toBe(4);
+    loadArchive(archive, root, 'analyzer-three');
   });
 
   it('rejects corrupt and analyzer-incompatible archives', () => {
@@ -606,12 +614,12 @@ describe('filesystem cache preload', () => {
     expect(incompatible.status).not.toBe(0);
     expect(incompatible.stderr).toContain('does not match analyzer-two');
 
-    const oldDocument = JSON.parse(gunzipSync(fs.readFileSync(archive)).toString('utf8'));
-    oldDocument.formatVersion = 1;
-    fs.writeFileSync(archive, gzipSync(Buffer.from(JSON.stringify(oldDocument))));
+    rewriteArchiveFormatVersion(archive, 1);
     const oldFormat = runHook({ archive, mode: 'replay', outside, root });
     expect(oldFormat.status).not.toBe(0);
-    expect(oldFormat.stderr).toContain('Unsupported filesystem cache format 1; expected 4');
+    expect(oldFormat.stderr).toContain(
+      `Unsupported filesystem cache format 1; expected ${FS_CACHE_FORMAT_VERSION}`,
+    );
   });
 
   it('preserves native opendir order for non-alphabetically created entries', () => {
