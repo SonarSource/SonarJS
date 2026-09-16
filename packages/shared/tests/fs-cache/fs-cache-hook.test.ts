@@ -733,6 +733,46 @@ describe('filesystem cache hook', () => {
     expect(recorded.stderr).toContain('Cannot read filesystem cache archive');
   });
 
+  it('keeps session-end archive flush failures nonfatal and returns to native fs', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = path.join(temporary, 'broken-at-end.fscache');
+    const afterSession = path.join(temporary, 'after-session.txt');
+    fs.mkdirSync(root);
+    fs.writeFileSync(path.join(root, 'input.ts'), 'analysis result');
+    const script = `
+      import { execFileSync } from 'node:child_process';
+      import fs from 'node:fs';
+      import path from 'node:path';
+      import { installFsCache } from ${JSON.stringify(hookModule)};
+      const [filesystemCacheRoot, filesystemCacheArchive, afterSession] = process.argv.slice(2);
+      const session = installFsCache().beginAnalysis({
+        archivePath: filesystemCacheArchive,
+        rootDir: filesystemCacheRoot,
+      });
+      const result = fs.readFileSync(path.join(filesystemCacheRoot, 'input.ts'), 'utf8');
+      execFileSync(process.execPath, [
+        '--eval',
+        "require('node:fs').writeFileSync(process.argv[1], 'not an archive')",
+        filesystemCacheArchive,
+      ]);
+      session.end();
+      fs.writeFileSync(afterSession, 'native fs restored');
+      console.log(result);
+    `;
+
+    const scriptPath = path.join(temporary, 'fail-end-flush.mjs');
+    fs.writeFileSync(scriptPath, script);
+    const recorded = spawnSync(process.execPath, [scriptPath, root, archive, afterSession], {
+      encoding: 'utf8',
+    });
+    expect(recorded.status).toBe(0);
+    expect(recorded.stdout.trim()).toBe('analysis result');
+    expect(recorded.stderr).toContain('Cannot write filesystem cache archive');
+    expect(recorded.stderr).toContain('Cannot read filesystem cache archive');
+    expect(fs.readFileSync(afterSession, 'utf8')).toBe('native fs restored');
+  });
+
   it('records and replays filesystem access from a worker session', () => {
     const temporary = temporaryDirectory();
     const recordRoot = path.join(temporary, 'record-root');

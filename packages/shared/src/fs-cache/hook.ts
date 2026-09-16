@@ -1824,6 +1824,12 @@ export function installFsCache(options?: ArchiveOptions): FsCacheInstallation {
   }
 
   const patches = installPatches(activeArchiveFacade);
+  const reportFlushFailure = (archive: FsCacheArchive, error: unknown) => {
+    const message = error instanceof Error ? error.message : String(error);
+    process.stderr.write(
+      `Filesystem cache warning: Cannot write filesystem cache archive ${archive.archivePath}: ${message}\n`,
+    );
+  };
   const exitListener = () => {
     if (!activeArchive) {
       return;
@@ -1831,10 +1837,7 @@ export function installFsCache(options?: ArchiveOptions): FsCacheInstallation {
     try {
       activeArchive.flush();
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      process.stderr.write(
-        `Filesystem cache warning: Cannot write filesystem cache archive ${activeArchive.archivePath}: ${message}\n`,
-      );
+      reportFlushFailure(activeArchive, error);
     }
   };
   process.once('exit', exitListener);
@@ -1863,7 +1866,11 @@ export function installFsCache(options?: ArchiveOptions): FsCacheInstallation {
             throw new Error('The active filesystem cache analysis changed unexpectedly');
           }
           try {
-            archive.flush();
+            try {
+              archive.flush();
+            } catch (error: unknown) {
+              reportFlushFailure(archive, error);
+            }
           } finally {
             patches.reset();
             activeArchive = undefined;
