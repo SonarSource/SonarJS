@@ -34,8 +34,7 @@ const messages = {
     'Use a distinct text or label, or point to the same target for this link and the one on line {{line}}.',
 };
 
-// Props whose presence in a spread makes the anchor unresolvable: they can change the accessible
-// name, the destination, or the visibility of the link.
+// Props whose presence in a spread makes the anchor unresolvable.
 const RELEVANT_PROPS = ['href', 'aria-label', 'title', 'hidden', 'aria-hidden', 'style'];
 
 const ROUTING_FRAGMENT_PATTERN = /^#[!/]/;
@@ -50,8 +49,7 @@ interface LinkInfo {
   href: string;
   node: TSESTree.JSXOpeningElement;
   scope: TSESTree.Node;
-  conditionalRoot: TSESTree.Node | undefined;
-  followsGuard: boolean;
+  conditionals: ConditionalMatch[];
 }
 
 export const rule: Rule.RuleModule = {
@@ -88,15 +86,14 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        const { scope, conditionalRoot, followsGuard } = resolveScope(element);
+        const { scope, conditionals } = resolveScope(element);
 
         links.push({
           name,
           href: normalizeDestination(href),
           node: opening,
           scope,
-          conditionalRoot,
-          followsGuard,
+          conditionals,
         });
       },
 
@@ -108,9 +105,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function checkLinks(context: Rule.RuleContext, links: LinkInfo[]) {
-  // Keyed by scope identity then accessible name; holds every link seen so far, since a link may
-  // still need to be compared against one that isn't its immediate predecessor - e.g. two
-  // mutually exclusive conditional siblings must each still be compared against a later sibling.
+  // Keyed by scope then accessible name; holds every link seen so far, not just the last one.
   const candidatesByScope = new Map<TSESTree.Node, Map<string, LinkInfo[]>>();
 
   for (const link of links) {
@@ -142,82 +137,67 @@ function checkLinks(context: Rule.RuleContext, links: LinkInfo[]) {
   }
 }
 
-// The nearest preceding sibling that can render alongside `link` with a different target - not
-// necessarily the immediate predecessor, since that one may be mutually exclusive with `link`.
+// The nearest preceding sibling that can render alongside `link` with a different target.
 function findConflict(candidates: LinkInfo[], link: LinkInfo): LinkInfo | undefined {
   for (let i = candidates.length - 1; i >= 0; i--) {
     const candidate = candidates[i];
-    if (candidate.href !== link.href && !shareConditionalRoot(link, candidate)) {
+    if (candidate.href !== link.href && !areExclusive(link, candidate)) {
       return candidate;
     }
   }
   return undefined;
 }
 
-// Only two links sharing the same root are exclusive, and not when both merely follow it as a guard.
-function shareConditionalRoot(a: LinkInfo, b: LinkInfo): boolean {
-  if (a.conditionalRoot === undefined || a.conditionalRoot !== b.conditionalRoot) {
-    return false;
-  }
-  return !(a.followsGuard && b.followsGuard);
+// Exclusive if any shared conditional ancestor puts them in different branches.
+function areExclusive(a: LinkInfo, b: LinkInfo): boolean {
+  return a.conditionals.some(x =>
+    b.conditionals.some(y => x.root === y.root && x.branch !== y.branch),
+  );
 }
 
-// Finds the nearest shared JSX container (or enclosing function/file) and the closest conditional branch, if any.
+// A conditional ancestor: `root` is the construct, `branch` identifies which branch it's in.
 interface ConditionalMatch {
   root: TSESTree.Node;
-  followsGuard: boolean;
+  branch: TSESTree.Node | 'after-guard';
 }
 
 function resolveScope(anchor: TSESTree.JSXElement): {
   scope: TSESTree.Node;
-  conditionalRoot: TSESTree.Node | undefined;
-  followsGuard: boolean;
+  conditionals: ConditionalMatch[];
 } {
   let node: TSESTree.Node = anchor;
-  let match: ConditionalMatch | undefined;
+  const conditionals: ConditionalMatch[] = [];
   for (;;) {
     const parent: TSESTree.Node | undefined = node.parent;
     if (!parent) {
-      return finalizeScope(node, match);
+      return { scope: node, conditionals };
     }
     if (parent.type === 'JSXElement' || parent.type === 'JSXFragment') {
-      return finalizeScope(parent, match);
+      return { scope: parent, conditionals };
     }
-    const found = matchConditional(parent, node);
-    if (found) {
-      match ??= found;
-    }
+    conditionals.push(...matchConditional(parent, node));
     if (isScopeBoundary(parent)) {
-      return finalizeScope(parent, match);
+      return { scope: parent, conditionals };
     }
     node = parent;
   }
 }
 
-function finalizeScope(scope: TSESTree.Node, match: ConditionalMatch | undefined) {
-  return {
-    scope,
-    conditionalRoot: match?.root,
-    followsGuard: match?.followsGuard ?? false,
-  };
-}
-
-// `child` is conditional if it's a direct branch of `parent`, or follows a guard inside it.
-function matchConditional(
-  parent: TSESTree.Node,
-  child: TSESTree.Node,
-): ConditionalMatch | undefined {
+// `child` is conditional if it's a direct branch of `parent`, or follows one or more guards inside it.
+function matchConditional(parent: TSESTree.Node, child: TSESTree.Node): ConditionalMatch[] {
   const branchRoot = getConditionalBranchRoot(parent, child);
   if (branchRoot) {
-    return { root: branchRoot, followsGuard: false };
+    // A switch case's branch identity is the case itself, not the individual statement.
+    const branch = parent.type === 'SwitchCase' ? parent : child;
+    return [{ root: branchRoot, branch }];
   }
   if (parent.type === 'BlockStatement') {
-    const guard = findEarlyReturnGuard(parent, child);
-    if (guard) {
-      return { root: guard, followsGuard: true };
-    }
+    return findEarlyReturnGuards(parent, child).map(guard => ({
+      root: guard,
+      branch: 'after-guard' as const,
+    }));
   }
-  return undefined;
+  return [];
 }
 
 function isScopeBoundary(node: TSESTree.Node): boolean {
@@ -233,22 +213,23 @@ function isScopeBoundary(node: TSESTree.Node): boolean {
   return true;
 }
 
-// Finds the closest earlier else-less `if` that always exits, whose implicit "else" this is.
-function findEarlyReturnGuard(
+// Finds every earlier else-less `if` that always exits, not just the closest one.
+function findEarlyReturnGuards(
   block: TSESTree.BlockStatement,
   statement: TSESTree.Node,
-): TSESTree.IfStatement | undefined {
+): TSESTree.IfStatement[] {
   const index = block.body.indexOf(statement as TSESTree.Statement);
   if (index <= 0) {
-    return undefined;
+    return [];
   }
+  const guards: TSESTree.IfStatement[] = [];
   for (let i = index - 1; i >= 0; i--) {
     const candidate = block.body[i];
     if (isEarlyReturnGuard(candidate)) {
-      return candidate as TSESTree.IfStatement;
+      guards.push(candidate as TSESTree.IfStatement);
     }
   }
-  return undefined;
+  return guards;
 }
 
 function isEarlyReturnGuard(statement: TSESTree.Node): boolean {
@@ -257,8 +238,7 @@ function isEarlyReturnGuard(statement: TSESTree.Node): boolean {
   );
 }
 
-// Conservative: only recognizes the common return/throw and nested-if-with-both-branches shapes,
-// so an undetected exit path simply falls back to the previous (safe) unconditional treatment.
+// Conservative: only recognizes the common return/throw and nested-if-with-both-branches shapes.
 function alwaysExits(statement: TSESTree.Node): boolean {
   switch (statement.type) {
     case 'ReturnStatement':
@@ -370,9 +350,7 @@ function cookTemplateLiteral(expression: estree.TemplateLiteral): string | undef
     : undefined;
 }
 
-// Accessible name precedence: aria-label > text content (skipping aria-hidden, using nested img alt) > title, per S6827.
-// An unresolvable aria-label falls back to the next tier rather than excluding the anchor; an
-// unresolvable text content or title still does, since there is nothing left to fall back to.
+// Accessible name precedence per S6827: aria-label > text content > title.
 function computeAccessibleName(
   element: TSESTree.JSXElement,
   attributes: JsxAttributes,
@@ -382,8 +360,7 @@ function computeAccessibleName(
   const ariaLabelAttribute = getProp(attributes, 'aria-label') as JSXAttribute | undefined;
   if (ariaLabelAttribute) {
     const staticValue = getStaticText(ariaLabelAttribute.value);
-    // An unresolvable aria-label doesn't abort the computation: we don't know whether it will be
-    // non-empty at runtime, so fall back to text content rather than excluding the anchor outright.
+    // An unresolvable aria-label falls back to text content instead of excluding the anchor.
     const normalized = staticValue !== undefined ? normalizeName(staticValue) : '';
     if (normalized) {
       return normalized;

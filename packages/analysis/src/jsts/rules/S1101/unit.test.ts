@@ -64,8 +64,7 @@ describe('S1101', () => {
         errors: 1,
       },
       {
-        // An unresolvable dynamic value for `hidden` is conservatively treated as NOT hidden,
-        // so the anchor is never silently dropped from comparison on a guess.
+        // An unresolvable dynamic `hidden` value is conservatively treated as NOT hidden.
         code: `
           <div>
             <a href="/a" hidden={dynamicHidden}>Same</a>
@@ -99,8 +98,7 @@ describe('S1101', () => {
         `,
       },
       {
-        // A non-rendering function (not a .map()/.flatMap() callback) is a real scope boundary,
-        // separate from the enclosing file-level scope.
+        // A non-rendering function is a real scope boundary, separate from the file-level scope.
         code: `
           const helper = () => <a href="/a">Same</a>;
           const b = <a href="/b">Same</a>;
@@ -122,8 +120,7 @@ describe('S1101', () => {
     ],
     invalid: [
       {
-        // A .map()/.flatMap() callback does not introduce a scope boundary: the anchor inside
-        // it still shares scope with a sibling anchor rendered by the same parent element.
+        // A .map()/.flatMap() callback does not introduce a scope boundary.
         code: `
           <div>
             {items.map(() => <a href="/inside-map">Same</a>)}
@@ -139,9 +136,7 @@ describe('S1101', () => {
     valid: [],
     invalid: [
       {
-        // The ternary's two branches are mutually exclusive with each other, so the "/b" branch
-        // must still be compared against the unrelated `isAdmin` guard further down - not just
-        // against its immediate predecessor, the "/a" branch it's exclusive with.
+        // The "/b" branch must be compared against the unrelated `isAdmin` guard further down, not just its exclusive "/a" sibling.
         code: `
           <div>
             {cond ? <a href="/a">Same</a> : <a href="/b">Same</a>}
@@ -156,8 +151,7 @@ describe('S1101', () => {
   ruleTester.run('unresolvable aria-label falls back to text content', rule, {
     valid: [
       {
-        // An unresolvable aria-label alone never makes two anchors comparable: the fallback text
-        // content still differs, so nothing is reported.
+        // An unresolvable aria-label alone doesn't make two anchors comparable if the fallback text differs.
         code: `
           <div>
             <a href="/a" aria-label={dynamicLabel}>One</a>
@@ -168,8 +162,7 @@ describe('S1101', () => {
     ],
     invalid: [
       {
-        // aria-label can't be resolved statically, so instead of excluding the anchor outright,
-        // its text content ("Same") is used - and it matches the sibling's, with a different href.
+        // aria-label is unresolvable, so its fallback text content ("Same") is used and matches.
         code: `
           <div>
             <a href="/a" aria-label={dynamicLabel}>Same</a>
@@ -179,5 +172,29 @@ describe('S1101', () => {
         errors: [{ messageId: 'identicalTextDifferentTarget', line: 4 }],
       },
     ],
+  });
+
+  ruleTester.run('chained conditionals are exclusive across the whole chain', rule, {
+    valid: [
+      {
+        // A chained ternary (`a ? X : (b ? Y : Z)`) makes all three branches pairwise exclusive.
+        code: `
+          <div>
+            {a ? <a href="/1">D</a> : b ? <a href="/2">D</a> : <a href="/3">D</a>}
+          </div>;
+        `,
+      },
+      {
+        // Each early return excludes every later statement, not just the immediately preceding guard.
+        code: `
+          function F(a, b) {
+            if (a) return <a href="/1">D</a>;
+            if (b) return <a href="/2">D</a>;
+            return <a href="/3">D</a>;
+          }
+        `,
+      },
+    ],
+    invalid: [],
   });
 });
