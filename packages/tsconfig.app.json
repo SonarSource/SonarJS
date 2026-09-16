@@ -16,6 +16,7 @@
   ],
   "exclude": [
     "shared/src/fs-cache/*.ts",
+    "shared/src/helpers/path-normalization.ts",
     "**/src/*/rules/**/*.test.ts",
     "**/src/*/rules/**/*.fixture.*",
     "**/src/*/rules/**/fixtures"

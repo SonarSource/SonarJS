@@ -157,6 +157,23 @@ describe('filesystem cache hook', () => {
     expect(archive.keyFor(normalizedInput)).toBe('src/input.ts');
   });
 
+  it('preserves backslashes that are valid filename characters on POSIX', t => {
+    if (process.platform === 'win32') {
+      t.skip('POSIX path semantics only');
+      return;
+    }
+
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = new FsCacheArchive({
+      archivePath: path.join(temporary, 'analysis.fscache'),
+      rootDir: root,
+    });
+
+    expect(archive.keyFor(path.join(root, 'src\\input.ts'))).toBe('src\\input.ts');
+    expect(archive.keyFor(path.join(root, 'src', 'input.ts'))).toBe('src/input.ts');
+  });
+
   it('routes promisified filesystem calls through record and replay sessions', () => {
     const temporary = temporaryDirectory();
     const root = path.join(temporary, 'root');

@@ -19,6 +19,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
+import { normalizePath } from '../helpers/path-normalization.js';
 import { sonarjs } from './archive-proto.js';
 
 const FS_CACHE_MAGIC = 'sonarjs-filesystem-cache';
@@ -712,6 +713,10 @@ function acquireLock(lockPath: string, archivePath: string) {
   );
 }
 
+function normalizeForComparison(filePath: string) {
+  return path.sep === '\\' ? normalizePath(filePath) : filePath;
+}
+
 /**
  * A versioned, portable record of filesystem observations.
  *
@@ -722,7 +727,8 @@ function acquireLock(lockPath: string, archivePath: string) {
 export class FsCacheArchive {
   archivePath: string;
   rootDir: string;
-  rootPrefix: string;
+  comparisonRootDir: string;
+  comparisonRootPrefix: string;
   mode: ArchiveMode;
   createdAt: string;
   entries: Map<string, CacheNode>;
@@ -741,7 +747,10 @@ export class FsCacheArchive {
     }
     this.archivePath = path.resolve(archivePath);
     this.rootDir = path.resolve(rootDir);
-    this.rootPrefix = this.rootDir.endsWith(path.sep) ? this.rootDir : `${this.rootDir}${path.sep}`;
+    this.comparisonRootDir = normalizeForComparison(this.rootDir);
+    this.comparisonRootPrefix = this.comparisonRootDir.endsWith('/')
+      ? this.comparisonRootDir
+      : `${this.comparisonRootDir}/`;
     this.mode = nativeFs.existsSync(this.archivePath) ? 'replay' : 'record';
     this.createdAt = new Date().toISOString();
     this.entries = new Map();
@@ -821,38 +830,31 @@ export class FsCacheArchive {
       return cachedKey;
     }
 
-    if (path.sep === '\\') {
-      filePath = filePath.replaceAll('/', path.sep);
-    }
-
+    const comparisonFilePath = normalizeForComparison(filePath);
     let relativePath;
     const needsNormalization =
-      filePath.includes(`${path.sep}.${path.sep}`) ||
-      filePath.endsWith(`${path.sep}.`) ||
-      filePath.includes(`${path.sep}..${path.sep}`) ||
-      filePath.endsWith(`${path.sep}..`) ||
-      filePath.includes(`${path.sep}${path.sep}`);
-    if (path.isAbsolute(filePath) && !needsNormalization) {
-      if (filePath === this.rootDir) {
+      comparisonFilePath.includes('/./') ||
+      comparisonFilePath.endsWith('/.') ||
+      comparisonFilePath.includes('/../') ||
+      comparisonFilePath.endsWith('/..') ||
+      comparisonFilePath.includes('//');
+    if (path.isAbsolute(comparisonFilePath) && !needsNormalization) {
+      if (comparisonFilePath === this.comparisonRootDir) {
         relativePath = '';
-      } else if (filePath.startsWith(this.rootPrefix)) {
-        relativePath = filePath.slice(this.rootPrefix.length);
+      } else if (comparisonFilePath.startsWith(this.comparisonRootPrefix)) {
+        relativePath = comparisonFilePath.slice(this.comparisonRootPrefix.length);
       } else {
         return undefined;
       }
     } else {
-      relativePath = path.relative(this.rootDir, path.resolve(filePath));
+      relativePath = normalizeForComparison(path.relative(this.rootDir, path.resolve(filePath)));
     }
-    if (
-      relativePath === '..' ||
-      relativePath.startsWith(`..${path.sep}`) ||
-      path.isAbsolute(relativePath)
-    ) {
+    if (relativePath === '..' || relativePath.startsWith('../') || path.isAbsolute(relativePath)) {
       return undefined;
     }
-    const key = relativePath === '' ? '.' : relativePath.split(path.sep).join('/');
+    const key = relativePath === '' ? '.' : relativePath;
     this.pathKeys.set(inputPath, key);
-    this.pathKeys.set(filePath, key);
+    this.pathKeys.set(comparisonFilePath, key);
     return key;
   }
 

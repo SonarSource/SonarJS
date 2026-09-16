@@ -20,22 +20,14 @@ import {
   dirnamePath,
   stripBOM,
 } from '../../../analysis/src/jsts/rules/helpers/files.js';
-import type { NormalizedAbsolutePath } from '../../../analysis/src/jsts/rules/helpers/files.js';
+import type { NormalizedAbsolutePath } from './path-normalization.js';
 
 // Accepted layer inversion: shared re-exports rules-side path helpers so non-rules code can
 // import only from shared while keeping eslint-plugin-sonarjs binary generation scoped to rules.
-export {
-  dirnamePath,
-  isAbsolutePath,
-  isRoot,
-  joinPaths,
-  normalizePath,
-  normalizeToAbsolutePath,
-} from '../../../analysis/src/jsts/rules/helpers/files.js';
-export type {
-  File,
-  NormalizedAbsolutePath,
-} from '../../../analysis/src/jsts/rules/helpers/files.js';
+export { dirnamePath, isRoot, joinPaths } from '../../../analysis/src/jsts/rules/helpers/files.js';
+export type { File } from '../../../analysis/src/jsts/rules/helpers/files.js';
+export { isAbsolutePath, normalizePath, normalizeToAbsolutePath } from './path-normalization.js';
+export type { NormalizedAbsolutePath } from './path-normalization.js';
 
 /**
  * Asynchronous read of file contents from a file path
