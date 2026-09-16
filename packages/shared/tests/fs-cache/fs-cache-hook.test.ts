@@ -130,7 +130,6 @@ describe('filesystem cache hook', () => {
     expect(result.stderr).toBe('');
     expect(result.status).toBe(0);
     expect(JSON.parse(result.stdout)).toEqual({
-      active: false,
       existsPromisify: true,
       installed: true,
       nativePassthrough: true,

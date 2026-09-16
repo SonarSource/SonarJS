@@ -23,13 +23,13 @@ import {
 } from '../src/analyze-project-handle-request.js';
 import type { AnalyzeProjectIncrementalEvent } from '../src/analyze-project-request.js';
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
+import { FS_CACHE_INSTALLATION } from '../../shared/src/fs-cache/hook.js';
 
 const workerData: WorkerData = { debugMemory: false };
 type AnalyzeProjectRequest = analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectRequest;
-const filesystemCacheInstallation = Symbol.for('sonarjs.filesystemCache.installation');
 
 afterEach(() => {
-  delete (globalThis as Record<symbol, unknown>)[filesystemCacheInstallation];
+  delete (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION];
 });
 
 function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
@@ -48,7 +48,7 @@ function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
 describe('analyze-project request handler', () => {
   it('activates and ends the request filesystem cache session', async () => {
     const sessions: Array<Record<string, unknown>> = [];
-    (globalThis as Record<symbol, unknown>)[filesystemCacheInstallation] = {
+    (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = {
       beginAnalysis(options: Record<string, unknown>) {
         sessions.push({ ...options, event: 'begin' });
         return {
@@ -101,7 +101,7 @@ describe('analyze-project request handler', () => {
 
   it('ends the filesystem cache session when request normalization fails', async () => {
     let ended = false;
-    (globalThis as Record<symbol, unknown>)[filesystemCacheInstallation] = {
+    (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = {
       beginAnalysis() {
         return {
           end() {

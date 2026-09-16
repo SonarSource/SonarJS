@@ -32,7 +32,7 @@ import {
 } from './archive.js';
 
 const MISSING = Symbol('missing filesystem cache observation');
-const INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
+export const FS_CACHE_INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
 const CACHED_FILE_HANDLE = Symbol('cached filesystem file handle');
 const FS_PROMISES_MODULE = 'fs/promises';
 const DEFAULT_ENOENT_ERRNO = -2;
@@ -105,16 +105,13 @@ type ArchiveFacade = Pick<
   | 'recordCacheMiss'
   | 'set'
 > & { readonly mode: FsCacheArchive['mode'] | undefined };
-type FsCacheSession = { archive: FsCacheArchive; end(): void };
+export type FsCacheSession = { end(): void };
 export type FsCacheInstallation = {
-  readonly archive: FsCacheArchive | undefined;
   beginAnalysis(options: ArchiveOptions): FsCacheSession;
-  flush(): void;
   getStatistics(): { hits: number; misses: number; paths: number };
-  uninstall(): void;
 };
 const installations = globalThis as typeof globalThis & {
-  [INSTALLATION]?: FsCacheInstallation;
+  [FS_CACHE_INSTALLATION]?: FsCacheInstallation;
 };
 
 function requireActiveArchive() {
@@ -719,7 +716,7 @@ function preserveFunctionMetadata(
 
 function patch(
   target: object,
-  savedDescriptors: Map<PropertyKey, PropertyDescriptor>,
+  patchedProperties: Set<PropertyKey>,
   name: PropertyKey,
   value: Callable,
   customPromisifyFactory?: CustomPromisifyFactory,
@@ -728,7 +725,7 @@ function patch(
   if (!savedDescriptor) {
     throw new Error(`Cannot patch missing filesystem property: ${String(name)}`);
   }
-  savedDescriptors.set(name, savedDescriptor);
+  patchedProperties.add(name);
   const nativeValue =
     typeof savedDescriptor.get === 'function'
       ? (target as Record<PropertyKey, unknown>)[name]
@@ -758,13 +755,13 @@ function unsupportedFilesystemOperation(moduleName: string, name: PropertyKey): 
 
 function guardUnhandledFilesystemOperations(
   target: object,
-  savedDescriptors: Map<PropertyKey, PropertyDescriptor>,
+  patchedProperties: Set<PropertyKey>,
   nonOperations: Set<string>,
   moduleName: string,
   reject = false,
 ) {
   for (const [name, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(target))) {
-    if (savedDescriptors.has(name) || nonOperations.has(name)) {
+    if (patchedProperties.has(name) || nonOperations.has(name)) {
       continue;
     }
     const value =
@@ -774,7 +771,7 @@ function guardUnhandledFilesystemOperations(
     if (typeof value !== 'function') {
       continue;
     }
-    patch(target, savedDescriptors, name, () => {
+    patch(target, patchedProperties, name, () => {
       const error = unsupportedFilesystemOperation(moduleName, name);
       if (reject && !FS_PROMISE_ASYNC_ITERABLE_OPERATIONS.has(name)) {
         return Promise.reject(error);
@@ -1815,8 +1812,8 @@ function createOpenPromise(
 
 function installPatches(archive: ArchiveFacade) {
   const executor = createExecutor(archive);
-  const descriptors = new Map<PropertyKey, PropertyDescriptor>();
-  const promiseDescriptors = new Map<PropertyKey, PropertyDescriptor>();
+  const patchedProperties = new Set<PropertyKey>();
+  const patchedPromiseProperties = new Set<PropertyKey>();
   const fileDescriptors: FileDescriptorMap = new Map();
   const fileHandles: FileHandleTracker & { values: WeakSet<object> } = {
     values: new WeakSet<object>(),
@@ -1842,40 +1839,40 @@ function installPatches(archive: ArchiveFacade) {
     descriptor.CachedFileHandle,
   );
 
-  patch(fs, descriptors, 'readFileSync', readFile.readFileSync);
-  patch(fs, descriptors, 'readFile', readFile.readFile);
-  patch(fs, descriptors, 'readdirSync', basic.readdirSync);
-  patch(fs, descriptors, 'readdir', basic.readdir);
-  patch(fs, descriptors, 'existsSync', basic.existsSync);
-  patch(fs, descriptors, 'exists', basic.exists, selected => {
+  patch(fs, patchedProperties, 'readFileSync', readFile.readFileSync);
+  patch(fs, patchedProperties, 'readFile', readFile.readFile);
+  patch(fs, patchedProperties, 'readdirSync', basic.readdirSync);
+  patch(fs, patchedProperties, 'readdir', basic.readdir);
+  patch(fs, patchedProperties, 'existsSync', basic.existsSync);
+  patch(fs, patchedProperties, 'exists', basic.exists, selected => {
     return ((input: fs.PathLike) =>
       new Promise<boolean>(resolve => {
         Reflect.apply(selected, fs, [input, resolve]);
       })) as Callable;
   });
-  patch(fs, descriptors, 'accessSync', basic.accessSync);
-  patch(fs, descriptors, 'access', basic.access);
-  patch(fs, descriptors, 'statSync', basic.statSync);
-  patch(fs, descriptors, 'stat', makeCallback(basic.statPromise));
-  patch(fs, descriptors, 'lstatSync', basic.lstatSync);
-  patch(fs, descriptors, 'lstat', makeCallback(basic.lstatPromise));
-  patch(fs, descriptors, 'realpathSync', basic.realpathSync);
-  patch(fs, descriptors, 'realpath', basic.realpath);
-  patch(fs, descriptors, 'readlinkSync', basic.readlinkSync);
-  patch(fs, descriptors, 'readlink', makeCallback(basic.readlinkPromise));
-  patch(fs, descriptors, 'opendirSync', directory.opendirSync);
-  patch(fs, descriptors, 'opendir', directory.opendir);
-  patch(fs, descriptors, 'openSync', openPatches.openSync);
-  patch(fs, descriptors, 'open', openPatches.open);
-  patch(fs, descriptors, 'readSync', descriptor.readSync);
-  patch(fs, descriptors, 'read', descriptor.read);
-  patch(fs, descriptors, 'fstatSync', descriptor.fstatSync);
-  patch(fs, descriptors, 'fstat', descriptor.fstat);
-  patch(fs, descriptors, 'closeSync', descriptor.closeSync);
-  patch(fs, descriptors, 'close', descriptor.close);
+  patch(fs, patchedProperties, 'accessSync', basic.accessSync);
+  patch(fs, patchedProperties, 'access', basic.access);
+  patch(fs, patchedProperties, 'statSync', basic.statSync);
+  patch(fs, patchedProperties, 'stat', makeCallback(basic.statPromise));
+  patch(fs, patchedProperties, 'lstatSync', basic.lstatSync);
+  patch(fs, patchedProperties, 'lstat', makeCallback(basic.lstatPromise));
+  patch(fs, patchedProperties, 'realpathSync', basic.realpathSync);
+  patch(fs, patchedProperties, 'realpath', basic.realpath);
+  patch(fs, patchedProperties, 'readlinkSync', basic.readlinkSync);
+  patch(fs, patchedProperties, 'readlink', makeCallback(basic.readlinkPromise));
+  patch(fs, patchedProperties, 'opendirSync', directory.opendirSync);
+  patch(fs, patchedProperties, 'opendir', directory.opendir);
+  patch(fs, patchedProperties, 'openSync', openPatches.openSync);
+  patch(fs, patchedProperties, 'open', openPatches.open);
+  patch(fs, patchedProperties, 'readSync', descriptor.readSync);
+  patch(fs, patchedProperties, 'read', descriptor.read);
+  patch(fs, patchedProperties, 'fstatSync', descriptor.fstatSync);
+  patch(fs, patchedProperties, 'fstat', descriptor.fstat);
+  patch(fs, patchedProperties, 'closeSync', descriptor.closeSync);
+  patch(fs, patchedProperties, 'close', descriptor.close);
   // Node stdout and stderr use this primitive. Limit the native pass-through to their standard
   // descriptors so diagnostics work without allowing project files to be mutated through an fd.
-  patch(fs, descriptors, 'writeSync', (fd: number, ...args: unknown[]) => {
+  patch(fs, patchedProperties, 'writeSync', (fd: number, ...args: unknown[]) => {
     if (fd !== 1 && fd !== 2) {
       throw unsupportedFilesystemOperation('fs', 'writeSync outside stdout or stderr');
     }
@@ -1885,20 +1882,20 @@ function installPatches(archive: ArchiveFacade) {
     );
   });
 
-  patch(fs.promises, promiseDescriptors, 'readFile', readFile.readFilePromise);
-  patch(fs.promises, promiseDescriptors, 'readdir', basic.readdirPromise);
-  patch(fs.promises, promiseDescriptors, 'access', basic.accessPromise);
-  patch(fs.promises, promiseDescriptors, 'stat', basic.statPromise);
-  patch(fs.promises, promiseDescriptors, 'lstat', basic.lstatPromise);
-  patch(fs.promises, promiseDescriptors, 'realpath', basic.realpathPromise);
-  patch(fs.promises, promiseDescriptors, 'readlink', basic.readlinkPromise);
-  patch(fs.promises, promiseDescriptors, 'opendir', directory.opendirPromise);
-  patch(fs.promises, promiseDescriptors, 'open', openPromise);
+  patch(fs.promises, patchedPromiseProperties, 'readFile', readFile.readFilePromise);
+  patch(fs.promises, patchedPromiseProperties, 'readdir', basic.readdirPromise);
+  patch(fs.promises, patchedPromiseProperties, 'access', basic.accessPromise);
+  patch(fs.promises, patchedPromiseProperties, 'stat', basic.statPromise);
+  patch(fs.promises, patchedPromiseProperties, 'lstat', basic.lstatPromise);
+  patch(fs.promises, patchedPromiseProperties, 'realpath', basic.realpathPromise);
+  patch(fs.promises, patchedPromiseProperties, 'readlink', basic.readlinkPromise);
+  patch(fs.promises, patchedPromiseProperties, 'opendir', directory.opendirPromise);
+  patch(fs.promises, patchedPromiseProperties, 'open', openPromise);
 
-  guardUnhandledFilesystemOperations(fs, descriptors, FS_NON_OPERATION_EXPORTS, 'fs');
+  guardUnhandledFilesystemOperations(fs, patchedProperties, FS_NON_OPERATION_EXPORTS, 'fs');
   guardUnhandledFilesystemOperations(
     fs.promises,
-    promiseDescriptors,
+    patchedPromiseProperties,
     new Set(),
     FS_PROMISES_MODULE,
     true,
@@ -1910,25 +1907,12 @@ function installPatches(archive: ArchiveFacade) {
     fileDescriptors.clear();
     fileHandles.clear();
   };
-  const uninstall = () => {
-    for (const [name, savedDescriptor] of descriptors) {
-      Object.defineProperty(fs, name, savedDescriptor);
-    }
-    for (const [name, savedDescriptor] of promiseDescriptors) {
-      Object.defineProperty(fs.promises, name, savedDescriptor);
-    }
-    reset();
-    syncBuiltinESMExports();
-  };
-  return { reset, uninstall };
+  return { reset };
 }
 
-export function installFsCache(options?: ArchiveOptions): FsCacheInstallation {
-  const existingInstallation = installations[INSTALLATION];
+export function installFsCache(): FsCacheInstallation {
+  const existingInstallation = installations[FS_CACHE_INSTALLATION];
   if (existingInstallation) {
-    if (options) {
-      existingInstallation.beginAnalysis(options);
-    }
     return existingInstallation;
   }
 
@@ -1952,9 +1936,6 @@ export function installFsCache(options?: ArchiveOptions): FsCacheInstallation {
   process.once('exit', exitListener);
 
   const installation: FsCacheInstallation = {
-    get archive() {
-      return activeArchive;
-    },
     beginAnalysis(analysisOptions: ArchiveOptions) {
       if (activeArchive) {
         throw new Error('A filesystem cache analysis is already active');
@@ -1966,7 +1947,6 @@ export function installFsCache(options?: ArchiveOptions): FsCacheInstallation {
       activeArchive = archive;
       let ended = false;
       return {
-        archive,
         end() {
           if (ended) {
             return;
@@ -1988,22 +1968,8 @@ export function installFsCache(options?: ArchiveOptions): FsCacheInstallation {
         },
       };
     },
-    flush: () => requireActiveArchive().flush(),
     getStatistics: () => requireActiveArchive().getStatistics(),
-    uninstall() {
-      process.removeListener('exit', exitListener);
-      try {
-        activeArchive?.flush();
-      } finally {
-        activeArchive = undefined;
-        patches.uninstall();
-        delete installations[INSTALLATION];
-      }
-    },
   };
-  installations[INSTALLATION] = installation;
-  if (options) {
-    installation.beginAnalysis(options);
-  }
+  installations[FS_CACHE_INSTALLATION] = installation;
   return installation;
 }

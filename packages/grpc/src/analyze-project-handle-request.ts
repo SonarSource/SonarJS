@@ -33,19 +33,15 @@ import {
   InvalidAnalyzeProjectRequestError,
   normalizeAnalyzeProjectRequest,
 } from './analyze-project-normalize.js';
-const FS_CACHE_INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
-
-type FilesystemCacheSession = {
-  end: () => void;
-};
-
-type FilesystemCacheInstallation = {
-  beginAnalysis: (options: { archivePath: string; rootDir: string }) => FilesystemCacheSession;
-};
+import {
+  FS_CACHE_INSTALLATION,
+  type FsCacheInstallation,
+  type FsCacheSession,
+} from '../../shared/src/fs-cache/hook.js';
 
 function beginFilesystemCacheAnalysis(
   request: AnalyzeProjectProtoRequest,
-): FilesystemCacheSession | undefined {
+): FsCacheSession | undefined {
   const cache = request.filesystemCache;
   if (cache == null) {
     return undefined;
@@ -63,7 +59,7 @@ function beginFilesystemCacheAnalysis(
   }
 
   const installation = (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] as
-    FilesystemCacheInstallation | undefined;
+    FsCacheInstallation | undefined;
   if (!installation) {
     throw new InvalidAnalyzeProjectRequestError(
       'filesystem_cache requires an initialized analysis worker',

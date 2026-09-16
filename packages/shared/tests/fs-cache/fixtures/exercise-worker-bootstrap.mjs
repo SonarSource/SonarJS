@@ -33,7 +33,6 @@ if (isMainThread) {
   const readResult = await promisify(fs.read)(descriptor, readBuffer, 0, readBuffer.length, 0);
   fs.closeSync(descriptor);
   parentPort.postMessage({
-    active: installation?.archive !== undefined,
     existsPromisify: await promisify(fs.exists)(import.meta.filename),
     installed: installation !== undefined,
     nativePassthrough: fs.existsSync(import.meta.filename),

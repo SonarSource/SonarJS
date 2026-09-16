@@ -29,6 +29,7 @@ import * as metas from '../analysis/src/jsts/rules/metas.js';
 import { SonarMeta } from '../analysis/src/jsts/rules/helpers/generate-meta.js';
 import { cssRulesMeta } from '../analysis/src/css/rules/metadata.js';
 import type { RuleConfig as CssRuleConfig } from '../analysis/src/css/linter/config.js';
+import type { FsCacheSession } from '../shared/src/fs-cache/hook.js';
 
 const currentPath = normalizePath(import.meta.dirname);
 
@@ -44,10 +45,6 @@ const RULING_FILESYSTEM_CACHE_CONDITION = '--conditions=sonarjs-ruling-fs-cache'
 
 export type TestProjectOptions = {
   filesystemCacheArchive?: string;
-};
-
-type FilesystemCacheSession = {
-  end(): void;
 };
 
 type ProjectsData = {
@@ -122,7 +119,7 @@ export async function testProject(projectName: string, options: TestProjectOptio
 async function beginFilesystemCacheSession(
   archivePath: string | undefined,
   baseDir: string,
-): Promise<FilesystemCacheSession | undefined> {
+): Promise<FsCacheSession | undefined> {
   if (!archivePath) {
     return undefined;
   }
