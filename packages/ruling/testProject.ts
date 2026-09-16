@@ -35,11 +35,17 @@ const SONARJS_ROOT = join(currentPath, '..', '..');
 const sourcesPath = join(SONARJS_ROOT, 'its', 'sources');
 const expectedBase = join(SONARJS_ROOT, 'its', 'ruling', 'src', 'test', 'expected');
 const actualBase = join(currentPath, 'actual');
+const filesystemCacheArchiveDirectory = join(currentPath, 'filesystem-cache');
 const ruleMetas = metas as unknown as Record<string, SonarMeta>;
 
 const DEFAULT_EXCLUSIONS = ['**/.*', '**/*.d.ts'];
-const RULING_FILESYSTEM_CACHE_MODE = process.env.SONARJS_RULING_FS_CACHE_MODE;
-const RULING_FILESYSTEM_CACHE_ARCHIVE_DIR = process.env.SONARJS_RULING_FS_CACHE_ARCHIVE_DIR;
+const RULING_FILESYSTEM_CACHE_MODE = Symbol.for('sonarjs.ruling.filesystemCacheMode');
+
+export type FilesystemCacheMode = 'record' | 'replay';
+
+export type TestProjectOptions = {
+  filesystemCacheMode?: FilesystemCacheMode;
+};
 
 type FilesystemCacheSession = {
   end(): void;
@@ -57,7 +63,7 @@ export function projectName(projectFile: string) {
   return filename.substring(0, filename.length - '.ruling.test.ts'.length);
 }
 
-export async function testProject(projectName: string) {
+export async function testProject(projectName: string, options: TestProjectOptions = {}) {
   const { folder, name, exclusions, testDir } = (projects as ProjectsData[]).find(
     p => p.name === projectName,
   )!;
@@ -89,7 +95,11 @@ export async function testProject(projectName: string) {
     exclusions: exclusions ? DEFAULT_EXCLUSIONS.concat(exclusions.split(',')) : DEFAULT_EXCLUSIONS,
   });
 
-  const filesystemCacheSession = await beginFilesystemCacheSession(name, baseDir);
+  const filesystemCacheSession = await beginFilesystemCacheSession(
+    name,
+    baseDir,
+    options.filesystemCacheMode ?? configuredFilesystemCacheMode(),
+  );
   try {
     await initFileStores(configuration);
 
@@ -113,26 +123,27 @@ export async function testProject(projectName: string) {
 async function beginFilesystemCacheSession(
   projectName: string,
   baseDir: string,
+  mode: FilesystemCacheMode | undefined,
 ): Promise<FilesystemCacheSession | undefined> {
-  if (!RULING_FILESYSTEM_CACHE_MODE && !RULING_FILESYSTEM_CACHE_ARCHIVE_DIR) {
+  if (!mode) {
     return undefined;
-  }
-  if (!RULING_FILESYSTEM_CACHE_MODE || !RULING_FILESYSTEM_CACHE_ARCHIVE_DIR) {
-    throw new Error(
-      'SONARJS_RULING_FS_CACHE_MODE and SONARJS_RULING_FS_CACHE_ARCHIVE_DIR must be configured together',
-    );
-  }
-  if (RULING_FILESYSTEM_CACHE_MODE !== 'record' && RULING_FILESYSTEM_CACHE_MODE !== 'replay') {
-    throw new Error(`Unsupported ruling filesystem cache mode: ${RULING_FILESYSTEM_CACHE_MODE}`);
   }
 
   const { installFsCache } = await import('../shared/src/fs-cache/hook.mjs');
   return installFsCache().beginAnalysis({
-    mode: RULING_FILESYSTEM_CACHE_MODE,
-    archivePath: join(RULING_FILESYSTEM_CACHE_ARCHIVE_DIR, `${projectName}.fscache`),
+    mode,
+    archivePath: join(filesystemCacheArchiveDirectory, `${projectName}.fscache`),
     rootDir: baseDir,
-    strict: RULING_FILESYSTEM_CACHE_MODE === 'replay',
+    strict: mode === 'replay',
   });
+}
+
+function configuredFilesystemCacheMode(): FilesystemCacheMode | undefined {
+  const mode = (globalThis as Record<symbol, unknown>)[RULING_FILESYSTEM_CACHE_MODE];
+  if (mode === undefined || mode === 'record' || mode === 'replay') {
+    return mode;
+  }
+  throw new Error(`Unsupported ruling filesystem cache mode: ${String(mode)}`);
 }
 
 export function ok(diff: Result) {
