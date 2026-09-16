@@ -1,8 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "include": [
-    "shared/src/fs-cache/*.ts",
-    "analysis/src/jsts/rules/helpers/path-normalization.ts",
-    "../typings/**/*.d.ts"
-  ]
-}

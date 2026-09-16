@@ -1,10 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "references": [
-    {
-      "path": "./tsconfig.fs-cache.json"
-    }
-  ],
   "include": [
     "*/src/**/*.ts",
     "*/src/**/*.json",
@@ -15,8 +10,6 @@
     "../typings/**/*.d.ts"
   ],
   "exclude": [
-    "shared/src/fs-cache/*.ts",
-    "analysis/src/jsts/rules/helpers/path-normalization.ts",
     "**/src/*/rules/**/*.test.ts",
     "**/src/*/rules/**/*.fixture.*",
     "**/src/*/rules/**/fixtures"
