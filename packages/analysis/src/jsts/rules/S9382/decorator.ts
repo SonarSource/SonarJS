@@ -112,6 +112,8 @@ function findEnclosingLoop(node: estree.Node): LoopLike | null {
  * actually targets this specific loop -- a deliberate, measured trade-off (see JS-2409):
  * it also suppresses independent-iteration cases sharing the same shape (e.g.
  * "search a list, return on first match"), accepted as a known false-negative class.
+ * An unlabeled `break` inside a nested `switch` is excluded, since it exits the switch
+ * rather than the loop; a nested loop resets that exclusion, per the trade-off above.
  */
 function hasLaterLoopExit(
   loop: LoopLike,
@@ -120,18 +122,21 @@ function hasLaterLoopExit(
 ): boolean {
   const afterEnd = afterNode.range![1];
 
-  function search(node: estree.Node): boolean {
+  function search(node: estree.Node, inSwitch: boolean): boolean {
     if (isBoundary(node)) {
       return false;
     }
-    if (
-      (node.type === 'ReturnStatement' || node.type === 'BreakStatement') &&
-      node.range![0] > afterEnd
-    ) {
-      return true;
+    if (node.range![0] > afterEnd) {
+      if (node.type === 'ReturnStatement') {
+        return true;
+      }
+      if (node.type === 'BreakStatement' && (!inSwitch || node.label)) {
+        return true;
+      }
     }
-    return childrenOf(node, visitorKeys).some(search);
+    const nestedInSwitch = node.type === 'SwitchStatement' || (inSwitch && !isLoopLike(node));
+    return childrenOf(node, visitorKeys).some(child => search(child, nestedInSwitch));
   }
 
-  return search(loop.body);
+  return search(loop.body, false);
 }
