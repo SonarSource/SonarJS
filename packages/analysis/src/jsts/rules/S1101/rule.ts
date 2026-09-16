@@ -25,7 +25,7 @@ const { getProp, getLiteralPropValue } = pkg;
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getElementType } from '../helpers/accessibility.js';
 import { functionLike, getValueOfExpression, getProperty } from '../helpers/ast.js';
-import { isArgumentOfRenderingCall } from '../helpers/jsx.js';
+import { getConditionalBranchRoot, isArgumentOfRenderingCall } from '../helpers/jsx.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
@@ -207,7 +207,7 @@ function matchConditional(
   parent: TSESTree.Node,
   child: TSESTree.Node,
 ): ConditionalMatch | undefined {
-  const branchRoot = getConditionalRoot(parent, child);
+  const branchRoot = getConditionalBranchRoot(parent, child);
   if (branchRoot) {
     return { root: branchRoot, followsGuard: false };
   }
@@ -274,32 +274,6 @@ function alwaysExits(statement: TSESTree.Node): boolean {
       );
     default:
       return false;
-  }
-}
-
-// Returns the conditional's root node if `child` is one of `parent`'s branches, else undefined.
-function getConditionalRoot(
-  parent: TSESTree.Node,
-  child: TSESTree.Node,
-): TSESTree.Node | undefined {
-  switch (parent.type) {
-    case 'ConditionalExpression':
-      return parent.consequent === child || parent.alternate === child ? parent : undefined;
-    case 'LogicalExpression': {
-      const isBranch =
-        parent.operator === '&&'
-          ? parent.right === child
-          : parent.left === child || parent.right === child;
-      return isBranch ? parent : undefined;
-    }
-    case 'IfStatement':
-      return parent.consequent === child || parent.alternate === child ? parent : undefined;
-    case 'SwitchCase':
-      return (parent.consequent as TSESTree.Node[]).includes(child)
-        ? (parent.parent ?? parent)
-        : undefined;
-    default:
-      return undefined;
   }
 }
 
