@@ -89,9 +89,11 @@ function renderedChildPositions(node: TSESTree.Node): TSESTree.Node[] {
     case 'JSXExpressionContainer':
       return node.expression.type === 'JSXEmptyExpression' ? [] : [node.expression];
     case 'ConditionalExpression':
-      return [node.consequent, node.alternate];
     case 'LogicalExpression':
-      return renderedLogicalExpressionPositions(node);
+    case 'IfStatement':
+      return exclusiveBranchesOf(node);
+    case 'SwitchStatement':
+      return node.cases.flatMap(switchCase => switchCase.consequent);
     case 'ArrayExpression':
       return node.elements.filter(isArrayElement);
     case 'ChainExpression':
@@ -106,6 +108,21 @@ function renderedChildPositions(node: TSESTree.Node): TSESTree.Node[] {
       return [...node.body];
     case 'ReturnStatement':
       return node.argument === null ? [] : [node.argument];
+    default:
+      return [];
+  }
+}
+
+// The branch positions of a conditional-rendering expression or statement - of which at most one
+// renders at a time - or undefined when `node` isn't one of those node types.
+function exclusiveBranchesOf(
+  node: TSESTree.ConditionalExpression | TSESTree.LogicalExpression | TSESTree.IfStatement,
+): TSESTree.Node[] {
+  switch (node.type) {
+    case 'ConditionalExpression':
+      return [node.consequent, node.alternate];
+    case 'LogicalExpression':
+      return renderedLogicalExpressionPositions(node);
     case 'IfStatement':
       return node.alternate === null ? [node.consequent] : [node.consequent, node.alternate];
     default:
@@ -123,6 +140,32 @@ function renderedLogicalExpressionPositions(node: TSESTree.LogicalExpression): T
   return [];
 }
 
+/**
+ * Returns the shared conditional root when `child` is one of `parent`'s mutually exclusive
+ * branches - a ternary/`&&`/`||`/`??` operand, an `if` branch, or a `switch` case body - so that
+ * two nodes with the same root are never presented to the user at the same time. Undefined when
+ * `parent` isn't a conditional-rendering construct, or `child` isn't one of its branches.
+ */
+export function getConditionalBranchRoot(
+  parent: TSESTree.Node,
+  child: TSESTree.Node,
+): TSESTree.Node | undefined {
+  if (
+    (parent.type === 'ConditionalExpression' ||
+      parent.type === 'LogicalExpression' ||
+      parent.type === 'IfStatement') &&
+    exclusiveBranchesOf(parent).includes(child)
+  ) {
+    return parent;
+  }
+  if (parent.type === 'SwitchCase' && (parent.consequent as TSESTree.Node[]).includes(child)) {
+    // Every case of the same switch is mutually exclusive with every other, so the whole
+    // statement - not the individual case - is the shared root two cases are compared against.
+    return parent.parent ?? parent;
+  }
+  return undefined;
+}
+
 function isArrayElement(
   element: TSESTree.ArrayExpression['elements'][number],
 ): element is ArrayElement {
@@ -135,7 +178,8 @@ function isRenderingCallback(
   return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
 }
 
-function isArgumentOfRenderingCall(
+// True when `node` is the callback of a rendered `.map()`/`.flatMap()` call, e.g. `items.map(item => <a>...</a>)`.
+export function isArgumentOfRenderingCall(
   node: TSESTree.FunctionExpression | TSESTree.ArrowFunctionExpression,
 ): boolean {
   const parent = node.parent;
