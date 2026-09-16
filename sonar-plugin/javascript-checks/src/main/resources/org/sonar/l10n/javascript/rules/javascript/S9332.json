@@ -26,9 +26,7 @@
     "js",
     "ts"
   ],
-  "defaultQualityProfiles": [
-    "Sonar way"
-  ],
+  "defaultQualityProfiles": [],
   "extra": {
     "requiredDependency": [
       "@playwright/test"
