@@ -51,8 +51,8 @@ export function isInsideVueSetupScript(node: estree.Node, ctx: Rule.RuleContext)
   );
 }
 
-/** Returns true when no Vue dependency is declared, or a declared parseable range provably excludes Vue 3+ (Vue 2 users aren't moving off the Options API just because 2.7 backported the Composition API); an unparseable range (workspace:, catalog:, git:) keeps reporting, unlike a missing dependency. */
-export function lacksCompositionApi(context: Rule.RuleContext): boolean {
+/** Returns true when no Vue dependency is declared, or a declared parseable range provably excludes Vue 3+; an unparseable range (workspace:, catalog:, git:) keeps reporting, unlike a missing dependency. */
+export function isVue2OrEarlier(context: Rule.RuleContext): boolean {
   const vueVersionRange = getVueVersion(context);
   if (!vueVersionRange) {
     return true;
