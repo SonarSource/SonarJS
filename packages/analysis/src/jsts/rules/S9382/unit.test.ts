@@ -139,6 +139,26 @@ describe('S9382', () => {
         bar(x);
       }
     }`),
+
+        invalid(`
+    async function foo(xs) {
+      for (const x of xs) {
+        await f(x);
+        switch (x.k) {
+          case 'a':
+            break;
+        }
+      }
+    }`),
+
+        invalid(`
+    async function foo() {
+      while (await next()) {
+        if (cond) {
+          break;
+        }
+      }
+    }`),
       ],
     });
   });
