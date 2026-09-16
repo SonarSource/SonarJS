@@ -1,6 +1,5 @@
 {
 "desktop:app/src/lib/api.ts": [
-1372,
 1378
 ],
 "desktop:app/src/lib/ci-checks/ci-checks.ts": [
@@ -14,20 +13,13 @@
 226
 ],
 "desktop:app/src/lib/editors/darwin.ts": [
-141,
-151,
 176
 ],
 "desktop:app/src/lib/editors/linux.ts": [
-65,
 79
 ],
 "desktop:app/src/lib/editors/win32.ts": [
-459,
 481
-],
-"desktop:app/src/lib/find-account.ts": [
-102
 ],
 "desktop:app/src/lib/git/cherry-pick.ts": [
 398
@@ -64,7 +56,6 @@
 77
 ],
 "desktop:app/src/lib/markdown-filters/node-filter.ts": [
-121,
 144
 ],
 "desktop:app/src/lib/queue-work.ts": [
@@ -107,8 +98,6 @@
 139
 ],
 "desktop:app/src/lib/stores/pull-request-store.ts": [
-178,
-179,
 281,
 303
 ],
@@ -117,17 +106,6 @@
 ],
 "desktop:app/src/main-process/desktop-file-transport.ts": [
 88
-],
-"desktop:app/src/main-process/ordered-webrequest.ts": [
-146,
-167,
-204
-],
-"desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx": [
-471
-],
-"desktop:app/src/ui/dispatcher/dispatcher.ts": [
-738
 ],
 "desktop:script/changelog/parser.ts": [
 122

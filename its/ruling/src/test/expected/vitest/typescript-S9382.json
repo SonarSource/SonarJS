@@ -20,7 +20,6 @@
 32
 ],
 "vitest:packages/browser/src/client/orchestrator.ts": [
-90,
 97
 ],
 "vitest:packages/browser/src/client/tester/locators/index.ts": [
@@ -28,10 +27,6 @@
 ],
 "vitest:packages/browser/src/client/tester/tester.ts": [
 205
-],
-"vitest:packages/browser/src/node/commands/screenshotMatcher/index.ts": [
-432,
-437
 ],
 "vitest:packages/coverage-istanbul/src/provider.ts": [
 242
@@ -54,8 +49,6 @@
 155,
 209,
 553,
-625,
-718,
 755,
 901,
 917,
@@ -67,24 +60,14 @@
 "vitest:packages/runner/src/suite.ts": [
 555
 ],
-"vitest:packages/snapshot/src/client.ts": [
-407,
-430
-],
 "vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.spec.ts": [
 90,
 91,
 94
 ],
 "vitest:packages/vitest/src/integrations/chai/poll.ts": [
-154,
-158,
-159,
 165,
 169
-],
-"vitest:packages/vitest/src/integrations/mock/timers.ts": [
-99
 ],
 "vitest:packages/vitest/src/node/core.ts": [
 631,

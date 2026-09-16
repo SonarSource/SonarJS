@@ -5,18 +5,10 @@
 "fresh:packages/fresh/src/app.ts": [
 136
 ],
-"fresh:packages/fresh/src/context.ts": [
-233
-],
 "fresh:packages/fresh/src/dev/builder.ts": [
 382
 ],
-"fresh:packages/fresh/src/dev/check.ts": [
-64
-],
 "fresh:packages/fresh/src/dev/dev_build_cache.ts": [
-145,
-171,
 314,
 325,
 344
@@ -46,17 +38,9 @@
 258
 ],
 "fresh:packages/fresh/tests/test_utils.tsx": [
-331,
 337
 ],
-"fresh:packages/plugin-tailwindcss-v3/src/mod.ts": [
-83
-],
 "fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
-71,
-78,
-83,
-104,
 143,
 214
 ],
@@ -78,7 +62,6 @@
 700
 ],
 "fresh:packages/update/src/update.ts": [
-92,
 261
 ],
 "fresh:tools/check_links.ts": [

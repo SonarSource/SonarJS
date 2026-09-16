@@ -4,8 +4,5 @@
 ],
 "oak:examples/echoServer.ts": [
 63
-],
-"oak:send.ts": [
-224
 ]
 }
