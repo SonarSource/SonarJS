@@ -148,30 +148,28 @@ describe('S1101', () => {
     ],
   });
 
-  ruleTester.run('unresolvable aria-label falls back to text content', rule, {
+  ruleTester.run('unresolvable aria-label excludes the anchor', rule, {
     valid: [
       {
-        // An unresolvable aria-label alone doesn't make two anchors comparable if the fallback text differs.
-        code: `
-          <div>
-            <a href="/a" aria-label={dynamicLabel}>One</a>
-            <a href="/b">Two</a>
-          </div>;
-        `,
-      },
-    ],
-    invalid: [
-      {
-        // aria-label is unresolvable, so its fallback text content ("Same") is used and matches.
+        // An unresolvable aria-label excludes the anchor even though the visible text matches.
         code: `
           <div>
             <a href="/a" aria-label={dynamicLabel}>Same</a>
             <a href="/b">Same</a>
           </div>;
         `,
-        errors: [{ messageId: 'identicalTextDifferentTarget', line: 4 }],
+      },
+      {
+        // Idiomatic per-item aria-label: the recommended fix for this rule must not itself be flagged.
+        code: `
+          <div>
+            <a href="/posts/1" aria-label={\`Read more about \${a.title}\`}>Read more</a>
+            <a href="/posts/2" aria-label={\`Read more about \${b.title}\`}>Read more</a>
+          </div>;
+        `,
       },
     ],
+    invalid: [],
   });
 
   ruleTester.run('chained conditionals are exclusive across the whole chain', rule, {

@@ -360,8 +360,11 @@ function computeAccessibleName(
   const ariaLabelAttribute = getProp(attributes, 'aria-label') as JSXAttribute | undefined;
   if (ariaLabelAttribute) {
     const staticValue = getStaticText(ariaLabelAttribute.value);
-    // An unresolvable aria-label falls back to text content instead of excluding the anchor.
-    const normalized = staticValue !== undefined ? normalizeName(staticValue) : '';
+    // An unresolvable aria-label is very likely non-empty at runtime, so exclude rather than guess.
+    if (staticValue === undefined) {
+      return null;
+    }
+    const normalized = normalizeName(staticValue);
     if (normalized) {
       return normalized;
     }
