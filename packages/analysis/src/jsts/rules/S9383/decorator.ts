@@ -75,7 +75,7 @@ function isAnyTypedRejectionHandler(
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
-    { ...rule, meta: generateMeta(meta, { ...(rule.meta ?? {}) }) },
+    { ...rule, meta: generateMeta(meta, { ...rule.meta }) },
     (context, descriptor) => {
       if (
         'node' in descriptor &&
