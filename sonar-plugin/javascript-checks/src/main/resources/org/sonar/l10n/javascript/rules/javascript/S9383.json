@@ -3,7 +3,7 @@
   "type": "BUG",
   "code": {
     "impacts": {
-      "RELIABILITY": "HIGH"
+      "RELIABILITY": "MEDIUM"
     },
     "attribute": "LOGICAL"
   },
@@ -18,7 +18,7 @@
     "type-dependent",
     "es2017"
   ],
-  "defaultSeverity": "Critical",
+  "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-9383",
   "sqKey": "S9383",
   "scope": "Main",
