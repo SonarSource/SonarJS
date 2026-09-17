@@ -13,6 +13,8 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  # Run the Maven license-header check only in the Linux build; other Maven jobs skip it.
+  MAVEN_ARGS: -Dlicense.skip=true
   # Workflows modified by a pull request cannot create the refs used by get-build-number even
   # when contents: write is requested. Reuse the stable workflow run number in that case.
   BUILD_NUMBER: ${{ github.event_name == 'pull_request' && github.run_number || '' }}
@@ -170,11 +172,12 @@ jobs:
         with:
           name: rspec-rule-data-${{ github.sha }}
           path: sonar-plugin
-      - &maven_cache
-        uses: ./.github/actions/maven-cache
+      - name: Restore and save Maven cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          cache-month: ${{ needs.setup.outputs.cache-month }}
-          maven-hash: ${{ needs.setup.outputs.maven-hash }}
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
+          restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - &cyclonedx_cli_cache
         name: Cache CycloneDX CLI
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -196,14 +199,28 @@ jobs:
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
             development/kv/data/sign key | SIGN_KEY;
             development/kv/data/sign passphrase | PGP_PASSPHRASE;
+      - name: Regenerate NPM dependency licenses
+        run: npm run license-regeneration
       - name: Build, test and deploy Maven artifacts
-        run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom -T1C
+        run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom,license-regeneration -T1C
         env:
+          MAVEN_ARGS: ''
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
           SIGN_KEY: ${{ fromJSON(steps.deployer-secrets.outputs.vault).SIGN_KEY }}
           PGP_PASSPHRASE: ${{ fromJSON(steps.deployer-secrets.outputs.vault).PGP_PASSPHRASE }}
+
+      - name: Upload generated dependency licenses
+        if: github.event_name == 'schedule'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: generated-licenses-${{ github.sha }}
+          path: |
+            licenses/
+            sonar-plugin/sonar-javascript-plugin/src/main/resources/licenses/
+          if-no-files-found: error
+          retention-days: 1
 
       # PVF: publish the concrete deployed plugin version so pvf-comment.yml can dispatch a performance-validation run into peachee-js.
       - name: Export candidate version for PVF
@@ -235,9 +252,8 @@ jobs:
           name: jacoco-xml-reports-${{ github.sha }}
           path: sonar-plugin/**/target/site/jacoco/jacoco.xml
           retention-days: 1
-      # Clean up SonarJS artifacts before post-job cache save (only on default branch where cache is saved)
+      # Keep locally built SonarJS artifacts out of the post-job cache save.
       - name: Clean up SonarJS artifacts before cache save
-        if: github.ref_name == github.event.repository.default_branch
         run: rm -rf ~/.m2/repository/org/sonarsource/javascript
 
   # Windows builds and tests
@@ -253,7 +269,20 @@ jobs:
       - *mise
       - *npm_cache
       - *download_rspec_rule_data
-      - *maven_cache
+      - name: Restore Maven cache
+        if: github.ref_name != github.event.repository.default_branch
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
+          restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
+      - name: Restore and save Maven cache
+        if: github.ref_name == github.event.repository.default_branch
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
+          restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - *cyclonedx_cli_cache
       - *config_maven
       - name: Build and test Maven (no deploy)
@@ -269,7 +298,13 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
-      - *maven_cache
+      - &maven_cache_restore
+        name: Restore Maven cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
+          restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - uses: ./.github/actions/rule-api-cache
       - *config_maven
       - id: rspec-secrets
@@ -338,7 +373,7 @@ jobs:
 
   generated_files_freshness:
     runs-on: warp-custom-ubuntu-24-04
-    needs: [prepare_rspec_rule_data, build_eslint_plugin]
+    needs: [prepare_rspec_rule_data, build_eslint_plugin, build]
     name: Generated Files Freshness
     if: github.event_name == 'schedule'
     permissions:
@@ -352,20 +387,29 @@ jobs:
         with:
           name: generated-readmes-${{ github.sha }}
           path: .
+      - name: Remove tracked dependency licenses
+        run: rm -rf licenses sonar-plugin/sonar-javascript-plugin/src/main/resources/licenses
+      - name: Download generated dependency licenses
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: generated-licenses-${{ github.sha }}
+          path: .
       - name: Open or update generated files refresh PR
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          commit-message: Update generated README files and RSPEC JSON
-          title: Update generated README files and RSPEC JSON
+          commit-message: Update generated files
+          title: Update generated files
           body: |
-            Automated refresh of generated README files and tracked RSPEC JSON resources.
+            Automated refresh of generated README files, tracked RSPEC JSON resources, and dependency licenses.
 
             Updated paths:
             - `README.md`
             - `packages/analysis/src/jsts/rules/README.md`
             - `sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/*.json`
             - `sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/*.json`
+            - `licenses/**`
+            - `sonar-plugin/sonar-javascript-plugin/src/main/resources/licenses/**`
 
             If this PR is created without CI, please click GitHub's `Approve workflows` button.
             If that still does not start CI, close and reopen the PR to retrigger it.
@@ -376,6 +420,8 @@ jobs:
             packages/analysis/src/jsts/rules/README.md
             sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/*.json
             sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/*.json
+            licenses/**
+            sonar-plugin/sonar-javascript-plugin/src/main/resources/licenses/**
           delete-branch: true
 
   test_eslint_plugin:
@@ -569,7 +615,7 @@ jobs:
           fetch-tags: 'true'
       - *mise
       - *npm_cache
-      - *maven_cache
+      - *maven_cache_restore
       - &download_js_coverage_reports
         name: Download JS coverage reports
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -636,7 +682,7 @@ jobs:
       - *checkout_with_tags
       - *mise
       - *npm_cache
-      - *maven_cache
+      - *maven_cache_restore
       - *download_js_coverage_reports
       - *validate_js_coverage_reports
       - *download_maven_targets
@@ -691,7 +737,7 @@ jobs:
           version: 2026.9.5
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
-      - *maven_cache
+      - *maven_cache_restore
       - &download_sonarjs_m2
         name: Download SonarJS artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -705,8 +751,10 @@ jobs:
         with:
           secrets: |
             development/github/token/licenses-ro token | licenses_token;
-      - &orchestrator_cache
+      - &orchestrator_cache_restore
         uses: ./.github/actions/orchestrator-cache
+        with:
+          save: 'false'
       - name: Run Plugin QA
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -730,13 +778,15 @@ jobs:
     steps:
       - *checkout
       - *mise_java_matrix_node
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - uses: ./.github/actions/orchestrator-cache
+      - &orchestrator_fast_cache_restore
+        uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-fast
+          save: 'false'
       - name: Run Fast Plugin QA
         run: |
           mvn package -f its/plugin/plugins/pom.xml
@@ -761,7 +811,7 @@ jobs:
           version: 2026.9.5
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           install_args: java maven
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -778,7 +828,7 @@ jobs:
           export -f node
 
           node
-      - *orchestrator_cache
+      - uses: ./.github/actions/orchestrator-cache
       - name: Run Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -800,7 +850,7 @@ jobs:
     steps:
       - *checkout
       - *mise_java_only
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -849,11 +899,11 @@ jobs:
           version: 2026.9.5
           cache_save: true
           install_args: maven
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - *orchestrator_cache
+      - *orchestrator_cache_restore
       - name: Fix permissions for non-root user
         run: |
           # Ensure the sonar user can access all necessary directories after cache restores
@@ -880,7 +930,7 @@ jobs:
     steps:
       - *checkout
       - *mise_java_only
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -908,7 +958,7 @@ jobs:
     steps:
       - *checkout
       - *mise_java_only
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -937,13 +987,11 @@ jobs:
       - *checkout
       - *alpine_install_deps
       - *alpine_setup_maven
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - uses: ./.github/actions/orchestrator-cache
-        with:
-          key-prefix: orchestrator-fast
+      - *orchestrator_fast_cache_restore
       - name: Run Fast Plugin QA without Node
         shell: bash
         run: |
@@ -971,11 +1019,13 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - *orchestrator_cache
+      - uses: ./.github/actions/orchestrator-cache
+        with:
+          save: ${{ matrix.group == 1 }}
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
@@ -1005,7 +1055,7 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - name: Run Plugin QA on Windows
@@ -1032,13 +1082,14 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
       - uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-fast
+          save: ${{ matrix.group == 1 }}
       - name: Run Fast Plugin QA on Windows
         shell: bash
         run: |
@@ -1142,13 +1193,11 @@ jobs:
     steps:
       - *checkout_with_submodules
       - *mise
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - uses: ./.github/actions/orchestrator-cache
-        with:
-          save: 'false'
+      - *orchestrator_cache_restore
       - name: Run Ruling Tests
         run: |
           cd its/ruling
