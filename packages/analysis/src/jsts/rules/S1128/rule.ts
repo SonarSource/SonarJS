@@ -134,7 +134,7 @@ export const rule: Rule.RuleModule = {
       .some(comment => comment.value.includes('@jsx jsx'));
     const unusedImports: { id: estree.Identifier; importDecl: estree.ImportDeclaration }[] = [];
     const tsTypeIdentifiers: Set<string> = new Set();
-    const vueIdentifiers: Set<string> = new Set();
+    const vueIdentifiers: Set<string> = new Set(getVueGenericIdentifiers(context));
     const saveTypeIdentifier = (node: estree.Identifier) => tsTypeIdentifiers.add(node.name);
 
     function isImplicitJsx(variable: Scope.Variable) {
@@ -285,6 +285,31 @@ function getSuggestion(
       return fixer.removeRange(range);
     },
   };
+}
+
+/**
+ * Collects the identifiers referenced by a Vue generic `<script setup>` block's `generic="..."`
+ * type-parameter list (Vue 3.3+), which may resolve to type imports. References bound to one of
+ * the generic's own type parameters are skipped, as those are never imports.
+ */
+function getVueGenericIdentifiers(context: Rule.RuleContext) {
+  const documentFragment: AST.VDocumentFragment | undefined =
+    context.sourceCode.parserServices?.getDocumentFragment?.();
+  const identifiers: string[] = [];
+  for (const child of documentFragment?.children ?? []) {
+    if (child.type !== 'VElement' || child.name !== 'script') {
+      continue;
+    }
+    for (const attribute of child.startTag.attributes) {
+      if (!attribute.directive || attribute.value?.expression?.type !== 'VGenericExpression') {
+        continue;
+      }
+      identifiers.push(
+        ...attribute.value.references.filter(ref => !ref.variable).map(ref => ref.id.name),
+      );
+    }
+  }
+  return identifiers;
 }
 
 function getJsxFactories(context: Rule.RuleContext) {
