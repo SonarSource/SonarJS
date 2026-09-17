@@ -672,6 +672,7 @@ jobs:
     if: github.event_name == 'schedule'
     env: *shared_build_number
     strategy:
+      fail-fast: false
       matrix:
         include:
           - platform: SonarCloud EU
@@ -728,6 +729,7 @@ jobs:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
       MISE_NODE_VERSION: ${{ matrix.node-version }}
     strategy:
+      fail-fast: false
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
       - *checkout
@@ -774,6 +776,7 @@ jobs:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
       MISE_NODE_VERSION: ${{ matrix.node-version }}
     strategy:
+      fail-fast: false
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
       - *checkout
@@ -1010,6 +1013,7 @@ jobs:
     permissions: *read_permissions
     env: *shared_build_number
     strategy:
+      fail-fast: false
       matrix:
         include:
           - group: 1
@@ -1073,6 +1077,7 @@ jobs:
     permissions: *read_permissions
     env: *shared_build_number
     strategy:
+      fail-fast: false
       matrix:
         include:
           - group: 1
@@ -1224,6 +1229,7 @@ jobs:
       id-token: write
       contents: read
     strategy:
+      fail-fast: false
       matrix:
         include:
           - shadow-name: SonarCloud EU
