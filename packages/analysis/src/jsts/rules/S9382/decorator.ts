@@ -26,7 +26,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(meta, rule.meta!),
+      meta: generateMeta(meta, rule.meta),
     },
     (context, descriptor) => {
       if ('node' in descriptor) {
@@ -128,13 +128,16 @@ function hasLaterLoopExit(
   afterNode: estree.Node,
   visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
-  const afterEnd = afterNode.range![1];
+  const afterEnd = afterNode.range?.[1];
+  if (afterEnd === undefined) {
+    return false;
+  }
 
   function search(node: estree.Node, inSwitch: boolean): boolean {
     if (isBoundary(node)) {
       return false;
     }
-    if (node.range![0] > afterEnd) {
+    if (node.range && node.range[0] > afterEnd) {
       if (node.type === 'ReturnStatement') {
         return true;
       }
