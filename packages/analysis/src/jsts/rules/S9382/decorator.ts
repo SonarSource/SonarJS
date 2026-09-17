@@ -29,21 +29,24 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, descriptor) => {
-      if ('node' in descriptor) {
-        const enclosing = findEnclosingLoop(descriptor.node as estree.Node);
-        if (
-          enclosing?.viaBody &&
-          hasLaterLoopExit(
-            enclosing.loop,
-            descriptor.node as estree.Node,
-            context.sourceCode.visitorKeys,
-          )
-        ) {
-          return;
-        }
+      if (!isSuppressedEarlyExit(context, descriptor)) {
+        context.report(descriptor);
       }
-      context.report(descriptor);
     },
+  );
+}
+
+function isSuppressedEarlyExit(
+  context: Rule.RuleContext,
+  descriptor: Rule.ReportDescriptor,
+): boolean {
+  if (!('node' in descriptor)) {
+    return false;
+  }
+  const enclosing = findEnclosingLoop(descriptor.node as estree.Node);
+  return (
+    !!enclosing?.viaBody &&
+    hasLaterLoopExit(enclosing.loop, descriptor.node as estree.Node, context.sourceCode.visitorKeys)
   );
 }
 
