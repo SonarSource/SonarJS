@@ -157,6 +157,30 @@ describe('S9382', () => {
         }
       }
     }`),
+
+        invalid(`
+    async function foo(arr) {
+      for (let i = 0; await cond(i); i++) {
+        bar(i);
+      }
+    }`),
+
+        // await using as a loop-body statement, not the for-of header
+        invalid(`
+    async function foo(arr) {
+      for (const x of arr) {
+        await using r = acquire();
+      }
+    }`),
+
+        invalid(`
+    async function foo(arr) {
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i]) {
+          await bar(arr[i]);
+        }
+      }
+    }`),
       ],
     });
   });
