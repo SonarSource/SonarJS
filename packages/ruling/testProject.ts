@@ -18,6 +18,7 @@ import { join, basename } from 'node:path/posix';
 import { writeResults } from './lits.js';
 import projects from './projects.json' with { type: 'json' };
 import { analyzeProject } from '../analysis/src/analyzeProject.js';
+import type { ProjectAnalysisOutput } from '../analysis/src/projectAnalysis.js';
 import { initFileStores } from '../analysis/src/file-stores/index.js';
 import { normalizePath, normalizeToAbsolutePath } from '../shared/src/helpers/files.js';
 import { createConfiguration } from '../analysis/src/common/configuration.js';
@@ -28,6 +29,7 @@ import * as metas from '../analysis/src/jsts/rules/metas.js';
 import { SonarMeta } from '../analysis/src/jsts/rules/helpers/generate-meta.js';
 import { cssRulesMeta } from '../analysis/src/css/rules/metadata.js';
 import type { RuleConfig as CssRuleConfig } from '../analysis/src/css/linter/config.js';
+import type { FsCacheSession } from '../shared/src/fs-cache/hook.js';
 
 const currentPath = normalizePath(import.meta.dirname);
 
@@ -35,9 +37,15 @@ const SONARJS_ROOT = join(currentPath, '..', '..');
 const sourcesPath = join(SONARJS_ROOT, 'its', 'sources');
 const expectedBase = join(SONARJS_ROOT, 'its', 'ruling', 'src', 'test', 'expected');
 const actualBase = join(currentPath, 'actual');
+const filesystemCacheArchiveDirectory = join(currentPath, 'filesystem-cache');
 const ruleMetas = metas as unknown as Record<string, SonarMeta>;
 
 const DEFAULT_EXCLUSIONS = ['**/.*', '**/*.d.ts'];
+const RULING_FILESYSTEM_CACHE_CONDITION = '--conditions=sonarjs-ruling-fs-cache';
+
+export type TestProjectOptions = {
+  filesystemCacheArchive?: string;
+};
 
 type ProjectsData = {
   name: string;
@@ -51,7 +59,7 @@ export function projectName(projectFile: string) {
   return filename.substring(0, filename.length - '.ruling.test.ts'.length);
 }
 
-export async function testProject(projectName: string) {
+export async function testProject(projectName: string, options: TestProjectOptions = {}) {
   const { folder, name, exclusions, testDir } = (projects as ProjectsData[]).find(
     p => p.name === projectName,
   )!;
@@ -83,20 +91,50 @@ export async function testProject(projectName: string) {
     exclusions: exclusions ? DEFAULT_EXCLUSIONS.concat(exclusions.split(',')) : DEFAULT_EXCLUSIONS,
   });
 
-  await initFileStores(configuration);
-
-  const results = await analyzeProject(
-    {
-      rules,
-      cssRules: buildCssRules(),
-      bundles: [],
-    },
-    configuration,
+  const filesystemCacheSession = await beginFilesystemCacheSession(
+    options.filesystemCacheArchive ?? configuredFilesystemCacheArchive(name),
+    baseDir,
   );
+  let results: ProjectAnalysisOutput;
+  try {
+    await initFileStores(configuration);
+
+    results = await analyzeProject(
+      {
+        rules,
+        cssRules: buildCssRules(),
+        bundles: [],
+      },
+      configuration,
+    );
+  } finally {
+    filesystemCacheSession?.end();
+  }
 
   await writeResults(baseDir, name, results, actualPath);
 
   return await compare(expectedPath, actualPath, { compareContent: true });
+}
+
+async function beginFilesystemCacheSession(
+  archivePath: string | undefined,
+  baseDir: string,
+): Promise<FsCacheSession | undefined> {
+  if (!archivePath) {
+    return undefined;
+  }
+
+  const { installFsCache } = await import('../shared/src/fs-cache/hook.js');
+  return installFsCache().beginAnalysis({
+    archivePath,
+    rootDir: baseDir,
+  });
+}
+
+function configuredFilesystemCacheArchive(projectName: string): string | undefined {
+  return process.execArgv.includes(RULING_FILESYSTEM_CACHE_CONDITION)
+    ? join(filesystemCacheArchiveDirectory, `${projectName}.fscache`)
+    : undefined;
 }
 
 export function ok(diff: Result) {

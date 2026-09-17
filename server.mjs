@@ -1,10 +1,5 @@
 #!/usr/bin/env node
 import { isMainThread } from 'node:worker_threads';
-import { startAnalyzeProjectServer } from './lib/grpc/src/analyze-project-server.js';
-import { createAnalyzeProjectWorker } from './lib/grpc/src/analyze-project-worker/create-worker.js';
-
-// import containing code which is only executed if it's a child process
-import './lib/grpc/src/analyze-project-worker.js';
 
 if (isMainThread) {
   /**
@@ -22,6 +17,10 @@ if (isMainThread) {
   const timeoutSeconds = Number(process.argv[5]) || 0;
 
   Promise.resolve().then(async () => {
+    const [{ startAnalyzeProjectServer }, { createAnalyzeProjectWorker }] = await Promise.all([
+      import('./lib/grpc/src/analyze-project-server.js'),
+      import('./lib/grpc/src/analyze-project-worker/create-worker.js'),
+    ]);
     return startAnalyzeProjectServer(
       Number.parseInt(port, 10),
       host,
@@ -30,4 +29,6 @@ if (isMainThread) {
       timeoutSeconds,
     );
   });
+} else {
+  void import('./lib/grpc/src/analyze-project-worker.js');
 }

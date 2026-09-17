@@ -1,0 +1,40 @@
+name: PVF /pvf comment
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: read
+  id-token: write
+
+concurrency:
+  group: pvf-comment-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  trigger:
+    if: >
+      github.event.issue.pull_request &&
+      contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association) &&
+      contains(github.event.comment.body, '/pvf')
+    runs-on: sonar-xs
+    steps:
+      - name: Get cross-repo dispatch token from Vault
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-pvf-dispatch token | DISPATCH_TOKEN;
+
+      - name: Trigger performance validation in peachee-js
+        uses: SonarSource/core-languages-tooling-public/pvf-trigger@master
+        with:
+          comment: ${{ github.event.comment.body }}
+          pr-number: ${{ github.event.issue.number }}
+          target-repo: SonarSource/peachee-js
+          target-ref: master
+          target-workflow: performance-validation-js.yml
+          dispatch-token: ${{ fromJSON(steps.secrets.outputs.vault).DISPATCH_TOKEN }}

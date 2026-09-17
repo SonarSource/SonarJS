@@ -91,5 +91,15 @@ describe('computeMetrics', () => {
     it('should not detect absent NOSONAR', () => {
       expect(metricsOf('/* just a comment */').nosonarLines).toEqual([]);
     });
+
+    it('should skip metrics that are not requested', () => {
+      const metrics = computeMetrics(postcss.parse('foo {} /* NOSONAR */'), {
+        includeNcloc: false,
+        includeCommentLines: false,
+        includeNoSonar: true,
+      });
+
+      expect(metrics).toEqual({ ncloc: [], commentLines: [], nosonarLines: [1] });
+    });
   });
 });

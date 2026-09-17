@@ -99,9 +99,6 @@ describe('normalizeAnalyzeProjectRequest', () => {
         disableTypeChecking: true,
         skipNodeModuleLookupOutsideBaseDir: true,
         ecmaScriptVersion: '2024',
-        clearDependenciesCache: true,
-        clearTsConfigCache: true,
-        reportNclocForTestFiles: true,
       },
       files: {
         [mainFile]: {
@@ -176,10 +173,7 @@ describe('normalizeAnalyzeProjectRequest', () => {
     expect(normalized.configuration.tests).toEqual([normalizeToAbsolutePath('tests', baseDir)]);
     expect(normalized.configuration.analysisMode).toBe('DEFAULT');
     expect(normalized.configuration.canAccessFileSystem).toBe(false);
-    expect(normalized.configuration.clearDependenciesCache).toBe(true);
-    expect(normalized.configuration.clearTsConfigCache).toBe(true);
     expect(normalized.configuration.ecmaScriptVersion).toBe('2024');
-    expect(normalized.configuration.reportNclocForTestFiles).toBe(true);
     expect(normalized.rules).toHaveLength(2);
     expect(normalized.rules[0]).toMatchObject({
       key: 'S1116',

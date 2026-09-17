@@ -1,0 +1,13 @@
+{
+  "name": "my-monorepo",
+  "workspaces": ["packages/*"],
+  "dependencies": {
+    "vue": "catalog:",
+    "typescript": "catalog:tooling"
+  },
+  "catalogs": {
+    "tooling": {
+      "typescript": "^5.9.0"
+    }
+  }
+}

@@ -16,6 +16,7 @@ jobs:
   publish:
     permissions:
       id-token: write # required for GitHub OIDC and SonarSource/vault-action-wrapper
+      contents: write # required by config-maven
     runs-on: github-ubuntu-latest-s # npm Trusted Publishers require a GitHub-hosted runner
     environment: release
     env:
@@ -40,9 +41,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.0
+          version: 2026.9.5
       - name: Configure Maven
-        uses: SonarSource/ci-github-actions/config-maven@master
+        uses: SonarSource/ci-github-actions/config-maven@v2
         with:
           artifactory-reader-role: private-reader
           disable-caching: 'true'

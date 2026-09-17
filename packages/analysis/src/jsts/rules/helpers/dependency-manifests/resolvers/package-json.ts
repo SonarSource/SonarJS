@@ -14,6 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { Minimatch } from 'minimatch';
+import path from 'node:path';
 import type { PackageJson } from 'type-fest';
 import type {
   CatalogSource,
@@ -40,33 +42,32 @@ export const packageJsonManifestResolver: ManifestResolver = {
       return [];
     }
     let parsedPackageJson = parsePackageJson(packageJson) ?? {};
+    // Captured before the pnpm injection below, which would otherwise fake a workspace root.
+    const declaresWorkspaces = !!parsedPackageJson.workspaces;
+    const pnpmWorkspaceFile = closestPatternCache
+      .get(PNPM_WORKSPACE_YAML, fileSystem)
+      .get(topDir)
+      .get(dir);
+    const parsedPnpmWorkspace = pnpmWorkspaceFile
+      ? parsePnpmWorkspace(pnpmWorkspaceFile)
+      : undefined;
 
-    let catalogSource: CatalogSource | undefined = undefined;
-    const closestParent = findClosestParentPackageJsonWithCatalogs(dir, topDir, fileSystem);
-
-    if (closestParent) {
-      // If the closest parent package.json has catalogs defined, we use it as the catalog source for resolving catalog references.
-      const workspaces = Array.isArray(closestParent.workspaces)
-        ? undefined
-        : closestParent.workspaces;
-      catalogSource = {
-        catalog: workspaces?.catalog ?? closestParent.catalog,
-        catalogs: workspaces?.catalogs ?? closestParent.catalogs,
-      };
-    } else {
-      // No parent package.json with catalogs found, we check if there's a pnpm workspace file that we can use as a catalog source.
-      const pnpmWorkspaceFile = closestPatternCache
-        .get(PNPM_WORKSPACE_YAML, fileSystem)
-        .get(topDir)
-        .get(dir);
-      const parsedPnpmWorkspace = pnpmWorkspaceFile
-        ? parsePnpmWorkspace(pnpmWorkspaceFile)
-        : undefined;
-      if (parsedPnpmWorkspace) {
-        parsedPackageJson = injectWorkspacePackages(parsedPackageJson, parsedPnpmWorkspace);
-        catalogSource = parsedPnpmWorkspace;
-      }
+    if (parsedPnpmWorkspace) {
+      parsedPackageJson = injectWorkspacePackages(parsedPackageJson, parsedPnpmWorkspace);
     }
+
+    // Bun only reads catalogs from the workspace root: a package.json declaring `workspaces` is
+    // itself a root unless an ancestor workspace already includes it, otherwise the closest
+    // parent package.json with catalogs is the root.
+    const isWorkspaceRoot =
+      declaresWorkspaces && !isIncludedInAncestorWorkspace(dir, topDir, fileSystem);
+    const closestParent = isWorkspaceRoot
+      ? undefined
+      : findClosestParentPackageJsonWithCatalogs(dir, topDir, fileSystem);
+    const catalogSource = mergeCatalogSources(
+      closestParent ? getCatalogSource(closestParent) : getCatalogSource(parsedPackageJson),
+      parsedPnpmWorkspace,
+    );
 
     parsedPackageJson = resolveCatalogReferences(parsedPackageJson, catalogSource);
 
@@ -212,6 +213,132 @@ function findClosestParentPackageJsonWithCatalogs(
   return undefined;
 }
 
+/**
+ * Check whether an ancestor package.json declares this directory as one of its workspaces.
+ * @param dir Directory of the package.json being resolved
+ * @param topDir Top directory to stop the search at
+ * @param fileSystem Filesystem to use for the search
+ * @returns True when an ancestor workspace includes this directory, false otherwise
+ */
+function isIncludedInAncestorWorkspace(
+  dir: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath,
+  fileSystem?: Filesystem,
+): boolean {
+  if (dir === topDir) {
+    return false;
+  }
+
+  let currentDir = getParentDirPath(dir);
+  const cache = closestPatternCache.get(PACKAGE_JSON, fileSystem).get(topDir);
+
+  while (currentDir !== null) {
+    const file = cache.get(currentDir);
+    if (!file) {
+      return false;
+    }
+
+    const ancestorDir = dirnamePath(file.filePath);
+    const parsed = parsePackageJson(file);
+    if (parsed && declaresWorkspaceDir(parsed, ancestorDir, dir)) {
+      return true;
+    }
+
+    if (ancestorDir === topDir) {
+      return false;
+    }
+    currentDir = getParentDirPath(ancestorDir);
+  }
+
+  return false;
+}
+
+function declaresWorkspaceDir(
+  packageJson: ExtendedPackageJson,
+  ancestorDir: NormalizedAbsolutePath,
+  dir: NormalizedAbsolutePath,
+): boolean {
+  const { workspaces } = packageJson;
+  const patterns = Array.isArray(workspaces) ? workspaces : workspaces?.packages;
+  if (!patterns?.length || !dir.startsWith(`${ancestorDir}/`)) {
+    return false;
+  }
+
+  const relativeDir = dir.slice(ancestorDir.length + 1);
+  const normalizedPatterns = patterns.map(normalizeWorkspacePattern);
+
+  // Bun resolves literal workspace paths before expanding workspace globs. A negated glob only
+  // filters glob expansion, so it cannot remove a workspace explicitly listed by its path.
+  if (
+    normalizedPatterns.some(
+      pattern =>
+        !hasWorkspaceGlobSyntax(pattern) && normalizeLiteralWorkspacePath(pattern) === relativeDir,
+    )
+  ) {
+    return true;
+  }
+
+  const workspaceGlobs = normalizedPatterns.filter(hasWorkspaceGlobSyntax).map(pattern => ({
+    isExclusion: pattern.startsWith('!'),
+    workspacePattern: pattern.startsWith('!') ? pattern.slice(1) : pattern,
+  }));
+  const matches = (workspacePattern: string) =>
+    new Minimatch(workspacePattern, { nonegate: true }).match(relativeDir);
+
+  return workspaceGlobs.some(
+    ({ isExclusion, workspacePattern }, index) =>
+      !isExclusion &&
+      matches(workspacePattern) &&
+      !workspaceGlobs
+        .slice(index + 1)
+        .some(({ isExclusion, workspacePattern }) => isExclusion && matches(workspacePattern)),
+  );
+}
+
+function normalizeWorkspacePattern(pattern: string): string {
+  const isExclusion = pattern.startsWith('!');
+  let normalizedPattern = isExclusion ? pattern.slice(1) : pattern;
+  normalizedPattern = normalizedPattern.startsWith('./')
+    ? normalizedPattern.slice(2)
+    : normalizedPattern;
+  while (normalizedPattern.endsWith('/')) {
+    normalizedPattern = normalizedPattern.slice(0, -1);
+  }
+  return isExclusion ? `!${normalizedPattern}` : normalizedPattern;
+}
+
+function normalizeLiteralWorkspacePath(pattern: string): string {
+  return path.posix.normalize(pattern.replace(/\\(.)/g, '$1'));
+}
+
+function hasWorkspaceGlobSyntax(pattern: string): boolean {
+  if (pattern.startsWith('!')) {
+    return true;
+  }
+  return ['*', '{', '[', '?'].some(token => containsUnescapedToken(pattern, token));
+}
+
+function containsUnescapedToken(pattern: string, token: string): boolean {
+  for (
+    let index = pattern.indexOf(token);
+    index !== -1;
+    index = pattern.indexOf(token, index + 1)
+  ) {
+    let slashCount = 0;
+    for (
+      let slashIndex = index - 1;
+      slashIndex >= 0 && pattern[slashIndex] === '\\';
+      slashIndex--
+    ) {
+      slashCount++;
+    }
+    if (slashCount % 2 === 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function hasCatalogs(packageJson: ExtendedPackageJson): boolean {
   if (packageJson.catalog || packageJson.catalogs) {
     return true;
@@ -221,4 +348,23 @@ function hasCatalogs(packageJson: ExtendedPackageJson): boolean {
     return !!(workspaces.catalog || workspaces.catalogs);
   }
   return false;
+}
+
+function getCatalogSource(packageJson: ExtendedPackageJson): CatalogSource | undefined {
+  if (!hasCatalogs(packageJson)) {
+    return undefined;
+  }
+  const workspaces = Array.isArray(packageJson.workspaces) ? undefined : packageJson.workspaces;
+  return {
+    catalog: workspaces?.catalog ?? packageJson.catalog,
+    catalogs: workspaces?.catalogs ?? packageJson.catalogs,
+  };
+}
+
+function mergeCatalogSources(
+  ...sources: Array<CatalogSource | undefined>
+): CatalogSource | undefined {
+  const catalog = sources.find(source => source?.catalog)?.catalog;
+  const catalogs = sources.find(source => source?.catalogs)?.catalogs;
+  return catalog || catalogs ? { catalog, catalogs } : undefined;
 }

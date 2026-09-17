@@ -114,9 +114,6 @@ function createConfigurationFromProto(configuration: ProjectConfiguration | null
       configuration.skipNodeModuleLookupOutsideBaseDir,
     ),
     ecmaScriptVersion: optionalString(configuration.ecmaScriptVersion),
-    clearDependenciesCache: optionalBoolean(configuration.clearDependenciesCache),
-    clearTsConfigCache: optionalBoolean(configuration.clearTsConfigCache),
-    reportNclocForTestFiles: optionalBoolean(configuration.reportNclocForTestFiles),
   };
 
   try {

@@ -391,6 +391,23 @@ describe('files', () => {
     });
   }
 
+  it('should resolve bun catalog default references for the root package.json consuming its own catalog', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'bun-workspace-default-root-catalog'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map<string | Minimatch, string | undefined>([
+        ['my-monorepo', '*'],
+        ['react', '^18.0.0'],
+        ['react-dom', '^19.0.0'],
+        [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
+      ]),
+    );
+  });
+
   for (const fixture of ['bun-workspace-named-catalog', 'bun-workspace-named-root-catalog']) {
     it(`should resolve bun catalog named references (${fixture})`, async () => {
       const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
@@ -412,6 +429,247 @@ describe('files', () => {
       );
     });
   }
+
+  it('should resolve bun catalog named references for the root package.json consuming its own catalogs', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'bun-workspace-named-root-catalog'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map<string | Minimatch, string | undefined>([
+        ['my-monorepo', '*'],
+        ['react', '^18.0.0'],
+        ['react-dom', '^19.0.0'],
+        ['jest', '30.0.0'],
+        ['testing-library', '14.0.0'],
+        ['webpack', '5.0.0'],
+        [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
+      ]),
+    );
+  });
+
+  it('should prefer the workspace root catalog over a nested package catalog', async () => {
+    const fixture = 'bun-workspace-root-catalog-over-nested-catalog';
+    const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+    const appBaseDir = normalizeToAbsolutePath(join(fixtures, `${fixture}/packages/my-app`));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(appBaseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json', 'package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map([
+        ['my-app', '*'],
+        ['react', '^17.0.0'],
+        ['react-dom', '^17.0.0'],
+      ]),
+    );
+  });
+
+  describe('nested workspace root included in an ancestor workspace', () => {
+    const fixture = 'bun-nested-workspace-root-included-in-ancestor';
+
+    it('should resolve an included member without catalogs from the ancestor catalog', async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const memberDir = normalizeToAbsolutePath(join(baseDir, 'member-no-catalog'));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(memberDir, baseDir);
+      expect(manifests[0].dependencies).toEqual(
+        new Map<string | Minimatch, string | undefined>([
+          ['member-no-catalog', '*'],
+          ['react', '^17.0.0'],
+          [new Minimatch('child', { nocase: true, matchBase: true }), undefined],
+        ]),
+      );
+    });
+
+    it('should prefer the ancestor catalog over an included member own catalog', async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const memberDir = normalizeToAbsolutePath(join(baseDir, 'member-with-catalog'));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(memberDir, baseDir);
+      expect(manifests[0].dependencies).toEqual(
+        new Map<string | Minimatch, string | undefined>([
+          ['member-with-catalog', '*'],
+          ['react', '^17.0.0'],
+          [new Minimatch('child', { nocase: true, matchBase: true }), undefined],
+        ]),
+      );
+    });
+  });
+
+  describe('Bun workspace patterns', () => {
+    const fixture = 'bun-workspace-patterns';
+
+    for (const directory of ['dot-member', 'trailing-member']) {
+      it(`should resolve ${directory} from the ancestor catalog`, async () => {
+        const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+        const memberDir = normalizeToAbsolutePath(join(baseDir, directory));
+        const configuration = createConfiguration({ baseDir });
+        await initFileStores(configuration);
+
+        const manifests = getDependencyManifests(memberDir, baseDir);
+        expect(manifests[0].dependencies).toEqual(
+          new Map<string | Minimatch, string | undefined>([
+            [directory, '*'],
+            ['react', '^17.0.0'],
+            [new Minimatch('child', { nocase: true, matchBase: true }), undefined],
+          ]),
+        );
+      });
+    }
+
+    it('should let a workspace excluded by a negated pattern serve its own catalog', async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const memberDir = normalizeToAbsolutePath(join(baseDir, 'sub/excluded'));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(memberDir, baseDir);
+      expect(manifests[0].dependencies).toEqual(
+        new Map<string | Minimatch, string | undefined>([
+          ['excluded', '*'],
+          ['react', '^18.0.0'],
+          [new Minimatch('child', { nocase: true, matchBase: true }), undefined],
+        ]),
+      );
+    });
+  });
+
+  describe('Bun workspace pattern precedence', () => {
+    for (const fixture of [
+      'bun-workspace-patterns-explicit-member',
+      'bun-workspace-patterns-explicit-member-final-negation',
+    ]) {
+      it(`should resolve an explicitly listed workspace member from the ancestor catalog (${fixture})`, async () => {
+        const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+        const memberDir = normalizeToAbsolutePath(join(baseDir, 'sub/excluded'));
+        const configuration = createConfiguration({ baseDir });
+        await initFileStores(configuration);
+
+        const manifests = getDependencyManifests(memberDir, baseDir);
+        expect(manifests[0].dependencies).toEqual(
+          new Map<string | Minimatch, string | undefined>([
+            ['excluded', '*'],
+            ['react', '^17.0.0'],
+            [new Minimatch('child', { nocase: true, matchBase: true }), undefined],
+          ]),
+        );
+      });
+    }
+  });
+
+  it('should resolve an escaped literal workspace path from the ancestor catalog', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      join(fixtures, 'bun-workspace-patterns-escaped-literal'),
+    );
+    const memberDir = normalizeToAbsolutePath(join(baseDir, 'sub/[star]'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(memberDir, baseDir);
+    expect(manifests[0].dependencies).toEqual(
+      new Map<string | Minimatch, string | undefined>([
+        ['star', '*'],
+        ['react', '^17.0.0'],
+        [new Minimatch('child', { nocase: true, matchBase: true }), undefined],
+      ]),
+    );
+  });
+
+  describe('nested workspace root under an ancestor that declares catalogs', () => {
+    const fixture = 'bun-nested-workspace-root-under-ancestor-catalog';
+
+    it('should let the nested workspace root serve its own catalog', async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const subDir = normalizeToAbsolutePath(join(baseDir, 'sub'));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(subDir, baseDir);
+      expect(manifests[0].dependencies).toEqual(
+        new Map<string | Minimatch, string | undefined>([
+          ['sub-root', '*'],
+          ['react', '^18.0.0'],
+          [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
+        ]),
+      );
+    });
+
+    it('should resolve a member of the nested workspace root from that root catalog', async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const appDir = normalizeToAbsolutePath(join(baseDir, 'sub/packages/my-app'));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(appDir, baseDir);
+      expect(manifests[0].dependencies).toEqual(
+        new Map([
+          ['my-app', '*'],
+          ['react', '^18.0.0'],
+        ]),
+      );
+    });
+
+    it('should still resolve a plain member from the ancestor catalog', async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const memberDir = normalizeToAbsolutePath(join(baseDir, 'plain-member'));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(memberDir, baseDir);
+      expect(manifests[0].dependencies).toEqual(
+        new Map([
+          ['plain-member', '*'],
+          ['react', '^17.0.0'],
+        ]),
+      );
+    });
+  });
+
+  it('should prefer catalog fields of the current package.json over pnpm workspace fields', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      join(fixtures, 'bun-workspace-own-catalog-over-pnpm-workspace'),
+    );
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map<string | Minimatch, string | undefined>([
+        ['my-monorepo', '*'],
+        ['react', '^18.0.0'],
+        ['react-dom', '^19.0.0'],
+        ['typescript', '^5.9.0'],
+        [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
+      ]),
+    );
+  });
+
+  it('should use the pnpm catalog field missing from the current package.json', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      join(fixtures, 'bun-workspace-named-catalog-with-pnpm-default'),
+    );
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests[0].dependencies).toEqual(
+      new Map<string | Minimatch, string | undefined>([
+        ['my-monorepo', '*'],
+        ['vue', '^3.5.0'],
+        ['typescript', '^5.9.0'],
+        [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
+      ]),
+    );
+  });
 
   it('should not resolve bun named catalog references when catalog is missing', async ({
     mock,

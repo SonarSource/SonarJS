@@ -1,0 +1,222 @@
+{
+"desktop:app/src/lib/databases/pull-request-database.ts": [
+121,
+135
+],
+"desktop:app/src/lib/databases/repositories-database.ts": [
+167
+],
+"desktop:app/src/lib/git/checkout.ts": [
+21
+],
+"desktop:app/src/lib/git/cherry-pick.ts": [
+490
+],
+"desktop:app/src/lib/git/fetch.ts": [
+11
+],
+"desktop:app/src/lib/git/spawn.ts": [
+35
+],
+"desktop:app/src/lib/markdown-filters/close-keyword-filter.ts": [
+105
+],
+"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts": [
+178
+],
+"desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts": [
+124
+],
+"desktop:app/src/lib/markdown-filters/issue-link-filter.ts": [
+106
+],
+"desktop:app/src/lib/markdown-filters/issue-mention-filter.ts": [
+127
+],
+"desktop:app/src/lib/markdown-filters/mention-filter.ts": [
+90
+],
+"desktop:app/src/lib/markdown-filters/team-mention-filter.ts": [
+75
+],
+"desktop:app/src/lib/markdown-filters/video-link-filter.ts": [
+45
+],
+"desktop:app/src/lib/markdown-filters/video-tag-filter.ts": [
+30
+],
+"desktop:app/src/lib/ssh/ssh-secret-storage.ts": [
+39
+],
+"desktop:app/src/lib/ssh/ssh-user-password.ts": [
+10,
+29
+],
+"desktop:app/src/lib/stats/stats-store.ts": [
+428
+],
+"desktop:app/src/lib/stores/app-store.ts": [
+1112,
+1164,
+1465,
+2476,
+2642,
+3106,
+3312,
+3343,
+3360,
+3370,
+5786,
+6554,
+6868
+],
+"desktop:app/src/lib/stores/commit-status-store.ts": [
+245
+],
+"desktop:app/src/lib/stores/helpers/tutorial-assessor.ts": [
+69
+],
+"desktop:app/src/lib/stores/repositories-store.ts": [
+72,
+88
+],
+"desktop:app/src/lib/trampoline/trampoline-server.ts": [
+60
+],
+"desktop:app/src/main-process/alive-origin-filter.ts": [
+8
+],
+"desktop:app/src/main-process/authenticated-avatar-filter.ts": [
+16
+],
+"desktop:app/src/main-process/main.ts": [
+210,
+485,
+503,
+506,
+510,
+514,
+566,
+571,
+576,
+582,
+590,
+595,
+599,
+614,
+623,
+650,
+664,
+671,
+675,
+678
+],
+"desktop:app/src/main-process/same-origin-filter.ts": [
+40,
+54
+],
+"desktop:app/src/ui/add-repository/add-existing-repository.tsx": [
+238
+],
+"desktop:app/src/ui/add-repository/create-repository.tsx": [
+169
+],
+"desktop:app/src/ui/app.tsx": [
+928,
+2955
+],
+"desktop:app/src/ui/autocompletion/emoji-autocompletion-provider.tsx": [
+44
+],
+"desktop:app/src/ui/banners/cherry-pick-conflicts-banner.tsx": [
+20
+],
+"desktop:app/src/ui/banners/conflicts-found-banner.tsx": [
+26
+],
+"desktop:app/src/ui/banners/rebase-conflicts-banner.tsx": [
+22
+],
+"desktop:app/src/ui/branches/branches-container.tsx": [
+348
+],
+"desktop:app/src/ui/changes/commit-message-avatar.tsx": [
+188
+],
+"desktop:app/src/ui/check-runs/ci-check-run-popover.tsx": [
+116
+],
+"desktop:app/src/ui/choose-fork-settings/choose-fork-settings-dialog.tsx": [
+113
+],
+"desktop:app/src/ui/clone-repository/clone-repository.tsx": [
+585
+],
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
+441,
+906,
+2954
+],
+"desktop:app/src/ui/dispatcher/error-handlers.ts": [
+123,
+227,
+268,
+332,
+359,
+380,
+434,
+480,
+529,
+573,
+627
+],
+"desktop:app/src/ui/history/compare.tsx": [
+650
+],
+"desktop:app/src/ui/history/merge-call-to-action-with-conflicts.tsx": [
+92,
+129
+],
+"desktop:app/src/ui/lib/configure-git-user.tsx": [
+88
+],
+"desktop:app/src/ui/lib/sandboxed-markdown.tsx": [
+140,
+152
+],
+"desktop:app/src/ui/missing-repository.tsx": [
+52,
+56
+],
+"desktop:app/src/ui/multi-commit-operation/base-rebase.tsx": [
+64
+],
+"desktop:app/src/ui/multi-commit-operation/cherry-pick.tsx": [
+46
+],
+"desktop:app/src/ui/multi-commit-operation/choose-branch/choose-target-branch.tsx": [
+209,
+219
+],
+"desktop:app/src/ui/multi-commit-operation/choose-branch/rebase-choose-branch-dialog.tsx": [
+88
+],
+"desktop:app/src/ui/multi-commit-operation/dialog/confirm-abort-dialog.tsx": [
+46
+],
+"desktop:app/src/ui/multi-commit-operation/dialog/warn-force-push-dialog.tsx": [
+95
+],
+"desktop:app/src/ui/multi-commit-operation/merge.tsx": [
+56
+],
+"desktop:app/src/ui/preferences/integrations.tsx": [
+36
+],
+"desktop:app/src/ui/publish-repository/publish-repository.tsx": [
+45
+],
+"desktop:app/src/ui/stashing/stash-diff-header.tsx": [
+92
+]
+}

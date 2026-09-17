@@ -58,13 +58,18 @@ if (markdown) {
 
 function getChangedFiles(oldResultsPath) {
   try {
-    const output = git(['diff', baseCommit, '--name-only', '--', oldResultsPath]);
-    return output
-      .split('\n')
-      .map(line => line.trim())
-      .filter(Boolean)
-      .filter(line => line.endsWith('.json'))
-      .sort((left, right) => left.localeCompare(right));
+    const changedFiles = [
+      ...git(['diff', baseCommit, '--name-only', '-z', '--', oldResultsPath], false).split('\0'),
+      ...git(
+        ['ls-files', '--others', '--exclude-standard', '-z', '--', oldResultsPath],
+        false,
+      ).split('\0'),
+    ];
+    return [
+      ...new Set(
+        changedFiles.filter(Boolean).filter(filePath => filePath.endsWith('.json')),
+      ),
+    ].sort((left, right) => left.localeCompare(right));
   } catch {
     return [];
   }
@@ -500,12 +505,13 @@ function compareNullableNumbers(left, right) {
   return left - right;
 }
 
-function git(args) {
-  return execFileSync('git', args, {
+function git(args, trimOutput = true) {
+  const output = execFileSync('git', args, {
     cwd: repositoryRoot,
     encoding: 'utf-8',
     stdio: ['ignore', 'pipe', 'pipe'],
-  }).trim();
+  });
+  return trimOutput ? output.trim() : output;
 }
 
 function ensurePathIsInsideRepository(candidatePath, label) {

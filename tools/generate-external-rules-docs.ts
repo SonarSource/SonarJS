@@ -83,6 +83,8 @@ function externalURL(plugin: string, key: string) {
       return `https://eslint.org/docs/latest/rules/${key}`;
     case 'jsx-a11y':
       return `https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/HEAD/docs/rules/${key}.md`;
+    case 'promise':
+      return `https://github.com/eslint-community/eslint-plugin-promise/blob/main/docs/rules/${key}.md`;
     case 'typescript-eslint':
       return `https://github.com/typescript-eslint/typescript-eslint/blob/main/packages/eslint-plugin/docs/rules/${key}.mdx`;
     case 'react-hooks':

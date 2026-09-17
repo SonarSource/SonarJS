@@ -1,0 +1,7 @@
+{
+  "name": "outer",
+  "workspaces": ["sub/*", "!sub/excluded", "sub/excluded"],
+  "catalog": {
+    "react": "^17.0.0"
+  }
+}

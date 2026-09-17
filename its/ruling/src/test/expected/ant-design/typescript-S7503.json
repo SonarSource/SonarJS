@@ -1,0 +1,28 @@
+{
+"ant-design:components/_util/__tests__/getScrollNode.test.ts": [
+5
+],
+"ant-design:components/anchor/__tests__/Anchor.test.tsx": [
+144,
+177,
+495,
+521,
+695,
+723
+],
+"ant-design:components/button/__tests__/index.test.tsx": [
+226
+],
+"ant-design:components/button/__tests__/wave.test.tsx": [
+104
+],
+"ant-design:components/segmented/__tests__/index.test.tsx": [
+216
+],
+"ant-design:components/statistic/__tests__/index.test.tsx": [
+71
+],
+"ant-design:components/upload/__tests__/type.test.tsx": [
+120
+]
+}

@@ -23,6 +23,7 @@ import {
 import { logHeapStatistics } from './analyze-project-memory.js';
 import {
   type AnalyzeProjectIncrementalEvent,
+  type AnalyzeProjectProtoRequest,
   type AnalyzeProjectResponse,
   type AnalyzeProjectRuntimeRequest,
   type RequestResult,
@@ -32,6 +33,43 @@ import {
   InvalidAnalyzeProjectRequestError,
   normalizeAnalyzeProjectRequest,
 } from './analyze-project-normalize.js';
+import {
+  FS_CACHE_INSTALLATION,
+  type FsCacheInstallation,
+  type FsCacheSession,
+} from '../../shared/src/fs-cache/hook.js';
+
+function beginFilesystemCacheAnalysis(
+  request: AnalyzeProjectProtoRequest,
+): FsCacheSession | undefined {
+  const cache = request.filesystemCache;
+  if (cache == null) {
+    return undefined;
+  }
+  if (request.configuration?.sonarlint === true) {
+    throw new InvalidAnalyzeProjectRequestError(
+      'filesystem_cache must not be configured for SonarQube for IDE analysis',
+    );
+  }
+  if (!cache.archivePath) {
+    throw new InvalidAnalyzeProjectRequestError('filesystem_cache.archive_path is required');
+  }
+  if (!request.configuration?.baseDir) {
+    throw new InvalidAnalyzeProjectRequestError('configuration.base_dir is required');
+  }
+
+  const installation = (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] as
+    FsCacheInstallation | undefined;
+  if (!installation) {
+    throw new InvalidAnalyzeProjectRequestError(
+      'filesystem_cache requires an initialized analysis worker',
+    );
+  }
+  return installation.beginAnalysis({
+    archivePath: cache.archivePath,
+    rootDir: request.configuration.baseDir,
+  });
+}
 
 export type WorkerData = {
   debugMemory: boolean;
@@ -45,36 +83,41 @@ export async function handleAnalyzeProjectRequest(
   try {
     switch (request.type) {
       case 'on-analyze-project': {
-        return await withAnalysisCancellation(async () => {
-          logHeapStatistics(workerData?.debugMemory);
-          const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
-          const wrappedIncrementalResultsChannel = incrementalResultsChannel
-            ? (event: AnalyzeProjectIncrementalEvent['event']) =>
-                incrementalResultsChannel({
-                  event,
-                  pathMap: sanitizedInput.pathMap,
-                })
-            : undefined;
+        const filesystemCacheSession = beginFilesystemCacheAnalysis(request.data);
+        try {
+          return await withAnalysisCancellation(async () => {
+            logHeapStatistics(workerData?.debugMemory);
+            const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
+            const wrappedIncrementalResultsChannel = incrementalResultsChannel
+              ? (event: AnalyzeProjectIncrementalEvent['event']) =>
+                  incrementalResultsChannel({
+                    event,
+                    pathMap: sanitizedInput.pathMap,
+                  })
+              : undefined;
 
-          const output = await analyzeProject(
-            {
-              rules: sanitizedInput.rules,
-              cssRules: sanitizedInput.cssRules,
-              bundles: sanitizedInput.bundles,
-              rulesWorkdir: sanitizedInput.rulesWorkdir,
-            },
-            sanitizedInput.configuration,
-            wrappedIncrementalResultsChannel,
-          );
-          logHeapStatistics(workerData?.debugMemory);
-          return {
-            type: 'success',
-            result: {
-              output,
-              pathMap: sanitizedInput.pathMap,
-            },
-          };
-        });
+            const output = await analyzeProject(
+              {
+                rules: sanitizedInput.rules,
+                cssRules: sanitizedInput.cssRules,
+                bundles: sanitizedInput.bundles,
+                rulesWorkdir: sanitizedInput.rulesWorkdir,
+              },
+              sanitizedInput.configuration,
+              wrappedIncrementalResultsChannel,
+            );
+            logHeapStatistics(workerData?.debugMemory);
+            return {
+              type: 'success',
+              result: {
+                output,
+                pathMap: sanitizedInput.pathMap,
+              },
+            };
+          });
+        } finally {
+          filesystemCacheSession?.end();
+        }
       }
       case 'on-cancel-analysis': {
         return cancelAnalysis()

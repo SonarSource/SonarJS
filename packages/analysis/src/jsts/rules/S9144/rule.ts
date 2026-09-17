@@ -26,7 +26,7 @@ import {
   isMethodCall,
 } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getFullyQualifiedName, isRequire, isRequireShadowed } from '../helpers/module.js';
+import { getFullyQualifiedName, isGlobalShadowed, isRequire } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 
 type JQueryMethod = {
@@ -207,6 +207,6 @@ function isDirectJQueryRequireBinding(
     definition.node.id.type === 'Identifier' &&
     value !== undefined &&
     isRequire(value) &&
-    !isRequireShadowed(context.sourceCode, value)
+    !isGlobalShadowed(context.sourceCode, value, 'require')
   );
 }

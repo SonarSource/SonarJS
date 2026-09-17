@@ -16,7 +16,8 @@
   "tags": [
     "cwe",
     "express.js",
-    "former-hotspot"
+    "former-hotspot",
+    "cryptography"
   ],
   "extra": {
     "replacementRules": [],

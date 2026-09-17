@@ -1,0 +1,7 @@
+{
+  "name": "member-no-catalog",
+  "workspaces": ["child"],
+  "dependencies": {
+    "react": "catalog:"
+  }
+}

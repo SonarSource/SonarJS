@@ -27,7 +27,7 @@ import {
 } from '../../shared/src/helpers/files.js';
 import { createConfiguration, type Configuration } from '../src/common/configuration.js';
 import type { AnalyzableFiles } from '../src/projectAnalysis.js';
-import { sanitizeRawInputFiles } from '../src/common/input-sanitize.js';
+import { sanitizeInputFiles } from '../src/common/input-sanitize.js';
 import {
   dependencyManifestStore,
   generatedSourceStore,
@@ -91,7 +91,7 @@ describe('simulateFromInputFiles', () => {
     const configuration = createConfiguration({
       baseDir: normalizeToAbsolutePath('/project'),
     });
-    const { files: inputFiles } = await sanitizeRawInputFiles(
+    const { files: inputFiles } = await sanitizeInputFiles(
       {
         file1: {
           filePath: '/project/src/components/Button.tsx',
@@ -156,7 +156,7 @@ describe('simulateFromInputFiles', () => {
     const configuration = createConfiguration({
       baseDir: normalizeToAbsolutePath('/project'),
     });
-    const { files: inputFiles } = await sanitizeRawInputFiles(
+    const { files: inputFiles } = await sanitizeInputFiles(
       { file1: { filePath: '/project/src/test.js', fileType: 'MAIN', fileContent: '' } },
       configuration,
     );
@@ -176,7 +176,7 @@ describe('simulateFromInputFiles', () => {
     const configuration = createConfiguration({
       baseDir: normalizeToAbsolutePath('/project'),
     });
-    const { files: inputFiles } = await sanitizeRawInputFiles({}, configuration);
+    const { files: inputFiles } = await sanitizeInputFiles({}, configuration);
 
     // Act
     await simulateFromInputFiles(inputFiles, configuration, [mockStore]);
@@ -193,7 +193,7 @@ describe('simulateFromInputFiles', () => {
     const configuration = createConfiguration({
       baseDir: normalizeToAbsolutePath('/project'),
     });
-    const { files: inputFiles } = await sanitizeRawInputFiles(
+    const { files: inputFiles } = await sanitizeInputFiles(
       { file1: { filePath: '/project/src/app.js', fileType: 'MAIN', fileContent: '' } },
       configuration,
     );
@@ -216,7 +216,7 @@ describe('simulateFromInputFiles', () => {
     const configuration = createConfiguration({
       baseDir: normalizeToAbsolutePath('/project'),
     });
-    const { files: inputFiles } = await sanitizeRawInputFiles(
+    const { files: inputFiles } = await sanitizeInputFiles(
       {
         file1: {
           filePath: '/project/src/app.js',
@@ -248,7 +248,7 @@ describe('simulateFromInputFiles', () => {
     const configuration = createConfiguration({
       baseDir: normalizeToAbsolutePath('/project'),
     });
-    const { files: inputFiles } = await sanitizeRawInputFiles(
+    const { files: inputFiles } = await sanitizeInputFiles(
       {
         file1: { filePath: '/project/src/app.js', fileType: 'MAIN', fileContent: '' },
         file2: { filePath: '/project/src/app.ts', fileType: 'MAIN', fileContent: '' },
@@ -277,7 +277,7 @@ describe('initFileStores', () => {
     const postProcessMock = mock.method(generatedSourceStore, 'postProcess');
     const setupMock = mock.method(generatedSourceStore, 'setup');
 
-    const { files: inputFiles } = await sanitizeRawInputFiles(
+    const { files: inputFiles } = await sanitizeInputFiles(
       { file1: { filePath: join(baseDir, 'src', 'app.js'), fileType: 'MAIN', fileContent: '' } },
       configuration,
     );

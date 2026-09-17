@@ -37,7 +37,7 @@ import {
   isIdentifier,
   resolveFunction,
 } from '../helpers/ast.js';
-import { getFullyQualifiedName, isRequire, isRequireShadowed } from '../helpers/module.js';
+import { getFullyQualifiedName, isGlobalShadowed, isRequire } from '../helpers/module.js';
 
 /**
  * We keep a single occurrence of issues raised by both rules, discarding the ones raised by 'no-async-promise-executor'
@@ -219,7 +219,7 @@ function isDirectReceiver(
   receiver: estree.Expression | estree.Super,
 ): boolean {
   if (receiver.type === 'CallExpression') {
-    return isRequire(receiver) && !isRequireShadowed(context.sourceCode, receiver);
+    return isRequire(receiver) && !isGlobalShadowed(context.sourceCode, receiver, 'require');
   }
   if (receiver.type !== 'Identifier') {
     return false;
@@ -237,7 +237,7 @@ function isDirectRequireReference(
   initializer: estree.Expression | null | undefined,
 ): boolean {
   const requireCall = getRequireCall(initializer);
-  return requireCall !== null && !isRequireShadowed(context.sourceCode, requireCall);
+  return requireCall !== null && !isGlobalShadowed(context.sourceCode, requireCall, 'require');
 }
 
 function getRequireCall(

@@ -1,0 +1,10 @@
+{
+  "name": "member-with-catalog",
+  "workspaces": ["child"],
+  "dependencies": {
+    "react": "catalog:"
+  },
+  "catalog": {
+    "react": "^18.0.0"
+  }
+}

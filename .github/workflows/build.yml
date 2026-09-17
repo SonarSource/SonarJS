@@ -13,6 +13,9 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  # Workflows modified by a pull request cannot create the refs used by get-build-number even
+  # when contents: write is requested. Reuse the stable workflow run number in that case.
+  BUILD_NUMBER: ${{ github.event_name == 'pull_request' && github.run_number || '' }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -80,12 +83,14 @@ jobs:
     name: Get build number
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
+    permissions:
+      id-token: write
+      contents: write
     outputs:
       build-number: ${{ steps.build-number.outputs.BUILD_NUMBER }}
     steps:
       - id: build-number
-        uses: SonarSource/ci-github-actions/get-build-number@v1
+        uses: SonarSource/ci-github-actions/get-build-number@v2
 
   populate_npm_cache:
     runs-on: sonar-xs
@@ -111,7 +116,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.0
+          version: 2026.9.5
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - if: steps.cache.outputs.cache-hit != 'true'
         id: secrets
@@ -150,7 +155,7 @@ jobs:
       - &mise
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.0
+          version: 2026.9.5
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - &npm_cache
         name: Restore NPM dependencies
@@ -179,7 +184,7 @@ jobs:
       - &config_maven
         name: Configure Maven
         id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@v1
+        uses: SonarSource/ci-github-actions/config-maven@v2
         with:
           artifactory-reader-role: private-reader
           disable-caching: 'true'
@@ -199,6 +204,16 @@ jobs:
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
           SIGN_KEY: ${{ fromJSON(steps.deployer-secrets.outputs.vault).SIGN_KEY }}
           PGP_PASSPHRASE: ${{ fromJSON(steps.deployer-secrets.outputs.vault).PGP_PASSPHRASE }}
+
+      # PVF: publish the concrete deployed plugin version so pvf-comment.yml can dispatch a performance-validation run into peachee-js.
+      - name: Export candidate version for PVF
+        run: printf '%s\n' "${{ steps.config-maven.outputs.project-version }}" > candidate-version.txt
+      - name: Upload candidate-version artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: candidate-version
+          path: candidate-version.txt
+
       - name: Upload SonarJS artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -387,7 +402,7 @@ jobs:
       - *checkout
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.0
+          version: 2026.9.5
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
           install_args: node
@@ -455,7 +470,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.0
+          version: 2026.9.5
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -514,7 +529,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.0
+          version: 2026.9.5
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -673,7 +688,7 @@ jobs:
       - &mise_java_matrix_node
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.0
+          version: 2026.9.5
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
       - *maven_cache
@@ -743,7 +758,7 @@ jobs:
         name: Setup Java and Maven
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.0
+          version: 2026.9.5
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           install_args: java maven
       - *maven_cache
@@ -831,7 +846,7 @@ jobs:
         name: Setup Maven
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.0
+          version: 2026.9.5
           cache_save: true
           install_args: maven
       - *maven_cache
@@ -875,8 +890,8 @@ jobs:
           key-prefix: orchestrator-fast
       - name: Run Fast Plugin QA without Node
         run: |
-          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -901,8 +916,8 @@ jobs:
       # No orchestrator cache for DEV - version changes too frequently
       - name: Run Fast Plugin QA without Node (DEV)
         run: |
-          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -932,8 +947,8 @@ jobs:
       - name: Run Fast Plugin QA without Node
         shell: bash
         run: |
-          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy -B
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin -B
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
@@ -1028,7 +1043,7 @@ jobs:
         shell: bash
         run: |
           # Tests for group 1 (group 2 runs everything else)
-          GROUP1_TESTS="ConsumerPluginTest,CssIssuesTest,CssNoCssFileProjectTest,CssNonStandardPathTest,CssStylelintReportTest,ECMAScriptModulesTest,EmbeddedNodeTest,EslintBasedRulesTest,EslintCustomRulesLegacyTest,EslintCustomRulesTest,EslintReportTest,ExternalTSConfigDependencyTest"
+          GROUP1_TESTS="ConsumerPluginTest,CssIssuesTest,CssNoCssFileProjectTest,CssNonStandardPathTest,CssStylelintReportTest,ECMAScriptModulesTest,EmbeddedNodeTest,EslintBasedRulesTest,EslintCustomRulesTest,EslintReportTest,ExternalTSConfigDependencyTest"
 
           if [ "${{ matrix.exclude }}" == "true" ]; then
             # Convert to exclusion pattern: add ! prefix to each test
@@ -1067,8 +1082,15 @@ jobs:
         id: ruling
         run: |
           npm run generate-meta
-          npm run grpc:generate-proto
-          npm run ruling
+          npm run proto:generate
+          npm run ruling:cache
+      - name: Upload JS/TS ruling filesystem snapshots
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: js-ts-ruling-filesystem-snapshots-${{ github.sha }}
+          path: packages/ruling/filesystem-cache/
+          if-no-files-found: error
+          retention-days: 1
       - name: Update ruling and notify
         if: always() && (github.event_name == 'pull_request' || github.ref_name == github.event.repository.default_branch)
         uses: ./.github/actions/ruling_bot
@@ -1084,6 +1106,31 @@ jobs:
           sources-path: its/sources
           sources-repo-url: https://github.com/SonarSource/jsts-test-sources/blob/master
           rspec-base-url: https://musical-adventure-r9qk65j.pages.github.io/rspec/#
+
+  js_ts_ruling_replay:
+    runs-on: sonar-xl
+    name: JS/TS Ruling Replay
+    needs: [setup, populate_npm_cache, prepare_rspec_rule_data, js_ts_ruling]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - name: Checkout source code without submodules
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: false
+      - *mise
+      - *npm_cache
+      - *download_rspec_rule_data
+      - name: Download JS/TS ruling filesystem snapshots
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: js-ts-ruling-filesystem-snapshots-${{ github.sha }}
+          path: packages/ruling/filesystem-cache
+      - name: Run JS/TS Ruling from filesystem snapshots
+        run: |
+          npm run generate-meta
+          npm run proto:generate
+          npm run ruling:cache
 
   ruling:
     runs-on: sonar-xl
@@ -1180,7 +1227,7 @@ jobs:
             exit 1
           fi
       - *mise
-      - uses: SonarSource/ci-github-actions/promote@v1
+      - uses: SonarSource/ci-github-actions/promote@v2
         with:
           promote-pull-request: true
 

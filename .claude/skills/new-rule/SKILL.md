@@ -33,7 +33,7 @@ In the generated Java class, verify:
 
 - `@JavaScriptRule` and/or `@TypeScriptRule` annotations match target languages
 - If rule has options, override `configurations()` method (see `/rule-options` skill)
-- If rule targets test files, extend `TestFileCheck` instead of `Check`
+- If rule targets test files, extend `TestFileCheck` instead of `MainFileCheck`
 
 ## Step 3: Implement the Rule
 

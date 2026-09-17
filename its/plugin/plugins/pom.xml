@@ -14,7 +14,6 @@
 
   <modules>
     <module>eslint-custom-rules-plugin</module>
-    <module>eslint-custom-rules-plugin-legacy</module>
     <module>consumer-plugin</module>
   </modules>
 

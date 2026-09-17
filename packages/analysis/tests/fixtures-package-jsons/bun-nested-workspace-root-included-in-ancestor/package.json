@@ -1,0 +1,7 @@
+{
+  "name": "outer",
+  "workspaces": ["member-no-catalog", "member-with-catalog"],
+  "catalog": {
+    "react": "^17.0.0"
+  }
+}

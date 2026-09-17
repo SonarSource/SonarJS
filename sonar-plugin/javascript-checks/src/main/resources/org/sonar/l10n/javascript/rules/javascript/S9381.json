@@ -1,0 +1,33 @@
+{
+  "title": "Promises should not be nested",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "confusing",
+    "es2015",
+    "editable-source",
+    "promise"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-9381",
+  "sqKey": "S9381",
+  "scope": "Main",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

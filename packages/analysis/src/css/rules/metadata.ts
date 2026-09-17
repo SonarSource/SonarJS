@@ -323,6 +323,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
     'at-rule-prelude-no-invalid',
     'ignoredAtRules',
     'Comma-separated list of at-rule names or regular expressions whose preludes should not be validated.',
+    supportedCssToolDirectives.join(','),
   ),
   ignoreAtRulesRule(
     'S8778',

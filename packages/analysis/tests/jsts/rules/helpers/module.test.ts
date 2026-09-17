@@ -21,7 +21,7 @@ import tsParser from '@typescript-eslint/parser';
 import {
   getCurrentFileModuleReferences,
   getFullyQualifiedName,
-  isRequireShadowed,
+  isGlobalShadowed,
 } from '../../../../src/jsts/rules/helpers/module.js';
 
 function collectModuleReferences(source: string, parser?: LinterNS.Parser): Set<string> {
@@ -172,24 +172,37 @@ describe('getFullyQualifiedName', () => {
   });
 });
 
-describe('isRequireShadowed', () => {
+describe('isGlobalShadowed', () => {
   it('returns false for the global require', () => {
-    expect(getRequireShadowing("require('lodash');")).toBe(false);
+    expect(getShadowing("require('lodash');", 'require')).toBe(false);
   });
 
   it('returns true for a require parameter', () => {
-    expect(getRequireShadowing("function load(require) { require('lodash'); }")).toBe(true);
+    expect(getShadowing("function load(require) { require('lodash'); }", 'require')).toBe(true);
+  });
+
+  it('returns false for the global define', () => {
+    expect(getShadowing("define(['a'], function (a) {});", 'define')).toBe(false);
+  });
+
+  it('returns true for a locally declared define', () => {
+    expect(
+      getShadowing(
+        "function define(factory) { return factory; } define(['a'], function (a) {});",
+        'define',
+      ),
+    ).toBe(true);
   });
 });
 
-function getRequireShadowing(source: string): boolean | undefined {
+function getShadowing(source: string, name: string): boolean | undefined {
   let shadowed: boolean | undefined;
-  const captureRequire: Rule.RuleModule = {
+  const captureCall: Rule.RuleModule = {
     create(context) {
       return {
         CallExpression(node) {
-          if (node.callee.type === 'Identifier' && node.callee.name === 'require') {
-            shadowed = isRequireShadowed(context.sourceCode, node);
+          if (node.callee.type === 'Identifier' && node.callee.name === name) {
+            shadowed = isGlobalShadowed(context.sourceCode, node, name);
           }
         },
       };
@@ -203,12 +216,12 @@ function getRequireShadowing(source: string): boolean | undefined {
     plugins: {
       test: {
         rules: {
-          captureRequire,
+          captureCall,
         },
       },
     },
     rules: {
-      'test/captureRequire': 'error',
+      'test/captureCall': 'error',
     },
   });
 

@@ -1,0 +1,12 @@
+{
+  "name": "sub-root",
+  "workspaces": {
+    "packages": ["packages/*"]
+  },
+  "dependencies": {
+    "react": "catalog:"
+  },
+  "catalog": {
+    "react": "^18.0.0"
+  }
+}

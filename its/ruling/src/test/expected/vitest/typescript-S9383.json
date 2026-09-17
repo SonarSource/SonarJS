@@ -1,0 +1,60 @@
+{
+"vitest:examples/fastify/src/index.ts": [
+13
+],
+"vitest:examples/projects/packages/server/src/index.ts": [
+13
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+193,
+257
+],
+"vitest:packages/expect/src/utils.ts": [
+36
+],
+"vitest:packages/mocker/src/browser/mocker.ts": [
+239
+],
+"vitest:packages/runner/src/artifact.ts": [
+148
+],
+"vitest:packages/runner/src/run.ts": [
+381
+],
+"vitest:packages/ui/client/composables/client/static.ts": [
+88,
+109
+],
+"vitest:packages/ui/client/composables/navigation.ts": [
+128
+],
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+204
+],
+"vitest:packages/vitest/src/node/cli/cli-api.ts": [
+96,
+99
+],
+"vitest:packages/vitest/src/node/core.ts": [
+282,
+294,
+1540
+],
+"vitest:packages/vitest/src/node/pools/rpc.ts": [
+122,
+150
+],
+"vitest:packages/vitest/src/node/watcher.ts": [
+111
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/nativeModuleMocker.ts": [
+20,
+199
+],
+"vitest:packages/vitest/src/typecheck/typechecker.ts": [
+356
+],
+"vitest:scripts/update-contributors.ts": [
+26
+]
+}

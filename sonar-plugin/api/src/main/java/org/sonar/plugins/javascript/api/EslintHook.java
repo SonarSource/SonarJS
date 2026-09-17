@@ -21,14 +21,14 @@ import java.util.List;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
- * Descriptor for a hook into ESLint.
+ * Descriptor for logic executed by ESLint during SonarJS analysis.
  *
- * ESLint hooks are a mechanism for other plugins to execute custom logic during
- * the SonarJS analysis, with a parser context available.
- * They are not associated with rule keys and hence, don't raise any Sonar issues
- * and are executed independently of rule activation.
+ * <p>Implementations registered as checks through a {@link CustomRuleRepository} are associated
+ * with rule keys, can raise Sonar issues, and are filtered according to the active quality profile.
  *
- * A current use-case is the collection of data for cross-file analyzers.
+ * <p>Implementations registered directly through an {@link EslintHookRegistrar} are not associated
+ * with rule keys, cannot raise Sonar issues, and execute independently of rule activation. Direct
+ * hooks are typically used to collect data for cross-file analyzers.
  */
 public interface EslintHook {
   /**
