@@ -176,8 +176,8 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
-          key: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
-          restore-keys: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
+          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
+          restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - &cyclonedx_cli_cache
         name: Cache CycloneDX CLI
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -274,15 +274,15 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
-          key: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
-          restore-keys: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
+          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
+          restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - name: Restore and save Maven cache
         if: github.ref_name == github.event.repository.default_branch
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
-          key: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
-          restore-keys: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
+          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
+          restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - *cyclonedx_cli_cache
       - *config_maven
       - name: Build and test Maven (no deploy)
@@ -303,8 +303,8 @@ jobs:
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.m2/repository
-          key: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
-          restore-keys: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
+          key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
+          restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - uses: ./.github/actions/rule-api-cache
       - *config_maven
       - id: rspec-secrets
