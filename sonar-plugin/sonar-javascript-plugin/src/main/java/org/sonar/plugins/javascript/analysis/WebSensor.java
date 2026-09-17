@@ -19,6 +19,8 @@ package org.sonar.plugins.javascript.analysis;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -48,6 +50,7 @@ import org.sonar.plugins.javascript.analysis.cache.CacheStrategy;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
+import org.sonar.plugins.javascript.analyzeproject.grpc.FilesystemCache;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisMeta;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisTelemetry;
@@ -91,8 +94,14 @@ public class WebSensor implements ProjectSensor {
   private final CssRules cssRules;
   private final BridgeServer bridgeServer;
   private final WebSensorModuleConfiguration moduleConfiguration;
+  private final FilesystemCacheContext filesystemCacheContext;
   private ProjectConfiguration.Builder configurationBuilder;
   private JsTsContext<?> context;
+
+  @Nullable
+  private Path filesystemCacheArchivePath;
+
+  private boolean recordFilesystemCache;
   FSListener fsListener;
 
   public WebSensor(
@@ -102,6 +111,7 @@ public class WebSensor implements ProjectSensor {
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
     CssRules cssRules,
+    FilesystemCacheContext filesystemCacheContext,
     WebSensorModuleConfiguration moduleConfiguration
   ) {
     this(
@@ -112,6 +122,7 @@ public class WebSensor implements ProjectSensor {
       consumers,
       cssRules,
       null,
+      filesystemCacheContext,
       moduleConfiguration
     );
   }
@@ -124,6 +135,7 @@ public class WebSensor implements ProjectSensor {
     AnalysisConsumers consumers,
     CssRules cssRules,
     @Nullable FSListener fsListener,
+    FilesystemCacheContext filesystemCacheContext,
     WebSensorModuleConfiguration moduleConfiguration
   ) {
     this.checks = checks;
@@ -133,6 +145,7 @@ public class WebSensor implements ProjectSensor {
     this.analysisWarnings = analysisWarnings;
     this.cssRules = cssRules;
     this.bridgeServer = bridgeServer;
+    this.filesystemCacheContext = filesystemCacheContext;
     this.moduleConfiguration = moduleConfiguration;
   }
 
@@ -174,8 +187,10 @@ public class WebSensor implements ProjectSensor {
         sensorContext.fileSystem().baseDir().getAbsolutePath(),
         contextWithCollectedTsConfigPaths(sensorContext)
       );
+      configureFilesystemCache(sensorContext);
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
       analyzeFiles(inputFiles);
+      collectFilesystemCache();
     } catch (CancellationException e) {
       // do not propagate the exception
       LOG.info(e.toString());
@@ -206,6 +221,66 @@ public class WebSensor implements ProjectSensor {
     } finally {
       moduleConfiguration.clear();
       CacheStrategies.logReport();
+    }
+  }
+
+  private void configureFilesystemCache(SensorContext sensorContext) {
+    filesystemCacheArchivePath = null;
+    recordFilesystemCache = false;
+
+    if (!filesystemCacheContext.isSupported()) {
+      return;
+    }
+
+    var restoredArchive = sensorContext
+      .config()
+      .get(FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY);
+    if (restoredArchive.isPresent()) {
+      var path = Path.of(restoredArchive.get()).toAbsolutePath().normalize();
+      try {
+        if (Files.isRegularFile(path) && Files.size(path) > 0) {
+          filesystemCacheArchivePath = path;
+        } else {
+          LOG.warn("The restored JavaScript filesystem cache is missing or empty: {}", path);
+        }
+      } catch (IOException e) {
+        LOG.warn("Could not inspect the restored JavaScript filesystem cache: {}", path, e);
+      }
+      return;
+    }
+
+    if (!filesystemCacheContext.isEnabled()) {
+      return;
+    }
+    try {
+      var archiveDirectory = Files.createTempDirectory(
+        sensorContext.fileSystem().workDir().toPath(),
+        "sonarjs-filesystem-cache-"
+      );
+      filesystemCacheArchivePath = archiveDirectory.resolve("archive.pb.gz");
+      recordFilesystemCache = true;
+    } catch (IOException e) {
+      LOG.warn("Could not prepare the JavaScript filesystem cache archive", e);
+    }
+  }
+
+  private void collectFilesystemCache() {
+    if (!recordFilesystemCache || filesystemCacheArchivePath == null) {
+      return;
+    }
+    try {
+      if (
+        !Files.isRegularFile(filesystemCacheArchivePath) ||
+        Files.size(filesystemCacheArchivePath) == 0
+      ) {
+        LOG.warn(
+          "The JavaScript filesystem cache archive was not created; no SQAA context will be published"
+        );
+        return;
+      }
+      filesystemCacheContext.collect(filesystemCacheArchivePath);
+    } catch (Exception e) {
+      LOG.warn("Could not publish the JavaScript filesystem cache context", e);
     }
   }
 
@@ -337,7 +412,7 @@ public class WebSensor implements ProjectSensor {
         configurationBuilder.clearFsEvents().addAllFsEvents(fsListener.listFSEvents().keySet());
       }
       configurationBuilder.setSkipAst(context.skipAst(consumers));
-      return AnalyzeProjectRequest.newBuilder()
+      var request = AnalyzeProjectRequest.newBuilder()
         .setConfiguration(configurationBuilder.build())
         .putAllFiles(files)
         .addAllRules(
@@ -345,8 +420,13 @@ public class WebSensor implements ProjectSensor {
         )
         .addAllCssRules(
           cssRules.getStylelintRules().stream().map(AnalyzeProjectMessages::toProtoRule).toList()
-        )
-        .build();
+        );
+      if (filesystemCacheArchivePath != null) {
+        request.setFilesystemCache(
+          FilesystemCache.newBuilder().setArchivePath(filesystemCacheArchivePath.toString())
+        );
+      }
+      return request.build();
     }
 
     private void addInputFilesToRequest(Map<String, ProjectFileInput> files) throws IOException {
