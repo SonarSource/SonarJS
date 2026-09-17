@@ -359,15 +359,15 @@ That is exactly artifact semantics, not cache semantics.
 
 ### Explicit workflow-owned caches
 
-| Cache                      | Path                               | Producer(s)                                                       | Consumer(s)                                                                                                                                                    | Key shape                                                                                | Save policy                                                                                                         |
-| -------------------------- | ---------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| installed NPM dependencies | `node_modules`                     | `populate_npm_cache`, `populate_npm_cache_win`                    | `build`, `build_win`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `knip`, `test_js`, `test_js_win`, `analyze_primary`, `analyze_shadows`, `js_ts_ruling` | `npm-${runner.os}-${npm-hash}`                                                           | producer jobs use `actions/cache` with `lookup-only: true`; save happens only after a miss and a successful install |
-| CycloneDX CLI              | `~/.cache/cyclonedx-cli`           | `build`, `build_win`                                              | `build`, `build_win`                                                                                                                                           | `cyclonedx-cli-${runner.os}-${runner.arch}-${hashFiles('tools/merge-cyclonedx-bom.sh')}` | immutable, checksum-verified native CLI used only by the opt-in Maven `sbom` profile                                |
-| JS coverage cache          | `coverage/js`                      | `test_js`                                                         | `test_js` itself                                                                                                                                               | `js-coverage-${runner.os}-${js-files-hash}`                                              | combined restore/save cache; allows skip when exact coverage already exists                                         |
-| Windows JS marker          | `.js-test-marker-win`              | `test_js_win`                                                     | `test_js_win` itself                                                                                                                                           | `js-test-win-${runner.os}-${js-files-hash}`                                              | lookup-only probe; on miss the job runs tests and saves marker at job end                                           |
-| Maven repository           | `~/.m2/repository`                 | `build`, plus default-branch `build_win`, through `actions/cache` | all Maven cache users                                                                                                                                          | `maven-${runner.os}-${cache-month}-${maven-hash}` plus monthly restore prefix            | Linux build saves on every eligible run; Windows build saves only on the default branch; other jobs restore only    |
-| Orchestrator home          | `${github.workspace}/orchestrator` | default-branch QA jobs through `orchestrator-cache`               | orchestrator-based QA/ruling jobs                                                                                                                              | `${key-prefix}-${month}-${github.run_id}` with monthly restore prefix                    | only default branch saves unless `save: false`                                                                      |
-| Rule API clone/cache       | `$HOME/.sonar/rule-api`            | default-branch `prepare_rspec_rule_data` through `rule-api-cache` | `prepare_rspec_rule_data`                                                                                                                                      | `${key-prefix}-${github.run_id}` with prefix restore                                     | only default branch saves unless `save: false`                                                                      |
+| Cache                      | Path                               | Producer(s)                                                          | Consumer(s)                                                                                                                                                    | Key shape                                                                                | Save policy                                                                                                         |
+| -------------------------- | ---------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| installed NPM dependencies | `node_modules`                     | `populate_npm_cache`, `populate_npm_cache_win`                       | `build`, `build_win`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `knip`, `test_js`, `test_js_win`, `analyze_primary`, `analyze_shadows`, `js_ts_ruling` | `npm-${runner.os}-${npm-hash}`                                                           | producer jobs use `actions/cache` with `lookup-only: true`; save happens only after a miss and a successful install |
+| CycloneDX CLI              | `~/.cache/cyclonedx-cli`           | `build`, `build_win`                                                 | `build`, `build_win`                                                                                                                                           | `cyclonedx-cli-${runner.os}-${runner.arch}-${hashFiles('tools/merge-cyclonedx-bom.sh')}` | immutable, checksum-verified native CLI used only by the opt-in Maven `sbom` profile                                |
+| JS coverage cache          | `coverage/js`                      | `test_js`                                                            | `test_js` itself                                                                                                                                               | `js-coverage-${runner.os}-${js-files-hash}`                                              | combined restore/save cache; allows skip when exact coverage already exists                                         |
+| Windows JS marker          | `.js-test-marker-win`              | `test_js_win`                                                        | `test_js_win` itself                                                                                                                                           | `js-test-win-${runner.os}-${js-files-hash}`                                              | lookup-only probe; on miss the job runs tests and saves marker at job end                                           |
+| Maven repository           | `~/.m2/repository`                 | `build`, plus default-branch `build_win`, through `actions/cache`    | all Maven cache users                                                                                                                                          | `maven-${runner.os}-${cache-month}-${maven-hash}` plus monthly restore prefix            | Linux build saves on every eligible run; Windows build saves only on the default branch; other jobs restore only    |
+| Orchestrator home          | `${github.workspace}/orchestrator` | one normal and one fast QA owner per OS through `orchestrator-cache` | orchestrator-based QA/ruling jobs                                                                                                                              | `${key-prefix}-${month}-${github.run_id}` with monthly restore prefix                    | all jobs restore; one Linux and one Windows owner per cache family save only on the default branch                  |
+| Rule API clone/cache       | `$HOME/.sonar/rule-api`            | default-branch `prepare_rspec_rule_data` through `rule-api-cache`    | `prepare_rspec_rule_data`                                                                                                                                      | `${key-prefix}-${github.run_id}` with prefix restore                                     | only default branch saves unless `save: false`                                                                      |
 
 ### Helper-owned or transitive caches
 
@@ -402,9 +402,11 @@ The cache ownership rule keeps SonarJS artifacts out of new caches:
 
 - key includes `github.run_id`
 - restore uses a prefix within the current month
-- only default branch saves
 - `key-prefix` separates normal and `fast` orchestrator environments
-- `save: 'false'` forces restore-only even on default branch
+- every Orchestrator job restores, but only one Linux and one Windows owner per cache family save
+- owners save only on the default branch; pull requests and ruling are restore-only
+
+The owners are the non-matrix `plugin_qa_without_node` jobs on Linux and matrix group 1 of the corresponding Windows jobs. Explicit ownership prevents parallel jobs with the same run key from racing to save different copies of the cache.
 
 This matches orchestrator state better than a content hash would:
 
@@ -729,14 +731,11 @@ Responsibilities:
 - restore Maven cache
 - download `sonarjs-m2`
 - configure Maven
-- optionally restore orchestrator cache with `save: 'false'`
+- restore the normal Orchestrator cache
 - run Maven ruling tests with explicit parallelism cap
 - upload `ruling-differences` on failure
 
-Note the explicit `save: 'false'`:
-
-- this job may benefit from a recent orchestrator baseline
-- but it should not publish new orchestrator cache state
+This job may benefit from a recent Orchestrator baseline, but it is restore-only and never owns new cache state.
 
 ### Finalization
 

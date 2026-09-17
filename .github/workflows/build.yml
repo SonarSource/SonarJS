@@ -751,8 +751,10 @@ jobs:
         with:
           secrets: |
             development/github/token/licenses-ro token | licenses_token;
-      - &orchestrator_cache
+      - &orchestrator_cache_restore
         uses: ./.github/actions/orchestrator-cache
+        with:
+          save: 'false'
       - name: Run Plugin QA
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -780,9 +782,11 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - uses: ./.github/actions/orchestrator-cache
+      - &orchestrator_fast_cache_restore
+        uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-fast
+          save: 'false'
       - name: Run Fast Plugin QA
         run: |
           mvn package -f its/plugin/plugins/pom.xml
@@ -824,7 +828,7 @@ jobs:
           export -f node
 
           node
-      - *orchestrator_cache
+      - uses: ./.github/actions/orchestrator-cache
       - name: Run Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
@@ -899,7 +903,7 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - *orchestrator_cache
+      - *orchestrator_cache_restore
       - name: Fix permissions for non-root user
         run: |
           # Ensure the sonar user can access all necessary directories after cache restores
@@ -987,9 +991,7 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - uses: ./.github/actions/orchestrator-cache
-        with:
-          key-prefix: orchestrator-fast
+      - *orchestrator_fast_cache_restore
       - name: Run Fast Plugin QA without Node
         shell: bash
         run: |
@@ -1021,7 +1023,9 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - *orchestrator_cache
+      - uses: ./.github/actions/orchestrator-cache
+        with:
+          save: ${{ matrix.group == 1 }}
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
@@ -1085,6 +1089,7 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-fast
+          save: ${{ matrix.group == 1 }}
       - name: Run Fast Plugin QA on Windows
         shell: bash
         run: |
@@ -1192,9 +1197,7 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - uses: ./.github/actions/orchestrator-cache
-        with:
-          save: 'false'
+      - *orchestrator_cache_restore
       - name: Run Ruling Tests
         run: |
           cd its/ruling
