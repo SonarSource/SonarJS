@@ -83,12 +83,9 @@ function isLooped(node: estree.Node, parent: LoopLike): boolean {
 }
 
 /**
- * Re-walks the same climb ESLint core's rule already performed to decide to report,
- * to find which loop it reported against, and whether the awaited node sits in the
- * loop's body rather than its header (test/update/left) - a header await always runs
- * before the body does (or, for `await using`, its disposal is tied to scope exit, not
- * position), so a later exit in the body doesn't relate to it the way the early-exit
- * heuristic below intends.
+ * Mirrors ESLint core's ancestor-climbing loop from `validate()`, returning the loop and
+ * whether the await sits in its body (not header, which always runs first) instead of reporting:
+ * https://github.com/eslint/eslint/blob/v9.39.5/lib/rules/no-await-in-loop.js#L93-L106
  */
 function findEnclosingLoop(node: estree.Node): { loop: LoopLike; viaBody: boolean } | null {
   let current = node;
