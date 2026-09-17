@@ -38,6 +38,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.scanner.sensor.ProjectSensor;
+import org.sonar.api.utils.TempFolder;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.CancellationException;
@@ -95,6 +96,7 @@ public class WebSensor implements ProjectSensor {
   private final BridgeServer bridgeServer;
   private final WebSensorModuleConfiguration moduleConfiguration;
   private final FilesystemCacheContext filesystemCacheContext;
+  private final TempFolder tempFolder;
   private ProjectConfiguration.Builder configurationBuilder;
   private JsTsContext<?> context;
 
@@ -112,6 +114,7 @@ public class WebSensor implements ProjectSensor {
     AnalysisConsumers consumers,
     CssRules cssRules,
     FilesystemCacheContext filesystemCacheContext,
+    TempFolder tempFolder,
     WebSensorModuleConfiguration moduleConfiguration
   ) {
     this(
@@ -123,6 +126,7 @@ public class WebSensor implements ProjectSensor {
       cssRules,
       null,
       filesystemCacheContext,
+      tempFolder,
       moduleConfiguration
     );
   }
@@ -136,6 +140,7 @@ public class WebSensor implements ProjectSensor {
     CssRules cssRules,
     @Nullable FSListener fsListener,
     FilesystemCacheContext filesystemCacheContext,
+    TempFolder tempFolder,
     WebSensorModuleConfiguration moduleConfiguration
   ) {
     this.checks = checks;
@@ -146,6 +151,7 @@ public class WebSensor implements ProjectSensor {
     this.cssRules = cssRules;
     this.bridgeServer = bridgeServer;
     this.filesystemCacheContext = filesystemCacheContext;
+    this.tempFolder = tempFolder;
     this.moduleConfiguration = moduleConfiguration;
   }
 
@@ -228,6 +234,16 @@ public class WebSensor implements ProjectSensor {
     filesystemCacheArchivePath = null;
     recordFilesystemCache = false;
 
+    try {
+      doConfigureFilesystemCache(sensorContext);
+    } catch (Exception e) {
+      filesystemCacheArchivePath = null;
+      recordFilesystemCache = false;
+      LOG.warn("Could not configure the JavaScript filesystem cache", e);
+    }
+  }
+
+  private void doConfigureFilesystemCache(SensorContext sensorContext) throws IOException {
     if (!filesystemCacheContext.isSupported()) {
       return;
     }
@@ -237,14 +253,10 @@ public class WebSensor implements ProjectSensor {
       .get(FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY);
     if (restoredArchive.isPresent()) {
       var path = Path.of(restoredArchive.get()).toAbsolutePath().normalize();
-      try {
-        if (Files.isRegularFile(path) && Files.size(path) > 0) {
-          filesystemCacheArchivePath = path;
-        } else {
-          LOG.warn("The restored JavaScript filesystem cache is missing or empty: {}", path);
-        }
-      } catch (IOException e) {
-        LOG.warn("Could not inspect the restored JavaScript filesystem cache: {}", path, e);
+      if (Files.isRegularFile(path) && Files.size(path) > 0) {
+        filesystemCacheArchivePath = path;
+      } else {
+        LOG.warn("The restored JavaScript filesystem cache is missing or empty: {}", path);
       }
       return;
     }
@@ -252,16 +264,9 @@ public class WebSensor implements ProjectSensor {
     if (!filesystemCacheContext.isEnabled()) {
       return;
     }
-    try {
-      var archiveDirectory = Files.createTempDirectory(
-        sensorContext.fileSystem().workDir().toPath(),
-        "sonarjs-filesystem-cache-"
-      );
-      filesystemCacheArchivePath = archiveDirectory.resolve("archive.pb.gz");
-      recordFilesystemCache = true;
-    } catch (IOException e) {
-      LOG.warn("Could not prepare the JavaScript filesystem cache archive", e);
-    }
+    var archiveDirectory = tempFolder.newDir("sonarjs-filesystem-cache");
+    filesystemCacheArchivePath = archiveDirectory.toPath().resolve("archive.pb.gz");
+    recordFilesystemCache = true;
   }
 
   private void collectFilesystemCache() {

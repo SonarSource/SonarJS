@@ -404,6 +404,26 @@ class WebSensorTest {
   }
 
   @Test
+  void should_continue_when_filesystem_cache_configuration_fails() {
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenThrow(new IllegalStateException("boom"));
+
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+    var request = executeSensorAndCaptureHandler(sensor, context).getRequest();
+
+    assertThat(request.hasFilesystemCache()).isFalse();
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Could not configure the JavaScript filesystem cache"
+    );
+  }
+
+  @Test
   void should_record_and_collect_filesystem_cache() throws Exception {
     var filesystemCacheContext = mock(FilesystemCacheContext.class);
     when(filesystemCacheContext.isSupported()).thenReturn(true);
@@ -434,6 +454,7 @@ class WebSensorTest {
 
     verify(filesystemCacheContext).collect(archiveCaptor.capture());
     assertThat(archiveCaptor.getValue()).isRegularFile().hasContent("archive");
+    assertThat(archiveCaptor.getValue()).startsWith(tempDir.resolve("sonarjs-filesystem-cache"));
   }
 
   @Test
@@ -1908,6 +1929,7 @@ class WebSensorTest {
       mock(CssRules.class),
       fsListener,
       filesystemCacheContext,
+      tempFolder,
       moduleConfiguration
     );
   }

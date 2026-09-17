@@ -18,6 +18,7 @@ package org.sonar.plugins.javascript.analysis;
 
 import java.nio.file.Path;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * Isolates the optional SQAA context-collection API from the analysis sensor. Implementations are
@@ -25,6 +26,7 @@ import org.sonar.api.scanner.ScannerSide;
  * SQAA API type.
  */
 @ScannerSide
+@SonarLintSide
 public interface FilesystemCacheContext {
   String CONTEXT_KIND = "javascript";
   String ARCHIVE_ITEM_ID = "filesystem-cache";
