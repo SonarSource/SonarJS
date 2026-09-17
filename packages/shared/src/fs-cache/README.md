@@ -65,3 +65,25 @@ async iterable synchronously, throw immediately instead.
 The preload patches Node's builtin `fs` objects directly and synchronizes their ESM exports. It
 does not register Node customization hooks: those hooks intercept the entire module graph on a
 dedicated loader thread, adding startup and module-loading overhead unrelated to filesystem calls.
+
+## SQAA context contract
+
+On supported SonarQube versions, a normal CI analysis records an archive only when the A3S context
+collector is enabled. The scanner creates a unique directory below its work directory and passes a
+nonexistent `archive.pb.gz` path to Node. After a successful analysis, Node has atomically created
+the archive and the scanner publishes it using this contract:
+
+- context kind: `javascript`
+- item id: `filesystem-cache`
+- metadata: `{"version":1,"analyzerVersion":"<SonarJS plugin version>"}`
+
+SQAA restores the item from the latest applicable CI context and provides its local path through
+the internal scanner property `sonar.javascript.internal.filesystemCacheArchivePath`. The scanner
+then passes that existing path to Node, which selects strict replay mode from the file's existence.
+The analyzer version must match exactly because reads outside the analysis root, including the
+analyzer installation and bundled TypeScript declarations, deliberately remain native.
+
+Missing, incompatible, or unrestorable contexts do not prevent analysis. SQAA runs the ordinary
+no-context analysis and reports an `INVALID_CONTEXT` analysis problem. SonarQube for IDE and hosts
+without the context-collection API use a no-op integration and cannot activate the filesystem
+cache, even if the internal property is set.
