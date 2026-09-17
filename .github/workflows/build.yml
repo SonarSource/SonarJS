@@ -172,13 +172,12 @@ jobs:
         with:
           name: rspec-rule-data-${{ github.sha }}
           path: sonar-plugin
-      - &maven_cache
-        uses: ./.github/actions/maven-cache
+      - name: Restore and save Maven cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          cache-month: ${{ needs.setup.outputs.cache-month }}
-          maven-hash: ${{ needs.setup.outputs.maven-hash }}
-          # The platform builds are the only jobs that execute enough of the lifecycle to own a complete cache.
-          save: ${{ github.job == 'build' || github.job == 'build_win' }}
+          path: ~/.m2/repository
+          key: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
+          restore-keys: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - &cyclonedx_cli_cache
         name: Cache CycloneDX CLI
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -270,7 +269,20 @@ jobs:
       - *mise
       - *npm_cache
       - *download_rspec_rule_data
-      - *maven_cache
+      - name: Restore Maven cache
+        if: github.ref_name != github.event.repository.default_branch
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
+          restore-keys: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
+      - name: Restore and save Maven cache
+        if: github.ref_name == github.event.repository.default_branch
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
+          restore-keys: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - *cyclonedx_cli_cache
       - *config_maven
       - name: Build and test Maven (no deploy)
@@ -286,7 +298,13 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
-      - *maven_cache
+      - &maven_cache_restore
+        name: Restore Maven cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository
+          key: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
+          restore-keys: maven-v2-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - uses: ./.github/actions/rule-api-cache
       - *config_maven
       - id: rspec-secrets
@@ -597,7 +615,7 @@ jobs:
           fetch-tags: 'true'
       - *mise
       - *npm_cache
-      - *maven_cache
+      - *maven_cache_restore
       - &download_js_coverage_reports
         name: Download JS coverage reports
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -664,7 +682,7 @@ jobs:
       - *checkout_with_tags
       - *mise
       - *npm_cache
-      - *maven_cache
+      - *maven_cache_restore
       - *download_js_coverage_reports
       - *validate_js_coverage_reports
       - *download_maven_targets
@@ -719,7 +737,7 @@ jobs:
           version: 2026.9.5
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
-      - *maven_cache
+      - *maven_cache_restore
       - &download_sonarjs_m2
         name: Download SonarJS artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -758,7 +776,7 @@ jobs:
     steps:
       - *checkout
       - *mise_java_matrix_node
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -789,7 +807,7 @@ jobs:
           version: 2026.9.5
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           install_args: java maven
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -828,7 +846,7 @@ jobs:
     steps:
       - *checkout
       - *mise_java_only
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -877,7 +895,7 @@ jobs:
           version: 2026.9.5
           cache_save: true
           install_args: maven
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -908,7 +926,7 @@ jobs:
     steps:
       - *checkout
       - *mise_java_only
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -936,7 +954,7 @@ jobs:
     steps:
       - *checkout
       - *mise_java_only
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -965,7 +983,7 @@ jobs:
       - *checkout
       - *alpine_install_deps
       - *alpine_setup_maven
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -999,7 +1017,7 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -1033,7 +1051,7 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - name: Run Plugin QA on Windows
@@ -1060,7 +1078,7 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
@@ -1170,7 +1188,7 @@ jobs:
     steps:
       - *checkout_with_submodules
       - *mise
-      - *maven_cache
+      - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token

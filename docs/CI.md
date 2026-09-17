@@ -7,7 +7,7 @@ It documents the cache/artifact model used by the workflow:
 
 - direct workflow-level cache usage in `build.yml` uses official GitHub cache actions
 - same-run file handoff uses official GitHub artifact actions
-- local cache wrappers (`maven-cache`, `orchestrator-cache`, `rule-api-cache`) also use official GitHub cache actions
+- local cache wrappers (`orchestrator-cache`, `rule-api-cache`) also use official GitHub cache actions
 - `build.yml` uses explicit npm registry configuration on both Linux and Windows cache-population jobs
 - `build.yml` does not use SonarSource's S3-backed cache action
 
@@ -27,7 +27,6 @@ This document focuses on the main `Build` workflow:
 
 - [`../.github/workflows/build.yml`](../.github/workflows/build.yml)
 - [`../.github/actions/ruling_bot/action.yml`](../.github/actions/ruling_bot/action.yml)
-- [`../.github/actions/maven-cache/action.yml`](../.github/actions/maven-cache/action.yml)
 - [`../.github/actions/orchestrator-cache/action.yml`](../.github/actions/orchestrator-cache/action.yml)
 - [`../.github/actions/rule-api-cache/action.yml`](../.github/actions/rule-api-cache/action.yml)
 
@@ -310,9 +309,9 @@ These are the small data items passed as job outputs or step outputs, not bulky 
 | ------------------ | ------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | `setup`            | `node-matrix`       | Node-matrix plugin QA jobs                                  | Derived from `package.json` engine range                                                       |
 | `setup`            | `js-files-hash`     | `test_js`, `test_js_win`                                    | Cache key seed for JS coverage and Windows JS marker, including workflow and dependency inputs |
-| `setup`            | `maven-hash`        | all `maven-cache` users                                     | Cache key seed for Maven dependencies                                                          |
+| `setup`            | `maven-hash`        | all Maven cache users                                       | Cache key seed for Maven dependencies                                                          |
 | `setup`            | `npm-hash`          | all `node_modules` producers/consumers                      | Exact cache key seed for installed Node dependencies                                           |
-| `setup`            | `cache-month`       | `maven-cache`                                               | Monthly key rotation value                                                                     |
+| `setup`            | `cache-month`       | Maven cache steps                                           | Monthly key rotation value                                                                     |
 | `setup`            | `is-default-branch` | most `mise-action` calls                                    | Controls when tool caches may be saved                                                         |
 | `get_build_number` | `build-number`      | build, QA, analysis, promotion, and shared env anchor users | One build number is minted once and reused consistently                                        |
 | `config-maven`     | `project-version`   | `analyze_primary`, `analyze_shadows`                        | Sonar analysis version value                                                                   |
@@ -366,7 +365,7 @@ That is exactly artifact semantics, not cache semantics.
 | CycloneDX CLI              | `~/.cache/cyclonedx-cli`           | `build`, `build_win`                                              | `build`, `build_win`                                                                                                                                           | `cyclonedx-cli-${runner.os}-${runner.arch}-${hashFiles('tools/merge-cyclonedx-bom.sh')}` | immutable, checksum-verified native CLI used only by the opt-in Maven `sbom` profile                                |
 | JS coverage cache          | `coverage/js`                      | `test_js`                                                         | `test_js` itself                                                                                                                                               | `js-coverage-${runner.os}-${js-files-hash}`                                              | combined restore/save cache; allows skip when exact coverage already exists                                         |
 | Windows JS marker          | `.js-test-marker-win`              | `test_js_win`                                                     | `test_js_win` itself                                                                                                                                           | `js-test-win-${runner.os}-${js-files-hash}`                                              | lookup-only probe; on miss the job runs tests and saves marker at job end                                           |
-| Maven repository           | `~/.m2/repository`                 | `build` and `build_win` through `maven-cache`                     | all `maven-cache` users                                                                                                                                        | `maven-${runner.os}-${cache-month}-${maven-hash}` plus monthly restore prefix            | designated platform builds restore and save; all other jobs restore only                                            |
+| Maven repository           | `~/.m2/repository`                 | `build`, plus default-branch `build_win`, through `actions/cache` | all Maven cache users                                                                                                                                          | `maven-v2-${runner.os}-${cache-month}-${maven-hash}` plus monthly restore prefix         | Linux build saves on every eligible run; Windows build saves only on the default branch; other jobs restore only    |
 | Orchestrator home          | `${github.workspace}/orchestrator` | default-branch QA jobs through `orchestrator-cache`               | orchestrator-based QA/ruling jobs                                                                                                                              | `${key-prefix}-${month}-${github.run_id}` with monthly restore prefix                    | only default branch saves unless `save: false`                                                                      |
 | Rule API clone/cache       | `$HOME/.sonar/rule-api`            | default-branch `prepare_rspec_rule_data` through `rule-api-cache` | `prepare_rspec_rule_data`                                                                                                                                      | `${key-prefix}-${github.run_id}` with prefix restore                                     | only default branch saves unless `save: false`                                                                      |
 
@@ -379,21 +378,23 @@ That is exactly artifact semantics, not cache semantics.
 
 ### Local wrapper semantics
 
-#### Maven cache wrapper
+#### Maven cache policy
 
-`maven-cache` is the repo's opinionated wrapper around official GitHub cache primitives:
+The workflow uses official GitHub cache actions directly:
 
-- designated owners (`build` and `build_win`): full `actions/cache`, including pull requests
+- Linux `build`: full `actions/cache`, including pull requests
+- Windows `build_win`: full `actions/cache` on the default branch and `actions/cache/restore` elsewhere
 - all other jobs: `actions/cache/restore` only
-- pull-request caches are scoped by GitHub to the pull-request merge ref, so downstream jobs and reruns can reuse them without exposing them to the default branch
+- Linux pull-request caches are scoped by GitHub to the pull-request merge ref, so downstream jobs and reruns can reuse them without exposing them to the default branch
 - keys rotate monthly and also hash all `pom.xml` files
 - restore key allows reuse of other Maven entries from the same month when the exact key misses
-- after restore, the wrapper deletes `~/.m2/repository/org/sonarsource/javascript`
+- the `maven-v2` namespace prevents reuse of legacy caches that may contain locally built SonarJS artifacts
 
-That last cleanup is important:
+The cache ownership rule keeps SonarJS artifacts out of new caches:
 
-- consumer jobs may restore Maven dependencies from cache
-- but they must not accidentally consume a stale locally built SonarJS artifact from cache
+- the Linux build removes `~/.m2/repository/org/sonarsource/javascript` before its post-job save
+- the Windows `verify` build does not install reactor artifacts into the local Maven repository
+- consumers therefore restore dependency-only caches without an additional cleanup step
 - SonarJS artifacts are instead handed over explicitly via the `sonarjs-m2` artifact
 
 #### Orchestrator cache wrapper
@@ -836,12 +837,11 @@ These are the most important reusable components in the current pipeline.
 | `jdx/mise-action`                                          | 26                          | provision Java, Maven, Node                                                                                | action-managed runtime cache behavior                  |
 | `actions/download-artifact`                                | 28                          | same-run file handoff                                                                                      | run-local artifact consumption                         |
 | `SonarSource/vault-action-wrapper`                         | 18                          | credentials from Vault                                                                                     | none directly, but enables Repox/RSPEC/Sonar access    |
-| `./.github/actions/maven-cache`                            | 17                          | repo-owned Maven cache policy                                                                              | restore-only consumers, combined restore/save owners   |
 | `SonarSource/ci-github-actions/config-maven`               | 17                          | Maven + Repox setup                                                                                        | built-in caching disabled in this workflow             |
-| `actions/cache/restore`                                    | 10                          | restore-only cache consumers                                                                               | direct GitHub cache use                                |
+| `actions/cache/restore`                                    | 26                          | restore-only cache consumers                                                                               | direct GitHub cache use                                |
 | `./.github/actions/orchestrator-cache`                     | 9                           | repo-owned orchestrator cache policy                                                                       | official GitHub cache, rolling monthly prefix          |
 | `actions/upload-artifact`                                  | 9                           | same-run file handoff                                                                                      | artifact production                                    |
-| `actions/cache`                                            | 6                           | cache producer/probe jobs, including Linux and Windows CycloneDX CLI caches                                | direct GitHub cache use                                |
+| `actions/cache`                                            | 8                           | cache producers, including Maven owners and Linux and Windows CycloneDX CLI caches                         | direct GitHub cache use                                |
 | `SonarSource/ci-github-actions/get-build-number`           | 1                           | stable build number                                                                                        | internally uses GitHub cache                           |
 | `./.github/actions/ruling_bot`                             | 1                           | repo-owned ruling report/comment/fix-PR automation for sonar-lits result trees and rich PR ruling comments | control-plane encapsulation, no direct cache semantics |
 | `./.github/actions/rule-api-cache`                         | 1                           | repo-owned rule-api cache policy                                                                           | official GitHub cache, rolling prefix                  |
