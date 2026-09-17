@@ -13,6 +13,8 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  # Run the Maven license-header check once in prepare_rspec_rule_data; subsequent Maven jobs skip it.
+  MAVEN_ARGS: -Dlicense.skip=true
   # Workflows modified by a pull request cannot create the refs used by get-build-number even
   # when contents: write is requested. Reuse the stable workflow run number in that case.
   BUILD_NUMBER: ${{ github.event_name == 'pull_request' && github.run_number || '' }}
@@ -265,6 +267,8 @@ jobs:
     needs: [setup, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env:
+      MAVEN_ARGS: ''
     steps:
       - *checkout
       - *mise
