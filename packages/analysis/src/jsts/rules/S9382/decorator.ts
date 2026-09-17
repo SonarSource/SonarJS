@@ -17,7 +17,7 @@
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { childrenOf, getNodeParent } from '../helpers/ancestor.js';
-import { isFunctionNode, type LoopLike } from '../helpers/ast.js';
+import { isFunctionNode, isLoopLike, type LoopLike } from '../helpers/ast.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
@@ -56,16 +56,6 @@ function isSuppressedEarlyExit(
  */
 function isBoundary(node: estree.Node): boolean {
   return isFunctionNode(node) || (node.type === 'ForOfStatement' && node.await === true);
-}
-
-function isLoopLike(node: estree.Node): node is LoopLike {
-  return (
-    node.type === 'WhileStatement' ||
-    node.type === 'DoWhileStatement' ||
-    node.type === 'ForStatement' ||
-    node.type === 'ForOfStatement' ||
-    node.type === 'ForInStatement'
-  );
 }
 
 /**
@@ -131,10 +121,7 @@ function hasLaterLoopExit(
   afterNode: estree.Node,
   visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
-  const afterEnd = afterNode.range?.[1];
-  if (afterEnd === undefined) {
-    return false;
-  }
+  const afterEnd = afterNode.range?.[1] ?? Number.POSITIVE_INFINITY;
 
   function search(node: estree.Node, inSwitch: boolean): boolean {
     if (isBoundary(node)) {
