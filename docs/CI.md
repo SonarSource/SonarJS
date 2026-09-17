@@ -37,9 +37,9 @@ Other workflows exist in `.github/workflows/`, but they are out of scope unless 
 The workflow uses a deliberate split between GitHub cache and GitHub artifacts:
 
 - `node_modules`, Maven, CycloneDX CLI, orchestrator, rule-api, JS coverage, and the Windows JS marker use cache semantics
-- RSPEC data, built Maven outputs, JaCoCo reports, JS coverage reports, the ESLint plugin tarball, and nightly generated READMEs use artifact semantics
+- RSPEC data, built Maven outputs, JaCoCo reports, JS coverage reports, the ESLint plugin tarball, and nightly generated READMEs and dependency licenses use artifact semantics
 - `prepare_rspec_rule_data` refreshes RSPEC once and shares the result through a per-run artifact
-- Maven, orchestrator, and rule-api cache policy is centralized in local wrapper actions
+- Maven cache policy lives directly in `build.yml`; orchestrator and rule-api cache policy remains centralized in local wrapper actions
 - `config-maven` configures Maven and Repox access, but its built-in caching is disabled in `build.yml`
 - NPM registry authentication is configured explicitly in `build.yml` through Vault-fetched Artifactory tokens
 - all direct workflow cache steps and the local cache wrappers use the same official GitHub cache actions
@@ -376,7 +376,7 @@ That is exactly artifact semantics, not cache semantics.
 | `get-build-number` action | `.build_number.txt`    | GitHub cache                  | Reuse one build number across reruns of the same workflow run                                                                                                                         |
 | `jdx/mise-action`         | tool/runtime downloads | action-managed cache behavior | Reuses provisioned Java/Maven/Node toolchains; mostly action-managed, but a few jobs pass an explicit `cache_key` — see [Toolchain Provisioning (mise)](#toolchain-provisioning-mise) |
 
-### Local wrapper semantics
+### Cache policies
 
 #### Maven cache policy
 
@@ -463,22 +463,24 @@ The producer pattern matters:
 
 #### Maven / orchestrator / rule-api
 
-The repo explicitly centralizes branch behavior:
+The repo explicitly assigns cache ownership:
 
-- non-default branches restore only
-- default branch is the intended producer of warm caches
+- Linux `build` saves the Maven cache on every eligible run, including a PR-scoped cache on pull requests
+- Windows `build_win` saves the Maven cache only on the default branch and restores only elsewhere
+- all other Maven jobs restore only
+- orchestrator and rule-api owners save only on the default branch; their other consumers restore only
 - restore keys allow branches to reuse recent default-branch entries
-- branches do not write their own long-lived copies of those caches
 
-This makes `master` the canonical source of warm cross-branch state for those caches.
+This makes `master` the canonical source of shared cross-branch state while allowing Linux jobs in a pull request to reuse dependencies introduced by that pull request.
 
 ### 3. Branch or PR back to default branch
 
 There is effectively no promotion of branch-produced file payloads back to the default branch:
 
 - artifacts are run-local only
-- branch caches do not become the default-branch cache
-- restore-only wrappers make that explicit for Maven/orchestrator/rule-api
+- branch and PR caches do not become default-branch caches
+- the Linux Maven cache saved by a pull request remains scoped to that pull request
+- orchestrator and rule-api wrappers keep non-default branches restore-only
 - default branch stays the authoritative producer for shared long-lived cache state
 
 ### 4. PR-specific state
@@ -487,6 +489,7 @@ PR runs still create PR-scoped GitHub state:
 
 - build-number caches
 - `node_modules` caches when the exact key is missing
+- Linux Maven caches
 - JS coverage cache
 - Windows JS marker cache
 - action-owned caches such as `mise`
@@ -610,7 +613,7 @@ This is the central build producer job.
 Responsibilities:
 
 - Windows verification build
-- restores `node_modules`, Maven cache, CycloneDX CLI cache, and RSPEC artifact
+- restores `node_modules`, CycloneDX CLI cache, and RSPEC artifact; restores the Maven cache and, on the default branch, also saves it
 - runs `mvn verify -Psbom -T1C`
 
 It validates Windows buildability but does not deploy artifacts.
@@ -918,9 +921,9 @@ Being _in_ the hash isn't sufficient on its own, though — the hash is over `mi
 
 ### Jobs the nightly schedule gates — no PR run ever exercises them
 
-Several jobs/steps are guarded by `if: github.event_name == 'schedule'`, and GitHub only fires `schedule` on the default branch — so they don't run on `push`, `pull_request`, or even a manual `workflow_dispatch`: `plugin_qa_without_node_dev`, `plugin_qa_without_node_alpine`, `plugin_qa_fast_without_node_dev`, `plugin_qa_fast_without_node_alpine`, `analyze_shadows`, `run_iris`, `generated_files_freshness`, and the nightly steps inside `build_eslint_plugin`. A change that only affects one of these (like an Alpine-container `install_args` tweak) gets **no CI signal at all** until the first post-merge nightly.
+Several jobs/steps are guarded by `if: github.event_name == 'schedule'`, and GitHub only fires `schedule` on the default branch — so they don't run on `push`, `pull_request`, or even a manual `workflow_dispatch`: `plugin_qa_without_node_dev`, `plugin_qa_without_node_alpine`, `plugin_qa_fast_without_node_dev`, `plugin_qa_fast_without_node_alpine`, `analyze_shadows`, `run_iris`, `generated_files_freshness`, and the nightly steps inside `build_eslint_plugin` and `build` (the `generated-licenses-${github.sha}` upload). A change that only affects one of these (like an Alpine-container `install_args` tweak) gets **no CI signal at all** until the first post-merge nightly.
 
-Do not "fix" this by dispatching `build.yml` manually to force them — a `workflow_dispatch` run satisfies `github.event_name != 'pull_request'`, so it will also run `build`'s `mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom -T1C` and the `promote` job, publishing and promoting real artifacts in Repox from a throwaway ref. For container-specific behavior (e.g. the Alpine jobs), reproduce it locally instead: run the exact pinned container image with the exact pinned `mise` version (`curl https://mise.run | MISE_VERSION=v<pinned> sh`) and mount in `mise.toml`, rather than the version installed on your own machine.
+Do not "fix" this by dispatching `build.yml` manually to force them — a `workflow_dispatch` run satisfies `github.event_name != 'pull_request'`, so it will also run `build`'s `mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom,license-regeneration -T1C` and the `promote` job, publishing and promoting real artifacts in Repox from a throwaway ref. For container-specific behavior (e.g. the Alpine jobs), reproduce it locally instead: run the exact pinned container image with the exact pinned `mise` version (`curl https://mise.run | MISE_VERSION=v<pinned> sh`) and mount in `mise.toml`, rather than the version installed on your own machine.
 
 ## PR Cleanup Workflow
 
