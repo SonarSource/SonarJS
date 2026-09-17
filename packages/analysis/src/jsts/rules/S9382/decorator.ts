@@ -83,8 +83,10 @@ function isLooped(node: estree.Node, parent: LoopLike): boolean {
 }
 
 /**
- * Mirrors ESLint core's ancestor-climbing loop from `validate()`, returning the loop and
- * whether the await sits in its body (not header, which always runs first) instead of reporting:
+ * Mirrors ESLint core's ancestor-climbing loop from `validate()`, returning the loop and whether
+ * the await sits in its body vs. a control clause (test/update/left) instead of reporting - only
+ * body awaits get the later-exit suppression below, since a control clause's timing relative to a
+ * later body exit isn't uniform (e.g. a `for` loop's `update` runs after the body, not before it):
  * https://github.com/eslint/eslint/blob/v9.39.5/lib/rules/no-await-in-loop.js#L93-L106
  */
 function findEnclosingLoop(node: estree.Node): { loop: LoopLike; viaBody: boolean } | null {

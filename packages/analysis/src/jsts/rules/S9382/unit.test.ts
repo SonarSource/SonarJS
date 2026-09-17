@@ -165,6 +165,13 @@ describe('S9382', () => {
       }
     }`),
 
+        invalid(`
+    async function foo(arr) {
+      for (let i = 0; i < arr.length; i += await step(i)) {
+        bar(i);
+      }
+    }`),
+
         // await using as a loop-body statement, not the for-of header
         invalid(`
     async function foo(arr) {
