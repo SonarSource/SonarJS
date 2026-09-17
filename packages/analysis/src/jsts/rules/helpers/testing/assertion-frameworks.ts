@@ -18,6 +18,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
+import * as Angular from './angular.js';
 import * as AwsCdk from './assertions-aws-cdk.js';
 import * as Chai from './chai.js';
 import * as Cypress from './cypress.js';
@@ -62,6 +63,12 @@ type AssertionFrameworkDefinition = {
  * dependency is enough and no import appears in the file.
  */
 const assertionFrameworks = {
+  angular: {
+    imports: ['@angular/common/http/testing'],
+    dependencies: [],
+    isAssertion: () => false,
+    isTSAssertion: Angular.isTSAssertion,
+  },
   chai: {
     imports: ['chai'],
     dependencies: [],
