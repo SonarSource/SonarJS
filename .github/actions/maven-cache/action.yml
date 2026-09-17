@@ -9,25 +9,26 @@ inputs:
     description: 'Hash of pom.xml files for cache key'
     required: true
   save:
-    description: 'Save the cache after the job on the default branch'
+    description: 'Restore and save the cache from this designated owner job'
     required: false
     default: 'false'
 
 runs:
   using: composite
   steps:
-    # Most jobs only consume the cache. Branches are always restore-only.
+    # Most jobs only consume the cache.
     - name: Restore Maven cache
-      if: github.ref_name != github.event.repository.default_branch || inputs.save != 'true'
+      if: inputs.save != 'true'
       uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/.m2/repository
         key: maven-${{ runner.os }}-${{ inputs.cache-month }}-${{ inputs.maven-hash }}
         restore-keys: maven-${{ runner.os }}-${{ inputs.cache-month }}-
 
-    # Only the designated owner job may claim a new immutable cache key.
-    - name: Cache Maven dependencies
-      if: github.ref_name == github.event.repository.default_branch && inputs.save == 'true'
+    # Only the designated owner job may claim a new immutable cache key. On pull requests,
+    # GitHub scopes the saved cache to the pull request merge ref.
+    - name: Restore and save Maven cache
+      if: inputs.save == 'true'
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/.m2/repository

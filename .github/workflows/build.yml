@@ -242,9 +242,8 @@ jobs:
           name: jacoco-xml-reports-${{ github.sha }}
           path: sonar-plugin/**/target/site/jacoco/jacoco.xml
           retention-days: 1
-      # Clean up SonarJS artifacts before post-job cache save (only on default branch where cache is saved)
+      # Keep locally built SonarJS artifacts out of the post-job cache save.
       - name: Clean up SonarJS artifacts before cache save
-        if: github.ref_name == github.event.repository.default_branch
         run: rm -rf ~/.m2/repository/org/sonarsource/javascript
 
   # Windows builds and tests
