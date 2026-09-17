@@ -594,7 +594,8 @@ Responsibilities:
 - download refreshed RSPEC files
 - configure Maven/Repox
 - fetch deploy/signing credentials
-- run Maven deploy with license-header validation and the coverage/sign/release/`sbom` profiles
+- regenerate NPM dependency licenses before the bridge is packed
+- run Maven deploy with license-header validation, Maven dependency-license regeneration, and the coverage/sign/release/`sbom` profiles
 - upload:
   - `sonarjs-m2`
   - `maven-targets-${github.sha}`

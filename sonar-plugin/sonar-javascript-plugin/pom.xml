@@ -714,6 +714,7 @@
             <executions>
               <execution>
                 <id>download-licenses</id>
+                <phase>generate-resources</phase>
                 <goals>
                   <goal>download-licenses</goal>
                 </goals>

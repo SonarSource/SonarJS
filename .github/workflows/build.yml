@@ -200,8 +200,10 @@ jobs:
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
             development/kv/data/sign key | SIGN_KEY;
             development/kv/data/sign passphrase | PGP_PASSPHRASE;
+      - name: Regenerate NPM dependency licenses
+        run: npm run license-regeneration
       - name: Build, test and deploy Maven artifacts
-        run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom -T1C
+        run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom,license-regeneration -T1C
         env:
           MAVEN_ARGS: ''
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
@@ -370,7 +372,7 @@ jobs:
       - name: Regenerate NPM dependency licenses
         run: npm run license-regeneration
       - name: Regenerate Maven dependency licenses
-        run: mvn -ntp -B -pl sonar-plugin/sonar-javascript-plugin -Plicense-regeneration generate-resources org.codehaus.mojo:license-maven-plugin:2.7.1:download-licenses
+        run: mvn -ntp -B -pl sonar-plugin/sonar-javascript-plugin -Plicense-regeneration generate-resources
       - name: Open or update generated files refresh PR
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
