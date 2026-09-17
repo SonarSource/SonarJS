@@ -60,8 +60,6 @@
     <revision>14.0.0-SNAPSHOT</revision>
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
-    <!-- Version corresponds to SQ 9.9 LTS -->
-    <pluginApiMinVersion>9.14.0.375</pluginApiMinVersion>
 
     <assertj.version>3.27.7</assertj.version>
     <jgit.version>7.8.0.202609011348-r</jgit.version>
