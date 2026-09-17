@@ -338,7 +338,7 @@ jobs:
 
   generated_files_freshness:
     runs-on: warp-custom-ubuntu-24-04
-    needs: [prepare_rspec_rule_data, build_eslint_plugin]
+    needs: [setup, populate_npm_cache, prepare_rspec_rule_data, build_eslint_plugin]
     name: Generated Files Freshness
     if: github.event_name == 'schedule'
     permissions:
@@ -346,26 +346,36 @@ jobs:
       pull-requests: write
     steps:
       - *checkout
+      - *mise
+      - *npm_cache
+      - *maven_cache
+      - *config_maven
       - *download_rspec_rule_data
       - name: Download generated README files
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: generated-readmes-${{ github.sha }}
           path: .
+      - name: Regenerate NPM dependency licenses
+        run: npm run license-regeneration
+      - name: Regenerate Maven dependency licenses
+        run: mvn -ntp -B -pl sonar-plugin/sonar-javascript-plugin -Plicense-regeneration generate-resources org.codehaus.mojo:license-maven-plugin:2.7.1:download-licenses
       - name: Open or update generated files refresh PR
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          commit-message: Update generated README files and RSPEC JSON
-          title: Update generated README files and RSPEC JSON
+          commit-message: Update generated files
+          title: Update generated files
           body: |
-            Automated refresh of generated README files and tracked RSPEC JSON resources.
+            Automated refresh of generated README files, tracked RSPEC JSON resources, and dependency licenses.
 
             Updated paths:
             - `README.md`
             - `packages/analysis/src/jsts/rules/README.md`
             - `sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/*.json`
             - `sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/*.json`
+            - `licenses/**`
+            - `sonar-plugin/sonar-javascript-plugin/src/main/resources/licenses/**`
 
             If this PR is created without CI, please click GitHub's `Approve workflows` button.
             If that still does not start CI, close and reopen the PR to retrigger it.
@@ -376,6 +386,8 @@ jobs:
             packages/analysis/src/jsts/rules/README.md
             sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/*.json
             sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/*.json
+            licenses/**
+            sonar-plugin/sonar-javascript-plugin/src/main/resources/licenses/**
           delete-branch: true
 
   test_eslint_plugin:
