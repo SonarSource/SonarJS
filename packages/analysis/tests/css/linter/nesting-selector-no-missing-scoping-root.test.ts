@@ -22,6 +22,10 @@ const configuredRuleTester = new StylelintRuleTester('nesting-selector-no-missin
   true,
   { ignoreAtRules: ['media'] },
 ]);
+const scssRuleTester = new StylelintRuleTester('nesting-selector-no-missing-scoping-root', [
+  true,
+  { ignoreAtRules: ['mixin', 'include'] },
+]);
 
 describe('nesting-selector-no-missing-scoping-root', () => {
   it('accepts nesting selectors with a scoping root', async () => {
@@ -45,6 +49,14 @@ describe('nesting-selector-no-missing-scoping-root', () => {
   it('ignores nesting selectors inside configured at-rules', async () => {
     await configuredRuleTester.valid({
       code: '@media print { & { color: red; } }',
+    });
+  });
+
+  it('ignores nesting selectors inside SCSS mixins and includes', async () => {
+    await scssRuleTester.valid({
+      code:
+        '@mixin button { &.primary { color: red; } }\n@include button { &.primary { color: red; } }',
+      codeFilename: 'test.scss',
     });
   });
 });

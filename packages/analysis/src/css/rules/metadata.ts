@@ -317,6 +317,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
     'nesting-selector-no-missing-scoping-root',
     'ignoredAtRules',
     'Comma-separated list of "at-rules" inside which nesting selectors are allowed without a scoping parent.',
+    'mixin,include',
   ),
   ignoreAtRulesRule(
     'S8777',
