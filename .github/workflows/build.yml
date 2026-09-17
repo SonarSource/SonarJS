@@ -242,6 +242,23 @@ jobs:
         if: github.ref_name == github.event.repository.default_branch
         run: rm -rf ~/.m2/repository/org/sonarsource/javascript
 
+  check_maven_license_headers:
+    runs-on: sonar-xs
+    name: Check Maven license headers
+    needs: [setup, populate_npm_cache, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    env:
+      MAVEN_ARGS: ''
+    steps:
+      - *checkout
+      - *mise
+      - *npm_cache
+      - *maven_cache
+      - *config_maven
+      - name: Check Maven license headers
+        run: mvn -ntp -B -Dlicense.skip=false validate
+
   # Windows builds and tests
   build_win:
     runs-on: warp-custom-windows-2022-m
@@ -267,8 +284,6 @@ jobs:
     needs: [setup, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    env:
-      MAVEN_ARGS: ''
     steps:
       - *checkout
       - *mise
@@ -342,7 +357,7 @@ jobs:
 
   generated_files_freshness:
     runs-on: warp-custom-ubuntu-24-04
-    needs: [setup, populate_npm_cache, prepare_rspec_rule_data, build_eslint_plugin, build]
+    needs: [setup, populate_npm_cache, prepare_rspec_rule_data, build_eslint_plugin, build, check_maven_license_headers]
     name: Generated Files Freshness
     if: github.event_name == 'schedule'
     permissions:

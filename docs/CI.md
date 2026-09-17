@@ -116,6 +116,8 @@ flowchart TD
   A --> M
   C --> M
   F --> M
+  F --> U["check_maven_license_headers"]
+  U --> M
   H --> M["generated_files_freshness (nightly)"]
 
   F --> N["plugin QA fan-out"]
@@ -203,6 +205,10 @@ flowchart TD
   setup --> generated_files_freshness
   populate_npm_cache --> generated_files_freshness
   build --> generated_files_freshness
+  setup --> check_maven_license_headers["check_maven_license_headers"]
+  populate_npm_cache --> check_maven_license_headers
+  build --> check_maven_license_headers
+  check_maven_license_headers --> generated_files_freshness
 
   setup --> analyze_primary["analyze_primary"]
   get_build_number["get_build_number"] --> analyze_primary
@@ -281,9 +287,10 @@ set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the 
 | `populate_npm_cache_win`             | `github-windows-latest-s`  | `setup`, `get_build_number`                                                      | non-fork PRs and all non-PR runs                                      |
 | `prepare_rspec_rule_data`            | `sonar-xs`                 | `setup`, `populate_npm_cache`                                                    | non-fork PRs and all non-PR runs                                      |
 | `build`                              | `sonar-l`                  | `setup`, `get_build_number`, `populate_npm_cache`, `prepare_rspec_rule_data`     | non-fork PRs and all non-PR runs                                      |
+| `check_maven_license_headers`        | `sonar-xs`                 | `setup`, `populate_npm_cache`, `build`                                           | non-fork PRs and all non-PR runs                                      |
 | `build_win`                          | `github-windows-latest-m`  | `setup`, `get_build_number`, `populate_npm_cache_win`, `prepare_rspec_rule_data` | non-fork PRs and all non-PR runs                                      |
 | `build_eslint_plugin`                | `github-ubuntu-latest-s`   | `setup`, `prepare_rspec_rule_data`                                               | non-fork PRs and all non-PR runs                                      |
-| `generated_files_freshness`          | `github-ubuntu-latest-s`   | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `build` | nightly only                                                          |
+| `generated_files_freshness`          | `github-ubuntu-latest-s`   | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `build`, `check_maven_license_headers` | nightly only                                                          |
 | `test_eslint_plugin`                 | `github-ubuntu-latest-s`   | `setup`, `build_eslint_plugin`                                                   | default                                                               |
 | `knip`                               | `sonar-xs`                 | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`                         | default                                                               |
 | `test_js`                            | `sonar-m`                  | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`                         | default                                                               |
@@ -624,6 +631,13 @@ Responsibilities:
 - build ESLint plugin package
 - upload tarball artifact
 - on nightly runs, update rule counts and upload both generated README files
+
+#### `check_maven_license_headers`
+
+Responsibilities:
+
+- restore `node_modules` and the Maven cache
+- run the complete Maven reactor validation with license-header checks enabled
 
 #### `generated_files_freshness`
 
