@@ -13,7 +13,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
-  # Run the Maven license-header check once in populate_maven_cache; subsequent Maven jobs skip it.
+  # Run the Maven license-header check only in the Linux build; other Maven jobs skip it.
   MAVEN_ARGS: -Dlicense.skip=true
   # Workflows modified by a pull request cannot create the refs used by get-build-number even
   # when contents: write is requested. Reuse the stable workflow run number in that case.
@@ -148,7 +148,7 @@ jobs:
   build:
     runs-on: sonar-l
     name: Build SonarJS on Linux
-    needs: [setup, get_build_number, populate_npm_cache, prepare_rspec_rule_data, populate_maven_cache]
+    needs: [setup, get_build_number, populate_npm_cache, prepare_rspec_rule_data]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     env: *shared_build_number
@@ -201,6 +201,7 @@ jobs:
       - name: Build, test and deploy Maven artifacts
         run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom -T1C
         env:
+          MAVEN_ARGS: ''
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
@@ -241,23 +242,6 @@ jobs:
       - name: Clean up SonarJS artifacts before cache save
         if: github.ref_name == github.event.repository.default_branch
         run: rm -rf ~/.m2/repository/org/sonarsource/javascript
-
-  populate_maven_cache:
-    runs-on: sonar-xs
-    name: Populate Maven cache and check license headers
-    needs: [setup, populate_npm_cache]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    env:
-      MAVEN_ARGS: ''
-    steps:
-      - *checkout
-      - *mise
-      - *npm_cache
-      - *maven_cache
-      - *config_maven
-      - name: Check Maven license headers while populating cache
-        run: mvn -ntp -B -Dlicense.skip=false validate
 
   # Windows builds and tests
   build_win:
