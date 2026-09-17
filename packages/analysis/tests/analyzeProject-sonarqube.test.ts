@@ -29,6 +29,7 @@ import ts from 'typescript';
 import { valid } from 'semver';
 import type { RuleConfig } from '../src/jsts/linter/config/rule-config.js';
 import type { RuleConfig as CssRuleConfig } from '../src/css/linter/config.js';
+import { cssRulesMeta } from '../src/css/rules/metadata.js';
 import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../src/jsts/program/cache/programOptionsCache.js';
 import { sanitizeInputFiles, type ProjectAnalysisFileInput } from '../src/common/input-sanitize.js';
@@ -595,6 +596,51 @@ describe('SonarQube project analysis', () => {
           resolutionComment: DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT,
         }),
       ]);
+    }
+  });
+
+  it('should not report valid SCSS nesting in mixins and includes with S8776 defaults', async () => {
+    const baseDir = join(fixtures, 'basic');
+    const scssFile = join(baseDir, 'mixins.scss');
+    const s8776 = cssRulesMeta.find(meta => meta.sqKey === 'S8776');
+    if (!s8776) {
+      throw new Error('S8776 metadata is missing');
+    }
+    const configurations = [
+      true,
+      {
+        ignoreAtRules: s8776.listParam?.flatMap(param =>
+          param.default.split(',').map(value => value.trim()),
+        ),
+      },
+    ];
+
+    const configuration = await initForTest(
+      { baseDir },
+      {
+        [scssFile]: {
+          filePath: scssFile,
+          fileType: 'MAIN',
+          fileContent:
+            '@mixin button { &.primary { color: red; } }\n@include button { &.primary { color: red; } }',
+        },
+      },
+    );
+
+    const result = await analyzeProject(
+      {
+        rules: [],
+        cssRules: [{ key: 'nesting-selector-no-missing-scoping-root', configurations }],
+        bundles: [],
+      },
+      configuration,
+    );
+
+    const fileResult = result.files[normalizeToAbsolutePath(scssFile)];
+    expect(fileResult).toBeDefined();
+    expect('issues' in fileResult!).toBe(true);
+    if ('issues' in fileResult!) {
+      expect(fileResult.issues).toHaveLength(0);
     }
   });
 
