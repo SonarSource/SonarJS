@@ -142,11 +142,11 @@ function checkOnMessageAssignment(
 }
 
 /**
- * Unlike `isWindowObject`, which also accepts any identifier whose name contains 'window',
- * the receiver of an `onmessage` assignment must resolve to `window` or `globalThis` itself.
- * The name heuristic is too coarse here: `onmessage` is also a property of unrelated
- * transports such as WebSocket, so a `wsWindowChannel.onmessage` assignment would be
- * reported without this restriction.
+ * Unlike `isWindowObject`, which falls back to the receiver name only when the type checker
+ * cannot resolve the receiver (`any`/`unknown`), the receiver of an `onmessage` assignment
+ * must resolve to `window` or `globalThis` itself. A name-based fallback is too coarse here:
+ * `onmessage` is also a property of unrelated transports such as WebSocket, so an untyped
+ * `wsWindowChannel.onmessage` assignment would be reported without this restriction.
  *
  * The conditions are ordered by cost: the receiver name rejects the vast majority of `onmessage`
  * assignments without touching the type checker or the scope chain, and the Worker shim lookup
