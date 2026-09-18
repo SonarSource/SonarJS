@@ -65,5 +65,8 @@ class TestCodeAnalysisTest {
     assertThat(result.logOutput())
       .extracting(Log::message)
       .contains("3 source files to be analyzed");
+    assertThat(result.logOutput())
+      .extracting(Log::message)
+      .noneMatch(message -> message.contains("Ignoring out-of-range"));
   }
 }
