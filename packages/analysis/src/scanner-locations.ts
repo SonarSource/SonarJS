@@ -16,14 +16,48 @@
  */
 import type { Location as IssueLocation } from './contracts/location.js';
 import type { Location as ArtifactLocation } from './jsts/analysis/file-artifacts.js';
+import type { UnserializedJsTsAnalysisOutput } from './jsts/analysis/analyzer.js';
 import type { JsTsIssue } from './jsts/linter/issues/issue.js';
+import { serializeInProtobufSafely } from './jsts/parsers/ast.js';
 import type { FileResult } from './projectAnalysis.js';
+import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 
 const ECMASCRIPT_ONLY_LINE_TERMINATORS = /[\u2028\u2029]/u;
 const ECMASCRIPT_LINE_ENDINGS = /\r\n|[\r\n\u2028\u2029]/gu;
 const SCANNER_LINE_ENDINGS = /\r\n|[\r\n]/gu;
 
 type Position = { line: number; column: number };
+type FinalizableFileResult = FileResult | UnserializedJsTsAnalysisOutput;
+type FinalizableSuccessResult = Exclude<FinalizableFileResult, { error: string }>;
+
+export function finalizeFileResultForScanner(
+  result: FinalizableFileResult,
+  source: string,
+  filePath: NormalizedAbsolutePath,
+): FileResult {
+  if ('error' in result) {
+    return result;
+  }
+
+  const mapper = ECMASCRIPT_ONLY_LINE_TERMINATORS.test(source)
+    ? new ScannerLocationMapper(source)
+    : undefined;
+  if (mapper) {
+    alignFileResultWithMapper(result, mapper);
+  }
+
+  if ('unserializedAst' in result && result.unserializedAst) {
+    const { unserializedAst, ...output } = result;
+    const ast = serializeInProtobufSafely(
+      unserializedAst,
+      filePath,
+      mapper ? mapper.position.bind(mapper) : undefined,
+    );
+    return ast ? { ast, ...output } : output;
+  }
+
+  return result;
+}
 
 /**
  * Converts completed JavaScript analysis locations to scanner-engine's physical line model.
@@ -35,7 +69,14 @@ export function alignFileResultWithScanner(result: FileResult, source: string): 
   }
 
   const mapper = new ScannerLocationMapper(source);
+  alignFileResultWithMapper(result, mapper);
+  return result;
+}
 
+function alignFileResultWithMapper(
+  result: FinalizableSuccessResult,
+  mapper: ScannerLocationMapper,
+) {
   for (const issue of result.issues) {
     if (issue.language !== 'css') {
       alignIssue(issue, mapper);
@@ -44,14 +85,16 @@ export function alignFileResultWithScanner(result: FileResult, source: string): 
   for (const issue of result.suppressedIssues ?? []) {
     alignIssue(issue, mapper);
   }
-  for (const error of result.parsingErrors ?? []) {
-    if (error.language !== 'css' && error.line !== undefined) {
-      if (error.column === undefined) {
-        error.line = mapper.line(error.line);
-      } else {
-        const position = mapper.position(error.line, error.column);
-        error.line = position.line;
-        error.column = position.column;
+  if ('parsingErrors' in result) {
+    for (const error of result.parsingErrors ?? []) {
+      if (error.language !== 'css' && error.line !== undefined) {
+        if (error.column === undefined) {
+          error.line = mapper.line(error.line);
+        } else {
+          const position = mapper.position(error.line, error.column);
+          error.line = position.line;
+          error.column = position.column;
+        }
       }
     }
   }
@@ -88,8 +131,6 @@ export function alignFileResultWithScanner(result: FileResult, source: string): 
   for (const comment of result.sonarResolveComments ?? []) {
     comment.line = mapper.line(comment.line);
   }
-
-  return result;
 }
 
 function alignIssue(issue: JsTsIssue, mapper: ScannerLocationMapper) {

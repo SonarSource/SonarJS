@@ -14,12 +14,22 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import assert from 'node:assert';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { alignFileResultWithScanner } from '../src/scanner-locations.js';
+import {
+  alignFileResultWithScanner,
+  finalizeFileResultForScanner,
+} from '../src/scanner-locations.js';
 import type { FileResult } from '../src/projectAnalysis.js';
 import { ErrorCode } from '../src/contracts/error.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import type { UnserializedJsTsAnalysisOutput } from '../src/jsts/analysis/analyzer.js';
+import { parse } from '../src/jsts/parsers/parse.js';
+import { parsersMap } from '../src/jsts/parsers/eslint.js';
+import { buildTsParserOptions } from '../src/jsts/parsers/options.js';
+import { deserializeProtobuf } from '../src/jsts/parsers/ast.js';
 
 describe('alignFileResultWithScanner', () => {
   it('maps every JavaScript output location without changing quick-fix text', () => {
@@ -169,5 +179,32 @@ describe('alignFileResultWithScanner', () => {
   it('returns the original result when no conversion is needed', () => {
     const result: FileResult = { issues: [] };
     expect(alignFileResultWithScanner(result, 'const answer = 42;')).toBe(result);
+  });
+
+  it('maps the AST before serializing it without changing parser locations', () => {
+    const source = 'const a=1;\u2028const b=2;';
+    const sourceCode = parse(source, parsersMap.typescript, buildTsParserOptions()).sourceCode;
+    const result: UnserializedJsTsAnalysisOutput = {
+      issues: [],
+      unserializedAst: sourceCode.ast as TSESTree.Program,
+    };
+
+    const finalized = finalizeFileResultForScanner(
+      result,
+      source,
+      normalizeToAbsolutePath('/project/file.js'),
+    );
+
+    assert('ast' in finalized && finalized.ast);
+    const protobufAst = deserializeProtobuf(finalized.ast);
+    const secondStatement = protobufAst.program?.body?.[1];
+    expect(secondStatement?.loc).toMatchObject({
+      start: { line: 1, column: source.indexOf('const b') },
+      end: { line: 1, column: source.length },
+    });
+    expect(sourceCode.ast.body[1].loc).toMatchObject({
+      start: { line: 2, column: 0 },
+      end: { line: 2, column: 'const b=2;'.length },
+    });
   });
 });

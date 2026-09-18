@@ -18,7 +18,10 @@ import type ts from 'typescript';
 import type { JsTsAnalysisInput } from './jsts/analysis/analysis.js';
 import { analyzeHTMLProject } from './html/index.js';
 import { analyzeYAMLProject } from './yaml/index.js';
-import { analyzeJSTSProject } from './jsts/analysis/analyzer.js';
+import {
+  analyzeJSTSProject,
+  type UnserializedJsTsAnalysisOutput,
+} from './jsts/analysis/analyzer.js';
 import {
   isAlsoCssFile,
   isCssFile,
@@ -37,7 +40,7 @@ import type { EmbeddedAnalysisInput } from './jsts/embedded/analysis/analysis.js
 import { analyzeCSSProject } from './css/analysis/analyzer.js';
 import { linter as cssLinter } from './css/linter/wrapper.js';
 import { error, info } from '../../shared/src/helpers/logging.js';
-import { alignFileResultWithScanner } from './scanner-locations.js';
+import { finalizeFileResultForScanner } from './scanner-locations.js';
 
 /**
  * Analyzes a single file, optionally with a TypeScript program for type-checking.
@@ -109,7 +112,7 @@ export async function analyzeFile(
     fileContent: input.fileContent,
     sonarlint: input.sonarlint,
   };
-  let result: FileResult;
+  let result: FileResult | UnserializedJsTsAnalysisOutput;
 
   if (isCssFile(fileName, cssSuffixes)) {
     result = await analyzeCSSProject({
@@ -131,7 +134,7 @@ export async function analyzeFile(
   }
 
   if (!isCssFile(fileName, cssSuffixes)) {
-    result = alignFileResultWithScanner(result, input.fileContent);
+    result = finalizeFileResultForScanner(result, input.fileContent, input.filePath);
   }
 
   if (cssLinter.hasActiveRules() && isAlsoCssFile(fileName, cssAdditionalSuffixes)) {
