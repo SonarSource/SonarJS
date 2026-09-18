@@ -26,7 +26,7 @@ import {
 } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { type IssueLocation, report, toSecondaryLocation } from '../helpers/location.js';
-import { lacksCompositionApi } from '../helpers/vue.js';
+import { isVue2OrEarlier } from '../helpers/vue.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -39,7 +39,7 @@ const MIXINS_PROPERTY_NAME = 'mixins';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    if (lacksCompositionApi(context)) {
+    if (isVue2OrEarlier(context)) {
       return {};
     }
 

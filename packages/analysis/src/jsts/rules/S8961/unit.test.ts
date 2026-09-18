@@ -15,10 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 import parser from 'vue-eslint-parser';
 
+const dirname = join(import.meta.dirname, 'fixtures');
+process.chdir(dirname);
 const ruleTesterVue = new NoTypeCheckingRuleTester({ parser });
 
 describe('S8961', () => {
@@ -28,21 +31,25 @@ describe('S8961', () => {
         {
           // emits declared in options API
           code: `<script>export default { emits: ['submit'], methods: { s() { this.$emit('submit'); } } };</script>`,
+          filename: join(dirname, 'component.tsx'),
         },
         {
           // defineEmits in script setup
           code: `<script setup>const emit = defineEmits(['submit']); emit('submit');</script>`,
+          filename: join(dirname, 'component.tsx'),
         },
       ],
       invalid: [
         {
           // options API - $emit without emits declaration
           code: `<script>export default { methods: { submit() { this.$emit('submit'); } } };</script>`,
+          filename: join(dirname, 'component.tsx'),
           errors: 1,
         },
         {
           // script setup - emit not in defineEmits
           code: `<script setup>const emit = defineEmits([]); emit('submit');</script>`,
+          filename: join(dirname, 'component.tsx'),
           errors: 1,
         },
       ],

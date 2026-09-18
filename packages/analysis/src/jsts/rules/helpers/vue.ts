@@ -16,7 +16,7 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { lt, minVersion, validRange } from 'semver';
+import { intersects, validRange } from 'semver';
 import type { AST } from 'vue-eslint-parser';
 import { getVueVersion } from './dependency-manifests/dependencies.js';
 import { getVariableFromName } from './ast.js';
@@ -26,7 +26,8 @@ type VChildElement = AST.VElement | AST.VText | AST.VExpressionContainer | AST.V
 
 export type VueReactiveBindingKind = 'ref' | 'reactive';
 
-const VUE_COMPOSITION_API_MIN_VERSION = '2.7.0';
+// "-0" makes the lower bound prerelease-inclusive, so an exact pin like "3.0.0-rc.13" still counts as Vue 3+
+const VUE_3_OR_LATER_RANGE = '>=3.0.0-0';
 
 const VUE_REF_FQN = 'vue.ref';
 const VUE_REACTIVE_FQN = 'vue.reactive';
@@ -50,27 +51,16 @@ export function isInsideVueSetupScript(node: estree.Node, ctx: Rule.RuleContext)
   );
 }
 
-/**
- * Returns true when the project's Vue dependency range's floor (its minimum resolvable version)
- * is below the version that introduced the Composition API.
- *
- * Vue backported the Composition API and `<script setup>` into 2.7, not just 3.0, so that is the
- * real cutoff, not the Vue 3 major version. This looks at the range's floor rather than whether
- * the range could merely overlap 2.7+: a caret range's ceiling always reaches just under the next
- * major (e.g. "^2.6.11" allows up to, but excluding, 3.0.0), so any caret-pinned Vue 2 range would
- * technically overlap 2.7+ regardless of how old its floor is. In practice, such projects stay on
- * their pinned floor until someone deliberately bumps it, so the floor is what should gate the
- * rule. Ranges whose floor is already 2.7+ (e.g. "^2.7.0", "^2.7.0 || ^3.0.0", "^3.0.0") keep
- * reporting. Unknown/unparseable ranges (catalog:, workspace:, git:, missing dependency, ...) also
- * keep reporting.
- */
-export function lacksCompositionApi(context: Rule.RuleContext): boolean {
+/** Returns true when no Vue dependency is declared, or a declared parseable range provably excludes Vue 3+; an unparseable range (workspace:, catalog:, git:) keeps reporting, unlike a missing dependency. */
+export function isVue2OrEarlier(context: Rule.RuleContext): boolean {
   const vueVersionRange = getVueVersion(context);
-  if (!vueVersionRange || !validRange(vueVersionRange)) {
+  if (!vueVersionRange) {
+    return true;
+  }
+  if (!validRange(vueVersionRange)) {
     return false;
   }
-  const floor = minVersion(vueVersionRange);
-  return floor === null || lt(floor, VUE_COMPOSITION_API_MIN_VERSION);
+  return !intersects(vueVersionRange, VUE_3_OR_LATER_RANGE);
 }
 
 /**

@@ -19,15 +19,15 @@ import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
-describe('S9150 on pre-2.7 Vue 2', () => {
+describe('S9150 on pre-3.0 Vue 2', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
   ruleTester.run('S9150 is silenced on Vue versions that predate the Composition API', rule, {
     valid: [
       {
-        // mixins are the only cross-component logic-reuse mechanism before 2.7; the composable
-        // alternative this rule steers toward does not exist yet there
+        // mixins are the standard cross-component logic-reuse mechanism on Vue 2; the composable
+        // alternative this rule steers toward is only considered available from Vue 3 onward
         code: `
           import counterMixin from './mixins/counter';
           export default {
