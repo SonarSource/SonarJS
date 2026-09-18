@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.Test;
@@ -30,9 +31,10 @@ import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.config.PropertyDefinition;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.analysis.DefaultFilesystemCacheContext;
+import org.sonar.plugins.javascript.analysis.NoOpFilesystemCacheContext;
 
 class JavaScriptPluginTest {
 
@@ -58,6 +60,36 @@ class JavaScriptPluginTest {
   void count_extensions_for_sonarlint() {
     Plugin.Context context = setupContext(TestSonarRuntime.forSonarLint(LTS_VERSION));
     assertThat(context.getExtensions()).isNotEmpty();
+    assertThat(context.getExtensions()).contains(NoOpFilesystemCacheContext.class);
+    assertThat(context.getExtensions()).doesNotContain(DefaultFilesystemCacheContext.class);
+  }
+
+  @Test
+  void should_enable_filesystem_context_collection_on_supported_sonarqube() {
+    Plugin.Context context = setupContext(
+      TestSonarRuntime.forSonarQube(
+        Version.create(13, 4),
+        SonarQubeSide.SERVER,
+        SonarEdition.COMMUNITY
+      )
+    );
+
+    assertThat(context.getExtensions()).contains(DefaultFilesystemCacheContext.class);
+    assertThat(context.getExtensions()).doesNotContain(NoOpFilesystemCacheContext.class);
+  }
+
+  @Test
+  void should_disable_filesystem_context_collection_on_older_sonarqube() {
+    Plugin.Context context = setupContext(
+      TestSonarRuntime.forSonarQube(
+        Version.create(13, 3),
+        SonarQubeSide.SERVER,
+        SonarEdition.COMMUNITY
+      )
+    );
+
+    assertThat(context.getExtensions()).contains(NoOpFilesystemCacheContext.class);
+    assertThat(context.getExtensions()).doesNotContain(DefaultFilesystemCacheContext.class);
   }
 
   @Test

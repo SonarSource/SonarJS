@@ -24,6 +24,9 @@ import {
 import type { AnalyzeProjectIncrementalEvent } from '../src/analyze-project-request.js';
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
 import { FS_CACHE_INSTALLATION } from '../../shared/src/fs-cache/hook.js';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 const workerData: WorkerData = { debugMemory: false };
 type AnalyzeProjectRequest = analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectRequest;
@@ -122,6 +125,35 @@ describe('analyze-project request handler', () => {
     );
 
     expect(result).toMatchObject({ reason: 'invalid_request', type: 'failure' });
+    expect(ended).toBe(true);
+  });
+
+  it('preserves a successful analysis and ends the filesystem session when selection persistence fails', async () => {
+    let ended = false;
+    (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = {
+      beginAnalysis() {
+        return {
+          end() {
+            ended = true;
+          },
+        };
+      },
+    };
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-failure-'));
+    const parentFile = path.join(temporary, 'not-a-directory');
+    fs.writeFileSync(parentFile, 'file');
+    const request = createAnalyzeProjectRequest();
+    request.filesystemCache = {
+      archivePath: path.join(temporary, 'filesystem.pb.gz'),
+      programSelectionPath: path.join(parentFile, 'selection.pb.gz'),
+    };
+
+    const result = await handleAnalyzeProjectRequest(
+      { type: 'on-analyze-project', data: request },
+      workerData,
+    );
+
+    expect(result).toMatchObject({ type: 'success' });
     expect(ended).toBe(true);
   });
 

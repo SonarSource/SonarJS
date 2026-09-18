@@ -22,6 +22,7 @@ import org.sonar.api.Plugin;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.utils.Version;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssProfileDefinition;
 import org.sonar.css.CssRules;
@@ -29,8 +30,11 @@ import org.sonar.css.CssRulesDefinition;
 import org.sonar.css.StylelintReportSensor;
 import org.sonar.plugins.javascript.analysis.AnalysisConsumers;
 import org.sonar.plugins.javascript.analysis.AnalysisProcessor;
+import org.sonar.plugins.javascript.analysis.DefaultFilesystemCacheContext;
+import org.sonar.plugins.javascript.analysis.FilesystemCacheContext;
 import org.sonar.plugins.javascript.analysis.JsTsChecks;
 import org.sonar.plugins.javascript.analysis.JsTsExclusionsFilter;
+import org.sonar.plugins.javascript.analysis.NoOpFilesystemCacheContext;
 import org.sonar.plugins.javascript.analysis.WebSensor;
 import org.sonar.plugins.javascript.analysis.WebSensorModuleConfiguration;
 import org.sonar.plugins.javascript.analysis.WebSensorModuleConfigurationSensor;
@@ -54,6 +58,7 @@ import org.sonar.plugins.javascript.sonarlint.FSListenerImpl;
 public class JavaScriptPlugin implements Plugin {
 
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptPlugin.class);
+  private static final Version MINIMUM_FILESYSTEM_CONTEXT_API_VERSION = Version.create(13, 4);
 
   // Subcategories
 
@@ -177,6 +182,18 @@ public class JavaScriptPlugin implements Plugin {
       EmbeddedNode.class,
       Environment.class
     );
+
+    if (
+      SonarProduct.SONARQUBE.equals(context.getRuntime().getProduct()) &&
+      context
+        .getRuntime()
+        .getApiVersion()
+        .isGreaterThanOrEqual(MINIMUM_FILESYSTEM_CONTEXT_API_VERSION)
+    ) {
+      context.addExtension(DefaultFilesystemCacheContext.class);
+    } else {
+      context.addExtension(NoOpFilesystemCacheContext.class);
+    }
 
     context.addExtensions(
       PropertyDefinition.builder(LCOV_REPORT_PATHS)
