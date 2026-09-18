@@ -63,6 +63,14 @@ function alignFileResultWithMapper(
   result: FinalizableSuccessResult,
   mapper: ScannerLocationMapper,
 ) {
+  alignIssues(result, mapper);
+  alignParsingErrors(result, mapper);
+  alignArtifacts(result, mapper);
+  alignMetrics(result, mapper);
+  alignSonarResolveComments(result, mapper);
+}
+
+function alignIssues(result: FinalizableSuccessResult, mapper: ScannerLocationMapper) {
   for (const issue of result.issues) {
     if (issue.language !== 'css') {
       alignIssue(issue, mapper);
@@ -71,20 +79,27 @@ function alignFileResultWithMapper(
   for (const issue of result.suppressedIssues ?? []) {
     alignIssue(issue, mapper);
   }
-  if ('parsingErrors' in result) {
-    for (const error of result.parsingErrors ?? []) {
-      if (error.language !== 'css' && error.line !== undefined) {
-        if (error.column === undefined) {
-          error.line = mapper.line(error.line);
-        } else {
-          const position = mapper.position(error.line, error.column);
-          error.line = position.line;
-          error.column = position.column;
-        }
-      }
+}
+
+function alignParsingErrors(result: FinalizableSuccessResult, mapper: ScannerLocationMapper) {
+  if (!('parsingErrors' in result)) {
+    return;
+  }
+  for (const error of result.parsingErrors ?? []) {
+    if (error.language === 'css' || error.line === undefined) {
+      continue;
+    }
+    if (error.column === undefined) {
+      error.line = mapper.line(error.line);
+    } else {
+      const position = mapper.position(error.line, error.column);
+      error.line = position.line;
+      error.column = position.column;
     }
   }
+}
 
+function alignArtifacts(result: FinalizableSuccessResult, mapper: ScannerLocationMapper) {
   if ('highlights' in result) {
     for (const highlight of result.highlights ?? []) {
       alignArtifactLocation(highlight.location, mapper);
@@ -101,19 +116,28 @@ function alignFileResultWithMapper(
       alignArtifactLocation(token.location, mapper);
     }
   }
+}
 
-  if (result.metrics) {
-    result.metrics.ncloc = alignLines(result.metrics.ncloc, mapper);
-    if ('commentLines' in result.metrics) {
-      result.metrics.commentLines = alignLines(result.metrics.commentLines, mapper);
-    }
-    if ('nosonarLines' in result.metrics) {
-      result.metrics.nosonarLines = alignLines(result.metrics.nosonarLines, mapper) ?? [];
-    }
-    if ('executableLines' in result.metrics) {
-      result.metrics.executableLines = alignLines(result.metrics.executableLines, mapper);
-    }
+function alignMetrics(result: FinalizableSuccessResult, mapper: ScannerLocationMapper) {
+  if (!result.metrics) {
+    return;
   }
+  result.metrics.ncloc = alignLines(result.metrics.ncloc, mapper);
+  if ('commentLines' in result.metrics) {
+    result.metrics.commentLines = alignLines(result.metrics.commentLines, mapper);
+  }
+  if ('nosonarLines' in result.metrics) {
+    result.metrics.nosonarLines = alignLines(result.metrics.nosonarLines, mapper) ?? [];
+  }
+  if ('executableLines' in result.metrics) {
+    result.metrics.executableLines = alignLines(result.metrics.executableLines, mapper);
+  }
+}
+
+function alignSonarResolveComments(
+  result: FinalizableSuccessResult,
+  mapper: ScannerLocationMapper,
+) {
   for (const comment of result.sonarResolveComments ?? []) {
     comment.line = mapper.line(comment.line);
   }

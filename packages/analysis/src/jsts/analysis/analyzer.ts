@@ -67,19 +67,19 @@ export type UnserializedJsTsAnalysisOutput = Omit<JsTsAnalysisOutput, 'ast'> & {
  * @param input the sanitized JavaScript / TypeScript analysis input to analyze
  * @returns the JavaScript / TypeScript analysis output
  */
-export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysisOutput> {
-  const result = await analyzeJSTSUnserialized(input);
-  if (result.unserializedAst) {
-    const { unserializedAst, ...output } = result;
-    const ast = serializeInProtobufSafely(unserializedAst, input.filePath);
-    return ast ? { ast, ...output } : output;
-  }
-  return result;
+export function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysisOutput> {
+  return Promise.resolve().then(() => {
+    const result = analyzeJSTSUnserialized(input);
+    if (result.unserializedAst) {
+      const { unserializedAst, ...output } = result;
+      const ast = serializeInProtobufSafely(unserializedAst, input.filePath);
+      return ast ? { ast, ...output } : output;
+    }
+    return result;
+  });
 }
 
-async function analyzeJSTSUnserialized(
-  input: JsTsAnalysisInput,
-): Promise<UnserializedJsTsAnalysisOutput> {
+function analyzeJSTSUnserialized(input: JsTsAnalysisInput): UnserializedJsTsAnalysisOutput {
   debug(`Analyzing file "${input.filePath}"`);
   const {
     filePath,
@@ -161,14 +161,12 @@ function prepareLinterOptions(input: JsTsAnalysisInput): AnalysisLinterOptions {
   };
 }
 
-export async function analyzeJSTSProject(
+export function analyzeJSTSProject(
   input: JsTsAnalysisInput,
 ): Promise<UnserializedJsTsAnalysisOutput | ProjectFailureResult> {
-  try {
-    return await analyzeJSTSUnserialized(input);
-  } catch (err) {
-    return toProjectFailureResult(err, input.language);
-  }
+  return Promise.resolve()
+    .then(() => analyzeJSTSUnserialized(input))
+    .catch(err => toProjectFailureResult(err, input.language));
 }
 
 /**

@@ -406,7 +406,7 @@ public class AnalysisProcessor {
     fileLinesContext.save();
   }
 
-  private void saveLineMetrics(
+  private static void saveLineMetrics(
     FileLinesContext fileLinesContext,
     String metricKey,
     List<Integer> lines
