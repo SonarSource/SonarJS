@@ -373,3 +373,13 @@ const hiddenByAncestor = (
   <a href="/export/csv"><svg aria-label="Export data" /></a>;
 //^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
   <a href="/export/json"><svg aria-label="Export data" /></a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 373.}}
+
+// Compliant: a nested aria-labelledby makes the anchor's name unresolvable, even though the
+// visible text matches - excluded rather than compared via that text, since the two labels
+// reference different (unresolved) elements.
+const nestedLabelledbyUnresolvable = (
+  <div>
+    <a href="/save/draft"><span aria-labelledby="save-as-draft">Save</span></a>
+    <a href="/save/final"><span aria-labelledby="save-as-final">Save</span></a>
+  </div>
+);
