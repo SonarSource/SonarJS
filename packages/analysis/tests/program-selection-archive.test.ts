@@ -107,4 +107,37 @@ describe('ProgramSelectionArchive', () => {
       },
     ]);
   });
+
+  it('preserves portable selections when another program is outside the project', () => {
+    const root = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'selection-')));
+    const archivePath = path.join(root, 'selection.pb.gz');
+    const portableFile = normalizeToAbsolutePath('src/portable.ts', root);
+    const portableTsconfig = normalizeToAbsolutePath('tsconfig.json', root);
+    const outsideRoot = normalizeToAbsolutePath(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'selection-outside-')),
+    );
+    const outsideFile = normalizeToAbsolutePath('outside.ts', outsideRoot);
+    const outsideTsconfig = normalizeToAbsolutePath('tsconfig.json', outsideRoot);
+
+    const recorder = new ProgramSelectionArchive(archivePath, root);
+    recorder.recordConfigured(portableFile, portableTsconfig, { strict: true });
+    recorder.recordConfigured(portableFile, outsideTsconfig, { strict: false });
+    recorder.recordOrphanGroup([outsideFile], { allowJs: true });
+    recorder.end();
+
+    const replay = new ProgramSelectionArchive(archivePath, root);
+    expect(replay.restoredSelections([portableFile, outsideFile])).toEqual([
+      {
+        id: 1,
+        program: {
+          kind: 'configured',
+          tsconfig: portableTsconfig,
+          compilerOptions: { strict: true },
+        },
+        rootNames: [portableFile],
+        requestedFiles: [portableFile],
+      },
+    ]);
+    expect(replay.hasSelection(outsideFile)).toBe(false);
+  });
 });
