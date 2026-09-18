@@ -51,6 +51,7 @@ export class InvalidAnalyzeProjectRequestError extends Error {}
 
 export async function normalizeAnalyzeProjectRequest(
   request: AnalyzeProjectRequest,
+  skipProjectFileDiscovery = false,
 ): Promise<SanitizedProjectAnalysisInput> {
   const configuration = createConfigurationFromProto(request.configuration);
   const filesPresent = hasExplicitFiles(request.files, configuration.canAccessFileSystem);
@@ -62,7 +63,7 @@ export async function normalizeAnalyzeProjectRequest(
   const bundles = normalizePathList(request.bundles, configuration.baseDir);
   const rulesWorkdir = normalizeOptionalPath(request.rulesWorkdir, configuration.baseDir);
 
-  await initFileStoresForAnalysis(configuration, sanitizedFiles?.files);
+  await initFileStoresForAnalysis(configuration, sanitizedFiles?.files, skipProjectFileDiscovery);
 
   return {
     rules,

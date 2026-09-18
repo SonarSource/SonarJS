@@ -104,7 +104,7 @@ async function analyzeProjectWithCancellation(
   configuration: Configuration,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
-  const { rules, bundles, rulesWorkdir } = input;
+  const { rules, bundles, rulesWorkdir, programSelection } = input;
   const filesToAnalyze = sourceFileStore.getFiles();
 
   // All files go into pendingFiles - analyzeFile decides per-file whether to
@@ -168,6 +168,7 @@ async function analyzeProjectWithCancellation(
         baseDir,
         canAccessFileSystem,
         jsTsConfigFields,
+        programSelection,
         incrementalResultsChannel,
       );
     }

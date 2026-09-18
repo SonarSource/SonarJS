@@ -30,14 +30,17 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public interface FilesystemCacheContext {
   String CONTEXT_KIND = "javascript";
   String ARCHIVE_ITEM_ID = "filesystem-cache";
-  int METADATA_VERSION = 1;
+  String PROGRAM_SELECTION_ITEM_ID = "typescript-program-selection";
+  int METADATA_VERSION = 2;
 
   /** Internal property set by SQAA after restoring the context item locally. */
   String RESTORED_ARCHIVE_PATH_PROPERTY = "sonar.javascript.internal.filesystemCacheArchivePath";
+  String RESTORED_PROGRAM_SELECTION_PATH_PROPERTY =
+    "sonar.javascript.internal.programSelectionArchivePath";
 
   boolean isSupported();
 
   boolean isEnabled();
 
-  void collect(Path archivePath);
+  void collect(Path archivePath, Path programSelectionPath);
 }

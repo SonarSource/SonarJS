@@ -28,6 +28,7 @@ import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import { IncrementalCompilerHost } from './jsts/program/compilerHost.js';
 import {
   createProgramOptions,
+  createProgramOptionsFromEffectiveOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
   esLibToYear,
@@ -44,6 +45,7 @@ import {
   getProjectAnalysisTelemetryCollector,
   type ProjectAnalysisTelemetryCollector,
 } from './telemetry.js';
+import type { ProgramSelectionArchive } from './program-selection/archive.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
@@ -67,6 +69,7 @@ export async function analyzeWithProgram(
   baseDir: NormalizedAbsolutePath,
   canAccessFileSystem: boolean,
   jsTsConfigFields: JsTsConfigFields,
+  programSelection?: ProgramSelectionArchive,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   const telemetry = getProjectAnalysisTelemetryCollector();
@@ -74,54 +77,68 @@ export async function analyzeWithProgram(
   const processedTSConfigs: Set<NormalizedAbsolutePath> = new Set();
   const tsconfigs = tsConfigStore.getTsConfigs();
 
-  // Process tsconfigs, discovering project references as we go.
-  // When a tsconfig has project references, we add them via addDiscoveredTsConfig(),
-  // and they will be included in this iteration since getTsConfigs() returns a live iterable.
-  for (const tsConfig of tsconfigs) {
-    if (isAnalysisCancelled()) {
-      return;
-    }
-    if (!pendingFiles.size) {
-      break;
-    }
-
-    // Skip if already processed
-    if (processedTSConfigs.has(tsConfig)) {
-      continue;
-    }
-
-    await analyzeFilesFromTsConfig(
+  if (programSelection?.isReplay()) {
+    await analyzeFilesFromProgramSelection(
       files,
-      tsConfig,
       results,
       pendingFiles,
-      foundProgramOptions,
-      processedTSConfigs,
       progressReport,
       baseDir,
       canAccessFileSystem,
       jsTsConfigFields,
       telemetry,
+      programSelection,
       incrementalResultsChannel,
     );
-  }
+  } else {
+    // Process tsconfigs, discovering project references as we go. When a tsconfig has project
+    // references, addDiscoveredTsConfig() extends this live iterable.
+    for (const tsConfig of tsconfigs) {
+      if (isAnalysisCancelled()) {
+        return;
+      }
+      if (!pendingFiles.size) {
+        break;
+      }
+      if (processedTSConfigs.has(tsConfig)) {
+        continue;
+      }
 
-  if (jsTsConfigFields.createTSProgramForOrphanFiles) {
-    await analyzeFilesFromEntryPoint(
-      files,
-      results,
-      pendingFiles,
-      foundProgramOptions,
-      progressReport,
-      baseDir,
-      jsTsConfigFields,
-      telemetry,
-      incrementalResultsChannel,
-    );
-  } else if (pendingFiles.size) {
-    info(
-      `Skipping TypeScript program creation for ${pendingFiles.size} orphan file(s) (sonar.javascript.createTSProgramForOrphanFiles=false)`,
-    );
+      await analyzeFilesFromTsConfig(
+        files,
+        tsConfig,
+        results,
+        pendingFiles,
+        foundProgramOptions,
+        processedTSConfigs,
+        progressReport,
+        baseDir,
+        canAccessFileSystem,
+        jsTsConfigFields,
+        telemetry,
+        programSelection,
+        incrementalResultsChannel,
+      );
+    }
+
+    if (jsTsConfigFields.createTSProgramForOrphanFiles) {
+      await analyzeFilesFromEntryPoint(
+        files,
+        results,
+        pendingFiles,
+        foundProgramOptions,
+        progressReport,
+        baseDir,
+        jsTsConfigFields,
+        telemetry,
+        programSelection,
+        incrementalResultsChannel,
+      );
+    } else if (pendingFiles.size) {
+      info(
+        `Skipping TypeScript program creation for ${pendingFiles.size} orphan file(s) (sonar.javascript.createTSProgramForOrphanFiles=false)`,
+      );
+    }
   }
 
   if (foundProgramOptions.some(options => options.missingTsConfig)) {
@@ -149,6 +166,7 @@ async function analyzeFilesFromEntryPoint(
   baseDir: NormalizedAbsolutePath,
   jsTsConfigFields: JsTsConfigFields,
   telemetry: ProjectAnalysisTelemetryCollector,
+  programSelection?: ProgramSelectionArchive,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
@@ -184,6 +202,7 @@ async function analyzeFilesFromEntryPoint(
     const detectedEsYear = esLibToYear(programOptions.options.lib);
     const targetEsYear = tsTargetToEsYear(programOptions.options.target);
     telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
+    programSelection?.recordOrphanGroup(groupRootNames, programOptions.options);
 
     for (const fileName of groupRootNames) {
       if (isAnalysisCancelled()) {
@@ -259,6 +278,7 @@ async function analyzeFilesFromTsConfig(
   canAccessFileSystem: boolean,
   jsTsConfigFields: JsTsConfigFields,
   telemetry: ProjectAnalysisTelemetryCollector,
+  programSelection?: ProgramSelectionArchive,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   processedTSConfigs.add(tsconfig);
@@ -331,6 +351,7 @@ async function analyzeFilesFromTsConfig(
       return;
     }
 
+    programSelection?.recordConfigured(fileName, tsconfig, programOptions.options);
     await analyzeFile(
       fileName,
       files[fileName],
@@ -343,5 +364,88 @@ async function analyzeFilesFromTsConfig(
       detectedEsYear ?? undefined,
       targetEsYear ?? undefined,
     );
+  }
+}
+
+async function analyzeFilesFromProgramSelection(
+  files: AnalyzableFiles,
+  results: ProjectAnalysisOutput,
+  pendingFiles: Set<NormalizedAbsolutePath>,
+  progressReport: ProgressReport,
+  baseDir: NormalizedAbsolutePath,
+  canAccessFileSystem: boolean,
+  jsTsConfigFields: JsTsConfigFields,
+  telemetry: ProjectAnalysisTelemetryCollector,
+  programSelection: ProgramSelectionArchive,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+): Promise<void> {
+  const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
+  const requestedJsTsFiles = [...pendingFiles].filter(file =>
+    isJsTsFile(file, { jsSuffixes, tsSuffixes }),
+  );
+  const unselectedFiles = requestedJsTsFiles.filter(file => !programSelection.hasSelection(file));
+  if (unselectedFiles.length > 0) {
+    warn(
+      `No recorded TypeScript program selection for ${unselectedFiles.length} file(s); they will be analyzed without type information`,
+    );
+  }
+
+  for (const selection of programSelection.restoredSelections(requestedJsTsFiles)) {
+    if (isAnalysisCancelled()) {
+      return;
+    }
+    telemetry.recordProgramCreationAttempt();
+    const programOptions =
+      selection.program.kind === 'configured'
+        ? createProgramOptions(
+            selection.program.tsconfig,
+            undefined,
+            canAccessFileSystem,
+            jsTsConfigFields.ecmaScriptVersion,
+            baseDir,
+          )
+        : createProgramOptionsFromEffectiveOptions(
+            selection.program.compilerOptions,
+            selection.rootNames,
+          );
+    if (selection.program.kind === 'configured') {
+      programOptions.options = selection.program.compilerOptions;
+    }
+    telemetry.recordCompilerOptions(programOptions.options);
+    programOptions.host = new IncrementalCompilerHost(
+      programOptions.options,
+      baseDir,
+      jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
+    );
+    const tsProgram = createStandardProgram(programOptions);
+    const detectedEsYear = esLibToYear(programOptions.options.lib);
+    const targetEsYear = tsTargetToEsYear(programOptions.options.target);
+    telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
+    info(
+      selection.program.kind === 'configured'
+        ? `Restored TypeScript program selected from ${selection.program.tsconfig}`
+        : `Restored orphan TypeScript program for ${selection.rootNames.length} entry point(s)`,
+    );
+
+    for (const fileName of selection.requestedFiles) {
+      if (!pendingFiles.has(fileName)) {
+        continue;
+      }
+      if (!tsProgram.getSourceFile(fileName)) {
+        throw new Error(`Restored TypeScript program does not contain ${fileName}`);
+      }
+      await analyzeFile(
+        fileName,
+        files[fileName],
+        jsTsConfigFields,
+        tsProgram,
+        results,
+        pendingFiles,
+        progressReport,
+        incrementalResultsChannel,
+        detectedEsYear ?? undefined,
+        targetEsYear ?? undefined,
+      );
+    }
   }
 }
