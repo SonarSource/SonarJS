@@ -264,6 +264,24 @@ describe('S1101', () => {
           </div>;
         `,
       },
+      {
+        // An ancestor's spread that could set a visibility prop is treated as possibly hidden.
+        code: `
+          <div {...{ hidden: true }}>
+            <a href="/a">Same</a>
+            <a href="/b">Same</a>
+          </div>;
+        `,
+      },
+      {
+        // An ancestor's unresolvable spread is also treated as possibly hidden, conservatively.
+        code: `
+          <div {...spreadProps}>
+            <a href="/a">Same</a>
+            <a href="/b">Same</a>
+          </div>;
+        `,
+      },
     ],
     invalid: [
       {
@@ -292,7 +310,20 @@ describe('S1101', () => {
         `,
       },
     ],
-    invalid: [],
+    invalid: [
+      {
+        // A nested aria-labelledby that resolves to no id names nothing, so it falls through to
+        // the nested element's text content instead of excluding the anchor, same as an empty
+        // aria-labelledby on the anchor itself.
+        code: `
+          <div>
+            <a href="/a"><span aria-labelledby="">Save</span></a>
+            <a href="/b"><span aria-labelledby="">Save</span></a>
+          </div>;
+        `,
+        errors: 1,
+      },
+    ],
   });
 
   ruleTester.run("a nested element's own aria-label overrides its content", rule, {
