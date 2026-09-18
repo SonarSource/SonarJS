@@ -1,0 +1,11 @@
+{
+"vitest:packages/browser/src/client/orchestrator.ts": [
+420
+],
+"vitest:packages/browser/src/client/tester/context.ts": [
+298
+],
+"vitest:packages/browser/src/client/tester/tester.ts": [
+37
+]
+}
