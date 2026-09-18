@@ -93,6 +93,8 @@ function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
  * on `Window`.
  */
 function resolvesToDomWindow(type: ts.Type, checker: ts.TypeChecker): boolean {
+  // Resolves a generic type parameter (e.g. `T extends Window`) to its constraint, since a bare
+  // type parameter has no members of its own to look up below.
   const apparent = checker.getApparentType(type);
   const members = apparent.isUnionOrIntersection() ? apparent.types : [apparent];
   return members.some(
