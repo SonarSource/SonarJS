@@ -72,39 +72,45 @@ export const rule: Rule.RuleModule = {
  * as `WebSocket` is not mistaken for a `Window`. The name is only a fallback for receivers
  * the checker could not resolve, such as a call to an undeclared function.
  *
- * The resolved case is decided positively, through {@link resolvesToDomWindowMember}, rather
- * than by matching the type's printed name: `typeToString` prefers a declared/alias name and
+ * The resolved case is decided positively, through {@link resolvesToDomWindow}, rather than
+ * by matching the type's printed name: `typeToString` prefers a declared/alias name and
  * truncates long output, so a genuine `Window` behind an interface that `extends Window`, a
  * type alias, a generic parameter constrained to `Window`, or a union/intersection member
  * would otherwise stop being recognized once the name is no longer consulted.
+ *
+ * A receiver whose *resolved* type only structurally resembles `Window` (e.g. a generic
+ * parameter bounded by a hand-written interface that merely declares a `postMessage` method,
+ * without `frames`) is not recognized either: the type only proves what its own declaration
+ * proves, so a caller passing the real `window` at one call site does not make the parameter
+ * itself a `Window` inside the function body.
  */
 function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
   const services = context.sourceCode.parserServices;
   const resolvedType = getTypeFromTreeNode(node, services);
   if (!isAnyOrUnknownType(resolvedType)) {
-    return resolvesToDomWindow(resolvedType, services.program.getTypeChecker());
+    return resolvesToDomWindow(resolvedType);
   }
   return WindowNameVisitor.containsWindowName(node, context);
 }
 
 /**
  * `postMessage` alone isn't Window-specific — `Worker`, `MessagePort`, `BroadcastChannel` and
- * `ServiceWorker` declare it too — so also require `frames`, which `lib.dom.d.ts` declares only
- * on `Window`.
+ * `ServiceWorker` declare it too — so also require `frames`, which only `Window` declares.
+ *
+ * The two members only need to exist on the type, not to originate from `lib.dom.d.ts`: a
+ * project that supplies its DOM types through `@types/web` instead of `lib.dom.d.ts` would
+ * otherwise lose S2819 coverage entirely, and that whole-project false negative is worse than
+ * the structural check's own residual risk — a hand-written type that happens to declare both
+ * `postMessage` and `frames` itself being mistaken for a `Window`, which is accepted as an
+ * unlikely, narrow false positive.
  */
-function resolvesToDomWindow(type: ts.Type, checker: ts.TypeChecker): boolean {
-  // Resolves a generic type parameter (e.g. `T extends Window`) to its constraint, since a bare
-  // type parameter has no members of its own to look up below.
-  const apparent = checker.getApparentType(type);
-  const members = apparent.isUnionOrIntersection() ? apparent.types : [apparent];
-  return members.some(
-    member => declaredInDomLib(member, POST_MESSAGE) && declaredInDomLib(member, 'frames'),
-  );
+function resolvesToDomWindow(type: ts.Type): boolean {
+  const members = type.isUnionOrIntersection() ? type.types : [type];
+  return members.some(member => hasMember(member, POST_MESSAGE) && hasMember(member, 'frames'));
 }
 
-function declaredInDomLib(type: ts.Type, propertyName: string): boolean {
-  const declarations = type.getProperty(propertyName)?.declarations;
-  return declarations?.some(d => d.getSourceFile().fileName.endsWith('lib.dom.d.ts')) ?? false;
+function hasMember(type: ts.Type, propertyName: string): boolean {
+  return type.getProperty(propertyName) !== undefined;
 }
 
 function checkPostMessageCall(callExpr: estree.CallExpression, context: Rule.RuleContext) {

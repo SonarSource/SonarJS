@@ -394,6 +394,18 @@ describe('S2819', () => {
       });
             `,
         },
+        {
+          // Known limitation: a generic parameter bounded by a hand-written interface that
+          // only declares 'postMessage' (no 'frames') is not recognized, even when every
+          // caller happens to pass the real window: the parameter's own type is all that is
+          // proven inside the function body.
+          code: `
+      function send<T extends { postMessage(message: string, origin: string): void }>(target: T) {
+        target.postMessage("message", "*");
+      }
+      send(window);
+            `,
+        },
       ],
       invalid: [
         {
@@ -405,11 +417,13 @@ describe('S2819', () => {
         },
         {
           // A genuine Window behind an interface that extends Window: the printed type is
-          // "Frame", so the receiver-type decision must not rely on the printed name.
+          // "Frame", so the receiver-type decision must not rely on the printed name. The
+          // receiver name deliberately does not contain "window", so this fails if the
+          // implementation regresses to the old name-based heuristic.
           code: `
       interface Frame extends Window {}
-      declare const myWindowFrame: Frame;
-      myWindowFrame.postMessage("message", "*");
+      declare const frame: Frame;
+      frame.postMessage("message", "*");
             `,
           errors: 1,
         },
@@ -418,16 +432,16 @@ describe('S2819', () => {
           // name ("W"), not "Window".
           code: `
       type W = Window & typeof globalThis;
-      declare const myWindowAlias: W;
-      myWindowAlias.postMessage("message", "*");
+      declare const target: W;
+      target.postMessage("message", "*");
             `,
           errors: 1,
         },
         {
           // A generic parameter constrained to Window prints as its own name ("T").
           code: `
-      function sendTo<T extends Window>(myWindowTarget: T) {
-        myWindowTarget.postMessage("message", "*");
+      function sendTo<T extends Window>(target: T) {
+        target.postMessage("message", "*");
       }
             `,
           errors: 1,
@@ -436,8 +450,8 @@ describe('S2819', () => {
           // A union member that is a genuine Window.
           code: `
       interface Frame extends Window {}
-      declare const myWindowOrWorker: Frame | Worker;
-      myWindowOrWorker.postMessage("message", "*");
+      declare const target: Frame | Worker;
+      target.postMessage("message", "*");
             `,
           errors: 1,
         },
@@ -446,21 +460,33 @@ describe('S2819', () => {
           code: `
       interface Tagged { tag: string }
       interface Frame extends Window {}
-      declare const myWindowThing: Frame & Tagged;
-      myWindowThing.postMessage("message", "*");
+      declare const target: Frame & Tagged;
+      target.postMessage("message", "*");
             `,
           errors: 1,
         },
         {
-          // The same Window-subtype shapes must still report on the addEventListener side.
+          // The same Window-subtype shape must still report on the addEventListener side.
           code: `
       interface Frame extends Window {}
-      declare const myWindowFrame: Frame;
-      myWindowFrame.addEventListener("message", function(event) {
+      declare const frame: Frame;
+      frame.addEventListener("message", function(event) {
         console.log(event.data);
       });
             `,
           errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
+          // Known limitation: a hand-written type that structurally declares both `postMessage`
+          // and `frames` is mistaken for a Window, even though neither member comes from
+          // `lib.dom.d.ts`. Accepted so that a project supplying DOM types via `@types/web`
+          // instead of `lib.dom.d.ts` keeps S2819 coverage for its real Window receivers.
+          code: `
+      interface FakeWindow { postMessage(message: string, origin: string): void; frames: number }
+      declare const fake: FakeWindow;
+      fake.postMessage("message", "*");
+            `,
+          errors: 1,
         },
         {
           code: `
