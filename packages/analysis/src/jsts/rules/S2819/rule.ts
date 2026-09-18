@@ -18,10 +18,11 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
+import type ts from 'typescript';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { childrenOf, findFirstMatchingLocalAncestor } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getTypeAsString, getTypeFromTreeNode, isAnyOrUnknownType } from '../helpers/type.js';
+import { getTypeFromTreeNode, isAnyOrUnknownType } from '../helpers/type.js';
 import {
   getValueOfExpression,
   getUniqueWriteUsageOrNode,
@@ -70,15 +71,49 @@ export const rule: Rule.RuleModule = {
  * authoritative and the name is not consulted, so a receiver such as `workerWindow` typed
  * as `WebSocket` is not mistaken for a `Window`. The name is only a fallback for receivers
  * the checker could not resolve, such as a call to an undeclared function.
+ *
+ * The resolved case is decided positively, through {@link resolvesToDomWindowMember}, rather
+ * than by matching the type's printed name: `typeToString` prefers a declared/alias name and
+ * truncates long output, so a genuine `Window` behind an interface that `extends Window`, a
+ * type alias, a generic parameter constrained to `Window`, or a union/intersection member
+ * would otherwise stop being recognized once the name is no longer consulted.
  */
 function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
   const services = context.sourceCode.parserServices;
   const resolvedType = getTypeFromTreeNode(node, services);
   if (!isAnyOrUnknownType(resolvedType)) {
-    const type = getTypeAsString(node, services);
-    return /window/i.exec(type) !== null || /globalThis/i.exec(type) !== null;
+    return resolvesToDomWindowMember(
+      resolvedType,
+      POST_MESSAGE,
+      services.program.getTypeChecker(),
+    );
   }
   return WindowNameVisitor.containsWindowName(node, context);
+}
+
+/**
+ * Returns true when `type`, or any individual member of a union or intersection, declares
+ * `propertyName` in the DOM's own `lib.dom.d.ts` (e.g. `Window`'s `postMessage`/`onmessage`).
+ *
+ * This is a positive, declaration-based check rather than a match on the type's printed
+ * name, so it isn't fooled by a type alias, an interface that `extends Window`, a generic
+ * parameter constrained to `Window`, or a union/intersection that includes `Window` among
+ * other members. `getApparentType` resolves a generic type parameter to its constraint
+ * before the lookup; TypeScript's own property resolution already walks `extends`/interface
+ * inheritance and intersection members, so no separate base-type walk is needed.
+ */
+function resolvesToDomWindowMember(
+  type: ts.Type,
+  propertyName: string,
+  checker: ts.TypeChecker,
+): boolean {
+  const apparent = checker.getApparentType(type);
+  const members = apparent.isUnionOrIntersection() ? apparent.types : [apparent];
+  return members.some(member =>
+    member
+      .getProperty(propertyName)
+      ?.declarations?.some(declaration => declaration.getSourceFile().fileName.endsWith('lib.dom.d.ts')),
+  );
 }
 
 function checkPostMessageCall(callExpr: estree.CallExpression, context: Rule.RuleContext) {
@@ -111,7 +146,9 @@ function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rul
   const { callee, arguments: args } = callExpr;
   if (
     callee.type !== 'MemberExpression' ||
-    !isWindowObject(callee, context) ||
+    // Test the receiver itself, not the `addEventListener` method: the method's own type
+    // (an overloaded signature set) is not a Window and must not decide this.
+    !isWindowObject(callee.object, context) ||
     args.length < 2 ||
     !isMessageTypeEvent(args[0], context) ||
     isWindowAliasedToWorkerGlobal(callee.object, context)

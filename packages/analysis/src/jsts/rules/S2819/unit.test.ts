@@ -377,6 +377,65 @@ describe('S2819', () => {
           errors: [{ messageId: 'specifyTarget' }],
         },
         {
+          // A genuine Window behind an interface that extends Window: the printed type is
+          // "Frame", so the receiver-type decision must not rely on the printed name.
+          code: `
+      interface Frame extends Window {}
+      declare const myWindowFrame: Frame;
+      myWindowFrame.postMessage("message", "*");
+            `,
+          errors: 1,
+        },
+        {
+          // A genuine Window reached through a type alias: the printed type is the alias
+          // name ("W"), not "Window".
+          code: `
+      type W = Window & typeof globalThis;
+      declare const myWindowAlias: W;
+      myWindowAlias.postMessage("message", "*");
+            `,
+          errors: 1,
+        },
+        {
+          // A generic parameter constrained to Window prints as its own name ("T").
+          code: `
+      function sendTo<T extends Window>(myWindowTarget: T) {
+        myWindowTarget.postMessage("message", "*");
+      }
+            `,
+          errors: 1,
+        },
+        {
+          // A union member that is a genuine Window.
+          code: `
+      interface Frame extends Window {}
+      declare const myWindowOrWorker: Frame | Worker;
+      myWindowOrWorker.postMessage("message", "*");
+            `,
+          errors: 1,
+        },
+        {
+          // An intersection member that is a genuine Window.
+          code: `
+      interface Tagged { tag: string }
+      interface Frame extends Window {}
+      declare const myWindowThing: Frame & Tagged;
+      myWindowThing.postMessage("message", "*");
+            `,
+          errors: 1,
+        },
+        {
+          // The same Window-subtype shapes must still report on the addEventListener side.
+          code: `
+      interface Frame extends Window {}
+      declare const myWindowFrame: Frame;
+      myWindowFrame.addEventListener("message", function(event) {
+        console.log(event.data);
+      });
+            `,
+          errors: [{ messageId: 'verifyOrigin' }],
+        },
+        {
           code: `
       postMessage("message", "*");
             `,
