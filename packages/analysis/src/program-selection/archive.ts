@@ -66,6 +66,11 @@ type StoredProgram = {
   program: RecordedProgram;
 };
 
+/**
+ * Records portable TypeScript program selections relative to the analysis base directory.
+ * Selections containing files or tsconfigs outside that directory are omitted, while other
+ * selections remain replayable.
+ */
 export class ProgramSelectionArchive {
   private readonly archivePath: string;
   private readonly baseDir: NormalizedAbsolutePath;
