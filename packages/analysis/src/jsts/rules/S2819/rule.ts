@@ -21,7 +21,7 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { childrenOf, findFirstMatchingLocalAncestor } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getTypeAsString, getTypeFromTreeNode } from '../helpers/type.js';
+import { getTypeAsString, getTypeFromTreeNode, isAnyOrUnknownType } from '../helpers/type.js';
 import {
   getValueOfExpression,
   getUniqueWriteUsageOrNode,
@@ -64,10 +64,21 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+/**
+ * The receiver-name heuristic only stands in for a resolved type: when the type checker
+ * already resolved `node` to something other than `any`/`unknown`, that resolved type is
+ * authoritative and the name is not consulted, so a receiver such as `workerWindow` typed
+ * as `WebSocket` is not mistaken for a `Window`. The name is only a fallback for receivers
+ * the checker could not resolve, such as a call to an undeclared function.
+ */
 function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
-  const type = getTypeAsString(node, context.sourceCode.parserServices);
-  const hasWindowName = WindowNameVisitor.containsWindowName(node, context);
-  return type.match(/window/i) || type.match(/globalThis/i) || hasWindowName;
+  const services = context.sourceCode.parserServices;
+  const resolvedType = getTypeFromTreeNode(node, services);
+  if (!isAnyOrUnknownType(resolvedType)) {
+    const type = getTypeAsString(node, services);
+    return !!(type.match(/window/i) || type.match(/globalThis/i));
+  }
+  return WindowNameVisitor.containsWindowName(node, context);
 }
 
 function checkPostMessageCall(callExpr: estree.CallExpression, context: Rule.RuleContext) {

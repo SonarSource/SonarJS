@@ -351,6 +351,22 @@ describe('S2819', () => {
       });
       `,
         },
+        {
+          // FP: 'workerWindow' contains 'window' but is typed as WebSocket, not a Window
+          code: `
+      const workerWindow = new WebSocket('wss://example.org');
+      workerWindow.addEventListener("message", function(event) {
+        console.log(event.data);
+      });
+            `,
+        },
+        {
+          // FP: same non-Window receiver on the postMessage side
+          code: `
+      const workerWindow = new WebSocket('wss://example.org');
+      workerWindow.postMessage("message", "*");
+            `,
+        },
       ],
       invalid: [
         {
