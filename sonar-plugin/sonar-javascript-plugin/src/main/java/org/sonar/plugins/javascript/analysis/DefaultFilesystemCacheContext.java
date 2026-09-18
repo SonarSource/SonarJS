@@ -43,10 +43,14 @@ public class DefaultFilesystemCacheContext implements FilesystemCacheContext {
   }
 
   @Override
-  public void collect(Path archivePath) {
-    var item = collector.newFileItem(ARCHIVE_ITEM_ID, archivePath);
+  public void collect(Path archivePath, Path programSelectionPath) {
+    var filesystemItem = collector.newFileItem(ARCHIVE_ITEM_ID, archivePath);
+    var programSelectionItem = collector.newFileItem(
+      PROGRAM_SELECTION_ITEM_ID,
+      programSelectionPath
+    );
     var metadata = GSON.toJson(new Metadata(METADATA_VERSION, PluginInfo.getVersion()));
-    collector.collect(CONTEXT_KIND, metadata, List.of(item));
+    collector.collect(CONTEXT_KIND, metadata, List.of(filesystemItem, programSelectionItem));
   }
 
   private record Metadata(int version, String analyzerVersion) {}

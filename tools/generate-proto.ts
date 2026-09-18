@@ -38,6 +38,11 @@ const PROTO_FILES = [
     js: 'packages/shared/src/fs-cache/archive-proto.js',
     dts: 'packages/shared/src/fs-cache/archive-proto.d.ts',
   },
+  {
+    proto: 'packages/analysis/src/program-selection/program-selection.proto',
+    js: 'packages/analysis/src/program-selection/program-selection-proto.js',
+    dts: 'packages/analysis/src/program-selection/program-selection-proto.d.ts',
+  },
 ];
 
 function copyToLib(filePath: string) {

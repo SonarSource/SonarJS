@@ -103,6 +103,8 @@ public class WebSensor implements ProjectSensor {
   @Nullable
   private Path filesystemCacheArchivePath;
 
+  private Path programSelectionArchivePath;
+
   private boolean recordFilesystemCache;
   FSListener fsListener;
 
@@ -232,12 +234,14 @@ public class WebSensor implements ProjectSensor {
 
   private void configureFilesystemCache(SensorContext sensorContext) {
     filesystemCacheArchivePath = null;
+    programSelectionArchivePath = null;
     recordFilesystemCache = false;
 
     try {
       doConfigureFilesystemCache(sensorContext);
     } catch (Exception e) {
       filesystemCacheArchivePath = null;
+      programSelectionArchivePath = null;
       recordFilesystemCache = false;
       LOG.warn("Could not configure the JavaScript filesystem cache", e);
     }
@@ -251,12 +255,26 @@ public class WebSensor implements ProjectSensor {
     var restoredArchive = sensorContext
       .config()
       .get(FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY);
-    if (restoredArchive.isPresent()) {
+    var restoredProgramSelection = sensorContext
+      .config()
+      .get(FilesystemCacheContext.RESTORED_PROGRAM_SELECTION_PATH_PROPERTY);
+    if (restoredArchive.isPresent() || restoredProgramSelection.isPresent()) {
+      if (restoredArchive.isEmpty() || restoredProgramSelection.isEmpty()) {
+        LOG.warn("The restored JavaScript context is incomplete");
+        return;
+      }
       var path = Path.of(restoredArchive.get()).toAbsolutePath().normalize();
-      if (Files.isRegularFile(path) && Files.size(path) > 0) {
+      var selectionPath = Path.of(restoredProgramSelection.get()).toAbsolutePath().normalize();
+      if (
+        Files.isRegularFile(path) &&
+        Files.size(path) > 0 &&
+        Files.isRegularFile(selectionPath) &&
+        Files.size(selectionPath) > 0
+      ) {
         filesystemCacheArchivePath = path;
+        programSelectionArchivePath = selectionPath;
       } else {
-        LOG.warn("The restored JavaScript filesystem cache is missing or empty: {}", path);
+        LOG.warn("The restored JavaScript context is missing or empty");
       }
       return;
     }
@@ -266,24 +284,31 @@ public class WebSensor implements ProjectSensor {
     }
     var archiveDirectory = tempFolder.newDir("sonarjs-filesystem-cache");
     filesystemCacheArchivePath = archiveDirectory.toPath().resolve("archive.pb.gz");
+    programSelectionArchivePath = archiveDirectory.toPath().resolve("program-selection.pb.gz");
     recordFilesystemCache = true;
   }
 
   private void collectFilesystemCache() {
-    if (!recordFilesystemCache || filesystemCacheArchivePath == null) {
+    if (
+      !recordFilesystemCache ||
+      filesystemCacheArchivePath == null ||
+      programSelectionArchivePath == null
+    ) {
       return;
     }
     try {
       if (
         !Files.isRegularFile(filesystemCacheArchivePath) ||
-        Files.size(filesystemCacheArchivePath) == 0
+        Files.size(filesystemCacheArchivePath) == 0 ||
+        !Files.isRegularFile(programSelectionArchivePath) ||
+        Files.size(programSelectionArchivePath) == 0
       ) {
         LOG.warn(
           "The JavaScript filesystem cache archive was not created; no SQAA context will be published"
         );
         return;
       }
-      filesystemCacheContext.collect(filesystemCacheArchivePath);
+      filesystemCacheContext.collect(filesystemCacheArchivePath, programSelectionArchivePath);
     } catch (Exception e) {
       LOG.warn("Could not publish the JavaScript filesystem cache context", e);
     }
@@ -428,7 +453,9 @@ public class WebSensor implements ProjectSensor {
         );
       if (filesystemCacheArchivePath != null) {
         request.setFilesystemCache(
-          FilesystemCache.newBuilder().setArchivePath(filesystemCacheArchivePath.toString())
+          FilesystemCache.newBuilder()
+            .setArchivePath(filesystemCacheArchivePath.toString())
+            .setProgramSelectionPath(programSelectionArchivePath.toString())
         );
       }
       return request.build();

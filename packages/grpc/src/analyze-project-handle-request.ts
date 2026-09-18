@@ -38,6 +38,9 @@ import {
   type FsCacheInstallation,
   type FsCacheSession,
 } from '../../shared/src/fs-cache/hook.js';
+import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
+import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { warn } from '../../shared/src/helpers/logging.js';
 
 function beginFilesystemCacheAnalysis(
   request: AnalyzeProjectProtoRequest,
@@ -84,10 +87,25 @@ export async function handleAnalyzeProjectRequest(
     switch (request.type) {
       case 'on-analyze-project': {
         const filesystemCacheSession = beginFilesystemCacheAnalysis(request.data);
+        let programSelection: ProgramSelectionArchive | undefined;
         try {
+          const programSelectionPath = request.data.filesystemCache?.programSelectionPath;
+          if (programSelectionPath) {
+            const baseDir = request.data.configuration?.baseDir;
+            if (!baseDir) {
+              throw new InvalidAnalyzeProjectRequestError('configuration.base_dir is required');
+            }
+            programSelection = new ProgramSelectionArchive(
+              programSelectionPath,
+              normalizeToAbsolutePath(baseDir),
+            );
+          }
           return await withAnalysisCancellation(async () => {
             logHeapStatistics(workerData?.debugMemory);
-            const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
+            const sanitizedInput = await normalizeAnalyzeProjectRequest(
+              request.data,
+              programSelection?.isReplay(),
+            );
             const wrappedIncrementalResultsChannel = incrementalResultsChannel
               ? (event: AnalyzeProjectIncrementalEvent['event']) =>
                   incrementalResultsChannel({
@@ -102,6 +120,7 @@ export async function handleAnalyzeProjectRequest(
                 cssRules: sanitizedInput.cssRules,
                 bundles: sanitizedInput.bundles,
                 rulesWorkdir: sanitizedInput.rulesWorkdir,
+                programSelection,
               },
               sanitizedInput.configuration,
               wrappedIncrementalResultsChannel,
@@ -116,7 +135,13 @@ export async function handleAnalyzeProjectRequest(
             };
           });
         } finally {
-          filesystemCacheSession?.end();
+          try {
+            programSelection?.end();
+          } catch (error) {
+            warn(`Could not persist the TypeScript program selection archive: ${error}`);
+          } finally {
+            filesystemCacheSession?.end();
+          }
         }
       }
       case 'on-cancel-analysis': {

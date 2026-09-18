@@ -39,16 +39,21 @@ import {
 } from '../src/common/configuration.js';
 import { DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT } from '../src/jsts/linter/issues/transform.js';
 import { deserializeProtobuf } from '../src/jsts/parsers/ast.js';
+import { ProgramSelectionArchive } from '../src/program-selection/archive.js';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 async function initForTest(
   configOptions: ConfigurationInput,
   inputFiles?: Record<string, ProjectAnalysisFileInput>,
+  skipProjectFileDiscovery = false,
 ) {
   const configuration = createConfigurationFromInput(configOptions);
   const sanitizedFiles = inputFiles
     ? await sanitizeInputFiles(inputFiles, configuration)
     : undefined;
-  await initFileStoresForAnalysis(configuration, sanitizedFiles?.files);
+  await initFileStoresForAnalysis(configuration, sanitizedFiles?.files, skipProjectFileDiscovery);
   return configuration;
 }
 
@@ -117,6 +122,151 @@ describe('SonarQube project analysis', () => {
         /Creating TypeScript\(\d+\.\d+\.\d+\) program/.test(call.arguments[0] as string),
       ),
     ).toBe(true);
+  });
+
+  it('should restore the winning program without project discovery and overlay submitted content', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'basic'));
+    const filePath = normalizeToAbsolutePath(join(baseDir, 'main.ts'));
+    const archivePath = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-')),
+      'selection.pb.gz',
+    );
+    const recorder = new ProgramSelectionArchive(archivePath, baseDir);
+    const recordingConfiguration = await initForTest(
+      { baseDir },
+      { [filePath]: { filePath, fileType: 'MAIN' } },
+    );
+
+    const recorded = await analyzeProject(
+      { rules, bundles: [], programSelection: recorder },
+      recordingConfiguration,
+    );
+    recorder.end();
+    const recordedFile = recorded.files[filePath];
+    expect(recordedFile && 'issues' in recordedFile ? recordedFile.issues : undefined).toHaveLength(
+      1,
+    );
+
+    const replay = new ProgramSelectionArchive(archivePath, baseDir);
+    const replayConfiguration = await initForTest(
+      { baseDir },
+      {
+        [filePath]: {
+          filePath,
+          fileType: 'MAIN',
+          fileContent: 'const x: number = 1;',
+        },
+      },
+      true,
+    );
+    expect(tsConfigStore.getTsConfigs()).toEqual([]);
+
+    const restored = await analyzeProject(
+      { rules, bundles: [], programSelection: replay },
+      replayConfiguration,
+    );
+
+    const restoredFile = restored.files[filePath];
+    expect(restoredFile && 'issues' in restoredFile ? restoredFile.issues : undefined).toEqual([]);
+    expect(restored.meta.telemetry?.programCreation).toEqual({
+      attempted: 1,
+      failed: 0,
+      succeeded: 1,
+    });
+  });
+
+  it('should record the first tsconfig that actually wins for a file', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-winner-')),
+    );
+    const filePath = normalizeToAbsolutePath('main.ts', baseDir);
+    const firstTsconfig = normalizeToAbsolutePath('first.json', baseDir);
+    const secondTsconfig = normalizeToAbsolutePath('second.json', baseDir);
+    fs.writeFileSync(filePath, 'const x: number = 1;;');
+    fs.writeFileSync(firstTsconfig, '{"compilerOptions":{"strict":false},"files":["main.ts"]}');
+    fs.writeFileSync(secondTsconfig, '{"compilerOptions":{"strict":true},"files":["main.ts"]}');
+    const archivePath = path.join(baseDir, 'selection.pb.gz');
+    const recorder = new ProgramSelectionArchive(archivePath, baseDir);
+    const configuration = await initForTest(
+      { baseDir, tsConfigPaths: [firstTsconfig, secondTsconfig] },
+      { [filePath]: { filePath, fileType: 'MAIN' } },
+    );
+
+    await analyzeProject({ rules, bundles: [], programSelection: recorder }, configuration);
+    recorder.end();
+
+    expect(
+      new ProgramSelectionArchive(archivePath, baseDir).restoredSelections([filePath]),
+    ).toEqual([
+      expect.objectContaining({
+        program: expect.objectContaining({
+          kind: 'configured',
+          tsconfig: firstTsconfig,
+        }),
+      }),
+    ]);
+  });
+
+  it('should restore orphan programs from effective options and their original entry-point group', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'no-tsconfig'));
+    const filePath = normalizeToAbsolutePath(join(baseDir, 'orphan.ts'));
+    const archivePath = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-orphan-')),
+      'selection.pb.gz',
+    );
+    const recorder = new ProgramSelectionArchive(archivePath, baseDir);
+    const recordingConfiguration = await initForTest(
+      { baseDir },
+      { [filePath]: { filePath, fileType: 'MAIN' } },
+    );
+    await analyzeProject(
+      { rules, bundles: [], programSelection: recorder },
+      recordingConfiguration,
+    );
+    recorder.end();
+
+    const replay = new ProgramSelectionArchive(archivePath, baseDir);
+    expect(replay.restoredSelections([filePath])).toEqual([
+      expect.objectContaining({
+        program: expect.objectContaining({ kind: 'orphan' }),
+        rootNames: [filePath],
+      }),
+    ]);
+    const replayConfiguration = await initForTest(
+      { baseDir },
+      { [filePath]: { filePath, fileType: 'MAIN', fileContent: 'const x = 1;' } },
+      true,
+    );
+    const restored = await analyzeProject(
+      { rules, bundles: [], programSelection: replay },
+      replayConfiguration,
+    );
+    expect(restored.files[filePath]).toBeDefined();
+    expect(restored.meta.telemetry?.programCreation.succeeded).toBe(1);
+  });
+
+  it('should replay files recorded without a program using the no-program analysis path', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'no-tsconfig'));
+    const filePath = normalizeToAbsolutePath(join(baseDir, 'orphan.ts'));
+    const archivePath = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-empty-')),
+      'selection.pb.gz',
+    );
+    new ProgramSelectionArchive(archivePath, baseDir).end();
+    const replay = new ProgramSelectionArchive(archivePath, baseDir);
+    const configuration = await initForTest(
+      { baseDir, createTSProgramForOrphanFiles: false },
+      { [filePath]: { filePath, fileType: 'MAIN', fileContent: 'const x = 1;' } },
+      true,
+    );
+
+    const result = await analyzeProject(
+      { rules, bundles: [], programSelection: replay },
+      configuration,
+    );
+
+    expect(result.files[filePath]).toBeDefined();
+    expect(result.meta.telemetry?.programCreation.attempted).toBe(0);
   });
 
   it('should apply the test-file heuristic only to rule selection', async () => {

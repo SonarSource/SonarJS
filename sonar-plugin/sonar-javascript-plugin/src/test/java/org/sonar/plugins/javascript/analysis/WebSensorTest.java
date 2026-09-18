@@ -370,11 +370,21 @@ class WebSensorTest {
   @Test
   void should_replay_restored_filesystem_cache() throws IOException {
     var archive = Files.writeString(tempDir.resolve("archive.pb.gz"), "archive");
+    var programSelection = Files.writeString(
+      tempDir.resolve("program-selection.pb.gz"),
+      "selection"
+    );
     var filesystemCacheContext = mock(FilesystemCacheContext.class);
     when(filesystemCacheContext.isSupported()).thenReturn(true);
     context
       .settings()
       .setProperty(FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY, archive.toString());
+    context
+      .settings()
+      .setProperty(
+        FilesystemCacheContext.RESTORED_PROGRAM_SELECTION_PATH_PROPERTY,
+        programSelection.toString()
+      );
 
     var sensor = createSensor(
       checks("S3923", "S2260", "S1451"),
@@ -388,6 +398,9 @@ class WebSensorTest {
     assertThat(request.hasFilesystemCache()).isTrue();
     assertThat(request.getFilesystemCache().getArchivePath()).isEqualTo(
       archive.toAbsolutePath().normalize().toString()
+    );
+    assertThat(request.getFilesystemCache().getProgramSelectionPath()).isEqualTo(
+      programSelection.toAbsolutePath().normalize().toString()
     );
   }
 
@@ -436,12 +449,16 @@ class WebSensorTest {
       new WebSensorModuleConfiguration()
     );
     ArgumentCaptor<Path> archiveCaptor = ArgumentCaptor.forClass(Path.class);
+    ArgumentCaptor<Path> programSelectionCaptor = ArgumentCaptor.forClass(Path.class);
     doAnswer(invocation -> {
       ProjectAnalysisHandler handler = invocation.getArgument(0);
       var request = handler.getRequest();
       var archive = Path.of(request.getFilesystemCache().getArchivePath());
+      var programSelection = Path.of(request.getFilesystemCache().getProgramSelectionPath());
       assertThat(archive).doesNotExist();
+      assertThat(programSelection).doesNotExist();
       Files.writeString(archive, "archive");
+      Files.writeString(programSelection, "selection");
       for (var message : getAnalysisStreamMessages(createProjectResponse(List.of(inputFile)))) {
         dispatchAnalysisStreamMessage(handler, message);
       }
@@ -452,9 +469,16 @@ class WebSensorTest {
 
     sensor.execute(context);
 
-    verify(filesystemCacheContext).collect(archiveCaptor.capture());
+    verify(filesystemCacheContext).collect(
+      archiveCaptor.capture(),
+      programSelectionCaptor.capture()
+    );
     assertThat(archiveCaptor.getValue()).isRegularFile().hasContent("archive");
     assertThat(archiveCaptor.getValue()).startsWith(tempDir.resolve("sonarjs-filesystem-cache"));
+    assertThat(programSelectionCaptor.getValue()).isRegularFile().hasContent("selection");
+    assertThat(programSelectionCaptor.getValue()).startsWith(
+      tempDir.resolve("sonarjs-filesystem-cache")
+    );
   }
 
   @Test
@@ -471,7 +495,7 @@ class WebSensorTest {
     );
     executeSensorMockingResponse(sensor, createProjectResponse(List.of(inputFile)));
 
-    verify(filesystemCacheContext, org.mockito.Mockito.never()).collect(any());
+    verify(filesystemCacheContext, org.mockito.Mockito.never()).collect(any(), any());
     assertThat(logTester.logs(Level.WARN)).contains(
       "The JavaScript filesystem cache archive was not created; no SQAA context will be published"
     );

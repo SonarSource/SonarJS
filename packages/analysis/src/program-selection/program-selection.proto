@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package sonarjs.programselection;
+
+import "google/protobuf/struct.proto";
+
+message Archive {
+  string magic = 1;
+  uint32 format_version = 2;
+  repeated Program programs = 3;
+  repeated FileSelection files = 4;
+}
+
+message Program {
+  uint32 id = 1;
+  oneof kind {
+    ConfiguredProgram configured = 2;
+    OrphanProgram orphan = 3;
+  }
+}
+
+message ConfiguredProgram {
+  string tsconfig_path = 1;
+  google.protobuf.Struct compiler_options = 2;
+}
+
+message OrphanProgram {
+  google.protobuf.Struct compiler_options = 1;
+}
+
+message FileSelection {
+  string file_path = 1;
+  uint32 program_id = 2;
+}
