@@ -18,10 +18,7 @@ import assert from 'node:assert';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import {
-  alignFileResultWithScanner,
-  finalizeFileResultForScanner,
-} from '../src/scanner-locations.js';
+import { finalizeFileResultForScanner } from '../src/scanner-locations.js';
 import type { FileResult } from '../src/projectAnalysis.js';
 import { ErrorCode } from '../src/contracts/error.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
@@ -31,7 +28,7 @@ import { parsersMap } from '../src/jsts/parsers/eslint.js';
 import { buildTsParserOptions } from '../src/jsts/parsers/options.js';
 import { deserializeProtobuf } from '../src/jsts/parsers/ast.js';
 
-describe('alignFileResultWithScanner', () => {
+describe('finalizeFileResultForScanner', () => {
   it('maps every JavaScript output location without changing quick-fix text', () => {
     const filePath = normalizeToAbsolutePath('/project/file.js');
     const quickFixText = `"b\u2028c"`;
@@ -130,7 +127,7 @@ describe('alignFileResultWithScanner', () => {
       sonarResolveComments: [{ line: 3, text: 'SONAR-RESOLVE' }],
     } as FileResult;
 
-    alignFileResultWithScanner(result, `a\u2028bc\u2029d\r\nef\n`);
+    finalizeFileResultForScanner(result, `a\u2028bc\u2029d\r\nef\n`, filePath);
 
     expect(result).toMatchObject({
       issues: [
@@ -178,7 +175,13 @@ describe('alignFileResultWithScanner', () => {
 
   it('returns the original result when no conversion is needed', () => {
     const result: FileResult = { issues: [] };
-    expect(alignFileResultWithScanner(result, 'const answer = 42;')).toBe(result);
+    expect(
+      finalizeFileResultForScanner(
+        result,
+        'const answer = 42;',
+        normalizeToAbsolutePath('/project/file.js'),
+      ),
+    ).toBe(result);
   });
 
   it('maps the AST before serializing it without changing parser locations', () => {

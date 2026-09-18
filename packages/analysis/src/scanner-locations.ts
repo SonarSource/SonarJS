@@ -59,20 +59,6 @@ export function finalizeFileResultForScanner(
   return result;
 }
 
-/**
- * Converts completed JavaScript analysis locations to scanner-engine's physical line model.
- * Rules and quick-fix generation must run before this boundary so they always see the real source.
- */
-export function alignFileResultWithScanner(result: FileResult, source: string): FileResult {
-  if ('error' in result || !ECMASCRIPT_ONLY_LINE_TERMINATORS.test(source)) {
-    return result;
-  }
-
-  const mapper = new ScannerLocationMapper(source);
-  alignFileResultWithMapper(result, mapper);
-  return result;
-}
-
 function alignFileResultWithMapper(
   result: FinalizableSuccessResult,
   mapper: ScannerLocationMapper,
