@@ -18,10 +18,11 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
+import type ts from 'typescript';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { childrenOf, findFirstMatchingLocalAncestor } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getTypeAsString, getTypeFromTreeNode } from '../helpers/type.js';
+import { getTypeFromTreeNode, isAnyOrUnknownType } from '../helpers/type.js';
 import {
   getValueOfExpression,
   getUniqueWriteUsageOrNode,
@@ -64,10 +65,52 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+/**
+ * The receiver-name heuristic only stands in for a resolved type: when the type checker
+ * already resolved `node` to something other than `any`/`unknown`, that resolved type is
+ * authoritative and the name is not consulted, so a receiver such as `workerWindow` typed
+ * as `WebSocket` is not mistaken for a `Window`. The name is only a fallback for receivers
+ * the checker could not resolve, such as a call to an undeclared function.
+ *
+ * The resolved case is decided positively, through {@link resolvesToDomWindow}, rather than
+ * by matching the type's printed name: `typeToString` prefers a declared/alias name and
+ * truncates long output, so a genuine `Window` behind an interface that `extends Window`, a
+ * type alias, a generic parameter constrained to `Window`, or a union/intersection member
+ * would otherwise stop being recognized once the name is no longer consulted.
+ *
+ * A resolved type that declares only `postMessage` and not `frames` (e.g. a generic parameter
+ * bounded by a hand-written interface with a lone `postMessage` method) is not recognized: the
+ * type only proves what its own declaration proves, so a caller passing the real `window` at one
+ * call site does not make the parameter itself a `Window` inside the function body. Conversely, a
+ * type that does declare both members is treated as a `Window` (see {@link resolvesToDomWindow}).
+ */
 function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
-  const type = getTypeAsString(node, context.sourceCode.parserServices);
-  const hasWindowName = WindowNameVisitor.containsWindowName(node, context);
-  return type.match(/window/i) || type.match(/globalThis/i) || hasWindowName;
+  const services = context.sourceCode.parserServices;
+  const resolvedType = getTypeFromTreeNode(node, services);
+  if (!isAnyOrUnknownType(resolvedType)) {
+    return resolvesToDomWindow(resolvedType);
+  }
+  return WindowNameVisitor.containsWindowName(node, context);
+}
+
+/**
+ * `postMessage` alone isn't Window-specific — `Worker`, `MessagePort`, `BroadcastChannel` and
+ * `ServiceWorker` declare it too — so also require `frames`, which only `Window` declares.
+ *
+ * The two members only need to exist on the type, not to originate from `lib.dom.d.ts`: a
+ * project that supplies its DOM types through `@types/web` instead of `lib.dom.d.ts` would
+ * otherwise lose S2819 coverage entirely, and that whole-project false negative is worse than
+ * the structural check's own residual risk — a hand-written type that happens to declare both
+ * `postMessage` and `frames` itself being mistaken for a `Window`, which is accepted as an
+ * unlikely, narrow false positive.
+ */
+function resolvesToDomWindow(type: ts.Type): boolean {
+  const members = type.isUnionOrIntersection() ? type.types : [type];
+  return members.some(member => hasMember(member, POST_MESSAGE) && hasMember(member, 'frames'));
+}
+
+function hasMember(type: ts.Type, propertyName: string): boolean {
+  return type.getProperty(propertyName) !== undefined;
 }
 
 function checkPostMessageCall(callExpr: estree.CallExpression, context: Rule.RuleContext) {
@@ -100,7 +143,9 @@ function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rul
   const { callee, arguments: args } = callExpr;
   if (
     callee.type !== 'MemberExpression' ||
-    !isWindowObject(callee, context) ||
+    // Test the receiver itself, not the `addEventListener` method: the method's own type
+    // (an overloaded signature set) is not a Window and must not decide this.
+    !isWindowObject(callee.object, context) ||
     args.length < 2 ||
     !isMessageTypeEvent(args[0], context) ||
     isWindowAliasedToWorkerGlobal(callee.object, context)
@@ -131,11 +176,11 @@ function checkOnMessageAssignment(
 }
 
 /**
- * Unlike `isWindowObject`, which also accepts any identifier whose name contains 'window',
- * the receiver of an `onmessage` assignment must resolve to `window` or `globalThis` itself.
- * The name heuristic is too coarse here: `onmessage` is also a property of unrelated
- * transports such as WebSocket, so a `wsWindowChannel.onmessage` assignment would be
- * reported without this restriction.
+ * Unlike `isWindowObject`, which falls back to the receiver name only when the type checker
+ * cannot resolve the receiver (`any`/`unknown`), the receiver of an `onmessage` assignment
+ * must resolve to `window` or `globalThis` itself. A name-based fallback is too coarse here:
+ * `onmessage` is also a property of unrelated transports such as WebSocket, so an untyped
+ * `wsWindowChannel.onmessage` assignment would be reported without this restriction.
  *
  * The conditions are ordered by cost: the receiver name rejects the vast majority of `onmessage`
  * assignments without touching the type checker or the scope chain, and the Worker shim lookup
