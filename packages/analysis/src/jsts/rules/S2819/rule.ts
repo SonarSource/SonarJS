@@ -78,11 +78,11 @@ export const rule: Rule.RuleModule = {
  * type alias, a generic parameter constrained to `Window`, or a union/intersection member
  * would otherwise stop being recognized once the name is no longer consulted.
  *
- * A receiver whose *resolved* type only structurally resembles `Window` (e.g. a generic
- * parameter bounded by a hand-written interface that merely declares a `postMessage` method,
- * without `frames`) is not recognized either: the type only proves what its own declaration
- * proves, so a caller passing the real `window` at one call site does not make the parameter
- * itself a `Window` inside the function body.
+ * A resolved type that declares only `postMessage` and not `frames` (e.g. a generic parameter
+ * bounded by a hand-written interface with a lone `postMessage` method) is not recognized: the
+ * type only proves what its own declaration proves, so a caller passing the real `window` at one
+ * call site does not make the parameter itself a `Window` inside the function body. Conversely, a
+ * type that does declare both members is treated as a `Window` (see {@link resolvesToDomWindow}).
  */
 function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
   const services = context.sourceCode.parserServices;
