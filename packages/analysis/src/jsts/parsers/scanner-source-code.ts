@@ -22,7 +22,6 @@ import { visit } from '../ast/visit.js';
 
 const ECMASCRIPT_ONLY_LINE_TERMINATORS = /[\u2028\u2029]/u;
 const ECMASCRIPT_ONLY_LINE_TERMINATORS_GLOBAL = /[\u2028\u2029]/gu;
-const SCANNER_LINE_ENDINGS = /\r\n|[\r\n]/u;
 
 type Locatable = Node | Comment | EslintAST.Token | VueAST.Token;
 
@@ -31,8 +30,8 @@ type Locatable = Node | Comment | EslintAST.Token | VueAST.Token;
  *
  * ECMAScript treats U+2028 and U+2029 as line terminators, while scanner-engine only treats CR and
  * LF as line endings. A coordinate-only copy replaces the two extra terminators with spaces, which
- * preserves every UTF-16 offset. The original parsed AST and source text remain authoritative for
- * analysis semantics.
+ * preserves every UTF-16 offset. The AST is parsed from the original source first, so its values
+ * and ranges remain authoritative for analysis semantics.
  */
 export function alignSourceCodeWithScanner(sourceCode: SourceCode): SourceCode {
   if (!ECMASCRIPT_ONLY_LINE_TERMINATORS.test(sourceCode.text)) {
@@ -47,13 +46,8 @@ export function alignSourceCodeWithScanner(sourceCode: SourceCode): SourceCode {
     scopeManager: sourceCode.scopeManager,
     visitorKeys: sourceCode.visitorKeys,
   });
-  const scannerSourceCode = Object.create(coordinateSourceCode, {
-    lines: { value: Object.freeze(sourceCode.text.split(SCANNER_LINE_ENDINGS)) },
-    text: { value: sourceCode.text },
-  }) as SourceCode;
-
-  patchLocations(scannerSourceCode);
-  return Object.freeze(scannerSourceCode);
+  patchLocations(coordinateSourceCode);
+  return coordinateSourceCode;
 }
 
 function patchLocations(sourceCode: SourceCode) {

@@ -64,6 +64,6 @@ class TestCodeAnalysisTest {
     assertThat(issues.get(0).componentPath()).isEqualTo("src/file.js");
     assertThat(result.logOutput())
       .extracting(Log::message)
-      .contains("2 source files to be analyzed");
+      .contains("3 source files to be analyzed");
   }
 }

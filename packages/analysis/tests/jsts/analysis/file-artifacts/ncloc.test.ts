@@ -46,7 +46,7 @@ comment */`);
 
   it('should use scanner-compatible lines for ECMAScript-only line terminators', () => {
     const sourceCode = parseJavaScriptSource(
-      `// comment\u2028const value = 'before\u2029after';\nconst next = 42;`,
+      `const payload = 'line1\\nline2\\rline3\u2028line4\u2029end';\nconst next = 42;`,
     );
 
     expect(collectNclocLines(sourceCode)).toEqual([1, 2]);
