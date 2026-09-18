@@ -172,6 +172,138 @@ describe('S1101', () => {
     invalid: [],
   });
 
+  ruleTester.run('aria-labelledby takes precedence over aria-label and text', rule, {
+    valid: [
+      {
+        // Same aria-labelledby id, but different aria-label and text: still the same accessible
+        // name, because aria-labelledby outranks both.
+        code: `
+          <div>
+            <a href="/a" aria-labelledby="x" aria-label="A">One</a>
+            <a href="/a" aria-labelledby="x" aria-label="B">Two</a>
+          </div>;
+        `,
+      },
+    ],
+    invalid: [
+      {
+        code: `
+          <div>
+            <a href="/a" aria-labelledby="x" aria-label="A">One</a>
+            <a href="/b" aria-labelledby="x" aria-label="B">Two</a>
+          </div>;
+        `,
+        errors: 1,
+      },
+      {
+        // A resolvable but empty aria-labelledby falls through to aria-label, same as aria-label
+        // falling through to text when it resolves to an empty string.
+        code: `
+          <div>
+            <a href="/a" aria-labelledby="" aria-label="Same">One</a>
+            <a href="/b" aria-label="Same">Two</a>
+          </div>;
+        `,
+        errors: 1,
+      },
+    ],
+  });
+
+  ruleTester.run('unresolvable aria-labelledby excludes the anchor', rule, {
+    valid: [
+      {
+        code: `
+          <div>
+            <a href="/a" aria-labelledby={dynamicId}>Same</a>
+            <a href="/b">Same</a>
+          </div>;
+        `,
+      },
+      {
+        // A spread that could set aria-labelledby is also treated as conservatively unresolvable.
+        code: `
+          <div>
+            <a {...linkProps} href="/a">Same</a>
+            <a href="/b" aria-labelledby="x">Same</a>
+          </div>;
+        `,
+      },
+    ],
+    invalid: [],
+  });
+
+  ruleTester.run('a hidden ancestor excludes the anchor', rule, {
+    valid: [
+      {
+        // An ancestor's aria-hidden hides the anchor, even though the anchor's own attributes and
+        // its sibling's are unremarkable.
+        code: `
+          <section aria-hidden="true">
+            <div>
+              <a href="/a">Same</a>
+              <a href="/b">Same</a>
+            </div>
+          </section>;
+        `,
+      },
+      {
+        // An ancestor's boolean hidden attribute hides the anchor.
+        code: `
+          <div hidden>
+            <a href="/a">Same</a>
+            <a href="/b">Same</a>
+          </div>;
+        `,
+      },
+      {
+        // An ancestor's display:none hides the anchor.
+        code: `
+          <div style={{ display: 'none' }}>
+            <a href="/a">Same</a>
+            <a href="/b">Same</a>
+          </div>;
+        `,
+      },
+    ],
+    invalid: [
+      {
+        // An unresolvable ancestor hidden-state is conservatively treated as NOT hidden.
+        code: `
+          <div aria-hidden={dynamicHidden}>
+            <a href="/a">Same</a>
+            <a href="/b">Same</a>
+          </div>;
+        `,
+        errors: 1,
+      },
+    ],
+  });
+
+  ruleTester.run("a nested element's own aria-label overrides its content", rule, {
+    valid: [
+      {
+        // Distinct own-labels on an otherwise-empty nested icon give each link a different name.
+        code: `
+          <div>
+            <a href="/a"><svg aria-label="Download" /></a>
+            <a href="/b"><svg aria-label="Share" /></a>
+          </div>;
+        `,
+      },
+    ],
+    invalid: [
+      {
+        code: `
+          <div>
+            <a href="/a"><svg aria-label="Download" /></a>
+            <a href="/b"><svg aria-label="Download" /></a>
+          </div>;
+        `,
+        errors: 1,
+      },
+    ],
+  });
+
   ruleTester.run('chained conditionals are exclusive across the whole chain', rule, {
     valid: [
       {

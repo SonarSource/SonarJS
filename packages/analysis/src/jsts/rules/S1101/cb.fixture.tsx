@@ -309,3 +309,67 @@ function renderAnchorWithLocalConst(isLoggedIn) {
     </>
   );
 }
+
+// ---------------------------------------------------------------------------------------------
+// aria-labelledby establishes the accessible name, at higher precedence than aria-label and text.
+// ---------------------------------------------------------------------------------------------
+
+// Compliant: same visible text, but distinct aria-labelledby references give each link a
+// different accessible name (best effort: ids are compared directly, never resolved), mirroring
+// the aria-label case above (distinctAriaLabelsSameParent) but for the higher-precedence attribute.
+const distinctLabelledbySameParent = (
+  <div>
+    <span id="post-1-label">Read more about the first post</span>
+    <a href="/posts/1" aria-labelledby="post-1-label">Read more</a>
+    <span id="post-2-label">Read more about the second post</span>
+    <a href="/posts/2" aria-labelledby="post-2-label">Read more</a>
+  </div>
+);
+
+// Reports an issue: different visible text, but the same aria-labelledby reference gives both
+// links the same accessible name - the exact conflict this rule exists to catch. Wrapped in an
+// array so the trailing comment sits in expression position rather than raw JSX-children text.
+const sameLabelledbyDifferentTarget = (
+  <div>
+    <span id="cta-label">Get started</span>
+    {[
+      <a href="/signup" aria-labelledby="cta-label">Sign up</a>,
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
+      <a href="/login" aria-labelledby="cta-label">Log in</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 336.}}
+    ]}
+  </div>
+);
+
+// Compliant: an unresolvable aria-labelledby excludes the anchor even though the visible text
+// matches, same conservative treatment as an unresolvable aria-label.
+const unresolvableLabelledby = (
+  <div>
+    <a href="/dynamic-labelledby/1" aria-labelledby={dynamicId}>Same</a>
+    <a href="/dynamic-labelledby/2">Same</a>
+  </div>
+);
+
+// ---------------------------------------------------------------------------------------------
+// A hidden ancestor excludes the anchor too, not just the anchor's own hidden attributes.
+// ---------------------------------------------------------------------------------------------
+
+// Compliant: without the ancestor check, these two anchors share the same immediate parent and
+// the same text with different targets, which would be a conflict - but the whole section is
+// aria-hidden, so both are invisible to every user and excluded before ever being compared.
+const hiddenByAncestor = (
+  <section aria-hidden="true">
+    <div>
+      <a href="/ancestor-hidden/1">Ancestor hidden</a>
+      <a href="/ancestor-hidden/2">Ancestor hidden</a>
+    </div>
+  </section>
+);
+
+// ---------------------------------------------------------------------------------------------
+// A nested element's own accessible name (not just <img alt>) overrides its content.
+// ---------------------------------------------------------------------------------------------
+
+// A nested <svg aria-label> contributes its own name instead of its (empty) content.
+  <a href="/export/csv"><svg aria-label="Export data" /></a>;
+//^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
+  <a href="/export/json"><svg aria-label="Export data" /></a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 373.}}

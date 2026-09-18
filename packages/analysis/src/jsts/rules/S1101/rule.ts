@@ -35,11 +35,22 @@ const messages = {
 };
 
 // Props whose presence in a spread makes the anchor unresolvable.
-const RELEVANT_PROPS = ['href', 'aria-label', 'title', 'hidden', 'aria-hidden', 'style'];
+const RELEVANT_PROPS = [
+  'href',
+  'aria-labelledby',
+  'aria-label',
+  'title',
+  'hidden',
+  'aria-hidden',
+  'style',
+];
 
 const ROUTING_FRAGMENT_PATTERN = /^#[!/]/;
 const DUMMY_BASE = 'https://sonarjs-placeholder.invalid/';
 const DISPLAY_NONE_PATTERN = /display\s*:\s*none/i;
+// Namespaces an aria-labelledby-derived key so it can never collide with a text- or
+// aria-label-derived accessible name that happens to share the same characters.
+const LABELLEDBY_KEY_PREFIX = ' labelledby:';
 
 type JsxAttributes = (JSXAttribute | JSXSpreadAttribute)[];
 type JsxChild = TSESTree.JSXElement['children'][number];
@@ -71,7 +82,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        if (isLinkHidden(attributes, context)) {
+        if (isLinkHidden(attributes, context) || isHiddenByAncestor(element, context)) {
           return;
         }
 
@@ -266,6 +277,22 @@ function isLinkHidden(attributes: JsxAttributes, context: Rule.RuleContext): boo
   );
 }
 
+// True when a wrapping JSX element hides the anchor from every user - e.g. `<div aria-hidden="true">`.
+// Such an anchor is removed from the accessibility tree just as surely as if it were hidden itself.
+function isHiddenByAncestor(anchor: TSESTree.JSXElement, context: Rule.RuleContext): boolean {
+  let node: TSESTree.Node | undefined = anchor.parent;
+  while (node) {
+    if (node.type === 'JSXElement') {
+      const attributes = (node.openingElement as unknown as JSXOpeningElement).attributes;
+      if (isLinkHidden(attributes, context)) {
+        return true;
+      }
+    }
+    node = node.parent;
+  }
+  return false;
+}
+
 function isAriaHidden(attributes: JsxAttributes): boolean {
   const attribute = getProp(attributes, 'aria-hidden');
   return !!attribute && getLiteralPropValue(attribute) === true;
@@ -350,13 +377,33 @@ function cookTemplateLiteral(expression: estree.TemplateLiteral): string | undef
     : undefined;
 }
 
-// Accessible name precedence per S6827: aria-label > text content > title.
+// Accessible name precedence per accname, extended from S6827's aria-label > text content > title
+// with aria-labelledby, which outranks all three.
 function computeAccessibleName(
   element: TSESTree.JSXElement,
   attributes: JsxAttributes,
   context: Rule.RuleContext,
   elementType: (node: TSESTree.JSXOpeningElement) => string,
 ): string | null {
+  const labelledbyAttribute = getProp(attributes, 'aria-labelledby') as JSXAttribute | undefined;
+  if (labelledbyAttribute) {
+    const staticIds = getStaticText(labelledbyAttribute.value);
+    // An unresolvable aria-labelledby is very likely non-empty at runtime, so exclude rather than guess.
+    if (staticIds === undefined) {
+      return null;
+    }
+    const normalizedIds = normalizeIdList(staticIds);
+    if (normalizedIds) {
+      // Best effort: this never resolves the id(s) to the referenced element's actual computed
+      // name. Instead it relies on valid markup having document-unique ids, so two anchors
+      // referencing the same id(s) are guaranteed to share the same accessible name regardless of
+      // their own visible text - and two anchors referencing different ids are treated as having
+      // different names, even if those ids happen to resolve to identical text (a false negative,
+      // consistent with every other divergence in this section).
+      return LABELLEDBY_KEY_PREFIX + normalizedIds;
+    }
+  }
+
   const ariaLabelAttribute = getProp(attributes, 'aria-label') as JSXAttribute | undefined;
   if (ariaLabelAttribute) {
     const staticValue = getStaticText(ariaLabelAttribute.value);
@@ -441,6 +488,19 @@ function computeChildContribution(
         return '';
       }
 
+      // A nested element's own aria-label overrides its content, same as accname's "name from
+      // content" step - e.g. a nested `<svg aria-label="Download">` icon, not just `<img alt>`.
+      const ownAriaLabelAttribute = getProp(attributes, 'aria-label') as JSXAttribute | undefined;
+      if (ownAriaLabelAttribute) {
+        const staticOwnLabel = getStaticText(ownAriaLabelAttribute.value);
+        if (staticOwnLabel === undefined) {
+          return null;
+        }
+        if (staticOwnLabel) {
+          return staticOwnLabel;
+        }
+      }
+
       if (elementType(opening).toLowerCase() === 'img') {
         const altAttribute = getProp(attributes, 'alt') as JSXAttribute | undefined;
         if (!altAttribute) {
@@ -513,6 +573,12 @@ function getStaticTextFromExpression(expression: estree.Expression): string | un
 
 function normalizeName(value: string): string {
   return value.replace(/\s+/g, ' ').trim().toLowerCase();
+}
+
+// Unlike normalizeName, an id list is not case-folded: HTML ids are case-sensitive, and folding
+// them could wrongly treat two anchors referencing distinct ids as sharing the same name.
+function normalizeIdList(value: string): string {
+  return value.replace(/\s+/g, ' ').trim();
 }
 
 function normalizeDestination(href: string): string {
