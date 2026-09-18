@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "noImplicitAny": true,
+    "strict": false,
+    "lib": ["ESNext", "DOM"]
+  },
+  "files": ["placeholder.js"]
+}
