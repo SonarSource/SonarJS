@@ -76,7 +76,7 @@ function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
   const resolvedType = getTypeFromTreeNode(node, services);
   if (!isAnyOrUnknownType(resolvedType)) {
     const type = getTypeAsString(node, services);
-    return !!(type.match(/window/i) || type.match(/globalThis/i));
+    return /window/i.exec(type) !== null || /globalThis/i.exec(type) !== null;
   }
   return WindowNameVisitor.containsWindowName(node, context);
 }
