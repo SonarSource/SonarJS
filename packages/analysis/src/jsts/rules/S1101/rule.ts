@@ -259,7 +259,7 @@ function alwaysExits(statement: TSESTree.Node): boolean {
     case 'ThrowStatement':
       return true;
     case 'BlockStatement':
-      return statement.body.length > 0 && alwaysExits(statement.body[statement.body.length - 1]);
+      return statement.body.length > 0 && alwaysExits(statement.body.at(-1) as TSESTree.Statement);
     case 'IfStatement':
       return (
         !!statement.alternate &&
@@ -286,7 +286,7 @@ function isHiddenByAncestor(anchor: TSESTree.JSXElement, context: Rule.RuleConte
   while (node) {
     if (node.type === 'JSXElement') {
       const attributes = (node.openingElement as unknown as JSXOpeningElement).attributes;
-      if (isLinkHidden(attributes, context)) {
+      if (!isSpreadSafe(attributes, context) || isLinkHidden(attributes, context)) {
         return true;
       }
     }
@@ -337,7 +337,7 @@ function isDisplayNone(attributes: JsxAttributes, context: Rule.RuleContext): bo
   );
 }
 
-// False when a spread attribute could dynamically set href, aria-label, title, or a visibility prop (hidden/aria-hidden/style), making the anchor unresolvable.
+// False when a spread attribute could dynamically set href, aria-labelledby, aria-label, title, or a visibility prop (hidden/aria-hidden/style), making the anchor unresolvable.
 function isSpreadSafe(attributes: JsxAttributes, context: Rule.RuleContext): boolean {
   return attributes
     .filter((attribute): attribute is JSXSpreadAttribute => attribute.type === 'JSXSpreadAttribute')
@@ -493,8 +493,9 @@ function computeElementChildContribution(
     return '';
   }
 
-  // Named by an element we never resolve, so this contribution is unresolvable.
-  if (getProp(attributes, ARIA_LABELLEDBY)) {
+  // Named by an element we never resolve, so this contribution is unresolvable - unless the id
+  // list itself resolves to empty, which names nothing and falls through like the anchor's own.
+  if (resolveNameStep(attributes, ARIA_LABELLEDBY, normalizeIdList) !== undefined) {
     return null;
   }
 
