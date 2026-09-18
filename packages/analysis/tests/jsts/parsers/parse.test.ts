@@ -98,5 +98,36 @@ describe('parseForESLint', () => {
         APIError.parsingError(errorMessage, { line: 1 }),
       );
     });
+
+    it(`should use scanner-compatible locations with ${parser.meta!.name}`, () => {
+      const lineSeparator = '\u2028';
+      const paragraphSeparator = '\u2029';
+      const fileContent = `// comment${lineSeparator}const value = 'before${paragraphSeparator}after';\nconst next = 42;`;
+      const input = { fileContent, fileType: 'MAIN' } as JsTsAnalysisInput;
+      const options = usingBabel ? buildBabelParserOptions(input) : buildTsParserOptions(input);
+
+      const { sourceCode } = parse(fileContent, parser, options);
+      const firstDeclaration = sourceCode.ast.body[0];
+      const secondDeclaration = sourceCode.ast.body[1];
+      const value = (firstDeclaration as any).declarations[0].init.value;
+      const secondDeclarationOffset = fileContent.indexOf('const next');
+
+      expect(sourceCode.text).toBe(fileContent);
+      expect(sourceCode.lines).toEqual([
+        `// comment${lineSeparator}const value = 'before${paragraphSeparator}after';`,
+        'const next = 42;',
+      ]);
+      expect(value).toBe(`before${paragraphSeparator}after`);
+      expect(firstDeclaration.loc).toEqual({
+        start: { line: 1, column: 11 },
+        end: { line: 1, column: 40 },
+      });
+      expect(secondDeclaration.loc).toEqual({
+        start: { line: 2, column: 0 },
+        end: { line: 2, column: 16 },
+      });
+      expect(sourceCode.getLocFromIndex(secondDeclarationOffset)).toEqual({ line: 2, column: 0 });
+      expect(sourceCode.getIndexFromLoc({ line: 2, column: 0 })).toBe(secondDeclarationOffset);
+    });
   }
 });

@@ -44,6 +44,14 @@ comment */`);
     expect(nloc).toEqual([4, 6, 7, 8, 9, 11]);
   });
 
+  it('should use scanner-compatible lines for ECMAScript-only line terminators', () => {
+    const sourceCode = parseJavaScriptSource(
+      `// comment\u2028const value = 'before\u2029after';\nconst next = 42;`,
+    );
+
+    expect(collectNclocLines(sourceCode)).toEqual([1, 2]);
+  });
+
   it('should find the line numbers of code in Vue.js', () => {
     const sourceCode = parseVueSource(`<template>
   <div>
