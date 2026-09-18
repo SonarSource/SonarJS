@@ -15,9 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { APIError } from '../../contracts/error.js';
-import { SourceCode } from 'eslint';
+import type { SourceCode } from 'eslint';
 import type { Parser } from './eslint.js';
-import { alignSourceCodeWithScanner } from './scanner-source-code.js';
+import { createScannerCompatibleSourceCode } from './scanner-source-code.js';
 
 export type ParseResult = {
   sourceCode: SourceCode;
@@ -36,15 +36,14 @@ export function parse(code: string, parser: Parser, parserOptions: {}): ParseRes
   try {
     const result = parser.parseForESLint(code, parserOptions);
     const parserServices = 'services' in result ? result.services : {};
-    const sourceCode = new SourceCode({
-      ...result,
-      text: code,
-      parserServices,
-    } as SourceCode.Config);
     return {
       parser,
       parserOptions,
-      sourceCode: alignSourceCodeWithScanner(sourceCode),
+      sourceCode: createScannerCompatibleSourceCode({
+        ...result,
+        text: code,
+        parserServices,
+      } as SourceCode.Config),
     };
   } catch ({ lineNumber, message }) {
     if (message.startsWith('Debug Failure')) {

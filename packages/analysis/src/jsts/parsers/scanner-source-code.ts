@@ -33,21 +33,17 @@ type Locatable = Node | Comment | EslintAST.Token | VueAST.Token;
  * preserves every UTF-16 offset. The AST is parsed from the original source first, so its values
  * and ranges remain authoritative for analysis semantics.
  */
-export function alignSourceCodeWithScanner(sourceCode: SourceCode): SourceCode {
-  if (!ECMASCRIPT_ONLY_LINE_TERMINATORS.test(sourceCode.text)) {
-    return sourceCode;
+export function createScannerCompatibleSourceCode(config: SourceCode.Config): SourceCode {
+  if (!ECMASCRIPT_ONLY_LINE_TERMINATORS.test(config.text)) {
+    return new EslintSourceCode(config);
   }
 
-  const coordinateText = sourceCode.text.replaceAll(ECMASCRIPT_ONLY_LINE_TERMINATORS_GLOBAL, ' ');
-  const coordinateSourceCode = new EslintSourceCode({
-    text: coordinateText,
-    ast: sourceCode.ast,
-    parserServices: sourceCode.parserServices,
-    scopeManager: sourceCode.scopeManager,
-    visitorKeys: sourceCode.visitorKeys,
+  const sourceCode = new EslintSourceCode({
+    ...config,
+    text: config.text.replaceAll(ECMASCRIPT_ONLY_LINE_TERMINATORS_GLOBAL, ' '),
   });
-  patchLocations(coordinateSourceCode);
-  return coordinateSourceCode;
+  patchLocations(sourceCode);
+  return sourceCode;
 }
 
 function patchLocations(sourceCode: SourceCode) {
