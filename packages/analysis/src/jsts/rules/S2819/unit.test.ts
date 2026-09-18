@@ -367,6 +367,33 @@ describe('S2819', () => {
       workerWindow.postMessage("message", "*");
             `,
         },
+        {
+          // FP: Worker also declares postMessage in lib.dom.d.ts, but is not a Window
+          code: `
+      const worker = new Worker('worker.js');
+      worker.addEventListener("message", function(event) {
+        console.log(event.data);
+      });
+            `,
+        },
+        {
+          // FP: MessagePort also declares postMessage in lib.dom.d.ts, but is not a Window
+          code: `
+      const { port1 } = new MessageChannel();
+      port1.addEventListener("message", function(event) {
+        console.log(event.data);
+      });
+            `,
+        },
+        {
+          // FP: BroadcastChannel also declares postMessage in lib.dom.d.ts, but is not a Window
+          code: `
+      const channel = new BroadcastChannel('name');
+      channel.addEventListener("message", function(event) {
+        console.log(event.data);
+      });
+            `,
+        },
       ],
       invalid: [
         {
