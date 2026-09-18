@@ -115,12 +115,14 @@ class AnalysisProcessorTest {
       fileLinesContextFactory,
       mock(CssRules.class)
     );
-    var context = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    var sensorContext = SensorContextTester.create(baseDir);
+    var context = new JsTsContext<SensorContextTester>(sensorContext);
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x = 1;")
       .setLanguage("js")
       .build();
     var metrics = Metrics.newBuilder()
+      .addNcloc(1)
       .addNcloc(1)
       .addNcloc(2)
       .addExecutableLines(1)
@@ -135,11 +137,40 @@ class AnalysisProcessorTest {
     verify(fileLinesContext).setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, 1, 1);
     verify(fileLinesContext, never()).setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, 2, 1);
     verify(fileLinesContext).save();
+    assertThat(sensorContext.measure(file.key(), CoreMetrics.NCLOC).value()).isEqualTo(1);
     assertThat(logTester.logs()).contains(
       "Ignoring out-of-range ncloc_data metric for " + file.uri() + " at line 2. File has 1 lines.",
       "Ignoring out-of-range executable_lines_data metric for " +
         file.uri() +
         " at line 2. File has 1 lines."
+    );
+  }
+
+  @Test
+  void should_ignore_sonar_resolve_with_out_of_range_target_line() {
+    var processor = createProcessor();
+    var sensorContext = SensorContextTester.create(baseDir);
+    sensorContext.setRuntime(
+      TestSonarRuntime.forSonarQube(
+        Version.create(13, 5),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
+    var context = new JsTsContext<>(sensorContext);
+    var file = createInputFile(sensorContext, "js", "file.js", "const x = 1;\n");
+    var response = responseWithSonarResolveComments(
+      SonarResolveComment.newBuilder()
+        .setLine(3)
+        .setText("sonar-resolve javascript:S1116 \"reason\"")
+        .build()
+    );
+
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+
+    assertThat(issueResolutions(sensorContext, file)).isEmpty();
+    assertThat(logTester.logs()).contains(
+      "Failed to save issue resolution in " + file.uri() + " at line 3"
     );
   }
 

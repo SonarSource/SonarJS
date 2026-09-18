@@ -37,6 +37,7 @@ import type { EmbeddedAnalysisInput } from './jsts/embedded/analysis/analysis.js
 import { analyzeCSSProject } from './css/analysis/analyzer.js';
 import { linter as cssLinter } from './css/linter/wrapper.js';
 import { error, info } from '../../shared/src/helpers/logging.js';
+import { alignFileResultWithScanner } from './scanner-locations.js';
 
 /**
  * Analyzes a single file, optionally with a TypeScript program for type-checking.
@@ -127,6 +128,10 @@ export async function analyzeFile(
   } else {
     info(`Skipping analysis requested for unknown extension for file ${fileName}`);
     result = { issues: [] };
+  }
+
+  if (!isCssFile(fileName, cssSuffixes)) {
+    result = alignFileResultWithScanner(result, input.fileContent);
   }
 
   if (cssLinter.hasActiveRules() && isAlsoCssFile(fileName, cssAdditionalSuffixes)) {

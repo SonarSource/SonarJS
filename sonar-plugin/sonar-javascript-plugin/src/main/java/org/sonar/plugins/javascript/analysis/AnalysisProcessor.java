@@ -373,8 +373,9 @@ public class AnalysisProcessor {
       return;
     }
 
+    List<Integer> nclocLines = validLineMetrics(CoreMetrics.NCLOC_DATA_KEY, metrics.getNclocList());
     if (file.type() == InputFile.Type.TEST) {
-      saveMetric(context, file, CoreMetrics.NCLOC, metrics.getNclocCount());
+      saveMetric(context, file, CoreMetrics.NCLOC, nclocLines.size());
       return;
     }
 
@@ -388,17 +389,17 @@ public class AnalysisProcessor {
       saveMetric(context, file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.getCognitiveComplexity());
     }
 
-    saveMetric(context, file, CoreMetrics.NCLOC, metrics.getNclocCount());
+    saveMetric(context, file, CoreMetrics.NCLOC, nclocLines.size());
     saveMetric(context, file, CoreMetrics.COMMENT_LINES, metrics.getCommentLinesCount());
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(file);
-    saveLineMetrics(fileLinesContext, CoreMetrics.NCLOC_DATA_KEY, metrics.getNclocList());
+    saveLineMetrics(fileLinesContext, CoreMetrics.NCLOC_DATA_KEY, nclocLines);
 
     if (!CssLanguage.KEY.equals(file.language())) {
       saveLineMetrics(
         fileLinesContext,
         CoreMetrics.EXECUTABLE_LINES_DATA_KEY,
-        metrics.getExecutableLinesList()
+        validLineMetrics(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, metrics.getExecutableLinesList())
       );
     }
 
@@ -410,20 +411,30 @@ public class AnalysisProcessor {
     String metricKey,
     List<Integer> lines
   ) {
-    int lineCount = file.lines();
     for (int line : lines) {
-      if (line > 0 && line <= lineCount) {
-        fileLinesContext.setIntValue(metricKey, line, 1);
-      } else {
-        LOG.warn(
-          "Ignoring out-of-range {} metric for {} at line {}. File has {} lines.",
-          metricKey,
-          file.uri(),
-          line,
-          lineCount
-        );
-      }
+      fileLinesContext.setIntValue(metricKey, line, 1);
     }
+  }
+
+  private List<Integer> validLineMetrics(String metricKey, List<Integer> lines) {
+    int lineCount = file.lines();
+    return lines
+      .stream()
+      .distinct()
+      .filter(line -> {
+        boolean valid = line > 0 && line <= lineCount;
+        if (!valid) {
+          LOG.warn(
+            "Ignoring out-of-range {} metric for {} at line {}. File has {} lines.",
+            metricKey,
+            file.uri(),
+            line,
+            lineCount
+          );
+        }
+        return valid;
+      })
+      .toList();
   }
 
   private static <T extends Serializable> void saveMetric(
@@ -707,15 +718,24 @@ public class AnalysisProcessor {
   }
 
   private void saveIssueResolution(JsTsContext<?> context, SonarResolve sonarResolve) {
-    context
-      .getSensorContext()
-      .newIssueResolution()
-      .on(file)
-      .at(file.selectLine(sonarResolve.targetLine()))
-      .status(sonarResolve.status())
-      .forRules(sonarResolve.ruleKeys())
-      .comment(sonarResolve.justification())
-      .save();
+    try {
+      context
+        .getSensorContext()
+        .newIssueResolution()
+        .on(file)
+        .at(file.selectLine(sonarResolve.targetLine()))
+        .status(sonarResolve.status())
+        .forRules(sonarResolve.ruleKeys())
+        .comment(sonarResolve.justification())
+        .save();
+    } catch (RuntimeException e) {
+      LOG.warn(
+        "Failed to save issue resolution in {} at line {}",
+        file.uri(),
+        sonarResolve.targetLine()
+      );
+      LOG.warn("Exception cause", e);
+    }
   }
 
   private void logInvalidDirective(int line, String errorMessage) {

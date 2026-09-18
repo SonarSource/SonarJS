@@ -18,6 +18,7 @@ import {
   type NormalizedAbsolutePath,
   normalizeToAbsolutePath,
   readFile,
+  stripBOM,
 } from '../../../shared/src/helpers/files.js';
 import type { FileType } from '../contracts/file.js';
 import { type Configuration, getFilterPathParams, getShouldIgnoreParams } from './configuration.js';
@@ -68,7 +69,10 @@ export async function sanitizeInputFiles(
   const filterPathParams = getFilterPathParams(configuration);
   for (const [key, fileInput] of Object.entries(inputFiles)) {
     const filePath = normalizeToAbsolutePath(fileInput.filePath, baseDir);
-    const fileContent = fileInput.fileContent ?? (await readFile(filePath));
+    const fileContent =
+      fileInput.fileContent === undefined
+        ? await readFile(filePath)
+        : stripBOM(fileInput.fileContent);
     let rawFileType: FileType | undefined = fileInput.fileType;
     if (rawFileType !== 'TEST') {
       // We cannot trust the caller to provide the correct fileType, so we attempt to infer it from

@@ -99,7 +99,7 @@ describe('parseForESLint', () => {
       );
     });
 
-    it(`should use scanner-compatible locations with ${parser.meta!.name}`, () => {
+    it(`should preserve source text and ECMAScript locations with ${parser.meta!.name}`, () => {
       const lineSeparator = '\u2028';
       const paragraphSeparator = '\u2029';
       const fileContent = `const payload = 'line1\\nline2\\rline3${lineSeparator}line4${paragraphSeparator}end';\nconst next = 42;`;
@@ -112,22 +112,20 @@ describe('parseForESLint', () => {
       const value = (firstDeclaration as any).declarations[0].init.value;
       const secondDeclarationOffset = fileContent.indexOf('const next');
 
-      expect(sourceCode.text).toBe(fileContent.replaceAll(/[\u2028\u2029]/gu, ' '));
+      expect(sourceCode.text).toBe(fileContent);
       expect(sourceCode.lines).toEqual([
-        `const payload = 'line1\\nline2\\rline3 line4 end';`,
+        `const payload = 'line1\\nline2\\rline3`,
+        'line4',
+        `end';`,
         'const next = 42;',
       ]);
       expect(value).toBe(`line1\nline2\rline3${lineSeparator}line4${paragraphSeparator}end`);
-      expect(firstDeclaration.loc).toEqual({
-        start: { line: 1, column: 0 },
-        end: { line: 1, column: 48 },
-      });
       expect(secondDeclaration.loc).toEqual({
-        start: { line: 2, column: 0 },
-        end: { line: 2, column: 16 },
+        start: { line: 4, column: 0 },
+        end: { line: 4, column: 16 },
       });
-      expect(sourceCode.getLocFromIndex(secondDeclarationOffset)).toEqual({ line: 2, column: 0 });
-      expect(sourceCode.getIndexFromLoc({ line: 2, column: 0 })).toBe(secondDeclarationOffset);
+      expect(sourceCode.getLocFromIndex(secondDeclarationOffset)).toEqual({ line: 4, column: 0 });
+      expect(sourceCode.getIndexFromLoc({ line: 4, column: 0 })).toBe(secondDeclarationOffset);
       expect(() => sourceCode.traverse()).not.toThrow();
     });
 
@@ -139,7 +137,7 @@ describe('parseForESLint', () => {
       const { sourceCode } = parse(fileContent, parser, options);
 
       expect(sourceCode.ast.body).toHaveLength(1);
-      expect(sourceCode.ast.body[0].loc?.start).toEqual({ line: 1, column: 11 });
+      expect(sourceCode.ast.body[0].loc?.start).toEqual({ line: 2, column: 0 });
     });
   }
 });
