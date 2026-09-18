@@ -45,8 +45,8 @@ const RUNNER_BOUND = 'runner-bound';
  * Assertion frameworks this rule recognises, classified by whether their assertion API can run
  * without a test runner. Script-capable — node `assert`, chai, sinon, supertest, uvu, AWS CDK —
  * are ordinary libraries usable in a plain `node file.js`, so a top-level assertion IS the test.
- * Runner-bound — Angular HTTP testing, vitest, cypress, global `expect*(...)` chains — only exist
- * because a runner executes the file, so a top-level occurrence is genuinely misplaced.
+ * Runner-bound — vitest, cypress, global `expect*(...)` chains — only exist because a runner
+ * executes the file, so a top-level occurrence is genuinely misplaced.
  *
  * Classification is by library, not by syntax, and one statement can produce nodes that disagree:
  * a chai `expect(x).to.equal(y)` is `script-capable` on the inner `chai.expect(...)` call but
@@ -56,7 +56,6 @@ const RUNNER_BOUND = 'runner-bound';
  * `no-test-structure.fixture.js`, where a top-level chai assertion must stay compliant.
  */
 const ASSERTION_EXECUTION_PROFILE = {
-  angular: RUNNER_BOUND,
   chai: SCRIPT_CAPABLE,
   sinon: SCRIPT_CAPABLE,
   supertest: SCRIPT_CAPABLE,

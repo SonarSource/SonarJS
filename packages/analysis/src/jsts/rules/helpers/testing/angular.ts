@@ -17,7 +17,8 @@
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 const HTTP_TESTING_CONTROLLER_METHODS = new Set(['expectOne', 'expectNone', 'verify']);
-const HTTP_TESTING_CONTROLLER_FQN = '"@angular/common/http/testing".HttpTestingController';
+const HTTP_TESTING_CONTROLLER_NAME = 'HttpTestingController';
+const HTTP_TESTING_CONTROLLER_MODULE_PATH = '@angular/common/http/testing';
 
 export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
   if (!ts.isCallExpression(node) || !ts.isPropertyAccessExpression(node.expression)) {
@@ -29,9 +30,15 @@ export function isTSAssertion(services: ParserServicesWithTypeInformation, node:
   }
 
   const typeChecker = services.program.getTypeChecker();
-  const type = typeChecker.getTypeAtLocation(node.expression.expression);
+  const symbol = typeChecker.getTypeAtLocation(node.expression.expression).symbol;
   return (
-    type.symbol !== undefined &&
-    typeChecker.getFullyQualifiedName(type.symbol) === HTTP_TESTING_CONTROLLER_FQN
+    symbol?.getName() === HTTP_TESTING_CONTROLLER_NAME &&
+    (symbol.declarations?.some(declaration =>
+      declaration
+        .getSourceFile()
+        .fileName.replaceAll('\\', '/')
+        .includes(HTTP_TESTING_CONTROLLER_MODULE_PATH),
+    ) ??
+      false)
   );
 }
