@@ -742,6 +742,20 @@ describe('async tests with RxJS finalize', () => {
         {
           code: `
 import test from 'node:test';
+import { HttpTestingController } from '@angular/common/http/testing';
+
+declare const httpMock: HttpTestingController;
+
+test('recognizes HttpTestingController assertions', () => {
+  httpMock.expectOne();
+  httpMock.expectNone();
+  httpMock.verify();
+});
+`,
+        },
+        {
+          code: `
+import test from 'node:test';
 import { Template } from 'aws-cdk-lib/assertions';
 
 test('recognizes typed AWS CDK template assertions', () => {
@@ -1235,6 +1249,34 @@ test('member-based playwright expect entrypoints', async ({ page }) => {
         },
       ],
       invalid: [
+        {
+          code: `
+import test from 'node:test';
+import '@angular/common/http/testing';
+
+class HttpTestingController {
+  expectNone() {}
+}
+
+test('does not recognize non-Angular HTTP mock methods', () => {
+  new HttpTestingController().expectNone();
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
+import { HttpTestingController } from '@angular/common/http/testing';
+
+declare const httpMock: HttpTestingController;
+
+test('does not recognize HttpTestingController.match as an assertion', () => {
+  httpMock.match();
+});
+`,
+          errors: 1,
+        },
         {
           code: `
 import test from 'node:test';

@@ -18,6 +18,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
+import * as Angular from './angular.js';
 import * as AwsCdk from './assertions-aws-cdk.js';
 import * as Chai from './chai.js';
 import * as Cypress from './cypress.js';
@@ -62,6 +63,12 @@ type AssertionFrameworkDefinition = {
  * dependency is enough and no import appears in the file.
  */
 const assertionFrameworks = {
+  angular: {
+    imports: ['@angular/common/http/testing'],
+    dependencies: [],
+    isAssertion: () => false,
+    isTSAssertion: Angular.isTSAssertion,
+  },
   chai: {
     imports: ['chai'],
     dependencies: [],
@@ -204,12 +211,10 @@ export type AssertionEvidenceProfile = AssertionFrameworkProfile<AssertionEviden
  * carries strings, which do not satisfy the evidence extension's object shape, so passing one to an
  * evidence entry point is a compile error rather than a silently ignored extension.
  *
- * Total, unlike the other profiles: classifying a framework is a judgement no default can stand in
- * for, so a framework added to {@link assertionFrameworks} must be classified here — a missing key
- * is a compile error rather than a framework the rule quietly stops seeing. Rules needing every
- * framework with uniform behaviour use {@link allAssertionFrameworks} instead.
+ * Like evidence profiles, this is opt-in: a rule only classifies frameworks whose assertion
+ * detectors it can use.
  */
-export type AssertionExecutionProfile = Record<AssertionFrameworkKey, AssertionExecution>;
+export type AssertionExecutionProfile = AssertionFrameworkProfile<AssertionExecution>;
 
 /**
  * Whether the linted file imports, or the project depends on, any framework in `profile`. Rules

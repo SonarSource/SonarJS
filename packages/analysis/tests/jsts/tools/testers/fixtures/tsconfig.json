@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "baseUrl": ".",
     "noImplicitAny": true,
+    "paths": {
+      "@angular/common/http/testing": ["@angular/common/http/testing/index.d.ts"]
+    },
     "strict": false,
     "strictNullChecks": false,
     "lib": ["ESNext", "DOM"],
