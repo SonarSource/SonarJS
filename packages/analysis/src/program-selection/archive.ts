@@ -97,6 +97,9 @@ export class ProgramSelectionArchive {
     if (this.mode !== 'record') {
       return;
     }
+    if (!this.isProjectRelative(file) || !this.isProjectRelative(tsconfig)) {
+      return;
+    }
     let id = this.configuredProgramIds.get(tsconfig);
     if (id === undefined) {
       id = this.addProgram({ kind: 'configured', tsconfig, compilerOptions });
@@ -106,11 +109,15 @@ export class ProgramSelectionArchive {
   }
 
   recordOrphanGroup(files: NormalizedAbsolutePath[], compilerOptions: ts.CompilerOptions): void {
-    if (this.mode !== 'record' || files.length === 0) {
+    if (this.mode !== 'record') {
+      return;
+    }
+    const projectFiles = files.filter(file => this.isProjectRelative(file));
+    if (projectFiles.length === 0) {
       return;
     }
     const id = this.addProgram({ kind: 'orphan', compilerOptions });
-    for (const file of files) {
+    for (const file of projectFiles) {
       this.addSelection(file, id);
     }
   }
@@ -259,6 +266,15 @@ export class ProgramSelectionArchive {
       throw new Error(`Program selection path is outside the project: ${absolutePath}`);
     }
     return relativePath;
+  }
+
+  private isProjectRelative(absolutePath: NormalizedAbsolutePath): boolean {
+    try {
+      this.toRelative(absolutePath);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private fromRelative(relativePath: string): NormalizedAbsolutePath {
