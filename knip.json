@@ -3,6 +3,7 @@
     "packages/analysis/src/jsts/parsers/estree.d.ts",
     "packages/grpc/src/proto/*.d.ts",
     "packages/shared/src/fs-cache/archive-proto.d.ts",
+    "packages/analysis/src/program-selection/program-selection-proto.d.ts",
     "packages/analysis/src/jsts/rules/plugin.ts",
     "packages/analysis/src/jsts/rules/*/*.fixture.*",
     "**/fixtures/**",

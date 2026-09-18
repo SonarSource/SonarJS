@@ -46,16 +46,23 @@ class DefaultFilesystemCacheContextTest {
   void shouldCollectVersionedFilesystemArchive() {
     PluginInfo.setVersion("1.2.3.456");
     var collector = mock(A3SContextCollector.class);
-    var item = mock(A3SContextCollector.Item.class);
+    var filesystemItem = mock(A3SContextCollector.Item.class);
+    var programSelectionItem = mock(A3SContextCollector.Item.class);
     var archive = Path.of("archive.pb.gz");
-    when(collector.newFileItem(FilesystemCacheContext.ARCHIVE_ITEM_ID, archive)).thenReturn(item);
+    var programSelection = Path.of("program-selection.pb.gz");
+    when(collector.newFileItem(FilesystemCacheContext.ARCHIVE_ITEM_ID, archive)).thenReturn(
+      filesystemItem
+    );
+    when(
+      collector.newFileItem(FilesystemCacheContext.PROGRAM_SELECTION_ITEM_ID, programSelection)
+    ).thenReturn(programSelectionItem);
 
-    new DefaultFilesystemCacheContext(collector).collect(archive);
+    new DefaultFilesystemCacheContext(collector).collect(archive, programSelection);
 
     verify(collector).collect(
       FilesystemCacheContext.CONTEXT_KIND,
-      "{\"version\":1,\"analyzerVersion\":\"1.2.3.456\"}",
-      java.util.List.of(item)
+      "{\"version\":2,\"analyzerVersion\":\"1.2.3.456\"}",
+      java.util.List.of(filesystemItem, programSelectionItem)
     );
   }
 }
