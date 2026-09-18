@@ -279,6 +279,22 @@ describe('S1101', () => {
     ],
   });
 
+  ruleTester.run("a nested element's own aria-labelledby is treated as unresolvable", rule, {
+    valid: [
+      {
+        // A nested aria-labelledby (e.g. a labelled icon) makes the anchor's name unresolvable,
+        // even though the visible text matches - excluded rather than compared via that text.
+        code: `
+          <div>
+            <a href="/a"><span aria-labelledby="l1">Save</span></a>
+            <a href="/b"><span aria-labelledby="l2">Save</span></a>
+          </div>;
+        `,
+      },
+    ],
+    invalid: [],
+  });
+
   ruleTester.run("a nested element's own aria-label overrides its content", rule, {
     valid: [
       {

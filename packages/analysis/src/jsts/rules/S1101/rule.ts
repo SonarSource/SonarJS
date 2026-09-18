@@ -34,14 +34,18 @@ const messages = {
     'Use a distinct text or label, or point to the same target for this link and the one on line {{line}}.',
 };
 
+const ARIA_LABELLEDBY = 'aria-labelledby';
+const ARIA_LABEL = 'aria-label';
+const ARIA_HIDDEN = 'aria-hidden';
+
 // Props whose presence in a spread makes the anchor unresolvable.
 const RELEVANT_PROPS = [
   'href',
-  'aria-labelledby',
-  'aria-label',
+  ARIA_LABELLEDBY,
+  ARIA_LABEL,
   'title',
   'hidden',
-  'aria-hidden',
+  ARIA_HIDDEN,
   'style',
 ];
 
@@ -294,7 +298,7 @@ function isHiddenByAncestor(anchor: TSESTree.JSXElement, context: Rule.RuleConte
 }
 
 function isAriaHidden(attributes: JsxAttributes): boolean {
-  const attribute = getProp(attributes, 'aria-hidden');
+  const attribute = getProp(attributes, ARIA_HIDDEN);
   return !!attribute && getLiteralPropValue(attribute) === true;
 }
 
@@ -385,36 +389,20 @@ function computeAccessibleName(
   context: Rule.RuleContext,
   elementType: (node: TSESTree.JSXOpeningElement) => string,
 ): string | null {
-  const labelledbyAttribute = getProp(attributes, 'aria-labelledby') as JSXAttribute | undefined;
-  if (labelledbyAttribute) {
-    const staticIds = getStaticText(labelledbyAttribute.value);
-    // An unresolvable aria-labelledby is very likely non-empty at runtime, so exclude rather than guess.
-    if (staticIds === undefined) {
-      return null;
-    }
-    const normalizedIds = normalizeIdList(staticIds);
-    if (normalizedIds) {
-      // Best effort: this never resolves the id(s) to the referenced element's actual computed
-      // name. Instead it relies on valid markup having document-unique ids, so two anchors
-      // referencing the same id(s) are guaranteed to share the same accessible name regardless of
-      // their own visible text - and two anchors referencing different ids are treated as having
-      // different names, even if those ids happen to resolve to identical text (a false negative,
-      // consistent with every other divergence in this section).
-      return LABELLEDBY_KEY_PREFIX + normalizedIds;
-    }
+  const labelledby = resolveNameStep(attributes, ARIA_LABELLEDBY, normalizeIdList);
+  if (labelledby !== undefined) {
+    // Best effort: this never resolves the id(s) to the referenced element's actual computed
+    // name. Instead it relies on valid markup having document-unique ids, so two anchors
+    // referencing the same id(s) are guaranteed to share the same accessible name regardless of
+    // their own visible text - and two anchors referencing different ids are treated as having
+    // different names, even if those ids happen to resolve to identical text (a false negative,
+    // consistent with every other divergence in this section).
+    return labelledby === null ? null : LABELLEDBY_KEY_PREFIX + labelledby;
   }
 
-  const ariaLabelAttribute = getProp(attributes, 'aria-label') as JSXAttribute | undefined;
-  if (ariaLabelAttribute) {
-    const staticValue = getStaticText(ariaLabelAttribute.value);
-    // An unresolvable aria-label is very likely non-empty at runtime, so exclude rather than guess.
-    if (staticValue === undefined) {
-      return null;
-    }
-    const normalized = normalizeName(staticValue);
-    if (normalized) {
-      return normalized;
-    }
+  const ariaLabel = resolveNameStep(attributes, ARIA_LABEL, normalizeName);
+  if (ariaLabel !== undefined) {
+    return ariaLabel;
   }
 
   const textContent = computeTextContent(element.children, context, elementType);
@@ -426,19 +414,27 @@ function computeAccessibleName(
     return normalizedText;
   }
 
-  const titleAttribute = getProp(attributes, 'title') as JSXAttribute | undefined;
-  if (titleAttribute) {
-    const staticTitle = getStaticText(titleAttribute.value);
-    if (staticTitle === undefined) {
-      return null;
-    }
-    const normalizedTitle = normalizeName(staticTitle);
-    if (normalizedTitle) {
-      return normalizedTitle;
-    }
-  }
+  return resolveNameStep(attributes, 'title', normalizeName) ?? null;
+}
 
-  return null;
+// Resolves one accessible-name precedence step: undefined means "fall through to the next step"
+// (the attribute is absent, or resolves to an empty name), null means "stop: unresolvable", and a
+// string is the resolved name for this step.
+function resolveNameStep(
+  attributes: JsxAttributes,
+  prop: string,
+  normalize: (raw: string) => string,
+): string | null | undefined {
+  const attribute = getProp(attributes, prop) as JSXAttribute | undefined;
+  if (!attribute) {
+    return undefined;
+  }
+  const staticValue = getStaticText(attribute.value);
+  // An unresolvable value is very likely non-empty at runtime, so exclude rather than guess.
+  if (staticValue === undefined) {
+    return null;
+  }
+  return normalize(staticValue) || undefined;
 }
 
 function computeTextContent(
@@ -465,53 +461,10 @@ function computeChildContribution(
   switch (child.type) {
     case 'JSXText':
       return child.value;
-    case 'JSXExpressionContainer': {
-      const expression = child.expression;
-      if (expression.type === 'JSXEmptyExpression') {
-        return '';
-      }
-      if (expression.type === 'Identifier' && expression.name === 'undefined') {
-        return '';
-      }
-      const staticValue = getStaticTextFromExpression(expression as estree.Expression);
-      return staticValue ?? null;
-    }
-    case 'JSXElement': {
-      const opening = child.openingElement;
-      const attributes = (opening as unknown as JSXOpeningElement).attributes;
-
-      const hiddenState = ariaHiddenState(attributes);
-      if (hiddenState === 'unknown') {
-        return null;
-      }
-      if (hiddenState === 'hidden') {
-        return '';
-      }
-
-      // A nested element's own aria-label overrides its content, same as accname's "name from
-      // content" step - e.g. a nested `<svg aria-label="Download">` icon, not just `<img alt>`.
-      const ownAriaLabelAttribute = getProp(attributes, 'aria-label') as JSXAttribute | undefined;
-      if (ownAriaLabelAttribute) {
-        const staticOwnLabel = getStaticText(ownAriaLabelAttribute.value);
-        if (staticOwnLabel === undefined) {
-          return null;
-        }
-        if (staticOwnLabel) {
-          return staticOwnLabel;
-        }
-      }
-
-      if (elementType(opening).toLowerCase() === 'img') {
-        const altAttribute = getProp(attributes, 'alt') as JSXAttribute | undefined;
-        if (!altAttribute) {
-          return '';
-        }
-        const staticAlt = getStaticText(altAttribute.value);
-        return staticAlt ?? null;
-      }
-
-      return computeTextContent(child.children, context, elementType);
-    }
+    case 'JSXExpressionContainer':
+      return computeExpressionContainerContribution(child.expression);
+    case 'JSXElement':
+      return computeElementChildContribution(child, context, elementType);
     case 'JSXFragment':
       return computeTextContent(child.children, context, elementType);
     default:
@@ -520,8 +473,66 @@ function computeChildContribution(
   }
 }
 
+function computeExpressionContainerContribution(
+  expression: TSESTree.JSXExpressionContainer['expression'],
+): string | null {
+  if (expression.type === 'JSXEmptyExpression') {
+    return '';
+  }
+  if (expression.type === 'Identifier' && expression.name === 'undefined') {
+    return '';
+  }
+  const staticValue = getStaticTextFromExpression(expression as estree.Expression);
+  return staticValue ?? null;
+}
+
+// A nested element's own accessible name, following the same "name from content" precedence the
+// anchor itself uses: aria-labelledby (unresolvable, since we never resolve it) > aria-label >
+// its native markup (only <img alt> today) > its own text content.
+function computeElementChildContribution(
+  child: TSESTree.JSXElement,
+  context: Rule.RuleContext,
+  elementType: (node: TSESTree.JSXOpeningElement) => string,
+): string | null {
+  const opening = child.openingElement;
+  const attributes = (opening as unknown as JSXOpeningElement).attributes;
+
+  const hiddenState = ariaHiddenState(attributes);
+  if (hiddenState === 'unknown') {
+    return null;
+  }
+  if (hiddenState === 'hidden') {
+    return '';
+  }
+
+  // A nested element named by aria-labelledby takes its name from an element we never
+  // resolve, so this contribution is unresolvable - exclude rather than fall back to its
+  // text content, same treatment as the anchor's own unresolvable aria-labelledby.
+  if (getProp(attributes, ARIA_LABELLEDBY)) {
+    return null;
+  }
+
+  // A nested element's own aria-label overrides its content, same as accname's "name from
+  // content" step - e.g. a nested `<svg aria-label="Download">` icon, not just `<img alt>`.
+  const ownAriaLabel = resolveNameStep(attributes, ARIA_LABEL, value => value);
+  if (ownAriaLabel !== undefined) {
+    return ownAriaLabel;
+  }
+
+  if (elementType(opening).toLowerCase() === 'img') {
+    const altAttribute = getProp(attributes, 'alt') as JSXAttribute | undefined;
+    if (!altAttribute) {
+      return '';
+    }
+    const staticAlt = getStaticText(altAttribute.value);
+    return staticAlt ?? null;
+  }
+
+  return computeTextContent(child.children, context, elementType);
+}
+
 function ariaHiddenState(attributes: JsxAttributes): 'hidden' | 'visible' | 'unknown' {
-  const attribute = getProp(attributes, 'aria-hidden');
+  const attribute = getProp(attributes, ARIA_HIDDEN);
   if (!attribute) {
     return 'visible';
   }
