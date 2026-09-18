@@ -392,17 +392,38 @@ public class AnalysisProcessor {
     saveMetric(context, file, CoreMetrics.COMMENT_LINES, metrics.getCommentLinesCount());
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(file);
-    for (int line : metrics.getNclocList()) {
-      fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1);
-    }
+    saveLineMetrics(fileLinesContext, CoreMetrics.NCLOC_DATA_KEY, metrics.getNclocList());
 
     if (!CssLanguage.KEY.equals(file.language())) {
-      for (int line : metrics.getExecutableLinesList()) {
-        fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, 1);
-      }
+      saveLineMetrics(
+        fileLinesContext,
+        CoreMetrics.EXECUTABLE_LINES_DATA_KEY,
+        metrics.getExecutableLinesList()
+      );
     }
 
     fileLinesContext.save();
+  }
+
+  private void saveLineMetrics(
+    FileLinesContext fileLinesContext,
+    String metricKey,
+    List<Integer> lines
+  ) {
+    int lineCount = file.lines();
+    for (int line : lines) {
+      if (line > 0 && line <= lineCount) {
+        fileLinesContext.setIntValue(metricKey, line, 1);
+      } else {
+        LOG.warn(
+          "Ignoring out-of-range {} metric for {} at line {}. File has {} lines.",
+          metricKey,
+          file.uri(),
+          line,
+          lineCount
+        );
+      }
+    }
   }
 
   private static <T extends Serializable> void saveMetric(
