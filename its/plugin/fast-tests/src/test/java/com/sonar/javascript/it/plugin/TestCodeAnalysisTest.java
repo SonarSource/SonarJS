@@ -64,6 +64,14 @@ class TestCodeAnalysisTest {
     assertThat(issues.get(0).componentPath()).isEqualTo("src/file.js");
     assertThat(result.logOutput())
       .extracting(Log::message)
-      .contains("2 source files to be analyzed");
+      .contains("3 source files to be analyzed");
+
+    var reproducer = result
+      .scannerOutputReader()
+      .getFile("src/__tests__/sonar-crash-repro.spec.js");
+    assertThat(reproducer.getMeasure("ncloc").value()).isEqualTo(7);
+    assertThat(
+      String.valueOf(reproducer.getMeasure("ncloc_data").value()).split(";")
+    ).containsExactlyInAnyOrder("1=1", "13=1", "14=1", "15=1", "16=1", "17=1", "18=1");
   }
 }

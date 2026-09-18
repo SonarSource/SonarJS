@@ -46,6 +46,22 @@ async function resolveFileTypes(
 }
 
 describe('sanitizeInputFiles fileType resolution', () => {
+  it('strips a BOM from explicitly supplied file content', async () => {
+    const filePath = '/project/src/file.js';
+    const configuration = createConfiguration({ baseDir: '/project', sources: ['src'] });
+    const { files } = await sanitizeInputFiles(
+      {
+        [filePath]: {
+          filePath,
+          fileContent: '\uFEFFconst answer = 42;',
+        },
+      },
+      configuration,
+    );
+
+    expect(files[normalizeToAbsolutePath(filePath)].fileContent).toBe('const answer = 42;');
+  });
+
   describe('No sonar.tests configured', () => {
     it('uses TEST rules but preserves MAIN metrics when filename matches heuristic', async () => {
       const result = await resolveFileTypes(

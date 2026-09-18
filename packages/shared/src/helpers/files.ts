@@ -20,6 +20,7 @@ import {
   dirnamePath,
   stripBOM,
 } from '../../../analysis/src/jsts/rules/helpers/files.js';
+export { stripBOM };
 import type { NormalizedAbsolutePath } from '../../../analysis/src/jsts/rules/helpers/files.js';
 
 // Accepted layer inversion: shared re-exports rules-side path helpers so non-rules code can

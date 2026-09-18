@@ -20,8 +20,13 @@ package org.sonar.plugins.javascript.analysis;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
+import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -29,12 +34,9 @@ import org.junit.jupiter.api.io.TempDir;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.InputFile;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.IssueResolution;
-import org.sonar.scanner.plugin.api.impl.config.MapSettings;
-import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
 import org.sonar.api.issue.NoSonarFilter;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
@@ -54,6 +56,7 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResul
 import org.sonar.plugins.javascript.analyzeproject.grpc.SonarResolveComment;
 import org.sonar.plugins.javascript.analyzeproject.grpc.TextType;
 import org.sonar.plugins.javascript.api.Language;
+import org.sonar.scanner.plugin.api.impl.config.MapSettings;
 
 class AnalysisProcessorTest {
 
@@ -99,6 +102,75 @@ class AnalysisProcessorTest {
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs()).contains(
       "Failed to create highlight in " + file.uri() + " at 1:2-1:1"
+    );
+  }
+
+  @Test
+  void should_ignore_out_of_range_line_metrics() {
+    var fileLinesContext = mock(FileLinesContext.class);
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any())).thenReturn(fileLinesContext);
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
+    var sensorContext = SensorContextTester.create(baseDir);
+    var context = new JsTsContext<SensorContextTester>(sensorContext);
+    var file = TestInputFileBuilder.create("moduleKey", "file.js")
+      .setContents("var x = 1;")
+      .setLanguage("js")
+      .build();
+    var metrics = Metrics.newBuilder()
+      .addNcloc(1)
+      .addNcloc(1)
+      .addNcloc(2)
+      .addExecutableLines(1)
+      .addExecutableLines(2)
+      .build();
+    var response = ProjectAnalysisFileResult.newBuilder().setMetrics(metrics).build();
+
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+
+    verify(fileLinesContext).setIntValue(CoreMetrics.NCLOC_DATA_KEY, 1, 1);
+    verify(fileLinesContext, never()).setIntValue(CoreMetrics.NCLOC_DATA_KEY, 2, 1);
+    verify(fileLinesContext).setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, 1, 1);
+    verify(fileLinesContext, never()).setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, 2, 1);
+    verify(fileLinesContext).save();
+    assertThat(sensorContext.measure(file.key(), CoreMetrics.NCLOC).value()).isEqualTo(1);
+    assertThat(logTester.logs()).contains(
+      "Ignoring out-of-range ncloc_data metric for " + file.uri() + " at line 2. File has 1 lines.",
+      "Ignoring out-of-range executable_lines_data metric for " +
+        file.uri() +
+        " at line 2. File has 1 lines."
+    );
+  }
+
+  @Test
+  void should_ignore_sonar_resolve_with_out_of_range_target_line() {
+    var processor = createProcessor();
+    var sensorContext = SensorContextTester.create(baseDir);
+    sensorContext.setRuntime(
+      TestSonarRuntime.forSonarQube(
+        Version.create(13, 5),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
+    var context = new JsTsContext<>(sensorContext);
+    var file = createInputFile(sensorContext, "js", "file.js", "const x = 1;\n");
+    var response = responseWithSonarResolveComments(
+      SonarResolveComment.newBuilder()
+        .setLine(3)
+        .setText("sonar-resolve javascript:S1116 \"reason\"")
+        .build()
+    );
+
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+
+    assertThat(issueResolutions(sensorContext, file)).isEmpty();
+    assertThat(logTester.logs()).contains(
+      "Failed to save issue resolution in " + file.uri() + " at line 3"
     );
   }
 

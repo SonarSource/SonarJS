@@ -14,20 +14,19 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { debug, info } from '../../../../shared/src/helpers/logging.js';
+import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { Linter as ESLintLinter, SourceCode } from 'eslint';
 import type { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
-import { serializeInProtobuf } from '../parsers/ast.js';
+import { serializeInProtobufSafely } from '../parsers/ast.js';
 import { extractSonarResolveCommentsFromJsTsComments } from '../../common/sonar-resolve.js';
 import {
   collectMainFileArtifacts,
   collectNoSonarMetrics,
   collectTestFileArtifacts,
 } from './file-artifacts.js';
-import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import {
   toProjectFailureResult,
   type ProjectFailureResult,
@@ -48,6 +47,10 @@ interface AnalysisLinterOptions {
   metricsSink?: InternalMetricsSink;
 }
 
+export type UnserializedJsTsAnalysisOutput = Omit<JsTsAnalysisOutput, 'ast'> & {
+  unserializedAst?: TSESTree.Program;
+};
+
 /**
  * Analyzes a JavaScript / TypeScript analysis input
  *
@@ -64,7 +67,19 @@ interface AnalysisLinterOptions {
  * @param input the sanitized JavaScript / TypeScript analysis input to analyze
  * @returns the JavaScript / TypeScript analysis output
  */
-export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysisOutput> {
+export function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysisOutput> {
+  return Promise.resolve().then(() => {
+    const result = analyzeJSTSUnserialized(input);
+    if (result.unserializedAst) {
+      const { unserializedAst, ...output } = result;
+      const ast = serializeInProtobufSafely(unserializedAst, input.filePath);
+      return ast ? { ast, ...output } : output;
+    }
+    return result;
+  });
+}
+
+function analyzeJSTSUnserialized(input: JsTsAnalysisInput): UnserializedJsTsAnalysisOutput {
   debug(`Analyzing file "${input.filePath}"`);
   const {
     filePath,
@@ -122,13 +137,10 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
   };
 
   if (!input.skipAst) {
-    const ast = serializeAst(parseResult.sourceCode, filePath);
-    if (ast) {
-      return {
-        ast,
-        ...result,
-      };
-    }
+    return {
+      unserializedAst: parseResult.sourceCode.ast as TSESTree.Program,
+      ...result,
+    };
   }
 
   return result;
@@ -149,23 +161,12 @@ function prepareLinterOptions(input: JsTsAnalysisInput): AnalysisLinterOptions {
   };
 }
 
-export async function analyzeJSTSProject(
+export function analyzeJSTSProject(
   input: JsTsAnalysisInput,
-): Promise<JsTsAnalysisOutput | ProjectFailureResult> {
-  try {
-    return await analyzeJSTS(input);
-  } catch (err) {
-    return toProjectFailureResult(err, input.language);
-  }
-}
-
-function serializeAst(sourceCode: SourceCode, filePath: NormalizedAbsolutePath) {
-  try {
-    return serializeInProtobuf(sourceCode.ast as TSESTree.Program, filePath);
-  } catch {
-    info(`Failed to serialize AST for file "${filePath}"`);
-    return null;
-  }
+): Promise<UnserializedJsTsAnalysisOutput | ProjectFailureResult> {
+  return Promise.resolve()
+    .then(() => analyzeJSTSUnserialized(input))
+    .catch(err => toProjectFailureResult(err, input.language));
 }
 
 /**

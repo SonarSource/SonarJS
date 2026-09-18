@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import assert from 'node:assert';
 import { describe, it, beforeEach, type Mock, mock } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
@@ -37,6 +38,7 @@ import {
   type ConfigurationInput,
 } from '../src/common/configuration.js';
 import { DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT } from '../src/jsts/linter/issues/transform.js';
+import { deserializeProtobuf } from '../src/jsts/parsers/ast.js';
 
 async function initForTest(
   configOptions: ConfigurationInput,
@@ -68,6 +70,26 @@ describe('SonarQube project analysis', () => {
     sourceFileStore.clearCache();
     getProgramCacheManager().clear();
     clearProgramOptionsCache();
+  });
+
+  it('should serialize AST locations with scanner coordinates', async () => {
+    const baseDir = join(fixtures, 'basic');
+    const filePath = join(baseDir, 'line-separator.js');
+    const fileContent = 'const a=1;\u2028const b=2;';
+    const configuration = await initForTest(
+      { baseDir, skipAst: false },
+      { [filePath]: { filePath, fileContent, fileType: 'MAIN' } },
+    );
+
+    const result = await analyzeProject({ rules: [], bundles: [] }, configuration);
+    const fileResult = result.files[normalizeToAbsolutePath(filePath)];
+
+    assert(fileResult && !('error' in fileResult) && 'ast' in fileResult && fileResult.ast);
+    const protobufAst = deserializeProtobuf(fileResult.ast);
+    expect(protobufAst.program?.body?.[1]?.loc).toMatchObject({
+      start: { line: 1, column: fileContent.indexOf('const b') },
+      end: { line: 1, column: fileContent.length },
+    });
   });
 
   it('should analyze files using tsconfig', async () => {
