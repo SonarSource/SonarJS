@@ -101,13 +101,8 @@ function resolvesToDomWindow(type: ts.Type, checker: ts.TypeChecker): boolean {
 }
 
 function declaredInDomLib(type: ts.Type, propertyName: string): boolean {
-  return (
-    type
-      .getProperty(propertyName)
-      ?.declarations?.some(declaration =>
-        declaration.getSourceFile().fileName.endsWith('lib.dom.d.ts'),
-      ) === true
-  );
+  const declarations = type.getProperty(propertyName)?.declarations;
+  return declarations?.some(d => d.getSourceFile().fileName.endsWith('lib.dom.d.ts')) ?? false;
 }
 
 function checkPostMessageCall(callExpr: estree.CallExpression, context: Rule.RuleContext) {
