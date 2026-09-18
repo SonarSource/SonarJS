@@ -52,7 +52,7 @@ function isConstVariableDeclaration(declaration: ts.VariableDeclaration): boolea
     : false;
 }
 
-function hasBody(
+export function hasBody(
   declaration: ts.SignatureDeclaration | undefined,
 ): declaration is ts.SignatureDeclaration & ts.FunctionLikeDeclarationBase {
   return declaration !== undefined && isFunctionLikeDeclaration(declaration) && !!declaration.body;
