@@ -88,18 +88,9 @@ function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
 }
 
 /**
- * Returns true when `type`, or any individual member of a union or intersection, declares both
- * `postMessage` and `frames` in the DOM's own `lib.dom.d.ts`.
- *
- * `postMessage` alone is not Window-specific: `Worker`, `MessagePort`, `BroadcastChannel` and
- * `ServiceWorker` all declare it too, so requiring it on its own would report those transports
- * as if they were a `Window`. `frames` is declared only by `Window` (and `typeof globalThis`) in
- * `lib.dom.d.ts`, so pairing the two excludes those false positives while still being immune to
- * a type alias, an interface that `extends Window`, a generic parameter constrained to `Window`,
- * or a union/intersection that includes `Window` among other members. `getApparentType` resolves
- * a generic type parameter to its constraint before the lookup; TypeScript's own property
- * resolution already walks `extends`/interface inheritance and intersection members, so no
- * separate base-type walk is needed.
+ * `postMessage` alone isn't Window-specific — `Worker`, `MessagePort`, `BroadcastChannel` and
+ * `ServiceWorker` declare it too — so also require `frames`, which `lib.dom.d.ts` declares only
+ * on `Window`.
  */
 function resolvesToDomWindow(type: ts.Type, checker: ts.TypeChecker): boolean {
   const apparent = checker.getApparentType(type);
