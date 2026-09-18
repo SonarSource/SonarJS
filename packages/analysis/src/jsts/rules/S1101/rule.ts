@@ -52,8 +52,7 @@ const RELEVANT_PROPS = [
 const ROUTING_FRAGMENT_PATTERN = /^#[!/]/;
 const DUMMY_BASE = 'https://sonarjs-placeholder.invalid/';
 const DISPLAY_NONE_PATTERN = /display\s*:\s*none/i;
-// Namespaces an aria-labelledby-derived key so it can never collide with a text- or
-// aria-label-derived accessible name that happens to share the same characters.
+// Namespaces an aria-labelledby-derived key so it can never collide with a text/aria-label name.
 const LABELLEDBY_KEY_PREFIX = ' labelledby:';
 
 type JsxAttributes = (JSXAttribute | JSXSpreadAttribute)[];
@@ -281,8 +280,7 @@ function isLinkHidden(attributes: JsxAttributes, context: Rule.RuleContext): boo
   );
 }
 
-// True when a wrapping JSX element hides the anchor from every user - e.g. `<div aria-hidden="true">`.
-// Such an anchor is removed from the accessibility tree just as surely as if it were hidden itself.
+// True when a wrapping JSX element hides the anchor from every user, e.g. `<div aria-hidden="true">`.
 function isHiddenByAncestor(anchor: TSESTree.JSXElement, context: Rule.RuleContext): boolean {
   let node: TSESTree.Node | undefined = anchor.parent;
   while (node) {
@@ -381,8 +379,7 @@ function cookTemplateLiteral(expression: estree.TemplateLiteral): string | undef
     : undefined;
 }
 
-// Accessible name precedence per accname, extended from S6827's aria-label > text content > title
-// with aria-labelledby, which outranks all three.
+// Accessible name precedence per accname: aria-labelledby > aria-label > text content > title.
 function computeAccessibleName(
   element: TSESTree.JSXElement,
   attributes: JsxAttributes,
@@ -391,12 +388,7 @@ function computeAccessibleName(
 ): string | null {
   const labelledby = resolveNameStep(attributes, ARIA_LABELLEDBY, normalizeIdList);
   if (labelledby !== undefined) {
-    // Best effort: this never resolves the id(s) to the referenced element's actual computed
-    // name. Instead it relies on valid markup having document-unique ids, so two anchors
-    // referencing the same id(s) are guaranteed to share the same accessible name regardless of
-    // their own visible text - and two anchors referencing different ids are treated as having
-    // different names, even if those ids happen to resolve to identical text (a false negative,
-    // consistent with every other divergence in this section).
+    // Best effort: compares the referenced id(s) directly rather than resolving them to a name.
     return labelledby === null ? null : LABELLEDBY_KEY_PREFIX + labelledby;
   }
 
@@ -417,9 +409,7 @@ function computeAccessibleName(
   return resolveNameStep(attributes, 'title', normalizeName) ?? null;
 }
 
-// Resolves one accessible-name precedence step: undefined means "fall through to the next step"
-// (the attribute is absent, or resolves to an empty name), null means "stop: unresolvable", and a
-// string is the resolved name for this step.
+// One precedence step: undefined falls through, null means unresolvable, a string is the name.
 function resolveNameStep(
   attributes: JsxAttributes,
   prop: string,
@@ -486,9 +476,7 @@ function computeExpressionContainerContribution(
   return staticValue ?? null;
 }
 
-// A nested element's own accessible name, following the same "name from content" precedence the
-// anchor itself uses: aria-labelledby (unresolvable, since we never resolve it) > aria-label >
-// its native markup (only <img alt> today) > its own text content.
+// A nested element's own name: aria-labelledby (unresolvable) > aria-label > <img alt> > its text.
 function computeElementChildContribution(
   child: TSESTree.JSXElement,
   context: Rule.RuleContext,
@@ -505,15 +493,12 @@ function computeElementChildContribution(
     return '';
   }
 
-  // A nested element named by aria-labelledby takes its name from an element we never
-  // resolve, so this contribution is unresolvable - exclude rather than fall back to its
-  // text content, same treatment as the anchor's own unresolvable aria-labelledby.
+  // Named by an element we never resolve, so this contribution is unresolvable.
   if (getProp(attributes, ARIA_LABELLEDBY)) {
     return null;
   }
 
-  // A nested element's own aria-label overrides its content, same as accname's "name from
-  // content" step - e.g. a nested `<svg aria-label="Download">` icon, not just `<img alt>`.
+  // A nested element's own aria-label overrides its content, e.g. a nested `<svg aria-label>`.
   const ownAriaLabel = resolveNameStep(attributes, ARIA_LABEL, value => value);
   if (ownAriaLabel !== undefined) {
     return ownAriaLabel;
@@ -586,8 +571,7 @@ function normalizeName(value: string): string {
   return value.replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
-// Unlike normalizeName, an id list is not case-folded: HTML ids are case-sensitive, and folding
-// them could wrongly treat two anchors referencing distinct ids as sharing the same name.
+// Unlike normalizeName, this doesn't case-fold: HTML ids are case-sensitive.
 function normalizeIdList(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
 }
