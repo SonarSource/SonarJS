@@ -16,7 +16,7 @@
  */
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
-const HTTP_TESTING_CONTROLLER_METHODS = new Set(['expectOne', 'expectNone', 'match', 'verify']);
+const HTTP_TESTING_CONTROLLER_METHODS = new Set(['expectOne', 'expectNone', 'verify']);
 const HTTP_TESTING_CONTROLLER_FQN = '"@angular/common/http/testing".HttpTestingController';
 
 export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {

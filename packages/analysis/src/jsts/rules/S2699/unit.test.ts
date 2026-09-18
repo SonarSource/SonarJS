@@ -749,7 +749,6 @@ declare const httpMock: HttpTestingController;
 test('recognizes HttpTestingController assertions', () => {
   httpMock.expectOne();
   httpMock.expectNone();
-  httpMock.match();
   httpMock.verify();
 });
 `,
@@ -1261,6 +1260,19 @@ class HttpTestingController {
 
 test('does not recognize non-Angular HTTP mock methods', () => {
   new HttpTestingController().expectNone();
+});
+`,
+          errors: 1,
+        },
+        {
+          code: `
+import test from 'node:test';
+import { HttpTestingController } from '@angular/common/http/testing';
+
+declare const httpMock: HttpTestingController;
+
+test('does not recognize HttpTestingController.match as an assertion', () => {
+  httpMock.match();
 });
 `,
           errors: 1,
