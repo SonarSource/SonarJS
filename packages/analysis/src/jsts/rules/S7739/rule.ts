@@ -187,6 +187,22 @@ function isPromiseOrDeferredFunctionDeclaration(ancestor: Node): boolean {
 }
 
 /**
+ * Checks if an assignment target names 'Promise' or 'Deferred', either as a bare identifier
+ * (`Promise = ...`) or as the non-computed property of a MemberExpression
+ * (`ns.Deferred = ...`, a common module/namespace-attached constructor pattern).
+ */
+function isPromiseOrDeferredAssignmentTarget(target: Node): boolean {
+  if (target.type === 'Identifier') {
+    return isIdentifier(target, 'Promise', 'Deferred');
+  }
+  return (
+    target.type === 'MemberExpression' &&
+    !target.computed &&
+    isIdentifier(target.property, 'Promise', 'Deferred')
+  );
+}
+
+/**
  * Checks if an ancestor is a function expression/arrow assigned to 'Promise' or 'Deferred'.
  */
 function isPromiseOrDeferredFunctionExpression(ancestor: Node): boolean {
@@ -205,11 +221,10 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node): boolean {
   ) {
     return true;
   }
-  // Promise = function() { ... } or Promise = () => { ... }
+  // Promise = function() { ... }, ns.Deferred = function() { ... }, or the arrow equivalents
   return (
     funcParent.type === 'AssignmentExpression' &&
-    funcParent.left.type === 'Identifier' &&
-    isIdentifier(funcParent.left, 'Promise', 'Deferred')
+    isPromiseOrDeferredAssignmentTarget(funcParent.left)
   );
 }
 
