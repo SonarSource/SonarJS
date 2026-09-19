@@ -18,20 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { isLoopLike } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
-
-const LOOP_TYPES = new Set([
-  'ForStatement',
-  'WhileStatement',
-  'DoWhileStatement',
-  'ForInStatement',
-  'ForOfStatement',
-]);
-
-function isLoop(node: estree.Node): boolean {
-  return LOOP_TYPES.has(node.type);
-}
 
 function isSwitch(node: estree.Node): boolean {
   return node.type === 'SwitchStatement';
@@ -76,7 +65,7 @@ export const rule: Rule.RuleModule = {
       // - nested loop: break/continue must target the label to exit multiple levels
       // - nested switch: plain 'break' only exits the switch, so 'break label' is the
       //   only way to exit the enclosing loop from within the switch
-      const isNested = ancestors.slice(labelIdx + 2).some(n => isLoop(n) || isSwitch(n));
+      const isNested = ancestors.slice(labelIdx + 2).some(n => isLoopLike(n) || isSwitch(n));
 
       const refs = labelRefs.get(labeledStmt);
       if (refs) {
@@ -101,7 +90,7 @@ export const rule: Rule.RuleModule = {
         labelRefs.delete(node);
 
         // Non-loop labeled body: always report (labels on blocks, if-statements, etc.)
-        if (!isLoop(node.body)) {
+        if (!isLoopLike(node.body)) {
           context.report({
             messageId: 'removeLabel',
             node: node.label,

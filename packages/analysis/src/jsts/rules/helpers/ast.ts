@@ -292,6 +292,18 @@ export function isFunctionNode(node: estree.Node): node is FunctionNodeType {
   return FUNCTION_NODES.includes(node.type);
 }
 
+const LOOP_TYPES: Record<LoopLike['type'], true> = {
+  WhileStatement: true,
+  DoWhileStatement: true,
+  ForStatement: true,
+  ForOfStatement: true,
+  ForInStatement: true,
+};
+
+export function isLoopLike(node: estree.Node): node is LoopLike {
+  return node.type in LOOP_TYPES;
+}
+
 /**
  * Returns whether a node shares its start or end line with an enclosing
  * template literal.
