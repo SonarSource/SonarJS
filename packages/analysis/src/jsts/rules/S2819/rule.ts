@@ -66,23 +66,11 @@ export const rule: Rule.RuleModule = {
 };
 
 /**
- * The receiver-name heuristic only stands in for a resolved type: when the type checker
- * already resolved `node` to something other than `any`/`unknown`, that resolved type is
- * authoritative and the name is not consulted, so a receiver such as `workerWindow` typed
- * as `WebSocket` is not mistaken for a `Window`. The name is only a fallback for receivers
- * the checker could not resolve, such as a call to an undeclared function.
- *
- * The resolved case is decided positively, through {@link resolvesToDomWindow}, rather than
- * by matching the type's printed name: `typeToString` prefers a declared/alias name and
- * truncates long output, so a genuine `Window` behind an interface that `extends Window`, a
- * type alias, a generic parameter constrained to `Window`, or a union/intersection member
- * would otherwise stop being recognized once the name is no longer consulted.
- *
- * A resolved type that declares only `postMessage` and not `frames` (e.g. a generic parameter
- * bounded by a hand-written interface with a lone `postMessage` method) is not recognized: the
- * type only proves what its own declaration proves, so a caller passing the real `window` at one
- * call site does not make the parameter itself a `Window` inside the function body. Conversely, a
- * type that does declare both members is treated as a `Window` (see {@link resolvesToDomWindow}).
+ * The name heuristic is only a fallback for a receiver the type checker can't resolve
+ * (`any`/`unknown`); a resolved type is decided positively via {@link resolvesToDomWindow}
+ * instead of its printed name, so an alias, an `extends Window` interface, a `Window`-constrained
+ * generic, or a union/intersection member is still recognized even though none of those print as
+ * `"Window"`. A type declaring only `postMessage` (not `frames`) is not recognized as a `Window`.
  */
 function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
   const services = context.sourceCode.parserServices;
@@ -94,15 +82,10 @@ function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
 }
 
 /**
- * `postMessage` alone isn't Window-specific — `Worker`, `MessagePort`, `BroadcastChannel` and
- * `ServiceWorker` declare it too — so also require `frames`, which only `Window` declares.
- *
- * The two members only need to exist on the type, not to originate from `lib.dom.d.ts`: a
- * project that supplies its DOM types through `@types/web` instead of `lib.dom.d.ts` would
- * otherwise lose S2819 coverage entirely, and that whole-project false negative is worse than
- * the structural check's own residual risk — a hand-written type that happens to declare both
- * `postMessage` and `frames` itself being mistaken for a `Window`, which is accepted as an
- * unlikely, narrow false positive.
+ * Requires `frames` alongside `postMessage`, since `postMessage` alone is also declared by
+ * `Worker`, `MessagePort`, `BroadcastChannel` and `ServiceWorker`, but `frames` only by `Window`.
+ * Purely structural (not tied to `lib.dom.d.ts`), so `@types/web` projects keep coverage; the
+ * trade-off is a hand-written type declaring both members being mistaken for a `Window`.
  */
 function resolvesToDomWindow(type: ts.Type): boolean {
   const members = type.isUnionOrIntersection() ? type.types : [type];
