@@ -194,7 +194,7 @@ If everything looks good to you, you can copy the file with the actual issues lo
 `its/ruling/target/actual/` into the directory with the expected issues
 `its/ruling/src/test/resources/expected/`.
 
-You can review the Ruling difference by running `diff -rq src/test/resources/expected target/expected` from
+You can review the Ruling difference by running `diff -rq src/test/resources/expected target/actual` from
 `its/ruling`.
 
 > :warning: Please note that running ruling tests will remove `node_modules` from the root to avoid
