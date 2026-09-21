@@ -98,5 +98,46 @@ describe('parseForESLint', () => {
         APIError.parsingError(errorMessage, { line: 1 }),
       );
     });
+
+    it(`should preserve source text and ECMAScript locations with ${parser.meta!.name}`, () => {
+      const lineSeparator = '\u2028';
+      const paragraphSeparator = '\u2029';
+      const fileContent = `const payload = 'line1\\nline2\\rline3${lineSeparator}line4${paragraphSeparator}end';\nconst next = 42;`;
+      const input = { fileContent, fileType: 'MAIN' } as JsTsAnalysisInput;
+      const options = usingBabel ? buildBabelParserOptions(input) : buildTsParserOptions(input);
+
+      const { sourceCode } = parse(fileContent, parser, options);
+      const firstDeclaration = sourceCode.ast.body[0];
+      const secondDeclaration = sourceCode.ast.body[1];
+      const value = (firstDeclaration as any).declarations[0].init.value;
+      const secondDeclarationOffset = fileContent.indexOf('const next');
+
+      expect(sourceCode.text).toBe(fileContent);
+      expect(sourceCode.lines).toEqual([
+        `const payload = 'line1\\nline2\\rline3`,
+        'line4',
+        `end';`,
+        'const next = 42;',
+      ]);
+      expect(value).toBe(`line1\nline2\rline3${lineSeparator}line4${paragraphSeparator}end`);
+      expect(secondDeclaration.loc).toEqual({
+        start: { line: 4, column: 0 },
+        end: { line: 4, column: 16 },
+      });
+      expect(sourceCode.getLocFromIndex(secondDeclarationOffset)).toEqual({ line: 4, column: 0 });
+      expect(sourceCode.getIndexFromLoc({ line: 4, column: 0 })).toBe(secondDeclarationOffset);
+      expect(() => sourceCode.traverse()).not.toThrow();
+    });
+
+    it(`should preserve ECMAScript line terminator semantics with ${parser.meta!.name}`, () => {
+      const fileContent = '// comment\u2028const value = 42;';
+      const input = { fileContent, fileType: 'MAIN' } as JsTsAnalysisInput;
+      const options = usingBabel ? buildBabelParserOptions(input) : buildTsParserOptions(input);
+
+      const { sourceCode } = parse(fileContent, parser, options);
+
+      expect(sourceCode.ast.body).toHaveLength(1);
+      expect(sourceCode.ast.body[0].loc?.start).toEqual({ line: 2, column: 0 });
+    });
   }
 });

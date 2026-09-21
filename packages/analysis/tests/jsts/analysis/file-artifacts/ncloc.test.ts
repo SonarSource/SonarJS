@@ -44,6 +44,14 @@ comment */`);
     expect(nloc).toEqual([4, 6, 7, 8, 9, 11]);
   });
 
+  it('should preserve ECMAScript lines before scanner output conversion', () => {
+    const sourceCode = parseJavaScriptSource(
+      `const payload = 'line1\\nline2\\rline3\u2028line4\u2029end';\nconst next = 42;`,
+    );
+
+    expect(collectNclocLines(sourceCode)).toEqual([1, 2, 3, 4]);
+  });
+
   it('should find the line numbers of code in Vue.js', () => {
     const sourceCode = parseVueSource(`<template>
   <div>

@@ -716,6 +716,28 @@ describe('await analyzeJSTS', () => {
     ]);
   });
 
+  it('should preserve ECMAScript line separators in quick-fix replacement text', async () => {
+    const rules: RuleConfig[] = [
+      {
+        key: 'S1488',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+    const filePath = path.join(fixtures, 'quickfix-line-separator.js');
+    const fileContent = `function getMessage() {\n  const message = "he\u2028llo";\n  return message;\n}`;
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
+
+    const result = await analyzeJSTS(await jsTsInput({ filePath, fileContent }));
+    const { quickFixes } = result.issues[0] as JsTsIssue;
+
+    expect(quickFixes?.flatMap(quickFix => quickFix.edits.map(edit => edit.text))).toEqual([
+      `return "he\u2028llo"`,
+    ]);
+  });
+
   it('should compute metrics on main files', async () => {
     const rules: RuleConfig[] = [];
     const filePath = path.join(fixtures, 'metrics.js');

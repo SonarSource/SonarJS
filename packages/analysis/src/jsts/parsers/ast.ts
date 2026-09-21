@@ -18,7 +18,7 @@ import base64 from '@protobufjs/base64';
 import protobuf from 'protobufjs/minimal.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 
-import { debug } from '../../../../shared/src/helpers/logging.js';
+import { debug, info } from '../../../../shared/src/helpers/logging.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { estree } from './estree.js';
 
@@ -28,12 +28,18 @@ export { NodeType };
 const unsupportedNodeTypes = new Map<string, number>();
 const AST_PROTOBUF_RECURSION_LIMIT = 300;
 
+export type PositionMapper = (line: number, column: number) => { line: number; column: number };
+
 export function serializeInProtobuf(
   ast: TSESTree.Program,
   filePath: NormalizedAbsolutePath,
+  positionMapper?: PositionMapper,
 ): string {
   unsupportedNodeTypes.clear();
   const protobufAST = parseInProtobuf(ast);
+  if (positionMapper) {
+    mapProtobufLocations(protobufAST, positionMapper);
+  }
   if (unsupportedNodeTypes.size > 0) {
     debug(
       `Not supported syntax nodes in file "${filePath}": ` +
@@ -46,6 +52,60 @@ export function serializeInProtobuf(
     const binaryArray = NODE_TYPE.encode(NODE_TYPE.create(protobufAST)).finish();
     return base64.encode(binaryArray, 0, binaryArray.length);
   });
+}
+
+export function serializeInProtobufSafely(
+  ast: TSESTree.Program,
+  filePath: NormalizedAbsolutePath,
+  positionMapper?: PositionMapper,
+) {
+  try {
+    return serializeInProtobuf(ast, filePath, positionMapper);
+  } catch {
+    info(`Failed to serialize AST for file "${filePath}"`);
+    return null;
+  }
+}
+
+function mapProtobufLocations(root: object, positionMapper: PositionMapper) {
+  const visited = new WeakSet<object>();
+
+  function visit(value: unknown) {
+    if (value === null || typeof value !== 'object' || visited.has(value)) {
+      return;
+    }
+    visited.add(value);
+
+    if (Array.isArray(value)) {
+      value.forEach(visit);
+      return;
+    }
+
+    const record = value as Record<string, unknown>;
+    const location = record.loc as
+      | {
+          start?: { line?: number; column?: number };
+          end?: { line?: number; column?: number };
+        }
+      | undefined;
+    if (
+      location?.start?.line !== undefined &&
+      location.start.column !== undefined &&
+      location.end?.line !== undefined &&
+      location.end.column !== undefined
+    ) {
+      location.start = positionMapper(location.start.line, location.start.column);
+      location.end = positionMapper(location.end.line, location.end.column);
+    }
+
+    for (const [key, child] of Object.entries(record)) {
+      if (key !== 'loc') {
+        visit(child);
+      }
+    }
+  }
+
+  visit(root);
 }
 
 /**
