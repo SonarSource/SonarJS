@@ -104,15 +104,23 @@ function parseResultMetadata(filePath, oldResultsDir) {
   const resultFile = toGitPath(path.relative(oldResultsDir, path.join(repositoryRoot, filePath)));
   const parts = resultFile.split(path.posix.sep);
 
-  // Expected format: <language>/<project>/<ruleId>.json
-  if (parts.length !== 3) {
+  // Expected format: <project>/<language>-<ruleId>.json
+  if (parts.length !== 2) {
     return undefined;
   }
 
-  const [language, project, fileName] = parts;
-  const rule = path.posix.basename(fileName, '.json');
+  const [project, fileName] = parts;
+  const baseName = path.posix.basename(fileName, '.json');
+  const dashIndex = baseName.indexOf('-');
 
-  if (!language || !project || !rule) {
+  if (dashIndex === -1 || !project || !baseName) {
+    return undefined;
+  }
+
+  const language = baseName.slice(0, dashIndex);
+  const rule = baseName.slice(dashIndex + 1);
+
+  if (!language || !rule) {
     return undefined;
   }
 

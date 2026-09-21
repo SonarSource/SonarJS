@@ -153,9 +153,11 @@ async function writeIssues(
   if (Object.keys(issues).length === 0) {
     return;
   }
-  const langDir = path.join(projectDir, languagePrefix[language]);
-  await fs.mkdir(langDir, { recursive: true });
-  const issueFilename = path.join(langDir, `${handleS124(ruleId, language)}.json`);
+  await fs.mkdir(projectDir, { recursive: true });
+  const issueFilename = path.join(
+    projectDir,
+    `${languagePrefix[language]}-${handleS124(ruleId, language)}.json`,
+  );
   const sortedIssues = sortIssueLines(issues);
   await fs.writeFile(
     issueFilename,

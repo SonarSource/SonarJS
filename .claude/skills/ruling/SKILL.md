@@ -32,7 +32,7 @@ sh tools/ruling-debug-script.sh
 Results:
 
 - Actual: `packages/ruling/actual/`
-- Expected: `its/ruling/src/test/resources/expected/<language>/<project>/`
+- Expected: `its/ruling/src/test/resources/expected/<project>/<language>-<ruleId>.json`
 
 ## Java Ruling (Old Way)
 
