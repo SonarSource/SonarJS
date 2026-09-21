@@ -78,13 +78,19 @@ describe('S1077 SVG accessible name', () => {
         },
         // dynamic aria-hidden - can't evaluate statically, conservatively suppress
         { code: `<svg aria-hidden={isDecorative}><path d="M12 4v16"/></svg>` },
-      ],
-      invalid: [
-        // closer explicit aria-hidden="false" overrides a further true ancestor
+        // a closer aria-hidden="false" cannot override a further hidden ancestor - per the
+        // WAI-ARIA spec, an ancestor's aria-hidden="true" removes the whole subtree from the
+        // accessibility tree and a descendant can't opt back in
         {
           code: `<span aria-hidden="true"><svg aria-hidden="false"><path d="M12 4v16"/></svg></span>`,
-          errors: 1,
         },
+        {
+          code: `<div aria-hidden="true"><span aria-hidden="false"><svg/></span></div>`,
+        },
+      ],
+      invalid: [
+        // aria-hidden="false" with no hidden ancestor means "not hidden", not "skip the check"
+        { code: `<svg aria-hidden="false"><path d="M5 12h14"/></svg>`, errors: 1 },
       ],
     });
   });

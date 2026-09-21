@@ -96,24 +96,23 @@ function isDecorativeRole(attributes: JSXOpeningElement['attributes']): boolean 
   return DECORATIVE_ROLES.has(firstToken);
 }
 
+// An ancestor's aria-hidden="true" can't be overridden by a descendant's "false", so only "true" short-circuits.
 function isHiddenFromAssistiveTech(
   node: TSESTree.JSXOpeningElement,
   attributes: JSXOpeningElement['attributes'],
 ): boolean {
-  const own = getAriaHiddenState(attributes);
-  if (own !== undefined) {
-    return own;
+  if (getAriaHiddenState(attributes) === true) {
+    return true;
   }
 
   let ancestor: TSESTree.Node | undefined = node.parent?.parent;
   while (ancestor) {
-    if (ancestor.type === 'JSXElement') {
-      const state = getAriaHiddenState(
-        (ancestor.openingElement as unknown as JSXOpeningElement).attributes,
-      );
-      if (state !== undefined) {
-        return state;
-      }
+    if (
+      ancestor.type === 'JSXElement' &&
+      getAriaHiddenState((ancestor.openingElement as unknown as JSXOpeningElement).attributes) ===
+        true
+    ) {
+      return true;
     }
     ancestor = ancestor.parent;
   }
@@ -133,6 +132,6 @@ function getAriaHiddenState(attributes: JSXOpeningElement['attributes']): boolea
   if (value === false || value === 'false') {
     return false;
   }
-  // Dynamic/unresolvable value: conservatively treat as hidden and stop climbing (nearest wins).
+  // Dynamic/unresolvable value: conservatively treat as hidden.
   return true;
 }
