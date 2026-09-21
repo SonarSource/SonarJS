@@ -60,11 +60,6 @@
 "vitest:packages/runner/src/suite.ts": [
 555
 ],
-"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.spec.ts": [
-90,
-91,
-94
-],
 "vitest:packages/vitest/src/integrations/chai/poll.ts": [
 165,
 169
