@@ -20,6 +20,7 @@ import { childrenOf, getNodeParent } from '../helpers/ancestor.js';
 import { isFunctionNode, isLoopLike, type LoopLike } from '../helpers/ast.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { isTestRelatedFile } from '../helpers/test-file-pattern.js';
 import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -29,10 +30,18 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, descriptor) => {
-      if (!isSuppressedEarlyExit(context, descriptor)) {
+      if (!isSuppressed(context, descriptor)) {
         context.report(descriptor);
       }
     },
+  );
+}
+
+// Test files often simulate timing (e.g. real-time pointer events) with a genuinely sequential await chain.
+function isSuppressed(context: Rule.RuleContext, descriptor: Rule.ReportDescriptor): boolean {
+  return (
+    isTestRelatedFile(context.filename, context.settings?.testFileExtensions as string[]) ||
+    isSuppressedEarlyExit(context, descriptor)
   );
 }
 

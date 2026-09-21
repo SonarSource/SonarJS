@@ -84,6 +84,18 @@ describe('S9382', () => {
         }
       }
     }`),
+
+        // Suppressed by the test-file bail-out (guillemsarda's ag-grid PVF FP, PR #7900):
+        // test files often simulate timing with a genuinely sequential await chain.
+        {
+          code: `
+    async function foo(arr) {
+      for (const x of arr) {
+        await bar(x);
+      }
+    }`,
+          filename: 'overlays-react-unmount.test.tsx',
+        },
       ],
 
       invalid: [
