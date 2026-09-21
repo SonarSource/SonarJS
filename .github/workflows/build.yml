@@ -129,9 +129,10 @@ jobs:
             development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+        timeout-minutes: 5
+        uses: ./.github/actions/configure-npm-registry
+        with:
+          artifactory-access-token: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Install NPM dependencies
         run: npm ci
@@ -191,6 +192,11 @@ jobs:
         with:
           artifactory-reader-role: private-reader
           disable-caching: 'true'
+      - &point_maven_edge
+        name: Point Maven resolve at Edge
+        if: runner.environment != 'github-hosted'
+        timeout-minutes: 5
+        uses: ./.github/actions/point-maven-resolve-at-edge
       - id: deployer-secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -285,6 +291,7 @@ jobs:
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - *cyclonedx_cli_cache
       - *config_maven
+      - *point_maven_edge
       - name: Build and test Maven (no deploy)
         run: mvn verify -Psbom -T1C
 
@@ -307,6 +314,7 @@ jobs:
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - uses: ./.github/actions/rule-api-cache
       - *config_maven
+      - *point_maven_edge
       - id: rspec-secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -344,11 +352,16 @@ jobs:
           secrets: |
             development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
       - name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+        timeout-minutes: 5
+        uses: ./.github/actions/configure-npm-registry
+        with:
+          artifactory-access-token: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
       - *download_rspec_rule_data
+      # Extra `npm install` is not in the lockfile. Edge npm metadata 404s
+      # (`/api/npm/npm/` and `/api/npm/npmjs/`); this one fetch stays on SaaS.
       - name: Build ESLint plugin
+        env:
+          npm_config_registry: https://repox.jfrog.io/artifactory/api/npm/npm/
         run: npm run eslint-plugin:build
       - name: Regenerate tracked README files
         if: github.event_name == 'schedule'
@@ -473,9 +486,10 @@ jobs:
           secrets: |
             development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
       - name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+        timeout-minutes: 5
+        uses: ./.github/actions/configure-npm-registry
+        with:
+          artifactory-access-token: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
       - name: Test ESLint Plugin
         run: |
           cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
@@ -635,6 +649,7 @@ jobs:
           name: jacoco-xml-reports-${{ github.sha }}
           path: sonar-plugin
       - *config_maven
+      - *point_maven_edge
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -689,6 +704,7 @@ jobs:
       - *download_maven_targets
       - *download_jacoco_xml_reports
       - *config_maven
+      - *point_maven_edge
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -747,6 +763,7 @@ jobs:
           name: sonarjs-m2
           path: ~/.m2/repository/org/sonarsource/javascript
       - *config_maven
+      - *point_maven_edge
       - &get_licenses_token
         id: secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -784,6 +801,7 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
+      - *point_maven_edge
       - *get_licenses_token
       - &orchestrator_fast_cache_restore
         uses: ./.github/actions/orchestrator-cache
@@ -817,6 +835,7 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
+      - *point_maven_edge
       - *get_licenses_token
       - &remove_node_from_path
         name: Disable existing node
@@ -856,6 +875,7 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
+      - *point_maven_edge
       - *get_licenses_token
       - *remove_node_from_path
       # No orchestrator cache for DEV - version changes too frequently
@@ -905,6 +925,7 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
+      - *point_maven_edge
       - *get_licenses_token
       - *orchestrator_cache_restore
       - name: Fix permissions for non-root user
@@ -936,6 +957,7 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
+      - *point_maven_edge
       - *get_licenses_token
       - *remove_node_from_path
       - uses: ./.github/actions/orchestrator-cache
@@ -964,6 +986,7 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
+      - *point_maven_edge
       - *get_licenses_token
       - *remove_node_from_path
       # No orchestrator cache for DEV - version changes too frequently
@@ -993,6 +1016,7 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
+      - *point_maven_edge
       - *get_licenses_token
       - *orchestrator_fast_cache_restore
       - name: Run Fast Plugin QA without Node
@@ -1026,6 +1050,7 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
+      - *point_maven_edge
       - *get_licenses_token
       - uses: ./.github/actions/orchestrator-cache
         with:
@@ -1062,6 +1087,7 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
+      - *point_maven_edge
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
@@ -1090,6 +1116,7 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
+      - *point_maven_edge
       - *get_licenses_token
       - uses: ./.github/actions/orchestrator-cache
         with:
@@ -1201,6 +1228,7 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
+      - *point_maven_edge
       - *get_licenses_token
       - *orchestrator_cache_restore
       - name: Run Ruling Tests
