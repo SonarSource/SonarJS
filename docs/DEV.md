@@ -172,8 +172,8 @@ what you expect.
 npm run ruling
 ```
 
-The generated issues are written under `packages/ruling/actual/<project>/<language>/`. The expected issues are
-stored under `its/ruling/src/test/resources/expected/<language>/<project>/`.
+The generated issues are written under `packages/ruling/actual/<project>/`. The expected issues are
+stored under `its/ruling/src/test/resources/expected/<project>/<language>-<ruleId>.json`.
 
 From the project root, run: `npm run ruling-sync`
 

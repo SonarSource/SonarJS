@@ -23,7 +23,6 @@ import { initFileStores } from '../analysis/src/file-stores/index.js';
 import { normalizePath, normalizeToAbsolutePath } from '../shared/src/helpers/files.js';
 import { createConfiguration } from '../analysis/src/common/configuration.js';
 import { compare, Result } from 'dir-compare';
-import fs from 'node:fs';
 import { RuleConfig } from '../analysis/src/jsts/linter/config/rule-config.js';
 import { expect } from 'expect';
 import * as metas from '../analysis/src/jsts/rules/metas.js';
@@ -113,50 +112,8 @@ export async function testProject(projectName: string, options: TestProjectOptio
 
   await writeResults(baseDir, name, results, actualPath);
 
-  return await compareByLanguage(name, actualPath);
-}
-
-const LANGUAGES = ['javascript', 'typescript', 'css'] as const;
-
-async function compareByLanguage(projectName: string, actualPath: string): Promise<Result> {
-  const allDiffSets: NonNullable<Result['diffSet']> = [];
-  let totalEqual = 0;
-  let totalDistinct = 0;
-  let totalLeft = 0;
-  let totalRight = 0;
-
-  for (const language of LANGUAGES) {
-    const expectedDir = join(expectedBase, language, projectName);
-    const actualDir = join(actualPath, language);
-    const expectedExists = fs.existsSync(expectedDir);
-    const actualExists = fs.existsSync(actualDir);
-
-    if (!expectedExists && !actualExists) {
-      continue;
-    }
-
-    const result = await compare(expectedDir, actualDir, { compareContent: true });
-    if (result.diffSet) {
-      allDiffSets.push(...result.diffSet);
-    }
-    totalEqual += result.equal;
-    totalDistinct += result.distinct;
-    totalLeft += result.left;
-    totalRight += result.right;
-  }
-
-  return {
-    same: totalDistinct === 0 && totalLeft === 0 && totalRight === 0,
-    equal: totalEqual,
-    distinct: totalDistinct,
-    left: totalLeft,
-    right: totalRight,
-    differences: totalDistinct + totalLeft + totalRight,
-    total: totalEqual + totalDistinct + totalLeft + totalRight,
-    totalFiles: totalEqual + totalDistinct + totalLeft + totalRight,
-    totalDirs: 0,
-    diffSet: allDiffSets,
-  };
+  const expectedPath = join(expectedBase, name);
+  return await compare(expectedPath, actualPath, { compareContent: true });
 }
 
 async function beginFilesystemCacheSession(
