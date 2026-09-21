@@ -105,7 +105,7 @@ function isPotentiallyNonEmptyTemplateLiteralAttribute(attribute: JSXAttribute):
  * Checks whether an element has a direct-child <title> element with non-empty content.
  * Independent of whitespace and of the title's position among its siblings.
  */
-export function hasSvgTitleChild(node: TSESTree.JSXOpeningElement): boolean {
+function hasSvgTitleChild(node: TSESTree.JSXOpeningElement): boolean {
   const parent = node.parent;
   if (parent?.type !== 'JSXElement') {
     return false;
