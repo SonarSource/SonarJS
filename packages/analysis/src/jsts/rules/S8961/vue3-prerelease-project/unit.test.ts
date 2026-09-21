@@ -21,8 +21,6 @@ import { describe } from 'node:test';
 import parser from 'vue-eslint-parser';
 
 describe('S8961 on an exact Vue 3 prerelease pin', () => {
-  const dirname = join(import.meta.dirname, 'fixtures');
-  process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester({ parser });
   ruleTester.run(
     'S8961 still reports on "3.0.0-rc.13": an exact prerelease pin is Vue 3, even though ' +
@@ -33,7 +31,7 @@ describe('S8961 on an exact Vue 3 prerelease pin', () => {
       invalid: [
         {
           code: `<script>export default { methods: { submit() { this.$emit('leadFormSent'); } } };</script>`,
-          filename: join(dirname, 'component.tsx'),
+          filename: join(import.meta.dirname, 'fixtures', 'component.tsx'),
           errors: 1,
         },
       ],

@@ -21,15 +21,13 @@ import { describe } from 'node:test';
 import parser from 'vue-eslint-parser';
 
 describe('S8961 on Vue 2', () => {
-  const dirname = join(import.meta.dirname, 'fixtures');
-  process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester({ parser });
   ruleTester.run('S8961 is silenced on Vue 2 projects', rule, {
     valid: [
       {
         // `emits` is a Vue 3 feature: not remediable in Vue 2, so this must not be reported
         code: `<script>export default { methods: { submit() { this.$emit('leadFormSent'); } } };</script>`,
-        filename: join(dirname, 'component.tsx'),
+        filename: join(import.meta.dirname, 'fixtures', 'component.tsx'),
       },
     ],
     invalid: [],

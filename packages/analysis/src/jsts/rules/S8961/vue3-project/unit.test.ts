@@ -22,7 +22,6 @@ import parser from 'vue-eslint-parser';
 
 describe('S8961 on Vue 3', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
-  process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester({ parser });
   ruleTester.run('S8961 still reports missing emits declarations on Vue 3 projects', rule, {
     valid: [

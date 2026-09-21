@@ -21,8 +21,6 @@ import { describe } from 'node:test';
 import parser from 'vue-eslint-parser';
 
 describe('S8961 with no declared Vue dependency', () => {
-  const dirname = join(import.meta.dirname, 'fixtures');
-  process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester({ parser });
   ruleTester.run(
     'S8961 is silenced when no vue dependency can be resolved at all: without it, there is no ' +
@@ -32,7 +30,7 @@ describe('S8961 with no declared Vue dependency', () => {
       valid: [
         {
           code: `<script>export default { methods: { submit() { this.$emit('leadFormSent'); } } };</script>`,
-          filename: join(dirname, 'component.tsx'),
+          filename: join(import.meta.dirname, 'fixtures', 'component.tsx'),
         },
       ],
       invalid: [],
