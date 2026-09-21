@@ -196,7 +196,8 @@ export class ProgramSelectionArchive {
   }
 
   private addProgram(program: RecordedProgram): number {
-    const id = this.nextProgramId++;
+    const id = this.nextProgramId;
+    this.nextProgramId += 1;
     this.programs.set(id, { id, program });
     return id;
   }
@@ -392,7 +393,7 @@ function valueFromUnknown(value: unknown): Record<string, unknown> | undefined {
   }
   if (typeof value === 'number') {
     if (!Number.isFinite(value)) {
-      throw new Error(`Cannot serialize non-finite compiler option value ${value}`);
+      throw new TypeError(`Cannot serialize non-finite compiler option value ${value}`);
     }
     return { numberValue: value };
   }
@@ -427,11 +428,23 @@ function unknownFromValue(value: unknown): unknown {
     listValue?: { values?: unknown[] | null } | null;
     structValue?: { fields?: Record<string, unknown> | null } | null;
   };
-  if (typed.nullValue != null) return null;
-  if (typed.boolValue != null) return typed.boolValue;
-  if (typed.numberValue != null) return typed.numberValue;
-  if (typed.stringValue != null) return typed.stringValue;
-  if (typed.listValue != null) return (typed.listValue.values ?? []).map(unknownFromValue);
-  if (typed.structValue != null) return objectFromStruct(typed.structValue);
+  if (typed.nullValue != null) {
+    return null;
+  }
+  if (typed.boolValue != null) {
+    return typed.boolValue;
+  }
+  if (typed.numberValue != null) {
+    return typed.numberValue;
+  }
+  if (typed.stringValue != null) {
+    return typed.stringValue;
+  }
+  if (typed.listValue != null) {
+    return (typed.listValue.values ?? []).map(unknownFromValue);
+  }
+  if (typed.structValue != null) {
+    return objectFromStruct(typed.structValue);
+  }
   throw new Error('Invalid compiler option value in program selection archive');
 }

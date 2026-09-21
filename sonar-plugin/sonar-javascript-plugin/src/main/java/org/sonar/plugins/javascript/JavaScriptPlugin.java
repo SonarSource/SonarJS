@@ -31,7 +31,6 @@ import org.sonar.css.StylelintReportSensor;
 import org.sonar.plugins.javascript.analysis.AnalysisConsumers;
 import org.sonar.plugins.javascript.analysis.AnalysisProcessor;
 import org.sonar.plugins.javascript.analysis.DefaultFilesystemCacheContext;
-import org.sonar.plugins.javascript.analysis.FilesystemCacheContext;
 import org.sonar.plugins.javascript.analysis.JsTsChecks;
 import org.sonar.plugins.javascript.analysis.JsTsExclusionsFilter;
 import org.sonar.plugins.javascript.analysis.NoOpFilesystemCacheContext;
