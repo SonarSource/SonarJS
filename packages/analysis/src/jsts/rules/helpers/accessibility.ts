@@ -101,6 +101,45 @@ function isPotentiallyNonEmptyTemplateLiteralAttribute(attribute: JSXAttribute):
   );
 }
 
+/**
+ * Checks whether an element has a direct-child <title> element with non-empty content.
+ * Independent of whitespace and of the title's position among its siblings.
+ */
+export function hasSvgTitleChild(node: TSESTree.JSXOpeningElement): boolean {
+  const parent = node.parent;
+  if (parent?.type !== 'JSXElement') {
+    return false;
+  }
+  return parent.children.some(
+    child =>
+      child.type === 'JSXElement' &&
+      child.openingElement.name.type === 'JSXIdentifier' &&
+      child.openingElement.name.name === 'title' &&
+      child.children.some(
+        c =>
+          (c.type === 'JSXText' && c.value.trim() !== '') ||
+          (c.type === 'JSXExpressionContainer' &&
+            c.expression.type !== 'JSXEmptyExpression' &&
+            !(c.expression.type === 'Literal' && !c.expression.value) &&
+            !(c.expression.type === 'Identifier' && c.expression.name === 'undefined')),
+      ),
+  );
+}
+
+/**
+ * Checks whether an <svg> has an accessible name via aria-labelledby, aria-label, or a
+ * direct-child <title> element (in that precedence order). Id references in aria-labelledby
+ * are not resolved to their target's text, treated purely as a presence check like aria-label.
+ */
+export function hasSvgAccessibleName(node: TSESTree.JSXOpeningElement): boolean {
+  const attributes = (node as JSXOpeningElement).attributes;
+  return (
+    hasAccessibleNameAttribute(attributes, 'aria-labelledby') ||
+    hasAccessibleNameAttribute(attributes, 'aria-label') ||
+    hasSvgTitleChild(node)
+  );
+}
+
 export const getElementType = (
   context: Rule.RuleContext,
 ): ((node: TSESTree.JSXOpeningElement) => string) => {
