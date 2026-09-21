@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { isLoopLike } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
@@ -36,7 +37,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function checkLabeledStatement(node: estree.LabeledStatement, context: Rule.RuleContext) {
-  if (!isLoopStatement(node.body) && !isSwitchStatement(node.body)) {
+  if (!isLoopLike(node.body) && !isSwitchStatement(node.body)) {
     context.report({
       messageId: 'removeLabel',
       data: {
@@ -45,16 +46,6 @@ function checkLabeledStatement(node: estree.LabeledStatement, context: Rule.Rule
       node: node.label,
     });
   }
-}
-
-function isLoopStatement(node: estree.Node) {
-  return (
-    node.type === 'WhileStatement' ||
-    node.type === 'DoWhileStatement' ||
-    node.type === 'ForStatement' ||
-    node.type === 'ForOfStatement' ||
-    node.type === 'ForInStatement'
-  );
 }
 
 function isSwitchStatement(node: estree.Node) {
