@@ -783,25 +783,37 @@ Repox is the repository manager behind both npm and Maven flows here.
 
 #### npm
 
-Both Linux and Windows cache-population jobs:
+Linux, Windows, and ESLint jobs that install packages:
 
 - fetch a private-reader token from Vault
-- run:
-  - `npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=...`
-  - `npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/`
+- wait for Edge token federation on self-hosted / WarpBuild (`runner.environment != github-hosted`)
+- point `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/` on those runners
+- rewrite lockfile `resolved` hosts from `repox.jfrog.io` onto that registry (`replace-registry-host`), and keep a SaaS `_authToken` as fallback
+- GitHub-hosted jobs keep `https://repox.jfrog.io/artifactory/api/npm/npm/`
+- the ESLint plugin extra `npm install` (not in the lockfile) stays on SaaS via `npm_config_registry`
+- ESLint plugin tests have no lockfile: they skip `configure-npm-registry` entirely and stay on SaaS (Edge 404s npm metadata on both `npm` and `npmjs`; `replace-registry-host` would also rewrite tarball hosts back to Edge)
+
+Publish / promote (eslint-plugin release, `jfrog rt npm-publish`) stay on SaaS.
 
 #### Maven
 
 `config-maven`:
 
-- defaults `repox-url` to `https://repox.jfrog.io`
+- defaults `repox-url` to `https://repox.jfrog.io` so Vault tokens and **publish** (`ARTIFACTORY_URL` → `artifactory-maven-plugin`) stay on SaaS
 - writes Maven `settings.xml`
 - sets `SONARSOURCE_REPOSITORY_URL=$ARTIFACTORY_URL/sonarsource-qa`
 - exports authentication environment variables for Maven
 
-`build` additionally fetches deployer credentials and pushes to `sonarsource-public-qa`.
+On self-hosted / WarpBuild, `point-maven-resolve-at-edge` then:
 
-`promote` later promotes the produced build info/artifacts in Artifactory.
+- waits for Edge token federation against the `sonarsource` virtual repo
+- overrides `SONARSOURCE_REPOSITORY_URL` to `https://repox-internal.dev.sonar.build/artifactory/sonarsource-qa` (Maven mirror/resolve only)
+
+GitHub-hosted jobs skip that override and keep resolving from SaaS.
+
+`build` additionally fetches deployer credentials and pushes to `sonarsource-public-qa` on SaaS.
+
+`promote` later promotes the produced build info/artifacts in Artifactory (SaaS).
 
 ### Vault
 

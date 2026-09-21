@@ -1,0 +1,29 @@
+name: Configure npm registry
+description: Point npm resolve at Repox Edge on self-hosted/WarpBuild; keep SaaS on GitHub-hosted. Publish is unchanged.
+
+inputs:
+  artifactory-access-token:
+    description: Vault-issued Artifactory access token
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Wait for Artifactory token federation (sonarsource)
+      if: runner.environment != 'github-hosted'
+      shell: bash
+      env:
+        ARTIFACTORY_ACCESS_TOKEN: ${{ inputs.artifactory-access-token }}
+        ARTIFACTORY_URL: https://repox-internal.dev.sonar.build/artifactory
+        PROBE_PATH: api/search/versions?g=org.sonarsource.sonarqube&a=sonar-plugin-api&remote=1&repos=sonarsource&v=*
+      run: bash "${GITHUB_ACTION_PATH}/../wait-for-artifactory-token-federation/wait.sh"
+    - name: Configure npm registry
+      shell: bash
+      env:
+        ARTIFACTORY_ACCESS_TOKEN: ${{ inputs.artifactory-access-token }}
+        REPOX_NPM_HOST: ${{ runner.environment == 'github-hosted' && 'repox.jfrog.io' || 'repox-internal.dev.sonar.build' }}
+      run: |
+        npm config set "//${REPOX_NPM_HOST}/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
+        npm config set "//repox.jfrog.io/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
+        npm config set registry "https://${REPOX_NPM_HOST}/artifactory/api/npm/npm/"
+        npm config set replace-registry-host repox.jfrog.io
