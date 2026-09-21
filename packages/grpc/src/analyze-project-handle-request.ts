@@ -74,6 +74,33 @@ function beginFilesystemCacheAnalysis(
   });
 }
 
+function beginProgramSelectionAnalysis(
+  request: AnalyzeProjectProtoRequest,
+): ProgramSelectionArchive | undefined {
+  const programSelectionPath = request.filesystemCache?.programSelectionPath;
+  if (!programSelectionPath) {
+    return undefined;
+  }
+  const baseDir = request.configuration?.baseDir;
+  if (!baseDir) {
+    throw new InvalidAnalyzeProjectRequestError('configuration.base_dir is required');
+  }
+  return new ProgramSelectionArchive(programSelectionPath, normalizeToAbsolutePath(baseDir));
+}
+
+function endAnalysisSessions(
+  programSelection: ProgramSelectionArchive | undefined,
+  filesystemCacheSession: FsCacheSession | undefined,
+): void {
+  try {
+    programSelection?.end();
+  } catch (error) {
+    warn(`Could not persist the TypeScript program selection archive: ${error}`);
+  } finally {
+    filesystemCacheSession?.end();
+  }
+}
+
 export type WorkerData = {
   debugMemory: boolean;
 };
@@ -89,17 +116,7 @@ export async function handleAnalyzeProjectRequest(
         const filesystemCacheSession = beginFilesystemCacheAnalysis(request.data);
         let programSelection: ProgramSelectionArchive | undefined;
         try {
-          const programSelectionPath = request.data.filesystemCache?.programSelectionPath;
-          if (programSelectionPath) {
-            const baseDir = request.data.configuration?.baseDir;
-            if (!baseDir) {
-              throw new InvalidAnalyzeProjectRequestError('configuration.base_dir is required');
-            }
-            programSelection = new ProgramSelectionArchive(
-              programSelectionPath,
-              normalizeToAbsolutePath(baseDir),
-            );
-          }
+          programSelection = beginProgramSelectionAnalysis(request.data);
           return await withAnalysisCancellation(async () => {
             logHeapStatistics(workerData?.debugMemory);
             const sanitizedInput = await normalizeAnalyzeProjectRequest(
@@ -135,13 +152,7 @@ export async function handleAnalyzeProjectRequest(
             };
           });
         } finally {
-          try {
-            programSelection?.end();
-          } catch (error) {
-            warn(`Could not persist the TypeScript program selection archive: ${error}`);
-          } finally {
-            filesystemCacheSession?.end();
-          }
+          endAnalysisSessions(programSelection, filesystemCacheSession);
         }
       }
       case 'on-cancel-analysis': {
