@@ -20,22 +20,20 @@ import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/tester
 import { describe } from 'node:test';
 import parser from 'vue-eslint-parser';
 
-describe('S8961 on Vue 3', () => {
-  const dirname = join(import.meta.dirname, 'fixtures');
+describe('S8961 with no declared Vue dependency', () => {
   const ruleTester = new NoTypeCheckingRuleTester({ parser });
-  ruleTester.run('S8961 still reports missing emits declarations on Vue 3 projects', rule, {
-    valid: [
-      {
-        code: `<script>export default { emits: ['leadFormSent'], methods: { submit() { this.$emit('leadFormSent'); } } };</script>`,
-        filename: join(dirname, 'component.tsx'),
-      },
-    ],
-    invalid: [
-      {
-        code: `<script>export default { methods: { submit() { this.$emit('leadFormSent'); } } };</script>`,
-        filename: join(dirname, 'component.tsx'),
-        errors: 1,
-      },
-    ],
-  });
+  ruleTester.run(
+    'S8961 is silenced when no vue dependency can be resolved at all: without it, there is no ' +
+      'basis to assume the project is on Vue 3',
+    rule,
+    {
+      valid: [
+        {
+          code: `<script>export default { methods: { submit() { this.$emit('leadFormSent'); } } };</script>`,
+          filename: join(import.meta.dirname, 'fixtures', 'component.tsx'),
+        },
+      ],
+      invalid: [],
+    },
+  );
 });

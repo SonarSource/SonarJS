@@ -22,7 +22,7 @@ import type estree from 'estree';
 import { isFunctionCall, isIdentifier } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
-import { lacksCompositionApi } from '../helpers/vue.js';
+import { isVue2OrEarlier } from '../helpers/vue.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -35,11 +35,7 @@ const VUE_FQN = 'vue-class-component.Vue';
 const DECORATOR_FQNS = new Set([
   'vue-class-component.Component',
   'vue-class-component.Options',
-  // vue-class-component v7 (the Vue 2.7-compatible release) only exports `Component`, and as a
-  // default export: `import Component from 'vue-class-component'`. getFullyQualifiedName()
-  // resolves a default import to the bare module name, not a `.Component`-suffixed FQN. `Vue`
-  // itself is never re-exported by vue-class-component in any version (v7 imports it from `vue`
-  // directly, v8 exposes it as a named export), so this bare FQN only ever means the decorator.
+  // v7 exports `Component` as a default export only, which resolves to the bare module FQN; `Vue` is never re-exported by any version, so this bare FQN only ever means the decorator
   VUE_CLASS_COMPONENT_MODULE,
 ]);
 const PROPERTY_DECORATOR_FQNS = new Set(
@@ -64,7 +60,7 @@ type ClassNode = TSESTree.ClassDeclaration | TSESTree.ClassExpression;
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
-    if (lacksCompositionApi(context)) {
+    if (isVue2OrEarlier(context)) {
       return {};
     }
 

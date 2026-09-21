@@ -18,24 +18,29 @@ import { rule } from '../index.js';
 import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
-import parser from 'vue-eslint-parser';
 
-describe('S8961 on Vue 3', () => {
+describe('S9150 on an exact Vue 3 prerelease pin', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
-  const ruleTester = new NoTypeCheckingRuleTester({ parser });
-  ruleTester.run('S8961 still reports missing emits declarations on Vue 3 projects', rule, {
-    valid: [
-      {
-        code: `<script>export default { emits: ['leadFormSent'], methods: { submit() { this.$emit('leadFormSent'); } } };</script>`,
-        filename: join(dirname, 'component.tsx'),
-      },
-    ],
-    invalid: [
-      {
-        code: `<script>export default { methods: { submit() { this.$emit('leadFormSent'); } } };</script>`,
-        filename: join(dirname, 'component.tsx'),
-        errors: 1,
-      },
-    ],
-  });
+  process.chdir(dirname);
+  const ruleTester = new NoTypeCheckingRuleTester();
+  ruleTester.run(
+    'S9150 still reports on "3.0.0-rc.13": an exact prerelease pin is Vue 3 and has the ' +
+      'Composition API, even though semver excludes it from a plain ">=3.0.0" comparator',
+    rule,
+    {
+      valid: [],
+      invalid: [
+        {
+          code: `
+            import counterMixin from './mixins/counter';
+            export default {
+              mixins: [counterMixin],
+            };
+          `,
+          filename: join(dirname, 'component.js'),
+          errors: 1,
+        },
+      ],
+    },
+  );
 });

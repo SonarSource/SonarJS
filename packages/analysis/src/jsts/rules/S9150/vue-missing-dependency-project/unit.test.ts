@@ -18,24 +18,28 @@ import { rule } from '../index.js';
 import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
-import parser from 'vue-eslint-parser';
 
-describe('S8961 on Vue 3', () => {
+describe('S9150 with no declared Vue dependency', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
-  const ruleTester = new NoTypeCheckingRuleTester({ parser });
-  ruleTester.run('S8961 still reports missing emits declarations on Vue 3 projects', rule, {
-    valid: [
-      {
-        code: `<script>export default { emits: ['leadFormSent'], methods: { submit() { this.$emit('leadFormSent'); } } };</script>`,
-        filename: join(dirname, 'component.tsx'),
-      },
-    ],
-    invalid: [
-      {
-        code: `<script>export default { methods: { submit() { this.$emit('leadFormSent'); } } };</script>`,
-        filename: join(dirname, 'component.tsx'),
-        errors: 1,
-      },
-    ],
-  });
+  process.chdir(dirname);
+  const ruleTester = new NoTypeCheckingRuleTester();
+  ruleTester.run(
+    'S9150 is silenced when no vue dependency can be resolved at all: without it, there is no ' +
+      'basis to assume the project is on Vue 3',
+    rule,
+    {
+      valid: [
+        {
+          code: `
+            import counterMixin from './mixins/counter';
+            export default {
+              mixins: [counterMixin],
+            };
+          `,
+          filename: join(dirname, 'component.js'),
+        },
+      ],
+      invalid: [],
+    },
+  );
 });

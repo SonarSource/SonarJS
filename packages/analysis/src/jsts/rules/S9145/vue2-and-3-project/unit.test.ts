@@ -19,12 +19,13 @@ import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
 
-describe('S9145 on a Vue 2/3 range', () => {
+describe('S9145 on a Vue 2.7/3 range', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
   ruleTester.run(
-    'S9145 still reports when the declared range also allows a version with the Composition API',
+    'S9145 still reports on "^2.7.0 || ^3.0.0": the range can resolve to Vue 3, even though its ' +
+      'floor predates it',
     rule,
     {
       valid: [],
