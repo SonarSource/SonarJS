@@ -70,7 +70,14 @@ function beginFilesystemCacheAnalysis(
   }
   return installation.beginAnalysis({
     archivePath: cache.archivePath,
-    passthroughDirs: cache.passthroughPaths ?? [],
+    passthroughDirs: request.rulesWorkdir
+      ? [
+          normalizeToAbsolutePath(
+            request.rulesWorkdir,
+            normalizeToAbsolutePath(request.configuration.baseDir),
+          ),
+        ]
+      : [],
     rootDir: request.configuration.baseDir,
   });
 }

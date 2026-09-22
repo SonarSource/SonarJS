@@ -761,50 +761,7 @@ function unsupportedFilesystemOperation(moduleName: string, name: PropertyKey): 
   return error;
 }
 
-/**
- * Native operations whose filesystem targets can be proven to stay inside a passthrough tree.
- * Keeping this routing metadata explicit makes a new Node filesystem API fail closed until its
- * path or descriptor semantics have been classified.
- */
-const PASSTHROUGH_SINGLE_PATH_OPERATIONS = new Set([
-  'appendFile',
-  'appendFileSync',
-  'chmod',
-  'chmodSync',
-  'chown',
-  'chownSync',
-  'createReadStream',
-  'createWriteStream',
-  'lchmod',
-  'lchown',
-  'lchownSync',
-  'lutimes',
-  'lutimesSync',
-  'mkdir',
-  'mkdirSync',
-  'mkdtemp',
-  'mkdtempDisposable',
-  'mkdtempDisposableSync',
-  'mkdtempSync',
-  'openAsBlob',
-  'rm',
-  'rmSync',
-  'rmdir',
-  'rmdirSync',
-  'statfs',
-  'statfsSync',
-  'truncate',
-  'truncateSync',
-  'unlink',
-  'unlinkSync',
-  'unwatchFile',
-  'utimes',
-  'utimesSync',
-  'watch',
-  'watchFile',
-  'writeFile',
-  'writeFileSync',
-]);
+/** Operations with two independent filesystem targets rather than one leading path or handle. */
 const PASSTHROUGH_TWO_PATH_OPERATIONS = new Set([
   'copyFile',
   'copyFileSync',
@@ -815,27 +772,6 @@ const PASSTHROUGH_TWO_PATH_OPERATIONS = new Set([
   'rename',
   'renameSync',
 ]);
-const PASSTHROUGH_DESCRIPTOR_OPERATIONS = new Set([
-  'fchmod',
-  'fchmodSync',
-  'fchown',
-  'fchownSync',
-  'fdatasync',
-  'fdatasyncSync',
-  'fsync',
-  'fsyncSync',
-  'ftruncate',
-  'ftruncateSync',
-  'futimes',
-  'futimesSync',
-  'readv',
-  'readvSync',
-  'write',
-  'writeSync',
-  'writev',
-  'writevSync',
-]);
-
 function isPathLike(value: unknown): value is fs.PathLike {
   return typeof value === 'string' || Buffer.isBuffer(value) || value instanceof URL;
 }
@@ -917,19 +853,13 @@ function isPassthroughFilesystemOperation(
       archive.isPassthrough(args[1])
     );
   }
-  if (PASSTHROUGH_DESCRIPTOR_OPERATIONS.has(name)) {
-    return typeof args[0] === 'number' && isPassthroughDescriptor(fileDescriptors, args[0]);
-  }
-  if (PASSTHROUGH_SINGLE_PATH_OPERATIONS.has(name)) {
-    if ((name === 'createReadStream' || name === 'createWriteStream') && args[1]) {
-      const descriptor = (args[1] as { fd?: number }).fd;
-      if (typeof descriptor === 'number' && isPassthroughDescriptor(fileDescriptors, descriptor)) {
-        return true;
-      }
+  if ((name === 'createReadStream' || name === 'createWriteStream') && args[1]) {
+    const descriptor = (args[1] as { fd?: number }).fd;
+    if (typeof descriptor === 'number' && isPassthroughDescriptor(fileDescriptors, descriptor)) {
+      return true;
     }
-    return isPassthroughInput(archive, fileDescriptors, fileHandles, args[0]);
   }
-  return false;
+  return isPassthroughInput(archive, fileDescriptors, fileHandles, args[0]);
 }
 
 function guardUnhandledFilesystemOperations(
