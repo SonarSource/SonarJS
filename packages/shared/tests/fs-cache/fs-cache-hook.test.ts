@@ -1054,10 +1054,18 @@ describe('filesystem cache hook', () => {
       console.log(JSON.stringify({
         content: fs.readFileSync(output, 'utf8'),
         crossingMutation,
+        futurePromise: await fs.promises.futureRead(output),
+        futureSync: fs.futureRead(output),
         projectMutation,
       }));
     `;
-    const result = runInlineHook({ archive, passthroughDirs: [passthrough], root, script });
+    const result = runInlineHook({
+      archive,
+      passthroughDirs: [passthrough],
+      preloads: [futureFsMethodFixture],
+      root,
+      script,
+    });
 
     expect(result.stderr).toBe('');
     expect(result.status).toBe(0);
@@ -1067,6 +1075,8 @@ describe('filesystem cache hook', () => {
         code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
         message: `Filesystem cache does not support fs.copyFileSync from Node ${process.version}`,
       },
+      futurePromise: 'unexpected native result',
+      futureSync: 'unexpected native result',
       projectMutation: {
         code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
         message: `Filesystem cache does not support fs.mkdirSync from Node ${process.version}`,

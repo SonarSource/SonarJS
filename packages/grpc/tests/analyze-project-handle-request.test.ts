@@ -24,6 +24,7 @@ import {
 import type { AnalyzeProjectIncrementalEvent } from '../src/analyze-project-request.js';
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
 import { FS_CACHE_INSTALLATION } from '../../shared/src/fs-cache/hook.js';
+import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -62,6 +63,7 @@ describe('analyze-project request handler', () => {
       },
     };
     const request = createAnalyzeProjectRequest();
+    request.rulesWorkdir = '.scannerwork';
     request.filesystemCache = {
       archivePath: '/cache/first.fscache',
     };
@@ -76,7 +78,9 @@ describe('analyze-project request handler', () => {
       {
         archivePath: '/cache/first.fscache',
         event: 'begin',
-        passthroughDirs: [],
+        passthroughDirs: [
+          normalizeToAbsolutePath('.scannerwork', normalizeToAbsolutePath('/project')),
+        ],
         rootDir: '/project',
       },
       { archivePath: '/cache/first.fscache', event: 'end' },

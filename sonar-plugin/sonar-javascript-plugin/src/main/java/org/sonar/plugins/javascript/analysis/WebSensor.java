@@ -103,8 +103,6 @@ public class WebSensor implements ProjectSensor {
   @Nullable
   private Path filesystemCacheArchivePath;
 
-  private Path filesystemCachePassthroughPath;
-
   private Path programSelectionArchivePath;
 
   private boolean recordFilesystemCache;
@@ -236,7 +234,6 @@ public class WebSensor implements ProjectSensor {
 
   private void configureFilesystemCache(SensorContext sensorContext) {
     filesystemCacheArchivePath = null;
-    filesystemCachePassthroughPath = null;
     programSelectionArchivePath = null;
     recordFilesystemCache = false;
 
@@ -244,7 +241,6 @@ public class WebSensor implements ProjectSensor {
       doConfigureFilesystemCache(sensorContext);
     } catch (Exception e) {
       filesystemCacheArchivePath = null;
-      filesystemCachePassthroughPath = null;
       programSelectionArchivePath = null;
       recordFilesystemCache = false;
       LOG.warn("Could not configure the JavaScript filesystem cache", e);
@@ -255,13 +251,6 @@ public class WebSensor implements ProjectSensor {
     if (!filesystemCacheContext.isSupported()) {
       return;
     }
-    filesystemCachePassthroughPath = sensorContext
-      .fileSystem()
-      .workDir()
-      .toPath()
-      .toAbsolutePath()
-      .normalize();
-
     var restoredArchive = sensorContext
       .config()
       .get(FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY);
@@ -466,7 +455,6 @@ public class WebSensor implements ProjectSensor {
           FilesystemCache.newBuilder()
             .setArchivePath(filesystemCacheArchivePath.toString())
             .setProgramSelectionPath(programSelectionArchivePath.toString())
-            .addPassthroughPaths(filesystemCachePassthroughPath.toString())
         );
       }
       return request.build();

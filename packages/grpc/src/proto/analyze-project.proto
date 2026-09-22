@@ -35,7 +35,6 @@ message AnalyzeProjectRequest {
 message FilesystemCache {
   string archive_path = 1;
   optional string program_selection_path = 2;
-  repeated string passthrough_paths = 3;
 }
 
 message AnalyzeProjectStreamResponse {

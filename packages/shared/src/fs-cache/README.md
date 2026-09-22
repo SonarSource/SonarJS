@@ -82,10 +82,11 @@ the internal scanner property `sonar.javascript.internal.filesystemCacheArchiveP
 then passes that existing path to Node, which selects strict replay mode from the file's existence.
 The analyzer version must match exactly because reads outside the analysis root, including the
 analyzer installation and bundled TypeScript declarations, deliberately remain native.
-The scanner work directory is also an explicit native passthrough tree. Analyzer extensions may
+The request's existing `rules_workdir` is also the native passthrough tree. Analyzer extensions may
 create derived artifacts there (for example, architecture UDG files), and those outputs are neither
-project inputs nor part of the portable archive. Known mutation APIs are enabled only for such
-passthrough paths; mutations elsewhere inside the archived project tree still fail closed.
+project inputs nor part of the portable archive. Filesystem calls whose path or descriptor stays in
+that tree remain native. Multi-path operations must keep every target there; crossing into the
+archived project tree and mutations elsewhere inside that tree still fail closed.
 
 Missing, incompatible, or unrestorable contexts do not prevent analysis. SQAA runs the ordinary
 no-context analysis and reports an `INVALID_CONTEXT` analysis problem. SonarQube for IDE and hosts
