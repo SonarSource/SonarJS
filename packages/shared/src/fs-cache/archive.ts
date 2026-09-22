@@ -144,6 +144,19 @@ function comparisonRoot(directory: string): ComparisonRoot {
   };
 }
 
+function pathLikeToString(input: fs.PathLike): string | undefined {
+  if (typeof input === 'string') {
+    return input;
+  }
+  if (Buffer.isBuffer(input)) {
+    return input.toString();
+  }
+  if (input instanceof URL && input.protocol === 'file:') {
+    return fileURLToPath(input);
+  }
+  return undefined;
+}
+
 /**
  * A versioned, portable record of filesystem observations.
  *
@@ -248,14 +261,8 @@ export class FsCacheArchive {
   }
 
   keyFor(input: fs.PathLike): string | undefined {
-    let filePath: string;
-    if (typeof input === 'string') {
-      filePath = input;
-    } else if (Buffer.isBuffer(input)) {
-      filePath = input.toString();
-    } else if (input instanceof URL && input.protocol === 'file:') {
-      filePath = fileURLToPath(input);
-    } else {
+    const filePath = pathLikeToString(input);
+    if (filePath === undefined) {
       return undefined;
     }
 
@@ -300,14 +307,8 @@ export class FsCacheArchive {
   }
 
   isPassthrough(input: fs.PathLike): boolean {
-    let filePath: string;
-    if (typeof input === 'string') {
-      filePath = input;
-    } else if (Buffer.isBuffer(input)) {
-      filePath = input.toString();
-    } else if (input instanceof URL && input.protocol === 'file:') {
-      filePath = fileURLToPath(input);
-    } else {
+    const filePath = pathLikeToString(input);
+    if (filePath === undefined) {
       return false;
     }
     const absoluteComparisonFilePath = normalizeForComparison(path.resolve(filePath));
