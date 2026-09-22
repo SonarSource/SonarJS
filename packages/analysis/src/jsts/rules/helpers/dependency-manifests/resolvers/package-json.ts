@@ -26,7 +26,7 @@ import type {
   ModuleType,
   Workspace,
 } from './types.js';
-import { NormalizedAbsolutePath, dirnamePath } from '../../files.js';
+import { NormalizedAbsolutePath, dirnamePath, getPathRoot } from '../../files.js';
 import { PACKAGE_JSON, PNPM_WORKSPACE_YAML } from '../index.js';
 import { closestPatternCache } from '../../find-up/closest.js';
 import { getManifestFileInDir, getParentDirPath } from './helpers.js';
@@ -44,10 +44,15 @@ export const packageJsonManifestResolver: ManifestResolver = {
     let parsedPackageJson = parsePackageJson(packageJson) ?? {};
     // Captured before the pnpm injection below, which would otherwise fake a workspace root.
     const declaresWorkspaces = !!parsedPackageJson.workspaces;
-    const pnpmWorkspaceFile = closestPatternCache
-      .get(PNPM_WORKSPACE_YAML, fileSystem)
-      .get(topDir)
-      .get(dir);
+    // Catalog definitions follow workspace semantics and may live above the directory from which
+    // ESLint was started. Dependency manifest collection remains bounded by topDir.
+    const catalogSearchTopDir = getPathRoot(dir);
+    const pnpmWorkspaceCache = closestPatternCache.get(PNPM_WORKSPACE_YAML, fileSystem);
+    const pnpmWorkspaceFile =
+      pnpmWorkspaceCache.get(topDir).get(dir) ??
+      (topDir === catalogSearchTopDir
+        ? undefined
+        : pnpmWorkspaceCache.get(catalogSearchTopDir).get(dir));
     const parsedPnpmWorkspace = pnpmWorkspaceFile
       ? parsePnpmWorkspace(pnpmWorkspaceFile)
       : undefined;
@@ -60,10 +65,10 @@ export const packageJsonManifestResolver: ManifestResolver = {
     // itself a root unless an ancestor workspace already includes it, otherwise the closest
     // parent package.json with catalogs is the root.
     const isWorkspaceRoot =
-      declaresWorkspaces && !isIncludedInAncestorWorkspace(dir, topDir, fileSystem);
+      declaresWorkspaces && !isIncludedInAncestorWorkspace(dir, catalogSearchTopDir, fileSystem);
     const closestParent = isWorkspaceRoot
       ? undefined
-      : findClosestParentPackageJsonWithCatalogs(dir, topDir, fileSystem);
+      : findClosestParentPackageJsonWithCatalogs(dir, catalogSearchTopDir, fileSystem);
     const catalogSource = mergeCatalogSources(
       closestParent ? getCatalogSource(closestParent) : getCatalogSource(parsedPackageJson),
       parsedPnpmWorkspace,
@@ -146,10 +151,6 @@ function resolveCatalogReferences(
             ? catalogSource?.catalog?.[depName]
             : catalogSource?.catalogs?.[catalogName]?.[depName];
         resolvedDeps[depName] = resolvedDep ?? depVersion;
-        !resolvedDep &&
-          console.debug(
-            `Dependency "${depName}" could not be resolved for catalog "${catalogName}"`,
-          );
       } else {
         resolvedDeps[depName] = depVersion ?? '';
       }

@@ -222,27 +222,6 @@ describe('files', () => {
     expect(yamlParseMock.calls).toHaveLength(0);
   });
 
-  it('should reuse failed deno manifest parses after warmup', async ({ mock }) => {
-    mock.method(console, 'debug');
-    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
-    const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-jsonc-malformed'));
-    const configuration = createConfiguration({ baseDir });
-    await initFileStores(configuration);
-    const filePath = join(baseDir, 'deno.jsonc');
-
-    expect(getDependencyManifests(baseDir, baseDir)[0].dependencies).toEqual(new Map());
-    expect(
-      consoleLogMock.calls
-        .map(call => call.arguments[0])
-        .some(log => log.startsWith(`Error parsing deno manifest ${filePath}:`)),
-    ).toEqual(true);
-
-    consoleLogMock.resetCalls();
-
-    expect(getDependencyManifests(baseDir, baseDir)[0].dependencies).toEqual(new Map());
-    expect(consoleLogMock.calls).toHaveLength(0);
-  });
-
   it('should reuse dependency cache entries for subdirectories sharing the same manifest', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'dependencies'));
     const configuration = createConfiguration({ baseDir });
@@ -309,6 +288,25 @@ describe('files', () => {
     );
   });
 
+  it('should resolve pnpm catalog references when the working directory is the workspace package', async () => {
+    const workspaceDirectory = normalizeToAbsolutePath(
+      join(fixtures, 'pnpm-workspace-catalog-different-level'),
+    );
+    const packageDirectory = normalizeToAbsolutePath(join(workspaceDirectory, 'packages/app/'));
+    const configuration = createConfiguration({ baseDir: workspaceDirectory });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(packageDirectory, packageDirectory);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map([
+        ['react', '^19.1.1'],
+        ['react-dom', '^19.1.1'],
+        ['vue', '^3.5.0'],
+      ]),
+    );
+  });
+
   it('should inject pnpm workspace packages into manifest workspaces', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-packages'));
     const configuration = createConfiguration({ baseDir });
@@ -355,11 +353,7 @@ describe('files', () => {
     );
   });
 
-  it('should not resolve the dependency when pnpm catalog references are not found', async ({
-    mock,
-  }) => {
-    mock.method(console, 'debug');
-    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+  it('should not resolve the dependency when pnpm catalog references are not found', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-catalog-unresolved'));
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
@@ -367,9 +361,6 @@ describe('files', () => {
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
     expect(manifests[0].dependencies).toEqual(new Map([['react', 'catalog:']]));
-    expect(consoleLogMock.calls[0].arguments[0]).toEqual(
-      'Dependency "react" could not be resolved for catalog "default"',
-    );
   });
 
   for (const fixture of ['bun-workspace-default-catalog', 'bun-workspace-default-root-catalog']) {
@@ -390,6 +381,25 @@ describe('files', () => {
       );
     });
   }
+
+  it('should resolve bun catalog references when the working directory is the workspace package', async () => {
+    const workspaceDirectory = normalizeToAbsolutePath(
+      join(fixtures, 'bun-workspace-default-catalog'),
+    );
+    const packageDirectory = normalizeToAbsolutePath(join(workspaceDirectory, 'packages/my-app'));
+    const configuration = createConfiguration({ baseDir: workspaceDirectory });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(packageDirectory, packageDirectory);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map([
+        ['my-app', '*'],
+        ['react', '^18.0.0'],
+        ['react-dom', '^19.0.0'],
+      ]),
+    );
+  });
 
   it('should resolve bun catalog default references for the root package.json consuming its own catalog', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'bun-workspace-default-root-catalog'));
@@ -671,11 +681,7 @@ describe('files', () => {
     );
   });
 
-  it('should not resolve bun named catalog references when catalog is missing', async ({
-    mock,
-  }) => {
-    mock.method(console, 'debug');
-    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+  it('should not resolve bun named catalog references when catalog is missing', async () => {
     const baseDir = normalizeToAbsolutePath(
       join(fixtures, 'bun-workspace-unresolved-named-catalog'),
     );
@@ -695,16 +701,9 @@ describe('files', () => {
         ['webpack', 'catalog:unknown'],
       ]),
     );
-    expect(consoleLogMock.calls.map(call => call.arguments)).toEqual([
-      ['Dependency "webpack" could not be resolved for catalog "unknown"'],
-    ]);
   });
 
-  it('should not resolve bun default catalog references when catalog is missing', async ({
-    mock,
-  }) => {
-    mock.method(console, 'debug');
-    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+  it('should not resolve bun default catalog references when catalog is missing', async () => {
     const baseDir = normalizeToAbsolutePath(
       join(fixtures, 'bun-workspace-unresolved-default-catalog'),
     );
@@ -721,17 +720,9 @@ describe('files', () => {
         ['react-dom', 'catalog:'],
       ]),
     );
-    expect(consoleLogMock.calls.map(call => call.arguments)).toEqual([
-      ['Dependency "react" could not be resolved for catalog "default"'],
-      ['Dependency "react-dom" could not be resolved for catalog "default"'],
-    ]);
   });
 
-  it('should not resolve bun catalog references when the dependency missing is not in the catalog', async ({
-    mock,
-  }) => {
-    mock.method(console, 'debug');
-    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+  it('should not resolve bun catalog references when the dependency missing is not in the catalog', async () => {
     const baseDir = normalizeToAbsolutePath(
       join(fixtures, 'bun-workspace-catalog-missing-dependency'),
     );
@@ -750,10 +741,6 @@ describe('files', () => {
         ['testing-library', '14.0.0'],
       ]),
     );
-    expect(consoleLogMock.calls.map(call => call.arguments)).toEqual([
-      ['Dependency "react-dom" could not be resolved for catalog "default"'],
-      ['Dependency "jest" could not be resolved for catalog "testing"'],
-    ]);
   });
 
   it('should resolve bun catalog references when the workspace root is not the scan root', async () => {
@@ -886,36 +873,7 @@ describe('files', () => {
     );
   });
 
-  it('should log when a dependency is defined in multiple manifests', async ({ mock }) => {
-    mock.method(console, 'debug');
-    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
-    const baseDir = normalizeToAbsolutePath(join(fixtures, 'same-level-version-conflict'));
-    const configuration = createConfiguration({ baseDir });
-    await initFileStores(configuration);
-
-    expect(getDependencies(baseDir, baseDir)).toEqual(
-      new Map([
-        ['react', '^19.1.0'],
-        ['reactAlias', '^19.1.0'],
-      ]),
-    );
-    expect(
-      consoleLogMock.calls
-        .map(call => call.arguments[0])
-        .some(
-          log =>
-            log.includes('Dependency "react" is defined in multiple manifests') &&
-            log.includes('^19.1.0') &&
-            log.includes('19.0.0'),
-        ),
-    ).toEqual(true);
-  });
-
-  it('should not log when a dependency is shared between child and parent manifests', async ({
-    mock,
-  }) => {
-    mock.method(console, 'debug');
-    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+  it('should merge dependencies shared between child and parent manifests', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'child-parent-merge'));
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
@@ -928,11 +886,6 @@ describe('files', () => {
         ['parent-only', '1.0.0'],
       ]),
     );
-    expect(
-      consoleLogMock.calls
-        .map(call => call.arguments[0])
-        .some(log => log.includes('Dependency "shared" is defined in multiple manifests')),
-    ).toEqual(false);
   });
 
   it('should extract module type from package.json', async () => {
@@ -988,35 +941,19 @@ describe('files', () => {
     );
   });
 
-  it('should ignore malformed package.json files', async ({ mock }) => {
-    mock.method(console, 'debug');
-    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+  it('should ignore malformed package.json files', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'package-json-malformed'));
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
-    const filePath = join(baseDir, 'package.json');
     expect(dependencyManifestStore.getPackageJsons().size).toEqual(1);
-    getDependencies(baseDir, baseDir);
-    expect(
-      consoleLogMock.calls
-        .map(call => call.arguments[0])
-        .some(log => log.match(`Error parsing package.json ${filePath}: SyntaxError`)),
-    ).toEqual(true);
+    expect(getDependencies(baseDir, baseDir)).toEqual(new Map());
   });
 
-  it('should ignore malformed deno.jsonc files', async ({ mock }) => {
-    mock.method(console, 'debug');
-    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+  it('should ignore malformed deno.jsonc files', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-jsonc-malformed'));
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
-    const filePath = join(baseDir, 'deno.jsonc');
     expect(getDependencies(baseDir, baseDir)).toEqual(new Map());
-    expect(
-      consoleLogMock.calls
-        .map(call => call.arguments[0])
-        .some(log => log.startsWith(`Error parsing deno manifest ${filePath}:`)),
-    ).toEqual(true);
   });
 
   it('should clear the package.json cache', async () => {

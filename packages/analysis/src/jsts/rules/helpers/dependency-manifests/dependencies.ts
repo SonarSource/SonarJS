@@ -131,16 +131,6 @@ export function withCurrentFileInlineDependencies(manifest: DependenciesList): D
   for (const [name, inlineVersion] of currentFileInlineDependencies) {
     // Inline npm: imports are the version actually loaded at runtime for this file,
     // so they take precedence over the project-wide manifest version.
-    if (merged.has(name)) {
-      const manifestVersion = merged.get(name);
-      if (manifestVersion !== inlineVersion) {
-        console.debug(
-          `Dependency "${typeof name === 'string' ? name : name.pattern}" has a version conflict between the manifest ` +
-            `(${manifestVersion ?? '<unspecified>'}) and an inline npm: import ` +
-            `(${inlineVersion ?? '<unspecified>'}). Using the inline version.`,
-        );
-      }
-    }
     merged.set(name, inlineVersion);
   }
   return merged;
