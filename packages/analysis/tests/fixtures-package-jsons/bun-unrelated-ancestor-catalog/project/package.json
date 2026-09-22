@@ -1,0 +1,6 @@
+{
+  "name": "project",
+  "dependencies": {
+    "react": "catalog:"
+  }
+}

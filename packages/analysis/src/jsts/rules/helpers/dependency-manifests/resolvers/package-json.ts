@@ -26,8 +26,12 @@ import type {
   ModuleType,
   Workspace,
 } from './types.js';
-import { NormalizedAbsolutePath, dirnamePath } from '../../files.js';
-import { PACKAGE_JSON, PNPM_WORKSPACE_YAML } from '../index.js';
+import { type File, NormalizedAbsolutePath, dirnamePath, getPathRoot } from '../../files.js';
+import {
+  PACKAGE_JSON,
+  PNPM_WORKSPACE_YAML,
+  canSearchFileSystemAboveManifestCache,
+} from '../index.js';
 import { closestPatternCache } from '../../find-up/closest.js';
 import { getManifestFileInDir, getParentDirPath } from './helpers.js';
 import { addDependencies, addDependenciesArray } from '../parse.js';
@@ -44,10 +48,18 @@ export const packageJsonManifestResolver: ManifestResolver = {
     let parsedPackageJson = parsePackageJson(packageJson) ?? {};
     // Captured before the pnpm injection below, which would otherwise fake a workspace root.
     const declaresWorkspaces = !!parsedPackageJson.workspaces;
-    const pnpmWorkspaceFile = closestPatternCache
-      .get(PNPM_WORKSPACE_YAML, fileSystem)
-      .get(topDir)
-      .get(dir);
+    // Catalog definitions follow workspace semantics and may live above the directory from which
+    // ESLint was started. Dependency manifest collection remains bounded by topDir.
+    const catalogSearchTopDir = getPathRoot(dir);
+    const pnpmWorkspaceCache = closestPatternCache.get(PNPM_WORKSPACE_YAML, fileSystem);
+    const parentOfTopDir = getParentDirPath(topDir);
+    const pnpmWorkspaceFile =
+      pnpmWorkspaceCache.get(topDir).get(dir) ??
+      (topDir === catalogSearchTopDir ||
+      parentOfTopDir === null ||
+      !canSearchFileSystemAboveManifestCache(PNPM_WORKSPACE_YAML, topDir)
+        ? undefined
+        : pnpmWorkspaceCache.get(catalogSearchTopDir).get(parentOfTopDir));
     const parsedPnpmWorkspace = pnpmWorkspaceFile
       ? parsePnpmWorkspace(pnpmWorkspaceFile)
       : undefined;
@@ -146,10 +158,6 @@ function resolveCatalogReferences(
             ? catalogSource?.catalog?.[depName]
             : catalogSource?.catalogs?.[catalogName]?.[depName];
         resolvedDeps[depName] = resolvedDep ?? depVersion;
-        !resolvedDep &&
-          console.debug(
-            `Dependency "${depName}" could not be resolved for catalog "${catalogName}"`,
-          );
       } else {
         resolvedDeps[depName] = depVersion ?? '';
       }
@@ -184,30 +192,21 @@ function findClosestParentPackageJsonWithCatalogs(
   topDir: NormalizedAbsolutePath,
   fileSystem?: Filesystem,
 ): ExtendedPackageJson | undefined {
-  if (dir === topDir) {
-    // No point in searching for parent package.json if we're already at the top directory.
-    return undefined;
-  }
-
   let currentDir = getParentDirPath(dir);
-  const cache = closestPatternCache.get(PACKAGE_JSON, fileSystem).get(topDir);
 
   while (currentDir !== null) {
-    const file = cache.get(currentDir);
+    const file = closestPackageJson(currentDir, topDir, fileSystem);
     if (!file) {
       return undefined;
     }
 
+    const ancestorDir = dirnamePath(file.filePath);
     const parsed = parsePackageJson(file);
-    if (parsed && hasCatalogs(parsed)) {
+    if (parsed && hasCatalogs(parsed) && declaresWorkspaceDir(parsed, ancestorDir, dir)) {
       return parsed;
     }
 
-    const fileDir = dirnamePath(file.filePath);
-    if (fileDir === topDir) {
-      return undefined;
-    }
-    currentDir = getParentDirPath(fileDir);
+    currentDir = getParentDirPath(ancestorDir);
   }
 
   return undefined;
@@ -225,15 +224,10 @@ function isIncludedInAncestorWorkspace(
   topDir: NormalizedAbsolutePath,
   fileSystem?: Filesystem,
 ): boolean {
-  if (dir === topDir) {
-    return false;
-  }
-
   let currentDir = getParentDirPath(dir);
-  const cache = closestPatternCache.get(PACKAGE_JSON, fileSystem).get(topDir);
 
   while (currentDir !== null) {
-    const file = cache.get(currentDir);
+    const file = closestPackageJson(currentDir, topDir, fileSystem);
     if (!file) {
       return false;
     }
@@ -244,13 +238,36 @@ function isIncludedInAncestorWorkspace(
       return true;
     }
 
-    if (ancestorDir === topDir) {
-      return false;
-    }
     currentDir = getParentDirPath(ancestorDir);
   }
 
   return false;
+}
+
+/**
+ * Use the cache populated from analysis inputs while searching inside topDir. Once the search
+ * moves above topDir, use a filesystem-backed cache rooted at the path root.
+ */
+function closestPackageJson(
+  from: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath,
+  fileSystem?: Filesystem,
+): File | undefined {
+  const cache = closestPatternCache.get(PACKAGE_JSON, fileSystem);
+  const rootDir = getPathRoot(from);
+  const canSearchAboveTopDir = canSearchFileSystemAboveManifestCache(PACKAGE_JSON, topDir);
+  if (from === topDir || from.startsWith(`${topDir}/`)) {
+    const file = cache.get(topDir).get(from);
+    if (file || topDir === rootDir || !canSearchAboveTopDir) {
+      return file;
+    }
+    const parentOfTopDir = getParentDirPath(topDir);
+    return parentOfTopDir === null ? undefined : cache.get(rootDir).get(parentOfTopDir);
+  }
+  if (!canSearchAboveTopDir) {
+    return undefined;
+  }
+  return cache.get(rootDir).get(from);
 }
 
 function declaresWorkspaceDir(

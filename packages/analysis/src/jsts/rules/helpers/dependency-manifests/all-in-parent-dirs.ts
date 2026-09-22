@@ -59,11 +59,6 @@ export const getPackageJsonManifestsSanitizePaths = (
   );
 };
 
-type DependencyDefinition = {
-  manifestType: DependencyManifest['type'];
-  version?: string;
-};
-
 /**
  * Registry of manifest resolvers. Add a new entry here to support a new package manager
  * or manifest format (e.g., Bun).
@@ -89,7 +84,6 @@ export const getDependencyManifests = (
     const manifestsInDir = MANIFEST_RESOLVERS.flatMap(manifestResolver =>
       manifestResolver.resolve(currentDir, rootDir, fileSystem),
     );
-    logDuplicateDependenciesInManifests(manifestsInDir);
     manifests.push(...manifestsInDir);
     if (currentDir === rootDir || isRoot(currentDir)) {
       break;
@@ -99,53 +93,3 @@ export const getDependencyManifests = (
 
   return manifests;
 };
-
-/**
- * Checks for duplicate dependencies across manifests and logs them.
- */
-function logDuplicateDependenciesInManifests(manifests: DependencyManifest[]): void {
-  const dependencyDefinitions = new Map<string, DependencyDefinition>();
-  for (const { dependencies, type: manifestType } of manifests) {
-    const dependenciesByNameInManifest = new Map<string, string | undefined>();
-    for (const [name, version] of dependencies) {
-      if (typeof name !== 'string') {
-        continue;
-      }
-      dependenciesByNameInManifest.set(name, version);
-    }
-    for (const [dependencyName, version] of dependenciesByNameInManifest) {
-      const firstDefinition = dependencyDefinitions.get(dependencyName);
-      if (firstDefinition) {
-        logDuplicateDependencyDefinition(dependencyName, firstDefinition, {
-          manifestType,
-          version,
-        });
-        continue;
-      }
-      dependencyDefinitions.set(dependencyName, { manifestType, version });
-    }
-  }
-}
-
-function logDuplicateDependencyDefinition(
-  dependencyName: string,
-  firstDefinition: DependencyDefinition,
-  secondDefinition: DependencyDefinition,
-): void {
-  if (firstDefinition.version === secondDefinition.version) {
-    console.debug(
-      `Dependency "${dependencyName}" is defined in multiple manifests ` +
-        `(${firstDefinition.manifestType}, ${secondDefinition.manifestType}).`,
-    );
-  } else {
-    console.debug(
-      `Dependency "${dependencyName}" is defined in multiple manifests with different versions ` +
-        `(${firstDefinition.manifestType}: ${formatVersion(firstDefinition.version)}, ` +
-        `${secondDefinition.manifestType}: ${formatVersion(secondDefinition.version)}).`,
-    );
-  }
-}
-
-function formatVersion(version?: string): string {
-  return version ?? '<unspecified>';
-}

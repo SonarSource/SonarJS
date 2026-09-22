@@ -46,20 +46,14 @@ function getOrSetParsedDependencyFile<T>(
 
 export function parsePackageJson(file: File): PackageJson | undefined {
   return getOrSetParsedDependencyFile(parsedPackageJsonCache, file, file =>
-    parsePackageJsonContent(file.fileContent, file.filePath),
+    parsePackageJsonContent(file.fileContent),
   );
 }
 
-export function parsePackageJsonContent(
-  content: string,
-  filePath?: string,
-): PackageJson | undefined {
+export function parsePackageJsonContent(content: string): PackageJson | undefined {
   try {
     return JSON.parse(stripBOM(content)) as PackageJson;
-  } catch (error) {
-    if (filePath) {
-      console.debug(`Error parsing package.json ${filePath}: ${error}`);
-    }
+  } catch {
     return undefined;
   }
 }
@@ -78,8 +72,7 @@ function parsePnpmWorkspaceContent(file: File): Workspace | undefined {
       return parsedPnpm;
     }
     return undefined;
-  } catch (error) {
-    console.debug(`Error parsing pnpm workspace ${file.filePath}: ${error}`);
+  } catch {
     return undefined;
   }
 }
@@ -93,13 +86,10 @@ function parseDenoManifestContent(file: File): DenoJson | undefined {
     // ts.parseConfigFileTextToJson handles JSON with comments and trailing commas
     const parsed = ts.parseConfigFileTextToJson(file.filePath, stripBOM(file.fileContent));
     if (parsed.error) {
-      const message = ts.flattenDiagnosticMessageText(parsed.error.messageText, '\n');
-      console.debug(`Error parsing deno manifest ${file.filePath}: ${message}`);
       return;
     }
     return parsed.config as DenoJson;
-  } catch (error) {
-    console.debug(`Error parsing deno manifest ${file.filePath}: ${error}`);
+  } catch {
     return;
   }
 }

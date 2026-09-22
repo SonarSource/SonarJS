@@ -33,6 +33,11 @@ export const PRELOADABLE_DEPENDENCY_MANIFESTS = [
 ] as const;
 export type PreloadableDependencyManifestName = (typeof PRELOADABLE_DEPENDENCY_MANIFESTS)[number];
 
+const manifestCacheFileSystemAccess = new Map<
+  PreloadableDependencyManifestName,
+  Map<NormalizedAbsolutePath, boolean>
+>();
+
 function isPreloadableDependencyManifestName(
   fileName: string,
 ): fileName is PreloadableDependencyManifestName {
@@ -53,7 +58,15 @@ export function fillManifestCaches(
   manifests: Map<NormalizedAbsolutePath, File>,
   dirnameToParent: Map<NormalizedAbsolutePath, NormalizedAbsolutePath | undefined>,
   topDir: NormalizedAbsolutePath,
+  canAccessFileSystem = true,
 ): void {
+  let accessByTopDir = manifestCacheFileSystemAccess.get(manifestName);
+  if (!accessByTopDir) {
+    accessByTopDir = new Map();
+    manifestCacheFileSystemAccess.set(manifestName, accessByTopDir);
+  }
+  accessByTopDir.set(topDir, canAccessFileSystem);
+
   const closestCache = closestPatternCache.get(manifestName).get(topDir);
   const manifestsInParentsCache =
     manifestName === PNPM_WORKSPACE_YAML
@@ -81,12 +94,24 @@ export function fillManifestCaches(
 }
 
 /**
+ * Whether a lookup backed by a preloaded cache may continue above its top directory.
+ * Direct ESLint lookups have no preloaded entry and use the filesystem by default.
+ */
+export function canSearchFileSystemAboveManifestCache(
+  manifestName: PreloadableDependencyManifestName,
+  topDir: NormalizedAbsolutePath,
+): boolean {
+  return manifestCacheFileSystemAccess.get(manifestName)?.get(topDir) ?? true;
+}
+
+/**
  * In the case of SonarIDE, when a dependency manifest file changes, the cache can become obsolete.
  */
 export function clearDependenciesCache(): void {
   dependenciesCache.clear();
   moduleTypeCache.clear();
   clearParsedDependencyFileCache();
+  manifestCacheFileSystemAccess.clear();
   for (const manifestName of PRELOADABLE_DEPENDENCY_MANIFESTS) {
     closestPatternCache.get(manifestName).clear();
     if (manifestName !== PNPM_WORKSPACE_YAML) {
