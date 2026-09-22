@@ -52,6 +52,7 @@ export async function writeResults(
   try {
     await fs.rm(actualPath, { recursive: true });
   } catch {}
+  await fs.mkdir(actualPath, { recursive: true });
   const litsResults = transformResults(projectPath, projectName, results);
   for (const [ruleId, { js: jsIssues, ts: tsIssues, css: cssIssues }] of Object.entries(
     litsResults,
