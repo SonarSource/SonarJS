@@ -164,7 +164,7 @@ async function analyzeFilesFromDiscoveredPrograms(
       continue;
     }
 
-    await analyzeFilesFromTsConfig(
+    const analysisPromise = analyzeFilesFromTsConfig(
       files,
       tsConfig,
       results,
@@ -179,6 +179,7 @@ async function analyzeFilesFromDiscoveredPrograms(
       programSelection,
       incrementalResultsChannel,
     );
+    await analysisPromise; // NOSONAR -- tsconfigs mutate shared analysis state in order.
   }
 
   if (jsTsConfigFields.createTSProgramForOrphanFiles) {
@@ -452,7 +453,7 @@ async function analyzeFilesFromProgramSelection(
       if (!tsProgram.getSourceFile(fileName)) {
         throw new Error(`Restored TypeScript program does not contain ${fileName}`);
       }
-      await analyzeFile(
+      const analysisPromise = analyzeFile(
         fileName,
         files[fileName],
         jsTsConfigFields,
@@ -464,6 +465,7 @@ async function analyzeFilesFromProgramSelection(
         detectedEsYear ?? undefined,
         targetEsYear ?? undefined,
       );
+      await analysisPromise; // NOSONAR -- files mutate shared analysis state in order.
     }
   }
 }
