@@ -402,6 +402,9 @@ class WebSensorTest {
     assertThat(request.getFilesystemCache().getProgramSelectionPath()).isEqualTo(
       programSelection.toAbsolutePath().normalize().toString()
     );
+    assertThat(request.getFilesystemCache().getPassthroughPathsList()).containsExactly(
+      context.fileSystem().workDir().toPath().toAbsolutePath().normalize().toString()
+    );
   }
 
   @Test
@@ -455,6 +458,9 @@ class WebSensorTest {
       var request = handler.getRequest();
       var archive = Path.of(request.getFilesystemCache().getArchivePath());
       var programSelection = Path.of(request.getFilesystemCache().getProgramSelectionPath());
+      assertThat(request.getFilesystemCache().getPassthroughPathsList()).containsExactly(
+        context.fileSystem().workDir().toPath().toAbsolutePath().normalize().toString()
+      );
       assertThat(archive).doesNotExist();
       assertThat(programSelection).doesNotExist();
       Files.writeString(archive, "archive");

@@ -76,6 +76,7 @@ describe('analyze-project request handler', () => {
       {
         archivePath: '/cache/first.fscache',
         event: 'begin',
+        passthroughDirs: [],
         rootDir: '/project',
       },
       { archivePath: '/cache/first.fscache', event: 'end' },
