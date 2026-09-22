@@ -1013,6 +1013,9 @@ describe('filesystem cache hook', () => {
       fs.mkdirSync(outputDirectory, { recursive: true });
       const output = path.join(outputDirectory, 'main.udg');
       fs.writeFileSync(output, 'generated');
+      const descriptorOutput = path.join(outputDirectory, 'descriptor.udg');
+      const descriptor = fs.openSync(descriptorOutput, 'w');
+      fs.closeSync(descriptor);
       let projectMutation;
       try {
         fs.mkdirSync(path.join(filesystemCacheRoot, 'generated'));
@@ -1035,6 +1038,9 @@ describe('filesystem cache hook', () => {
     expect(fs.readFileSync(path.join(passthrough, 'architecture', 'ts', 'main.udg'), 'utf8')).toBe(
       'generated',
     );
+    expect(
+      fs.readFileSync(path.join(passthrough, 'architecture', 'ts', 'descriptor.udg')),
+    ).toHaveLength(0);
   });
 
   it('rejects every unpatched filesystem operation', () => {

@@ -1488,6 +1488,11 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
 
   function openSync(input: fs.PathLike, flags: fs.OpenMode = 'r', mode?: fs.Mode): number {
     if (!readonlyFlags(flags)) {
+      if (archive.isPassthrough(input)) {
+        const fd = originalFs.openSync(input, flags, mode);
+        fileDescriptors.set(fd, { position: 0, virtual: false });
+        return fd;
+      }
       throw unsupportedFilesystemOperation('fs', 'openSync with write-capable flags');
     }
     const operation = openOperation(flags);
