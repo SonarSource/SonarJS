@@ -16,6 +16,8 @@
  */
 import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { getSystemErrorMap, promisify } from 'node:util';
 import {
   type ArchiveOptions,
@@ -77,7 +79,7 @@ type BufferedRealpath = (
   callback: ValueCallback<Buffer>,
 ) => void;
 type TrackedDescriptor =
-  | { key?: string; position: number; virtual: false }
+  | { key?: string; passthrough: boolean; position: number; virtual: false }
   | {
       content?: Buffer;
       input: string;
@@ -90,9 +92,10 @@ type FileDescriptorMap = Map<number, TrackedDescriptor>;
 type FileHandleLike = { fd: number };
 type CacheInput = fs.PathLike | number | FileHandleLike;
 type FileHandleTracker = {
-  add(value: object): void;
+  add(value: object, passthrough: boolean): void;
   clear(): void;
   has(value: object): boolean;
+  isPassthrough(value: object): boolean;
 };
 type CacheExecutor = ReturnType<typeof createExecutor>;
 type ArchiveFacade = Pick<
@@ -191,7 +194,6 @@ const originalFs = {
   fstatSync: fs.fstatSync.bind(fs),
   lstat: fs.lstat.bind(fs),
   lstatSync: fs.lstatSync.bind(fs),
-  mkdirSync: fs.mkdirSync.bind(fs),
   open: fs.open.bind(fs),
   openSync: fs.openSync.bind(fs),
   opendir: fs.opendir.bind(fs),
@@ -210,7 +212,6 @@ const originalFs = {
   realpathSyncNative: fs.realpathSync.native.bind(fs.realpathSync),
   stat: fs.stat.bind(fs),
   statSync: fs.statSync.bind(fs),
-  writeFileSync: fs.writeFileSync.bind(fs),
   writeSync: fs.writeSync.bind(fs),
 };
 
@@ -760,17 +761,175 @@ function unsupportedFilesystemOperation(moduleName: string, name: PropertyKey): 
   return error;
 }
 
-function requirePassthroughPath(
+/**
+ * Native operations whose filesystem targets can be proven to stay inside a passthrough tree.
+ * Keeping this routing metadata explicit makes a new Node filesystem API fail closed until its
+ * path or descriptor semantics have been classified.
+ */
+const PASSTHROUGH_SINGLE_PATH_OPERATIONS = new Set([
+  'appendFile',
+  'appendFileSync',
+  'chmod',
+  'chmodSync',
+  'chown',
+  'chownSync',
+  'createReadStream',
+  'createWriteStream',
+  'lchmod',
+  'lchown',
+  'lchownSync',
+  'lutimes',
+  'lutimesSync',
+  'mkdir',
+  'mkdirSync',
+  'mkdtemp',
+  'mkdtempDisposable',
+  'mkdtempDisposableSync',
+  'mkdtempSync',
+  'openAsBlob',
+  'rm',
+  'rmSync',
+  'rmdir',
+  'rmdirSync',
+  'statfs',
+  'statfsSync',
+  'truncate',
+  'truncateSync',
+  'unlink',
+  'unlinkSync',
+  'unwatchFile',
+  'utimes',
+  'utimesSync',
+  'watch',
+  'watchFile',
+  'writeFile',
+  'writeFileSync',
+]);
+const PASSTHROUGH_TWO_PATH_OPERATIONS = new Set([
+  'copyFile',
+  'copyFileSync',
+  'cp',
+  'cpSync',
+  'link',
+  'linkSync',
+  'rename',
+  'renameSync',
+]);
+const PASSTHROUGH_DESCRIPTOR_OPERATIONS = new Set([
+  'fchmod',
+  'fchmodSync',
+  'fchown',
+  'fchownSync',
+  'fdatasync',
+  'fdatasyncSync',
+  'fsync',
+  'fsyncSync',
+  'ftruncate',
+  'ftruncateSync',
+  'futimes',
+  'futimesSync',
+  'readv',
+  'readvSync',
+  'write',
+  'writeSync',
+  'writev',
+  'writevSync',
+]);
+
+function isPathLike(value: unknown): value is fs.PathLike {
+  return typeof value === 'string' || Buffer.isBuffer(value) || value instanceof URL;
+}
+
+function pathLikeToString(value: fs.PathLike): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  return Buffer.isBuffer(value) ? value.toString() : fileURLToPath(value as URL);
+}
+
+function isPassthroughDescriptor(fileDescriptors: FileDescriptorMap, descriptor: number): boolean {
+  const tracked = fileDescriptors.get(descriptor);
+  return tracked?.virtual === false && tracked.passthrough;
+}
+
+function isPassthroughInput(
   archive: ArchiveFacade,
-  input: fs.PathOrFileDescriptor,
-  operation: string,
-): asserts input is fs.PathLike {
-  if (typeof input === 'number' || !archive.isPassthrough(input)) {
-    throw unsupportedFilesystemOperation(
-      'fs',
-      `${operation} outside a filesystem cache passthrough tree`,
+  fileDescriptors: FileDescriptorMap,
+  fileHandles: FileHandleTracker,
+  input: unknown,
+): boolean {
+  if (typeof input === 'number') {
+    return isPassthroughDescriptor(fileDescriptors, input);
+  }
+  if (isPathLike(input)) {
+    return archive.isPassthrough(input);
+  }
+  return typeof input === 'object' && input !== null && fileHandles.isPassthrough(input);
+}
+
+function isPassthroughGlob(archive: ArchiveFacade, args: unknown[]): boolean {
+  const patterns = Array.isArray(args[0]) ? args[0] : [args[0]];
+  const options = typeof args[1] === 'object' && args[1] !== null ? args[1] : undefined;
+  const cwd = (options as { cwd?: fs.PathLike } | undefined)?.cwd ?? process.cwd();
+  if (!isPathLike(cwd)) {
+    return false;
+  }
+  const cwdPath = pathLikeToString(cwd);
+  return patterns.every(pattern => {
+    if (typeof pattern !== 'string') {
+      return false;
+    }
+    return archive.isPassthrough(path.resolve(cwdPath, pattern));
+  });
+}
+
+function isPassthroughSymlink(archive: ArchiveFacade, args: unknown[]): boolean {
+  const [target, destination] = args;
+  if (!isPathLike(target) || !isPathLike(destination) || !archive.isPassthrough(destination)) {
+    return false;
+  }
+  const targetPath = pathLikeToString(target);
+  const destinationPath = pathLikeToString(destination);
+  const resolvedTarget = path.isAbsolute(targetPath)
+    ? targetPath
+    : path.resolve(path.dirname(path.resolve(destinationPath)), targetPath);
+  return archive.isPassthrough(resolvedTarget);
+}
+
+function isPassthroughFilesystemOperation(
+  archive: ArchiveFacade,
+  fileDescriptors: FileDescriptorMap,
+  fileHandles: FileHandleTracker,
+  name: string,
+  args: unknown[],
+): boolean {
+  if (name === 'glob' || name === 'globSync') {
+    return isPassthroughGlob(archive, args);
+  }
+  if (name === 'symlink' || name === 'symlinkSync') {
+    return isPassthroughSymlink(archive, args);
+  }
+  if (PASSTHROUGH_TWO_PATH_OPERATIONS.has(name)) {
+    return (
+      isPathLike(args[0]) &&
+      archive.isPassthrough(args[0]) &&
+      isPathLike(args[1]) &&
+      archive.isPassthrough(args[1])
     );
   }
+  if (PASSTHROUGH_DESCRIPTOR_OPERATIONS.has(name)) {
+    return typeof args[0] === 'number' && isPassthroughDescriptor(fileDescriptors, args[0]);
+  }
+  if (PASSTHROUGH_SINGLE_PATH_OPERATIONS.has(name)) {
+    if ((name === 'createReadStream' || name === 'createWriteStream') && args[1]) {
+      const descriptor = (args[1] as { fd?: number }).fd;
+      if (typeof descriptor === 'number' && isPassthroughDescriptor(fileDescriptors, descriptor)) {
+        return true;
+      }
+    }
+    return isPassthroughInput(archive, fileDescriptors, fileHandles, args[0]);
+  }
+  return false;
 }
 
 function guardUnhandledFilesystemOperations(
@@ -778,6 +937,7 @@ function guardUnhandledFilesystemOperations(
   patchedProperties: Set<PropertyKey>,
   nonOperations: Set<string>,
   moduleName: string,
+  canPassthrough: (name: string, args: unknown[]) => boolean,
   reject = false,
 ) {
   for (const [name, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(target))) {
@@ -791,7 +951,10 @@ function guardUnhandledFilesystemOperations(
     if (typeof value !== 'function') {
       continue;
     }
-    patch(target, patchedProperties, name, () => {
+    patch(target, patchedProperties, name, (...args: unknown[]) => {
+      if (canPassthrough(name, args)) {
+        return Reflect.apply(value, target, args);
+      }
       const error = unsupportedFilesystemOperation(moduleName, name);
       if (reject && !FS_PROMISE_ASYNC_ITERABLE_OPERATIONS.has(name)) {
         return Promise.reject(error);
@@ -1490,7 +1653,7 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
     if (!readonlyFlags(flags)) {
       if (archive.isPassthrough(input)) {
         const fd = originalFs.openSync(input, flags, mode);
-        fileDescriptors.set(fd, { position: 0, virtual: false });
+        fileDescriptors.set(fd, { passthrough: true, position: 0, virtual: false });
         return fd;
       }
       throw unsupportedFilesystemOperation('fs', 'openSync with write-capable flags');
@@ -1508,7 +1671,12 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
         archive.set(key, operation, success(null));
         captureOpenedFile(input, fd);
       }
-      fileDescriptors.set(fd, { key, position: 0, virtual: false });
+      fileDescriptors.set(fd, {
+        key,
+        passthrough: archive.isPassthrough(input),
+        position: 0,
+        virtual: false,
+      });
       return fd;
     } catch (error) {
       if (archive.mode === 'record' && key !== undefined) {
@@ -1532,7 +1700,7 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
       callback = mode;
       mode = undefined;
     }
-    if (!readonlyFlags(flags)) {
+    if (!readonlyFlags(flags) && !archive.isPassthrough(input)) {
       throw unsupportedFilesystemOperation('fs', 'open with write-capable flags');
     }
     const done = requireCallback(callback, 'fs.open');
@@ -1565,7 +1733,12 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
         }
       }
       if (!error) {
-        fileDescriptors.set(fd, { key, position: 0, virtual: false });
+        fileDescriptors.set(fd, {
+          key,
+          passthrough: archive.isPassthrough(input),
+          position: 0,
+          virtual: false,
+        });
       }
       done(error, fd);
     });
@@ -1801,7 +1974,7 @@ function createOpenPromise(
     flags: fs.OpenMode = 'r',
     mode?: fs.Mode,
   ): Promise<FileHandleLike> {
-    if (!readonlyFlags(flags)) {
+    if (!readonlyFlags(flags) && !archive.isPassthrough(input)) {
       throw unsupportedFilesystemOperation(FS_PROMISES_MODULE, 'open with write-capable flags');
     }
     const operation = openOperation(flags);
@@ -1818,7 +1991,7 @@ function createOpenPromise(
         archive.set(key, operation, success(null));
         captureOpenedFile(input, handle.fd);
       }
-      fileHandles.add(handle);
+      fileHandles.add(handle, archive.isPassthrough(input));
       return handle;
     } catch (error) {
       if (archive.mode === 'record' && key !== undefined && readonlyFlags(flags)) {
@@ -1836,16 +2009,27 @@ function installPatches(archive: ArchiveFacade) {
   const patchedProperties = new Set<PropertyKey>();
   const patchedPromiseProperties = new Set<PropertyKey>();
   const fileDescriptors: FileDescriptorMap = new Map();
-  const fileHandles: FileHandleTracker & { values: WeakSet<object> } = {
+  const fileHandles: FileHandleTracker & {
+    passthroughValues: WeakSet<object>;
+    values: WeakSet<object>;
+  } = {
+    passthroughValues: new WeakSet<object>(),
     values: new WeakSet<object>(),
-    add(value: object) {
+    add(value: object, passthrough: boolean) {
       this.values.add(value);
+      if (passthrough) {
+        this.passthroughValues.add(value);
+      }
     },
     clear() {
       this.values = new WeakSet<object>();
+      this.passthroughValues = new WeakSet<object>();
     },
     has(value: object) {
       return this.values.has(value);
+    },
+    isPassthrough(value: object) {
+      return this.passthroughValues.has(value);
     },
   };
   const readFile = createReadFilePatches(executor, fileDescriptors, fileHandles);
@@ -1891,31 +2075,10 @@ function installPatches(archive: ArchiveFacade) {
   patch(fs, patchedProperties, 'fstat', descriptor.fstat);
   patch(fs, patchedProperties, 'closeSync', descriptor.closeSync);
   patch(fs, patchedProperties, 'close', descriptor.close);
-  // Analyzer extensions may emit intermediate artifacts below the scanner work directory. Java
-  // marks that directory as passthrough so these writes remain native and never become part of the
-  // portable project snapshot. Mutations anywhere else inside the archived tree still fail closed.
-  patch(fs, patchedProperties, 'mkdirSync', (input: fs.PathLike, ...args: unknown[]) => {
-    requirePassthroughPath(archive, input, 'mkdirSync');
-    return (originalFs.mkdirSync as unknown as (input: fs.PathLike, ...args: unknown[]) => unknown)(
-      input,
-      ...args,
-    );
-  });
-  patch(
-    fs,
-    patchedProperties,
-    'writeFileSync',
-    (input: fs.PathOrFileDescriptor, ...args: unknown[]) => {
-      requirePassthroughPath(archive, input, 'writeFileSync');
-      return (
-        originalFs.writeFileSync as unknown as (input: fs.PathLike, ...args: unknown[]) => void
-      )(input, ...args);
-    },
-  );
   // Node stdout and stderr use this primitive. Limit the native pass-through to their standard
-  // descriptors so diagnostics work without allowing project files to be mutated through an fd.
+  // descriptors and descriptors opened below a native passthrough tree.
   patch(fs, patchedProperties, 'writeSync', (fd: number, ...args: unknown[]) => {
-    if (fd !== 1 && fd !== 2) {
+    if (fd !== 1 && fd !== 2 && !isPassthroughDescriptor(fileDescriptors, fd)) {
       throw unsupportedFilesystemOperation('fs', 'writeSync outside stdout or stderr');
     }
     return (originalFs.writeSync as unknown as (fd: number, ...args: unknown[]) => number)(
@@ -1934,12 +2097,21 @@ function installPatches(archive: ArchiveFacade) {
   patch(fs.promises, patchedPromiseProperties, 'opendir', directory.opendirPromise);
   patch(fs.promises, patchedPromiseProperties, 'open', openPromise);
 
-  guardUnhandledFilesystemOperations(fs, patchedProperties, FS_NON_OPERATION_EXPORTS, 'fs');
+  const canPassthrough = (name: string, args: unknown[]) =>
+    isPassthroughFilesystemOperation(archive, fileDescriptors, fileHandles, name, args);
+  guardUnhandledFilesystemOperations(
+    fs,
+    patchedProperties,
+    FS_NON_OPERATION_EXPORTS,
+    'fs',
+    canPassthrough,
+  );
   guardUnhandledFilesystemOperations(
     fs.promises,
     patchedPromiseProperties,
     new Set(),
     FS_PROMISES_MODULE,
+    canPassthrough,
     true,
   );
 
