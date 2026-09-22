@@ -402,6 +402,21 @@ describe('files', () => {
     );
   });
 
+  it('should ignore a catalog from an ancestor workspace that does not include the package', async () => {
+    const packageDirectory = normalizeToAbsolutePath(
+      join(fixtures, 'bun-unrelated-ancestor-catalog/project'),
+    );
+    const configuration = createConfiguration({ baseDir: packageDirectory });
+    await initFileStores(configuration);
+
+    expect(getDependencyManifests(packageDirectory, packageDirectory)[0].dependencies).toEqual(
+      new Map([
+        ['project', '*'],
+        ['react', 'catalog:'],
+      ]),
+    );
+  });
+
   it('should resolve bun catalog references from preloaded manifests without filesystem access', async ({
     mock,
   }) => {

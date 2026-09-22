@@ -194,13 +194,13 @@ function findClosestParentPackageJsonWithCatalogs(
       return undefined;
     }
 
+    const ancestorDir = dirnamePath(file.filePath);
     const parsed = parsePackageJson(file);
-    if (parsed && hasCatalogs(parsed)) {
+    if (parsed && hasCatalogs(parsed) && declaresWorkspaceDir(parsed, ancestorDir, dir)) {
       return parsed;
     }
 
-    const fileDir = dirnamePath(file.filePath);
-    currentDir = getParentDirPath(fileDir);
+    currentDir = getParentDirPath(ancestorDir);
   }
 
   return undefined;
