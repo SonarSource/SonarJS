@@ -53,6 +53,22 @@ describe('writeResults', () => {
     });
   });
 
+  it('should create actual directory even with zero issues', async () => {
+    const files = createFileResults();
+    const results: ProjectAnalysisOutput = {
+      files,
+      meta: { warnings: [] },
+    };
+
+    await writeResults('/project', 'ace', results, actualPath);
+
+    const stat = await fs.stat(actualPath);
+    expect(stat.isDirectory()).toBe(true);
+    const entries = await fs.readdir(actualPath);
+    // Only S2260 (parsing errors) file should be absent — directory should be empty
+    expect(entries).toEqual([]);
+  });
+
   it('should preserve stable issue filename ordering', async () => {
     const files = createFileResults();
     files['/project/src/z.css' as NormalizedAbsolutePath] = {
