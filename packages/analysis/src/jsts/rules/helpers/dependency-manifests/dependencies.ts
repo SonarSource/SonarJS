@@ -40,32 +40,63 @@ const MODULE_TYPE_BY_EXTENSION: Readonly<Record<string, ModuleType>> = {
 };
 
 /**
- * Cache for the available dependencies by dirname. Exported for tests
+ * Cache for the available dependencies by closest manifest directory and search boundary.
+ * Exported for tests.
  */
-export const dependenciesCache = new ComputedCache(
-  (dir: NormalizedAbsolutePath, topDir?: NormalizedAbsolutePath) => {
-    const closestDependencyManifestDir = getClosestDependencyManifestDir(dir, topDir);
-    const result: DependenciesList = new Map();
+class DependenciesCache {
+  private readonly cache = new Map<
+    NormalizedAbsolutePath,
+    Map<NormalizedAbsolutePath, DependenciesList>
+  >();
 
-    if (!closestDependencyManifestDir) {
-      return result;
+  get(dir: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath): DependenciesList {
+    let entriesByTopDir = this.cache.get(dir);
+    if (!entriesByTopDir) {
+      entriesByTopDir = new Map();
+      this.cache.set(dir, entriesByTopDir);
     }
 
-    for (const { dependencies } of getDependencyManifests(
-      closestDependencyManifestDir,
-      topDir,
-      fs,
-    )) {
-      for (const [name, version] of dependencies) {
-        if (!result.has(name)) {
-          result.set(name, version);
-        }
+    let dependencies = entriesByTopDir.get(topDir);
+    if (!dependencies) {
+      dependencies = computeDependencies(dir, topDir);
+      entriesByTopDir.set(topDir, dependencies);
+    }
+    return dependencies;
+  }
+
+  has(dir: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath): boolean {
+    return this.cache.get(dir)?.has(topDir) ?? false;
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  get size(): number {
+    let size = 0;
+    for (const entriesByTopDir of this.cache.values()) {
+      size += entriesByTopDir.size;
+    }
+    return size;
+  }
+}
+
+export const dependenciesCache = new DependenciesCache();
+
+function computeDependencies(
+  dir: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath,
+): DependenciesList {
+  const result: DependenciesList = new Map();
+  for (const { dependencies } of getDependencyManifests(dir, topDir, fs)) {
+    for (const [name, version] of dependencies) {
+      if (!result.has(name)) {
+        result.set(name, version);
       }
     }
-
-    return result;
-  },
-);
+  }
+  return result;
+}
 
 /**
  * Cache for module type signal by dirname. Exported for tests.
@@ -144,12 +175,17 @@ export function withCurrentFileInlineDependencies(manifest: DependenciesList): D
 
 export function getDependenciesSanitizePaths(context: Rule.RuleContext): DependenciesList {
   const filePath = normalizeToAbsolutePath(context.filename);
+  const topDir = getDependencyTopDir(context, filePath);
+  return withCurrentFileInlineDependencies(getDependencies(dirnamePath(filePath), topDir));
+}
+
+function getDependencyTopDir(
+  context: Rule.RuleContext,
+  filePath: NormalizedAbsolutePath,
+): NormalizedAbsolutePath {
   // ESLint can lint from a nested working directory while Node still resolves packages from
   // ancestor directories. Sonar analysis has an explicit project boundary and must remain inside it.
-  const topDir = isSonarRuntime(context)
-    ? normalizeToAbsolutePath(context.cwd)
-    : getPathRoot(filePath);
-  return withCurrentFileInlineDependencies(getDependencies(dirnamePath(filePath), topDir));
+  return isSonarRuntime(context) ? normalizeToAbsolutePath(context.cwd) : getPathRoot(filePath);
 }
 
 /**
@@ -185,9 +221,9 @@ export function isAngularProject(
  * @returns React version string (coerced from range) or null if not found
  */
 export function getReactVersion(context: Rule.RuleContext): string | null {
-  const dir = dirnamePath(normalizeToAbsolutePath(context.filename));
+  const filePath = normalizeToAbsolutePath(context.filename);
   const dependencies = withCurrentFileInlineDependencies(
-    getDependencies(dir, normalizeToAbsolutePath(context.cwd)),
+    getDependencies(dirnamePath(filePath), getDependencyTopDir(context, filePath)),
   );
   const reactVersion = dependencies.get('react');
   // Deno npm: imports reflect the actual runtime version and are intentionally included here, unlike the TypeScript/Node.js version signals
@@ -219,9 +255,9 @@ export function parseReactVersion(reactVersion: string): string | null {
  * @returns Vue dependency range string, or null if not found
  */
 export function getVueVersion(context: Rule.RuleContext): string | null {
-  const dir = dirnamePath(normalizeToAbsolutePath(context.filename));
+  const filePath = normalizeToAbsolutePath(context.filename);
   const dependencies = withCurrentFileInlineDependencies(
-    getDependencies(dir, normalizeToAbsolutePath(context.cwd)),
+    getDependencies(dirnamePath(filePath), getDependencyTopDir(context, filePath)),
   );
   return dependencies.get('vue') ?? null;
 }

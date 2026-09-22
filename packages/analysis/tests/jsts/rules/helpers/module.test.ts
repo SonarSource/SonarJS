@@ -24,6 +24,10 @@ import {
   importsOrDependsOnModule,
   isGlobalShadowed,
 } from '../../../../src/jsts/rules/helpers/module.js';
+import {
+  getReactVersion,
+  getVueVersion,
+} from '../../../../src/jsts/rules/helpers/dependency-manifests/dependencies.js';
 import path from 'node:path';
 
 function collectModuleReferences(source: string, parser?: LinterNS.Parser): Set<string> {
@@ -209,6 +213,14 @@ describe('importsOrDependsOnModule', () => {
   it('keeps dependency lookup bounded by the working directory in Sonar runtime', () => {
     expect(dependsOnFoo(cwd, filename, { sonarRuntime: true })).toBe(false);
   });
+
+  it('finds framework versions above the working directory in standalone ESLint', () => {
+    expect(getFrameworkVersions(cwd, filename)).toEqual(['19.1.0', '^3.4.0']);
+  });
+
+  it('keeps framework version lookup bounded in Sonar runtime', () => {
+    expect(getFrameworkVersions(cwd, filename, { sonarRuntime: true })).toEqual([null, null]);
+  });
 });
 
 function dependsOnFoo(cwd: string, filename: string, settings: Record<string, unknown> = {}) {
@@ -226,6 +238,33 @@ function dependsOnFoo(cwd: string, filename: string, settings: Record<string, un
       languageOptions: { ecmaVersion: 'latest' },
       plugins: { test: { rules: { captureDependencies } } },
       rules: { 'test/captureDependencies': 'error' },
+      settings,
+    },
+    filename,
+  );
+
+  return result;
+}
+
+function getFrameworkVersions(
+  cwd: string,
+  filename: string,
+  settings: Record<string, unknown> = {},
+) {
+  let result: [string | null, string | null] = [null, null];
+  const captureVersions: Rule.RuleModule = {
+    create(context) {
+      result = [getReactVersion(context), getVueVersion(context)];
+      return {};
+    },
+  };
+
+  new Linter({ cwd }).verify(
+    '',
+    {
+      languageOptions: { ecmaVersion: 'latest' },
+      plugins: { test: { rules: { captureVersions } } },
+      rules: { 'test/captureVersions': 'error' },
       settings,
     },
     filename,

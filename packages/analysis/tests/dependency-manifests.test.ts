@@ -96,7 +96,7 @@ describe('files', () => {
     expect(dependenciesCache.size).toEqual(0);
     getDependencies(baseDir, baseDir);
     expect(dependenciesCache.size).toEqual(1);
-    expect(dependenciesCache.has(baseDir)).toEqual(true);
+    expect(dependenciesCache.has(baseDir, baseDir)).toEqual(true);
     expect(moduleTypeCache.size).toEqual(0);
     getModuleType(normalizeToAbsolutePath(join(baseDir, 'index.js')), baseDir);
     expect(moduleTypeCache.size).toEqual(1);
@@ -247,7 +247,7 @@ describe('files', () => {
       ]),
     );
     expect(dependenciesCache.size).toEqual(1);
-    expect(dependenciesCache.has(baseDir)).toEqual(true);
+    expect(dependenciesCache.has(baseDir, baseDir)).toEqual(true);
   });
 
   it('should resolve pnpm catalog references from pnpm-workspace.yaml for same-level-directory package.json', async () => {
@@ -973,6 +973,34 @@ describe('files', () => {
         ['parent-only', '1.0.0'],
       ]),
     );
+  });
+
+  it('should cache dependency lookups separately for each search boundary', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'child-parent-merge'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+    const subDir = normalizeToAbsolutePath(join(baseDir, 'subdir'));
+    const childDependencies = new Map([
+      ['child-only', '1.0.0'],
+      ['shared', '2.0.0'],
+    ]);
+    const allDependencies = new Map([...childDependencies, ['parent-only', '1.0.0']]);
+
+    for (const boundedLookupFirst of [true, false]) {
+      dependenciesCache.clear();
+
+      if (boundedLookupFirst) {
+        expect(getDependencies(subDir, subDir)).toEqual(childDependencies);
+        expect(getDependencies(subDir, baseDir)).toEqual(allDependencies);
+      } else {
+        expect(getDependencies(subDir, baseDir)).toEqual(allDependencies);
+        expect(getDependencies(subDir, subDir)).toEqual(childDependencies);
+      }
+
+      expect(dependenciesCache.size).toEqual(2);
+      expect(dependenciesCache.has(subDir, subDir)).toEqual(true);
+      expect(dependenciesCache.has(subDir, baseDir)).toEqual(true);
+    }
   });
 
   it('should extract module type from package.json', async () => {
