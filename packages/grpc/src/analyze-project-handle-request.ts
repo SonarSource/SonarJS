@@ -70,6 +70,7 @@ function beginFilesystemCacheAnalysis(
   }
   return installation.beginAnalysis({
     archivePath: cache.archivePath,
+    passthroughDirs: cache.passthroughPaths ?? [],
     rootDir: request.configuration.baseDir,
   });
 }

@@ -61,7 +61,11 @@ export type MapField = keyof Pick<
 >;
 export type OperationSlot = { field: 'content' } | { field: MapField; key: string };
 export type ArchiveMode = 'record' | 'replay';
-export type ArchiveOptions = { archivePath: string; rootDir: string };
+export type ArchiveOptions = {
+  archivePath: string;
+  passthroughDirs?: string[];
+  rootDir: string;
+};
 export type ArchiveEntry = { path: string; node: CacheNode };
 export type ArchiveDocument = {
   magic: string;

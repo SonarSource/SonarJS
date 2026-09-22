@@ -101,6 +101,7 @@ type ArchiveFacade = Pick<
   | 'encodePortablePath'
   | 'get'
   | 'getExists'
+  | 'isPassthrough'
   | 'keyFor'
   | 'recordCacheHit'
   | 'recordCacheMiss'
@@ -134,6 +135,9 @@ const activeArchiveFacade: ArchiveFacade = {
   },
   getExists(key: string, operation?: string) {
     return requireActiveArchive().getExists(key, operation);
+  },
+  isPassthrough(input: fs.PathLike) {
+    return requireActiveArchive().isPassthrough(input);
   },
   set<T>(key: string, operation: string, outcome: FsCacheOutcome<T>) {
     return requireActiveArchive().set(key, operation, outcome);
@@ -187,6 +191,7 @@ const originalFs = {
   fstatSync: fs.fstatSync.bind(fs),
   lstat: fs.lstat.bind(fs),
   lstatSync: fs.lstatSync.bind(fs),
+  mkdirSync: fs.mkdirSync.bind(fs),
   open: fs.open.bind(fs),
   openSync: fs.openSync.bind(fs),
   opendir: fs.opendir.bind(fs),
@@ -205,6 +210,7 @@ const originalFs = {
   realpathSyncNative: fs.realpathSync.native.bind(fs.realpathSync),
   stat: fs.stat.bind(fs),
   statSync: fs.statSync.bind(fs),
+  writeFileSync: fs.writeFileSync.bind(fs),
   writeSync: fs.writeSync.bind(fs),
 };
 
@@ -752,6 +758,19 @@ function unsupportedFilesystemOperation(moduleName: string, name: PropertyKey): 
   error.name = 'UnsupportedFsOperationError';
   error.code = 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION';
   return error;
+}
+
+function requirePassthroughPath(
+  archive: ArchiveFacade,
+  input: fs.PathOrFileDescriptor,
+  operation: string,
+): asserts input is fs.PathLike {
+  if (typeof input === 'number' || !archive.isPassthrough(input)) {
+    throw unsupportedFilesystemOperation(
+      'fs',
+      `${operation} outside a filesystem cache passthrough tree`,
+    );
+  }
 }
 
 function guardUnhandledFilesystemOperations(
@@ -1867,6 +1886,27 @@ function installPatches(archive: ArchiveFacade) {
   patch(fs, patchedProperties, 'fstat', descriptor.fstat);
   patch(fs, patchedProperties, 'closeSync', descriptor.closeSync);
   patch(fs, patchedProperties, 'close', descriptor.close);
+  // Analyzer extensions may emit intermediate artifacts below the scanner work directory. Java
+  // marks that directory as passthrough so these writes remain native and never become part of the
+  // portable project snapshot. Mutations anywhere else inside the archived tree still fail closed.
+  patch(fs, patchedProperties, 'mkdirSync', (input: fs.PathLike, ...args: unknown[]) => {
+    requirePassthroughPath(archive, input, 'mkdirSync');
+    return (originalFs.mkdirSync as unknown as (input: fs.PathLike, ...args: unknown[]) => unknown)(
+      input,
+      ...args,
+    );
+  });
+  patch(
+    fs,
+    patchedProperties,
+    'writeFileSync',
+    (input: fs.PathOrFileDescriptor, ...args: unknown[]) => {
+      requirePassthroughPath(archive, input, 'writeFileSync');
+      return (
+        originalFs.writeFileSync as unknown as (input: fs.PathLike, ...args: unknown[]) => void
+      )(input, ...args);
+    },
+  );
   // Node stdout and stderr use this primitive. Limit the native pass-through to their standard
   // descriptors so diagnostics work without allowing project files to be mutated through an fd.
   patch(fs, patchedProperties, 'writeSync', (fd: number, ...args: unknown[]) => {

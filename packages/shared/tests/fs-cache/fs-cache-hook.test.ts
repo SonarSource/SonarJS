@@ -70,11 +70,13 @@ function runHook({ archive, outside, root }: { archive: string; outside: string;
 
 function runInlineHook({
   archive,
+  passthroughDirs = [],
   preloads = [],
   root,
   script,
 }: {
   archive: string;
+  passthroughDirs?: string[];
   preloads?: string[];
   root: string;
   script: string;
@@ -95,7 +97,13 @@ function runInlineHook({
       root,
       archive,
     ],
-    { encoding: 'utf8' },
+    {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        SONARJS_FS_CACHE_TEST_PASSTHROUGH_DIRS: JSON.stringify(passthroughDirs),
+      },
+    },
   );
 }
 
@@ -990,6 +998,43 @@ describe('filesystem cache hook', () => {
     const replayed = runInlineHook({ archive, root, script });
     expect(replayed.status).not.toBe(0);
     expect(replayed.stderr).toContain('ERR_SONARJS_FS_CACHE_MISS');
+  });
+
+  it('keeps analyzer output directories native while rejecting project mutations', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const passthrough = path.join(root, '.scannerwork');
+    const archive = path.join(temporary, 'analysis.fscache');
+    fs.mkdirSync(root);
+    const script = `
+      import fs from 'node:fs';
+      import path from 'node:path';
+      const outputDirectory = path.join(filesystemCacheRoot, '.scannerwork', 'architecture', 'ts');
+      fs.mkdirSync(outputDirectory, { recursive: true });
+      const output = path.join(outputDirectory, 'main.udg');
+      fs.writeFileSync(output, 'generated');
+      let projectMutation;
+      try {
+        fs.mkdirSync(path.join(filesystemCacheRoot, 'generated'));
+      } catch (error) {
+        projectMutation = { code: error.code, message: error.message };
+      }
+      console.log(JSON.stringify({ content: fs.readFileSync(output, 'utf8'), projectMutation }));
+    `;
+    const result = runInlineHook({ archive, passthroughDirs: [passthrough], root, script });
+
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual({
+      content: 'generated',
+      projectMutation: {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.mkdirSync outside a filesystem cache passthrough tree from Node ${process.version}`,
+      },
+    });
+    expect(fs.readFileSync(path.join(passthrough, 'architecture', 'ts', 'main.udg'), 'utf8')).toBe(
+      'generated',
+    );
   });
 
   it('rejects every unpatched filesystem operation', () => {

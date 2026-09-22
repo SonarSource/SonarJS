@@ -23,7 +23,8 @@ if (!archivePath || !rootDir || !target) {
 }
 
 process.argv = [process.argv[0], target, ...targetArguments];
-const session = installFsCache().beginAnalysis({ archivePath, rootDir });
+const passthroughDirs = JSON.parse(process.env.SONARJS_FS_CACHE_TEST_PASSTHROUGH_DIRS || '[]');
+const session = installFsCache().beginAnalysis({ archivePath, passthroughDirs, rootDir });
 try {
   await import(pathToFileURL(target).href);
 } finally {
