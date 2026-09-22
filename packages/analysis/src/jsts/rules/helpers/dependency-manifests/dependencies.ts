@@ -20,7 +20,13 @@ import fs from 'node:fs';
 import { extname } from 'node:path/posix';
 import { minVersion } from 'semver';
 import type { PackageJson } from 'type-fest';
-import { type NormalizedAbsolutePath, normalizeToAbsolutePath, dirnamePath } from '../files.js';
+import {
+  type NormalizedAbsolutePath,
+  normalizeToAbsolutePath,
+  dirnamePath,
+  getPathRoot,
+} from '../files.js';
+import { isSonarRuntime } from '../sonar-runtime.js';
 import { getClosestDependencyManifestDir } from './closest.js';
 import { getDependencyManifests } from './all-in-parent-dirs.js';
 import { DEFINITELY_TYPED, type DependenciesList, type ModuleType } from './resolvers/types.js';
@@ -137,12 +143,13 @@ export function withCurrentFileInlineDependencies(manifest: DependenciesList): D
 }
 
 export function getDependenciesSanitizePaths(context: Rule.RuleContext): DependenciesList {
-  return withCurrentFileInlineDependencies(
-    getDependencies(
-      dirnamePath(normalizeToAbsolutePath(context.filename)),
-      normalizeToAbsolutePath(context.cwd),
-    ),
-  );
+  const filePath = normalizeToAbsolutePath(context.filename);
+  // ESLint can lint from a nested working directory while Node still resolves packages from
+  // ancestor directories. Sonar analysis has an explicit project boundary and must remain inside it.
+  const topDir = isSonarRuntime(context)
+    ? normalizeToAbsolutePath(context.cwd)
+    : getPathRoot(filePath);
+  return withCurrentFileInlineDependencies(getDependencies(dirnamePath(filePath), topDir));
 }
 
 /**

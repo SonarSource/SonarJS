@@ -21,8 +21,10 @@ import tsParser from '@typescript-eslint/parser';
 import {
   getCurrentFileModuleReferences,
   getFullyQualifiedName,
+  importsOrDependsOnModule,
   isGlobalShadowed,
 } from '../../../../src/jsts/rules/helpers/module.js';
+import path from 'node:path';
 
 function collectModuleReferences(source: string, parser?: LinterNS.Parser): Set<string> {
   let imports = new Set<string>();
@@ -194,6 +196,43 @@ describe('isGlobalShadowed', () => {
     ).toBe(true);
   });
 });
+
+describe('importsOrDependsOnModule', () => {
+  const fixtures = path.join(import.meta.dirname, 'fixtures');
+  const cwd = path.join(fixtures, 'external-library');
+  const filename = path.join(cwd, 'source.js');
+
+  it('finds dependencies above the working directory in standalone ESLint', () => {
+    expect(dependsOnFoo(cwd, filename)).toBe(true);
+  });
+
+  it('keeps dependency lookup bounded by the working directory in Sonar runtime', () => {
+    expect(dependsOnFoo(cwd, filename, { sonarRuntime: true })).toBe(false);
+  });
+});
+
+function dependsOnFoo(cwd: string, filename: string, settings: Record<string, unknown> = {}) {
+  let result = false;
+  const captureDependencies: Rule.RuleModule = {
+    create(context) {
+      result = importsOrDependsOnModule(context, [], ['foo']);
+      return {};
+    },
+  };
+
+  new Linter({ cwd }).verify(
+    '',
+    {
+      languageOptions: { ecmaVersion: 'latest' },
+      plugins: { test: { rules: { captureDependencies } } },
+      rules: { 'test/captureDependencies': 'error' },
+      settings,
+    },
+    filename,
+  );
+
+  return result;
+}
 
 function getShadowing(source: string, name: string): boolean | undefined {
   let shadowed: boolean | undefined;
