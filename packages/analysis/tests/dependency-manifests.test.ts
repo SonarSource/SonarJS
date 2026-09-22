@@ -463,6 +463,31 @@ describe('files', () => {
     expect(statSyncSpy.mock.calls).toHaveLength(0);
   });
 
+  it('should not search above preloaded caches without filesystem access', async ({ mock }) => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'dependencies'));
+    const packageJson = normalizeToAbsolutePath(join(baseDir, 'package.json'));
+    const configuration = createConfiguration({ baseDir, canAccessFileSystem: false });
+    const { files: inputFiles } = await sanitizeInputFiles(
+      {
+        packageJson: {
+          filePath: packageJson,
+          fileContent: await readFile(packageJson),
+        },
+      },
+      configuration,
+    );
+    await initFileStores(configuration, inputFiles);
+    const readdirSyncSpy = mock.method(fs, 'readdirSync');
+    const readFileSyncSpy = mock.method(fs, 'readFileSync');
+    const statSyncSpy = mock.method(fs, 'statSync');
+
+    getDependencyManifests(baseDir, baseDir);
+
+    expect(readdirSyncSpy.mock.calls).toHaveLength(0);
+    expect(readFileSyncSpy.mock.calls).toHaveLength(0);
+    expect(statSyncSpy.mock.calls).toHaveLength(0);
+  });
+
   it('should resolve bun catalog default references for the root package.json consuming its own catalog', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'bun-workspace-default-root-catalog'));
     const configuration = createConfiguration({ baseDir });

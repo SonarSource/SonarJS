@@ -27,7 +27,11 @@ import type {
   Workspace,
 } from './types.js';
 import { type File, NormalizedAbsolutePath, dirnamePath, getPathRoot } from '../../files.js';
-import { PACKAGE_JSON, PNPM_WORKSPACE_YAML } from '../index.js';
+import {
+  PACKAGE_JSON,
+  PNPM_WORKSPACE_YAML,
+  canSearchFileSystemAboveManifestCache,
+} from '../index.js';
 import { closestPatternCache } from '../../find-up/closest.js';
 import { getManifestFileInDir, getParentDirPath } from './helpers.js';
 import { addDependencies, addDependenciesArray } from '../parse.js';
@@ -51,7 +55,9 @@ export const packageJsonManifestResolver: ManifestResolver = {
     const parentOfTopDir = getParentDirPath(topDir);
     const pnpmWorkspaceFile =
       pnpmWorkspaceCache.get(topDir).get(dir) ??
-      (topDir === catalogSearchTopDir || parentOfTopDir === null
+      (topDir === catalogSearchTopDir ||
+      parentOfTopDir === null ||
+      !canSearchFileSystemAboveManifestCache(PNPM_WORKSPACE_YAML, topDir)
         ? undefined
         : pnpmWorkspaceCache.get(catalogSearchTopDir).get(parentOfTopDir));
     const parsedPnpmWorkspace = pnpmWorkspaceFile
@@ -249,13 +255,17 @@ function closestPackageJson(
 ): File | undefined {
   const cache = closestPatternCache.get(PACKAGE_JSON, fileSystem);
   const rootDir = getPathRoot(from);
+  const canSearchAboveTopDir = canSearchFileSystemAboveManifestCache(PACKAGE_JSON, topDir);
   if (from === topDir || from.startsWith(`${topDir}/`)) {
     const file = cache.get(topDir).get(from);
-    if (file || topDir === rootDir) {
+    if (file || topDir === rootDir || !canSearchAboveTopDir) {
       return file;
     }
     const parentOfTopDir = getParentDirPath(topDir);
     return parentOfTopDir === null ? undefined : cache.get(rootDir).get(parentOfTopDir);
+  }
+  if (!canSearchAboveTopDir) {
+    return undefined;
   }
   return cache.get(rootDir).get(from);
 }
