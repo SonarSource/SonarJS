@@ -18,10 +18,11 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
+import type ts from 'typescript';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { childrenOf, findFirstMatchingLocalAncestor } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getTypeAsString, getTypeFromTreeNode } from '../helpers/type.js';
+import { getTypeFromTreeNode, isAnyOrUnknownType } from '../helpers/type.js';
 import {
   getValueOfExpression,
   getUniqueWriteUsageOrNode,
@@ -64,10 +65,35 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+/**
+ * The name heuristic is only a fallback for a receiver the type checker can't resolve
+ * (`any`/`unknown`); a resolved type is decided positively via {@link resolvesToDomWindow}
+ * instead of its printed name, so an alias, an `extends Window` interface, a `Window`-constrained
+ * generic, or a union/intersection member is still recognized even though none of those print as
+ * `"Window"`. A type declaring only `postMessage` (not `frames`) is not recognized as a `Window`.
+ */
 function isWindowObject(node: estree.Node, context: Rule.RuleContext) {
-  const type = getTypeAsString(node, context.sourceCode.parserServices);
-  const hasWindowName = WindowNameVisitor.containsWindowName(node, context);
-  return type.match(/window/i) || type.match(/globalThis/i) || hasWindowName;
+  const services = context.sourceCode.parserServices;
+  const resolvedType = getTypeFromTreeNode(node, services);
+  if (!isAnyOrUnknownType(resolvedType)) {
+    return resolvesToDomWindow(resolvedType);
+  }
+  return WindowNameVisitor.containsWindowName(node, context);
+}
+
+/**
+ * Requires `frames` alongside `postMessage`, since `postMessage` alone is also declared by
+ * `Worker`, `MessagePort`, `BroadcastChannel` and `ServiceWorker`, but `frames` only by `Window`.
+ * Purely structural (not tied to `lib.dom.d.ts`), so `@types/web` projects keep coverage; the
+ * trade-off is a hand-written type declaring both members being mistaken for a `Window`.
+ */
+function resolvesToDomWindow(type: ts.Type): boolean {
+  const members = type.isUnionOrIntersection() ? type.types : [type];
+  return members.some(member => hasMember(member, POST_MESSAGE) && hasMember(member, 'frames'));
+}
+
+function hasMember(type: ts.Type, propertyName: string): boolean {
+  return type.getProperty(propertyName) !== undefined;
 }
 
 function checkPostMessageCall(callExpr: estree.CallExpression, context: Rule.RuleContext) {
@@ -100,7 +126,9 @@ function checkAddEventListenerCall(callExpr: estree.CallExpression, context: Rul
   const { callee, arguments: args } = callExpr;
   if (
     callee.type !== 'MemberExpression' ||
-    !isWindowObject(callee, context) ||
+    // Test the receiver itself, not the `addEventListener` method: the method's own type
+    // (an overloaded signature set) is not a Window and must not decide this.
+    !isWindowObject(callee.object, context) ||
     args.length < 2 ||
     !isMessageTypeEvent(args[0], context) ||
     isWindowAliasedToWorkerGlobal(callee.object, context)
@@ -131,11 +159,11 @@ function checkOnMessageAssignment(
 }
 
 /**
- * Unlike `isWindowObject`, which also accepts any identifier whose name contains 'window',
- * the receiver of an `onmessage` assignment must resolve to `window` or `globalThis` itself.
- * The name heuristic is too coarse here: `onmessage` is also a property of unrelated
- * transports such as WebSocket, so a `wsWindowChannel.onmessage` assignment would be
- * reported without this restriction.
+ * Unlike `isWindowObject`, which falls back to the receiver name only when the type checker
+ * cannot resolve the receiver (`any`/`unknown`), the receiver of an `onmessage` assignment
+ * must resolve to `window` or `globalThis` itself. A name-based fallback is too coarse here:
+ * `onmessage` is also a property of unrelated transports such as WebSocket, so an untyped
+ * `wsWindowChannel.onmessage` assignment would be reported without this restriction.
  *
  * The conditions are ordered by cost: the receiver name rejects the vast majority of `onmessage`
  * assignments without touching the type checker or the scope chain, and the Worker shim lookup
