@@ -14,9 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type { AssignmentExpression, CallExpression, Node } from 'estree';
 import { isIdentifier } from '../../helpers/ast.js';
+import { getNodeParent } from '../../helpers/ancestor.js';
 import { collectPropertyNames, getAncestorsWithParent } from '../helpers.js';
 
 // Matches the contract names used by JSDoc `@implements` annotations and TypeScript
@@ -266,8 +268,11 @@ function isInterfaceShapeDescriptor(node: Node): boolean {
  * (`['then']`, `` [`then`] ``, `[KEY]` where `KEY = 'then'`) — so no further name check is
  * needed here.
  */
-function isThenMemberKey(member: Node & { key?: Node }, node: Node): boolean {
-  return member.key === node;
+function isThenMemberKey(
+  member: TSESTree.MethodDefinition | TSESTree.PropertyDefinition,
+  node: Node,
+): boolean {
+  return (member.key as unknown as Node) === node;
 }
 
 /**
@@ -289,7 +294,7 @@ function isThenMemberKey(member: Node & { key?: Node }, node: Node): boolean {
  */
 function isClassThenMethodWithThenableContract(context: Rule.RuleContext, node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
-  const member = ancestors[0] as (Node & { static?: boolean; key?: Node }) | undefined;
+  const member = ancestors[0] as unknown as TSESTree.Node | undefined;
   if (
     (member?.type !== 'MethodDefinition' && member?.type !== 'PropertyDefinition') ||
     member.static ||
@@ -308,21 +313,10 @@ function isClassThenMethodWithThenableContract(context: Rule.RuleContext, node: 
   return hasExplicitThenableContract(context, containingClass);
 }
 
-// Caches the explicit-thenable-contract check per class, since a class can have more than
-// one 'then'-named member (e.g. a shadowed field) and the JSDoc/heritage-clause lookup is
-// otherwise redone from scratch for each one.
-const thenableContractCache = new WeakMap<Node, boolean>();
-
 function hasExplicitThenableContract(context: Rule.RuleContext, classNode: Node): boolean {
-  const cached = thenableContractCache.get(classNode);
-  if (cached !== undefined) {
-    return cached;
-  }
-  const result =
-    hasJSDocThenableContract(context, classNode) ||
-    hasTypeScriptThenableContract(context, classNode);
-  thenableContractCache.set(classNode, result);
-  return result;
+  return (
+    hasJSDocThenableContract(context, classNode) || hasTypeScriptThenableContract(context, classNode)
+  );
 }
 
 /**
@@ -334,7 +328,7 @@ function hasExplicitThenableContract(context: Rule.RuleContext, classNode: Node)
  */
 function hasJSDocThenableContract(context: Rule.RuleContext, classNode: Node): boolean {
   let commentTarget = classNode;
-  let parent = (commentTarget as Node & { parent?: Node }).parent;
+  let parent = getNodeParent(commentTarget);
   while (
     parent?.type === 'VariableDeclarator' ||
     parent?.type === 'VariableDeclaration' ||
@@ -342,7 +336,7 @@ function hasJSDocThenableContract(context: Rule.RuleContext, classNode: Node): b
     parent?.type === 'ExportDefaultDeclaration'
   ) {
     commentTarget = parent;
-    parent = (commentTarget as Node & { parent?: Node }).parent;
+    parent = getNodeParent(commentTarget);
   }
 
   return context.sourceCode
@@ -380,11 +374,16 @@ function hasImplementsThenableContract(comment: string): boolean {
  * is not mistaken for an explicit thenable contract.
  */
 function hasTypeScriptThenableContract(context: Rule.RuleContext, classNode: Node): boolean {
-  const heritageEntries = (classNode as Node & { implements?: Node[] }).implements ?? [];
-  return heritageEntries.some(entry => {
-    const name = (entry as Node & { expression?: Node }).expression ?? entry;
-    return THENABLE_CONTRACT_PATTERN.test(context.sourceCode.getText(name));
-  });
+  const tsClassNode = classNode as unknown as TSESTree.Node;
+  if (tsClassNode.type !== 'ClassDeclaration' && tsClassNode.type !== 'ClassExpression') {
+    return false;
+  }
+  // `implements` is only populated by the TypeScript ESLint parser; a class parsed as plain
+  // JavaScript has no such field at runtime despite the TSESTree type claiming otherwise.
+  const heritageEntries = tsClassNode.implements ?? [];
+  return heritageEntries.some(entry =>
+    THENABLE_CONTRACT_PATTERN.test(context.sourceCode.getText(entry.expression as unknown as Node)),
+  );
 }
 
 /**

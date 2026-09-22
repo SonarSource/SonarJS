@@ -14,19 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Node } from 'estree';
+import { ancestorsChain } from '../helpers/ancestor.js';
+
+const NO_BOUNDARY_TYPES = new Set<string>();
 
 /**
- * Gets ancestors including the parent relationship for nodes.
+ * Gets ancestors including the parent relationship for nodes, innermost-first.
  */
 export function getAncestorsWithParent(node: Node): Node[] {
-  const ancestors: Node[] = [];
-  let current: (Node & { parent?: Node }) | undefined = (node as Node & { parent?: Node }).parent;
-  while (current) {
-    ancestors.push(current);
-    current = current.parent;
-  }
-  return ancestors;
+  return ancestorsChain(node as unknown as TSESTree.Node, NO_BOUNDARY_TYPES) as unknown as Node[];
 }
 
 /**
