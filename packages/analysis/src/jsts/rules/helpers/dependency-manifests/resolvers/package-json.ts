@@ -26,7 +26,7 @@ import type {
   ModuleType,
   Workspace,
 } from './types.js';
-import { NormalizedAbsolutePath, dirnamePath, getPathRoot } from '../../files.js';
+import { type File, NormalizedAbsolutePath, dirnamePath, getPathRoot } from '../../files.js';
 import { PACKAGE_JSON, PNPM_WORKSPACE_YAML } from '../index.js';
 import { closestPatternCache } from '../../find-up/closest.js';
 import { getManifestFileInDir, getParentDirPath } from './helpers.js';
@@ -48,11 +48,12 @@ export const packageJsonManifestResolver: ManifestResolver = {
     // ESLint was started. Dependency manifest collection remains bounded by topDir.
     const catalogSearchTopDir = getPathRoot(dir);
     const pnpmWorkspaceCache = closestPatternCache.get(PNPM_WORKSPACE_YAML, fileSystem);
+    const parentOfTopDir = getParentDirPath(topDir);
     const pnpmWorkspaceFile =
       pnpmWorkspaceCache.get(topDir).get(dir) ??
-      (topDir === catalogSearchTopDir
+      (topDir === catalogSearchTopDir || parentOfTopDir === null
         ? undefined
-        : pnpmWorkspaceCache.get(catalogSearchTopDir).get(dir));
+        : pnpmWorkspaceCache.get(catalogSearchTopDir).get(parentOfTopDir));
     const parsedPnpmWorkspace = pnpmWorkspaceFile
       ? parsePnpmWorkspace(pnpmWorkspaceFile)
       : undefined;
@@ -65,10 +66,10 @@ export const packageJsonManifestResolver: ManifestResolver = {
     // itself a root unless an ancestor workspace already includes it, otherwise the closest
     // parent package.json with catalogs is the root.
     const isWorkspaceRoot =
-      declaresWorkspaces && !isIncludedInAncestorWorkspace(dir, catalogSearchTopDir, fileSystem);
+      declaresWorkspaces && !isIncludedInAncestorWorkspace(dir, topDir, fileSystem);
     const closestParent = isWorkspaceRoot
       ? undefined
-      : findClosestParentPackageJsonWithCatalogs(dir, catalogSearchTopDir, fileSystem);
+      : findClosestParentPackageJsonWithCatalogs(dir, topDir, fileSystem);
     const catalogSource = mergeCatalogSources(
       closestParent ? getCatalogSource(closestParent) : getCatalogSource(parsedPackageJson),
       parsedPnpmWorkspace,
@@ -185,16 +186,10 @@ function findClosestParentPackageJsonWithCatalogs(
   topDir: NormalizedAbsolutePath,
   fileSystem?: Filesystem,
 ): ExtendedPackageJson | undefined {
-  if (dir === topDir) {
-    // No point in searching for parent package.json if we're already at the top directory.
-    return undefined;
-  }
-
   let currentDir = getParentDirPath(dir);
-  const cache = closestPatternCache.get(PACKAGE_JSON, fileSystem).get(topDir);
 
   while (currentDir !== null) {
-    const file = cache.get(currentDir);
+    const file = closestPackageJson(currentDir, topDir, fileSystem);
     if (!file) {
       return undefined;
     }
@@ -205,9 +200,6 @@ function findClosestParentPackageJsonWithCatalogs(
     }
 
     const fileDir = dirnamePath(file.filePath);
-    if (fileDir === topDir) {
-      return undefined;
-    }
     currentDir = getParentDirPath(fileDir);
   }
 
@@ -226,15 +218,10 @@ function isIncludedInAncestorWorkspace(
   topDir: NormalizedAbsolutePath,
   fileSystem?: Filesystem,
 ): boolean {
-  if (dir === topDir) {
-    return false;
-  }
-
   let currentDir = getParentDirPath(dir);
-  const cache = closestPatternCache.get(PACKAGE_JSON, fileSystem).get(topDir);
 
   while (currentDir !== null) {
-    const file = cache.get(currentDir);
+    const file = closestPackageJson(currentDir, topDir, fileSystem);
     if (!file) {
       return false;
     }
@@ -245,13 +232,32 @@ function isIncludedInAncestorWorkspace(
       return true;
     }
 
-    if (ancestorDir === topDir) {
-      return false;
-    }
     currentDir = getParentDirPath(ancestorDir);
   }
 
   return false;
+}
+
+/**
+ * Use the cache populated from analysis inputs while searching inside topDir. Once the search
+ * moves above topDir, use a filesystem-backed cache rooted at the path root.
+ */
+function closestPackageJson(
+  from: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath,
+  fileSystem?: Filesystem,
+): File | undefined {
+  const cache = closestPatternCache.get(PACKAGE_JSON, fileSystem);
+  const rootDir = getPathRoot(from);
+  if (from === topDir || from.startsWith(`${topDir}/`)) {
+    const file = cache.get(topDir).get(from);
+    if (file || topDir === rootDir) {
+      return file;
+    }
+    const parentOfTopDir = getParentDirPath(topDir);
+    return parentOfTopDir === null ? undefined : cache.get(rootDir).get(parentOfTopDir);
+  }
+  return cache.get(rootDir).get(from);
 }
 
 function declaresWorkspaceDir(

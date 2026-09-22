@@ -44,6 +44,7 @@ import {
 } from '../src/jsts/rules/helpers/dependency-manifests/index.js';
 import { patternInParentsCache } from '../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
 import { Minimatch } from 'minimatch';
+import { sanitizeInputFiles } from '../src/common/input-sanitize.js';
 
 const closestPackageJsonCache = closestPatternCache.get(PACKAGE_JSON);
 const packageJsonsInParentsCache = patternInParentsCache.get(PACKAGE_JSON);
@@ -399,6 +400,52 @@ describe('files', () => {
         ['react-dom', '^19.0.0'],
       ]),
     );
+  });
+
+  it('should resolve bun catalog references from preloaded manifests without filesystem access', async ({
+    mock,
+  }) => {
+    const workspaceDirectory = normalizeToAbsolutePath(
+      join(fixtures, 'bun-nested-workspace-root-included-in-ancestor'),
+    );
+    const packageDirectory = normalizeToAbsolutePath(
+      join(workspaceDirectory, 'member-with-catalog'),
+    );
+    const rootPackageJson = normalizeToAbsolutePath(join(workspaceDirectory, 'package.json'));
+    const memberPackageJson = normalizeToAbsolutePath(join(packageDirectory, 'package.json'));
+    const configuration = createConfiguration({
+      baseDir: workspaceDirectory,
+      canAccessFileSystem: false,
+    });
+    const { files: inputFiles } = await sanitizeInputFiles(
+      {
+        rootPackageJson: {
+          filePath: rootPackageJson,
+          fileContent: await readFile(rootPackageJson),
+        },
+        memberPackageJson: {
+          filePath: memberPackageJson,
+          fileContent: await readFile(memberPackageJson),
+        },
+      },
+      configuration,
+    );
+    const readdirSyncSpy = mock.method(fs, 'readdirSync');
+    const readFileSyncSpy = mock.method(fs, 'readFileSync');
+    const statSyncSpy = mock.method(fs, 'statSync');
+
+    await initFileStores(configuration, inputFiles);
+
+    expect(getDependencyManifests(packageDirectory, workspaceDirectory)[0].dependencies).toEqual(
+      new Map<string | Minimatch, string | undefined>([
+        ['member-with-catalog', '*'],
+        ['react', '^17.0.0'],
+        [new Minimatch('child', { nocase: true, matchBase: true }), undefined],
+      ]),
+    );
+    expect(readdirSyncSpy.mock.calls).toHaveLength(0);
+    expect(readFileSyncSpy.mock.calls).toHaveLength(0);
+    expect(statSyncSpy.mock.calls).toHaveLength(0);
   });
 
   it('should resolve bun catalog default references for the root package.json consuming its own catalog', async () => {
