@@ -108,6 +108,47 @@ describe('ProgramSelectionArchive', () => {
     ]);
   });
 
+  it('restores compiler option paths that point to the project root', () => {
+    const firstRoot = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'selection-')));
+    const archivePath = path.join(firstRoot, 'selection.pb.gz');
+    const file = normalizeToAbsolutePath('src/file.ts', firstRoot);
+    const tsconfig = normalizeToAbsolutePath('tsconfig.json', firstRoot);
+
+    const recorder = new ProgramSelectionArchive(archivePath, firstRoot);
+    recorder.recordConfigured(file, tsconfig, {
+      baseUrl: firstRoot,
+      paths: { '@/*': [firstRoot] },
+      rootDirs: [firstRoot],
+    });
+    recorder.end();
+
+    const secondRoot = normalizeToAbsolutePath(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'selection-restored-')),
+    );
+    const restoredArchivePath = path.join(secondRoot, 'selection.pb.gz');
+    fs.copyFileSync(archivePath, restoredArchivePath);
+    const replay = new ProgramSelectionArchive(restoredArchivePath, secondRoot);
+
+    expect(replay.restoredSelections([normalizeToAbsolutePath('src/file.ts', secondRoot)])).toEqual(
+      [
+        {
+          id: 1,
+          program: {
+            kind: 'configured',
+            tsconfig: normalizeToAbsolutePath('tsconfig.json', secondRoot),
+            compilerOptions: {
+              baseUrl: secondRoot,
+              paths: { '@/*': [secondRoot] },
+              rootDirs: [secondRoot],
+            },
+          },
+          rootNames: [normalizeToAbsolutePath('src/file.ts', secondRoot)],
+          requestedFiles: [normalizeToAbsolutePath('src/file.ts', secondRoot)],
+        },
+      ],
+    );
+  });
+
   it('preserves portable selections when another program is outside the project', () => {
     const root = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'selection-')));
     const archivePath = path.join(root, 'selection.pb.gz');
