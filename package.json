@@ -102,7 +102,7 @@
     "@babel/core": "8.0.5",
     "@babel/eslint-parser": "8.0.5",
     "@eslint-community/regexpp": "4.12.2",
-    "@grpc/grpc-js": "1.14.4",
+    "@grpc/grpc-js": "1.14.5",
     "@protobufjs/base64": "1.1.2",
     "@sonarsource/analyzer-commons-configurations": "2.31.0-5284",
     "@stylistic/eslint-plugin": "5.10.0",
