@@ -340,6 +340,19 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // Explicit thenable contract with a Closure-style nullability prefix ('!') before
+        // the contract name. The word-boundary match must still find the name across it.
+        {
+          code: `
+          /** @implements {!IThenable<?>} */
+          class NonNullThenable {
+            then(onResolve, onReject) {
+              return onResolve('ready');
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
         // Explicit thenable contract on a default-exported class: the JSDoc precedes the
         // 'export default' keywords, not the class declaration itself.
         {
@@ -363,8 +376,8 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
-        // Two 'then'-named members on one annotated class: the second report is served
-        // from the per-class thenable-contract cache rather than re-reading the JSDoc.
+        // Two 'then'-named members (a get/set accessor pair) on one annotated class: both
+        // reports must be suppressed by the same contract.
         {
           code: `
           /** @implements {IThenable<?>} */
