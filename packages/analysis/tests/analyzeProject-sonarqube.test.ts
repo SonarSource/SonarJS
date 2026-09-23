@@ -21,6 +21,7 @@ import { join } from 'node:path/posix';
 import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { analyzeProject, cancelAnalysis } from '../src/analyzeProject.js';
 import {
+  dependencyManifestStore,
   initFileStoresForAnalysis,
   sourceFileStore,
   tsConfigStore,
@@ -47,13 +48,12 @@ import path from 'node:path';
 async function initForTest(
   configOptions: ConfigurationInput,
   inputFiles?: Record<string, ProjectAnalysisFileInput>,
-  skipProjectFileDiscovery = false,
 ) {
   const configuration = createConfigurationFromInput(configOptions);
   const sanitizedFiles = inputFiles
     ? await sanitizeInputFiles(inputFiles, configuration)
     : undefined;
-  await initFileStoresForAnalysis(configuration, sanitizedFiles?.files, skipProjectFileDiscovery);
+  await initFileStoresForAnalysis(configuration, sanitizedFiles?.files);
   return configuration;
 }
 
@@ -124,28 +124,37 @@ describe('SonarQube project analysis', () => {
     ).toBe(true);
   });
 
-  it('should restore the winning program without project discovery and overlay submitted content', async () => {
-    const baseDir = normalizeToAbsolutePath(join(fixtures, 'basic'));
+  it('should restore the winning program after normal project discovery and overlay submitted content', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'program-selection-replay'));
     const filePath = normalizeToAbsolutePath(join(baseDir, 'main.ts'));
     const archivePath = path.join(
       fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-')),
       'selection.pb.gz',
     );
     const recorder = new ProgramSelectionArchive(archivePath, baseDir);
+    const angularRules: RuleConfig[] = [
+      {
+        key: 'S7651',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'ts',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
     const recordingConfiguration = await initForTest(
       { baseDir },
       { [filePath]: { filePath, fileType: 'MAIN' } },
     );
 
     const recorded = await analyzeProject(
-      { rules, bundles: [], programSelection: recorder },
+      { rules: angularRules, bundles: [], programSelection: recorder },
       recordingConfiguration,
     );
     recorder.end();
     const recordedFile = recorded.files[filePath];
-    expect(recordedFile && 'issues' in recordedFile ? recordedFile.issues : undefined).toHaveLength(
-      1,
-    );
+    expect(recordedFile && 'issues' in recordedFile ? recordedFile.issues : undefined).toEqual([
+      expect.objectContaining({ ruleId: 'S7651', line: 4 }),
+    ]);
 
     const replay = new ProgramSelectionArchive(archivePath, baseDir);
     const replayConfiguration = await initForTest(
@@ -154,20 +163,29 @@ describe('SonarQube project analysis', () => {
         [filePath]: {
           filePath,
           fileType: 'MAIN',
-          fileContent: 'const x: number = 1;',
+          fileContent: `import { EventEmitter, Output } from '@angular/core';
+
+// Keep the replay issue location distinct from the file on disk.
+export class SubmittedComponent {
+  @Output() click = new EventEmitter<void>();
+}`,
         },
       },
-      true,
     );
-    expect(tsConfigStore.getTsConfigs()).toEqual([]);
+    expect(tsConfigStore.getTsConfigs()).toEqual([
+      normalizeToAbsolutePath(join(baseDir, 'tsconfig.json')),
+    ]);
+    expect(dependencyManifestStore.getPackageJsons().has(baseDir)).toBe(true);
 
     const restored = await analyzeProject(
-      { rules, bundles: [], programSelection: replay },
+      { rules: angularRules, bundles: [], programSelection: replay },
       replayConfiguration,
     );
 
     const restoredFile = restored.files[filePath];
-    expect(restoredFile && 'issues' in restoredFile ? restoredFile.issues : undefined).toEqual([]);
+    expect(restoredFile && 'issues' in restoredFile ? restoredFile.issues : undefined).toEqual([
+      expect.objectContaining({ ruleId: 'S7651', line: 5 }),
+    ]);
     expect(restored.meta.telemetry?.programCreation).toEqual({
       attempted: 1,
       failed: 0,
@@ -235,7 +253,6 @@ describe('SonarQube project analysis', () => {
     const replayConfiguration = await initForTest(
       { baseDir },
       { [filePath]: { filePath, fileType: 'MAIN', fileContent: 'const x = 1;' } },
-      true,
     );
     const restored = await analyzeProject(
       { rules, bundles: [], programSelection: replay },
@@ -257,7 +274,6 @@ describe('SonarQube project analysis', () => {
     const configuration = await initForTest(
       { baseDir, createTSProgramForOrphanFiles: false },
       { [filePath]: { filePath, fileType: 'MAIN', fileContent: 'const x = 1;' } },
-      true,
     );
 
     const result = await analyzeProject(

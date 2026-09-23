@@ -127,10 +127,7 @@ export async function handleAnalyzeProjectRequest(
           programSelection = beginProgramSelectionAnalysis(request.data);
           return await withAnalysisCancellation(async () => {
             logHeapStatistics(workerData?.debugMemory);
-            const sanitizedInput = await normalizeAnalyzeProjectRequest(
-              request.data,
-              programSelection?.isReplay(),
-            );
+            const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
             const wrappedIncrementalResultsChannel = incrementalResultsChannel
               ? (event: AnalyzeProjectIncrementalEvent['event']) =>
                   incrementalResultsChannel({
