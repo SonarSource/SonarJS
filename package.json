@@ -99,8 +99,8 @@
   },
   "dependencies": {
     "@angular-eslint/eslint-plugin": "22.5.0",
-    "@babel/core": "8.0.5",
-    "@babel/eslint-parser": "8.0.5",
+    "@babel/core": "8.0.6",
+    "@babel/eslint-parser": "8.0.6",
     "@eslint-community/regexpp": "4.12.2",
     "@grpc/grpc-js": "1.14.5",
     "@protobufjs/base64": "1.1.2",
