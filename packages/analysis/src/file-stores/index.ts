@@ -58,20 +58,15 @@ function resetFileStores() {
 export async function initFileStoresForAnalysis(
   configuration: Configuration,
   inputFiles?: AnalyzableFiles,
-  skipProjectFileDiscovery = false,
 ) {
   if (!configuration.sonarlint) {
     resetFileStores();
     clearSourceFileContentCache();
   }
-  await initFileStores(configuration, inputFiles, skipProjectFileDiscovery);
+  await initFileStores(configuration, inputFiles);
 }
 
-export async function initFileStores(
-  configuration: Configuration,
-  inputFiles?: AnalyzableFiles,
-  skipProjectFileDiscovery = false,
-) {
+export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
 
@@ -91,7 +86,7 @@ export async function initFileStores(
     store.setup(configuration);
   }
 
-  if (canAccessFileSystem && !skipProjectFileDiscovery) {
+  if (canAccessFileSystem) {
     await findFiles(baseDir, jsTsExclusions, async (entry, filePath) => {
       for (const store of pendingStores) {
         if (entry.isDirectory()) {
