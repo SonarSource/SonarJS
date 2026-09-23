@@ -105,7 +105,7 @@ describe('analyze-project request handler', () => {
       result: {
         output: {
           files: {
-            [path.join(recordRoot, 'component.ts')]: {
+            [normalizeToAbsolutePath(path.join(recordRoot, 'component.ts'))]: {
               issues: [expect.objectContaining({ line: 3, ruleId: 'S7651' })],
             },
           },
@@ -125,7 +125,7 @@ describe('analyze-project request handler', () => {
       result: {
         output: {
           files: {
-            [path.join(replayRoot, 'component.ts')]: {
+            [normalizeToAbsolutePath(path.join(replayRoot, 'component.ts'))]: {
               issues: [expect.objectContaining({ line: 5, ruleId: 'S7651' })],
             },
           },
