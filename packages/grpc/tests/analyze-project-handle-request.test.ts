@@ -23,7 +23,7 @@ import {
 } from '../src/analyze-project-handle-request.js';
 import type { AnalyzeProjectIncrementalEvent } from '../src/analyze-project-request.js';
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
-import { FS_CACHE_INSTALLATION } from '../../shared/src/fs-cache/hook.js';
+import { FS_CACHE_INSTALLATION, installFsCache } from '../../shared/src/fs-cache/hook.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -31,6 +31,7 @@ import path from 'node:path';
 
 const workerData: WorkerData = { debugMemory: false };
 type AnalyzeProjectRequest = analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectRequest;
+const { AnalysisMode, FileType, JsTsLanguage } = analyzeProjectProto.analyzeproject.v1;
 
 afterEach(() => {
   delete (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION];
@@ -50,6 +51,90 @@ function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
 }
 
 describe('analyze-project request handler', () => {
+  it('replays dependency-gated rules after normal project discovery', async () => {
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'analyze-project-replay-'));
+    const recordRoot = path.join(temporary, 'record');
+    const replayRoot = path.join(temporary, 'replay');
+    const rulesWorkdir = path.join(temporary, 'work');
+    const archivePath = path.join(rulesWorkdir, 'filesystem.pb.gz');
+    const programSelectionPath = path.join(rulesWorkdir, 'program-selection.pb.gz');
+    fs.mkdirSync(recordRoot);
+    fs.mkdirSync(rulesWorkdir);
+    fs.writeFileSync(
+      path.join(recordRoot, 'package.json'),
+      '{"dependencies":{"@angular/core":"20.0.0"}}',
+    );
+    fs.writeFileSync(
+      path.join(recordRoot, 'tsconfig.json'),
+      '{"compilerOptions":{"experimentalDecorators":true},"files":["component.ts"]}',
+    );
+    fs.writeFileSync(
+      path.join(recordRoot, 'component.ts'),
+      "import { EventEmitter, Output } from '@angular/core';\nclass Component {\n  @Output() click = new EventEmitter<void>();\n}",
+    );
+    (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
+
+    const createRequest = (baseDir: string, sourceLine: number): AnalyzeProjectRequest => ({
+      configuration: { baseDir },
+      files: {
+        [path.join(baseDir, 'component.ts')]: {
+          fileContent: `${'\n'.repeat(sourceLine - 3)}import { EventEmitter, Output } from '@angular/core';\nclass Component {\n  @Output() click = new EventEmitter<void>();\n}`,
+          fileType: FileType.FILE_TYPE_MAIN,
+        },
+      },
+      rules: [
+        {
+          key: 'S7651',
+          configurations: [],
+          fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+          language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+          analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+        },
+      ],
+      cssRules: [],
+      bundles: [],
+      rulesWorkdir,
+      filesystemCache: { archivePath, programSelectionPath },
+    });
+
+    const recorded = await handleAnalyzeProjectRequest(
+      { type: 'on-analyze-project', data: createRequest(recordRoot, 3) },
+      workerData,
+    );
+    expect(recorded).toMatchObject({
+      result: {
+        output: {
+          files: {
+            [path.join(recordRoot, 'component.ts')]: {
+              issues: [expect.objectContaining({ line: 3, ruleId: 'S7651' })],
+            },
+          },
+        },
+      },
+      type: 'success',
+    });
+    expect(fs.statSync(programSelectionPath).size).toBeGreaterThan(0);
+
+    fs.rmSync(recordRoot, { force: true, recursive: true });
+    fs.mkdirSync(replayRoot);
+    const replayed = await handleAnalyzeProjectRequest(
+      { type: 'on-analyze-project', data: createRequest(replayRoot, 5) },
+      workerData,
+    );
+    expect(replayed).toMatchObject({
+      result: {
+        output: {
+          files: {
+            [path.join(replayRoot, 'component.ts')]: {
+              issues: [expect.objectContaining({ line: 5, ruleId: 'S7651' })],
+            },
+          },
+        },
+      },
+      type: 'success',
+    });
+  });
+
   it('activates and ends the request filesystem cache session', async () => {
     const sessions: Array<Record<string, unknown>> = [];
     (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = {
