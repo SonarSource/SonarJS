@@ -350,9 +350,11 @@ export class ProgramSelectionArchive {
   }
 
   private restoreCompilerOptionPath(value: string): string {
-    return value.startsWith(PROJECT_RELATIVE_PATH_PREFIX)
-      ? this.fromRelative(value.slice(PROJECT_RELATIVE_PATH_PREFIX.length))
-      : value;
+    if (!value.startsWith(PROJECT_RELATIVE_PATH_PREFIX)) {
+      return value;
+    }
+    const relativePath = value.slice(PROJECT_RELATIVE_PATH_PREFIX.length);
+    return relativePath === '' ? this.baseDir : this.fromRelative(relativePath);
   }
 
   private mapCompilerOptionPaths(
