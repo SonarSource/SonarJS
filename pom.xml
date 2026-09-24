@@ -226,13 +226,6 @@
         <version>${sonarlint.plugin.api.version}</version>
         <scope>test</scope>
       </dependency>
-      <!-- Override SonarLint's transitive 2.22.2 until it picks up the CVE-2026-89407 fix. -->
-      <dependency>
-        <groupId>com.fasterxml.jackson.core</groupId>
-        <artifactId>jackson-core</artifactId>
-        <version>2.22.3</version>
-        <scope>test</scope>
-      </dependency>
       <dependency>
         <groupId>org.sonarsource.orchestrator</groupId>
         <artifactId>sonar-orchestrator-junit5</artifactId>
