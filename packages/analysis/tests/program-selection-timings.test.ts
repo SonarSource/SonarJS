@@ -15,11 +15,11 @@ describe('ReplayTimings', () => {
   it('aggregates repeated phases in one path-free request record', async () => {
     const log = mock.method(console, 'log', () => undefined);
     try {
-      const timings = new ReplayTimings();
+      const timings = new ReplayTimings('worker-42');
       timings.measure('selectionLookup', () => 1);
       await timings.measureAsync('selectionLookup', async () => 2);
       timings.measure('typescriptProgramCreation', () => undefined);
-      timings.log('worker-42', 'success', 'replay');
+      timings.log('success', 'replay');
 
       expect(log.mock.callCount()).toBe(1);
       const line = log.mock.calls[0].arguments[0] as string;
@@ -43,18 +43,59 @@ describe('ReplayTimings', () => {
   it('records a failed phase before logging the request failure', () => {
     const log = mock.method(console, 'log', () => undefined);
     try {
-      const timings = new ReplayTimings();
+      const timings = new ReplayTimings('worker-43');
       expect(() =>
         timings.measure('programSelectionLoad', () => {
           throw new Error('broken');
         }),
       ).toThrow('broken');
-      timings.log('worker-43', 'failure', 'record');
+      timings.log('failure', 'record');
       const line = log.mock.calls[0].arguments[0] as string;
       expect(JSON.parse(line.slice('Filesystem cache analysis timing '.length))).toMatchObject({
         requestId: 'worker-43',
         outcome: 'failure',
         phases: { programSelectionLoad: { count: 1 } },
+      });
+    } finally {
+      log.mock.restore();
+    }
+  });
+
+  it('emits opt-in memory snapshots at milestones before request completion', () => {
+    const log = mock.method(console, 'log', () => undefined);
+    try {
+      const timings = new ReplayTimings('worker-44', true);
+      timings.measure('filesystemArchiveLoad', () => undefined);
+      timings.measure('programSelectionLoad', () => undefined);
+      timings.measure('typescriptProgramCreation', () => undefined);
+      timings.measure('fileAnalysis', () => undefined);
+
+      const snapshotPrefix = 'Filesystem cache memory snapshot ';
+      const snapshots = () =>
+        log.mock.calls
+          .map(call => call.arguments[0] as string)
+          .filter(line => line.startsWith(snapshotPrefix))
+          .map(line => JSON.parse(line.slice(snapshotPrefix.length)));
+      expect(snapshots().map(snapshot => snapshot.stage)).toEqual([
+        'filesystemArchiveLoad',
+        'programSelectionLoad',
+        'typescriptProgramCreation',
+      ]);
+      timings.log('success', 'replay');
+      expect(snapshots().map(snapshot => snapshot.stage)).toEqual([
+        'filesystemArchiveLoad',
+        'programSelectionLoad',
+        'typescriptProgramCreation',
+        'requestCompletion',
+      ]);
+      expect(snapshots()[0]).toMatchObject({
+        requestId: 'worker-44',
+        count: 1,
+        rssMiB: expect.any(Number),
+        heapUsedMiB: expect.any(Number),
+        externalMiB: expect.any(Number),
+        arrayBuffersMiB: expect.any(Number),
+        heapLimitMiB: expect.any(Number),
       });
     } finally {
       log.mock.restore();
