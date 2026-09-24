@@ -506,6 +506,39 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void existing_node_should_not_use_the_managed_startup_timeout_when_unavailable() {
+    bridgeServer = spy(createUnitBridgeServer(300));
+    doReturn("60000").when(bridgeServer).getExistingNodeProcessPort();
+    doReturn(false).when(bridgeServer).waitChannelReady(5_000);
+
+    assertThatThrownBy(() -> bridgeServer.startServerLazily(serverConfig)).isInstanceOf(
+      ServerAlreadyFailedException.class
+    );
+
+    verify(bridgeServer).waitChannelReady(5_000);
+    verify(bridgeServer, never()).waitChannelReady(300_000);
+  }
+
+  @Test
+  void existing_node_can_become_ready_during_the_short_connection_wait() throws Exception {
+    bridgeServer = spy(createUnitBridgeServer(300));
+    doReturn("60000").when(bridgeServer).getExistingNodeProcessPort();
+    doAnswer(invocation -> {
+      Thread.sleep(100);
+      return true;
+    })
+      .when(bridgeServer)
+      .waitChannelReady(5_000);
+    doReturn(true).when(bridgeServer).isAlive();
+
+    bridgeServer.startServerLazily(serverConfig);
+
+    verify(bridgeServer).waitChannelReady(5_000);
+    verify(bridgeServer, never()).startServer(any());
+    assertThat(logTester.logs(INFO)).contains("Using existing Node.js process on port 60000");
+  }
+
+  @Test
   void should_log_configured_port_when_existing_node_is_unavailable() {
     bridgeServer = spy(createUnitBridgeServer(SHORT_STARTUP_TIMEOUT_SECONDS));
     var bridgeServerMock = bridgeServer;
