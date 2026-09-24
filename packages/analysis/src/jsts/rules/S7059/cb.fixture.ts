@@ -37,6 +37,11 @@ class TaskQueue {
 class SentinelSyntax {
   constructor(ready: boolean) {
     this.tail = (Promise /* ready */ . resolve(/* no value */));
+    this.tail = Promise.resolve() as Promise<void>;
+    this.tail = Promise.resolve() satisfies Promise<void>;
+    this.tail = Promise.resolve()!;
+    this.tail = <Promise<void>>Promise.resolve();
+    this.tail = ((<Promise<void>>Promise.resolve()) satisfies Promise<void>)! as Promise<void>;
     if (ready) {
       this.tail = Promise.resolve();
     }
@@ -47,6 +52,7 @@ class SentinelSyntax {
 class PromiseArguments {
   constructor(thenable: PromiseLike<void>) {
     this.tail = Promise.resolve(undefined); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
+    this.tail = Promise.resolve(undefined) as Promise<void>; // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
     this['tail'] = Promise.resolve(undefined); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
     this.tail = Promise.resolve(null); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
     this.tail = Promise.resolve(1); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
@@ -61,6 +67,7 @@ class AsynchronousOperations {
     this.tail = Promise.resolve().then(() => this.data = fetchData()); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
     this.tail = Promise.resolve().catch(() => {}); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
     this.tail = Promise.resolve().finally(() => {}); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
+    this.tail = Promise.resolve().then(() => {}) satisfies Promise<void>; // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
     this.tail = Promise.reject(); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
     this.tail = Promise.all([]); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
     this.tail = Promise.race([]); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
@@ -80,6 +87,7 @@ class ShadowedPromiseObject {
   constructor() {
     const Promise = { resolve: async () => {} };
     this.tail = Promise.resolve(); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
+    this.tail = Promise.resolve()!; // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
   }
 }
 
@@ -111,6 +119,8 @@ class OtherPromiseUses {
     this['tail'] ||= Promise.resolve(); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
     Promise.resolve(); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
     this.tail = wrap(Promise.resolve()); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
+    this.tail = <Promise<void>><unknown>wrap(Promise.resolve()); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
+    this.tail = (fetchData(), Promise.resolve()) as Promise<void>; // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
     this.tail = Promise.resolve(), fetchData(); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
     fetchData(), this.tail = Promise.resolve(); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}
     return Promise.resolve(); // Noncompliant {{Refactor this asynchronous operation outside of the constructor.}}

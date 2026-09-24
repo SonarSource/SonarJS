@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isThenable } from '../helpers/type.js';
-import { isFunctionNode, isStaticMethodCall } from '../helpers/ast.js';
+import { isFunctionNode, isStaticMethodCall, unwrapTypeScriptExpression } from '../helpers/ast.js';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type ts from 'typescript';
@@ -79,7 +79,7 @@ export const rule: Rule.RuleModule = {
       if (
         assignment.type !== 'AssignmentExpression' ||
         assignment.operator !== '=' ||
-        assignment.right !== node ||
+        unwrapTypeScriptExpression(assignment.right) !== node ||
         assignment.left.type !== 'MemberExpression' ||
         assignment.left.object.type !== 'ThisExpression' ||
         (assignment.left.computed
