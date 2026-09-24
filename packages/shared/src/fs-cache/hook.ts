@@ -110,7 +110,7 @@ type ArchiveFacade = Pick<
   | 'recordCacheMiss'
   | 'set'
 > & { readonly mode: FsCacheArchive['mode'] | undefined };
-export type FsCacheSession = { end(): void };
+export type FsCacheSession = { end(): void; mode?: FsCacheArchive['mode'] };
 export type FsCacheInstallation = {
   beginAnalysis(options: ArchiveOptions): FsCacheSession;
   getStatistics(): { hits: number; misses: number; paths: number };
@@ -2091,6 +2091,7 @@ export function installFsCache(): FsCacheInstallation {
       activeArchive = archive;
       let ended = false;
       return {
+        mode: archive.mode,
         end() {
           if (ended) {
             return;

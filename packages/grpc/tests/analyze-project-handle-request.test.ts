@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import { afterEach, describe, it } from 'node:test';
+import { afterEach, describe, it, mock } from 'node:test';
 import { expect } from 'expect';
 import {
   handleAnalyzeProjectRequest,
@@ -117,10 +117,39 @@ describe('analyze-project request handler', () => {
 
     fs.rmSync(recordRoot, { force: true, recursive: true });
     fs.mkdirSync(replayRoot);
-    const replayed = await handleAnalyzeProjectRequest(
-      { type: 'on-analyze-project', data: createRequest(replayRoot, 5) },
-      workerData,
-    );
+    const log = mock.method(console, 'log', () => undefined);
+    let replayed: Awaited<ReturnType<typeof handleAnalyzeProjectRequest>>;
+    try {
+      replayed = await handleAnalyzeProjectRequest(
+        { type: 'on-analyze-project', data: createRequest(replayRoot, 5) },
+        workerData,
+        undefined,
+        'replay-123',
+      );
+      const timingLine = log.mock.calls
+        .map(call => call.arguments[0])
+        .find(
+          value =>
+            typeof value === 'string' && value.startsWith('Filesystem cache analysis timing '),
+        );
+      expect(timingLine).toBeDefined();
+      const timing = JSON.parse(
+        (timingLine as string).slice('Filesystem cache analysis timing '.length),
+      );
+      expect(timing).toMatchObject({
+        requestId: 'replay-123',
+        mode: 'replay',
+        outcome: 'success',
+        phases: {
+          filesystemArchiveLoad: { count: 1 },
+          programSelectionLoad: { count: 1 },
+          typescriptProgramCreation: { count: 1 },
+          fileAnalysis: { count: 1 },
+        },
+      });
+    } finally {
+      log.mock.restore();
+    }
     expect(replayed).toMatchObject({
       result: {
         output: {
