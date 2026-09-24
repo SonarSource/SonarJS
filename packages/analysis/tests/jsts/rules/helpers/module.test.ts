@@ -15,6 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it } from 'node:test';
+import fs from 'node:fs';
+import { tmpdir } from 'node:os';
 import { expect } from 'expect';
 import { Linter, type Linter as LinterNS, type Rule } from 'eslint';
 import tsParser from '@typescript-eslint/parser';
@@ -28,6 +30,7 @@ import {
   getReactVersion,
   getVueVersion,
 } from '../../../../src/jsts/rules/helpers/dependency-manifests/dependencies.js';
+import { getPackageJsonManifestsSanitizePaths } from '../../../../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
 import path from 'node:path';
 
 function collectModuleReferences(source: string, parser?: LinterNS.Parser): Set<string> {
@@ -205,6 +208,8 @@ describe('importsOrDependsOnModule', () => {
   const fixtures = path.join(import.meta.dirname, 'fixtures');
   const cwd = path.join(fixtures, 'external-library');
   const filename = path.join(cwd, 'source.js');
+  const frameworkCwd = path.join(fixtures, 'framework-versions', 'app');
+  const frameworkFilename = path.join(frameworkCwd, 'source.js');
 
   it('finds dependencies above the working directory in standalone ESLint', () => {
     expect(dependsOnFoo(cwd, filename)).toBe(true);
@@ -215,11 +220,42 @@ describe('importsOrDependsOnModule', () => {
   });
 
   it('finds framework versions above the working directory in standalone ESLint', () => {
-    expect(getFrameworkVersions(cwd, filename)).toEqual(['19.1.0', '^3.4.0']);
+    expect(getFrameworkVersions(frameworkCwd, frameworkFilename)).toEqual(['18.2.0', '^3.4.0']);
   });
 
   it('keeps framework version lookup bounded in Sonar runtime', () => {
-    expect(getFrameworkVersions(cwd, filename, { sonarRuntime: true })).toEqual([null, null]);
+    expect(getFrameworkVersions(frameworkCwd, frameworkFilename, { sonarRuntime: true })).toEqual([
+      null,
+      null,
+    ]);
+  });
+
+  it('ignores dependencies outside the repository containing the linted file', t => {
+    const ancestor = fs.mkdtempSync(path.join(tmpdir(), 'sonarjs-dependency-boundary-'));
+    t.after(() => fs.rmSync(ancestor, { recursive: true, force: true }));
+    fs.writeFileSync(path.join(ancestor, 'package.json'), '{"dependencies":{"foo":"1.0.0"}}');
+    const project = path.join(ancestor, 'project');
+    const projectCwd = path.join(project, 'app');
+    fs.mkdirSync(path.join(project, '.git'), { recursive: true });
+    fs.mkdirSync(projectCwd);
+
+    expect(dependsOnFoo(projectCwd, path.join(projectCwd, 'source.js'))).toBe(false);
+    expect(hasPackageJson(projectCwd, path.join(projectCwd, 'source.js'))).toBe(false);
+
+    const projectWithManifest = path.join(ancestor, 'project-with-manifest');
+    const nestedCwd = path.join(projectWithManifest, 'app');
+    fs.mkdirSync(path.join(projectWithManifest, '.git'), { recursive: true });
+    fs.mkdirSync(nestedCwd);
+    fs.writeFileSync(path.join(projectWithManifest, 'package.json'), '{"private":true}');
+    const nestedFilename = path.join(nestedCwd, 'source.js');
+    expect(hasPackageJson(nestedCwd, nestedFilename)).toBe(true);
+    expect(hasPackageJson(nestedCwd, nestedFilename, { sonarRuntime: true })).toBe(false);
+
+    const unversionedCwd = path.join(ancestor, 'unversioned', 'app');
+    fs.mkdirSync(unversionedCwd, { recursive: true });
+    const unversionedFilename = path.join(unversionedCwd, 'source.js');
+    expect(dependsOnFoo(unversionedCwd, unversionedFilename)).toBe(false);
+    expect(hasPackageJson(unversionedCwd, unversionedFilename)).toBe(false);
   });
 });
 
@@ -265,6 +301,29 @@ function getFrameworkVersions(
       languageOptions: { ecmaVersion: 'latest' },
       plugins: { test: { rules: { captureVersions } } },
       rules: { 'test/captureVersions': 'error' },
+      settings,
+    },
+    filename,
+  );
+
+  return result;
+}
+
+function hasPackageJson(cwd: string, filename: string, settings: Record<string, unknown> = {}) {
+  let result = false;
+  const captureManifest: Rule.RuleModule = {
+    create(context) {
+      result = getPackageJsonManifestsSanitizePaths(context).length > 0;
+      return {};
+    },
+  };
+
+  new Linter({ cwd }).verify(
+    '',
+    {
+      languageOptions: { ecmaVersion: 'latest' },
+      plugins: { test: { rules: { captureManifest } } },
+      rules: { 'test/captureManifest': 'error' },
       settings,
     },
     filename,

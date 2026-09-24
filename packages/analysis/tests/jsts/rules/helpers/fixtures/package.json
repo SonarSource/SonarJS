@@ -5,8 +5,7 @@
       "multiline",
       "comment"
     ],
-    "foo": "file:bar",
-    "vue": "^3.4.0"
+    "foo": "file:bar"
   },
   "resolutions": {
     "//": "This is a comment."
