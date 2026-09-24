@@ -548,6 +548,26 @@ describe('S7739', () => {
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
+        // True Positive: defineProperty on an arrow's lexical this is not a Promise/Deferred instance
+        {
+          code: `
+          exports.Promise = () => {
+            Object.defineProperty(this, 'then', { value: function () {} });
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: Reflect.defineProperty has the same lexical-this boundary
+        {
+          code: `
+          exports.Deferred = () => {
+            Reflect.defineProperty(this, 'then', { value: function () {} });
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
         // True Positive: non-Promise/Deferred member target is not an intentional thenable
         {
           code: `

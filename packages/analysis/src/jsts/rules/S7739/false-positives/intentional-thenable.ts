@@ -158,13 +158,16 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node, node: Node): bool
 }
 
 function isThisThenAssignment(node: Node): boolean {
-  const [member, assignment] = getAncestorsWithParent(node);
+  const [parent, assignment] = getAncestorsWithParent(node);
+  if (parent?.type === 'CallExpression' && parent.arguments[1] === node) {
+    return parent.arguments[0]?.type === 'ThisExpression';
+  }
   return (
-    member?.type === 'MemberExpression' &&
-    member.object.type === 'ThisExpression' &&
-    member.property === node &&
+    parent?.type === 'MemberExpression' &&
+    parent.object.type === 'ThisExpression' &&
+    parent.property === node &&
     assignment?.type === 'AssignmentExpression' &&
-    assignment.left === member
+    assignment.left === parent
   );
 }
 
