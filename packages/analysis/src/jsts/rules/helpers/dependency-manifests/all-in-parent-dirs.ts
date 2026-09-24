@@ -30,6 +30,7 @@ import { type DependencyManifest, type ManifestResolver } from './resolvers/type
 import { denoManifestResolver } from './resolvers/deno.js';
 import { parsePackageJson } from './parsed-dependency-files.js';
 import { packageJsonManifestResolver } from './resolvers/package-json.js';
+import { getDependencyTopDir } from './top-dir.js';
 
 /**
  * Returns the project manifests that are used to resolve the dependencies imported by
@@ -52,9 +53,10 @@ export const getPackageJsonManifestsSanitizePaths = (
   context: Rule.RuleContext,
   fileSystem?: Filesystem,
 ): Array<PackageJson> => {
+  const filePath = normalizeToAbsolutePath(context.filename);
   return getPackageJsonManifests(
-    dirnamePath(normalizeToAbsolutePath(context.filename)),
-    normalizeToAbsolutePath(context.cwd),
+    dirnamePath(filePath),
+    getDependencyTopDir(context, filePath),
     fileSystem,
   );
 };

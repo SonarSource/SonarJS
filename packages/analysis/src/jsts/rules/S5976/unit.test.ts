@@ -18,6 +18,9 @@ import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/ru
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 import path from 'node:path';
+import { Linter } from 'eslint';
+import { expect } from 'expect';
+import { readFileSync } from 'node:fs';
 
 const MESSAGE = 'Replace these 3 tests with a single Parameterized one.';
 const MESSAGE_4 = 'Replace these 4 tests with a single Parameterized one.';
@@ -31,6 +34,22 @@ const SONAR_RUNTIME_MESSAGE = JSON.stringify({
 });
 
 describe('S5976', () => {
+  it('finds Jest above the ESLint working directory', () => {
+    const cwd = path.join(import.meta.dirname, 'fixtures', 'jest', 'app');
+    const filename = path.join(cwd, 'test.js');
+    const messages = new Linter({ cwd }).verify(
+      readFileSync(filename, 'utf8'),
+      {
+        plugins: { sonarjs: { rules: { 'parameterized-tests': rule } } },
+        rules: { 'sonarjs/parameterized-tests': 'error' },
+      },
+      filename,
+    );
+
+    expect(messages).toHaveLength(1);
+    expect(messages[0].message).toBe(MESSAGE);
+  });
+
   it('S5976', () => {
     const ruleTester = new DefaultParserRuleTester();
     const fixtures = path.join(import.meta.dirname, 'fixtures');
