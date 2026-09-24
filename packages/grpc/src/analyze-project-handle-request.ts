@@ -122,7 +122,7 @@ export async function handleAnalyzeProjectRequest(
 ): Promise<RequestResult<AnalyzeProjectResponse | void>> {
   const timings =
     request.type === 'on-analyze-project' && request.data.filesystemCache
-      ? new ReplayTimings()
+      ? new ReplayTimings(requestId, workerData?.debugMemory)
       : undefined;
   let cacheMode: 'record' | 'replay' = 'record';
   let outcome: 'success' | 'failure' = 'failure';
@@ -216,6 +216,6 @@ export async function handleAnalyzeProjectRequest(
       reason: err instanceof InvalidAnalyzeProjectRequestError ? 'invalid_request' : 'runtime',
     };
   } finally {
-    timings?.log(requestId, outcome, cacheMode);
+    timings?.log(outcome, cacheMode);
   }
 }
