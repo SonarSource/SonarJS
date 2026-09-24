@@ -186,11 +186,11 @@ describe('S7739', () => {
         // False Positive Pattern 5g: Arrow assigned to a namespaced Promise property
         {
           code: `
-          exports.Promise = () => {
-            this.then = function (resolve, reject) {
+          exports.Promise = () => ({
+            then: function (resolve, reject) {
               return this._promise.then(resolve, reject);
-            };
-          };
+            },
+          });
         `,
           filename: testFilePath,
         },
@@ -533,6 +533,16 @@ describe('S7739', () => {
           code: `
           ns[Deferred] = function () {
             this.then = function (cb) { this.cb = cb; };
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: an arrow's lexical this is not a Promise/Deferred instance
+        {
+          code: `
+          exports.Promise = () => {
+            this.then = function (callback) { this.callback = callback; };
           };
         `,
           filename: testFilePath,

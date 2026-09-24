@@ -131,8 +131,11 @@ function isPromiseOrDeferredAssignmentTarget(target: Node): boolean {
 /**
  * Checks if an ancestor is a function expression/arrow assigned to 'Promise' or 'Deferred'.
  */
-function isPromiseOrDeferredFunctionExpression(ancestor: Node): boolean {
+function isPromiseOrDeferredFunctionExpression(ancestor: Node, node: Node): boolean {
   if (ancestor.type !== 'FunctionExpression' && ancestor.type !== 'ArrowFunctionExpression') {
+    return false;
+  }
+  if (ancestor.type === 'ArrowFunctionExpression' && isThisThenAssignment(node)) {
     return false;
   }
   const funcParent = (ancestor as Node & { parent?: Node }).parent;
@@ -151,6 +154,17 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node): boolean {
   return (
     funcParent.type === 'AssignmentExpression' &&
     isPromiseOrDeferredAssignmentTarget(funcParent.left)
+  );
+}
+
+function isThisThenAssignment(node: Node): boolean {
+  const [member, assignment] = getAncestorsWithParent(node);
+  return (
+    member?.type === 'MemberExpression' &&
+    member.object.type === 'ThisExpression' &&
+    member.property === node &&
+    assignment?.type === 'AssignmentExpression' &&
+    assignment.left === member
   );
 }
 
@@ -179,7 +193,7 @@ function isInsidePromiseOrDeferredDefinition(node: Node): boolean {
   return ancestors.some(
     ancestor =>
       isPromiseOrDeferredFunctionDeclaration(ancestor) ||
-      isPromiseOrDeferredFunctionExpression(ancestor) ||
+      isPromiseOrDeferredFunctionExpression(ancestor, node) ||
       isPromiseOrDeferredClass(ancestor),
   );
 }
@@ -329,7 +343,8 @@ function isClassThenMethodWithThenableContract(context: Rule.RuleContext, node: 
 
 function hasExplicitThenableContract(context: Rule.RuleContext, classNode: Node): boolean {
   return (
-    hasJSDocThenableContract(context, classNode) || hasTypeScriptThenableContract(context, classNode)
+    hasJSDocThenableContract(context, classNode) ||
+    hasTypeScriptThenableContract(context, classNode)
   );
 }
 
