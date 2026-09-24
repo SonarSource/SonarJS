@@ -152,15 +152,21 @@ describe('analyze-project worker', () => {
     const parentThread = new FakeParentThread();
     const request = createAnalyzeProjectRequest();
 
-    registerAnalyzeProjectWorkerMessageHandler(parentThread, workerData, async runtimeRequest => {
-      handledRequests.push(runtimeRequest);
-      return result;
-    });
+    registerAnalyzeProjectWorkerMessageHandler(
+      parentThread,
+      workerData,
+      async (runtimeRequest, _, __, requestId) => {
+        handledRequests.push({ runtimeRequest, requestId });
+        return result;
+      },
+    );
 
     parentThread.emitMessage({ request, requestId: 'unary-1', type: 'analyze-unary' });
     await waitForImmediate();
 
-    expect(handledRequests).toEqual([{ data: request, type: 'on-analyze-project' }]);
+    expect(handledRequests).toEqual([
+      { runtimeRequest: { data: request, type: 'on-analyze-project' }, requestId: 'unary-1' },
+    ]);
     expect(parentThread.postedMessages).toEqual([
       {
         requestId: 'unary-1',
@@ -188,8 +194,8 @@ describe('analyze-project worker', () => {
     registerAnalyzeProjectWorkerMessageHandler(
       parentThread,
       workerData,
-      async (runtimeRequest, _, incrementalResultsChannel) => {
-        handledRequests.push(runtimeRequest);
+      async (runtimeRequest, _, incrementalResultsChannel, requestId) => {
+        handledRequests.push({ runtimeRequest, requestId });
         incrementalResultsChannel?.(incrementalEvents[0]);
         return result;
       },
@@ -198,7 +204,9 @@ describe('analyze-project worker', () => {
     parentThread.emitMessage({ request, requestId: 'stream-1', type: 'analyze-stream' });
     await waitForImmediate();
 
-    expect(handledRequests).toEqual([{ data: request, type: 'on-analyze-project' }]);
+    expect(handledRequests).toEqual([
+      { runtimeRequest: { data: request, type: 'on-analyze-project' }, requestId: 'stream-1' },
+    ]);
     expect(parentThread.postedMessages).toEqual([
       {
         requestId: 'stream-1',

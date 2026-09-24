@@ -39,6 +39,7 @@ import {
   type FsCacheSession,
 } from '../../shared/src/fs-cache/hook.js';
 import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
+import { ReplayTimings } from '../../analysis/src/program-selection/replay-timings.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { warn } from '../../shared/src/helpers/logging.js';
 
@@ -117,17 +118,37 @@ export async function handleAnalyzeProjectRequest(
   request: AnalyzeProjectRuntimeRequest,
   workerData: WorkerData,
   incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
+  requestId = 'unknown',
 ): Promise<RequestResult<AnalyzeProjectResponse | void>> {
+  const timings =
+    request.type === 'on-analyze-project' && request.data.filesystemCache
+      ? new ReplayTimings()
+      : undefined;
+  let cacheMode: 'record' | 'replay' = 'record';
+  let outcome: 'success' | 'failure' = 'failure';
   try {
     switch (request.type) {
       case 'on-analyze-project': {
-        const filesystemCacheSession = beginFilesystemCacheAnalysis(request.data);
+        const filesystemCacheSession = timings
+          ? timings.measure('filesystemArchiveLoad', () =>
+              beginFilesystemCacheAnalysis(request.data),
+            )
+          : beginFilesystemCacheAnalysis(request.data);
+        cacheMode = filesystemCacheSession?.mode ?? cacheMode;
         let programSelection: ProgramSelectionArchive | undefined;
         try {
-          programSelection = beginProgramSelectionAnalysis(request.data);
+          programSelection = timings
+            ? timings.measure('programSelectionLoad', () =>
+                beginProgramSelectionAnalysis(request.data),
+              )
+            : beginProgramSelectionAnalysis(request.data);
           return await withAnalysisCancellation(async () => {
             logHeapStatistics(workerData?.debugMemory);
-            const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
+            const sanitizedInput = timings
+              ? await timings.measureAsync('requestNormalization', () =>
+                  normalizeAnalyzeProjectRequest(request.data),
+                )
+              : await normalizeAnalyzeProjectRequest(request.data);
             const wrappedIncrementalResultsChannel = incrementalResultsChannel
               ? (event: AnalyzeProjectIncrementalEvent['event']) =>
                   incrementalResultsChannel({
@@ -136,18 +157,26 @@ export async function handleAnalyzeProjectRequest(
                   })
               : undefined;
 
-            const output = await analyzeProject(
-              {
-                rules: sanitizedInput.rules,
-                cssRules: sanitizedInput.cssRules,
-                bundles: sanitizedInput.bundles,
-                rulesWorkdir: sanitizedInput.rulesWorkdir,
-                programSelection,
-              },
-              sanitizedInput.configuration,
-              wrappedIncrementalResultsChannel,
-            );
+            const analyze = () =>
+              analyzeProject(
+                {
+                  rules: sanitizedInput.rules,
+                  cssRules: sanitizedInput.cssRules,
+                  bundles: sanitizedInput.bundles,
+                  rulesWorkdir: sanitizedInput.rulesWorkdir,
+                  programSelection,
+                  // Per-file measurements are useful for SQAA replay, but avoid that work
+                  // during the potentially much larger normal CI recording analysis.
+                  replayTimings: programSelection?.isReplay() ? timings : undefined,
+                },
+                sanitizedInput.configuration,
+                wrappedIncrementalResultsChannel,
+              );
+            const output = timings
+              ? await timings.measureAsync('projectAnalysis', analyze)
+              : await analyze();
             logHeapStatistics(workerData?.debugMemory);
+            outcome = 'success';
             return {
               type: 'success',
               result: {
@@ -180,10 +209,13 @@ export async function handleAnalyzeProjectRequest(
       }
     }
   } catch (err) {
+    outcome = 'failure';
     return {
       type: 'failure',
       error: serializeError(err),
       reason: err instanceof InvalidAnalyzeProjectRequestError ? 'invalid_request' : 'runtime',
     };
+  } finally {
+    timings?.log(requestId, outcome, cacheMode);
   }
 }

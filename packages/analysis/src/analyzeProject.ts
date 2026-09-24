@@ -104,7 +104,7 @@ async function analyzeProjectWithCancellation(
   configuration: Configuration,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
-  const { rules, bundles, rulesWorkdir, programSelection } = input;
+  const { rules, bundles, rulesWorkdir, programSelection, replayTimings } = input;
   const filesToAnalyze = sourceFileStore.getFiles();
 
   // All files go into pendingFiles - analyzeFile decides per-file whether to
@@ -125,17 +125,23 @@ async function analyzeProjectWithCancellation(
   const jsTsConfigFields = getJsTsConfigFields(configuration);
   setSourceFilesContext(filesToAnalyze);
   const { testFileExtensions } = getFilterPathParams(configuration);
-  await Linter.initialize({
-    rules,
-    environments,
-    globals,
-    bundles,
-    baseDir,
-    detectGeneratedCode: configuration.detectGeneratedCode,
-    isGeneratedSourceFile: filePath => generatedSourceStore.getFamily(filePath) !== undefined,
-    rulesWorkdir,
-    testFileExtensions,
-  });
+  const initializeLinter = () =>
+    Linter.initialize({
+      rules,
+      environments,
+      globals,
+      bundles,
+      baseDir,
+      detectGeneratedCode: configuration.detectGeneratedCode,
+      isGeneratedSourceFile: filePath => generatedSourceStore.getFamily(filePath) !== undefined,
+      rulesWorkdir,
+      testFileExtensions,
+    });
+  if (replayTimings) {
+    await replayTimings.measureAsync('linterInitialization', initializeLinter);
+  } else {
+    await initializeLinter();
+  }
 
   // Initialize CSS linter with active CSS rules (mirrors Linter.initialize for JS/TS).
   // Always called to reset state between analysis runs: when cssRules is empty,
@@ -170,6 +176,7 @@ async function analyzeProjectWithCancellation(
         jsTsConfigFields,
         programSelection,
         incrementalResultsChannel,
+        replayTimings,
       );
     }
     if (pendingFiles.size) {
