@@ -257,6 +257,24 @@ describe('importsOrDependsOnModule', () => {
     expect(dependsOnFoo(unversionedCwd, unversionedFilename)).toBe(false);
     expect(hasPackageJson(unversionedCwd, unversionedFilename)).toBe(false);
   });
+
+  it('includes workspace manifests when ESLint runs above a nested repository', t => {
+    const workspace = fs.mkdtempSync(path.join(tmpdir(), 'sonarjs-nested-repo-'));
+    t.after(() => fs.rmSync(workspace, { recursive: true, force: true }));
+    fs.writeFileSync(
+      path.join(workspace, 'package.json'),
+      JSON.stringify({ dependencies: { foo: '1.0.0', react: '18.2.0', vue: '3.4.0' } }),
+    );
+    const nestedRepository = path.join(workspace, 'nested-repository');
+    const app = path.join(nestedRepository, 'app');
+    fs.mkdirSync(path.join(nestedRepository, '.git'), { recursive: true });
+    fs.mkdirSync(app);
+    const filename = path.join(app, 'source.js');
+
+    expect(dependsOnFoo(workspace, filename)).toBe(true);
+    expect(getFrameworkVersions(workspace, filename)).toEqual(['18.2.0', '3.4.0']);
+    expect(hasPackageJson(workspace, filename)).toBe(true);
+  });
 });
 
 function dependsOnFoo(cwd: string, filename: string, settings: Record<string, unknown> = {}) {

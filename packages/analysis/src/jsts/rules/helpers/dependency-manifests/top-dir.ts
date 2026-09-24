@@ -56,7 +56,9 @@ export function getDependencyTopDir(
   const fileDir = dirnamePath(filePath);
   const repositoryRoot = repositoryRootCache.get(fileDir);
   if (repositoryRoot) {
-    return repositoryRoot;
+    // Keep the existing cwd boundary when linting a nested repository or submodule
+    // from a parent workspace; otherwise, include manifests up to the repo root.
+    return relativeToAncestorPath(repositoryRoot, cwd) === undefined ? repositoryRoot : cwd;
   }
 
   // Without a repository marker, keep the existing working-directory boundary.
