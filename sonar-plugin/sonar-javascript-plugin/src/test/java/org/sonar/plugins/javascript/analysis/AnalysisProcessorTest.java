@@ -446,12 +446,12 @@ class AnalysisProcessorTest {
   }
 
   @Test
-  void should_ignore_sonar_resolve_in_sonarlint() {
+  void should_save_sonar_resolve_in_sonarlint() {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
     sensorContext.setRuntime(TestSonarRuntime.forSonarLint(Version.create(13, 6)));
     var context = new JsTsContext<>(sensorContext);
-    var file = createInputFile(sensorContext, "js", "file.js", "const x = 1;\n");
+    var file = createInputFile(sensorContext, "js", "file.js", "const x = 1;\nconst y = 2;\n");
     var response = responseWithSonarResolveComments(
       SonarResolveComment.newBuilder()
         .setLine(1)
@@ -461,7 +461,14 @@ class AnalysisProcessorTest {
 
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
 
-    assertThat(issueResolutions(sensorContext, file)).isEmpty();
+    assertThat(issueResolutions(sensorContext, file))
+      .singleElement()
+      .satisfies(issueResolution -> {
+        assertThat(issueResolution.status()).isEqualTo(IssueResolution.Status.DEFAULT);
+        assertThat(issueResolution.ruleKeys()).containsExactly(RuleKey.of("javascript", "S1116"));
+        assertThat(issueResolution.comment()).isEqualTo("reason");
+        assertThat(issueResolution.textRange().start().line()).isEqualTo(1);
+      });
   }
 
   @Test
