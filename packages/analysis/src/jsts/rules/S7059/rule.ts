@@ -20,8 +20,10 @@ import type { Rule } from 'eslint';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isThenable } from '../helpers/type.js';
-import { isFunctionNode } from '../helpers/ast.js';
+import { isFunctionNode, isStaticMethodCall } from '../helpers/ast.js';
 import type estree from 'estree';
+import type { TSESTree } from '@typescript-eslint/utils';
+import type ts from 'typescript';
 import * as meta from './generated-meta.js';
 
 const flaggedStatements = new Set();
@@ -69,6 +71,49 @@ export const rule: Rule.RuleModule = {
       return statement;
     }
 
+    function isResolvedPromiseSentinel(node: estree.CallExpression, statement: estree.Statement) {
+      if (statement.type !== 'ExpressionStatement') {
+        return false;
+      }
+      const assignment = statement.expression;
+      if (
+        assignment.type !== 'AssignmentExpression' ||
+        assignment.operator !== '=' ||
+        assignment.right !== node ||
+        assignment.left.type !== 'MemberExpression' ||
+        assignment.left.object.type !== 'ThisExpression' ||
+        (assignment.left.computed
+          ? assignment.left.property.type !== 'Literal'
+          : assignment.left.property.type !== 'Identifier' &&
+            assignment.left.property.type !== 'PrivateIdentifier') ||
+        node.arguments.length !== 0 ||
+        !isStaticMethodCall(node, 'Promise', 'resolve') ||
+        node.callee.type !== 'MemberExpression'
+      ) {
+        return false;
+      }
+      return (
+        isDefaultLibrarySymbol(node.callee.object) && isDefaultLibrarySymbol(node.callee.property)
+      );
+    }
+
+    function isDefaultLibrarySymbol(node: estree.Node) {
+      const mapped = services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node);
+      if (!mapped) {
+        return false;
+      }
+      const declarations: readonly ts.Declaration[] | undefined = services.program
+        .getTypeChecker()
+        .getSymbolAtLocation(mapped)?.declarations;
+      return (
+        declarations !== undefined &&
+        declarations.length > 0 &&
+        declarations.every(declaration =>
+          services.program.isSourceFileDefaultLibrary(declaration.getSourceFile()),
+        )
+      );
+    }
+
     return {
       CallExpression(node: estree.CallExpression) {
         if (!isThenable(node, services)) {
@@ -76,7 +121,11 @@ export const rule: Rule.RuleModule = {
         }
         // we want to raise on the parent statement
         const statement = asyncStatementInsideConstructor(node);
-        if (statement && !flaggedStatements.has(statement)) {
+        if (
+          statement &&
+          !flaggedStatements.has(statement) &&
+          !isResolvedPromiseSentinel(node, statement)
+        ) {
           flaggedStatements.add(statement);
           context.report({
             node: statement,
