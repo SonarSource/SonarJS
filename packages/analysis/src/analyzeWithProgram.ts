@@ -460,7 +460,10 @@ async function analyzeFilesFromProgramSelection(
       if (!pendingFiles.has(fileName)) {
         continue;
       }
-      if (!tsProgram.getSourceFile(fileName)) {
+      // Configured selections were recorded only for files present in their TS program.
+      // Orphan entry-point groups can also contain files such as .vue: TypeScript omits
+      // those from its SourceFiles, but the CI path still analyzes them with that program.
+      if (selection.program.kind === 'configured' && !tsProgram.getSourceFile(fileName)) {
         throw new Error(`Restored TypeScript program does not contain ${fileName}`);
       }
       const analyzeSelectedFile = () =>

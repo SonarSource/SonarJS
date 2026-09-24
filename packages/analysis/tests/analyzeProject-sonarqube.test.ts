@@ -262,6 +262,56 @@ export class SubmittedComponent {
     expect(restored.meta.telemetry?.programCreation.succeeded).toBe(1);
   });
 
+  it('should replay Vue files from orphan entry-point groups even when TypeScript omits them', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'program-selection-vue'));
+    const filePath = normalizeToAbsolutePath(join(baseDir, 'prop-mutation.vue'));
+    const archivePath = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-vue-')),
+      'selection.pb.gz',
+    );
+    const vueRules: RuleConfig[] = [
+      {
+        key: 'S8951',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+    const recorder = new ProgramSelectionArchive(archivePath, baseDir);
+    const recordingConfiguration = await initForTest(
+      { baseDir },
+      { [filePath]: { filePath, fileType: 'MAIN' } },
+    );
+    const recorded = await analyzeProject(
+      { rules: vueRules, bundles: [], programSelection: recorder },
+      recordingConfiguration,
+    );
+    recorder.end();
+    const recordedFile = recorded.files[filePath];
+    expect(recordedFile && 'issues' in recordedFile ? recordedFile.issues : undefined).toEqual([
+      expect.objectContaining({ ruleId: 'S8951' }),
+    ]);
+
+    const replay = new ProgramSelectionArchive(archivePath, baseDir);
+    expect(replay.restoredSelections([filePath])).toEqual([
+      expect.objectContaining({ program: expect.objectContaining({ kind: 'orphan' }) }),
+    ]);
+    const replayConfiguration = await initForTest(
+      { baseDir },
+      { [filePath]: { filePath, fileType: 'MAIN' } },
+    );
+    const restored = await analyzeProject(
+      { rules: vueRules, bundles: [], programSelection: replay },
+      replayConfiguration,
+    );
+    const restoredFile = restored.files[filePath];
+    expect(restoredFile && 'issues' in restoredFile ? restoredFile.issues : undefined).toEqual([
+      expect.objectContaining({ ruleId: 'S8951' }),
+    ]);
+    expect(restored.meta.telemetry?.programCreation.succeeded).toBe(1);
+  });
+
   it('should replay files recorded without a program using the no-program analysis path', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'no-tsconfig'));
     const filePath = normalizeToAbsolutePath(join(baseDir, 'orphan.ts'));
