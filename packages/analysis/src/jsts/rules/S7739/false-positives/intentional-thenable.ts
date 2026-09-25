@@ -121,7 +121,7 @@ function isPromiseOrDeferredFunctionDeclaration(ancestor: Node): boolean {
 
 function isPromiseOrDeferredAssignmentTarget(target: Node): boolean {
   return (
-    (target.type === 'Identifier' && isIdentifier(target, 'Promise', 'Deferred')) ||
+    isIdentifier(target, 'Promise', 'Deferred') ||
     (target.type === 'MemberExpression' &&
       !target.computed &&
       isIdentifier(target.property, 'Promise', 'Deferred'))
