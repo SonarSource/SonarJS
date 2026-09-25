@@ -21,8 +21,26 @@ import {
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 
+/**
+ * Swapping the arguments is deliberate when the enclosing condition compares the two of them:
+ * the condition is what selects the ordering. These all read as `if (a.length < b.length)` once
+ * the length snapshots are resolved back to the arguments they were taken from.
+ */
 const validLengthNormalizations = [
   {
+    // JS-2537 reproducer: the recursive call puts the longer input first.
+    code: `
+      function normalizeByLength(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) {
+          return normalizeByLength(b, a);
+        }
+        return [a, b];
+      }`,
+  },
+  {
+    // Both snapshots in a single declaration, declared in the opposite order.
     code: `
       function f(a, b) {
         const n = b.length,
@@ -32,6 +50,7 @@ const validLengthNormalizations = [
       }`,
   },
   {
+    // Descriptive parameter names and a block-bodied guard.
     code: `
       function f(first, second) {
         const m = first.length;
@@ -43,6 +62,7 @@ const validLengthNormalizations = [
       }`,
   },
   {
+    // Nested declaration, with trivia inside the member access.
     code: `
       function outer() {
         function f(a, b) {
@@ -56,11 +76,60 @@ const validLengthNormalizations = [
         return f;
       }`,
   },
-];
-
-const invalidLengthNormalizations = [
   {
-    // Non-strict comparison
+    // The edit-distance idiom: a short-circuit runs before the lengths are taken.
+    code: `
+      function editDistance(a, b) {
+        if (a === b) return 0;
+        const m = a.length;
+        const n = b.length;
+        if (m < n) return editDistance(b, a);
+        return m;
+      }`,
+  },
+  {
+    // Unrelated statements between the snapshots and the guard.
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m === 0) return n;
+        if (m < n) return f(b, a);
+        return [a, b];
+      }`,
+  },
+  {
+    // Named function expression.
+    code: `
+      const f = function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) return f(b, a);
+        return [a, b];
+      };`,
+  },
+  {
+    // Arrow function.
+    code: `
+      const f = (a, b) => {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) return f(b, a);
+        return [a, b];
+      };`,
+  },
+  {
+    // Async function.
+    code: `
+      async function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) return f(b, a);
+        return [a, b];
+      }`,
+  },
+  {
+    // Non-strict comparison.
     code: `
       function f(a, b) {
         const m = a.length;
@@ -68,10 +137,9 @@ const invalidLengthNormalizations = [
         if (m <= n) return f(b, a);
         return [a, b];
       }`,
-    errors: 1,
   },
   {
-    // Known FP: negated comparisons are outside the supported normalization pattern.
+    // Negated comparison.
     code: `
       function f(a, b) {
         const m = a.length;
@@ -79,280 +147,240 @@ const invalidLengthNormalizations = [
         if (!(m >= n)) return f(b, a);
         return [a, b];
       }`,
-    errors: 1,
   },
   {
-    // Same input twice
-    code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = a.length;
-        if (m < n) return f(b, a);
-        return [a, b];
-      }`,
-    errors: 1,
-  },
-  {
-    // Unrelated input
-    code: `
-      const other = 'x';
-      function f(a, b) {
-        const m = a.length;
-        const n = other.length;
-        if (m < n) return f(b, a);
-        return [a, b];
-      }`,
-    errors: 1,
-  },
-  {
-    // Mutable alias
-    code: `
-      function f(a, b) {
-        let m = a.length;
-        const n = b.length;
-        if (m < n) return f(b, a);
-        return [a, b];
-      }`,
-    errors: 1,
-  },
-  {
-    // Alias reassignment
-    code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        if (m < n) return f(b, a);
-        m = 0;
-        return [a, b];
-      }`,
-    errors: 1,
-  },
-  {
-    // Mutation before guard
-    code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        a = b;
-        if (m < n) return f(b, a);
-        return [a, b];
-      }`,
-    errors: 1,
-  },
-  {
-    // Mutation after guard
-    code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        if (m < n) return f(b, a);
-        a = b;
-        return [a, b];
-      }`,
-    errors: 1,
-  },
-  {
-    // Branch side effect
-    code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        if (m < n) {
-          b.length = 0;
-          return f(b, a);
-        }
-        return [a, b];
-      }`,
-    errors: 1,
-  },
-  {
-    // Nested closure
-    code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        if (m < n) {
-          return function run() {
-            return f(b, a);
-          };
-        }
-        return [a, b];
-      }`,
-    errors: 1,
-  },
-  {
-    // Shadowed parameter
-    code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        if (m < n) {
-          const b = a;
-          return f(b, a);
-        }
-        return [a, b];
-      }`,
-    errors: 1,
-  },
-  {
-    // Shadowed alias
-    code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        {
-          const m = 0;
-          if (m < n) return f(b, a);
-        }
-        return [a, b];
-      }`,
-    errors: 1,
-  },
-  {
-    // Different callee
-    code: `
-      function g(a, b) {
-        return [a, b];
-      }
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        if (m < n) return g(b, a);
-        return [a, b];
-      }`,
-    errors: 1,
-  },
-  {
-    // Reassigned callee
-    code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        if (m < n) return f(b, a);
-        return [a, b];
-      }
-      f = function (a, b) {
-        return [a, b];
-      };`,
-    errors: 1,
-  },
-  {
-    // Constructor call
-    code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        if (m < n) return new f(b, a);
-        return [a, b];
-      }`,
-    errors: 1,
-  },
-  {
-    // Extra argument
-    code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        if (m < n) return f(b, a, 0);
-        return [a, b];
-      }`,
-    errors: 1,
-  },
-  {
-    // Alternate branch
-    code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        if (m < n) return [a, b];
-        else return f(b, a);
-      }`,
-    errors: 1,
-  },
-  {
-    // Known FP: computed length access is outside the supported normalization pattern.
+    // Computed member access.
     code: `
       function f(a, b) {
         const m = a['length'];
-        const n = b.length;
+        const n = b['length'];
         if (m < n) return f(b, a);
         return [a, b];
       }`,
-    errors: 1,
   },
   {
-    // Optional access
+    // Any member carries the same intent, not just `length`.
     code: `
       function f(a, b) {
-        const m = a?.length;
-        const n = b.length;
+        const m = a.byteLength;
+        const n = b.byteLength;
         if (m < n) return f(b, a);
         return [a, b];
       }`,
-    errors: 1,
   },
   {
-    // An intentional swap must not suppress a separate unguarded swap in the same function.
+    // A snapshot written once is a snapshot, whatever the declaration kind.
     code: `
+      function f(a, b) {
+        let m = a.length;
+        let n = b.length;
+        if (m < n) return f(b, a);
+        return [a, b];
+      }`,
+  },
+  {
+    // The guarded call need not be the recursive one.
+    code: `
+      function pair(a, b) {
+        return [a, b];
+      }
       function f(a, b) {
         const m = a.length;
         const n = b.length;
-        if (m < n) return f(b, a);
-        return f(b, a);
+        if (m < n) return pair(b, a);
+        return pair(a, b);
       }`,
+  },
+];
+
+/**
+ * Shapes that keep being reported: the condition does not actually compare the swapped pair.
+ */
+const invalidLengthNormalizations = [
+  {
+    // The guard compares one argument against an unrelated value.
+    code: `
+  const other = 'x';
+  function f(a, b) {
+    const m = a.length;
+    const n = other.length;
+    if (m < n) return f(b, a);
+    return [a, b];
+  }`,
     errors: [
       {
-        message:
-          "Arguments 'b' and 'a' have the same names but not the same order as the function parameters.",
+        message: `{"message":"Arguments 'b' and 'a' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":13,"line":3,"endColumn":17,"endLine":3}]}`,
         line: 6,
         endLine: 6,
+        column: 25,
+        endColumn: 29,
       },
     ],
+    settings: { sonarRuntime: true },
   },
   {
-    // Missing guard
+    // A snapshot written more than once is not a snapshot of the argument.
     code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        return f(b, a);
-      }`,
-    errors: 1,
+  function f(a, b) {
+    let m = a.length;
+    const n = b.length;
+    m = 0;
+    if (m < n) return f(b, a);
+    return [a, b];
+  }`,
+    errors: [
+      {
+        message: `{"message":"Arguments 'b' and 'a' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":13,"line":2,"endColumn":17,"endLine":2}]}`,
+        line: 6,
+        endLine: 6,
+        column: 25,
+        endColumn: 29,
+      },
+    ],
+    settings: { sonarRuntime: true },
   },
   {
-    // Alias chain
+    // The guard reads a shadowing declaration, not the snapshot.
     code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        const x = m;
-        if (x < n) return f(b, a);
-        return [a, b];
-      }`,
-    errors: 1,
+  function f(a, b) {
+    const m = a.length;
+    const n = b.length;
+    {
+      const m = 0;
+      if (m < n) return f(b, a);
+    }
+    return [a, b];
+  }`,
+    errors: [
+      {
+        message: `{"message":"Arguments 'b' and 'a' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":13,"line":2,"endColumn":17,"endLine":2}]}`,
+        line: 7,
+        endLine: 7,
+        column: 27,
+        endColumn: 31,
+      },
+    ],
+    settings: { sonarRuntime: true },
   },
   {
-    // Missing length initializer
+    // Only one level of aliasing is followed.
     code: `
-      function f(a, b) {
-        const m = null;
-        const n = b.length;
-        if (m < n) return f(b, a);
-        return [a, b];
-      }`,
-    errors: 1,
+  function f(a, b) {
+    const m = a.length;
+    const n = b.length;
+    const x = m;
+    if (x < n) return f(b, a);
+    return [a, b];
+  }`,
+    errors: [
+      {
+        message: `{"message":"Arguments 'b' and 'a' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":13,"line":2,"endColumn":17,"endLine":2}]}`,
+        line: 6,
+        endLine: 6,
+        column: 25,
+        endColumn: 29,
+      },
+    ],
+    settings: { sonarRuntime: true },
   },
   {
-    // Ambiguous parameter definition
+    // The snapshot is not a member access on an argument.
     code: `
-      function f(a, b) {
-        const m = a.length;
-        const n = b.length;
-        if (m < n) return f(b, a);
-        function a() {}
-        return [a, b];
-      }`,
-    errors: 1,
+  function f(a, b) {
+    const m = null;
+    const n = b.length;
+    if (m < n) return f(b, a);
+    return [a, b];
+  }`,
+    errors: [
+      {
+        message: `{"message":"Arguments 'b' and 'a' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":13,"line":2,"endColumn":17,"endLine":2}]}`,
+        line: 5,
+        endLine: 5,
+        column: 25,
+        endColumn: 29,
+      },
+    ],
+    settings: { sonarRuntime: true },
+  },
+  {
+    // Optional member accesses are not resolved.
+    code: `
+  function f(a, b) {
+    const m = a?.length;
+    const n = b?.length;
+    if (m < n) return f(b, a);
+    return [a, b];
+  }`,
+    errors: [
+      {
+        message: `{"message":"Arguments 'b' and 'a' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":13,"line":2,"endColumn":17,"endLine":2}]}`,
+        line: 5,
+        endLine: 5,
+        column: 25,
+        endColumn: 29,
+      },
+    ],
+    settings: { sonarRuntime: true },
+  },
+  {
+    // The condition does not compare the swapped pair.
+    code: `
+  function f(a, b) {
+    const m = a.length;
+    const n = b.length;
+    if (m) return f(b, a);
+    return [a, b];
+  }`,
+    errors: [
+      {
+        message: `{"message":"Arguments 'b' and 'a' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":13,"line":2,"endColumn":17,"endLine":2}]}`,
+        line: 5,
+        endLine: 5,
+        column: 21,
+        endColumn: 25,
+      },
+    ],
+    settings: { sonarRuntime: true },
+  },
+  {
+    // No condition guards the swap.
+    code: `
+  function f(a, b) {
+    const m = a.length;
+    const n = b.length;
+    return f(b, a);
+  }`,
+    errors: [
+      {
+        message: `{"message":"Arguments 'b' and 'a' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":13,"line":2,"endColumn":17,"endLine":2}]}`,
+        line: 5,
+        endLine: 5,
+        column: 14,
+        endColumn: 18,
+      },
+    ],
+    settings: { sonarRuntime: true },
+  },
+  {
+    // A guarded swap does not suppress a separate unguarded swap.
+    code: `
+  function f(a, b) {
+    const m = a.length;
+    const n = b.length;
+    if (m < n) return f(b, a);
+    return f(b, a);
+  }`,
+    errors: [
+      {
+        message: `{"message":"Arguments 'b' and 'a' have the same names but not the same order as the function parameters.","secondaryLocations":[{"message":"Formal parameters","column":13,"line":2,"endColumn":17,"endLine":2}]}`,
+        line: 6,
+        endLine: 6,
+        column: 14,
+        endColumn: 18,
+      },
+    ],
+    settings: { sonarRuntime: true },
   },
 ];
 
@@ -361,17 +389,6 @@ describe('S2234', () => {
     const eslintRuleTester = new DefaultParserRuleTester({ sourceType: 'script' });
     eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
       valid: [
-        {
-          code: `
-        function normalizeByLength(a, b) {
-          const m = a.length;
-          const n = b.length;
-          if (m < n) {
-            return normalizeByLength(b, a);
-          }
-          return [a, b];
-        }`,
-        },
         ...validLengthNormalizations,
         {
           code: `
@@ -725,17 +742,7 @@ describe('S2234', () => {
       valid: [
         ...validLengthNormalizations,
         {
-          code: `
-        function normalizeByLength(a, b) {
-          const m = a.length;
-          const n = b.length;
-          if (m < n) {
-            return normalizeByLength(b, a);
-          }
-          return [a, b];
-        }`,
-        },
-        {
+          // JS-2537 reproducer, type-annotated.
           code: `
         function normalizeByLength(a: string, b: string): string[] {
           const m = a.length;

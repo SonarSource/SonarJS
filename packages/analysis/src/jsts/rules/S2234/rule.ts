@@ -25,6 +25,7 @@ import {
   getVariableFromName,
   isDotNotation,
   isFunctionNode,
+  isIndexNotation,
   resolveFromFunctionReference,
   resolveIdentifiers,
 } from '../helpers/ast.js';
@@ -91,164 +92,39 @@ export const rule: Rule.RuleModule = {
             !isInDirectionalContext(functionCall) &&
             !isIntentionalTernarySwap(functionCall, argumentName, swappedArgumentName)
           ) {
-            if (!isRecursiveLengthNormalization(functionCall, functionDeclaration)) {
-              raiseIssue(argumentName, swappedArgumentName, functionDeclaration, functionCall);
-            }
+            raiseIssue(argumentName, swappedArgumentName, functionDeclaration, functionCall);
             return;
           }
         }
       }
     }
 
-    function isRecursiveLengthNormalization(
-      call: estree.CallExpression,
-      declaration: FunctionNodeType | undefined,
-    ): boolean {
-      if (
-        call.type !== 'CallExpression' ||
-        call.optional ||
-        call.callee.type !== 'Identifier' ||
-        call.arguments.length !== 2 ||
-        declaration?.type !== 'FunctionDeclaration' ||
-        !declaration.id ||
-        declaration.async ||
-        declaration.generator ||
-        declaration.params.length !== 2
-      ) {
-        return false;
+    /**
+     * Resolves an identifier holding a single-write snapshot of a member access back to that
+     * access, so that `const m = a.length` makes `m` stand for `a.length`. Any other node is
+     * returned unchanged. Only one level is followed, so no alias cycle can be entered.
+     */
+    function resolveMemberSnapshot(node: estree.Node): estree.Node {
+      if (node.type !== 'Identifier') {
+        return node;
       }
-
-      const [firstArgument, secondArgument] = call.arguments;
-      const [firstParameter, secondParameter] = declaration.params;
-      if (
-        firstArgument.type !== 'Identifier' ||
-        secondArgument.type !== 'Identifier' ||
-        firstParameter.type !== 'Identifier' ||
-        secondParameter.type !== 'Identifier' ||
-        firstParameter.name === secondParameter.name
-      ) {
-        return false;
+      const variable = getVariableFromName(context, node.name, node);
+      if (variable?.defs.length !== 1 || variable.defs[0].type !== 'Variable') {
+        return node;
       }
-
-      // Accept only adjacent immutable snapshots followed by the guarded recursive return.
-      const [firstStatement, secondStatement, thirdStatement] = declaration.body.body;
-      if (firstStatement?.type !== 'VariableDeclaration' || firstStatement.kind !== 'const') {
-        return false;
-      }
-      let snapshots = firstStatement.declarations;
-      let guard = secondStatement;
-      if (snapshots.length === 1) {
-        if (
-          secondStatement?.type !== 'VariableDeclaration' ||
-          secondStatement.kind !== 'const' ||
-          secondStatement.declarations.length !== 1
-        ) {
-          return false;
-        }
-        snapshots = snapshots.concat(secondStatement.declarations);
-        guard = thirdStatement;
-      }
-      if (
-        snapshots.length !== 2 ||
-        guard?.type !== 'IfStatement' ||
-        guard.test.type !== 'BinaryExpression' ||
-        (guard.test.operator !== '<' && guard.test.operator !== '>') ||
-        guard.test.left.type !== 'Identifier' ||
-        guard.test.right.type !== 'Identifier' ||
-        guard.test.left.name === guard.test.right.name
-      ) {
-        return false;
-      }
-      const consequent = guard.consequent;
-      const returned =
-        consequent.type === 'BlockStatement' && consequent.body.length === 1
-          ? consequent.body[0]
-          : consequent;
-      if (returned.type !== 'ReturnStatement' || returned.argument !== call) {
-        return false;
-      }
-
-      const firstLength = getLengthSnapshot(snapshots[0]);
-      const secondLength = getLengthSnapshot(snapshots[1]);
-      if (!firstLength || !secondLength || firstLength.alias === secondLength.alias) {
-        return false;
-      }
-
-      const callee = getVariableFromName(context, call.callee.name, call.callee);
-      if (
-        callee?.defs.length !== 1 ||
-        callee.defs[0].type !== 'FunctionName' ||
-        callee.defs[0].node !== declaration ||
-        callee.references.some(reference => reference.isWrite())
-      ) {
-        return false;
-      }
-
-      const parameters = [firstParameter, secondParameter].map(parameter => {
-        const variable = getVariableFromName(context, parameter.name, parameter);
-        if (
-          variable?.defs.length !== 1 ||
-          variable.defs[0].type !== 'Parameter' ||
-          variable.defs[0].name !== parameter ||
-          variable.references.some(reference => reference.isWrite())
-        ) {
-          return undefined;
-        }
-        return variable;
-      });
-      const [firstVariable, secondVariable] = parameters;
-      if (
-        !firstVariable ||
-        !secondVariable ||
-        firstVariable === secondVariable ||
-        getVariableFromName(context, firstArgument.name, firstArgument) !== secondVariable ||
-        getVariableFromName(context, secondArgument.name, secondArgument) !== firstVariable
-      ) {
-        return false;
-      }
-
-      if (!(
-        (firstLength.receiver === firstVariable && secondLength.receiver === secondVariable) ||
-        (firstLength.receiver === secondVariable && secondLength.receiver === firstVariable)
-      )) {
-        return false;
-      }
-
-      const left = getVariableFromName(context, guard.test.left.name, guard.test.left);
-      const right = getVariableFromName(context, guard.test.right.name, guard.test.right);
-      return (
-        (left === firstLength.alias && right === secondLength.alias) ||
-        (left === secondLength.alias && right === firstLength.alias)
-      );
+      const snapshot = getUniqueWriteReference(variable);
+      return snapshot && (isDotNotation(snapshot) || isIndexNotation(snapshot)) ? snapshot : node;
     }
 
-    function getLengthSnapshot(snapshot: estree.VariableDeclarator) {
-      const { id, init } = snapshot;
-      if (
-        id.type !== 'Identifier' ||
-        !init ||
-        !isDotNotation(init) ||
-        init.optional ||
-        init.property.name !== 'length' ||
-        init.object.type !== 'Identifier'
-      ) {
-        return undefined;
-      }
-
-      const alias = getVariableFromName(context, id.name, id);
-      const receiver = getVariableFromName(context, init.object.name, init.object);
-      if (
-        !receiver ||
-        alias?.defs.length !== 1 ||
-        alias.defs[0].type !== 'Variable' ||
-        alias.defs[0].node !== snapshot ||
-        getUniqueWriteReference(alias) !== init
-      ) {
-        return undefined;
-      }
-      return { alias, receiver };
-    }
-
+    /**
+     * Returns true when the enclosing `if` compares the two swapped arguments. The condition is
+     * then what selects the ordering, so passing them reversed is deliberate, e.g.
+     * `if (a.length < b.length) return f(b, a);`.
+     *
+     * Operands are resolved through member snapshots, so the idiomatic form that stores the
+     * lengths first reads the same as the inline one:
+     * `const m = a.length; const n = b.length; if (m < n) return f(b, a);`.
+     */
     function areComparedArguments(argumentNames: string[], node: estree.Node): boolean {
       function getName(node: estree.Node): string | undefined {
         switch (node.type) {
@@ -264,8 +140,9 @@ export const rule: Rule.RuleModule = {
       }
       function checkComparedArguments(lhs: estree.Node, rhs: estree.Node): boolean {
         return (
-          [lhs, rhs].map(getName).filter(name => name && argumentNames.includes(name)).length ===
-          argumentNames.length
+          [lhs, rhs]
+            .map(side => getName(resolveMemberSnapshot(side)))
+            .filter(name => name && argumentNames.includes(name)).length === argumentNames.length
         );
       }
       const maybeIfStmt = context.sourceCode
@@ -273,7 +150,7 @@ export const rule: Rule.RuleModule = {
         .reverse()
         .find(ancestor => ancestor.type === 'IfStatement');
       if (maybeIfStmt) {
-        const { test } = maybeIfStmt;
+        const test = unwrapNegation(maybeIfStmt.test);
         switch (test.type) {
           case 'BinaryExpression': {
             const binExpr = test;
@@ -567,6 +444,14 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+/**
+ * `if (!(m >= n))` selects an ordering just as `if (m < n)` does, so the negation is transparent
+ * for the purpose of deciding whether the condition compares the swapped pair.
+ */
+function unwrapNegation(node: estree.Expression): estree.Expression {
+  return node.type === 'UnaryExpression' && node.operator === '!' ? node.argument : node;
+}
 
 const DIRECTIONAL_KEYWORD_PATTERN = /\b(rtl|ltr|reverse|flip|swap|forward|backward)\b/i;
 const CRYPTO_FUNCTION_PATTERN = /^(md[45]_?)?(ff|gg|hh|ii)$/i;
