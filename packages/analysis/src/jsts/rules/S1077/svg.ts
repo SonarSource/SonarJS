@@ -86,12 +86,13 @@ function isRoleDecorativeOrUnresolvable(attributes: JSXOpeningElement['attribute
   return DECORATIVE_ROLES.has(firstToken);
 }
 
-// An ancestor's aria-hidden="true" can't be overridden by a descendant's "false", so only "true" short-circuits.
+// An ancestor's aria-hidden="true" or native `hidden` can't be overridden by a descendant,
+// so either one, on the element itself or any ancestor, short-circuits.
 function isHiddenFromAssistiveTech(
   node: TSESTree.JSXOpeningElement,
   attributes: JSXOpeningElement['attributes'],
 ): boolean {
-  if (getAriaHiddenState(attributes) === true) {
+  if (isElementHidden(attributes)) {
     return true;
   }
 
@@ -99,8 +100,7 @@ function isHiddenFromAssistiveTech(
   while (ancestor) {
     if (
       ancestor.type === 'JSXElement' &&
-      getAriaHiddenState((ancestor.openingElement as unknown as JSXOpeningElement).attributes) ===
-        true
+      isElementHidden((ancestor.openingElement as unknown as JSXOpeningElement).attributes)
     ) {
       return true;
     }
@@ -108,6 +108,10 @@ function isHiddenFromAssistiveTech(
   }
 
   return false;
+}
+
+function isElementHidden(attributes: JSXOpeningElement['attributes']): boolean {
+  return getAriaHiddenState(attributes) === true || getNativeHiddenState(attributes) === true;
 }
 
 function getAriaHiddenState(attributes: JSXOpeningElement['attributes']): boolean | undefined {
@@ -123,5 +127,19 @@ function getAriaHiddenState(attributes: JSXOpeningElement['attributes']): boolea
     return false;
   }
   // Dynamic/unresolvable value: conservatively treat as hidden.
+  return true;
+}
+
+function getNativeHiddenState(attributes: JSXOpeningElement['attributes']): boolean | undefined {
+  const prop = getProp(attributes, 'hidden');
+  if (!prop) {
+    return undefined;
+  }
+  const value = getLiteralPropValue(prop);
+  if (value === false) {
+    return false;
+  }
+  // Presence (shorthand `hidden`), explicit `true`, or a dynamic/unresolvable value:
+  // conservatively treat as hidden.
   return true;
 }

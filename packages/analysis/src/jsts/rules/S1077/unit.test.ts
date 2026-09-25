@@ -95,6 +95,24 @@ describe('S1077 SVG accessible name', () => {
     });
   });
 
+  it('should respect the native hidden attribute, including inheritance from ancestors', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('alt-text - svg hidden attribute', rule, {
+      valid: [
+        { code: `<svg hidden><path d="M12 4v16"/></svg>` },
+        { code: `<svg hidden={true}><path d="M12 4v16"/></svg>` },
+        { code: `<span hidden><svg><path d="M12 4v16"/></svg></span>` },
+        // dynamic hidden - can't evaluate statically, conservatively suppress
+        { code: `<svg hidden={isHidden}><path d="M12 4v16"/></svg>` },
+      ],
+      invalid: [
+        // hidden={false} means "not hidden", not "skip the check"
+        { code: `<svg hidden={false}><path d="M5 12h14"/></svg>`, errors: 1 },
+      ],
+    });
+  });
+
   it('should respect decorative roles and first-token role fallback lists', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
@@ -127,6 +145,21 @@ describe('S1077 SVG accessible name', () => {
         { code: `<svg aria-label="."><path d="M10 10"/></svg>` },
       ],
       invalid: [],
+    });
+  });
+
+  it('known limitation: does not treat inline display/visibility CSS as hiding the element', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    // CSS display:none/visibility:hidden also excludes elements from the a11y tree, but
+    // covering inline styling's many forms isn't worth it for this rarer pattern.
+    ruleTester.run('alt-text - svg hidden via inline style', rule, {
+      valid: [],
+      invalid: [
+        { code: `<svg style={{ display: 'none' }}><path d="M12 4v16"/></svg>`, errors: 1 },
+        { code: `<svg style={{ visibility: 'hidden' }}><path d="M12 4v16"/></svg>`, errors: 1 },
+        { code: `<svg style="display: none"><path d="M12 4v16"/></svg>`, errors: 1 },
+      ],
     });
   });
 
