@@ -41,6 +41,30 @@ const REALPATH_NATIVE_OPERATION = 'realpath.native';
 const DEFAULT_ENOENT_ERRNO = -2;
 let activeArchive: FsCacheArchive | undefined;
 
+/** Preserve analyzer-provided source content that bypasses the patched filesystem APIs. */
+export function captureProvidedFile(fileName: string, content: string): void {
+  if (activeArchive?.mode !== 'record') {
+    return;
+  }
+  const key = activeArchive.keyFor(fileName);
+  if (key !== undefined) {
+    const existing = activeArchive.get<Buffer>(key, 'readFile');
+    if (existing?.ok && existing.value.toString('utf8') === content) {
+      return;
+    }
+    activeArchive.set(key, 'readFile', { ok: true, value: Buffer.from(content) });
+  }
+}
+
+/** A recorded read proves the file existed even when no stat call was observed. */
+export function hasArchivedFileContent(fileName: string): boolean {
+  if (activeArchive?.mode !== 'replay') {
+    return false;
+  }
+  const key = activeArchive.keyFor(fileName);
+  return key !== undefined && activeArchive.get(key, 'readFile')?.ok === true;
+}
+
 type FsError = Error & {
   code?: string;
   errno?: number;

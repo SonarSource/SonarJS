@@ -27,6 +27,10 @@ import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../shared/src/helpers/files.js';
+import {
+  captureProvidedFile,
+  hasArchivedFileContent,
+} from '../../../../shared/src/fs-cache/hook.js';
 
 interface FsCall {
   op: string;
@@ -137,6 +141,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     if (typeof filesContext?.[fileName]?.fileContent === 'string') {
       this.trackFsCall('readFile-context', fileName);
       const content = filesContext[fileName].fileContent;
+      captureProvidedFile(fileName, content);
       if (cache.get(normalized) !== content) {
         cache.set(normalized, content);
       }
@@ -183,6 +188,18 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     const filesContext = getCurrentFilesContext();
     if (filesContext?.[fileName]) {
       this.trackFsCall('fileExists-context', fileName);
+      const content = filesContext[fileName].fileContent;
+      if (content !== undefined) {
+        captureProvidedFile(fileName, content);
+      }
+      return true;
+    }
+
+    // TypeScript resolves imports through fileExists before readFile. CI may supply
+    // a source from the request context without ever making a stat call, while its
+    // content is still present in the replay archive.
+    if (hasArchivedFileContent(fileName)) {
+      this.trackFsCall('fileExists-archive-content', fileName);
       return true;
     }
 
@@ -207,6 +224,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     // request content authoritative before looking up cached parsed ASTs.
     const contextContent = getCurrentFilesContext()?.[fileName]?.fileContent;
     if (contextContent !== undefined) {
+      captureProvidedFile(fileName, contextContent);
       this.updateFile(normalized as NormalizedAbsolutePath, contextContent);
     }
 
