@@ -332,6 +332,9 @@ function isPromiseOrDeferredFactory(node: Node): boolean {
   if (isPromiseOrDeferredFunctionDeclaration(node)) {
     return true;
   }
+  if (isNamedPromiseOrDeferredClassMethod(node)) {
+    return true;
+  }
   if (node.type !== 'FunctionExpression' && node.type !== 'ArrowFunctionExpression') {
     return false;
   }
@@ -341,6 +344,23 @@ function isPromiseOrDeferredFactory(node: Node): boolean {
       parent.id.type === 'Identifier' &&
       isIdentifier(parent.id, 'Promise', 'Deferred')) ||
     (parent?.type === 'AssignmentExpression' && isPromiseOrDeferredAssignmentTarget(parent.left))
+  );
+}
+
+function isNamedPromiseOrDeferredClassMethod(node: Node): boolean {
+  if (node.type !== 'FunctionExpression') {
+    return false;
+  }
+  const method = getNodeParent(node);
+  if (method?.type !== 'MethodDefinition' || method.static || method.kind !== 'method') {
+    return false;
+  }
+  const classBody = getNodeParent(method);
+  const classNode = classBody?.type === 'ClassBody' ? getNodeParent(classBody) : undefined;
+  return (
+    (classNode?.type === 'ClassDeclaration' || classNode?.type === 'ClassExpression') &&
+    classNode.id !== null &&
+    isIdentifier(classNode.id, 'Promise', 'Deferred')
   );
 }
 

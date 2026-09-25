@@ -205,6 +205,17 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // False Positive Pattern 5f-3: A named Deferred class can return a thenable from an instance method
+        {
+          code: `
+          class Deferred {
+            promise() {
+              return { then: function () {} };
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
         // False Positive Pattern 5f-2: An outer static method does not change an inner Promise class
         {
           code: `
