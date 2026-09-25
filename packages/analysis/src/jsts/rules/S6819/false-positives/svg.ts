@@ -18,7 +18,7 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
-import { hasSvgAccessibleName } from '../../helpers/accessibility.js';
+import { hasAccessibleName } from '../../helpers/accessibility.js';
 
 const { getLiteralPropValue, getProp } = pkg;
 
@@ -53,5 +53,5 @@ export function isSemanticSvgImg(
   if (elementName !== 'svg' || role !== 'img') {
     return false;
   }
-  return hasSvgAccessibleName(node);
+  return hasAccessibleName(node);
 }

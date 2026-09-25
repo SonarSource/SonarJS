@@ -19,7 +19,7 @@ import type { Node } from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
-import { hasSvgAccessibleName } from '../helpers/accessibility.js';
+import { hasAccessibleName } from '../helpers/accessibility.js';
 
 const { getProp, getLiteralPropValue } = pkg;
 
@@ -64,7 +64,7 @@ export function checkSvgAccessibleName(
   // Known limitation: only emptiness is checked, not content quality - a punctuation-only
   // name (e.g. aria-label="." or <title>-</title>) is treated as accessible, matching
   // upstream jsx-a11y/alt-text and Biome's no-svg-without-title.
-  if (hasSvgAccessibleName(node)) {
+  if (hasAccessibleName(node)) {
     return;
   }
 

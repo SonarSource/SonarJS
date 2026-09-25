@@ -103,9 +103,10 @@ function isPotentiallyNonEmptyTemplateLiteralAttribute(attribute: JSXAttribute):
 
 /**
  * Checks whether an element has a direct-child <title> element with non-empty content.
- * Independent of whitespace and of the title's position among its siblings.
+ * Independent of whitespace and of the title's position among its siblings. Not specific
+ * to SVG: the caller decides which elements this check applies to.
  */
-function hasSvgTitleChild(node: TSESTree.JSXOpeningElement): boolean {
+function hasTitleChild(node: TSESTree.JSXOpeningElement): boolean {
   const parent = node.parent;
   if (parent?.type !== 'JSXElement') {
     return false;
@@ -127,16 +128,17 @@ function hasSvgTitleChild(node: TSESTree.JSXOpeningElement): boolean {
 }
 
 /**
- * Checks whether an <svg> has an accessible name via aria-labelledby, aria-label, or a
+ * Checks whether an element has an accessible name via aria-labelledby, aria-label, or a
  * direct-child <title> element (in that precedence order). Id references in aria-labelledby
  * are not resolved to their target's text, treated purely as a presence check like aria-label.
+ * Not specific to SVG: the caller decides which elements this check applies to.
  */
-export function hasSvgAccessibleName(node: TSESTree.JSXOpeningElement): boolean {
+export function hasAccessibleName(node: TSESTree.JSXOpeningElement): boolean {
   const attributes = (node as JSXOpeningElement).attributes;
   return (
     hasAccessibleNameAttribute(attributes, 'aria-labelledby') ||
     hasAccessibleNameAttribute(attributes, 'aria-label') ||
-    hasSvgTitleChild(node)
+    hasTitleChild(node)
   );
 }
 
