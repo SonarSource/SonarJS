@@ -217,6 +217,7 @@ function isDirectlyContainingThenDefinition(ancestor: Node, node: Node): boolean
         [
           'FunctionDeclaration',
           'FunctionExpression',
+          'ArrowFunctionExpression',
           'ClassDeclaration',
           'ClassExpression',
         ].includes(nestedAncestor.type),
