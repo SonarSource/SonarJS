@@ -181,10 +181,8 @@ function isCallableThenDefinition(node: Node): boolean {
     return (
       parent.kind === 'init' &&
       container?.type === 'ObjectExpression' &&
-      (isDirectFactoryResult(container) || isThisThenObjectUtilityProperty(node)) &&
-      (isCallableThenValue(parent.value as Node) ||
-        (isThisThenObjectDefinePropertiesProperty(node) &&
-          isCallableThenDescriptor(parent.value as Node)))
+      isDirectFactoryResult(container) &&
+      isCallableThenValue(parent.value as Node)
     );
   }
   if (parent?.type === 'MethodDefinition' && parent.key === node) {
@@ -201,20 +199,6 @@ function isCallableThenDefinition(node: Node): boolean {
 
 function isCallableThenValue(node: Node): boolean {
   return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
-}
-
-function isCallableThenDescriptor(node: Node): boolean {
-  return (
-    node.type === 'ObjectExpression' &&
-    node.properties.some(
-      property =>
-        property.type === 'Property' &&
-        property.kind === 'init' &&
-        !property.computed &&
-        isIdentifier(property.key, 'value') &&
-        isCallableThenValue(property.value as Node),
-    )
-  );
 }
 
 /**
@@ -256,18 +240,6 @@ function isThisThenObjectUtilityProperty(node: Node): boolean {
     call.arguments[0]?.type === 'ThisExpression' &&
     (isStaticMethodCall(call, 'Object', 'assign') ||
       isStaticMethodCall(call, 'Object', 'defineProperties'))
-  );
-}
-
-function isThisThenObjectDefinePropertiesProperty(node: Node): boolean {
-  const [property, object, call] = getAncestorsWithParent(node);
-  return (
-    property?.type === 'Property' &&
-    property.key === node &&
-    object?.type === 'ObjectExpression' &&
-    call?.type === 'CallExpression' &&
-    call.arguments[0]?.type === 'ThisExpression' &&
-    isStaticMethodCall(call, 'Object', 'defineProperties')
   );
 }
 
@@ -323,7 +295,7 @@ function isDirectlyContainingThenDefinition(ancestor: Node, node: Node): boolean
 
 function isThenDefinitionBoundary(ancestor: Node, node: Node): boolean {
   if (ancestor.type === 'ObjectExpression') {
-    return !(isDirectFactoryResult(ancestor) || isThisThenObjectUtilityProperty(node));
+    return !isDirectFactoryResult(ancestor);
   }
   if (ancestor.type === 'FunctionExpression') {
     return getNodeParent(ancestor)?.type !== 'MethodDefinition';

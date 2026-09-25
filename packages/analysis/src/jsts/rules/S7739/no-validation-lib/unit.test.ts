@@ -181,16 +181,6 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
-        // False Positive Pattern 5e-1: Instance utilities define an intentional Deferred thenable
-        {
-          code: `
-          ns.Deferred = function () {
-            Object.assign(this, { then: function () {} });
-            Object.defineProperties(this, { then: { value: function () {} } });
-          };
-        `,
-          filename: testFilePath,
-        },
         // False Positive Pattern 5f: Class expression assigned to a namespaced Promise property
         {
           code: `
