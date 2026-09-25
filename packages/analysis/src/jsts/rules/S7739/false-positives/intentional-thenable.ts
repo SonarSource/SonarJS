@@ -17,7 +17,7 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type { AssignmentExpression, CallExpression, Node } from 'estree';
-import { isIdentifier } from '../../helpers/ast.js';
+import { isIdentifier, isStaticMethodCall } from '../../helpers/ast.js';
 import { getNodeParent } from '../../helpers/ancestor.js';
 import { collectPropertyNames, getAncestorsWithParent } from '../helpers.js';
 
@@ -135,7 +135,10 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node, node: Node): bool
   if (ancestor.type !== 'FunctionExpression' && ancestor.type !== 'ArrowFunctionExpression') {
     return false;
   }
-  if (ancestor.type === 'ArrowFunctionExpression' && isThisThenAssignment(node)) {
+  if (
+    ancestor.type === 'ArrowFunctionExpression' &&
+    isArrowFunctionLexicalThisThenDefinition(node)
+  ) {
     return false;
   }
   const funcParent = (ancestor as Node & { parent?: Node }).parent;
@@ -161,10 +164,17 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node, node: Node): bool
  * Checks arrow code such as `exports.Promise = () => { this.then = fn; }` and
  * `Object.defineProperty(this, 'then', { value: fn })`, where `this` is lexical.
  */
-function isThisThenAssignment(node: Node): boolean {
+function isArrowFunctionLexicalThisThenDefinition(node: Node): boolean {
   const [parent, assignment] = getAncestorsWithParent(node);
-  if (parent?.type === 'CallExpression' && parent.arguments[1] === node) {
-    return parent.arguments[0]?.type === 'ThisExpression';
+  if (
+    parent?.type === 'CallExpression' &&
+    parent.arguments[1] === node &&
+    parent.arguments[0]?.type === 'ThisExpression' &&
+    parent.arguments.length >= 3 &&
+    (isStaticMethodCall(parent, 'Object', 'defineProperty') ||
+      isStaticMethodCall(parent, 'Reflect', 'defineProperty'))
+  ) {
+    return true;
   }
   return (
     parent?.type === 'MemberExpression' &&
