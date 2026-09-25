@@ -21,11 +21,340 @@ import {
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 
+const validLengthNormalizations = [
+  {
+    code: `
+      function f(a, b) {
+        const n = b.length,
+          m = a.length;
+        if (n > m) return f(b, a);
+        return [a, b];
+      }`,
+  },
+  {
+    code: `
+      function f(first, second) {
+        const m = first.length;
+        const n = second.length;
+        if (m > n) {
+          return f(second, first);
+        }
+        return [first, second];
+      }`,
+  },
+  {
+    code: `
+      function outer() {
+        function f(a, b) {
+          const m = a /* input */.length;
+          const n = b.length;
+          if (m < n) {
+            return f(b, a);
+          }
+          return [a, b];
+        }
+        return f;
+      }`,
+  },
+];
+
+const invalidLengthNormalizations = [
+  {
+    // Non-strict comparison
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m <= n) return f(b, a);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Negated condition
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (!(m >= n)) return f(b, a);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Same input twice
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = a.length;
+        if (m < n) return f(b, a);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Unrelated input
+    code: `
+      const other = 'x';
+      function f(a, b) {
+        const m = a.length;
+        const n = other.length;
+        if (m < n) return f(b, a);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Mutable alias
+    code: `
+      function f(a, b) {
+        let m = a.length;
+        const n = b.length;
+        if (m < n) return f(b, a);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Alias reassignment
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) return f(b, a);
+        m = 0;
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Mutation before guard
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        a = b;
+        if (m < n) return f(b, a);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Mutation after guard
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) return f(b, a);
+        a = b;
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Branch side effect
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) {
+          b.length = 0;
+          return f(b, a);
+        }
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Nested closure
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) {
+          return function run() {
+            return f(b, a);
+          };
+        }
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Shadowed parameter
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) {
+          const b = a;
+          return f(b, a);
+        }
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Shadowed alias
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        {
+          const m = 0;
+          if (m < n) return f(b, a);
+        }
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Different callee
+    code: `
+      function g(a, b) {
+        return [a, b];
+      }
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) return g(b, a);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Reassigned callee
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) return f(b, a);
+        return [a, b];
+      }
+      f = function (a, b) {
+        return [a, b];
+      };`,
+    errors: 1,
+  },
+  {
+    // Constructor call
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) return new f(b, a);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Extra argument
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) return f(b, a, 0);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Alternate branch
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) return [a, b];
+        else return f(b, a);
+      }`,
+    errors: 1,
+  },
+  {
+    // Computed property
+    code: `
+      function f(a, b) {
+        const m = a['length'];
+        const n = b.length;
+        if (m < n) return f(b, a);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Optional access
+    code: `
+      function f(a, b) {
+        const m = a?.length;
+        const n = b.length;
+        if (m < n) return f(b, a);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Missing guard
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        return f(b, a);
+      }`,
+    errors: 1,
+  },
+  {
+    // Alias chain
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        const x = m;
+        if (x < n) return f(b, a);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Missing length initializer
+    code: `
+      function f(a, b) {
+        const m = null;
+        const n = b.length;
+        if (m < n) return f(b, a);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Ambiguous parameter definition
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) return f(b, a);
+        function a() {}
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+];
+
 describe('S2234', () => {
   it('S2234', () => {
     const eslintRuleTester = new DefaultParserRuleTester({ sourceType: 'script' });
     eslintRuleTester.run('Parameters should be passed in the correct order', rule, {
       valid: [
+        {
+          code: `
+        function normalizeByLength(a, b) {
+          const m = a.length;
+          const n = b.length;
+          if (m < n) {
+            return normalizeByLength(b, a);
+          }
+          return [a, b];
+        }`,
+        },
+        ...validLengthNormalizations,
         {
           code: `
         function f1(p1, p2, p3) {}
@@ -221,6 +550,7 @@ describe('S2234', () => {
         },
       ],
       invalid: [
+        ...invalidLengthNormalizations,
         {
           code: `
         function f1(p1, p2, p3) {}
@@ -375,6 +705,29 @@ describe('S2234', () => {
     const typeScriptRuleTester = new RuleTester();
     typeScriptRuleTester.run('Parameters should be passed in the correct order', rule, {
       valid: [
+        ...validLengthNormalizations,
+        {
+          code: `
+        function normalizeByLength(a, b) {
+          const m = a.length;
+          const n = b.length;
+          if (m < n) {
+            return normalizeByLength(b, a);
+          }
+          return [a, b];
+        }`,
+        },
+        {
+          code: `
+        function normalizeByLength(a: string, b: string): string[] {
+          const m = a.length;
+          const n = b.length;
+          if (m < n) {
+            return normalizeByLength(b, a);
+          }
+          return [a, b];
+        }`,
+        },
         {
           // False positive: MemberExpression callee (obj.ff) extracts the property name for the crypto check
           code: `
@@ -443,6 +796,7 @@ describe('S2234', () => {
         },
       ],
       invalid: [
+        ...invalidLengthNormalizations,
         {
           code: `
         function differentTypes(x: string, y: number, z = 42) {}

@@ -21,6 +21,9 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   type FunctionNodeType,
+  getUniqueWriteReference,
+  getVariableFromName,
+  isDotNotation,
   isFunctionNode,
   resolveFromFunctionReference,
   resolveIdentifiers,
@@ -86,13 +89,174 @@ export const rule: Rule.RuleModule = {
             !areComparedArguments([argumentName, swappedArgumentName], functionCall) &&
             !isIntentionalComparatorReversal(functionCall, argumentName, swappedArgumentName) &&
             !isInDirectionalContext(functionCall) &&
-            !isIntentionalTernarySwap(functionCall, argumentName, swappedArgumentName)
+            !isIntentionalTernarySwap(functionCall, argumentName, swappedArgumentName) &&
+            !isRecursiveLengthNormalization(functionCall, functionDeclaration)
           ) {
             raiseIssue(argumentName, swappedArgumentName, functionDeclaration, functionCall);
             return;
           }
         }
       }
+    }
+
+    function isRecursiveLengthNormalization(
+      call: estree.CallExpression,
+      declaration: FunctionNodeType | undefined,
+    ): boolean {
+      if (
+        call.type !== 'CallExpression' ||
+        call.optional ||
+        call.callee.type !== 'Identifier' ||
+        call.arguments.length !== 2 ||
+        declaration?.type !== 'FunctionDeclaration' ||
+        !declaration.id ||
+        declaration.async ||
+        declaration.generator ||
+        declaration.params.length !== 2
+      ) {
+        return false;
+      }
+
+      const [firstArgument, secondArgument] = call.arguments;
+      const [firstParameter, secondParameter] = declaration.params;
+      if (
+        firstArgument.type !== 'Identifier' ||
+        secondArgument.type !== 'Identifier' ||
+        firstParameter.type !== 'Identifier' ||
+        secondParameter.type !== 'Identifier' ||
+        firstParameter.name === secondParameter.name
+      ) {
+        return false;
+      }
+
+      // Accept only adjacent immutable snapshots followed by the guarded recursive return.
+      const [firstStatement, secondStatement, thirdStatement] = declaration.body.body;
+      if (firstStatement?.type !== 'VariableDeclaration' || firstStatement.kind !== 'const') {
+        return false;
+      }
+      let snapshots = firstStatement.declarations;
+      let guard = secondStatement;
+      if (snapshots.length === 1) {
+        if (
+          secondStatement?.type !== 'VariableDeclaration' ||
+          secondStatement.kind !== 'const' ||
+          secondStatement.declarations.length !== 1
+        ) {
+          return false;
+        }
+        snapshots = snapshots.concat(secondStatement.declarations);
+        guard = thirdStatement;
+      }
+      if (
+        snapshots.length !== 2 ||
+        guard?.type !== 'IfStatement' ||
+        guard.test.type !== 'BinaryExpression' ||
+        (guard.test.operator !== '<' && guard.test.operator !== '>') ||
+        guard.test.left.type !== 'Identifier' ||
+        guard.test.right.type !== 'Identifier' ||
+        guard.test.left.name === guard.test.right.name
+      ) {
+        return false;
+      }
+      const consequent = guard.consequent;
+      const returned =
+        consequent.type === 'BlockStatement' && consequent.body.length === 1
+          ? consequent.body[0]
+          : consequent;
+      if (returned.type !== 'ReturnStatement' || returned.argument !== call) {
+        return false;
+      }
+
+      const lengths = snapshots.map(snapshot => {
+        const { id, init } = snapshot;
+        if (
+          id.type !== 'Identifier' ||
+          !init ||
+          !isDotNotation(init) ||
+          init.optional ||
+          init.property.name !== 'length' ||
+          init.object.type !== 'Identifier'
+        ) {
+          return undefined;
+        }
+        return { snapshot, id, init, parameter: init.object };
+      });
+      const [firstLength, secondLength] = lengths;
+      if (!firstLength || !secondLength || firstLength.id.name === secondLength.id.name) {
+        return false;
+      }
+
+      const enclosingFunction = context.sourceCode
+        .getAncestors(call)
+        .reverse()
+        .find(isFunctionNode);
+      if (enclosingFunction !== declaration) {
+        return false;
+      }
+      const callee = getVariableFromName(context, call.callee.name, call.callee);
+      if (
+        callee?.defs.length !== 1 ||
+        callee.defs[0].type !== 'FunctionName' ||
+        callee.defs[0].node !== declaration ||
+        callee.references.some(reference => reference.isWrite())
+      ) {
+        return false;
+      }
+
+      const parameters = [firstParameter, secondParameter].map(parameter => {
+        const variable = getVariableFromName(context, parameter.name, parameter);
+        if (
+          variable?.defs.length !== 1 ||
+          variable.defs[0].type !== 'Parameter' ||
+          variable.defs[0].name !== parameter ||
+          variable.references.some(reference => reference.isWrite())
+        ) {
+          return undefined;
+        }
+        return variable;
+      });
+      const [firstVariable, secondVariable] = parameters;
+      if (
+        !firstVariable ||
+        !secondVariable ||
+        firstVariable === secondVariable ||
+        getVariableFromName(context, firstArgument.name, firstArgument) !== secondVariable ||
+        getVariableFromName(context, secondArgument.name, secondArgument) !== firstVariable
+      ) {
+        return false;
+      }
+
+      const aliases = [firstLength, secondLength].map(length => {
+        const receiver = getVariableFromName(context, length.parameter.name, length.parameter);
+        const alias = getVariableFromName(context, length.id.name, length.id);
+        if (
+          (receiver !== firstVariable && receiver !== secondVariable) ||
+          alias?.defs.length !== 1 ||
+          alias.defs[0].type !== 'Variable' ||
+          alias.defs[0].node !== length.snapshot ||
+          alias.defs[0].parent?.kind !== 'const' ||
+          getUniqueWriteReference(alias) !== length.init
+        ) {
+          return undefined;
+        }
+        return { alias, receiver };
+      });
+      const [firstAlias, secondAlias] = aliases;
+      if (
+        !firstAlias ||
+        !secondAlias ||
+        firstAlias.alias === secondAlias.alias ||
+        firstAlias.receiver === secondAlias.receiver
+      ) {
+        return false;
+      }
+
+      const left = getVariableFromName(context, guard.test.left.name, guard.test.left);
+      const right = getVariableFromName(context, guard.test.right.name, guard.test.right);
+      return (
+        (left === firstAlias.alias && right === secondAlias.alias) ||
+        (left === secondAlias.alias && right === firstAlias.alias)
+      );
     }
 
     function areComparedArguments(argumentNames: string[], node: estree.Node): boolean {
@@ -292,14 +456,12 @@ export const rule: Rule.RuleModule = {
       const otherAtIdx1 = otherArgs[idx1];
       const otherAtIdx2 = otherArgs[idx2];
 
-      if (
-        !(
-          otherAtIdx1?.type === 'Identifier' &&
-          otherAtIdx1.name === arg2Name &&
-          otherAtIdx2?.type === 'Identifier' &&
-          otherAtIdx2.name === arg1Name
-        )
-      ) {
+      if (!(
+        otherAtIdx1?.type === 'Identifier' &&
+        otherAtIdx1.name === arg2Name &&
+        otherAtIdx2?.type === 'Identifier' &&
+        otherAtIdx2.name === arg1Name
+      )) {
         return false;
       }
 
