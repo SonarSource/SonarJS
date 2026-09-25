@@ -71,7 +71,7 @@ const invalidLengthNormalizations = [
     errors: 1,
   },
   {
-    // Negated condition
+    // Known FP: negated comparisons are outside the supported normalization pattern.
     code: `
       function f(a, b) {
         const m = a.length;
@@ -270,7 +270,7 @@ const invalidLengthNormalizations = [
     errors: 1,
   },
   {
-    // Computed property
+    // Known FP: computed length access is outside the supported normalization pattern.
     code: `
       function f(a, b) {
         const m = a['length'];
@@ -290,6 +290,24 @@ const invalidLengthNormalizations = [
         return [a, b];
       }`,
     errors: 1,
+  },
+  {
+    // An intentional swap must not suppress a separate unguarded swap in the same function.
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = b.length;
+        if (m < n) return f(b, a);
+        return f(b, a);
+      }`,
+    errors: [
+      {
+        message:
+          "Arguments 'b' and 'a' have the same names but not the same order as the function parameters.",
+        line: 6,
+        endLine: 6,
+      },
+    ],
   },
   {
     // Missing guard

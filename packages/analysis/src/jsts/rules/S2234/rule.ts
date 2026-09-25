@@ -89,10 +89,11 @@ export const rule: Rule.RuleModule = {
             !areComparedArguments([argumentName, swappedArgumentName], functionCall) &&
             !isIntentionalComparatorReversal(functionCall, argumentName, swappedArgumentName) &&
             !isInDirectionalContext(functionCall) &&
-            !isIntentionalTernarySwap(functionCall, argumentName, swappedArgumentName) &&
-            !isRecursiveLengthNormalization(functionCall, functionDeclaration)
+            !isIntentionalTernarySwap(functionCall, argumentName, swappedArgumentName)
           ) {
-            raiseIssue(argumentName, swappedArgumentName, functionDeclaration, functionCall);
+            if (!isRecursiveLengthNormalization(functionCall, functionDeclaration)) {
+              raiseIssue(argumentName, swappedArgumentName, functionDeclaration, functionCall);
+            }
             return;
           }
         }
@@ -167,32 +168,12 @@ export const rule: Rule.RuleModule = {
         return false;
       }
 
-      const lengths = snapshots.map(snapshot => {
-        const { id, init } = snapshot;
-        if (
-          id.type !== 'Identifier' ||
-          !init ||
-          !isDotNotation(init) ||
-          init.optional ||
-          init.property.name !== 'length' ||
-          init.object.type !== 'Identifier'
-        ) {
-          return undefined;
-        }
-        return { snapshot, id, init, parameter: init.object };
-      });
-      const [firstLength, secondLength] = lengths;
-      if (!firstLength || !secondLength || firstLength.id.name === secondLength.id.name) {
+      const firstLength = getLengthSnapshot(snapshots[0]);
+      const secondLength = getLengthSnapshot(snapshots[1]);
+      if (!firstLength || !secondLength || firstLength.alias === secondLength.alias) {
         return false;
       }
 
-      const enclosingFunction = context.sourceCode
-        .getAncestors(call)
-        .reverse()
-        .find(isFunctionNode);
-      if (enclosingFunction !== declaration) {
-        return false;
-      }
       const callee = getVariableFromName(context, call.callee.name, call.callee);
       if (
         callee?.defs.length !== 1 ||
@@ -226,37 +207,46 @@ export const rule: Rule.RuleModule = {
         return false;
       }
 
-      const aliases = [firstLength, secondLength].map(length => {
-        const receiver = getVariableFromName(context, length.parameter.name, length.parameter);
-        const alias = getVariableFromName(context, length.id.name, length.id);
-        if (
-          (receiver !== firstVariable && receiver !== secondVariable) ||
-          alias?.defs.length !== 1 ||
-          alias.defs[0].type !== 'Variable' ||
-          alias.defs[0].node !== length.snapshot ||
-          alias.defs[0].parent?.kind !== 'const' ||
-          getUniqueWriteReference(alias) !== length.init
-        ) {
-          return undefined;
-        }
-        return { alias, receiver };
-      });
-      const [firstAlias, secondAlias] = aliases;
-      if (
-        !firstAlias ||
-        !secondAlias ||
-        firstAlias.alias === secondAlias.alias ||
-        firstAlias.receiver === secondAlias.receiver
-      ) {
+      if (!(
+        (firstLength.receiver === firstVariable && secondLength.receiver === secondVariable) ||
+        (firstLength.receiver === secondVariable && secondLength.receiver === firstVariable)
+      )) {
         return false;
       }
 
       const left = getVariableFromName(context, guard.test.left.name, guard.test.left);
       const right = getVariableFromName(context, guard.test.right.name, guard.test.right);
       return (
-        (left === firstAlias.alias && right === secondAlias.alias) ||
-        (left === secondAlias.alias && right === firstAlias.alias)
+        (left === firstLength.alias && right === secondLength.alias) ||
+        (left === secondLength.alias && right === firstLength.alias)
       );
+    }
+
+    function getLengthSnapshot(snapshot: estree.VariableDeclarator) {
+      const { id, init } = snapshot;
+      if (
+        id.type !== 'Identifier' ||
+        !init ||
+        !isDotNotation(init) ||
+        init.optional ||
+        init.property.name !== 'length' ||
+        init.object.type !== 'Identifier'
+      ) {
+        return undefined;
+      }
+
+      const alias = getVariableFromName(context, id.name, id);
+      const receiver = getVariableFromName(context, init.object.name, init.object);
+      if (
+        !receiver ||
+        alias?.defs.length !== 1 ||
+        alias.defs[0].type !== 'Variable' ||
+        alias.defs[0].node !== snapshot ||
+        getUniqueWriteReference(alias) !== init
+      ) {
+        return undefined;
+      }
+      return { alias, receiver };
     }
 
     function areComparedArguments(argumentNames: string[], node: estree.Node): boolean {
