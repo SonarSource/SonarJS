@@ -578,6 +578,16 @@ describe('S7739', () => {
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
         },
+        // True Positive: non-Promise/Deferred function target is not an intentional thenable
+        {
+          code: `
+          ns.Helper = function () {
+            this.then = function (cb) { this.cb = cb; };
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
         // True Positive: Assigning a non-.then method to .then (like jQuery.ready.then = jQuery.fn.ready)
         // RHS accesses a property that is not named 'then', so it's not a Promise delegation
         {
