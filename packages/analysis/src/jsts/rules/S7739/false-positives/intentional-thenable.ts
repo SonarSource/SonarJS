@@ -170,7 +170,7 @@ function isArrowFunctionLexicalThisThenDefinition(node: Node): boolean {
     parent?.type === 'CallExpression' &&
     parent.arguments[1] === node &&
     parent.arguments[0]?.type === 'ThisExpression' &&
-    parent.arguments.length >= 3 &&
+    parent.arguments[2] !== undefined &&
     (isStaticMethodCall(parent, 'Object', 'defineProperty') ||
       isStaticMethodCall(parent, 'Reflect', 'defineProperty'))
   ) {
