@@ -368,6 +368,140 @@ class WebSensorTest {
   }
 
   @Test
+  void should_replay_restored_filesystem_cache() throws IOException {
+    var archive = Files.writeString(tempDir.resolve("archive.pb.gz"), "archive");
+    var programSelection = Files.writeString(
+      tempDir.resolve("program-selection.pb.gz"),
+      "selection"
+    );
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenReturn(true);
+    context
+      .settings()
+      .setProperty(FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY, archive.toString());
+    context
+      .settings()
+      .setProperty(
+        FilesystemCacheContext.RESTORED_PROGRAM_SELECTION_PATH_PROPERTY,
+        programSelection.toString()
+      );
+
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+    var request = executeSensorAndCaptureHandler(sensor, context).getRequest();
+
+    assertThat(request.hasFilesystemCache()).isTrue();
+    assertThat(request.getFilesystemCache().getArchivePath()).isEqualTo(
+      archive.toAbsolutePath().normalize().toString()
+    );
+    assertThat(request.getFilesystemCache().getProgramSelectionPath()).isEqualTo(
+      programSelection.toAbsolutePath().normalize().toString()
+    );
+  }
+
+  @Test
+  void should_ignore_restored_filesystem_cache_when_unsupported() throws IOException {
+    var archive = Files.writeString(tempDir.resolve("archive.pb.gz"), "archive");
+    context
+      .settings()
+      .setProperty(FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY, archive.toString());
+
+    var request = executeSensorAndCaptureHandler(createSensor(), context).getRequest();
+
+    assertThat(request.hasFilesystemCache()).isFalse();
+  }
+
+  @Test
+  void should_continue_when_filesystem_cache_configuration_fails() {
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenThrow(new IllegalStateException("boom"));
+
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+    var request = executeSensorAndCaptureHandler(sensor, context).getRequest();
+
+    assertThat(request.hasFilesystemCache()).isFalse();
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Could not configure the JavaScript filesystem cache"
+    );
+  }
+
+  @Test
+  void should_record_and_collect_filesystem_cache() throws Exception {
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenReturn(true);
+    when(filesystemCacheContext.isEnabled()).thenReturn(true);
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+    ArgumentCaptor<Path> archiveCaptor = ArgumentCaptor.forClass(Path.class);
+    ArgumentCaptor<Path> programSelectionCaptor = ArgumentCaptor.forClass(Path.class);
+    doAnswer(invocation -> {
+      ProjectAnalysisHandler handler = invocation.getArgument(0);
+      var request = handler.getRequest();
+      var archive = Path.of(request.getFilesystemCache().getArchivePath());
+      var programSelection = Path.of(request.getFilesystemCache().getProgramSelectionPath());
+      assertThat(archive).doesNotExist();
+      assertThat(programSelection).doesNotExist();
+      Files.writeString(archive, "archive");
+      Files.writeString(programSelection, "selection");
+      for (var message : getAnalysisStreamMessages(createProjectResponse(List.of(inputFile)))) {
+        dispatchAnalysisStreamMessage(handler, message);
+      }
+      return handler.getFuture().join();
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any(ProjectAnalysisHandler.class));
+
+    sensor.execute(context);
+
+    verify(filesystemCacheContext).collect(
+      archiveCaptor.capture(),
+      programSelectionCaptor.capture()
+    );
+    assertThat(archiveCaptor.getValue()).isRegularFile().hasContent("archive");
+    assertThat(archiveCaptor.getValue()).startsWith(tempDir.resolve("sonarjs-filesystem-cache"));
+    assertThat(programSelectionCaptor.getValue()).isRegularFile().hasContent("selection");
+    assertThat(programSelectionCaptor.getValue()).startsWith(
+      tempDir.resolve("sonarjs-filesystem-cache")
+    );
+  }
+
+  @Test
+  void should_continue_when_recording_does_not_create_an_archive() {
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenReturn(true);
+    when(filesystemCacheContext.isEnabled()).thenReturn(true);
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+    executeSensorMockingResponse(sensor, createProjectResponse(List.of(inputFile)));
+
+    verify(filesystemCacheContext, org.mockito.Mockito.never()).collect(any(), any());
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "The JavaScript filesystem cache archive was not created; no SQAA context will be published"
+    );
+  }
+
+  @Test
   void should_explode_if_no_response_from_project_analysis() {
     doThrow(new IllegalStateException("error"))
       .when(bridgeServerMock)
@@ -1794,6 +1928,22 @@ class WebSensorTest {
     @Nullable FSListener fsListener,
     WebSensorModuleConfiguration moduleConfiguration
   ) {
+    return createSensor(
+      checks,
+      consumers,
+      fsListener,
+      new NoOpFilesystemCacheContext(),
+      moduleConfiguration
+    );
+  }
+
+  private WebSensor createSensor(
+    JsTsChecks checks,
+    AnalysisConsumers consumers,
+    @Nullable FSListener fsListener,
+    FilesystemCacheContext filesystemCacheContext,
+    WebSensorModuleConfiguration moduleConfiguration
+  ) {
     return new WebSensor(
       checks,
       bridgeServerMock,
@@ -1802,6 +1952,8 @@ class WebSensorTest {
       consumers,
       mock(CssRules.class),
       fsListener,
+      filesystemCacheContext,
+      tempFolder,
       moduleConfiguration
     );
   }

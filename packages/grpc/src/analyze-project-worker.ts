@@ -62,7 +62,12 @@ export function registerAnalyzeProjectWorkerMessageHandler(
         // Convert inside the worker so the parent thread does not clone the full
         // analysis output plus path map before sending the unary gRPC response.
         const result = toUnaryResponseResult(
-          await handleRequest({ type: 'on-analyze-project', data: message.request }, data),
+          await handleRequest(
+            { type: 'on-analyze-project', data: message.request },
+            data,
+            undefined,
+            message.requestId,
+          ),
         );
         parentThread.postMessage({
           type: 'unary-complete',
@@ -75,12 +80,16 @@ export function registerAnalyzeProjectWorkerMessageHandler(
         // Stream responses are converted in the worker so request-scoped path maps
         // and the final accumulated project output stay local to this thread.
         const result = toVoidResult(
-          await handleRequest({ type: 'on-analyze-project', data: message.request }, data, event =>
-            parentThread.postMessage({
-              type: 'event',
-              requestId: message.requestId,
-              response: toAnalyzeProjectStreamResponse(event.event, event.pathMap),
-            } satisfies AnalyzeProjectWorkerOutMessage),
+          await handleRequest(
+            { type: 'on-analyze-project', data: message.request },
+            data,
+            event =>
+              parentThread.postMessage({
+                type: 'event',
+                requestId: message.requestId,
+                response: toAnalyzeProjectStreamResponse(event.event, event.pathMap),
+              } satisfies AnalyzeProjectWorkerOutMessage),
+            message.requestId,
           ),
         );
         parentThread.postMessage({

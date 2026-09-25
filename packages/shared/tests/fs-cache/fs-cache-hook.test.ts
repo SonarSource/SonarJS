@@ -70,11 +70,13 @@ function runHook({ archive, outside, root }: { archive: string; outside: string;
 
 function runInlineHook({
   archive,
+  passthroughDirs = [],
   preloads = [],
   root,
   script,
 }: {
   archive: string;
+  passthroughDirs?: string[];
   preloads?: string[];
   root: string;
   script: string;
@@ -95,7 +97,13 @@ function runInlineHook({
       root,
       archive,
     ],
-    { encoding: 'utf8' },
+    {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        SONARJS_FS_CACHE_TEST_PASSTHROUGH_DIRS: JSON.stringify(passthroughDirs),
+      },
+    },
   );
 }
 
@@ -990,6 +998,107 @@ describe('filesystem cache hook', () => {
     const replayed = runInlineHook({ archive, root, script });
     expect(replayed.status).not.toBe(0);
     expect(replayed.stderr).toContain('ERR_SONARJS_FS_CACHE_MISS');
+  });
+
+  it('keeps the analyzer output tree fully native while rejecting crossing operations', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const passthrough = path.join(root, '.scannerwork');
+    const archive = path.join(temporary, 'analysis.fscache');
+    fs.mkdirSync(root);
+    const script = `
+      import fs from 'node:fs';
+      import path from 'node:path';
+      const outputDirectory = path.join(filesystemCacheRoot, '.scannerwork', 'architecture', 'ts');
+      fs.mkdirSync(outputDirectory, { recursive: true });
+      const output = path.join(outputDirectory, 'main.udg');
+      fs.writeFileSync(output, 'generated');
+      fs.appendFileSync(output, '-appended');
+      const callbackOutput = path.join(outputDirectory, 'callback.udg');
+      await new Promise((resolve, reject) => fs.writeFile(callbackOutput, 'callback', error =>
+        error ? reject(error) : resolve()));
+      const promiseDirectory = path.join(outputDirectory, 'promise');
+      await fs.promises.mkdir(promiseDirectory);
+      const promiseOutput = path.join(promiseDirectory, 'promise.udg');
+      await fs.promises.writeFile(promiseOutput, 'promise');
+      const copiedOutput = path.join(outputDirectory, 'copied.udg');
+      fs.copyFileSync(output, copiedOutput);
+      const renamedOutput = path.join(outputDirectory, 'renamed.udg');
+      fs.renameSync(copiedOutput, renamedOutput);
+      const streamOutput = path.join(outputDirectory, 'stream.udg');
+      await new Promise((resolve, reject) => {
+        const stream = fs.createWriteStream(streamOutput);
+        stream.on('error', reject);
+        stream.end('stream', resolve);
+      });
+      const descriptorOutput = path.join(outputDirectory, 'descriptor.udg');
+      const descriptor = fs.openSync(descriptorOutput, 'w');
+      fs.writeSync(descriptor, 'descriptor');
+      fs.closeSync(descriptor);
+      const handleOutput = path.join(outputDirectory, 'handle.udg');
+      const handle = await fs.promises.open(handleOutput, 'w');
+      await handle.writeFile('handle');
+      await handle.close();
+      let projectMutation;
+      try {
+        fs.mkdirSync(path.join(filesystemCacheRoot, 'generated'));
+      } catch (error) {
+        projectMutation = { code: error.code, message: error.message };
+      }
+      let crossingMutation;
+      try {
+        fs.copyFileSync(output, path.join(filesystemCacheRoot, 'copied-out.udg'));
+      } catch (error) {
+        crossingMutation = { code: error.code, message: error.message };
+      }
+      console.log(JSON.stringify({
+        content: fs.readFileSync(output, 'utf8'),
+        crossingMutation,
+        futurePromise: await fs.promises.futureRead(output),
+        futureSync: fs.futureRead(output),
+        projectMutation,
+      }));
+    `;
+    const result = runInlineHook({
+      archive,
+      passthroughDirs: [passthrough],
+      preloads: [futureFsMethodFixture],
+      root,
+      script,
+    });
+
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual({
+      content: 'generated-appended',
+      crossingMutation: {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.copyFileSync from Node ${process.version}`,
+      },
+      futurePromise: 'unexpected native result',
+      futureSync: 'unexpected native result',
+      projectMutation: {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.mkdirSync from Node ${process.version}`,
+      },
+    });
+    expect(fs.readFileSync(path.join(passthrough, 'architecture', 'ts', 'main.udg'), 'utf8')).toBe(
+      'generated-appended',
+    );
+    const outputDirectory = path.join(passthrough, 'architecture', 'ts');
+    expect(fs.readFileSync(path.join(outputDirectory, 'callback.udg'), 'utf8')).toBe('callback');
+    expect(fs.readFileSync(path.join(outputDirectory, 'promise', 'promise.udg'), 'utf8')).toBe(
+      'promise',
+    );
+    expect(fs.readFileSync(path.join(outputDirectory, 'renamed.udg'), 'utf8')).toBe(
+      'generated-appended',
+    );
+    expect(fs.readFileSync(path.join(outputDirectory, 'stream.udg'), 'utf8')).toBe('stream');
+    expect(fs.readFileSync(path.join(outputDirectory, 'descriptor.udg'), 'utf8')).toBe(
+      'descriptor',
+    );
+    expect(fs.readFileSync(path.join(outputDirectory, 'handle.udg'), 'utf8')).toBe('handle');
+    expect(fs.existsSync(path.join(root, 'copied-out.udg'))).toBe(false);
   });
 
   it('rejects every unpatched filesystem operation', () => {

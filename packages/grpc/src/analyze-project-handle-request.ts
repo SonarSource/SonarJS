@@ -38,6 +38,10 @@ import {
   type FsCacheInstallation,
   type FsCacheSession,
 } from '../../shared/src/fs-cache/hook.js';
+import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
+import { ReplayTimings } from '../../analysis/src/program-selection/replay-timings.js';
+import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { warn } from '../../shared/src/helpers/logging.js';
 
 function beginFilesystemCacheAnalysis(
   request: AnalyzeProjectProtoRequest,
@@ -67,8 +71,43 @@ function beginFilesystemCacheAnalysis(
   }
   return installation.beginAnalysis({
     archivePath: cache.archivePath,
+    passthroughDirs: request.rulesWorkdir
+      ? [
+          normalizeToAbsolutePath(
+            request.rulesWorkdir,
+            normalizeToAbsolutePath(request.configuration.baseDir),
+          ),
+        ]
+      : [],
     rootDir: request.configuration.baseDir,
   });
+}
+
+function beginProgramSelectionAnalysis(
+  request: AnalyzeProjectProtoRequest,
+): ProgramSelectionArchive | undefined {
+  const programSelectionPath = request.filesystemCache?.programSelectionPath;
+  if (!programSelectionPath) {
+    return undefined;
+  }
+  const baseDir = request.configuration?.baseDir;
+  if (!baseDir) {
+    throw new InvalidAnalyzeProjectRequestError('configuration.base_dir is required');
+  }
+  return new ProgramSelectionArchive(programSelectionPath, normalizeToAbsolutePath(baseDir));
+}
+
+function endAnalysisSessions(
+  programSelection: ProgramSelectionArchive | undefined,
+  filesystemCacheSession: FsCacheSession | undefined,
+): void {
+  try {
+    programSelection?.end();
+  } catch (error) {
+    warn(`Could not persist the TypeScript program selection archive: ${error}`);
+  } finally {
+    filesystemCacheSession?.end();
+  }
 }
 
 export type WorkerData = {
@@ -79,15 +118,37 @@ export async function handleAnalyzeProjectRequest(
   request: AnalyzeProjectRuntimeRequest,
   workerData: WorkerData,
   incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
+  requestId = 'unknown',
 ): Promise<RequestResult<AnalyzeProjectResponse | void>> {
+  const timings =
+    request.type === 'on-analyze-project' && request.data.filesystemCache
+      ? new ReplayTimings(requestId, workerData?.debugMemory)
+      : undefined;
+  let cacheMode: 'record' | 'replay' = 'record';
+  let outcome: 'success' | 'failure' = 'failure';
   try {
     switch (request.type) {
       case 'on-analyze-project': {
-        const filesystemCacheSession = beginFilesystemCacheAnalysis(request.data);
+        const filesystemCacheSession = timings
+          ? timings.measure('filesystemArchiveLoad', () =>
+              beginFilesystemCacheAnalysis(request.data),
+            )
+          : beginFilesystemCacheAnalysis(request.data);
+        cacheMode = filesystemCacheSession?.mode ?? cacheMode;
+        let programSelection: ProgramSelectionArchive | undefined;
         try {
+          programSelection = timings
+            ? timings.measure('programSelectionLoad', () =>
+                beginProgramSelectionAnalysis(request.data),
+              )
+            : beginProgramSelectionAnalysis(request.data);
           return await withAnalysisCancellation(async () => {
             logHeapStatistics(workerData?.debugMemory);
-            const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
+            const sanitizedInput = timings
+              ? await timings.measureAsync('requestNormalization', () =>
+                  normalizeAnalyzeProjectRequest(request.data),
+                )
+              : await normalizeAnalyzeProjectRequest(request.data);
             const wrappedIncrementalResultsChannel = incrementalResultsChannel
               ? (event: AnalyzeProjectIncrementalEvent['event']) =>
                   incrementalResultsChannel({
@@ -96,17 +157,26 @@ export async function handleAnalyzeProjectRequest(
                   })
               : undefined;
 
-            const output = await analyzeProject(
-              {
-                rules: sanitizedInput.rules,
-                cssRules: sanitizedInput.cssRules,
-                bundles: sanitizedInput.bundles,
-                rulesWorkdir: sanitizedInput.rulesWorkdir,
-              },
-              sanitizedInput.configuration,
-              wrappedIncrementalResultsChannel,
-            );
+            const analyze = () =>
+              analyzeProject(
+                {
+                  rules: sanitizedInput.rules,
+                  cssRules: sanitizedInput.cssRules,
+                  bundles: sanitizedInput.bundles,
+                  rulesWorkdir: sanitizedInput.rulesWorkdir,
+                  programSelection,
+                  // Per-file measurements are useful for SQAA replay, but avoid that work
+                  // during the potentially much larger normal CI recording analysis.
+                  replayTimings: programSelection?.isReplay() ? timings : undefined,
+                },
+                sanitizedInput.configuration,
+                wrappedIncrementalResultsChannel,
+              );
+            const output = timings
+              ? await timings.measureAsync('projectAnalysis', analyze)
+              : await analyze();
             logHeapStatistics(workerData?.debugMemory);
+            outcome = 'success';
             return {
               type: 'success',
               result: {
@@ -116,7 +186,7 @@ export async function handleAnalyzeProjectRequest(
             };
           });
         } finally {
-          filesystemCacheSession?.end();
+          endAnalysisSessions(programSelection, filesystemCacheSession);
         }
       }
       case 'on-cancel-analysis': {
@@ -139,10 +209,13 @@ export async function handleAnalyzeProjectRequest(
       }
     }
   } catch (err) {
+    outcome = 'failure';
     return {
       type: 'failure',
       error: serializeError(err),
       reason: err instanceof InvalidAnalyzeProjectRequestError ? 'invalid_request' : 'runtime',
     };
+  } finally {
+    timings?.log(outcome, cacheMode);
   }
 }

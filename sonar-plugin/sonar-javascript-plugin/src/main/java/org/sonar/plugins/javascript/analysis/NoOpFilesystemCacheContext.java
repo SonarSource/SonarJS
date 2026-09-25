@@ -14,19 +14,24 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { pathToFileURL } from 'node:url';
-import { installFsCache } from '../../../../../lib/shared/src/fs-cache/hook.js';
+package org.sonar.plugins.javascript.analysis;
 
-const [archivePath, rootDir, target, ...targetArguments] = process.argv.slice(2);
-if (!archivePath || !rootDir || !target) {
-  throw new Error('Expected filesystem cache archive, root, and target module arguments');
-}
+import java.nio.file.Path;
 
-process.argv = [process.argv[0], target, ...targetArguments];
-const passthroughDirs = JSON.parse(process.env.SONARJS_FS_CACHE_TEST_PASSTHROUGH_DIRS || '[]');
-const session = installFsCache().beginAnalysis({ archivePath, passthroughDirs, rootDir });
-try {
-  await import(pathToFileURL(target).href);
-} finally {
-  session.end();
+public class NoOpFilesystemCacheContext implements FilesystemCacheContext {
+
+  @Override
+  public boolean isSupported() {
+    return false;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return false;
+  }
+
+  @Override
+  public void collect(Path archivePath, Path programSelectionPath) {
+    // Context collection is unavailable on this host.
+  }
 }

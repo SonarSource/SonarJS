@@ -40,10 +40,7 @@ import {
   type RealpathOperation,
   writeFileWithNativePrimitives,
 } from './archive-types.js';
-import {
-  deserializeProtobufDocument,
-  serializeProtobufDocument,
-} from './archive-serialization.js';
+import { deserializeProtobufDocument, serializeProtobufDocument } from './archive-serialization.js';
 import {
   createNode,
   isMissingOutcome,
@@ -147,6 +144,19 @@ function comparisonRoot(directory: string): ComparisonRoot {
   };
 }
 
+function pathLikeToString(input: fs.PathLike): string | undefined {
+  if (typeof input === 'string') {
+    return input;
+  }
+  if (Buffer.isBuffer(input)) {
+    return input.toString();
+  }
+  if (input instanceof URL && input.protocol === 'file:') {
+    return fileURLToPath(input);
+  }
+  return undefined;
+}
+
 /**
  * A versioned, portable record of filesystem observations.
  *
@@ -159,6 +169,7 @@ export class FsCacheArchive {
   rootDir: string;
   physicalRootDirs: Partial<Record<RealpathOperation, string>>;
   comparisonRoots: ComparisonRoot[];
+  passthroughRoots: ComparisonRoot[];
   mode: ArchiveMode;
   createdAt: string;
   entries: Map<string, CacheNode>;
@@ -168,7 +179,7 @@ export class FsCacheArchive {
   cacheHits: number;
   cacheMisses: number;
 
-  constructor({ archivePath, rootDir }: ArchiveOptions) {
+  constructor({ archivePath, passthroughDirs = [], rootDir }: ArchiveOptions) {
     if (!archivePath) {
       throw new FsCacheArchiveError('The filesystem cache archive path is required');
     }
@@ -185,6 +196,9 @@ export class FsCacheArchive {
     this.physicalRootDirs = physicalRootDirs;
     this.comparisonRoots = rootAliases
       .map(comparisonRoot)
+      .sort((left, right) => right.directory.length - left.directory.length);
+    this.passthroughRoots = passthroughDirs
+      .map(directory => comparisonRoot(normalizeForComparison(path.resolve(directory))))
       .sort((left, right) => right.directory.length - left.directory.length);
     this.createdAt = new Date().toISOString();
     this.entries = new Map();
@@ -247,14 +261,8 @@ export class FsCacheArchive {
   }
 
   keyFor(input: fs.PathLike): string | undefined {
-    let filePath: string;
-    if (typeof input === 'string') {
-      filePath = input;
-    } else if (Buffer.isBuffer(input)) {
-      filePath = input.toString();
-    } else if (input instanceof URL && input.protocol === 'file:') {
-      filePath = fileURLToPath(input);
-    } else {
+    const filePath = pathLikeToString(input);
+    if (filePath === undefined) {
       return undefined;
     }
 
@@ -265,6 +273,9 @@ export class FsCacheArchive {
     }
 
     const comparisonFilePath = normalizeForComparison(filePath);
+    if (this.isPassthrough(input)) {
+      return undefined;
+    }
     let relativePath;
     const needsNormalization =
       comparisonFilePath.includes('/./') ||
@@ -293,6 +304,19 @@ export class FsCacheArchive {
     this.pathKeys.set(inputPath, key);
     this.pathKeys.set(comparisonFilePath, key);
     return key;
+  }
+
+  isPassthrough(input: fs.PathLike): boolean {
+    const filePath = pathLikeToString(input);
+    if (filePath === undefined) {
+      return false;
+    }
+    const absoluteComparisonFilePath = normalizeForComparison(path.resolve(filePath));
+    return this.passthroughRoots.some(
+      candidate =>
+        absoluteComparisonFilePath === candidate.directory ||
+        absoluteComparisonFilePath.startsWith(candidate.prefix),
+    );
   }
 
   absolutePathFor(key: string, rootDir = this.rootDir): string {

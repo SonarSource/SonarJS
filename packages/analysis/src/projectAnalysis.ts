@@ -23,6 +23,8 @@ import type { File, NormalizedAbsolutePath } from '../../shared/src/helpers/file
 import type { ProjectAnalysisTelemetry } from './telemetry.js';
 import type { ParsingError } from './contracts/project-analysis.js';
 import type { FileType } from './contracts/file.js';
+import type { ProgramSelectionArchive } from './program-selection/archive.js';
+import type { ReplayTimings } from './program-selection/replay-timings.js';
 
 export type ProjectAnalysisMeta = {
   warnings: string[];
@@ -120,4 +122,6 @@ export type ProjectAnalysisInput = {
   cssRules?: CssRuleConfig[];
   bundles: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
+  programSelection?: ProgramSelectionArchive;
+  replayTimings?: ReplayTimings;
 };
