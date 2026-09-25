@@ -21,7 +21,11 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   type FunctionNodeType,
+  getUniqueWriteReference,
+  getVariableFromName,
+  isDotNotation,
   isFunctionNode,
+  isIndexNotation,
   resolveFromFunctionReference,
   resolveIdentifiers,
 } from '../helpers/ast.js';
@@ -95,6 +99,32 @@ export const rule: Rule.RuleModule = {
       }
     }
 
+    /**
+     * Resolves an identifier holding a single-write snapshot of a member access back to that
+     * access, so that `const m = a.length` makes `m` stand for `a.length`. Any other node is
+     * returned unchanged. Only one level is followed, so no alias cycle can be entered.
+     */
+    function resolveMemberSnapshot(node: estree.Node): estree.Node {
+      if (node.type !== 'Identifier') {
+        return node;
+      }
+      const variable = getVariableFromName(context, node.name, node);
+      if (variable?.defs.length !== 1 || variable.defs[0].type !== 'Variable') {
+        return node;
+      }
+      const snapshot = getUniqueWriteReference(variable);
+      return snapshot && (isDotNotation(snapshot) || isIndexNotation(snapshot)) ? snapshot : node;
+    }
+
+    /**
+     * Returns true when the enclosing `if` compares the two swapped arguments. The condition is
+     * then what selects the ordering, so passing them reversed is deliberate, e.g.
+     * `if (a.length < b.length) return f(b, a);`.
+     *
+     * Operands are resolved through member snapshots, so the idiomatic form that stores the
+     * lengths first reads the same as the inline one:
+     * `const m = a.length; const n = b.length; if (m < n) return f(b, a);`.
+     */
     function areComparedArguments(argumentNames: string[], node: estree.Node): boolean {
       function getName(node: estree.Node): string | undefined {
         switch (node.type) {
@@ -110,8 +140,9 @@ export const rule: Rule.RuleModule = {
       }
       function checkComparedArguments(lhs: estree.Node, rhs: estree.Node): boolean {
         return (
-          [lhs, rhs].map(getName).filter(name => name && argumentNames.includes(name)).length ===
-          argumentNames.length
+          [lhs, rhs]
+            .map(side => getName(resolveMemberSnapshot(side)))
+            .filter(name => name && argumentNames.includes(name)).length === argumentNames.length
         );
       }
       const maybeIfStmt = context.sourceCode
@@ -119,7 +150,7 @@ export const rule: Rule.RuleModule = {
         .reverse()
         .find(ancestor => ancestor.type === 'IfStatement');
       if (maybeIfStmt) {
-        const { test } = maybeIfStmt;
+        const test = unwrapNegation(maybeIfStmt.test);
         switch (test.type) {
           case 'BinaryExpression': {
             const binExpr = test;
@@ -292,14 +323,12 @@ export const rule: Rule.RuleModule = {
       const otherAtIdx1 = otherArgs[idx1];
       const otherAtIdx2 = otherArgs[idx2];
 
-      if (
-        !(
-          otherAtIdx1?.type === 'Identifier' &&
-          otherAtIdx1.name === arg2Name &&
-          otherAtIdx2?.type === 'Identifier' &&
-          otherAtIdx2.name === arg1Name
-        )
-      ) {
+      if (!(
+        otherAtIdx1?.type === 'Identifier' &&
+        otherAtIdx1.name === arg2Name &&
+        otherAtIdx2?.type === 'Identifier' &&
+        otherAtIdx2.name === arg1Name
+      )) {
         return false;
       }
 
@@ -415,6 +444,14 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+/**
+ * `if (!(m >= n))` selects an ordering just as `if (m < n)` does, so the negation is transparent
+ * for the purpose of deciding whether the condition compares the swapped pair.
+ */
+function unwrapNegation(node: estree.Expression): estree.Expression {
+  return node.type === 'UnaryExpression' && node.operator === '!' ? node.argument : node;
+}
 
 const DIRECTIONAL_KEYWORD_PATTERN = /\b(rtl|ltr|reverse|flip|swap|forward|backward)\b/i;
 const CRYPTO_FUNCTION_PATTERN = /^(md[45]_?)?(ff|gg|hh|ii)$/i;
