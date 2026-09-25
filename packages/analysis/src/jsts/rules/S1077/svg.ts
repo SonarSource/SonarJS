@@ -53,7 +53,7 @@ export function checkSvgAccessibleName(
     return;
   }
 
-  if (isHiddenFromAssistiveTech(node, attributes)) {
+  if (isHiddenFromAssistiveTech(node)) {
     return;
   }
 
@@ -86,17 +86,8 @@ function isRoleDecorativeOrUnresolvable(attributes: JSXOpeningElement['attribute
   return DECORATIVE_ROLES.has(firstToken);
 }
 
-// An ancestor's aria-hidden="true" or native `hidden` can't be overridden by a descendant,
-// so either one, on the element itself or any ancestor, short-circuits.
-function isHiddenFromAssistiveTech(
-  node: TSESTree.JSXOpeningElement,
-  attributes: JSXOpeningElement['attributes'],
-): boolean {
-  if (isElementHidden(attributes)) {
-    return true;
-  }
-
-  let ancestor: TSESTree.Node | undefined = node.parent?.parent;
+function isHiddenFromAssistiveTech(node: TSESTree.JSXOpeningElement): boolean {
+  let ancestor: TSESTree.Node | undefined = node.parent;
   while (ancestor) {
     if (
       ancestor.type === 'JSXElement' &&
@@ -111,35 +102,25 @@ function isHiddenFromAssistiveTech(
 }
 
 function isElementHidden(attributes: JSXOpeningElement['attributes']): boolean {
-  return getAriaHiddenState(attributes) === true || getNativeHiddenState(attributes) === true;
+  return isAriaHidden(attributes) || isNativeHidden(attributes);
 }
 
-function getAriaHiddenState(attributes: JSXOpeningElement['attributes']): boolean | undefined {
+function isAriaHidden(attributes: JSXOpeningElement['attributes']): boolean {
   const prop = getProp(attributes, 'aria-hidden');
   if (!prop) {
-    return undefined;
-  }
-  const value = getLiteralPropValue(prop);
-  if (value === true || value === 'true') {
-    return true;
-  }
-  if (value === false || value === 'false') {
     return false;
   }
   // Dynamic/unresolvable value: conservatively treat as hidden.
-  return true;
+  const value = getLiteralPropValue(prop);
+  return value !== false && value !== 'false';
 }
 
-function getNativeHiddenState(attributes: JSXOpeningElement['attributes']): boolean | undefined {
+function isNativeHidden(attributes: JSXOpeningElement['attributes']): boolean {
   const prop = getProp(attributes, 'hidden');
   if (!prop) {
-    return undefined;
-  }
-  const value = getLiteralPropValue(prop);
-  if (value === false) {
     return false;
   }
   // Presence (shorthand `hidden`), explicit `true`, or a dynamic/unresolvable value:
   // conservatively treat as hidden.
-  return true;
+  return getLiteralPropValue(prop) !== false;
 }
