@@ -204,7 +204,8 @@ function isPromiseOrDeferredClass(ancestor: Node): boolean {
 
 /**
  * Checks if a named Promise/Deferred definition directly contains `then`, rather than a nested
- * function or class defining it.
+ * function or class defining it. Class methods and arrows using the enclosing `this` retain the
+ * enclosing definition's receiver.
  */
 function isDirectlyContainingThenDefinition(ancestor: Node, node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
@@ -213,16 +214,18 @@ function isDirectlyContainingThenDefinition(ancestor: Node, node: Node): boolean
     ancestorIndex !== -1 &&
     !ancestors
       .slice(0, ancestorIndex)
-      .some(nestedAncestor =>
-        [
-          'FunctionDeclaration',
-          'FunctionExpression',
-          'ArrowFunctionExpression',
-          'ClassDeclaration',
-          'ClassExpression',
-        ].includes(nestedAncestor.type),
-      )
+      .some(nestedAncestor => isThenDefinitionBoundary(nestedAncestor, node))
   );
+}
+
+function isThenDefinitionBoundary(ancestor: Node, node: Node): boolean {
+  if (ancestor.type === 'FunctionExpression') {
+    return getNodeParent(ancestor)?.type !== 'MethodDefinition';
+  }
+  if (ancestor.type === 'ArrowFunctionExpression') {
+    return !isArrowFunctionLexicalThisThenDefinition(node);
+  }
+  return ['FunctionDeclaration', 'ClassDeclaration', 'ClassExpression'].includes(ancestor.type);
 }
 
 /**

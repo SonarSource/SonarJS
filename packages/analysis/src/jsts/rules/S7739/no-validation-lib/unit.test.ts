@@ -183,6 +183,19 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // False Positive Pattern 5f-1: Constructor assignment on a namespaced Deferred class
+        {
+          code: `
+          ns.Deferred = class {
+            constructor() {
+              this.then = function (resolve, reject) {
+                return this._promise.then(resolve, reject);
+              };
+            }
+          };
+        `,
+          filename: testFilePath,
+        },
         // False Positive Pattern 5g: Arrow assigned to a namespaced Promise property
         {
           code: `
@@ -191,6 +204,20 @@ describe('S7739', () => {
               return this._promise.then(resolve, reject);
             },
           });
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5h: Nested arrows retain a Deferred function's lexical this
+        {
+          code: `
+          ns.Deferred = function () {
+            const initialize = () => {
+              this.then = function (resolve, reject) {
+                return this._promise.then(resolve, reject);
+              };
+            };
+            initialize();
+          };
         `,
           filename: testFilePath,
         },
