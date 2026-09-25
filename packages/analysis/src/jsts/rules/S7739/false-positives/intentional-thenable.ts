@@ -157,6 +157,10 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node, node: Node): bool
   );
 }
 
+/**
+ * Checks arrow code such as `exports.Promise = () => { this.then = fn; }` and
+ * `Object.defineProperty(this, 'then', { value: fn })`, where `this` is lexical.
+ */
 function isThisThenAssignment(node: Node): boolean {
   const [parent, assignment] = getAncestorsWithParent(node);
   if (parent?.type === 'CallExpression' && parent.arguments[1] === node) {
