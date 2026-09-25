@@ -159,6 +159,101 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // False Positive Pattern 5c-1: A named Deferred function can directly return a thenable
+        {
+          code: `
+          function Deferred() {
+            return { then: function () {} };
+          }
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5e: Function expression assigned to a namespaced Deferred
+        // property (e.g. jQuery-style `ns.Deferred = function () {...}`), rather than a bare
+        // declaration name.
+        {
+          code: `
+          ns.Deferred = function () {
+            this.then = function (resolve, reject) {
+              return this._promise.then(resolve, reject);
+            };
+          };
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5f: Class expression assigned to a namespaced Promise property
+        {
+          code: `
+          ns.Promise = class {
+            then(resolve, reject) {
+              return this._promise.then(resolve, reject);
+            }
+          };
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5f-1: Constructor assignment on a namespaced Deferred class
+        {
+          code: `
+          ns.Deferred = class {
+            constructor() {
+              this.then = function (resolve, reject) {
+                return this._promise.then(resolve, reject);
+              };
+            }
+          };
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5f-3: A named Deferred class can return a thenable from an instance method
+        {
+          code: `
+          class Deferred {
+            promise() {
+              return { then: function () {} };
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5f-2: An outer static method does not change an inner Promise class
+        {
+          code: `
+          class Outer {
+            static initialize() {
+              ns.Promise = class Promise {
+                then() {}
+              };
+            }
+          }
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5g: Arrow assigned to a namespaced Promise property
+        {
+          code: `
+          exports.Promise = () => ({
+            then: function (resolve, reject) {
+              return this._promise.then(resolve, reject);
+            },
+          });
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5h: Nested arrows retain a Deferred function's lexical this
+        {
+          code: `
+          ns.Deferred = function () {
+            const initialize = () => {
+              this.then = function (resolve, reject) {
+                return this._promise.then(resolve, reject);
+              };
+            };
+            initialize();
+          };
+        `,
+          filename: testFilePath,
+        },
         // False Positive Pattern 6: Object with then AND catch methods
         // Having both then and catch methods indicates an intentional thenable implementation.
         {
@@ -490,6 +585,212 @@ describe('S7739', () => {
           const result = {};
           result.then = (args) => someOtherCall(args);
         `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: computed member target is not treated as a Promise/Deferred name
+        {
+          code: `
+          ns[Deferred] = function () {
+            this.then = function (cb) { this.cb = cb; };
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: an arrow's lexical this is not a Promise/Deferred instance
+        {
+          code: `
+          exports.Promise = () => {
+            this.then = function (callback) { this.callback = callback; };
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: defineProperty on an arrow's lexical this is not a Promise/Deferred instance
+        {
+          code: `
+          exports.Promise = () => {
+            Object.defineProperty(this, 'then', { value: function () {} });
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: Reflect.defineProperty has the same lexical-this boundary
+        {
+          code: `
+          exports.Deferred = () => {
+            Reflect.defineProperty(this, 'then', { value: function () {} });
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: non-Promise/Deferred member target is not an intentional thenable
+        {
+          code: `
+          ns.Helper = class {
+            then(callback) { this.callback = callback; }
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: non-Promise/Deferred function target is not an intentional thenable
+        {
+          code: `
+          ns.Helper = function () {
+            this.then = function (cb) { this.cb = cb; };
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a Promise-named outer function does not make a nested function thenable
+        {
+          code: `
+          ns.Promise = function () {
+            return function Helper() {
+              this.then = function (cb) { this.cb = cb; };
+            };
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a nested arrow can return an unrelated thenable object
+        {
+          code: `
+          ns.Promise = function () {
+            return () => ({ then: function () {} });
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a nested object is not the named Promise implementation
+        {
+          code: `
+          ns.Promise = function () {
+            const helper = { then: function () {} };
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a Promise-named member target does not make a non-callable then intentional
+        {
+          code: `
+          ns.Promise = function () {
+            return { then: 0 };
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a descriptor object is not a callable then method outside defineProperties
+        {
+          code: `
+          ns.Promise = function () {
+            return { then: { value: function () {} } };
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: Object.assign does not interpret descriptors as properties
+        {
+          code: `
+          ns.Deferred = function () {
+            Object.assign(this, { then: { value: function () {} } });
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a helper then assignment is not owned by the Promise instance
+        {
+          code: `
+          ns.Promise = function () {
+            const helper = {};
+            helper.then = function () {};
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: accessors are not callable then methods
+        {
+          code: `
+          ns.Promise = class {
+            get then() { return 42; }
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        {
+          code: `
+          ns.Deferred = class {
+            set then(value) {}
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: an instance method's returned helper is not a factory result
+        {
+          code: `
+          ns.Promise = class {
+            make() {
+              return { then: function () {} };
+            }
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a static then belongs to the class object, not a Promise instance
+        {
+          code: `
+          ns.Promise = class {
+            static then() {}
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: a static block modifies the class object, not a Promise instance
+        {
+          code: `
+          ns.Promise = class {
+            static {
+              this.then = function () {};
+            }
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: Object.assign on an arrow's lexical this is not a Promise instance
+        {
+          code: `
+          exports.Promise = () => {
+            Object.assign(this, { then: function () {} });
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: Object.defineProperties on an arrow's lexical this is not a Promise instance
+        {
+          code: `
+          exports.Promise = () => {
+            Object.defineProperties(this, { then: { value: function () {} } });
+          };
+          `,
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
