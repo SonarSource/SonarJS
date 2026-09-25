@@ -209,7 +209,7 @@ function isPromiseOrDeferredClass(ancestor: Node, node: Node): boolean {
   if (ancestor.type !== 'ClassDeclaration' && ancestor.type !== 'ClassExpression') {
     return false;
   }
-  if (isStaticClassMember(node)) {
+  if (isStaticClassMember(ancestor, node)) {
     return false;
   }
   if (ancestor.id !== null && isIdentifier(ancestor.id, 'Promise', 'Deferred')) {
@@ -222,12 +222,17 @@ function isPromiseOrDeferredClass(ancestor: Node, node: Node): boolean {
   );
 }
 
-function isStaticClassMember(node: Node): boolean {
-  return getAncestorsWithParent(node).some(
-    ancestor =>
-      (ancestor.type === 'MethodDefinition' || ancestor.type === 'PropertyDefinition') &&
-      ancestor.static,
-  );
+function isStaticClassMember(classNode: Node, node: Node): boolean {
+  const ancestors = getAncestorsWithParent(node);
+  const classIndex = ancestors.indexOf(classNode);
+  return ancestors
+    .slice(0, classIndex)
+    .some(
+      ancestor =>
+        ancestor.type === 'StaticBlock' ||
+        ((ancestor.type === 'MethodDefinition' || ancestor.type === 'PropertyDefinition') &&
+          ancestor.static),
+    );
 }
 
 /**
@@ -248,7 +253,7 @@ function isDirectlyContainingThenDefinition(ancestor: Node, node: Node): boolean
 
 function isThenDefinitionBoundary(ancestor: Node, node: Node): boolean {
   if (ancestor.type === 'ObjectExpression') {
-    return !isDirectArrowFactoryResult(ancestor);
+    return !(isDirectFactoryResult(ancestor) || isThisThenObjectUtilityProperty(node));
   }
   if (ancestor.type === 'FunctionExpression') {
     return getNodeParent(ancestor)?.type !== 'MethodDefinition';
@@ -259,16 +264,23 @@ function isThenDefinitionBoundary(ancestor: Node, node: Node): boolean {
   return ['FunctionDeclaration', 'ClassDeclaration', 'ClassExpression'].includes(ancestor.type);
 }
 
-function isDirectArrowFactoryResult(node: Node): boolean {
+function isDirectFactoryResult(node: Node): boolean {
   const parent = getNodeParent(node);
-  if (parent?.type === 'ArrowFunctionExpression') {
+  if (
+    (parent?.type === 'ArrowFunctionExpression' ||
+      parent?.type === 'FunctionExpression' ||
+      parent?.type === 'FunctionDeclaration') &&
+    parent.body === node
+  ) {
     return parent.body === node;
   }
   const block = parent?.type === 'ReturnStatement' ? getNodeParent(parent) : undefined;
-  const arrow = block?.type === 'BlockStatement' ? getNodeParent(block) : undefined;
+  const functionNode = block?.type === 'BlockStatement' ? getNodeParent(block) : undefined;
   return (
-    arrow?.type === 'ArrowFunctionExpression' &&
-    arrow.body === block &&
+    (functionNode?.type === 'ArrowFunctionExpression' ||
+      functionNode?.type === 'FunctionExpression' ||
+      functionNode?.type === 'FunctionDeclaration') &&
+    functionNode.body === block &&
     block.body.includes(parent!)
   );
 }

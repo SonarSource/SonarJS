@@ -159,6 +159,15 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // False Positive Pattern 5c-1: A named Deferred function can directly return a thenable
+        {
+          code: `
+          function Deferred() {
+            return { then: function () {} };
+          }
+        `,
+          filename: testFilePath,
+        },
         // False Positive Pattern 5e: Function expression assigned to a namespaced Deferred
         // property (e.g. jQuery-style `ns.Deferred = function () {...}`), rather than a bare
         // declaration name.
@@ -168,6 +177,16 @@ describe('S7739', () => {
             this.then = function (resolve, reject) {
               return this._promise.then(resolve, reject);
             };
+          };
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5e-1: Instance utilities define an intentional Deferred thenable
+        {
+          code: `
+          ns.Deferred = function () {
+            Object.assign(this, { then: function () {} });
+            Object.defineProperties(this, { then: { value: function () {} } });
           };
         `,
           filename: testFilePath,
@@ -193,6 +212,19 @@ describe('S7739', () => {
               };
             }
           };
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5f-2: An outer static method does not change an inner Promise class
+        {
+          code: `
+          class Outer {
+            static initialize() {
+              ns.Promise = class Promise {
+                then() {}
+              };
+            }
+          }
         `,
           filename: testFilePath,
         },
@@ -656,6 +688,18 @@ describe('S7739', () => {
           `,
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: a static block modifies the class object, not a Promise instance
+        {
+          code: `
+          ns.Promise = class {
+            static {
+              this.then = function () {};
+            }
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
         // True Positive: Object.assign on an arrow's lexical this is not a Promise instance
         {
