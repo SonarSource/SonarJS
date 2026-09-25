@@ -24,10 +24,12 @@ import {
 import type { AnalyzeProjectIncrementalEvent } from '../src/analyze-project-request.js';
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
 import { FS_CACHE_INSTALLATION, installFsCache } from '../../shared/src/fs-cache/hook.js';
+import { FsCacheArchive } from '../../shared/src/fs-cache/archive.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import ts from 'typescript';
 
 const workerData: WorkerData = { debugMemory: false };
 type AnalyzeProjectRequest = analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectRequest;
@@ -51,6 +53,110 @@ function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
 }
 
 describe('analyze-project request handler', () => {
+  it('replays a file reached through an implicit tsconfig root and transitive imports', async () => {
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-import-'));
+    const recordRoot = path.join(temporary, 'record');
+    const replayRoot = path.join(temporary, 'replay');
+    const rulesWorkdir = path.join(temporary, 'work');
+    const archivePath = path.join(rulesWorkdir, 'filesystem.pb.gz');
+    const programSelectionPath = path.join(rulesWorkdir, 'program-selection.pb.gz');
+    fs.mkdirSync(path.join(recordRoot, 'build/vite'), { recursive: true });
+    fs.mkdirSync(path.join(recordRoot, 'src'), { recursive: true });
+    fs.mkdirSync(rulesWorkdir);
+    fs.writeFileSync(
+      path.join(recordRoot, 'build/vite/tsconfig.json'),
+      '{"compilerOptions":{"module":"preserve"}}',
+    );
+    fs.writeFileSync(path.join(recordRoot, 'build/vite/index.ts'), "import '../../src/entry.js';");
+    fs.writeFileSync(
+      path.join(recordRoot, 'src/entry.ts'),
+      "import './processes.js';\nimport './scrollable.js';",
+    );
+    fs.writeFileSync(path.join(recordRoot, 'src/processes.ts'), 'export const p = 1;;');
+    fs.writeFileSync(path.join(recordRoot, 'src/scrollable.ts'), 'export const s = 1;;');
+    (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
+    // In production the worker installs the filesystem hook before loading TypeScript.
+    // This test loads TypeScript first, so bind its cached stat-based fileExists
+    // implementation to the hook, matching the production worker preload order.
+    const fileExists = mock.method(ts.sys, 'fileExists', (fileName: string) => {
+      try {
+        return fs.statSync(fileName).isFile();
+      } catch {
+        return false;
+      }
+    });
+
+    const request = (baseDir: string, relativeFiles: string[]): AnalyzeProjectRequest => ({
+      configuration: { baseDir },
+      files: Object.fromEntries(
+        relativeFiles.map(relativePath => [
+          path.join(baseDir, relativePath),
+          {
+            fileContent: fs.readFileSync(path.join(recordRoot, relativePath), 'utf8'),
+            fileType: FileType.FILE_TYPE_MAIN,
+          },
+        ]),
+      ),
+      rules: [
+        {
+          key: 'S1116',
+          configurations: [],
+          fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+          language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+          analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+        },
+      ],
+      cssRules: [],
+      bundles: [],
+      rulesWorkdir,
+      filesystemCache: { archivePath, programSelectionPath },
+    });
+
+    try {
+      const recorded = await handleAnalyzeProjectRequest(
+        {
+          type: 'on-analyze-project',
+          data: request(recordRoot, [
+            'build/vite/index.ts',
+            'src/entry.ts',
+            'src/processes.ts',
+            'src/scrollable.ts',
+          ]),
+        },
+        workerData,
+      );
+      expect(recorded.type).toBe('success');
+      expect(fs.statSync(programSelectionPath).size).toBeGreaterThan(0);
+      const archive = new FsCacheArchive({ archivePath, rootDir: recordRoot });
+      archive.load();
+      const intermediate = archive.keyFor(path.join(recordRoot, 'src/entry.ts'))!;
+      expect(archive.get(intermediate, 'readFile')?.ok).toBe(true);
+      expect(archive.get(intermediate, 'stat:number')).toBeUndefined();
+      fs.mkdirSync(replayRoot);
+
+      for (const relativePath of ['src/processes.ts', 'src/scrollable.ts']) {
+        const replayed = await handleAnalyzeProjectRequest(
+          { type: 'on-analyze-project', data: request(replayRoot, [relativePath]) },
+          workerData,
+        );
+        expect(replayed).toMatchObject({
+          type: 'success',
+          result: {
+            output: {
+              files: {
+                [normalizeToAbsolutePath(path.join(replayRoot, relativePath))]: {
+                  issues: [expect.objectContaining({ ruleId: 'S1116' })],
+                },
+              },
+            },
+          },
+        });
+      }
+    } finally {
+      fileExists.mock.restore();
+    }
+  });
+
   it('replays dependency-gated rules after normal project discovery', async () => {
     const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'analyze-project-replay-'));
     const recordRoot = path.join(temporary, 'record');
