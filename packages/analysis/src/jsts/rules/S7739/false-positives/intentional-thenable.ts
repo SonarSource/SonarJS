@@ -171,6 +171,21 @@ function isCallableThenDefinition(node: Node): boolean {
   const [parent, container] = ancestors;
   const assignment = ancestors.find(ancestor => ancestor.type === 'AssignmentExpression');
   if (
+    parent?.type === 'CallExpression' &&
+    parent.arguments[1] === node &&
+    parent.arguments[2] !== undefined &&
+    (isStaticMethodCall(parent, 'Object', 'defineProperty') ||
+      isStaticMethodCall(parent, 'Reflect', 'defineProperty'))
+  ) {
+    if (
+      parent.arguments[0]?.type === 'ThisExpression' &&
+      ancestors.some(ancestor => ancestor.type === 'ArrowFunctionExpression')
+    ) {
+      return false;
+    }
+    return isCallableThenValue(parent.arguments[2] as Node);
+  }
+  if (
     parent?.type === 'MemberExpression' &&
     parent.property === node &&
     assignment?.type === 'AssignmentExpression'
