@@ -679,6 +679,16 @@ describe('S7739', () => {
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
+        // True Positive: a Promise-named member target does not make a non-callable then intentional
+        {
+          code: `
+          ns.Promise = function () {
+            return { then: 0 };
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
         // True Positive: a static then belongs to the class object, not a Promise instance
         {
           code: `

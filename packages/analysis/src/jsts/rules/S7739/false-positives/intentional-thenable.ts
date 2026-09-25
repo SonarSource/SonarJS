@@ -121,10 +121,15 @@ function isPromiseOrDeferredFunctionDeclaration(ancestor: Node): boolean {
 
 function isPromiseOrDeferredAssignmentTarget(target: Node): boolean {
   return (
-    isIdentifier(target, 'Promise', 'Deferred') ||
-    (target.type === 'MemberExpression' &&
-      !target.computed &&
-      isIdentifier(target.property, 'Promise', 'Deferred'))
+    isIdentifier(target, 'Promise', 'Deferred') || isPromiseOrDeferredMemberAssignmentTarget(target)
+  );
+}
+
+function isPromiseOrDeferredMemberAssignmentTarget(target: Node): boolean {
+  return (
+    target.type === 'MemberExpression' &&
+    !target.computed &&
+    isIdentifier(target.property, 'Promise', 'Deferred')
   );
 }
 
@@ -156,7 +161,47 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node, node: Node): bool
   // Promise = function() { ... } or ns.Deferred = () => { ... }
   return (
     funcParent.type === 'AssignmentExpression' &&
-    isPromiseOrDeferredAssignmentTarget(funcParent.left)
+    isPromiseOrDeferredAssignmentTarget(funcParent.left) &&
+    (!isPromiseOrDeferredMemberAssignmentTarget(funcParent.left) || isCallableThenDefinition(node))
+  );
+}
+
+function isCallableThenDefinition(node: Node): boolean {
+  const [parent, assignment] = getAncestorsWithParent(node);
+  if (
+    parent?.type === 'MemberExpression' &&
+    parent.property === node &&
+    assignment?.type === 'AssignmentExpression'
+  ) {
+    return isCallableThenValue(assignment.right);
+  }
+  if (parent?.type === 'Property' && parent.key === node) {
+    return isCallableThenValue(parent.value as Node);
+  }
+  if (parent?.type === 'MethodDefinition' && parent.key === node) {
+    return true;
+  }
+  return (
+    parent?.type === 'PropertyDefinition' &&
+    parent.key === node &&
+    parent.value !== null &&
+    isCallableThenValue(parent.value)
+  );
+}
+
+function isCallableThenValue(node: Node): boolean {
+  if (node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression') {
+    return true;
+  }
+  return (
+    node.type === 'ObjectExpression' &&
+    node.properties.some(
+      property =>
+        property.type === 'Property' &&
+        !property.computed &&
+        isIdentifier(property.key, 'value') &&
+        isCallableThenValue(property.value as Node),
+    )
   );
 }
 
@@ -218,7 +263,8 @@ function isPromiseOrDeferredClass(ancestor: Node, node: Node): boolean {
   const classParent = (ancestor as Node & { parent?: Node }).parent;
   return (
     classParent?.type === 'AssignmentExpression' &&
-    isPromiseOrDeferredAssignmentTarget(classParent.left)
+    isPromiseOrDeferredAssignmentTarget(classParent.left) &&
+    (!isPromiseOrDeferredMemberAssignmentTarget(classParent.left) || isCallableThenDefinition(node))
   );
 }
 
