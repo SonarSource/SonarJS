@@ -49,15 +49,11 @@ export function checkSvgAccessibleName(
     return;
   }
 
-  if (isRoleDynamic(attributes)) {
+  if (isRoleDecorativeOrUnresolvable(attributes)) {
     return;
   }
 
   if (isHiddenFromAssistiveTech(node, attributes)) {
-    return;
-  }
-
-  if (isDecorativeRole(attributes)) {
     return;
   }
 
@@ -71,28 +67,22 @@ export function checkSvgAccessibleName(
   context.report({ node: node.name as unknown as Node, message: MESSAGE });
 }
 
-function isRoleDynamic(attributes: JSXOpeningElement['attributes']): boolean {
-  const roleProp = getProp(attributes, 'role');
-  if (!roleProp) {
-    return false;
-  }
-  return typeof getLiteralPropValue(roleProp) !== 'string';
-}
-
 /**
- * The role attribute is an ordered fallback list; per the WAI-ARIA spec, the first
- * non-abstract token is the effective role, the rest are pure fallback for less-capable ATs.
+ * True when the role is statically unresolvable (so its effect on the accessible name
+ * can't be known) or when it resolves to a decorative role. The role attribute is an
+ * ordered fallback list; per the WAI-ARIA spec, the first non-abstract token is the
+ * effective role, the rest are pure fallback for less-capable ATs.
  */
-function isDecorativeRole(attributes: JSXOpeningElement['attributes']): boolean {
+function isRoleDecorativeOrUnresolvable(attributes: JSXOpeningElement['attributes']): boolean {
   const roleProp = getProp(attributes, 'role');
   if (!roleProp) {
     return false;
   }
   const roleValue = getLiteralPropValue(roleProp);
   if (typeof roleValue !== 'string') {
-    return false;
+    return true;
   }
-  const firstToken = roleValue.trim().split(/\s+/)[0]?.toLowerCase();
+  const firstToken = roleValue.trim().split(/\s+/)[0].toLowerCase();
   return DECORATIVE_ROLES.has(firstToken);
 }
 
