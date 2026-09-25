@@ -637,6 +637,46 @@ describe('S7739', () => {
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
+        // True Positive: a nested object is not the named Promise implementation
+        {
+          code: `
+          ns.Promise = function () {
+            const helper = { then: function () {} };
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a static then belongs to the class object, not a Promise instance
+        {
+          code: `
+          ns.Promise = class {
+            static then() {}
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: Object.assign on an arrow's lexical this is not a Promise instance
+        {
+          code: `
+          exports.Promise = () => {
+            Object.assign(this, { then: function () {} });
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: Object.defineProperties on an arrow's lexical this is not a Promise instance
+        {
+          code: `
+          exports.Promise = () => {
+            Object.defineProperties(this, { then: { value: function () {} } });
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
         // True Positive: Assigning a non-.then method to .then (like jQuery.ready.then = jQuery.fn.ready)
         // RHS accesses a property that is not named 'then', so it's not a Promise delegation
         {

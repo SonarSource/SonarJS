@@ -176,6 +176,10 @@ function isArrowFunctionLexicalThisThenDefinition(node: Node): boolean {
   ) {
     return true;
   }
+  return isThisThenAssignment(parent, assignment, node) || isThisThenObjectUtilityProperty(node);
+}
+
+function isThisThenAssignment(parent: Node | undefined, assignment: Node | undefined, node: Node) {
   return (
     parent?.type === 'MemberExpression' &&
     parent.object.type === 'ThisExpression' &&
@@ -185,11 +189,27 @@ function isArrowFunctionLexicalThisThenDefinition(node: Node): boolean {
   );
 }
 
+function isThisThenObjectUtilityProperty(node: Node): boolean {
+  const [property, object, call] = getAncestorsWithParent(node);
+  return (
+    property?.type === 'Property' &&
+    property.key === node &&
+    object?.type === 'ObjectExpression' &&
+    call?.type === 'CallExpression' &&
+    call.arguments[0]?.type === 'ThisExpression' &&
+    (isStaticMethodCall(call, 'Object', 'assign') ||
+      isStaticMethodCall(call, 'Object', 'defineProperties'))
+  );
+}
+
 /**
  * Checks if an ancestor is a class named 'Promise' or 'Deferred'.
  */
-function isPromiseOrDeferredClass(ancestor: Node): boolean {
+function isPromiseOrDeferredClass(ancestor: Node, node: Node): boolean {
   if (ancestor.type !== 'ClassDeclaration' && ancestor.type !== 'ClassExpression') {
+    return false;
+  }
+  if (isStaticClassMember(node)) {
     return false;
   }
   if (ancestor.id !== null && isIdentifier(ancestor.id, 'Promise', 'Deferred')) {
@@ -199,6 +219,14 @@ function isPromiseOrDeferredClass(ancestor: Node): boolean {
   return (
     classParent?.type === 'AssignmentExpression' &&
     isPromiseOrDeferredAssignmentTarget(classParent.left)
+  );
+}
+
+function isStaticClassMember(node: Node): boolean {
+  return getAncestorsWithParent(node).some(
+    ancestor =>
+      (ancestor.type === 'MethodDefinition' || ancestor.type === 'PropertyDefinition') &&
+      ancestor.static,
   );
 }
 
@@ -219,6 +247,9 @@ function isDirectlyContainingThenDefinition(ancestor: Node, node: Node): boolean
 }
 
 function isThenDefinitionBoundary(ancestor: Node, node: Node): boolean {
+  if (ancestor.type === 'ObjectExpression') {
+    return !isDirectArrowFactoryResult(ancestor);
+  }
   if (ancestor.type === 'FunctionExpression') {
     return getNodeParent(ancestor)?.type !== 'MethodDefinition';
   }
@@ -226,6 +257,20 @@ function isThenDefinitionBoundary(ancestor: Node, node: Node): boolean {
     return !isArrowFunctionLexicalThisThenDefinition(node);
   }
   return ['FunctionDeclaration', 'ClassDeclaration', 'ClassExpression'].includes(ancestor.type);
+}
+
+function isDirectArrowFactoryResult(node: Node): boolean {
+  const parent = getNodeParent(node);
+  if (parent?.type === 'ArrowFunctionExpression') {
+    return parent.body === node;
+  }
+  const block = parent?.type === 'ReturnStatement' ? getNodeParent(parent) : undefined;
+  const arrow = block?.type === 'BlockStatement' ? getNodeParent(block) : undefined;
+  return (
+    arrow?.type === 'ArrowFunctionExpression' &&
+    arrow.body === block &&
+    block.body.includes(parent!)
+  );
 }
 
 /**
@@ -238,7 +283,7 @@ function isInsidePromiseOrDeferredDefinition(node: Node): boolean {
       isDirectlyContainingThenDefinition(ancestor, node) &&
       (isPromiseOrDeferredFunctionDeclaration(ancestor) ||
         isPromiseOrDeferredFunctionExpression(ancestor, node) ||
-        isPromiseOrDeferredClass(ancestor)),
+        isPromiseOrDeferredClass(ancestor, node)),
   );
 }
 
