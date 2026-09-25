@@ -689,6 +689,26 @@ describe('S7739', () => {
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
+        // True Positive: a descriptor object is not a callable then method outside defineProperties
+        {
+          code: `
+          ns.Promise = function () {
+            return { then: { value: function () {} } };
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: Object.assign does not interpret descriptors as properties
+        {
+          code: `
+          ns.Deferred = function () {
+            Object.assign(this, { then: { value: function () {} } });
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
         // True Positive: a helper then assignment is not owned by the Promise instance
         {
           code: `

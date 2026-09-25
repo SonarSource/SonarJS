@@ -182,7 +182,9 @@ function isCallableThenDefinition(node: Node): boolean {
       parent.kind === 'init' &&
       container?.type === 'ObjectExpression' &&
       (isDirectFactoryResult(container) || isThisThenObjectUtilityProperty(node)) &&
-      isCallableThenValue(parent.value as Node)
+      (isCallableThenValue(parent.value as Node) ||
+        (isThisThenObjectDefinePropertiesProperty(node) &&
+          isCallableThenDescriptor(parent.value as Node)))
     );
   }
   if (parent?.type === 'MethodDefinition' && parent.key === node) {
@@ -198,14 +200,16 @@ function isCallableThenDefinition(node: Node): boolean {
 }
 
 function isCallableThenValue(node: Node): boolean {
-  if (node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression') {
-    return true;
-  }
+  return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
+}
+
+function isCallableThenDescriptor(node: Node): boolean {
   return (
     node.type === 'ObjectExpression' &&
     node.properties.some(
       property =>
         property.type === 'Property' &&
+        property.kind === 'init' &&
         !property.computed &&
         isIdentifier(property.key, 'value') &&
         isCallableThenValue(property.value as Node),
@@ -252,6 +256,18 @@ function isThisThenObjectUtilityProperty(node: Node): boolean {
     call.arguments[0]?.type === 'ThisExpression' &&
     (isStaticMethodCall(call, 'Object', 'assign') ||
       isStaticMethodCall(call, 'Object', 'defineProperties'))
+  );
+}
+
+function isThisThenObjectDefinePropertiesProperty(node: Node): boolean {
+  const [property, object, call] = getAncestorsWithParent(node);
+  return (
+    property?.type === 'Property' &&
+    property.key === node &&
+    object?.type === 'ObjectExpression' &&
+    call?.type === 'CallExpression' &&
+    call.arguments[0]?.type === 'ThisExpression' &&
+    isStaticMethodCall(call, 'Object', 'defineProperties')
   );
 }
 
