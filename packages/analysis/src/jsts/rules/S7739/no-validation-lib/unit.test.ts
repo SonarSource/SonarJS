@@ -689,6 +689,48 @@ describe('S7739', () => {
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
+        // True Positive: a helper then assignment is not owned by the Promise instance
+        {
+          code: `
+          ns.Promise = function () {
+            const helper = {};
+            helper.then = function () {};
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: accessors are not callable then methods
+        {
+          code: `
+          ns.Promise = class {
+            get then() { return 42; }
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        {
+          code: `
+          ns.Deferred = class {
+            set then(value) {}
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
+        },
+        // True Positive: an instance method's returned helper is not a factory result
+        {
+          code: `
+          ns.Promise = class {
+            make() {
+              return { then: function () {} };
+            }
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
         // True Positive: a static then belongs to the class object, not a Promise instance
         {
           code: `

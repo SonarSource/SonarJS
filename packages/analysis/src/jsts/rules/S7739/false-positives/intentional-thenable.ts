@@ -167,23 +167,31 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node, node: Node): bool
 }
 
 function isCallableThenDefinition(node: Node): boolean {
-  const [parent, assignment] = getAncestorsWithParent(node);
+  const ancestors = getAncestorsWithParent(node);
+  const [parent, container] = ancestors;
+  const assignment = ancestors.find(ancestor => ancestor.type === 'AssignmentExpression');
   if (
     parent?.type === 'MemberExpression' &&
     parent.property === node &&
     assignment?.type === 'AssignmentExpression'
   ) {
-    return isCallableThenValue(assignment.right);
+    return parent.object.type === 'ThisExpression' && isCallableThenValue(assignment.right);
   }
   if (parent?.type === 'Property' && parent.key === node) {
-    return isCallableThenValue(parent.value as Node);
+    return (
+      parent.kind === 'init' &&
+      container?.type === 'ObjectExpression' &&
+      (isDirectFactoryResult(container) || isThisThenObjectUtilityProperty(node)) &&
+      isCallableThenValue(parent.value as Node)
+    );
   }
   if (parent?.type === 'MethodDefinition' && parent.key === node) {
-    return true;
+    return parent.kind === 'method' && !parent.static;
   }
   return (
     parent?.type === 'PropertyDefinition' &&
     parent.key === node &&
+    !parent.static &&
     parent.value !== null &&
     isCallableThenValue(parent.value)
   );
@@ -318,7 +326,7 @@ function isDirectFactoryResult(node: Node): boolean {
       parent?.type === 'FunctionDeclaration') &&
     parent.body === node
   ) {
-    return parent.body === node;
+    return isPromiseOrDeferredFactory(parent);
   }
   const block = parent?.type === 'ReturnStatement' ? getNodeParent(parent) : undefined;
   const functionNode = block?.type === 'BlockStatement' ? getNodeParent(block) : undefined;
@@ -326,8 +334,25 @@ function isDirectFactoryResult(node: Node): boolean {
     (functionNode?.type === 'ArrowFunctionExpression' ||
       functionNode?.type === 'FunctionExpression' ||
       functionNode?.type === 'FunctionDeclaration') &&
+    isPromiseOrDeferredFactory(functionNode) &&
     functionNode.body === block &&
     block.body.includes(parent!)
+  );
+}
+
+function isPromiseOrDeferredFactory(node: Node): boolean {
+  if (isPromiseOrDeferredFunctionDeclaration(node)) {
+    return true;
+  }
+  if (node.type !== 'FunctionExpression' && node.type !== 'ArrowFunctionExpression') {
+    return false;
+  }
+  const parent = getNodeParent(node);
+  return (
+    (parent?.type === 'VariableDeclarator' &&
+      parent.id.type === 'Identifier' &&
+      isIdentifier(parent.id, 'Promise', 'Deferred')) ||
+    (parent?.type === 'AssignmentExpression' && isPromiseOrDeferredAssignmentTarget(parent.left))
   );
 }
 
