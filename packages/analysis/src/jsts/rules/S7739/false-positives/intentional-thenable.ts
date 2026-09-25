@@ -203,15 +203,38 @@ function isPromiseOrDeferredClass(ancestor: Node): boolean {
 }
 
 /**
+ * Checks if a named Promise/Deferred definition directly contains `then`, rather than a nested
+ * function or class defining it.
+ */
+function isDirectlyContainingThenDefinition(ancestor: Node, node: Node): boolean {
+  const ancestors = getAncestorsWithParent(node);
+  const ancestorIndex = ancestors.indexOf(ancestor);
+  return (
+    ancestorIndex !== -1 &&
+    !ancestors
+      .slice(0, ancestorIndex)
+      .some(nestedAncestor =>
+        [
+          'FunctionDeclaration',
+          'FunctionExpression',
+          'ClassDeclaration',
+          'ClassExpression',
+        ].includes(nestedAncestor.type),
+      )
+  );
+}
+
+/**
  * Checks if 'then' is defined inside a class or function named 'Promise' or 'Deferred'.
  */
 function isInsidePromiseOrDeferredDefinition(node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
   return ancestors.some(
     ancestor =>
-      isPromiseOrDeferredFunctionDeclaration(ancestor) ||
-      isPromiseOrDeferredFunctionExpression(ancestor, node) ||
-      isPromiseOrDeferredClass(ancestor),
+      isDirectlyContainingThenDefinition(ancestor, node) &&
+      (isPromiseOrDeferredFunctionDeclaration(ancestor) ||
+        isPromiseOrDeferredFunctionExpression(ancestor, node) ||
+        isPromiseOrDeferredClass(ancestor)),
   );
 }
 

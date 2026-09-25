@@ -584,7 +584,19 @@ describe('S7739', () => {
           ns.Helper = function () {
             this.then = function (cb) { this.cb = cb; };
           };
-        `,
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a Promise-named outer function does not make a nested function thenable
+        {
+          code: `
+          ns.Promise = function () {
+            return function Helper() {
+              this.then = function (cb) { this.cb = cb; };
+            };
+          };
+          `,
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
