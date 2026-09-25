@@ -78,7 +78,7 @@
     <rspec-maven-plugin.version>1.5.0.202</rspec-maven-plugin.version>
     <rspec.sha></rspec.sha>
     <rspec.branch>dogfood-automerge</rspec.branch>
-    <sonarlint.plugin.api.version>11.10.0.86299</sonarlint.plugin.api.version>
+    <sonarlint.plugin.api.version>12.0.0.87449</sonarlint.plugin.api.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar,${project.groupId}:sonar-javascript-plugin:json:cyclonedx</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
