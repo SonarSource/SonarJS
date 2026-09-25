@@ -193,6 +193,7 @@ function isCallableThenDefinition(node: Node): boolean {
     parent.key === node &&
     !parent.static &&
     parent.value !== null &&
+    parent.value !== undefined &&
     isCallableThenValue(parent.value)
   );
 }
@@ -324,7 +325,9 @@ function isDirectFactoryResult(node: Node): boolean {
       functionNode?.type === 'FunctionDeclaration') &&
     isPromiseOrDeferredFactory(functionNode) &&
     functionNode.body === block &&
-    block.body.includes(parent!)
+    block?.type === 'BlockStatement' &&
+    parent?.type === 'ReturnStatement' &&
+    block.body.includes(parent)
   );
 }
 
