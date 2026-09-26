@@ -21,10 +21,12 @@ import type { Node } from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { mergeRules } from '../helpers/decorators/merger.js';
+import { checkSvgAccessibleName } from './svg.js';
 import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(
+  const decorated = interceptReport(
     {
       ...rule,
       meta: generateMeta(meta, rule.meta),
@@ -35,4 +37,14 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       context.report({ ...descriptor, node: name });
     },
   );
+
+  return {
+    ...decorated,
+    create(context: Rule.RuleContext): Rule.RuleListener {
+      return mergeRules(decorated.create(context), {
+        JSXOpeningElement: (node: Rule.Node) =>
+          checkSvgAccessibleName(context, node as unknown as TSESTree.JSXOpeningElement),
+      });
+    },
+  };
 }
