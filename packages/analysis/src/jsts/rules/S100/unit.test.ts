@@ -83,6 +83,13 @@ describe('S100', () => {
       }`,
           options: [{ format: DEFAULT_FORMAT }],
         },
+        {
+          code: `
+      Match.tags({ Foo: () => 1, Bar: function () {} });
+      new Registry({ OnReady: () => {} });
+      `,
+          options: [{ format: DEFAULT_FORMAT, ignoreCallArgumentKeys: true }],
+        },
       ],
       invalid: [
         {
@@ -188,6 +195,23 @@ describe('S100', () => {
               line,
             };
           }),
+        },
+        {
+          code: `
+      const handlers = { Foo: () => 1 };
+      register(handlers);
+      register({ nested: { Bar: () => 1 } });
+      `,
+          options: [{ format: DEFAULT_FORMAT, ignoreCallArgumentKeys: true }],
+          errors: [2, 4].map(line => ({ messageId: `renameFunction`, line })),
+        },
+        {
+          code: `
+      Match.tags({ Foo: () => 1 });
+      new Registry({ OnReady: () => {} });
+      `,
+          options: [{ format: DEFAULT_FORMAT }],
+          errors: [2, 3].map(line => ({ messageId: `renameFunction`, line })),
         },
       ],
     });
