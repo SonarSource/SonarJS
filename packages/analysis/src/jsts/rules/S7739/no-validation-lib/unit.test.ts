@@ -789,6 +789,17 @@ describe('S7739', () => {
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
+        // True Positive: a const factory result with a non-callable then remains reportable
+        {
+          code: `
+          ns.Promise = function () {
+            const result = { then: 0 };
+            return result;
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
         // True Positive: a descriptor object is not a callable then method outside defineProperties
         {
           code: `

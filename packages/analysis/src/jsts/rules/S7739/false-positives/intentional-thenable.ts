@@ -697,6 +697,8 @@ function isConstFactoryResult(context: Rule.RuleContext, node: Node): boolean {
   if (
     property?.type !== 'Property' ||
     property.key !== node ||
+    property.kind !== 'init' ||
+    !isCallableThenValue(property.value as Node) ||
     object?.type !== 'ObjectExpression' ||
     declarator?.type !== 'VariableDeclarator' ||
     declarator.init !== object ||
