@@ -168,6 +168,24 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // False Positive Pattern 5c-1a: a named Deferred can define then with a descriptor
+        {
+          code: `
+          function Deferred() {
+            Object.defineProperty(this, 'then', { value: function () {} });
+          }
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5c-1b: a named Promise class can define an instance then method
+        {
+          code: `
+          class Promise {
+            then() {}
+          }
+        `,
+          filename: testFilePath,
+        },
         // False Positive Pattern 5c-2: a named Deferred factory can return a const result
         {
           code: `
@@ -741,6 +759,57 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a directly named Deferred does not make a non-callable then intentional
+        {
+          code: `
+          function Deferred() {
+            this.then = 0;
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a directly named function expression does not make a non-callable then intentional
+        {
+          code: `
+          const Deferred = function () {
+            this.then = 0;
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a directly named assignment does not make a non-callable then intentional
+        {
+          code: `
+          let Promise;
+          Promise = function () {
+            this.then = 0;
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a directly named Promise does not make a non-callable result intentional
+        {
+          code: `
+          function Promise() {
+            return { then: 0 };
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a directly named Promise class does not make a non-callable field intentional
+        {
+          code: `
+          class Promise {
+            then = 0;
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_CLASS_ERROR }],
         },
         // True Positive: a reassigned const result is not a proven factory result
         {

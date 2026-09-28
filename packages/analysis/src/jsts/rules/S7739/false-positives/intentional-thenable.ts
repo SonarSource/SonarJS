@@ -162,13 +162,13 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node, node: Node): bool
     funcParent.id.type === 'Identifier' &&
     isIdentifier(funcParent.id, 'Promise', 'Deferred')
   ) {
-    return true;
+    return isCallableThenDefinition(node);
   }
   // Promise = function() { ... } or ns.Deferred = () => { ... }
   return (
     funcParent.type === 'AssignmentExpression' &&
     isPromiseOrDeferredAssignmentTarget(funcParent.left) &&
-    (!isPromiseOrDeferredMemberAssignmentTarget(funcParent.left) || isCallableThenDefinition(node))
+    isCallableThenDefinition(node)
   );
 }
 
@@ -309,13 +309,13 @@ function isPromiseOrDeferredClass(ancestor: Node, node: Node): boolean {
     return false;
   }
   if (ancestor.id !== null && isIdentifier(ancestor.id, 'Promise', 'Deferred')) {
-    return true;
+    return isCallableThenDefinition(node);
   }
   const classParent = (ancestor as Node & { parent?: Node }).parent;
   return (
     classParent?.type === 'AssignmentExpression' &&
     isPromiseOrDeferredAssignmentTarget(classParent.left) &&
-    (!isPromiseOrDeferredMemberAssignmentTarget(classParent.left) || isCallableThenDefinition(node))
+    isCallableThenDefinition(node)
   );
 }
 
@@ -497,7 +497,7 @@ function isInsidePromiseOrDeferredDefinition(node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
   for (const ancestor of ancestors) {
     if (
-      isPromiseOrDeferredFunctionDeclaration(ancestor) ||
+      (isPromiseOrDeferredFunctionDeclaration(ancestor) && isCallableThenDefinition(node)) ||
       isPromiseOrDeferredFunctionExpression(ancestor, node) ||
       isPromiseOrDeferredClass(ancestor, node)
     ) {
