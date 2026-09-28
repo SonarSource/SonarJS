@@ -33,7 +33,10 @@ import {
 import { info, error } from '../../shared/src/helpers/logging.js';
 import { ProgressReport } from './common/progress-report.js';
 import type { WsIncrementalResult } from './incremental-result.js';
-import { setSourceFilesContext } from './jsts/program/cache/sourceFileCache.js';
+import {
+  clearSourceFileContentCache,
+  setSourceFilesContext,
+} from './jsts/program/cache/sourceFileCache.js';
 import { generatedSourceStore, sourceFileStore } from './file-stores/index.js';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import {
@@ -91,12 +94,22 @@ export async function analyzeProject(
   configuration: Configuration,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
-  if (!analysisStatus) {
-    return withAnalysisCancellation(() =>
-      analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel),
-    );
+  try {
+    if (!analysisStatus) {
+      return await withAnalysisCancellation(() =>
+        analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel),
+      );
+    }
+    return await analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel);
+  } finally {
+    // Scanner requests are independent. The last ESLint SourceCode retains its parser services,
+    // including the entire TypeScript Program; the parsed SourceFile cache also remains live.
+    // Release both before the next request loads another filesystem archive or TS program.
+    if (!configuration.sonarlint) {
+      Linter.releaseAfterAnalysis();
+      clearSourceFileContentCache();
+    }
   }
-  return analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel);
 }
 
 async function analyzeProjectWithCancellation(

@@ -32,6 +32,9 @@ import { valid } from 'semver';
 import type { RuleConfig } from '../src/jsts/linter/config/rule-config.js';
 import type { RuleConfig as CssRuleConfig } from '../src/css/linter/config.js';
 import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.js';
+import { getSourceFileContentCache } from '../src/jsts/program/cache/sourceFileCache.js';
+import { Linter } from '../src/jsts/linter/linter.js';
+import { getCurrentFileModuleReferences } from '../src/jsts/rules/helpers/module.js';
 import { clearProgramOptionsCache } from '../src/jsts/program/cache/programOptionsCache.js';
 import { sanitizeInputFiles, type ProjectAnalysisFileInput } from '../src/common/input-sanitize.js';
 import {
@@ -122,6 +125,42 @@ describe('SonarQube project analysis', () => {
         /Creating TypeScript\(\d+\.\d+\.\d+\) program/.test(call.arguments[0] as string),
       ),
     ).toBe(true);
+  });
+
+  it('releases scanner parser and module-reference caches before the next request', async () => {
+    const baseDir = join(fixtures, 'basic');
+    const filePath = join(baseDir, 'main.ts');
+    const configuration = await initForTest(
+      { baseDir },
+      {
+        [filePath]: {
+          filePath,
+          fileContent: "import { value } from 'example'; const x: number = value;;",
+          fileType: 'MAIN',
+        },
+      },
+    );
+    const collectPackageImports = Linter.collectPackageImports;
+    let moduleReferences: ReadonlySet<string> | undefined;
+    const collectImportsMock = mock.method(Linter, 'collectPackageImports', (sourceCode, path) => {
+      moduleReferences = getCurrentFileModuleReferences(sourceCode);
+      expect(moduleReferences.has('example')).toBe(true);
+      return collectPackageImports.call(Linter, sourceCode, path);
+    });
+
+    try {
+      await analyzeProject({ rules, bundles: [] }, configuration);
+    } finally {
+      collectImportsMock.mock.restore();
+    }
+
+    // The last SourceCode contains parser services that reference the whole TypeScript Program.
+    // It must not remain live while the next SQAA request loads another archive and program.
+    expect(moduleReferences?.size).toBe(0);
+    expect(getSourceFileContentCache().size).toBe(0);
+    expect(
+      (Linter as unknown as { linter: { getSourceCode(): unknown } }).linter.getSourceCode(),
+    ).toBeNull();
   });
 
   it('should restore the winning program after normal project discovery and overlay submitted content', async () => {
