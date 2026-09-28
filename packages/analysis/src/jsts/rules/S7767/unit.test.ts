@@ -66,6 +66,8 @@ describe('S7767', () => {
         { code: `(Math.imul(31, hash) + s.charCodeAt(i) + seed) << 0;` },
         { code: `(Math.imul(31, hash) ^ s.codePointAt(i)) << 0;` },
         { code: `(Math.imul(31, hash) - s.charCodeAt(i) * 2) << 0;` },
+        // Overflow is not the only divergence: `NaN << 0` is 0, `Math.trunc(NaN)` is NaN.
+        { code: `(Math.imul(31, hash) + ''.charCodeAt(0)) << 0;` },
         { code: `(-Math.imul(31, hash) + s.charCodeAt(i)) << 0;` },
         { code: `(Math['imul'](31, hash) + s.charCodeAt(i)) << 0;` },
         { code: `((Math.imul(31, hash) /* wraps */ + s.charCodeAt(i))) << 0;` },
