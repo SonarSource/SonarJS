@@ -236,8 +236,10 @@ function isCallableThenDefinition(context: Rule.RuleContext, node: Node): boolea
 function isUnshadowedDefinePropertyCall(context: Rule.RuleContext, call: CallExpression): boolean {
   return (
     (isStaticMethodCall(call, 'Object', 'defineProperty') &&
+      call.callee.type === 'MemberExpression' &&
       !isGlobalShadowed(context.sourceCode, call.callee.object, 'Object')) ||
     (isStaticMethodCall(call, 'Reflect', 'defineProperty') &&
+      call.callee.type === 'MemberExpression' &&
       !isGlobalShadowed(context.sourceCode, call.callee.object, 'Reflect'))
   );
 }
