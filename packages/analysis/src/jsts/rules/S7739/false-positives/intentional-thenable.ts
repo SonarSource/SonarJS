@@ -316,22 +316,6 @@ function isStaticClassMember(classNode: Node, node: Node): boolean {
 }
 
 /**
- * Checks if a named Promise/Deferred definition directly contains `then`, rather than a nested
- * function or class defining it. Class methods and arrows using the enclosing `this` retain the
- * enclosing definition's receiver.
- */
-function isDirectlyContainingThenDefinition(ancestor: Node, node: Node): boolean {
-  const ancestors = getAncestorsWithParent(node);
-  const ancestorIndex = ancestors.indexOf(ancestor);
-  return (
-    ancestorIndex !== -1 &&
-    !ancestors
-      .slice(0, ancestorIndex)
-      .some(nestedAncestor => isThenDefinitionBoundary(nestedAncestor, node))
-  );
-}
-
-/**
  * Marks nested functions, classes, and ordinary object literals as a boundary between a named
  * Promise/Deferred factory and a `then` definition. Directly returned factory objects and arrows
  * that retain the factory's `this` are the deliberate exceptions.
@@ -430,13 +414,19 @@ function isNamedPromiseOrDeferredClassMethod(node: Node): boolean {
  */
 function isInsidePromiseOrDeferredDefinition(node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
-  return ancestors.some(
-    ancestor =>
-      isDirectlyContainingThenDefinition(ancestor, node) &&
-      (isPromiseOrDeferredFunctionDeclaration(ancestor) ||
-        isPromiseOrDeferredFunctionExpression(ancestor, node) ||
-        isPromiseOrDeferredClass(ancestor, node)),
-  );
+  for (const ancestor of ancestors) {
+    if (
+      isPromiseOrDeferredFunctionDeclaration(ancestor) ||
+      isPromiseOrDeferredFunctionExpression(ancestor, node) ||
+      isPromiseOrDeferredClass(ancestor, node)
+    ) {
+      return true;
+    }
+    if (isThenDefinitionBoundary(ancestor, node)) {
+      return false;
+    }
+  }
+  return false;
 }
 
 /**
