@@ -180,6 +180,35 @@ const validLengthNormalizations = [
       }`,
   },
   {
+    // The compared identifiers are themselves the swapped arguments, and each is a const
+    // snapshot of a member access. The snapshot bases must not displace the arguments.
+    code: `
+      function cmp(x, y) {}
+      function f(p, q) {
+        const x = p.x;
+        const y = q.y;
+        if (x < y) cmp(y, x);
+      }`,
+  },
+  {
+    // Same shape with descriptive names and a single declaration.
+    code: `
+      function area(width, height) {}
+      function f(rect) {
+        const width = rect.width,
+          height = rect.height;
+        if (width < height) area(height, width);
+      }`,
+  },
+  {
+    // Implicit globals resolve to no variable, so the comparison falls back to their names.
+    code: `
+      function f(p1, p2) {}
+      if (p1 < p2) {
+        f(p2, p1);
+      }`,
+  },
+  {
     // The guarded call need not be the recursive one.
     code: `
       function pair(a, b) {
@@ -475,7 +504,6 @@ describe('S2234', () => {
         {
           code: `
       function f(p1, p2) {}
-      var p1, p2;
       if (p1 < p2) {
         f(p2, p1);
       }

@@ -35,6 +35,9 @@ import { isRequiredParserServices } from '../helpers/parser-services.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
+/** What a compared operand reads: its lexical variable, or its name when it resolves to none. */
+type Operand = Scope.Variable | string;
+
 interface FunctionSignature {
   params: Array<string | undefined>;
   declaration?: FunctionNodeType;
@@ -138,26 +141,39 @@ export const rule: Rule.RuleModule = {
      * `const m = a.length; const n = b.length; if (m < n) return f(b, a);`.
      */
     function areComparedArguments(argumentNames: string[], node: estree.Node): boolean {
-      function getVariable(node: estree.Node): Scope.Variable | undefined {
+      /**
+       * Identifies what an operand reads: its lexical variable, so that two same-named variables
+       * from different scopes never match, or its bare name when nothing declares it, so that
+       * implicit globals keep comparing as they did before scope resolution was introduced.
+       */
+      function getOperand(node: estree.Node): Operand | undefined {
         switch (node.type) {
           case 'Identifier':
-            return getVariableFromName(context, node.name, node);
+            return getVariableFromName(context, node.name, node) ?? node.name;
           case 'CallExpression':
-            return getVariable(node.callee);
+            return getOperand(node.callee);
           case 'MemberExpression':
-            return getVariable(node.object);
+            return getOperand(node.object);
           default:
             return undefined;
         }
       }
       function checkComparedArguments(lhs: estree.Node, rhs: estree.Node): boolean {
-        const comparedVariables = [lhs, rhs].map(
-          side => resolveMemberSnapshot(side) ?? getVariable(side),
+        // A side stands both for what it reads and for what it snapshots, since either can be the
+        // argument being ordered: `if (m < n) f(b, a)` compares through the snapshots of `a` and
+        // `b`, while `if (x < y) f(y, x)` compares the arguments themselves.
+        const sides = [lhs, rhs].map(side =>
+          [getOperand(side), resolveMemberSnapshot(side)].filter(operand => operand !== undefined),
         );
-        return argumentNames.every(name => {
-          const variable = getVariableFromName(context, name, node);
-          return variable !== undefined && comparedVariables.includes(variable);
-        });
+        const [first, second] = argumentNames.map(
+          name => getVariableFromName(context, name, node) ?? name,
+        );
+        // Each argument must be matched by a different side, otherwise a condition comparing two
+        // members of the same object would pass, e.g. `if (a.length < a.byteLength) f(b, a)`.
+        return (
+          (sides[0].includes(first) && sides[1].includes(second)) ||
+          (sides[0].includes(second) && sides[1].includes(first))
+        );
       }
       const maybeIfStmt = context.sourceCode
         .getAncestors(node)
