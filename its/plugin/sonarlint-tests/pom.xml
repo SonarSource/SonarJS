@@ -26,6 +26,13 @@
   and declaring it here also leaks its embedded gRPC transport jars into Surefire's parent classloader.
   -->
   <dependencies>
+    <!-- WireMock pulls in Jackson annotations 2.20, which is incompatible with SonarLint's Jackson databind 2.22.3. -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>2.22</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarlint.core</groupId>
       <artifactId>sonarlint-core-test-utils</artifactId>
