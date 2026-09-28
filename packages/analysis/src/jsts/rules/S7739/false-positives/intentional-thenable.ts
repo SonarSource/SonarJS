@@ -195,7 +195,7 @@ function isCallableThenDefinition(node: Node): boolean {
     ) {
       return false;
     }
-    return isCallableThenValue(parent.arguments[2] as Node);
+    return isCallablePropertyDescriptor(parent.arguments[2] as Node);
   }
   if (
     parent?.type === 'MemberExpression' &&
@@ -227,6 +227,27 @@ function isCallableThenDefinition(node: Node): boolean {
 
 function isCallableThenValue(node: Node): boolean {
   return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
+}
+
+function isCallablePropertyDescriptor(node: Node): boolean {
+  if (
+    node.type !== 'ObjectExpression' ||
+    node.properties.some(property => property.type === 'SpreadElement')
+  ) {
+    return false;
+  }
+  for (let index = node.properties.length - 1; index >= 0; index--) {
+    const property = node.properties[index];
+    if (
+      property.type === 'Property' &&
+      !property.computed &&
+      property.kind === 'init' &&
+      isIdentifier(property.key, 'value')
+    ) {
+      return isCallableThenValue(property.value as Node);
+    }
+  }
+  return false;
 }
 
 /**

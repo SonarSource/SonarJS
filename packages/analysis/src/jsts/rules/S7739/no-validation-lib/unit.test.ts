@@ -204,6 +204,24 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // False Positive Pattern 5e-1: a namespaced Deferred can define then with a descriptor
+        {
+          code: `
+          ns.Deferred = function () {
+            Object.defineProperty(this, 'then', { value: function (resolve) { resolve(); } });
+          };
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5e-2: Reflect.defineProperty uses the same descriptor shape
+        {
+          code: `
+          ns.Promise = function () {
+            Reflect.defineProperty(this, 'then', { value: () => {} });
+          };
+        `,
+          filename: testFilePath,
+        },
         // False Positive Pattern 5f: Class expression assigned to a namespaced Promise property
         {
           code: `
@@ -668,6 +686,16 @@ describe('S7739', () => {
             this.then = function (cb) { this.cb = cb; };
           };
           `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a non-callable descriptor value is not an intentional then method
+        {
+          code: `
+          ns.Deferred = function () {
+            Object.defineProperty(this, 'then', { value: 42 });
+          };
+        `,
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
