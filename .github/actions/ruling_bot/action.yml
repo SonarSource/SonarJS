@@ -12,13 +12,12 @@ inputs:
   target-ref:
     description: Branch name targeted by ruling maintenance updates
     required: true
+  tested-head-sha:
+    description: Head commit whose code produced the ruling results
+    required: true
   is-pull-request:
     description: Whether the current workflow run is for a pull request
     required: true
-  report-base-sha:
-    description: Base commit for the independently dispatched PR report
-    required: false
-    default: ''
   ruling-failed:
     description: Whether the preceding ruling execution failed
     required: true
@@ -39,8 +38,8 @@ runs:
         GH_TOKEN: ${{ inputs.github-token }}
         PR_NUMBER: ${{ inputs.pr-number }}
         TARGET_REF: ${{ inputs.target-ref }}
+        TESTED_HEAD_SHA: ${{ inputs.tested-head-sha }}
         IS_PULL_REQUEST: ${{ inputs.is-pull-request }}
-        REPORT_BASE_SHA: ${{ inputs.report-base-sha }}
         RULING_FAILED: ${{ inputs.ruling-failed }}
         NEW_RESULTS_PATH: ${{ inputs.new-results-path }}
         OLD_RESULTS_PATH: ${{ inputs.old-results-path }}

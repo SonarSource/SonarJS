@@ -17,6 +17,10 @@ on:
         description: Head commit SHA
         required: true
         type: string
+      fix-pr-url:
+        description: Ruling fix pull request URL, when reporting on the original PR
+        required: false
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ inputs.pr-number || github.event.pull_request.number }}
@@ -28,6 +32,7 @@ permissions:
 
 jobs:
   ruling-diff-comment:
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]')
     runs-on: sonar-xs
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -45,4 +50,5 @@ jobs:
           PR_NUMBER: ${{ inputs.pr-number || github.event.pull_request.number }}
           BASE_SHA: ${{ inputs.base-sha || github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ inputs.head-sha || github.event.pull_request.head.sha }}
+          FIX_PR_URL: ${{ inputs.fix-pr-url || '' }}
         run: bash .github/actions/ruling_bot/report.sh
