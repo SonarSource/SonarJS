@@ -331,6 +331,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
     'ignoredAtRules',
     'Comma-separated list of "at-rules" that are allowed to appear before "@import" rules.',
   ),
+  simpleRule('S9423', 'sonar/declaration-no-important'),
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
