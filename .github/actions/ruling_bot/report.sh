@@ -14,7 +14,10 @@ if [ "$(git rev-parse HEAD)" != "$HEAD_SHA" ]; then
 fi
 
 REPORT_BASE_SHA="$(git merge-base "$BASE_SHA" HEAD)"
-BASE_SHA="$REPORT_BASE_SHA" node .github/actions/ruling_bot/generate-report.mjs \
+BASE_SHA="$REPORT_BASE_SHA" \
+  SOURCES_REPO_URL=https://github.com/SonarSource/jsts-test-sources/blob/master \
+  RSPEC_BASE_URL='https://musical-adventure-r9qk65j.pages.github.io/rspec/#' \
+  node .github/actions/ruling_bot/generate-report.mjs \
   its/ruling/src/test/resources/expected > ruling-report.md
 
 EXISTING_COMMENT_ID="$(gh api --paginate \
@@ -31,11 +34,15 @@ fi
 
 {
   echo '<!-- ruling-report -->'
+  if [ -n "${FIX_PR_URL:-}" ]; then
+    printf 'Ruling needs updating. A [fix PR](%s) has been created. Please review and merge it into your branch.\n\n' "$FIX_PR_URL"
+  fi
   cat ruling-report.md
 } > comment.md
 
 if [ "$(wc -c < comment.md)" -gt 50000 ]; then
-  head -c 50000 comment.md | iconv -c -f utf-8 -t utf-8 > comment-truncated.md
+  # iconv exits nonzero when the byte cutoff splits a UTF-8 character.
+  head -c 50000 comment.md | { iconv -c -f utf-8 -t utf-8 || true; } > comment-truncated.md
   printf '\n\n_(truncated; see the committed JSON files for the complete results)_\n' >> comment-truncated.md
   mv comment-truncated.md comment.md
 fi
