@@ -900,6 +900,39 @@ describe('S7739', () => {
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
+        // True Positive: defineProperty on another receiver is not owned by the Promise instance
+        {
+          code: `
+          ns.Promise = function () {
+            const helper = {};
+            Object.defineProperty(helper, 'then', { value: function () {} });
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a shadowed Object is not the built-in descriptor utility
+        {
+          code: `
+          ns.Deferred = function () {
+            const Object = { defineProperty: () => {} };
+            Object.defineProperty(this, 'then', { value: function () {} });
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a shadowed Reflect is not the built-in descriptor utility
+        {
+          code: `
+          ns.Deferred = function () {
+            const Reflect = { defineProperty: () => {} };
+            Reflect.defineProperty(this, 'then', { value: function () {} });
+          };
+          `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
         // True Positive: accessors are not callable then methods
         {
           code: `

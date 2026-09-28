@@ -17,8 +17,14 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type { AssignmentExpression, CallExpression, Node } from 'estree';
-import { getVariableFromName, isIdentifier, isStaticMethodCall } from '../../helpers/ast.js';
+import {
+  getVariableFromName,
+  isIdentifier,
+  isStaticMethodCall,
+  isThisExpression,
+} from '../../helpers/ast.js';
 import { getNodeParent } from '../../helpers/ancestor.js';
+import { isGlobalShadowed } from '../../helpers/module.js';
 import { collectPropertyNames, getAncestorsWithParent } from '../helpers.js';
 
 // Matches the contract names used by JSDoc `@implements` annotations and TypeScript
@@ -142,13 +148,17 @@ function isPromiseOrDeferredMemberAssignmentTarget(target: Node): boolean {
  * member-assignment forms. Arrow functions that define `this.then` are excluded because their
  * lexical `this` does not belong to the factory.
  */
-function isPromiseOrDeferredFunctionExpression(ancestor: Node, node: Node): boolean {
+function isPromiseOrDeferredFunctionExpression(
+  context: Rule.RuleContext,
+  ancestor: Node,
+  node: Node,
+): boolean {
   if (ancestor.type !== 'FunctionExpression' && ancestor.type !== 'ArrowFunctionExpression') {
     return false;
   }
   if (
     ancestor.type === 'ArrowFunctionExpression' &&
-    isArrowFunctionLexicalThisThenDefinition(node)
+    isArrowFunctionLexicalThisThenDefinition(context, node)
   ) {
     return false;
   }
@@ -162,13 +172,13 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node, node: Node): bool
     funcParent.id.type === 'Identifier' &&
     isIdentifier(funcParent.id, 'Promise', 'Deferred')
   ) {
-    return isCallableThenDefinition(node);
+    return isCallableThenDefinition(context, node);
   }
   // Promise = function() { ... } or ns.Deferred = () => { ... }
   return (
     funcParent.type === 'AssignmentExpression' &&
     isPromiseOrDeferredAssignmentTarget(funcParent.left) &&
-    isCallableThenDefinition(node)
+    isCallableThenDefinition(context, node)
   );
 }
 
@@ -178,21 +188,19 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node, node: Node): bool
  * directly returned `{ then: fn }` factory object. Non-callable values and static members remain
  * reportable.
  */
-function isCallableThenDefinition(node: Node): boolean {
+function isCallableThenDefinition(context: Rule.RuleContext, node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
   const [parent, container] = ancestors;
   const assignment = ancestors.find(ancestor => ancestor.type === 'AssignmentExpression');
   if (
     parent?.type === 'CallExpression' &&
+    parent.arguments[0] !== undefined &&
+    isThisExpression(parent.arguments[0]) &&
     parent.arguments[1] === node &&
     parent.arguments[2] !== undefined &&
-    (isStaticMethodCall(parent, 'Object', 'defineProperty') ||
-      isStaticMethodCall(parent, 'Reflect', 'defineProperty'))
+    isUnshadowedDefinePropertyCall(context, parent)
   ) {
-    if (
-      parent.arguments[0]?.type === 'ThisExpression' &&
-      ancestors.some(ancestor => ancestor.type === 'ArrowFunctionExpression')
-    ) {
+    if (ancestors.some(ancestor => ancestor.type === 'ArrowFunctionExpression')) {
       return false;
     }
     return isCallablePropertyDescriptor(parent.arguments[2] as Node);
@@ -225,6 +233,15 @@ function isCallableThenDefinition(node: Node): boolean {
   );
 }
 
+function isUnshadowedDefinePropertyCall(context: Rule.RuleContext, call: CallExpression): boolean {
+  return (
+    (isStaticMethodCall(call, 'Object', 'defineProperty') &&
+      !isGlobalShadowed(context.sourceCode, call.callee.object, 'Object')) ||
+    (isStaticMethodCall(call, 'Reflect', 'defineProperty') &&
+      !isGlobalShadowed(context.sourceCode, call.callee.object, 'Reflect'))
+  );
+}
+
 function isCallableThenValue(node: Node): boolean {
   return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
 }
@@ -254,15 +271,15 @@ function isCallablePropertyDescriptor(node: Node): boolean {
  * Checks arrow code such as `exports.Promise = () => { this.then = fn; }` and
  * `Object.defineProperty(this, 'then', { value: fn })`, where `this` is lexical.
  */
-function isArrowFunctionLexicalThisThenDefinition(node: Node): boolean {
+function isArrowFunctionLexicalThisThenDefinition(context: Rule.RuleContext, node: Node): boolean {
   const [parent, assignment] = getAncestorsWithParent(node);
   if (
     parent?.type === 'CallExpression' &&
     parent.arguments[1] === node &&
-    parent.arguments[0]?.type === 'ThisExpression' &&
+    parent.arguments[0] !== undefined &&
+    isThisExpression(parent.arguments[0]) &&
     parent.arguments[2] !== undefined &&
-    (isStaticMethodCall(parent, 'Object', 'defineProperty') ||
-      isStaticMethodCall(parent, 'Reflect', 'defineProperty'))
+    isUnshadowedDefinePropertyCall(context, parent)
   ) {
     return true;
   }
@@ -301,7 +318,7 @@ function isThisThenObjectUtilityProperty(node: Node): boolean {
  * Recognizes `class Promise { then() {} }` and `namespace.Deferred = class { then() {} }` as
  * instance factories. Static members are excluded because they make the class object thenable.
  */
-function isPromiseOrDeferredClass(ancestor: Node, node: Node): boolean {
+function isPromiseOrDeferredClass(context: Rule.RuleContext, ancestor: Node, node: Node): boolean {
   if (ancestor.type !== 'ClassDeclaration' && ancestor.type !== 'ClassExpression') {
     return false;
   }
@@ -309,13 +326,13 @@ function isPromiseOrDeferredClass(ancestor: Node, node: Node): boolean {
     return false;
   }
   if (ancestor.id !== null && isIdentifier(ancestor.id, 'Promise', 'Deferred')) {
-    return isCallableThenDefinition(node);
+    return isCallableThenDefinition(context, node);
   }
   const classParent = (ancestor as Node & { parent?: Node }).parent;
   return (
     classParent?.type === 'AssignmentExpression' &&
     isPromiseOrDeferredAssignmentTarget(classParent.left) &&
-    isCallableThenDefinition(node)
+    isCallableThenDefinition(context, node)
   );
 }
 
@@ -341,7 +358,7 @@ function isStaticClassMember(classNode: Node, node: Node): boolean {
  * Promise/Deferred factory and a `then` definition. Directly returned factory objects and arrows
  * that retain the factory's `this` are the deliberate exceptions.
  */
-function isThenDefinitionBoundary(ancestor: Node, node: Node): boolean {
+function isThenDefinitionBoundary(context: Rule.RuleContext, ancestor: Node, node: Node): boolean {
   if (ancestor.type === 'ObjectExpression') {
     return !isDirectFactoryResult(ancestor);
   }
@@ -349,7 +366,7 @@ function isThenDefinitionBoundary(ancestor: Node, node: Node): boolean {
     return getNodeParent(ancestor)?.type !== 'MethodDefinition';
   }
   if (ancestor.type === 'ArrowFunctionExpression') {
-    return !isArrowFunctionLexicalThisThenDefinition(node);
+    return !isArrowFunctionLexicalThisThenDefinition(context, node);
   }
   return ['FunctionDeclaration', 'ClassDeclaration', 'ClassExpression'].includes(ancestor.type);
 }
@@ -493,17 +510,18 @@ function isNamedPromiseOrDeferredClassMethod(node: Node): boolean {
  * `function Deferred() { this.then = fn }`. Nested declarations remain reportable unless they
  * are a direct factory result or preserve the enclosing receiver through an arrow function.
  */
-function isInsidePromiseOrDeferredDefinition(node: Node): boolean {
+function isInsidePromiseOrDeferredDefinition(context: Rule.RuleContext, node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
   for (const ancestor of ancestors) {
     if (
-      (isPromiseOrDeferredFunctionDeclaration(ancestor) && isCallableThenDefinition(node)) ||
-      isPromiseOrDeferredFunctionExpression(ancestor, node) ||
-      isPromiseOrDeferredClass(ancestor, node)
+      (isPromiseOrDeferredFunctionDeclaration(ancestor) &&
+        isCallableThenDefinition(context, node)) ||
+      isPromiseOrDeferredFunctionExpression(context, ancestor, node) ||
+      isPromiseOrDeferredClass(context, ancestor, node)
     ) {
       return true;
     }
-    if (isThenDefinitionBoundary(ancestor, node)) {
+    if (isThenDefinitionBoundary(context, ancestor, node)) {
       return false;
     }
   }
@@ -737,7 +755,7 @@ export function isIntentionalThenableImplementation(
 ): boolean {
   return (
     isDelegatingToPromiseThen(node) ||
-    isInsidePromiseOrDeferredDefinition(node) ||
+    isInsidePromiseOrDeferredDefinition(context, node) ||
     isConstFactoryResult(context, node) ||
     isPrototypeThenAssignment(node) ||
     hasSiblingThenableMethods(node) ||
