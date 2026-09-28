@@ -13,14 +13,15 @@ const ISSUE_CAP = 10_000;
 
 function parseOptions(argv) {
   const [command, ...values] = argv;
-  const args = { command, file: [], rule: [], project: [] };
+  const args = { command, file: [], rule: [], project: [], 'exclude-file': [] };
   for (let i = 0; i < values.length; i++) {
     const name = values[i];
     if (!name.startsWith('--') || values[i + 1] == null) {
       throw new Error(`Expected --name value, got ${name ?? '<end>'}`);
     }
     const key = name.slice(2);
-    if (key === 'file' || key === 'rule' || key === 'project') args[key].push(values[++i]);
+    if (key === 'file' || key === 'rule' || key === 'project' || key === 'exclude-file')
+      args[key].push(values[++i]);
     else args[key] = values[++i];
   }
   return args;
@@ -89,7 +90,8 @@ class Api {
     for (const [key, value] of Object.entries(query)) {
       if (value != null) url.searchParams.set(key, String(value));
     }
-    for (let attempt = 0; attempt < 5; attempt++) {
+    const maxAttempts = options.maxAttempts ?? 5;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const start = Math.max(Date.now(), this.nextStart);
       this.nextStart = start + this.paceMs;
       if (start > Date.now()) await delay(start - Date.now());
@@ -105,13 +107,22 @@ class Api {
           signal: AbortSignal.timeout(options.timeoutMs ?? 120_000),
         });
       } catch (error) {
-        if (attempt === 4) throw new Error(`Network request failed (${error.name})`);
+        if (attempt === maxAttempts - 1) throw new Error(`Network request failed (${error.name})`);
         await delay(1000 * (attempt + 1));
         continue;
       }
-      if (response.ok) return options.raw ? response.text() : response.json();
-      if (![429, 503, 504].includes(response.status) || attempt === 4) {
-        throw new Error(`HTTP ${response.status} from ${url.pathname}`);
+      if (response.ok) {
+        const data = options.raw ? await response.text() : await response.json();
+        return options.includeMetadata ? {
+          data,
+          gatewayRequestId: response.headers.get('x-amzn-requestid'),
+        } : data;
+      }
+      if (![429, 503, 504].includes(response.status) || attempt === maxAttempts - 1) {
+        const error = new Error(`HTTP ${response.status} from ${url.pathname}`);
+        error.httpStatus = response.status;
+        error.gatewayRequestId = response.headers.get('x-amzn-requestid');
+        throw error;
       }
       const retryAfter = Number(response.headers.get('retry-after'));
       await response.arrayBuffer();
@@ -160,24 +171,33 @@ async function issuesForComponents(api, organization, components) {
       partitions = children.map(child => [child]);
     }
     const issueMap = new Map();
+    const qualifiers = {};
     for (const partition of partitions) {
-      for (const issue of await issuesForComponents(api, organization, partition)) {
+      const result = await issuesForComponents(api, organization, partition);
+      Object.assign(qualifiers, result.qualifiers);
+      for (const issue of result.issues) {
         issueMap.set(issue.key, issue);
       }
     }
-    return [...issueMap.values()];
+    return { issues: [...issueMap.values()], qualifiers };
   }
   const issues = [...(first.issues ?? [])];
+  const qualifiers = Object.fromEntries((first.components ?? [])
+    .filter(component => ['FIL', 'UTS'].includes(component.qualifier))
+    .map(component => [component.key, component.qualifier]));
   for (let page = 2; (page - 1) * PAGE_SIZE < total; page++) {
     const result = await api.request(
       '/api/issues/search',
       ciQuery(organization, { ...query, p: page }),
     );
     issues.push(...(result.issues ?? []));
+    for (const component of result.components ?? []) {
+      if (['FIL', 'UTS'].includes(component.qualifier)) qualifiers[component.key] = component.qualifier;
+    }
   }
   if (issues.length !== total)
     throw new Error(`Issue pagination incomplete: ${issues.length}/${total}`);
-  return issues;
+  return { issues, qualifiers };
 }
 
 async function latestAnalysis(api, project) {
@@ -215,7 +235,7 @@ export function sampleFiles(projectRecords, limitPerRule, rules, fileSelectors) 
     }
   }
   const selected = new Set();
-  for (const [rule, issues] of issuesByRule) {
+  for (const [rule, issues] of fileSelectors.length ? [] : issuesByRule) {
     let remaining = limitPerRule;
     const byProject = new Map();
     for (const issue of issues) {
@@ -278,13 +298,15 @@ async function fileSnapshot(api, projectRecord, component, issues, file) {
     issues.map(issue => issue.scope).filter(scope => scope === 'MAIN' || scope === 'TEST'),
   );
   const scopeFromIssues = issueScopes.size === 1 ? [...issueScopes][0] : null;
+  const knownQualifier = projectRecord.qualifiers?.[component];
+  const knownScope = knownQualifier === 'UTS' ? 'TEST' : knownQualifier === 'FIL' ? 'MAIN' : null;
   const [source, details] = await Promise.all([
     api.request('/api/sources/raw', { key: component }, { raw: true }),
-    scopeFromIssues ? Promise.resolve(null) : api.request('/api/components/show', { component }),
+    scopeFromIssues || knownScope ? Promise.resolve(null) : api.request('/api/components/show', { component }),
   ]);
   const qualifier = details?.component?.qualifier;
   const scope =
-    scopeFromIssues ?? (qualifier === 'UTS' ? 'TEST' : qualifier === 'FIL' ? 'MAIN' : null);
+    scopeFromIssues ?? knownScope ?? (qualifier === 'UTS' ? 'TEST' : qualifier === 'FIL' ? 'MAIN' : null);
   if (!scope) throw new Error(`Unknown file scope for ${component}: ${qualifier ?? '<missing>'}`);
   await atomicJson(file, {
     component,
@@ -310,15 +332,27 @@ async function capture(args, token) {
   if (await jsonOrNull(join(root, 'baseline.json'))) {
     throw new Error('This output directory already has a sealed baseline; choose a new directory');
   }
-  const projects = [
+  const manifestProjects = [
     ...new Set(
       (await readFile(args.projects, 'utf8'))
         .split(/\r?\n/)
         .map(value => value.trim())
         .filter(value => value && !value.startsWith('#')),
     ),
-  ].filter(project => !args.project.length || args.project.includes(project));
+  ];
+  const directFiles = args.file.length && args.file.every(component =>
+    manifestProjects.some(project => component.startsWith(`${project}:`)),
+  ) ? args.file : null;
+  const projects = manifestProjects.filter(project =>
+    (!args.project.length || args.project.includes(project)) &&
+    (!directFiles || directFiles.some(component => component.startsWith(`${project}:`))),
+  );
   if (!projects.length) throw new Error('Project manifest is empty');
+  // A full component key is sufficient to probe one file without querying and
+  // sampling every issue in a large project such as Kibana.
+  if (directFiles && directFiles.some(component =>
+    !projects.some(project => component.startsWith(`${project}:`)),
+  )) throw new Error('Explicit file is outside the selected projects');
   const api = new Api(args['server-url'], token, numberOption(args, 'pace-ms', 150));
   const concurrency = numberOption(args, 'concurrency', 8);
   const sampleLimit = numberOption(args, 'sample-per-rule', 20);
@@ -345,7 +379,11 @@ async function capture(args, token) {
   let completed = 0;
   await mapLimit(batches, concurrency, async batch => {
     const keys = batch.map(item => item.project);
-    const issues = await issuesForComponents(api, args.organization, keys);
+    const { issues, qualifiers } = await issuesForComponents(
+      api,
+      args.organization,
+      directFiles ? directFiles.filter(component => keys.some(key => component.startsWith(`${key}:`))) : keys,
+    );
     const grouped = new Map(keys.map(key => [key, []]));
     for (const issue of issues) {
       if (!REPOS.has(issue.rule?.split(':', 1)[0])) continue;
@@ -360,6 +398,8 @@ async function capture(args, token) {
         analysis: item.analysis,
         branchId,
         issues: grouped.get(item.project),
+        qualifiers: Object.fromEntries(Object.entries(qualifiers)
+          .filter(([component]) => component.startsWith(`${item.project}:`))),
       };
       await atomicJson(item.checkpoint, record);
       records.set(item.project, record);
@@ -368,10 +408,16 @@ async function capture(args, token) {
   });
   const projectRecords = projects.map(project => records.get(project));
   const cohort = sampleFiles(projectRecords, sampleLimit, args.rule, args.file);
+  const excludedFiles = new Set(args['exclude-file']);
+  for (const component of excludedFiles) {
+    if (!cohort.selected.includes(component))
+      throw new Error(`Excluded file is not in the selected cohort: ${component}`);
+  }
+  const selectedFiles = cohort.selected.filter(component => !excludedFiles.has(component));
   const byProject = new Map(projectRecords.map(record => [record.project, record]));
-  console.log(`Selected ${cohort.selected.length} files from ${projects.length} projects`);
+  console.log(`Selected ${selectedFiles.length} files from ${projects.length} projects (${excludedFiles.size} excluded)`);
   let savedFiles = 0;
-  await mapLimit(cohort.selected, concurrency, async component => {
+  await mapLimit(selectedFiles, concurrency, async component => {
     const project = cohort.projectByComponent.get(component);
     const record = byProject.get(project);
     await fileSnapshot(
@@ -381,8 +427,8 @@ async function capture(args, token) {
       cohort.allIssuesByComponent.get(component),
       join(root, 'files', `${hash(component)}.json`),
     );
-    if (++savedFiles % 100 === 0 || savedFiles === cohort.selected.length) {
-      console.log(`File snapshots: ${savedFiles}/${cohort.selected.length}`);
+    if (++savedFiles % 100 === 0 || savedFiles === selectedFiles.length) {
+      console.log(`File snapshots: ${savedFiles}/${selectedFiles.length}`);
     }
   });
   await mapLimit(projectRecords, concurrency, async record => {
@@ -402,11 +448,12 @@ async function capture(args, token) {
       analysis,
       branchId,
     })),
-    files: cohort.selected.map(component => ({
+    files: selectedFiles.map(component => ({
       component,
       record: `files/${hash(component)}.json`,
     })),
-    selection: { samplePerRule: sampleLimit, rules: args.rule, files: args.file },
+    selection: { samplePerRule: sampleLimit, rules: args.rule, files: args.file,
+      excludedFiles: [...excludedFiles] },
   });
   console.log(`Sealed immutable baseline: ${join(root, 'baseline.json')}`);
 }
@@ -434,14 +481,27 @@ export function compareIssues(expected, actual, rules = []) {
   }
   const missing = [];
   let matched = 0;
+  const matchedByRule = {};
   for (const issue of expected.filter(applies)) {
     const bucket = remaining.get(exactKey(issue, true));
     if (bucket?.length) {
       bucket.pop();
       matched++;
+      matchedByRule[issue.rule] = (matchedByRule[issue.rule] ?? 0) + 1;
     } else missing.push(issue);
   }
-  return { matched, missing, extra: [...remaining.values()].flat() };
+  return { matched, matchedByRule, missing, extra: [...remaining.values()].flat() };
+}
+
+function percentile(sorted, fraction) {
+  return sorted.length ? sorted[Math.max(0, Math.ceil(sorted.length * fraction) - 1)] : 0;
+}
+
+function csv(rows) {
+  return `${rows.map(row => row.map(value => {
+    const text = String(value ?? '');
+    return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+  }).join(',')).join('\n')}\n`;
 }
 
 async function compare(args, token) {
@@ -496,12 +556,14 @@ async function compare(args, token) {
     const start = performance.now();
     let record;
     try {
-      const response = await api.request(
+      const { data: response, gatewayRequestId } = await api.request(
         '',
         {},
         {
           method: 'POST',
-          timeoutMs: numberOption(args, 'timeout-ms', 120_000),
+          timeoutMs: numberOption(args, 'timeout-ms', 60_000),
+          maxAttempts: 1,
+          includeMetadata: true,
           body: {
             organizationId: baseline.organizationId,
             projectKey: file.project,
@@ -515,19 +577,25 @@ async function compare(args, token) {
       if (response.errors?.length) {
         record = {
           component: file.component,
-          status: 'analysis_error',
+          status: response.errors.every(error => error?.code === 'INVALID_CONTEXT')
+            ? 'invalid_context' : 'analysis_error',
           durationMs,
-          requestId: response.id ?? null,
+          analysisId: response.id ?? null,
+          gatewayRequestId,
           errors: response.errors,
         };
       } else {
-        const actual = (response.issues ?? []).filter(issue => issue.filePath === file.path);
+        if (!Array.isArray(response.issues)) {
+          throw new Error('SQAA response has no issues array or analysis errors');
+        }
+        const actual = response.issues.filter(issue => issue.filePath === file.path);
         const differences = compareIssues(file.issues, actual, args.rule);
         record = {
           component: file.component,
           status: 'ok',
           durationMs,
-          requestId: response.id ?? null,
+          analysisId: response.id ?? null,
+          gatewayRequestId,
           ...differences,
         };
       }
@@ -537,6 +605,8 @@ async function compare(args, token) {
         status: 'http_error',
         durationMs: Math.round(performance.now() - start),
         error: error.message,
+        httpStatus: error.httpStatus ?? null,
+        gatewayRequestId: error.gatewayRequestId ?? null,
       };
     }
     // Multiple workers must append records atomically in this single process.
@@ -552,24 +622,82 @@ async function compare(args, token) {
     .map(JSON.parse);
   const latest = new Map(results.map(record => [record.component, record]));
   const summary = {
-    files: latest.size,
+    cohortFiles: baseline.files.length,
+    attemptedFiles: latest.size,
+    comparedFiles: 0,
+    pendingFiles: baseline.files.length - latest.size,
     matched: 0,
     missing: 0,
     extra: 0,
+    invalidContexts: 0,
     analysisErrors: 0,
     httpErrors: 0,
     requestDurationMs: 0,
   };
+  const ruleMetrics = new Map();
+  const timings = [];
+  const errors = [['component', 'status', 'codes', 'analysisId', 'gatewayRequestId', 'durationMs', 'message']];
+  const falsePositives = [['rule', 'component', 'line']];
+  const perFileTimings = [['component', 'status', 'durationMs']];
+  const problemCodes = {};
+  const metric = rule => {
+    if (!ruleMetrics.has(rule)) ruleMetrics.set(rule, { rule, matched: 0, missing: 0, extra: 0 });
+    return ruleMetrics.get(rule);
+  };
   for (const result of latest.values()) {
     summary.requestDurationMs += result.durationMs;
+    perFileTimings.push([result.component, result.status, result.durationMs]);
     if (result.status === 'ok') {
+      summary.comparedFiles++;
+      timings.push(result.durationMs);
       summary.matched += result.matched;
       summary.missing += result.missing.length;
       summary.extra += result.extra.length;
-    } else if (result.status === 'analysis_error') summary.analysisErrors++;
-    else summary.httpErrors++;
+      for (const [rule, count] of Object.entries(result.matchedByRule ?? {})) metric(rule).matched += count;
+      for (const issue of result.missing) metric(issue.rule).missing++;
+      for (const issue of result.extra) {
+        metric(issue.rule).extra++;
+        falsePositives.push([issue.rule, result.component, issue.textRange?.startLine]);
+      }
+    } else {
+      if (result.status === 'invalid_context') summary.invalidContexts++;
+      else if (result.status === 'analysis_error') summary.analysisErrors++;
+      else summary.httpErrors++;
+      const codes = [...new Set((result.errors ?? []).map(error => error?.code).filter(Boolean))];
+      for (const code of codes) problemCodes[code] = (problemCodes[code] ?? 0) + 1;
+      errors.push([result.component, result.status, codes.join(';'), result.analysisId,
+        result.gatewayRequestId, result.durationMs, result.error ?? '']);
+    }
+  }
+  timings.sort((a, b) => a - b);
+  summary.completionCoveragePct = baseline.files.length
+    ? Number((100 * summary.comparedFiles / baseline.files.length).toFixed(1)) : 100;
+  summary.problemCodes = problemCodes;
+  summary.successTimingsMs = {
+    average: timings.length ? Math.round(timings.reduce((a, b) => a + b, 0) / timings.length) : 0,
+    p50: percentile(timings, 0.50),
+    p90: percentile(timings, 0.90),
+    p95: percentile(timings, 0.95),
+    p99: percentile(timings, 0.99),
+    maximum: timings.at(-1) ?? 0,
+  };
+  const byRule = [...ruleMetrics.values()].sort((a, b) => a.rule.localeCompare(b.rule));
+  for (const row of byRule) {
+    row.detectionRatePct = row.matched + row.missing
+      ? Number((100 * row.matched / (row.matched + row.missing)).toFixed(1)) : 100;
+    row.falsePositiveRatePct = row.matched + row.extra
+      ? Number((100 * row.extra / (row.matched + row.extra)).toFixed(1)) : 0;
   }
   await atomicJson(join(output, 'summary.json'), summary);
+  await atomicJson(join(output, 'rule_metrics.json'), byRule);
+  await writeFile(join(output, 'rule_metrics.csv'), csv([
+    ['rule', 'matched', 'missing', 'extra', 'detectionRatePct', 'falsePositiveRatePct'],
+    ...byRule.map(row => [row.rule, row.matched, row.missing, row.extra,
+      row.detectionRatePct, row.falsePositiveRatePct]),
+  ]));
+  await writeFile(join(output, 'false_positives.csv'), csv(falsePositives));
+  await writeFile(join(output, 'errors.csv'), csv(errors));
+  await writeFile(join(output, 'timings.csv'), csv(perFileTimings));
   console.log(JSON.stringify(summary));
 }
 
