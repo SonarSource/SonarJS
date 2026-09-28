@@ -19,10 +19,12 @@ import { expect } from 'expect';
 import stylelint from 'stylelint';
 import { StylelintRuleTester } from '../../../../tests/css/tools/tester/tester.js';
 import { createStylelintConfig } from '../../linter/config.js';
+import { cssRulesMeta } from '../metadata.js';
 import { messages } from './rule.js';
 
 const RULE = 'sonar/declaration-no-important';
 const KEYFRAMES_RULE = 'keyframe-declaration-no-important';
+const ANNOTATION_RULE = 'sonar/annotation-no-unknown';
 const text = `${messages.important} (${RULE})`;
 
 const ruleTester = new StylelintRuleTester(RULE);
@@ -55,6 +57,14 @@ async function lint(
       endColumn,
     }))
     .sort((a: ReportedIssue, b: ReportedIssue): number => a.line - b.line || a.column - b.column);
+}
+
+function byAnnotationOrImportant(issue: ReportedIssue): boolean {
+  return issue.rule === RULE || issue.rule === ANNOTATION_RULE;
+}
+
+function pick(issue: ReportedIssue): [string, number] {
+  return [issue.rule, issue.line];
 }
 
 describe('S9423 (sonar/declaration-no-important)', (): void => {
@@ -207,6 +217,26 @@ a { color: pink !important; }
     ).toEqual([
       [RULE, 3],
       [KEYFRAMES_RULE, 4],
+    ]);
+  });
+
+  it('does not relabel warnings of rules running concurrently', async (): Promise<void> => {
+    const allRules = cssRulesMeta
+      .map(({ stylelintKey }: { stylelintKey: string }): string => stylelintKey)
+      .filter((key: string): boolean => key !== 'no-empty-source');
+
+    expect(
+      (await lint('.a\n  margin: 0 !important\n', allRules, 'styles.sass'))
+        .filter(byAnnotationOrImportant)
+        .map(pick),
+    ).toEqual([[ANNOTATION_RULE, 2]]);
+    expect(
+      (await lint('a { color: pink !important; }\nb { color: red !imprtant; }', allRules))
+        .filter(byAnnotationOrImportant)
+        .map(pick),
+    ).toEqual([
+      [RULE, 1],
+      [ANNOTATION_RULE, 2],
     ]);
   });
 

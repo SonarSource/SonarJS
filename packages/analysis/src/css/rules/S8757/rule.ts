@@ -45,17 +45,26 @@ function isSassAnnotationWarning(text: string): boolean {
 
 function relabelWarnings(result: PostcssResult, from: number): void {
   for (const w of result.warnings().slice(from)) {
+    // Rules run concurrently, so other rules may have reported since `from`
+    if ((w as unknown as { rule?: string }).rule !== UPSTREAM_RULE) {
+      continue;
+    }
     w.text = w.text.replace(` (${UPSTREAM_RULE})`, ` (${SONAR_RULE})`);
     (w as unknown as { rule: string }).rule = SONAR_RULE;
   }
 }
 
 function removeSassAnnotationWarnings(result: PostcssResult, from: number): void {
-  const messages = (result as unknown as { messages: { stylelintType?: string; text: string }[] })
-    .messages;
+  const messages = (
+    result as unknown as { messages: { stylelintType?: string; text: string; rule?: string }[] }
+  ).messages;
   for (let i = messages.length - 1; i >= from; i--) {
     const w = messages[i];
-    if (w.stylelintType !== 'invalidOption' && isSassAnnotationWarning(w.text)) {
+    if (
+      w.rule === UPSTREAM_RULE &&
+      w.stylelintType !== 'invalidOption' &&
+      isSassAnnotationWarning(w.text)
+    ) {
       messages.splice(i, 1);
     }
   }

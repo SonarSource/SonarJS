@@ -93,7 +93,8 @@ const ruleImpl: stylelint.RuleBase = (
     const skipKeyframes = isKeyframesRuleEnabled(result);
     for (let i = reported.length - 1; i >= from; i--) {
       const message = reported[i];
-      if (message.stylelintType !== undefined) {
+      // Rules run concurrently, so other rules may have reported since `from`
+      if (message.rule !== UPSTREAM_RULE || message.stylelintType !== undefined) {
         continue;
       }
       if (skipKeyframes && isInKeyframes(message.node)) {
