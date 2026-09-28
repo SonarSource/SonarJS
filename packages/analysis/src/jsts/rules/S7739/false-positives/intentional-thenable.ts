@@ -138,7 +138,9 @@ function isPromiseOrDeferredMemberAssignmentTarget(target: Node): boolean {
 }
 
 /**
- * Checks if an ancestor is a function expression/arrow assigned to 'Promise' or 'Deferred'.
+ * Recognizes `const Promise = function () {}`, `Deferred = () => {}`, and their non-computed
+ * member-assignment forms. Arrow functions that define `this.then` are excluded because their
+ * lexical `this` does not belong to the factory.
  */
 function isPromiseOrDeferredFunctionExpression(ancestor: Node, node: Node): boolean {
   if (ancestor.type !== 'FunctionExpression' && ancestor.type !== 'ArrowFunctionExpression') {
@@ -256,6 +258,11 @@ function isThisThenAssignment(parent: Node | undefined, assignment: Node | undef
   );
 }
 
+/**
+ * Recognizes `Object.assign(this, { then: fn })` and
+ * `Object.defineProperties(this, { then: { value: fn } })` only while examining the object
+ * literal's `then` property. Similar helper calls on another receiver remain reportable.
+ */
 function isThisThenObjectUtilityProperty(node: Node): boolean {
   const [property, object, call] = getAncestorsWithParent(node);
   return (
@@ -270,7 +277,8 @@ function isThisThenObjectUtilityProperty(node: Node): boolean {
 }
 
 /**
- * Checks if an ancestor is a class named 'Promise' or 'Deferred'.
+ * Recognizes `class Promise { then() {} }` and `namespace.Deferred = class { then() {} }` as
+ * instance factories. Static members are excluded because they make the class object thenable.
  */
 function isPromiseOrDeferredClass(ancestor: Node, node: Node): boolean {
   if (ancestor.type !== 'ClassDeclaration' && ancestor.type !== 'ClassExpression') {
@@ -323,6 +331,11 @@ function isDirectlyContainingThenDefinition(ancestor: Node, node: Node): boolean
   );
 }
 
+/**
+ * Marks nested functions, classes, and ordinary object literals as a boundary between a named
+ * Promise/Deferred factory and a `then` definition. Directly returned factory objects and arrows
+ * that retain the factory's `this` are the deliberate exceptions.
+ */
 function isThenDefinitionBoundary(ancestor: Node, node: Node): boolean {
   if (ancestor.type === 'ObjectExpression') {
     return !isDirectFactoryResult(ancestor);
@@ -388,6 +401,11 @@ function isPromiseOrDeferredFactory(node: Node): boolean {
   );
 }
 
+/**
+ * Recognizes an instance method of `class Promise` or `class Deferred` returning a factory
+ * object. Static methods are excluded because their returned object is not tied to an instance
+ * factory.
+ */
 function isNamedPromiseOrDeferredClassMethod(node: Node): boolean {
   if (node.type !== 'FunctionExpression') {
     return false;
@@ -406,7 +424,9 @@ function isNamedPromiseOrDeferredClassMethod(node: Node): boolean {
 }
 
 /**
- * Checks if 'then' is defined inside a class or function named 'Promise' or 'Deferred'.
+ * Recognizes `then` defined directly by a `Promise`/`Deferred` class or factory, such as
+ * `function Deferred() { this.then = fn }`. Nested declarations remain reportable unless they
+ * are a direct factory result or preserve the enclosing receiver through an arrow function.
  */
 function isInsidePromiseOrDeferredDefinition(node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
@@ -420,10 +440,8 @@ function isInsidePromiseOrDeferredDefinition(node: Node): boolean {
 }
 
 /**
- * Checks if the assignment target is X.prototype.then (prototype extension pattern).
- * The reported node is the 'then' identifier, so we check:
- * - Parent is MemberExpression with object being X.prototype
- * - Grandparent is AssignmentExpression
+ * Recognizes prototype extension such as `Deferred.prototype.then = fn`. It does not recognize
+ * arbitrary `prototype.then` reads or non-assignment member expressions.
  */
 function isPrototypeThenAssignment(node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
