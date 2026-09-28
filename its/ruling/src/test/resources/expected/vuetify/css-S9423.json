@@ -1,0 +1,89 @@
+{
+"vuetify:packages/docs/src/components/Alert.vue": [
+23
+],
+"vuetify:packages/docs/src/components/api/Section.vue": [
+92,
+95,
+98,
+101
+],
+"vuetify:packages/docs/src/components/app/Markup.vue": [
+155,
+166,
+221,
+231
+],
+"vuetify:packages/docs/src/components/app/settings/Theme.vue": [
+70,
+71,
+72,
+73,
+74
+],
+"vuetify:packages/docs/src/components/doc/Releases.vue": [
+169
+],
+"vuetify:packages/docs/src/components/examples/UsageExample.vue": [
+166
+],
+"vuetify:packages/docs/src/examples/v-card/misc-card-reveal.vue": [
+64
+],
+"vuetify:packages/docs/src/examples/v-hover/misc-hover-list.vue": [
+96
+],
+"vuetify:packages/docs/src/examples/v-tabs/prop-grow.vue": [
+58,
+61
+],
+"vuetify:packages/vuetify/src/components/VCarousel/VCarousel.sass": [
+64
+],
+"vuetify:packages/vuetify/src/components/VWindow/VWindow.sass": [
+52
+],
+"vuetify:packages/vuetify/src/styles/generic/_colors.scss": [
+7,
+10,
+15
+],
+"vuetify:packages/vuetify/src/styles/generic/_reset.scss": [
+272,
+273
+],
+"vuetify:packages/vuetify/src/styles/generic/_transitions.scss": [
+5,
+6,
+10,
+11,
+15,
+16,
+17,
+25,
+34,
+35,
+39,
+40,
+45,
+85,
+90,
+124,
+133,
+148,
+163,
+178,
+196,
+210,
+224,
+245,
+266,
+287,
+308,
+322,
+336,
+344,
+349,
+362
+]
+}
