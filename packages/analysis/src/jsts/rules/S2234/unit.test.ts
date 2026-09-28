@@ -169,13 +169,14 @@ const validLengthNormalizations = [
       }`,
   },
   {
-    // A snapshot written once is a snapshot, whatever the declaration kind.
+    // A nested call can use the same outer variables without shadowing them.
     code: `
-      function f(a, b) {
-        let m = a.length;
-        let n = b.length;
-        if (m < n) return f(b, a);
-        return [a, b];
+      function target(a, b) {}
+      function outer(a, b) {
+        const m = a.length, n = b.length;
+        function inner() {
+          if (m < n) target(b, a);
+        }
       }`,
   },
   {
@@ -197,6 +198,60 @@ const validLengthNormalizations = [
  * Shapes that keep being reported: the condition does not actually compare the swapped pair.
  */
 const invalidLengthNormalizations = [
+  {
+    // Only const snapshots are resolved, even when let variables have a single write.
+    code: `
+      function f(a, b) {
+        let m = a.length;
+        let n = b.length;
+        if (m < n) return f(b, a);
+        return [a, b];
+      }`,
+    errors: 1,
+  },
+  {
+    // Hoisted var declarations are initialized after the guard.
+    code: `
+      function target(a, b) {}
+      function f(a, b) {
+        if (m < n) target(b, a);
+        var m = a.length;
+        var n = b.length;
+      }`,
+    errors: 1,
+  },
+  {
+    // The snapshots refer to outer parameters, not the shadowing call arguments.
+    code: `
+      function target(a, b) {}
+      function outer(a, b) {
+        const m = a.length, n = b.length;
+        function inner(a, b) {
+          if (m < n) target(b, a);
+        }
+      }`,
+    errors: 1,
+  },
+  {
+    // Destructuring does not create a direct snapshot of the member access.
+    code: `
+      function f(a, b) {
+        const { m } = a.length;
+        const { n } = b.length;
+        if (m < n) return f(b, a);
+      }`,
+    errors: 1,
+  },
+  {
+    // Both snapshots must refer to different arguments in the swapped pair.
+    code: `
+      function f(a, b) {
+        const m = a.length;
+        const n = a.byteLength;
+        if (m < n) return f(b, a);
+      }`,
+    errors: 1,
+  },
   {
     // The guard compares one argument against an unrelated value.
     code: `
@@ -222,7 +277,7 @@ const invalidLengthNormalizations = [
     // A snapshot written more than once is not a snapshot of the argument.
     code: `
   function f(a, b) {
-    let m = a.length;
+    const m = a.length;
     const n = b.length;
     m = 0;
     if (m < n) return f(b, a);
@@ -420,6 +475,7 @@ describe('S2234', () => {
         {
           code: `
       function f(p1, p2) {}
+      var p1, p2;
       if (p1 < p2) {
         f(p2, p1);
       }

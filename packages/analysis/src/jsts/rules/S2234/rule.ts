@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2234/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
@@ -100,20 +100,32 @@ export const rule: Rule.RuleModule = {
     }
 
     /**
-     * Resolves an identifier holding a single-write snapshot of a member access back to that
-     * access, so that `const m = a.length` makes `m` stand for `a.length`. Any other node is
-     * returned unchanged. Only one level is followed, so no alias cycle can be entered.
+     * Resolves a direct const snapshot of a member access to its base variable, so that
+     * `const m = a.length` makes `m` stand for the variable `a` in the initializer's scope.
+     * Only one level is followed, so no alias cycle can be entered.
      */
-    function resolveMemberSnapshot(node: estree.Node): estree.Node {
+    function resolveMemberSnapshot(node: estree.Node): Scope.Variable | undefined {
       if (node.type !== 'Identifier') {
-        return node;
+        return undefined;
       }
       const variable = getVariableFromName(context, node.name, node);
       if (variable?.defs.length !== 1 || variable.defs[0].type !== 'Variable') {
-        return node;
+        return undefined;
       }
-      const snapshot = getUniqueWriteReference(variable);
-      return snapshot && (isDotNotation(snapshot) || isIndexNotation(snapshot)) ? snapshot : node;
+      const [definition] = variable.defs;
+      if (definition.parent.kind !== 'const' || definition.node.id.type !== 'Identifier') {
+        return undefined;
+      }
+      const snapshot = definition.node.init;
+      if (
+        snapshot &&
+        getUniqueWriteReference(variable) === snapshot &&
+        (isDotNotation(snapshot) || isIndexNotation(snapshot)) &&
+        snapshot.object.type === 'Identifier'
+      ) {
+        return getVariableFromName(context, snapshot.object.name, snapshot.object);
+      }
+      return undefined;
     }
 
     /**
@@ -126,24 +138,26 @@ export const rule: Rule.RuleModule = {
      * `const m = a.length; const n = b.length; if (m < n) return f(b, a);`.
      */
     function areComparedArguments(argumentNames: string[], node: estree.Node): boolean {
-      function getName(node: estree.Node): string | undefined {
+      function getVariable(node: estree.Node): Scope.Variable | undefined {
         switch (node.type) {
           case 'Identifier':
-            return node.name;
+            return getVariableFromName(context, node.name, node);
           case 'CallExpression':
-            return getName(node.callee);
+            return getVariable(node.callee);
           case 'MemberExpression':
-            return getName(node.object);
+            return getVariable(node.object);
           default:
             return undefined;
         }
       }
       function checkComparedArguments(lhs: estree.Node, rhs: estree.Node): boolean {
-        return (
-          [lhs, rhs]
-            .map(side => getName(resolveMemberSnapshot(side)))
-            .filter(name => name && argumentNames.includes(name)).length === argumentNames.length
+        const comparedVariables = [lhs, rhs].map(
+          side => resolveMemberSnapshot(side) ?? getVariable(side),
         );
+        return argumentNames.every(name => {
+          const variable = getVariableFromName(context, name, node);
+          return variable !== undefined && comparedVariables.includes(variable);
+        });
       }
       const maybeIfStmt = context.sourceCode
         .getAncestors(node)
