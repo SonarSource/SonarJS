@@ -384,6 +384,66 @@ function isDirectFactoryResult(node: Node): boolean {
 }
 
 /**
+ * Recognizes an object literal saved in a local const and returned from the same Promise/Deferred
+ * factory. The binding identity prevents an outer or shadowed variable from being treated as the
+ * factory result.
+ */
+function isConstFactoryResult(context: Rule.RuleContext, node: Node): boolean {
+  const [property, object, declarator, declaration] = getAncestorsWithParent(node);
+  if (
+    property?.type !== 'Property' ||
+    property.key !== node ||
+    property.kind !== 'init' ||
+    !isCallableThenValue(property.value as Node) ||
+    object?.type !== 'ObjectExpression' ||
+    declarator?.type !== 'VariableDeclarator' ||
+    declarator.init !== object ||
+    declarator.id.type !== 'Identifier' ||
+    declaration?.type !== 'VariableDeclaration' ||
+    declaration.kind !== 'const'
+  ) {
+    return false;
+  }
+
+  const variable = getVariableFromName(context, declarator.id.name, declarator.id);
+  if (
+    variable?.defs.length !== 1 ||
+    variable.defs[0].type !== 'Variable' ||
+    variable.defs[0].node !== declarator ||
+    variable.references.filter(reference => reference.isWrite()).length !== 1
+  ) {
+    return false;
+  }
+
+  const factory = getAncestorsWithParent(declarator).find(
+    ancestor =>
+      ancestor.type === 'FunctionDeclaration' ||
+      ancestor.type === 'FunctionExpression' ||
+      ancestor.type === 'ArrowFunctionExpression',
+  );
+  if (!factory || !isPromiseOrDeferredFactory(factory)) {
+    return false;
+  }
+
+  return variable.references.some(reference => {
+    if (reference.isWrite()) {
+      return false;
+    }
+    const parent = getNodeParent(reference.identifier);
+    if (parent?.type !== 'ReturnStatement' || parent.argument !== reference.identifier) {
+      return false;
+    }
+    const returnFactory = getAncestorsWithParent(parent).find(
+      ancestor =>
+        ancestor.type === 'FunctionDeclaration' ||
+        ancestor.type === 'FunctionExpression' ||
+        ancestor.type === 'ArrowFunctionExpression',
+    );
+    return returnFactory === factory;
+  });
+}
+
+/**
  * Recognizes function, arrow, and instance-method factories named or assigned `Promise` or
  * `Deferred`, for example `exports.Promise = () => ({ then() {} })`.
  */
@@ -685,64 +745,4 @@ export function isIntentionalThenableImplementation(
     isInterfaceShapeDescriptor(node) ||
     isClassThenMethodWithThenableContract(context, node)
   );
-}
-
-/**
- * Recognizes an object literal saved in a local const and returned from the same Promise/Deferred
- * factory. The binding identity prevents an outer or shadowed variable from being treated as the
- * factory result.
- */
-function isConstFactoryResult(context: Rule.RuleContext, node: Node): boolean {
-  const [property, object, declarator, declaration] = getAncestorsWithParent(node);
-  if (
-    property?.type !== 'Property' ||
-    property.key !== node ||
-    property.kind !== 'init' ||
-    !isCallableThenValue(property.value as Node) ||
-    object?.type !== 'ObjectExpression' ||
-    declarator?.type !== 'VariableDeclarator' ||
-    declarator.init !== object ||
-    declarator.id.type !== 'Identifier' ||
-    declaration?.type !== 'VariableDeclaration' ||
-    declaration.kind !== 'const'
-  ) {
-    return false;
-  }
-
-  const variable = getVariableFromName(context, declarator.id.name, declarator.id);
-  if (
-    variable?.defs.length !== 1 ||
-    variable.defs[0].type !== 'Variable' ||
-    variable.defs[0].node !== declarator ||
-    variable.references.filter(reference => reference.isWrite()).length !== 1
-  ) {
-    return false;
-  }
-
-  const factory = getAncestorsWithParent(declarator).find(
-    ancestor =>
-      ancestor.type === 'FunctionDeclaration' ||
-      ancestor.type === 'FunctionExpression' ||
-      ancestor.type === 'ArrowFunctionExpression',
-  );
-  if (!factory || !isPromiseOrDeferredFactory(factory)) {
-    return false;
-  }
-
-  return variable.references.some(reference => {
-    if (reference.isWrite()) {
-      return false;
-    }
-    const parent = getNodeParent(reference.identifier);
-    if (parent?.type !== 'ReturnStatement' || parent.argument !== reference.identifier) {
-      return false;
-    }
-    const returnFactory = getAncestorsWithParent(parent).find(
-      ancestor =>
-        ancestor.type === 'FunctionDeclaration' ||
-        ancestor.type === 'FunctionExpression' ||
-        ancestor.type === 'ArrowFunctionExpression',
-    );
-    return returnFactory === factory;
-  });
 }
