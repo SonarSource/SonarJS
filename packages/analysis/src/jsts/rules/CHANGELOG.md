@@ -5,7 +5,6 @@
 * [[JS-2507](https://sonarsource.atlassian.net/browse/JS-2507)] - Added angular assertion detection
 * [[JS-2493](https://sonarsource.atlassian.net/browse/JS-2493)] - S1128: False positive on a type imported for a Vue generic <script setup> ("generic=…") constraint
 * [[JS-2479](https://sonarsource.atlassian.net/browse/JS-2479)] - Maintenance on S9150 restrict to vue 3
-* [[JS-2449](https://sonarsource.atlassian.net/browse/JS-2449)] - DONOTMERGE test pvf
 * [[JS-2409](https://sonarsource.atlassian.net/browse/JS-2409)] - Implement rule S9382: Promises should not be awaited sequentially in a loop
 * [[JS-2407](https://sonarsource.atlassian.net/browse/JS-2407)] - Implement rule S9383: Promises should be handled
 * [[JS-2406](https://sonarsource.atlassian.net/browse/JS-2406)] - Implement rule S9381: Promises should not be nested
