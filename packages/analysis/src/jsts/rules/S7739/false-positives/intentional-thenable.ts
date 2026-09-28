@@ -119,6 +119,10 @@ function isPromiseOrDeferredFunctionDeclaration(ancestor: Node): boolean {
   );
 }
 
+/**
+ * Recognizes a factory assignment such as `Promise = ...` or `namespace.Deferred = ...`.
+ * Computed targets, such as `namespace['Promise']`, intentionally remain outside this pattern.
+ */
 function isPromiseOrDeferredAssignmentTarget(target: Node): boolean {
   return (
     isIdentifier(target, 'Promise', 'Deferred') || isPromiseOrDeferredMemberAssignmentTarget(target)
@@ -166,6 +170,12 @@ function isPromiseOrDeferredFunctionExpression(ancestor: Node, node: Node): bool
   );
 }
 
+/**
+ * Recognizes an instance `then` implementation: `this.then = fn`,
+ * `Object.defineProperty(this, 'then', { value: fn })`, an instance class member, or a
+ * directly returned `{ then: fn }` factory object. Non-callable values and static members remain
+ * reportable.
+ */
 function isCallableThenDefinition(node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
   const [parent, container] = ancestors;
@@ -280,6 +290,10 @@ function isPromiseOrDeferredClass(ancestor: Node, node: Node): boolean {
   );
 }
 
+/**
+ * Rejects `class Promise { static then() {} }` and static-block definitions: they make the class
+ * object thenable, rather than implementing the instance-side Promise/Deferred factory pattern.
+ */
 function isStaticClassMember(classNode: Node, node: Node): boolean {
   const ancestors = getAncestorsWithParent(node);
   const classIndex = ancestors.indexOf(classNode);
@@ -322,6 +336,11 @@ function isThenDefinitionBoundary(ancestor: Node, node: Node): boolean {
   return ['FunctionDeclaration', 'ClassDeclaration', 'ClassExpression'].includes(ancestor.type);
 }
 
+/**
+ * Recognizes `{ then: fn }` only when it is the direct return value of a named Promise/Deferred
+ * factory or method. A nested object literal does not establish that its `then` belongs to the
+ * factory result and remains reportable.
+ */
 function isDirectFactoryResult(node: Node): boolean {
   const parent = getNodeParent(node);
   if (
@@ -346,6 +365,10 @@ function isDirectFactoryResult(node: Node): boolean {
   );
 }
 
+/**
+ * Recognizes function, arrow, and instance-method factories named or assigned `Promise` or
+ * `Deferred`, for example `exports.Promise = () => ({ then() {} })`.
+ */
 function isPromiseOrDeferredFactory(node: Node): boolean {
   if (isPromiseOrDeferredFunctionDeclaration(node)) {
     return true;
@@ -614,8 +637,10 @@ function hasTypeScriptThenableContract(context: Rule.RuleContext, classNode: Nod
 }
 
 /**
- * Checks if the reported node represents an intentional thenable implementation
- * that should not be flagged.
+ * Recognizes deliberate thenable shapes: delegation to another `.then`, a direct
+ * Promise/Deferred factory definition, `Type.prototype.then = fn`, an object with `then` plus
+ * `catch`/`finally`, JSON Schema `{ if, then }`, interface `{ then: Function }`, or a class that
+ * explicitly implements a thenable contract. Other `then` properties remain reportable.
  */
 export function isIntentionalThenableImplementation(
   context: Rule.RuleContext,
