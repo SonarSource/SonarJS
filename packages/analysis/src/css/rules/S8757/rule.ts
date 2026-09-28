@@ -60,8 +60,10 @@ function removeSassAnnotationWarnings(result: PostcssResult, from: number): void
   ).messages;
   for (let i = messages.length - 1; i >= from; i--) {
     const w = messages[i];
+    console.log('DBG', i, from, messages.length, w.rule, (w as any).plugin, w.text);
+    // Earlier blocks of the same document may already have relabeled this warning
     if (
-      w.rule === UPSTREAM_RULE &&
+      (w.rule === UPSTREAM_RULE || w.rule === SONAR_RULE) &&
       w.stylelintType !== 'invalidOption' &&
       isSassAnnotationWarning(w.text)
     ) {
@@ -93,6 +95,14 @@ const ruleImpl: stylelint.RuleBase = (primary, secondaryOptions, context) => {
     await (delegated as (root: PostCSS.Root, result: PostcssResult) => Promise<void>)(
       block,
       result,
+    );
+    console.log(
+      'BLK',
+      sass,
+      (block.source as any)?.lang,
+      msgCount,
+      messages.length,
+      JSON.stringify(messages.map((m: any) => [m.rule, m.line, m.text])),
     );
     if (sass) {
       removeSassAnnotationWarnings(result, msgCount);
