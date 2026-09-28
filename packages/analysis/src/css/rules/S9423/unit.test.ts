@@ -27,38 +27,56 @@ const text = `${messages.important} (${RULE})`;
 
 const ruleTester = new StylelintRuleTester(RULE);
 
-async function lintWithKeyframesRule(
+type ReportedIssue = {
+  rule: string;
+  line: number;
+  column: number;
+  endLine?: number;
+  endColumn?: number;
+};
+
+async function lint(
   code: string,
-): Promise<{ rule: string; line: number; column: number }[]> {
-  const config = createStylelintConfig([
-    { key: RULE, configurations: [] },
-    { key: KEYFRAMES_RULE, configurations: [] },
-  ]);
+  rules: string[],
+  codeFilename = 'test.css',
+): Promise<ReportedIssue[]> {
+  const config = createStylelintConfig(
+    rules.map((key: string): { key: string; configurations: [] } => ({ key, configurations: [] })),
+  );
   const {
     results: [{ warnings }],
-  } = await stylelint.lint({ code, codeFilename: 'test.css', config });
+  } = await stylelint.lint({ code, codeFilename, config });
   return warnings
-    .map(({ rule, line, column }: stylelint.Warning) => ({ rule, line, column }))
-    .sort(
-      (a: { line: number; column: number }, b: { line: number; column: number }): number =>
-        a.line - b.line || a.column - b.column,
-    );
+    .map(({ rule, line, column, endLine, endColumn }: stylelint.Warning): ReportedIssue => ({
+      rule,
+      line,
+      column,
+      endLine,
+      endColumn,
+    }))
+    .sort((a: ReportedIssue, b: ReportedIssue): number => a.line - b.line || a.column - b.column);
 }
 
-describe('S9423 (sonar/declaration-no-important)', () => {
-  it('accepts declarations without !important', () =>
+describe('S9423 (sonar/declaration-no-important)', (): void => {
+  it('accepts declarations without !important', (): Promise<void> =>
     ruleTester.valid({ code: 'a { color: pink; }' }));
 
-  it('accepts !important inside comments and strings', () =>
+  it('accepts !important inside comments and strings', (): Promise<void> =>
     ruleTester.valid({ code: '/* color: pink !important; */ a { content: "!important"; }' }));
 
-  it('reports !important on the annotation', () =>
+  it('reports !important on the annotation', (): Promise<void> =>
     ruleTester.invalid({
       code: 'a { color: pink !important; }',
       errors: [{ text, line: 1, column: 17 }],
     }));
 
-  it('reports !important with spaces and different casing', () =>
+  it('highlights the whole annotation', async (): Promise<void> => {
+    expect(await lint('a { color: pink ! important; }', [RULE])).toEqual([
+      { rule: RULE, line: 1, column: 17, endLine: 1, endColumn: 28 },
+    ]);
+  });
+
+  it('reports !important with spaces and different casing', (): Promise<void> =>
     ruleTester.invalid({
       code: 'a { color: pink ! important; }\nb { color: red !IMPORTANT; }',
       errors: [
@@ -67,7 +85,7 @@ describe('S9423 (sonar/declaration-no-important)', () => {
       ],
     }));
 
-  it('reports every declaration using !important', () =>
+  it('reports every declaration using !important', (): Promise<void> =>
     ruleTester.invalid({
       code: `.button {
   color: red !important;
@@ -80,33 +98,33 @@ describe('S9423 (sonar/declaration-no-important)', () => {
       ],
     }));
 
-  it('reports !important inside nested at-rules', () =>
+  it('reports !important inside nested at-rules', (): Promise<void> =>
     ruleTester.invalid({
       code: '@media (min-width: 600px) { a { color: pink !important; } }',
       errors: [{ text, line: 1, column: 45 }],
     }));
 
-  it('reports !important on custom properties', () =>
+  it('reports !important on custom properties', (): Promise<void> =>
     ruleTester.invalid({
       code: ':root { --main-color: pink !important; }',
       errors: [{ text, line: 1 }],
     }));
 
-  it('reports !important in SCSS', () =>
+  it('reports !important in SCSS', (): Promise<void> =>
     ruleTester.invalid({
       code: '.a { .b { color: pink !important; } }',
       codeFilename: 'styles.scss',
       errors: [{ text, line: 1 }],
     }));
 
-  it('reports !important in LESS', () =>
+  it('reports !important in LESS', (): Promise<void> =>
     ruleTester.invalid({
       code: '@color: pink;\n.a { color: @color !important; }',
       codeFilename: 'styles.less',
       errors: [{ text, line: 2 }],
     }));
 
-  it('reports !important in a Vue style block', () =>
+  it('reports !important in a Vue style block', (): Promise<void> =>
     ruleTester.invalid({
       codeFilename: 'component.vue',
       code: `<template><div /></template>
@@ -116,32 +134,94 @@ a { color: pink !important; }
       errors: [{ text, line: 3 }],
     }));
 
-  it('reports !important in keyframes when S4655 is not enabled', () =>
+  it('reports !important in HTML style blocks and attributes', (): Promise<void> =>
     ruleTester.invalid({
-      code: '@keyframes fade { from { opacity: 0 !important; } to { opacity: 1; } }',
-      errors: [{ text, line: 1 }],
+      codeFilename: 'page.html',
+      code: `<style>
+a { color: pink !important; }
+</style>
+<p style="color: red !important">text</p>`,
+      errors: [
+        { text, line: 2 },
+        { text, line: 4 },
+      ],
     }));
 
-  it('leaves !important in keyframes to S4655 when it is enabled', async () => {
+  it('reports !important in keyframes when S4655 is not enabled', (): Promise<void> =>
+    ruleTester.invalid({
+      code:
+        '@keyframes fade { from { opacity: 0 !important; } to { opacity: 1; } }\n' +
+        '@-webkit-keyframes fade { from { opacity: 0 !important; } }',
+      errors: [
+        { text, line: 1 },
+        { text, line: 2 },
+      ],
+    }));
+
+  it('leaves !important in keyframes to S4655 when it is enabled', async (): Promise<void> => {
     expect(
-      await lintWithKeyframesRule(
+      await lint(
         '@keyframes fade { from { opacity: 0 !important; } }\n' +
           '@-webkit-keyframes fade { from { opacity: 0 !important; } }',
+        [RULE, KEYFRAMES_RULE],
       ),
     ).toEqual([
-      { rule: KEYFRAMES_RULE, line: 1, column: 37 },
-      { rule: KEYFRAMES_RULE, line: 2, column: 45 },
+      { rule: KEYFRAMES_RULE, line: 1, column: 37, endLine: 1, endColumn: 47 },
+      { rule: KEYFRAMES_RULE, line: 2, column: 45, endLine: 2, endColumn: 55 },
     ]);
   });
 
-  it('still reports !important outside keyframes when S4655 is enabled', async () => {
+  it('still reports !important outside keyframes when S4655 is enabled', async (): Promise<void> => {
     expect(
-      await lintWithKeyframesRule(
-        'a { color: pink !important; }\n@keyframes fade { from { opacity: 0 !important; } }',
-      ),
+      (
+        await lint(
+          'a { color: pink !important; }\n@keyframes fade { from { opacity: 0 !important; } }',
+          [RULE, KEYFRAMES_RULE],
+        )
+      ).map(({ rule, line }: ReportedIssue): [string, number] => [rule, line]),
     ).toEqual([
-      { rule: RULE, line: 1, column: 17 },
-      { rule: KEYFRAMES_RULE, line: 2, column: 37 },
+      [RULE, 1],
+      [KEYFRAMES_RULE, 2],
     ]);
   });
+
+  it('leaves !important in keyframes to S4655 in SCSS and Vue files', async (): Promise<void> => {
+    const scss =
+      '.a { color: red !important; }\n@keyframes fade { from { opacity: 0 !important; } }';
+    expect(
+      (await lint(scss, [RULE, KEYFRAMES_RULE], 'styles.scss')).map(
+        ({ rule, line }: ReportedIssue): [string, number] => [rule, line],
+      ),
+    ).toEqual([
+      [RULE, 1],
+      [KEYFRAMES_RULE, 2],
+    ]);
+    expect(
+      (
+        await lint(
+          `<template><div /></template>\n<style>\n${scss}\n</style>`,
+          [RULE, KEYFRAMES_RULE],
+          'c.vue',
+        )
+      ).map(({ rule, line }: ReportedIssue): [string, number] => [rule, line]),
+    ).toEqual([
+      [RULE, 3],
+      [KEYFRAMES_RULE, 4],
+    ]);
+  });
+
+  it('honors stylelint disable comments for the rule', (): Promise<void> =>
+    ruleTester.valid({
+      code: `/* stylelint-disable-next-line ${RULE} */
+a { color: pink !important; }
+/* stylelint-disable */
+b { color: pink !important; }`,
+    }));
+
+  it('ignores disable comments for other rules', (): Promise<void> =>
+    ruleTester.invalid({
+      code: `/* stylelint-disable-next-line ${KEYFRAMES_RULE} */
+a { color: pink !important; }`,
+      errors: [{ text, line: 2 }],
+    }));
 });

@@ -40,6 +40,35 @@ function isKeyframesRuleEnabled(result: PostcssResult): boolean {
   return setting !== undefined && setting !== null;
 }
 
+function setDisabledRanges(
+  result: PostcssResult,
+  ruleName: string,
+  ranges: stylelint.DisabledRange[] | undefined,
+): void {
+  const { disabledRanges } = result.stylelint;
+  if (ranges) {
+    disabledRanges[ruleName] = ranges;
+  } else {
+    Reflect.deleteProperty(disabledRanges, ruleName);
+  }
+}
+
+// Stylelint checks disable comments against the upstream rule name when reporting,
+// so the ranges of the sonar rule name must be applied to the upstream rule while it runs.
+async function runWithSonarDisables(
+  result: PostcssResult,
+  run: () => Promise<void> | void,
+): Promise<void> {
+  const { disabledRanges } = result.stylelint;
+  const upstreamRanges = disabledRanges[UPSTREAM_RULE];
+  setDisabledRanges(result, UPSTREAM_RULE, disabledRanges[SONAR_RULE]);
+  try {
+    await run();
+  } finally {
+    setDisabledRanges(result, UPSTREAM_RULE, upstreamRanges);
+  }
+}
+
 function isInKeyframes(node: PostCSS.Node | undefined): boolean {
   for (let parent = node?.parent; parent; parent = parent.parent) {
     if (parent.type === 'atrule' && KEYFRAMES_NAME.test((parent as PostCSS.AtRule).name)) {
@@ -58,7 +87,8 @@ const ruleImpl: stylelint.RuleBase = (
     const factory = (await stylelint.rules[UPSTREAM_RULE]) as stylelint.Rule;
     const reported = (result as unknown as { messages: ReportedMessage[] }).messages;
     const from = reported.length;
-    await factory(primary, secondaryOptions, context)(root, result);
+    const upstream = factory(primary, secondaryOptions, context);
+    await runWithSonarDisables(result, (): Promise<void> | void => upstream(root, result));
 
     const skipKeyframes = isKeyframesRuleEnabled(result);
     for (let i = reported.length - 1; i >= from; i--) {
