@@ -168,6 +168,29 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // False Positive Pattern 5c-2: a named Deferred factory can return a const result
+        {
+          code: `
+          function Deferred() {
+            const result = { then: function () {} };
+            return result;
+          }
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5c-3: a block-scoped const can be returned by Deferred
+        {
+          code: `
+          function Deferred(enabled) {
+            if (enabled) {
+              const result = { then: function () {} };
+              return result;
+            }
+            return {};
+          }
+        `,
+          filename: testFilePath,
+        },
         // False Positive Pattern 5e: Function expression assigned to a namespaced Deferred
         // property (e.g. jQuery-style `ns.Deferred = function () {...}`), rather than a bare
         // declaration name.
@@ -677,6 +700,54 @@ describe('S7739', () => {
             const helper = { then: function () {} };
           };
           `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a const thenable that is not returned remains unrelated to the factory
+        {
+          code: `
+          function Deferred() {
+            const helper = { then: function () {} };
+            return {};
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: a reassigned const result is not a proven factory result
+        {
+          code: `
+          function Deferred() {
+            const result = { then: function () {} };
+            result = {};
+            return result;
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: an outer binding returned by Deferred is not its factory result
+        {
+          code: `
+          const result = { then: function () {} };
+          function Deferred() {
+            return result;
+          }
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: returning the binding from a nested function does not return it from Deferred
+        {
+          code: `
+          function Deferred() {
+            const result = { then: function () {} };
+            function getResult() {
+              return result;
+            }
+            return {};
+          }
+        `,
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
