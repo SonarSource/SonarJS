@@ -1,3 +1,17 @@
+## 2026-09-28, Version 4.2.2
+
+* [[JS-2535](https://sonarsource.atlassian.net/browse/JS-2535)] - S7059: False positive on a resolved-Promise sentinel in a constructor
+* [[JS-2522](https://sonarsource.atlassian.net/browse/JS-2522)] - Fix dependency lookup when ESLint runs from a nested directory
+* [[JS-2507](https://sonarsource.atlassian.net/browse/JS-2507)] - Added angular assertion detection
+* [[JS-2493](https://sonarsource.atlassian.net/browse/JS-2493)] - S1128: False positive on a type imported for a Vue generic <script setup> ("generic=…") constraint
+* [[JS-2479](https://sonarsource.atlassian.net/browse/JS-2479)] - Maintenance on S9150 restrict to vue 3
+* [[JS-2409](https://sonarsource.atlassian.net/browse/JS-2409)] - Implement rule S9382: Promises should not be awaited sequentially in a loop
+* [[JS-2407](https://sonarsource.atlassian.net/browse/JS-2407)] - Implement rule S9383: Promises should be handled
+* [[JS-2406](https://sonarsource.atlassian.net/browse/JS-2406)] - Implement rule S9381: Promises should not be nested
+* [[JS-2335](https://sonarsource.atlassian.net/browse/JS-2335)] - Implement a11y rule "no-header-scope" (external jsx-a11y rule)
+* [[JS-2310](https://sonarsource.atlassian.net/browse/JS-2310)] - S1848: Fix false positive on chained DOM-derived constructor arguments
+* [[JS-2241](https://sonarsource.atlassian.net/browse/JS-2241)] - S2819: Avoid false positives on non-Window message receivers
+
 ## 2026-09-15, Version 4.2.1
 
 * [[JS-2405](https://sonarsource.atlassian.net/browse/JS-2405)] - S2699: include Jasmine expectAsync in assertion detection
