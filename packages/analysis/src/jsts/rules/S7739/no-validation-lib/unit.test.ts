@@ -313,6 +313,30 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // False Positive Pattern 5i: Nested arrows retain a factory's this in descriptor calls
+        {
+          code: `
+          ns.Deferred = function () {
+            const initialize = () => {
+              Object.defineProperty(this, 'then', { value: function () {} });
+            };
+            initialize();
+          };
+        `,
+          filename: testFilePath,
+        },
+        // False Positive Pattern 5j: Reflect descriptors have the same lexical-this behavior
+        {
+          code: `
+          ns.Promise = function () {
+            const initialize = () => {
+              Reflect.defineProperty(this, 'then', { value: () => {} });
+            };
+            initialize();
+          };
+        `,
+          filename: testFilePath,
+        },
         // False Positive Pattern 6: Object with then AND catch methods
         // Having both then and catch methods indicates an intentional thenable implementation.
         {
