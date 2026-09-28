@@ -26,6 +26,12 @@
   and declaring it here also leaks its embedded gRPC transport jars into Surefire's parent classloader.
   -->
   <dependencies>
+    <!-- Prefer SonarLint's Jackson dependencies over the older versions brought by WireMock. -->
+    <dependency>
+      <groupId>org.sonarsource.sonarlint.core</groupId>
+      <artifactId>sonarlint-core</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarlint.core</groupId>
       <artifactId>sonarlint-core-test-utils</artifactId>
