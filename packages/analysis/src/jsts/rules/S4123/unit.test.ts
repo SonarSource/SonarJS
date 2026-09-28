@@ -176,7 +176,7 @@ describe('S4123', () => {
                   output: `
       async function foo() {
         let arr = [1, 2, 3];
-         arr;
+        arr;
       }
       `,
                   desc: 'Remove unnecessary `await`.',
@@ -668,7 +668,7 @@ async function* g() {
   yield true;
 }
 async function main() {
-  return  g(); // Noncompliant
+  return g(); // Noncompliant
 }`,
                 },
               ],
@@ -707,7 +707,7 @@ const o = {
   },
 };
 async function main() {
-  return  o.m(); // Noncompliant
+  return o.m(); // Noncompliant
 }`,
                 },
               ],
@@ -746,7 +746,7 @@ class G {
   }
 }
 async function main() {
-  return  new G().m(); // Noncompliant
+  return new G().m(); // Noncompliant
 }`,
                 },
               ],
@@ -866,7 +866,7 @@ async function* g() {
   yield true;
 }
 async function main() {
-  return  g(); // Noncompliant
+  return g(); // Noncompliant
 }`,
                 },
               ],
