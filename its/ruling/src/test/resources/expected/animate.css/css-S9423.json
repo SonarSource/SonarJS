@@ -1,0 +1,39 @@
+{
+"animate.css:animate.css": [
+99,
+100,
+101,
+102,
+103,
+104,
+2678,
+2679,
+2748,
+2749,
+2796,
+2797,
+2840,
+2841
+],
+"animate.css:docs/style.css": [
+78,
+267
+],
+"animate.css:source/_base.css": [
+60,
+61,
+62
+],
+"animate.css:source/flippers/flipInX.css": [
+28
+],
+"animate.css:source/flippers/flipInY.css": [
+28
+],
+"animate.css:source/flippers/flipOutX.css": [
+20
+],
+"animate.css:source/flippers/flipOutY.css": [
+19
+]
+}
