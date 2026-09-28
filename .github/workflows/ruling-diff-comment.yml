@@ -1,0 +1,48 @@
+name: Ruling Diff Comment
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr-number:
+        description: Pull request number
+        required: true
+        type: string
+      base-sha:
+        description: Base commit SHA
+        required: true
+        type: string
+      head-sha:
+        description: Head commit SHA
+        required: true
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.pr-number || github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  ruling-diff-comment:
+    runs-on: sonar-xs
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.head-sha || github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          submodules: true
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          version: 2026.9.11
+          install_args: node
+      - name: Post committed ruling diff
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ inputs.pr-number || github.event.pull_request.number }}
+          BASE_SHA: ${{ inputs.base-sha || github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ inputs.head-sha || github.event.pull_request.head.sha }}
+        run: bash .github/actions/ruling_bot/report.sh
