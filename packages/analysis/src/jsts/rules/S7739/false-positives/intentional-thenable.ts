@@ -200,9 +200,6 @@ function isCallableThenDefinition(context: Rule.RuleContext, node: Node): boolea
     parent.arguments[2] !== undefined &&
     isUnshadowedDefinePropertyCall(context, parent)
   ) {
-    if (ancestors.some(ancestor => ancestor.type === 'ArrowFunctionExpression')) {
-      return false;
-    }
     return isCallablePropertyDescriptor(parent.arguments[2] as Node);
   }
   if (
