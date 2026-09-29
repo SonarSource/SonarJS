@@ -763,6 +763,17 @@ describe('S7739', () => {
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
+        // True Positive: a computed identifier named "value" is not a statically known key
+        {
+          code: `
+          const value = 'get';
+          ns.Deferred = function () {
+            Object.defineProperty(this, 'then', { [value]: function () {} });
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
         // True Positive: a Promise-named outer function does not make a nested function thenable
         {
           code: `

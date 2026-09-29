@@ -267,7 +267,7 @@ function isCallablePropertyDescriptor(node: Node): boolean {
 
 function isPropertyNamedValue(property: Property): boolean {
   return (
-    isIdentifier(property.key, 'value') ||
+    (!property.computed && isIdentifier(property.key, 'value')) ||
     (property.key.type === 'Literal' && property.key.value === 'value')
   );
 }
