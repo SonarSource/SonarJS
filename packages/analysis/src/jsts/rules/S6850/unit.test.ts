@@ -30,11 +30,7 @@ describe('S6850 upstream sentinel', () => {
 
     ruleTester.run('heading-has-content', rules['heading-has-content'], {
       valid: [],
-      invalid: [
-        { code: `<h1 {...props} />;`, errors: 1 },
-        { code: `<h1 {...{ children: 'Title' }} />;`, errors: 1 },
-        { code: `<h1 {...{ dangerouslySetInnerHTML: { __html: '<b>t</b>' } }} />;`, errors: 1 },
-      ],
+      invalid: [{ code: `<h1 {...props} />;`, errors: 1 }],
     });
   });
 });

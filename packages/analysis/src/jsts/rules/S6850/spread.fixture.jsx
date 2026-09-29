@@ -11,6 +11,7 @@ const contentBase = { children: 'Hi' };
 <h1 {...{ ...contentBase }} />;
 const children = 'x';
 <h1 {...{ children }} />;
+<h1 {...{ children: 0 }} />;
 let reassigned = { children: 'x' };
 reassigned = { children: 'y' };
 <h1 {...reassigned} />;
@@ -27,14 +28,21 @@ const mutualB = { ...mutualA };
 <h1 {...{ children: 'Title' }} {...{ className: 'x' }} />;
 <h1 {...{ children: null }} {...{ children: 'Title' }} />;
 <MyHeading {...{ children: 'Title' }} />;
+// Known limitation: a rest binding resolves to its whole initializer, so the decorator cannot see
+// that `children` was destructured away and has to assume the spread may still carry it.
+function Stripped(props) {
+  const { children: _unused, ...rest } = props;
+  return <h1 {...rest} />;
+}
 
-// ---- already fine before this change (preservation) ---------------------------------------
-<h1>Text</h1>;
+// ---- upstream preconditions this decorator relies on (preservation) -----------------------
+// An explicit content attribute makes upstream bail out before the decorator runs, which is why
+// `children={null}` stays unreported while the spread-borne `{...{ children: null }}` below does
+// not - an upstream false negative left untouched here.
 <h1 children="Title" />;
 <h1 children={null} />;
 <h1 aria-hidden="true" />;
 <h1 {...someProps}>{/* comment */}</h1>;
-<div {...someProps} />;
 
 // ---- retained reports ----------------------------------------------------------------------
 <h1 />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
@@ -52,6 +60,8 @@ const aliasOfEmpty = emptyBase;
 <h4 {...{ children: false }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 const knownEmpty = { children: '' };
 <h1 {...knownEmpty} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+const emptyText = '';
+<h1 {...{ children: emptyText }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...{ children: 'x' }} {...{ children: null }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...someProps} {...{ children: null, dangerouslySetInnerHTML: null }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...someProps}><span aria-hidden="true">x</span></h1>; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}

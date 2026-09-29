@@ -603,7 +603,7 @@ function getPropertyFromSpreadElement(
   spreadElement: estree.SpreadElement,
   key: string,
   ctx: Rule.RuleContext,
-  seen: Set<estree.Node>,
+  seen: Set<estree.Node> | undefined,
 ): estree.Property | null | undefined {
   const props = getValueOfExpression(ctx, spreadElement.argument, 'ObjectExpression');
   const recursiveDefinition = findFirstMatchingAncestor(
@@ -612,12 +612,13 @@ function getPropertyFromSpreadElement(
   );
   // `seen` additionally cuts mutually recursive definitions (`const a = {...b}; const b = {...a}`),
   // which `recursiveDefinition` cannot see because neither object is an ancestor of the other.
-  if (recursiveDefinition || props === undefined || seen.has(props)) {
+  if (recursiveDefinition || props === undefined || seen?.has(props)) {
     return undefined;
   }
-  seen.add(props);
-  const property = getProperty(props, key, ctx, seen);
-  seen.delete(props);
+  const chain = seen ?? new Set<estree.Node>();
+  chain.add(props);
+  const property = getProperty(props, key, ctx, chain);
+  chain.delete(props);
   return property;
 }
 
@@ -631,7 +632,7 @@ export function getProperty(
   expr: estree.Node | undefined | null,
   key: string,
   ctx: Rule.RuleContext,
-  seen: Set<estree.Node> = new Set(),
+  seen?: Set<estree.Node>,
 ): estree.Property | null | undefined {
   if (expr?.type !== 'ObjectExpression') {
     return null;

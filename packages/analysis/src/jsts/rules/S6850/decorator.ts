@@ -71,8 +71,9 @@ const CARRIES_NO_NAMED_PROP = new Set(['Literal', 'TemplateLiteral', 'ArrayExpre
  * direction.
  */
 function rendersNothing(context: Rule.RuleContext, value: estree.Node): boolean {
-  const literal = getValueOfExpression(context, value, 'Literal');
-  return literal ? NOTHING_RENDERED.has(literal.value) : isUndefined(value);
+  const unwrapped = unwrapTypeScriptExpression(value);
+  const literal = getValueOfExpression(context, unwrapped, 'Literal');
+  return literal ? NOTHING_RENDERED.has(literal.value) : isUndefined(unwrapped);
 }
 
 /**
@@ -126,8 +127,8 @@ function spreadMaySupplyContent(
  * for non-identifier expression containers), so the plain emptiness check is exact here.
  */
 function hasContentThroughSpread(context: Rule.RuleContext, reported: estree.Node): boolean {
-  const element = reported as unknown as TSESTree.JSXOpeningElement;
-  if (element.parent.children.length > 0) {
+  const element = reported as unknown as TSESTree.Node;
+  if (element.type !== 'JSXOpeningElement' || element.parent.children.length > 0) {
     return false;
   }
   return CONTENT_PROPS.some(prop => spreadMaySupplyContent(context, element.attributes, prop));
