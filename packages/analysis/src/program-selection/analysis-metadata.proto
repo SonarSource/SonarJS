@@ -15,6 +15,8 @@ message ProgramSelection {
   reserved 2;
   repeated Program programs = 3;
   repeated FileSelection files = 4;
+  // Files intentionally analyzed by CI without a TypeScript program.
+  repeated string no_program_files = 5;
 }
 
 message Program {

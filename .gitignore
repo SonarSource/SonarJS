@@ -69,6 +69,10 @@ Desktop.ini
 .sonar
 .scannerwork
 
+# Private local outputs from the standalone SQAA benchmark (runner lives in Drive).
+tmp/sqaa-benchmark/out/
+tmp/sqaa-benchmark/*.local.json
+
 # eslint-plugin-sonarjs
 eslint-plugin-sonarjs-*.tgz
 its/eslint8-plugin-sonarjs/package-lock.json

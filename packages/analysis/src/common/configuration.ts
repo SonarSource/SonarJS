@@ -47,6 +47,10 @@ function isAnalysisMode(value: unknown): value is AnalysisMode {
   return value === 'DEFAULT' || value === 'SKIP_UNCHANGED';
 }
 
+function isProduct(value: unknown): value is Configuration['product'] {
+  return value === 'sqs' || value === 'sqc' || value === 'sqaa' || value === 'sq-ide';
+}
+
 /**
  * Sanitized configuration after validation and normalization.
  * Path fields use branded types (NormalizedAbsolutePath), and glob patterns are compiled to Minimatch instances.
@@ -55,6 +59,7 @@ function isAnalysisMode(value: unknown): value is AnalysisMode {
  */
 export type Configuration = {
   baseDir: NormalizedAbsolutePath;
+  product: 'sqs' | 'sqc' | 'sqaa' | 'sq-ide';
   canAccessFileSystem: boolean;
   sonarlint: boolean;
   fsEvents: NormalizedAbsolutePath[] /* Data filled in file watcher FSListenerImpl.java */;
@@ -89,6 +94,7 @@ export type Configuration = {
 
 export type ConfigurationInput = {
   baseDir: string;
+  product?: Configuration['product'];
   canAccessFileSystem?: boolean;
   sonarlint?: boolean;
   fsEvents?: string[];
@@ -234,6 +240,7 @@ export function createConfiguration(raw: unknown): Configuration {
   const baseDir = getRequiredBaseDir(raw);
   return createConfigurationFromInput({
     baseDir,
+    product: getOptionalValue(raw, 'product', isProduct),
     canAccessFileSystem: getOptionalValue(raw, 'canAccessFileSystem', isBoolean),
     sonarlint: getOptionalValue(raw, 'sonarlint', isBoolean),
     fsEvents: sanitizeFsEvents(raw.fsEvents),
@@ -279,12 +286,20 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
   if (!isAbsolutePath(input.baseDir)) {
     throw new Error(`baseDir is not an absolute path: ${input.baseDir}`);
   }
+  if (
+    input.product &&
+    input.sonarlint !== undefined &&
+    input.sonarlint !== (input.product === 'sq-ide')
+  ) {
+    throw new Error('product and sonarlint disagree');
+  }
   // Normalize baseDir first so it can be used by other normalization functions
   const baseDir = normalizeToAbsolutePath(input.baseDir);
   return {
     baseDir,
+    product: input.product ?? (input.sonarlint ? 'sq-ide' : 'sqs'),
     canAccessFileSystem: input.canAccessFileSystem ?? true,
-    sonarlint: input.sonarlint ?? false,
+    sonarlint: input.product ? input.product === 'sq-ide' : (input.sonarlint ?? false),
     fsEvents: normalizeFsEvents(input.fsEvents, baseDir),
     allowTsParserJsFiles: input.allowTsParserJsFiles ?? DEFAULT_ALLOW_TS_PARSER_JS_FILES,
     analysisMode: input.analysisMode ?? DEFAULT_ANALYSIS_MODE,
@@ -627,6 +642,7 @@ function sanitizeFsEvents(raw: unknown): string[] | undefined {
  * Used by analyzeWithProgram, analyzeWithIncrementalProgram, analyzeWithoutProgram.
  */
 export type JsTsConfigFields = {
+  product: Configuration['product'];
   allowTsParserJsFiles: boolean;
   analysisMode: AnalysisMode;
   ignoreHeaderComments: boolean;
@@ -647,6 +663,7 @@ export type JsTsConfigFields = {
  */
 export function getJsTsConfigFields(configuration: Configuration): JsTsConfigFields {
   return {
+    product: configuration.product,
     allowTsParserJsFiles: configuration.allowTsParserJsFiles,
     analysisMode: configuration.analysisMode,
     ignoreHeaderComments: configuration.ignoreHeaderComments,

@@ -26,6 +26,19 @@ import { sonarjs } from '../src/program-selection/analysis-metadata-proto.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 
 describe('ProgramSelectionArchive', () => {
+  it('records no-program outcomes and rejects conflicts with selected programs', () => {
+    const root = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'metadata-')));
+    const metadataPath = path.join(root, 'analysis-metadata.pb.gz');
+    const file = normalizeToAbsolutePath('src/file.ts', root);
+    const recorder = new ProgramSelectionArchive(metadataPath, root, 'record');
+    recorder.recordNoProgram(file);
+    expect(() =>
+      recorder.recordConfigured(file, normalizeToAbsolutePath('tsconfig.json', root), {}),
+    ).toThrow('both a program and no-program outcome');
+    recorder.end();
+    expect(new ProgramSelectionArchive(metadataPath, root, 'replay').hasNoProgram(file)).toBe(true);
+  });
+
   it('preserves effective analyzer settings without copying request-owned paths and scope', () => {
     const root = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'metadata-')));
     const metadataPath = path.join(root, 'analysis-metadata.pb.gz');

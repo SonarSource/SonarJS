@@ -94,6 +94,8 @@ message ProjectConfiguration {
   optional bool skip_node_module_lookup_outside_base_dir = 29;
   optional string ecma_script_version = 30;
   optional bool detect_generated_code = 34;
+  // Explicit caller identity; unlike sonarlint, this distinguishes SQAA from normal CI.
+  optional string product = 35;
 }
 
 message StringList {

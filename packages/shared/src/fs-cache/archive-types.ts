@@ -63,6 +63,7 @@ export type OperationSlot = { field: 'content' } | { field: MapField; key: strin
 export type ArchiveMode = 'record' | 'replay';
 export type ArchiveOptions = {
   archivePath: string;
+  mode?: ArchiveMode;
   passthroughDirs?: string[];
   rootDir: string;
 };

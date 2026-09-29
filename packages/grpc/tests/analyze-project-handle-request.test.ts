@@ -53,6 +53,46 @@ function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
 }
 
 describe('analyze-project request handler', () => {
+  it('runs type-aware analysis without context artifacts', async () => {
+    const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'analyze-project-no-context-'));
+    const filePath = path.join(baseDir, 'orphan.ts');
+    const request: AnalyzeProjectRequest = {
+      configuration: { baseDir, canAccessFileSystem: true },
+      files: {
+        [filePath]: { fileContent: '[80, 3, 9].sort();', fileType: FileType.FILE_TYPE_MAIN },
+      },
+      rules: [
+        {
+          key: 'S2871',
+          configurations: [],
+          fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+          language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+          analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+        },
+      ],
+      cssRules: [],
+      bundles: [],
+    };
+
+    const result = await handleAnalyzeProjectRequest(
+      { type: 'on-analyze-project', data: request },
+      workerData,
+    );
+
+    expect(result).toMatchObject({
+      type: 'success',
+      result: {
+        output: {
+          files: {
+            [normalizeToAbsolutePath(filePath)]: {
+              issues: [expect.objectContaining({ ruleId: 'S2871' })],
+            },
+          },
+        },
+      },
+    });
+  });
+
   it('replays a file reached through an implicit tsconfig root and transitive imports', async () => {
     const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-import-'));
     const recordRoot = path.join(temporary, 'record');
@@ -225,41 +265,13 @@ describe('analyze-project request handler', () => {
 
     fs.rmSync(recordRoot, { force: true, recursive: true });
     fs.mkdirSync(replayRoot);
-    const log = mock.method(console, 'log', () => undefined);
-    let replayed: Awaited<ReturnType<typeof handleAnalyzeProjectRequest>>;
     const replayRequest = createRequest(replayRoot, 5);
+    replayRequest.configuration!.product = 'sqaa';
     replayRequest.configuration!.jsTsExclusions = { values: ['**/contrib/**'] };
-    try {
-      replayed = await handleAnalyzeProjectRequest(
-        { type: 'on-analyze-project', data: replayRequest },
-        workerData,
-        undefined,
-        'replay-123',
-      );
-      const timingLine = log.mock.calls
-        .map(call => call.arguments[0])
-        .find(
-          value =>
-            typeof value === 'string' && value.startsWith('Filesystem cache analysis timing '),
-        );
-      expect(timingLine).toBeDefined();
-      const timing = JSON.parse(
-        (timingLine as string).slice('Filesystem cache analysis timing '.length),
-      );
-      expect(timing).toMatchObject({
-        requestId: 'replay-123',
-        mode: 'replay',
-        outcome: 'success',
-        phases: {
-          filesystemArchiveLoad: { count: 1 },
-          analysisMetadataLoad: { count: 1 },
-          typescriptProgramCreation: { count: 1 },
-          fileAnalysis: { count: 1 },
-        },
-      });
-    } finally {
-      log.mock.restore();
-    }
+    const replayed = await handleAnalyzeProjectRequest(
+      { type: 'on-analyze-project', data: replayRequest },
+      workerData,
+    );
     expect(replayRequest.configuration!.jsTsExclusions?.values).toEqual([]);
     expect(replayed).toMatchObject({
       result: {
@@ -291,6 +303,7 @@ describe('analyze-project request handler', () => {
     request.rulesWorkdir = '.scannerwork';
     request.filesystemCache = {
       archivePath: '/cache/first.fscache',
+      analysisMetadataPath: '/cache/analysis-metadata.pb.gz',
     };
 
     const result = await handleAnalyzeProjectRequest(
@@ -303,6 +316,7 @@ describe('analyze-project request handler', () => {
       {
         archivePath: '/cache/first.fscache',
         event: 'begin',
+        mode: 'record',
         passthroughDirs: [
           normalizeToAbsolutePath('.scannerwork', normalizeToAbsolutePath('/project')),
         ],
@@ -321,6 +335,25 @@ describe('analyze-project request handler', () => {
         workerData,
       ),
     ).toMatchObject({ reason: 'invalid_request', type: 'failure' });
+  });
+
+  it('rejects exactly one context artifact before opening a cache session', async () => {
+    let opened = false;
+    (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = {
+      beginAnalysis() {
+        opened = true;
+        throw new Error('Should not open an incomplete context');
+      },
+    };
+    const request = createAnalyzeProjectRequest();
+    request.configuration!.product = 'sqaa';
+    request.filesystemCache = { archivePath: '/cache/filesystem.pb.gz' };
+    const result = await handleAnalyzeProjectRequest(
+      { type: 'on-analyze-project', data: request },
+      workerData,
+    );
+    expect(result).toMatchObject({ reason: 'invalid_request', type: 'failure' });
+    expect(opened).toBe(false);
   });
 
   it('rejects filesystem cache configuration outside an analysis worker', async () => {
@@ -346,6 +379,7 @@ describe('analyze-project request handler', () => {
     const request = createAnalyzeProjectRequest();
     request.filesystemCache = {
       archivePath: '/cache/first.fscache',
+      analysisMetadataPath: '/cache/analysis-metadata.pb.gz',
     };
     request.rules = [{}];
 

@@ -49,7 +49,6 @@ import type {
   ProgramSelectionArchive,
   RestoredProgramSelection,
 } from './program-selection/archive.js';
-import type { ReplayTimings } from './program-selection/replay-timings.js';
 
 type ProgramAnalysisContext = {
   files: AnalyzableFiles;
@@ -61,7 +60,6 @@ type ProgramAnalysisContext = {
   jsTsConfigFields: JsTsConfigFields;
   telemetry: ProjectAnalysisTelemetryCollector;
   programSelection?: ProgramSelectionArchive;
-  replayTimings?: ReplayTimings;
   incrementalResultsChannel?: (result: WsIncrementalResult) => void;
 };
 
@@ -89,7 +87,6 @@ export async function analyzeWithProgram(
   jsTsConfigFields: JsTsConfigFields,
   programSelection?: ProgramSelectionArchive,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
-  replayTimings?: ReplayTimings,
 ) {
   const telemetry = getProjectAnalysisTelemetryCollector();
   const foundProgramOptions: ProgramOptions[] = [];
@@ -106,11 +103,23 @@ export async function analyzeWithProgram(
     telemetry,
     programSelection,
     incrementalResultsChannel,
-    replayTimings,
   };
 
   if (programSelection?.isReplay()) {
     await analyzeFilesFromProgramSelection({ ...analysisContext, programSelection });
+  } else if (programSelection === undefined && jsTsConfigFields.product === 'sqaa') {
+    await analyzeFilesFromEntryPoint(
+      files,
+      results,
+      pendingFiles,
+      foundProgramOptions,
+      progressReport,
+      baseDir,
+      jsTsConfigFields,
+      telemetry,
+      undefined,
+      incrementalResultsChannel,
+    );
   } else {
     await analyzeFilesFromDiscoveredPrograms(
       analysisContext,
@@ -168,7 +177,7 @@ async function analyzeFilesFromDiscoveredPrograms(
       continue;
     }
 
-    const analysisPromise = analyzeFilesFromTsConfig(
+    await analyzeFilesFromTsConfig(
       files,
       tsConfig,
       results,
@@ -182,8 +191,7 @@ async function analyzeFilesFromDiscoveredPrograms(
       telemetry,
       programSelection,
       incrementalResultsChannel,
-    );
-    await analysisPromise; // NOSONAR -- tsconfigs mutate shared analysis state in order.
+    ); // NOSONAR -- tsconfigs mutate shared analysis state in order.
   }
 
   if (jsTsConfigFields.createTSProgramForOrphanFiles) {
@@ -217,13 +225,11 @@ async function analyzeFilesFromEntryPoint(
   telemetry: ProjectAnalysisTelemetryCollector,
   programSelection?: ProgramSelectionArchive,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+  entryPoints?: NormalizedAbsolutePath[],
 ) {
   const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
-  const rootNames: NormalizedAbsolutePath[] = Array.from(pendingFiles).filter(file =>
-    isJsTsFile(file, {
-      jsSuffixes,
-      tsSuffixes,
-    }),
+  const rootNames: NormalizedAbsolutePath[] = (entryPoints ?? Array.from(pendingFiles)).filter(
+    file => isJsTsFile(file, { jsSuffixes, tsSuffixes }),
   );
   if (rootNames.length === 0) {
     return;
@@ -427,24 +433,19 @@ async function analyzeFilesFromProgramSelection(
     jsTsConfigFields,
     programSelection,
     incrementalResultsChannel,
-    replayTimings,
   } = context;
   const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
   const requestedJsTsFiles = [...pendingFiles].filter(file =>
     isJsTsFile(file, { jsSuffixes, tsSuffixes }),
   );
-  const unselectedFiles = requestedJsTsFiles.filter(file => !programSelection.hasSelection(file));
+  const unselectedFiles = requestedJsTsFiles.filter(
+    file => !programSelection.hasSelection(file) && !programSelection.hasNoProgram(file),
+  );
   if (unselectedFiles.length > 0) {
-    warn(
-      `No recorded TypeScript program selection for ${unselectedFiles.length} file(s); they will be analyzed without type information`,
-    );
+    throw new Error(`No recorded TypeScript program outcome for ${unselectedFiles.join(', ')}`);
   }
 
-  const selections = replayTimings
-    ? replayTimings.measure('selectionLookup', () =>
-        programSelection.restoredSelections(requestedJsTsFiles),
-      )
-    : programSelection.restoredSelections(requestedJsTsFiles);
+  const selections = programSelection.restoredSelections(requestedJsTsFiles);
   for (const selection of selections) {
     if (isAnalysisCancelled()) {
       return;
@@ -466,24 +467,18 @@ async function analyzeFilesFromProgramSelection(
       if (selection.program.kind === 'configured' && !tsProgram.getSourceFile(fileName)) {
         throw new Error(`Restored TypeScript program does not contain ${fileName}`);
       }
-      const analyzeSelectedFile = () =>
-        analyzeFile(
-          fileName,
-          files[fileName],
-          jsTsConfigFields,
-          tsProgram,
-          results,
-          pendingFiles,
-          progressReport,
-          incrementalResultsChannel,
-          detectedEsYear ?? undefined,
-          targetEsYear ?? undefined,
-        );
-      if (replayTimings) {
-        await replayTimings.measureAsync('fileAnalysis', analyzeSelectedFile);
-      } else {
-        await analyzeSelectedFile(); // NOSONAR -- files mutate shared analysis state in order.
-      }
+      await analyzeFile(
+        fileName,
+        files[fileName],
+        jsTsConfigFields,
+        tsProgram,
+        results,
+        pendingFiles,
+        progressReport,
+        incrementalResultsChannel,
+        detectedEsYear ?? undefined,
+        targetEsYear ?? undefined,
+      ); // NOSONAR -- files mutate shared analysis state in order.
     }
   }
 }
@@ -496,9 +491,9 @@ function restoreSelectedProgram(
   detectedEsYear?: number;
   targetEsYear?: number;
 } {
-  const { baseDir, canAccessFileSystem, jsTsConfigFields, telemetry, replayTimings } = context;
+  const { baseDir, canAccessFileSystem, jsTsConfigFields, telemetry } = context;
   telemetry.recordProgramCreationAttempt();
-  const resolveProgramOptions = () =>
+  const programOptions =
     selection.program.kind === 'configured'
       ? createProgramOptions(
           selection.program.tsconfig,
@@ -511,9 +506,6 @@ function restoreSelectedProgram(
           selection.program.compilerOptions,
           selection.rootNames,
         );
-  const programOptions = replayTimings
-    ? replayTimings.measure('programOptions', resolveProgramOptions)
-    : resolveProgramOptions();
   if (selection.program.kind === 'configured') {
     programOptions.options = selection.program.compilerOptions;
   }
@@ -523,11 +515,7 @@ function restoreSelectedProgram(
     baseDir,
     jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
   );
-  const tsProgram = replayTimings
-    ? replayTimings.measure('typescriptProgramCreation', () =>
-        createStandardProgram(programOptions),
-      )
-    : createStandardProgram(programOptions);
+  const tsProgram = createStandardProgram(programOptions);
   const detectedEsYear = esLibToYear(programOptions.options.lib) ?? undefined;
   const targetEsYear = tsTargetToEsYear(programOptions.options.target) ?? undefined;
   telemetry.recordEcmaScriptVersion(detectedEsYear);

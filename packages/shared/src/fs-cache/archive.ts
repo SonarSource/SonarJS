@@ -179,7 +179,7 @@ export class FsCacheArchive {
   cacheHits: number;
   cacheMisses: number;
 
-  constructor({ archivePath, passthroughDirs = [], rootDir }: ArchiveOptions) {
+  constructor({ archivePath, mode, passthroughDirs = [], rootDir }: ArchiveOptions) {
     if (!archivePath) {
       throw new FsCacheArchiveError('The filesystem cache archive path is required');
     }
@@ -188,7 +188,7 @@ export class FsCacheArchive {
     }
     this.archivePath = path.resolve(archivePath);
     this.rootDir = path.resolve(rootDir);
-    this.mode = nativeFs.existsSync(this.archivePath) ? 'replay' : 'record';
+    this.mode = mode ?? (nativeFs.existsSync(this.archivePath) ? 'replay' : 'record');
     const { physicalRootDirs, rootAliases } =
       this.mode === 'record'
         ? resolvePhysicalRoots(this.rootDir)

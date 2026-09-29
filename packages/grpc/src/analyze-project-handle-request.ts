@@ -39,7 +39,6 @@ import {
   type FsCacheSession,
 } from '../../shared/src/fs-cache/hook.js';
 import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
-import { ReplayTimings } from '../../analysis/src/program-selection/replay-timings.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { warn } from '../../shared/src/helpers/logging.js';
 
@@ -50,7 +49,7 @@ function beginFilesystemCacheAnalysis(
   if (cache == null) {
     return undefined;
   }
-  if (request.configuration?.sonarlint === true) {
+  if (request.configuration?.sonarlint === true || request.configuration?.product === 'sq-ide') {
     throw new InvalidAnalyzeProjectRequestError(
       'filesystem_cache must not be configured for SonarQube for IDE analysis',
     );
@@ -71,6 +70,9 @@ function beginFilesystemCacheAnalysis(
   }
   return installation.beginAnalysis({
     archivePath: cache.archivePath,
+    mode: request.configuration?.product === 'sqaa' ? 'replay' : 'record',
+    // Rules are unpacked into this temporary directory. Their files must use the native
+    // filesystem; project files outside it remain subject to archive recording/replay.
     passthroughDirs: request.rulesWorkdir
       ? [
           normalizeToAbsolutePath(
@@ -97,6 +99,7 @@ function beginAnalysisMetadata(
   const metadata = new ProgramSelectionArchive(
     analysisMetadataPath,
     normalizeToAbsolutePath(baseDir),
+    request.configuration?.product === 'sqaa' ? 'replay' : 'record',
   );
   if (request.configuration) {
     metadata.recordConfiguration(request.configuration as unknown as Record<string, unknown>);
@@ -125,28 +128,21 @@ export async function handleAnalyzeProjectRequest(
   request: AnalyzeProjectRuntimeRequest,
   workerData: WorkerData,
   incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
-  requestId = 'unknown',
 ): Promise<RequestResult<AnalyzeProjectResponse | void>> {
-  const timings =
-    request.type === 'on-analyze-project' && request.data.filesystemCache
-      ? new ReplayTimings(requestId, workerData?.debugMemory)
-      : undefined;
-  let cacheMode: 'record' | 'replay' = 'record';
-  let outcome: 'success' | 'failure' = 'failure';
   try {
     switch (request.type) {
       case 'on-analyze-project': {
-        const filesystemCacheSession = timings
-          ? timings.measure('filesystemArchiveLoad', () =>
-              beginFilesystemCacheAnalysis(request.data),
-            )
-          : beginFilesystemCacheAnalysis(request.data);
-        cacheMode = filesystemCacheSession?.mode ?? cacheMode;
+        const hasFilesystemArchive = Boolean(request.data.filesystemCache?.archivePath);
+        const hasAnalysisMetadata = Boolean(request.data.filesystemCache?.analysisMetadataPath);
+        if (hasFilesystemArchive !== hasAnalysisMetadata) {
+          throw new InvalidAnalyzeProjectRequestError(
+            'A filesystem archive and analysis metadata must be supplied together',
+          );
+        }
+        const filesystemCacheSession = beginFilesystemCacheAnalysis(request.data);
         let programSelection: ProgramSelectionArchive | undefined;
         try {
-          programSelection = timings
-            ? timings.measure('analysisMetadataLoad', () => beginAnalysisMetadata(request.data))
-            : beginAnalysisMetadata(request.data);
+          programSelection = beginAnalysisMetadata(request.data);
           const restoredConfiguration = programSelection?.restoredConfiguration();
           if (restoredConfiguration && request.data.configuration) {
             // Preserve the SQAA request's base directory, file scope, and runtime paths.
@@ -154,11 +150,7 @@ export async function handleAnalyzeProjectRequest(
           }
           return await withAnalysisCancellation(async () => {
             logHeapStatistics(workerData?.debugMemory);
-            const sanitizedInput = timings
-              ? await timings.measureAsync('requestNormalization', () =>
-                  normalizeAnalyzeProjectRequest(request.data),
-                )
-              : await normalizeAnalyzeProjectRequest(request.data);
+            const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
             const wrappedIncrementalResultsChannel = incrementalResultsChannel
               ? (event: AnalyzeProjectIncrementalEvent['event']) =>
                   incrementalResultsChannel({
@@ -167,26 +159,18 @@ export async function handleAnalyzeProjectRequest(
                   })
               : undefined;
 
-            const analyze = () =>
-              analyzeProject(
-                {
-                  rules: sanitizedInput.rules,
-                  cssRules: sanitizedInput.cssRules,
-                  bundles: sanitizedInput.bundles,
-                  rulesWorkdir: sanitizedInput.rulesWorkdir,
-                  programSelection,
-                  // Per-file measurements are useful for SQAA replay, but avoid that work
-                  // during the potentially much larger normal CI recording analysis.
-                  replayTimings: programSelection?.isReplay() ? timings : undefined,
-                },
-                sanitizedInput.configuration,
-                wrappedIncrementalResultsChannel,
-              );
-            const output = timings
-              ? await timings.measureAsync('projectAnalysis', analyze)
-              : await analyze();
+            const output = await analyzeProject(
+              {
+                rules: sanitizedInput.rules,
+                cssRules: sanitizedInput.cssRules,
+                bundles: sanitizedInput.bundles,
+                rulesWorkdir: sanitizedInput.rulesWorkdir,
+                programSelection,
+              },
+              sanitizedInput.configuration,
+              wrappedIncrementalResultsChannel,
+            );
             logHeapStatistics(workerData?.debugMemory);
-            outcome = 'success';
             return {
               type: 'success',
               result: {
@@ -219,13 +203,10 @@ export async function handleAnalyzeProjectRequest(
       }
     }
   } catch (err) {
-    outcome = 'failure';
     return {
       type: 'failure',
       error: serializeError(err),
       reason: err instanceof InvalidAnalyzeProjectRequestError ? 'invalid_request' : 'runtime',
     };
-  } finally {
-    timings?.log(outcome, cacheMode);
   }
 }

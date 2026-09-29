@@ -38,7 +38,6 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.scanner.sensor.ProjectSensor;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.CancellationException;
@@ -79,6 +78,7 @@ import org.sonar.plugins.javascript.sonarlint.FSListener;
 public class WebSensor implements ProjectSensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(WebSensor.class);
+  private static final String PRODUCT_PROPERTY = "sonar.javascript.internal.product";
   private static final String LANG = "JS/TS";
   private static final Set<String> PROJECT_METADATA_FILENAMES = Set.of(
     "tsconfig.json",
@@ -96,7 +96,6 @@ public class WebSensor implements ProjectSensor {
   private final BridgeServer bridgeServer;
   private final WebSensorModuleConfiguration moduleConfiguration;
   private final FilesystemCacheContext filesystemCacheContext;
-  private final TempFolder tempFolder;
   private ProjectConfiguration.Builder configurationBuilder;
   private JsTsContext<?> context;
 
@@ -116,7 +115,6 @@ public class WebSensor implements ProjectSensor {
     AnalysisConsumers consumers,
     CssRules cssRules,
     FilesystemCacheContext filesystemCacheContext,
-    TempFolder tempFolder,
     WebSensorModuleConfiguration moduleConfiguration
   ) {
     this(
@@ -128,7 +126,6 @@ public class WebSensor implements ProjectSensor {
       cssRules,
       null,
       filesystemCacheContext,
-      tempFolder,
       moduleConfiguration
     );
   }
@@ -142,7 +139,6 @@ public class WebSensor implements ProjectSensor {
     CssRules cssRules,
     @Nullable FSListener fsListener,
     FilesystemCacheContext filesystemCacheContext,
-    TempFolder tempFolder,
     WebSensorModuleConfiguration moduleConfiguration
   ) {
     this.checks = checks;
@@ -153,7 +149,6 @@ public class WebSensor implements ProjectSensor {
     this.cssRules = cssRules;
     this.bridgeServer = bridgeServer;
     this.filesystemCacheContext = filesystemCacheContext;
-    this.tempFolder = tempFolder;
     this.moduleConfiguration = moduleConfiguration;
   }
 
@@ -194,6 +189,14 @@ public class WebSensor implements ProjectSensor {
       configurationBuilder = AnalyzeProjectMessages.newProjectConfigurationBuilder(
         sensorContext.fileSystem().baseDir().getAbsolutePath(),
         contextWithCollectedTsConfigPaths(sensorContext)
+      );
+      // The scanner API currently identifies IDE versus server, but not SQC versus SQS.
+      // SQAA marks its scope explicitly; all ordinary server analyses default to SQS.
+      configurationBuilder.setProduct(
+        sensorContext
+          .config()
+          .get(PRODUCT_PROPERTY)
+          .orElse(context.isSonarLint() ? "sq-ide" : "sqs")
       );
       configureFilesystemCache(sensorContext);
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
@@ -243,24 +246,32 @@ public class WebSensor implements ProjectSensor {
       filesystemCacheArchivePath = null;
       analysisMetadataPath = null;
       recordFilesystemCache = false;
+      if (sensorContext.config().get(PRODUCT_PROPERTY).filter("sqaa"::equals).isPresent()) {
+        throw new IllegalStateException("Invalid restored JavaScript context", e);
+      }
       LOG.warn("Could not configure the JavaScript filesystem cache", e);
     }
   }
 
   private void doConfigureFilesystemCache(SensorContext sensorContext) throws IOException {
-    if (!filesystemCacheContext.isSupported()) {
-      return;
-    }
     var restoredArchive = sensorContext
       .config()
       .get(FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY);
     var restoredAnalysisMetadata = sensorContext
       .config()
       .get(FilesystemCacheContext.RESTORED_ANALYSIS_METADATA_PATH_PROPERTY);
+    if (!filesystemCacheContext.isSupported()) {
+      if (
+        sensorContext.config().get(PRODUCT_PROPERTY).filter("sqaa"::equals).isPresent() &&
+        (restoredArchive.isPresent() || restoredAnalysisMetadata.isPresent())
+      ) {
+        throw new IllegalStateException("Restored JavaScript context is not supported");
+      }
+      return;
+    }
     if (restoredArchive.isPresent() || restoredAnalysisMetadata.isPresent()) {
       if (restoredArchive.isEmpty() || restoredAnalysisMetadata.isEmpty()) {
-        LOG.warn("The restored JavaScript context is incomplete");
-        return;
+        throw new IllegalStateException("The restored JavaScript context is incomplete");
       }
       var path = Path.of(restoredArchive.get()).toAbsolutePath().normalize();
       var metadataPath = Path.of(restoredAnalysisMetadata.get()).toAbsolutePath().normalize();
@@ -273,7 +284,7 @@ public class WebSensor implements ProjectSensor {
         filesystemCacheArchivePath = path;
         analysisMetadataPath = metadataPath;
       } else {
-        LOG.warn("The restored JavaScript context is missing or empty");
+        throw new IllegalStateException("The restored JavaScript context is missing or empty");
       }
       return;
     }
@@ -281,9 +292,12 @@ public class WebSensor implements ProjectSensor {
     if (!filesystemCacheContext.isEnabled()) {
       return;
     }
-    var archiveDirectory = tempFolder.newDir("sonarjs-filesystem-cache");
-    filesystemCacheArchivePath = archiveDirectory.toPath().resolve("archive.pb.gz");
-    analysisMetadataPath = archiveDirectory.toPath().resolve("analysis-metadata.pb.gz");
+    var archiveDirectory = Files.createTempDirectory(
+      sensorContext.fileSystem().workDir().toPath(),
+      "sonarjs-filesystem-cache-"
+    );
+    filesystemCacheArchivePath = archiveDirectory.resolve("archive.pb.gz");
+    analysisMetadataPath = archiveDirectory.resolve("analysis-metadata.pb.gz");
     recordFilesystemCache = true;
   }
 

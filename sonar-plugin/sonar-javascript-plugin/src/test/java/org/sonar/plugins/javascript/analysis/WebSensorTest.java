@@ -25,6 +25,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -75,7 +76,6 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.css.CssRules;
 import org.sonar.javascript.checks.CheckList;
@@ -119,7 +119,6 @@ import org.sonar.scanner.plugin.api.impl.rule.ActiveRulesBuilder;
 import org.sonar.scanner.plugin.api.impl.rule.NewActiveRule;
 import org.sonar.scanner.plugin.api.impl.sensor.DefaultSensorDescriptor;
 import org.sonar.scanner.plugin.api.impl.sensor.issue.DefaultNoSonarFilter;
-import org.sonar.scanner.plugin.api.impl.utils.DefaultTempFolder;
 
 class WebSensorTest {
 
@@ -150,8 +149,6 @@ class WebSensorTest {
   @TempDir
   Path tempDir;
 
-  TempFolder tempFolder;
-
   @TempDir
   Path workDir;
 
@@ -163,7 +160,6 @@ class WebSensorTest {
 
     // this is required to avoid the test to use real plugin version from the manifest
     PluginInfo.setVersion(PLUGIN_VERSION);
-    tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     when(bridgeServerMock.getTelemetry()).thenReturn(
@@ -437,6 +433,31 @@ class WebSensorTest {
   }
 
   @Test
+  void should_fail_sqaa_analysis_when_restored_context_is_incomplete() {
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenReturn(true);
+    context.settings().setProperty("sonar.javascript.internal.product", "sqaa");
+    context
+      .settings()
+      .setProperty(
+        FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY,
+        tempDir.resolve("archive.pb.gz").toString()
+      );
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+
+    assertThatThrownBy(() -> sensor.execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis of JS/TS files failed")
+      .hasRootCauseMessage("The restored JavaScript context is incomplete");
+  }
+
+  @Test
   void should_record_and_collect_filesystem_cache() throws Exception {
     var filesystemCacheContext = mock(FilesystemCacheContext.class);
     when(filesystemCacheContext.isSupported()).thenReturn(true);
@@ -468,16 +489,22 @@ class WebSensorTest {
       .analyzeProject(any(ProjectAnalysisHandler.class));
 
     sensor.execute(context);
+    var secondContext = createSensorContext(baseDir);
+    createInputFile(secondContext);
+    sensor.execute(secondContext);
 
-    verify(filesystemCacheContext).collect(
+    verify(filesystemCacheContext, times(2)).collect(
       archiveCaptor.capture(),
       analysisMetadataCaptor.capture()
     );
+    assertThat(archiveCaptor.getAllValues()).hasSize(2).doesNotHaveDuplicates();
+    assertThat(analysisMetadataCaptor.getAllValues()).hasSize(2).doesNotHaveDuplicates();
     assertThat(archiveCaptor.getValue()).isRegularFile().hasContent("archive");
-    assertThat(archiveCaptor.getValue()).startsWith(tempDir.resolve("sonarjs-filesystem-cache"));
+    assertThat(archiveCaptor.getValue()).startsWith(workDir);
     assertThat(analysisMetadataCaptor.getValue()).isRegularFile().hasContent("metadata");
-    assertThat(analysisMetadataCaptor.getValue()).startsWith(
-      tempDir.resolve("sonarjs-filesystem-cache")
+    assertThat(analysisMetadataCaptor.getValue()).startsWith(workDir);
+    assertThat(analysisMetadataCaptor.getValue().getParent()).isEqualTo(
+      archiveCaptor.getValue().getParent()
     );
   }
 
@@ -1953,7 +1980,6 @@ class WebSensorTest {
       mock(CssRules.class),
       fsListener,
       filesystemCacheContext,
-      tempFolder,
       moduleConfiguration
     );
   }

@@ -101,15 +101,16 @@ export class ProgramSelectionArchive {
   private readonly mode: 'record' | 'replay';
   private readonly programs = new Map<number, StoredProgram>();
   private readonly selections = new Map<NormalizedAbsolutePath, number>();
+  private readonly noProgramFiles = new Set<NormalizedAbsolutePath>();
   private readonly filesByProgram = new Map<number, NormalizedAbsolutePath[]>();
   private readonly configuredProgramIds = new Map<NormalizedAbsolutePath, number>();
   private configuration: ReplayableConfiguration = {};
   private nextProgramId = 1;
 
-  constructor(archivePath: string, baseDir: NormalizedAbsolutePath) {
+  constructor(archivePath: string, baseDir: NormalizedAbsolutePath, mode?: 'record' | 'replay') {
     this.archivePath = path.resolve(archivePath);
     this.baseDir = baseDir;
-    this.mode = fs.existsSync(this.archivePath) ? 'replay' : 'record';
+    this.mode = mode ?? (fs.existsSync(this.archivePath) ? 'replay' : 'record');
     if (this.mode === 'replay') {
       this.load();
     }
@@ -195,6 +196,20 @@ export class ProgramSelectionArchive {
     return this.selections.has(file);
   }
 
+  hasNoProgram(file: NormalizedAbsolutePath): boolean {
+    return this.noProgramFiles.has(file);
+  }
+
+  recordNoProgram(file: NormalizedAbsolutePath): void {
+    if (this.mode !== 'record' || !this.isProjectRelative(file)) {
+      return;
+    }
+    if (this.selections.has(file)) {
+      throw new Error(`File has both a program and no-program outcome: ${file}`);
+    }
+    this.noProgramFiles.add(file);
+  }
+
   end(): void {
     if (this.mode !== 'record') {
       return;
@@ -226,6 +241,7 @@ export class ProgramSelectionArchive {
           filePath: this.toRelative(file),
           programId,
         })),
+        noProgramFiles: [...this.noProgramFiles].map(file => this.toRelative(file)),
       },
       configuration: structFromObject(this.configuration),
     });
@@ -242,6 +258,9 @@ export class ProgramSelectionArchive {
   }
 
   private addSelection(file: NormalizedAbsolutePath, programId: number): void {
+    if (this.noProgramFiles.has(file)) {
+      throw new Error(`File has both a program and no-program outcome: ${file}`);
+    }
     const existingProgramId = this.selections.get(file);
     if (existingProgramId !== undefined) {
       if (existingProgramId === programId) {
@@ -303,6 +322,13 @@ export class ProgramSelectionArchive {
         throw new Error(`Duplicate program selection for ${selection.filePath}`);
       }
       this.addSelection(file, programId);
+    }
+    for (const relativePath of metadata.programSelection.noProgramFiles ?? []) {
+      const file = this.fromRelative(relativePath);
+      if (this.selections.has(file) || this.noProgramFiles.has(file)) {
+        throw new Error(`Duplicate or conflicting no-program outcome for ${relativePath}`);
+      }
+      this.noProgramFiles.add(file);
     }
   }
 

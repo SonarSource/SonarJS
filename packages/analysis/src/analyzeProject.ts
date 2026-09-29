@@ -49,6 +49,9 @@ type AnalysisStatus = {
   cancelled: boolean;
 };
 
+// The analysis worker processes one project request at a time. The gRPC handler opens this
+// scope before normalization so cancellation also reaches preparation; standalone callers
+// get their own scope in analyzeProject().
 let analysisStatus: AnalysisStatus | undefined;
 
 /**
@@ -96,6 +99,7 @@ export async function analyzeProject(
 ): Promise<ProjectAnalysisOutput> {
   try {
     if (!analysisStatus) {
+      // Keep the outer finally below pending until the nested analysis has settled.
       return await withAnalysisCancellation(() =>
         analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel),
       );
@@ -117,7 +121,7 @@ async function analyzeProjectWithCancellation(
   configuration: Configuration,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
-  const { rules, bundles, rulesWorkdir, programSelection, replayTimings } = input;
+  const { rules, bundles, rulesWorkdir, programSelection } = input;
   const filesToAnalyze = sourceFileStore.getFiles();
 
   // All files go into pendingFiles - analyzeFile decides per-file whether to
@@ -138,23 +142,17 @@ async function analyzeProjectWithCancellation(
   const jsTsConfigFields = getJsTsConfigFields(configuration);
   setSourceFilesContext(filesToAnalyze);
   const { testFileExtensions } = getFilterPathParams(configuration);
-  const initializeLinter = () =>
-    Linter.initialize({
-      rules,
-      environments,
-      globals,
-      bundles,
-      baseDir,
-      detectGeneratedCode: configuration.detectGeneratedCode,
-      isGeneratedSourceFile: filePath => generatedSourceStore.getFamily(filePath) !== undefined,
-      rulesWorkdir,
-      testFileExtensions,
-    });
-  if (replayTimings) {
-    await replayTimings.measureAsync('linterInitialization', initializeLinter);
-  } else {
-    await initializeLinter();
-  }
+  await Linter.initialize({
+    rules,
+    environments,
+    globals,
+    bundles,
+    baseDir,
+    detectGeneratedCode: configuration.detectGeneratedCode,
+    isGeneratedSourceFile: filePath => generatedSourceStore.getFamily(filePath) !== undefined,
+    rulesWorkdir,
+    testFileExtensions,
+  });
 
   // Initialize CSS linter with active CSS rules (mirrors Linter.initialize for JS/TS).
   // Always called to reset state between analysis runs: when cssRules is empty,
@@ -189,13 +187,13 @@ async function analyzeProjectWithCancellation(
         jsTsConfigFields,
         programSelection,
         incrementalResultsChannel,
-        replayTimings,
       );
     }
     if (pendingFiles.size) {
-      const pendingJsTsCount = Array.from(pendingFiles).filter(filePath =>
+      const noProgramFiles = Array.from(pendingFiles).filter(filePath =>
         isJsTsFile(filePath, jsTsConfigFields.shouldIgnoreParams),
-      ).length;
+      );
+      const pendingJsTsCount = noProgramFiles.length;
       if (pendingJsTsCount > 0 && !jsTsConfigFields.disableTypeChecking) {
         info(
           `Found ${pendingJsTsCount} JS/TS file(s) not part of any tsconfig.json: they will be analyzed without type information`,
@@ -210,6 +208,9 @@ async function analyzeProjectWithCancellation(
         jsTsConfigFields,
         incrementalResultsChannel,
       );
+      for (const filePath of noProgramFiles) {
+        programSelection?.recordNoProgram(filePath);
+      }
     }
   }
   progressReport.stop();

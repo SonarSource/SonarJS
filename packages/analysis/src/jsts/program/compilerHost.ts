@@ -141,6 +141,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     if (typeof filesContext?.[fileName]?.fileContent === 'string') {
       this.trackFsCall('readFile-context', fileName);
       const content = filesContext[fileName].fileContent;
+      // Request-provided content bypasses the patched fs API; record it explicitly.
       captureProvidedFile(fileName, content);
       if (cache.get(normalized) !== content) {
         cache.set(normalized, content);
@@ -190,6 +191,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       this.trackFsCall('fileExists-context', fileName);
       const content = filesContext[fileName].fileContent;
       if (content !== undefined) {
+        // This content can satisfy existence checks without an archived stat result.
         captureProvidedFile(fileName, content);
       }
       return true;

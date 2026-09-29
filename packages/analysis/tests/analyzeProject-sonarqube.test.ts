@@ -163,6 +163,25 @@ describe('SonarQube project analysis', () => {
     ).toBeNull();
   });
 
+  it('releases scanner state and cancellation scope when analysis fails', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'no-tsconfig'));
+    const configuration = await initForTest({ baseDir });
+    const initialize = mock.method(Linter, 'initialize', async () => {
+      throw new Error('linter initialization failed');
+    });
+    const release = mock.method(Linter, 'releaseAfterAnalysis');
+    try {
+      await expect(analyzeProject({ rules, bundles: [] }, configuration)).rejects.toThrow(
+        'linter initialization failed',
+      );
+      expect(release.mock.callCount()).toBe(1);
+      expect(cancelAnalysis()).toBe(false);
+    } finally {
+      initialize.mock.restore();
+      release.mock.restore();
+    }
+  });
+
   it('should restore the winning program after normal project discovery and overlay submitted content', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'program-selection-replay'));
     const filePath = normalizeToAbsolutePath(join(baseDir, 'main.ts'));
@@ -351,27 +370,97 @@ export class SubmittedComponent {
     expect(restored.meta.telemetry?.programCreation.succeeded).toBe(1);
   });
 
-  it('should replay files recorded without a program using the no-program analysis path', async () => {
+  it('should analyze a file without context using a basic TypeScript program', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'no-tsconfig'));
+    const filePath = normalizeToAbsolutePath(join(baseDir, 'orphan.ts'));
+    const sortRule: RuleConfig[] = [
+      {
+        key: 'S2871',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'ts',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+    const configuration = await initForTest(
+      { baseDir, product: 'sqaa' },
+      { [filePath]: { filePath, fileType: 'MAIN', fileContent: '[80, 3, 9].sort();' } },
+    );
+
+    const result = await analyzeProject({ rules: sortRule, bundles: [] }, configuration);
+
+    const fileResult = result.files[filePath];
+    expect(fileResult && 'issues' in fileResult ? fileResult.issues : undefined).toEqual([
+      expect.objectContaining({ ruleId: 'S2871' }),
+    ]);
+    expect(result.meta.telemetry?.programCreation.succeeded).toBe(1);
+  });
+
+  it('should honor an explicitly recorded no-program outcome', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'no-tsconfig'));
     const filePath = normalizeToAbsolutePath(join(baseDir, 'orphan.ts'));
     const archivePath = path.join(
       fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-empty-')),
       'selection.pb.gz',
     );
-    new ProgramSelectionArchive(archivePath, baseDir).end();
-    const replay = new ProgramSelectionArchive(archivePath, baseDir);
-    const configuration = await initForTest(
+    const recorder = new ProgramSelectionArchive(archivePath, baseDir);
+    const recordingConfiguration = await initForTest(
       { baseDir, createTSProgramForOrphanFiles: false },
-      { [filePath]: { filePath, fileType: 'MAIN', fileContent: 'const x = 1;' } },
+      { [filePath]: { filePath, fileType: 'MAIN', fileContent: '[80, 3, 9].sort();' } },
+    );
+    await analyzeProject(
+      { rules, bundles: [], programSelection: recorder },
+      recordingConfiguration,
+    );
+    recorder.end();
+    const replay = new ProgramSelectionArchive(archivePath, baseDir);
+    expect(replay.hasNoProgram(filePath)).toBe(true);
+    const sortRule: RuleConfig[] = [
+      {
+        key: 'S2871',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'ts',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+    const configuration = await initForTest(
+      { baseDir, product: 'sqaa', createTSProgramForOrphanFiles: false },
+      { [filePath]: { filePath, fileType: 'MAIN', fileContent: '[80, 3, 9].sort();' } },
     );
 
     const result = await analyzeProject(
-      { rules, bundles: [], programSelection: replay },
+      { rules: sortRule, bundles: [], programSelection: replay },
       configuration,
     );
 
-    expect(result.files[filePath]).toBeDefined();
-    expect(result.meta.telemetry?.programCreation.attempted).toBe(0);
+    const fileResult = result.files[filePath];
+    expect(fileResult && 'issues' in fileResult ? fileResult.issues : undefined).toEqual([]);
+    expect(result.meta.telemetry?.programCreation.succeeded).toBe(0);
+  });
+
+  it('rejects a context-backed file with no recorded program outcome', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'no-tsconfig'));
+    const filePath = normalizeToAbsolutePath(join(baseDir, 'orphan.ts'));
+    const archivePath = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-missing-')),
+      'selection.pb.gz',
+    );
+    new ProgramSelectionArchive(archivePath, baseDir, 'record').end();
+    const configuration = await initForTest(
+      { baseDir, product: 'sqaa' },
+      { [filePath]: { filePath, fileType: 'MAIN', fileContent: 'const value = 1;' } },
+    );
+    await expect(
+      analyzeProject(
+        {
+          rules,
+          bundles: [],
+          programSelection: new ProgramSelectionArchive(archivePath, baseDir, 'replay'),
+        },
+        configuration,
+      ),
+    ).rejects.toThrow('No recorded TypeScript program outcome');
   });
 
   it('should apply the test-file heuristic only to rule selection', async () => {
