@@ -291,6 +291,8 @@ jobs:
     needs: [setup, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    outputs:
+      test-input-hash: ${{ steps.test-input-hash.outputs.hash }}
     steps:
       - *checkout
       - *mise
@@ -313,6 +315,14 @@ jobs:
         run: npm run rspec:refresh
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+      - name: Compute generated RSPEC test input hash
+        id: test-input-hash
+        run: |
+          HASH=$(find \
+            sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript \
+            sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css \
+            -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
+          echo "hash=$HASH" >> "$GITHUB_OUTPUT"
       - name: Upload prepared RSPEC rule data
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -506,7 +516,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: coverage/js
-          key: js-coverage-${{ runner.os }}-${{ needs.setup.outputs.js-files-hash }}
+          key: js-coverage-${{ runner.os }}-${{ needs.setup.outputs.js-files-hash }}-${{ needs.prepare_rspec_rule_data.outputs.test-input-hash }}
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -564,7 +574,7 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .js-test-marker-win
-          key: js-test-win-${{ runner.os }}-${{ needs.setup.outputs.js-files-hash }}
+          key: js-test-win-${{ runner.os }}-${{ needs.setup.outputs.js-files-hash }}-${{ needs.prepare_rspec_rule_data.outputs.test-input-hash }}
           lookup-only: true
       - name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
