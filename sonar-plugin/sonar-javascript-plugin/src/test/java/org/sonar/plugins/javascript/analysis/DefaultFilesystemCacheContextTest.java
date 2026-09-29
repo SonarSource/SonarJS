@@ -41,7 +41,7 @@ class DefaultFilesystemCacheContextTest {
     var filesystemItem = mock(A3SContextCollector.Item.class);
     var analysisMetadataItem = mock(A3SContextCollector.Item.class);
     var archive = Path.of("archive.pb.gz");
-    var analysisMetadata = Path.of("analysis-metadata.json.gz");
+    var analysisMetadata = Path.of("analysis-metadata.pb.gz");
     when(collector.newFileItem(FilesystemCacheContext.ARCHIVE_ITEM_ID, archive)).thenReturn(
       filesystemItem
     );

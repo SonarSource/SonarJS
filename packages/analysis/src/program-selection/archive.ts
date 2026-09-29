@@ -51,11 +51,6 @@ const REPLAYABLE_CONFIGURATION_FIELDS = [
 type ReplayableConfiguration = Partial<
   Record<(typeof REPLAYABLE_CONFIGURATION_FIELDS)[number], unknown>
 >;
-type AnalysisMetadata = {
-  magic: string;
-  programSelection: string;
-  configuration: ReplayableConfiguration;
-};
 const PROJECT_RELATIVE_PATH_PREFIX = '\0project-relative:';
 const COMPILER_OPTION_PATHS = new Set([
   'baseUrl',
@@ -204,41 +199,37 @@ export class ProgramSelectionArchive {
     if (this.mode !== 'record') {
       return;
     }
-    const archive = sonarjs.programselection.Archive.fromObject({
-      magic: MAGIC,
-      programs: [...this.programs.values()].map(({ id, program }) =>
-        program.kind === 'configured'
-          ? {
-              id,
-              configured: {
-                tsconfigPath: this.toRelative(program.tsconfig),
-                compilerOptions: structFromObject(
-                  this.compilerOptionsForStorage(program.compilerOptions),
-                ),
+    const metadata = sonarjs.programselection.AnalysisMetadata.fromObject({
+      programSelection: {
+        magic: MAGIC,
+        programs: [...this.programs.values()].map(({ id, program }) =>
+          program.kind === 'configured'
+            ? {
+                id,
+                configured: {
+                  tsconfigPath: this.toRelative(program.tsconfig),
+                  compilerOptions: structFromObject(
+                    this.compilerOptionsForStorage(program.compilerOptions),
+                  ),
+                },
+              }
+            : {
+                id,
+                orphan: {
+                  compilerOptions: structFromObject(
+                    this.compilerOptionsForStorage(program.compilerOptions),
+                  ),
+                },
               },
-            }
-          : {
-              id,
-              orphan: {
-                compilerOptions: structFromObject(
-                  this.compilerOptionsForStorage(program.compilerOptions),
-                ),
-              },
-            },
-      ),
-      files: [...this.selections.entries()].map(([file, programId]) => ({
-        filePath: this.toRelative(file),
-        programId,
-      })),
+        ),
+        files: [...this.selections.entries()].map(([file, programId]) => ({
+          filePath: this.toRelative(file),
+          programId,
+        })),
+      },
+      configuration: structFromObject(this.configuration),
     });
-    const metadata: AnalysisMetadata = {
-      magic: MAGIC,
-      programSelection: Buffer.from(
-        sonarjs.programselection.Archive.encode(archive).finish(),
-      ).toString('base64'),
-      configuration: this.configuration,
-    };
-    const bytes = gzipSync(JSON.stringify(metadata));
+    const bytes = gzipSync(sonarjs.programselection.AnalysisMetadata.encode(metadata).finish());
     fs.mkdirSync(path.dirname(this.archivePath), { recursive: true });
     fs.writeFileSync(this.archivePath, bytes);
   }
@@ -265,32 +256,22 @@ export class ProgramSelectionArchive {
   }
 
   private load(): void {
-    const metadata = JSON.parse(
-      gunzipSync(fs.readFileSync(this.archivePath)).toString(),
-    ) as AnalysisMetadata;
-    if (!metadata || metadata.magic !== MAGIC) {
+    const metadata = sonarjs.programselection.AnalysisMetadata.decode(
+      gunzipSync(fs.readFileSync(this.archivePath)),
+    );
+    if (!metadata.programSelection || metadata.programSelection.magic !== MAGIC) {
       throw new Error(`Not a SonarJS analysis metadata archive: ${this.archivePath}`);
     }
-    if (
-      typeof metadata.programSelection !== 'string' ||
-      !metadata.configuration ||
-      typeof metadata.configuration !== 'object' ||
-      Array.isArray(metadata.configuration)
-    ) {
+    if (!metadata.configuration) {
       throw new Error('Invalid SonarJS analysis metadata');
     }
+    const configuration = objectFromStruct(metadata.configuration);
     this.configuration = Object.fromEntries(
-      REPLAYABLE_CONFIGURATION_FIELDS.filter(field =>
-        Object.hasOwn(metadata.configuration, field),
-      ).map(field => [field, metadata.configuration[field]]),
+      REPLAYABLE_CONFIGURATION_FIELDS.filter(field => Object.hasOwn(configuration, field)).map(
+        field => [field, configuration[field]],
+      ),
     );
-    const archive = sonarjs.programselection.Archive.decode(
-      Buffer.from(metadata.programSelection, 'base64'),
-    );
-    if (archive.magic !== MAGIC) {
-      throw new Error('Invalid SonarJS program selections in analysis metadata');
-    }
-    for (const entry of archive.programs) {
+    for (const entry of metadata.programSelection.programs ?? []) {
       const id = entry.id;
       if (id == null || id === 0 || this.programs.has(id)) {
         throw new Error(`Invalid or duplicate program id ${entry.id}`);
@@ -312,7 +293,7 @@ export class ProgramSelectionArchive {
       }
       this.programs.set(id, { id, program });
     }
-    for (const selection of archive.files) {
+    for (const selection of metadata.programSelection.files ?? []) {
       const programId = selection.programId;
       if (!selection.filePath || programId == null || !this.programs.has(programId)) {
         throw new Error(`Invalid selection for ${selection.filePath || '<empty path>'}`);

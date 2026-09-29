@@ -19,14 +19,16 @@ import { expect } from 'expect';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { gunzipSync } from 'node:zlib';
 import ts from 'typescript';
 import { ProgramSelectionArchive } from '../src/program-selection/archive.js';
+import { sonarjs } from '../src/program-selection/program-selection-proto.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 
 describe('ProgramSelectionArchive', () => {
   it('preserves effective analyzer settings without copying request-owned paths and scope', () => {
     const root = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'metadata-')));
-    const metadataPath = path.join(root, 'analysis-metadata.json.gz');
+    const metadataPath = path.join(root, 'analysis-metadata.pb.gz');
     const recorder = new ProgramSelectionArchive(metadataPath, root);
     recorder.recordConfiguration({
       baseDir: root,
@@ -37,6 +39,12 @@ describe('ProgramSelectionArchive', () => {
       environments: { values: ['browser'] },
     });
     recorder.end();
+
+    const metadata = sonarjs.programselection.AnalysisMetadata.decode(
+      gunzipSync(fs.readFileSync(metadataPath)),
+    );
+    expect(Object.keys(metadata)).toEqual(['programSelection', 'configuration']);
+    expect(metadata.programSelection?.magic).toBe('sonarjs-analysis-metadata');
 
     const replay = new ProgramSelectionArchive(metadataPath, root);
     expect(replay.restoredConfiguration()).toMatchObject({

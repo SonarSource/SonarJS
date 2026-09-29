@@ -371,7 +371,7 @@ class WebSensorTest {
   void should_replay_restored_filesystem_cache() throws IOException {
     var archive = Files.writeString(tempDir.resolve("archive.pb.gz"), "archive");
     var analysisMetadata = Files.writeString(
-      tempDir.resolve("analysis-metadata.json.gz"),
+      tempDir.resolve("analysis-metadata.pb.gz"),
       "metadata"
     );
     var filesystemCacheContext = mock(FilesystemCacheContext.class);

@@ -283,7 +283,7 @@ public class WebSensor implements ProjectSensor {
     }
     var archiveDirectory = tempFolder.newDir("sonarjs-filesystem-cache");
     filesystemCacheArchivePath = archiveDirectory.toPath().resolve("archive.pb.gz");
-    analysisMetadataPath = archiveDirectory.toPath().resolve("analysis-metadata.json.gz");
+    analysisMetadataPath = archiveDirectory.toPath().resolve("analysis-metadata.pb.gz");
     recordFilesystemCache = true;
   }
 

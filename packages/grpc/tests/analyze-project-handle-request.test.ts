@@ -59,7 +59,7 @@ describe('analyze-project request handler', () => {
     const replayRoot = path.join(temporary, 'replay');
     const rulesWorkdir = path.join(temporary, 'work');
     const archivePath = path.join(rulesWorkdir, 'filesystem.pb.gz');
-    const analysisMetadataPath = path.join(rulesWorkdir, 'analysis-metadata.json.gz');
+    const analysisMetadataPath = path.join(rulesWorkdir, 'analysis-metadata.pb.gz');
     fs.mkdirSync(path.join(recordRoot, 'build/vite'), { recursive: true });
     fs.mkdirSync(path.join(recordRoot, 'src'), { recursive: true });
     fs.mkdirSync(rulesWorkdir);
@@ -163,7 +163,7 @@ describe('analyze-project request handler', () => {
     const replayRoot = path.join(temporary, 'replay');
     const rulesWorkdir = path.join(temporary, 'work');
     const archivePath = path.join(rulesWorkdir, 'filesystem.pb.gz');
-    const analysisMetadataPath = path.join(rulesWorkdir, 'analysis-metadata.json.gz');
+    const analysisMetadataPath = path.join(rulesWorkdir, 'analysis-metadata.pb.gz');
     fs.mkdirSync(recordRoot);
     fs.mkdirSync(rulesWorkdir);
     fs.writeFileSync(
@@ -375,7 +375,7 @@ describe('analyze-project request handler', () => {
     const request = createAnalyzeProjectRequest();
     request.filesystemCache = {
       archivePath: path.join(temporary, 'filesystem.pb.gz'),
-      analysisMetadataPath: path.join(parentFile, 'analysis-metadata.json.gz'),
+      analysisMetadataPath: path.join(parentFile, 'analysis-metadata.pb.gz'),
     };
 
     const result = await handleAnalyzeProjectRequest(

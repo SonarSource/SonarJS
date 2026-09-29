@@ -4,7 +4,13 @@ package sonarjs.programselection;
 
 import "google/protobuf/struct.proto";
 
-message Archive {
+message AnalysisMetadata {
+  ProgramSelection program_selection = 1;
+  google.protobuf.Struct configuration = 2;
+}
+
+message ProgramSelection {
+  // Identifies this archive; artifact compatibility is checked by SQAA Hub.
   string magic = 1;
   reserved 2;
   repeated Program programs = 3;
