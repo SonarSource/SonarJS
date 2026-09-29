@@ -383,7 +383,7 @@ export class SubmittedComponent {
       },
     ];
     const configuration = await initForTest(
-      { baseDir, product: 'sqaa' },
+      { baseDir },
       { [filePath]: { filePath, fileType: 'MAIN', fileContent: '[80, 3, 9].sort();' } },
     );
 
@@ -425,7 +425,7 @@ export class SubmittedComponent {
       },
     ];
     const configuration = await initForTest(
-      { baseDir, product: 'sqaa', createTSProgramForOrphanFiles: false },
+      { baseDir, createTSProgramForOrphanFiles: false },
       { [filePath]: { filePath, fileType: 'MAIN', fileContent: '[80, 3, 9].sort();' } },
     );
 
@@ -448,7 +448,7 @@ export class SubmittedComponent {
     );
     new ProgramSelectionArchive(archivePath, baseDir, 'record').end();
     const configuration = await initForTest(
-      { baseDir, product: 'sqaa' },
+      { baseDir },
       { [filePath]: { filePath, fileType: 'MAIN', fileContent: 'const value = 1;' } },
     );
     await expect(

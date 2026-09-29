@@ -35,6 +35,14 @@ message AnalyzeProjectRequest {
 message FilesystemCache {
   string archive_path = 1;
   optional string analysis_metadata_path = 2;
+  // Both artifacts are required when this message is present. Without it, analysis is native.
+  FilesystemCacheMode mode = 3;
+}
+
+enum FilesystemCacheMode {
+  FILESYSTEM_CACHE_MODE_UNSPECIFIED = 0;
+  FILESYSTEM_CACHE_MODE_RECORD = 1;
+  FILESYSTEM_CACHE_MODE_REPLAY = 2;
 }
 
 message AnalyzeProjectStreamResponse {
@@ -94,8 +102,6 @@ message ProjectConfiguration {
   optional bool skip_node_module_lookup_outside_base_dir = 29;
   optional string ecma_script_version = 30;
   optional bool detect_generated_code = 34;
-  // Explicit caller identity; unlike sonarlint, this distinguishes SQAA from normal CI.
-  optional string product = 35;
 }
 
 message StringList {

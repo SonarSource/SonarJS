@@ -62,26 +62,6 @@ function stringList(values: string[]) {
 }
 
 describe('normalizeAnalyzeProjectRequest', () => {
-  it('preserves the explicit product and rejects a contradictory IDE flag', async () => {
-    const baseDir = await createBaseDir();
-    const request = {
-      configuration: { baseDir, product: 'sqaa', sonarlint: false },
-      files: {},
-      rules: [],
-      cssRules: [],
-      bundles: [],
-    };
-    const normalized = await normalizeAnalyzeProjectRequest(request);
-    expect(normalized.configuration.product).toBe('sqaa');
-    expect(normalized.configuration.sonarlint).toBe(false);
-    await expect(
-      normalizeAnalyzeProjectRequest({
-        ...request,
-        configuration: { ...request.configuration, sonarlint: true },
-      }),
-    ).rejects.toThrow(InvalidAnalyzeProjectRequestError);
-  });
-
   it('should normalize explicit files, paths, rules and protobuf values', async () => {
     const baseDir = await createBaseDir();
     const mainFile = join(baseDir, 'src', 'main.ts');

@@ -41,15 +41,31 @@ import {
 import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { warn } from '../../shared/src/helpers/logging.js';
+import { sonarjs } from './proto/analyze-project.js';
+
+const { FilesystemCacheMode } = sonarjs.analyzeproject.v1;
+type CacheMode = 'record' | 'replay';
+
+function normalizeCacheMode(mode: number | null | undefined): CacheMode {
+  switch (mode) {
+    case FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD:
+      return 'record';
+    case FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY:
+      return 'replay';
+    default:
+      throw new InvalidAnalyzeProjectRequestError('filesystem_cache.mode must be RECORD or REPLAY');
+  }
+}
 
 function beginFilesystemCacheAnalysis(
   request: AnalyzeProjectProtoRequest,
+  mode: CacheMode | undefined,
 ): FsCacheSession | undefined {
   const cache = request.filesystemCache;
   if (cache == null) {
     return undefined;
   }
-  if (request.configuration?.sonarlint === true || request.configuration?.product === 'sq-ide') {
+  if (request.configuration?.sonarlint === true) {
     throw new InvalidAnalyzeProjectRequestError(
       'filesystem_cache must not be configured for SonarQube for IDE analysis',
     );
@@ -70,7 +86,7 @@ function beginFilesystemCacheAnalysis(
   }
   return installation.beginAnalysis({
     archivePath: cache.archivePath,
-    mode: request.configuration?.product === 'sqaa' ? 'replay' : 'record',
+    mode,
     // Rules are unpacked into this temporary directory. Their files must use the native
     // filesystem; project files outside it remain subject to archive recording/replay.
     passthroughDirs: request.rulesWorkdir
@@ -87,6 +103,7 @@ function beginFilesystemCacheAnalysis(
 
 function beginAnalysisMetadata(
   request: AnalyzeProjectProtoRequest,
+  mode: CacheMode | undefined,
 ): ProgramSelectionArchive | undefined {
   const analysisMetadataPath = request.filesystemCache?.analysisMetadataPath;
   if (!analysisMetadataPath) {
@@ -99,7 +116,7 @@ function beginAnalysisMetadata(
   const metadata = new ProgramSelectionArchive(
     analysisMetadataPath,
     normalizeToAbsolutePath(baseDir),
-    request.configuration?.product === 'sqaa' ? 'replay' : 'record',
+    mode,
   );
   if (request.configuration) {
     metadata.recordConfiguration(request.configuration as unknown as Record<string, unknown>);
@@ -132,6 +149,9 @@ export async function handleAnalyzeProjectRequest(
   try {
     switch (request.type) {
       case 'on-analyze-project': {
+        const cacheMode = request.data.filesystemCache
+          ? normalizeCacheMode(request.data.filesystemCache.mode)
+          : undefined;
         const hasFilesystemArchive = Boolean(request.data.filesystemCache?.archivePath);
         const hasAnalysisMetadata = Boolean(request.data.filesystemCache?.analysisMetadataPath);
         if (hasFilesystemArchive !== hasAnalysisMetadata) {
@@ -139,10 +159,10 @@ export async function handleAnalyzeProjectRequest(
             'A filesystem archive and analysis metadata must be supplied together',
           );
         }
-        const filesystemCacheSession = beginFilesystemCacheAnalysis(request.data);
+        const filesystemCacheSession = beginFilesystemCacheAnalysis(request.data, cacheMode);
         let programSelection: ProgramSelectionArchive | undefined;
         try {
-          programSelection = beginAnalysisMetadata(request.data);
+          programSelection = beginAnalysisMetadata(request.data, cacheMode);
           const restoredConfiguration = programSelection?.restoredConfiguration();
           if (restoredConfiguration && request.data.configuration) {
             // Preserve the SQAA request's base directory, file scope, and runtime paths.

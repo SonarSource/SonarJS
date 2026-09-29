@@ -33,7 +33,8 @@ import ts from 'typescript';
 
 const workerData: WorkerData = { debugMemory: false };
 type AnalyzeProjectRequest = analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectRequest;
-const { AnalysisMode, FileType, JsTsLanguage } = analyzeProjectProto.analyzeproject.v1;
+const { AnalysisMode, FileType, FilesystemCacheMode, JsTsLanguage } =
+  analyzeProjectProto.analyzeproject.v1;
 
 afterEach(() => {
   delete (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION];
@@ -149,7 +150,11 @@ describe('analyze-project request handler', () => {
       cssRules: [],
       bundles: [],
       rulesWorkdir,
-      filesystemCache: { archivePath, analysisMetadataPath },
+      filesystemCache: {
+        archivePath,
+        analysisMetadataPath,
+        mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD,
+      },
     });
 
     try {
@@ -240,7 +245,11 @@ describe('analyze-project request handler', () => {
       cssRules: [],
       bundles: [],
       rulesWorkdir,
-      filesystemCache: { archivePath, analysisMetadataPath },
+      filesystemCache: {
+        archivePath,
+        analysisMetadataPath,
+        mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD,
+      },
     });
 
     const recordRequest = createRequest(recordRoot, 3);
@@ -266,7 +275,7 @@ describe('analyze-project request handler', () => {
     fs.rmSync(recordRoot, { force: true, recursive: true });
     fs.mkdirSync(replayRoot);
     const replayRequest = createRequest(replayRoot, 5);
-    replayRequest.configuration!.product = 'sqaa';
+    replayRequest.filesystemCache!.mode = FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY;
     replayRequest.configuration!.jsTsExclusions = { values: ['**/contrib/**'] };
     const replayed = await handleAnalyzeProjectRequest(
       { type: 'on-analyze-project', data: replayRequest },
@@ -304,6 +313,7 @@ describe('analyze-project request handler', () => {
     request.filesystemCache = {
       archivePath: '/cache/first.fscache',
       analysisMetadataPath: '/cache/analysis-metadata.pb.gz',
+      mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD,
     };
 
     const result = await handleAnalyzeProjectRequest(
@@ -328,12 +338,23 @@ describe('analyze-project request handler', () => {
 
   it('rejects filesystem cache configuration without an archive', async () => {
     const missingArchive = createAnalyzeProjectRequest();
-    missingArchive.filesystemCache = {};
+    missingArchive.filesystemCache = { mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD };
     expect(
       await handleAnalyzeProjectRequest(
         { type: 'on-analyze-project', data: missingArchive },
         workerData,
       ),
+    ).toMatchObject({ reason: 'invalid_request', type: 'failure' });
+  });
+
+  it('rejects context artifacts without an explicit record or replay mode', async () => {
+    const request = createAnalyzeProjectRequest();
+    request.filesystemCache = {
+      archivePath: '/cache/filesystem.pb.gz',
+      analysisMetadataPath: '/cache/analysis-metadata.pb.gz',
+    };
+    expect(
+      await handleAnalyzeProjectRequest({ type: 'on-analyze-project', data: request }, workerData),
     ).toMatchObject({ reason: 'invalid_request', type: 'failure' });
   });
 
@@ -346,8 +367,10 @@ describe('analyze-project request handler', () => {
       },
     };
     const request = createAnalyzeProjectRequest();
-    request.configuration!.product = 'sqaa';
-    request.filesystemCache = { archivePath: '/cache/filesystem.pb.gz' };
+    request.filesystemCache = {
+      archivePath: '/cache/filesystem.pb.gz',
+      mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+    };
     const result = await handleAnalyzeProjectRequest(
       { type: 'on-analyze-project', data: request },
       workerData,
@@ -358,7 +381,11 @@ describe('analyze-project request handler', () => {
 
   it('rejects filesystem cache configuration outside an analysis worker', async () => {
     const request = createAnalyzeProjectRequest();
-    request.filesystemCache = { archivePath: '/cache/first.fscache' };
+    request.filesystemCache = {
+      archivePath: '/cache/first.fscache',
+      analysisMetadataPath: '/cache/analysis-metadata.pb.gz',
+      mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD,
+    };
 
     expect(
       await handleAnalyzeProjectRequest({ type: 'on-analyze-project', data: request }, workerData),
@@ -380,6 +407,7 @@ describe('analyze-project request handler', () => {
     request.filesystemCache = {
       archivePath: '/cache/first.fscache',
       analysisMetadataPath: '/cache/analysis-metadata.pb.gz',
+      mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD,
     };
     request.rules = [{}];
 
@@ -410,6 +438,7 @@ describe('analyze-project request handler', () => {
     request.filesystemCache = {
       archivePath: path.join(temporary, 'filesystem.pb.gz'),
       analysisMetadataPath: path.join(parentFile, 'analysis-metadata.pb.gz'),
+      mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD,
     };
 
     const result = await handleAnalyzeProjectRequest(
@@ -433,6 +462,8 @@ describe('analyze-project request handler', () => {
 
     nativeRequest.filesystemCache = {
       archivePath: '/cache/sonarlint.fscache',
+      analysisMetadataPath: '/cache/analysis-metadata.pb.gz',
+      mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD,
     };
     expect(
       await handleAnalyzeProjectRequest(

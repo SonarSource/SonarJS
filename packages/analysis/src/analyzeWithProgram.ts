@@ -107,19 +107,6 @@ export async function analyzeWithProgram(
 
   if (programSelection?.isReplay()) {
     await analyzeFilesFromProgramSelection({ ...analysisContext, programSelection });
-  } else if (programSelection === undefined && jsTsConfigFields.product === 'sqaa') {
-    await analyzeFilesFromEntryPoint(
-      files,
-      results,
-      pendingFiles,
-      foundProgramOptions,
-      progressReport,
-      baseDir,
-      jsTsConfigFields,
-      telemetry,
-      undefined,
-      incrementalResultsChannel,
-    );
   } else {
     await analyzeFilesFromDiscoveredPrograms(
       analysisContext,

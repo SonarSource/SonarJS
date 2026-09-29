@@ -75,31 +75,14 @@ export async function normalizeAnalyzeProjectRequest(
   };
 }
 
-function normalizeProduct(value: string | null | undefined): ConfigurationInput['product'] {
-  if (value == null) {
-    return undefined;
-  }
-  if (value === 'sqs' || value === 'sqc' || value === 'sqaa' || value === 'sq-ide') {
-    return value;
-  }
-  throw new InvalidAnalyzeProjectRequestError(`Invalid configuration.product: ${value}`);
-}
-
 function createConfigurationFromProto(configuration: ProjectConfiguration | null | undefined) {
   if (!configuration?.baseDir) {
     throw new InvalidAnalyzeProjectRequestError('configuration.base_dir is required');
   }
 
-  const product = normalizeProduct(configuration.product);
-  const sonarlint = optionalBoolean(configuration.sonarlint);
-  if (product && sonarlint !== undefined && sonarlint !== (product === 'sq-ide')) {
-    throw new InvalidAnalyzeProjectRequestError('configuration.product and sonarlint disagree');
-  }
-
   const input: ConfigurationInput = {
     baseDir: configuration.baseDir,
-    product,
-    sonarlint,
+    sonarlint: optionalBoolean(configuration.sonarlint),
     fsEvents: repeatedStringValues(configuration.fsEvents),
     allowTsParserJsFiles: optionalBoolean(configuration.allowTsParserJsFiles),
     analysisMode: normalizeAnalysisMode(configuration.analysisMode),

@@ -85,6 +85,7 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisLanguage;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
+import org.sonar.plugins.javascript.analyzeproject.grpc.FilesystemCacheMode;
 import org.sonar.plugins.javascript.analyzeproject.grpc.Highlight;
 import org.sonar.plugins.javascript.analyzeproject.grpc.HighlightedSymbol;
 import org.sonar.plugins.javascript.analyzeproject.grpc.Location;
@@ -398,18 +399,22 @@ class WebSensorTest {
     assertThat(request.getFilesystemCache().getAnalysisMetadataPath()).isEqualTo(
       analysisMetadata.toAbsolutePath().normalize().toString()
     );
+    assertThat(request.getFilesystemCache().getMode()).isEqualTo(
+      FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY
+    );
   }
 
   @Test
-  void should_ignore_restored_filesystem_cache_when_unsupported() throws IOException {
+  void should_fail_when_restored_filesystem_cache_is_unsupported() throws IOException {
     var archive = Files.writeString(tempDir.resolve("archive.pb.gz"), "archive");
     context
       .settings()
       .setProperty(FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY, archive.toString());
 
-    var request = executeSensorAndCaptureHandler(createSensor(), context).getRequest();
-
-    assertThat(request.hasFilesystemCache()).isFalse();
+    assertThatThrownBy(() -> createSensor().execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis of JS/TS files failed")
+      .hasRootCauseMessage("Restored JavaScript context is not supported");
   }
 
   @Test
@@ -433,10 +438,9 @@ class WebSensorTest {
   }
 
   @Test
-  void should_fail_sqaa_analysis_when_restored_context_is_incomplete() {
+  void should_fail_analysis_when_restored_context_is_incomplete() {
     var filesystemCacheContext = mock(FilesystemCacheContext.class);
     when(filesystemCacheContext.isSupported()).thenReturn(true);
-    context.settings().setProperty("sonar.javascript.internal.product", "sqaa");
     context
       .settings()
       .setProperty(
@@ -474,6 +478,9 @@ class WebSensorTest {
     doAnswer(invocation -> {
       ProjectAnalysisHandler handler = invocation.getArgument(0);
       var request = handler.getRequest();
+      assertThat(request.getFilesystemCache().getMode()).isEqualTo(
+        FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
+      );
       var archive = Path.of(request.getFilesystemCache().getArchivePath());
       var analysisMetadata = Path.of(request.getFilesystemCache().getAnalysisMetadataPath());
       assertThat(archive).doesNotExist();
@@ -506,6 +513,24 @@ class WebSensorTest {
     assertThat(analysisMetadataCaptor.getValue().getParent()).isEqualTo(
       archiveCaptor.getValue().getParent()
     );
+  }
+
+  @Test
+  void should_analyze_without_filesystem_cache_when_collection_is_disabled() {
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenReturn(true);
+    when(filesystemCacheContext.isEnabled()).thenReturn(false);
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+
+    var request = executeSensorAndCaptureHandler(sensor, context).getRequest();
+
+    assertThat(request.hasFilesystemCache()).isFalse();
   }
 
   @Test

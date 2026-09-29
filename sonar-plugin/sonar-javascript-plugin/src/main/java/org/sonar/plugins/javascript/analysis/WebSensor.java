@@ -51,6 +51,7 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FilesystemCache;
+import org.sonar.plugins.javascript.analyzeproject.grpc.FilesystemCacheMode;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisMeta;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisTelemetry;
@@ -78,7 +79,6 @@ import org.sonar.plugins.javascript.sonarlint.FSListener;
 public class WebSensor implements ProjectSensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(WebSensor.class);
-  private static final String PRODUCT_PROPERTY = "sonar.javascript.internal.product";
   private static final String LANG = "JS/TS";
   private static final Set<String> PROJECT_METADATA_FILENAMES = Set.of(
     "tsconfig.json",
@@ -190,14 +190,6 @@ public class WebSensor implements ProjectSensor {
         sensorContext.fileSystem().baseDir().getAbsolutePath(),
         contextWithCollectedTsConfigPaths(sensorContext)
       );
-      // The scanner API currently identifies IDE versus server, but not SQC versus SQS.
-      // SQAA marks its scope explicitly; all ordinary server analyses default to SQS.
-      configurationBuilder.setProduct(
-        sensorContext
-          .config()
-          .get(PRODUCT_PROPERTY)
-          .orElse(context.isSonarLint() ? "sq-ide" : "sqs")
-      );
       configureFilesystemCache(sensorContext);
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
       analyzeFiles(inputFiles);
@@ -246,11 +238,18 @@ public class WebSensor implements ProjectSensor {
       filesystemCacheArchivePath = null;
       analysisMetadataPath = null;
       recordFilesystemCache = false;
-      if (sensorContext.config().get(PRODUCT_PROPERTY).filter("sqaa"::equals).isPresent()) {
+      if (hasRestoredContextProperties(sensorContext)) {
         throw new IllegalStateException("Invalid restored JavaScript context", e);
       }
       LOG.warn("Could not configure the JavaScript filesystem cache", e);
     }
+  }
+
+  private static boolean hasRestoredContextProperties(SensorContext sensorContext) {
+    return (
+      sensorContext.config().hasKey(FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY) ||
+      sensorContext.config().hasKey(FilesystemCacheContext.RESTORED_ANALYSIS_METADATA_PATH_PROPERTY)
+    );
   }
 
   private void doConfigureFilesystemCache(SensorContext sensorContext) throws IOException {
@@ -261,10 +260,7 @@ public class WebSensor implements ProjectSensor {
       .config()
       .get(FilesystemCacheContext.RESTORED_ANALYSIS_METADATA_PATH_PROPERTY);
     if (!filesystemCacheContext.isSupported()) {
-      if (
-        sensorContext.config().get(PRODUCT_PROPERTY).filter("sqaa"::equals).isPresent() &&
-        (restoredArchive.isPresent() || restoredAnalysisMetadata.isPresent())
-      ) {
+      if (restoredArchive.isPresent() || restoredAnalysisMetadata.isPresent()) {
         throw new IllegalStateException("Restored JavaScript context is not supported");
       }
       return;
@@ -467,6 +463,11 @@ public class WebSensor implements ProjectSensor {
           FilesystemCache.newBuilder()
             .setArchivePath(filesystemCacheArchivePath.toString())
             .setAnalysisMetadataPath(analysisMetadataPath.toString())
+            .setMode(
+              recordFilesystemCache
+                ? FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
+                : FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY
+            )
         );
       }
       return request.build();
