@@ -240,6 +240,17 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // False Positive Pattern 5e-3: quoted and computed-literal descriptor value keys are
+        // equivalent
+        {
+          code: `
+          ns.Deferred = function () {
+            Object.defineProperty(this, 'then', { 'value': function () {} });
+            Reflect.defineProperty(this, 'then', { ['value']: () => {} });
+          };
+        `,
+          filename: testFilePath,
+        },
         // False Positive Pattern 5f: Class expression assigned to a namespaced Promise property
         {
           code: `
@@ -736,6 +747,17 @@ describe('S7739', () => {
           code: `
           ns.Deferred = function () {
             Object.defineProperty(this, 'then', { value: 42 });
+          };
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: an identifier descriptor key does not prove a callable value property
+        {
+          code: `
+          const key = 'value';
+          ns.Deferred = function () {
+            Object.defineProperty(this, 'then', { [key]: function () {} });
           };
         `,
           filename: testFilePath,

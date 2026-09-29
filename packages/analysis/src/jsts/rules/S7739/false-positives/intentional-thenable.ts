@@ -16,7 +16,7 @@
  */
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
-import type { AssignmentExpression, CallExpression, Node } from 'estree';
+import type { AssignmentExpression, CallExpression, Node, Property } from 'estree';
 import {
   getVariableFromName,
   isIdentifier,
@@ -256,14 +256,20 @@ function isCallablePropertyDescriptor(node: Node): boolean {
     const property = node.properties[index];
     if (
       property.type === 'Property' &&
-      !property.computed &&
       property.kind === 'init' &&
-      isIdentifier(property.key, 'value')
+      isPropertyNamedValue(property)
     ) {
       return isCallableThenValue(property.value as Node);
     }
   }
   return false;
+}
+
+function isPropertyNamedValue(property: Property): boolean {
+  return (
+    isIdentifier(property.key, 'value') ||
+    (property.key.type === 'Literal' && property.key.value === 'value')
+  );
 }
 
 /**
