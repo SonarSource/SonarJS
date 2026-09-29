@@ -138,9 +138,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(meta, {
-        ...rule.meta!,
-      }),
+      meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
       if ('node' in reportDescriptor && hasContentThroughSpread(context, reportDescriptor.node)) {
