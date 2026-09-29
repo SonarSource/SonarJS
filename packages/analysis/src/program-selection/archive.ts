@@ -23,7 +23,7 @@ import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../shared/src/helpers/files.js';
-import { sonarjs } from './program-selection-proto.js';
+import { sonarjs } from './analysis-metadata-proto.js';
 
 const MAGIC = 'sonarjs-analysis-metadata';
 // These are effective analyzer settings, not arbitrary scanner properties. The request remains

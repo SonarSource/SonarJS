@@ -22,7 +22,7 @@ import path from 'node:path';
 import { gunzipSync } from 'node:zlib';
 import ts from 'typescript';
 import { ProgramSelectionArchive } from '../src/program-selection/archive.js';
-import { sonarjs } from '../src/program-selection/program-selection-proto.js';
+import { sonarjs } from '../src/program-selection/analysis-metadata-proto.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 
 describe('ProgramSelectionArchive', () => {

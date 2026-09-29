@@ -39,9 +39,9 @@ const PROTO_FILES = [
     dts: 'packages/shared/src/fs-cache/archive-proto.d.ts',
   },
   {
-    proto: 'packages/analysis/src/program-selection/program-selection.proto',
-    js: 'packages/analysis/src/program-selection/program-selection-proto.js',
-    dts: 'packages/analysis/src/program-selection/program-selection-proto.d.ts',
+    proto: 'packages/analysis/src/program-selection/analysis-metadata.proto',
+    js: 'packages/analysis/src/program-selection/analysis-metadata-proto.js',
+    dts: 'packages/analysis/src/program-selection/analysis-metadata-proto.d.ts',
   },
 ];
 
