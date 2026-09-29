@@ -792,11 +792,10 @@ jobs:
         with:
           key-prefix: orchestrator-fast
           save: 'false'
-      - *edge_preflight
       - name: Run Fast Plugin QA
         run: |
           mvn package -f its/plugin/plugins/pom.xml
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -B -e -V verify surefire-report:report
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -947,11 +946,10 @@ jobs:
       - uses: ./.github/actions/orchestrator-cache
         with:
           key-prefix: orchestrator-fast
-      - *edge_preflight
       - name: Run Fast Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -974,11 +972,10 @@ jobs:
       - *get_licenses_token
       - *remove_node_from_path
       # No orchestrator cache for DEV - version changes too frequently
-      - *edge_preflight
       - name: Run Fast Plugin QA without Node (DEV)
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -1003,12 +1000,11 @@ jobs:
       - *config_maven
       - *get_licenses_token
       - *orchestrator_fast_cache_restore
-      - *edge_preflight
       - name: Run Fast Plugin QA without Node
         shell: bash
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin -B
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
@@ -1106,7 +1102,6 @@ jobs:
         with:
           key-prefix: orchestrator-fast
           save: ${{ matrix.group == 1 }}
-      - *edge_preflight
       - name: Run Fast Plugin QA on Windows
         shell: bash
         run: |
@@ -1121,7 +1116,7 @@ jobs:
           fi
 
           mvn package -f its/plugin/plugins/pom.xml
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -B -e -V verify surefire-report:report
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
