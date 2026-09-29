@@ -83,18 +83,25 @@ function beginFilesystemCacheAnalysis(
   });
 }
 
-function beginProgramSelectionAnalysis(
+function beginAnalysisMetadata(
   request: AnalyzeProjectProtoRequest,
 ): ProgramSelectionArchive | undefined {
-  const programSelectionPath = request.filesystemCache?.programSelectionPath;
-  if (!programSelectionPath) {
+  const analysisMetadataPath = request.filesystemCache?.analysisMetadataPath;
+  if (!analysisMetadataPath) {
     return undefined;
   }
   const baseDir = request.configuration?.baseDir;
   if (!baseDir) {
     throw new InvalidAnalyzeProjectRequestError('configuration.base_dir is required');
   }
-  return new ProgramSelectionArchive(programSelectionPath, normalizeToAbsolutePath(baseDir));
+  const metadata = new ProgramSelectionArchive(
+    analysisMetadataPath,
+    normalizeToAbsolutePath(baseDir),
+  );
+  if (request.configuration) {
+    metadata.recordConfiguration(request.configuration as unknown as Record<string, unknown>);
+  }
+  return metadata;
 }
 
 function endAnalysisSessions(
@@ -104,7 +111,7 @@ function endAnalysisSessions(
   try {
     programSelection?.end();
   } catch (error) {
-    warn(`Could not persist the TypeScript program selection archive: ${error}`);
+    warn(`Could not persist SonarJS analysis metadata: ${error}`);
   } finally {
     filesystemCacheSession?.end();
   }
@@ -138,10 +145,13 @@ export async function handleAnalyzeProjectRequest(
         let programSelection: ProgramSelectionArchive | undefined;
         try {
           programSelection = timings
-            ? timings.measure('programSelectionLoad', () =>
-                beginProgramSelectionAnalysis(request.data),
-              )
-            : beginProgramSelectionAnalysis(request.data);
+            ? timings.measure('analysisMetadataLoad', () => beginAnalysisMetadata(request.data))
+            : beginAnalysisMetadata(request.data);
+          const restoredConfiguration = programSelection?.restoredConfiguration();
+          if (restoredConfiguration && request.data.configuration) {
+            // Preserve the SQAA request's base directory, file scope, and runtime paths.
+            Object.assign(request.data.configuration, restoredConfiguration);
+          }
           return await withAnalysisCancellation(async () => {
             logHeapStatistics(workerData?.debugMemory);
             const sanitizedInput = timings

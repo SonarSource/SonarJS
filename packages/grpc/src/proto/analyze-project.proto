@@ -34,7 +34,7 @@ message AnalyzeProjectRequest {
 
 message FilesystemCache {
   string archive_path = 1;
-  optional string program_selection_path = 2;
+  optional string analysis_metadata_path = 2;
 }
 
 message AnalyzeProjectStreamResponse {

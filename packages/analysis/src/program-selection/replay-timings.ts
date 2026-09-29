@@ -21,7 +21,7 @@ import { info } from '../../../shared/src/helpers/logging.js';
 
 type Phase =
   | 'filesystemArchiveLoad'
-  | 'programSelectionLoad'
+  | 'analysisMetadataLoad'
   | 'requestNormalization'
   | 'projectAnalysis'
   | 'linterInitialization'
@@ -32,7 +32,7 @@ type Phase =
 
 const MEMORY_MILESTONES: ReadonlySet<Phase> = new Set([
   'filesystemArchiveLoad',
-  'programSelectionLoad',
+  'analysisMetadataLoad',
   'typescriptProgramCreation',
 ]);
 const MIB = 1024 * 1024;

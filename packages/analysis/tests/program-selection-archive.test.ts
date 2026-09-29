@@ -24,6 +24,29 @@ import { ProgramSelectionArchive } from '../src/program-selection/archive.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 
 describe('ProgramSelectionArchive', () => {
+  it('preserves effective analyzer settings without copying request-owned paths and scope', () => {
+    const root = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'metadata-')));
+    const metadataPath = path.join(root, 'analysis-metadata.json.gz');
+    const recorder = new ProgramSelectionArchive(metadataPath, root);
+    recorder.recordConfiguration({
+      baseDir: root,
+      sources: [root],
+      canAccessFileSystem: true,
+      jsTsExclusions: { values: ['**/generated/**'] },
+      detectBundles: false,
+      environments: { values: ['browser'] },
+    });
+    recorder.end();
+
+    const replay = new ProgramSelectionArchive(metadataPath, root);
+    expect(replay.restoredConfiguration()).toMatchObject({
+      jsTsExclusions: { values: ['**/generated/**'] },
+      detectBundles: false,
+      environments: { values: ['browser'] },
+    });
+    expect(replay.restoredConfiguration()?.ecmaScriptVersion).toBeNull();
+  });
+
   it('deduplicates configured programs and restores project-relative paths', () => {
     const firstRoot = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'selection-')));
     const archivePath = path.join(firstRoot, 'selection.pb.gz');

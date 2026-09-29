@@ -31,7 +31,7 @@ public class NoOpFilesystemCacheContext implements FilesystemCacheContext {
   }
 
   @Override
-  public void collect(Path archivePath, Path programSelectionPath) {
+  public void collect(Path archivePath, Path analysisMetadataPath) {
     // Context collection is unavailable on this host.
   }
 }

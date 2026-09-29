@@ -25,8 +25,37 @@ import {
 } from '../../../shared/src/helpers/files.js';
 import { sonarjs } from './program-selection-proto.js';
 
-const MAGIC = 'sonarjs-typescript-program-selection';
-const FORMAT_VERSION = 1;
+const MAGIC = 'sonarjs-analysis-metadata';
+// These are effective analyzer settings, not arbitrary scanner properties. The request remains
+// authoritative for its workspace, file scope, and runtime-specific filesystem behavior.
+const REPLAYABLE_CONFIGURATION_FIELDS = [
+  'allowTsParserJsFiles',
+  'ignoreHeaderComments',
+  'maxFileSize',
+  'environments',
+  'globals',
+  'tsSuffixes',
+  'jsSuffixes',
+  'cssSuffixes',
+  'htmlSuffixes',
+  'yamlSuffixes',
+  'cssAdditionalSuffixes',
+  'jsTsExclusions',
+  'detectBundles',
+  'detectGeneratedCode',
+  'createTsProgramForOrphanFiles',
+  'disableTypeChecking',
+  'skipNodeModuleLookupOutsideBaseDir',
+  'ecmaScriptVersion',
+] as const;
+type ReplayableConfiguration = Partial<
+  Record<(typeof REPLAYABLE_CONFIGURATION_FIELDS)[number], unknown>
+>;
+type AnalysisMetadata = {
+  magic: string;
+  programSelection: string;
+  configuration: ReplayableConfiguration;
+};
 const PROJECT_RELATIVE_PATH_PREFIX = '\0project-relative:';
 const COMPILER_OPTION_PATHS = new Set([
   'baseUrl',
@@ -79,6 +108,7 @@ export class ProgramSelectionArchive {
   private readonly selections = new Map<NormalizedAbsolutePath, number>();
   private readonly filesByProgram = new Map<number, NormalizedAbsolutePath[]>();
   private readonly configuredProgramIds = new Map<NormalizedAbsolutePath, number>();
+  private configuration: ReplayableConfiguration = {};
   private nextProgramId = 1;
 
   constructor(archivePath: string, baseDir: NormalizedAbsolutePath) {
@@ -92,6 +122,18 @@ export class ProgramSelectionArchive {
 
   isReplay(): boolean {
     return this.mode === 'replay';
+  }
+
+  recordConfiguration(configuration: Record<string, unknown>): void {
+    if (this.mode === 'record') {
+      this.configuration = Object.fromEntries(
+        REPLAYABLE_CONFIGURATION_FIELDS.map(field => [field, configuration[field] ?? null]),
+      );
+    }
+  }
+
+  restoredConfiguration(): ReplayableConfiguration | undefined {
+    return this.mode === 'replay' ? this.configuration : undefined;
   }
 
   recordConfigured(
@@ -164,7 +206,6 @@ export class ProgramSelectionArchive {
     }
     const archive = sonarjs.programselection.Archive.fromObject({
       magic: MAGIC,
-      formatVersion: FORMAT_VERSION,
       programs: [...this.programs.values()].map(({ id, program }) =>
         program.kind === 'configured'
           ? {
@@ -190,7 +231,14 @@ export class ProgramSelectionArchive {
         programId,
       })),
     });
-    const bytes = gzipSync(sonarjs.programselection.Archive.encode(archive).finish());
+    const metadata: AnalysisMetadata = {
+      magic: MAGIC,
+      programSelection: Buffer.from(
+        sonarjs.programselection.Archive.encode(archive).finish(),
+      ).toString('base64'),
+      configuration: this.configuration,
+    };
+    const bytes = gzipSync(JSON.stringify(metadata));
     fs.mkdirSync(path.dirname(this.archivePath), { recursive: true });
     fs.writeFileSync(this.archivePath, bytes);
   }
@@ -217,15 +265,30 @@ export class ProgramSelectionArchive {
   }
 
   private load(): void {
-    const bytes = gunzipSync(fs.readFileSync(this.archivePath));
-    const archive = sonarjs.programselection.Archive.decode(bytes);
-    if (archive.magic !== MAGIC) {
-      throw new Error(`Not a SonarJS program selection archive: ${this.archivePath}`);
+    const metadata = JSON.parse(
+      gunzipSync(fs.readFileSync(this.archivePath)).toString(),
+    ) as AnalysisMetadata;
+    if (!metadata || metadata.magic !== MAGIC) {
+      throw new Error(`Not a SonarJS analysis metadata archive: ${this.archivePath}`);
     }
-    if (archive.formatVersion !== FORMAT_VERSION) {
-      throw new Error(
-        `Unsupported program selection archive version ${archive.formatVersion}; expected ${FORMAT_VERSION}`,
-      );
+    if (
+      typeof metadata.programSelection !== 'string' ||
+      !metadata.configuration ||
+      typeof metadata.configuration !== 'object' ||
+      Array.isArray(metadata.configuration)
+    ) {
+      throw new Error('Invalid SonarJS analysis metadata');
+    }
+    this.configuration = Object.fromEntries(
+      REPLAYABLE_CONFIGURATION_FIELDS.filter(field =>
+        Object.hasOwn(metadata.configuration, field),
+      ).map(field => [field, metadata.configuration[field]]),
+    );
+    const archive = sonarjs.programselection.Archive.decode(
+      Buffer.from(metadata.programSelection, 'base64'),
+    );
+    if (archive.magic !== MAGIC) {
+      throw new Error('Invalid SonarJS program selections in analysis metadata');
     }
     for (const entry of archive.programs) {
       const id = entry.id;

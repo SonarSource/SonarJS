@@ -53,7 +53,7 @@ describe('ReplayTimings', () => {
     try {
       const timings = new ReplayTimings('worker-43');
       expect(() =>
-        timings.measure('programSelectionLoad', () => {
+        timings.measure('analysisMetadataLoad', () => {
           throw new Error('broken');
         }),
       ).toThrow('broken');
@@ -62,7 +62,7 @@ describe('ReplayTimings', () => {
       expect(JSON.parse(line.slice('Filesystem cache analysis timing '.length))).toMatchObject({
         requestId: 'worker-43',
         outcome: 'failure',
-        phases: { programSelectionLoad: { count: 1 } },
+        phases: { analysisMetadataLoad: { count: 1 } },
       });
     } finally {
       log.mock.restore();
@@ -74,7 +74,7 @@ describe('ReplayTimings', () => {
     try {
       const timings = new ReplayTimings('worker-44', true);
       timings.measure('filesystemArchiveLoad', () => undefined);
-      timings.measure('programSelectionLoad', () => undefined);
+      timings.measure('analysisMetadataLoad', () => undefined);
       timings.measure('typescriptProgramCreation', () => undefined);
       timings.measure('fileAnalysis', () => undefined);
 
@@ -86,13 +86,13 @@ describe('ReplayTimings', () => {
           .map(line => JSON.parse(line.slice(snapshotPrefix.length)));
       expect(snapshots().map(snapshot => snapshot.stage)).toEqual([
         'filesystemArchiveLoad',
-        'programSelectionLoad',
+        'analysisMetadataLoad',
         'typescriptProgramCreation',
       ]);
       timings.log('success', 'replay');
       expect(snapshots().map(snapshot => snapshot.stage)).toEqual([
         'filesystemArchiveLoad',
-        'programSelectionLoad',
+        'analysisMetadataLoad',
         'typescriptProgramCreation',
         'requestCompletion',
       ]);

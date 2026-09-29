@@ -370,9 +370,9 @@ class WebSensorTest {
   @Test
   void should_replay_restored_filesystem_cache() throws IOException {
     var archive = Files.writeString(tempDir.resolve("archive.pb.gz"), "archive");
-    var programSelection = Files.writeString(
-      tempDir.resolve("program-selection.pb.gz"),
-      "selection"
+    var analysisMetadata = Files.writeString(
+      tempDir.resolve("analysis-metadata.json.gz"),
+      "metadata"
     );
     var filesystemCacheContext = mock(FilesystemCacheContext.class);
     when(filesystemCacheContext.isSupported()).thenReturn(true);
@@ -382,8 +382,8 @@ class WebSensorTest {
     context
       .settings()
       .setProperty(
-        FilesystemCacheContext.RESTORED_PROGRAM_SELECTION_PATH_PROPERTY,
-        programSelection.toString()
+        FilesystemCacheContext.RESTORED_ANALYSIS_METADATA_PATH_PROPERTY,
+        analysisMetadata.toString()
       );
 
     var sensor = createSensor(
@@ -399,8 +399,8 @@ class WebSensorTest {
     assertThat(request.getFilesystemCache().getArchivePath()).isEqualTo(
       archive.toAbsolutePath().normalize().toString()
     );
-    assertThat(request.getFilesystemCache().getProgramSelectionPath()).isEqualTo(
-      programSelection.toAbsolutePath().normalize().toString()
+    assertThat(request.getFilesystemCache().getAnalysisMetadataPath()).isEqualTo(
+      analysisMetadata.toAbsolutePath().normalize().toString()
     );
   }
 
@@ -449,16 +449,16 @@ class WebSensorTest {
       new WebSensorModuleConfiguration()
     );
     ArgumentCaptor<Path> archiveCaptor = ArgumentCaptor.forClass(Path.class);
-    ArgumentCaptor<Path> programSelectionCaptor = ArgumentCaptor.forClass(Path.class);
+    ArgumentCaptor<Path> analysisMetadataCaptor = ArgumentCaptor.forClass(Path.class);
     doAnswer(invocation -> {
       ProjectAnalysisHandler handler = invocation.getArgument(0);
       var request = handler.getRequest();
       var archive = Path.of(request.getFilesystemCache().getArchivePath());
-      var programSelection = Path.of(request.getFilesystemCache().getProgramSelectionPath());
+      var analysisMetadata = Path.of(request.getFilesystemCache().getAnalysisMetadataPath());
       assertThat(archive).doesNotExist();
-      assertThat(programSelection).doesNotExist();
+      assertThat(analysisMetadata).doesNotExist();
       Files.writeString(archive, "archive");
-      Files.writeString(programSelection, "selection");
+      Files.writeString(analysisMetadata, "metadata");
       for (var message : getAnalysisStreamMessages(createProjectResponse(List.of(inputFile)))) {
         dispatchAnalysisStreamMessage(handler, message);
       }
@@ -471,12 +471,12 @@ class WebSensorTest {
 
     verify(filesystemCacheContext).collect(
       archiveCaptor.capture(),
-      programSelectionCaptor.capture()
+      analysisMetadataCaptor.capture()
     );
     assertThat(archiveCaptor.getValue()).isRegularFile().hasContent("archive");
     assertThat(archiveCaptor.getValue()).startsWith(tempDir.resolve("sonarjs-filesystem-cache"));
-    assertThat(programSelectionCaptor.getValue()).isRegularFile().hasContent("selection");
-    assertThat(programSelectionCaptor.getValue()).startsWith(
+    assertThat(analysisMetadataCaptor.getValue()).isRegularFile().hasContent("metadata");
+    assertThat(analysisMetadataCaptor.getValue()).startsWith(
       tempDir.resolve("sonarjs-filesystem-cache")
     );
   }

@@ -103,7 +103,7 @@ public class WebSensor implements ProjectSensor {
   @Nullable
   private Path filesystemCacheArchivePath;
 
-  private Path programSelectionArchivePath;
+  private Path analysisMetadataPath;
 
   private boolean recordFilesystemCache;
   FSListener fsListener;
@@ -234,14 +234,14 @@ public class WebSensor implements ProjectSensor {
 
   private void configureFilesystemCache(SensorContext sensorContext) {
     filesystemCacheArchivePath = null;
-    programSelectionArchivePath = null;
+    analysisMetadataPath = null;
     recordFilesystemCache = false;
 
     try {
       doConfigureFilesystemCache(sensorContext);
     } catch (Exception e) {
       filesystemCacheArchivePath = null;
-      programSelectionArchivePath = null;
+      analysisMetadataPath = null;
       recordFilesystemCache = false;
       LOG.warn("Could not configure the JavaScript filesystem cache", e);
     }
@@ -254,24 +254,24 @@ public class WebSensor implements ProjectSensor {
     var restoredArchive = sensorContext
       .config()
       .get(FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY);
-    var restoredProgramSelection = sensorContext
+    var restoredAnalysisMetadata = sensorContext
       .config()
-      .get(FilesystemCacheContext.RESTORED_PROGRAM_SELECTION_PATH_PROPERTY);
-    if (restoredArchive.isPresent() || restoredProgramSelection.isPresent()) {
-      if (restoredArchive.isEmpty() || restoredProgramSelection.isEmpty()) {
+      .get(FilesystemCacheContext.RESTORED_ANALYSIS_METADATA_PATH_PROPERTY);
+    if (restoredArchive.isPresent() || restoredAnalysisMetadata.isPresent()) {
+      if (restoredArchive.isEmpty() || restoredAnalysisMetadata.isEmpty()) {
         LOG.warn("The restored JavaScript context is incomplete");
         return;
       }
       var path = Path.of(restoredArchive.get()).toAbsolutePath().normalize();
-      var selectionPath = Path.of(restoredProgramSelection.get()).toAbsolutePath().normalize();
+      var metadataPath = Path.of(restoredAnalysisMetadata.get()).toAbsolutePath().normalize();
       if (
         Files.isRegularFile(path) &&
         Files.size(path) > 0 &&
-        Files.isRegularFile(selectionPath) &&
-        Files.size(selectionPath) > 0
+        Files.isRegularFile(metadataPath) &&
+        Files.size(metadataPath) > 0
       ) {
         filesystemCacheArchivePath = path;
-        programSelectionArchivePath = selectionPath;
+        analysisMetadataPath = metadataPath;
       } else {
         LOG.warn("The restored JavaScript context is missing or empty");
       }
@@ -283,15 +283,13 @@ public class WebSensor implements ProjectSensor {
     }
     var archiveDirectory = tempFolder.newDir("sonarjs-filesystem-cache");
     filesystemCacheArchivePath = archiveDirectory.toPath().resolve("archive.pb.gz");
-    programSelectionArchivePath = archiveDirectory.toPath().resolve("program-selection.pb.gz");
+    analysisMetadataPath = archiveDirectory.toPath().resolve("analysis-metadata.json.gz");
     recordFilesystemCache = true;
   }
 
   private void collectFilesystemCache() {
     if (
-      !recordFilesystemCache ||
-      filesystemCacheArchivePath == null ||
-      programSelectionArchivePath == null
+      !recordFilesystemCache || filesystemCacheArchivePath == null || analysisMetadataPath == null
     ) {
       return;
     }
@@ -299,15 +297,15 @@ public class WebSensor implements ProjectSensor {
       if (
         !Files.isRegularFile(filesystemCacheArchivePath) ||
         Files.size(filesystemCacheArchivePath) == 0 ||
-        !Files.isRegularFile(programSelectionArchivePath) ||
-        Files.size(programSelectionArchivePath) == 0
+        !Files.isRegularFile(analysisMetadataPath) ||
+        Files.size(analysisMetadataPath) == 0
       ) {
         LOG.warn(
           "The JavaScript filesystem cache archive was not created; no SQAA context will be published"
         );
         return;
       }
-      filesystemCacheContext.collect(filesystemCacheArchivePath, programSelectionArchivePath);
+      filesystemCacheContext.collect(filesystemCacheArchivePath, analysisMetadataPath);
     } catch (Exception e) {
       LOG.warn("Could not publish the JavaScript filesystem cache context", e);
     }
@@ -454,7 +452,7 @@ public class WebSensor implements ProjectSensor {
         request.setFilesystemCache(
           FilesystemCache.newBuilder()
             .setArchivePath(filesystemCacheArchivePath.toString())
-            .setProgramSelectionPath(programSelectionArchivePath.toString())
+            .setAnalysisMetadataPath(analysisMetadataPath.toString())
         );
       }
       return request.build();

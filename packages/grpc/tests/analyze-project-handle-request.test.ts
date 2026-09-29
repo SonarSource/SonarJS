@@ -59,7 +59,7 @@ describe('analyze-project request handler', () => {
     const replayRoot = path.join(temporary, 'replay');
     const rulesWorkdir = path.join(temporary, 'work');
     const archivePath = path.join(rulesWorkdir, 'filesystem.pb.gz');
-    const programSelectionPath = path.join(rulesWorkdir, 'program-selection.pb.gz');
+    const analysisMetadataPath = path.join(rulesWorkdir, 'analysis-metadata.json.gz');
     fs.mkdirSync(path.join(recordRoot, 'build/vite'), { recursive: true });
     fs.mkdirSync(path.join(recordRoot, 'src'), { recursive: true });
     fs.mkdirSync(rulesWorkdir);
@@ -109,7 +109,7 @@ describe('analyze-project request handler', () => {
       cssRules: [],
       bundles: [],
       rulesWorkdir,
-      filesystemCache: { archivePath, programSelectionPath },
+      filesystemCache: { archivePath, analysisMetadataPath },
     });
 
     try {
@@ -126,7 +126,7 @@ describe('analyze-project request handler', () => {
         workerData,
       );
       expect(recorded.type).toBe('success');
-      expect(fs.statSync(programSelectionPath).size).toBeGreaterThan(0);
+      expect(fs.statSync(analysisMetadataPath).size).toBeGreaterThan(0);
       const archive = new FsCacheArchive({ archivePath, rootDir: recordRoot });
       archive.load();
       const intermediate = archive.keyFor(path.join(recordRoot, 'src/entry.ts'))!;
@@ -163,7 +163,7 @@ describe('analyze-project request handler', () => {
     const replayRoot = path.join(temporary, 'replay');
     const rulesWorkdir = path.join(temporary, 'work');
     const archivePath = path.join(rulesWorkdir, 'filesystem.pb.gz');
-    const programSelectionPath = path.join(rulesWorkdir, 'program-selection.pb.gz');
+    const analysisMetadataPath = path.join(rulesWorkdir, 'analysis-metadata.json.gz');
     fs.mkdirSync(recordRoot);
     fs.mkdirSync(rulesWorkdir);
     fs.writeFileSync(
@@ -200,11 +200,13 @@ describe('analyze-project request handler', () => {
       cssRules: [],
       bundles: [],
       rulesWorkdir,
-      filesystemCache: { archivePath, programSelectionPath },
+      filesystemCache: { archivePath, analysisMetadataPath },
     });
 
+    const recordRequest = createRequest(recordRoot, 3);
+    recordRequest.configuration!.jsTsExclusions = { values: [] };
     const recorded = await handleAnalyzeProjectRequest(
-      { type: 'on-analyze-project', data: createRequest(recordRoot, 3) },
+      { type: 'on-analyze-project', data: recordRequest },
       workerData,
     );
     expect(recorded).toMatchObject({
@@ -219,15 +221,17 @@ describe('analyze-project request handler', () => {
       },
       type: 'success',
     });
-    expect(fs.statSync(programSelectionPath).size).toBeGreaterThan(0);
+    expect(fs.statSync(analysisMetadataPath).size).toBeGreaterThan(0);
 
     fs.rmSync(recordRoot, { force: true, recursive: true });
     fs.mkdirSync(replayRoot);
     const log = mock.method(console, 'log', () => undefined);
     let replayed: Awaited<ReturnType<typeof handleAnalyzeProjectRequest>>;
+    const replayRequest = createRequest(replayRoot, 5);
+    replayRequest.configuration!.jsTsExclusions = { values: ['**/contrib/**'] };
     try {
       replayed = await handleAnalyzeProjectRequest(
-        { type: 'on-analyze-project', data: createRequest(replayRoot, 5) },
+        { type: 'on-analyze-project', data: replayRequest },
         workerData,
         undefined,
         'replay-123',
@@ -248,7 +252,7 @@ describe('analyze-project request handler', () => {
         outcome: 'success',
         phases: {
           filesystemArchiveLoad: { count: 1 },
-          programSelectionLoad: { count: 1 },
+          analysisMetadataLoad: { count: 1 },
           typescriptProgramCreation: { count: 1 },
           fileAnalysis: { count: 1 },
         },
@@ -256,6 +260,7 @@ describe('analyze-project request handler', () => {
     } finally {
       log.mock.restore();
     }
+    expect(replayRequest.configuration!.jsTsExclusions?.values).toEqual([]);
     expect(replayed).toMatchObject({
       result: {
         output: {
@@ -370,7 +375,7 @@ describe('analyze-project request handler', () => {
     const request = createAnalyzeProjectRequest();
     request.filesystemCache = {
       archivePath: path.join(temporary, 'filesystem.pb.gz'),
-      programSelectionPath: path.join(parentFile, 'selection.pb.gz'),
+      analysisMetadataPath: path.join(parentFile, 'analysis-metadata.json.gz'),
     };
 
     const result = await handleAnalyzeProjectRequest(

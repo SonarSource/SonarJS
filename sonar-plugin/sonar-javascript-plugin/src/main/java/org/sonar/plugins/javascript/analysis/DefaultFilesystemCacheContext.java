@@ -16,15 +16,11 @@
  */
 package org.sonar.plugins.javascript.analysis;
 
-import com.google.gson.Gson;
 import java.nio.file.Path;
 import java.util.List;
 import org.sonar.api.a3s.A3SContextCollector;
-import org.sonar.plugins.javascript.bridge.PluginInfo;
 
 public class DefaultFilesystemCacheContext implements FilesystemCacheContext {
-
-  private static final Gson GSON = new Gson();
 
   private final A3SContextCollector collector;
 
@@ -43,15 +39,12 @@ public class DefaultFilesystemCacheContext implements FilesystemCacheContext {
   }
 
   @Override
-  public void collect(Path archivePath, Path programSelectionPath) {
+  public void collect(Path archivePath, Path analysisMetadataPath) {
     var filesystemItem = collector.newFileItem(ARCHIVE_ITEM_ID, archivePath);
-    var programSelectionItem = collector.newFileItem(
-      PROGRAM_SELECTION_ITEM_ID,
-      programSelectionPath
+    var analysisMetadataItem = collector.newFileItem(
+      ANALYSIS_METADATA_ITEM_ID,
+      analysisMetadataPath
     );
-    var metadata = GSON.toJson(new Metadata(METADATA_VERSION, PluginInfo.getVersion()));
-    collector.collect(CONTEXT_KIND, metadata, List.of(filesystemItem, programSelectionItem));
+    collector.collect(CONTEXT_KIND, "{}", List.of(filesystemItem, analysisMetadataItem));
   }
-
-  private record Metadata(int version, String analyzerVersion) {}
 }

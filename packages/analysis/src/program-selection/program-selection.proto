@@ -6,7 +6,7 @@ import "google/protobuf/struct.proto";
 
 message Archive {
   string magic = 1;
-  uint32 format_version = 2;
+  reserved 2;
   repeated Program programs = 3;
   repeated FileSelection files = 4;
 }
