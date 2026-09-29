@@ -163,7 +163,7 @@ export const rule: Rule.RuleModule = {
         // argument being ordered: `if (m < n) f(b, a)` compares through the snapshots of `a` and
         // `b`, while `if (x < y) f(y, x)` compares the arguments themselves.
         const sides = [lhs, rhs].map(side =>
-          [getOperand(side), resolveMemberSnapshot(side)].filter(operand => operand !== undefined),
+          [getOperand(side), resolveMemberSnapshot(side)].filter(isDefined),
         );
         const [first, second] = argumentNames.map(
           name => getVariableFromName(context, name, node) ?? name,
@@ -481,6 +481,10 @@ export const rule: Rule.RuleModule = {
  */
 function unwrapNegation(node: estree.Expression): estree.Expression {
   return node.type === 'UnaryExpression' && node.operator === '!' ? node.argument : node;
+}
+
+function isDefined<T>(value: T | undefined): value is T {
+  return value !== undefined;
 }
 
 const DIRECTIONAL_KEYWORD_PATTERN = /\b(rtl|ltr|reverse|flip|swap|forward|backward)\b/i;
