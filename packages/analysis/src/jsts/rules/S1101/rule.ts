@@ -386,13 +386,13 @@ function computeAccessibleName(
   context: Rule.RuleContext,
   elementType: (node: TSESTree.JSXOpeningElement) => string,
 ): string | null {
-  const labelledby = resolveNameStep(attributes, ARIA_LABELLEDBY, normalizeIdList);
+  const labelledby = resolveNameStep(attributes, ARIA_LABELLEDBY, normalizeIdRefList);
   if (labelledby !== undefined) {
     // Best effort: compares the referenced id(s) directly rather than resolving them to a name.
     return labelledby === null ? null : LABELLEDBY_KEY_PREFIX + labelledby;
   }
 
-  const ariaLabel = resolveNameStep(attributes, ARIA_LABEL, normalizeName);
+  const ariaLabel = resolveNameStep(attributes, ARIA_LABEL, normalizeAccessibleName);
   if (ariaLabel !== undefined) {
     return ariaLabel;
   }
@@ -401,12 +401,12 @@ function computeAccessibleName(
   if (textContent === null) {
     return null;
   }
-  const normalizedText = normalizeName(textContent);
+  const normalizedText = normalizeAccessibleName(textContent);
   if (normalizedText) {
     return normalizedText;
   }
 
-  return resolveNameStep(attributes, 'title', normalizeName) ?? null;
+  return resolveNameStep(attributes, 'title', normalizeAccessibleName) ?? null;
 }
 
 // One precedence step: undefined falls through, null means unresolvable, a string is the name.
@@ -495,7 +495,7 @@ function computeElementChildContribution(
 
   // Named by an element we never resolve, so this contribution is unresolvable - unless the id
   // list itself resolves to empty, which names nothing and falls through like the anchor's own.
-  if (resolveNameStep(attributes, ARIA_LABELLEDBY, normalizeIdList) !== undefined) {
+  if (resolveNameStep(attributes, ARIA_LABELLEDBY, normalizeIdRefList) !== undefined) {
     return null;
   }
 
@@ -571,12 +571,12 @@ function getStaticTextFromExpression(expression: estree.Expression): string | un
   return undefined;
 }
 
-function normalizeName(value: string): string {
+function normalizeAccessibleName(value: string): string {
   return value.replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
-// Unlike normalizeName, this doesn't case-fold: HTML ids are case-sensitive.
-function normalizeIdList(value: string): string {
+// Unlike normalizeAccessibleName, this doesn't case-fold: IDREFs (WAI-ARIA/HTML) are case-sensitive.
+function normalizeIdRefList(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
 }
 
