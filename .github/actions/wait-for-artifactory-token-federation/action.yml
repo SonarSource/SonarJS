@@ -27,7 +27,7 @@ runs:
             echo "Artifactory token accepted by Edge"
             exit 0
           fi
-          if [[ "${status}" != "401" && "${status}" != "000" ]]; then
+          if [[ ! "${status}" =~ ^(000|401|408|429|500|502|503|504)$ ]]; then
             echo "Unexpected response from Edge: HTTP ${status}"
             exit 1
           fi
