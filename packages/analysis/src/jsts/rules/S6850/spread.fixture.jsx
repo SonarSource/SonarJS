@@ -26,6 +26,17 @@ const mutualB = { ...mutualA };
 <h1 {...mutualA} />;
 <h1 {...{ dangerouslySetInnerHTML: { __html: '<b>t</b>' } }} />;
 <h1 {...{ children: 'Title' }} {...{ className: 'x' }} />;
+// A spread sitting after an explicit content prop can still override it, so the object settles
+// nothing and the heading keeps the benefit of the doubt - even when every content channel is
+// explicitly empty, which would otherwise look provably contentless.
+<h1 {...{ children: null, ...props }} />;
+<h1 {...{ children: null, dangerouslySetInnerHTML: null, ...props }} />;
+const overridable = { children: null, dangerouslySetInnerHTML: null, ...props };
+<h1 {...overridable} />;
+<h1 {...{ ...{ children: null, dangerouslySetInnerHTML: null, ...props } }} />;
+<h1 {...{ 'children': null, 'dangerouslySetInnerHTML': null, ...props }} />;
+const overriding = { children: 'Title' };
+<h1 {...{ children: null, ...overriding }} />;
 <h1 {...{ children: null }} {...{ children: 'Title' }} />;
 <MyHeading {...{ children: 'Title' }} />;
 // Known limitation: a rest binding resolves to its whole initializer, so the decorator cannot see
@@ -64,6 +75,12 @@ const emptyText = '';
 <h1 {...{ children: emptyText }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...{ children: 'x' }} {...{ children: null }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...someProps} {...{ children: null, dangerouslySetInnerHTML: null }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+// The mirror image: every spread precedes the explicit content props, so nothing can override
+// them and the emptiness is provable.
+<h1 {...{ ...props, children: null, dangerouslySetInnerHTML: null }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+// A later spread that does resolve, and carries no content prop, overrides nothing either.
+const noContent = { id: 1 };
+<h1 {...{ children: null, dangerouslySetInnerHTML: null, ...noContent }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...someProps}><span aria-hidden="true">x</span></h1>; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...someProps}>{undefined}</h1>; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...someProps}><></></h1>; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}

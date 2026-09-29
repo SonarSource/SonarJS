@@ -20,9 +20,10 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import {
-  getProperty,
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
+  isIdentifier,
+  isStringLiteral,
   isUndefined,
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
@@ -77,13 +78,92 @@ function rendersNothing(context: Rule.RuleContext, value: estree.Node): boolean 
 }
 
 /**
+ * How a spread settles one content channel:
+ * `true` it may supply content, `false` it provably supplies none, `null` it says nothing at all
+ * and the search must continue with whatever applies earlier.
+ */
+type Settlement = boolean | null;
+
+/** Whether `element` is a non-spread property keyed by `prop`. */
+function isKeyedProperty(
+  element: estree.Property | estree.SpreadElement,
+  prop: string,
+): element is estree.Property {
+  return (
+    element.type === 'Property' &&
+    (isIdentifier(element.key, prop) ||
+      (isStringLiteral(element.key) && element.key.value === prop))
+  );
+}
+
+/**
+ * How spreading `argument` settles `prop`.
+ *
+ * Anything we cannot resolve to an object literal may carry the prop, so it settles the channel as
+ * possible content. Values that only ever produce numeric index keys, or no own enumerable key at
+ * all, contribute nothing and leave the channel open. `seen` holds the object literals currently
+ * being walked, so a cyclic definition (`const a = { ...a }`, or a mutually recursive pair) is
+ * treated as unresolved rather than walked forever.
+ */
+function spreadSettles(
+  context: Rule.RuleContext,
+  argument: estree.Node,
+  prop: string,
+  seen: Set<estree.Node>,
+): Settlement {
+  // Follow TS wrappers and single-write aliases; the walker carries its own cycle guard.
+  const value = getUniqueWriteUsageOrNode(context, unwrapTypeScriptExpression(argument), true);
+  if (CARRIES_NO_NAMED_PROP.has(value.type)) {
+    return null;
+  }
+  if (value.type !== 'ObjectExpression' || seen.has(value)) {
+    return true;
+  }
+  seen.add(value);
+  const settlement = objectSettles(context, value, prop, seen);
+  seen.delete(value);
+  return settlement;
+}
+
+/**
+ * How the object literal `object` settles `prop`.
+ *
+ * Members are scanned from last to first because the last member supplying a prop wins. Scanning in
+ * that order is what keeps an unresolved nested spread from being ignored: it is reached, and
+ * settles the channel as possible content, before any explicit property it could override
+ * (`{ children: null, ...props }`). An explicit property placed after every spread still settles
+ * the channel itself, since no spread can override it (`{ ...props, children: null }`).
+ */
+function objectSettles(
+  context: Rule.RuleContext,
+  object: estree.ObjectExpression,
+  prop: string,
+  seen: Set<estree.Node>,
+): Settlement {
+  for (let i = object.properties.length - 1; i >= 0; i--) {
+    const element = object.properties[i];
+    if (isKeyedProperty(element, prop)) {
+      return !rendersNothing(context, element.value);
+    }
+    if (element.type === 'SpreadElement') {
+      const settlement = spreadSettles(context, element.argument, prop, seen);
+      if (settlement !== null) {
+        return settlement;
+      }
+    }
+  }
+  return null;
+}
+
+/**
  * Whether the spread attributes of the element may supply `prop` with something that renders.
  *
  * Attributes are scanned from last to first because the last attribute supplying a prop wins; the
  * first spread that settles `prop` therefore decides the channel and earlier spreads are irrelevant.
- * A spread whose argument cannot be resolved to a shape we understand, or a resolved object holding
- * an unresolved nested spread, is treated as possibly supplying content (documented uncertainty
- * policy of JS-2539). Note that one such spread makes every channel unknown at once.
+ * A spread whose argument cannot be resolved to a shape we understand, or a resolved object whose
+ * effective value for `prop` an unresolved nested spread could still override, is treated as
+ * possibly supplying content (documented uncertainty policy of JS-2539). Note that one such spread
+ * makes every channel unknown at once.
  */
 function spreadMaySupplyContent(
   context: Rule.RuleContext,
@@ -95,24 +175,14 @@ function spreadMaySupplyContent(
     if (attribute.type !== 'JSXSpreadAttribute') {
       continue;
     }
-    // Follow TS wrappers and single-write aliases; the walker carries its own cycle guard.
-    const spreadValue = getUniqueWriteUsageOrNode(
+    const settlement = spreadSettles(
       context,
-      unwrapTypeScriptExpression(attribute.argument as unknown as estree.Node),
-      true,
+      attribute.argument as unknown as estree.Node,
+      prop,
+      new Set<estree.Node>(),
     );
-    if (CARRIES_NO_NAMED_PROP.has(spreadValue.type)) {
-      continue;
-    }
-    if (spreadValue.type !== 'ObjectExpression') {
-      return true;
-    }
-    const property = getProperty(spreadValue, prop, context);
-    if (property === undefined) {
-      return true;
-    }
-    if (property !== null) {
-      return !rendersNothing(context, property.value);
+    if (settlement !== null) {
+      return settlement;
     }
   }
   return false;
