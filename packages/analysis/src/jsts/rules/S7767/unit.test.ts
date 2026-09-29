@@ -41,7 +41,15 @@ const indexedHash = `function generateHash(value: string): number {
 describe('S7767', () => {
   it('preserves signed 32-bit wrapping with type information', () => {
     new RuleTester().run('prefer-math-trunc', rule, {
-      valid: [{ code: ticket }, { code: indexedHash }],
+      valid: [
+        { code: ticket },
+        { code: indexedHash },
+        // A TypeScript wrapper around the imul, or around the whole coerced expression.
+        { code: `((Math.imul(31, hash) as number) + s.charCodeAt(i)) << 0;` },
+        { code: `(Math.imul(31, hash)! + s.charCodeAt(i)) << 0;` },
+        { code: `((Math.imul(31, hash) + s.charCodeAt(i)) as number) << 0;` },
+        { code: `((Math.imul(31, hash) + s.charCodeAt(i))!) << 0;` },
+      ],
       invalid: [],
     });
   });
@@ -64,8 +72,19 @@ describe('S7767', () => {
         // The imul result may sit on either side, and may be combined with anything.
         { code: `(s.charCodeAt(i) + Math.imul(31, hash)) << 0;` },
         { code: `(Math.imul(31, hash) + s.charCodeAt(i) + seed) << 0;` },
-        { code: `(Math.imul(31, hash) ^ s.codePointAt(i)) << 0;` },
         { code: `(Math.imul(31, hash) - s.charCodeAt(i) * 2) << 0;` },
+        { code: `(Math.imul(31, hash) * 2) << 0;` },
+        { code: `(Math.imul(31, hash) / 2) << 0;` },
+        { code: `(Math.imul(31, hash) % 7) << 0;` },
+        { code: `(Math.imul(31, hash) ** 2) << 0;` },
+        // `>>>` yields a uint32, which the coercion wraps back into the signed range.
+        { code: `(Math.imul(31, hash) >>> 0) << 0;` },
+        // Negating -2^31 leaves the signed range just as an overflowing addition does.
+        { code: `(-Math.imul(31, hash)) << 0;` },
+        // `Math.imul?.()` is still the global `Math.imul`.
+        { code: `(Math.imul?.(31, hash) + s.charCodeAt(i)) << 0;` },
+        // Only the outermost operator has to overflow; below it, anything may carry the imul.
+        { code: `((Math.imul(31, hash) ^ seed) + s.charCodeAt(i)) << 0;` },
         // Overflow is not the only divergence: `NaN << 0` is 0, `Math.trunc(NaN)` is NaN.
         { code: `(Math.imul(31, hash) + ''.charCodeAt(0)) << 0;` },
         { code: `(-Math.imul(31, hash) + s.charCodeAt(i)) << 0;` },
@@ -123,27 +142,53 @@ describe('S7767', () => {
           output: 'Math.trunc(Math.imul(31, hash));',
           errors: [{ messageId: 'error-bitwise' }],
         },
+        // A bitwise operator already yields an int32, so wrapping its result stays redundant.
+        {
+          code: `(Math.imul(31, hash) ^ s.codePointAt(i)) << 0;`,
+          output: `Math.trunc(Math.imul(31, hash) ^ s.codePointAt(i));`,
+          errors: [{ messageId: 'error-bitwise' }],
+        },
+        {
+          code: `(Math.imul(31, hash) & 0xff) << 0;`,
+          output: `Math.trunc(Math.imul(31, hash) & 0xff);`,
+          errors: [{ messageId: 'error-bitwise' }],
+        },
+        {
+          code: `(Math.imul(31, hash) | s.charCodeAt(i)) << 0;`,
+          output: `Math.trunc(Math.imul(31, hash) | s.charCodeAt(i));`,
+          errors: [{ messageId: 'error-bitwise' }],
+        },
+        {
+          code: `(Math.imul(31, hash) << 5) << 0;`,
+          output: `Math.trunc(Math.imul(31, hash) << 5);`,
+          errors: [{ messageId: 'error-bitwise' }],
+        },
+        {
+          code: `(Math.imul(31, hash) >> 5) << 0;`,
+          output: `Math.trunc(Math.imul(31, hash) >> 5);`,
+          errors: [{ messageId: 'error-bitwise' }],
+        },
+        // `~` re-normalises to an int32 and `+` passes the int32 through, so both stay redundant.
+        {
+          code: `(~Math.imul(31, hash)) << 0;`,
+          output: `Math.trunc(~Math.imul(31, hash));`,
+          errors: [{ messageId: 'error-bitwise' }],
+        },
+        {
+          code: `(+Math.imul(31, hash)) << 0;`,
+          output: `Math.trunc(+Math.imul(31, hash));`,
+          errors: [{ messageId: 'error-bitwise' }],
+        },
         // The imul result must reach the coercion through arithmetic.
         {
           code: `(flag ? Math.imul(31, hash) : 0) << 0;`,
           output: `Math.trunc(flag ? Math.imul(31, hash) : 0);`,
           errors: [{ messageId: 'error-bitwise' }],
         },
-        // Not the global `Math.imul`.
+        // The callee is not the global `Math.imul`.
         {
           code: `function hash(Math, h, c) { return (Math.imul(31, h) + c) << 0; }`,
           output: `function hash(Math, h, c) { return Math.trunc(Math.imul(31, h) + c); }`,
-          errors: [{ messageId: 'error-bitwise' }],
-        },
-        {
-          code: `(Math.imul(31, hash) + s.charCodeAt(i)) << 0;`,
-          languageOptions: { globals: { Math: 'off' } },
-          output: `Math.trunc(Math.imul(31, hash) + s.charCodeAt(i));`,
-          errors: [{ messageId: 'error-bitwise' }],
-        },
-        {
-          code: `(Math.imul?.(31, hash) + s.charCodeAt(i)) << 0;`,
-          output: `Math.trunc(Math.imul?.(31, hash) + s.charCodeAt(i));`,
           errors: [{ messageId: 'error-bitwise' }],
         },
         {

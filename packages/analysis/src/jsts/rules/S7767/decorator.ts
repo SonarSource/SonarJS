@@ -16,7 +16,7 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { isNumberLiteral } from '../helpers/ast.js';
+import { isNumberLiteral, unwrapTypeScriptExpression } from '../helpers/ast.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
@@ -31,6 +31,13 @@ import * as meta from './generated-meta.js';
  * deliberate 32-bit arithmetic that can overflow again - which is exactly what the coercion is
  * there to wrap. Replacing it with `Math.trunc` would silently change the computed value, as in
  * the classic string hash `hash = (Math.imul(31, hash) + s.charCodeAt(i)) | 0`.
+ *
+ * The coerced expression still has to be able to leave the int32 range. Whatever already yields
+ * an int32 on its own - a bitwise operator, `~`, or a lone `Math.imul` call - keeps the coercion
+ * around it redundant, however its operands were computed.
+ *
+ * `Math.imul` only marks the intent. Hashes that wrap without it, such as
+ * `hash = ((hash << 5) - hash + c) | 0`, stay reported; widening to those needs its own analysis.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -47,31 +54,47 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 /** Binary operators that the rule reports when applied to `0`. */
 const COERCING_OPERATORS = new Set(['<<', '>>', '|', '^']);
 
-/** Operators that keep composing numbers, so an `imul` result can still reach the coercion. */
+/** Bitwise operators, which always evaluate to an int32. `>>>` is left out: it yields a uint32. */
+const INT32_BINARY_OPERATORS = new Set(['&', '|', '^', '<<', '>>']);
+
+/**
+ * Operators to look through when hunting for an `imul` below the coerced expression. Descending
+ * through the bitwise ones does not track a value - they erase their operands' provenance - it
+ * only tells us that 32-bit arithmetic was intended somewhere in the subtree.
+ */
 const ARITHMETIC_BINARY_OPERATORS = new Set([
+  ...INT32_BINARY_OPERATORS,
   '+',
   '-',
   '*',
   '/',
   '%',
   '**',
-  '&',
-  '|',
-  '^',
-  '<<',
-  '>>',
   '>>>',
 ]);
 const ARITHMETIC_UNARY_OPERATORS = new Set(['+', '-', '~']);
 
 function wrapsDeliberate32BitArithmetic(node: estree.Node, context: Rule.RuleContext): boolean {
   const coerced = getCoercedOperand(node);
-  // A lone `Math.imul(...)` is already an int32, so coercing it really is redundant.
   return (
-    coerced?.type === 'BinaryExpression' &&
-    ARITHMETIC_BINARY_OPERATORS.has(coerced.operator) &&
-    containsMathImul(coerced, context)
+    coerced !== undefined && !yieldsInt32(coerced, context) && containsMathImul(coerced, context)
   );
+}
+
+/** Whether the expression is an int32 already, which makes the coercion around it redundant. */
+function yieldsInt32(node: estree.Node, context: Rule.RuleContext): boolean {
+  const expression = unwrapTypeScriptExpression(node);
+  if (expression.type === 'BinaryExpression') {
+    return INT32_BINARY_OPERATORS.has(expression.operator);
+  }
+  if (expression.type === 'UnaryExpression') {
+    // `~x` is an int32 and `+x` passes its operand through, but `-x` can take -2^31 out of range.
+    return (
+      expression.operator === '~' ||
+      (expression.operator === '+' && yieldsInt32(expression.argument, context))
+    );
+  }
+  return isMathImul(expression, context);
 }
 
 /** The value the reported node coerces to int32, or `undefined` if there is no single one. */
@@ -97,11 +120,26 @@ function isBitwiseNot(node: estree.Node): node is estree.UnaryExpression {
 }
 
 function containsMathImul(node: estree.Node, context: Rule.RuleContext): boolean {
-  if (node.type === 'BinaryExpression' && ARITHMETIC_BINARY_OPERATORS.has(node.operator)) {
-    return containsMathImul(node.left, context) || containsMathImul(node.right, context);
+  const expression = unwrapTypeScriptExpression(node);
+  if (
+    expression.type === 'BinaryExpression' &&
+    ARITHMETIC_BINARY_OPERATORS.has(expression.operator)
+  ) {
+    return (
+      containsMathImul(expression.left, context) || containsMathImul(expression.right, context)
+    );
   }
-  if (node.type === 'UnaryExpression' && ARITHMETIC_UNARY_OPERATORS.has(node.operator)) {
-    return containsMathImul(node.argument, context);
+  if (
+    expression.type === 'UnaryExpression' &&
+    ARITHMETIC_UNARY_OPERATORS.has(expression.operator)
+  ) {
+    return containsMathImul(expression.argument, context);
   }
-  return node.type === 'CallExpression' && getFullyQualifiedName(context, node) === 'Math.imul';
+  return isMathImul(expression, context);
+}
+
+/** A call to the global `Math.imul`, including the `ChainExpression` that `?.` parses into. */
+function isMathImul(node: estree.Node, context: Rule.RuleContext): boolean {
+  const call = node.type === 'ChainExpression' ? node.expression : node;
+  return call.type === 'CallExpression' && getFullyQualifiedName(context, call) === 'Math.imul';
 }
