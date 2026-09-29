@@ -533,6 +533,9 @@ function ariaHiddenState(attributes: JsxAttributes): 'hidden' | 'visible' | 'unk
 }
 
 // Resolves an attribute's static string value, treating a non-string literal or boolean shorthand as empty; undefined when dynamic.
+// This and getStaticTextFromExpression below are a candidate to extract into a general
+// "resolve an expression to its static string, or undefined if dynamic" helper in helpers/ast.ts,
+// which has no such primitive today (PR #7949 review: discussion_r4134018581).
 function getStaticText(value: JSXAttribute['value']): string | undefined {
   if (value === null) {
     return '';
