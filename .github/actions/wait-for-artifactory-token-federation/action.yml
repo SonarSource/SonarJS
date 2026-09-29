@@ -1,0 +1,39 @@
+name: Wait for Artifactory token federation
+description: Wait until a Vault-issued Artifactory token is accepted by the JFrog Edge node
+
+inputs:
+  artifactory-url:
+    description: JFrog Artifactory base URL
+    default: https://repox-internal.dev.sonar.build/artifactory
+  probe-path:
+    description: Authenticated Edge endpoint path and optional query used to verify the token
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        ARTIFACTORY_URL: ${{ inputs.artifactory-url }}
+        PROBE_PATH: ${{ inputs.probe-path }}
+      run: |
+        : "${ARTIFACTORY_ACCESS_TOKEN:?ARTIFACTORY_ACCESS_TOKEN must be configured before waiting for token federation}"
+
+        for attempt in {1..12}; do
+          status=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+            --header "Authorization: Bearer ${ARTIFACTORY_ACCESS_TOKEN}" \
+            "${ARTIFACTORY_URL}/${PROBE_PATH}" || true)
+          if [[ "${status}" == "200" ]]; then
+            echo "Artifactory token accepted by Edge"
+            exit 0
+          fi
+          if [[ "${status}" != "401" && "${status}" != "000" ]]; then
+            echo "Unexpected response from Edge: HTTP ${status}"
+            exit 1
+          fi
+          echo "Waiting for Artifactory token federation (attempt ${attempt}/12)"
+          sleep 10
+        done
+
+        echo "Artifactory token was not accepted by Edge within 2 minutes"
+        exit 1
