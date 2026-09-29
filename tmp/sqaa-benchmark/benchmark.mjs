@@ -1,4 +1,20 @@
 #!/usr/bin/env node
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
 // Resumable CI snapshot and direct SQAA issue-parity benchmark. Node.js 20+, no dependencies.
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, rename, writeFile, appendFile } from 'node:fs/promises';
@@ -13,14 +29,27 @@ const ISSUE_CAP = 10_000;
 
 function parseOptions(argv) {
   const [command, ...values] = argv;
-  const args = { command, file: [], rule: [], project: [], 'exclude-file': [] };
+  const args = {
+    command,
+    file: [],
+    rule: [],
+    project: [],
+    'exclude-file': [],
+    'exclude-project': [],
+  };
   for (let i = 0; i < values.length; i++) {
     const name = values[i];
     if (!name.startsWith('--') || values[i + 1] == null) {
       throw new Error(`Expected --name value, got ${name ?? '<end>'}`);
     }
     const key = name.slice(2);
-    if (key === 'file' || key === 'rule' || key === 'project' || key === 'exclude-file')
+    if (
+      key === 'file' ||
+      key === 'rule' ||
+      key === 'project' ||
+      key === 'exclude-file' ||
+      key === 'exclude-project'
+    )
       args[key].push(values[++i]);
     else args[key] = values[++i];
   }
@@ -113,10 +142,12 @@ class Api {
       }
       if (response.ok) {
         const data = options.raw ? await response.text() : await response.json();
-        return options.includeMetadata ? {
-          data,
-          gatewayRequestId: response.headers.get('x-amzn-requestid'),
-        } : data;
+        return options.includeMetadata
+          ? {
+              data,
+              gatewayRequestId: response.headers.get('x-amzn-requestid'),
+            }
+          : data;
       }
       if (![429, 503, 504].includes(response.status) || attempt === maxAttempts - 1) {
         const error = new Error(`HTTP ${response.status} from ${url.pathname}`);
@@ -182,9 +213,11 @@ async function issuesForComponents(api, organization, components) {
     return { issues: [...issueMap.values()], qualifiers };
   }
   const issues = [...(first.issues ?? [])];
-  const qualifiers = Object.fromEntries((first.components ?? [])
-    .filter(component => ['FIL', 'UTS'].includes(component.qualifier))
-    .map(component => [component.key, component.qualifier]));
+  const qualifiers = Object.fromEntries(
+    (first.components ?? [])
+      .filter(component => ['FIL', 'UTS'].includes(component.qualifier))
+      .map(component => [component.key, component.qualifier]),
+  );
   for (let page = 2; (page - 1) * PAGE_SIZE < total; page++) {
     const result = await api.request(
       '/api/issues/search',
@@ -192,7 +225,8 @@ async function issuesForComponents(api, organization, components) {
     );
     issues.push(...(result.issues ?? []));
     for (const component of result.components ?? []) {
-      if (['FIL', 'UTS'].includes(component.qualifier)) qualifiers[component.key] = component.qualifier;
+      if (['FIL', 'UTS'].includes(component.qualifier))
+        qualifiers[component.key] = component.qualifier;
     }
   }
   if (issues.length !== total)
@@ -302,11 +336,15 @@ async function fileSnapshot(api, projectRecord, component, issues, file) {
   const knownScope = knownQualifier === 'UTS' ? 'TEST' : knownQualifier === 'FIL' ? 'MAIN' : null;
   const [source, details] = await Promise.all([
     api.request('/api/sources/raw', { key: component }, { raw: true }),
-    scopeFromIssues || knownScope ? Promise.resolve(null) : api.request('/api/components/show', { component }),
+    scopeFromIssues || knownScope
+      ? Promise.resolve(null)
+      : api.request('/api/components/show', { component }),
   ]);
   const qualifier = details?.component?.qualifier;
   const scope =
-    scopeFromIssues ?? knownScope ?? (qualifier === 'UTS' ? 'TEST' : qualifier === 'FIL' ? 'MAIN' : null);
+    scopeFromIssues ??
+    knownScope ??
+    (qualifier === 'UTS' ? 'TEST' : qualifier === 'FIL' ? 'MAIN' : null);
   if (!scope) throw new Error(`Unknown file scope for ${component}: ${qualifier ?? '<missing>'}`);
   await atomicJson(file, {
     component,
@@ -340,19 +378,27 @@ async function capture(args, token) {
         .filter(value => value && !value.startsWith('#')),
     ),
   ];
-  const directFiles = args.file.length && args.file.every(component =>
-    manifestProjects.some(project => component.startsWith(`${project}:`)),
-  ) ? args.file : null;
-  const projects = manifestProjects.filter(project =>
-    (!args.project.length || args.project.includes(project)) &&
-    (!directFiles || directFiles.some(component => component.startsWith(`${project}:`))),
+  const directFiles =
+    args.file.length &&
+    args.file.every(component =>
+      manifestProjects.some(project => component.startsWith(`${project}:`)),
+    )
+      ? args.file
+      : null;
+  const projects = manifestProjects.filter(
+    project =>
+      (!args.project.length || args.project.includes(project)) &&
+      !args['exclude-project'].includes(project) &&
+      (!directFiles || directFiles.some(component => component.startsWith(`${project}:`))),
   );
   if (!projects.length) throw new Error('Project manifest is empty');
   // A full component key is sufficient to probe one file without querying and
   // sampling every issue in a large project such as Kibana.
-  if (directFiles && directFiles.some(component =>
-    !projects.some(project => component.startsWith(`${project}:`)),
-  )) throw new Error('Explicit file is outside the selected projects');
+  if (
+    directFiles &&
+    directFiles.some(component => !projects.some(project => component.startsWith(`${project}:`)))
+  )
+    throw new Error('Explicit file is outside the selected projects');
   const api = new Api(args['server-url'], token, numberOption(args, 'pace-ms', 150));
   const concurrency = numberOption(args, 'concurrency', 8);
   const sampleLimit = numberOption(args, 'sample-per-rule', 20);
@@ -382,7 +428,9 @@ async function capture(args, token) {
     const { issues, qualifiers } = await issuesForComponents(
       api,
       args.organization,
-      directFiles ? directFiles.filter(component => keys.some(key => component.startsWith(`${key}:`))) : keys,
+      directFiles
+        ? directFiles.filter(component => keys.some(key => component.startsWith(`${key}:`)))
+        : keys,
     );
     const grouped = new Map(keys.map(key => [key, []]));
     for (const issue of issues) {
@@ -398,8 +446,11 @@ async function capture(args, token) {
         analysis: item.analysis,
         branchId,
         issues: grouped.get(item.project),
-        qualifiers: Object.fromEntries(Object.entries(qualifiers)
-          .filter(([component]) => component.startsWith(`${item.project}:`))),
+        qualifiers: Object.fromEntries(
+          Object.entries(qualifiers).filter(([component]) =>
+            component.startsWith(`${item.project}:`),
+          ),
+        ),
       };
       await atomicJson(item.checkpoint, record);
       records.set(item.project, record);
@@ -413,9 +464,15 @@ async function capture(args, token) {
     if (!cohort.selected.includes(component))
       throw new Error(`Excluded file is not in the selected cohort: ${component}`);
   }
-  const selectedFiles = cohort.selected.filter(component => !excludedFiles.has(component));
+  const selectedFiles = cohort.selected.filter(
+    component =>
+      !excludedFiles.has(component) &&
+      (!args['file-suffix'] || component.endsWith(args['file-suffix'])),
+  );
   const byProject = new Map(projectRecords.map(record => [record.project, record]));
-  console.log(`Selected ${selectedFiles.length} files from ${projects.length} projects (${excludedFiles.size} excluded)`);
+  console.log(
+    `Selected ${selectedFiles.length} files from ${projects.length} projects (${excludedFiles.size} excluded)`,
+  );
   let savedFiles = 0;
   await mapLimit(selectedFiles, concurrency, async component => {
     const project = cohort.projectByComponent.get(component);
@@ -452,8 +509,14 @@ async function capture(args, token) {
       component,
       record: `files/${hash(component)}.json`,
     })),
-    selection: { samplePerRule: sampleLimit, rules: args.rule, files: args.file,
-      excludedFiles: [...excludedFiles] },
+    selection: {
+      samplePerRule: sampleLimit,
+      rules: args.rule,
+      files: args.file,
+      excludedFiles: [...excludedFiles],
+      excludedProjects: args['exclude-project'],
+      fileSuffix: args['file-suffix'] ?? null,
+    },
   });
   console.log(`Sealed immutable baseline: ${join(root, 'baseline.json')}`);
 }
@@ -498,10 +561,16 @@ function percentile(sorted, fraction) {
 }
 
 function csv(rows) {
-  return `${rows.map(row => row.map(value => {
-    const text = String(value ?? '');
-    return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
-  }).join(',')).join('\n')}\n`;
+  return `${rows
+    .map(row =>
+      row
+        .map(value => {
+          const text = String(value ?? '');
+          return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+        })
+        .join(','),
+    )
+    .join('\n')}\n`;
 }
 
 async function compare(args, token) {
@@ -578,7 +647,8 @@ async function compare(args, token) {
         record = {
           component: file.component,
           status: response.errors.every(error => error?.code === 'INVALID_CONTEXT')
-            ? 'invalid_context' : 'analysis_error',
+            ? 'invalid_context'
+            : 'analysis_error',
           durationMs,
           analysisId: response.id ?? null,
           gatewayRequestId,
@@ -636,7 +706,9 @@ async function compare(args, token) {
   };
   const ruleMetrics = new Map();
   const timings = [];
-  const errors = [['component', 'status', 'codes', 'analysisId', 'gatewayRequestId', 'durationMs', 'message']];
+  const errors = [
+    ['component', 'status', 'codes', 'analysisId', 'gatewayRequestId', 'durationMs', 'message'],
+  ];
   const falsePositives = [['rule', 'component', 'line']];
   const perFileTimings = [['component', 'status', 'durationMs']];
   const problemCodes = {};
@@ -653,7 +725,8 @@ async function compare(args, token) {
       summary.matched += result.matched;
       summary.missing += result.missing.length;
       summary.extra += result.extra.length;
-      for (const [rule, count] of Object.entries(result.matchedByRule ?? {})) metric(rule).matched += count;
+      for (const [rule, count] of Object.entries(result.matchedByRule ?? {}))
+        metric(rule).matched += count;
       for (const issue of result.missing) metric(issue.rule).missing++;
       for (const issue of result.extra) {
         metric(issue.rule).extra++;
@@ -665,36 +738,57 @@ async function compare(args, token) {
       else summary.httpErrors++;
       const codes = [...new Set((result.errors ?? []).map(error => error?.code).filter(Boolean))];
       for (const code of codes) problemCodes[code] = (problemCodes[code] ?? 0) + 1;
-      errors.push([result.component, result.status, codes.join(';'), result.analysisId,
-        result.gatewayRequestId, result.durationMs, result.error ?? '']);
+      errors.push([
+        result.component,
+        result.status,
+        codes.join(';'),
+        result.analysisId,
+        result.gatewayRequestId,
+        result.durationMs,
+        result.error ?? '',
+      ]);
     }
   }
   timings.sort((a, b) => a - b);
   summary.completionCoveragePct = baseline.files.length
-    ? Number((100 * summary.comparedFiles / baseline.files.length).toFixed(1)) : 100;
+    ? Number(((100 * summary.comparedFiles) / baseline.files.length).toFixed(1))
+    : 100;
   summary.problemCodes = problemCodes;
   summary.successTimingsMs = {
     average: timings.length ? Math.round(timings.reduce((a, b) => a + b, 0) / timings.length) : 0,
-    p50: percentile(timings, 0.50),
-    p90: percentile(timings, 0.90),
+    p50: percentile(timings, 0.5),
+    p90: percentile(timings, 0.9),
     p95: percentile(timings, 0.95),
     p99: percentile(timings, 0.99),
     maximum: timings.at(-1) ?? 0,
   };
   const byRule = [...ruleMetrics.values()].sort((a, b) => a.rule.localeCompare(b.rule));
   for (const row of byRule) {
-    row.detectionRatePct = row.matched + row.missing
-      ? Number((100 * row.matched / (row.matched + row.missing)).toFixed(1)) : 100;
-    row.falsePositiveRatePct = row.matched + row.extra
-      ? Number((100 * row.extra / (row.matched + row.extra)).toFixed(1)) : 0;
+    row.detectionRatePct =
+      row.matched + row.missing
+        ? Number(((100 * row.matched) / (row.matched + row.missing)).toFixed(1))
+        : 100;
+    row.falsePositiveRatePct =
+      row.matched + row.extra
+        ? Number(((100 * row.extra) / (row.matched + row.extra)).toFixed(1))
+        : 0;
   }
   await atomicJson(join(output, 'summary.json'), summary);
   await atomicJson(join(output, 'rule_metrics.json'), byRule);
-  await writeFile(join(output, 'rule_metrics.csv'), csv([
-    ['rule', 'matched', 'missing', 'extra', 'detectionRatePct', 'falsePositiveRatePct'],
-    ...byRule.map(row => [row.rule, row.matched, row.missing, row.extra,
-      row.detectionRatePct, row.falsePositiveRatePct]),
-  ]));
+  await writeFile(
+    join(output, 'rule_metrics.csv'),
+    csv([
+      ['rule', 'matched', 'missing', 'extra', 'detectionRatePct', 'falsePositiveRatePct'],
+      ...byRule.map(row => [
+        row.rule,
+        row.matched,
+        row.missing,
+        row.extra,
+        row.detectionRatePct,
+        row.falsePositiveRatePct,
+      ]),
+    ]),
+  );
   await writeFile(join(output, 'false_positives.csv'), csv(falsePositives));
   await writeFile(join(output, 'errors.csv'), csv(errors));
   await writeFile(join(output, 'timings.csv'), csv(perFileTimings));

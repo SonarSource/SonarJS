@@ -1,3 +1,19 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -62,6 +78,7 @@ test('capture checkpoints a project and direct SQAA compare reuses its sealed ba
   let componentLookups = 0;
   let analysisCalls = 0;
   let analysisMode = 'success';
+  let includeVue = false;
   const server = createServer(async (request, response) => {
     const url = new URL(request.url, 'http://localhost');
     const path = url.pathname;
@@ -73,8 +90,11 @@ test('capture checkpoints a project and direct SQAA compare reuses its sealed ba
     else if (path === '/api/issues/search') {
       issueQueries.push(url.searchParams.get('componentKeys'));
       result = {
-        paging: { total: 1 },
-        components: [{ key: 'project:a.ts', qualifier: 'FIL' }],
+        paging: { total: includeVue ? 2 : 1 },
+        components: [
+          { key: 'project:a.ts', qualifier: 'FIL' },
+          ...(includeVue ? [{ key: 'project:component.vue', qualifier: 'FIL' }] : []),
+        ],
         issues: [
           {
             key: 'issue-1',
@@ -84,20 +104,32 @@ test('capture checkpoints a project and direct SQAA compare reuses its sealed ba
             message: 'message',
             textRange: { startLine: 1, startOffset: 0, endLine: 1, endOffset: 3 },
           },
+          ...(includeVue
+            ? [
+                {
+                  key: 'vue-issue',
+                  project: 'project',
+                  component: 'project:component.vue',
+                  rule: 'typescript:S2',
+                  message: 'vue message',
+                  textRange: { startLine: 1, startOffset: 0, endLine: 1, endOffset: 3 },
+                },
+              ]
+            : []),
         ],
       };
-    }
-    else if (path === '/api/sources/raw') {
+    } else if (path === '/api/sources/raw') {
       response.writeHead(200, { 'Content-Type': 'text/plain' });
       response.end('let a = 1');
       return;
     } else if (path === '/api/components/show') {
       componentLookups++;
       result = {
-        component: { qualifier: url.searchParams.get('component') === 'project:test.ts' ? 'UTS' : 'FIL' },
+        component: {
+          qualifier: url.searchParams.get('component') === 'project:test.ts' ? 'UTS' : 'FIL',
+        },
       };
-    }
-    else if (path === '/analyses') {
+    } else if (path === '/analyses') {
       analysisCalls++;
       if (analysisMode === 'unavailable') {
         response.writeHead(503, { 'x-amzn-requestid': 'gateway-503' }).end();
@@ -167,22 +199,43 @@ test('capture checkpoints a project and direct SQAA compare reuses its sealed ba
     assert.equal(componentLookups, 0, 'issue metadata should provide file scope');
     await run([
       'capture',
-      '--server-url', url,
-      '--organization', 'test',
-      '--organization-id', 'org-1',
-      '--projects', projects,
-      '--file', 'project:a.ts',
-      '--out', join(directory, 'probe'),
-      '--pace-ms', '1',
-      '--analyzer-build', 'test-build',
+      '--server-url',
+      url,
+      '--organization',
+      'test',
+      '--organization-id',
+      'org-1',
+      '--projects',
+      projects,
+      '--file',
+      'project:a.ts',
+      '--out',
+      join(directory, 'probe'),
+      '--pace-ms',
+      '1',
+      '--analyzer-build',
+      'test-build',
     ]);
     assert.deepEqual(issueQueries, ['project', 'project:a.ts']);
     const excludedBaseline = join(directory, 'excluded-baseline');
     await run([
-      'capture', '--server-url', url, '--organization', 'test',
-      '--organization-id', 'org-1', '--projects', projects,
-      '--exclude-file', 'project:a.ts', '--out', excludedBaseline,
-      '--pace-ms', '1', '--analyzer-build', 'test-build',
+      'capture',
+      '--server-url',
+      url,
+      '--organization',
+      'test',
+      '--organization-id',
+      'org-1',
+      '--projects',
+      projects,
+      '--exclude-file',
+      'project:a.ts',
+      '--out',
+      excludedBaseline,
+      '--pace-ms',
+      '1',
+      '--analyzer-build',
+      'test-build',
     ]);
     const excluded = JSON.parse(await readFile(join(excludedBaseline, 'baseline.json'), 'utf8'));
     assert.deepEqual(excluded.files, []);
@@ -205,50 +258,149 @@ test('capture checkpoints a project and direct SQAA compare reuses its sealed ba
     assert.equal(summary.comparedFiles, 1);
     assert.equal(summary.completionCoveragePct, 100);
     const metrics = JSON.parse(await readFile(join(comparison, 'rule_metrics.json'), 'utf8'));
-    assert.deepEqual(metrics.map(({ rule, matched }) => [rule, matched]), [['javascript:S1', 1]]);
+    assert.deepEqual(
+      metrics.map(({ rule, matched }) => [rule, matched]),
+      [['javascript:S1', 1]],
+    );
 
     analysisMode = 'unavailable';
     await run([
-      'compare', '--baseline', join(baseline, 'baseline.json'),
-      '--sqaa-url', `${url}/analyses`, '--out', join(directory, 'unavailable'),
-      '--deployment', 'test-deployment',
+      'compare',
+      '--baseline',
+      join(baseline, 'baseline.json'),
+      '--sqaa-url',
+      `${url}/analyses`,
+      '--out',
+      join(directory, 'unavailable'),
+      '--deployment',
+      'test-deployment',
     ]);
     assert.equal(analysisCalls, 2, 'SQAA service errors must not be retried implicitly');
-    const unavailable = JSON.parse(await readFile(join(directory, 'unavailable', 'summary.json'), 'utf8'));
+    const unavailable = JSON.parse(
+      await readFile(join(directory, 'unavailable', 'summary.json'), 'utf8'),
+    );
     assert.equal(unavailable.httpErrors, 1);
     assert.equal(unavailable.comparedFiles, 0);
-    const failedAttempt = JSON.parse((await readFile(
-      join(directory, 'unavailable', 'results.jsonl'), 'utf8')).trim());
+    const failedAttempt = JSON.parse(
+      (await readFile(join(directory, 'unavailable', 'results.jsonl'), 'utf8')).trim(),
+    );
     assert.equal(failedAttempt.httpStatus, 503);
     assert.equal(failedAttempt.gatewayRequestId, 'gateway-503');
 
     analysisMode = 'invalid-context';
     await run([
-      'compare', '--baseline', join(baseline, 'baseline.json'),
-      '--sqaa-url', `${url}/analyses`, '--out', join(directory, 'invalid-context'),
-      '--deployment', 'test-deployment',
+      'compare',
+      '--baseline',
+      join(baseline, 'baseline.json'),
+      '--sqaa-url',
+      `${url}/analyses`,
+      '--out',
+      join(directory, 'invalid-context'),
+      '--deployment',
+      'test-deployment',
     ]);
-    const invalid = JSON.parse(await readFile(join(directory, 'invalid-context', 'summary.json'), 'utf8'));
+    const invalid = JSON.parse(
+      await readFile(join(directory, 'invalid-context', 'summary.json'), 'utf8'),
+    );
     assert.equal(invalid.invalidContexts, 1);
     assert.equal(invalid.problemCodes.INVALID_CONTEXT, 1);
 
     analysisMode = 'success';
     const testBaseline = join(directory, 'test-baseline');
     await run([
-      'capture', '--server-url', url, '--organization', 'test',
-      '--organization-id', 'org-1', '--projects', projects,
-      '--file', 'project:test.ts', '--out', testBaseline,
-      '--pace-ms', '1', '--analyzer-build', 'test-build',
+      'capture',
+      '--server-url',
+      url,
+      '--organization',
+      'test',
+      '--organization-id',
+      'org-1',
+      '--projects',
+      projects,
+      '--file',
+      'project:test.ts',
+      '--out',
+      testBaseline,
+      '--pace-ms',
+      '1',
+      '--analyzer-build',
+      'test-build',
     ]);
     const testFileName = `${createHash('sha256').update('project:test.ts').digest('hex')}.json`;
     const testFile = JSON.parse(await readFile(join(testBaseline, 'files', testFileName), 'utf8'));
     assert.equal(testFile.scope, 'TEST');
     assert.equal(componentLookups, 1, 'issue-free files should fall back to a component lookup');
     await run([
-      'compare', '--baseline', join(testBaseline, 'baseline.json'),
-      '--sqaa-url', `${url}/analyses`, '--out', join(directory, 'test-comparison'),
-      '--deployment', 'test-deployment',
+      'compare',
+      '--baseline',
+      join(testBaseline, 'baseline.json'),
+      '--sqaa-url',
+      `${url}/analyses`,
+      '--out',
+      join(directory, 'test-comparison'),
+      '--deployment',
+      'test-deployment',
     ]);
+
+    includeVue = true;
+    const vueBaseline = join(directory, 'vue-baseline');
+    await run([
+      'capture',
+      '--server-url',
+      url,
+      '--organization',
+      'test',
+      '--organization-id',
+      'org-1',
+      '--projects',
+      projects,
+      '--file-suffix',
+      '.vue',
+      '--out',
+      vueBaseline,
+      '--pace-ms',
+      '1',
+      '--analyzer-build',
+      'test-build',
+    ]);
+    const vue = JSON.parse(await readFile(join(vueBaseline, 'baseline.json'), 'utf8'));
+    assert.deepEqual(
+      vue.files.map(file => file.component),
+      ['project:component.vue'],
+    );
+    assert.equal(vue.selection.fileSuffix, '.vue');
+
+    const projectsWithExcluded = join(directory, 'projects-with-excluded.txt');
+    await writeFile(projectsWithExcluded, 'project\nproject-skip\n');
+    await run([
+      'capture',
+      '--server-url',
+      url,
+      '--organization',
+      'test',
+      '--organization-id',
+      'org-1',
+      '--projects',
+      projectsWithExcluded,
+      '--exclude-project',
+      'project-skip',
+      '--file-suffix',
+      '.vue',
+      '--out',
+      join(directory, 'vue-excluded-project'),
+      '--pace-ms',
+      '1',
+      '--analyzer-build',
+      'test-build',
+    ]);
+    const excludedProjectBaseline = JSON.parse(
+      await readFile(join(directory, 'vue-excluded-project', 'baseline.json'), 'utf8'),
+    );
+    assert.deepEqual(
+      excludedProjectBaseline.projects.map(project => project.project),
+      ['project'],
+    );
+    assert.deepEqual(excludedProjectBaseline.selection.excludedProjects, ['project-skip']);
   } finally {
     server.close();
     if (!directory.startsWith(join(tmpdir(), 'sqaa-benchmark-test-'))) {
