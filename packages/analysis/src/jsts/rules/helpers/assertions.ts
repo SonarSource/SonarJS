@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule, SourceCode } from 'eslint';
+import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { isIdentifier, isMethodCall } from './ast.js';
 import { extractChaiAssertion } from './assertions-chai.js';
@@ -139,75 +139,27 @@ const ASSERTION_LIBRARIES: AssertionLibrary[] = [
   },
 ];
 
-/**
- * Cache for storing which assertion libraries are available in the file currently being analyzed.
- * Library availability only depends on the file (its imports and its dependency manifests), not on
- * the node being inspected, so it is computed once per file instead of once per node.
- *
- * Keyed by the `sourceCode` object reference rather than a boolean flag so that the cache
- * self-invalidates when ESLint's RuleTester switches between test cases (each case gets a fresh
- * SourceCode instance).
- */
-const CURRENT_FILE_ASSERTION_LIBRARIES: {
-  sourceCode: SourceCode | null;
-  imported: AssertionLibrary[];
-  dependedOn: AssertionLibrary[];
-  nodeAssert: boolean;
-} = {
-  sourceCode: null,
-  imported: [],
-  dependedOn: [],
-  nodeAssert: false,
-};
-
-function computeCurrentFileAssertionLibraries(context: Rule.RuleContext): void {
-  if (CURRENT_FILE_ASSERTION_LIBRARIES.sourceCode === context.sourceCode) {
-    return;
-  }
-
-  const imported: AssertionLibrary[] = [];
-  const dependedOn: AssertionLibrary[] = [];
-  for (const library of ASSERTION_LIBRARIES) {
-    if (importsModule(context, library.imports)) {
-      imported.push(library);
-    } else if (importsOrDependsOnModule(context, library.imports, library.dependencies)) {
-      dependedOn.push(library);
-    }
-  }
-
-  CURRENT_FILE_ASSERTION_LIBRARIES.sourceCode = context.sourceCode;
-  CURRENT_FILE_ASSERTION_LIBRARIES.imported = imported;
-  CURRENT_FILE_ASSERTION_LIBRARIES.dependedOn = dependedOn;
-  CURRENT_FILE_ASSERTION_LIBRARIES.nodeAssert = importsModule(context, NODE_ASSERT_MODULES);
-}
-
-/**
- * Clears the assertion library cache of the file currently being analyzed
- */
-export function clearAssertionCaches(): void {
-  CURRENT_FILE_ASSERTION_LIBRARIES.sourceCode = null;
-  CURRENT_FILE_ASSERTION_LIBRARIES.imported = [];
-  CURRENT_FILE_ASSERTION_LIBRARIES.dependedOn = [];
-  CURRENT_FILE_ASSERTION_LIBRARIES.nodeAssert = false;
-}
-
 export function extractTestAssertion(
   context: Rule.RuleContext,
   node: estree.Node,
 ): Assertion | null {
-  computeCurrentFileAssertionLibraries(context);
-  const { imported, dependedOn, nodeAssert } = CURRENT_FILE_ASSERTION_LIBRARIES;
-
   // Explicit imports in the current file are more precise than project-wide dependency signals.
-  const assertion =
-    extractAssertionFromLibraries(context, node, imported) ??
-    extractAssertionFromLibraries(context, node, dependedOn);
-  if (assertion) {
-    return assertion;
+  const importedAssertion = extractAssertionFromLibraries(context, node, library =>
+    importsModule(context, library.imports),
+  );
+  if (importedAssertion) {
+    return importedAssertion;
+  }
+
+  const dependencyAssertion = extractAssertionFromLibraries(context, node, library =>
+    importsOrDependsOnModule(context, library.imports, library.dependencies),
+  );
+  if (dependencyAssertion) {
+    return dependencyAssertion;
   }
 
   // covers Node.js assert
-  if (node.type === 'CallExpression' && nodeAssert) {
+  if (node.type === 'CallExpression' && importsModule(context, NODE_ASSERT_MODULES)) {
     return extractNodeJSAssertion(context, node);
   }
 
@@ -217,9 +169,13 @@ export function extractTestAssertion(
 function extractAssertionFromLibraries(
   context: Rule.RuleContext,
   node: estree.Node,
-  libraries: AssertionLibrary[],
+  isAvailable: (library: AssertionLibrary) => boolean,
 ): Assertion | null {
-  for (const library of libraries) {
+  for (const library of ASSERTION_LIBRARIES) {
+    if (!isAvailable(library)) {
+      continue;
+    }
+
     const assertion = library.extract(context, node);
     if (assertion) {
       return assertion;
