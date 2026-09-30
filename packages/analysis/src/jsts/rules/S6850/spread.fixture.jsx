@@ -1,50 +1,26 @@
-// ---- newly compliant: content may reach the heading through a spread ----------------------
-function Heading({ className, ...props }) {
-  return <h1 className={className} {...props} />;
-}
-const page = <Heading>Accessible title</Heading>;
-
+// ---- newly compliant: a spread provably carries renderable `children` ---------------------
 <h1 {...{ children: 'Title' }} />;
+<h1 {...{ 'children': 'Title' }} />;
 const aliased = { children: 'Title' };
 <h1 {...aliased} />;
 const contentBase = { children: 'Hi' };
 <h1 {...{ ...contentBase }} />;
 const children = 'x';
 <h1 {...{ children }} />;
+// React renders `0` as "0", so it is content.
 <h1 {...{ children: 0 }} />;
-let reassigned = { children: 'x' };
-reassigned = { children: 'y' };
-<h1 {...reassigned} />;
-<h1 {...this.props} />;
-<h1 {...getProps()} />;
-<h1 {...(flag ? someProps : otherProps)} />;
-<h1 {...notDeclaredAnywhere} />;
-const cyclic = { ...cyclic };
-<h1 {...cyclic} />;
-const mutualA = { ...mutualB };
-const mutualB = { ...mutualA };
-<h1 {...mutualA} />;
-<h1 {...{ dangerouslySetInnerHTML: { __html: '<b>t</b>' } }} />;
+// The property only has to be established: a value that is not provably one of the values React
+// renders as nothing settles the channel as content.
+<h1 {...{ children: props.children }} />;
+// An explicit `children` placed after every spread cannot be overridden.
+<h1 {...{ ...props, children: 'Title' }} />;
+// Later attributes that provably carry no named prop, or no content prop, override nothing.
 <h1 {...{ children: 'Title' }} {...{ className: 'x' }} />;
-// A spread sitting after an explicit content prop can still override it, so the object settles
-// nothing and the heading keeps the benefit of the doubt - even when every content channel is
-// explicitly empty, which would otherwise look provably contentless.
-<h1 {...{ children: null, ...props }} />;
-<h1 {...{ children: null, dangerouslySetInnerHTML: null, ...props }} />;
-const overridable = { children: null, dangerouslySetInnerHTML: null, ...props };
-<h1 {...overridable} />;
-<h1 {...{ ...{ children: null, dangerouslySetInnerHTML: null, ...props } }} />;
-<h1 {...{ 'children': null, 'dangerouslySetInnerHTML': null, ...props }} />;
+<h1 {...{ children: 'Title' }} {...'text'} />;
+<h1 {...{ children: null }} {...{ children: 'Title' }} />;
 const overriding = { children: 'Title' };
 <h1 {...{ children: null, ...overriding }} />;
-<h1 {...{ children: null }} {...{ children: 'Title' }} />;
 <MyHeading {...{ children: 'Title' }} />;
-// Known limitation: a rest binding resolves to its whole initializer, so the decorator cannot see
-// that `children` was destructured away and has to assume the spread may still carry it.
-function Stripped(props) {
-  const { children: _unused, ...rest } = props;
-  return <h1 {...rest} />;
-}
 
 // ---- upstream preconditions this decorator relies on (preservation) -----------------------
 // An explicit content attribute makes upstream bail out before the decorator runs, which is why
@@ -55,7 +31,7 @@ function Stripped(props) {
 <h1 aria-hidden="true" />;
 <h1 {...someProps}>{/* comment */}</h1>;
 
-// ---- retained reports ----------------------------------------------------------------------
+// ---- retained reports: the spread provably supplies no content ------------------------------
 <h1 />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h2></h2>; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...{}} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
@@ -74,23 +50,56 @@ const knownEmpty = { children: '' };
 const emptyText = '';
 <h1 {...{ children: emptyText }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...{ children: 'x' }} {...{ children: null }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
-<h1 {...someProps} {...{ children: null, dangerouslySetInnerHTML: null }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
-// The mirror image: every spread precedes the explicit content props, so nothing can override
-// them and the emptiness is provable.
-<h1 {...{ ...props, children: null, dangerouslySetInnerHTML: null }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
-// A later spread that does resolve, and carries no content prop, overrides nothing either.
+// The mirror image of the compliant case above: every spread precedes the explicit `children`, so
+// nothing can override it and the emptiness is provable.
+<h1 {...{ ...props, children: null }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+// A later spread that does resolve, and carries no `children`, overrides nothing - and leaves
+// nothing that proves content either.
 const noContent = { id: 1 };
-<h1 {...{ children: null, dangerouslySetInnerHTML: null, ...noContent }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
-<h1 {...someProps}><span aria-hidden="true">x</span></h1>; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
-<h1 {...someProps}>{undefined}</h1>; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
-<h1 {...someProps}><></></h1>; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
-// A rest binding resolves to the whole initializer, not to the remainder, so this reports because
-// the source object carries no content prop - not because `className` was destructured away. A
-// source that does carry one, as in `const { children: c, ...rest } = { children: 'T' }`, is
-// therefore still suppressed.
-const { className: _cls, ...restOfKnown } = { className: 'c', id: 'i' };
-<h1 {...restOfKnown} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+<h1 {...{ children: null, ...noContent }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 const nestedOnly = { id: 1 };
 <h1 {...{ ...nestedOnly }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
-<h1 {...{ dangerouslySetInnerHTML: null }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+// `dangerouslySetInnerHTML` is out of scope: only `children` can lift a report.
+<h1 {...{ dangerouslySetInnerHTML: { __html: '<b>t</b>' } }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+// JSX children override `props.children`, so a heading that already has a child stays empty no
+// matter what the spread carries.
+<h1 {...{ children: 'Title' }}><span aria-hidden="true">x</span></h1>; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+<h1 {...{ children: 'Title' }}>{undefined}</h1>; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+<h1 {...{ children: 'Title' }}><></></h1>; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <MyHeading />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+
+// ---- retained reports: nothing proves the spread supplies content ---------------------------
+// The forwarding idiom of JS-2539. A rest binding resolves to the whole initializer, which says
+// nothing about `props.children`, so the heading keeps reporting rather than hiding a genuinely
+// empty one.
+function Heading({ className, ...props }) {
+  return <h1 className={className} {...props} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+}
+const page = <Heading>Accessible title</Heading>;
+<h1 {...this.props} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+<h1 {...getProps()} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+<h1 {...(flag ? someProps : otherProps)} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+<h1 {...notDeclaredAnywhere} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+// Two writes, so no single write proves the shape.
+let reassigned = { children: 'x' };
+reassigned = { children: 'y' };
+<h1 {...reassigned} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+const cyclic = { ...cyclic };
+<h1 {...cyclic} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+const mutualA = { ...mutualB };
+const mutualB = { ...mutualA };
+<h1 {...mutualA} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+// Refusing destructured bindings is what keeps a pattern that strips `children` from being
+// mistaken for one that forwards it.
+function Stripped(props) {
+  const { children: _unused, ...rest } = props;
+  return <h1 {...rest} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+}
+const { children: _known, ...restOfKnown } = { children: 'Title' };
+<h1 {...restOfKnown} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+// A spread sitting after an explicit `children` can still override it.
+<h1 {...{ children: 'Title', ...props }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+const overridable = { children: 'Title', ...props };
+<h1 {...overridable} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+<h1 {...{ ...{ children: 'Title', ...props } }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+<h1 {...someProps} {...{ children: 'Title', ...props }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}

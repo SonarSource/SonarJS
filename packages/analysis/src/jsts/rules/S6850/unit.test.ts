@@ -25,12 +25,12 @@ import { describe, it } from 'node:test';
 // itself and packages/analysis/src/jsts/rules/S6850/decorator.ts should be revisited — possibly
 // removed, possibly narrowed to whatever upstream still misses.
 describe('S6850 upstream sentinel', () => {
-  it('upstream heading-has-content still reports headings fed through a spread', () => {
+  it('upstream heading-has-content still reports a heading fed through a spread', () => {
     const ruleTester = new DefaultParserRuleTester();
 
     ruleTester.run('heading-has-content', rules['heading-has-content'], {
       valid: [],
-      invalid: [{ code: `<h1 {...props} />;`, errors: 1 }],
+      invalid: [{ code: `<h1 {...{ children: 'Title' }} />;`, errors: 1 }],
     });
   });
 });
