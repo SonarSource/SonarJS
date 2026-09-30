@@ -18,7 +18,7 @@ on:
         required: true
         type: string
       run-id:
-        description: Build workflow run containing generated ruling results
+        description: Build run containing generated results; required when ruling-failed is true
         required: false
         type: string
       ruling-failed:
@@ -67,7 +67,7 @@ jobs:
           path: packages/ruling/actual
           run-id: ${{ inputs.run-id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Post committed ruling diff
+      - name: Post ruling diff from the tested commit
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ inputs.pr-number || github.event.pull_request.number }}

@@ -83,8 +83,9 @@ fi
 echo "Ruling fix PR: $FIX_PR_URL" >> "$GITHUB_STEP_SUMMARY"
 
 # GITHUB_TOKEN-created PR events do not start workflows, so request the
-# independently rerunnable report workflow explicitly. PR runs report the
-# committed fix on the original PR, where reviewers expect the ruling result.
+# independently rerunnable report workflow explicitly. It applies this run's
+# generated results to the tested commit and compares them with the tested
+# base (the merge's first parent for PRs), posting on the original PR.
 REPORT_PR_NUMBER="$FIX_PR_NUMBER"
 REPORT_FIX_PR_URL=""
 if [ "$IS_PULL_REQUEST" = "true" ]; then

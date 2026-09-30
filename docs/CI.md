@@ -722,7 +722,22 @@ Responsibilities:
 - run JS/TS ruling
 - save generated results as an artifact when ruling fails, then expose the ruling step outcome to `js_ts_ruling_update`
 
-The ruling job fails when expected results differ. `js_ts_ruling_update` downloads the saved results and calls `./.github/actions/ruling_bot` with explicit result paths. The bot creates or updates a fix PR and dispatches `ruling-diff-comment.yml` to report the committed diff on the original PR. The report workflow can be rerun independently and clears stale comments when there is no diff.
+The ruling job fails when expected results differ. `js_ts_ruling_update` downloads the saved results and calls `./.github/actions/ruling_bot` with explicit result paths. The bot creates or updates a fix PR and dispatches `ruling-diff-comment.yml`. For a failed PR run, the report workflow checks out the tested synthetic merge, applies the saved results, and compares them with that merge's first parent before posting on the original PR. For a passing PR run, it reports expected results already committed in the tested merge. On a default-branch failure, it compares generated results with the tested branch commit and posts on the fix PR. The report workflow also clears stale comments when there is no difference.
+
+To rerun a failed PR report independently, use the original Build run ID and the exact merge and first-parent SHAs from that run:
+
+```sh
+gh workflow run ruling-diff-comment.yml --ref <branch-with-workflow> \
+  -f pr-number=<original-pr-number> \
+  -f head-sha=<tested-merge-sha> \
+  -f base-sha=<tested-merge-first-parent-sha> \
+  -f is-pull-request=true \
+  -f run-id=<build-run-id> \
+  -f ruling-failed=true \
+  -f fix-pr-url=<fix-pr-url>
+```
+
+`fix-pr-url` is optional, but includes the fix PR link in the comment. To rerun a passing PR report, omit `run-id`, `ruling-failed`, and `fix-pr-url`. For a default-branch failed run, use the fix PR number for `pr-number`, set `head-sha` and `base-sha` to the tested branch commit, and omit `is-pull-request=true`.
 
 #### `ruling`
 
