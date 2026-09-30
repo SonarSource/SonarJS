@@ -364,19 +364,19 @@ function getStaticHref(value: JSXAttribute['value']): string | null {
     if (expression.type === 'Literal' && typeof expression.value === 'string') {
       return expression.value;
     }
-    if (expression.type === 'TemplateLiteral' && expression.expressions.length === 0) {
+    if (expression.type === 'TemplateLiteral') {
       return cookTemplateLiteral(expression) ?? null;
     }
   }
   return null;
 }
 
-// Joins an expression-free template literal's quasis, or undefined if any has an unparsable escape sequence.
+// undefined if the template literal has a ${...} part, e.g. `/posts/${id}`, we can't know its value.
 function cookTemplateLiteral(expression: estree.TemplateLiteral): string | undefined {
-  const cooked = expression.quasis.map(quasi => quasi.value.cooked);
-  return cooked.every((value): value is string => value !== undefined)
-    ? cooked.join('')
-    : undefined;
+  if (expression.expressions.length !== 0) {
+    return undefined;
+  }
+  return expression.quasis[0].value.cooked ?? undefined;
 }
 
 // Accessible name precedence per accname: aria-labelledby > aria-label > text content > title.
@@ -565,7 +565,7 @@ function getStaticTextFromExpression(expression: estree.Expression): string | un
     // Numbers render as visible text; null/booleans render nothing.
     return typeof value === 'number' || typeof value === 'bigint' ? String(value) : '';
   }
-  if (expression.type === 'TemplateLiteral' && expression.expressions.length === 0) {
+  if (expression.type === 'TemplateLiteral') {
     return cookTemplateLiteral(expression);
   }
   return undefined;
