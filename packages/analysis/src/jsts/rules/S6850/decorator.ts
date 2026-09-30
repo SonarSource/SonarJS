@@ -116,7 +116,7 @@ function getSoleWriteExpression(
   identifier: estree.Identifier,
 ): estree.Node | undefined {
   const variable = getVariableFromName(context, identifier.name, identifier);
-  if (variable === undefined || variable.defs.length !== 1) {
+  if (variable?.defs.length !== 1) {
     return undefined;
   }
   const [definition] = variable.defs;
