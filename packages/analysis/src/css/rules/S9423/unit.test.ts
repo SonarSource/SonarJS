@@ -254,4 +254,14 @@ b { color: pink !important; }`,
 a { color: pink !important; }`,
       errors: [{ text, line: 2 }],
     }));
+
+  it('reports !important in prefers-reduced-motion resets', (): Promise<void> =>
+    ruleTester.invalid({
+      // known limitation: motion-disabling resets need !important, but telling them
+      // apart from motion-forcing values would require parsing durations
+      code: `@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; }
+}`,
+      errors: [{ text, line: 2 }],
+    }));
 });
