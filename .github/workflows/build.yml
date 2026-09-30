@@ -1359,6 +1359,6 @@ jobs:
         uses: SonarSource/core-languages-tooling-public/common-actions/slack-notify@v1
         with:
           slack-channel: squad-corelang-notifs
-          branch-patterns: 'master,branch-*,dogfood-*'
+          branch-patterns: ${{ format('{0},branch-*,dogfood-*', github.event.repository.default_branch) }}
           github-token: ${{ github.token }}
           branch: ${{ github.ref_name }}
