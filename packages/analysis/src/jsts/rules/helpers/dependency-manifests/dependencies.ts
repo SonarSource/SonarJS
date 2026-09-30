@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule } from 'eslint';
+import type { Rule, SourceCode } from 'eslint';
 import { ComputedCache } from '../cache.js';
 import fs from 'node:fs';
 import { extname } from 'node:path/posix';
@@ -150,6 +150,8 @@ let currentFileInlineDependencies: DependenciesList | null = null;
 
 export function setCurrentFileInlineDependencies(deps: DependenciesList | null): void {
   currentFileInlineDependencies = deps;
+  // The cached dependencies include the inline ones, so they must be recomputed.
+  clearCurrentFileDependencies();
 }
 
 /**
@@ -168,10 +170,38 @@ export function withCurrentFileInlineDependencies(manifest: DependenciesList): D
   return merged;
 }
 
+/**
+ * Cache for storing the dependencies available to the file currently being analyzed, including
+ * its inline npm: imports. Rules may query them on every node, and resolving them (path
+ * normalization, top dir, closest manifest lookup, merge with inline imports) is not free.
+ *
+ * Keyed by the `sourceCode` object reference rather than a boolean flag so that the cache
+ * self-invalidates when ESLint's RuleTester switches between test cases (each case gets a fresh
+ * SourceCode instance).
+ */
+const CURRENT_FILE_DEPENDENCIES: {
+  sourceCode: SourceCode | null;
+  dependencies: DependenciesList;
+} = {
+  sourceCode: null,
+  dependencies: new Map(),
+};
+
+function clearCurrentFileDependencies(): void {
+  CURRENT_FILE_DEPENDENCIES.sourceCode = null;
+  CURRENT_FILE_DEPENDENCIES.dependencies = new Map();
+}
+
 export function getDependenciesSanitizePaths(context: Rule.RuleContext): DependenciesList {
-  const filePath = normalizeToAbsolutePath(context.filename);
-  const topDir = getDependencyTopDir(context, filePath);
-  return withCurrentFileInlineDependencies(getDependencies(dirnamePath(filePath), topDir));
+  if (CURRENT_FILE_DEPENDENCIES.sourceCode !== context.sourceCode) {
+    const filePath = normalizeToAbsolutePath(context.filename);
+    const topDir = getDependencyTopDir(context, filePath);
+    CURRENT_FILE_DEPENDENCIES.sourceCode = context.sourceCode;
+    CURRENT_FILE_DEPENDENCIES.dependencies = withCurrentFileInlineDependencies(
+      getDependencies(dirnamePath(filePath), topDir),
+    );
+  }
+  return CURRENT_FILE_DEPENDENCIES.dependencies;
 }
 
 /**
