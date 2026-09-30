@@ -172,6 +172,23 @@ describe('S1101', () => {
     invalid: [],
   });
 
+  ruleTester.run('an empty aria-label falls through to text content', rule, {
+    valid: [],
+    invalid: [
+      {
+        // A resolvable but empty aria-label falls through to text content, same as an empty
+        // aria-labelledby falling through to aria-label.
+        code: `
+          <div>
+            <a href="/a" aria-label="">Same</a>
+            <a href="/b" aria-label="">Same</a>
+          </div>;
+        `,
+        errors: 1,
+      },
+    ],
+  });
+
   ruleTester.run('aria-labelledby takes precedence over aria-label and text', rule, {
     valid: [
       {
@@ -280,6 +297,20 @@ describe('S1101', () => {
             <a href="/a">Same</a>
             <a href="/b">Same</a>
           </div>;
+        `,
+      },
+      {
+        // The walk is not limited to the immediate parent: an aria-hidden ancestor three levels
+        // up (past two unremarkable wrappers) still hides the anchor.
+        code: `
+          <section aria-hidden="true">
+            <article>
+              <div>
+                <a href="/a">Same</a>
+                <a href="/b">Same</a>
+              </div>
+            </article>
+          </section>;
         `,
       },
     ],
