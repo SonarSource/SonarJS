@@ -27,6 +27,7 @@ import { getElementType } from '../helpers/accessibility.js';
 import { functionLike, getValueOfExpression, getProperty } from '../helpers/ast.js';
 import { getConditionalBranchRoot, isArgumentOfRenderingCall } from '../helpers/jsx.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
+import { normalizeDestination } from './destination.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -49,8 +50,6 @@ const RELEVANT_PROPS = [
   'style',
 ];
 
-const ROUTING_FRAGMENT_PATTERN = /^#[!/]/;
-const DUMMY_BASE = 'https://sonarjs-placeholder.invalid/';
 const DISPLAY_NONE_PATTERN = /display\s*:\s*none/i;
 // Namespaces an aria-labelledby-derived key so it can never collide with a text/aria-label name.
 const LABELLEDBY_KEY_PREFIX = ' labelledby:';
@@ -578,23 +577,4 @@ function normalizeAccessibleName(value: string): string {
 // Unlike normalizeAccessibleName, this doesn't case-fold: IDREFs (WAI-ARIA/HTML) are case-sensitive.
 function normalizeIdRefList(value: string): string {
   return value.replace(/\s+/g, ' ').trim();
-}
-
-function normalizeDestination(href: string): string {
-  const hasScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(href);
-  const isProtocolRelative = href.startsWith('//');
-  let url: URL;
-  try {
-    url = new URL(href, DUMMY_BASE);
-  } catch {
-    return href;
-  }
-  const scheme = hasScheme || isProtocolRelative ? normalizeScheme(url.protocol) : '';
-  const authority = (hasScheme || isProtocolRelative) && url.host ? `//${url.host}` : '';
-  const keepFragment = ROUTING_FRAGMENT_PATTERN.test(url.hash);
-  return `${scheme}${authority}${url.pathname}${url.search}${keepFragment ? url.hash : ''}`;
-}
-
-function normalizeScheme(protocol: string): string {
-  return protocol === 'https:' ? 'http:' : protocol;
 }
