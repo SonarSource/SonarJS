@@ -37,7 +37,6 @@ import {
   getStaticTitle,
   hasCallback,
   isConcreteMochaTestModifier,
-  isMochaTestConstruct,
 } from '../helpers/testing/mocha-style-test-frameworks.js';
 import * as meta from './generated-meta.js';
 
@@ -49,6 +48,29 @@ type PlaywrightDescribeClassification = 'concrete' | 'ignored' | 'unknown';
 
 interface SuiteFrame {
   titles: Map<string, estree.Node>;
+}
+
+interface CallClassification {
+  ignoredSuite: boolean;
+  suite: boolean;
+  test: boolean;
+  concreteTest: boolean;
+}
+
+/**
+ * Test declarations collected from a local helper body. Summaries are computed once per helper
+ * and replayed at every call site, so the helper body is not traversed again for each call.
+ */
+type HelperEvent =
+  | { kind: 'test'; node: estree.CallExpression }
+  | { kind: 'suite'; events: HelperEvent[] }
+  | { kind: 'helper'; helper: FunctionNode };
+
+interface RuleState {
+  context: Rule.RuleContext;
+  classifications: WeakMap<estree.CallExpression, CallClassification>;
+  helperSummaries: Map<FunctionNode, HelperEvent[]>;
+  helperExpansionPath: Set<estree.Node>;
 }
 
 type FunctionNode =
@@ -66,20 +88,32 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
+    const state: RuleState = {
+      context,
+      classifications: new WeakMap(),
+      helperSummaries: new Map(),
+      helperExpansionPath: new Set(),
+    };
     let suiteStack: SuiteFrame[] = [createSuiteFrame()];
     const pushedSuiteCalls = new Set<estree.Node>();
     const concreteSuiteCallbacks = new Set<estree.Node>();
-    const helperExpansionPath = new Set<estree.Node>();
-    let testNesting = 0;
+    // Calls nested in a concrete test body cannot declare collected tests or suites, so they are
+    // skipped entirely until the outermost test call exits.
+    let activeTest: estree.Node | undefined;
     let ignoredSuiteNesting = 0;
     let functionNesting = 0;
     let concreteSuiteCallbackNesting = 0;
 
     return {
       CallExpression(node: estree.CallExpression) {
-        if (isIgnoredSuiteDeclaration(context, node)) {
+        if (activeTest !== undefined) {
+          return;
+        }
+
+        const classification = classify(state, node);
+        if (classification.ignoredSuite) {
           ignoredSuiteNesting++;
-        } else if (isSuiteDeclaration(context, node)) {
+        } else if (classification.suite) {
           pushedSuiteCalls.add(node);
           const callback = getCallback(node);
           if (callback !== undefined) {
@@ -92,27 +126,29 @@ export const rule: Rule.RuleModule = {
         if (
           currentSuiteFrame !== undefined &&
           ignoredSuiteNesting === 0 &&
-          testNesting === 0 &&
           isInConcreteCollectionCallback(functionNesting, concreteSuiteCallbackNesting)
         ) {
-          if (isTestDeclaration(context, node)) {
+          if (classification.test) {
             checkTestTitle(context, node, currentSuiteFrame);
           } else {
-            checkHelperDefinedTests(context, node, currentSuiteFrame, helperExpansionPath);
+            checkHelperDefinedTests(state, node, currentSuiteFrame);
           }
         }
 
-        if (isConcreteTestDeclaration(context, node)) {
-          testNesting++;
+        if (classification.concreteTest) {
+          activeTest = node;
         }
       },
       'CallExpression:exit'(node: estree.CallExpression) {
-        if (isIgnoredSuiteDeclaration(context, node)) {
-          ignoredSuiteNesting--;
+        if (activeTest !== undefined) {
+          if (activeTest === node) {
+            activeTest = undefined;
+          }
+          return;
         }
 
-        if (isConcreteTestDeclaration(context, node)) {
-          testNesting--;
+        if (classify(state, node).ignoredSuite) {
+          ignoredSuiteNesting--;
         }
 
         if (pushedSuiteCalls.delete(node)) {
@@ -135,8 +171,9 @@ export const rule: Rule.RuleModule = {
         suiteStack = [createSuiteFrame()];
         pushedSuiteCalls.clear();
         concreteSuiteCallbacks.clear();
-        helperExpansionPath.clear();
-        testNesting = 0;
+        state.helperSummaries.clear();
+        state.helperExpansionPath.clear();
+        activeTest = undefined;
         ignoredSuiteNesting = 0;
         functionNesting = 0;
         concreteSuiteCallbackNesting = 0;
@@ -178,97 +215,136 @@ function checkTestTitle(
 }
 
 function checkHelperDefinedTests(
-  context: Rule.RuleContext,
+  state: RuleState,
   node: estree.CallExpression,
   suiteFrame: SuiteFrame,
-  helperExpansionPath: Set<estree.Node>,
 ) {
-  const helper = getLocalHelperFunction(context, node);
-  if (helper === undefined || helperExpansionPath.has(helper)) {
+  const helper = getLocalHelperFunction(state.context, node);
+  if (helper !== undefined) {
+    expandHelper(state, helper, suiteFrame);
+  }
+}
+
+function expandHelper(state: RuleState, helper: FunctionNode, suiteFrame: SuiteFrame) {
+  if (state.helperExpansionPath.has(helper)) {
     return;
   }
 
-  helperExpansionPath.add(helper);
-  checkHelperNode(context, helper.body, suiteFrame, helperExpansionPath);
-  helperExpansionPath.delete(helper);
+  state.helperExpansionPath.add(helper);
+  replayHelperEvents(state, getHelperSummary(state, helper), suiteFrame);
+  state.helperExpansionPath.delete(helper);
 }
 
-function checkHelperNode(
-  context: Rule.RuleContext,
-  node: estree.Node,
-  suiteFrame: SuiteFrame,
-  helperExpansionPath: Set<estree.Node>,
-) {
+function replayHelperEvents(state: RuleState, events: HelperEvent[], suiteFrame: SuiteFrame) {
+  for (const event of events) {
+    switch (event.kind) {
+      case 'test':
+        checkTestTitle(state.context, event.node, suiteFrame);
+        break;
+      case 'suite':
+        replayHelperEvents(state, event.events, createSuiteFrame());
+        break;
+      case 'helper':
+        expandHelper(state, event.helper, suiteFrame);
+        break;
+    }
+  }
+}
+
+function getHelperSummary(state: RuleState, helper: FunctionNode): HelperEvent[] {
+  let events = state.helperSummaries.get(helper);
+  if (events === undefined) {
+    events = [];
+    collectHelperEvents(state, helper.body, events);
+    state.helperSummaries.set(helper, events);
+  }
+  return events;
+}
+
+function collectHelperEvents(state: RuleState, node: estree.Node, events: HelperEvent[]) {
   if (node.type === 'CallExpression') {
-    if (isIgnoredSuiteDeclaration(context, node)) {
+    const classification = classify(state, node);
+    if (classification.ignoredSuite) {
       return;
     }
 
-    if (isSuiteDeclaration(context, node)) {
-      const nestedSuiteFrame = createSuiteFrame();
+    if (classification.suite) {
+      const nestedEvents: HelperEvent[] = [];
       const callback = getCallback(node);
       if (callback !== undefined) {
-        checkHelperNode(context, callback.body, nestedSuiteFrame, helperExpansionPath);
+        collectHelperEvents(state, callback.body, nestedEvents);
       }
+      events.push({ kind: 'suite', events: nestedEvents });
       return;
     }
 
-    if (isTestDeclaration(context, node)) {
-      checkTestTitle(context, node, suiteFrame);
+    if (classification.test) {
+      events.push({ kind: 'test', node });
       return;
     }
 
-    checkHelperDefinedTests(context, node, suiteFrame, helperExpansionPath);
+    const helper = getLocalHelperFunction(state.context, node);
+    if (helper !== undefined) {
+      events.push({ kind: 'helper', helper });
+    }
   }
 
-  for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
+  for (const child of childrenOf(node, state.context.sourceCode.visitorKeys)) {
     if (!FUNCTION_NODES.includes(child.type)) {
-      checkHelperNode(context, child, suiteFrame, helperExpansionPath);
+      collectHelperEvents(state, child, events);
     }
   }
 }
 
-function isSuiteDeclaration(context: Rule.RuleContext, node: estree.CallExpression): boolean {
-  return (
-    isMochaTestConstruct(context, node, SUITE_FUNCTION_NAMES) ||
-    isPlaywrightDescribe(context, node.callee)
-  );
-}
-
-function isTestDeclaration(context: Rule.RuleContext, node: estree.CallExpression): boolean {
-  return isConcreteTestDeclaration(context, node) || isPlaywrightTest(context, node);
-}
-
-function isConcreteTestDeclaration(
-  context: Rule.RuleContext,
-  node: estree.CallExpression,
-): boolean {
-  return isMochaTestConstruct(context, node, TEST_FUNCTION_NAMES) && hasCallback(node);
-}
-
-function isIgnoredSuiteDeclaration(
-  context: Rule.RuleContext,
-  node: estree.CallExpression,
-): boolean {
-  if (isNonConcreteMochaSuite(context, node.callee)) {
-    return true;
+function classify(state: RuleState, node: estree.CallExpression): CallClassification {
+  let classification = state.classifications.get(node);
+  if (classification === undefined) {
+    classification = computeClassification(state.context, node);
+    state.classifications.set(node, classification);
   }
-
-  return getPlaywrightDescribeClassification(context, node.callee) === 'ignored';
+  return classification;
 }
 
-function isNonConcreteMochaSuite(context: Rule.RuleContext, node: estree.Node): boolean {
-  const calleeParts = getMochaCalleeParts(node);
+function computeClassification(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+): CallClassification {
+  const mocha = getMochaClassification(context, node.callee);
+  const playwrightTestQualifiers = getPlaywrightTestQualifiers(context, node.callee);
+  const playwrightDescribe = getPlaywrightDescribeClassification(
+    playwrightTestQualifiers ?? getPlaywrightDescribeQualifiers(node.callee),
+  );
+  const concreteTest = mocha.test && hasCallback(node);
+  return {
+    ignoredSuite: mocha.nonConcreteSuite || playwrightDescribe === 'ignored',
+    suite: mocha.suite || playwrightDescribe === 'concrete',
+    test: concreteTest || isPlaywrightTest(playwrightTestQualifiers, node),
+    concreteTest,
+  };
+}
+
+function getMochaClassification(
+  context: Rule.RuleContext,
+  callee: estree.Node,
+): { suite: boolean; nonConcreteSuite: boolean; test: boolean } {
+  const calleeParts = getMochaCalleeParts(callee);
   if (calleeParts === undefined) {
-    return false;
+    return { suite: false, nonConcreteSuite: false, test: false };
   }
 
   const { constructName, modifiers } = getMochaConstructAndModifiers(context, calleeParts);
-  if (constructName === undefined || !SUITE_FUNCTION_NAMES.includes(constructName)) {
-    return false;
+  const isSuite = constructName !== undefined && SUITE_FUNCTION_NAMES.includes(constructName);
+  const isTest = constructName !== undefined && TEST_FUNCTION_NAMES.includes(constructName);
+  if (!isSuite && !isTest) {
+    return { suite: false, nonConcreteSuite: false, test: false };
   }
 
-  return !modifiers.every(modifier => isConcreteMochaTestModifier(context, modifier));
+  const concrete = modifiers.every(modifier => isConcreteMochaTestModifier(context, modifier));
+  return {
+    suite: isSuite && concrete,
+    nonConcreteSuite: isSuite && !concrete,
+    test: isTest && concrete,
+  };
 }
 
 function getCallback(node: estree.CallExpression): CallbackFunctionNode | undefined {
@@ -330,12 +406,7 @@ function isInConcreteCollectionCallback(
   return functionNesting === concreteSuiteCallbackNesting;
 }
 
-function isPlaywrightDescribe(context: Rule.RuleContext, callee: estree.Node): boolean {
-  return getPlaywrightDescribeClassification(context, callee) === 'concrete';
-}
-
-function isPlaywrightTest(context: Rule.RuleContext, node: estree.CallExpression): boolean {
-  const qualifiers = getPlaywrightTestQualifiers(context, node.callee);
+function isPlaywrightTest(qualifiers: string[] | undefined, node: estree.CallExpression): boolean {
   if (qualifiers === undefined) {
     return false;
   }
@@ -347,11 +418,8 @@ function isPlaywrightTest(context: Rule.RuleContext, node: estree.CallExpression
 }
 
 function getPlaywrightDescribeClassification(
-  context: Rule.RuleContext,
-  callee: estree.Node,
+  qualifiers: string[] | undefined,
 ): PlaywrightDescribeClassification {
-  const qualifiers =
-    getPlaywrightTestQualifiers(context, callee) ?? getPlaywrightDescribeQualifiers(callee);
   if (qualifiers?.[0] !== 'describe') {
     return 'unknown';
   }
