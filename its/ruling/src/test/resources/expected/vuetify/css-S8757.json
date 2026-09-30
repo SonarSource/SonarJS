@@ -1,8 +1,16 @@
 {
 "vuetify:packages/docs/src/components/Alert.vue": [
+23,
 23
 ],
 "vuetify:packages/docs/src/components/app/Markup.vue": [
+155,
 155
+],
+"vuetify:packages/docs/src/components/app/Toc.vue": [
+248
+],
+"vuetify:packages/docs/src/examples/v-hover/prop-open-and-close-delay.vue": [
+53
 ]
 }
