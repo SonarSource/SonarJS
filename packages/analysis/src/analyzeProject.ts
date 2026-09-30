@@ -208,8 +208,12 @@ async function analyzeProjectWithCancellation(
         jsTsConfigFields,
         incrementalResultsChannel,
       );
-      for (const filePath of noProgramFiles) {
-        programSelection?.recordNoProgram(filePath);
+      // An orphan group records its program before analyzing its first file. On cancellation,
+      // unprocessed group members remain pending but must not acquire a second outcome.
+      if (!isAnalysisCancelled()) {
+        for (const filePath of noProgramFiles) {
+          programSelection?.recordNoProgram(filePath);
+        }
       }
     }
   }

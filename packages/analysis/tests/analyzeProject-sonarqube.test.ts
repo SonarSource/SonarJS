@@ -751,6 +751,37 @@ export class SubmittedComponent {
     await analysisPromise;
   });
 
+  it('does not record a no-program outcome for an orphan group cancelled partway through', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-cancel-')),
+    );
+    const firstFile = normalizeToAbsolutePath(join(baseDir, 'first.ts'));
+    const secondFile = normalizeToAbsolutePath(join(baseDir, 'second.ts'));
+    fs.writeFileSync(firstFile, 'const first = 1;;');
+    fs.writeFileSync(secondFile, 'const second = 2;;');
+    const configuration = await initForTest(
+      { baseDir },
+      {
+        [firstFile]: { filePath: firstFile, fileType: 'MAIN' },
+        [secondFile]: { filePath: secondFile, fileType: 'MAIN' },
+      },
+    );
+    const archivePath = path.join(baseDir, 'analysis-metadata.pb.gz');
+    const programSelection = new ProgramSelectionArchive(archivePath, baseDir, 'record');
+    const messages: string[] = [];
+
+    await analyzeProject({ rules, bundles: [], programSelection }, configuration, message => {
+      messages.push(message.messageType);
+      if (message.messageType === 'fileResult') {
+        cancelAnalysis();
+      }
+    });
+    programSelection.end();
+
+    expect(messages).toEqual(['fileResult', 'cancelled']);
+    expect(fs.statSync(archivePath).size).toBeGreaterThan(0);
+  });
+
   it('should handle invalid tsconfig gracefully', async () => {
     const baseDir = join(fixtures, 'invalid-tsconfig');
 

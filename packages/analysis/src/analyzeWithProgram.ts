@@ -63,6 +63,21 @@ type ProgramAnalysisContext = {
   incrementalResultsChannel?: (result: WsIncrementalResult) => void;
 };
 
+/** Files that cannot use the recorded program-selection outcome during replay. */
+export function filesWithoutRecordedProgramOutcome(
+  files: Iterable<NormalizedAbsolutePath>,
+  programSelection: ProgramSelectionArchive,
+  jsTsConfigFields: JsTsConfigFields,
+): NormalizedAbsolutePath[] {
+  const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
+  return [...files].filter(
+    file =>
+      isJsTsFile(file, { jsSuffixes, tsSuffixes }) &&
+      !programSelection.hasSelection(file) &&
+      !programSelection.hasNoProgram(file),
+  );
+}
+
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
  * included in any tsconfig from the cache will not be analyzed.
@@ -425,8 +440,10 @@ async function analyzeFilesFromProgramSelection(
   const requestedJsTsFiles = [...pendingFiles].filter(file =>
     isJsTsFile(file, { jsSuffixes, tsSuffixes }),
   );
-  const unselectedFiles = requestedJsTsFiles.filter(
-    file => !programSelection.hasSelection(file) && !programSelection.hasNoProgram(file),
+  const unselectedFiles = filesWithoutRecordedProgramOutcome(
+    requestedJsTsFiles,
+    programSelection,
+    jsTsConfigFields,
   );
   if (unselectedFiles.length > 0) {
     throw new Error(`No recorded TypeScript program outcome for ${unselectedFiles.join(', ')}`);

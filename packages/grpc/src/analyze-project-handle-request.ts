@@ -39,7 +39,13 @@ import {
   type FsCacheSession,
 } from '../../shared/src/fs-cache/hook.js';
 import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
-import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { filesWithoutRecordedProgramOutcome } from '../../analysis/src/analyzeWithProgram.js';
+import { getJsTsConfigFields } from '../../analysis/src/common/configuration.js';
+import { sourceFileStore } from '../../analysis/src/file-stores/index.js';
+import {
+  normalizeToAbsolutePath,
+  type NormalizedAbsolutePath,
+} from '../../shared/src/helpers/files.js';
 import { warn } from '../../shared/src/helpers/logging.js';
 import { sonarjs } from './proto/analyze-project.js';
 
@@ -159,7 +165,10 @@ export async function handleAnalyzeProjectRequest(
             'A filesystem archive and analysis metadata must be supplied together',
           );
         }
-        const filesystemCacheSession = beginFilesystemCacheAnalysis(request.data, cacheMode);
+        const originalConfiguration = request.data.configuration
+          ? { ...request.data.configuration }
+          : undefined;
+        let filesystemCacheSession = beginFilesystemCacheAnalysis(request.data, cacheMode);
         let programSelection: ProgramSelectionArchive | undefined;
         try {
           programSelection = beginAnalysisMetadata(request.data, cacheMode);
@@ -170,7 +179,32 @@ export async function handleAnalyzeProjectRequest(
           }
           return await withAnalysisCancellation(async () => {
             logHeapStatistics(workerData?.debugMemory);
-            const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
+            let sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
+            if (
+              cacheMode === 'replay' &&
+              programSelection &&
+              sanitizedInput.rules.length > 0 &&
+              !sanitizedInput.configuration.disableTypeChecking
+            ) {
+              const unsupportedFiles = filesWithoutRecordedProgramOutcome(
+                Object.keys(sourceFileStore.getFiles()) as NormalizedAbsolutePath[],
+                programSelection,
+                getJsTsConfigFields(sanitizedInput.configuration),
+              );
+              if (unsupportedFiles.length > 0) {
+                warn(
+                  `Unsupported SonarJS context for ${unsupportedFiles.join(', ')}: no portable TypeScript program outcome; falling back to source-only analysis`,
+                );
+                endAnalysisSessions(programSelection, filesystemCacheSession);
+                programSelection = undefined;
+                filesystemCacheSession = undefined;
+                request.data.configuration = originalConfiguration;
+                request.data.filesystemCache = undefined;
+                // Reinitialize the stores without the replay archive or recorded CI settings.
+                // This follows the same tsconfig/orphan-program path as a request with no context.
+                sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
+              }
+            }
             const wrappedIncrementalResultsChannel = incrementalResultsChannel
               ? (event: AnalyzeProjectIncrementalEvent['event']) =>
                   incrementalResultsChannel({

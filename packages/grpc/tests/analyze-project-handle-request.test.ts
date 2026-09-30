@@ -94,6 +94,92 @@ describe('analyze-project request handler', () => {
     });
   });
 
+  it('falls back to a source-only orphan program for an unrecorded replay file', async () => {
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'unsupported-program-outcome-'));
+    const recordRoot = path.join(temporary, 'record');
+    const replayRoot = path.join(temporary, 'replay');
+    const rulesWorkdir = path.join(temporary, 'work');
+    const archivePath = path.join(rulesWorkdir, 'filesystem.pb.gz');
+    const analysisMetadataPath = path.join(rulesWorkdir, 'analysis-metadata.pb.gz');
+    fs.mkdirSync(recordRoot);
+    fs.mkdirSync(replayRoot);
+    fs.mkdirSync(rulesWorkdir);
+    fs.writeFileSync(path.join(recordRoot, 'known.ts'), '[80, 3, 9].sort();');
+    (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
+
+    const createRequest = (baseDir: string, filename: string): AnalyzeProjectRequest => ({
+      configuration: { baseDir, canAccessFileSystem: true },
+      files: {
+        [path.join(baseDir, filename)]: {
+          fileContent: '[80, 3, 9].sort();',
+          fileType: FileType.FILE_TYPE_MAIN,
+        },
+      },
+      rules: [
+        {
+          key: 'S2871',
+          configurations: [],
+          fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+          language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+          analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+        },
+      ],
+      cssRules: [],
+      bundles: [],
+      rulesWorkdir,
+      filesystemCache: {
+        archivePath,
+        analysisMetadataPath,
+        mode: FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD,
+      },
+    });
+
+    const recorded = await handleAnalyzeProjectRequest(
+      { type: 'on-analyze-project', data: createRequest(recordRoot, 'known.ts') },
+      workerData,
+    );
+    expect(recorded.type).toBe('success');
+
+    const replayRequest = createRequest(replayRoot, 'new.ts');
+    replayRequest.filesystemCache!.mode = FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY;
+    replayRequest.configuration!.jsTsExclusions = { values: ['**/contrib/**'] };
+    const log = mock.method(console, 'log');
+    let replayed;
+    try {
+      replayed = await handleAnalyzeProjectRequest(
+        { type: 'on-analyze-project', data: replayRequest },
+        workerData,
+      );
+    } finally {
+      log.mock.restore();
+    }
+
+    expect(replayed).toMatchObject({
+      type: 'success',
+      result: {
+        output: {
+          files: {
+            [normalizeToAbsolutePath(path.join(replayRoot, 'new.ts'))]: {
+              issues: [expect.objectContaining({ ruleId: 'S2871' })],
+            },
+          },
+        },
+      },
+    });
+    expect(replayRequest.configuration!.jsTsExclusions?.values).toEqual(['**/contrib/**']);
+    expect(replayRequest.filesystemCache).toBeUndefined();
+    expect(
+      log.mock.calls.some(call =>
+        String(call.arguments[0]).includes('Unsupported SonarJS context'),
+      ),
+    ).toBe(true);
+    expect(
+      log.mock.calls.some(call =>
+        String(call.arguments[0]).includes('Analyzing 1 file(s) using default options'),
+      ),
+    ).toBe(true);
+  });
+
   it('replays a file reached through an implicit tsconfig root and transitive imports', async () => {
     const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-import-'));
     const recordRoot = path.join(temporary, 'record');
@@ -180,8 +266,10 @@ describe('analyze-project request handler', () => {
       fs.mkdirSync(replayRoot);
 
       for (const relativePath of ['src/processes.ts', 'src/scrollable.ts']) {
+        const replayRequest = request(replayRoot, [relativePath]);
+        replayRequest.filesystemCache!.mode = FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY;
         const replayed = await handleAnalyzeProjectRequest(
-          { type: 'on-analyze-project', data: request(replayRoot, [relativePath]) },
+          { type: 'on-analyze-project', data: replayRequest },
           workerData,
         );
         expect(replayed).toMatchObject({
