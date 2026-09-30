@@ -153,6 +153,22 @@ function isIgnored(warning: UpstreamWarning, checks: Overlap[]): boolean {
 }
 
 /**
+ * Upstream locates a missing value right after the colon, which is past the end of the line for
+ * a declaration like `letter-spacing:` at the end of a line. Such a location cannot be reported,
+ * so the warning is moved to the whole declaration.
+ */
+function relocateMissingValue(warning: UpstreamWarning): void {
+  const { start, end } = warning.node?.source ?? {};
+  if (OFFENDING_VALUE.exec(warning.text)?.[1] !== '' || !start || !end) {
+    return;
+  }
+  warning.line = start.line;
+  warning.column = start.column;
+  warning.endLine = end.line;
+  warning.endColumn = end.column + 1;
+}
+
+/**
  * Stylelint runs rules concurrently, so warnings from other rules may be interleaved with the
  * upstream ones. Only warnings that still carry the upstream rule name are handled.
  */
@@ -167,6 +183,7 @@ function filterAndRelabelWarnings(result: PostcssResult): void {
     if (isIgnored(warning, checks)) {
       messages.splice(i, 1);
     } else {
+      relocateMissingValue(warning);
       warning.text = warning.text.replace(` (${UPSTREAM_RULE})`, ` (${SONAR_RULE})`);
       warning.rule = SONAR_RULE;
     }

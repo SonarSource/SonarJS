@@ -153,6 +153,20 @@ describe('S9424 (sonar/declaration-property-value-no-unknown)', () => {
       errors: [{ text: `Unknown value "'inline(x)'" for property "display" (${RULE})` }],
     }));
 
+  it('reports a missing value on the whole declaration', () =>
+    ruleTester.invalid({
+      code: 'a {\n  letter-spacing:\n}',
+      errors: [
+        {
+          text: `Unknown value "" for property "letter-spacing" (${RULE})`,
+          line: 2,
+          column: 3,
+          endLine: 2,
+          endColumn: 18,
+        },
+      ],
+    }));
+
   it('reports a value that does not match a registered custom property syntax', () =>
     ruleTester.invalid({
       code: `@property --gap {
