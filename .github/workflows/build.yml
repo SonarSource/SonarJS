@@ -1306,3 +1306,59 @@ jobs:
           optional_checks: "Jira"
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+
+  notify-build-failure:
+    runs-on: sonar-xs
+    name: Notify build failure
+    needs:
+      - get_build_number
+      - build
+      - build_win
+      - test_js
+      - test_js_win
+      - analyze_primary
+      - test_eslint_plugin
+      - plugin_qa_with_node
+      - plugin_qa_without_node
+      - plugin_qa_fast_with_node
+      - plugin_qa_fast_without_node
+      - plugin_qa_without_node_alpine
+      - plugin_qa_fast_without_node_alpine
+      - plugin_qa_win
+      - plugin_qa_sonarlint_win
+      - plugin_qa_win_fast_with_node
+      - ruling
+      - js_ts_ruling
+      - promote
+      - setup
+      - populate_npm_cache
+      - populate_npm_cache_win
+      - prepare_rspec_rule_data
+      - build_eslint_plugin
+      - knip
+      - js_ts_ruling_replay
+      - releasability
+      - generated_files_freshness
+      - analyze_shadows
+      - plugin_qa_without_node_dev
+      - plugin_qa_fast_without_node_dev
+      - run_iris
+    if: >-
+      always()
+      && (
+        github.ref_name == github.event.repository.default_branch ||
+        startsWith(github.ref_name, 'branch-') ||
+        startsWith(github.ref_name, 'dogfood-')
+      )
+      && failure()
+    permissions:
+      actions: read
+      id-token: write # required for vault-action-wrapper in the shared slack-notify action
+    steps:
+      - name: Slack Notification
+        uses: SonarSource/core-languages-tooling-public/common-actions/slack-notify@v1
+        with:
+          slack-channel: squad-corelang-notifs
+          branch-patterns: ${{ format('{0},branch-*,dogfood-*', github.event.repository.default_branch) }}
+          github-token: ${{ github.token }}
+          branch: ${{ github.ref_name }}
