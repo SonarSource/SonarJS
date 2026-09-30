@@ -67,6 +67,7 @@ import {
   getCurrentFileImports,
   getCurrentFileModuleReferences,
 } from '../rules/helpers/module.js';
+import { clearAssertionCaches } from '../rules/helpers/assertions.js';
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/npm-import.js';
 
 interface InitializeParams {
@@ -298,6 +299,7 @@ export class Linter {
       }
     ).getSuppressedMessages();
     clearFileCaches();
+    clearAssertionCaches();
     const ctx = {
       sourceCode,
       ruleMetas,
