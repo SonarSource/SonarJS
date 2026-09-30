@@ -23,6 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
@@ -64,11 +65,11 @@ public class WebSensorModuleConfiguration {
 
   private static LinkedHashSet<String> resolveTsConfigPaths(JsTsContext<?> context) {
     var baseDir = context.getSensorContext().fileSystem().baseDir().toPath();
-    var resolvedPaths = new LinkedHashSet<String>();
-    for (String tsConfigPath : context.getTsConfigPaths()) {
-      resolvedPaths.add(resolvePath(baseDir, tsConfigPath));
-    }
-    return resolvedPaths;
+    return context
+      .getTsConfigPaths()
+      .stream()
+      .map(tsConfigPath -> resolvePath(baseDir, tsConfigPath))
+      .collect(Collectors.toCollection(LinkedHashSet::new));
   }
 
   private static void addReports(
