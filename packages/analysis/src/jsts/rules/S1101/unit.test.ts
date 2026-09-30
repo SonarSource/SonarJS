@@ -374,4 +374,97 @@ describe('S1101', () => {
     ],
     invalid: [],
   });
+
+  ruleTester.run(
+    'an expression-free template literal href is resolved like a string literal',
+    rule,
+    {
+      valid: [
+        {
+          // Same target, one written as a template literal: recognized as the same href, not flagged.
+          code: `
+          <div>
+            <a href={\`/a\`}>Same</a>
+            <a href="/a">Same</a>
+          </div>;
+        `,
+        },
+      ],
+      invalid: [
+        {
+          // A template-literal href is resolved rather than treated as unresolvable, so this
+          // still gets flagged like the all-string-literal equivalent would.
+          code: `
+          <div>
+            <a href={\`/a\`}>Same</a>
+            <a href="/b">Same</a>
+          </div>;
+        `,
+          errors: 1,
+        },
+      ],
+    },
+  );
+
+  ruleTester.run(
+    'an expression-free template literal aria-label is resolved like a string literal',
+    rule,
+    {
+      valid: [
+        {
+          // Same target: resolving the template-literal label correctly must not itself flag this.
+          code: `
+          <div>
+            <a href="/a" aria-label={\`Read more\`}>One</a>
+            <a href="/a" aria-label="Read more">Two</a>
+          </div>;
+        `,
+        },
+      ],
+      invalid: [
+        {
+          // A template-literal aria-label is resolved rather than treated as unresolvable, so this
+          // still gets flagged like the all-string-literal equivalent would.
+          code: `
+          <div>
+            <a href="/a" aria-label={\`Same\`}>One</a>
+            <a href="/b" aria-label="Same">Two</a>
+          </div>;
+        `,
+          errors: 1,
+        },
+      ],
+    },
+  );
+
+  ruleTester.run(
+    'an expression-free template literal text child is resolved like a string literal',
+    rule,
+    {
+      valid: [
+        {
+          // Same target: resolving the template-literal text correctly must not itself flag this.
+          code: `
+          <div>
+            <a href="/a">{\`Read more\`}</a>
+            <a href="/a">Read more</a>
+          </div>;
+        `,
+        },
+      ],
+      invalid: [
+        {
+          // A template-literal text child is resolved rather than treated as unresolvable, so this
+          // still gets flagged like the all-string-literal equivalent would.
+          code: `
+          <div>
+            <a href="/a">{\`Same\`}</a>
+            <a href="/b">Same</a>
+          </div>;
+        `,
+          errors: 1,
+        },
+      ],
+    },
+  );
 });
