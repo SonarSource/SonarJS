@@ -31,8 +31,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
-const message =
-  "This {{type}}'s code block is the same as the block for the {{type}} on line {{line}}.";
+const message = 'Merge this {{type}} with its duplicate on line {{line}}, or fix the copy-paste.';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {

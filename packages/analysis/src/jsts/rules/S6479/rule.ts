@@ -56,7 +56,13 @@ const ITERATOR_INDEX_PARAMETER_POSITIONS = new Map([
 export const rule = interceptReportForReact(
   {
     ...baseRule,
-    meta: generateMeta(meta, baseRule.meta),
+    meta: generateMeta(meta, {
+      ...baseRule.meta,
+      messages: {
+        ...baseRule.meta?.messages,
+        noArrayIndex: 'Use a stable ID as key: index keys mix up state when items move.',
+      },
+    }),
   },
   (context, reportDescriptor) => {
     const { node } = reportDescriptor as Rule.ReportDescriptor & { node: TSESTree.Node };

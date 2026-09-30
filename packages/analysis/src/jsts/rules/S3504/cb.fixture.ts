@@ -33,11 +33,11 @@ declare var XMLHttpRequest: {
 
 // Regular var declarations should still be flagged
 function bar() {
-  var foo = 42; // Noncompliant [[qf1!]] {{Unexpected var, use let or const instead.}}
+  var foo = 42; // Noncompliant [[qf1!]] {{Use `let` or `const`: `var` leaks out of blocks.}}
 //^^^^^^^
 // edit@qf1 {{  let foo = 42;}}
 
-  var x, y = 1; // Noncompliant [[qf2!]] {{Unexpected var, use let or const instead.}}
+  var x, y = 1; // Noncompliant [[qf2!]] {{Use `let` or `const`: `var` leaks out of blocks.}}
 //^^^^^
 // edit@qf2 {{  let x, y = 1;}}
 }

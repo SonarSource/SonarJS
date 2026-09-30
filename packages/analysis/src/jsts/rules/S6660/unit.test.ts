@@ -22,7 +22,7 @@ describe('S6660', () => {
   it('S6660', () => {
     const ruleTester = new DefaultParserRuleTester();
 
-    ruleTester.run("'If' statement should not be the only statement in 'else' block", rule, {
+    ruleTester.run('Use `else if` here to remove a nesting level.', rule, {
       valid: [
         {
           code: `
@@ -52,7 +52,7 @@ describe('S6660', () => {
       `,
           errors: [
             {
-              message: "'If' statement should not be the only statement in 'else' block",
+              message: 'Use `else if` here to remove a nesting level.',
               line: 5,
               endLine: 5,
               column: 11,
@@ -83,7 +83,7 @@ describe('S6660', () => {
       `,
           errors: [
             {
-              message: "'If' statement should not be the only statement in 'else' block",
+              message: 'Use `else if` here to remove a nesting level.',
               line: 5,
               endLine: 5,
               column: 11,

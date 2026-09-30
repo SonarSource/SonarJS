@@ -69,7 +69,7 @@ describe('transformMessages', () => {
         column: 0,
         endLine: 1,
         endColumn: 5,
-        message: 'Unexpected var, use let or const instead.',
+        message: 'Use `let` or `const`: `var` leaks out of blocks.',
       }),
     );
   });

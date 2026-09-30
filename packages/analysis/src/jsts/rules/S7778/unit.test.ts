@@ -43,7 +43,11 @@ items.push(2);
 const items = [];
 items.push(1, 2);
 `,
-          errors: 1,
+          errors: [
+            {
+              message: 'Merge these `Array#push()` calls: it takes multiple arguments.',
+            },
+          ],
         },
         {
           code: `

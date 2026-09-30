@@ -33,6 +33,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, {
         ...rule.meta!,
         hasSuggestions: true,
+        messages: {
+          ...rule.meta!.messages,
+          preferForOf: 'Use `for...of`: the index is only used to read elements.',
+        },
       }),
     },
     (context, reportDescriptor) => {

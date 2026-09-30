@@ -166,7 +166,7 @@ describe('S4123', () => {
       `,
           errors: [
             {
-              message: 'Unexpected `await` of a non-Promise (non-"Thenable") value.',
+              message: 'Remove this `await` or fix the call: the value is not a Promise.',
               line: 4,
               endLine: 4,
               column: 9,
