@@ -11,7 +11,7 @@ fi
 
 if [ "$IS_PULL_REQUEST" = "true" ]; then
   if ! TESTED_BASE_SHA="$(git rev-parse --verify 'HEAD^1^{commit}' 2>/dev/null)" ||
-    ! git rev-parse --verify 'HEAD^2^{commit}' > /dev/null 2>&1; then
+    ! TESTED_PR_HEAD_SHA="$(git rev-parse --verify 'HEAD^2^{commit}' 2>/dev/null)"; then
     echo 'The tested PR commit must be a merge with both parents available.' >&2
     exit 1
   fi
@@ -36,6 +36,14 @@ BASE_SHA="$BASE_SHA" \
   RSPEC_BASE_URL='https://musical-adventure-r9qk65j.pages.github.io/rspec/#' \
   node .github/actions/ruling_bot/generate-report.mjs \
   its/ruling/src/test/resources/expected > ruling-report.md
+
+if [ "$IS_PULL_REQUEST" = "true" ]; then
+  CURRENT_PR_HEAD_SHA="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" --jq .head.sha)"
+  if [ "$CURRENT_PR_HEAD_SHA" != "$TESTED_PR_HEAD_SHA" ]; then
+    echo 'PR head changed since ruling ran; leaving the current ruling comment untouched.'
+    exit 0
+  fi
+fi
 
 EXISTING_COMMENT_ID="$(gh api --paginate \
   "repos/${GITHUB_REPOSITORY}/issues/${PR_NUMBER}/comments?per_page=100" \
