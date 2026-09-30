@@ -318,7 +318,7 @@ describe('S1854', () => {
    `,
           errors: [
             {
-              message: 'Remove this assignment to "x": its value is never read.',
+              message: 'Remove this assignment to "x", since the assigned value is never read.',
               line: 5,
               endLine: 5,
               column: 9,

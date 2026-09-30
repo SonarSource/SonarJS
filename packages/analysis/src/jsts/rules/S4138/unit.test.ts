@@ -33,7 +33,8 @@ describe('S4138', () => {
           code: `for (let i = 0; i < arr.length; ++i) console.log(arr[i]);`,
           errors: [
             {
-              message: 'Use `for...of`: the index is only used to read elements.',
+              message:
+                'Use a `for...of` loop, since the index is only used to read array elements.',
               suggestions: [
                 {
                   desc: `Replace with "for of" loop`,

@@ -45,7 +45,8 @@ items.push(1, 2);
 `,
           errors: [
             {
-              message: 'Merge these `Array#push()` calls: it takes multiple arguments.',
+              message:
+                'Merge these `Array#push()` calls into one, since it accepts multiple arguments.',
             },
           ],
         },

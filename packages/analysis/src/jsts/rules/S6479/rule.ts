@@ -60,7 +60,8 @@ export const rule = interceptReportForReact(
       ...baseRule.meta,
       messages: {
         ...baseRule.meta?.messages,
-        noArrayIndex: 'Use a stable ID as key: index keys mix up state when items move.',
+        noArrayIndex:
+          'Use a stable ID as key, since index keys mix up component state when the list changes.',
       },
     }),
   },

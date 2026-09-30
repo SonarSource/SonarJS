@@ -69,7 +69,8 @@ describe('transformMessages', () => {
         column: 0,
         endLine: 1,
         endColumn: 5,
-        message: 'Use `let` or `const`: `var` leaks out of blocks.',
+        message:
+          'Replace `var` with `let` or `const`, which are scoped to the block that declares them.',
       }),
     );
   });

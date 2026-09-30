@@ -35,7 +35,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
           const { start } = node.loc;
 
           context.report({
-            message: 'Use `else if` here to remove a nesting level.',
+            message: 'Merge this `if` into its `else` as `else if` to remove a level of nesting.',
             loc: {
               start,
               end: { line: start.line, column: start.column + 2 },

@@ -31,7 +31,8 @@ describe('S3626', () => {
       }`,
           errors: [
             {
-              message: 'Remove this jump: the code continues the same way without it.',
+              message:
+                'Remove this redundant jump, since execution continues the same way without it.',
               line: 3,
               endLine: 3,
               suggestions: [

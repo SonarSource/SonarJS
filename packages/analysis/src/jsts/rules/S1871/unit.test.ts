@@ -135,7 +135,8 @@ describe('S1871', () => {
                 type: 'branch',
                 line: 2,
                 sonarRuntimeData: JSON.stringify({
-                  message: 'Merge this branch with its duplicate on line 2, or fix the copy-paste.',
+                  message:
+                    'Merge this branch with the identical one on line 2, or update it if it should differ.',
                   secondaryLocations: [
                     {
                       message: 'Original',
@@ -360,7 +361,8 @@ describe('S1871', () => {
                 type: 'case',
                 line: '3',
                 sonarRuntimeData: JSON.stringify({
-                  message: 'Merge this case with its duplicate on line 3, or fix the copy-paste.',
+                  message:
+                    'Merge this case with the identical one on line 3, or update it if it should differ.',
                   secondaryLocations: [
                     {
                       message: 'Original',
