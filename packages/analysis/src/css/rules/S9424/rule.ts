@@ -17,6 +17,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S9424/css
 import stylelint, { type PostcssResult } from 'stylelint';
 import type PostCSS from 'postcss';
+import postcssValueParser, {
+  type FunctionNode,
+  type Node as ValueNode,
+} from 'postcss-value-parser';
 import cssFunctions from 'css-functions-list/index.json' with { type: 'json' };
 
 const SONAR_RULE = 'sonar/declaration-property-value-no-unknown';
@@ -28,14 +32,13 @@ const KNOWN_FUNCTIONS = new Set<string>(cssFunctions);
 // Captures the offending value quoted in every upstream message variant
 const OFFENDING_VALUE =
   /^(?:Unknown value|Cannot parse property value|Invalid math expression) "(.*)" for property "/s;
-const PARSE_ERROR = 'Cannot parse property value';
-const VENDOR_PREFIX = /(?:^|[^\w-])-(?:webkit|moz|ms|o|khtml)-/i;
-const QUOTED_STRING = /"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g;
-const TOKEN_SEPARATOR = /[\s,/*+]+/;
-const FUNCTION_CALL = /[\w-]+\(?/g;
-const DIMENSION = /^[+-]?[\d.]+(?:e[+-]?\d+)?([a-z]+)$/i;
+const VENDOR_PREFIX = /^-(?:webkit|moz|ms|o|khtml)-/i;
 const VALID_HEX_COLOR = /^#(?:[\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/i;
 const LEGACY_IE_FILTER_VALUE = /^\s*(?:progid:|alpha\()/i;
+
+// Same `x` unit handling as stylelint's unit-no-unknown: only valid as an image resolution
+const RESOLUTION_X_FUNCTIONS = new Set(['image-set', '-webkit-image-set']);
+const RESOLUTION_X_PROPERTY = 'image-resolution';
 
 // Same direction checks as stylelint's function-linear-gradient-no-nonstandard-direction
 const GRADIENT_DIRECTION = /top|left|bottom|right/i;
@@ -45,31 +48,7 @@ const GRADIENT_IN_KEYWORD = /\bin\b/i;
 
 type UpstreamWarning = PostCSS.Warning & { rule?: string };
 type Lexer = { units: Record<string, string[]> };
-
-function functionNames(value: string): string[] {
-  return (value.match(FUNCTION_CALL) ?? [])
-    .filter((match: string): boolean => match.endsWith('('))
-    .map((match: string): string => match.slice(0, -1).toLowerCase());
-}
-
-function callsUnknownFunction(value: string): boolean {
-  return functionNames(value).some((name: string): boolean => !KNOWN_FUNCTIONS.has(name));
-}
-
-/** Covered by S4647 (color-no-invalid-hex) */
-function hasInvalidHexColor(tokens: string[]): boolean {
-  return tokens.some(
-    (token: string): boolean => token.startsWith('#') && !VALID_HEX_COLOR.test(token),
-  );
-}
-
-/** Covered by S4653 (unit-no-unknown) */
-function hasUnknownUnit(tokens: string[], knownUnits: Set<string>): boolean {
-  return tokens.some((token: string): boolean => {
-    const unit = DIMENSION.exec(token)?.[1];
-    return unit !== undefined && !knownUnits.has(unit.toLowerCase());
-  });
-}
+type Overlap = (node: ValueNode, allowsX: boolean) => boolean;
 
 function isNonstandardGradientDirection(firstArgument: string): boolean {
   if (GRADIENT_IN_KEYWORD.test(firstArgument) || firstArgument.startsWith('var(')) {
@@ -85,77 +64,107 @@ function isNonstandardGradientDirection(firstArgument: string): boolean {
   return match === null || match[1] === match[2];
 }
 
-/** Covered by S4651 (function-linear-gradient-no-nonstandard-direction) */
-function hasNonstandardGradientDirection(value: string): boolean {
-  const lowerCased = value.toLowerCase();
-  let index = lowerCased.indexOf('linear-gradient(');
-  while (index !== -1) {
-    const previous = lowerCased.charAt(index - 1);
-    if (!/[\w-]/.test(previous)) {
-      const argumentsStart = index + 'linear-gradient('.length;
-      const firstArgument = lowerCased.slice(argumentsStart).split(/[,)]/)[0].trim();
-      if (isNonstandardGradientDirection(firstArgument)) {
-        return true;
+function firstArgument(node: FunctionNode): string {
+  const separator = node.nodes.findIndex(
+    (child: ValueNode): boolean => child.type === 'div' && child.value === ',',
+  );
+  const nodes = separator === -1 ? node.nodes : node.nodes.slice(0, separator);
+  return postcssValueParser.stringify(nodes).trim().toLowerCase();
+}
+
+/**
+ * Checks for problems that dedicated rules already report, so that the same value is not
+ * reported twice:
+ * - S4647 (color-no-invalid-hex), S4651 (function-linear-gradient-no-nonstandard-direction),
+ *   S4652 (string-no-newline), S4653 (unit-no-unknown), S8757 (annotation-no-unknown),
+ *   and the unknown functions of stylelint's function-no-unknown.
+ */
+function overlapChecks(knownUnits: Set<string>): Overlap[] {
+  return [
+    (node: ValueNode): boolean =>
+      node.type === 'function' &&
+      node.value !== '' &&
+      !KNOWN_FUNCTIONS.has(node.value.toLowerCase()),
+    (node: ValueNode): boolean =>
+      node.type === 'word' && node.value.startsWith('#') && !VALID_HEX_COLOR.test(node.value),
+    (node: ValueNode, allowsX: boolean): boolean => {
+      const unit = node.type === 'word' ? postcssValueParser.unit(node.value) : false;
+      if (!unit || unit.unit === '') {
+        return false;
       }
+      const name = unit.unit.toLowerCase();
+      return name === 'x' ? !allowsX : !knownUnits.has(name);
+    },
+    (node: ValueNode): boolean =>
+      node.type === 'function' &&
+      node.value.toLowerCase() === 'linear-gradient' &&
+      isNonstandardGradientDirection(firstArgument(node)),
+    (node: ValueNode): boolean => node.type === 'string' && node.value.includes('\n'),
+    (node: ValueNode): boolean => node.type === 'word' && node.value.startsWith('!'),
+  ];
+}
+
+/** Vendor-prefixed values are deliberate fallbacks for older browsers */
+function isVendorPrefixed(node: ValueNode): boolean {
+  return (node.type === 'word' || node.type === 'function') && VENDOR_PREFIX.test(node.value);
+}
+
+function hasIgnoredNode(nodes: ValueNode[], checks: Overlap[], allowsX: boolean): boolean {
+  return nodes.some((node: ValueNode): boolean => {
+    if (isVendorPrefixed(node) || checks.some((check: Overlap): boolean => check(node, allowsX))) {
+      return true;
     }
-    index = lowerCased.indexOf('linear-gradient(', index + 1);
-  }
-  return false;
+    if (node.type !== 'function') {
+      return false;
+    }
+    const allowsXInside = allowsX || RESOLUTION_X_FUNCTIONS.has(node.value.toLowerCase());
+    return hasIgnoredNode(node.nodes, checks, allowsXInside);
+  });
 }
 
-/** Covered by S4652 (string-no-newline) */
-function hasNewlineInString(value: string): boolean {
-  return (value.match(QUOTED_STRING) ?? []).some((str: string): boolean => str.includes('\n'));
-}
-
-function isLegacyIeFilter(node: PostCSS.Node | undefined): boolean {
-  if (node?.type !== 'decl') {
-    return false;
-  }
-  const { prop, value } = node as PostCSS.Declaration;
-  const property = prop.toLowerCase();
-  return property === '-ms-filter' || (property === 'filter' && LEGACY_IE_FILTER_VALUE.test(value));
+function isLegacyIeFilter(decl: PostCSS.Declaration): boolean {
+  const property = decl.prop.toLowerCase();
+  return (
+    property === '-ms-filter' || (property === 'filter' && LEGACY_IE_FILTER_VALUE.test(decl.value))
+  );
 }
 
 function knownUnitsOf(result: PostcssResult): Set<string> {
   const { units } = result.stylelint.lexer as Lexer;
-  return new Set(Object.values(units).flat());
+  return new Set(['%', ...Object.values(units).flat()]);
 }
 
 /**
- * Vendor-prefixed fallbacks and legacy IE filters are deliberate. Unknown functions, invalid hex
- * colors, unknown units, non-standard gradient directions, and strings with newlines are left to
- * the dedicated rules so that the same value is not reported twice.
+ * Vendor-prefixed fallbacks and legacy IE filters are deliberate. Problems that dedicated rules
+ * already report are left to them.
  */
-function isIgnored(warning: UpstreamWarning, knownUnits: Set<string>): boolean {
+function isIgnored(warning: UpstreamWarning, checks: Overlap[]): boolean {
   const value = OFFENDING_VALUE.exec(warning.text)?.[1];
-  if (value === undefined) {
+  const decl = warning.node;
+  if (value === undefined || decl?.type !== 'decl') {
     return false;
   }
-  if (warning.text.startsWith(PARSE_ERROR) && hasNewlineInString(value)) {
-    return true;
-  }
-  const unquoted = value.replaceAll(QUOTED_STRING, '""');
-  const tokens = unquoted.split(TOKEN_SEPARATOR);
+  const declaration = decl as PostCSS.Declaration;
+  const allowsX = declaration.prop.toLowerCase() === RESOLUTION_X_PROPERTY;
   return (
-    VENDOR_PREFIX.test(unquoted) ||
-    callsUnknownFunction(unquoted) ||
-    hasInvalidHexColor(tokens) ||
-    hasUnknownUnit(tokens, knownUnits) ||
-    hasNonstandardGradientDirection(unquoted) ||
-    isLegacyIeFilter(warning.node)
+    isLegacyIeFilter(declaration) ||
+    hasIgnoredNode(postcssValueParser(value).nodes, checks, allowsX)
   );
 }
 
-function filterAndRelabelWarnings(result: PostcssResult, from: number): void {
+/**
+ * Stylelint runs rules concurrently, so warnings from other rules may be interleaved with the
+ * upstream ones. Only warnings that still carry the upstream rule name are handled.
+ */
+function filterAndRelabelWarnings(result: PostcssResult): void {
   const { messages } = result;
-  const knownUnits = knownUnitsOf(result);
-  for (let i = messages.length - 1; i >= from; i--) {
+  const checks = overlapChecks(knownUnitsOf(result));
+  for (let i = messages.length - 1; i >= 0; i--) {
     const warning = messages[i] as UpstreamWarning;
     if (warning.type !== 'warning' || warning.rule !== UPSTREAM_RULE) {
       continue;
     }
-    if (isIgnored(warning, knownUnits)) {
+    if (isIgnored(warning, checks)) {
       messages.splice(i, 1);
     } else {
       warning.text = warning.text.replace(` (${UPSTREAM_RULE})`, ` (${SONAR_RULE})`);
@@ -183,9 +192,8 @@ const ruleImpl: stylelint.RuleBase<unknown, unknown> = (
 
   return async (root: PostCSS.Root, result: PostcssResult): Promise<void> => {
     const delegated = await getUpstream();
-    const from = result.messages.length;
     await delegated(root, result);
-    filterAndRelabelWarnings(result, from);
+    filterAndRelabelWarnings(result);
   };
 };
 

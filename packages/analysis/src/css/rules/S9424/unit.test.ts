@@ -25,6 +25,29 @@ const RULE = 'sonar/declaration-property-value-no-unknown';
 const ruleTester = new StylelintRuleTester(RULE);
 const vuePath = normalizeToAbsolutePath(path.join(import.meta.dirname, 'component.vue'));
 
+const OVERLAPPING_RULES = [
+  'color-no-invalid-hex',
+  'function-linear-gradient-no-nonstandard-direction',
+  'string-no-newline',
+  'unit-no-unknown',
+  'sonar/annotation-no-unknown',
+];
+
+/** Lints each code snippet as a separate file, in order, with S9424 and its overlapping rules */
+async function lintWithOverlappingRules(...codes: string[]): Promise<string[][]> {
+  const linter = new LinterWrapper();
+  linter.initialize(
+    [RULE, ...OVERLAPPING_RULES].map((key: string) => ({ key, configurations: [] })),
+  );
+  const reported: string[][] = [];
+  for (const [index, code] of codes.entries()) {
+    const filePath = normalizeToAbsolutePath(path.join(import.meta.dirname, `file${index}.css`));
+    const { issues } = await linter.lint(filePath, code);
+    reported.push(issues.map((issue: { ruleId: string }): string => issue.ruleId).sort());
+  }
+  return reported;
+}
+
 describe('S9424 (sonar/declaration-property-value-no-unknown)', () => {
   it('accepts valid property values', () =>
     ruleTester.valid({
@@ -246,4 +269,85 @@ a { top: red; }
 </style></head></html>`,
       errors: [{ text: `Unknown value "red" for property "top" (${RULE})`, line: 2, column: 10 }],
     }));
+
+  describe('overlapping rules', () => {
+    it('leaves invalid hex colors to color-no-invalid-hex', async () => {
+      expect(await lintWithOverlappingRules('a { color: #ffw; border: 1px solid #ffw; }')).toEqual([
+        ['color-no-invalid-hex', 'color-no-invalid-hex'],
+      ]);
+    });
+
+    it('still reports an invalid function whose arguments contain a valid hex color', async () => {
+      expect(await lintWithOverlappingRules('a { color: rgb(1 2 #fff); }')).toEqual([[RULE]]);
+    });
+
+    it('leaves unknown units to unit-no-unknown, including inside functions', async () => {
+      expect(
+        await lintWithOverlappingRules(
+          'a { margin: 1px 10pixels; }',
+          'a { color: rgb(1 2 3foo); }',
+        ),
+      ).toEqual([['unit-no-unknown'], ['unit-no-unknown']]);
+    });
+
+    it('leaves the "x" unit outside resolution contexts to unit-no-unknown', async () => {
+      expect(await lintWithOverlappingRules('a { width: 10x; }')).toEqual([['unit-no-unknown']]);
+    });
+
+    it('still reports invalid values next to the "x" resolution unit', async () => {
+      expect(await lintWithOverlappingRules('a { image-resolution: 2x foo; }')).toEqual([[RULE]]);
+    });
+
+    it('leaves non-standard gradient directions to function-linear-gradient-no-nonstandard-direction', async () => {
+      expect(
+        await lintWithOverlappingRules('a { background: linear-gradient(top, #fff, #000); }'),
+      ).toEqual([['function-linear-gradient-no-nonstandard-direction']]);
+    });
+
+    it('leaves every non-standard gradient direction form to the dedicated rule', async () => {
+      expect(
+        await lintWithOverlappingRules(
+          'a { background: linear-gradient(45, #fff, #000); }',
+          'a { background: linear-gradient(to top top, #fff, #000); }',
+          'a { background: linear-gradient(1px 2px); }',
+        ),
+      ).toEqual([
+        ['function-linear-gradient-no-nonstandard-direction'],
+        ['function-linear-gradient-no-nonstandard-direction'],
+        ['function-linear-gradient-no-nonstandard-direction'],
+      ]);
+    });
+
+    it('still reports invalid gradients whose direction is standard', async () => {
+      expect(
+        await lintWithOverlappingRules(
+          'a { background: linear-gradient(45deg, foo, #000); }',
+          'a { background: linear-gradient(to left, foo, #000); }',
+          'a { background: linear-gradient(in oklch, foo, #000); }',
+          'a { background: linear-gradient(red, foo); }',
+        ),
+      ).toEqual([[RULE], [RULE], [RULE], [RULE]]);
+    });
+
+    it('leaves strings with newlines to string-no-newline', async () => {
+      expect(await lintWithOverlappingRules('a { content: "first\nsecond"; }')).toEqual([
+        ['string-no-newline'],
+      ]);
+    });
+
+    it('leaves unknown annotations to S8757', async () => {
+      expect(await lintWithOverlappingRules('a { color: green !imprtant; }')).toEqual([
+        ['sonar/annotation-no-unknown'],
+      ]);
+    });
+
+    it('keeps its own rule name and filters across successive files', async () => {
+      const code = 'a { top: red; display: -ms-flexbox; color: red !imprtant; }';
+      expect(await lintWithOverlappingRules(code, code, code)).toEqual([
+        ['sonar/annotation-no-unknown', RULE],
+        ['sonar/annotation-no-unknown', RULE],
+        ['sonar/annotation-no-unknown', RULE],
+      ]);
+    });
+  });
 });
