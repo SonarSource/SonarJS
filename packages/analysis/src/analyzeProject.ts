@@ -208,13 +208,7 @@ async function analyzeProjectWithCancellation(
         jsTsConfigFields,
         incrementalResultsChannel,
       );
-      // An orphan group records its program before analyzing its first file. On cancellation,
-      // unprocessed group members remain pending but must not acquire a second outcome.
-      if (!isAnalysisCancelled()) {
-        for (const filePath of noProgramFiles) {
-          programSelection?.recordNoProgram(filePath);
-        }
-      }
+      recordNoProgramOutcomes(noProgramFiles, programSelection);
     }
   }
   progressReport.stop();
@@ -226,4 +220,18 @@ async function analyzeProjectWithCancellation(
     incrementalResultsChannel?.({ ...results.meta, messageType: 'meta' });
   }
   return results;
+}
+
+function recordNoProgramOutcomes(
+  files: NormalizedAbsolutePath[],
+  programSelection: ProjectAnalysisInput['programSelection'],
+): void {
+  // An orphan group records its program before analyzing its first file. On cancellation,
+  // unprocessed group members remain pending but must not acquire a second outcome.
+  if (isAnalysisCancelled()) {
+    return;
+  }
+  for (const file of files) {
+    programSelection?.recordNoProgram(file);
+  }
 }

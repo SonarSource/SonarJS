@@ -147,6 +147,92 @@ export type WorkerData = {
   debugMemory: boolean;
 };
 
+async function handleProjectAnalysis(
+  request: AnalyzeProjectProtoRequest,
+  workerData: WorkerData,
+  incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
+): Promise<RequestResult<AnalyzeProjectResponse | void>> {
+  const cacheMode = request.filesystemCache
+    ? normalizeCacheMode(request.filesystemCache.mode)
+    : undefined;
+  const hasFilesystemArchive = Boolean(request.filesystemCache?.archivePath);
+  const hasAnalysisMetadata = Boolean(request.filesystemCache?.analysisMetadataPath);
+  if (hasFilesystemArchive !== hasAnalysisMetadata) {
+    throw new InvalidAnalyzeProjectRequestError(
+      'A filesystem archive and analysis metadata must be supplied together',
+    );
+  }
+  const originalConfiguration = request.configuration ? { ...request.configuration } : undefined;
+  let filesystemCacheSession = beginFilesystemCacheAnalysis(request, cacheMode);
+  let programSelection: ProgramSelectionArchive | undefined;
+  try {
+    programSelection = beginAnalysisMetadata(request, cacheMode);
+    const restoredConfiguration = programSelection?.restoredConfiguration();
+    if (restoredConfiguration && request.configuration) {
+      // Preserve the SQAA request's base directory, file scope, and runtime paths.
+      Object.assign(request.configuration, restoredConfiguration);
+    }
+    return await withAnalysisCancellation(async () => {
+      logHeapStatistics(workerData?.debugMemory);
+      let sanitizedInput = await normalizeAnalyzeProjectRequest(request);
+      if (
+        cacheMode === 'replay' &&
+        programSelection &&
+        sanitizedInput.rules.length > 0 &&
+        !sanitizedInput.configuration.disableTypeChecking
+      ) {
+        const unsupportedFiles = filesWithoutRecordedProgramOutcome(
+          Object.keys(sourceFileStore.getFiles()) as NormalizedAbsolutePath[],
+          programSelection,
+          getJsTsConfigFields(sanitizedInput.configuration),
+        );
+        if (unsupportedFiles.length > 0) {
+          warn(
+            `Unsupported SonarJS context for ${unsupportedFiles.join(', ')}: no portable TypeScript program outcome; falling back to source-only analysis`,
+          );
+          endAnalysisSessions(programSelection, filesystemCacheSession);
+          programSelection = undefined;
+          filesystemCacheSession = undefined;
+          request.configuration = originalConfiguration;
+          request.filesystemCache = undefined;
+          // Reinitialize the stores without the replay archive or recorded CI settings.
+          // This follows the same tsconfig/orphan-program path as a request with no context.
+          sanitizedInput = await normalizeAnalyzeProjectRequest(request);
+        }
+      }
+      const wrappedIncrementalResultsChannel = incrementalResultsChannel
+        ? (event: AnalyzeProjectIncrementalEvent['event']) =>
+            incrementalResultsChannel({
+              event,
+              pathMap: sanitizedInput.pathMap,
+            })
+        : undefined;
+
+      const output = await analyzeProject(
+        {
+          rules: sanitizedInput.rules,
+          cssRules: sanitizedInput.cssRules,
+          bundles: sanitizedInput.bundles,
+          rulesWorkdir: sanitizedInput.rulesWorkdir,
+          programSelection,
+        },
+        sanitizedInput.configuration,
+        wrappedIncrementalResultsChannel,
+      );
+      logHeapStatistics(workerData?.debugMemory);
+      return {
+        type: 'success',
+        result: {
+          output,
+          pathMap: sanitizedInput.pathMap,
+        },
+      };
+    });
+  } finally {
+    endAnalysisSessions(programSelection, filesystemCacheSession);
+  }
+}
+
 export async function handleAnalyzeProjectRequest(
   request: AnalyzeProjectRuntimeRequest,
   workerData: WorkerData,
@@ -155,87 +241,7 @@ export async function handleAnalyzeProjectRequest(
   try {
     switch (request.type) {
       case 'on-analyze-project': {
-        const cacheMode = request.data.filesystemCache
-          ? normalizeCacheMode(request.data.filesystemCache.mode)
-          : undefined;
-        const hasFilesystemArchive = Boolean(request.data.filesystemCache?.archivePath);
-        const hasAnalysisMetadata = Boolean(request.data.filesystemCache?.analysisMetadataPath);
-        if (hasFilesystemArchive !== hasAnalysisMetadata) {
-          throw new InvalidAnalyzeProjectRequestError(
-            'A filesystem archive and analysis metadata must be supplied together',
-          );
-        }
-        const originalConfiguration = request.data.configuration
-          ? { ...request.data.configuration }
-          : undefined;
-        let filesystemCacheSession = beginFilesystemCacheAnalysis(request.data, cacheMode);
-        let programSelection: ProgramSelectionArchive | undefined;
-        try {
-          programSelection = beginAnalysisMetadata(request.data, cacheMode);
-          const restoredConfiguration = programSelection?.restoredConfiguration();
-          if (restoredConfiguration && request.data.configuration) {
-            // Preserve the SQAA request's base directory, file scope, and runtime paths.
-            Object.assign(request.data.configuration, restoredConfiguration);
-          }
-          return await withAnalysisCancellation(async () => {
-            logHeapStatistics(workerData?.debugMemory);
-            let sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
-            if (
-              cacheMode === 'replay' &&
-              programSelection &&
-              sanitizedInput.rules.length > 0 &&
-              !sanitizedInput.configuration.disableTypeChecking
-            ) {
-              const unsupportedFiles = filesWithoutRecordedProgramOutcome(
-                Object.keys(sourceFileStore.getFiles()) as NormalizedAbsolutePath[],
-                programSelection,
-                getJsTsConfigFields(sanitizedInput.configuration),
-              );
-              if (unsupportedFiles.length > 0) {
-                warn(
-                  `Unsupported SonarJS context for ${unsupportedFiles.join(', ')}: no portable TypeScript program outcome; falling back to source-only analysis`,
-                );
-                endAnalysisSessions(programSelection, filesystemCacheSession);
-                programSelection = undefined;
-                filesystemCacheSession = undefined;
-                request.data.configuration = originalConfiguration;
-                request.data.filesystemCache = undefined;
-                // Reinitialize the stores without the replay archive or recorded CI settings.
-                // This follows the same tsconfig/orphan-program path as a request with no context.
-                sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
-              }
-            }
-            const wrappedIncrementalResultsChannel = incrementalResultsChannel
-              ? (event: AnalyzeProjectIncrementalEvent['event']) =>
-                  incrementalResultsChannel({
-                    event,
-                    pathMap: sanitizedInput.pathMap,
-                  })
-              : undefined;
-
-            const output = await analyzeProject(
-              {
-                rules: sanitizedInput.rules,
-                cssRules: sanitizedInput.cssRules,
-                bundles: sanitizedInput.bundles,
-                rulesWorkdir: sanitizedInput.rulesWorkdir,
-                programSelection,
-              },
-              sanitizedInput.configuration,
-              wrappedIncrementalResultsChannel,
-            );
-            logHeapStatistics(workerData?.debugMemory);
-            return {
-              type: 'success',
-              result: {
-                output,
-                pathMap: sanitizedInput.pathMap,
-              },
-            };
-          });
-        } finally {
-          endAnalysisSessions(programSelection, filesystemCacheSession);
-        }
+        return await handleProjectAnalysis(request.data, workerData, incrementalResultsChannel);
       }
       case 'on-cancel-analysis': {
         return cancelAnalysis()

@@ -278,7 +278,7 @@ export class ProgramSelectionArchive {
     const metadata = sonarjs.programselection.AnalysisMetadata.decode(
       gunzipSync(fs.readFileSync(this.archivePath)),
     );
-    if (!metadata.programSelection || metadata.programSelection.magic !== MAGIC) {
+    if (metadata.programSelection?.magic !== MAGIC) {
       throw new Error(`Not a SonarJS analysis metadata archive: ${this.archivePath}`);
     }
     if (!metadata.configuration) {
@@ -295,21 +295,7 @@ export class ProgramSelectionArchive {
       if (id == null || id === 0 || this.programs.has(id)) {
         throw new Error(`Invalid or duplicate program id ${entry.id}`);
       }
-      let program: RecordedProgram;
-      if (entry.configured?.tsconfigPath && entry.configured.compilerOptions) {
-        program = {
-          kind: 'configured',
-          tsconfig: this.fromRelative(entry.configured.tsconfigPath),
-          compilerOptions: this.restoreCompilerOptions(entry.configured.compilerOptions),
-        };
-      } else if (entry.orphan?.compilerOptions) {
-        program = {
-          kind: 'orphan',
-          compilerOptions: this.restoreCompilerOptions(entry.orphan.compilerOptions),
-        };
-      } else {
-        throw new Error(`Program ${id} has no descriptor`);
-      }
+      const program = this.restoreProgram(entry);
       this.programs.set(id, { id, program });
     }
     for (const selection of metadata.programSelection.files ?? []) {
@@ -330,6 +316,23 @@ export class ProgramSelectionArchive {
       }
       this.noProgramFiles.add(file);
     }
+  }
+
+  private restoreProgram(entry: sonarjs.programselection.IProgram): RecordedProgram {
+    if (entry.configured?.tsconfigPath && entry.configured.compilerOptions) {
+      return {
+        kind: 'configured',
+        tsconfig: this.fromRelative(entry.configured.tsconfigPath),
+        compilerOptions: this.restoreCompilerOptions(entry.configured.compilerOptions),
+      };
+    }
+    if (entry.orphan?.compilerOptions) {
+      return {
+        kind: 'orphan',
+        compilerOptions: this.restoreCompilerOptions(entry.orphan.compilerOptions),
+      };
+    }
+    throw new Error(`Program ${entry.id} has no descriptor`);
   }
 
   private toRelative(absolutePath: NormalizedAbsolutePath): string {

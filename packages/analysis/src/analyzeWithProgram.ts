@@ -193,7 +193,7 @@ async function analyzeFilesFromDiscoveredPrograms(
       telemetry,
       programSelection,
       incrementalResultsChannel,
-    ); // NOSONAR -- tsconfigs mutate shared analysis state in order.
+    );
   }
 
   if (jsTsConfigFields.createTSProgramForOrphanFiles) {
@@ -482,7 +482,7 @@ async function analyzeFilesFromProgramSelection(
         incrementalResultsChannel,
         detectedEsYear ?? undefined,
         targetEsYear ?? undefined,
-      ); // NOSONAR -- files mutate shared analysis state in order.
+      );
     }
   }
 }
