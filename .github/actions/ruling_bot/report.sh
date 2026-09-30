@@ -4,17 +4,34 @@ set -euo pipefail
 
 cd "${GITHUB_WORKSPACE:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)}"
 
-if ! [[ "$BASE_SHA" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "${BASE_SHA}^{commit}"; then
-  echo 'Invalid or unavailable ruling report base commit.' >&2
-  exit 1
-fi
 if [ "$(git rev-parse HEAD)" != "$HEAD_SHA" ]; then
   echo 'Checked-out commit does not match the requested ruling report head.' >&2
   exit 1
 fi
 
-REPORT_BASE_SHA="$(git merge-base "$BASE_SHA" HEAD)"
-BASE_SHA="$REPORT_BASE_SHA" \
+if [ "$IS_PULL_REQUEST" = "true" ]; then
+  if ! TESTED_BASE_SHA="$(git rev-parse --verify 'HEAD^1^{commit}' 2>/dev/null)" ||
+    ! git rev-parse --verify 'HEAD^2^{commit}' > /dev/null 2>&1; then
+    echo 'The tested PR commit must be a merge with both parents available.' >&2
+    exit 1
+  fi
+  if [ -n "$BASE_SHA" ] && [ "$BASE_SHA" != "$TESTED_BASE_SHA" ]; then
+    echo 'The supplied ruling report base does not match the tested merge first parent.' >&2
+    exit 1
+  fi
+  BASE_SHA="$TESTED_BASE_SHA"
+fi
+if ! [[ "$BASE_SHA" =~ ^[0-9a-f]{40}$ ]] || ! git cat-file -e "${BASE_SHA}^{commit}"; then
+  echo 'Invalid or unavailable ruling report base commit.' >&2
+  exit 1
+fi
+
+if [ "${RULING_FAILED:-false}" = "true" ]; then
+  node .github/actions/ruling_bot/sync-results.mjs \
+    packages/ruling/actual its/ruling/src/test/resources/expected
+fi
+
+BASE_SHA="$BASE_SHA" \
   SOURCES_REPO_URL=https://github.com/SonarSource/jsts-test-sources/blob/master \
   RSPEC_BASE_URL='https://musical-adventure-r9qk65j.pages.github.io/rspec/#' \
   node .github/actions/ruling_bot/generate-report.mjs \

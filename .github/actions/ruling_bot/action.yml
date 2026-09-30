@@ -15,6 +15,10 @@ inputs:
   tested-head-sha:
     description: Head commit whose code produced the ruling results
     required: true
+  tested-base-sha:
+    description: First parent of the tested PR merge commit; empty for a branch run
+    required: false
+    default: ''
   is-pull-request:
     description: Whether the current workflow run is for a pull request
     required: true
@@ -39,6 +43,7 @@ runs:
         PR_NUMBER: ${{ inputs.pr-number }}
         TARGET_REF: ${{ inputs.target-ref }}
         TESTED_HEAD_SHA: ${{ inputs.tested-head-sha }}
+        TESTED_BASE_SHA: ${{ inputs.tested-base-sha }}
         IS_PULL_REQUEST: ${{ inputs.is-pull-request }}
         RULING_FAILED: ${{ inputs.ruling-failed }}
         NEW_RESULTS_PATH: ${{ inputs.new-results-path }}

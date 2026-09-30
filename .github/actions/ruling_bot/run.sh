@@ -22,6 +22,10 @@ if git log -1 --format=%B | grep -q 'Generated with GitHub Actions'; then
 fi
 
 if [ "$IS_PULL_REQUEST" = "true" ]; then
+  if [ -z "$TESTED_BASE_SHA" ] || [ "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]; then
+    echo '::error::The tested PR merge or its first parent was not passed to the ruling bot.'
+    exit 1
+  fi
   CURRENT_HEAD_SHA="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.sha')"
   if [ "$CURRENT_HEAD_SHA" != "$TESTED_HEAD_SHA" ]; then
     echo '::error::PR head changed since ruling ran; refusing to apply stale results.'
@@ -86,15 +90,17 @@ REPORT_FIX_PR_URL=""
 if [ "$IS_PULL_REQUEST" = "true" ]; then
   REPORT_PR_NUMBER="$PR_NUMBER"
   REPORT_FIX_PR_URL="$FIX_PR_URL"
-  # Report what the fix PR changes relative to the tested PR branch.
-  REPORT_BASE_SHA="$TESTED_HEAD_SHA"
+  REPORT_BASE_SHA="$TESTED_BASE_SHA"
 else
-  REPORT_BASE_SHA="$(git rev-parse "origin/$TARGET_REF")"
+  REPORT_BASE_SHA="$TESTED_HEAD_SHA"
 fi
 if ! gh workflow run ruling-diff-comment.yml --ref "$FIX_BRANCH" \
   -f pr-number="$REPORT_PR_NUMBER" \
   -f base-sha="$REPORT_BASE_SHA" \
-  -f head-sha="$(git rev-parse HEAD)" \
+  -f head-sha="$GITHUB_SHA" \
+  -f run-id="$GITHUB_RUN_ID" \
+  -f ruling-failed=true \
+  -f is-pull-request="$IS_PULL_REQUEST" \
   -f fix-pr-url="$REPORT_FIX_PR_URL"; then
   echo '::warning::Ruling comment dispatch failed; rerun Ruling Diff Comment manually.'
 fi

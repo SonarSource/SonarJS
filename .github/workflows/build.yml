@@ -1119,6 +1119,7 @@ jobs:
     outputs:
       ruling-outcome: ${{ steps.ruling.outcome }}
       ruling-results-saved: ${{ steps.save_ruling.outcome == 'success' }}
+      tested-base-sha: ${{ steps.tested_merge.outputs.base_sha }}
     permissions:
       id-token: write
       contents: read
@@ -1129,6 +1130,13 @@ jobs:
         with:
           fetch-depth: 2
           submodules: true
+      - name: Capture the tested PR base
+        id: tested_merge
+        if: github.event_name == 'pull_request'
+        run: |
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          git rev-parse --verify 'HEAD^2^{commit}' > /dev/null
+          echo "base_sha=$(git rev-parse --verify 'HEAD^1^{commit}')" >> "$GITHUB_OUTPUT"
       - *mise
       - *npm_cache
       - *download_rspec_rule_data
@@ -1182,6 +1190,7 @@ jobs:
           pr-number: ${{ github.event.pull_request.number || '' }}
           target-ref: ${{ github.head_ref || github.ref_name }}
           tested-head-sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          tested-base-sha: ${{ needs.js_ts_ruling.outputs.tested-base-sha }}
           is-pull-request: ${{ github.event_name == 'pull_request' }}
           ruling-failed: ${{ needs.js_ts_ruling.outputs.ruling-results-saved == 'true' }}
           new-results-path: packages/ruling/actual
