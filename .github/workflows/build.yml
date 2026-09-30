@@ -1306,3 +1306,46 @@ jobs:
           optional_checks: "Jira"
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+
+  notify-build-failure:
+    runs-on: sonar-xs
+    name: Notify build failure
+    needs:
+      - get_build_number
+      - build
+      - build_win
+      - test_js
+      - test_js_win
+      - analyze_primary
+      - test_eslint_plugin
+      - plugin_qa_with_node
+      - plugin_qa_without_node
+      - plugin_qa_fast_with_node
+      - plugin_qa_fast_without_node
+      - plugin_qa_without_node_alpine
+      - plugin_qa_fast_without_node_alpine
+      - plugin_qa_win
+      - plugin_qa_sonarlint_win
+      - plugin_qa_win_fast_with_node
+      - ruling
+      - js_ts_ruling
+      - promote
+    if: >-
+      always()
+      && (
+        github.ref_name == github.event.repository.default_branch ||
+        startsWith(github.ref_name, 'branch-') ||
+        startsWith(github.ref_name, 'dogfood-')
+      )
+      && contains(needs.*.result, 'failure')
+    permissions:
+      actions: read
+      id-token: write # required for vault-action-wrapper in the shared slack-notify action
+    steps:
+      - name: Slack Notification
+        uses: SonarSource/core-languages-tooling-public/common-actions/slack-notify@v1
+        with:
+          slack-channel: squad-corelang-notifs
+          branch-patterns: 'master,branch-*,dogfood-*'
+          github-token: ${{ github.token }}
+          branch: ${{ github.ref_name }}
