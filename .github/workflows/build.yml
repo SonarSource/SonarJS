@@ -1330,6 +1330,19 @@ jobs:
       - ruling
       - js_ts_ruling
       - promote
+      - setup
+      - populate_npm_cache
+      - populate_npm_cache_win
+      - prepare_rspec_rule_data
+      - build_eslint_plugin
+      - knip
+      - js_ts_ruling_replay
+      - releasability
+      - generated_files_freshness
+      - analyze_shadows
+      - plugin_qa_without_node_dev
+      - plugin_qa_fast_without_node_dev
+      - run_iris
     if: >-
       always()
       && (
@@ -1337,7 +1350,7 @@ jobs:
         startsWith(github.ref_name, 'branch-') ||
         startsWith(github.ref_name, 'dogfood-')
       )
-      && contains(needs.*.result, 'failure')
+      && failure()
     permissions:
       actions: read
       id-token: write # required for vault-action-wrapper in the shared slack-notify action
