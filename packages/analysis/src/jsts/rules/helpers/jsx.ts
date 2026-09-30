@@ -15,7 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import { unwrapTypeScriptExpression } from './ast.js';
+import type estree from 'estree';
+import type { JSXAttribute } from 'estree-jsx';
+import { getStaticExpressionValue, unwrapTypeScriptExpression } from './ast.js';
 
 type ArrayElement = NonNullable<TSESTree.ArrayExpression['elements'][number]>;
 
@@ -219,4 +221,26 @@ export function isJsxElementNamed(
   ...tagNames: string[]
 ): node is TSESTree.JSXElement {
   return node?.type === 'JSXElement' && isJsxIdentifierNamed(node.openingElement.name, ...tagNames);
+}
+
+// Resolves a JSX attribute's static string value, treating a non-string literal or boolean
+// shorthand as empty; undefined when dynamic.
+export function getStaticText(value: JSXAttribute['value']): string | undefined {
+  if (value === null) {
+    return '';
+  }
+  if (value.type === 'Literal') {
+    return typeof value.value === 'string' ? value.value : '';
+  }
+  if (value.type === 'JSXExpressionContainer') {
+    if (value.expression.type === 'JSXEmptyExpression') {
+      return '';
+    }
+    if (value.expression.type === 'Identifier' && value.expression.name === 'undefined') {
+      return '';
+    }
+    return getStaticExpressionValue(value.expression as estree.Expression);
+  }
+  // JSXElement / JSXFragment used as an attribute value: not a usable string.
+  return '';
 }

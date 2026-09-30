@@ -27,6 +27,7 @@ import { getElementType } from '../helpers/accessibility.js';
 import { functionLike, getValueOfExpression, getProperty } from '../helpers/ast.js';
 import { getConditionalBranchRoot, isArgumentOfRenderingCall } from '../helpers/jsx.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
+import { computeAccessibleName, getStaticHref } from './accessible-name.js';
 import { normalizeDestination } from './destination.js';
 import * as meta from './generated-meta.js';
 
@@ -35,15 +36,13 @@ const messages = {
     'Use a distinct text or label, or point to the same target for this link and the one on line {{line}}.',
 };
 
-const ARIA_LABELLEDBY = 'aria-labelledby';
-const ARIA_LABEL = 'aria-label';
 const ARIA_HIDDEN = 'aria-hidden';
 
 // Props whose presence in a spread makes the anchor unresolvable.
 const RELEVANT_PROPS = [
   'href',
-  ARIA_LABELLEDBY,
-  ARIA_LABEL,
+  'aria-labelledby',
+  'aria-label',
   'title',
   'hidden',
   ARIA_HIDDEN,
@@ -51,11 +50,8 @@ const RELEVANT_PROPS = [
 ];
 
 const DISPLAY_NONE_PATTERN = /display\s*:\s*none/i;
-// Namespaces an aria-labelledby-derived key so it can never collide with a text/aria-label name.
-const LABELLEDBY_KEY_PREFIX = ' labelledby:';
 
-type JsxAttributes = (JSXAttribute | JSXSpreadAttribute)[];
-type JsxChild = TSESTree.JSXElement['children'][number];
+export type JsxAttributes = (JSXAttribute | JSXSpreadAttribute)[];
 
 interface LinkInfo {
   name: string;
@@ -351,230 +347,4 @@ function isSpreadSafe(attributes: JsxAttributes, context: Rule.RuleContext): boo
       }
       return !RELEVANT_PROPS.some(prop => getProperty(resolved, prop, context) !== null);
     });
-}
-
-// Only a string literal or an expression-free template literal is accepted; anything else is treated as dynamic.
-function getStaticHref(value: JSXAttribute['value']): string | null {
-  if (value?.type === 'Literal') {
-    return typeof value.value === 'string' ? value.value : null;
-  }
-  if (value?.type === 'JSXExpressionContainer') {
-    const expression = value.expression;
-    if (expression.type === 'Literal' && typeof expression.value === 'string') {
-      return expression.value;
-    }
-    if (expression.type === 'TemplateLiteral') {
-      return cookTemplateLiteral(expression) ?? null;
-    }
-  }
-  return null;
-}
-
-// undefined if the template literal has a ${...} part, e.g. `/posts/${id}`, we can't know its value.
-function cookTemplateLiteral(expression: estree.TemplateLiteral): string | undefined {
-  if (expression.expressions.length !== 0) {
-    return undefined;
-  }
-  return expression.quasis[0].value.cooked ?? undefined;
-}
-
-// Accessible name precedence per accname: aria-labelledby > aria-label > text content > title.
-function computeAccessibleName(
-  element: TSESTree.JSXElement,
-  attributes: JsxAttributes,
-  context: Rule.RuleContext,
-  elementType: (node: TSESTree.JSXOpeningElement) => string,
-): string | null {
-  const labelledby = resolveNameStep(attributes, ARIA_LABELLEDBY, normalizeIdRefList);
-  if (labelledby !== undefined) {
-    // Best effort: compares the referenced id(s) directly rather than resolving them to a name.
-    return labelledby === null ? null : LABELLEDBY_KEY_PREFIX + labelledby;
-  }
-
-  const ariaLabel = resolveNameStep(attributes, ARIA_LABEL, normalizeAccessibleName);
-  if (ariaLabel !== undefined) {
-    return ariaLabel;
-  }
-
-  const textContent = computeTextContent(element.children, context, elementType);
-  if (textContent === null) {
-    return null;
-  }
-  const normalizedText = normalizeAccessibleName(textContent);
-  if (normalizedText) {
-    return normalizedText;
-  }
-
-  return resolveNameStep(attributes, 'title', normalizeAccessibleName) ?? null;
-}
-
-// One precedence step: undefined falls through, null means unresolvable, a string is the name.
-function resolveNameStep(
-  attributes: JsxAttributes,
-  prop: string,
-  normalize: (raw: string) => string,
-): string | null | undefined {
-  const attribute = getProp(attributes, prop) as JSXAttribute | undefined;
-  if (!attribute) {
-    return undefined;
-  }
-  const staticValue = getStaticText(attribute.value);
-  // An unresolvable value is very likely non-empty at runtime, so exclude rather than guess.
-  if (staticValue === undefined) {
-    return null;
-  }
-  return normalize(staticValue) || undefined;
-}
-
-function computeTextContent(
-  children: JsxChild[],
-  context: Rule.RuleContext,
-  elementType: (node: TSESTree.JSXOpeningElement) => string,
-): string | null {
-  let text = '';
-  for (const child of children) {
-    const contribution = computeChildContribution(child, context, elementType);
-    if (contribution === null) {
-      return null;
-    }
-    text += contribution;
-  }
-  return text;
-}
-
-function computeChildContribution(
-  child: JsxChild,
-  context: Rule.RuleContext,
-  elementType: (node: TSESTree.JSXOpeningElement) => string,
-): string | null {
-  switch (child.type) {
-    case 'JSXText':
-      return child.value;
-    case 'JSXExpressionContainer':
-      return computeExpressionContainerContribution(child.expression);
-    case 'JSXElement':
-      return computeElementChildContribution(child, context, elementType);
-    case 'JSXFragment':
-      return computeTextContent(child.children, context, elementType);
-    default:
-      // JSXSpreadChild and anything else: not statically resolvable.
-      return null;
-  }
-}
-
-function computeExpressionContainerContribution(
-  expression: TSESTree.JSXExpressionContainer['expression'],
-): string | null {
-  if (expression.type === 'JSXEmptyExpression') {
-    return '';
-  }
-  if (expression.type === 'Identifier' && expression.name === 'undefined') {
-    return '';
-  }
-  const staticValue = getStaticTextFromExpression(expression as estree.Expression);
-  return staticValue ?? null;
-}
-
-// A nested element's own name: aria-labelledby (unresolvable) > aria-label > <img alt> > its text.
-function computeElementChildContribution(
-  child: TSESTree.JSXElement,
-  context: Rule.RuleContext,
-  elementType: (node: TSESTree.JSXOpeningElement) => string,
-): string | null {
-  const opening = child.openingElement;
-  const attributes = (opening as unknown as JSXOpeningElement).attributes;
-
-  const hiddenState = ariaHiddenState(attributes);
-  if (hiddenState === 'unknown') {
-    return null;
-  }
-  if (hiddenState === 'hidden') {
-    return '';
-  }
-
-  // Named by an element we never resolve, so this contribution is unresolvable - unless the id
-  // list itself resolves to empty, which names nothing and falls through like the anchor's own.
-  if (resolveNameStep(attributes, ARIA_LABELLEDBY, normalizeIdRefList) !== undefined) {
-    return null;
-  }
-
-  // A nested element's own aria-label overrides its content, e.g. a nested `<svg aria-label>`.
-  const ownAriaLabel = resolveNameStep(attributes, ARIA_LABEL, value => value);
-  if (ownAriaLabel !== undefined) {
-    return ownAriaLabel;
-  }
-
-  if (elementType(opening).toLowerCase() === 'img') {
-    const altAttribute = getProp(attributes, 'alt') as JSXAttribute | undefined;
-    if (!altAttribute) {
-      return '';
-    }
-    const staticAlt = getStaticText(altAttribute.value);
-    return staticAlt ?? null;
-  }
-
-  return computeTextContent(child.children, context, elementType);
-}
-
-function ariaHiddenState(attributes: JsxAttributes): 'hidden' | 'visible' | 'unknown' {
-  const attribute = getProp(attributes, ARIA_HIDDEN);
-  if (!attribute) {
-    return 'visible';
-  }
-  const literal = getLiteralPropValue(attribute);
-  if (literal === true) {
-    return 'hidden';
-  }
-  if (literal === false) {
-    return 'visible';
-  }
-  return 'unknown';
-}
-
-// Resolves an attribute's static string value, treating a non-string literal or boolean shorthand as empty; undefined when dynamic.
-// This and getStaticTextFromExpression below are a candidate to extract into a general
-// "resolve an expression to its static string, or undefined if dynamic" helper in helpers/ast.ts,
-// which has no such primitive today (PR #7949 review: discussion_r4134018581).
-function getStaticText(value: JSXAttribute['value']): string | undefined {
-  if (value === null) {
-    return '';
-  }
-  if (value.type === 'Literal') {
-    return typeof value.value === 'string' ? value.value : '';
-  }
-  if (value.type === 'JSXExpressionContainer') {
-    if (value.expression.type === 'JSXEmptyExpression') {
-      return '';
-    }
-    if (value.expression.type === 'Identifier' && value.expression.name === 'undefined') {
-      return '';
-    }
-    return getStaticTextFromExpression(value.expression as estree.Expression);
-  }
-  // JSXElement / JSXFragment used as an attribute value: not a usable string.
-  return '';
-}
-
-function getStaticTextFromExpression(expression: estree.Expression): string | undefined {
-  if (expression.type === 'Literal') {
-    const { value } = expression;
-    if (typeof value === 'string') {
-      return value;
-    }
-    // Numbers render as visible text; null/booleans render nothing.
-    return typeof value === 'number' || typeof value === 'bigint' ? String(value) : '';
-  }
-  if (expression.type === 'TemplateLiteral') {
-    return cookTemplateLiteral(expression);
-  }
-  return undefined;
-}
-
-function normalizeAccessibleName(value: string): string {
-  return value.replace(/\s+/g, ' ').trim().toLowerCase();
-}
-
-// Unlike normalizeAccessibleName, this doesn't case-fold: IDREFs (WAI-ARIA/HTML) are case-sensitive.
-function normalizeIdRefList(value: string): string {
-  return value.replace(/\s+/g, ' ').trim();
 }
