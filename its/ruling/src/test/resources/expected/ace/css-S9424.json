@@ -2,5 +2,11 @@
 "ace:doc/template/resources/csses/ace_api.css": [
 35,
 54
+],
+"ace:experiments/animate_folding.html": [
+61
+],
+"ace:experiments/basic_animation.html": [
+33
 ]
 }
