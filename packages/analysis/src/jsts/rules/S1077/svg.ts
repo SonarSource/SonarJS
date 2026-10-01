@@ -43,7 +43,7 @@ export function checkSvgAccessibleName(
     return;
   }
 
-  const attributes = (node as JSXOpeningElement).attributes;
+  const attributes = node.attributes as JSXOpeningElement['attributes'];
 
   if (attributes.some(attribute => attribute.type === 'JSXSpreadAttribute')) {
     // A spread could supply the name, hide the element, or change its role; not statically knowable.
@@ -92,7 +92,7 @@ function isHiddenFromAssistiveTech(node: TSESTree.JSXOpeningElement): boolean {
   while (ancestor) {
     if (
       ancestor.type === 'JSXElement' &&
-      isElementHidden((ancestor.openingElement as unknown as JSXOpeningElement).attributes)
+      isElementHidden(ancestor.openingElement.attributes as JSXOpeningElement['attributes'])
     ) {
       return true;
     }
