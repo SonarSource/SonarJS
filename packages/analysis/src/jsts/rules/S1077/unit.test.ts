@@ -32,6 +32,8 @@ describe('S1077 SVG accessible name', () => {
         { code: `<svg role="img" aria-labelledby={null}><path d="M5 12h14"/></svg>`, errors: 1 },
         { code: `<svg role="img"><title></title><path d="M5 12h14"/></svg>`, errors: 1 },
         { code: `<svg role="img"><title>{false}</title></svg>`, errors: 1 },
+        // a <title> only names its direct parent (SVG 2), so one nested in <g> doesn't name the <svg>
+        { code: `<svg><g><title>Icon</title><path d="M10 10"/></g></svg>`, errors: 1 },
       ],
     });
   });
