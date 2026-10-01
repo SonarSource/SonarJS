@@ -89,7 +89,7 @@ function outputAliasFromDecorator(
 }
 
 /** Recognizes Angular component decorators such as `@Component({ outputs: [...] })`. */
-export function isAngularCoreDecorator(
+function isAngularCoreDecorator(
   context: Rule.RuleContext,
   node: TSESTree.Node | undefined,
   ...names: string[]
@@ -181,11 +181,10 @@ export function getAngularOutputAlias(
     (member?.type === 'PropertyDefinition' || member?.type === 'MethodDefinition') &&
     member.key === node
   ) {
-    return member.type === 'PropertyDefinition'
-      ? (outputAliasFromCall(context, member) ?? outputAliasFromDecorator(context, member))
-      : member.kind === 'get'
-        ? outputAliasFromDecorator(context, member)
-        : undefined;
+    if (member.type === 'PropertyDefinition') {
+      return outputAliasFromCall(context, member) ?? outputAliasFromDecorator(context, member);
+    }
+    return member.kind === 'get' ? outputAliasFromDecorator(context, member) : undefined;
   }
   return outputAliasFromMetadata(context, node);
 }
