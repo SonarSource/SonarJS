@@ -32,6 +32,10 @@ describe('S7652', () => {
           code: `class C { onRefresh = output({ alias: 'refresh' }); }`,
         },
         {
+          // The delegated rule allows lowercase words starting with "on".
+          code: `class C { onRefresh = output({ alias: 'online' }); }`,
+        },
+        {
           code: `class C { @Output('refresh') onRefresh = new EventEmitter(); }`,
         },
         {
@@ -41,7 +45,13 @@ describe('S7652', () => {
           code: `@Component({ outputs: ['onRefresh: refresh'] }) class C {}`,
         },
         {
+          code: '@Component({ outputs: [`onRefresh: refresh`] }) class C {}',
+        },
+        {
           code: `@Directive({ hostDirectives: [{ directive: Other, outputs: ['onRefresh: refresh'] }] }) class C {}`,
+        },
+        {
+          code: '@Directive({ hostDirectives: [{ directive: Other, outputs: [`onRefresh: refresh`] }] }) class C {}',
         },
       ],
       invalid: [
