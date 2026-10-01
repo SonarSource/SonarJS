@@ -24,37 +24,52 @@ const { rules: upstreamRules } = pkg as unknown as { rules: Record<string, Rule.
 
 describe('S7652', () => {
   const ruleTester = new NoTypeCheckingRuleTester();
+  const angular = `import { Component, Directive, Output, output } from '@angular/core';`;
 
   it('uses explicit, compliant public output aliases', () => {
     ruleTester.run('S7652', rule, {
       valid: [
         {
-          code: `class C { onRefresh = output({ alias: 'refresh' }); }`,
+          code: `${angular} class C { onRefresh = output({ alias: 'refresh' }); }`,
+        },
+        {
+          code: `import { output as createOutput } from '@angular/core'; class C { onRefresh = createOutput({ alias: 'refresh' }); }`,
         },
         {
           // The delegated rule allows lowercase words starting with "on".
-          code: `class C { onRefresh = output({ alias: 'online' }); }`,
+          code: `${angular} class C { onRefresh = output({ alias: 'online' }); }`,
         },
         {
-          code: `class C { @Output('refresh') onRefresh = new EventEmitter(); }`,
+          code: `${angular} class C { @Output('refresh') onRefresh = new EventEmitter(); }`,
         },
         {
-          code: 'class C { @Output(`refresh`) onRefresh = new EventEmitter(); }',
+          code: `${angular} class C { @Output(\`refresh\`) onRefresh = new EventEmitter(); }`,
         },
         {
-          code: `@Component({ outputs: ['onRefresh: refresh'] }) class C {}`,
+          code: `${angular} class C { @Output('refresh') get onRefresh() { return new EventEmitter(); } }`,
         },
         {
-          code: '@Component({ outputs: [`onRefresh: refresh`] }) class C {}',
+          code: `${angular} @Component({ outputs: ['onRefresh: refresh'] }) class C {}`,
         },
         {
-          code: `@Directive({ hostDirectives: [{ directive: Other, outputs: ['onRefresh: refresh'] }] }) class C {}`,
+          code: `${angular} @Component({ outputs: [\`onRefresh: refresh\`] }) class C {}`,
         },
         {
-          code: '@Directive({ hostDirectives: [{ directive: Other, outputs: [`onRefresh: refresh`] }] }) class C {}',
+          code: `${angular} @Directive({ hostDirectives: [{ directive: Other, outputs: ['onRefresh: refresh'] }] }) class C {}`,
+        },
+        {
+          code: `${angular} @Directive({ hostDirectives: [{ directive: Other, outputs: [\`onRefresh: refresh\`] }] }) class C {}`,
         },
       ],
       invalid: [
+        {
+          code: `function output(_: unknown) { return 0; } class C { onRefresh = output({ alias: 'refresh' }); }`,
+          errors: 1,
+        },
+        {
+          code: `function Component(_: unknown) { return () => undefined; } @Component({ outputs: ['onRefresh: refresh'] }) class C {}`,
+          errors: 1,
+        },
         {
           code: `class C { onRefresh = output(); }`,
           errors: 1,
@@ -104,19 +119,19 @@ describe('S7652', () => {
       valid: [],
       invalid: [
         {
-          code: `class C { onRefresh = output({ alias: 'refresh' }); }`,
+          code: `${angular} class C { onRefresh = output({ alias: 'refresh' }); }`,
           errors: 1,
         },
         {
-          code: `class C { @Output('refresh') onRefresh = new EventEmitter(); }`,
+          code: `${angular} class C { @Output('refresh') onRefresh = new EventEmitter(); }`,
           errors: 1,
         },
         {
-          code: `@Component({ outputs: ['onRefresh: refresh'] }) class C {}`,
+          code: `${angular} @Component({ outputs: ['onRefresh: refresh'] }) class C {}`,
           errors: 1,
         },
         {
-          code: `@Directive({ hostDirectives: [{ directive: Other, outputs: ['onRefresh: refresh'] }] }) class C {}`,
+          code: `${angular} @Directive({ hostDirectives: [{ directive: Other, outputs: ['onRefresh: refresh'] }] }) class C {}`,
           errors: 1,
         },
       ],

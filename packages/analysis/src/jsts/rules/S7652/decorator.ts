@@ -19,6 +19,9 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { isStringLiteral } from '../helpers/ast.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+
+const ANGULAR_CORE = '@angular.core';
 
 function isCompliantAlias(alias: string | undefined): boolean {
   return alias !== undefined && !/^on(([^a-z])|(?=$))/.test(alias);
@@ -46,12 +49,15 @@ function propertyName(property: TSESTree.Property): string | undefined {
   return !property.computed && property.key.type === 'Identifier' ? property.key.name : undefined;
 }
 
-function outputAliasFromCall(member: TSESTree.PropertyDefinition): string | undefined {
+function outputAliasFromCall(
+  context: Rule.RuleContext,
+  member: TSESTree.PropertyDefinition,
+): string | undefined {
   const call = member.value;
   if (
     call?.type !== 'CallExpression' ||
-    call.callee.type !== 'Identifier' ||
-    call.callee.name !== 'output'
+    getFullyQualifiedName(context, call.callee as unknown as estree.Node) !==
+      `${ANGULAR_CORE}.output`
   ) {
     return undefined;
   }
@@ -67,33 +73,52 @@ function outputAliasFromCall(member: TSESTree.PropertyDefinition): string | unde
   return aliases.length === 1 ? staticText(aliases[0].value) : undefined;
 }
 
-function outputAliasFromDecorator(member: TSESTree.PropertyDefinition): string | undefined {
+function outputAliasFromDecorator(
+  context: Rule.RuleContext,
+  member: TSESTree.PropertyDefinition | TSESTree.MethodDefinition,
+): string | undefined {
   const outputDecorator = member.decorators.find(decorator => {
     const expression = decorator.expression;
     return (
       expression.type === 'CallExpression' &&
-      expression.callee.type === 'Identifier' &&
-      expression.callee.name === 'Output'
+      getFullyQualifiedName(context, expression.callee as unknown as estree.Node) ===
+        `${ANGULAR_CORE}.Output`
     );
   });
   const expression = outputDecorator?.expression;
   return expression?.type === 'CallExpression' ? staticText(expression.arguments[0]) : undefined;
 }
 
-function outputAliasFromProperty(node: TSESTree.Node): string | undefined {
+function outputAliasFromProperty(
+  context: Rule.RuleContext,
+  node: TSESTree.Node,
+): string | undefined {
   const member = node.parent;
-  if (member?.type !== 'PropertyDefinition' || member.key !== node) {
+  if (
+    (member?.type !== 'PropertyDefinition' && member?.type !== 'MethodDefinition') ||
+    member.key !== node
+  ) {
     return undefined;
   }
-  return outputAliasFromCall(member) ?? outputAliasFromDecorator(member);
+  return member.type === 'PropertyDefinition'
+    ? (outputAliasFromCall(context, member) ?? outputAliasFromDecorator(context, member))
+    : member.kind === 'get'
+      ? outputAliasFromDecorator(context, member)
+      : undefined;
 }
 
-function isComponentOrDirectiveDecorator(node: TSESTree.Node | undefined): boolean {
+function isComponentOrDirectiveDecorator(
+  context: Rule.RuleContext,
+  node: TSESTree.Node | undefined,
+): boolean {
   return (
     node?.type === 'Decorator' &&
     node.expression.type === 'CallExpression' &&
-    node.expression.callee.type === 'Identifier' &&
-    (node.expression.callee.name === 'Component' || node.expression.callee.name === 'Directive')
+    ['Component', 'Directive'].some(
+      name =>
+        getFullyQualifiedName(context, node.expression.callee as unknown as estree.Node) ===
+        `${ANGULAR_CORE}.${name}`,
+    )
   );
 }
 
@@ -103,7 +128,7 @@ function mappingNode(node: TSESTree.Node): TSESTree.Node {
     : node;
 }
 
-function isMetadataOutputMapping(node: TSESTree.Node): boolean {
+function isMetadataOutputMapping(context: Rule.RuleContext, node: TSESTree.Node): boolean {
   const array = mappingNode(node).parent;
   const outputs = array?.parent;
   const metadata = outputs?.parent;
@@ -115,11 +140,11 @@ function isMetadataOutputMapping(node: TSESTree.Node): boolean {
     propertyName(outputs) === 'outputs' &&
     metadata?.type === 'ObjectExpression' &&
     componentCall?.type === 'CallExpression' &&
-    isComponentOrDirectiveDecorator(decorator)
+    isComponentOrDirectiveDecorator(context, decorator)
   );
 }
 
-function isHostDirectiveOutputMapping(node: TSESTree.Node): boolean {
+function isHostDirectiveOutputMapping(context: Rule.RuleContext, node: TSESTree.Node): boolean {
   const outputsArray = mappingNode(node).parent;
   const outputs = outputsArray?.parent;
   const hostDirective = outputs?.parent;
@@ -138,12 +163,15 @@ function isHostDirectiveOutputMapping(node: TSESTree.Node): boolean {
     propertyName(hostDirectives) === 'hostDirectives' &&
     metadata?.type === 'ObjectExpression' &&
     componentCall?.type === 'CallExpression' &&
-    isComponentOrDirectiveDecorator(decorator)
+    isComponentOrDirectiveDecorator(context, decorator)
   );
 }
 
-function outputAliasFromMetadata(node: TSESTree.Node): string | undefined {
-  if (!isMetadataOutputMapping(node) && !isHostDirectiveOutputMapping(node)) {
+function outputAliasFromMetadata(
+  context: Rule.RuleContext,
+  node: TSESTree.Node,
+): string | undefined {
+  if (!isMetadataOutputMapping(context, node) && !isHostDirectiveOutputMapping(context, node)) {
     return undefined;
   }
   const mapping = staticText(node);
@@ -156,14 +184,16 @@ function outputAliasFromMetadata(node: TSESTree.Node): string | undefined {
   return internalName && alias ? alias : undefined;
 }
 
-function isCompliantOutputAlias(node: estree.Node): boolean {
+function isCompliantOutputAlias(context: Rule.RuleContext, node: estree.Node): boolean {
   const astNode = node as TSESTree.Node;
-  return isCompliantAlias(outputAliasFromProperty(astNode) ?? outputAliasFromMetadata(astNode));
+  return isCompliantAlias(
+    outputAliasFromProperty(context, astNode) ?? outputAliasFromMetadata(context, astNode),
+  );
 }
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(rule, (context, reportDescriptor) => {
-    if (!('node' in reportDescriptor) || !isCompliantOutputAlias(reportDescriptor.node)) {
+    if (!('node' in reportDescriptor) || !isCompliantOutputAlias(context, reportDescriptor.node)) {
       context.report(reportDescriptor);
     }
   });
