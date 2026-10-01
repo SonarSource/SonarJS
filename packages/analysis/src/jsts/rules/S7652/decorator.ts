@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
+import type { TSESTree } from '@typescript-eslint/utils';
 import type estree from 'estree';
 import { getAngularOutputAlias } from '../helpers/angular.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
@@ -26,7 +27,7 @@ function isCompliantAlias(alias: string | undefined): boolean {
 
 /** Suppresses only reports whose checked node has an explicit, compliant public alias. */
 function isCompliantOutputAlias(context: Rule.RuleContext, node: estree.Node): boolean {
-  return isCompliantAlias(getAngularOutputAlias(context, node));
+  return isCompliantAlias(getAngularOutputAlias(context, node as unknown as TSESTree.Node));
 }
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

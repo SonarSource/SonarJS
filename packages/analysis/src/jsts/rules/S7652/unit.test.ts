@@ -71,43 +71,43 @@ describe('S7652', () => {
           errors: 1,
         },
         {
-          code: `class C { onRefresh = output(); }`,
+          code: `${angular} class C { onRefresh = output(); }`,
           errors: 1,
         },
         {
-          code: `class C { onRefresh = output({ alias: name }); }`,
+          code: `${angular} class C { onRefresh = output({ alias: name }); }`,
           errors: 1,
         },
         {
-          code: `class C { onRefresh = output({ alias: 'onSave' }); }`,
+          code: `${angular} class C { onRefresh = output({ alias: 'onSave' }); }`,
           errors: 2,
         },
         {
-          code: `class C { @Output() onRefresh = new EventEmitter(); }`,
+          code: `${angular} class C { @Output() onRefresh = new EventEmitter(); }`,
           errors: 1,
         },
         {
-          code: `class C { @Output(name) onRefresh = new EventEmitter(); }`,
+          code: `${angular} class C { @Output(name) onRefresh = new EventEmitter(); }`,
           errors: 1,
         },
         {
-          code: `class C { @Output('onSave') onRefresh = new EventEmitter(); }`,
+          code: `${angular} class C { @Output('onSave') onRefresh = new EventEmitter(); }`,
           errors: 2,
         },
         {
-          code: `@Component({ outputs: ['onRefresh'] }) class C {}`,
+          code: `${angular} @Component({ outputs: ['onRefresh'] }) class C {}`,
           errors: 1,
         },
         {
-          code: `@Component({ outputs: ['onRefresh: onSave'] }) class C {}`,
+          code: `${angular} @Component({ outputs: ['onRefresh: onSave'] }) class C {}`,
           errors: 1,
         },
         {
-          code: `@Component({ outputs: ['onRefresh: refresh: malformed'] }) class C {}`,
+          code: `${angular} @Component({ outputs: ['onRefresh: refresh: malformed'] }) class C {}`,
           errors: 1,
         },
         {
-          code: `@Directive({ hostDirectives: [{ directive: Other, outputs: ['onRefresh: onSave'] }] }) class C {}`,
+          code: `${angular} @Directive({ hostDirectives: [{ directive: Other, outputs: ['onRefresh: onSave'] }] }) class C {}`,
           errors: 1,
         },
       ],
