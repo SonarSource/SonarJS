@@ -14,6 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'no-unsafe-optional-chaining';
-export const externalPlugin = 'eslint';
+export const externalRules = [
+  { externalPlugin: 'eslint', externalRule: 'no-unsafe-optional-chaining' },
+];
