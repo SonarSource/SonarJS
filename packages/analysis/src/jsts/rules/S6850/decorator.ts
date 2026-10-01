@@ -92,19 +92,16 @@ function rendersNothing(context: Rule.RuleContext, value: estree.Node): boolean 
 type Settlement = boolean | null;
 
 /**
- * Whether `element` is a non-spread property keyed by `children`.
+ * Whether `element` is a property keyed by `children`.
  *
  * A computed identifier key only names `children` if its *value* happens to be that string, which
  * is not what an identifier named `children` being used as a key proves - so a computed key is
  * trusted only when it is itself the string literal `'children'`.
  */
-function isContentProperty(
-  element: estree.Property | estree.SpreadElement,
-): element is estree.Property {
+function isContentProperty(element: estree.Property): boolean {
   return (
-    element.type === 'Property' &&
-    ((!element.computed && isIdentifier(element.key, CONTENT_PROP)) ||
-      (isStringLiteral(element.key) && element.key.value === CONTENT_PROP))
+    (!element.computed && isIdentifier(element.key, CONTENT_PROP)) ||
+    (isStringLiteral(element.key) && element.key.value === CONTENT_PROP)
   );
 }
 
@@ -198,15 +195,17 @@ function objectSettles(
 ): Settlement {
   for (let i = object.properties.length - 1; i >= 0; i--) {
     const element = object.properties[i];
-    if (isContentProperty(element)) {
-      return !rendersNothing(context, element.value);
-    }
     if (element.type === 'SpreadElement') {
       const settlement = spreadSettles(context, element.argument, seen);
       if (settlement !== null) {
         return settlement;
       }
-    } else if (element.computed && !isStringLiteral(element.key)) {
+      continue;
+    }
+    if (isContentProperty(element)) {
+      return !rendersNothing(context, element.value);
+    }
+    if (element.computed && !isStringLiteral(element.key)) {
       return false;
     }
   }
