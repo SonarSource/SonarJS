@@ -157,15 +157,11 @@ a { color: pink !important; }
       ],
     }));
 
-  it('reports !important in keyframes when S4655 is not enabled', (): Promise<void> =>
-    ruleTester.invalid({
+  it('ignores !important in keyframes even when S4655 is not enabled', (): Promise<void> =>
+    ruleTester.valid({
       code:
         '@keyframes fade { from { opacity: 0 !important; } to { opacity: 1; } }\n' +
         '@-webkit-keyframes fade { from { opacity: 0 !important; } }',
-      errors: [
-        { text, line: 1 },
-        { text, line: 2 },
-      ],
     }));
 
   it('leaves !important in keyframes to S4655 when it is enabled', async (): Promise<void> => {

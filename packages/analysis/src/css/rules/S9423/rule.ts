@@ -20,8 +20,7 @@ import type PostCSS from 'postcss';
 
 const SONAR_RULE = 'sonar/declaration-no-important';
 const UPSTREAM_RULE = 'declaration-no-important';
-// S4655 already reports "!important" inside keyframes
-const KEYFRAMES_RULE = 'keyframe-declaration-no-important';
+// "!important" inside keyframes is left to S4655
 const KEYFRAMES_NAME = /^(-(o|moz|ms|webkit)-)?keyframes$/i;
 
 export const messages = {
@@ -34,11 +33,6 @@ type ReportedMessage = {
   node?: PostCSS.Node;
   stylelintType?: string;
 };
-
-function isKeyframesRuleEnabled(result: PostcssResult): boolean {
-  const setting = result.stylelint.config?.rules?.[KEYFRAMES_RULE];
-  return setting !== undefined && setting !== null;
-}
 
 function setDisabledRanges(
   result: PostcssResult,
@@ -90,14 +84,13 @@ const ruleImpl: stylelint.RuleBase = (
     const upstream = factory(primary, secondaryOptions, context);
     await runWithSonarDisables(result, (): Promise<void> | void => upstream(root, result));
 
-    const skipKeyframes = isKeyframesRuleEnabled(result);
     for (let i = reported.length - 1; i >= from; i--) {
       const message = reported[i];
       // Rules run concurrently, so other rules may have reported since `from`
       if (message.rule !== UPSTREAM_RULE || message.stylelintType !== undefined) {
         continue;
       }
-      if (skipKeyframes && isInKeyframes(message.node)) {
+      if (isInKeyframes(message.node)) {
         reported.splice(i, 1);
         continue;
       }
