@@ -23,10 +23,12 @@ import { getFullyQualifiedName } from '../helpers/module.js';
 
 const ANGULAR_CORE = '@angular.core';
 
+/** Mirrors the delegated rule: `online` is compliant, while `onSave` is not. */
 function isCompliantAlias(alias: string | undefined): boolean {
   return alias !== undefined && !/^on(([^a-z])|(?=$))/.test(alias);
 }
 
+/** Returns text from `'refresh'` or `` `refresh` ``, but never from dynamic expressions. */
 function staticText(node: TSESTree.Node | undefined): string | undefined {
   if (node && isStringLiteral(node as unknown as estree.Node)) {
     return (node as unknown as estree.Literal).value as string;
@@ -45,10 +47,12 @@ function staticText(node: TSESTree.Node | undefined): string | undefined {
   return undefined;
 }
 
+/** Accepts only direct keys such as `{ alias: 'refresh' }`, not computed properties. */
 function propertyName(property: TSESTree.Property): string | undefined {
   return !property.computed && property.key.type === 'Identifier' ? property.key.name : undefined;
 }
 
+/** Recognizes the Angular `output({ alias: 'refresh' })` property initializer. */
 function outputAliasFromCall(
   context: Rule.RuleContext,
   member: TSESTree.PropertyDefinition,
@@ -73,6 +77,7 @@ function outputAliasFromCall(
   return aliases.length === 1 ? staticText(aliases[0].value) : undefined;
 }
 
+/** Recognizes the Angular `@Output('refresh')` field or getter decorator. */
 function outputAliasFromDecorator(
   context: Rule.RuleContext,
   member: TSESTree.PropertyDefinition | TSESTree.MethodDefinition,
@@ -175,6 +180,7 @@ function isHostDirectiveOutputMapping(context: Rule.RuleContext, node: TSESTree.
   );
 }
 
+/** Reads `refresh` from an already-recognized `onRefresh: refresh` metadata mapping. */
 function outputAliasFromMetadata(
   context: Rule.RuleContext,
   node: TSESTree.Node,
@@ -192,6 +198,7 @@ function outputAliasFromMetadata(
   return internalName && alias ? alias : undefined;
 }
 
+/** Suppresses only reports whose checked node has an explicit, compliant public alias. */
 function isCompliantOutputAlias(context: Rule.RuleContext, node: estree.Node): boolean {
   const astNode = node as TSESTree.Node;
   return isCompliantAlias(
