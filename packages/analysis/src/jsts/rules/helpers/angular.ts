@@ -94,14 +94,14 @@ export function isAngularCoreDecorator(
   node: TSESTree.Node | undefined,
   ...names: string[]
 ): boolean {
-  return (
-    node?.type === 'Decorator' &&
-    node.expression.type === 'CallExpression' &&
-    names.some(
-      name =>
-        getFullyQualifiedName(context, node.expression.callee as unknown as estree.Node) ===
-        `${ANGULAR_CORE}.${name}`,
-    )
+  if (node?.type !== 'Decorator' || node.expression.type !== 'CallExpression') {
+    return false;
+  }
+  const callee = node.expression.callee;
+  return names.some(
+    name =>
+      getFullyQualifiedName(context, callee as unknown as estree.Node) ===
+      `${ANGULAR_CORE}.${name}`,
   );
 }
 
