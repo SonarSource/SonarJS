@@ -40,7 +40,8 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       ...rule.meta,
       messages: {
         ...rule.meta?.messages,
-        unexpectedVar: 'Use `let` or `const`: `var` leaks out of blocks.',
+        unexpectedVar:
+          'Replace "var" with "let" or "const", which are scoped to the block that declares them.',
       },
     }),
     create(context) {
