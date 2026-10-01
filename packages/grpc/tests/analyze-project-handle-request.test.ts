@@ -94,6 +94,95 @@ describe('analyze-project request handler', () => {
     });
   });
 
+  for (const configured of [true, false]) {
+    it(`prefers submitted edits over CI content in a restored ${configured ? 'configured' : 'orphan'} program`, async () => {
+      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'replay-content-precedence-'));
+      const baseDir = path.join(temporary, 'sources');
+      const rulesWorkdir = path.join(temporary, 'work');
+      const filePath = path.join(baseDir, 'existing.ts');
+      const archivePath = path.join(rulesWorkdir, 'filesystem.pb.gz');
+      const analysisMetadataPath = path.join(rulesWorkdir, 'analysis-metadata.pb.gz');
+      const original = '[80, 3, 9].sort();';
+      const edited = '[80, 3, 9].sort((a, b) => a - b);';
+      fs.mkdirSync(baseDir);
+      fs.mkdirSync(rulesWorkdir);
+      fs.writeFileSync(filePath, original);
+      if (configured) {
+        fs.writeFileSync(path.join(baseDir, 'tsconfig.json'), '{"files":["existing.ts"]}');
+      }
+      (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
+      // Match the worker's production preload order, where TypeScript uses patched stat calls.
+      const fileExists = mock.method(ts.sys, 'fileExists', (fileName: string) => {
+        try {
+          return fs.statSync(fileName).isFile();
+        } catch {
+          return false;
+        }
+      });
+      const request = (
+        mode: analyzeProjectProto.analyzeproject.v1.FilesystemCacheMode,
+        fileContent?: string,
+      ): AnalyzeProjectRequest => ({
+        configuration: { baseDir, canAccessFileSystem: true },
+        files: {
+          [filePath]: {
+            ...(fileContent === undefined ? {} : { fileContent }),
+            fileType: FileType.FILE_TYPE_MAIN,
+          },
+        },
+        rules: [
+          {
+            key: 'S2871',
+            configurations: [],
+            fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+            language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+            analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+          },
+        ],
+        cssRules: [],
+        bundles: [],
+        rulesWorkdir,
+        filesystemCache: { archivePath, analysisMetadataPath, mode },
+      });
+      const analyze = async (input: AnalyzeProjectRequest, expectedIssueCount: number) => {
+        const result = await handleAnalyzeProjectRequest(
+          { type: 'on-analyze-project', data: input },
+          workerData,
+        );
+        expect(result).toMatchObject({
+          type: 'success',
+          result: {
+            output: {
+              files: {
+                [normalizeToAbsolutePath(filePath)]: {
+                  issues: expectedIssueCount ? [expect.objectContaining({ ruleId: 'S2871' })] : [],
+                },
+              },
+            },
+          },
+        });
+        // A successful source-only fallback must not masquerade as context restoration.
+        expect(input.filesystemCache).toBeDefined();
+      };
+      try {
+        // CI keeps UTF-8 files path-only, recording their actual filesystem contents.
+        await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD), 1);
+        const archiveBefore = fs.readFileSync(archivePath);
+        const metadataBefore = fs.readFileSync(analysisMetadataPath);
+        fs.writeFileSync(filePath, edited);
+        // Reproduce the old request shape: the native edit is hidden by the CI archive.
+        await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY), 1);
+        // The fixed scanner request supplies content, including to the TypeScript program.
+        await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY, edited), 0);
+        await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY, original), 1);
+        expect(fs.readFileSync(archivePath)).toEqual(archiveBefore);
+        expect(fs.readFileSync(analysisMetadataPath)).toEqual(metadataBefore);
+      } finally {
+        fileExists.mock.restore();
+      }
+    });
+  }
+
   it('falls back to a source-only orphan program for an unrecorded replay file', async () => {
     const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'unsupported-program-outcome-'));
     const recordRoot = path.join(temporary, 'record');

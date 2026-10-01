@@ -402,6 +402,10 @@ class WebSensorTest {
     assertThat(request.getFilesystemCache().getMode()).isEqualTo(
       FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY
     );
+    assertThat(inputFile.charset()).isEqualTo(StandardCharsets.UTF_8);
+    var requestedFile = request.getFilesOrThrow(inputFile.absolutePath());
+    assertThat(requestedFile.hasFileContent()).isTrue();
+    assertThat(requestedFile.getFileContent()).isEqualTo(inputFile.contents());
   }
 
   @Test
@@ -481,6 +485,7 @@ class WebSensorTest {
       assertThat(request.getFilesystemCache().getMode()).isEqualTo(
         FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
       );
+      assertThat(request.getFilesOrThrow(inputFile.absolutePath()).hasFileContent()).isFalse();
       var archive = Path.of(request.getFilesystemCache().getArchivePath());
       var analysisMetadata = Path.of(request.getFilesystemCache().getAnalysisMetadataPath());
       assertThat(archive).doesNotExist();
@@ -531,6 +536,7 @@ class WebSensorTest {
     var request = executeSensorAndCaptureHandler(sensor, context).getRequest();
 
     assertThat(request.hasFilesystemCache()).isFalse();
+    assertThat(request.getFilesOrThrow(inputFile.absolutePath()).hasFileContent()).isFalse();
   }
 
   @Test

@@ -636,12 +636,17 @@ public class WebSensor implements ProjectSensor {
 
     private void addFileToAnalyze(Map<String, ProjectFileInput> files, InputFile inputFile)
       throws IOException {
+      // SQAA replay must overlay the submitted contents rather than read the CI archive.
+      // Keep normal CI (including context recording) path-only for UTF-8 files.
+      var sendFileContent =
+        (!recordFilesystemCache && filesystemCacheArchivePath != null) ||
+        handlerContext.shouldSendFileContent(inputFile);
       files.put(
         inputFile.absolutePath(),
         AnalyzeProjectMessages.newProjectFileInput(
           inputFile.type(),
           inputFile.status(),
-          handlerContext.shouldSendFileContent(inputFile) ? inputFile.contents() : null
+          sendFileContent ? inputFile.contents() : null
         )
       );
       fileToInputFile.put(inputFile.absolutePath(), inputFile);
