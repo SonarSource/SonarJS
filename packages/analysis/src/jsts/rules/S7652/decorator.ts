@@ -21,7 +21,7 @@ import { isStringLiteral } from '../helpers/ast.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 
 function isCompliantAlias(alias: string | undefined): boolean {
-  return alias !== undefined && !alias.startsWith('on');
+  return alias !== undefined && !/^on(([^a-z])|(?=$))/.test(alias);
 }
 
 function staticText(node: TSESTree.Node | undefined): string | undefined {
@@ -97,8 +97,14 @@ function isComponentOrDirectiveDecorator(node: TSESTree.Node | undefined): boole
   );
 }
 
+function mappingNode(node: TSESTree.Node): TSESTree.Node {
+  return node.type === 'TemplateElement' && node.parent?.type === 'TemplateLiteral'
+    ? node.parent
+    : node;
+}
+
 function isMetadataOutputMapping(node: TSESTree.Node): boolean {
-  const array = node.parent;
+  const array = mappingNode(node).parent;
   const outputs = array?.parent;
   const metadata = outputs?.parent;
   const componentCall = metadata?.parent;
@@ -114,7 +120,7 @@ function isMetadataOutputMapping(node: TSESTree.Node): boolean {
 }
 
 function isHostDirectiveOutputMapping(node: TSESTree.Node): boolean {
-  const outputsArray = node.parent;
+  const outputsArray = mappingNode(node).parent;
   const outputs = outputsArray?.parent;
   const hostDirective = outputs?.parent;
   const hostDirectivesArray = hostDirective?.parent;
