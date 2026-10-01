@@ -38,6 +38,10 @@ import * as meta from './generated-meta.js';
 /** What a compared operand reads: its lexical variable, or its name when it resolves to none. */
 type Operand = Scope.Variable | string;
 
+function isOperandDefined(operand: Operand | undefined): operand is Operand {
+  return operand !== undefined;
+}
+
 interface FunctionSignature {
   params: Array<string | undefined>;
   declaration?: FunctionNodeType;
@@ -158,13 +162,14 @@ export const rule: Rule.RuleModule = {
             return undefined;
         }
       }
+      // A side stands both for what it reads and for what it snapshots, since either can be the
+      // argument being ordered: `if (m < n) f(b, a)` compares through the snapshots of `a` and
+      // `b`, while `if (x < y) f(y, x)` compares the arguments themselves.
+      function getOperandsForSide(side: estree.Node): Operand[] {
+        return [getOperand(side), resolveMemberSnapshot(side)].filter(isOperandDefined);
+      }
       function checkComparedArguments(lhs: estree.Node, rhs: estree.Node): boolean {
-        // A side stands both for what it reads and for what it snapshots, since either can be the
-        // argument being ordered: `if (m < n) f(b, a)` compares through the snapshots of `a` and
-        // `b`, while `if (x < y) f(y, x)` compares the arguments themselves.
-        const sides = [lhs, rhs].map(side =>
-          [getOperand(side), resolveMemberSnapshot(side)].filter(operand => operand !== undefined),
-        );
+        const sides = [lhs, rhs].map(getOperandsForSide);
         const [first, second] = argumentNames.map(
           name => getVariableFromName(context, name, node) ?? name,
         );

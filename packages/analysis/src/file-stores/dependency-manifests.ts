@@ -123,7 +123,7 @@ export class DependencyManifestStore implements FileStore {
     this.dirnameToParent.set(dir, dirnamePath(dir));
   }
 
-  async postProcess(configuration: Configuration) {
+  postProcess(configuration: Configuration): Promise<void> {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
@@ -136,5 +136,6 @@ export class DependencyManifestStore implements FileStore {
         configuration.canAccessFileSystem,
       );
     }
+    return Promise.resolve();
   }
 }
