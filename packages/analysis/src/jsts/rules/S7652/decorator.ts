@@ -89,6 +89,10 @@ function outputAliasFromDecorator(
   return expression?.type === 'CallExpression' ? staticText(expression.arguments[0]) : undefined;
 }
 
+/**
+ * Recognizes an Angular output declaration such as
+ * `onRefresh = output({ alias: 'refresh' })` or `@Output('refresh') get onRefresh() {}`.
+ */
 function outputAliasFromProperty(
   context: Rule.RuleContext,
   node: TSESTree.Node,
@@ -107,6 +111,7 @@ function outputAliasFromProperty(
       : undefined;
 }
 
+/** Recognizes Angular component decorators such as `@Component({ outputs: [...] })`. */
 function isComponentOrDirectiveDecorator(
   context: Rule.RuleContext,
   node: TSESTree.Node | undefined,
@@ -122,12 +127,14 @@ function isComponentOrDirectiveDecorator(
   );
 }
 
+/** Maps the `TemplateElement` in `` `onRefresh: refresh` `` to its enclosing template. */
 function mappingNode(node: TSESTree.Node): TSESTree.Node {
   return node.type === 'TemplateElement' && node.parent?.type === 'TemplateLiteral'
     ? node.parent
     : node;
 }
 
+/** Recognizes `@Component({ outputs: ['onRefresh: refresh'] })` mappings. */
 function isMetadataOutputMapping(context: Rule.RuleContext, node: TSESTree.Node): boolean {
   const array = mappingNode(node).parent;
   const outputs = array?.parent;
@@ -144,6 +151,7 @@ function isMetadataOutputMapping(context: Rule.RuleContext, node: TSESTree.Node)
   );
 }
 
+/** Recognizes `@Directive({ hostDirectives: [{ outputs: ['onRefresh: refresh'] }] })` mappings. */
 function isHostDirectiveOutputMapping(context: Rule.RuleContext, node: TSESTree.Node): boolean {
   const outputsArray = mappingNode(node).parent;
   const outputs = outputsArray?.parent;
