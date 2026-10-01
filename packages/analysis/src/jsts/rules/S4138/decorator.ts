@@ -36,7 +36,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         messages: {
           ...rule.meta!.messages,
           preferForOf:
-            'Use a `for...of` loop, since the index is only used to read array elements.',
+            'Use a "for...of" loop, since the index is only used to read array elements.',
         },
       }),
     },

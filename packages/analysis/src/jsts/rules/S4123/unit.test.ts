@@ -167,7 +167,7 @@ describe('S4123', () => {
           errors: [
             {
               message:
-                'Remove this `await`, or check the expression, since its value is not a Promise.',
+                'This "await" does not apply to a "Promise". Remove it or fix the expression.',
               line: 4,
               endLine: 4,
               column: 9,

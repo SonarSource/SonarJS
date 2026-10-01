@@ -14,15 +14,15 @@ const dataReducer = (state = null, { type, payload }) => state;
 export const isPanelOpen = (state = false, { type, isShowing }) =>
   type === 'SET_IS_SHOWING' ? isShowing : state;
 
-function multiply(a = 1, b) { return a * b; } // Noncompliant {{Move this default parameter last, so callers can omit it instead of passing `undefined`.}}
+function multiply(a = 1, b) { return a * b; } // Noncompliant {{Move this default parameter last, so callers can omit it instead of passing "undefined".}}
 //                ^^^^^
 
-function appReducer(state = initialState, action, param) { return state; } // Noncompliant {{Move this default parameter last, so callers can omit it instead of passing `undefined`.}}
+function appReducer(state = initialState, action, param) { return state; } // Noncompliant {{Move this default parameter last, so callers can omit it instead of passing "undefined".}}
 //                  ^^^^^^^^^^^^^^^^^^^^
 
-function appReducerWrongParam(status = initialState, action) { return status; } // Noncompliant {{Move this default parameter last, so callers can omit it instead of passing `undefined`.}}
+function appReducerWrongParam(status = initialState, action) { return status; } // Noncompliant {{Move this default parameter last, so callers can omit it instead of passing "undefined".}}
 //                            ^^^^^^^^^^^^^^^^^^^^^
 
 // Destructured action without 'type' is not a Redux reducer
-function notReducer(state = initialState, { payload }) { return state; } // Noncompliant {{Move this default parameter last, so callers can omit it instead of passing `undefined`.}}
+function notReducer(state = initialState, { payload }) { return state; } // Noncompliant {{Move this default parameter last, so callers can omit it instead of passing "undefined".}}
 //                  ^^^^^^^^^^^^^^^^^^^^

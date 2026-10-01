@@ -30,7 +30,7 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
       removeAssignment:
-        'Remove this assignment to "{{variable}}", since the assigned value is never read.',
+        'The value assigned to "{{variable}}" is never read. Use it or remove this assignment.',
     },
   }),
   create(context: Rule.RuleContext) {

@@ -22,22 +22,19 @@ describe('S6660', () => {
   it('S6660', () => {
     const ruleTester = new DefaultParserRuleTester();
 
-    ruleTester.run(
-      'Merge this `if` into its `else` as `else if` to remove a level of nesting.',
-      rule,
-      {
-        valid: [
-          {
-            code: `
+    ruleTester.run('Replace this nested "if" with a more direct "else if".', rule, {
+      valid: [
+        {
+          code: `
         if (condition) {
           doSomething();
         }
       `,
-          },
-        ],
-        invalid: [
-          {
-            code: `
+        },
+      ],
+      invalid: [
+        {
+          code: `
         if (condition1) {
           // ...
         } else {
@@ -46,26 +43,25 @@ describe('S6660', () => {
           }
         }
       `,
-            output: `
+          output: `
         if (condition1) {
           // ...
         } else if (condition2) {
             // ...
           }
       `,
-            errors: [
-              {
-                message:
-                  'Merge this `if` into its `else` as `else if` to remove a level of nesting.',
-                line: 5,
-                endLine: 5,
-                column: 11,
-                endColumn: 13,
-              },
-            ],
-          },
-          {
-            code: `
+          errors: [
+            {
+              message: 'Replace this nested "if" with a more direct "else if".',
+              line: 5,
+              endLine: 5,
+              column: 11,
+              endColumn: 13,
+            },
+          ],
+        },
+        {
+          code: `
         if (condition3) {
           // ...
         } else {
@@ -76,7 +72,7 @@ describe('S6660', () => {
           }
         }
       `,
-            output: `
+          output: `
         if (condition3) {
           // ...
         } else if (condition4) {
@@ -85,19 +81,17 @@ describe('S6660', () => {
             // ...
           }
       `,
-            errors: [
-              {
-                message:
-                  'Merge this `if` into its `else` as `else if` to remove a level of nesting.',
-                line: 5,
-                endLine: 5,
-                column: 11,
-                endColumn: 13,
-              },
-            ],
-          },
-        ],
-      },
-    );
+          errors: [
+            {
+              message: 'Replace this nested "if" with a more direct "else if".',
+              line: 5,
+              endLine: 5,
+              column: 11,
+              endColumn: 13,
+            },
+          ],
+        },
+      ],
+    });
   });
 });

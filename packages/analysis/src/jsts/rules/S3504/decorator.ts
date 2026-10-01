@@ -41,7 +41,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       messages: {
         ...rule.meta?.messages,
         unexpectedVar:
-          'Replace `var` with `let` or `const`, which are scoped to the block that declares them.',
+          'Replace "var" with "let" or "const", which are scoped to the block that declares them.',
       },
     }),
     create(context) {

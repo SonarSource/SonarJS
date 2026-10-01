@@ -36,7 +36,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         messages: {
           ...rule.meta?.messages,
           'error/array-push':
-            'Merge these `{{description}}` calls into one, since it accepts multiple arguments.',
+            'Merge these {{description}} calls into a single call with multiple arguments.',
         },
       }),
     },

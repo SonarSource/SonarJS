@@ -34,7 +34,7 @@ describe('S4138', () => {
           errors: [
             {
               message:
-                'Use a `for...of` loop, since the index is only used to read array elements.',
+                'Use a "for...of" loop, since the index is only used to read array elements.',
               suggestions: [
                 {
                   desc: `Replace with "for of" loop`,

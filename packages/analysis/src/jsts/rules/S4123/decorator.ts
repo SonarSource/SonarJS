@@ -97,7 +97,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         ...rule.meta,
         messages: {
           ...rule.meta?.messages,
-          await: 'Remove this `await`, or check the expression, since its value is not a Promise.',
+          await: 'This "await" does not apply to a "Promise". Remove it or fix the expression.',
         },
       }),
     },

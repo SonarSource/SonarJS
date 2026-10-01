@@ -29,8 +29,7 @@ const loops = 'WhileStatement, ForStatement, DoWhileStatement, ForInStatement, F
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      removeRedundantJump:
-        'Remove this redundant jump, since execution continues the same way without it.',
+      removeRedundantJump: 'Remove this "{{keyword}}" that does not affect the flow of execution.',
       suggestJumpRemoval: 'Remove this redundant jump',
     },
     hasSuggestions: true,
@@ -51,6 +50,7 @@ export const rule: Rule.RuleModule = {
 
           context.report({
             messageId: 'removeRedundantJump',
+            data: { keyword: node.type === 'ContinueStatement' ? 'continue' : 'return' },
             node,
             suggest: [
               {

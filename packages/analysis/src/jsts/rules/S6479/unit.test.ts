@@ -193,8 +193,7 @@ export const MyComponent = ({items}) => {
 `,
           errors: [
             {
-              message:
-                'Use a stable ID as key, since index keys mix up component state when the list changes.',
+              message: 'Use a stable ID as key, because the index changes when the list changes.',
             },
           ],
         },
