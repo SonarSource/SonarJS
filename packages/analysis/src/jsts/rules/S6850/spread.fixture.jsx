@@ -21,6 +21,11 @@ const children = 'x';
 const overriding = { children: 'Title' };
 <h1 {...{ children: null, ...overriding }} />;
 <MyHeading {...{ children: 'Title' }} />;
+// A computed key is trusted only when it is itself the literal `'children'`.
+<h1 {...{ ['children']: 'Title' }} />;
+// A computed key that is a literal other than `'children'` is known not to be it, so it cannot
+// block the explicit `children` that precedes it.
+<h1 {...{ children: 'Title', ['title']: 'x' }} />;
 
 // ---- upstream preconditions this decorator relies on (preservation) -----------------------
 // An explicit content attribute makes upstream bail out before the decorator runs, which is why
@@ -103,3 +108,9 @@ const overridable = { children: 'Title', ...props };
 <h1 {...overridable} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...{ ...{ children: 'Title', ...props } }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...someProps} {...{ children: 'Title', ...props }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+const computedKey = 'children';
+<h1 {...{ children: 'Title', [computedKey]: null }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+// An identifier named `children` used as a computed key names whatever its *value* is - here `'x'`,
+// from the `children` alias declared above - not the property `children` itself, so it must not be
+// mistaken for the literal property.
+<h1 {...{ [children]: 'Title' }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}

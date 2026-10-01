@@ -91,13 +91,19 @@ function rendersNothing(context: Rule.RuleContext, value: estree.Node): boolean 
  */
 type Settlement = boolean | null;
 
-/** Whether `element` is a non-spread property keyed by `children`. */
+/**
+ * Whether `element` is a non-spread property keyed by `children`.
+ *
+ * A computed identifier key only names `children` if its *value* happens to be that string, which
+ * is not what an identifier named `children` being used as a key proves - so a computed key is
+ * trusted only when it is itself the string literal `'children'`.
+ */
 function isContentProperty(
   element: estree.Property | estree.SpreadElement,
 ): element is estree.Property {
   return (
     element.type === 'Property' &&
-    (isIdentifier(element.key, CONTENT_PROP) ||
+    ((!element.computed && isIdentifier(element.key, CONTENT_PROP)) ||
       (isStringLiteral(element.key) && element.key.value === CONTENT_PROP))
   );
 }
@@ -180,6 +186,10 @@ function spreadSettles(
  * channel, before any explicit property it could override (`{ children: 'T', ...props }`). An
  * explicit property placed after every spread settles the channel itself, since no spread can
  * override it (`{ ...props, children: 'T' }`).
+ *
+ * A computed property whose key cannot be read as a literal is treated like an unresolved spread:
+ * its name is unknown, so it might be `children` and override an earlier value. It settles the
+ * channel as unproven instead of being skipped, the same way `{ children: 'T', ...props }` does.
  */
 function objectSettles(
   context: Rule.RuleContext,
@@ -196,6 +206,8 @@ function objectSettles(
       if (settlement !== null) {
         return settlement;
       }
+    } else if (element.computed && !isStringLiteral(element.key)) {
+      return false;
     }
   }
   return null;
