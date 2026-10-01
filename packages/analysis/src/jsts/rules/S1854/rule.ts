@@ -29,8 +29,7 @@ import * as meta from './generated-meta.js';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      removeAssignment:
-        'The value assigned to "{{variable}}" is never read. Use it or remove this assignment.',
+      removeAssignment: 'Remove this assignment to "{{variable}}": its value is never read.',
     },
   }),
   create(context: Rule.RuleContext) {

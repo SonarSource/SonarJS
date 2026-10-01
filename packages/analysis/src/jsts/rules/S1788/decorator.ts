@@ -34,8 +34,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         schema: undefined,
         messages: {
           ...rule.meta?.messages,
-          shouldBeLast:
-            'Move this default parameter last, so callers can omit it instead of passing "undefined".',
+          shouldBeLast: 'Move this default parameter last, or callers must pass `undefined`.',
         },
       }),
     },

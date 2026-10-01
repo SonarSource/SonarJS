@@ -31,8 +31,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
-const message =
-  'Merge this {{type}} with the identical one on line {{line}}, or update it if it should differ.';
+const message = 'Merge this {{type}} with its duplicate on line {{line}}, or fix the copy-paste.';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
