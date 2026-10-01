@@ -88,15 +88,9 @@ function filterComments(ast: { leadingComments?: Array<{ value: string }> }) {
           { code: `[...(a ?? [])?.map(g)];` },
           // `join` -> String, a different return kind than the Array methods
           { code: `[...(a ?? [])?.join(",")];` },
-          // ES2023 non-mutating array method added per JS-2540 acceptance decision 4
           { code: `[...(a ?? [])?.toSorted(g)];` },
-          // ES2023 non-mutating array method added per JS-2540 acceptance decision 4
           { code: `[...(a ?? [])?.toReversed()];` },
-          // ES2023 non-mutating array method added per JS-2540 acceptance decision 4
           { code: `[...(a ?? [])?.toSpliced(0, 1)];` },
-          // ES2023 non-mutating array method added per JS-2540 acceptance decision 4;
-          // also the allowlist entry most likely to be mistaken for a domain method
-          // (e.g. Temporal.PlainDate#with) and questioned or deleted by a future reviewer
           { code: `[...(a ?? [])?.with(0, 1)];` },
           // `||` fallback yields its left operand only when truthy
           { code: `[...(a || [])?.filter(f)];` },
