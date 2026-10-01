@@ -18,6 +18,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import type { Rule } from 'eslint';
 import pkg from 'jsx-ast-utils-x';
+import { isJsxElementNamed } from './jsx.js';
 const { getProp, getLiteralPropValue, getPropValue, elementType } = pkg;
 
 export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JSXOpeningElement) {
@@ -113,9 +114,7 @@ function hasTitleChild(node: TSESTree.JSXOpeningElement): boolean {
   }
   return parent.children.some(
     child =>
-      child.type === 'JSXElement' &&
-      child.openingElement.name.type === 'JSXIdentifier' &&
-      child.openingElement.name.name === 'title' &&
+      isJsxElementNamed(child, 'title') &&
       child.children.some(
         c =>
           (c.type === 'JSXText' && c.value.trim() !== '') ||

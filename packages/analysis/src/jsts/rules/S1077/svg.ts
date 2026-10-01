@@ -20,6 +20,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
 import { hasAccessibleName } from '../helpers/accessibility.js';
+import { isJsxIdentifierNamed } from '../helpers/jsx.js';
 
 const { getProp, getLiteralPropValue } = pkg;
 
@@ -38,7 +39,7 @@ export function checkSvgAccessibleName(
   context: Rule.RuleContext,
   node: TSESTree.JSXOpeningElement,
 ) {
-  if (node.name.type !== 'JSXIdentifier' || node.name.name !== 'svg') {
+  if (!isJsxIdentifierNamed(node.name, 'svg')) {
     return;
   }
 
