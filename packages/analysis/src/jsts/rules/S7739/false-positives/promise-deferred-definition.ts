@@ -1,0 +1,449 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import type { Rule } from 'eslint';
+import type { CallExpression, Node, Property } from 'estree';
+import {
+  getVariableFromName,
+  isIdentifier,
+  isStaticMethodCall,
+  isThisExpression,
+} from '../../helpers/ast.js';
+import { getNodeParent } from '../../helpers/ancestor.js';
+import { isGlobalShadowed } from '../../helpers/module.js';
+import { getAncestorsWithParent } from '../helpers.js';
+
+/**
+ * Checks if an ancestor is a function declaration named 'Promise' or 'Deferred'.
+ */
+function isPromiseOrDeferredFunctionDeclaration(ancestor: Node): boolean {
+  return (
+    ancestor.type === 'FunctionDeclaration' &&
+    ancestor.id !== null &&
+    isIdentifier(ancestor.id, 'Promise', 'Deferred')
+  );
+}
+
+/**
+ * Recognizes a factory assignment such as `Promise = ...` or `namespace.Deferred = ...`.
+ * Computed targets, such as `namespace['Promise']`, intentionally remain outside this pattern.
+ */
+function isPromiseOrDeferredAssignmentTarget(target: Node): boolean {
+  return (
+    isIdentifier(target, 'Promise', 'Deferred') || isPromiseOrDeferredMemberAssignmentTarget(target)
+  );
+}
+
+function isPromiseOrDeferredMemberAssignmentTarget(target: Node): boolean {
+  return (
+    target.type === 'MemberExpression' &&
+    !target.computed &&
+    isIdentifier(target.property, 'Promise', 'Deferred')
+  );
+}
+
+/**
+ * Recognizes `const Promise = function () {}`, `Deferred = () => {}`, and their non-computed
+ * member-assignment forms. Arrow functions that define `this.then` are excluded because their
+ * lexical `this` does not belong to the factory.
+ */
+function isPromiseOrDeferredFunctionExpression(
+  context: Rule.RuleContext,
+  ancestor: Node,
+  node: Node,
+): boolean {
+  if (ancestor.type !== 'FunctionExpression' && ancestor.type !== 'ArrowFunctionExpression') {
+    return false;
+  }
+  if (
+    ancestor.type === 'ArrowFunctionExpression' &&
+    isArrowFunctionLexicalThisThenDefinition(context, node)
+  ) {
+    return false;
+  }
+  const funcParent = (ancestor as Node & { parent?: Node }).parent;
+  if (!funcParent) {
+    return false;
+  }
+  // const Promise = function() { ... } or const Promise = () => { ... }
+  if (
+    funcParent.type === 'VariableDeclarator' &&
+    funcParent.id.type === 'Identifier' &&
+    isIdentifier(funcParent.id, 'Promise', 'Deferred')
+  ) {
+    return isCallableThenDefinition(context, node);
+  }
+  // Promise = function() { ... } or ns.Deferred = () => { ... }
+  return (
+    funcParent.type === 'AssignmentExpression' &&
+    isPromiseOrDeferredAssignmentTarget(funcParent.left) &&
+    isCallableThenDefinition(context, node)
+  );
+}
+
+/**
+ * Recognizes an instance `then` implementation: `this.then = fn`,
+ * `Object.defineProperty(this, 'then', { value: fn })`, an instance class member, or a
+ * directly returned `{ then: fn }` factory object. Non-callable values and static members remain
+ * reportable.
+ */
+function isCallableThenDefinition(context: Rule.RuleContext, node: Node): boolean {
+  const ancestors = getAncestorsWithParent(node);
+  const [parent, container] = ancestors;
+  const assignment = ancestors.find(ancestor => ancestor.type === 'AssignmentExpression');
+  if (
+    parent?.type === 'CallExpression' &&
+    parent.arguments[0] !== undefined &&
+    isThisExpression(parent.arguments[0]) &&
+    parent.arguments[1] === node &&
+    parent.arguments[2] !== undefined &&
+    isUnshadowedDefinePropertyCall(context, parent)
+  ) {
+    return isCallablePropertyDescriptor(parent.arguments[2] as Node);
+  }
+  if (
+    parent?.type === 'MemberExpression' &&
+    parent.property === node &&
+    assignment?.type === 'AssignmentExpression'
+  ) {
+    return parent.object.type === 'ThisExpression' && isCallableThenValue(assignment.right);
+  }
+  if (parent?.type === 'Property' && parent.key === node) {
+    return (
+      parent.kind === 'init' &&
+      container?.type === 'ObjectExpression' &&
+      isDirectFactoryResult(container) &&
+      isCallableThenValue(parent.value as Node)
+    );
+  }
+  if (parent?.type === 'MethodDefinition' && parent.key === node) {
+    return parent.kind === 'method' && !parent.static;
+  }
+  return (
+    parent?.type === 'PropertyDefinition' &&
+    parent.key === node &&
+    !parent.static &&
+    parent.value !== null &&
+    parent.value !== undefined &&
+    isCallableThenValue(parent.value)
+  );
+}
+
+function isUnshadowedDefinePropertyCall(context: Rule.RuleContext, call: CallExpression): boolean {
+  return (
+    (isStaticMethodCall(call, 'Object', 'defineProperty') &&
+      call.callee.type === 'MemberExpression' &&
+      !isGlobalShadowed(context.sourceCode, call.callee.object, 'Object')) ||
+    (isStaticMethodCall(call, 'Reflect', 'defineProperty') &&
+      call.callee.type === 'MemberExpression' &&
+      !isGlobalShadowed(context.sourceCode, call.callee.object, 'Reflect'))
+  );
+}
+
+function isCallableThenValue(node: Node): boolean {
+  return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
+}
+
+function isCallablePropertyDescriptor(node: Node): boolean {
+  if (
+    node.type !== 'ObjectExpression' ||
+    node.properties.some(property => property.type === 'SpreadElement')
+  ) {
+    return false;
+  }
+  for (let index = node.properties.length - 1; index >= 0; index--) {
+    const property = node.properties[index];
+    if (
+      property.type === 'Property' &&
+      property.kind === 'init' &&
+      isPropertyNamedValue(property)
+    ) {
+      return isCallableThenValue(property.value as Node);
+    }
+  }
+  return false;
+}
+
+function isPropertyNamedValue(property: Property): boolean {
+  return (
+    (!property.computed && isIdentifier(property.key, 'value')) ||
+    (property.key.type === 'Literal' && property.key.value === 'value')
+  );
+}
+
+/**
+ * Checks arrow code such as `exports.Promise = () => { this.then = fn; }` and
+ * `Object.defineProperty(this, 'then', { value: fn })`, where `this` is lexical.
+ */
+function isArrowFunctionLexicalThisThenDefinition(context: Rule.RuleContext, node: Node): boolean {
+  const [parent, assignment] = getAncestorsWithParent(node);
+  if (
+    parent?.type === 'CallExpression' &&
+    parent.arguments[1] === node &&
+    parent.arguments[0] !== undefined &&
+    isThisExpression(parent.arguments[0]) &&
+    parent.arguments[2] !== undefined &&
+    isUnshadowedDefinePropertyCall(context, parent)
+  ) {
+    return true;
+  }
+  return isThisThenAssignment(parent, assignment, node) || isThisThenObjectUtilityProperty(node);
+}
+
+function isThisThenAssignment(parent: Node | undefined, assignment: Node | undefined, node: Node) {
+  return (
+    parent?.type === 'MemberExpression' &&
+    parent.object.type === 'ThisExpression' &&
+    parent.property === node &&
+    assignment?.type === 'AssignmentExpression' &&
+    assignment.left === parent
+  );
+}
+
+/**
+ * Recognizes `Object.assign(this, { then: fn })` and
+ * `Object.defineProperties(this, { then: { value: fn } })` only while examining the object
+ * literal's `then` property. Similar helper calls on another receiver remain reportable.
+ */
+function isThisThenObjectUtilityProperty(node: Node): boolean {
+  const [property, object, call] = getAncestorsWithParent(node);
+  return (
+    property?.type === 'Property' &&
+    property.key === node &&
+    object?.type === 'ObjectExpression' &&
+    call?.type === 'CallExpression' &&
+    call.arguments[0]?.type === 'ThisExpression' &&
+    (isStaticMethodCall(call, 'Object', 'assign') ||
+      isStaticMethodCall(call, 'Object', 'defineProperties'))
+  );
+}
+
+/**
+ * Recognizes `class Promise { then() {} }` and `namespace.Deferred = class { then() {} }` as
+ * instance factories. Static members are excluded because they make the class object thenable.
+ */
+function isPromiseOrDeferredClass(context: Rule.RuleContext, ancestor: Node, node: Node): boolean {
+  if (ancestor.type !== 'ClassDeclaration' && ancestor.type !== 'ClassExpression') {
+    return false;
+  }
+  if (isStaticClassMember(ancestor, node)) {
+    return false;
+  }
+  if (ancestor.id !== null && isIdentifier(ancestor.id, 'Promise', 'Deferred')) {
+    return isCallableThenDefinition(context, node);
+  }
+  const classParent = (ancestor as Node & { parent?: Node }).parent;
+  return (
+    classParent?.type === 'AssignmentExpression' &&
+    isPromiseOrDeferredAssignmentTarget(classParent.left) &&
+    isCallableThenDefinition(context, node)
+  );
+}
+
+/**
+ * Rejects `class Promise { static then() {} }` and static-block definitions: they make the class
+ * object thenable, rather than implementing the instance-side Promise/Deferred factory pattern.
+ */
+function isStaticClassMember(classNode: Node, node: Node): boolean {
+  const ancestors = getAncestorsWithParent(node);
+  const classIndex = ancestors.indexOf(classNode);
+  return ancestors
+    .slice(0, classIndex)
+    .some(
+      ancestor =>
+        ancestor.type === 'StaticBlock' ||
+        ((ancestor.type === 'MethodDefinition' || ancestor.type === 'PropertyDefinition') &&
+          ancestor.static),
+    );
+}
+
+/**
+ * Marks nested functions, classes, and ordinary object literals as a boundary between a named
+ * Promise/Deferred factory and a `then` definition. Directly returned factory objects and arrows
+ * that retain the factory's `this` are the deliberate exceptions.
+ */
+function isThenDefinitionBoundary(context: Rule.RuleContext, ancestor: Node, node: Node): boolean {
+  if (ancestor.type === 'ObjectExpression') {
+    return !isDirectFactoryResult(ancestor);
+  }
+  if (ancestor.type === 'FunctionExpression') {
+    return getNodeParent(ancestor)?.type !== 'MethodDefinition';
+  }
+  if (ancestor.type === 'ArrowFunctionExpression') {
+    return !isArrowFunctionLexicalThisThenDefinition(context, node);
+  }
+  return ['FunctionDeclaration', 'ClassDeclaration', 'ClassExpression'].includes(ancestor.type);
+}
+
+/**
+ * Recognizes `{ then: fn }` only when it is the direct return value of a named Promise/Deferred
+ * factory or method. A nested object literal does not establish that its `then` belongs to the
+ * factory result and remains reportable.
+ */
+function isDirectFactoryResult(node: Node): boolean {
+  const parent = getNodeParent(node);
+  if (
+    (parent?.type === 'ArrowFunctionExpression' ||
+      parent?.type === 'FunctionExpression' ||
+      parent?.type === 'FunctionDeclaration') &&
+    parent.body === node
+  ) {
+    return isPromiseOrDeferredFactory(parent);
+  }
+  const block = parent?.type === 'ReturnStatement' ? getNodeParent(parent) : undefined;
+  const functionNode = block?.type === 'BlockStatement' ? getNodeParent(block) : undefined;
+  return (
+    (functionNode?.type === 'ArrowFunctionExpression' ||
+      functionNode?.type === 'FunctionExpression' ||
+      functionNode?.type === 'FunctionDeclaration') &&
+    isPromiseOrDeferredFactory(functionNode) &&
+    functionNode.body === block &&
+    block?.type === 'BlockStatement' &&
+    parent?.type === 'ReturnStatement' &&
+    block.body.includes(parent)
+  );
+}
+
+/**
+ * Recognizes an object literal saved in a local const and returned from the same Promise/Deferred
+ * factory. The binding identity prevents an outer or shadowed variable from being treated as the
+ * factory result.
+ */
+export function isConstFactoryResult(context: Rule.RuleContext, node: Node): boolean {
+  const [property, object, declarator, declaration] = getAncestorsWithParent(node);
+  if (
+    property?.type !== 'Property' ||
+    property.key !== node ||
+    property.kind !== 'init' ||
+    !isCallableThenValue(property.value as Node) ||
+    object?.type !== 'ObjectExpression' ||
+    declarator?.type !== 'VariableDeclarator' ||
+    declarator.init !== object ||
+    declarator.id.type !== 'Identifier' ||
+    declaration?.type !== 'VariableDeclaration' ||
+    declaration.kind !== 'const'
+  ) {
+    return false;
+  }
+
+  const variable = getVariableFromName(context, declarator.id.name, declarator.id);
+  if (
+    variable?.defs.length !== 1 ||
+    variable.defs[0].type !== 'Variable' ||
+    variable.defs[0].node !== declarator ||
+    variable.references.filter(reference => reference.isWrite()).length !== 1
+  ) {
+    return false;
+  }
+
+  const factory = getAncestorsWithParent(declarator).find(
+    ancestor =>
+      ancestor.type === 'FunctionDeclaration' ||
+      ancestor.type === 'FunctionExpression' ||
+      ancestor.type === 'ArrowFunctionExpression',
+  );
+  if (!factory || !isPromiseOrDeferredFactory(factory)) {
+    return false;
+  }
+
+  return variable.references.some(reference => {
+    if (reference.isWrite()) {
+      return false;
+    }
+    const parent = getNodeParent(reference.identifier);
+    if (parent?.type !== 'ReturnStatement' || parent.argument !== reference.identifier) {
+      return false;
+    }
+    const returnFactory = getAncestorsWithParent(parent).find(
+      ancestor =>
+        ancestor.type === 'FunctionDeclaration' ||
+        ancestor.type === 'FunctionExpression' ||
+        ancestor.type === 'ArrowFunctionExpression',
+    );
+    return returnFactory === factory;
+  });
+}
+
+/**
+ * Recognizes function, arrow, and instance-method factories named or assigned `Promise` or
+ * `Deferred`, for example `exports.Promise = () => ({ then() {} })`.
+ */
+function isPromiseOrDeferredFactory(node: Node): boolean {
+  if (isPromiseOrDeferredFunctionDeclaration(node)) {
+    return true;
+  }
+  if (isNamedPromiseOrDeferredClassMethod(node)) {
+    return true;
+  }
+  if (node.type !== 'FunctionExpression' && node.type !== 'ArrowFunctionExpression') {
+    return false;
+  }
+  const parent = getNodeParent(node);
+  return (
+    (parent?.type === 'VariableDeclarator' &&
+      parent.id.type === 'Identifier' &&
+      isIdentifier(parent.id, 'Promise', 'Deferred')) ||
+    (parent?.type === 'AssignmentExpression' && isPromiseOrDeferredAssignmentTarget(parent.left))
+  );
+}
+
+/**
+ * Recognizes an instance method of `class Promise` or `class Deferred` returning a factory
+ * object. Static methods are excluded because their returned object is not tied to an instance
+ * factory.
+ */
+function isNamedPromiseOrDeferredClassMethod(node: Node): boolean {
+  if (node.type !== 'FunctionExpression') {
+    return false;
+  }
+  const method = getNodeParent(node);
+  if (method?.type !== 'MethodDefinition' || method.static || method.kind !== 'method') {
+    return false;
+  }
+  const classBody = getNodeParent(method);
+  const classNode = classBody?.type === 'ClassBody' ? getNodeParent(classBody) : undefined;
+  return (
+    (classNode?.type === 'ClassDeclaration' || classNode?.type === 'ClassExpression') &&
+    classNode.id !== null &&
+    isIdentifier(classNode.id, 'Promise', 'Deferred')
+  );
+}
+
+/**
+ * Recognizes `then` defined directly by a `Promise`/`Deferred` class or factory, such as
+ * `function Deferred() { this.then = fn }`. Nested declarations remain reportable unless they
+ * are a direct factory result or preserve the enclosing receiver through an arrow function.
+ */
+export function isInsidePromiseOrDeferredDefinition(
+  context: Rule.RuleContext,
+  node: Node,
+): boolean {
+  const ancestors = getAncestorsWithParent(node);
+  for (const ancestor of ancestors) {
+    if (
+      (isPromiseOrDeferredFunctionDeclaration(ancestor) &&
+        isCallableThenDefinition(context, node)) ||
+      isPromiseOrDeferredFunctionExpression(context, ancestor, node) ||
+      isPromiseOrDeferredClass(context, ancestor, node)
+    ) {
+      return true;
+    }
+    if (isThenDefinitionBoundary(context, ancestor, node)) {
+      return false;
+    }
+  }
+  return false;
+}
