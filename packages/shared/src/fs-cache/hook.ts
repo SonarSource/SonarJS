@@ -20,16 +20,31 @@ import { getSystemErrorMap, promisify } from 'node:util';
 import {
   type ArchiveOptions,
   type CachedDirectoryEntry,
-  type CachedName,
   type CachedStat,
-  DIRENT_TYPES,
   type FsCacheErrorSnapshot,
   type FsCacheOutcome,
-  FS_TYPE_METHODS,
   FsCacheArchive,
   type PortablePath,
   type RealpathOperation,
 } from './archive.js';
+import {
+  type CachedDirectoryValue,
+  type CachedPathResult,
+  type DirectoryValue,
+  type FsError,
+  pathDisplay,
+  restoreDirectoryResult,
+  restoreError,
+  restoreName,
+  restorePathResult,
+  restoreStat,
+  snapshotDirectoryResult,
+  snapshotError,
+  snapshotName,
+  snapshotPathResult,
+  snapshotStat,
+  type StatValue,
+} from './snapshot.js';
 
 const MISSING = Symbol('missing filesystem cache observation');
 export const FS_CACHE_INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
@@ -39,12 +54,6 @@ const REALPATH_NATIVE_OPERATION = 'realpath.native';
 const DEFAULT_ENOENT_ERRNO = -2;
 let activeArchive: FsCacheArchive | undefined;
 
-type FsError = Error & {
-  code?: string;
-  errno?: number;
-  syscall?: string;
-  path?: string;
-};
 type Callable = (...args: never[]) => unknown;
 type FunctionWithNative = Callable & { native?: FunctionWithNative };
 type CustomPromisifyFactory = (selected: FunctionWithNative) => Callable;
@@ -65,10 +74,6 @@ type ReadOptions = OperationOptions & {
 };
 type ReadArguments =
   [ReadOptions] | [offset?: number, length?: number, position?: number | bigint | null];
-type CachedPathResult = { path: PortablePath };
-type DirectoryValue = string | Buffer | fs.Dirent<string | Buffer>;
-type CachedDirectoryValue = string | Buffer | fs.Dirent<string | Buffer>;
-type StatValue = fs.Stats | fs.BigIntStats;
 type ErrorCallback = (error: NodeJS.ErrnoException | null) => void;
 type ValueCallback<T> = (error: NodeJS.ErrnoException | null, value?: T) => void;
 type BufferedRealpath = (
@@ -219,37 +224,6 @@ const originalPromises = {
   realpath: fs.promises.realpath.bind(fs.promises),
   stat: fs.promises.stat.bind(fs.promises),
 };
-
-function pathDisplay(input: fs.PathLike | number): string {
-  if (Buffer.isBuffer(input)) {
-    return input.toString();
-  }
-  return String(input);
-}
-
-function snapshotError(error: unknown): FsCacheErrorSnapshot {
-  const filesystemError = error as FsError;
-  const errorPath =
-    filesystemError?.path === undefined ? undefined : pathDisplay(filesystemError.path);
-  return {
-    name: filesystemError?.name || 'Error',
-    message: String(filesystemError?.message || error).replaceAll(errorPath || '\0', '$PATH'),
-    code: filesystemError?.code,
-    errno: filesystemError?.errno,
-    syscall: filesystemError?.syscall,
-  };
-}
-
-function restoreError(snapshot: FsCacheErrorSnapshot, input: fs.PathLike | number): FsError {
-  const currentPath = pathDisplay(input);
-  const error = new Error(snapshot.message.replaceAll('$PATH', currentPath)) as FsError;
-  error.name = snapshot.name;
-  error.code = snapshot.code;
-  error.errno = snapshot.errno;
-  error.syscall = snapshot.syscall;
-  error.path = currentPath;
-  return error;
-}
 
 function cacheMiss(operation: string, input: fs.PathLike | number): FsError {
   const error = new Error(
@@ -415,155 +389,14 @@ function returnReadBuffer(buffer: Uint8Array, options: OperationOptionsInput): B
     : Buffer.from(buffer);
 }
 
-function snapshotStat(stat: StatValue): CachedStat {
-  const indexedStat = stat as unknown as Record<string, number | bigint | undefined>;
-  const fields = [
-    'dev',
-    'ino',
-    'mode',
-    'nlink',
-    'uid',
-    'gid',
-    'rdev',
-    'size',
-    'blksize',
-    'blocks',
-    'atimeMs',
-    'mtimeMs',
-    'ctimeMs',
-    'birthtimeMs',
-    'atimeNs',
-    'mtimeNs',
-    'ctimeNs',
-    'birthtimeNs',
-  ] as const;
-  return {
-    fields: Object.fromEntries(
-      fields.map(field => [
-        field,
-        indexedStat[field] === undefined ? undefined : String(indexedStat[field]),
-      ]),
-    ),
-    types: Object.fromEntries(
-      Object.entries(FS_TYPE_METHODS).map(([type, method]) => [type, stat[method]()]),
-    ),
-  };
-}
-
-function restoreStat(snapshot: CachedStat, bigint = false): StatValue {
-  const stat = Object.create(fs.Stats.prototype) as Record<string, unknown>;
-  for (const [field, value] of Object.entries(snapshot.fields)) {
-    if (value !== undefined) {
-      stat[field] = restoreStatField(value, bigint);
-    }
-  }
-  for (const field of ['atime', 'mtime', 'ctime', 'birthtime']) {
-    const milliseconds = Number(snapshot.fields[`${field}Ms`]);
-    stat[field] = new Date(milliseconds);
-    if (bigint && stat[`${field}Ns`] === undefined) {
-      stat[`${field}Ns`] = BigInt(Math.trunc(milliseconds * 1_000_000));
-    }
-  }
-  for (const [type, method] of Object.entries(FS_TYPE_METHODS)) {
-    stat[method] = () => snapshot.types[type];
-  }
-  return stat as unknown as StatValue;
-}
-
-function restoreStatField(value: string, bigint: boolean): number | bigint {
-  if (!bigint) {
-    return Number(value);
-  }
-  return /^-?\d+$/.test(value) ? BigInt(value) : BigInt(Math.trunc(Number(value)));
-}
-
 function statOperation(name: string, options: { bigint?: boolean; throwIfNoEntry?: boolean } = {}) {
   const result = options?.throwIfNoEntry === false ? 'soft' : 'throw';
   return `${name}:${options?.bigint ? 'bigint' : 'number'}:${result}`;
 }
 
-function snapshotName(name: string | Buffer): CachedName {
-  return Buffer.isBuffer(name)
-    ? { kind: 'buffer', value: name.toString('base64') }
-    : { kind: 'string', value: name };
-}
-
-function restoreName(name: CachedName): string | Buffer {
-  return name.kind === 'buffer' ? Buffer.from(name.value, 'base64') : name.value;
-}
-
-function direntType(dirent: fs.Dirent<string | Buffer>): string {
-  return (
-    DIRENT_TYPES.slice(1).find(type => {
-      const method = FS_TYPE_METHODS[type as keyof typeof FS_TYPE_METHODS];
-      return method ? dirent[method]() : false;
-    }) || 'unknown'
-  );
-}
-
-function snapshotDirectoryResult(
-  result: DirectoryValue[],
-  archive: ArchiveFacade,
-): CachedDirectoryEntry[] {
-  return result.map((entry: DirectoryValue) => {
-    if (typeof entry === 'string' || Buffer.isBuffer(entry)) {
-      return { kind: 'name', name: snapshotName(entry) };
-    }
-    return {
-      kind: 'dirent',
-      name: snapshotName(entry.name),
-      type: direntType(entry),
-      parentPath: archive.encodePortablePath(
-        entry.parentPath || (entry as fs.Dirent<string | Buffer> & { path?: string }).path || '',
-      ),
-    };
-  });
-}
-
-function createDirent(
-  snapshot: Extract<CachedDirectoryEntry, { kind: 'dirent' }>,
-  archive: ArchiveFacade,
-) {
-  const dirent = Object.create(fs.Dirent.prototype) as fs.Dirent<string | Buffer> &
-    Record<string, unknown>;
-  dirent.name = restoreName(snapshot.name);
-  dirent.parentPath = archive.decodePortablePath(snapshot.parentPath);
-  dirent.path = dirent.parentPath;
-  for (const type of DIRENT_TYPES.slice(1)) {
-    const method = FS_TYPE_METHODS[type as keyof typeof FS_TYPE_METHODS];
-    if (method) {
-      dirent[method] = () => snapshot.type === type;
-    }
-  }
-  return dirent;
-}
-
-function restoreDirectoryResult(
-  result: CachedDirectoryEntry[],
-  archive: ArchiveFacade,
-): CachedDirectoryValue[] {
-  return result.map(entry =>
-    entry.kind === 'name' ? restoreName(entry.name) : createDirent(entry, archive),
-  );
-}
-
 function readdirOperation(options: OperationOptionsInput): string {
   const normalized = typeof options === 'string' ? { encoding: options } : options || {};
   return `readdir:${normalized.encoding || 'utf8'}:${Boolean(normalized.withFileTypes)}:${Boolean(normalized.recursive)}`;
-}
-
-function snapshotPathResult(value: string | Buffer, archive: ArchiveFacade): CachedPathResult {
-  return {
-    path: archive.encodePortablePath(value.toString()),
-  };
-}
-
-function restorePathResult(
-  value: CachedPathResult,
-  archive: ArchiveFacade,
-  operation: RealpathOperation,
-): Buffer {
-  return Buffer.from(archive.decodePortablePath(value.path, operation));
 }
 
 function withBufferEncoding(options: OperationOptionsInput): OperationOptions | 'buffer' {
