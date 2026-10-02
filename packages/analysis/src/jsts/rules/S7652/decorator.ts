@@ -19,6 +19,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type estree from 'estree';
 import {
   getAngularMetadataOutput,
+  getAngularOutputDecoratorAlias,
   getAngularOutputAlias,
   getAngularStaticOutputNames,
   isAngularOutputCall,
@@ -89,9 +90,11 @@ function hasDeprecatedJsdoc(
 
 /** Recognizes the later sibling `refresh = this.onRefresh` as a direct compliant replacement. */
 function isDirectReplacement(
+  context: Rule.RuleContext,
   member: TSESTree.PropertyDefinition,
   ownerName: string,
 ): member is TSESTree.PropertyDefinition & { key: TSESTree.Identifier } {
+  const outputAlias = getAngularOutputDecoratorAlias(context, member);
   return (
     !member.computed &&
     !member.static &&
@@ -101,7 +104,8 @@ function isDirectReplacement(
     !member.value.computed &&
     member.value.object.type === 'ThisExpression' &&
     member.value.property.type === 'Identifier' &&
-    member.value.property.name === ownerName
+    member.value.property.name === ownerName &&
+    (outputAlias === null || (outputAlias !== undefined && isCompliantAlias(outputAlias)))
   );
 }
 
@@ -129,7 +133,7 @@ function isDeprecatedOutputReplacement(context: Rule.RuleContext, node: estree.N
   }
   const memberIndex = classNode.body.body.indexOf(member);
   return classNode.body.body.slice(memberIndex + 1).some(member => {
-    if (member.type !== 'PropertyDefinition' || !isDirectReplacement(member, ownerName)) {
+    if (member.type !== 'PropertyDefinition' || !isDirectReplacement(context, member, ownerName)) {
       return false;
     }
     return outputNames.filter(name => name === member.key.name).length === 1;
