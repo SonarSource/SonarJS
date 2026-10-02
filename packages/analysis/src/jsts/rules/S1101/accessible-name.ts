@@ -33,9 +33,9 @@ const LABELLEDBY_KEY_PREFIX = ' labelledby:';
 type JsxChild = TSESTree.JSXElement['children'][number];
 
 // Only a string literal or an expression-free template literal is accepted; anything else is treated as dynamic.
-export function getStaticHref(value: JSXAttribute['value']): string | null {
+export function getStaticHref(value: JSXAttribute['value']): string | undefined {
   if (value?.type === 'Literal') {
-    return typeof value.value === 'string' ? value.value : null;
+    return typeof value.value === 'string' ? value.value : undefined;
   }
   if (value?.type === 'JSXExpressionContainer') {
     const expression = value.expression;
@@ -43,10 +43,10 @@ export function getStaticHref(value: JSXAttribute['value']): string | null {
       return expression.value;
     }
     if (expression.type === 'TemplateLiteral') {
-      return cookTemplateLiteral(expression) ?? null;
+      return cookTemplateLiteral(expression);
     }
   }
-  return null;
+  return undefined;
 }
 
 // Accessible name precedence per accname: aria-labelledby > aria-label > text content > title.
@@ -68,7 +68,7 @@ export function computeAccessibleName(
   }
 
   const textContent = computeTextContent(element.children, context, elementType);
-  if (textContent === null) {
+  if (textContent === undefined) {
     return null;
   }
   const normalizedText = normalizeAccessibleName(textContent);
@@ -101,12 +101,12 @@ function computeTextContent(
   children: JsxChild[],
   context: Rule.RuleContext,
   elementType: (node: TSESTree.JSXOpeningElement) => string,
-): string | null {
+): string | undefined {
   let text = '';
   for (const child of children) {
     const contribution = computeChildContribution(child, context, elementType);
-    if (contribution === null) {
-      return null;
+    if (contribution === undefined) {
+      return undefined;
     }
     text += contribution;
   }
@@ -117,7 +117,7 @@ function computeChildContribution(
   child: JsxChild,
   context: Rule.RuleContext,
   elementType: (node: TSESTree.JSXOpeningElement) => string,
-): string | null {
+): string | undefined {
   switch (child.type) {
     case 'JSXText':
       return child.value;
@@ -129,21 +129,20 @@ function computeChildContribution(
       return computeTextContent(child.children, context, elementType);
     default:
       // JSXSpreadChild and anything else: not statically resolvable.
-      return null;
+      return undefined;
   }
 }
 
 function computeExpressionContainerContribution(
   expression: TSESTree.JSXExpressionContainer['expression'],
-): string | null {
+): string | undefined {
   if (expression.type === 'JSXEmptyExpression') {
     return '';
   }
   if (expression.type === 'Identifier' && expression.name === 'undefined') {
     return '';
   }
-  const staticValue = getStaticExpressionValue(expression as estree.Expression);
-  return staticValue ?? null;
+  return getStaticExpressionValue(expression as estree.Expression);
 }
 
 // A nested element's own name: aria-labelledby (unresolvable) > aria-label > <img alt> > its text.
@@ -151,13 +150,13 @@ function computeElementChildContribution(
   child: TSESTree.JSXElement,
   context: Rule.RuleContext,
   elementType: (node: TSESTree.JSXOpeningElement) => string,
-): string | null {
+): string | undefined {
   const opening = child.openingElement;
   const attributes = (opening as unknown as JSXOpeningElement).attributes;
 
   const hiddenState = ariaHiddenState(attributes);
   if (hiddenState === 'unknown') {
-    return null;
+    return undefined;
   }
   if (hiddenState === 'hidden') {
     return '';
@@ -166,11 +165,14 @@ function computeElementChildContribution(
   // Named by an element we never resolve, so this contribution is unresolvable - unless the id
   // list itself resolves to empty, which names nothing and falls through like the anchor's own.
   if (resolveNameStep(attributes, ARIA_LABELLEDBY, normalizeIdRefList) !== undefined) {
-    return null;
+    return undefined;
   }
 
   // A nested element's own aria-label overrides its content, e.g. a nested `<svg aria-label>`.
   const ownAriaLabel = resolveNameStep(attributes, ARIA_LABEL, value => value);
+  if (ownAriaLabel === null) {
+    return undefined;
+  }
   if (ownAriaLabel !== undefined) {
     return ownAriaLabel;
   }
@@ -180,8 +182,7 @@ function computeElementChildContribution(
     if (!altAttribute) {
       return '';
     }
-    const staticAlt = getStaticText(altAttribute.value);
-    return staticAlt ?? null;
+    return getStaticText(altAttribute.value);
   }
 
   return computeTextContent(child.children, context, elementType);

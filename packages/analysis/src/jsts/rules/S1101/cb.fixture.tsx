@@ -22,10 +22,24 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
   <a href="/widget">Widget docs</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 21.}}
 
+// Leading whitespace is stripped before parsing, as browsers do, so the host is still kept: Noncompliant.
+  <a href="  //cdn.example.com/script">Script docs</a>;
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
+  <a href="/script">Script docs</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 26.}}
+
+// A same-scheme href without slashes (`https:path`) is relative per WHATWG, so it targets the local path: compliant.
+  <a href="https:pricing">Pricing</a>;
+  <a href="/pricing">Pricing</a>;
+
 // Different query string is a different destination: Noncompliant.
   <a href="/search?q=cats">Search</a>;
 //^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/search?q=dogs">Search</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 26.}}
+  <a href="/search?q=dogs">Search</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 35.}}
+
+// Query parameter order is significant: reordered parameters count as a different destination: Noncompliant.
+  <a href="/filter?color=red&size=m">Filter</a>;
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
+  <a href="/filter?size=m&color=red">Filter</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 40.}}
 
 // A bare in-page fragment is discarded before comparing: compliant.
   <a href="/article#intro">Read more</a>;
@@ -34,7 +48,7 @@
 // A routing-style fragment (leading #/ or #!) is kept as significant: Noncompliant.
   <a href="/app#/profile">Account</a>;
 //^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/app#/settings">Account</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 35.}}
+  <a href="/app#/settings">Account</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 49.}}
 
 // A dynamic href cannot be resolved statically: the anchor is excluded, never flagged.
   <a href={url}>Dashboard</a>;
@@ -43,7 +57,7 @@
 // aria-label establishes the accessible name, even when the visible text differs.
   <a href="/help/en" aria-label="Get help">FAQ</a>;
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/help/fr" aria-label="Get help">Support</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 44.}}
+  <a href="/help/fr" aria-label="Get help">Support</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 58.}}
 
 // Compliant: same visible text, but distinct aria-labels give each link a different accessible
 // name, so the identical "Read more" text alone never causes them to be compared.
@@ -61,7 +75,7 @@ const distinctAriaLabelsSameParent = (
 // The numeric contribution is compared, not dropped: same number, different target is Noncompliant.
   <a href="/items/3">Item {3}</a>;
 //^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/items/4">Item {3}</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 62.}}
+  <a href="/items/4">Item {3}</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 76.}}
 
 // No accessible name at all: excluded from this rule (see S6827).
   <a href="/settings"><Icon /></a>;
@@ -70,17 +84,17 @@ const distinctAriaLabelsSameParent = (
 // The alt text of a nested image contributes to the accessible name.
   <a href="/team/alice"><img src="alice.png" alt="Team member" /></a>;
 //^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/team/bob"><img src="bob.png" alt="Team member" /></a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 71.}}
+  <a href="/team/bob"><img src="bob.png" alt="Team member" /></a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 85.}}
 
 // Content hidden from screen readers is skipped when computing the accessible name.
   <a href="/cart"><span aria-hidden="true">→</span> View cart</a>;
 //^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/checkout"><span aria-hidden="true">→</span> View cart</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 76.}}
+  <a href="/checkout"><span aria-hidden="true">→</span> View cart</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 90.}}
 
 // title is used as a last resort accessible name, when there is no text content.
   <a href="/download/en" title="Download the file" />;
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/download/fr" title="Download the file" />; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 81.}}
+  <a href="/download/fr" title="Download the file" />; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 95.}}
 
 // Only native/JSX "a" elements are considered; role="link" is out of scope for v1.
   <span role="link" onClick={goHome}>Home</span>;
@@ -98,11 +112,11 @@ const distinctAriaLabelsSameParent = (
 // Each mismatch is reported against the closest preceding link, not the original first occurrence.
   <a href="/plans/basic">View plans</a>;
 //^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/plans/pro">View plans</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 99.}}
+  <a href="/plans/pro">View plans</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 113.}}
 //^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/plans/basic">View plans</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 101.}}
+  <a href="/plans/basic">View plans</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 115.}}
 //^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/plans/enterprise">View plans</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 103.}}
+  <a href="/plans/enterprise">View plans</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 117.}}
 
 // ---------------------------------------------------------------------------------------------
 // Parent-scoping: only anchors sharing the same immediate JSX parent are compared.
@@ -136,7 +150,7 @@ const sameParent = (
     {[
       <a href="/user/1/edit">Edit</a>,
     //^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-      <a href="/user/2/edit">Edit</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 137.}}
+      <a href="/user/2/edit">Edit</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 151.}}
     ]}
   </div>
 );
@@ -222,7 +236,7 @@ function NotAGuard({ condition }) {
     <a href="/notaguard/1">Track</a>;
   //^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
   }
-  return <a href="/notaguard/2">Track</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 222.}}
+  return <a href="/notaguard/2">Track</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 236.}}
 }
 
 // Reports an issue: a conditional link is still compared against an unconditional sibling; wrapped in an array so trailing comments sit in expression position.
@@ -231,7 +245,7 @@ const conditionalVsBaseline = (
     {[
       <a href="/version/1">Version</a>,
     //^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-      condition && <a href="/version/2">Version</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 232.}}
+      condition && <a href="/version/2">Version</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 246.}}
     ]}
   </div>
 );
@@ -243,7 +257,7 @@ const baselineVsConditional = (
     {[
       condition && <a href="/release/1">Release</a>,
                  //^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-      <a href="/release/2">Release</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 244.}}
+      <a href="/release/2">Release</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 258.}}
     ]}
   </div>
 );
@@ -256,7 +270,7 @@ function RoleMenu({ isAdmin, loggedIn }) {
       {[
         isAdmin && <a href="/admin">Settings</a>,
                  //^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-        loggedIn && <a href="/user">Settings</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 257.}}
+        loggedIn && <a href="/user">Settings</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 271.}}
       ]}
     </ul>
   );
@@ -272,7 +286,7 @@ function AfterGuard({ hasError }) {
   const first = <a href="/guard/1">Track</a>;
               //^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
   logAnalytics('track-shown');
-  return <a href="/guard/2">Track</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 272.}}
+  return <a href="/guard/2">Track</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 286.}}
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -283,7 +297,7 @@ function AfterGuard({ hasError }) {
 function Footer() {
   <a href="/footer/1">Contact</a>;
 //^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  return <a href="/footer/2">Contact</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 284.}}
+  return <a href="/footer/2">Contact</a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 298.}}
 }
 
 // Compliant: anchors returned by two different components are never compared.
@@ -310,6 +324,54 @@ function renderAnchorWithLocalConst(isLoggedIn) {
   );
 }
 
+// Known limitation (false negative): only `.map()`/`.flatMap()` callbacks are treated as rendering
+// in their caller's scope, so the `Array.from` callback is its own scope boundary and its anchor is
+// never compared with its sibling, despite both rendering "Next page" with different targets.
+const arrayFromMapping = (
+  <div>
+    <a href="/page/1">Next page</a>
+    {Array.from({ length: 5 }, () => <a href="/page/next">Next page</a>)}
+  </div>
+);
+
+// Known limitation (false negative): anchors built with `forEach()` + `push()` (React's documented
+// alternative to `.map()`) only reach their JSX position through a variable reference, which the
+// upward-only AST scope walk can't follow without data-flow tracking, so they're never compared.
+function forEachPushList(pages) {
+  const links = [];
+  pages.forEach(() => {
+    links.push(<a href="/pages/next">Next</a>);
+  });
+  return (
+    <div>
+      <a href="/pages/first">Next</a>
+      {links}
+    </div>
+  );
+}
+
+// Compliant: a braced JSX element as aria-label (a type error with @types/react) is a dynamic
+// expression, so the anchor is excluded as unresolvable rather than compared via its text.
+const bracedJsxElementAriaLabel = (
+  <div>
+    <a href="/jsx-label-braced/1" aria-label={<Icon />}>Jsx label</a>
+    <a href="/jsx-label-braced/2">Jsx label</a>
+  </div>
+);
+
+// Known limitation (false positive): a brace-less JSX element as aria-label (`aria-label=<Icon />`)
+// resolves to an empty label, so the anchor falls back to its text content and is compared,
+// instead of being excluded as unresolvable like the braced form above.
+const jsxElementAriaLabel = (
+  <div>
+    {[
+      <a href="/jsx-label/1" aria-label=<Icon />>Jsx label</a>,
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
+      <a href="/jsx-label/2">Jsx label</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 368.}}
+    ]}
+  </div>
+);
+
 // ---------------------------------------------------------------------------------------------
 // aria-labelledby establishes the accessible name, at higher precedence than aria-label and text.
 // ---------------------------------------------------------------------------------------------
@@ -335,7 +397,7 @@ const sameLabelledbyDifferentTarget = (
     {[
       <a href="/signup" aria-labelledby="cta-label">Sign up</a>,
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-      <a href="/login" aria-labelledby="cta-label">Log in</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 336.}}
+      <a href="/login" aria-labelledby="cta-label">Log in</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 398.}}
     ]}
   </div>
 );
@@ -372,7 +434,7 @@ const hiddenByAncestor = (
 // A nested <svg aria-label> contributes its own name instead of its (empty) content.
   <a href="/export/csv"><svg aria-label="Export data" /></a>;
 //^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/export/json"><svg aria-label="Export data" /></a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 373.}}
+  <a href="/export/json"><svg aria-label="Export data" /></a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 435.}}
 
 // Compliant: a nested aria-labelledby makes the anchor's name unresolvable, even though the
 // visible text matches - excluded rather than compared via that text, since the two labels

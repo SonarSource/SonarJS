@@ -16,21 +16,31 @@
  */
 
 const ROUTING_FRAGMENT_PATTERN = /^#[!/]/;
-const DUMMY_BASE = 'https://sonarjs-placeholder.invalid/';
+// Two placeholder bases differing only in host: an href that carries its own scheme or authority
+// resolves to the same host against both, while a relative one inherits each base's own host.
+const DUMMY_BASE_A = 'https://sonarjs-placeholder-a.invalid/';
+const DUMMY_BASE_B = 'https://sonarjs-placeholder-b.invalid/';
 
 export function normalizeDestination(href: string): string {
-  const hasScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(href);
-  const isProtocolRelative = href.startsWith('//');
-  let url: URL;
-  try {
-    url = new URL(href, DUMMY_BASE);
-  } catch {
+  const url = parseUrl(href, DUMMY_BASE_A);
+  const otherUrl = parseUrl(href, DUMMY_BASE_B);
+  if (!url || !otherUrl) {
     return href;
   }
-  const scheme = hasScheme || isProtocolRelative ? normalizeScheme(url.protocol) : '';
-  const authority = (hasScheme || isProtocolRelative) && url.host ? `//${url.host}` : '';
+  // Asks the URL parser itself, so leading whitespace, `\\host` and the like are handled per WHATWG.
+  const isBaseIndependent = url.host === otherUrl.host;
+  const scheme = isBaseIndependent ? normalizeScheme(url.protocol) : '';
+  const authority = isBaseIndependent && url.host ? `//${url.host}` : '';
   const keepFragment = ROUTING_FRAGMENT_PATTERN.test(url.hash);
   return `${scheme}${authority}${url.pathname}${url.search}${keepFragment ? url.hash : ''}`;
+}
+
+function parseUrl(href: string, base: string): URL | undefined {
+  try {
+    return new URL(href, base);
+  } catch {
+    return undefined;
+  }
 }
 
 function normalizeScheme(protocol: string): string {
