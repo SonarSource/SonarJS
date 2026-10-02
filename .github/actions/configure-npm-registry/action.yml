@@ -26,4 +26,5 @@ runs:
         npm config set "//${REPOX_NPM_HOST}/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
         npm config set "//repox.jfrog.io/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
         npm config set registry "https://${REPOX_NPM_HOST}/artifactory/api/npm/npm/"
-        npm config set replace-registry-host repox.jfrog.io
+        # Redirect public lockfile URLs to the configured internal registry.
+        npm config set replace-registry-host npmjs
