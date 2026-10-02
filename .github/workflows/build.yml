@@ -340,6 +340,22 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
+      - &edge_npm_secrets
+        id: secrets
+        name: Access vault secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          url: https://vault.dev.sonar.build
+          secrets: |
+            development/artifactory-edge-dev/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - &edge_npm_registry
+        name: Configure npm registry
+        env:
+          ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+        run: |
+          npm config set "//repox-internal.dev.sonar.build/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
+          npm config set registry https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/
+          npm config set replace-registry-host repox.jfrog.io
       - *download_rspec_rule_data
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
@@ -459,21 +475,12 @@ jobs:
             echo "::error file=$TARBALL::Missing ESLint plugin tarball"
             exit 1
           fi
-      - id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      # No lockfile. Edge 404s npm metadata on both /api/npm/npm/ and /api/npm/npmjs/.
-      - name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - *edge_npm_secrets
+      - *edge_npm_registry
       - name: Test ESLint Plugin
         run: |
           cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
-          npm install --ignore-scripts --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000 --fetch-retries=3 --registry=https://repox.jfrog.io/artifactory/api/npm/npm/
+          npm install --ignore-scripts --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000 --fetch-retries=3
           npx tsc --noEmit
           npm run test
 
