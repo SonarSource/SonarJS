@@ -155,19 +155,30 @@ function mappingNode(node: TSESTree.Node): TSESTree.Node {
 
 /** Recognizes `@Component({ outputs: ['onRefresh: refresh'] })` mappings. */
 function isMetadataOutputMapping(context: Rule.RuleContext, node: TSESTree.Node): boolean {
-  const array = mappingNode(node).parent;
+  return getMetadataOutputClass(context, node) !== undefined;
+}
+
+/** Returns the class that declares a direct static Angular `outputs` entry. */
+function getMetadataOutputClass(
+  context: Rule.RuleContext,
+  node: TSESTree.Node,
+): TSESTree.ClassDeclaration | undefined {
+  const mapping = mappingNode(node);
+  const array = mapping.parent;
   const outputs = array?.parent;
   const metadata = outputs?.parent;
   const componentCall = metadata?.parent;
   const decorator = componentCall?.parent;
-  return (
-    array?.type === 'ArrayExpression' &&
+  const classNode = decorator?.parent;
+  return array?.type === 'ArrayExpression' &&
     outputs?.type === 'Property' &&
     propertyName(outputs) === 'outputs' &&
     metadata?.type === 'ObjectExpression' &&
     componentCall?.type === 'CallExpression' &&
-    isAngularCoreDecorator(context, decorator, 'Component', 'Directive')
-  );
+    isAngularCoreDecorator(context, decorator, 'Component', 'Directive') &&
+    classNode?.type === 'ClassDeclaration'
+    ? classNode
+    : undefined;
 }
 
 /** Returns the metadata output name and its declaring class for a direct static `outputs` entry. */
@@ -176,13 +187,8 @@ export function getAngularMetadataOutput(
   node: TSESTree.Node,
 ): AngularMetadataOutput | undefined {
   const name = staticText(node);
-  const decorator = isMetadataOutputMapping(context, node)
-    ? mappingNode(node).parent?.parent?.parent?.parent?.parent
-    : undefined;
-  const classNode = decorator?.parent;
-  return name !== undefined && classNode?.type === 'ClassDeclaration'
-    ? { classNode, name }
-    : undefined;
+  const classNode = getMetadataOutputClass(context, node);
+  return name !== undefined && classNode !== undefined ? { classNode, name } : undefined;
 }
 
 /** Returns every name in complete static `outputs` metadata, or `undefined` for unsupported forms. */
