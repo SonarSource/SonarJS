@@ -121,7 +121,7 @@ jobs:
           version: 2026.9.14
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: SonarSource/ci-github-actions/config-npm@95bd3e97a1709a58c7adf9e2ab70b02c18440d25
+        uses: SonarSource/ci-github-actions/config-npm@c3a85ac3a2f67f86966e2fb1fdf9a7c1bdc997dc # 2.2.0
         with:
           repox-url: https://repox-internal.dev.sonar.build
           artifactory-reader-role: private-reader
@@ -342,7 +342,7 @@ jobs:
       - *mise
       - *npm_cache
       - &config_npm_edge
-        uses: SonarSource/ci-github-actions/config-npm@95bd3e97a1709a58c7adf9e2ab70b02c18440d25
+        uses: SonarSource/ci-github-actions/config-npm@c3a85ac3a2f67f86966e2fb1fdf9a7c1bdc997dc # 2.2.0
         with:
           repox-url: https://repox-internal.dev.sonar.build
           artifactory-reader-role: private-reader
