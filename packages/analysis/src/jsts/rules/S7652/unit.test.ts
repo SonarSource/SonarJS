@@ -33,6 +33,9 @@ describe('S7652', () => {
           code: `${angular} class C { onRefresh = output({ alias: 'refresh' }); }`,
         },
         {
+          code: `${angular} class C { onRefresh = output({ alias: 'online' }); }`,
+        },
+        {
           code: `${angular} class C { onRefresh = output({ alias: \`refresh\` }); }`,
         },
         {
@@ -116,6 +119,10 @@ describe('S7652', () => {
       invalid: [
         {
           code: `${angular} class C { onRefresh = output({ alias: 'refresh' }); }`,
+          errors: 1,
+        },
+        {
+          code: `${angular} class C { onRefresh = output({ alias: 'online' }); }`,
           errors: 1,
         },
         {
