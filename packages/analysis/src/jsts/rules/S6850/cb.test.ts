@@ -14,7 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rules } from '../external/a11y.js';
-import { decorate } from './decorator.js';
+import { test } from '../../../../tests/jsts/tools/testers/comment-based/checker.js';
+import { rule } from './index.js';
+import { describe } from 'node:test';
+import * as meta from './generated-meta.js';
 
-export const rule = decorate(rules['heading-has-content']);
+describe('Rule S6850', () => {
+  test(meta, rule, import.meta.dirname);
+});
