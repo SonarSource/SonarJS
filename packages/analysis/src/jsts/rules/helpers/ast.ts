@@ -786,6 +786,30 @@ export function isStaticTemplateLiteral(node: estree.Node): node is estree.Templ
   );
 }
 
+// undefined if the template literal has a ${...} part, e.g. `/posts/${id}`, we can't know its value.
+export function cookTemplateLiteral(node: estree.TemplateLiteral): string | undefined {
+  if (!isStaticTemplateLiteral(node)) {
+    return undefined;
+  }
+  return node.quasis[0].value.cooked ?? undefined;
+}
+
+// Resolves a literal or expression-free template literal to its static string; undefined when dynamic.
+export function getStaticExpressionValue(expression: estree.Expression): string | undefined {
+  if (expression.type === 'Literal') {
+    const { value } = expression;
+    if (typeof value === 'string') {
+      return value;
+    }
+    // Numbers render as visible text; null/booleans render nothing.
+    return typeof value === 'number' || typeof value === 'bigint' ? String(value) : '';
+  }
+  if (expression.type === 'TemplateLiteral') {
+    return cookTemplateLiteral(expression);
+  }
+  return undefined;
+}
+
 // Test for raw expressions like: String.raw`c:\foo\bar.txt` that corresponds to 'c:\\foo\\bar.txt'
 export function isSimpleRawString(node: estree.Node): node is estree.TaggedTemplateExpression {
   return (
