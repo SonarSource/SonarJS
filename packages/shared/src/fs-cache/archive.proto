@@ -10,6 +10,8 @@ message Archive {
   string updated_at = 5;
   repeated Entry entries = 6;
   repeated string missing_paths = 7;
+  // Preserve the producer filesystem's name lookup semantics on another operating system.
+  optional bool case_sensitive_paths = 8;
 }
 
 message Entry {

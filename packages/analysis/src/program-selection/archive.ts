@@ -24,11 +24,25 @@ import {
   type NormalizedAbsolutePath,
 } from '../../../shared/src/helpers/files.js';
 import { sonarjs } from './analysis-metadata-proto.js';
-import type { FileType } from '../contracts/file.js';
+import {
+  normalizeProjectRoot,
+  relativeProjectPath,
+  replayProjectRoot,
+  isWindowsProjectPath,
+} from '../../../shared/src/helpers/project-paths.js';
 
 const MAGIC = 'sonarjs-analysis-metadata';
+const PROJECT_CONFIGURATION_PATHS = [
+  'jsTsExclusions',
+  'sources',
+  'tests',
+  'inclusions',
+  'exclusions',
+  'testInclusions',
+  'testExclusions',
+] as const;
 // These are effective analyzer settings, not arbitrary scanner properties. The request remains
-// authoritative for its workspace, file scope, and runtime-specific filesystem behavior.
+// authoritative for its submitted files and runtime-specific filesystem behavior.
 const REPLAYABLE_CONFIGURATION_FIELDS = [
   'allowTsParserJsFiles',
   'ignoreHeaderComments',
@@ -41,13 +55,13 @@ const REPLAYABLE_CONFIGURATION_FIELDS = [
   'htmlSuffixes',
   'yamlSuffixes',
   'cssAdditionalSuffixes',
-  'jsTsExclusions',
   'detectBundles',
   'detectGeneratedCode',
   'createTsProgramForOrphanFiles',
   'disableTypeChecking',
   'skipNodeModuleLookupOutsideBaseDir',
   'ecmaScriptVersion',
+  ...PROJECT_CONFIGURATION_PATHS,
 ] as const;
 type ReplayableConfiguration = Partial<
   Record<(typeof REPLAYABLE_CONFIGURATION_FIELDS)[number], unknown>
@@ -102,7 +116,8 @@ type StoredProgram = {
  */
 export class ProgramSelectionArchive {
   private readonly archivePath: string;
-  private readonly baseDir: NormalizedAbsolutePath;
+  private baseDir: NormalizedAbsolutePath;
+  private recordedBaseDir?: NormalizedAbsolutePath;
   private readonly mode: 'record' | 'replay';
   private readonly programs = new Map<number, StoredProgram>();
   private readonly selections = new Map<NormalizedAbsolutePath, number>();
@@ -110,18 +125,21 @@ export class ProgramSelectionArchive {
   private readonly filesByProgram = new Map<number, NormalizedAbsolutePath[]>();
   private readonly configuredProgramIds = new Map<NormalizedAbsolutePath, number>();
   private configuration: ReplayableConfiguration = {};
-  private readonly ruleFileTypes = new Map<
-    NormalizedAbsolutePath,
-    { fileType: FileType; ruleFileType: FileType }
-  >();
+  private readonly pathsByCanonicalName = new Map<string, NormalizedAbsolutePath>();
   private nextProgramId = 1;
 
-  constructor(archivePath: string, baseDir: NormalizedAbsolutePath, mode?: 'record' | 'replay') {
+  constructor(
+    archivePath: string,
+    baseDir: NormalizedAbsolutePath,
+    mode?: 'record' | 'replay',
+    restoreOriginalPaths = false,
+    contextMetadata?: string,
+  ) {
     this.archivePath = path.resolve(archivePath);
     this.baseDir = baseDir;
     this.mode = mode ?? (fs.existsSync(this.archivePath) ? 'replay' : 'record');
     if (this.isReplay()) {
-      this.load();
+      this.load(restoreOriginalPaths, contextMetadata);
     }
   }
 
@@ -133,33 +151,24 @@ export class ProgramSelectionArchive {
     return this.mode === 'record';
   }
 
-  recordConfiguration(configuration: Record<string, unknown>): void {
-    if (this.isRecord()) {
-      this.configuration = Object.fromEntries(
-        REPLAYABLE_CONFIGURATION_FIELDS.map(field => [field, configuration[field] ?? null]),
-      );
-    }
-  }
-
   restoredConfiguration(): ReplayableConfiguration | undefined {
     return this.isReplay() ? this.configuration : undefined;
   }
 
-  recordRuleFileType(
-    file: NormalizedAbsolutePath,
-    fileType: FileType,
-    ruleFileType: FileType,
-  ): void {
-    if (this.isRecord() && this.isProjectRelative(file)) {
-      this.ruleFileTypes.set(file, { fileType, ruleFileType });
-    }
+  restoredBaseDir(): NormalizedAbsolutePath | undefined {
+    return this.recordedBaseDir;
   }
 
-  restoredRuleFileType(file: NormalizedAbsolutePath, fileType: FileType): FileType | undefined {
-    const recorded = this.isReplay() ? this.ruleFileTypes.get(file) : undefined;
-    // The request's scanner scope is authoritative. Only reuse the CI heuristic outcome
-    // when that scope has not changed; otherwise keep normal request classification.
-    return recorded?.fileType === fileType ? recorded.ruleFileType : undefined;
+  replayBaseDir(): NormalizedAbsolutePath | undefined {
+    return this.recordedBaseDir ? this.baseDir : undefined;
+  }
+
+  canonicalRequestedFile(file: NormalizedAbsolutePath): NormalizedAbsolutePath {
+    return this.pathsByCanonicalName.get(this.canonicalName(file)) ?? file;
+  }
+
+  private canonicalName(file: string): string {
+    return isWindowsProjectPath(this.recordedBaseDir ?? this.baseDir) ? file.toLowerCase() : file;
   }
 
   recordConfigured(
@@ -201,7 +210,7 @@ export class ProgramSelectionArchive {
     }
     const requestedFilesByProgram = new Map<number, NormalizedAbsolutePath[]>();
     for (const file of files) {
-      const id = this.selections.get(file);
+      const id = this.selections.get(this.canonicalRequestedFile(file));
       if (id !== undefined) {
         const requestedFiles = requestedFilesByProgram.get(id) ?? [];
         requestedFiles.push(file);
@@ -223,11 +232,11 @@ export class ProgramSelectionArchive {
   }
 
   hasSelection(file: NormalizedAbsolutePath): boolean {
-    return this.selections.has(file);
+    return this.selections.has(this.canonicalRequestedFile(file));
   }
 
   hasNoProgram(file: NormalizedAbsolutePath): boolean {
-    return this.noProgramFiles.has(file);
+    return this.noProgramFiles.has(this.canonicalRequestedFile(file));
   }
 
   recordNoProgram(file: NormalizedAbsolutePath): void {
@@ -238,6 +247,7 @@ export class ProgramSelectionArchive {
       throw new Error(`File has both a program and no-program outcome: ${file}`);
     }
     this.noProgramFiles.add(file);
+    this.pathsByCanonicalName.set(this.canonicalName(file), file);
   }
 
   end(): void {
@@ -273,11 +283,6 @@ export class ProgramSelectionArchive {
         })),
         noProgramFiles: [...this.noProgramFiles].map(file => this.toRelative(file)),
       },
-      configuration: structFromObject(this.configuration),
-      ruleFileTypes: [...this.ruleFileTypes].map(([file, types]) => ({
-        filePath: this.toRelative(file),
-        ...types,
-      })),
     });
     const bytes = gzipSync(sonarjs.programselection.AnalysisMetadata.encode(metadata).finish());
     fs.mkdirSync(path.dirname(this.archivePath), { recursive: true });
@@ -292,10 +297,10 @@ export class ProgramSelectionArchive {
   }
 
   private addSelection(file: NormalizedAbsolutePath, programId: number): void {
-    if (this.noProgramFiles.has(file)) {
+    if (this.hasNoProgram(file)) {
       throw new Error(`File has both a program and no-program outcome: ${file}`);
     }
-    const existingProgramId = this.selections.get(file);
+    const existingProgramId = this.selections.get(this.canonicalRequestedFile(file));
     if (existingProgramId !== undefined) {
       if (existingProgramId === programId) {
         return;
@@ -303,39 +308,76 @@ export class ProgramSelectionArchive {
       throw new Error(`Multiple program selections recorded for ${file}`);
     }
     this.selections.set(file, programId);
+    this.pathsByCanonicalName.set(this.canonicalName(file), file);
     const files = this.filesByProgram.get(programId) ?? [];
     files.push(file);
     this.filesByProgram.set(programId, files);
   }
 
-  private load(): void {
+  private load(restoreOriginalPaths: boolean, contextMetadata?: string): void {
     const metadata = sonarjs.programselection.AnalysisMetadata.decode(
       gunzipSync(fs.readFileSync(this.archivePath)),
     );
     if (metadata.programSelection?.magic !== MAGIC) {
       throw new Error(`Not a SonarJS analysis metadata archive: ${this.archivePath}`);
     }
-    if (!metadata.configuration) {
-      throw new Error('Invalid SonarJS analysis metadata');
+    const parsed = contextMetadata ? JSON.parse(contextMetadata) : undefined;
+    if (parsed !== undefined && (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))) {
+      throw new Error('Invalid SonarJS collector context metadata');
     }
-    const configuration = objectFromStruct(metadata.configuration);
-    this.configuration = Object.fromEntries(
-      REPLAYABLE_CONFIGURATION_FIELDS.filter(field => Object.hasOwn(configuration, field)).map(
-        field => [field, configuration[field]],
-      ),
-    );
-    for (const entry of metadata.ruleFileTypes ?? []) {
-      const file = this.fromRelative(entry.filePath ?? '');
-      const { fileType, ruleFileType } = entry;
-      if (
-        (fileType !== 'MAIN' && fileType !== 'TEST') ||
-        (ruleFileType !== 'MAIN' && ruleFileType !== 'TEST') ||
-        (fileType === 'TEST' && ruleFileType !== 'TEST') ||
-        this.ruleFileTypes.has(file)
-      ) {
-        throw new Error(`Invalid or duplicate rule file type for ${entry.filePath}`);
+    // Empty legacy metadata is unsupported. SQAA owns analyzer-version compatibility.
+    const context = parsed && Object.keys(parsed).length > 0 ? parsed : undefined;
+    if (
+      context &&
+      (!context.configuration ||
+        typeof context.configuration !== 'object' ||
+        Array.isArray(context.configuration) ||
+        typeof context.configuration.baseDir !== 'string' ||
+        !context.configuration.baseDir)
+    ) {
+      throw new Error('Invalid SonarJS collector context metadata');
+    }
+    if (context?.configuration.baseDir) {
+      if (!isAbsolutePath(context.configuration.baseDir)) {
+        throw new Error('Invalid SonarJS analysis metadata base directory');
       }
-      this.ruleFileTypes.set(file, { fileType, ruleFileType });
+      this.recordedBaseDir = normalizeProjectRoot(context.configuration.baseDir);
+      if (restoreOriginalPaths) {
+        this.baseDir = replayProjectRoot(this.recordedBaseDir, this.baseDir);
+      }
+    }
+    const configuration = context?.configuration ?? {};
+    this.configuration = Object.fromEntries(
+      REPLAYABLE_CONFIGURATION_FIELDS.map(field => [field, configuration[field] ?? null]),
+    );
+    if (this.recordedBaseDir && this.recordedBaseDir !== this.baseDir) {
+      for (const field of PROJECT_CONFIGURATION_PATHS) {
+        const value = this.configuration[field as keyof ReplayableConfiguration];
+        const relocate = (item: unknown): unknown => {
+          if (typeof item !== 'string') {
+            return item;
+          }
+          const prefix = /^file:/i.exec(item)?.[0] ?? '';
+          const original = item.slice(prefix.length);
+          if (!isAbsolutePath(original)) {
+            return item;
+          }
+          const relative = relativeProjectPath(original, this.recordedBaseDir!);
+          return relative === undefined
+            ? item
+            : prefix + normalizeToAbsolutePath(relative, this.baseDir);
+        };
+        if (Array.isArray(value)) {
+          this.configuration[field as keyof ReplayableConfiguration] = value.map(relocate);
+        } else if (value && typeof value === 'object' && 'values' in value) {
+          const values = (value as { values?: unknown }).values;
+          if (Array.isArray(values)) {
+            this.configuration[field as keyof ReplayableConfiguration] = {
+              values: values.map(relocate),
+            };
+          }
+        }
+      }
     }
     for (const entry of metadata.programSelection.programs ?? []) {
       const id = entry.id;
@@ -351,17 +393,18 @@ export class ProgramSelectionArchive {
         throw new Error(`Invalid selection for ${selection.filePath || '<empty path>'}`);
       }
       const file = this.fromRelative(selection.filePath);
-      if (this.selections.has(file)) {
+      if (this.hasSelection(file)) {
         throw new Error(`Duplicate program selection for ${selection.filePath}`);
       }
       this.addSelection(file, programId);
     }
     for (const relativePath of metadata.programSelection.noProgramFiles ?? []) {
       const file = this.fromRelative(relativePath);
-      if (this.selections.has(file) || this.noProgramFiles.has(file)) {
+      if (this.hasSelection(file) || this.hasNoProgram(file)) {
         throw new Error(`Duplicate or conflicting no-program outcome for ${relativePath}`);
       }
       this.noProgramFiles.add(file);
+      this.pathsByCanonicalName.set(this.canonicalName(file), file);
     }
   }
 
@@ -383,12 +426,8 @@ export class ProgramSelectionArchive {
   }
 
   private toRelative(absolutePath: NormalizedAbsolutePath): string {
-    const relativePath = path.posix.relative(this.baseDir, absolutePath);
-    if (
-      relativePath === '..' ||
-      relativePath.startsWith('../') ||
-      path.posix.isAbsolute(relativePath)
-    ) {
+    const relativePath = relativeProjectPath(absolutePath, this.baseDir);
+    if (relativePath === undefined) {
       throw new Error(`Program selection path is outside the project: ${absolutePath}`);
     }
     return relativePath;
@@ -404,7 +443,7 @@ export class ProgramSelectionArchive {
   }
 
   private fromRelative(relativePath: string): NormalizedAbsolutePath {
-    if (!relativePath || path.posix.isAbsolute(relativePath)) {
+    if (!relativePath || isAbsolutePath(relativePath) || relativePath.includes('\\')) {
       throw new Error(`Invalid relative program selection path: ${relativePath}`);
     }
     const absolutePath = normalizeToAbsolutePath(relativePath, this.baseDir);
@@ -461,7 +500,7 @@ export class ProgramSelectionArchive {
     if (!isAbsolutePath(value)) {
       return value;
     }
-    const normalized = normalizeToAbsolutePath(value);
+    const normalized = normalizeProjectRoot(value);
     try {
       return PROJECT_RELATIVE_PATH_PREFIX + this.toRelative(normalized);
     } catch {

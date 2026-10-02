@@ -65,6 +65,9 @@ export type ArchiveOptions = {
   archivePath: string;
   mode?: ArchiveMode;
   passthroughDirs?: string[];
+  // Replay may access native runtime files only through explicitly allowed directories.
+  restrictNativeReads?: boolean;
+  caseSensitivePaths?: boolean;
   rootDir: string;
 };
 export type ArchiveEntry = { path: string; node: CacheNode };
@@ -75,6 +78,7 @@ export type ArchiveDocument = {
   updatedAt: string;
   entries: ArchiveEntry[];
   missingPaths?: string[];
+  caseSensitivePaths?: boolean;
 };
 
 export type ComparisonRoot = { directory: string; prefix: string };

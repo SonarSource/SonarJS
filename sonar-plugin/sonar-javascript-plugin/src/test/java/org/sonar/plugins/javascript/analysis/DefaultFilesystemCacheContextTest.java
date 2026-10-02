@@ -49,11 +49,12 @@ class DefaultFilesystemCacheContextTest {
       collector.newFileItem(FilesystemCacheContext.ANALYSIS_METADATA_ITEM_ID, analysisMetadata)
     ).thenReturn(analysisMetadataItem);
 
-    new DefaultFilesystemCacheContext(collector).collect(archive, analysisMetadata);
+    var metadata = "{\"configuration\":{\"baseDir\":\"/project\"}}";
+    new DefaultFilesystemCacheContext(collector).collect(archive, analysisMetadata, metadata);
 
     verify(collector).collect(
       FilesystemCacheContext.CONTEXT_KIND,
-      "{}",
+      metadata,
       java.util.List.of(filesystemItem, analysisMetadataItem)
     );
   }

@@ -133,12 +133,17 @@ type ArchiveFacade = Pick<
   | 'get'
   | 'getExists'
   | 'isPassthrough'
+  | 'blocksNativeRead'
   | 'keyFor'
   | 'recordCacheHit'
   | 'recordCacheMiss'
   | 'set'
 > & { readonly mode: FsCacheArchive['mode'] | undefined };
 export type FsCacheSession = { end(): void; mode?: FsCacheArchive['mode'] };
+/** Filesystem capability, not product identity: absent without an active replay filesystem. */
+export function getFileSystemCaseSensitivity(): boolean | undefined {
+  return activeArchive?.mode === 'replay' ? activeArchive.caseSensitivePaths : undefined;
+}
 export type FsCacheInstallation = {
   beginAnalysis(options: ArchiveOptions): FsCacheSession;
   getStatistics(): { hits: number; misses: number; paths: number };
@@ -169,6 +174,9 @@ const activeArchiveFacade: ArchiveFacade = {
   },
   isPassthrough(input: fs.PathLike) {
     return requireActiveArchive().isPassthrough(input);
+  },
+  blocksNativeRead(input: fs.PathLike) {
+    return requireActiveArchive().blocksNativeRead(input);
   },
   set<T>(key: string, operation: string, outcome: FsCacheOutcome<T>) {
     return requireActiveArchive().set(key, operation, outcome);
@@ -345,6 +353,13 @@ function createExecutor(archive: ArchiveFacade) {
         ? undefined
         : archive.keyFor(input);
     if (key === undefined) {
+      if (
+        typeof input !== 'number' &&
+        !(typeof input === 'object' && 'fd' in input) &&
+        archive.blocksNativeRead(input)
+      ) {
+        return missingPath(operation, input) as TResult;
+      }
       return MISSING;
     }
     const outcome = archive.get<TStored>(key, operation);
@@ -1579,6 +1594,9 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
   function replayOpen(input: fs.PathLike, operation: string): ReplayOpenResult {
     const key = archive.keyFor(input);
     if (key === undefined) {
+      if (archive.blocksNativeRead(input)) {
+        missingPath(operation, input);
+      }
       return { found: false };
     }
     const outcome = archive.get(key, operation);
@@ -1687,7 +1705,7 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
       }
     };
     try {
-      if (readonlyFlags(flags) && key !== undefined) {
+      if (readonlyFlags(flags) && (key !== undefined || openingArchive.blocksNativeRead(input))) {
         const fd = openSync(input, flags, mode);
         const virtual = fileDescriptors.get(fd)?.virtual === true;
         queueMicrotask(() => complete(null, fd, virtual));

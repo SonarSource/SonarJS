@@ -21,82 +21,189 @@ import os from 'node:os';
 import path from 'node:path';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import ts from 'typescript';
-import { ProgramSelectionArchive } from '../src/program-selection/archive.js';
+import { ProgramSelectionArchive as Archive } from '../src/program-selection/archive.js';
 import { sonarjs } from '../src/program-selection/analysis-metadata-proto.js';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { normalizeProjectRoot, replayProjectRoot } from '../../shared/src/helpers/project-paths.js';
+
+// Stand-in for Java's collector JSON, kept separate from the Node-only attachment.
+class ProgramSelectionArchive extends Archive {
+  private readonly root;
+  private rawConfiguration: Record<string, unknown> = {};
+  constructor(...args: ConstructorParameters<typeof Archive>) {
+    super(...args);
+    this.root = args[1];
+  }
+  recordConfiguration(configuration: Record<string, unknown>) {
+    this.rawConfiguration = configuration;
+  }
+  contextMetadata() {
+    return JSON.stringify({ configuration: { ...this.rawConfiguration, baseDir: this.root } });
+  }
+}
 
 describe('ProgramSelectionArchive', () => {
-  it('restores rule classification after relocation only when scanner scope is unchanged', () => {
+  it('keeps JSON configuration lossless and both attachments independent of shared metadata', () => {
+    const root = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'collector-json-')));
+    const archive = path.join(root, 'selection.pb.gz');
+    const recorder = new ProgramSelectionArchive(archive, root, 'record');
+    recorder.recordConfiguration({
+      detectBundles: false,
+      maxFileSize: 1234,
+      globals: { values: [] },
+      environments: { values: ['browser', 'node'] },
+      ecmaScriptVersion: '2022',
+    });
+    recorder.end();
+    const json = JSON.parse(recorder.contextMetadata()!);
+    expect(json.configuration).toMatchObject({
+      detectBundles: false,
+      maxFileSize: 1234,
+      globals: { values: [] },
+      environments: { values: ['browser', 'node'] },
+      ecmaScriptVersion: '2022',
+    });
+    expect(
+      Object.keys(
+        sonarjs.programselection.AnalysisMetadata.decode(gunzipSync(fs.readFileSync(archive))),
+      ),
+    ).toEqual(['programSelection']);
+    expect(json).not.toHaveProperty('version');
+    for (const metadata of ['{', 'null', '[]', '{"baseDir":"/project","configuration":[]}']) {
+      expect(() => new ProgramSelectionArchive(archive, root, 'replay', true, metadata)).toThrow();
+    }
+    const unsupported = new ProgramSelectionArchive(archive, root, 'replay', true, '{}');
+    expect(unsupported.replayBaseDir()).toBeUndefined();
+  });
+  for (const originalRoot of [
+    'C:/CI/Project',
+    'd:/agent/work/project',
+    '//server/share/project',
+    '/home/ci/project',
+  ]) {
+    it(`replays normalized project settings and all program outcomes from ${originalRoot}`, () => {
+      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'foreign-metadata-'));
+      const metadataPath = path.join(temporary, 'metadata.pb.gz');
+      const origin = normalizeProjectRoot(originalRoot);
+      const target = normalizeToAbsolutePath(path.join(temporary, 'sqaa'));
+      const recorder = new ProgramSelectionArchive(metadataPath, origin, 'record');
+      recorder.recordConfiguration({
+        sources: [`${origin}/src`],
+        tests: [`${origin}/tests`],
+        inclusions: { values: [`file:${origin}/src/**/*.ts`, '**/*.vue'] },
+        exclusions: [`${origin}/src/generated/**`],
+        testInclusions: [`FILE:${origin}/tests/**/*.ts`],
+        testExclusions: [`${origin}/tests/generated/**`],
+        jsTsExclusions: [`${origin}/vendor/**`],
+        globals: ['window'],
+      });
+      recorder.recordConfigured(
+        normalizeProjectRoot(`${origin}/src/Main.ts`),
+        normalizeProjectRoot(`${origin}/tsconfig.json`),
+        {
+          baseUrl: origin,
+          paths: { '@/*': [normalizeProjectRoot(`${origin}/src/*`)] },
+          rootDirs: [normalizeProjectRoot(`${origin}/src`)],
+        },
+      );
+      recorder.recordOrphanGroup([normalizeProjectRoot(`${origin}/src/Orphan.ts`)], {
+        allowJs: true,
+      });
+      recorder.recordNoProgram(normalizeProjectRoot(`${origin}/src/Untyped.ts`));
+      recorder.end();
+      const replay = new ProgramSelectionArchive(
+        metadataPath,
+        target,
+        'replay',
+        true,
+        recorder.contextMetadata(),
+      );
+      const root = replayProjectRoot(origin, target);
+      expect(replay.restoredBaseDir()).toBe(origin);
+      expect(replay.replayBaseDir()).toBe(root);
+      expect(replay.restoredConfiguration()).toMatchObject({
+        sources: [`${root}/src`],
+        tests: [`${root}/tests`],
+        inclusions: { values: [`file:${root}/src/**/*.ts`, '**/*.vue'] },
+        exclusions: [`${root}/src/generated/**`],
+        testInclusions: [`FILE:${root}/tests/**/*.ts`],
+        testExclusions: [`${root}/tests/generated/**`],
+        jsTsExclusions: [`${root}/vendor/**`],
+        globals: ['window'],
+      });
+      const main = normalizeToAbsolutePath('src/Main.ts', root);
+      const orphan = normalizeToAbsolutePath('src/Orphan.ts', root);
+      expect(replay.getRestoredSelections([main, orphan])).toMatchObject([
+        {
+          program: {
+            kind: 'configured',
+            tsconfig: `${root}/tsconfig.json`,
+            compilerOptions: {
+              baseUrl: root,
+              paths: { '@/*': [`${root}/src/*`] },
+              rootDirs: [`${root}/src`],
+            },
+          },
+        },
+        { program: { kind: 'orphan', compilerOptions: { allowJs: true } } },
+      ]);
+      expect(replay.hasNoProgram(normalizeToAbsolutePath('src/Untyped.ts', root))).toBe(true);
+      if (!origin.startsWith('/') || origin.startsWith('//')) {
+        expect(replay.hasSelection(normalizeToAbsolutePath('SRC/main.ts', root))).toBe(true);
+        expect(replay.canonicalRequestedFile(normalizeToAbsolutePath('SRC/main.ts', root))).toBe(
+          main,
+        );
+        expect(replay.hasNoProgram(normalizeToAbsolutePath('SRC/untyped.ts', root))).toBe(true);
+      } else {
+        expect(replay.hasSelection(normalizeToAbsolutePath('src/main.ts', root))).toBe(false);
+      }
+    });
+  }
+  it('restores classification inputs and the original logical namespace, not derived rule scope', () => {
     const root = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'rule-scope-')));
     const metadataPath = path.join(root, 'metadata.pb.gz');
     const recorder = new ProgramSelectionArchive(metadataPath, root, 'record');
-    recorder.recordConfiguration({});
-    recorder.recordRuleFileType(normalizeToAbsolutePath('main.test.ts', root), 'MAIN', 'MAIN');
-    recorder.recordRuleFileType(normalizeToAbsolutePath('inferred.test.ts', root), 'MAIN', 'TEST');
-    recorder.recordRuleFileType(normalizeToAbsolutePath('scanner.test.ts', root), 'TEST', 'TEST');
-    recorder.recordRuleFileType(normalizeToAbsolutePath('../external.ts', root), 'MAIN', 'MAIN');
-    for (const file of ['embedded.html', 'embedded.yaml', 'no-program.js']) {
-      recorder.recordRuleFileType(normalizeToAbsolutePath(file, root), 'MAIN', 'MAIN');
-    }
+    recorder.recordConfiguration({ sources: [root], inclusions: [`${root}/**/*.ts`] });
+    recorder.recordNoProgram(normalizeToAbsolutePath('main.test.ts', root));
     recorder.end();
     const relocated = normalizeToAbsolutePath(path.join(root, 'relocated'));
-    const replay = new ProgramSelectionArchive(metadataPath, relocated, 'replay');
-    expect(
-      replay.restoredRuleFileType(normalizeToAbsolutePath('main.test.ts', relocated), 'MAIN'),
-    ).toBe('MAIN');
-    expect(
-      replay.restoredRuleFileType(normalizeToAbsolutePath('main.test.ts', relocated), 'TEST'),
-    ).toBeUndefined();
-    expect(
-      replay.restoredRuleFileType(normalizeToAbsolutePath('inferred.test.ts', relocated), 'MAIN'),
-    ).toBe('TEST');
-    expect(
-      replay.restoredRuleFileType(normalizeToAbsolutePath('scanner.test.ts', relocated), 'MAIN'),
-    ).toBeUndefined();
-    expect(
-      replay.restoredRuleFileType(normalizeToAbsolutePath('scanner.test.ts', relocated), 'TEST'),
-    ).toBe('TEST');
-    expect(
-      replay.restoredRuleFileType(normalizeToAbsolutePath('../external.ts', relocated), 'MAIN'),
-    ).toBeUndefined();
-    expect(
-      replay.restoredRuleFileType(normalizeToAbsolutePath('new.ts', relocated), 'MAIN'),
-    ).toBeUndefined();
-    for (const file of ['embedded.html', 'embedded.yaml', 'no-program.js']) {
-      expect(replay.restoredRuleFileType(normalizeToAbsolutePath(file, relocated), 'MAIN')).toBe(
-        'MAIN',
-      );
-    }
-    replay.recordRuleFileType(normalizeToAbsolutePath('main.test.ts', relocated), 'MAIN', 'TEST');
-    expect(
-      replay.restoredRuleFileType(normalizeToAbsolutePath('main.test.ts', relocated), 'MAIN'),
-    ).toBe('MAIN');
-    expect(
-      recorder.restoredRuleFileType(normalizeToAbsolutePath('main.test.ts', root), 'MAIN'),
-    ).toBeUndefined();
+    const replay = new ProgramSelectionArchive(
+      metadataPath,
+      relocated,
+      'replay',
+      true,
+      recorder.contextMetadata(),
+    );
+    expect(replay.restoredBaseDir()).toBe(root);
+    expect(replay.restoredConfiguration()).toMatchObject({
+      sources: [root],
+      inclusions: [`${root}/**/*.ts`],
+    });
+    expect(replay.hasNoProgram(normalizeToAbsolutePath('main.test.ts', root))).toBe(true);
+    expect(replay.hasNoProgram(normalizeToAbsolutePath('main.test.ts', relocated))).toBe(false);
   });
 
-  for (const ruleFileTypes of [
-    [{ filePath: 'file.ts', fileType: 'OTHER', ruleFileType: 'MAIN' }],
-    [{ filePath: 'file.ts', fileType: 'MAIN', ruleFileType: 'OTHER' }],
-    [{ filePath: 'file.ts', fileType: 'TEST', ruleFileType: 'MAIN' }],
-    [{ filePath: '../file.ts', fileType: 'MAIN', ruleFileType: 'MAIN' }],
-    [{ filePath: '', fileType: 'MAIN', ruleFileType: 'MAIN' }],
-    Array(2).fill({ filePath: 'file.ts', fileType: 'MAIN', ruleFileType: 'MAIN' }),
-  ]) {
-    it(`rejects invalid rule classification ${JSON.stringify(ruleFileTypes)}`, () => {
+  for (const baseDir of ['relative/project', '../project']) {
+    it(`rejects a non-absolute recorded root ${baseDir}`, () => {
       const root = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'rule-scope-')));
       const metadataPath = path.join(root, 'metadata.pb.gz');
       const metadata = sonarjs.programselection.AnalysisMetadata.fromObject({
         programSelection: { magic: 'sonarjs-analysis-metadata' },
-        configuration: { fields: {} },
-        ruleFileTypes,
       });
       fs.writeFileSync(
         metadataPath,
         gzipSync(sonarjs.programselection.AnalysisMetadata.encode(metadata).finish()),
       );
-      expect(() => new ProgramSelectionArchive(metadataPath, root, 'replay')).toThrow();
+      expect(
+        () =>
+          new ProgramSelectionArchive(
+            metadataPath,
+            root,
+            'replay',
+            false,
+            JSON.stringify({ configuration: { baseDir } }),
+          ),
+      ).toThrow();
     });
   }
 
@@ -113,7 +220,7 @@ describe('ProgramSelectionArchive', () => {
     expect(new ProgramSelectionArchive(metadataPath, root, 'replay').hasNoProgram(file)).toBe(true);
   });
 
-  it('preserves effective analyzer settings without copying request-owned paths and scope', () => {
+  it('preserves effective analyzer settings and scope without copying runtime paths', () => {
     const root = normalizeToAbsolutePath(fs.mkdtempSync(path.join(os.tmpdir(), 'metadata-')));
     const metadataPath = path.join(root, 'analysis-metadata.pb.gz');
     const recorder = new ProgramSelectionArchive(metadataPath, root);
@@ -130,19 +237,28 @@ describe('ProgramSelectionArchive', () => {
     const metadata = sonarjs.programselection.AnalysisMetadata.decode(
       gunzipSync(fs.readFileSync(metadataPath)),
     );
-    expect(Object.keys(metadata)).toEqual(['ruleFileTypes', 'programSelection', 'configuration']);
+    expect(Object.keys(metadata)).toEqual(['programSelection']);
+    expect(JSON.parse(recorder.contextMetadata()!)).toMatchObject({
+      configuration: { baseDir: root },
+    });
     expect(metadata.programSelection?.magic).toBe('sonarjs-analysis-metadata');
 
-    const replay = new ProgramSelectionArchive(metadataPath, root);
+    const replay = new ProgramSelectionArchive(
+      metadataPath,
+      root,
+      'replay',
+      false,
+      recorder.contextMetadata(),
+    );
     expect(replay.restoredConfiguration()).toMatchObject({
       jsTsExclusions: { values: ['**/generated/**'] },
       detectBundles: false,
       environments: { values: ['browser'] },
+      sources: [root],
     });
     expect(replay.restoredConfiguration()?.ecmaScriptVersion).toBeNull();
-    expect(
-      replay.restoredRuleFileType(normalizeToAbsolutePath('old.test.ts', root), 'MAIN'),
-    ).toBeUndefined();
+    expect(replay.restoredConfiguration()).not.toHaveProperty('canAccessFileSystem');
+    expect(replay.restoredConfiguration()).not.toHaveProperty('baseDir');
   });
 
   it('deduplicates configured programs and restores project-relative paths', () => {

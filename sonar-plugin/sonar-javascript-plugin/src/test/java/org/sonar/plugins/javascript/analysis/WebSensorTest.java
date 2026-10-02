@@ -380,10 +380,16 @@ class WebSensorTest {
   @Test
   void should_replay_restored_filesystem_cache() throws IOException {
     var archive = Files.writeString(tempDir.resolve("archive.pb.gz"), "archive");
-    var analysisMetadata = Files.writeString(
-      tempDir.resolve("analysis-metadata.pb.gz"),
-      "metadata"
-    );
+    var logicalRoot = tempDir.resolve("unavailable-ci-root");
+    // Deliberately not a valid gzip/protobuf: Java must never decode this attachment.
+    var analysisMetadata = Files.writeString(tempDir.resolve("analysis-metadata.pb.gz"), "opaque");
+    var metadata = new com.google.gson.JsonObject();
+    var savedConfiguration = new com.google.gson.JsonObject();
+    savedConfiguration.addProperty("baseDir", logicalRoot.toString());
+    metadata.add("configuration", savedConfiguration);
+    context
+      .settings()
+      .setProperty(FilesystemCacheContext.RESTORED_CONTEXT_METADATA_PROPERTY, metadata.toString());
     var filesystemCacheContext = mock(FilesystemCacheContext.class);
     when(filesystemCacheContext.isSupported()).thenReturn(true);
     context
@@ -403,7 +409,8 @@ class WebSensorTest {
       filesystemCacheContext,
       new WebSensorModuleConfiguration()
     );
-    var request = executeSensorAndCaptureHandler(sensor, context).getRequest();
+    var handler = executeSensorAndCaptureHandler(sensor, context);
+    var request = handler.getRequest();
 
     assertThat(request.hasFilesystemCache()).isTrue();
     assertThat(request.getFilesystemCache().getArchivePath()).isEqualTo(
@@ -416,9 +423,29 @@ class WebSensorTest {
       FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY
     );
     assertThat(inputFile.charset()).isEqualTo(StandardCharsets.UTF_8);
-    var requestedFile = request.getFilesOrThrow(inputFile.absolutePath());
+    var logicalFile = logicalRoot.resolve(inputFile.relativePath()).toString();
+    assertThat(request.getConfiguration().getBaseDir()).isEqualTo(logicalRoot.toString());
+    assertThat(request.getFilesystemCache().getFallbackBaseDir()).isEqualTo(
+      context.fileSystem().baseDir().getAbsolutePath()
+    );
+    assertThat(request.getFilesMap()).doesNotContainKey(inputFile.absolutePath());
+    var requestedFile = request.getFilesOrThrow(logicalFile);
     assertThat(requestedFile.hasFileContent()).isTrue();
     assertThat(requestedFile.getFileContent()).isEqualTo(inputFile.contents());
+    handler.handleMessage(
+      AnalyzeProjectStreamResponse.newBuilder()
+        .setFileResult(
+          FileResultMessage.newBuilder()
+            .setFilePath(logicalFile)
+            .setResult(
+              ProjectAnalysisFileResult.newBuilder().setMetrics(
+                Metrics.newBuilder().setFunctions(7)
+              )
+            )
+        )
+        .build()
+    );
+    assertThat(context.measure(inputFile.key(), CoreMetrics.FUNCTIONS).value()).isEqualTo(7);
   }
 
   @Test
@@ -520,7 +547,8 @@ class WebSensorTest {
 
     verify(filesystemCacheContext, times(2)).collect(
       archiveCaptor.capture(),
-      analysisMetadataCaptor.capture()
+      analysisMetadataCaptor.capture(),
+      org.mockito.ArgumentMatchers.anyString()
     );
     assertThat(archiveCaptor.getAllValues()).hasSize(2).doesNotHaveDuplicates();
     assertThat(analysisMetadataCaptor.getAllValues()).hasSize(2).doesNotHaveDuplicates();
@@ -566,7 +594,7 @@ class WebSensorTest {
     );
     executeSensorMockingResponse(sensor, createProjectResponse(List.of(inputFile)));
 
-    verify(filesystemCacheContext, org.mockito.Mockito.never()).collect(any(), any());
+    verify(filesystemCacheContext, org.mockito.Mockito.never()).collect(any(), any(), any());
     assertThat(logTester.logs(Level.WARN)).contains(
       "The JavaScript filesystem cache archive was not created; no SQAA context will be published"
     );
@@ -1409,12 +1437,23 @@ class WebSensorTest {
           target.resolve("analysis-metadata.pb.gz"),
           java.nio.file.StandardCopyOption.REPLACE_EXISTING
         );
+        Files.copy(
+          contextItems.get(0).getParent().resolve("collector-metadata.json"),
+          target.resolve("collector-metadata.json"),
+          java.nio.file.StandardCopyOption.REPLACE_EXISTING
+        );
       }
 
       // A real Java replay request must carry edited contents into the restored imported type.
       var edited = source.replace("values.sort()", "values.sort((a, b) => a - b)");
       Files.writeString(baseDir.resolve("main.ts"), edited);
       var replay = realNodeCacheContext(nodeExecutable, edited, new HashMap<>(), false);
+      replay
+        .settings()
+        .setProperty(
+          FilesystemCacheContext.RESTORED_CONTEXT_METADATA_PROPERTY,
+          Files.readString(contextItems.get(0).getParent().resolve("collector-metadata.json"))
+        );
       replay
         .settings()
         .setProperty(
@@ -1438,6 +1477,12 @@ class WebSensorTest {
 
       Files.writeString(baseDir.resolve("main.ts"), source);
       var replayIssue = realNodeCacheContext(nodeExecutable, source, new HashMap<>(), false);
+      replayIssue
+        .settings()
+        .setProperty(
+          FilesystemCacheContext.RESTORED_CONTEXT_METADATA_PROPERTY,
+          Files.readString(contextItems.get(0).getParent().resolve("collector-metadata.json"))
+        );
       replayIssue
         .settings()
         .setProperty(
@@ -1548,6 +1593,11 @@ class WebSensorTest {
           exportDirectory.resolve("analysis-metadata.pb.gz"),
           java.nio.file.StandardCopyOption.REPLACE_EXISTING
         );
+        Files.copy(
+          contextItems.get(0).getParent().resolve("collector-metadata.json"),
+          exportDirectory.resolve("collector-metadata.json"),
+          java.nio.file.StandardCopyOption.REPLACE_EXISTING
+        );
         assertThat(sensorContext.allIssues())
           .as(scenario.get("name").getAsString())
           .hasSize(scenario.getAsJsonArray("expected").get(0).getAsInt());
@@ -1614,7 +1664,11 @@ class WebSensorTest {
       assertThat(invocation.getArgument(0, String.class)).isEqualTo(
         FilesystemCacheContext.CONTEXT_KIND
       );
-      assertThat(invocation.getArgument(1, String.class)).isEqualTo("{}");
+      var metadata = invocation.getArgument(1, String.class);
+      var json = GSON.fromJson(metadata, JsonObject.class);
+      assertThat(json.has("version")).isFalse();
+      assertThat(json.getAsJsonObject("configuration").get("baseDir").getAsString()).isNotEmpty();
+      assertThat(json.get("configuration").isJsonObject()).isTrue();
       List<A3SContextCollector.Item> items = invocation.getArgument(2);
       assertThat(items.stream().map(ids::get).toList()).containsExactly(
         FilesystemCacheContext.ARCHIVE_ITEM_ID,
@@ -1622,6 +1676,10 @@ class WebSensorTest {
       );
       contextItems.clear();
       items.forEach(item -> contextItems.add(paths.get(item)));
+      Files.writeString(
+        contextItems.get(0).getParent().resolve("collector-metadata.json"),
+        metadata
+      );
       return null;
     })
       .when(apiCollector)

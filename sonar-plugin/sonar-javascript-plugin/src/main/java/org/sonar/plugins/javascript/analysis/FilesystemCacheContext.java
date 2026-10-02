@@ -36,10 +36,11 @@ public interface FilesystemCacheContext {
   String RESTORED_ARCHIVE_PATH_PROPERTY = "sonar.javascript.internal.filesystemCacheArchivePath";
   String RESTORED_ANALYSIS_METADATA_PATH_PROPERTY =
     "sonar.javascript.internal.analysisMetadataPath";
+  String RESTORED_CONTEXT_METADATA_PROPERTY = "sonar.javascript.internal.contextMetadata";
 
   boolean isSupported();
 
   boolean isEnabled();
 
-  void collect(Path archivePath, Path analysisMetadataPath);
+  void collect(Path archivePath, Path analysisMetadataPath, String metadata);
 }

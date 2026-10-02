@@ -23,6 +23,10 @@ import { pathToFileURL } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import { expect } from 'expect';
 import { FS_CACHE_FORMAT_VERSION, FsCacheArchive } from '../../src/fs-cache/archive.js';
+import {
+  deserializeProtobufDocument,
+  serializeProtobufDocument,
+} from '../../src/fs-cache/archive-serialization.js';
 
 const fixture = path.resolve(import.meta.dirname, 'fixtures/exercise-hook.mjs');
 const fixtureRunner = path.resolve(import.meta.dirname, 'fixtures/run-with-fs-cache.mjs');
@@ -130,6 +134,160 @@ afterEach(() => {
 });
 
 describe('filesystem cache hook', () => {
+  for (const caseSensitivePaths of [false, true]) {
+    it(`preserves producer case sensitivity (${caseSensitivePaths}) after relocating an archive`, () => {
+      const temporary = temporaryDirectory();
+      const archivePath = path.join(temporary, 'case.pb.gz');
+      const recorder = new FsCacheArchive({
+        rootDir: path.join(temporary, 'ci'),
+        archivePath,
+        mode: 'record',
+        caseSensitivePaths,
+      });
+      recorder.set('Src/Values.ts', 'readFile', {
+        ok: true,
+        value: Buffer.from('export const values = [1, 2];'),
+      });
+      recorder.set('Src/Missing.ts', 'exists', { ok: true, value: false });
+      recorder.flush();
+      const document = deserializeProtobufDocument(gunzipSync(fs.readFileSync(archivePath)));
+      expect(document.caseSensitivePaths).toBe(caseSensitivePaths);
+      const replay = loadArchive(archivePath, path.join(temporary, 'sqaa'));
+      const exact = replay.keyFor(path.join(replay.rootDir, 'Src/Values.ts'))!;
+      const alias = replay.keyFor(path.join(replay.rootDir, 'src/values.ts'))!;
+      expect(replay.get(exact, 'readFile')).toMatchObject({ ok: true });
+      expect(replay.get(alias, 'readFile')).toEqual(
+        caseSensitivePaths ? undefined : replay.get(exact, 'readFile'),
+      );
+      expect(replay.getExists('src/missing.ts')).toBe(caseSensitivePaths ? undefined : false);
+      expect(replay.keyFor(path.join(replay.rootDir + '-other', 'Src/Values.ts'))).toBeUndefined();
+    });
+  }
+
+  it('keeps legacy archive keys case sensitive rather than assuming the receiver OS', () => {
+    const temporary = temporaryDirectory();
+    const archivePath = path.join(temporary, 'legacy.pb.gz');
+    const recorder = new FsCacheArchive({
+      rootDir: temporary,
+      archivePath,
+      mode: 'record',
+      caseSensitivePaths: true,
+    });
+    recorder.set('Upper.ts', 'exists', { ok: true, value: true });
+    recorder.flush();
+    const document = deserializeProtobufDocument(gunzipSync(fs.readFileSync(archivePath)));
+    delete document.caseSensitivePaths;
+    fs.writeFileSync(archivePath, gzipSync(serializeProtobufDocument(document)));
+    const replay = new FsCacheArchive({
+      rootDir: temporary,
+      archivePath,
+      mode: 'replay',
+      caseSensitivePaths: false,
+    });
+    replay.load();
+    expect(replay.caseSensitivePaths).toBe(true);
+    expect(replay.getExists('Upper.ts')).toBe(true);
+    expect(replay.getExists('upper.ts')).toBeUndefined();
+  });
+
+  it('replays Windows-like lookup through every read API and rebases realpaths', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'ci');
+    const replayRoot = path.join(temporary, 'sqaa');
+    const archive = path.join(temporary, 'snapshot.pb.gz');
+    fs.mkdirSync(path.join(root, 'Src'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'Src/Values.ts'), 'snapshot contents');
+    const script = `import fs from 'node:fs';
+        import path from 'node:path';
+        import assert from 'node:assert/strict';
+        import { promisify } from 'node:util';
+        import { installFsCache } from ${JSON.stringify(hookModule)};
+        const cache = installFsCache();
+        const filesystemCacheArchive = ${JSON.stringify(archive)};
+        const ci = ${JSON.stringify(root)}, target = ${JSON.stringify(replayRoot)};
+        const file = path.join(ci, 'Src/Values.ts');
+        const record = cache.beginAnalysis({archivePath: filesystemCacheArchive, rootDir: ci, mode: 'record', caseSensitivePaths: false});
+        fs.readFileSync(file);
+        fs.statSync(file);
+        fs.realpathSync(file);
+        fs.realpathSync.native(file);
+        fs.readdirSync(path.join(ci, 'Src'), {withFileTypes: true});
+        record.end();
+        fs.rmSync(ci, {recursive:true});
+        const replay = cache.beginAnalysis({archivePath: filesystemCacheArchive, rootDir: target, mode: 'replay', restrictNativeReads: true});
+        const alias = path.join(target, 'sRC/vALUES.ts');
+        assert.equal(fs.readFileSync(alias, 'utf8'), 'snapshot contents');
+        assert.equal(await fs.promises.readFile(alias, 'utf8'), 'snapshot contents');
+        assert.equal(await promisify(fs.readFile)(alias, 'utf8'), 'snapshot contents');
+        assert.equal(fs.existsSync(alias), true);
+        assert.equal(fs.statSync(alias).isFile(), true);
+        assert.equal(fs.realpathSync(alias), path.join(target, 'src/values.ts'));
+        assert.equal(fs.realpathSync.native(alias), path.join(target, 'src/values.ts'));
+        const entries = fs.readdirSync(path.join(target, 'src'), {withFileTypes:true});
+        assert.equal(entries[0].name, 'Values.ts');
+        assert.equal(entries[0].isFile(), true);
+        replay.end();
+        console.log('portable lookup passed');`;
+    const child = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
+      encoding: 'utf8',
+    });
+    expect(child.stderr).toBe('');
+    expect(child.status).toBe(0);
+    expect(child.stdout.trim()).toBe('portable lookup passed');
+  });
+  it('isolates replay from native files outside the snapshot while allowing explicit runtime paths', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'project');
+    const runtime = path.join(temporary, 'runtime');
+    const outside = path.join(temporary, 'outside.txt');
+    const archive = path.join(temporary, 'archive.pb.gz');
+    fs.mkdirSync(root);
+    fs.mkdirSync(runtime);
+    fs.writeFileSync(path.join(root, 'source.ts'), 'project');
+    fs.writeFileSync(path.join(runtime, 'library.d.ts'), 'runtime');
+    fs.writeFileSync(outside, 'must not leak into replay');
+    const scriptPath = path.join(temporary, 'isolation.mjs');
+    fs.writeFileSync(
+      scriptPath,
+      `
+      import fs from 'node:fs';
+      import { installFsCache } from ${JSON.stringify(hookModule)};
+      const cache = installFsCache();
+      const options = { rootDir: ${JSON.stringify(root)}, archivePath: ${JSON.stringify(archive)} };
+      const record = cache.beginAnalysis({ ...options, mode: 'record' });
+      fs.readFileSync(${JSON.stringify(path.join(root, 'source.ts'))}, 'utf8');
+      record.end();
+      const replay = cache.beginAnalysis({ ...options, mode: 'replay', restrictNativeReads: true, passthroughDirs: [${JSON.stringify(runtime)}] });
+      const outside = ${JSON.stringify(outside)};
+      const error = async operation => { try { await operation(); return 'unexpected success'; } catch (failure) { return failure.code; } };
+      const result = {
+        exists: fs.existsSync(outside),
+        reads: await Promise.all([
+          error(() => fs.readFileSync(outside)),
+          error(() => fs.promises.readFile(outside)),
+          error(() => fs.statSync(outside)),
+          error(() => fs.openSync(outside, 'r')),
+          error(() => fs.promises.open(outside, 'r')),
+          error(() => new Promise((resolve, reject) => fs.open(outside, 'r', (failure, fd) => failure ? reject(failure) : resolve(fd)))),
+        ]),
+        project: fs.readFileSync(${JSON.stringify(path.join(root, 'source.ts'))}, 'utf8'),
+        runtime: fs.readFileSync(${JSON.stringify(path.join(runtime, 'library.d.ts'))}, 'utf8'),
+      };
+      replay.end();
+      console.log(JSON.stringify(result));
+    `,
+    );
+    const result = spawnSync(process.execPath, [scriptPath], { encoding: 'utf8' });
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual({
+      exists: false,
+      reads: Array(6).fill('ENOENT'),
+      project: 'project',
+      runtime: 'runtime',
+    });
+  });
+
   it('stores supplied decoded Unicode as UTF-8 while preserving native non-UTF-8 bytes', () => {
     const temporary = temporaryDirectory();
     const root = path.join(temporary, 'record');

@@ -18,7 +18,7 @@
 import { afterEach, describe, it, mock } from 'node:test';
 import { expect } from 'expect';
 import {
-  handleAnalyzeProjectRequest,
+  handleAnalyzeProjectRequest as handleRequest,
   type WorkerData,
 } from '../src/analyze-project-handle-request.js';
 import type { AnalyzeProjectIncrementalEvent } from '../src/analyze-project-request.js';
@@ -31,8 +31,30 @@ import os from 'node:os';
 import path from 'node:path';
 import ts from 'typescript';
 import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
+import { toAnalyzeProjectUnaryResponse } from '../src/analyze-project-convert.js';
+import { gunzipSync, gzipSync } from 'node:zlib';
+import {
+  deserializeProtobufDocument,
+  serializeProtobufDocument,
+} from '../../shared/src/fs-cache/archive-serialization.js';
+import { isWindowsProjectPath, replayProjectRoot } from '../../shared/src/helpers/project-paths.js';
 
 const workerData: WorkerData = { debugMemory: false };
+// Simulate Java recording its raw request configuration, then the collector/hub handoff.
+const collectedMetadata = new Map<string, string>();
+async function handleAnalyzeProjectRequest(...args: Parameters<typeof handleRequest>) {
+  const cache = args[0].type === 'on-analyze-project' ? args[0].data.filesystemCache : undefined;
+  if (cache?.mode === 2 && cache.contextMetadata === undefined) {
+    cache.contextMetadata = collectedMetadata.get(cache.analysisMetadataPath!);
+  }
+  if (cache?.mode === 1 && args[0].type === 'on-analyze-project') {
+    collectedMetadata.set(
+      cache.analysisMetadataPath!,
+      JSON.stringify({ configuration: args[0].data.configuration }),
+    );
+  }
+  return handleRequest(...args);
+}
 type AnalyzeProjectRequest = analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectRequest;
 const { AnalysisMode, FileType, FilesystemCacheMode, JsTsLanguage } =
   analyzeProjectProto.analyzeproject.v1;
@@ -55,11 +77,198 @@ function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
 }
 
 describe('analyze-project request handler', () => {
+  for (const origin of ['C:/CI/Project', '//server/share/project', '/home/ci/project']) {
+    for (const kind of ['configured', 'orphan', 'no-program']) {
+      it(`replays ${kind} from ${origin} with native contents absent and submitted edits authoritative`, async () => {
+        const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'cross-platform-replay-'));
+        const ci = path.join(temporary, 'ci');
+        const physical = path.join(temporary, 'sqaa');
+        const work = path.join(temporary, 'runtime');
+        const relative = 'src/Main.test.ts';
+        const typeAware = kind !== 'no-program';
+        const original = typeAware
+          ? "import { values } from '@shared/Values';\nvalues.sort();"
+          : 'foo();;';
+        const edited = typeAware
+          ? "import { values } from '@shared/Values';\nvalues.sort((a, b) => a - b);"
+          : 'foo();';
+        fs.mkdirSync(path.join(ci, 'src'), { recursive: true });
+        fs.mkdirSync(path.join(ci, 'shared'));
+        fs.mkdirSync(physical);
+        fs.mkdirSync(work);
+        fs.writeFileSync(path.join(ci, relative), original);
+        fs.writeFileSync(
+          path.join(ci, 'shared/Values.ts'),
+          'export const values: number[] = [80, 3, 9];',
+        );
+        if (kind === 'configured') {
+          fs.writeFileSync(
+            path.join(ci, 'tsconfig.json'),
+            JSON.stringify({
+              compilerOptions: { baseUrl: '.', paths: { '@shared/*': ['shared/*'] } },
+              files: [relative],
+            }),
+          );
+        }
+        // Orphan programs must have type information even without imports or a tsconfig.
+        const orphanOriginal = '[80, 3, 9].sort();';
+        const orphanEdited = '[80, 3, 9].sort((a, b) => a - b);';
+        const source = kind === 'orphan' ? orphanOriginal : original;
+        fs.writeFileSync(path.join(ci, relative), source);
+        const installation = installFsCache();
+        (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = {
+          ...installation,
+          // Synthetic producers must preserve original names even on the Windows test host.
+          // The fixture below chooses the producer's lookup semantics in the saved archive.
+          beginAnalysis: (options: Parameters<typeof installation.beginAnalysis>[0]) =>
+            installation.beginAnalysis({ ...options, caseSensitivePaths: true }),
+        };
+        const exists = mock.method(ts.sys, 'fileExists', (file: string) => {
+          try {
+            return fs.statSync(file).isFile();
+          } catch {
+            return false;
+          }
+        });
+        const archivePath = path.join(work, 'fs.pb.gz');
+        const analysisMetadataPath = path.join(work, 'metadata.pb.gz');
+        const makeRequest = (
+          baseDir: string,
+          mode: number,
+          fileContent: string,
+          file = path.join(baseDir, relative),
+        ): AnalyzeProjectRequest => ({
+          configuration: {
+            baseDir,
+            canAccessFileSystem: true,
+            sources: [path.join(ci, 'src')],
+            inclusions: [`file:${normalizeToAbsolutePath(ci)}/src/**/*.ts`],
+            createTsProgramForOrphanFiles: kind !== 'no-program',
+          },
+          files: { [file]: { fileType: FileType.FILE_TYPE_MAIN, fileContent } },
+          rules: [
+            {
+              key: typeAware ? 'S2871' : 'S1116',
+              configurations: [],
+              fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+              language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+              analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+            },
+          ],
+          rulesWorkdir: work,
+          filesystemCache: { archivePath, analysisMetadataPath, mode },
+        });
+        const analyze = async (input: AnalyzeProjectRequest, count: number) => {
+          const responseKey = Object.keys(input.files!)[0];
+          const result = await handleAnalyzeProjectRequest(
+            { type: 'on-analyze-project', data: input },
+            workerData,
+          );
+          expect(result.type).toBe('success');
+          if (result.type !== 'success' || !result.result) {
+            return;
+          }
+          const output = toAnalyzeProjectUnaryResponse(result.result.output, result.result.pathMap);
+          expect(output.files![responseKey].issues).toHaveLength(count);
+          expect(input.filesystemCache).toBeDefined();
+        };
+        try {
+          await analyze(
+            makeRequest(ci, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD, source),
+            1,
+          );
+          const metadata = JSON.parse(collectedMetadata.get(analysisMetadataPath)!);
+          metadata.configuration.baseDir = origin;
+          // Convert native absolute scope values to the producer namespace. Archive keys and
+          // program descriptors already use portable project-relative paths.
+          const rewrite = (value: unknown): void => {
+            if (value && typeof value === 'object') {
+              for (const [key, item] of Object.entries(value)) {
+                if (typeof item === 'string') {
+                  (value as Record<string, unknown>)[key] = item
+                    .replaceAll(normalizeToAbsolutePath(ci), origin)
+                    .replaceAll(ci, origin);
+                } else {
+                  rewrite(item);
+                }
+              }
+            }
+          };
+          rewrite(metadata.configuration);
+          if (isWindowsProjectPath(origin)) {
+            // Windows source roots may use a different spelling from the stored file names.
+            const uppercaseScope = (value: unknown): void => {
+              if (value && typeof value === 'object') {
+                for (const [key, item] of Object.entries(value)) {
+                  if (typeof item === 'string') {
+                    (value as Record<string, unknown>)[key] = item.replace('/src', '/SRC');
+                  } else {
+                    uppercaseScope(item);
+                  }
+                }
+              }
+            };
+            uppercaseScope(metadata.configuration);
+          }
+          collectedMetadata.set(analysisMetadataPath, JSON.stringify(metadata));
+          const document = deserializeProtobufDocument(gunzipSync(fs.readFileSync(archivePath)));
+          document.caseSensitivePaths = !isWindowsProjectPath(origin);
+          fs.writeFileSync(archivePath, gzipSync(serializeProtobufDocument(document)));
+          fs.rmSync(ci, { recursive: true });
+          const metadataBefore = fs.readFileSync(analysisMetadataPath);
+          const archiveBefore = fs.readFileSync(archivePath);
+          for (const [contents, count] of [
+            [source, 1],
+            [kind === 'orphan' ? orphanEdited : edited, 0],
+            ['', 0],
+          ] as const) {
+            const request = makeRequest(
+              physical,
+              FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+              contents,
+            );
+            await analyze(request, count);
+            expect(request.configuration!.baseDir).toBe(
+              replayProjectRoot(origin, normalizeToAbsolutePath(physical)),
+            );
+          }
+          // Exercise the actual WebSensor shape: logical producer paths plus physical fallback.
+          const logical = makeRequest(
+            origin,
+            FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+            source,
+            `${origin}/${relative}`,
+          );
+          logical.filesystemCache!.fallbackBaseDir = physical;
+          await analyze(logical, 1);
+          if (isWindowsProjectPath(origin)) {
+            const caseAlias = `${origin}/SRC/main.TEST.ts`;
+            const caseContents =
+              kind === 'configured' ? original.replace('@shared/Values', '@shared/VALUES') : source;
+            const differentlyCased = makeRequest(
+              origin,
+              FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+              caseContents,
+              caseAlias,
+            );
+            differentlyCased.filesystemCache!.fallbackBaseDir = physical;
+            await analyze(differentlyCased, 1);
+          }
+          expect(fs.readFileSync(analysisMetadataPath)).toEqual(metadataBefore);
+          expect(fs.readFileSync(archivePath)).toEqual(archiveBefore);
+        } finally {
+          exists.mock.restore();
+        }
+      });
+    }
+  }
   for (const scopeSettings of [
     { sources: ['src'], inclusions: ['**/*.ts'] },
     { sources: ['src'], tests: ['tests'] },
+    { sources: ['src'], inclusions: ['**/*.ts'], absolute: true },
+    { sources: ['src'], tests: ['tests'], absolute: true },
   ]) {
-    it(`replays recorded rule scope without restoring CI paths: ${JSON.stringify(scopeSettings)}`, async () => {
+    it(`recomputes rule scope in the original CI namespace: ${JSON.stringify(scopeSettings)}`, async () => {
       const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'replay-rule-scope-'));
       const recordRoot = path.join(temporary, 'ci');
       const replayRoot = path.join(temporary, 'sqaa');
@@ -99,6 +308,7 @@ describe('analyze-project request handler', () => {
         },
       });
       const analyze = async (input: AnalyzeProjectRequest, count: number) => {
+        const submittedPath = Object.keys(input.files!)[0];
         const result = await handleAnalyzeProjectRequest(
           { type: 'on-analyze-project', data: input },
           workerData,
@@ -115,15 +325,34 @@ describe('analyze-project request handler', () => {
             },
           },
         });
+        if (result.type === 'success' && result.result) {
+          const wireResponse = toAnalyzeProjectUnaryResponse(
+            result.result.output,
+            result.result.pathMap,
+          );
+          expect(wireResponse.files![submittedPath]).toBeDefined();
+        }
       };
       const recorded = request(recordRoot, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD);
-      Object.assign(recorded.configuration!, scopeSettings);
+      const recordedScope = {
+        sources: scopeSettings.sources.map(value =>
+          scopeSettings.absolute ? path.join(recordRoot, value) : value,
+        ),
+        tests: scopeSettings.tests?.map(value =>
+          scopeSettings.absolute ? path.join(recordRoot, value) : value,
+        ),
+        inclusions: scopeSettings.inclusions?.map(value =>
+          scopeSettings.absolute ? `${recordRoot}/${value}` : value,
+        ),
+      };
+      Object.assign(recorded.configuration!, recordedScope);
       await analyze(recorded, 1);
+      // Replay must work even though the original CI directory no longer exists natively.
+      fs.rmSync(recordRoot, { recursive: true });
       const replayed = request(replayRoot, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY);
       await analyze(replayed, 1);
-      expect(replayed.configuration!.sources).toBeUndefined();
-      expect(replayed.configuration!.tests).toBeUndefined();
-      expect(replayed.configuration!.inclusions).toBeUndefined();
+      expect(replayed.configuration!.baseDir).toBe(recordRoot);
+      expect(replayed.configuration!.sources).toEqual(recordedScope.sources);
       const changedScope = request(replayRoot, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY);
       changedScope.files![path.join(replayRoot, relativePath)].fileType = FileType.FILE_TYPE_TEST;
       await analyze(changedScope, 0);
@@ -137,16 +366,21 @@ describe('analyze-project request handler', () => {
         normalizeToAbsolutePath(recordRoot),
         'record',
       );
-      unsupportedMetadata.recordConfiguration({ disableTypeChecking: false });
-      unsupportedMetadata.recordRuleFileType(
-        normalizeToAbsolutePath(path.join(recordRoot, relativePath)),
-        'MAIN',
-        'MAIN',
-      );
       unsupportedMetadata.end();
+      collectedMetadata.set(
+        path.join(rulesWorkdir, 'metadata.pb.gz'),
+        JSON.stringify({ configuration: { baseDir: recordRoot, disableTypeChecking: false } }),
+      );
       const unsupported = request(replayRoot, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY);
       await analyze(unsupported, 0);
       expect(unsupported.filesystemCache).toBeUndefined();
+      const logicalUnsupported = request(
+        recordRoot,
+        FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+      );
+      logicalUnsupported.filesystemCache!.fallbackBaseDir = replayRoot;
+      await analyze(logicalUnsupported, 0);
+      expect(logicalUnsupported.configuration!.baseDir).toBe(normalizeToAbsolutePath(replayRoot));
     });
   }
 
@@ -615,7 +849,7 @@ describe('analyze-project request handler', () => {
           result: {
             output: {
               files: {
-                [normalizeToAbsolutePath(path.join(replayRoot, relativePath))]: {
+                [normalizeToAbsolutePath(path.join(recordRoot, relativePath))]: {
                   issues: [expect.objectContaining({ ruleId: 'S1116' })],
                 },
               },
@@ -712,7 +946,7 @@ describe('analyze-project request handler', () => {
       result: {
         output: {
           files: {
-            [normalizeToAbsolutePath(path.join(replayRoot, 'component.ts'))]: {
+            [normalizeToAbsolutePath(path.join(recordRoot, 'component.ts'))]: {
               issues: [expect.objectContaining({ line: 5, ruleId: 'S7651' })],
             },
           },
@@ -753,7 +987,9 @@ describe('analyze-project request handler', () => {
         archivePath: '/cache/first.fscache',
         event: 'begin',
         mode: 'record',
+        restrictNativeReads: false,
         passthroughDirs: [
+          path.dirname(ts.getDefaultLibFilePath({})),
           normalizeToAbsolutePath('.scannerwork', normalizeToAbsolutePath('/project')),
         ],
         rootDir: '/project',

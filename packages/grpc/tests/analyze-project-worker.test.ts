@@ -42,6 +42,13 @@ import type {
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
 import type { ProjectAnalysisOutput } from '../../analysis/src/projectAnalysis.js';
 import { FsCacheArchive } from '../../shared/src/fs-cache/archive.js';
+import { gunzipSync, gzipSync } from 'node:zlib';
+import {
+  deserializeProtobufDocument,
+  serializeProtobufDocument,
+} from '../../shared/src/fs-cache/archive-serialization.js';
+import { isWindowsProjectPath } from '../../shared/src/helpers/project-paths.js';
+import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 
 class FakeParentThread {
   private readonly events = new EventEmitter();
@@ -110,6 +117,171 @@ function createIncrementalEvent(event: WsIncrementalResult): AnalyzeProjectIncre
 }
 
 describe('analyze-project worker', () => {
+  for (const origin of ['C:/ci/project', '//server/share/project', '/home/ci/project']) {
+    it(`replays a ${origin} snapshot in the real worker without TypeScript or filesystem mocks`, async () => {
+      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'portable-worker-'));
+      const root = path.join(temporary, 'ci');
+      const physical = path.join(temporary, 'sqaa');
+      const work = path.join(temporary, 'runtime');
+      for (const directory of [root, physical, work]) {
+        fs.mkdirSync(directory);
+      }
+      fs.mkdirSync(path.join(root, 'shared'));
+      const original =
+        "import { values } from '@shared/values';" +
+        (isWindowsProjectPath(origin) ? '\r\n' : '\n') +
+        'values.sort();';
+      fs.writeFileSync(path.join(root, 'main.test.ts'), original);
+      fs.writeFileSync(
+        path.join(root, 'shared/values.ts'),
+        'export const values: number[] = [80, 3, 9];',
+      );
+      fs.writeFileSync(
+        path.join(root, 'tsconfig.json'),
+        JSON.stringify({
+          compilerOptions: { baseUrl: '.', paths: { '@shared/*': ['shared/*'] } },
+          files: ['main.test.ts'],
+        }),
+      );
+      const archivePath = path.join(work, 'fs.pb.gz');
+      const analysisMetadataPath = path.join(work, 'metadata.pb.gz');
+      const worker = new Worker(
+        path.resolve(import.meta.dirname, '../../../lib/grpc/src/analyze-project-worker.js'),
+        { workerData },
+      );
+      const { FileType, JsTsLanguage, AnalysisMode, FilesystemCacheMode } =
+        analyzeProjectProto.analyzeproject.v1;
+      let sequence = 0;
+      let contextMetadata: string | undefined;
+      const analyze = (
+        baseDir: string,
+        mode: number,
+        contents: string,
+        count: number,
+        logical = false,
+      ) =>
+        new Promise<void>((resolve, reject) => {
+          const requestId = String(++sequence);
+          const key = `${baseDir}/${logical && isWindowsProjectPath(origin) ? 'MAIN.TEST.ts' : 'main.test.ts'}`;
+          const timer = setTimeout(
+            () => finish(new Error('Portable replay worker timed out')),
+            30_000,
+          );
+          const onError = (error: Error) => finish(error);
+          const onMessage = (message: AnalyzeProjectWorkerOutMessage) => {
+            if (message.type !== 'unary-complete' || message.requestId !== requestId) {
+              return;
+            }
+            try {
+              expect(message.result).toMatchObject({
+                type: 'success',
+                result: {
+                  files: {
+                    [key]: { issues: count ? [expect.objectContaining({ ruleId: 'S2871' })] : [] },
+                  },
+                },
+              });
+              finish();
+            } catch (error) {
+              finish(error as Error);
+            }
+          };
+          function finish(error?: Error) {
+            clearTimeout(timer);
+            worker.off('message', onMessage);
+            worker.off('error', onError);
+            if (error) {
+              reject(error);
+            } else {
+              resolve();
+            }
+          }
+          worker.on('message', onMessage);
+          worker.once('error', onError);
+          if (mode === FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD) {
+            contextMetadata = JSON.stringify({
+              configuration: { baseDir, sources: [root], inclusions: ['**/*.ts'] },
+            });
+          }
+          worker.postMessage({
+            type: 'analyze-unary',
+            requestId,
+            request: {
+              configuration: { baseDir, sources: [root], inclusions: ['**/*.ts'] },
+              files: { [key]: { fileContent: contents, fileType: FileType.FILE_TYPE_MAIN } },
+              rules: [
+                {
+                  key: 'S2871',
+                  configurations: [],
+                  fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+                  language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+                  analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+                },
+              ],
+              bundles: [],
+              cssRules: [],
+              rulesWorkdir: work,
+              filesystemCache: {
+                archivePath,
+                analysisMetadataPath,
+                mode,
+                contextMetadata,
+                ...(logical ? { fallbackBaseDir: physical } : {}),
+              },
+            },
+          });
+        });
+      try {
+        await analyze(root, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD, original, 1);
+        const metadata = JSON.parse(contextMetadata!);
+        metadata.configuration.baseDir = origin;
+        const sourceField = metadata.configuration.sources;
+        // Scope arrays are stored in the request's protobuf StringArray shape.
+        const replace = (value: unknown): void => {
+          if (value && typeof value === 'object') {
+            for (const [key, item] of Object.entries(value)) {
+              if (typeof item === 'string') {
+                (value as Record<string, unknown>)[key] = item
+                  .replaceAll(normalizeToAbsolutePath(root), origin)
+                  .replaceAll(root, origin);
+              } else {
+                replace(item);
+              }
+            }
+          }
+        };
+        replace(sourceField);
+        contextMetadata = JSON.stringify(metadata);
+        const document = deserializeProtobufDocument(gunzipSync(fs.readFileSync(archivePath)));
+        document.caseSensitivePaths = !isWindowsProjectPath(origin);
+        fs.writeFileSync(archivePath, gzipSync(serializeProtobufDocument(document)));
+        fs.rmSync(root, { recursive: true });
+        const archiveBefore = fs.readFileSync(archivePath);
+        const metadataBefore = fs.readFileSync(analysisMetadataPath);
+        await analyze(physical, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY, original, 1);
+        await analyze(
+          origin,
+          FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+          isWindowsProjectPath(origin)
+            ? original.replace('@shared/values', '@shared/VALUES')
+            : original,
+          1,
+          true,
+        );
+        await analyze(
+          physical,
+          FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+          original.replace('values.sort()', 'values.sort((a, b) => a - b)'),
+          0,
+        );
+        await analyze(physical, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY, '', 0);
+        expect(fs.readFileSync(archivePath)).toEqual(archiveBefore);
+        expect(fs.readFileSync(analysisMetadataPath)).toEqual(metadataBefore);
+      } finally {
+        await worker.terminate();
+      }
+    });
+  }
   it('records project Stylelint lookups independently of process cwd and replays edited HTML', async () => {
     const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'worker-css-root-'));
     const root = path.join(temporary, 'record');
@@ -126,6 +298,7 @@ describe('analyze-project worker', () => {
     const { FileType, JsTsLanguage, AnalysisMode, FilesystemCacheMode } =
       analyzeProjectProto.analyzeproject.v1;
     let sequence = 0;
+    let contextMetadata: string | undefined;
     const analyze = (baseDir: string, mode: number, content?: string) =>
       new Promise<AnalyzeProjectWorkerOutMessage>((resolve, reject) => {
         const requestId = String(++sequence);
@@ -135,8 +308,9 @@ describe('analyze-project worker', () => {
             'requestId' in message &&
             message.requestId === requestId &&
             message.type === 'unary-complete'
-          )
+          ) {
             finish(undefined, message);
+          }
         };
         const onError = (error: Error) => finish(error);
         function finish(error?: Error, result?: AnalyzeProjectWorkerOutMessage) {
@@ -148,6 +322,9 @@ describe('analyze-project worker', () => {
         }
         worker.on('message', onMessage);
         worker.once('error', onError);
+        if (mode === FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD) {
+          contextMetadata = JSON.stringify({ configuration: { baseDir } });
+        }
         worker.postMessage({
           type: 'analyze-unary',
           requestId,
@@ -173,6 +350,7 @@ describe('analyze-project worker', () => {
             rulesWorkdir: workdir,
             filesystemCache: {
               mode,
+              contextMetadata,
               archivePath: path.join(workdir, 'filesystem.pb.gz'),
               analysisMetadataPath: path.join(workdir, 'analysis-metadata.pb.gz'),
             },

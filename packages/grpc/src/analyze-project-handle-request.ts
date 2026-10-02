@@ -48,6 +48,9 @@ import {
 } from '../../shared/src/helpers/files.js';
 import { warn } from '../../shared/src/helpers/logging.js';
 import { sonarjs } from './proto/analyze-project.js';
+import { ReplayProjectPaths } from './replay-project-paths.js';
+import path from 'node:path';
+import ts from 'typescript';
 
 const { FilesystemCacheMode } = sonarjs.analyzeproject.v1;
 type CacheMode = 'record' | 'replay';
@@ -95,14 +98,24 @@ function beginFilesystemCacheAnalysis(
     mode,
     // Rules are unpacked into this temporary directory. Their files must use the native
     // filesystem; project files outside it remain subject to archive recording/replay.
-    passthroughDirs: request.rulesWorkdir
-      ? [
-          normalizeToAbsolutePath(
-            request.rulesWorkdir,
-            normalizeToAbsolutePath(request.configuration.baseDir),
-          ),
-        ]
-      : [],
+    restrictNativeReads: mode === 'replay',
+    passthroughDirs: [
+      // TypeScript's standard library belongs to this analyzer build, not the CI snapshot.
+      path.dirname(ts.getDefaultLibFilePath({})),
+      ...(request.bundles ?? []).map(bundle =>
+        path.dirname(
+          normalizeToAbsolutePath(bundle, normalizeToAbsolutePath(request.configuration!.baseDir!)),
+        ),
+      ),
+      ...(request.rulesWorkdir
+        ? [
+            normalizeToAbsolutePath(
+              request.rulesWorkdir,
+              normalizeToAbsolutePath(request.configuration.baseDir),
+            ),
+          ]
+        : []),
+    ],
     rootDir: request.configuration.baseDir,
   });
 }
@@ -121,12 +134,11 @@ function beginAnalysisMetadata(
   }
   const metadata = new ProgramSelectionArchive(
     analysisMetadataPath,
-    normalizeToAbsolutePath(baseDir),
+    normalizeToAbsolutePath(request.filesystemCache?.fallbackBaseDir || baseDir),
     mode,
+    true,
+    request.filesystemCache?.contextMetadata ?? undefined,
   );
-  if (request.configuration) {
-    metadata.recordConfiguration(request.configuration as unknown as Record<string, unknown>);
-  }
   return metadata;
 }
 
@@ -150,6 +162,7 @@ export type WorkerData = {
 type AnalysisSessions = {
   filesystemCacheSession?: FsCacheSession;
   programSelection?: ProgramSelectionArchive;
+  paths?: ReplayProjectPaths;
 };
 
 function beginAnalysisSessions(
@@ -158,8 +171,25 @@ function beginAnalysisSessions(
   sessions: AnalysisSessions,
 ): void {
   try {
-    sessions.filesystemCacheSession = beginFilesystemCacheAnalysis(request, cacheMode);
+    // Read metadata before installing project filesystem replay: the metadata itself is a
+    // native runtime artifact, and its root determines the namespace of every observation.
     sessions.programSelection = beginAnalysisMetadata(request, cacheMode);
+    if (cacheMode === 'replay') {
+      sessions.paths = new ReplayProjectPaths(request);
+      const recordedBaseDir = sessions.programSelection?.replayBaseDir();
+      if (!recordedBaseDir || !path.isAbsolute(recordedBaseDir)) {
+        warn(
+          'Unsupported SonarJS context: no compatible recorded project base directory; falling back to source-only analysis',
+        );
+        sessions.programSelection = undefined;
+        sessions.paths.restoreSourceOnlyRequest();
+        return;
+      }
+      sessions.paths.useRecordedBaseDir(recordedBaseDir, file =>
+        sessions.programSelection!.canonicalRequestedFile(file),
+      );
+    }
+    sessions.filesystemCacheSession = beginFilesystemCacheAnalysis(request, cacheMode);
   } catch (error) {
     if (cacheMode === 'replay' && !(error instanceof InvalidAnalyzeProjectRequestError)) {
       throw new InvalidAnalyzeProjectRequestError('Invalid restored JavaScript context', {
@@ -175,13 +205,14 @@ async function normalizeProjectInput(
   cacheMode: CacheMode | undefined,
   sessions: AnalysisSessions,
 ) {
-  const originalConfiguration = request.configuration ? { ...request.configuration } : undefined;
   const restoredConfiguration = sessions.programSelection?.restoredConfiguration();
   if (restoredConfiguration && request.configuration) {
-    // Preserve the SQAA request's base directory, file scope, and runtime paths.
+    // Configuration is evaluated in its original CI namespace. Submitted contents, rules,
+    // scanner file types and runtime paths still belong to the current request.
     Object.assign(request.configuration, restoredConfiguration);
   }
   const input = await normalizeAnalyzeProjectRequest(request);
+  sessions.paths?.restoreResponsePaths(input.pathMap);
   if (
     cacheMode !== 'replay' ||
     !sessions.programSelection ||
@@ -204,11 +235,12 @@ async function normalizeProjectInput(
   endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
   sessions.programSelection = undefined;
   sessions.filesystemCacheSession = undefined;
-  request.configuration = originalConfiguration;
-  request.filesystemCache = undefined;
+  sessions.paths!.restoreSourceOnlyRequest();
   // Reinitialize the stores without the replay archive or recorded CI settings.
   // This follows the same tsconfig/orphan-program path as a request with no context.
-  return normalizeAnalyzeProjectRequest(request);
+  const fallback = await normalizeAnalyzeProjectRequest(request);
+  sessions.paths!.restoreResponsePaths(fallback.pathMap);
+  return fallback;
 }
 
 async function analyzeNormalizedProject(
@@ -218,7 +250,10 @@ async function analyzeNormalizedProject(
 ) {
   const wrappedIncrementalResultsChannel = incrementalResultsChannel
     ? (event: AnalyzeProjectIncrementalEvent['event']) =>
-        incrementalResultsChannel({ event, pathMap: input.pathMap })
+        incrementalResultsChannel({
+          event,
+          pathMap: input.pathMap,
+        })
     : undefined;
   const output = await analyzeProject(
     {

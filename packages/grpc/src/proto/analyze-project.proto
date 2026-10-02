@@ -37,6 +37,10 @@ message FilesystemCache {
   optional string analysis_metadata_path = 2;
   // Both artifacts are required when this message is present. Without it, analysis is native.
   FilesystemCacheMode mode = 3;
+  // Physical workspace to use if the recorded context cannot serve the requested files.
+  optional string fallback_base_dir = 4;
+  // Collector JSON containing the original project root and captured configuration.
+  optional string context_metadata = 5;
 }
 
 enum FilesystemCacheMode {

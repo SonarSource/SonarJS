@@ -170,6 +170,8 @@ export class FsCacheArchive {
   physicalRootDirs: Partial<Record<RealpathOperation, string>>;
   comparisonRoots: ComparisonRoot[];
   passthroughRoots: ComparisonRoot[];
+  private readonly restrictNativeReads: boolean;
+  caseSensitivePaths: boolean;
   mode: ArchiveMode;
   createdAt: string;
   entries: Map<string, CacheNode>;
@@ -179,7 +181,14 @@ export class FsCacheArchive {
   cacheHits: number;
   cacheMisses: number;
 
-  constructor({ archivePath, mode, passthroughDirs = [], rootDir }: ArchiveOptions) {
+  constructor({
+    archivePath,
+    mode,
+    passthroughDirs = [],
+    rootDir,
+    restrictNativeReads = false,
+    caseSensitivePaths = process.platform !== 'win32',
+  }: ArchiveOptions) {
     if (!archivePath) {
       throw new FsCacheArchiveError('The filesystem cache archive path is required');
     }
@@ -189,6 +198,8 @@ export class FsCacheArchive {
     this.archivePath = path.resolve(archivePath);
     this.rootDir = path.resolve(rootDir);
     this.mode = mode ?? (nativeFs.existsSync(this.archivePath) ? 'replay' : 'record');
+    this.restrictNativeReads = restrictNativeReads;
+    this.caseSensitivePaths = caseSensitivePaths;
     const { physicalRootDirs, rootAliases } =
       this.mode === 'record'
         ? resolvePhysicalRoots(this.rootDir)
@@ -244,8 +255,11 @@ export class FsCacheArchive {
     }
 
     this.createdAt = document.createdAt || this.createdAt;
+    // Missing metadata keeps the old archive's exact-key semantics, independent of host OS.
+    this.caseSensitivePaths = document.caseSensitivePaths ?? true;
+    this.pathKeys.clear();
     for (const missingPath of document.missingPaths || []) {
-      this.missingPaths.add(missingPath);
+      this.missingPaths.add(this.canonicalKey(missingPath));
     }
     for (const entry of document.entries) {
       if (
@@ -256,7 +270,8 @@ export class FsCacheArchive {
       ) {
         throw new FsCacheArchiveError('Filesystem cache archive contains an invalid entry');
       }
-      this.entries.set(entry.path, createNode(entry.node));
+      const key = this.canonicalKey(entry.path);
+      this.entries.set(key, mergeNodes(this.entries.get(key), createNode(entry.node)));
     }
   }
 
@@ -273,6 +288,7 @@ export class FsCacheArchive {
     }
 
     const comparisonFilePath = normalizeForComparison(filePath);
+    const comparison = this.canonicalKey(comparisonFilePath);
     if (this.isPassthrough(input)) {
       return undefined;
     }
@@ -286,8 +302,8 @@ export class FsCacheArchive {
     if (path.isAbsolute(comparisonFilePath) && !needsNormalization) {
       const root = this.comparisonRoots.find(
         candidate =>
-          comparisonFilePath === candidate.directory ||
-          comparisonFilePath.startsWith(candidate.prefix),
+          comparison === this.canonicalKey(candidate.directory) ||
+          comparison.startsWith(this.canonicalKey(candidate.prefix)),
       );
       if (!root) {
         return undefined;
@@ -300,7 +316,7 @@ export class FsCacheArchive {
     if (relativePath === '..' || relativePath.startsWith('../') || path.isAbsolute(relativePath)) {
       return undefined;
     }
-    const key = relativePath === '' ? '.' : relativePath;
+    const key = this.canonicalKey(relativePath === '' ? '.' : relativePath);
     this.pathKeys.set(inputPath, key);
     this.pathKeys.set(comparisonFilePath, key);
     return key;
@@ -317,6 +333,14 @@ export class FsCacheArchive {
         absoluteComparisonFilePath === candidate.directory ||
         absoluteComparisonFilePath.startsWith(candidate.prefix),
     );
+  }
+
+  blocksNativeRead(input: fs.PathLike): boolean {
+    return this.mode === 'replay' && this.restrictNativeReads && !this.isPassthrough(input);
+  }
+
+  private canonicalKey(value: string): string {
+    return this.caseSensitivePaths ? value : value.toLowerCase();
   }
 
   absolutePathFor(key: string, rootDir = this.rootDir): string {
@@ -338,7 +362,7 @@ export class FsCacheArchive {
   }
 
   get<T = unknown>(key: string, operation: string): FsCacheOutcome<T> | undefined {
-    const node = this.entries.get(key);
+    const node = this.entries.get(this.canonicalKey(key));
     if (!node) {
       return undefined;
     }
@@ -369,6 +393,7 @@ export class FsCacheArchive {
   }
 
   set<T>(key: string, operation: string, outcome: FsCacheOutcome<T>): void {
+    key = this.canonicalKey(key);
     let node = this.entries.get(key);
     if (!node) {
       node = this.missingPaths.delete(key) ? createNode({ exists: false }) : createNode();
@@ -385,6 +410,7 @@ export class FsCacheArchive {
   }
 
   getExists(key: string, operation = ''): boolean | undefined {
+    key = this.canonicalKey(key);
     const node = this.entries.get(key);
     if (!node && this.missingPaths.has(key)) {
       return false;
@@ -455,6 +481,7 @@ export class FsCacheArchive {
         formatVersion: FS_CACHE_FORMAT_VERSION,
         createdAt: this.createdAt,
         updatedAt: new Date().toISOString(),
+        caseSensitivePaths: this.caseSensitivePaths,
         entries,
       };
       const serialized = serializeProtobufDocument(document);

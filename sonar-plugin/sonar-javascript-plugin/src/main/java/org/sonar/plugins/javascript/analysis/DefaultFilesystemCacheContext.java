@@ -39,12 +39,12 @@ public class DefaultFilesystemCacheContext implements FilesystemCacheContext {
   }
 
   @Override
-  public void collect(Path archivePath, Path analysisMetadataPath) {
+  public void collect(Path archivePath, Path analysisMetadataPath, String metadata) {
     var filesystemItem = collector.newFileItem(ARCHIVE_ITEM_ID, archivePath);
     var analysisMetadataItem = collector.newFileItem(
       ANALYSIS_METADATA_ITEM_ID,
       analysisMetadataPath
     );
-    collector.collect(CONTEXT_KIND, "{}", List.of(filesystemItem, analysisMetadataItem));
+    collector.collect(CONTEXT_KIND, metadata, List.of(filesystemItem, analysisMetadataItem));
   }
 }
