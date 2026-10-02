@@ -784,35 +784,28 @@ Repox is the repository manager behind both npm and Maven flows here.
 
 #### npm
 
-Linux, Windows, and ESLint jobs that install packages:
+`populate_npm_cache`:
 
-- fetch a private-reader token from Vault
-- wait for Edge token federation on self-hosted / WarpBuild (`runner.environment != github-hosted`)
-- point `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/` on those runners
-- rewrite lockfile `resolved` hosts from `repox.jfrog.io` onto that registry (`replace-registry-host`), and keep a SaaS `_authToken` as fallback
-- GitHub-hosted jobs keep `https://repox.jfrog.io/artifactory/api/npm/npm/`
-- the ESLint plugin extra `npm install` (not in the lockfile) stays on SaaS via `npm_config_registry`
-- ESLint plugin tests have no lockfile: they skip `configure-npm-registry` entirely and stay on SaaS (Edge 404s npm metadata on both `npm` and `npmjs`; `replace-registry-host` would also rewrite tarball hosts back to Edge)
+- fetches a `private-reader` token issued by the Edge (`development/artifactory-edge-dev` on `https://vault.dev.sonar.build`)
+- points `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/`
+- rewrites lockfile `resolved` hosts from `repox.jfrog.io` onto that registry (`replace-registry-host`)
+
+The ESLint plugin build (extra `npm install`, not in the lockfile) and the ESLint plugin tests (no lockfile) stay on SaaS with a SaaS `private-reader` token, because the Edge returns 404 for npm metadata on both `npm` and `npmjs`.
 
 Publish / promote (eslint-plugin release, `jfrog rt npm-publish`) stay on SaaS.
 
 #### Maven
 
-`config-maven`:
+`config-maven` runs with `repox-url: https://repox-internal.dev.sonar.build`. It:
 
-- defaults `repox-url` to `https://repox.jfrog.io` so Vault tokens and **publish** (`ARTIFACTORY_URL` → `artifactory-maven-plugin`) stay on SaaS
+- fetches a `private-reader` token issued by the Edge (`development/artifactory-edge-dev` on `https://vault.dev.sonar.build`)
 - writes Maven `settings.xml`
-- sets `SONARSOURCE_REPOSITORY_URL=$ARTIFACTORY_URL/sonarsource-qa`
-- exports authentication environment variables for Maven
+- sets `ARTIFACTORY_URL` to the Edge and `SONARSOURCE_REPOSITORY_URL=$ARTIFACTORY_URL/sonarsource-qa`
+- exports authentication environment variables for Maven and Orchestrator
 
-On self-hosted / WarpBuild, `point-maven-resolve-at-edge` then:
+All Maven jobs run on self-hosted or WarpBuild runners, which can reach the Edge.
 
-- waits for Edge token federation against the `sonarsource` virtual repo
-- overrides `SONARSOURCE_REPOSITORY_URL` to `https://repox-internal.dev.sonar.build/artifactory/sonarsource-qa` (Maven mirror/resolve only)
-
-GitHub-hosted jobs skip that override and keep resolving from SaaS.
-
-`build` additionally fetches deployer credentials and pushes to `sonarsource-public-qa` on SaaS.
+`build` additionally fetches deployer credentials, sets `ARTIFACTORY_URL=https://repox.jfrog.io/artifactory` and pushes to `sonarsource-public-qa` on SaaS.
 
 `promote` later promotes the produced build info/artifacts in Artifactory (SaaS).
 

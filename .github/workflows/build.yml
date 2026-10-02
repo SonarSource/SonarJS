@@ -92,7 +92,7 @@ jobs:
       build-number: ${{ steps.build-number.outputs.BUILD_NUMBER }}
     steps:
       - id: build-number
-        uses: SonarSource/ci-github-actions/get-build-number@v2
+        uses: SonarSource/ci-github-actions/get-build-number@c3a85ac3a2f67f86966e2fb1fdf9a7c1bdc997dc # 2.2.0
 
   populate_npm_cache:
     runs-on: sonar-xs
@@ -125,8 +125,9 @@ jobs:
         name: Access vault secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
+          url: https://vault.dev.sonar.build
           secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+            development/artifactory-edge-dev/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Configure npm registry
         timeout-minutes: 5
@@ -188,15 +189,11 @@ jobs:
       - &config_maven
         name: Configure Maven
         id: config-maven
-        uses: SonarSource/ci-github-actions/config-maven@v2
+        uses: SonarSource/ci-github-actions/config-maven@c3a85ac3a2f67f86966e2fb1fdf9a7c1bdc997dc # 2.2.0
         with:
+          repox-url: https://repox-internal.dev.sonar.build
           artifactory-reader-role: private-reader
           disable-caching: 'true'
-      - &point_maven_edge
-        name: Point Maven resolve at Edge
-        if: runner.environment != 'github-hosted'
-        timeout-minutes: 5
-        uses: ./.github/actions/point-maven-resolve-at-edge
       - id: deployer-secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -211,6 +208,7 @@ jobs:
         run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom,license-regeneration -T1C
         env:
           MAVEN_ARGS: ''
+          ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
@@ -288,7 +286,6 @@ jobs:
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - *cyclonedx_cli_cache
       - *config_maven
-      - *point_maven_edge
       - name: Build and test Maven (no deploy)
         run: mvn verify -Psbom -T1C
 
@@ -313,7 +310,6 @@ jobs:
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - uses: ./.github/actions/rule-api-cache
       - *config_maven
-      - *point_maven_edge
       - id: rspec-secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -358,17 +354,14 @@ jobs:
         with:
           secrets: |
             development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - name: Configure npm registry
-        timeout-minutes: 5
-        uses: ./.github/actions/configure-npm-registry
-        with:
-          artifactory-access-token: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-      - *download_rspec_rule_data
       # Extra `npm install` is not in the lockfile. Edge npm metadata 404s
       # (`/api/npm/npm/` and `/api/npm/npmjs/`); this one fetch stays on SaaS.
+      - name: Configure npm registry
+        run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - *download_rspec_rule_data
       - name: Build ESLint plugin
-        env:
-          npm_config_registry: https://repox.jfrog.io/artifactory/api/npm/npm/
         run: npm run eslint-plugin:build
       - name: Regenerate tracked README files
         if: github.event_name == 'schedule'
@@ -658,7 +651,6 @@ jobs:
           name: jacoco-xml-reports-${{ github.sha }}
           path: sonar-plugin
       - *config_maven
-      - *point_maven_edge
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -713,7 +705,6 @@ jobs:
       - *download_maven_targets
       - *download_jacoco_xml_reports
       - *config_maven
-      - *point_maven_edge
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -772,7 +763,6 @@ jobs:
           name: sonarjs-m2
           path: ~/.m2/repository/org/sonarsource/javascript
       - *config_maven
-      - *point_maven_edge
       - &get_licenses_token
         id: secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -783,16 +773,11 @@ jobs:
         uses: ./.github/actions/orchestrator-cache
         with:
           save: 'false'
-      - &edge_preflight
-        name: Wait for Artifactory token federation
-        uses: SonarSource/ci-github-actions/wait-for-artifactory-token-federation@715009ff183f509d685a028c3cac34c69e3714c4
-        with:
-          probe-path: "api/search/versions?g=com.sonarsource.sonarqube&a=sonarqube-enterprise-lw&remote=1&repos=sonarsource-releases&v=*"
       - name: Run Plugin QA
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -B -e -V verify surefire-report:report
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -815,7 +800,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - &orchestrator_fast_cache_restore
         uses: ./.github/actions/orchestrator-cache
@@ -849,7 +833,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - &remove_node_from_path
         name: Disable existing node
@@ -865,12 +848,11 @@ jobs:
 
           node
       - uses: ./.github/actions/orchestrator-cache
-      - *edge_preflight
       - name: Run Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -B -e -V verify surefire-report:report
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -890,16 +872,14 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - *remove_node_from_path
       # No orchestrator cache for DEV - version changes too frequently
-      - *edge_preflight
       - name: Run Plugin QA without Node (DEV)
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -B -e -V verify surefire-report:report
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -941,7 +921,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - *orchestrator_cache_restore
       - name: Fix permissions for non-root user
@@ -949,13 +928,12 @@ jobs:
           # Ensure the sonar user can access all necessary directories after cache restores
           chown -R sonar:sonar "$GITHUB_WORKSPACE"
           chown -R sonar:sonar /github/home
-      - *edge_preflight
       - name: Run Plugin QA without Node
         shell: bash
         run: |
           setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -B
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -B -e -V verify surefire-report:report
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -B -e -V verify surefire-report:report
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
@@ -974,7 +952,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - *remove_node_from_path
       - uses: ./.github/actions/orchestrator-cache
@@ -1003,7 +980,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - *remove_node_from_path
       # No orchestrator cache for DEV - version changes too frequently
@@ -1033,7 +1009,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - *orchestrator_fast_cache_restore
       - name: Run Fast Plugin QA without Node
@@ -1067,12 +1042,10 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - uses: ./.github/actions/orchestrator-cache
         with:
           save: ${{ matrix.group == 1 }}
-      - *edge_preflight
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
@@ -1087,7 +1060,7 @@ jobs:
           fi
 
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -1105,12 +1078,10 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
-      - *edge_preflight
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -B -e -V verify surefire-report:report
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
 
@@ -1135,7 +1106,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - uses: ./.github/actions/orchestrator-cache
         with:
@@ -1247,16 +1217,14 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - *orchestrator_cache_restore
-      - *edge_preflight
       - name: Run Ruling Tests
         run: |
           cd its/ruling
           # Cap ruling parallelism explicitly: using all CPUs on sonar-xl can
           # overwhelm the shared SonarQube/Node workload and make the runner drop.
-          mvn test -Dtest=RulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dorchestrator.artifactory.url=https://repox-internal.dev.sonar.build/artifactory "-Dorchestrator.artifactory.accessToken=${ARTIFACTORY_ACCESS_TOKEN}" -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=8 -B -e -V
+          mvn test -Dtest=RulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=8 -B -e -V
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -1330,7 +1298,7 @@ jobs:
             exit 1
           fi
       - *mise
-      - uses: SonarSource/ci-github-actions/promote@v2
+      - uses: SonarSource/ci-github-actions/promote@c3a85ac3a2f67f86966e2fb1fdf9a7c1bdc997dc # 2.2.0
         with:
           promote-pull-request: true
 
