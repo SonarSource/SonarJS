@@ -76,7 +76,7 @@ Runner labels express relative size and environment, not a stable hardware contr
 | `sonar-xs`                                    | `setup`, `get_build_number`, `populate_npm_cache`, `prepare_rspec_rule_data`, `knip`, `promote`, `releasability`, `run_iris` | Lightweight orchestration, metadata, cache preparation, and control-plane jobs |
 | `sonar-m`                                     | `test_js`, `analyze_primary`, `analyze_shadows`, most Linux plugin QA jobs                                                   | Medium Linux compute for tests and analysis                                    |
 | `sonar-l`                                     | `build`                                                                                                                      | Main Linux Maven build and deploy                                              |
-| `sonar-xl`                                    | `js_ts_ruling`, `ruling`                                                                                                     | Large ruling workloads                                                         |
+| `sonar-xl`                                    | `js_ts_ruling`, `js_ts_ruling_update`, `ruling`                                                                              | Large ruling workloads and result updates                                      |
 | `github-ubuntu-latest-s`                      | `build_eslint_plugin`, `test_eslint_plugin`, `generated_files_freshness`                                                     | Small GitHub-hosted Linux jobs                                                 |
 | `github-windows-latest-s`                     | `populate_npm_cache_win`                                                                                                     | Small Windows cache producer                                                   |
 | `github-windows-latest-m`                     | `build_win`, `test_js_win`, Windows plugin QA jobs                                                                           | Medium Windows build/test jobs                                                 |
@@ -296,6 +296,7 @@ set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the 
 | `plugin_qa_sonarlint_win`            | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_win_fast_with_node`       | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `js_ts_ruling`                       | `sonar-xl`                 | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`                         | non-fork PRs and all non-PR runs                                      |
+| `js_ts_ruling_update`                | `sonar-xl`                 | `js_ts_ruling`                                                                    | non-fork PRs and default branch when JS/TS ruling ran                  |
 | `ruling`                             | `sonar-xl`                 | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `run_iris`                           | `sonar-xs`                 | `analyze_primary`, `analyze_shadows`                                             | nightly only                                                          |
 | `promote`                            | `sonar-xs`                 | many fan-in jobs                                                                 | only when upstream jobs succeeded and the run is allowed to promote   |
@@ -716,16 +717,28 @@ Important details:
 
 Responsibilities:
 
-- checkout with submodules and preserve the synthetic PR merge parents required by the ruling bot
+- checkout with submodules
 - restore `node_modules`
 - download refreshed RSPEC data
 - run JS/TS ruling
-- on PRs or default branch, delegate ruling report, fix-PR, and comment handling to `./.github/actions/ruling_bot`
-- pass explicit `new-results-path` and `old-results-path` inputs so the action only depends on sonar-lits result JSON semantics, not on a fixed SonarJS directory layout
-- pass source-tree and link inputs so the action can render the same rule-centric PR ruling report format with RSPEC links, source links, inline snippets, and a collapsible full report
-- fail the workflow when ruling needs an update
+- save generated results as an artifact when ruling fails, then expose the ruling step outcome to `js_ts_ruling_update`
 
-This job is more than test execution; it is also automated ruling maintenance.
+The ruling job fails when expected results differ. `js_ts_ruling_update` downloads the saved results and calls `./.github/actions/ruling_bot` with explicit result paths. The bot creates or updates a fix PR and dispatches `ruling-diff-comment.yml`. For a failed PR run, the report workflow checks out the tested synthetic merge, applies the saved results, and compares them with that merge's first parent before posting on the original PR. For a passing PR run, it reports expected results already committed in the tested merge. On a default-branch failure, it compares generated results with the tested branch commit and posts on the fix PR. The report workflow also clears stale comments when there is no difference.
+
+To rerun a failed PR report independently, use the original Build run ID and the exact merge and first-parent SHAs from that run:
+
+```sh
+gh workflow run ruling-diff-comment.yml --ref <branch-with-workflow> \
+  -f pr-number=<original-pr-number> \
+  -f head-sha=<tested-merge-sha> \
+  -f base-sha=<tested-merge-first-parent-sha> \
+  -f is-pull-request=true \
+  -f run-id=<build-run-id> \
+  -f ruling-failed=true \
+  -f fix-pr-url=<fix-pr-url>
+```
+
+`fix-pr-url` is optional, but includes the fix PR link in the comment. To rerun a passing PR report, omit `run-id`, `ruling-failed`, and `fix-pr-url`. For a default-branch failed run, use the fix PR number for `pr-number`, set `head-sha` and `base-sha` to the tested branch commit, and omit `is-pull-request=true`.
 
 #### `ruling`
 
@@ -857,7 +870,7 @@ These are the most important reusable components in the current pipeline.
 | `actions/upload-artifact`                                  | 9                           | same-run file handoff                                                                                      | artifact production                                    |
 | `actions/cache`                                            | 8                           | cache producers, including Maven owners and Linux and Windows CycloneDX CLI caches                         | direct GitHub cache use                                |
 | `SonarSource/ci-github-actions/get-build-number`           | 1                           | stable build number                                                                                        | internally uses GitHub cache                           |
-| `./.github/actions/ruling_bot`                             | 1                           | repo-owned ruling report/comment/fix-PR automation for sonar-lits result trees and rich PR ruling comments | control-plane encapsulation, no direct cache semantics |
+| `./.github/actions/ruling_bot`                             | 1                           | repo-owned fix-PR automation for sonar-lits result trees                         | control-plane encapsulation, no direct cache semantics |
 | `./.github/actions/rule-api-cache`                         | 1                           | repo-owned rule-api cache policy                                                                           | official GitHub cache, rolling prefix                  |
 | `peter-evans/create-pull-request`                          | 1                           | nightly generated-files PR                                                                                 | none                                                   |
 | `SonarSource/unified-dogfooding-actions/run-iris`          | 1                           | nightly cross-platform comparison                                                                          | none                                                   |
@@ -888,7 +901,7 @@ A job that does not need every tool restricts installation with `install_args` i
 | `populate_npm_cache`, `populate_npm_cache_win`, `test_js`, `test_js_win`                                                                                                                        | _(none — installs everything)_ | same as `&mise`, but these steps carry their own `if: cache-hit != 'true'` guard, so they can't use the anchor and appear as separate inline steps instead |
 | `plugin_qa_without_node`, `plugin_qa_without_node_dev`, `plugin_qa_fast_without_node`, `plugin_qa_fast_without_node_dev` (the `&mise_java_only` anchor)                                         | `java maven`                   | Node must be absent so "QA without Node" actually tests without Node                                                                                       |
 | `plugin_qa_without_node_alpine`, `plugin_qa_fast_without_node_alpine` (the `&alpine_setup_maven` anchor)                                                                                        | `maven`                        | the Alpine container image already ships its own JDK; only Maven is missing                                                                                |
-| `test_eslint_plugin`                                                                                                                                                                            | `node`                         | ESLint plugin tests only need Node, at a matrix-driven version (see below)                                                                                 |
+| `test_eslint_plugin`, `js_ts_ruling_update`                                                                                                                                                    | `node`                         | These jobs only need Node, with the ESLint test version set by its matrix (see below)                                                                       |
 
 A tool declared in `mise.toml` but omitted from `install_args` is simply left uninstalled: `mise ls` reports it `(missing)`, no shim is created for it, and `mise env` does not export it (confirmed against the pinned Alpine image — the container's own `JAVA_HOME` survives untouched). This is what makes the Alpine/`_only` rows above safe even though `mise.toml` also declares tools they don't want.
 
