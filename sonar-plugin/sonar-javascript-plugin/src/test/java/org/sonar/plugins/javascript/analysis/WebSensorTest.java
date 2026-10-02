@@ -423,8 +423,10 @@ class WebSensorTest {
       FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY
     );
     assertThat(inputFile.charset()).isEqualTo(StandardCharsets.UTF_8);
-    var logicalFile = logicalRoot.resolve(inputFile.relativePath()).toString();
-    assertThat(request.getConfiguration().getBaseDir()).isEqualTo(logicalRoot.toString());
+    var logicalFile = logicalRoot.resolve(inputFile.relativePath()).toString().replace('\\', '/');
+    assertThat(request.getConfiguration().getBaseDir()).isEqualTo(
+      logicalRoot.toString().replace('\\', '/')
+    );
     assertThat(request.getFilesystemCache().getFallbackBaseDir()).isEqualTo(
       context.fileSystem().baseDir().getAbsolutePath()
     );
