@@ -340,18 +340,6 @@ jobs:
       - *checkout
       - *mise
       - *npm_cache
-      - id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      # Extra `npm install` is not in the lockfile. Edge npm metadata 404s
-      # (`/api/npm/npm/` and `/api/npm/npmjs/`); this one fetch stays on SaaS.
-      - name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
       - *download_rspec_rule_data
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
