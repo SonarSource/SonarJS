@@ -186,8 +186,8 @@ describe('analyze-project request handler', () => {
               for (const [key, item] of Object.entries(value)) {
                 if (typeof item === 'string') {
                   (value as Record<string, unknown>)[key] = item
-                    .replaceAll(normalizeToAbsolutePath(ci), origin)
-                    .replaceAll(ci, origin);
+                    .replaceAll('\\', '/')
+                    .replaceAll(normalizeToAbsolutePath(ci), origin);
                 } else {
                   rewrite(item);
                 }
@@ -351,7 +351,7 @@ describe('analyze-project request handler', () => {
       fs.rmSync(recordRoot, { recursive: true });
       const replayed = request(replayRoot, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY);
       await analyze(replayed, 1);
-      expect(replayed.configuration!.baseDir).toBe(recordRoot);
+      expect(replayed.configuration!.baseDir).toBe(normalizeToAbsolutePath(recordRoot));
       expect(replayed.configuration!.sources).toEqual(recordedScope.sources);
       const changedScope = request(replayRoot, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY);
       changedScope.files![path.join(replayRoot, relativePath)].fileType = FileType.FILE_TYPE_TEST;
