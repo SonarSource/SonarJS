@@ -96,11 +96,16 @@ export function isAngularOutputCall(
   );
 }
 
-/** Reads the public alias from `@Output('publicRefresh') refresh = new EventEmitter()`. */
-function outputAliasFromDecorator(
+/**
+ * Returns the public name from `@Output('publicRefresh') refresh = new EventEmitter()`.
+ *
+ * Returns the member name for `@Output() refresh`, `null` without an `@Output` decorator,
+ * and `undefined` when the decorator argument is not statically known.
+ */
+export function getAngularOutputDecoratorAlias(
   context: Rule.RuleContext,
   member: TSESTree.PropertyDefinition | TSESTree.MethodDefinition,
-): string | undefined {
+): string | undefined | null {
   const outputDecorator = member.decorators.find(decorator => {
     const expression = decorator.expression;
     return (
@@ -110,24 +115,21 @@ function outputAliasFromDecorator(
     );
   });
   const expression = outputDecorator?.expression;
-  const alias =
-    expression?.type === 'CallExpression' ? staticText(expression.arguments[0]) : undefined;
-  return alias || undefined;
+  if (expression?.type !== 'CallExpression') {
+    return null;
+  }
+  if (expression.arguments.length === 0) {
+    return !member.computed && member.key.type === 'Identifier' ? member.key.name : undefined;
+  }
+  return expression.arguments.length === 1 ? staticText(expression.arguments[0]) : undefined;
 }
 
-/** Recognizes a member decorated as `@Output() refresh = new EventEmitter()`. */
-function hasOutputDecorator(
+/** Reads the explicit public alias from `@Output('publicRefresh') refresh = new EventEmitter()`. */
+function outputAliasFromDecorator(
   context: Rule.RuleContext,
   member: TSESTree.PropertyDefinition | TSESTree.MethodDefinition,
-): boolean {
-  return member.decorators.some(decorator => {
-    const expression = decorator.expression;
-    return (
-      expression.type === 'CallExpression' &&
-      getFullyQualifiedName(context, expression.callee as unknown as estree.Node) ===
-        `${ANGULAR_CORE}.Output`
-    );
-  });
+): string | undefined {
+  return getAngularOutputDecoratorAlias(context, member) || undefined;
 }
 
 /** Recognizes Angular decorators such as `@Component({ outputs: [] })` or `@Directive({})`. */
@@ -222,9 +224,9 @@ export function getAngularStaticOutputNames(
     : (names as string[]);
 }
 
-/** Detects a spread, e.g. `@Component({ ...metadata })`, in otherwise static metadata. */
+/** Detects a spread or computed key, e.g. `@Component({ ...metadata, [key]: [] })`. */
 function isNotProperty(node: TSESTree.Property | TSESTree.SpreadElement): boolean {
-  return node.type !== 'Property';
+  return node.type !== 'Property' || node.computed;
 }
 
 /** Recognizes `@Directive({ hostDirectives: [{ outputs: ['onRefresh: refresh'] }] })`. */
@@ -268,7 +270,7 @@ function overridingMemberOutputAlias(
       !candidate.computed &&
       candidate.key.type === 'Identifier' &&
       candidate.key.name === internalName &&
-      hasOutputDecorator(context, candidate),
+      getAngularOutputDecoratorAlias(context, candidate) !== null,
   );
   return member && (member.type === 'PropertyDefinition' || member.type === 'MethodDefinition')
     ? outputAliasFromDecorator(context, member)
