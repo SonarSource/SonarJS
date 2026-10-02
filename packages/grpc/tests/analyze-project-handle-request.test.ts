@@ -30,6 +30,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import ts from 'typescript';
+import { ProgramSelectionArchive } from '../../analysis/src/program-selection/archive.js';
 
 const workerData: WorkerData = { debugMemory: false };
 type AnalyzeProjectRequest = analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectRequest;
@@ -54,6 +55,101 @@ function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
 }
 
 describe('analyze-project request handler', () => {
+  for (const scopeSettings of [
+    { sources: ['src'], inclusions: ['**/*.ts'] },
+    { sources: ['src'], tests: ['tests'] },
+  ]) {
+    it(`replays recorded rule scope without restoring CI paths: ${JSON.stringify(scopeSettings)}`, async () => {
+      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'replay-rule-scope-'));
+      const recordRoot = path.join(temporary, 'ci');
+      const replayRoot = path.join(temporary, 'sqaa');
+      const rulesWorkdir = path.join(temporary, 'work');
+      const relativePath = 'src/main.test.ts';
+      const content = 'const value = { a: 1, a: 2 };';
+      fs.mkdirSync(path.join(recordRoot, 'src'), { recursive: true });
+      fs.mkdirSync(replayRoot);
+      fs.mkdirSync(rulesWorkdir);
+      fs.writeFileSync(path.join(recordRoot, relativePath), content);
+      (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
+      const request = (
+        baseDir: string,
+        mode: analyzeProjectProto.analyzeproject.v1.FilesystemCacheMode,
+      ): AnalyzeProjectRequest => ({
+        configuration: { baseDir, canAccessFileSystem: true, disableTypeChecking: true },
+        files: {
+          [path.join(baseDir, relativePath)]: {
+            fileContent: content,
+            fileType: FileType.FILE_TYPE_MAIN,
+          },
+        },
+        rules: [
+          {
+            key: 'S1534',
+            configurations: [],
+            fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+            language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+            analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+          },
+        ],
+        rulesWorkdir,
+        filesystemCache: {
+          mode,
+          archivePath: path.join(rulesWorkdir, 'fs.pb.gz'),
+          analysisMetadataPath: path.join(rulesWorkdir, 'metadata.pb.gz'),
+        },
+      });
+      const analyze = async (input: AnalyzeProjectRequest, count: number) => {
+        const result = await handleAnalyzeProjectRequest(
+          { type: 'on-analyze-project', data: input },
+          workerData,
+        );
+        expect(result).toMatchObject({
+          type: 'success',
+          result: {
+            output: {
+              files: {
+                [normalizeToAbsolutePath(path.join(input.configuration!.baseDir!, relativePath))]: {
+                  issues: count ? [expect.objectContaining({ ruleId: 'S1534' })] : [],
+                },
+              },
+            },
+          },
+        });
+      };
+      const recorded = request(recordRoot, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD);
+      Object.assign(recorded.configuration!, scopeSettings);
+      await analyze(recorded, 1);
+      const replayed = request(replayRoot, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY);
+      await analyze(replayed, 1);
+      expect(replayed.configuration!.sources).toBeUndefined();
+      expect(replayed.configuration!.tests).toBeUndefined();
+      expect(replayed.configuration!.inclusions).toBeUndefined();
+      const changedScope = request(replayRoot, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY);
+      changedScope.files![path.join(replayRoot, relativePath)].fileType = FileType.FILE_TYPE_TEST;
+      await analyze(changedScope, 0);
+      const withoutContext = request(replayRoot, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY);
+      withoutContext.filesystemCache = undefined;
+      await analyze(withoutContext, 0);
+      // A scope entry is not a portable TS-program outcome. If restoration falls back,
+      // it must also discard this recorded classification and use normal request behavior.
+      const unsupportedMetadata = new ProgramSelectionArchive(
+        path.join(rulesWorkdir, 'metadata.pb.gz'),
+        normalizeToAbsolutePath(recordRoot),
+        'record',
+      );
+      unsupportedMetadata.recordConfiguration({ disableTypeChecking: false });
+      unsupportedMetadata.recordRuleFileType(
+        normalizeToAbsolutePath(path.join(recordRoot, relativePath)),
+        'MAIN',
+        'MAIN',
+      );
+      unsupportedMetadata.end();
+      const unsupported = request(replayRoot, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY);
+      await analyze(unsupported, 0);
+      expect(unsupported.filesystemCache).toBeUndefined();
+    });
+  }
+
   it('runs type-aware analysis without context artifacts', async () => {
     const baseDir = fs.mkdtempSync(path.join(os.tmpdir(), 'analyze-project-no-context-'));
     const filePath = path.join(baseDir, 'orphan.ts');

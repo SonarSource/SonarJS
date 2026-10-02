@@ -123,6 +123,13 @@ async function analyzeProjectWithCancellation(
 ): Promise<ProjectAnalysisOutput> {
   const { rules, bundles, rulesWorkdir, programSelection } = input;
   const filesToAnalyze = sourceFileStore.getFiles();
+  if (programSelection) {
+    for (const file of Object.values(filesToAnalyze)) {
+      programSelection.recordRuleFileType(file.filePath, file.fileType, file.ruleFileType);
+      file.ruleFileType =
+        programSelection.restoredRuleFileType(file.filePath, file.fileType) ?? file.ruleFileType;
+    }
+  }
 
   // All files go into pendingFiles - analyzeFile decides per-file whether to
   // run JS/TS analysis, CSS analysis, or both (for Vue/HTML files).

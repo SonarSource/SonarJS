@@ -24,6 +24,7 @@ import {
   type NormalizedAbsolutePath,
 } from '../../../shared/src/helpers/files.js';
 import { sonarjs } from './analysis-metadata-proto.js';
+import type { FileType } from '../contracts/file.js';
 
 const MAGIC = 'sonarjs-analysis-metadata';
 // These are effective analyzer settings, not arbitrary scanner properties. The request remains
@@ -109,6 +110,10 @@ export class ProgramSelectionArchive {
   private readonly filesByProgram = new Map<number, NormalizedAbsolutePath[]>();
   private readonly configuredProgramIds = new Map<NormalizedAbsolutePath, number>();
   private configuration: ReplayableConfiguration = {};
+  private readonly ruleFileTypes = new Map<
+    NormalizedAbsolutePath,
+    { fileType: FileType; ruleFileType: FileType }
+  >();
   private nextProgramId = 1;
 
   constructor(archivePath: string, baseDir: NormalizedAbsolutePath, mode?: 'record' | 'replay') {
@@ -138,6 +143,23 @@ export class ProgramSelectionArchive {
 
   restoredConfiguration(): ReplayableConfiguration | undefined {
     return this.isReplay() ? this.configuration : undefined;
+  }
+
+  recordRuleFileType(
+    file: NormalizedAbsolutePath,
+    fileType: FileType,
+    ruleFileType: FileType,
+  ): void {
+    if (this.isRecord() && this.isProjectRelative(file)) {
+      this.ruleFileTypes.set(file, { fileType, ruleFileType });
+    }
+  }
+
+  restoredRuleFileType(file: NormalizedAbsolutePath, fileType: FileType): FileType | undefined {
+    const recorded = this.isReplay() ? this.ruleFileTypes.get(file) : undefined;
+    // The request's scanner scope is authoritative. Only reuse the CI heuristic outcome
+    // when that scope has not changed; otherwise keep normal request classification.
+    return recorded?.fileType === fileType ? recorded.ruleFileType : undefined;
   }
 
   recordConfigured(
@@ -252,6 +274,10 @@ export class ProgramSelectionArchive {
         noProgramFiles: [...this.noProgramFiles].map(file => this.toRelative(file)),
       },
       configuration: structFromObject(this.configuration),
+      ruleFileTypes: [...this.ruleFileTypes].map(([file, types]) => ({
+        filePath: this.toRelative(file),
+        ...types,
+      })),
     });
     const bytes = gzipSync(sonarjs.programselection.AnalysisMetadata.encode(metadata).finish());
     fs.mkdirSync(path.dirname(this.archivePath), { recursive: true });
@@ -298,6 +324,19 @@ export class ProgramSelectionArchive {
         field => [field, configuration[field]],
       ),
     );
+    for (const entry of metadata.ruleFileTypes ?? []) {
+      const file = this.fromRelative(entry.filePath ?? '');
+      const { fileType, ruleFileType } = entry;
+      if (
+        (fileType !== 'MAIN' && fileType !== 'TEST') ||
+        (ruleFileType !== 'MAIN' && ruleFileType !== 'TEST') ||
+        (fileType === 'TEST' && ruleFileType !== 'TEST') ||
+        this.ruleFileTypes.has(file)
+      ) {
+        throw new Error(`Invalid or duplicate rule file type for ${entry.filePath}`);
+      }
+      this.ruleFileTypes.set(file, { fileType, ruleFileType });
+    }
     for (const entry of metadata.programSelection.programs ?? []) {
       const id = entry.id;
       if (id == null || id === 0 || this.programs.has(id)) {

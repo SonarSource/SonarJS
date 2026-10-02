@@ -7,6 +7,15 @@ import "google/protobuf/struct.proto";
 message AnalysisMetadata {
   ProgramSelection program_selection = 1;
   google.protobuf.Struct configuration = 2;
+  // Effective rule scope, independent of scanner scope and workspace-specific globs.
+  repeated RuleFileType rule_file_types = 3;
+}
+
+message RuleFileType {
+  string file_path = 1;
+  // MAIN or TEST, using the analyzer's FileType contract.
+  string file_type = 2;
+  string rule_file_type = 3;
 }
 
 message ProgramSelection {
