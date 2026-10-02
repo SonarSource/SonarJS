@@ -31,16 +31,16 @@ function staticText(node: TSESTree.Node | undefined): string | undefined {
     if (node.expressions.length !== 0 || node.quasis.length !== 1) {
       return undefined;
     }
-    const cookedText = node.quasis[0].value.cooked;
-    return cookedText ?? undefined;
+    const decodedText = node.quasis[0].value.cooked;
+    return decodedText ?? undefined;
   }
   if (node?.type === 'TemplateElement' && node.parent?.type === 'TemplateLiteral') {
     const template = node.parent;
     if (template.expressions.length !== 0 || template.quasis.length !== 1) {
       return undefined;
     }
-    const cookedText = node.value.cooked;
-    return cookedText ?? undefined;
+    const decodedText = node.value.cooked;
+    return decodedText ?? undefined;
   }
   return undefined;
 }
