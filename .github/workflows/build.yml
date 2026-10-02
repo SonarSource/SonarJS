@@ -103,19 +103,22 @@ jobs:
     env: &shared_build_number
       # Reuse the build number minted once in get_build_number everywhere workflow metadata is configured or promoted.
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
-    steps: &populate_npm_cache_steps
+    steps:
       # Producer jobs need a lookup-only probe that still saves a freshly populated cache at job end.
-      - name: Check NPM dependencies cache
+      - &npm_cache_probe
+        name: Check NPM dependencies cache
         id: cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
           lookup-only: true
-      - name: Checkout source code
+      - &npm_cache_checkout
+        name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - &npm_cache_mise
+        if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           version: 2026.9.14
@@ -126,7 +129,8 @@ jobs:
           repox-url: https://repox-internal.dev.sonar.build
           artifactory-reader-role: private-reader
           disable-caching: 'true'
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - &npm_cache_install
+        if: steps.cache.outputs.cache-hit != 'true'
         name: Install NPM dependencies
         run: npm ci
 
@@ -137,7 +141,27 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     env: *shared_build_number
-    steps: *populate_npm_cache_steps
+    steps:
+      - *npm_cache_probe
+      - *npm_cache_checkout
+      - *npm_cache_mise
+      - if: steps.cache.outputs.cache-hit != 'true'
+        id: secrets
+        name: Access vault secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          url: https://vault.dev.sonar.build
+          secrets: |
+            development/artifactory-edge-dev/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Configure npm registry
+        shell: bash
+        env:
+          ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+        run: |
+          npm config set "//repox-internal.dev.sonar.build/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
+          npm config set registry https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/
+      - *npm_cache_install
 
   build:
     runs-on: sonar-l
