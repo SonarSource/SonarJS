@@ -28,15 +28,19 @@ function staticText(node: TSESTree.Node | undefined): string | undefined {
     return (node as unknown as estree.Literal).value as string;
   }
   if (node?.type === 'TemplateLiteral') {
-    return node.expressions.length === 0 && node.quasis.length === 1
-      ? (node.quasis[0].value.cooked ?? undefined)
-      : undefined;
+    if (node.expressions.length !== 0 || node.quasis.length !== 1) {
+      return undefined;
+    }
+    const cookedText = node.quasis[0].value.cooked;
+    return cookedText ?? undefined;
   }
   if (node?.type === 'TemplateElement' && node.parent?.type === 'TemplateLiteral') {
     const template = node.parent;
-    return template.expressions.length === 0 && template.quasis.length === 1
-      ? (node.value.cooked ?? undefined)
-      : undefined;
+    if (template.expressions.length !== 0 || template.quasis.length !== 1) {
+      return undefined;
+    }
+    const cookedText = node.value.cooked;
+    return cookedText ?? undefined;
   }
   return undefined;
 }
