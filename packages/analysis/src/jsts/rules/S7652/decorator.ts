@@ -104,7 +104,8 @@ function isDirectReplacement(
     member.value.object.type === 'ThisExpression' &&
     member.value.property.type === 'Identifier' &&
     member.value.property.name === ownerName &&
-    (outputAlias === null || (outputAlias !== undefined && isCompliantAlias(outputAlias)))
+    (outputAlias === null ||
+      (outputAlias !== undefined && outputAlias !== '' && isCompliantAlias(outputAlias)))
   );
 }
 
