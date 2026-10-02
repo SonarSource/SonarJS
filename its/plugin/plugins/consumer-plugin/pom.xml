@@ -45,7 +45,6 @@
         <artifactId>sonar-packaging-maven-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
-          <pluginApiMinVersion>${pluginApiMinVersion}</pluginApiMinVersion>
           <pluginClass>org.sonar.samples.javascript.consumer.ConsumerPlugin</pluginClass>
           <requiredForLanguages>js,ts</requiredForLanguages>
         </configuration>
