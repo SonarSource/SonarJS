@@ -31,7 +31,7 @@ function isCompliantAlias(alias: string | undefined): boolean {
   return alias !== undefined && !/^on(([^a-z])|(?=$))/.test(alias);
 }
 
-/** Suppresses only reports whose checked node has an explicit, compliant public alias. */
+/** Suppresses `onRefresh = output({ alias: 'refresh' })` when its public alias is compliant. */
 function isCompliantOutputAlias(context: Rule.RuleContext, node: estree.Node): boolean {
   return isCompliantAlias(getAngularOutputAlias(context, node as unknown as TSESTree.Node));
 }
@@ -41,6 +41,7 @@ interface ReportedOutputMember {
   isMetadataOutput: boolean;
 }
 
+/** Maps a report on `onRefresh = output()` or `outputs: ['onRefresh']` to its declared field. */
 function getReportedOutputMember(
   context: Rule.RuleContext,
   node: TSESTree.Node,
@@ -73,6 +74,7 @@ function getReportedOutputMember(
   return members.length === 1 ? { member: members[0], isMetadataOutput: true } : undefined;
 }
 
+/** Recognizes `onRefresh = output()` when its preceding JSDoc includes `@deprecated`. */
 function hasDeprecatedJsdoc(
   context: Rule.RuleContext,
   member: TSESTree.PropertyDefinition,
@@ -85,6 +87,7 @@ function hasDeprecatedJsdoc(
   );
 }
 
+/** Recognizes the later sibling `refresh = this.onRefresh` as a direct compliant replacement. */
 function isDirectReplacement(
   member: TSESTree.PropertyDefinition,
   ownerName: string,
@@ -102,6 +105,7 @@ function isDirectReplacement(
   );
 }
 
+/** Suppresses a documented `onRefresh` only for `refresh = this.onRefresh` in the same class. */
 function isDeprecatedOutputReplacement(context: Rule.RuleContext, node: estree.Node): boolean {
   const reported = getReportedOutputMember(context, node as TSESTree.Node);
   const member = reported?.member;
