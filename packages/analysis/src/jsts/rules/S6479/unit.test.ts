@@ -191,7 +191,11 @@ export const MyComponent = ({items}) => {
     })}</>;
 }
 `,
-          errors: 1,
+          errors: [
+            {
+              message: 'Use a stable ID as key, because the index changes when the list changes.',
+            },
+          ],
         },
         {
           code: `

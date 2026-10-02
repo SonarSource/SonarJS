@@ -35,7 +35,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
           const { start } = node.loc;
 
           context.report({
-            message: "'If' statement should not be the only statement in 'else' block",
+            message: 'Replace this nested "if" with a more direct "else if".',
             loc: {
               start,
               end: { line: start.line, column: start.column + 2 },

@@ -166,7 +166,8 @@ describe('S4123', () => {
       `,
           errors: [
             {
-              message: 'Unexpected `await` of a non-Promise (non-"Thenable") value.',
+              message:
+                'This "await" does not apply to a "Promise". Remove it or fix the expression.',
               line: 4,
               endLine: 4,
               column: 9,
@@ -176,7 +177,7 @@ describe('S4123', () => {
                   output: `
       async function foo() {
         let arr = [1, 2, 3];
-         arr;
+        arr;
       }
       `,
                   desc: 'Remove unnecessary `await`.',
@@ -668,7 +669,7 @@ async function* g() {
   yield true;
 }
 async function main() {
-  return  g(); // Noncompliant
+  return g(); // Noncompliant
 }`,
                 },
               ],
@@ -707,7 +708,7 @@ const o = {
   },
 };
 async function main() {
-  return  o.m(); // Noncompliant
+  return o.m(); // Noncompliant
 }`,
                 },
               ],
@@ -746,7 +747,7 @@ class G {
   }
 }
 async function main() {
-  return  new G().m(); // Noncompliant
+  return new G().m(); // Noncompliant
 }`,
                 },
               ],
@@ -866,7 +867,7 @@ async function* g() {
   yield true;
 }
 async function main() {
-  return  g(); // Noncompliant
+  return g(); // Noncompliant
 }`,
                 },
               ],

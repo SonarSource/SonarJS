@@ -69,7 +69,8 @@ describe('transformMessages', () => {
         column: 0,
         endLine: 1,
         endColumn: 5,
-        message: 'Unexpected var, use let or const instead.',
+        message:
+          'Replace "var" with "let" or "const", which are scoped to the block that declares them.',
       }),
     );
   });
