@@ -784,10 +784,10 @@ Repox is the repository manager behind both npm and Maven flows here.
 
 #### npm
 
-`populate_npm_cache`:
+`populate_npm_cache` runs `config-npm` with `repox-url: https://repox-internal.dev.sonar.build`. It:
 
 - fetches a `private-reader` token issued by the Edge (`development/artifactory-edge-dev` on `https://vault.dev.sonar.build`)
-- points `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/`
+- points `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm`
 - rewrites lockfile `resolved` hosts from `repox.jfrog.io` onto that registry (`replace-registry-host`)
 
 The ESLint plugin build (extra `npm install`, not in the lockfile) and the ESLint plugin tests (no lockfile) stay on SaaS with a SaaS `private-reader` token, because the Edge returns 404 for npm metadata on both `npm` and `npmjs`.
