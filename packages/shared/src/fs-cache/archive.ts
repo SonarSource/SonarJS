@@ -342,8 +342,9 @@ export class FsCacheArchive {
     if (!node) {
       return undefined;
     }
-    if (operation === 'exists' && node.exists !== undefined) {
-      return { ok: true, value: node.exists as T };
+    if (operation === 'exists') {
+      // lstat observes the link itself, not whether its target exists.
+      return node.exists === undefined ? undefined : { ok: true, value: node.exists as T };
     }
 
     const slot = operationSlot(operation);

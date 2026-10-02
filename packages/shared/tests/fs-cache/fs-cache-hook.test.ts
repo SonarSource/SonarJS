@@ -130,6 +130,44 @@ afterEach(() => {
 });
 
 describe('filesystem cache hook', () => {
+  it('stores supplied decoded Unicode as UTF-8 while preserving native non-UTF-8 bytes', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'record');
+    const replayRoot = path.join(temporary, 'replay');
+    const archive = path.join(temporary, 'encoding.pb.gz');
+    fs.mkdirSync(root);
+    fs.mkdirSync(replayRoot);
+    const originalBytes = Buffer.from('caf\u00e9', 'latin1');
+    fs.writeFileSync(path.join(root, 'native.ts'), originalBytes);
+    fs.writeFileSync(path.join(root, 'supplied.ts'), originalBytes);
+    const supplied = 'caf\u00e9 \u6771\u4eac \ud83d\ude80';
+    const scriptPath = path.join(temporary, 'encoding.mjs');
+    fs.writeFileSync(
+      scriptPath,
+      `import fs from 'node:fs';
+       import { installFsCache, captureProvidedFile } from ${JSON.stringify(hookModule)};
+       const installation = installFsCache();
+       const record = installation.beginAnalysis({rootDir: ${JSON.stringify(root)}, archivePath: ${JSON.stringify(archive)}, mode: 'record'});
+       const native = fs.readFileSync(${JSON.stringify(path.join(root, 'native.ts'))});
+       fs.readFileSync(${JSON.stringify(path.join(root, 'supplied.ts'))});
+       captureProvidedFile(${JSON.stringify(path.join(root, 'supplied.ts'))}, ${JSON.stringify(supplied)});
+       record.end();
+       const replay = installation.beginAnalysis({rootDir: ${JSON.stringify(replayRoot)}, archivePath: ${JSON.stringify(archive)}, mode: 'replay'});
+       const replayed = fs.readFileSync(${JSON.stringify(path.join(replayRoot, 'native.ts'))});
+       const decoded = fs.readFileSync(${JSON.stringify(path.join(replayRoot, 'supplied.ts'))}, 'utf8');
+       replay.end();
+       console.log(JSON.stringify({native: native.toString('hex'), replayed: replayed.toString('hex'), decoded}));`,
+    );
+    const result = spawnSync(process.execPath, [scriptPath], { encoding: 'utf8' });
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(JSON.parse(result.stdout)).toEqual({
+      native: originalBytes.toString('hex'),
+      replayed: originalBytes.toString('hex'),
+      decoded: supplied,
+    });
+  });
+
   it('installs dormant filesystem wrappers when the analysis worker starts', () => {
     const result = spawnSync(process.execPath, [workerBootstrapFixture], {
       encoding: 'utf8',
@@ -528,6 +566,176 @@ describe('filesystem cache hook', () => {
     expect(replayed.status).toBe(0);
     expect(JSON.parse(replayed.stdout)).toEqual(JSON.parse(recorded.stdout));
   });
+
+  for (const dangling of [false, true]) {
+    it(`checks target existence after lstat of a ${dangling ? 'dangling' : 'live'} symlink`, t => {
+      const temporary = temporaryDirectory();
+      const recordRoot = path.join(temporary, 'record');
+      const replayRoot = path.join(temporary, 'replay');
+      const archive = path.join(temporary, 'symlink.fscache');
+      fs.mkdirSync(recordRoot);
+      fs.writeFileSync(path.join(recordRoot, 'target.txt'), 'target');
+      try {
+        fs.symlinkSync(
+          dangling ? 'missing.txt' : 'target.txt',
+          path.join(recordRoot, 'link'),
+          'file',
+        );
+      } catch (error) {
+        if (process.platform === 'win32' && (error as NodeJS.ErrnoException).code === 'EPERM') {
+          t.skip('Creating symbolic links requires Windows Developer Mode or elevated privileges');
+          return;
+        }
+        throw error;
+      }
+      const script = `
+        import fs from 'node:fs';
+        const link = filesystemCacheRoot + '/link';
+        console.log(JSON.stringify({
+          symbolic: fs.lstatSync(link).isSymbolicLink(),
+          exists: fs.existsSync(link),
+        }));
+      `;
+      const recorded = runInlineHook({ archive, root: recordRoot, script });
+      expect(recorded.stderr).toBe('');
+      expect(recorded.status).toBe(0);
+      expect(JSON.parse(recorded.stdout)).toEqual({ symbolic: true, exists: !dangling });
+
+      fs.rmSync(recordRoot, { force: true, recursive: true });
+      fs.mkdirSync(replayRoot);
+      const replayed = runInlineHook({ archive, root: replayRoot, script });
+      expect(replayed.stderr).toBe('');
+      expect(replayed.status).toBe(0);
+      expect(JSON.parse(replayed.stdout)).toEqual(JSON.parse(recorded.stdout));
+    });
+  }
+
+  it('does not record a late read into the following analysis session', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = path.join(temporary, 'first.fscache');
+    const nextArchive = path.join(temporary, 'next.fscache');
+    fs.mkdirSync(root);
+    fs.writeFileSync(path.join(root, 'late.txt'), 'previous request');
+    fs.writeFileSync(path.join(root, 'marker.txt'), 'next request');
+    const scriptPath = path.join(temporary, 'late-stat.mjs');
+    fs.writeFileSync(
+      scriptPath,
+      `
+      import fs from 'node:fs';
+      import { installFsCache } from ${JSON.stringify(hookModule)};
+      const cache = installFsCache();
+      const rootDir = ${JSON.stringify(root)};
+      const session = cache.beginAnalysis({ rootDir, archivePath: ${JSON.stringify(archive)}, mode: 'record' });
+      const pending = fs.promises.stat(rootDir + '/late.txt');
+      session.end();
+      const next = cache.beginAnalysis({ rootDir, archivePath: ${JSON.stringify(nextArchive)}, mode: 'record' });
+      fs.readFileSync(rootDir + '/marker.txt');
+      await pending;
+      next.end();
+    `,
+    );
+    const result = spawnSync(process.execPath, [scriptPath], { encoding: 'utf8' });
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect([...loadArchive(nextArchive, root).entries.keys()]).toEqual(['marker.txt']);
+  });
+
+  for (const api of ['callback', 'promise']) {
+    it(`rejects a late ${api} readonly replay open instead of handing out a stale descriptor`, () => {
+      const temporary = temporaryDirectory();
+      const root = path.join(temporary, 'root');
+      const archive = path.join(temporary, 'readonly.fscache');
+      fs.mkdirSync(root);
+      fs.writeFileSync(path.join(root, 'marker.txt'), 'project input');
+      const scriptPath = path.join(temporary, 'late-replay-open.mjs');
+      fs.writeFileSync(
+        scriptPath,
+        `
+        import fs from 'node:fs';
+        import { installFsCache } from ${JSON.stringify(hookModule)};
+        const cache = installFsCache();
+        const rootDir = ${JSON.stringify(root)};
+        const archivePath = ${JSON.stringify(archive)};
+        const record = cache.beginAnalysis({ rootDir, archivePath, mode: 'record' });
+        fs.closeSync(fs.openSync(rootDir + '/marker.txt', 'r'));
+        record.end();
+        const replay = cache.beginAnalysis({ rootDir, archivePath, mode: 'replay' });
+        const pending = ${api === 'callback' ? `new Promise(resolve => fs.open(rootDir + '/marker.txt', 'r', error => resolve(error?.code)))` : `fs.promises.open(rootDir + '/marker.txt', 'r').then(() => undefined, error => error.code)`};
+        replay.end();
+        console.log(JSON.stringify({ error: await pending }));
+      `,
+      );
+      const result = spawnSync(process.execPath, [scriptPath], { encoding: 'utf8' });
+      expect(result.stderr).toBe('');
+      expect(result.status).toBe(0);
+      expect(JSON.parse(result.stdout)).toEqual({ error: 'ERR_SONARJS_FS_CACHE_SESSION_ENDED' });
+    });
+
+    for (const nextSession of [false, true]) {
+      it(`settles a late ${api} open after session end${nextSession ? ' while another session is active' : ''}`, () => {
+        const temporary = temporaryDirectory();
+        const root = path.join(temporary, 'root');
+        const work = path.join(temporary, 'work');
+        const archive = path.join(temporary, 'first.fscache');
+        const nextArchive = path.join(temporary, 'next.fscache');
+        fs.mkdirSync(root);
+        fs.mkdirSync(work);
+        fs.writeFileSync(path.join(root, 'marker.txt'), 'project input');
+        const scriptPath = path.join(temporary, 'late-open.mjs');
+        fs.writeFileSync(
+          scriptPath,
+          `
+          import fs from 'node:fs';
+          import { installFsCache } from ${JSON.stringify(hookModule)};
+          const cache = installFsCache();
+          const rootDir = ${JSON.stringify(root)};
+          const output = ${JSON.stringify(path.join(work, 'output.udg'))};
+          const session = cache.beginAnalysis({
+            rootDir,
+            archivePath: ${JSON.stringify(archive)},
+            mode: 'record',
+            passthroughDirs: [${JSON.stringify(work)}],
+          });
+          fs.readFileSync(rootDir + '/marker.txt');
+          const opened = ${
+            api === 'callback'
+              ? `new Promise(resolve => fs.open(output, 'w', (error, fd) => {
+                if (!error) fs.closeSync(fd);
+                resolve(error?.code);
+              }))`
+              : `fs.promises.open(output, 'w').then(async handle => {
+                await handle.close();
+                return undefined;
+              }, error => error.code)`
+          };
+          session.end();
+          const next = ${
+            nextSession
+              ? `cache.beginAnalysis({
+            rootDir,
+            archivePath: ${JSON.stringify(nextArchive)},
+            mode: 'record',
+          })`
+              : 'undefined'
+          };
+          if (next) fs.readFileSync(rootDir + '/marker.txt');
+          const error = await opened;
+          next?.end();
+          console.log(JSON.stringify({ error }));
+        `,
+        );
+        const result = spawnSync(process.execPath, [scriptPath], { encoding: 'utf8' });
+        expect(result.stderr).toBe('');
+        expect(result.status).toBe(0);
+        expect(JSON.parse(result.stdout)).toEqual({ error: 'ERR_SONARJS_FS_CACHE_SESSION_ENDED' });
+        expect([...loadArchive(archive, root).entries.keys()]).toEqual(['marker.txt']);
+        if (nextSession) {
+          expect([...loadArchive(nextArchive, root).entries.keys()]).toEqual(['marker.txt']);
+        }
+      });
+    }
+  }
 
   it('reuses portable realpaths across result encodings and root aliases', t => {
     const temporary = temporaryDirectory();

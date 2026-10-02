@@ -272,7 +272,7 @@ export class SubmittedComponent {
     recorder.end();
 
     expect(
-      new ProgramSelectionArchive(archivePath, baseDir).restoredSelections([filePath]),
+      new ProgramSelectionArchive(archivePath, baseDir).getRestoredSelections([filePath]),
     ).toEqual([
       expect.objectContaining({
         program: expect.objectContaining({
@@ -302,7 +302,7 @@ export class SubmittedComponent {
     recorder.end();
 
     const replay = new ProgramSelectionArchive(archivePath, baseDir);
-    expect(replay.restoredSelections([filePath])).toEqual([
+    expect(replay.getRestoredSelections([filePath])).toEqual([
       expect.objectContaining({
         program: expect.objectContaining({ kind: 'orphan' }),
         rootNames: [filePath],
@@ -352,7 +352,7 @@ export class SubmittedComponent {
     ]);
 
     const replay = new ProgramSelectionArchive(archivePath, baseDir);
-    expect(replay.restoredSelections([filePath])).toEqual([
+    expect(replay.getRestoredSelections([filePath])).toEqual([
       expect.objectContaining({ program: expect.objectContaining({ kind: 'orphan' }) }),
     ]);
     const replayConfiguration = await initForTest(

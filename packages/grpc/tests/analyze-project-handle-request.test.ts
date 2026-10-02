@@ -94,20 +94,56 @@ describe('analyze-project request handler', () => {
     });
   });
 
-  for (const configured of [true, false]) {
-    it(`prefers submitted edits over CI content in a restored ${configured ? 'configured' : 'orphan'} program`, async () => {
+  for (const programKind of ['configured', 'orphan', 'monorepo']) {
+    it(`prefers submitted edits over CI content in a restored ${programKind} program`, async () => {
       const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'replay-content-precedence-'));
       const baseDir = path.join(temporary, 'sources');
       const rulesWorkdir = path.join(temporary, 'work');
       const filePath = path.join(baseDir, 'existing.ts');
       const archivePath = path.join(rulesWorkdir, 'filesystem.pb.gz');
       const analysisMetadataPath = path.join(rulesWorkdir, 'analysis-metadata.pb.gz');
-      const original = '[80, 3, 9].sort();';
-      const edited = '[80, 3, 9].sort((a, b) => a - b);';
+      const expression = programKind === 'monorepo' ? 'values' : '[80, 3, 9]';
+      const imports =
+        programKind === 'monorepo' ? 'import { values } from "@shared/values";\n' : '';
+      const original = `${imports}${expression}.sort();`;
+      const edited = `${imports}${expression}.sort((a, b) => a - b);`;
       fs.mkdirSync(baseDir);
       fs.mkdirSync(rulesWorkdir);
       fs.writeFileSync(filePath, original);
-      if (configured) {
+      if (programKind === 'monorepo') {
+        fs.mkdirSync(path.join(baseDir, 'shared'));
+        fs.writeFileSync(
+          path.join(baseDir, 'shared/values.ts'),
+          'export const values: number[] = [80, 3, 9];',
+        );
+        // Project references consume the declaration output of the referenced build.
+        fs.writeFileSync(
+          path.join(baseDir, 'shared/values.d.ts'),
+          'export declare const values: number[];',
+        );
+        fs.writeFileSync(
+          path.join(baseDir, 'tsconfig.base.json'),
+          JSON.stringify({
+            compilerOptions: { baseUrl: '.', paths: { '@shared/*': ['shared/*'] } },
+          }),
+        );
+        fs.writeFileSync(
+          path.join(baseDir, 'shared/tsconfig.json'),
+          JSON.stringify({
+            extends: '../tsconfig.base.json',
+            compilerOptions: { composite: true },
+            files: ['values.ts'],
+          }),
+        );
+        fs.writeFileSync(
+          path.join(baseDir, 'tsconfig.json'),
+          JSON.stringify({
+            extends: './tsconfig.base.json',
+            files: ['existing.ts'],
+            references: [{ path: './shared' }],
+          }),
+        );
+      } else if (programKind === 'configured') {
         fs.writeFileSync(path.join(baseDir, 'tsconfig.json'), '{"files":["existing.ts"]}');
       }
       (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
@@ -179,6 +215,123 @@ describe('analyze-project request handler', () => {
         expect(fs.readFileSync(analysisMetadataPath)).toEqual(metadataBefore);
       } finally {
         fileExists.mock.restore();
+      }
+    });
+  }
+
+  for (const scenario of [
+    {
+      name: 'HTML JavaScript and CSS',
+      filename: 'input.html',
+      original: '<script>if (foo()) bar(); else baz();</script>\n<style>a { color: red; }</style>',
+      edited: '<script>if (foo()) bar(); else bar();</script>\n<style>a { color: red;; }</style>',
+      rule: 'S3923',
+      css: true,
+    },
+    {
+      name: 'Vue JavaScript',
+      filename: 'input.vue',
+      original: '<script>if (foo()) bar(); else baz();</script>',
+      edited: '<script>if (foo()) bar(); else bar();</script>',
+      rule: 'S3923',
+    },
+    {
+      name: 'YAML JavaScript',
+      filename: 'input.yaml',
+      original:
+        'Transform: AWS::Serverless-2016-10-31\nResources:\n  Lambda:\n    Type: AWS::Lambda::Function\n    Properties:\n      Runtime: nodejs16.0\n      Code:\n        ZipFile: if (foo()) bar(); else baz();',
+      edited:
+        'Transform: AWS::Serverless-2016-10-31\nResources:\n  Lambda:\n    Type: AWS::Lambda::Function\n    Properties:\n      Runtime: nodejs16.0\n      Code:\n        ZipFile: if (foo()) bar(); else bar();',
+      rule: 'S3923',
+    },
+    {
+      name: 'explicit no-program TypeScript',
+      filename: 'input.ts',
+      original: 'foo();',
+      edited: 'foo();;',
+      rule: 'S1116',
+      noProgram: true,
+    },
+  ]) {
+    it(`analyzes submitted edits in restored ${scenario.name}`, async () => {
+      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'embedded-replay-edit-'));
+      const baseDir = path.join(temporary, 'sources');
+      const rulesWorkdir = path.join(temporary, 'work');
+      const filePath = path.join(baseDir, scenario.filename);
+      fs.mkdirSync(baseDir);
+      fs.mkdirSync(rulesWorkdir);
+      fs.writeFileSync(filePath, scenario.original);
+      (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
+      const request = (
+        mode: analyzeProjectProto.analyzeproject.v1.FilesystemCacheMode,
+        fileContent?: string,
+      ): AnalyzeProjectRequest => ({
+        configuration: { baseDir, createTsProgramForOrphanFiles: !scenario.noProgram },
+        files: {
+          [filePath]: {
+            ...(fileContent === undefined ? {} : { fileContent }),
+            fileType: FileType.FILE_TYPE_MAIN,
+          },
+        },
+        rules: [
+          {
+            key: scenario.rule,
+            configurations: [],
+            fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+            language: scenario.noProgram
+              ? JsTsLanguage.JS_TS_LANGUAGE_TS
+              : JsTsLanguage.JS_TS_LANGUAGE_JS,
+            analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+          },
+        ],
+        cssRules: scenario.css
+          ? [{ key: '@stylistic/no-extra-semicolons', configurations: [] }]
+          : [],
+        bundles: [],
+        rulesWorkdir,
+        filesystemCache: {
+          archivePath: path.join(rulesWorkdir, 'filesystem.pb.gz'),
+          analysisMetadataPath: path.join(rulesWorkdir, 'metadata.pb.gz'),
+          mode,
+        },
+      });
+      const analyze = async (input: AnalyzeProjectRequest) => {
+        const result = await handleAnalyzeProjectRequest(
+          { type: 'on-analyze-project', data: input },
+          workerData,
+        );
+        expect(result.type).toBe('success');
+        if (result.type !== 'success' || !result.result) throw new Error('Analysis failed');
+        const file = result.result.output.files[normalizeToAbsolutePath(filePath)];
+        expect(file && 'issues' in file).toBe(true);
+        expect(input.filesystemCache).toBeDefined();
+        if (scenario.noProgram) {
+          expect(result.result.output.meta.telemetry?.programCreation.succeeded).toBe(0);
+        }
+        return file && 'issues' in file ? file.issues : [];
+      };
+      try {
+        expect(await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD))).toEqual(
+          [],
+        );
+        fs.writeFileSync(filePath, scenario.edited);
+        expect(await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY))).toEqual(
+          [],
+        );
+        const issues = await analyze(
+          request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY, scenario.edited),
+        );
+        expect(issues).toEqual(
+          expect.arrayContaining([expect.objectContaining({ ruleId: scenario.rule })]),
+        );
+        if (scenario.css)
+          expect(issues).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ ruleId: '@stylistic/no-extra-semicolons' }),
+            ]),
+          );
+      } finally {
+        fs.rmSync(temporary, { recursive: true, force: true });
       }
     });
   }
@@ -555,6 +708,90 @@ describe('analyze-project request handler', () => {
     expect(result).toMatchObject({ reason: 'invalid_request', type: 'failure' });
     expect(opened).toBe(false);
   });
+
+  for (const corrupted of ['filesystem', 'metadata']) {
+    it(`classifies corrupt ${corrupted} context and recovers in the same worker`, async () => {
+      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'corrupt-replay-context-'));
+      const baseDir = path.join(temporary, 'sources');
+      const rulesWorkdir = path.join(temporary, 'work');
+      fs.mkdirSync(baseDir);
+      fs.mkdirSync(rulesWorkdir);
+      const filePath = path.join(baseDir, 'input.ts');
+      fs.writeFileSync(filePath, '[80, 3, 9].sort();');
+      const archivePath = path.join(rulesWorkdir, 'filesystem.pb.gz');
+      const analysisMetadataPath = path.join(rulesWorkdir, 'metadata.pb.gz');
+      const request = (
+        mode: analyzeProjectProto.analyzeproject.v1.FilesystemCacheMode,
+      ): AnalyzeProjectRequest => ({
+        configuration: { baseDir, canAccessFileSystem: true },
+        files: {
+          [filePath]: { fileContent: '[80, 3, 9].sort();', fileType: FileType.FILE_TYPE_MAIN },
+        },
+        rules: [
+          {
+            key: 'S2871',
+            configurations: [],
+            fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+            language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+            analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+          },
+        ],
+        bundles: [],
+        rulesWorkdir,
+        filesystemCache: { archivePath, analysisMetadataPath, mode },
+      });
+      (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
+      expect(
+        await handleAnalyzeProjectRequest(
+          {
+            type: 'on-analyze-project',
+            data: request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD),
+          },
+          workerData,
+        ),
+      ).toMatchObject({ type: 'success' });
+      const corruptedPath = corrupted === 'filesystem' ? archivePath : analysisMetadataPath;
+      const validBytes = fs.readFileSync(corruptedPath);
+      fs.writeFileSync(corruptedPath, 'not a compressed context archive');
+      try {
+        const result = await handleAnalyzeProjectRequest(
+          {
+            type: 'on-analyze-project',
+            data: request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY),
+          },
+          workerData,
+        );
+        expect(result).toMatchObject({
+          type: 'failure',
+          reason: 'invalid_request',
+          error: { message: expect.stringContaining('Invalid restored JavaScript context') },
+        });
+        // Restoring the original bytes must allow another context-backed request in this worker.
+        fs.writeFileSync(corruptedPath, validBytes);
+        const recovered = await handleAnalyzeProjectRequest(
+          {
+            type: 'on-analyze-project',
+            data: request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY),
+          },
+          workerData,
+        );
+        expect(recovered).toMatchObject({
+          type: 'success',
+          result: {
+            output: {
+              files: {
+                [normalizeToAbsolutePath(filePath)]: {
+                  issues: [expect.objectContaining({ ruleId: 'S2871' })],
+                },
+              },
+            },
+          },
+        });
+      } finally {
+        fs.rmSync(temporary, { recursive: true, force: true });
+      }
+    });
+  }
 
   it('rejects filesystem cache configuration outside an analysis worker', async () => {
     const request = createAnalyzeProjectRequest();

@@ -181,6 +181,8 @@ public class WebSensor implements ProjectSensor {
           "Analysis interrupted because the SensorContext is in cancelled state"
         );
       }
+      configureFilesystemCache(sensorContext);
+      this.context = contextWithCollectedTsConfigPaths(sensorContext);
       var msg =
         context.getAnalysisMode() == AnalysisMode.SKIP_UNCHANGED
           ? "Files which didn't change will only be analyzed for architecture rules, other rules will not be executed"
@@ -188,9 +190,8 @@ public class WebSensor implements ProjectSensor {
       LOG.debug(msg);
       configurationBuilder = AnalyzeProjectMessages.newProjectConfigurationBuilder(
         sensorContext.fileSystem().baseDir().getAbsolutePath(),
-        contextWithCollectedTsConfigPaths(sensorContext)
+        context
       );
-      configureFilesystemCache(sensorContext);
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
       analyzeFiles(inputFiles);
       collectFilesystemCache();
@@ -332,6 +333,13 @@ public class WebSensor implements ProjectSensor {
     var baseContext = new JsTsContext<>(sensorContext);
     Set<String> collectedTsConfigPaths = moduleConfiguration.tsConfigPaths(baseContext);
     return new JsTsContext<>(sensorContext) {
+      @Override
+      public AnalysisMode getAnalysisMode() {
+        // Cached files never reach Node and cannot contribute program selections or filesystem
+        // observations. Collection-enabled analyses must produce a complete context instead.
+        return recordFilesystemCache ? AnalysisMode.DEFAULT : super.getAnalysisMode();
+      }
+
       @Override
       public Set<String> getTsConfigPaths() {
         return collectedTsConfigPaths;

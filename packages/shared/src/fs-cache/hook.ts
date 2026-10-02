@@ -41,7 +41,11 @@ const REALPATH_NATIVE_OPERATION = 'realpath.native';
 const DEFAULT_ENOENT_ERRNO = -2;
 let activeArchive: FsCacheArchive | undefined;
 
-/** Preserve analyzer-provided source content that bypasses the patched filesystem APIs. */
+/**
+ * Preserve analyzer-provided source content that bypasses the patched filesystem APIs.
+ * The scanner supplies decoded text, which is stored as UTF-8 regardless of its original encoding.
+ * Files read through the filesystem hooks retain their original bytes instead.
+ */
 export function captureProvidedFile(fileName: string, content: string): void {
   if (activeArchive?.mode !== 'record') {
     return;
@@ -52,7 +56,7 @@ export function captureProvidedFile(fileName: string, content: string): void {
     if (existing?.ok && existing.value.toString('utf8') === content) {
       return;
     }
-    activeArchive.set(key, 'readFile', { ok: true, value: Buffer.from(content) });
+    activeArchive.set(key, 'readFile', { ok: true, value: Buffer.from(content, 'utf8') });
   }
 }
 
@@ -399,6 +403,7 @@ function createExecutor(archive: ArchiveFacade) {
     encode: (value: TValue) => TStored = value => value as unknown as TStored,
     decode: (value: TStored) => TValue = value => value as unknown as TValue,
   ): Promise<TValue> {
+    const readingArchive = requireActiveArchive();
     const replayed = replay(input, operation, decode);
     if (replayed !== MISSING) {
       return replayed as TValue;
@@ -410,12 +415,12 @@ function createExecutor(archive: ArchiveFacade) {
         : archive.keyFor(input);
     try {
       const value = await producer();
-      if (archive.mode === 'record' && key !== undefined) {
+      if (activeArchive === readingArchive && archive.mode === 'record' && key !== undefined) {
         archive.set(key, operation, success(encode(value)));
       }
       return value;
     } catch (error) {
-      if (archive.mode === 'record' && key !== undefined) {
+      if (activeArchive === readingArchive && archive.mode === 'record' && key !== undefined) {
         archive.set(key, operation, failure(error));
       }
       throw error;
@@ -1514,6 +1519,15 @@ function createDirectoryPatches(archive: ArchiveFacade, executor: CacheExecutor)
 
 type ReplayOpenResult = { found: false } | { fd: number; found: true };
 
+function expiredOpenError(input: fs.PathLike): NodeJS.ErrnoException {
+  const error = new Error(
+    'Filesystem cache analysis ended before open completed',
+  ) as NodeJS.ErrnoException;
+  error.code = 'ERR_SONARJS_FS_CACHE_SESSION_ENDED';
+  error.path = pathLikeToString(input);
+  return error;
+}
+
 function readDescriptorContent(fd: number): Buffer {
   const chunks: Buffer[] = [];
   let position = 0;
@@ -1658,11 +1672,25 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
       throw unsupportedFilesystemOperation('fs', 'open with write-capable flags');
     }
     const done = requireCallback(callback, 'fs.open');
+    const openingArchive = requireActiveArchive();
+    const key = openingArchive.keyFor(input);
+    const passthrough = openingArchive.isPassthrough(input);
+    const complete = (error: NodeJS.ErrnoException | null, fd?: number, virtual = false) => {
+      if (error || activeArchive === openingArchive) {
+        done(error, fd);
+      } else if (fd !== undefined && !virtual) {
+        // The request no longer owns this open. Close the native descriptor before reporting
+        // cancellation, without touching a later session's archive or descriptor tracking.
+        originalFs.close(fd, closeError => done(closeError ?? expiredOpenError(input)));
+      } else {
+        done(expiredOpenError(input));
+      }
+    };
     try {
-      const key = archive.keyFor(input);
       if (readonlyFlags(flags) && key !== undefined) {
         const fd = openSync(input, flags, mode);
-        queueMicrotask(() => done(null, fd));
+        const virtual = fileDescriptors.get(fd)?.virtual === true;
+        queueMicrotask(() => complete(null, fd, virtual));
         return;
       }
     } catch (error) {
@@ -1678,23 +1706,19 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
         callback: (error: NodeJS.ErrnoException | null, fd: number) => void,
       ) => void
     )(input, flags, mode, (error, fd) => {
-      const key = archive.keyFor(input);
-      if (archive.mode === 'record' && key !== undefined && readonlyFlags(flags)) {
-        const operation = openOperation(flags);
-        archive.set(key, operation, error ? failure(error) : success(null));
-        if (!error) {
-          captureOpenedFile(input, fd);
-        }
+      if (activeArchive !== openingArchive) {
+        complete(error, fd);
+        return;
       }
       if (!error) {
         fileDescriptors.set(fd, {
           key,
-          passthrough: archive.isPassthrough(input),
+          passthrough,
           position: 0,
           virtual: false,
         });
       }
-      done(error, fd);
+      complete(error, fd);
     });
   }
 
@@ -1928,6 +1952,7 @@ function createOpenPromise(
     flags: fs.OpenMode = 'r',
     mode?: fs.Mode,
   ): Promise<FileHandleLike> {
+    const openingArchive = requireActiveArchive();
     if (!readonlyFlags(flags) && !archive.isPassthrough(input)) {
       throw unsupportedFilesystemOperation(FS_PROMISES_MODULE, 'open with write-capable flags');
     }
@@ -1935,20 +1960,35 @@ function createOpenPromise(
     if (readonlyFlags(flags)) {
       const replayed = replayOpen(input, operation);
       if (replayed.found) {
+        // Match the asynchronous native open contract before exposing a virtual descriptor.
+        await Promise.resolve();
+        if (activeArchive !== openingArchive) {
+          throw expiredOpenError(input);
+        }
         return new CachedFileHandle(replayed.fd);
       }
     }
     const key = archive.keyFor(input);
+    const passthrough = openingArchive.isPassthrough(input);
     try {
       const handle = await originalPromises.open(input, flags, mode);
+      if (activeArchive !== openingArchive) {
+        await handle.close();
+        throw expiredOpenError(input);
+      }
       if (archive.mode === 'record' && key !== undefined && readonlyFlags(flags)) {
         archive.set(key, operation, success(null));
         captureOpenedFile(input, handle.fd);
       }
-      fileHandles.add(handle, archive.isPassthrough(input));
+      fileHandles.add(handle, passthrough);
       return handle;
     } catch (error) {
-      if (archive.mode === 'record' && key !== undefined && readonlyFlags(flags)) {
+      if (
+        activeArchive === openingArchive &&
+        archive.mode === 'record' &&
+        key !== undefined &&
+        readonlyFlags(flags)
+      ) {
         archive.set(key, operation, failure(error));
       }
       throw error;

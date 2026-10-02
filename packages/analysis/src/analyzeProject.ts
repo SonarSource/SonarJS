@@ -157,7 +157,7 @@ async function analyzeProjectWithCancellation(
   // Initialize CSS linter with active CSS rules (mirrors Linter.initialize for JS/TS).
   // Always called to reset state between analysis runs: when cssRules is empty,
   // the linter is reset to uninitialized so CSS analysis is correctly skipped.
-  cssLinter.initialize(input.cssRules ?? []);
+  cssLinter.initialize(input.cssRules ?? [], baseDir);
 
   const progressReport = new ProgressReport(pendingFiles.size);
   if (pendingFiles.size) {

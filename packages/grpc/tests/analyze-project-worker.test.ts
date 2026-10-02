@@ -16,6 +16,10 @@
  */
 
 import { EventEmitter } from 'node:events';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { Worker } from 'node:worker_threads';
 import { setImmediate as waitForImmediate } from 'node:timers/promises';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
@@ -37,6 +41,7 @@ import type {
 } from '../src/analyze-project-request.js';
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
 import type { ProjectAnalysisOutput } from '../../analysis/src/projectAnalysis.js';
+import { FsCacheArchive } from '../../shared/src/fs-cache/archive.js';
 
 class FakeParentThread {
   private readonly events = new EventEmitter();
@@ -105,6 +110,119 @@ function createIncrementalEvent(event: WsIncrementalResult): AnalyzeProjectIncre
 }
 
 describe('analyze-project worker', () => {
+  it('records project Stylelint lookups independently of process cwd and replays edited HTML', async () => {
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'worker-css-root-'));
+    const root = path.join(temporary, 'record');
+    const replayRoot = path.join(temporary, 'replay');
+    const workdir = path.join(temporary, 'work');
+    for (const directory of [root, replayRoot, workdir]) fs.mkdirSync(directory);
+    const original =
+      '<script>if (foo()) bar(); else baz();</script>\n<style>a { color: red; }</style>';
+    fs.writeFileSync(path.join(root, 'input.html'), original);
+    const worker = new Worker(
+      path.resolve(import.meta.dirname, '../../../lib/grpc/src/analyze-project-worker.js'),
+      { workerData },
+    );
+    const { FileType, JsTsLanguage, AnalysisMode, FilesystemCacheMode } =
+      analyzeProjectProto.analyzeproject.v1;
+    let sequence = 0;
+    const analyze = (baseDir: string, mode: number, content?: string) =>
+      new Promise<AnalyzeProjectWorkerOutMessage>((resolve, reject) => {
+        const requestId = String(++sequence);
+        const timer = setTimeout(() => finish(new Error('CSS replay worker timed out')), 30_000);
+        const onMessage = (message: AnalyzeProjectWorkerOutMessage) => {
+          if (
+            'requestId' in message &&
+            message.requestId === requestId &&
+            message.type === 'unary-complete'
+          )
+            finish(undefined, message);
+        };
+        const onError = (error: Error) => finish(error);
+        function finish(error?: Error, result?: AnalyzeProjectWorkerOutMessage) {
+          clearTimeout(timer);
+          worker.off('message', onMessage);
+          worker.off('error', onError);
+          if (error) reject(error);
+          else resolve(result!);
+        }
+        worker.on('message', onMessage);
+        worker.once('error', onError);
+        worker.postMessage({
+          type: 'analyze-unary',
+          requestId,
+          request: {
+            configuration: { baseDir },
+            files: {
+              [path.join(baseDir, 'input.html')]: {
+                fileType: FileType.FILE_TYPE_MAIN,
+                fileContent: content,
+              },
+            },
+            rules: [
+              {
+                key: 'S3923',
+                configurations: [],
+                fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+                language: JsTsLanguage.JS_TS_LANGUAGE_JS,
+                analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+              },
+            ],
+            cssRules: [{ key: '@stylistic/no-extra-semicolons', configurations: [] }],
+            bundles: [],
+            rulesWorkdir: workdir,
+            filesystemCache: {
+              mode,
+              archivePath: path.join(workdir, 'filesystem.pb.gz'),
+              analysisMetadataPath: path.join(workdir, 'analysis-metadata.pb.gz'),
+            },
+          },
+        });
+      });
+    try {
+      const recorded = await analyze(root, FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD);
+      expect(recorded).toMatchObject({
+        type: 'unary-complete',
+        result: {
+          type: 'success',
+          result: { files: { [path.join(root, 'input.html')]: { issues: [] } } },
+        },
+      });
+      const archive = new FsCacheArchive({
+        rootDir: root,
+        archivePath: path.join(workdir, 'filesystem.pb.gz'),
+      });
+      archive.load();
+      const ignorePath = archive.keyFor(path.join(root, '.stylelintignore'));
+      expect(ignorePath).toBeDefined();
+      expect(archive.getExists(ignorePath!)).toBe(false);
+      const replayed = await analyze(
+        replayRoot,
+        FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY,
+        original.replace('else baz()', 'else bar()').replace('red;', 'red;;'),
+      );
+      expect(replayed).toMatchObject({
+        type: 'unary-complete',
+        result: {
+          type: 'success',
+          result: {
+            files: {
+              [path.join(replayRoot, 'input.html')]: {
+                issues: expect.arrayContaining([
+                  expect.objectContaining({ ruleId: 'S3923' }),
+                  expect.objectContaining({ ruleId: '@stylistic/no-extra-semicolons' }),
+                ]),
+              },
+            },
+          },
+        },
+      });
+    } finally {
+      await worker.terminate();
+      fs.rmSync(temporary, { recursive: true, force: true });
+    }
+  });
+
   it('should close the parent thread on close messages', async () => {
     const parentThread = new FakeParentThread();
 

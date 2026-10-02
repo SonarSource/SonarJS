@@ -45,9 +45,10 @@ import {
   getProjectAnalysisTelemetryCollector,
   type ProjectAnalysisTelemetryCollector,
 } from './telemetry.js';
-import type {
-  ProgramSelectionArchive,
-  RestoredProgramSelection,
+import {
+  isConfigured,
+  type ProgramSelectionArchive,
+  type RestoredProgramSelection,
 } from './program-selection/archive.js';
 
 type ProgramAnalysisContext = {
@@ -449,14 +450,14 @@ async function analyzeFilesFromProgramSelection(
     throw new Error(`No recorded TypeScript program outcome for ${unselectedFiles.join(', ')}`);
   }
 
-  const selections = programSelection.restoredSelections(requestedJsTsFiles);
+  const selections = programSelection.getRestoredSelections(requestedJsTsFiles);
   for (const selection of selections) {
     if (isAnalysisCancelled()) {
       return;
     }
     const { tsProgram, detectedEsYear, targetEsYear } = restoreSelectedProgram(selection, context);
     info(
-      selection.program.kind === 'configured'
+      isConfigured(selection.program)
         ? `Restored TypeScript program selected from ${selection.program.tsconfig}`
         : `Restored orphan TypeScript program for ${selection.rootNames.length} entry point(s)`,
     );
@@ -468,7 +469,7 @@ async function analyzeFilesFromProgramSelection(
       // Configured selections were recorded only for files present in their TS program.
       // Orphan entry-point groups can also contain files such as .vue: TypeScript omits
       // those from its SourceFiles, but the CI path still analyzes them with that program.
-      if (selection.program.kind === 'configured' && !tsProgram.getSourceFile(fileName)) {
+      if (isConfigured(selection.program) && !tsProgram.getSourceFile(fileName)) {
         throw new Error(`Restored TypeScript program does not contain ${fileName}`);
       }
       await analyzeFile(
@@ -497,20 +498,19 @@ function restoreSelectedProgram(
 } {
   const { baseDir, canAccessFileSystem, jsTsConfigFields, telemetry } = context;
   telemetry.recordProgramCreationAttempt();
-  const programOptions =
-    selection.program.kind === 'configured'
-      ? createProgramOptions(
-          selection.program.tsconfig,
-          undefined,
-          canAccessFileSystem,
-          jsTsConfigFields.ecmaScriptVersion,
-          baseDir,
-        )
-      : createProgramOptionsFromEffectiveOptions(
-          selection.program.compilerOptions,
-          selection.rootNames,
-        );
-  if (selection.program.kind === 'configured') {
+  const programOptions = isConfigured(selection.program)
+    ? createProgramOptions(
+        selection.program.tsconfig,
+        undefined,
+        canAccessFileSystem,
+        jsTsConfigFields.ecmaScriptVersion,
+        baseDir,
+      )
+    : createProgramOptionsFromEffectiveOptions(
+        selection.program.compilerOptions,
+        selection.rootNames,
+      );
+  if (isConfigured(selection.program)) {
     programOptions.options = selection.program.compilerOptions;
   }
   telemetry.recordCompilerOptions(programOptions.options);

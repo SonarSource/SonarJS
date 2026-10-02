@@ -147,6 +147,93 @@ export type WorkerData = {
   debugMemory: boolean;
 };
 
+type AnalysisSessions = {
+  filesystemCacheSession?: FsCacheSession;
+  programSelection?: ProgramSelectionArchive;
+};
+
+function beginAnalysisSessions(
+  request: AnalyzeProjectProtoRequest,
+  cacheMode: CacheMode | undefined,
+  sessions: AnalysisSessions,
+): void {
+  try {
+    sessions.filesystemCacheSession = beginFilesystemCacheAnalysis(request, cacheMode);
+    sessions.programSelection = beginAnalysisMetadata(request, cacheMode);
+  } catch (error) {
+    if (cacheMode === 'replay' && !(error instanceof InvalidAnalyzeProjectRequestError)) {
+      throw new InvalidAnalyzeProjectRequestError('Invalid restored JavaScript context', {
+        cause: error,
+      });
+    }
+    throw error;
+  }
+}
+
+async function normalizeProjectInput(
+  request: AnalyzeProjectProtoRequest,
+  cacheMode: CacheMode | undefined,
+  sessions: AnalysisSessions,
+) {
+  const originalConfiguration = request.configuration ? { ...request.configuration } : undefined;
+  const restoredConfiguration = sessions.programSelection?.restoredConfiguration();
+  if (restoredConfiguration && request.configuration) {
+    // Preserve the SQAA request's base directory, file scope, and runtime paths.
+    Object.assign(request.configuration, restoredConfiguration);
+  }
+  const input = await normalizeAnalyzeProjectRequest(request);
+  if (
+    cacheMode !== 'replay' ||
+    !sessions.programSelection ||
+    input.rules.length === 0 ||
+    input.configuration.disableTypeChecking
+  ) {
+    return input;
+  }
+  const unsupportedFiles = filesWithoutRecordedProgramOutcome(
+    Object.keys(sourceFileStore.getFiles()) as NormalizedAbsolutePath[],
+    sessions.programSelection,
+    getJsTsConfigFields(input.configuration),
+  );
+  if (unsupportedFiles.length === 0) {
+    return input;
+  }
+  warn(
+    `Unsupported SonarJS context for ${unsupportedFiles.join(', ')}: no portable TypeScript program outcome; falling back to source-only analysis`,
+  );
+  endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
+  sessions.programSelection = undefined;
+  sessions.filesystemCacheSession = undefined;
+  request.configuration = originalConfiguration;
+  request.filesystemCache = undefined;
+  // Reinitialize the stores without the replay archive or recorded CI settings.
+  // This follows the same tsconfig/orphan-program path as a request with no context.
+  return normalizeAnalyzeProjectRequest(request);
+}
+
+async function analyzeNormalizedProject(
+  input: Awaited<ReturnType<typeof normalizeAnalyzeProjectRequest>>,
+  programSelection: ProgramSelectionArchive | undefined,
+  incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
+) {
+  const wrappedIncrementalResultsChannel = incrementalResultsChannel
+    ? (event: AnalyzeProjectIncrementalEvent['event']) =>
+        incrementalResultsChannel({ event, pathMap: input.pathMap })
+    : undefined;
+  const output = await analyzeProject(
+    {
+      rules: input.rules,
+      cssRules: input.cssRules,
+      bundles: input.bundles,
+      rulesWorkdir: input.rulesWorkdir,
+      programSelection,
+    },
+    input.configuration,
+    wrappedIncrementalResultsChannel,
+  );
+  return { output, pathMap: input.pathMap };
+}
+
 async function handleProjectAnalysis(
   request: AnalyzeProjectProtoRequest,
   workerData: WorkerData,
@@ -162,74 +249,25 @@ async function handleProjectAnalysis(
       'A filesystem archive and analysis metadata must be supplied together',
     );
   }
-  const originalConfiguration = request.configuration ? { ...request.configuration } : undefined;
-  let filesystemCacheSession = beginFilesystemCacheAnalysis(request, cacheMode);
-  let programSelection: ProgramSelectionArchive | undefined;
+  const sessions: AnalysisSessions = {};
   try {
-    programSelection = beginAnalysisMetadata(request, cacheMode);
-    const restoredConfiguration = programSelection?.restoredConfiguration();
-    if (restoredConfiguration && request.configuration) {
-      // Preserve the SQAA request's base directory, file scope, and runtime paths.
-      Object.assign(request.configuration, restoredConfiguration);
-    }
+    beginAnalysisSessions(request, cacheMode, sessions);
     return await withAnalysisCancellation(async () => {
       logHeapStatistics(workerData?.debugMemory);
-      let sanitizedInput = await normalizeAnalyzeProjectRequest(request);
-      if (
-        cacheMode === 'replay' &&
-        programSelection &&
-        sanitizedInput.rules.length > 0 &&
-        !sanitizedInput.configuration.disableTypeChecking
-      ) {
-        const unsupportedFiles = filesWithoutRecordedProgramOutcome(
-          Object.keys(sourceFileStore.getFiles()) as NormalizedAbsolutePath[],
-          programSelection,
-          getJsTsConfigFields(sanitizedInput.configuration),
-        );
-        if (unsupportedFiles.length > 0) {
-          warn(
-            `Unsupported SonarJS context for ${unsupportedFiles.join(', ')}: no portable TypeScript program outcome; falling back to source-only analysis`,
-          );
-          endAnalysisSessions(programSelection, filesystemCacheSession);
-          programSelection = undefined;
-          filesystemCacheSession = undefined;
-          request.configuration = originalConfiguration;
-          request.filesystemCache = undefined;
-          // Reinitialize the stores without the replay archive or recorded CI settings.
-          // This follows the same tsconfig/orphan-program path as a request with no context.
-          sanitizedInput = await normalizeAnalyzeProjectRequest(request);
-        }
-      }
-      const wrappedIncrementalResultsChannel = incrementalResultsChannel
-        ? (event: AnalyzeProjectIncrementalEvent['event']) =>
-            incrementalResultsChannel({
-              event,
-              pathMap: sanitizedInput.pathMap,
-            })
-        : undefined;
-
-      const output = await analyzeProject(
-        {
-          rules: sanitizedInput.rules,
-          cssRules: sanitizedInput.cssRules,
-          bundles: sanitizedInput.bundles,
-          rulesWorkdir: sanitizedInput.rulesWorkdir,
-          programSelection,
-        },
-        sanitizedInput.configuration,
-        wrappedIncrementalResultsChannel,
+      const input = await normalizeProjectInput(request, cacheMode, sessions);
+      const result = await analyzeNormalizedProject(
+        input,
+        sessions.programSelection,
+        incrementalResultsChannel,
       );
       logHeapStatistics(workerData?.debugMemory);
       return {
         type: 'success',
-        result: {
-          output,
-          pathMap: sanitizedInput.pathMap,
-        },
+        result,
       };
     });
   } finally {
-    endAnalysisSessions(programSelection, filesystemCacheSession);
+    endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
   }
 }
 

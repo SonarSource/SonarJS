@@ -78,6 +78,10 @@ type OrphanProgram = {
 
 export type RecordedProgram = ConfiguredProgram | OrphanProgram;
 
+export function isConfigured(program: RecordedProgram): program is ConfiguredProgram {
+  return program.kind === 'configured';
+}
+
 export type RestoredProgramSelection = {
   id: number;
   program: RecordedProgram;
@@ -111,7 +115,7 @@ export class ProgramSelectionArchive {
     this.archivePath = path.resolve(archivePath);
     this.baseDir = baseDir;
     this.mode = mode ?? (fs.existsSync(this.archivePath) ? 'replay' : 'record');
-    if (this.mode === 'replay') {
+    if (this.isReplay()) {
       this.load();
     }
   }
@@ -120,8 +124,12 @@ export class ProgramSelectionArchive {
     return this.mode === 'replay';
   }
 
+  isRecord(): boolean {
+    return this.mode === 'record';
+  }
+
   recordConfiguration(configuration: Record<string, unknown>): void {
-    if (this.mode === 'record') {
+    if (this.isRecord()) {
       this.configuration = Object.fromEntries(
         REPLAYABLE_CONFIGURATION_FIELDS.map(field => [field, configuration[field] ?? null]),
       );
@@ -129,7 +137,7 @@ export class ProgramSelectionArchive {
   }
 
   restoredConfiguration(): ReplayableConfiguration | undefined {
-    return this.mode === 'replay' ? this.configuration : undefined;
+    return this.isReplay() ? this.configuration : undefined;
   }
 
   recordConfigured(
@@ -137,7 +145,7 @@ export class ProgramSelectionArchive {
     tsconfig: NormalizedAbsolutePath,
     compilerOptions: ts.CompilerOptions,
   ): void {
-    if (this.mode !== 'record') {
+    if (!this.isRecord()) {
       return;
     }
     if (!this.isProjectRelative(file) || !this.isProjectRelative(tsconfig)) {
@@ -152,7 +160,7 @@ export class ProgramSelectionArchive {
   }
 
   recordOrphanGroup(files: NormalizedAbsolutePath[], compilerOptions: ts.CompilerOptions): void {
-    if (this.mode !== 'record') {
+    if (!this.isRecord()) {
       return;
     }
     const projectFiles = files.filter(file => this.isProjectRelative(file));
@@ -165,8 +173,8 @@ export class ProgramSelectionArchive {
     }
   }
 
-  restoredSelections(files: Iterable<NormalizedAbsolutePath>): RestoredProgramSelection[] {
-    if (this.mode !== 'replay') {
+  getRestoredSelections(files: Iterable<NormalizedAbsolutePath>): RestoredProgramSelection[] {
+    if (!this.isReplay()) {
       return [];
     }
     const requestedFilesByProgram = new Map<number, NormalizedAbsolutePath[]>();
@@ -201,7 +209,7 @@ export class ProgramSelectionArchive {
   }
 
   recordNoProgram(file: NormalizedAbsolutePath): void {
-    if (this.mode !== 'record' || !this.isProjectRelative(file)) {
+    if (!this.isRecord() || !this.isProjectRelative(file)) {
       return;
     }
     if (this.selections.has(file)) {
@@ -211,14 +219,14 @@ export class ProgramSelectionArchive {
   }
 
   end(): void {
-    if (this.mode !== 'record') {
+    if (!this.isRecord()) {
       return;
     }
     const metadata = sonarjs.programselection.AnalysisMetadata.fromObject({
       programSelection: {
         magic: MAGIC,
         programs: [...this.programs.values()].map(({ id, program }) =>
-          program.kind === 'configured'
+          isConfigured(program)
             ? {
                 id,
                 configured: {

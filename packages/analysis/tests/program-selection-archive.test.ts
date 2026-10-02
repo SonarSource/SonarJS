@@ -96,7 +96,7 @@ describe('ProgramSelectionArchive', () => {
     const restoredArchivePath = path.join(secondRoot, 'selection.pb.gz');
     fs.copyFileSync(archivePath, restoredArchivePath);
     const replay = new ProgramSelectionArchive(restoredArchivePath, secondRoot);
-    const restored = replay.restoredSelections([
+    const restored = replay.getRestoredSelections([
       normalizeToAbsolutePath('src/second.ts', secondRoot),
     ]);
 
@@ -142,7 +142,7 @@ describe('ProgramSelectionArchive', () => {
     recorder.end();
 
     const replay = new ProgramSelectionArchive(archivePath, root);
-    expect(replay.restoredSelections([files[0]])).toEqual([
+    expect(replay.getRestoredSelections([files[0]])).toEqual([
       {
         id: 1,
         program: { kind: 'orphan', compilerOptions },
@@ -173,24 +173,24 @@ describe('ProgramSelectionArchive', () => {
     fs.copyFileSync(archivePath, restoredArchivePath);
     const replay = new ProgramSelectionArchive(restoredArchivePath, secondRoot);
 
-    expect(replay.restoredSelections([normalizeToAbsolutePath('src/file.ts', secondRoot)])).toEqual(
-      [
-        {
-          id: 1,
-          program: {
-            kind: 'configured',
-            tsconfig: normalizeToAbsolutePath('tsconfig.json', secondRoot),
-            compilerOptions: {
-              baseUrl: secondRoot,
-              paths: { '@/*': [secondRoot] },
-              rootDirs: [secondRoot],
-            },
+    expect(
+      replay.getRestoredSelections([normalizeToAbsolutePath('src/file.ts', secondRoot)]),
+    ).toEqual([
+      {
+        id: 1,
+        program: {
+          kind: 'configured',
+          tsconfig: normalizeToAbsolutePath('tsconfig.json', secondRoot),
+          compilerOptions: {
+            baseUrl: secondRoot,
+            paths: { '@/*': [secondRoot] },
+            rootDirs: [secondRoot],
           },
-          rootNames: [normalizeToAbsolutePath('src/file.ts', secondRoot)],
-          requestedFiles: [normalizeToAbsolutePath('src/file.ts', secondRoot)],
         },
-      ],
-    );
+        rootNames: [normalizeToAbsolutePath('src/file.ts', secondRoot)],
+        requestedFiles: [normalizeToAbsolutePath('src/file.ts', secondRoot)],
+      },
+    ]);
   });
 
   it('preserves portable selections when another program is outside the project', () => {
@@ -211,7 +211,7 @@ describe('ProgramSelectionArchive', () => {
     recorder.end();
 
     const replay = new ProgramSelectionArchive(archivePath, root);
-    expect(replay.restoredSelections([portableFile, outsideFile])).toEqual([
+    expect(replay.getRestoredSelections([portableFile, outsideFile])).toEqual([
       {
         id: 1,
         program: {
