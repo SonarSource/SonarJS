@@ -33,11 +33,7 @@ describe('S7652', () => {
           code: `${angular} class C { onRefresh = output({ alias: 'refresh' }); }`,
         },
         {
-          code: `import { output as createOutput } from '@angular/core'; class C { onRefresh = createOutput({ alias: 'refresh' }); }`,
-        },
-        {
-          // The delegated rule allows lowercase words starting with "on".
-          code: `${angular} class C { onRefresh = output({ alias: 'online' }); }`,
+          code: `${angular} class C { onRefresh = output({ alias: \`refresh\` }); }`,
         },
         {
           code: `${angular} class C { @Output('refresh') onRefresh = new EventEmitter(); }`,
@@ -114,7 +110,7 @@ describe('S7652', () => {
     });
   });
 
-  it('relies on the upstream rule reporting the suppressed forms', () => {
+  it('suppresses only forms reported by the upstream rule', () => {
     ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
       valid: [],
       invalid: [
@@ -123,7 +119,19 @@ describe('S7652', () => {
           errors: 1,
         },
         {
+          code: `${angular} class C { onRefresh = output({ alias: \`refresh\` }); }`,
+          errors: 1,
+        },
+        {
           code: `${angular} class C { @Output('refresh') onRefresh = new EventEmitter(); }`,
+          errors: 1,
+        },
+        {
+          code: `${angular} class C { @Output(\`refresh\`) onRefresh = new EventEmitter(); }`,
+          errors: 1,
+        },
+        {
+          code: `${angular} class C { @Output('refresh') get onRefresh() { return new EventEmitter(); } }`,
           errors: 1,
         },
         {
@@ -131,7 +139,15 @@ describe('S7652', () => {
           errors: 1,
         },
         {
+          code: `${angular} @Component({ outputs: [\`onRefresh: refresh\`] }) class C {}`,
+          errors: 1,
+        },
+        {
           code: `${angular} @Directive({ hostDirectives: [{ directive: Other, outputs: ['onRefresh: refresh'] }] }) class C {}`,
+          errors: 1,
+        },
+        {
+          code: `${angular} @Directive({ hostDirectives: [{ directive: Other, outputs: [\`onRefresh: refresh\`] }] }) class C {}`,
           errors: 1,
         },
       ],
