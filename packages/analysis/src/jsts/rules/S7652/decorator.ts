@@ -24,7 +24,6 @@ import {
   getAngularStaticOutputNames,
   isAngularOutputCall,
 } from '../helpers/angular.js';
-import { findFirstMatchingLocalAncestor } from '../helpers/ancestor.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 
 /** Mirrors the delegated rule: `online` is compliant, while `onSave` is not. */
@@ -116,11 +115,12 @@ function isDeprecatedOutputReplacement(context: Rule.RuleContext, node: estree.N
   if (member?.key.type !== 'Identifier' || !hasDeprecatedJsdoc(context, member)) {
     return false;
   }
-  const classNode = findFirstMatchingLocalAncestor(
-    member,
-    node => node.type === 'ClassDeclaration',
-  );
+  const classNode = member.parent?.parent;
   if (classNode?.type !== 'ClassDeclaration') {
+    return false;
+  }
+  const memberIndex = classNode.body.body.indexOf(member);
+  if (memberIndex < 0) {
     return false;
   }
   const outputNames = getAngularStaticOutputNames(context, classNode);
@@ -131,7 +131,6 @@ function isDeprecatedOutputReplacement(context: Rule.RuleContext, node: estree.N
   if (reported?.isMetadataOutput && outputNames.filter(name => name === ownerName).length !== 1) {
     return false;
   }
-  const memberIndex = classNode.body.body.indexOf(member);
   return classNode.body.body.slice(memberIndex + 1).some(member => {
     if (member.type !== 'PropertyDefinition' || !isDirectReplacement(context, member, ownerName)) {
       return false;

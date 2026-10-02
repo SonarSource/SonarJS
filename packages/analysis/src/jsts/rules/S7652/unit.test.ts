@@ -206,6 +206,19 @@ describe('S7652', () => {
           code: `${angular}
             @Component({ outputs: ['refresh'] })
             class C {
+              inner = class {
+                /** @deprecated Use refresh instead. */
+                onRefresh = output<void>();
+              };
+              refresh = this.onRefresh;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `${angular}
+            @Component({ outputs: ['refresh'] })
+            class C {
               /** @deprecated Use refresh instead. */
               onRefresh = output<void>();
               @Output('onSave') refresh = this.onRefresh;
