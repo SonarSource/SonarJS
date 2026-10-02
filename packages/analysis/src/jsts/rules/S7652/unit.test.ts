@@ -324,6 +324,9 @@ describe('S7652', () => {
         },
         {
           code: `${angular} @Directive({ hostDirectives: [{ directive: Other, outputs: [\`onRefresh: refresh\`] }] }) class C {}`,
+          errors: 1,
+        },
+        {
           code: `${angular}
             @Component({ outputs: ['refresh'] })
             class C {
