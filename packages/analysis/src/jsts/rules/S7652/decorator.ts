@@ -24,7 +24,6 @@ import {
   isAngularOutputCall,
 } from '../helpers/angular.js';
 import { findFirstMatchingLocalAncestor } from '../helpers/ancestor.js';
-import { hasDeprecatedJsdoc } from '../helpers/comments.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 
 /** Mirrors the delegated rule: `online` is compliant, while `onSave` is not. */
@@ -72,6 +71,18 @@ function getReportedOutputMember(
       member.key.name === outputName,
   );
   return members.length === 1 ? { member: members[0], isMetadataOutput: true } : undefined;
+}
+
+function hasDeprecatedJsdoc(
+  context: Rule.RuleContext,
+  member: TSESTree.PropertyDefinition,
+): boolean {
+  const comment = context.sourceCode.getCommentsBefore(member as unknown as estree.Node).at(-1);
+  return (
+    comment?.type === 'Block' &&
+    comment.value.startsWith('*') &&
+    /@deprecated\b/.test(comment.value)
+  );
 }
 
 function isDirectReplacement(
