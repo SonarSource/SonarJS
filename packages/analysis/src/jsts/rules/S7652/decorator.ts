@@ -23,6 +23,8 @@ import {
   getAngularStaticOutputNames,
   isAngularOutputCall,
 } from '../helpers/angular.js';
+import { findFirstMatchingLocalAncestor } from '../helpers/ancestor.js';
+import { hasDeprecatedJsdoc } from '../helpers/comments.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 
 /** Mirrors the delegated rule: `online` is compliant, while `onSave` is not. */
@@ -38,13 +40,6 @@ function isCompliantOutputAlias(context: Rule.RuleContext, node: estree.Node): b
 interface ReportedOutputMember {
   member: TSESTree.PropertyDefinition;
   isMetadataOutput: boolean;
-}
-
-function getClassDeclaration(member: TSESTree.PropertyDefinition) {
-  const classBody = member.parent;
-  return classBody?.type === 'ClassBody' && classBody.parent?.type === 'ClassDeclaration'
-    ? classBody.parent
-    : undefined;
 }
 
 function getReportedOutputMember(
@@ -79,18 +74,6 @@ function getReportedOutputMember(
   return members.length === 1 ? { member: members[0], isMetadataOutput: true } : undefined;
 }
 
-function hasDeprecatedJsdoc(
-  context: Rule.RuleContext,
-  member: TSESTree.PropertyDefinition,
-): boolean {
-  const comment = context.sourceCode.getCommentsBefore(member as unknown as estree.Node).at(-1);
-  return (
-    comment?.type === 'Block' &&
-    comment.value.startsWith('*') &&
-    /@deprecated\b/.test(comment.value)
-  );
-}
-
 function isDirectReplacement(
   member: TSESTree.PropertyDefinition,
   ownerName: string,
@@ -114,9 +97,15 @@ function isDeprecatedOutputReplacement(context: Rule.RuleContext, node: estree.N
   if (member?.key.type !== 'Identifier' || !hasDeprecatedJsdoc(context, member)) {
     return false;
   }
-  const classNode = getClassDeclaration(member);
-  const outputNames = classNode && getAngularStaticOutputNames(context, classNode);
-  if (classNode === undefined || outputNames === undefined) {
+  const classNode = findFirstMatchingLocalAncestor(
+    member,
+    node => node.type === 'ClassDeclaration',
+  );
+  if (classNode?.type !== 'ClassDeclaration') {
+    return false;
+  }
+  const outputNames = getAngularStaticOutputNames(context, classNode);
+  if (outputNames === undefined) {
     return false;
   }
   const ownerName = member.key.name;
