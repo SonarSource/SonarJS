@@ -321,64 +321,7 @@ export class ProgramSelectionArchive {
     if (metadata.programSelection?.magic !== MAGIC) {
       throw new Error(`Not a SonarJS analysis metadata archive: ${this.archivePath}`);
     }
-    const parsed = contextMetadata ? JSON.parse(contextMetadata) : undefined;
-    if (parsed !== undefined && (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))) {
-      throw new Error('Invalid SonarJS collector context metadata');
-    }
-    // Empty legacy metadata is unsupported. SQAA owns analyzer-version compatibility.
-    const context = parsed && Object.keys(parsed).length > 0 ? parsed : undefined;
-    if (
-      context &&
-      (!context.configuration ||
-        typeof context.configuration !== 'object' ||
-        Array.isArray(context.configuration) ||
-        typeof context.configuration.baseDir !== 'string' ||
-        !context.configuration.baseDir)
-    ) {
-      throw new Error('Invalid SonarJS collector context metadata');
-    }
-    if (context?.configuration.baseDir) {
-      if (!isAbsolutePath(context.configuration.baseDir)) {
-        throw new Error('Invalid SonarJS analysis metadata base directory');
-      }
-      this.recordedBaseDir = normalizeProjectRoot(context.configuration.baseDir);
-      if (restoreOriginalPaths) {
-        this.baseDir = replayProjectRoot(this.recordedBaseDir, this.baseDir);
-      }
-    }
-    const configuration = context?.configuration ?? {};
-    this.configuration = Object.fromEntries(
-      REPLAYABLE_CONFIGURATION_FIELDS.map(field => [field, configuration[field] ?? null]),
-    );
-    if (this.recordedBaseDir && this.recordedBaseDir !== this.baseDir) {
-      for (const field of PROJECT_CONFIGURATION_PATHS) {
-        const value = this.configuration[field as keyof ReplayableConfiguration];
-        const relocate = (item: unknown): unknown => {
-          if (typeof item !== 'string') {
-            return item;
-          }
-          const prefix = /^file:/i.exec(item)?.[0] ?? '';
-          const original = item.slice(prefix.length);
-          if (!isAbsolutePath(original)) {
-            return item;
-          }
-          const relative = relativeProjectPath(original, this.recordedBaseDir!);
-          return relative === undefined
-            ? item
-            : prefix + normalizeToAbsolutePath(relative, this.baseDir);
-        };
-        if (Array.isArray(value)) {
-          this.configuration[field as keyof ReplayableConfiguration] = value.map(relocate);
-        } else if (value && typeof value === 'object' && 'values' in value) {
-          const values = (value as { values?: unknown }).values;
-          if (Array.isArray(values)) {
-            this.configuration[field as keyof ReplayableConfiguration] = {
-              values: values.map(relocate),
-            };
-          }
-        }
-      }
-    }
+    this.loadConfiguration(restoreOriginalPaths, contextMetadata);
     for (const entry of metadata.programSelection.programs ?? []) {
       const id = entry.id;
       if (id == null || id === 0 || this.programs.has(id)) {
@@ -406,6 +349,63 @@ export class ProgramSelectionArchive {
       this.noProgramFiles.add(file);
       this.pathsByCanonicalName.set(this.canonicalName(file), file);
     }
+  }
+
+  private loadConfiguration(restoreOriginalPaths: boolean, contextMetadata?: string): void {
+    const configuration = readContextConfiguration(contextMetadata);
+    if (configuration) {
+      if (!isAbsolutePath(configuration.baseDir)) {
+        throw new Error('Invalid SonarJS analysis metadata base directory');
+      }
+      this.recordedBaseDir = normalizeProjectRoot(configuration.baseDir);
+      if (restoreOriginalPaths) {
+        this.baseDir = replayProjectRoot(this.recordedBaseDir, this.baseDir);
+      }
+    }
+    this.configuration = Object.fromEntries(
+      REPLAYABLE_CONFIGURATION_FIELDS.map(field => [field, configuration?.[field] ?? null]),
+    );
+    const recordedBaseDir = this.recordedBaseDir;
+    if (recordedBaseDir && recordedBaseDir !== this.baseDir) {
+      for (const field of PROJECT_CONFIGURATION_PATHS) {
+        this.configuration[field] = this.relocateConfigurationValue(
+          this.configuration[field],
+          recordedBaseDir,
+        );
+      }
+    }
+  }
+
+  private relocateConfigurationValue(
+    value: unknown,
+    recordedBaseDir: NormalizedAbsolutePath,
+  ): unknown {
+    const relocate = (item: unknown) => this.relocateConfigurationPath(item, recordedBaseDir);
+    if (Array.isArray(value)) {
+      return value.map(relocate);
+    }
+    if (value && typeof value === 'object' && 'values' in value && Array.isArray(value.values)) {
+      return { values: value.values.map(relocate) };
+    }
+    return value;
+  }
+
+  private relocateConfigurationPath(
+    item: unknown,
+    recordedBaseDir: NormalizedAbsolutePath,
+  ): unknown {
+    if (typeof item !== 'string') {
+      return item;
+    }
+    const prefix = /^file:/i.exec(item)?.[0] ?? '';
+    const original = item.slice(prefix.length);
+    if (!isAbsolutePath(original)) {
+      return item;
+    }
+    const relative = relativeProjectPath(original, recordedBaseDir);
+    return relative === undefined
+      ? item
+      : `${prefix}${normalizeToAbsolutePath(relative, this.baseDir)}`;
   }
 
   private restoreProgram(entry: sonarjs.programselection.IProgram): RecordedProgram {
@@ -529,6 +529,33 @@ export class ProgramSelectionArchive {
       ]),
     );
   }
+}
+
+function readContextConfiguration(
+  contextMetadata?: string,
+): ({ baseDir: string } & Record<string, unknown>) | undefined {
+  if (!contextMetadata) {
+    return undefined;
+  }
+  const context = JSON.parse(contextMetadata);
+  if (!context || typeof context !== 'object' || Array.isArray(context)) {
+    throw new Error('Invalid SonarJS collector context metadata');
+  }
+  // Empty legacy metadata is unsupported. SQAA owns analyzer-version compatibility.
+  if (Object.keys(context).length === 0) {
+    return undefined;
+  }
+  const configuration = context.configuration;
+  if (
+    !configuration ||
+    typeof configuration !== 'object' ||
+    Array.isArray(configuration) ||
+    typeof configuration.baseDir !== 'string' ||
+    !configuration.baseDir
+  ) {
+    throw new Error('Invalid SonarJS collector context metadata');
+  }
+  return configuration;
 }
 
 function structFromObject(value: object): { fields: Record<string, unknown> } {

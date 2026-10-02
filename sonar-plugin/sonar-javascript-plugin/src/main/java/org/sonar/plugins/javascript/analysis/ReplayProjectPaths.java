@@ -24,6 +24,9 @@ import org.sonar.api.batch.fs.InputFile;
 /** Translates scanner files into the logical namespace recorded by CI, without moving files. */
 final class ReplayProjectPaths {
 
+  private static final String CONFIGURATION = "configuration";
+  private static final String BASE_DIR = "baseDir";
+
   private final String baseDir;
 
   private ReplayProjectPaths(String baseDir) {
@@ -37,25 +40,25 @@ final class ReplayProjectPaths {
     if (metadata.size() == 0) {
       return null;
     }
-    if (!metadata.has("configuration") || !metadata.get("configuration").isJsonObject()) {
+    if (!metadata.has(CONFIGURATION) || !metadata.get(CONFIGURATION).isJsonObject()) {
       throw new IllegalArgumentException("Recorded JavaScript configuration is missing");
     }
-    var configuration = metadata.getAsJsonObject("configuration");
+    var configuration = metadata.getAsJsonObject(CONFIGURATION);
     if (
-      !configuration.has("baseDir") ||
-      !configuration.get("baseDir").isJsonPrimitive() ||
-      !configuration.get("baseDir").getAsJsonPrimitive().isString()
+      !configuration.has(BASE_DIR) ||
+      !configuration.get(BASE_DIR).isJsonPrimitive() ||
+      !configuration.get(BASE_DIR).getAsJsonPrimitive().isString()
     ) {
       throw new IllegalArgumentException("Recorded JavaScript project base directory is missing");
     }
-    var rawRoot = configuration.get("baseDir").getAsString();
+    var rawRoot = configuration.get(BASE_DIR).getAsString();
     var baseDir = rawRoot.replace('\\', '/');
     if (
       (!baseDir.startsWith("/") && !baseDir.matches("^[A-Za-z]:/.*")) ||
       (rawRoot.startsWith("\\") && !rawRoot.startsWith("\\\\")) ||
       baseDir.startsWith("//?/") ||
       baseDir.startsWith("//./") ||
-      (baseDir.startsWith("//") && !baseDir.matches("^//[^/]+/[^/]+.*"))
+      (baseDir.startsWith("//") && !baseDir.matches("^//[^/]++/[^/]++.*"))
     ) {
       throw new IllegalArgumentException(
         "Recorded JavaScript project base directory is not absolute"
@@ -79,14 +82,14 @@ final class ReplayProjectPaths {
     }
     var segments = new ArrayDeque<String>();
     for (var segment : relative.split("/")) {
-      if (segment.equals("..")) {
+      if ("..".equals(segment)) {
         if (segments.isEmpty()) {
           throw new IllegalArgumentException(
             "Replay file is outside the recorded project base directory"
           );
         }
         segments.removeLast();
-      } else if (!segment.isEmpty() && !segment.equals(".")) {
+      } else if (!segment.isEmpty() && !".".equals(segment)) {
         segments.addLast(segment);
       }
     }

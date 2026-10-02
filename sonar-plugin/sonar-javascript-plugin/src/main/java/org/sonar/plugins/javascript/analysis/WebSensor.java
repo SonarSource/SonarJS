@@ -274,51 +274,25 @@ public class WebSensor implements ProjectSensor {
     var restoredContextMetadata = sensorContext
       .config()
       .get(FilesystemCacheContext.RESTORED_CONTEXT_METADATA_PROPERTY);
+    var hasRestoredContext =
+      restoredArchive.isPresent() ||
+      restoredAnalysisMetadata.isPresent() ||
+      restoredContextMetadata.isPresent();
     if (!filesystemCacheContext.isSupported()) {
-      if (
-        restoredArchive.isPresent() ||
-        restoredAnalysisMetadata.isPresent() ||
-        restoredContextMetadata.isPresent()
-      ) {
+      if (hasRestoredContext) {
         throw new IllegalStateException("Restored JavaScript context is not supported");
       }
       return;
     }
-    if (
-      restoredArchive.isPresent() ||
-      restoredAnalysisMetadata.isPresent() ||
-      restoredContextMetadata.isPresent()
-    ) {
+    if (hasRestoredContext) {
       if (restoredArchive.isEmpty() || restoredAnalysisMetadata.isEmpty()) {
         throw new IllegalStateException("The restored JavaScript context is incomplete");
       }
-      var path = Path.of(restoredArchive.get()).toAbsolutePath().normalize();
-      var metadataPath = Path.of(restoredAnalysisMetadata.get()).toAbsolutePath().normalize();
-      if (
-        Files.isRegularFile(path) &&
-        Files.size(path) > 0 &&
-        Files.isRegularFile(metadataPath) &&
-        Files.size(metadataPath) > 0
-      ) {
-        if (restoredContextMetadata.isEmpty()) {
-          LOG.warn(
-            "Unsupported JavaScript context: collector metadata is missing; using no-context analysis"
-          );
-          return;
-        }
-        replayProjectPaths = ReplayProjectPaths.read(restoredContextMetadata.get());
-        if (replayProjectPaths == null) {
-          LOG.warn(
-            "Unsupported JavaScript context: no compatible recorded project base directory; using no-context analysis"
-          );
-          return;
-        }
-        filesystemCacheArchivePath = path;
-        analysisMetadataPath = metadataPath;
-        contextMetadata = restoredContextMetadata.get();
-      } else {
-        throw new IllegalStateException("The restored JavaScript context is missing or empty");
-      }
+      configureRestoredFilesystemCache(
+        restoredArchive.get(),
+        restoredAnalysisMetadata.get(),
+        restoredContextMetadata.orElse(null)
+      );
       return;
     }
 
@@ -332,6 +306,39 @@ public class WebSensor implements ProjectSensor {
     filesystemCacheArchivePath = archiveDirectory.resolve("archive.pb.gz");
     analysisMetadataPath = archiveDirectory.resolve("analysis-metadata.pb.gz");
     recordFilesystemCache = true;
+  }
+
+  private void configureRestoredFilesystemCache(
+    String archive,
+    String analysisMetadata,
+    @Nullable String metadata
+  ) throws IOException {
+    var path = Path.of(archive).toAbsolutePath().normalize();
+    var metadataPath = Path.of(analysisMetadata).toAbsolutePath().normalize();
+    if (
+      !Files.isRegularFile(path) ||
+      Files.size(path) == 0 ||
+      !Files.isRegularFile(metadataPath) ||
+      Files.size(metadataPath) == 0
+    ) {
+      throw new IllegalStateException("The restored JavaScript context is missing or empty");
+    }
+    if (metadata == null) {
+      LOG.warn(
+        "Unsupported JavaScript context: collector metadata is missing; using no-context analysis"
+      );
+      return;
+    }
+    replayProjectPaths = ReplayProjectPaths.read(metadata);
+    if (replayProjectPaths == null) {
+      LOG.warn(
+        "Unsupported JavaScript context: no compatible recorded project base directory; using no-context analysis"
+      );
+      return;
+    }
+    filesystemCacheArchivePath = path;
+    analysisMetadataPath = metadataPath;
+    contextMetadata = metadata;
   }
 
   private void collectFilesystemCache() {

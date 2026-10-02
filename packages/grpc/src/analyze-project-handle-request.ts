@@ -82,7 +82,8 @@ function beginFilesystemCacheAnalysis(
   if (!cache.archivePath) {
     throw new InvalidAnalyzeProjectRequestError('filesystem_cache.archive_path is required');
   }
-  if (!request.configuration?.baseDir) {
+  const baseDir = request.configuration?.baseDir;
+  if (!baseDir) {
     throw new InvalidAnalyzeProjectRequestError('configuration.base_dir is required');
   }
 
@@ -103,20 +104,13 @@ function beginFilesystemCacheAnalysis(
       // TypeScript's standard library belongs to this analyzer build, not the CI snapshot.
       path.dirname(ts.getDefaultLibFilePath({})),
       ...(request.bundles ?? []).map(bundle =>
-        path.dirname(
-          normalizeToAbsolutePath(bundle, normalizeToAbsolutePath(request.configuration!.baseDir!)),
-        ),
+        path.dirname(normalizeToAbsolutePath(bundle, normalizeToAbsolutePath(baseDir))),
       ),
       ...(request.rulesWorkdir
-        ? [
-            normalizeToAbsolutePath(
-              request.rulesWorkdir,
-              normalizeToAbsolutePath(request.configuration.baseDir),
-            ),
-          ]
+        ? [normalizeToAbsolutePath(request.rulesWorkdir, normalizeToAbsolutePath(baseDir))]
         : []),
     ],
-    rootDir: request.configuration.baseDir,
+    rootDir: baseDir,
   });
 }
 
@@ -176,8 +170,9 @@ function beginAnalysisSessions(
     sessions.programSelection = beginAnalysisMetadata(request, cacheMode);
     if (cacheMode === 'replay') {
       sessions.paths = new ReplayProjectPaths(request);
-      const recordedBaseDir = sessions.programSelection?.replayBaseDir();
-      if (!recordedBaseDir || !path.isAbsolute(recordedBaseDir)) {
+      const programSelection = sessions.programSelection;
+      const recordedBaseDir = programSelection?.replayBaseDir();
+      if (!programSelection || !recordedBaseDir || !path.isAbsolute(recordedBaseDir)) {
         warn(
           'Unsupported SonarJS context: no compatible recorded project base directory; falling back to source-only analysis',
         );
@@ -186,7 +181,7 @@ function beginAnalysisSessions(
         return;
       }
       sessions.paths.useRecordedBaseDir(recordedBaseDir, file =>
-        sessions.programSelection!.canonicalRequestedFile(file),
+        programSelection.canonicalRequestedFile(file),
       );
     }
     sessions.filesystemCacheSession = beginFilesystemCacheAnalysis(request, cacheMode);
@@ -216,6 +211,7 @@ async function normalizeProjectInput(
   if (
     cacheMode !== 'replay' ||
     !sessions.programSelection ||
+    !sessions.paths ||
     input.rules.length === 0 ||
     input.configuration.disableTypeChecking
   ) {
@@ -235,11 +231,11 @@ async function normalizeProjectInput(
   endAnalysisSessions(sessions.programSelection, sessions.filesystemCacheSession);
   sessions.programSelection = undefined;
   sessions.filesystemCacheSession = undefined;
-  sessions.paths!.restoreSourceOnlyRequest();
+  sessions.paths.restoreSourceOnlyRequest();
   // Reinitialize the stores without the replay archive or recorded CI settings.
   // This follows the same tsconfig/orphan-program path as a request with no context.
   const fallback = await normalizeAnalyzeProjectRequest(request);
-  sessions.paths!.restoreResponsePaths(fallback.pathMap);
+  sessions.paths.restoreResponsePaths(fallback.pathMap);
   return fallback;
 }
 

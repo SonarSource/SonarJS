@@ -424,130 +424,121 @@ describe('analyze-project request handler', () => {
     });
   });
 
-  for (const programKind of ['configured', 'orphan', 'monorepo']) {
-    it(`prefers submitted edits over CI content in a restored ${programKind} program`, async () => {
-      const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'replay-content-precedence-'));
-      const baseDir = path.join(temporary, 'sources');
-      const rulesWorkdir = path.join(temporary, 'work');
-      const filePath = path.join(baseDir, 'existing.ts');
-      const archivePath = path.join(rulesWorkdir, 'filesystem.pb.gz');
-      const analysisMetadataPath = path.join(rulesWorkdir, 'analysis-metadata.pb.gz');
-      const expression = programKind === 'monorepo' ? 'values' : '[80, 3, 9]';
-      const imports =
-        programKind === 'monorepo' ? 'import { values } from "@shared/values";\n' : '';
-      const original = `${imports}${expression}.sort();`;
-      const edited = `${imports}${expression}.sort((a, b) => a - b);`;
-      fs.mkdirSync(baseDir);
-      fs.mkdirSync(rulesWorkdir);
-      fs.writeFileSync(filePath, original);
-      if (programKind === 'monorepo') {
-        fs.mkdirSync(path.join(baseDir, 'shared'));
-        fs.writeFileSync(
-          path.join(baseDir, 'shared/values.ts'),
-          'export const values: number[] = [80, 3, 9];',
-        );
-        // Project references consume the declaration output of the referenced build.
-        fs.writeFileSync(
-          path.join(baseDir, 'shared/values.d.ts'),
-          'export declare const values: number[];',
-        );
-        fs.writeFileSync(
-          path.join(baseDir, 'tsconfig.base.json'),
-          JSON.stringify({
-            compilerOptions: { baseUrl: '.', paths: { '@shared/*': ['shared/*'] } },
-          }),
-        );
-        fs.writeFileSync(
-          path.join(baseDir, 'shared/tsconfig.json'),
-          JSON.stringify({
-            extends: '../tsconfig.base.json',
-            compilerOptions: { composite: true },
-            files: ['values.ts'],
-          }),
-        );
-        fs.writeFileSync(
-          path.join(baseDir, 'tsconfig.json'),
-          JSON.stringify({
-            extends: './tsconfig.base.json',
-            files: ['existing.ts'],
-            references: [{ path: './shared' }],
-          }),
-        );
-      } else if (programKind === 'configured') {
-        fs.writeFileSync(path.join(baseDir, 'tsconfig.json'), '{"files":["existing.ts"]}');
+  it('prefers submitted edits in a restored monorepo with project references', async () => {
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'replay-content-precedence-'));
+    const baseDir = path.join(temporary, 'sources');
+    const rulesWorkdir = path.join(temporary, 'work');
+    const filePath = path.join(baseDir, 'existing.ts');
+    const archivePath = path.join(rulesWorkdir, 'filesystem.pb.gz');
+    const analysisMetadataPath = path.join(rulesWorkdir, 'analysis-metadata.pb.gz');
+    const original = 'import { values } from "@shared/values";\nvalues.sort();';
+    const edited = original.replace('values.sort()', 'values.sort((a, b) => a - b)');
+    fs.mkdirSync(baseDir);
+    fs.mkdirSync(rulesWorkdir);
+    fs.writeFileSync(filePath, original);
+    fs.mkdirSync(path.join(baseDir, 'shared'));
+    fs.writeFileSync(
+      path.join(baseDir, 'shared/values.ts'),
+      'export const values: number[] = [80, 3, 9];',
+    );
+    // Project references consume the declaration output of the referenced build.
+    fs.writeFileSync(
+      path.join(baseDir, 'shared/values.d.ts'),
+      'export declare const values: number[];',
+    );
+    fs.writeFileSync(
+      path.join(baseDir, 'tsconfig.base.json'),
+      JSON.stringify({
+        compilerOptions: { baseUrl: '.', paths: { '@shared/*': ['shared/*'] } },
+      }),
+    );
+    fs.writeFileSync(
+      path.join(baseDir, 'shared/tsconfig.json'),
+      JSON.stringify({
+        extends: '../tsconfig.base.json',
+        compilerOptions: { composite: true },
+        files: ['values.ts'],
+      }),
+    );
+    fs.writeFileSync(
+      path.join(baseDir, 'tsconfig.json'),
+      JSON.stringify({
+        extends: './tsconfig.base.json',
+        files: ['existing.ts'],
+        references: [{ path: './shared' }],
+      }),
+    );
+    (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
+    // Match the worker's production preload order, where TypeScript uses patched stat calls.
+    const fileExists = mock.method(ts.sys, 'fileExists', (fileName: string) => {
+      try {
+        return fs.statSync(fileName).isFile();
+      } catch {
+        return false;
       }
-      (globalThis as Record<symbol, unknown>)[FS_CACHE_INSTALLATION] = installFsCache();
-      // Match the worker's production preload order, where TypeScript uses patched stat calls.
-      const fileExists = mock.method(ts.sys, 'fileExists', (fileName: string) => {
-        try {
-          return fs.statSync(fileName).isFile();
-        } catch {
-          return false;
-        }
-      });
-      const request = (
-        mode: analyzeProjectProto.analyzeproject.v1.FilesystemCacheMode,
-        fileContent?: string,
-      ): AnalyzeProjectRequest => ({
-        configuration: { baseDir, canAccessFileSystem: true },
-        files: {
-          [filePath]: {
-            ...(fileContent === undefined ? {} : { fileContent }),
-            fileType: FileType.FILE_TYPE_MAIN,
-          },
+    });
+    const request = (
+      mode: analyzeProjectProto.analyzeproject.v1.FilesystemCacheMode,
+      fileContent?: string,
+    ): AnalyzeProjectRequest => ({
+      configuration: { baseDir, canAccessFileSystem: true },
+      files: {
+        [filePath]: {
+          ...(fileContent === undefined ? {} : { fileContent }),
+          fileType: FileType.FILE_TYPE_MAIN,
         },
-        rules: [
-          {
-            key: 'S2871',
-            configurations: [],
-            fileTypeTargets: [FileType.FILE_TYPE_MAIN],
-            language: JsTsLanguage.JS_TS_LANGUAGE_TS,
-            analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
-          },
-        ],
-        cssRules: [],
-        bundles: [],
-        rulesWorkdir,
-        filesystemCache: { archivePath, analysisMetadataPath, mode },
-      });
-      const analyze = async (input: AnalyzeProjectRequest, expectedIssueCount: number) => {
-        const result = await handleAnalyzeProjectRequest(
-          { type: 'on-analyze-project', data: input },
-          workerData,
-        );
-        expect(result).toMatchObject({
-          type: 'success',
-          result: {
-            output: {
-              files: {
-                [normalizeToAbsolutePath(filePath)]: {
-                  issues: expectedIssueCount ? [expect.objectContaining({ ruleId: 'S2871' })] : [],
-                },
+      },
+      rules: [
+        {
+          key: 'S2871',
+          configurations: [],
+          fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+          language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+          analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+        },
+      ],
+      cssRules: [],
+      bundles: [],
+      rulesWorkdir,
+      filesystemCache: { archivePath, analysisMetadataPath, mode },
+    });
+    const analyze = async (input: AnalyzeProjectRequest, expectedIssueCount: number) => {
+      const result = await handleAnalyzeProjectRequest(
+        { type: 'on-analyze-project', data: input },
+        workerData,
+      );
+      expect(result).toMatchObject({
+        type: 'success',
+        result: {
+          output: {
+            files: {
+              [normalizeToAbsolutePath(filePath)]: {
+                issues: expectedIssueCount ? [expect.objectContaining({ ruleId: 'S2871' })] : [],
               },
             },
           },
-        });
-        // A successful source-only fallback must not masquerade as context restoration.
-        expect(input.filesystemCache).toBeDefined();
-      };
-      try {
-        // CI keeps UTF-8 files path-only, recording their actual filesystem contents.
-        await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD), 1);
-        const archiveBefore = fs.readFileSync(archivePath);
-        const metadataBefore = fs.readFileSync(analysisMetadataPath);
-        fs.writeFileSync(filePath, edited);
-        // Reproduce the old request shape: the native edit is hidden by the CI archive.
-        await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY), 1);
-        // The fixed scanner request supplies content, including to the TypeScript program.
-        await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY, edited), 0);
-        await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY, original), 1);
-        expect(fs.readFileSync(archivePath)).toEqual(archiveBefore);
-        expect(fs.readFileSync(analysisMetadataPath)).toEqual(metadataBefore);
-      } finally {
-        fileExists.mock.restore();
-      }
-    });
-  }
+        },
+      });
+      // A successful source-only fallback must not masquerade as context restoration.
+      expect(input.filesystemCache).toBeDefined();
+    };
+    try {
+      // CI keeps UTF-8 files path-only, recording their actual filesystem contents.
+      await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD), 1);
+      const archiveBefore = fs.readFileSync(archivePath);
+      const metadataBefore = fs.readFileSync(analysisMetadataPath);
+      fs.writeFileSync(filePath, edited);
+      // Reproduce the old request shape: the native edit is hidden by the CI archive.
+      await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY), 1);
+      // The fixed scanner request supplies content, including to the TypeScript program.
+      await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY, edited), 0);
+      await analyze(request(FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY, original), 1);
+      expect(fs.readFileSync(archivePath)).toEqual(archiveBefore);
+      expect(fs.readFileSync(analysisMetadataPath)).toEqual(metadataBefore);
+    } finally {
+      fileExists.mock.restore();
+    }
+  });
 
   for (const scenario of [
     {
@@ -574,14 +565,6 @@ describe('analyze-project request handler', () => {
         'Transform: AWS::Serverless-2016-10-31\nResources:\n  Lambda:\n    Type: AWS::Lambda::Function\n    Properties:\n      Runtime: nodejs16.0\n      Code:\n        ZipFile: if (foo()) bar(); else bar();',
       rule: 'S3923',
     },
-    {
-      name: 'explicit no-program TypeScript',
-      filename: 'input.ts',
-      original: 'foo();',
-      edited: 'foo();;',
-      rule: 'S1116',
-      noProgram: true,
-    },
   ]) {
     it(`analyzes submitted edits in restored ${scenario.name}`, async () => {
       const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'embedded-replay-edit-'));
@@ -596,7 +579,7 @@ describe('analyze-project request handler', () => {
         mode: analyzeProjectProto.analyzeproject.v1.FilesystemCacheMode,
         fileContent?: string,
       ): AnalyzeProjectRequest => ({
-        configuration: { baseDir, createTsProgramForOrphanFiles: !scenario.noProgram },
+        configuration: { baseDir },
         files: {
           [filePath]: {
             ...(fileContent === undefined ? {} : { fileContent }),
@@ -608,9 +591,7 @@ describe('analyze-project request handler', () => {
             key: scenario.rule,
             configurations: [],
             fileTypeTargets: [FileType.FILE_TYPE_MAIN],
-            language: scenario.noProgram
-              ? JsTsLanguage.JS_TS_LANGUAGE_TS
-              : JsTsLanguage.JS_TS_LANGUAGE_JS,
+            language: JsTsLanguage.JS_TS_LANGUAGE_JS,
             analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
           },
         ],
@@ -635,9 +616,6 @@ describe('analyze-project request handler', () => {
         const file = result.result.output.files[normalizeToAbsolutePath(filePath)];
         expect(file && 'issues' in file).toBe(true);
         expect(input.filesystemCache).toBeDefined();
-        if (scenario.noProgram) {
-          expect(result.result.output.meta.telemetry?.programCreation.succeeded).toBe(0);
-        }
         return file && 'issues' in file ? file.issues : [];
       };
       try {

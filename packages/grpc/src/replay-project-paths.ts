@@ -35,9 +35,13 @@ export class ReplayProjectPaths {
   private readonly originalPaths = new Map<string, string>();
 
   constructor(private readonly request: AnalyzeProjectProtoRequest) {
+    const baseDir = request.configuration?.baseDir;
+    if (!baseDir) {
+      throw new InvalidAnalyzeProjectRequestError('configuration.base_dir is required');
+    }
     this.configuration = { ...request.configuration };
     this.files = request.files;
-    this.requestBaseDir = normalizeProjectRoot(request.configuration!.baseDir!);
+    this.requestBaseDir = normalizeProjectRoot(baseDir);
     if (
       request.filesystemCache?.fallbackBaseDir &&
       !isAbsolutePath(request.filesystemCache.fallbackBaseDir)
@@ -67,7 +71,7 @@ export class ReplayProjectPaths {
       );
     }
     this.request.files = this.relocateFiles(baseDir, true, canonicalFile);
-    this.request.configuration!.baseDir = baseDir;
+    this.request.configuration = { ...this.request.configuration, baseDir };
   }
 
   restoreSourceOnlyRequest(): void {
