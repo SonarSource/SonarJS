@@ -33,6 +33,9 @@ describe('S7652', () => {
           code: `${angular} class C { onRefresh = output({ alias: 'refresh' }); }`,
         },
         {
+          code: `${angular} class C { onRefresh = output({ 'alias': 'refresh' }); }`,
+        },
+        {
           code: `${angular} class C { onRefresh = output({ alias: 'online' }); }`,
         },
         {
@@ -49,6 +52,9 @@ describe('S7652', () => {
         },
         {
           code: `${angular} @Component({ outputs: ['onRefresh: refresh'] }) class C {}`,
+        },
+        {
+          code: `${angular} @Component({ outputs: ['onRefresh'] }) class C { @Output('refresh') onRefresh = new EventEmitter(); }`,
         },
         {
           code: `${angular} @Component({ outputs: [\`onRefresh: refresh\`] }) class C {}`,
@@ -86,12 +92,20 @@ describe('S7652', () => {
           errors: 1,
         },
         {
+          code: `${angular} class C { @Output('') onRefresh = new EventEmitter(); }`,
+          errors: 1,
+        },
+        {
           code: `${angular} class C { @Output(name) onRefresh = new EventEmitter(); }`,
           errors: 1,
         },
         {
           code: `${angular} class C { @Output('onSave') onRefresh = new EventEmitter(); }`,
           errors: 2,
+        },
+        {
+          code: `${angular} @Component({ outputs: ['onRefresh: refresh'] }) class C { @Output('onSave') onRefresh = new EventEmitter(); }`,
+          errors: 3,
         },
         {
           code: `${angular} @Component({ outputs: ['onRefresh'] }) class C {}`,
@@ -122,6 +136,10 @@ describe('S7652', () => {
           errors: 1,
         },
         {
+          code: `${angular} class C { onRefresh = output({ 'alias': 'refresh' }); }`,
+          errors: 1,
+        },
+        {
           code: `${angular} class C { onRefresh = output({ alias: 'online' }); }`,
           errors: 1,
         },
@@ -144,6 +162,10 @@ describe('S7652', () => {
         {
           code: `${angular} @Component({ outputs: ['onRefresh: refresh'] }) class C {}`,
           errors: 1,
+        },
+        {
+          code: `${angular} @Component({ outputs: ['onRefresh'] }) class C { @Output('refresh') onRefresh = new EventEmitter(); }`,
+          errors: 2,
         },
         {
           code: `${angular} @Component({ outputs: [\`onRefresh: refresh\`] }) class C {}`,

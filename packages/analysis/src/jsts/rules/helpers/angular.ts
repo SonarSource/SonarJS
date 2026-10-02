@@ -50,6 +50,14 @@ function propertyName(property: TSESTree.Property): string | undefined {
   return !property.computed && property.key.type === 'Identifier' ? property.key.name : undefined;
 }
 
+/** Accepts direct identifier or string keys such as `{ 'alias': 'refresh' }`. */
+function optionPropertyName(property: TSESTree.Property): string | undefined {
+  if (property.computed) {
+    return undefined;
+  }
+  return propertyName(property) ?? staticText(property.key as TSESTree.Node);
+}
+
 /** Recognizes the Angular `output({ alias: 'refresh' })` property initializer. */
 function outputAliasFromCall(
   context: Rule.RuleContext,
@@ -71,7 +79,7 @@ function outputAliasFromCall(
     return undefined;
   }
   const properties = options.properties as TSESTree.Property[];
-  const aliases = properties.filter(property => propertyName(property) === 'alias');
+  const aliases = properties.filter(property => optionPropertyName(property) === 'alias');
   return aliases.length === 1 ? staticText(aliases[0].value) : undefined;
 }
 
@@ -89,7 +97,23 @@ function outputAliasFromDecorator(
     );
   });
   const expression = outputDecorator?.expression;
-  return expression?.type === 'CallExpression' ? staticText(expression.arguments[0]) : undefined;
+  const alias =
+    expression?.type === 'CallExpression' ? staticText(expression.arguments[0]) : undefined;
+  return alias || undefined;
+}
+
+function hasOutputDecorator(
+  context: Rule.RuleContext,
+  member: TSESTree.PropertyDefinition | TSESTree.MethodDefinition,
+): boolean {
+  return member.decorators.some(decorator => {
+    const expression = decorator.expression;
+    return (
+      expression.type === 'CallExpression' &&
+      getFullyQualifiedName(context, expression.callee as unknown as estree.Node) ===
+        `${ANGULAR_CORE}.Output`
+    );
+  });
 }
 
 /** Recognizes Angular component decorators such as `@Component({ outputs: [...] })`. */
@@ -157,22 +181,53 @@ function isHostDirectiveOutputMapping(context: Rule.RuleContext, node: TSESTree.
   );
 }
 
+/** Returns a member decorator's alias when it overrides an `outputs` metadata entry. */
+function overridingMemberOutputAlias(
+  context: Rule.RuleContext,
+  node: TSESTree.Node,
+  internalName: string,
+): string | undefined | null {
+  const mapping = mappingNode(node);
+  const classDeclaration = mapping.parent?.parent?.parent?.parent?.parent?.parent;
+  if (classDeclaration?.type !== 'ClassDeclaration') {
+    return null;
+  }
+  const member = classDeclaration.body.body.find(
+    candidate =>
+      (candidate.type === 'PropertyDefinition' || candidate.type === 'MethodDefinition') &&
+      !candidate.computed &&
+      candidate.key.type === 'Identifier' &&
+      candidate.key.name === internalName &&
+      hasOutputDecorator(context, candidate),
+  );
+  return member && (member.type === 'PropertyDefinition' || member.type === 'MethodDefinition')
+    ? outputAliasFromDecorator(context, member)
+    : null;
+}
+
 /** Reads `refresh` from an already-recognized `onRefresh: refresh` metadata mapping. */
 function outputAliasFromMetadata(
   context: Rule.RuleContext,
   node: TSESTree.Node,
 ): string | undefined {
-  if (!isMetadataOutputMapping(context, node) && !isHostDirectiveOutputMapping(context, node)) {
+  const isMetadataMapping = isMetadataOutputMapping(context, node);
+  if (!isMetadataMapping && !isHostDirectiveOutputMapping(context, node)) {
     return undefined;
   }
   const mapping = staticText(node);
   const separator = mapping?.indexOf(':') ?? -1;
-  if (separator <= 0 || mapping?.indexOf(':', separator + 1) !== -1) {
+  if (separator === 0 || mapping?.indexOf(':', separator + 1) !== -1) {
     return undefined;
   }
-  const internalName = mapping.slice(0, separator).trim();
-  const alias = mapping.slice(separator + 1).trim();
-  return internalName && alias ? alias : undefined;
+  const internalName = separator === -1 ? mapping?.trim() : mapping?.slice(0, separator).trim();
+  const alias = separator === -1 ? internalName : mapping?.slice(separator + 1).trim();
+  if (!internalName || !alias) {
+    return undefined;
+  }
+  const memberAlias = isMetadataMapping
+    ? overridingMemberOutputAlias(context, node, internalName)
+    : null;
+  return memberAlias === null ? alias : memberAlias;
 }
 
 /** Returns the explicit public alias for an Angular output declaration or metadata mapping. */
