@@ -22,6 +22,11 @@ import { getFullyQualifiedName } from './module.js';
 
 const ANGULAR_CORE = '@angular.core';
 
+export interface AngularMetadataOutput {
+  classNode: TSESTree.ClassDeclaration;
+  name: string;
+}
+
 /** Returns text from `'refresh'` or `` `refresh` ``, but never from dynamic expressions. */
 function staticText(node: TSESTree.Node | undefined): string | undefined {
   if (node && isStringLiteral(node as unknown as estree.Node)) {
@@ -64,11 +69,7 @@ function outputAliasFromCall(
   member: TSESTree.PropertyDefinition,
 ): string | undefined {
   const call = member.value;
-  if (
-    call?.type !== 'CallExpression' ||
-    getFullyQualifiedName(context, call.callee as unknown as estree.Node) !==
-      `${ANGULAR_CORE}.output`
-  ) {
+  if (call?.type !== 'CallExpression' || !isAngularOutputCall(context, member)) {
     return undefined;
   }
   const options = call.arguments[0];
@@ -81,6 +82,18 @@ function outputAliasFromCall(
   const properties = options.properties as TSESTree.Property[];
   const aliases = properties.filter(property => optionPropertyName(property) === 'alias');
   return aliases.length === 1 ? staticText(aliases[0].value) : undefined;
+}
+
+/** Recognizes an Angular `output()` property initializer. */
+export function isAngularOutputCall(
+  context: Rule.RuleContext,
+  member: TSESTree.PropertyDefinition,
+): boolean {
+  return (
+    member.value?.type === 'CallExpression' &&
+    getFullyQualifiedName(context, member.value.callee as unknown as estree.Node) ===
+      `${ANGULAR_CORE}.output`
+  );
 }
 
 /** Recognizes the Angular `@Output('refresh')` field or getter decorator. */
@@ -155,6 +168,55 @@ function isMetadataOutputMapping(context: Rule.RuleContext, node: TSESTree.Node)
     componentCall?.type === 'CallExpression' &&
     isAngularCoreDecorator(context, decorator, 'Component', 'Directive')
   );
+}
+
+/** Returns the metadata output name and its declaring class for a direct static `outputs` entry. */
+export function getAngularMetadataOutput(
+  context: Rule.RuleContext,
+  node: TSESTree.Node,
+): AngularMetadataOutput | undefined {
+  const name = staticText(node);
+  const decorator = isMetadataOutputMapping(context, node)
+    ? mappingNode(node).parent?.parent?.parent?.parent?.parent
+    : undefined;
+  const classNode = decorator?.parent;
+  return name !== undefined && classNode?.type === 'ClassDeclaration'
+    ? { classNode, name }
+    : undefined;
+}
+
+/** Returns every name in complete static `outputs` metadata, or `undefined` for unsupported forms. */
+export function getAngularStaticOutputNames(
+  context: Rule.RuleContext,
+  classNode: TSESTree.ClassDeclaration,
+): string[] | undefined {
+  const decorator = classNode.decorators.find(decorator =>
+    isAngularCoreDecorator(context, decorator, 'Component', 'Directive'),
+  );
+  const componentCall = decorator?.expression;
+  if (componentCall?.type !== 'CallExpression' || componentCall.arguments.length !== 1) {
+    return undefined;
+  }
+  const argument = componentCall.arguments[0];
+  if (argument?.type !== 'ObjectExpression' || argument.properties.some(isNotProperty)) {
+    return undefined;
+  }
+  const outputs = (argument.properties as TSESTree.Property[]).filter(
+    property => propertyName(property) === 'outputs',
+  );
+  if (outputs.length !== 1 || outputs[0].value.type !== 'ArrayExpression') {
+    return undefined;
+  }
+  const names = outputs[0].value.elements.map(element =>
+    element ? staticText(element as TSESTree.Node) : undefined,
+  );
+  return names.some(name => name === undefined || name.includes(':'))
+    ? undefined
+    : (names as string[]);
+}
+
+function isNotProperty(node: TSESTree.Property | TSESTree.SpreadElement): boolean {
+  return node.type !== 'Property';
 }
 
 /** Recognizes `@Directive({ hostDirectives: [{ outputs: ['onRefresh: refresh'] }] })` mappings. */
