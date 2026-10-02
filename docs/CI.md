@@ -309,6 +309,7 @@ These are the small data items passed as job outputs or step outputs, not bulky 
 | ------------------ | ------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | `setup`            | `node-matrix`       | Node-matrix plugin QA jobs                                  | Derived from `package.json` engine range                                                       |
 | `setup`            | `js-files-hash`     | `test_js`, `test_js_win`                                    | Cache key seed for JS coverage and Windows JS marker, including workflow and dependency inputs |
+| `prepare_rspec_rule_data` | `test-input-hash` | `test_js`, `test_js_win` | Digest of refreshed JS and CSS rule resources used to invalidate test skip caches |
 | `setup`            | `maven-hash`        | all Maven cache users                                       | Cache key seed for Maven dependencies                                                          |
 | `setup`            | `npm-hash`          | all `node_modules` producers/consumers                      | Exact cache key seed for installed Node dependencies                                           |
 | `setup`            | `cache-month`       | Maven cache steps                                           | Monthly key rotation value                                                                     |
@@ -363,8 +364,8 @@ That is exactly artifact semantics, not cache semantics.
 | -------------------------- | ---------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | installed NPM dependencies | `node_modules`                     | `populate_npm_cache`, `populate_npm_cache_win`                       | `build`, `build_win`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `knip`, `test_js`, `test_js_win`, `analyze_primary`, `analyze_shadows`, `js_ts_ruling` | `npm-${runner.os}-${npm-hash}`                                                           | producer jobs use `actions/cache` with `lookup-only: true`; save happens only after a miss and a successful install |
 | CycloneDX CLI              | `~/.cache/cyclonedx-cli`           | `build`, `build_win`                                                 | `build`, `build_win`                                                                                                                                           | `cyclonedx-cli-${runner.os}-${runner.arch}-${hashFiles('tools/merge-cyclonedx-bom.sh')}` | immutable, checksum-verified native CLI used only by the opt-in Maven `sbom` profile                                |
-| JS coverage cache          | `coverage/js`                      | `test_js`                                                            | `test_js` itself                                                                                                                                               | `js-coverage-${runner.os}-${js-files-hash}`                                              | combined restore/save cache; allows skip when exact coverage already exists                                         |
-| Windows JS marker          | `.js-test-marker-win`              | `test_js_win`                                                        | `test_js_win` itself                                                                                                                                           | `js-test-win-${runner.os}-${js-files-hash}`                                              | lookup-only probe; on miss the job runs tests and saves marker at job end                                           |
+| JS coverage cache          | `coverage/js`                      | `test_js`                                                            | `test_js` itself                                                                                                                                               | `js-coverage-${runner.os}-${js-files-hash}-${test-input-hash}`                          | combined restore/save cache; allows skip when exact coverage already exists                                         |
+| Windows JS marker          | `.js-test-marker-win`              | `test_js_win`                                                        | `test_js_win` itself                                                                                                                                           | `js-test-win-${runner.os}-${js-files-hash}-${test-input-hash}`                          | lookup-only probe; on miss the job runs tests and saves marker at job end                                           |
 | Maven repository           | `~/.m2/repository`                 | `build`, plus default-branch `build_win`, through `actions/cache`    | all Maven cache users                                                                                                                                          | `maven-${runner.os}-${cache-month}-${maven-hash}` plus monthly restore prefix            | Linux build saves on every eligible run; Windows build saves only on the default branch; other jobs restore only    |
 | Orchestrator home          | `${github.workspace}/orchestrator` | one normal and one fast QA owner per OS through `orchestrator-cache` | orchestrator-based QA/ruling jobs                                                                                                                              | `${key-prefix}-${month}-${github.run_id}` with monthly restore prefix                    | all jobs restore; one Linux and one Windows owner per cache family save only on the default branch                  |
 | Rule API clone/cache       | `$HOME/.sonar/rule-api`            | default-branch `prepare_rspec_rule_data` through `rule-api-cache`    | `prepare_rspec_rule_data`                                                                                                                                      | `${key-prefix}-${github.run_id}` with prefix restore                                     | only default branch saves unless `save: false`                                                                      |
@@ -657,7 +658,7 @@ Responsibilities:
 - upload coverage reports artifact for analysis jobs
 
 This job is both a cache consumer and a cache producer.
-Its skip cache is keyed on both source inputs and workflow/dependency inputs so CI or Node changes do not silently reuse stale success.
+Its skip cache is keyed on source, workflow, and dependency inputs, plus a digest of the refreshed RSPEC rule resources. Changes to generated test inputs therefore cannot silently reuse stale success.
 
 #### `test_js_win`
 
@@ -667,7 +668,7 @@ Responsibilities:
 - on miss, restore `node_modules`, download refreshed RSPEC data, generate metadata, compile bridge, run JS tests
 - create marker directory so the post step can save it
 
-Like `test_js`, its skip key includes workflow/dependency inputs in addition to source inputs.
+Like `test_js`, its skip key includes workflow and dependency inputs and the refreshed RSPEC rule-resource digest in addition to source inputs.
 
 ### Analysis, QA, and ruling fan-out
 
@@ -783,25 +784,37 @@ Repox is the repository manager behind both npm and Maven flows here.
 
 #### npm
 
-Both Linux and Windows cache-population jobs:
+Linux, Windows, and ESLint jobs that install packages:
 
 - fetch a private-reader token from Vault
-- run:
-  - `npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=...`
-  - `npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/`
+- wait for Edge token federation on self-hosted / WarpBuild (`runner.environment != github-hosted`)
+- point `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/` on those runners
+- rewrite lockfile `resolved` hosts from `repox.jfrog.io` onto that registry (`replace-registry-host`), and keep a SaaS `_authToken` as fallback
+- GitHub-hosted jobs keep `https://repox.jfrog.io/artifactory/api/npm/npm/`
+- the ESLint plugin extra `npm install` (not in the lockfile) stays on SaaS via `npm_config_registry`
+- ESLint plugin tests have no lockfile: they skip `configure-npm-registry` entirely and stay on SaaS (Edge 404s npm metadata on both `npm` and `npmjs`; `replace-registry-host` would also rewrite tarball hosts back to Edge)
+
+Publish / promote (eslint-plugin release, `jfrog rt npm-publish`) stay on SaaS.
 
 #### Maven
 
 `config-maven`:
 
-- defaults `repox-url` to `https://repox.jfrog.io`
+- defaults `repox-url` to `https://repox.jfrog.io` so Vault tokens and **publish** (`ARTIFACTORY_URL` → `artifactory-maven-plugin`) stay on SaaS
 - writes Maven `settings.xml`
 - sets `SONARSOURCE_REPOSITORY_URL=$ARTIFACTORY_URL/sonarsource-qa`
 - exports authentication environment variables for Maven
 
-`build` additionally fetches deployer credentials and pushes to `sonarsource-public-qa`.
+On self-hosted / WarpBuild, `point-maven-resolve-at-edge` then:
 
-`promote` later promotes the produced build info/artifacts in Artifactory.
+- waits for Edge token federation against the `sonarsource` virtual repo
+- overrides `SONARSOURCE_REPOSITORY_URL` to `https://repox-internal.dev.sonar.build/artifactory/sonarsource-qa` (Maven mirror/resolve only)
+
+GitHub-hosted jobs skip that override and keep resolving from SaaS.
+
+`build` additionally fetches deployer credentials and pushes to `sonarsource-public-qa` on SaaS.
+
+`promote` later promotes the produced build info/artifacts in Artifactory (SaaS).
 
 ### Vault
 
@@ -903,7 +916,7 @@ Also note: `install_args_hash` already differentiates jobs with different `insta
 
 ### Keeping the JS unit-test skip-cache honest
 
-`setup`'s `js-files-hash` step (`build.yml`, "Compute JS test hash for skip caching") hashes a `find` list that includes `mise.toml`. This matters because `test_js`/`test_js_win` use that hash as their skip-cache key: on a hit, `test_js` skips checkout/mise/npm/test entirely but still runs its unconditional coverage-upload step, publishing whatever coverage was already in the restored cache; `test_js_win` is a `lookup-only` marker with no upload step at all, so its failure mode is simpler but just as invisible — it reports green having run nothing. Before `mise.toml` existed, the tool versions lived inside `build.yml` itself, which _is_ in that hash, so a version bump correctly invalidated the skip cache and forced a real re-run. `mise.toml` has to stay in that `find` list for the same property to hold: without it, bumping `mise.toml` alone would hit the stale cache and never re-run on the new toolchain.
+`setup`'s `js-files-hash` step (`build.yml`, "Compute JS test hash for skip caching") hashes a `find` list that includes `mise.toml`. The skip-cache keys for `test_js` and `test_js_win` combine that hash with `prepare_rspec_rule_data`'s `test-input-hash`, computed after refreshing the generated JS and CSS rule resources. On a hit, `test_js` skips checkout/mise/npm/test entirely but still runs its unconditional coverage-upload step, publishing whatever coverage was already in the restored cache; `test_js_win` is a `lookup-only` marker with no upload step at all, so its failure mode is simpler but just as invisible — it reports green having run nothing. Before `mise.toml` existed, the tool versions lived inside `build.yml` itself, which _is_ in `js-files-hash`, so a version bump correctly invalidated the skip cache and forced a real re-run. `mise.toml` has to stay in that `find` list for the same property to hold: without it, bumping `mise.toml` alone would hit the stale cache and never re-run on the new toolchain.
 
 Being _in_ the hash isn't sufficient on its own, though — the hash is over `mise.toml`'s _text_, not the version mise actually resolves at runtime. A fuzzy spec like `node = "24.11"` has the same declared text before and after a new `24.11.x` patch ships, so the skip-cache key wouldn't change even though the Node runtime under test would. That's why `node` is pinned to an exact version (`24.11.1`) above rather than left fuzzy like `java`/`maven`: `java`/`maven`'s exact patch doesn't affect `test_js`'s behavior (that job never touches Maven, and Java only matters to Maven-based jobs, which have no equivalent skip-cache), but Node's does, so Node's declared and resolved versions have to be the same value at all times. See [Why Node is pinned exactly, and every other version is a fuzzy minor spec](#why-node-is-pinned-exactly-and-every-other-version-is-a-fuzzy-minor-spec) below.
 

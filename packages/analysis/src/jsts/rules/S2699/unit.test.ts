@@ -1092,6 +1092,29 @@ test('recognizes typed Playwright expect.poll', async () => {
         },
         {
           code: `
+import request from 'supertest';
+
+describe('typed Supertest assertions', () => {
+  it('recognizes a direct assertion', async () => {
+    await request(app).get('/foo').expect(200);
+  });
+
+  it('recognizes an assertion after sending a body', async () => {
+    await request(app).post('/foo').send({ a: 1 }).expect(201);
+  });
+
+  it('recognizes an assertion after setting a header', async () => {
+    await request(app).get('/foo').set('Authorization', 'token').expect(200);
+  });
+
+  it('recognizes an assertion after setting a header and sending a body', async () => {
+    await request(app).post('/foo').set('Authorization', 'token').send({ a: 1 }).expect(201);
+  });
+});
+`,
+        },
+        {
+          code: `
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
@@ -1249,6 +1272,22 @@ test('member-based playwright expect entrypoints', async ({ page }) => {
         },
       ],
       invalid: [
+        {
+          code: `
+import request from 'supertest';
+
+describe('typed Supertest requests without assertions', () => {
+  it('only sends a body', async () => {
+    await request(app).post('/foo').send({ a: 1 });
+  });
+
+  it('only sets a header', async () => {
+    await request(app).get('/foo').set('Authorization', 'token');
+  });
+});
+`,
+          errors: 2,
+        },
         {
           code: `
 import test from 'node:test';
