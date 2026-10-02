@@ -25,6 +25,24 @@ const { rules: upstreamRules } = pkg as unknown as { rules: Record<string, Rule.
 describe('S7652', () => {
   const ruleTester = new NoTypeCheckingRuleTester();
   const angular = `import { Component, Directive, Output, output } from '@angular/core';`;
+  const deprecatedOutputReplacements = [
+    `${angular}
+      @Component({ outputs: ['refresh'] })
+      class C {
+        /** @deprecated Use refresh instead. */
+        onRefresh = output<void>();
+        refresh = this.onRefresh;
+      }
+    `,
+    `${angular}
+      @Component({ outputs: ['onRefresh', 'refresh'] })
+      class C {
+        /** @deprecated Use refresh instead. */
+        onRefresh = new EventEmitter<void>();
+        refresh = this.onRefresh;
+      }
+    `,
+  ];
 
   for (const { alias, prohibited } of [
     { alias: 'on', prohibited: true },
@@ -71,26 +89,7 @@ describe('S7652', () => {
   it('uses explicit, compliant public output aliases', () => {
     ruleTester.run('S7652', rule, {
       valid: [
-        {
-          code: `${angular}
-            @Component({ outputs: ['refresh'] })
-            class C {
-              /** @deprecated Use refresh instead. */
-              onRefresh = output<void>();
-              refresh = this.onRefresh;
-            }
-          `,
-        },
-        {
-          code: `${angular}
-            @Component({ outputs: ['onRefresh', 'refresh'] })
-            class C {
-              /** @deprecated Use refresh instead. */
-              onRefresh = new EventEmitter<void>();
-              refresh = this.onRefresh;
-            }
-          `,
-        },
+        ...deprecatedOutputReplacements.map(code => ({ code })),
         {
           code: `${angular} class C { onRefresh = output({ alias: 'refresh' }); }`,
         },
@@ -326,28 +325,7 @@ describe('S7652', () => {
           code: `${angular} @Directive({ hostDirectives: [{ directive: Other, outputs: [\`onRefresh: refresh\`] }] }) class C {}`,
           errors: 1,
         },
-        {
-          code: `${angular}
-            @Component({ outputs: ['refresh'] })
-            class C {
-              /** @deprecated Use refresh instead. */
-              onRefresh = output<void>();
-              refresh = this.onRefresh;
-            }
-          `,
-          errors: 1,
-        },
-        {
-          code: `${angular}
-            @Component({ outputs: ['onRefresh', 'refresh'] })
-            class C {
-              /** @deprecated Use refresh instead. */
-              onRefresh = new EventEmitter<void>();
-              refresh = this.onRefresh;
-            }
-          `,
-          errors: 1,
-        },
+        ...deprecatedOutputReplacements.map(code => ({ code, errors: 1 })),
       ],
     });
   });
