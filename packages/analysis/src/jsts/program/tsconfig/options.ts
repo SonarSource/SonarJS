@@ -488,6 +488,23 @@ export function createProgramOptionsFromJson(
     [PROGRAM_OPTIONS_BRAND]: true,
   };
 }
+
+/**
+ * Restores compiler options that were already normalized by TypeScript during a prior analysis.
+ * Unlike createProgramOptionsFromJson, this intentionally does not convert enum values or lib
+ * filenames a second time.
+ */
+export function createProgramOptionsFromEffectiveOptions(
+  options: ts.CompilerOptions,
+  rootNames: NormalizedAbsolutePath[],
+): ProgramOptions {
+  return {
+    options,
+    rootNames,
+    missingTsConfig: false,
+    [PROGRAM_OPTIONS_BRAND]: true,
+  };
+}
 /**
  * Gets the files resolved by a TSConfig
  *

@@ -23,6 +23,10 @@ import { pathToFileURL } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import { expect } from 'expect';
 import { FS_CACHE_FORMAT_VERSION, FsCacheArchive } from '../../src/fs-cache/archive.js';
+import {
+  deserializeProtobufDocument,
+  serializeProtobufDocument,
+} from '../../src/fs-cache/archive-serialization.js';
 
 const fixture = path.resolve(import.meta.dirname, 'fixtures/exercise-hook.mjs');
 const fixtureRunner = path.resolve(import.meta.dirname, 'fixtures/run-with-fs-cache.mjs');
@@ -70,11 +74,13 @@ function runHook({ archive, outside, root }: { archive: string; outside: string;
 
 function runInlineHook({
   archive,
+  passthroughDirs = [],
   preloads = [],
   root,
   script,
 }: {
   archive: string;
+  passthroughDirs?: string[];
   preloads?: string[];
   root: string;
   script: string;
@@ -95,7 +101,13 @@ function runInlineHook({
       root,
       archive,
     ],
-    { encoding: 'utf8' },
+    {
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        SONARJS_FS_CACHE_TEST_PASSTHROUGH_DIRS: JSON.stringify(passthroughDirs),
+      },
+    },
   );
 }
 
@@ -122,6 +134,198 @@ afterEach(() => {
 });
 
 describe('filesystem cache hook', () => {
+  for (const caseSensitivePaths of [false, true]) {
+    it(`preserves producer case sensitivity (${caseSensitivePaths}) after relocating an archive`, () => {
+      const temporary = temporaryDirectory();
+      const archivePath = path.join(temporary, 'case.pb.gz');
+      const recorder = new FsCacheArchive({
+        rootDir: path.join(temporary, 'ci'),
+        archivePath,
+        mode: 'record',
+        caseSensitivePaths,
+      });
+      recorder.set('Src/Values.ts', 'readFile', {
+        ok: true,
+        value: Buffer.from('export const values = [1, 2];'),
+      });
+      recorder.set('Src/Missing.ts', 'exists', { ok: true, value: false });
+      recorder.flush();
+      const document = deserializeProtobufDocument(gunzipSync(fs.readFileSync(archivePath)));
+      expect(document.caseSensitivePaths).toBe(caseSensitivePaths);
+      const replay = loadArchive(archivePath, path.join(temporary, 'sqaa'));
+      const exact = replay.keyFor(path.join(replay.rootDir, 'Src/Values.ts'))!;
+      const alias = replay.keyFor(path.join(replay.rootDir, 'src/values.ts'))!;
+      expect(replay.get(exact, 'readFile')).toMatchObject({ ok: true });
+      expect(replay.get(alias, 'readFile')).toEqual(
+        caseSensitivePaths ? undefined : replay.get(exact, 'readFile'),
+      );
+      expect(replay.getExists('src/missing.ts')).toBe(caseSensitivePaths ? undefined : false);
+      expect(replay.keyFor(path.join(replay.rootDir + '-other', 'Src/Values.ts'))).toBeUndefined();
+    });
+  }
+
+  it('keeps legacy archive keys case sensitive rather than assuming the receiver OS', () => {
+    const temporary = temporaryDirectory();
+    const archivePath = path.join(temporary, 'legacy.pb.gz');
+    const recorder = new FsCacheArchive({
+      rootDir: temporary,
+      archivePath,
+      mode: 'record',
+      caseSensitivePaths: true,
+    });
+    recorder.set('Upper.ts', 'exists', { ok: true, value: true });
+    recorder.flush();
+    const document = deserializeProtobufDocument(gunzipSync(fs.readFileSync(archivePath)));
+    delete document.caseSensitivePaths;
+    fs.writeFileSync(archivePath, gzipSync(serializeProtobufDocument(document)));
+    const replay = new FsCacheArchive({
+      rootDir: temporary,
+      archivePath,
+      mode: 'replay',
+      caseSensitivePaths: false,
+    });
+    replay.load();
+    expect(replay.caseSensitivePaths).toBe(true);
+    expect(replay.getExists('Upper.ts')).toBe(true);
+    expect(replay.getExists('upper.ts')).toBeUndefined();
+  });
+
+  it('replays Windows-like lookup through every read API and rebases realpaths', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'ci');
+    const replayRoot = path.join(temporary, 'sqaa');
+    const archive = path.join(temporary, 'snapshot.pb.gz');
+    fs.mkdirSync(path.join(root, 'Src'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'Src/Values.ts'), 'snapshot contents');
+    const script = `import fs from 'node:fs';
+        import path from 'node:path';
+        import assert from 'node:assert/strict';
+        import { promisify } from 'node:util';
+        import { installFsCache } from ${JSON.stringify(hookModule)};
+        const cache = installFsCache();
+        const filesystemCacheArchive = ${JSON.stringify(archive)};
+        const ci = ${JSON.stringify(root)}, target = ${JSON.stringify(replayRoot)};
+        const file = path.join(ci, 'Src/Values.ts');
+        const record = cache.beginAnalysis({archivePath: filesystemCacheArchive, rootDir: ci, mode: 'record', caseSensitivePaths: false});
+        fs.readFileSync(file);
+        fs.statSync(file);
+        fs.realpathSync(file);
+        fs.realpathSync.native(file);
+        fs.readdirSync(path.join(ci, 'Src'), {withFileTypes: true});
+        record.end();
+        fs.rmSync(ci, {recursive:true});
+        const replay = cache.beginAnalysis({archivePath: filesystemCacheArchive, rootDir: target, mode: 'replay', restrictNativeReads: true});
+        const alias = path.join(target, 'sRC/vALUES.ts');
+        assert.equal(fs.readFileSync(alias, 'utf8'), 'snapshot contents');
+        assert.equal(await fs.promises.readFile(alias, 'utf8'), 'snapshot contents');
+        assert.equal(await promisify(fs.readFile)(alias, 'utf8'), 'snapshot contents');
+        assert.equal(fs.existsSync(alias), true);
+        assert.equal(fs.statSync(alias).isFile(), true);
+        assert.equal(fs.realpathSync(alias), path.join(target, 'src/values.ts'));
+        assert.equal(fs.realpathSync.native(alias), path.join(target, 'src/values.ts'));
+        const entries = fs.readdirSync(path.join(target, 'src'), {withFileTypes:true});
+        assert.equal(entries[0].name, 'Values.ts');
+        assert.equal(entries[0].isFile(), true);
+        replay.end();
+        console.log('portable lookup passed');`;
+    const child = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
+      encoding: 'utf8',
+    });
+    expect(child.stderr).toBe('');
+    expect(child.status).toBe(0);
+    expect(child.stdout.trim()).toBe('portable lookup passed');
+  });
+  it('isolates replay from native files outside the snapshot while allowing explicit runtime paths', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'project');
+    const runtime = path.join(temporary, 'runtime');
+    const outside = path.join(temporary, 'outside.txt');
+    const archive = path.join(temporary, 'archive.pb.gz');
+    fs.mkdirSync(root);
+    fs.mkdirSync(runtime);
+    fs.writeFileSync(path.join(root, 'source.ts'), 'project');
+    fs.writeFileSync(path.join(runtime, 'library.d.ts'), 'runtime');
+    fs.writeFileSync(outside, 'must not leak into replay');
+    const scriptPath = path.join(temporary, 'isolation.mjs');
+    fs.writeFileSync(
+      scriptPath,
+      `
+      import fs from 'node:fs';
+      import { installFsCache } from ${JSON.stringify(hookModule)};
+      const cache = installFsCache();
+      const options = { rootDir: ${JSON.stringify(root)}, archivePath: ${JSON.stringify(archive)} };
+      const record = cache.beginAnalysis({ ...options, mode: 'record' });
+      fs.readFileSync(${JSON.stringify(path.join(root, 'source.ts'))}, 'utf8');
+      record.end();
+      const replay = cache.beginAnalysis({ ...options, mode: 'replay', restrictNativeReads: true, passthroughDirs: [${JSON.stringify(runtime)}] });
+      const outside = ${JSON.stringify(outside)};
+      const error = async operation => { try { await operation(); return 'unexpected success'; } catch (failure) { return failure.code; } };
+      const result = {
+        exists: fs.existsSync(outside),
+        reads: await Promise.all([
+          error(() => fs.readFileSync(outside)),
+          error(() => fs.promises.readFile(outside)),
+          error(() => fs.statSync(outside)),
+          error(() => fs.openSync(outside, 'r')),
+          error(() => fs.promises.open(outside, 'r')),
+          error(() => new Promise((resolve, reject) => fs.open(outside, 'r', (failure, fd) => failure ? reject(failure) : resolve(fd)))),
+        ]),
+        project: fs.readFileSync(${JSON.stringify(path.join(root, 'source.ts'))}, 'utf8'),
+        runtime: fs.readFileSync(${JSON.stringify(path.join(runtime, 'library.d.ts'))}, 'utf8'),
+      };
+      replay.end();
+      console.log(JSON.stringify(result));
+    `,
+    );
+    const result = spawnSync(process.execPath, [scriptPath], { encoding: 'utf8' });
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual({
+      exists: false,
+      reads: Array(6).fill('ENOENT'),
+      project: 'project',
+      runtime: 'runtime',
+    });
+  });
+
+  it('stores supplied decoded Unicode as UTF-8 while preserving native non-UTF-8 bytes', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'record');
+    const replayRoot = path.join(temporary, 'replay');
+    const archive = path.join(temporary, 'encoding.pb.gz');
+    fs.mkdirSync(root);
+    fs.mkdirSync(replayRoot);
+    const originalBytes = Buffer.from('caf\u00e9', 'latin1');
+    fs.writeFileSync(path.join(root, 'native.ts'), originalBytes);
+    fs.writeFileSync(path.join(root, 'supplied.ts'), originalBytes);
+    const supplied = 'caf\u00e9 \u6771\u4eac \ud83d\ude80';
+    const scriptPath = path.join(temporary, 'encoding.mjs');
+    fs.writeFileSync(
+      scriptPath,
+      `import fs from 'node:fs';
+       import { installFsCache, captureProvidedFile } from ${JSON.stringify(hookModule)};
+       const installation = installFsCache();
+       const record = installation.beginAnalysis({rootDir: ${JSON.stringify(root)}, archivePath: ${JSON.stringify(archive)}, mode: 'record'});
+       const native = fs.readFileSync(${JSON.stringify(path.join(root, 'native.ts'))});
+       fs.readFileSync(${JSON.stringify(path.join(root, 'supplied.ts'))});
+       captureProvidedFile(${JSON.stringify(path.join(root, 'supplied.ts'))}, ${JSON.stringify(supplied)});
+       record.end();
+       const replay = installation.beginAnalysis({rootDir: ${JSON.stringify(replayRoot)}, archivePath: ${JSON.stringify(archive)}, mode: 'replay'});
+       const replayed = fs.readFileSync(${JSON.stringify(path.join(replayRoot, 'native.ts'))});
+       const decoded = fs.readFileSync(${JSON.stringify(path.join(replayRoot, 'supplied.ts'))}, 'utf8');
+       replay.end();
+       console.log(JSON.stringify({native: native.toString('hex'), replayed: replayed.toString('hex'), decoded}));`,
+    );
+    const result = spawnSync(process.execPath, [scriptPath], { encoding: 'utf8' });
+    expect(result.status).toBe(0);
+    expect(result.stderr).toBe('');
+    expect(JSON.parse(result.stdout)).toEqual({
+      native: originalBytes.toString('hex'),
+      replayed: originalBytes.toString('hex'),
+      decoded: supplied,
+    });
+  });
+
   it('installs dormant filesystem wrappers when the analysis worker starts', () => {
     const result = spawnSync(process.execPath, [workerBootstrapFixture], {
       encoding: 'utf8',
@@ -520,6 +724,176 @@ describe('filesystem cache hook', () => {
     expect(replayed.status).toBe(0);
     expect(JSON.parse(replayed.stdout)).toEqual(JSON.parse(recorded.stdout));
   });
+
+  for (const dangling of [false, true]) {
+    it(`checks target existence after lstat of a ${dangling ? 'dangling' : 'live'} symlink`, t => {
+      const temporary = temporaryDirectory();
+      const recordRoot = path.join(temporary, 'record');
+      const replayRoot = path.join(temporary, 'replay');
+      const archive = path.join(temporary, 'symlink.fscache');
+      fs.mkdirSync(recordRoot);
+      fs.writeFileSync(path.join(recordRoot, 'target.txt'), 'target');
+      try {
+        fs.symlinkSync(
+          dangling ? 'missing.txt' : 'target.txt',
+          path.join(recordRoot, 'link'),
+          'file',
+        );
+      } catch (error) {
+        if (process.platform === 'win32' && (error as NodeJS.ErrnoException).code === 'EPERM') {
+          t.skip('Creating symbolic links requires Windows Developer Mode or elevated privileges');
+          return;
+        }
+        throw error;
+      }
+      const script = `
+        import fs from 'node:fs';
+        const link = filesystemCacheRoot + '/link';
+        console.log(JSON.stringify({
+          symbolic: fs.lstatSync(link).isSymbolicLink(),
+          exists: fs.existsSync(link),
+        }));
+      `;
+      const recorded = runInlineHook({ archive, root: recordRoot, script });
+      expect(recorded.stderr).toBe('');
+      expect(recorded.status).toBe(0);
+      expect(JSON.parse(recorded.stdout)).toEqual({ symbolic: true, exists: !dangling });
+
+      fs.rmSync(recordRoot, { force: true, recursive: true });
+      fs.mkdirSync(replayRoot);
+      const replayed = runInlineHook({ archive, root: replayRoot, script });
+      expect(replayed.stderr).toBe('');
+      expect(replayed.status).toBe(0);
+      expect(JSON.parse(replayed.stdout)).toEqual(JSON.parse(recorded.stdout));
+    });
+  }
+
+  it('does not record a late read into the following analysis session', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const archive = path.join(temporary, 'first.fscache');
+    const nextArchive = path.join(temporary, 'next.fscache');
+    fs.mkdirSync(root);
+    fs.writeFileSync(path.join(root, 'late.txt'), 'previous request');
+    fs.writeFileSync(path.join(root, 'marker.txt'), 'next request');
+    const scriptPath = path.join(temporary, 'late-stat.mjs');
+    fs.writeFileSync(
+      scriptPath,
+      `
+      import fs from 'node:fs';
+      import { installFsCache } from ${JSON.stringify(hookModule)};
+      const cache = installFsCache();
+      const rootDir = ${JSON.stringify(root)};
+      const session = cache.beginAnalysis({ rootDir, archivePath: ${JSON.stringify(archive)}, mode: 'record' });
+      const pending = fs.promises.stat(rootDir + '/late.txt');
+      session.end();
+      const next = cache.beginAnalysis({ rootDir, archivePath: ${JSON.stringify(nextArchive)}, mode: 'record' });
+      fs.readFileSync(rootDir + '/marker.txt');
+      await pending;
+      next.end();
+    `,
+    );
+    const result = spawnSync(process.execPath, [scriptPath], { encoding: 'utf8' });
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect([...loadArchive(nextArchive, root).entries.keys()]).toEqual(['marker.txt']);
+  });
+
+  for (const api of ['callback', 'promise']) {
+    it(`rejects a late ${api} readonly replay open instead of handing out a stale descriptor`, () => {
+      const temporary = temporaryDirectory();
+      const root = path.join(temporary, 'root');
+      const archive = path.join(temporary, 'readonly.fscache');
+      fs.mkdirSync(root);
+      fs.writeFileSync(path.join(root, 'marker.txt'), 'project input');
+      const scriptPath = path.join(temporary, 'late-replay-open.mjs');
+      fs.writeFileSync(
+        scriptPath,
+        `
+        import fs from 'node:fs';
+        import { installFsCache } from ${JSON.stringify(hookModule)};
+        const cache = installFsCache();
+        const rootDir = ${JSON.stringify(root)};
+        const archivePath = ${JSON.stringify(archive)};
+        const record = cache.beginAnalysis({ rootDir, archivePath, mode: 'record' });
+        fs.closeSync(fs.openSync(rootDir + '/marker.txt', 'r'));
+        record.end();
+        const replay = cache.beginAnalysis({ rootDir, archivePath, mode: 'replay' });
+        const pending = ${api === 'callback' ? `new Promise(resolve => fs.open(rootDir + '/marker.txt', 'r', error => resolve(error?.code)))` : `fs.promises.open(rootDir + '/marker.txt', 'r').then(() => undefined, error => error.code)`};
+        replay.end();
+        console.log(JSON.stringify({ error: await pending }));
+      `,
+      );
+      const result = spawnSync(process.execPath, [scriptPath], { encoding: 'utf8' });
+      expect(result.stderr).toBe('');
+      expect(result.status).toBe(0);
+      expect(JSON.parse(result.stdout)).toEqual({ error: 'ERR_SONARJS_FS_CACHE_SESSION_ENDED' });
+    });
+
+    for (const nextSession of [false, true]) {
+      it(`settles a late ${api} open after session end${nextSession ? ' while another session is active' : ''}`, () => {
+        const temporary = temporaryDirectory();
+        const root = path.join(temporary, 'root');
+        const work = path.join(temporary, 'work');
+        const archive = path.join(temporary, 'first.fscache');
+        const nextArchive = path.join(temporary, 'next.fscache');
+        fs.mkdirSync(root);
+        fs.mkdirSync(work);
+        fs.writeFileSync(path.join(root, 'marker.txt'), 'project input');
+        const scriptPath = path.join(temporary, 'late-open.mjs');
+        fs.writeFileSync(
+          scriptPath,
+          `
+          import fs from 'node:fs';
+          import { installFsCache } from ${JSON.stringify(hookModule)};
+          const cache = installFsCache();
+          const rootDir = ${JSON.stringify(root)};
+          const output = ${JSON.stringify(path.join(work, 'output.udg'))};
+          const session = cache.beginAnalysis({
+            rootDir,
+            archivePath: ${JSON.stringify(archive)},
+            mode: 'record',
+            passthroughDirs: [${JSON.stringify(work)}],
+          });
+          fs.readFileSync(rootDir + '/marker.txt');
+          const opened = ${
+            api === 'callback'
+              ? `new Promise(resolve => fs.open(output, 'w', (error, fd) => {
+                if (!error) fs.closeSync(fd);
+                resolve(error?.code);
+              }))`
+              : `fs.promises.open(output, 'w').then(async handle => {
+                await handle.close();
+                return undefined;
+              }, error => error.code)`
+          };
+          session.end();
+          const next = ${
+            nextSession
+              ? `cache.beginAnalysis({
+            rootDir,
+            archivePath: ${JSON.stringify(nextArchive)},
+            mode: 'record',
+          })`
+              : 'undefined'
+          };
+          if (next) fs.readFileSync(rootDir + '/marker.txt');
+          const error = await opened;
+          next?.end();
+          console.log(JSON.stringify({ error }));
+        `,
+        );
+        const result = spawnSync(process.execPath, [scriptPath], { encoding: 'utf8' });
+        expect(result.stderr).toBe('');
+        expect(result.status).toBe(0);
+        expect(JSON.parse(result.stdout)).toEqual({ error: 'ERR_SONARJS_FS_CACHE_SESSION_ENDED' });
+        expect([...loadArchive(archive, root).entries.keys()]).toEqual(['marker.txt']);
+        if (nextSession) {
+          expect([...loadArchive(nextArchive, root).entries.keys()]).toEqual(['marker.txt']);
+        }
+      });
+    }
+  }
 
   it('reuses portable realpaths across result encodings and root aliases', t => {
     const temporary = temporaryDirectory();
@@ -990,6 +1364,107 @@ describe('filesystem cache hook', () => {
     const replayed = runInlineHook({ archive, root, script });
     expect(replayed.status).not.toBe(0);
     expect(replayed.stderr).toContain('ERR_SONARJS_FS_CACHE_MISS');
+  });
+
+  it('keeps the analyzer output tree fully native while rejecting crossing operations', () => {
+    const temporary = temporaryDirectory();
+    const root = path.join(temporary, 'root');
+    const passthrough = path.join(root, '.scannerwork');
+    const archive = path.join(temporary, 'analysis.fscache');
+    fs.mkdirSync(root);
+    const script = `
+      import fs from 'node:fs';
+      import path from 'node:path';
+      const outputDirectory = path.join(filesystemCacheRoot, '.scannerwork', 'architecture', 'ts');
+      fs.mkdirSync(outputDirectory, { recursive: true });
+      const output = path.join(outputDirectory, 'main.udg');
+      fs.writeFileSync(output, 'generated');
+      fs.appendFileSync(output, '-appended');
+      const callbackOutput = path.join(outputDirectory, 'callback.udg');
+      await new Promise((resolve, reject) => fs.writeFile(callbackOutput, 'callback', error =>
+        error ? reject(error) : resolve()));
+      const promiseDirectory = path.join(outputDirectory, 'promise');
+      await fs.promises.mkdir(promiseDirectory);
+      const promiseOutput = path.join(promiseDirectory, 'promise.udg');
+      await fs.promises.writeFile(promiseOutput, 'promise');
+      const copiedOutput = path.join(outputDirectory, 'copied.udg');
+      fs.copyFileSync(output, copiedOutput);
+      const renamedOutput = path.join(outputDirectory, 'renamed.udg');
+      fs.renameSync(copiedOutput, renamedOutput);
+      const streamOutput = path.join(outputDirectory, 'stream.udg');
+      await new Promise((resolve, reject) => {
+        const stream = fs.createWriteStream(streamOutput);
+        stream.on('error', reject);
+        stream.end('stream', resolve);
+      });
+      const descriptorOutput = path.join(outputDirectory, 'descriptor.udg');
+      const descriptor = fs.openSync(descriptorOutput, 'w');
+      fs.writeSync(descriptor, 'descriptor');
+      fs.closeSync(descriptor);
+      const handleOutput = path.join(outputDirectory, 'handle.udg');
+      const handle = await fs.promises.open(handleOutput, 'w');
+      await handle.writeFile('handle');
+      await handle.close();
+      let projectMutation;
+      try {
+        fs.mkdirSync(path.join(filesystemCacheRoot, 'generated'));
+      } catch (error) {
+        projectMutation = { code: error.code, message: error.message };
+      }
+      let crossingMutation;
+      try {
+        fs.copyFileSync(output, path.join(filesystemCacheRoot, 'copied-out.udg'));
+      } catch (error) {
+        crossingMutation = { code: error.code, message: error.message };
+      }
+      console.log(JSON.stringify({
+        content: fs.readFileSync(output, 'utf8'),
+        crossingMutation,
+        futurePromise: await fs.promises.futureRead(output),
+        futureSync: fs.futureRead(output),
+        projectMutation,
+      }));
+    `;
+    const result = runInlineHook({
+      archive,
+      passthroughDirs: [passthrough],
+      preloads: [futureFsMethodFixture],
+      root,
+      script,
+    });
+
+    expect(result.stderr).toBe('');
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout)).toEqual({
+      content: 'generated-appended',
+      crossingMutation: {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.copyFileSync from Node ${process.version}`,
+      },
+      futurePromise: 'unexpected native result',
+      futureSync: 'unexpected native result',
+      projectMutation: {
+        code: 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION',
+        message: `Filesystem cache does not support fs.mkdirSync from Node ${process.version}`,
+      },
+    });
+    expect(fs.readFileSync(path.join(passthrough, 'architecture', 'ts', 'main.udg'), 'utf8')).toBe(
+      'generated-appended',
+    );
+    const outputDirectory = path.join(passthrough, 'architecture', 'ts');
+    expect(fs.readFileSync(path.join(outputDirectory, 'callback.udg'), 'utf8')).toBe('callback');
+    expect(fs.readFileSync(path.join(outputDirectory, 'promise', 'promise.udg'), 'utf8')).toBe(
+      'promise',
+    );
+    expect(fs.readFileSync(path.join(outputDirectory, 'renamed.udg'), 'utf8')).toBe(
+      'generated-appended',
+    );
+    expect(fs.readFileSync(path.join(outputDirectory, 'stream.udg'), 'utf8')).toBe('stream');
+    expect(fs.readFileSync(path.join(outputDirectory, 'descriptor.udg'), 'utf8')).toBe(
+      'descriptor',
+    );
+    expect(fs.readFileSync(path.join(outputDirectory, 'handle.udg'), 'utf8')).toBe('handle');
+    expect(fs.existsSync(path.join(root, 'copied-out.udg'))).toBe(false);
   });
 
   it('rejects every unpatched filesystem operation', () => {

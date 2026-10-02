@@ -29,6 +29,11 @@ export const ROOT_PATH = '/' as NormalizedAbsolutePath;
 
 const isWindows = process.platform === 'win32';
 
+/** Fully qualified drive or UNC path; unlike isAbsolutePath, excludes drive-relative paths. */
+export function isWindowsProjectPath(value: string): boolean {
+  return /^[a-z]:[/\\]/i.test(value) || /^(?:\\\\|\/\/)[^/\\]+[/\\][^/\\]+/.test(value);
+}
+
 /**
  * Normalizes a path to Unix format (forward slashes).
  * For absolute paths on Windows, resolves them to ensure they have a drive letter.
@@ -77,5 +82,8 @@ export function isAbsolutePath(path: string) {
 }
 
 export function toUnixPath(filePath: string) {
-  return filePath.replaceAll(/[\\/]+/g, '/');
+  // The two leading separators identify a Windows network share, not redundant slashes.
+  const unc = isWindowsProjectPath(filePath) && !/^[a-z]:/i.test(filePath);
+  const normalized = filePath.replaceAll(/[\\/]+/g, '/');
+  return unc ? '/' + normalized : normalized;
 }

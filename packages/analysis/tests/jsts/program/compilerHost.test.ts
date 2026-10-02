@@ -18,7 +18,8 @@ import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
 import path from 'node:path';
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync } from 'node:fs';
+import os from 'node:os';
 import { IncrementalCompilerHost } from '../../../src/jsts/program/compilerHost.js';
 import {
   setSourceFilesContext,
@@ -27,6 +28,8 @@ import {
   getCachedSourceFile,
 } from '../../../src/jsts/program/cache/sourceFileCache.js';
 import { joinPaths, normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import { installFsCache } from '../../../../shared/src/fs-cache/hook.js';
+import { FsCacheArchive } from '../../../../shared/src/fs-cache/archive.js';
 
 describe('IncrementalCompilerHost', () => {
   const baseDir = normalizeToAbsolutePath('/project');
@@ -35,6 +38,37 @@ describe('IncrementalCompilerHost', () => {
   beforeEach(() => {
     clearSourceFileContentCache();
   });
+
+  for (const caseSensitivePaths of [false, true]) {
+    it(`uses recorded filesystem case semantics (${caseSensitivePaths}) independently of the host OS`, () => {
+      const temporary = mkdtempSync(path.join(os.tmpdir(), 'compiler-case-'));
+      const archivePath = path.join(temporary, 'fs.pb.gz');
+      const archive = new FsCacheArchive({
+        archivePath,
+        rootDir: temporary,
+        mode: 'record',
+        caseSensitivePaths,
+      });
+      archive.set('input.ts', 'exists', { ok: true, value: true });
+      archive.flush();
+      const session = installFsCache().beginAnalysis({
+        archivePath,
+        rootDir: temporary,
+        mode: 'replay',
+      });
+      try {
+        const host = new IncrementalCompilerHost({}, normalizeToAbsolutePath(temporary));
+        expect(host.useCaseSensitiveFileNames()).toBe(caseSensitivePaths);
+        expect(host.getCanonicalFileName('Src/File.ts')).toBe(
+          caseSensitivePaths ? 'Src/File.ts' : 'src/file.ts',
+        );
+      } finally {
+        session.end();
+      }
+      const ordinary = new IncrementalCompilerHost({}, baseDir);
+      expect(ordinary.useCaseSensitiveFileNames()).toBe(ts.sys.useCaseSensitiveFileNames);
+    });
+  }
 
   describe('constructor', () => {
     it('should create host with compiler options and base directory', () => {

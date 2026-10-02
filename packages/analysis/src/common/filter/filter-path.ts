@@ -24,6 +24,7 @@ import {
   isTestRelatedFile,
 } from '../../jsts/rules/helpers/test-file-pattern.js';
 import { isAngularProject } from '../../jsts/rules/helpers/dependency-manifests/dependencies.js';
+import { getFileSystemCaseSensitivity } from '../../../../shared/src/fs-cache/hook.js';
 
 /**
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
@@ -103,7 +104,12 @@ export function getFileTypeForRules(
 }
 
 function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolutePath[]): boolean {
-  return paths.some(path => filePath === path || filePath.startsWith(`${path}/`));
+  const caseSensitive = getFileSystemCaseSensitivity() ?? process.platform !== 'win32';
+  const file = caseSensitive ? filePath : filePath.toLowerCase();
+  return paths.some(path => {
+    const root = caseSensitive ? path : path.toLowerCase();
+    return file === root || file.startsWith(root.endsWith('/') ? root : `${root}/`);
+  });
 }
 
 function matchesTestPath(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
