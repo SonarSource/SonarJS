@@ -332,30 +332,21 @@ jobs:
 
   build_eslint_plugin:
     runs-on: warp-custom-ubuntu-24-04
-    needs: [setup, prepare_rspec_rule_data]
+    needs: [setup, get_build_number, prepare_rspec_rule_data]
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise
       - *npm_cache
-      - &edge_npm_secrets
-        id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
+      - &config_npm_edge
+        uses: SonarSource/ci-github-actions/config-npm@2b6c024f8567c04c708b673604cf3a400993b83f
         with:
-          url: https://vault.dev.sonar.build
-          secrets: |
-            development/artifactory-edge-dev/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - &edge_npm_registry
-        name: Configure npm registry
-        env:
-          ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-        run: |
-          npm config set "//repox-internal.dev.sonar.build/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
-          npm config set registry https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/
-          npm config set replace-registry-host repox.jfrog.io
+          repox-url: https://repox-internal.dev.sonar.build
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
       - *download_rspec_rule_data
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
@@ -436,9 +427,10 @@ jobs:
   test_eslint_plugin:
     runs-on: warp-custom-ubuntu-24-04
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
-    needs: [setup, build_eslint_plugin]
+    needs: [setup, get_build_number, build_eslint_plugin]
     permissions: *read_permissions
     env:
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
       MISE_NODE_VERSION: ${{ matrix.node-version }}
     strategy:
       fail-fast: false
@@ -475,8 +467,7 @@ jobs:
             echo "::error file=$TARBALL::Missing ESLint plugin tarball"
             exit 1
           fi
-      - *edge_npm_secrets
-      - *edge_npm_registry
+      - *config_npm_edge
       - name: Test ESLint Plugin
         run: |
           cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs

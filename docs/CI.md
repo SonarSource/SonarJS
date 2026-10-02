@@ -790,7 +790,7 @@ Repox is the repository manager behind both npm and Maven flows here.
 - points `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm`
 - rewrites lockfile `resolved` hosts from `repox.jfrog.io` onto that registry (`replace-registry-host`)
 
-The ESLint plugin build (extra `builtin-modules` install) and the ESLint plugin tests (no lockfile) configure the same Edge registry, token and `replace-registry-host` directly. They don't use `config-npm`, because it rewrites the `package.json` version.
+The ESLint plugin build (extra `builtin-modules` install) and the ESLint plugin tests (no lockfile) run the same `config-npm` step. Its root `package.json` version rewrite doesn't affect the plugin tarball, whose version comes from `.pmgrc.toml`.
 
 Publish / promote (eslint-plugin release, `jfrog rt npm-publish`) stay on SaaS.
 
