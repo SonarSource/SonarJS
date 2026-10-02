@@ -43,20 +43,23 @@ function isSassAnnotationWarning(text: string): boolean {
   return match !== null && SASS_ANNOTATIONS.has(match[1]);
 }
 
-function relabelWarnings(result: PostcssResult, from: number): void {
-  for (const w of result.warnings().slice(from)) {
-    w.text = w.text.replace(` (${UPSTREAM_RULE})`, ` (${SONAR_RULE})`);
-    (w as unknown as { rule: string }).rule = SONAR_RULE;
-  }
-}
-
-function removeSassAnnotationWarnings(result: PostcssResult, from: number): void {
-  const messages = (result as unknown as { messages: { stylelintType?: string; text: string }[] })
-    .messages;
-  for (let i = messages.length - 1; i >= from; i--) {
+/**
+ * Stylelint runs rules concurrently, so warnings from other rules may be interleaved with the
+ * upstream ones. Only warnings that still carry the upstream rule name are handled: those of
+ * previously processed blocks are already relabelled.
+ */
+function filterAndRelabelWarnings(result: PostcssResult, sass: boolean): void {
+  const messages = (result as unknown as { messages: { rule?: string; text: string }[] }).messages;
+  for (let i = messages.length - 1; i >= 0; i--) {
     const w = messages[i];
-    if (w.stylelintType !== 'invalidOption' && isSassAnnotationWarning(w.text)) {
+    if (w.rule !== UPSTREAM_RULE) {
+      continue;
+    }
+    if (sass && isSassAnnotationWarning(w.text)) {
       messages.splice(i, 1);
+    } else {
+      w.text = w.text.replace(` (${UPSTREAM_RULE})`, ` (${SONAR_RULE})`);
+      w.rule = SONAR_RULE;
     }
   }
 }
@@ -78,17 +81,11 @@ const ruleImpl: stylelint.RuleBase = (primary, secondaryOptions, context) => {
     sass: boolean,
   ): Promise<void> => {
     const delegated = await getUpstream();
-    const messages = (result as unknown as { messages: object[] }).messages;
-    const msgCount = messages.length;
-    const warnCount = result.warnings().length;
     await (delegated as (root: PostCSS.Root, result: PostcssResult) => Promise<void>)(
       block,
       result,
     );
-    if (sass) {
-      removeSassAnnotationWarnings(result, msgCount);
-    }
-    relabelWarnings(result, warnCount);
+    filterAndRelabelWarnings(result, sass);
   };
 
   return async (root: PostCSS.Root | PostCSS.Document, result) => {
