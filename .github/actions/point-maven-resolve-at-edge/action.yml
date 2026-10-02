@@ -1,0 +1,19 @@
+name: Point Maven resolve at Edge
+description: Wait for JFrog Edge token federation and point Maven resolve at Edge. Publish stays on SaaS via ARTIFACTORY_URL.
+
+runs:
+  using: composite
+  steps:
+    - name: Point Maven resolve at Edge
+      shell: bash
+      run: |
+        # config-maven writes SONARSOURCE_REPOSITORY_URL from ARTIFACTORY_URL (SaaS).
+        # Override only the Maven mirror/resolve URL. artifactory-maven-plugin publish
+        # still uses ARTIFACTORY_URL → SaaS.
+        echo "SONARSOURCE_REPOSITORY_URL=https://repox-internal.dev.sonar.build/artifactory/sonarsource-qa" >> "$GITHUB_ENV"
+    - name: Wait for Artifactory token federation (sonarsource)
+      shell: bash
+      env:
+        ARTIFACTORY_URL: https://repox-internal.dev.sonar.build/artifactory
+        PROBE_PATH: api/search/versions?g=org.sonarsource.sonarqube&a=sonar-plugin-api&remote=1&repos=sonarsource&v=*
+      run: bash "${GITHUB_ACTION_PATH}/../wait-for-artifactory-token-federation/wait.sh"
