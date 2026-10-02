@@ -27,7 +27,7 @@ export interface AngularMetadataOutput {
   name: string;
 }
 
-/** Returns text from `'refresh'` or `` `refresh` ``, but never from dynamic expressions. */
+/** Returns static text from `'refresh'` or `` `refresh` ``, e.g. `outputs: ['refresh']`. */
 function staticText(node: TSESTree.Node | undefined): string | undefined {
   if (node && isStringLiteral(node as unknown as estree.Node)) {
     return (node as unknown as estree.Literal).value as string;
@@ -50,12 +50,12 @@ function staticText(node: TSESTree.Node | undefined): string | undefined {
   return undefined;
 }
 
-/** Accepts only direct keys such as `{ alias: 'refresh' }`, not computed properties. */
+/** Reads a direct identifier key, e.g. `outputs: ['refresh']`, but not `{ [name]: [] }`. */
 function propertyName(property: TSESTree.Property): string | undefined {
   return !property.computed && property.key.type === 'Identifier' ? property.key.name : undefined;
 }
 
-/** Accepts direct identifier or string keys such as `{ 'alias': 'refresh' }`. */
+/** Reads direct option keys, e.g. `{ alias: 'refresh' }` or `{ 'alias': 'refresh' }`. */
 function optionPropertyName(property: TSESTree.Property): string | undefined {
   if (property.computed) {
     return undefined;
@@ -63,7 +63,7 @@ function optionPropertyName(property: TSESTree.Property): string | undefined {
   return propertyName(property) ?? staticText(property.key as TSESTree.Node);
 }
 
-/** Recognizes the Angular `output({ alias: 'refresh' })` property initializer. */
+/** Reads the public alias in `refresh = output({ alias: 'publicRefresh' })`. */
 function outputAliasFromCall(
   context: Rule.RuleContext,
   member: TSESTree.PropertyDefinition,
@@ -84,7 +84,7 @@ function outputAliasFromCall(
   return aliases.length === 1 ? staticText(aliases[0].value) : undefined;
 }
 
-/** Recognizes an Angular `output()` property initializer. */
+/** Recognizes the Angular property initializer `refresh = output()`. */
 export function isAngularOutputCall(
   context: Rule.RuleContext,
   member: TSESTree.PropertyDefinition,
@@ -96,7 +96,7 @@ export function isAngularOutputCall(
   );
 }
 
-/** Recognizes the Angular `@Output('refresh')` field or getter decorator. */
+/** Reads the public alias from `@Output('publicRefresh') refresh = new EventEmitter()`. */
 function outputAliasFromDecorator(
   context: Rule.RuleContext,
   member: TSESTree.PropertyDefinition | TSESTree.MethodDefinition,
@@ -115,6 +115,7 @@ function outputAliasFromDecorator(
   return alias || undefined;
 }
 
+/** Recognizes a member decorated as `@Output() refresh = new EventEmitter()`. */
 function hasOutputDecorator(
   context: Rule.RuleContext,
   member: TSESTree.PropertyDefinition | TSESTree.MethodDefinition,
@@ -129,7 +130,7 @@ function hasOutputDecorator(
   });
 }
 
-/** Recognizes Angular component decorators such as `@Component({ outputs: [...] })`. */
+/** Recognizes Angular decorators such as `@Component({ outputs: [] })` or `@Directive({})`. */
 function isAngularCoreDecorator(
   context: Rule.RuleContext,
   node: TSESTree.Node | undefined,
@@ -146,19 +147,19 @@ function isAngularCoreDecorator(
   );
 }
 
-/** Maps the `TemplateElement` in `` `onRefresh: refresh` `` to its enclosing template. */
+/** Maps the template element in `` `onRefresh: refresh` `` to its enclosing template literal. */
 function mappingNode(node: TSESTree.Node): TSESTree.Node {
   return node.type === 'TemplateElement' && node.parent?.type === 'TemplateLiteral'
     ? node.parent
     : node;
 }
 
-/** Recognizes `@Component({ outputs: ['onRefresh: refresh'] })` mappings. */
+/** Recognizes the direct metadata entry in `@Component({ outputs: ['onRefresh: refresh'] })`. */
 function isMetadataOutputMapping(context: Rule.RuleContext, node: TSESTree.Node): boolean {
   return getMetadataOutputClass(context, node) !== undefined;
 }
 
-/** Returns the class that declares a direct static Angular `outputs` entry. */
+/** Returns the class for `@Component({ outputs: ['refresh'] }) class C {}`. */
 function getMetadataOutputClass(
   context: Rule.RuleContext,
   node: TSESTree.Node,
@@ -181,7 +182,7 @@ function getMetadataOutputClass(
     : undefined;
 }
 
-/** Returns the metadata output name and its declaring class for a direct static `outputs` entry. */
+/** Returns `refresh` and `C` from `@Component({ outputs: ['refresh'] }) class C {}`. */
 export function getAngularMetadataOutput(
   context: Rule.RuleContext,
   node: TSESTree.Node,
@@ -191,7 +192,7 @@ export function getAngularMetadataOutput(
   return name !== undefined && classNode !== undefined ? { classNode, name } : undefined;
 }
 
-/** Returns every name in complete static `outputs` metadata, or `undefined` for unsupported forms. */
+/** Returns `['refresh']` from `@Component({ outputs: ['refresh'] })`, never dynamic metadata. */
 export function getAngularStaticOutputNames(
   context: Rule.RuleContext,
   classNode: TSESTree.ClassDeclaration,
@@ -221,11 +222,12 @@ export function getAngularStaticOutputNames(
     : (names as string[]);
 }
 
+/** Detects a spread, e.g. `@Component({ ...metadata })`, in otherwise static metadata. */
 function isNotProperty(node: TSESTree.Property | TSESTree.SpreadElement): boolean {
   return node.type !== 'Property';
 }
 
-/** Recognizes `@Directive({ hostDirectives: [{ outputs: ['onRefresh: refresh'] }] })` mappings. */
+/** Recognizes `@Directive({ hostDirectives: [{ outputs: ['onRefresh: refresh'] }] })`. */
 function isHostDirectiveOutputMapping(context: Rule.RuleContext, node: TSESTree.Node): boolean {
   const outputsArray = mappingNode(node).parent;
   const outputs = outputsArray?.parent;
@@ -249,7 +251,7 @@ function isHostDirectiveOutputMapping(context: Rule.RuleContext, node: TSESTree.
   );
 }
 
-/** Returns a member decorator's alias when it overrides an `outputs` metadata entry. */
+/** Reads `@Output('publicRefresh') refresh` when it overrides `outputs: ['refresh']`. */
 function overridingMemberOutputAlias(
   context: Rule.RuleContext,
   node: TSESTree.Node,
@@ -273,7 +275,7 @@ function overridingMemberOutputAlias(
     : null;
 }
 
-/** Reads `refresh` from an already-recognized `onRefresh: refresh` metadata mapping. */
+/** Reads `refresh` from `outputs: ['onRefresh: refresh']` or a direct `outputs: ['refresh']` entry. */
 function outputAliasFromMetadata(
   context: Rule.RuleContext,
   node: TSESTree.Node,
@@ -298,7 +300,7 @@ function outputAliasFromMetadata(
   return memberAlias === null ? alias : memberAlias;
 }
 
-/** Returns the explicit public alias for an Angular output declaration or metadata mapping. */
+/** Returns `publicRefresh` from `refresh = output({ alias: 'publicRefresh' })` or metadata. */
 export function getAngularOutputAlias(
   context: Rule.RuleContext,
   node: TSESTree.Node,
