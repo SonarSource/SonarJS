@@ -29,7 +29,8 @@ import * as meta from './generated-meta.js';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      removeAssignment: 'Remove this useless assignment to variable "{{variable}}".',
+      removeAssignment:
+        'The value assigned to "{{variable}}" is never read. Use it or remove this assignment.',
     },
   }),
   create(context: Rule.RuleContext) {
@@ -250,10 +251,7 @@ export const rule: Rule.RuleModule = {
       if (isJSXAttributeName(node)) {
         return {};
       }
-      const jsxReference = new JSXReference(
-        node,
-        context.sourceCode.getScope(node),
-      );
+      const jsxReference = new JSXReference(node, context.sourceCode.getScope(node));
       return { ref: jsxReference, variable: jsxReference.resolved };
     }
 

@@ -91,7 +91,16 @@ function awaitsCallToAsyncFunction(
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
-    { ...rule, meta: generateMeta(meta, rule.meta) },
+    {
+      ...rule,
+      meta: generateMeta(meta, {
+        ...rule.meta,
+        messages: {
+          ...rule.meta?.messages,
+          await: 'This "await" does not apply to a "Promise". Remove it or fix the expression.',
+        },
+      }),
+    },
     (context, reportDescriptor) => {
       if (
         !('messageId' in reportDescriptor) ||
