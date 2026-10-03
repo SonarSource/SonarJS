@@ -89,9 +89,8 @@ function isCsiIntroducerAlternative(character: AST.Character): boolean {
   if (parent.type !== 'CharacterClass' || parent.negate || parent.elements.length !== 2) {
     return false;
   }
-  return parent.elements.every(
-    element => element.type === 'Character' && (element.value === ESC || element.value === C1_CSI),
-  );
+  const other = parent.elements.find(element => element !== character);
+  return other?.type === 'Character' && other.value === C1_CSI;
 }
 
 /**

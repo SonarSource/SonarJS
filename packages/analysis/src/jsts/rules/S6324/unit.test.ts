@@ -307,6 +307,11 @@ describe('S6324', () => {
           code: String.raw`/[\x1b\x9ba]/`,
           errors: 1,
         },
+        {
+          // Duplicate ESC characters do not include the C1 CSI introducer.
+          code: String.raw`/[\x1b\x1b]/`,
+          errors: 2,
+        },
       ],
     });
   });
