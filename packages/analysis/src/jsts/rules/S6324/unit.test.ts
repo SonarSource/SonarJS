@@ -303,6 +303,30 @@ describe('S6324', () => {
           errors: 1, // Only BEL should be flagged; ESC + [ is valid CSI
         },
         {
+          // Grouped CSI does not exempt BEL as an OSC terminator.
+          code: String.raw`/\x1b(?:\[).*?\x07/`,
+          errors: 1,
+        },
+        {
+          // Every introducer alternative must be OSC to exempt BEL.
+          code: String.raw`/\x1b(?:\[|\]).*?\x07/`,
+          errors: 1,
+        },
+        {
+          // Optional OSC prefixes leave both ESC and BEL reportable.
+          code: String.raw`/\x1b(?:\])?.*?\x07/`,
+          errors: 2,
+        },
+        {
+          code: String.raw`/\x1b\]{0,3}.*?\x07/`,
+          errors: 2,
+        },
+        {
+          // A non-OSC alternative leaves both ESC and BEL reportable.
+          code: String.raw`/\x1b(?:\]|x).*?\x07/`,
+          errors: 2,
+        },
+        {
           // Standalone ESC without sequence introducer
           code: String.raw`/\u001b/`,
           errors: 1,
