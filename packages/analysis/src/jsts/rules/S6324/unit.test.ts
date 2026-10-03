@@ -520,6 +520,16 @@ describe('S6324', () => {
           errors: 1,
         },
         {
+          // Grouped OSC prefixes do not exempt BEL after a wildcard payload.
+          code: String.raw`/\x1b(?:\]).*?\x07/`,
+          errors: 1,
+        },
+        {
+          // Quantified OSC prefixes do not exempt BEL after a wildcard payload.
+          code: String.raw`/\x1b\]{1}.*?\x07/`,
+          errors: 1,
+        },
+        {
           code: String.raw`/\u001b\].*?\u0007/`,
           errors: 1,
         },
@@ -656,7 +666,7 @@ describe('S6324', () => {
         {
           // A grouped OSC introducer does not prove that a later ST belongs to it.
           code: String.raw`/\x1b(?:\]0;title\x9c)\x1b\\/`,
-          errors: 2,
+          errors: 1,
         },
         {
           // A negated Unicode property can still match an OSC terminator.
