@@ -48,6 +48,35 @@ describe('S7653', () => {
       invalid: [
         {
           code: `
+            const metadata = { selector: '[other]' };
+            @Directive({ selector: 'foo[bar]', ...metadata })
+            class Test {
+              @Output('fooBarChanged') changed = new EventEmitter();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            const key = 'selector';
+            @Directive({ selector: 'foo[bar]', [key]: '[other]' })
+            class Test {
+              @Output('fooBarChanged') changed = new EventEmitter();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            @Directive({ selector: 'foo[bar]', 'selector': '[other]' })
+            class Test {
+              @Output('fooBarChanged') changed = new EventEmitter();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
             @Directive({ selector: 'foo[bar][baz]' })
             class Test {
               @Output('fooBarChanged') changed = new EventEmitter();
