@@ -404,12 +404,41 @@ describe('S6845 upstream sentinel', () => {
           code: `<div tabIndex={disabled ? null : -1} />`,
           errors: 1,
         },
+        { code: '<div contentEditable tabIndex={0} />', errors: 1 },
+        { code: '<span contentEditable="plaintext-only" tabIndex="0" />', errors: 1 },
       ],
     });
   });
 });
 
 describe('S6845', () => {
+  it('allows tabIndex on statically editable HTML hosts only', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('no-noninteractive-tabindex', rule, {
+      valid: [
+        { code: '<div contentEditable tabIndex={0} />' },
+        { code: '<span contentEditable="true" tabIndex="0" />' },
+        { code: '<span contentEditable="plaintext-only" tabIndex="0" />' },
+        { code: '<span contenteditable="TRUE" tabIndex="0" />' },
+      ],
+      invalid: [
+        { code: '<div tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable={false} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable="false" tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable={editable} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable="inherit" tabIndex={0} />', errors: 1 },
+        { code: '<div {...{ contentEditable: true }} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable {...props} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable contentEditable={false} tabIndex={0} />', errors: 1 },
+        {
+          code: '<Editable contentEditable tabIndex={0} />',
+          settings: { 'jsx-a11y': { components: { Editable: 'div' } } },
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('accepts W3C dialog focus targets and the MDN error summary outside the Tab order', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 

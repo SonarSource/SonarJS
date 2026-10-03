@@ -17,6 +17,8 @@
 import { ASTUtils, type TSESLint, type TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope } from 'eslint';
 import type { Node } from 'estree';
+import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
+import pkg from 'jsx-ast-utils-x';
 import { getFirstConcreteRole } from '../helpers/accessibility.js';
 import {
   getUniqueWriteUsageOrNode,
@@ -26,9 +28,11 @@ import {
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isJsxIdentifierNamed } from '../helpers/jsx.js';
+import { isHtmlElement } from '../helpers/isHtmlElement.js';
 import * as meta from './generated-meta.js';
 
 const ARIA_NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
+const { getLiteralPropValue } = pkg;
 
 /**
  * Allows intrinsic div separator widgets with a supplied current value.
@@ -44,8 +48,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }
       const node = 'node' in descriptor ? (descriptor.node as TSESTree.Node) : undefined;
       const opening = node?.type === 'JSXAttribute' ? node.parent : undefined;
-      if (opening?.type === 'JSXOpeningElement' && isSeparatorWidget(context, opening)) {
-        return;
+      if (opening?.type === 'JSXOpeningElement') {
+        if (isEditableHtmlHost(opening) || isSeparatorWidget(context, opening)) {
+          return;
+        }
       }
       context.report(descriptor);
     },
@@ -350,6 +356,50 @@ function isDefinitelyNonNumericExpression(
     default:
       return false;
   }
+}
+
+/**
+ * Accepts native HTML editing hosts with one direct, statically enabled contenteditable attribute.
+ */
+function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
+  const element = {
+    type: 'JSXElement' as const,
+    openingElement: opening,
+  } as TSESTree.JSXElement;
+  if (
+    !isHtmlElement(element) ||
+    opening.name.type !== 'JSXIdentifier' ||
+    opening.name.name === 'svg'
+  ) {
+    return false;
+  }
+
+  const attribute = directContentEditableAttribute(opening);
+  if (!attribute) {
+    return false;
+  }
+  const value = getLiteralPropValue(attribute);
+  return (
+    value === true ||
+    (typeof value === 'string' && ['', 'true', 'plaintext-only'].includes(value.toLowerCase()))
+  );
+}
+
+function directContentEditableAttribute(
+  opening: TSESTree.JSXOpeningElement,
+): JSXAttribute | undefined {
+  const attributes = (opening as unknown as JSXOpeningElement).attributes;
+  // A spread may change the final value, so it cannot prove the host's contenteditable value.
+  if (attributes.some(attribute => attribute.type === 'JSXSpreadAttribute')) {
+    return undefined;
+  }
+  const contentEditableAttributes = attributes.filter(
+    (attribute): attribute is JSXAttribute =>
+      attribute.type === 'JSXAttribute' &&
+      attribute.name.type === 'JSXIdentifier' &&
+      attribute.name.name.toLowerCase() === 'contenteditable',
+  );
+  return contentEditableAttributes.length === 1 ? contentEditableAttributes[0] : undefined;
 }
 
 function getSimpleBindingValue(
