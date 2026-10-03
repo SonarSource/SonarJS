@@ -159,6 +159,12 @@ describe('S6324', () => {
         {
           code: String.raw`/\x1b(?:(?:\[))\d+m/`,
         },
+        {
+          code: String.raw`/\x1b(?:\]).*?\x07/`,
+        },
+        {
+          code: String.raw`/\x1b\]{1}.*?\x07/`,
+        },
       ],
       invalid: [
         {

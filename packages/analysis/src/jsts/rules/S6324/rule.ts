@@ -70,24 +70,25 @@ function isAnsiSequenceStart(character: AST.Character): boolean {
   if (index === -1 || index >= elements.length - 1) {
     return false;
   }
-  return isMandatoryAnsiIntroducer(elements[index + 1]);
+  return isMandatoryAnsiIntroducer(elements[index + 1], [LEFT_BRACKET, RIGHT_BRACKET]);
 }
 
 /**
  * Returns whether an element always starts by consuming a CSI or OSC introducer.
  * Optional or mixed alternatives are deliberately excluded.
  */
-function isMandatoryAnsiIntroducer(element: AST.Element): boolean {
+function isMandatoryAnsiIntroducer(element: AST.Element, codes: number[]): boolean {
   if (element.type === 'Character') {
-    return element.value === LEFT_BRACKET || element.value === RIGHT_BRACKET;
+    return codes.includes(element.value);
   }
   if (element.type === 'Quantifier') {
-    return element.min > 0 && isMandatoryAnsiIntroducer(element.element);
+    return element.min > 0 && isMandatoryAnsiIntroducer(element.element, codes);
   }
   if (element.type === 'Group' || element.type === 'CapturingGroup') {
     return element.alternatives.every(
       alternative =>
-        alternative.elements.length > 0 && isMandatoryAnsiIntroducer(alternative.elements[0]),
+        alternative.elements.length > 0 &&
+        isMandatoryAnsiIntroducer(alternative.elements[0], codes),
     );
   }
   return false;
@@ -112,10 +113,9 @@ function isOscTerminator(character: AST.Character): boolean {
     const curr = elements[i];
     const prev = elements[i - 1];
     if (
-      curr.type === 'Character' &&
-      curr.value === RIGHT_BRACKET &&
       prev.type === 'Character' &&
-      prev.value === ESC
+      prev.value === ESC &&
+      isMandatoryAnsiIntroducer(curr, [RIGHT_BRACKET])
     ) {
       return true;
     }
