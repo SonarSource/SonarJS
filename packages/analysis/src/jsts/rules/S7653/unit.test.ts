@@ -37,6 +37,9 @@ describe('S7653', () => {
       valid: [
         { code: compoundSelectorOutput },
         {
+          code: compoundSelectorOutput.replace('selector:', "'selector':"),
+        },
+        {
           code: `
             @Directive({ selector: 'foo[bar]' })
             class Test {

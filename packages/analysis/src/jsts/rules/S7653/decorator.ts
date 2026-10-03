@@ -79,17 +79,14 @@ function getCompoundSelector(node: TSESTree.Node) {
     if (selectorProperties.length !== 1) {
       return undefined;
     }
-    for (const property of selectorProperties) {
-      if (
-        property.type === 'Property' &&
-        !property.computed &&
-        property.key.type === 'Identifier' &&
-        property.key.name === 'selector' &&
-        property.value.type === 'Literal' &&
-        typeof property.value.value === 'string'
-      ) {
-        return property.value.value;
-      }
+    const [property] = selectorProperties;
+    if (
+      property.type === 'Property' &&
+      !property.computed &&
+      property.value.type === 'Literal' &&
+      typeof property.value.value === 'string'
+    ) {
+      return property.value.value;
     }
   }
   return undefined;
