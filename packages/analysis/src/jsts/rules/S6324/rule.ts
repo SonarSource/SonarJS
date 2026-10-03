@@ -28,6 +28,7 @@ const MAX_CONTROL_CHAR_CODE = 0x1f;
 
 // ANSI escape sequence control characters
 const ESC = 0x1b;
+const C1_CSI = 0x9b;
 const BEL = 0x07;
 const LEFT_BRACKET = 0x5b; // [
 const RIGHT_BRACKET = 0x5d; // ]
@@ -78,6 +79,22 @@ function isAnsiSequenceStart(character: AST.Character): boolean {
 }
 
 /**
+ * ESC and C1 CSI are the two alternative introducers for an ANSI control sequence.
+ */
+function isCsiIntroducerAlternative(character: AST.Character): boolean {
+  if (character.value !== ESC) {
+    return false;
+  }
+  const parent = character.parent;
+  if (parent.type !== 'CharacterClass' || parent.negate || parent.elements.length !== 2) {
+    return false;
+  }
+  return parent.elements.every(
+    element => element.type === 'Character' && (element.value === ESC || element.value === C1_CSI),
+  );
+}
+
+/**
  * Checks if BEL (0x07) is used as OSC sequence terminator.
  * Per xterm spec, BEL is valid only as an OSC terminator (after ESC + ]).
  * It should NOT be exempted after CSI sequences (ESC + [).
@@ -121,6 +138,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
         !isCharacterClassRangeBoundary(character) &&
         !isInCharacterClassWithControlCharRange(character) &&
         !isAnsiSequenceStart(character) &&
+        !isCsiIntroducerAlternative(character) &&
         !isOscTerminator(character)
       ) {
         context.reportRegExpNode({

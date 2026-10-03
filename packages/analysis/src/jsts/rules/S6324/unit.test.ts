@@ -141,6 +141,10 @@ describe('S6324', () => {
           // ESC in non-capturing group followed by [ should be exempted
           code: String.raw`/(?:\u001b\[)(?:[?|#])?(?:(?:[0-9]{1,3})?(?:(?:;[0-9]{0,3})*)?[A-Z|a-z])/`,
         },
+        {
+          // ESC and the C1 CSI character are alternate ANSI sequence introducers.
+          code: String.raw`/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]/g`,
+        },
       ],
       invalid: [
         {
@@ -286,6 +290,21 @@ describe('S6324', () => {
         {
           // ESC followed by something other than [ or ]
           code: String.raw`/\x1b\(/`,
+          errors: 1,
+        },
+        {
+          // A C1 character other than CSI does not establish an ANSI introducer pair.
+          code: String.raw`/[\x1b\x9a]/`,
+          errors: 1,
+        },
+        {
+          // Negating the two characters is not an ANSI sequence introducer.
+          code: String.raw`/[^\x1b\x9b]/`,
+          errors: 1,
+        },
+        {
+          // Extra characters make this an arbitrary character class, not an introducer pair.
+          code: String.raw`/[\x1b\x9ba]/`,
           errors: 1,
         },
       ],
