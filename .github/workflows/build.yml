@@ -118,7 +118,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.15
+          version: 2026.9.16
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - if: steps.cache.outputs.cache-hit != 'true'
         id: secrets
@@ -158,7 +158,7 @@ jobs:
       - &mise
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.15
+          version: 2026.9.16
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - &npm_cache
         name: Restore NPM dependencies
@@ -468,7 +468,7 @@ jobs:
       - *checkout
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.15
+          version: 2026.9.16
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
           install_args: node
@@ -539,7 +539,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.15
+          version: 2026.9.16
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -598,7 +598,7 @@ jobs:
       - if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.15
+          version: 2026.9.16
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - name: Restore NPM dependencies
         if: steps.cache.outputs.cache-hit != 'true'
@@ -761,7 +761,7 @@ jobs:
       - &mise_java_matrix_node
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.15
+          version: 2026.9.16
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           cache_key: '{{default}}-{{env.MISE_NODE_VERSION}}'
       - *maven_cache_restore
@@ -838,7 +838,7 @@ jobs:
         name: Setup Java and Maven
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.15
+          version: 2026.9.16
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
           install_args: java maven
       - *maven_cache_restore
@@ -928,7 +928,7 @@ jobs:
         name: Setup Maven
         uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
-          version: 2026.9.15
+          version: 2026.9.16
           cache_save: true
           install_args: maven
       - *maven_cache_restore
