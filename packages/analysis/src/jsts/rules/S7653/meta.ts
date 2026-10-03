@@ -15,7 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7653/javascript
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'no-output-rename';
-export const externalPlugin = '@angular-eslint';
+export const externalRules = [
+  { externalPlugin: '@angular-eslint', externalRule: 'no-output-rename' },
+];
 export const quickFixMessage = 'Remove output alias';
