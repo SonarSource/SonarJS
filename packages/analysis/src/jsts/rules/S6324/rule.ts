@@ -94,6 +94,9 @@ function isOscTerminator(character: AST.Character): boolean {
     ) {
       return false;
     }
+    if (parent.type === 'CharacterClass') {
+      return false;
+    }
     if (parent.type === 'Alternative' && hasOscIntroducerBefore(parent, node)) {
       return true;
     }

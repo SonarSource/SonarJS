@@ -298,6 +298,11 @@ describe('S6324', () => {
           errors: 1,
         },
         {
+          // BEL inside a character class is not an OSC terminator.
+          code: String.raw`/\x1b\][^\x07]*/`,
+          errors: 1,
+        },
+        {
           // Standalone ESC without sequence introducer
           code: String.raw`/\u001b/`,
           errors: 1,
