@@ -131,6 +131,10 @@ describe('S6324', () => {
           code: String.raw`/\u001b\].*?\u0007/`,
         },
         {
+          // The OSC terminator can be one of the alternatives after its introducer.
+          code: String.raw`/\x1b\].*?(?:\x07|foo)/`,
+        },
+        {
           // Combined ANSI control sequences pattern (like vscode ansiUtils.ts)
           // Matches CSI, OSC, and simple ESC sequences
           // Note: \x9b is C1 CSI (0x9b = 155) which is > 0x1f, so not flagged as control char
@@ -277,6 +281,26 @@ describe('S6324', () => {
           // BEL is only valid as OSC terminator, not CSI terminator
           code: String.raw`/\x1b\[.*?\x07/`,
           errors: 1, // Only BEL should be flagged; ESC + [ is valid CSI
+        },
+        {
+          // An OSC introducer in another alternative does not make BEL a terminator.
+          code: String.raw`/(?:\x1b\].*?|\x07)/`,
+          errors: 1,
+        },
+        {
+          // BEL remains reportable when the OSC introducer is optional.
+          code: String.raw`/(?:\x1b\].*?)?(?:\x07|foo)/`,
+          errors: 1,
+        },
+        {
+          // BEL used only to assert an absent terminator is not an OSC terminator.
+          code: String.raw`/\x1b\](?!.*\x07)/`,
+          errors: 1,
+        },
+        {
+          // BEL inside a character class is not an OSC terminator.
+          code: String.raw`/\x1b\][^\x07]*/`,
+          errors: 1,
         },
         {
           // Standalone ESC without sequence introducer

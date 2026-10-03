@@ -78,21 +78,38 @@ function isAnsiSequenceStart(character: AST.Character): boolean {
 }
 
 /**
- * Checks if BEL (0x07) is used as OSC sequence terminator.
- * Per xterm spec, BEL is valid only as an OSC terminator (after ESC + ]).
- * It should NOT be exempted after CSI sequences (ESC + [).
+ * Checks whether BEL (0x07) has an OSC introducer earlier on its execution path.
  */
 function isOscTerminator(character: AST.Character): boolean {
   if (character.value !== BEL) {
     return false;
   }
-  const parent = character.parent;
-  if (parent.type !== 'Alternative') {
-    return false;
+
+  let node: AST.Node = character;
+  while (node.parent) {
+    const parent: AST.Node = node.parent;
+    if (
+      parent.type === 'Assertion' &&
+      (parent.kind === 'lookahead' || parent.kind === 'lookbehind')
+    ) {
+      return false;
+    }
+    if (parent.type === 'CharacterClass') {
+      return false;
+    }
+    if (parent.type === 'Alternative' && hasOscIntroducerBefore(parent, node)) {
+      return true;
+    }
+    node = parent;
   }
-  const elements = parent.elements;
-  // Look backwards for ESC + ] pattern indicating OSC sequence start
-  for (let i = elements.indexOf(character) - 1; i >= 1; i--) {
+
+  return false;
+}
+
+function hasOscIntroducerBefore(alternative: AST.Alternative, node: AST.Node): boolean {
+  const elements = alternative.elements;
+  const index = elements.indexOf(node as AST.Element);
+  for (let i = index - 1; i >= 1; i--) {
     const curr = elements[i];
     const prev = elements[i - 1];
     if (
