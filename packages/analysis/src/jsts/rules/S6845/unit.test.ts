@@ -38,6 +38,8 @@ describe('S6845', () => {
     ruleTester.run('no-noninteractive-tabindex', rule, {
       valid: [
         { code: '<div contentEditable tabIndex={0} />' },
+        { code: '<div contentEditable={true} tabIndex={0} />' },
+        { code: '<div contentEditable={""} tabIndex={0} />' },
         { code: '<span contentEditable="true" tabIndex="0" />' },
         { code: '<span contentEditable="plaintext-only" tabIndex="0" />' },
         { code: '<span contenteditable="TRUE" tabIndex="0" />' },
@@ -47,6 +49,15 @@ describe('S6845', () => {
         { code: '<div contentEditable={false} tabIndex={0} />', errors: 1 },
         { code: '<div contentEditable="false" tabIndex={0} />', errors: 1 },
         { code: '<div contentEditable={editable} tabIndex={0} />', errors: 1 },
+        {
+          code: 'const editable = false; <div contentEditable={!!editable} tabIndex={0} />',
+          errors: 1,
+        },
+        {
+          code: 'const tag = () => false; <div contentEditable={tag`true`} tabIndex={0} />',
+          errors: 1,
+        },
+        { code: '<div contentEditable={`true${false}`} tabIndex={0} />', errors: 1 },
         { code: '<div contentEditable="inherit" tabIndex={0} />', errors: 1 },
         { code: '<div {...{ contentEditable: true }} tabIndex={0} />', errors: 1 },
         { code: '<div contentEditable {...props} tabIndex={0} />', errors: 1 },
