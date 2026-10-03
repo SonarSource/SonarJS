@@ -17,13 +17,11 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
-import pkg from 'jsx-ast-utils-x';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isHtmlElement } from '../helpers/isHtmlElement.js';
 import * as meta from './generated-meta.js';
 
-const { getLiteralPropValue } = pkg;
 const VALUE_ATTRIBUTES = ['aria-valuemin', 'aria-valuemax', 'aria-valuenow'];
 const DECIMAL_NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/;
 
@@ -98,7 +96,23 @@ function directLiteralAttribute(
       attribute.name.type === 'JSXIdentifier' &&
       attribute.name.name.toLowerCase() === name,
   );
-  return matching.length === 1 ? getLiteralPropValue(matching[0]) : undefined;
+  if (matching.length !== 1) {
+    return undefined;
+  }
+  const value = matching[0].value;
+  const expression = value?.type === 'JSXExpressionContainer' ? value.expression : value;
+  if (expression?.type === 'Literal') {
+    return expression.value;
+  }
+  if (
+    expression?.type === 'UnaryExpression' &&
+    (expression.operator === '+' || expression.operator === '-') &&
+    expression.argument.type === 'Literal' &&
+    typeof expression.argument.value === 'number'
+  ) {
+    return expression.operator === '-' ? -expression.argument.value : expression.argument.value;
+  }
+  return undefined;
 }
 
 function numericAttributeValue(

@@ -44,12 +44,26 @@ describe('S6845', () => {
         {
           code: `<div role="separator" aria-valuemin={0} aria-valuemax={100} aria-valuenow={50} tabIndex={0} />`,
         },
+        {
+          code: `<div role="separator" aria-valuemin={-100} aria-valuemax={+100} aria-valuenow={-50} tabIndex={0} />`,
+        },
+        {
+          code: `<div role="separator" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabIndex={0} />`,
+        },
       ],
       invalid: [
         { code: `<div role="separator" tabIndex={0} />`, errors: 1 },
         { code: `<div role="separator" aria-valuenow={50} tabIndex={0} />`, errors: 1 },
         {
           code: `<div role="separator" aria-valuemin={0} aria-valuemax={100} aria-valuenow={current} tabIndex={0} />`,
+          errors: 1,
+        },
+        {
+          code: `const current = 200; <div role="separator" aria-valuemin={0} aria-valuemax={100} aria-valuenow={-~current} tabIndex={0} />`,
+          errors: 1,
+        },
+        {
+          code: `<div role="separator" aria-valuemin={-100} aria-valuemax={100} aria-valuenow={~current} tabIndex={0} />`,
           errors: 1,
         },
         {
