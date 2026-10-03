@@ -63,7 +63,23 @@ function getCompoundSelector(node: TSESTree.Node) {
     if (componentMetadata.type !== 'ObjectExpression') {
       continue;
     }
-    for (const property of componentMetadata.properties) {
+    if (
+      componentMetadata.properties.some(
+        property => property.type === 'SpreadElement' || property.computed,
+      )
+    ) {
+      return undefined;
+    }
+    const selectorProperties = componentMetadata.properties.filter(
+      property =>
+        property.type === 'Property' &&
+        ((property.key.type === 'Identifier' && property.key.name === 'selector') ||
+          (property.key.type === 'Literal' && property.key.value === 'selector')),
+    );
+    if (selectorProperties.length !== 1) {
+      return undefined;
+    }
+    for (const property of selectorProperties) {
       if (
         property.type === 'Property' &&
         !property.computed &&
