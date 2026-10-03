@@ -16,7 +16,6 @@
  */
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
-import { isNullLiteral, isNumberLiteral } from '../helpers/ast.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
@@ -68,14 +67,15 @@ function isNonSequentialTabIndexValue(expression: TSESTree.Expression): boolean 
     return hasOnlyNonSequentialTabIndexBranches(expression);
   }
 
-  if (isNullLiteral(expression)) {
+  if (expression.type === 'Literal' && expression.value === null) {
     return true;
   }
 
   return (
     expression.type === 'UnaryExpression' &&
     expression.operator === '-' &&
-    isNumberLiteral(expression.argument) &&
+    expression.argument.type === 'Literal' &&
+    typeof expression.argument.value === 'number' &&
     Number.isInteger(expression.argument.value) &&
     expression.argument.value > 0
   );
