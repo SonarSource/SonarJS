@@ -108,7 +108,7 @@ function isOscTerminator(character: AST.Character): boolean {
 
 function hasOscIntroducerBefore(alternative: AST.Alternative, node: AST.Node): boolean {
   const elements = alternative.elements;
-  const index = elements.indexOf(node);
+  const index = elements.indexOf(node as AST.Element);
   for (let i = index - 1; i >= 1; i--) {
     const curr = elements[i];
     const prev = elements[i - 1];
