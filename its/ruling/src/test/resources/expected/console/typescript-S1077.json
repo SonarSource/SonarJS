@@ -11,6 +11,10 @@
 "console:src/views/ProjectRootView/OnboardSideNav.tsx": [
 95
 ],
+"console:src/views/RootView/MobileScreen.tsx": [
+66,
+75
+],
 "console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
 134,
 151

@@ -1,0 +1,26 @@
+{
+"sonar-web:src/main/js/apps/overview/components/timeline-chart.js": [
+149
+],
+"sonar-web:src/main/js/components/charts/bar-chart.js": [
+86
+],
+"sonar-web:src/main/js/components/charts/bubble-chart.js": [
+183
+],
+"sonar-web:src/main/js/components/charts/donut-chart.js": [
+51
+],
+"sonar-web:src/main/js/components/charts/histogram.js": [
+85
+],
+"sonar-web:src/main/js/components/charts/line-chart.js": [
+142
+],
+"sonar-web:src/main/js/components/shared/favorite.js": [
+36
+],
+"sonar-web:src/main/js/components/shared/pending-icon.js": [
+6
+]
+}
