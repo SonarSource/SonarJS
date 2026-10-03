@@ -25,10 +25,29 @@ const { rules: upstreamRules } = pkg as unknown as { rules: Record<string, Rule.
 describe('S7652', () => {
   const ruleTester = new NoTypeCheckingRuleTester();
   const angular = `import { Component, Directive, Output, output } from '@angular/core';`;
+  const deprecatedOutputReplacements = [
+    `${angular}
+      @Component({ outputs: ['refresh'] })
+      class C {
+        /** @deprecated Use refresh instead. */
+        onRefresh = output<void>();
+        refresh = this.onRefresh;
+      }
+    `,
+    `${angular}
+      @Component({ outputs: ['onRefresh', 'refresh'] })
+      class C {
+        /** @deprecated Use refresh instead. */
+        onRefresh = new EventEmitter<void>();
+        refresh = this.onRefresh;
+      }
+    `,
+  ];
 
   it('uses explicit, compliant public output aliases', () => {
     ruleTester.run('S7652', rule, {
       valid: [
+        ...deprecatedOutputReplacements.map(code => ({ code })),
         {
           code: `${angular} class C { onRefresh = output({ alias: 'refresh' }); }`,
         },
@@ -127,6 +146,138 @@ describe('S7652', () => {
     });
   });
 
+  it('recognizes only complete documented output replacements', () => {
+    ruleTester.run('S7652', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `${angular}
+            @Component({ outputs: ['refresh'] })
+            class C {
+              onRefresh = output<void>();
+              refresh = this.onRefresh;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `${angular}
+            @Component({ outputs: ['refresh'] })
+            class C {
+              inner = class {
+                /** @deprecated Use refresh instead. */
+                onRefresh = output<void>();
+              };
+              refresh = this.onRefresh;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `${angular}
+            @Component({ outputs: ['refresh'] })
+            class C {
+              /** @deprecated Use refresh instead. */
+              onRefresh = output<void>();
+              @Output('onSave') refresh = this.onRefresh;
+            }
+          `,
+          errors: 2,
+        },
+        {
+          code: `${angular}
+            @Component({ outputs: ['refresh'] })
+            class C {
+              /** @deprecated Use refresh instead. */
+              onRefresh = output<void>();
+              @Output('') refresh = this.onRefresh;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `${angular}
+            const key: string = 'outputs';
+            @Component({ jit: true, outputs: ['onRefresh', 'refresh'], [key]: ['onRefresh'] })
+            class C {
+              /** @deprecated Use refresh instead. */
+              onRefresh = new EventEmitter<void>();
+              refresh = this.onRefresh;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `${angular}
+            @Component({ outputs: ['refresh'] })
+            class C {
+              /* @deprecated Use refresh instead. */
+              onRefresh = output<void>();
+              refresh = this.onRefresh;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `${angular}
+            @Component({})
+            class C {
+              /** @deprecated Use refresh instead. */
+              onRefresh = output<void>();
+              refresh = this.onRefresh;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `${angular}
+            @Component({ outputs: ['refresh'] })
+            class C {
+              /** @deprecated Use refresh instead. */
+              onRefresh = output<void>();
+              refresh = output<void>();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `${angular}
+            @Component({ outputs: ['refresh', 'refresh'] })
+            class C {
+              /** @deprecated Use refresh instead. */
+              onRefresh = output<void>();
+              refresh = this.onRefresh;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `${angular}
+            const replacement = 'refresh';
+            @Component({ outputs: [replacement] })
+            class C {
+              /** @deprecated Use refresh instead. */
+              onRefresh = output<void>();
+              refresh = this.onRefresh;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `${angular}
+            @Component({ outputs: ['refresh'] })
+            class C {
+              /** @deprecated Use refresh instead. */
+              onRefresh = output<void>();
+              refresh = this.other;
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('suppresses only forms reported by the upstream rule', () => {
     ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
       valid: [],
@@ -179,6 +330,7 @@ describe('S7652', () => {
           code: `${angular} @Directive({ hostDirectives: [{ directive: Other, outputs: [\`onRefresh: refresh\`] }] }) class C {}`,
           errors: 1,
         },
+        ...deprecatedOutputReplacements.map(code => ({ code, errors: 1 })),
       ],
     });
   });
