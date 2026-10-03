@@ -14,7 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'no-noninteractive-tabindex';
-export const externalPlugin = 'jsx-a11y';
+export const externalRules = [
+  { externalPlugin: 'jsx-a11y', externalRule: 'no-noninteractive-tabindex' },
+];
 export * from './config.js';
