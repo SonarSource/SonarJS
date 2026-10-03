@@ -42,22 +42,9 @@ const NODE_ASSERT_MODULES = ['assert', 'node:assert', 'assert/strict', 'node:ass
 // (`=== true`/`=== false`, matching chai's `isTrue`/`isFalse`/`.true`/`.false`), distinct from
 // `truthy`/`falsy` (matching e.g. chai's `isOk`/`.ok`, which accept any truthy/falsy value).
 export type AssertionPredicate =
-  | 'truthy'
-  | 'falsy'
-  | 'true'
-  | 'false'
-  | 'defined'
-  | 'undefined'
-  | 'null'
-  | 'exists';
+  'truthy' | 'falsy' | 'true' | 'false' | 'defined' | 'undefined' | 'null' | 'exists';
 export type AssertionStyle =
-  | 'jest-like'
-  | 'jasmine'
-  | 'chai-bdd'
-  | 'chai-assert'
-  | 'cypress'
-  | 'playwright'
-  | 'node-assert';
+  'jest-like' | 'jasmine' | 'chai-bdd' | 'chai-assert' | 'cypress' | 'playwright' | 'node-assert';
 
 /**
  * Cross-framework representation of a test assertion
