@@ -54,7 +54,7 @@ function isInCharacterClassWithControlCharRange(character: AST.Character): boole
 }
 
 /**
- * Checks if ESC (0x1b) is followed by [ or ] to form ANSI CSI/OSC sequence start.
+ * Checks if ESC (0x1b) is followed by a mandatory [ or ] to form an ANSI CSI/OSC sequence start.
  * Per xterm spec, ESC + [ starts a CSI sequence, ESC + ] starts an OSC sequence.
  */
 function isAnsiSequenceStart(character: AST.Character): boolean {
@@ -70,11 +70,27 @@ function isAnsiSequenceStart(character: AST.Character): boolean {
   if (index === -1 || index >= elements.length - 1) {
     return false;
   }
-  const next = elements[index + 1];
-  if (next.type !== 'Character') {
-    return false;
+  return isMandatoryAnsiIntroducer(elements[index + 1]);
+}
+
+/**
+ * Returns whether an element always starts by consuming a CSI or OSC introducer.
+ * Optional or mixed alternatives are deliberately excluded.
+ */
+function isMandatoryAnsiIntroducer(element: AST.Element): boolean {
+  if (element.type === 'Character') {
+    return element.value === LEFT_BRACKET || element.value === RIGHT_BRACKET;
   }
-  return next.value === LEFT_BRACKET || next.value === RIGHT_BRACKET;
+  if (element.type === 'Quantifier') {
+    return element.min > 0 && isMandatoryAnsiIntroducer(element.element);
+  }
+  if (element.type === 'Group' || element.type === 'CapturingGroup') {
+    return element.alternatives.every(
+      alternative =>
+        alternative.elements.length > 0 && isMandatoryAnsiIntroducer(alternative.elements[0]),
+    );
+  }
+  return false;
 }
 
 /**

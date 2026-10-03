@@ -141,6 +141,24 @@ describe('S6324', () => {
           // ESC in non-capturing group followed by [ should be exempted
           code: String.raw`/(?:\u001b\[)(?:[?|#])?(?:(?:[0-9]{1,3})?(?:(?:;[0-9]{0,3})*)?[A-Z|a-z])/`,
         },
+        {
+          // A mandatory group can introduce either CSI or OSC.
+          code: String.raw`/\x1b(?:\[|\])/`,
+        },
+        {
+          // A mandatory quantified introducer still consumes [ before matching its suffix.
+          code: String.raw`/\x1b\[{1,3}\d+m/`,
+        },
+        {
+          // Grouping and quantifying a mandatory introducer is also compliant.
+          code: String.raw`/\x1b(?:\[){1}\d+m/`,
+        },
+        {
+          code: String.raw`/\x1b(\[)\d+m/`,
+        },
+        {
+          code: String.raw`/\x1b(?:(?:\[))\d+m/`,
+        },
       ],
       invalid: [
         {
@@ -286,6 +304,31 @@ describe('S6324', () => {
         {
           // ESC followed by something other than [ or ]
           code: String.raw`/\x1b\(/`,
+          errors: 1,
+        },
+        {
+          // An optional grouped introducer does not prove an ANSI sequence.
+          code: String.raw`/\x1b(?:\[)?/`,
+          errors: 1,
+        },
+        {
+          // Every group alternative must introduce CSI or OSC.
+          code: String.raw`/\x1b(?:\[|x)/`,
+          errors: 1,
+        },
+        {
+          // An optional quantified introducer does not prove an ANSI sequence.
+          code: String.raw`/\x1b\[{0,3}/`,
+          errors: 1,
+        },
+        {
+          // An empty alternative can leave ESC without an introducer.
+          code: String.raw`/\x1b(?:\[|)/`,
+          errors: 1,
+        },
+        {
+          // A mandatory group can still have an optional introducer.
+          code: String.raw`/\x1b(?:\[?x)/`,
           errors: 1,
         },
       ],
