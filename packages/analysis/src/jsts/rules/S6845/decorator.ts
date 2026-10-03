@@ -18,7 +18,6 @@ import { ASTUtils, type TSESLint, type TSESTree } from '@typescript-eslint/utils
 import type { Rule, Scope } from 'eslint';
 import type { Node } from 'estree';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
-import pkg from 'jsx-ast-utils-x';
 import { getFirstConcreteRole } from '../helpers/accessibility.js';
 import {
   getUniqueWriteUsageOrNode,
@@ -32,8 +31,6 @@ import { isHtmlElement } from '../helpers/isHtmlElement.js';
 import * as meta from './generated-meta.js';
 
 const ARIA_NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
-const { getLiteralPropValue } = pkg;
-
 /**
  * Allows intrinsic div separator widgets with a supplied current value.
  * @param rule the upstream accessibility rule
@@ -378,7 +375,18 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
   if (!attribute) {
     return false;
   }
-  const value = getLiteralPropValue(attribute);
+  if (attribute.value === null) {
+    return true;
+  }
+  const expression =
+    attribute.value.type === 'JSXExpressionContainer'
+      ? attribute.value.expression
+      : attribute.value;
+  // Only literal syntax proves enablement; expression extractors may guess dynamic values.
+  if (expression.type !== 'Literal') {
+    return false;
+  }
+  const value = expression.value;
   return (
     value === true ||
     (typeof value === 'string' && ['', 'true', 'plaintext-only'].includes(value.toLowerCase()))
