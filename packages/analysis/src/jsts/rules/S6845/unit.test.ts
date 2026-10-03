@@ -48,6 +48,22 @@ describe('S6845', () => {
       ],
       invalid: [
         {
+          code: `<div tabIndex={disabled ? null : nested ? -1 : 0} />`,
+          errors: 1,
+        },
+        {
+          code: `<div tabIndex={disabled ? null : nested ? -1 : tabIndex} />`,
+          errors: 1,
+        },
+        {
+          code: `<div tabIndex={disabled ? null : -0} />`,
+          errors: 1,
+        },
+        {
+          code: `<div tabIndex={disabled ? null : -1.5} />`,
+          errors: 1,
+        },
+        {
           code: `<div tabIndex={disabled ? null : 0} />`,
           errors: 1,
         },
