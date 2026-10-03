@@ -145,6 +145,10 @@ describe('S6324', () => {
           // ESC and the C1 CSI character are alternate ANSI sequence introducers.
           code: String.raw`/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-PRZcf-nqry=><]/g`,
         },
+        {
+          // The introducer pair is independent of character order.
+          code: String.raw`/[\x9b\x1b]/`,
+        },
       ],
       invalid: [
         {
@@ -311,6 +315,19 @@ describe('S6324', () => {
           // Duplicate ESC characters do not include the C1 CSI introducer.
           code: String.raw`/[\x1b\x1b]/`,
           errors: 2,
+        },
+        {
+          // Exempting the introducer pair does not exempt other control characters.
+          code: String.raw`/[\x1b\x9b]\x07/`,
+          errors: [
+            {
+              message: CONTROL_CHAR_MESSAGE,
+              line: 1,
+              endLine: 1,
+              column: 12,
+              endColumn: 16,
+            },
+          ],
         },
       ],
     });
