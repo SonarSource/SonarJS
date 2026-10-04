@@ -62,10 +62,15 @@ const messages = {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
-    const format = (context.options as FromSchema<typeof meta.schema>)[0]?.format ?? DEFAULT_FORMAT;
+    const options = (context.options as FromSchema<typeof meta.schema>)[0];
+    const format = options?.format ?? DEFAULT_FORMAT;
+    const ignoreCallArgumentKeys = options?.ignoreCallArgumentKeys ?? false;
     const knowledgeStack: FunctionKnowledge[] = [];
     return {
-      [functionExpressionProperty]: (node: estree.Property) => {
+      [functionExpressionProperty]: (node: estree.Property & Rule.NodeParentExtension) => {
+        if (ignoreCallArgumentKeys && isCallArgumentKey(node)) {
+          return;
+        }
         knowledgeStack.push({
           node: node.key as estree.Identifier,
           func: node.value as estree.Function,
@@ -128,6 +133,16 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+// Match only object literals used directly as call or constructor arguments.
+function isCallArgumentKey(node: estree.Property & Rule.NodeParentExtension) {
+  const object = node.parent as estree.ObjectExpression & Rule.NodeParentExtension;
+  const call = object.parent;
+  return (
+    (call.type === 'CallExpression' || call.type === 'NewExpression') &&
+    call.arguments.includes(object)
+  );
+}
 
 //handling arrow functions without return statement
 function returnsJSX(node: estree.Function) {

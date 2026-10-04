@@ -29,6 +29,9 @@ export const schema = {
         format: {
           type: 'string',
         },
+        ignoreCallArgumentKeys: {
+          type: 'boolean',
+        },
       },
       additionalProperties: false,
     },
