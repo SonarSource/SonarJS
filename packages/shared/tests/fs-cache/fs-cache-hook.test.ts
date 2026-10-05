@@ -233,18 +233,21 @@ describe('filesystem cache hook', () => {
         import assert from 'node:assert/strict';
         import { promisify } from 'node:util';
         import { installFsCache } from ${JSON.stringify(hookModule)};
-        const cache = installFsCache();
         const filesystemCacheArchive = ${JSON.stringify(archive)};
         const ci = ${JSON.stringify(root)}, target = ${JSON.stringify(replayRoot)};
         const file = path.join(ci, 'Src/Values.ts');
+        // Native realpaths expand Windows short-name aliases in the temporary root.
+        const expectedRealpath = fs.realpathSync(file);
+        const expectedNativeRealpath = fs.realpathSync.native(file);
+        const cache = installFsCache();
         const record = cache.beginAnalysis({archivePath: filesystemCacheArchive, rootDir: ci, mode: 'record', caseSensitivePaths: false});
         fs.readFileSync(file);
         fs.statSync(file);
         const originalRealpath = fs.realpathSync(file);
-        assert.equal(originalRealpath, path.join(ci, 'Src/Values.ts'));
+        assert.equal(originalRealpath, expectedRealpath);
         assert.equal(fs.realpathSync(file), originalRealpath);
         const originalNativeRealpath = fs.realpathSync.native(file);
-        assert.equal(originalNativeRealpath, path.join(ci, 'Src/Values.ts'));
+        assert.equal(originalNativeRealpath, expectedNativeRealpath);
         assert.equal(fs.realpathSync.native(file), originalNativeRealpath);
         const originalEntry = fs.readdirSync(path.join(ci, 'Src'), {withFileTypes: true})[0];
         assert.equal(originalEntry.parentPath, path.join(ci, 'Src'));
