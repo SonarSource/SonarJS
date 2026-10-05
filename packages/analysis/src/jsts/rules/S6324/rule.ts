@@ -92,7 +92,7 @@ function isOscTerminator(character: AST.Character): boolean {
   }
 
   if (
-    isOscTerminatorAtSequenceBoundary(alternative, character) &&
+    isOscTerminatorShape(alternative, character) &&
     hasOscIntroducerBefore(alternative, character)
   ) {
     return true;
@@ -115,11 +115,7 @@ function isGroupedOscTerminator(alternative: AST.Alternative): boolean {
   }
 
   const parent = group.parent;
-  if (
-    parent.type !== 'Alternative' ||
-    !isOscTerminatorAtSequenceBoundary(parent, group) ||
-    !group.alternatives.every(isOscTerminatorAlternative)
-  ) {
+  if (parent.type !== 'Alternative' || !group.alternatives.every(isOscTerminatorAlternative)) {
     return false;
   }
 
@@ -134,38 +130,12 @@ function isOscTerminatorAlternative(alternative: AST.Alternative): boolean {
   );
 }
 
-function isOscTerminatorAtSequenceBoundary(
-  alternative: AST.Alternative,
-  element: AST.Element,
-): boolean {
-  const index = alternative.elements.indexOf(element);
+function isOscTerminatorShape(alternative: AST.Alternative, character: AST.Character): boolean {
+  const index = alternative.elements.indexOf(character);
   if (index === -1) {
     return false;
   }
-
-  let nextIndex = index + 1;
-  if (element.type === 'Character' && element.value === ESC) {
-    if (!isCharacter(alternative.elements[nextIndex], BACKSLASH)) {
-      return false;
-    }
-    nextIndex++;
-  }
-
-  while (
-    nextIndex < alternative.elements.length &&
-    alternative.elements[nextIndex].type === 'Assertion'
-  ) {
-    nextIndex++;
-  }
-
-  if (nextIndex === alternative.elements.length) {
-    return true;
-  }
-
-  return (
-    isCharacter(alternative.elements[nextIndex], ESC) &&
-    isMandatoryOscIntroducer(alternative.elements[nextIndex + 1])
-  );
+  return character.value === BEL || isCharacter(alternative.elements[index + 1], BACKSLASH);
 }
 
 function isCharacter(element: AST.Element | undefined, value: number): boolean {

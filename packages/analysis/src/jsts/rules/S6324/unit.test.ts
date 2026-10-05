@@ -139,6 +139,10 @@ describe('S6324', () => {
           code: String.raw`/\x1b\].*?(?:\x07|\x1b\\)/`,
         },
         {
+          // An OSC terminator remains valid before ordinary terminal output.
+          code: String.raw`/\x1b\]0;title\x07label/`,
+        },
+        {
           // A complete OSC sequence remains exempt inside a non-capturing group.
           code: String.raw`/(?:\x1b\].*?\x07)/`,
         },
@@ -326,6 +330,11 @@ describe('S6324', () => {
           // An invalid alternative keeps both OSC terminators reportable.
           code: String.raw`/\x1b\].*?(?:\x07|\x1b\\|foo)/`,
           errors: 2,
+        },
+        {
+          // A closed OSC cannot exempt a later standalone string terminator.
+          code: String.raw`/\x1b\]0;title\x07\x1b\\/`,
+          errors: 1,
         },
         {
           // BEL inside a character class is not an OSC terminator.
