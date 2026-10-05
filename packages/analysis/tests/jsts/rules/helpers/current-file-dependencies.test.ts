@@ -61,6 +61,22 @@ describe('current file dependencies', () => {
     expect(manifest.has('vitest')).toBe(false);
   });
 
+  it('evicts an earlier SourceCode when another file is analyzed', () => {
+    const firstContext = getContext(frameworkDir);
+    const nextContext = getContext(frameworkDir);
+    setCurrentFileInlineDependencies(new Map([['react', '19.0.0']]));
+
+    const first = getDependenciesSanitizePaths(firstContext);
+    const next = getDependenciesSanitizePaths(nextContext);
+    expect(next).not.toBe(first);
+    expect(next).toEqual(first);
+
+    const revisited = getDependenciesSanitizePaths(firstContext);
+    expect(revisited).not.toBe(first);
+    expect(revisited).not.toBe(next);
+    expect(revisited).toEqual(first);
+  });
+
   it('invalidates the merged map when file caches are cleared, even for the same SourceCode', () => {
     const context = getContext(emptyDir);
     setCurrentFileInlineDependencies(new Map([['vitest', '3.0.0']]));
