@@ -152,7 +152,9 @@ function hasOscIntroducerBefore(alternative: AST.Alternative, node: AST.Node): b
     const prev = elements[i - 1];
     if (
       containsOscTerminator(curr) ||
-      (prev?.type === 'Character' && prev.value === ESC && isCharacter(curr, BACKSLASH))
+      (prev !== undefined &&
+        canEndWithCharacter(prev, ESC) &&
+        canStartWithCharacter(curr, BACKSLASH))
     ) {
       return false;
     }
@@ -170,9 +172,64 @@ function containsOscTerminator(element: AST.Element): boolean {
   if (element.type === 'Quantifier') {
     return containsOscTerminator(element.element);
   }
+  if (element.type === 'CharacterClass') {
+    return (
+      element.negate ||
+      containsCharacterClassValue(element, BEL) ||
+      containsCharacterClassValue(element, STRING_TERMINATOR)
+    );
+  }
   return (
     (element.type === 'Group' || element.type === 'CapturingGroup') &&
     element.alternatives.some(hasOscTerminator)
+  );
+}
+
+function canStartWithCharacter(element: AST.Element, value: number): boolean {
+  if (isCharacter(element, value)) {
+    return true;
+  }
+  if (element.type === 'CharacterClass') {
+    return element.negate || containsCharacterClassValue(element, value);
+  }
+  if (element.type === 'Quantifier') {
+    return element.max > 0 && canStartWithCharacter(element.element, value);
+  }
+  return (
+    (element.type === 'Group' || element.type === 'CapturingGroup') &&
+    element.alternatives.some(
+      alternative =>
+        alternative.elements.length > 0 && canStartWithCharacter(alternative.elements[0], value),
+    )
+  );
+}
+
+function canEndWithCharacter(element: AST.Element, value: number): boolean {
+  if (isCharacter(element, value)) {
+    return true;
+  }
+  if (element.type === 'CharacterClass') {
+    return element.negate || containsCharacterClassValue(element, value);
+  }
+  if (element.type === 'Quantifier') {
+    return element.max > 0 && canEndWithCharacter(element.element, value);
+  }
+  return (
+    (element.type === 'Group' || element.type === 'CapturingGroup') &&
+    element.alternatives.some(alternative => {
+      const lastElement = alternative.elements.at(-1);
+      return lastElement !== undefined && canEndWithCharacter(lastElement, value);
+    })
+  );
+}
+
+function containsCharacterClassValue(characterClass: AST.CharacterClass, value: number): boolean {
+  return characterClass.elements.some(
+    element =>
+      (element.type === 'Character' && element.value === value) ||
+      (element.type === 'CharacterClassRange' &&
+        element.min.value <= value &&
+        value <= element.max.value),
   );
 }
 

@@ -356,6 +356,26 @@ describe('S6324', () => {
           errors: 2,
         },
         {
+          // A character class that can match BEL may close the OSC sequence.
+          code: String.raw`/\x1b\]0;title[\x07]\x1b\\/`,
+          errors: 2,
+        },
+        {
+          // A character class that matches C1 ST closes the OSC sequence.
+          code: String.raw`/\x1b\]0;title[\x9c]\x1b\\/`,
+          errors: 1,
+        },
+        {
+          // ST split across a group also closes the OSC sequence.
+          code: String.raw`/\x1b\]0;title\x1b(?:\\)\x1b\\/`,
+          errors: 2,
+        },
+        {
+          // A quantified ESC can still form an earlier string terminator.
+          code: String.raw`/\x1b\]0;title\x1b?\\\x1b\\/`,
+          errors: 2,
+        },
+        {
           // BEL inside a character class is not an OSC terminator.
           code: String.raw`/\x1b\][^\x07]*/`,
           errors: 1,
