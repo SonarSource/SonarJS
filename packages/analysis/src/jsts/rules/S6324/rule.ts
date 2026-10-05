@@ -175,14 +175,33 @@ function isCharacter(element: AST.Element | undefined, value: number): boolean {
 function hasOscIntroducerBefore(alternative: AST.Alternative, node: AST.Node): boolean {
   const elements = alternative.elements;
   const index = elements.indexOf(node as AST.Element);
-  for (let i = index - 1; i >= 1; i--) {
+  for (let i = index - 1; i >= 0; i--) {
     const curr = elements[i];
     const prev = elements[i - 1];
-    if (prev.type === 'Character' && prev.value === ESC && isMandatoryOscIntroducer(curr)) {
+    if (
+      isDefiniteOscTerminator(curr) ||
+      (prev?.type === 'Character' && prev.value === ESC && isCharacter(curr, BACKSLASH))
+    ) {
+      return false;
+    }
+    if (prev?.type === 'Character' && prev.value === ESC && isMandatoryOscIntroducer(curr)) {
       return true;
     }
   }
   return false;
+}
+
+function isDefiniteOscTerminator(element: AST.Element): boolean {
+  if (isCharacter(element, BEL)) {
+    return true;
+  }
+  if (element.type === 'Quantifier') {
+    return element.min > 0 && isDefiniteOscTerminator(element.element);
+  }
+  return (
+    (element.type === 'Group' || element.type === 'CapturingGroup') &&
+    element.alternatives.every(isOscTerminatorAlternative)
+  );
 }
 
 function isMandatoryOscIntroducer(element: AST.Element | undefined): boolean {
