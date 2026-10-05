@@ -33,6 +33,11 @@ const LEFT_BRACKET = 0x5b; // [
 const RIGHT_BRACKET = 0x5d; // ]
 const BACKSLASH = 0x5c;
 const STRING_TERMINATOR = 0x9c;
+const CAN = 0x18;
+const SUB = 0x1a;
+const ASCII_DIGIT_MIN = 0x30;
+const ASCII_DIGIT_MAX = 0x39;
+const UNSAFE_OSC_PAYLOAD_CHARACTERS = [BEL, CAN, SUB, ESC, STRING_TERMINATOR];
 
 /**
  * Control characters used as range boundaries (e.g., [\x00-\x1f]) indicate intentional usage.
@@ -197,122 +202,11 @@ function hasOscIntroducerBefore(alternative: AST.Alternative, node: AST.Node): b
   for (let i = index - 1; i >= 0; i--) {
     const curr = elements[i];
     const prev = elements[i - 1];
-    if (
-      containsOscTerminator(curr) ||
-      (canEndWithCharacter(curr, ESC) && canFollowWithCharacter(elements, i + 1, index, BACKSLASH))
-    ) {
-      return false;
-    }
     if (prev?.type === 'Character' && prev.value === ESC && isMandatoryOscIntroducer(curr)) {
-      return true;
+      return elements.slice(i + 1, index).every(isSafeOscPayload);
     }
   }
   return false;
-}
-
-function canFollowWithCharacter(
-  elements: readonly AST.Element[],
-  startIndex: number,
-  endIndex: number,
-  value: number,
-): boolean {
-  for (let i = startIndex; i < endIndex; i++) {
-    if (canStartWithCharacter(elements[i], value)) {
-      return true;
-    }
-    if (!canBeEmpty(elements[i])) {
-      return false;
-    }
-  }
-  return false;
-}
-
-function containsOscTerminator(element: AST.Element): boolean {
-  if (isCharacter(element, BEL) || isCharacter(element, STRING_TERMINATOR)) {
-    return true;
-  }
-  if (element.type === 'Quantifier') {
-    return containsOscTerminator(element.element);
-  }
-  if (element.type === 'CharacterClass') {
-    return (
-      containsCharacterClassValue(element, BEL) ||
-      containsCharacterClassValue(element, STRING_TERMINATOR)
-    );
-  }
-  return (
-    (element.type === 'Group' || element.type === 'CapturingGroup') &&
-    element.alternatives.some(hasOscTerminator)
-  );
-}
-
-function canStartWithCharacter(element: AST.Element, value: number): boolean {
-  if (isCharacter(element, value)) {
-    return true;
-  }
-  if (element.type === 'CharacterClass') {
-    return containsCharacterClassValue(element, value);
-  }
-  if (element.type === 'Quantifier') {
-    return element.max > 0 && canStartWithCharacter(element.element, value);
-  }
-  return (
-    (element.type === 'Group' || element.type === 'CapturingGroup') &&
-    element.alternatives.some(alternative => alternativeCanStartWithCharacter(alternative, value))
-  );
-}
-
-function alternativeCanStartWithCharacter(alternative: AST.Alternative, value: number): boolean {
-  for (const element of alternative.elements) {
-    if (canStartWithCharacter(element, value)) {
-      return true;
-    }
-    if (!canBeEmpty(element)) {
-      return false;
-    }
-  }
-  return false;
-}
-
-function canEndWithCharacter(element: AST.Element, value: number): boolean {
-  if (isCharacter(element, value)) {
-    return true;
-  }
-  if (element.type === 'CharacterClass') {
-    return containsCharacterClassValue(element, value);
-  }
-  if (element.type === 'Quantifier') {
-    return element.max > 0 && canEndWithCharacter(element.element, value);
-  }
-  return (
-    (element.type === 'Group' || element.type === 'CapturingGroup') &&
-    element.alternatives.some(alternative => alternativeCanEndWithCharacter(alternative, value))
-  );
-}
-
-function alternativeCanEndWithCharacter(alternative: AST.Alternative, value: number): boolean {
-  for (let i = alternative.elements.length - 1; i >= 0; i--) {
-    if (canEndWithCharacter(alternative.elements[i], value)) {
-      return true;
-    }
-    if (!canBeEmpty(alternative.elements[i])) {
-      return false;
-    }
-  }
-  return false;
-}
-
-function canBeEmpty(element: AST.Element): boolean {
-  if (element.type === 'Assertion') {
-    return true;
-  }
-  if (element.type === 'Quantifier') {
-    return element.min === 0 || canBeEmpty(element.element);
-  }
-  return (
-    (element.type === 'Group' || element.type === 'CapturingGroup') &&
-    element.alternatives.some(alternative => alternative.elements.every(canBeEmpty))
-  );
 }
 
 function isAlwaysEmpty(element: AST.Element): boolean {
@@ -326,24 +220,6 @@ function isAlwaysEmpty(element: AST.Element): boolean {
     (element.type === 'Group' || element.type === 'CapturingGroup') &&
     element.alternatives.every(alternative => alternative.elements.every(isAlwaysEmpty))
   );
-}
-
-function containsCharacterClassValue(characterClass: AST.CharacterClass, value: number): boolean {
-  let containsUnknownElement = false;
-  const explicitlyMatches = characterClass.elements.some(element => {
-    if (element.type === 'Character') {
-      return element.value === value;
-    }
-    if (element.type === 'CharacterClassRange') {
-      return element.min.value <= value && value <= element.max.value;
-    }
-    containsUnknownElement = true;
-    return false;
-  });
-  if (containsUnknownElement) {
-    return true;
-  }
-  return characterClass.negate ? !explicitlyMatches : explicitlyMatches;
 }
 
 function characterClassAlwaysMatchesValue(
@@ -363,18 +239,87 @@ function characterClassAlwaysMatchesValue(
   );
 }
 
-function hasOscTerminator(alternative: AST.Alternative): boolean {
-  return alternative.elements.some(
-    (element, index) =>
-      containsOscTerminator(element) ||
-      (canEndWithCharacter(element, ESC) &&
-        canFollowWithCharacter(
-          alternative.elements,
-          index + 1,
-          alternative.elements.length,
-          BACKSLASH,
-        )),
+function isSafeOscPayload(element: AST.Element): boolean {
+  if (element.type === 'Assertion') {
+    return true;
+  }
+  if (element.type === 'Character') {
+    return !isUnsafeOscPayloadCharacter(element.value);
+  }
+  if (element.type === 'CharacterSet') {
+    return isSafeOscCharacterSet(element);
+  }
+  if (element.type === 'CharacterClass') {
+    return isSafeOscCharacterClass(element);
+  }
+  if (element.type === 'Quantifier') {
+    return isSafeOscPayload(element.element);
+  }
+  return (
+    (element.type === 'Group' || element.type === 'CapturingGroup') &&
+    element.alternatives.every(alternative => alternative.elements.every(isSafeOscPayload))
   );
+}
+
+function isSafeOscCharacterSet(characterSet: AST.CharacterSet): boolean {
+  // A wildcard is the established OSC payload form in the rule's existing contract.
+  if (characterSet.kind === 'any') {
+    return true;
+  }
+  return UNSAFE_OSC_PAYLOAD_CHARACTERS.every(
+    value => characterSetMatchesValue(characterSet, value) === false,
+  );
+}
+
+function isSafeOscCharacterClass(characterClass: AST.CharacterClass): boolean {
+  return UNSAFE_OSC_PAYLOAD_CHARACTERS.every(value => {
+    const matches = characterClass.elements.some(element => elementMatchesValue(element, value));
+    return characterClass.negate ? matches : !matches;
+  });
+}
+
+function isUnsafeOscPayloadCharacter(value: number): boolean {
+  return (
+    value === BEL || value === CAN || value === SUB || value === ESC || value === STRING_TERMINATOR
+  );
+}
+
+function elementMatchesValue(element: AST.CharacterClassElement, value: number): boolean {
+  if (element.type === 'Character') {
+    return element.value === value;
+  }
+  if (element.type === 'CharacterClassRange') {
+    return element.min.value <= value && value <= element.max.value;
+  }
+  if (element.type !== 'CharacterSet') {
+    return true;
+  }
+  return characterSetMatchesValue(element as AST.CharacterSet, value) !== false;
+}
+
+function characterSetMatchesValue(
+  characterSet: AST.CharacterSet,
+  value: number,
+): boolean | undefined {
+  let matches: boolean | undefined;
+  switch (characterSet.kind) {
+    case 'digit':
+      matches = value >= ASCII_DIGIT_MIN && value <= ASCII_DIGIT_MAX;
+      break;
+    case 'space':
+    case 'word':
+      matches = false;
+      break;
+    case 'any':
+      matches = true;
+      break;
+    default:
+      matches = undefined;
+  }
+  if (matches === undefined) {
+    return undefined;
+  }
+  return characterSet.kind === 'any' || !characterSet.negate ? matches : !matches;
 }
 
 function isMandatoryOscIntroducer(element: AST.Element | undefined): boolean {

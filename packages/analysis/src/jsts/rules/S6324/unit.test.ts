@@ -151,6 +151,10 @@ describe('S6324', () => {
           code: String.raw`/\x1b\][^\x00-\x1f\x9c]*\x07/`,
         },
         {
+          // Known digit sets cannot contain an OSC terminator.
+          code: String.raw`/\x1b\][\d]\x07/`,
+        },
+        {
           // A complete OSC sequence remains exempt inside a non-capturing group.
           code: String.raw`/(?:\x1b\].*?\x07)/`,
         },
@@ -373,6 +377,36 @@ describe('S6324', () => {
           // A character set that can match BEL may close the OSC sequence.
           code: String.raw`/\x1b\]0;title[\D]\x1b\\/`,
           errors: 1,
+        },
+        {
+          // A bare character set that can match BEL may close the OSC sequence.
+          code: String.raw`/\x1b\]\D\x1b\\/`,
+          errors: 1,
+        },
+        {
+          // Unicode control properties can also match BEL before a later ST.
+          code: String.raw`/\x1b\]\p{Cc}\x1b\\/u`,
+          errors: 1,
+        },
+        {
+          // CAN cancels OSC before the later ST.
+          code: String.raw`/\x1b\]\x18\x1b\\/`,
+          errors: 2,
+        },
+        {
+          // CSI replaces OSC before the later ST.
+          code: String.raw`/\x1b\]\x1b\[m\x1b\\/`,
+          errors: 1,
+        },
+        {
+          // A backreference can replay a C1 ST before the later ST.
+          code: String.raw`/(\x9c)\x1b\]\1\x1b\\/`,
+          errors: 1,
+        },
+        {
+          // Consecutive repetitions can form an earlier ST across their boundary.
+          code: String.raw`/\x1b\](?:\\\x1b){2}\x1b\\/`,
+          errors: 2,
         },
         {
           // ST split across a group also closes the OSC sequence.
