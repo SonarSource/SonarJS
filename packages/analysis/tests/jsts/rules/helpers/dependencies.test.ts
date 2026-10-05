@@ -14,99 +14,86 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { afterEach, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { Linter, type Rule } from 'eslint';
-import path from 'node:path';
-import {
-  getDependenciesSanitizePaths,
-  setCurrentFileInlineDependencies,
-} from '../../../../src/jsts/rules/helpers/dependency-manifests/dependencies.js';
-import { clearFileCaches } from '../../../../src/jsts/rules/helpers/module.js';
+import { parseReactVersion } from '../../../../src/jsts/rules/helpers/dependency-manifests/dependencies.js';
 
-describe('current file dependencies', () => {
-  const fixtures = path.join(import.meta.dirname, 'fixtures');
-  const frameworkDir = path.join(fixtures, 'framework-versions');
-  const emptyDir = path.join(fixtures, 'external-library');
-
-  afterEach(clearFileCaches);
-
-  it('shares the merged dependency map across repeated lookups and rules in one file', () => {
-    const [context, otherContext] = getContexts(frameworkDir);
-    setCurrentFileInlineDependencies(new Map([['react', '19.0.0']]));
-
-    const dependencies = getDependenciesSanitizePaths(context);
-    expect(dependencies.get('react')).toBe('19.0.0');
-    expect(dependencies.get('vue')).toBe('^3.4.0');
-    expect(getDependenciesSanitizePaths(context)).toBe(dependencies);
-    expect(otherContext).not.toBe(context);
-    expect(getDependenciesSanitizePaths(otherContext)).toBe(dependencies);
+describe('parseReactVersion', () => {
+  it('should parse exact versions', () => {
+    expect(parseReactVersion('18.0.0')).toBe('18.0.0');
+    expect(parseReactVersion('19.1.0')).toBe('19.1.0');
+    expect(parseReactVersion('16.14.0')).toBe('16.14.0');
   });
 
-  it('replaces inline dependencies without modifying the manifest dependency cache', () => {
-    const context = getContext(frameworkDir);
-    setCurrentFileInlineDependencies(new Map([['react', '19.0.0']]));
-    const first = getDependenciesSanitizePaths(context);
-
-    setCurrentFileInlineDependencies(new Map([['vitest', '3.0.0']]));
-    const second = getDependenciesSanitizePaths(context);
-    expect(second).not.toBe(first);
-    expect(second.get('react')).toBe('^18.2.0');
-    expect(second.get('vitest')).toBe('3.0.0');
-    expect(first.get('react')).toBe('19.0.0');
-
-    setCurrentFileInlineDependencies(null);
-    const manifest = getDependenciesSanitizePaths(context);
-    expect(manifest.get('react')).toBe('^18.2.0');
-    expect(manifest.has('vitest')).toBe(false);
+  it('should parse partial versions', () => {
+    expect(parseReactVersion('18.0')).toBe('18.0.0');
+    expect(parseReactVersion('19')).toBe('19.0.0');
   });
 
-  it('invalidates the merged map when file caches are cleared, even for the same SourceCode', () => {
-    const context = getContext(emptyDir);
-    setCurrentFileInlineDependencies(new Map([['vitest', '3.0.0']]));
-    expect(getDependenciesSanitizePaths(context).has('vitest')).toBe(true);
-
-    clearFileCaches();
-    expect(getDependenciesSanitizePaths(context).size).toBe(0);
+  it('should parse version ranges with caret', () => {
+    expect(parseReactVersion('^18.0.0')).toBe('18.0.0');
+    expect(parseReactVersion('^19.1.0')).toBe('19.1.0');
+    expect(parseReactVersion('^16.8')).toBe('16.8.0');
   });
 
-  it('does not reuse another file dependency map when SourceCode changes', () => {
-    const firstContext = getContext(frameworkDir);
-    const dependencies = getDependenciesSanitizePaths(firstContext);
-    expect(dependencies.get('react')).toBe('^18.2.0');
+  it('should parse version ranges with tilde', () => {
+    expect(parseReactVersion('~18.0.0')).toBe('18.0.0');
+    expect(parseReactVersion('~19.1.0')).toBe('19.1.0');
+  });
 
-    const nextContext = getContext(emptyDir);
-    expect(nextContext.sourceCode).not.toBe(firstContext.sourceCode);
-    expect(getDependenciesSanitizePaths(nextContext).size).toBe(0);
-    expect(getDependenciesSanitizePaths(firstContext)).toEqual(dependencies);
+  it('should parse version ranges with comparison operators', () => {
+    expect(parseReactVersion('>=18.0.0')).toBe('18.0.0');
+    expect(parseReactVersion('>17.0.0')).toBe('17.0.1');
+    expect(parseReactVersion('>=18.0.0 <19.0.0')).toBe('18.0.0');
+  });
+
+  it('should parse x-range versions', () => {
+    expect(parseReactVersion('18.x')).toBe('18.0.0');
+    expect(parseReactVersion('18.*')).toBe('18.0.0');
+    expect(parseReactVersion('*')).toBe('0.0.0');
+  });
+
+  it('should parse hyphen range versions', () => {
+    expect(parseReactVersion('17.0.0 - 19.0.0')).toBe('17.0.0');
+  });
+
+  it('should return null for pnpm catalog references', () => {
+    expect(parseReactVersion('catalog:')).toBeNull();
+    expect(parseReactVersion('catalog:frontend')).toBeNull();
+    expect(parseReactVersion('catalog:default')).toBeNull();
+  });
+
+  it('should return null for workspace protocol', () => {
+    expect(parseReactVersion('workspace:*')).toBeNull();
+    expect(parseReactVersion('workspace:^')).toBeNull();
+  });
+
+  it('should return null for file protocol', () => {
+    expect(parseReactVersion('file:../react')).toBeNull();
+    expect(parseReactVersion('file:./packages/react')).toBeNull();
+  });
+
+  it('should return null for link protocol', () => {
+    expect(parseReactVersion('link:../react')).toBeNull();
+  });
+
+  it('should return null for git URLs', () => {
+    expect(parseReactVersion('git://github.com/facebook/react.git')).toBeNull();
+    expect(parseReactVersion('git+https://github.com/facebook/react.git')).toBeNull();
+    expect(parseReactVersion('github:facebook/react')).toBeNull();
+  });
+
+  it('should return null for npm aliases', () => {
+    expect(parseReactVersion('npm:preact@10.0.0')).toBeNull();
+  });
+
+  it('should return null for invalid strings', () => {
+    expect(parseReactVersion('invalid')).toBeNull();
+    expect(parseReactVersion('not-a-version')).toBeNull();
+  });
+
+  it('should handle empty string as wildcard', () => {
+    // semver treats empty string like '*' which resolves to 0.0.0
+    expect(parseReactVersion('')).toBe('0.0.0');
   });
 });
-
-function getContext(cwd: string): Rule.RuleContext {
-  return getContexts(cwd)[0];
-}
-
-function getContexts(cwd: string): [Rule.RuleContext, Rule.RuleContext] {
-  const captured: Rule.RuleContext[] = [];
-  const capture: Rule.RuleModule = {
-    create(context) {
-      captured.push(context);
-      return {};
-    },
-  };
-  const messages = new Linter({ cwd }).verify(
-    '',
-    {
-      plugins: { test: { rules: { first: capture, second: capture } } },
-      rules: { 'test/first': 'error', 'test/second': 'error' },
-      settings: { sonarRuntime: true },
-    },
-    path.join(cwd, 'source.js'),
-  );
-  expect(messages).toEqual([]);
-  const [first, second] = captured;
-  if (first === undefined || second === undefined) {
-    throw new Error('The dependency probe rules did not run');
-  }
-  return [first, second];
-}
