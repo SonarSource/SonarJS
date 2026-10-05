@@ -139,6 +139,22 @@ describe('S6324', () => {
           code: String.raw`/\x1b\].*?(?:\x07|\x1b\\)/`,
         },
         {
+          // A complete OSC sequence remains exempt inside a non-capturing group.
+          code: String.raw`/(?:\x1b\].*?\x07)/`,
+        },
+        {
+          // Capturing terminator alternatives are valid when every branch is a terminator.
+          code: String.raw`/\x1b\].*?(\x07|\x1b\\)/`,
+        },
+        {
+          // A complete OSC sequence may be followed by an end assertion.
+          code: String.raw`/^\x1b\]0;.*\x07$/`,
+        },
+        {
+          // A terminator may be followed by another OSC sequence.
+          code: String.raw`/\x1b\]0;.*?\x07\x1b\]1;.*?\x07/`,
+        },
+        {
           // Combined ANSI control sequences pattern (like vscode ansiUtils.ts)
           // Matches CSI, OSC, and simple ESC sequences
           // Note: \x9b is C1 CSI (0x9b = 155) which is > 0x1f, so not flagged as control char

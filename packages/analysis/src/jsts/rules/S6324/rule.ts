@@ -91,25 +91,33 @@ function isOscTerminator(character: AST.Character): boolean {
     return false;
   }
 
-  if (alternative.parent.type === 'Group') {
-    return isGroupedOscTerminator(alternative);
+  if (
+    isOscTerminatorAtSequenceBoundary(alternative, character) &&
+    hasOscIntroducerBefore(alternative, character)
+  ) {
+    return true;
   }
 
+  const group = alternative.parent;
   return (
-    isOscTerminatorAtEnd(alternative, character) && hasOscIntroducerBefore(alternative, character)
+    (group.type === 'Group' || group.type === 'CapturingGroup') &&
+    isGroupedOscTerminator(alternative)
   );
 }
 
 function isGroupedOscTerminator(alternative: AST.Alternative): boolean {
   const group = alternative.parent;
-  if (group.type !== 'Group' || !isOscTerminatorAlternative(alternative)) {
+  if (
+    (group.type !== 'Group' && group.type !== 'CapturingGroup') ||
+    !isOscTerminatorAlternative(alternative)
+  ) {
     return false;
   }
 
   const parent = group.parent;
   if (
     parent.type !== 'Alternative' ||
-    parent.elements.at(-1) !== group ||
+    !isOscTerminatorAtSequenceBoundary(parent, group) ||
     !group.alternatives.every(isOscTerminatorAlternative)
   ) {
     return false;
@@ -126,14 +134,37 @@ function isOscTerminatorAlternative(alternative: AST.Alternative): boolean {
   );
 }
 
-function isOscTerminatorAtEnd(alternative: AST.Alternative, character: AST.Character): boolean {
-  const index = alternative.elements.indexOf(character);
-  const lastIndex = alternative.elements.length - 1;
+function isOscTerminatorAtSequenceBoundary(
+  alternative: AST.Alternative,
+  element: AST.Element,
+): boolean {
+  const index = alternative.elements.indexOf(element);
+  if (index === -1) {
+    return false;
+  }
+
+  let nextIndex = index + 1;
+  if (element.type === 'Character' && element.value === ESC) {
+    if (!isCharacter(alternative.elements[nextIndex], BACKSLASH)) {
+      return false;
+    }
+    nextIndex++;
+  }
+
+  while (
+    nextIndex < alternative.elements.length &&
+    alternative.elements[nextIndex].type === 'Assertion'
+  ) {
+    nextIndex++;
+  }
+
+  if (nextIndex === alternative.elements.length) {
+    return true;
+  }
+
   return (
-    (character.value === BEL && index === lastIndex) ||
-    (character.value === ESC &&
-      index === lastIndex - 1 &&
-      isCharacter(alternative.elements[lastIndex], BACKSLASH))
+    isCharacter(alternative.elements[nextIndex], ESC) &&
+    isMandatoryOscIntroducer(alternative.elements[nextIndex + 1])
   );
 }
 
@@ -147,14 +178,25 @@ function hasOscIntroducerBefore(alternative: AST.Alternative, node: AST.Node): b
   for (let i = index - 1; i >= 1; i--) {
     const curr = elements[i];
     const prev = elements[i - 1];
-    if (
-      curr.type === 'Character' &&
-      curr.value === RIGHT_BRACKET &&
-      prev.type === 'Character' &&
-      prev.value === ESC
-    ) {
+    if (prev.type === 'Character' && prev.value === ESC && isMandatoryOscIntroducer(curr)) {
       return true;
     }
+  }
+  return false;
+}
+
+function isMandatoryOscIntroducer(element: AST.Element | undefined): boolean {
+  if (element?.type === 'Character') {
+    return element.value === RIGHT_BRACKET;
+  }
+  if (element?.type === 'Quantifier') {
+    return element.min > 0 && isMandatoryOscIntroducer(element.element);
+  }
+  if (element?.type === 'Group' || element?.type === 'CapturingGroup') {
+    return element.alternatives.every(
+      alternative =>
+        alternative.elements.length > 0 && isMandatoryOscIntroducer(alternative.elements[0]),
+    );
   }
   return false;
 }
