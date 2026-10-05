@@ -135,6 +135,37 @@ afterEach(() => {
 
 describe('filesystem cache hook', () => {
   for (const caseSensitivePaths of [false, true]) {
+    it(`preserves portable path spelling independently of lookup keys (${caseSensitivePaths})`, () => {
+      const temporary = temporaryDirectory();
+      const rootDir = path.join(temporary, 'project');
+      const archive = new FsCacheArchive({
+        rootDir,
+        archivePath: path.join(temporary, 'case-values.pb.gz'),
+        mode: 'record',
+        caseSensitivePaths,
+      });
+      const file = path.join(rootDir, 'Src/Values.ts');
+      // Populate the lookup cache first: serialized values must not reuse its folded key.
+      expect(archive.keyFor(file)).toBe(caseSensitivePaths ? 'Src/Values.ts' : 'src/values.ts');
+      expect(archive.encodePortablePath(file)).toEqual({ kind: 'relative', path: 'Src/Values.ts' });
+      expect(archive.encodePortablePath(Buffer.from(file))).toEqual({
+        kind: 'relative',
+        path: 'Src/Values.ts',
+      });
+      expect(archive.encodePortablePath(pathToFileURL(file))).toEqual({
+        kind: 'relative',
+        path: 'Src/Values.ts',
+      });
+      expect(archive.encodePortablePath(`${rootDir}/Src/../Src/Values.ts`)).toEqual({
+        kind: 'relative',
+        path: 'Src/Values.ts',
+      });
+      expect(archive.encodePortablePath(rootDir)).toEqual({ kind: 'relative', path: '.' });
+      const outside = path.join(temporary, 'other/Values.ts');
+      expect(archive.encodePortablePath(outside)).toEqual({ kind: 'absolute', path: outside });
+      expect(archive.decodePortablePath(archive.encodePortablePath(file))).toBe(file);
+    });
+
     it(`preserves producer case sensitivity (${caseSensitivePaths}) after relocating an archive`, () => {
       const temporary = temporaryDirectory();
       const archivePath = path.join(temporary, 'case.pb.gz');
@@ -209,9 +240,16 @@ describe('filesystem cache hook', () => {
         const record = cache.beginAnalysis({archivePath: filesystemCacheArchive, rootDir: ci, mode: 'record', caseSensitivePaths: false});
         fs.readFileSync(file);
         fs.statSync(file);
-        fs.realpathSync(file);
-        fs.realpathSync.native(file);
-        fs.readdirSync(path.join(ci, 'Src'), {withFileTypes: true});
+        const originalRealpath = fs.realpathSync(file);
+        assert.equal(originalRealpath, path.join(ci, 'Src/Values.ts'));
+        assert.equal(fs.realpathSync(file), originalRealpath);
+        const originalNativeRealpath = fs.realpathSync.native(file);
+        assert.equal(originalNativeRealpath, path.join(ci, 'Src/Values.ts'));
+        assert.equal(fs.realpathSync.native(file), originalNativeRealpath);
+        const originalEntry = fs.readdirSync(path.join(ci, 'Src'), {withFileTypes: true})[0];
+        assert.equal(originalEntry.parentPath, path.join(ci, 'Src'));
+        assert.equal(fs.readdirSync(path.join(ci, 'Src'), {withFileTypes: true})[0].parentPath,
+          originalEntry.parentPath);
         record.end();
         fs.rmSync(ci, {recursive:true});
         const replay = cache.beginAnalysis({archivePath: filesystemCacheArchive, rootDir: target, mode: 'replay', restrictNativeReads: true});
@@ -221,11 +259,14 @@ describe('filesystem cache hook', () => {
         assert.equal(await promisify(fs.readFile)(alias, 'utf8'), 'snapshot contents');
         assert.equal(fs.existsSync(alias), true);
         assert.equal(fs.statSync(alias).isFile(), true);
-        assert.equal(fs.realpathSync(alias), path.join(target, 'src/values.ts'));
-        assert.equal(fs.realpathSync.native(alias), path.join(target, 'src/values.ts'));
+        assert.equal(fs.realpathSync(alias), path.join(target, 'Src/Values.ts'));
+        assert.equal(fs.realpathSync.native(alias), path.join(target, 'Src/Values.ts'));
+        assert.equal(await fs.promises.realpath(alias), path.join(target, 'Src/Values.ts'));
+        assert.equal(await promisify(fs.realpath)(alias), path.join(target, 'Src/Values.ts'));
         const entries = fs.readdirSync(path.join(target, 'src'), {withFileTypes:true});
         assert.equal(entries[0].name, 'Values.ts');
         assert.equal(entries[0].isFile(), true);
+        assert.equal(entries[0].parentPath, path.join(target, 'Src'));
         replay.end();
         console.log('portable lookup passed');`;
     const child = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
@@ -901,7 +942,7 @@ describe('filesystem cache hook', () => {
     const recordRoot = path.join(temporary, 'record-root');
     const replayRoot = path.join(temporary, 'replay-root');
     const archive = path.join(temporary, 'realpath-encodings.fscache');
-    fs.mkdirSync(path.join(physicalRecordRoot, 'target'), { recursive: true });
+    fs.mkdirSync(path.join(physicalRecordRoot, 'Target'), { recursive: true });
     try {
       fs.symlinkSync(
         physicalRecordRoot,
@@ -918,7 +959,7 @@ describe('filesystem cache hook', () => {
     const script = `
       import fs from 'node:fs';
       import path from 'node:path';
-      const target = path.join(filesystemCacheRoot, 'target');
+      const target = path.join(filesystemCacheRoot, 'Target');
       console.log(JSON.stringify({
         regular: {
           utf8: fs.realpathSync(target),
@@ -969,9 +1010,9 @@ describe('filesystem cache hook', () => {
     expect(replayed.stderr).toBe('');
     expect(replayed.status).toBe(0);
     expect(JSON.parse(replayed.stdout)).toEqual({
-      regular: encodedResults(path.join(replayRoot, 'target')),
-      native: encodedResults(path.join(replayRoot, 'target')),
-      promise: encodedResults(path.join(replayRoot, 'target')),
+      regular: encodedResults(path.join(replayRoot, 'Target')),
+      native: encodedResults(path.join(replayRoot, 'Target')),
+      promise: encodedResults(path.join(replayRoot, 'Target')),
     });
   });
 

@@ -281,17 +281,29 @@ export class FsCacheArchive {
       return undefined;
     }
 
-    const inputPath = filePath;
-    const cachedKey = this.pathKeys.get(inputPath);
+    const cachedKey = this.pathKeys.get(filePath);
     if (cachedKey !== undefined) {
       return cachedKey;
     }
 
-    const comparisonFilePath = normalizeForComparison(filePath);
-    const comparison = this.canonicalKey(comparisonFilePath);
-    if (this.isPassthrough(input)) {
+    const relativePath = this.projectRelativePath(filePath);
+    if (relativePath === undefined) {
       return undefined;
     }
+    const key = this.canonicalKey(relativePath);
+    this.pathKeys.set(filePath, key);
+    this.pathKeys.set(normalizeForComparison(filePath), key);
+    return key;
+  }
+
+  /** Preserve path-value spelling; only lookup keys should be case-folded. */
+  private projectRelativePath(input: fs.PathLike): string | undefined {
+    const filePath = pathLikeToString(input);
+    if (filePath === undefined || this.isPassthrough(input)) {
+      return undefined;
+    }
+    const comparisonFilePath = normalizeForComparison(filePath);
+    const comparison = this.canonicalKey(comparisonFilePath);
     let relativePath;
     const needsNormalization =
       comparisonFilePath.includes('/./') ||
@@ -309,17 +321,16 @@ export class FsCacheArchive {
         return undefined;
       }
       relativePath =
-        comparisonFilePath === root.directory ? '' : comparisonFilePath.slice(root.prefix.length);
+        comparison === this.canonicalKey(root.directory)
+          ? ''
+          : comparisonFilePath.slice(root.prefix.length);
     } else {
       relativePath = normalizeForComparison(path.relative(this.rootDir, path.resolve(filePath)));
     }
     if (relativePath === '..' || relativePath.startsWith('../') || path.isAbsolute(relativePath)) {
       return undefined;
     }
-    const key = this.canonicalKey(relativePath === '' ? '.' : relativePath);
-    this.pathKeys.set(inputPath, key);
-    this.pathKeys.set(comparisonFilePath, key);
-    return key;
+    return relativePath === '' ? '.' : relativePath;
   }
 
   isPassthrough(input: fs.PathLike): boolean {
@@ -348,10 +359,10 @@ export class FsCacheArchive {
   }
 
   encodePortablePath(filePath: fs.PathLike): PortablePath {
-    const key = this.keyFor(filePath);
-    return key === undefined
+    const relativePath = this.projectRelativePath(filePath);
+    return relativePath === undefined
       ? { kind: 'absolute', path: String(filePath) }
-      : { kind: 'relative', path: key };
+      : { kind: 'relative', path: relativePath };
   }
 
   decodePortablePath(portablePath: PortablePath, operation?: RealpathOperation): string {
