@@ -21,7 +21,6 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import {
   getUniqueWriteReference,
-  getValueOfExpression,
   getVariableFromName,
   isIdentifier,
   isNumberLiteral,
@@ -72,11 +71,15 @@ const CARRIES_NO_NAMED_PROP = new Set(['Literal', 'TemplateLiteral', 'ArrayExpre
  * an empty string, `null`, `undefined`, a boolean, an object, a call, a member expression, or any
  * value the decorator cannot resolve down to a literal - is not proof of content, so the channel
  * stays unproven and the report is kept.
+ *
+ * Resolved through `resolveValue`, the same strict single-write rule the decorator uses for spread
+ * arguments, rather than `getValueOfExpression`'s plain `getUniqueWriteUsage`: the latter also
+ * follows a parameter's default-value write, which would credit `function H(title = 'Title')` with
+ * `'Title'` for every call, including `<H title="" />`.
  */
 function isProvenContentValue(context: Rule.RuleContext, value: estree.Node): boolean {
-  const unwrapped = unwrapTypeScriptExpression(value);
-  const literal = getValueOfExpression(context, unwrapped, 'Literal');
-  if (!literal) {
+  const literal = resolveValue(context, value);
+  if (literal.type !== 'Literal') {
     return false;
   }
   return (isStringLiteral(literal) && literal.value !== '') || isNumberLiteral(literal);

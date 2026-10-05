@@ -91,6 +91,11 @@ const page = <Heading>Accessible title</Heading>;
 <h1 {...getProps()} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...(flag ? someProps : otherProps)} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h1 {...notDeclaredAnywhere} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+// A parameter default is not a single write that proves what every caller passes - a caller can
+// still pass an empty `title` - so it must not be resolved the way a plain variable write is.
+function WithDefault(title = 'Title') {
+  return <h1 {...{ children: title }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+}
 // Two writes, so no single write proves the shape.
 let reassigned = { children: 'x' };
 reassigned = { children: 'y' };
