@@ -570,8 +570,8 @@ Responsibilities:
 
 Platform specifics:
 
-- both jobs fetch an Artifactory access token from Vault
-- both jobs configure the npm registry explicitly with `npm config set`
+- Linux runs `config-npm@v2` to fetch an Edge token from Vault and configure npm
+- Windows fetches an Edge token from Vault and configures npm with `npm config set`
 - Linux and Windows still produce separate `node_modules` caches because the cache key includes `runner.os`
 
 #### `prepare_rspec_rule_data`
@@ -797,17 +797,17 @@ Repox is the repository manager behind both npm and Maven flows here.
 
 #### npm
 
-Linux, Windows, and ESLint jobs that install packages:
+`populate_npm_cache` runs `config-npm` with `repox-url: https://repox-internal.dev.sonar.build`. It:
 
-- fetch a private-reader token from Vault
-- wait for Edge token federation on self-hosted / WarpBuild (`runner.environment != github-hosted`)
-- point `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/` on those runners
-- rewrite lockfile `resolved` hosts from `repox.jfrog.io` onto that registry (`replace-registry-host`), and keep a SaaS `_authToken` as fallback
-- GitHub-hosted jobs keep `https://repox.jfrog.io/artifactory/api/npm/npm/`
-- the ESLint plugin extra `npm install` (not in the lockfile) stays on SaaS via `npm_config_registry`
-- ESLint plugin tests have no lockfile: they skip `configure-npm-registry` entirely and stay on SaaS (Edge 404s npm metadata on both `npm` and `npmjs`; `replace-registry-host` would also rewrite tarball hosts back to Edge)
+- fetches a `private-reader` token issued by the Edge (`development/artifactory-edge-dev` on `https://vault.dev.sonar.build`)
+- points `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm`
+- fetches the lockfile tarballs from that registry: `package-lock.json` records its `resolved` URLs on `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/`. Keep new entries on the Edge: a `repox.jfrog.io` URL bypasses it and fails without a SaaS token.
 
-Publish / promote (eslint-plugin release, `jfrog rt npm-publish`) stay on SaaS.
+`populate_npm_cache_win` cannot run `config-npm` because mise has no jfrog-cli backend on Windows. It fetches the same Edge `private-reader` token from Vault and sets the npm registry with `npm config set`.
+
+The ESLint plugin build (extra `builtin-modules` install) and the ESLint plugin tests (no lockfile) run the same `config-npm` step. Its root `package.json` version rewrite doesn't affect the plugin tarball, whose version comes from `.pmgrc.toml`.
+
+The ESLint plugin release runs on a GitHub-hosted runner. Before `jfrog rt npm-ci`, it rewrites the lockfile's Edge tarball host to the SaaS registry configured by `jfrog rt npm-config`. Publish and promote (`jfrog rt npm-publish`) stay on SaaS.
 
 #### Maven
 
@@ -952,7 +952,7 @@ The repository also defines a companion workflow:
 
 - [`../.github/workflows/pr-cleanup.yml`](../.github/workflows/pr-cleanup.yml)
 
-It runs on `pull_request.closed` and uses `SonarSource/ci-github-actions/pr_cleanup@v1`.
+It runs on `pull_request.closed` and uses `SonarSource/ci-github-actions/pr_cleanup@v2`.
 
 The workflow is intentionally separate from [`../.github/workflows/PullRequestClosed.yml`](../.github/workflows/PullRequestClosed.yml):
 
@@ -974,7 +974,7 @@ jobs:
     permissions:
       actions: write
     steps:
-      - uses: SonarSource/ci-github-actions/pr_cleanup@v1
+      - uses: SonarSource/ci-github-actions/pr_cleanup@v2
 ```
 
 What it helps with in SonarJS:

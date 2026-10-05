@@ -103,37 +103,34 @@ jobs:
     env: &shared_build_number
       # Reuse the build number minted once in get_build_number everywhere workflow metadata is configured or promoted.
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
-    steps: &populate_npm_cache_steps
+    steps:
       # Producer jobs need a lookup-only probe that still saves a freshly populated cache at job end.
-      - name: Check NPM dependencies cache
+      - &npm_cache_probe
+        name: Check NPM dependencies cache
         id: cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
           lookup-only: true
-      - name: Checkout source code
+      - &npm_cache_checkout
+        name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - &npm_cache_mise
+        if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@9149ea85001c7435d5a66bb127d6a1b6227cb0a5 # v5.0.0
         with:
           version: 2026.9.18
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - if: steps.cache.outputs.cache-hit != 'true'
-        id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
+        uses: SonarSource/ci-github-actions/config-npm@v2
         with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Configure npm registry
-        timeout-minutes: 5
-        uses: ./.github/actions/configure-npm-registry
-        with:
-          artifactory-access-token: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-      - if: steps.cache.outputs.cache-hit != 'true'
+          repox-url: https://repox-internal.dev.sonar.build
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
+      - &npm_cache_install
+        if: steps.cache.outputs.cache-hit != 'true'
         name: Install NPM dependencies
         run: npm ci
 
@@ -144,7 +141,27 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     env: *shared_build_number
-    steps: *populate_npm_cache_steps
+    steps:
+      - *npm_cache_probe
+      - *npm_cache_checkout
+      - *npm_cache_mise
+      - if: steps.cache.outputs.cache-hit != 'true'
+        id: secrets
+        name: Access vault secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          url: https://vault.dev.sonar.build
+          secrets: |
+            development/artifactory-edge-dev/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Configure npm registry
+        shell: bash
+        env:
+          ARTIFACTORY_ACCESS_TOKEN: ${{ steps.secrets.outputs.vault && fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN || '' }}
+        run: |
+          npm config set "//repox-internal.dev.sonar.build/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
+          npm config set registry https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/
+      - *npm_cache_install
 
   build:
     runs-on: sonar-l
@@ -339,31 +356,23 @@ jobs:
 
   build_eslint_plugin:
     runs-on: warp-custom-ubuntu-24-04
-    needs: [setup, prepare_rspec_rule_data]
+    needs: [setup, get_build_number, prepare_rspec_rule_data]
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise
       - *npm_cache
-      - id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
+      - &config_npm_edge
+        uses: SonarSource/ci-github-actions/config-npm@v2
         with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - name: Configure npm registry
-        timeout-minutes: 5
-        uses: ./.github/actions/configure-npm-registry
-        with:
-          artifactory-access-token: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          repox-url: https://repox-internal.dev.sonar.build
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
       - *download_rspec_rule_data
-      # Extra `npm install` is not in the lockfile. Edge npm metadata 404s
-      # (`/api/npm/npm/` and `/api/npm/npmjs/`); this one fetch stays on SaaS.
       - name: Build ESLint plugin
-        env:
-          npm_config_registry: https://repox.jfrog.io/artifactory/api/npm/npm/
         run: npm run eslint-plugin:build
       - name: Regenerate tracked README files
         if: github.event_name == 'schedule'
@@ -442,9 +451,10 @@ jobs:
   test_eslint_plugin:
     runs-on: warp-custom-ubuntu-24-04
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
-    needs: [setup, build_eslint_plugin]
+    needs: [setup, get_build_number, build_eslint_plugin]
     permissions: *read_permissions
     env:
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
       MISE_NODE_VERSION: ${{ matrix.node-version }}
     strategy:
       fail-fast: false
@@ -481,23 +491,11 @@ jobs:
             echo "::error file=$TARBALL::Missing ESLint plugin tarball"
             exit 1
           fi
-      - id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      # No lockfile. configure-npm-registry would point at Edge and set
-      # replace-registry-host, which rewrites tarball hosts off SaaS. Edge
-      # 404s npm metadata on both /api/npm/npm/ and /api/npm/npmjs/.
-      - name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - *config_npm_edge
       - name: Test ESLint Plugin
         run: |
           cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
-          npm install --ignore-scripts --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000 --fetch-retries=3 --registry=https://repox.jfrog.io/artifactory/api/npm/npm/
+          npm install --ignore-scripts --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000 --fetch-retries=3
           npx tsc --noEmit
           npm run test
 
