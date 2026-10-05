@@ -24,8 +24,8 @@ import {
   getValueOfExpression,
   getVariableFromName,
   isIdentifier,
+  isNumberLiteral,
   isStringLiteral,
-  isUndefined,
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
@@ -41,10 +41,11 @@ import * as meta from './generated-meta.js';
  *
  * This decorator drops a report only where the forwarded content is locally provable: a spread of
  * an object literal - or of a single-write alias of one - whose effective `children` property is
- * present and is not one of the values React renders as nothing. Anything the decorator cannot
- * resolve that far keeps reporting. A call, a member access, an unresolved identifier or a
- * destructured binding says nothing about `children`, so suppressing it would hide the genuinely
- * empty headings this accessibility rule exists to catch.
+ * an ordinary data property (not an accessor or a method) whose value resolves to a non-empty
+ * string or a numeric literal. Anything the decorator cannot resolve that far keeps reporting. A
+ * call, a member access, an unresolved identifier, a destructured binding, a getter/setter/method,
+ * or a value that isn't a string or number literal says nothing provable about `children`, so
+ * suppressing it would hide the genuinely empty headings this accessibility rule exists to catch.
  *
  * Only `children` is considered. `dangerouslySetInnerHTML` is deliberately left out: forwarding it
  * through a spread is not an idiom worth loosening an accessibility rule for.
@@ -58,12 +59,6 @@ import * as meta from './generated-meta.js';
 const CONTENT_PROP = 'children';
 
 /**
- * Literal values React renders as nothing. `0` is deliberately absent: React renders it as "0",
- * so `children: 0` is content even though upstream's own `!!child.value` would call it empty.
- */
-const NOTHING_RENDERED = new Set<estree.Literal['value']>([null, false, '']);
-
-/**
  * Spread arguments that provably contribute no named prop. Spreading a string or an array only
  * produces numeric index keys; spreading a number, a boolean, `null` or a regex produces no own
  * enumerable key at all. None of them can carry `children`, so such a spread neither proves content
@@ -72,15 +67,19 @@ const NOTHING_RENDERED = new Set<estree.Literal['value']>([null, false, '']);
 const CARRIES_NO_NAMED_PROP = new Set(['Literal', 'TemplateLiteral', 'ArrayExpression']);
 
 /**
- * Whether `value` is one of the values React renders as nothing. Mirrors upstream's notion of
- * inaccessible content in `hasAccessibleChild` (falsy literals, and the identifier `undefined`).
- * Anything else - an identifier, a call, a member expression, a JSX element - counts as content:
- * the `children` channel is then established, which is what this decorator has to prove.
+ * Whether `value` is locally provable to render visible text: a non-empty string literal, or a
+ * numeric literal - `0` included, since React still renders it as the text "0". Everything else -
+ * an empty string, `null`, `undefined`, a boolean, an object, a call, a member expression, or any
+ * value the decorator cannot resolve down to a literal - is not proof of content, so the channel
+ * stays unproven and the report is kept.
  */
-function rendersNothing(context: Rule.RuleContext, value: estree.Node): boolean {
+function isProvenContentValue(context: Rule.RuleContext, value: estree.Node): boolean {
   const unwrapped = unwrapTypeScriptExpression(value);
   const literal = getValueOfExpression(context, unwrapped, 'Literal');
-  return literal ? NOTHING_RENDERED.has(literal.value) : isUndefined(unwrapped);
+  if (!literal) {
+    return false;
+  }
+  return (isStringLiteral(literal) && literal.value !== '') || isNumberLiteral(literal);
 }
 
 /**
@@ -187,6 +186,11 @@ function spreadSettles(
  * A computed property whose key cannot be read as a literal is treated like an unresolved spread:
  * its name is unknown, so it might be `children` and override an earlier value. It settles the
  * channel as unproven instead of being skipped, the same way `{ children: 'T', ...props }` does.
+ *
+ * A `children` property found this way settles the channel as content only when it is an ordinary
+ * data property - not a getter, setter, or method, none of which this decorator evaluates - whose
+ * value is itself provably a non-empty string or numeric literal. Either way, the property is the
+ * effective one: its match still stops the scan.
  */
 function objectSettles(
   context: Rule.RuleContext,
@@ -203,7 +207,9 @@ function objectSettles(
       continue;
     }
     if (isContentProperty(element)) {
-      return !rendersNothing(context, element.value);
+      return (
+        element.kind === 'init' && !element.method && isProvenContentValue(context, element.value)
+      );
     }
     if (element.computed && !isStringLiteral(element.key)) {
       return false;

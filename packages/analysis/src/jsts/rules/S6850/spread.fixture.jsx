@@ -9,9 +9,6 @@ const children = 'x';
 <h1 {...{ children }} />;
 // React renders `0` as "0", so it is content.
 <h1 {...{ children: 0 }} />;
-// The property only has to be established: a value that is not provably one of the values React
-// renders as nothing settles the channel as content.
-<h1 {...{ children: props.children }} />;
 // An explicit `children` placed after every spread cannot be overridden.
 <h1 {...{ ...props, children: 'Title' }} />;
 // Later attributes that provably carry no named prop, or no content prop, override nothing.
@@ -50,6 +47,15 @@ const aliasOfEmpty = emptyBase;
 <h2 {...{ children: '' }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h3 {...{ children: undefined }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 <h4 {...{ children: false }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+// Only a non-empty string or numeric literal proves content; a boolean, even a truthy one, does not.
+<h1 {...{ children: true }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+// `props.children` is a member access, not a literal: it is not provably non-empty.
+<h1 {...{ children: props.children }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+// A getter, setter, or method named `children` is not a data property this decorator evaluates:
+// the value it would produce is never read, so it cannot prove content.
+<h1 {...{ get children() { return 'Title'; } }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+<h1 {...{ set children(value) {} }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
+<h1 {...{ children() { return 'Title'; } }} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 const knownEmpty = { children: '' };
 <h1 {...knownEmpty} />; // Noncompliant {{Headings must have content and the content must be accessible by a screen reader.}}
 const emptyText = '';
