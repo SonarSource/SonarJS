@@ -174,7 +174,6 @@ function containsOscTerminator(element: AST.Element): boolean {
   }
   if (element.type === 'CharacterClass') {
     return (
-      element.negate ||
       containsCharacterClassValue(element, BEL) ||
       containsCharacterClassValue(element, STRING_TERMINATOR)
     );
@@ -190,7 +189,7 @@ function canStartWithCharacter(element: AST.Element, value: number): boolean {
     return true;
   }
   if (element.type === 'CharacterClass') {
-    return element.negate || containsCharacterClassValue(element, value);
+    return containsCharacterClassValue(element, value);
   }
   if (element.type === 'Quantifier') {
     return element.max > 0 && canStartWithCharacter(element.element, value);
@@ -209,7 +208,7 @@ function canEndWithCharacter(element: AST.Element, value: number): boolean {
     return true;
   }
   if (element.type === 'CharacterClass') {
-    return element.negate || containsCharacterClassValue(element, value);
+    return containsCharacterClassValue(element, value);
   }
   if (element.type === 'Quantifier') {
     return element.max > 0 && canEndWithCharacter(element.element, value);
@@ -224,20 +223,23 @@ function canEndWithCharacter(element: AST.Element, value: number): boolean {
 }
 
 function containsCharacterClassValue(characterClass: AST.CharacterClass, value: number): boolean {
-  return characterClass.elements.some(
+  const explicitlyMatches = characterClass.elements.some(
     element =>
       (element.type === 'Character' && element.value === value) ||
       (element.type === 'CharacterClassRange' &&
         element.min.value <= value &&
         value <= element.max.value),
   );
+  return characterClass.negate ? !explicitlyMatches : explicitlyMatches;
 }
 
 function hasOscTerminator(alternative: AST.Alternative): boolean {
   return alternative.elements.some(
     (element, index) =>
       containsOscTerminator(element) ||
-      (isCharacter(element, ESC) && isCharacter(alternative.elements[index + 1], BACKSLASH)),
+      (canEndWithCharacter(element, ESC) &&
+        alternative.elements[index + 1] !== undefined &&
+        canStartWithCharacter(alternative.elements[index + 1], BACKSLASH)),
   );
 }
 

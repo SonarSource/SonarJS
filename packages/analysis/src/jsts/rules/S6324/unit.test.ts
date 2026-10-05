@@ -147,6 +147,10 @@ describe('S6324', () => {
           code: String.raw`/\x1b\]0;title\x07label/`,
         },
         {
+          // A payload class that excludes every OSC terminator leaves BEL valid.
+          code: String.raw`/\x1b\][^\x00-\x1f\x9c]*\x07/`,
+        },
+        {
           // A complete OSC sequence remains exempt inside a non-capturing group.
           code: String.raw`/(?:\x1b\].*?\x07)/`,
         },
@@ -373,6 +377,11 @@ describe('S6324', () => {
         {
           // A quantified ESC can still form an earlier string terminator.
           code: String.raw`/\x1b\]0;title\x1b?\\\x1b\\/`,
+          errors: 2,
+        },
+        {
+          // ST nested in groups also closes the OSC sequence.
+          code: String.raw`/\x1b\]0;title(?:\x1b(?:\\))\x1b\\/`,
           errors: 2,
         },
         {
