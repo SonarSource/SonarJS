@@ -151,7 +151,7 @@ let currentFileInlineDependencies: DependenciesList | null = null;
 export function setCurrentFileInlineDependencies(deps: DependenciesList | null): void {
   currentFileInlineDependencies = deps;
   // The cached dependencies include the inline ones, so they must be recomputed.
-  currentFileDependenciesCache.clear();
+  clearCurrentFileDependencies();
 }
 
 /**
@@ -179,23 +179,29 @@ export function withCurrentFileInlineDependencies(manifest: DependenciesList): D
  * self-invalidates when ESLint's RuleTester switches between test cases (each case gets a fresh
  * SourceCode instance).
  */
-const currentFileDependenciesCache = new ComputedCache<
-  SourceCode,
-  DependenciesList,
-  Rule.RuleContext
->((_sourceCode, context) => {
-  if (!context) {
-    throw new Error('A rule context is required to compute file dependencies');
-  }
-  // Keep only the current file, including when RuleTester advances without explicit cleanup.
-  currentFileDependenciesCache.clear();
-  const filePath = normalizeToAbsolutePath(context.filename);
-  const topDir = getDependencyTopDir(context, filePath);
-  return withCurrentFileInlineDependencies(getDependencies(dirnamePath(filePath), topDir));
-});
+const CURRENT_FILE_DEPENDENCIES: {
+  sourceCode: SourceCode | null;
+  dependencies: DependenciesList;
+} = {
+  sourceCode: null,
+  dependencies: new Map(),
+};
+
+function clearCurrentFileDependencies(): void {
+  CURRENT_FILE_DEPENDENCIES.sourceCode = null;
+  CURRENT_FILE_DEPENDENCIES.dependencies = new Map();
+}
 
 export function getDependenciesSanitizePaths(context: Rule.RuleContext): DependenciesList {
-  return currentFileDependenciesCache.get(context.sourceCode, context);
+  if (CURRENT_FILE_DEPENDENCIES.sourceCode !== context.sourceCode) {
+    const filePath = normalizeToAbsolutePath(context.filename);
+    const topDir = getDependencyTopDir(context, filePath);
+    CURRENT_FILE_DEPENDENCIES.sourceCode = context.sourceCode;
+    CURRENT_FILE_DEPENDENCIES.dependencies = withCurrentFileInlineDependencies(
+      getDependencies(dirnamePath(filePath), topDir),
+    );
+  }
+  return CURRENT_FILE_DEPENDENCIES.dependencies;
 }
 
 /**
