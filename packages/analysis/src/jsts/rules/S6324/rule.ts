@@ -139,20 +139,48 @@ function isOscTerminatorShape(alternative: AST.Alternative, character: AST.Chara
   }
   return (
     character.value === BEL ||
-    canFollowWithCharacterThroughZeroWidth(alternative.elements, index + 1, BACKSLASH)
+    mustFollowWithCharacterThroughZeroWidth(alternative.elements, index + 1, BACKSLASH)
   );
 }
 
-function canFollowWithCharacterThroughZeroWidth(
+function mustFollowWithCharacterThroughZeroWidth(
   elements: readonly AST.Element[],
   startIndex: number,
   value: number,
 ): boolean {
   for (let i = startIndex; i < elements.length; i++) {
-    if (canStartWithCharacter(elements[i], value)) {
+    if (mustStartWithCharacter(elements[i], value)) {
       return true;
     }
     if (!isAlwaysEmpty(elements[i])) {
+      return false;
+    }
+  }
+  return false;
+}
+
+function mustStartWithCharacter(element: AST.Element, value: number): boolean {
+  if (isCharacter(element, value)) {
+    return true;
+  }
+  if (element.type === 'CharacterClass') {
+    return characterClassAlwaysMatchesValue(element, value);
+  }
+  if (element.type === 'Quantifier') {
+    return element.min > 0 && mustStartWithCharacter(element.element, value);
+  }
+  return (
+    (element.type === 'Group' || element.type === 'CapturingGroup') &&
+    element.alternatives.every(alternative => alternativeMustStartWithCharacter(alternative, value))
+  );
+}
+
+function alternativeMustStartWithCharacter(alternative: AST.Alternative, value: number): boolean {
+  for (const element of alternative.elements) {
+    if (mustStartWithCharacter(element, value)) {
+      return true;
+    }
+    if (!isAlwaysEmpty(element)) {
       return false;
     }
   }
@@ -283,7 +311,7 @@ function canBeEmpty(element: AST.Element): boolean {
   }
   return (
     (element.type === 'Group' || element.type === 'CapturingGroup') &&
-    element.alternatives.every(alternative => alternative.elements.every(canBeEmpty))
+    element.alternatives.some(alternative => alternative.elements.every(canBeEmpty))
   );
 }
 
@@ -318,13 +346,34 @@ function containsCharacterClassValue(characterClass: AST.CharacterClass, value: 
   return characterClass.negate ? !explicitlyMatches : explicitlyMatches;
 }
 
+function characterClassAlwaysMatchesValue(
+  characterClass: AST.CharacterClass,
+  value: number,
+): boolean {
+  return (
+    !characterClass.negate &&
+    characterClass.elements.length > 0 &&
+    characterClass.elements.every(
+      element =>
+        (element.type === 'Character' && element.value === value) ||
+        (element.type === 'CharacterClassRange' &&
+          element.min.value === value &&
+          element.max.value === value),
+    )
+  );
+}
+
 function hasOscTerminator(alternative: AST.Alternative): boolean {
   return alternative.elements.some(
     (element, index) =>
       containsOscTerminator(element) ||
       (canEndWithCharacter(element, ESC) &&
-        alternative.elements[index + 1] !== undefined &&
-        canStartWithCharacter(alternative.elements[index + 1], BACKSLASH)),
+        canFollowWithCharacter(
+          alternative.elements,
+          index + 1,
+          alternative.elements.length,
+          BACKSLASH,
+        )),
   );
 }
 

@@ -390,9 +390,24 @@ describe('S6324', () => {
           errors: 1,
         },
         {
+          // An alternative with a non-backslash branch is not an ST terminator.
+          code: String.raw`/\x1b\]0;title\x1b(?:\\|x)/`,
+          errors: 1,
+        },
+        {
+          // An optional backslash does not prove an ST terminator.
+          code: String.raw`/\x1b\]0;title\x1b\\?/`,
+          errors: 1,
+        },
+        {
           // A nullable prefix inside a group can precede an earlier string terminator.
           code: String.raw`/\x1b\]0;title\x1b(?:x?\\)\x1b\\/`,
-          errors: 1,
+          errors: 2,
+        },
+        {
+          // Nested nullable groups can also contain an earlier string terminator.
+          code: String.raw`/\x1b\]0;title(?:\x1b(?:x|)\\)\x1b\\/`,
+          errors: 2,
         },
         {
           // ST nested in groups also closes the OSC sequence.
