@@ -48,6 +48,7 @@ type PlaywrightDescribeClassification = 'concrete' | 'ignored' | 'unknown';
 
 interface SuiteFrame {
   titles: Map<string, estree.Node>;
+  expandedHelpers: Map<FunctionNode, HelperExpansion>;
 }
 
 interface CallClassification {
@@ -66,11 +67,18 @@ type HelperEvent =
   | { kind: 'suite'; events: HelperEvent[] }
   | { kind: 'helper'; helper: FunctionNode };
 
+interface HelperExpansion {
+  tests: Set<estree.CallExpression>;
+  recursive: boolean;
+}
+
 interface RuleState {
   context: Rule.RuleContext;
   classifications: WeakMap<estree.CallExpression, CallClassification>;
   helperSummaries: Map<FunctionNode, HelperEvent[]>;
   helperExpansionPath: Set<estree.Node>;
+  checkedHelperSuites: Set<HelperEvent>;
+  reportedDuplicates: WeakMap<estree.Node, WeakSet<estree.Node>>;
 }
 
 type FunctionNode =
@@ -93,6 +101,8 @@ export const rule: Rule.RuleModule = {
       classifications: new WeakMap(),
       helperSummaries: new Map(),
       helperExpansionPath: new Set(),
+      checkedHelperSuites: new Set(),
+      reportedDuplicates: new WeakMap(),
     };
     let suiteStack: SuiteFrame[] = [createSuiteFrame()];
     const pushedSuiteCalls = new Set<estree.Node>();
@@ -129,7 +139,7 @@ export const rule: Rule.RuleModule = {
           isInConcreteCollectionCallback(functionNesting, concreteSuiteCallbackNesting)
         ) {
           if (classification.test) {
-            checkTestTitle(context, node, currentSuiteFrame);
+            checkTestTitle(state, node, currentSuiteFrame);
           } else {
             checkHelperDefinedTests(state, node, currentSuiteFrame);
           }
@@ -173,6 +183,7 @@ export const rule: Rule.RuleModule = {
         concreteSuiteCallbacks.clear();
         state.helperSummaries.clear();
         state.helperExpansionPath.clear();
+        state.checkedHelperSuites.clear();
         activeTest = undefined;
         ignoredSuiteNesting = 0;
         functionNesting = 0;
@@ -183,14 +194,10 @@ export const rule: Rule.RuleModule = {
 };
 
 function createSuiteFrame(): SuiteFrame {
-  return { titles: new Map() };
+  return { titles: new Map(), expandedHelpers: new Map() };
 }
 
-function checkTestTitle(
-  context: Rule.RuleContext,
-  node: estree.CallExpression,
-  suiteFrame: SuiteFrame,
-) {
+function checkTestTitle(state: RuleState, node: estree.CallExpression, suiteFrame: SuiteFrame) {
   const titleNode = node.arguments[0];
   const title = titleNode && getStaticTitle(titleNode);
   if (title === undefined) {
@@ -199,8 +206,19 @@ function checkTestTitle(
 
   const originalTitleNode = suiteFrame.titles.get(title);
   if (originalTitleNode) {
+    // Repeated helper expansion can reach the same declaration many times. One issue for each
+    // primary/secondary location pair is sufficient, including a helper's self-duplicate.
+    let originals = state.reportedDuplicates.get(titleNode);
+    if (originals?.has(originalTitleNode)) {
+      return;
+    }
+    if (originals === undefined) {
+      originals = new WeakSet();
+      state.reportedDuplicates.set(titleNode, originals);
+    }
+    originals.add(originalTitleNode);
     report(
-      context,
+      state.context,
       {
         node: titleNode,
         messageId: MESSAGE_ID,
@@ -225,30 +243,71 @@ function checkHelperDefinedTests(
   }
 }
 
-function expandHelper(state: RuleState, helper: FunctionNode, suiteFrame: SuiteFrame) {
+function expandHelper(
+  state: RuleState,
+  helper: FunctionNode,
+  suiteFrame: SuiteFrame,
+): HelperExpansion {
   if (state.helperExpansionPath.has(helper)) {
-    return;
+    return { tests: new Set(), recursive: true };
+  }
+
+  const cached = suiteFrame.expandedHelpers.get(helper);
+  if (cached !== undefined) {
+    // Replay only the distinct declarations reached by this helper, rather than re-expanding
+    // its call graph. Rechecking titles is needed when the same helper is invoked twice.
+    for (const test of cached.tests) {
+      checkTestTitle(state, test, suiteFrame);
+    }
+    return cached;
   }
 
   state.helperExpansionPath.add(helper);
-  replayHelperEvents(state, getHelperSummary(state, helper), suiteFrame);
+  const expansion = replayHelperEvents(state, getHelperSummary(state, helper), suiteFrame);
   state.helperExpansionPath.delete(helper);
+  // A recursive expansion is truncated according to the current call path, so caching it could
+  // omit declarations when the same helper is subsequently reached from another entry point.
+  if (!expansion.recursive) {
+    suiteFrame.expandedHelpers.set(helper, expansion);
+  }
+  return expansion;
 }
 
-function replayHelperEvents(state: RuleState, events: HelperEvent[], suiteFrame: SuiteFrame) {
+function replayHelperEvents(
+  state: RuleState,
+  events: HelperEvent[],
+  suiteFrame: SuiteFrame,
+): HelperExpansion {
+  const expansion: HelperExpansion = { tests: new Set(), recursive: false };
   for (const event of events) {
     switch (event.kind) {
       case 'test':
-        checkTestTitle(state.context, event.node, suiteFrame);
+        checkTestTitle(state, event.node, suiteFrame);
+        expansion.tests.add(event.node);
         break;
-      case 'suite':
-        replayHelperEvents(state, event.events, createSuiteFrame());
+      case 'suite': {
+        // Helper-defined suites have their own title frame, so their diagnostics do not depend
+        // on the caller's suite. Repeated invocations cannot produce new source locations.
+        if (!state.checkedHelperSuites.has(event)) {
+          const nested = replayHelperEvents(state, event.events, createSuiteFrame());
+          expansion.recursive ||= nested.recursive;
+          if (!nested.recursive) {
+            state.checkedHelperSuites.add(event);
+          }
+        }
         break;
-      case 'helper':
-        expandHelper(state, event.helper, suiteFrame);
+      }
+      case 'helper': {
+        const nested = expandHelper(state, event.helper, suiteFrame);
+        expansion.recursive ||= nested.recursive;
+        for (const test of nested.tests) {
+          expansion.tests.add(test);
+        }
         break;
+      }
     }
   }
+  return expansion;
 }
 
 function getHelperSummary(state: RuleState, helper: FunctionNode): HelperEvent[] {
