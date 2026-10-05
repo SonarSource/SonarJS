@@ -55,8 +55,37 @@ function makeTests() { test('same', () => {}); makeTests(); }
 describe('outer', () => makeTests());
           `,
         },
+        {
+          code: `
+import { describe, test } from 'vitest';
+function makeTests() {
+  describe('inner', () => { test('same', () => {}); makeTests(); });
+}
+describe('outer', () => { makeTests(); makeTests(); });
+          `,
+        },
       ],
       invalid: [
+        {
+          code: `
+import { describe, test } from 'vitest';
+function makeTests() { test('same', () => {}); test('same', () => {}); }
+test('outer', () => { describe('inner', () => { makeTests(); makeTests(); }); });
+describe('after', () => makeTests());
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+function first() {
+  describe('inner', () => { test('same', () => {}); second(); });
+}
+function second() { test('same', () => {}); first(); }
+describe('outer', () => { first(); second(); });
+          `,
+          errors: 1,
+        },
         {
           code: `
 import { describe, test } from 'vitest';
