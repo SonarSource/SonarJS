@@ -72,8 +72,9 @@ function firstArgument(node: FunctionNode): string {
 }
 
 /**
- * Checks for problems that dedicated rules already report, so that the same value is not
- * reported twice:
+ * Checks for problems that dedicated rules already report. Only warnings directly reporting
+ * such a piece are suppressed; a containing value can still be reported alongside the dedicated
+ * rule, even when the overlapping piece is its only invalid part:
  * - S4647 (color-no-invalid-hex), S4651 (function-linear-gradient-no-nonstandard-direction),
  *   S4652 (string-no-newline), S4653 (unit-no-unknown).
  */
@@ -143,7 +144,7 @@ function knownUnitsOf(result: PostcssResult): Set<string> {
 
 /**
  * Vendor-prefixed fallbacks and legacy IE filters are deliberate. Problems that dedicated rules
- * already report are left to them.
+ * already report are left to them only when they are the directly reported piece.
  */
 function isIgnored(warning: UpstreamWarning, checks: Overlap[]): boolean {
   const value = OFFENDING_VALUE.exec(warning.text)?.[1];

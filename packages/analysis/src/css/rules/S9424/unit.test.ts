@@ -228,13 +228,12 @@ a { --gap: 1rem; }`,
 }`,
     }));
 
-  it('ignores Less values nesting preprocessor functions', () =>
+  it('ignores values nesting unknown functions inside known ones', () =>
     ruleTester.valid({
-      codeFilename: 'file.less',
       code: `a {
-  box-shadow: 2px 2px 6px -2px fade(@black, 10%);
-  transform: scale((unit(@dot-size) / unit(@size)));
-  margin-top: -(@spin-dot-size / 2) - 10px;
+  box-shadow: 2px 2px 6px -2px fade(black, 10%);
+  transform: scale((unit(1px) / unit(2px)));
+  margin-top: calc(-(foo / 2) - 10px);
 }`,
     }));
 
