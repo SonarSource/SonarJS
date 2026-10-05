@@ -202,7 +202,7 @@ function hasOscIntroducerBefore(alternative: AST.Alternative, node: AST.Node): b
   for (let i = index - 1; i >= 0; i--) {
     const curr = elements[i];
     const prev = elements[i - 1];
-    if (prev?.type === 'Character' && prev.value === ESC && isMandatoryOscIntroducer(curr)) {
+    if (prev?.type === 'Character' && prev.value === ESC && isCharacter(curr, RIGHT_BRACKET)) {
       return elements.slice(i + 1, index).every(isSafeOscPayload);
     }
   }
@@ -273,8 +273,9 @@ function isSafeOscCharacterSet(characterSet: AST.CharacterSet): boolean {
 
 function isSafeOscCharacterClass(characterClass: AST.CharacterClass): boolean {
   return UNSAFE_OSC_PAYLOAD_CHARACTERS.every(value => {
-    const matches = characterClass.elements.some(element => elementMatchesValue(element, value));
-    return characterClass.negate ? matches : !matches;
+    return characterClass.negate
+      ? characterClass.elements.some(element => elementDefinitelyMatchesValue(element, value))
+      : !characterClass.elements.some(element => elementCanMatchValue(element, value));
   });
 }
 
@@ -284,7 +285,7 @@ function isUnsafeOscPayloadCharacter(value: number): boolean {
   );
 }
 
-function elementMatchesValue(element: AST.CharacterClassElement, value: number): boolean {
+function elementCanMatchValue(element: AST.CharacterClassElement, value: number): boolean {
   if (element.type === 'Character') {
     return element.value === value;
   }
@@ -295,6 +296,19 @@ function elementMatchesValue(element: AST.CharacterClassElement, value: number):
     return true;
   }
   return characterSetMatchesValue(element as AST.CharacterSet, value) !== false;
+}
+
+function elementDefinitelyMatchesValue(element: AST.CharacterClassElement, value: number): boolean {
+  if (element.type === 'Character') {
+    return element.value === value;
+  }
+  if (element.type === 'CharacterClassRange') {
+    return element.min.value <= value && value <= element.max.value;
+  }
+  if (element.type !== 'CharacterSet') {
+    return false;
+  }
+  return characterSetMatchesValue(element as AST.CharacterSet, value) === true;
 }
 
 function characterSetMatchesValue(
@@ -320,22 +334,6 @@ function characterSetMatchesValue(
     return undefined;
   }
   return characterSet.kind === 'any' || !characterSet.negate ? matches : !matches;
-}
-
-function isMandatoryOscIntroducer(element: AST.Element | undefined): boolean {
-  if (element?.type === 'Character') {
-    return element.value === RIGHT_BRACKET;
-  }
-  if (element?.type === 'Quantifier') {
-    return element.min > 0 && isMandatoryOscIntroducer(element.element);
-  }
-  if (element?.type === 'Group' || element?.type === 'CapturingGroup') {
-    return element.alternatives.every(
-      alternative =>
-        alternative.elements.length > 0 && isMandatoryOscIntroducer(alternative.elements[0]),
-    );
-  }
-  return false;
 }
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {

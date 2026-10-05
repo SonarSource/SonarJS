@@ -404,6 +404,16 @@ describe('S6324', () => {
           errors: 1,
         },
         {
+          // A grouped OSC introducer does not prove that a later ST belongs to it.
+          code: String.raw`/\x1b(?:\]0;title\x9c)\x1b\\/`,
+          errors: 2,
+        },
+        {
+          // A negated Unicode property can still match an OSC terminator.
+          code: String.raw`/\x1b\]0;[^\p{L}]\x1b\\/u`,
+          errors: 1,
+        },
+        {
           // Consecutive repetitions can form an earlier ST across their boundary.
           code: String.raw`/\x1b\](?:\\\x1b){2}\x1b\\/`,
           errors: 2,
