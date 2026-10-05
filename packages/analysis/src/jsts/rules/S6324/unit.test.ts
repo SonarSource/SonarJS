@@ -155,6 +155,10 @@ describe('S6324', () => {
           code: String.raw`/\x1b\][\d]\x07/`,
         },
         {
+          // Unicode letter properties cannot contain an OSC terminator.
+          code: String.raw`/\x1b\]\p{L}+\x07/u`,
+        },
+        {
           // A complete OSC sequence remains exempt inside a non-capturing group.
           code: String.raw`/(?:\x1b\].*?\x07)/`,
         },
@@ -381,6 +385,16 @@ describe('S6324', () => {
         {
           // A bare character set that can match BEL may close the OSC sequence.
           code: String.raw`/\x1b\]\D\x1b\\/`,
+          errors: 1,
+        },
+        {
+          // An any-character class can match BEL before the explicit terminator.
+          code: String.raw`/\x1b\][\s\S]*?\x07/`,
+          errors: 1,
+        },
+        {
+          // A negated class that does not exclude OSC controls can match BEL.
+          code: String.raw`/\x1b\][^;]*\x07/`,
           errors: 1,
         },
         {

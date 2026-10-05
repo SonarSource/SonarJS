@@ -328,7 +328,19 @@ function characterSetMatchesValue(
       matches = true;
       break;
     default:
-      matches = undefined;
+      if ('key' in characterSet && !characterSet.strings) {
+        const property =
+          characterSet.value === null
+            ? characterSet.key
+            : `${characterSet.key}=${characterSet.value}`;
+        try {
+          matches = new RegExp(`\\p{${property}}`, 'u').test(String.fromCodePoint(value));
+        } catch {
+          matches = undefined;
+        }
+      } else {
+        matches = undefined;
+      }
   }
   if (matches === undefined) {
     return undefined;
