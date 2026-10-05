@@ -32,6 +32,7 @@ const BEL = 0x07;
 const LEFT_BRACKET = 0x5b; // [
 const RIGHT_BRACKET = 0x5d; // ]
 const BACKSLASH = 0x5c;
+const STRING_TERMINATOR = 0x9c;
 
 /**
  * Control characters used as range boundaries (e.g., [\x00-\x1f]) indicate intentional usage.
@@ -125,7 +126,8 @@ function isGroupedOscTerminator(alternative: AST.Alternative): boolean {
 function isOscTerminatorAlternative(alternative: AST.Alternative): boolean {
   const [first, second] = alternative.elements;
   return (
-    (alternative.elements.length === 1 && isCharacter(first, BEL)) ||
+    (alternative.elements.length === 1 &&
+      (isCharacter(first, BEL) || isCharacter(first, STRING_TERMINATOR))) ||
     (alternative.elements.length === 2 && isCharacter(first, ESC) && isCharacter(second, BACKSLASH))
   );
 }
@@ -149,7 +151,7 @@ function hasOscIntroducerBefore(alternative: AST.Alternative, node: AST.Node): b
     const curr = elements[i];
     const prev = elements[i - 1];
     if (
-      isDefiniteOscTerminator(curr) ||
+      containsOscTerminator(curr) ||
       (prev?.type === 'Character' && prev.value === ESC && isCharacter(curr, BACKSLASH))
     ) {
       return false;
@@ -161,16 +163,24 @@ function hasOscIntroducerBefore(alternative: AST.Alternative, node: AST.Node): b
   return false;
 }
 
-function isDefiniteOscTerminator(element: AST.Element): boolean {
-  if (isCharacter(element, BEL)) {
+function containsOscTerminator(element: AST.Element): boolean {
+  if (isCharacter(element, BEL) || isCharacter(element, STRING_TERMINATOR)) {
     return true;
   }
   if (element.type === 'Quantifier') {
-    return element.min > 0 && isDefiniteOscTerminator(element.element);
+    return containsOscTerminator(element.element);
   }
   return (
     (element.type === 'Group' || element.type === 'CapturingGroup') &&
-    element.alternatives.every(isOscTerminatorAlternative)
+    element.alternatives.some(hasOscTerminator)
+  );
+}
+
+function hasOscTerminator(alternative: AST.Alternative): boolean {
+  return alternative.elements.some(
+    (element, index) =>
+      containsOscTerminator(element) ||
+      (isCharacter(element, ESC) && isCharacter(alternative.elements[index + 1], BACKSLASH)),
   );
 }
 

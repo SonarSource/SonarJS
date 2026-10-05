@@ -139,6 +139,10 @@ describe('S6324', () => {
           code: String.raw`/\x1b\].*?(?:\x07|\x1b\\)/`,
         },
         {
+          // OSC may use the C1 string terminator instead of ESC + \.
+          code: String.raw`/\x1b\].*?(?:\x07|\x9c)/`,
+        },
+        {
           // An OSC terminator remains valid before ordinary terminal output.
           code: String.raw`/\x1b\]0;title\x07label/`,
         },
@@ -335,6 +339,21 @@ describe('S6324', () => {
           // A closed OSC cannot exempt a later standalone string terminator.
           code: String.raw`/\x1b\]0;title\x07\x1b\\/`,
           errors: 1,
+        },
+        {
+          // A C1 string terminator also closes an OSC sequence.
+          code: String.raw`/\x1b\]0;title\x9c\x1b\\/`,
+          errors: 1,
+        },
+        {
+          // A mandatory nested BEL closes the OSC before the later string terminator.
+          code: String.raw`/\x1b\]0;title(?:x\x07)\x1b\\/`,
+          errors: 2,
+        },
+        {
+          // An optional BEL does not prove that the OSC has already closed.
+          code: String.raw`/\x1b\]0;title\x07?\x1b\\/`,
+          errors: 2,
         },
         {
           // BEL inside a character class is not an OSC terminator.
