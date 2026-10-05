@@ -37,7 +37,6 @@ const VALID_HEX_COLOR = /^#(?:[\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/i;
 const LEGACY_IE_FILTER_VALUE = /^\s*(?:progid:|alpha\()/i;
 
 // Same `x` unit handling as stylelint's unit-no-unknown: only valid as an image resolution
-const RESOLUTION_X_FUNCTIONS = new Set(['image-set', '-webkit-image-set']);
 const RESOLUTION_X_PROPERTY = 'image-resolution';
 
 // Same direction checks as stylelint's function-linear-gradient-no-nonstandard-direction
@@ -76,15 +75,10 @@ function firstArgument(node: FunctionNode): string {
  * Checks for problems that dedicated rules already report, so that the same value is not
  * reported twice:
  * - S4647 (color-no-invalid-hex), S4651 (function-linear-gradient-no-nonstandard-direction),
- *   S4652 (string-no-newline), S4653 (unit-no-unknown), S8757 (annotation-no-unknown),
- *   and the unknown functions of stylelint's function-no-unknown.
+ *   S4652 (string-no-newline), S4653 (unit-no-unknown).
  */
 function overlapChecks(knownUnits: Set<string>): Overlap[] {
   return [
-    (node: ValueNode): boolean =>
-      node.type === 'function' &&
-      node.value !== '' &&
-      !KNOWN_FUNCTIONS.has(node.value.toLowerCase()),
     (node: ValueNode): boolean =>
       node.type === 'word' && node.value.startsWith('#') && !VALID_HEX_COLOR.test(node.value),
     (node: ValueNode, allowsX: boolean): boolean => {
@@ -100,26 +94,39 @@ function overlapChecks(knownUnits: Set<string>): Overlap[] {
       node.value.toLowerCase() === 'linear-gradient' &&
       isNonstandardGradientDirection(firstArgument(node)),
     (node: ValueNode): boolean => node.type === 'string' && node.value.includes('\n'),
-    (node: ValueNode): boolean => node.type === 'word' && node.value.startsWith('!'),
   ];
 }
 
-/** Vendor-prefixed values are deliberate fallbacks for older browsers */
-function isVendorPrefixed(node: ValueNode): boolean {
-  return (node.type === 'word' || node.type === 'function') && VENDOR_PREFIX.test(node.value);
+/**
+ * Pieces that upstream cannot validate, so that it reports the whole value containing them:
+ * - vendor-prefixed values, which are deliberate fallbacks for older browsers;
+ * - unknown functions, like those of preprocessors, left to stylelint's function-no-unknown;
+ * - unknown annotations, left to S8757 (annotation-no-unknown).
+ */
+function isUnvalidatable(node: ValueNode): boolean {
+  switch (node.type) {
+    case 'function':
+      return (
+        VENDOR_PREFIX.test(node.value) ||
+        (node.value !== '' && !KNOWN_FUNCTIONS.has(node.value.toLowerCase())) ||
+        node.nodes.some(isUnvalidatable)
+      );
+    case 'word':
+      return VENDOR_PREFIX.test(node.value) || node.value.startsWith('!');
+    default:
+      return false;
+  }
 }
 
-function hasIgnoredNode(nodes: ValueNode[], checks: Overlap[], allowsX: boolean): boolean {
-  return nodes.some((node: ValueNode): boolean => {
-    if (isVendorPrefixed(node) || checks.some((check: Overlap): boolean => check(node, allowsX))) {
-      return true;
-    }
-    if (node.type !== 'function') {
-      return false;
-    }
-    const allowsXInside = allowsX || RESOLUTION_X_FUNCTIONS.has(node.value.toLowerCase());
-    return hasIgnoredNode(node.nodes, checks, allowsXInside);
-  });
+/**
+ * Problems that dedicated rules report are only ignored when they are the reported piece itself:
+ * a nested one must not hide an independent error elsewhere in the same reported value.
+ */
+function isDirectOverlap(nodes: ValueNode[], checks: Overlap[], allowsX: boolean): boolean {
+  const pieces = nodes.filter(
+    (node: ValueNode): boolean => node.type !== 'space' && node.type !== 'comment',
+  );
+  return pieces.length === 1 && checks.some((check: Overlap): boolean => check(pieces[0], allowsX));
 }
 
 function isLegacyIeFilter(decl: PostCSS.Declaration): boolean {
@@ -146,9 +153,11 @@ function isIgnored(warning: UpstreamWarning, checks: Overlap[]): boolean {
   }
   const declaration = decl as PostCSS.Declaration;
   const allowsX = declaration.prop.toLowerCase() === RESOLUTION_X_PROPERTY;
+  const { nodes } = postcssValueParser(value);
   return (
     isLegacyIeFilter(declaration) ||
-    hasIgnoredNode(postcssValueParser(value).nodes, checks, allowsX)
+    nodes.some(isUnvalidatable) ||
+    isDirectOverlap(nodes, checks, allowsX)
   );
 }
 
@@ -199,17 +208,12 @@ const ruleImpl: stylelint.RuleBase<unknown, unknown> = (
 ): RuleFunction => {
   let upstream: RuleFunction | undefined;
 
-  const getUpstream = async (): Promise<RuleFunction> => {
+  return async (root: PostCSS.Root, result: PostcssResult): Promise<void> => {
     if (!upstream) {
       const factory = (await stylelint.rules[UPSTREAM_RULE]) as stylelint.Rule;
       upstream = factory(primary, secondaryOptions, context);
     }
-    return upstream;
-  };
-
-  return async (root: PostCSS.Root, result: PostcssResult): Promise<void> => {
-    const delegated = await getUpstream();
-    await delegated(root, result);
+    await upstream(root, result);
     filterAndRelabelWarnings(result);
   };
 };

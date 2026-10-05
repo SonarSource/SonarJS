@@ -228,6 +228,16 @@ a { --gap: 1rem; }`,
 }`,
     }));
 
+  it('ignores Less values nesting preprocessor functions', () =>
+    ruleTester.valid({
+      codeFilename: 'file.less',
+      code: `a {
+  box-shadow: 2px 2px 6px -2px fade(@black, 10%);
+  transform: scale((unit(@dot-size) / unit(@size)));
+  margin-top: -(@spin-dot-size / 2) - 10px;
+}`,
+    }));
+
   it('still reports invalid values next to ignored ones', () =>
     ruleTester.invalid({
       code: `a {
@@ -295,13 +305,34 @@ a { top: red; }
       expect(await lintWithOverlappingRules('a { color: rgb(1 2 #fff); }')).toEqual([[RULE]]);
     });
 
-    it('leaves unknown units to unit-no-unknown, including inside functions', async () => {
+    it('leaves unknown units to unit-no-unknown', async () => {
+      expect(await lintWithOverlappingRules('a { margin: 1px 10pixels; }')).toEqual([
+        ['unit-no-unknown'],
+      ]);
+    });
+
+    it('still reports a function whose arguments contain an excluded piece', async () => {
       expect(
         await lintWithOverlappingRules(
-          'a { margin: 1px 10pixels; }',
           'a { color: rgb(1 2 3foo); }',
+          'a { background: linear-gradient(to left, #ffw, #000); }',
         ),
-      ).toEqual([['unit-no-unknown'], ['unit-no-unknown']]);
+      ).toEqual([
+        [RULE, 'unit-no-unknown'],
+        ['color-no-invalid-hex', RULE],
+      ]);
+    });
+
+    it('does not let an excluded piece hide an independent error in the same value', async () => {
+      expect(
+        await lintWithOverlappingRules(
+          'a { background: linear-gradient(to left, foo, #ffw); }',
+          'a { color: rgb(1 foo 3foo); }',
+        ),
+      ).toEqual([
+        ['color-no-invalid-hex', RULE],
+        [RULE, 'unit-no-unknown'],
+      ]);
     });
 
     it('leaves the "x" unit outside resolution contexts to unit-no-unknown', async () => {
@@ -330,6 +361,12 @@ a { top: red; }
         ['function-linear-gradient-no-nonstandard-direction'],
         ['function-linear-gradient-no-nonstandard-direction'],
       ]);
+    });
+
+    it('leaves a whole non-standard gradient to the dedicated rule, even with other errors inside', async () => {
+      expect(
+        await lintWithOverlappingRules('a { background: linear-gradient(top, foo, #ffw); }'),
+      ).toEqual([['color-no-invalid-hex', 'function-linear-gradient-no-nonstandard-direction']]);
     });
 
     it('still reports invalid gradients whose direction is standard', async () => {
