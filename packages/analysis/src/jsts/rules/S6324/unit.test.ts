@@ -131,8 +131,12 @@ describe('S6324', () => {
           code: String.raw`/\u001b\].*?\u0007/`,
         },
         {
-          // The OSC terminator can be one of the alternatives after its introducer.
-          code: String.raw`/\x1b\].*?(?:\x07|foo)/`,
+          // OSC may end with the string terminator (ESC + \).
+          code: String.raw`/\x1b\].*?\x1b\\/`,
+        },
+        {
+          // OSC may end with either BEL or the string terminator (ESC + \).
+          code: String.raw`/\x1b\].*?(?:\x07|\x1b\\)/`,
         },
         {
           // Combined ANSI control sequences pattern (like vscode ansiUtils.ts)
@@ -296,6 +300,16 @@ describe('S6324', () => {
           // BEL used only to assert an absent terminator is not an OSC terminator.
           code: String.raw`/\x1b\](?!.*\x07)/`,
           errors: 1,
+        },
+        {
+          // Every terminator alternative must be valid for an OSC sequence.
+          code: String.raw`/\x1b\].*?(?:\x07|foo)/`,
+          errors: 1,
+        },
+        {
+          // An invalid alternative keeps both OSC terminators reportable.
+          code: String.raw`/\x1b\].*?(?:\x07|\x1b\\|foo)/`,
+          errors: 2,
         },
         {
           // BEL inside a character class is not an OSC terminator.

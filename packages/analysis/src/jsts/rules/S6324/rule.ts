@@ -31,6 +31,7 @@ const ESC = 0x1b;
 const BEL = 0x07;
 const LEFT_BRACKET = 0x5b; // [
 const RIGHT_BRACKET = 0x5d; // ]
+const BACKSLASH = 0x5c;
 
 /**
  * Control characters used as range boundaries (e.g., [\x00-\x1f]) indicate intentional usage.
@@ -78,32 +79,66 @@ function isAnsiSequenceStart(character: AST.Character): boolean {
 }
 
 /**
- * Checks whether BEL (0x07) has an OSC introducer earlier on its execution path.
+ * Checks whether a control character terminates a complete OSC sequence.
  */
 function isOscTerminator(character: AST.Character): boolean {
-  if (character.value !== BEL) {
+  if (character.value !== BEL && character.value !== ESC) {
     return false;
   }
 
-  let node: AST.Node = character;
-  while (node.parent) {
-    const parent: AST.Node = node.parent;
-    if (
-      parent.type === 'Assertion' &&
-      (parent.kind === 'lookahead' || parent.kind === 'lookbehind')
-    ) {
-      return false;
-    }
-    if (parent.type === 'CharacterClass') {
-      return false;
-    }
-    if (parent.type === 'Alternative' && hasOscIntroducerBefore(parent, node)) {
-      return true;
-    }
-    node = parent;
+  const alternative = character.parent;
+  if (alternative.type !== 'Alternative') {
+    return false;
   }
 
-  return false;
+  if (alternative.parent.type === 'Group') {
+    return isGroupedOscTerminator(alternative);
+  }
+
+  return (
+    isOscTerminatorAtEnd(alternative, character) && hasOscIntroducerBefore(alternative, character)
+  );
+}
+
+function isGroupedOscTerminator(alternative: AST.Alternative): boolean {
+  const group = alternative.parent;
+  if (group.type !== 'Group' || !isOscTerminatorAlternative(alternative)) {
+    return false;
+  }
+
+  const parent = group.parent;
+  if (
+    parent.type !== 'Alternative' ||
+    parent.elements.at(-1) !== group ||
+    !group.alternatives.every(isOscTerminatorAlternative)
+  ) {
+    return false;
+  }
+
+  return hasOscIntroducerBefore(parent, group);
+}
+
+function isOscTerminatorAlternative(alternative: AST.Alternative): boolean {
+  const [first, second] = alternative.elements;
+  return (
+    (alternative.elements.length === 1 && isCharacter(first, BEL)) ||
+    (alternative.elements.length === 2 && isCharacter(first, ESC) && isCharacter(second, BACKSLASH))
+  );
+}
+
+function isOscTerminatorAtEnd(alternative: AST.Alternative, character: AST.Character): boolean {
+  const index = alternative.elements.indexOf(character);
+  const lastIndex = alternative.elements.length - 1;
+  return (
+    (character.value === BEL && index === lastIndex) ||
+    (character.value === ESC &&
+      index === lastIndex - 1 &&
+      isCharacter(alternative.elements[lastIndex], BACKSLASH))
+  );
+}
+
+function isCharacter(element: AST.Element | undefined, value: number): boolean {
+  return element?.type === 'Character' && element.value === value;
 }
 
 function hasOscIntroducerBefore(alternative: AST.Alternative, node: AST.Node): boolean {
