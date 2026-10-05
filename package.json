@@ -84,7 +84,7 @@
     "json-schema-to-ts": "3.1.1",
     "knip": "6.38.0",
     "license-checker": "25.0.1",
-    "memfs": "4.79.0",
+    "memfs": "4.80.0",
     "node-reporter-sonarqube": "1.0.3",
     "nyc": "18.0.0",
     "package-manifest-generator": "1.0.0-beta.4",
