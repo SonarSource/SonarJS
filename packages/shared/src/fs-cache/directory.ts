@@ -88,7 +88,7 @@ function getEncoding(
   return options?.encoding || undefined;
 }
 
-export function opendirOperation(options: OperationOptions | undefined): string {
+function opendirOperation(options: OperationOptions | undefined): string {
   return `opendir:${getEncoding(options) || 'utf8'}:${Boolean(options?.recursive)}`;
 }
 
