@@ -603,27 +603,36 @@ function getPropertyFromSpreadElement(
   spreadElement: estree.SpreadElement,
   key: string,
   ctx: Rule.RuleContext,
+  seen: Set<estree.Node> | undefined,
 ): estree.Property | null | undefined {
   const props = getValueOfExpression(ctx, spreadElement.argument, 'ObjectExpression');
   const recursiveDefinition = findFirstMatchingAncestor(
     spreadElement.argument as TSESTree.Node,
     node => node === props,
   );
-  if (recursiveDefinition || props === undefined) {
+  // `seen` additionally cuts mutually recursive definitions (`const a = {...b}; const b = {...a}`),
+  // which `recursiveDefinition` cannot see because neither object is an ancestor of the other.
+  if (recursiveDefinition || props === undefined || seen?.has(props)) {
     return undefined;
   }
-  return getProperty(props, key, ctx);
+  const chain = seen ?? new Set<estree.Node>();
+  chain.add(props);
+  const property = getProperty(props, key, ctx, chain);
+  chain.delete(props);
+  return property;
 }
 
 /**
  * Retrieves the property with the specified key from the given node.
  * @returns The property if found, or null if not found, or undefined if property not found and one of the properties
  * is an unresolved SpreadElement.
+ * @param seen objects already being traversed on the current spread chain; callers never pass it.
  */
 export function getProperty(
   expr: estree.Node | undefined | null,
   key: string,
   ctx: Rule.RuleContext,
+  seen?: Set<estree.Node>,
 ): estree.Property | null | undefined {
   if (expr?.type !== 'ObjectExpression') {
     return null;
@@ -635,7 +644,7 @@ export function getProperty(
       return property;
     }
     if (property.type === 'SpreadElement') {
-      const prop = getPropertyFromSpreadElement(property, key, ctx);
+      const prop = getPropertyFromSpreadElement(property, key, ctx, seen);
       if (prop === undefined) {
         unresolvedSpreadElement = true;
       } else if (prop !== null) {
