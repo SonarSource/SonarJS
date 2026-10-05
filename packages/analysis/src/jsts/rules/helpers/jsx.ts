@@ -154,3 +154,25 @@ function isRenderingArrayMappingCall(node: TSESTree.CallExpression): boolean {
     (node.callee.property.name === 'map' || node.callee.property.name === 'flatMap')
   );
 }
+
+/**
+ * Checks whether a JSX tag-name expression is a plain identifier, optionally restricted to
+ * one of the given names. Member (`<Foo.Bar>`) and namespaced (`<svg:rect>`) names never match.
+ */
+export function isJsxIdentifierNamed(
+  name: TSESTree.JSXTagNameExpression | undefined,
+  ...values: string[]
+): name is TSESTree.JSXIdentifier {
+  return name?.type === 'JSXIdentifier' && (values.length === 0 || values.includes(name.name));
+}
+
+/**
+ * Checks whether a node is a JSX element whose tag is a plain identifier, optionally
+ * restricted to one of the given tag names.
+ */
+export function isJsxElementNamed(
+  node: TSESTree.Node | undefined,
+  ...tagNames: string[]
+): node is TSESTree.JSXElement {
+  return node?.type === 'JSXElement' && isJsxIdentifierNamed(node.openingElement.name, ...tagNames);
+}
