@@ -73,7 +73,7 @@ Runner labels express relative size and environment, not a stable hardware contr
 
 | Runner label                                  | Typical jobs                                                                                                                 | Why it is used                                                                 |
 | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `sonar-xs`                                    | `setup`, `get_build_number`, `populate_npm_cache`, `prepare_rspec_rule_data`, `knip`, `promote`, `releasability`, `run_iris` | Lightweight orchestration, metadata, cache preparation, and control-plane jobs |
+| `sonar-xs`                                    | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`, `knip`, `promote`, `releasability`, `run_iris`                     | Lightweight orchestration, metadata, cache preparation, and control-plane jobs |
 | `sonar-m`                                     | `test_js`, `analyze_primary`, `analyze_shadows`, most Linux plugin QA jobs                                                   | Medium Linux compute for tests and analysis                                    |
 | `sonar-l`                                     | `build`                                                                                                                      | Main Linux Maven build and deploy                                              |
 | `sonar-xl`                                    | `js_ts_ruling`, `ruling`                                                                                                     | Large ruling workloads                                                         |
@@ -86,17 +86,14 @@ Runner labels express relative size and environment, not a stable hardware contr
 
 ```mermaid
 flowchart TD
-  A["setup"] --> B["get_build_number"]
-  A --> C["populate_npm_cache"]
+  A["setup"] --> C["populate_npm_cache"]
   A --> D["populate_npm_cache_win"]
   C --> E["prepare_rspec_rule_data"]
 
-  B --> F["build"]
-  C --> F
+  C --> F["build"]
   E --> F
 
-  B --> G["build_win"]
-  D --> G
+  D --> G["build_win"]
   E --> G
 
   E --> H["build_eslint_plugin"]
@@ -128,8 +125,7 @@ flowchart TD
   Q --> S["run_iris (nightly)"]
   R --> S
 
-  B --> T["promote"]
-  F --> T
+  F --> T["promote"]
   G --> T
   I --> T
   J --> T
@@ -142,6 +138,8 @@ flowchart TD
   T --> U["releasability"]
 ```
 
+Every job in `build`, `build_win`, `prepare_rspec_rule_data`, `analyze_primary`, `analyze_shadows`, the plugin QA family, `ruling`, and `promote` also calls `get-build-number` as a plain step (directly, or through `config-maven`/`promote`) — it is not a job-level dependency, so it is intentionally not drawn as a graph node. See [Build Number: Direct Calls, Not A Producer Job](#build-number-direct-calls-not-a-producer-job).
+
 ## Detailed Dependency Views
 
 The full 31-job dependency graph is too dense to read well as a single Mermaid diagram. The grouped views below are the readable version; the job table that follows is the exact exhaustive reference.
@@ -150,22 +148,17 @@ The full 31-job dependency graph is too dense to read well as a single Mermaid d
 
 ```mermaid
 flowchart TD
-  setup["setup"] --> get_build_number["get_build_number"]
-  setup --> populate_npm_cache["populate_npm_cache"]
-  get_build_number --> populate_npm_cache
+  setup["setup"] --> populate_npm_cache["populate_npm_cache"]
   setup --> populate_npm_cache_win["populate_npm_cache_win"]
-  get_build_number --> populate_npm_cache_win
 
   setup --> prepare_rspec_rule_data["prepare_rspec_rule_data"]
   populate_npm_cache --> prepare_rspec_rule_data
 
   setup --> build["build"]
-  get_build_number --> build
   populate_npm_cache --> build
   prepare_rspec_rule_data --> build
 
   setup --> build_win["build_win"]
-  get_build_number --> build_win
   populate_npm_cache_win --> build_win
   prepare_rspec_rule_data --> build_win
 
@@ -199,12 +192,10 @@ flowchart TD
   build_eslint_plugin["build_eslint_plugin"] --> generated_files_freshness["generated_files_freshness"]
   build --> generated_files_freshness
   setup --> analyze_primary["analyze_primary"]
-  get_build_number["get_build_number"] --> analyze_primary
   build["build"] --> analyze_primary
   test_js --> analyze_primary
 
   setup --> analyze_shadows["analyze_shadows"]
-  get_build_number --> analyze_shadows
   build --> analyze_shadows
   test_js --> analyze_shadows
 
@@ -217,10 +208,7 @@ flowchart TD
 ```mermaid
 flowchart TD
   build["build"] --> plugin_qa["plugin QA matrix"]
-  get_build_number["get_build_number"] --> plugin_qa
-
   build --> ruling["ruling"]
-  get_build_number --> ruling
 
   populate_npm_cache["populate_npm_cache"] --> js_ts_ruling["js_ts_ruling"]
   prepare_rspec_rule_data["prepare_rspec_rule_data"] --> js_ts_ruling
@@ -234,7 +222,6 @@ flowchart TD
   plugin_qa --> promote
   ruling --> promote
   js_ts_ruling --> promote
-  get_build_number --> promote
 
   promote --> releasability["releasability"]
 ```
@@ -270,33 +257,32 @@ set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the 
 | Job                                  | Runner                     | Needs                                                                            | Condition                                                             |
 | ------------------------------------ | -------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
 | `setup`                              | `sonar-xs`                 | `-`                                                                              | default                                                               |
-| `get_build_number`                   | `sonar-xs`                 | `setup`                                                                          | non-fork PRs and all non-PR runs                                      |
-| `populate_npm_cache`                 | `sonar-xs`                 | `setup`, `get_build_number`                                                      | non-fork PRs and all non-PR runs                                      |
-| `populate_npm_cache_win`             | `github-windows-latest-s`  | `setup`, `get_build_number`                                                      | non-fork PRs and all non-PR runs                                      |
+| `populate_npm_cache`                 | `sonar-xs`                 | `setup`                                                                          | non-fork PRs and all non-PR runs                                      |
+| `populate_npm_cache_win`             | `github-windows-latest-s`  | `setup`                                                                          | non-fork PRs and all non-PR runs                                      |
 | `prepare_rspec_rule_data`            | `sonar-xs`                 | `setup`, `populate_npm_cache`                                                    | non-fork PRs and all non-PR runs                                      |
-| `build`                              | `sonar-l`                  | `setup`, `get_build_number`, `populate_npm_cache`, `prepare_rspec_rule_data`     | non-fork PRs and all non-PR runs                                      |
-| `build_win`                          | `github-windows-latest-m`  | `setup`, `get_build_number`, `populate_npm_cache_win`, `prepare_rspec_rule_data` | non-fork PRs and all non-PR runs                                      |
+| `build`                              | `sonar-l`                  | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`                         | non-fork PRs and all non-PR runs                                      |
+| `build_win`                          | `github-windows-latest-m`  | `setup`, `populate_npm_cache_win`, `prepare_rspec_rule_data`                     | non-fork PRs and all non-PR runs                                      |
 | `build_eslint_plugin`                | `github-ubuntu-latest-s`   | `setup`, `prepare_rspec_rule_data`                                               | non-fork PRs and all non-PR runs                                      |
 | `generated_files_freshness`          | `github-ubuntu-latest-s`   | `prepare_rspec_rule_data`, `build_eslint_plugin`, `build`                        | nightly only                                                          |
 | `test_eslint_plugin`                 | `github-ubuntu-latest-s`   | `setup`, `build_eslint_plugin`                                                   | default                                                               |
 | `knip`                               | `sonar-xs`                 | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`                         | default                                                               |
 | `test_js`                            | `sonar-m`                  | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`                         | default                                                               |
 | `test_js_win`                        | `github-windows-latest-m`  | `setup`, `populate_npm_cache_win`, `prepare_rspec_rule_data`                     | default                                                               |
-| `analyze_primary`                    | `sonar-m`                  | `setup`, `get_build_number`, `test_js`, `build`                                  | non-fork PRs and all non-PR runs                                      |
-| `analyze_shadows`                    | `sonar-m`                  | `setup`, `get_build_number`, `test_js`, `build`                                  | nightly only                                                          |
-| `plugin_qa_with_node`                | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
-| `plugin_qa_fast_with_node`           | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
-| `plugin_qa_without_node`             | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
-| `plugin_qa_without_node_dev`         | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
-| `plugin_qa_without_node_alpine`      | `warp-custom-ubuntu-24-04` | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
-| `plugin_qa_fast_without_node`        | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
-| `plugin_qa_fast_without_node_dev`    | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
-| `plugin_qa_fast_without_node_alpine` | `warp-custom-ubuntu-24-04` | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
-| `plugin_qa_win`                      | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
-| `plugin_qa_sonarlint_win`            | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
-| `plugin_qa_win_fast_with_node`       | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
+| `analyze_primary`                    | `sonar-m`                  | `setup`, `test_js`, `build`                                                      | non-fork PRs and all non-PR runs                                      |
+| `analyze_shadows`                    | `sonar-m`                  | `setup`, `test_js`, `build`                                                      | nightly only                                                          |
+| `plugin_qa_with_node`                | `sonar-m`                  | `setup`, `build`                                                                 | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_fast_with_node`           | `sonar-m`                  | `setup`, `build`                                                                 | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_without_node`             | `sonar-m`                  | `setup`, `build`                                                                 | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_without_node_dev`         | `sonar-m`                  | `setup`, `build`                                                                 | nightly only                                                          |
+| `plugin_qa_without_node_alpine`      | `warp-custom-ubuntu-24-04` | `setup`, `build`                                                                 | nightly only                                                          |
+| `plugin_qa_fast_without_node`        | `sonar-m`                  | `setup`, `build`                                                                 | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_fast_without_node_dev`    | `sonar-m`                  | `setup`, `build`                                                                 | nightly only                                                          |
+| `plugin_qa_fast_without_node_alpine` | `warp-custom-ubuntu-24-04` | `setup`, `build`                                                                 | nightly only                                                          |
+| `plugin_qa_win`                      | `github-windows-latest-m`  | `setup`, `build`                                                                 | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_sonarlint_win`            | `github-windows-latest-m`  | `setup`, `build`                                                                 | non-fork PRs and all non-PR runs                                      |
+| `plugin_qa_win_fast_with_node`       | `github-windows-latest-m`  | `setup`, `build`                                                                 | non-fork PRs and all non-PR runs                                      |
 | `js_ts_ruling`                       | `sonar-xl`                 | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`                         | non-fork PRs and all non-PR runs                                      |
-| `ruling`                             | `sonar-xl`                 | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
+| `ruling`                             | `sonar-xl`                 | `setup`, `build`                                                                 | non-fork PRs and all non-PR runs                                      |
 | `run_iris`                           | `sonar-xs`                 | `analyze_primary`, `analyze_shadows`                                             | nightly only                                                          |
 | `promote`                            | `sonar-xs`                 | many fan-in jobs                                                                 | only when upstream jobs succeeded and the run is allowed to promote   |
 | `releasability`                      | `sonar-xs`                 | `promote`                                                                        | only after successful promote on `master`, `branch-*`, or `dogfood-*` |
@@ -314,18 +300,24 @@ These are the small data items passed as job outputs or step outputs, not bulky 
 | `setup`            | `npm-hash`          | all `node_modules` producers/consumers                      | Exact cache key seed for installed Node dependencies                                           |
 | `setup`            | `cache-month`       | Maven cache steps                                           | Monthly key rotation value                                                                     |
 | `setup`            | `is-default-branch` | most `mise-action` calls                                    | Controls when tool caches may be saved                                                         |
-| `get_build_number` | `build-number`      | build, QA, analysis, promotion, and shared env anchor users | One build number is minted once and reused consistently                                        |
+| `get-build-number` step | `BUILD_NUMBER`  | the step's own job only (`config-maven`/`promote` call it internally too) | See [Build Number: Direct Calls, Not A Producer Job](#build-number-direct-calls-not-a-producer-job) |
 | `config-maven`     | `project-version`   | `analyze_primary`, `analyze_shadows`                        | Sonar analysis version value                                                                   |
 
-### Important internal detail: build number cache
+### Build Number: Direct Calls, Not A Producer Job
 
-`SonarSource/ci-github-actions/get-build-number` itself uses GitHub cache internally:
+There is no standalone build-number job. Every job that needs `BUILD_NUMBER` — `build`, `build_win`, `prepare_rspec_rule_data`, `analyze_primary`, `analyze_shadows`, the whole plugin QA family, `ruling`, and `promote` — calls `SonarSource/ci-github-actions/get-build-number@v2` itself as a plain step (the `&get_build_number` anchor), right before the `config-maven`/`promote` step that consumes its output.
 
-- restore: `build-number-${github.run_id}`
-- save: same key
-- purpose: rerun stability within one workflow run
+This is safe because the action coordinates through Git references on the SonarJS repository itself, not a per-job value:
 
-That cache is tiny, but it is still part of the repository's GitHub cache footprint.
+- the first caller in a workflow run claims a new number and records it under `refs/build-runs/<run_id>/<number>`
+- every other caller in the *same* run finds that marker and reuses it instead of claiming again
+- different concurrent runs (e.g. several PRs) never collide, because each run has its own `run_id`
+
+So `build`, every QA job, `analyze_primary`/`analyze_shadows`, and `promote` all end up with the identical build number for a given run without any job depending on another job's output for it. Claiming a number requires `contents: write` (to create the git ref), which is why those jobs use the `&build_number_permissions` anchor instead of `&read_permissions`; jobs that never touch `config-maven`/`promote`/`get-build-number` (`populate_npm_cache*`, `knip`, `test_js*`, `build_eslint_plugin`, `test_eslint_plugin`, `js_ts_ruling*`) keep read-only `contents`.
+
+On `pull_request` runs, the top-level workflow `env.BUILD_NUMBER` is pre-seeded from `github.run_number` (see `build.yml`): PR workflows can't create the git refs this action needs even with `contents: write` requested, so every `get-build-number` call on a PR just reuses that pre-seeded value instead of attempting a real claim.
+
+The Alpine-container QA jobs (`plugin_qa_without_node_alpine`, `plugin_qa_fast_without_node_alpine`) install `github-cli` via `apk` so the action's `gh api` calls work inside the container — the base Alpine image does not ship `gh`.
 
 ## File-Plane Handoff Inside One Workflow Run
 
@@ -374,8 +366,9 @@ That is exactly artifact semantics, not cache semantics.
 
 | Owner                     | Path or payload        | Backend                       | Why it exists                                                                                                                                                                         |
 | ------------------------- | ---------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `get-build-number` action | `.build_number.txt`    | GitHub cache                  | Reuse one build number across reruns of the same workflow run                                                                                                                         |
 | `jdx/mise-action`         | tool/runtime downloads | action-managed cache behavior | Reuses provisioned Java/Maven/Node toolchains; mostly action-managed, but a few jobs pass an explicit `cache_key` — see [Toolchain Provisioning (mise)](#toolchain-provisioning-mise) |
+
+`get-build-number` (v2) is deliberately absent from this table: it no longer uses GitHub cache at all. It coordinates purely through Git references on the repository (`refs/build-number/*`, `refs/build-runs/*`, `refs/build-number-lock/*`) — see [Build Number: Direct Calls, Not A Producer Job](#build-number-direct-calls-not-a-producer-job).
 
 ### Cache policies
 
@@ -488,7 +481,6 @@ There is effectively no promotion of branch-produced file payloads back to the d
 
 PR runs still create PR-scoped GitHub state:
 
-- build-number caches
 - `node_modules` caches when the exact key is missing
 - Linux Maven caches
 - JS coverage cache
@@ -549,15 +541,6 @@ Responsibilities:
 - expose whether this is the default branch
 
 This job is the control-plane root of the workflow.
-
-#### `get_build_number`
-
-Responsibilities:
-
-- mint or recover a single build number
-- make that value available to later jobs
-
-This prevents downstream jobs from inventing inconsistent build numbers.
 
 #### `populate_npm_cache` / `populate_npm_cache_win`
 
@@ -708,7 +691,7 @@ Variants differ by:
 
 Important details:
 
-- Alpine jobs pre-seed `BUILD_NUMBER` from `get_build_number` because the `get-build-number` action's GitHub cache approach is unreliable in Alpine-container context
+- Alpine jobs install `github-cli` via `apk` so `get-build-number`'s `gh api` calls work inside the bare container — see [Build Number: Direct Calls, Not A Producer Job](#build-number-direct-calls-not-a-producer-job)
 - `fast` jobs use `key-prefix: orchestrator-fast`
 - `DEV` jobs intentionally skip orchestrator cache because the target version changes too frequently
 
@@ -764,9 +747,10 @@ It waits for:
 - ESLint plugin tests
 - Linux/Windows/Alpine plugin QA jobs
 - ruling jobs
-- build-number generation
 
-Then it runs `SonarSource/ci-github-actions/promote@v1`, which promotes build info/artifacts in Repox.
+It also calls `get-build-number` itself first, right before promoting, so its `BUILD_NUMBER` matches the one `build` already deployed under — see [Build Number: Direct Calls, Not A Producer Job](#build-number-direct-calls-not-a-producer-job).
+
+Then it runs `SonarSource/ci-github-actions/promote@v2`, which promotes build info/artifacts in Repox.
 
 #### `releasability`
 
@@ -856,7 +840,7 @@ These are the most important reusable components in the current pipeline.
 | `./.github/actions/orchestrator-cache`                     | 9                           | repo-owned orchestrator cache policy                                                                       | official GitHub cache, rolling monthly prefix          |
 | `actions/upload-artifact`                                  | 9                           | same-run file handoff                                                                                      | artifact production                                    |
 | `actions/cache`                                            | 8                           | cache producers, including Maven owners and Linux and Windows CycloneDX CLI caches                         | direct GitHub cache use                                |
-| `SonarSource/ci-github-actions/get-build-number`           | 1                           | stable build number                                                                                        | internally uses GitHub cache                           |
+| `SonarSource/ci-github-actions/get-build-number`           | 18                          | stable build number, called directly by every job that needs it (no producer job)                         | no cache — coordinates via Git references              |
 | `./.github/actions/ruling_bot`                             | 1                           | repo-owned ruling report/comment/fix-PR automation for sonar-lits result trees and rich PR ruling comments | control-plane encapsulation, no direct cache semantics |
 | `./.github/actions/rule-api-cache`                         | 1                           | repo-owned rule-api cache policy                                                                           | official GitHub cache, rolling prefix                  |
 | `peter-evans/create-pull-request`                          | 1                           | nightly generated-files PR                                                                                 | none                                                   |
@@ -899,7 +883,6 @@ A tool declared in `mise.toml` but omitted from `install_args` is simply left un
 ```yaml
 plugin_qa_with_node:
   env:
-    BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     MISE_NODE_VERSION: ${{ matrix.node-version }}
   steps:
     - uses: jdx/mise-action@...
@@ -944,7 +927,7 @@ The repository also defines a companion workflow:
 
 - [`../.github/workflows/pr-cleanup.yml`](../.github/workflows/pr-cleanup.yml)
 
-It runs on `pull_request.closed` and uses `SonarSource/ci-github-actions/pr_cleanup@v1`.
+It runs on `pull_request.closed` and uses `SonarSource/ci-github-actions/pr_cleanup@v2`.
 
 The workflow is intentionally separate from [`../.github/workflows/PullRequestClosed.yml`](../.github/workflows/PullRequestClosed.yml):
 
@@ -966,7 +949,7 @@ jobs:
     permissions:
       actions: write
     steps:
-      - uses: SonarSource/ci-github-actions/pr_cleanup@v1
+      - uses: SonarSource/ci-github-actions/pr_cleanup@v2
 ```
 
 What it helps with in SonarJS:
@@ -974,7 +957,6 @@ What it helps with in SonarJS:
 - delete PR-scoped GitHub caches after the PR closes
 - delete branch-run artifacts for the PR's head branch
 - reduce stale GitHub cache/artifact footprint created by:
-  - build-number caches
   - `node_modules` caches
   - JS coverage and Windows JS marker caches
   - action-owned GitHub caches such as `mise`
@@ -995,7 +977,7 @@ So the value of `pr-cleanup.yml` is:
 If you remember only one model, remember this one:
 
 1. `setup` computes all cache keys and matrix inputs.
-2. `get_build_number` mints one build number.
+2. Every job that needs a build number calls `get-build-number` itself — there is no producer job; Git references on the repo keep the value consistent within a run.
 3. `populate_npm_cache*` are producer/probe jobs for `node_modules`.
 4. `prepare_rspec_rule_data` is the one RSPEC refresh job.
 5. `build` is the main artifact producer.

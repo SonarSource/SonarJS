@@ -80,29 +80,12 @@ jobs:
           echo "month=$MONTH" >> $GITHUB_OUTPUT
           echo "Cache month: $MONTH"
 
-  get_build_number:
-    runs-on: sonar-xs
-    name: Get build number
-    needs: setup
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions:
-      id-token: write
-      contents: write
-    outputs:
-      build-number: ${{ steps.build-number.outputs.BUILD_NUMBER }}
-    steps:
-      - id: build-number
-        uses: SonarSource/ci-github-actions/get-build-number@v2
-
   populate_npm_cache:
     runs-on: sonar-xs
     name: Populate NPM cache for Linux
-    needs: [setup, get_build_number]
+    needs: [setup]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    env: &shared_build_number
-      # Reuse the build number minted once in get_build_number everywhere workflow metadata is configured or promoted.
-      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     steps: &populate_npm_cache_steps
       # Producer jobs need a lookup-only probe that still saves a freshly populated cache at job end.
       - name: Check NPM dependencies cache
@@ -140,19 +123,19 @@ jobs:
   populate_npm_cache_win:
     runs-on: warp-custom-windows-2022-s
     name: Populate NPM cache for Windows
-    needs: [setup, get_build_number]
+    needs: [setup]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    env: *shared_build_number
     steps: *populate_npm_cache_steps
 
   build:
     runs-on: sonar-l
     name: Build SonarJS on Linux
-    needs: [setup, get_build_number, populate_npm_cache, prepare_rspec_rule_data]
+    needs: [setup, populate_npm_cache, prepare_rspec_rule_data]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    env: *shared_build_number
+    permissions: &build_number_permissions
+      id-token: write
+      contents: write # required by get-build-number (claims a build number via git refs)
     steps:
       - *checkout
       - &mise
@@ -185,6 +168,10 @@ jobs:
         with:
           path: ~/.cache/cyclonedx-cli
           key: cyclonedx-cli-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('tools/merge-cyclonedx-bom.sh') }}
+      - &get_build_number
+        name: Get build number
+        id: get-build-number
+        uses: SonarSource/ci-github-actions/get-build-number@v2
       - &config_maven
         name: Configure Maven
         id: config-maven
@@ -192,6 +179,8 @@ jobs:
         with:
           artifactory-reader-role: private-reader
           disable-caching: 'true'
+        env:
+          BUILD_NUMBER: ${{ steps.get-build-number.outputs.BUILD_NUMBER }}
       - &point_maven_edge
         name: Point Maven resolve at Edge
         if: runner.environment != 'github-hosted'
@@ -263,10 +252,9 @@ jobs:
   build_win:
     runs-on: warp-custom-windows-2022-m
     name: Build SonarJS on Windows
-    needs: [setup, get_build_number, populate_npm_cache_win, prepare_rspec_rule_data]
+    needs: [setup, populate_npm_cache_win, prepare_rspec_rule_data]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    env: *shared_build_number
+    permissions: *build_number_permissions
     steps:
       - *checkout
       - *mise
@@ -287,6 +275,7 @@ jobs:
           key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - *cyclonedx_cli_cache
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - name: Build and test Maven (no deploy)
@@ -297,7 +286,7 @@ jobs:
     name: Prepare RSPEC rule data
     needs: [setup, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
+    permissions: *build_number_permissions
     outputs:
       test-input-hash: ${{ steps.test-input-hash.outputs.hash }}
     steps:
@@ -312,6 +301,7 @@ jobs:
           key: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-${{ needs.setup.outputs.maven-hash }}
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - uses: ./.github/actions/rule-api-cache
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - id: rspec-secrets
@@ -625,10 +615,9 @@ jobs:
   analyze_primary:
     runs-on: sonar-m
     name: Analyze in SonarQube NEXT
-    needs: [setup, get_build_number, test_js, build]
+    needs: [setup, test_js, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    env: *shared_build_number
+    permissions: *build_number_permissions
     steps:
       - &checkout_with_tags
         name: Checkout source code with tags
@@ -657,6 +646,7 @@ jobs:
         with:
           name: jacoco-xml-reports-${{ github.sha }}
           path: sonar-plugin
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - id: secrets
@@ -691,10 +681,9 @@ jobs:
   analyze_shadows:
     runs-on: sonar-m
     name: Analyze in ${{ matrix.platform }}
-    needs: [setup, get_build_number, test_js, build]
-    permissions: *read_permissions
+    needs: [setup, test_js, build]
+    permissions: *build_number_permissions
     if: github.event_name == 'schedule'
-    env: *shared_build_number
     strategy:
       fail-fast: false
       matrix:
@@ -712,6 +701,7 @@ jobs:
       - *validate_js_coverage_reports
       - *download_maven_targets
       - *download_jacoco_xml_reports
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - id: secrets
@@ -747,11 +737,10 @@ jobs:
   plugin_qa_with_node:
     runs-on: sonar-m
     name: QA with Node ${{ matrix.node-version }} on Ubuntu
-    needs: [setup, get_build_number, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
+    permissions: *build_number_permissions
     env:
-      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
       MISE_NODE_VERSION: ${{ matrix.node-version }}
     strategy:
       fail-fast: false
@@ -771,6 +760,7 @@ jobs:
         with:
           name: sonarjs-m2
           path: ~/.m2/repository/org/sonarsource/javascript
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - &get_licenses_token
@@ -795,11 +785,10 @@ jobs:
   plugin_qa_fast_with_node:
     runs-on: sonar-m
     name: Fast QA with Node ${{ matrix.node-version }} on Ubuntu
-    needs: [setup, get_build_number, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
+    permissions: *build_number_permissions
     env:
-      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
       MISE_NODE_VERSION: ${{ matrix.node-version }}
     strategy:
       fail-fast: false
@@ -809,6 +798,7 @@ jobs:
       - *mise_java_matrix_node
       - *maven_cache_restore
       - *download_sonarjs_m2
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - *get_licenses_token
@@ -828,10 +818,9 @@ jobs:
   plugin_qa_without_node:
     runs-on: sonar-m
     name: QA without Node on Ubuntu SQ:LATEST_RELEASE
-    needs: [setup, get_build_number, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    env: *shared_build_number
+    permissions: *build_number_permissions
     steps:
       - *checkout
       - &mise_java_only
@@ -843,6 +832,7 @@ jobs:
           install_args: java maven
       - *maven_cache_restore
       - *download_sonarjs_m2
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - *get_licenses_token
@@ -874,15 +864,15 @@ jobs:
   plugin_qa_without_node_dev:
     runs-on: sonar-m
     name: QA without Node on Ubuntu SQ:DEV
-    needs: [setup, get_build_number, build]
+    needs: [setup, build]
     if: github.event_name == 'schedule'
-    permissions: *read_permissions
-    env: *shared_build_number
+    permissions: *build_number_permissions
     steps:
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
       - *download_sonarjs_m2
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - *get_licenses_token
@@ -901,22 +891,17 @@ jobs:
   plugin_qa_without_node_alpine:
     runs-on: warp-custom-ubuntu-24-04
     name: QA without Node on Alpine SQ:LATEST_RELEASE
-    needs: [setup, get_build_number, build]
+    needs: [setup, build]
     if: github.event_name == 'schedule'
     container:
       image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
-    permissions: *read_permissions
-    env:
-      # Pre-set build number to avoid cache miss in container.
-      # actions/cache doesn't work in Alpine containers (OS detection mismatch),
-      # so get-build-number would generate a new number instead of reusing the one
-      # from the get_build_number job.
-      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+    permissions: *build_number_permissions
     steps:
       - *checkout
       - &alpine_install_deps
         name: Install dependencies
-        run: apk add --no-cache bash curl util-linux
+        # github-cli (gh) is required by get-build-number@v2, which calls the GitHub API directly.
+        run: apk add --no-cache bash curl util-linux github-cli
       - name: Create non-root user
         run: |
           # Elasticsearch refuses to run as root. Create a non-root user for the QA steps.
@@ -933,6 +918,7 @@ jobs:
           install_args: maven
       - *maven_cache_restore
       - *download_sonarjs_m2
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - *get_licenses_token
@@ -956,15 +942,15 @@ jobs:
   plugin_qa_fast_without_node:
     runs-on: sonar-m
     name: Fast QA without Node on Ubuntu SQ:LATEST_RELEASE
-    needs: [setup, get_build_number, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    env: *shared_build_number
+    permissions: *build_number_permissions
     steps:
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
       - *download_sonarjs_m2
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - *get_licenses_token
@@ -985,15 +971,15 @@ jobs:
   plugin_qa_fast_without_node_dev:
     runs-on: sonar-m
     name: Fast QA without Node on Ubuntu SQ:DEV
-    needs: [setup, get_build_number, build]
+    needs: [setup, build]
     if: github.event_name == 'schedule'
-    permissions: *read_permissions
-    env: *shared_build_number
+    permissions: *build_number_permissions
     steps:
       - *checkout
       - *mise_java_only
       - *maven_cache_restore
       - *download_sonarjs_m2
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - *get_licenses_token
@@ -1011,19 +997,18 @@ jobs:
   plugin_qa_fast_without_node_alpine:
     runs-on: warp-custom-ubuntu-24-04
     name: Fast QA without Node on Alpine SQ:LATEST_RELEASE
-    needs: [setup, get_build_number, build]
+    needs: [setup, build]
     if: github.event_name == 'schedule'
     container:
       image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
-    permissions: *read_permissions
-    env:
-      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+    permissions: *build_number_permissions
     steps:
       - *checkout
       - *alpine_install_deps
       - *alpine_setup_maven
       - *maven_cache_restore
       - *download_sonarjs_m2
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - *get_licenses_token
@@ -1041,10 +1026,9 @@ jobs:
   plugin_qa_win:
     runs-on: warp-custom-windows-2022-m
     name: QA on Windows (${{ matrix.group }})
-    needs: [setup, get_build_number, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    env: *shared_build_number
+    permissions: *build_number_permissions
     strategy:
       fail-fast: false
       matrix:
@@ -1058,6 +1042,7 @@ jobs:
       - *mise
       - *maven_cache_restore
       - *download_sonarjs_m2
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - *get_licenses_token
@@ -1086,15 +1071,15 @@ jobs:
   plugin_qa_sonarlint_win:
     runs-on: warp-custom-windows-2022-m
     name: QA SonarLint on Windows
-    needs: [setup, get_build_number, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    env: *shared_build_number
+    permissions: *build_number_permissions
     steps:
       - *checkout
       - *mise
       - *maven_cache_restore
       - *download_sonarjs_m2
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - name: Run Plugin QA on Windows
@@ -1107,10 +1092,9 @@ jobs:
   plugin_qa_win_fast_with_node:
     runs-on: warp-custom-windows-2022-m
     name: Fast QA on Windows with Node (${{ matrix.group }})
-    needs: [setup, get_build_number, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    env: *shared_build_number
+    permissions: *build_number_permissions
     strategy:
       fail-fast: false
       matrix:
@@ -1124,6 +1108,7 @@ jobs:
       - *mise
       - *maven_cache_restore
       - *download_sonarjs_m2
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - *get_licenses_token
@@ -1227,15 +1212,15 @@ jobs:
   ruling:
     runs-on: sonar-xl
     name: Ruling Test
-    needs: [setup, get_build_number, build]
+    needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    env: *shared_build_number
+    permissions: *build_number_permissions
     steps:
       - *checkout_with_submodules
       - *mise
       - *maven_cache_restore
       - *download_sonarjs_m2
+      - *get_build_number
       - *config_maven
       - *point_maven_edge
       - *get_licenses_token
@@ -1284,7 +1269,6 @@ jobs:
   promote:
     runs-on: sonar-xs
     needs:
-      - get_build_number
       - build
       - build_win
       - test_js
@@ -1305,8 +1289,7 @@ jobs:
     if: >-
       !failure() && !cancelled() &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
-    permissions: *read_permissions
-    env: *shared_build_number
+    permissions: *build_number_permissions
     steps:
       - *checkout
       - name: Reject root rspec.sha
@@ -1319,9 +1302,12 @@ jobs:
             exit 1
           fi
       - *mise
+      - *get_build_number
       - uses: SonarSource/ci-github-actions/promote@v2
         with:
           promote-pull-request: true
+        env:
+          BUILD_NUMBER: ${{ steps.get-build-number.outputs.BUILD_NUMBER }}
 
   releasability:
     runs-on: sonar-xs
@@ -1351,7 +1337,6 @@ jobs:
     runs-on: sonar-xs
     name: Notify build failure
     needs:
-      - get_build_number
       - build
       - build_win
       - test_js
