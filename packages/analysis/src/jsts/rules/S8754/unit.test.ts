@@ -89,6 +89,17 @@ describe('outer', () => { first(); second(); });
         {
           code: `
 import { describe, test } from 'vitest';
+function first() {
+  describe('inner', () => { test('same', () => {}); second(); });
+}
+function second() { test('same', () => {}); first(); }
+describe('outer', () => { second(); first(); });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
 function makeTests() { test('same', () => {}); }
 describe('outer', () => { makeTests(); makeTests(); makeTests(); });
           `,

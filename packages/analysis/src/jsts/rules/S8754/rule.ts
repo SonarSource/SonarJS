@@ -69,14 +69,15 @@ type HelperEvent =
 
 interface HelperExpansion {
   tests: Set<estree.CallExpression>;
-  recursive: boolean;
+  // Shallowest active helper reached by a cycle; Infinity means no unresolved cycle.
+  cycleDepth: number;
 }
 
 interface RuleState {
   context: Rule.RuleContext;
   classifications: WeakMap<estree.CallExpression, CallClassification>;
   helperSummaries: Map<FunctionNode, HelperEvent[]>;
-  helperExpansionPath: Set<estree.Node>;
+  helperExpansionPath: Map<FunctionNode, number>;
   checkedHelperSuites: Set<HelperEvent>;
   reportedDuplicates: WeakMap<estree.Node, WeakSet<estree.Node>>;
 }
@@ -100,7 +101,7 @@ export const rule: Rule.RuleModule = {
       context,
       classifications: new WeakMap(),
       helperSummaries: new Map(),
-      helperExpansionPath: new Set(),
+      helperExpansionPath: new Map(),
       checkedHelperSuites: new Set(),
       reportedDuplicates: new WeakMap(),
     };
@@ -248,8 +249,9 @@ function expandHelper(
   helper: FunctionNode,
   suiteFrame: SuiteFrame,
 ): HelperExpansion {
-  if (state.helperExpansionPath.has(helper)) {
-    return { tests: new Set(), recursive: true };
+  const cycleDepth = state.helperExpansionPath.get(helper);
+  if (cycleDepth !== undefined) {
+    return { tests: new Set(), cycleDepth };
   }
 
   const cached = suiteFrame.expandedHelpers.get(helper);
@@ -262,12 +264,14 @@ function expandHelper(
     return cached;
   }
 
-  state.helperExpansionPath.add(helper);
+  const depth = state.helperExpansionPath.size;
+  state.helperExpansionPath.set(helper, depth);
   const expansion = replayHelperEvents(state, getHelperSummary(state, helper), suiteFrame);
   state.helperExpansionPath.delete(helper);
-  // A recursive expansion is truncated according to the current call path, so caching it could
-  // omit declarations when the same helper is subsequently reached from another entry point.
-  if (!expansion.recursive) {
+  // A cycle closing on this helper or a descendant is contained in its expansion. A cycle
+  // reaching an active ancestor truncates the result according to the caller's path instead.
+  if (expansion.cycleDepth >= depth) {
+    expansion.cycleDepth = Infinity;
     suiteFrame.expandedHelpers.set(helper, expansion);
   }
   return expansion;
@@ -278,7 +282,7 @@ function replayHelperEvents(
   events: HelperEvent[],
   suiteFrame: SuiteFrame,
 ): HelperExpansion {
-  const expansion: HelperExpansion = { tests: new Set(), recursive: false };
+  const expansion: HelperExpansion = { tests: new Set(), cycleDepth: Infinity };
   for (const event of events) {
     switch (event.kind) {
       case 'test':
@@ -286,20 +290,12 @@ function replayHelperEvents(
         expansion.tests.add(event.node);
         break;
       case 'suite': {
-        // Helper-defined suites have their own title frame, so their diagnostics do not depend
-        // on the caller's suite. Repeated invocations cannot produce new source locations.
-        if (!state.checkedHelperSuites.has(event)) {
-          const nested = replayHelperEvents(state, event.events, createSuiteFrame());
-          expansion.recursive ||= nested.recursive;
-          if (!nested.recursive) {
-            state.checkedHelperSuites.add(event);
-          }
-        }
+        expansion.cycleDepth = Math.min(expansion.cycleDepth, checkHelperSuite(state, event));
         break;
       }
       case 'helper': {
         const nested = expandHelper(state, event.helper, suiteFrame);
-        expansion.recursive ||= nested.recursive;
+        expansion.cycleDepth = Math.min(expansion.cycleDepth, nested.cycleDepth);
         for (const test of nested.tests) {
           expansion.tests.add(test);
         }
@@ -308,6 +304,23 @@ function replayHelperEvents(
     }
   }
   return expansion;
+}
+
+function checkHelperSuite(
+  state: RuleState,
+  event: Extract<HelperEvent, { kind: 'suite' }>,
+): number {
+  // Helper-defined suites have their own title frame, so their diagnostics do not depend
+  // on the caller's suite unless recursion truncates their expansion along the current path.
+  if (state.checkedHelperSuites.has(event)) {
+    return Infinity;
+  }
+
+  const nested = replayHelperEvents(state, event.events, createSuiteFrame());
+  if (nested.cycleDepth === Infinity) {
+    state.checkedHelperSuites.add(event);
+  }
+  return nested.cycleDepth;
 }
 
 function getHelperSummary(state: RuleState, helper: FunctionNode): HelperEvent[] {
