@@ -1,0 +1,351 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import { execFileSync } from 'node:child_process';
+import { appendFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { environmentConfiguration } from './config.mjs';
+
+const actionPath = path.dirname(fileURLToPath(import.meta.url));
+const commentMarker = '<!-- ruling-report -->';
+
+export function context(env = process.env) {
+  return {
+    repository: env.GITHUB_REPOSITORY,
+    workspace: env.RULING_REPOSITORY_PATH || env.GITHUB_WORKSPACE,
+    pr: env.PR_NUMBER,
+    targetRef: env.TARGET_REF,
+    isPullRequest: env.IS_PULL_REQUEST === 'true',
+    failed: env.RULING_FAILED === 'true',
+    testedCommit: env.HEAD_SHA || env.TESTED_COMMIT_SHA || env.GITHUB_SHA,
+    testedHead: env.TESTED_HEAD_SHA,
+    base: env.BASE_SHA || env.TESTED_BASE_SHA,
+    runId: env.BUILD_RUN_ID || env.GITHUB_RUN_ID,
+    runAttempt: env.BUILD_RUN_ATTEMPT || env.GITHUB_RUN_ATTEMPT,
+    fixUrl: env.FIX_PR_URL || '',
+    summary: env.GITHUB_STEP_SUMMARY,
+  };
+}
+
+export function controller(ctx, adapters = {}) {
+  const command = (name, args) =>
+    execFileSync(name, args, {
+      cwd: ctx.workspace,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: 64 * 1024 * 1024,
+    }).trim();
+  const git = adapters.git ?? (args => command('git', args));
+  const gh = adapters.gh ?? (args => command('gh', args));
+  const api = (endpoint, args = []) => {
+    const output = gh(['api', `repos/${ctx.repository}${endpoint ? '/' + endpoint : ''}`, ...args]);
+    return output ? JSON.parse(output) : undefined;
+  };
+  const pages = endpoint => api(endpoint, ['--paginate', '--slurp']).flat();
+  const identity = () =>
+    ctx.isPullRequest
+      ? { repository: ctx.repository, pr: Number(ctx.pr) }
+      : { repository: ctx.repository, ref: ctx.targetRef };
+  const fixBranch = () => `fix/update-ruling-for-${ctx.targetRef}`;
+  const suffix = ctx.isPullRequest ? `PR #${ctx.pr}` : ctx.targetRef;
+  const title = `Update ruling results for ${suffix}`;
+  const description = `Auto-generated ruling update for ${suffix}.`;
+
+  async function fresh() {
+    if (ctx.isPullRequest) {
+      const pr = api(`pulls/${ctx.pr}`);
+      if (pr.state !== 'open' || pr.head.sha !== ctx.testedHead) return false;
+      ctx.targetRef ||= pr.head.ref;
+    } else {
+      ctx.targetRef ||= api('').default_branch;
+      if (api(`branches/${encodeURIComponent(ctx.targetRef)}`).commit.sha !== ctx.testedHead)
+        return false;
+    }
+    if (ctx.runId) {
+      const run = api(`actions/runs/${ctx.runId}`);
+      if (run.head_sha !== ctx.testedHead)
+        throw new Error('Originating Build run does not match the tested head.');
+      if (Number(run.run_attempt) !== Number(ctx.runAttempt || 1)) return false;
+      const runs = pages(
+        `actions/workflows/${run.workflow_id}/runs?head_sha=${run.head_sha}&event=${run.event}&per_page=100`,
+      );
+      if (
+        runs.flatMap(page => page.workflow_runs).some(other => Number(other.id) > Number(ctx.runId))
+      )
+        return false;
+    }
+    return true;
+  }
+
+  function managed(pr) {
+    if (
+      pr.user.login !== 'github-actions[bot]' ||
+      pr.head.repo?.full_name !== ctx.repository ||
+      !pr.head.ref.startsWith('fix/update-ruling-for-')
+    )
+      return false;
+    const marker = pr.body?.match(/<!-- ruling-bot-target: (.+) -->/);
+    if (marker) {
+      try {
+        const actual = JSON.parse(marker[1]);
+        const expected = identity();
+        return (
+          actual.repository === expected.repository &&
+          actual.pr === expected.pr &&
+          actual.ref === expected.ref
+        );
+      } catch {
+        return false;
+      }
+    }
+    // Legacy bodies also survive GitHub retargeting a fix PR after its base is merged/deleted.
+    return (
+      pr.user.login === 'github-actions[bot]' &&
+      pr.title === title &&
+      pr.body?.startsWith(description)
+    );
+  }
+  const fixes = () => pages('pulls?state=open&per_page=100').filter(pr => managed(pr));
+
+  async function closeFixes(reason, guard = fresh) {
+    for (const candidate of fixes()) {
+      if (!(await guard())) return;
+      const pr = api(`pulls/${candidate.number}`);
+      if (pr.state !== 'open' || pr.merged_at || !managed(pr) || pr.head.sha !== candidate.head.sha)
+        continue;
+      const ref = `refs/heads/${pr.head.ref}`;
+      const remoteHead = git(['ls-remote', 'origin', ref]).split(/\s/)[0];
+      if (remoteHead && remoteHead !== pr.head.sha) continue;
+      if (!(await guard())) return;
+      // Delete first, with a compare-and-swap lease; never close a newly updated fix.
+      if (remoteHead)
+        git(['push', `--force-with-lease=${ref}:${pr.head.sha}`, 'origin', `:${ref}`]);
+      if (api(`pulls/${pr.number}`).merged_at) continue;
+      api(`pulls/${pr.number}`, ['-X', 'PATCH', '-f', 'state=closed']);
+      api(`issues/${pr.number}/comments`, ['-f', `body=${reason}`]);
+    }
+  }
+
+  async function dispatch(config, reportPr, fixUrl = '') {
+    const ref = config['report-workflow-ref'] || api('').default_branch;
+    const args = ['workflow', 'run', config['report-workflow'], '--ref', ref];
+    const fields = {
+      'pr-number': reportPr,
+      'base-sha': ctx.base || ctx.testedHead,
+      'head-sha': ctx.testedCommit,
+      'run-id': ctx.runId || '',
+      'run-attempt': ctx.runAttempt || '1',
+      'ruling-failed': String(ctx.failed),
+      'is-pull-request': String(ctx.isPullRequest),
+      'fix-pr-url': fixUrl,
+      'target-ref': ctx.targetRef,
+      'report-config': JSON.stringify(config),
+    };
+    for (const [name, value] of Object.entries(fields)) args.push('-f', `${name}=${value}`);
+    gh(args); // Fail visibly: persistence succeeded, but reporting must be retried.
+  }
+
+  const helper = (name, args, env = {}) =>
+    execFileSync(process.execPath, [path.join(actionPath, name), ...args], {
+      cwd: ctx.workspace,
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: { ...process.env, ...env, RULING_REPOSITORY_PATH: ctx.workspace },
+    });
+
+  function testedTree() {
+    if (git(['rev-parse', 'HEAD']) !== ctx.testedCommit)
+      throw new Error('Checkout does not match the tested ruling commit.');
+    if (ctx.isPullRequest) {
+      const base = git(['rev-parse', '--verify', 'HEAD^1^{commit}']);
+      const head = git(['rev-parse', '--verify', 'HEAD^2^{commit}']);
+      if (ctx.base && ctx.base !== base)
+        throw new Error('Report base does not match the tested merge first parent.');
+      if (ctx.testedHead && ctx.testedHead !== head)
+        throw new Error('PR head does not match the tested merge second parent.');
+      ctx.base = base;
+      ctx.testedHead = head;
+    } else {
+      ctx.testedHead ||= ctx.testedCommit;
+      ctx.base ||= ctx.testedCommit;
+    }
+    if (!/^[0-9a-f]{40}$/.test(ctx.base)) throw new Error('Invalid ruling report base SHA.');
+    git(['cat-file', '-e', `${ctx.base}^{commit}`]);
+  }
+
+  async function update(config) {
+    testedTree();
+    if (!(await fresh())) return 'stale';
+    if (!ctx.failed) {
+      await closeFixes('No longer needed: the original branch now passes ruling.');
+      if (ctx.isPullRequest && (await fresh())) await dispatch(config, ctx.pr);
+      return 'passed';
+    }
+    if (git(['log', '-1', '--format=%B']).includes('Generated with GitHub Actions'))
+      return 'auto-update';
+    helper('sync-results.mjs', [config['new-results-path'], config['old-results-path']]);
+    if (!git(['status', '--porcelain', '--', config['old-results-path']]))
+      throw new Error('Ruling failed without generated expectation changes.');
+    git(['stash', 'push', '-u', '-m', 'ruling-sync-changes', '--', config['old-results-path']]);
+    git(['fetch', 'origin', `+refs/heads/${ctx.targetRef}:refs/remotes/origin/${ctx.targetRef}`]);
+    if (git(['rev-parse', `origin/${ctx.targetRef}`]) !== ctx.testedHead || !(await fresh()))
+      return 'stale';
+    const ref = `refs/heads/${fixBranch()}`;
+    const oldFix = git(['ls-remote', 'origin', ref]).split(/\s/)[0];
+    const existing = fixes().find(
+      pr => pr.head.ref === fixBranch() && pr.base.ref === ctx.targetRef,
+    );
+    const marker = `<!-- ruling-bot-target: ${JSON.stringify(identity())} -->`;
+    if (oldFix && !existing) {
+      // A failed PR creation may leave an orphan bot branch. Recover only our exact identity.
+      git(['fetch', 'origin', ref]);
+      if (!git(['log', '-1', '--format=%B', 'FETCH_HEAD']).includes(marker)) {
+        throw new Error('Refusing to overwrite a fix branch not owned by this ruling target.');
+      }
+    }
+    git(['config', 'user.name', 'github-actions[bot]']);
+    git(['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
+    git(['checkout', '-f', '-B', fixBranch(), `origin/${ctx.targetRef}`]);
+    git(['stash', 'pop']);
+    git(['add', '--', config['old-results-path']]);
+    if (!git(['diff', '--cached', '--name-only', '--', config['old-results-path']]))
+      throw new Error('Generated results no longer differ from the target branch.');
+    git(['commit', '-m', `Update ruling results\n\nGenerated with GitHub Actions\n\n${marker}`]);
+    if (!(await fresh())) return 'stale';
+    git(['push', `--force-with-lease=${ref}:${oldFix}`, 'origin', `${fixBranch()}:${ref}`]);
+    if (!(await fresh())) return 'stale';
+    const body = `${description}\n\nGenerated with GitHub Actions\n\n${marker}`;
+    let fix;
+    if (existing) fix = api(`pulls/${existing.number}`, ['-X', 'PATCH', '-f', `body=${body}`]);
+    else {
+      const url = gh([
+        'pr',
+        'create',
+        '--title',
+        title,
+        '--base',
+        ctx.targetRef,
+        '--head',
+        fixBranch(),
+        '--body',
+        body,
+      ]);
+      fix = JSON.parse(gh(['pr', 'view', url, '--json', 'number,url']));
+    }
+    const fixUrl = fix.html_url || fix.url;
+    if (ctx.summary) appendFileSync(ctx.summary, `Ruling fix PR: ${fixUrl}\n`);
+    if (await fresh())
+      await dispatch(
+        config,
+        ctx.isPullRequest ? ctx.pr : fix.number,
+        ctx.isPullRequest ? fixUrl : '',
+      );
+    return 'updated';
+  }
+
+  async function report(config) {
+    testedTree();
+    if (!(await fresh()) || api(`pulls/${ctx.pr}`).state !== 'open') return 'stale';
+    if (ctx.failed)
+      helper('sync-results.mjs', [config['new-results-path'], config['old-results-path']]);
+    const report = helper('generate-report.mjs', [config['old-results-path']], {
+      BASE_SHA: ctx.base,
+      SOURCES_PATH: config['sources-path'],
+      SOURCES_REPO_URL: config['sources-repo-url'],
+      RSPEC_BASE_URL: config['rspec-base-url'],
+      MAX_INLINE_SNIPPETS: String(config['max-inline-snippets']),
+    });
+    const existing = pages(`issues/${ctx.pr}/comments?per_page=100`).find(
+      comment =>
+        comment.user.login === 'github-actions[bot]' && comment.body.startsWith(commentMarker),
+    );
+    const provenance = `<!-- ruling-report-run: ${ctx.testedCommit} ${ctx.runId || ''} ${ctx.runAttempt || ''} -->`;
+    if (
+      !ctx.runId &&
+      existing?.body.includes(`<!-- ruling-report-run: ${ctx.testedCommit} `) &&
+      /<!-- ruling-report-run: [0-9a-f]{40} \d+ \d+ -->/.test(existing.body)
+    )
+      return 'completed-report-exists';
+    if (!(await fresh()) || api(`pulls/${ctx.pr}`).state !== 'open') return 'stale';
+    if (!report && !ctx.fixUrl) {
+      if (existing) api(`issues/comments/${existing.id}`, ['-X', 'DELETE']);
+      return 'empty';
+    }
+    const notice = ctx.fixUrl
+      ? `Ruling needs updating. A [fix PR](${ctx.fixUrl}) has been created. Please review and merge it into your branch.\n\n`
+      : '';
+    const content =
+      report ||
+      '## Ruling Report\n\nNo net issue changes relative to the tested base; the branch expectations still need the linked fix.\n';
+    let body = `${commentMarker}\n${provenance}\n${notice}${content}`;
+    const bytes = Buffer.from(body);
+    if (bytes.length > 50000) {
+      let end = 50000;
+      while ((bytes[end] & 0xc0) === 0x80) end--;
+      body =
+        bytes.subarray(0, end).toString('utf8') +
+        '\n\n_(truncated; see the expected JSON files for the complete results)_\n';
+    }
+    // File-backed fields preserve multiline UTF-8 and avoid platform argument-size limits.
+    const directory = mkdtempSync(path.join(os.tmpdir(), 'ruling-comment-'));
+    try {
+      const file = path.join(directory, 'comment.md');
+      writeFileSync(file, body);
+      api(existing ? `issues/comments/${existing.id}` : `issues/${ctx.pr}/comments`, [
+        ...(existing ? ['-X', 'PATCH'] : []),
+        '-F',
+        `body=@${file}`,
+      ]);
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+    return 'reported';
+  }
+
+  async function checkReport() {
+    testedTree();
+    return (await fresh()) && api(`pulls/${ctx.pr}`).state === 'open';
+  }
+
+  async function cleanup() {
+    const closed = () => api(`pulls/${ctx.pr}`).state === 'closed';
+    if (!closed()) return 'reopened';
+    await closeFixes(`No longer needed: original PR #${ctx.pr} was merged or closed.`, closed);
+    return 'closed';
+  }
+  return { fresh, managed, update, report, checkReport, cleanup };
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const ctx = context();
+  if (process.argv[2] === 'report' || process.argv[2] === 'check-report') {
+    ctx.runId = process.env.BUILD_RUN_ID;
+    ctx.runAttempt = process.env.BUILD_RUN_ATTEMPT;
+  }
+  const bot = controller(ctx);
+  if (process.argv[2] === 'check-report') {
+    appendFileSync(process.env.GITHUB_OUTPUT, `fresh=${await bot.checkReport()}\n`);
+    process.exit(0);
+  }
+  const result =
+    process.argv[2] === 'cleanup'
+      ? await bot.cleanup()
+      : await bot[process.argv[2]](environmentConfiguration(process.env));
+  console.log(`Ruling bot: ${result}`);
+}

@@ -22,7 +22,11 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const actionDirectory = path.dirname(fileURLToPath(import.meta.url));
-const repositoryRoot = path.resolve(actionDirectory, '../../..');
+const repositoryRoot = path.resolve(
+  process.env.RULING_REPOSITORY_PATH ||
+    process.env.GITHUB_WORKSPACE ||
+    path.resolve(actionDirectory, '../../..'),
+);
 const oldResultsArgument = process.argv[2];
 const baseCommit = process.env.BASE_SHA || `origin/${process.env.BASE_REF ?? 'master'}`;
 const sourcesDirectory = resolveRepositoryPath(process.env.SOURCES_PATH ?? 'its/sources');
@@ -57,22 +61,15 @@ if (markdown) {
 }
 
 function getChangedFiles(oldResultsPath) {
-  try {
-    const changedFiles = [
-      ...git(['diff', baseCommit, '--name-only', '-z', '--', oldResultsPath], false).split('\0'),
-      ...git(
-        ['ls-files', '--others', '--exclude-standard', '-z', '--', oldResultsPath],
-        false,
-      ).split('\0'),
-    ];
-    return [
-      ...new Set(
-        changedFiles.filter(Boolean).filter(filePath => filePath.endsWith('.json')),
-      ),
-    ].sort((left, right) => left.localeCompare(right));
-  } catch {
-    return [];
-  }
+  const changedFiles = [
+    ...git(['diff', baseCommit, '--name-only', '-z', '--', oldResultsPath], false).split('\0'),
+    ...git(['ls-files', '--others', '--exclude-standard', '-z', '--', oldResultsPath], false).split(
+      '\0',
+    ),
+  ];
+  return [
+    ...new Set(changedFiles.filter(Boolean).filter(filePath => filePath.endsWith('.json'))),
+  ].sort((left, right) => left.localeCompare(right));
 }
 
 function getRulingChanges(filePath, oldResultsDir) {

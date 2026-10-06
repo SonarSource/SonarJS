@@ -1,0 +1,88 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import { appendFileSync, readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+export const defaults = {
+  'sources-path': 'its/sources',
+  'sources-repo-url': '',
+  'rspec-base-url': 'https://sonarsource.github.io/rspec/#/rspec',
+  'max-inline-snippets': '10',
+  'results-artifact-name': 'ruling-results',
+  'report-workflow': 'ruling-diff-comment.yml',
+  'report-workflow-ref': '',
+};
+
+export function configuration(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value))
+    throw new Error('Ruling configuration must be an object.');
+  const config = { ...defaults, ...value };
+  for (const name of ['new-results-path', 'old-results-path']) {
+    if (typeof config[name] !== 'string' || !config[name]) {
+      throw new Error(`Missing ruling bot configuration: ${name}`);
+    }
+  }
+  for (const name of ['new-results-path', 'old-results-path', 'sources-path']) {
+    if (typeof config[name] !== 'string') throw new Error(`${name} must be a path string.`);
+    const value = config[name].replaceAll('\\', '/');
+    if (value.startsWith('/') || /^[a-z]:/i.test(value) || value.split('/').includes('..')) {
+      throw new Error(`${name} must be inside the tested repository.`);
+    }
+  }
+  const newPath = path.posix.resolve('/', config['new-results-path'].replaceAll('\\', '/'));
+  const oldPath = path.posix.resolve('/', config['old-results-path'].replaceAll('\\', '/'));
+  if (
+    [newPath, oldPath].some(
+      value => value === '/' || value === '/.git' || value.startsWith('/.git/'),
+    ) ||
+    newPath === oldPath ||
+    newPath.startsWith(`${oldPath}/`) ||
+    oldPath.startsWith(`${newPath}/`)
+  ) {
+    throw new Error('Result paths must be separate non-root directories.');
+  }
+  if (
+    !Number.isSafeInteger(Number(config['max-inline-snippets'])) ||
+    Number(config['max-inline-snippets']) < 1
+  )
+    throw new Error('max-inline-snippets must be a positive integer.');
+  return config;
+}
+
+export function environmentConfiguration(env) {
+  return configuration(
+    Object.fromEntries(
+      ['new-results-path', 'old-results-path', ...Object.keys(defaults)]
+        .filter(name => env[name.replaceAll('-', '_').toUpperCase()] !== undefined)
+        .map(name => [name, env[name.replaceAll('-', '_').toUpperCase()]]),
+    ),
+  );
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const value = process.env.RULING_REPORT_CONFIG
+    ? JSON.parse(process.env.RULING_REPORT_CONFIG)
+    : JSON.parse(readFileSync(process.argv[2], 'utf8'));
+  const config = configuration(value);
+  if (process.argv.includes('--artifact-attempt')) {
+    if (!/^\d+$/.test(process.env.GITHUB_RUN_ATTEMPT || ''))
+      throw new Error('Missing Build run attempt.');
+    config['results-artifact-name'] += `-${process.env.GITHUB_RUN_ATTEMPT}`;
+  }
+  appendFileSync(process.env.GITHUB_OUTPUT, `config=${JSON.stringify(config)}\n`);
+}
