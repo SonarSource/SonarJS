@@ -117,5 +117,5 @@ node --test .github/actions/ruling_bot/tests/*.test.mjs
 The tests use real temporary Git repositories/local remotes and mocked GitHub responses. They
 exercise divergent base/PR histories, artifact/configuration handoff, actual pushes and lease
 failures, successful/failing reports, stale retries, ownership, and closure/merge/retargeting.
-They do not mutate GitHub or execute the analyzer/ruling suite. `ruling-bot-tests.yml` runs them on
-bot/workflow changes independently of the expensive Build pipeline.
+They do not mutate GitHub or execute the analyzer/ruling suite. Run them locally when changing the
+bot; they are not scheduled by CI.
