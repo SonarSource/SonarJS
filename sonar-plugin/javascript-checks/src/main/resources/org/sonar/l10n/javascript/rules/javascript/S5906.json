@@ -39,5 +39,12 @@
       "Sonar way",
       "Sonar agentic AI"
     ]
+  },
+  "sonarWayRemoval": {
+    "candidateProfiles": [
+      "style",
+      "refactoring",
+      "strict-tests"
+    ]
   }
 }
