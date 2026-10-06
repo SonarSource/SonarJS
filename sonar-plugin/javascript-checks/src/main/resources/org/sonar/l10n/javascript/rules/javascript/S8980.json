@@ -35,5 +35,11 @@
   "compatibleLanguages": [
     "js",
     "ts"
-  ]
+  ],
+  "sonarWayRemoval": {
+    "candidateProfiles": [
+      "refactoring",
+      "strict-tests"
+    ]
+  }
 }

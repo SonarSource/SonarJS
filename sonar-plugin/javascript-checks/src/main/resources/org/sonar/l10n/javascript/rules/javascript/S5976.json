@@ -39,5 +39,11 @@
   "extra": {
     "replacementRules": [],
     "legacyKeys": []
+  },
+  "sonarWayRemoval": {
+    "candidateProfiles": [
+      "refactoring",
+      "strict-tests"
+    ]
   }
 }
