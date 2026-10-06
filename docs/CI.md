@@ -723,22 +723,56 @@ Responsibilities:
 - run JS/TS ruling
 - save generated results as an artifact when ruling fails, then expose the ruling step outcome to `js_ts_ruling_update`
 
-The ruling job fails when expected results differ. `js_ts_ruling_update` downloads the saved results and calls `./.github/actions/ruling_bot` with explicit result paths. The bot creates or updates a fix PR and dispatches `ruling-diff-comment.yml`. For a failed PR run, the report workflow checks out the tested synthetic merge, applies the saved results, and compares them with that merge's first parent before posting on the original PR. For a passing PR run, it reports expected results already committed in the tested merge. On a default-branch failure, it compares generated results with the tested branch commit and posts on the fix PR. The report workflow also clears stale comments when there is no difference.
+The ruling job fails when expected results differ. SonarJS's reusable bot settings live in
+[`.github/ruling-bot.json`](../.github/ruling-bot.json). Build passes the same configuration to the
+artifact uploader, updater, and independent reporter. Artifacts include the originating Build
+attempt (`actual_js_ts-1`, `actual_js_ts-2`, etc.) so a retry cannot read an earlier attempt's results.
 
-To rerun a failed PR report independently, use the original Build run ID and the exact merge and first-parent SHAs from that run:
+`js_ts_ruling_update` creates or updates a fix PR before requesting a report. It dispatches from the
+repository default branch (or configured stable workflow ref), allowing reports for old PR heads
+that lack the reporter workflow. The reporter checks out its implementation and the exact tested
+synthetic merge separately. Failure reports apply saved generated results to that merge; passing
+reports use its committed expectations. Both compare with the merge's exact first parent. For a
+default-branch failure, the tested branch commit is the baseline and the report goes on the fix PR.
+
+A successful Build retry also dispatches a report, clearing outdated failure/fix notices. Updater,
+reporter, and closed-event cleanup share a queue and reject stale original PR heads, closed originals,
+older Build attempts, and superseded runs. Empty reports clear stale bot comments; a failing run with
+zero net behavioral difference still keeps its required fix link.
+
+To retry the existing report with all its original inputs, use `gh run rerun <report-run-id>`. To
+request a new report with current stable tooling, use the originating Build ID/attempt, exact merge
+and first-parent SHAs, and the configuration saved by that Build. For example, when that tested tree
+contains the current configuration file:
 
 ```sh
-gh workflow run ruling-diff-comment.yml --ref <branch-with-workflow> \
+REPORT_CONFIG=$(git show <tested-merge-sha>:.github/ruling-bot.json |
+  jq -c --arg attempt '<build-run-attempt>' '."results-artifact-name" += "-" + $attempt')
+gh workflow run ruling-diff-comment.yml --ref master \
   -f pr-number=<original-pr-number> \
   -f head-sha=<tested-merge-sha> \
   -f base-sha=<tested-merge-first-parent-sha> \
   -f is-pull-request=true \
   -f run-id=<build-run-id> \
+  -f run-attempt=<build-run-attempt> \
+  -f report-config="$REPORT_CONFIG" \
   -f ruling-failed=true \
   -f fix-pr-url=<fix-pr-url>
 ```
 
-`fix-pr-url` is optional, but includes the fix PR link in the comment. To rerun a passing PR report, omit `run-id`, `ruling-failed`, and `fix-pr-url`. For a default-branch failed run, use the fix PR number for `pr-number`, set `head-sha` and `base-sha` to the tested branch commit, and omit `is-pull-request=true`.
+For a passing Build report, retain its `run-id`/`run-attempt` and omit `ruling-failed`/`fix-pr-url`.
+For a default-branch failed run, use the fix PR number as `pr-number`, pass the tested branch commit
+for both SHAs, set `target-ref=master`, and omit `is-pull-request=true`. Builds before this change
+used the unsuffixed `actual_js_ts` artifact; use that exact artifact name when retrying their reports.
+A stale retry skips mutations; missing artifacts or unavailable tested commits fail visibly.
+
+`ruling-fix-cleanup.yml` closes managed fixes when their original PR closes or merges. It runs trusted
+default-branch code on `pull_request_target: closed`, recognizes retargeted fixes by original PR
+identity (with legacy support), skips reopened originals, and never closes merged or user-created
+fixes. This is separate from the PR cache/artifact cleanup workflow.
+
+See the [ruling bot README](../.github/actions/ruling_bot/README.md) for all reusable inputs,
+concurrency/race safeguards, ownership rules, permissions, and focused regression tests.
 
 #### `ruling`
 

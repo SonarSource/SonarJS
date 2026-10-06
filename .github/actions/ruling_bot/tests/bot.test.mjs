@@ -1,0 +1,495 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import assert from 'node:assert/strict';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
+import path from 'node:path';
+import test from 'node:test';
+import { fixture, fix, comment, repository } from './fixtures.mjs';
+
+test('failing report compares generated additions and removals with exact tested first parent', async t => {
+  const f = fixture(t);
+  assert.equal(await f.bot().report(f.config), 'reported');
+  const body = f.state.comments[0].body;
+  assert.match(body, /old\.js:4/);
+  assert.match(body, /removed\.js:2/);
+  assert.match(body, /untracked\.js:40/);
+  assert.doesNotMatch(body, /same\.js|base-only\.js/);
+  assert.match(body, /https:\/\/example.test\/sources\/blob\/main/);
+  assert.match(body, /https:\/\/example.test\/rules/);
+  assert.match(body, /line four/);
+  assert.match(body, /<details>/);
+  assert.match(body, new RegExp(`ruling-report-run: ${f.merge} 42 1`));
+});
+
+test('passing report uses committed expectations of an outdated PR, excluding shared base additions', async t => {
+  const f = fixture(t);
+  f.ctx.failed = false;
+  assert.equal(await f.bot().report(f.config), 'reported');
+  assert.match(f.state.comments[0].body, /old\.js:3/);
+  assert.match(f.state.comments[0].body, /removed\.js:2/);
+  assert.doesNotMatch(f.state.comments[0].body, /same\.js|base-only\.js|untracked\.js/);
+});
+
+test('moving master after testing does not change the report baseline', async t => {
+  const f = fixture(t);
+  f.ctx.failed = false;
+  f.git(['branch', '-f', 'master', f.head]);
+  f.setRemote('master', f.head);
+  await f.bot().report(f.config);
+  assert.doesNotMatch(f.state.comments[0].body, /same\.js|base-only\.js/);
+  assert.match(f.state.comments[0].body, /old\.js:3/);
+});
+
+for (const scenario of ['head advanced', 'closed', 'newer Build', 'retry attempt']) {
+  test(`stale ${scenario} neither reports nor closes current fixes`, async t => {
+    const f = fixture(t);
+    f.ctx.failed = false;
+    f.state.prs.push(fix());
+    f.state.comments.push(comment('<!-- ruling-report -->\nCurrent report'));
+    if (scenario === 'head advanced') f.state.original.head.sha = 'b'.repeat(40);
+    if (scenario === 'closed') f.state.original.state = 'closed';
+    if (scenario === 'newer Build') f.state.runs.push({ id: 43 });
+    if (scenario === 'retry attempt') f.state.run.run_attempt = 2;
+    assert.equal(await f.bot().update(f.config), 'stale');
+    assert.equal(await f.bot().report(f.config), 'stale');
+    assert.equal(await f.bot().checkReport(), false);
+    assert.deepEqual(f.mutations(), []);
+    assert.equal(
+      f.state.gitCalls.some(args => args[0] === 'push'),
+      false,
+    );
+  });
+}
+
+for (const scenario of [
+  'wrong checkout',
+  'wrong base',
+  'missing base',
+  'wrong head',
+  'not a merge',
+]) {
+  test(`${scenario} fails before any report mutation`, async t => {
+    const f = fixture(t);
+    if (scenario === 'wrong checkout') f.ctx.testedCommit = f.head;
+    if (scenario === 'wrong base') f.ctx.base = f.head;
+    if (scenario === 'wrong head') f.ctx.testedHead = f.base;
+    if (scenario === 'not a merge') {
+      f.git(['checkout', '--detach', f.head]);
+      f.ctx.testedCommit = f.head;
+    }
+    if (scenario === 'missing base') {
+      f.ctx.isPullRequest = false;
+      f.ctx.base = 'b'.repeat(40);
+    }
+    await assert.rejects(f.bot().report(f.config));
+    assert.deepEqual(f.mutations(), []);
+  });
+}
+
+test('head changes during generation: leave the existing comment untouched', async t => {
+  const f = fixture(t);
+  f.state.comments.push(comment('<!-- ruling-report -->\nNewer report'));
+  f.state.beforeApi = endpoint => {
+    if (endpoint.startsWith('issues/123/comments?')) f.state.original.head.sha = 'b'.repeat(40);
+  };
+  assert.equal(await f.bot().report(f.config), 'stale');
+  assert.equal(f.state.comments[0].body, '<!-- ruling-report -->\nNewer report');
+  assert.deepEqual(f.mutations(), []);
+});
+
+test('passing retry closes only open fixes and dispatches report refresh from default branch', async t => {
+  const f = fixture(t);
+  f.ctx.failed = false;
+  const candidate = fix();
+  candidate.head.sha = f.head;
+  f.state.prs.push(candidate, fix({ number: 457, state: 'closed', merged_at: 'now' }));
+  f.setRemote(candidate.head.ref, f.head);
+  assert.equal(await f.bot().update(f.config), 'passed');
+  assert.equal(candidate.state, 'closed');
+  assert.equal(f.git(['ls-remote', 'origin', `refs/heads/${candidate.head.ref}`]), '');
+  assert.ok(
+    f.state.gitCalls.some(args =>
+      args.includes(`--force-with-lease=refs/heads/${candidate.head.ref}:${f.head}`),
+    ),
+  );
+  const dispatch = f.state.calls.find(args => args[0] === 'workflow');
+  assert.equal(dispatch[dispatch.indexOf('--ref') + 1], 'master');
+  assert.ok(dispatch.includes('ruling-failed=false'));
+  assert.ok(dispatch.includes(`head-sha=${f.merge}`));
+  assert.ok(dispatch.includes(`base-sha=${f.base}`));
+});
+
+test('failed update works without reporter code in the old PR head and discards dirty generated files', async t => {
+  const f = fixture(t);
+  assert.equal(
+    existsSync(path.join(f.workspace, '.github/workflows/ruling-diff-comment.yml')),
+    false,
+  );
+  f.write('tracked-generated.txt', 'unrelated dirty build output\n');
+  assert.equal(await f.bot().update(f.config), 'updated');
+  assert.equal(readFileSync(path.join(f.workspace, 'tracked-generated.txt'), 'utf8'), 'clean\n');
+  assert.match(
+    readFileSync(path.join(f.workspace, 'baseline/project/javascript-S1000.json'), 'utf8'),
+    /\[4\]/,
+  );
+  assert.ok(existsSync(path.join(f.workspace, 'baseline/project/javascript-S4000.json')));
+  assert.equal(existsSync(path.join(f.workspace, 'baseline/project/javascript-S2000.json')), false);
+  const changed = f.git(['diff', '--name-only', f.head, 'HEAD']).split('\n');
+  assert.ok(changed.every(name => name.startsWith('baseline/')));
+  assert.match(f.state.prs[0].body, /ruling-bot-target/);
+  assert.ok(
+    f.state.gitCalls.some(args =>
+      args.includes('--force-with-lease=refs/heads/fix/update-ruling-for-outdated-pr:'),
+    ),
+  );
+  const dispatch = f.state.calls.find(args => args[0] === 'workflow');
+  assert.equal(dispatch[dispatch.indexOf('--ref') + 1], 'master');
+  assert.equal(dispatch[2], 'custom-report.yml');
+  const carried = JSON.parse(
+    dispatch.find(value => value.startsWith('report-config=')).slice('report-config='.length),
+  );
+  assert.deepEqual(carried, f.config);
+  assert.ok(dispatch.includes('fix-pr-url=https://example.test/pull/456'));
+});
+
+test('configured stable report ref is honored', async t => {
+  const f = fixture(t);
+  f.ctx.failed = false;
+  await f.bot().update({ ...f.config, 'report-workflow-ref': 'stable-tooling' });
+  const dispatch = f.state.calls.find(args => args[0] === 'workflow');
+  assert.equal(dispatch[dispatch.indexOf('--ref') + 1], 'stable-tooling');
+});
+
+test('failed dispatch is visible after the fix was persisted; retry reuses the open fix', async t => {
+  const f = fixture(t);
+  f.state.dispatchError = true;
+  await assert.rejects(f.bot().update(f.config), /Dispatch unavailable/);
+  assert.equal(f.state.prs.length, 1);
+  f.state.dispatchError = false;
+  f.git(['checkout', '--detach', f.merge]);
+  assert.equal(await f.bot().update(f.config), 'updated');
+  assert.equal(f.state.prs.length, 1);
+});
+
+test('lease rejects a concurrent fix update without creating a PR or dispatch', async t => {
+  const f = fixture(t);
+  f.state.beforeGit = args => {
+    if (args[0] === 'push') f.setRemote('fix/update-ruling-for-outdated-pr', f.newerCommit());
+  };
+  await assert.rejects(f.bot().update(f.config));
+  assert.deepEqual(f.mutations(), []);
+});
+
+test('existing unrelated fix branch is never overwritten', async t => {
+  const f = fixture(t);
+  f.setRemote('fix/update-ruling-for-outdated-pr', f.head);
+  await assert.rejects(f.bot().update(f.config), /not owned/);
+  assert.equal(
+    f.git(['ls-remote', 'origin', 'refs/heads/fix/update-ruling-for-outdated-pr']).split(/\s/)[0],
+    f.head,
+  );
+  assert.deepEqual(f.mutations(), []);
+});
+
+test('orphan branch from failed PR creation is recoverable through commit identity', async t => {
+  const f = fixture(t);
+  await f.bot().update(f.config);
+  f.state.prs = [];
+  f.git(['checkout', '--detach', f.merge]);
+  assert.equal(await f.bot().update(f.config), 'updated');
+  assert.equal(f.state.prs.length, 1);
+});
+
+test('target advances after sync: no stale fix is pushed', async t => {
+  const f = fixture(t);
+  f.state.beforeGit = args => {
+    if (args[0] === 'fetch') f.setRemote('outdated-pr', f.newerCommit());
+  };
+  assert.equal(await f.bot().update(f.config), 'stale');
+  assert.deepEqual(f.mutations(), []);
+  assert.equal(
+    f.state.gitCalls.some(args => args[0] === 'push'),
+    false,
+  );
+});
+
+test('empty completed report clears stale failure notice', async t => {
+  const f = fixture(t);
+  f.ctx.failed = false;
+  f.git(['restore', '--source', f.base, '--staged', '--worktree', 'baseline']);
+  f.state.comments.push(comment('<!-- ruling-report -->\nStale fix notice'));
+  assert.equal(await f.bot().report(f.config), 'empty');
+  assert.deepEqual(f.state.comments, []);
+});
+
+test('zero net changes retain the required fix link', async t => {
+  const f = fixture(t);
+  f.ctx.fixUrl = 'https://example.test/pull/456';
+  rmSync(path.join(f.workspace, 'generated'), { recursive: true });
+  f.result('generated', 'S1000', 'old.js', 1);
+  f.result('generated', 'S2000', 'removed.js', 2);
+  f.result('generated', 'S3000', 'same.js', 30);
+  f.result('generated', 'S9000', 'base-only.js', 90);
+  assert.equal(await f.bot().report(f.config), 'reported');
+  assert.match(f.state.comments[0].body, /No net issue changes/);
+  assert.match(f.state.comments[0].body, /\[fix PR\]\(https:\/\/example.test\/pull\/456\)/);
+});
+
+test('late raw PR event does not replace completed Build report for same tested merge', async t => {
+  const f = fixture(t);
+  f.ctx.runId = '';
+  f.ctx.failed = false;
+  const body = `<!-- ruling-report -->\n<!-- ruling-report-run: ${f.merge} 42 1 -->\nCompleted Build`;
+  f.state.comments.push(comment(body));
+  assert.equal(await f.bot().report(f.config), 'completed-report-exists');
+  assert.equal(f.state.comments[0].body, body);
+  assert.deepEqual(f.mutations(), []);
+});
+
+test('raw PR event can refresh a previous raw report', async t => {
+  const f = fixture(t);
+  f.ctx.runId = '';
+  f.ctx.failed = false;
+  f.state.comments.push(
+    comment(`<!-- ruling-report -->\n<!-- ruling-report-run: ${f.merge}  1 -->\nRaw report`),
+  );
+  assert.equal(await f.bot().report(f.config), 'reported');
+  assert.match(f.state.comments[0].body, /old\.js:3/);
+});
+
+test('human comments carrying report marker are left alone', async t => {
+  const f = fixture(t);
+  f.state.comments.push({ ...comment('<!-- ruling-report -->\nHuman'), user: { login: 'human' } });
+  await f.bot().report(f.config);
+  assert.equal(f.state.comments[0].body, '<!-- ruling-report -->\nHuman');
+  assert.equal(f.state.comments.length, 2);
+});
+
+test('default-branch failure reports generated results on the fix PR', async t => {
+  const f = fixture(t);
+  f.git(['checkout', '--detach', f.base]);
+  Object.assign(f.ctx, {
+    isPullRequest: false,
+    testedCommit: f.base,
+    testedHead: f.base,
+    targetRef: 'master',
+    base: f.base,
+  });
+  f.state.run.head_sha = f.base;
+  assert.equal(await f.bot().update(f.config), 'updated');
+  const dispatch = f.state.calls.find(args => args[0] === 'workflow');
+  assert.ok(dispatch.includes('pr-number=456'));
+  assert.ok(dispatch.includes('is-pull-request=false'));
+  f.git(['checkout', '--detach', f.base]);
+  f.ctx.pr = '456';
+  assert.equal(await f.bot().report(f.config), 'reported');
+  const post = f.state.commentWrites.find(write => write.endpoint === 'issues/456/comments');
+  assert.match(post.body, /untracked.js:40/);
+});
+
+test('stale default-branch run cannot close current fixes', async t => {
+  const f = fixture(t);
+  f.git(['checkout', '--detach', f.base]);
+  Object.assign(f.ctx, {
+    isPullRequest: false,
+    failed: false,
+    testedCommit: f.base,
+    testedHead: f.base,
+    targetRef: 'master',
+  });
+  f.state.branchHead = f.head;
+  assert.equal(await f.bot().update(f.config), 'stale');
+  assert.deepEqual(f.mutations(), []);
+});
+
+for (const merged of [false, true]) {
+  test(`original PR ${merged ? 'merged' : 'closed'} cleans retargeted new and legacy fixes by identity`, async t => {
+    const f = fixture(t);
+    f.state.original.state = 'closed';
+    f.state.original.merged_at = merged ? 'now' : null;
+    const legacy = fix({ base: { ref: 'master' } });
+    legacy.head.sha = f.head;
+    const modern = fix({
+      number: 457,
+      base: { ref: 'master' },
+      body: `Changed prose\n<!-- ruling-bot-target: ${JSON.stringify({ repository, pr: 123 })} -->`,
+      head: { ref: 'fix/update-ruling-for-renamed', sha: f.head, repo: { full_name: repository } },
+    });
+    f.state.prs.push(legacy, modern);
+    for (const candidate of f.state.prs) f.setRemote(candidate.head.ref, f.head);
+    assert.equal(await f.bot().cleanup(), 'closed');
+    assert.ok(f.state.prs.every(pr => pr.state === 'closed'));
+    assert.equal(f.git(['ls-remote', 'origin', 'refs/heads/fix/*']), '');
+  });
+}
+
+test('cleanup excludes unrelated, human-created, merged and foreign-repository fixes', async t => {
+  const f = fixture(t);
+  f.state.original.state = 'closed';
+  const marker = `<!-- ruling-bot-target: ${JSON.stringify({ repository, pr: 123 })} -->`;
+  f.state.prs.push(
+    fix({
+      title: 'Update ruling results for PR #1234',
+      body: 'Auto-generated ruling update for PR #1234.',
+    }),
+    fix({ user: { login: 'human' }, body: marker }),
+    fix({ state: 'closed', merged_at: 'now' }),
+    fix({
+      head: {
+        ref: 'fix/update-ruling-for-outdated-pr',
+        sha: f.head,
+        repo: { full_name: 'foreign/repo' },
+      },
+    }),
+  );
+  await f.bot().cleanup();
+  assert.deepEqual(f.mutations(), []);
+  assert.equal(
+    f.state.gitCalls.some(args => args[0] === 'push'),
+    false,
+  );
+});
+
+test('reopened original PR skips delayed close-event cleanup', async t => {
+  const f = fixture(t);
+  f.state.prs.push(fix());
+  assert.equal(await f.bot().cleanup(), 'reopened');
+  assert.deepEqual(f.mutations(), []);
+});
+
+test('original PR reopens during cleanup: leave fixes intact', async t => {
+  const f = fixture(t);
+  f.state.original.state = 'closed';
+  f.state.prs.push(fix());
+  f.state.beforeApi = endpoint => {
+    if (endpoint.startsWith('pulls?')) f.state.original.state = 'open';
+  };
+  await f.bot().cleanup();
+  assert.deepEqual(f.mutations(), []);
+});
+
+test('fix advanced after listing: cleanup leaves it intact', async t => {
+  const f = fixture(t);
+  f.state.original.state = 'closed';
+  const candidate = fix();
+  candidate.head.sha = f.head;
+  f.state.prs.push(candidate);
+  f.setRemote(candidate.head.ref, f.newerCommit());
+  await f.bot().cleanup();
+  assert.deepEqual(f.mutations(), []);
+  assert.equal(candidate.state, 'open');
+});
+
+test('delete lease catches update in the final cleanup window', async t => {
+  const f = fixture(t);
+  f.state.original.state = 'closed';
+  const candidate = fix();
+  candidate.head.sha = f.head;
+  f.state.prs.push(candidate);
+  f.setRemote(candidate.head.ref, f.head);
+  f.state.beforeGit = args => {
+    if (args[0] === 'push') f.setRemote(candidate.head.ref, f.newerCommit());
+  };
+  await assert.rejects(f.bot().cleanup());
+  assert.deepEqual(f.mutations(), []);
+  assert.equal(candidate.state, 'open');
+});
+
+test('update stages deletion of expectations absent from generated artifact', async t => {
+  const f = fixture(t);
+  rmSync(path.join(f.workspace, 'generated/project/javascript-S3000.json'));
+  assert.equal(await f.bot().update(f.config), 'updated');
+  assert.equal(existsSync(path.join(f.workspace, 'baseline/project/javascript-S3000.json')), false);
+  assert.match(
+    f.git(['diff', '--name-status', f.head, 'HEAD']),
+    /D\s+baseline\/project\/javascript-S3000.json/,
+  );
+});
+
+test('missing saved results fails without generating an empty replacement', async t => {
+  const f = fixture(t);
+  rmSync(path.join(f.workspace, 'generated'), { recursive: true });
+  await assert.rejects(f.bot().report(f.config));
+  assert.deepEqual(f.mutations(), []);
+});
+
+test('auto-generated commit skips failed update loop', async t => {
+  const f = fixture(t);
+  f.git(['commit', '--amend', '-m', 'Synthetic merge\n\nGenerated with GitHub Actions']);
+  f.ctx.testedCommit = f.git(['rev-parse', 'HEAD']);
+  assert.equal(await f.bot().update(f.config), 'auto-update');
+  assert.deepEqual(f.mutations(), []);
+});
+
+test('legacy dispatch without optional branch/base inputs derives tested PR parents', async t => {
+  const f = fixture(t);
+  Object.assign(f.ctx, { targetRef: '', base: '', testedHead: '' });
+  assert.equal(await f.bot().report(f.config), 'reported');
+  assert.equal(f.ctx.base, f.base);
+  assert.equal(f.ctx.testedHead, f.head);
+  assert.equal(f.ctx.targetRef, 'outdated-pr');
+});
+
+test('large Unicode reports exceed subprocess default buffer and are truncated safely', async t => {
+  const f = fixture(t);
+  const issues = Object.fromEntries(
+    Array.from({ length: 6000 }, (_, i) => [`project:${'é🚦'.repeat(30)}/${i}.js`, [i + 1]]),
+  );
+  f.write('generated/project/javascript-S4000.json', issues);
+  assert.equal(await f.bot().report(f.config), 'reported');
+  const body = f.state.comments[0].body;
+  assert.match(body, /truncated/);
+  assert.ok(Buffer.byteLength(body) <= 50200);
+  assert.doesNotMatch(body, /\ufffd/);
+});
+
+test('fix merged after listing is left intact by cleanup', async t => {
+  const f = fixture(t);
+  f.state.original.state = 'closed';
+  const candidate = fix();
+  candidate.head.sha = f.head;
+  f.state.prs.push(candidate);
+  f.setRemote(candidate.head.ref, f.head);
+  f.state.beforeApi = endpoint => {
+    if (endpoint === 'pulls/456') {
+      candidate.state = 'closed';
+      candidate.merged_at = 'now';
+    }
+  };
+  await f.bot().cleanup();
+  assert.deepEqual(f.mutations(), []);
+  assert.equal(
+    f.state.gitCalls.some(args => args[0] === 'push'),
+    false,
+  );
+});
+
+test('Build attempt changes during generation: do not replace comment', async t => {
+  const f = fixture(t);
+  f.state.beforeApi = endpoint => {
+    if (endpoint.startsWith('issues/123/comments?')) f.state.run.run_attempt = 2;
+  };
+  assert.equal(await f.bot().report(f.config), 'stale');
+  assert.deepEqual(f.mutations(), []);
+});
+
+test('artifact Build from another tested head is rejected before mutations', async t => {
+  const f = fixture(t);
+  f.state.run.head_sha = f.base;
+  await assert.rejects(f.bot().report(f.config), /does not match the tested head/);
+  assert.deepEqual(f.mutations(), []);
+});

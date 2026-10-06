@@ -1,79 +1,110 @@
 name: Ruling Diff Comment
-
 on:
   pull_request:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       pr-number:
-        description: Pull request number
+        description: PR receiving the report
         required: true
         type: string
       base-sha:
-        description: First parent of the tested PR merge, or tested branch commit
+        description: First parent of the tested merge, or tested branch commit
         required: false
         type: string
       head-sha:
-        description: Commit tested by ruling (the synthetic merge for a PR)
+        description: Exact tested commit; synthetic merge for a PR
         required: true
         type: string
       run-id:
-        description: Build run containing generated results; required when ruling-failed is true
+        description: Build run containing generated results
         required: false
         type: string
       ruling-failed:
-        description: Download and apply generated results from the build run
+        description: Download and apply generated results
         required: false
         type: boolean
         default: false
       is-pull-request:
-        description: Whether the tested commit is a synthetic PR merge
+        description: Tested commit is a synthetic PR merge
         required: false
         type: boolean
         default: false
       fix-pr-url:
-        description: Ruling fix pull request URL, when reporting on the original PR
+        description: Fix PR link for the original PR
+        required: false
+        type: string
+      target-ref:
+        description: Original branch tested by ruling
+        required: false
+        type: string
+      run-attempt:
+        description: Originating Build run attempt
+        required: false
+        type: string
+        default: '1'
+      report-config:
+        description: JSON containing the reusable ruling bot parameters
         required: false
         type: string
 
+# Separate tested commits so an old dispatch cannot replace a newer pending report.
 concurrency:
-  group: ${{ github.workflow }}-${{ inputs.pr-number || github.event.pull_request.number }}
-  cancel-in-progress: true
-
+  group: ${{ github.workflow }}-${{ inputs.pr-number || github.event.pull_request.number }}-${{ inputs.head-sha || github.sha }}
+  cancel-in-progress: false
+  queue: max
 permissions:
   contents: read
   pull-requests: write
   actions: read
-
 jobs:
   ruling-diff-comment:
     if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]')
     runs-on: sonar-xs
+    # Share the mutation lock with the updater and close/merge cleanup. Keep pending work.
+    concurrency:
+      group: ${{ (github.event_name == 'pull_request' || inputs.is-pull-request) && format('ruling-bot-pr-{0}', inputs.pr-number || github.event.pull_request.number) || format('ruling-bot-branch-{0}', inputs.target-ref) }}
+      cancel-in-progress: false
+      queue: max
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ inputs.head-sha || github.sha }}
-          fetch-depth: 0
-          submodules: true
+      - name: Checkout reporter implementation
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           version: 2026.9.11
           install_args: node
-      - name: Download generated ruling results
-        if: inputs.ruling-failed
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: actual_js_ts
-          path: packages/ruling/actual
-          run-id: ${{ inputs.run-id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Post ruling diff from the tested commit
+      - name: Load caller configuration
+        id: config
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ inputs.pr-number || github.event.pull_request.number }}
-          BASE_SHA: ${{ inputs.base-sha || '' }}
-          HEAD_SHA: ${{ inputs.head-sha || github.sha }}
-          IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' || inputs.is-pull-request }}
-          RULING_FAILED: ${{ inputs.ruling-failed }}
-          FIX_PR_URL: ${{ inputs.fix-pr-url || '' }}
-        run: bash .github/actions/ruling_bot/report.sh
+          RULING_REPORT_CONFIG: ${{ inputs.report-config || '' }}
+        run: node .github/actions/ruling_bot/config.mjs .github/ruling-bot.json
+      - name: Checkout exact tested tree separately from reporter code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.head-sha || github.sha }}
+          path: .ruling-bot-tested
+          fetch-depth: 0
+          submodules: true
+      - name: Report results from the tested tree
+        uses: ./.github/actions/ruling_bot/report
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository-path: ${{ github.workspace }}/.ruling-bot-tested
+          pr-number: ${{ inputs.pr-number || github.event.pull_request.number }}
+          base-sha: ${{ inputs.base-sha || '' }}
+          head-sha: ${{ inputs.head-sha || github.sha }}
+          target-ref: ${{ inputs.target-ref || github.head_ref }}
+          is-pull-request: ${{ github.event_name == 'pull_request' || inputs.is-pull-request }}
+          ruling-failed: ${{ inputs.ruling-failed || false }}
+          run-id: ${{ inputs.run-id || '' }}
+          run-attempt: ${{ inputs.run-attempt || '1' }}
+          fix-pr-url: ${{ inputs.fix-pr-url || '' }}
+          new-results-path: ${{ fromJSON(steps.config.outputs.config).new-results-path }}
+          old-results-path: ${{ fromJSON(steps.config.outputs.config).old-results-path }}
+          sources-path: ${{ fromJSON(steps.config.outputs.config).sources-path }}
+          sources-repo-url: ${{ fromJSON(steps.config.outputs.config).sources-repo-url }}
+          rspec-base-url: ${{ fromJSON(steps.config.outputs.config).rspec-base-url }}
+          max-inline-snippets: ${{ fromJSON(steps.config.outputs.config).max-inline-snippets }}
+          results-artifact-name: ${{ fromJSON(steps.config.outputs.config).results-artifact-name }}
+          report-workflow: ${{ fromJSON(steps.config.outputs.config).report-workflow }}
+          report-workflow-ref: ${{ fromJSON(steps.config.outputs.config).report-workflow-ref }}

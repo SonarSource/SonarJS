@@ -32,6 +32,39 @@ inputs:
     description: Path to version-controlled baseline ruling results
     required: true
 
+  sources-path:
+    description: Local source checkout used for snippets
+    required: false
+    default: 'its/sources'
+  sources-repo-url:
+    description: Remote source URL used for file links
+    required: false
+    default: ''
+  rspec-base-url:
+    description: RSPEC URL used for rule links
+    required: false
+    default: 'https://sonarsource.github.io/rspec/#/rspec'
+  max-inline-snippets:
+    description: Maximum inline snippets before collapsing the full report
+    required: false
+    default: '10'
+  results-artifact-name:
+    description: Saved generated-results artifact name
+    required: false
+    default: 'ruling-results'
+  report-workflow:
+    description: Reporter workflow filename or ID
+    required: false
+    default: 'ruling-diff-comment.yml'
+  report-workflow-ref:
+    description: Ref containing the reporter workflow; empty selects the default branch
+    required: false
+    default: ''
+  tested-commit-sha:
+    description: Exact tested commit (synthetic merge for a PR)
+    required: false
+    default: ''
+
 runs:
   using: composite
   steps:
@@ -42,10 +75,18 @@ runs:
         GH_TOKEN: ${{ inputs.github-token }}
         PR_NUMBER: ${{ inputs.pr-number }}
         TARGET_REF: ${{ inputs.target-ref }}
+        TESTED_COMMIT_SHA: ${{ inputs.tested-commit-sha || github.sha }}
         TESTED_HEAD_SHA: ${{ inputs.tested-head-sha }}
         TESTED_BASE_SHA: ${{ inputs.tested-base-sha }}
         IS_PULL_REQUEST: ${{ inputs.is-pull-request }}
         RULING_FAILED: ${{ inputs.ruling-failed }}
         NEW_RESULTS_PATH: ${{ inputs.new-results-path }}
         OLD_RESULTS_PATH: ${{ inputs.old-results-path }}
+        SOURCES_PATH: ${{ inputs.sources-path }}
+        SOURCES_REPO_URL: ${{ inputs.sources-repo-url }}
+        RSPEC_BASE_URL: ${{ inputs.rspec-base-url }}
+        MAX_INLINE_SNIPPETS: ${{ inputs.max-inline-snippets }}
+        RESULTS_ARTIFACT_NAME: ${{ inputs.results-artifact-name }}
+        REPORT_WORKFLOW: ${{ inputs.report-workflow }}
+        REPORT_WORKFLOW_REF: ${{ inputs.report-workflow-ref }}
       run: bash "$ACTION_PATH/run.sh"

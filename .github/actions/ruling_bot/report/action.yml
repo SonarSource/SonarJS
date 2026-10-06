@@ -1,0 +1,143 @@
+name: Ruling report
+description: Report sonar-lits results from an exact tested tree
+
+inputs:
+  github-token:
+    description: Token for artifacts and PR comments
+    required: true
+  pr-number:
+    description: PR receiving the ruling report
+    required: true
+  head-sha:
+    description: Exact commit tested by ruling
+    required: true
+  base-sha:
+    description: Exact tested base; derived from the merge for PRs
+    required: false
+    default: ''
+  target-ref:
+    description: Original branch tested by ruling
+    required: false
+    default: ''
+  is-pull-request:
+    description: Whether the tested commit is a synthetic merge
+    required: false
+    default: 'false'
+  ruling-failed:
+    description: Whether saved generated results must be applied
+    required: false
+    default: 'false'
+  run-id:
+    description: Originating Build run ID; empty for a raw PR event
+    required: false
+    default: ''
+  run-attempt:
+    description: Originating Build run attempt
+    required: false
+    default: '1'
+  fix-pr-url:
+    description: Fix PR link to show on the original PR
+    required: false
+    default: ''
+  repository-path:
+    description: Absolute path to the tested repository checkout
+    required: false
+    default: ''
+  new-results-path:
+    description: Generated-results path within the tested repository
+    required: true
+  old-results-path:
+    description: Expected-results path within the tested repository
+    required: true
+  sources-path:
+    description: Local source checkout used for snippets
+    required: false
+    default: 'its/sources'
+  sources-repo-url:
+    description: Remote source URL used for file links
+    required: false
+    default: ''
+  rspec-base-url:
+    description: RSPEC URL used for rule links
+    required: false
+    default: 'https://sonarsource.github.io/rspec/#/rspec'
+  max-inline-snippets:
+    description: Maximum inline snippets before collapsing the full report
+    required: false
+    default: '10'
+  results-artifact-name:
+    description: Saved generated-results artifact name
+    required: false
+    default: 'ruling-results'
+  report-workflow:
+    description: Reporter workflow filename or ID
+    required: false
+    default: 'ruling-diff-comment.yml'
+  report-workflow-ref:
+    description: Ref containing the reporter workflow; empty selects the default branch
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Check report freshness before downloading results
+      id: fresh
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}/..
+        GH_TOKEN: ${{ inputs.github-token }}
+        RULING_REPOSITORY_PATH: ${{ inputs.repository-path || github.workspace }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+        HEAD_SHA: ${{ inputs.head-sha }}
+        BASE_SHA: ${{ inputs.base-sha }}
+        TARGET_REF: ${{ inputs.target-ref }}
+        IS_PULL_REQUEST: ${{ inputs.is-pull-request }}
+        RULING_FAILED: ${{ inputs.ruling-failed }}
+        BUILD_RUN_ID: ${{ inputs.run-id }}
+        BUILD_RUN_ATTEMPT: ${{ inputs.run-attempt }}
+        FIX_PR_URL: ${{ inputs.fix-pr-url }}
+        NEW_RESULTS_PATH: ${{ inputs.new-results-path }}
+        OLD_RESULTS_PATH: ${{ inputs.old-results-path }}
+        SOURCES_PATH: ${{ inputs.sources-path }}
+        SOURCES_REPO_URL: ${{ inputs.sources-repo-url }}
+        RSPEC_BASE_URL: ${{ inputs.rspec-base-url }}
+        MAX_INLINE_SNIPPETS: ${{ inputs.max-inline-snippets }}
+        RESULTS_ARTIFACT_NAME: ${{ inputs.results-artifact-name }}
+        REPORT_WORKFLOW: ${{ inputs.report-workflow }}
+        REPORT_WORKFLOW_REF: ${{ inputs.report-workflow-ref }}
+      run: node "$ACTION_PATH/bot.mjs" check-report
+    - name: Download saved ruling results
+      if: inputs.ruling-failed == 'true' && steps.fresh.outputs.fresh == 'true'
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        name: ${{ inputs.results-artifact-name }}
+        path: ${{ inputs.repository-path || github.workspace }}/${{ inputs.new-results-path }}
+        run-id: ${{ inputs.run-id }}
+        github-token: ${{ inputs.github-token }}
+    - name: Post ruling report
+      if: steps.fresh.outputs.fresh == 'true'
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}/..
+        GH_TOKEN: ${{ inputs.github-token }}
+        RULING_REPOSITORY_PATH: ${{ inputs.repository-path || github.workspace }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+        HEAD_SHA: ${{ inputs.head-sha }}
+        BASE_SHA: ${{ inputs.base-sha }}
+        TARGET_REF: ${{ inputs.target-ref }}
+        IS_PULL_REQUEST: ${{ inputs.is-pull-request }}
+        RULING_FAILED: ${{ inputs.ruling-failed }}
+        BUILD_RUN_ID: ${{ inputs.run-id }}
+        BUILD_RUN_ATTEMPT: ${{ inputs.run-attempt }}
+        FIX_PR_URL: ${{ inputs.fix-pr-url }}
+        NEW_RESULTS_PATH: ${{ inputs.new-results-path }}
+        OLD_RESULTS_PATH: ${{ inputs.old-results-path }}
+        SOURCES_PATH: ${{ inputs.sources-path }}
+        SOURCES_REPO_URL: ${{ inputs.sources-repo-url }}
+        RSPEC_BASE_URL: ${{ inputs.rspec-base-url }}
+        MAX_INLINE_SNIPPETS: ${{ inputs.max-inline-snippets }}
+        RESULTS_ARTIFACT_NAME: ${{ inputs.results-artifact-name }}
+        REPORT_WORKFLOW: ${{ inputs.report-workflow }}
+        REPORT_WORKFLOW_REF: ${{ inputs.report-workflow-ref }}
+      run: node "$ACTION_PATH/bot.mjs" report

@@ -1,0 +1,32 @@
+name: Ruling bot regression tests
+on:
+  pull_request:
+    paths:
+      [
+        '.github/actions/ruling_bot/**',
+        '.github/ruling-bot.json',
+        '.github/workflows/build.yml',
+        '.github/workflows/ruling*.yml',
+      ]
+  push:
+    branches: [master]
+    paths:
+      [
+        '.github/actions/ruling_bot/**',
+        '.github/ruling-bot.json',
+        '.github/workflows/build.yml',
+        '.github/workflows/ruling*.yml',
+      ]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: warp-custom-ubuntu-24-04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
+        with:
+          version: 2026.9.11
+          install_args: node
+      - run: node --test .github/actions/ruling_bot/tests/*.test.mjs

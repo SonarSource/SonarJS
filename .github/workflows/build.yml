@@ -1159,6 +1159,7 @@ jobs:
       ruling-outcome: ${{ steps.ruling.outcome }}
       ruling-results-saved: ${{ steps.save_ruling.outcome == 'success' }}
       tested-base-sha: ${{ steps.tested_merge.outputs.base_sha }}
+      report-config: ${{ steps.ruling_config.outputs.config }}
     permissions:
       id-token: write
       contents: read
@@ -1179,6 +1180,9 @@ jobs:
       - *mise
       - *npm_cache
       - *download_rspec_rule_data
+      - name: Load ruling bot configuration
+        id: ruling_config
+        run: node .github/actions/ruling_bot/config.mjs .github/ruling-bot.json --artifact-attempt
       - name: Run JS/TS Ruling
         id: ruling
         run: |
@@ -1197,21 +1201,27 @@ jobs:
         if: always() && steps.ruling.outcome == 'failure'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: actual_js_ts
-          path: packages/ruling/actual/
+          name: ${{ fromJSON(steps.ruling_config.outputs.config).results-artifact-name }}
+          path: ${{ fromJSON(steps.ruling_config.outputs.config).new-results-path }}
           if-no-files-found: error
 
   js_ts_ruling_update:
     name: Update JS/TS ruling results
     needs: js_ts_ruling
     if: always() && (github.event_name == 'pull_request' || github.ref_name == github.event.repository.default_branch) && (needs.js_ts_ruling.outputs.ruling-outcome == 'success' || needs.js_ts_ruling.outputs.ruling-results-saved == 'true')
+    concurrency:
+      group: ${{ github.event_name == 'pull_request' && format('ruling-bot-pr-{0}', github.event.pull_request.number) || format('ruling-bot-branch-{0}', github.ref_name) }}
+      cancel-in-progress: false
+      queue: max
     runs-on: sonar-xl
     permissions:
       contents: write
       pull-requests: write
       actions: write
     steps:
-      - *checkout
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           version: 2026.9.11
@@ -1220,8 +1230,8 @@ jobs:
         if: needs.js_ts_ruling.outputs.ruling-results-saved == 'true'
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: actual_js_ts
-          path: packages/ruling/actual
+          name: ${{ fromJSON(needs.js_ts_ruling.outputs.report-config).results-artifact-name }}
+          path: ${{ fromJSON(needs.js_ts_ruling.outputs.report-config).new-results-path }}
       - name: Update ruling results
         uses: ./.github/actions/ruling_bot
         with:
@@ -1232,8 +1242,16 @@ jobs:
           tested-base-sha: ${{ needs.js_ts_ruling.outputs.tested-base-sha }}
           is-pull-request: ${{ github.event_name == 'pull_request' }}
           ruling-failed: ${{ needs.js_ts_ruling.outputs.ruling-results-saved == 'true' }}
-          new-results-path: packages/ruling/actual
-          old-results-path: its/ruling/src/test/resources/expected
+
+          new-results-path: ${{ fromJSON(needs.js_ts_ruling.outputs.report-config).new-results-path }}
+          old-results-path: ${{ fromJSON(needs.js_ts_ruling.outputs.report-config).old-results-path }}
+          sources-path: ${{ fromJSON(needs.js_ts_ruling.outputs.report-config).sources-path }}
+          sources-repo-url: ${{ fromJSON(needs.js_ts_ruling.outputs.report-config).sources-repo-url }}
+          rspec-base-url: ${{ fromJSON(needs.js_ts_ruling.outputs.report-config).rspec-base-url }}
+          max-inline-snippets: ${{ fromJSON(needs.js_ts_ruling.outputs.report-config).max-inline-snippets }}
+          results-artifact-name: ${{ fromJSON(needs.js_ts_ruling.outputs.report-config).results-artifact-name }}
+          report-workflow: ${{ fromJSON(needs.js_ts_ruling.outputs.report-config).report-workflow }}
+          report-workflow-ref: ${{ fromJSON(needs.js_ts_ruling.outputs.report-config).report-workflow-ref }}
 
   js_ts_ruling_replay:
     runs-on: sonar-xl
