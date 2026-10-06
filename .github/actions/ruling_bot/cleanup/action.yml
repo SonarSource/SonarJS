@@ -1,0 +1,23 @@
+name: Close obsolete ruling fix PRs
+description: Close generated fixes when their original PR is merged or closed
+inputs:
+  github-token:
+    description: Token for closing PRs and deleting their fix branches
+    required: true
+  pr-number:
+    description: Original PR identity, regardless of retargeted fix bases
+    required: true
+  target-ref:
+    description: Original PR branch name
+    required: true
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        PR_NUMBER: ${{ inputs.pr-number }}
+        TARGET_REF: ${{ inputs.target-ref }}
+        IS_PULL_REQUEST: 'true'
+        ACTION_PATH: ${{ github.action_path }}/..
+      run: node "$ACTION_PATH/bot.mjs" cleanup

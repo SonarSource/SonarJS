@@ -20,7 +20,11 @@ import { fileURLToPath } from 'node:url';
 
 const currentFilePath = fileURLToPath(import.meta.url);
 const actionDirectory = path.dirname(currentFilePath);
-const repositoryRoot = path.resolve(actionDirectory, '../../..');
+const repositoryRoot = path.resolve(
+  process.env.RULING_REPOSITORY_PATH ||
+    process.env.GITHUB_WORKSPACE ||
+    path.resolve(actionDirectory, '../../..'),
+);
 
 const sourceDirectory = path.resolve(repositoryRoot, process.argv[2] ?? '');
 const destinationDirectory = path.resolve(repositoryRoot, process.argv[3] ?? '');
