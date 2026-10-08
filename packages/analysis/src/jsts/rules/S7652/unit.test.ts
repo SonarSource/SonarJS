@@ -26,6 +26,48 @@ describe('S7652', () => {
   const ruleTester = new NoTypeCheckingRuleTester();
   const angular = `import { Component, Directive, Output, output } from '@angular/core';`;
 
+  for (const { alias, prohibited } of [
+    { alias: 'on', prohibited: true },
+    { alias: 'on123', prohibited: true },
+    { alias: 'on_click', prohibited: true },
+    { alias: 'oNotation', prohibited: false },
+    { alias: 'OnClick', prohibited: false },
+    { alias: '', prohibited: false },
+  ]) {
+    it(`checks the alias boundary ${JSON.stringify(alias)} across output forms`, () => {
+      const cases = [
+        {
+          code: `${angular} class C { onRefresh = output({ alias: '${alias}' }); }`,
+          reports: prohibited,
+          errors: prohibited ? 2 : 1,
+        },
+        {
+          code: `${angular} class C { @Output('${alias}') onRefresh = new EventEmitter(); }`,
+          reports: prohibited || alias === '',
+          errors: prohibited ? 2 : 1,
+        },
+        {
+          code: `${angular} @Component({ outputs: ['onRefresh: ${alias}'] }) class C {}`,
+          reports: prohibited || alias === '',
+          errors: 1,
+        },
+        {
+          code: `${angular} @Directive({ hostDirectives: [{ directive: Other, outputs: ['onRefresh: ${alias}'] }] }) class C {}`,
+          reports: prohibited || alias === '',
+          errors: 1,
+        },
+      ];
+      ruleTester.run('S7652', rule, {
+        valid: cases.filter(test => !test.reports).map(({ code }) => ({ code })),
+        invalid: cases.filter(test => test.reports).map(({ code, errors }) => ({ code, errors })),
+      });
+      ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
+        valid: [],
+        invalid: cases.map(({ code, errors }) => ({ code, errors })),
+      });
+    });
+  }
+
   it('uses explicit, compliant public output aliases', () => {
     ruleTester.run('S7652', rule, {
       valid: [
