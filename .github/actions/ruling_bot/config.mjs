@@ -14,9 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { appendFileSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 export const defaults = {
   'sources-path': 'its/sources',
@@ -72,17 +70,4 @@ export function environmentConfiguration(env) {
         .map(name => [name, env[name.replaceAll('-', '_').toUpperCase()]]),
     ),
   );
-}
-
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const value = process.env.RULING_REPORT_CONFIG
-    ? JSON.parse(process.env.RULING_REPORT_CONFIG)
-    : JSON.parse(readFileSync(process.argv[2], 'utf8'));
-  const config = configuration(value);
-  if (process.argv.includes('--artifact-attempt')) {
-    if (!/^\d+$/.test(process.env.GITHUB_RUN_ATTEMPT || ''))
-      throw new Error('Missing Build run attempt.');
-    config['results-artifact-name'] += `-${process.env.GITHUB_RUN_ATTEMPT}`;
-  }
-  appendFileSync(process.env.GITHUB_OUTPUT, `config=${JSON.stringify(config)}\n`);
 }
