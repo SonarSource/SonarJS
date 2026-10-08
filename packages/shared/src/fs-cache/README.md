@@ -81,52 +81,30 @@ Collection-enabled scans analyze unchanged files too: a scanner analysis-cache h
 the filesystem observations or program-selection outcomes needed for replay. Scans without
 collection retain the ordinary incremental-analysis behavior.
 
-The scanner creates a unique directory below its work directory and sends Node explicit RECORD
-mode with two output paths. After successful analysis, the scanner publishes both gzip-compressed
-Protocol Buffers artifacts in one context:
+The scanner sends Node explicit RECORD mode with two output paths and publishes the resulting
+gzip-compressed Protocol Buffers attachments under context kind `javascript`:
 
-- context kind: `javascript`
-- item ids: `filesystem-cache` and `analysis-metadata`
-- context metadata: `{}`
+- `filesystem-cache`: observed project filesystem inputs.
+- `analysis-metadata`: TypeScript program selections, compiler options, file mappings and explicit
+  no-program outcomes.
 
-The filesystem artifact contains observed project inputs. The analysis-metadata artifact contains
-recorded analyzer settings and per-file program outcomes: a selected configured/orphan program,
-or an explicit no-program decision. Node owns their schemas, decoding, and compatibility checks;
-the scanner and SQAA adapter only transport them.
+Shared CI settings, including the recorded project root, are published separately in collector
+JSON metadata as `{ "configuration": ... }`. They are not stored in either attachment. Only Node
+decodes the attachments; Java and SQAA transport them.
+
+The authoritative recording, restoration, path translation and fallback contract is
+[SonarJS A3S context contract](../../../../docs/a3s-context.md). Consult that document when
+integrating or validating context restoration rather than treating a successful source-only
+analysis as proof that context was restored.
 
 SQAA resolves context for the requested branch (by branch ID or project plus branch name), falling
 back to the project's main branch when no contexts are found. The context service selects contexts
 from that branch's latest recorded analysis; collection enablement is project/organization based,
 not restricted by this integration to main-branch scans.
 
-SQAA restores the pair and sets `sonar.javascript.internal.filesystemCacheArchivePath` and
-`sonar.javascript.internal.analysisMetadataPath`. WebSensor sends explicit REPLAY mode and always
-includes the submitted source text. That text overrides the recorded file contents, including
-when rebuilding the TypeScript program. Recorded project settings are restored without replacing
-the request's base directory, file scope, or runtime paths.
-
-Replay should use the same analyzer version as recording: reads outside the analysis root,
-including the analyzer installation and bundled TypeScript declarations, deliberately remain native.
-The request's existing `rules_workdir` is also the native passthrough tree. Analyzer extensions may
-create derived artifacts there (for example, architecture UDG files), and those outputs are neither
-project inputs nor part of the portable archive. Filesystem calls whose path or descriptor stays in
-that tree remain native. Multi-path operations must keep every target there; crossing into the
-archived project tree and mutations elsewhere inside that tree still fail closed.
-
-Context handling distinguishes these cases:
-
-- No context: omit cache configuration and use ordinary source-only analysis, including a basic
-  orphan TypeScript program when applicable. Nothing is recorded or replayed.
-- Partial, duplicate, empty, or unrestorable items: the SQAA adapter prepares source-only analysis
-  and reports `INVALID_CONTEXT`. A direct Node request with a one-sided pair is invalid.
-- Corrupt or incompatible serialized context: Node rejects the request as `invalid_request`
-  (`INVALID_ARGUMENT` over gRPC), cleans up its session, and does not overwrite the artifacts or
-  silently present reduced type-aware coverage as successful restoration.
-- Unsupported recorded program selection, including a new file without a recorded outcome:
-  warn and fall back to ordinary source-only analysis. An explicit recorded no-program outcome is
-  supported and remains no-program rather than creating a replacement program.
-
-CSS-only requests do not restore JavaScript context. HTML and YAML JavaScript analysis can still
-use recorded analyzer settings even though their embedded snippets do not use TypeScript programs.
-SonarQube for IDE and hosts without the context-collection API use a no-op integration and cannot
-activate the filesystem cache, even if the internal property is set.
+SQAA forwards the collector JSON through `sonar.javascript.internal.contextMetadata`, alongside
+`sonar.javascript.internal.filesystemCacheArchivePath` and
+`sonar.javascript.internal.analysisMetadataPath`. With compatible context, WebSensor sends explicit
+REPLAY mode and includes the submitted source text, which takes precedence over archived contents.
+Missing or legacy `{}` collector metadata uses the logged no-context fallback, even when both
+attachments exist.
