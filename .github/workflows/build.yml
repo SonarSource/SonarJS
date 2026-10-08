@@ -8,6 +8,11 @@ on:
   pull_request:
   merge_group:
   workflow_dispatch:
+    inputs:
+      validate-registry-routing:
+        description: Validate public/SaaS installs and Edge downloads with isolated caches
+        type: boolean
+        default: false
   schedule:
     - cron: '0 0 * * *'  # Nightly for analysis, IRIS, and generated file freshness
 
@@ -15,6 +20,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   # Keep public lockfile URLs on npmjs; CI selects the registry at install time.
   NPM_CONFIG_REPLACE_REGISTRY_HOST: npmjs
+  NPM_CONFIG_LOGLEVEL: ${{ inputs.validate-registry-routing && 'http' || 'notice' }}
   # Run the Maven license-header check only in the Linux build; other Maven jobs skip it.
   MAVEN_ARGS: -Dlicense.skip=true
   # Workflows modified by a pull request cannot create the refs used by get-build-number even
@@ -71,8 +77,13 @@ jobs:
           echo "Computed Maven hash: $HASH"
       - name: Compute NPM hash for cache key
         id: compute-npm-hash
+        env:
+          VALIDATE_REGISTRY_ROUTING: ${{ inputs.validate-registry-routing }}
         run: |
           HASH=$(sha256sum package-lock.json patches/* 2>/dev/null | sha256sum | cut -d' ' -f1)
+          if [ "$VALIDATE_REGISTRY_ROUTING" = 'true' ]; then
+            HASH="$HASH-validation-$GITHUB_RUN_ID"
+          fi
           echo "hash=$HASH" >> $GITHUB_OUTPUT
           echo "Computed NPM hash: $HASH"
       - name: Compute cache month for periodic reset
@@ -95,6 +106,54 @@ jobs:
     steps:
       - id: build-number
         uses: SonarSource/ci-github-actions/get-build-number@v2
+
+  validate_public_npm_install:
+    name: Validate public npm install without credentials
+    if: inputs.validate-registry-routing
+    runs-on: github-ubuntu-latest-s
+    permissions:
+      contents: read
+    steps:
+      - *checkout
+      - uses: jdx/mise-action@94c60b39bc2d90ab2f9bab27f38d3cc4812c1834 # v5.1.0
+        with:
+          version: 2026.9.18
+          cache: false
+      - name: Install from npmjs with empty credential files and cache
+        shell: bash
+        run: |
+          touch "$RUNNER_TEMP/public-user.npmrc" "$RUNNER_TEMP/public-global.npmrc"
+          env -i PATH="$PATH" npm ci --registry=https://registry.npmjs.org/ \
+            --userconfig="$RUNNER_TEMP/public-user.npmrc" \
+            --globalconfig="$RUNNER_TEMP/public-global.npmrc" \
+            --cache="$RUNNER_TEMP/public-npm-cache" --loglevel=http --no-audit --no-fund
+
+  validate_saas_npm_install:
+    name: Validate release npm install through SaaS without publishing
+    if: inputs.validate-registry-routing
+    runs-on: github-ubuntu-latest-s
+    needs: [setup, get_build_number]
+    permissions: *read_permissions
+    env:
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+    steps:
+      - *checkout
+      - uses: jdx/mise-action@94c60b39bc2d90ab2f9bab27f38d3cc4812c1834 # v5.1.0
+        with:
+          version: 2026.9.18
+          cache: false
+      - uses: SonarSource/ci-github-actions/config-npm@v2
+        with:
+          repox-url: https://repox.jfrog.io
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
+      - name: Install using the release repository configuration
+        shell: bash
+        env:
+          NPM_CONFIG_CACHE: ${{ runner.temp }}/saas-npm-cache
+        run: |
+          jf rt npm-config --repo-resolve npm --repo-deploy sonarsource-npm-public-qa
+          jf rt npm-ci
 
   populate_npm_cache:
     runs-on: sonar-xs
@@ -621,7 +680,9 @@ jobs:
     runs-on: sonar-m
     name: Analyze in SonarQube NEXT
     needs: [setup, get_build_number, test_js, build]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    if: >-
+      !inputs.validate-registry-routing &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     permissions: *read_permissions
     env: *shared_build_number
     steps:
@@ -1320,6 +1381,7 @@ jobs:
       - ruling
       - js_ts_ruling
     if: >-
+      !inputs.validate-registry-routing &&
       !failure() && !cancelled() &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     permissions: *read_permissions
