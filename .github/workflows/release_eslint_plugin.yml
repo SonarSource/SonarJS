@@ -45,6 +45,7 @@ jobs:
       - name: Configure Maven
         uses: SonarSource/ci-github-actions/config-maven@v2
         with:
+          repox-url: https://repox.jfrog.io
           artifactory-reader-role: private-reader
           disable-caching: 'true'
       - name: Publish npm package
