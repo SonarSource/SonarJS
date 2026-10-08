@@ -350,6 +350,21 @@ function forEachPushList(pages) {
   );
 }
 
+// Known limitation (false negative): every switch case is treated as mutually exclusive with the
+// others, so a case falling through into the next (likely a forgotten `break`) renders both "Details"
+// links with different targets, yet they're never compared.
+function switchFallThrough(kind) {
+  const items = [];
+  switch (kind) {
+    case 'full':
+      items.push(<a href="/details/full">Details</a>);
+    case 'short':
+      items.push(<a href="/details/short">Details</a>);
+      break;
+  }
+  return <div>{items}</div>;
+}
+
 // Compliant: a braced JSX element as aria-label (a type error with @types/react) is a dynamic
 // expression, so the anchor is excluded as unresolvable rather than compared via its text.
 const bracedJsxElementAriaLabel = (
@@ -367,7 +382,7 @@ const jsxElementAriaLabel = (
     {[
       <a href="/jsx-label/1" aria-label=<Icon />>Jsx label</a>,
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-      <a href="/jsx-label/2">Jsx label</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 368.}}
+      <a href="/jsx-label/2">Jsx label</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 383.}}
     ]}
   </div>
 );
@@ -397,7 +412,7 @@ const sameLabelledbyDifferentTarget = (
     {[
       <a href="/signup" aria-labelledby="cta-label">Sign up</a>,
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-      <a href="/login" aria-labelledby="cta-label">Log in</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 398.}}
+      <a href="/login" aria-labelledby="cta-label">Log in</a>, // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 413.}}
     ]}
   </div>
 );
@@ -434,7 +449,7 @@ const hiddenByAncestor = (
 // A nested <svg aria-label> contributes its own name instead of its (empty) content.
   <a href="/export/csv"><svg aria-label="Export data" /></a>;
 //^^^^^^^^^^^^^^^^^^^^^^> {{Link with the same text or label.}}
-  <a href="/export/json"><svg aria-label="Export data" /></a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 435.}}
+  <a href="/export/json"><svg aria-label="Export data" /></a>; // Noncompliant {{Use a distinct text or label, or point to the same target for this link and the one on line 450.}}
 
 // Compliant: a nested aria-labelledby makes the anchor's name unresolvable, even though the
 // visible text matches - excluded rather than compared via that text, since the two labels

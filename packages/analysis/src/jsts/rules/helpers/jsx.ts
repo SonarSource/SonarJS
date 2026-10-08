@@ -115,8 +115,8 @@ function renderedChildPositions(node: TSESTree.Node): TSESTree.Node[] {
   }
 }
 
-// The branch positions of a conditional-rendering expression or statement - of which at most one
-// renders at a time - or undefined when `node` isn't one of those node types.
+// The branch positions of a conditional-rendering expression or statement, of which at most one
+// renders at a time.
 function exclusiveBranchesOf(
   node: TSESTree.ConditionalExpression | TSESTree.LogicalExpression | TSESTree.IfStatement,
 ): TSESTree.Node[] {
