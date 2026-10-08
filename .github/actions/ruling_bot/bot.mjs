@@ -65,8 +65,12 @@ export function controller(ctx, adapters = {}) {
   const suffix = ctx.isPullRequest ? `PR #${ctx.pr}` : ctx.targetRef;
   const title = `Update ruling results for ${suffix}`;
   const description = `Auto-generated ruling update for ${suffix}.`;
+  const sameTarget = run =>
+    ctx.isPullRequest
+      ? run.pull_requests?.some(pr => Number(pr.number) === Number(ctx.pr))
+      : run.head_branch === ctx.targetRef;
 
-  async function fresh() {
+  function fresh(report = false) {
     if (ctx.isPullRequest) {
       const pr = api(`pulls/${ctx.pr}`);
       if (pr.state !== 'open' || pr.head.sha !== ctx.testedHead) return false;
@@ -80,16 +84,20 @@ export function controller(ctx, adapters = {}) {
       const run = api(`actions/runs/${ctx.runId}`);
       if (run.head_sha !== ctx.testedHead)
         throw new Error('Originating Build run does not match the tested head.');
+      if (!sameTarget(run))
+        throw new Error('Originating Build run does not match the ruling target.');
       if (Number(run.run_attempt) !== Number(ctx.runAttempt || 1)) return false;
       const runs = pages(
         `actions/workflows/${run.workflow_id}/runs?head_sha=${run.head_sha}&event=${run.event}&per_page=100`,
       );
       if (
-        runs.flatMap(page => page.workflow_runs).some(other => Number(other.id) > Number(ctx.runId))
+        runs
+          .flatMap(page => page.workflow_runs)
+          .some(other => sameTarget(other) && Number(other.id) > Number(ctx.runId))
       )
         return false;
     }
-    return true;
+    return !report || api(`pulls/${ctx.pr}`).state === 'open';
   }
 
   function managed(pr) {
@@ -114,24 +122,20 @@ export function controller(ctx, adapters = {}) {
       }
     }
     // Legacy bodies also survive GitHub retargeting a fix PR after its base is merged/deleted.
-    return (
-      pr.user.login === 'github-actions[bot]' &&
-      pr.title === title &&
-      pr.body?.startsWith(description)
-    );
+    return pr.title === title && pr.body?.startsWith(description);
   }
   const fixes = () => pages('pulls?state=open&per_page=100').filter(pr => managed(pr));
 
-  async function closeFixes(reason, guard = fresh) {
+  function closeFixes(reason, guard = fresh) {
     for (const candidate of fixes()) {
-      if (!(await guard())) return;
+      if (!guard()) return;
       const pr = api(`pulls/${candidate.number}`);
       if (pr.state !== 'open' || pr.merged_at || !managed(pr) || pr.head.sha !== candidate.head.sha)
         continue;
       const ref = `refs/heads/${pr.head.ref}`;
       const remoteHead = git(['ls-remote', 'origin', ref]).split(/\s/)[0];
       if (remoteHead && remoteHead !== pr.head.sha) continue;
-      if (!(await guard())) return;
+      if (!guard()) return;
       // Delete first, with a compare-and-swap lease; never close a newly updated fix.
       if (remoteHead)
         git(['push', `--force-with-lease=${ref}:${pr.head.sha}`, 'origin', `:${ref}`]);
@@ -141,7 +145,7 @@ export function controller(ctx, adapters = {}) {
     }
   }
 
-  async function dispatch(config, reportPr, fixUrl = '') {
+  function dispatch(config, reportPr, fixUrl = '') {
     const ref = config['report-workflow-ref'] || api('').default_branch;
     const args = ['workflow', 'run', config['report-workflow'], '--ref', ref];
     const fields = {
@@ -191,10 +195,10 @@ export function controller(ctx, adapters = {}) {
 
   async function update(config) {
     testedTree();
-    if (!(await fresh())) return 'stale';
+    if (!fresh()) return 'stale';
     if (!ctx.failed) {
-      await closeFixes('No longer needed: the original branch now passes ruling.');
-      if (ctx.isPullRequest && (await fresh())) await dispatch(config, ctx.pr);
+      closeFixes('No longer needed: the original branch now passes ruling.');
+      if (ctx.isPullRequest && fresh()) dispatch(config, ctx.pr);
       return 'passed';
     }
     if (git(['log', '-1', '--format=%B']).includes('Generated with GitHub Actions'))
@@ -204,7 +208,7 @@ export function controller(ctx, adapters = {}) {
       throw new Error('Ruling failed without generated expectation changes.');
     git(['stash', 'push', '-u', '-m', 'ruling-sync-changes', '--', config['old-results-path']]);
     git(['fetch', 'origin', `+refs/heads/${ctx.targetRef}:refs/remotes/origin/${ctx.targetRef}`]);
-    if (git(['rev-parse', `origin/${ctx.targetRef}`]) !== ctx.testedHead || !(await fresh()))
+    if (git(['rev-parse', `origin/${ctx.targetRef}`]) !== ctx.testedHead || !fresh())
       return 'stale';
     const ref = `refs/heads/${fixBranch()}`;
     const oldFix = git(['ls-remote', 'origin', ref]).split(/\s/)[0];
@@ -227,9 +231,9 @@ export function controller(ctx, adapters = {}) {
     if (!git(['diff', '--cached', '--name-only', '--', config['old-results-path']]))
       throw new Error('Generated results no longer differ from the target branch.');
     git(['commit', '-m', `Update ruling results\n\nGenerated with GitHub Actions\n\n${marker}`]);
-    if (!(await fresh())) return 'stale';
+    if (!fresh()) return 'stale';
     git(['push', `--force-with-lease=${ref}:${oldFix}`, 'origin', `${fixBranch()}:${ref}`]);
-    if (!(await fresh())) return 'stale';
+    if (!fresh()) return 'stale';
     const body = `${description}\n\nGenerated with GitHub Actions\n\n${marker}`;
     let fix;
     if (existing) fix = api(`pulls/${existing.number}`, ['-X', 'PATCH', '-f', `body=${body}`]);
@@ -250,18 +254,14 @@ export function controller(ctx, adapters = {}) {
     }
     const fixUrl = fix.html_url || fix.url;
     if (ctx.summary) appendFileSync(ctx.summary, `Ruling fix PR: ${fixUrl}\n`);
-    if (await fresh())
-      await dispatch(
-        config,
-        ctx.isPullRequest ? ctx.pr : fix.number,
-        ctx.isPullRequest ? fixUrl : '',
-      );
+    if (fresh())
+      dispatch(config, ctx.isPullRequest ? ctx.pr : fix.number, ctx.isPullRequest ? fixUrl : '');
     return 'updated';
   }
 
   async function report(config) {
     testedTree();
-    if (!(await fresh()) || api(`pulls/${ctx.pr}`).state !== 'open') return 'stale';
+    if (!fresh(true)) return 'stale';
     if (ctx.failed)
       helper('sync-results.mjs', [config['new-results-path'], config['old-results-path']]);
     const report = helper('generate-report.mjs', [config['old-results-path']], {
@@ -276,13 +276,18 @@ export function controller(ctx, adapters = {}) {
         comment.user.login === 'github-actions[bot]' && comment.body.startsWith(commentMarker),
     );
     const provenance = `<!-- ruling-report-run: ${ctx.testedCommit} ${ctx.runId || ''} ${ctx.runAttempt || ''} -->`;
-    if (
-      !ctx.runId &&
-      existing?.body.includes(`<!-- ruling-report-run: ${ctx.testedCommit} `) &&
-      /<!-- ruling-report-run: [0-9a-f]{40} \d+ \d+ -->/.test(existing.body)
-    )
-      return 'completed-report-exists';
-    if (!(await fresh()) || api(`pulls/${ctx.pr}`).state !== 'open') return 'stale';
+    if (!ctx.runId) {
+      const completed = existing?.body.match(
+        /<!-- ruling-report-run: ([0-9a-f]{40}) (\d+) \d+ -->/,
+      );
+      if (completed) {
+        // Build results remain authoritative for this head across different tested merges.
+        if (completed[1] === ctx.testedCommit) return 'completed-report-exists';
+        const run = api(`actions/runs/${completed[2]}`);
+        if (run.head_sha === ctx.testedHead && sameTarget(run)) return 'completed-report-exists';
+      }
+    }
+    if (!fresh(true)) return 'stale';
     if (!report && !ctx.fixUrl) {
       if (existing) api(`issues/comments/${existing.id}`, ['-X', 'DELETE']);
       return 'empty';
@@ -320,13 +325,13 @@ export function controller(ctx, adapters = {}) {
 
   async function checkReport() {
     testedTree();
-    return (await fresh()) && api(`pulls/${ctx.pr}`).state === 'open';
+    return fresh(true);
   }
 
   async function cleanup() {
     const closed = () => api(`pulls/${ctx.pr}`).state === 'closed';
     if (!closed()) return 'reopened';
-    await closeFixes(`No longer needed: original PR #${ctx.pr} was merged or closed.`, closed);
+    closeFixes(`No longer needed: original PR #${ctx.pr} was merged or closed.`, closed);
     return 'closed';
   }
   return { fresh, managed, update, report, checkReport, cleanup };

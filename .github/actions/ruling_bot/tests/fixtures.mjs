@@ -114,7 +114,15 @@ export function fixture(t) {
     commentWrites: [],
     calls: [],
     gitCalls: [],
-    run: { id: 42, run_attempt: 1, workflow_id: 7, head_sha: head, event: 'pull_request' },
+    run: {
+      id: 42,
+      run_attempt: 1,
+      workflow_id: 7,
+      head_sha: head,
+      head_branch: 'outdated-pr',
+      event: 'pull_request',
+      pull_requests: [{ number: 123 }],
+    },
     runs: [],
     branchHead: base,
     dispatchError: false,
@@ -176,8 +184,11 @@ export function fixture(t) {
     let response;
     if (!endpoint) response = { default_branch: 'master' };
     else if (endpoint.startsWith('branches/')) response = { commit: { sha: state.branchHead } };
-    else if (endpoint.startsWith('actions/runs/')) response = state.run;
-    else if (endpoint.startsWith('actions/workflows/'))
+    else if (endpoint.startsWith('actions/runs/')) {
+      const id = Number(endpoint.split('/')[2]);
+      response = [state.run, ...state.runs].find(run => run.id === id);
+      if (!response) throw new Error(`Unexpected Build run: ${id}`);
+    } else if (endpoint.startsWith('actions/workflows/'))
       response = [{ workflow_runs: [state.run, ...state.runs] }];
     else if (endpoint.startsWith('pulls?'))
       response = [state.prs.filter(pr => pr.state === 'open')];
