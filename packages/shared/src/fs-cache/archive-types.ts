@@ -61,7 +61,15 @@ export type MapField = keyof Pick<
 >;
 export type OperationSlot = { field: 'content' } | { field: MapField; key: string };
 export type ArchiveMode = 'record' | 'replay';
-export type ArchiveOptions = { archivePath: string; rootDir: string };
+export type ArchiveOptions = {
+  archivePath: string;
+  mode?: ArchiveMode;
+  passthroughDirs?: string[];
+  // Replay may access native runtime files only through explicitly allowed directories.
+  restrictNativeReads?: boolean;
+  caseSensitivePaths?: boolean;
+  rootDir: string;
+};
 export type ArchiveEntry = { path: string; node: CacheNode };
 export type ArchiveDocument = {
   magic: string;
@@ -70,6 +78,7 @@ export type ArchiveDocument = {
   updatedAt: string;
   entries: ArchiveEntry[];
   missingPaths?: string[];
+  caseSensitivePaths?: boolean;
 };
 
 export type ComparisonRoot = { directory: string; prefix: string };

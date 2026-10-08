@@ -28,6 +28,7 @@ import type { NormalizedAbsolutePath } from '../../../analysis/src/jsts/rules/he
 export {
   dirnamePath,
   isAbsolutePath,
+  isWindowsProjectPath,
   isRoot,
   joinPaths,
   normalizePath,
