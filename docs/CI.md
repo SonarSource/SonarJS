@@ -801,13 +801,15 @@ Repox is the repository manager behind both npm and Maven flows here.
 
 - fetches a `private-reader` token issued by the Edge (`development/artifactory-edge-dev` on `https://vault.dev.sonar.build`)
 - points `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm`
-- fetches the lockfile tarballs from that registry: `package-lock.json` records its `resolved` URLs on `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/`. Keep new entries on the Edge: a `repox.jfrog.io` URL bypasses it and fails without a SaaS token.
+- fetches npmjs lockfile tarballs through Edge at install time. The workflow sets `NPM_CONFIG_REPLACE_REGISTRY_HOST=npmjs`, so npm replaces the public registry host with the configured Edge registry on Linux and Windows.
+
+The committed root `package-lock.json` uses `https://registry.npmjs.org/` for public dependencies. Keep new entries on npmjs, including when resolving lockfile conflicts. `.npmrc` keeps the public npm defaults, and both the npm configuration and npm datasource overrides in `.github/renovate.json` use npmjs. Public source installations therefore need no SonarSource credentials or internal registry access.
 
 `populate_npm_cache_win` cannot run `config-npm` because mise has no jfrog-cli backend on Windows. It fetches the same Edge `private-reader` token from Vault and sets the npm registry with `npm config set`.
 
 The ESLint plugin build (extra `builtin-modules` install) and the ESLint plugin tests (no lockfile) run the same `config-npm` step. Its root `package.json` version rewrite doesn't affect the plugin tarball, whose version comes from `.pmgrc.toml`.
 
-The ESLint plugin release runs on a GitHub-hosted runner. Before `jfrog rt npm-ci`, it rewrites the lockfile's Edge tarball host to the SaaS registry configured by `jfrog rt npm-config`. Publish and promote (`jfrog rt npm-publish`) stay on SaaS.
+The ESLint plugin release runs on a GitHub-hosted runner. `jfrog rt npm-config` selects the SaaS registry for `jfrog rt npm-ci`; npm's default `replace-registry-host=npmjs` redirects the public lockfile URLs to that registry. Publish and promote (`jfrog rt npm-publish`) stay on SaaS. This workflow does not require Edge access.
 
 #### Maven
 
@@ -818,11 +820,15 @@ The ESLint plugin release runs on a GitHub-hosted runner. Before `jfrog rt npm-c
 - sets `ARTIFACTORY_URL` to the Edge and `SONARSOURCE_REPOSITORY_URL=$ARTIFACTORY_URL/sonarsource-qa`
 - exports authentication environment variables for Maven and Orchestrator
 
-All Maven jobs run on self-hosted or WarpBuild runners, which can reach the Edge.
+All Maven jobs in `build.yml` run on self-hosted or WarpBuild runners, which can reach the Edge. The GitHub-hosted ESLint release workflow retains the default SaaS Maven configuration.
 
 `build` additionally fetches deployer credentials, sets `ARTIFACTORY_URL=https://repox.jfrog.io/artifactory` and pushes to `sonarsource-public-qa` on SaaS.
 
 `promote` later promotes the produced build info/artifacts in Artifactory (SaaS).
+
+The initial migration in [#8005](https://github.com/SonarSource/SonarJS/pull/8005) moved bulk Maven and npm dependency resolution on self-hosted and WarpBuild runners to Edge. CLP-1095 extends that scope to Maven setup calls, Orchestrator's direct downloads, and the ESLint build/test installs that previously used SaaS. Edge-issued reader credentials replace federated SaaS reader credentials and local waiters. GitHub-hosted release installs and deployment/publishing/promotion retain their SaaS configuration.
+
+Fast QA requires `sonar-scanner-integration-tester` 1.3.0.1396, already merged in [#8092](https://github.com/SonarSource/SonarJS/pull/8092). Its bundled Orchestrator 6.4.3 recognizes Edge; the previous tester bundled Orchestrator 6.2.0.
 
 ### Vault
 
