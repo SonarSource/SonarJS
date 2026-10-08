@@ -820,7 +820,7 @@ The ESLint plugin release runs on a GitHub-hosted runner. `jfrog rt npm-config` 
 - sets `ARTIFACTORY_URL` to the Edge and `SONARSOURCE_REPOSITORY_URL=$ARTIFACTORY_URL/sonarsource-qa`
 - exports authentication environment variables for Maven and Orchestrator
 
-All Maven jobs in `build.yml` run on self-hosted or WarpBuild runners, which can reach the Edge. The GitHub-hosted ESLint release workflow retains the default SaaS Maven configuration.
+All Maven jobs in `build.yml` run on self-hosted or WarpBuild runners, which can reach the Edge. The GitHub-hosted ESLint release workflow explicitly sets `repox-url: https://repox.jfrog.io` to keep Maven configuration on SaaS when the shared action defaults change.
 
 `build` additionally fetches deployer credentials, sets `ARTIFACTORY_URL=https://repox.jfrog.io/artifactory` and pushes to `sonarsource-public-qa` on SaaS.
 
