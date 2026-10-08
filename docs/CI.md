@@ -830,6 +830,8 @@ The initial migration in [#8005](https://github.com/SonarSource/SonarJS/pull/800
 
 Fast QA requires `sonar-scanner-integration-tester` 1.3.0.1396, already merged in [#8092](https://github.com/SonarSource/SonarJS/pull/8092). Its bundled Orchestrator 6.4.3 recognizes Edge; the previous tester bundled Orchestrator 6.2.0.
 
+For registry routing validation, manually dispatch `build.yml` with `validate-registry-routing=true`. This uses run-specific npm and Orchestrator cache keys and logs npm HTTP requests, without evicting shared caches. Two additional jobs check a public npmjs install with no credentials and a SaaS install using the release npm repository configuration without publishing. Validation skips promotion, which the shared action does not support for manually dispatched feature branches. Normal build, deployment, and promotion behavior is unchanged; scheduled-only QA paths (Alpine and DEV) still need separate validation.
+
 ### Vault
 
 Vault is the central credentials source. Typical secrets include:
