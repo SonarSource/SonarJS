@@ -738,10 +738,11 @@ default-branch failure, the tested branch commit is the baseline and the report 
 
 A successful Build retry also dispatches a report, clearing outdated failure/fix notices. Updater,
 reporter, and closed-event cleanup share a queue and reject stale original PR heads, closed originals,
-older Build attempts, and superseded runs. Reports with no issue changes replace stale failure notices
-with an explicit no-change confirmation. Completed passing Builds also confirm when the branch's
-expectations already contain the required updates; raw PR events make no ruling-success claim.
-A failing run with zero net behavioral difference still keeps its failure notice and required fix link.
+older Build attempts, and superseded runs. Successful/raw reports with no issue changes delete an
+existing bot report, preserving #8050's clear-empty policy. Reports show expectation changes without
+a ruling-success claim. A failed original-PR run with zero net behavioral difference still keeps its
+failure notice and required fix link. Default-branch reports describe generated changes on the fix
+PR without asking it to update its own expectations.
 
 New PR fixes use `fix/update-ruling-for-pr-<number>` so two original PRs sharing a source branch get
 independent fixes and reports. Existing target-owned legacy fixes keep their PR and branch. Orphan

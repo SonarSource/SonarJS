@@ -20,10 +20,10 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
-import yaml from 'js-yaml';
+import yaml from 'yaml';
 
 const workflow = name =>
-  yaml.load(readFileSync(new URL(`../../../workflows/${name}`, import.meta.url), 'utf8'));
+  yaml.parse(readFileSync(new URL(`../../../workflows/${name}`, import.meta.url), 'utf8'));
 
 test('downstream retries keep the artifact named by the producing ruling job', t => {
   const build = workflow('build.yml');

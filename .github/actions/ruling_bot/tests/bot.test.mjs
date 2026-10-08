@@ -41,7 +41,6 @@ test('passing report uses committed expectations of an outdated PR, excluding sh
   assert.equal(await f.bot().report(f.config), 'reported');
   assert.match(f.state.comments[0].body, /old\.js:3/);
   assert.match(f.state.comments[0].body, /removed\.js:2/);
-  assert.match(f.state.comments[0].body, /Ruling passed.*No fix PR was needed/);
   assert.doesNotMatch(f.state.comments[0].body, /same\.js|base-only\.js|untracked\.js/);
 });
 
@@ -454,28 +453,28 @@ for (const legacy of [true, false]) {
   });
 }
 
-test('empty completed report replaces a stale failure notice with a no-change confirmation', async t => {
-  const f = fixture(t);
-  f.ctx.failed = false;
-  f.git(['restore', '--source', f.base, '--staged', '--worktree', 'baseline']);
-  f.state.comments.push(comment('<!-- ruling-report -->\nStale fix notice'));
-  assert.equal(await f.bot().report(f.config), 'reported');
-  assert.equal(f.state.comments.length, 1);
-  assert.match(f.state.comments[0].body, /No changes to ruling expected issues in this PR/);
-  assert.match(f.state.comments[0].body, /Ruling passed.*No fix PR was needed/);
-  assert.doesNotMatch(f.state.comments[0].body, /Stale fix notice|Ruling needs updating/);
-});
-
-test('empty raw PR report still confirms no expectation changes without claiming ruling passed', async t => {
-  const f = fixture(t);
-  f.ctx.runId = '';
-  f.ctx.failed = false;
-  f.git(['restore', '--source', f.base, '--staged', '--worktree', 'baseline']);
-  assert.equal(await f.bot().report(f.config), 'reported');
-  assert.equal(f.state.comments.length, 1);
-  assert.match(f.state.comments[0].body, /No changes to ruling expected issues in this PR/);
-  assert.doesNotMatch(f.state.comments[0].body, /Ruling passed|No fix PR was needed/);
-});
+for (const raw of [true, false]) {
+  for (const previous of ['bot', 'absent', 'human']) {
+    test(`empty ${raw ? 'raw PR' : 'Build'} report with ${previous} comment clears only stale bot reports`, async t => {
+      const f = fixture(t);
+      if (raw) f.ctx.runId = '';
+      f.ctx.failed = false;
+      f.git(['restore', '--source', f.base, '--staged', '--worktree', 'baseline']);
+      if (previous !== 'absent') {
+        const existing = comment('<!-- ruling-report -->\nPrevious report');
+        if (previous === 'human') existing.user.login = 'human';
+        f.state.comments.push(existing);
+      }
+      assert.equal(await f.bot().report(f.config), 'empty');
+      if (previous === 'human') {
+        assert.equal(f.state.comments.length, 1);
+        assert.equal(f.state.comments[0].body, '<!-- ruling-report -->\nPrevious report');
+      } else assert.deepEqual(f.state.comments, []);
+      if (previous === 'bot') assert.ok(f.mutations().some(args => args.includes('DELETE')));
+      else assert.deepEqual(f.mutations(), []);
+    });
+  }
+}
 
 test('zero net changes on a failed report without a fix link still require an update', async t => {
   const f = fixture(t);
@@ -558,6 +557,36 @@ test('default-branch failure reports generated results on the fix PR', async t =
   assert.equal(await f.bot().report(f.config), 'reported');
   const post = f.state.commentWrites.find(write => write.endpoint === 'issues/456/comments');
   assert.match(post.body, /untracked.js:40/);
+  assert.doesNotMatch(post.body, /Ruling needs updating/);
+});
+
+test('empty default-branch failure report on its generated fix avoids original-PR instructions', async t => {
+  const f = fixture(t);
+  f.git(['checkout', '--detach', f.base]);
+  Object.assign(f.ctx, {
+    isPullRequest: false,
+    pr: '456',
+    testedCommit: f.base,
+    testedHead: f.base,
+    targetRef: 'master',
+    base: f.base,
+  });
+  Object.assign(f.state.run, {
+    head_sha: f.base,
+    head_branch: 'master',
+    event: 'push',
+    pull_requests: [],
+  });
+  f.state.prs.push(fix());
+  rmSync(path.join(f.workspace, 'generated'), { recursive: true });
+  f.result('generated', 'S1000', 'old.js', 1);
+  f.result('generated', 'S2000', 'removed.js', 2);
+  f.result('generated', 'S3000', 'same.js', 30);
+  f.result('generated', 'S9000', 'base-only.js', 90);
+  assert.equal(await f.bot().report(f.config), 'reported');
+  const post = f.state.commentWrites.find(write => write.endpoint === 'issues/456/comments');
+  assert.match(post.body, /No net issue changes relative to the tested base/);
+  assert.doesNotMatch(post.body, /Ruling needs updating|expectations still need|Ruling passed/);
 });
 
 test('stale default-branch run cannot close current fixes', async t => {
