@@ -50,6 +50,8 @@ export function getStaticHref(value: JSXAttribute['value']): string | undefined 
 }
 
 // Accessible name precedence per accname: aria-labelledby > aria-label > text content > title.
+// Drifts from sonar-html's S1101, which has no title fallback and uses raw text content (ignoring
+// nested alt, aria-label and aria-hidden).
 export function computeAccessibleName(
   element: TSESTree.JSXElement,
   attributes: JsxAttributes,
