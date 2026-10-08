@@ -67,6 +67,15 @@ $size: 10px !global;
 </style>`,
     }));
 
+  it('does not report !default in a SCSS style block preceded by an inline style', () =>
+    ruleTester.valid({
+      codeFilename: 'component.vue',
+      code: `<template><div style="color: red"></div></template>
+<style lang="scss">
+$color: red !default;
+</style>`,
+    }));
+
   it('still reports typos in a Vue file with a plain CSS style block', () =>
     ruleTester.invalid({
       codeFilename: 'component.vue',

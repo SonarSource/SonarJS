@@ -1,0 +1,42 @@
+{
+"angular.js:benchmarks/animation-bp/main.html": [
+2
+],
+"angular.js:css/angular.css": [
+10
+],
+"angular.js:docs/app/assets/css/doc_widgets.css": [
+59
+],
+"angular.js:docs/app/assets/css/docs.css": [
+68,
+72,
+73,
+151,
+157,
+525,
+653,
+654,
+655,
+718,
+750,
+755,
+762,
+770,
+774,
+822,
+823,
+824,
+825,
+826,
+839,
+841,
+856
+],
+"angular.js:docs/app/assets/css/prettify-theme.css": [
+10
+],
+"angular.js:docs/app/assets/css/prettify.css": [
+50
+]
+}
