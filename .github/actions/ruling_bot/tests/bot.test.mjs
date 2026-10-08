@@ -62,7 +62,7 @@ for (const scenario of ['head advanced', 'closed', 'newer Build', 'retry attempt
     f.state.comments.push(comment('<!-- ruling-report -->\nCurrent report'));
     if (scenario === 'head advanced') f.state.original.head.sha = 'b'.repeat(40);
     if (scenario === 'closed') f.state.original.state = 'closed';
-    if (scenario === 'newer Build') f.state.runs.push({ id: 43 });
+    if (scenario === 'newer Build') f.state.runs.push({ ...f.state.run, id: 43 });
     if (scenario === 'retry attempt') f.state.run.run_attempt = 2;
     assert.equal(await f.bot().update(f.config), 'stale');
     assert.equal(await f.bot().report(f.config), 'stale');
@@ -290,6 +290,9 @@ test('default-branch failure reports generated results on the fix PR', async t =
     base: f.base,
   });
   f.state.run.head_sha = f.base;
+  f.state.run.head_branch = 'master';
+  f.state.run.event = 'push';
+  f.state.run.pull_requests = [];
   assert.equal(await f.bot().update(f.config), 'updated');
   const dispatch = f.state.calls.find(args => args[0] === 'workflow');
   assert.ok(dispatch.includes('pr-number=456'));
@@ -491,5 +494,121 @@ test('artifact Build from another tested head is rejected before mutations', asy
   const f = fixture(t);
   f.state.run.head_sha = f.base;
   await assert.rejects(f.bot().report(f.config), /does not match the tested head/);
+  assert.deepEqual(f.mutations(), []);
+});
+
+test('newer Build for another PR at the same head does not suppress updates or reports', async t => {
+  const f = fixture(t);
+  f.ctx.failed = false;
+  f.state.runs.push({ ...f.state.run, id: 43, pull_requests: [{ number: 124 }] });
+  assert.equal(await f.bot().checkReport(), true);
+  assert.equal(await f.bot().update(f.config), 'passed');
+  assert.ok(f.state.calls.some(args => args[0] === 'workflow'));
+  assert.equal(await f.bot().report(f.config), 'reported');
+  assert.match(f.state.comments[0].body, /old\.js:3/);
+});
+
+test('newer Build for another branch at the same head does not suppress branch cleanup', async t => {
+  const f = fixture(t);
+  f.git(['checkout', '--detach', f.base]);
+  Object.assign(f.ctx, {
+    isPullRequest: false,
+    failed: false,
+    testedCommit: f.base,
+    testedHead: f.base,
+    targetRef: 'master',
+  });
+  Object.assign(f.state.run, {
+    head_sha: f.base,
+    head_branch: 'master',
+    event: 'push',
+    pull_requests: [],
+  });
+  f.state.runs.push({ ...f.state.run, id: 43, head_branch: 'release' });
+  assert.equal(await f.bot().update(f.config), 'passed');
+  f.state.runs.push({ ...f.state.run, id: 44 });
+  assert.equal(await f.bot().update(f.config), 'stale');
+});
+
+test('originating Build from another PR at the same head is rejected before mutations', async t => {
+  const f = fixture(t);
+  f.state.run.pull_requests = [{ number: 124 }];
+  await assert.rejects(f.bot().report(f.config), /does not match the ruling target/);
+  assert.deepEqual(f.mutations(), []);
+});
+
+for (const rawIsOlder of [true, false]) {
+  test(`raw ${rawIsOlder ? 'older' : 'newer'} merge preserves Build results for the same PR head`, async t => {
+    const f = fixture(t);
+    const nextBase = f.git([
+      'commit-tree',
+      `${f.base}^{tree}`,
+      '-p',
+      f.base,
+      '-m',
+      'Base advances again',
+    ]);
+    const nextMerge = f.git([
+      'commit-tree',
+      `${f.merge}^{tree}`,
+      '-p',
+      nextBase,
+      '-p',
+      f.head,
+      '-m',
+      'Next tested merge',
+    ]);
+    const buildMerge = rawIsOlder ? nextMerge : f.merge;
+    const buildBase = rawIsOlder ? nextBase : f.base;
+    f.git(['checkout', '--detach', buildMerge]);
+    Object.assign(f.ctx, {
+      testedCommit: buildMerge,
+      base: buildBase,
+      fixUrl: 'https://example.test/pull/456',
+    });
+    assert.equal(await f.bot().report(f.config), 'reported');
+    const completedBody = f.state.comments[0].body;
+    assert.match(completedBody, /old\.js:4/);
+    assert.match(completedBody, /fix PR/);
+
+    // A separate raw-event checkout contains committed expectations, not the generated results.
+    f.git(['reset', '--hard']);
+    f.git(['clean', '-fd', '--', 'baseline']);
+    f.git(['checkout', '--detach', rawIsOlder ? f.merge : nextMerge]);
+    Object.assign(f.ctx, {
+      testedCommit: rawIsOlder ? f.merge : nextMerge,
+      base: rawIsOlder ? f.base : nextBase,
+      runId: '',
+      failed: false,
+      fixUrl: '',
+    });
+    f.state.calls = [];
+    assert.equal(await f.bot().report(f.config), 'completed-report-exists');
+    assert.equal(f.state.comments[0].body, completedBody);
+    assert.deepEqual(f.mutations(), []);
+  });
+}
+
+test('raw report refreshes a completed report from an earlier PR head', async t => {
+  const f = fixture(t);
+  f.ctx.runId = '';
+  f.ctx.failed = false;
+  f.state.runs.push({ ...f.state.run, id: 41, head_sha: f.base });
+  f.state.comments.push(
+    comment(`<!-- ruling-report -->\n<!-- ruling-report-run: ${f.base} 41 1 -->\nEarlier head`),
+  );
+  assert.equal(await f.bot().report(f.config), 'reported');
+  assert.match(f.state.comments[0].body, /old\.js:3/);
+  assert.doesNotMatch(f.state.comments[0].body, /Earlier head/);
+});
+
+test('report rechecks the receiving PR after querying Build freshness', async t => {
+  const f = fixture(t);
+  f.state.beforeApi = endpoint => {
+    if (endpoint.startsWith('actions/workflows/')) f.state.original.state = 'closed';
+  };
+  assert.equal(await f.bot().checkReport(), false);
+  f.state.original.state = 'open';
+  assert.equal(await f.bot().report(f.config), 'stale');
   assert.deepEqual(f.mutations(), []);
 });
