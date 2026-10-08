@@ -21,7 +21,6 @@ import {
   type ArchiveOptions,
   type CachedDirectoryEntry,
   type CachedStat,
-  type FsCacheErrorSnapshot,
   type FsCacheOutcome,
   FsCacheArchive,
   type PortablePath,
@@ -46,9 +45,18 @@ import {
   type StatValue,
 } from './snapshot.js';
 import { createDirectoryPatches, MISSING } from './directory.js';
+import {
+  createDescriptorPatches,
+  type FileDescriptorMap,
+  type FileHandleLike,
+  type FileHandleTracker,
+  type OperationOptions as DescriptorOperationOptions,
+  type OperationOptionsInput as DescriptorOperationOptionsInput,
+} from './file-descriptors.js';
+import { createOpenPatches, createOpenPromise } from './file-open.js';
+import { createReadFilePatches } from './file-read.js';
 
 export const FS_CACHE_INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
-const CACHED_FILE_HANDLE = Symbol('cached filesystem file handle');
 const FS_PROMISES_MODULE = 'fs/promises';
 const REALPATH_NATIVE_OPERATION = 'realpath.native';
 const DEFAULT_ENOENT_ERRNO = -2;
@@ -58,22 +66,8 @@ type Callable = (...args: never[]) => unknown;
 type FunctionWithNative = Callable & { native?: FunctionWithNative };
 type CustomPromisifyFactory = (selected: FunctionWithNative) => Callable;
 type EncodingOption = BufferEncoding | 'buffer' | null;
-type OperationOptions = {
-  encoding?: EncodingOption;
-  withFileTypes?: boolean;
-  recursive?: boolean;
-  bigint?: boolean;
-  throwIfNoEntry?: boolean;
-};
-type OperationOptionsInput = OperationOptions | BufferEncoding | 'buffer' | null | undefined;
-type ReadOptions = OperationOptions & {
-  buffer?: NodeJS.ArrayBufferView;
-  offset?: number;
-  length?: number;
-  position?: number | bigint | null;
-};
-type ReadArguments =
-  [ReadOptions] | [offset?: number, length?: number, position?: number | bigint | null];
+type OperationOptions = DescriptorOperationOptions;
+type OperationOptionsInput = DescriptorOperationOptionsInput;
 type ErrorCallback = (error: NodeJS.ErrnoException | null) => void;
 type ValueCallback<T> = (error: NodeJS.ErrnoException | null, value?: T) => void;
 type BufferedRealpath = (
@@ -81,24 +75,7 @@ type BufferedRealpath = (
   options: OperationOptions | 'buffer',
   callback: ValueCallback<Buffer>,
 ) => void;
-type TrackedDescriptor =
-  | { key?: string; position: number; virtual: false }
-  | {
-      content?: Buffer;
-      input: string;
-      key: string;
-      position: number;
-      readError?: FsCacheErrorSnapshot;
-      virtual: true;
-    };
-type FileDescriptorMap = Map<number, TrackedDescriptor>;
-type FileHandleLike = { fd: number };
 type CacheInput = fs.PathLike | number | FileHandleLike;
-type FileHandleTracker = {
-  add(value: object): void;
-  clear(): void;
-  has(value: object): boolean;
-};
 type CacheExecutor = ReturnType<typeof createExecutor>;
 type ArchiveFacade = Pick<
   FsCacheArchive,
@@ -375,20 +352,6 @@ function getEncoding(options: OperationOptionsInput): EncodingOption | undefined
   return options?.encoding || undefined;
 }
 
-function withoutEncoding(options: OperationOptionsInput): OperationOptions | null | undefined {
-  if (typeof options === 'string') {
-    return null;
-  }
-  return options && typeof options === 'object' ? { ...options, encoding: null } : options;
-}
-
-function returnReadBuffer(buffer: Uint8Array, options: OperationOptionsInput): Buffer | string {
-  const encoding = getEncoding(options);
-  return encoding && encoding !== 'buffer'
-    ? Buffer.from(buffer).toString(encoding)
-    : Buffer.from(buffer);
-}
-
 function statOperation(name: string, options: { bigint?: boolean; throwIfNoEntry?: boolean } = {}) {
   const result = options?.throwIfNoEntry === false ? 'soft' : 'throw';
   return `${name}:${options?.bigint ? 'bigint' : 'number'}:${result}`;
@@ -406,48 +369,6 @@ function withBufferEncoding(options: OperationOptionsInput): OperationOptions | 
 function returnPathBuffer(value: Uint8Array, options: OperationOptionsInput): string | Buffer {
   const encoding = getEncoding(options) || 'utf8';
   return encoding === 'buffer' ? Buffer.from(value) : Buffer.from(value).toString(encoding);
-}
-
-function readonlyFlags(flags: fs.OpenMode | undefined): boolean {
-  if (flags === undefined) {
-    return true;
-  }
-  if (typeof flags === 'string') {
-    return flags === 'r' || flags === 'rs' || flags === 'sr';
-  }
-  return (
-    (flags &
-      (fs.constants.O_WRONLY |
-        fs.constants.O_RDWR |
-        fs.constants.O_CREAT |
-        fs.constants.O_APPEND |
-        fs.constants.O_TRUNC)) ===
-    0
-  );
-}
-
-function openOperation(flags: fs.OpenMode | undefined): string {
-  if (flags === undefined || flags === 'r' || flags === fs.constants.O_RDONLY) {
-    return 'open:r';
-  }
-  return `open:${String(flags)}`;
-}
-
-function readArguments(buffer: NodeJS.ArrayBufferView, args: ReadArguments) {
-  if (args[0] && typeof args[0] === 'object') {
-    const offset = args[0].offset ?? 0;
-    return {
-      offset,
-      length: args[0].length ?? buffer.byteLength - offset,
-      position: args[0].position ?? null,
-    };
-  }
-  const offset = args[0] ?? 0;
-  return {
-    offset,
-    length: args[1] ?? buffer.byteLength - offset,
-    position: args[2] ?? null,
-  };
 }
 
 function makeCallback<T>(
@@ -609,119 +530,6 @@ function guardUnhandledFilesystemOperations(
       throw error;
     });
   }
-}
-
-function decodeFileContent(value: Buffer | string): Buffer {
-  return Buffer.isBuffer(value) ? value : Buffer.from(value, 'base64');
-}
-
-function createReadFilePatches(
-  executor: CacheExecutor,
-  fileDescriptors: FileDescriptorMap,
-  fileHandles: FileHandleTracker,
-) {
-  function readFileSync(
-    input: fs.PathOrFileDescriptor,
-    options?: OperationOptionsInput,
-  ): Buffer | string {
-    const tracked = typeof input === 'number' ? fileDescriptors.get(input) : undefined;
-    if (typeof input === 'number' && !tracked) {
-      throw unsupportedFilesystemOperation('fs', 'readFileSync with an unknown descriptor');
-    }
-    if (tracked?.virtual) {
-      if (tracked.readError) {
-        throw restoreError(tracked.readError, tracked.input);
-      }
-      if (!tracked.content) {
-        throw cacheMiss('readFile', tracked.input);
-      }
-      const remaining = tracked.content.subarray(tracked.position);
-      tracked.position = tracked.content.length;
-      return returnReadBuffer(remaining, options);
-    }
-    const buffer = executor.runSync(
-      input,
-      'readFile',
-      () =>
-        (
-          originalFs.readFileSync as unknown as (
-            input: fs.PathOrFileDescriptor,
-            options?: OperationOptions | null,
-          ) => Buffer
-        )(input, withoutEncoding(options)),
-      value => value,
-      decodeFileContent,
-    );
-    return returnReadBuffer(buffer, options);
-  }
-
-  async function readFilePromise(
-    input: fs.PathLike | FileHandleLike,
-    options?: OperationOptionsInput,
-  ): Promise<Buffer | string> {
-    const cachedHandle = input as FileHandleLike & {
-      [CACHED_FILE_HANDLE]?: boolean;
-      readFile?: (options?: OperationOptionsInput) => Promise<Buffer | string>;
-    };
-    if (cachedHandle[CACHED_FILE_HANDLE] && cachedHandle.readFile) {
-      return cachedHandle.readFile(options);
-    }
-    if (typeof input === 'object' && 'fd' in input && !fileHandles.has(input)) {
-      throw unsupportedFilesystemOperation(
-        FS_PROMISES_MODULE,
-        'readFile with an unknown FileHandle',
-      );
-    }
-    const buffer = await executor.runAsync(
-      input,
-      'readFile',
-      () =>
-        (
-          originalPromises.readFile as unknown as (
-            input: fs.PathLike | FileHandleLike,
-            options?: OperationOptions | null,
-          ) => Promise<Buffer>
-        )(input, withoutEncoding(options)),
-      value => value,
-      decodeFileContent,
-    );
-    return returnReadBuffer(buffer, options);
-  }
-
-  function readFile(
-    input: fs.PathOrFileDescriptor,
-    options: OperationOptionsInput | ValueCallback<Buffer | string>,
-    callback?: ValueCallback<Buffer | string>,
-  ): void {
-    if (typeof options === 'function') {
-      callback = options;
-      options = undefined;
-    }
-    const done = requireCallback(callback, 'fs.readFile');
-    const tracked = typeof input === 'number' ? fileDescriptors.get(input) : undefined;
-    if (typeof input === 'number' && !tracked) {
-      throw unsupportedFilesystemOperation('fs', 'readFile with an unknown descriptor');
-    }
-    if (typeof input === 'number' && tracked && !tracked.virtual) {
-      (
-        originalFs.readFile as unknown as (
-          input: fs.PathOrFileDescriptor,
-          options: OperationOptionsInput,
-          callback: ValueCallback<Buffer | string>,
-        ) => void
-      )(input, options, done);
-    } else {
-      const result = tracked?.virtual
-        ? Promise.resolve().then(() => readFileSync(input, options))
-        : readFilePromise(input as fs.PathLike, options);
-      result.then(
-        value => done(null, value),
-        error => done(error),
-      );
-    }
-  }
-
-  return { readFile, readFilePromise, readFileSync };
 }
 
 function createReaddirPatches(archive: ArchiveFacade, executor: CacheExecutor) {
@@ -982,437 +790,6 @@ function createBasicPatches(archive: ArchiveFacade, executor: CacheExecutor) {
     statPromise,
     statSync,
   };
-}
-
-type ReplayOpenResult = { found: false } | { fd: number; found: true };
-
-function readDescriptorContent(fd: number): Buffer {
-  const chunks: Buffer[] = [];
-  let position = 0;
-  let bytesRead;
-  do {
-    const chunk = Buffer.allocUnsafe(64 * 1024);
-    bytesRead = originalFs.readSync(fd, chunk, 0, chunk.length, position);
-    if (bytesRead > 0) {
-      chunks.push(chunk.subarray(0, bytesRead));
-      position += bytesRead;
-    }
-  } while (bytesRead > 0);
-  return Buffer.concat(chunks);
-}
-
-function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescriptorMap) {
-  let nextFileDescriptor = 0x3fffffff;
-
-  function captureOpenedFile(input: fs.PathLike, fd: number): void {
-    const key = archive.keyFor(input);
-    if (key === undefined || archive.mode !== 'record') {
-      return;
-    }
-    if (archive.get(key, 'readFile') === undefined) {
-      try {
-        archive.set(key, 'readFile', success(readDescriptorContent(fd)));
-      } catch (error) {
-        archive.set(key, 'readFile', failure(error));
-      }
-    }
-    try {
-      const numberOperation = statOperation('fstat');
-      if (archive.get(key, numberOperation) === undefined) {
-        archive.set(key, numberOperation, success(snapshotStat(originalFs.fstatSync(fd))));
-      }
-      const bigintOperation = statOperation('fstat', { bigint: true });
-      if (archive.get(key, bigintOperation) === undefined) {
-        archive.set(
-          key,
-          bigintOperation,
-          success(snapshotStat(originalFs.fstatSync(fd, { bigint: true }))),
-        );
-      }
-    } catch {
-      // The original open already succeeded; auxiliary capture must not alter its result.
-    }
-  }
-
-  function replayOpen(input: fs.PathLike, operation: string): ReplayOpenResult {
-    const key = archive.keyFor(input);
-    if (key === undefined) {
-      return { found: false };
-    }
-    const outcome = archive.get(key, operation);
-    if (outcome === undefined) {
-      if (archive.getExists(key, operation) === false) {
-        archive.recordCacheHit();
-        missingPath(operation, input);
-      }
-      archive.recordCacheMiss();
-      if (archive.mode === 'replay') {
-        throw cacheMiss(operation, input);
-      }
-      return { found: false };
-    }
-    archive.recordCacheHit();
-    if (!outcome.ok) {
-      throw restoreError(outcome.error, input);
-    }
-    const file = archive.get<Buffer | string>(key, 'readFile');
-    if (file === undefined) {
-      if (archive.mode === 'replay') {
-        throw cacheMiss('readFile', input);
-      }
-      return { found: false };
-    }
-    const fd = nextFileDescriptor;
-    nextFileDescriptor -= 1;
-    fileDescriptors.set(fd, {
-      content: file.ok ? decodeFileContent(file.value) : undefined,
-      input: pathDisplay(input),
-      key,
-      position: 0,
-      readError: file.ok ? undefined : file.error,
-      virtual: true,
-    });
-    return { fd, found: true };
-  }
-
-  function openSync(input: fs.PathLike, flags: fs.OpenMode = 'r', mode?: fs.Mode): number {
-    if (!readonlyFlags(flags)) {
-      throw unsupportedFilesystemOperation('fs', 'openSync with write-capable flags');
-    }
-    const operation = openOperation(flags);
-    const key = archive.keyFor(input);
-    const replayed = replayOpen(input, operation);
-    if (replayed.found) {
-      return replayed.fd;
-    }
-
-    try {
-      const fd = originalFs.openSync(input, flags, mode);
-      if (archive.mode === 'record' && key !== undefined) {
-        archive.set(key, operation, success(null));
-        captureOpenedFile(input, fd);
-      }
-      fileDescriptors.set(fd, { key, position: 0, virtual: false });
-      return fd;
-    } catch (error) {
-      if (archive.mode === 'record' && key !== undefined) {
-        archive.set(key, operation, failure(error));
-      }
-      throw error;
-    }
-  }
-
-  function open(
-    input: fs.PathLike,
-    flags: fs.OpenMode | ValueCallback<number>,
-    mode?: fs.Mode | ValueCallback<number>,
-    callback?: ValueCallback<number>,
-  ): void {
-    if (typeof flags === 'function') {
-      callback = flags;
-      flags = 'r';
-      mode = undefined;
-    } else if (typeof mode === 'function') {
-      callback = mode;
-      mode = undefined;
-    }
-    if (!readonlyFlags(flags)) {
-      throw unsupportedFilesystemOperation('fs', 'open with write-capable flags');
-    }
-    const done = requireCallback(callback, 'fs.open');
-    try {
-      const key = archive.keyFor(input);
-      if (readonlyFlags(flags) && key !== undefined) {
-        const fd = openSync(input, flags, mode);
-        queueMicrotask(() => done(null, fd));
-        return;
-      }
-    } catch (error) {
-      queueMicrotask(() => done(error as NodeJS.ErrnoException));
-      return;
-    }
-
-    (
-      originalFs.open as unknown as (
-        input: fs.PathLike,
-        flags: fs.OpenMode,
-        mode: fs.Mode | undefined,
-        callback: (error: NodeJS.ErrnoException | null, fd: number) => void,
-      ) => void
-    )(input, flags, mode, (error, fd) => {
-      const key = archive.keyFor(input);
-      if (archive.mode === 'record' && key !== undefined && readonlyFlags(flags)) {
-        const operation = openOperation(flags);
-        archive.set(key, operation, error ? failure(error) : success(null));
-        if (!error) {
-          captureOpenedFile(input, fd);
-        }
-      }
-      if (!error) {
-        fileDescriptors.set(fd, { key, position: 0, virtual: false });
-      }
-      done(error, fd);
-    });
-  }
-
-  return { captureOpenedFile, open, openSync, replayOpen };
-}
-
-function createDescriptorPatches(
-  archive: ArchiveFacade,
-  fileDescriptors: FileDescriptorMap,
-  readFileSync: (
-    input: fs.PathOrFileDescriptor,
-    options?: OperationOptionsInput,
-  ) => Buffer | string,
-) {
-  function readVirtual(
-    fd: number,
-    buffer: NodeJS.ArrayBufferView,
-    args: ReadArguments,
-  ): number | undefined {
-    const tracked = fileDescriptors.get(fd);
-    if (!tracked?.virtual) {
-      return undefined;
-    }
-    if (tracked.readError) {
-      throw restoreError(tracked.readError, tracked.input);
-    }
-    if (!tracked.content) {
-      throw cacheMiss('readFile', tracked.input);
-    }
-    const { offset, length, position } = readArguments(buffer, args);
-    const sequential = position === null || position === undefined;
-    const requestedStart = Number(sequential ? tracked.position : position);
-    const content = tracked.content;
-    const start = Math.max(0, Math.min(content.length, requestedStart));
-    const end = Math.min(content.length, start + Number(length));
-    const target = new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-    const bytesRead = content.copy(target, offset, start, Math.max(start, end));
-    if (sequential) {
-      tracked.position = start + bytesRead;
-    }
-    return bytesRead;
-  }
-
-  function readSync(fd: number, buffer: NodeJS.ArrayBufferView, ...args: ReadArguments): number {
-    const tracked = fileDescriptors.get(fd);
-    if (!tracked) {
-      throw unsupportedFilesystemOperation('fs', 'readSync with an unknown descriptor');
-    }
-    return (
-      readVirtual(fd, buffer, args) ??
-      (
-        originalFs.readSync as unknown as (
-          fd: number,
-          buffer: NodeJS.ArrayBufferView,
-          ...args: ReadArguments
-        ) => number
-      )(fd, buffer, ...args)
-    );
-  }
-
-  function read(fd: number, ...args: unknown[]): void {
-    const tracked = fileDescriptors.get(fd);
-    if (!tracked) {
-      throw unsupportedFilesystemOperation('fs', 'read with an unknown descriptor');
-    }
-    if (!tracked.virtual) {
-      (originalFs.read as unknown as (fd: number, ...args: unknown[]) => void)(fd, ...args);
-    } else {
-      const callback = args.pop() as (
-        error: NodeJS.ErrnoException | null,
-        bytesRead: number,
-        buffer: NodeJS.ArrayBufferView,
-      ) => void;
-      let buffer: NodeJS.ArrayBufferView;
-      let readArgs: ReadArguments;
-      if (ArrayBuffer.isView(args[0])) {
-        buffer = args[0] as NodeJS.ArrayBufferView;
-        readArgs = args.slice(1) as ReadArguments;
-      } else {
-        const options = (args[0] || {}) as ReadOptions;
-        buffer = options.buffer || Buffer.alloc(16_384);
-        readArgs = [options];
-      }
-      try {
-        const bytesRead = readVirtual(fd, buffer, readArgs);
-        queueMicrotask(() => callback(null, bytesRead ?? 0, buffer));
-      } catch (error) {
-        queueMicrotask(() => callback(error as NodeJS.ErrnoException, 0, buffer));
-      }
-    }
-  }
-
-  function fstatSync(fd: number, options?: OperationOptions): StatValue {
-    const tracked = fileDescriptors.get(fd);
-    if (!tracked) {
-      throw unsupportedFilesystemOperation('fs', 'fstatSync with an unknown descriptor');
-    }
-    if (!tracked.virtual) {
-      return originalFs.fstatSync(fd, options);
-    }
-    const outcome = archive.get<CachedStat>(tracked.key, statOperation('fstat', options));
-    if (!outcome?.ok) {
-      throw cacheMiss('fstat', tracked.key);
-    }
-    return restoreStat(outcome.value, options?.bigint);
-  }
-
-  function fstat(
-    fd: number,
-    options: OperationOptions | ValueCallback<StatValue> | undefined,
-    callback?: ValueCallback<StatValue>,
-  ): void {
-    if (typeof options === 'function') {
-      callback = options;
-      options = undefined;
-    }
-    const done = requireCallback(callback, 'fs.fstat');
-    const tracked = fileDescriptors.get(fd);
-    if (!tracked) {
-      throw unsupportedFilesystemOperation('fs', 'fstat with an unknown descriptor');
-    }
-    if (tracked?.virtual) {
-      try {
-        const stat = fstatSync(fd, options);
-        queueMicrotask(() => done(null, stat));
-      } catch (error) {
-        queueMicrotask(() => done(error as NodeJS.ErrnoException));
-      }
-      return;
-    }
-    (
-      originalFs.fstat as unknown as (
-        fd: number,
-        options: OperationOptions | undefined,
-        callback: ValueCallback<StatValue>,
-      ) => void
-    )(fd, options, done);
-  }
-
-  function closeSync(fd: number): void {
-    const tracked = fileDescriptors.get(fd);
-    if (!tracked) {
-      throw unsupportedFilesystemOperation('fs', 'closeSync with an unknown descriptor');
-    }
-    fileDescriptors.delete(fd);
-    if (!tracked?.virtual) {
-      originalFs.closeSync(fd);
-    }
-  }
-
-  function close(fd: number, callback?: ErrorCallback): void {
-    const tracked = fileDescriptors.get(fd);
-    if (!tracked) {
-      throw unsupportedFilesystemOperation('fs', 'close with an unknown descriptor');
-    }
-    fileDescriptors.delete(fd);
-    if (tracked?.virtual) {
-      if (callback) {
-        queueMicrotask(() => callback(null));
-      }
-    } else {
-      originalFs.close(fd, callback);
-    }
-  }
-
-  class CachedFileHandle {
-    fd: number;
-    [CACHED_FILE_HANDLE]: boolean;
-
-    constructor(fd: number) {
-      this.fd = fd;
-      this[CACHED_FILE_HANDLE] = true;
-    }
-
-    read(
-      buffer?: NodeJS.ArrayBufferView | ReadOptions,
-      ...args: ReadArguments
-    ): Promise<{ bytesRead: number | undefined; buffer: NodeJS.ArrayBufferView }> {
-      if (!ArrayBuffer.isView(buffer)) {
-        const options = (buffer ?? {}) as ReadOptions;
-        const target = options.buffer ?? Buffer.alloc(16_384);
-        return Promise.resolve().then(() => ({
-          bytesRead: readVirtual(this.fd, target, [options]),
-          buffer: target,
-        }));
-      }
-      return Promise.resolve().then(() => ({
-        bytesRead: readVirtual(this.fd, buffer, args),
-        buffer,
-      }));
-    }
-
-    readFile(options?: OperationOptionsInput) {
-      return Promise.resolve().then(() => readFileSync(this.fd, options));
-    }
-
-    stat(options?: OperationOptions) {
-      return Promise.resolve().then(() => fstatSync(this.fd, options));
-    }
-
-    close() {
-      return Promise.resolve().then(() => closeSync(this.fd));
-    }
-
-    async [Symbol.asyncDispose]() {
-      await this.close();
-    }
-  }
-
-  return {
-    CachedFileHandle,
-    close,
-    closeSync,
-    fstat,
-    fstatSync,
-    read,
-    readSync,
-  };
-}
-
-function createOpenPromise(
-  archive: ArchiveFacade,
-  fileHandles: FileHandleTracker,
-  openPatches: ReturnType<typeof createOpenPatches>,
-  CachedFileHandle: new (fd: number) => FileHandleLike,
-) {
-  const { captureOpenedFile, replayOpen } = openPatches;
-
-  async function openPromise(
-    input: fs.PathLike,
-    flags: fs.OpenMode = 'r',
-    mode?: fs.Mode,
-  ): Promise<FileHandleLike> {
-    if (!readonlyFlags(flags)) {
-      throw unsupportedFilesystemOperation(FS_PROMISES_MODULE, 'open with write-capable flags');
-    }
-    const operation = openOperation(flags);
-    if (readonlyFlags(flags)) {
-      const replayed = replayOpen(input, operation);
-      if (replayed.found) {
-        return new CachedFileHandle(replayed.fd);
-      }
-    }
-    const key = archive.keyFor(input);
-    try {
-      const handle = await originalPromises.open(input, flags, mode);
-      if (archive.mode === 'record' && key !== undefined && readonlyFlags(flags)) {
-        archive.set(key, operation, success(null));
-        captureOpenedFile(input, handle.fd);
-      }
-      fileHandles.add(handle);
-      return handle;
-    } catch (error) {
-      if (archive.mode === 'record' && key !== undefined && readonlyFlags(flags)) {
-        archive.set(key, operation, failure(error));
-      }
-      throw error;
-    }
-  }
-
-  return openPromise;
 }
 
 function installPatches(archive: ArchiveFacade) {
