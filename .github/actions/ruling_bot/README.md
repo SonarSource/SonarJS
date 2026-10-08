@@ -74,10 +74,12 @@ jobs/runs; this is coordination, not a guarantee of unlimited delivery.
 
 Each queued operation checks the original PR's current state/head (or current default-branch head).
 Build-derived work also checks the originating run attempt and whether a newer Build exists for the
-same head/event. Checks repeat before writes. This covers advancing heads, different merges for the
-same PR head, delayed dispatches, stale successful cleanup, and old attempts of a retried Build.
+same original PR or branch and head/event. Checks repeat before writes. This covers advancing heads,
+different merges for the same PR head, delayed dispatches, stale successful cleanup, and old attempts
+of a retried Build.
 Raw PR-event reports carry no completed Build identity and cannot overwrite a completed report for
-the same tested merge. Passing Build retries dispatch again, replacing stale failure notices even
+the same PR head, even across different tested merges. Raw reports can still refresh reports from an
+earlier head. Passing Build retries dispatch again, replacing stale failure notices even
 when no push triggered a new PR event.
 
 Fix pushes and deletions use an explicit SHA lease, including the empty lease when creating a new
