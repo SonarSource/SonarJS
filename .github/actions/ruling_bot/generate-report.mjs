@@ -62,7 +62,10 @@ if (markdown) {
 
 function getChangedFiles(oldResultsPath) {
   const changedFiles = [
-    ...git(['diff', baseCommit, '--name-only', '-z', '--', oldResultsPath], false).split('\0'),
+    ...git(
+      ['diff', '--no-renames', baseCommit, '--name-only', '-z', '--', oldResultsPath],
+      false,
+    ).split('\0'),
     ...git(['ls-files', '--others', '--exclude-standard', '-z', '--', oldResultsPath], false).split(
       '\0',
     ),

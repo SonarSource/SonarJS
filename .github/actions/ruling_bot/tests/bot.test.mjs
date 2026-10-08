@@ -41,6 +41,7 @@ test('passing report uses committed expectations of an outdated PR, excluding sh
   assert.equal(await f.bot().report(f.config), 'reported');
   assert.match(f.state.comments[0].body, /old\.js:3/);
   assert.match(f.state.comments[0].body, /removed\.js:2/);
+  assert.match(f.state.comments[0].body, /Ruling passed.*No fix PR was needed/);
   assert.doesNotMatch(f.state.comments[0].body, /same\.js|base-only\.js|untracked\.js/);
 });
 
@@ -153,7 +154,7 @@ test('failed update works without reporter code in the old PR head and discards 
   assert.match(f.state.prs[0].body, /ruling-bot-target/);
   assert.ok(
     f.state.gitCalls.some(args =>
-      args.includes('--force-with-lease=refs/heads/fix/update-ruling-for-outdated-pr:'),
+      args.includes('--force-with-lease=refs/heads/fix/update-ruling-for-pr-123:'),
     ),
   );
   const dispatch = f.state.calls.find(args => args[0] === 'workflow');
@@ -177,6 +178,17 @@ test('configured stable report ref is honored', async t => {
   assert.equal(dispatch[dispatch.indexOf('--ref') + 1], 'stable-tooling');
 });
 
+test('updater retry dispatches current Build attempt with the original producing artifact', async t => {
+  const f = fixture(t);
+  f.ctx.runAttempt = '3';
+  f.state.run.run_attempt = 3;
+  const config = { ...f.config, 'results-artifact-name': 'actual_js_ts-1' };
+  assert.equal(await f.bot().update(config), 'updated');
+  const dispatch = f.state.calls.find(args => args[0] === 'workflow');
+  assert.ok(dispatch.includes('run-attempt=3'));
+  assert.ok(dispatch.includes('results-artifact-name=actual_js_ts-1'));
+});
+
 test('failed dispatch is visible after the fix was persisted; retry reuses the open fix', async t => {
   const f = fixture(t);
   f.state.dispatchError = true;
@@ -191,7 +203,7 @@ test('failed dispatch is visible after the fix was persisted; retry reuses the o
 test('lease rejects a concurrent fix update without creating a PR or dispatch', async t => {
   const f = fixture(t);
   f.state.beforeGit = args => {
-    if (args[0] === 'push') f.setRemote('fix/update-ruling-for-outdated-pr', f.newerCommit());
+    if (args[0] === 'push') f.setRemote('fix/update-ruling-for-pr-123', f.newerCommit());
   };
   await assert.rejects(f.bot().update(f.config));
   assert.deepEqual(f.mutations(), []);
@@ -199,10 +211,10 @@ test('lease rejects a concurrent fix update without creating a PR or dispatch', 
 
 test('existing unrelated fix branch is never overwritten', async t => {
   const f = fixture(t);
-  f.setRemote('fix/update-ruling-for-outdated-pr', f.head);
+  f.setRemote('fix/update-ruling-for-pr-123', f.head);
   await assert.rejects(f.bot().update(f.config), /not owned/);
   assert.equal(
-    f.git(['ls-remote', 'origin', 'refs/heads/fix/update-ruling-for-outdated-pr']).split(/\s/)[0],
+    f.git(['ls-remote', 'origin', 'refs/heads/fix/update-ruling-for-pr-123']).split(/\s/)[0],
     f.head,
   );
   assert.deepEqual(f.mutations(), []);
@@ -217,6 +229,131 @@ test('orphan branch from failed PR creation is recoverable through commit identi
   assert.equal(f.state.prs.length, 1);
 });
 
+test('open legacy fix for this original PR keeps its existing branch and PR', async t => {
+  const f = fixture(t);
+  const candidate = fix();
+  candidate.head.sha = f.head;
+  f.state.prs.push(candidate);
+  f.setRemote(candidate.head.ref, f.head);
+  assert.equal(await f.bot().update(f.config), 'updated');
+  assert.equal(f.state.prs.length, 1);
+  assert.equal(f.git(['branch', '--show-current']), candidate.head.ref);
+  assert.match(candidate.body, /ruling-bot-target/);
+  const dispatch = f.state.calls.find(args => args[0] === 'workflow');
+  assert.ok(dispatch.includes(`fix-pr-url=${candidate.html_url}`));
+});
+
+test('two original PRs sharing a source branch get independent fixes, reports and cleanup', async t => {
+  const f = fixture(t);
+  assert.equal(await f.bot().update(f.config), 'updated');
+  const first = f.state.prs[0];
+  const firstTip = f.git(['ls-remote', 'origin', `refs/heads/${first.head.ref}`]).split(/\s/)[0];
+  assert.equal(first.head.ref, 'fix/update-ruling-for-pr-123');
+
+  f.git(['checkout', '--detach', f.merge]);
+  f.ctx.pr = '124';
+  f.ctx.runId = '43';
+  f.state.original.number = 124;
+  f.state.run.id = 43;
+  f.state.run.pull_requests = [{ number: 124 }];
+  assert.equal(await f.bot().update(f.config), 'updated');
+  const second = f.state.prs[1];
+  const secondTip = f.git(['ls-remote', 'origin', `refs/heads/${second.head.ref}`]).split(/\s/)[0];
+  assert.equal(second.head.ref, 'fix/update-ruling-for-pr-124');
+  assert.equal(first.base.ref, second.base.ref);
+  assert.equal(
+    f.git(['ls-remote', 'origin', `refs/heads/${first.head.ref}`]).split(/\s/)[0],
+    firstTip,
+  );
+  for (const [number, candidate] of [
+    [123, first],
+    [124, second],
+  ]) {
+    const dispatch = f.state.calls.find(
+      args => args[0] === 'workflow' && args.includes(`pr-number=${number}`),
+    );
+    assert.ok(dispatch.includes(`fix-pr-url=${candidate.html_url}`));
+  }
+
+  f.ctx.pr = '123';
+  f.state.original.number = 123;
+  f.state.original.state = 'closed';
+  assert.equal(await f.bot().cleanup(), 'closed');
+  assert.equal(first.state, 'closed');
+  assert.equal(f.git(['ls-remote', 'origin', `refs/heads/${first.head.ref}`]), '');
+  assert.equal(second.state, 'open');
+  assert.equal(
+    f.git(['ls-remote', 'origin', `refs/heads/${second.head.ref}`]).split(/\s/)[0],
+    secondTip,
+  );
+});
+
+for (const open of [true, false]) {
+  test(`legacy-name branch belonging to another ${open ? 'open' : 'closed'} original stays intact`, async t => {
+    const f = fixture(t);
+    const branch = 'fix/update-ruling-for-outdated-pr';
+    const marker = `<!-- ruling-bot-target: ${JSON.stringify({ repository, pr: 999 })} -->`;
+    const oldFix = f.git([
+      '-c',
+      'user.name=github-actions[bot]',
+      '-c',
+      'user.email=github-actions[bot]@users.noreply.github.com',
+      'commit-tree',
+      `${f.head}^{tree}`,
+      '-p',
+      f.head,
+      '-m',
+      `Update ruling results\n\nGenerated with GitHub Actions${open ? '' : `\n\n${marker}`}`,
+    ]);
+    f.setRemote(branch, oldFix);
+    f.state.prs.push(
+      fix({
+        number: 999,
+        state: open ? 'open' : 'closed',
+        title: 'Update ruling results for PR #999',
+        body: 'Auto-generated ruling update for PR #999.',
+        head: { ref: branch, sha: oldFix, repo: { full_name: repository } },
+      }),
+    );
+    assert.equal(await f.bot().update(f.config), 'updated');
+    assert.equal(f.git(['branch', '--show-current']), 'fix/update-ruling-for-pr-123');
+    assert.equal(f.git(['ls-remote', 'origin', `refs/heads/${branch}`]).split(/\s/)[0], oldFix);
+    assert.equal(f.state.prs[0].state, open ? 'open' : 'closed');
+    assert.equal(f.state.prs[1].title, 'Update ruling results for PR #123');
+  });
+}
+
+test('unmarked legacy orphan is left intact when another original PR shares the source branch', async t => {
+  const f = fixture(t);
+  const branch = 'fix/update-ruling-for-outdated-pr';
+  const oldFix = f.git([
+    '-c',
+    'user.name=github-actions[bot]',
+    '-c',
+    'user.email=github-actions[bot]@users.noreply.github.com',
+    'commit-tree',
+    `${f.head}^{tree}`,
+    '-p',
+    f.head,
+    '-m',
+    'Update ruling results\n\nGenerated with GitHub Actions',
+  ]);
+  f.setRemote(branch, oldFix);
+  f.state.prs.push(
+    fix({
+      number: 124,
+      title: 'Another feature PR',
+      body: '',
+      user: { login: 'human' },
+      head: { ref: f.ctx.targetRef, sha: f.head, repo: { full_name: repository } },
+      base: { ref: 'release' },
+    }),
+  );
+  assert.equal(await f.bot().update(f.config), 'updated');
+  assert.equal(f.git(['branch', '--show-current']), 'fix/update-ruling-for-pr-123');
+  assert.equal(f.git(['ls-remote', 'origin', `refs/heads/${branch}`]).split(/\s/)[0], oldFix);
+});
+
 for (const scenario of [
   'legacy',
   'human author',
@@ -226,7 +363,8 @@ for (const scenario of [
 ]) {
   test(`leftover fix branch recovery: ${scenario}`, async t => {
     const f = fixture(t);
-    const branch = 'fix/update-ruling-for-outdated-pr';
+    const branch =
+      scenario === 'legacy' ? 'fix/update-ruling-for-outdated-pr' : 'fix/update-ruling-for-pr-123';
     let message = 'Update ruling results\n\nGenerated with GitHub Actions';
     if (scenario === 'wrong message') message += '\n\nUnrelated change';
     if (scenario === 'wrong target')
@@ -279,13 +417,78 @@ test('target advances after sync: no stale fix is pushed', async t => {
   );
 });
 
-test('empty completed report clears stale failure notice', async t => {
+for (const legacy of [true, false]) {
+  test(`${legacy ? 'legacy' : 'modern orphan'} branch used by another open PR is never overwritten`, async t => {
+    const f = fixture(t);
+    const branch = 'fix/update-ruling-for-pr-123';
+    const marker = `<!-- ruling-bot-target: ${JSON.stringify({ repository, pr: 123 })} -->`;
+    const message =
+      'Update ruling results\n\nGenerated with GitHub Actions' + (legacy ? '' : `\n\n${marker}`);
+    const oldFix = f.git([
+      '-c',
+      'user.name=github-actions[bot]',
+      '-c',
+      'user.email=github-actions[bot]@users.noreply.github.com',
+      'commit-tree',
+      `${f.head}^{tree}`,
+      '-p',
+      f.head,
+      '-m',
+      message,
+    ]);
+    f.setRemote(branch, oldFix);
+    f.state.prs.push(
+      fix({
+        title: 'Update ruling results for PR #999',
+        body: 'Auto-generated ruling update for PR #999.',
+        head: { ref: branch, sha: oldFix, repo: { full_name: repository } },
+      }),
+    );
+    await assert.rejects(f.bot().update(f.config), /used by another open PR/);
+    assert.equal(f.git(['ls-remote', 'origin', `refs/heads/${branch}`]).split(/\s/)[0], oldFix);
+    assert.deepEqual(f.mutations(), []);
+    assert.equal(
+      f.state.gitCalls.some(args => args[0] === 'push'),
+      false,
+    );
+  });
+}
+
+test('empty completed report replaces a stale failure notice with a no-change confirmation', async t => {
   const f = fixture(t);
   f.ctx.failed = false;
   f.git(['restore', '--source', f.base, '--staged', '--worktree', 'baseline']);
   f.state.comments.push(comment('<!-- ruling-report -->\nStale fix notice'));
-  assert.equal(await f.bot().report(f.config), 'empty');
-  assert.deepEqual(f.state.comments, []);
+  assert.equal(await f.bot().report(f.config), 'reported');
+  assert.equal(f.state.comments.length, 1);
+  assert.match(f.state.comments[0].body, /No changes to ruling expected issues in this PR/);
+  assert.match(f.state.comments[0].body, /Ruling passed.*No fix PR was needed/);
+  assert.doesNotMatch(f.state.comments[0].body, /Stale fix notice|Ruling needs updating/);
+});
+
+test('empty raw PR report still confirms no expectation changes without claiming ruling passed', async t => {
+  const f = fixture(t);
+  f.ctx.runId = '';
+  f.ctx.failed = false;
+  f.git(['restore', '--source', f.base, '--staged', '--worktree', 'baseline']);
+  assert.equal(await f.bot().report(f.config), 'reported');
+  assert.equal(f.state.comments.length, 1);
+  assert.match(f.state.comments[0].body, /No changes to ruling expected issues in this PR/);
+  assert.doesNotMatch(f.state.comments[0].body, /Ruling passed|No fix PR was needed/);
+});
+
+test('zero net changes on a failed report without a fix link still require an update', async t => {
+  const f = fixture(t);
+  rmSync(path.join(f.workspace, 'generated'), { recursive: true });
+  f.result('generated', 'S1000', 'old.js', 1);
+  f.result('generated', 'S2000', 'removed.js', 2);
+  f.result('generated', 'S3000', 'same.js', 30);
+  f.result('generated', 'S9000', 'base-only.js', 90);
+  assert.equal(await f.bot().report(f.config), 'reported');
+  const body = f.state.comments[0].body;
+  assert.match(body, /Ruling needs updating/);
+  assert.match(body, /No net issue changes.*expectations still need updating/);
+  assert.doesNotMatch(body, /No changes to ruling expected issues|Ruling passed|linked fix/);
 });
 
 test('zero net changes retain the required fix link', async t => {
@@ -320,6 +523,7 @@ test('raw PR event can refresh a previous raw report', async t => {
     comment(`<!-- ruling-report -->\n<!-- ruling-report-run: ${f.merge}  1 -->\nRaw report`),
   );
   assert.equal(await f.bot().report(f.config), 'reported');
+  assert.doesNotMatch(f.state.comments[0].body, /Ruling passed|No fix PR was needed/);
   assert.match(f.state.comments[0].body, /old\.js:3/);
 });
 
@@ -413,6 +617,34 @@ test('cleanup excludes unrelated, human-created, merged and foreign-repository f
   );
   await f.bot().cleanup();
   assert.deepEqual(f.mutations(), []);
+  assert.equal(
+    f.state.gitCalls.some(args => args[0] === 'push'),
+    false,
+  );
+});
+
+test('cleanup closes the obsolete owned fix but preserves a branch shared by another open PR', async t => {
+  const f = fixture(t);
+  f.state.original.state = 'closed';
+  const candidate = fix();
+  candidate.head.sha = f.head;
+  const other = fix({
+    number: 457,
+    title: 'Another PR using these changes',
+    body: '',
+    user: { login: 'human' },
+    head: { ...candidate.head },
+    base: { ref: 'release' },
+  });
+  f.state.prs.push(candidate, other);
+  f.setRemote(candidate.head.ref, f.head);
+  assert.equal(await f.bot().cleanup(), 'closed');
+  assert.equal(candidate.state, 'closed');
+  assert.equal(other.state, 'open');
+  assert.equal(
+    f.git(['ls-remote', 'origin', `refs/heads/${candidate.head.ref}`]).split(/\s/)[0],
+    f.head,
+  );
   assert.equal(
     f.state.gitCalls.some(args => args[0] === 'push'),
     false,

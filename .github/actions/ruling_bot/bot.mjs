@@ -61,7 +61,9 @@ export function controller(ctx, adapters = {}) {
     ctx.isPullRequest
       ? { repository: ctx.repository, pr: Number(ctx.pr) }
       : { repository: ctx.repository, ref: ctx.targetRef };
-  const fixBranch = () => `fix/update-ruling-for-${ctx.targetRef}`;
+  const legacyFixBranch = () => `fix/update-ruling-for-${ctx.targetRef}`;
+  const fixBranch = () =>
+    ctx.isPullRequest ? `fix/update-ruling-for-pr-${ctx.pr}` : legacyFixBranch();
   const suffix = ctx.isPullRequest ? `PR #${ctx.pr}` : ctx.targetRef;
   const title = `Update ruling results for ${suffix}`;
   const description = `Auto-generated ruling update for ${suffix}.`;
@@ -124,10 +126,9 @@ export function controller(ctx, adapters = {}) {
     // Legacy bodies also survive GitHub retargeting a fix PR after its base is merged/deleted.
     return pr.title === title && pr.body?.startsWith(description);
   }
-  const fixes = () => pages('pulls?state=open&per_page=100').filter(pr => managed(pr));
-
   function closeFixes(reason, guard = fresh) {
-    for (const candidate of fixes()) {
+    const open = pages('pulls?state=open&per_page=100');
+    for (const candidate of open.filter(pr => managed(pr))) {
       if (!guard()) return;
       const pr = api(`pulls/${candidate.number}`);
       if (pr.state !== 'open' || pr.merged_at || !managed(pr) || pr.head.sha !== candidate.head.sha)
@@ -135,9 +136,15 @@ export function controller(ctx, adapters = {}) {
       const ref = `refs/heads/${pr.head.ref}`;
       const remoteHead = git(['ls-remote', 'origin', ref]).split(/\s/)[0];
       if (remoteHead && remoteHead !== pr.head.sha) continue;
+      const shared = open.some(
+        other =>
+          other.number !== pr.number &&
+          other.head.repo?.full_name === ctx.repository &&
+          other.head.ref === pr.head.ref,
+      );
       if (!guard()) return;
       // Delete first, with a compare-and-swap lease; never close a newly updated fix.
-      if (remoteHead)
+      if (remoteHead && !shared)
         git(['push', `--force-with-lease=${ref}:${pr.head.sha}`, 'origin', `:${ref}`]);
       if (api(`pulls/${pr.number}`).merged_at) continue;
       api(`pulls/${pr.number}`, ['-X', 'PATCH', '-f', 'state=closed']);
@@ -211,13 +218,17 @@ export function controller(ctx, adapters = {}) {
     git(['fetch', 'origin', `+refs/heads/${ctx.targetRef}:refs/remotes/origin/${ctx.targetRef}`]);
     if (git(['rev-parse', `origin/${ctx.targetRef}`]) !== ctx.testedHead || !fresh())
       return 'stale';
-    const ref = `refs/heads/${fixBranch()}`;
-    const oldFix = git(['ls-remote', 'origin', ref]).split(/\s/)[0];
-    const existing = fixes().find(
-      pr => pr.head.ref === fixBranch() && pr.base.ref === ctx.targetRef,
-    );
+    const open = pages('pulls?state=open&per_page=100');
+    const existing = open.find(pr => managed(pr) && pr.base.ref === ctx.targetRef);
     const marker = `<!-- ruling-bot-target: ${JSON.stringify(identity())} -->`;
-    if (oldFix && !existing) {
+    const usedByOtherPr = branch =>
+      open.some(
+        pr =>
+          pr.number !== existing?.number &&
+          pr.head.repo?.full_name === ctx.repository &&
+          pr.head.ref === branch,
+      );
+    const recoverable = ref => {
       // Recover modern orphans and branches left by closed, unmerged legacy fixes.
       git(['fetch', 'origin', ref]);
       const message = git(['log', '-1', '--format=%B', 'FETCH_HEAD']);
@@ -230,20 +241,43 @@ export function controller(ctx, adapters = {}) {
             'github-actions[bot]',
             'github-actions[bot]@users.noreply.github.com',
           ].join('\n');
-      if (!message.includes(marker) && !legacy) {
-        throw new Error('Refusing to overwrite a fix branch not owned by this ruling target.');
+      return message.includes(marker) || legacy;
+    };
+    let branch = existing?.head.ref || fixBranch();
+    let ref = `refs/heads/${branch}`;
+    let oldFix = git(['ls-remote', 'origin', ref]).split(/\s/)[0];
+    let recovered = false;
+    const sharedOriginalBranch = open.some(
+      pr =>
+        Number(pr.number) !== Number(ctx.pr) &&
+        pr.head.repo?.full_name === ctx.repository &&
+        pr.head.ref === ctx.targetRef,
+    );
+    if (!existing && !oldFix && ctx.isPullRequest && !sharedOriginalBranch) {
+      const legacyBranch = legacyFixBranch();
+      const legacyRef = `refs/heads/${legacyBranch}`;
+      const legacyHead = git(['ls-remote', 'origin', legacyRef]).split(/\s/)[0];
+      if (legacyHead && !usedByOtherPr(legacyBranch) && recoverable(legacyRef)) {
+        branch = legacyBranch;
+        ref = legacyRef;
+        oldFix = legacyHead;
+        recovered = true;
       }
     }
+    if (usedByOtherPr(branch))
+      throw new Error('Refusing to overwrite a fix branch used by another open PR.');
+    if (oldFix && !existing && !recovered && !recoverable(ref))
+      throw new Error('Refusing to overwrite a fix branch not owned by this ruling target.');
     git(['config', 'user.name', 'github-actions[bot]']);
     git(['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
-    git(['checkout', '-f', '-B', fixBranch(), `origin/${ctx.targetRef}`]);
+    git(['checkout', '-f', '-B', branch, `origin/${ctx.targetRef}`]);
     git(['stash', 'pop']);
     git(['add', '--', config['old-results-path']]);
     if (!git(['diff', '--cached', '--name-only', '--', config['old-results-path']]))
       throw new Error('Generated results no longer differ from the target branch.');
     git(['commit', '-m', `Update ruling results\n\nGenerated with GitHub Actions\n\n${marker}`]);
     if (!fresh()) return 'stale';
-    git(['push', `--force-with-lease=${ref}:${oldFix}`, 'origin', `${fixBranch()}:${ref}`]);
+    git(['push', `--force-with-lease=${ref}:${oldFix}`, 'origin', `${branch}:${ref}`]);
     if (!fresh()) return 'stale';
     const body = `${description}\n\nGenerated with GitHub Actions\n\n${marker}`;
     let fix;
@@ -257,7 +291,7 @@ export function controller(ctx, adapters = {}) {
         '--base',
         ctx.targetRef,
         '--head',
-        fixBranch(),
+        branch,
         '--body',
         body,
       ]);
@@ -299,16 +333,18 @@ export function controller(ctx, adapters = {}) {
       }
     }
     if (!fresh(true)) return 'stale';
-    if (!report && !ctx.fixUrl) {
-      if (existing) api(`issues/comments/${existing.id}`, ['-X', 'DELETE']);
-      return 'empty';
-    }
     const notice = ctx.fixUrl
       ? `Ruling needs updating. A [fix PR](${ctx.fixUrl}) has been created. Please review and merge it into your branch.\n\n`
-      : '';
+      : ctx.failed
+        ? 'Ruling needs updating.\n\n'
+        : ctx.runId
+          ? `**Ruling passed${report ? ' with these expected-result updates already present in the branch' : ''}. No fix PR was needed.**\n\n`
+          : '';
     const content =
       report ||
-      '## Ruling Report\n\nNo net issue changes relative to the tested base; the branch expectations still need the linked fix.\n';
+      (ctx.failed
+        ? `## Ruling Report\n\nNo net issue changes relative to the tested base; the branch expectations still need ${ctx.fixUrl ? 'the linked fix' : 'updating'}.\n`
+        : '## Ruling Report\n\nNo changes to ruling expected issues in this PR.\n');
     let body = `${commentMarker}\n${provenance}\n${notice}${content}`;
     const bytes = Buffer.from(body);
     if (bytes.length > 50000) {

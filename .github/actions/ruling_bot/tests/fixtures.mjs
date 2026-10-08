@@ -145,8 +145,10 @@ export function fixture(t) {
     }
     if (args[0] === 'pr' && args[1] === 'create') {
       const value = flag => args[args.indexOf(flag) + 1];
+      const number = Math.max(455, ...state.prs.map(pr => pr.number)) + 1;
       const pr = fix({
-        number: 456,
+        number,
+        html_url: `https://example.test/pull/${number}`,
         title: value('--title'),
         body: value('--body'),
         head: {
@@ -159,8 +161,10 @@ export function fixture(t) {
       state.prs.push(pr);
       return pr.html_url;
     }
-    if (args[0] === 'pr' && args[1] === 'view')
-      return JSON.stringify({ number: 456, url: state.prs.find(pr => pr.number === 456).html_url });
+    if (args[0] === 'pr' && args[1] === 'view') {
+      const pr = state.prs.find(pr => pr.html_url === args[2]);
+      return JSON.stringify({ number: pr.number, url: pr.html_url });
+    }
     const endpoint = args[1].replace(`repos/${repository}`, '').replace(/^\//, '');
     state.beforeApi?.(endpoint, args);
     const method = args.includes('-X')
@@ -194,7 +198,7 @@ export function fixture(t) {
       response = [state.prs.filter(pr => pr.state === 'open')];
     else if (/^pulls\/\d+$/.test(endpoint)) {
       response =
-        endpoint === 'pulls/123'
+        endpoint === `pulls/${original.number}`
           ? original
           : state.prs.find(pr => pr.number === Number(endpoint.split('/')[1]));
       if (!response) throw new Error(`Unexpected PR: ${endpoint}`);
@@ -209,7 +213,7 @@ export function fixture(t) {
     } else if (/^issues\/\d+\/comments$/.test(endpoint)) {
       response = { id: 999, user: { login: 'github-actions[bot]' }, ...fields };
       // Keep original-PR report comments separate from fix cleanup explanations.
-      if (endpoint === 'issues/123/comments') state.comments.push(response);
+      if (endpoint === `issues/${original.number}/comments`) state.comments.push(response);
     } else throw new Error(`Unexpected GitHub call: ${args.join(' ')}`);
     return JSON.stringify(response);
   };
