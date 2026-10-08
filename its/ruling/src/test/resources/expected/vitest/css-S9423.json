@@ -1,0 +1,25 @@
+{
+"vitest:packages/ui/client/components/views/ViewModuleGraph.vue": [
+545,
+558
+],
+"vitest:packages/ui/client/styles/main.css": [
+24,
+25,
+90,
+128,
+142,
+149,
+150,
+155,
+156,
+161,
+164,
+168,
+171,
+172,
+173,
+183,
+216
+]
+}
