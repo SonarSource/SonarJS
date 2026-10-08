@@ -43,8 +43,47 @@ on:
         required: false
         type: string
         default: '1'
-      report-config:
-        description: JSON containing the reusable ruling bot parameters
+      new-results-path:
+        description: Generated-results path within the tested repository
+        required: false
+        type: string
+        default: packages/ruling/actual
+      old-results-path:
+        description: Expected-results path within the tested repository
+        required: false
+        type: string
+        default: its/ruling/src/test/resources/expected
+      sources-path:
+        description: Local sources used for snippets
+        required: false
+        type: string
+        default: its/sources
+      sources-repo-url:
+        description: Source-file link URL; an empty value disables links
+        required: false
+        type: string
+        default: https://github.com/SonarSource/jsts-test-sources/blob/master
+      rspec-base-url:
+        description: Rule-documentation link URL
+        required: false
+        type: string
+        default: https://musical-adventure-r9qk65j.pages.github.io/rspec/#
+      max-inline-snippets:
+        description: Maximum detailed snippets per section
+        required: false
+        type: string
+        default: '10'
+      results-artifact-name:
+        description: Exact artifact name from the producing ruling job
+        required: false
+        type: string
+      report-workflow:
+        description: Reporter workflow filename or ID
+        required: false
+        type: string
+        default: ruling-diff-comment.yml
+      report-workflow-ref:
+        description: Configured reporter implementation ref
         required: false
         type: string
 
@@ -73,11 +112,6 @@ jobs:
         with:
           version: 2026.9.18
           install_args: node
-      - name: Load caller configuration
-        id: config
-        env:
-          RULING_REPORT_CONFIG: ${{ inputs.report-config || '' }}
-        run: node .github/actions/ruling_bot/config.mjs .github/ruling-bot.json
       - name: Checkout exact tested tree separately from reporter code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -99,12 +133,12 @@ jobs:
           run-id: ${{ inputs.run-id || '' }}
           run-attempt: ${{ inputs.run-attempt || '1' }}
           fix-pr-url: ${{ inputs.fix-pr-url || '' }}
-          new-results-path: ${{ fromJSON(steps.config.outputs.config).new-results-path }}
-          old-results-path: ${{ fromJSON(steps.config.outputs.config).old-results-path }}
-          sources-path: ${{ fromJSON(steps.config.outputs.config).sources-path }}
-          sources-repo-url: ${{ fromJSON(steps.config.outputs.config).sources-repo-url }}
-          rspec-base-url: ${{ fromJSON(steps.config.outputs.config).rspec-base-url }}
-          max-inline-snippets: ${{ fromJSON(steps.config.outputs.config).max-inline-snippets }}
-          results-artifact-name: ${{ fromJSON(steps.config.outputs.config).results-artifact-name }}
-          report-workflow: ${{ fromJSON(steps.config.outputs.config).report-workflow }}
-          report-workflow-ref: ${{ fromJSON(steps.config.outputs.config).report-workflow-ref }}
+          new-results-path: ${{ github.event_name == 'pull_request' && 'packages/ruling/actual' || inputs.new-results-path }}
+          old-results-path: ${{ github.event_name == 'pull_request' && 'its/ruling/src/test/resources/expected' || inputs.old-results-path }}
+          sources-path: ${{ github.event_name == 'pull_request' && 'its/sources' || inputs.sources-path }}
+          sources-repo-url: ${{ github.event_name == 'pull_request' && 'https://github.com/SonarSource/jsts-test-sources/blob/master' || inputs.sources-repo-url }}
+          rspec-base-url: ${{ github.event_name == 'pull_request' && 'https://musical-adventure-r9qk65j.pages.github.io/rspec/#' || inputs.rspec-base-url }}
+          max-inline-snippets: ${{ github.event_name == 'pull_request' && '10' || inputs.max-inline-snippets }}
+          results-artifact-name: ${{ inputs.results-artifact-name || format('actual_js_ts-{0}', inputs.run-attempt || '1') }}
+          report-workflow: ${{ github.event_name == 'pull_request' && 'ruling-diff-comment.yml' || inputs.report-workflow }}
+          report-workflow-ref: ${{ inputs.report-workflow-ref || '' }}

@@ -159,10 +159,13 @@ test('failed update works without reporter code in the old PR head and discards 
   const dispatch = f.state.calls.find(args => args[0] === 'workflow');
   assert.equal(dispatch[dispatch.indexOf('--ref') + 1], 'master');
   assert.equal(dispatch[2], 'custom-report.yml');
-  const carried = JSON.parse(
-    dispatch.find(value => value.startsWith('report-config=')).slice('report-config='.length),
+  for (const [name, value] of Object.entries(f.config))
+    assert.ok(dispatch.includes(`${name}=${value}`));
+  assert.equal(dispatch.filter(value => value === '-f').length, 18);
+  assert.equal(
+    dispatch.some(value => value.startsWith('report-config=')),
+    false,
   );
-  assert.deepEqual(carried, f.config);
   assert.ok(dispatch.includes('fix-pr-url=https://example.test/pull/456'));
 });
 
@@ -213,6 +216,55 @@ test('orphan branch from failed PR creation is recoverable through commit identi
   assert.equal(await f.bot().update(f.config), 'updated');
   assert.equal(f.state.prs.length, 1);
 });
+
+for (const scenario of [
+  'legacy',
+  'human author',
+  'human committer',
+  'wrong message',
+  'wrong target',
+]) {
+  test(`leftover fix branch recovery: ${scenario}`, async t => {
+    const f = fixture(t);
+    const branch = 'fix/update-ruling-for-outdated-pr';
+    let message = 'Update ruling results\n\nGenerated with GitHub Actions';
+    if (scenario === 'wrong message') message += '\n\nUnrelated change';
+    if (scenario === 'wrong target')
+      message += `\n\n<!-- ruling-bot-target: ${JSON.stringify({ repository, pr: 999 })} -->`;
+    const oldFix = f.git([
+      '-c',
+      'user.name=github-actions[bot]',
+      '-c',
+      'user.email=github-actions[bot]@users.noreply.github.com',
+      '-c',
+      `author.name=${scenario === 'human author' ? 'Human' : 'github-actions[bot]'}`,
+      '-c',
+      `committer.name=${scenario === 'human committer' ? 'Human' : 'github-actions[bot]'}`,
+      'commit-tree',
+      `${f.head}^{tree}`,
+      '-p',
+      f.head,
+      '-m',
+      message,
+    ]);
+    f.setRemote(branch, oldFix);
+    f.state.prs.push(fix({ state: 'closed', head: { ref: branch, sha: oldFix } }));
+    if (scenario === 'legacy') {
+      assert.equal(await f.bot().update(f.config), 'updated');
+      assert.equal(f.state.prs.filter(pr => pr.state === 'open').length, 1);
+      assert.match(f.git(['log', '-1', '--format=%B']), /ruling-bot-target/);
+      assert.ok(
+        f.state.gitCalls.some(args =>
+          args.includes(`--force-with-lease=refs/heads/${branch}:${oldFix}`),
+        ),
+      );
+    } else {
+      await assert.rejects(f.bot().update(f.config), /not owned/);
+      assert.equal(f.git(['ls-remote', 'origin', `refs/heads/${branch}`]).split(/\s/)[0], oldFix);
+      assert.deepEqual(f.mutations(), []);
+    }
+  });
+}
 
 test('target advances after sync: no stale fix is pushed', async t => {
   const f = fixture(t);

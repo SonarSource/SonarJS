@@ -6,11 +6,16 @@ ref. A third action closes obsolete fixes after their original PR closes or merg
 
 ## Configuration and reuse
 
-SonarJS settings live in [`.github/ruling-bot.json`](../../ruling-bot.json). Build loads this once,
-adds the Build attempt to the artifact name, and passes the resulting configuration through job
-outputs to upload, download, update, and dispatch. `report-config` carries that same JSON to the
-reporter; a later change to the reporter's checkout cannot change a completed Build's paths or links.
-The JSON bundle also keeps the dispatch within GitHub's ten-input limit.
+SonarJS passes paths, links, snippet limits, and workflow settings explicitly in the updater action's
+`with` block in `build.yml`. The producing ruling job names its results artifact with its Build
+attempt and exposes that exact name as a job output. Upload, updater download, and the updater action
+use the same name, including when a retry reuses outputs from an earlier attempt.
+
+The updater forwards its resolved action inputs individually to the independent reporter workflow.
+All eighteen dispatch inputs fit GitHub.com's current limit of twenty-five. Explicitly forwarding
+paths, links, and the artifact name preserves the producing Build's settings if stable reporter code
+changes later. Raw PR-event reports use explicit SonarJS defaults in the reporter workflow. The
+report action validates the received parameters before checking freshness or downloading artifacts.
 
 Other repositories can use the updater, `report`, and `cleanup` composite actions with their own
 configuration. Both result directories contain the sonar-lits `<project>/<language>-<rule>.json`
@@ -59,7 +64,9 @@ Dispatch failure fails the update job visibly while leaving the persisted fix av
 
 The simplest retry is `gh run rerun <report-run-id>`; this retains the original dispatch inputs.
 To dispatch again with a newer reporter implementation, supply the same tested SHAs, originating
-Build run ID/attempt, fix URL, and configuration. See [the CI guide](../../../docs/CI.md#js_ts_ruling)
+Build run ID and its current attempt, fix URL, and configuration. Preserve the producing ruling
+job's artifact name separately: rerunning only the updater can make the current Build attempt `2`
+while the saved artifact remains `actual_js_ts-1`. See [the CI guide](../../../docs/CI.md#js_ts_ruling)
 for a complete command. Artifact expiry or a missing merge commit fails visibly; it never substitutes
 a newer tree or artifact. Rerunning ruling itself is required when that evidence is unavailable.
 
@@ -85,7 +92,9 @@ when no push triggered a new PR event.
 Fix pushes and deletions use an explicit SHA lease, including the empty lease when creating a new
 branch. A concurrent update causes a visible failure rather than overwriting/deleting another
 commit. An existing fix branch must belong to this target; an orphan from failed PR creation is
-recoverable through the identity in its bot commit. Unrelated dirty tracked build output is discarded
+recoverable through the identity in its bot commit. Leftover legacy branches are also recoverable
+when their tip has the exact old generated message and both author and committer match the bot's
+name and email. Unrelated dirty tracked build output is discarded
 when switching to the target branch, while expectation changes are retained through the stash.
 
 GitHub API state checks and Git ref writes are separate operations. A human can still push, merge,

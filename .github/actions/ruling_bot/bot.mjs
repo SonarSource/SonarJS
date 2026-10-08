@@ -19,7 +19,7 @@ import { appendFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { environmentConfiguration } from './config.mjs';
+import { defaults, environmentConfiguration } from './config.mjs';
 
 const actionPath = path.dirname(fileURLToPath(import.meta.url));
 const commentMarker = '<!-- ruling-report -->';
@@ -158,8 +158,9 @@ export function controller(ctx, adapters = {}) {
       'is-pull-request': String(ctx.isPullRequest),
       'fix-pr-url': fixUrl,
       'target-ref': ctx.targetRef,
-      'report-config': JSON.stringify(config),
     };
+    for (const name of ['new-results-path', 'old-results-path', ...Object.keys(defaults)])
+      fields[name] = config[name];
     for (const [name, value] of Object.entries(fields)) args.push('-f', `${name}=${value}`);
     gh(args); // Fail visibly: persistence succeeded, but reporting must be retried.
   }
@@ -217,9 +218,19 @@ export function controller(ctx, adapters = {}) {
     );
     const marker = `<!-- ruling-bot-target: ${JSON.stringify(identity())} -->`;
     if (oldFix && !existing) {
-      // A failed PR creation may leave an orphan bot branch. Recover only our exact identity.
+      // Recover modern orphans and branches left by closed, unmerged legacy fixes.
       git(['fetch', 'origin', ref]);
-      if (!git(['log', '-1', '--format=%B', 'FETCH_HEAD']).includes(marker)) {
+      const message = git(['log', '-1', '--format=%B', 'FETCH_HEAD']);
+      const legacy =
+        message === 'Update ruling results\n\nGenerated with GitHub Actions' &&
+        git(['log', '-1', '--format=%an%n%ae%n%cn%n%ce', 'FETCH_HEAD']) ===
+          [
+            'github-actions[bot]',
+            'github-actions[bot]@users.noreply.github.com',
+            'github-actions[bot]',
+            'github-actions[bot]@users.noreply.github.com',
+          ].join('\n');
+      if (!message.includes(marker) && !legacy) {
         throw new Error('Refusing to overwrite a fix branch not owned by this ruling target.');
       }
     }
@@ -344,13 +355,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     ctx.runAttempt = process.env.BUILD_RUN_ATTEMPT;
   }
   const bot = controller(ctx);
+  const config = process.argv[2] === 'cleanup' ? undefined : environmentConfiguration(process.env);
   if (process.argv[2] === 'check-report') {
     appendFileSync(process.env.GITHUB_OUTPUT, `fresh=${await bot.checkReport()}\n`);
     process.exit(0);
   }
   const result =
-    process.argv[2] === 'cleanup'
-      ? await bot.cleanup()
-      : await bot[process.argv[2]](environmentConfiguration(process.env));
+    process.argv[2] === 'cleanup' ? await bot.cleanup() : await bot[process.argv[2]](config);
   console.log(`Ruling bot: ${result}`);
 }

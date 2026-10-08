@@ -16,9 +16,6 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { configuration, environmentConfiguration } from '../config.mjs';
@@ -71,46 +68,35 @@ for (const value of [
     assert.throws(() => configuration(value)));
 }
 
-test('artifact handoff uses distinct attempt names while preserving configuration', t => {
-  const directory = mkdtempSync(path.join(os.tmpdir(), 'ruling-config-test-'));
-  t.after(() => rmSync(directory, { recursive: true, force: true }));
-  const input = path.join(directory, 'config.json');
-  const output = path.join(directory, 'output');
-  writeFileSync(input, JSON.stringify({ ...paths, 'results-artifact-name': 'results' }));
-  const executable = fileURLToPath(new URL('../config.mjs', import.meta.url));
+test('reporter preserves producing-job artifact names across updater/report retries', () => {
+  const configs = [];
   for (const attempt of ['1', '2']) {
-    execFileSync(process.execPath, [executable, input, '--artifact-attempt'], {
-      env: {
-        ...process.env,
-        RULING_REPORT_CONFIG: '',
-        GITHUB_OUTPUT: output,
-        GITHUB_RUN_ATTEMPT: attempt,
-      },
-    });
+    configs.push(
+      environmentConfiguration({
+        GITHUB_RUN_ATTEMPT: '3',
+        NEW_RESULTS_PATH: paths['new-results-path'],
+        OLD_RESULTS_PATH: paths['old-results-path'],
+        RESULTS_ARTIFACT_NAME: `results-${attempt}`,
+      }),
+    );
   }
-  const configs = readFileSync(output, 'utf8')
-    .trim()
-    .split('\n')
-    .map(line => JSON.parse(line.slice('config='.length)));
   assert.equal(configs[0]['results-artifact-name'], 'results-1');
   assert.equal(configs[1]['results-artifact-name'], 'results-2');
   assert.equal(configs[1]['old-results-path'], 'expected');
 });
 
-test('dispatched config takes precedence over workflow checkout configuration', t => {
-  const directory = mkdtempSync(path.join(os.tmpdir(), 'ruling-config-test-'));
-  t.after(() => rmSync(directory, { recursive: true, force: true }));
-  const output = path.join(directory, 'output');
-  execFileSync(
-    process.execPath,
-    [fileURLToPath(new URL('../config.mjs', import.meta.url)), 'missing-caller-config.json'],
-    {
-      env: { ...process.env, GITHUB_OUTPUT: output, RULING_REPORT_CONFIG: JSON.stringify(paths) },
-    },
-  );
-  assert.deepEqual(
-    JSON.parse(readFileSync(output, 'utf8').trim().slice('config='.length)),
-    configuration(paths),
+test('report preflight validates caller paths before GitHub or artifact operations', () => {
+  assert.throws(
+    () =>
+      execFileSync(
+        process.execPath,
+        [fileURLToPath(new URL('../bot.mjs', import.meta.url)), 'check-report'],
+        {
+          env: { ...process.env, NEW_RESULTS_PATH: '../outside', OLD_RESULTS_PATH: 'expected' },
+          stdio: ['ignore', 'pipe', 'pipe'],
+        },
+      ),
+    /new-results-path must be inside the tested repository/,
   );
 });
 
