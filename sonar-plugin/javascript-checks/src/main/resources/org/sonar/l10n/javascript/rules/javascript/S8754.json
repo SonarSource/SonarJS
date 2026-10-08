@@ -36,5 +36,11 @@
     "ts": [
       "Sonar way"
     ]
+  },
+  "sonarWayRemoval": {
+    "candidateProfiles": [
+      "style",
+      "strict-tests"
+    ]
   }
 }

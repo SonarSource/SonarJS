@@ -28,5 +28,11 @@
   "compatibleLanguages": [
     "ts"
   ],
-  "defaultQualityProfiles": []
+  "defaultQualityProfiles": [],
+  "sonarWayRemoval": {
+    "candidateProfiles": [
+      "strict-typing"
+    ],
+    "rationale": "User feedback favored relying on TypeScript's type inference for Vue refs."
+  }
 }

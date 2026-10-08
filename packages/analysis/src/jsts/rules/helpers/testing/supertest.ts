@@ -42,11 +42,10 @@ function isFQNAssertion(fqn: string | null | undefined) {
   const names = fqn.split('.');
 
   /**
-   * supertest assertions look like `[supertest instance](...).[HTTP verb](...).expect(...)`, typically:
-   * `supertest(application).get('/foo').expect(200)`
-   * hence only the first and third values matter, the second one being an HTTP verb irrelevant for assertion detection
+   * Supertest assertions end in `.expect(...)` after the request's HTTP verb and
+   * any intermediate request methods, such as `.send(...)` or `.set(...)`.
    */
-  return names.length >= 3 && names[0] === 'supertest' && names[2] === 'expect';
+  return names.length >= 3 && names[0] === 'supertest' && names.at(-1) === 'expect';
 }
 
 function extractFQNForCallExpression(context: Rule.RuleContext, node: estree.Node) {

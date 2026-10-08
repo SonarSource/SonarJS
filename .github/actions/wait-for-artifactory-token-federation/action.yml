@@ -1,0 +1,22 @@
+# Vendored from the private SonarSource/sonarsource-infra-artifactory
+# wait-for-artifactory-token-federation action. This public repo cannot `uses:`
+# that action (GitHub returns "not found").
+name: Wait for Artifactory token federation
+description: Wait until a Vault-issued Artifactory token is accepted by the JFrog Edge node
+
+inputs:
+  artifactory-url:
+    description: JFrog Artifactory base URL
+    default: https://repox-internal.dev.sonar.build/artifactory
+  probe-path:
+    description: Authenticated Edge endpoint path and optional query used to verify the token
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        ARTIFACTORY_URL: ${{ inputs.artifactory-url }}
+        PROBE_PATH: ${{ inputs.probe-path }}
+      run: bash "${GITHUB_ACTION_PATH}/wait.sh"

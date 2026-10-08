@@ -318,7 +318,7 @@ describe('S1854', () => {
    `,
           errors: [
             {
-              message: 'Remove this useless assignment to variable "x".',
+              message: 'The value assigned to "x" is never read. Use it or remove this assignment.',
               line: 5,
               endLine: 5,
               column: 9,

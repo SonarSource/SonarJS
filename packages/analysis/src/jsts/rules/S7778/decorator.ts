@@ -31,7 +31,14 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(meta, rule.meta),
+      meta: generateMeta(meta, {
+        ...rule.meta,
+        messages: {
+          ...rule.meta?.messages,
+          'error/array-push':
+            'Merge these {{description}} calls into a single call with multiple arguments.',
+        },
+      }),
     },
     reportExempting,
   );

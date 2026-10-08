@@ -610,14 +610,11 @@ public class AnalysisProcessor {
   }
 
   private static boolean supportsIssueResolution(JsTsContext<?> context) {
-    return (
-      !context.isSonarLint() &&
-      context
-        .getSensorContext()
-        .runtime()
-        .getApiVersion()
-        .isGreaterThanOrEqual(ISSUE_RESOLUTION_API_MIN_VERSION)
-    );
+    return context
+      .getSensorContext()
+      .runtime()
+      .getApiVersion()
+      .isGreaterThanOrEqual(ISSUE_RESOLUTION_API_MIN_VERSION);
   }
 
   private static boolean isQuickFixCompatible(JsTsContext<?> context) {

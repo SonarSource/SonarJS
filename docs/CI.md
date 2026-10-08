@@ -76,7 +76,7 @@ Runner labels express relative size and environment, not a stable hardware contr
 | `sonar-xs`                                    | `setup`, `get_build_number`, `populate_npm_cache`, `prepare_rspec_rule_data`, `knip`, `promote`, `releasability`, `run_iris` | Lightweight orchestration, metadata, cache preparation, and control-plane jobs |
 | `sonar-m`                                     | `test_js`, `analyze_primary`, `analyze_shadows`, most Linux plugin QA jobs                                                   | Medium Linux compute for tests and analysis                                    |
 | `sonar-l`                                     | `build`                                                                                                                      | Main Linux Maven build and deploy                                              |
-| `sonar-xl`                                    | `js_ts_ruling`, `ruling`                                                                                                     | Large ruling workloads                                                         |
+| `sonar-xl`                                    | `js_ts_ruling`, `js_ts_ruling_update`, `ruling`                                                                              | Large ruling workloads and result updates                                      |
 | `github-ubuntu-latest-s`                      | `build_eslint_plugin`, `test_eslint_plugin`, `generated_files_freshness`                                                     | Small GitHub-hosted Linux jobs                                                 |
 | `github-windows-latest-s`                     | `populate_npm_cache_win`                                                                                                     | Small Windows cache producer                                                   |
 | `github-windows-latest-m`                     | `build_win`, `test_js_win`, Windows plugin QA jobs                                                                           | Medium Windows build/test jobs                                                 |
@@ -296,6 +296,7 @@ set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the 
 | `plugin_qa_sonarlint_win`            | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_win_fast_with_node`       | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `js_ts_ruling`                       | `sonar-xl`                 | `setup`, `populate_npm_cache`, `prepare_rspec_rule_data`                         | non-fork PRs and all non-PR runs                                      |
+| `js_ts_ruling_update`                | `sonar-xl`                 | `js_ts_ruling`                                                                   | non-fork PRs and default branch when JS/TS ruling ran                 |
 | `ruling`                             | `sonar-xl`                 | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `run_iris`                           | `sonar-xs`                 | `analyze_primary`, `analyze_shadows`                                             | nightly only                                                          |
 | `promote`                            | `sonar-xs`                 | many fan-in jobs                                                                 | only when upstream jobs succeeded and the run is allowed to promote   |
@@ -305,16 +306,17 @@ set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the 
 
 These are the small data items passed as job outputs or step outputs, not bulky file payloads.
 
-| Producer           | Data                | Consumers                                                   | Meaning                                                                                        |
-| ------------------ | ------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `setup`            | `node-matrix`       | Node-matrix plugin QA jobs                                  | Derived from `package.json` engine range                                                       |
-| `setup`            | `js-files-hash`     | `test_js`, `test_js_win`                                    | Cache key seed for JS coverage and Windows JS marker, including workflow and dependency inputs |
-| `setup`            | `maven-hash`        | all Maven cache users                                       | Cache key seed for Maven dependencies                                                          |
-| `setup`            | `npm-hash`          | all `node_modules` producers/consumers                      | Exact cache key seed for installed Node dependencies                                           |
-| `setup`            | `cache-month`       | Maven cache steps                                           | Monthly key rotation value                                                                     |
-| `setup`            | `is-default-branch` | most `mise-action` calls                                    | Controls when tool caches may be saved                                                         |
-| `get_build_number` | `build-number`      | build, QA, analysis, promotion, and shared env anchor users | One build number is minted once and reused consistently                                        |
-| `config-maven`     | `project-version`   | `analyze_primary`, `analyze_shadows`                        | Sonar analysis version value                                                                   |
+| Producer                  | Data                | Consumers                                                   | Meaning                                                                                        |
+| ------------------------- | ------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `setup`                   | `node-matrix`       | Node-matrix plugin QA jobs                                  | Derived from `package.json` engine range                                                       |
+| `setup`                   | `js-files-hash`     | `test_js`, `test_js_win`                                    | Cache key seed for JS coverage and Windows JS marker, including workflow and dependency inputs |
+| `prepare_rspec_rule_data` | `test-input-hash`   | `test_js`, `test_js_win`                                    | Digest of refreshed JS and CSS rule resources used to invalidate test skip caches              |
+| `setup`                   | `maven-hash`        | all Maven cache users                                       | Cache key seed for Maven dependencies                                                          |
+| `setup`                   | `npm-hash`          | all `node_modules` producers/consumers                      | Exact cache key seed for installed Node dependencies                                           |
+| `setup`                   | `cache-month`       | Maven cache steps                                           | Monthly key rotation value                                                                     |
+| `setup`                   | `is-default-branch` | most `mise-action` calls                                    | Controls when tool caches may be saved                                                         |
+| `get_build_number`        | `build-number`      | build, QA, analysis, promotion, and shared env anchor users | One build number is minted once and reused consistently                                        |
+| `config-maven`            | `project-version`   | `analyze_primary`, `analyze_shadows`                        | Sonar analysis version value                                                                   |
 
 ### Important internal detail: build number cache
 
@@ -363,8 +365,8 @@ That is exactly artifact semantics, not cache semantics.
 | -------------------------- | ---------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | installed NPM dependencies | `node_modules`                     | `populate_npm_cache`, `populate_npm_cache_win`                       | `build`, `build_win`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `knip`, `test_js`, `test_js_win`, `analyze_primary`, `analyze_shadows`, `js_ts_ruling` | `npm-${runner.os}-${npm-hash}`                                                           | producer jobs use `actions/cache` with `lookup-only: true`; save happens only after a miss and a successful install |
 | CycloneDX CLI              | `~/.cache/cyclonedx-cli`           | `build`, `build_win`                                                 | `build`, `build_win`                                                                                                                                           | `cyclonedx-cli-${runner.os}-${runner.arch}-${hashFiles('tools/merge-cyclonedx-bom.sh')}` | immutable, checksum-verified native CLI used only by the opt-in Maven `sbom` profile                                |
-| JS coverage cache          | `coverage/js`                      | `test_js`                                                            | `test_js` itself                                                                                                                                               | `js-coverage-${runner.os}-${js-files-hash}`                                              | combined restore/save cache; allows skip when exact coverage already exists                                         |
-| Windows JS marker          | `.js-test-marker-win`              | `test_js_win`                                                        | `test_js_win` itself                                                                                                                                           | `js-test-win-${runner.os}-${js-files-hash}`                                              | lookup-only probe; on miss the job runs tests and saves marker at job end                                           |
+| JS coverage cache          | `coverage/js`                      | `test_js`                                                            | `test_js` itself                                                                                                                                               | `js-coverage-${runner.os}-${js-files-hash}-${test-input-hash}`                           | combined restore/save cache; allows skip when exact coverage already exists                                         |
+| Windows JS marker          | `.js-test-marker-win`              | `test_js_win`                                                        | `test_js_win` itself                                                                                                                                           | `js-test-win-${runner.os}-${js-files-hash}-${test-input-hash}`                           | lookup-only probe; on miss the job runs tests and saves marker at job end                                           |
 | Maven repository           | `~/.m2/repository`                 | `build`, plus default-branch `build_win`, through `actions/cache`    | all Maven cache users                                                                                                                                          | `maven-${runner.os}-${cache-month}-${maven-hash}` plus monthly restore prefix            | Linux build saves on every eligible run; Windows build saves only on the default branch; other jobs restore only    |
 | Orchestrator home          | `${github.workspace}/orchestrator` | one normal and one fast QA owner per OS through `orchestrator-cache` | orchestrator-based QA/ruling jobs                                                                                                                              | `${key-prefix}-${month}-${github.run_id}` with monthly restore prefix                    | all jobs restore; one Linux and one Windows owner per cache family save only on the default branch                  |
 | Rule API clone/cache       | `$HOME/.sonar/rule-api`            | default-branch `prepare_rspec_rule_data` through `rule-api-cache`    | `prepare_rspec_rule_data`                                                                                                                                      | `${key-prefix}-${github.run_id}` with prefix restore                                     | only default branch saves unless `save: false`                                                                      |
@@ -657,7 +659,7 @@ Responsibilities:
 - upload coverage reports artifact for analysis jobs
 
 This job is both a cache consumer and a cache producer.
-Its skip cache is keyed on both source inputs and workflow/dependency inputs so CI or Node changes do not silently reuse stale success.
+Its skip cache is keyed on source, workflow, and dependency inputs, plus a digest of the refreshed RSPEC rule resources. Changes to generated test inputs therefore cannot silently reuse stale success.
 
 #### `test_js_win`
 
@@ -667,7 +669,7 @@ Responsibilities:
 - on miss, restore `node_modules`, download refreshed RSPEC data, generate metadata, compile bridge, run JS tests
 - create marker directory so the post step can save it
 
-Like `test_js`, its skip key includes workflow/dependency inputs in addition to source inputs.
+Like `test_js`, its skip key includes workflow and dependency inputs and the refreshed RSPEC rule-resource digest in addition to source inputs.
 
 ### Analysis, QA, and ruling fan-out
 
@@ -715,16 +717,28 @@ Important details:
 
 Responsibilities:
 
-- checkout with submodules and preserve the synthetic PR merge parents required by the ruling bot
+- checkout with submodules
 - restore `node_modules`
 - download refreshed RSPEC data
 - run JS/TS ruling
-- on PRs or default branch, delegate ruling report, fix-PR, and comment handling to `./.github/actions/ruling_bot`
-- pass explicit `new-results-path` and `old-results-path` inputs so the action only depends on sonar-lits result JSON semantics, not on a fixed SonarJS directory layout
-- pass source-tree and link inputs so the action can render the same rule-centric PR ruling report format with RSPEC links, source links, inline snippets, and a collapsible full report
-- fail the workflow when ruling needs an update
+- save generated results as an artifact when ruling fails, then expose the ruling step outcome to `js_ts_ruling_update`
 
-This job is more than test execution; it is also automated ruling maintenance.
+The ruling job fails when expected results differ. `js_ts_ruling_update` downloads the saved results and calls `./.github/actions/ruling_bot` with explicit result paths. The bot creates or updates a fix PR and dispatches `ruling-diff-comment.yml`. For a failed PR run, the report workflow checks out the tested synthetic merge, applies the saved results, and compares them with that merge's first parent before posting on the original PR. For a passing PR run, it reports expected results already committed in the tested merge. On a default-branch failure, it compares generated results with the tested branch commit and posts on the fix PR. The report workflow also clears stale comments when there is no difference.
+
+To rerun a failed PR report independently, use the original Build run ID and the exact merge and first-parent SHAs from that run:
+
+```sh
+gh workflow run ruling-diff-comment.yml --ref <branch-with-workflow> \
+  -f pr-number=<original-pr-number> \
+  -f head-sha=<tested-merge-sha> \
+  -f base-sha=<tested-merge-first-parent-sha> \
+  -f is-pull-request=true \
+  -f run-id=<build-run-id> \
+  -f ruling-failed=true \
+  -f fix-pr-url=<fix-pr-url>
+```
+
+`fix-pr-url` is optional, but includes the fix PR link in the comment. To rerun a passing PR report, omit `run-id`, `ruling-failed`, and `fix-pr-url`. For a default-branch failed run, use the fix PR number for `pr-number`, set `head-sha` and `base-sha` to the tested branch commit, and omit `is-pull-request=true`.
 
 #### `ruling`
 
@@ -783,25 +797,37 @@ Repox is the repository manager behind both npm and Maven flows here.
 
 #### npm
 
-Both Linux and Windows cache-population jobs:
+Linux, Windows, and ESLint jobs that install packages:
 
 - fetch a private-reader token from Vault
-- run:
-  - `npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=...`
-  - `npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/`
+- wait for Edge token federation on self-hosted / WarpBuild (`runner.environment != github-hosted`)
+- point `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/` on those runners
+- rewrite lockfile `resolved` hosts from `repox.jfrog.io` onto that registry (`replace-registry-host`), and keep a SaaS `_authToken` as fallback
+- GitHub-hosted jobs keep `https://repox.jfrog.io/artifactory/api/npm/npm/`
+- the ESLint plugin extra `npm install` (not in the lockfile) stays on SaaS via `npm_config_registry`
+- ESLint plugin tests have no lockfile: they skip `configure-npm-registry` entirely and stay on SaaS (Edge 404s npm metadata on both `npm` and `npmjs`; `replace-registry-host` would also rewrite tarball hosts back to Edge)
+
+Publish / promote (eslint-plugin release, `jfrog rt npm-publish`) stay on SaaS.
 
 #### Maven
 
 `config-maven`:
 
-- defaults `repox-url` to `https://repox.jfrog.io`
+- defaults `repox-url` to `https://repox.jfrog.io` so Vault tokens and **publish** (`ARTIFACTORY_URL` → `artifactory-maven-plugin`) stay on SaaS
 - writes Maven `settings.xml`
 - sets `SONARSOURCE_REPOSITORY_URL=$ARTIFACTORY_URL/sonarsource-qa`
 - exports authentication environment variables for Maven
 
-`build` additionally fetches deployer credentials and pushes to `sonarsource-public-qa`.
+On self-hosted / WarpBuild, `point-maven-resolve-at-edge` then:
 
-`promote` later promotes the produced build info/artifacts in Artifactory.
+- waits for Edge token federation against the `sonarsource` virtual repo
+- overrides `SONARSOURCE_REPOSITORY_URL` to `https://repox-internal.dev.sonar.build/artifactory/sonarsource-qa` (Maven mirror/resolve only)
+
+GitHub-hosted jobs skip that override and keep resolving from SaaS.
+
+`build` additionally fetches deployer credentials and pushes to `sonarsource-public-qa` on SaaS.
+
+`promote` later promotes the produced build info/artifacts in Artifactory (SaaS).
 
 ### Vault
 
@@ -832,24 +858,24 @@ The workflow targets:
 
 These are the most important reusable components in the current pipeline.
 
-| Action                                                     | Approx. uses in `build.yml` | Purpose                                                                                                    | Cache / artifact relevance                             |
-| ---------------------------------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| `actions/checkout`                                         | 28                          | source checkout                                                                                            | none                                                   |
-| `jdx/mise-action`                                          | 26                          | provision Java, Maven, Node                                                                                | action-managed runtime cache behavior                  |
-| `actions/download-artifact`                                | 28                          | same-run file handoff                                                                                      | run-local artifact consumption                         |
-| `SonarSource/vault-action-wrapper`                         | 18                          | credentials from Vault                                                                                     | none directly, but enables Repox/RSPEC/Sonar access    |
-| `SonarSource/ci-github-actions/config-maven`               | 17                          | Maven + Repox setup                                                                                        | built-in caching disabled in this workflow             |
-| `actions/cache/restore`                                    | 26                          | restore-only cache consumers                                                                               | direct GitHub cache use                                |
-| `./.github/actions/orchestrator-cache`                     | 9                           | repo-owned orchestrator cache policy                                                                       | official GitHub cache, rolling monthly prefix          |
-| `actions/upload-artifact`                                  | 9                           | same-run file handoff                                                                                      | artifact production                                    |
-| `actions/cache`                                            | 8                           | cache producers, including Maven owners and Linux and Windows CycloneDX CLI caches                         | direct GitHub cache use                                |
-| `SonarSource/ci-github-actions/get-build-number`           | 1                           | stable build number                                                                                        | internally uses GitHub cache                           |
-| `./.github/actions/ruling_bot`                             | 1                           | repo-owned ruling report/comment/fix-PR automation for sonar-lits result trees and rich PR ruling comments | control-plane encapsulation, no direct cache semantics |
-| `./.github/actions/rule-api-cache`                         | 1                           | repo-owned rule-api cache policy                                                                           | official GitHub cache, rolling prefix                  |
-| `peter-evans/create-pull-request`                          | 1                           | nightly generated-files PR                                                                                 | none                                                   |
-| `SonarSource/unified-dogfooding-actions/run-iris`          | 1                           | nightly cross-platform comparison                                                                          | none                                                   |
-| `SonarSource/ci-github-actions/promote`                    | 1                           | Artifactory/Repox promotion                                                                                | downstream of all build/test gates                     |
-| `SonarSource/gh-action_releasability/releasability-status` | 1                           | releasability commit status                                                                                | none                                                   |
+| Action                                                     | Approx. uses in `build.yml` | Purpose                                                                            | Cache / artifact relevance                             |
+| ---------------------------------------------------------- | --------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `actions/checkout`                                         | 28                          | source checkout                                                                    | none                                                   |
+| `jdx/mise-action`                                          | 26                          | provision Java, Maven, Node                                                        | action-managed runtime cache behavior                  |
+| `actions/download-artifact`                                | 28                          | same-run file handoff                                                              | run-local artifact consumption                         |
+| `SonarSource/vault-action-wrapper`                         | 18                          | credentials from Vault                                                             | none directly, but enables Repox/RSPEC/Sonar access    |
+| `SonarSource/ci-github-actions/config-maven`               | 17                          | Maven + Repox setup                                                                | built-in caching disabled in this workflow             |
+| `actions/cache/restore`                                    | 26                          | restore-only cache consumers                                                       | direct GitHub cache use                                |
+| `./.github/actions/orchestrator-cache`                     | 9                           | repo-owned orchestrator cache policy                                               | official GitHub cache, rolling monthly prefix          |
+| `actions/upload-artifact`                                  | 9                           | same-run file handoff                                                              | artifact production                                    |
+| `actions/cache`                                            | 8                           | cache producers, including Maven owners and Linux and Windows CycloneDX CLI caches | direct GitHub cache use                                |
+| `SonarSource/ci-github-actions/get-build-number`           | 1                           | stable build number                                                                | internally uses GitHub cache                           |
+| `./.github/actions/ruling_bot`                             | 1                           | repo-owned fix-PR automation for sonar-lits result trees                           | control-plane encapsulation, no direct cache semantics |
+| `./.github/actions/rule-api-cache`                         | 1                           | repo-owned rule-api cache policy                                                   | official GitHub cache, rolling prefix                  |
+| `peter-evans/create-pull-request`                          | 1                           | nightly generated-files PR                                                         | none                                                   |
+| `SonarSource/unified-dogfooding-actions/run-iris`          | 1                           | nightly cross-platform comparison                                                  | none                                                   |
+| `SonarSource/ci-github-actions/promote`                    | 1                           | Artifactory/Repox promotion                                                        | downstream of all build/test gates                     |
+| `SonarSource/gh-action_releasability/releasability-status` | 1                           | releasability commit status                                                        | none                                                   |
 
 ## Toolchain Provisioning (mise)
 
@@ -875,7 +901,7 @@ A job that does not need every tool restricts installation with `install_args` i
 | `populate_npm_cache`, `populate_npm_cache_win`, `test_js`, `test_js_win`                                                                                                                        | _(none — installs everything)_ | same as `&mise`, but these steps carry their own `if: cache-hit != 'true'` guard, so they can't use the anchor and appear as separate inline steps instead |
 | `plugin_qa_without_node`, `plugin_qa_without_node_dev`, `plugin_qa_fast_without_node`, `plugin_qa_fast_without_node_dev` (the `&mise_java_only` anchor)                                         | `java maven`                   | Node must be absent so "QA without Node" actually tests without Node                                                                                       |
 | `plugin_qa_without_node_alpine`, `plugin_qa_fast_without_node_alpine` (the `&alpine_setup_maven` anchor)                                                                                        | `maven`                        | the Alpine container image already ships its own JDK; only Maven is missing                                                                                |
-| `test_eslint_plugin`                                                                                                                                                                            | `node`                         | ESLint plugin tests only need Node, at a matrix-driven version (see below)                                                                                 |
+| `test_eslint_plugin`, `js_ts_ruling_update`                                                                                                                                                     | `node`                         | These jobs only need Node, with the ESLint test version set by its matrix (see below)                                                                      |
 
 A tool declared in `mise.toml` but omitted from `install_args` is simply left uninstalled: `mise ls` reports it `(missing)`, no shim is created for it, and `mise env` does not export it (confirmed against the pinned Alpine image — the container's own `JAVA_HOME` survives untouched). This is what makes the Alpine/`_only` rows above safe even though `mise.toml` also declares tools they don't want.
 
@@ -903,7 +929,7 @@ Also note: `install_args_hash` already differentiates jobs with different `insta
 
 ### Keeping the JS unit-test skip-cache honest
 
-`setup`'s `js-files-hash` step (`build.yml`, "Compute JS test hash for skip caching") hashes a `find` list that includes `mise.toml`. This matters because `test_js`/`test_js_win` use that hash as their skip-cache key: on a hit, `test_js` skips checkout/mise/npm/test entirely but still runs its unconditional coverage-upload step, publishing whatever coverage was already in the restored cache; `test_js_win` is a `lookup-only` marker with no upload step at all, so its failure mode is simpler but just as invisible — it reports green having run nothing. Before `mise.toml` existed, the tool versions lived inside `build.yml` itself, which _is_ in that hash, so a version bump correctly invalidated the skip cache and forced a real re-run. `mise.toml` has to stay in that `find` list for the same property to hold: without it, bumping `mise.toml` alone would hit the stale cache and never re-run on the new toolchain.
+`setup`'s `js-files-hash` step (`build.yml`, "Compute JS test hash for skip caching") hashes a `find` list that includes `mise.toml`. The skip-cache keys for `test_js` and `test_js_win` combine that hash with `prepare_rspec_rule_data`'s `test-input-hash`, computed after refreshing the generated JS and CSS rule resources. On a hit, `test_js` skips checkout/mise/npm/test entirely but still runs its unconditional coverage-upload step, publishing whatever coverage was already in the restored cache; `test_js_win` is a `lookup-only` marker with no upload step at all, so its failure mode is simpler but just as invisible — it reports green having run nothing. Before `mise.toml` existed, the tool versions lived inside `build.yml` itself, which _is_ in `js-files-hash`, so a version bump correctly invalidated the skip cache and forced a real re-run. `mise.toml` has to stay in that `find` list for the same property to hold: without it, bumping `mise.toml` alone would hit the stale cache and never re-run on the new toolchain.
 
 Being _in_ the hash isn't sufficient on its own, though — the hash is over `mise.toml`'s _text_, not the version mise actually resolves at runtime. A fuzzy spec like `node = "24.11"` has the same declared text before and after a new `24.11.x` patch ships, so the skip-cache key wouldn't change even though the Node runtime under test would. That's why `node` is pinned to an exact version (`24.11.1`) above rather than left fuzzy like `java`/`maven`: `java`/`maven`'s exact patch doesn't affect `test_js`'s behavior (that job never touches Maven, and Java only matters to Maven-based jobs, which have no equivalent skip-cache), but Node's does, so Node's declared and resolved versions have to be the same value at all times. See [Why Node is pinned exactly, and every other version is a fuzzy minor spec](#why-node-is-pinned-exactly-and-every-other-version-is-a-fuzzy-minor-spec) below.
 

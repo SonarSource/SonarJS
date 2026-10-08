@@ -33,7 +33,8 @@ describe('S4138', () => {
           code: `for (let i = 0; i < arr.length; ++i) console.log(arr[i]);`,
           errors: [
             {
-              messageId: 'preferForOf',
+              message:
+                'Use a "for...of" loop, since the index is only used to read array elements.',
               suggestions: [
                 {
                   desc: `Replace with "for of" loop`,

@@ -31,7 +31,7 @@ describe('S3626', () => {
       }`,
           errors: [
             {
-              messageId: 'removeRedundantJump',
+              message: 'Remove this "continue" that does not affect the flow of execution.',
               line: 3,
               endLine: 3,
               suggestions: [
@@ -145,7 +145,7 @@ describe('S3626', () => {
       }`,
           errors: [
             {
-              messageId: 'removeRedundantJump',
+              message: 'Remove this "return" that does not affect the flow of execution.',
               line: 4,
               endLine: 4,
               suggestions: [

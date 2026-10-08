@@ -29,5 +29,10 @@
     "js",
     "ts"
   ],
-  "defaultQualityProfiles": []
+  "defaultQualityProfiles": [],
+  "sonarWayRemoval": {
+    "candidateProfiles": [
+      "strict-tests"
+    ]
+  }
 }

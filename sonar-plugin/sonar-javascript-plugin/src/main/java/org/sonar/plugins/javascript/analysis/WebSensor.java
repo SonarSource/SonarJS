@@ -297,7 +297,7 @@ public class WebSensor implements ProjectSensor {
 
   class AnalyzeProjectHandler implements ProjectAnalysisHandler {
 
-    private final JsTsContext<?> context;
+    private final JsTsContext<?> handlerContext;
     private final Map<String, List<ExternalIssue>> externalIssues;
     private final List<InputFile> inputFiles;
     private final List<InputFile> projectMetadataFiles;
@@ -314,7 +314,7 @@ public class WebSensor implements ProjectSensor {
       Map<String, List<ExternalIssue>> externalIssues
     ) {
       this.inputFiles = inputFiles;
-      this.context = context;
+      this.handlerContext = context;
       this.projectMetadataFiles = context.canAccessFileSystem()
         ? List.of()
         : collectProjectMetadataFiles();
@@ -336,7 +336,7 @@ public class WebSensor implements ProjectSensor {
       if (fsListener != null) {
         configurationBuilder.clearFsEvents().addAllFsEvents(fsListener.listFSEvents().keySet());
       }
-      configurationBuilder.setSkipAst(context.skipAst(consumers));
+      configurationBuilder.setSkipAst(handlerContext.skipAst(consumers));
       return AnalyzeProjectRequest.newBuilder()
         .setConfiguration(configurationBuilder.build())
         .putAllFiles(files)
@@ -376,7 +376,7 @@ public class WebSensor implements ProjectSensor {
 
     private void handleCachedInputFile(Map<String, ProjectFileInput> files, InputFile inputFile)
       throws IOException {
-      CacheStrategy cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+      CacheStrategy cacheStrategy = CacheStrategies.getStrategyFor(handlerContext, inputFile);
       if (cacheStrategy.isAnalysisRequired()) {
         addFileToAnalyze(files, inputFile);
         fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
@@ -386,7 +386,7 @@ public class WebSensor implements ProjectSensor {
       if (isJsTsFile(inputFile)) {
         LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
         var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
-        analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
+        analysisProcessor.processCacheAnalysis(handlerContext, inputFile, cacheAnalysis);
         acceptAstResponse(cacheAnalysis.getAst(), inputFile);
       }
     }
@@ -399,7 +399,7 @@ public class WebSensor implements ProjectSensor {
     }
 
     private List<InputFile> collectProjectMetadataFiles() {
-      FileSystem fileSystem = context.getSensorContext().fileSystem();
+      FileSystem fileSystem = handlerContext.getSensorContext().fileSystem();
       return StreamSupport.stream(
         fileSystem.inputFiles(fileSystem.predicates().all()).spliterator(),
         false
@@ -423,7 +423,7 @@ public class WebSensor implements ProjectSensor {
 
     @Override
     public SensorContext getContext() {
-      return context.getSensorContext();
+      return handlerContext.getSensorContext();
     }
 
     @Override
@@ -454,11 +454,11 @@ public class WebSensor implements ProjectSensor {
         if (response.hasError() && !response.getError().isBlank()) {
           // The HTTP transport used to drop per-file runtime errors after logging them in Node.js.
           // Keep the project analysis running, but surface the failure explicitly on the file.
-          analysisProcessor.processFileError(context, file, response.getError());
+          analysisProcessor.processFileError(handlerContext, file, response.getError());
           saveExternalIssues(filePath, List.of());
           return;
         }
-        var issues = analysisProcessor.processResponse(context, checks, file, response);
+        var issues = analysisProcessor.processResponse(handlerContext, checks, file, response);
         saveExternalIssues(filePath, issues);
         // Only cache JS/TS file results -- non-JS/TS files (CSS, HTML, YAML) skip caching.
         var cacheStrategy = fileToCacheStrategy.get(filePath);
@@ -483,7 +483,7 @@ public class WebSensor implements ProjectSensor {
         issues
       );
       if (!dedupedIssues.isEmpty()) {
-        ExternalIssueRepository.saveESLintIssues(context.getSensorContext(), dedupedIssues);
+        ExternalIssueRepository.saveESLintIssues(handlerContext.getSensorContext(), dedupedIssues);
       }
       externalIssues.remove(filePath);
     }
@@ -517,7 +517,7 @@ public class WebSensor implements ProjectSensor {
         AnalyzeProjectMessages.newProjectFileInput(
           inputFile.type(),
           inputFile.status(),
-          context.shouldSendFileContent(inputFile) ? inputFile.contents() : null
+          handlerContext.shouldSendFileContent(inputFile) ? inputFile.contents() : null
         )
       );
       fileToInputFile.put(inputFile.absolutePath(), inputFile);

@@ -14,8 +14,28 @@ describe('supertest', function () { // Compliant
     return foo(app).get(`/foo/bar`).expect('Content-Type', /json/u).expect(200);
   });
 
+  it('recognizes an assertion after sending a body', async function () { // Compliant
+    await supertest(app).post('/foo').send({ a: 1 }).expect(201);
+  });
+
+  it('recognizes an assertion after setting a header', async function () { // Compliant
+    await supertest(app).get('/foo').set('Authorization', 'token').expect(200);
+  });
+
+  it('recognizes an assertion after setting a header and sending a body', async function () { // Compliant
+    await supertest(app).post('/foo').set('Authorization', 'token').send({ a: 1 }).expect(201);
+  });
+
   it('should fail when no assertion', function () { // Noncompliant {{Add at least one assertion to this test case.}}
     return supertest(app).get(`/foo/bar`);
+  });
+
+  it('should fail when a request only sends a body', function () { // Noncompliant {{Add at least one assertion to this test case.}}
+    return supertest(app).post('/foo').send({ a: 1 });
+  });
+
+  it('should fail when a request only sets a header', function () { // Noncompliant {{Add at least one assertion to this test case.}}
+    return supertest(app).get('/foo').set('Authorization', 'token');
   });
 });
 

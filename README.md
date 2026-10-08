@@ -1,3 +1,4 @@
+<!-- Sonar Marketing hosts these approved brand assets on its Kentico Kontent CDN (assets-eu-01.kc-usercontent.com). Shared URLs are intentional; consult Marketing before replacing them. -->
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://assets-eu-01.kc-usercontent.com/ef593040-b591-0198-9506-ed88b30bc023/a23fc7ba-23f0-489a-829d-ed88c0748521/Sonar_Logo_Dark%20Backgrounds.svg">
@@ -5,12 +6,15 @@
   </picture>
 </p>
 
-# SonarJS
-
 [![Quality Gate](https://next.sonarqube.com/sonarqube/api/project_badges/measure?project=org.sonarsource.javascript%3Ajavascript&metric=alert_status)](https://next.sonarqube.com/sonarqube/dashboard?id=org.sonarsource.javascript%3Ajavascript) [![Coverage](https://next.sonarqube.com/sonarqube/api/project_badges/measure?project=org.sonarsource.javascript%3Ajavascript&metric=coverage)](https://next.sonarqube.com/sonarqube/component_measures/domain/Coverage?id=org.sonarsource.javascript%3Ajavascript)
 [![GitHub stars](https://img.shields.io/github/stars/SonarSource/SonarJS?style=flat)](https://github.com/SonarSource/SonarJS)
 [![License](https://img.shields.io/badge/license-SSALv1-blue)](#license)
 [![Community forum](https://img.shields.io/badge/community-forum-blue)](https://community.sonarsource.com/)
+
+<!-- sonar-marketing:start -->
+<!-- Marketing maintains this section. For wording changes, consult the relevant Product Marketing Manager (PMM). Repository CODEOWNERS review accuracy and merge changes. -->
+
+# SonarJS
 
 SonarJS inspects JavaScript, TypeScript, and CSS for bugs, vulnerabilities, and maintainability issues. Findings appear in SonarQube for IDE and in project analysis on SonarQube Server or SonarQube Cloud.
 
@@ -19,6 +23,10 @@ SonarJS analyzes developer-written and AI-generated code, giving teams a consist
 :arrow_right: [Have some feedback?](#support)
 
 This repository now hosts [eslint-plugin-sonarjs](packages/analysis/src/jsts/rules/README.md), our plugin for ESLint.
+
+Learn more about the [SonarQube product family](https://www.sonarsource.com/products/sonarqube/).
+
+<!-- sonar-marketing:end -->
 
 # Features
 

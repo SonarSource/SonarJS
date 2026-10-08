@@ -36,7 +36,14 @@ type VariableDeclarationNode = estree.VariableDeclaration &
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return {
     ...rule,
-    meta: generateMeta(meta, rule.meta),
+    meta: generateMeta(meta, {
+      ...rule.meta,
+      messages: {
+        ...rule.meta?.messages,
+        unexpectedVar:
+          'Replace "var" with "let" or "const", which are scoped to the block that declares them.',
+      },
+    }),
     create(context) {
       if (isVendorFile(context.physicalFilename)) {
         return {};
@@ -54,8 +61,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       });
       const listener = interceptedRule.create(context);
       const onVariableDeclaration = listener.VariableDeclaration as
-        | VariableDeclarationListener
-        | undefined;
+        VariableDeclarationListener | undefined;
       const onProgramExit = listener['Program:exit'] as ProgramExitListener | undefined;
 
       return {

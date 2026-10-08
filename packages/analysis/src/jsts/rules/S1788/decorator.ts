@@ -29,7 +29,15 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
       ...rule,
-      meta: generateMeta(meta, { ...rule.meta, schema: undefined }),
+      meta: generateMeta(meta, {
+        ...rule.meta,
+        schema: undefined,
+        messages: {
+          ...rule.meta?.messages,
+          shouldBeLast:
+            'Move this default parameter last, so callers can omit it instead of passing "undefined".',
+        },
+      }),
     },
     reportExempting(isReduxReducer),
   );

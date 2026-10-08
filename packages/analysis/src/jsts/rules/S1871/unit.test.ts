@@ -136,7 +136,7 @@ describe('S1871', () => {
                 line: 2,
                 sonarRuntimeData: JSON.stringify({
                   message:
-                    "This branch's code block is the same as the block for the branch on line 2.",
+                    'Merge this branch with the identical one on line 2, or update it if it should differ.',
                   secondaryLocations: [
                     {
                       message: 'Original',
@@ -361,7 +361,8 @@ describe('S1871', () => {
                 type: 'case',
                 line: '3',
                 sonarRuntimeData: JSON.stringify({
-                  message: `This case's code block is the same as the block for the case on line 3.`,
+                  message:
+                    'Merge this case with the identical one on line 3, or update it if it should differ.',
                   secondaryLocations: [
                     {
                       message: 'Original',
