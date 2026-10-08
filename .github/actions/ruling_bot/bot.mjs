@@ -333,18 +333,20 @@ export function controller(ctx, adapters = {}) {
       }
     }
     if (!fresh(true)) return 'stale';
+    if (!report && !ctx.failed && !ctx.fixUrl) {
+      if (existing) api(`issues/comments/${existing.id}`, ['-X', 'DELETE']);
+      return 'empty';
+    }
     const notice = ctx.fixUrl
       ? `Ruling needs updating. A [fix PR](${ctx.fixUrl}) has been created. Please review and merge it into your branch.\n\n`
-      : ctx.failed
+      : ctx.failed && ctx.isPullRequest
         ? 'Ruling needs updating.\n\n'
-        : ctx.runId
-          ? `**Ruling passed${report ? ' with these expected-result updates already present in the branch' : ''}. No fix PR was needed.**\n\n`
-          : '';
+        : '';
     const content =
       report ||
-      (ctx.failed
+      (ctx.isPullRequest
         ? `## Ruling Report\n\nNo net issue changes relative to the tested base; the branch expectations still need ${ctx.fixUrl ? 'the linked fix' : 'updating'}.\n`
-        : '## Ruling Report\n\nNo changes to ruling expected issues in this PR.\n');
+        : '## Ruling Report\n\nNo net issue changes relative to the tested base.\n');
     let body = `${commentMarker}\n${provenance}\n${notice}${content}`;
     const bytes = Buffer.from(body);
     if (bytes.length > 50000) {

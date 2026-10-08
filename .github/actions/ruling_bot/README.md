@@ -38,10 +38,11 @@ uses the same locations. An empty `sources-path` disables snippets; empty link U
 | `report-workflow`       | Reporter workflow filename or ID                    | `ruling-diff-comment.yml` |
 | `report-workflow-ref`   | Ref containing the reporter implementation          | Repository default branch |
 
-The first four optional reporting settings were action inputs before #8050; restoring them avoids
-embedding SonarJS paths and URLs in the reporter. The artifact/workflow settings also make the
-artifact handoff usable by other repositories. `tested-commit-sha` optionally overrides `github.sha`
-in the updater; the reporter requires `head-sha` explicitly.
+The first four optional reporting settings were updater inputs before #8050 split persistence from
+reporting. Passing them through the independent reporter now keeps its configuration tied to the
+producing caller. The artifact/workflow settings also make the handoff usable by other repositories.
+`tested-commit-sha` optionally overrides `github.sha` in the updater; the reporter requires `head-sha`
+explicitly.
 
 Calling workflows need Node, Git, and `gh`. The updater needs `contents: write`,
 `pull-requests: write`, and `actions: write`; reporting needs `contents: read`,
@@ -91,7 +92,7 @@ of a retried Build.
 Raw PR-event reports carry no completed Build identity and cannot overwrite a completed report for
 the same PR head, even across different tested merges. Raw reports can still refresh reports from an
 earlier head. Passing Build retries dispatch again, replacing stale failure notices even
-when no push triggered a new PR event.
+when no push triggered a new PR event; an empty successful report clears the obsolete comment.
 
 Fix pushes and deletions use an explicit SHA lease, including the empty lease when creating a new
 branch. A concurrent update causes a visible failure rather than overwriting/deleting another
@@ -121,12 +122,13 @@ merely because its branch or body resembles a generated fix. Closed/merged fixes
 only open managed fixes are closed and their unchanged branches deleted. A delayed event for an
 original PR that has reopened skips cleanup.
 
-When ruling passes, the same guarded cleanup removes obsolete fixes. A report with no issue changes
-replaces stale failure notices with an explicit no-change confirmation. Completed passing Builds
-also explain when expectation updates are already correct and no fix PR is needed. Raw PR-event
-reports do not claim that ruling passed. A failing run with no net issue changes retains its failure
-notice and any required fix link: generated expectations may equal the tested base while the PR's
-committed expectations are wrong.
+When ruling passes, the same guarded cleanup removes obsolete fixes. Successful and raw PR-event
+reports with no issue changes clear an existing report comment, preserving the policy introduced
+by #8050. Reports describe expectation changes without claiming that the receiving PR passed ruling.
+A failed original-PR run with no net issue changes retains its failure notice and any required fix
+link: generated expectations may equal the tested base while the PR's committed expectations are
+wrong. Default-branch reports describe the generated changes on the fix PR without asking that fix
+PR to update its own expectations.
 Only bot-authored report comments are updated. Large comments retain the existing UTF-8-safe limit.
 
 ## Regression tests
@@ -144,14 +146,28 @@ bot; they are not scheduled by CI.
 ## Historical guarantees
 
 The final review follows merged implementations and their PR discussions, including corrections
-made after the initial review. The regression suite preserves these accumulated behaviors:
+made after the initial review. Later accepted changes supersede earlier behavior; the regression
+suite preserves the resulting contracts, rather than restoring every historical feature:
 
 | History                                                                                                                                                                                                                                    | Guarantee                                                                                                                     |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| [#6123](https://github.com/SonarSource/SonarJS/pull/6123), [#6157](https://github.com/SonarSource/SonarJS/pull/6157), [#6253](https://github.com/SonarSource/SonarJS/pull/6253)                                                            | Automatic updates, reusable bot comments, complete PR changes, and explicit no-change confirmation                            |
+| [#6123](https://github.com/SonarSource/SonarJS/pull/6123), [#6157](https://github.com/SonarSource/SonarJS/pull/6157)                                                                                                                       | Automatic updates, reusable bot comments, and complete PR changes                                                             |
 | [#6363](https://github.com/SonarSource/SonarJS/pull/6363), [#6436](https://github.com/SonarSource/SonarJS/pull/6436)                                                                                                                       | Source/RSPEC links, CSS/custom and TSX snippets, independent section limits, collapsed full report, and UTF-8-safe truncation |
 | [#6466](https://github.com/SonarSource/SonarJS/pull/6466), [#6883](https://github.com/SonarSource/SonarJS/pull/6883)                                                                                                                       | Persist fixes in PRs, reuse existing fixes, keep ruling failures visible, and support default-branch runs                     |
 | [#6580](https://github.com/SonarSource/SonarJS/pull/6580), [#6619](https://github.com/SonarSource/SonarJS/pull/6619), [#7520](https://github.com/SonarSource/SonarJS/pull/7520), [#7869](https://github.com/SonarSource/SonarJS/pull/7869) | Compare the exact tested synthetic merge with its first parent; report passing changes without requiring a fix                |
 | [#7508](https://github.com/SonarSource/SonarJS/pull/7508), [#7627](https://github.com/SonarSource/SonarJS/pull/7627)                                                                                                                       | Reusable inputs and local sync command; recover a dirty checkout without losing generated expectation changes                 |
 | [#7924](https://github.com/SonarSource/SonarJS/pull/7924), [#7922](https://github.com/SonarSource/SonarJS/pull/7922)                                                                                                                       | Flat expectation layout; include untracked additions, deletions, and both sides of committed renames                          |
 | [#8050](https://github.com/SonarSource/SonarJS/pull/8050)                                                                                                                                                                                  | Persist results before independent reporting; preserve the final corrected tested-tree baseline and artifact provenance       |
+
+Explicit supersessions also matter:
+
+- #6253 introduced no-change confirmations, which #7508 retained. #8050 then replaced empty reports
+  with comment deletion and documented that policy. Empty successful/raw reports remain silent.
+- #7520 added a passing notice to the Build-owned report. #8050 moved reporting to PR events and
+  independent dispatches and removed that notice. Committed changes are still reported without it;
+  the updater now refreshes that report after a successful retry to clear an earlier failure.
+- #6580/#6619's base-selection approach evolved through #7520 to #7869's exact tested merge first
+  parent. #8050's initially proposed fix-versus-head comparison was corrected before merge.
+- #6442's README maintenance moved to nightly in #6857; it remains outside the ruling bot.
+  #6363's gist draft and #7565's unmerged shared-action experiment do not define retained features.
+- #7922's final flat expectation layout supersedes the alternative layout described in its PR body.
