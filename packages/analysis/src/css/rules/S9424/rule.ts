@@ -17,209 +17,393 @@
 // https://sonarsource.github.io/rspec/#/rspec/S9424/css
 import stylelint, { type PostcssResult } from 'stylelint';
 import type PostCSS from 'postcss';
-import postcssValueParser, {
+import {
+  definitionSyntax,
+  find,
+  parse,
+  string as cssString,
+  walk,
+  type CssNode,
+  type DSNode,
   type FunctionNode,
-  type Node as ValueNode,
-} from 'postcss-value-parser';
-import cssFunctions from 'css-functions-list/index.json' with { type: 'json' };
+  type Lexer,
+  type SyntaxDescriptor,
+  type SyntaxMatchError,
+} from 'css-tree';
+import { calc, ParseErrorMessage, type ParseError } from '@csstools/css-calc';
 
-const SONAR_RULE = 'sonar/declaration-property-value-no-unknown';
-const UPSTREAM_RULE = 'declaration-property-value-no-unknown';
+const ruleName = 'sonar/declaration-property-value-no-unknown';
 
-// Standard CSS function names, the same list stylelint's function-no-unknown relies on
-const KNOWN_FUNCTIONS = new Set<string>(cssFunctions);
+// exported for testing purpose
+export const messages = stylelint.utils.ruleMessages(ruleName, {
+  rejected: (property: string, value: string) =>
+    `Unknown value "${value}" for property "${property}"`,
+  missing: (property: string) => `Missing value for property "${property}"`,
+  rejectedMath: (property: string, expression: string) =>
+    `Invalid math expression "${expression}" for property "${property}"`,
+});
 
-// Captures the offending value quoted in every upstream message variant
-const OFFENDING_VALUE =
-  /^(?:Unknown value|Cannot parse property value|Invalid math expression) "(.*)" for property "/s;
+// Functions whose values css-tree cannot validate reliably
+const UNVALIDATED_FUNCTIONS = new Set([
+  'attr',
+  'calc-size',
+  'clamp',
+  'env',
+  'if',
+  'max',
+  'min',
+  'var',
+]);
+
+const MATH_FUNCTIONS = new Set([
+  'abs',
+  'acos',
+  'asin',
+  'atan',
+  'atan2',
+  'calc',
+  'clamp',
+  'cos',
+  'exp',
+  'hypot',
+  'log',
+  'max',
+  'min',
+  'mod',
+  'pow',
+  'rem',
+  'round',
+  'sign',
+  'sin',
+  'sqrt',
+  'tan',
+]);
+
+const MATH_ERRORS = new Set<string>([
+  ParseErrorMessage.UnexpectedAdditionOfDimensionOrPercentageWithNumber,
+  ParseErrorMessage.UnexpectedSubtractionOfDimensionOrPercentageWithNumber,
+]);
+
+/**
+ * Value pieces that related rules cover: hex colors (S4647) and numbers with a unit (S4653).
+ */
+const UNCHECKED_NODE_TYPES = new Set(['Hash', 'Dimension']);
+
+// At-rules whose declarations are style declarations rather than descriptors
+const NESTING_AT_RULES = new Set([
+  'apply',
+  'container',
+  'layer',
+  'media',
+  'scope',
+  'starting-style',
+  'supports',
+]);
+
 const VENDOR_PREFIX = /^-(?:webkit|moz|ms|o|khtml)-/i;
-const VALID_HEX_COLOR = /^#(?:[\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/i;
 const LEGACY_IE_FILTER_VALUE = /^\s*(?:progid:|alpha\()/i;
 
-// Same `x` unit handling as stylelint's unit-no-unknown: only valid as an image resolution
-const RESOLUTION_X_PROPERTY = 'image-resolution';
+const MAX_CACHE_SIZE = 10000;
+const validValuesByLexer = new WeakMap<Lexer, Set<string>>();
+const knownFunctionsByLexer = new WeakMap<Lexer, Set<string>>();
 
-// Same direction checks as stylelint's function-linear-gradient-no-nonstandard-direction
-const GRADIENT_DIRECTION = /top|left|bottom|right/i;
-const STANDARD_GRADIENT_DIRECTION = /^to (top|left|bottom|right)(?: (top|left|bottom|right))?$/i;
-const GRADIENT_ANGLE = /^[\d.]+(?:deg|grad|rad|turn)$/;
-const GRADIENT_IN_KEYWORD = /\bin\b/i;
+// Suffix of the lexer types that define a function, such as `rgb()`
+const FUNCTION_TYPE_SUFFIX = '()';
 
-type UpstreamWarning = PostCSS.Warning & { rule?: string };
-type Lexer = { units: Record<string, string[]> };
-type Overlap = (node: ValueNode, allowsX: boolean) => boolean;
+// The grammar definitions that a css-tree lexer holds, which its typings do not expose
+type LexerDefinitions = {
+  properties: Record<string, SyntaxDescriptor>;
+  types: Record<string, SyntaxDescriptor>;
+};
 
-function isNonstandardGradientDirection(firstArgument: string): boolean {
-  if (GRADIENT_IN_KEYWORD.test(firstArgument) || firstArgument.startsWith('var(')) {
-    return false;
-  }
-  if (/^[\d.]/.test(firstArgument)) {
-    return !GRADIENT_ANGLE.test(firstArgument);
-  }
-  if (!GRADIENT_DIRECTION.test(firstArgument)) {
-    return false;
-  }
-  const match = STANDARD_GRADIENT_DIRECTION.exec(firstArgument);
-  return match === null || match[1] === match[2];
-}
+type Range = { start: number; end: number };
 
-function firstArgument(node: FunctionNode): string {
-  const separator = node.nodes.findIndex(
-    (child: ValueNode): boolean => child.type === 'div' && child.value === ',',
-  );
-  const nodes = separator === -1 ? node.nodes : node.nodes.slice(0, separator);
-  return postcssValueParser.stringify(nodes).trim().toLowerCase();
-}
+/** The rejected piece of a value, with the functions that enclose it, outermost first */
+type Piece = { node: CssNode; functions: FunctionNode[] };
 
-/**
- * Checks for problems that dedicated rules already report. Only warnings directly reporting
- * such a piece are suppressed; a containing value can still be reported alongside the dedicated
- * rule, even when the overlapping piece is its only invalid part:
- * - S4647 (color-no-invalid-hex), S4651 (function-linear-gradient-no-nonstandard-direction),
- *   S4652 (string-no-newline), S4653 (unit-no-unknown).
- */
-function overlapChecks(knownUnits: Set<string>): Overlap[] {
-  return [
-    (node: ValueNode): boolean =>
-      node.type === 'word' && node.value.startsWith('#') && !VALID_HEX_COLOR.test(node.value),
-    (node: ValueNode, allowsX: boolean): boolean => {
-      const unit = node.type === 'word' ? postcssValueParser.unit(node.value) : false;
-      if (!unit || unit.unit === '') {
-        return false;
+/** A problem located in the declaration value, or on the whole declaration without a range */
+type Problem = { message: string; range?: Range };
+
+const ruleImpl: stylelint.RuleBase = () => {
+  return (root: PostCSS.Root, result: PostcssResult) => {
+    const lexer = result.stylelint.lexer as Lexer;
+    const registeredSyntaxes = collectRegisteredSyntaxes(root);
+    let validValues = validValuesByLexer.get(lexer);
+    if (!validValues) {
+      validValues = new Set();
+      validValuesByLexer.set(lexer, validValues);
+    }
+
+    root.walkDecls((decl: PostCSS.Declaration) => {
+      const problem = findProblem(decl, lexer, registeredSyntaxes.get(decl.prop), validValues);
+      if (problem) {
+        const valueIndex = declarationValueIndex(decl);
+        const { range } = problem;
+        stylelint.utils.report({
+          ruleName,
+          result,
+          message: problem.message,
+          node: decl,
+          ...(range && { index: valueIndex + range.start, endIndex: valueIndex + range.end }),
+        });
       }
-      const name = unit.unit.toLowerCase();
-      return name === 'x' ? !allowsX : !knownUnits.has(name);
-    },
-    (node: ValueNode): boolean =>
-      node.type === 'function' &&
-      node.value.toLowerCase() === 'linear-gradient' &&
-      isNonstandardGradientDirection(firstArgument(node)),
-    (node: ValueNode): boolean => node.type === 'string' && node.value.includes('\n'),
-  ];
-}
-
-/**
- * Pieces that upstream cannot validate, so that it reports the whole value containing them:
- * - vendor-prefixed values, which are deliberate fallbacks for older browsers;
- * - unknown functions, like those of preprocessors, left to stylelint's function-no-unknown;
- * - unknown annotations, left to S8757 (annotation-no-unknown).
- */
-function isUnvalidatable(node: ValueNode): boolean {
-  switch (node.type) {
-    case 'function':
-      return (
-        VENDOR_PREFIX.test(node.value) ||
-        (node.value !== '' && !KNOWN_FUNCTIONS.has(node.value.toLowerCase())) ||
-        node.nodes.some(isUnvalidatable)
-      );
-    case 'word':
-      return VENDOR_PREFIX.test(node.value) || node.value.startsWith('!');
-    default:
-      return false;
-  }
-}
-
-/**
- * Problems that dedicated rules report are only ignored when they are the reported piece itself:
- * a nested one must not hide an independent error elsewhere in the same reported value.
- */
-function isDirectOverlap(nodes: ValueNode[], checks: Overlap[], allowsX: boolean): boolean {
-  const pieces = nodes.filter(
-    (node: ValueNode): boolean => node.type !== 'space' && node.type !== 'comment',
-  );
-  return pieces.length === 1 && checks.some((check: Overlap): boolean => check(pieces[0], allowsX));
-}
-
-function isLegacyIeFilter(decl: PostCSS.Declaration): boolean {
-  const property = decl.prop.toLowerCase();
-  return (
-    property === '-ms-filter' || (property === 'filter' && LEGACY_IE_FILTER_VALUE.test(decl.value))
-  );
-}
-
-function knownUnitsOf(result: PostcssResult): Set<string> {
-  const { units } = result.stylelint.lexer as Lexer;
-  return new Set(['%', ...Object.values(units).flat()]);
-}
-
-/**
- * Vendor-prefixed fallbacks and legacy IE filters are deliberate. Problems that dedicated rules
- * already report are left to them only when they are the directly reported piece.
- */
-function isIgnored(warning: UpstreamWarning, checks: Overlap[]): boolean {
-  const value = OFFENDING_VALUE.exec(warning.text)?.[1];
-  const decl = warning.node;
-  if (value === undefined || decl?.type !== 'decl') {
-    return false;
-  }
-  const declaration = decl as PostCSS.Declaration;
-  const allowsX = declaration.prop.toLowerCase() === RESOLUTION_X_PROPERTY;
-  const { nodes } = postcssValueParser(value);
-  return (
-    isLegacyIeFilter(declaration) ||
-    nodes.some(isUnvalidatable) ||
-    isDirectOverlap(nodes, checks, allowsX)
-  );
-}
-
-/**
- * Upstream locates a missing value right after the colon, which is past the end of the line for
- * a declaration like `letter-spacing:` at the end of a line. Such a location cannot be reported,
- * so the warning is moved to the whole declaration.
- */
-function relocateMissingValue(warning: UpstreamWarning): void {
-  const { start, end } = warning.node?.source ?? {};
-  if (OFFENDING_VALUE.exec(warning.text)?.[1] !== '' || !start || !end) {
-    return;
-  }
-  warning.line = start.line;
-  warning.column = start.column;
-  warning.endLine = end.line;
-  warning.endColumn = end.column + 1;
-}
-
-/**
- * Stylelint runs rules concurrently, so warnings from other rules may be interleaved with the
- * upstream ones. Only warnings that still carry the upstream rule name are handled.
- */
-function filterAndRelabelWarnings(result: PostcssResult): void {
-  const { messages } = result;
-  const checks = overlapChecks(knownUnitsOf(result));
-  for (let i = messages.length - 1; i >= 0; i--) {
-    const warning = messages[i] as UpstreamWarning;
-    if (warning.type !== 'warning' || warning.rule !== UPSTREAM_RULE) {
-      continue;
-    }
-    if (isIgnored(warning, checks)) {
-      messages.splice(i, 1);
-    } else {
-      relocateMissingValue(warning);
-      warning.text = warning.text.replace(` (${UPSTREAM_RULE})`, ` (${SONAR_RULE})`);
-      warning.rule = SONAR_RULE;
-    }
-  }
-}
-
-type RuleFunction = ReturnType<stylelint.RuleBase>;
-
-const ruleImpl: stylelint.RuleBase<unknown, unknown> = (
-  primary: unknown,
-  secondaryOptions: unknown,
-  context: stylelint.RuleContext,
-): RuleFunction => {
-  let upstream: RuleFunction | undefined;
-
-  return async (root: PostCSS.Root, result: PostcssResult): Promise<void> => {
-    if (!upstream) {
-      const factory = (await stylelint.rules[UPSTREAM_RULE]) as stylelint.Rule;
-      upstream = factory(primary, secondaryOptions, context);
-    }
-    await upstream(root, result);
-    filterAndRelabelWarnings(result);
+    });
   };
 };
 
-export const rule = stylelint.createPlugin(SONAR_RULE, ruleImpl as stylelint.Rule) as {
-  ruleName: string;
-  rule: stylelint.Rule;
-};
+function findProblem(
+  decl: PostCSS.Declaration,
+  lexer: Lexer,
+  syntax: string | undefined,
+  validValues: Set<string>,
+): Problem | undefined {
+  if (isSkippedDeclaration(decl, syntax)) {
+    return undefined;
+  }
+  const value = decl.raws.value?.raw ?? decl.value;
+  const cacheKey = syntax === undefined ? `${decl.prop}:${value}` : undefined;
+  if (cacheKey !== undefined && validValues.has(cacheKey)) {
+    return undefined;
+  }
+
+  let ast: CssNode;
+  try {
+    ast = parse(value, { context: 'value', positions: true });
+  } catch {
+    // values that are not valid CSS syntax are left to S4652 and S8757
+    return undefined;
+  }
+  if (hasUnvalidatedPiece(ast, knownFunctionsOf(lexer))) {
+    return undefined;
+  }
+
+  const mathError = findMathError(value, ast);
+  if (mathError) {
+    const expression = value.slice(mathError.start, mathError.end);
+    return { message: messages.rejectedMath(decl.prop, expression), range: mathError };
+  }
+
+  const mismatch = findMismatch(lexer, decl.prop, syntax, ast);
+  if (!mismatch) {
+    if (cacheKey !== undefined && validValues.size < MAX_CACHE_SIZE) {
+      validValues.add(cacheKey);
+    }
+    return undefined;
+  }
+
+  const piece = locatePiece(ast, mismatch);
+  if (!piece || !isChecked(piece)) {
+    return undefined;
+  }
+  const range = rangeOf(piece.node);
+  if (range.start === range.end) {
+    return { message: messages.missing(decl.prop) };
+  }
+  return { message: messages.rejected(decl.prop, value.slice(range.start, range.end)), range };
+}
+
+/**
+ * Maps the custom properties registered with `@property` to their syntax, except those
+ * accepting any value.
+ */
+function collectRegisteredSyntaxes(root: PostCSS.Root): Map<string, string> {
+  const syntaxes = new Map<string, string>();
+  root.walkAtRules(/^property$/i, (atRule: PostCSS.AtRule) => {
+    const name = atRule.params.trim();
+    if (!name.startsWith('--')) {
+      return;
+    }
+    atRule.walkDecls(/^syntax$/i, (decl: PostCSS.Declaration) => {
+      const value = decl.value.trim();
+      const syntax = cssString.decode(value);
+      if (syntax !== value && syntax !== '*') {
+        syntaxes.set(name, syntax);
+      }
+    });
+  });
+  return syntaxes;
+}
+
+function isSkippedDeclaration(decl: PostCSS.Declaration, syntax: string | undefined): boolean {
+  const property = decl.prop.toLowerCase();
+  return (
+    (property.startsWith('--') && syntax === undefined) ||
+    property === '-ms-filter' ||
+    (property === 'filter' && LEGACY_IE_FILTER_VALUE.test(decl.value)) ||
+    isDescriptor(decl)
+  );
+}
+
+function isDescriptor(decl: PostCSS.Declaration): boolean {
+  for (let node: PostCSS.Node | undefined = decl.parent; node; node = node.parent) {
+    if (
+      node.type === 'atrule' &&
+      !NESTING_AT_RULES.has((node as PostCSS.AtRule).name.toLowerCase())
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Vendor-prefixed values are deliberate fallbacks, and functions unknown to the lexer grammar,
+ * like those of frameworks or preprocessors, cannot be validated.
+ */
+function hasUnvalidatedPiece(ast: CssNode, knownFunctions: Set<string>): boolean {
+  return (
+    find(ast, (node: CssNode) => {
+      if (node.type === 'Function') {
+        const name = node.name.toLowerCase();
+        return (
+          VENDOR_PREFIX.test(name) || UNVALIDATED_FUNCTIONS.has(name) || !knownFunctions.has(name)
+        );
+      }
+      return node.type === 'Identifier' && VENDOR_PREFIX.test(node.name);
+    }) !== null
+  );
+}
+
+/**
+ * Names of the functions that the lexer grammar defines, the only ones whose calls it can validate
+ */
+function knownFunctionsOf(lexer: Lexer): Set<string> {
+  const cached = knownFunctionsByLexer.get(lexer);
+  if (cached) {
+    return cached;
+  }
+  const { properties, types } = lexer as unknown as LexerDefinitions;
+  const functions = new Set<string>(
+    Object.keys(types)
+      .filter((type: string) => type.endsWith(FUNCTION_TYPE_SUFFIX))
+      .map((type: string) => type.slice(0, -FUNCTION_TYPE_SUFFIX.length).toLowerCase()),
+  );
+  for (const { syntax } of [...Object.values(properties), ...Object.values(types)]) {
+    if (syntax) {
+      addFunctionNames(syntax, functions);
+    }
+  }
+  knownFunctionsByLexer.set(lexer, functions);
+  return functions;
+}
+
+function addFunctionNames(syntax: DSNode, names: Set<string>): void {
+  definitionSyntax.walk(syntax, (node: DSNode) => {
+    if (node.type === 'Function') {
+      names.add(node.name.toLowerCase());
+    }
+  });
+}
+
+/**
+ * Math expressions adding or subtracting a number and a dimension or a percentage
+ */
+function findMathError(value: string, ast: CssNode): Range | undefined {
+  const hasMath =
+    find(
+      ast,
+      (node: CssNode) => node.type === 'Function' && MATH_FUNCTIONS.has(node.name.toLowerCase()),
+    ) !== null;
+  if (!hasMath) {
+    return undefined;
+  }
+  let error: Range | undefined;
+  calc(value, {
+    onParseError: (parseError: ParseError) => {
+      if (!error && MATH_ERRORS.has(parseError.message)) {
+        error = { start: parseError.sourceStart, end: parseError.sourceEnd + 1 };
+      }
+    },
+  });
+  return error;
+}
+
+function findMismatch(
+  lexer: Lexer,
+  property: string,
+  syntax: string | undefined,
+  ast: CssNode,
+): Range | undefined {
+  let error;
+  try {
+    ({ error } =
+      syntax === undefined ? lexer.matchProperty(property, ast) : lexer.match(syntax, ast));
+  } catch {
+    // invalid registered syntax
+    return undefined;
+  }
+  // unknown properties are left to S4654
+  if (error?.name !== 'SyntaxMatchError' || !('loc' in error)) {
+    return undefined;
+  }
+  const { loc } = error as SyntaxMatchError;
+  return { start: loc.start.offset, end: loc.end.offset };
+}
+
+/**
+ * Finds the deepest node matching the mismatch. An empty mismatch denotes a missing piece,
+ * which rejects the enclosing function, or else the whole value.
+ */
+function locatePiece(ast: CssNode, mismatch: Range): Piece | undefined {
+  const isMissing = mismatch.start === mismatch.end;
+  const functions: FunctionNode[] = [];
+  let piece: Piece | undefined;
+  walk(ast, {
+    enter: (node: CssNode) => {
+      const range = rangeOf(node);
+      const matches = isMissing
+        ? node.type === 'Value' ||
+          (node.type === 'Function' && range.start < mismatch.start && mismatch.end <= range.end)
+        : node.type !== 'Value' && range.start === mismatch.start && range.end === mismatch.end;
+      if (node.loc && matches) {
+        piece = { node, functions: [...functions] };
+      }
+      if (node.type === 'Function') {
+        functions.push(node);
+      }
+    },
+    leave: (node: CssNode) => {
+      if (node.type === 'Function') {
+        functions.pop();
+      }
+    },
+  });
+  return piece;
+}
+
+/**
+ * Pieces that related rules cover are not checked: hex colors, numbers with a unit, and
+ * the first argument of `linear-gradient()`, which S4651 checks as the gradient direction.
+ */
+function isChecked({ node, functions }: Piece): boolean {
+  return (
+    !UNCHECKED_NODE_TYPES.has(node.type) &&
+    !functions.some(
+      (fn: FunctionNode) =>
+        fn.name.toLowerCase() === 'linear-gradient' && isInFirstArgument(fn, node),
+    )
+  );
+}
+
+function isInFirstArgument(fn: FunctionNode, node: CssNode): boolean {
+  const separator = fn.children
+    .toArray()
+    .find((child: CssNode) => child.type === 'Operator' && child.value === ',');
+  return !separator || rangeOf(node).start < rangeOf(separator).start;
+}
+
+function rangeOf(node: CssNode): Range {
+  return { start: node.loc?.start.offset ?? 0, end: node.loc?.end.offset ?? 0 };
+}
+
+function declarationValueIndex(decl: PostCSS.Declaration): number {
+  return decl.prop.length + (decl.raws.between ?? ':').length;
+}
+
+export const rule = stylelint.createPlugin(
+  ruleName,
+  Object.assign(ruleImpl, {
+    messages,
+    ruleName,
+  }),
+) as { ruleName: string; rule: stylelint.Rule };

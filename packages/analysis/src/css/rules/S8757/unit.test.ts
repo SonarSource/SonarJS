@@ -14,12 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import path from 'node:path';
 import { describe, it } from 'node:test';
-import { expect } from 'expect';
 import { StylelintRuleTester } from '../../../../tests/css/tools/tester/tester.js';
-import { LinterWrapper } from '../../linter/wrapper.js';
-import { normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 
 const ruleTester = new StylelintRuleTester('sonar/annotation-no-unknown');
 const ruleTesterWithIgnore = new StylelintRuleTester('sonar/annotation-no-unknown', [
@@ -80,20 +76,4 @@ a { color: red !imprtant; }
 </style>`,
       errors: [{ text: 'Unknown annotation "!imprtant" (sonar/annotation-no-unknown)', line: 3 }],
     }));
-
-  it('does not relabel warnings of rules running concurrently, across successive files', async () => {
-    const linter = new LinterWrapper();
-    linter.initialize([
-      { key: 'sonar/annotation-no-unknown', configurations: [] },
-      { key: 'sonar/declaration-property-value-no-unknown', configurations: [] },
-    ]);
-    for (const file of ['file1.css', 'file2.css']) {
-      const filePath = normalizeToAbsolutePath(path.join(import.meta.dirname, file));
-      const { issues } = await linter.lint(filePath, 'a { color: red !imprtant; top: red; }');
-      expect(issues.map((issue: { ruleId: string }): string => issue.ruleId).sort()).toEqual([
-        'sonar/annotation-no-unknown',
-        'sonar/declaration-property-value-no-unknown',
-      ]);
-    }
-  });
 });
