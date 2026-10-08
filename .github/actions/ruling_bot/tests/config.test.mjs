@@ -17,6 +17,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import test from 'node:test';
 import { configuration, environmentConfiguration } from '../config.mjs';
 import { context } from '../bot.mjs';
@@ -28,6 +29,37 @@ test('generic defaults contain no SonarJS-specific URLs or artifact names', () =
   assert.equal(actual['sources-repo-url'], '');
   assert.equal(actual['results-artifact-name'], 'ruling-results');
   assert.equal(actual['rspec-base-url'], 'https://sonarsource.github.io/rspec/#/rspec');
+});
+
+test('absolute paths inside the caller checkout are forwarded relative to the tested tree', () => {
+  const root = path.resolve('caller-checkout');
+  const config = environmentConfiguration({
+    RULING_REPOSITORY_PATH: root,
+    NEW_RESULTS_PATH: path.join(root, 'generated'),
+    OLD_RESULTS_PATH: path.join(root, 'expected'),
+    SOURCES_PATH: path.join(root, 'source-tree'),
+  });
+  assert.equal(config['new-results-path'], 'generated');
+  assert.equal(config['old-results-path'], 'expected');
+  assert.equal(config['sources-path'], 'source-tree');
+});
+
+test('relative parent segments inside the checkout are normalized without losing snippet options', () => {
+  assert.equal(
+    configuration({ ...paths, 'new-results-path': 'nested/../generated' })['new-results-path'],
+    'generated',
+  );
+  assert.equal(configuration({ ...paths, 'sources-path': '' })['sources-path'], '');
+  assert.equal(configuration({ ...paths, 'sources-path': '.' })['sources-path'], '.');
+});
+
+test('absolute paths escaping the checkout are rejected before handoff', () => {
+  const root = path.resolve('caller-checkout');
+  assert.throws(
+    () =>
+      configuration({ ...paths, 'old-results-path': path.resolve(root, '..', 'outside') }, root),
+    /inside the tested repository/,
+  );
 });
 
 test('restored and new inputs survive environment handoff, including empty URL/ref', () => {
@@ -68,7 +100,7 @@ for (const value of [
     assert.throws(() => configuration(value)));
 }
 
-test('reporter preserves producing-job artifact names across updater/report retries', () => {
+test('explicit artifact names pass through unchanged despite the local workflow attempt', () => {
   const configs = [];
   for (const attempt of ['1', '2']) {
     configs.push(
