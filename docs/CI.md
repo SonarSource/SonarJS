@@ -738,8 +738,15 @@ default-branch failure, the tested branch commit is the baseline and the report 
 
 A successful Build retry also dispatches a report, clearing outdated failure/fix notices. Updater,
 reporter, and closed-event cleanup share a queue and reject stale original PR heads, closed originals,
-older Build attempts, and superseded runs. Empty reports clear stale bot comments; a failing run with
-zero net behavioral difference still keeps its required fix link.
+older Build attempts, and superseded runs. Reports with no issue changes replace stale failure notices
+with an explicit no-change confirmation. Completed passing Builds also confirm when the branch's
+expectations already contain the required updates; raw PR events make no ruling-success claim.
+A failing run with zero net behavioral difference still keeps its failure notice and required fix link.
+
+New PR fixes use `fix/update-ruling-for-pr-<number>` so two original PRs sharing a source branch get
+independent fixes and reports. Existing target-owned legacy fixes keep their PR and branch. Orphan
+recovery never overwrites a branch used by another open PR. Default-branch fixes retain their
+`fix/update-ruling-for-<branch>` names.
 
 To retry the existing report with all its original inputs, use `gh run rerun <report-run-id>`. To
 request a new report with current stable tooling, use the originating Build ID and its current

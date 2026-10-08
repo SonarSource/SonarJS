@@ -22,6 +22,10 @@ configuration. Both result directories contain the sonar-lits `<project>/<langua
 layout. Helper scripts resolve relative to the action installation; data paths resolve relative to
 the tested checkout (`github.workspace`, or `repository-path` for the reporter).
 
+Result and source paths may be relative or absolute within that checkout. Valid paths are
+normalized relative to the caller's checkout before dispatch, so the separate reporter checkout
+uses the same locations. An empty `sources-path` disables snippets; empty link URLs disable links.
+
 | Input                   | Purpose                                             | Generic default           |
 | ----------------------- | --------------------------------------------------- | ------------------------- |
 | `new-results-path`      | Generated results, including additions and removals | Required                  |
@@ -94,8 +98,11 @@ branch. A concurrent update causes a visible failure rather than overwriting/del
 commit. An existing fix branch must belong to this target; an orphan from failed PR creation is
 recoverable through the identity in its bot commit. Leftover legacy branches are also recoverable
 when their tip has the exact old generated message and both author and committer match the bot's
-name and email. Unrelated dirty tracked build output is discarded
-when switching to the target branch, while expectation changes are retained through the stash.
+name and email, and no other open PR uses that branch. New PR fixes use
+`fix/update-ruling-for-pr-<number>` to keep two original PRs on the same source branch independent.
+Existing target-owned fixes and recoverable legacy branches remain supported. Default-branch fix
+names retain `fix/update-ruling-for-<branch>`. Unrelated dirty tracked build output is discarded when
+switching to the target branch, while expectation changes are retained through the stash.
 
 GitHub API state checks and Git ref writes are separate operations. A human can still push, merge,
 or reopen during the final API window; the queue coordinates bot jobs, and repeated checks/leases
@@ -114,9 +121,12 @@ merely because its branch or body resembles a generated fix. Closed/merged fixes
 only open managed fixes are closed and their unchanged branches deleted. A delayed event for an
 original PR that has reopened skips cleanup.
 
-When ruling passes, the same guarded cleanup removes obsolete fixes. Empty reports remove stale bot
-comments, except that a failing run with no net issue changes still retains its required fix link:
-generated expectations may equal the tested base while the PR's committed expectations are wrong.
+When ruling passes, the same guarded cleanup removes obsolete fixes. A report with no issue changes
+replaces stale failure notices with an explicit no-change confirmation. Completed passing Builds
+also explain when expectation updates are already correct and no fix PR is needed. Raw PR-event
+reports do not claim that ruling passed. A failing run with no net issue changes retains its failure
+notice and any required fix link: generated expectations may equal the tested base while the PR's
+committed expectations are wrong.
 Only bot-authored report comments are updated. Large comments retain the existing UTF-8-safe limit.
 
 ## Regression tests
@@ -130,3 +140,18 @@ exercise divergent base/PR histories, artifact/configuration handoff, actual pus
 failures, successful/failing reports, stale retries, ownership, and closure/merge/retargeting.
 They do not mutate GitHub or execute the analyzer/ruling suite. Run them locally when changing the
 bot; they are not scheduled by CI.
+
+## Historical guarantees
+
+The final review follows merged implementations and their PR discussions, including corrections
+made after the initial review. The regression suite preserves these accumulated behaviors:
+
+| History                                                                                                                                                                                                                                    | Guarantee                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| [#6123](https://github.com/SonarSource/SonarJS/pull/6123), [#6157](https://github.com/SonarSource/SonarJS/pull/6157), [#6253](https://github.com/SonarSource/SonarJS/pull/6253)                                                            | Automatic updates, reusable bot comments, complete PR changes, and explicit no-change confirmation                            |
+| [#6363](https://github.com/SonarSource/SonarJS/pull/6363), [#6436](https://github.com/SonarSource/SonarJS/pull/6436)                                                                                                                       | Source/RSPEC links, CSS/custom and TSX snippets, independent section limits, collapsed full report, and UTF-8-safe truncation |
+| [#6466](https://github.com/SonarSource/SonarJS/pull/6466), [#6883](https://github.com/SonarSource/SonarJS/pull/6883)                                                                                                                       | Persist fixes in PRs, reuse existing fixes, keep ruling failures visible, and support default-branch runs                     |
+| [#6580](https://github.com/SonarSource/SonarJS/pull/6580), [#6619](https://github.com/SonarSource/SonarJS/pull/6619), [#7520](https://github.com/SonarSource/SonarJS/pull/7520), [#7869](https://github.com/SonarSource/SonarJS/pull/7869) | Compare the exact tested synthetic merge with its first parent; report passing changes without requiring a fix                |
+| [#7508](https://github.com/SonarSource/SonarJS/pull/7508), [#7627](https://github.com/SonarSource/SonarJS/pull/7627)                                                                                                                       | Reusable inputs and local sync command; recover a dirty checkout without losing generated expectation changes                 |
+| [#7924](https://github.com/SonarSource/SonarJS/pull/7924), [#7922](https://github.com/SonarSource/SonarJS/pull/7922)                                                                                                                       | Flat expectation layout; include untracked additions, deletions, and both sides of committed renames                          |
+| [#8050](https://github.com/SonarSource/SonarJS/pull/8050)                                                                                                                                                                                  | Persist results before independent reporting; preserve the final corrected tested-tree baseline and artifact provenance       |

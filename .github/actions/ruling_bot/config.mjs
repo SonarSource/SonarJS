@@ -26,7 +26,7 @@ export const defaults = {
   'report-workflow-ref': '',
 };
 
-export function configuration(value) {
+export function configuration(value, repositoryRoot = process.cwd()) {
   if (!value || typeof value !== 'object' || Array.isArray(value))
     throw new Error('Ruling configuration must be an object.');
   const config = { ...defaults, ...value };
@@ -37,10 +37,18 @@ export function configuration(value) {
   }
   for (const name of ['new-results-path', 'old-results-path', 'sources-path']) {
     if (typeof config[name] !== 'string') throw new Error(`${name} must be a path string.`);
-    const value = config[name].replaceAll('\\', '/');
-    if (value.startsWith('/') || /^[a-z]:/i.test(value) || value.split('/').includes('..')) {
+    if (name === 'sources-path' && config[name] === '') continue;
+    const input = config[name].replaceAll('\\', '/');
+    if (path.sep === '/' && /^[a-z]:/i.test(input))
+      throw new Error(`${name} must be inside the tested repository.`);
+    const relative = path.relative(
+      path.resolve(repositoryRoot),
+      path.resolve(repositoryRoot, input),
+    );
+    if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
       throw new Error(`${name} must be inside the tested repository.`);
     }
+    config[name] = relative.split(path.sep).join('/') || '.';
   }
   const newPath = path.posix.resolve('/', config['new-results-path'].replaceAll('\\', '/'));
   const oldPath = path.posix.resolve('/', config['old-results-path'].replaceAll('\\', '/'));
@@ -69,5 +77,6 @@ export function environmentConfiguration(env) {
         .filter(name => env[name.replaceAll('-', '_').toUpperCase()] !== undefined)
         .map(name => [name, env[name.replaceAll('-', '_').toUpperCase()]]),
     ),
+    env.RULING_REPOSITORY_PATH || env.GITHUB_WORKSPACE || process.cwd(),
   );
 }
