@@ -76,7 +76,8 @@ function unsupportedFilesystemOperation(moduleName: string, name: PropertyKey): 
   const error = new Error(
     `Filesystem cache does not support ${moduleName}.${String(name)} from Node ${process.version}`,
   ) as FsError;
-  error.code = 'ERR_SONARJS_FS_CACHE_UNSUPPORTED';
+  error.name = 'UnsupportedFsOperationError';
+  error.code = 'ERR_SONARJS_FS_CACHE_UNSUPPORTED_OPERATION';
   return error;
 }
 
