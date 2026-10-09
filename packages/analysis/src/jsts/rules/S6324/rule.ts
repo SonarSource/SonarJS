@@ -334,7 +334,7 @@ function characterSetMatchesValue(
             ? characterSet.key
             : `${characterSet.key}=${characterSet.value}`;
         try {
-          matches = new RegExp(`\\p{${property}}`, 'u').test(String.fromCodePoint(value));
+          matches = new RegExp(String.raw`\p{${property}}`, 'u').test(String.fromCodePoint(value));
         } catch {
           matches = undefined;
         }
