@@ -717,55 +717,29 @@ Important details:
 
 Responsibilities:
 
-- checkout with submodules
+- checkout the tested tree with submodules and depth two; capture the PR merge's first parent
 - restore `node_modules`
 - download refreshed RSPEC data
 - run JS/TS ruling
-- save generated results as an artifact when ruling fails, then expose the ruling step outcome to `js_ts_ruling_update`
+- save generated results when ruling fails; expose the ruling outcome, successful persistence,
+  tested base and exact producing artifact name to `js_ts_ruling_update`
 
-The ruling job fails when expected results differ. SonarJS passes the reusable bot settings
-explicitly in the updater action's `with` block. The producing ruling job names its saved results
-artifact with its Build attempt (`actual_js_ts-1`, `actual_js_ts-2`, etc.) and exposes that exact name
-as a job output for upload, updater download, and dispatch. Retrying only downstream jobs preserves
-the producing job's name rather than selecting results from the downstream job's attempt.
+The ruling job fails when expected results differ. `js_ts_ruling_update` persists an owned fix
+before requesting an independent report; a passing ruling run cleans up obsolete fixes and
+refreshes the original PR report. The reporter runs the bot and reads data from the exact tested
+checkout. The updater is a dependency of promotion and protected-branch failure notification.
 
-`js_ts_ruling_update` creates or updates a fix PR before requesting a report. Its fix branch starts
-from the exact tested commit, so expectations added on the base exist when synchronized changes
-are restored. The generated commit changes only expectations. For a PR behind its tested base,
-incorporate that base before merging the fix; squash/rebase merges do not retain the fix branch's
-base ancestry. Updating the original branch can trigger ruling and refresh the fix. Generated fix
-PRs explain this requirement. Reporting dispatches from the original tested
-target branch (or an explicitly configured workflow ref). The reporter checks out bot code and data
-from the same tested commit. Branches must have the current reporter workflow; rebase branches
-predating its introduction or input changes. Failure reports apply saved generated results to that
-merge; passing reports use its committed expectations. Both compare with the merge's exact first
-parent. For a default-branch failure, the tested branch commit is the baseline and the report goes
-on the fix PR.
-Reporter preflight exposes the validated absolute download directory. Artifact download uses that
-output directly, preserving both absolute and relative result-path inputs.
+The [ruling bot README](../.github/actions/ruling_bot/README.md) is the maintained behavior and
+design contract. It owns expected outcomes, tested merge/fix ancestry, freshness and ownership,
+races and corner cases, historical decisions, configuration ownership and duplication rules,
+and the regression checklist for future PRs. Keep those policies there; this section describes
+how to operate and retry the SonarJS workflow.
 
-A successful Build retry also dispatches a report, clearing outdated failure/fix notices. Updater,
-reporter, and closed-event cleanup share a queue and reject stale original PR heads, closed originals,
-older Build attempts, and superseded runs. Successful/raw reports with no issue changes delete an
-existing bot report, preserving #8050's clear-empty policy. Reports show expectation changes without
-a ruling-success claim. The updater exposes `report-requested` only after dispatch succeeds;
-the Build records that output in a successful step. Raw reports consult those steps for the
-same PR head even after an empty report deleted its comment. Report generation writes to a
-temporary file and reads only a comment-sized prefix, so large reports reach UTF-8-safe truncation
-without hitting the controller's subprocess output limit. The configuration schema in
-`.github/actions/ruling_bot/config.mjs` and SonarJS settings in `.github/ruling-bot.config.mjs`
-generate the action/workflow configuration. `.github/actions/ruling_bot/provenance.mjs` owns
-the nine dispatched provenance fields and generates their metadata, bindings and retry placeholders.
-Regenerate the action/workflow contracts and retry command with
-`node .github/actions/ruling_bot/generate-config.mjs` and verify with `--check`.
-A failed original-PR run with zero net behavioral difference still keeps its
-failure notice and required fix link. Default-branch reports describe generated changes on the fix
-PR without asking it to update its own expectations.
-
-New PR fixes use `fix/update-ruling-for-pr-<number>` so two original PRs sharing a source branch get
-independent fixes and reports. Existing target-owned legacy fixes keep their PR and branch. Orphan
-recovery never overwrites a branch used by another open PR. Default-branch fixes retain their
-`fix/update-ruling-for-<branch>` names.
+SonarJS settings come from `.github/ruling-bot.config.mjs`. When changing canonical configuration
+or provenance definitions, regenerate their consumers and the retry command below with
+`node .github/actions/ruling_bot/generate-config.mjs`, then verify with `--check`.
+The producing ruling job's exact artifact name is exposed as an output and reused by upload,
+updater download and dispatch. Preserve it separately from the current Build attempt when retrying.
 
 Report retries require a tested commit containing the current reporter action and input contract.
 For Builds predating their introduction, rebase the original PR branch and rerun ruling first;
@@ -814,13 +788,9 @@ workflow defaults; forward the original parameters to reproduce an earlier suppo
 those defaults have changed.
 A stale retry skips mutations; missing artifacts or unavailable tested commits fail visibly.
 
-`ruling-fix-cleanup.yml` closes managed fixes when their original PR closes or merges. It runs trusted
-default-branch code on `pull_request_target: closed`, recognizes retargeted fixes by original PR
-identity (with legacy support), skips reopened originals, and never closes merged or user-created
-fixes. This is separate from the PR cache/artifact cleanup workflow.
-
-See the [ruling bot README](../.github/actions/ruling_bot/README.md) for all reusable inputs,
-concurrency/race safeguards, ownership rules, permissions, and focused regression tests.
+`ruling-fix-cleanup.yml` handles original-PR closure/merge independently of the PR cache/artifact
+cleanup workflow. Its trusted checkout and ownership/race rules are documented in the
+[ruling bot contract](../.github/actions/ruling_bot/README.md#closing-and-merging-the-original-pr).
 
 #### `ruling`
 
