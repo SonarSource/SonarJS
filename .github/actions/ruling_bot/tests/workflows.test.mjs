@@ -23,6 +23,11 @@ import test from 'node:test';
 import yaml from 'yaml';
 import { inputDefinitions } from '../config.mjs';
 import { generatedFiles } from '../generate-config.mjs';
+import {
+  dispatchProvenance,
+  provenanceDefinitions,
+  updaterInputDefinitions,
+} from '../provenance.mjs';
 import { rulingConfig } from '../../../ruling-bot.config.mjs';
 
 const workflow = name =>
@@ -85,7 +90,10 @@ test('explicit dispatch defaults match the caller and preserve intentionally emp
   );
   const report = workflow('ruling-diff-comment.yml');
   const inputs = report.on.workflow_dispatch.inputs;
-  assert.equal(Object.keys(inputs).length, 9 + Object.keys(inputDefinitions).length);
+  assert.deepEqual(
+    Object.keys(inputs).sort(),
+    [...Object.keys(provenanceDefinitions), ...Object.keys(inputDefinitions)].sort(),
+  );
   assert.ok(Object.keys(inputs).length <= 25);
   const reportInvoke = report.jobs['ruling-diff-comment'].steps.find(
     step => step.uses === './.github/actions/ruling_bot/report',
@@ -103,6 +111,97 @@ test('explicit dispatch defaults match the caller and preserve intentionally emp
         ' }}',
     );
   }
+});
+
+test('every provenance input matches its workflow, action, environment and caller contract', () => {
+  const report = workflow('ruling-diff-comment.yml');
+  const inputs = report.on.workflow_dispatch.inputs;
+  const action = yaml.parse(readFileSync(new URL('../report/action.yml', import.meta.url), 'utf8'));
+  const invoke = report.jobs['ruling-diff-comment'].steps.find(
+    step => step.uses === './.github/actions/ruling_bot/report',
+  );
+  for (const [name, definition] of Object.entries(provenanceDefinitions)) {
+    assert.equal(inputs[name].description, definition.description);
+    assert.equal(inputs[name].type, definition.type);
+    assert.equal(inputs[name].required, !!definition.required);
+    assert.equal(inputs[name].default, definition.default);
+    assert.equal(action.inputs[name].description, definition.description);
+    assert.equal(action.inputs[name].required, !!definition.required);
+    assert.equal(
+      action.inputs[name].default,
+      definition.default === undefined ? undefined : String(definition.default),
+    );
+    const fallback =
+      definition.type === 'boolean'
+        ? definition.default
+        : "'" + String(definition.default).replaceAll("'", "''") + "'";
+    assert.equal(
+      invoke.with[name],
+      '${{ ' + (definition.report || `inputs.${name} || ${fallback}`) + ' }}',
+    );
+    for (const step of action.runs.steps.filter(step => step.env)) {
+      assert.equal(step.env[definition.env], '${{ inputs.' + name + ' }}');
+    }
+  }
+
+  const updater = yaml.parse(readFileSync(new URL('../action.yml', import.meta.url), 'utf8'));
+  const caller = workflow('build.yml').jobs.js_ts_ruling_update.steps.find(
+    step => step.id === 'ruling_update',
+  );
+  for (const [name, definition] of Object.entries(updaterInputDefinitions())) {
+    assert.equal(updater.inputs[name].description, definition.description);
+    assert.equal(updater.inputs[name].required, !!definition.required);
+    assert.equal(
+      updater.inputs[name].default,
+      definition.default === undefined ? undefined : String(definition.default),
+    );
+    assert.equal(
+      updater.runs.steps[0].env[definition.env],
+      '${{ ' + (definition.expression || `inputs.${name}`) + ' }}',
+    );
+    if (definition.caller) assert.equal(caller.with[name], '${{ ' + definition.caller + ' }}');
+  }
+});
+
+test('provenance schema changes update dispatch, metadata, aliases, bindings and retry docs together', () => {
+  const provenance = {
+    ...provenanceDefinitions,
+    'run-attempt': { ...provenanceDefinitions['run-attempt'], default: '2' },
+    'evidence-label': {
+      description: 'Additional tested evidence',
+      type: 'string',
+      default: 'test-label',
+      env: 'EVIDENCE_LABEL',
+      value: ctx => ctx.evidenceLabel,
+      retry: '<evidence-label>',
+      updater: { name: 'tested-evidence-label', caller: 'github.ref_name' },
+    },
+  };
+  const files = generatedFiles(rulingConfig, inputDefinitions, provenance);
+  const report = yaml.parse(files.get('.github/workflows/ruling-diff-comment.yml'));
+  const action = yaml.parse(files.get('.github/actions/ruling_bot/report/action.yml'));
+  const updater = yaml.parse(files.get('.github/actions/ruling_bot/action.yml'));
+  const dispatch = dispatchProvenance({}, '123', '', provenance);
+  assert.equal(dispatch['run-attempt'], '2');
+  assert.equal(report.on.workflow_dispatch.inputs['run-attempt'].default, '2');
+  assert.equal(dispatch['evidence-label'], 'test-label');
+  assert.equal(report.on.workflow_dispatch.inputs['evidence-label'].default, 'test-label');
+  assert.equal(action.inputs['evidence-label'].default, 'test-label');
+  assert.equal(updater.inputs['tested-evidence-label'].default, 'test-label');
+  for (const step of action.runs.steps.filter(step => step.env)) {
+    assert.equal(step.env.EVIDENCE_LABEL, '${{ inputs.evidence-label }}');
+  }
+  assert.equal(updater.runs.steps[0].env.EVIDENCE_LABEL, '${{ inputs.tested-evidence-label }}');
+  const caller = yaml
+    .parse(files.get('.github/workflows/build.yml'))
+    .jobs.js_ts_ruling_update.steps.find(step => step.id === 'ruling_update');
+  assert.equal(caller.with['tested-evidence-label'], '${{ github.ref_name }}');
+  const invoke = report.jobs['ruling-diff-comment'].steps.find(
+    step => step.uses === './.github/actions/ruling_bot/report',
+  );
+  assert.equal(invoke.with['run-attempt'], "${{ inputs.run-attempt || '2' }}");
+  assert.equal(invoke.with['evidence-label'], "${{ inputs.evidence-label || 'test-label' }}");
+  assert.ok(files.get('docs/CI.md').includes("-f 'evidence-label=<evidence-label>'"));
 });
 
 test('successful report dispatch is recorded in Build metadata only when requested', () => {

@@ -4,47 +4,54 @@ on:
     types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
+      # BEGIN GENERATED PROVENANCE INPUTS
+      # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
       pr-number:
-        description: PR receiving the report
+        description: PR receiving the ruling report
         required: true
         type: string
       base-sha:
         description: First parent of the tested merge, or tested branch commit
         required: false
         type: string
+        default: ''
       head-sha:
         description: Exact tested commit; synthetic merge for a PR
         required: true
         type: string
       run-id:
-        description: Build run containing generated results
+        description: Originating Build run ID; empty for a raw PR event
         required: false
         type: string
-      ruling-failed:
-        description: Download and apply generated results
-        required: false
-        type: boolean
-        default: false
-      is-pull-request:
-        description: Tested commit is a synthetic PR merge
-        required: false
-        type: boolean
-        default: false
-      fix-pr-url:
-        description: Fix PR link for the original PR
-        required: false
-        type: string
-      target-ref:
-        description: Original branch tested by ruling
-        required: false
-        type: string
+        default: ''
       run-attempt:
         description: Originating Build run attempt
         required: false
         type: string
         default: '1'
+      ruling-failed:
+        description: Whether saved generated results must be applied
+        required: false
+        type: boolean
+        default: false
+      is-pull-request:
+        description: Whether the tested commit is a synthetic PR merge
+        required: false
+        type: boolean
+        default: false
+      fix-pr-url:
+        description: Fix PR link to show on the original PR
+        required: false
+        type: string
+        default: ''
+      target-ref:
+        description: Original branch tested by ruling
+        required: false
+        type: string
+        default: ''
+      # END GENERATED PROVENANCE INPUTS
       # BEGIN GENERATED CONFIG INPUTS
-      # Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+      # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
       new-results-path:
         description: Generated-results path within the tested repository
         required: false
@@ -135,17 +142,20 @@ jobs:
         uses: ./.github/actions/ruling_bot/report
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          # BEGIN GENERATED REPORT PROVENANCE
+          # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
           pr-number: ${{ inputs.pr-number || github.event.pull_request.number }}
           base-sha: ${{ inputs.base-sha || '' }}
           head-sha: ${{ inputs.head-sha || github.sha }}
-          target-ref: ${{ inputs.target-ref || github.head_ref }}
-          is-pull-request: ${{ github.event_name == 'pull_request' || inputs.is-pull-request }}
-          ruling-failed: ${{ inputs.ruling-failed || false }}
           run-id: ${{ inputs.run-id || '' }}
           run-attempt: ${{ inputs.run-attempt || '1' }}
+          ruling-failed: ${{ inputs.ruling-failed || false }}
+          is-pull-request: ${{ github.event_name == 'pull_request' || inputs.is-pull-request }}
           fix-pr-url: ${{ inputs.fix-pr-url || '' }}
+          target-ref: ${{ inputs.target-ref || github.head_ref }}
+          # END GENERATED REPORT PROVENANCE
           # BEGIN GENERATED REPORT CONFIG
-          # Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+          # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
           new-results-path: ${{ github.event_name == 'pull_request' && 'packages/ruling/actual' || inputs.new-results-path }}
           old-results-path: ${{ github.event_name == 'pull_request' && 'its/ruling/src/test/resources/expected' || inputs.old-results-path }}
           sources-path: ${{ github.event_name == 'pull_request' && 'its/sources' || inputs.sources-path }}

@@ -18,8 +18,33 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
+import yaml from 'yaml';
 import { configuration } from '../config.mjs';
 import { fixture, fix, comment, repository } from './fixtures.mjs';
+
+function assertDispatchContract(f, provenance) {
+  const dispatch = f.state.calls.find(args => args[0] === 'workflow');
+  const entries = dispatch.flatMap((arg, index) => {
+    if (arg !== '-f') return [];
+    const field = dispatch[index + 1];
+    const separator = field.indexOf('=');
+    return [[field.slice(0, separator), field.slice(separator + 1)]];
+  });
+  const inputs = yaml.parse(
+    readFileSync(new URL('../../../workflows/ruling-diff-comment.yml', import.meta.url), 'utf8'),
+  ).on.workflow_dispatch.inputs;
+  const fields = Object.fromEntries(entries);
+  assert.equal(entries.length, Object.keys(fields).length, 'No duplicate dispatch fields');
+  assert.deepEqual(Object.keys(fields).sort(), Object.keys(inputs).sort());
+  assert.deepEqual(fields, {
+    ...Object.fromEntries(Object.entries(f.config).map(([name, value]) => [name, String(value)])),
+    ...provenance,
+  });
+  for (const [name, input] of Object.entries(inputs)) {
+    if (input.required) assert.notEqual(fields[name], '', `${name} is required`);
+    if (input.type === 'boolean') assert.match(fields[name], /^(true|false)$/);
+  }
+}
 
 test('failing report compares generated additions and removals with exact tested first parent', async t => {
   const f = fixture(t);
@@ -132,6 +157,17 @@ test('passing retry closes only open fixes and dispatches report refresh from th
   assert.ok(dispatch.includes('ruling-failed=false'));
   assert.ok(dispatch.includes(`head-sha=${f.merge}`));
   assert.ok(dispatch.includes(`base-sha=${f.base}`));
+  assertDispatchContract(f, {
+    'pr-number': '123',
+    'base-sha': f.base,
+    'head-sha': f.merge,
+    'run-id': '42',
+    'run-attempt': '1',
+    'ruling-failed': 'false',
+    'is-pull-request': 'true',
+    'fix-pr-url': '',
+    'target-ref': 'outdated-pr',
+  });
 });
 
 test('failed update preserves the tested merge and discards unrelated dirty generated files', async t => {
@@ -159,7 +195,17 @@ test('failed update preserves the tested merge and discards unrelated dirty gene
   assert.equal(dispatch[2], 'custom-report.yml');
   for (const [name, value] of Object.entries(f.config))
     assert.ok(dispatch.includes(`${name}=${value}`));
-  assert.equal(dispatch.filter(value => value === '-f').length, 20);
+  assertDispatchContract(f, {
+    'pr-number': '123',
+    'base-sha': f.base,
+    'head-sha': f.merge,
+    'run-id': '42',
+    'run-attempt': '1',
+    'ruling-failed': 'true',
+    'is-pull-request': 'true',
+    'fix-pr-url': 'https://example.test/pull/456',
+    'target-ref': 'outdated-pr',
+  });
   assert.equal(
     dispatch.some(value => value.startsWith('report-config=')),
     false,
@@ -622,6 +668,17 @@ test('default-branch failure reports generated results on the fix PR', async t =
   const dispatch = f.state.calls.find(args => args[0] === 'workflow');
   assert.ok(dispatch.includes('pr-number=456'));
   assert.ok(dispatch.includes('is-pull-request=false'));
+  assertDispatchContract(f, {
+    'pr-number': '456',
+    'base-sha': f.base,
+    'head-sha': f.base,
+    'run-id': '42',
+    'run-attempt': '1',
+    'ruling-failed': 'true',
+    'is-pull-request': 'false',
+    'fix-pr-url': '',
+    'target-ref': 'master',
+  });
   f.git(['checkout', '--detach', f.base]);
   f.ctx.pr = '456';
   assert.equal(await f.bot().report(f.config), 'reported');
@@ -1010,11 +1067,17 @@ test('legacy dispatch without optional branch/base inputs derives tested PR pare
   assert.equal(f.ctx.targetRef, 'outdated-pr');
 });
 
-test('large Unicode reports exceed subprocess default buffer and are truncated safely', async t => {
+test('Unicode reports above 64 MiB are generated to disk and truncated safely', async t => {
   const f = fixture(t);
   const issues = Object.fromEntries(
-    Array.from({ length: 6000 }, (_, i) => [`project:${'é🚦'.repeat(30)}/${i}.js`, [i + 1]]),
+    Array.from({ length: 24000 }, (_, i) => [`project:${'é🚦'.repeat(150)}/${i}.js`, [i + 1]]),
   );
+  // Each full-report entry includes both the UTF-8 label and its percent-encoded source URL.
+  const minimumBytes = Object.keys(issues).reduce(
+    (size, key) => size + Buffer.byteLength(key) + encodeURIComponent(key).length,
+    0,
+  );
+  assert.ok(minimumBytes > 64 * 1024 * 1024);
   f.write('generated/project/javascript-S4000.json', issues);
   assert.equal(await f.bot().report(f.config), 'reported');
   const body = f.state.comments[0].body;
