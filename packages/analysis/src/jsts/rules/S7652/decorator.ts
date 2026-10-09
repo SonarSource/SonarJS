@@ -159,6 +159,10 @@ function getInstanceWrites(
   const writes = new Set<string | undefined>();
   const nodes = classNode.body.body.flatMap(member => {
     if (member.type === 'PropertyDefinition' && !member.static && member.value) {
+      const value = unwrapTypeScriptExpression(member.value as estree.Node);
+      if (value.type === 'FunctionExpression') {
+        return [value.body, ...value.params] as estree.Node[];
+      }
       return [member.value as estree.Node];
     }
     if (member.type === 'MethodDefinition' && !member.static && member.value.body) {
@@ -177,6 +181,11 @@ function getInstanceWrites(
       continue;
     }
     if (node.type === 'AssignmentExpression') {
+      recordInstanceWrite(node.left, writes);
+    } else if (
+      (node.type === 'ForOfStatement' || node.type === 'ForInStatement') &&
+      node.left.type !== 'VariableDeclaration'
+    ) {
       recordInstanceWrite(node.left, writes);
     } else if (
       node.type === 'UpdateExpression' ||

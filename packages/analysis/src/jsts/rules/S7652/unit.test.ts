@@ -403,6 +403,8 @@ describe('S7652', () => {
         'this.refresh ??= anotherEmitter;',
         'this.refresh++;',
         'delete this.onRefresh;',
+        'for (this.refresh of emitters) {}',
+        'for (this.onRefresh in source) {}',
         '({ value: this.refresh } = source);',
         '[this.onRefresh] = source;',
         'this[key] = anotherEmitter;',
@@ -478,6 +480,34 @@ describe('S7652', () => {
             onRefresh = ${initializer};
             refresh = this.onRefresh;
             ${member}
+          }
+        `,
+        errors: 1,
+      }));
+      ruleTester.run('S7652', rule, { valid: [], invalid: cases });
+      ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
+        valid: [],
+        invalid: cases,
+      });
+    }
+  });
+
+  it('retains reports for writes in function-valued instance fields', () => {
+    for (const { outputs, initializer } of [
+      { outputs: "['refresh']", initializer: 'output<void>()' },
+      { outputs: "['onRefresh', 'refresh']", initializer: 'new EventEmitter<void>()' },
+    ]) {
+      const cases = [
+        'reset = function () { this.refresh = anotherEmitter; };',
+        'reset = (function () { this.onRefresh = anotherEmitter; } as any);',
+      ].map(field => ({
+        code: `${angular}
+          @Component({ outputs: ${outputs} })
+          class C {
+            /** @deprecated Use refresh instead. */
+            onRefresh = ${initializer};
+            refresh = this.onRefresh;
+            ${field}
           }
         `,
         errors: 1,
