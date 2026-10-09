@@ -262,10 +262,6 @@ function isSafeOscPayload(element: AST.Element): boolean {
 }
 
 function isSafeOscCharacterSet(characterSet: AST.CharacterSet): boolean {
-  // A wildcard is the established OSC payload form in the rule's existing contract.
-  if (characterSet.kind === 'any') {
-    return true;
-  }
   return UNSAFE_OSC_PAYLOAD_CHARACTERS.every(
     value => characterSetMatchesValue(characterSet, value) === false,
   );

@@ -124,23 +124,23 @@ describe('S6324', () => {
         {
           // OSC sequence: ESC + ] starts OSC, BEL (\x07) terminates it
           // Per xterm spec, BEL is valid only as OSC terminator
-          code: String.raw`/\x1b\].*?\x07/`,
+          code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*\x07/`,
         },
         {
           // OSC sequence with unicode escapes
-          code: String.raw`/\u001b\].*?\u0007/`,
+          code: String.raw`/\u001b\][^\u0000-\u001f\u0080-\u009f]*\u0007/`,
         },
         {
           // OSC may end with the string terminator (ESC + \).
-          code: String.raw`/\x1b\].*?\x1b\\/`,
+          code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*\x1b\\/`,
         },
         {
           // OSC may end with either BEL or the string terminator (ESC + \).
-          code: String.raw`/\x1b\].*?(?:\x07|\x1b\\)/`,
+          code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*(?:\x07|\x1b\\)/`,
         },
         {
           // OSC may use the C1 string terminator instead of ESC + \.
-          code: String.raw`/\x1b\].*?(?:\x07|\x9c)/`,
+          code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*(?:\x07|\x9c)/`,
         },
         {
           // An OSC terminator remains valid before ordinary terminal output.
@@ -160,19 +160,19 @@ describe('S6324', () => {
         },
         {
           // A complete OSC sequence remains exempt inside a non-capturing group.
-          code: String.raw`/(?:\x1b\].*?\x07)/`,
+          code: String.raw`/(?:\x1b\][^\x00-\x1f\x80-\x9f]*\x07)/`,
         },
         {
           // Capturing terminator alternatives are valid when every branch is a terminator.
-          code: String.raw`/\x1b\].*?(\x07|\x1b\\)/`,
+          code: String.raw`/\x1b\][^\x00-\x1f\x80-\x9f]*(\x07|\x1b\\)/`,
         },
         {
           // A complete OSC sequence may be followed by an end assertion.
-          code: String.raw`/^\x1b\]0;.*\x07$/`,
+          code: String.raw`/^\x1b\]0;[^\x00-\x1f\x80-\x9f]*\x07$/`,
         },
         {
           // A terminator may be followed by another OSC sequence.
-          code: String.raw`/\x1b\]0;.*?\x07\x1b\]1;.*?\x07/`,
+          code: String.raw`/\x1b\]0;[^\x00-\x1f\x80-\x9f]*\x07\x1b\]1;[^\x00-\x1f\x80-\x9f]*\x07/`,
         },
         {
           // Combined ANSI control sequences pattern (like vscode ansiUtils.ts)
@@ -305,6 +305,48 @@ describe('S6324', () => {
           errors: 4, // tab, LF, FF, CR as unicode escapes; space (0x20) is not a control char
         },
         // ANSI-related: Cases that should STILL be flagged
+        {
+          // A wildcard may consume BEL and close OSC before the final ST.
+          code: String.raw`/\x1b\]0;title.\x1b\\/`,
+          errors: [
+            {
+              message: CONTROL_CHAR_MESSAGE,
+              column: 16,
+              endColumn: 20,
+            },
+          ],
+        },
+        {
+          // Lazy repetition can still consume earlier termination or cancellation.
+          code: String.raw`/\x1b\].*?\x1b\\/`,
+          errors: 1,
+        },
+        {
+          code: String.raw`/\x1b\].*?\x07/`,
+          errors: 1,
+        },
+        {
+          code: String.raw`/\u001b\].*?\u0007/`,
+          errors: 1,
+        },
+        {
+          code: String.raw`/\x1b\].*?(?:\x07|\x1b\\)/`,
+          errors: 2,
+        },
+        {
+          code: String.raw`/\x1b\].*?(?:\x07|\x9c)/`,
+          errors: 1,
+        },
+        {
+          // Wrapping the wildcard does not prove the payload safe.
+          code: String.raw`/\x1b\](?:.)+(\x07|\x1b\\)/`,
+          errors: 2,
+        },
+        {
+          // DotAll also allows OSC controls in the payload.
+          code: String.raw`/\x1b\].*\x1b\\/s`,
+          errors: 1,
+        },
         {
           // ESC not followed by [ or ] should still be flagged
           code: String.raw`/\x1b[a-z]/`,
