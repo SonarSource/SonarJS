@@ -15,10 +15,12 @@ The updater forwards its resolved action inputs individually to the independent 
 All twenty dispatch inputs fit GitHub.com's current limit of twenty-five. Explicitly forwarding
 paths, links, and the artifact name preserves the producing Build's settings during independent
 retries. Raw PR-event reports use the same SonarJS defaults in the reporter workflow.
-The canonical public schema/defaults live in `config.mjs`; SonarJS settings live in
-`.github/ruling-bot.config.mjs`. `generate-config.mjs` generates their marked action/workflow
-sections, this input table, the CI retry command, and the local `ruling-sync` command. Run
-`node .github/actions/ruling_bot/generate-config.mjs` after changing either definition;
+The canonical configuration schema/defaults live in `config.mjs`; SonarJS settings live in
+`.github/ruling-bot.config.mjs`. `provenance.mjs` owns all nine report provenance fields, their
+dispatch values, input types/defaults, updater aliases, environment/caller bindings, and retry
+placeholders. `generate-config.mjs` generates their marked action/workflow sections, this input
+table, the CI retry command, and the local `ruling-sync` command. Run
+`node .github/actions/ruling_bot/generate-config.mjs` after changing these definitions;
 `--check` and the local regression suite reject stale consumers. No runtime config-loading
 step or additional runtime dependency is needed. The report action validates the received parameters
 before checking freshness or downloading artifacts.
@@ -81,6 +83,12 @@ tested commit once for both bot code and data. Branches must contain the current
 rebase branches predating its introduction or input changes. `report-workflow-ref` can override the
 workflow selection, while the bot code still comes from the tested commit.
 Dispatch failure fails the update job visibly while leaving the persisted fix available.
+
+Report generation writes stdout directly to a temporary file. The controller reads only a
+comment-sized prefix, then truncates the assembled comment safely at a UTF-8 boundary. Reports
+larger than the subprocess capture limit can therefore still produce a comment. Temporary report
+files are removed after success, stale skips, or generation failure; the generator still needs
+enough memory and disk space to render the complete report.
 
 The simplest retry is `gh run rerun <report-run-id>`; this retains the original dispatch inputs.
 To dispatch again, supply the same tested SHAs, originating
