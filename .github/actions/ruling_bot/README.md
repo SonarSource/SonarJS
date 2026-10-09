@@ -122,6 +122,11 @@ Build-derived work also checks the originating run attempt and whether a newer B
 same original PR or branch and head/event. Checks repeat before writes. This covers advancing heads,
 different merges for the same PR head, delayed dispatches, stale successful cleanup, and old attempts
 of a retried Build.
+After querying Build history, the reporter rereads the receiving PR. For original-PR reports,
+it must still be open and at the tested head before a comment is replaced or deleted. For
+default-branch reports, the recipient is a separate fix PR: it must remain open, but its fix commit
+is not the tested default-branch head.
+
 Raw PR-event reports carry no completed Build identity and cannot overwrite a completed report for
 the same PR head, even across different tested merges. The updater exposes `report-requested` only
 after a successful dispatch. The Build caller then
@@ -135,11 +140,12 @@ when no push triggered a new PR event; an empty successful report clears the obs
 
 Fix pushes and deletions use an explicit SHA lease, including the empty lease when creating a new
 branch. A concurrent update causes a visible failure rather than overwriting/deleting another
-commit. An existing fix branch must belong to this target; an orphan from failed PR creation is
-recoverable through the identity in its bot commit. Leftover legacy branches are also recoverable
-when their tip has the exact old generated message, with or without `🤖` before its generated footer,
-and both author and committer match the bot's
-name and email, and no other open PR uses that branch. New PR fixes use
+commit. An existing fix branch must belong to this target. An orphan from failed PR creation is
+recoverable through the original-target marker in its tip commit, or the exact old generated
+message, with or without `🤖` before its generated footer. Both forms require the tip's author
+and committer to match the bot's name and email, and no other open PR may use the branch.
+A human commit retaining the target marker is therefore protected from orphan recovery.
+New PR fixes use
 `fix/update-ruling-for-pr-<number>` to keep two original PRs on the same source branch independent.
 Existing target-owned fixes and recoverable legacy branches remain supported. Default-branch fix
 names retain `fix/update-ruling-for-<branch>`. Unrelated dirty tracked build output is discarded when

@@ -344,6 +344,81 @@ test('orphan branch from failed PR creation is recoverable through commit identi
   assert.equal(f.state.prs.length, 1);
 });
 
+for (const branchRun of [false, true]) {
+  for (const scenario of [
+    'owned',
+    'human author name',
+    'human author email',
+    'human committer name',
+    'human committer email',
+  ]) {
+    test(`${branchRun ? 'master' : 'PR'} modern orphan recovery: ${scenario}`, async t => {
+      const f = fixture(t);
+      if (branchRun) {
+        f.git(['checkout', '--detach', f.base]);
+        Object.assign(f.ctx, {
+          isPullRequest: false,
+          testedCommit: f.base,
+          testedHead: f.base,
+          targetRef: 'master',
+          base: '',
+          pr: '',
+        });
+        Object.assign(f.state.run, {
+          head_sha: f.base,
+          head_branch: 'master',
+          event: 'push',
+          pull_requests: [],
+        });
+      }
+      const branch = branchRun ? 'fix/update-ruling-for-master' : 'fix/update-ruling-for-pr-123';
+      const target = branchRun ? { repository, ref: 'master' } : { repository, pr: 123 };
+      const marker = `<!-- ruling-bot-target: ${JSON.stringify(target)} -->`;
+      f.write('orphan-only.txt', 'Work on the orphan branch\n');
+      f.git(['add', 'orphan-only.txt']);
+      const tree = f.git(['write-tree']);
+      const oldFix = f.git([
+        '-c',
+        'user.name=github-actions[bot]',
+        '-c',
+        'user.email=github-actions[bot]@users.noreply.github.com',
+        ...(scenario === 'owned'
+          ? []
+          : [
+              '-c',
+              `${scenario.split(' ')[1]}.${scenario.split(' ')[2]}=${scenario.endsWith('name') ? 'Human' : 'human@example.test'}`,
+            ]),
+        'commit-tree',
+        tree,
+        '-p',
+        f.ctx.testedHead,
+        '-m',
+        `Update ruling results\n\nGenerated with GitHub Actions\n\n${marker}`,
+      ]);
+      f.git(['reset', '--hard', f.ctx.testedCommit]);
+      f.setRemote(branch, oldFix);
+      if (scenario === 'owned') {
+        assert.equal(await f.bot().update(f.config), 'updated');
+        assert.equal(f.state.prs.length, 1);
+        assert.ok(
+          f.state.gitCalls.some(args =>
+            args.includes(`--force-with-lease=refs/heads/${branch}:${oldFix}`),
+          ),
+        );
+      } else {
+        await assert.rejects(f.bot().update(f.config), /not owned/);
+        assert.equal(f.git(['ls-remote', 'origin', `refs/heads/${branch}`]).split(/\s/)[0], oldFix);
+        assert.equal(f.git(['show', `${oldFix}:orphan-only.txt`]), 'Work on the orphan branch');
+        assert.deepEqual(f.mutations(), []);
+        assert.equal(
+          f.state.gitCalls.some(args => args[0] === 'push'),
+          false,
+        );
+      }
+    });
+  }
+}
+
 test('open legacy fix for this original PR keeps its existing branch and PR', async t => {
   const f = fixture(t);
   const candidate = fix();
@@ -1455,3 +1530,61 @@ test('report rechecks the receiving PR after querying Build freshness', async t 
   assert.equal(await f.bot().report(f.config), 'stale');
   assert.deepEqual(f.mutations(), []);
 });
+
+test('report preflight rejects a PR head advancing during Build history lookup', async t => {
+  const f = fixture(t);
+  const advanced = f.newerCommit();
+  f.state.beforeApi = endpoint => {
+    if (endpoint.startsWith('actions/workflows/')) f.state.original.head.sha = advanced;
+  };
+  assert.equal(await f.bot().checkReport(f.config), false);
+  assert.deepEqual(f.mutations(), []);
+});
+
+for (const empty of [false, true]) {
+  test(`report preserves its comment when the PR head advances before ${empty ? 'deletion' : 'replacement'}`, async t => {
+    const f = fixture(t);
+    const previous = comment('<!-- ruling-report -->\nEarlier report');
+    f.state.comments.push(previous);
+    if (empty) {
+      f.ctx.failed = false;
+      f.git(['restore', '--source', f.base, '--staged', '--worktree', 'baseline']);
+    }
+    const advanced = f.newerCommit();
+    let historyQueries = 0;
+    f.state.beforeApi = endpoint => {
+      if (endpoint.startsWith('actions/workflows/') && ++historyQueries === 2)
+        f.state.original.head.sha = advanced;
+    };
+    assert.equal(await f.bot().report(f.config), 'stale');
+    assert.equal(historyQueries, 2);
+    assert.equal(f.state.original.head.sha, advanced);
+    assert.deepEqual(f.state.comments, [previous]);
+    assert.equal(previous.body, '<!-- ruling-report -->\nEarlier report');
+    assert.deepEqual(f.mutations(), []);
+  });
+}
+
+for (const closed of [false, true]) {
+  test(`master report rechecks its ${closed ? 'closed' : 'open'} fix recipient without comparing its head to master`, async t => {
+    const { f, candidate } = selectedFixFixture(t, true);
+    // The comment recipient's fix commit differs from the tested master commit.
+    candidate.head.sha = f.newerCommit();
+    f.ctx.pr = String(candidate.number);
+    let historyQueries = 0;
+    f.state.beforeApi = endpoint => {
+      if (endpoint.startsWith('actions/workflows/') && ++historyQueries === 2 && closed)
+        candidate.state = 'closed';
+    };
+    assert.equal(await f.bot().report(f.config), closed ? 'stale' : 'reported');
+    assert.equal(historyQueries, 2);
+    if (closed) assert.deepEqual(f.mutations(), []);
+    else {
+      assert.ok(
+        f.state.commentWrites.some(
+          write => write.endpoint === `issues/${candidate.number}/comments`,
+        ),
+      );
+    }
+  });
+}
