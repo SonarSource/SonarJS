@@ -1421,6 +1421,7 @@ jobs:
       - plugin_qa_win_fast_with_node
       - ruling
       - js_ts_ruling
+      - js_ts_ruling_update
     if: >-
       !inputs.validate-registry-routing &&
       !failure() && !cancelled() &&
@@ -1470,6 +1471,7 @@ jobs:
   notify-build-failure:
     runs-on: sonar-xs
     name: Notify build failure
+    # Every Build job is covered here; workflow-contract tests reject missing dependencies.
     needs:
       - get_build_number
       - build
@@ -1489,6 +1491,7 @@ jobs:
       - plugin_qa_win_fast_with_node
       - ruling
       - js_ts_ruling
+      - js_ts_ruling_update
       - promote
       - setup
       - populate_npm_cache

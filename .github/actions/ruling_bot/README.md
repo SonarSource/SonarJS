@@ -83,6 +83,8 @@ tested commit once for both bot code and data. Branches must contain the current
 rebase branches predating its introduction or input changes. `report-workflow-ref` can override the
 workflow selection, while the bot code still comes from the tested commit.
 Dispatch failure fails the update job visibly while leaving the persisted fix available.
+Build promotion depends on the updater, so persistence or dispatch failures block promotion and
+releasability. Protected-branch failure notifications also depend on the updater.
 
 Report generation writes stdout directly to a temporary file. The controller reads only a
 comment-sized prefix, then truncates the assembled comment safely at a UTF-8 boundary. Reports
@@ -90,7 +92,11 @@ larger than the subprocess capture limit can therefore still produce a comment. 
 files are removed after success, stale skips, or generation failure; the generator still needs
 enough memory and disk space to render the complete report.
 
-The simplest retry is `gh run rerun <report-run-id>`; this retains the original dispatch inputs.
+Report retries require a tested commit containing the current reporter action and input contract.
+For Builds predating their introduction, rebase the original PR branch and rerun ruling; supplying
+an old artifact name cannot add the missing bot code to that tested commit.
+For a supported Build, the simplest retry is `gh run rerun <report-run-id>`; this retains the
+original dispatch inputs.
 To dispatch again, supply the same tested SHAs, originating
 Build run ID and its current attempt, fix URL, and configuration. Preserve the producing ruling
 job's artifact name separately: rerunning only the updater can make the current Build attempt `2`
@@ -127,7 +133,8 @@ Fix pushes and deletions use an explicit SHA lease, including the empty lease wh
 branch. A concurrent update causes a visible failure rather than overwriting/deleting another
 commit. An existing fix branch must belong to this target; an orphan from failed PR creation is
 recoverable through the identity in its bot commit. Leftover legacy branches are also recoverable
-when their tip has the exact old generated message and both author and committer match the bot's
+when their tip has the exact old generated message, with or without `🤖` before its generated footer,
+and both author and committer match the bot's
 name and email, and no other open PR uses that branch. New PR fixes use
 `fix/update-ruling-for-pr-<number>` to keep two original PRs on the same source branch independent.
 Existing target-owned fixes and recoverable legacy branches remain supported. Default-branch fix
