@@ -32,6 +32,8 @@ import { inputDefinitions, environmentConfiguration } from './config.mjs';
 import { dispatchProvenance } from './provenance.mjs';
 
 const actionPath = path.dirname(fileURLToPath(import.meta.url));
+const botName = 'github-actions[bot]';
+const botEmail = 'github-actions[bot]@users.noreply.github.com';
 const commentMarker = '<!-- ruling-report -->';
 const commentLimit = 50000;
 const generatedCommitMessage = 'Update ruling results\n\nGenerated with GitHub Actions';
@@ -88,11 +90,12 @@ export function controller(ctx, adapters = {}) {
     ctx.isPullRequest
       ? run.pull_requests?.some(pr => Number(pr.number) === Number(ctx.pr))
       : run.head_branch === ctx.targetRef;
+  const currentOriginalPr = pr => pr.state === 'open' && pr.head.sha === ctx.testedHead;
 
   function fresh(report = false) {
     if (ctx.isPullRequest) {
       const pr = api(`pulls/${ctx.pr}`);
-      if (pr.state !== 'open' || pr.head.sha !== ctx.testedHead) return false;
+      if (!currentOriginalPr(pr)) return false;
       ctx.targetRef ||= pr.head.ref;
     } else {
       ctx.targetRef ||= api('').default_branch;
@@ -116,7 +119,10 @@ export function controller(ctx, adapters = {}) {
       )
         return false;
     }
-    return !report || api(`pulls/${ctx.pr}`).state === 'open';
+    if (!report) return true;
+    const recipient = api(`pulls/${ctx.pr}`);
+    // PR reports must still match the tested head; branch reports go to a separate fix PR.
+    return ctx.isPullRequest ? currentOriginalPr(recipient) : recipient.state === 'open';
   }
 
   function completedDispatch(config) {
@@ -143,7 +149,7 @@ export function controller(ctx, adapters = {}) {
 
   function managed(pr) {
     if (
-      pr.user.login !== 'github-actions[bot]' ||
+      pr.user.login !== botName ||
       pr.head.repo?.full_name !== ctx.repository ||
       !pr.head.ref.startsWith('fix/update-ruling-for-')
     )
@@ -291,16 +297,10 @@ export function controller(ctx, adapters = {}) {
       // Recover modern orphans and branches left by closed, unmerged legacy fixes.
       git(['fetch', 'origin', ref]);
       const message = git(['log', '-1', '--format=%B', 'FETCH_HEAD']);
-      const legacy =
-        legacyCommitMessages.has(message) &&
+      const botCommit =
         git(['log', '-1', '--format=%an%n%ae%n%cn%n%ce', 'FETCH_HEAD']) ===
-          [
-            'github-actions[bot]',
-            'github-actions[bot]@users.noreply.github.com',
-            'github-actions[bot]',
-            'github-actions[bot]@users.noreply.github.com',
-          ].join('\n');
-      return message.includes(marker) || legacy;
+        [botName, botEmail, botName, botEmail].join('\n');
+      return botCommit && (message.includes(marker) || legacyCommitMessages.has(message));
     };
     let branch = existing?.head.ref || fixBranch();
     let ref = `refs/heads/${branch}`;
@@ -341,8 +341,8 @@ export function controller(ctx, adapters = {}) {
       }
       return pr;
     };
-    git(['config', 'user.name', 'github-actions[bot]']);
-    git(['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
+    git(['config', 'user.name', botName]);
+    git(['config', 'user.email', botEmail]);
     // Retain the tested base history: base-only expectations must exist when restoring changes.
     // The generated fix commit changes expectations on top of that exact tree.
     git(['checkout', '-f', '-B', branch, ctx.testedCommit]);
@@ -394,8 +394,7 @@ export function controller(ctx, adapters = {}) {
       helper('sync-results.mjs', [config['new-results-path'], config['old-results-path']]);
     const { report, truncated } = generateReport(config);
     const existing = pages(`issues/${ctx.pr}/comments?per_page=100`).find(
-      comment =>
-        comment.user.login === 'github-actions[bot]' && comment.body.startsWith(commentMarker),
+      comment => comment.user.login === botName && comment.body.startsWith(commentMarker),
     );
     const provenance = `<!-- ruling-report-run: ${ctx.testedCommit} ${ctx.runId || ''} ${ctx.runAttempt || ''} -->`;
     if (!ctx.runId) {
