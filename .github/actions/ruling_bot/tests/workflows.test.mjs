@@ -122,6 +122,23 @@ test('successful report dispatch is recorded in Build metadata only when request
   assert.ok(action.runs.steps.some(step => step.id === 'ruling_bot'));
 });
 
+test('report downloads use the validated preflight destination and the tested checkout owns bot code', () => {
+  const action = yaml.parse(readFileSync(new URL('../report/action.yml', import.meta.url), 'utf8'));
+  const download = action.runs.steps.find(step =>
+    step.uses?.startsWith('actions/download-artifact@'),
+  );
+  assert.equal(download.with.path, '${{ steps.fresh.outputs.results-path }}');
+  const report = workflow('ruling-diff-comment.yml');
+  const checkouts = report.jobs['ruling-diff-comment'].steps.filter(step =>
+    step.uses?.startsWith('actions/checkout@'),
+  );
+  assert.equal(checkouts.length, 1);
+  assert.equal(checkouts[0].with.ref, '${{ inputs.head-sha || github.sha }}');
+  assert.equal(checkouts[0].with['fetch-depth'], 2);
+  assert.equal(checkouts[0].with.submodules, true);
+  assert.equal(checkouts[0].with.path, undefined);
+});
+
 test('checked-in configuration consumers are generated from the canonical definitions', () => {
   for (const [name, content] of generatedFiles()) {
     assert.equal(

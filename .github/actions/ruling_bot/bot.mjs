@@ -176,7 +176,7 @@ export function controller(ctx, adapters = {}) {
   }
 
   function dispatch(config, reportPr, fixUrl = '') {
-    const ref = config['report-workflow-ref'] || api('').default_branch;
+    const ref = config['report-workflow-ref'] || ctx.targetRef;
     const args = ['workflow', 'run', config['report-workflow'], '--ref', ref];
     const fields = {
       'pr-number': reportPr,
@@ -291,7 +291,9 @@ export function controller(ctx, adapters = {}) {
       throw new Error('Refusing to overwrite a fix branch not owned by this ruling target.');
     git(['config', 'user.name', 'github-actions[bot]']);
     git(['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
-    git(['checkout', '-f', '-B', branch, `origin/${ctx.targetRef}`]);
+    // Retain the tested base history: base-only expectations must exist when restoring changes.
+    // Merging this fix into the original branch also incorporates the tested base snapshot.
+    git(['checkout', '-f', '-B', branch, ctx.testedCommit]);
     git(['stash', 'pop']);
     git(['add', '--', config['old-results-path']]);
     if (!git(['diff', '--cached', '--name-only', '--', config['old-results-path']]))
@@ -396,8 +398,13 @@ export function controller(ctx, adapters = {}) {
     return 'reported';
   }
 
-  async function checkReport() {
+  async function checkReport(config) {
     testedTree();
+    if (ctx.output)
+      appendFileSync(
+        ctx.output,
+        `results-path=${path.resolve(ctx.workspace, config['new-results-path'])}\n`,
+      );
     return fresh(true);
   }
 
@@ -419,7 +426,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const bot = controller(ctx);
   const config = process.argv[2] === 'cleanup' ? undefined : environmentConfiguration(process.env);
   if (process.argv[2] === 'check-report') {
-    appendFileSync(process.env.GITHUB_OUTPUT, `fresh=${await bot.checkReport()}\n`);
+    appendFileSync(process.env.GITHUB_OUTPUT, `fresh=${await bot.checkReport(config)}\n`);
     process.exit(0);
   }
   const result =

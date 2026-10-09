@@ -18,6 +18,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
+import { configuration } from '../config.mjs';
 import { fixture, fix, comment, repository } from './fixtures.mjs';
 
 test('failing report compares generated additions and removals with exact tested first parent', async t => {
@@ -111,7 +112,7 @@ test('head changes during generation: leave the existing comment untouched', asy
   assert.deepEqual(f.mutations(), []);
 });
 
-test('passing retry closes only open fixes and dispatches report refresh from default branch', async t => {
+test('passing retry closes only open fixes and dispatches report refresh from the tested branch', async t => {
   const f = fixture(t);
   f.ctx.failed = false;
   const candidate = fix();
@@ -127,18 +128,14 @@ test('passing retry closes only open fixes and dispatches report refresh from de
     ),
   );
   const dispatch = f.state.calls.find(args => args[0] === 'workflow');
-  assert.equal(dispatch[dispatch.indexOf('--ref') + 1], 'master');
+  assert.equal(dispatch[dispatch.indexOf('--ref') + 1], 'outdated-pr');
   assert.ok(dispatch.includes('ruling-failed=false'));
   assert.ok(dispatch.includes(`head-sha=${f.merge}`));
   assert.ok(dispatch.includes(`base-sha=${f.base}`));
 });
 
-test('failed update works without reporter code in the old PR head and discards dirty generated files', async t => {
+test('failed update preserves the tested merge and discards unrelated dirty generated files', async t => {
   const f = fixture(t);
-  assert.equal(
-    existsSync(path.join(f.workspace, '.github/workflows/ruling-diff-comment.yml')),
-    false,
-  );
   f.write('tracked-generated.txt', 'unrelated dirty build output\n');
   assert.equal(await f.bot().update(f.config), 'updated');
   assert.equal(readFileSync(path.join(f.workspace, 'tracked-generated.txt'), 'utf8'), 'clean\n');
@@ -150,6 +147,7 @@ test('failed update works without reporter code in the old PR head and discards 
   assert.equal(existsSync(path.join(f.workspace, 'baseline/project/javascript-S2000.json')), false);
   const changed = f.git(['diff', '--name-only', f.head, 'HEAD']).split('\n');
   assert.ok(changed.every(name => name.startsWith('baseline/')));
+  assert.equal(f.git(['rev-parse', 'HEAD^']), f.merge);
   assert.match(f.state.prs[0].body, /ruling-bot-target/);
   assert.ok(
     f.state.gitCalls.some(args =>
@@ -157,7 +155,7 @@ test('failed update works without reporter code in the old PR head and discards 
     ),
   );
   const dispatch = f.state.calls.find(args => args[0] === 'workflow');
-  assert.equal(dispatch[dispatch.indexOf('--ref') + 1], 'master');
+  assert.equal(dispatch[dispatch.indexOf('--ref') + 1], 'outdated-pr');
   assert.equal(dispatch[2], 'custom-report.yml');
   for (const [name, value] of Object.entries(f.config))
     assert.ok(dispatch.includes(`${name}=${value}`));
@@ -169,13 +167,84 @@ test('failed update works without reporter code in the old PR head and discards 
   assert.ok(dispatch.includes('fix-pr-url=https://example.test/pull/456'));
 });
 
-test('configured stable report ref is honored', async t => {
+test('an explicitly configured reporter workflow ref is honored', async t => {
   const f = fixture(t);
   f.ctx.failed = false;
   await f.bot().update({ ...f.config, 'report-workflow-ref': 'stable-tooling' });
   const dispatch = f.state.calls.find(args => args[0] === 'workflow');
   assert.equal(dispatch[dispatch.indexOf('--ref') + 1], 'stable-tooling');
 });
+
+test('a changed base-only expectation survives fix creation and merging into the original branch', async t => {
+  const f = fixture(t);
+  const file = 'baseline/project/javascript-S9000.json';
+  assert.throws(() => f.git(['show', `${f.head}:${file}`]));
+  f.result('generated', 'S9000', 'base-only.js', 91);
+  assert.equal(await f.bot().update(f.config), 'updated');
+  const update = f.git(['rev-parse', 'HEAD']);
+  assert.equal(f.git(['rev-parse', 'HEAD^']), f.merge);
+  assert.match(f.git(['show', `HEAD:${file}`]), /91/);
+  assert.equal(f.state.prs[0].base.ref, 'outdated-pr');
+  assert.ok(f.state.calls.some(args => args[0] === 'workflow'));
+  f.git(['checkout', '--detach', f.head]);
+  f.git(['merge', '--no-ff', '--no-edit', update]);
+  // The tested master history is already included, so its independently added file cannot
+  // create an add/add conflict when the original PR is merged into master.
+  f.git(['merge', '--no-ff', '--no-edit', f.base]);
+  assert.equal(f.git(['status', '--porcelain']), '');
+  assert.match(f.git(['show', `HEAD:${file}`]), /91/);
+});
+
+test('fix commits change only expectations while retaining unrelated tested base history', async t => {
+  const f = fixture(t);
+  f.git(['checkout', '--detach', f.base]);
+  f.write('base-only-code.ts', 'export const fromMaster = true;\n');
+  const base = f.commit('Master adds unrelated source code');
+  f.git(['merge', '--no-ff', '--no-edit', f.head]);
+  const merge = f.git(['rev-parse', 'HEAD']);
+  Object.assign(f.ctx, { base, testedCommit: merge });
+  f.setRemote('master', base);
+  f.result('generated', 'S9000', 'base-only.js', 91);
+  assert.equal(await f.bot().update(f.config), 'updated');
+  assert.equal(f.git(['rev-parse', 'HEAD^']), merge);
+  assert.ok(
+    f
+      .git(['diff', '--name-only', 'HEAD^', 'HEAD'])
+      .split('\n')
+      .every(name => name.startsWith('baseline/')),
+  );
+  assert.match(f.git(['show', 'HEAD:base-only-code.ts']), /fromMaster/);
+  assert.equal(f.git(['merge-base', '--is-ancestor', base, 'HEAD']), '');
+});
+
+test('a depth-two tested checkout supports fix persistence and exact-base reporting', async t => {
+  const f = fixture(t);
+  f.write('.git/shallow', `${f.base}\n${f.head}\n`);
+  assert.equal(f.git(['rev-parse', '--is-shallow-repository']), 'true');
+  f.result('generated', 'S9000', 'base-only.js', 91);
+  assert.equal(await f.bot().update(f.config), 'updated');
+  assert.equal(f.git(['rev-parse', 'HEAD^']), f.merge);
+  assert.ok(f.git(['ls-remote', 'origin', 'refs/heads/fix/update-ruling-for-pr-123']));
+  f.git(['checkout', '--detach', f.merge]);
+  assert.equal(await f.bot().report(f.config), 'reported');
+  assert.match(f.state.comments[0].body, /base-only\.js:91/);
+});
+
+for (const absolute of [false, true]) {
+  test(`report preflight and artifact download agree on ${absolute ? 'absolute' : 'relative'} result paths`, async t => {
+    const f = fixture(t);
+    const destination = path.join(f.workspace, 'generated');
+    const config = configuration(
+      { ...f.config, 'new-results-path': absolute ? destination : 'nested/../generated' },
+      f.workspace,
+    );
+    f.ctx.output = path.join(f.workspace, 'report-output');
+    assert.equal(await f.bot().checkReport(config), true);
+    assert.equal(readFileSync(f.ctx.output, 'utf8'), `results-path=${destination}\n`);
+    assert.equal(await f.bot().report(config), 'reported');
+    assert.match(f.state.comments[0].body, /old\.js:4/);
+  });
+}
 
 test('updater retry dispatches current Build attempt with the original producing artifact', async t => {
   const f = fixture(t);

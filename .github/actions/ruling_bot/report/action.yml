@@ -76,7 +76,7 @@ inputs:
     required: false
     default: ruling-diff-comment.yml
   report-workflow-ref:
-    description: Reporter implementation ref; empty selects the default branch
+    description: Reporter workflow ref; empty selects the tested target branch
     required: false
     default: ''
   build-workflow:
@@ -128,7 +128,7 @@ runs:
       uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
       with:
         name: ${{ inputs.results-artifact-name }}
-        path: ${{ inputs.repository-path || github.workspace }}/${{ inputs.new-results-path }}
+        path: ${{ steps.fresh.outputs.results-path }}
         run-id: ${{ inputs.run-id }}
         github-token: ${{ inputs.github-token }}
     - name: Post ruling report

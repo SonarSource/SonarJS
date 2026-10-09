@@ -86,7 +86,7 @@ on:
         type: string
         default: ruling-diff-comment.yml
       report-workflow-ref:
-        description: Reporter implementation ref; empty selects the default branch
+        description: Reporter workflow ref; empty selects the tested target branch
         required: false
         type: string
         default: ''
@@ -121,24 +121,20 @@ jobs:
       cancel-in-progress: false
       queue: max
     steps:
-      - name: Checkout reporter implementation
+      - name: Checkout the tested tree and its ruling bot
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.head-sha || github.sha }}
+          fetch-depth: 2
+          submodules: true
       - uses: jdx/mise-action@94c60b39bc2d90ab2f9bab27f38d3cc4812c1834 # v5.1.0
         with:
           version: 2026.9.18
           install_args: node
-      - name: Checkout exact tested tree separately from reporter code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ inputs.head-sha || github.sha }}
-          path: .ruling-bot-tested
-          fetch-depth: 0
-          submodules: true
       - name: Report results from the tested tree
         uses: ./.github/actions/ruling_bot/report
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          repository-path: ${{ github.workspace }}/.ruling-bot-tested
           pr-number: ${{ inputs.pr-number || github.event.pull_request.number }}
           base-sha: ${{ inputs.base-sha || '' }}
           head-sha: ${{ inputs.head-sha || github.sha }}

@@ -198,7 +198,7 @@ export function generatedFiles(config = rulingConfig, definitions = inputDefinit
     'results-artifact-name': config['results-artifact-name'] + '-<producing-ruling-job-attempt>',
   };
   const retry = [
-    `gh workflow run ${shellArgument(config['report-workflow'])} --ref '<reporter-ref>'`,
+    `gh workflow run ${shellArgument(config['report-workflow'])} --ref '<original-branch>'`,
     ...Object.entries(fields).map(([name, value]) => `  -f ${shellArgument(name + '=' + value)}`),
   ].join(' \\\n');
   files.set(
