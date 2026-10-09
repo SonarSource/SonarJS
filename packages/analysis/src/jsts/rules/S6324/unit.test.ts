@@ -50,17 +50,106 @@ describe('S6324', () => {
         name: 'exempts payload exclusions with a C1 introducer and C1 ST',
         code: String.raw`/\x9d[^\x07\x1b\x9c\x9d]*\x9c/`,
       },
+      {
+        name: 'exempts lazy payload repetition',
+        code: String.raw`/\x9d[^\x07\x1b\x9c\x9d]*?\x07/`,
+      },
+      {
+        name: 'exempts mandatory payload repetition',
+        code: String.raw`/\x9d[^\x07\x1b\x9c\x9d]+\x07/`,
+      },
+      {
+        name: 'exempts bounded payload repetition',
+        code: String.raw`/\x9d[^\x07\x1b\x9c\x9d]{1,3}\x07/`,
+      },
+      {
+        name: 'exempts an optional wrapper around the complete matcher',
+        code: `/(?:${oscPattern})?/`,
+      },
+      {
+        name: 'exempts the established matcher with the Unicode flag',
+        code: `/${oscPattern}/u`,
+      },
+      {
+        name: 'exempts the established matcher with the Unicode sets flag',
+        code: `/${oscPattern}/v`,
+        languageOptions: { ecmaVersion: 2024 as const },
+      },
     ];
 
-    for (const { name, code } of cases) {
+    for (const { name, ...testCase } of cases) {
       it(name, () => {
         const ruleTester = new DefaultParserRuleTester();
         ruleTester.run('No control characters in bounded OSC matchers', rule, {
-          valid: [{ code }],
+          valid: [testCase],
           invalid: [],
         });
       });
     }
+
+    it('keeps standalone controls reportable across separate regexes', () => {
+      const ruleTester = new DefaultParserRuleTester();
+      ruleTester.run('OSC exemptions are local to each regex', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: String.raw`/${oscPattern}/;
+/\x07/;`,
+            errors: [
+              {
+                message: CONTROL_CHAR_MESSAGE,
+                line: 2,
+                column: 2,
+                endLine: 2,
+                endColumn: 6,
+              },
+            ],
+          },
+          {
+            code: String.raw`/\x07/;
+/${oscPattern}/;`,
+            errors: [
+              {
+                message: CONTROL_CHAR_MESSAGE,
+                line: 1,
+                column: 2,
+                endLine: 1,
+                endColumn: 6,
+              },
+            ],
+          },
+        ],
+      });
+    });
+
+    it('requires every payload delimiter exclusion', () => {
+      const ruleTester = new DefaultParserRuleTester();
+      ruleTester.run('Incomplete OSC payload exclusions', rule, {
+        valid: [],
+        invalid: [
+          {
+            // BEL is not excluded.
+            code: String.raw`/\x9d[^\x1b\x9c\x9d]*\x07/`,
+            errors: 2,
+          },
+          {
+            // ESC is not excluded.
+            code: String.raw`/\x9d[^\x07\x9c\x9d]*\x07/`,
+            errors: 2,
+          },
+          {
+            // C1 ST is not excluded.
+            code: String.raw`/\x9d[^\x07\x1b\x9d]*\x07/`,
+            errors: 3,
+          },
+          {
+            // C1 OSC is not excluded.
+            code: String.raw`/\x1b\][^\x07\x1b\x9c]*\x07/`,
+            errors: 3,
+          },
+        ],
+      });
+    });
 
     it('keeps controls outside a complete bounded matcher reportable', () => {
       const ruleTester = new DefaultParserRuleTester();
@@ -78,10 +167,6 @@ describe('S6324', () => {
           {
             code: String.raw`/\x1b\][^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\|foo)/`,
             errors: 4,
-          },
-          {
-            code: String.raw`/\x1b\][^\x07\x1b\x9c]*\x07/`,
-            errors: 3,
           },
           {
             code: `/(?=${oscPattern})/`,
