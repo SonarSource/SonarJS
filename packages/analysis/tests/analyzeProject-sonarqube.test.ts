@@ -31,6 +31,9 @@ import { valid } from 'semver';
 import type { RuleConfig } from '../src/jsts/linter/config/rule-config.js';
 import type { RuleConfig as CssRuleConfig } from '../src/css/linter/config.js';
 import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.js';
+import { getSourceFileContentCache } from '../src/jsts/program/cache/sourceFileCache.js';
+import { Linter } from '../src/jsts/linter/linter.js';
+import { getCurrentFileModuleReferences } from '../src/jsts/rules/helpers/module.js';
 import { clearProgramOptionsCache } from '../src/jsts/program/cache/programOptionsCache.js';
 import { sanitizeInputFiles, type ProjectAnalysisFileInput } from '../src/common/input-sanitize.js';
 import {
@@ -39,6 +42,10 @@ import {
 } from '../src/common/configuration.js';
 import { DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT } from '../src/jsts/linter/issues/transform.js';
 import { deserializeProtobuf } from '../src/jsts/parsers/ast.js';
+import { ProgramSelectionArchive } from '../src/program-selection/archive.js';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 async function initForTest(
   configOptions: ConfigurationInput,
@@ -117,6 +124,210 @@ describe('SonarQube project analysis', () => {
         /Creating TypeScript\(\d+\.\d+\.\d+\) program/.test(call.arguments[0] as string),
       ),
     ).toBe(true);
+  });
+
+  it('releases scanner parser and module-reference caches before the next request', async () => {
+    const baseDir = join(fixtures, 'basic');
+    const filePath = join(baseDir, 'main.ts');
+    const configuration = await initForTest(
+      { baseDir },
+      {
+        [filePath]: {
+          filePath,
+          fileContent: "import { value } from 'example'; const x: number = value;;",
+          fileType: 'MAIN',
+        },
+      },
+    );
+    const collectPackageImports = Linter.collectPackageImports;
+    let moduleReferences: ReadonlySet<string> | undefined;
+    const collectImportsMock = mock.method(Linter, 'collectPackageImports', (sourceCode, path) => {
+      moduleReferences = getCurrentFileModuleReferences(sourceCode);
+      expect(moduleReferences.has('example')).toBe(true);
+      return collectPackageImports.call(Linter, sourceCode, path);
+    });
+
+    try {
+      await analyzeProject({ rules, bundles: [] }, configuration);
+    } finally {
+      collectImportsMock.mock.restore();
+    }
+
+    // The last SourceCode contains parser services that reference the whole TypeScript Program.
+    // It must not remain live while the next SQAA request loads another archive and program.
+    expect(moduleReferences?.size).toBe(0);
+    expect(getSourceFileContentCache().size).toBe(0);
+    expect(
+      (Linter as unknown as { linter: { getSourceCode(): unknown } }).linter.getSourceCode(),
+    ).toBeNull();
+  });
+
+  it('releases scanner state and cancellation scope when analysis fails', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'no-tsconfig'));
+    const configuration = await initForTest({ baseDir });
+    const initialize = mock.method(Linter, 'initialize', async () => {
+      throw new Error('linter initialization failed');
+    });
+    const release = mock.method(Linter, 'releaseAfterAnalysis');
+    try {
+      await expect(analyzeProject({ rules, bundles: [] }, configuration)).rejects.toThrow(
+        'linter initialization failed',
+      );
+      expect(release.mock.callCount()).toBe(1);
+      expect(cancelAnalysis()).toBe(false);
+    } finally {
+      initialize.mock.restore();
+      release.mock.restore();
+    }
+  });
+
+  it('should record the first tsconfig that actually wins for a file', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-winner-')),
+    );
+    const filePath = normalizeToAbsolutePath('main.ts', baseDir);
+    const firstTsconfig = normalizeToAbsolutePath('first.json', baseDir);
+    const secondTsconfig = normalizeToAbsolutePath('second.json', baseDir);
+    fs.writeFileSync(filePath, 'const x: number = 1;;');
+    fs.writeFileSync(firstTsconfig, '{"compilerOptions":{"strict":false},"files":["main.ts"]}');
+    fs.writeFileSync(secondTsconfig, '{"compilerOptions":{"strict":true},"files":["main.ts"]}');
+    const archivePath = path.join(baseDir, 'selection.pb.gz');
+    const recorder = new ProgramSelectionArchive(archivePath, baseDir);
+    const configuration = await initForTest(
+      { baseDir, tsConfigPaths: [firstTsconfig, secondTsconfig] },
+      { [filePath]: { filePath, fileType: 'MAIN' } },
+    );
+
+    await analyzeProject({ rules, bundles: [], programSelection: recorder }, configuration);
+    recorder.end();
+
+    expect(
+      new ProgramSelectionArchive(archivePath, baseDir).getRestoredSelections([filePath]),
+    ).toEqual([
+      expect.objectContaining({
+        program: expect.objectContaining({
+          kind: 'configured',
+          tsconfig: firstTsconfig,
+        }),
+      }),
+    ]);
+  });
+
+  it('should replay Vue files from orphan entry-point groups even when TypeScript omits them', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'program-selection-vue'));
+    const filePath = normalizeToAbsolutePath(join(baseDir, 'prop-mutation.vue'));
+    const archivePath = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-vue-')),
+      'selection.pb.gz',
+    );
+    const vueRules: RuleConfig[] = [
+      {
+        key: 'S8951',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+    const recorder = new ProgramSelectionArchive(archivePath, baseDir);
+    const recordingConfiguration = await initForTest(
+      { baseDir },
+      { [filePath]: { filePath, fileType: 'MAIN' } },
+    );
+    const recorded = await analyzeProject(
+      { rules: vueRules, bundles: [], programSelection: recorder },
+      recordingConfiguration,
+    );
+    recorder.end();
+    const recordedFile = recorded.files[filePath];
+    expect(recordedFile && 'issues' in recordedFile ? recordedFile.issues : undefined).toEqual([
+      expect.objectContaining({ ruleId: 'S8951' }),
+    ]);
+
+    const replay = new ProgramSelectionArchive(archivePath, baseDir);
+    expect(replay.getRestoredSelections([filePath])).toEqual([
+      expect.objectContaining({ program: expect.objectContaining({ kind: 'orphan' }) }),
+    ]);
+    const replayConfiguration = await initForTest(
+      { baseDir },
+      { [filePath]: { filePath, fileType: 'MAIN' } },
+    );
+    const restored = await analyzeProject(
+      { rules: vueRules, bundles: [], programSelection: replay },
+      replayConfiguration,
+    );
+    const restoredFile = restored.files[filePath];
+    expect(restoredFile && 'issues' in restoredFile ? restoredFile.issues : undefined).toEqual([
+      expect.objectContaining({ ruleId: 'S8951' }),
+    ]);
+    expect(restored.meta.telemetry?.programCreation.succeeded).toBe(1);
+  });
+
+  it('should honor an explicitly recorded no-program outcome', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'no-tsconfig'));
+    const filePath = normalizeToAbsolutePath(join(baseDir, 'orphan.ts'));
+    const archivePath = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-empty-')),
+      'selection.pb.gz',
+    );
+    const recorder = new ProgramSelectionArchive(archivePath, baseDir);
+    const recordingConfiguration = await initForTest(
+      { baseDir, createTSProgramForOrphanFiles: false },
+      { [filePath]: { filePath, fileType: 'MAIN', fileContent: '[80, 3, 9].sort();' } },
+    );
+    await analyzeProject(
+      { rules, bundles: [], programSelection: recorder },
+      recordingConfiguration,
+    );
+    recorder.end();
+    const replay = new ProgramSelectionArchive(archivePath, baseDir);
+    expect(replay.hasNoProgram(filePath)).toBe(true);
+    const sortRule: RuleConfig[] = [
+      {
+        key: 'S2871',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'ts',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+    const configuration = await initForTest(
+      { baseDir, createTSProgramForOrphanFiles: false },
+      { [filePath]: { filePath, fileType: 'MAIN', fileContent: '[80, 3, 9].sort();' } },
+    );
+
+    const result = await analyzeProject(
+      { rules: sortRule, bundles: [], programSelection: replay },
+      configuration,
+    );
+
+    const fileResult = result.files[filePath];
+    expect(fileResult && 'issues' in fileResult ? fileResult.issues : undefined).toEqual([]);
+    expect(result.meta.telemetry?.programCreation.succeeded).toBe(0);
+  });
+
+  it('rejects a context-backed file with no recorded program outcome', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'no-tsconfig'));
+    const filePath = normalizeToAbsolutePath(join(baseDir, 'orphan.ts'));
+    const archivePath = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-missing-')),
+      'selection.pb.gz',
+    );
+    new ProgramSelectionArchive(archivePath, baseDir, 'record').end();
+    const configuration = await initForTest(
+      { baseDir },
+      { [filePath]: { filePath, fileType: 'MAIN', fileContent: 'const value = 1;' } },
+    );
+    await expect(
+      analyzeProject(
+        {
+          rules,
+          bundles: [],
+          programSelection: new ProgramSelectionArchive(archivePath, baseDir, 'replay'),
+        },
+        configuration,
+      ),
+    ).rejects.toThrow('No recorded TypeScript program outcome');
   });
 
   it('should apply the test-file heuristic only to rule selection', async () => {
@@ -405,6 +616,37 @@ describe('SonarQube project analysis', () => {
     });
     cancelAnalysis();
     await analysisPromise;
+  });
+
+  it('does not record a no-program outcome for an orphan group cancelled partway through', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'program-selection-cancel-')),
+    );
+    const firstFile = normalizeToAbsolutePath(join(baseDir, 'first.ts'));
+    const secondFile = normalizeToAbsolutePath(join(baseDir, 'second.ts'));
+    fs.writeFileSync(firstFile, 'const first = 1;;');
+    fs.writeFileSync(secondFile, 'const second = 2;;');
+    const configuration = await initForTest(
+      { baseDir },
+      {
+        [firstFile]: { filePath: firstFile, fileType: 'MAIN' },
+        [secondFile]: { filePath: secondFile, fileType: 'MAIN' },
+      },
+    );
+    const archivePath = path.join(baseDir, 'analysis-metadata.pb.gz');
+    const programSelection = new ProgramSelectionArchive(archivePath, baseDir, 'record');
+    const messages: string[] = [];
+
+    await analyzeProject({ rules, bundles: [], programSelection }, configuration, message => {
+      messages.push(message.messageType);
+      if (message.messageType === 'fileResult') {
+        cancelAnalysis();
+      }
+    });
+    programSelection.end();
+
+    expect(messages).toEqual(['fileResult', 'cancelled']);
+    expect(fs.statSync(archivePath).size).toBeGreaterThan(0);
   });
 
   it('should handle invalid tsconfig gracefully', async () => {

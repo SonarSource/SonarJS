@@ -15,6 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import path from 'node:path';
+import fs from 'node:fs';
+import os from 'node:os';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 
@@ -24,6 +26,29 @@ import { readFile, normalizeToAbsolutePath } from '../../../../shared/src/helper
 import { ErrorCode } from '../../../src/contracts/error.js';
 
 describe('LinterWrapper', () => {
+  it('resolves ignore files from the analysis root and resets that root between projects', async () => {
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'css-analysis-root-'));
+    try {
+      const first = normalizeToAbsolutePath(path.join(temporary, 'first'));
+      const second = normalizeToAbsolutePath(path.join(temporary, 'second'));
+      fs.mkdirSync(first);
+      fs.mkdirSync(second);
+      fs.writeFileSync(path.join(first, '.stylelintignore'), 'input.css\n');
+      const linter = new LinterWrapper();
+      const rules = [{ key: 'block-no-empty', configurations: [] }];
+      linter.initialize(rules, first);
+      expect(
+        (await linter.lint(normalizeToAbsolutePath('input.css', first), 'a {}')).issues,
+      ).toEqual([]);
+      linter.initialize(rules, second);
+      expect(
+        (await linter.lint(normalizeToAbsolutePath('input.css', second), 'a {}')).issues,
+      ).toHaveLength(1);
+    } finally {
+      fs.rmSync(temporary, { recursive: true, force: true });
+    }
+  });
+
   it('should throw when linter is not initialized', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, './fixtures/block.css'),

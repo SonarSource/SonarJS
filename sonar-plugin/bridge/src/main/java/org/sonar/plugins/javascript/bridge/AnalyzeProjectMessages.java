@@ -19,11 +19,15 @@ package org.sonar.plugins.javascript.bridge;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.ListValue;
 import com.google.protobuf.NullValue;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
+import com.google.protobuf.util.JsonFormat;
 import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.IdentityHashMap;
@@ -47,6 +51,25 @@ public final class AnalyzeProjectMessages {
   private static final Gson GSON = new Gson();
 
   private AnalyzeProjectMessages() {}
+
+  /** Save the exact Java-built request configuration; Node normalizes it during analysis. */
+  public static String contextMetadata(ProjectConfiguration configuration) {
+    try {
+      var metadata = new JsonObject();
+      metadata.add(
+        "configuration",
+        JsonParser.parseString(
+          JsonFormat.printer()
+            .alwaysPrintFieldsWithNoPresence()
+            .omittingInsignificantWhitespace()
+            .print(configuration)
+        )
+      );
+      return metadata.toString();
+    } catch (InvalidProtocolBufferException e) {
+      throw new IllegalStateException("Could not serialize JavaScript analysis configuration", e);
+    }
+  }
 
   public static ProjectConfiguration.Builder newProjectConfigurationBuilder(
     String baseDir,
