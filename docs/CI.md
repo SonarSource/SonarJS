@@ -767,7 +767,11 @@ independent fixes and reports. Existing target-owned legacy fixes keep their PR 
 recovery never overwrites a branch used by another open PR. Default-branch fixes retain their
 `fix/update-ruling-for-<branch>` names.
 
-To retry the existing report with all its original inputs, use `gh run rerun <report-run-id>`. To
+Report retries require a tested commit containing the current reporter action and input contract.
+For Builds predating their introduction, rebase the original PR branch and rerun ruling first;
+changing the artifact name cannot supply bot code missing from the tested commit.
+For a supported Build, retry the existing report with all its original inputs using
+`gh run rerun <report-run-id>`. To
 request a new report with the same tested bot code, use the originating Build ID and its current
 attempt, exact merge and first-parent SHAs, and the same explicit parameters passed by the original
 Build. For example:
@@ -802,13 +806,12 @@ gh workflow run ruling-diff-comment.yml --ref '<original-branch>' \
 
 For a passing Build report, retain its `run-id`/`run-attempt` and omit `ruling-failed`/`fix-pr-url`.
 For a default-branch failed run, use the fix PR number as `pr-number`, pass the tested branch commit
-for both SHAs, set `target-ref=master`, and omit `is-pull-request=true`. Builds before this change
-used the unsuffixed `actual_js_ts` artifact; pass `results-artifact-name=actual_js_ts` when retrying
-their reports. Preserve the producing ruling job's artifact name even if the Build's current
+for both SHAs, set `target-ref=master`, and omit `is-pull-request=true`.
+Preserve the producing ruling job's artifact name even if the Build's current
 attempt is newer: after rerunning only the updater, `run-attempt=2` can still require
 `results-artifact-name=actual_js_ts-1`. Missing optional parameters use the reporter's explicit
-workflow defaults; forward the original parameters to reproduce an older Build if those defaults
-have changed.
+workflow defaults; forward the original parameters to reproduce an earlier supported Build if
+those defaults have changed.
 A stale retry skips mutations; missing artifacts or unavailable tested commits fail visibly.
 
 `ruling-fix-cleanup.yml` closes managed fixes when their original PR closes or merges. It runs trusted
