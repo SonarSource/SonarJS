@@ -292,7 +292,7 @@ export function controller(ctx, adapters = {}) {
     git(['config', 'user.name', 'github-actions[bot]']);
     git(['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
     // Retain the tested base history: base-only expectations must exist when restoring changes.
-    // Merging this fix into the original branch also incorporates the tested base snapshot.
+    // The generated fix commit changes expectations on top of that exact tree.
     git(['checkout', '-f', '-B', branch, ctx.testedCommit]);
     git(['stash', 'pop']);
     git(['add', '--', config['old-results-path']]);
@@ -302,7 +302,10 @@ export function controller(ctx, adapters = {}) {
     if (!fresh()) return 'stale';
     git(['push', `--force-with-lease=${ref}:${oldFix}`, 'origin', `${branch}:${ref}`]);
     if (!fresh()) return 'stale';
-    const body = `${description}\n\nGenerated with GitHub Actions\n\n${marker}`;
+    const baseNotice = ctx.isPullRequest
+      ? `This fix starts from the tested merge, including base commit ${ctx.base}. If your branch is behind that base, incorporate it before merging this fix; squash and rebase merges do not preserve the fix branch's base ancestry. If updating your branch triggers ruling again, review the refreshed fix.\n\n`
+      : '';
+    const body = `${description}\n\n${baseNotice}Generated with GitHub Actions\n\n${marker}`;
     let fix;
     if (existing) fix = api(`pulls/${existing.number}`, ['-X', 'PATCH', '-f', `body=${body}`]);
     else {

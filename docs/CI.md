@@ -731,8 +731,10 @@ the producing job's name rather than selecting results from the downstream job's
 
 `js_ts_ruling_update` creates or updates a fix PR before requesting a report. Its fix branch starts
 from the exact tested commit, so expectations added on the base exist when synchronized changes
-are restored. The generated commit changes only expectations; merging the fix into a PR behind
-its base also incorporates the tested base snapshot. Reporting dispatches from the original tested
+are restored. The generated commit changes only expectations. For a PR behind its tested base,
+incorporate that base before merging the fix; squash/rebase merges do not retain the fix branch's
+base ancestry. Updating the original branch can trigger ruling and refresh the fix. Generated fix
+PRs explain this requirement. Reporting dispatches from the original tested
 target branch (or an explicitly configured workflow ref). The reporter checks out bot code and data
 from the same tested commit. Branches must have the current reporter workflow; rebase branches
 predating its introduction or input changes. Failure reports apply saved generated results to that

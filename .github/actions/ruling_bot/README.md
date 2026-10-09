@@ -128,9 +128,11 @@ creating the fix branch, while expectation changes are retained through the stas
 
 The fix branch starts from the exact tested commit, including the tested base history. Stash
 restoration therefore uses the same expectation tree that produced the changes, including files
-added only on the base. The generated commit changes only expectations. For a PR behind its base,
-merging the fix also incorporates that tested base snapshot; its source branch then contains the
-history needed to avoid a later add/add conflict on an independently added expectation file.
+added only on the base. The generated commit changes only expectations. The fix PR also exposes
+base changes absent from its original branch. For a PR behind its tested base, incorporate that
+base before merging the fix: squash/rebase merges do not preserve the fix branch's base ancestry
+and can leave independently added expectation files in conflict with the target branch. Updating
+the original branch can trigger ruling again and refresh the fix. Generated fix PRs explain this.
 
 GitHub API state checks and Git ref writes are separate operations. A human can still push, merge,
 or reopen during the final API window; the queue coordinates bot jobs, and repeated checks/leases
