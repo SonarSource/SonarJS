@@ -750,9 +750,13 @@ older Build attempts, and superseded runs. Successful/raw reports with no issue 
 existing bot report, preserving #8050's clear-empty policy. Reports show expectation changes without
 a ruling-success claim. The updater exposes `report-requested` only after dispatch succeeds;
 the Build records that output in a successful step. Raw reports consult those steps for the
-same PR head even after an empty report deleted its comment. The public schema in
+same PR head even after an empty report deleted its comment. Report generation writes to a
+temporary file and reads only a comment-sized prefix, so large reports reach UTF-8-safe truncation
+without hitting the controller's subprocess output limit. The configuration schema in
 `.github/actions/ruling_bot/config.mjs` and SonarJS settings in `.github/ruling-bot.config.mjs`
-generate the action/workflow configuration and retry command; regenerate with
+generate the action/workflow configuration. `.github/actions/ruling_bot/provenance.mjs` owns
+the nine dispatched provenance fields and generates their metadata, bindings and retry placeholders.
+Regenerate the action/workflow contracts and retry command with
 `node .github/actions/ruling_bot/generate-config.mjs` and verify with `--check`.
 A failed original-PR run with zero net behavioral difference still keeps its
 failure notice and required fix link. Default-branch reports describe generated changes on the fix
@@ -773,12 +777,12 @@ Build. For example:
 ```sh
 gh workflow run ruling-diff-comment.yml --ref '<original-branch>' \
   -f 'pr-number=<original-pr-number>' \
-  -f 'head-sha=<tested-merge-sha>' \
   -f 'base-sha=<tested-merge-first-parent-sha>' \
-  -f is-pull-request=true \
+  -f 'head-sha=<tested-merge-sha>' \
   -f 'run-id=<build-run-id>' \
   -f 'run-attempt=<current-build-run-attempt>' \
   -f ruling-failed=true \
+  -f is-pull-request=true \
   -f 'fix-pr-url=<fix-pr-url>' \
   -f 'target-ref=<original-branch>' \
   -f sources-path=its/sources \

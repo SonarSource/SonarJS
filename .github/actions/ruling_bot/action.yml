@@ -5,28 +5,35 @@ inputs:
   github-token:
     description: GitHub token used for PR comments and fix PR management
     required: true
+  # BEGIN GENERATED PROVENANCE INPUTS
+  # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
   pr-number:
-    description: Pull request number when the workflow runs on a PR
+    description: PR receiving the ruling report
     required: false
     default: ''
+  tested-base-sha:
+    description: First parent of the tested merge, or tested branch commit
+    required: false
+    default: ''
+  tested-commit-sha:
+    description: Exact tested commit; synthetic merge for a PR
+    required: false
+    default: ''
+  ruling-failed:
+    description: Whether saved generated results must be applied
+    required: true
+  is-pull-request:
+    description: Whether the tested commit is a synthetic PR merge
+    required: true
   target-ref:
-    description: Branch name targeted by ruling maintenance updates
+    description: Original branch tested by ruling
     required: true
   tested-head-sha:
-    description: Head commit whose code produced the ruling results
+    description: Original head commit whose code produced the ruling results
     required: true
-  tested-base-sha:
-    description: First parent of the tested PR merge commit; empty for a branch run
-    required: false
-    default: ''
-  is-pull-request:
-    description: Whether the current workflow run is for a pull request
-    required: true
-  ruling-failed:
-    description: Whether the preceding ruling execution failed
-    required: true
+  # END GENERATED PROVENANCE INPUTS
   # BEGIN GENERATED CONFIG INPUTS
-  # Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+  # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
   new-results-path:
     description: Generated-results path within the tested repository
     required: true
@@ -70,10 +77,6 @@ inputs:
     required: false
     default: Record ruling report dispatch
   # END GENERATED CONFIG INPUTS
-  tested-commit-sha:
-    description: Exact tested commit (synthetic merge for a PR)
-    required: false
-    default: ''
 
 outputs:
   report-requested:
@@ -89,15 +92,18 @@ runs:
       env:
         ACTION_PATH: ${{ github.action_path }}
         GH_TOKEN: ${{ inputs.github-token }}
+        # BEGIN GENERATED PROVENANCE ENV
+        # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
         PR_NUMBER: ${{ inputs.pr-number }}
-        TARGET_REF: ${{ inputs.target-ref }}
-        TESTED_COMMIT_SHA: ${{ inputs.tested-commit-sha || github.sha }}
-        TESTED_HEAD_SHA: ${{ inputs.tested-head-sha }}
         TESTED_BASE_SHA: ${{ inputs.tested-base-sha }}
-        IS_PULL_REQUEST: ${{ inputs.is-pull-request }}
+        TESTED_COMMIT_SHA: ${{ inputs.tested-commit-sha || github.sha }}
         RULING_FAILED: ${{ inputs.ruling-failed }}
+        IS_PULL_REQUEST: ${{ inputs.is-pull-request }}
+        TARGET_REF: ${{ inputs.target-ref }}
+        TESTED_HEAD_SHA: ${{ inputs.tested-head-sha }}
+        # END GENERATED PROVENANCE ENV
         # BEGIN GENERATED CONFIG ENV
-        # Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+        # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
         NEW_RESULTS_PATH: ${{ inputs.new-results-path }}
         OLD_RESULTS_PATH: ${{ inputs.old-results-path }}
         SOURCES_PATH: ${{ inputs.sources-path }}

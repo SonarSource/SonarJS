@@ -15,14 +15,25 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { execFileSync } from 'node:child_process';
-import { appendFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  appendFileSync,
+  closeSync,
+  fstatSync,
+  mkdtempSync,
+  openSync,
+  readSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { inputDefinitions, environmentConfiguration } from './config.mjs';
+import { dispatchProvenance } from './provenance.mjs';
 
 const actionPath = path.dirname(fileURLToPath(import.meta.url));
 const commentMarker = '<!-- ruling-report -->';
+const commentLimit = 50000;
 
 export function context(env = process.env) {
   return {
@@ -178,31 +189,53 @@ export function controller(ctx, adapters = {}) {
   function dispatch(config, reportPr, fixUrl = '') {
     const ref = config['report-workflow-ref'] || ctx.targetRef;
     const args = ['workflow', 'run', config['report-workflow'], '--ref', ref];
-    const fields = {
-      'pr-number': reportPr,
-      'base-sha': ctx.base || ctx.testedHead,
-      'head-sha': ctx.testedCommit,
-      'run-id': ctx.runId || '',
-      'run-attempt': ctx.runAttempt || '1',
-      'ruling-failed': String(ctx.failed),
-      'is-pull-request': String(ctx.isPullRequest),
-      'fix-pr-url': fixUrl,
-      'target-ref': ctx.targetRef,
-    };
+    const fields = dispatchProvenance(ctx, reportPr, fixUrl);
     for (const name of Object.keys(inputDefinitions)) fields[name] = config[name];
     for (const [name, value] of Object.entries(fields)) args.push('-f', `${name}=${value}`);
     gh(args); // Fail visibly: persistence succeeded, but reporting must be retried.
     if (ctx.output) appendFileSync(ctx.output, 'report-requested=true\n');
   }
 
-  const helper = (name, args, env = {}) =>
+  const helper = (name, args, env = {}, stdout = 'pipe') =>
     execFileSync(process.execPath, [path.join(actionPath, name), ...args], {
       cwd: ctx.workspace,
       encoding: 'utf8',
       maxBuffer: 64 * 1024 * 1024,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: ['ignore', stdout, 'pipe'],
       env: { ...process.env, ...env, RULING_REPOSITORY_PATH: ctx.workspace },
     });
+
+  function generateReport(config) {
+    const directory = mkdtempSync(path.join(os.tmpdir(), 'ruling-report-'));
+    let file;
+    try {
+      file = openSync(path.join(directory, 'report.md'), 'w+');
+      helper(
+        'generate-report.mjs',
+        [config['old-results-path']],
+        {
+          BASE_SHA: ctx.base,
+          SOURCES_PATH: config['sources-path'],
+          SOURCES_REPO_URL: config['sources-repo-url'],
+          RSPEC_BASE_URL: config['rspec-base-url'],
+          MAX_INLINE_SNIPPETS: String(config['max-inline-snippets']),
+        },
+        file,
+      );
+      // stdout goes directly to disk; only the comment-sized prefix enters controller memory.
+      const bytes = Buffer.alloc(commentLimit + 1);
+      const length = readSync(file, bytes, 0, bytes.length, 0);
+      let end = Math.min(length, commentLimit);
+      while (end < length && (bytes[end] & 0xc0) === 0x80) end--;
+      return {
+        report: bytes.subarray(0, end).toString('utf8'),
+        truncated: fstatSync(file).size > end,
+      };
+    } finally {
+      if (file !== undefined) closeSync(file);
+      rmSync(directory, { recursive: true, force: true });
+    }
+  }
 
   function testedTree() {
     if (git(['rev-parse', 'HEAD']) !== ctx.testedCommit)
@@ -335,13 +368,7 @@ export function controller(ctx, adapters = {}) {
     if (!fresh(true)) return 'stale';
     if (ctx.failed)
       helper('sync-results.mjs', [config['new-results-path'], config['old-results-path']]);
-    const report = helper('generate-report.mjs', [config['old-results-path']], {
-      BASE_SHA: ctx.base,
-      SOURCES_PATH: config['sources-path'],
-      SOURCES_REPO_URL: config['sources-repo-url'],
-      RSPEC_BASE_URL: config['rspec-base-url'],
-      MAX_INLINE_SNIPPETS: String(config['max-inline-snippets']),
-    });
+    const { report, truncated } = generateReport(config);
     const existing = pages(`issues/${ctx.pr}/comments?per_page=100`).find(
       comment =>
         comment.user.login === 'github-actions[bot]' && comment.body.startsWith(commentMarker),
@@ -378,8 +405,8 @@ export function controller(ctx, adapters = {}) {
         : '## Ruling Report\n\nNo net issue changes relative to the tested base.\n');
     let body = `${commentMarker}\n${provenance}\n${notice}${content}`;
     const bytes = Buffer.from(body);
-    if (bytes.length > 50000) {
-      let end = 50000;
+    if (bytes.length > commentLimit || truncated) {
+      let end = Math.min(bytes.length, commentLimit);
       while ((bytes[end] & 0xc0) === 0x80) end--;
       body =
         bytes.subarray(0, end).toString('utf8') +

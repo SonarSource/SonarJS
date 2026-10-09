@@ -1183,7 +1183,7 @@ jobs:
       - name: Name saved ruling results
         id: ruling_artifact
         # BEGIN GENERATED ARTIFACT NAME
-        # Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+        # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
         run: echo "name=actual_js_ts-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_OUTPUT"
         # END GENERATED ARTIFACT NAME
       - name: Run JS/TS Ruling
@@ -1206,7 +1206,7 @@ jobs:
         with:
           name: ${{ steps.ruling_artifact.outputs.name }}
           # BEGIN GENERATED RESULTS PATH
-          # Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+          # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
           path: packages/ruling/actual/
           # END GENERATED RESULTS PATH
           if-no-files-found: error
@@ -1238,7 +1238,7 @@ jobs:
         with:
           name: ${{ needs.js_ts_ruling.outputs.results-artifact-name }}
           # BEGIN GENERATED RESULTS PATH
-          # Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+          # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
           path: packages/ruling/actual/
           # END GENERATED RESULTS PATH
       - name: Update ruling results
@@ -1246,15 +1246,17 @@ jobs:
         uses: ./.github/actions/ruling_bot
         with:
           github-token: ${{ github.token }}
+          # BEGIN GENERATED CALLER PROVENANCE
+          # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
           pr-number: ${{ github.event.pull_request.number || '' }}
+          tested-base-sha: ${{ needs.js_ts_ruling.outputs.tested-base-sha }}
+          ruling-failed: ${{ needs.js_ts_ruling.outputs.ruling-results-saved == 'true' }}
+          is-pull-request: ${{ github.event_name == 'pull_request' }}
           target-ref: ${{ github.head_ref || github.ref_name }}
           tested-head-sha: ${{ github.event.pull_request.head.sha || github.sha }}
-          tested-base-sha: ${{ needs.js_ts_ruling.outputs.tested-base-sha }}
-          is-pull-request: ${{ github.event_name == 'pull_request' }}
-          ruling-failed: ${{ needs.js_ts_ruling.outputs.ruling-results-saved == 'true' }}
-
+          # END GENERATED CALLER PROVENANCE
           # BEGIN GENERATED CALLER CONFIG
-          # Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+          # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
           new-results-path: packages/ruling/actual
           old-results-path: its/ruling/src/test/resources/expected
           sources-path: its/sources
@@ -1268,7 +1270,7 @@ jobs:
           report-dispatch-step: Record ruling report dispatch
           # END GENERATED CALLER CONFIG
       # BEGIN GENERATED DISPATCH RECORD
-      # Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+      # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
       - name: Record ruling report dispatch
         if: steps.ruling_update.outputs.report-requested == 'true'
         run: echo 'Independent ruling report dispatch succeeded.'

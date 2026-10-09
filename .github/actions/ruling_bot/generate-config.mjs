@@ -17,6 +17,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { inputDefinitions } from './config.mjs';
+import { provenanceDefinitions, updaterInputDefinitions } from './provenance.mjs';
 import { rulingConfig } from '../../ruling-bot.config.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('../../../', import.meta.url));
@@ -71,7 +72,7 @@ function section(text, name, body) {
     count++;
     return (
       `${indent}# BEGIN GENERATED ${name}\n` +
-      `${indent}# Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.\n` +
+      `${indent}# Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.\n` +
       body
         .split('\n')
         .map(line => indent + line)
@@ -83,7 +84,11 @@ function section(text, name, body) {
   return result;
 }
 
-export function generatedFiles(config = rulingConfig, definitions = inputDefinitions) {
+export function generatedFiles(
+  config = rulingConfig,
+  definitions = inputDefinitions,
+  provenance = provenanceDefinitions,
+) {
   const names = Object.keys(definitions);
   const files = new Map();
   const metadata = dispatch =>
@@ -108,6 +113,33 @@ export function generatedFiles(config = rulingConfig, definitions = inputDefinit
   const env = names
     .map(name => `${name.replaceAll('-', '_').toUpperCase()}: ${expression(`inputs.${name}`)}`)
     .join('\n');
+  const provenanceMetadata = (definitions, dispatch = false) =>
+    Object.entries(definitions)
+      .flatMap(([name, definition]) => {
+        const lines = [
+          `${name}:`,
+          `  description: ${scalar(definition.description)}`,
+          `  required: ${!!definition.required}`,
+        ];
+        if (dispatch) lines.push(`  type: ${definition.type}`);
+        if (definition.default !== undefined) {
+          const value =
+            dispatch && definition.type === 'boolean'
+              ? definition.default
+              : scalar(definition.default);
+          lines.push(`  default: ${value}`);
+        }
+        return lines;
+      })
+      .join('\n');
+  const provenanceEnv = definitions =>
+    Object.entries(definitions)
+      .map(
+        ([name, definition]) =>
+          `${definition.env}: ${expression(definition.expression || `inputs.${name}`)}`,
+      )
+      .join('\n');
+  const updater = updaterInputDefinitions(provenance);
   for (const name of ['action.yml', 'report/action.yml']) {
     const file = `.github/actions/ruling_bot/${name}`;
     let text = section(
@@ -116,10 +148,21 @@ export function generatedFiles(config = rulingConfig, definitions = inputDefinit
       metadata(false),
     );
     text = section(text, 'CONFIG ENV', env);
+    const inputs = name === 'action.yml' ? updater : provenance;
+    text = section(text, 'PROVENANCE INPUTS', provenanceMetadata(inputs));
+    text = section(text, 'PROVENANCE ENV', provenanceEnv(inputs));
     files.set(file, text);
   }
   const build = '.github/workflows/build.yml';
   let text = readFileSync(path.join(repositoryRoot, build), 'utf8');
+  text = section(
+    text,
+    'CALLER PROVENANCE',
+    Object.entries(updater)
+      .filter(([, definition]) => definition.caller)
+      .map(([name, definition]) => `${name}: ${expression(definition.caller)}`)
+      .join('\n'),
+  );
   text = section(
     text,
     'CALLER CONFIG',
@@ -152,6 +195,18 @@ export function generatedFiles(config = rulingConfig, definitions = inputDefinit
     'CONFIG INPUTS',
     metadata(true),
   );
+  text = section(text, 'PROVENANCE INPUTS', provenanceMetadata(provenance, true));
+  text = section(
+    text,
+    'REPORT PROVENANCE',
+    Object.entries(provenance)
+      .map(([name, definition]) => {
+        const fallback =
+          definition.type === 'boolean' ? definition.default : githubString(definition.default);
+        return `${name}: ${expression(definition.report || `inputs.${name} || ${fallback}`)}`;
+      })
+      .join('\n'),
+  );
   text = section(
     text,
     'REPORT CONFIG',
@@ -181,19 +236,10 @@ export function generatedFiles(config = rulingConfig, definitions = inputDefinit
     ),
   );
   const guide = 'docs/CI.md';
-  const provenance = {
-    'pr-number': '<original-pr-number>',
-    'head-sha': '<tested-merge-sha>',
-    'base-sha': '<tested-merge-first-parent-sha>',
-    'is-pull-request': 'true',
-    'run-id': '<build-run-id>',
-    'run-attempt': '<current-build-run-attempt>',
-    'ruling-failed': 'true',
-    'fix-pr-url': '<fix-pr-url>',
-    'target-ref': '<original-branch>',
-  };
   const fields = {
-    ...provenance,
+    ...Object.fromEntries(
+      Object.entries(provenance).map(([name, definition]) => [name, definition.retry]),
+    ),
     ...config,
     'results-artifact-name': config['results-artifact-name'] + '-<producing-ruling-job-attempt>',
   };
