@@ -211,9 +211,13 @@ export function getAngularStaticOutputNames(
     return undefined;
   }
   const outputs = (argument.properties as TSESTree.Property[]).filter(
-    property => propertyName(property) === 'outputs',
+    property => optionPropertyName(property) === 'outputs',
   );
-  if (outputs.length !== 1 || outputs[0].value.type !== 'ArrayExpression') {
+  if (
+    outputs.length !== 1 ||
+    propertyName(outputs[0]) !== 'outputs' ||
+    outputs[0].value.type !== 'ArrayExpression'
+  ) {
     return undefined;
   }
   const names = outputs[0].value.elements.map(element =>

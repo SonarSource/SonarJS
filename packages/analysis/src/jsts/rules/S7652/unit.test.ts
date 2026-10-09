@@ -320,6 +320,115 @@ describe('S7652', () => {
     });
   });
 
+  it('retains reports when quoted metadata keys override the replacement exposure', () => {
+    const cases = [
+      {
+        code: `${angular}
+          @Component({ outputs: ['refresh'], 'outputs': [] })
+          class C {
+            /** @deprecated Use refresh instead. */
+            onRefresh = output<void>();
+            refresh = this.onRefresh;
+          }
+        `,
+        errors: [{ messageId: 'noOutputOnPrefix', type: 'Identifier' }],
+      },
+      {
+        code: `${angular}
+          @Component({ outputs: ['onRefresh', 'refresh'], 'outputs': [] })
+          class C {
+            /** @deprecated Use refresh instead. */
+            onRefresh = new EventEmitter<void>();
+            refresh = this.onRefresh;
+          }
+        `,
+        errors: [{ messageId: 'noOutputOnPrefix', type: 'Literal' }],
+      },
+    ];
+    ruleTester.run('S7652', rule, { valid: [], invalid: cases });
+    ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
+      valid: [],
+      invalid: cases,
+    });
+  });
+
+  it('retains reports when another instance field overwrites the replacement', () => {
+    const cases = [
+      {
+        code: `${angular}
+          @Component({ outputs: ['refresh'] })
+          class C {
+            /** @deprecated Use refresh instead. */
+            onRefresh = output<void>();
+            refresh = this.onRefresh;
+            refresh = output<void>();
+          }
+        `,
+        errors: [{ messageId: 'noOutputOnPrefix', type: 'Identifier' }],
+      },
+      {
+        code: `${angular}
+          @Component({ outputs: ['onRefresh', 'refresh'] })
+          class C {
+            /** @deprecated Use refresh instead. */
+            onRefresh = new EventEmitter<void>();
+            refresh = this.onRefresh;
+            refresh = new EventEmitter<void>();
+          }
+        `,
+        errors: [{ messageId: 'noOutputOnPrefix', type: 'Literal' }],
+      },
+    ];
+    ruleTester.run('S7652', rule, { valid: [], invalid: cases });
+    ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
+      valid: [],
+      invalid: cases,
+    });
+  });
+
+  it('keeps replacement suppression limited to simple fields and alias-free metadata', () => {
+    ruleTester.run('S7652', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `${angular}
+            @Component({ outputs: ['onRefresh', 'refresh', 'other: changed'] })
+            class C {
+              /** @deprecated Use refresh instead. */
+              onRefresh = new EventEmitter<void>();
+              refresh = this.onRefresh;
+              other = new EventEmitter<void>();
+            }
+          `,
+          errors: [{ messageId: 'noOutputOnPrefix', type: 'Literal' }],
+        },
+        {
+          code: `${angular}
+            @Component({ outputs: ['refresh'] })
+            class C {
+              /** @deprecated Use refresh instead. */
+              onRefresh = output<void>();
+              refresh = this.onRefresh;
+              ['refresh'] = output<void>();
+            }
+          `,
+          errors: [{ messageId: 'noOutputOnPrefix', type: 'Identifier' }],
+        },
+        {
+          code: `${angular}
+            @Component({ outputs: ['refresh'] })
+            class C {
+              refresh = this.onRefresh;
+              /** @deprecated Use refresh instead. */
+              onRefresh = output<void>();
+            }
+          `,
+          errors: [{ messageId: 'noOutputOnPrefix', type: 'Identifier' }],
+        },
+      ],
+    });
+  });
+
   it('suppresses only forms reported by the upstream rule', () => {
     ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
       valid: [],

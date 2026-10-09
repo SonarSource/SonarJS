@@ -120,6 +120,17 @@ function isDeprecatedOutputReplacement(context: Rule.RuleContext, node: estree.N
   if (classNode?.type !== 'ClassDeclaration') {
     return false;
   }
+  // Limit compatibility suppression to simple, unique instance fields.
+  const fieldNames = new Set<string>();
+  for (const field of classNode.body.body) {
+    if (field.type !== 'PropertyDefinition' || field.static) {
+      continue;
+    }
+    if (field.computed || field.key.type !== 'Identifier' || fieldNames.has(field.key.name)) {
+      return false;
+    }
+    fieldNames.add(field.key.name);
+  }
   const memberIndex = classNode.body.body.indexOf(member);
   if (memberIndex < 0) {
     return false;
