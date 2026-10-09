@@ -51,7 +51,7 @@ export const inputDefinitions = {
     default: 'ruling-diff-comment.yml',
   },
   'report-workflow-ref': {
-    description: 'Reporter implementation ref; empty selects the default branch',
+    description: 'Reporter workflow ref; empty selects the tested target branch',
     default: '',
   },
   'build-workflow': {
