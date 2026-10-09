@@ -729,12 +729,18 @@ artifact with its Build attempt (`actual_js_ts-1`, `actual_js_ts-2`, etc.) and e
 as a job output for upload, updater download, and dispatch. Retrying only downstream jobs preserves
 the producing job's name rather than selecting results from the downstream job's attempt.
 
-`js_ts_ruling_update` creates or updates a fix PR before requesting a report. It dispatches from the
-repository default branch (or configured stable workflow ref), allowing reports for old PR heads
-that lack the reporter workflow. The reporter checks out its implementation and the exact tested
-synthetic merge separately. Failure reports apply saved generated results to that merge; passing
-reports use its committed expectations. Both compare with the merge's exact first parent. For a
-default-branch failure, the tested branch commit is the baseline and the report goes on the fix PR.
+`js_ts_ruling_update` creates or updates a fix PR before requesting a report. Its fix branch starts
+from the exact tested commit, so expectations added on the base exist when synchronized changes
+are restored. The generated commit changes only expectations; merging the fix into a PR behind
+its base also incorporates the tested base snapshot. Reporting dispatches from the original tested
+target branch (or an explicitly configured workflow ref). The reporter checks out bot code and data
+from the same tested commit. Branches must have the current reporter workflow; rebase branches
+predating its introduction or input changes. Failure reports apply saved generated results to that
+merge; passing reports use its committed expectations. Both compare with the merge's exact first
+parent. For a default-branch failure, the tested branch commit is the baseline and the report goes
+on the fix PR.
+Reporter preflight exposes the validated absolute download directory. Artifact download uses that
+output directly, preserving both absolute and relative result-path inputs.
 
 A successful Build retry also dispatches a report, clearing outdated failure/fix notices. Updater,
 reporter, and closed-event cleanup share a queue and reject stale original PR heads, closed originals,
@@ -756,14 +762,14 @@ recovery never overwrites a branch used by another open PR. Default-branch fixes
 `fix/update-ruling-for-<branch>` names.
 
 To retry the existing report with all its original inputs, use `gh run rerun <report-run-id>`. To
-request a new report with current stable tooling, use the originating Build ID and its current
+request a new report with the same tested bot code, use the originating Build ID and its current
 attempt, exact merge and first-parent SHAs, and the same explicit parameters passed by the original
 Build. For example:
 
 <!-- BEGIN GENERATED RETRY COMMAND -->
 
 ```sh
-gh workflow run ruling-diff-comment.yml --ref '<reporter-ref>' \
+gh workflow run ruling-diff-comment.yml --ref '<original-branch>' \
   -f 'pr-number=<original-pr-number>' \
   -f 'head-sha=<tested-merge-sha>' \
   -f 'base-sha=<tested-merge-first-parent-sha>' \

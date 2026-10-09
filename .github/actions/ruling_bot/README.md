@@ -1,8 +1,8 @@
 # Ruling bot
 
 The updater persists generated expectations in a fix PR before requesting an independent report.
-The reporter reads the exact tree tested by ruling, using implementation code from a stable workflow
-ref. A third action closes obsolete fixes after their original PR closes or merges.
+The reporter reads the exact tree tested by ruling and runs the bot code from that same checkout.
+A third action closes obsolete fixes after their original PR closes or merges.
 
 ## Configuration and reuse
 
@@ -13,8 +13,8 @@ use the same name, including when a retry reuses outputs from an earlier attempt
 
 The updater forwards its resolved action inputs individually to the independent reporter workflow.
 All twenty dispatch inputs fit GitHub.com's current limit of twenty-five. Explicitly forwarding
-paths, links, and the artifact name preserves the producing Build's settings if stable reporter code
-changes later. Raw PR-event reports use the same SonarJS defaults in the reporter workflow.
+paths, links, and the artifact name preserves the producing Build's settings during independent
+retries. Raw PR-event reports use the same SonarJS defaults in the reporter workflow.
 The canonical public schema/defaults live in `config.mjs`; SonarJS settings live in
 `.github/ruling-bot.config.mjs`. `generate-config.mjs` generates their marked action/workflow
 sections, this input table, the CI retry command, and the local `ruling-sync` command. Run
@@ -29,8 +29,10 @@ layout. Helper scripts resolve relative to the action installation; data paths r
 the tested checkout (`github.workspace`, or `repository-path` for the reporter).
 
 Result and source paths may be relative or absolute within that checkout. Valid paths are
-normalized relative to the caller's checkout before dispatch, so the separate reporter checkout
-uses the same locations. An empty `sources-path` disables snippets; empty link URLs disable links.
+normalized relative to the caller's checkout before dispatch. Reporter preflight exposes the
+validated absolute download destination, so artifact download and report generation also agree
+when the report action receives an absolute path directly. An empty `sources-path` disables
+snippets; empty link URLs disable links.
 
 <!-- BEGIN GENERATED INPUT TABLE -->
 
@@ -44,7 +46,7 @@ uses the same locations. An empty `sources-path` disables snippets; empty link U
 | `max-inline-snippets`   | Maximum detailed snippets per report section                        | `10`                                          |
 | `results-artifact-name` | Exact saved generated-results artifact name                         | `ruling-results`                              |
 | `report-workflow`       | Reporter workflow filename or ID                                    | `ruling-diff-comment.yml`                     |
-| `report-workflow-ref`   | Reporter implementation ref; empty selects the default branch       | Empty                                         |
+| `report-workflow-ref`   | Reporter workflow ref; empty selects the tested target branch       | Empty                                         |
 | `build-workflow`        | Build workflow filename or ID used to find authoritative dispatches | `build.yml`                                   |
 | `report-dispatch-step`  | Build step recording a successful ruling report request             | `Record ruling report dispatch`               |
 
@@ -74,13 +76,14 @@ expectations already committed in it. Both include new/untracked JSON files and 
 For a default-branch failure, the tested branch commit is the baseline and the report goes on the fix
 PR. On a passing default-branch run, the updater closes obsolete default-branch fixes.
 
-Dispatch defaults to the repository's default branch, which contains the reporter even when the PR
-head predates its introduction. The workflow checks out implementation code and the exact tested
-tree separately. Set `report-workflow-ref` to another stable ref when testing a reporter change.
+Dispatch defaults to the original tested target branch. The reporter workflow checks out the exact
+tested commit once for both bot code and data. Branches must contain the current reporter workflow;
+rebase branches predating its introduction or input changes. `report-workflow-ref` can override the
+workflow selection, while the bot code still comes from the tested commit.
 Dispatch failure fails the update job visibly while leaving the persisted fix available.
 
 The simplest retry is `gh run rerun <report-run-id>`; this retains the original dispatch inputs.
-To dispatch again with a newer reporter implementation, supply the same tested SHAs, originating
+To dispatch again, supply the same tested SHAs, originating
 Build run ID and its current attempt, fix URL, and configuration. Preserve the producing ruling
 job's artifact name separately: rerunning only the updater can make the current Build attempt `2`
 while the saved artifact remains `actual_js_ts-1`. See [the CI guide](../../../docs/CI.md#js_ts_ruling)
@@ -121,7 +124,13 @@ name and email, and no other open PR uses that branch. New PR fixes use
 `fix/update-ruling-for-pr-<number>` to keep two original PRs on the same source branch independent.
 Existing target-owned fixes and recoverable legacy branches remain supported. Default-branch fix
 names retain `fix/update-ruling-for-<branch>`. Unrelated dirty tracked build output is discarded when
-switching to the target branch, while expectation changes are retained through the stash.
+creating the fix branch, while expectation changes are retained through the stash.
+
+The fix branch starts from the exact tested commit, including the tested base history. Stash
+restoration therefore uses the same expectation tree that produced the changes, including files
+added only on the base. The generated commit changes only expectations. For a PR behind its base,
+merging the fix also incorporates that tested base snapshot; its source branch then contains the
+history needed to avoid a later add/add conflict on an independently added expectation file.
 
 GitHub API state checks and Git ref writes are separate operations. A human can still push, merge,
 or reopen during the final API window; the queue coordinates bot jobs, and repeated checks/leases
