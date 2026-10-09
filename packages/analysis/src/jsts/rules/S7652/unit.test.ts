@@ -386,6 +386,97 @@ describe('S7652', () => {
     });
   });
 
+  it('retains reports for constructor writes to either compatibility output', () => {
+    for (const { outputs, initializer } of [
+      { outputs: "['refresh']", initializer: 'output<void>()' },
+      { outputs: "['onRefresh', 'refresh']", initializer: 'new EventEmitter<void>()' },
+    ]) {
+      const cases = [
+        'this.refresh = anotherEmitter;',
+        'this.onRefresh = anotherEmitter;',
+        'this.refresh! = anotherEmitter;',
+        '(this as C).onRefresh = anotherEmitter;',
+        "this['refresh'] = anotherEmitter;",
+        'this[`onRefresh`] = anotherEmitter;',
+        'if (enabled) { this.refresh = anotherEmitter; }',
+        'const reset = () => { this.refresh = anotherEmitter; }; reset();',
+        'this.refresh ??= anotherEmitter;',
+        'this.refresh++;',
+        'delete this.onRefresh;',
+        '({ value: this.refresh } = source);',
+        '[this.onRefresh] = source;',
+        'this[key] = anotherEmitter;',
+      ].map(body => ({
+        code: `${angular}
+          @Component({ outputs: ${outputs} })
+          class C {
+            /** @deprecated Use refresh instead. */
+            onRefresh = ${initializer};
+            refresh = this.onRefresh;
+            constructor() { ${body} }
+          }
+        `,
+        errors: 1,
+      }));
+      ruleTester.run('S7652', rule, { valid: [], invalid: cases });
+      ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
+        valid: [],
+        invalid: cases,
+      });
+    }
+  });
+
+  it('keeps constructor reads, unrelated writes, and other this scopes out of the guard', () => {
+    const cases = [
+      'this.refresh.emit();',
+      'this.other = anotherEmitter;',
+      "this['other'] = anotherEmitter;",
+      'this.other[this.refresh] = value;',
+      'function reset() { this.refresh = anotherEmitter; }',
+      'const reset = function () { this.onRefresh = anotherEmitter; };',
+      'class Other { constructor() { this.refresh = anotherEmitter; } }',
+      'const Other = class { constructor() { this.onRefresh = anotherEmitter; } };',
+    ].map(body => ({
+      code: `${angular}
+        @Component({ outputs: ['refresh'] })
+        class C {
+          /** @deprecated Use refresh instead. */
+          onRefresh = output<void>();
+          refresh = this.onRefresh;
+          constructor() { ${body} }
+        }
+      `,
+    }));
+    ruleTester.run('S7652', rule, { valid: cases, invalid: [] });
+    ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
+      valid: [],
+      invalid: cases.map(test => ({ ...test, errors: 1 })),
+    });
+  });
+
+  it('checks constructor writes independently for each compatibility pair', () => {
+    ruleTester.run('S7652', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `${angular}
+            @Component({ outputs: ['refresh', 'save'] })
+            class C {
+              /** @deprecated Use refresh instead. */
+              onRefresh = output<void>();
+              refresh = this.onRefresh;
+              /** @deprecated Use save instead. */
+              onSave = output<void>();
+              save = this.onSave;
+              constructor() { this.refresh = anotherEmitter; }
+            }
+          `,
+          errors: [{ messageId: 'noOutputOnPrefix', type: 'Identifier', line: 5 }],
+        },
+      ],
+    });
+  });
+
   it('keeps replacement suppression limited to simple fields and alias-free metadata', () => {
     ruleTester.run('S7652', rule, {
       valid: [],

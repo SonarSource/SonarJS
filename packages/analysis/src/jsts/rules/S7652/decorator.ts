@@ -25,6 +25,8 @@ import {
   isAngularOutputCall,
 } from '../helpers/angular.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { childrenOf } from '../helpers/ancestor.js';
+import { unwrapTypeScriptExpression } from '../helpers/ast.js';
 
 /** Mirrors the delegated rule: `online` is compliant, while `onSave` is not. */
 function isCompliantAlias(alias: string | undefined): boolean {
@@ -111,6 +113,78 @@ function isDirectReplacement(
   );
 }
 
+/** Records direct instance writes; an unknown computed name makes the pair uncertain. */
+function recordInstanceWrite(target: estree.Node, writes: Set<string | undefined>): void {
+  target = unwrapTypeScriptExpression(target);
+  switch (target.type) {
+    case 'MemberExpression':
+      if (unwrapTypeScriptExpression(target.object).type === 'ThisExpression') {
+        const property = unwrapTypeScriptExpression(target.property);
+        if (!target.computed && property.type === 'Identifier') {
+          writes.add(property.name);
+        } else if (property.type === 'Literal' && typeof property.value === 'string') {
+          writes.add(property.value);
+        } else if (property.type === 'TemplateLiteral' && property.expressions.length === 0) {
+          writes.add(property.quasis[0].value.cooked ?? undefined);
+        } else {
+          writes.add(undefined);
+        }
+      }
+      break;
+    case 'ArrayPattern':
+      target.elements.forEach(element => element && recordInstanceWrite(element, writes));
+      break;
+    case 'ObjectPattern':
+      target.properties.forEach(property =>
+        recordInstanceWrite(
+          property.type === 'Property' ? property.value : property.argument,
+          writes,
+        ),
+      );
+      break;
+    case 'AssignmentPattern':
+      recordInstanceWrite(target.left, writes);
+      break;
+    case 'RestElement':
+      recordInstanceWrite(target.argument, writes);
+      break;
+  }
+}
+
+/** Constructor writes can break emitter sharing; arrows retain the instance's `this`. */
+function getConstructorWrites(
+  context: Rule.RuleContext,
+  classNode: TSESTree.ClassDeclaration,
+): Set<string | undefined> {
+  const writes = new Set<string | undefined>();
+  const nodes = classNode.body.body.flatMap(member =>
+    member.type === 'MethodDefinition' && member.kind === 'constructor' && member.value.body
+      ? [member.value.body as estree.Node]
+      : [],
+  );
+  while (nodes.length > 0) {
+    const node = nodes.pop()!;
+    if (
+      node.type === 'FunctionDeclaration' ||
+      node.type === 'FunctionExpression' ||
+      node.type === 'ClassDeclaration' ||
+      node.type === 'ClassExpression'
+    ) {
+      continue;
+    }
+    if (node.type === 'AssignmentExpression') {
+      recordInstanceWrite(node.left, writes);
+    } else if (
+      node.type === 'UpdateExpression' ||
+      (node.type === 'UnaryExpression' && node.operator === 'delete')
+    ) {
+      recordInstanceWrite(node.argument, writes);
+    }
+    nodes.push(...childrenOf(node, context.sourceCode.visitorKeys));
+  }
+  return writes;
+}
+
 /** Validates a class once and indexes its later, explicitly exposed replacement fields. */
 function buildClassInfo(
   context: Rule.RuleContext,
@@ -135,6 +209,10 @@ function buildClassInfo(
   for (const name of outputNames) {
     outputCounts.set(name, (outputCounts.get(name) ?? 0) + 1);
   }
+  const constructorWrites = getConstructorWrites(context, classNode);
+  if (constructorWrites.has(undefined)) {
+    return undefined;
+  }
   const replacementOwners = new Set<string>();
   for (const [name, { member, index }] of members) {
     const value = member.value;
@@ -147,6 +225,8 @@ function buildClassInfo(
       ownerIndex !== undefined &&
       ownerIndex < index &&
       outputCounts.get(name) === 1 &&
+      !constructorWrites.has(name) &&
+      !constructorWrites.has(ownerName) &&
       isDirectReplacement(context, member, ownerName)
     ) {
       replacementOwners.add(ownerName);
