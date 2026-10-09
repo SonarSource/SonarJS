@@ -1,5 +1,5 @@
 {
-  "title": "Image, area, button with image and object elements should have an alternative text",
+  "title": "Image, area, button with image, object and svg elements should have an alternative text",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {

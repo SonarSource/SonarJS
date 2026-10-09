@@ -31,8 +31,8 @@ Learn more about the [SonarQube product family](https://www.sonarsource.com/prod
 # Features
 
 - Advanced rules based on pattern matching and control flow analysis
-- [533 JS rules](https://rules.sonarsource.com/javascript) and [552 TS rules](https://rules.sonarsource.com/typescript)
-- [43 CSS rules](https://rules.sonarsource.com/css)
+- [534 JS rules](https://rules.sonarsource.com/javascript) and [553 TS rules](https://rules.sonarsource.com/typescript)
+- [44 CSS rules](https://rules.sonarsource.com/css)
 - Compatible with ECMAScript 2015-2020
 - React JSX, Flow, Vue, and AWS lambda functions support for JavaScript and TypeScript
 - CSS, SCSS, SASS, Less, also 'style' inside HTML and VueJS files
