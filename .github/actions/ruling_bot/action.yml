@@ -25,50 +25,66 @@ inputs:
   ruling-failed:
     description: Whether the preceding ruling execution failed
     required: true
+  # BEGIN GENERATED CONFIG INPUTS
+  # Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
   new-results-path:
-    description: Path to freshly generated ruling results produced by sonar-lits
+    description: Generated-results path within the tested repository
     required: true
   old-results-path:
-    description: Path to version-controlled baseline ruling results
+    description: Expected-results path within the tested repository
     required: true
-
   sources-path:
-    description: Local source checkout used for snippets
+    description: Local source checkout used for snippets; empty disables snippets
     required: false
-    default: 'its/sources'
+    default: its/sources
   sources-repo-url:
-    description: Remote source URL used for file links
+    description: Remote source URL used for file links; empty disables links
     required: false
     default: ''
   rspec-base-url:
-    description: RSPEC URL used for rule links
+    description: RSPEC URL used for rule links; empty disables links
     required: false
-    default: 'https://sonarsource.github.io/rspec/#/rspec'
+    default: https://sonarsource.github.io/rspec/#/rspec
   max-inline-snippets:
-    description: Maximum inline snippets before collapsing the full report
+    description: Maximum detailed snippets per report section
     required: false
     default: '10'
   results-artifact-name:
-    description: Saved generated-results artifact name
+    description: Exact saved generated-results artifact name
     required: false
-    default: 'ruling-results'
+    default: ruling-results
   report-workflow:
     description: Reporter workflow filename or ID
     required: false
-    default: 'ruling-diff-comment.yml'
+    default: ruling-diff-comment.yml
   report-workflow-ref:
-    description: Ref containing the reporter workflow; empty selects the default branch
+    description: Reporter implementation ref; empty selects the default branch
     required: false
     default: ''
+  build-workflow:
+    description: Build workflow filename or ID used to find authoritative dispatches
+    required: false
+    default: build.yml
+  report-dispatch-step:
+    description: Build step recording a successful ruling report request
+    required: false
+    default: Record ruling report dispatch
+  # END GENERATED CONFIG INPUTS
   tested-commit-sha:
     description: Exact tested commit (synthetic merge for a PR)
     required: false
     default: ''
 
+outputs:
+  report-requested:
+    description: Whether an independent report was successfully requested
+    value: ${{ steps.ruling_bot.outputs.report-requested }}
+
 runs:
   using: composite
   steps:
     - name: Run ruling bot
+      id: ruling_bot
       shell: bash
       env:
         ACTION_PATH: ${{ github.action_path }}
@@ -80,6 +96,8 @@ runs:
         TESTED_BASE_SHA: ${{ inputs.tested-base-sha }}
         IS_PULL_REQUEST: ${{ inputs.is-pull-request }}
         RULING_FAILED: ${{ inputs.ruling-failed }}
+        # BEGIN GENERATED CONFIG ENV
+        # Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
         NEW_RESULTS_PATH: ${{ inputs.new-results-path }}
         OLD_RESULTS_PATH: ${{ inputs.old-results-path }}
         SOURCES_PATH: ${{ inputs.sources-path }}
@@ -89,4 +107,7 @@ runs:
         RESULTS_ARTIFACT_NAME: ${{ inputs.results-artifact-name }}
         REPORT_WORKFLOW: ${{ inputs.report-workflow }}
         REPORT_WORKFLOW_REF: ${{ inputs.report-workflow-ref }}
+        BUILD_WORKFLOW: ${{ inputs.build-workflow }}
+        REPORT_DISPATCH_STEP: ${{ inputs.report-dispatch-step }}
+        # END GENERATED CONFIG ENV
       run: bash "$ACTION_PATH/run.sh"

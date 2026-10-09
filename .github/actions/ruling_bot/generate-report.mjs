@@ -20,6 +20,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { defaults } from './config.mjs';
 
 const actionDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(
@@ -29,12 +30,17 @@ const repositoryRoot = path.resolve(
 );
 const oldResultsArgument = process.argv[2];
 const baseCommit = process.env.BASE_SHA || `origin/${process.env.BASE_REF ?? 'master'}`;
-const sourcesDirectory = resolveRepositoryPath(process.env.SOURCES_PATH ?? 'its/sources');
-const sourcesRepositoryUrl = trimTrailingSlash(process.env.SOURCES_REPO_URL ?? '');
-const rspecBaseUrl = trimTrailingSlash(
-  process.env.RSPEC_BASE_URL ?? 'https://sonarsource.github.io/rspec/#/rspec',
+const sourcesDirectory = resolveRepositoryPath(
+  process.env.SOURCES_PATH ?? defaults['sources-path'],
 );
-const maxInlineSnippets = parsePositiveInteger(process.env.MAX_INLINE_SNIPPETS, 10);
+const sourcesRepositoryUrl = trimTrailingSlash(
+  process.env.SOURCES_REPO_URL ?? defaults['sources-repo-url'],
+);
+const rspecBaseUrl = trimTrailingSlash(process.env.RSPEC_BASE_URL ?? defaults['rspec-base-url']);
+const maxInlineSnippets = parsePositiveInteger(
+  process.env.MAX_INLINE_SNIPPETS,
+  Number(defaults['max-inline-snippets']),
+);
 
 if (!oldResultsArgument) {
   throw new Error('Usage: node generate-report.mjs <old-results-path>');

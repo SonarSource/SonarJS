@@ -43,6 +43,8 @@ on:
         required: false
         type: string
         default: '1'
+      # BEGIN GENERATED CONFIG INPUTS
+      # Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
       new-results-path:
         description: Generated-results path within the tested repository
         required: false
@@ -54,38 +56,51 @@ on:
         type: string
         default: its/ruling/src/test/resources/expected
       sources-path:
-        description: Local sources used for snippets
+        description: Local source checkout used for snippets; empty disables snippets
         required: false
         type: string
         default: its/sources
       sources-repo-url:
-        description: Source-file link URL; an empty value disables links
+        description: Remote source URL used for file links; empty disables links
         required: false
         type: string
         default: https://github.com/SonarSource/jsts-test-sources/blob/master
       rspec-base-url:
-        description: Rule-documentation link URL
+        description: RSPEC URL used for rule links; empty disables links
         required: false
         type: string
         default: https://musical-adventure-r9qk65j.pages.github.io/rspec/#
       max-inline-snippets:
-        description: Maximum detailed snippets per section
+        description: Maximum detailed snippets per report section
         required: false
         type: string
         default: '10'
       results-artifact-name:
-        description: Exact artifact name from the producing ruling job
+        description: Exact saved generated-results artifact name
         required: false
         type: string
+        default: ''
       report-workflow:
         description: Reporter workflow filename or ID
         required: false
         type: string
         default: ruling-diff-comment.yml
       report-workflow-ref:
-        description: Configured reporter implementation ref
+        description: Reporter implementation ref; empty selects the default branch
         required: false
         type: string
+        default: ''
+      build-workflow:
+        description: Build workflow filename or ID used to find authoritative dispatches
+        required: false
+        type: string
+        default: build.yml
+      report-dispatch-step:
+        description: Build step recording a successful ruling report request
+        required: false
+        type: string
+        default: Record ruling report dispatch
+      # END GENERATED CONFIG INPUTS
 
 # Separate tested commits so an old dispatch cannot replace a newer pending report.
 concurrency:
@@ -133,6 +148,8 @@ jobs:
           run-id: ${{ inputs.run-id || '' }}
           run-attempt: ${{ inputs.run-attempt || '1' }}
           fix-pr-url: ${{ inputs.fix-pr-url || '' }}
+          # BEGIN GENERATED REPORT CONFIG
+          # Owned by config.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
           new-results-path: ${{ github.event_name == 'pull_request' && 'packages/ruling/actual' || inputs.new-results-path }}
           old-results-path: ${{ github.event_name == 'pull_request' && 'its/ruling/src/test/resources/expected' || inputs.old-results-path }}
           sources-path: ${{ github.event_name == 'pull_request' && 'its/sources' || inputs.sources-path }}
@@ -141,4 +158,7 @@ jobs:
           max-inline-snippets: ${{ github.event_name == 'pull_request' && '10' || inputs.max-inline-snippets }}
           results-artifact-name: ${{ inputs.results-artifact-name || format('actual_js_ts-{0}', inputs.run-attempt || '1') }}
           report-workflow: ${{ github.event_name == 'pull_request' && 'ruling-diff-comment.yml' || inputs.report-workflow }}
-          report-workflow-ref: ${{ inputs.report-workflow-ref || '' }}
+          report-workflow-ref: ${{ github.event_name == 'pull_request' && '' || inputs.report-workflow-ref }}
+          build-workflow: ${{ github.event_name == 'pull_request' && 'build.yml' || inputs.build-workflow }}
+          report-dispatch-step: ${{ github.event_name == 'pull_request' && 'Record ruling report dispatch' || inputs.report-dispatch-step }}
+          # END GENERATED REPORT CONFIG

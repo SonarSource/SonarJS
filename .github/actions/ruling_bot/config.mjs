@@ -16,20 +16,68 @@
  */
 import path from 'node:path';
 
-export const defaults = {
-  'sources-path': 'its/sources',
-  'sources-repo-url': '',
-  'rspec-base-url': 'https://sonarsource.github.io/rspec/#/rspec',
-  'max-inline-snippets': '10',
-  'results-artifact-name': 'ruling-results',
-  'report-workflow': 'ruling-diff-comment.yml',
-  'report-workflow-ref': '',
+// Canonical public configuration. Action/workflow metadata is generated from this schema.
+export const inputDefinitions = {
+  'new-results-path': {
+    description: 'Generated-results path within the tested repository',
+    required: true,
+  },
+  'old-results-path': {
+    description: 'Expected-results path within the tested repository',
+    required: true,
+  },
+  'sources-path': {
+    description: 'Local source checkout used for snippets; empty disables snippets',
+    default: 'its/sources',
+  },
+  'sources-repo-url': {
+    description: 'Remote source URL used for file links; empty disables links',
+    default: '',
+  },
+  'rspec-base-url': {
+    description: 'RSPEC URL used for rule links; empty disables links',
+    default: 'https://sonarsource.github.io/rspec/#/rspec',
+  },
+  'max-inline-snippets': {
+    description: 'Maximum detailed snippets per report section',
+    default: '10',
+  },
+  'results-artifact-name': {
+    description: 'Exact saved generated-results artifact name',
+    default: 'ruling-results',
+  },
+  'report-workflow': {
+    description: 'Reporter workflow filename or ID',
+    default: 'ruling-diff-comment.yml',
+  },
+  'report-workflow-ref': {
+    description: 'Reporter implementation ref; empty selects the default branch',
+    default: '',
+  },
+  'build-workflow': {
+    description: 'Build workflow filename or ID used to find authoritative dispatches',
+    default: 'build.yml',
+  },
+  'report-dispatch-step': {
+    description: 'Build step recording a successful ruling report request',
+    default: 'Record ruling report dispatch',
+  },
 };
+export const defaults = Object.fromEntries(
+  Object.entries(inputDefinitions)
+    .filter(([, value]) => 'default' in value)
+    .map(([name, value]) => [name, value.default]),
+);
 
 export function configuration(value, repositoryRoot = process.cwd()) {
   if (!value || typeof value !== 'object' || Array.isArray(value))
     throw new Error('Ruling configuration must be an object.');
   const config = { ...defaults, ...value };
+  for (const name of ['build-workflow', 'report-dispatch-step']) {
+    if (typeof config[name] !== 'string' || !config[name]) {
+      throw new Error(`${name} must be a non-empty string.`);
+    }
+  }
   for (const name of ['new-results-path', 'old-results-path']) {
     if (typeof config[name] !== 'string' || !config[name]) {
       throw new Error(`Missing ruling bot configuration: ${name}`);
@@ -73,7 +121,7 @@ export function configuration(value, repositoryRoot = process.cwd()) {
 export function environmentConfiguration(env) {
   return configuration(
     Object.fromEntries(
-      ['new-results-path', 'old-results-path', ...Object.keys(defaults)]
+      Object.keys(inputDefinitions)
         .filter(name => env[name.replaceAll('-', '_').toUpperCase()] !== undefined)
         .map(name => [name, env[name.replaceAll('-', '_').toUpperCase()]]),
     ),

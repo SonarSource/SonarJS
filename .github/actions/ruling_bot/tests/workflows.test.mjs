@@ -21,6 +21,9 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import yaml from 'yaml';
+import { inputDefinitions } from '../config.mjs';
+import { generatedFiles } from '../generate-config.mjs';
+import { rulingConfig } from '../../../ruling-bot.config.mjs';
 
 const workflow = name =>
   yaml.parse(readFileSync(new URL(`../../../workflows/${name}`, import.meta.url), 'utf8'));
@@ -48,7 +51,10 @@ test('downstream retries keep the artifact named by the producing ruling job', t
     execFileSync(bash, ['-c', naming.run], {
       env: { ...process.env, GITHUB_RUN_ATTEMPT: attempt, GITHUB_OUTPUT: file },
     });
-    assert.equal(readFileSync(file, 'utf8').trim(), `name=actual_js_ts-${attempt}`);
+    assert.equal(
+      readFileSync(file, 'utf8').trim(),
+      `name=${rulingConfig['results-artifact-name']}-${attempt}`,
+    );
   }
   assert.equal(
     producer.outputs['results-artifact-name'],
@@ -79,20 +85,14 @@ test('explicit dispatch defaults match the caller and preserve intentionally emp
   );
   const report = workflow('ruling-diff-comment.yml');
   const inputs = report.on.workflow_dispatch.inputs;
-  assert.equal(Object.keys(inputs).length, 18);
+  assert.equal(Object.keys(inputs).length, 9 + Object.keys(inputDefinitions).length);
   assert.ok(Object.keys(inputs).length <= 25);
   const reportInvoke = report.jobs['ruling-diff-comment'].steps.find(
     step => step.uses === './.github/actions/ruling_bot/report',
   );
-  for (const name of [
-    'new-results-path',
-    'old-results-path',
-    'sources-path',
-    'sources-repo-url',
-    'rspec-base-url',
-    'max-inline-snippets',
-    'report-workflow',
-  ]) {
+  for (const name of Object.keys(inputDefinitions).filter(
+    name => name !== 'results-artifact-name',
+  )) {
     assert.equal(inputs[name].default, invoke.with[name]);
     assert.equal(
       reportInvoke.with[name],
@@ -101,6 +101,70 @@ test('explicit dispatch defaults match the caller and preserve intentionally emp
         "' || inputs." +
         name +
         ' }}',
+    );
+  }
+});
+
+test('successful report dispatch is recorded in Build metadata only when requested', () => {
+  const build = workflow('build.yml');
+  const steps = build.jobs.js_ts_ruling_update.steps;
+  const record = steps.find(step => step.name === rulingConfig['report-dispatch-step']);
+  assert.equal(record.if, "steps.ruling_update.outputs.report-requested == 'true'");
+  assert.equal(
+    steps.find(step => step.id === 'ruling_update').uses,
+    './.github/actions/ruling_bot',
+  );
+  const action = yaml.parse(readFileSync(new URL('../action.yml', import.meta.url), 'utf8'));
+  assert.equal(
+    action.outputs['report-requested'].value,
+    '${{ steps.ruling_bot.outputs.report-requested }}',
+  );
+  assert.ok(action.runs.steps.some(step => step.id === 'ruling_bot'));
+});
+
+test('checked-in configuration consumers are generated from the canonical definitions', () => {
+  for (const [name, content] of generatedFiles()) {
+    assert.equal(
+      readFileSync(new URL(`../../../../${name}`, import.meta.url), 'utf8'),
+      content,
+      `${name} needs regeneration`,
+    );
+  }
+});
+
+test('changing canonical paths, links, artifact names and generic defaults updates every consumer', () => {
+  const config = {
+    ...rulingConfig,
+    'new-results-path': 'generated-results',
+    'old-results-path': 'expectations',
+    'sources-repo-url': '',
+    'results-artifact-name': 'saved-results',
+  };
+  const definitions = {
+    ...inputDefinitions,
+    'max-inline-snippets': { ...inputDefinitions['max-inline-snippets'], default: '4' },
+  };
+  const files = generatedFiles(config, definitions);
+  const build = yaml.parse(files.get('.github/workflows/build.yml'));
+  const report = yaml.parse(files.get('.github/workflows/ruling-diff-comment.yml'));
+  const caller = build.jobs.js_ts_ruling_update.steps.find(step => step.id === 'ruling_update');
+  assert.equal(caller.with['old-results-path'], 'expectations');
+  assert.equal(report.on.workflow_dispatch.inputs['old-results-path'].default, 'expectations');
+  assert.equal(report.on.workflow_dispatch.inputs['sources-repo-url'].default, '');
+  assert.match(
+    build.jobs.js_ts_ruling.steps.find(step => step.id === 'ruling_artifact').run,
+    /name=saved-results-/,
+  );
+  assert.ok(build.jobs.js_ts_ruling.steps.some(step => step.with?.path === 'generated-results/'));
+  assert.match(
+    JSON.parse(files.get('package.json')).scripts['ruling-sync'],
+    /generated-results expectations$/,
+  );
+  for (const name of ['action.yml', 'report/action.yml']) {
+    assert.equal(
+      yaml.parse(files.get(`.github/actions/ruling_bot/${name}`)).inputs['max-inline-snippets']
+        .default,
+      '4',
     );
   }
 });

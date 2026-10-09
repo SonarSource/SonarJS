@@ -740,7 +740,13 @@ A successful Build retry also dispatches a report, clearing outdated failure/fix
 reporter, and closed-event cleanup share a queue and reject stale original PR heads, closed originals,
 older Build attempts, and superseded runs. Successful/raw reports with no issue changes delete an
 existing bot report, preserving #8050's clear-empty policy. Reports show expectation changes without
-a ruling-success claim. A failed original-PR run with zero net behavioral difference still keeps its
+a ruling-success claim. The updater exposes `report-requested` only after dispatch succeeds;
+the Build records that output in a successful step. Raw reports consult those steps for the
+same PR head even after an empty report deleted its comment. The public schema in
+`.github/actions/ruling_bot/config.mjs` and SonarJS settings in `.github/ruling-bot.config.mjs`
+generate the action/workflow configuration and retry command; regenerate with
+`node .github/actions/ruling_bot/generate-config.mjs` and verify with `--check`.
+A failed original-PR run with zero net behavioral difference still keeps its
 failure notice and required fix link. Default-branch reports describe generated changes on the fix
 PR without asking it to update its own expectations.
 
@@ -754,24 +760,33 @@ request a new report with current stable tooling, use the originating Build ID a
 attempt, exact merge and first-parent SHAs, and the same explicit parameters passed by the original
 Build. For example:
 
+<!-- BEGIN GENERATED RETRY COMMAND -->
+
 ```sh
-gh workflow run ruling-diff-comment.yml --ref master \
-  -f pr-number=<original-pr-number> \
-  -f head-sha=<tested-merge-sha> \
-  -f base-sha=<tested-merge-first-parent-sha> \
+gh workflow run ruling-diff-comment.yml --ref '<reporter-ref>' \
+  -f 'pr-number=<original-pr-number>' \
+  -f 'head-sha=<tested-merge-sha>' \
+  -f 'base-sha=<tested-merge-first-parent-sha>' \
   -f is-pull-request=true \
-  -f run-id=<build-run-id> \
-  -f run-attempt=<current-build-run-attempt> \
-  -f new-results-path=packages/ruling/actual \
-  -f old-results-path=its/ruling/src/test/resources/expected \
+  -f 'run-id=<build-run-id>' \
+  -f 'run-attempt=<current-build-run-attempt>' \
+  -f ruling-failed=true \
+  -f 'fix-pr-url=<fix-pr-url>' \
+  -f 'target-ref=<original-branch>' \
   -f sources-path=its/sources \
   -f sources-repo-url=https://github.com/SonarSource/jsts-test-sources/blob/master \
   -f rspec-base-url=https://musical-adventure-r9qk65j.pages.github.io/rspec/# \
   -f max-inline-snippets=10 \
-  -f results-artifact-name=actual_js_ts-<producing-ruling-job-attempt> \
-  -f ruling-failed=true \
-  -f fix-pr-url=<fix-pr-url>
+  -f 'results-artifact-name=actual_js_ts-<producing-ruling-job-attempt>' \
+  -f report-workflow=ruling-diff-comment.yml \
+  -f report-workflow-ref= \
+  -f build-workflow=build.yml \
+  -f 'report-dispatch-step=Record ruling report dispatch' \
+  -f new-results-path=packages/ruling/actual \
+  -f old-results-path=its/ruling/src/test/resources/expected
 ```
+
+<!-- END GENERATED RETRY COMMAND -->
 
 For a passing Build report, retain its `run-id`/`run-attempt` and omit `ruling-failed`/`fix-pr-url`.
 For a default-branch failed run, use the fix PR number as `pr-number`, pass the tested branch commit

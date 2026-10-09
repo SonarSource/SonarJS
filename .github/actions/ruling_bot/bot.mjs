@@ -19,7 +19,7 @@ import { appendFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { defaults, environmentConfiguration } from './config.mjs';
+import { inputDefinitions, environmentConfiguration } from './config.mjs';
 
 const actionPath = path.dirname(fileURLToPath(import.meta.url));
 const commentMarker = '<!-- ruling-report -->';
@@ -39,6 +39,7 @@ export function context(env = process.env) {
     runAttempt: env.BUILD_RUN_ATTEMPT || env.GITHUB_RUN_ATTEMPT,
     fixUrl: env.FIX_PR_URL || '',
     summary: env.GITHUB_STEP_SUMMARY,
+    output: env.GITHUB_OUTPUT,
   };
 }
 
@@ -100,6 +101,28 @@ export function controller(ctx, adapters = {}) {
         return false;
     }
     return !report || api(`pulls/${ctx.pr}`).state === 'open';
+  }
+
+  function completedDispatch(config) {
+    if (!ctx.isPullRequest) return false;
+    const runs = pages(
+      `actions/workflows/${encodeURIComponent(config['build-workflow'])}/runs?head_sha=${ctx.testedHead}&event=pull_request&per_page=100`,
+    ).flatMap(page => page.workflow_runs);
+    for (const run of runs.filter(sameTarget)) {
+      // Read all attempts: an updater-only retry must not erase an earlier authoritative report.
+      const jobs = pages(`actions/runs/${run.id}/jobs?filter=all&per_page=100`).flatMap(
+        page => page.jobs,
+      );
+      if (
+        jobs.some(job =>
+          job.steps?.some(
+            step => step.name === config['report-dispatch-step'] && step.conclusion === 'success',
+          ),
+        )
+      )
+        return true;
+    }
+    return false;
   }
 
   function managed(pr) {
@@ -166,10 +189,10 @@ export function controller(ctx, adapters = {}) {
       'fix-pr-url': fixUrl,
       'target-ref': ctx.targetRef,
     };
-    for (const name of ['new-results-path', 'old-results-path', ...Object.keys(defaults)])
-      fields[name] = config[name];
+    for (const name of Object.keys(inputDefinitions)) fields[name] = config[name];
     for (const [name, value] of Object.entries(fields)) args.push('-f', `${name}=${value}`);
     gh(args); // Fail visibly: persistence succeeded, but reporting must be retried.
+    if (ctx.output) appendFileSync(ctx.output, 'report-requested=true\n');
   }
 
   const helper = (name, args, env = {}) =>
@@ -209,8 +232,6 @@ export function controller(ctx, adapters = {}) {
       if (ctx.isPullRequest && fresh()) dispatch(config, ctx.pr);
       return 'passed';
     }
-    if (git(['log', '-1', '--format=%B']).includes('Generated with GitHub Actions'))
-      return 'auto-update';
     helper('sync-results.mjs', [config['new-results-path'], config['old-results-path']]);
     if (!git(['status', '--porcelain', '--', config['old-results-path']]))
       throw new Error('Ruling failed without generated expectation changes.');
@@ -332,6 +353,9 @@ export function controller(ctx, adapters = {}) {
         if (run.head_sha === ctx.testedHead && sameTarget(run)) return 'completed-report-exists';
       }
     }
+    // Empty Build reports delete their comments. The Build's successful dispatch step preserves
+    // authority independently of the visible comment, including across different tested merges.
+    if (!ctx.runId && completedDispatch(config)) return 'completed-report-exists';
     if (!fresh(true)) return 'stale';
     if (!report && !ctx.failed && !ctx.fixUrl) {
       if (existing) api(`issues/comments/${existing.id}`, ['-X', 'DELETE']);
