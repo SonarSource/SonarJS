@@ -25,6 +25,8 @@ import { createRegExpRule } from '../helpers/regex/rule-template.js';
 const EXCEPTIONS = new Set(['\t', '\n']);
 
 const MAX_CONTROL_CHAR_CODE = 0x1f;
+const DELETE = 0x7f;
+const MAX_C1_CONTROL_CHAR_CODE = 0x9f;
 
 // ANSI escape sequence control characters
 const ESC = 0x1b;
@@ -108,7 +110,6 @@ function findOscMatchers(alternative: AST.Alternative): OscMatcher[] {
         start: elements[i].start,
         end: elements[endIndex + terminatorLength - 1].end,
       });
-      i = endIndex + terminatorLength - 1;
     }
   }
   return matches;
@@ -165,7 +166,9 @@ function isGroup(element: AST.Element | undefined): element is AST.Group | AST.C
 
 function isOscPayload(element: AST.Element): boolean {
   if (element.type === 'Character') {
-    return element.value >= 0x20 && (element.value < 0x7f || element.value > 0x9f);
+    return (
+      element.value >= 0x20 && (element.value < DELETE || element.value > MAX_C1_CONTROL_CHAR_CODE)
+    );
   }
   if (element.type === 'Quantifier') {
     return isOscPayload(element.element);
