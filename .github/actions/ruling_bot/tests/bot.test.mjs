@@ -175,7 +175,7 @@ test('an explicitly configured reporter workflow ref is honored', async t => {
   assert.equal(dispatch[dispatch.indexOf('--ref') + 1], 'stable-tooling');
 });
 
-test('a changed base-only expectation survives fix creation and merging into the original branch', async t => {
+test('a changed base-only expectation survives fix creation and squash merge after incorporating the base', async t => {
   const f = fixture(t);
   const file = 'baseline/project/javascript-S9000.json';
   assert.throws(() => f.git(['show', `${f.head}:${file}`]));
@@ -185,14 +185,15 @@ test('a changed base-only expectation survives fix creation and merging into the
   assert.equal(f.git(['rev-parse', 'HEAD^']), f.merge);
   assert.match(f.git(['show', `HEAD:${file}`]), /91/);
   assert.equal(f.state.prs[0].base.ref, 'outdated-pr');
+  assert.match(f.state.prs[0].body, /incorporate it before merging this fix/);
   assert.ok(f.state.calls.some(args => args[0] === 'workflow'));
   f.git(['checkout', '--detach', f.head]);
-  f.git(['merge', '--no-ff', '--no-edit', update]);
-  // The tested master history is already included, so its independently added file cannot
-  // create an add/add conflict when the original PR is merged into master.
   f.git(['merge', '--no-ff', '--no-edit', f.base]);
+  f.git(['merge', '--squash', update]);
+  f.git(['commit', '-m', 'Squash the refreshed expectations']);
   assert.equal(f.git(['status', '--porcelain']), '');
   assert.match(f.git(['show', `HEAD:${file}`]), /91/);
+  assert.equal(f.git(['merge-base', '--is-ancestor', f.base, 'HEAD']), '');
 });
 
 test('fix commits change only expectations while retaining unrelated tested base history', async t => {
