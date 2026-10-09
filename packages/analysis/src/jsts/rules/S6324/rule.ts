@@ -33,11 +33,8 @@ const LEFT_BRACKET = 0x5b; // [
 const RIGHT_BRACKET = 0x5d; // ]
 const BACKSLASH = 0x5c;
 const STRING_TERMINATOR = 0x9c;
-const CAN = 0x18;
-const SUB = 0x1a;
-const ASCII_DIGIT_MIN = 0x30;
-const ASCII_DIGIT_MAX = 0x39;
-const UNSAFE_OSC_PAYLOAD_CHARACTERS = [BEL, CAN, SUB, ESC, STRING_TERMINATOR];
+const OSC = 0x9d;
+const OSC_DELIMITERS = [BEL, ESC, STRING_TERMINATOR, OSC];
 
 /**
  * Control characters used as range boundaries (e.g., [\x00-\x1f]) indicate intentional usage.
@@ -84,48 +81,69 @@ function isAnsiSequenceStart(character: AST.Character): boolean {
   return next.value === LEFT_BRACKET || next.value === RIGHT_BRACKET;
 }
 
-/**
- * Checks whether a control character terminates a complete OSC sequence.
- */
-function isOscTerminator(character: AST.Character): boolean {
-  if (character.value !== BEL && character.value !== ESC) {
-    return false;
+type OscMatcher = { start: number; end: number };
+
+/** Recognizes deliberate OSC delimiter matching, not terminal-protocol validity. */
+function findOscMatchers(alternative: AST.Alternative): OscMatcher[] {
+  for (let ancestor: AST.Node | null = alternative.parent; ancestor; ancestor = ancestor.parent) {
+    if (ancestor.type === 'Assertion') {
+      return [];
+    }
   }
 
-  const alternative = character.parent;
-  if (alternative.type !== 'Alternative') {
-    return false;
+  const matches: OscMatcher[] = [];
+  const { elements } = alternative;
+  for (let i = 0; i < elements.length; i++) {
+    const introducerLength = oscIntroducerLength(elements, i);
+    if (introducerLength === 0) {
+      continue;
+    }
+    let endIndex = i + introducerLength;
+    while (endIndex < elements.length && isOscPayload(elements[endIndex])) {
+      endIndex++;
+    }
+    const terminatorLength = oscTerminatorLength(elements, endIndex);
+    if (terminatorLength > 0) {
+      matches.push({
+        start: elements[i].start,
+        end: elements[endIndex + terminatorLength - 1].end,
+      });
+      i = endIndex + terminatorLength - 1;
+    }
   }
+  return matches;
+}
 
-  if (
-    isOscTerminatorShape(alternative, character) &&
-    hasOscIntroducerBefore(alternative, character)
-  ) {
-    return true;
+function oscIntroducerLength(elements: readonly AST.Element[], index: number): number {
+  const element = elements[index];
+  if (isCharacter(element, OSC)) {
+    return 1;
   }
+  if (isCharacter(element, ESC) && isCharacter(elements[index + 1], RIGHT_BRACKET)) {
+    return 2;
+  }
+  return isGroup(element) && element.alternatives.every(isOscIntroducerAlternative) ? 1 : 0;
+}
 
-  const group = alternative.parent;
+function isOscIntroducerAlternative(alternative: AST.Alternative): boolean {
+  const [first, second] = alternative.elements;
   return (
-    (group.type === 'Group' || group.type === 'CapturingGroup') &&
-    isGroupedOscTerminator(alternative)
+    (alternative.elements.length === 1 && isCharacter(first, OSC)) ||
+    (alternative.elements.length === 2 &&
+      isCharacter(first, ESC) &&
+      isCharacter(second, RIGHT_BRACKET))
   );
 }
 
-function isGroupedOscTerminator(alternative: AST.Alternative): boolean {
-  const group = alternative.parent;
-  if (
-    (group.type !== 'Group' && group.type !== 'CapturingGroup') ||
-    !isOscTerminatorAlternative(alternative)
-  ) {
-    return false;
+function oscTerminatorLength(elements: readonly AST.Element[], index: number): number {
+  const element = elements[index];
+  if (isCharacter(element, BEL) || isCharacter(element, STRING_TERMINATOR)) {
+    return 1;
   }
-
-  const parent = group.parent;
-  if (parent.type !== 'Alternative' || !group.alternatives.every(isOscTerminatorAlternative)) {
-    return false;
+  if (isCharacter(element, ESC) && isCharacter(elements[index + 1], BACKSLASH)) {
+    return 2;
   }
-
-  return hasOscIntroducerBefore(parent, group);
+  return isGroup(element) && element.alternatives.every(isOscTerminatorAlternative) ? 1 : 0;
 }
 
 function isOscTerminatorAlternative(alternative: AST.Alternative): boolean {
@@ -137,215 +155,46 @@ function isOscTerminatorAlternative(alternative: AST.Alternative): boolean {
   );
 }
 
-function isOscTerminatorShape(alternative: AST.Alternative, character: AST.Character): boolean {
-  const index = alternative.elements.indexOf(character);
-  if (index === -1) {
-    return false;
-  }
-  return (
-    character.value === BEL ||
-    mustFollowWithCharacterThroughZeroWidth(alternative.elements, index + 1, BACKSLASH)
-  );
-}
-
-function mustFollowWithCharacterThroughZeroWidth(
-  elements: readonly AST.Element[],
-  startIndex: number,
-  value: number,
-): boolean {
-  for (let i = startIndex; i < elements.length; i++) {
-    if (mustStartWithCharacter(elements[i], value)) {
-      return true;
-    }
-    if (!isAlwaysEmpty(elements[i])) {
-      return false;
-    }
-  }
-  return false;
-}
-
-function mustStartWithCharacter(element: AST.Element, value: number): boolean {
-  if (isCharacter(element, value)) {
-    return true;
-  }
-  if (element.type === 'CharacterClass') {
-    return characterClassAlwaysMatchesValue(element, value);
-  }
-  if (element.type === 'Quantifier') {
-    return element.min > 0 && mustStartWithCharacter(element.element, value);
-  }
-  return (
-    (element.type === 'Group' || element.type === 'CapturingGroup') &&
-    element.alternatives.every(alternative => alternativeMustStartWithCharacter(alternative, value))
-  );
-}
-
-function alternativeMustStartWithCharacter(alternative: AST.Alternative, value: number): boolean {
-  for (const element of alternative.elements) {
-    if (mustStartWithCharacter(element, value)) {
-      return true;
-    }
-    if (!isAlwaysEmpty(element)) {
-      return false;
-    }
-  }
-  return false;
-}
-
 function isCharacter(element: AST.Element | undefined, value: number): boolean {
   return element?.type === 'Character' && element.value === value;
 }
 
-function hasOscIntroducerBefore(alternative: AST.Alternative, node: AST.Node): boolean {
-  const elements = alternative.elements;
-  const index = elements.indexOf(node as AST.Element);
-  for (let i = index - 1; i >= 0; i--) {
-    const curr = elements[i];
-    const prev = elements[i - 1];
-    if (prev?.type === 'Character' && prev.value === ESC && isCharacter(curr, RIGHT_BRACKET)) {
-      return elements.slice(i + 1, index).every(isSafeOscPayload);
-    }
-  }
-  return false;
+function isGroup(element: AST.Element | undefined): element is AST.Group | AST.CapturingGroup {
+  return element?.type === 'Group' || element?.type === 'CapturingGroup';
 }
 
-function isAlwaysEmpty(element: AST.Element): boolean {
-  if (element.type === 'Assertion') {
-    return true;
+function isOscPayload(element: AST.Element): boolean {
+  if (element.type === 'Character') {
+    return element.value >= 0x20 && (element.value < 0x7f || element.value > 0x9f);
   }
   if (element.type === 'Quantifier') {
-    return element.max === 0 || isAlwaysEmpty(element.element);
+    return isOscPayload(element.element);
+  }
+  if (element.type !== 'CharacterClass' || !element.negate) {
+    return false;
   }
   return (
-    (element.type === 'Group' || element.type === 'CapturingGroup') &&
-    element.alternatives.every(alternative => alternative.elements.every(isAlwaysEmpty))
-  );
-}
-
-function characterClassAlwaysMatchesValue(
-  characterClass: AST.CharacterClass,
-  value: number,
-): boolean {
-  return (
-    !characterClass.negate &&
-    characterClass.elements.length > 0 &&
-    characterClass.elements.every(
-      element =>
-        (element.type === 'Character' && element.value === value) ||
-        (element.type === 'CharacterClassRange' &&
-          element.min.value === value &&
-          element.max.value === value),
+    element.elements.every(
+      item => item.type === 'Character' || item.type === 'CharacterClassRange',
+    ) &&
+    OSC_DELIMITERS.every(value =>
+      element.elements.some(item =>
+        item.type === 'Character'
+          ? item.value === value
+          : item.type === 'CharacterClassRange' &&
+            item.min.value <= value &&
+            value <= item.max.value,
+      ),
     )
   );
 }
 
-function isSafeOscPayload(element: AST.Element): boolean {
-  if (element.type === 'Assertion') {
-    return true;
-  }
-  if (element.type === 'Character') {
-    return !isUnsafeOscPayloadCharacter(element.value);
-  }
-  if (element.type === 'CharacterSet') {
-    return isSafeOscCharacterSet(element);
-  }
-  if (element.type === 'CharacterClass') {
-    return isSafeOscCharacterClass(element);
-  }
-  if (element.type === 'Quantifier') {
-    return isSafeOscPayload(element.element);
-  }
-  return (
-    (element.type === 'Group' || element.type === 'CapturingGroup') &&
-    element.alternatives.every(alternative => alternative.elements.every(isSafeOscPayload))
-  );
-}
-
-function isSafeOscCharacterSet(characterSet: AST.CharacterSet): boolean {
-  return UNSAFE_OSC_PAYLOAD_CHARACTERS.every(
-    value => characterSetMatchesValue(characterSet, value) === false,
-  );
-}
-
-function isSafeOscCharacterClass(characterClass: AST.CharacterClass): boolean {
-  return UNSAFE_OSC_PAYLOAD_CHARACTERS.every(value => {
-    return characterClass.negate
-      ? characterClass.elements.some(element => elementDefinitelyMatchesValue(element, value))
-      : !characterClass.elements.some(element => elementCanMatchValue(element, value));
-  });
-}
-
-function isUnsafeOscPayloadCharacter(value: number): boolean {
-  return (
-    value === BEL || value === CAN || value === SUB || value === ESC || value === STRING_TERMINATOR
-  );
-}
-
-function elementCanMatchValue(element: AST.CharacterClassElement, value: number): boolean {
-  if (element.type === 'Character') {
-    return element.value === value;
-  }
-  if (element.type === 'CharacterClassRange') {
-    return element.min.value <= value && value <= element.max.value;
-  }
-  if (element.type !== 'CharacterSet') {
-    return true;
-  }
-  return characterSetMatchesValue(element as AST.CharacterSet, value) !== false;
-}
-
-function elementDefinitelyMatchesValue(element: AST.CharacterClassElement, value: number): boolean {
-  if (element.type === 'Character') {
-    return element.value === value;
-  }
-  if (element.type === 'CharacterClassRange') {
-    return element.min.value <= value && value <= element.max.value;
-  }
-  if (element.type !== 'CharacterSet') {
-    return false;
-  }
-  return characterSetMatchesValue(element as AST.CharacterSet, value) === true;
-}
-
-function characterSetMatchesValue(
-  characterSet: AST.CharacterSet,
-  value: number,
-): boolean | undefined {
-  let matches: boolean | undefined;
-  switch (characterSet.kind) {
-    case 'digit':
-      matches = value >= ASCII_DIGIT_MIN && value <= ASCII_DIGIT_MAX;
-      break;
-    case 'space':
-    case 'word':
-      matches = false;
-      break;
-    case 'any':
-      matches = true;
-      break;
-    default:
-      if ('key' in characterSet && !characterSet.strings) {
-        const property =
-          characterSet.value === null
-            ? characterSet.key
-            : `${characterSet.key}=${characterSet.value}`;
-        try {
-          matches = new RegExp(String.raw`\p{${property}}`, 'u').test(String.fromCodePoint(value));
-        } catch {
-          matches = undefined;
-        }
-      } else {
-        matches = undefined;
-      }
-  }
-  if (matches === undefined) {
-    return undefined;
-  }
-  return characterSet.kind === 'any' || !characterSet.negate ? matches : !matches;
-}
-
 export const rule: Rule.RuleModule = createRegExpRule(context => {
+  const oscMatchers: OscMatcher[] = [];
   return {
+    onAlternativeEnter: alternative => {
+      oscMatchers.push(...findOscMatchers(alternative));
+    },
     onCharacterEnter: (character: AST.Character) => {
       const { value, raw } = character;
       if (
@@ -358,7 +207,12 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
         !isCharacterClassRangeBoundary(character) &&
         !isInCharacterClassWithControlCharRange(character) &&
         !isAnsiSequenceStart(character) &&
-        !isOscTerminator(character)
+        !(
+          (value === BEL || value === ESC) &&
+          oscMatchers.some(
+            matcher => matcher.start <= character.start && character.end <= matcher.end,
+          )
+        )
       ) {
         context.reportRegExpNode({
           message: 'Remove this control character.',

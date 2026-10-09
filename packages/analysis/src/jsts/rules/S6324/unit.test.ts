@@ -21,6 +21,90 @@ import { describe, it } from 'node:test';
 const CONTROL_CHAR_MESSAGE = 'Remove this control character.';
 
 describe('S6324', () => {
+  describe('bounded OSC matchers', () => {
+    // OSC matcher used by chalk/ansi-regex: both introducers, bounded payload, and all endings.
+    const oscPattern = String.raw`(?:\x1b\]|\x9d)[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\|\x9c)`;
+
+    const cases = [
+      {
+        name: 'exempts the complete established OSC matcher',
+        code: `/${oscPattern}/g`,
+      },
+      {
+        name: 'exempts the established matcher in a RegExp constructor',
+        code: `new RegExp(${JSON.stringify(oscPattern)}, 'g')`,
+      },
+      {
+        name: 'recognizes equivalent Unicode escapes',
+        code: String.raw`/(?:\u001B\]|\u009D)[^\u0007\u001B\u009C\u009D]*(?:\u0007|\u001B\u005C|\u009C)/g`,
+      },
+      {
+        name: 'exempts payload exclusions and BEL after the 7-bit introducer',
+        code: String.raw`/\x1b\][^\x07\x1b\x9c\x9d]*\x07/`,
+      },
+      {
+        name: 'exempts payload exclusions and 7-bit ST after the C1 introducer',
+        code: String.raw`/\x9d[^\x07\x1b\x9c\x9d]*\x1b\\/`,
+      },
+      {
+        name: 'exempts payload exclusions with a C1 introducer and C1 ST',
+        code: String.raw`/\x9d[^\x07\x1b\x9c\x9d]*\x9c/`,
+      },
+    ];
+
+    for (const { name, code } of cases) {
+      it(name, () => {
+        const ruleTester = new DefaultParserRuleTester();
+        ruleTester.run('No control characters in bounded OSC matchers', rule, {
+          valid: [{ code }],
+          invalid: [],
+        });
+      });
+    }
+
+    it('keeps controls outside a complete bounded matcher reportable', () => {
+      const ruleTester = new DefaultParserRuleTester();
+      ruleTester.run('No control characters outside bounded OSC matchers', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: String.raw`/(?:\x1b\]|\x9d)?[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\)/`,
+            errors: 4,
+          },
+          {
+            code: String.raw`/(?:\x1b\]|foo)[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\)/`,
+            errors: 4,
+          },
+          {
+            code: String.raw`/\x1b\][^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\|foo)/`,
+            errors: 4,
+          },
+          {
+            code: String.raw`/\x1b\][^\x07\x1b\x9c]*\x07/`,
+            errors: 3,
+          },
+          {
+            code: `/(?=${oscPattern})/`,
+            errors: 4,
+          },
+          {
+            code: `/${oscPattern}\\x07/`,
+            errors: 1,
+          },
+          {
+            code: `/${oscPattern}|\\x07/`,
+            errors: 1,
+          },
+          {
+            // Excluding an unrelated control does not exempt that control.
+            code: String.raw`/\x1b\][^\x07\x1b\x9c\x9d\x18]*\x07/`,
+            errors: 1,
+          },
+        ],
+      });
+    });
+  });
+
   it('S6324', () => {
     const ruleTester = new DefaultParserRuleTester();
     ruleTester.run('No control characters in regular expressions', rule, {
@@ -148,15 +232,7 @@ describe('S6324', () => {
         },
         {
           // A payload class that excludes every OSC terminator leaves BEL valid.
-          code: String.raw`/\x1b\][^\x00-\x1f\x9c]*\x07/`,
-        },
-        {
-          // Known digit sets cannot contain an OSC terminator.
-          code: String.raw`/\x1b\][\d]\x07/`,
-        },
-        {
-          // Unicode letter properties cannot contain an OSC terminator.
-          code: String.raw`/\x1b\]\p{L}+\x07/u`,
+          code: String.raw`/\x1b\][^\x00-\x1f\x9c\x9d]*\x07/`,
         },
         {
           // A complete OSC sequence remains exempt inside a non-capturing group.
@@ -305,6 +381,21 @@ describe('S6324', () => {
           errors: 4, // tab, LF, FF, CR as unicode escapes; space (0x20) is not a control char
         },
         // ANSI-related: Cases that should STILL be flagged
+        {
+          // Positive shorthand classes are outside the bounded payload exception.
+          code: String.raw`/\x1b\][\d]\x07/`,
+          errors: 1,
+        },
+        {
+          // Unicode-property payloads are deliberately unsupported.
+          code: String.raw`/\x1b\]\p{L}+\x07/u`,
+          errors: 1,
+        },
+        {
+          // C1 CSI in literal payload text does not qualify for the exception.
+          code: String.raw`/\x1b\]0;title\x9b0m\x1b\\/`,
+          errors: 1,
+        },
         {
           // A wildcard may consume BEL and close OSC before the final ST.
           code: String.raw`/\x1b\]0;title.\x1b\\/`,
@@ -475,9 +566,9 @@ describe('S6324', () => {
           errors: 2,
         },
         {
-          // ST split across a group also closes the OSC sequence.
+          // A terminator split across a group is outside the bounded matcher grammar.
           code: String.raw`/\x1b\]0;title\x1b(?:\\)\x1b\\/`,
-          errors: 1,
+          errors: 2,
         },
         {
           // A quantified ESC can still form an earlier string terminator.
@@ -485,9 +576,9 @@ describe('S6324', () => {
           errors: 2,
         },
         {
-          // A lookahead between ST bytes does not keep a later ST exempt.
+          // Lookarounds between ST bytes are outside the bounded matcher grammar.
           code: String.raw`/\x1b\]0;title\x1b(?=\\)\\\x1b\\/`,
-          errors: 1,
+          errors: 2,
         },
         {
           // An alternative with a non-backslash branch is not an ST terminator.
