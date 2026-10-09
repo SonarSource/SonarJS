@@ -231,7 +231,14 @@ export function fixture(t) {
   const trackedGit = args => {
     state.gitCalls.push(args);
     state.beforeGit?.(args);
-    return git(args);
+    const result = git(args);
+    // GitHub exposes the pushed branch tip through the fix PR's head SHA.
+    const pushed = args[0] === 'push' && args.at(-1).match(/^(.+):refs\/heads\/(.+)$/);
+    if (pushed) {
+      const sha = git(['rev-parse', pushed[1]]);
+      for (const pr of state.prs.filter(pr => pr.head.ref === pushed[2])) pr.head.sha = sha;
+    }
+    return result;
   };
   const bot = () => controller(ctx, { git: trackedGit, gh });
   const setRemote = (ref, sha) => git(['push', '--force', 'origin', `${sha}:refs/heads/${ref}`]);
@@ -258,8 +265,9 @@ export function fixture(t) {
 }
 
 export function fix(overrides = {}) {
+  const number = overrides.number ?? 456;
   return {
-    number: 456,
+    number,
     state: 'open',
     merged_at: null,
     title: 'Update ruling results for PR #123',
@@ -271,7 +279,7 @@ export function fix(overrides = {}) {
       repo: { full_name: repository },
     },
     base: { ref: 'outdated-pr' },
-    html_url: 'https://example.test/pull/456',
+    html_url: `https://example.test/pull/${number}`,
     ...overrides,
   };
 }
