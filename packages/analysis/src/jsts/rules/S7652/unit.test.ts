@@ -454,12 +454,104 @@ describe('S7652', () => {
     });
   });
 
-  it('checks constructor writes independently for each compatibility pair', () => {
+  it('retains reports for writes in field initializers and instance methods', () => {
+    for (const { outputs, initializer } of [
+      { outputs: "['refresh']", initializer: 'output<void>()' },
+      { outputs: "['onRefresh', 'refresh']", initializer: 'new EventEmitter<void>()' },
+    ]) {
+      const cases = [
+        'reset = this.refresh = anotherEmitter;',
+        'reset = this.onRefresh = anotherEmitter;',
+        "reset = this['refresh'] = anotherEmitter;",
+        'reset = this[key] = anotherEmitter;',
+        'reset = () => { this.refresh = anotherEmitter; };',
+        'reset() { this.onRefresh = anotherEmitter; }',
+        'get reset() { this.refresh = anotherEmitter; return true; }',
+        'set reset(value) { this.onRefresh = value; }',
+        'reset(value = this.refresh = anotherEmitter) {}',
+        'constructor(value = this.onRefresh = anotherEmitter) {}',
+      ].map(member => ({
+        code: `${angular}
+          @Component({ outputs: ${outputs} })
+          class C {
+            /** @deprecated Use refresh instead. */
+            onRefresh = ${initializer};
+            refresh = this.onRefresh;
+            ${member}
+          }
+        `,
+        errors: 1,
+      }));
+      ruleTester.run('S7652', rule, { valid: [], invalid: cases });
+      ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
+        valid: [],
+        invalid: cases,
+      });
+    }
+  });
+
+  it('preserves valid replacements with unrelated instance writes and reads', () => {
+    for (const { outputs, initializer } of [
+      { outputs: "['refresh']", initializer: 'output<void>()' },
+      { outputs: "['onRefresh', 'refresh']", initializer: 'new EventEmitter<void>()' },
+    ]) {
+      const cases = [
+        'reset = this.other = anotherEmitter;',
+        'emit() { this.refresh.emit(); }',
+        'reset() { this.other = anotherEmitter; }',
+        'reset() { function other() { this.refresh = anotherEmitter; } }',
+        'nested = class { reset() { this.refresh = anotherEmitter; } };',
+        'static reset() { this.refresh = anotherEmitter; }',
+      ].map(member => ({
+        code: `${angular}
+          @Component({ outputs: ${outputs} })
+          class C {
+            /** @deprecated Use refresh instead. */
+            onRefresh = ${initializer};
+            refresh = this.onRefresh;
+            ${member}
+          }
+        `,
+      }));
+      ruleTester.run('S7652', rule, { valid: cases, invalid: [] });
+      ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
+        valid: [],
+        invalid: cases.map(test => ({ ...test, errors: 1 })),
+      });
+    }
+  });
+
+  it('preserves compliant public alias suppression independently of instance writes', () => {
+    const cases = [
+      `${angular} class C {
+        onRefresh = output({ alias: 'refresh' });
+        reset() { this.onRefresh = anotherEmitter; }
+      }`,
+      `${angular} class C {
+        @Output('refresh') onRefresh = new EventEmitter<void>();
+        reset() { this.onRefresh = anotherEmitter; }
+      }`,
+      `${angular} @Component({ outputs: ['onRefresh: refresh'] }) class C {
+        onRefresh = new EventEmitter<void>();
+        reset() { this.onRefresh = anotherEmitter; }
+      }`,
+    ].map(code => ({ code }));
+    ruleTester.run('S7652', rule, { valid: cases, invalid: [] });
+    ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
+      valid: [],
+      invalid: cases.map(test => ({ ...test, errors: 1 })),
+    });
+  });
+
+  it('checks instance writes independently for each compatibility pair', () => {
     ruleTester.run('S7652', rule, {
       valid: [],
       invalid: [
-        {
-          code: `${angular}
+        'constructor() { this.refresh = anotherEmitter; }',
+        'reset = this.refresh = anotherEmitter;',
+        'reset() { this.refresh = anotherEmitter; }',
+      ].map(member => ({
+        code: `${angular}
             @Component({ outputs: ['refresh', 'save'] })
             class C {
               /** @deprecated Use refresh instead. */
@@ -468,12 +560,11 @@ describe('S7652', () => {
               /** @deprecated Use save instead. */
               onSave = output<void>();
               save = this.onSave;
-              constructor() { this.refresh = anotherEmitter; }
+              ${member}
             }
           `,
-          errors: [{ messageId: 'noOutputOnPrefix', type: 'Identifier', line: 5 }],
-        },
-      ],
+        errors: [{ messageId: 'noOutputOnPrefix', type: 'Identifier', line: 5 }],
+      })),
     });
   });
 

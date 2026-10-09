@@ -151,17 +151,21 @@ function recordInstanceWrite(target: estree.Node, writes: Set<string | undefined
   }
 }
 
-/** Constructor writes can break emitter sharing; arrows retain the instance's `this`. */
-function getConstructorWrites(
+/** Instance writes can break emitter sharing; arrows retain the instance's `this`. */
+function getInstanceWrites(
   context: Rule.RuleContext,
   classNode: TSESTree.ClassDeclaration,
 ): Set<string | undefined> {
   const writes = new Set<string | undefined>();
-  const nodes = classNode.body.body.flatMap(member =>
-    member.type === 'MethodDefinition' && member.kind === 'constructor' && member.value.body
-      ? [member.value.body as estree.Node]
-      : [],
-  );
+  const nodes = classNode.body.body.flatMap(member => {
+    if (member.type === 'PropertyDefinition' && !member.static && member.value) {
+      return [member.value as estree.Node];
+    }
+    if (member.type === 'MethodDefinition' && !member.static && member.value.body) {
+      return [member.value.body, ...member.value.params] as estree.Node[];
+    }
+    return [];
+  });
   while (nodes.length > 0) {
     const node = nodes.pop()!;
     if (
@@ -209,8 +213,8 @@ function buildClassInfo(
   for (const name of outputNames) {
     outputCounts.set(name, (outputCounts.get(name) ?? 0) + 1);
   }
-  const constructorWrites = getConstructorWrites(context, classNode);
-  if (constructorWrites.has(undefined)) {
+  const instanceWrites = getInstanceWrites(context, classNode);
+  if (instanceWrites.has(undefined)) {
     return undefined;
   }
   const replacementOwners = new Set<string>();
@@ -225,8 +229,8 @@ function buildClassInfo(
       ownerIndex !== undefined &&
       ownerIndex < index &&
       outputCounts.get(name) === 1 &&
-      !constructorWrites.has(name) &&
-      !constructorWrites.has(ownerName) &&
+      !instanceWrites.has(name) &&
+      !instanceWrites.has(ownerName) &&
       isDirectReplacement(context, member, ownerName)
     ) {
       replacementOwners.add(ownerName);
