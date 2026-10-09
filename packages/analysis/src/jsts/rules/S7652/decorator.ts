@@ -171,7 +171,10 @@ function getInstanceWrites(
     return [];
   });
   while (nodes.length > 0) {
-    const node = nodes.pop()!;
+    const node = nodes.pop();
+    if (node === undefined) {
+      break;
+    }
     if (
       node.type === 'FunctionDeclaration' ||
       node.type === 'FunctionExpression' ||
