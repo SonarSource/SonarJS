@@ -221,6 +221,33 @@ test('successful report dispatch is recorded in Build metadata only when request
   assert.ok(action.runs.steps.some(step => step.id === 'ruling_bot'));
 });
 
+test('updater failures gate promotion and reach the protected-branch failure notification', () => {
+  const { jobs } = workflow('build.yml');
+  const dependencies = job => [jobs[job].needs || []].flat();
+  const ancestors = (job, seen = new Set()) => {
+    for (const dependency of dependencies(job)) {
+      if (!seen.has(dependency)) {
+        seen.add(dependency);
+        ancestors(dependency, seen);
+      }
+    }
+    return seen;
+  };
+  for (const job of ['promote', 'notify-build-failure', 'releasability']) {
+    assert.ok(ancestors(job).has('js_ts_ruling_update'), `${job} must observe updater failures`);
+  }
+  assert.match(jobs.promote.if, /!failure\(\)/);
+  assert.match(jobs['notify-build-failure'].if, /always\(\)/);
+  assert.match(jobs['notify-build-failure'].if, /&& failure\(\)/);
+  // Notification dependencies must cover every Build job, even independent leaf jobs.
+  assert.deepEqual(
+    dependencies('notify-build-failure').sort(),
+    Object.keys(jobs)
+      .filter(name => name !== 'notify-build-failure')
+      .sort(),
+  );
+});
+
 test('report downloads use the validated preflight destination and the tested checkout owns bot code', () => {
   const action = yaml.parse(readFileSync(new URL('../report/action.yml', import.meta.url), 'utf8'));
   const download = action.runs.steps.find(step =>

@@ -34,6 +34,11 @@ import { dispatchProvenance } from './provenance.mjs';
 const actionPath = path.dirname(fileURLToPath(import.meta.url));
 const commentMarker = '<!-- ruling-report -->';
 const commentLimit = 50000;
+const generatedCommitMessage = 'Update ruling results\n\nGenerated with GitHub Actions';
+const legacyCommitMessages = new Set([
+  generatedCommitMessage,
+  generatedCommitMessage.replace('\n\n', '\n\n🤖 '),
+]);
 
 export function context(env = process.env) {
   return {
@@ -287,7 +292,7 @@ export function controller(ctx, adapters = {}) {
       git(['fetch', 'origin', ref]);
       const message = git(['log', '-1', '--format=%B', 'FETCH_HEAD']);
       const legacy =
-        message === 'Update ruling results\n\nGenerated with GitHub Actions' &&
+        legacyCommitMessages.has(message) &&
         git(['log', '-1', '--format=%an%n%ae%n%cn%n%ce', 'FETCH_HEAD']) ===
           [
             'github-actions[bot]',
@@ -331,7 +336,7 @@ export function controller(ctx, adapters = {}) {
     git(['add', '--', config['old-results-path']]);
     if (!git(['diff', '--cached', '--name-only', '--', config['old-results-path']]))
       throw new Error('Generated results no longer differ from the target branch.');
-    git(['commit', '-m', `Update ruling results\n\nGenerated with GitHub Actions\n\n${marker}`]);
+    git(['commit', '-m', `${generatedCommitMessage}\n\n${marker}`]);
     if (!fresh()) return 'stale';
     git(['push', `--force-with-lease=${ref}:${oldFix}`, 'origin', `${branch}:${ref}`]);
     if (!fresh()) return 'stale';

@@ -519,6 +519,88 @@ for (const scenario of [
   });
 }
 
+for (const emoji of [false, true]) {
+  for (const scenario of [
+    'owned',
+    'human author',
+    'human committer',
+    'wrong message',
+    'wrong target',
+    'shared',
+  ]) {
+    test(`default-branch orphan recovery (${emoji ? 'emoji' : 'plain'} message): ${scenario}`, async t => {
+      const f = fixture(t);
+      f.git(['checkout', '--detach', f.base]);
+      Object.assign(f.ctx, {
+        isPullRequest: false,
+        testedCommit: f.base,
+        testedHead: f.base,
+        targetRef: 'master',
+        base: f.base,
+      });
+      Object.assign(f.state.run, {
+        head_sha: f.base,
+        head_branch: 'master',
+        event: 'push',
+        pull_requests: [],
+      });
+      const branch = 'fix/update-ruling-for-master';
+      let message = `Update ruling results\n\n${emoji ? '🤖 ' : ''}Generated with GitHub Actions`;
+      if (scenario === 'wrong message') message += '\n\nUnrelated change';
+      if (scenario === 'wrong target')
+        message +=
+          '\n\n<!-- ruling-bot-target: {"repository":"example/analyzer","ref":"other"} -->';
+      const oldFix = f.git([
+        '-c',
+        'user.name=github-actions[bot]',
+        '-c',
+        'user.email=github-actions[bot]@users.noreply.github.com',
+        '-c',
+        `author.name=${scenario === 'human author' ? 'Human' : 'github-actions[bot]'}`,
+        '-c',
+        `committer.name=${scenario === 'human committer' ? 'Human' : 'github-actions[bot]'}`,
+        'commit-tree',
+        `${f.base}^{tree}`,
+        '-p',
+        f.base,
+        '-m',
+        message,
+      ]);
+      f.setRemote(branch, oldFix);
+      if (scenario === 'shared') {
+        f.state.prs.push(
+          fix({
+            number: 999,
+            title: 'Unrelated PR',
+            body: '',
+            base: { ref: 'other' },
+            head: { ref: branch, sha: oldFix, repo: { full_name: repository } },
+          }),
+        );
+      }
+      if (scenario === 'owned') {
+        assert.equal(await f.bot().update(f.config), 'updated');
+        assert.equal(f.state.prs.length, 1);
+        assert.equal(f.state.prs[0].base.ref, 'master');
+        assert.ok(
+          f.state.gitCalls.some(args =>
+            args.includes(`--force-with-lease=refs/heads/${branch}:${oldFix}`),
+          ),
+        );
+        assert.notEqual(
+          f.git(['ls-remote', 'origin', `refs/heads/${branch}`]).split(/\s/)[0],
+          oldFix,
+        );
+        assert.match(f.git(['log', '-1', '--format=%B']), /ruling-bot-target/);
+      } else {
+        await assert.rejects(f.bot().update(f.config), /not owned|used by another open PR/);
+        assert.equal(f.git(['ls-remote', 'origin', `refs/heads/${branch}`]).split(/\s/)[0], oldFix);
+        assert.deepEqual(f.mutations(), []);
+      }
+    });
+  }
+}
+
 test('target advances after sync: no stale fix is pushed', async t => {
   const f = fixture(t);
   f.state.beforeGit = args => {
