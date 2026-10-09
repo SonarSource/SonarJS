@@ -189,7 +189,7 @@ export function getAngularMetadataOutput(
   context: Rule.RuleContext,
   node: TSESTree.Node,
 ): AngularMetadataOutput | undefined {
-  const name = staticText(node);
+  const name = staticText(node)?.trim();
   const classNode = getMetadataOutputClass(context, node);
   return name !== undefined && classNode !== undefined ? { classNode, name } : undefined;
 }
@@ -221,7 +221,7 @@ export function getAngularStaticOutputNames(
     return undefined;
   }
   const names = outputs[0].value.elements.map(element =>
-    element ? staticText(element as TSESTree.Node) : undefined,
+    element ? staticText(element as TSESTree.Node)?.trim() : undefined,
   );
   return names.some(name => name === undefined || name.includes(':'))
     ? undefined

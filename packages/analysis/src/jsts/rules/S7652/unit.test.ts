@@ -483,6 +483,55 @@ describe('S7652', () => {
     });
   });
 
+  it('normalizes whitespace in deprecated output metadata without ignoring duplicate names', () => {
+    const cases = [
+      { outputs: "[' refresh ']", initializer: 'output<void>()' },
+      { outputs: "['onRefresh', ' refresh ']", initializer: 'new EventEmitter<void>()' },
+      { outputs: "['onRefresh ', ' refresh ']", initializer: 'new EventEmitter<void>()' },
+    ].map(({ outputs, initializer }) => ({
+      code: `${angular}
+        @Component({ outputs: ${outputs} })
+        class C {
+          /** @deprecated Use refresh instead. */
+          onRefresh = ${initializer};
+          refresh = this.onRefresh;
+        }
+      `,
+    }));
+    ruleTester.run('S7652', rule, { valid: cases, invalid: [] });
+    ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
+      valid: [],
+      invalid: cases.map(test => ({ ...test, errors: 1 })),
+    });
+
+    ruleTester.run('S7652', rule, {
+      valid: [],
+      invalid: [
+        { outputs: "['refresh', ' refresh ']", initializer: 'output<void>()', errors: 1 },
+        {
+          outputs: "['onRefresh', 'refresh', ' refresh ']",
+          initializer: 'new EventEmitter<void>()',
+          errors: 1,
+        },
+        {
+          outputs: "['onRefresh', ' onRefresh ', 'refresh']",
+          initializer: 'new EventEmitter<void>()',
+          errors: 2,
+        },
+      ].map(({ outputs, initializer, errors }) => ({
+        code: `${angular}
+          @Component({ outputs: ${outputs} })
+          class C {
+            /** @deprecated Use refresh instead. */
+            onRefresh = ${initializer};
+            refresh = this.onRefresh;
+          }
+        `,
+        errors,
+      })),
+    });
+  });
+
   it('checks metadata exposure independently for each deprecated output', () => {
     const fields = `class C {
       /** @deprecated Use refresh instead. */
