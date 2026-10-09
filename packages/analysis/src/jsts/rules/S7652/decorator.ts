@@ -41,10 +41,19 @@ interface ReportedOutputMember {
   isMetadataOutput: boolean;
 }
 
+interface ClassInfo {
+  members: Map<string, { member: TSESTree.PropertyDefinition; index: number }>;
+  outputCounts: Map<string, number>;
+  replacementOwners: Set<string>;
+}
+
+type ClassInfoCache = WeakMap<TSESTree.ClassDeclaration, ClassInfo | null>;
+
 /** Maps a report on `onRefresh = output()` or `outputs: ['onRefresh']` to its declared field. */
 function getReportedOutputMember(
   context: Rule.RuleContext,
   node: TSESTree.Node,
+  cache: ClassInfoCache,
 ): ReportedOutputMember | undefined {
   const directMember = node.parent;
   if (
@@ -63,15 +72,8 @@ function getReportedOutputMember(
     return undefined;
   }
   const { classNode, name: outputName } = metadataOutput;
-  const members = classNode.body.body.filter(
-    (member): member is TSESTree.PropertyDefinition =>
-      member.type === 'PropertyDefinition' &&
-      !member.computed &&
-      !member.static &&
-      member.key.type === 'Identifier' &&
-      member.key.name === outputName,
-  );
-  return members.length === 1 ? { member: members[0], isMetadataOutput: true } : undefined;
+  const member = getClassInfo(context, classNode, cache)?.members.get(outputName)?.member;
+  return member ? { member, isMetadataOutput: true } : undefined;
 }
 
 /** Recognizes `onRefresh = output()` when its preceding JSDoc includes `@deprecated`. */
@@ -109,9 +111,70 @@ function isDirectReplacement(
   );
 }
 
+/** Validates a class once and indexes its later, explicitly exposed replacement fields. */
+function buildClassInfo(
+  context: Rule.RuleContext,
+  classNode: TSESTree.ClassDeclaration,
+): ClassInfo | undefined {
+  // Limit compatibility suppression to simple, unique instance fields.
+  const members: ClassInfo['members'] = new Map();
+  for (const [index, field] of classNode.body.body.entries()) {
+    if (field.type !== 'PropertyDefinition' || field.static) {
+      continue;
+    }
+    if (field.computed || field.key.type !== 'Identifier' || members.has(field.key.name)) {
+      return undefined;
+    }
+    members.set(field.key.name, { member: field, index });
+  }
+  const outputNames = getAngularStaticOutputNames(context, classNode);
+  if (outputNames === undefined) {
+    return undefined;
+  }
+  const outputCounts = new Map<string, number>();
+  for (const name of outputNames) {
+    outputCounts.set(name, (outputCounts.get(name) ?? 0) + 1);
+  }
+  const replacementOwners = new Set<string>();
+  for (const [name, { member, index }] of members) {
+    const value = member.value;
+    if (value?.type !== 'MemberExpression' || value.property.type !== 'Identifier') {
+      continue;
+    }
+    const ownerName = value.property.name;
+    const ownerIndex = members.get(ownerName)?.index;
+    if (
+      ownerIndex !== undefined &&
+      ownerIndex < index &&
+      outputCounts.get(name) === 1 &&
+      isDirectReplacement(context, member, ownerName)
+    ) {
+      replacementOwners.add(ownerName);
+    }
+  }
+  return { members, outputCounts, replacementOwners };
+}
+
+function getClassInfo(
+  context: Rule.RuleContext,
+  classNode: TSESTree.ClassDeclaration,
+  cache: ClassInfoCache,
+): ClassInfo | undefined {
+  let info = cache.get(classNode);
+  if (info === undefined) {
+    info = buildClassInfo(context, classNode) ?? null;
+    cache.set(classNode, info);
+  }
+  return info ?? undefined;
+}
+
 /** Suppresses a documented `onRefresh` only for `refresh = this.onRefresh` in the same class. */
-function isDeprecatedOutputReplacement(context: Rule.RuleContext, node: estree.Node): boolean {
-  const reported = getReportedOutputMember(context, node as TSESTree.Node);
+function isDeprecatedOutputReplacement(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  cache: ClassInfoCache,
+): boolean {
+  const reported = getReportedOutputMember(context, node as TSESTree.Node, cache);
   const member = reported?.member;
   if (member?.key.type !== 'Identifier' || !hasDeprecatedJsdoc(context, member)) {
     return false;
@@ -120,45 +183,31 @@ function isDeprecatedOutputReplacement(context: Rule.RuleContext, node: estree.N
   if (classNode?.type !== 'ClassDeclaration') {
     return false;
   }
-  // Limit compatibility suppression to simple, unique instance fields.
-  const fieldNames = new Set<string>();
-  for (const field of classNode.body.body) {
-    if (field.type !== 'PropertyDefinition' || field.static) {
-      continue;
-    }
-    if (field.computed || field.key.type !== 'Identifier' || fieldNames.has(field.key.name)) {
-      return false;
-    }
-    fieldNames.add(field.key.name);
-  }
-  const memberIndex = classNode.body.body.indexOf(member);
-  if (memberIndex < 0) {
-    return false;
-  }
-  const outputNames = getAngularStaticOutputNames(context, classNode);
-  if (outputNames === undefined) {
+  const info = getClassInfo(context, classNode, cache);
+  if (info === undefined) {
     return false;
   }
   const ownerName = member.key.name;
-  if (reported?.isMetadataOutput && outputNames.filter(name => name === ownerName).length !== 1) {
+  if (reported?.isMetadataOutput && info.outputCounts.get(ownerName) !== 1) {
     return false;
   }
-  return classNode.body.body.slice(memberIndex + 1).some(member => {
-    if (member.type !== 'PropertyDefinition' || !isDirectReplacement(context, member, ownerName)) {
-      return false;
-    }
-    return outputNames.filter(name => name === member.key.name).length === 1;
-  });
+  return info.replacementOwners.has(ownerName);
 }
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(rule, (context, reportDescriptor) => {
-    if (
-      !('node' in reportDescriptor) ||
-      (!isCompliantOutputAlias(context, reportDescriptor.node) &&
-        !isDeprecatedOutputReplacement(context, reportDescriptor.node))
-    ) {
-      context.report(reportDescriptor);
-    }
-  });
+  return {
+    ...rule,
+    create(context) {
+      const cache: ClassInfoCache = new WeakMap();
+      return interceptReport(rule, (context, reportDescriptor) => {
+        if (
+          !('node' in reportDescriptor) ||
+          (!isCompliantOutputAlias(context, reportDescriptor.node) &&
+            !isDeprecatedOutputReplacement(context, reportDescriptor.node, cache))
+        ) {
+          context.report(reportDescriptor);
+        }
+      }).create(context);
+    },
+  };
 }

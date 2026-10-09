@@ -429,6 +429,93 @@ describe('S7652', () => {
     });
   });
 
+  it('keeps replacement decisions independent for classes with the same name', () => {
+    const compliant = `
+      @Component({ outputs: ['refresh'] })
+      class C {
+        /** @deprecated Use refresh instead. */
+        onRefresh = output<void>();
+        refresh = this.onRefresh;
+      }
+    `;
+    const reportable = `
+      @Component({ outputs: ['refresh', 'refresh'] })
+      class C {
+        /** @deprecated Use refresh instead. */
+        onRefresh = output<void>();
+        refresh = this.onRefresh;
+      }
+    `;
+    ruleTester.run('S7652', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `${angular} { ${compliant} } { ${reportable} }`,
+          errors: [{ messageId: 'noOutputOnPrefix', type: 'Identifier', line: 12 }],
+        },
+        {
+          code: `${angular} { ${reportable} } { ${compliant} }`,
+          errors: [{ messageId: 'noOutputOnPrefix', type: 'Identifier', line: 5 }],
+        },
+      ],
+    });
+  });
+
+  it('checks each deprecated output and preserves replacement ordering', () => {
+    ruleTester.run('S7652', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `${angular}
+            @Component({ outputs: ['refresh', 'save'] })
+            class C {
+              save = this.onSave;
+              /** @deprecated Use refresh instead. */
+              onRefresh = output<void>();
+              refresh = this.onRefresh;
+              /** @deprecated Use save instead. */
+              onSave = output<void>();
+            }
+          `,
+          errors: [{ messageId: 'noOutputOnPrefix', type: 'Identifier', line: 9 }],
+        },
+      ],
+    });
+  });
+
+  it('checks metadata exposure independently for each deprecated output', () => {
+    const fields = `class C {
+      /** @deprecated Use refresh instead. */
+      onRefresh = new EventEmitter<void>();
+      refresh = this.onRefresh;
+      /** @deprecated Use save instead. */
+      onSave = new EventEmitter<void>();
+      save = this.onSave;
+    }`;
+    ruleTester.run('S7652', rule, {
+      valid: [
+        {
+          code: `${angular}
+            @Component({ outputs: ['onRefresh', 'refresh', 'onSave', 'save'] })
+            ${fields}
+          `,
+        },
+      ],
+      invalid: [
+        {
+          code: `${angular}
+            @Component({ outputs: ['onRefresh', 'refresh', 'onSave', 'save', 'onSave'] })
+            ${fields}
+          `,
+          errors: [
+            { messageId: 'noOutputOnPrefix', type: 'Literal' },
+            { messageId: 'noOutputOnPrefix', type: 'Literal' },
+          ],
+        },
+      ],
+    });
+  });
+
   it('suppresses only forms reported by the upstream rule', () => {
     ruleTester.run('no-output-on-prefix', upstreamRules['no-output-on-prefix'], {
       valid: [],
