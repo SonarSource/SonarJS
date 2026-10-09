@@ -358,6 +358,141 @@ test('open legacy fix for this original PR keeps its existing branch and PR', as
   assert.ok(dispatch.includes(`fix-pr-url=${candidate.html_url}`));
 });
 
+function selectedFixFixture(t, branchRun) {
+  const f = fixture(t);
+  if (branchRun) {
+    f.git(['checkout', '--detach', f.base]);
+    Object.assign(f.ctx, {
+      isPullRequest: false,
+      testedCommit: f.base,
+      testedHead: f.base,
+      targetRef: 'master',
+      base: '',
+      pr: '',
+    });
+    Object.assign(f.state.run, {
+      head_sha: f.base,
+      head_branch: 'master',
+      event: 'push',
+      pull_requests: [],
+    });
+  }
+  const candidate = fix(
+    branchRun
+      ? {
+          title: 'Update ruling results for master',
+          body: 'Auto-generated ruling update for master.',
+          base: { ref: 'master' },
+          head: {
+            ref: 'fix/update-ruling-for-master',
+            sha: f.base,
+            repo: { full_name: repository },
+          },
+        }
+      : {
+          head: {
+            ref: 'fix/update-ruling-for-outdated-pr',
+            sha: f.head,
+            repo: { full_name: repository },
+          },
+        },
+  );
+  f.state.prs.push(candidate);
+  f.setRemote(candidate.head.ref, candidate.head.sha);
+  return { f, candidate };
+}
+
+for (const branchRun of [false, true]) {
+  for (const stage of ['preparation', 'push', 'body update', 'dispatch check']) {
+    for (const merged of [false, true]) {
+      test(`${branchRun ? 'master' : 'PR'} fix ${merged ? 'merged' : 'closed'} during ${stage} is never advertised`, async t => {
+        const { f, candidate } = selectedFixFixture(t, branchRun);
+        const oldHead = candidate.head.sha;
+        const oldBody = candidate.body;
+        const change = () => {
+          candidate.state = 'closed';
+          if (merged) candidate.merged_at = 'now';
+        };
+        let bodyUpdated = false;
+        f.state.beforeGit = args => {
+          if (stage === 'preparation' && args[0] === 'commit') change();
+          if (stage === 'push' && args[0] === 'push') change();
+        };
+        f.state.beforeApi = (endpoint, args) => {
+          if (endpoint === `pulls/${candidate.number}` && args.includes('PATCH')) {
+            bodyUpdated = true;
+            if (stage === 'body update') change();
+          }
+          if (stage === 'dispatch check' && bodyUpdated && endpoint.startsWith('actions/runs/'))
+            change();
+        };
+        f.ctx.output = path.join(f.workspace, 'output');
+        f.ctx.summary = path.join(f.workspace, 'summary');
+        await assert.rejects(f.bot().update(f.config), /Ruling fix PR .*changed/);
+        assert.equal(
+          f.state.calls.some(args => args[0] === 'workflow'),
+          false,
+        );
+        assert.equal(existsSync(f.ctx.output), false);
+        assert.equal(existsSync(f.ctx.summary), false);
+        if (stage === 'preparation') {
+          assert.equal(
+            f.state.gitCalls.some(args => args[0] === 'push'),
+            false,
+          );
+          assert.equal(
+            f.git(['ls-remote', 'origin', `refs/heads/${candidate.head.ref}`]).split(/\s/)[0],
+            oldHead,
+          );
+          assert.deepEqual(f.mutations(), []);
+        }
+        if (stage === 'preparation' || stage === 'push') assert.equal(candidate.body, oldBody);
+      });
+    }
+  }
+  test(`${branchRun ? 'master' : 'PR'} newly created fix is rechecked before advertising`, async t => {
+    const { f } = selectedFixFixture(t, branchRun);
+    f.state.prs = [];
+    f.git([
+      'push',
+      'origin',
+      `:refs/heads/${branchRun ? 'fix/update-ruling-for-master' : 'fix/update-ruling-for-outdated-pr'}`,
+    ]);
+    f.state.beforeApi = endpoint => {
+      if (/^pulls\/\d+$/.test(endpoint) && endpoint !== `pulls/${f.state.original.number}`) {
+        f.state.prs.find(pr => endpoint === `pulls/${pr.number}`).state = 'closed';
+      }
+    };
+    await assert.rejects(f.bot().update(f.config), /Ruling fix PR .*changed/);
+    assert.equal(f.state.prs.length, 1);
+    assert.equal(f.state.prs[0].state, 'closed');
+    assert.equal(
+      f.state.calls.some(args => args[0] === 'workflow'),
+      false,
+    );
+  });
+}
+
+for (const change of ['owner', 'base', 'branch', 'repository', 'head']) {
+  test(`selected fix ${change} changes during preparation: no push or advertisement`, async t => {
+    const { f, candidate } = selectedFixFixture(t, false);
+    f.state.beforeGit = args => {
+      if (args[0] !== 'commit') return;
+      if (change === 'owner') candidate.user.login = 'human';
+      if (change === 'base') candidate.base.ref = 'other';
+      if (change === 'branch') candidate.head.ref = 'fix/update-ruling-for-other';
+      if (change === 'repository') candidate.head.repo.full_name = 'other/analyzer';
+      if (change === 'head') candidate.head.sha = f.newerCommit();
+    };
+    await assert.rejects(f.bot().update(f.config), /Ruling fix PR .*changed/);
+    assert.equal(
+      f.state.gitCalls.some(args => args[0] === 'push'),
+      false,
+    );
+    assert.deepEqual(f.mutations(), []);
+  });
+}
+
 test('two original PRs sharing a source branch get independent fixes, reports and cleanup', async t => {
   const f = fixture(t);
   assert.equal(await f.bot().update(f.config), 'updated');
