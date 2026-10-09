@@ -1,0 +1,24 @@
+{
+  "title": "CSS property values should be valid",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-9424",
+  "sqKey": "S9424",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER"
+    },
+    "attribute": "LOGICAL"
+  },
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}
