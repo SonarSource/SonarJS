@@ -124,6 +124,7 @@ export function fixture(t) {
       pull_requests: [{ number: 123 }],
     },
     runs: [],
+    jobs: new Map(),
     branchHead: base,
     dispatchError: false,
     beforeApi: undefined,
@@ -188,13 +189,23 @@ export function fixture(t) {
     let response;
     if (!endpoint) response = { default_branch: 'master' };
     else if (endpoint.startsWith('branches/')) response = { commit: { sha: state.branchHead } };
-    else if (endpoint.startsWith('actions/runs/')) {
+    else if (/^actions\/runs\/\d+\/jobs\?/.test(endpoint)) {
+      const id = Number(endpoint.split('/')[2]);
+      response = [{ jobs: state.jobs.get(id) || [] }];
+    } else if (endpoint.startsWith('actions/runs/')) {
       const id = Number(endpoint.split('/')[2]);
       response = [state.run, ...state.runs].find(run => run.id === id);
       if (!response) throw new Error(`Unexpected Build run: ${id}`);
-    } else if (endpoint.startsWith('actions/workflows/'))
-      response = [{ workflow_runs: [state.run, ...state.runs] }];
-    else if (endpoint.startsWith('pulls?'))
+    } else if (endpoint.startsWith('actions/workflows/')) {
+      const query = new URLSearchParams(endpoint.split('?')[1]);
+      response = [
+        {
+          workflow_runs: [state.run, ...state.runs].filter(
+            run => run.head_sha === query.get('head_sha') && run.event === query.get('event'),
+          ),
+        },
+      ];
+    } else if (endpoint.startsWith('pulls?'))
       response = [state.prs.filter(pr => pr.state === 'open')];
     else if (/^pulls\/\d+$/.test(endpoint)) {
       response =

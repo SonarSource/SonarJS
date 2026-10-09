@@ -161,7 +161,7 @@ test('failed update works without reporter code in the old PR head and discards 
   assert.equal(dispatch[2], 'custom-report.yml');
   for (const [name, value] of Object.entries(f.config))
     assert.ok(dispatch.includes(`${name}=${value}`));
-  assert.equal(dispatch.filter(value => value === '-f').length, 18);
+  assert.equal(dispatch.filter(value => value === '-f').length, 20);
   assert.equal(
     dispatch.some(value => value.startsWith('report-config=')),
     false,
@@ -743,11 +743,191 @@ test('missing saved results fails without generating an empty replacement', asyn
   assert.deepEqual(f.mutations(), []);
 });
 
-test('auto-generated commit skips failed update loop', async t => {
+for (const failed of [false, true]) {
+  test(`a bot-generated PR head ${failed ? 'can receive needed expectation updates' : 'creates no fix when ruling passes'}`, async t => {
+    const f = fixture(t);
+    const head = f.git([
+      'commit-tree',
+      `${f.head}^{tree}`,
+      '-p',
+      f.head,
+      '-m',
+      'Update ruling results\n\nGenerated with GitHub Actions',
+    ]);
+    const merge = f.git([
+      'commit-tree',
+      `${f.merge}^{tree}`,
+      '-p',
+      f.base,
+      '-p',
+      head,
+      '-m',
+      `Merge ${head} into ${f.base}`,
+    ]);
+    f.setRemote('outdated-pr', head);
+    f.git(['checkout', '--detach', merge]);
+    Object.assign(f.ctx, { testedCommit: merge, testedHead: head, failed });
+    f.state.original.head.sha = head;
+    f.state.run.head_sha = head;
+    assert.equal(await f.bot().update(f.config), failed ? 'updated' : 'passed');
+    assert.equal(f.state.prs.length, failed ? 1 : 0);
+    if (failed) assert.match(f.git(['show', 'HEAD:baseline/project/javascript-S1000.json']), /4/);
+    else
+      assert.equal(
+        f.state.gitCalls.some(args => args[0] === 'push' || args[0] === 'commit'),
+        false,
+      );
+  });
+}
+
+test('a bot-generated default-branch head can receive needed expectation updates', async t => {
   const f = fixture(t);
-  f.git(['commit', '--amend', '-m', 'Synthetic merge\n\nGenerated with GitHub Actions']);
-  f.ctx.testedCommit = f.git(['rev-parse', 'HEAD']);
-  assert.equal(await f.bot().update(f.config), 'auto-update');
+  const head = f.git([
+    'commit-tree',
+    `${f.base}^{tree}`,
+    '-p',
+    f.base,
+    '-m',
+    'Update ruling results\n\nGenerated with GitHub Actions',
+  ]);
+  f.setRemote('master', head);
+  f.git(['checkout', '--detach', head]);
+  Object.assign(f.ctx, {
+    isPullRequest: false,
+    targetRef: 'master',
+    testedCommit: head,
+    testedHead: head,
+    base: head,
+  });
+  Object.assign(f.state.run, {
+    head_sha: head,
+    head_branch: 'master',
+    event: 'push',
+    pull_requests: [],
+  });
+  f.state.branchHead = head;
+  assert.equal(await f.bot().update(f.config), 'updated');
+  assert.equal(f.state.prs.length, 1);
+});
+
+test('a successful dispatch exposes the output used to record Build authority', async t => {
+  const f = fixture(t);
+  f.ctx.failed = false;
+  f.ctx.output = path.join(f.workspace, 'dispatch-output');
+  assert.equal(await f.bot().update(f.config), 'passed');
+  assert.equal(readFileSync(f.ctx.output, 'utf8'), 'report-requested=true\n');
+});
+
+test('a failed dispatch never records Build authority', async t => {
+  const f = fixture(t);
+  f.ctx.failed = false;
+  f.ctx.output = path.join(f.workspace, 'dispatch-output');
+  f.state.dispatchError = true;
+  await assert.rejects(f.bot().update(f.config), /Dispatch unavailable/);
+  assert.equal(existsSync(f.ctx.output), false);
+});
+
+test('an empty newer Build report cannot be resurrected by an older raw merge', async t => {
+  const f = fixture(t);
+  const nextBase = f.git([
+    'commit-tree',
+    `${f.merge}^{tree}`,
+    '-p',
+    f.base,
+    '-m',
+    'Base acquires the same expectations',
+  ]);
+  const nextMerge = f.git([
+    'commit-tree',
+    `${f.merge}^{tree}`,
+    '-p',
+    nextBase,
+    '-p',
+    f.head,
+    '-m',
+    'New tested merge',
+  ]);
+  f.git(['checkout', '--detach', nextMerge]);
+  f.state.runs.push({ ...f.state.run, id: 43 });
+  Object.assign(f.ctx, { testedCommit: nextMerge, base: nextBase, failed: false, runId: '43' });
+  f.state.comments.push(comment('<!-- ruling-report -->\nOlder report'));
+  assert.equal(await f.bot().report(f.config), 'empty');
+  assert.deepEqual(f.state.comments, []);
+  f.state.jobs.set(43, [
+    { steps: [{ name: f.config['report-dispatch-step'], conclusion: 'success' }] },
+  ]);
+  f.git(['checkout', '--detach', f.merge]);
+  Object.assign(f.ctx, { testedCommit: f.merge, base: f.base, runId: '' });
+  f.state.calls = [];
+  assert.equal(await f.bot().report(f.config), 'completed-report-exists');
+  assert.deepEqual(f.state.comments, []);
+  assert.deepEqual(f.mutations(), []);
+  assert.ok(f.state.calls.some(args => args[1]?.includes('actions/runs/43/jobs?filter=all')));
+});
+
+for (const scenario of [
+  'legacy-success',
+  'failed-dispatch',
+  'skipped-dispatch',
+  'other-pr',
+  'earlier-head',
+  'success',
+]) {
+  test(`raw report without a comment handles ${scenario} Build evidence`, async t => {
+    const f = fixture(t);
+    f.ctx.runId = '';
+    f.ctx.failed = false;
+    const run = { ...f.state.run, id: 43 };
+    if (scenario === 'other-pr') run.pull_requests = [{ number: 124 }];
+    if (scenario === 'earlier-head') run.head_sha = f.base;
+    f.state.runs.push(run);
+    f.state.jobs.set(43, [
+      {
+        steps: [
+          {
+            name:
+              scenario === 'legacy-success'
+                ? 'Update ruling results'
+                : f.config['report-dispatch-step'],
+            conclusion:
+              scenario === 'failed-dispatch'
+                ? 'failure'
+                : scenario === 'skipped-dispatch'
+                  ? 'skipped'
+                  : 'success',
+          },
+        ],
+      },
+    ]);
+    assert.equal(
+      await f.bot().report(f.config),
+      scenario === 'success' ? 'completed-report-exists' : 'reported',
+    );
+    assert.equal(f.state.comments.length, scenario === 'success' ? 0 : 1);
+  });
+}
+
+test('raw report checks freshness again after querying dispatch evidence', async t => {
+  const f = fixture(t);
+  f.ctx.runId = '';
+  f.ctx.failed = false;
+  f.state.beforeApi = endpoint => {
+    if (endpoint.includes('/jobs?')) f.state.original.head.sha = f.base;
+  };
+  assert.equal(await f.bot().report(f.config), 'stale');
+  assert.deepEqual(f.mutations(), []);
+});
+
+test('an updater-only retry does not erase an earlier successful dispatch record', async t => {
+  const f = fixture(t);
+  f.ctx.runId = '';
+  f.ctx.failed = false;
+  f.state.run.run_attempt = 2;
+  f.state.jobs.set(42, [
+    { run_attempt: 1, steps: [{ name: f.config['report-dispatch-step'], conclusion: 'success' }] },
+    { run_attempt: 2, steps: [{ name: f.config['report-dispatch-step'], conclusion: 'skipped' }] },
+  ]);
+  assert.equal(await f.bot().report(f.config), 'completed-report-exists');
   assert.deepEqual(f.mutations(), []);
 });
 

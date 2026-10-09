@@ -72,6 +72,8 @@ test('restored and new inputs survive environment handoff, including empty URL/r
     'results-artifact-name': 'custom-2',
     'report-workflow': 'other.yml',
     'report-workflow-ref': '',
+    'build-workflow': 'custom-build.yml',
+    'report-dispatch-step': 'Custom dispatch record',
   };
   const env = Object.fromEntries(
     Object.entries(settings).map(([name, value]) => [
@@ -95,6 +97,8 @@ for (const value of [
   { ...paths, 'new-results-path': 'expected' },
   { ...paths, 'max-inline-snippets': 'NaN' },
   { ...paths, 'max-inline-snippets': '0' },
+  { ...paths, 'build-workflow': '' },
+  { ...paths, 'report-dispatch-step': false },
 ]) {
   test(`invalid configuration is rejected: ${JSON.stringify(value)}`, () =>
     assert.throws(() => configuration(value)));

@@ -12,10 +12,16 @@ attempt and exposes that exact name as a job output. Upload, updater download, a
 use the same name, including when a retry reuses outputs from an earlier attempt.
 
 The updater forwards its resolved action inputs individually to the independent reporter workflow.
-All eighteen dispatch inputs fit GitHub.com's current limit of twenty-five. Explicitly forwarding
+All twenty dispatch inputs fit GitHub.com's current limit of twenty-five. Explicitly forwarding
 paths, links, and the artifact name preserves the producing Build's settings if stable reporter code
-changes later. Raw PR-event reports use explicit SonarJS defaults in the reporter workflow. The
-report action validates the received parameters before checking freshness or downloading artifacts.
+changes later. Raw PR-event reports use the same SonarJS defaults in the reporter workflow.
+The canonical public schema/defaults live in `config.mjs`; SonarJS settings live in
+`.github/ruling-bot.config.mjs`. `generate-config.mjs` generates their marked action/workflow
+sections, this input table, the CI retry command, and the local `ruling-sync` command. Run
+`node .github/actions/ruling_bot/generate-config.mjs` after changing either definition;
+`--check` and the local regression suite reject stale consumers. No runtime config-loading
+step or additional runtime dependency is needed. The report action validates the received parameters
+before checking freshness or downloading artifacts.
 
 Other repositories can use the updater, `report`, and `cleanup` composite actions with their own
 configuration. Both result directories contain the sonar-lits `<project>/<language>-<rule>.json`
@@ -26,17 +32,23 @@ Result and source paths may be relative or absolute within that checkout. Valid 
 normalized relative to the caller's checkout before dispatch, so the separate reporter checkout
 uses the same locations. An empty `sources-path` disables snippets; empty link URLs disable links.
 
-| Input                   | Purpose                                             | Generic default           |
-| ----------------------- | --------------------------------------------------- | ------------------------- |
-| `new-results-path`      | Generated results, including additions and removals | Required                  |
-| `old-results-path`      | Version-controlled expectations                     | Required                  |
-| `sources-path`          | Local sources used for snippets                     | `its/sources`             |
-| `sources-repo-url`      | Source-file links                                   | Empty                     |
-| `rspec-base-url`        | Rule links                                          | Public RSPEC              |
-| `max-inline-snippets`   | Snippet limit per report section                    | `10`                      |
-| `results-artifact-name` | Exact saved-results artifact name                   | `ruling-results`          |
-| `report-workflow`       | Reporter workflow filename or ID                    | `ruling-diff-comment.yml` |
-| `report-workflow-ref`   | Ref containing the reporter implementation          | Repository default branch |
+<!-- BEGIN GENERATED INPUT TABLE -->
+
+| Input                   | Purpose                                                             | Generic default                               |
+| ----------------------- | ------------------------------------------------------------------- | --------------------------------------------- |
+| `new-results-path`      | Generated-results path within the tested repository                 | Required                                      |
+| `old-results-path`      | Expected-results path within the tested repository                  | Required                                      |
+| `sources-path`          | Local source checkout used for snippets; empty disables snippets    | `its/sources`                                 |
+| `sources-repo-url`      | Remote source URL used for file links; empty disables links         | Empty                                         |
+| `rspec-base-url`        | RSPEC URL used for rule links; empty disables links                 | `https://sonarsource.github.io/rspec/#/rspec` |
+| `max-inline-snippets`   | Maximum detailed snippets per report section                        | `10`                                          |
+| `results-artifact-name` | Exact saved generated-results artifact name                         | `ruling-results`                              |
+| `report-workflow`       | Reporter workflow filename or ID                                    | `ruling-diff-comment.yml`                     |
+| `report-workflow-ref`   | Reporter implementation ref; empty selects the default branch       | Empty                                         |
+| `build-workflow`        | Build workflow filename or ID used to find authoritative dispatches | `build.yml`                                   |
+| `report-dispatch-step`  | Build step recording a successful ruling report request             | `Record ruling report dispatch`               |
+
+<!-- END GENERATED INPUT TABLE -->
 
 The first four optional reporting settings were updater inputs before #8050 split persistence from
 reporting. Passing them through the independent reporter now keeps its configuration tied to the
@@ -90,8 +102,14 @@ same original PR or branch and head/event. Checks repeat before writes. This cov
 different merges for the same PR head, delayed dispatches, stale successful cleanup, and old attempts
 of a retried Build.
 Raw PR-event reports carry no completed Build identity and cannot overwrite a completed report for
-the same PR head, even across different tested merges. Raw reports can still refresh reports from an
-earlier head. Passing Build retries dispatch again, replacing stale failure notices even
+the same PR head, even across different tested merges. The updater exposes `report-requested` only
+after a successful dispatch. The Build caller then
+runs the configured `report-dispatch-step`; raw reporters query successful steps across Build
+attempts for the same original PR head in `build-workflow`. This preserves authority after an
+empty report deletes its comment. Legacy Builds without that step, failed/skipped dispatches,
+and Builds for another PR/head do not suppress raw reports. Other callers should record the
+output in the same way as SonarJS. Raw reports can still refresh reports from an earlier head.
+Passing Build retries dispatch again, replacing stale failure notices even
 when no push triggered a new PR event; an empty successful report clears the obsolete comment.
 
 Fix pushes and deletions use an explicit SHA lease, including the empty lease when creating a new
@@ -171,3 +189,6 @@ Explicit supersessions also matter:
 - #6442's README maintenance moved to nightly in #6857; it remains outside the ruling bot.
   #6363's gist draft and #7565's unmerged shared-action experiment do not define retained features.
 - #7922's final flat expectation layout supersedes the alternative layout described in its PR body.
+- #6123's generated-commit message guard belonged to the direct-push flow. It is removed: passing
+  ruling creates no fix, and a failing run can need new expectations even after a generated commit.
+  Fixes use separate owned branches/PRs, and their `GITHUB_TOKEN` events do not trigger another Build.
