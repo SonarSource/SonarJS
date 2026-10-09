@@ -27,6 +27,7 @@ export const provenanceDefinitions = {
     report: 'inputs.pr-number || github.event.pull_request.number',
     retry: '<original-pr-number>',
     updater: {
+      description: 'Original PR number; empty for a branch run',
       required: false,
       default: '',
       caller: "github.event.pull_request.number || ''",
@@ -41,6 +42,7 @@ export const provenanceDefinitions = {
     retry: '<tested-merge-first-parent-sha>',
     updater: {
       name: 'tested-base-sha',
+      description: 'First parent of the tested PR merge; empty for a branch run',
       env: 'TESTED_BASE_SHA',
       caller: 'needs.js_ts_ruling.outputs.tested-base-sha',
     },

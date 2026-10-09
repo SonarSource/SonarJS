@@ -85,6 +85,10 @@ workflow selection, while the bot code still comes from the tested commit.
 Dispatch failure fails the update job visibly while leaving the persisted fix available.
 Build promotion depends on the updater, so persistence or dispatch failures block promotion and
 releasability. Protected-branch failure notifications also depend on the updater.
+The updater's `pr-number` identifies the original PR and is empty for a branch run.
+Its `tested-base-sha` is the tested PR merge's first parent and is also empty for a branch run;
+the controller derives that branch run's baseline from its tested commit. The reporter's
+`pr-number` instead identifies the report recipient, which is the fix PR for a `master` failure.
 
 Report generation writes stdout directly to a temporary file. The controller reads only a
 comment-sized prefix, then truncates the assembled comment safely at a UTF-8 boundary. Reports
@@ -140,6 +144,14 @@ name and email, and no other open PR uses that branch. New PR fixes use
 Existing target-owned fixes and recoverable legacy branches remain supported. Default-branch fix
 names retain `fix/update-ruling-for-<branch>`. Unrelated dirty tracked build output is discarded when
 creating the fix branch, while expectation changes are retained through the stash.
+
+An existing fix is revalidated before its branch is pushed, before its body is updated, and before
+its link is recorded or dispatched. It must still be open and unmerged, owned by the original
+target, on the selected base/branch, and at the expected commit. Newly created fixes receive the
+same final check. If a fix closes or changes during preparation, the updater fails visibly without
+publishing it. If it changes during/after a push or body update, already persisted results remain,
+but the updater fails without dispatching or advertising the invalid fix. Both PR and `master`
+runs use these checks. A retry follows the normal owned-fix selection flow.
 
 The fix branch starts from the exact tested commit, including the tested base history. Stash
 restoration therefore uses the same expectation tree that produced the changes, including files

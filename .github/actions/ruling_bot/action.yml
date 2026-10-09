@@ -8,11 +8,11 @@ inputs:
   # BEGIN GENERATED PROVENANCE INPUTS
   # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
   pr-number:
-    description: PR receiving the ruling report
+    description: Original PR number; empty for a branch run
     required: false
     default: ''
   tested-base-sha:
-    description: First parent of the tested merge, or tested branch commit
+    description: First parent of the tested PR merge; empty for a branch run
     required: false
     default: ''
   tested-commit-sha:

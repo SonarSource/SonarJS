@@ -327,6 +327,20 @@ export function controller(ctx, adapters = {}) {
       throw new Error('Refusing to overwrite a fix branch used by another open PR.');
     if (oldFix && !existing && !recovered && !recoverable(ref))
       throw new Error('Refusing to overwrite a fix branch not owned by this ruling target.');
+    const currentFix = (number, expectedHead) => {
+      const pr = api(`pulls/${number}`);
+      if (
+        pr.state !== 'open' ||
+        pr.merged_at ||
+        !managed(pr) ||
+        pr.base.ref !== ctx.targetRef ||
+        pr.head.ref !== branch ||
+        pr.head.sha !== expectedHead
+      ) {
+        throw new Error(`Ruling fix PR #${number} changed; refusing to publish or advertise it.`);
+      }
+      return pr;
+    };
     git(['config', 'user.name', 'github-actions[bot]']);
     git(['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
     // Retain the tested base history: base-only expectations must exist when restoring changes.
@@ -337,7 +351,9 @@ export function controller(ctx, adapters = {}) {
     if (!git(['diff', '--cached', '--name-only', '--', config['old-results-path']]))
       throw new Error('Generated results no longer differ from the target branch.');
     git(['commit', '-m', `${generatedCommitMessage}\n\n${marker}`]);
+    const commit = git(['rev-parse', 'HEAD']);
     if (!fresh()) return 'stale';
+    if (existing) currentFix(existing.number, oldFix);
     git(['push', `--force-with-lease=${ref}:${oldFix}`, 'origin', `${branch}:${ref}`]);
     if (!fresh()) return 'stale';
     const baseNotice = ctx.isPullRequest
@@ -345,8 +361,10 @@ export function controller(ctx, adapters = {}) {
       : '';
     const body = `${description}\n\n${baseNotice}Generated with GitHub Actions\n\n${marker}`;
     let fix;
-    if (existing) fix = api(`pulls/${existing.number}`, ['-X', 'PATCH', '-f', `body=${body}`]);
-    else {
+    if (existing) {
+      currentFix(existing.number, commit);
+      fix = api(`pulls/${existing.number}`, ['-X', 'PATCH', '-f', `body=${body}`]);
+    } else {
       const url = gh([
         'pr',
         'create',
@@ -361,10 +379,11 @@ export function controller(ctx, adapters = {}) {
       ]);
       fix = JSON.parse(gh(['pr', 'view', url, '--json', 'number,url']));
     }
+    if (!fresh()) return 'stale';
+    fix = currentFix(fix.number, commit);
     const fixUrl = fix.html_url || fix.url;
     if (ctx.summary) appendFileSync(ctx.summary, `Ruling fix PR: ${fixUrl}\n`);
-    if (fresh())
-      dispatch(config, ctx.isPullRequest ? ctx.pr : fix.number, ctx.isPullRequest ? fixUrl : '');
+    dispatch(config, ctx.isPullRequest ? ctx.pr : fix.number, ctx.isPullRequest ? fixUrl : '');
     return 'updated';
   }
 
