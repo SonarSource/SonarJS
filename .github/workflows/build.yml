@@ -8,11 +8,19 @@ on:
   pull_request:
   merge_group:
   workflow_dispatch:
+    inputs:
+      validate-registry-routing:
+        description: Validate public/SaaS installs and Edge downloads with isolated caches
+        type: boolean
+        default: false
   schedule:
     - cron: '0 0 * * *'  # Nightly for analysis, IRIS, and generated file freshness
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  # Keep public lockfile URLs on npmjs; CI selects the registry at install time.
+  NPM_CONFIG_REPLACE_REGISTRY_HOST: npmjs
+  NPM_CONFIG_LOGLEVEL: ${{ inputs.validate-registry-routing && 'http' || 'notice' }}
   # Run the Maven license-header check only in the Linux build; other Maven jobs skip it.
   MAVEN_ARGS: -Dlicense.skip=true
   # Workflows modified by a pull request cannot create the refs used by get-build-number even
@@ -69,8 +77,13 @@ jobs:
           echo "Computed Maven hash: $HASH"
       - name: Compute NPM hash for cache key
         id: compute-npm-hash
+        env:
+          VALIDATE_REGISTRY_ROUTING: ${{ inputs.validate-registry-routing }}
         run: |
           HASH=$(sha256sum package-lock.json patches/* 2>/dev/null | sha256sum | cut -d' ' -f1)
+          if [ "$VALIDATE_REGISTRY_ROUTING" = 'true' ]; then
+            HASH="$HASH-validation-$GITHUB_RUN_ID"
+          fi
           echo "hash=$HASH" >> $GITHUB_OUTPUT
           echo "Computed NPM hash: $HASH"
       - name: Compute cache month for periodic reset
@@ -94,6 +107,54 @@ jobs:
       - id: build-number
         uses: SonarSource/ci-github-actions/get-build-number@v2
 
+  validate_public_npm_install:
+    name: Validate public npm install without credentials
+    if: inputs.validate-registry-routing
+    runs-on: github-ubuntu-latest-s
+    permissions:
+      contents: read
+    steps:
+      - *checkout
+      - uses: jdx/mise-action@94c60b39bc2d90ab2f9bab27f38d3cc4812c1834 # v5.1.0
+        with:
+          version: 2026.9.18
+          cache: false
+      - name: Install from npmjs with empty credential files and cache
+        shell: bash
+        run: |
+          touch "$RUNNER_TEMP/public-user.npmrc" "$RUNNER_TEMP/public-global.npmrc"
+          env -i PATH="$PATH" npm ci --registry=https://registry.npmjs.org/ \
+            --userconfig="$RUNNER_TEMP/public-user.npmrc" \
+            --globalconfig="$RUNNER_TEMP/public-global.npmrc" \
+            --cache="$RUNNER_TEMP/public-npm-cache" --loglevel=http --no-audit --no-fund
+
+  validate_saas_npm_install:
+    name: Validate release npm install through SaaS without publishing
+    if: inputs.validate-registry-routing
+    runs-on: github-ubuntu-latest-s
+    needs: [setup, get_build_number]
+    permissions: *read_permissions
+    env:
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+    steps:
+      - *checkout
+      - uses: jdx/mise-action@94c60b39bc2d90ab2f9bab27f38d3cc4812c1834 # v5.1.0
+        with:
+          version: 2026.9.18
+          cache: false
+      - uses: SonarSource/ci-github-actions/config-npm@v2
+        with:
+          repox-url: https://repox.jfrog.io
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
+      - name: Install using the release repository configuration
+        shell: bash
+        env:
+          NPM_CONFIG_CACHE: ${{ runner.temp }}/saas-npm-cache
+        run: |
+          jf rt npm-config --repo-resolve npm --repo-deploy sonarsource-npm-public-qa
+          jf rt npm-ci
+
   populate_npm_cache:
     runs-on: sonar-xs
     name: Populate NPM cache for Linux
@@ -103,37 +164,34 @@ jobs:
     env: &shared_build_number
       # Reuse the build number minted once in get_build_number everywhere workflow metadata is configured or promoted.
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
-    steps: &populate_npm_cache_steps
+    steps:
       # Producer jobs need a lookup-only probe that still saves a freshly populated cache at job end.
-      - name: Check NPM dependencies cache
+      - &npm_cache_probe
+        name: Check NPM dependencies cache
         id: cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
           lookup-only: true
-      - name: Checkout source code
+      - &npm_cache_checkout
+        name: Checkout source code
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - &npm_cache_mise
+        if: steps.cache.outputs.cache-hit != 'true'
         uses: jdx/mise-action@94c60b39bc2d90ab2f9bab27f38d3cc4812c1834 # v5.1.0
         with:
           version: 2026.9.18
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
       - if: steps.cache.outputs.cache-hit != 'true'
-        id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
+        uses: SonarSource/ci-github-actions/config-npm@v2
         with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Configure npm registry
-        timeout-minutes: 5
-        uses: ./.github/actions/configure-npm-registry
-        with:
-          artifactory-access-token: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-      - if: steps.cache.outputs.cache-hit != 'true'
+          repox-url: https://repox-internal.dev.sonar.build
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
+      - &npm_cache_install
+        if: steps.cache.outputs.cache-hit != 'true'
         name: Install NPM dependencies
         run: npm ci
 
@@ -144,7 +202,27 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     env: *shared_build_number
-    steps: *populate_npm_cache_steps
+    steps:
+      - *npm_cache_probe
+      - *npm_cache_checkout
+      - *npm_cache_mise
+      - if: steps.cache.outputs.cache-hit != 'true'
+        id: secrets
+        name: Access vault secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          url: https://vault.dev.sonar.build
+          secrets: |
+            development/artifactory-edge-dev/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Configure npm registry
+        shell: bash
+        env:
+          ARTIFACTORY_ACCESS_TOKEN: ${{ steps.secrets.outputs.vault && fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN || '' }}
+        run: |
+          npm config set "//repox-internal.dev.sonar.build/artifactory/api/npm/:_authToken=${ARTIFACTORY_ACCESS_TOKEN}"
+          npm config set registry https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/
+      - *npm_cache_install
 
   build:
     runs-on: sonar-l
@@ -190,13 +268,9 @@ jobs:
         id: config-maven
         uses: SonarSource/ci-github-actions/config-maven@v2
         with:
+          repox-url: https://repox-internal.dev.sonar.build
           artifactory-reader-role: private-reader
           disable-caching: 'true'
-      - &point_maven_edge
-        name: Point Maven resolve at Edge
-        if: runner.environment != 'github-hosted'
-        timeout-minutes: 5
-        uses: ./.github/actions/point-maven-resolve-at-edge
       - id: deployer-secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -211,6 +285,7 @@ jobs:
         run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom,license-regeneration -T1C
         env:
           MAVEN_ARGS: ''
+          ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
@@ -288,7 +363,6 @@ jobs:
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - *cyclonedx_cli_cache
       - *config_maven
-      - *point_maven_edge
       - name: Build and test Maven (no deploy)
         run: mvn verify -Psbom -T1C
 
@@ -313,7 +387,6 @@ jobs:
           restore-keys: maven-${{ runner.os }}-${{ needs.setup.outputs.cache-month }}-
       - uses: ./.github/actions/rule-api-cache
       - *config_maven
-      - *point_maven_edge
       - id: rspec-secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -344,31 +417,23 @@ jobs:
 
   build_eslint_plugin:
     runs-on: warp-custom-ubuntu-24-04
-    needs: [setup, prepare_rspec_rule_data]
+    needs: [setup, get_build_number, prepare_rspec_rule_data]
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise
       - *npm_cache
-      - id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
+      - &config_npm_edge
+        uses: SonarSource/ci-github-actions/config-npm@v2
         with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - name: Configure npm registry
-        timeout-minutes: 5
-        uses: ./.github/actions/configure-npm-registry
-        with:
-          artifactory-access-token: ${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          repox-url: https://repox-internal.dev.sonar.build
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
       - *download_rspec_rule_data
-      # Extra `npm install` is not in the lockfile. Edge npm metadata 404s
-      # (`/api/npm/npm/` and `/api/npm/npmjs/`); this one fetch stays on SaaS.
       - name: Build ESLint plugin
-        env:
-          npm_config_registry: https://repox.jfrog.io/artifactory/api/npm/npm/
         run: npm run eslint-plugin:build
       - name: Regenerate tracked README files
         if: github.event_name == 'schedule'
@@ -447,9 +512,10 @@ jobs:
   test_eslint_plugin:
     runs-on: warp-custom-ubuntu-24-04
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
-    needs: [setup, build_eslint_plugin]
+    needs: [setup, get_build_number, build_eslint_plugin]
     permissions: *read_permissions
     env:
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
       MISE_NODE_VERSION: ${{ matrix.node-version }}
     strategy:
       fail-fast: false
@@ -486,23 +552,11 @@ jobs:
             echo "::error file=$TARBALL::Missing ESLint plugin tarball"
             exit 1
           fi
-      - id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      # No lockfile. configure-npm-registry would point at Edge and set
-      # replace-registry-host, which rewrites tarball hosts off SaaS. Edge
-      # 404s npm metadata on both /api/npm/npm/ and /api/npm/npmjs/.
-      - name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - *config_npm_edge
       - name: Test ESLint Plugin
         run: |
           cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
-          npm install --ignore-scripts --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000 --fetch-retries=3 --registry=https://repox.jfrog.io/artifactory/api/npm/npm/
+          npm install --ignore-scripts --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000 --fetch-retries=3
           npx tsc --noEmit
           npm run test
 
@@ -626,7 +680,9 @@ jobs:
     runs-on: sonar-m
     name: Analyze in SonarQube NEXT
     needs: [setup, get_build_number, test_js, build]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    if: >-
+      !inputs.validate-registry-routing &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     permissions: *read_permissions
     env: *shared_build_number
     steps:
@@ -658,7 +714,6 @@ jobs:
           name: jacoco-xml-reports-${{ github.sha }}
           path: sonar-plugin
       - *config_maven
-      - *point_maven_edge
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -713,7 +768,6 @@ jobs:
       - *download_maven_targets
       - *download_jacoco_xml_reports
       - *config_maven
-      - *point_maven_edge
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -772,7 +826,6 @@ jobs:
           name: sonarjs-m2
           path: ~/.m2/repository/org/sonarsource/javascript
       - *config_maven
-      - *point_maven_edge
       - &get_licenses_token
         id: secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -810,7 +863,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - &orchestrator_fast_cache_restore
         uses: ./.github/actions/orchestrator-cache
@@ -844,7 +896,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - &remove_node_from_path
         name: Disable existing node
@@ -884,7 +935,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - *remove_node_from_path
       # No orchestrator cache for DEV - version changes too frequently
@@ -934,7 +984,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - *orchestrator_cache_restore
       - name: Fix permissions for non-root user
@@ -966,7 +1015,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - *remove_node_from_path
       - uses: ./.github/actions/orchestrator-cache
@@ -995,7 +1043,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - *remove_node_from_path
       # No orchestrator cache for DEV - version changes too frequently
@@ -1025,7 +1072,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - *orchestrator_fast_cache_restore
       - name: Run Fast Plugin QA without Node
@@ -1059,7 +1105,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - uses: ./.github/actions/orchestrator-cache
         with:
@@ -1096,7 +1141,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
@@ -1125,7 +1169,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - uses: ./.github/actions/orchestrator-cache
         with:
@@ -1273,7 +1316,6 @@ jobs:
       - *maven_cache_restore
       - *download_sonarjs_m2
       - *config_maven
-      - *point_maven_edge
       - *get_licenses_token
       - *orchestrator_cache_restore
       - name: Run Ruling Tests
@@ -1339,6 +1381,7 @@ jobs:
       - ruling
       - js_ts_ruling
     if: >-
+      !inputs.validate-registry-routing &&
       !failure() && !cancelled() &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     permissions: *read_permissions
