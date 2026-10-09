@@ -717,28 +717,80 @@ Important details:
 
 Responsibilities:
 
-- checkout with submodules
+- checkout the tested tree with submodules and depth two; capture the PR merge's first parent
 - restore `node_modules`
 - download refreshed RSPEC data
 - run JS/TS ruling
-- save generated results as an artifact when ruling fails, then expose the ruling step outcome to `js_ts_ruling_update`
+- save generated results when ruling fails; expose the ruling outcome, successful persistence,
+  tested base and exact producing artifact name to `js_ts_ruling_update`
 
-The ruling job fails when expected results differ. `js_ts_ruling_update` downloads the saved results and calls `./.github/actions/ruling_bot` with explicit result paths. The bot creates or updates a fix PR and dispatches `ruling-diff-comment.yml`. For a failed PR run, the report workflow checks out the tested synthetic merge, applies the saved results, and compares them with that merge's first parent before posting on the original PR. For a passing PR run, it reports expected results already committed in the tested merge. On a default-branch failure, it compares generated results with the tested branch commit and posts on the fix PR. The report workflow also clears stale comments when there is no difference.
+The ruling job fails when expected results differ. `js_ts_ruling_update` persists an owned fix
+before requesting an independent report; a passing ruling run cleans up obsolete fixes and
+refreshes the original PR report. The reporter runs the bot and reads data from the exact tested
+checkout. The updater is a dependency of promotion and protected-branch failure notification.
 
-To rerun a failed PR report independently, use the original Build run ID and the exact merge and first-parent SHAs from that run:
+The [ruling bot README](../.github/actions/ruling_bot/README.md) is the maintained behavior and
+design contract. It owns expected outcomes, tested merge/fix ancestry, freshness and ownership,
+races and corner cases, historical decisions, configuration ownership and duplication rules,
+and the regression checklist for future PRs. Keep those policies there; this section describes
+how to operate and retry the SonarJS workflow.
+
+SonarJS settings come from `.github/ruling-bot.config.mjs`. When changing canonical configuration
+or provenance definitions, regenerate their consumers and the retry command below with
+`node .github/actions/ruling_bot/generate-config.mjs`, then verify with `--check`.
+The producing ruling job's exact artifact name is exposed as an output and reused by upload,
+updater download and dispatch. Preserve it separately from the current Build attempt when retrying.
+
+Report retries require a tested commit containing the current reporter action and input contract.
+For Builds predating their introduction, rebase the original PR branch and rerun ruling first;
+changing the artifact name cannot supply bot code missing from the tested commit.
+For a supported Build, retry the existing report with all its original inputs using
+`gh run rerun <report-run-id>`. To
+request a new report with the same tested bot code, use the originating Build ID and its current
+attempt, exact merge and first-parent SHAs, and the same explicit parameters passed by the original
+Build. For example:
+
+<!-- BEGIN GENERATED RETRY COMMAND -->
 
 ```sh
-gh workflow run ruling-diff-comment.yml --ref <branch-with-workflow> \
-  -f pr-number=<original-pr-number> \
-  -f head-sha=<tested-merge-sha> \
-  -f base-sha=<tested-merge-first-parent-sha> \
-  -f is-pull-request=true \
-  -f run-id=<build-run-id> \
+gh workflow run ruling-diff-comment.yml --ref '<original-branch>' \
+  -f 'pr-number=<original-pr-number>' \
+  -f 'base-sha=<tested-merge-first-parent-sha>' \
+  -f 'head-sha=<tested-merge-sha>' \
+  -f 'run-id=<build-run-id>' \
+  -f 'run-attempt=<current-build-run-attempt>' \
   -f ruling-failed=true \
-  -f fix-pr-url=<fix-pr-url>
+  -f is-pull-request=true \
+  -f 'fix-pr-url=<fix-pr-url>' \
+  -f 'target-ref=<original-branch>' \
+  -f sources-path=its/sources \
+  -f sources-repo-url=https://github.com/SonarSource/jsts-test-sources/blob/master \
+  -f rspec-base-url=https://musical-adventure-r9qk65j.pages.github.io/rspec/# \
+  -f max-inline-snippets=10 \
+  -f 'results-artifact-name=actual_js_ts-<producing-ruling-job-attempt>' \
+  -f report-workflow=ruling-diff-comment.yml \
+  -f report-workflow-ref= \
+  -f build-workflow=build.yml \
+  -f 'report-dispatch-step=Record ruling report dispatch' \
+  -f new-results-path=packages/ruling/actual \
+  -f old-results-path=its/ruling/src/test/resources/expected
 ```
 
-`fix-pr-url` is optional, but includes the fix PR link in the comment. To rerun a passing PR report, omit `run-id`, `ruling-failed`, and `fix-pr-url`. For a default-branch failed run, use the fix PR number for `pr-number`, set `head-sha` and `base-sha` to the tested branch commit, and omit `is-pull-request=true`.
+<!-- END GENERATED RETRY COMMAND -->
+
+For a passing Build report, retain its `run-id`/`run-attempt` and omit `ruling-failed`/`fix-pr-url`.
+For a default-branch failed run, use the fix PR number as `pr-number`, pass the tested branch commit
+for both SHAs, set `target-ref=master`, and omit `is-pull-request=true`.
+Preserve the producing ruling job's artifact name even if the Build's current
+attempt is newer: after rerunning only the updater, `run-attempt=2` can still require
+`results-artifact-name=actual_js_ts-1`. Missing optional parameters use the reporter's explicit
+workflow defaults; forward the original parameters to reproduce an earlier supported Build if
+those defaults have changed.
+A stale retry skips mutations; missing artifacts or unavailable tested commits fail visibly.
+
+`ruling-fix-cleanup.yml` handles original-PR closure/merge independently of the PR cache/artifact
+cleanup workflow. Its trusted checkout and ownership/race rules are documented in the
+[ruling bot contract](../.github/actions/ruling_bot/README.md#closing-and-merging-the-original-pr).
 
 #### `ruling`
 
