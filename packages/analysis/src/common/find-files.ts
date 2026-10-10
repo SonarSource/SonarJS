@@ -24,6 +24,13 @@ import {
 } from '../../../shared/src/helpers/files.js';
 import { isJsTsExcluded } from './filter/filter-path.js';
 
+/**
+ * Opens the given directory and yields its entries one at a time.
+ */
+async function* readDirectory(directory: NormalizedAbsolutePath): AsyncGenerator<Dirent> {
+  yield* await opendir(directory);
+}
+
 export async function findFiles(
   dir: string,
   jsTsExclusions: Minimatch[],
@@ -33,7 +40,7 @@ export async function findFiles(
 
   while (directories.length > 0) {
     const directory = directories.pop()!;
-    for await (const file of await opendir(directory)) {
+    for await (const file of readDirectory(directory)) {
       const filePath = joinPaths(normalizeToAbsolutePath(file.parentPath), file.name);
       if (!isJsTsExcluded(filePath, jsTsExclusions)) {
         if (file.isDirectory()) {
