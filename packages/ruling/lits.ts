@@ -54,13 +54,15 @@ export async function writeResults(
   } catch {}
   await fs.mkdir(actualPath, { recursive: true });
   const litsResults = transformResults(projectPath, projectName, results);
-  for (const [ruleId, { js: jsIssues, ts: tsIssues, css: cssIssues }] of Object.entries(
-    litsResults,
-  )) {
-    await writeIssues(actualPath, ruleId, jsIssues, 'js');
-    await writeIssues(actualPath, ruleId, tsIssues, 'ts');
-    await writeIssues(actualPath, ruleId, cssIssues, 'css');
-  }
+  await Promise.all(
+    Object.entries(litsResults).flatMap(
+      ([ruleId, { js: jsIssues, ts: tsIssues, css: cssIssues }]) => [
+        writeIssues(actualPath, ruleId, jsIssues, 'js'),
+        writeIssues(actualPath, ruleId, tsIssues, 'ts'),
+        writeIssues(actualPath, ruleId, cssIssues, 'css'),
+      ],
+    ),
+  );
 }
 
 /**

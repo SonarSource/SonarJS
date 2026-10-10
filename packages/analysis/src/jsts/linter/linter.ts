@@ -186,9 +186,12 @@ export class Linter {
      * including rule keys and rule definitions that cannot be provided to the linter
      * using the same feeding channel as rules from the active quality profile.
      */
-    for (const ruleBundle of bundles) {
-      await Linter.loadRulesFromBundle(ruleBundle);
-    }
+    const bundlesRules = await Promise.all(
+      bundles.map(ruleBundle => Linter.importBundle(ruleBundle)),
+    );
+    bundles.forEach((ruleBundle, index) => {
+      Linter.registerRulesFromBundle(ruleBundle, bundlesRules[index]);
+    });
   }
 
   /** Drop the last parsed file and its TypeScript parser services after a scanner analysis. */
@@ -217,8 +220,15 @@ export class Linter {
     );
   }
 
-  private static async loadRulesFromBundle(ruleBundle: NormalizedAbsolutePath) {
+  private static async importBundle(ruleBundle: NormalizedAbsolutePath) {
     const { rules: bundleRules } = await import(pathToFileURL(ruleBundle).toString());
+    return bundleRules;
+  }
+
+  private static registerRulesFromBundle(
+    ruleBundle: NormalizedAbsolutePath,
+    bundleRules: { ruleId: string; ruleModule: Rule.RuleModule }[],
+  ) {
     for (const rule of bundleRules) {
       Linter.rules[rule.ruleId] = rule.ruleModule;
       debug(`Loaded rule ${rule.ruleId} from ${ruleBundle}`);
