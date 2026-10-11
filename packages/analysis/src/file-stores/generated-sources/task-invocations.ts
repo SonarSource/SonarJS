@@ -74,13 +74,13 @@ export async function collectGeneratedSourceTaskInvocations(context: {
   packageDir: NormalizedAbsolutePath;
   packageJson: PackageJson;
 }) {
-  const taskInvocations: TaskInvocation[] = [];
+  const collected = await Promise.all(
+    GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS.map(provider =>
+      Promise.resolve(provider.collect(context)),
+    ),
+  );
 
-  for (const provider of GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS) {
-    taskInvocations.push(...(await provider.collect(context)));
-  }
-
-  return taskInvocations;
+  return collected.flat();
 }
 
 export function taskInvocationInvokesCommand(taskInvocation: TaskInvocation, commandName: string) {

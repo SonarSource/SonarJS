@@ -287,12 +287,11 @@ export class GeneratedSourceStore implements FileStore {
   }
 
   private async preloadDeclaredConfigFiles(context: FileStoreContext) {
-    for (const filePath of this.watchedConfigPaths) {
-      if (!this.preloadCandidatePaths.has(filePath) || this.preloadedFiles.has(filePath)) {
-        continue;
-      }
-      this.preloadedFiles.set(filePath, await context.getFile(filePath));
-    }
+    const pathsToLoad = [...this.watchedConfigPaths].filter(
+      filePath => this.preloadCandidatePaths.has(filePath) && !this.preloadedFiles.has(filePath),
+    );
+    const files = await Promise.all(pathsToLoad.map(filePath => context.getFile(filePath)));
+    pathsToLoad.forEach((filePath, index) => this.preloadedFiles.set(filePath, files[index]));
   }
 
   private createProjectSnapshot(): GeneratedSourceProjectSnapshot {

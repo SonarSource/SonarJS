@@ -23,12 +23,14 @@ export async function collectGeneratedSourceDeclaredPreloadPaths(
   packageContexts: readonly GeneratedSourcePackageContext[],
 ) {
   const declaredPreloadPaths = new Set<NormalizedAbsolutePath>();
+  const packagePreloadPaths = await Promise.all(
+    packageContexts.map(packageContext =>
+      collectGeneratedSourceDeclaredPreloadPathsForPackage(baseDir, packageContext),
+    ),
+  );
 
-  for (const packageContext of packageContexts) {
-    mergeDeclaredPreloadPaths(
-      declaredPreloadPaths,
-      await collectGeneratedSourceDeclaredPreloadPathsForPackage(baseDir, packageContext),
-    );
+  for (const preloadPaths of packagePreloadPaths) {
+    mergeDeclaredPreloadPaths(declaredPreloadPaths, preloadPaths);
   }
 
   return declaredPreloadPaths;
