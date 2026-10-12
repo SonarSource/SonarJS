@@ -139,10 +139,9 @@ Calling workflows need Node, Git, and `gh`. The updater needs `contents: write`,
 
 ## Tested baseline and independent retries
 
-For a PR, `head-sha` is the synthetic two-parent merge tested by Build. Its first parent is the
-report baseline; its second parent is the original PR head used for freshness checks. Neither the
-branch point, a moving base branch, nor the fix commit is a substitute. The reporter rejects an
-incorrect checkout, mismatched parents, or unavailable baseline before changing a comment.
+For a PR, `head-sha` identifies the synthetic two-parent merge tested by Build.
+The [commit map](#merge-commits-and-branch-ancestry) defines each commit's role and the reason for it.
+The reporter checks the exact checkout, both parents, and the available baseline before changing a comment.
 
 A failure report mirrors saved generated results onto that tested merge. A passing report reads
 expectations already committed in it. Both include new/untracked JSON files and deleted JSON files.
@@ -286,7 +285,15 @@ Only bot-authored report comments are updated. Large comments retain the existin
 
 ## Merge commits and branch ancestry
 
-For a PR, distinguish four commits even when some expectation trees happen to be equal:
+For a PR, use these names for the four commits:
+
+- `B`: the exact base commit used in the test, usually a commit on `master`.
+- `H`: the original PR head used in the test.
+- `M`: GitHub's temporary merge of `B` and `H`.
+- `F`: the bot's published expectation fix commit.
+
+Saved generated results come from the ruling artifact.
+The updater also creates an unpublished snapshot to transfer changes; that snapshot is not part of the fix branch's history.
 
 ```text
 B = exact tested base       H = original PR head --- F = generated fix
@@ -296,12 +303,27 @@ B = exact tested base       H = original PR head --- F = generated fix
 M^1 = B, M^2 = H; F's parent is H. The fix PR targets H's branch.
 ```
 
-Passing reports compare `B` with committed expectations in `M`; failing reports compare `B` with
-saved generated expectations applied to `M`. The fix commit `F` transfers only the `M`-to-generated
-expectation delta onto `H`; it does not become the report baseline or the freshness identity.
+| Step                                               | Commit or comparison                                                     | Reason                                                                                            |
+| -------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| Run ruling                                         | `M`                                                                      | Test the analyzer and expectations as they would combine with the tested base.                    |
+| Load updater/reporter code and settings            | `M`                                                                      | Use the bot version and configuration associated with the test.                                   |
+| Calculate the required expectation changes         | Expectations in `M` compared with saved generated results                | Capture only the changes required by ruling. Existing base changes are already in `M`.            |
+| Write a passing report                             | Expectations in `B` compared with expectations in `M`                    | Show committed issue changes relative to the exact tested base.                                   |
+| Write a failing report                             | Expectations in `B` compared with saved generated results applied to `M` | Show generated issue changes relative to that same base.                                          |
+| Check whether the PR run is still current          | `H`, with the originating Build run and attempt                          | Stop an older run from changing results after the PR head or Build changes.                       |
+| Publish the fix                                    | Start at `H`, then add `F`                                               | Add the ruling expectation changes without importing unrelated base commits into the original PR. |
+| Close fixes after the original PR closes or merges | Trusted default-branch code and current GitHub state                     | Check current ownership and PR state without executing code from the closed PR.                   |
+
+**Using the same tested checkout for calculation does not require the same starting commit for publishing.**
+The updater calculates the change on `M`, then transfers that change onto `H`.
+The fix commit `F` is not the report baseline and does not identify the tested PR head.
+The [transfer rules](#freshness-and-mutation-coordination) describe conflicts and changes that cannot be represented safely.
+
+Reporter dispatch selects the workflow from the original target branch, unless `report-workflow-ref` overrides it.
+That workflow checks out exact commit `M` for bot code, settings, and report data.
+Selecting a workflow branch and selecting the tested checkout are separate operations.
 The originating Build API identifies `H`, while checkout/report inputs identify `M`.
-Depth two retains `M` and both immediate parents;
-it does not promise enough history for a general merge-base traversal.
+Depth two retains `M` and both immediate parents. It does not guarantee enough history for a general merge-base traversal.
 
 Review a branch behind its base, base-only expectation additions/modifications, independent
 additions on both branches, a base advancing after testing, and merge commits inside either
@@ -318,6 +340,17 @@ the original can delete its branch and cause GitHub to retarget remaining fixes,
 original identity.
 For a default-branch run there is no synthetic PR merge: the tested branch commit is both the
 baseline and freshness head, and the report recipient's fix commit is a separate identity.
+
+### Removed generated-commit guard
+
+The old guard asked whether the bot wrote the latest PR commit.
+For PR runs, that question required the message of `H`. The implementation read the message of `M` instead.
+This was a commit-message check, separate from the report baseline and the fix branch's starting point.
+It did not justify publishing a fix from `M`.
+
+The guard is removed. Passing ruling already creates no fix.
+A failing run can require another expectation update even after a bot-generated commit.
+Fixes use separate owned branches, and their `GITHUB_TOKEN` events do not trigger another Build.
 
 ## Scenario coverage and known limits
 
@@ -459,6 +492,5 @@ Explicit supersessions also matter:
   #6363's gist draft and [#7565](https://github.com/SonarSource/SonarJS/pull/7565)'s unmerged
   shared-action experiment do not define retained features.
 - #7922's final flat expectation layout supersedes the alternative layout described in its PR body.
-- #6123's generated-commit message guard belonged to the direct-push flow. It is removed: passing
-  ruling creates no fix, and a failing run can need new expectations even after a generated commit.
-  Fixes use separate owned branches/PRs, and their `GITHUB_TOKEN` events do not trigger another Build.
+- #6123's generated-commit message guard belonged to the direct-push flow.
+  The [removed-guard explanation](#removed-generated-commit-guard) records its incorrect commit selection and why it is obsolete.
