@@ -103,6 +103,15 @@ for (const [language, Tester] of [
           {
             code: `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: '<img alt="Continue">'}} />;`,
           },
+          ...['Continue', '<span>Continue</span>', '<img alt="Continue">'].map(html => ({
+            code: `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: \`${html}\`}} />;`,
+          })),
+          {
+            code: `${button}const html = \`<span>Continue</span>\`; <Button render={<a />} dangerouslySetInnerHTML={{__html: html}} />;`,
+          },
+          {
+            code: `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: \`<span>\${label}</span>\`}} />;`,
+          },
           { code: `${button}<Button render={<a />} children={label} />;` },
           { code: `${button}<Button render={<a />} {...props} />;` },
           {
@@ -216,6 +225,18 @@ for (const [language, Tester] of [
           `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: '<span></span>'}} />;`,
           `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: '<span aria-hidden="true">Continue</span>'}} />;`,
           `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: '<span hidden>Continue</span>'}} />;`,
+          ...[
+            '',
+            '<span></span>',
+            '<span aria-hidden="true">Continue</span>',
+            '<span hidden>Continue</span>',
+            '<script>Continue</script>',
+            '<style>Continue</style>',
+          ].map(
+            html =>
+              `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: \`${html}\`}} />;`,
+          ),
+          `${button}const html = \`<span hidden>Continue</span>\`; <Button render={<a />} dangerouslySetInnerHTML={{__html: html}} />;`,
           `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: null}} />;`,
           `${button}<Button render={<a />} dangerouslySetInnerHTML={{}} />;`,
           `${button}<Button render={<a />} hidden dangerouslySetInnerHTML={{__html: 'Continue'}} />;`,

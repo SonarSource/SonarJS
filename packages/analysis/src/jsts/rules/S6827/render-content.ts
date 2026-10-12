@@ -250,10 +250,11 @@ function hasHtmlContent(
   seen: Set<TSESTree.Node>,
 ): boolean {
   const value = resolveSingleWriteExpression(context, node);
-  if (value.type !== 'Literal' || typeof value.value !== 'string') {
+  const html = getStaticExpressionValue(value as unknown as estree.Expression);
+  if (html === undefined) {
     return hasContent(value, context, seen);
   }
-  const pending = [...parseDocument(value.value).children];
+  const pending = [...parseDocument(html).children];
   for (const child of pending) {
     if (child.type === 'text' && child.data.trim() !== '') {
       return true;
