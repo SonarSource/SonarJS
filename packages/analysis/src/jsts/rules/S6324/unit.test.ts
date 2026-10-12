@@ -22,7 +22,7 @@ const CONTROL_CHAR_MESSAGE = 'Remove this control character.';
 
 describe('S6324', () => {
   describe('bounded OSC matchers', () => {
-    // OSC matcher used by chalk/ansi-regex: both introducers, bounded payload, and all endings.
+    // Bounded OSC matcher with both introducers, explicit payload exclusions, and all supported endings.
     const oscPattern = String.raw`(?:\x1b\]|\x9d)[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\|\x9c)`;
 
     const cases = [
