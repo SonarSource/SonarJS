@@ -52,7 +52,8 @@ export function hasRenderContent(
   while (
     (current.parent?.type === 'ConditionalExpression' &&
       (current.parent.consequent === current || current.parent.alternate === current)) ||
-    (current.parent && unwrapTypeScriptExpression(current.parent) === current)
+    (current.parent &&
+      unwrapTypeScriptExpression(current.parent) === unwrapTypeScriptExpression(current))
   ) {
     current = current.parent;
   }

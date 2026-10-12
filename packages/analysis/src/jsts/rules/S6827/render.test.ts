@@ -261,12 +261,18 @@ describe('S6827 TypeScript render expressions', () => {
     new NoTypeCheckingRuleTester().run('anchor-has-content', rule, {
       valid: [
         { code: `${button}<Button render={(<a />) as React.ReactElement}>Continue</Button>;` },
+        { code: `${button}<Button render={((<a />) as React.ReactElement)!}>Continue</Button>;` },
+        {
+          code: `${button}<Button render={((<a />) as React.ReactElement) satisfies React.ReactElement}>Continue</Button>;`,
+        },
         {
           code: `${button}<Button render={(<a />) satisfies React.ReactElement}>Continue</Button>;`,
         },
         { code: `${button}<Button render={<a />}>{label as string}</Button>;` },
       ],
       invalid: [
+        { code: `${button}<Button render={((<a />) as React.ReactElement)!} />;`, errors: 1 },
+        { code: `${button}<Button render={((() => <a />) as any)!}>Continue</Button>;`, errors: 1 },
         {
           code: `${button}<Button render={(<a />) as React.ReactElement}>{null as string | null}</Button>;`,
           errors: 1,
