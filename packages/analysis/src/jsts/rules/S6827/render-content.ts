@@ -18,6 +18,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
+import { parseDocument } from 'htmlparser2';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import {
   getUniqueWriteReference,
@@ -180,6 +181,20 @@ function hasContentProps(
   ) {
     return true;
   }
+  const innerHtml = getEffectiveAttribute(attributes, 'dangerouslySetInnerHTML', context);
+  if (innerHtml === undefined) {
+    return true;
+  }
+  if (innerHtml?.value) {
+    const expression =
+      innerHtml.value.type === 'JSXExpressionContainer'
+        ? innerHtml.value.expression
+        : innerHtml.value;
+    const html = getSpreadValue(expression as TSESTree.Node, '__html', context, new Set());
+    if (html === undefined || (html !== null && hasHtmlContent(html, context, seen))) {
+      return true;
+    }
+  }
   if (children.length > 0) {
     return children.some(child => hasContent(child, context, seen));
   }
@@ -189,6 +204,43 @@ function hasContentProps(
     (!!childrenAttribute?.value &&
       hasContent(childrenAttribute.value as TSESTree.Node, context, seen))
   );
+}
+
+function hasHtmlContent(
+  node: TSESTree.Node,
+  context: Rule.RuleContext,
+  seen: Set<TSESTree.Node>,
+): boolean {
+  const value = resolveContentValue(node, context);
+  if (value.type !== 'Literal' || typeof value.value !== 'string') {
+    return hasContent(value, context, seen);
+  }
+  const pending = [...parseDocument(value.value).children];
+  for (const child of pending) {
+    if (child.type === 'text' && child.data.trim() !== '') {
+      return true;
+    }
+    if ('attribs' in child) {
+      if (
+        'hidden' in child.attribs ||
+        child.attribs['aria-hidden'] === 'true' ||
+        ['script', 'style'].includes(child.name)
+      ) {
+        continue;
+      }
+      if (
+        ['title', 'aria-label', 'aria-labelledby', ...(child.name === 'img' ? ['alt'] : [])].some(
+          name => child.attribs[name]?.trim(),
+        )
+      ) {
+        return true;
+      }
+    }
+    if ('children' in child) {
+      pending.push(...child.children);
+    }
+  }
+  return false;
 }
 
 function isHidden(attributes: JSXOpeningElement['attributes'], context: Rule.RuleContext): boolean {

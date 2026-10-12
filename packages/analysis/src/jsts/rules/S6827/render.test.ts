@@ -65,6 +65,22 @@ for (const [language, Tester] of [
           },
           { code: `${button}<Button render={external ? <a /> : <a />}>Continue</Button>;` },
           { code: `${button}<Button render={<a />} children="Continue" />;` },
+          {
+            code: `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: 'Continue'}} />;`,
+          },
+          {
+            code: `${button}<Button render={<a />}><span dangerouslySetInnerHTML={{__html: 'Continue'}} /></Button>;`,
+          },
+          {
+            code: `${button}const html = {__html: 'Continue'}; <Button render={<a />} dangerouslySetInnerHTML={html} />;`,
+          },
+          { code: `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: html}} />;` },
+          {
+            code: `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: '<span>Continue</span>'}} />;`,
+          },
+          {
+            code: `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: '<img alt="Continue">'}} />;`,
+          },
           { code: `${button}<Button render={<a />} children={label} />;` },
           { code: `${button}<Button render={<a />} {...props} />;` },
           {
@@ -159,10 +175,18 @@ for (const [language, Tester] of [
           `${button}const label = ''; <Button render={<a />}>{label}</Button>;`,
           `${button}const label = null; <Button render={<a />}>{label}</Button>;`,
           `${button}<Button render={<a />} children="" />;`,
+          `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: ''}} />;`,
+          `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: '<span></span>'}} />;`,
+          `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: '<span aria-hidden="true">Continue</span>'}} />;`,
+          `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: '<span hidden>Continue</span>'}} />;`,
+          `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: null}} />;`,
+          `${button}<Button render={<a />} dangerouslySetInnerHTML={{}} />;`,
+          `${button}<Button render={<a />} hidden dangerouslySetInnerHTML={{__html: 'Continue'}} />;`,
+          `${button}<Button render={<a />}><span aria-hidden="true" dangerouslySetInnerHTML={{__html: 'Continue'}} /></Button>;`,
           `${button}<Button render={<a />} {...{id: 'link'}} />;`,
           `${button}<Button render={<a />} children="Continue" {...{children: null}} />;`,
           `${button}<Button render={<a />} {...{children: 'Continue'}} children={null} />;`,
-          `${button}<Button render={<a />} {...{...props, children: null, title: '', 'aria-label': '', 'aria-labelledby': ''}} />;`,
+          `${button}<Button render={<a />} {...{...props, children: null, dangerouslySetInnerHTML: null, title: '', 'aria-label': '', 'aria-labelledby': ''}} />;`,
           `${button}<Button render={<a />} {...{children: 'Continue', ...{children: null}}} />;`,
           `${button}<Button render={<a />} aria-label="Continue" {...{'aria-label': ''}} />;`,
           `${button}<Button render={<a />} {...{children: ''}} />;`,
