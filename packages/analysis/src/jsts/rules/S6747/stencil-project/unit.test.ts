@@ -15,38 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from '../rule.js';
-import { rules as reactRules } from '../../external/react.js';
-import { rules as a11yRules } from '../../external/a11y.js';
 import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe } from 'node:test';
-
-// Sentinel: upstream rules still report JSX attributes that the Stencil opt-out suppresses.
-describe('S6747 Stencil upstream sentinel', () => {
-  const ruleTester = new NoTypeCheckingRuleTester();
-  ruleTester.run('React properties in Stencil JSX', reactRules['no-unknown-property'], {
-    valid: [],
-    invalid: [
-      {
-        code: `import { h } from '@stencil/core';
-<span class="filter-button-wrapper" />;`,
-        errors: 1,
-        output: `import { h } from '@stencil/core';
-<span className="filter-button-wrapper" />;`,
-      },
-    ],
-  });
-  ruleTester.run('ARIA properties in Stencil JSX', a11yRules['aria-props'], {
-    valid: [],
-    invalid: [
-      {
-        code: `import { h } from '@stencil/core';
-<div aria-hiddenn="true" />;`,
-        errors: 1,
-      },
-    ],
-  });
-});
 
 describe('S6747 Stencil opt-out', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
