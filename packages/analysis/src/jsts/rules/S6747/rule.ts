@@ -91,9 +91,11 @@ export const rule: Rule.RuleModule = {
   }),
 
   create(context: Rule.RuleContext) {
+    const [firstStatement] = context.sourceCode.ast.body;
     const signals: fp.FalsePositiveSignals = {
       dependencies: getDependenciesSanitizePaths(context),
       imports: getImportDeclarations(context),
+      comments: firstStatement ? context.sourceCode.getCommentsBefore(firstStatement) : [],
     };
     if (fp.usesStencil(signals)) {
       return {};

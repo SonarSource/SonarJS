@@ -52,8 +52,21 @@ describe('S6747 Stencil opt-out', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
-  ruleTester.run('S6747 skips only files with runtime Stencil imports', rule, {
+  ruleTester.run('S6747 skips files using the Stencil runtime', rule, {
     valid: [
+      {
+        code: `/** @jsxImportSource @stencil/core */
+export const Icon = () => <svg class="icon" />;`,
+        filename: join(dirname, 'automatic-stencil.tsx'),
+      },
+      {
+        code: `/**
+ * @jsxImportSource @stencil/core
+ */
+import type { JSX } from '@stencil/core';
+<div tabindex="0" />;`,
+        filename: join(dirname, 'automatic-stencil.tsx'),
+      },
       {
         code: `import { h } from '@stencil/core';
 export const FilterButton = () => <span class="filter-button-wrapper" />;`,
@@ -96,6 +109,46 @@ import { h } from '@stencil/core';`,
       },
     ],
     invalid: [
+      {
+        code: `/** @jsxImportSource react */
+<div class="panel" />;`,
+        filename: join(dirname, 'automatic-react.tsx'),
+        errors: 1,
+      },
+      {
+        code: `/** @jsxImportSource @stencil/core-other */
+<div class="panel" />;`,
+        filename: join(dirname, 'automatic-react.tsx'),
+        errors: 1,
+      },
+      {
+        code: `const example = '/** @jsxImportSource @stencil/core */';
+<div class="panel" />;`,
+        filename: join(dirname, 'automatic-react.tsx'),
+        errors: 1,
+      },
+      {
+        code: `// @jsxImportSource @stencil/core
+<div class="panel" />;`,
+        filename: join(dirname, 'automatic-react.tsx'),
+        errors: 1,
+      },
+      {
+        code: `import React from 'react';
+/** @jsxImportSource @stencil/core */
+<div class="panel" />;`,
+        filename: join(dirname, 'react.tsx'),
+        errors: 1,
+      },
+      {
+        code: `/**
+ * @jsxImportSource @stencil/core
+ * @jsxImportSource react
+ */
+<div class="panel" />;`,
+        filename: join(dirname, 'automatic-react.tsx'),
+        errors: 1,
+      },
       {
         code: `import React from 'react';
 export const Page = () => <span class="page" />;`,

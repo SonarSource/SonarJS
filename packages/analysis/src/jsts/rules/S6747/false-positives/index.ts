@@ -21,6 +21,7 @@ import { isTypeOnlyImportDeclaration } from '../../helpers/ast.js';
 export type FalsePositiveSignals = {
   dependencies: DependenciesList;
   imports: estree.ImportDeclaration[];
+  comments: estree.Comment[];
 };
 
 type FalsePositiveEscape = {
@@ -69,12 +70,18 @@ const FALSE_POSITIVE_ESCAPES: readonly FalsePositiveEscape[] = [
 ];
 
 /**
- * Checks whether the current file imports the Stencil runtime.
- * @param signals Dependencies and imports available in the current file.
+ * Checks whether the current file uses the Stencil runtime.
+ * @param signals Dependencies, imports, and leading comments available in the current file.
  * @return Whether the file uses Stencil.
  */
 export function usesStencil(signals: FalsePositiveSignals): boolean {
-  return hasRuntimeImport(signals, ['@stencil/core']);
+  const jsxImportSource = signals.comments
+    .filter(comment => comment.type === 'Block')
+    .flatMap(comment =>
+      Array.from(comment.value.matchAll(/@jsxImportSource\s+(\S+)/giu), match => match[1]),
+    )
+    .at(-1);
+  return jsxImportSource === '@stencil/core' || hasRuntimeImport(signals, ['@stencil/core']);
 }
 
 export function getIgnoredProps(signals: FalsePositiveSignals): string[] {
