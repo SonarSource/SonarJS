@@ -68,16 +68,17 @@ function getFollowingPunctuation(descriptor: Rule.ReportDescriptor) {
     descriptor.messageId !== 'spacingAfterPrev' ||
     !('node' in descriptor)
   ) {
-    return;
+    return undefined;
   }
   const node = descriptor.node as TSESTree.JSXElement;
   const parent = node.parent;
   if (parent.type !== 'JSXElement' && parent.type !== 'JSXFragment') {
-    return;
+    return undefined;
   }
   const followingIndex = parent.children.indexOf(node) + 1;
   const following = parent.children[followingIndex];
   if (following?.type === 'JSXText' && /^[.,]/.test(following.value.trimStart())) {
     return { text: following.value, nextElement: parent.children[followingIndex + 1] };
   }
+  return undefined;
 }
