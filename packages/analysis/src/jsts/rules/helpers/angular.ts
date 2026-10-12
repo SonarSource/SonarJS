@@ -326,10 +326,38 @@ export function getAngularOutputNames(node: TSESTree.Node): [string, string] | u
   if (parent?.type === 'ArrayExpression') {
     return parent.parent.type === 'Property' ? parseOutputMapping(text) : undefined;
   }
+  if (!isCompleteOutputAlias(node)) {
+    return undefined;
+  }
   const member = ASTUtils.getNearestNodeFrom(node, ASTUtils.isPropertyOrMethodDefinition);
   return member && !member.computed && member.key.type === 'Identifier'
     ? [member.key.name, text]
     : undefined;
+}
+
+/** A literal inside a lookup or another expression is not the complete public alias. */
+function isCompleteOutputAlias(node: TSESTree.Node): boolean {
+  const alias = mappingNode(node);
+  const parent = alias.parent;
+  if (parent?.type === 'CallExpression') {
+    return parent.arguments[0] === alias && parent.parent.type === 'Decorator';
+  }
+  if (
+    parent?.type !== 'Property' ||
+    parent.value !== alias ||
+    optionPropertyName(parent) !== 'alias'
+  ) {
+    return false;
+  }
+  const options = parent.parent;
+  const call = options.parent;
+  return (
+    options.type === 'ObjectExpression' &&
+    call.type === 'CallExpression' &&
+    call.arguments[0] === options &&
+    call.parent.type === 'PropertyDefinition' &&
+    call.parent.value === call
+  );
 }
 
 /** Returns the explicit public alias for an Angular output declaration or metadata mapping. */
