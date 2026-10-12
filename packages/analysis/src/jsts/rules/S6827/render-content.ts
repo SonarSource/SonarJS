@@ -17,7 +17,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { JSXOpeningElement } from 'estree-jsx';
+import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import {
@@ -26,7 +26,7 @@ import {
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
 import { hasAccessibleNameAttribute } from '../helpers/accessibility.js';
-const { getProp, getPropValue } = pkg;
+const { getPropValue } = pkg;
 
 const SHADCN_COMPONENTS: Record<string, readonly string[]> = {
   button: ['Button'],
@@ -143,8 +143,8 @@ function hasElementContent(
   allowComponentContent = false,
 ): boolean {
   const attributes = (element.openingElement as JSXOpeningElement).attributes;
-  const hidden = getProp(attributes, 'hidden');
-  const ariaHiddenAttribute = getProp(attributes, 'aria-hidden');
+  const hidden = getEffectiveAttribute(attributes, 'hidden', context);
+  const ariaHiddenAttribute = getEffectiveAttribute(attributes, 'aria-hidden', context);
   const ariaHidden = ariaHiddenAttribute && getPropValue(ariaHiddenAttribute);
   if ((hidden && getPropValue(hidden) !== false) || ariaHidden === true || ariaHidden === 'true') {
     return false;
@@ -159,7 +159,7 @@ function hasElementContent(
   }
   if (
     ['title', 'aria-label', 'aria-labelledby'].some(name =>
-      hasAccessibleNameAttribute(attributes, name),
+      hasAttributeContent(attributes, name, context),
     )
   ) {
     return true;
@@ -167,15 +167,95 @@ function hasElementContent(
   if (
     element.openingElement.name.type === 'JSXIdentifier' &&
     element.openingElement.name.name === 'img' &&
-    hasAccessibleNameAttribute(attributes, 'alt')
+    hasAttributeContent(attributes, 'alt', context)
   ) {
     return true;
   }
   if (element.children.length > 0) {
     return element.children.some(child => hasContent(child, context, seen));
   }
-  const children = getProp(attributes, 'children');
-  return !!children?.value && hasContent(children.value as TSESTree.Node, context, seen);
+  const children = getEffectiveAttribute(attributes, 'children', context);
+  return (
+    children === undefined ||
+    (!!children?.value && hasContent(children.value as TSESTree.Node, context, seen))
+  );
+}
+
+function hasAttributeContent(
+  attributes: JSXOpeningElement['attributes'],
+  name: string,
+  context: Rule.RuleContext,
+): boolean {
+  const attribute = getEffectiveAttribute(attributes, name, context);
+  return attribute === undefined || (!!attribute && hasAccessibleNameAttribute([attribute], name));
+}
+
+// null means absent; undefined means an unresolved spread may supply or override the property.
+function getEffectiveAttribute(
+  attributes: JSXOpeningElement['attributes'],
+  name: string,
+  context: Rule.RuleContext,
+): JSXAttribute | null | undefined {
+  for (let i = attributes.length - 1; i >= 0; i--) {
+    const attribute = attributes[i];
+    if (attribute.type === 'JSXAttribute') {
+      if (attribute.name.type === 'JSXIdentifier' && attribute.name.name === name) {
+        return attribute;
+      }
+    } else {
+      const value = getSpreadValue(attribute.argument as TSESTree.Node, name, context, new Set());
+      if (value === undefined) {
+        return undefined;
+      }
+      if (value !== null) {
+        return {
+          type: 'JSXAttribute',
+          name: { type: 'JSXIdentifier', name },
+          value: { type: 'JSXExpressionContainer', expression: value },
+        } as unknown as JSXAttribute;
+      }
+    }
+  }
+  return null;
+}
+
+function getSpreadValue(
+  argument: TSESTree.Node,
+  name: string,
+  context: Rule.RuleContext,
+  seen: Set<TSESTree.Node>,
+): TSESTree.Node | null | undefined {
+  const value = resolveContentValue(argument, context);
+  if (['Literal', 'TemplateLiteral', 'ArrayExpression'].includes(value.type)) {
+    return null;
+  }
+  if (value.type !== 'ObjectExpression' || seen.has(value)) {
+    return undefined;
+  }
+  seen.add(value);
+  for (let i = value.properties.length - 1; i >= 0; i--) {
+    const property = value.properties[i];
+    if (property.type === 'SpreadElement') {
+      const spread = getSpreadValue(property.argument, name, context, seen);
+      if (spread !== null) {
+        return spread;
+      }
+    } else {
+      const key = property.computed ? resolveContentValue(property.key, context) : property.key;
+      if (
+        key.type === 'Literal'
+          ? key.value === name
+          : !property.computed && key.type === 'Identifier' && key.name === name
+      ) {
+        return property.kind === 'init' && !property.method ? property.value : undefined;
+      }
+      if (property.computed && key.type !== 'Literal') {
+        return undefined;
+      }
+    }
+  }
+  seen.delete(value);
+  return null;
 }
 
 /**
