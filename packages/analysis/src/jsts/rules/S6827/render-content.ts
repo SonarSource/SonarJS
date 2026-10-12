@@ -133,12 +133,14 @@ function isCompositionComponent(
  * @param element the JSX element
  * @param context the rule context
  * @param seen expressions already visited
+ * @param allowComponentContent whether an opaque child component may supply its own content
  * @return whether the element can supply accessible content
  */
 function hasElementContent(
   element: TSESTree.JSXElement,
   context: Rule.RuleContext,
   seen: Set<TSESTree.Node>,
+  allowComponentContent = false,
 ): boolean {
   const attributes = (element.openingElement as JSXOpeningElement).attributes;
   const hidden = getProp(attributes, 'hidden');
@@ -146,6 +148,14 @@ function hasElementContent(
   const ariaHidden = ariaHiddenAttribute && getPropValue(ariaHiddenAttribute);
   if ((hidden && getPropValue(hidden) !== false) || ariaHidden === true || ariaHidden === 'true') {
     return false;
+  }
+  const name = element.openingElement.name;
+  if (
+    allowComponentContent &&
+    (name.type === 'JSXMemberExpression' ||
+      (name.type === 'JSXIdentifier' && /^[A-Z]/.test(name.name)))
+  ) {
+    return true;
   }
   if (
     ['title', 'aria-label', 'aria-labelledby'].some(name =>
@@ -221,7 +231,7 @@ function hasContent(
         (typeof value.value === 'string' && value.value.trim() !== '')
       );
     case 'JSXElement':
-      return hasElementContent(value, context, seen);
+      return hasElementContent(value, context, seen, true);
     case 'JSXFragment':
       return value.children.some(child => hasContent(child, context, seen));
     case 'JSXExpressionContainer':

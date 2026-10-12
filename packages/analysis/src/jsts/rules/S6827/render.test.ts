@@ -70,6 +70,11 @@ for (const [language, Tester] of [
           { code: `${button}<Button render={<a />} title="Continue" />;` },
           { code: `${button}<Button render={<a />}>{0}</Button>;` },
           { code: `${button}<Button render={<a />}><span>Continue</span></Button>;` },
+          { code: `${button}<Button render={<a />}><Label /></Button>;` },
+          { code: `${button}<Button render={<a />}><Icons.Home /></Button>;` },
+          {
+            code: `${button}function Label() { return <span>Home</span>; } <Button render={<a />}><Label /></Button>;`,
+          },
           {
             code: `${button}<Button render={<a />}><><span aria-hidden>Icon</span>Continue</></Button>;`,
           },
@@ -127,6 +132,8 @@ for (const [language, Tester] of [
           `${button}<Button render={<a />}><span aria-hidden>Continue</span></Button>;`,
           `${button}<Button render={<a />}><span aria-hidden="true">Continue</span></Button>;`,
           `${button}<Button render={<a />}><span hidden>Continue</span></Button>;`,
+          `${button}<Button render={<a />}><Label aria-hidden="true" /></Button>;`,
+          `${button}<Button render={<a />}><Icons.Home hidden /></Button>;`,
           `${button}<Button render={<a />}><span><span aria-hidden>Continue</span></span></Button>;`,
           `${button}<Button render={<a />}><><span aria-hidden>Continue</span></></Button>;`,
           `${button}<Button render={<a />}><span /></Button>;`,
