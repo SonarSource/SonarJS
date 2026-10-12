@@ -294,7 +294,7 @@ jobs:
 
       - name: Upload generated dependency licenses
         if: github.event_name == 'schedule'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: generated-licenses-${{ github.sha }}
           path: |
@@ -310,13 +310,13 @@ jobs:
           build-version: ${{ steps.config-maven.outputs.project-version }}
 
       - name: Upload SonarJS artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: sonarjs-m2
           path: ~/.m2/repository/org/sonarsource/javascript
           retention-days: 1
       - name: Upload Maven target artifacts
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: maven-targets-${{ github.sha }}
           path: |
@@ -325,7 +325,7 @@ jobs:
           retention-days: 1
       - &upload_jacoco_xml_reports
         name: Upload JaCoCo XML reports
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: jacoco-xml-reports-${{ github.sha }}
           path: sonar-plugin/**/target/site/jacoco/jacoco.xml
@@ -405,7 +405,7 @@ jobs:
             -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)
           echo "hash=$HASH" >> "$GITHUB_OUTPUT"
       - name: Upload prepared RSPEC rule data
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: rspec-rule-data-${{ github.sha }}
           path: |
@@ -439,7 +439,7 @@ jobs:
         if: github.event_name == 'schedule'
         run: npm run count-rules
       - name: Upload ESLint plugin tarball
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: eslint-tarball-${{ github.sha }}
           path: lib/eslint-plugin-sonarjs-0.0.0-SNAPSHOT.tgz
@@ -447,7 +447,7 @@ jobs:
           retention-days: 1
       - name: Upload generated README files
         if: github.event_name == 'schedule'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: generated-readmes-${{ github.sha }}
           path: |
@@ -624,7 +624,7 @@ jobs:
             fi
           done
       - name: Upload JS coverage reports
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: js-coverage-reports-${{ github.sha }}
           path: |
@@ -1229,7 +1229,7 @@ jobs:
           npm run proto:generate
           npm run ruling:cache
       - name: Upload JS/TS ruling filesystem snapshots
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: js-ts-ruling-filesystem-snapshots-${{ github.sha }}
           path: packages/ruling/filesystem-cache/
@@ -1238,7 +1238,7 @@ jobs:
       - name: Save generated ruling results
         id: save_ruling
         if: always() && steps.ruling.outcome == 'failure'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: actual_js_ts
           path: packages/ruling/actual/
@@ -1329,7 +1329,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - name: Upload ruling differences
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ruling-differences
           path: its/ruling/target/actual/
