@@ -120,7 +120,7 @@ function canSpreadOverrideAttribute(
     if (!variable || variable.references.some(ref => ref.isRead() && !isSpreadReference(ref))) {
       return true;
     }
-    const value = getUniqueWriteUsageOrNode(context, expression as Node) as TSESTree.Node;
+    const value = getSimpleBindingValue(context, expression);
     return value === expression || canSpreadOverrideAttribute(context, value, name, visited);
   }
   if (expression.type !== 'ObjectExpression') {
@@ -262,9 +262,16 @@ function isNonSequentialTabIndexValue(expression: TSESTree.Expression): boolean 
 }
 
 function isDefinitelyNonNumeric(context: Rule.RuleContext, expression: TSESTree.Node): boolean {
-  const resolved = unwrapTypeScriptExpression(
-    getUniqueWriteUsageOrNode(context, expression as Node, true),
-  ) as TSESTree.Node;
+  const visited = new Set<TSESTree.Node>();
+  let resolved = unwrapTypeScriptExpression(expression);
+  while (resolved.type === 'Identifier' && !visited.has(resolved)) {
+    visited.add(resolved);
+    const value = getSimpleBindingValue(context, resolved);
+    if (value === resolved) {
+      break;
+    }
+    resolved = unwrapTypeScriptExpression(value);
+  }
   switch (resolved.type) {
     case 'ObjectExpression':
     case 'ArrayExpression':
@@ -284,4 +291,17 @@ function isDefinitelyNonNumeric(context: Rule.RuleContext, expression: TSESTree.
     default:
       return false;
   }
+}
+
+function getSimpleBindingValue(
+  context: Rule.RuleContext,
+  expression: TSESTree.Identifier,
+): TSESTree.Node {
+  const variable = getVariableFromName(context, expression.name, expression as Node);
+  const definition = variable?.defs.length === 1 ? variable.defs[0] : undefined;
+  // For destructuring, writeExpr is the whole source, not the bound property or element.
+  if (definition?.type !== 'Variable' || definition.node.id.type !== 'Identifier') {
+    return expression;
+  }
+  return getUniqueWriteUsageOrNode(context, expression as Node) as TSESTree.Node;
 }
