@@ -95,6 +95,29 @@ for (const Tester of [DefaultParserRuleTester, NoTypeCheckingRuleTester]) {
 }
 
 describe('S6772 with TypeScript JSX', () => {
+  it('allows the comma after a JSON diff row', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('jsx-child-element-spacing', rule, {
+      valid: [
+        {
+          code: `
+function LineDiffViewer({ value, status }: { value: string; status: string }) {
+  return (
+    <li>
+      <span class={[status, 'result']}>
+        {value}
+      </span>
+      ,
+    </li>
+  );
+}
+`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   it('checks spacing in typed JSX render functions', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('jsx-child-element-spacing', rule, {
