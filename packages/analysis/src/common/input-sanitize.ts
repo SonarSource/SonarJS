@@ -68,11 +68,20 @@ export async function sanitizeInputFiles(
 
   const filterPathParams = getFilterPathParams(configuration);
   const shouldIgnoreParams = getShouldIgnoreParams(configuration);
-  const processed = await Promise.all(
-    Object.entries(inputFiles).map(([key, fileInput]) =>
-      sanitizeInputFile(key, fileInput, baseDir, filterPathParams, shouldIgnoreParams),
-    ),
-  );
+  const entries = Object.entries(inputFiles);
+  const CONCURRENCY = 64;
+  const processed = [];
+  for (let i = 0; i < entries.length; i += CONCURRENCY) {
+    const chunk = entries.slice(i, i + CONCURRENCY);
+    // eslint-disable-next-line no-await-in-loop -- bounded concurrency on purpose
+    processed.push(
+      ...(await Promise.all(
+        chunk.map(([key, fileInput]) =>
+          sanitizeInputFile(key, fileInput, baseDir, filterPathParams, shouldIgnoreParams),
+        ),
+      )),
+    );
+  }
   for (const result of processed) {
     if (result) {
       files[result.file.filePath] = result.file;
