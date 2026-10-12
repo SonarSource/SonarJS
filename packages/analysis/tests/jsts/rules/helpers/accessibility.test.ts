@@ -33,6 +33,8 @@ describe('getFirstConcreteRole', () => {
 
   it('preserves the first concrete role and rejects unrecognized lists', () => {
     expect(getFirstConcreteRole('presentation separator')).toBe('presentation');
+    expect(getFirstConcreteRole('range slider separator')).toBe('slider');
+    expect(getFirstConcreteRole('none separator')).toBe('none');
     expect(getFirstConcreteRole('')).toBeUndefined();
     expect(getFirstConcreteRole('unknown widget')).toBeUndefined();
   });

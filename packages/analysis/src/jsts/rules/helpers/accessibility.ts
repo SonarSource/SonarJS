@@ -22,7 +22,12 @@ import pkg from 'jsx-ast-utils-x';
 import { isJsxElementNamed } from './jsx.js';
 const { getProp, getLiteralPropValue, getPropValue, elementType } = pkg;
 
-const CONCRETE_ROLES = new Set<string>(roles.keys().filter(name => !roles.get(name)!.abstract));
+const CONCRETE_ROLES = new Set<string>(
+  roles
+    .entries()
+    .filter(([, definition]) => !definition.abstract)
+    .map(([name]) => name),
+);
 
 /** Returns the first recognized, non-abstract role in an ordered fallback list. */
 export function getFirstConcreteRole(roleValue: string): string | undefined {
