@@ -36,6 +36,9 @@ for (const Tester of [DefaultParserRuleTester, NoTypeCheckingRuleTester]) {
           ),
           { code: '<><em>Finished</em>\n. Next sentence</>' },
           { code: '<><a href="/">Home</a>\n, welcome!</>' },
+          {
+            code: '<><strong>Hello</strong>\n, Next words\n{/* joined */}<em>continue</em></>',
+          },
           { code: '<Typography><span>{name}</span>\n.</Typography>' },
           { code: '<p><strong>Hello</strong>\n&#46; Next sentence</p>' },
           { code: '<p><strong>Hello</strong>\n&#44; welcome!</p>' },
@@ -77,6 +80,16 @@ for (const Tester of [DefaultParserRuleTester, NoTypeCheckingRuleTester]) {
           {
             code: '<p><strong>Hello</strong>. Next sentence\n<em>continues</em></p>',
             errors: [{ message: 'Ambiguous spacing before next element em' }],
+          },
+          {
+            code: '<><strong>Hello</strong>\n, Next words\n<em>continue</em></>',
+            errors: [
+              {
+                message: 'Ambiguous spacing before next element em',
+                line: 3,
+                column: 1,
+              },
+            ],
           },
           ...['.', ','].map(punctuation => ({
             code: `<p><strong>Hello</strong>\n${punctuation} Next words\n<em>continue</em></p>`,
