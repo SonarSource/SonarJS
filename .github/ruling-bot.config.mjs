@@ -16,7 +16,7 @@
  */
 import { defaults } from './actions/ruling_bot/config.mjs';
 
-// Canonical SonarJS caller settings. generate-config.mjs owns their checked-in consumers.
+// SonarJS defaults loaded from the tested checkout; generate-config.mjs owns static consumers.
 export const rulingConfig = {
   ...defaults,
   'new-results-path': 'packages/ruling/actual',

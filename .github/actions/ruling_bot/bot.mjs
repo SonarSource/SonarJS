@@ -28,7 +28,7 @@ import {
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { inputDefinitions, environmentConfiguration } from './config.mjs';
+import { configurationOverrides, environmentConfiguration } from './config.mjs';
 import { dispatchProvenance } from './provenance.mjs';
 
 const actionPath = path.dirname(fileURLToPath(import.meta.url));
@@ -67,7 +67,7 @@ export function controller(ctx, adapters = {}) {
       cwd: ctx.workspace,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
-      maxBuffer: 64 * 1024 * 1024,
+      maxBuffer: Infinity,
     }).trim();
   const git = adapters.git ?? (args => command('git', args));
   const gh = adapters.gh ?? (args => command('gh', args));
@@ -201,7 +201,9 @@ export function controller(ctx, adapters = {}) {
     const ref = config['report-workflow-ref'] || ctx.targetRef;
     const args = ['workflow', 'run', config['report-workflow'], '--ref', ref];
     const fields = dispatchProvenance(ctx, reportPr, fixUrl);
-    for (const name of Object.keys(inputDefinitions)) fields[name] = config[name];
+    Object.assign(fields, configurationOverrides(config));
+    // The producing artifact is run evidence, even when its name equals a default.
+    if (ctx.failed) fields['results-artifact-name'] = config['results-artifact-name'];
     for (const [name, value] of Object.entries(fields)) args.push('-f', `${name}=${value}`);
     gh(args); // Fail visibly: persistence succeeded, but reporting must be retried.
     if (ctx.output) appendFileSync(ctx.output, 'report-requested=true\n');
@@ -211,7 +213,7 @@ export function controller(ctx, adapters = {}) {
     execFileSync(process.execPath, [path.join(actionPath, name), ...args], {
       cwd: ctx.workspace,
       encoding: 'utf8',
-      maxBuffer: 64 * 1024 * 1024,
+      maxBuffer: Infinity,
       stdio: ['ignore', stdout, 'pipe'],
       env: { ...process.env, ...env, RULING_REPOSITORY_PATH: ctx.workspace },
     });
@@ -268,21 +270,14 @@ export function controller(ctx, adapters = {}) {
     git(['cat-file', '-e', `${ctx.base}^{commit}`]);
   }
 
-  async function update(config) {
-    testedTree();
-    if (!fresh()) return 'stale';
-    if (!ctx.failed) {
-      closeFixes('No longer needed: the original branch now passes ruling.');
-      if (ctx.isPullRequest && fresh()) dispatch(config, ctx.pr);
-      return 'passed';
-    }
+  function prepareExpectationChanges(config) {
     helper('sync-results.mjs', [config['new-results-path'], config['old-results-path']]);
     if (!git(['status', '--porcelain', '--', config['old-results-path']]))
       throw new Error('Ruling failed without generated expectation changes.');
     git(['stash', 'push', '-u', '-m', 'ruling-sync-changes', '--', config['old-results-path']]);
-    git(['fetch', 'origin', `+refs/heads/${ctx.targetRef}:refs/remotes/origin/${ctx.targetRef}`]);
-    if (git(['rev-parse', `origin/${ctx.targetRef}`]) !== ctx.testedHead || !fresh())
-      return 'stale';
+  }
+
+  function resolveFixBranch() {
     const open = pages('pulls?state=open&per_page=100');
     const existing = open.find(pr => managed(pr) && pr.base.ref === ctx.targetRef);
     const marker = `<!-- ruling-bot-target: ${JSON.stringify(identity())} -->`;
@@ -327,20 +322,25 @@ export function controller(ctx, adapters = {}) {
       throw new Error('Refusing to overwrite a fix branch used by another open PR.');
     if (oldFix && !existing && !recovered && !recoverable(ref))
       throw new Error('Refusing to overwrite a fix branch not owned by this ruling target.');
-    const currentFix = (number, expectedHead) => {
-      const pr = api(`pulls/${number}`);
-      if (
-        pr.state !== 'open' ||
-        pr.merged_at ||
-        !managed(pr) ||
-        pr.base.ref !== ctx.targetRef ||
-        pr.head.ref !== branch ||
-        pr.head.sha !== expectedHead
-      ) {
-        throw new Error(`Ruling fix PR #${number} changed; refusing to publish or advertise it.`);
-      }
-      return pr;
-    };
+    return { existing, branch, ref, oldFix, marker };
+  }
+
+  function assertCurrentFixPr({ branch }, number, expectedHead) {
+    const pr = api(`pulls/${number}`);
+    if (
+      pr.state !== 'open' ||
+      pr.merged_at ||
+      !managed(pr) ||
+      pr.base.ref !== ctx.targetRef ||
+      pr.head.ref !== branch ||
+      pr.head.sha !== expectedHead
+    ) {
+      throw new Error(`Ruling fix PR #${number} changed; refusing to publish or advertise it.`);
+    }
+    return pr;
+  }
+
+  function createFixCommit(config, { branch, marker }) {
     git(['config', 'user.name', botName]);
     git(['config', 'user.email', botEmail]);
     // Retain the tested base history: base-only expectations must exist when restoring changes.
@@ -351,18 +351,18 @@ export function controller(ctx, adapters = {}) {
     if (!git(['diff', '--cached', '--name-only', '--', config['old-results-path']]))
       throw new Error('Generated results no longer differ from the target branch.');
     git(['commit', '-m', `${generatedCommitMessage}\n\n${marker}`]);
-    const commit = git(['rev-parse', 'HEAD']);
-    if (!fresh()) return 'stale';
-    if (existing) currentFix(existing.number, oldFix);
-    git(['push', `--force-with-lease=${ref}:${oldFix}`, 'origin', `${branch}:${ref}`]);
-    if (!fresh()) return 'stale';
+    return git(['rev-parse', 'HEAD']);
+  }
+
+  function upsertFixPr(selected, commit) {
+    const { existing, marker, branch } = selected;
     const baseNotice = ctx.isPullRequest
       ? `This fix starts from the tested merge, including base commit ${ctx.base}. If your branch is behind that base, incorporate it before merging this fix; squash and rebase merges do not preserve the fix branch's base ancestry. If updating your branch triggers ruling again, review the refreshed fix.\n\n`
       : '';
     const body = `${description}\n\n${baseNotice}Generated with GitHub Actions\n\n${marker}`;
     let fix;
     if (existing) {
-      currentFix(existing.number, commit);
+      assertCurrentFixPr(selected, existing.number, commit);
       fix = api(`pulls/${existing.number}`, ['-X', 'PATCH', '-f', `body=${body}`]);
     } else {
       const url = gh([
@@ -379,8 +379,31 @@ export function controller(ctx, adapters = {}) {
       ]);
       fix = JSON.parse(gh(['pr', 'view', url, '--json', 'number,url']));
     }
+    return fix;
+  }
+
+  async function update(config) {
+    testedTree();
     if (!fresh()) return 'stale';
-    fix = currentFix(fix.number, commit);
+    if (!ctx.failed) {
+      closeFixes('No longer needed: the original branch now passes ruling.');
+      if (ctx.isPullRequest && fresh()) dispatch(config, ctx.pr);
+      return 'passed';
+    }
+    prepareExpectationChanges(config);
+    git(['fetch', 'origin', `+refs/heads/${ctx.targetRef}:refs/remotes/origin/${ctx.targetRef}`]);
+    if (git(['rev-parse', `origin/${ctx.targetRef}`]) !== ctx.testedHead || !fresh())
+      return 'stale';
+    const selected = resolveFixBranch();
+    const { existing, ref, oldFix, branch } = selected;
+    const commit = createFixCommit(config, selected);
+    if (!fresh()) return 'stale';
+    if (existing) assertCurrentFixPr(selected, existing.number, oldFix);
+    git(['push', `--force-with-lease=${ref}:${oldFix}`, 'origin', `${branch}:${ref}`]);
+    if (!fresh()) return 'stale';
+    let fix = upsertFixPr(selected, commit);
+    if (!fresh()) return 'stale';
+    fix = assertCurrentFixPr(selected, fix.number, commit);
     const fixUrl = fix.html_url || fix.url;
     if (ctx.summary) appendFileSync(ctx.summary, `Ruling fix PR: ${fixUrl}\n`);
     dispatch(config, ctx.isPullRequest ? ctx.pr : fix.number, ctx.isPullRequest ? fixUrl : '');
@@ -456,7 +479,7 @@ export function controller(ctx, adapters = {}) {
     if (ctx.output)
       appendFileSync(
         ctx.output,
-        `results-path=${path.resolve(ctx.workspace, config['new-results-path'])}\n`,
+        `results-path=${path.resolve(ctx.workspace, config['new-results-path'])}\nresults-artifact-name=${config['results-artifact-name']}\n`,
       );
     return fresh(true);
   }
@@ -477,7 +500,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     ctx.runAttempt = process.env.BUILD_RUN_ATTEMPT;
   }
   const bot = controller(ctx);
-  const config = process.argv[2] === 'cleanup' ? undefined : environmentConfiguration(process.env);
+  const config =
+    process.argv[2] === 'cleanup' ? undefined : await environmentConfiguration(process.env);
   if (process.argv[2] === 'check-report') {
     appendFileSync(process.env.GITHUB_OUTPUT, `fresh=${await bot.checkReport(config)}\n`);
     process.exit(0);

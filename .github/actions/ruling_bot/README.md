@@ -38,31 +38,49 @@ originals. Each phase's permissions are documented under configuration and reuse
 
 ## Configuration and reuse
 
-SonarJS passes paths, links, snippet limits, and workflow settings explicitly in the updater action's
-`with` block in `build.yml`. The producing ruling job names its results artifact with its Build
-attempt and exposes that exact name as a job output. Upload, updater download, and the updater action
-use the same name, including when a retry reuses outputs from an earlier attempt.
+The updater and reporter resolve configuration in this order: generic defaults, an optional
+module in the tested checkout, workflow overrides, then individual action inputs. The default
+module is `.github/ruling-bot.config.mjs`. It exports a `rulingConfig` object (or a default object)
+whose keys are the public input names below. A missing default module uses generic defaults;
+an explicitly selected missing module fails. Set `config-file` to another path in the tested
+checkout, or to an empty string to disable repository settings. Other repositories can instead
+supply the two required result paths and any optional settings directly as action inputs.
 
-The updater forwards its resolved action inputs individually to the independent reporter workflow.
-Workflow-contract tests check the accepted dispatch fields and GitHub.com's input limit. Explicitly forwarding
-paths, links, and the artifact name preserves the producing Build's settings during independent
-retries. Raw PR-event reports use the same SonarJS defaults in the reporter workflow.
-The canonical configuration schema/defaults live in `config.mjs`; SonarJS settings live in
-`.github/ruling-bot.config.mjs`. `provenance.mjs` owns the report provenance fields, their
-dispatch values, input types/defaults, updater aliases, environment/caller bindings, and retry
-placeholders. `generate-config.mjs` generates their marked action/workflow sections, this input
-table, the CI retry command, and the local `ruling-sync` command. Run
+SonarJS keeps its settings in that module, so Build passes only the run-specific artifact name.
+The producing ruling job names the artifact with its Build attempt and exposes that exact name
+as a job output. Upload, updater download, and dispatch preserve it when an updater retry reuses
+results from an earlier attempt.
+
+All public settings remain available as action and dispatch inputs. Their metadata default,
+`inherit`, means use the repository setting or generic default. It distinguishes an omitted
+setting from an explicit empty string: empty source paths and URLs disable snippets/links, and
+an empty reporter ref selects the tested target branch. The literal input value `inherit` is
+reserved; use `./inherit` for a path with that name. Resolved inputs are validated before
+freshness checks, artifact download, or synchronization.
+
+Dispatch always sends the nine provenance fields, plus any configuration values that differ from
+the tested repository's defaults. Failed reports also always receive the exact producing artifact
+name, even if it equals a default. The reporter checks out the same tested commit and loads its
+module, so omitted settings cannot drift when master or the original branch advances. The workflow
+passes `toJSON(inputs)` to the report action through `workflow-inputs`; individual action inputs
+still take precedence. An unavailable (null) input context supplies no overrides. This serializes
+GitHub's input context and needs no JSON configuration file.
+Workflow-contract tests check accepted fields, reconstructed settings, and GitHub.com's input limit.
+
+The canonical schema and generic defaults live in `config.mjs`. `provenance.mjs` owns the nine
+provenance fields, dispatch values, types/defaults, updater aliases, environment/caller bindings,
+and retry placeholders. `generate-config.mjs` generates their marked action/workflow sections,
+this input table, the CI retry command, and the local `ruling-sync` command. Run
 `node .github/actions/ruling_bot/generate-config.mjs` after changing these definitions;
-`--check` and the local regression suite reject stale consumers. No runtime config-loading
-step or additional runtime dependency is needed. The report action validates the received parameters
-before checking freshness or downloading artifacts.
+`--check` and the regression suite reject stale consumers. The controller loads the optional
+module during startup, without an extra workflow step or runtime dependency.
 
 ### Ownership and duplication rules
 
 | Definition                                                                        | Canonical owner                                                                  | Consumers                                                                   |
 | --------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | Public configuration names, descriptions, required inputs, and generic defaults   | [config.mjs](config.mjs)                                                         | Runtime validation, helpers, and generated contracts                        |
-| SonarJS paths, link settings, artifact prefix, and workflow settings              | [ruling-bot.config.mjs](../../ruling-bot.config.mjs)                             | Generated Build/report callers and operator examples                        |
+| SonarJS paths, link settings, artifact prefix, and workflow settings              | [ruling-bot.config.mjs](../../ruling-bot.config.mjs)                             | Runtime defaults, generated Build fields, and operator examples             |
 | Report provenance names, values, types, aliases, bindings, and retry placeholders | [provenance.mjs](provenance.mjs)                                                 | Dispatch, generated action/workflow contracts, and retry command            |
 | Checked-in generated sections and local synchronization command                   | [generate-config.mjs](generate-config.mjs)                                       | Marked YAML/Markdown sections and `package.json`                            |
 | Freshness, ownership, bot identity, leases, and lifecycle decisions               | [bot.mjs](bot.mjs)                                                               | Updater, reporter, and cleanup; shell launchers delegate to this controller |
@@ -90,25 +108,26 @@ snippets; empty link URLs disable links.
 
 <!-- BEGIN GENERATED INPUT TABLE -->
 
-| Input                   | Purpose                                                             | Generic default                               |
-| ----------------------- | ------------------------------------------------------------------- | --------------------------------------------- |
-| `new-results-path`      | Generated-results path within the tested repository                 | Required                                      |
-| `old-results-path`      | Expected-results path within the tested repository                  | Required                                      |
-| `sources-path`          | Local source checkout used for snippets; empty disables snippets    | `its/sources`                                 |
-| `sources-repo-url`      | Remote source URL used for file links; empty disables links         | Empty                                         |
-| `rspec-base-url`        | RSPEC URL used for rule links; empty disables links                 | `https://sonarsource.github.io/rspec/#/rspec` |
-| `max-inline-snippets`   | Maximum detailed snippets per report section                        | `10`                                          |
-| `results-artifact-name` | Exact saved generated-results artifact name                         | `ruling-results`                              |
-| `report-workflow`       | Reporter workflow filename or ID                                    | `ruling-diff-comment.yml`                     |
-| `report-workflow-ref`   | Reporter workflow ref; empty selects the tested target branch       | Empty                                         |
-| `build-workflow`        | Build workflow filename or ID used to find authoritative dispatches | `build.yml`                                   |
-| `report-dispatch-step`  | Build step recording a successful ruling report request             | `Record ruling report dispatch`               |
+| Input                   | Purpose                                                                           | Generic default                               |
+| ----------------------- | --------------------------------------------------------------------------------- | --------------------------------------------- |
+| `config-file`           | Optional configuration module in the tested checkout; empty uses generic defaults | `.github/ruling-bot.config.mjs`               |
+| `new-results-path`      | Generated-results path within the tested repository                               | Required from config or input                 |
+| `old-results-path`      | Expected-results path within the tested repository                                | Required from config or input                 |
+| `sources-path`          | Local source checkout used for snippets; empty disables snippets                  | `its/sources`                                 |
+| `sources-repo-url`      | Remote source URL used for file links; empty disables links                       | Empty                                         |
+| `rspec-base-url`        | RSPEC URL used for rule links; empty disables links                               | `https://sonarsource.github.io/rspec/#/rspec` |
+| `max-inline-snippets`   | Maximum detailed snippets per report section                                      | `10`                                          |
+| `results-artifact-name` | Exact saved generated-results artifact name                                       | `ruling-results`                              |
+| `report-workflow`       | Reporter workflow filename or ID                                                  | `ruling-diff-comment.yml`                     |
+| `report-workflow-ref`   | Reporter workflow ref; empty selects the tested target branch                     | Empty                                         |
+| `build-workflow`        | Build workflow filename or ID used to find authoritative dispatches               | `build.yml`                                   |
+| `report-dispatch-step`  | Build step recording a successful ruling report request                           | `Record ruling report dispatch`               |
 
 <!-- END GENERATED INPUT TABLE -->
 
 Source paths, source/RSPEC links, and snippet limits were updater inputs before #8050 split persistence from
-reporting. Passing them through the independent reporter now keeps its configuration tied to the
-producing caller. The artifact/workflow settings also make the handoff usable by other repositories.
+reporting. Reconstructing their tested defaults and forwarding explicit overrides keeps the
+independent reporter tied to the producing caller. The artifact/workflow settings also make the handoff usable by other repositories.
 `tested-commit-sha` optionally overrides `github.sha` in the updater; the reporter requires `head-sha`
 explicitly.
 
@@ -144,9 +163,12 @@ the controller derives that branch run's baseline from its tested commit. The re
 
 Report generation writes stdout directly to a temporary file. The controller reads only a
 comment-sized prefix, then truncates the assembled comment safely at a UTF-8 boundary. Reports
-larger than the subprocess capture limit can therefore still produce a comment. Temporary report
-files are removed after success, stale skips, or generation failure; the generator still needs
-enough memory and disk space to render the complete report.
+of any size supported by available resources can therefore reach comment truncation. Captured
+Git, GitHub CLI, and helper output uses `maxBuffer: Infinity` instead of a fixed byte limit. A
+missing expectation file represents an addition/deletion; Git, read, or JSON failures propagate
+instead of being treated as empty data. Temporary report files are removed after success, stale
+skips, or generation failure; the generator still needs enough memory and disk space to render
+the complete report.
 
 Report retries require a tested commit containing the current reporter action and input contract.
 For Builds predating their introduction, rebase the original PR branch and rerun ruling; supplying
@@ -369,7 +391,8 @@ freshness, lifecycle, reporting, and configuration contracts described above. It
 passing-retry refresh, authority after empty reports, exact producing-artifact identity, independent
 original-target fix ownership, trusted close/merge cleanup, legacy and modern orphan recovery,
 fix revalidation, tested-merge fix ancestry, matching tested bot code, generated input contracts,
-and file-backed large reports. The final freshness response must include the tested original head;
+and file-backed large reports. Optional tested-checkout configuration, sparse dispatch overrides,
+explicit empty opt-outs, and unbounded subprocess capture preserve reuse while reducing YAML. The final freshness response must include the tested original head;
 modern orphan recovery must verify bot author and committer, not just a retained target marker.
 Those two review corrections are recorded in
 [commit 6e7d773f1](https://github.com/SonarSource/SonarJS/commit/6e7d773f1e9b685f9178b907a79b591dd815db2b).

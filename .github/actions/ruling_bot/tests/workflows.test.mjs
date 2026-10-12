@@ -21,7 +21,7 @@ import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import yaml from 'yaml';
-import { inputDefinitions } from '../config.mjs';
+import { inputDefinitions, inherit } from '../config.mjs';
 import { generatedFiles } from '../generate-config.mjs';
 import {
   dispatchProvenance,
@@ -77,17 +77,12 @@ test('downstream retries keep the artifact named by the producing ruling job', t
   const reportInvoke = report.jobs['ruling-diff-comment'].steps.find(
     step => step.uses === './.github/actions/ruling_bot/report',
   );
-  assert.match(
-    reportInvoke.with['results-artifact-name'],
-    /^\$\{\{ inputs\.results-artifact-name \|\| /,
-  );
+  assert.equal(reportInvoke.with['workflow-inputs'], '${{ toJSON(inputs) }}');
 });
 
-test('explicit dispatch defaults match the caller and preserve intentionally empty link inputs', () => {
+test('configuration inputs inherit the tested checkout and callers only repeat run-specific artifact identity', () => {
   const build = workflow('build.yml');
-  const invoke = build.jobs.js_ts_ruling_update.steps.find(
-    step => step.uses === './.github/actions/ruling_bot',
-  );
+  const invoke = build.jobs.js_ts_ruling_update.steps.find(step => step.id === 'ruling_update');
   const report = workflow('ruling-diff-comment.yml');
   const inputs = report.on.workflow_dispatch.inputs;
   assert.deepEqual(
@@ -98,18 +93,12 @@ test('explicit dispatch defaults match the caller and preserve intentionally emp
   const reportInvoke = report.jobs['ruling-diff-comment'].steps.find(
     step => step.uses === './.github/actions/ruling_bot/report',
   );
-  for (const name of Object.keys(inputDefinitions).filter(
-    name => name !== 'results-artifact-name',
-  )) {
-    assert.equal(inputs[name].default, invoke.with[name]);
-    assert.equal(
-      reportInvoke.with[name],
-      "${{ github.event_name == 'pull_request' && '" +
-        invoke.with[name] +
-        "' || inputs." +
-        name +
-        ' }}',
-    );
+  assert.equal(reportInvoke.with['workflow-inputs'], '${{ toJSON(inputs) }}');
+  for (const name of Object.keys(inputDefinitions)) {
+    assert.equal(inputs[name].default, inherit);
+    assert.equal(inputs[name].required, false);
+    assert.equal(reportInvoke.with[name], undefined);
+    if (name !== 'results-artifact-name') assert.equal(invoke.with[name], undefined);
   }
 });
 
@@ -254,6 +243,7 @@ test('report downloads use the validated preflight destination and the tested ch
     step.uses?.startsWith('actions/download-artifact@'),
   );
   assert.equal(download.with.path, '${{ steps.fresh.outputs.results-path }}');
+  assert.equal(download.with.name, '${{ steps.fresh.outputs.results-artifact-name }}');
   const report = workflow('ruling-diff-comment.yml');
   const checkouts = report.jobs['ruling-diff-comment'].steps.filter(step =>
     step.uses?.startsWith('actions/checkout@'),
@@ -291,9 +281,9 @@ test('changing canonical paths, links, artifact names and generic defaults updat
   const build = yaml.parse(files.get('.github/workflows/build.yml'));
   const report = yaml.parse(files.get('.github/workflows/ruling-diff-comment.yml'));
   const caller = build.jobs.js_ts_ruling_update.steps.find(step => step.id === 'ruling_update');
-  assert.equal(caller.with['old-results-path'], 'expectations');
-  assert.equal(report.on.workflow_dispatch.inputs['old-results-path'].default, 'expectations');
-  assert.equal(report.on.workflow_dispatch.inputs['sources-repo-url'].default, '');
+  assert.equal(caller.with['old-results-path'], undefined);
+  assert.equal(report.on.workflow_dispatch.inputs['old-results-path'].default, inherit);
+  assert.equal(report.on.workflow_dispatch.inputs['sources-repo-url'].default, inherit);
   assert.match(
     build.jobs.js_ts_ruling.steps.find(step => step.id === 'ruling_artifact').run,
     /name=saved-results-/,
@@ -303,11 +293,27 @@ test('changing canonical paths, links, artifact names and generic defaults updat
     JSON.parse(files.get('package.json')).scripts['ruling-sync'],
     /generated-results expectations$/,
   );
+  assert.match(
+    files.get('.github/actions/ruling_bot/README.md'),
+    /\x60max-inline-snippets\x60[^\n]*\x604\x60/,
+  );
   for (const name of ['action.yml', 'report/action.yml']) {
     assert.equal(
       yaml.parse(files.get(`.github/actions/ruling_bot/${name}`)).inputs['max-inline-snippets']
         .default,
-      '4',
+      inherit,
     );
+  }
+});
+
+test('composite action input defaults are strings, including the serialized workflow input object', () => {
+  for (const file of ['action.yml', 'report/action.yml', 'cleanup/action.yml']) {
+    const action = yaml.parse(readFileSync(new URL('../' + file, import.meta.url), 'utf8'));
+    for (const input of Object.values(action.inputs)) {
+      if (input.default !== undefined) assert.equal(typeof input.default, 'string');
+    }
+    if (file === 'report/action.yml') {
+      assert.equal(action.inputs['workflow-inputs'].default, '{}');
+    }
   }
 });

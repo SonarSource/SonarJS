@@ -1300,17 +1300,7 @@ jobs:
           # END GENERATED CALLER PROVENANCE
           # BEGIN GENERATED CALLER CONFIG
           # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
-          new-results-path: packages/ruling/actual
-          old-results-path: its/ruling/src/test/resources/expected
-          sources-path: its/sources
-          sources-repo-url: https://github.com/SonarSource/jsts-test-sources/blob/master
-          rspec-base-url: https://musical-adventure-r9qk65j.pages.github.io/rspec/#
-          max-inline-snippets: '10'
           results-artifact-name: ${{ needs.js_ts_ruling.outputs.results-artifact-name }}
-          report-workflow: ruling-diff-comment.yml
-          report-workflow-ref: ''
-          build-workflow: build.yml
-          report-dispatch-step: Record ruling report dispatch
           # END GENERATED CALLER CONFIG
       # BEGIN GENERATED DISPATCH RECORD
       # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
@@ -1506,6 +1496,8 @@ jobs:
       - plugin_qa_without_node_dev
       - plugin_qa_fast_without_node_dev
       - run_iris
+      - validate_public_npm_install
+      - validate_saas_npm_install
     if: >-
       always()
       && (

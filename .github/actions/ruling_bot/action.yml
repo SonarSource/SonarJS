@@ -34,48 +34,54 @@ inputs:
   # END GENERATED PROVENANCE INPUTS
   # BEGIN GENERATED CONFIG INPUTS
   # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+  config-file:
+    description: Optional configuration module in the tested checkout; empty uses generic defaults
+    required: false
+    default: inherit
   new-results-path:
     description: Generated-results path within the tested repository
-    required: true
+    required: false
+    default: inherit
   old-results-path:
     description: Expected-results path within the tested repository
-    required: true
+    required: false
+    default: inherit
   sources-path:
     description: Local source checkout used for snippets; empty disables snippets
     required: false
-    default: its/sources
+    default: inherit
   sources-repo-url:
     description: Remote source URL used for file links; empty disables links
     required: false
-    default: ''
+    default: inherit
   rspec-base-url:
     description: RSPEC URL used for rule links; empty disables links
     required: false
-    default: https://sonarsource.github.io/rspec/#/rspec
+    default: inherit
   max-inline-snippets:
     description: Maximum detailed snippets per report section
     required: false
-    default: '10'
+    default: inherit
   results-artifact-name:
     description: Exact saved generated-results artifact name
     required: false
-    default: ruling-results
+    default: inherit
   report-workflow:
     description: Reporter workflow filename or ID
     required: false
-    default: ruling-diff-comment.yml
+    default: inherit
   report-workflow-ref:
     description: Reporter workflow ref; empty selects the tested target branch
     required: false
-    default: ''
+    default: inherit
   build-workflow:
     description: Build workflow filename or ID used to find authoritative dispatches
     required: false
-    default: build.yml
+    default: inherit
   report-dispatch-step:
     description: Build step recording a successful ruling report request
     required: false
-    default: Record ruling report dispatch
+    default: inherit
   # END GENERATED CONFIG INPUTS
 
 outputs:
@@ -104,6 +110,7 @@ runs:
         # END GENERATED PROVENANCE ENV
         # BEGIN GENERATED CONFIG ENV
         # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+        CONFIG_FILE: ${{ inputs.config-file }}
         NEW_RESULTS_PATH: ${{ inputs.new-results-path }}
         OLD_RESULTS_PATH: ${{ inputs.old-results-path }}
         SOURCES_PATH: ${{ inputs.sources-path }}

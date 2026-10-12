@@ -121,3 +121,25 @@ test('an empty source path disables snippets while retaining locations and sourc
   assert.match(body, /snippet not available/);
   assert.doesNotMatch(body, /```|reported source/);
 });
+
+test('a baseline above 1 MiB reports only the actual new issue', t => {
+  const f = fixture(t);
+  const file = 'display-results/sample/javascript-S100.json';
+  f.write(file, ' '.repeat(2 * 1024 * 1024) + JSON.stringify({ 'sample:file.js': [1, 2] }));
+  const base = f.commit('Large baseline JSON');
+  f.write(file, { 'sample:file.js': [1, 2, 3] });
+  const body = report(f, base, { SOURCES_PATH: '' });
+  assert.match(body, /New issues flagged \(1 issue\)/);
+  assert.match(body, /sample\/file.js:3/);
+  assert.doesNotMatch(body, /sample\/file.js:[12]|Code no longer flagged/);
+});
+for (const side of ['baseline', 'current']) {
+  test(`malformed ${side} expectation JSON fails visibly`, t => {
+    const f = fixture(t);
+    const file = 'display-results/sample/javascript-S100.json';
+    f.write(file, side === 'baseline' ? '{invalid' : { 'sample:file.js': [1] });
+    const base = f.commit('Baseline JSON');
+    f.write(file, side === 'current' ? '{invalid' : { 'sample:file.js': [2] });
+    assert.throws(() => report(f, base), /SyntaxError/);
+  });
+}

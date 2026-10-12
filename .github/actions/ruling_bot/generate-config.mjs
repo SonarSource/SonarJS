@@ -16,14 +16,14 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { inputDefinitions } from './config.mjs';
+import { inputDefinitions, inherit, workflowInputsDefinition } from './config.mjs';
 import { provenanceDefinitions, updaterInputDefinitions } from './provenance.mjs';
 import { rulingConfig } from '../../ruling-bot.config.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('../../../', import.meta.url));
 const scalar = value => {
   const text = String(value);
-  return !text || /^(?:\d+|true|false|null)$/.test(text) || /[\n]|:\s/.test(text)
+  return !text || /^(?:\d+|true|false|null)$/.test(text) || /[\n]|:\s|^[\[\]{}]/.test(text)
     ? `'${text.replaceAll("'", "''")}'`
     : text;
 };
@@ -49,7 +49,11 @@ function inputTable(definitions) {
     ...Object.entries(definitions).map(([name, value]) => [
       '`' + name + '`',
       value.description,
-      value.required ? 'Required' : value.default === '' ? 'Empty' : '`' + value.default + '`',
+      value.required
+        ? 'Required from config or input'
+        : value.default === ''
+          ? 'Empty'
+          : '`' + value.default + '`',
     ]),
   ];
   const widths = rows[0].map((_, index) => Math.max(...rows.map(row => row[index].length)));
@@ -84,75 +88,80 @@ function section(text, name, body) {
   return result;
 }
 
-export function generatedFiles(
-  config = rulingConfig,
-  definitions = inputDefinitions,
-  provenance = provenanceDefinitions,
-) {
-  const names = Object.keys(definitions);
-  const files = new Map();
-  const metadata = dispatch =>
-    names
-      .flatMap(name => {
-        const definition = definitions[name];
-        const lines = [
-          `${name}:`,
-          `  description: ${scalar(definition.description)}`,
-          `  required: ${!dispatch && !!definition.required}`,
-        ];
-        if (dispatch) lines.push('  type: string');
-        const value = dispatch
-          ? name === 'results-artifact-name'
-            ? ''
-            : config[name]
-          : definition.default;
-        if (value !== undefined) lines.push(`  default: ${scalar(value)}`);
-        return lines;
-      })
-      .join('\n');
-  const env = names
-    .map(name => `${name.replaceAll('-', '_').toUpperCase()}: ${expression(`inputs.${name}`)}`)
+function inputMetadata(definitions, { dispatch = false, configuration = false } = {}) {
+  return Object.entries(definitions)
+    .flatMap(([name, definition]) => {
+      const lines = [
+        `${name}:`,
+        `  description: ${scalar(definition.description)}`,
+        `  required: ${configuration ? false : !!definition.required}`,
+      ];
+      if (dispatch) lines.push(`  type: ${configuration ? 'string' : definition.type}`);
+      const value = configuration ? inherit : definition.default;
+      if (value !== undefined)
+        lines.push(
+          `  default: ${dispatch && definition.type === 'boolean' ? value : scalar(value)}`,
+        );
+      return lines;
+    })
     .join('\n');
-  const provenanceMetadata = (definitions, dispatch = false) =>
-    Object.entries(definitions)
-      .flatMap(([name, definition]) => {
-        const lines = [
-          `${name}:`,
-          `  description: ${scalar(definition.description)}`,
-          `  required: ${!!definition.required}`,
-        ];
-        if (dispatch) lines.push(`  type: ${definition.type}`);
-        if (definition.default !== undefined) {
-          const value =
-            dispatch && definition.type === 'boolean'
-              ? definition.default
-              : scalar(definition.default);
-          lines.push(`  default: ${value}`);
-        }
-        return lines;
-      })
-      .join('\n');
-  const provenanceEnv = definitions =>
-    Object.entries(definitions)
-      .map(
-        ([name, definition]) =>
-          `${definition.env}: ${expression(definition.expression || `inputs.${name}`)}`,
-      )
-      .join('\n');
-  const updater = updaterInputDefinitions(provenance);
+}
+
+function inputEnvironment(definitions) {
+  return Object.entries(definitions)
+    .map(
+      ([name, definition]) =>
+        `${definition.env || name.replaceAll('-', '_').toUpperCase()}: ${expression(definition.expression || `inputs.${name}`)}`,
+    )
+    .join('\n');
+}
+
+function generationContext(config, definitions, provenance) {
+  return {
+    config,
+    definitions,
+    provenance,
+    metadata: dispatch => inputMetadata(definitions, { dispatch, configuration: true }),
+    env: inputEnvironment(definitions),
+    provenanceMetadata: (definitions, dispatch = false) => inputMetadata(definitions, { dispatch }),
+    provenanceEnv: inputEnvironment,
+    updater: updaterInputDefinitions(provenance),
+  };
+}
+
+function generateActions(files, context) {
+  const { provenance, metadata, env, provenanceMetadata, provenanceEnv, updater } = context;
   for (const name of ['action.yml', 'report/action.yml']) {
     const file = `.github/actions/ruling_bot/${name}`;
+    const report = name === 'report/action.yml';
+    const inputsMetadata =
+      metadata(false) +
+      (report
+        ? '\n' +
+          inputMetadata({
+            'workflow-inputs': workflowInputsDefinition,
+          })
+        : '');
     let text = section(
       readFileSync(path.join(repositoryRoot, file), 'utf8'),
       'CONFIG INPUTS',
-      metadata(false),
+      inputsMetadata,
     );
-    text = section(text, 'CONFIG ENV', env);
+    text = section(
+      text,
+      'CONFIG ENV',
+      env +
+        (report ? '\n' + inputEnvironment({ 'workflow-inputs': workflowInputsDefinition }) : ''),
+    );
     const inputs = name === 'action.yml' ? updater : provenance;
     text = section(text, 'PROVENANCE INPUTS', provenanceMetadata(inputs));
     text = section(text, 'PROVENANCE ENV', provenanceEnv(inputs));
     files.set(file, text);
   }
+}
+
+function generateBuild(files, context) {
+  const { config, updater } = context;
   const build = '.github/workflows/build.yml';
   let text = readFileSync(path.join(repositoryRoot, build), 'utf8');
   text = section(
@@ -166,16 +175,7 @@ export function generatedFiles(
   text = section(
     text,
     'CALLER CONFIG',
-    names
-      .map(
-        name =>
-          `${name}: ${
-            name === 'results-artifact-name'
-              ? expression('needs.js_ts_ruling.outputs.results-artifact-name')
-              : scalar(config[name])
-          }`,
-      )
-      .join('\n'),
+    'results-artifact-name: ' + expression('needs.js_ts_ruling.outputs.results-artifact-name'),
   );
   text = section(
     text,
@@ -189,8 +189,12 @@ export function generatedFiles(
     `- name: ${scalar(config['report-dispatch-step'])}\n  if: steps.ruling_update.outputs.report-requested == 'true'\n  run: echo 'Independent ruling report dispatch succeeded.'`,
   );
   files.set(build, text);
+}
+
+function generateReport(files, context) {
+  const { provenance, metadata, provenanceMetadata } = context;
   const report = '.github/workflows/ruling-diff-comment.yml';
-  text = section(
+  let text = section(
     readFileSync(path.join(repositoryRoot, report), 'utf8'),
     'CONFIG INPUTS',
     metadata(true),
@@ -207,25 +211,21 @@ export function generatedFiles(
       })
       .join('\n'),
   );
-  text = section(
-    text,
-    'REPORT CONFIG',
-    names
-      .map(name => {
-        const value =
-          name === 'results-artifact-name'
-            ? `inputs.${name} || format(${githubString(config[name] + '-{0}')}, inputs.run-attempt || '1')`
-            : `github.event_name == 'pull_request' && ${githubString(config[name])} || inputs.${name}`;
-        return `${name}: ${expression(value)}`;
-      })
-      .join('\n'),
-  );
+  text = section(text, 'WORKFLOW INPUTS', 'workflow-inputs: ' + expression('toJSON(inputs)'));
   files.set(report, text);
+}
+
+function generateLocalCommand(files, context) {
+  const { config } = context;
   // The local npm command consumes the same expectation paths as the workflow/action callers.
   const pkg = 'package.json';
   const source = readFileSync(path.join(repositoryRoot, pkg), 'utf8');
   const command = `node .github/actions/ruling_bot/sync-results.mjs ${shellArgument(config['new-results-path'])} ${shellArgument(config['old-results-path'])}`;
   files.set(pkg, source.replace(/("ruling-sync": )"[^\n]*"/, '$1' + JSON.stringify(command)));
+}
+
+function generateReadme(files, context) {
+  const { definitions } = context;
   const readme = '.github/actions/ruling_bot/README.md';
   files.set(
     readme,
@@ -235,12 +235,15 @@ export function generatedFiles(
       inputTable(definitions),
     ),
   );
+}
+
+function generateRetryGuide(files, context) {
+  const { config, provenance } = context;
   const guide = 'docs/CI.md';
   const fields = {
     ...Object.fromEntries(
       Object.entries(provenance).map(([name, definition]) => [name, definition.retry]),
     ),
-    ...config,
     'results-artifact-name': config['results-artifact-name'] + '-<producing-ruling-job-attempt>',
   };
   const retry = [
@@ -255,6 +258,21 @@ export function generatedFiles(
       '```sh\n' + retry + '\n```',
     ),
   );
+}
+
+export function generatedFiles(
+  config = rulingConfig,
+  definitions = inputDefinitions,
+  provenance = provenanceDefinitions,
+) {
+  const files = new Map();
+  const context = generationContext(config, definitions, provenance);
+  generateActions(files, context);
+  generateBuild(files, context);
+  generateReport(files, context);
+  generateLocalCommand(files, context);
+  generateReadme(files, context);
+  generateRetryGuide(files, context);
   return files;
 }
 
