@@ -260,18 +260,10 @@ function hasHtmlContent(
       return true;
     }
     if ('attribs' in child) {
-      if (
-        'hidden' in child.attribs ||
-        child.attribs['aria-hidden'] === 'true' ||
-        ['script', 'style'].includes(child.name)
-      ) {
+      if (isHiddenHtmlElement(child.name, child.attribs)) {
         continue;
       }
-      if (
-        ['title', 'aria-label', 'aria-labelledby', ...(child.name === 'img' ? ['alt'] : [])].some(
-          name => child.attribs[name]?.trim(),
-        )
-      ) {
+      if (hasHtmlElementName(child.name, child.attribs)) {
         return true;
       }
     }
@@ -280,6 +272,19 @@ function hasHtmlContent(
     }
   }
   return false;
+}
+
+function isHiddenHtmlElement(name: string, attributes: Record<string, string>): boolean {
+  return (
+    'hidden' in attributes ||
+    attributes['aria-hidden'] === 'true' ||
+    ['script', 'style'].includes(name)
+  );
+}
+
+function hasHtmlElementName(name: string, attributes: Record<string, string>): boolean {
+  const names = ['title', 'aria-label', 'aria-labelledby', ...(name === 'img' ? ['alt'] : [])];
+  return names.some(attribute => attributes[attribute]?.trim());
 }
 
 function isHidden(attributes: JSXOpeningElement['attributes'], context: Rule.RuleContext): boolean {
@@ -306,11 +311,13 @@ function getAttributeValue(
       ? attribute.value.expression
       : attribute.value;
   const resolved = resolveSingleWriteExpression(context, value as TSESTree.Node);
-  return resolved.type === 'Literal'
-    ? resolved.value
-    : resolved.type === 'TemplateLiteral'
-      ? getStaticExpressionValue(resolved as unknown as estree.Expression)
-      : undefined;
+  if (resolved.type === 'Literal') {
+    return resolved.value;
+  }
+  if (resolved.type === 'TemplateLiteral') {
+    return getStaticExpressionValue(resolved as unknown as estree.Expression);
+  }
+  return undefined;
 }
 
 function hasAttributeContent(
@@ -367,28 +374,36 @@ function getSpreadValue(
   seen.add(value);
   for (let i = value.properties.length - 1; i >= 0; i--) {
     const property = value.properties[i];
-    if (property.type === 'SpreadElement') {
-      const spread = getSpreadValue(property.argument, name, context, seen);
-      if (spread !== null) {
-        return spread;
-      }
-    } else {
-      const key = property.computed
-        ? resolveSingleWriteExpression(context, property.key)
-        : property.key;
-      if (
-        key.type === 'Literal'
-          ? key.value === name
-          : !property.computed && key.type === 'Identifier' && key.name === name
-      ) {
-        return property.kind === 'init' && !property.method ? property.value : undefined;
-      }
-      if (property.computed && key.type !== 'Literal') {
-        return undefined;
-      }
+    const result =
+      property.type === 'SpreadElement'
+        ? getSpreadValue(property.argument, name, context, seen)
+        : getPropertyValue(property, name, context);
+    if (result !== null) {
+      return result;
     }
   }
   seen.delete(value);
+  return null;
+}
+
+function getPropertyValue(
+  property: TSESTree.Property,
+  name: string,
+  context: Rule.RuleContext,
+): TSESTree.Node | null | undefined {
+  const key = property.computed
+    ? resolveSingleWriteExpression(context, property.key)
+    : property.key;
+  const matchesName =
+    key.type === 'Literal'
+      ? key.value === name
+      : !property.computed && key.type === 'Identifier' && key.name === name;
+  if (matchesName) {
+    return property.kind === 'init' && !property.method ? property.value : undefined;
+  }
+  if (property.computed && key.type !== 'Literal') {
+    return undefined;
+  }
   return null;
 }
 
@@ -429,31 +444,10 @@ function hasContent(
       return value.name !== 'undefined';
     case 'ArrayExpression':
       return value.elements.some(child => child && hasContent(child, context, seen));
-    case 'ConditionalExpression': {
-      const test = resolveSingleWriteExpression(context, value.test);
-      if (test.type === 'Literal') {
-        return hasContent(test.value ? value.consequent : value.alternate, context, seen);
-      }
-      return (
-        hasContent(value.consequent, context, seen) || hasContent(value.alternate, context, seen)
-      );
-    }
-    case 'LogicalExpression': {
-      const left = resolveSingleWriteExpression(context, value.left);
-      if (left.type === 'Literal') {
-        const useLeft =
-          value.operator === '??'
-            ? left.value != null
-            : value.operator === '&&'
-              ? !left.value
-              : !!left.value;
-        return hasContent(useLeft ? left : value.right, context, seen);
-      }
-      return (
-        (value.operator !== '&&' && hasContent(value.left, context, seen)) ||
-        hasContent(value.right, context, seen)
-      );
-    }
+    case 'ConditionalExpression':
+      return hasConditionalContent(value, context, seen);
+    case 'LogicalExpression':
+      return hasLogicalContent(value, context, seen);
     case 'TemplateLiteral':
       return value.quasis.some(quasi => quasi.value.cooked?.trim()) || value.expressions.length > 0;
     case 'UnaryExpression':
@@ -463,8 +457,43 @@ function hasContent(
         value.operator,
       );
     case 'SequenceExpression':
-      return hasContent(value.expressions[value.expressions.length - 1], context, seen);
+      return hasContent(value.expressions.at(-1)!, context, seen);
     default:
       return true;
   }
+}
+
+function hasConditionalContent(
+  value: TSESTree.ConditionalExpression,
+  context: Rule.RuleContext,
+  seen: Set<TSESTree.Node>,
+): boolean {
+  const test = resolveSingleWriteExpression(context, value.test);
+  if (test.type === 'Literal') {
+    return hasContent(test.value ? value.consequent : value.alternate, context, seen);
+  }
+  return hasContent(value.consequent, context, seen) || hasContent(value.alternate, context, seen);
+}
+
+function hasLogicalContent(
+  value: TSESTree.LogicalExpression,
+  context: Rule.RuleContext,
+  seen: Set<TSESTree.Node>,
+): boolean {
+  const left = resolveSingleWriteExpression(context, value.left);
+  if (left.type !== 'Literal') {
+    return (
+      (value.operator !== '&&' && hasContent(value.left, context, seen)) ||
+      hasContent(value.right, context, seen)
+    );
+  }
+  let useLeft: boolean;
+  if (value.operator === '??') {
+    useLeft = left.value != null;
+  } else if (value.operator === '&&') {
+    useLeft = !left.value;
+  } else {
+    useLeft = !!left.value;
+  }
+  return hasContent(useLeft ? left : value.right, context, seen);
 }

@@ -294,6 +294,68 @@ for (const [language, Tester] of [
         })),
       });
     });
+
+    it('distinguishes HTML accessible names from hidden and unnamed markup', () => {
+      const code = (html: string) =>
+        `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: ${JSON.stringify(html)}}} />;`;
+      new Tester().run('anchor-has-content', rule, {
+        valid: [
+          '<span title="Continue"></span>',
+          '<span aria-label="Continue"></span>',
+          '<span aria-labelledby="label"></span>',
+          '<span hidden>Hidden</span><img alt="Continue">',
+          '<span aria-hidden="false"><img alt="Continue"></span>',
+        ].map(html => ({ code: code(html) })),
+        invalid: [
+          '<span hidden title="Continue"><img alt="Continue"></span>',
+          '<span aria-hidden="true" aria-label="Continue"></span>',
+          '<script title="Continue">Continue</script>',
+          '<style aria-label="Continue">Continue</style>',
+          '<span alt="Continue"></span>',
+          '<span title=" "><img alt=" "></span><!-- Continue -->',
+        ].map(html => ({ code: code(html), errors: 1 })),
+      });
+    });
+
+    it('preserves computed property and accessor semantics in consumer spreads', () => {
+      new Tester().run('anchor-has-content', rule, {
+        valid: [
+          `${button}const key = 'children'; <Button render={<a />} {...{[key]: 'Continue'}} />;`,
+          `${button}<Button render={<a />} {...{['children']: null, ...{children: 'Continue'}}} />;`,
+          `${button}<Button render={<a />} {...{[key]: null}} />;`,
+          `${button}<Button render={<a />} {...{get children() { return 'Continue'; }}} />;`,
+          `${button}<Button render={<a />} {...{children() { return 'Continue'; }}} />;`,
+        ].map(code => ({ code })),
+        invalid: [
+          `${button}const key = 'children'; <Button render={<a />} {...{children: 'Continue', [key]: null}} />;`,
+          `${button}<Button render={<a />} {...{['id']: 'link'}} />;`,
+          `${button}<Button render={<a />} {...{children: 'Continue', ...{['children']: null}}} />;`,
+        ].map(code => ({ code, errors: 1 })),
+      });
+    });
+
+    it('selects the rendered branch and final sequence operand', () => {
+      const code = (expression: string) =>
+        `${button}<Button render={<a />}>{${expression}}</Button>;`;
+      new Tester().run('anchor-has-content', rule, {
+        valid: [
+          "(null, false, 'Continue')",
+          "'Continue' || null",
+          "'Continue' ?? null",
+          "'Continue' && 'Go'",
+          "0 ?? 'Continue'",
+          "false ? null : 'Continue'",
+          'label || 0',
+        ].map(expression => ({ code: code(expression) })),
+        invalid: [
+          "('Continue', 0, false)",
+          "'' ?? 'Continue'",
+          "'' && 'Continue'",
+          "'Continue' && null",
+          "label && ''",
+        ].map(expression => ({ code: code(expression), errors: 1 })),
+      });
+    });
   });
 }
 
@@ -302,6 +364,9 @@ describe('S6827 TypeScript render expressions', () => {
     new NoTypeCheckingRuleTester().run('anchor-has-content', rule, {
       valid: [
         { code: `${button}<Button render={(<a />) as React.ReactElement}>Continue</Button>;` },
+        {
+          code: `${button}<Button render={(<a />) as unknown as React.ReactElement}>Continue</Button>;`,
+        },
         { code: `${button}<Button render={((<a />) as React.ReactElement)!}>Continue</Button>;` },
         {
           code: `${button}<Button render={((<a />) as React.ReactElement) satisfies React.ReactElement}>Continue</Button>;`,
