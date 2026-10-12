@@ -36,37 +36,48 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
  * @param descriptor The upstream spacing report.
  */
 function reportIfAmbiguous(context: Rule.RuleContext, descriptor: Rule.ReportDescriptor): void {
-  if (
-    'messageId' in descriptor &&
-    descriptor.messageId === 'spacingAfterPrev' &&
-    'node' in descriptor
-  ) {
-    const node = descriptor.node as TSESTree.JSXElement;
-    const parent = node.parent;
-    if (parent.type === 'JSXElement' || parent.type === 'JSXFragment') {
-      const followingIndex = parent.children.indexOf(node) + 1;
-      const following = parent.children[followingIndex];
-      if (following?.type === 'JSXText' && /^[.,]/.test(following.value.trimStart())) {
-        const nextElement = parent.children[followingIndex + 1];
-        // Keep this pattern and report aligned with the upstream jsx-child-element-spacing rule.
-        // https://github.com/jsx-eslint/eslint-plugin-react/blob/v7.37.5/lib/rules/jsx-child-element-spacing.js
-        if (
-          /\S\s*\n\s*$/.test(following.value) &&
-          nextElement?.type === 'JSXElement' &&
-          nextElement.openingElement.name.type === 'JSXIdentifier'
-        ) {
-          // The upstream rule reports only one side of a JSX text node.
-          context.report({
-            ...descriptor,
-            node: nextElement as Rule.Node,
-            loc: nextElement.loc.start,
-            messageId: 'spacingBeforeNext',
-            data: { element: nextElement.openingElement.name.name },
-          });
-        }
-        return;
-      }
-    }
+  const punctuation = getFollowingPunctuation(descriptor);
+  if (!punctuation) {
+    context.report(descriptor);
+    return;
   }
-  context.report(descriptor);
+
+  const { text, nextElement } = punctuation;
+  const trailingWhitespace = text.slice(text.trimEnd().length);
+  // Preserve the trailing-newline check and report from the upstream jsx-child-element-spacing rule.
+  // https://github.com/jsx-eslint/eslint-plugin-react/blob/v7.37.5/lib/rules/jsx-child-element-spacing.js
+  if (
+    trailingWhitespace.includes('\n') &&
+    nextElement?.type === 'JSXElement' &&
+    nextElement.openingElement.name.type === 'JSXIdentifier'
+  ) {
+    // The upstream rule reports only one side of a JSX text node.
+    context.report({
+      ...descriptor,
+      node: nextElement as Rule.Node,
+      loc: nextElement.loc.start,
+      messageId: 'spacingBeforeNext',
+      data: { element: nextElement.openingElement.name.name },
+    });
+  }
+}
+
+function getFollowingPunctuation(descriptor: Rule.ReportDescriptor) {
+  if (
+    !('messageId' in descriptor) ||
+    descriptor.messageId !== 'spacingAfterPrev' ||
+    !('node' in descriptor)
+  ) {
+    return;
+  }
+  const node = descriptor.node as TSESTree.JSXElement;
+  const parent = node.parent;
+  if (parent.type !== 'JSXElement' && parent.type !== 'JSXFragment') {
+    return;
+  }
+  const followingIndex = parent.children.indexOf(node) + 1;
+  const following = parent.children[followingIndex];
+  if (following?.type === 'JSXText' && /^[.,]/.test(following.value.trimStart())) {
+    return { text: following.value, nextElement: parent.children[followingIndex + 1] };
+  }
 }

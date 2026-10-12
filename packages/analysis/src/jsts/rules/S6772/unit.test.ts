@@ -49,6 +49,9 @@ for (const Tester of [DefaultParserRuleTester, NoTypeCheckingRuleTester]) {
           { code: '<p>world\n{/* joined */}<strong>Hello</strong></p>' },
           { code: '<p><div>Hello</div>\nworld</p>' },
           { code: '<p><strong>Hello</strong>\n, <em>friend</em></p>' },
+          ...[' ', '\r', '\t'.repeat(10_000), '\n  Next words '].map(trailing => ({
+            code: `<p><strong>Hello</strong>\n, Next words${trailing}<em>continue</em></p>`,
+          })),
         ],
         invalid: [
           ...['world', 'world, welcome', ':', ';', '!', '?', '…', '。'].map(text => ({
@@ -100,6 +103,10 @@ for (const Tester of [DefaultParserRuleTester, NoTypeCheckingRuleTester]) {
                 column: 1,
               },
             ],
+          })),
+          ...['\r\n', ' \n\t\r ', `${' '.repeat(10_000)}\n\t`].map(trailing => ({
+            code: `<p><strong>Hello</strong>\n, Next words${trailing}<em>continue</em></p>`,
+            errors: [{ message: 'Ambiguous spacing before next element em' }],
           })),
         ],
       });
