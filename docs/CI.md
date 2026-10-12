@@ -287,10 +287,8 @@ set `SONARJS_ARTIFACT` to `multi` (or `linux-x64-musl` on Alpine) to select the 
 | `plugin_qa_with_node`                | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_fast_with_node`           | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_without_node`             | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
-| `plugin_qa_without_node_dev`         | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
 | `plugin_qa_without_node_alpine`      | `warp-custom-ubuntu-24-04` | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
 | `plugin_qa_fast_without_node`        | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
-| `plugin_qa_fast_without_node_dev`    | `sonar-m`                  | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
 | `plugin_qa_fast_without_node_alpine` | `warp-custom-ubuntu-24-04` | `setup`, `get_build_number`, `build`                                             | nightly only                                                          |
 | `plugin_qa_win`                      | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
 | `plugin_qa_sonarlint_win`            | `github-windows-latest-m`  | `setup`, `get_build_number`, `build`                                             | non-fork PRs and all non-PR runs                                      |
@@ -697,7 +695,6 @@ These jobs all consume:
 
 - `sonarjs-m2` artifact from `build`
 - Maven cache
-- often orchestrator cache
 - various licenses and runtime credentials
 
 Variants differ by:
@@ -705,13 +702,12 @@ Variants differ by:
 - Node present vs disabled
 - normal vs `fast`
 - Linux vs Windows vs Alpine
-- `LATEST_RELEASE` vs nightly `DEV`
 
 Important details:
 
 - Alpine jobs pre-seed `BUILD_NUMBER` from `get_build_number` because the `get-build-number` action's GitHub cache approach is unreliable in Alpine-container context
-- `fast` jobs use `key-prefix: orchestrator-fast`
-- `DEV` jobs intentionally skip orchestrator cache because the target version changes too frequently
+- all QA and Java ruling jobs use the workflow-level `SONARQUBE_VERSION: DEV`, passed explicitly to Maven as `-Dsonar.runtimeVersion="$SONARQUBE_VERSION"`
+- Orchestrator caching is disabled because development builds change frequently
 
 #### `js_ts_ruling`
 
@@ -902,7 +898,7 @@ A job that does not need every tool restricts installation with `install_args` i
 | `build`, `build_win`, `prepare_rspec_rule_data`, `build_eslint_plugin`, `knip`, `analyze_primary`, `analyze_shadows`, Windows QA jobs, `js_ts_ruling`, `ruling`, `promote` (the `&mise` anchor) | _(none — installs everything)_ | needs Java, Maven, and Node                                                                                                                                |
 | `plugin_qa_with_node`, `plugin_qa_fast_with_node` (the `&mise_java_matrix_node` anchor)                                                                                                         | _(none — installs everything)_ | same as above, but Node's version is overridden per matrix leg (see below)                                                                                 |
 | `populate_npm_cache`, `populate_npm_cache_win`, `test_js`, `test_js_win`                                                                                                                        | _(none — installs everything)_ | same as `&mise`, but these steps carry their own `if: cache-hit != 'true'` guard, so they can't use the anchor and appear as separate inline steps instead |
-| `plugin_qa_without_node`, `plugin_qa_without_node_dev`, `plugin_qa_fast_without_node`, `plugin_qa_fast_without_node_dev` (the `&mise_java_only` anchor)                                         | `java maven`                   | Node must be absent so "QA without Node" actually tests without Node                                                                                       |
+| `plugin_qa_without_node`, `plugin_qa_fast_without_node` (the `&mise_java_only` anchor)                                                                                                    | `java maven`                   | Node must be absent so "QA without Node" actually tests without Node                                                                                       |
 | `plugin_qa_without_node_alpine`, `plugin_qa_fast_without_node_alpine` (the `&alpine_setup_maven` anchor)                                                                                        | `maven`                        | the Alpine container image already ships its own JDK; only Maven is missing                                                                                |
 | `test_eslint_plugin`, `js_ts_ruling_update`                                                                                                                                                    | `node`                         | These jobs only need Node, with the ESLint test version set by its matrix (see below)                                                                       |
 
@@ -950,7 +946,7 @@ Being _in_ the hash isn't sufficient on its own, though — the hash is over `mi
 
 ### Jobs the nightly schedule gates — no PR run ever exercises them
 
-Several jobs/steps are guarded by `if: github.event_name == 'schedule'`, and GitHub only fires `schedule` on the default branch — so they don't run on `push`, `pull_request`, or even a manual `workflow_dispatch`: `plugin_qa_without_node_dev`, `plugin_qa_without_node_alpine`, `plugin_qa_fast_without_node_dev`, `plugin_qa_fast_without_node_alpine`, `analyze_shadows`, `run_iris`, `generated_files_freshness`, and the nightly steps inside `build_eslint_plugin` and `build` (the `generated-licenses-${github.sha}` upload). A change that only affects one of these (like an Alpine-container `install_args` tweak) gets **no CI signal at all** until the first post-merge nightly.
+Several jobs/steps are guarded by `if: github.event_name == 'schedule'`, and GitHub only fires `schedule` on the default branch — so they don't run on `push`, `pull_request`, or even a manual `workflow_dispatch`: `plugin_qa_without_node_alpine`, `plugin_qa_fast_without_node_alpine`, `analyze_shadows`, `run_iris`, `generated_files_freshness`, and the nightly steps inside `build_eslint_plugin` and `build` (the `generated-licenses-${github.sha}` upload). A change that only affects one of these (like an Alpine-container `install_args` tweak) gets **no CI signal at all** until the first post-merge nightly.
 
 Do not "fix" this by dispatching `build.yml` manually to force them — a `workflow_dispatch` run satisfies `github.event_name != 'pull_request'`, so it will also run `build`'s `mvn deploy -Pdeploy-sonarsource,coverage,sign,release,sbom,license-regeneration -T1C` and the `promote` job, publishing and promoting real artifacts in Repox from a throwaway ref. For container-specific behavior (e.g. the Alpine jobs), reproduce it locally instead: run the exact pinned container image with the exact pinned `mise` version (`curl https://mise.run | MISE_VERSION=v<pinned> sh`) and mount in `mise.toml`, rather than the version installed on your own machine.
 

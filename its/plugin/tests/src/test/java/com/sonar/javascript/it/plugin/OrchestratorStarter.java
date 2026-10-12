@@ -83,7 +83,7 @@ public final class OrchestratorStarter
     .useDefaultAdminCredentialsForBuilds(true)
     .setEdition(Edition.ENTERPRISE_LW)
     .activateLicense()
-    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "DEV"))
     // AI CodeFix is outside the scope of analyzer ITs and can emit unrelated startup noise when
     // the test SonarQube instance has no valid fix-suggestion service endpoint configured.
     .setServerProperty("sonar.ai.codefix.hidden", "true")

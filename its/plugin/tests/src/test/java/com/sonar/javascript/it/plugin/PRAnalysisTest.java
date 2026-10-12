@@ -196,7 +196,7 @@ class PRAnalysisTest {
 
   @BeforeAll
   static void startOrchestrator() {
-    var version = System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE");
+    var version = System.getProperty("sonar.runtimeVersion", "DEV");
     var builder = OrchestratorExtension.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(version)

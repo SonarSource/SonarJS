@@ -42,14 +42,14 @@ public final class SonarScannerIntegrationHelper {
 
   /**
    * Get the engine version based on the sonar.runtimeVersion system property.
-   * Defaults to LATEST_RELEASE if not specified.
+   * Defaults to DEV if not specified.
    */
   public static EngineVersion.Version getEngineVersion() {
-    String runtimeVersion = System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE");
-    if ("DEV".equals(runtimeVersion)) {
-      return EngineVersion.latestMasterBuild();
+    String runtimeVersion = System.getProperty("sonar.runtimeVersion", "DEV");
+    if ("LATEST_RELEASE".equals(runtimeVersion)) {
+      return EngineVersion.latestRelease();
     }
-    return EngineVersion.latestRelease();
+    return EngineVersion.latestMasterBuild();
   }
 
   public static SonarServerContext getContext(

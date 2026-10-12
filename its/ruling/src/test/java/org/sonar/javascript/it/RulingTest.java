@@ -65,7 +65,7 @@ class RulingTest {
     .useDefaultAdminCredentialsForBuilds(true)
     .setEdition(Edition.ENTERPRISE_LW)
     .activateLicense()
-    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+    .setSonarVersion(System.getProperty("sonar.runtimeVersion", "DEV"))
     // Ruling validates analyzer behavior, not AI CodeFix integration; disable it to avoid
     // unrelated token-refresh warnings in the orchestrated SonarQube server.
     .setServerProperty("sonar.ai.codefix.hidden", "true")

@@ -23,6 +23,8 @@ env:
   NPM_CONFIG_LOGLEVEL: ${{ inputs.validate-registry-routing && 'http' || 'notice' }}
   # Run the Maven license-header check only in the Linux build; other Maven jobs skip it.
   MAVEN_ARGS: -Dlicense.skip=true
+  # Run QA against development SonarQube builds.
+  SONARQUBE_VERSION: DEV
   # Workflows modified by a pull request cannot create the refs used by get-build-number even
   # when contents: write is requested. Reuse the stable workflow run number in that case.
   BUILD_NUMBER: ${{ github.event_name == 'pull_request' && github.run_number || '' }}
@@ -832,15 +834,11 @@ jobs:
         with:
           secrets: |
             development/github/token/licenses-ro token | licenses_token;
-      - &orchestrator_cache_restore
-        uses: ./.github/actions/orchestrator-cache
-        with:
-          save: 'false'
       - name: Run Plugin QA
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion="$SONARQUBE_VERSION" -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion="$SONARQUBE_VERSION" -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -864,22 +862,17 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - &orchestrator_fast_cache_restore
-        uses: ./.github/actions/orchestrator-cache
-        with:
-          key-prefix: orchestrator-fast
-          save: 'false'
       - name: Run Fast Plugin QA
         run: |
           mvn package -f its/plugin/plugins/pom.xml
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion="$SONARQUBE_VERSION" -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_without_node:
     runs-on: sonar-m
-    name: QA without Node on Ubuntu SQ:LATEST_RELEASE
+    name: QA without Node on Ubuntu SQ:DEV
     needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
@@ -910,39 +903,11 @@ jobs:
           export -f node
 
           node
-      - uses: ./.github/actions/orchestrator-cache
       - name: Run Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-        env:
-          SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: multi
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
-
-  # DEV tests run only on nightly schedule to avoid constant downloads
-  plugin_qa_without_node_dev:
-    runs-on: sonar-m
-    name: QA without Node on Ubuntu SQ:DEV
-    needs: [setup, get_build_number, build]
-    if: github.event_name == 'schedule'
-    permissions: *read_permissions
-    env: *shared_build_number
-    steps:
-      - *checkout
-      - *mise_java_only
-      - *maven_cache_restore
-      - *download_sonarjs_m2
-      - *config_maven
-      - *get_licenses_token
-      - *remove_node_from_path
-      # No orchestrator cache for DEV - version changes too frequently
-      - name: Run Plugin QA without Node (DEV)
-        run: |
-          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion="$SONARQUBE_VERSION" -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion="$SONARQUBE_VERSION" -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -950,7 +915,7 @@ jobs:
 
   plugin_qa_without_node_alpine:
     runs-on: warp-custom-ubuntu-24-04
-    name: QA without Node on Alpine SQ:LATEST_RELEASE
+    name: QA without Node on Alpine SQ:DEV
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     container:
@@ -985,7 +950,6 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - *orchestrator_cache_restore
       - name: Fix permissions for non-root user
         run: |
           # Ensure the sonar user can access all necessary directories after cache restores
@@ -995,8 +959,8 @@ jobs:
         shell: bash
         run: |
           setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -B
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
-          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion="$SONARQUBE_VERSION" -B -e -V verify surefire-report:report
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion="$SONARQUBE_VERSION" -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
@@ -1004,7 +968,7 @@ jobs:
 
   plugin_qa_fast_without_node:
     runs-on: sonar-m
-    name: Fast QA without Node on Ubuntu SQ:LATEST_RELEASE
+    name: Fast QA without Node on Ubuntu SQ:DEV
     needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
@@ -1017,39 +981,10 @@ jobs:
       - *config_maven
       - *get_licenses_token
       - *remove_node_from_path
-      - uses: ./.github/actions/orchestrator-cache
-        with:
-          key-prefix: orchestrator-fast
       - name: Run Fast Plugin QA without Node
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
-        env:
-          SONARSOURCE_QA: true
-          SONARJS_ARTIFACT: multi
-          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
-
-  # DEV tests run only on nightly schedule to avoid constant downloads
-  plugin_qa_fast_without_node_dev:
-    runs-on: sonar-m
-    name: Fast QA without Node on Ubuntu SQ:DEV
-    needs: [setup, get_build_number, build]
-    if: github.event_name == 'schedule'
-    permissions: *read_permissions
-    env: *shared_build_number
-    steps:
-      - *checkout
-      - *mise_java_only
-      - *maven_cache_restore
-      - *download_sonarjs_m2
-      - *config_maven
-      - *get_licenses_token
-      - *remove_node_from_path
-      # No orchestrator cache for DEV - version changes too frequently
-      - name: Run Fast Plugin QA without Node (DEV)
-        run: |
-          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion="$SONARQUBE_VERSION" -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: multi
@@ -1057,7 +992,7 @@ jobs:
 
   plugin_qa_fast_without_node_alpine:
     runs-on: warp-custom-ubuntu-24-04
-    name: Fast QA without Node on Alpine SQ:LATEST_RELEASE
+    name: Fast QA without Node on Alpine SQ:DEV
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     container:
@@ -1073,12 +1008,11 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - *orchestrator_fast_cache_restore
       - name: Run Fast Plugin QA without Node
         shell: bash
         run: |
           mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin -B
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion="$SONARQUBE_VERSION" -Dtest=!EslintCustomRulesTest -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           SONARJS_ARTIFACT: linux-x64-musl
@@ -1106,9 +1040,6 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - uses: ./.github/actions/orchestrator-cache
-        with:
-          save: ${{ matrix.group == 1 }}
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
@@ -1123,7 +1054,7 @@ jobs:
           fi
 
           mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
-          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion="$SONARQUBE_VERSION" -Dtest="$TEST_PATTERN" -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -1144,7 +1075,7 @@ jobs:
       - name: Run Plugin QA on Windows
         shell: bash
         run: |
-          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion="$SONARQUBE_VERSION" -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
 
@@ -1170,10 +1101,6 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - uses: ./.github/actions/orchestrator-cache
-        with:
-          key-prefix: orchestrator-fast
-          save: ${{ matrix.group == 1 }}
       - name: Run Fast Plugin QA on Windows
         shell: bash
         run: |
@@ -1188,7 +1115,7 @@ jobs:
           fi
 
           mvn package -f its/plugin/plugins/pom.xml
-          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion="$SONARQUBE_VERSION" -Dtest="$TEST_PATTERN" -B -e -V verify surefire-report:report
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -1317,13 +1244,12 @@ jobs:
       - *download_sonarjs_m2
       - *config_maven
       - *get_licenses_token
-      - *orchestrator_cache_restore
       - name: Run Ruling Tests
         run: |
           cd its/ruling
           # Cap ruling parallelism explicitly: using all CPUs on sonar-xl can
           # overwhelm the shared SonarQube/Node workload and make the runner drop.
-          mvn test -Dtest=RulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=8 -B -e -V
+          mvn test -Dtest=RulingTest -DskipTests=false -Dsonar.runtimeVersion="$SONARQUBE_VERSION" -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=8 -B -e -V
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
@@ -1459,8 +1385,6 @@ jobs:
       - releasability
       - generated_files_freshness
       - analyze_shadows
-      - plugin_qa_without_node_dev
-      - plugin_qa_fast_without_node_dev
       - run_iris
     if: >-
       always()
