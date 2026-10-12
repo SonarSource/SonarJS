@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { ASTUtils } from '@angular-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
@@ -281,7 +282,18 @@ function overridingMemberOutputAlias(
     : null;
 }
 
-/** Reads `refresh` from `outputs: ['onRefresh: refresh']` or a direct `outputs: ['refresh']` entry. */
+/** Reads member and public names from a static output metadata entry. */
+function parseOutputMapping(mapping: string | undefined): [string, string] | undefined {
+  const separator = mapping?.indexOf(':') ?? -1;
+  if (separator === 0 || mapping?.indexOf(':', separator + 1) !== -1) {
+    return undefined;
+  }
+  const internalName = separator === -1 ? mapping?.trim() : mapping?.slice(0, separator).trim();
+  const alias = separator === -1 ? internalName : mapping?.slice(separator + 1).trim();
+  return internalName && alias ? [internalName, alias] : undefined;
+}
+
+/** Reads `refresh` from an already-recognized `onRefresh: refresh` metadata mapping. */
 function outputAliasFromMetadata(
   context: Rule.RuleContext,
   node: TSESTree.Node,
@@ -290,16 +302,11 @@ function outputAliasFromMetadata(
   if (!isMetadataMapping && !isHostDirectiveOutputMapping(context, node)) {
     return undefined;
   }
-  const mapping = staticText(node);
-  const separator = mapping?.indexOf(':') ?? -1;
-  if (separator === 0 || mapping?.indexOf(':', separator + 1) !== -1) {
+  const names = parseOutputMapping(staticText(node));
+  if (!names) {
     return undefined;
   }
-  const internalName = separator === -1 ? mapping?.trim() : mapping?.slice(0, separator).trim();
-  const alias = separator === -1 ? internalName : mapping?.slice(separator + 1).trim();
-  if (!internalName || !alias) {
-    return undefined;
-  }
+  const [internalName, alias] = names;
   const memberAlias = isMetadataMapping
     ? overridingMemberOutputAlias(context, node, internalName)
     : null;
@@ -309,7 +316,23 @@ function outputAliasFromMetadata(
   return memberAlias ?? alias;
 }
 
-/** Returns `publicRefresh` from `refresh = output({ alias: 'publicRefresh' })` or metadata. */
+/** Reads static member and public names from an upstream output-alias report. */
+export function getAngularOutputNames(node: TSESTree.Node): [string, string] | undefined {
+  const text = staticText(node);
+  if (text === undefined) {
+    return undefined;
+  }
+  const parent = mappingNode(node).parent;
+  if (parent?.type === 'ArrayExpression') {
+    return parent.parent.type === 'Property' ? parseOutputMapping(text) : undefined;
+  }
+  const member = ASTUtils.getNearestNodeFrom(node, ASTUtils.isPropertyOrMethodDefinition);
+  return member && !member.computed && member.key.type === 'Identifier'
+    ? [member.key.name, text]
+    : undefined;
+}
+
+/** Returns the explicit public alias for an Angular output declaration or metadata mapping. */
 export function getAngularOutputAlias(
   context: Rule.RuleContext,
   node: TSESTree.Node,
