@@ -52,61 +52,66 @@ on:
       # END GENERATED PROVENANCE INPUTS
       # BEGIN GENERATED CONFIG INPUTS
       # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+      config-file:
+        description: Optional configuration module in the tested checkout; empty uses generic defaults
+        required: false
+        type: string
+        default: inherit
       new-results-path:
         description: Generated-results path within the tested repository
         required: false
         type: string
-        default: packages/ruling/actual
+        default: inherit
       old-results-path:
         description: Expected-results path within the tested repository
         required: false
         type: string
-        default: its/ruling/src/test/resources/expected
+        default: inherit
       sources-path:
         description: Local source checkout used for snippets; empty disables snippets
         required: false
         type: string
-        default: its/sources
+        default: inherit
       sources-repo-url:
         description: Remote source URL used for file links; empty disables links
         required: false
         type: string
-        default: https://github.com/SonarSource/jsts-test-sources/blob/master
+        default: inherit
       rspec-base-url:
         description: RSPEC URL used for rule links; empty disables links
         required: false
         type: string
-        default: https://musical-adventure-r9qk65j.pages.github.io/rspec/#
+        default: inherit
       max-inline-snippets:
         description: Maximum detailed snippets per report section
         required: false
         type: string
-        default: '10'
+        default: inherit
       results-artifact-name:
         description: Exact saved generated-results artifact name
         required: false
         type: string
-        default: ''
+        default: inherit
       report-workflow:
         description: Reporter workflow filename or ID
         required: false
         type: string
-        default: ruling-diff-comment.yml
+        default: inherit
       report-workflow-ref:
         description: Reporter workflow ref; empty selects the tested target branch
         required: false
         type: string
-        default: ''
+        default: inherit
       build-workflow:
         description: Build workflow filename or ID used to find authoritative dispatches
         required: false
         type: string
-        default: build.yml
+        default: inherit
       report-dispatch-step:
         description: Build step recording a successful ruling report request
         required: false
         type: string
-        default: Record ruling report dispatch
+        default: inherit
       # END GENERATED CONFIG INPUTS
 
 # Separate tested commits so an old dispatch cannot replace a newer pending report.
@@ -154,17 +159,7 @@ jobs:
           fix-pr-url: ${{ inputs.fix-pr-url || '' }}
           target-ref: ${{ inputs.target-ref || github.head_ref }}
           # END GENERATED REPORT PROVENANCE
-          # BEGIN GENERATED REPORT CONFIG
+          # BEGIN GENERATED WORKFLOW INPUTS
           # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
-          new-results-path: ${{ github.event_name == 'pull_request' && 'packages/ruling/actual' || inputs.new-results-path }}
-          old-results-path: ${{ github.event_name == 'pull_request' && 'its/ruling/src/test/resources/expected' || inputs.old-results-path }}
-          sources-path: ${{ github.event_name == 'pull_request' && 'its/sources' || inputs.sources-path }}
-          sources-repo-url: ${{ github.event_name == 'pull_request' && 'https://github.com/SonarSource/jsts-test-sources/blob/master' || inputs.sources-repo-url }}
-          rspec-base-url: ${{ github.event_name == 'pull_request' && 'https://musical-adventure-r9qk65j.pages.github.io/rspec/#' || inputs.rspec-base-url }}
-          max-inline-snippets: ${{ github.event_name == 'pull_request' && '10' || inputs.max-inline-snippets }}
-          results-artifact-name: ${{ inputs.results-artifact-name || format('actual_js_ts-{0}', inputs.run-attempt || '1') }}
-          report-workflow: ${{ github.event_name == 'pull_request' && 'ruling-diff-comment.yml' || inputs.report-workflow }}
-          report-workflow-ref: ${{ github.event_name == 'pull_request' && '' || inputs.report-workflow-ref }}
-          build-workflow: ${{ github.event_name == 'pull_request' && 'build.yml' || inputs.build-workflow }}
-          report-dispatch-step: ${{ github.event_name == 'pull_request' && 'Record ruling report dispatch' || inputs.report-dispatch-step }}
-          # END GENERATED REPORT CONFIG
+          workflow-inputs: ${{ toJSON(inputs) }}
+          # END GENERATED WORKFLOW INPUTS

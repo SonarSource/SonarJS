@@ -215,19 +215,17 @@ function parseJsonFile(filePath) {
     return {};
   }
 
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf-8'));
-  } catch {
-    return {};
-  }
+  return JSON.parse(readFileSync(filePath, 'utf-8'));
 }
 
 function parseJsonFromGit(filePath) {
-  try {
-    return JSON.parse(git(['show', `${baseCommit}:${toGitPath(filePath)}`]));
-  } catch {
+  const gitPath = toGitPath(filePath);
+  // A missing baseline file is a new expectation; Git and JSON errors must stay visible.
+  if (
+    !git(['--literal-pathspecs', 'ls-tree', '--name-only', '-z', baseCommit, '--', gitPath], false)
+  )
     return {};
-  }
+  return JSON.parse(git(['show', `${baseCommit}:${gitPath}`]));
 }
 
 function generateMarkdown(changes) {
@@ -529,6 +527,7 @@ function git(args, trimOutput = true) {
   const output = execFileSync('git', args, {
     cwd: repositoryRoot,
     encoding: 'utf-8',
+    maxBuffer: Infinity,
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   return trimOutput ? output.trim() : output;

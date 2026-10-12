@@ -19,10 +19,10 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import test from 'node:test';
 import yaml from 'yaml';
-import { configuration } from '../config.mjs';
+import { configuration, environmentConfiguration } from '../config.mjs';
 import { fixture, fix, comment, repository } from './fixtures.mjs';
 
-function assertDispatchContract(f, provenance) {
+async function assertDispatchContract(f, provenance) {
   const dispatch = f.state.calls.find(args => args[0] === 'workflow');
   const entries = dispatch.flatMap((arg, index) => {
     if (arg !== '-f') return [];
@@ -35,14 +35,21 @@ function assertDispatchContract(f, provenance) {
   ).on.workflow_dispatch.inputs;
   const fields = Object.fromEntries(entries);
   assert.equal(entries.length, Object.keys(fields).length, 'No duplicate dispatch fields');
-  assert.deepEqual(Object.keys(fields).sort(), Object.keys(inputs).sort());
-  assert.deepEqual(fields, {
-    ...Object.fromEntries(Object.entries(f.config).map(([name, value]) => [name, String(value)])),
-    ...provenance,
+  assert.ok(Object.keys(fields).every(name => name in inputs));
+  for (const [name, value] of Object.entries(provenance)) assert.equal(fields[name], value);
+  const received = await environmentConfiguration({
+    RULING_REPOSITORY_PATH: f.workspace,
+    RULING_WORKFLOW_INPUTS: JSON.stringify(fields),
   });
+  assert.deepEqual(
+    received,
+    f.config,
+    'The real reporter resolver preserves every producing setting',
+  );
   for (const [name, input] of Object.entries(inputs)) {
-    if (input.required) assert.notEqual(fields[name], '', `${name} is required`);
-    if (input.type === 'boolean') assert.match(fields[name], /^(true|false)$/);
+    if (input.required) assert.ok(fields[name], `${name} is required`);
+    if (input.type === 'boolean' && fields[name] !== undefined)
+      assert.match(fields[name], /^(true|false)$/);
   }
 }
 
@@ -157,7 +164,7 @@ test('passing retry closes only open fixes and dispatches report refresh from th
   assert.ok(dispatch.includes('ruling-failed=false'));
   assert.ok(dispatch.includes(`head-sha=${f.merge}`));
   assert.ok(dispatch.includes(`base-sha=${f.base}`));
-  assertDispatchContract(f, {
+  await assertDispatchContract(f, {
     'pr-number': '123',
     'base-sha': f.base,
     'head-sha': f.merge,
@@ -193,9 +200,7 @@ test('failed update preserves the tested merge and discards unrelated dirty gene
   const dispatch = f.state.calls.find(args => args[0] === 'workflow');
   assert.equal(dispatch[dispatch.indexOf('--ref') + 1], 'outdated-pr');
   assert.equal(dispatch[2], 'custom-report.yml');
-  for (const [name, value] of Object.entries(f.config))
-    assert.ok(dispatch.includes(`${name}=${value}`));
-  assertDispatchContract(f, {
+  await assertDispatchContract(f, {
     'pr-number': '123',
     'base-sha': f.base,
     'head-sha': f.merge,
@@ -287,7 +292,10 @@ for (const absolute of [false, true]) {
     );
     f.ctx.output = path.join(f.workspace, 'report-output');
     assert.equal(await f.bot().checkReport(config), true);
-    assert.equal(readFileSync(f.ctx.output, 'utf8'), `results-path=${destination}\n`);
+    assert.equal(
+      readFileSync(f.ctx.output, 'utf8'),
+      `results-path=${destination}\nresults-artifact-name=${config['results-artifact-name']}\n`,
+    );
     assert.equal(await f.bot().report(config), 'reported');
     assert.match(f.state.comments[0].body, /old\.js:4/);
   });
@@ -960,7 +968,7 @@ test('default-branch failure reports generated results on the fix PR', async t =
   const dispatch = f.state.calls.find(args => args[0] === 'workflow');
   assert.ok(dispatch.includes('pr-number=456'));
   assert.ok(dispatch.includes('is-pull-request=false'));
-  assertDispatchContract(f, {
+  await assertDispatchContract(f, {
     'pr-number': '456',
     'base-sha': f.base,
     'head-sha': f.base,
@@ -1588,3 +1596,47 @@ for (const closed of [false, true]) {
     }
   });
 }
+
+for (const failed of [false, true]) {
+  test(`${failed ? 'failed' : 'passing'} default-profile dispatch omits static configuration and the receiver reconstructs it`, async t => {
+    const f = fixture(t);
+    f.write('.github/ruling-bot.config.mjs', `export default ${JSON.stringify(f.config)};\n`);
+    f.git(['add', '.github/ruling-bot.config.mjs']);
+    f.git(['commit', '--amend', '--no-edit']);
+    f.ctx.testedCommit = f.git(['rev-parse', 'HEAD']);
+    f.ctx.failed = failed;
+    f.config = await environmentConfiguration({ RULING_REPOSITORY_PATH: f.workspace });
+    assert.equal(await f.bot().update(f.config), failed ? 'updated' : 'passed');
+    const dispatch = f.state.calls.find(args => args[0] === 'workflow');
+    assert.equal(dispatch.filter(value => value === '-f').length, failed ? 10 : 9);
+    if (failed)
+      assert.ok(dispatch.includes(`results-artifact-name=${f.config['results-artifact-name']}`));
+    await assertDispatchContract(f, {
+      'head-sha': f.ctx.testedCommit,
+      'run-id': '42',
+      'run-attempt': '1',
+      'ruling-failed': String(failed),
+    });
+  });
+}
+test('an updater retry retains the producing artifact even when its name equals the repository default', async t => {
+  const f = fixture(t);
+  f.write(
+    '.github/ruling-bot.config.mjs',
+    `export default ${JSON.stringify({
+      ...f.config,
+      'results-artifact-name': 'results-attempt-1',
+    })};\n`,
+  );
+  f.git(['add', '.github/ruling-bot.config.mjs']);
+  f.git(['commit', '--amend', '--no-edit']);
+  f.ctx.testedCommit = f.git(['rev-parse', 'HEAD']);
+  f.ctx.runAttempt = '2';
+  f.state.run.run_attempt = 2;
+  f.config = await environmentConfiguration({ RULING_REPOSITORY_PATH: f.workspace });
+  assert.equal(await f.bot().update(f.config), 'updated');
+  await assertDispatchContract(f, {
+    'run-attempt': '2',
+    'results-artifact-name': 'results-attempt-1',
+  });
+});
