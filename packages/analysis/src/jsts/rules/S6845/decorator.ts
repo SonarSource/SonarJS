@@ -182,7 +182,7 @@ function hasCurrentValue(
   const scope = context.sourceCode.getScope(expression as Node) as unknown as TSESLint.Scope.Scope;
   const evaluated = ASTUtils.getStaticValue(expression, scope);
   if (evaluated === null) {
-    return true;
+    return !isDefinitelyNonNumeric(context, expression);
   }
   const value = evaluated.value;
   return (
@@ -262,4 +262,29 @@ function isNonSequentialTabIndexValue(expression: TSESTree.Expression): boolean 
     Number.isInteger(expression.argument.value) &&
     expression.argument.value > 0
   );
+}
+
+function isDefinitelyNonNumeric(context: Rule.RuleContext, expression: TSESTree.Node): boolean {
+  const resolved = unwrapTypeScriptExpression(
+    getUniqueWriteUsageOrNode(context, expression as Node, true),
+  ) as TSESTree.Node;
+  switch (resolved.type) {
+    case 'ObjectExpression':
+    case 'ArrayExpression':
+    case 'ArrowFunctionExpression':
+    case 'FunctionExpression':
+    case 'ClassExpression':
+    case 'NewExpression':
+    case 'JSXElement':
+    case 'JSXFragment':
+      return true;
+    case 'UnaryExpression':
+      return ['!', 'void', 'typeof', 'delete'].includes(resolved.operator);
+    case 'BinaryExpression':
+      return ['==', '===', '!=', '!==', '<', '>', '<=', '>=', 'in', 'instanceof'].includes(
+        resolved.operator,
+      );
+    default:
+      return false;
+  }
 }
