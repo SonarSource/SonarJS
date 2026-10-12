@@ -68,6 +68,15 @@ const FALSE_POSITIVE_ESCAPES: readonly FalsePositiveEscape[] = [
   },
 ];
 
+/**
+ * Checks whether the current file imports the Stencil runtime.
+ * @param signals Dependencies and imports available in the current file.
+ * @return Whether the file uses Stencil.
+ */
+export function usesStencil(signals: FalsePositiveSignals): boolean {
+  return hasRuntimeImport(signals, ['@stencil/core']);
+}
+
 export function getIgnoredProps(signals: FalsePositiveSignals): string[] {
   return FALSE_POSITIVE_ESCAPES.filter(falsePositiveEscape =>
     falsePositiveEscape.isActive(signals),

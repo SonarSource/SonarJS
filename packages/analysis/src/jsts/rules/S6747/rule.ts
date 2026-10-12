@@ -95,6 +95,9 @@ export const rule: Rule.RuleModule = {
       dependencies: getDependenciesSanitizePaths(context),
       imports: getImportDeclarations(context),
     };
+    if (fp.usesStencil(signals)) {
+      return {};
+    }
     const frameworkIgnoredProps = fp.getIgnoredProps(signals);
 
     // If we have framework-specific props, create a modified context with updated options
