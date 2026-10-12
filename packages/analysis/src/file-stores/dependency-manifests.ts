@@ -123,9 +123,9 @@ export class DependencyManifestStore implements FileStore {
     this.dirnameToParent.set(dir, dirnamePath(dir));
   }
 
-  async postProcess(configuration: Configuration) {
+  postProcess(configuration: Configuration) {
     if (!this.baseDir) {
-      throw new Error(UNINITIALIZED_ERROR);
+      return Promise.reject(new Error(UNINITIALIZED_ERROR));
     }
     for (const manifestName of PRELOADABLE_DEPENDENCY_MANIFESTS) {
       fillManifestCaches(
@@ -136,5 +136,6 @@ export class DependencyManifestStore implements FileStore {
         configuration.canAccessFileSystem,
       );
     }
+    return Promise.resolve();
   }
 }

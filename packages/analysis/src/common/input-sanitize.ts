@@ -67,41 +67,61 @@ export async function sanitizeInputFiles(
   }
 
   const filterPathParams = getFilterPathParams(configuration);
-  for (const [key, fileInput] of Object.entries(inputFiles)) {
-    const filePath = normalizeToAbsolutePath(fileInput.filePath, baseDir);
-    const fileContent =
-      fileInput.fileContent === undefined
-        ? await readFile(filePath)
-        : stripBOM(fileInput.fileContent);
-    let rawFileType: FileType | undefined = fileInput.fileType;
-    if (rawFileType !== 'TEST') {
-      // We cannot trust the caller to provide the correct fileType, so we attempt to infer it from
-      // configured source/test paths if not explicitly set to 'TEST'. Filename heuristics are kept
-      // separate because they must only affect rule selection.
-      const inferredFileType = filterPathAndGetFileType(filePath, filterPathParams);
-      if (inferredFileType) {
-        rawFileType = inferredFileType;
-      }
+  const shouldIgnoreParams = getShouldIgnoreParams(configuration);
+  const processed = await Promise.all(
+    Object.entries(inputFiles).map(([key, fileInput]) =>
+      sanitizeInputFile(key, fileInput, baseDir, filterPathParams, shouldIgnoreParams),
+    ),
+  );
+  for (const result of processed) {
+    if (result) {
+      files[result.file.filePath] = result.file;
+      pathMap.set(result.file.filePath, result.key);
     }
-    const fileType = rawFileType ?? JSTS_ANALYSIS_DEFAULTS.fileType;
-    const rawFileStatus = fileInput.fileStatus;
-
-    if (await shouldIgnoreFile({ filePath, fileContent }, getShouldIgnoreParams(configuration))) {
-      continue;
-    }
-
-    files[filePath] = {
-      filePath,
-      fileContent,
-      fileType,
-      ruleFileType: getFileTypeForRules(filePath, fileType, filterPathParams),
-      fileStatus: rawFileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
-    };
-    pathMap.set(filePath, key);
   }
 
   return {
     files,
     pathMap,
+  };
+}
+
+async function sanitizeInputFile(
+  key: string,
+  fileInput: ProjectAnalysisFileInput,
+  baseDir: NormalizedAbsolutePath,
+  filterPathParams: ReturnType<typeof getFilterPathParams>,
+  shouldIgnoreParams: ReturnType<typeof getShouldIgnoreParams>,
+) {
+  const filePath = normalizeToAbsolutePath(fileInput.filePath, baseDir);
+  const fileContent =
+    fileInput.fileContent === undefined
+      ? await readFile(filePath)
+      : stripBOM(fileInput.fileContent);
+  let rawFileType: FileType | undefined = fileInput.fileType;
+  if (rawFileType !== 'TEST') {
+    // We cannot trust the caller to provide the correct fileType, so we attempt to infer it from
+    // configured source/test paths if not explicitly set to 'TEST'. Filename heuristics are kept
+    // separate because they must only affect rule selection.
+    const inferredFileType = filterPathAndGetFileType(filePath, filterPathParams);
+    if (inferredFileType) {
+      rawFileType = inferredFileType;
+    }
+  }
+  const fileType = rawFileType ?? JSTS_ANALYSIS_DEFAULTS.fileType;
+
+  if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
+    return undefined;
+  }
+
+  return {
+    key,
+    file: {
+      filePath,
+      fileContent,
+      fileType,
+      ruleFileType: getFileTypeForRules(filePath, fileType, filterPathParams),
+      fileStatus: fileInput.fileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
+    },
   };
 }
