@@ -55,7 +55,7 @@ jobs:
           ref: ${{ inputs.head-sha || github.sha }}
           fetch-depth: 0
           submodules: true
-      - uses: jdx/mise-action@94c60b39bc2d90ab2f9bab27f38d3cc4812c1834 # v5.1.0
+      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
         with:
           version: 2026.9.18
           install_args: node
