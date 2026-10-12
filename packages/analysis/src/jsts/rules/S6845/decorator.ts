@@ -16,9 +16,13 @@
  */
 import { ASTUtils, type TSESLint, type TSESTree } from '@typescript-eslint/utils';
 import { roles } from 'aria-query';
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type { Node } from 'estree';
-import { unwrapTypeScriptExpression } from '../helpers/ast.js';
+import {
+  getUniqueWriteUsageOrNode,
+  getVariableFromName,
+  unwrapTypeScriptExpression,
+} from '../helpers/ast.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
@@ -61,7 +65,7 @@ function isSeparatorWidget(
   if (opening.name.type !== 'JSXIdentifier' || opening.name.name !== 'div') {
     return false;
   }
-  const role = attributeExpression(effectiveAttribute(opening, 'role'));
+  const role = attributeExpression(effectiveAttribute(context, opening, 'role'));
   if (role?.type !== 'Literal' || typeof role.value !== 'string') {
     return false;
   }
@@ -71,30 +75,81 @@ function isSeparatorWidget(
     .find(name => CONCRETE_ROLES.has(name));
   return (
     effectiveRole === 'separator' &&
-    hasCurrentValue(context, effectiveAttribute(opening, 'aria-valuenow'))
+    hasCurrentValue(context, effectiveAttribute(context, opening, 'aria-valuenow'))
   );
 }
 
 /**
  * Finds an explicitly declared attribute that cannot be overridden by a spread.
+ * @param context the rule context
  * @param opening the JSX opening element
  * @param name the attribute name
  * @return the effective attribute when it is known
  */
 function effectiveAttribute(
+  context: Rule.RuleContext,
   opening: TSESTree.JSXOpeningElement,
   name: string,
 ): TSESTree.JSXAttribute | undefined {
   for (let index = opening.attributes.length - 1; index >= 0; index--) {
     const attribute = opening.attributes[index];
     if (attribute.type === 'JSXSpreadAttribute') {
-      return undefined;
+      if (canSpreadOverrideAttribute(context, attribute.argument, name)) {
+        return undefined;
+      }
+      continue;
     }
     if (attribute.name.type === 'JSXIdentifier' && attribute.name.name === name) {
       return attribute;
     }
   }
   return undefined;
+}
+
+function canSpreadOverrideAttribute(
+  context: Rule.RuleContext,
+  argument: TSESTree.Node,
+  name: string,
+  seen = new Set<TSESTree.Node>(),
+): boolean {
+  const expression = unwrapTypeScriptExpression(argument);
+  if (seen.has(expression)) {
+    return true;
+  }
+  const visited = new Set(seen).add(expression);
+  if (expression.type === 'Identifier') {
+    const variable = getVariableFromName(context, expression.name, expression as Node);
+    // Other reads could mutate or pass the object to code that adds an attribute.
+    if (!variable || variable.references.some(ref => ref.isRead() && !isSpreadReference(ref))) {
+      return true;
+    }
+    const value = getUniqueWriteUsageOrNode(context, expression as Node) as TSESTree.Node;
+    return value === expression || canSpreadOverrideAttribute(context, value, name, visited);
+  }
+  if (expression.type !== 'ObjectExpression') {
+    return true;
+  }
+  return expression.properties.some(property => {
+    if (property.type === 'SpreadElement') {
+      return canSpreadOverrideAttribute(context, property.argument, name, visited);
+    }
+    if (!property.computed && property.key.type === 'Identifier') {
+      return property.key.name === name;
+    }
+    const scope = context.sourceCode.getScope(
+      property.key as Node,
+    ) as unknown as TSESLint.Scope.Scope;
+    const key = ASTUtils.getStaticValue(property.key, scope);
+    return key === null || String(key.value) === name;
+  });
+}
+
+function isSpreadReference(reference: Scope.Reference): boolean {
+  let parent = (reference.identifier as TSESTree.Node).parent;
+  while (parent && unwrapTypeScriptExpression(parent) !== parent) {
+    parent = parent.parent;
+  }
+  return parent?.type === 'JSXSpreadAttribute' || parent?.type === 'SpreadElement';
 }
 
 /**
