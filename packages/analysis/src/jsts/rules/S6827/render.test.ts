@@ -76,6 +76,16 @@ for (const [language, Tester] of [
             code: `${sidebar}<SidebarMenuButton render={external ? <a href="https://example.com" /> : <Link />}>Continue</SidebarMenuButton>;`,
           },
           { code: `${button}<Button render={external ? <a /> : <a />}>Continue</Button>;` },
+          { code: `${button}<Button render={external && <a />}>Continue</Button>;` },
+          { code: `${button}<Button render={external || <a />}>Continue</Button>;` },
+          { code: `${button}<Button render={external ?? <a />}>Continue</Button>;` },
+          { code: `${button}const link = <a />; <Button render={link}>Continue</Button>;` },
+          {
+            code: `${button}const link = <a />; const alias = link; <Button render={alias}>Continue</Button>;`,
+          },
+          {
+            code: `${button}const link = <a />; <><Button render={link}>Home</Button><Button render={link}>Menu</Button></>;`,
+          },
           { code: `${button}<Button render={<a />} children="Continue" />;` },
           {
             code: `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: 'Continue'}} />;`,
@@ -162,6 +172,13 @@ for (const [language, Tester] of [
         invalid: [
           `${sidebar}<SidebarMenuButton render={<a href="/home" />} />;`,
           `${button}<Button render={<a />}></Button>;`,
+          `${button}<Button render={external && <a />} />;`,
+          `${button}const link = <a />; <Button render={link} />;`,
+          `${button}const link = <a />; <><Button render={link}>Home</Button><Button render={link} /></>;`,
+          `${button}const link = <a />; useElsewhere(link); <Button render={link}>Continue</Button>;`,
+          `${button}const link = <a />; <Other render={link}>Continue</Other>;`,
+          `${button}let link = <a />; link = <span />; <Button render={link}>Continue</Button>;`,
+          `${button}<Button render={<a /> && <span />}>Continue</Button>;`,
           `import { Button } from '@base-ui-components/react/button'; <Button render={<a />} />;`,
           `import { Button } from '@workspace/ui/components/button'; <Button render={<a />} />;`,
           `import { Button } from './ui/button.js'; <Button render={<a />} />;`,

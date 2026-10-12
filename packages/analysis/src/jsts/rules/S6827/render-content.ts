@@ -27,6 +27,7 @@ import {
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
 import { hasAccessibleNameAttribute } from '../helpers/accessibility.js';
+import { getConditionalBranchRoot } from '../helpers/jsx.js';
 
 const SHADCN_COMPONENTS: Record<string, readonly string[]> = {
   button: ['Button'],
@@ -48,14 +49,48 @@ export function hasRenderContent(
   if (anchor.children.length > 0) {
     return false;
   }
-  let current: TSESTree.Node = anchor;
+  return hasRenderConsumer(anchor, opening, context, new Set());
+}
+
+function hasRenderConsumer(
+  node: TSESTree.Node,
+  opening: TSESTree.JSXOpeningElement,
+  context: Rule.RuleContext,
+  seen: Set<TSESTree.Node>,
+): boolean {
+  if (seen.has(node)) {
+    return false;
+  }
+  seen.add(node);
+  let current = node;
   while (
-    (current.parent?.type === 'ConditionalExpression' &&
-      (current.parent.consequent === current || current.parent.alternate === current)) ||
+    (current.parent && getConditionalBranchRoot(current.parent, current)) ||
     (current.parent &&
       unwrapTypeScriptExpression(current.parent) === unwrapTypeScriptExpression(current))
   ) {
     current = current.parent;
+  }
+  const declaration = current.parent;
+  if (
+    declaration?.type === 'VariableDeclarator' &&
+    declaration.init === current &&
+    declaration.id.type === 'Identifier'
+  ) {
+    const variable = getVariableFromName(
+      context,
+      declaration.id.name,
+      declaration.id as unknown as estree.Node,
+    );
+    if (!variable || getUniqueWriteReference(variable) !== current) {
+      return false;
+    }
+    const reads = variable.references.filter(reference => reference.isRead());
+    return (
+      reads.length > 0 &&
+      reads.every(reference =>
+        hasRenderConsumer(reference.identifier as TSESTree.Node, opening, context, seen),
+      )
+    );
   }
   const container = current.parent;
   const attribute = container?.parent;
