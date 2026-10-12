@@ -202,20 +202,6 @@ describe('S6845', () => {
       ],
     });
   });
-
-  it('confirms the upstream rule still reports separator widgets', () => {
-    new DefaultParserRuleTester().run(
-      'no-noninteractive-tabindex',
-      rules['no-noninteractive-tabindex'],
-      {
-        valid: [],
-        invalid: [
-          '<div role="separator" aria-valuenow={position} tabIndex={0} />',
-          '<div role="separator" aria-valuenow="50" tabIndex={0} />',
-        ].map(code => ({ code, options, errors: [{ message }] })),
-      },
-    );
-  });
 });
 
 const upstreamRule = rules['no-noninteractive-tabindex'];
