@@ -25,8 +25,8 @@ describe('S6827 upstream canary', () => {
     // with only spread attributes (e.g. <a {...props} />) as inaccessible.
     //
     // When the upstream releases commit e6bfd5cb7c (which suppresses reports on spread
-    // attributes), this test will fail — that is the signal to revert the SonarJS decorator
-    // in packages/analysis/src/jsts/rules/S6827/decorator.ts and remove all files in S6827/.
+    // attributes), this test will fail — that is the signal to remove the spread-specific guard
+    // while preserving the render-element composition handling in the SonarJS decorator.
     const ruleTester = new DefaultParserRuleTester();
 
     ruleTester.run('anchor-has-content', rules['anchor-has-content'], {

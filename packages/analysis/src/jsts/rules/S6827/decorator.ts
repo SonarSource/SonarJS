@@ -15,6 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
+import type { TSESTree } from '@typescript-eslint/utils';
+import { hasRenderContent } from './render-content.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { getValueOfExpression, getProperty } from '../helpers/ast.js';
@@ -23,16 +25,6 @@ const { hasAnyProp } = pkg;
 import type { JSXOpeningElement, JSXSpreadAttribute } from 'estree-jsx';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
-
-/**
- * This fix was introduced in eslint-plugin-jsx-a11y e6bfd5cb7c,
- * but the last release is almost a year old, so it doesn't include this.
- * When we update the dependency, we can remove this decorator.
- *
- * This will include the removal of:
- * - the `jsx-ast-utils` dependency
- * - all files in the `rules/S6827/` directory
- */
 
 const ACCESSIBLE_PROPS = ['title', 'aria-label'];
 
@@ -81,7 +73,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
-      if (hasAnyProp(node.attributes, ['title', 'aria-label'])) {
+      if (
+        hasAnyProp(node.attributes, ['title', 'aria-label']) ||
+        hasRenderContent(node as TSESTree.JSXOpeningElement, context)
+      ) {
         return;
       }
       context.report({ ...reportDescriptor });
