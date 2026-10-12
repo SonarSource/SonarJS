@@ -37,6 +37,18 @@ for (const [language, Tester] of [
           },
           { code: `${button}<Button render={<a />}>Continue</Button>;` },
           {
+            code: `import { Button } from '@base-ui-components/react/button'; <Button render={<a />}>Continue</Button>;`,
+          },
+          {
+            code: `import { Button } from '@workspace/ui/components/button'; <Button render={<a />}>Continue</Button>;`,
+          },
+          {
+            code: `import { Button } from './ui/button.js'; <Button render={<a />}>Continue</Button>;`,
+          },
+          {
+            code: `import { Badge } from './ui/badge.ts'; <Badge render={<a />}>Continue</Badge>;`,
+          },
+          {
             code: `import { Button } from '@base-ui/react'; <Button render={<a />}>Continue</Button>;`,
           },
           {
@@ -150,6 +162,11 @@ for (const [language, Tester] of [
         invalid: [
           `${sidebar}<SidebarMenuButton render={<a href="/home" />} />;`,
           `${button}<Button render={<a />}></Button>;`,
+          `import { Button } from '@base-ui-components/react/button'; <Button render={<a />} />;`,
+          `import { Button } from '@workspace/ui/components/button'; <Button render={<a />} />;`,
+          `import { Button } from './ui/button.js'; <Button render={<a />} />;`,
+          `import { Button } from '@custom/ui/components/button'; <Button render={<a />}>Continue</Button>;`,
+          `import { Other } from '@workspace/ui/components/button'; <Other render={<a />}>Continue</Other>;`,
           `${button}<Button render={<a />}>   </Button>;`,
           `${button}<Button render={<a />}>{/* no content */}</Button>;`,
           `${button}<Button render={<a />}>{undefined}</Button>;`,

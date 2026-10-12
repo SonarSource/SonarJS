@@ -126,12 +126,13 @@ function isCompositionComponent(
   if (!name) {
     return false;
   }
-  if (name === '@base-ui.react.button.Button' || name === '@base-ui.react.Button') {
+  if (/^@base-ui(?:-components)?\.react\.(?:button\.)?Button$/.test(name)) {
     return true;
   }
   // shadcn ships these wrappers as application source rather than as an npm package.
-  const local = /^(?:\.|[@~#]\.|components\.|src\.|registry\.)/.test(name);
-  const match = /(?:^|\.)ui\.(button|badge|sidebar)(?:\.(?:jsx|tsx))?\.([^.]+)$/.exec(name);
+  const local = /^(?:\.|[@~#]\.|components\.|src\.|registry\.|@workspace\.)/.test(name);
+  const match =
+    /(?:^|\.)ui\.(?:components\.)?(button|badge|sidebar)(?:\.(?:jsx?|tsx?))?\.([^.]+)$/.exec(name);
   return local && !!match && SHADCN_COMPONENTS[match[1]].includes(match[2]);
 }
 
