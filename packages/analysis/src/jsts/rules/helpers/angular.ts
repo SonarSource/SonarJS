@@ -157,6 +157,25 @@ function mappingNode(node: TSESTree.Node): TSESTree.Node {
     : node;
 }
 
+/** Finds the decorator containing a direct `outputs` metadata mapping. */
+function outputMetadataDecorator(node: TSESTree.Node): TSESTree.Decorator | undefined {
+  const array = mappingNode(node).parent;
+  const outputs = array?.parent;
+  const metadata = outputs?.parent;
+  const componentCall = metadata?.parent;
+  const decorator = componentCall?.parent;
+  return array?.type === 'ArrayExpression' &&
+    outputs?.type === 'Property' &&
+    outputs.value === array &&
+    propertyName(outputs) === 'outputs' &&
+    metadata?.type === 'ObjectExpression' &&
+    componentCall?.type === 'CallExpression' &&
+    componentCall.arguments[0] === metadata &&
+    decorator?.type === 'Decorator'
+    ? decorator
+    : undefined;
+}
+
 /** Recognizes the direct metadata entry in `@Component({ outputs: ['onRefresh: refresh'] })`. */
 function isMetadataOutputMapping(context: Rule.RuleContext, node: TSESTree.Node): boolean {
   return getMetadataOutputClass(context, node) !== undefined;
@@ -167,19 +186,9 @@ function getMetadataOutputClass(
   context: Rule.RuleContext,
   node: TSESTree.Node,
 ): TSESTree.ClassDeclaration | undefined {
-  const mapping = mappingNode(node);
-  const array = mapping.parent;
-  const outputs = array?.parent;
-  const metadata = outputs?.parent;
-  const componentCall = metadata?.parent;
-  const decorator = componentCall?.parent;
+  const decorator = outputMetadataDecorator(node);
   const classNode = decorator?.parent;
-  return array?.type === 'ArrayExpression' &&
-    outputs?.type === 'Property' &&
-    propertyName(outputs) === 'outputs' &&
-    metadata?.type === 'ObjectExpression' &&
-    componentCall?.type === 'CallExpression' &&
-    isAngularCoreDecorator(context, decorator, 'Component', 'Directive') &&
+  return isAngularCoreDecorator(context, decorator, 'Component', 'Directive') &&
     classNode?.type === 'ClassDeclaration'
     ? classNode
     : undefined;
@@ -324,7 +333,9 @@ export function getAngularOutputNames(node: TSESTree.Node): [string, string] | u
   }
   const parent = mappingNode(node).parent;
   if (parent?.type === 'ArrayExpression') {
-    return parent.parent.type === 'Property' ? parseOutputMapping(text) : undefined;
+    const decorator = outputMetadataDecorator(node);
+    const name = decorator && ASTUtils.getDecoratorName(decorator);
+    return name === 'Component' || name === 'Directive' ? parseOutputMapping(text) : undefined;
   }
   if (!isCompleteOutputAlias(node)) {
     return undefined;
