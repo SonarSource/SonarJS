@@ -20,9 +20,23 @@ import type { JSXOpeningElement } from 'estree-jsx';
 import { expect } from 'expect';
 import { describe, it } from 'node:test';
 import {
+  getFirstConcreteRole,
   getRole,
   hasAccessibleNameAttribute,
 } from '../../../../src/jsts/rules/helpers/accessibility.js';
+
+describe('getFirstConcreteRole', () => {
+  it('normalizes case and skips unknown or abstract fallback roles', () => {
+    expect(getFirstConcreteRole('  unknown WIDGET SEPARATOR  ')).toBe('separator');
+    expect(getFirstConcreteRole('separator presentation')).toBe('separator');
+  });
+
+  it('preserves the first concrete role and rejects unrecognized lists', () => {
+    expect(getFirstConcreteRole('presentation separator')).toBe('presentation');
+    expect(getFirstConcreteRole('')).toBeUndefined();
+    expect(getFirstConcreteRole('unknown widget')).toBeUndefined();
+  });
+});
 
 describe('getRole', () => {
   it('returns a normalized literal role', () => {

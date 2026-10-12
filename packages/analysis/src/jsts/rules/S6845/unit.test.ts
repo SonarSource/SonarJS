@@ -28,6 +28,8 @@ const options = defaultOptions(fields);
 const message = '`tabIndex` should only be declared on interactive elements.';
 const valid = [
   '<div role="separator" aria-valuenow="25" tabIndex={0} />',
+  '<div role="Separator" aria-valuenow={position} tabIndex={0} />',
+  '<div role="unknown SEPARATOR" aria-valuenow={position} tabIndex={0} />',
   '<div role="separator" aria-valuenow={0} tabIndex={0} />',
   '<div role="separator" aria-valuenow={100} tabIndex={0} />',
   '<div role="separator" aria-valuenow={position} tabIndex={0} />',

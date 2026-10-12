@@ -15,9 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { ASTUtils, type TSESLint, type TSESTree } from '@typescript-eslint/utils';
-import { roles } from 'aria-query';
 import type { Rule, Scope } from 'eslint';
 import type { Node } from 'estree';
+import { getFirstConcreteRole } from '../helpers/accessibility.js';
 import {
   getUniqueWriteUsageOrNode,
   getVariableFromName,
@@ -25,9 +25,9 @@ import {
 } from '../helpers/ast.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { isJsxIdentifierNamed } from '../helpers/jsx.js';
 import * as meta from './generated-meta.js';
 
-const CONCRETE_ROLES = new Set<string>(roles.keys().filter(name => !roles.get(name)!.abstract));
 const ARIA_NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 
 /**
@@ -62,25 +62,22 @@ function isSeparatorWidget(
   context: Rule.RuleContext,
   opening: TSESTree.JSXOpeningElement,
 ): boolean {
-  if (opening.name.type !== 'JSXIdentifier' || opening.name.name !== 'div') {
+  if (!isJsxIdentifierNamed(opening.name, 'div')) {
     return false;
   }
   const role = attributeExpression(effectiveAttribute(context, opening, 'role'));
   if (role?.type !== 'Literal' || typeof role.value !== 'string') {
     return false;
   }
-  const effectiveRole = role.value
-    .trim()
-    .split(/\s+/)
-    .find(name => CONCRETE_ROLES.has(name));
   return (
-    effectiveRole === 'separator' &&
+    getFirstConcreteRole(role.value) === 'separator' &&
     hasCurrentValue(context, effectiveAttribute(context, opening, 'aria-valuenow'))
   );
 }
 
 /**
  * Finds an explicitly declared attribute that cannot be overridden by a spread.
+ * Unlike getProp, this lookup respects the last declaration and later spreads.
  * @param context the rule context
  * @param opening the JSX opening element
  * @param name the attribute name

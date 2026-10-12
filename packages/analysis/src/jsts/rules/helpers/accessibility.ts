@@ -15,11 +15,23 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
+import { roles } from 'aria-query';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import type { Rule } from 'eslint';
 import pkg from 'jsx-ast-utils-x';
 import { isJsxElementNamed } from './jsx.js';
 const { getProp, getLiteralPropValue, getPropValue, elementType } = pkg;
+
+const CONCRETE_ROLES = new Set<string>(roles.keys().filter(name => !roles.get(name)!.abstract));
+
+/** Returns the first recognized, non-abstract role in an ordered fallback list. */
+export function getFirstConcreteRole(roleValue: string): string | undefined {
+  return roleValue
+    .toLowerCase()
+    .trim()
+    .split(/\s+/)
+    .find(name => CONCRETE_ROLES.has(name));
+}
 
 export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JSXOpeningElement) {
   const DISALLOWED_VALUES = ['presentation', 'none'];
