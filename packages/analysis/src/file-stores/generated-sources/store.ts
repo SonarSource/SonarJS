@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { mapConcurrent } from '../../../../shared/src/helpers/concurrency.js';
 import { basename } from 'node:path/posix';
 import type { FileStore, FileStoreContext } from '../store-type.js';
 import type { DependencyManifestStore } from '../dependency-manifests.js';
@@ -287,11 +288,20 @@ export class GeneratedSourceStore implements FileStore {
   }
 
   private async preloadDeclaredConfigFiles(context: FileStoreContext) {
+    for await (const { filePath, file } of mapConcurrent(
+      this.declaredConfigPathsToLoad(),
+      async filePath => ({ filePath, file: await context.getFile(filePath) }),
+      { order: 'completion' },
+    )) {
+      this.preloadedFiles.set(filePath, file);
+    }
+  }
+
+  private *declaredConfigPathsToLoad() {
     for (const filePath of this.watchedConfigPaths) {
-      if (!this.preloadCandidatePaths.has(filePath) || this.preloadedFiles.has(filePath)) {
-        continue;
+      if (this.preloadCandidatePaths.has(filePath) && !this.preloadedFiles.has(filePath)) {
+        yield filePath;
       }
-      this.preloadedFiles.set(filePath, await context.getFile(filePath));
     }
   }
 

@@ -20,6 +20,7 @@ import {
   readFile,
   stripBOM,
 } from '../../../shared/src/helpers/files.js';
+import { mapConcurrent } from '../../../shared/src/helpers/concurrency.js';
 import type { FileType } from '../contracts/file.js';
 import { type Configuration, getFilterPathParams, getShouldIgnoreParams } from './configuration.js';
 import { filterPathAndGetFileType, getFileTypeForRules } from './filter/filter-path.js';
@@ -67,7 +68,7 @@ export async function sanitizeInputFiles(
   }
 
   const filterPathParams = getFilterPathParams(configuration);
-  for (const [key, fileInput] of Object.entries(inputFiles)) {
+  const sanitizeEntry = async ([key, fileInput]: readonly [string, ProjectAnalysisFileInput]) => {
     const filePath = normalizeToAbsolutePath(fileInput.filePath, baseDir);
     const fileContent =
       fileInput.fileContent === undefined
@@ -75,33 +76,66 @@ export async function sanitizeInputFiles(
         : stripBOM(fileInput.fileContent);
     let rawFileType: FileType | undefined = fileInput.fileType;
     if (rawFileType !== 'TEST') {
-      // We cannot trust the caller to provide the correct fileType, so we attempt to infer it from
-      // configured source/test paths if not explicitly set to 'TEST'. Filename heuristics are kept
-      // separate because they must only affect rule selection.
+      // We cannot trust the caller to provide the correct fileType, so infer it from configured
+      // source/test paths. Filename heuristics must only affect rule selection.
       const inferredFileType = filterPathAndGetFileType(filePath, filterPathParams);
       if (inferredFileType) {
         rawFileType = inferredFileType;
       }
     }
     const fileType = rawFileType ?? JSTS_ANALYSIS_DEFAULTS.fileType;
-    const rawFileStatus = fileInput.fileStatus;
-
     if (await shouldIgnoreFile({ filePath, fileContent }, getShouldIgnoreParams(configuration))) {
-      continue;
+      return undefined;
     }
-
-    files[filePath] = {
-      filePath,
-      fileContent,
-      fileType,
-      ruleFileType: getFileTypeForRules(filePath, fileType, filterPathParams),
-      fileStatus: rawFileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
+    return {
+      key,
+      file: {
+        filePath,
+        fileContent,
+        fileType,
+        ruleFileType: getFileTypeForRules(filePath, fileType, filterPathParams),
+        fileStatus: fileInput.fileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
+      },
     };
-    pathMap.set(filePath, key);
+  };
+  const registerEntry = (entry: Awaited<ReturnType<typeof sanitizeEntry>>) => {
+    if (entry) {
+      files[entry.file.filePath] = entry.file;
+      pathMap.set(entry.file.filePath, entry.key);
+    }
+  };
+
+  // IDE requests often supply every file's content; scheduling cannot accelerate those inputs.
+  if (hasMissingFileContent(inputFiles)) {
+    for await (const entry of mapConcurrent(inputEntries(inputFiles), sanitizeEntry)) {
+      registerEntry(entry);
+    }
+  } else {
+    for (const entry of inputEntries(inputFiles)) {
+      registerEntry(await sanitizeEntry(entry));
+    }
   }
 
   return {
     files,
     pathMap,
   };
+}
+
+// Avoid materializing an entries array or a task promise for every input file.
+function* inputEntries(inputFiles: Record<string, ProjectAnalysisFileInput>) {
+  for (const key in inputFiles) {
+    if (Object.hasOwn(inputFiles, key)) {
+      yield [key, inputFiles[key]] as const;
+    }
+  }
+}
+
+function hasMissingFileContent(inputFiles: Record<string, ProjectAnalysisFileInput>) {
+  for (const [, fileInput] of inputEntries(inputFiles)) {
+    if (fileInput.fileContent === undefined) {
+      return true;
+    }
+  }
+  return false;
 }

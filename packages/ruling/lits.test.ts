@@ -16,6 +16,8 @@
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { setImmediate as nextTurn } from 'node:timers/promises';
+import { DEFAULT_IO_CONCURRENCY } from '../shared/src/helpers/concurrency.js';
 import { afterEach, describe, it } from 'node:test';
 import { expect } from 'expect';
 
@@ -67,6 +69,68 @@ describe('writeResults', () => {
     const entries = await fs.readdir(actualPath);
     // Only S2260 (parsing errors) file should be absent — directory should be empty
     expect(entries).toEqual([]);
+  });
+
+  it('limits concurrent writes and produces every independent rule result', async ({ mock }) => {
+    const files = createFileResults();
+    files['/project/styles.css' as NormalizedAbsolutePath] = {
+      issues: Array.from({ length: 64 }, (_, i) => ({
+        ...createCssIssue(i + 1),
+        ruleId: `rule-${i}`,
+      })),
+    };
+    const originalWrite = fs.writeFile;
+    let active = 0;
+    let peak = 0;
+    mock.method(fs, 'writeFile', async (...args) => {
+      active++;
+      peak = Math.max(peak, active);
+      try {
+        await nextTurn();
+        return await Reflect.apply(originalWrite, fs, args);
+      } finally {
+        active--;
+      }
+    });
+    await writeResults('/project', 'ace', { files, meta: { warnings: [] } }, actualPath);
+    expect(peak).toBe(DEFAULT_IO_CONCURRENCY);
+    expect(active).toBe(0);
+    expect(await fs.readdir(actualPath)).toHaveLength(64);
+    for (let i = 0; i < 64; i++) {
+      expect(
+        JSON.parse(await fs.readFile(path.join(actualPath, `css-rule-${i}.json`), 'utf8')),
+      ).toEqual({
+        'ace:styles.css': [i + 1],
+      });
+    }
+  });
+
+  it('preserves last-write precedence when template aliases target the same output', async () => {
+    for (const ruleIds of [
+      ['S124', 'CommentRegexTest'],
+      ['CommentRegexTest', 'S124'],
+    ]) {
+      const files = createFileResults();
+      const filePath = '/project/app.js' as NormalizedAbsolutePath;
+      files[filePath] = {
+        issues: ruleIds.map((ruleId, i) => ({
+          ruleId,
+          language: 'js',
+          filePath,
+          line: i + 1,
+          column: 0,
+          message: 'comment',
+          secondaryLocations: [],
+          ruleESLintKeys: [],
+        })),
+      };
+      await writeResults('/project', 'ace', { files, meta: { warnings: [] } }, actualPath);
+      expect(
+        JSON.parse(
+          await fs.readFile(path.join(actualPath, 'javascript-CommentRegexTest.json'), 'utf8'),
+        ),
+      ).toEqual({ 'ace:app.js': [2] });
+    }
   });
 
   it('should preserve stable issue filename ordering', async () => {

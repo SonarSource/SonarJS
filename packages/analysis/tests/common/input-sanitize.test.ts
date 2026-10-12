@@ -14,6 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import fs from 'node:fs';
+import { setImmediate as nextTurn } from 'node:timers/promises';
+import { DEFAULT_IO_CONCURRENCY } from '../../../shared/src/helpers/concurrency.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { sanitizeInputFiles } from '../../src/common/input-sanitize.js';
@@ -148,5 +151,68 @@ describe('sanitizeInputFiles fileType resolution', () => {
       });
       expect(result).toEqual({ fileType: 'MAIN', ruleFileType: 'MAIN' });
     });
+  });
+});
+
+describe('sanitizeInputFiles bounded I/O', () => {
+  it('limits disk reads even for a large input and consumes results in input order', async ({
+    mock,
+  }) => {
+    let active = 0;
+    let peak = 0;
+    mock.method(fs.promises, 'readFile', async () => {
+      active++;
+      peak = Math.max(peak, active);
+      try {
+        if (active > DEFAULT_IO_CONCURRENCY) {
+          throw Object.assign(new Error('too many open files'), { code: 'EMFILE' });
+        }
+        await nextTurn();
+        return 'export const value = 1;';
+      } finally {
+        active--;
+      }
+    });
+    const input = Object.fromEntries(
+      Array.from({ length: 100 }, (_, i) => [`key-${i}`, { filePath: `/project/file-${i}.ts` }]),
+    );
+    const { files, pathMap } = await sanitizeInputFiles(
+      input,
+      createConfiguration({ baseDir: '/project' }),
+    );
+    expect(Object.keys(files)).toHaveLength(100);
+    expect([...pathMap.values()]).toEqual(Object.keys(input));
+    expect(peak).toBe(DEFAULT_IO_CONCURRENCY);
+    expect(active).toBe(0);
+  });
+
+  it('preserves the last duplicate normalized path even when its read finishes first', async ({
+    mock,
+  }) => {
+    let reads = 0;
+    mock.method(fs.promises, 'readFile', async () => {
+      const read = reads++;
+      if (read === 0) {
+        await nextTurn();
+      }
+      return read === 0 ? '\uFEFFconst first = 1;' : 'const last = 2;';
+    });
+    const configuration = createConfiguration({ baseDir: '/project' });
+    const { files, pathMap } = await sanitizeInputFiles(
+      {
+        first: { filePath: 'file.js' },
+        last: { filePath: './file.js', fileType: 'TEST', fileStatus: 'SAME' },
+      },
+      configuration,
+    );
+    const filePath = normalizeToAbsolutePath('file.js', configuration.baseDir);
+    expect(files[filePath]).toEqual(
+      expect.objectContaining({
+        fileContent: 'const last = 2;',
+        fileType: 'TEST',
+        fileStatus: 'SAME',
+      }),
+    );
+    expect(pathMap.get(filePath)).toBe('last');
   });
 });

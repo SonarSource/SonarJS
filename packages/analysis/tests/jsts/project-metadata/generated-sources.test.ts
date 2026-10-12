@@ -15,6 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import fs from 'node:fs';
+import { setImmediate as nextTurn } from 'node:timers/promises';
+import { DEFAULT_IO_CONCURRENCY } from '../../../../shared/src/helpers/concurrency.js';
+import { GeneratedSourceStore } from '../../../src/file-stores/generated-sources/store.js';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -797,6 +800,56 @@ export default config;
       expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
     } finally {
       await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('bounds independent declared config preloads while preserving generated-source detection', async () => {
+    const baseDir = normalizeToAbsolutePath('/project');
+    const configuration = createConfiguration({ baseDir });
+    const count = 64;
+    const packageJsons = createPackageJsonMap(baseDir, {
+      devDependencies: { [GRAPHQL_CODEGEN_FAMILY]: '1.0.0' },
+      scripts: Object.fromEntries(
+        Array.from({ length: count }, (_, i) => [
+          `generate-${i}`,
+          `graphql-codegen --config ./config/task-${i}.yml`,
+        ]),
+      ),
+    });
+    const store = new GeneratedSourceStore({ getPackageJsons: () => packageJsons });
+    store.setup(configuration);
+    for (let i = 0; i < count; i++) {
+      await store.processFile(joinPaths(baseDir, `config/task-${i}.yml`), configuration);
+      await store.processFile(joinPaths(baseDir, `src/generated/task-${i}.ts`), configuration);
+    }
+    let active = 0;
+    let peak = 0;
+    const reads: NormalizedAbsolutePath[] = [];
+    await store.postProcess(configuration, {
+      retainFile() {},
+      async getFile(filePath) {
+        reads.push(filePath);
+        active++;
+        peak = Math.max(peak, active);
+        try {
+          await nextTurn();
+          const index = /task-(\d+)\.yml$/.exec(filePath)![1];
+          return {
+            filePath,
+            fileContent: `generates:\n  ./src/generated/task-${index}.ts:\n    plugins: [typescript]\n`,
+          };
+        } finally {
+          active--;
+        }
+      },
+    });
+    expect(peak).toBe(DEFAULT_IO_CONCURRENCY);
+    expect(active).toBe(0);
+    expect(new Set(reads).size).toBe(count);
+    for (let i = 0; i < count; i++) {
+      expect(store.getFamily(joinPaths(baseDir, `src/generated/task-${i}.ts`))).toBe(
+        GRAPHQL_CODEGEN_FAMILY,
+      );
     }
   });
 

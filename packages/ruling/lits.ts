@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { DEFAULT_IO_CONCURRENCY, mapConcurrent } from '../shared/src/helpers/concurrency.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {
@@ -54,12 +55,17 @@ export async function writeResults(
   } catch {}
   await fs.mkdir(actualPath, { recursive: true });
   const litsResults = transformResults(projectPath, projectName, results);
-  for (const [ruleId, { js: jsIssues, ts: tsIssues, css: cssIssues }] of Object.entries(
-    litsResults,
+  // Template aliases can target the same filename; preserve their last-write order.
+  const concurrency =
+    litsResults.S124 && (litsResults.CommentRegexTest || litsResults.CommentRegexTestTS)
+      ? 1
+      : DEFAULT_IO_CONCURRENCY;
+  for await (const _ of mapConcurrent(
+    issueWrites(litsResults),
+    ({ ruleId, language, issues }) => writeIssues(actualPath, ruleId, issues, language),
+    { concurrency, order: 'completion' },
   )) {
-    await writeIssues(actualPath, ruleId, jsIssues, 'js');
-    await writeIssues(actualPath, ruleId, tsIssues, 'ts');
-    await writeIssues(actualPath, ruleId, cssIssues, 'css');
+    // Consume writes incrementally; the iterator drains outstanding writes on failure.
   }
 }
 
@@ -203,5 +209,18 @@ function handleS124(ruleId: string, language: 'js' | 'ts' | 'css' = 'js') {
     return 'CommentRegexTestTS';
   } else {
     return ruleId;
+  }
+}
+
+function* issueWrites(results: LitsFormattedResult) {
+  for (const ruleId in results) {
+    if (Object.hasOwn(results, ruleId)) {
+      for (const language of ['js', 'ts', 'css'] as const) {
+        const issues = results[ruleId][language];
+        if (Object.keys(issues).length > 0) {
+          yield { ruleId, language, issues };
+        }
+      }
+    }
   }
 }
