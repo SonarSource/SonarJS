@@ -436,10 +436,7 @@ function hasContent(
     case 'JSXText':
       return value.value.trim() !== '';
     case 'Literal':
-      return (
-        typeof value.value === 'number' ||
-        (typeof value.value === 'string' && value.value.trim() !== '')
-      );
+      return !!getStaticExpressionValue(value as unknown as estree.Expression)?.trim();
     case 'JSXElement':
       return hasElementContent(value, context, seen);
     case 'JSXFragment':

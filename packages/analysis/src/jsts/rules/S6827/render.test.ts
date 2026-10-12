@@ -119,6 +119,9 @@ for (const [language, Tester] of [
           { code: `${button}<Button render={<a />} aria-label="Continue" />;` },
           { code: `${button}<Button render={<a />} title="Continue" />;` },
           { code: `${button}<Button render={<a />}>{0}</Button>;` },
+          { code: `${button}<Button render={<a />}>{1n}</Button>;` },
+          { code: `${button}<Button render={<a />}>{0n}</Button>;` },
+          { code: `${button}const total = 1n; <Button render={<a />}>{total}</Button>;` },
           { code: `${button}<Button render={<a />}><span>Continue</span></Button>;` },
           { code: `${button}<Button render={<a />} hidden={null}>Continue</Button>;` },
           {
