@@ -24,6 +24,7 @@ import {
   getUniqueWriteReference,
   getVariableFromName,
   getStaticExpressionValue,
+  resolveSingleWriteExpression,
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
 import { hasAccessibleNameAttribute } from '../helpers/accessibility.js';
@@ -248,7 +249,7 @@ function hasHtmlContent(
   context: Rule.RuleContext,
   seen: Set<TSESTree.Node>,
 ): boolean {
-  const value = resolveContentValue(node, context);
+  const value = resolveSingleWriteExpression(context, node);
   if (value.type !== 'Literal' || typeof value.value !== 'string') {
     return hasContent(value, context, seen);
   }
@@ -303,7 +304,7 @@ function getAttributeValue(
     attribute.value.type === 'JSXExpressionContainer'
       ? attribute.value.expression
       : attribute.value;
-  const resolved = resolveContentValue(value as TSESTree.Node, context);
+  const resolved = resolveSingleWriteExpression(context, value as TSESTree.Node);
   return resolved.type === 'Literal'
     ? resolved.value
     : resolved.type === 'TemplateLiteral'
@@ -355,7 +356,7 @@ function getSpreadValue(
   context: Rule.RuleContext,
   seen: Set<TSESTree.Node>,
 ): TSESTree.Node | null | undefined {
-  const value = resolveContentValue(argument, context);
+  const value = resolveSingleWriteExpression(context, argument);
   if (['Literal', 'TemplateLiteral', 'ArrayExpression'].includes(value.type)) {
     return null;
   }
@@ -371,7 +372,9 @@ function getSpreadValue(
         return spread;
       }
     } else {
-      const key = property.computed ? resolveContentValue(property.key, context) : property.key;
+      const key = property.computed
+        ? resolveSingleWriteExpression(context, property.key)
+        : property.key;
       if (
         key.type === 'Literal'
           ? key.value === name
@@ -389,33 +392,6 @@ function getSpreadValue(
 }
 
 /**
- * Resolves single-write variable aliases without assuming parameter defaults.
- * @param node the content expression
- * @param context the rule context
- * @return the resolved expression, or the original unresolved value
- */
-function resolveContentValue(node: TSESTree.Node, context: Rule.RuleContext): TSESTree.Node {
-  const seen = new Set<TSESTree.Node>();
-  let value = unwrapTypeScriptExpression(node);
-  while (value.type === 'Identifier' && !seen.has(value)) {
-    seen.add(value);
-    const variable = getVariableFromName(context, value.name, value as unknown as estree.Node);
-    const definition = variable?.defs[0];
-    const write =
-      variable?.defs.length === 1 &&
-      definition?.type === 'Variable' &&
-      definition.node.id.type === 'Identifier'
-        ? getUniqueWriteReference(variable)
-        : undefined;
-    if (!write) {
-      break;
-    }
-    value = unwrapTypeScriptExpression(write as TSESTree.Node);
-  }
-  return value;
-}
-
-/**
  * Checks whether a content expression can render accessible text or elements.
  * @param node the content node
  * @param context the rule context
@@ -427,7 +403,7 @@ function hasContent(
   context: Rule.RuleContext,
   seen: Set<TSESTree.Node>,
 ): boolean {
-  const value = resolveContentValue(node, context);
+  const value = resolveSingleWriteExpression(context, node);
   if (seen.has(value)) {
     return false;
   }
@@ -453,7 +429,7 @@ function hasContent(
     case 'ArrayExpression':
       return value.elements.some(child => child && hasContent(child, context, seen));
     case 'ConditionalExpression': {
-      const test = resolveContentValue(value.test, context);
+      const test = resolveSingleWriteExpression(context, value.test);
       if (test.type === 'Literal') {
         return hasContent(test.value ? value.consequent : value.alternate, context, seen);
       }
@@ -462,7 +438,7 @@ function hasContent(
       );
     }
     case 'LogicalExpression': {
-      const left = resolveContentValue(value.left, context);
+      const left = resolveSingleWriteExpression(context, value.left);
       if (left.type === 'Literal') {
         const useLeft =
           value.operator === '??'
