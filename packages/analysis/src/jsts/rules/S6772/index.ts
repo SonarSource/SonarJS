@@ -49,6 +49,8 @@ function reportIfAmbiguous(context: Rule.RuleContext, descriptor: Rule.ReportDes
       const following = parent.children[followingIndex];
       if (following?.type === 'JSXText' && /^[.,]/.test(following.value.trimStart())) {
         const nextElement = parent.children[followingIndex + 1];
+        // Keep this pattern and report aligned with the upstream jsx-child-element-spacing rule.
+        // https://github.com/jsx-eslint/eslint-plugin-react/blob/v7.37.5/lib/rules/jsx-child-element-spacing.js
         if (
           /\S\s*\n\s*$/.test(following.value) &&
           nextElement?.type === 'JSXElement' &&
