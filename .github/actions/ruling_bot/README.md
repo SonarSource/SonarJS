@@ -223,7 +223,8 @@ New PR fixes use
 `fix/update-ruling-for-pr-<number>` to keep two original PRs on the same source branch independent.
 Existing target-owned fixes and recoverable legacy branches remain supported. Default-branch fix
 names retain `fix/update-ruling-for-<branch>`. Unrelated dirty tracked build output is discarded when
-creating the fix branch, while expectation changes are retained through the stash.
+creating the fix branch. An expectation-only index snapshot retains the generated delta;
+staged build output outside the expectation directory is excluded.
 
 An existing fix is revalidated before its branch is pushed, before its body is updated, and before
 its link is recorded or dispatched. It must still be open and unmerged, owned by the original
@@ -233,13 +234,29 @@ publishing it. If it changes during/after a push or body update, already persist
 but the updater fails without dispatching or advertising the invalid fix. Both PR and `master`
 runs use these checks. A retry follows the normal owned-fix selection flow.
 
-The fix branch starts from the exact tested commit, including the tested base history. Stash
-restoration therefore uses the same expectation tree that produced the changes, including files
-added only on the base. The generated commit changes only expectations. The fix PR also exposes
-base changes absent from its original branch. For a PR behind its tested base, incorporate that
-base before merging the fix: squash/rebase merges do not preserve the fix branch's base ancestry
-and can leave independently added expectation files in conflict with the target branch. Updating
-the original branch can trigger ruling again and refresh the fix. Generated fix PRs explain this.
+Ruling, expectation synchronization, and reporting use the exact tested checkout. Publishing is a
+separate operation: a PR fix starts from the original tested PR head and adds one expectation-only
+commit. Its complete three-dot PR diff must contain only that ruling delta, with no missing base
+commits, source changes, or synthetic merge. A branch behind its base does not generally need to
+rebase before accepting a fix, including through squash or rebase merging.
+
+The updater snapshots the expectation delta against the tested merge and transfers it with a
+three-way cherry-pick onto the original head. The snapshot commit is unpublished and is never a
+parent of the fix. Unlike copying whole generated files, this preserves unrelated base changes
+inside the same expectation JSON file for the original PR's later base merge. A modified base-only
+expectation becomes an added expectation on the original branch, avoiding the inherited stash
+modify/delete failure. An intentional whole-file deletion removes the original file even when its
+content differs. Independently added expectations can still require explicit conflict resolution
+when the original PR merges with its base; accepting the fix itself needs no prior base update.
+
+Some tested-merge deltas cannot be represented on that head: a base-only deletion has no file to
+delete there, or a generated change is already present on the original head. Publishing the rest
+would silently lose that intent, and a later base merge could restore the wrong expectation.
+Reject the entire fix visibly in those cases. Existing-file modifications must retain the same
+content/mode edits after transfer (ignoring context and line offsets), so even a clean cherry-pick
+that drops only part of a file's delta is rejected. Unresolved transfer conflicts also fail without
+publishing a partial fix. These exceptional expectations need resolution against the tested base
+before retrying; the bot does not impose a blanket rebase requirement.
 
 GitHub API state checks and Git ref writes are separate operations. A human can still push, merge,
 or reopen during the final API window; the queue coordinates bot jobs, and repeated checks/leases
@@ -272,19 +289,18 @@ Only bot-authored report comments are updated. Large comments retain the existin
 For a PR, distinguish four commits even when some expectation trees happen to be equal:
 
 ```text
-B = exact tested base       H = original PR head
+B = exact tested base       H = original PR head --- F = generated fix
           \                 /
            M = tested merge
-           |
-           F = generated fix
 
-M^1 = B, M^2 = H; F's parent is M. The fix PR targets H's branch.
+M^1 = B, M^2 = H; F's parent is H. The fix PR targets H's branch.
 ```
 
 Passing reports compare `B` with committed expectations in `M`; failing reports compare `B` with
-saved generated expectations applied to `M`. The fix commit `F` persists those changes but does
-not become the report baseline or the freshness identity. The originating Build API identifies
-`H`, while checkout/report inputs identify `M`. Depth two retains `M` and both immediate parents;
+saved generated expectations applied to `M`. The fix commit `F` transfers only the `M`-to-generated
+expectation delta onto `H`; it does not become the report baseline or the freshness identity.
+The originating Build API identifies `H`, while checkout/report inputs identify `M`.
+Depth two retains `M` and both immediate parents;
 it does not promise enough history for a general merge-base traversal.
 
 Review a branch behind its base, base-only expectation additions/modifications, independent
@@ -293,10 +309,13 @@ parent's history. Also review two synthetic merges with the same `H` and differe
 their baseline comes from their own tested merge, while Build report authority is scoped to the
 original PR head. Two originals sharing `H` or a source branch remain different targets.
 
-Incorporating `B` before squash/rebase-merging `F` is part of the fix's documented usage; otherwise
-those merge methods can discard the ancestry needed for base-only files. Incorporating the base
-may start another Build and supersede the old fix. Closing/merging the original can delete its
-branch and cause GitHub to retarget remaining fixes, so cleanup uses original identity.
+Squash/rebase-merging `F` onto `H` imports only the expectation commit. Ordinary behind branches
+remain supported. Review base-only deletions, generated changes already present on `H`, partial
+content-delta loss, and genuine transfer conflicts as visible failures, not partial fixes. Review
+independent expectation additions as possible conflicts in the original PR's later base merge.
+Updating the original branch starts another Build and can supersede the old fix. Closing/merging
+the original can delete its branch and cause GitHub to retarget remaining fixes, so cleanup uses
+original identity.
 For a default-branch run there is no synthetic PR merge: the tested branch commit is both the
 baseline and freshness head, and the report recipient's fix commit is a separate identity.
 
@@ -318,7 +337,9 @@ This table is a review checklist, not a claim of transactional guarantees across
 | Original closes, merges, reopens, or its fix is retargeted                                                     | Trusted default-branch cleanup checks current original state and managed-fix identity; skip reopened originals and already merged fixes.                                              | `bot.test.mjs`: retargeting, reopening, closure/merge races                                                          |
 | Shared source/fix branch, foreign target marker, human PR/comment, or human-modified orphan                    | Separate original-target identities; preserve shared branches; orphan tips require bot author and committer as well as ownership evidence.                                            | `bot.test.mjs`: shared originals/branches, legacy/modern recovery, all identity mismatches                           |
 | Default-branch report recipient closes or has a head different from the tested branch                          | Check the fix recipient is open without comparing its fix head with the tested default-branch head.                                                                                   | `bot.test.mjs`: open/closed fix-recipient cases                                                                      |
-| Generated build output is dirty; expectations include added, deleted, renamed, or base-only files              | Stash expectation changes separately and start the fix from the tested tree; mirror the final flat layout.                                                                            | `bot.test.mjs`, [report-renames.test.mjs](tests/report-renames.test.mjs)                                             |
+| Generated build output is dirty; expectations include added, deleted, renamed, or base-only files              | Snapshot only the tested expectation delta and transfer onto the original head; mirror the final flat layout.                                                                         | `bot.test.mjs`, [report-renames.test.mjs](tests/report-renames.test.mjs)                                             |
+| Behind PR branch; unrelated base source or same-file expectation changes                                       | Publish one expectation-only commit on the original head; keep the tested merge for calculation/reporting. Squash/rebase fixes import no base history.                                | [fix-transfer.test.mjs](tests/fix-transfer.test.mjs): Bob/Alice repro, same-file edits, base-only additions          |
+| Base-only deletion, redundant whole/partial delta, or existing-file transfer conflict                          | Fail visibly without pushing or advertising a partial fix; independent additions may conflict when the original PR later merges into its base.                                        | `fix-transfer.test.mjs`: unrepresentable deltas, dropped edits, conflict cleanup, intentional deletion               |
 | Saved results differ from branch expectations but equal the base, or head is a generated commit                | Keep failed PR fix requirements visible. Generated commit messages do not suppress valid failing updates; passing runs create no fix.                                                 | `bot.test.mjs`: zero-net-change and generated-head cases                                                             |
 | Custom paths, empty snippet/link settings, rich CSS/TSX reports, or very large Unicode output                  | Validate/normalize inputs before artifacts/sync, retain display opt-outs, and use file-backed generation with UTF-8-safe comment truncation. Full generation still needs memory/disk. | [config.test.mjs](tests/config.test.mjs), [report-features.test.mjs](tests/report-features.test.mjs), `bot.test.mjs` |
 | Schema/caller changes or another PR edits Build dependencies                                                   | Regenerate every consumer and preserve updater failure coverage for promotion, releasability, and protected-branch notification.                                                      | `workflows.test.mjs`: generation drift, dispatched fields/values, dependency coverage                                |
@@ -330,8 +351,9 @@ the selected Git ref. Report dispatch success is recorded independently of repor
 Missing artifacts, unavailable commits, insufficient report-generation resources, and finite queue
 capacity remain operational limits. Closed-event cleanup applies after its workflow reaches the
 default branch; it does not retroactively receive closure events from before deployment.
-Current branch/workflow compatibility and squash/rebase requirements are documented above, rather
-than silently substituting another bot version, tested tree, or merge baseline.
+Current branch/workflow compatibility remains a separate constraint from fix ancestry. Ordinary
+behind branches need no rebase for a fix; unrepresentable deltas and transfer conflicts fail visibly
+rather than substituting another tested tree or silently discarding expectation changes.
 
 ## Regression tests
 
@@ -390,8 +412,8 @@ The follow-up in [#8118](https://github.com/SonarSource/SonarJS/pull/8118) estab
 freshness, lifecycle, reporting, and configuration contracts described above. Its decisions cover
 passing-retry refresh, authority after empty reports, exact producing-artifact identity, independent
 original-target fix ownership, trusted close/merge cleanup, legacy and modern orphan recovery,
-fix revalidation, tested-merge fix ancestry, matching tested bot code, generated input contracts,
-and file-backed large reports. Optional tested-checkout configuration, sparse dispatch overrides,
+fix revalidation, original-head fix ancestry with tested-merge delta transfer, matching tested bot
+code, generated input contracts, and file-backed large reports. Optional tested-checkout configuration, sparse dispatch overrides,
 explicit empty opt-outs, and unbounded subprocess capture preserve reuse while reducing YAML. The final freshness response must include the tested original head;
 modern orphan recovery must verify bot author and committer, not just a retained target marker.
 Those two review corrections are recorded in
@@ -406,9 +428,22 @@ The [notification dependency review](https://github.com/SonarSource/SonarJS/pull
 and [#8108 integration review](https://github.com/SonarSource/SonarJS/pull/8118#discussion_r4230333405)
 show why updater failures must retain downstream coverage through unrelated workflow changes.
 Reporter dispatch from the original branch
-requires that branch to contain the current workflow contract; this compatibility decision and
-the tested-base incorporation required for squash/rebase merges remain explicit operational
-constraints. Future changes must update these decisions and their scenario coverage together.
+requires that branch to contain the current workflow contract; this compatibility decision remains
+an explicit operational constraint. It is separate from supporting a feature branch behind its
+base when publishing expectations. Future changes must update these decisions and their scenario
+coverage together.
+
+Erwan's real [original PR #8159](https://github.com/SonarSource/SonarJS/pull/8159) and
+[fix PR #8160](https://github.com/SonarSource/SonarJS/pull/8160) reproduced unrelated base source and
+expectation changes entering the fix through its ancestry. This regression came from #8118's
+[October 9 checkout change](https://github.com/SonarSource/SonarJS/commit/a0559eb3b78a7000874c42ee68f48470de2b6c60),
+which used the tested merge to avoid an inherited stash conflict. The corrected transfer retains
+that conflict fix while restoring the original-head publishing ancestry used before #8118.
+[fix-transfer.test.mjs](tests/fix-transfer.test.mjs) covers the Bob/Alice reproduction through both
+supported fix merge methods, same-file base changes, base-only modifications/deletions, redundant
+whole/partial deltas, and transfer conflicts. This supersedes tested-merge publishing and the
+proposed blanket requirement to incorporate the base; the tested-merge ruling/report baseline is
+retained.
 
 Explicit supersessions also matter:
 

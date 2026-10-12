@@ -37,6 +37,8 @@ async function assertDispatchContract(f, provenance) {
   assert.equal(entries.length, Object.keys(fields).length, 'No duplicate dispatch fields');
   assert.ok(Object.keys(fields).every(name => name in inputs));
   for (const [name, value] of Object.entries(provenance)) assert.equal(fields[name], value);
+  // The reporter resolves its module after checking out the producing tested commit.
+  f.git(['checkout', '--detach', fields['head-sha']]);
   const received = await environmentConfiguration({
     RULING_REPOSITORY_PATH: f.workspace,
     RULING_WORKFLOW_INPUTS: JSON.stringify(fields),
@@ -177,9 +179,10 @@ test('passing retry closes only open fixes and dispatches report refresh from th
   });
 });
 
-test('failed update preserves the tested merge and discards unrelated dirty generated files', async t => {
+test('failed update transfers the tested delta to the original head and discards dirty build output', async t => {
   const f = fixture(t);
   f.write('tracked-generated.txt', 'unrelated dirty build output\n');
+  f.git(['add', 'tracked-generated.txt']);
   assert.equal(await f.bot().update(f.config), 'updated');
   assert.equal(readFileSync(path.join(f.workspace, 'tracked-generated.txt'), 'utf8'), 'clean\n');
   assert.match(
@@ -190,7 +193,7 @@ test('failed update preserves the tested merge and discards unrelated dirty gene
   assert.equal(existsSync(path.join(f.workspace, 'baseline/project/javascript-S2000.json')), false);
   const changed = f.git(['diff', '--name-only', f.head, 'HEAD']).split('\n');
   assert.ok(changed.every(name => name.startsWith('baseline/')));
-  assert.equal(f.git(['rev-parse', 'HEAD^']), f.merge);
+  assert.equal(f.git(['rev-parse', 'HEAD^']), f.head);
   assert.match(f.state.prs[0].body, /ruling-bot-target/);
   assert.ok(
     f.state.gitCalls.some(args =>
@@ -226,56 +229,13 @@ test('an explicitly configured reporter workflow ref is honored', async t => {
   assert.equal(dispatch[dispatch.indexOf('--ref') + 1], 'stable-tooling');
 });
 
-test('a changed base-only expectation survives fix creation and squash merge after incorporating the base', async t => {
-  const f = fixture(t);
-  const file = 'baseline/project/javascript-S9000.json';
-  assert.throws(() => f.git(['show', `${f.head}:${file}`]));
-  f.result('generated', 'S9000', 'base-only.js', 91);
-  assert.equal(await f.bot().update(f.config), 'updated');
-  const update = f.git(['rev-parse', 'HEAD']);
-  assert.equal(f.git(['rev-parse', 'HEAD^']), f.merge);
-  assert.match(f.git(['show', `HEAD:${file}`]), /91/);
-  assert.equal(f.state.prs[0].base.ref, 'outdated-pr');
-  assert.match(f.state.prs[0].body, /incorporate it before merging this fix/);
-  assert.ok(f.state.calls.some(args => args[0] === 'workflow'));
-  f.git(['checkout', '--detach', f.head]);
-  f.git(['merge', '--no-ff', '--no-edit', f.base]);
-  f.git(['merge', '--squash', update]);
-  f.git(['commit', '-m', 'Squash the refreshed expectations']);
-  assert.equal(f.git(['status', '--porcelain']), '');
-  assert.match(f.git(['show', `HEAD:${file}`]), /91/);
-  assert.equal(f.git(['merge-base', '--is-ancestor', f.base, 'HEAD']), '');
-});
-
-test('fix commits change only expectations while retaining unrelated tested base history', async t => {
-  const f = fixture(t);
-  f.git(['checkout', '--detach', f.base]);
-  f.write('base-only-code.ts', 'export const fromMaster = true;\n');
-  const base = f.commit('Master adds unrelated source code');
-  f.git(['merge', '--no-ff', '--no-edit', f.head]);
-  const merge = f.git(['rev-parse', 'HEAD']);
-  Object.assign(f.ctx, { base, testedCommit: merge });
-  f.setRemote('master', base);
-  f.result('generated', 'S9000', 'base-only.js', 91);
-  assert.equal(await f.bot().update(f.config), 'updated');
-  assert.equal(f.git(['rev-parse', 'HEAD^']), merge);
-  assert.ok(
-    f
-      .git(['diff', '--name-only', 'HEAD^', 'HEAD'])
-      .split('\n')
-      .every(name => name.startsWith('baseline/')),
-  );
-  assert.match(f.git(['show', 'HEAD:base-only-code.ts']), /fromMaster/);
-  assert.equal(f.git(['merge-base', '--is-ancestor', base, 'HEAD']), '');
-});
-
 test('a depth-two tested checkout supports fix persistence and exact-base reporting', async t => {
   const f = fixture(t);
   f.write('.git/shallow', `${f.base}\n${f.head}\n`);
   assert.equal(f.git(['rev-parse', '--is-shallow-repository']), 'true');
   f.result('generated', 'S9000', 'base-only.js', 91);
   assert.equal(await f.bot().update(f.config), 'updated');
-  assert.equal(f.git(['rev-parse', 'HEAD^']), f.merge);
+  assert.equal(f.git(['rev-parse', 'HEAD^']), f.head);
   assert.ok(f.git(['ls-remote', 'origin', 'refs/heads/fix/update-ruling-for-pr-123']));
   f.git(['checkout', '--detach', f.merge]);
   assert.equal(await f.bot().report(f.config), 'reported');

@@ -272,9 +272,120 @@ export function controller(ctx, adapters = {}) {
 
   function prepareExpectationChanges(config) {
     helper('sync-results.mjs', [config['new-results-path'], config['old-results-path']]);
-    if (!git(['status', '--porcelain', '--', config['old-results-path']]))
-      throw new Error('Ruling failed without generated expectation changes.');
-    git(['stash', 'push', '-u', '-m', 'ruling-sync-changes', '--', config['old-results-path']]);
+    // Capture only ruling's delta against the tested tree, including untracked files.
+    // Discard staged build output outside expectations before writing the snapshot tree.
+    git(['restore', '--source', ctx.testedCommit, '--staged', '--', ':/']);
+    git(['add', '--', config['old-results-path']]);
+    const changes = expectationChanges([
+      '--cached',
+      ctx.testedCommit,
+      '--',
+      config['old-results-path'],
+    ]);
+    if (!changes.size) throw new Error('Ruling failed without generated expectation changes.');
+    return { changes, tree: git(['write-tree']) };
+  }
+
+  function expectationChanges(args) {
+    // NUL-separated statuses keep spaces, tabs, and newlines in paths unambiguous.
+    const fields = git(['diff', '--name-status', '--no-renames', '-z', ...args]).split('\0');
+    const changes = new Map();
+    for (let i = 0; i < fields.length - 1; i += 2) changes.set(fields[i + 1], fields[i]);
+    return changes;
+  }
+
+  function expectationEntries(tree, directory) {
+    const entries = new Map();
+    for (const record of git(['ls-tree', '-r', '-z', tree, '--', directory]).split('\0')) {
+      if (!record) continue;
+      const separator = record.indexOf('\t');
+      entries.set(record.slice(separator + 1), record.slice(0, separator));
+    }
+    return entries;
+  }
+
+  function expectationDelta(from, to, file) {
+    // Compare content/mode edits without context or line offsets that differ on the PR head.
+    return git([
+      'diff',
+      '--no-color',
+      '--no-ext-diff',
+      '--no-textconv',
+      '--no-renames',
+      '--unified=0',
+      from,
+      to,
+      '--',
+      file,
+    ])
+      .split('\n')
+      .filter(line => !/^(diff --git |index |--- |\+\+\+ |@@ )/.test(line))
+      .join('\n');
+  }
+
+  function transferExpectationChanges(config, { changes, tree }) {
+    const original = expectationEntries(ctx.testedHead, config['old-results-path']);
+    const generated = expectationEntries(tree, config['old-results-path']);
+    for (const [file, status] of changes) {
+      if (!['A', 'M', 'D'].includes(status))
+        throw new Error(`Unsupported ruling expectation change: ${status} ${file}`);
+      if (original.get(file) === generated.get(file)) {
+        throw new Error(
+          `Ruling changes cannot be represented on the original branch: ${file}. ` +
+            'Its original state already equals the generated result, so a fix cannot record the tested-merge change. Resolve this expectation against the tested base before retrying.',
+        );
+      }
+    }
+    // This commit is an unpublished delta source, never part of the fix branch's ancestry.
+    const snapshot = git([
+      'commit-tree',
+      tree,
+      '-p',
+      ctx.testedCommit,
+      '-m',
+      'Ruling expectation snapshot',
+    ]);
+    try {
+      git(['cherry-pick', '--no-commit', snapshot]);
+    } catch (error) {
+      const conflicts = expectationChanges(['--diff-filter=U']);
+      if (!conflicts.size) throw error;
+      for (const file of conflicts.keys()) {
+        if (changes.get(file) === 'M' && !original.has(file)) {
+          // A base-only modification is a new expectation on the original PR head.
+          git(['restore', '--source', tree, '--staged', '--worktree', '--', file]);
+        } else if (changes.get(file) === 'D' && original.has(file)) {
+          git(['rm', '--force', '--', file]);
+        }
+      }
+      const unresolved = expectationChanges(['--diff-filter=U']);
+      if (unresolved.size) {
+        git(['reset', '--hard', ctx.testedHead]);
+        throw new Error(
+          `Ruling expectation transfer conflicts: ${[...unresolved.keys()].join(', ')}. Resolve these expectations before retrying.`,
+          { cause: error },
+        );
+      }
+    } finally {
+      git(['cherry-pick', '--quit']);
+    }
+    const transferredTree = git(['write-tree']);
+    for (const [file, status] of changes) {
+      if (
+        status === 'M' &&
+        original.has(file) &&
+        expectationDelta(ctx.testedCommit, tree, file) !==
+          expectationDelta(ctx.testedHead, transferredTree, file)
+      ) {
+        // A clean cherry-pick can silently discard edits already present on this head.
+        // They may reappear on the later base merge, so publishing only the remainder is unsafe.
+        git(['reset', '--hard', ctx.testedHead]);
+        throw new Error(
+          `Ruling changes cannot fully transfer to the original branch: ${file}. ` +
+            'The transferred content delta differs from the tested-merge delta. Resolve this expectation against the tested base before retrying.',
+        );
+      }
+    }
   }
 
   function resolveFixBranch() {
@@ -340,14 +451,12 @@ export function controller(ctx, adapters = {}) {
     return pr;
   }
 
-  function createFixCommit(config, { branch, marker }) {
+  function createFixCommit(config, { branch, marker }, prepared) {
     git(['config', 'user.name', botName]);
     git(['config', 'user.email', botEmail]);
-    // Retain the tested base history: base-only expectations must exist when restoring changes.
-    // The generated fix commit changes expectations on top of that exact tree.
-    git(['checkout', '-f', '-B', branch, ctx.testedCommit]);
-    git(['stash', 'pop']);
-    git(['add', '--', config['old-results-path']]);
+    // Publishing a delta must not bring missing base commits into the original PR.
+    git(['checkout', '-f', '-B', branch, ctx.testedHead]);
+    transferExpectationChanges(config, prepared);
     if (!git(['diff', '--cached', '--name-only', '--', config['old-results-path']]))
       throw new Error('Generated results no longer differ from the target branch.');
     git(['commit', '-m', `${generatedCommitMessage}\n\n${marker}`]);
@@ -357,7 +466,7 @@ export function controller(ctx, adapters = {}) {
   function upsertFixPr(selected, commit) {
     const { existing, marker, branch } = selected;
     const baseNotice = ctx.isPullRequest
-      ? `This fix starts from the tested merge, including base commit ${ctx.base}. If your branch is behind that base, incorporate it before merging this fix; squash and rebase merges do not preserve the fix branch's base ancestry. If updating your branch triggers ruling again, review the refreshed fix.\n\n`
+      ? `This fix contains only expectation changes on original PR head ${ctx.testedHead}, calculated from tested merge ${ctx.testedCommit}. It does not incorporate the base branch's commits. Independently changed expectations may still need conflict resolution when the original PR is merged into its base.\n\n`
       : '';
     const body = `${description}\n\n${baseNotice}Generated with GitHub Actions\n\n${marker}`;
     let fix;
@@ -390,13 +499,13 @@ export function controller(ctx, adapters = {}) {
       if (ctx.isPullRequest && fresh()) dispatch(config, ctx.pr);
       return 'passed';
     }
-    prepareExpectationChanges(config);
+    const prepared = prepareExpectationChanges(config);
     git(['fetch', 'origin', `+refs/heads/${ctx.targetRef}:refs/remotes/origin/${ctx.targetRef}`]);
     if (git(['rev-parse', `origin/${ctx.targetRef}`]) !== ctx.testedHead || !fresh())
       return 'stale';
     const selected = resolveFixBranch();
     const { existing, ref, oldFix, branch } = selected;
-    const commit = createFixCommit(config, selected);
+    const commit = createFixCommit(config, selected, prepared);
     if (!fresh()) return 'stale';
     if (existing) assertCurrentFixPr(selected, existing.number, oldFix);
     git(['push', `--force-with-lease=${ref}:${oldFix}`, 'origin', `${branch}:${ref}`]);
