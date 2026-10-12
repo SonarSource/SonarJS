@@ -192,6 +192,14 @@ describe('S7653', () => {
     }
   });
 
+  it('shares static metadata parsing for whitespace and escaped member names', () => {
+    for (const mapping of ["' click : activated '", `'${String.raw`\u0063lick: activated`}'`]) {
+      const code = `@Directive({ outputs: [${mapping}] }) class Test {}`;
+      assert.equal(analyze(code, upstreamRule).length, 1);
+      assert.deepEqual(analyze(code), []);
+    }
+  });
+
   it('removes only collision-avoiding reports from mixed declarations and metadata', () => {
     const code = `@Component({ outputs: [
       'change: valueChanged', 'valueChange: updated', 'click: activated', 'change: click',
