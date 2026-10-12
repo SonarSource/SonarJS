@@ -200,6 +200,28 @@ describe('S7653', () => {
     }
   });
 
+  it('preserves reports for literals nested inside dynamic alias expressions', () => {
+    for (const expression of [
+      "EVENT_NAMES['pressed']",
+      '`cli` + `ck`',
+      "'cli' + 'ck'",
+      "condition ? 'click' : 'pressed'",
+      "getAlias('pressed')",
+      "{ alias: 'pressed' }",
+      "['pressed'][0]",
+    ]) {
+      for (const declaration of [
+        `@Output(${expression}) change = new EventEmitter();`,
+        `change = output({ alias: ${expression} });`,
+      ]) {
+        const code = `const EVENT_NAMES = { pressed: 'click' }; class Test { ${declaration} }`;
+        const baseline = analyze(code, upstreamRule);
+        assert.ok(baseline.length > 0);
+        assert.deepEqual(analyze(code), baseline);
+      }
+    }
+  });
+
   it('removes only collision-avoiding reports from mixed declarations and metadata', () => {
     const code = `@Component({ outputs: [
       'change: valueChanged', 'valueChange: updated', 'click: activated', 'change: click',
