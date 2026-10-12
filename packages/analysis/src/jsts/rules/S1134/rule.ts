@@ -21,7 +21,7 @@ import { reportPatternInComment } from '../S1135/rule.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
-const fixmePattern = 'fixme';
+const fixmePattern = '__js_2639_repro_alice_fixme__';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
