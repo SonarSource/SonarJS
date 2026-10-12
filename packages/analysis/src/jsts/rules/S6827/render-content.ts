@@ -66,9 +66,16 @@ export function hasRenderContent(
     return false;
   }
   const consumer = attribute.parent.parent;
+  const anchorAttributes = (opening as JSXOpeningElement).attributes;
+  const attributes = [
+    ...(consumer.openingElement as JSXOpeningElement).attributes,
+    ...anchorAttributes,
+  ];
+  const children = getEffectiveAttribute(anchorAttributes, 'children', context);
   return (
     isCompositionComponent(consumer.openingElement, context) &&
-    hasElementContent(consumer, context, new Set())
+    !isHidden(attributes, context) &&
+    hasContentProps(attributes, children === null ? consumer.children : [], context, new Set())
   );
 }
 
@@ -132,14 +139,12 @@ function isCompositionComponent(
  * @param element the JSX element
  * @param context the rule context
  * @param seen expressions already visited
- * @param allowComponentContent whether an opaque child component may supply its own content
  * @return whether the element can supply accessible content
  */
 function hasElementContent(
   element: TSESTree.JSXElement,
   context: Rule.RuleContext,
   seen: Set<TSESTree.Node>,
-  allowComponentContent = false,
 ): boolean {
   const attributes = (element.openingElement as JSXOpeningElement).attributes;
   if (isHidden(attributes, context)) {
@@ -147,16 +152,8 @@ function hasElementContent(
   }
   const name = element.openingElement.name;
   if (
-    allowComponentContent &&
-    (name.type === 'JSXMemberExpression' ||
-      (name.type === 'JSXIdentifier' && /^[A-Z]/.test(name.name)))
-  ) {
-    return true;
-  }
-  if (
-    ['title', 'aria-label', 'aria-labelledby'].some(name =>
-      hasAttributeContent(attributes, name, context),
-    )
+    name.type === 'JSXMemberExpression' ||
+    (name.type === 'JSXIdentifier' && /^[A-Z]/.test(name.name))
   ) {
     return true;
   }
@@ -167,13 +164,30 @@ function hasElementContent(
   ) {
     return true;
   }
-  if (element.children.length > 0) {
-    return element.children.some(child => hasContent(child, context, seen));
+  return hasContentProps(attributes, element.children, context, seen);
+}
+
+function hasContentProps(
+  attributes: JSXOpeningElement['attributes'],
+  children: TSESTree.JSXElement['children'],
+  context: Rule.RuleContext,
+  seen: Set<TSESTree.Node>,
+): boolean {
+  if (
+    ['title', 'aria-label', 'aria-labelledby'].some(name =>
+      hasAttributeContent(attributes, name, context),
+    )
+  ) {
+    return true;
   }
-  const children = getEffectiveAttribute(attributes, 'children', context);
+  if (children.length > 0) {
+    return children.some(child => hasContent(child, context, seen));
+  }
+  const childrenAttribute = getEffectiveAttribute(attributes, 'children', context);
   return (
-    children === undefined ||
-    (!!children?.value && hasContent(children.value as TSESTree.Node, context, seen))
+    childrenAttribute === undefined ||
+    (!!childrenAttribute?.value &&
+      hasContent(childrenAttribute.value as TSESTree.Node, context, seen))
   );
 }
 
@@ -338,7 +352,7 @@ function hasContent(
         (typeof value.value === 'string' && value.value.trim() !== '')
       );
     case 'JSXElement':
-      return hasElementContent(value, context, seen, true);
+      return hasElementContent(value, context, seen);
     case 'JSXFragment':
       return value.children.some(child => hasContent(child, context, seen));
     case 'JSXExpressionContainer':

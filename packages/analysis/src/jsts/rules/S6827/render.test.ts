@@ -83,6 +83,11 @@ for (const [language, Tester] of [
           { code: `${button}<Button render={<a />}>{0}</Button>;` },
           { code: `${button}<Button render={<a />}><span>Continue</span></Button>;` },
           { code: `${button}<Button render={<a />} hidden={null}>Continue</Button>;` },
+          {
+            code: `${button}<Button render={<a aria-hidden={false} />} aria-hidden="true">Continue</Button>;`,
+          },
+          { code: `${button}<Button render={<a hidden={false} />} hidden>Continue</Button>;` },
+          { code: `${button}<Button render={<a aria-hidden={collapsed} />}>Continue</Button>;` },
           { code: `${button}<Button render={<a />} hidden={collapsed}>Continue</Button>;` },
           {
             code: `${button}const collapsed = false; <Button render={<a />} hidden={collapsed}>Continue</Button>;`,
@@ -178,6 +183,10 @@ for (const [language, Tester] of [
           `${button}<Button render={<a />}><span /></Button>;`,
           `${button}<Button render={<a />}><img alt="" /></Button>;`,
           `${button}<Button render={<a />} hidden>Continue</Button>;`,
+          `${button}<Button render={<a aria-hidden="true" />}>Continue</Button>;`,
+          `${button}<Button render={<a aria-hidden="true" />} aria-hidden={false}>Continue</Button>;`,
+          `${button}const collapsed = true; <Button render={<a aria-hidden={collapsed} />}>Continue</Button>;`,
+          `${button}<Button render={<a {...{'aria-hidden': true}} />}>Continue</Button>;`,
           `import { Button } from 'other-library'; <Button render={<a />}>Continue</Button>;`,
           `import { Button } from '@custom/ui/button'; <Button render={<a />}>Continue</Button>;`,
           `import { SidebarMenuButton } from '@/custom/sidebar'; <SidebarMenuButton render={<a />}>Continue</SidebarMenuButton>;`,
