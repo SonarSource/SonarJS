@@ -14,66 +14,66 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule } from 'eslint';
+import { ASTUtils, getNativeEventNames } from '@angular-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { getCompoundSelector, getOutputMemberName } from './angular.js';
-import { interceptReport } from '../helpers/decorators/interceptor.js';
+import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 
-const COMPOUND_SELECTOR = /^([A-Za-z][A-Za-z0-9-]*)\[([A-Za-z][A-Za-z0-9-]*)\]$/;
+const nativeEventNames = getNativeEventNames();
 
-/** `changed` -> `Changed`. */
-function capitalize(value: string) {
-  return value[0].toUpperCase() + value.slice(1);
-}
-
-/** Suppress reports for selector-derived directive aliases; preserve all other upstream reports. */
-export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(
-    {
-      ...rule,
-      meta: generateMeta(meta, rule.meta),
-    },
-    (context, reportDescriptor) => {
-      if (
-        !('node' in reportDescriptor) ||
-        !isSelectorDerivedAlias(reportDescriptor.node as TSESTree.Node)
-      ) {
-        context.report(reportDescriptor);
-      }
-    },
-  );
+/**
+ * Reads static member and alias names from an upstream output-alias report.
+ * @param node the reported alias literal or template element
+ * @return the member and public alias names, when statically known
+ */
+function getOutputNames(node: TSESTree.Node): [string, string] | undefined {
+  if (node.type !== 'Literal' && node.type !== 'TemplateElement') {
+    return undefined;
+  }
+  if (
+    node.type === 'TemplateElement' &&
+    (node.parent.type !== 'TemplateLiteral' || node.parent.expressions.length !== 0)
+  ) {
+    return undefined;
+  }
+  if (node.type === 'Literal' && typeof node.value !== 'string') {
+    return undefined;
+  }
+  const text = node.type === 'Literal' ? (node.value as string) : node.value.cooked;
+  if (text == null) {
+    return undefined;
+  }
+  const parent = node.type === 'TemplateElement' ? node.parent.parent : node.parent;
+  if (parent?.type === 'ArrayExpression') {
+    if (parent.parent.type !== 'Property') {
+      return undefined;
+    }
+    const names = text.split(':');
+    return names.length === 2 ? [names[0].trim(), names[1].trim()] : undefined;
+  }
+  const member = ASTUtils.getNearestNodeFrom(node, ASTUtils.isPropertyOrMethodDefinition);
+  return member && !member.computed && member.key.type === 'Identifier'
+    ? [member.key.name, text]
+    : undefined;
 }
 
 /**
- * Match the alias to the selector and member name:
- *
- *   @Directive({ selector: 'foo[bar]' })
- *   class FooBarDirective {
- *     @Output('fooBar') event = ...;
- *     @Output('fooBarChanged') changed = ...;
- *     // Or: changed = output({ alias: 'fooBarChanged' });
- *   }
- *
- *   'fooBar' === 'foo' + capitalize('bar')
- *   'fooBarChanged' === 'fooBar' + capitalize('changed')
- *
- * Components, unsupported selectors, and mismatched aliases do not match.
- * This pattern does not prove a collision in a consuming template.
+ * Allows output aliases that avoid native DOM event collisions.
+ * @param rule the delegated Angular output-alias rule
+ * @return the rule with collision-avoiding alias reports removed
  */
-function isSelectorDerivedAlias(node: TSESTree.Node) {
-  if (node.type !== 'Literal' || typeof node.value !== 'string') {
-    return false;
-  }
-  const memberName = getOutputMemberName(node);
-  const selector = getCompoundSelector(node);
-  const match = selector?.match(COMPOUND_SELECTOR);
-  if (memberName === undefined || node.value === memberName || !match) {
-    return false;
-  }
-  const selectorIdentity = `${match[1]}${capitalize(match[2])}`;
-  return (
-    node.value === selectorIdentity || node.value === `${selectorIdentity}${capitalize(memberName)}`
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReport(
+    { ...rule, meta: generateMeta(meta, rule.meta) },
+    (context, descriptor) => {
+      const names =
+        'node' in descriptor ? getOutputNames(descriptor.node as TSESTree.Node) : undefined;
+      if (names && nativeEventNames.has(names[0]) && !nativeEventNames.has(names[1])) {
+        return;
+      }
+      context.report(descriptor);
+    },
   );
 }
