@@ -225,6 +225,9 @@ describe('S7653', () => {
       { expression: "getAlias('pressed')", errors: 1 },
       { expression: "{ alias: 'pressed' }", errors: 1 },
       { expression: "['pressed'][0]", errors: 2 },
+      { expression: "{ names: ['change: pressed'] }", errors: 1 },
+      { expression: "{ outputs: ['change: pressed'] }", errors: 1 },
+      { expression: '{ names: [`change: pressed`] }', errors: 1 },
     ].flatMap(({ expression, errors }) =>
       [
         `@Output(${expression}) change = new EventEmitter();`,
