@@ -68,13 +68,10 @@ export async function initFileStoresForAnalysis(
 
 export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
-  const pendingStores: FileStore[] = [];
-
-  for (const store of fileStores) {
-    if (!(await store.isInitialized(configuration, inputFiles))) {
-      pendingStores.push(store);
-    }
-  }
+  const initializedFlags = await Promise.all(
+    fileStores.map(store => store.isInitialized(configuration, inputFiles)),
+  );
+  const pendingStores: FileStore[] = fileStores.filter((_store, index) => !initializedFlags[index]);
 
   if (!pendingStores.length) {
     return;
@@ -101,9 +98,7 @@ export async function initFileStores(configuration: Configuration, inputFiles?: 
   } else if (inputFiles) {
     await simulateFromInputFiles(inputFiles, configuration, pendingStores, context);
   }
-  for (const store of pendingStores) {
-    await store.postProcess(configuration, context);
-  }
+  await Promise.all(pendingStores.map(store => store.postProcess(configuration, context)));
 }
 
 export async function simulateFromInputFiles(
@@ -136,15 +131,17 @@ export async function simulateFromInputFiles(
   }
 
   // files need to be processed after as ignored files logic depends on ignored paths being ingested
-  for (const filePath of filePaths) {
-    await processPendingFileStores(
-      pendingStores,
-      filePath,
-      configuration,
-      context,
-      inputFiles[filePath].fileContent,
-    );
-  }
+  await Promise.all(
+    filePaths.map(filePath =>
+      processPendingFileStores(
+        pendingStores,
+        filePath,
+        configuration,
+        context,
+        inputFiles[filePath].fileContent,
+      ),
+    ),
+  );
 }
 
 async function processPendingFileStores(
@@ -163,14 +160,20 @@ async function processPendingFileStores(
   }
 
   let sharedFile: File | undefined;
-  for (const { store, request: storeWantsFile } of storeRequests) {
-    if (storeWantsFile === 'content') {
-      sharedFile ??= await context.getFile(filePath, fileContent);
-      await store.processFile(filePath, configuration, sharedFile);
-    } else if (storeWantsFile === 'path' || storeWantsFile === 'deferred-content') {
-      await store.processFile(filePath, configuration);
-    }
+  if (storeRequests.some(({ request }) => request === 'content')) {
+    sharedFile = await context.getFile(filePath, fileContent);
   }
+  await Promise.all(
+    storeRequests.map(({ store, request: storeWantsFile }) => {
+      if (storeWantsFile === 'content') {
+        return store.processFile(filePath, configuration, sharedFile);
+      }
+      if (storeWantsFile === 'path' || storeWantsFile === 'deferred-content') {
+        return store.processFile(filePath, configuration);
+      }
+      return undefined;
+    }),
+  );
 }
 
 function createFileStoreContext(inputFiles?: AnalyzableFiles): FileStoreContext {
