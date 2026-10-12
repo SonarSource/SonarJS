@@ -14,29 +14,125 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { TSESTree } from '@typescript-eslint/utils';
+import { ASTUtils, type TSESLint, type TSESTree } from '@typescript-eslint/utils';
+import { roles } from 'aria-query';
 import type { Rule } from 'eslint';
-import { interceptReport } from '../helpers/decorators/interceptor.js';
+import type { Node } from 'estree';
+import { unwrapTypeScriptExpression } from '../helpers/ast.js';
+import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
+const CONCRETE_ROLES = new Set<string>(roles.keys().filter(name => !roles.get(name)!.abstract));
+const ARIA_NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
+
 /**
- * Suppresses the upstream report only when every conditional branch either
- * removes tabIndex or gives it a statically negative integer value.
+ * Allows intrinsic div separator widgets with a supplied current value.
+ * @param rule the upstream accessibility rule
+ * @return the rule with separator reports filtered
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReport(
-    {
-      ...rule,
-      meta: generateMeta(meta, rule.meta),
-    },
-    (context, reportDescriptor) => {
-      if (isTabIndexOutsideSequentialFocusOrder(reportDescriptor)) {
+  return interceptReportForReact(
+    { ...rule, meta: generateMeta(meta, rule.meta) },
+    (context, descriptor) => {
+      if (isTabIndexOutsideSequentialFocusOrder(descriptor)) {
         return;
       }
-
-      context.report(reportDescriptor);
+      const node = 'node' in descriptor ? (descriptor.node as TSESTree.Node) : undefined;
+      const opening = node?.type === 'JSXAttribute' ? node.parent : undefined;
+      if (opening?.type === 'JSXOpeningElement' && isSeparatorWidget(context, opening)) {
+        return;
+      }
+      context.report(descriptor);
     },
+  );
+}
+
+/**
+ * Identifies intrinsic div separators with a known role and current value.
+ * @param context the rule context
+ * @param opening the JSX opening element
+ * @return whether the element declares a separator widget
+ */
+function isSeparatorWidget(
+  context: Rule.RuleContext,
+  opening: TSESTree.JSXOpeningElement,
+): boolean {
+  if (opening.name.type !== 'JSXIdentifier' || opening.name.name !== 'div') {
+    return false;
+  }
+  const role = attributeExpression(effectiveAttribute(opening, 'role'));
+  if (role?.type !== 'Literal' || typeof role.value !== 'string') {
+    return false;
+  }
+  const effectiveRole = role.value
+    .trim()
+    .split(/\s+/)
+    .find(name => CONCRETE_ROLES.has(name));
+  return (
+    effectiveRole === 'separator' &&
+    hasCurrentValue(context, effectiveAttribute(opening, 'aria-valuenow'))
+  );
+}
+
+/**
+ * Finds an explicitly declared attribute that cannot be overridden by a spread.
+ * @param opening the JSX opening element
+ * @param name the attribute name
+ * @return the effective attribute when it is known
+ */
+function effectiveAttribute(
+  opening: TSESTree.JSXOpeningElement,
+  name: string,
+): TSESTree.JSXAttribute | undefined {
+  for (let index = opening.attributes.length - 1; index >= 0; index--) {
+    const attribute = opening.attributes[index];
+    if (attribute.type === 'JSXSpreadAttribute') {
+      return undefined;
+    }
+    if (attribute.name.type === 'JSXIdentifier' && attribute.name.name === name) {
+      return attribute;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Extracts the expression supplied as an attribute value.
+ * @param attribute the JSX attribute
+ * @return the expression with TypeScript assertions removed
+ */
+function attributeExpression(
+  attribute: TSESTree.JSXAttribute | undefined,
+): TSESTree.Node | undefined {
+  const value = attribute?.value;
+  const expression = value?.type === 'JSXExpressionContainer' ? value.expression : value;
+  return expression ? unwrapTypeScriptExpression(expression) : undefined;
+}
+
+/**
+ * Accepts runtime current values while rejecting statically invalid values.
+ * @param context the rule context
+ * @param attribute the current-value attribute
+ * @return whether a numeric current value is supplied or can be computed at runtime
+ */
+function hasCurrentValue(
+  context: Rule.RuleContext,
+  attribute: TSESTree.JSXAttribute | undefined,
+): boolean {
+  const expression = attributeExpression(attribute);
+  if (!expression || expression.type === 'JSXEmptyExpression') {
+    return false;
+  }
+  const scope = context.sourceCode.getScope(expression as Node) as unknown as TSESLint.Scope.Scope;
+  const evaluated = ASTUtils.getStaticValue(expression, scope);
+  if (evaluated === null) {
+    return true;
+  }
+  const value = evaluated.value;
+  return (
+    (typeof value === 'number' && Number.isFinite(value)) ||
+    (typeof value === 'string' && ARIA_NUMBER.test(value) && Number.isFinite(Number(value)))
   );
 }
 
