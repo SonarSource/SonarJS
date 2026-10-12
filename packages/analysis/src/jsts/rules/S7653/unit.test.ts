@@ -15,11 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import { Linter } from 'eslint';
-import type { Rule } from 'eslint';
-import parser from '@typescript-eslint/parser';
+import type { Rule, RuleTester } from 'eslint';
 import pkg from '@angular-eslint/eslint-plugin';
+import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { mergeRules } from '../helpers/decorators/merger.js';
 import { rule } from './index.js';
 import { rule as nativeOutputRule } from '../S7651/index.js';
 
@@ -53,173 +52,214 @@ class Test {
 }`;
 }
 
-/**
- * Analyzes TypeScript with the real Angular output rules.
- * @param code the source to analyze
- * @param outputRule the output-alias rule implementation
- * @param checkNative whether to enable the native-output rule too
- * @return the reported ESLint findings
- */
-function analyze(code: string, outputRule = rule, checkNative = false): Linter.LintMessage[] {
-  return new Linter().verify(
+/** Checks a retained finding, its location, and the upstream removal suggestions. */
+function retainedAliasCase(
+  api: OutputAPI,
+  member: string,
+  alias: string,
+  quote: string,
+): RuleTester.InvalidTestCase {
+  const code = outputCode(api, member, alias, quote);
+  const aliasText = `${quote}${api === 'metadata' ? `${member}: ${alias}` : alias}${quote}`;
+  const replacementQuote = quote === '`' ? '`' : "'";
+  const removed =
+    api === 'metadata'
+      ? code.replace(aliasText, `${replacementQuote}${member}${replacementQuote}`)
+      : api === 'output'
+        ? code.replace(`{ alias: ${aliasText} }`, '')
+        : code.replace(`@Output(${aliasText})`, '@Output()');
+  const renamed =
+    api === 'metadata'
+      ? code.replace(aliasText, `${replacementQuote}${alias}${replacementQuote}`)
+      : removed.replace(`${member} =`, `${alias} =`);
+  const line = api === 'metadata' ? 2 : 4;
+  const column = code.split('\n')[line - 1].indexOf(aliasText) + 1;
+  return {
     code,
-    {
-      files: ['**/*.ts'],
-      languageOptions: { parser },
-      plugins: { sonar: { rules: { S7653: outputRule, S7651: nativeOutputRule } } },
-      rules: { 'sonar/S7653': 'error', ...(checkNative ? { 'sonar/S7651': 'error' } : {}) },
-    },
-    { filename: 'component.ts' },
-  );
+    errors: [
+      {
+        messageId: 'noOutputRename',
+        line,
+        column,
+        endLine: line,
+        endColumn: column + aliasText.length,
+        suggestions:
+          member === alias
+            ? []
+            : [
+                { messageId: 'suggestRemoveAliasName', output: removed },
+                { messageId: 'suggestReplaceOriginalNameWithAliasName', output: renamed },
+              ],
+      },
+    ],
+    output: member === alias ? removed : null,
+  };
 }
 
 describe('S7653', () => {
-  for (const api of apis) {
-    for (const quote of ["'", '"', '`']) {
-      for (const member of [
-        'change',
-        'click',
-        'submit',
-        'pointerdown',
-        'animationend',
-        'beforeunload',
-        'selectionchange',
-        'beginEvent',
-        'afterscriptexecute',
-        'webkitmouseforcechanged',
-        'beforexrselect',
-      ]) {
-        it(`allows ${api} ${quote} aliases avoiding the native ${member} event`, () => {
-          const code = outputCode(api, member, 'componentEvent', quote);
-          const baseline = analyze(code, upstreamRule);
-          assert.equal(baseline.length, 1);
-          assert.equal(baseline[0].messageId, 'noOutputRename');
-          assert.deepEqual(analyze(code), []);
-        });
-      }
-      for (const [member, alias] of [
-        ['valueChange', 'updated'],
-        ['changeEvent', 'change'],
-        ['change', 'click'],
-        ['change', 'change'],
-        ['valueChange', 'valueChange'],
-        ['$change', 'valueChanged'],
-        ['_change', 'valueChanged'],
-        ['onChange', 'valueChanged'],
-        ['Change', 'valueChanged'],
-        ['beginevent', 'componentEvent'],
-      ]) {
-        it(`preserves ${api} ${quote} findings for ${member} → ${alias}`, () => {
-          const code = outputCode(api, member, alias, quote);
-          const findings = analyze(code);
-          assert.equal(findings.length, 1);
-          assert.equal(findings[0].messageId, 'noOutputRename');
-          assert.deepEqual(findings, analyze(code, upstreamRule));
-        });
-      }
-    }
+  const ruleTester = new NoTypeCheckingRuleTester();
 
-    it(`preserves selector-derived ${api} exemptions`, () => {
-      for (const [selector, prefix] of [
-        ['app-test', 'app-test'],
-        ['[appTest]', 'appTest'],
-        ['app-test, [appTest]', 'appTest'],
-      ]) {
-        for (const alias of [prefix, `${prefix}Changed`]) {
-          const code = outputCode(api, 'changed', alias).replace(
-            "selector: 'app-test'",
-            `selector: '${selector}'`,
-          );
-          assert.deepEqual(analyze(code), analyze(code, upstreamRule));
-          assert.deepEqual(analyze(code), []);
-        }
-      }
+  it('allows exact native member names and retains other aliases across all output APIs', () => {
+    const collisionCases = apis.flatMap(api =>
+      ["'", '"', '`'].flatMap(quote =>
+        [
+          'change',
+          'click',
+          'submit',
+          'pointerdown',
+          'animationend',
+          'beforeunload',
+          'selectionchange',
+          'beginEvent',
+          'afterscriptexecute',
+          'webkitmouseforcechanged',
+          'beforexrselect',
+        ].map(member => ({ code: outputCode(api, member, 'componentEvent', quote) })),
+      ),
+    );
+    const retainedCases = apis.flatMap(api =>
+      ["'", '"', '`'].flatMap(quote =>
+        [
+          ['valueChange', 'updated'],
+          ['changeEvent', 'change'],
+          ['change', 'click'],
+          ['change', 'change'],
+          ['valueChange', 'valueChange'],
+          ['$change', 'valueChanged'],
+          ['_change', 'valueChanged'],
+          ['onChange', 'valueChanged'],
+          ['Change', 'valueChanged'],
+          ['beginevent', 'componentEvent'],
+        ].map(([member, alias]) => retainedAliasCase(api, member, alias, quote)),
+      ),
+    );
+    ruleTester.run('S7653', rule, { valid: collisionCases, invalid: retainedCases });
+    ruleTester.run('no-output-rename', upstreamRule, {
+      valid: [],
+      invalid: [...collisionCases.map(test => ({ ...test, errors: 1 })), ...retainedCases],
     });
+  });
 
-    it(`preserves dynamic ${api} aliases`, () => {
-      const code = outputCode(api, 'change', 'component${suffix}', '`');
-      const baseline = analyze(code, upstreamRule);
-      assert.ok(baseline.length > 0);
-      assert.deepEqual(analyze(code), baseline);
+  it('preserves selector and hostDirectives exemptions', () => {
+    const valid = [
+      ...apis.flatMap(api =>
+        [
+          ['app-test', 'app-test'],
+          ['[appTest]', 'appTest'],
+          ['app-test, [appTest]', 'appTest'],
+        ].flatMap(([selector, prefix]) =>
+          [prefix, `${prefix}Changed`].map(alias => ({
+            code: outputCode(api, 'changed', alias).replace(
+              "selector: 'app-test'",
+              `selector: '${selector}'`,
+            ),
+          })),
+        ),
+      ),
+      {
+        code: `@Component({
+          hostDirectives: [{ directive: Other, outputs: ['changed: updated', 'change: click'] }],
+        }) class Test {}`,
+      },
+    ];
+    ruleTester.run('S7653', rule, { valid, invalid: [] });
+    ruleTester.run('no-output-rename', upstreamRule, { valid, invalid: [] });
+  });
+
+  it('allows getter and directive mappings with static, decoded names', () => {
+    const valid = [
+      {
+        code: `class Test { @Output('valueChanged') get change() { return new EventEmitter(); } }`,
+      },
+      { code: `@Directive({ outputs: [' submit : submitted '] }) class Test {}` },
+      { code: `@Directive({ outputs: [' click : activated '] }) class Test {}` },
+      { code: `@Directive({ outputs: ['${String.raw`\u0063lick: activated`}'] }) class Test {}` },
+    ];
+    ruleTester.run('S7653', rule, { valid, invalid: [] });
+    ruleTester.run('no-output-rename', upstreamRule, {
+      valid: [],
+      invalid: valid.map(test => ({ ...test, errors: 1 })),
     });
-
-    it(`retains native-output findings for ${api} native public aliases`, () => {
-      const code = outputCode(api, 'changeEvent', 'change');
-      const findings = analyze(code, rule, true);
-      assert.deepEqual(findings, analyze(code, upstreamRule, true));
-      assert.equal(findings.filter(finding => finding.ruleId === 'sonar/S7653').length, 1);
-      assert.equal(findings.filter(finding => finding.ruleId === 'sonar/S7651').length, 1);
-    });
-  }
-
-  it('preserves hostDirectives composition aliases', () => {
-    const code = `@Component({
-      hostDirectives: [{ directive: Other, outputs: ['changed: updated', 'change: click'] }],
-    }) class Test {}`;
-    assert.deepEqual(analyze(code), []);
   });
 
-  it('allows getter outputs and directive metadata aliases', () => {
-    const getter = `class Test { @Output('valueChanged') get change() { return new EventEmitter(); } }`;
-    const directive = `@Directive({ outputs: [' submit : submitted '] }) class Test {}`;
-    for (const code of [getter, directive]) {
-      assert.equal(analyze(code, upstreamRule).length, 1);
-      assert.deepEqual(analyze(code), []);
-    }
+  it('preserves unsupported members and malformed or nested mappings', () => {
+    const valid = ["['change']", "'change'"].map(member => ({
+      code: outputCode('output', member, 'valueChanged'),
+    }));
+    const invalid = [
+      {
+        code: outputCode('output', '[eventName]', 'valueChanged'),
+        errors: 1,
+      },
+      ...['change: valueChanged: extra', 'ch ange: valueChanged'].map(mapping => ({
+        code: `@Component({ outputs: ['${mapping}'] }) class Test {}`,
+        errors: 1,
+      })),
+      { code: `@Component({ outputs: [['change: valueChanged']] }) class Test {}`, errors: 1 },
+    ];
+    ruleTester.run('S7653', rule, { valid, invalid });
+    ruleTester.run('no-output-rename', upstreamRule, { valid, invalid });
   });
 
-  it('preserves unsupported computed and quoted output members', () => {
-    for (const member of ["['change']", "'change'", '[eventName]']) {
-      const code = outputCode('output', member, 'valueChanged');
-      assert.deepEqual(analyze(code), analyze(code, upstreamRule));
-    }
+  it('retains dynamic template aliases and escaped native public names', () => {
+    const invalid = [
+      ...apis.map(api => ({
+        code: outputCode(api, 'change', 'component${suffix}', '`'),
+        errors: api === 'metadata' ? 1 : 2,
+      })),
+      ...apis.map(api => ({
+        code: outputCode(api, 'change', String.raw`\u0063lick`, '`'),
+        errors: 1,
+      })),
+    ];
+    ruleTester.run('S7653', rule, { valid: [], invalid });
+    ruleTester.run('no-output-rename', upstreamRule, { valid: [], invalid });
   });
 
-  it('does not infer static names from nested metadata or malformed aliases', () => {
-    for (const alias of ['change: valueChanged: extra', 'ch ange: valueChanged']) {
-      const code = `@Component({ outputs: ['${alias}'] }) class Test {}`;
-      assert.deepEqual(analyze(code), analyze(code, upstreamRule));
-    }
-    const nested = `@Component({ outputs: [['change: valueChanged']] }) class Test {}`;
-    assert.deepEqual(analyze(nested), analyze(nested, upstreamRule));
-  });
-
-  it('uses cooked static template text when the public alias is an escaped native name', () => {
-    for (const api of apis) {
-      const code = outputCode(api, 'change', String.raw`\u0063lick`, '`');
-      assert.equal(analyze(code).length, 1);
-      assert.deepEqual(analyze(code), analyze(code, upstreamRule));
-    }
-  });
-
-  it('shares static metadata parsing for whitespace and escaped member names', () => {
-    for (const mapping of ["' click : activated '", `'${String.raw`\u0063lick: activated`}'`]) {
-      const code = `@Directive({ outputs: [${mapping}] }) class Test {}`;
-      assert.equal(analyze(code, upstreamRule).length, 1);
-      assert.deepEqual(analyze(code), []);
-    }
-  });
-
-  it('preserves reports for literals nested inside dynamic alias expressions', () => {
-    for (const expression of [
-      "EVENT_NAMES['pressed']",
-      '`cli` + `ck`',
-      "'cli' + 'ck'",
-      "condition ? 'click' : 'pressed'",
-      "getAlias('pressed')",
-      "{ alias: 'pressed' }",
-      "['pressed'][0]",
-    ]) {
-      for (const declaration of [
+  it('preserves literals nested inside dynamic alias expressions', () => {
+    const invalid = [
+      { expression: "EVENT_NAMES['pressed']", errors: 1 },
+      { expression: '`cli` + `ck`', errors: 2 },
+      { expression: "'cli' + 'ck'", errors: 2 },
+      { expression: "condition ? 'click' : 'pressed'", errors: 2 },
+      { expression: "getAlias('pressed')", errors: 1 },
+      { expression: "{ alias: 'pressed' }", errors: 1 },
+      { expression: "['pressed'][0]", errors: 2 },
+    ].flatMap(({ expression, errors }) =>
+      [
         `@Output(${expression}) change = new EventEmitter();`,
         `change = output({ alias: ${expression} });`,
-      ]) {
-        const code = `const EVENT_NAMES = { pressed: 'click' }; class Test { ${declaration} }`;
-        const baseline = analyze(code, upstreamRule);
-        assert.ok(baseline.length > 0);
-        assert.deepEqual(analyze(code), baseline);
-      }
-    }
+      ].map(declaration => ({
+        code: `const EVENT_NAMES = { pressed: 'click' }; class Test { ${declaration} }`,
+        errors,
+      })),
+    );
+    ruleTester.run('S7653', rule, { valid: [], invalid });
+    ruleTester.run('no-output-rename', upstreamRule, { valid: [], invalid });
+  });
+
+  it('retains native-output reports when both rules analyze a declaration', () => {
+    const combinedRule: Rule.RuleModule = {
+      meta: {
+        ...rule.meta,
+        messages: { ...rule.meta!.messages, ...nativeOutputRule.meta!.messages },
+      },
+      create: context => mergeRules(rule.create(context), nativeOutputRule.create(context)),
+    };
+    ruleTester.run('S7653 + S7651', combinedRule, {
+      valid: [],
+      invalid: apis.map(api => ({
+        code: outputCode(api, 'changeEvent', 'change'),
+        errors: 2,
+      })),
+    });
+    ruleTester.run('S7651', nativeOutputRule, {
+      valid: [],
+      invalid: apis.map(api => ({
+        code: outputCode(api, 'changeEvent', 'change'),
+        errors: 1,
+      })),
+    });
   });
 
   it('removes only collision-avoiding reports from mixed declarations and metadata', () => {
@@ -231,37 +271,70 @@ describe('S7653', () => {
       @Output('activated') click = new EventEmitter();
       @Output('click') changeEvent = new EventEmitter();
     }`;
-    const baseline = analyze(code, upstreamRule);
-    assert.equal(baseline.length, 8);
-    const findings = analyze(code);
-    assert.deepEqual(
-      findings,
-      baseline.filter(
-        finding =>
-          ![
-            "'change: valueChanged'",
-            "'click: activated'",
-            "'valueChanged'",
-            "'activated'",
-          ].includes(
-            code.split('\n')[finding.line - 1].slice(finding.column - 1, finding.endColumn! - 1),
-          ),
-      ),
-    );
-    assert.equal(findings.length, 4);
-    assert.deepEqual(
-      findings.map(({ line, column, endColumn, messageId }) => ({
-        line,
-        column,
-        endColumn,
-        messageId,
-      })),
-      [
-        { line: 2, column: 31, endColumn: 53, messageId: 'noOutputRename' },
-        { line: 2, column: 75, endColumn: 90, messageId: 'noOutputRename' },
-        { line: 5, column: 37, endColumn: 46, messageId: 'noOutputRename' },
-        { line: 7, column: 15, endColumn: 22, messageId: 'noOutputRename' },
+    const locations = [
+      {
+        line: 2,
+        column: 31,
+        endColumn: 53,
+        from: "'valueChange: updated'",
+        to: "'valueChange'",
+        alias: "'updated'",
+      },
+      {
+        line: 2,
+        column: 75,
+        endColumn: 90,
+        from: "'change: click'",
+        to: "'change'",
+        alias: "'click'",
+      },
+      {
+        line: 5,
+        column: 37,
+        endColumn: 46,
+        from: "{ alias: 'updated' }",
+        to: '',
+        member: 'valueChange',
+        alias: 'updated',
+      },
+      {
+        line: 7,
+        column: 15,
+        endColumn: 22,
+        from: "@Output('click')",
+        to: '@Output()',
+        member: 'changeEvent',
+        alias: 'click',
+      },
+    ];
+    ruleTester.run('S7653', rule, {
+      valid: [],
+      invalid: [
+        {
+          code,
+          errors: locations.map(({ line, column, endColumn, from, to, member, alias }) => {
+            const removed = code.replace(from, to);
+            const renamed = member
+              ? removed.replace(`${member} =`, `${alias} =`)
+              : code.replace(from, alias);
+            return {
+              messageId: 'noOutputRename',
+              line,
+              column,
+              endLine: line,
+              endColumn,
+              suggestions: [
+                { messageId: 'suggestRemoveAliasName', output: removed },
+                { messageId: 'suggestReplaceOriginalNameWithAliasName', output: renamed },
+              ],
+            };
+          }),
+        },
       ],
-    );
+    });
+    ruleTester.run('no-output-rename', upstreamRule, {
+      valid: [],
+      invalid: [{ code, errors: 8 }],
+    });
   });
 });
