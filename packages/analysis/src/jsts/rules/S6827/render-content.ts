@@ -18,15 +18,14 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
-import pkg from 'jsx-ast-utils-x';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import {
   getUniqueWriteReference,
   getVariableFromName,
+  getStaticExpressionValue,
   unwrapTypeScriptExpression,
 } from '../helpers/ast.js';
 import { hasAccessibleNameAttribute } from '../helpers/accessibility.js';
-const { getPropValue } = pkg;
 
 const SHADCN_COMPONENTS: Record<string, readonly string[]> = {
   button: ['Button'],
@@ -143,10 +142,7 @@ function hasElementContent(
   allowComponentContent = false,
 ): boolean {
   const attributes = (element.openingElement as JSXOpeningElement).attributes;
-  const hidden = getEffectiveAttribute(attributes, 'hidden', context);
-  const ariaHiddenAttribute = getEffectiveAttribute(attributes, 'aria-hidden', context);
-  const ariaHidden = ariaHiddenAttribute && getPropValue(ariaHiddenAttribute);
-  if ((hidden && getPropValue(hidden) !== false) || ariaHidden === true || ariaHidden === 'true') {
+  if (isHidden(attributes, context)) {
     return false;
   }
   const name = element.openingElement.name;
@@ -179,6 +175,37 @@ function hasElementContent(
     children === undefined ||
     (!!children?.value && hasContent(children.value as TSESTree.Node, context, seen))
   );
+}
+
+function isHidden(attributes: JSXOpeningElement['attributes'], context: Rule.RuleContext): boolean {
+  const hidden = getAttributeValue(getEffectiveAttribute(attributes, 'hidden', context), context);
+  const ariaHidden = getAttributeValue(
+    getEffectiveAttribute(attributes, 'aria-hidden', context),
+    context,
+  );
+  return !!hidden || ariaHidden === true || ariaHidden === 'true';
+}
+
+function getAttributeValue(
+  attribute: JSXAttribute | null | undefined,
+  context: Rule.RuleContext,
+): unknown {
+  if (!attribute) {
+    return undefined;
+  }
+  if (attribute.value === null) {
+    return true;
+  }
+  const value =
+    attribute.value.type === 'JSXExpressionContainer'
+      ? attribute.value.expression
+      : attribute.value;
+  const resolved = resolveContentValue(value as TSESTree.Node, context);
+  return resolved.type === 'Literal'
+    ? resolved.value
+    : resolved.type === 'TemplateLiteral'
+      ? getStaticExpressionValue(resolved as unknown as estree.Expression)
+      : undefined;
 }
 
 function hasAttributeContent(
