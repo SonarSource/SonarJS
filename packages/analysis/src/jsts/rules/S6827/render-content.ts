@@ -456,8 +456,10 @@ function hasContent(
       return !['in', 'instanceof', '<', '>', '<=', '>=', '==', '!=', '===', '!=='].includes(
         value.operator,
       );
-    case 'SequenceExpression':
-      return hasContent(value.expressions.at(-1)!, context, seen);
+    case 'SequenceExpression': {
+      const last = value.expressions.at(-1);
+      return last !== undefined && hasContent(last, context, seen);
+    }
     default:
       return true;
   }
