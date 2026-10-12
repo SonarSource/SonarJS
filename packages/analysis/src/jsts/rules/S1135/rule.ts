@@ -21,7 +21,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
-const todoPattern = 'todo';
+const todoPattern = '__js_2639_repro_bob_todo__';
 const letterPattern = /[\p{Letter}]/u;
 const jiraIssueKeyPattern = /\b[A-Z][A-Z0-9]+-\d+\b/u;
 const commentStartPattern = /^[\s*]*$/u;
