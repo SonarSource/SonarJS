@@ -15,4 +15,57 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rules } from '../external/react.js';
-export const rule = rules['jsx-child-element-spacing'];
+import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import type { TSESTree } from '@typescript-eslint/utils';
+import type { Rule } from 'eslint';
+import * as meta from './generated-meta.js';
+
+const baseRule = rules['jsx-child-element-spacing'];
+
+export const rule = interceptReportForReact(
+  {
+    ...baseRule,
+    meta: generateMeta(meta, baseRule.meta),
+  },
+  reportIfAmbiguous,
+);
+
+/**
+ * Reports spacing issues unless following text starts with a dot or comma.
+ * @param context The rule context.
+ * @param descriptor The upstream spacing report.
+ */
+function reportIfAmbiguous(context: Rule.RuleContext, descriptor: Rule.ReportDescriptor): void {
+  if (
+    'messageId' in descriptor &&
+    descriptor.messageId === 'spacingAfterPrev' &&
+    'node' in descriptor
+  ) {
+    const node = descriptor.node as TSESTree.JSXElement;
+    const parent = node.parent;
+    if (parent.type === 'JSXElement' || parent.type === 'JSXFragment') {
+      const followingIndex = parent.children.indexOf(node) + 1;
+      const following = parent.children[followingIndex];
+      if (following?.type === 'JSXText' && /^[.,]/.test(following.value.trimStart())) {
+        const nextElement = parent.children[followingIndex + 1];
+        if (
+          /\S\s*\n\s*$/.test(following.value) &&
+          nextElement?.type === 'JSXElement' &&
+          nextElement.openingElement.name.type === 'JSXIdentifier'
+        ) {
+          // The upstream rule reports only one side of a JSX text node.
+          context.report({
+            ...descriptor,
+            node: nextElement as Rule.Node,
+            loc: nextElement.loc.start,
+            messageId: 'spacingBeforeNext',
+            data: { element: nextElement.openingElement.name.name },
+          });
+        }
+        return;
+      }
+    }
+  }
+  context.report(descriptor);
+}
