@@ -1305,7 +1305,7 @@ jobs:
       # BEGIN GENERATED DISPATCH RECORD
       # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
       - name: Record ruling report dispatch
-        if: steps.ruling_update.outputs.report-requested == 'true'
+        if: always() && steps.ruling_update.outputs.report-requested == 'true'
         run: echo 'Independent ruling report dispatch succeeded.'
       # END GENERATED DISPATCH RECORD
 

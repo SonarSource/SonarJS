@@ -186,7 +186,7 @@ function generateBuild(files, context) {
   text = section(
     text,
     'DISPATCH RECORD',
-    `- name: ${scalar(config['report-dispatch-step'])}\n  if: steps.ruling_update.outputs.report-requested == 'true'\n  run: echo 'Independent ruling report dispatch succeeded.'`,
+    `- name: ${scalar(config['report-dispatch-step'])}\n  if: always() && steps.ruling_update.outputs.report-requested == 'true'\n  run: echo 'Independent ruling report dispatch succeeded.'`,
   );
   files.set(build, text);
 }

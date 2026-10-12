@@ -193,11 +193,11 @@ test('provenance schema changes update dispatch, metadata, aliases, bindings and
   assert.ok(files.get('docs/CI.md').includes("-f 'evidence-label=<evidence-label>'"));
 });
 
-test('successful report dispatch is recorded in Build metadata only when requested', () => {
+test('successful report dispatch is recorded even if the updater fails, but only when requested', () => {
   const build = workflow('build.yml');
   const steps = build.jobs.js_ts_ruling_update.steps;
   const record = steps.find(step => step.name === rulingConfig['report-dispatch-step']);
-  assert.equal(record.if, "steps.ruling_update.outputs.report-requested == 'true'");
+  assert.equal(record.if, "always() && steps.ruling_update.outputs.report-requested == 'true'");
   assert.equal(
     steps.find(step => step.id === 'ruling_update').uses,
     './.github/actions/ruling_bot',

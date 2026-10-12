@@ -42,6 +42,10 @@ const legacyCommitMessages = new Set([
   generatedCommitMessage.replace('\n\n', '\n\n🤖 '),
 ]);
 
+class ExpectationTransferError extends Error {
+  name = 'ExpectationTransferError';
+}
+
 export function context(env = process.env) {
   return {
     repository: env.GITHUB_REPOSITORY,
@@ -328,9 +332,11 @@ export function controller(ctx, adapters = {}) {
     const generated = expectationEntries(tree, config['old-results-path']);
     for (const [file, status] of changes) {
       if (!['A', 'M', 'D'].includes(status))
-        throw new Error(`Unsupported ruling expectation change: ${status} ${file}`);
+        throw new ExpectationTransferError(
+          `Unsupported ruling expectation change: ${status} ${file}`,
+        );
       if (original.get(file) === generated.get(file)) {
-        throw new Error(
+        throw new ExpectationTransferError(
           `Ruling changes cannot be represented on the original branch: ${file}. ` +
             'Its original state already equals the generated result, so a fix cannot record the tested-merge change. Resolve this expectation against the tested base before retrying.',
         );
@@ -361,7 +367,7 @@ export function controller(ctx, adapters = {}) {
       const unresolved = expectationChanges(['--diff-filter=U']);
       if (unresolved.size) {
         git(['reset', '--hard', ctx.testedHead]);
-        throw new Error(
+        throw new ExpectationTransferError(
           `Ruling expectation transfer conflicts: ${[...unresolved.keys()].join(', ')}. Resolve these expectations before retrying.`,
           { cause: error },
         );
@@ -380,7 +386,7 @@ export function controller(ctx, adapters = {}) {
         // A clean cherry-pick can silently discard edits already present on this head.
         // They may reappear on the later base merge, so publishing only the remainder is unsafe.
         git(['reset', '--hard', ctx.testedHead]);
-        throw new Error(
+        throw new ExpectationTransferError(
           `Ruling changes cannot fully transfer to the original branch: ${file}. ` +
             'The transferred content delta differs from the tested-merge delta. Resolve this expectation against the tested base before retrying.',
         );
@@ -505,7 +511,35 @@ export function controller(ctx, adapters = {}) {
       return 'stale';
     const selected = resolveFixBranch();
     const { existing, ref, oldFix, branch } = selected;
-    const commit = createFixCommit(config, selected, prepared);
+    let commit;
+    try {
+      commit = createFixCommit(config, selected, prepared);
+    } catch (error) {
+      if (error instanceof ExpectationTransferError && ctx.isPullRequest) {
+        const recoveryErrors = [];
+        try {
+          closeFixes(
+            'Superseded: the latest ruling changes cannot transfer to the original PR head.',
+          );
+        } catch (cleanupError) {
+          recoveryErrors.push(cleanupError);
+        }
+        // Refresh the report even if cleanup failed; never advertise the obsolete fix.
+        try {
+          if (fresh(true)) dispatch(config, ctx.pr);
+        } catch (reportError) {
+          recoveryErrors.push(reportError);
+        }
+        if (recoveryErrors.length) {
+          throw new AggregateError(
+            [error, ...recoveryErrors],
+            `${error.message} Fix cleanup or failed-report dispatch also failed.`,
+            { cause: error },
+          );
+        }
+      }
+      throw error; // Keep the updater failed and promotion blocked.
+    }
     if (!fresh()) return 'stale';
     if (existing) assertCurrentFixPr(selected, existing.number, oldFix);
     git(['push', `--force-with-lease=${ref}:${oldFix}`, 'origin', `${branch}:${ref}`]);

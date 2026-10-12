@@ -203,9 +203,9 @@ is not the tested default-branch head.
 Raw PR-event reports carry no completed Build identity and cannot overwrite a completed report for
 the same PR head, even across different tested merges. The updater exposes `report-requested` only
 after a successful dispatch. The Build caller then
-runs the configured `report-dispatch-step`; raw reporters query successful steps across Build
-attempts for the same original PR head in `build-workflow`. This preserves authority after an
-empty report deletes its comment. Legacy Builds without that step, failed/skipped dispatches,
+runs the configured `report-dispatch-step`, even if the updater subsequently fails. Raw reporters
+query successful steps across Build attempts for the same original PR head in `build-workflow`.
+This preserves authority after an empty report deletes its comment. Legacy Builds without that step, failed/skipped dispatches,
 and Builds for another PR/head do not suppress raw reports. Other callers should record the
 output in the same way as SonarJS. Raw reports can still refresh reports from an earlier head.
 Passing Build retries dispatch again, replacing stale failure notices even
@@ -256,6 +256,15 @@ content/mode edits after transfer (ignoring context and line offsets), so even a
 that drops only part of a file's delta is rejected. Unresolved transfer conflicts also fail without
 publishing a partial fix. These exceptional expectations need resolution against the tested base
 before retrying; the bot does not impose a blanket rebase requirement.
+
+For a known transfer rejection on a still-current PR run, close obsolete owned fixes with the
+existing freshness, ownership, shared-branch, and SHA-lease checks. Request a failed report on the
+original PR without a fix link. The reporter uses the same tested merge and saved results; its
+`Ruling needs updating.` notice replaces the old instruction to merge the previous fix.
+The updater still fails, so promotion stays blocked. If cleanup fails, still attempt the report
+after checking freshness again. Preserve the transfer error together with any cleanup or dispatch
+errors. A run found to be superseded skips remaining recovery writes. Unrelated Git/commit errors do not trigger this
+recovery, and default-branch failures keep their existing behavior.
 
 GitHub API state checks and Git ref writes are separate operations. A human can still push, merge,
 or reopen during the final API window; the queue coordinates bot jobs, and repeated checks/leases
@@ -372,7 +381,7 @@ This table is a review checklist, not a claim of transactional guarantees across
 | Default-branch report recipient closes or has a head different from the tested branch                          | Check the fix recipient is open without comparing its fix head with the tested default-branch head.                                                                                   | `bot.test.mjs`: open/closed fix-recipient cases                                                                      |
 | Generated build output is dirty; expectations include added, deleted, renamed, or base-only files              | Snapshot only the tested expectation delta and transfer onto the original head; mirror the final flat layout.                                                                         | `bot.test.mjs`, [report-renames.test.mjs](tests/report-renames.test.mjs)                                             |
 | Behind PR branch; unrelated base source or same-file expectation changes                                       | Publish one expectation-only commit on the original head; keep the tested merge for calculation/reporting. Squash/rebase fixes import no base history.                                | [fix-transfer.test.mjs](tests/fix-transfer.test.mjs): Bob/Alice repro, same-file edits, base-only additions          |
-| Base-only deletion, redundant whole/partial delta, or existing-file transfer conflict                          | Fail visibly without pushing or advertising a partial fix; independent additions may conflict when the original PR later merges into its base.                                        | `fix-transfer.test.mjs`: unrepresentable deltas, dropped edits, conflict cleanup, intentional deletion               |
+| Base-only deletion, redundant whole/partial delta, or existing-file transfer conflict                          | Fail visibly without a partial fix. For a current PR, withdraw obsolete owned fixes and request a failed report without a fix link; keep promotion blocked.                           | `fix-transfer.test.mjs`: rejected retries, stale recovery, changed refs, cleanup/dispatch errors, Git failures       |
 | Saved results differ from branch expectations but equal the base, or head is a generated commit                | Keep failed PR fix requirements visible. Generated commit messages do not suppress valid failing updates; passing runs create no fix.                                                 | `bot.test.mjs`: zero-net-change and generated-head cases                                                             |
 | Custom paths, empty snippet/link settings, rich CSS/TSX reports, or very large Unicode output                  | Validate/normalize inputs before artifacts/sync, retain display opt-outs, and use file-backed generation with UTF-8-safe comment truncation. Full generation still needs memory/disk. | [config.test.mjs](tests/config.test.mjs), [report-features.test.mjs](tests/report-features.test.mjs), `bot.test.mjs` |
 | Schema/caller changes or another PR edits Build dependencies                                                   | Regenerate every consumer and preserve updater failure coverage for promotion, releasability, and protected-branch notification.                                                      | `workflows.test.mjs`: generation drift, dispatched fields/values, dependency coverage                                |
@@ -477,6 +486,11 @@ supported fix merge methods, same-file base changes, base-only modifications/del
 whole/partial deltas, and transfer conflicts. This supersedes tested-merge publishing and the
 proposed blanket requirement to incorporate the base; the tested-merge ruling/report baseline is
 retained.
+
+The [rejected-transfer review](https://github.com/SonarSource/SonarJS/pull/8118#discussion_r4250019386)
+identified an old fix and merge instruction surviving a newer transfer failure. The recovery above
+withdraws that obsolete fix and requests a report without its link while retaining updater failure.
+This handles explicit transfer rejections; it does not turn every Git failure into fix cleanup.
 
 Explicit supersessions also matter:
 
