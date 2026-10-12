@@ -1,10 +1,10 @@
 {
-  "title": "Links with identical texts should have identical targets",
+  "title": "Links with identical accessible names should have identical targets",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
-    "constantCost": "15min"
+    "constantCost": "5min"
   },
   "tags": [
     "accessibility",
@@ -17,8 +17,7 @@
   "quickfix": "unknown",
   "code": {
     "impacts": {
-      "MAINTAINABILITY": "LOW",
-      "RELIABILITY": "LOW"
+      "RELIABILITY": "MEDIUM"
     },
     "attribute": "CONVENTIONAL"
   },
@@ -28,5 +27,11 @@
   ],
   "defaultQualityProfiles": [
     "Sonar way"
-  ]
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "LinksIdenticalTextsDifferentTargetsCheck"
+    ]
+  }
 }
