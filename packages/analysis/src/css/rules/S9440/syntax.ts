@@ -116,7 +116,7 @@ function identityFunction(name: string, args: string[]): boolean {
     return args.length > 0 && args.every((arg: string): boolean => arg === '1');
   }
   if (name === 'rotate3d') {
-    return args.length === 4 && args[3] === '0';
+    return args.length === 4 && args.at(-1) === '0';
   }
   const identity = name === 'matrix' ? '1,0,0,1,0,0' : '1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1';
   return (name === 'matrix' || name === 'matrix3d') && args.join(',') === identity;
