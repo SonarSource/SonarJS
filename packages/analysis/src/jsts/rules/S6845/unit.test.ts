@@ -53,6 +53,9 @@ const programmaticFocusTargets = [
   }`,
 ].map(code => `import { useEffect, useRef } from 'react';\n${code}`);
 
+// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator can be safely removed.
 describe('S6845 upstream sentinel', () => {
   it('upstream no-noninteractive-tabindex raises when a conditional only yields null or negative tab indexes', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
@@ -179,6 +182,8 @@ describe('S6845', () => {
     ruleTester.run('no-noninteractive-tabindex', rule, {
       valid: [],
       invalid: [
+        `<div tabIndex={disabled ? null : +1} />`,
+        `<div tabindex={disabled ? null : -1} />`,
         `<div tabIndex={disabled ? null : '-1'} />`,
         `<div tabIndex={disabled ? null : false} />`,
         `<div tabIndex={disabled ? null : -tabIndex} />`,
