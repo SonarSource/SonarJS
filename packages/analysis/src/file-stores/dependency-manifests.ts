@@ -58,9 +58,9 @@ export class DependencyManifestStore implements FileStore {
     NormalizedAbsolutePath | undefined
   > = new Map();
 
-  async isInitialized(configuration: Configuration, _inputFiles?: AnalyzableFiles) {
+  isInitialized(configuration: Configuration, _inputFiles?: AnalyzableFiles): Promise<boolean> {
     this.dirtyCachesIfNeeded(configuration);
-    return this.baseDir !== undefined;
+    return Promise.resolve(this.baseDir !== undefined);
   }
 
   getPackageJsons() {
@@ -111,21 +111,26 @@ export class DependencyManifestStore implements FileStore {
     return isPreloadableDependencyManifestPath(filename) ? 'content' : false;
   }
 
-  async processFile(filename: NormalizedAbsolutePath, _configuration: Configuration, file?: File) {
+  processFile(
+    filename: NormalizedAbsolutePath,
+    _configuration: Configuration,
+    file?: File,
+  ): Promise<void> {
     if (!this.baseDir) {
-      throw new Error(UNINITIALIZED_ERROR);
+      return Promise.reject(new Error(UNINITIALIZED_ERROR));
     }
     const manifestName = getPreloadableDependencyManifestName(filename)!;
     this.manifestsByName[manifestName].set(dirnamePath(filename), file!);
+    return Promise.resolve();
   }
 
   processDirectory(dir: NormalizedAbsolutePath) {
     this.dirnameToParent.set(dir, dirnamePath(dir));
   }
 
-  async postProcess(configuration: Configuration) {
+  postProcess(configuration: Configuration): Promise<void> {
     if (!this.baseDir) {
-      throw new Error(UNINITIALIZED_ERROR);
+      return Promise.reject(new Error(UNINITIALIZED_ERROR));
     }
     for (const manifestName of PRELOADABLE_DEPENDENCY_MANIFESTS) {
       fillManifestCaches(
@@ -136,5 +141,6 @@ export class DependencyManifestStore implements FileStore {
         configuration.canAccessFileSystem,
       );
     }
+    return Promise.resolve();
   }
 }

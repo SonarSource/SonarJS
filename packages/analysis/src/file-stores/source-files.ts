@@ -75,16 +75,16 @@ export class SourceFileStore implements FileStore {
   /**
    * Checks if the file store is initialized for the given base directory.
    */
-  async isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles) {
+  isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles): Promise<boolean> {
     this.dirtyCachesIfNeeded(configuration);
     if (inputFiles) {
       this.clearCache();
       this.setup(configuration);
       this.files = inputFiles;
       this.directoryIndex.buildFromFiles(Object.keys(inputFiles) as NormalizedAbsolutePath[]);
-      return true;
+      return Promise.resolve(true);
     }
-    return this.files !== undefined;
+    return Promise.resolve(this.files !== undefined);
   }
 
   getFiles() {
@@ -147,7 +147,11 @@ export class SourceFileStore implements FileStore {
     return 'content';
   }
 
-  async processFile(filename: NormalizedAbsolutePath, configuration: Configuration, file?: File) {
+  processFile(
+    filename: NormalizedAbsolutePath,
+    configuration: Configuration,
+    file?: File,
+  ): Promise<void> {
     const pendingFileTypes = this.pendingFileTypes;
     this.pendingFileTypes = undefined;
     const fileTypes =
@@ -170,6 +174,7 @@ export class SourceFileStore implements FileStore {
       );
       this.directoryIndex.addFile(filename);
     }
+    return Promise.resolve();
   }
 
   processDirectory(dir: NormalizedAbsolutePath, configuration: Configuration) {
