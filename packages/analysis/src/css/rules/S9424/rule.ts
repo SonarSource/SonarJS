@@ -34,8 +34,7 @@ import { calc, ParseErrorMessage, type ParseError } from '@csstools/css-calc';
 
 const ruleName = 'sonar/declaration-property-value-no-unknown';
 
-// exported for testing purpose
-export const messages = stylelint.utils.ruleMessages(ruleName, {
+const messages = stylelint.utils.ruleMessages(ruleName, {
   rejected: (property: string, value: string) =>
     `Unknown value "${value}" for property "${property}"`,
   missing: (property: string) => `Missing value for property "${property}"`,
