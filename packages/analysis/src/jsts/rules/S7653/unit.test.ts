@@ -24,13 +24,28 @@ const { rules: upstreamRules } = pkg as unknown as { rules: Record<string, Rule.
 
 const compoundSelectorOutput = `
   @Directive({ selector: 'foo[bar]' })
-  class Test {
+  class FooBarDirective {
     @Output('fooBarChanged') changed = new EventEmitter();
   }
 `;
 
+const compoundSelectorSignal = compoundSelectorOutput.replace(
+  "@Output('fooBarChanged') changed = new EventEmitter();",
+  "changed = output({ alias: 'fooBarChanged' });",
+);
+
+// Sentinel: upstream must still report both output APIs suppressed by the decorator.
+describe('S7653 upstream sentinel', () => {
+  it('reports compound-selector aliases with both output APIs', () => {
+    new NoTypeCheckingRuleTester().run('no-output-rename', upstreamRules['no-output-rename'], {
+      valid: [],
+      invalid: [compoundSelectorOutput, compoundSelectorSignal].map(code => ({ code, errors: 1 })),
+    });
+  });
+});
+
 describe('S7653', () => {
-  it('does not report an output alias derived from an element and its bare selector attribute', () => {
+  it('permits exact compound-selector aliases only on unambiguous directives', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('S7653', rule, {
@@ -39,16 +54,52 @@ describe('S7653', () => {
         {
           code: compoundSelectorOutput.replace('selector:', "'selector':"),
         },
+        { code: compoundSelectorSignal },
         {
-          code: `
-            @Directive({ selector: 'foo[bar]' })
-            class Test {
-              changed = output({ alias: 'fooBarChanged' });
-            }
-          `,
+          code:
+            compoundSelectorOutput +
+            compoundSelectorSignal
+              .replaceAll('foo[bar]', 'foo[baz]')
+              .replaceAll('fooBarChanged', 'fooBazChanged')
+              .replaceAll('FooBarDirective', 'FooBazDirective'),
         },
       ],
       invalid: [
+        ...[compoundSelectorOutput, compoundSelectorSignal].flatMap(code => [
+          { code: code.replace('@Directive', '@Component'), errors: 1 },
+          {
+            code: "@Component({ selector: 'foo[bar]' })" + code,
+            errors: 1,
+          },
+          {
+            code: code.replace(
+              'class FooBarDirective',
+              "@Component({ selector: 'foo[bar]' }) class FooBarDirective",
+            ),
+            errors: 1,
+          },
+          {
+            code: "@Directive({ selector: 'foo[bar]' })" + code,
+            errors: 1,
+          },
+          { code: code.replace('changed =', '[changed] ='), errors: 1 },
+          { code: code.replace('fooBarChanged', 'fooBarUpdated'), errors: 1 },
+          { code: code.replace('fooBarChanged', 'renamed'), errors: 1 },
+          { code: code.replace("'foo[bar]'", 'selector'), errors: 1 },
+          { code: code.replace("{ selector: 'foo[bar]' }", ''), errors: 1 },
+          { code: code.replace("{ selector: 'foo[bar]' }", 'metadata'), errors: 1 },
+          { code: code.replace("'foo[bar]'", '`foo[bar]`'), errors: 1 },
+          { code: code.replace("@Directive({ selector: 'foo[bar]' })", ''), errors: 1 },
+          { code: code.replace("'fooBarChanged'", '`fooBarChanged`'), errors: 1 },
+        ]),
+        {
+          code:
+            compoundSelectorOutput +
+            compoundSelectorSignal
+              .replace('@Directive', '@Component')
+              .replace('FooBarDirective', 'FooBarComponent'),
+          errors: 1,
+        },
         {
           code: `
             const metadata = { selector: '[other]' };
@@ -125,15 +176,6 @@ describe('S7653', () => {
           errors: 1,
         },
       ],
-    });
-  });
-
-  it('relies on the upstream rule still reporting the compound-selector alias', () => {
-    const ruleTester = new NoTypeCheckingRuleTester();
-
-    ruleTester.run('no-output-rename', upstreamRules['no-output-rename'], {
-      valid: [],
-      invalid: [{ code: compoundSelectorOutput, errors: 1 }],
     });
   });
 });

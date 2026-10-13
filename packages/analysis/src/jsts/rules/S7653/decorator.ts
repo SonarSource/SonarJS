@@ -32,7 +32,12 @@ function getOutputMemberName(node: TSESTree.Node) {
     node,
     ancestor => ancestor.type === 'PropertyDefinition' || ancestor.type === 'MethodDefinition',
   );
-  return member && 'key' in member && member.key.type === 'Identifier'
+  // @Output('fooBarChanged') changed = ...; excludes computed [changed] keys.
+  return member &&
+    'key' in member &&
+    'computed' in member &&
+    !member.computed &&
+    member.key.type === 'Identifier'
     ? member.key.name
     : undefined;
 }
@@ -49,45 +54,46 @@ function getCompoundSelector(node: TSESTree.Node) {
     return undefined;
   }
 
-  for (const decorator of declaration.decorators) {
-    const expression = decorator.expression;
-    if (
-      expression.type !== 'CallExpression' ||
-      expression.callee.type !== 'Identifier' ||
-      !['Component', 'Directive'].includes(expression.callee.name) ||
-      expression.arguments.length === 0
-    ) {
-      continue;
-    }
-    const componentMetadata = expression.arguments[0];
-    if (componentMetadata.type !== 'ObjectExpression') {
-      continue;
-    }
-    if (
-      componentMetadata.properties.some(
-        property => property.type === 'SpreadElement' || property.computed,
-      )
-    ) {
-      return undefined;
-    }
-    const selectorProperties = componentMetadata.properties.filter(
-      property =>
-        property.type === 'Property' &&
-        ((property.key.type === 'Identifier' && property.key.name === 'selector') ||
-          (property.key.type === 'Literal' && property.key.value === 'selector')),
+  // @Directive({ selector: 'foo[bar]' }) class FooBarDirective { ... }
+  const angularDecorators = declaration.decorators
+    .map(decorator => decorator.expression)
+    .filter(
+      (expression): expression is TSESTree.CallExpression & { callee: TSESTree.Identifier } =>
+        expression.type === 'CallExpression' &&
+        expression.callee.type === 'Identifier' &&
+        ['Component', 'Directive'].includes(expression.callee.name),
     );
-    if (selectorProperties.length !== 1) {
-      return undefined;
-    }
-    const [property] = selectorProperties;
-    if (
+  if (angularDecorators.length !== 1 || angularDecorators[0].callee.name !== 'Directive') {
+    return undefined;
+  }
+  const directiveMetadata = angularDecorators[0].arguments[0];
+  if (directiveMetadata?.type !== 'ObjectExpression') {
+    return undefined;
+  }
+  if (
+    directiveMetadata.properties.some(
+      property => property.type === 'SpreadElement' || property.computed,
+    )
+  ) {
+    return undefined;
+  }
+  const selectorProperties = directiveMetadata.properties.filter(
+    property =>
       property.type === 'Property' &&
-      !property.computed &&
-      property.value.type === 'Literal' &&
-      typeof property.value.value === 'string'
-    ) {
-      return property.value.value;
-    }
+      ((property.key.type === 'Identifier' && property.key.name === 'selector') ||
+        (property.key.type === 'Literal' && property.key.value === 'selector')),
+  );
+  if (selectorProperties.length !== 1) {
+    return undefined;
+  }
+  const [property] = selectorProperties;
+  if (
+    property.type === 'Property' &&
+    !property.computed &&
+    property.value.type === 'Literal' &&
+    typeof property.value.value === 'string'
+  ) {
+    return property.value.value;
   }
   return undefined;
 }
