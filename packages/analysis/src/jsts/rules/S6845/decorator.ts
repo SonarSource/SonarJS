@@ -40,6 +40,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   );
 }
 
+/**
+ * Matches: <div tabIndex={disabled ? null : -1} />
+ * Requires no spreads or later tabIndex attributes.
+ */
 function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDescriptor): boolean {
   if (!('node' in reportDescriptor) || reportDescriptor.node.type !== 'JSXAttribute') {
     return false;
@@ -56,6 +60,10 @@ function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDesc
   );
 }
 
+/**
+ * Matches: <div id="title" tabIndex={value} title="Title" />
+ * Rejects any spread or later tabIndex attribute, including case variants.
+ */
 function hasNoTabIndexOverrides(node: TSESTree.JSXAttribute): boolean {
   const parent = node.parent;
   if (parent?.type !== 'JSXOpeningElement') {
@@ -76,6 +84,13 @@ function hasNoTabIndexOverrides(node: TSESTree.JSXAttribute): boolean {
   );
 }
 
+/**
+ * Matches:
+ *   null
+ *   -1
+ *   condition ? null : nested ? -1 : -2
+ * Every leaf must be null or a negative integer literal.
+ */
 function isNonSequentialTabIndexValue(expression: TSESTree.Expression): boolean {
   if (expression.type === 'ConditionalExpression') {
     return (
