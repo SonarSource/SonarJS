@@ -26,13 +26,15 @@ import {
   motionContext,
   motionValues,
   resolveSelectors,
+  type Component,
+  type MotionContext,
+} from './syntax.js';
+import {
   spatialProperties,
   transformProperties,
   normalizedSpatial,
   spatialChanges,
-  type Component,
-  type MotionContext,
-} from './syntax.js';
+} from './spatial.js';
 
 const ruleName = 'sonar/motion-reduced';
 const keyframesName = /^(-webkit-)?keyframes$/i;
