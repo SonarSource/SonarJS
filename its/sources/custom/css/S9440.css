@@ -22,12 +22,12 @@
 
 .unsafe-animation {
   animation: motion-entry 400ms; /* Noncompliant */
-/*^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+/*^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 }
 
 .unsafe-transition {
   transition: transform 400ms; /* Noncompliant */
-/*^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+/*^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
 }
 
 .unsafe-transition:hover {
@@ -36,7 +36,7 @@
 
 .unsafe-scrolling {
   scroll-behavior: smooth; /* Noncompliant */
-/*^^^^^^^^^^^^^^^^^^^^^ */
+/*^^^^^^^^^^^^^^^^^^^^^^^ */
 }
 
 @media (prefers-reduced-motion: no-preference) {

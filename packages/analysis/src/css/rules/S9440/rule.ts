@@ -16,7 +16,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S9440/css
 import stylelint, { type PostcssResult } from 'stylelint';
+import postcss, { type Document, type Root } from 'postcss';
 import type PostCSS from 'postcss';
+import { Parser } from 'htmlparser2';
 import {
   interactiveBase,
   isLiteral,
@@ -215,13 +217,12 @@ function reducedState(group: Group, globals: Entry[]): State {
   return state;
 }
 
-function durationReduced(group: Group, state: State, component: Component): boolean {
-  const baseline: State = {};
-  for (const entry of group.entries) {
-    if (entry.context.mode === 'all') {
-      apply(baseline, entry);
-    }
-  }
+function durationReduced(
+  baseline: State,
+  state: State,
+  component: Component,
+  index: number,
+): boolean {
   const before = values(baseline, component);
   const after = values(state, component);
   // The ticket accepts substantial reductions, but specifies no perceptual threshold.
@@ -229,11 +230,8 @@ function durationReduced(group: Group, state: State, component: Component): bool
   return Boolean(
     before &&
     after &&
-    after.every((duration: string, index: number): boolean => {
-      const oldDuration = milliseconds(before[index % before.length]);
-      const newDuration = milliseconds(duration);
-      return oldDuration !== undefined && newDuration !== undefined && newDuration < oldDuration;
-    }),
+    (milliseconds(after[index % after.length]) ?? Infinity) <
+      (milliseconds(before[index % before.length]) ?? 0),
   );
 }
 
@@ -243,6 +241,7 @@ function transitionChanges(group: Group, property: string, groups: GroupIndex): 
   let unresolved = false;
   const related = groups.get(`${base}\n${group.context}`) ?? [];
   let hasInteractiveTarget = false;
+  let hasExplicitBase = false;
   for (const other of related) {
     let effective: PostCSS.Declaration | undefined;
     for (const entry of other.entries) {
@@ -255,11 +254,12 @@ function transitionChanges(group: Group, property: string, groups: GroupIndex): 
     }
     if (effective) {
       hasInteractiveTarget ||= other.selector !== base;
+      hasExplicitBase ||= other.selector === base;
       unresolved ||= !isLiteral(effective.value);
       found.add(normalizedSpatial(property, effective.value));
     }
   }
-  if (transformProperties.has(property) && hasInteractiveTarget && found.size === 1) {
+  if (transformProperties.has(property) && hasInteractiveTarget && !hasExplicitBase) {
     found.add('identity');
   }
   return !unresolved && found.size > 1;
@@ -272,6 +272,12 @@ function motionDeclarations(
   frames: Map<string, boolean | undefined>,
 ): PostCSS.Declaration[] {
   const declarations: PostCSS.Declaration[] = [];
+  const baseline: State = {};
+  for (const entry of group.entries) {
+    if (entry.context.mode === 'all') {
+      apply(baseline, entry);
+    }
+  }
   const names = values(state, 'names');
   const animationDurations = values(state, 'animationDurations');
   const iterations = values(state, 'iterations');
@@ -281,10 +287,10 @@ function motionDeclarations(
     animationDurations &&
     iterations &&
     playStates &&
-    !durationReduced(group, state, 'animationDurations') &&
     names.some(
       (name: string, index: number): boolean =>
         frames.get(name) === true &&
+        !durationReduced(baseline, state, 'animationDurations', index) &&
         (milliseconds(animationDurations[index % animationDurations.length]) ?? 0) > 0 &&
         (iterations[index % iterations.length] === 'infinite' ||
           Number(iterations[index % iterations.length]) > 0) &&
@@ -301,10 +307,10 @@ function motionDeclarations(
   if (
     properties &&
     transitionDurations &&
-    !durationReduced(group, state, 'transitionDurations') &&
     properties.some(
       (property: string, index: number): boolean =>
         spatialProperties.has(property) &&
+        !durationReduced(baseline, state, 'transitionDurations', index) &&
         (milliseconds(transitionDurations[index % transitionDurations.length]) ?? 0) > 0 &&
         transitionChanges(group, property, groups),
     )
@@ -330,6 +336,9 @@ function exceptions(options: unknown): SelectorException[] | undefined {
   if (!options || typeof options !== 'object') {
     return undefined;
   }
+  if (Object.keys(options).some((key: string): boolean => key !== 'ignoreSelectors')) {
+    return undefined;
+  }
   if (!('ignoreSelectors' in options)) {
     return [];
   }
@@ -351,6 +360,45 @@ function exceptions(options: unknown): SelectorException[] | undefined {
     }
   }
   return parsed;
+}
+
+/** Preserve HTML source order and style-element media constraints without changing the input tree. */
+function embeddedRoots(document: Document): Root[] {
+  const roots: Root[] = [];
+  const shared = new Map<string, Root>();
+  for (const child of document.nodes) {
+    if (child.type !== 'root') {
+      continue;
+    }
+    let attributes: Record<string, string> | undefined;
+    const parser = new Parser({
+      onopentag(name: string, attrs: Record<string, string>): void {
+        if (name === 'style') {
+          attributes = attrs;
+        }
+      },
+    });
+    parser.end(String(child.raws.codeBefore ?? ''));
+    if (!attributes) {
+      // Inline style attributes and other parser-specific roots have a separate scope.
+      roots.push(child);
+      continue;
+    }
+    const scope = `${'scoped' in attributes}|${'module' in attributes}:${attributes.module ?? ''}|${attributes.lang ?? 'css'}`;
+    let combined = shared.get(scope);
+    if (!combined) {
+      combined = postcss.root();
+      shared.set(scope, combined);
+      roots.push(combined);
+    }
+    const nodes = child.nodes.map((node: PostCSS.ChildNode): PostCSS.ChildNode => node.clone());
+    if (attributes.media) {
+      combined.append(postcss.atRule({ name: 'media', params: attributes.media, nodes }));
+    } else {
+      combined.append(nodes);
+    }
+  }
+  return roots;
 }
 
 function analyze(root: PostCSS.Root, result: PostcssResult, ignored: SelectorException[]): void {
@@ -431,13 +479,15 @@ const ruleImpl: stylelint.RuleBase = (
     ) {
       return;
     }
-    if (root.type === 'document') {
-      for (const child of root.nodes) {
-        if (child.type === 'root') {
-          analyze(child, result, ignored);
-        }
+    if (result.root.type === 'document') {
+      // Stylelint invokes plugins once per embedded root, with the shared Document on result.
+      if (root !== result.root && root !== result.root.nodes[0]) {
+        return;
       }
-    } else {
+      for (const child of embeddedRoots(result.root)) {
+        analyze(child, result, ignored);
+      }
+    } else if (root.type === 'root') {
       analyze(root, result, ignored);
     }
   };

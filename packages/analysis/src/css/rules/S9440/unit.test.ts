@@ -19,7 +19,7 @@ import { expect } from 'expect';
 import stylelint from 'stylelint';
 import { StylelintRuleTester } from '../../../../tests/css/tools/tester/tester.js';
 import { createStylelintConfig } from '../../linter/config.js';
-import { messages } from './rule.js';
+import { messages, rule } from './rule.js';
 
 const RULE = 'sonar/motion-reduced';
 const tester = new StylelintRuleTester(RULE);
@@ -67,6 +67,80 @@ async function invalid(sample: Sample, configuration: unknown[] = []): Promise<v
 
 describe('S9440 spatial motion and reduced-motion safeguards', (): void => {
   const invalidSamples: Sample[] = [
+    {
+      name: 'ID selector spatial animation',
+      code: `#main { ${animation}; }\n${frames}`,
+      target: animation,
+    },
+    {
+      name: 'attribute suffix selector spatial animation',
+      code: `[href$=".pdf"] { ${animation}; }\n${frames}`,
+      target: animation,
+    },
+    {
+      name: 'animation duration cycling leaves a second animation unreduced',
+      code: `.panel { animation-name: move, move; animation-duration: 1s, .2s; }\n@media (prefers-reduced-motion: reduce) { .panel { animation-duration: .5s; } }\n${frames}`,
+      target: 'animation-duration: .5s',
+    },
+    {
+      name: 'transition duration cycling leaves a second property unreduced',
+      code: '.panel { width: 10px; transition-property: transform, width; transition-duration: 1s, .2s; }\n.panel:hover { width: 20px; transform: translateX(1rem); }\n@media (prefers-reduced-motion: reduce) { .panel { transition-duration: .5s; } }',
+      target: 'transition-duration: .5s',
+    },
+    {
+      name: 'case-insensitive transition shorthand',
+      code: `.panel { transition: TRANSFORM 1s; }\n${states}`,
+      target: 'transition: TRANSFORM 1s',
+    },
+    {
+      name: 'case-insensitive transition longhand',
+      code: `.panel { transition-property: TRANSFORM; transition-duration: 1s; }\n${states}`,
+      target: 'transition-duration: 1s',
+    },
+    {
+      name: 'case-insensitive smooth scrolling',
+      code: 'html { SCROLL-BEHAVIOR: SMOOTH; }',
+      target: 'SCROLL-BEHAVIOR: SMOOTH',
+    },
+    {
+      name: 'case-insensitive infinite iterations',
+      code: `.panel { animation: move 1s; animation-iteration-count: INFINITE; }\n${frames}`,
+      target: 'animation: move 1s',
+    },
+    {
+      name: 'case-insensitive infinite shorthand',
+      code: `.panel { animation: move 1s INFINITE; }\n${frames}`,
+      target: 'animation: move 1s INFINITE',
+    },
+    {
+      name: 'HTML keyframes shared across style blocks',
+      code: `<style>\n.panel { ${animation}; }\n</style>\n<style>${frames}</style>`,
+      target: animation,
+      filename: 'page.html',
+    },
+    {
+      name: 'earlier HTML style override is re-enabled',
+      code: `<style>@media (prefers-reduced-motion: reduce) { .panel { animation: none; } }</style>\n<style>\n.panel { ${animation}; }\n${frames}\n</style>`,
+      target: animation,
+      filename: 'page.html',
+    },
+    {
+      name: 'HTML sibling safeguard has an unrelated selector',
+      code: `<style>\n.panel { ${animation}; }\n${frames}\n</style>\n<style>@media (prefers-reduced-motion: reduce) { .other { animation: none; } }</style>`,
+      target: animation,
+      filename: 'page.html',
+    },
+    {
+      name: 'HTML style media attribute enables motion under reduce',
+      code: `<style>${frames}</style>\n<style media="(prefers-reduced-motion: reduce)">\n.panel { ${animation}; }\n</style>`,
+      target: animation,
+      filename: 'page.html',
+    },
+    {
+      name: 'full-turn rotation still interpolates movement',
+      code: '.panel { animation: move 1s; }\n@keyframes move { from { transform: rotate(0turn); } to { transform: rotate(1turn); } }',
+      target: 'animation: move 1s',
+    },
     {
       name: 'RSPEC spatial animation',
       code: `.panel { ${animation}; }\n${frames}`,
@@ -239,6 +313,72 @@ describe('S9440 spatial motion and reduced-motion safeguards', (): void => {
   }
 
   const validSamples: Array<{ name: string; code: string; filename?: string }> = [
+    {
+      name: 'zero percent transform is identity',
+      code: '.panel { animation: move 1s; }\n@keyframes move { from { transform: translateY(0%); } to { transform: none; } }',
+    },
+    {
+      name: 'zero viewport length is identity',
+      code: '.panel { animation: move 1s; }\n@keyframes move { from { transform: translateX(0vw); } to { transform: none; } }',
+    },
+    {
+      name: 'interpolated SCSS selector is uncertain',
+      code: `#{$selector} { ${animation}; }\n${frames}`,
+      filename: 'styles.scss',
+    },
+    {
+      name: 'embedded motion-specific disable comment',
+      code: `<style>\n/* stylelint-disable-next-line ${RULE} */\n.panel { ${animation}; }\n${frames}\n</style>\n<style>.other { color: red; }</style>`,
+      filename: 'page.html',
+    },
+    {
+      name: 'identical explicit base and hover transform',
+      code: '.panel { transform: translateX(1rem); transition: transform 1s; }\n.panel:hover { transform: translateX(1rem); }',
+    },
+    {
+      name: 'transform argument whitespace is equivalent',
+      code: '.panel { animation: move 1s; }\n@keyframes move { from { transform: translateX(1rem); } to { transform: translateX( 1rem ); } }',
+    },
+    {
+      name: 'identity matrix is equivalent to none',
+      code: '.panel { animation: move 1s; }\n@keyframes move { from { transform: none; } to { transform: matrix(1, 0, 0, 1, 0, 0); } }',
+    },
+    {
+      name: 'identity matrix3d is equivalent to none',
+      code: '.panel { animation: move 1s; }\n@keyframes move { from { transform: none; } to { transform: matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); } }',
+    },
+    {
+      name: 'zero turns are equivalent to none',
+      code: '.panel { animation: move 1s; }\n@keyframes move { from { transform: none; } to { transform: rotate(0turn); } }',
+    },
+    {
+      name: 'zero grads are equivalent to none',
+      code: '.panel { animation: move 1s; }\n@keyframes move { from { transform: none; } to { transform: rotate(0grad); } }',
+    },
+    {
+      name: 'case-insensitive paused longhand',
+      code: `.panel { animation: move 1s; animation-play-state: PAUSED; }\n${frames}`,
+    },
+    {
+      name: 'HTML sibling style override',
+      code: `<style>.panel { ${animation}; }\n${frames}</style>\n<style>@media (prefers-reduced-motion: reduce) { .panel { animation: none; } }</style>`,
+      filename: 'page.html',
+    },
+    {
+      name: 'HTML no-preference media attribute',
+      code: `<style media="(prefers-reduced-motion: no-preference)">.panel { ${animation}; }\n${frames}</style>`,
+      filename: 'page.html',
+    },
+    {
+      name: 'HTML reduced-motion media attribute override',
+      code: `<style>.panel { ${animation}; }\n${frames}</style>\n<style media="(prefers-reduced-motion: reduce)">.panel { animation: none; }</style>`,
+      filename: 'page.html',
+    },
+    {
+      name: 'Vue scoped styles do not resolve unscoped keyframes',
+      code: `<style scoped>.panel { ${animation}; }</style>\n<style>${frames}</style>`,
+      filename: 'component.vue',
+    },
     {
       name: 'RSPEC no-preference animation guard',
       code: `@media (prefers-reduced-motion: no-preference) { .panel { ${animation}; } }\n${frames}`,
@@ -419,11 +559,6 @@ describe('S9440 spatial motion and reduced-motion safeguards', (): void => {
       name: 'global disable comment',
       code: `/* stylelint-disable */\n.panel { ${animation}; }\n${frames}`,
     },
-    {
-      name: 'HTML root isolation',
-      code: `<style>.panel { ${animation}; }</style>\n<style>${frames}</style>`,
-      filename: 'page.html',
-    },
   ];
   for (const sample of validSamples) {
     it(sample.name, (): Promise<void> =>
@@ -462,5 +597,13 @@ describe('S9440 spatial motion and reduced-motion safeguards', (): void => {
       results: [result],
     } = await stylelint.lint({ code: 'html { scroll-behavior: smooth; }', config });
     expect(result.invalidOptionWarnings).toHaveLength(1);
+  });
+  it('rejects unknown secondary options', async (): Promise<void> => {
+    const config = { plugins: [rule], rules: { [RULE]: [true, { unknown: true }] } };
+    const {
+      results: [result],
+    } = await stylelint.lint({ code: 'html { scroll-behavior: smooth; }', config });
+    expect(result.invalidOptionWarnings).toHaveLength(1);
+    expect(result.warnings).toHaveLength(0);
   });
 });

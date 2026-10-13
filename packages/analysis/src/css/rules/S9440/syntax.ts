@@ -99,44 +99,56 @@ export function isLiteral(value: string): boolean {
   return !/[#$@{}\\]/.test(value) && !/\b(var|env|attr|calc|min|max|clamp)\s*\(/i.test(value);
 }
 
-function identityTransform(value: string): boolean {
-  const nodes = valueParser(value).nodes.filter(
-    (node: valueParser.Node): boolean => node.type !== 'space',
-  );
-  return (
-    nodes.length > 0 &&
-    nodes.every((node: valueParser.Node): boolean => {
-      if (node.type !== 'function') {
-        return false;
-      }
-      const name = node.value;
-      const zeros = /^(translate(?:3d|[xyz])?|rotate[xyz]?|skew[xy]?)$/.test(name);
-      const ones = /^scale(?:3d|[xyz])?$/.test(name);
-      const expected = ones ? '1' : '0';
-      const args = node.nodes.filter((arg: valueParser.Node): boolean => arg.type === 'word');
-      return (
-        (zeros || ones) &&
-        args.length > 0 &&
-        args.every((arg: valueParser.Node): boolean => arg.value === expected)
-      );
-    })
-  );
+function normalizedWord(value: string): string {
+  const match = /^([-+]?(?:\d+(?:\.\d*)?|\.\d+))([a-z%]*)$/i.exec(value);
+  if (!match) {
+    return value.toLowerCase();
+  }
+  const number = Number(match[1]);
+  return number === 0 ? '0' : `${number}${match[2].toLowerCase()}`;
+}
+
+function identityFunction(name: string, args: string[]): boolean {
+  if (/^(translate(?:3d|[xyz])?|rotate[xyz]?|skew[xy]?)$/.test(name)) {
+    return args.length > 0 && args.every((arg: string): boolean => arg === '0');
+  }
+  if (/^scale(?:3d|[xyz])?$/.test(name)) {
+    return args.length > 0 && args.every((arg: string): boolean => arg === '1');
+  }
+  if (name === 'rotate3d') {
+    return args.length === 4 && args[3] === '0';
+  }
+  const identity = name === 'matrix' ? '1,0,0,1,0,0' : '1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1';
+  return (name === 'matrix' || name === 'matrix3d') && args.join(',') === identity;
 }
 
 export function normalizedSpatial(property: string, value: string): string {
-  const normalized = value
-    .trim()
-    .toLowerCase()
-    .replace(/\b0(?:px|rem|em|deg|rad|%)\b/g, '0');
+  const nodes = valueParser(value).nodes.filter(
+    (node: valueParser.Node): boolean => node.type !== 'space' && node.type !== 'comment',
+  );
+  const parts = nodes.map((node: valueParser.Node): string => {
+    if (node.type !== 'function') {
+      return normalizedWord(node.value);
+    }
+    const name = node.value.toLowerCase();
+    const args = node.nodes
+      .filter((arg: valueParser.Node): boolean => arg.type === 'word')
+      .map((arg: valueParser.Node): string => normalizedWord(arg.value));
+    return identityFunction(name, args) ? '' : `${name}(${args.join(',')})`;
+  });
+  const normalized = parts.filter(Boolean).join(' ');
   if (!transformProperties.has(property)) {
     return normalized;
   }
-  if (normalized === 'none' || identityTransform(normalized)) {
+  if (!normalized || normalized === 'none') {
     return 'identity';
   }
   const words = normalized.split(/\s+/);
   const expected = property === 'scale' ? '1' : '0';
   if (property !== 'transform' && words.every((word: string): boolean => word === expected)) {
+    return 'identity';
+  }
+  if (property === 'rotate' && words.at(-1) === '0') {
     return 'identity';
   }
   return normalized;
@@ -193,8 +205,8 @@ function consumeWord(parsed: ParsedShorthand, text: string, animation: boolean):
     parsed.valid &&= parsed.times <= 2;
     return;
   }
-  if (animation && /^(\d+(?:\.\d+)?|infinite)$/.test(text)) {
-    parsed.iteration = text;
+  if (animation && /^(\d+(?:\.\d+)?|infinite)$/i.test(text)) {
+    parsed.iteration = text.toLowerCase();
     return;
   }
   const keywords = animation ? animationWords : timingWords;
@@ -204,7 +216,7 @@ function consumeWord(parsed: ParsedShorthand, text: string, animation: boolean):
     }
     return;
   }
-  if (!animation && ['normal', 'allow-discrete'].includes(text)) {
+  if (!animation && ['normal', 'allow-discrete'].includes(text.toLowerCase())) {
     return;
   }
   consumeName(parsed, text);
@@ -249,7 +261,7 @@ function shorthand(value: string, animation: boolean): Values {
   const durations = parsed.map((item: ParsedShorthand): string => item.duration);
   if (!animation) {
     return {
-      properties: valid ? names : undefined,
+      properties: valid ? names.map((name: string): string => name.toLowerCase()) : undefined,
       transitionDurations: valid ? durations : undefined,
     };
   }
@@ -295,32 +307,36 @@ export function motionValues(declaration: PostCSS.Declaration): Values {
     case 'animation-duration':
       return { animationDurations: literalList(value) };
     case 'animation-iteration-count':
-      return { iterations: literalList(value) };
+      return { iterations: literalList(value.toLowerCase()) };
     case 'animation-play-state':
-      return { playStates: literalList(value) };
+      return { playStates: literalList(value.toLowerCase()) };
     case 'transition-property':
-      return { properties: literalList(value) };
+      return { properties: literalList(value.toLowerCase()) };
     case 'transition-duration':
       return { transitionDurations: literalList(value) };
     case 'scroll-behavior':
-      return { scroll: literalList(value) };
+      return { scroll: literalList(value.toLowerCase()) };
     default:
       return {};
   }
 }
 
 function selectorList(value: string): string[] | undefined {
-  if (!isLiteral(value)) {
+  if (/[{}\\]/.test(value)) {
     return undefined;
   }
   const selectors: string[] = [];
+  let unresolved = false;
   try {
     selectorParser((root: selectorParser.Root): void => {
+      root.walk((node: selectorParser.Node): void => {
+        unresolved ||= node.type !== 'attribute' && /[$@]/.test(node.value ?? '');
+      });
       root.each((selector: selectorParser.Selector): void => {
         selectors.push(selector.toString().trim());
       });
     }).processSync(value, { lossless: false });
-    return selectors;
+    return unresolved ? undefined : selectors;
   } catch {
     return undefined;
   }
