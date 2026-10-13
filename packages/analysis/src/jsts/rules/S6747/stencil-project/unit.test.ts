@@ -27,6 +27,25 @@ describe('S6747 Stencil opt-out', () => {
     valid: [
       {
         code: `/** @jsxImportSource @stencil/core */
+/** @jsxRuntime classic */
+/** @jsxRuntime automatic */
+export const View = () => <div class="panel" />;`,
+        filename: join(dirname, 'automatic-stencil.tsx'),
+      },
+      {
+        code: `/** @jsxImportSource @stencil/core */
+/** @jsxRuntime classic */
+import { h } from '@stencil/core';
+export const View = () => <div class="panel" />;`,
+        filename: join(dirname, 'classic-stencil.tsx'),
+      },
+      {
+        code: `/** @jsxImportSource @stencil/core @jsxImportSource react */
+export const View = () => <div class="panel" />;`,
+        filename: join(dirname, 'automatic-stencil.tsx'),
+      },
+      {
+        code: `/** @jsxImportSource @stencil/core */
 export const Icon = () => <svg class="icon" />;`,
         filename: join(dirname, 'automatic-stencil.tsx'),
       },
@@ -80,6 +99,35 @@ import { h } from '@stencil/core';`,
       },
     ],
     invalid: [
+      {
+        code: `/** @jsxImportSource @stencil/core */
+/** @jsxRuntime classic */
+import React from 'react';
+export const View = () => <div class="panel" />;`,
+        filename: join(dirname, 'classic-react.tsx'),
+        errors: 1,
+      },
+      {
+        code: `/** @jsxImportSource @stencil/core */
+/** @jsxRuntime automatic */
+/** @jsxRuntime classic */
+import React from 'react';
+export const View = () => <div class="panel" />;`,
+        filename: join(dirname, 'classic-react.tsx'),
+        errors: 1,
+      },
+      {
+        code: `/** @jsxImportSource react @jsxImportSource @stencil/core */
+export const View = () => <div class="panel" />;`,
+        filename: join(dirname, 'automatic-react.tsx'),
+        errors: 1,
+      },
+      {
+        code: `/** @jsxRuntime automatic @jsxImportSource @stencil/core */
+export const View = () => <div class="panel" />;`,
+        filename: join(dirname, 'automatic-react.tsx'),
+        errors: 1,
+      },
       {
         code: `/** @jsxImportSource react */
 <div class="panel" />;`,

@@ -75,13 +75,28 @@ const FALSE_POSITIVE_ESCAPES: readonly FalsePositiveEscape[] = [
  * @return Whether the file uses Stencil.
  */
 export function usesStencil(signals: FalsePositiveSignals): boolean {
-  const jsxImportSource = signals.comments
-    .filter(comment => comment.type === 'Block')
-    .flatMap(comment =>
-      Array.from(comment.value.matchAll(/@jsxImportSource\s+(\S+)/giu), match => match[1]),
-    )
-    .at(-1);
-  return jsxImportSource === '@stencil/core' || hasRuntimeImport(signals, ['@stencil/core']);
+  const pragmas = new Map<string, string | undefined>();
+  for (const comment of signals.comments) {
+    if (comment.type !== 'Block') {
+      continue;
+    }
+    // Match TypeScript's block-comment grammar: one pragma per line, last occurrence wins.
+    for (const [, name, args] of `/*${comment.value}*/`.matchAll(/@(\S+)(\s+(?:\S.*)?)?$/gmu)) {
+      const pragma = name.toLowerCase();
+      if (pragma !== 'jsximportsource' && pragma !== 'jsxruntime') {
+        continue;
+      }
+      const value = args?.trim().split(/\s+/u)[0];
+      if (!args || value) {
+        pragmas.set(pragma, value);
+      }
+    }
+  }
+  return (
+    (pragmas.get('jsxruntime') !== 'classic' &&
+      pragmas.get('jsximportsource') === '@stencil/core') ||
+    hasRuntimeImport(signals, ['@stencil/core'])
+  );
 }
 
 export function getIgnoredProps(signals: FalsePositiveSignals): string[] {
