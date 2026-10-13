@@ -585,7 +585,9 @@ export function controller(ctx, adapters = {}) {
     const notice = ctx.fixUrl
       ? `Ruling needs updating. A [fix PR](${ctx.fixUrl}) has been created. Please review and merge it into your branch.\n\n`
       : ctx.failed && ctx.isPullRequest
-        ? 'Ruling needs updating.\n\n'
+        ? 'Ruling needs updating. The bot could not create an automatic fix PR. ' +
+          'Rebase your branch onto the base branch of this PR. Resolve any conflicts, then push the updated branch. ' +
+          'CI will run ruling again so the bot can create the fix PR.\n\n'
         : '';
     const content =
       report ||

@@ -259,8 +259,10 @@ before retrying; the bot does not impose a blanket rebase requirement.
 
 For a known transfer rejection on a still-current PR run, close obsolete owned fixes with the
 existing freshness, ownership, shared-branch, and SHA-lease checks. Request a failed report on the
-original PR without a fix link. The reporter uses the same tested merge and saved results; its
-`Ruling needs updating.` notice replaces the old instruction to merge the previous fix.
+original PR without a fix link. The reporter uses the same tested merge and saved results.
+Its failure notice tells the author to rebase onto the PR's base branch, resolve conflicts, and
+push the updated branch so ruling can generate a new fix. This replaces the old instruction to
+merge the previous fix.
 The updater still fails, so promotion stays blocked. If cleanup fails, still attempt the report
 after checking freshness again. Preserve the transfer error together with any cleanup or dispatch
 errors. A run found to be superseded skips remaining recovery writes. Unrelated Git/commit errors do not trigger this
