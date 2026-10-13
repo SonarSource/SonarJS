@@ -17,6 +17,7 @@
 import { getNativeEventNames } from '@angular-eslint/utils';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
+import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
@@ -24,19 +25,100 @@ import { getAngularOutputNames } from '../helpers/angular.js';
 
 const nativeEventNames = getNativeEventNames();
 
+const COMPOUND_SELECTOR = /^([A-Za-z][A-Za-z0-9-]*)\[([A-Za-z][A-Za-z0-9-]*)\]$/;
+
+function capitalize(value: string) {
+  return value[0].toUpperCase() + value.slice(1);
+}
+
+function getCompoundSelector(node: TSESTree.Node) {
+  const declaration = findFirstMatchingAncestor(
+    node,
+    ancestor => ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression',
+  );
+  if (
+    !declaration ||
+    (declaration.type !== 'ClassDeclaration' && declaration.type !== 'ClassExpression')
+  ) {
+    return undefined;
+  }
+
+  for (const decorator of declaration.decorators) {
+    const expression = decorator.expression;
+    if (
+      expression.type !== 'CallExpression' ||
+      expression.callee.type !== 'Identifier' ||
+      !['Component', 'Directive'].includes(expression.callee.name) ||
+      expression.arguments.length === 0
+    ) {
+      continue;
+    }
+    const componentMetadata = expression.arguments[0];
+    if (componentMetadata.type !== 'ObjectExpression') {
+      continue;
+    }
+    if (
+      componentMetadata.properties.some(
+        property => property.type === 'SpreadElement' || property.computed,
+      )
+    ) {
+      return undefined;
+    }
+    const selectorProperties = componentMetadata.properties.filter(
+      property =>
+        property.type === 'Property' &&
+        ((property.key.type === 'Identifier' && property.key.name === 'selector') ||
+          (property.key.type === 'Literal' && property.key.value === 'selector')),
+    );
+    if (selectorProperties.length !== 1) {
+      return undefined;
+    }
+    const [property] = selectorProperties;
+    if (
+      property.type === 'Property' &&
+      !property.computed &&
+      property.value.type === 'Literal' &&
+      typeof property.value.value === 'string'
+    ) {
+      return property.value.value;
+    }
+  }
+  return undefined;
+}
+
+function isSelectorDerivedAlias(node: TSESTree.Node, names: [string, string] | undefined) {
+  if (
+    node.type !== 'Literal' ||
+    typeof node.value !== 'string' ||
+    node.parent?.type === 'ArrayExpression' ||
+    !names
+  ) {
+    return false;
+  }
+  const [memberName, alias] = names;
+  const selector = getCompoundSelector(node);
+  const match = selector?.match(COMPOUND_SELECTOR);
+  return match != null && alias === `${match[1]}${capitalize(match[2])}${capitalize(memberName)}`;
+}
+
 /**
- * Allows output aliases that avoid native DOM event collisions.
+ * Allows aliases that avoid native event collisions or derive from a compound selector.
  * @param rule the delegated Angular output-alias rule
- * @return the rule with collision-avoiding alias reports removed
+ * @return the rule with eligible output-alias reports removed
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     { ...rule, meta: generateMeta(meta, rule.meta) },
     (context, descriptor) => {
-      const names =
-        'node' in descriptor ? getAngularOutputNames(descriptor.node as TSESTree.Node) : undefined;
-      if (names && nativeEventNames.has(names[0]) && !nativeEventNames.has(names[1])) {
-        return;
+      if ('node' in descriptor) {
+        const node = descriptor.node as TSESTree.Node;
+        const names = getAngularOutputNames(node);
+        if (
+          (names && nativeEventNames.has(names[0]) && !nativeEventNames.has(names[1])) ||
+          isSelectorDerivedAlias(node, names)
+        ) {
+          return;
+        }
       }
       context.report(descriptor);
     },

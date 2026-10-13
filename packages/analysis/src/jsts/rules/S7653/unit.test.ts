@@ -96,8 +96,142 @@ function retainedAliasCase(
   };
 }
 
+const compoundSelectorOutput = `
+  @Directive({ selector: 'foo[bar]' })
+  class Test {
+    @Output('fooBarChanged') changed = new EventEmitter();
+  }
+`;
+
 describe('S7653', () => {
   const ruleTester = new NoTypeCheckingRuleTester();
+
+  it('does not report an output alias derived from an element and its bare selector attribute', () => {
+    ruleTester.run('S7653', rule, {
+      valid: [
+        { code: compoundSelectorOutput },
+        {
+          code: compoundSelectorOutput.replace('selector:', "'selector':"),
+        },
+        {
+          code: `
+            @Directive({ selector: 'foo[bar]' })
+            class Test {
+              changed = output({ alias: 'fooBarChanged' });
+            }
+          `,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+            const metadata = { selector: '[other]' };
+            @Directive({ selector: 'foo[bar]', ...metadata })
+            class Test {
+              @Output('fooBarChanged') changed = new EventEmitter();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            const key = 'selector';
+            @Directive({ selector: 'foo[bar]', [key]: '[other]' })
+            class Test {
+              @Output('fooBarChanged') changed = new EventEmitter();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            @Directive({ selector: 'foo[bar]', 'selector': '[other]' })
+            class Test {
+              @Output('fooBarChanged') changed = new EventEmitter();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            @Directive({ selector: 'foo[bar][baz]' })
+            class Test {
+              @Output('fooBarChanged') changed = new EventEmitter();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            @Directive({ selector: 'foo[bar=value]' })
+            class Test {
+              @Output('fooBarChanged') changed = new EventEmitter();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            @Directive({ selector: 'foo[bar], baz' })
+            class Test {
+              @Output('fooBarChanged') changed = new EventEmitter();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            @Directive({ selector: '[bar]' })
+            class Test {
+              @Output('fooBarChanged') changed = new EventEmitter();
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            @Directive({
+              selector: 'foo[bar]',
+              outputs: ['changed: fooBarChanged'],
+            })
+            class Test {}
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('relies on the upstream rule still reporting the compound-selector alias', () => {
+    ruleTester.run('no-output-rename', upstreamRule, {
+      valid: [],
+      invalid: [{ code: compoundSelectorOutput, errors: 1 }],
+    });
+  });
+
+  it('applies both independent alias exceptions in the same class', () => {
+    const invalid = ['Component', 'Directive'].flatMap(decorator =>
+      ['output', 'decorator'].map(api => {
+        const declaration = (member: string, alias: string) =>
+          api === 'output'
+            ? `${member} = output({ alias: '${alias}' });`
+            : `@Output('${alias}') ${member} = new EventEmitter();`;
+        return {
+          code: `@${decorator}({ selector: 'foo[bar]' }) class Test {
+            ${declaration('change', 'valueChanged')}
+            ${declaration('changed', 'fooBarChanged')}
+            ${declaration('valueChange', 'updated')}
+          }`,
+          errors: 1,
+        };
+      }),
+    );
+    ruleTester.run('S7653', rule, { valid: [], invalid });
+    ruleTester.run('no-output-rename', upstreamRule, {
+      valid: [],
+      invalid: invalid.map(test => ({ ...test, errors: 3 })),
+    });
+  });
 
   it('handles static quoted outputs metadata keys', () => {
     const cases = ['Component', 'Directive'].flatMap(decorator =>
