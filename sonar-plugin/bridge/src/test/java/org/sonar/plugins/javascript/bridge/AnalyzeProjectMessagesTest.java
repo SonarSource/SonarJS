@@ -34,6 +34,39 @@ import org.sonar.plugins.javascript.api.AnalysisMode;
 class AnalyzeProjectMessagesTest {
 
   @Test
+  void should_preserve_the_raw_project_configuration_in_collector_json() throws Exception {
+    for (var emptySuffixes : List.of(false, true)) {
+      var builder =
+        org.sonar.plugins.javascript.analyzeproject.grpc.ProjectConfiguration.newBuilder()
+          .setBaseDir("C:/ci/project")
+          .setDetectBundles(false)
+          .setMaxFileSize(12345L)
+          .setCanAccessFileSystem(true)
+          .setSkipAst(false)
+          .addFsEvents("src/changed.ts")
+          .addTsConfigPaths("C:/ci/project/tsconfig.json")
+          .addSources("src")
+          .setGlobals(AnalyzeProjectMessages.stringList(List.of()));
+      if (emptySuffixes) {
+        builder.setTsSuffixes(AnalyzeProjectMessages.stringList(List.of()));
+      }
+      var original = builder.build();
+      var json = JsonParser.parseString(
+        AnalyzeProjectMessages.contextMetadata(original)
+      ).getAsJsonObject();
+      assertThat(json.keySet()).containsExactly("configuration");
+      var raw = json.getAsJsonObject("configuration");
+      assertThat(raw.get("baseDir").getAsString()).isEqualTo(original.getBaseDir());
+      assertThat(raw.get("maxFileSize").getAsString()).isEqualTo("12345");
+      assertThat(raw.has("tsSuffixes")).isEqualTo(emptySuffixes);
+      var restored =
+        org.sonar.plugins.javascript.analyzeproject.grpc.ProjectConfiguration.newBuilder();
+      com.google.protobuf.util.JsonFormat.parser().merge(raw.toString(), restored);
+      assertThat(restored.build()).isEqualTo(original);
+    }
+  }
+
+  @Test
   void should_serialize_custom_js_rule_configuration_objects() {
     var rule = new EslintRule(
       "custom-rule",

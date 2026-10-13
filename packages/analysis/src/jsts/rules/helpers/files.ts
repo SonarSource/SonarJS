@@ -20,7 +20,7 @@ import {
   join as joinPosix,
   parse as parsePosix,
 } from 'node:path/posix';
-import { parse as parseWin32 } from 'node:path/win32';
+import { parse as parseWin32, join as joinWin32 } from 'node:path/win32';
 import {
   ROOT_PATH,
   toUnixPath,
@@ -29,6 +29,7 @@ import {
 } from './path-normalization.js';
 export {
   isAbsolutePath,
+  isWindowsProjectPath,
   normalizePath,
   normalizeToAbsolutePath,
   ROOT_PATH,
@@ -125,7 +126,9 @@ export function joinPaths(
   base: NormalizedAbsolutePath,
   ...segments: string[]
 ): NormalizedAbsolutePath {
-  return joinPosix(base, ...segments) as NormalizedAbsolutePath;
+  return (
+    base.startsWith('//') ? toUnixPath(joinWin32(base, ...segments)) : joinPosix(base, ...segments)
+  ) as NormalizedAbsolutePath;
 }
 
 /**

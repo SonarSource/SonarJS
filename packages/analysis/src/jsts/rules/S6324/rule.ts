@@ -25,12 +25,18 @@ import { createRegExpRule } from '../helpers/regex/rule-template.js';
 const EXCEPTIONS = new Set(['\t', '\n']);
 
 const MAX_CONTROL_CHAR_CODE = 0x1f;
+const DELETE = 0x7f;
+const MAX_C1_CONTROL_CHAR_CODE = 0x9f;
 
 // ANSI escape sequence control characters
 const ESC = 0x1b;
 const BEL = 0x07;
 const LEFT_BRACKET = 0x5b; // [
 const RIGHT_BRACKET = 0x5d; // ]
+const BACKSLASH = 0x5c;
+const STRING_TERMINATOR = 0x9c;
+const OSC = 0x9d;
+const OSC_DELIMITERS = [BEL, ESC, STRING_TERMINATOR, OSC];
 
 /**
  * Control characters used as range boundaries (e.g., [\x00-\x1f]) indicate intentional usage.
@@ -77,38 +83,121 @@ function isAnsiSequenceStart(character: AST.Character): boolean {
   return next.value === LEFT_BRACKET || next.value === RIGHT_BRACKET;
 }
 
-/**
- * Checks if BEL (0x07) is used as OSC sequence terminator.
- * Per xterm spec, BEL is valid only as an OSC terminator (after ESC + ]).
- * It should NOT be exempted after CSI sequences (ESC + [).
- */
-function isOscTerminator(character: AST.Character): boolean {
-  if (character.value !== BEL) {
-    return false;
-  }
-  const parent = character.parent;
-  if (parent.type !== 'Alternative') {
-    return false;
-  }
-  const elements = parent.elements;
-  // Look backwards for ESC + ] pattern indicating OSC sequence start
-  for (let i = elements.indexOf(character) - 1; i >= 1; i--) {
-    const curr = elements[i];
-    const prev = elements[i - 1];
-    if (
-      curr.type === 'Character' &&
-      curr.value === RIGHT_BRACKET &&
-      prev.type === 'Character' &&
-      prev.value === ESC
-    ) {
-      return true;
+type OscMatcher = { start: number; end: number };
+
+/** Recognizes deliberate OSC delimiter matching, not terminal-protocol validity. */
+function findOscMatchers(alternative: AST.Alternative): OscMatcher[] {
+  for (let ancestor: AST.Node | null = alternative.parent; ancestor; ancestor = ancestor.parent) {
+    if (ancestor.type === 'Assertion') {
+      return [];
     }
   }
-  return false;
+
+  const matches: OscMatcher[] = [];
+  const { elements } = alternative;
+  for (let i = 0; i < elements.length; i++) {
+    const introducerLength = oscIntroducerLength(elements, i);
+    if (introducerLength === 0) {
+      continue;
+    }
+    let endIndex = i + introducerLength;
+    while (endIndex < elements.length && isOscPayload(elements[endIndex])) {
+      endIndex++;
+    }
+    const terminatorLength = oscTerminatorLength(elements, endIndex);
+    if (terminatorLength > 0) {
+      matches.push({
+        start: elements[i].start,
+        end: elements[endIndex + terminatorLength - 1].end,
+      });
+    }
+  }
+  return matches;
+}
+
+function oscIntroducerLength(elements: readonly AST.Element[], index: number): number {
+  const element = elements[index];
+  if (isCharacter(element, OSC)) {
+    return 1;
+  }
+  if (isCharacter(element, ESC) && isCharacter(elements[index + 1], RIGHT_BRACKET)) {
+    return 2;
+  }
+  return isGroup(element) && element.alternatives.every(isOscIntroducerAlternative) ? 1 : 0;
+}
+
+function isOscIntroducerAlternative(alternative: AST.Alternative): boolean {
+  const [first, second] = alternative.elements;
+  return (
+    (alternative.elements.length === 1 && isCharacter(first, OSC)) ||
+    (alternative.elements.length === 2 &&
+      isCharacter(first, ESC) &&
+      isCharacter(second, RIGHT_BRACKET))
+  );
+}
+
+function oscTerminatorLength(elements: readonly AST.Element[], index: number): number {
+  const element = elements[index];
+  if (isCharacter(element, BEL) || isCharacter(element, STRING_TERMINATOR)) {
+    return 1;
+  }
+  if (isCharacter(element, ESC) && isCharacter(elements[index + 1], BACKSLASH)) {
+    return 2;
+  }
+  return isGroup(element) && element.alternatives.every(isOscTerminatorAlternative) ? 1 : 0;
+}
+
+function isOscTerminatorAlternative(alternative: AST.Alternative): boolean {
+  const [first, second] = alternative.elements;
+  return (
+    (alternative.elements.length === 1 &&
+      (isCharacter(first, BEL) || isCharacter(first, STRING_TERMINATOR))) ||
+    (alternative.elements.length === 2 && isCharacter(first, ESC) && isCharacter(second, BACKSLASH))
+  );
+}
+
+function isCharacter(element: AST.Element | undefined, value: number): boolean {
+  return element?.type === 'Character' && element.value === value;
+}
+
+function isGroup(element: AST.Element | undefined): element is AST.Group | AST.CapturingGroup {
+  return element?.type === 'Group' || element?.type === 'CapturingGroup';
+}
+
+function isOscPayload(element: AST.Element): boolean {
+  if (element.type === 'Character') {
+    return (
+      element.value >= 0x20 && (element.value < DELETE || element.value > MAX_C1_CONTROL_CHAR_CODE)
+    );
+  }
+  if (element.type === 'Quantifier') {
+    return isOscPayload(element.element);
+  }
+  if (element.type !== 'CharacterClass' || !element.negate) {
+    return false;
+  }
+  return (
+    element.elements.every(
+      item => item.type === 'Character' || item.type === 'CharacterClassRange',
+    ) &&
+    OSC_DELIMITERS.every(value =>
+      element.elements.some(item =>
+        item.type === 'Character'
+          ? item.value === value
+          : item.type === 'CharacterClassRange' &&
+            item.min.value <= value &&
+            value <= item.max.value,
+      ),
+    )
+  );
 }
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
+  const oscMatchers: OscMatcher[] = [];
   return {
+    onAlternativeEnter: alternative => {
+      oscMatchers.push(...findOscMatchers(alternative));
+    },
     onCharacterEnter: (character: AST.Character) => {
       const { value, raw } = character;
       if (
@@ -121,7 +210,12 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
         !isCharacterClassRangeBoundary(character) &&
         !isInCharacterClassWithControlCharRange(character) &&
         !isAnsiSequenceStart(character) &&
-        !isOscTerminator(character)
+        !(
+          (value === BEL || value === ESC) &&
+          oscMatchers.some(
+            matcher => matcher.start <= character.start && character.end <= matcher.end,
+          )
+        )
       ) {
         context.reportRegExpNode({
           message: 'Remove this control character.',

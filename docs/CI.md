@@ -570,8 +570,8 @@ Responsibilities:
 
 Platform specifics:
 
-- both jobs fetch an Artifactory access token from Vault
-- both jobs configure the npm registry explicitly with `npm config set`
+- Linux runs `config-npm@v2` to fetch an Edge token from Vault and configure npm
+- Windows fetches an Edge token from Vault and configures npm with `npm config set`
 - Linux and Windows still produce separate `node_modules` caches because the cache key includes `runner.os`
 
 #### `prepare_rspec_rule_data`
@@ -779,7 +779,7 @@ It waits for:
 - ruling jobs
 - build-number generation
 
-Then it runs `SonarSource/ci-github-actions/promote@v1`, which promotes build info/artifacts in Repox.
+Then it runs `SonarSource/ci-github-actions/promote@v2`, which promotes build info/artifacts in Repox.
 
 #### `releasability`
 
@@ -797,37 +797,40 @@ Repox is the repository manager behind both npm and Maven flows here.
 
 #### npm
 
-Linux, Windows, and ESLint jobs that install packages:
+`populate_npm_cache` runs `config-npm` with `repox-url: https://repox-internal.dev.sonar.build`. It:
 
-- fetch a private-reader token from Vault
-- wait for Edge token federation on self-hosted / WarpBuild (`runner.environment != github-hosted`)
-- point `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm/` on those runners
-- rewrite lockfile `resolved` hosts from `repox.jfrog.io` onto that registry (`replace-registry-host`), and keep a SaaS `_authToken` as fallback
-- GitHub-hosted jobs keep `https://repox.jfrog.io/artifactory/api/npm/npm/`
-- the ESLint plugin extra `npm install` (not in the lockfile) stays on SaaS via `npm_config_registry`
-- ESLint plugin tests have no lockfile: they skip `configure-npm-registry` entirely and stay on SaaS (Edge 404s npm metadata on both `npm` and `npmjs`; `replace-registry-host` would also rewrite tarball hosts back to Edge)
+- fetches a `private-reader` token issued by the Edge (`development/artifactory-edge-dev` on `https://vault.dev.sonar.build`)
+- points `npm` at `https://repox-internal.dev.sonar.build/artifactory/api/npm/npm`
+- fetches npmjs lockfile tarballs through Edge at install time. The workflow sets `NPM_CONFIG_REPLACE_REGISTRY_HOST=npmjs`, so npm replaces the public registry host with the configured Edge registry on Linux and Windows.
 
-Publish / promote (eslint-plugin release, `jfrog rt npm-publish`) stay on SaaS.
+The committed root `package-lock.json` uses `https://registry.npmjs.org/` for public dependencies. Keep new entries on npmjs, including when resolving lockfile conflicts. `.npmrc` keeps the public npm defaults, and both the npm configuration and npm datasource overrides in `.github/renovate.json` use npmjs. Public source installations therefore need no SonarSource credentials or internal registry access.
+
+`populate_npm_cache_win` cannot run `config-npm` because mise has no jfrog-cli backend on Windows. It fetches the same Edge `private-reader` token from Vault and sets the npm registry with `npm config set`.
+
+The ESLint plugin build (extra `builtin-modules` install) and the ESLint plugin tests (no lockfile) run the same `config-npm` step. Its root `package.json` version rewrite doesn't affect the plugin tarball, whose version comes from `.pmgrc.toml`.
+
+The ESLint plugin release runs on a GitHub-hosted runner. `jfrog rt npm-config` selects the SaaS registry for `jfrog rt npm-ci`; npm's default `replace-registry-host=npmjs` redirects the public lockfile URLs to that registry. Publish and promote (`jfrog rt npm-publish`) stay on SaaS. This workflow does not require Edge access.
 
 #### Maven
 
-`config-maven`:
+`config-maven` runs with `repox-url: https://repox-internal.dev.sonar.build`. It:
 
-- defaults `repox-url` to `https://repox.jfrog.io` so Vault tokens and **publish** (`ARTIFACTORY_URL` → `artifactory-maven-plugin`) stay on SaaS
+- fetches a `private-reader` token issued by the Edge (`development/artifactory-edge-dev` on `https://vault.dev.sonar.build`)
 - writes Maven `settings.xml`
-- sets `SONARSOURCE_REPOSITORY_URL=$ARTIFACTORY_URL/sonarsource-qa`
-- exports authentication environment variables for Maven
+- sets `ARTIFACTORY_URL` to the Edge and `SONARSOURCE_REPOSITORY_URL=$ARTIFACTORY_URL/sonarsource-qa`
+- exports authentication environment variables for Maven and Orchestrator
 
-On self-hosted / WarpBuild, `point-maven-resolve-at-edge` then:
+All Maven jobs in `build.yml` run on self-hosted or WarpBuild runners, which can reach the Edge. The GitHub-hosted ESLint release workflow explicitly sets `repox-url: https://repox.jfrog.io` to keep Maven configuration on SaaS when the shared action defaults change.
 
-- waits for Edge token federation against the `sonarsource` virtual repo
-- overrides `SONARSOURCE_REPOSITORY_URL` to `https://repox-internal.dev.sonar.build/artifactory/sonarsource-qa` (Maven mirror/resolve only)
-
-GitHub-hosted jobs skip that override and keep resolving from SaaS.
-
-`build` additionally fetches deployer credentials and pushes to `sonarsource-public-qa` on SaaS.
+`build` additionally fetches deployer credentials, sets `ARTIFACTORY_URL=https://repox.jfrog.io/artifactory` and pushes to `sonarsource-public-qa` on SaaS.
 
 `promote` later promotes the produced build info/artifacts in Artifactory (SaaS).
+
+The initial migration in [#8005](https://github.com/SonarSource/SonarJS/pull/8005) moved bulk Maven and npm dependency resolution on self-hosted and WarpBuild runners to Edge. CLP-1095 extends that scope to Maven setup calls, Orchestrator's direct downloads, and the ESLint build/test installs that previously used SaaS. Edge-issued reader credentials replace federated SaaS reader credentials and local waiters. GitHub-hosted release installs and deployment/publishing/promotion retain their SaaS configuration.
+
+Fast QA requires `sonar-scanner-integration-tester` 1.3.0.1396, already merged in [#8092](https://github.com/SonarSource/SonarJS/pull/8092). Its bundled Orchestrator 6.4.3 recognizes Edge; the previous tester bundled Orchestrator 6.2.0.
+
+For registry routing validation, manually dispatch `build.yml` with `validate-registry-routing=true`. This uses run-specific npm and Orchestrator cache keys and logs npm HTTP requests, without evicting shared caches. Two additional jobs check a public npmjs install with no credentials and a SaaS install using the release npm repository configuration without publishing. Validation skips SonarQube branch analysis and promotion. This keeps registry checks separate from existing branch-wide quality gates, and the shared promotion action does not support manually dispatched feature branches. Normal build, deployment, and promotion behavior is unchanged; scheduled-only QA paths (Alpine and DEV) still need separate validation.
 
 ### Vault
 
@@ -957,7 +960,7 @@ The repository also defines a companion workflow:
 
 - [`../.github/workflows/pr-cleanup.yml`](../.github/workflows/pr-cleanup.yml)
 
-It runs on `pull_request.closed` and uses `SonarSource/ci-github-actions/pr_cleanup@v1`.
+It runs on `pull_request.closed` and uses `SonarSource/ci-github-actions/pr_cleanup@v2`.
 
 The workflow is intentionally separate from [`../.github/workflows/PullRequestClosed.yml`](../.github/workflows/PullRequestClosed.yml):
 
@@ -979,7 +982,7 @@ jobs:
     permissions:
       actions: write
     steps:
-      - uses: SonarSource/ci-github-actions/pr_cleanup@v1
+      - uses: SonarSource/ci-github-actions/pr_cleanup@v2
 ```
 
 What it helps with in SonarJS:

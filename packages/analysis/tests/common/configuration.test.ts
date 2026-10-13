@@ -26,6 +26,26 @@ import {
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 describe('createConfiguration', () => {
+  for (const prefix of ['file:', 'FILE:']) {
+    it(`supports scanner absolute scope patterns with ${prefix}`, () => {
+      const root = normalizeToAbsolutePath('/ci/project');
+      const file = normalizeToAbsolutePath('src/main.test.ts', root);
+      const configuration = createConfiguration({
+        baseDir: root,
+        inclusions: [`${prefix}${root}/**/*.ts`],
+        exclusions: [`${prefix}**/generated/**`],
+        testInclusions: [`${prefix}**/*.test.ts`],
+        testExclusions: [`${prefix}${root}/excluded/**`],
+      });
+      expect(configuration.inclusions[0].match(file)).toBe(true);
+      expect(configuration.testInclusions[0].match(file)).toBe(true);
+      expect(
+        configuration.exclusions[0].match(normalizeToAbsolutePath('generated/file.ts', root)),
+      ).toBe(true);
+      expect(configuration.testExclusions[0].match(file)).toBe(false);
+    });
+  }
+
   it('should fail with a non-absolute baseDir', async () => {
     const baseDir = '../relative/path';
     expect(() => createConfiguration({ baseDir })).toThrow(

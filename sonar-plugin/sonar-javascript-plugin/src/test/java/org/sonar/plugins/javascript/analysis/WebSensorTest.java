@@ -25,6 +25,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,8 +37,10 @@ import com.google.protobuf.Empty;
 import com.sonarsource.scanner.engine.sensor.test.fixtures.SensorContextTester;
 import com.sonarsource.scanner.engine.sensor.test.fixtures.TestInputFileBuilder;
 import com.sonarsource.scanner.engine.sensor.test.fixtures.TestSonarRuntime;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -51,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionException;
 import javax.annotation.Nullable;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -61,6 +65,7 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarQubeSide;
+import org.sonar.api.a3s.A3SContextCollector;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.rule.CheckFactory;
@@ -75,7 +80,6 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
-import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.css.CssRules;
 import org.sonar.javascript.checks.CheckList;
@@ -85,6 +89,7 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisLanguage;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
+import org.sonar.plugins.javascript.analyzeproject.grpc.FilesystemCacheMode;
 import org.sonar.plugins.javascript.analyzeproject.grpc.Highlight;
 import org.sonar.plugins.javascript.analyzeproject.grpc.HighlightedSymbol;
 import org.sonar.plugins.javascript.analyzeproject.grpc.Location;
@@ -98,17 +103,25 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.QuickFixEdit;
 import org.sonar.plugins.javascript.analyzeproject.grpc.TextType;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
 import org.sonar.plugins.javascript.api.JsFile;
+import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
+import org.sonar.plugins.javascript.bridge.BundleImpl;
+import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.EslintRule;
+import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
 import org.sonar.plugins.javascript.bridge.ProjectAnalysisHandler;
+import org.sonar.plugins.javascript.bridge.RulesBundles;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
 import org.sonar.plugins.javascript.bridge.protobuf.Position;
 import org.sonar.plugins.javascript.bridge.protobuf.Program;
 import org.sonar.plugins.javascript.bridge.protobuf.SourceLocation;
+import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
+import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 import org.sonar.plugins.javascript.sonarlint.FSListener;
 import org.sonar.plugins.javascript.sonarlint.FSListenerImpl;
 import org.sonar.scanner.plugin.api.impl.config.MapSettings;
@@ -150,8 +163,6 @@ class WebSensorTest {
   @TempDir
   Path tempDir;
 
-  TempFolder tempFolder;
-
   @TempDir
   Path workDir;
 
@@ -163,7 +174,6 @@ class WebSensorTest {
 
     // this is required to avoid the test to use real plugin version from the manifest
     PluginInfo.setVersion(PLUGIN_VERSION);
-    tempFolder = new DefaultTempFolder(tempDir.toFile(), true);
     when(bridgeServerMock.isAlive()).thenReturn(true);
     when(bridgeServerMock.getCommandInfo()).thenReturn("bridgeServerMock command info");
     when(bridgeServerMock.getTelemetry()).thenReturn(
@@ -365,6 +375,231 @@ class WebSensorTest {
     );
     executeSensorMockingResponse(expectedResponse);
     assertThat(analysisWarnings.warnings).isEqualTo(List.of(warningMessage));
+  }
+
+  @Test
+  void should_replay_restored_filesystem_cache() throws IOException {
+    var archive = Files.writeString(tempDir.resolve("archive.pb.gz"), "archive");
+    var logicalRoot = tempDir.resolve("unavailable-ci-root");
+    // Deliberately not a valid gzip/protobuf: Java must never decode this attachment.
+    var analysisMetadata = Files.writeString(tempDir.resolve("analysis-metadata.pb.gz"), "opaque");
+    var metadata = new com.google.gson.JsonObject();
+    var savedConfiguration = new com.google.gson.JsonObject();
+    savedConfiguration.addProperty("baseDir", logicalRoot.toString());
+    metadata.add("configuration", savedConfiguration);
+    context
+      .settings()
+      .setProperty(FilesystemCacheContext.RESTORED_CONTEXT_METADATA_PROPERTY, metadata.toString());
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenReturn(true);
+    context
+      .settings()
+      .setProperty(FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY, archive.toString());
+    context
+      .settings()
+      .setProperty(
+        FilesystemCacheContext.RESTORED_ANALYSIS_METADATA_PATH_PROPERTY,
+        analysisMetadata.toString()
+      );
+
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+    var handler = executeSensorAndCaptureHandler(sensor, context);
+    var request = handler.getRequest();
+
+    assertThat(request.hasFilesystemCache()).isTrue();
+    assertThat(request.getFilesystemCache().getArchivePath()).isEqualTo(
+      archive.toAbsolutePath().normalize().toString()
+    );
+    assertThat(request.getFilesystemCache().getAnalysisMetadataPath()).isEqualTo(
+      analysisMetadata.toAbsolutePath().normalize().toString()
+    );
+    assertThat(request.getFilesystemCache().getMode()).isEqualTo(
+      FilesystemCacheMode.FILESYSTEM_CACHE_MODE_REPLAY
+    );
+    assertThat(inputFile.charset()).isEqualTo(StandardCharsets.UTF_8);
+    var logicalFile = logicalRoot.resolve(inputFile.relativePath()).toString().replace('\\', '/');
+    assertThat(request.getConfiguration().getBaseDir()).isEqualTo(
+      logicalRoot.toString().replace('\\', '/')
+    );
+    assertThat(request.getFilesystemCache().getFallbackBaseDir()).isEqualTo(
+      context.fileSystem().baseDir().getAbsolutePath()
+    );
+    assertThat(request.getFilesMap()).doesNotContainKey(inputFile.absolutePath());
+    var requestedFile = request.getFilesOrThrow(logicalFile);
+    assertThat(requestedFile.hasFileContent()).isTrue();
+    assertThat(requestedFile.getFileContent()).isEqualTo(inputFile.contents());
+    handler.handleMessage(
+      AnalyzeProjectStreamResponse.newBuilder()
+        .setFileResult(
+          FileResultMessage.newBuilder()
+            .setFilePath(logicalFile)
+            .setResult(
+              ProjectAnalysisFileResult.newBuilder().setMetrics(
+                Metrics.newBuilder().setFunctions(7)
+              )
+            )
+        )
+        .build()
+    );
+    assertThat(context.measure(inputFile.key(), CoreMetrics.FUNCTIONS).value()).isEqualTo(7);
+  }
+
+  @Test
+  void should_fail_when_restored_filesystem_cache_is_unsupported() throws IOException {
+    var archive = Files.writeString(tempDir.resolve("archive.pb.gz"), "archive");
+    context
+      .settings()
+      .setProperty(FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY, archive.toString());
+
+    assertThatThrownBy(() -> createSensor().execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis of JS/TS files failed")
+      .hasRootCauseMessage("Restored JavaScript context is not supported");
+  }
+
+  @Test
+  void should_continue_when_filesystem_cache_configuration_fails() {
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenThrow(new IllegalStateException("boom"));
+
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+    var request = executeSensorAndCaptureHandler(sensor, context).getRequest();
+
+    assertThat(request.hasFilesystemCache()).isFalse();
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Could not configure the JavaScript filesystem cache"
+    );
+  }
+
+  @Test
+  void should_fail_analysis_when_restored_context_is_incomplete() {
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenReturn(true);
+    context
+      .settings()
+      .setProperty(
+        FilesystemCacheContext.RESTORED_ARCHIVE_PATH_PROPERTY,
+        tempDir.resolve("archive.pb.gz").toString()
+      );
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+
+    assertThatThrownBy(() -> sensor.execute(context))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis of JS/TS files failed")
+      .hasRootCauseMessage("The restored JavaScript context is incomplete");
+  }
+
+  @Test
+  void should_record_and_collect_filesystem_cache() throws Exception {
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenReturn(true);
+    when(filesystemCacheContext.isEnabled()).thenReturn(true);
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+    ArgumentCaptor<Path> archiveCaptor = ArgumentCaptor.forClass(Path.class);
+    ArgumentCaptor<Path> analysisMetadataCaptor = ArgumentCaptor.forClass(Path.class);
+    doAnswer(invocation -> {
+      ProjectAnalysisHandler handler = invocation.getArgument(0);
+      var request = handler.getRequest();
+      assertThat(request.getFilesystemCache().getMode()).isEqualTo(
+        FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
+      );
+      assertThat(request.getFilesOrThrow(inputFile.absolutePath()).hasFileContent()).isFalse();
+      var archive = Path.of(request.getFilesystemCache().getArchivePath());
+      var analysisMetadata = Path.of(request.getFilesystemCache().getAnalysisMetadataPath());
+      assertThat(archive).doesNotExist();
+      assertThat(analysisMetadata).doesNotExist();
+      Files.writeString(archive, "archive");
+      Files.writeString(analysisMetadata, "metadata");
+      for (var message : getAnalysisStreamMessages(createProjectResponse(List.of(inputFile)))) {
+        dispatchAnalysisStreamMessage(handler, message);
+      }
+      return handler.getFuture().join();
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any(ProjectAnalysisHandler.class));
+
+    sensor.execute(context);
+    var secondContext = createSensorContext(baseDir);
+    createInputFile(secondContext);
+    sensor.execute(secondContext);
+
+    verify(filesystemCacheContext, times(2)).collect(
+      archiveCaptor.capture(),
+      analysisMetadataCaptor.capture(),
+      org.mockito.ArgumentMatchers.anyString()
+    );
+    assertThat(archiveCaptor.getAllValues()).hasSize(2).doesNotHaveDuplicates();
+    assertThat(analysisMetadataCaptor.getAllValues()).hasSize(2).doesNotHaveDuplicates();
+    assertThat(archiveCaptor.getValue()).isRegularFile().hasContent("archive");
+    assertThat(archiveCaptor.getValue()).startsWith(workDir);
+    assertThat(analysisMetadataCaptor.getValue()).isRegularFile().hasContent("metadata");
+    assertThat(analysisMetadataCaptor.getValue()).startsWith(workDir);
+    assertThat(analysisMetadataCaptor.getValue().getParent()).isEqualTo(
+      archiveCaptor.getValue().getParent()
+    );
+  }
+
+  @Test
+  void should_analyze_without_filesystem_cache_when_collection_is_disabled() {
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenReturn(true);
+    when(filesystemCacheContext.isEnabled()).thenReturn(false);
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+
+    var request = executeSensorAndCaptureHandler(sensor, context).getRequest();
+
+    assertThat(request.hasFilesystemCache()).isFalse();
+    assertThat(request.getFilesOrThrow(inputFile.absolutePath()).hasFileContent()).isFalse();
+  }
+
+  @Test
+  void should_continue_when_recording_does_not_create_an_archive() {
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenReturn(true);
+    when(filesystemCacheContext.isEnabled()).thenReturn(true);
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+    executeSensorMockingResponse(sensor, createProjectResponse(List.of(inputFile)));
+
+    verify(filesystemCacheContext, org.mockito.Mockito.never()).collect(any(), any(), any());
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "The JavaScript filesystem cache archive was not created; no SQAA context will be published"
+    );
   }
 
   @Test
@@ -1093,6 +1328,274 @@ class WebSensorTest {
   }
 
   @Test
+  void should_record_unchanged_files_from_warm_analysis_cache() throws IOException {
+    context = CacheTestUtils.createContextWithCache(
+      baseDir,
+      workDir,
+      inputFile.getModuleRelativePath()
+    );
+    context.fileSystem().add(inputFile);
+    inputFile.setStatus(InputFile.Status.SAME);
+    var filesystemCacheContext = mock(FilesystemCacheContext.class);
+    when(filesystemCacheContext.isSupported()).thenReturn(true);
+    when(filesystemCacheContext.isEnabled()).thenReturn(true);
+    var sensor = createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      filesystemCacheContext,
+      new WebSensorModuleConfiguration()
+    );
+
+    var request = executeSensorAndCaptureHandler(sensor, context).getRequest();
+
+    assertThat(request.getFilesystemCache().getMode()).isEqualTo(
+      FilesystemCacheMode.FILESYSTEM_CACHE_MODE_RECORD
+    );
+    assertThat(request.getFilesMap()).containsKey(inputFile.absolutePath());
+    assertThat(request.getConfiguration().getAnalysisMode()).isEqualTo(
+      org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisMode.ANALYSIS_MODE_DEFAULT
+    );
+    assertThat(logTester.logs(Level.DEBUG)).doesNotContain(
+      "Processing cache analysis of file: " + inputFile.uri()
+    );
+  }
+
+  @Test
+  void should_record_and_replay_warm_cache_with_real_node() throws Exception {
+    Assumptions.assumeTrue(Boolean.getBoolean("sonarjs.localReplayValidation"));
+    var nodeExecutable = System.getProperty("sonarjs.localNodeExecutable", "node");
+    var source = "import { values } from './values';\nvalues.sort();\n";
+    Files.writeString(baseDir.resolve("main.ts"), source);
+    Files.writeString(baseDir.resolve("values.ts"), "export const values: number[] = [80, 3, 9];");
+    Files.writeString(baseDir.resolve("tsconfig.json"), "{\"files\":[\"main.ts\",\"values.ts\"]}");
+    var realBridge = new BridgeServerImpl(
+      new NodeCommandBuilderImpl(new ProcessWrapperImpl()),
+      new BundleImpl(),
+      new RulesBundles(),
+      new NodeDeprecationWarning(new AnalysisWarningsWrapper()),
+      new DefaultTempFolder(tempDir.toFile(), true),
+      mock(EmbeddedNode.class)
+    );
+    bridgeServerMock = realBridge;
+    var cachedBytes = new HashMap<String, byte[]>();
+    var contextItems = new ArrayList<Path>();
+    var collector = localRecordingCollector(contextItems);
+    try {
+      // A real cold sensor run produces the scanner cache as well as the two context artifacts.
+      var cold = realNodeCacheContext(nodeExecutable, source, cachedBytes, false);
+      createSensor(
+        checks("S2871"),
+        new AnalysisConsumers(),
+        null,
+        collector,
+        new WebSensorModuleConfiguration()
+      ).execute(cold);
+      assertThat(cold.allIssues()).hasSize(1);
+      assertThat(cachedBytes).isNotEmpty();
+
+      // Prove this cache is actually usable before testing collection's bypass of it.
+      logTester.clear();
+      var cached = realNodeCacheContext(nodeExecutable, source, cachedBytes, true);
+      createSensor(
+        checks("S2871"),
+        new AnalysisConsumers(),
+        null,
+        new NoOpFilesystemCacheContext(),
+        new WebSensorModuleConfiguration()
+      ).execute(cached);
+      assertThat(logTester.logs(Level.DEBUG)).anyMatch(message ->
+        message.startsWith("Processing cache analysis of file:")
+      );
+
+      logTester.clear();
+      var warm = realNodeCacheContext(nodeExecutable, source, cachedBytes, true);
+      createSensor(
+        checks("S2871"),
+        new AnalysisConsumers(),
+        null,
+        collector,
+        new WebSensorModuleConfiguration()
+      ).execute(warm);
+      assertThat(warm.allIssues()).hasSize(1);
+      assertThat(logTester.logs(Level.DEBUG)).noneMatch(message ->
+        message.startsWith("Processing cache analysis of file:")
+      );
+      assertThat(contextItems)
+        .hasSize(2)
+        .allSatisfy(item -> assertThat(item).isNotEmptyFile());
+
+      // Preserve the real Java-produced pair for the separate SQAA adapter test.
+      var exportDirectory = System.getProperty("sonarjs.localContextDirectory");
+      if (exportDirectory != null) {
+        var target = Files.createDirectories(Path.of(exportDirectory));
+        Files.copy(
+          contextItems.get(0),
+          target.resolve("filesystem.pb.gz"),
+          java.nio.file.StandardCopyOption.REPLACE_EXISTING
+        );
+        Files.copy(
+          contextItems.get(1),
+          target.resolve("analysis-metadata.pb.gz"),
+          java.nio.file.StandardCopyOption.REPLACE_EXISTING
+        );
+        Files.copy(
+          contextItems.get(0).getParent().resolve("collector-metadata.json"),
+          target.resolve("collector-metadata.json"),
+          java.nio.file.StandardCopyOption.REPLACE_EXISTING
+        );
+      }
+
+      // A real Java replay request must carry edited contents into the restored imported type.
+      var edited = source.replace("values.sort()", "values.sort((a, b) => a - b)");
+      Files.writeString(baseDir.resolve("main.ts"), edited);
+      var replay = realNodeCacheContext(nodeExecutable, edited, new HashMap<>(), false);
+      replay
+        .settings()
+        .setProperty(
+          FilesystemCacheContext.RESTORED_CONTEXT_METADATA_PROPERTY,
+          Files.readString(contextItems.get(0).getParent().resolve("collector-metadata.json"))
+        );
+      replay
+        .settings()
+        .setProperty(
+          "sonar.javascript.internal.filesystemCacheArchivePath",
+          contextItems.get(0).toString()
+        );
+      replay
+        .settings()
+        .setProperty(
+          "sonar.javascript.internal.analysisMetadataPath",
+          contextItems.get(1).toString()
+        );
+      createSensor(
+        checks("S2871"),
+        new AnalysisConsumers(),
+        null,
+        collector,
+        new WebSensorModuleConfiguration()
+      ).execute(replay);
+      assertThat(replay.allIssues()).isEmpty();
+
+      Files.writeString(baseDir.resolve("main.ts"), source);
+      var replayIssue = realNodeCacheContext(nodeExecutable, source, new HashMap<>(), false);
+      replayIssue
+        .settings()
+        .setProperty(
+          FilesystemCacheContext.RESTORED_CONTEXT_METADATA_PROPERTY,
+          Files.readString(contextItems.get(0).getParent().resolve("collector-metadata.json"))
+        );
+      replayIssue
+        .settings()
+        .setProperty(
+          "sonar.javascript.internal.filesystemCacheArchivePath",
+          contextItems.get(0).toString()
+        );
+      replayIssue
+        .settings()
+        .setProperty(
+          "sonar.javascript.internal.analysisMetadataPath",
+          contextItems.get(1).toString()
+        );
+      createSensor(
+        checks("S2871"),
+        new AnalysisConsumers(),
+        null,
+        collector,
+        new WebSensorModuleConfiguration()
+      ).execute(replayIssue);
+      assertThat(replayIssue.allIssues()).hasSize(1);
+    } finally {
+      realBridge.clean();
+    }
+  }
+
+  private FilesystemCacheContext localRecordingCollector(List<Path> contextItems) {
+    var apiCollector = mock(A3SContextCollector.class);
+    var paths = new HashMap<A3SContextCollector.Item, Path>();
+    var ids = new HashMap<A3SContextCollector.Item, String>();
+    when(apiCollector.isEnabled()).thenReturn(true);
+    when(apiCollector.newFileItem(any(String.class), any(Path.class))).thenAnswer(invocation -> {
+      var item = mock(A3SContextCollector.Item.class);
+      ids.put(item, invocation.getArgument(0));
+      paths.put(item, invocation.getArgument(1));
+      return item;
+    });
+    doAnswer(invocation -> {
+      assertThat(invocation.getArgument(0, String.class)).isEqualTo(
+        FilesystemCacheContext.CONTEXT_KIND
+      );
+      var metadata = invocation.getArgument(1, String.class);
+      var json = GSON.fromJson(metadata, JsonObject.class);
+      assertThat(json.has("version")).isFalse();
+      assertThat(json.getAsJsonObject("configuration").get("baseDir").getAsString()).isNotEmpty();
+      assertThat(json.get("configuration").isJsonObject()).isTrue();
+      List<A3SContextCollector.Item> items = invocation.getArgument(2);
+      assertThat(items.stream().map(ids::get).toList()).containsExactly(
+        FilesystemCacheContext.ARCHIVE_ITEM_ID,
+        FilesystemCacheContext.ANALYSIS_METADATA_ITEM_ID
+      );
+      contextItems.clear();
+      items.forEach(item -> contextItems.add(paths.get(item)));
+      Files.writeString(
+        contextItems.get(0).getParent().resolve("collector-metadata.json"),
+        metadata
+      );
+      return null;
+    })
+      .when(apiCollector)
+      .collect(any(String.class), any(String.class), org.mockito.ArgumentMatchers.anyList());
+    return new DefaultFilesystemCacheContext(apiCollector);
+  }
+
+  private SensorContextTester realNodeCacheContext(
+    String nodeExecutable,
+    String contents,
+    Map<String, byte[]> cachedBytes,
+    boolean unchanged
+  ) throws IOException {
+    var sensorContext = createSensorContext(baseDir);
+    sensorContext.setRuntime(
+      TestSonarRuntime.forSonarQube(
+        Version.create(9, 6),
+        SonarQubeSide.SCANNER,
+        SonarEdition.ENTERPRISE
+      )
+    );
+    sensorContext.setCanSkipUnchangedFiles(true);
+    sensorContext.settings().setProperty("sonar.nodejs.executable", nodeExecutable);
+    sensorContext.settings().setProperty("sonar.javascript.node.maxspace", 4096);
+    var previous = mock(ReadCache.class);
+    when(previous.contains(any(String.class))).thenAnswer(invocation ->
+      cachedBytes.containsKey(invocation.getArgument(0))
+    );
+    when(previous.read(any(String.class))).thenAnswer(invocation ->
+      new ByteArrayInputStream(cachedBytes.get(invocation.getArgument(0)))
+    );
+    sensorContext.setPreviousCache(previous);
+    var next = mock(WriteCache.class);
+    doAnswer(invocation -> {
+      cachedBytes.put(invocation.getArgument(0), invocation.getArgument(1));
+      return null;
+    })
+      .when(next)
+      .write(any(String.class), any(byte[].class));
+    doAnswer(invocation -> {
+      cachedBytes.put(
+        invocation.getArgument(0),
+        ((InputStream) invocation.getArgument(1)).readAllBytes()
+      );
+      return null;
+    })
+      .when(next)
+      .write(any(String.class), any(InputStream.class));
+    sensorContext.setNextCache(next);
+    var file = createInputFile(sensorContext, "main.ts", StandardCharsets.UTF_8, baseDir, contents);
+    file.setStatus(unchanged ? InputFile.Status.SAME : InputFile.Status.ADDED);
+    return sensorContext;
+  }
+
+  @Test
   void should_not_invoke_analysis_consumers_when_cannot_deserialize() {
     Node erroneousNode = Node.newBuilder().setType(NodeType.BlockStatementType).build();
     var consumer = createConsumer();
@@ -1794,6 +2297,22 @@ class WebSensorTest {
     @Nullable FSListener fsListener,
     WebSensorModuleConfiguration moduleConfiguration
   ) {
+    return createSensor(
+      checks,
+      consumers,
+      fsListener,
+      new NoOpFilesystemCacheContext(),
+      moduleConfiguration
+    );
+  }
+
+  private WebSensor createSensor(
+    JsTsChecks checks,
+    AnalysisConsumers consumers,
+    @Nullable FSListener fsListener,
+    FilesystemCacheContext filesystemCacheContext,
+    WebSensorModuleConfiguration moduleConfiguration
+  ) {
     return new WebSensor(
       checks,
       bridgeServerMock,
@@ -1802,6 +2321,7 @@ class WebSensorTest {
       consumers,
       mock(CssRules.class),
       fsListener,
+      filesystemCacheContext,
       moduleConfiguration
     );
   }

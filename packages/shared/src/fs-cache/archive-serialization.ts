@@ -326,6 +326,7 @@ export function deserializeProtobufDocument(bytes: Uint8Array) {
     createdAt: document.createdAt,
     updatedAt: document.updatedAt,
     missingPaths: document.missingPaths,
+    caseSensitivePaths: document.caseSensitivePaths ?? undefined,
     entries: document.entries.map(entry => {
       const node: CacheNode = {};
       if (entry.exists !== null) {

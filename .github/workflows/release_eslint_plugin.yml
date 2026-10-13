@@ -35,16 +35,17 @@ jobs:
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-promoter access_token  | promoter_access_token;
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
       - name: Setup JFrog for deploy
-        uses: SonarSource/jfrog-setup-wrapper@b243f5b25440cdcb062db329eec5fd9c9cd2dab2 # 3.7.0
+        uses: SonarSource/jfrog-setup-wrapper@v3
         with:
           jfrogAccessToken: ${{ fromJSON(steps.secrets.outputs.vault).qa_deployer_access_token }}
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: jdx/mise-action@7a4e45a543138629540c9a1616d08632b893e492 # v5.0.1
+      - uses: jdx/mise-action@2d8d4cafcbd33be2ea37d2b6f5ad595363d1f1ca # v5.1.1
         with:
           version: 2026.9.18
       - name: Configure Maven
         uses: SonarSource/ci-github-actions/config-maven@v2
         with:
+          repox-url: https://repox.jfrog.io
           artifactory-reader-role: private-reader
           disable-caching: 'true'
       - name: Publish npm package
