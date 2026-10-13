@@ -1,0 +1,31 @@
+{
+  "title": "Spatial motion should respect reduced-motion preferences",
+  "ruleSpecification": "RSPEC-9440",
+  "sqKey": "S9440",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "css",
+    "accessibility",
+    "wcag"
+  ],
+  "defaultSeverity": "Major",
+  "scope": "Main",
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "RESPECTFUL"
+  },
+  "compatibleLanguages": [
+    "css"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

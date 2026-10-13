@@ -1,0 +1,69 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+
+@keyframes motion-entry {
+  from { transform: translateX(2rem); }
+  to { transform: translateX(0); }
+}
+
+.unsafe-animation {
+  animation: motion-entry 400ms; /* Noncompliant */
+/*^^^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+}
+
+.unsafe-transition {
+  transition: transform 400ms; /* Noncompliant */
+/*^^^^^^^^^^^^^^^^^^^^^^^^^^ */
+}
+
+.unsafe-transition:hover {
+  transform: translateX(1rem);
+}
+
+.unsafe-scrolling {
+  scroll-behavior: smooth; /* Noncompliant */
+/*^^^^^^^^^^^^^^^^^^^^^ */
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .guarded-animation {
+    animation: motion-entry 400ms;
+  }
+}
+
+.overridden-animation {
+  animation: motion-entry 400ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overridden-animation {
+    animation: none;
+  }
+}
+
+.instant-transition {
+  transition: transform 0s;
+}
+
+.non-spatial-transition {
+  transition: opacity 400ms;
+}
+
+.disabled-motion {
+  /* stylelint-disable-next-line sonar/motion-reduced */
+  animation: motion-entry 400ms;
+}

@@ -332,6 +332,16 @@ export const cssRulesMeta: CssRuleMeta[] = [
     'Comma-separated list of "at-rules" that are allowed to appear before "@import" rules.',
   ),
   simpleRule('S9423', 'sonar/declaration-no-important'),
+  singleListParamRule(
+    'S9440',
+    'sonar/motion-reduced',
+    listParam(
+      'ignoreSelectors',
+      'ignoreSelectors',
+      'Comma-separated selector strings or /regular-expression/ patterns with verified external reduced-motion safeguards or essential motion.',
+      '',
+    ),
+  ),
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
