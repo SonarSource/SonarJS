@@ -74,6 +74,7 @@ const animationWords = new Set([
   'infinite',
 ]);
 const cssWide = /^(initial|inherit|unset|revert|revert-layer|auto)$/i;
+const noPreference = 'no-preference';
 
 export type Component =
   | 'names'
@@ -198,10 +199,11 @@ function consumeName(parsed: ParsedShorthand, name: string): void {
 
 function consumeWord(parsed: ParsedShorthand, text: string, animation: boolean): void {
   if (/^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(ms|s)$/i.test(text)) {
-    if (parsed.times++ === 0) {
+    if (parsed.times === 0) {
       parsed.duration = text;
       parsed.valid &&= milliseconds(text) !== undefined;
     }
+    parsed.times++;
     parsed.valid &&= parsed.times <= 2;
     return;
   }
@@ -415,7 +417,7 @@ type MediaBranch = { kind: 'all' | 'reduce' | 'no-preference'; residual: string 
 function mediaBranch(branch: string): MediaBranch | undefined {
   const negated = /^not\s+\(prefers-reduced-motion\s*:\s*(reduce|no-preference)\)$/.exec(branch);
   if (negated) {
-    const kind = negated[1] === 'reduce' ? 'no-preference' : 'reduce';
+    const kind = negated[1] === 'reduce' ? noPreference : 'reduce';
     return { kind, residual: '' };
   }
   if (/\b(not|or)\b/.test(branch) && branch.includes('prefers-reduced-motion')) {
@@ -426,8 +428,8 @@ function mediaBranch(branch: string): MediaBranch | undefined {
   if (features.length === 0) {
     return { kind: 'all', residual: branch };
   }
-  const kind = features.some((match: RegExpMatchArray): boolean => match[1] === 'no-preference')
-    ? 'no-preference'
+  const kind = features.some((match: RegExpMatchArray): boolean => match[1] === noPreference)
+    ? noPreference
     : 'reduce';
   const residual = branch
     .replace(feature, '')
@@ -445,9 +447,7 @@ function mediaContext(value: string): MotionContext {
   if (branches.includes(undefined)) {
     return { mode: 'skip', key: 'uncertain' };
   }
-  if (
-    branches.every((branch: MediaBranch | undefined): boolean => branch?.kind === 'no-preference')
-  ) {
+  if (branches.every((branch: MediaBranch | undefined): boolean => branch?.kind === noPreference)) {
     return { mode: 'skip', key: '' };
   }
   if (
