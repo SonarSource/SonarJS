@@ -51,14 +51,14 @@ const programmaticFocusTargets = [
       Please correct these errors.
     </div>;
   }`,
-];
+].map(code => `import { useEffect, useRef } from 'react';\n${code}`);
 
 describe('S6845 upstream sentinel', () => {
   it('upstream no-noninteractive-tabindex raises when a conditional only yields null or negative tab indexes', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('no-noninteractive-tabindex', upstreamRule, {
-      valid: [],
+      valid: [{ code: `<div tabIndex={disabled ? undefined : -1} />` }],
       invalid: [
         ...programmaticFocusTargets.map(code => ({ code, errors: 1 })),
         {
@@ -99,6 +99,10 @@ describe('S6845', () => {
     ruleTester.run('no-noninteractive-tabindex', rule, {
       valid: [
         { code: `<div tabIndex={disabled ? null : -1} />` },
+        { code: `<div tabIndex={disabled ? -1 : null} />` },
+        { code: `<div tabIndex={disabled ? null : null} />` },
+        { code: `<div tabIndex={disabled ? -1 : -2} />` },
+        { code: `<div tabIndex={disabled ? undefined : -1} />` },
         { code: `<div tabIndex={disabled ? null : nested ? -1 : -2} />` },
         { code: `<div tabIndex={disabled ? nested ? -1 : -2 : null} />` },
         { code: `<div id="title" tabIndex={disabled ? null : -1} />` },
@@ -166,6 +170,22 @@ describe('S6845', () => {
           errors: 1,
         },
       ],
+    });
+  });
+
+  it('retains reports for unsupported values and unproven attribute combinations', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-noninteractive-tabindex', rule, {
+      valid: [],
+      invalid: [
+        `<div tabIndex={disabled ? null : '-1'} />`,
+        `<div tabIndex={disabled ? null : false} />`,
+        `<div tabIndex={disabled ? null : -tabIndex} />`,
+        `<div {...{ id: 'title' }} tabIndex={disabled ? null : -1} />`,
+        `<div tabIndex={disabled ? null : -1} {...{ id: 'title' }} />`,
+        `<div tabIndex={disabled ? null : -1} tabIndex={-1} />`,
+      ].map(code => ({ code, errors: 1 })),
     });
   });
 });

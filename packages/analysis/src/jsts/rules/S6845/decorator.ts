@@ -52,7 +52,7 @@ function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDesc
     node.value?.type === 'JSXExpressionContainer' &&
     node.value.expression.type === 'ConditionalExpression' &&
     hasNoTabIndexOverrides(node) &&
-    hasOnlyNonSequentialTabIndexBranches(node.value.expression)
+    isNonSequentialTabIndexValue(node.value.expression)
   );
 }
 
@@ -76,16 +76,12 @@ function hasNoTabIndexOverrides(node: TSESTree.JSXAttribute): boolean {
   );
 }
 
-function hasOnlyNonSequentialTabIndexBranches(expression: TSESTree.ConditionalExpression): boolean {
-  return (
-    isNonSequentialTabIndexValue(expression.consequent) &&
-    isNonSequentialTabIndexValue(expression.alternate)
-  );
-}
-
 function isNonSequentialTabIndexValue(expression: TSESTree.Expression): boolean {
   if (expression.type === 'ConditionalExpression') {
-    return hasOnlyNonSequentialTabIndexBranches(expression);
+    return (
+      isNonSequentialTabIndexValue(expression.consequent) &&
+      isNonSequentialTabIndexValue(expression.alternate)
+    );
   }
 
   if (expression.type === 'Literal' && expression.value === null) {
