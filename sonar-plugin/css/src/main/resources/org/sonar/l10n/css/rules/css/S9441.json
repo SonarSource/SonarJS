@@ -1,0 +1,30 @@
+{
+  "ruleSpecification": "RSPEC-9441",
+  "sqKey": "S9441",
+  "title": "Downloadable text fonts should use a non-blocking \"font-display\" strategy",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "css",
+    "performance"
+  ],
+  "defaultSeverity": "Minor",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "EFFICIENT"
+  },
+  "compatibleLanguages": [
+    "css"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ]
+}

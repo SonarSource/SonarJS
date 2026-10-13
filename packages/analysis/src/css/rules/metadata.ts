@@ -332,6 +332,16 @@ export const cssRulesMeta: CssRuleMeta[] = [
     'Comma-separated list of "at-rules" that are allowed to appear before "@import" rules.',
   ),
   simpleRule('S9423', 'sonar/declaration-no-important'),
+  singleListParamRule(
+    'S9441',
+    'sonar/font-display-non-blocking',
+    listParam(
+      'ignoreFontFamilies',
+      'ignoreFontFamilies',
+      'Comma-separated list of font families to ignore. Each value can be a string or a regular expression with the syntax /pattern/.',
+      '',
+    ),
+  ),
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
