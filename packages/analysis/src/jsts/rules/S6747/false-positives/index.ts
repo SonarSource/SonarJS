@@ -81,7 +81,10 @@ export function usesStencil(signals: FalsePositiveSignals): boolean {
       continue;
     }
     // Match TypeScript's block-comment grammar: one pragma per line, last occurrence wins.
-    for (const [, name, args] of `/*${comment.value}*/`.matchAll(/@(\S+)(\s+(?:\S.*)?)?$/gmu)) {
+    // Anchor each line and skip stray @ markers to keep pragma matching linear.
+    for (const [, name, args] of `/*${comment.value}*/`.matchAll(
+      /^(?:[^@\r\n\u2028\u2029]|@(?=\s))*@(\S+)(\s+(?:\S.*)?)?$/gmu,
+    )) {
       const pragma = name.toLowerCase();
       if (pragma !== 'jsximportsource' && pragma !== 'jsxruntime') {
         continue;

@@ -26,6 +26,11 @@ describe('S6747 Stencil opt-out', () => {
   ruleTester.run('S6747 skips files using the Stencil runtime', rule, {
     valid: [
       {
+        code: `/** @ @jsxImportSource @stencil/core */
+export const View = () => <div class="panel" />;`,
+        filename: join(dirname, 'automatic-stencil.tsx'),
+      },
+      {
         code: `/** @jsxImportSource @stencil/core */
 /** @jsxRuntime classic */
 /** @jsxRuntime automatic */
@@ -99,6 +104,18 @@ import { h } from '@stencil/core';`,
       },
     ],
     invalid: [
+      {
+        code: `/** contact@example.org @jsxImportSource @stencil/core */
+export const View = () => <div class="panel" />;`,
+        filename: join(dirname, 'automatic-react.tsx'),
+        errors: 1,
+      },
+      {
+        code: `/** ${'@'.repeat(10_000)} @jsxImportSource @stencil/core */
+export const View = () => <div class="panel" />;`,
+        filename: join(dirname, 'automatic-react.tsx'),
+        errors: 1,
+      },
       {
         code: `/** @jsxImportSource @stencil/core */
 /** @jsxRuntime classic */
