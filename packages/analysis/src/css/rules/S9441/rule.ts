@@ -87,7 +87,7 @@ const ruleImpl: stylelint.RuleBase = (
           message: messages.blocking(value),
           node: display,
           index: start,
-          endIndex: start + display.value.length,
+          endIndex: start + value.length,
         });
       }
     });
@@ -170,7 +170,8 @@ function toMatchers(patterns: string[] | undefined): Array<(name: string) => boo
   return (patterns ?? []).map((pattern: string): ((name: string) => boolean) => {
     const groups = REGEX_PATTERN.exec(pattern)?.groups;
     if (groups) {
-      const regex = new RegExp(groups.source, groups.flags);
+      // stateful flags would make `test()` depend on the previous call
+      const regex = new RegExp(groups.source, groups.flags.replaceAll(/[gy]/g, ''));
       return (name: string): boolean => regex.test(name);
     }
     const expected = pattern.toLowerCase();

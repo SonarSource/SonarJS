@@ -23,7 +23,7 @@ const MISSING = `${messages.missing}${SUFFIX}`;
 const BLOCKING = (value: string): string => `${messages.blocking(value)}${SUFFIX}`;
 
 function fontFace(...descriptors: string[]): string {
-  return ['@font-face {', ...descriptors.map(d => `  ${d}`), '}'].join('\n');
+  return ['@font-face {', ...descriptors.map((d: string): string => `  ${d}`), '}'].join('\n');
 }
 
 const FAMILY = 'font-family: "BodyText";';
@@ -276,6 +276,12 @@ describe('S9441', () => {
         ],
       }));
 
+    it('should not include trailing comments in the highlighted value', () =>
+      ruleTester.invalid({
+        code: fontFace(FAMILY, URL_SRC, 'font-display: block /* intended */;'),
+        errors: [{ text: BLOCKING('block'), line: 4, column: 17, endLine: 4, endColumn: 22 }],
+      }));
+
     it('should report block in embedded styles', () =>
       ruleTester.invalid({
         codeFilename: 'test.html',
@@ -303,6 +309,19 @@ describe('S9441', () => {
     it('should ignore families matching a regular expression', async () => {
       await ignoring.valid({ code: fontFace('font-family: "Material Icons";', URL_SRC) });
       await ignoring.valid({ code: fontFace('font-family: materialsymbols;', URL_SRC) });
+    });
+
+    it('should not depend on the previous match for regular expressions with the global flag', async () => {
+      const global = new StylelintRuleTester(rule.ruleName, [
+        true,
+        { ignoreFontFamilies: ['/Icons/g'] },
+      ]);
+      await global.valid({
+        code: [
+          fontFace('font-family: "Icons One";', URL_SRC),
+          fontFace('font-family: "Icons Two";', URL_SRC),
+        ].join('\n'),
+      });
     });
 
     it('should keep reporting other families', async () => {
