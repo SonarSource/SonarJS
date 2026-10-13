@@ -79,6 +79,17 @@ describe('S9441', () => {
         ].join('\n'),
       }));
 
+    it('should accept descriptors written in any letter case or marked as important', () =>
+      ruleTester.valid({
+        code: [
+          fontFace(FAMILY, 'SRC: URL("body.woff2");', 'FONT-DISPLAY: swap;'),
+          fontFace(FAMILY, URL_SRC, 'font-display: swap !important;'),
+        ].join('\n'),
+      }));
+
+    it('should not report an @font-face without a block', () =>
+      ruleTester.valid({ code: '@font-face;' }));
+
     it('should use the last font-display declaration', () =>
       ruleTester.valid({
         code: fontFace(FAMILY, URL_SRC, 'font-display: block;', 'font-display: swap;'),
@@ -243,6 +254,12 @@ describe('S9441', () => {
         errors: [{ text: BLOCKING('auto'), line: 4, column: 17, endLine: 4, endColumn: 21 }],
       }));
 
+    it('should report important declarations on their value', () =>
+      ruleTester.invalid({
+        code: fontFace(FAMILY, URL_SRC, 'font-display: block !important;'),
+        errors: [{ text: BLOCKING('block'), line: 4, column: 17, endLine: 4, endColumn: 22 }],
+      }));
+
     it('should report values in any letter case', () =>
       ruleTester.invalid({
         code: fontFace(FAMILY, URL_SRC, 'Font-Display: BLOCK;'),
@@ -321,6 +338,18 @@ describe('S9441', () => {
           fontFace('font-family: "Icons One";', URL_SRC),
           fontFace('font-family: "Icons Two";', URL_SRC),
         ].join('\n'),
+      });
+    });
+
+    it('should compare invalid regular expressions as plain strings', async () => {
+      const invalid = new StylelintRuleTester(rule.ruleName, [
+        true,
+        { ignoreFontFamilies: ['/(/', '/Icons/zz'] },
+      ]);
+      await invalid.valid({ code: fontFace('font-family: "/(/";', URL_SRC) });
+      await invalid.invalid({
+        code: fontFace('font-family: "Icons";', URL_SRC),
+        errors: [{ text: MISSING, line: 1 }],
       });
     });
 

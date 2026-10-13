@@ -169,14 +169,26 @@ function unquote(value: string): string {
 function toMatchers(patterns: string[] | undefined): Array<(name: string) => boolean> {
   return (patterns ?? []).map((pattern: string): ((name: string) => boolean) => {
     const groups = REGEX_PATTERN.exec(pattern)?.groups;
-    if (groups) {
-      // stateful flags would make `test()` depend on the previous call
-      const regex = new RegExp(groups.source, groups.flags.replaceAll(/[gy]/g, ''));
+    const regex = groups ? toRegExp(groups.source, groups.flags) : undefined;
+    if (regex) {
       return (name: string): boolean => regex.test(name);
     }
     const expected = pattern.toLowerCase();
     return (name: string): boolean => name.toLowerCase() === expected;
   });
+}
+
+/**
+ * Returns `undefined` for patterns that are not valid regular expressions, which are then compared
+ * as plain strings instead of failing the analysis of every file.
+ */
+function toRegExp(source: string, flags: string): RegExp | undefined {
+  try {
+    // stateful flags would make `test()` depend on the previous call
+    return new RegExp(source, flags.replaceAll(/[gy]/g, ''));
+  } catch {
+    return undefined;
+  }
 }
 
 export const rule = stylelint.createPlugin(
