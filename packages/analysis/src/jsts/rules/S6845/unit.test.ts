@@ -101,10 +101,18 @@ describe('S6845', () => {
         { code: `<div tabIndex={disabled ? null : -1} />` },
         { code: `<div tabIndex={disabled ? null : nested ? -1 : -2} />` },
         { code: `<div tabIndex={disabled ? nested ? -1 : -2 : null} />` },
-        { code: `<div {...props} tabIndex={disabled ? null : -1} />` },
+        { code: `<div id="title" tabIndex={disabled ? null : -1} />` },
         { code: `<div tabIndex={disabled ? null : -1} id="title" />` },
       ],
       invalid: [
+        {
+          code: `const props = { tabindex: 0 }; <div {...props} tabIndex={disabled ? null : -1} />`,
+          errors: 1,
+        },
+        {
+          code: `<div {...props} tabIndex={disabled ? null : -1} />`,
+          errors: 1,
+        },
         {
           code: `<div tabIndex={disabled ? 0 : null} />`,
           errors: 1,

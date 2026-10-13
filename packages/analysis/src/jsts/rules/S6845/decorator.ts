@@ -51,28 +51,28 @@ function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDesc
     node.name.name === 'tabIndex' &&
     node.value?.type === 'JSXExpressionContainer' &&
     node.value.expression.type === 'ConditionalExpression' &&
-    isFinalTabIndexAttribute(node) &&
+    hasNoTabIndexOverrides(node) &&
     hasOnlyNonSequentialTabIndexBranches(node.value.expression)
   );
 }
 
-function isFinalTabIndexAttribute(node: TSESTree.JSXAttribute): boolean {
+function hasNoTabIndexOverrides(node: TSESTree.JSXAttribute): boolean {
   const parent = node.parent;
   if (parent?.type !== 'JSXOpeningElement') {
     return false;
   }
 
   const index = parent.attributes.indexOf(node);
+  // Spreads can add a differently cased DOM attribute, even before tabIndex.
   return (
     index !== -1 &&
-    !parent.attributes
-      .slice(index + 1)
-      .some(
-        attribute =>
-          attribute.type === 'JSXSpreadAttribute' ||
-          (attribute.name.type === 'JSXIdentifier' &&
-            attribute.name.name.toLowerCase() === 'tabindex'),
-      )
+    !parent.attributes.some(
+      (attribute, attributeIndex) =>
+        attribute.type === 'JSXSpreadAttribute' ||
+        (attributeIndex > index &&
+          attribute.name.type === 'JSXIdentifier' &&
+          attribute.name.name.toLowerCase() === 'tabindex'),
+    )
   );
 }
 
