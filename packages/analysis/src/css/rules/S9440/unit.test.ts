@@ -66,7 +66,102 @@ async function invalid(sample: Sample, configuration: unknown[] = []): Promise<v
 }
 
 describe('S9440 spatial motion and reduced-motion safeguards', (): void => {
+  const quotedNoneFrames = `@keyframes "none" {
+    from { transform: translateX(1rem); }
+    to { transform: none; }
+  }`;
   const invalidSamples: Sample[] = [
+    {
+      name: 'quoted none is an animation name in shorthand',
+      code: `.panel { animation: "none" 1s; }\n${quotedNoneFrames}`,
+      target: 'animation: "none" 1s',
+    },
+    {
+      name: 'quoted none is an animation name in longhand',
+      code: `.panel { animation-name: "none"; animation-duration: 1s; }\n${quotedNoneFrames}`,
+      target: 'animation-duration: 1s',
+    },
+    {
+      name: 'none can be a fill mode alongside a quoted animation name',
+      code: `.panel { animation: none "none" 1s; }\n${quotedNoneFrames}`,
+      target: 'animation: none "none" 1s',
+    },
+    {
+      name: 'disabled animation does not suppress another list item',
+      code: `.panel { animation-name: none, "none"; animation-duration: 1s; }\n${quotedNoneFrames}`,
+      target: 'animation-duration: 1s',
+    },
+    {
+      name: 'quoted CSS-wide keyword is an animation name',
+      code: `.panel { animation: "initial" 1s; }\n${frames.replace('move', '"initial"')}`,
+      target: 'animation: "initial" 1s',
+    },
+    {
+      name: 'quoted empty string is an animation name',
+      code: `.panel { animation: "" 1s; }\n${frames.replace('move', '""')}`,
+      target: 'animation: "" 1s',
+    },
+    {
+      name: 'equivalent offsets retain a genuine intermediate movement',
+      code: `.panel { animation: move 1s; }
+@keyframes move {
+  from { transform: none; }
+  50%, 100% { transform: translateX(1rem); }
+  100.0% { transform: none; }
+}`,
+      target: 'animation: move 1s',
+    },
+    {
+      name: 'initial transform can animate to a non-identity value',
+      code: `.panel { animation: move 1s; }
+@keyframes move {
+  from { transform: initial; }
+  to { transform: translateX(1rem); }
+}`,
+      target: 'animation: move 1s',
+    },
+    {
+      name: 'transform aliases retain different values',
+      code: `.panel { animation: move 1s; }
+@keyframes move {
+  from { transform: translateX(1rem); }
+  to { transform: translate(2rem, 0); }
+}`,
+      target: 'animation: move 1s',
+    },
+    {
+      name: 'rotateZ full rotation remains motion',
+      code: `.panel { animation: move 1s; }
+@keyframes move {
+  from { transform: rotate(0deg); }
+  to { transform: rotateZ(360deg); }
+}`,
+      target: 'animation: move 1s',
+    },
+    {
+      name: 'different matrices establish spatial motion',
+      code: `.panel { animation: move 1s; }
+@keyframes move {
+  from { transform: matrix(1, 0, 0, 1, 10, 0); }
+  to { transform: matrix(1, 0, 0, 1, 20, 0); }
+}`,
+      target: 'animation: move 1s',
+    },
+    {
+      name: 'different matrix3d values establish spatial motion',
+      code: `.panel { animation: move 1s; }
+@keyframes move {
+  from { transform: matrix3d(.1, 0, 0, 0, 0, .1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); }
+  to { transform: matrix3d(.4, 0, 0, 0, 0, .4, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1); }
+}`,
+      target: 'animation: move 1s',
+    },
+    {
+      name: 'non-identity matrix transition establishes spatial motion',
+      code: `.panel { transition: transform 1s; }
+.panel:hover { transform: matrix(1, 0, 0, 1, 10, 0); }`,
+      target: 'transition: transform 1s',
+    },
     {
       name: 'ID selector spatial animation',
       code: `#main { ${animation}; }\n${frames}`,
@@ -313,6 +408,78 @@ describe('S9440 spatial motion and reduced-motion safeguards', (): void => {
   }
 
   const validSamples: Array<{ name: string; code: string; filename?: string }> = [
+    ...[
+      'animation: none 1s',
+      'animation: NONE 1s',
+      'animation: 1s',
+      'animation-name: none; animation-duration: 1s',
+      'animation-duration: 1s',
+      'animation: "none" 1s; animation-name: none',
+    ].map((declaration: string): { name: string; code: string } => ({
+      name: `disabled animation does not resolve quoted none: ${declaration}`,
+      code: `.panel { ${declaration}; }\n${quotedNoneFrames}`,
+    })),
+    {
+      name: 'numeric end offset overrides an equivalent spelling',
+      code: `.panel { animation: move 1s; }
+@keyframes move {
+  from { transform: translateX(1rem); }
+  100% { transform: none; }
+  100.0% { transform: translateX(1rem); }
+}`,
+    },
+    {
+      name: 'disabled animation does not resolve a quoted empty name',
+      code: `.panel { animation: none 1s; }\n${frames.replace('move', '""')}`,
+    },
+    {
+      name: 'numeric start offset overrides from',
+      code: `.panel { animation: move 1s; }
+@keyframes move {
+  from { transform: translateX(1rem); }
+  0.0% { transform: none; }
+  to { transform: none; }
+}`,
+    },
+    {
+      name: 'offset aliases preserve property values from earlier blocks',
+      code: `.panel { animation: move 1s; }
+@keyframes move {
+  from { transform: none; }
+  100% { transform: none; }
+  1e2% { opacity: 1; }
+}`,
+    },
+    {
+      name: 'numeric offsets support signs and exponent notation',
+      code: `.panel { animation: move 1s; }
+@keyframes move {
+  -0% { transform: translateX(1rem); }
+  +0.0% { transform: none; }
+  1e2% { transform: none; }
+}`,
+    },
+    {
+      name: 'inherited keyframe transform is unresolved',
+      code: `.panel { animation: move 1s; }
+@keyframes move {
+  from { transform: inherit; }
+  to { transform: none; }
+}`,
+    },
+    {
+      name: 'reverted transition transform is unresolved',
+      code: `.panel { transform: revert-layer; transition: transform 1s; }
+.panel:hover { transform: translateX(1rem); }`,
+    },
+    {
+      name: 'non-identity matrix equivalence is unresolved',
+      code: `.panel { animation: move 1s; }
+@keyframes move {
+  from { transform: matrix(1, 0, 0, 1, 10, 0); }
+  to { transform: translateX(10px); }
+}`,
+    },
     {
       name: 'zero percent transform is identity',
       code: '.panel { animation: move 1s; }\n@keyframes move { from { transform: translateY(0%); } to { transform: none; } }',
@@ -564,6 +731,36 @@ describe('S9440 spatial motion and reduced-motion safeguards', (): void => {
     it(sample.name, (): Promise<void> =>
       tester.valid({ code: sample.code, codeFilename: sample.filename }),
     );
+  }
+
+  const equivalentTransforms: Array<[string, string]> = [
+    ['initial', 'none'],
+    ['unset', 'none'],
+    ['translateX(1rem)', 'translate(1rem, 0)'],
+    ['translateY(1rem)', 'translate(0, 1rem)'],
+    ['translate(1rem)', 'translate(1rem, 0)'],
+    ['scaleX(2)', 'scale(2, 1)'],
+    ['scaleY(2)', 'scale(1, 2)'],
+    ['scale(2)', 'scale(2, 2)'],
+    ['rotateZ(45deg)', 'rotate(45deg)'],
+    ['skewX(15deg)', 'skew(15deg, 0)'],
+    ['skewY(15deg)', 'skew(0, 15deg)'],
+    ['skew(15deg)', 'skew(15deg, 0)'],
+  ];
+  for (const [before, after] of equivalentTransforms) {
+    it(`constant keyframes: ${before} and ${after}`, (): Promise<void> =>
+      tester.valid({
+        code: `.panel { animation: move 1s; }
+@keyframes move {
+  from { transform: ${before}; }
+  to { transform: ${after}; }
+}`,
+      }));
+    it(`constant transition: ${before} and ${after}`, (): Promise<void> =>
+      tester.valid({
+        code: `.panel { transform: ${before}; transition: transform 1s; }
+.panel:hover { transform: ${after}; }`,
+      }));
   }
 
   it('accepts a verified exact selector exception', (): Promise<void> =>

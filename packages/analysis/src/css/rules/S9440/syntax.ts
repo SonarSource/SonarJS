@@ -69,6 +69,7 @@ const animationWords = new Set([
   'forwards',
   'backwards',
   'both',
+  'none',
   'running',
   'paused',
   'infinite',
@@ -123,11 +124,52 @@ function identityFunction(name: string, args: string[]): boolean {
   return (name === 'matrix' || name === 'matrix3d') && args.join(',') === identity;
 }
 
-export function normalizedSpatial(property: string, value: string): string {
+function normalizedTransform(name: string, args: string[]): string | undefined {
+  if (identityFunction(name, args)) {
+    return '';
+  }
+  switch (name) {
+    case 'translatex':
+      return `translate(${args[0]},0)`;
+    case 'translatey':
+      return `translate(0,${args[0]})`;
+    case 'translate':
+      return `translate(${args[0]},${args[1] ?? '0'})`;
+    case 'scalex':
+      return `scale(${args[0]},1)`;
+    case 'scaley':
+      return `scale(1,${args[0]})`;
+    case 'scale':
+      return `scale(${args[0]},${args[1] ?? args[0]})`;
+    case 'rotatez':
+      return `rotate(${args.join(',')})`;
+    case 'skewx':
+      return `skew(${args[0]},0)`;
+    case 'skewy':
+      return `skew(0,${args[0]})`;
+    case 'skew':
+      return `skew(${args[0]},${args[1] ?? '0'})`;
+    case 'rotate':
+    case 'rotatex':
+    case 'rotatey':
+    case 'translatez':
+    case 'translate3d':
+    case 'scalez':
+    case 'scale3d':
+    case 'matrix':
+    case 'matrix3d':
+      return `${name}(${args.join(',')})`;
+    default:
+      // Other functions need a computed transform evaluation.
+      return undefined;
+  }
+}
+
+export function normalizedSpatial(property: string, value: string): string | undefined {
   const nodes = valueParser(value).nodes.filter(
     (node: valueParser.Node): boolean => node.type !== 'space' && node.type !== 'comment',
   );
-  const parts = nodes.map((node: valueParser.Node): string => {
+  const parts = nodes.map((node: valueParser.Node): string | undefined => {
     if (node.type !== 'function') {
       return normalizedWord(node.value);
     }
@@ -135,13 +177,19 @@ export function normalizedSpatial(property: string, value: string): string {
     const args = node.nodes
       .filter((arg: valueParser.Node): boolean => arg.type === 'word')
       .map((arg: valueParser.Node): string => normalizedWord(arg.value));
-    return identityFunction(name, args) ? '' : `${name}(${args.join(',')})`;
+    return normalizedTransform(name, args);
   });
-  const normalized = parts.filter(Boolean).join(' ');
-  if (!transformProperties.has(property)) {
-    return normalized;
+  if (parts.includes(undefined)) {
+    return undefined;
   }
-  if (!normalized || normalized === 'none') {
+  const normalized = parts.filter(Boolean).join(' ');
+  if (/^(inherit|revert|revert-layer|auto)$/.test(normalized)) {
+    return undefined;
+  }
+  if (!transformProperties.has(property)) {
+    return /^(initial|unset)$/.test(normalized) ? undefined : normalized;
+  }
+  if (!normalized || /^(none|initial|unset)$/.test(normalized)) {
     return 'identity';
   }
   const words = normalized.split(/\s+/);
@@ -153,6 +201,24 @@ export function normalizedSpatial(property: string, value: string): string {
     return 'identity';
   }
   return normalized;
+}
+
+export function spatialChanges(values: Iterable<string>): boolean {
+  const known = new Set(values);
+  if (known.size < 2) {
+    return false;
+  }
+  if ([...known].some((value: string): boolean => /\bmatrix(?:3d)?\(/.test(value))) {
+    // Different matrices establish motion, but comparing a matrix with another
+    // representation requires evaluation. Identity is equivalent in either form.
+    const representations = new Set(
+      [...known]
+        .filter((value: string): boolean => value !== 'identity')
+        .map((value: string): string => value.replace(/\([^()]*\)/g, '()')),
+    );
+    return representations.size === 1;
+  }
+  return true;
 }
 
 /** Split only top-level commas: commas in steps(), strings, and functions stay intact. */
@@ -188,13 +254,13 @@ type ParsedShorthand = {
   valid: boolean;
 };
 
-function consumeName(parsed: ParsedShorthand, name: string): void {
+function consumeName(parsed: ParsedShorthand, name: string, quoted: boolean = false): void {
   if (parsed.name !== undefined) {
     parsed.valid = false;
     return;
   }
   parsed.name = name;
-  parsed.valid &&= !cssWide.test(name) && !name.startsWith('--');
+  parsed.valid &&= quoted || (!cssWide.test(name) && !name.startsWith('--'));
 }
 
 function consumeWord(parsed: ParsedShorthand, text: string, animation: boolean): void {
@@ -241,7 +307,7 @@ function parseShorthand(value: string, animation: boolean): ParsedShorthand {
         parsed.valid &&= ['steps', 'cubic-bezier', 'linear'].includes(token.value.toLowerCase());
         break;
       case 'string':
-        consumeName(parsed, token.value);
+        consumeName(parsed, token.value, true);
         break;
       case 'word':
         consumeWord(parsed, token.value, animation);
@@ -258,8 +324,14 @@ function shorthand(value: string, animation: boolean): Values {
     parseShorthand(item, animation),
   );
   const valid = parsed.every((item: ParsedShorthand): boolean => item.valid);
-  const defaultName = animation ? 'none' : 'all';
-  const names = parsed.map((item: ParsedShorthand): string => item.name ?? defaultName);
+  // An empty name represents the disabling keyword, distinct from the string "none".
+  const defaultName = animation ? '' : 'all';
+  const names = parsed.map((item: ParsedShorthand): string => {
+    if (item.name === undefined) {
+      return defaultName;
+    }
+    return animation ? JSON.stringify(item.name) : item.name;
+  });
   const durations = parsed.map((item: ParsedShorthand): string => item.duration);
   if (!animation) {
     return {
@@ -282,7 +354,7 @@ export function motionValues(declaration: PostCSS.Declaration): Values {
     case 'all': {
       const reset = /^(initial|unset)$/i.test(value.trim());
       return {
-        names: reset ? ['none'] : undefined,
+        names: reset ? [''] : undefined,
         animationDurations: reset ? ['0s'] : undefined,
         iterations: reset ? ['1'] : undefined,
         playStates: reset ? ['running'] : undefined,
@@ -300,9 +372,13 @@ export function motionValues(declaration: PostCSS.Declaration): Values {
       return {
         names: nodes?.map((item: string): string => {
           const parsed = valueParser(item).nodes;
-          return parsed.length === 1 && ['word', 'string'].includes(parsed[0].type)
-            ? parsed[0].value
-            : '';
+          if (parsed.length !== 1 || !['word', 'string'].includes(parsed[0].type)) {
+            return '';
+          }
+          const token = parsed[0];
+          return token.type === 'word' && token.value.toLowerCase() === 'none'
+            ? ''
+            : JSON.stringify(token.value);
         }),
       };
     }

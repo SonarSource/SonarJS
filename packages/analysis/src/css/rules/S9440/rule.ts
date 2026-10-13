@@ -29,6 +29,7 @@ import {
   spatialProperties,
   transformProperties,
   normalizedSpatial,
+  spatialChanges,
   type Component,
   type MotionContext,
 } from './syntax.js';
@@ -36,7 +37,7 @@ import {
 const ruleName = 'sonar/motion-reduced';
 const keyframesName = /^(-webkit-)?keyframes$/i;
 const initial: Record<Component, string[]> = {
-  names: ['none'],
+  names: [''],
   animationDurations: ['0s'],
   iterations: ['1'],
   playStates: ['running'],
@@ -101,34 +102,40 @@ function keyframes(root: PostCSS.Root): Map<string, boolean | undefined> {
   const frames = new Map<string, boolean | undefined>();
   const ambiguous = new Set<string>();
   root.walkAtRules(keyframesName, (frame: PostCSS.AtRule): void => {
-    const name = frame.params.replace(/^(['"])(.*)\1$/, '$2');
+    const name = JSON.stringify(frame.params.replace(/^(['"])(.*)\1$/, '$2'));
     if (frame.parent?.type !== 'root' || !isLiteral(name)) {
       ambiguous.add(name);
       return;
     }
-    const properties = new Map<string, Map<string, string>>();
+    const properties = new Map<string, Map<number, string>>();
     let unresolved = false;
     frame.walkDecls((declaration: PostCSS.Declaration): void => {
       const property = declaration.prop.toLowerCase().replace(/^-webkit-/, '');
       if (!spatialProperties.has(property) || declaration.important) {
         return;
       }
-      if (!isLiteral(declaration.value)) {
+      const normalized = normalizedSpatial(property, declaration.value);
+      if (!isLiteral(declaration.value) || normalized === undefined) {
         unresolved = true;
+        return;
       }
-      const known = properties.get(property) ?? new Map<string, string>();
+      const known = properties.get(property) ?? new Map<number, string>();
       if (declaration.parent?.type !== 'rule') {
         unresolved = true;
         return;
       }
       for (const step of declaration.parent.selector.split(',')) {
-        known.set(
-          step
-            .trim()
-            .replace(/^from$/i, '0%')
-            .replace(/^to$/i, '100%'),
-          normalizedSpatial(property, declaration.value),
-        );
+        const selector = step
+          .trim()
+          .replace(/^from$/i, '0%')
+          .replace(/^to$/i, '100%');
+        if (!/^[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?%$/i.test(selector)) {
+          continue;
+        }
+        const offset = Number(selector.slice(0, -1));
+        if (offset >= 0 && offset <= 100) {
+          known.set(offset, normalized);
+        }
       }
       properties.set(property, known);
     });
@@ -136,9 +143,8 @@ function keyframes(root: PostCSS.Root): Map<string, boolean | undefined> {
       name,
       unresolved
         ? undefined
-        : [...properties.values()].some(
-            (propertyValues: Map<string, string>): boolean =>
-              new Set(propertyValues.values()).size > 1,
+        : [...properties.values()].some((propertyValues: Map<number, string>): boolean =>
+            spatialChanges(propertyValues.values()),
           ),
     );
   });
@@ -255,14 +261,17 @@ function transitionChanges(group: Group, property: string, groups: GroupIndex): 
     if (effective) {
       hasInteractiveTarget ||= other.selector !== base;
       hasExplicitBase ||= other.selector === base;
-      unresolved ||= !isLiteral(effective.value);
-      found.add(normalizedSpatial(property, effective.value));
+      const normalized = normalizedSpatial(property, effective.value);
+      unresolved ||= !isLiteral(effective.value) || normalized === undefined;
+      if (normalized !== undefined) {
+        found.add(normalized);
+      }
     }
   }
   if (transformProperties.has(property) && hasInteractiveTarget && !hasExplicitBase) {
     found.add('identity');
   }
-  return !unresolved && found.size > 1;
+  return !unresolved && spatialChanges(found);
 }
 
 function motionDeclarations(
