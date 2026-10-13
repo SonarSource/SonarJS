@@ -51,7 +51,28 @@ function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDesc
     node.name.name === 'tabIndex' &&
     node.value?.type === 'JSXExpressionContainer' &&
     node.value.expression.type === 'ConditionalExpression' &&
+    isFinalTabIndexAttribute(node) &&
     hasOnlyNonSequentialTabIndexBranches(node.value.expression)
+  );
+}
+
+function isFinalTabIndexAttribute(node: TSESTree.JSXAttribute): boolean {
+  const parent = node.parent;
+  if (parent?.type !== 'JSXOpeningElement') {
+    return false;
+  }
+
+  const index = parent.attributes.indexOf(node);
+  return (
+    index !== -1 &&
+    !parent.attributes
+      .slice(index + 1)
+      .some(
+        attribute =>
+          attribute.type === 'JSXSpreadAttribute' ||
+          (attribute.name.type === 'JSXIdentifier' &&
+            attribute.name.name.toLowerCase() === 'tabindex'),
+      )
   );
 }
 
