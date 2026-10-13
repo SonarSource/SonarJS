@@ -99,6 +99,33 @@ function retainedAliasCase(
 describe('S7653', () => {
   const ruleTester = new NoTypeCheckingRuleTester();
 
+  it('handles static quoted outputs metadata keys', () => {
+    const cases = ['Component', 'Directive'].flatMap(decorator =>
+      ["'outputs'", '\"outputs\"', "['outputs']"].map(key => {
+        const code = (member: string, alias: string) =>
+          outputCode('metadata', member, alias)
+            .replace('@Component(', `@${decorator}(`)
+            .replace('outputs:', `${key}:`);
+
+        return {
+          valid: { code: code('change', 'valueChanged') },
+          invalid: { code: code('valueChange', 'updated'), errors: 1 },
+        };
+      }),
+    );
+    ruleTester.run('S7653', rule, {
+      valid: cases.map(test => test.valid),
+      invalid: cases.map(test => test.invalid),
+    });
+    ruleTester.run('no-output-rename', upstreamRule, {
+      valid: [],
+      invalid: [
+        ...cases.map(test => ({ ...test.valid, errors: 1 })),
+        ...cases.map(test => test.invalid),
+      ],
+    });
+  });
+
   it('allows exact native member names and retains other aliases across all output APIs', () => {
     const collisionCases = apis.flatMap(api =>
       ["'", '"', '`'].flatMap(quote =>

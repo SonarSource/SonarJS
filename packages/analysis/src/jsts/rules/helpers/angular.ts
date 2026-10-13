@@ -167,7 +167,7 @@ function outputMetadataDecorator(node: TSESTree.Node): TSESTree.Decorator | unde
   return array?.type === 'ArrayExpression' &&
     outputs?.type === 'Property' &&
     outputs.value === array &&
-    propertyName(outputs) === 'outputs' &&
+    (propertyName(outputs) ?? staticText(outputs.key)) === 'outputs' &&
     metadata?.type === 'ObjectExpression' &&
     componentCall?.type === 'CallExpression' &&
     componentCall.arguments[0] === metadata &&
