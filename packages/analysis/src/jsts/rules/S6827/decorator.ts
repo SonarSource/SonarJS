@@ -54,6 +54,12 @@ function spreadMightHaveAccessibleContent(
   return ACCESSIBLE_PROPS.some(prop => getProperty(resolvedObject, prop, context) !== null);
 }
 
+/**
+ * Upstream commit e6bfd5cb7c adds support for title and aria-label. Once that fix
+ * is included in our eslint-plugin-jsx-a11y dependency, remove the corresponding
+ * hasAnyProp guard below. The spread-attribute and Base UI/shadcn render-content
+ * adaptations still require this decorator until upstream supports those cases.
+ */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
@@ -74,7 +80,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }
 
       if (
-        hasAnyProp(node.attributes, ['title', 'aria-label']) ||
+        hasAnyProp(node.attributes, ACCESSIBLE_PROPS) ||
         hasRenderContent(node as TSESTree.JSXOpeningElement, context)
       ) {
         return;
