@@ -181,7 +181,10 @@ function hasCurrentValue(
   if (evaluated === null) {
     return !isDefinitelyNonNumeric(context, expression);
   }
-  const value = evaluated.value;
+  return isNumericCurrentValue(evaluated.value);
+}
+
+function isNumericCurrentValue(value: unknown): boolean {
   return (
     (typeof value === 'number' && Number.isFinite(value)) ||
     (typeof value === 'string' && ARIA_NUMBER.test(value) && Number.isFinite(Number(value)))
@@ -271,6 +274,11 @@ function isDefinitelyNonNumeric(context: Rule.RuleContext, expression: TSESTree.
       break;
     }
     resolved = unwrapTypeScriptExpression(value);
+  }
+  const scope = context.sourceCode.getScope(resolved as Node) as unknown as TSESLint.Scope.Scope;
+  const evaluated = ASTUtils.getStaticValue(resolved, scope);
+  if (evaluated !== null) {
+    return !isNumericCurrentValue(evaluated.value);
   }
   switch (resolved.type) {
     case 'ObjectExpression':

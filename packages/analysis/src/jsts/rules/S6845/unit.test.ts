@@ -48,6 +48,10 @@ const valid = [
   '<div role="separator" aria-valuenow={50} />',
   '<div role="separator" aria-valuenow={50} tabIndex={0} aria-orientation="vertical" />',
   'const position = 25; <div role="separator" aria-valuenow={position} tabIndex={0} />',
+  ...['25', '"12.5"', 'Math.round(current)', 'layout.position'].map(
+    value =>
+      `let position; position = ${value}; <div role="separator" aria-valuenow={position} tabIndex={0} />`,
+  ),
   'const layout = { position: 50, min: 0 }; const { position } = layout; <div role="separator" aria-valuenow={position} tabIndex={0} />',
   'const [position] = [50]; <div role="separator" aria-valuenow={position} tabIndex={0} />',
   'const { position } = readLayout(); const current = position; <div role="separator" aria-valuenow={current} tabIndex={0} />',
@@ -88,6 +92,10 @@ const invalid = [
   'const position = null; <div role="separator" aria-valuenow={position} tabIndex={0} />',
   'const position = undefined; <div role="separator" aria-valuenow={position} tabIndex={0} />',
   'const position = "half"; <div role="separator" aria-valuenow={position} tabIndex={0} />',
+  ...['null', 'undefined', '"half"', '1 / 0'].map(
+    value =>
+      `let position; position = ${value}; <div role="separator" aria-valuenow={position} tabIndex={0} />`,
+  ),
   'const current = { position }; <div role="separator" aria-valuenow={current} tabIndex={0} />',
   'const current = [position]; <div role="separator" aria-valuenow={current} tabIndex={0} />',
   '<div role="presentation separator" aria-valuenow={50} tabIndex={0} />',
