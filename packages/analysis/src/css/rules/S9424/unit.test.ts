@@ -132,6 +132,28 @@ describe('S9424 (sonar/declaration-property-value-no-unknown)', () => {
       ],
     }));
 
+  it('reports an invalid math expression inside min(), max() and clamp()', () =>
+    ruleTester.invalid({
+      code: `a {
+  width: min(100% + 10, 200px);
+  width: max(10px, calc(100% + 10));
+  width: clamp(100px, 100% + 10, 200px);
+}`,
+      errors: [
+        { text: `Invalid math expression "100% + 10" for property "width" (${RULE})`, line: 2 },
+        { text: `Invalid math expression "100% + 10" for property "width" (${RULE})`, line: 3 },
+        { text: `Invalid math expression "100% + 10" for property "width" (${RULE})`, line: 4 },
+      ],
+    }));
+
+  it('does not check math expressions next to var() or unknown functions', () =>
+    ruleTester.valid({
+      code: `a {
+  width: min(100% + 10, var(--max));
+  width: clamp(100px, 100% + 10, theme('max'));
+}`,
+    }));
+
   it('reports a standard function called with invalid arguments', () =>
     ruleTester.invalid({
       code: 'a { color: rgb(1 2); }',
@@ -193,6 +215,57 @@ a { --gap: red; }`,
 a { --gap: 1rem; }`,
     }));
 
+  it('accepts CSS-wide keywords for a registered custom property', () =>
+    ruleTester.valid({
+      code: `@property --gap {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+a { --gap: inherit; }
+b { --gap: initial; }
+i { --gap: unset; }
+p { --gap: revert; }
+q { --gap: REVERT-LAYER; }`,
+    }));
+
+  it('checks a registered custom property against its last valid registration', async () => {
+    const restricted = `@property --gap {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}`;
+    const universal = `@property --gap {
+  syntax: "*";
+  inherits: false;
+}`;
+    const use = 'a { --gap: red; }';
+    await ruleTester.valid({ code: `${restricted}\n${universal}\n${use}` });
+    await ruleTester.invalid({
+      code: `${universal}\n${restricted}\n${use}`,
+      errors: [{ text: `Unknown value "red" for property "--gap" (${RULE})`, line: 10 }],
+    });
+  });
+
+  it('ignores invalid custom property registrations', async () => {
+    const registrations = [
+      '@property --gap { syntax: "<length>"; initial-value: 0px; }',
+      '@property --gap { syntax: "<length>"; inherits: false; }',
+      '@property --gap { syntax: "<length>"; inherits: false; initial-value: red; }',
+      '@property --gap { syntax: <length>; inherits: false; initial-value: 0px; }',
+      '@property --gap { inherits: false; initial-value: 0px; }',
+    ];
+    for (const registration of registrations) {
+      await ruleTester.valid({ code: `${registration}\na { --gap: red; }` });
+    }
+    await ruleTester.invalid({
+      code: `@property --gap { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --gap { syntax: "*"; initial-value: red; }
+a { --gap: red; }`,
+      errors: [{ text: `Unknown value "red" for property "--gap" (${RULE})`, line: 3 }],
+    });
+  });
+
   it('ignores unregistered custom properties and values using var()', () =>
     ruleTester.valid({ code: 'a { --anything: red; top: var(--anything); }' }));
 
@@ -213,7 +286,24 @@ a { --gap: 1rem; }`,
   filter: alpha(opacity=50);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#80000000', endColorstr='#80000000');
   -ms-filter: none;
+  filter: FlipH;
+  filter: FlipV;
+  filter: fliph flipv gray;
 }`,
+    }));
+
+  it('ignores unitless numbers for -webkit-perspective', () =>
+    ruleTester.valid({
+      code: 'a { -webkit-perspective: 2000; -webkit-perspective: 0; -webkit-perspective: 12.5; }',
+    }));
+
+  it('reports unitless numbers for the unprefixed perspective', () =>
+    ruleTester.invalid({
+      code: 'a { perspective: 2000; -webkit-perspective: -10; }',
+      errors: [
+        { text: `Unknown value "2000" for property "perspective" (${RULE})`, column: 18 },
+        { text: `Unknown value "-10" for property "-webkit-perspective" (${RULE})`, column: 45 },
+      ],
     }));
 
   it('ignores values calling unknown functions', () =>
@@ -336,6 +426,23 @@ a { top: red; }
     ruleTester.invalid({
       code: '@media (min-width: 1px) { a { top: red; } }',
       errors: [{ text: `Unknown value "red" for property "top" (${RULE})` }],
+    }));
+
+  it('reports inside keyframes', () =>
+    ruleTester.invalid({
+      code: `@keyframes move { from { top: red; } to { position: absolut; } }
+@media screen { @-webkit-keyframes move { from { top: red; } } }`,
+      errors: [
+        { text: `Unknown value "red" for property "top" (${RULE})`, line: 1 },
+        { text: `Unknown value "absolut" for property "position" (${RULE})`, line: 1 },
+        { text: `Unknown value "red" for property "top" (${RULE})`, line: 2 },
+      ],
+    }));
+
+  it('ignores the descriptors of @font-face and @property', () =>
+    ruleTester.valid({
+      code: `@font-face { font-display: foo; }
+@property --gap { syntax: "<length>"; inherits: maybe; initial-value: red; }`,
     }));
 
   describe('parts of values that related rules cover', () => {

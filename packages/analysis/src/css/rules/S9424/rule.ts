@@ -92,6 +92,7 @@ const UNCHECKED_NODE_TYPES = new Set(['Hash', 'Dimension']);
 const NESTING_AT_RULES = new Set([
   'apply',
   'container',
+  'keyframes',
   'layer',
   'media',
   'scope',
@@ -99,8 +100,14 @@ const NESTING_AT_RULES = new Set([
   'supports',
 ]);
 
+const CSS_WIDE_KEYWORDS = new Set(['inherit', 'initial', 'revert', 'revert-layer', 'unset']);
+const UNIVERSAL_SYNTAX = '*';
+
 const VENDOR_PREFIX = /^-(?:webkit|moz|ms|o|khtml)-/i;
-const LEGACY_IE_FILTER_VALUE = /^\s*(?:progid:|alpha\()/i;
+const LEGACY_IE_FILTER_FUNCTION = /^\s*(?:progid:|alpha\()/i;
+const LEGACY_IE_FILTER_KEYWORDS = new Set(['fliph', 'flipv', 'gray', 'invert', 'xray']);
+// WebKit reads a unitless `-webkit-perspective` as a length in pixels
+const WEBKIT_UNITLESS_PERSPECTIVE = /^(?:\d+(?:\.\d+)?|\.\d+)$/;
 
 const MAX_CACHE_SIZE = 10000;
 const validValuesByLexer = new WeakMap<Lexer, Set<string>>();
@@ -126,7 +133,7 @@ type Problem = { message: string; range?: Range };
 const ruleImpl: stylelint.RuleBase = () => {
   return (root: PostCSS.Root, result: PostcssResult) => {
     const lexer = result.stylelint.lexer as Lexer;
-    const registeredSyntaxes = collectRegisteredSyntaxes(root);
+    const registeredSyntaxes = collectRegisteredSyntaxes(root, lexer);
     let validValues = validValuesByLexer.get(lexer);
     if (!validValues) {
       validValues = new Set();
@@ -172,7 +179,8 @@ function findProblem(
     // values that are not valid CSS syntax are left to S4652 and S8757
     return undefined;
   }
-  if (hasUnvalidatedPiece(ast, knownFunctionsOf(lexer))) {
+  const knownFunctions = knownFunctionsOf(lexer);
+  if (hasUnvalidatedPiece(ast, knownFunctions, MATH_FUNCTIONS)) {
     return undefined;
   }
 
@@ -180,6 +188,9 @@ function findProblem(
   if (mathError) {
     const expression = value.slice(mathError.start, mathError.end);
     return { message: messages.rejectedMath(decl.prop, expression), range: mathError };
+  }
+  if (hasUnvalidatedPiece(ast, knownFunctions)) {
+    return undefined;
   }
 
   const mismatch = findMismatch(lexer, decl.prop, syntax, ast);
@@ -202,60 +213,119 @@ function findProblem(
 }
 
 /**
- * Maps the custom properties registered with `@property` to their syntax, except those
- * accepting any value.
+ * Maps the custom properties registered with `@property` to their syntax. When a property
+ * is registered several times, the last valid registration wins.
  */
-function collectRegisteredSyntaxes(root: PostCSS.Root): Map<string, string> {
+function collectRegisteredSyntaxes(root: PostCSS.Root, lexer: Lexer): Map<string, string> {
   const syntaxes = new Map<string, string>();
   root.walkAtRules(/^property$/i, (atRule: PostCSS.AtRule) => {
     const name = atRule.params.trim();
-    if (!name.startsWith('--')) {
-      return;
+    const syntax = name.startsWith('--') ? registeredSyntax(atRule, lexer) : undefined;
+    if (syntax !== undefined) {
+      syntaxes.set(name, syntax);
     }
-    atRule.walkDecls(/^syntax$/i, (decl: PostCSS.Declaration) => {
-      const value = decl.value.trim();
-      const syntax = cssString.decode(value);
-      if (syntax !== value && syntax !== '*') {
-        syntaxes.set(name, syntax);
-      }
-    });
   });
   return syntaxes;
+}
+
+/**
+ * The syntax of a valid `@property` registration: browsers ignore a registration without
+ * a `syntax` string or an `inherits` flag, or whose initial value does not match its syntax.
+ */
+function registeredSyntax(atRule: PostCSS.AtRule, lexer: Lexer): string | undefined {
+  const descriptors = new Map<string, string>();
+  atRule.each((node: PostCSS.ChildNode) => {
+    if (node.type === 'decl') {
+      descriptors.set(node.prop.toLowerCase(), node.value.trim());
+    }
+  });
+  const rawSyntax = descriptors.get('syntax') ?? '';
+  const syntax = cssString.decode(rawSyntax);
+  const inherits = descriptors.get('inherits')?.toLowerCase();
+  if (syntax === rawSyntax || (inherits !== 'true' && inherits !== 'false')) {
+    return undefined;
+  }
+  if (syntax.trim() === UNIVERSAL_SYNTAX) {
+    return UNIVERSAL_SYNTAX;
+  }
+  const initialValue = descriptors.get('initial-value');
+  return initialValue !== undefined && matchesSyntax(lexer, syntax, initialValue)
+    ? syntax
+    : undefined;
+}
+
+function matchesSyntax(lexer: Lexer, syntax: string, value: string): boolean {
+  try {
+    return lexer.match(syntax, parse(value, { context: 'value' })).error === null;
+  } catch {
+    return false;
+  }
 }
 
 function isSkippedDeclaration(decl: PostCSS.Declaration, syntax: string | undefined): boolean {
   const property = decl.prop.toLowerCase();
   return (
-    (property.startsWith('--') && syntax === undefined) ||
+    (property.startsWith('--') && isUncheckedCustomProperty(decl, syntax)) ||
     property === '-ms-filter' ||
-    (property === 'filter' && LEGACY_IE_FILTER_VALUE.test(decl.value)) ||
+    (property === 'filter' && isLegacyIeFilter(decl.value)) ||
+    (property === '-webkit-perspective' && WEBKIT_UNITLESS_PERSPECTIVE.test(decl.value.trim())) ||
     isDescriptor(decl)
+  );
+}
+
+function isLegacyIeFilter(value: string): boolean {
+  return (
+    LEGACY_IE_FILTER_FUNCTION.test(value) ||
+    value
+      .trim()
+      .split(/\s+/)
+      .every((keyword: string) => LEGACY_IE_FILTER_KEYWORDS.has(keyword.toLowerCase()))
+  );
+}
+
+/**
+ * Custom properties are checked only against a restricted registered syntax, which
+ * CSS-wide keywords always match.
+ */
+function isUncheckedCustomProperty(decl: PostCSS.Declaration, syntax: string | undefined) {
+  return (
+    syntax === undefined ||
+    syntax === UNIVERSAL_SYNTAX ||
+    CSS_WIDE_KEYWORDS.has(decl.value.trim().toLowerCase())
   );
 }
 
 function isDescriptor(decl: PostCSS.Declaration): boolean {
   for (let node: PostCSS.Node | undefined = decl.parent; node; node = node.parent) {
-    if (
-      node.type === 'atrule' &&
-      !NESTING_AT_RULES.has((node as PostCSS.AtRule).name.toLowerCase())
-    ) {
+    if (node.type === 'atrule' && !NESTING_AT_RULES.has(unprefixedName(node as PostCSS.AtRule))) {
       return true;
     }
   }
   return false;
 }
 
+function unprefixedName(atRule: PostCSS.AtRule): string {
+  return atRule.name.toLowerCase().replace(VENDOR_PREFIX, '');
+}
+
 /**
  * Vendor-prefixed values are deliberate fallbacks, and functions unknown to the lexer grammar,
- * like those of frameworks or preprocessors, cannot be validated.
+ * like those of frameworks or preprocessors, cannot be validated. The `validated` functions
+ * are exempted from `UNVALIDATED_FUNCTIONS`.
  */
-function hasUnvalidatedPiece(ast: CssNode, knownFunctions: Set<string>): boolean {
+function hasUnvalidatedPiece(
+  ast: CssNode,
+  knownFunctions: Set<string>,
+  validated: Set<string> = new Set(),
+): boolean {
   return (
     find(ast, (node: CssNode) => {
       if (node.type === 'Function') {
         const name = node.name.toLowerCase();
         return (
-          VENDOR_PREFIX.test(name) || UNVALIDATED_FUNCTIONS.has(name) || !knownFunctions.has(name)
+          VENDOR_PREFIX.test(name) ||
+          (UNVALIDATED_FUNCTIONS.has(name) && !validated.has(name)) ||
+          !knownFunctions.has(name)
         );
       }
       return node.type === 'Identifier' && VENDOR_PREFIX.test(node.name);
