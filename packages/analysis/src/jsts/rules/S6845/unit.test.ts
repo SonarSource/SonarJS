@@ -92,6 +92,7 @@ const invalid = [
   'const position = null; <div role="separator" aria-valuenow={position} tabIndex={0} />',
   'const position = undefined; <div role="separator" aria-valuenow={position} tabIndex={0} />',
   'const position = "half"; <div role="separator" aria-valuenow={position} tabIndex={0} />',
+  'for (let position = null; pending;) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
   ...['null', 'undefined', '"half"', '1 / 0'].map(
     value =>
       `let position; position = ${value}; <div role="separator" aria-valuenow={position} tabIndex={0} />`,
@@ -169,6 +170,19 @@ describe('S6845', () => {
         invalid: [],
       });
     });
+    for (const code of [
+      'const positions = [25, 75]; for (const position of positions) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+      'const positions = { left: 25, right: 75 }; for (const position of Object.values(positions)) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+      'const positions = [25, 75]; for (const position in positions) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+      'const positions = [25, 75]; for (const position of positions) { const current = position; items.push(<div role="separator" aria-valuenow={current} tabIndex={0} />); }',
+    ]) {
+      it(`allows loop-bound current values in ${code} in ${language}`, () => {
+        new Tester().run('no-noninteractive-tabindex', rule, {
+          valid: [{ code, options }],
+          invalid: [],
+        });
+      });
+    }
     for (const code of invalid) {
       it(`reports ${code} in ${language}`, () => {
         new Tester().run('no-noninteractive-tabindex', rule, {

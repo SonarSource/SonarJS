@@ -311,5 +311,10 @@ function getSimpleBindingValue(
   if (definition?.type !== 'Variable' || definition.node.id.type !== 'Identifier') {
     return expression;
   }
+  // Loop-head writeExpr is the iterable, not the current element or key.
+  const parent = (definition.node as TSESTree.VariableDeclarator).parent?.parent;
+  if (parent?.type === 'ForOfStatement' || parent?.type === 'ForInStatement') {
+    return expression;
+  }
   return getUniqueWriteUsageOrNode(context, expression as Node) as TSESTree.Node;
 }
