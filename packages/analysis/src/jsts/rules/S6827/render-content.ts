@@ -89,7 +89,7 @@ function hasRenderConsumer(
     return (
       reads.length > 0 &&
       reads.every(reference =>
-        hasRenderConsumer(reference.identifier as TSESTree.Node, opening, context, seen),
+        hasRenderConsumer(reference.identifier as TSESTree.Node, opening, context, new Set(seen)),
       )
     );
   }
@@ -250,6 +250,25 @@ function hasHtmlContent(
   seen: Set<TSESTree.Node>,
 ): boolean {
   const value = resolveSingleWriteExpression(context, node);
+  if (
+    value.type === 'ConditionalExpression' ||
+    value.type === 'LogicalExpression' ||
+    value.type === 'SequenceExpression'
+  ) {
+    if (seen.has(value)) {
+      return false;
+    }
+    const branchSeen = new Set(seen);
+    branchSeen.add(value);
+    if (value.type === 'ConditionalExpression') {
+      return hasConditionalContent(value, context, branchSeen, hasHtmlContent);
+    }
+    if (value.type === 'LogicalExpression') {
+      return hasLogicalContent(value, context, branchSeen, hasHtmlContent);
+    }
+    const last = value.expressions.at(-1);
+    return last !== undefined && hasHtmlContent(last, context, branchSeen);
+  }
   const html = getStaticExpressionValue(value as unknown as estree.Expression);
   if (html === undefined) {
     return hasContent(value, context, seen);
@@ -469,24 +488,28 @@ function hasConditionalContent(
   value: TSESTree.ConditionalExpression,
   context: Rule.RuleContext,
   seen: Set<TSESTree.Node>,
+  checkContent = hasContent,
 ): boolean {
   const test = resolveSingleWriteExpression(context, value.test);
   if (test.type === 'Literal') {
-    return hasContent(test.value ? value.consequent : value.alternate, context, seen);
+    return checkContent(test.value ? value.consequent : value.alternate, context, seen);
   }
-  return hasContent(value.consequent, context, seen) || hasContent(value.alternate, context, seen);
+  return (
+    checkContent(value.consequent, context, seen) || checkContent(value.alternate, context, seen)
+  );
 }
 
 function hasLogicalContent(
   value: TSESTree.LogicalExpression,
   context: Rule.RuleContext,
   seen: Set<TSESTree.Node>,
+  checkContent = hasContent,
 ): boolean {
   const left = resolveSingleWriteExpression(context, value.left);
   if (left.type !== 'Literal') {
     return (
-      (value.operator !== '&&' && hasContent(value.left, context, seen)) ||
-      hasContent(value.right, context, seen)
+      (value.operator !== '&&' && checkContent(value.left, context, seen)) ||
+      checkContent(value.right, context, seen)
     );
   }
   let useLeft: boolean;
@@ -497,5 +520,5 @@ function hasLogicalContent(
   } else {
     useLeft = !!left.value;
   }
-  return hasContent(useLeft ? left : value.right, context, seen);
+  return checkContent(useLeft ? left : value.right, context, seen);
 }

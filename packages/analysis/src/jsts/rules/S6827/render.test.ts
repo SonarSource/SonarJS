@@ -295,6 +295,77 @@ for (const [language, Tester] of [
       });
     });
 
+    it('allows converging alias paths only when every consumer supplies content', () => {
+      const alias = `${button}const link = <a />; const alias = flag ? link : link;`;
+      const diamond = `${button}const link = <a />; const left = link; const right = link; const alias = flag ? left : right;`;
+      new Tester().run('anchor-has-content', rule, {
+        valid: [
+          `${alias}<Button render={alias}>Continue</Button>;`,
+          `${diamond}<Button render={alias}>Continue</Button>;`,
+          `${diamond}<><Button render={alias}>Home</Button><Button render={alias}>Menu</Button></>;`,
+        ].map(code => ({ code })),
+        invalid: [
+          `${alias}<Button render={alias} />;`,
+          `${diamond}<><Button render={alias}>Continue</Button><Button render={alias} /></>;`,
+          `${diamond}<><Button render={alias}>Continue</Button><Other render={alias}>Continue</Other></>;`,
+        ].map(code => ({ code, errors: 1 })),
+      });
+    });
+
+    it('checks selected HTML branches for accessible content', () => {
+      const code = (expression: string, declarations = '') =>
+        `${button}${declarations}<Button render={<a />} dangerouslySetInnerHTML={{__html: ${expression}}} />;`;
+      new Tester().run('anchor-has-content', rule, {
+        valid: [
+          "flag ? '<span hidden>Hidden</span>' : '<span>Continue</span>'",
+          "true ? '<img alt=\"Continue\">' : ''",
+          "false ? '' : '<span>Continue</span>'",
+          "flag && '<span>Continue</span>'",
+          "'' || '<span>Continue</span>'",
+          "null ?? '<span>Continue</span>'",
+          "(null, '<span>Continue</span>')",
+          "flag ? (other ? '' : '<span>Continue</span>') : ''",
+          "flag ? html : '<span>Continue</span>'",
+          "flag ?? '<span hidden>Continue</span>'",
+          "flag || '<span hidden>Continue</span>'",
+        ].map(expression => ({ code: code(expression) })),
+        invalid: [
+          "flag ? '<span hidden>Continue</span>' : ''",
+          "true ? '<span hidden>Continue</span>' : '<span>Continue</span>'",
+          "false ? '<span>Continue</span>' : ''",
+          'flag && \'<span aria-hidden="true">Continue</span>\'',
+          "'' ?? '<span>Continue</span>'",
+          "false && '<span>Continue</span>'",
+          "'<span hidden>Continue</span>' || '<span>Continue</span>'",
+          "null ?? '<span hidden>Continue</span>'",
+          "('<span>Continue</span>', '<span hidden>Continue</span>')",
+          "flag ? (other ? '<style>Continue</style>' : '') : '<script>Continue</script>'",
+        ].map(expression => ({ code: code(expression), errors: 1 })),
+      });
+      new Tester().run('anchor-has-content', rule, {
+        valid: [
+          {
+            code: code(
+              'html',
+              "const hidden = '<span hidden>Hidden</span>'; const html = flag ? hidden : '<span>Continue</span>'; ",
+            ),
+          },
+          { code: code('html', "const html = flag ? html : '<span>Continue</span>'; ") },
+        ],
+        invalid: [
+          {
+            code: code(
+              'html',
+              "const hidden = '<span hidden>Continue</span>'; const html = flag ? hidden : ''; ",
+            ),
+            errors: 1,
+          },
+          { code: code('html', "const html = flag ? html : ''; "), errors: 1 },
+          { code: code('html', 'const html = flag && html; '), errors: 1 },
+        ],
+      });
+    });
+
     it('distinguishes HTML accessible names from hidden and unnamed markup', () => {
       const code = (html: string) =>
         `${button}<Button render={<a />} dangerouslySetInnerHTML={{__html: ${JSON.stringify(html)}}} />;`;
