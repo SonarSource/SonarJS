@@ -330,6 +330,26 @@ b { --gap: 2em; }`,
 }`,
     }));
 
+  it('ignores legacy Internet Explorer hacks', () =>
+    ruleTester.valid({
+      code: `a {
+  margin-top: 1px \\9;
+  border-top: 4px solid \\9;
+  background-color: #000 \\9;
+  background-image: url(a.gif) \\9;
+  color: red\\9;
+  color: red\\0;
+  width: 10px\\0/;
+  width: 10px \\0/ ;
+}`,
+    }));
+
+  it('still reports invalid keywords followed by an Internet Explorer hack', () =>
+    ruleTester.invalid({
+      code: 'a { display: blok\\9; }',
+      errors: [{ text: `Unknown value "blok\\9" for property "display" (${RULE})`, column: 14 }],
+    }));
+
   it('ignores non-negative unitless numbers for -webkit-perspective', () =>
     ruleTester.valid({
       code: `a {

@@ -107,6 +107,9 @@ const UNIVERSAL_SYNTAX = '*';
 const VENDOR_PREFIX = /^-(?:webkit|moz|ms|o|khtml)-/i;
 const LEGACY_IE_FILTER_FUNCTION = /^\s*(?:progid:|alpha\()/i;
 const LEGACY_IE_FILTER_KEYWORDS = new Set(['fliph', 'flipv', 'gray', 'invert', 'xray']);
+// Value suffixes targeting old Internet Explorer versions, such as `1px \9` or `10px\0/`
+const IE_HACK_SUFFIX = /\\[09]$/;
+const IE8_HACK_SUFFIX = String.raw`\0/`;
 
 // Units relative to the font or to a container, whose lengths depend on other properties
 const DEPENDENT_UNITS = new Set([
@@ -254,11 +257,13 @@ function collectRegisteredSyntaxes(root: PostCSS.Root, lexer: Lexer): Map<string
 }
 
 /**
- * css-tree matches identifiers by their escaped name, so `\69nherit` would not match `inherit`
+ * css-tree matches identifiers by their escaped name, so `\69nherit` would not match `inherit`.
+ * Identifiers ending with the `\9` or `\0` Internet Explorer hacks stay escaped, as css-tree
+ * only ignores these hacks in their escaped form.
  */
 function decodeIdentifiers(ast: CssNode): void {
   walk(ast, (node: CssNode) => {
-    if (node.type === 'Identifier') {
+    if (node.type === 'Identifier' && !IE_HACK_SUFFIX.test(node.name)) {
       node.name = ident.decode(node.name);
     }
   });
@@ -330,6 +335,7 @@ function isSkippedDeclaration(decl: PostCSS.Declaration, syntax: string | undefi
     (property.startsWith('--') && (syntax === undefined || syntax === UNIVERSAL_SYNTAX)) ||
     property === '-ms-filter' ||
     (property === 'filter' && isLegacyIeFilter(decl.value)) ||
+    decl.value.trimEnd().endsWith(IE8_HACK_SUFFIX) ||
     isDescriptor(decl)
   );
 }
