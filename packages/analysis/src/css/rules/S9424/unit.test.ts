@@ -296,6 +296,47 @@ a { --gap: red; }`,
     }
   });
 
+  it('ignores registrations whose syntax string is not supported', async () => {
+    const syntaxes = [
+      '<length> || <color>',
+      '<length> && <color>',
+      '[<length> <color>]',
+      '<length> <color>',
+      '<length>?',
+      '<transform-list>+',
+      '<unknown-type>',
+      '<length> |',
+      '<length> +',
+    ];
+    for (const syntax of syntaxes) {
+      await ruleTester.valid({
+        code: `@property --gap { syntax: "${syntax}"; inherits: false; initial-value: 0px red; }
+a { --gap: auto; }`,
+      });
+    }
+    await ruleTester.invalid({
+      code: `@property --gap { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --gap { syntax: "<length> || <color>"; inherits: false; initial-value: 0px red; }
+a { --gap: auto; }`,
+      errors: [{ text: `Unknown value "auto" for property "--gap" (${RULE})`, line: 3 }],
+    });
+  });
+
+  it('checks registrations whose syntax string is supported', async () => {
+    const registrations = [
+      '@property --gap { syntax: "<length> | <color>"; inherits: false; initial-value: 0px; }',
+      '@property --gap { syntax: "<length>+ | small"; inherits: false; initial-value: 0px 1px; }',
+      '@property --gap { syntax: "<length-percentage>#"; inherits: false; initial-value: 0px; }',
+      '@property --gap { syntax: " <transform-list> "; inherits: false; initial-value: scale(1); }',
+    ];
+    for (const registration of registrations) {
+      await ruleTester.invalid({
+        code: `${registration}\na { --gap: auto; }`,
+        errors: [{ text: `Unknown value "auto" for property "--gap" (${RULE})`, line: 2 }],
+      });
+    }
+  });
+
   it('accepts registrations whose initial value is relative to the viewport', () =>
     ruleTester.invalid({
       code: `@property --gap { syntax: "<length>"; inherits: false; initial-value: calc(10vw + 1px); }

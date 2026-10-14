@@ -18,20 +18,18 @@
 import stylelint, { type PostcssResult } from 'stylelint';
 import type PostCSS from 'postcss';
 import {
-  definitionSyntax,
   find,
   ident,
   parse,
-  string as cssString,
   walk,
   type CssNode,
-  type DSNode,
   type FunctionNode,
   type Lexer,
-  type SyntaxDescriptor,
   type SyntaxMatchError,
 } from 'css-tree';
 import { calc, ParseErrorMessage, type ParseError } from '@csstools/css-calc';
+import { knownFunctionsOf } from './known-functions.js';
+import { collectRegisteredSyntaxes, UNIVERSAL_SYNTAX } from './registrations.js';
 
 const ruleName = 'sonar/declaration-property-value-no-unknown';
 
@@ -102,7 +100,6 @@ const NESTING_AT_RULES = new Set([
 ]);
 
 const CSS_WIDE_KEYWORDS = new Set(['inherit', 'initial', 'revert', 'revert-layer', 'unset']);
-const UNIVERSAL_SYNTAX = '*';
 
 const VENDOR_PREFIX = /^-(?:webkit|moz|ms|o|khtml)-/i;
 const LEGACY_IE_FILTER_FUNCTION = /^\s*(?:progid:|alpha\()/i;
@@ -111,40 +108,8 @@ const LEGACY_IE_FILTER_KEYWORDS = new Set(['fliph', 'flipv', 'gray', 'invert', '
 const IE_HACK_SUFFIX = /\\[09]$/;
 const IE8_HACK_SUFFIX = String.raw`\0/`;
 
-// Units relative to the font or to a container, whose lengths depend on other properties
-const DEPENDENT_UNITS = new Set([
-  'cap',
-  'ch',
-  'cqb',
-  'cqh',
-  'cqi',
-  'cqmax',
-  'cqmin',
-  'cqw',
-  'em',
-  'ex',
-  'ic',
-  'lh',
-  'rcap',
-  'rch',
-  'rem',
-  'rex',
-  'ric',
-  'rlh',
-]);
-
 const MAX_CACHE_SIZE = 10000;
 const validValuesByLexer = new WeakMap<Lexer, Set<string>>();
-const knownFunctionsByLexer = new WeakMap<Lexer, Set<string>>();
-
-// Suffix of the lexer types that define a function, such as `rgb()`
-const FUNCTION_TYPE_SUFFIX = '()';
-
-// The grammar definitions that a css-tree lexer holds, which its typings do not expose
-type LexerDefinitions = {
-  properties: Record<string, SyntaxDescriptor>;
-  types: Record<string, SyntaxDescriptor>;
-};
 
 type Range = { start: number; end: number };
 
@@ -241,22 +206,6 @@ function findProblem(
 }
 
 /**
- * Maps the custom properties registered with `@property` to their syntax. When a property
- * is registered several times, the last valid registration wins.
- */
-function collectRegisteredSyntaxes(root: PostCSS.Root, lexer: Lexer): Map<string, string> {
-  const syntaxes = new Map<string, string>();
-  root.walkAtRules(/^property$/i, (atRule: PostCSS.AtRule) => {
-    const name = atRule.params.trim();
-    const syntax = name.startsWith('--') ? registeredSyntax(atRule, lexer) : undefined;
-    if (syntax !== undefined) {
-      syntaxes.set(name, syntax);
-    }
-  });
-  return syntaxes;
-}
-
-/**
  * css-tree matches identifiers by their escaped name, so `\69nherit` would not match `inherit`.
  * Identifiers ending with the `\9` or `\0` Internet Explorer hacks stay escaped, as css-tree
  * only ignores these hacks in their escaped form.
@@ -284,48 +233,6 @@ function isAcceptedValue(property: string, ast: CssNode): boolean {
     property.toLowerCase() === '-webkit-perspective' &&
     Number(node.value) >= 0
   );
-}
-
-/**
- * The syntax of a valid `@property` registration: browsers ignore a registration without
- * a `syntax` string or an `inherits` flag, or whose initial value does not match its syntax
- * or depends on other properties.
- */
-function registeredSyntax(atRule: PostCSS.AtRule, lexer: Lexer): string | undefined {
-  const descriptors = new Map<string, string>();
-  atRule.each((node: PostCSS.ChildNode) => {
-    if (node.type === 'decl') {
-      descriptors.set(node.prop.toLowerCase(), node.value.trim());
-    }
-  });
-  const rawSyntax = descriptors.get('syntax') ?? '';
-  const syntax = cssString.decode(rawSyntax);
-  const inherits = descriptors.get('inherits')?.toLowerCase();
-  if (syntax === rawSyntax || (inherits !== 'true' && inherits !== 'false')) {
-    return undefined;
-  }
-  if (syntax.trim() === UNIVERSAL_SYNTAX) {
-    return UNIVERSAL_SYNTAX;
-  }
-  const initialValue = descriptors.get('initial-value');
-  return initialValue !== undefined && isValidInitialValue(lexer, syntax, initialValue)
-    ? syntax
-    : undefined;
-}
-
-function isValidInitialValue(lexer: Lexer, syntax: string, value: string): boolean {
-  try {
-    const ast = parse(value, { context: 'value' });
-    return (
-      find(
-        ast,
-        (node: CssNode) =>
-          node.type === 'Dimension' && DEPENDENT_UNITS.has(node.unit.toLowerCase()),
-      ) === null && lexer.match(syntax, ast).error === null
-    );
-  } catch {
-    return false;
-  }
 }
 
 function isSkippedDeclaration(decl: PostCSS.Declaration, syntax: string | undefined): boolean {
@@ -386,37 +293,6 @@ function hasUnvalidatedPiece(
       return node.type === 'Identifier' && VENDOR_PREFIX.test(node.name);
     }) !== null
   );
-}
-
-/**
- * Names of the functions that the lexer grammar defines, the only ones whose calls it can validate
- */
-function knownFunctionsOf(lexer: Lexer): Set<string> {
-  const cached = knownFunctionsByLexer.get(lexer);
-  if (cached) {
-    return cached;
-  }
-  const { properties, types } = lexer as unknown as LexerDefinitions;
-  const functions = new Set<string>(
-    Object.keys(types)
-      .filter((type: string) => type.endsWith(FUNCTION_TYPE_SUFFIX))
-      .map((type: string) => type.slice(0, -FUNCTION_TYPE_SUFFIX.length).toLowerCase()),
-  );
-  for (const { syntax } of [...Object.values(properties), ...Object.values(types)]) {
-    if (syntax) {
-      addFunctionNames(syntax, functions);
-    }
-  }
-  knownFunctionsByLexer.set(lexer, functions);
-  return functions;
-}
-
-function addFunctionNames(syntax: DSNode, names: Set<string>): void {
-  definitionSyntax.walk(syntax, (node: DSNode) => {
-    if (node.type === 'Function') {
-      names.add(node.name.toLowerCase());
-    }
-  });
 }
 
 /**
