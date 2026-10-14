@@ -98,8 +98,84 @@ Parser.prototype.Parse = function Parse(this: { tokens: unknown[] }) {
 };
 `,
           },
+          {
+            // JSX in a nested arrow does not turn a typed helper into a component.
+            code: `
+function App() {
+  function BuildRenderer(this: { label: string }) {
+    const Row = () => <li>{this.label}</li>;
+    return Row;
+  }
+  const Row = BuildRenderer.call({ label: 'test' });
+  return <Row />;
+}
+`,
+          },
         ],
         invalid: [
+          {
+            // A typed receiver does not make `this` available when React calls a component.
+            code: `
+function Row(this: { label: string }) {
+  return <li>{this.label}</li>;
+}
+const App = () => <Row />;
+`,
+            errors: 1,
+          },
+          {
+            // The variable name determines whether a function expression is a component.
+            code: `
+const Row = function renderRow(this: { label: string }) {
+  return <>{this.label}</>;
+};
+const App = () => <Row />;
+`,
+            errors: 1,
+          },
+          {
+            // Member assignments use the target's component name too.
+            code: `
+const components = {};
+components.Row = function(this: { label: string }) {
+  return <li>{this.label}</li>;
+};
+const App = () => <components.Row />;
+`,
+            errors: 1,
+          },
+          {
+            // Arrow callbacks inherit the component's unavailable receiver.
+            code: `
+function Row(this: { label: string }) {
+  const readLabel = () => this.label;
+  return <li>{readLabel()}</li>;
+}
+const App = () => <Row />;
+`,
+            errors: 1,
+          },
+          {
+            // A nested component's own typed receiver must not hide its issue.
+            code: `
+function App() {
+  function Row(this: { label: string }) {
+    return <li>{this.label}</li>;
+  }
+  return <Row />;
+}
+`,
+            errors: 1,
+          },
+          {
+            // An anonymous default export can also be a component.
+            code: `
+export default function(this: { label: string }) {
+  return <li>{this.label}</li>;
+}
+`,
+            errors: 1,
+          },
           {
             code: `
 export function Widget(props: { label: string }) {
