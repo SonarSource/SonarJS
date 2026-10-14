@@ -303,7 +303,10 @@ function outputAliasFromMetadata(
   const memberAlias = isMetadataMapping
     ? overridingMemberOutputAlias(context, node, internalName)
     : null;
-  return memberAlias === null ? alias : memberAlias;
+  if (memberAlias === undefined) {
+    return undefined;
+  }
+  return memberAlias ?? alias;
 }
 
 /** Returns `publicRefresh` from `refresh = output({ alias: 'publicRefresh' })` or metadata. */
