@@ -34,17 +34,37 @@ const compoundSelectorSignal = compoundSelectorOutput.replace(
   "changed = output({ alias: 'fooBarChanged' });",
 );
 
+const compoundSelectorOutputs = [compoundSelectorOutput, compoundSelectorSignal];
+const selectorIdentityOutputs = compoundSelectorOutputs.map(code =>
+  code.replace('fooBarChanged', 'fooBar'),
+);
+
 // Sentinel: upstream must still report both output APIs suppressed by the decorator.
 describe('S7653 upstream sentinel', () => {
   it('reports compound-selector aliases with both output APIs', () => {
     new NoTypeCheckingRuleTester().run('no-output-rename', upstreamRules['no-output-rename'], {
       valid: [],
-      invalid: [compoundSelectorOutput, compoundSelectorSignal].map(code => ({ code, errors: 1 })),
+      invalid: [...compoundSelectorOutputs, ...selectorIdentityOutputs].map(code => ({
+        code,
+        errors: 1,
+      })),
     });
   });
 });
 
 describe('S7653', () => {
+  it('preserves existing upstream selector-derived exceptions', () => {
+    new NoTypeCheckingRuleTester().run('S7653', rule, {
+      valid: compoundSelectorOutputs.flatMap(code =>
+        ['foobar', 'foobarChanged'].flatMap(alias => [
+          { code: code.replace('fooBarChanged', alias) },
+          { code: code.replace('fooBarChanged', alias).replace('@Directive', '@Component') },
+        ]),
+      ),
+      invalid: [],
+    });
+  });
+
   it('permits exact compound-selector aliases only on unambiguous directives', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
@@ -55,6 +75,7 @@ describe('S7653', () => {
           code: compoundSelectorOutput.replace('selector:', "'selector':"),
         },
         { code: compoundSelectorSignal },
+        ...selectorIdentityOutputs.map(code => ({ code })),
         {
           code:
             compoundSelectorOutput +
@@ -65,32 +86,79 @@ describe('S7653', () => {
         },
       ],
       invalid: [
-        ...[compoundSelectorOutput, compoundSelectorSignal].flatMap(code => [
-          { code: code.replace('@Directive', '@Component'), errors: 1 },
+        ...[...compoundSelectorOutputs, ...selectorIdentityOutputs].flatMap(code => {
+          const alias = code.includes('fooBarChanged') ? 'fooBarChanged' : 'fooBar';
+          return [
+            { code: code.replace('@Directive', '@Component'), errors: 1 },
+            {
+              code: "@Component({ selector: 'foo[bar]' })" + code,
+              errors: 1,
+            },
+            {
+              code: code.replace(
+                'class FooBarDirective',
+                "@Component({ selector: 'foo[bar]' }) class FooBarDirective",
+              ),
+              errors: 1,
+            },
+            {
+              code: "@Directive({ selector: 'foo[bar]' })" + code,
+              errors: 1,
+            },
+            { code: code.replace('changed =', '[changed] ='), errors: 1 },
+            { code: code.replace("'foo[bar]'", 'selector'), errors: 1 },
+            { code: code.replace("{ selector: 'foo[bar]' }", ''), errors: 1 },
+            { code: code.replace("{ selector: 'foo[bar]' }", 'metadata'), errors: 1 },
+            { code: code.replace("'foo[bar]'", '`foo[bar]`'), errors: 1 },
+            { code: code.replace("@Directive({ selector: 'foo[bar]' })", ''), errors: 1 },
+            { code: code.replace(`'${alias}'`, `\`${alias}\``), errors: 1 },
+          ];
+        }),
+        ...compoundSelectorOutputs.flatMap(code =>
+          ['fooBarUpdated', 'renamed'].map(alias => ({
+            code: code.replace('fooBarChanged', alias),
+            errors: 1,
+          })),
+        ),
+        ...selectorIdentityOutputs.map(code => ({
+          code: code.replace('changed =', 'fooBar ='),
+          output: code
+            .replace('changed =', 'fooBar =')
+            .replace("@Output('fooBar')", '@Output()')
+            .replace("output({ alias: 'fooBar' })", 'output()'),
+          errors: 1,
+        })),
+        ...['fooBar', 'fooBarChanged'].flatMap(alias => [
           {
-            code: "@Component({ selector: 'foo[bar]' })" + code,
+            code: `@Directive({ selector: 'foo[bar]' }) class Test {
+              changed = output({ alias: '${alias}', ...options });
+            }`,
             errors: 1,
           },
           {
-            code: code.replace(
-              'class FooBarDirective',
-              "@Component({ selector: 'foo[bar]' }) class FooBarDirective",
-            ),
+            code: `@Directive({ selector: 'foo[bar]' }) class Test {
+              changed = output({ alias: '${alias}', [key]: 'renamed' });
+            }`,
             errors: 1,
           },
           {
-            code: "@Directive({ selector: 'foo[bar]' })" + code,
+            code: `@Directive({ selector: 'foo[bar]' }) class Test {
+              changed = output({ alias: '${alias}', alias: 'renamed' });
+            }`,
+            errors: 2,
+          },
+          {
+            code: `@Directive({ selector: 'foo[bar]' }) class Test {
+              @Output('${alias}') @Output('renamed') changed = new EventEmitter();
+            }`,
+            errors: 2,
+          },
+          {
+            code: `@Directive({ selector: 'foo[bar]' }) class Test {
+              @Output('${alias}', options) changed = new EventEmitter();
+            }`,
             errors: 1,
           },
-          { code: code.replace('changed =', '[changed] ='), errors: 1 },
-          { code: code.replace('fooBarChanged', 'fooBarUpdated'), errors: 1 },
-          { code: code.replace('fooBarChanged', 'renamed'), errors: 1 },
-          { code: code.replace("'foo[bar]'", 'selector'), errors: 1 },
-          { code: code.replace("{ selector: 'foo[bar]' }", ''), errors: 1 },
-          { code: code.replace("{ selector: 'foo[bar]' }", 'metadata'), errors: 1 },
-          { code: code.replace("'foo[bar]'", '`foo[bar]`'), errors: 1 },
-          { code: code.replace("@Directive({ selector: 'foo[bar]' })", ''), errors: 1 },
-          { code: code.replace("'fooBarChanged'", '`fooBarChanged`'), errors: 1 },
         ]),
         {
           code:

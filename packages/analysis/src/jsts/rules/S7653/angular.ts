@@ -25,6 +25,62 @@ function capitalize(value: string) {
 }
 
 /**
+ * Check that one direct output declaration owns the alias:
+ *
+ *   @Output('fooBar') changed = ...;              -> true
+ *   changed = output({ alias: 'fooBar' });        -> true
+ *   changed = output({ alias: 'fooBar', ...x });  -> false
+ *   @Output('fooBar', x) changed = ...;           -> false
+ */
+function isDirectOutputAlias(
+  node: TSESTree.Node,
+  member: TSESTree.PropertyDefinition | TSESTree.MethodDefinition,
+): boolean {
+  const outputDecorators = member.decorators.filter(decorator => {
+    const expression = decorator.expression;
+    return (
+      expression.type === 'CallExpression' &&
+      expression.callee.type === 'Identifier' &&
+      expression.callee.name === 'Output'
+    );
+  });
+  const parent = node.parent;
+  if (parent?.type === 'CallExpression') {
+    return (
+      outputDecorators.length === 1 &&
+      outputDecorators[0].expression === parent &&
+      parent.arguments.length === 1 &&
+      parent.arguments[0] === node
+    );
+  }
+  const options = parent?.parent;
+  const call = options?.parent;
+  if (
+    outputDecorators.length !== 0 ||
+    parent?.type !== 'Property' ||
+    parent.value !== node ||
+    options?.type !== 'ObjectExpression' ||
+    call?.type !== 'CallExpression' ||
+    call.callee.type !== 'Identifier' ||
+    call.callee.name !== 'output' ||
+    call.arguments.length !== 1 ||
+    call.arguments[0] !== options ||
+    member.type !== 'PropertyDefinition' ||
+    member.value !== call ||
+    options.properties.some(property => property.type === 'SpreadElement' || property.computed)
+  ) {
+    return false;
+  }
+  const aliases = options.properties.filter(
+    property =>
+      property.type === 'Property' &&
+      ((property.key.type === 'Identifier' && property.key.name === 'alias') ||
+        (property.key.type === 'Literal' && property.key.value === 'alias')),
+  );
+  return aliases.length === 1 && aliases[0] === parent;
+}
+
+/**
  * Read the static member name around an output alias:
  *
  *   @Output('fooBarChanged') changed = ...;       -> changed
@@ -40,7 +96,9 @@ function getOutputMemberName(node: TSESTree.Node): string | undefined {
     'key' in member &&
     'computed' in member &&
     !member.computed &&
-    member.key.type === 'Identifier'
+    member.key.type === 'Identifier' &&
+    (member.type === 'PropertyDefinition' || member.type === 'MethodDefinition') &&
+    isDirectOutputAlias(node, member)
     ? member.key.name
     : undefined;
 }
@@ -114,11 +172,13 @@ function getCompoundSelector(node: TSESTree.Node) {
  *
  *   @Directive({ selector: 'foo[bar]' })
  *   class FooBarDirective {
+ *     @Output('fooBar') event = ...;
  *     @Output('fooBarChanged') changed = ...;
  *     // Or: changed = output({ alias: 'fooBarChanged' });
  *   }
  *
- *   'fooBarChanged' === 'foo' + capitalize('bar') + capitalize('changed')
+ *   'fooBar' === 'foo' + capitalize('bar')
+ *   'fooBarChanged' === 'fooBar' + capitalize('changed')
  *
  * Components, unsupported selectors, and mismatched aliases do not match.
  * This pattern does not prove a collision in a consuming template.
@@ -130,9 +190,11 @@ export function isSelectorDerivedAlias(node: TSESTree.Node) {
   const memberName = getOutputMemberName(node);
   const selector = getCompoundSelector(node);
   const match = selector?.match(COMPOUND_SELECTOR);
+  if (memberName === undefined || node.value === memberName || !match) {
+    return false;
+  }
+  const selectorIdentity = `${match[1]}${capitalize(match[2])}`;
   return (
-    memberName !== undefined &&
-    match != null &&
-    node.value === `${match[1]}${capitalize(match[2])}${capitalize(memberName)}`
+    node.value === selectorIdentity || node.value === `${selectorIdentity}${capitalize(memberName)}`
   );
 }
