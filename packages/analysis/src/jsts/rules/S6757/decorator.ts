@@ -20,9 +20,10 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { ancestorsChain, childrenOf } from '../helpers/ancestor.js';
-import { functionLike } from '../helpers/ast.js';
+import { functionLike, isIdentifier } from '../helpers/ast.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -91,11 +92,14 @@ function isComponentReceiver(
   }
 
   // React does not supply a receiver to components, even when they declare typed `this`.
-  // Ignore JSX in nested functions: it belongs to those functions, not this receiver.
+  // Ignore rendering in nested functions: it belongs to those functions, not this receiver.
   const pending = [receiver.body as estree.Node];
-  while (pending.length > 0) {
-    const current = pending.pop()!;
-    if (current.type === 'JSXElement' || current.type === 'JSXFragment') {
+  for (let current = pending.pop(); current; current = pending.pop()) {
+    if (
+      current.type === 'JSXElement' ||
+      current.type === 'JSXFragment' ||
+      isReactElementCreation(current, context)
+    ) {
       return true;
     }
     if (
@@ -107,6 +111,17 @@ function isComponentReceiver(
     }
   }
   return false;
+}
+
+function isReactElementCreation(node: estree.Node, context: Rule.RuleContext): boolean {
+  const reactSettings = context.settings.react as { pragma?: string } | undefined;
+  return (
+    node.type === 'CallExpression' &&
+    (getFullyQualifiedName(context, node) === 'react.createElement' ||
+      (node.callee.type === 'MemberExpression' &&
+        isIdentifier(node.callee.object, reactSettings?.pragma ?? 'React') &&
+        isIdentifier(node.callee.property, 'createElement')))
+  );
 }
 
 function isBoundToLowercaseMemberAssignment(node: TSESTree.MemberExpression): boolean {

@@ -72,6 +72,71 @@ ${component} {
   })),
 );
 
+const typedThisCreateElementComponents = [
+  {
+    code: `
+function Row(this: { label: string }) {
+  return h.createElement('li', null, this.label);
+}
+`,
+    settings: { react: { pragma: 'h' } },
+    errors: 1,
+  },
+  {
+    code: `
+function Row(this: { label: string }) {
+  return React.createElement('li', null, this.label);
+}
+`,
+    errors: 1,
+  },
+  {
+    code: `
+import { createElement } from 'react';
+const Row = function(this: { label: string }) {
+  return createElement('li', null, this.label);
+};
+`,
+    errors: 1,
+  },
+  {
+    code: `
+function Row(this: { label: string }) {
+  const readLabel = () => this.label;
+  return React.createElement('li', null, readLabel());
+}
+`,
+    errors: 1,
+  },
+];
+
+const typedThisElementCreationHelpers = [
+  {
+    code: `
+function App() {
+  function BuildElement(this: { label: string }) {
+    const element = document.createElement('li');
+    element.textContent = this.label;
+    return element;
+  }
+  return <div>{BuildElement.call({ label: 'test' })}</div>;
+}
+`,
+  },
+  {
+    code: `
+function App() {
+  function BuildRenderer(this: { label: string }) {
+    const Row = () => React.createElement('li', null, this.label);
+    return Row;
+  }
+  const Row = BuildRenderer.call({ label: 'test' });
+  return <Row />;
+}
+`,
+  },
+];
+
 describe('S6757 typed this parameters', () => {
   it('uses the nearest ordinary function receiver and preserves it through arrows', () => {
     new NoTypeCheckingRuleTester().run(
@@ -80,6 +145,7 @@ describe('S6757 typed this parameters', () => {
       {
         valid: [
           ...typedThisCases,
+          ...typedThisElementCreationHelpers,
           {
             // A helper alongside a component is also compliant.
             code: `
@@ -113,6 +179,7 @@ function App() {
           },
         ],
         invalid: [
+          ...typedThisCreateElementComponents,
           {
             // A typed receiver does not make `this` available when React calls a component.
             code: `
@@ -320,6 +387,8 @@ describe('S6757 upstream sentinel', () => {
       valid: [],
       invalid: [
         ...typedThisCases.map(testCase => ({ ...testCase, errors: 1 })),
+        ...typedThisCreateElementComponents,
+        ...typedThisElementCreationHelpers.map(testCase => ({ ...testCase, errors: 1 })),
         { code: prototypeMethod, errors: 2 },
         {
           code: `
