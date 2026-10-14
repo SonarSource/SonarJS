@@ -17,13 +17,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 
-const COMPOUND_SELECTOR = /^([A-Za-z][A-Za-z0-9-]*)\[([A-Za-z][A-Za-z0-9-]*)\]$/;
-
-/** `changed` -> `Changed`. */
-function capitalize(value: string) {
-  return value[0].toUpperCase() + value.slice(1);
-}
-
 /**
  * Check that one direct output declaration owns the alias:
  *
@@ -87,7 +80,7 @@ function isDirectOutputAlias(
  *   changed = output({ alias: 'fooBarChanged' }); -> changed
  *   @Output('fooBarChanged') [changed] = ...;     -> undefined
  */
-function getOutputMemberName(node: TSESTree.Node): string | undefined {
+export function getOutputMemberName(node: TSESTree.Node): string | undefined {
   const member = findFirstMatchingAncestor(
     node,
     ancestor => ancestor.type === 'PropertyDefinition' || ancestor.type === 'MethodDefinition',
@@ -112,7 +105,7 @@ function getOutputMemberName(node: TSESTree.Node): string | undefined {
  * Mixed or duplicate Angular decorators and ambiguous metadata return undefined.
  * The alias checker validates the selector shape separately.
  */
-function getCompoundSelector(node: TSESTree.Node) {
+export function getCompoundSelector(node: TSESTree.Node) {
   const declaration = findFirstMatchingAncestor(
     node,
     ancestor => ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression',
@@ -165,36 +158,4 @@ function getCompoundSelector(node: TSESTree.Node) {
     return property.value.value;
   }
   return undefined;
-}
-
-/**
- * Match the alias to the selector and member name:
- *
- *   @Directive({ selector: 'foo[bar]' })
- *   class FooBarDirective {
- *     @Output('fooBar') event = ...;
- *     @Output('fooBarChanged') changed = ...;
- *     // Or: changed = output({ alias: 'fooBarChanged' });
- *   }
- *
- *   'fooBar' === 'foo' + capitalize('bar')
- *   'fooBarChanged' === 'fooBar' + capitalize('changed')
- *
- * Components, unsupported selectors, and mismatched aliases do not match.
- * This pattern does not prove a collision in a consuming template.
- */
-export function isSelectorDerivedAlias(node: TSESTree.Node) {
-  if (node.type !== 'Literal' || typeof node.value !== 'string') {
-    return false;
-  }
-  const memberName = getOutputMemberName(node);
-  const selector = getCompoundSelector(node);
-  const match = selector?.match(COMPOUND_SELECTOR);
-  if (memberName === undefined || node.value === memberName || !match) {
-    return false;
-  }
-  const selectorIdentity = `${match[1]}${capitalize(match[2])}`;
-  return (
-    node.value === selectorIdentity || node.value === `${selectorIdentity}${capitalize(memberName)}`
-  );
 }
