@@ -273,6 +273,10 @@ function hasHtmlContent(
   if (html === undefined) {
     return hasContent(value, context, seen);
   }
+  return hasHtmlStringContent(html);
+}
+
+function hasHtmlStringContent(html: string): boolean {
   const pending = [...parseDocument(html).children];
   for (const child of pending) {
     if (child.type === 'text' && child.data.trim() !== '') {
