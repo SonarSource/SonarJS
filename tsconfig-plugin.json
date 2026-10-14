@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "ignoreDeprecations": "6.0",
     "useUnknownInCatchVariables": false,
-    "types": ["node", "jsx-ast-utils-x"],
+    "types": ["node", "jsx-ast-utils-x", "eslint-plugin-react"],
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["./node_modules/@types", "./typings"]
   },

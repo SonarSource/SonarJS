@@ -19,11 +19,11 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { isCreateElement } from '../external/react.js';
 import { ancestorsChain, childrenOf } from '../helpers/ancestor.js';
-import { functionLike, isIdentifier } from '../helpers/ast.js';
+import { functionLike } from '../helpers/ast.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getFullyQualifiedName } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -98,7 +98,7 @@ function isComponentReceiver(
     if (
       current.type === 'JSXElement' ||
       current.type === 'JSXFragment' ||
-      isReactElementCreation(current, context)
+      (current.type === 'CallExpression' && isCreateElement(context, current))
     ) {
       return true;
     }
@@ -111,17 +111,6 @@ function isComponentReceiver(
     }
   }
   return false;
-}
-
-function isReactElementCreation(node: estree.Node, context: Rule.RuleContext): boolean {
-  const reactSettings = context.settings.react as { pragma?: string } | undefined;
-  return (
-    node.type === 'CallExpression' &&
-    (getFullyQualifiedName(context, node) === 'react.createElement' ||
-      (node.callee.type === 'MemberExpression' &&
-        isIdentifier(node.callee.object, reactSettings?.pragma ?? 'React') &&
-        isIdentifier(node.callee.property, 'createElement')))
-  );
 }
 
 function isBoundToLowercaseMemberAssignment(node: TSESTree.MemberExpression): boolean {

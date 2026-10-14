@@ -75,6 +75,45 @@ ${component} {
 const typedThisCreateElementComponents = [
   {
     code: `
+/** @jsx h */
+function Row(this: { label: string }) {
+  return h.createElement('li', null, this.label);
+}
+`,
+    errors: 1,
+  },
+  {
+    // The comment pragma takes precedence over the configured pragma.
+    code: `
+/** @jsx h.createElement */
+const { createElement } = h;
+function Row(this: { label: string }) {
+  return createElement('li', null, this.label);
+}
+`,
+    settings: { react: { pragma: 'Other' } },
+    errors: 1,
+  },
+  {
+    code: `
+const { createElement } = React;
+function Row(this: { label: string }) {
+  return createElement('li', null, this.label);
+}
+`,
+    errors: 1,
+  },
+  {
+    code: `
+const createElement = React.createElement;
+function Row(this: { label: string }) {
+  return createElement('li', null, this.label);
+}
+`,
+    errors: 1,
+  },
+  {
+    code: `
 function Row(this: { label: string }) {
   return h.createElement('li', null, this.label);
 }
@@ -111,6 +150,19 @@ function Row(this: { label: string }) {
 ];
 
 const typedThisElementCreationHelpers = [
+  {
+    code: `
+const { createElement } = document;
+function App() {
+  function BuildElement(this: { label: string }) {
+    const element = createElement('li');
+    element.textContent = this.label;
+    return element;
+  }
+  return <div>{BuildElement.call({ label: 'test' })}</div>;
+}
+`,
+  },
   {
     code: `
 function App() {
