@@ -32,6 +32,129 @@ Parser.prototype.parse = function Parse() {
 };
 `;
 
+const typedThisHelpers = [
+  `function transformNode(this: PipelineContext, node: unknown) {
+    return this.visit(node);
+  }`,
+  `const transformNode = function(this: PipelineContext, node: unknown) {
+    return this.visit(node);
+  };`,
+  `const transformer = {
+    transformNode(this: PipelineContext, node: unknown) {
+      return this.visit(node);
+    }
+  };
+  const transformNode = transformer.transformNode;`,
+  `function transformNode(this: PipelineContext, node: unknown) {
+    const visit = () => this.visit(node);
+    return visit();
+  }`,
+  `function transformNode(this: PipelineContext, node: unknown) {
+    const Row = () => <span>{this.visit(node)}</span>;
+    return <Row />;
+  }`,
+];
+
+const typedThisCases = typedThisHelpers.flatMap(helper =>
+  [
+    'export function NodeBadge(props: { node: unknown; ctx: PipelineContext })',
+    'export const NodeBadge = (props: { node: unknown; ctx: PipelineContext }) =>',
+  ].map(component => ({
+    code: `
+interface PipelineContext {
+  visit(node: unknown): string;
+}
+${component} {
+  ${helper}
+  return <span>{transformNode.call(props.ctx, props.node)}</span>;
+}
+`,
+  })),
+);
+
+describe('S6757 typed this parameters', () => {
+  it('uses the nearest ordinary function receiver and preserves it through arrows', () => {
+    new NoTypeCheckingRuleTester().run(
+      'Stateless functional components should not use `this`',
+      rule,
+      {
+        valid: [
+          ...typedThisCases,
+          {
+            // A helper alongside a component is also compliant.
+            code: `
+function transformNode(this: { visit(node: unknown): string }, node: unknown) {
+  return this.visit(node);
+}
+function NodeBadge() { return <span />; }
+`,
+          },
+          {
+            // A typed receiver also applies when the target name is capitalized.
+            code: `
+Parser.prototype.Parse = function Parse(this: { tokens: unknown[] }) {
+  if (!this.tokens.length) return null;
+  return null;
+};
+`,
+          },
+        ],
+        invalid: [
+          {
+            code: `
+export function Widget(props: { label: string }) {
+  function Row() { return <li>{this.props.label}</li>; }
+  return <Row />;
+}
+`,
+            errors: 1,
+          },
+          {
+            code: `
+export function FunctionalComponent() {
+  const value = this.props.value;
+  return <div>{value}</div>;
+}
+`,
+            errors: 1,
+          },
+          {
+            code: `
+export function Panel() {
+  const Row = () => <li>{this.props.x}</li>;
+  return <Row />;
+}
+`,
+            errors: 1,
+          },
+          {
+            code: `
+export function Legacy(props: { x: number }) {
+  function helper(this) { return this.x; }
+  return <div>{helper.call(props)}</div>;
+}
+`,
+            errors: 1,
+          },
+          {
+            // A nested ordinary function does not inherit its parent's typed receiver.
+            code: `
+export function Widget() {
+  function helper(this: { label: string }) {
+    const Row = function () { return <li>{this.props.label}</li>; };
+    return <Row />;
+  }
+  return <div>{helper.call({ label: 'test' })}</div>;
+}
+`,
+            errors: 1,
+          },
+        ],
+      },
+    );
+  });
+});
+
 describe('S6757 member assignments', () => {
   for (const Tester of [DefaultParserRuleTester, NoTypeCheckingRuleTester]) {
     it(`respects the assignment target with ${Tester.name}`, () => {
@@ -113,14 +236,14 @@ Parser.prototype.parse = function Parse() {
   }
 });
 
-// Sentinel: verify that upstream still reports the prototype method and class-component
-// arrow callback patterns our decorator suppresses.
+// Sentinel: verify that upstream still reports the patterns our decorator suppresses.
 describe('S6757 upstream sentinel', () => {
-  it('upstream no-this-in-sfc raises on prototype methods and nested class arrow callbacks', () => {
+  it('upstream no-this-in-sfc raises on typed helpers, prototype methods and class arrow callbacks', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('no-this-in-sfc', upstreamRule, {
       valid: [],
       invalid: [
+        ...typedThisCases.map(testCase => ({ ...testCase, errors: 1 })),
         { code: prototypeMethod, errors: 2 },
         {
           code: `

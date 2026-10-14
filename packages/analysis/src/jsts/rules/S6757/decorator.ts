@@ -34,7 +34,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
       if (
         isThisMemberExpression(node) &&
-        (isLexicallyBoundToClassMember(node) || isBoundToLowercaseMemberAssignment(node))
+        (isLexicallyBoundToClassMember(node) ||
+          isBoundToLowercaseMemberAssignment(node) ||
+          isBoundToTypedThisParameter(node))
       ) {
         return;
       }
@@ -44,11 +46,24 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   );
 }
 
-function isBoundToLowercaseMemberAssignment(node: TSESTree.MemberExpression): boolean {
+function getReceiverFunction(node: TSESTree.MemberExpression) {
   // Arrow functions preserve the receiver; an ordinary nested function owns its own.
-  const receiver = ancestorsChain(node, new Set<string>()).find(
+  return ancestorsChain(node, new Set<string>()).find(
     ancestor => ancestor.type === 'FunctionExpression' || ancestor.type === 'FunctionDeclaration',
   );
+}
+
+function isBoundToTypedThisParameter(node: TSESTree.MemberExpression): boolean {
+  const parameter = getReceiverFunction(node)?.params[0];
+  return (
+    parameter?.type === 'Identifier' &&
+    parameter.name === 'this' &&
+    parameter.typeAnnotation?.type === 'TSTypeAnnotation'
+  );
+}
+
+function isBoundToLowercaseMemberAssignment(node: TSESTree.MemberExpression): boolean {
+  const receiver = getReceiverFunction(node);
   if (receiver?.type !== 'FunctionExpression') {
     return false;
   }
