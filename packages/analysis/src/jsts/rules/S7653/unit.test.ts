@@ -98,60 +98,85 @@ function retainedAliasCase(
 
 const compoundSelectorOutput = `
   @Directive({ selector: 'foo[bar]' })
-  class Test {
+  class FooBarDirective {
     @Output('fooBarChanged') changed = new EventEmitter();
   }
 `;
+
+const compoundSelectorSignal = compoundSelectorOutput.replace(
+  "@Output('fooBarChanged') changed = new EventEmitter();",
+  "changed = output({ alias: 'fooBarChanged' });",
+);
+
+const compoundSelectorOutputs = [compoundSelectorOutput, compoundSelectorSignal];
+const selectorIdentityOutputs = compoundSelectorOutputs.map(code =>
+  code.replace('fooBarChanged', 'fooBar'),
+);
+
+// Sentinel: upstream must still report both output APIs suppressed by the decorator.
+describe('S7653 upstream sentinel', () => {
+  it('reports compound-selector aliases with both output APIs', () => {
+    new NoTypeCheckingRuleTester().run('no-output-rename', upstreamRule, {
+      valid: [],
+      invalid: [...compoundSelectorOutputs, ...selectorIdentityOutputs].map(code => ({
+        code,
+        errors: 1,
+      })),
+    });
+  });
+});
 
 describe('S7653', () => {
   const ruleTester = new NoTypeCheckingRuleTester();
 
   it('handles static template strings in compound-selector aliases and selectors', () => {
     const memberAPIs = ['output', 'decorator'] as const;
-    const valid = ['Component', 'Directive'].flatMap(decorator =>
-      memberAPIs.flatMap(api =>
-        ["'", '"', '`'].flatMap(selectorQuote =>
-          ["'", '"', '`'].map(aliasQuote => ({
-            code: outputCode(api, 'changed', 'fooBarChanged', aliasQuote)
-              .replace('@Component(', `@${decorator}(`)
-              .replace("'app-test'", `${selectorQuote}foo[bar]${selectorQuote}`),
-          })),
-        ),
+    const valid = memberAPIs.flatMap(api =>
+      ["'", '"', '`'].flatMap(selectorQuote =>
+        ["'", '"', '`'].map(aliasQuote => ({
+          code: outputCode(api, 'changed', 'fooBarChanged', aliasQuote)
+            .replace('@Component(', '@Directive(')
+            .replace("'app-test'", `${selectorQuote}foo[bar]${selectorQuote}`),
+        })),
       ),
     );
     valid.push(
       ...memberAPIs.map(api => ({
-        code: outputCode(api, 'changed', String.raw`\u0066ooBarChanged`, '`').replace(
-          "'app-test'",
-          '`' + String.raw`\u0066oo[bar]` + '`',
-        ),
+        code: outputCode(api, 'changed', String.raw`\u0066ooBarChanged`, '`')
+          .replace('@Component(', '@Directive(')
+          .replace("'app-test'", '`' + String.raw`\u0066oo[bar]` + '`'),
       })),
     );
     const invalid = memberAPIs.flatMap(api => [
       {
-        code: outputCode(api, 'changed', 'fooBarChanged', '`').replace(
-          "'app-test'",
-          '`foo[${attribute}]`',
-        ),
+        code: outputCode(api, 'changed', 'fooBarChanged', '`')
+          .replace('@Component(', '@Directive(')
+          .replace("'app-test'", '`foo[${attribute}]`'),
         errors: 1,
       },
       {
-        code: outputCode(api, 'changed', 'fooBar${suffix}', '`').replace(
-          "'app-test'",
-          '`foo[bar]`',
-        ),
+        code: outputCode(api, 'changed', 'fooBar${suffix}', '`')
+          .replace('@Component(', '@Directive(')
+          .replace("'app-test'", '`foo[bar]`'),
         errors: 2,
       },
       {
-        code: outputCode(api, 'changed', 'fooBarUpdated', '`').replace("'app-test'", '`foo[bar]`'),
+        code: outputCode(api, 'changed', 'fooBarUpdated', '`')
+          .replace('@Component(', '@Directive(')
+          .replace("'app-test'", '`foo[bar]`'),
         errors: 1,
       },
     ]);
+    invalid.push(
+      ...valid.map(test => ({
+        code: test.code.replace('@Directive(', '@Component('),
+        errors: 1,
+      })),
+    );
     invalid.push({
-      code: outputCode('metadata', 'changed', 'fooBarChanged', '`').replace(
-        "'app-test'",
-        '`foo[bar]`',
-      ),
+      code: outputCode('metadata', 'changed', 'fooBarChanged', '`')
+        .replace('@Component(', '@Directive(')
+        .replace("'app-test'", '`foo[bar]`'),
       errors: 1,
     });
     ruleTester.run('S7653', rule, { valid, invalid });
@@ -161,23 +186,125 @@ describe('S7653', () => {
     });
   });
 
-  it('does not report an output alias derived from an element and its bare selector attribute', () => {
+  it('preserves existing upstream selector-derived exceptions', () => {
+    new NoTypeCheckingRuleTester().run('S7653', rule, {
+      valid: compoundSelectorOutputs.flatMap(code =>
+        ['foobar', 'foobarChanged'].flatMap(alias => [
+          { code: code.replace('fooBarChanged', alias) },
+          { code: code.replace('fooBarChanged', alias).replace('@Directive', '@Component') },
+        ]),
+      ),
+      invalid: [],
+    });
+  });
+
+  it('permits exact compound-selector aliases only on unambiguous directives', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
     ruleTester.run('S7653', rule, {
       valid: [
         { code: compoundSelectorOutput },
         {
           code: compoundSelectorOutput.replace('selector:', "'selector':"),
         },
+        { code: compoundSelectorSignal },
+        ...selectorIdentityOutputs.map(code => ({ code })),
+        ...[...compoundSelectorOutputs, ...selectorIdentityOutputs].flatMap(code => {
+          const alias = code.includes('fooBarChanged') ? 'fooBarChanged' : 'fooBar';
+          return [
+            { code: code.replace("'foo[bar]'", '`foo[bar]`') },
+            { code: code.replace(`'${alias}'`, `\`${alias}\``) },
+          ];
+        }),
         {
-          code: `
-            @Directive({ selector: 'foo[bar]' })
-            class Test {
-              changed = output({ alias: 'fooBarChanged' });
-            }
-          `,
+          code:
+            compoundSelectorOutput +
+            compoundSelectorSignal
+              .replaceAll('foo[bar]', 'foo[baz]')
+              .replaceAll('fooBarChanged', 'fooBazChanged')
+              .replaceAll('FooBarDirective', 'FooBazDirective'),
         },
       ],
       invalid: [
+        ...[...compoundSelectorOutputs, ...selectorIdentityOutputs].flatMap(code => {
+          return [
+            { code: code.replace('@Directive', '@Component'), errors: 1 },
+            {
+              code: "@Component({ selector: 'foo[bar]' })" + code,
+              errors: 1,
+            },
+            {
+              code: code.replace(
+                'class FooBarDirective',
+                "@Component({ selector: 'foo[bar]' }) class FooBarDirective",
+              ),
+              errors: 1,
+            },
+            {
+              code: "@Directive({ selector: 'foo[bar]' })" + code,
+              errors: 1,
+            },
+            { code: code.replace('changed =', '[changed] ='), errors: 1 },
+            { code: code.replace("'foo[bar]'", 'selector'), errors: 1 },
+            { code: code.replace("{ selector: 'foo[bar]' }", ''), errors: 1 },
+            { code: code.replace("{ selector: 'foo[bar]' }", 'metadata'), errors: 1 },
+            { code: code.replace("@Directive({ selector: 'foo[bar]' })", ''), errors: 1 },
+          ];
+        }),
+        ...compoundSelectorOutputs.flatMap(code =>
+          ['fooBarUpdated', 'renamed'].map(alias => ({
+            code: code.replace('fooBarChanged', alias),
+            errors: 1,
+          })),
+        ),
+        ...selectorIdentityOutputs.map(code => ({
+          code: code.replace('changed =', 'fooBar ='),
+          output: code
+            .replace('changed =', 'fooBar =')
+            .replace("@Output('fooBar')", '@Output()')
+            .replace("output({ alias: 'fooBar' })", 'output()'),
+          errors: 1,
+        })),
+        ...['fooBar', 'fooBarChanged'].flatMap(alias => [
+          {
+            code: `@Directive({ selector: 'foo[bar]' }) class Test {
+              changed = output({ alias: '${alias}', ...options });
+            }`,
+            errors: 1,
+          },
+          {
+            code: `@Directive({ selector: 'foo[bar]' }) class Test {
+              changed = output({ alias: '${alias}', [key]: 'renamed' });
+            }`,
+            errors: 1,
+          },
+          {
+            code: `@Directive({ selector: 'foo[bar]' }) class Test {
+              changed = output({ alias: '${alias}', alias: 'renamed' });
+            }`,
+            errors: 2,
+          },
+          {
+            code: `@Directive({ selector: 'foo[bar]' }) class Test {
+              @Output('${alias}') @Output('renamed') changed = new EventEmitter();
+            }`,
+            errors: 2,
+          },
+          {
+            code: `@Directive({ selector: 'foo[bar]' }) class Test {
+              @Output('${alias}', options) changed = new EventEmitter();
+            }`,
+            errors: 1,
+          },
+        ]),
+        {
+          code:
+            compoundSelectorOutput +
+            compoundSelectorSignal
+              .replace('@Directive', '@Component')
+              .replace('FooBarDirective', 'FooBarComponent'),
+          errors: 1,
+        },
         {
           code: `
             const metadata = { selector: '[other]' };
@@ -257,13 +384,6 @@ describe('S7653', () => {
     });
   });
 
-  it('relies on the upstream rule still reporting the compound-selector alias', () => {
-    ruleTester.run('no-output-rename', upstreamRule, {
-      valid: [],
-      invalid: [{ code: compoundSelectorOutput, errors: 1 }],
-    });
-  });
-
   it('applies both independent alias exceptions in the same class', () => {
     const invalid = ['Component', 'Directive'].flatMap(decorator =>
       ['output', 'decorator'].map(api => {
@@ -277,7 +397,7 @@ describe('S7653', () => {
             ${declaration('changed', 'fooBarChanged')}
             ${declaration('valueChange', 'updated')}
           }`,
-          errors: 1,
+          errors: decorator === 'Directive' ? 1 : 2,
         };
       }),
     );
