@@ -26,6 +26,7 @@ import {
   motionContext,
   motionValues,
   resolveSelectors,
+  parentRule,
   type Component,
   type MotionContext,
 } from './syntax.js';
@@ -168,10 +169,11 @@ function collect(root: PostCSS.Root): {
   let order = 0;
   root.walkDecls((declaration: PostCSS.Declaration): void => {
     order++;
-    if (declaration.parent?.type !== 'rule' || inKeyframes(declaration)) {
+    const parent = parentRule(declaration);
+    if (!parent || inKeyframes(declaration)) {
       return;
     }
-    const resolved = resolveSelectors(declaration.parent, selectors);
+    const resolved = resolveSelectors(parent, selectors);
     if (!resolved) {
       return;
     }

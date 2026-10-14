@@ -312,6 +312,14 @@ function expandSelectors(children: string[], parents: string[]): string[] | unde
   return result;
 }
 
+export function parentRule(node: PostCSS.Node): PostCSS.Rule | undefined {
+  let parent: PostCSS.Node | undefined = node.parent;
+  while (parent && parent.type !== 'rule') {
+    parent = parent.parent;
+  }
+  return parent?.type === 'rule' ? (parent as PostCSS.Rule) : undefined;
+}
+
 export function resolveSelectors(
   rule: PostCSS.Rule,
   cache: Map<PostCSS.Rule, string[] | undefined>,
@@ -320,11 +328,8 @@ export function resolveSelectors(
     return cache.get(rule);
   }
   const children = selectorList(rule.selector);
-  let parent: PostCSS.Node | undefined = rule.parent;
-  while (parent && parent.type !== 'rule') {
-    parent = parent.parent;
-  }
-  const parents = parent?.type === 'rule' ? resolveSelectors(parent as PostCSS.Rule, cache) : [''];
+  const parent = parentRule(rule);
+  const parents = parent ? resolveSelectors(parent, cache) : [''];
   const resolved = children && parents ? expandSelectors(children, parents) : undefined;
   cache.set(rule, resolved);
   return resolved;

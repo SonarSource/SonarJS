@@ -72,6 +72,40 @@ describe('S9440 spatial motion and reduced-motion safeguards', (): void => {
   }`;
   const invalidSamples: Sample[] = [
     {
+      name: 'nested media declaration still enables unguarded animation',
+      code: `.panel {
+  @media screen { animation: move 1s; }
+}
+${frames}`,
+      target: 'animation: move 1s',
+    },
+    {
+      name: 'nested reduce declaration explicitly enables motion',
+      code: `.panel {
+  @media (prefers-reduced-motion: reduce) { animation: move 1s; }
+}
+${frames}`,
+      target: 'animation: move 1s',
+    },
+    {
+      name: 'later declaration re-enables a nested reduce override',
+      code: `.panel {
+  @media (prefers-reduced-motion: reduce) { animation: none; }
+  animation: move 1s;
+}
+${frames}`,
+      target: 'animation: move 1s',
+    },
+    {
+      name: 'nested override on an unrelated selector does not guard motion',
+      code: `.panel { animation: move 1s; }
+.other {
+  @media (prefers-reduced-motion: reduce) { animation: none; }
+}
+${frames}`,
+      target: 'animation: move 1s',
+    },
+    {
       name: 'quoted none is an animation name in shorthand',
       code: `.panel { animation: "none" 1s; }\n${quotedNoneFrames}`,
       target: 'animation: "none" 1s',
@@ -408,6 +442,53 @@ describe('S9440 spatial motion and reduced-motion safeguards', (): void => {
   }
 
   const validSamples: Array<{ name: string; code: string; filename?: string }> = [
+    {
+      name: 'nested media disables animation for reduced motion',
+      code: `.panel {
+  animation: move 1s;
+  @media (prefers-reduced-motion: reduce) { animation: none; }
+}
+${frames}`,
+    },
+    {
+      name: 'nested media disables a spatial transition for reduced motion',
+      code: `.panel {
+  transition: transform 1s;
+  @media (prefers-reduced-motion: reduce) { transition: none; }
+}
+${states}`,
+    },
+    {
+      name: 'nested media disables smooth scrolling for reduced motion',
+      code: `html {
+  scroll-behavior: smooth;
+  @media (prefers-reduced-motion: reduce) { scroll-behavior: auto; }
+}`,
+    },
+    {
+      name: 'nested media guards animation in SCSS',
+      code: `.panel {
+  animation: move 1s;
+  @media (prefers-reduced-motion: reduce) { animation: none; }
+}
+${frames}`,
+      filename: 'styles.scss',
+    },
+    {
+      name: 'PVF Koel nested reduced-motion guard in a postcss style block',
+      code: `<template><div class="marquee" /></template>
+<style lang="postcss">
+@keyframes marquee {
+  from { left: -50%; }
+  to { left: 100%; }
+}
+.marquee {
+  animation: marquee 3s ease-in-out infinite;
+  @media (prefers-reduced-motion: reduce) { animation: none; }
+}
+</style>`,
+      filename: 'component.vue',
+    },
     ...[
       'animation: none 1s',
       'animation: NONE 1s',
