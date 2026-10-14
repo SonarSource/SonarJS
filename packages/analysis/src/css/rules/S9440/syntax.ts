@@ -110,7 +110,7 @@ type ParsedShorthand = {
   valid: boolean;
 };
 
-function consumeName(parsed: ParsedShorthand, name: string, quoted: boolean = false): void {
+function consumeName(parsed: ParsedShorthand, name: string, quoted: boolean): void {
   if (parsed.name !== undefined) {
     parsed.valid = false;
     return;
@@ -143,7 +143,7 @@ function consumeWord(parsed: ParsedShorthand, text: string, animation: boolean):
   if (!animation && ['normal', 'allow-discrete'].includes(text.toLowerCase())) {
     return;
   }
-  consumeName(parsed, text);
+  consumeName(parsed, text, false);
 }
 
 function parseShorthand(value: string, animation: boolean): ParsedShorthand {
