@@ -18,7 +18,10 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
-import { ancestorsChain } from '../helpers/ancestor.js';
+import type estree from 'estree';
+import { isCreateElement } from '../external/react.js';
+import { ancestorsChain, childrenOf } from '../helpers/ancestor.js';
+import { functionLike } from '../helpers/ast.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
@@ -34,7 +37,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
       if (
         isThisMemberExpression(node) &&
-        (isLexicallyBoundToClassMember(node) || isBoundToLowercaseMemberAssignment(node))
+        (isLexicallyBoundToClassMember(node) ||
+          isBoundToLowercaseMemberAssignment(node) ||
+          isBoundToTypedThisParameter(node, context))
       ) {
         return;
       }
@@ -44,11 +49,72 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   );
 }
 
-function isBoundToLowercaseMemberAssignment(node: TSESTree.MemberExpression): boolean {
+function getReceiverFunction(node: TSESTree.MemberExpression) {
   // Arrow functions preserve the receiver; an ordinary nested function owns its own.
-  const receiver = ancestorsChain(node, new Set<string>()).find(
+  return ancestorsChain(node, new Set<string>()).find(
     ancestor => ancestor.type === 'FunctionExpression' || ancestor.type === 'FunctionDeclaration',
   );
+}
+
+function isBoundToTypedThisParameter(
+  node: TSESTree.MemberExpression,
+  context: Rule.RuleContext,
+): boolean {
+  const receiver = getReceiverFunction(node);
+  if (!receiver) {
+    return false;
+  }
+  const parameter = receiver.params[0];
+  return (
+    parameter?.type === 'Identifier' &&
+    parameter.name === 'this' &&
+    parameter.typeAnnotation?.type === 'TSTypeAnnotation' &&
+    !isComponentReceiver(receiver, context)
+  );
+}
+
+function isComponentReceiver(
+  receiver: TSESTree.FunctionDeclaration | TSESTree.FunctionExpression,
+  context: Rule.RuleContext,
+): boolean {
+  const parent = receiver.parent;
+  let target: TSESTree.Node | undefined;
+  if (parent.type === 'VariableDeclarator') {
+    target = parent.id;
+  } else if (parent.type === 'AssignmentExpression') {
+    target = parent.left.type === 'MemberExpression' ? parent.left.property : parent.left;
+  } else if (parent.type === 'Property') {
+    target = parent.key;
+  }
+  const name = target?.type === 'Identifier' ? target.name : receiver.id?.name;
+  if (name && /^[a-z]/.test(name.replace(/^_+/, ''))) {
+    return false;
+  }
+
+  // React does not supply a receiver to components, even when they declare typed `this`.
+  // Ignore rendering in nested functions: it belongs to those functions, not this receiver.
+  const pending = [receiver.body as estree.Node];
+  for (let current = pending.pop(); current; current = pending.pop()) {
+    if (
+      current.type === 'JSXElement' ||
+      current.type === 'JSXFragment' ||
+      (current.type === 'CallExpression' && isCreateElement(context, current))
+    ) {
+      return true;
+    }
+    if (
+      !functionLike.has(current.type) &&
+      current.type !== 'ClassDeclaration' &&
+      current.type !== 'ClassExpression'
+    ) {
+      pending.push(...childrenOf(current, context.sourceCode.visitorKeys));
+    }
+  }
+  return false;
+}
+
+function isBoundToLowercaseMemberAssignment(node: TSESTree.MemberExpression): boolean {
+  const receiver = getReceiverFunction(node);
   if (receiver?.type !== 'FunctionExpression') {
     return false;
   }

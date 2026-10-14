@@ -32,6 +32,324 @@ Parser.prototype.parse = function Parse() {
 };
 `;
 
+const typedThisHelpers = [
+  `function transformNode(this: PipelineContext, node: unknown) {
+    return this.visit(node);
+  }`,
+  `const transformNode = function(this: PipelineContext, node: unknown) {
+    return this.visit(node);
+  };`,
+  `const transformer = {
+    transformNode(this: PipelineContext, node: unknown) {
+      return this.visit(node);
+    }
+  };
+  const transformNode = transformer.transformNode;`,
+  `function transformNode(this: PipelineContext, node: unknown) {
+    const visit = () => this.visit(node);
+    return visit();
+  }`,
+  `function transformNode(this: PipelineContext, node: unknown) {
+    const Row = () => <span>{this.visit(node)}</span>;
+    return <Row />;
+  }`,
+];
+
+const typedThisCases = typedThisHelpers.flatMap(helper =>
+  [
+    'export function NodeBadge(props: { node: unknown; ctx: PipelineContext })',
+    'export const NodeBadge = (props: { node: unknown; ctx: PipelineContext }) =>',
+  ].map(component => ({
+    code: `
+interface PipelineContext {
+  visit(node: unknown): string;
+}
+${component} {
+  ${helper}
+  return <span>{transformNode.call(props.ctx, props.node)}</span>;
+}
+`,
+  })),
+);
+
+const typedThisCreateElementComponents = [
+  {
+    code: `
+/** @jsx h */
+function Row(this: { label: string }) {
+  return h.createElement('li', null, this.label);
+}
+`,
+    errors: 1,
+  },
+  {
+    // The comment pragma takes precedence over the configured pragma.
+    code: `
+/** @jsx h.createElement */
+const { createElement } = h;
+function Row(this: { label: string }) {
+  return createElement('li', null, this.label);
+}
+`,
+    settings: { react: { pragma: 'Other' } },
+    errors: 1,
+  },
+  {
+    code: `
+const { createElement } = React;
+function Row(this: { label: string }) {
+  return createElement('li', null, this.label);
+}
+`,
+    errors: 1,
+  },
+  {
+    code: `
+const createElement = React.createElement;
+function Row(this: { label: string }) {
+  return createElement('li', null, this.label);
+}
+`,
+    errors: 1,
+  },
+  {
+    code: `
+function Row(this: { label: string }) {
+  return h.createElement('li', null, this.label);
+}
+`,
+    settings: { react: { pragma: 'h' } },
+    errors: 1,
+  },
+  {
+    code: `
+function Row(this: { label: string }) {
+  return React.createElement('li', null, this.label);
+}
+`,
+    errors: 1,
+  },
+  {
+    code: `
+import { createElement } from 'react';
+const Row = function(this: { label: string }) {
+  return createElement('li', null, this.label);
+};
+`,
+    errors: 1,
+  },
+  {
+    code: `
+function Row(this: { label: string }) {
+  const readLabel = () => this.label;
+  return React.createElement('li', null, readLabel());
+}
+`,
+    errors: 1,
+  },
+];
+
+const typedThisElementCreationHelpers = [
+  {
+    code: `
+const { createElement } = document;
+function App() {
+  function BuildElement(this: { label: string }) {
+    const element = createElement('li');
+    element.textContent = this.label;
+    return element;
+  }
+  return <div>{BuildElement.call({ label: 'test' })}</div>;
+}
+`,
+  },
+  {
+    code: `
+function App() {
+  function BuildElement(this: { label: string }) {
+    const element = document.createElement('li');
+    element.textContent = this.label;
+    return element;
+  }
+  return <div>{BuildElement.call({ label: 'test' })}</div>;
+}
+`,
+  },
+  {
+    code: `
+function App() {
+  function BuildRenderer(this: { label: string }) {
+    const Row = () => React.createElement('li', null, this.label);
+    return Row;
+  }
+  const Row = BuildRenderer.call({ label: 'test' });
+  return <Row />;
+}
+`,
+  },
+];
+
+describe('S6757 typed this parameters', () => {
+  it('uses the nearest ordinary function receiver and preserves it through arrows', () => {
+    new NoTypeCheckingRuleTester().run(
+      'Stateless functional components should not use `this`',
+      rule,
+      {
+        valid: [
+          ...typedThisCases,
+          ...typedThisElementCreationHelpers,
+          {
+            // A helper alongside a component is also compliant.
+            code: `
+function transformNode(this: { visit(node: unknown): string }, node: unknown) {
+  return this.visit(node);
+}
+function NodeBadge() { return <span />; }
+`,
+          },
+          {
+            // A typed receiver also applies when the target name is capitalized.
+            code: `
+Parser.prototype.Parse = function Parse(this: { tokens: unknown[] }) {
+  if (!this.tokens.length) return null;
+  return null;
+};
+`,
+          },
+          {
+            // JSX in a nested arrow does not turn a typed helper into a component.
+            code: `
+function App() {
+  function BuildRenderer(this: { label: string }) {
+    const Row = () => <li>{this.label}</li>;
+    return Row;
+  }
+  const Row = BuildRenderer.call({ label: 'test' });
+  return <Row />;
+}
+`,
+          },
+        ],
+        invalid: [
+          ...typedThisCreateElementComponents,
+          {
+            // A typed receiver does not make `this` available when React calls a component.
+            code: `
+function Row(this: { label: string }) {
+  return <li>{this.label}</li>;
+}
+const App = () => <Row />;
+`,
+            errors: 1,
+          },
+          {
+            // The variable name determines whether a function expression is a component.
+            code: `
+const Row = function renderRow(this: { label: string }) {
+  return <>{this.label}</>;
+};
+const App = () => <Row />;
+`,
+            errors: 1,
+          },
+          {
+            // Member assignments use the target's component name too.
+            code: `
+const components = {};
+components.Row = function(this: { label: string }) {
+  return <li>{this.label}</li>;
+};
+const App = () => <components.Row />;
+`,
+            errors: 1,
+          },
+          {
+            // Arrow callbacks inherit the component's unavailable receiver.
+            code: `
+function Row(this: { label: string }) {
+  const readLabel = () => this.label;
+  return <li>{readLabel()}</li>;
+}
+const App = () => <Row />;
+`,
+            errors: 1,
+          },
+          {
+            // A nested component's own typed receiver must not hide its issue.
+            code: `
+function App() {
+  function Row(this: { label: string }) {
+    return <li>{this.label}</li>;
+  }
+  return <Row />;
+}
+`,
+            errors: 1,
+          },
+          {
+            // An anonymous default export can also be a component.
+            code: `
+export default function(this: { label: string }) {
+  return <li>{this.label}</li>;
+}
+`,
+            errors: 1,
+          },
+          {
+            code: `
+export function Widget(props: { label: string }) {
+  function Row() { return <li>{this.props.label}</li>; }
+  return <Row />;
+}
+`,
+            errors: 1,
+          },
+          {
+            code: `
+export function FunctionalComponent() {
+  const value = this.props.value;
+  return <div>{value}</div>;
+}
+`,
+            errors: 1,
+          },
+          {
+            code: `
+export function Panel() {
+  const Row = () => <li>{this.props.x}</li>;
+  return <Row />;
+}
+`,
+            errors: 1,
+          },
+          {
+            code: `
+export function Legacy(props: { x: number }) {
+  function helper(this) { return this.x; }
+  return <div>{helper.call(props)}</div>;
+}
+`,
+            errors: 1,
+          },
+          {
+            // A nested ordinary function does not inherit its parent's typed receiver.
+            code: `
+export function Widget() {
+  function helper(this: { label: string }) {
+    const Row = function () { return <li>{this.props.label}</li>; };
+    return <Row />;
+  }
+  return <div>{helper.call({ label: 'test' })}</div>;
+}
+`,
+            errors: 1,
+          },
+        ],
+      },
+    );
+  });
+});
+
 describe('S6757 member assignments', () => {
   for (const Tester of [DefaultParserRuleTester, NoTypeCheckingRuleTester]) {
     it(`respects the assignment target with ${Tester.name}`, () => {
@@ -113,14 +431,16 @@ Parser.prototype.parse = function Parse() {
   }
 });
 
-// Sentinel: verify that upstream still reports the prototype method and class-component
-// arrow callback patterns our decorator suppresses.
+// Sentinel: verify that upstream still reports the patterns our decorator suppresses.
 describe('S6757 upstream sentinel', () => {
-  it('upstream no-this-in-sfc raises on prototype methods and nested class arrow callbacks', () => {
+  it('upstream no-this-in-sfc raises on typed helpers, prototype methods and class arrow callbacks', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('no-this-in-sfc', upstreamRule, {
       valid: [],
       invalid: [
+        ...typedThisCases.map(testCase => ({ ...testCase, errors: 1 })),
+        ...typedThisCreateElementComponents,
+        ...typedThisElementCreationHelpers.map(testCase => ({ ...testCase, errors: 1 })),
         { code: prototypeMethod, errors: 2 },
         {
           code: `

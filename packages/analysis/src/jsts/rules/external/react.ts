@@ -16,3 +16,4 @@
  */
 import pkg from 'eslint-plugin-react';
 export const { rules } = pkg;
+export { default as isCreateElement } from 'eslint-plugin-react/lib/util/isCreateElement.js';
