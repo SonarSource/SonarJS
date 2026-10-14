@@ -122,13 +122,53 @@ describe('S6523', () => {
         },
         {
           code: `function f(parts: string[] | undefined) {
-            const items = parts ?? [];
+            let items = parts;
+            if (!items) return;
             return [...items?.values()];
           }`,
           filename,
         },
       ],
       invalid: [
+        {
+          code: `function f(byKey: Record<string, string[]>, key: string) {
+            for (const part of byKey[key]?.values()) {}
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(rows: string[][]) {
+            return [...rows[0]?.entries()];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(parts: string[] | undefined) {
+            const items = parts as string[];
+            return [...items?.values()];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          code: `function f(parts: string[] | undefined) {
+            const items = parts!;
+            return [...items?.values()];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
+        {
+          // A non-nullable declared type alone is not evidence of flow narrowing.
+          code: `function f(parts: string[] | undefined) {
+            const items = parts ?? [];
+            return [...items?.values()];
+          }`,
+          filename,
+          errors: [{ messageId: 'unsafeOptionalChain' }],
+        },
         {
           code: `function f(parts: string[] | undefined) { return [...parts?.values()]; }`,
           filename,

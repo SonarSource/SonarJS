@@ -23,7 +23,11 @@ import { isArrayExpression, unwrapTypeScriptExpression } from '../helpers/ast.js
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
-import { getTypeFromTreeNode } from '../helpers/type.js';
+import {
+  getSymbolAtLocation,
+  getTypeFromTreeNode,
+  isNullOrUndefinedType,
+} from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 /**
@@ -41,8 +45,9 @@ import * as meta from './generated-meta.js';
  *    method merely exists is not enough: `forEach` returns `undefined`, and `pop`, `shift`, `at`,
  *    `find` and `reduce` all may.
  * 3. The receiver reduces to an array literal once TypeScript wrappers are stripped and `??` / `||`
- *    fallbacks are peeled, or its narrowed type is an array with strict null checks enabled.
- *    Type assertions alone do not prove that the receiver is non-nullish.
+ *    fallbacks are peeled, or it is an identifier whose nullable declared type is narrowed to an
+ *    array with strict null checks enabled. Index accesses and type assertions alone do not prove
+ *    that the receiver is non-nullish.
  *
  * Everything else keeps reporting, including nullable or unknown receivers, a second optional
  * link such as `parts?.filter(f)?.map(g)`, computed or uncalled members, and methods whose return
@@ -127,13 +132,21 @@ function isArrayReceiver(
   }
   const services = context.sourceCode.parserServices;
   if (
+    expression.type !== 'Identifier' ||
     !isRequiredParserServices(services) ||
     !isStrictCompilerOptionEnabled(services.program.getCompilerOptions(), 'strictNullChecks')
   ) {
     return false;
   }
-  const type = getTypeFromTreeNode(expression, services);
   const checker = services.program.getTypeChecker();
+  const symbol = getSymbolAtLocation(expression, services);
+  const declaredType = symbol && checker.getTypeOfSymbol(symbol);
+  // Non-nullable declared types can hide missing indexed values or asserted nullable values.
+  // Require a nullable declaration so an array type here is evidence of flow narrowing.
+  if (!declaredType?.isUnion() || !declaredType.types.some(isNullOrUndefinedType)) {
+    return false;
+  }
+  const type = getTypeFromTreeNode(expression, services);
   const constituents = type.isUnion() ? type.types : [type];
   return constituents.every(type => checker.isArrayType(type) || checker.isTupleType(type));
 }
