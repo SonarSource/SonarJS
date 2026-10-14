@@ -21,7 +21,7 @@ import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
-import { getAngularOutputNames } from '../helpers/angular.js';
+import { getAngularOutputNames, staticText } from '../helpers/angular.js';
 
 const nativeEventNames = getNativeEventNames();
 
@@ -74,25 +74,16 @@ function getCompoundSelector(node: TSESTree.Node) {
       return undefined;
     }
     const [property] = selectorProperties;
-    if (
-      property.type === 'Property' &&
-      !property.computed &&
-      property.value.type === 'Literal' &&
-      typeof property.value.value === 'string'
-    ) {
-      return property.value.value;
+    if (property.type === 'Property' && !property.computed) {
+      return staticText(property.value);
     }
   }
   return undefined;
 }
 
 function isSelectorDerivedAlias(node: TSESTree.Node, names: [string, string] | undefined) {
-  if (
-    node.type !== 'Literal' ||
-    typeof node.value !== 'string' ||
-    node.parent?.type === 'ArrayExpression' ||
-    !names
-  ) {
+  const aliasNode = node.type === 'TemplateElement' ? node.parent : node;
+  if (!names || aliasNode.parent?.type === 'ArrayExpression') {
     return false;
   }
   const [memberName, alias] = names;

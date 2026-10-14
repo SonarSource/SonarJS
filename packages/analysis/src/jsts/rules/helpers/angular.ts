@@ -29,7 +29,7 @@ export interface AngularMetadataOutput {
 }
 
 /** Returns static text from `'refresh'` or `` `refresh` ``, e.g. `outputs: ['refresh']`. */
-function staticText(node: TSESTree.Node | undefined): string | undefined {
+export function staticText(node: TSESTree.Node | undefined): string | undefined {
   if (node && isStringLiteral(node as unknown as estree.Node)) {
     return (node as unknown as estree.Literal).value as string;
   }

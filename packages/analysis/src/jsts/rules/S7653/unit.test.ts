@@ -106,6 +106,61 @@ const compoundSelectorOutput = `
 describe('S7653', () => {
   const ruleTester = new NoTypeCheckingRuleTester();
 
+  it('handles static template strings in compound-selector aliases and selectors', () => {
+    const memberAPIs = ['output', 'decorator'] as const;
+    const valid = ['Component', 'Directive'].flatMap(decorator =>
+      memberAPIs.flatMap(api =>
+        ["'", '"', '`'].flatMap(selectorQuote =>
+          ["'", '"', '`'].map(aliasQuote => ({
+            code: outputCode(api, 'changed', 'fooBarChanged', aliasQuote)
+              .replace('@Component(', `@${decorator}(`)
+              .replace("'app-test'", `${selectorQuote}foo[bar]${selectorQuote}`),
+          })),
+        ),
+      ),
+    );
+    valid.push(
+      ...memberAPIs.map(api => ({
+        code: outputCode(api, 'changed', String.raw`\u0066ooBarChanged`, '`').replace(
+          "'app-test'",
+          '`' + String.raw`\u0066oo[bar]` + '`',
+        ),
+      })),
+    );
+    const invalid = memberAPIs.flatMap(api => [
+      {
+        code: outputCode(api, 'changed', 'fooBarChanged', '`').replace(
+          "'app-test'",
+          '`foo[${attribute}]`',
+        ),
+        errors: 1,
+      },
+      {
+        code: outputCode(api, 'changed', 'fooBar${suffix}', '`').replace(
+          "'app-test'",
+          '`foo[bar]`',
+        ),
+        errors: 2,
+      },
+      {
+        code: outputCode(api, 'changed', 'fooBarUpdated', '`').replace("'app-test'", '`foo[bar]`'),
+        errors: 1,
+      },
+    ]);
+    invalid.push({
+      code: outputCode('metadata', 'changed', 'fooBarChanged', '`').replace(
+        "'app-test'",
+        '`foo[bar]`',
+      ),
+      errors: 1,
+    });
+    ruleTester.run('S7653', rule, { valid, invalid });
+    ruleTester.run('no-output-rename', upstreamRule, {
+      valid: [],
+      invalid: [...valid.map(test => ({ ...test, errors: 1 })), ...invalid],
+    });
+  });
+
   it('does not report an output alias derived from an element and its bare selector attribute', () => {
     ruleTester.run('S7653', rule, {
       valid: [
