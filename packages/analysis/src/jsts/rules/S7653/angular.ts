@@ -16,6 +16,7 @@
  */
 import type { TSESTree } from '@typescript-eslint/utils';
 import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { staticText } from '../helpers/angular.js';
 
 /**
  * Check that one direct output declaration owns the alias:
@@ -81,6 +82,7 @@ function isDirectOutputAlias(
  *   @Output('fooBarChanged') [changed] = ...;     -> undefined
  */
 export function getOutputMemberName(node: TSESTree.Node): string | undefined {
+  const aliasNode = node.type === 'TemplateElement' ? node.parent : node;
   const member = findFirstMatchingAncestor(
     node,
     ancestor => ancestor.type === 'PropertyDefinition' || ancestor.type === 'MethodDefinition',
@@ -91,13 +93,13 @@ export function getOutputMemberName(node: TSESTree.Node): string | undefined {
     !member.computed &&
     member.key.type === 'Identifier' &&
     (member.type === 'PropertyDefinition' || member.type === 'MethodDefinition') &&
-    isDirectOutputAlias(node, member)
+    isDirectOutputAlias(aliasNode, member)
     ? member.key.name
     : undefined;
 }
 
 /**
- * Read a literal selector from one unambiguous directive decorator:
+ * Read a static selector from one unambiguous directive decorator:
  *
  *   @Directive({ selector: 'foo[bar]' }) class FooBarDirective { ... } -> 'foo[bar]'
  *   @Component({ selector: 'foo[bar]' }) class FooBarComponent { ... } -> undefined
@@ -149,13 +151,8 @@ export function getCompoundSelector(node: TSESTree.Node) {
     return undefined;
   }
   const [property] = selectorProperties;
-  if (
-    property.type === 'Property' &&
-    !property.computed &&
-    property.value.type === 'Literal' &&
-    typeof property.value.value === 'string'
-  ) {
-    return property.value.value;
+  if (property.type === 'Property' && !property.computed) {
+    return staticText(property.value);
   }
   return undefined;
 }
