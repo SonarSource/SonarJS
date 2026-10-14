@@ -20,6 +20,7 @@ import type PostCSS from 'postcss';
 import {
   definitionSyntax,
   find,
+  ident,
   parse,
   string as cssString,
   walk,
@@ -106,8 +107,28 @@ const UNIVERSAL_SYNTAX = '*';
 const VENDOR_PREFIX = /^-(?:webkit|moz|ms|o|khtml)-/i;
 const LEGACY_IE_FILTER_FUNCTION = /^\s*(?:progid:|alpha\()/i;
 const LEGACY_IE_FILTER_KEYWORDS = new Set(['fliph', 'flipv', 'gray', 'invert', 'xray']);
-// WebKit reads a unitless `-webkit-perspective` as a length in pixels
-const WEBKIT_UNITLESS_PERSPECTIVE = /^(?:\d+(?:\.\d+)?|\.\d+)$/;
+
+// Units relative to the font or to a container, whose lengths depend on other properties
+const DEPENDENT_UNITS = new Set([
+  'cap',
+  'ch',
+  'cqb',
+  'cqh',
+  'cqi',
+  'cqmax',
+  'cqmin',
+  'cqw',
+  'em',
+  'ex',
+  'ic',
+  'lh',
+  'rcap',
+  'rch',
+  'rem',
+  'rex',
+  'ric',
+  'rlh',
+]);
 
 const MAX_CACHE_SIZE = 10000;
 const validValuesByLexer = new WeakMap<Lexer, Set<string>>();
@@ -179,6 +200,10 @@ function findProblem(
     // values that are not valid CSS syntax are left to S4652 and S8757
     return undefined;
   }
+  decodeIdentifiers(ast);
+  if (isAcceptedValue(decl.prop, ast)) {
+    return undefined;
+  }
   const knownFunctions = knownFunctionsOf(lexer);
   if (hasUnvalidatedPiece(ast, knownFunctions, MATH_FUNCTIONS)) {
     return undefined;
@@ -229,8 +254,37 @@ function collectRegisteredSyntaxes(root: PostCSS.Root, lexer: Lexer): Map<string
 }
 
 /**
+ * css-tree matches identifiers by their escaped name, so `\69nherit` would not match `inherit`
+ */
+function decodeIdentifiers(ast: CssNode): void {
+  walk(ast, (node: CssNode) => {
+    if (node.type === 'Identifier') {
+      node.name = ident.decode(node.name);
+    }
+  });
+}
+
+/**
+ * Values that the grammar rejects but browsers accept: CSS-wide keywords, which apply to
+ * registered custom properties as well, and unitless `-webkit-perspective` numbers, which
+ * WebKit reads as pixels.
+ */
+function isAcceptedValue(property: string, ast: CssNode): boolean {
+  const node = ast.type === 'Value' && ast.children.size === 1 ? ast.children.first : null;
+  if (node?.type === 'Identifier') {
+    return CSS_WIDE_KEYWORDS.has(node.name.toLowerCase());
+  }
+  return (
+    node?.type === 'Number' &&
+    property.toLowerCase() === '-webkit-perspective' &&
+    Number(node.value) >= 0
+  );
+}
+
+/**
  * The syntax of a valid `@property` registration: browsers ignore a registration without
- * a `syntax` string or an `inherits` flag, or whose initial value does not match its syntax.
+ * a `syntax` string or an `inherits` flag, or whose initial value does not match its syntax
+ * or depends on other properties.
  */
 function registeredSyntax(atRule: PostCSS.AtRule, lexer: Lexer): string | undefined {
   const descriptors = new Map<string, string>();
@@ -249,14 +303,21 @@ function registeredSyntax(atRule: PostCSS.AtRule, lexer: Lexer): string | undefi
     return UNIVERSAL_SYNTAX;
   }
   const initialValue = descriptors.get('initial-value');
-  return initialValue !== undefined && matchesSyntax(lexer, syntax, initialValue)
+  return initialValue !== undefined && isValidInitialValue(lexer, syntax, initialValue)
     ? syntax
     : undefined;
 }
 
-function matchesSyntax(lexer: Lexer, syntax: string, value: string): boolean {
+function isValidInitialValue(lexer: Lexer, syntax: string, value: string): boolean {
   try {
-    return lexer.match(syntax, parse(value, { context: 'value' })).error === null;
+    const ast = parse(value, { context: 'value' });
+    return (
+      find(
+        ast,
+        (node: CssNode) =>
+          node.type === 'Dimension' && DEPENDENT_UNITS.has(node.unit.toLowerCase()),
+      ) === null && lexer.match(syntax, ast).error === null
+    );
   } catch {
     return false;
   }
@@ -265,10 +326,10 @@ function matchesSyntax(lexer: Lexer, syntax: string, value: string): boolean {
 function isSkippedDeclaration(decl: PostCSS.Declaration, syntax: string | undefined): boolean {
   const property = decl.prop.toLowerCase();
   return (
-    (property.startsWith('--') && isUncheckedCustomProperty(decl, syntax)) ||
+    // custom properties are checked only against a restricted registered syntax
+    (property.startsWith('--') && (syntax === undefined || syntax === UNIVERSAL_SYNTAX)) ||
     property === '-ms-filter' ||
     (property === 'filter' && isLegacyIeFilter(decl.value)) ||
-    (property === '-webkit-perspective' && WEBKIT_UNITLESS_PERSPECTIVE.test(decl.value.trim())) ||
     isDescriptor(decl)
   );
 }
@@ -280,18 +341,6 @@ function isLegacyIeFilter(value: string): boolean {
       .trim()
       .split(/\s+/)
       .every((keyword: string) => LEGACY_IE_FILTER_KEYWORDS.has(keyword.toLowerCase()))
-  );
-}
-
-/**
- * Custom properties are checked only against a restricted registered syntax, which
- * CSS-wide keywords always match.
- */
-function isUncheckedCustomProperty(decl: PostCSS.Declaration, syntax: string | undefined) {
-  return (
-    syntax === undefined ||
-    syntax === UNIVERSAL_SYNTAX ||
-    CSS_WIDE_KEYWORDS.has(decl.value.trim().toLowerCase())
   );
 }
 

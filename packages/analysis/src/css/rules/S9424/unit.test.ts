@@ -226,8 +226,29 @@ a { --gap: inherit; }
 b { --gap: initial; }
 i { --gap: unset; }
 p { --gap: revert; }
-q { --gap: REVERT-LAYER; }`,
+q { --gap: REVERT-LAYER; }
+s { --gap: \\69nherit; }
+u { --gap: /* before */ InHeRiT /* after */; }`,
     }));
+
+  it('reports a CSS-wide keyword followed by another value', () =>
+    ruleTester.invalid({
+      code: `@property --gap {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+a { --gap: inherit red; }`,
+      errors: [{ text: `Unknown value "inherit" for property "--gap" (${RULE})`, line: 6 }],
+    }));
+
+  it('decodes escaped keywords', async () => {
+    await ruleTester.valid({ code: 'a { color: \\69nherit; display: \\62lock; }' });
+    await ruleTester.invalid({
+      code: 'a { display: \\62lok; }',
+      errors: [{ text: `Unknown value "\\62lok" for property "display" (${RULE})`, column: 14 }],
+    });
+  });
 
   it('checks a registered custom property against its last valid registration', async () => {
     const restricted = `@property --gap {
@@ -254,17 +275,34 @@ q { --gap: REVERT-LAYER; }`,
       '@property --gap { syntax: "<length>"; inherits: false; initial-value: red; }',
       '@property --gap { syntax: <length>; inherits: false; initial-value: 0px; }',
       '@property --gap { inherits: false; initial-value: 0px; }',
+      '@property --gap { syntax: "<length>"; inherits: false; initial-value: 1em; }',
+      '@property --gap { syntax: "<length>"; inherits: false; initial-value: 2REM; }',
+      '@property --gap { syntax: "<length>"; inherits: false; initial-value: 1cqw; }',
+      '@property --gap { syntax: "<length>"; inherits: false; initial-value: calc(1em + 1px); }',
     ];
     for (const registration of registrations) {
       await ruleTester.valid({ code: `${registration}\na { --gap: red; }` });
     }
-    await ruleTester.invalid({
-      code: `@property --gap { syntax: "<length>"; inherits: false; initial-value: 0px; }
-@property --gap { syntax: "*"; initial-value: red; }
+    for (const invalid of [
+      '@property --gap { syntax: "*"; initial-value: red; }',
+      '@property --gap { syntax: "<length>"; inherits: false; initial-value: 1em; }',
+    ]) {
+      await ruleTester.invalid({
+        code: `@property --gap { syntax: "<length>"; inherits: false; initial-value: 0px; }
+${invalid}
 a { --gap: red; }`,
-      errors: [{ text: `Unknown value "red" for property "--gap" (${RULE})`, line: 3 }],
-    });
+        errors: [{ text: `Unknown value "red" for property "--gap" (${RULE})`, line: 3 }],
+      });
+    }
   });
+
+  it('accepts registrations whose initial value is relative to the viewport', () =>
+    ruleTester.invalid({
+      code: `@property --gap { syntax: "<length>"; inherits: false; initial-value: calc(10vw + 1px); }
+a { --gap: red; }
+b { --gap: 2em; }`,
+      errors: [{ text: `Unknown value "red" for property "--gap" (${RULE})`, line: 2 }],
+    }));
 
   it('ignores unregistered custom properties and values using var()', () =>
     ruleTester.valid({ code: 'a { --anything: red; top: var(--anything); }' }));
@@ -292,17 +330,29 @@ a { --gap: red; }`,
 }`,
     }));
 
-  it('ignores unitless numbers for -webkit-perspective', () =>
+  it('ignores non-negative unitless numbers for -webkit-perspective', () =>
     ruleTester.valid({
-      code: 'a { -webkit-perspective: 2000; -webkit-perspective: 0; -webkit-perspective: 12.5; }',
+      code: `a {
+  -webkit-perspective: 2000;
+  -webkit-perspective: 12.5;
+  -webkit-perspective: +2000;
+  -webkit-perspective: 2e3;
+  -webkit-perspective: 2e-3;
+  -webkit-perspective: -0;
+}`,
     }));
 
-  it('reports unitless numbers for the unprefixed perspective', () =>
+  it('reports negative numbers for -webkit-perspective and unitless numbers for perspective', () =>
     ruleTester.invalid({
-      code: 'a { perspective: 2000; -webkit-perspective: -10; }',
+      code: `a {
+  -webkit-perspective: -10;
+  -webkit-perspective: 2000 10;
+  perspective: 2000;
+}`,
       errors: [
-        { text: `Unknown value "2000" for property "perspective" (${RULE})`, column: 18 },
-        { text: `Unknown value "-10" for property "-webkit-perspective" (${RULE})`, column: 45 },
+        { text: `Unknown value "-10" for property "-webkit-perspective" (${RULE})`, line: 2 },
+        { text: `Unknown value "2000" for property "-webkit-perspective" (${RULE})`, line: 3 },
+        { text: `Unknown value "2000" for property "perspective" (${RULE})`, line: 4 },
       ],
     }));
 
