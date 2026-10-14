@@ -46,7 +46,10 @@ export async function analyzeWithoutProgram(
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
-  for (const filename of filenames) {
+  // Files are analyzed one after another on purpose: analysis shares linter state,
+  // progress reporting, and must honor cancellation between files.
+  await [...filenames].reduce<Promise<void>>(async (previous, filename) => {
+    await previous;
     if (isAnalysisCancelled()) {
       return;
     }
@@ -71,5 +74,5 @@ export async function analyzeWithoutProgram(
       progressReport,
       incrementalResultsChannel,
     );
-  }
+  }, Promise.resolve());
 }

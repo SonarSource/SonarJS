@@ -180,7 +180,9 @@ async function analyzeFilesFromDiscoveredPrograms(
       continue;
     }
 
-    await analyzeFilesFromTsConfig(
+    // Sequential on purpose: each tsconfig updates shared state (pendingFiles, discovered
+    // references extending the live iterable) that later iterations depend on.
+    await analyzeFilesFromTsConfig( // NOSONAR
       files,
       tsConfig,
       results,
@@ -262,7 +264,10 @@ async function analyzeFilesFromEntryPoint(
     telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
     programSelection?.recordOrphanGroup(groupRootNames, programOptions.options);
 
-    for (const fileName of groupRootNames) {
+    // Files are analyzed sequentially on purpose: they share the same TypeScript program,
+    // progress reporting is ordered, and cancellation is checked before each file.
+    await groupRootNames.reduce<Promise<void>>(async (previous, fileName) => {
+      await previous;
       if (isAnalysisCancelled()) {
         return;
       }
@@ -279,7 +284,7 @@ async function analyzeFilesFromEntryPoint(
         detectedEsYear ?? undefined,
         targetEsYear ?? undefined,
       );
-    }
+    }, Promise.resolve());
   };
 
   // Partition orphans by resolved lib so files in different packages don't share a
@@ -302,7 +307,9 @@ async function analyzeFilesFromEntryPoint(
     const programOptions = mergedBaseline
       ? withOverriddenLib(mergedBaseline, lib, baseDir)
       : createProgramOptionsFromJson({ ...defaultCompilerOptions, lib }, groupRootNames, baseDir);
-    await runProgram(programOptions, groupRootNames, label);
+    // Sequential on purpose: one TypeScript program at a time to bound memory usage and
+    // keep shared state (pendingFiles, progress report) updated in order.
+    await runProgram(programOptions, groupRootNames, label); // NOSONAR
   }
 }
 
@@ -403,12 +410,13 @@ async function analyzeFilesFromTsConfig(
     `Analyzing ${filesToAnalyze.length} file(s) from tsconfig ${tsconfig} (${tsProgram.getSourceFiles().length} total files in program)`,
   );
 
-  // Analyze each file using the same program
-  for (const fileName of filesToAnalyze) {
-    if (isAnalysisCancelled()) {
-      return;
-    }
+  if (isAnalysisCancelled()) {
+    return;
+  }
 
+  // Analyze each file sequentially using the same program: files share the program,
+  // progress reporting and pending state, and cancellation is checked between files
+  for (const fileName of filesToAnalyze) {
     programSelection?.recordConfigured(fileName, tsconfig, programOptions.options);
     await analyzeFile(
       fileName,
@@ -422,6 +430,10 @@ async function analyzeFilesFromTsConfig(
       detectedEsYear ?? undefined,
       targetEsYear ?? undefined,
     );
+
+    if (isAnalysisCancelled()) {
+      return;
+    }
   }
 }
 
