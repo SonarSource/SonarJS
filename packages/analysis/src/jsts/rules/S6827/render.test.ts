@@ -312,6 +312,26 @@ for (const [language, Tester] of [
       });
     });
 
+    it('handles repeated alias paths without accepting empty or cyclic consumers', () => {
+      const aliases = Array.from(
+        { length: 24 },
+        (_, i) => `const link${i + 1} = flag ? link${i} : link${i};`,
+      ).join('');
+      const code = `${button}const link0 = <a />;${aliases}`;
+      new Tester().run('anchor-has-content', rule, {
+        valid: [
+          `${code}<Button render={link24}>Continue</Button>;`,
+          `${code}<><Button render={link24}>Home</Button><Button render={link24}>Menu</Button></>;`,
+        ].map(code => ({ code })),
+        invalid: [
+          `${code}<><Button render={link24}>Home</Button><Button render={link24} /></>;`,
+          `${code}<><Button render={link24}>Home</Button><Other render={link24}>Menu</Other></>;`,
+          `${button}const link = <a />; const alias = flag ? link : alias; <Button render={alias}>Continue</Button>;`,
+          `${button}const link = <a />; const left = flag ? link : right; const right = left; <Button render={right}>Continue</Button>;`,
+        ].map(code => ({ code, errors: 1 })),
+      });
+    });
+
     it('checks selected HTML branches for accessible content', () => {
       const code = (expression: string, declarations = '') =>
         `${button}${declarations}<Button render={<a />} dangerouslySetInnerHTML={{__html: ${expression}}} />;`;

@@ -58,7 +58,11 @@ function hasRenderConsumer(
   opening: TSESTree.JSXOpeningElement,
   context: Rule.RuleContext,
   seen: Set<TSESTree.Node>,
+  completed = new Set<TSESTree.Node>(),
 ): boolean {
+  if (completed.has(node)) {
+    return true;
+  }
   if (seen.has(node)) {
     return false;
   }
@@ -86,12 +90,21 @@ function hasRenderConsumer(
       return false;
     }
     const reads = variable.references.filter(reference => reference.isRead());
-    return (
+    const result =
       reads.length > 0 &&
       reads.every(reference =>
-        hasRenderConsumer(reference.identifier as TSESTree.Node, opening, context, new Set(seen)),
-      )
-    );
+        hasRenderConsumer(
+          reference.identifier as TSESTree.Node,
+          opening,
+          context,
+          new Set(seen),
+          completed,
+        ),
+      );
+    if (result) {
+      completed.add(node);
+    }
+    return result;
   }
   const container = current.parent;
   const attribute = container?.parent;
@@ -110,11 +123,14 @@ function hasRenderConsumer(
     ...anchorAttributes,
   ];
   const children = getEffectiveAttribute(anchorAttributes, 'children', context);
-  return (
+  const result =
     isCompositionComponent(consumer.openingElement, context) &&
     !isHidden(attributes, context) &&
-    hasContentProps(attributes, children === null ? consumer.children : [], context, new Set())
-  );
+    hasContentProps(attributes, children === null ? consumer.children : [], context, new Set());
+  if (result) {
+    completed.add(node);
+  }
+  return result;
 }
 
 /**
