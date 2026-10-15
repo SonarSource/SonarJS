@@ -213,6 +213,44 @@ describe('SonarQube project analysis', () => {
     ]);
   });
 
+  it('should report a missing extended config followed by a cached valid config', async context => {
+    const log = context.mock.method(console, 'log', () => {});
+    const baseDir = normalizeToAbsolutePath(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'missing-extends-cached-config-')),
+    );
+    context.after(() => fs.rmSync(baseDir, { recursive: true, force: true }));
+    fs.writeFileSync(path.join(baseDir, 'base.json'), '{"compilerOptions":{"strict":true}}');
+    const filePaths = ['first.ts', 'second.ts'].map(file => normalizeToAbsolutePath(file, baseDir));
+    const tsconfigs = ['first.json', 'second.json'].map(file =>
+      normalizeToAbsolutePath(file, baseDir),
+    );
+    for (const [index, filePath] of filePaths.entries()) {
+      fs.writeFileSync(filePath, 'const x: number = 1;;');
+      fs.writeFileSync(
+        tsconfigs[index],
+        JSON.stringify({
+          // The first config caches base.json before the second config reads it.
+          extends: index === 0 ? './base.json' : ['@missing/tsconfig', './base.json'],
+          files: [path.basename(filePath)],
+        }),
+      );
+    }
+    const inputFiles = Object.fromEntries(
+      filePaths.map(filePath => [filePath, { filePath, fileType: 'MAIN' as const }]),
+    );
+    const configuration = await initForTest({ baseDir, tsConfigPaths: tsconfigs }, inputFiles);
+    const result = await analyzeProject({ rules, bundles: [] }, configuration);
+
+    const expectedWarning =
+      'At least one referenced/extended tsconfig.json could not be resolved after trying multiple lookup paths. Analysis will continue without the missing configuration. Please install project dependencies using your package manager for a more complete analysis. Check DEBUG logs for the lookup paths tried.';
+    expect(result.meta.warnings).toEqual([expectedWarning]);
+    const warnings = log.mock.calls
+      .map(call => call.arguments[0])
+      .filter(message => message.startsWith('WARN'));
+    expect(warnings).toEqual([`WARN ${tsconfigs[1]}: ${expectedWarning}`]);
+    expect(Object.keys(result.files).sort()).toEqual([...filePaths].sort());
+  });
+
   it('should report missing extended configs during replay with one summary notification', async context => {
     const log = context.mock.method(console, 'log', () => {});
     const baseDir = normalizeToAbsolutePath(

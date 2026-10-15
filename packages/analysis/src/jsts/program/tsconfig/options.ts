@@ -553,7 +553,7 @@ export function createProgramOptions(
       // 2. Check cache first
       if (tsconfigContentCache.has(file)) {
         const cachedTsConfig = tsconfigContentCache.get(file)!;
-        missingTsConfig = cachedTsConfig.missing;
+        missingTsConfig ||= cachedTsConfig.missing;
         return cachedTsConfig.contents;
       }
 
