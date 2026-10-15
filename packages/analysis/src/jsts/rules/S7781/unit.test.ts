@@ -18,6 +18,7 @@ import { rule } from './index.js';
 import { rules } from '../external/unicorn.js';
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import { RuleTester as ESLintRuleTester } from 'eslint';
 
 const upstreamRule = rules['prefer-string-replace-all'];
 
@@ -223,6 +224,55 @@ function trimSpaces(input) { return input.replace(spaceRegex, ''); }`,
           errors: [{ messageId: 'method' }],
           output: `const spaceRegex = / /g;
 function trimSpaces(input) { return input.replaceAll(spaceRegex, ''); }`,
+        },
+      ],
+    });
+  });
+
+  it('offers the combined fix only for standalone JS/TS files', () => {
+    const ruleTester = new ESLintRuleTester({
+      files: ['**/*'],
+      languageOptions: { parserOptions: { ecmaFeatures: { jsx: true } } },
+    });
+    ruleTester.run('prefer-string-replace-all', rule, {
+      valid: [],
+      invalid: [
+        {
+          filename: 'input.jsx',
+          code: String.raw`<script>{input.replace(/\x3c\/script>/g, '')}</script>;`,
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: String.raw`<script>{input.replaceAll("</script>", '')}</script>;`,
+        },
+        ...['js', 'ts', 'mjs', 'cts'].map(extension => ({
+          filename: `input.${extension}`,
+          code: `input.replace(/[.]/g, '!');`,
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: `input.replaceAll(".", '!');`,
+        })),
+        ...['html', 'vue', 'yaml', 'custom'].map(extension => ({
+          filename: `input.${extension}`,
+          code: String.raw`input.replace(/\x3c\/script>/g, '');`,
+          errors: [{ messageId: 'methodAndPattern' }],
+          output: null,
+        })),
+        // Upstream fixes remain available in embedded files.
+        {
+          filename: 'input.html',
+          code: `const pattern = /hello/g; input.replace(pattern, 'hi');`,
+          errors: [{ messageId: 'method' }],
+          output: `const pattern = /hello/g; input.replaceAll(pattern, 'hi');`,
+        },
+        {
+          filename: 'input.html',
+          code: `input.replaceAll(/hello/g, 'hi');`,
+          errors: [{ messageId: 'pattern', data: { replacement: "'hello'" } }],
+          output: `input.replaceAll('hello', 'hi');`,
+        },
+        {
+          filename: 'input.html',
+          code: `input.split('.').join('!');`,
+          errors: [{ messageId: 'split-join' }],
+          output: `input.replaceAll('.', '!');`,
         },
       ],
     });

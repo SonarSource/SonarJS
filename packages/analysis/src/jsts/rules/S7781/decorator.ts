@@ -67,13 +67,22 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
+      // Embedded formats require their own escaping for generated string literals.
+      // The generated string literals we generate are not always safe replacements
+      // when the JS/TS is in embedded files.
+      // E.g., in HTML
+      // `input.replace(/\x3c\/script>/g, '')` becomes `input.replaceAll("</script>", '')`,
+      // and the resulting literal </script> ends the HTML script block early
+      const safeToFix = /\.(?:[cm]?[jt]s|[jt]sx)$/i.test(context.physicalFilename);
       context.report({
         ...descriptor,
         messageId: METHOD_AND_PATTERN_MESSAGE_ID,
-        fix: fixer => [
-          fixer.insertTextAfter(descriptor.node, 'All'),
-          fixer.replaceText(pattern, toStringLiteral(literal)),
-        ],
+        fix: safeToFix
+          ? fixer => [
+              fixer.insertTextAfter(descriptor.node, 'All'),
+              fixer.replaceText(pattern, toStringLiteral(literal)),
+            ]
+          : undefined,
       });
     },
   );
