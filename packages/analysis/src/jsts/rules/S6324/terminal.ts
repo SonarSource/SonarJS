@@ -133,7 +133,7 @@ function controlsInPath(
     if (
       isCharacter(first, ESC) &&
       isCharacter(elements[index + 1], LEFT_BRACKET) &&
-      hasCsiCommand(elements, index + 2)
+      hasCsiCommand(elements, index + 2, maximumCodePoint)
     ) {
       controls.add(first);
     }
@@ -172,11 +172,15 @@ function oscControls(
   return controls;
 }
 
-function hasCsiCommand(elements: readonly AST.Element[], start: number): boolean {
+function hasCsiCommand(
+  elements: readonly AST.Element[],
+  start: number,
+  maximumCodePoint: number,
+): boolean {
   let end = start;
   while (
     end < elements.length &&
-    (isDecimal(elements[end]) || isCharacter(elements[end], SEMICOLON))
+    (isDecimal(elements[end], maximumCodePoint) || isCharacter(elements[end], SEMICOLON))
   ) {
     end++;
   }
@@ -241,14 +245,14 @@ function isCharacter(element: AST.Element | undefined, value: number): element i
   return element?.type === 'Character' && element.value === value;
 }
 
-function isDecimal(element: AST.Element): boolean {
+function isDecimal(element: AST.Element, maximumCodePoint: number): boolean {
   if (element.type === 'Quantifier') {
-    return isDecimal(element.element);
+    return isDecimal(element.element, maximumCodePoint);
   }
   if (element.type === 'CharacterSet') {
     return element.kind === 'digit' && !element.negate;
   }
-  return isSubsetOfCharacterRange(element, DIGIT_ZERO, DIGIT_NINE);
+  return isSubsetOfCharacterRange(element, DIGIT_ZERO, DIGIT_NINE, maximumCodePoint);
 }
 
 function isPrintable(element: AST.Element, maximumCodePoint: number): boolean {

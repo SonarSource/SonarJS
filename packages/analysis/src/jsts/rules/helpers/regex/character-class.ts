@@ -49,7 +49,7 @@ export function isSubsetOfCharacterRange(
   }
   const covers = (from: number, to: number) => {
     let next = from;
-    for (const range of ranges.toSorted((left, right) => left.minimum - right.minimum)) {
+    for (const range of [...ranges].sort((left, right) => left.minimum - right.minimum)) {
       if (range.minimum > next) {
         break;
       }
