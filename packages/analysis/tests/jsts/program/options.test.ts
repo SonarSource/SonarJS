@@ -142,9 +142,11 @@ describe('createProgramOptions', () => {
 
       const messages = log.mock.calls.map(call => call.arguments[0]);
       const lastLookup = normalizeToAbsolutePath(`/node_modules/${extendedConfig}/tsconfig.json`);
-      expect(messages.filter(message => message.startsWith('WARN'))).toEqual([
-        `WARN Could not resolve an extended tsconfig while parsing ${tsConfig}. Multiple lookup paths were tried; the last was ${lastLookup}. Analysis will continue without the missing configuration. Check DEBUG logs for the other lookup paths.`,
-      ]);
+      // User-facing warnings are emitted by the analysis layer, including on cache hits.
+      expect(messages.filter(message => message.startsWith('WARN'))).toEqual([]);
+      expect(messages).toContain(
+        `DEBUG Could not resolve an extended tsconfig while parsing ${tsConfig}. Last lookup path: ${lastLookup}; using an empty configuration.`,
+      );
       // The original JSON path is tried before the directory-style fallback.
       const jsonLookup = `DEBUG TSConfig lookup while parsing ${tsConfig}: checking ${path.join(fixtures, 'node_modules', extendedConfig)}`;
       const fallbackLookup = `DEBUG TSConfig lookup while parsing ${tsConfig}: checking ${lastLookup}`;

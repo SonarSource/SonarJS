@@ -24,7 +24,6 @@ import com.sonarsource.scanner.integrationtester.dsl.SonarServerContext;
 import com.sonarsource.scanner.integrationtester.dsl.issue.TextRangeIssue;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
-import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -61,18 +60,8 @@ class ExternalTSConfigDependencyTest {
       l
         .message()
         .contains(
-          "extends a configuration that was not found. Please install project dependencies using your package manager for a more complete analysis"
+          "Please install project dependencies using your package manager for a more complete analysis"
         )
-    );
-
-    File rootDrive = PROJECT_DIR.toFile();
-    while (rootDrive.getParentFile() != null) {
-      rootDrive = rootDrive.getParentFile();
-    }
-
-    File lastTsConfigPath = new File(
-      rootDrive,
-      "node_modules" + File.separator + "__missing__" + File.separator + "tsconfig.json"
     );
 
     assertThat(
@@ -80,13 +69,7 @@ class ExternalTSConfigDependencyTest {
         .logOutput()
         .stream()
         .filter(l ->
-          l
-            .message()
-            .contains(
-              "Multiple lookup paths were tried; the last was " +
-                lastTsConfigPath.getAbsolutePath().replace('\\', '/') +
-                ". Analysis will continue without the missing configuration."
-            )
+          l.message().contains("Analysis will continue without the missing configuration.")
         )
     ).hasSize(1);
   }

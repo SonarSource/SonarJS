@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
-import { debug, error, warn } from '../../../../../shared/src/helpers/logging.js';
+import { debug, error } from '../../../../../shared/src/helpers/logging.js';
 import {
   getNodeVersionSignal,
   getTypeScriptVersionSignal,
@@ -40,7 +40,7 @@ import { intersects } from 'semver';
 const PROGRAM_OPTIONS_BRAND: unique symbol = Symbol('ProgramOptions');
 
 export const MISSING_EXTENDED_TSCONFIG =
-  'At least one referenced/extended tsconfig.json was not found in the project. Please install project dependencies using your package manager for a more complete analysis. Check analysis logs for more details.';
+  'At least one referenced/extended tsconfig.json could not be resolved after trying multiple lookup paths. Analysis will continue without the missing configuration. Please install project dependencies using your package manager for a more complete analysis. Check DEBUG logs for the lookup paths tried.';
 
 /**
  * Program options that must be created via createProgramOptions().
@@ -566,8 +566,8 @@ export function createProgramOptions(
       // 4. Handle missing extended tsconfig (return empty config)
       if (!fileContents && isLastTsConfigCheck(file)) {
         missingTsConfig = true;
-        warn(
-          `Could not resolve an extended tsconfig while parsing ${tsConfig}. Multiple lookup paths were tried; the last was ${file}. Analysis will continue without the missing configuration. Check DEBUG logs for the other lookup paths.`,
+        debug(
+          `Could not resolve an extended tsconfig while parsing ${tsConfig}. Last lookup path: ${file}; using an empty configuration.`,
         );
         const emptyConfig = '{}';
         tsconfigContentCache.set(file, { contents: emptyConfig, missing: true });

@@ -662,7 +662,10 @@ describe('SonarQube project analysis', () => {
     );
   });
 
-  it('should warn when extended tsconfig is missing', async () => {
+  it('should log one warning and retain the analysis notification when extended tsconfig is missing', async ({
+    mock,
+  }) => {
+    const log = mock.method(console, 'log', () => {});
     const baseDir = join(fixtures, 'missing-extends');
 
     const configuration = await initForTest({ baseDir });
@@ -671,8 +674,12 @@ describe('SonarQube project analysis', () => {
     expect(result.meta.warnings.length).toEqual(1);
     const resultWarning = result.meta.warnings.at(0);
     expect(resultWarning).toEqual(
-      'At least one referenced/extended tsconfig.json was not found in the project. Please install project dependencies using your package manager for a more complete analysis. Check analysis logs for more details.',
+      'At least one referenced/extended tsconfig.json could not be resolved after trying multiple lookup paths. Analysis will continue without the missing configuration. Please install project dependencies using your package manager for a more complete analysis. Check DEBUG logs for the lookup paths tried.',
     );
+    const warnings = log.mock.calls
+      .map(call => call.arguments[0])
+      .filter(message => message.startsWith('WARN'));
+    expect(warnings).toEqual([`WARN ${join(baseDir, 'tsconfig.json')}: ${resultWarning}`]);
   });
 
   it('should stream results via incrementalResults callback', async () => {

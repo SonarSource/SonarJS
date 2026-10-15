@@ -29,7 +29,10 @@ import {
 } from '../src/file-stores/index.js';
 import type { RuleConfig } from '../src/jsts/linter/config/rule-config.js';
 import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.js';
-import { clearProgramOptionsCache } from '../src/jsts/program/cache/programOptionsCache.js';
+import {
+  clearProgramOptionsCache,
+  getCachedProgramOptions,
+} from '../src/jsts/program/cache/programOptionsCache.js';
 import { sanitizeInputFiles, type ProjectAnalysisFileInput } from '../src/common/input-sanitize.js';
 import {
   createConfigurationFromInput,
@@ -81,6 +84,50 @@ describe('SonarLint tsconfig change detection', () => {
   afterEach(async () => {
     // Clean up temp directory
     await rm(tempDir, { recursive: true, force: true });
+  });
+
+  it('should log one missing-config warning with fresh and cached program options', async ({
+    mock,
+  }) => {
+    const log = mock.method(console, 'log', () => {});
+    const fileContent = 'const x: number = 1;';
+    await writeFile(filePath, fileContent);
+    await writeFile(
+      tsconfigPath,
+      JSON.stringify({ extends: '@monorepo/tsconfig/nextjs.json', files: ['file.ts'] }),
+    );
+
+    const configuration = await initForTest(
+      { baseDir: tempDir, sonarlint: true },
+      { [filePath]: { filePath, fileContent } },
+    );
+    const firstResult = await analyzeProject({ rules, bundles: [] }, configuration);
+    const warnings = () =>
+      log.mock.calls.map(call => call.arguments[0]).filter(message => message.startsWith('WARN'));
+    const expectedWarning =
+      'At least one referenced/extended tsconfig.json could not be resolved after trying multiple lookup paths. Analysis will continue without the missing configuration. Please install project dependencies using your package manager for a more complete analysis. Check DEBUG logs for the lookup paths tried.';
+    expect(firstResult.meta.warnings).toEqual([expectedWarning]);
+    expect(warnings()).toEqual([`WARN ${tsconfigPath}: ${expectedWarning}`]);
+
+    const cachedOptions = getCachedProgramOptions(tsconfigPath);
+    expect(cachedOptions?.missingTsConfig).toBe(true);
+    // Recreate the program while retaining the parsed options and missing-config caches.
+    getProgramCacheManager().clear();
+    const firstCallCount = log.mock.calls.length;
+    const secondConfiguration = await initForTest(
+      { baseDir: tempDir, sonarlint: true },
+      { [filePath]: { filePath, fileContent } },
+    );
+    const secondResult = await analyzeProject({ rules, bundles: [] }, secondConfiguration);
+
+    expect(getCachedProgramOptions(tsconfigPath)).toBe(cachedOptions);
+    expect(secondResult.meta.warnings).toEqual([expectedWarning]);
+    expect(warnings()).toEqual([
+      `WARN ${tsconfigPath}: ${expectedWarning}`,
+      `WARN ${tsconfigPath}: ${expectedWarning}`,
+    ]);
+    const secondMessages = log.mock.calls.slice(firstCallCount).map(call => call.arguments[0]);
+    expect(secondMessages.some(message => message.startsWith('DEBUG TSConfig lookup'))).toBe(false);
   });
 
   it('should use default options after tsconfig.json no longer includes the file', async () => {
