@@ -39,9 +39,6 @@ import { intersects } from 'semver';
  */
 const PROGRAM_OPTIONS_BRAND: unique symbol = Symbol('ProgramOptions');
 
-export const MISSING_EXTENDED_TSCONFIG =
-  'At least one referenced/extended tsconfig.json could not be resolved after trying multiple lookup paths. Analysis will continue without the missing configuration. Please install project dependencies using your package manager for a more complete analysis. Check DEBUG logs for the lookup paths tried.';
-
 /**
  * Program options that must be created via createProgramOptions().
  * The brand ensures compile-time type safety, preventing raw compiler options

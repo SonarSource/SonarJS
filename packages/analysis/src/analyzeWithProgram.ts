@@ -16,7 +16,8 @@
  */
 import type { AnalyzableFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeFile } from './analyzeFile.js';
-import { error, info, warn } from '../../shared/src/helpers/logging.js';
+import { error, info } from '../../shared/src/helpers/logging.js';
+import { reportMissingExtendedTsConfig } from './common/analysis-warnings.js';
 import { tsConfigStore } from './file-stores/index.js';
 import ts from 'typescript';
 import type { ProgressReport } from './common/progress-report.js';
@@ -33,7 +34,6 @@ import {
   defaultCompilerOptions,
   esLibToYear,
   groupFilesByResolvedLib,
-  MISSING_EXTENDED_TSCONFIG,
   tsTargetToEsYear,
   type ProgramOptions,
 } from './jsts/program/tsconfig/options.js';
@@ -132,9 +132,6 @@ export async function analyzeWithProgram(
     );
   }
 
-  if (foundProgramOptions.some(options => options.missingTsConfig)) {
-    results.meta.warnings.push(MISSING_EXTENDED_TSCONFIG);
-  }
   // Clear caches after SonarQube analysis to free memory (single-run, don't persist).
   // Note: analyzeWithIncrementalProgram (SonarLint) intentionally keeps caches for subsequent requests.
   const cacheManager = getProgramCacheManager();
@@ -364,9 +361,7 @@ async function analyzeFilesFromTsConfig(
   foundProgramOptions.push(programOptions);
   telemetry.recordCompilerOptions(programOptions.options);
 
-  if (programOptions.missingTsConfig) {
-    warn(`${tsconfig}: ${MISSING_EXTENDED_TSCONFIG}`);
-  }
+  reportMissingExtendedTsConfig(tsconfig, programOptions, results.meta);
 
   info(
     `Creating TypeScript(${ts.version}) program with configuration file ${tsconfig} [lib: ${programOptions.options.lib?.join(', ')}]`,
@@ -510,6 +505,7 @@ function restoreSelectedProgram(
         selection.rootNames,
       );
   if (isConfigured(selection.program)) {
+    reportMissingExtendedTsConfig(selection.program.tsconfig, programOptions, context.results.meta);
     programOptions.options = selection.program.compilerOptions;
   }
   telemetry.recordCompilerOptions(programOptions.options);
