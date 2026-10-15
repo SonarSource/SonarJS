@@ -376,7 +376,24 @@ function hasAttributeContent(
   context: Rule.RuleContext,
 ): boolean {
   const attribute = getEffectiveAttribute(attributes, name, context);
-  return attribute === undefined || (!!attribute && hasAccessibleNameAttribute([attribute], name));
+  if (attribute === undefined) {
+    return true;
+  }
+  if (!attribute) {
+    return false;
+  }
+  if (attribute.value?.type !== 'JSXExpressionContainer') {
+    return hasAccessibleNameAttribute([attribute], name);
+  }
+  const resolved = resolveSingleWriteExpression(
+    context,
+    attribute.value.expression as TSESTree.Node,
+  );
+  const resolvedAttribute = {
+    ...attribute,
+    value: { ...attribute.value, expression: resolved },
+  } as unknown as JSXAttribute;
+  return hasAccessibleNameAttribute([resolvedAttribute], name);
 }
 
 // null means absent; undefined means an unresolved spread may supply or override the property.

@@ -356,6 +356,40 @@ for (const [language, Tester] of [
       });
     });
 
+    it('resolves accessible-name aliases while preserving unknown values', () => {
+      const named = (value: string, name: string) =>
+        `${button}const label = ${value}; <Button render={<a />} ${name}={label} />;`;
+      new Tester().run('anchor-has-content', rule, {
+        valid: [
+          ...['aria-label', 'aria-labelledby', 'title'].flatMap(name =>
+            ["'Continue'", '`Continue`', '`Go ${destination}`', 'dynamicLabel'].map(value =>
+              named(value, name),
+            ),
+          ),
+          `${button}const label = 'Continue'; const alias = label; <Button render={<a />} title={alias} />;`,
+          `${button}let label = ''; label = dynamicLabel; <Button render={<a />} aria-label={label} />;`,
+          `${button}const label = dynamicLabel; <Button render={<a />} {...{'aria-label': label}} />;`,
+          `${button}const label = ''; <Button render={<a />} aria-label={label}>Continue</Button>;`,
+          `${button}const label = 'Continue'; <Button render={<a />}><img alt={label} /></Button>;`,
+          `${button}<Button render={<a />}><img alt={dynamicLabel} /></Button>;`,
+        ].map(code => ({ code })),
+        invalid: [
+          ...['aria-label', 'aria-labelledby', 'title'].flatMap(name =>
+            ["''", "' '", 'null', 'undefined', 'false', 'true', '0', '42', '``', '` `'].map(value =>
+              named(value, name),
+            ),
+          ),
+          `${button}const label = ''; const alias = label; <Button render={<a />} title={alias} />;`,
+          `${button}let label; label = ''; <Button render={<a />} aria-label={label} />;`,
+          `${button}const label = ''; <Button render={<a />} {...{'aria-label': label}} />;`,
+          ...["''", "' '", 'null', 'undefined'].map(
+            value =>
+              `${button}const label = ${value}; <Button render={<a />}><img alt={label} /></Button>;`,
+          ),
+        ].map(code => ({ code, errors: 1 })),
+      });
+    });
+
     it('checks selected HTML branches for accessible content', () => {
       const code = (expression: string, declarations = '') =>
         `${button}${declarations}<Button render={<a />} dangerouslySetInnerHTML={{__html: ${expression}}} />;`;
