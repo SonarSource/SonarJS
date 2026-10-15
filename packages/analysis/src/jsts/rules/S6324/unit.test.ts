@@ -33,6 +33,7 @@ describe('S6324', () => {
           { code: String.raw`/\x1b(?:\[|\[)999m/i` },
           { code: String.raw`/\u001b(?:\u005b)31m/u` },
           { code: String.raw`new RegExp('\\x1b(?:\\[)31m', 'i')` },
+          { code: String.raw`/\x1b(?:\])0;title/` },
           { code: String.raw`/\x1b(?:\])0;title\x07/` },
           { code: String.raw`/\x1b\]{1}0;title\x1b\\/` },
           { code: String.raw`/(?:\x1b(?:\])|\x9d)[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\|\x9c)/` },
@@ -60,6 +61,13 @@ describe('S6324', () => {
           {
             code: String.raw`/\x1b(?:\])0;.*?\x07/`,
             errors: [{ message: CONTROL_CHAR_MESSAGE, column: 17, endColumn: 21 }],
+          },
+          {
+            code: String.raw`/\x1b(?:\])0;title\x18\x07/`,
+            errors: [
+              { message: CONTROL_CHAR_MESSAGE, column: 19, endColumn: 23 },
+              { message: CONTROL_CHAR_MESSAGE, column: 23, endColumn: 27 },
+            ],
           },
           {
             code: String.raw`/\x1b(?:\]|)0;title\x07/`,
