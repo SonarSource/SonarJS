@@ -19,6 +19,7 @@ import { analyzeFile } from './analyzeFile.js';
 import { error, info, warn } from '../../shared/src/helpers/logging.js';
 import { tsConfigStore } from './file-stores/index.js';
 import ts from 'typescript';
+import { getProgramFileNames } from 'typescript/control';
 import type { ProgressReport } from './common/progress-report.js';
 import type { WsIncrementalResult } from './incremental-result.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
@@ -383,9 +384,9 @@ async function analyzeFilesFromTsConfig(
   telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
 
   // TypeScript normalizes file paths internally, so we can safely cast them
-  const filesToAnalyze = tsProgram
-    .getSourceFiles()
-    .map(sf => sf.fileName as NormalizedAbsolutePath)
+  const programFileNames = getProgramFileNames(tsProgram);
+  const filesToAnalyze = programFileNames
+    .map(file => file as NormalizedAbsolutePath)
     .filter(fileName => files[fileName] && pendingFiles.has(fileName));
 
   for (const reference of sanitizeProgramReferences(tsProgram)) {
@@ -400,7 +401,7 @@ async function analyzeFilesFromTsConfig(
   }
 
   info(
-    `Analyzing ${filesToAnalyze.length} file(s) from tsconfig ${tsconfig} (${tsProgram.getSourceFiles().length} total files in program)`,
+    `Analyzing ${filesToAnalyze.length} file(s) from tsconfig ${tsconfig} (${programFileNames.length} total files in program)`,
   );
 
   // Analyze each file using the same program
