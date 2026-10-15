@@ -37,6 +37,17 @@ const valid = [
   '<div role="separator" aria-valuenow={layout.position} tabIndex={0} />',
   '<div role="separator" aria-valuenow={position ?? 50} tabIndex={0} />',
   '<div role="separator" aria-valuenow={enabled ? position : 50} tabIndex={0} />',
+  ...[
+    'enabled ? null : 50',
+    'enabled ? 50 : null',
+    'enabled ? null : position',
+    'enabled ? position : undefined',
+    'enabled ? Math.round(position) : null',
+    'enabled ? null : layout.position',
+  ].map(value => `<div role="separator" aria-valuenow={${value}} tabIndex={0} />`),
+  'const current = enabled ? current : null; <div role="separator" aria-valuenow={current} tabIndex={0} />',
+  'const first = enabled ? second : null; const second = pending ? false : first; <div role="separator" aria-valuenow={first} tabIndex={0} />',
+  'const first = second; const second = first; <div role="separator" aria-valuenow={enabled ? first : null} tabIndex={0} />',
   '<div role="separator" aria-valuenow={-~position} tabIndex={0} />',
   '<div role="separator" aria-valuenow={-50} aria-valuemin={-100} aria-valuemax={100} tabIndex={0} />',
   '<div role="separator" aria-valuenow={position} aria-valuemin={minimum} aria-valuemax={maximum} tabIndex={0} />',
@@ -92,6 +103,9 @@ const invalid = [
   'const position = null; <div role="separator" aria-valuenow={position} tabIndex={0} />',
   'const position = undefined; <div role="separator" aria-valuenow={position} tabIndex={0} />',
   'const position = "half"; <div role="separator" aria-valuenow={position} tabIndex={0} />',
+  'const position = enabled ? null : undefined; const current = position; <div role="separator" aria-valuenow={current} tabIndex={0} />',
+  'let position; position = enabled ? null : undefined; <div role="separator" aria-valuenow={position} tabIndex={0} />',
+  'const position = enabled ? null : undefined; <div role="separator" aria-valuenow={pending ? position : position} tabIndex={0} />',
   'for (let position = null; pending;) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
   ...['null', 'undefined', '"half"', '1 / 0'].map(
     value =>
@@ -146,6 +160,11 @@ const invalid = [
     '{position < 50}',
     '{position === 50}',
     '{position in layout}',
+    '{enabled ? null : undefined}',
+    '{enabled ? true : false}',
+    '{enabled ? "half" : ""}',
+    '{enabled ? null : pending ? false : undefined}',
+    '{enabled ? { position } : [position]}',
     '""',
     '" "',
     '"half"',
@@ -247,6 +266,7 @@ describe('S6845', () => {
         '<div role="separator" aria-valuenow={position as number} tabIndex={0} />',
         '<div role="separator" aria-valuenow={position!} tabIndex={0} />',
         '<div role="separator" aria-valuenow={position satisfies number} tabIndex={0} />',
+        '<div role="separator" aria-valuenow={(enabled ? null : position) as number | null} tabIndex={0} />',
         '<div role={"separator" as const} aria-valuenow={50} tabIndex={0} />',
       ].map(code => ({ code, options })),
       invalid: [
@@ -255,6 +275,7 @@ describe('S6845', () => {
         '<div role="separator" aria-valuenow={/* unset */} tabIndex={0} />',
         '<div role="separator" aria-valuenow={{ position } as unknown as number} tabIndex={0} />',
         '<div role="separator" aria-valuenow={[position] satisfies number[]} tabIndex={0} />',
+        '<div role="separator" aria-valuenow={enabled ? null as number | null : undefined!} tabIndex={0} />',
       ].map(code => ({ code, options, errors: [{ message }] })),
     });
   });

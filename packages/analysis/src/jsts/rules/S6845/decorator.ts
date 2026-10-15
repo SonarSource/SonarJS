@@ -264,8 +264,12 @@ function isNonSequentialTabIndexValue(expression: TSESTree.Expression): boolean 
   );
 }
 
-function isDefinitelyNonNumeric(context: Rule.RuleContext, expression: TSESTree.Node): boolean {
-  const visited = new Set<TSESTree.Node>();
+function isDefinitelyNonNumeric(
+  context: Rule.RuleContext,
+  expression: TSESTree.Node,
+  seen = new Set<TSESTree.Node>(),
+): boolean {
+  const visited = new Set(seen);
   let resolved = unwrapTypeScriptExpression(expression);
   while (resolved.type === 'Identifier' && !visited.has(resolved)) {
     visited.add(resolved);
@@ -275,12 +279,21 @@ function isDefinitelyNonNumeric(context: Rule.RuleContext, expression: TSESTree.
     }
     resolved = unwrapTypeScriptExpression(value);
   }
+  if (seen.has(resolved)) {
+    return false;
+  }
+  visited.add(resolved);
   const scope = context.sourceCode.getScope(resolved as Node) as unknown as TSESLint.Scope.Scope;
   const evaluated = ASTUtils.getStaticValue(resolved, scope);
   if (evaluated !== null) {
     return !isNumericCurrentValue(evaluated.value);
   }
   switch (resolved.type) {
+    case 'ConditionalExpression':
+      return (
+        isDefinitelyNonNumeric(context, resolved.consequent, visited) &&
+        isDefinitelyNonNumeric(context, resolved.alternate, visited)
+      );
     case 'ObjectExpression':
     case 'ArrayExpression':
     case 'ArrowFunctionExpression':
