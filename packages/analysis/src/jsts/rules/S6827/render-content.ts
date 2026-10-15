@@ -75,17 +75,7 @@ function hasRenderConsumer(
   ) {
     current = current.parent;
   }
-  const write = current.parent;
-  const identifier =
-    write?.type === 'VariableDeclarator' && write.init === current && write.id.type === 'Identifier'
-      ? write.id
-      : write?.type === 'AssignmentExpression' &&
-          write.parent?.type === 'ExpressionStatement' &&
-          write.operator === '=' &&
-          write.right === current &&
-          write.left.type === 'Identifier'
-        ? write.left
-        : undefined;
+  const identifier = getWriteIdentifier(current);
   if (identifier) {
     const variable = getVariableFromName(
       context,
@@ -143,6 +133,27 @@ function hasRenderConsumer(
     completed.add(node);
   }
   return result;
+}
+
+function getWriteIdentifier(node: TSESTree.Node): TSESTree.Identifier | undefined {
+  const write = node.parent;
+  if (
+    write?.type === 'VariableDeclarator' &&
+    write.init === node &&
+    write.id.type === 'Identifier'
+  ) {
+    return write.id;
+  }
+  if (
+    write?.type === 'AssignmentExpression' &&
+    write.parent?.type === 'ExpressionStatement' &&
+    write.operator === '=' &&
+    write.right === node &&
+    write.left.type === 'Identifier'
+  ) {
+    return write.left;
+  }
+  return undefined;
 }
 
 /**
