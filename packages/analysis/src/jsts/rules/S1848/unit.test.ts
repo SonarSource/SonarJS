@@ -651,6 +651,143 @@ new Widget(document.querySelector('#container'));`,
     );
   });
 
+  it('ignores CDK Terrain package constructors without type information', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    const terrainImports = [
+      ['cdktn', 'TerraformStack'],
+      ['cdktn/lib/terraform-stack', 'TerraformStack'],
+      ['@cdktn/provider-aws/lib/provider', 'AwsProvider'],
+    ];
+
+    ruleTester.run('CDK Terrain constructors', rule, {
+      valid: terrainImports.flatMap(([moduleName, constructorName]) => [
+        {
+          code: `
+import { ${constructorName} as Resource } from '${moduleName}';
+new Resource(scope, 'resource');
+`,
+        },
+        {
+          code: `
+import * as terrain from '${moduleName}';
+new terrain.${constructorName}(scope, 'resource');
+`,
+        },
+        {
+          code: `
+const { ${constructorName}: Resource } = require('${moduleName}');
+new Resource(scope, 'resource');
+`,
+        },
+        {
+          code: `
+const terrain = require('${moduleName}');
+new terrain.${constructorName}(scope, 'resource');
+`,
+        },
+        {
+          code: `
+import terrain = require('${moduleName}');
+new terrain.${constructorName}(scope, 'resource');
+`,
+        },
+      ]),
+      invalid: [
+        ...['cdktnext', 'cdktn-extra', '@cdktnext/provider-aws', '@cdktn-extra/provider-aws'].map(
+          moduleName => ({
+            code: `
+import { AwsProvider } from '${moduleName}';
+new AwsProvider(scope, 'resource');
+`,
+            errors: [{ messageId: 'removeInstantiationOf', data: { constructor: 'AwsProvider' } }],
+          }),
+        ),
+        {
+          code: `
+import { TerraformStack } from 'cdktn';
+class PlainClass {}
+new PlainClass(scope);
+`,
+          errors: [{ messageId: 'removeInstantiationOf', data: { constructor: 'PlainClass' } }],
+        },
+        {
+          code: `
+import { AwsProvider } from '@cdktn/provider-aws/lib/provider';
+function createResource(AwsProvider) {
+  new AwsProvider(scope, 'resource');
+}
+`,
+          errors: [{ messageId: 'removeInstantiationOf', data: { constructor: 'AwsProvider' } }],
+        },
+      ],
+    });
+  });
+
+  it('keeps the package-wide CDK Terrain fallback independent of constructor arguments', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('CDK Terrain fallback boundaries', rule, {
+      valid: [
+        {
+          code: `
+import { TerraformStack } from 'cdktn';
+import { AwsProvider } from '@cdktn/provider-aws/lib/provider';
+class Stack extends TerraformStack {
+  constructor(scope, id) {
+    super(scope, id);
+    new AwsProvider(this, 'provider');
+  }
+}
+`,
+        },
+        {
+          code: `
+import { App, TerraformStack } from 'cdktn';
+const app = new App();
+const scope = app;
+const id = getStackId();
+new TerraformStack(scope, id);
+`,
+        },
+        // Without types the package exception deliberately includes value objects,
+        // matching the existing @cdktf tradeoff rather than guessing from arguments.
+        ...[
+          ['ListTerraformIterator', "['a']"],
+          ['MapTerraformIterator', '{ a: 1 }'],
+          ['TokenizedStringFragments', ''],
+          ['DynamicListTerraformIterator', "['a'], 'key'"],
+        ].map(([constructorName, arguments_]) => ({
+          code: `
+import { ${constructorName} } from 'cdktn';
+new ${constructorName}(${arguments_});
+`,
+        })),
+      ],
+      invalid: [
+        {
+          code: `
+import { ListTerraformIterator } from 'cdktn';
+function createIterator(ListTerraformIterator) {
+  new ListTerraformIterator(['a']);
+}
+`,
+          errors: [
+            { messageId: 'removeInstantiationOf', data: { constructor: 'ListTerraformIterator' } },
+          ],
+        },
+        {
+          code: `
+import { ListTerraformIterator } from 'cdktn-extra';
+new ListTerraformIterator(['a']);
+`,
+          errors: [
+            { messageId: 'removeInstantiationOf', data: { constructor: 'ListTerraformIterator' } },
+          ],
+        },
+      ],
+    });
+  });
+
   it('ignores discarded constructions registered in a construct tree', () => {
     const fixtureDirectory = path.join(import.meta.dirname, 'fixtures');
     const ruleTester = new RuleTester({
@@ -664,6 +801,30 @@ new Widget(document.querySelector('#container'));`,
       rule,
       {
         valid: [
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { Construct } from 'constructs';
+import { TerraformStack } from 'cdktn';
+
+class ApplicationStack extends TerraformStack {}
+
+declare const scope: Construct;
+new ApplicationStack(scope, 'application');
+`,
+          },
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { TerraformStack } from 'cdktn';
+import { AwsProvider } from '@cdktn/provider-aws/lib/provider';
+
+class RegionalProvider extends AwsProvider {}
+
+declare const scope: TerraformStack;
+new RegionalProvider(scope, 'regional');
+`,
+          },
           {
             filename: path.join(fixtureDirectory, 'placeholder.ts'),
             code: `
@@ -810,6 +971,20 @@ new CompanyService(scope, 'CompanyService');
           },
         ],
         invalid: [
+          {
+            filename: path.join(fixtureDirectory, 'placeholder.ts'),
+            code: `
+import { TerraformStack } from 'cdktn';
+
+class PlainClass {
+  constructor(scope: TerraformStack) {}
+}
+
+declare const scope: TerraformStack;
+new PlainClass(scope);
+`,
+            errors: [{ messageId: 'removeInstantiationOf', data: { constructor: 'PlainClass' } }],
+          },
           {
             filename: path.join(fixtureDirectory, 'placeholder.ts'),
             code: `
