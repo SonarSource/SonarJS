@@ -1374,9 +1374,10 @@ class CachedDir {
 
   async *[Symbol.asyncIterator]() {
     try {
-      let entry;
-      while ((entry = await this.read()) !== null) {
+      let entry = this.readSync();
+      while (entry !== null) {
         yield entry;
+        entry = this.readSync();
       }
     } finally {
       if (!this.closed) {
@@ -1415,6 +1416,16 @@ function readDirectoryWithOpendirSync(input: fs.PathLike, options?: OperationOpt
   }
 }
 
+async function closeDirectoryIfOpen(directory: fs.Dir): Promise<void> {
+  try {
+    await directory.close();
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ERR_DIR_CLOSED') {
+      throw error;
+    }
+  }
+}
+
 async function readDirectoryWithOpendir(
   input: fs.PathLike,
   options?: OperationOptions,
@@ -1427,13 +1438,12 @@ async function readDirectoryWithOpendir(
   )(input, options);
   try {
     const entries: fs.Dirent[] = [];
-    let entry: fs.Dirent | null;
-    while ((entry = await directory.read()) !== null) {
+    for await (const entry of directory) {
       entries.push(entry);
     }
     return entries;
   } finally {
-    await directory.close();
+    await closeDirectoryIfOpen(directory);
   }
 }
 
