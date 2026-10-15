@@ -268,10 +268,11 @@ function isDefinitelyNonNumeric(
   context: Rule.RuleContext,
   expression: TSESTree.Node,
   seen = new Set<TSESTree.Node>(),
+  memo = new Map<TSESTree.Node, boolean>(),
 ): boolean {
-  const visited = new Set(seen);
+  const visited = new Set<TSESTree.Node>();
   let resolved = unwrapTypeScriptExpression(expression);
-  while (resolved.type === 'Identifier' && !visited.has(resolved)) {
+  while (resolved.type === 'Identifier' && !visited.has(resolved) && !memo.has(resolved)) {
     visited.add(resolved);
     const value = getSimpleBindingValue(context, resolved);
     if (value === resolved) {
@@ -282,7 +283,25 @@ function isDefinitelyNonNumeric(
   if (seen.has(resolved)) {
     return false;
   }
-  visited.add(resolved);
+  let result = memo.get(resolved);
+  if (result === undefined) {
+    seen.add(resolved);
+    result = isDefinitelyNonNumericExpression(context, resolved, seen, memo);
+    seen.delete(resolved);
+    memo.set(resolved, result);
+  }
+  for (const identifier of visited) {
+    memo.set(identifier, result);
+  }
+  return result;
+}
+
+function isDefinitelyNonNumericExpression(
+  context: Rule.RuleContext,
+  resolved: TSESTree.Node,
+  seen: Set<TSESTree.Node>,
+  memo: Map<TSESTree.Node, boolean>,
+): boolean {
   const scope = context.sourceCode.getScope(resolved as Node) as unknown as TSESLint.Scope.Scope;
   const evaluated = ASTUtils.getStaticValue(resolved, scope);
   if (evaluated !== null) {
@@ -291,8 +310,8 @@ function isDefinitelyNonNumeric(
   switch (resolved.type) {
     case 'ConditionalExpression':
       return (
-        isDefinitelyNonNumeric(context, resolved.consequent, visited) &&
-        isDefinitelyNonNumeric(context, resolved.alternate, visited)
+        isDefinitelyNonNumeric(context, resolved.consequent, seen, memo) &&
+        isDefinitelyNonNumeric(context, resolved.alternate, seen, memo)
       );
     case 'ObjectExpression':
     case 'ArrayExpression':

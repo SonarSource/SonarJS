@@ -15,6 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it } from 'node:test';
+import { SourceCode } from 'eslint';
+import assert from 'node:assert/strict';
 import {
   DefaultParserRuleTester,
   NoTypeCheckingRuleTester,
@@ -248,6 +250,33 @@ describe('S6845', () => {
             errors: [{ message }],
           },
         ],
+      });
+    });
+    it(`bounds analysis of shared conditional bindings in ${language}`, t => {
+      const levels = 30;
+      const code = [
+        'const position0 = null;',
+        ...Array.from(
+          { length: levels },
+          (_, index) =>
+            `const position${index + 1} = enabled ? position${index} : position${index};`,
+        ),
+        `<div role="separator" aria-valuenow={position${levels}} tabIndex={0} />`,
+      ].join('\n');
+      let scopeQueries = 0;
+      const getScope = SourceCode.prototype.getScope;
+      // Bound real scope queries so an exponential regression fails without hanging CI.
+      t.mock.method(
+        SourceCode.prototype,
+        'getScope',
+        function (this: SourceCode, ...args: Parameters<SourceCode['getScope']>) {
+          assert.ok(++scopeQueries <= 16 * (levels + 1), 'Repeatedly analyzing shared bindings');
+          return getScope.apply(this, args);
+        },
+      );
+      new Tester().run('no-noninteractive-tabindex', rule, {
+        valid: [],
+        invalid: [{ code, options, errors: [{ message }] }],
       });
     });
     for (const code of invalid) {
