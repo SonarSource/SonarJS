@@ -76,7 +76,7 @@ export function acceptSnippet(content: string): boolean {
  *
  * Callers need to pass: getJsTsExclusions(), shouldDetectBundles(), and getMaxFileSize() from configuration
  */
-export async function shouldIgnoreFile(
+export function shouldIgnoreFile(
   file: {
     filePath: NormalizedAbsolutePath;
     fileContent: string;
@@ -85,7 +85,7 @@ export async function shouldIgnoreFile(
 ): Promise<boolean> {
   const { filePath, fileContent } = file;
   if (isJsTsExcluded(filePath, params.jsTsExclusions) || !accept(filePath, fileContent, params)) {
-    return true;
+    return Promise.resolve(true);
   }
-  return false;
+  return Promise.resolve(false);
 }

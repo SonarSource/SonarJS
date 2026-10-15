@@ -71,19 +71,19 @@ export class GeneratedSourceStore implements FileStore {
   // re-emit observability logs when the content changes.
   private lastLoggedObservabilityKey: string | undefined = undefined;
 
-  async isInitialized(configuration: Configuration, _inputFiles?: AnalyzableFiles) {
+  isInitialized(configuration: Configuration, _inputFiles?: AnalyzableFiles): Promise<boolean> {
     if (!configuration.detectGeneratedCode) {
       this.clearCache();
-      return true;
+      return Promise.resolve(true);
     }
 
     if (!configuration.canAccessFileSystem) {
       this.clearCache();
-      return true;
+      return Promise.resolve(true);
     }
 
     this.dirtyCachesIfNeeded(configuration);
-    return this.baseDir !== undefined;
+    return Promise.resolve(this.baseDir !== undefined);
   }
 
   getFamily(filePath: NormalizedAbsolutePath): string | undefined {
@@ -181,7 +181,7 @@ export class GeneratedSourceStore implements FileStore {
     return isJsTsFile(filename, configuration) ? 'path' : false;
   }
 
-  async processFile(
+  processFile(
     filename: NormalizedAbsolutePath,
     configuration: Configuration,
     file?: File,
@@ -197,6 +197,7 @@ export class GeneratedSourceStore implements FileStore {
     if (file) {
       this.preloadedFiles.set(filename, file);
     }
+    return Promise.resolve();
   }
 
   processDirectory(dir: NormalizedAbsolutePath) {

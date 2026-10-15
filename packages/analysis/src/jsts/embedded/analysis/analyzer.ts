@@ -47,7 +47,7 @@ import type { SonarResolveComment } from '../../../contracts/analysis.js';
  * @param languageParser the parser for the language of the file containing the JS code
  * @returns the analysis output
  */
-export async function analyzeEmbedded(
+export function analyzeEmbedded(
   input: EmbeddedAnalysisInput,
   languageParser: LanguageParser,
 ): Promise<EmbeddedAnalysisOutput> {
@@ -71,7 +71,7 @@ export async function analyzeEmbedded(
     aggregatedSuppressedIssues.push(...filteredSuppressedIssues);
     aggregatedSonarResolveComments.push(...singleSonarResolveComments);
   }
-  return {
+  return Promise.resolve({
     issues: aggregatedIssues,
     ...(aggregatedSuppressedIssues.length > 0
       ? { suppressedIssues: aggregatedSuppressedIssues }
@@ -80,7 +80,7 @@ export async function analyzeEmbedded(
     ...(aggregatedSonarResolveComments.length > 0
       ? { sonarResolveComments: aggregatedSonarResolveComments }
       : {}),
-  };
+  });
 }
 
 function analyzeSnippet(extendedParseResult: ExtendedParseResult) {

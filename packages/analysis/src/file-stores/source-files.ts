@@ -179,8 +179,9 @@ export class SourceFileStore implements FileStore {
     }
   }
 
-  async postProcess(_configuration: Configuration) {
+  postProcess(_configuration: Configuration): Promise<void> {
     this.pendingFileTypes = undefined;
+    return Promise.resolve();
   }
 
   private anyParentIsIgnored(filePath: NormalizedAbsolutePath) {
