@@ -26,6 +26,7 @@ import { getParsedRegex } from '../helpers/regex/extract.js';
 import * as meta from './generated-meta.js';
 
 const METHOD_MESSAGE_ID = 'method';
+const PATTERN_MESSAGE_ID = 'pattern';
 const METHOD_AND_PATTERN_MESSAGE_ID = 'methodAndPattern';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -42,6 +43,17 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }),
     },
     (context, descriptor) => {
+      if (
+        'messageId' in descriptor &&
+        descriptor.messageId === PATTERN_MESSAGE_ID &&
+        'node' in descriptor
+      ) {
+        const regex = getParsedRegex(descriptor.node, context);
+        if (regex && hasLoneSurrogateInUnicodeMode(regex)) {
+          return;
+        }
+      }
+
       if (!isMethodReportDescriptor(descriptor)) {
         context.report(descriptor);
         return;
@@ -111,27 +123,29 @@ function getReplacementLiteral(
   }
 
   const regex = getParsedRegex(pattern as unknown as estree.Node, context);
-  if (!regex || !hasReducibleFlags(regex.flags)) {
+  if (!regex || !hasReducibleFlags(regex.flags) || hasLoneSurrogateInUnicodeMode(regex)) {
     return null;
-  }
-
-  if (regex.flags.unicode || regex.flags.unicodeSets) {
-    let hasLoneSurrogate = false;
-    visitRegExpAST(regex.pattern, {
-      onCharacterEnter({ value }) {
-        const MIN_SURROGATE_CODE_POINT = 0xd800;
-        const MAX_SURROGATE_CODE_POINT = 0xdfff;
-        hasLoneSurrogate ||= value >= MIN_SURROGATE_CODE_POINT && value <= MAX_SURROGATE_CODE_POINT;
-      },
-    });
-    // String searches can match half of a surrogate pair, unlike Unicode regexes.
-    if (hasLoneSurrogate) {
-      return null;
-    }
   }
 
   const literal = getEquivalentLiteral(regex.pattern);
   return literal !== null && literal.length > 0 ? literal : null;
+}
+
+function hasLoneSurrogateInUnicodeMode(regex: AST.RegExpLiteral): boolean {
+  if (!regex.flags.unicode && !regex.flags.unicodeSets) {
+    return false;
+  }
+
+  let hasSurrogate = false;
+  visitRegExpAST(regex.pattern, {
+    onCharacterEnter({ value }) {
+      const MIN_SURROGATE_CODE_POINT = 0xd800;
+      const MAX_SURROGATE_CODE_POINT = 0xdfff;
+      hasSurrogate ||= value >= MIN_SURROGATE_CODE_POINT && value <= MAX_SURROGATE_CODE_POINT;
+    },
+  });
+  // String searches can match half of a surrogate pair, unlike Unicode regexes.
+  return hasSurrogate;
 }
 
 function toStringLiteral(literal: string): string {

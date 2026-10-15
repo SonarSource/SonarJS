@@ -60,6 +60,11 @@ describe('S7781 upstream sentinel', () => {
           errors: [{ messageId: 'method' }],
           output: `function replace(input) { return input.replaceAll(/(foo)/g, part => part.toUpperCase()); }`,
         },
+        {
+          code: String.raw`input.replaceAll(/\uD83D/gu, 'x');`,
+          errors: [{ messageId: 'pattern', data: { replacement: String.raw`'\uD83D'` } }],
+          output: String.raw`input.replaceAll('\uD83D', 'x');`,
+        },
       ],
     });
   });
@@ -119,6 +124,13 @@ function normalizeIndentation(input) { return input.replace(whitespaceRegex, '\n
               // The v flag requires ES2024; older parser targets reject it before the rule runs.
               ecmaVersion: 2024 as const,
             },
+          })),
+        ),
+        // Unicode surrogate halves are also unsafe in existing replaceAll calls.
+        ...['u', 'v'].flatMap(flag =>
+          [String.raw`\uD83D`, String.raw`\uDE00`].map(pattern => ({
+            code: `input.replaceAll(/${pattern}/g${flag}, 'x');`,
+            languageOptions: { ecmaVersion: 2024 as const },
           })),
         ),
         // Compliant: scoped i modifiers enable case-insensitive matching, which a string cannot preserve.
@@ -213,6 +225,19 @@ function trimSpaces(input) { return input.replace(spaceRegex, ''); }`,
           errors: [{ messageId: 'method' }],
           output: `const spaceRegex = / /g;
 function trimSpaces(input) { return input.replaceAll(spaceRegex, ''); }`,
+        },
+        {
+          // Non-Unicode regexes and string searches both match individual surrogate halves.
+          code: String.raw`input.replaceAll(/\uD83D/g, 'x');`,
+          errors: [{ messageId: 'pattern', data: { replacement: String.raw`'\uD83D'` } }],
+          output: String.raw`input.replaceAll('\uD83D', 'x');`,
+        },
+        {
+          // Complete surrogate pairs remain safe in upstream pattern fixes.
+          code: String.raw`input.replaceAll(/\uD83D\uDE00/gv, 'x');`,
+          errors: [{ messageId: 'pattern', data: { replacement: String.raw`'\uD83D\uDE00'` } }],
+          output: String.raw`input.replaceAll('\uD83D\uDE00', 'x');`,
+          languageOptions: { ecmaVersion: 2024 },
         },
       ],
     });
