@@ -17,6 +17,9 @@
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
+import { strictEqual } from 'node:assert';
+import { parseRegExpLiteral } from '@eslint-community/regexpp';
+import { documentedTerminalControls } from './terminal.js';
 
 const CONTROL_CHAR_MESSAGE = 'Remove this control character.';
 
@@ -27,6 +30,8 @@ describe('S6324', () => {
       valid: [
         { code: String.raw`/\x1b(?:\[)31m/` },
         { code: String.raw`/\x1b(\[){1}2J/` },
+        { code: String.raw`/\x1b(?:\[)3J/` },
+        { code: String.raw`/\x1b(?:\[)31m(?<=m)/` },
         { code: String.raw`/\x1b(?:(?:\[))2;3H/` },
         // Non-Unicode character classes range over UTF-16 code units.
         { code: String.raw`/\x1b(?:\[)[^\x00-\x2f\x3a-\uffff]A/` },
@@ -40,6 +45,8 @@ describe('S6324', () => {
         { code: String.raw`/\x1b(?:\])1;[a-z ]+\x9c/` },
         { code: String.raw`/\x1b(?:\])0;[^\x00-\x1f\x7f-\uffff]*\x07/` },
         { code: String.raw`/\x1b(?:\])2;(?:title|name)(?:\x07|\x1b\\)/` },
+        { code: String.raw`/\x9d0;(?:title|name)\x07/` },
+        { code: String.raw`/\x9d2;[\x20-\x7e]+\x1b(?:\\)/` },
         { code: String.raw`/(?:\x1b(?:\])2;title\x07)?/` },
         { code: String.raw`/(?:\x1b(?:\[)31m){2}/` },
         { code: String.raw`/\x1b(?:\[31m|\]0;title\x07)/` },
@@ -51,6 +58,7 @@ describe('S6324', () => {
         { code: String.raw`/\x1b(?:\[)123/`, errors: 1 },
         { code: String.raw`/\x1b(?:\])0;title/`, errors: 1 },
         { code: String.raw`/\x1b(?:\[)999m/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)[0-9]m/`, errors: 1 },
         { code: String.raw`/\x1b(?:\[)\d+m/`, errors: 1 },
         { code: String.raw`/\x1b(?:\[)[0-9]{1,3}m/`, errors: 1 },
         { code: String.raw`/\x1b(?:\[)[^\x00-\x2f\x3a-\u{10ffff}]J/u`, errors: 1 },
@@ -65,6 +73,11 @@ describe('S6324', () => {
         { code: String.raw`/\x1b(?:\[)31;1m/i`, errors: 1 },
         { code: String.raw`new RegExp('\\x1b(?:\\[)31;1m', 'i')`, errors: 1 },
         { code: String.raw`/\x1b(?:\[)9J/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)3K/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)1;2A/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)1;2J/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)31n/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)\DA/`, errors: 1 },
         { code: String.raw`/\x1b(?:\[)[^\x00-\x2f\x3a-\uffff]J/`, errors: 1 },
         { code: String.raw`/\x1b(?:\[)[^\x00-\x35\x37-\uffff]m/`, errors: 1 },
         { code: String.raw`/\x1b(?:\[)1;2;3H/`, errors: 1 },
@@ -87,10 +100,35 @@ describe('S6324', () => {
         { code: String.raw`/\x1b(?:\])0;title\x1b(?:\\|x)/`, errors: 2 },
         { code: String.raw`/\x1b(?:\])0;title(?=\x07)\x07/`, errors: 3 },
         { code: String.raw`/(?=\x1b(?:\[)31m)/`, errors: 1 },
+        { code: String.raw`/(?=(?:\x1b(?:\[)31m)+)/`, errors: 1 },
         { code: String.raw`/(\x1b)(?:\[)31m\1/`, errors: 1 },
         { code: String.raw`/(?<escape>\x1b)(?:\[)31m\k<escape>/`, errors: 1 },
-        { code: String.raw`/\x1b(?:\[)31m\x07/`, errors: 1 },
-        { code: String.raw`/\x1b(?:\])0;title\x07\x07/`, errors: 1 },
+        {
+          code: String.raw`/\x1b(?:\[)31m\x07/`,
+          errors: [{ message: CONTROL_CHAR_MESSAGE, column: 15, endColumn: 19 }],
+        },
+        {
+          code: String.raw`/\x1b(?:\])0;title\x07\x07/`,
+          errors: [{ message: CONTROL_CHAR_MESSAGE, column: 23, endColumn: 27 }],
+        },
+        {
+          code: String.raw`/\x1b(?:\])0;[\x20-\x7f]*\x07/`,
+          errors: [
+            { message: CONTROL_CHAR_MESSAGE, column: 2, endColumn: 6 },
+            { message: CONTROL_CHAR_MESSAGE, column: 26, endColumn: 30 },
+          ],
+        },
+        {
+          code: String.raw`/\x1b(?:\])0;[^\x7f-\uffff]*\x07/`,
+          errors: [
+            { message: CONTROL_CHAR_MESSAGE, column: 2, endColumn: 6 },
+            { message: CONTROL_CHAR_MESSAGE, column: 29, endColumn: 33 },
+          ],
+        },
+        {
+          code: String.raw`/\x9d0;(?:title|name)\x07?/`,
+          errors: [{ message: CONTROL_CHAR_MESSAGE, column: 22, endColumn: 26 }],
+        },
         { code: String.raw`/\x1b(?:\[){1000000000}31m/`, errors: 1 },
         {
           code: String.raw`/\x1b(?:\])0;${'(?:a|b)'.repeat(7)}\x07/`,
@@ -102,6 +140,13 @@ describe('S6324', () => {
         },
       ],
     });
+  });
+
+  it('rejects scoped modifiers before proving complete commands', () => {
+    const pattern = parseRegExpLiteral(String.raw`/(?i:a)\x1b(?:\[)31m/`, {
+      ecmaVersion: 2025,
+    }).pattern;
+    strictEqual(documentedTerminalControls(pattern).size, 0);
   });
 
   describe('bounded OSC matchers', () => {

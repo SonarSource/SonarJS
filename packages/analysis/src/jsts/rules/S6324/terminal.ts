@@ -74,11 +74,14 @@ export function documentedTerminalControls(pattern: AST.Pattern): Set<AST.Charac
 
 function terminalScopes(pattern: AST.Pattern): (readonly AST.Alternative[])[] | null {
   let unsupported = false;
-  let hasControl = false;
+  let controlCount = 0;
+  const scopeStarts = new Map<AST.Quantifier, number>();
   const scopes: (readonly AST.Alternative[])[] = [pattern.alternatives];
   visitRegExpAST(pattern, {
     onCharacterEnter: character => {
-      hasControl ||= character.value === ESC || character.value === BEL;
+      if (character.value === ESC || character.value === BEL) {
+        controlCount++;
+      }
     },
     onBackreferenceEnter: () => {
       unsupported = true;
@@ -93,11 +96,22 @@ function terminalScopes(pattern: AST.Pattern): (readonly AST.Alternative[])[] | 
         (quantifier.min !== 1 || quantifier.max !== 1) &&
         !isInAssertion(quantifier)
       ) {
+        scopeStarts.set(quantifier, controlCount);
+      }
+    },
+    onQuantifierLeave: quantifier => {
+      const start = scopeStarts.get(quantifier);
+      const { element } = quantifier;
+      if (
+        start !== undefined &&
+        controlCount > start &&
+        (element.type === 'Group' || element.type === 'CapturingGroup')
+      ) {
         scopes.push(element.alternatives);
       }
     },
   });
-  return unsupported || !hasControl ? null : scopes;
+  return unsupported || controlCount === 0 ? null : scopes;
 }
 
 function controlsInEveryPath(paths: AST.Element[][], maximumCodePoint: number): AST.Character[] {

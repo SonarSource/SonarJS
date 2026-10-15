@@ -48,6 +48,9 @@ export function isSubsetOfCharacterRange(
     return ranges.every(range => minimum <= range.minimum && range.maximum <= maximum);
   }
   const covers = (from: number, to: number) => {
+    if (from > to) {
+      return true;
+    }
     let next = from;
     for (const range of [...ranges].sort((left, right) => left.minimum - right.minimum)) {
       if (range.minimum > next) {
