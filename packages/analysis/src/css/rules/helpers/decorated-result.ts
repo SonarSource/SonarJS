@@ -74,7 +74,10 @@ export function withSonarDisables(
 export function createDecoratedRule(
   sonarRule: string,
   upstreamRule: keyof typeof stylelint.rules,
-  rewriteMessage: (message: DecoratedMessage) => string | undefined,
+  rewriteMessage: (
+    message: DecoratedMessage,
+    upstreamMessages: stylelint.RuleMessages,
+  ) => string | undefined,
 ): stylelint.RuleBase {
   return (primary: unknown, secondaryOptions: unknown, context: stylelint.RuleContext) => {
     return async (root: PostCSS.Root, result: PostcssResult): Promise<void> => {
@@ -89,7 +92,7 @@ export function createDecoratedRule(
           reported.push(message);
           continue;
         }
-        const rewritten = rewriteMessage(message);
+        const rewritten = rewriteMessage(message, factory.messages);
         if (rewritten === undefined) {
           continue;
         }

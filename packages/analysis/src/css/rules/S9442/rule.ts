@@ -20,9 +20,13 @@ import { createDecoratedRule, type DecoratedMessage } from '../helpers/decorated
 
 const SONAR_RULE = 'sonar/named-grid-areas-no-invalid';
 const UPSTREAM_RULE = 'named-grid-areas-no-invalid';
-const EMPTY_STRING = 'Expected cell token within string';
-const CELL_COUNT = 'Expected same number of cell tokens in each string';
-const RECTANGLE = /^Expected single filled-in rectangle for "(.+)"$/;
+// Matching against the upstream messages keeps the rewrite in sync with Stylelint's wording.
+type UpstreamMessages = {
+  expectedToken: () => string;
+  expectedSameNumber: () => string;
+  expectedRectangle: (name: string) => string;
+};
+const NAME_PLACEHOLDER = '\0';
 
 export const messages = {
   emptyString: 'Add at least one cell token to this string.',
@@ -30,21 +34,37 @@ export const messages = {
   rectangle: (name: string): string => `Make the "${name}" area a single filled-in rectangle.`,
 };
 
-function rewriteMessage(message: DecoratedMessage): string | undefined {
-  const detail = message.text.replace(` (${UPSTREAM_RULE})`, '');
-  if (detail === EMPTY_STRING) {
+function rectangleName(text: string, upstream: UpstreamMessages): string | undefined {
+  const [prefix, suffix] = upstream.expectedRectangle(NAME_PLACEHOLDER).split(NAME_PLACEHOLDER);
+  if (
+    text.length > prefix.length + suffix.length &&
+    text.startsWith(prefix) &&
+    text.endsWith(suffix)
+  ) {
+    return text.slice(prefix.length, text.length - suffix.length);
+  }
+  return undefined;
+}
+
+function rewriteMessage(
+  message: DecoratedMessage,
+  upstreamMessages: stylelint.RuleMessages,
+): string | undefined {
+  const upstream = upstreamMessages as UpstreamMessages;
+  const { text } = message;
+  if (text === upstream.expectedToken()) {
     return messages.emptyString;
   }
-  if (detail === CELL_COUNT) {
+  if (text === upstream.expectedSameNumber()) {
     return messages.cellCount;
   }
 
-  const name = RECTANGLE.exec(detail)?.[1];
+  const name = rectangleName(text, upstream);
   if (name !== undefined) {
     // CSS treats a run of periods as one unnamed cell, not as a named area.
     return /^\.+$/.test(name) ? undefined : messages.rectangle(name);
   }
-  return detail;
+  return text.replace(` (${UPSTREAM_RULE})`, '');
 }
 
 const ruleImpl = createDecoratedRule(SONAR_RULE, UPSTREAM_RULE, rewriteMessage);
