@@ -40,7 +40,7 @@ export function pathDisplay(input: fs.PathLike | number): string {
   return String(input);
 }
 
-export function snapshotError(error: unknown): FsCacheErrorSnapshot {
+function snapshotError(error: unknown): FsCacheErrorSnapshot {
   const filesystemError = error as FsError;
   const errorPath =
     filesystemError?.path === undefined ? undefined : pathDisplay(filesystemError.path);
@@ -203,20 +203,12 @@ export function createExecutor(archive: ArchiveFacade) {
         : archive.keyFor(input);
     try {
       const value = await producer();
-      if (
-        getActiveArchive() === readingArchive &&
-        archive.mode === 'record' &&
-        key !== undefined
-      ) {
+      if (getActiveArchive() === readingArchive && archive.mode === 'record' && key !== undefined) {
         archive.set(key, operation, success(encode(value)));
       }
       return value;
     } catch (error) {
-      if (
-        getActiveArchive() === readingArchive &&
-        archive.mode === 'record' &&
-        key !== undefined
-      ) {
+      if (getActiveArchive() === readingArchive && archive.mode === 'record' && key !== undefined) {
         archive.set(key, operation, failure(error));
       }
       throw error;
