@@ -16,6 +16,8 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S9442/css
 import stylelint from 'stylelint';
+import type PostCSS from 'postcss';
+import valueParser from 'postcss-value-parser';
 import { createDecoratedRule, type DecoratedMessage } from '../helpers/decorated-result.js';
 
 const SONAR_RULE = 'sonar/named-grid-areas-no-invalid';
@@ -27,6 +29,9 @@ type UpstreamMessages = {
   expectedRectangle: (name: string) => string;
 };
 const NAME_PLACEHOLDER = '\0';
+// Stylelint splits area strings on whitespace only, while CSS decodes escapes
+// and allows a null cell next to a named one without whitespace ("a.b").
+const UNSUPPORTED_AREA_SYNTAX = /\\|[^\s.]\.|\.[^\s.]/;
 
 export const messages = {
   emptyString: 'Add at least one cell token to this string.',
@@ -46,10 +51,26 @@ function rectangleName(text: string, upstream: UpstreamMessages): string | undef
   return undefined;
 }
 
+function hasUnsupportedAreaSyntax(node: PostCSS.Node | undefined): boolean {
+  if (node?.type !== 'decl') {
+    return false;
+  }
+  let unsupported = false;
+  valueParser((node as PostCSS.Declaration).value).walk(valueNode => {
+    if (valueNode.type === 'string' && UNSUPPORTED_AREA_SYNTAX.test(valueNode.value)) {
+      unsupported = true;
+    }
+  });
+  return unsupported;
+}
+
 function rewriteMessage(
   message: DecoratedMessage,
   upstreamMessages: stylelint.RuleMessages,
 ): string | undefined {
+  if (hasUnsupportedAreaSyntax(message.node)) {
+    return undefined;
+  }
   const upstream = upstreamMessages as UpstreamMessages;
   const { text } = message;
   if (text === upstream.expectedToken()) {

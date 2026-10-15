@@ -100,6 +100,22 @@ describe('S9442 (sonar/named-grid-areas-no-invalid)', (): void => {
       errors: [{ text: `${messages.rectangle('a')} (${RULE})`, line: 1, column: 26 }],
     }));
 
+  it('accepts null cells adjacent to named cells', (): Promise<void> =>
+    ruleTester.valid({
+      code: 'a { grid-template-areas: "a.b" "a . b"; }',
+    }));
+
+  it('accepts escaped cell names', (): Promise<void> =>
+    ruleTester.valid({
+      code: 'a { grid-template-areas: "\\61  a" "a a"; }',
+    }));
+
+  it('still reports area strings in a grid-template with fractional sizes', (): Promise<void> =>
+    ruleTester.invalid({
+      code: 'a { grid-template: "a a" 1.5fr "a b" 1fr / 1fr 1fr; }',
+      errors: [{ text: `${messages.rectangle('a')} (${RULE})`, line: 1 }],
+    }));
+
   it('accepts a grid-template without area strings', (): Promise<void> =>
     ruleTester.valid({
       code: 'a { grid-template: 100px 1fr / 1fr 1fr; }',
