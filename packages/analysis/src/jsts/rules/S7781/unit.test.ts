@@ -79,6 +79,17 @@ describe('S7781', () => {
           code: String.raw`function collapseWhitespace(input) { return input.replace(/\s+/g, ''); }`,
         },
         {
+          code: String.raw`function replaceEllipsis(input) { return input.replace(/\.{3}/g, '…'); }`,
+        },
+        {
+          code: String.raw`const whitespaceRegex = /\n {2}/g;
+function normalizeIndentation(input) { return input.replace(whitespaceRegex, '\n'); }`,
+        },
+        {
+          // Do not expand nested, large repetition counts.
+          code: `input.replace(/(?:a{1000}){1000000}/g, '');`,
+        },
+        {
           // Compliant: negated character class
           code: `function normalizeSearchTerms(input) { return input.replace(/[^a-zA-Z0-9]+/g, ' '); }`,
         },
@@ -148,21 +159,6 @@ describe('S7781', () => {
           output: `function replaceWrappedSuffix(input) { return input.replaceAll("foo", 'bar'); }`,
         },
         {
-          code: String.raw`function replaceEllipsis(input) { return input.replace(/\.{3}/g, '…'); }`,
-          errors: [{ messageId: 'methodAndPattern' }],
-          output: String.raw`function replaceEllipsis(input) { return input.replaceAll("...", '…'); }`,
-        },
-        {
-          code: `function replaceTriplet(input) { return input.replace(/a{3}/g, 'x'); }`,
-          errors: [{ messageId: 'methodAndPattern' }],
-          output: `function replaceTriplet(input) { return input.replaceAll("aaa", 'x'); }`,
-        },
-        {
-          code: `function replaceRepeatedGroup(input) { return input.replace(/(?:ab){2}/g, 'x'); }`,
-          errors: [{ messageId: 'methodAndPattern' }],
-          output: `function replaceRepeatedGroup(input) { return input.replaceAll("abab", 'x'); }`,
-        },
-        {
           // Escape quotes, backslashes, control characters, and Unicode separators in the search string.
           code: String.raw`input.replace(/'"\\\n\r\t\u2028\u2029/g, '');`,
           errors: [{ messageId: 'methodAndPattern' }],
@@ -210,13 +206,6 @@ source.replaceAll(marker, '');`,
           code: `input.replaceAll(/hello/g, 'hi');`,
           errors: [{ messageId: 'pattern', data: { replacement: "'hello'" } }],
           output: `input.replaceAll('hello', 'hi');`,
-        },
-        {
-          code: String.raw`const whitespaceRegex = /\n {2}/g;
-function normalizeIndentation(input) { return input.replace(whitespaceRegex, '\n'); }`,
-          errors: [{ messageId: 'method' }],
-          output: String.raw`const whitespaceRegex = /\n {2}/g;
-function normalizeIndentation(input) { return input.replaceAll(whitespaceRegex, '\n'); }`,
         },
         {
           code: `const spaceRegex = / /g;
