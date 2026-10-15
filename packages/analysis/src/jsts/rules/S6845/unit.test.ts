@@ -187,6 +187,50 @@ describe('S6845', () => {
         });
       });
     }
+    for (const binding of [
+      'let position; [position] = [50];',
+      'let position; ({ position } = { position: 50 });',
+      'let position; [position = 50] = [];',
+      'let position; ({ position = 50 } = {});',
+      'let position; [position] = [50]; const current = position;',
+    ]) {
+      it(`allows destructuring assignments in ${binding} in ${language}`, () => {
+        const value = binding.includes('const current') ? 'current' : 'position';
+        new Tester().run('no-noninteractive-tabindex', rule, {
+          valid: [
+            {
+              code: `${binding} <div role="separator" aria-valuenow={${value}} tabIndex={0} />`,
+              options,
+            },
+          ],
+          invalid: [],
+        });
+      });
+    }
+    for (const code of [
+      'let position; for ([position] of [[50]]) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+      'let position; for ({ position } of [{ position: 50 }]) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+      'let position; for ([position] in { 50: true }) { items.push(<div role="separator" aria-valuenow={position} tabIndex={0} />); }',
+    ]) {
+      it(`allows destructured loop targets in ${code} in ${language}`, () => {
+        new Tester().run('no-noninteractive-tabindex', rule, {
+          valid: [{ code, options }],
+          invalid: [],
+        });
+      });
+    }
+    it(`retains reports for spreads assigned through object destructuring in ${language}`, () => {
+      new Tester().run('no-noninteractive-tabindex', rule, {
+        valid: [],
+        invalid: [
+          {
+            code: 'let props; ({ props } = { props: { role: "presentation" } }); <div role="separator" aria-valuenow={50} {...props} tabIndex={0} />',
+            options,
+            errors: [{ message }],
+          },
+        ],
+      });
+    });
     for (const code of invalid) {
       it(`reports ${code} in ${language}`, () => {
         new Tester().run('no-noninteractive-tabindex', rule, {

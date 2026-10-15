@@ -316,15 +316,15 @@ function getSimpleBindingValue(
   if (parent?.type === 'ForOfStatement' || parent?.type === 'ForInStatement') {
     return expression;
   }
-  // A loop head can also assign to a variable declared outside the loop.
+  // Only direct initializers and plain assignments bind writeExpr itself.
   const writes = variable?.references.filter(ref => ref.isWrite());
   const target = writes?.length === 1 ? (writes[0].identifier as TSESTree.Node) : undefined;
-  const loop = target?.parent;
+  const write = target?.parent;
   if (
-    (loop?.type === 'ForOfStatement' || loop?.type === 'ForInStatement') &&
-    loop.left === target
+    (write?.type === 'VariableDeclarator' && write.id === target) ||
+    (write?.type === 'AssignmentExpression' && write.operator === '=' && write.left === target)
   ) {
-    return expression;
+    return getUniqueWriteUsageOrNode(context, expression as Node) as TSESTree.Node;
   }
-  return getUniqueWriteUsageOrNode(context, expression as Node) as TSESTree.Node;
+  return expression;
 }
