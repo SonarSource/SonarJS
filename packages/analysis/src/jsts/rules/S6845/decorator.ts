@@ -316,5 +316,15 @@ function getSimpleBindingValue(
   if (parent?.type === 'ForOfStatement' || parent?.type === 'ForInStatement') {
     return expression;
   }
+  // A loop head can also assign to a variable declared outside the loop.
+  const writes = variable?.references.filter(ref => ref.isWrite());
+  const target = writes?.length === 1 ? (writes[0].identifier as TSESTree.Node) : undefined;
+  const loop = target?.parent;
+  if (
+    (loop?.type === 'ForOfStatement' || loop?.type === 'ForInStatement') &&
+    loop.left === target
+  ) {
+    return expression;
+  }
   return getUniqueWriteUsageOrNode(context, expression as Node) as TSESTree.Node;
 }
