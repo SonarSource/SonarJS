@@ -2,6 +2,7 @@
 
 Current architecture (2026-10-15): [one shared TypeScript module](single-typescript-module.md)
 for SonarJS and all dependencies. TS6 is the default provider and TS7 IPC is experimental.
+An [experimental in-process WASM provider](wasm.md) now uses the same contract too.
 Both use released typescript-eslint 8.71.1; the compiler module translates native
 objects to the existing contract. No parser fork or second SDK-free service is required.
 

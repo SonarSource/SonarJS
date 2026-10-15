@@ -39,6 +39,10 @@ exports.createBackend = ts => {
   };
   return {
     async initialize() {
+      if (process.env.SONARJS_TYPESCRIPT_BACKEND === 'wasm') {
+        const wasm = await import(pathToFileURL(path.join(__dirname, 'wasm/runtime.mjs')).href);
+        await wasm.initializeWasm();
+      }
       await import(pathToFileURL(path.join(directory, 'native/compatibility.mjs')).href);
       loadedRuntime = await import(pathToFileURL(path.join(directory, 'native/session.mjs')).href);
       loadedProjects = await import(

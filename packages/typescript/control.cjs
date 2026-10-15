@@ -8,12 +8,17 @@ function getCompilerGateway() {
   if (gateway) return gateway;
   const selection = process.env.SONARJS_TYPESCRIPT_BACKEND ?? 'ts6';
   const bundled = typeof __SONARJS_BUNDLED__ !== 'undefined' && __SONARJS_BUNDLED__;
-  if (!['ts6', 'ts7'].includes(selection)) {
+  if (!['ts6', 'ts7', 'wasm'].includes(selection)) {
     throw new TypeScriptFailure(
       'unsupported-operation',
       `Compiler backend is not implemented: ${selection}`,
     );
   }
+  if (selection === 'wasm' && !path.isAbsolute(process.env.SONARJS_TS7_WASM ?? ''))
+    throw new TypeScriptFailure(
+      'backend',
+      'SONARJS_TS7_WASM must name an absolute WASM artifact directory',
+    );
   if (bundled && selection !== 'ts6') {
     throw new TypeScriptFailure(
       'unsupported-operation',
@@ -53,9 +58,11 @@ module.exports = {
   getCompilerInfo: () => {
     const selected = getCompilerGateway();
     const sdkRoot =
-      selected.provider === 'ts7'
-        ? path.dirname(require.resolve('typescript-native/package.json'))
-        : undefined;
+      selected.provider === 'wasm'
+        ? path.join(process.env.SONARJS_TS7_WASM ?? '', 'sdk')
+        : selected.provider === 'ts7'
+          ? path.dirname(require.resolve('typescript-native/package.json'))
+          : undefined;
     return {
       backend: selected.provider,
       compatibilityVersion: selected.facade.version,

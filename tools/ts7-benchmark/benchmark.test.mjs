@@ -22,6 +22,9 @@ test(
         process.execPath,
         [
           path.join(directory, 'benchmark.mjs'),
+          ...(process.env.SONARJS_NATIVE_TEST_BACKEND === 'wasm'
+            ? ['--native-backend', 'wasm']
+            : []),
           '--runs',
           '1',
           '--rules',
@@ -85,6 +88,7 @@ for (const [args, message] of [
   [['--unknown-option'], /Unknown option/],
   [['--project'], /Missing value/],
   [['--runs', '0'], /positive integer/],
+  [['--native-backend', 'invalid'], /must be ts7 or wasm/],
 ]) {
   test(`benchmark rejects malformed input: ${args.join(' ')}`, () => {
     const child = spawnSync(process.execPath, [path.join(directory, 'benchmark.mjs'), ...args], {

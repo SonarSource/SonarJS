@@ -16,6 +16,8 @@ const valuedOptions = new Set([
   '--fs',
   '--archive-mode',
   '--archive-dir',
+  '--native-backend',
+  '--native-sdk',
 ]);
 const flagOptions = new Set(['--restrict-node-modules', '--profile', '--cpu-profile', '--help']);
 for (let index = 0; index < args.length; index++) {
@@ -58,6 +60,9 @@ const ruleConfig = ruleConfigFile ? JSON.parse(fs.readFileSync(ruleConfigFile, '
 if (ruleConfig !== undefined && !Array.isArray(ruleConfig))
   throw new Error('--rule-config must contain a RuleConfig array');
 const filesystem = value('--fs') ?? 'callbacks';
+const nativeBackend = value('--native-backend') ?? 'ts7';
+if (!['ts7', 'wasm'].includes(nativeBackend))
+  throw new Error('--native-backend must be ts7 or wasm');
 if (!['callbacks', 'layer'].includes(filesystem))
   throw new Error('--fs must be callbacks or layer');
 const archiveMode = value('--archive-mode');
@@ -94,6 +99,9 @@ for (let run = 0; run < runs; run++) {
     const child = spawnSync(
       process.execPath,
       [
+        ...(backend === 'native' && nativeBackend === 'ts7' && value('--native-sdk')
+          ? ['--import', pathToFileURL(path.join(directory, 'source-sdk.mjs')).href]
+          : []),
         '--import',
         pathToFileURL(
           path.resolve(directory, '../../packages/analysis/src/jsts/native/compatibility.mjs'),
@@ -111,7 +119,10 @@ for (let run = 0; run < runs; run++) {
         env: {
           ...process.env,
           SONARJS_TYPESCRIPT_SOURCE: '1',
-          SONARJS_TYPESCRIPT_BACKEND: backend === 'classic' ? 'ts6' : 'ts7',
+          SONARJS_TYPESCRIPT_BACKEND: backend === 'classic' ? 'ts6' : nativeBackend,
+          ...(value('--native-sdk')
+            ? { SONARJS_TS7_SDK: path.resolve(value('--native-sdk')) }
+            : {}),
         },
       },
     );
@@ -207,10 +218,15 @@ const summarize = group => {
     files: group[0].files.length,
     issues: countIssues(group[0]),
     timings: Object.fromEntries(
-      ['selectionMs', 'programMs', 'parseMs', 'lintMs', 'analysisMs', 'workerWallMs'].map(key => [
-        key,
-        metric(key),
-      ]),
+      [
+        'compilerInitializationMs',
+        'selectionMs',
+        'programMs',
+        'parseMs',
+        'lintMs',
+        'analysisMs',
+        'workerWallMs',
+      ].map(key => [key, metric(key)]),
     ),
   };
 };
@@ -220,6 +236,7 @@ const summary = {
   rules: ruleConfig ? 'custom' : rules,
   ruleConfigFile,
   filesystem,
+  nativeBackend,
   instrumentation: { metrics: args.includes('--profile'), cpu: args.includes('--cpu-profile') },
   valid,
   stable,

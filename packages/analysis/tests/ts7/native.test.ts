@@ -75,7 +75,12 @@ test('production factory and released parser share the native compiler contract 
     assert.deepEqual(program.getProjectReferences() ?? [], []);
     checkType(program, code, 'string');
     const gateway = getCompilerGateway();
-    assert.equal(gateway.provider, 'ts7');
+    assert.equal(gateway.provider, process.env.SONARJS_NATIVE_TEST_BACKEND ?? 'ts7');
+    if (gateway.provider === 'wasm') {
+      assert.ok((globalThis as any).__sonarjsWasm);
+      assert.equal(getNativeSession(program)!.api.client.channel.child, undefined);
+      assert.equal((globalThis as any)[Symbol.for('sonarjs.ts7.processes')].size, 0);
+    }
     assert.equal(gateway.facade, ts);
     assert.ok(
       gateway

@@ -3,6 +3,9 @@
 Runnable prototype for [JS-2643](https://sonarsource.atlassian.net/browse/JS-2643).
 Current architecture: [one shared TypeScript module](../../docs/ts7-benchmark/single-typescript-module.md)
 for SonarJS and dependencies; TS6 is the default provider, TS7 is experimental.
+An [in-process WASM provider](../../docs/ts7-benchmark/wasm.md) is also runnable
+with `--native-backend wasm` and a locally built, revision-matched compiler.
+Use `--native-sdk <snapshot>` to compare the corresponding native IPC build.
 The [agreed plan](../../docs/ts7-benchmark/plan.md) retains the original design
 and records implementation findings. Run from the `SonarJS-ts7-benchmark` worktree.
 

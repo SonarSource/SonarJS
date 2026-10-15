@@ -3,7 +3,7 @@
 const entry = process.argv[1]?.replaceAll('\\', '/') ?? '';
 process.env.SONARJS_TYPESCRIPT_SOURCE = entry.includes('/lib/') ? '0' : '1';
 if (/\/ts7\/native\.test\.(?:ts|js)$/.test(entry)) {
-  process.env.SONARJS_TYPESCRIPT_BACKEND = 'ts7';
+  process.env.SONARJS_TYPESCRIPT_BACKEND = process.env.SONARJS_NATIVE_TEST_BACKEND ?? 'ts7';
   const { initializeCompiler } = await import('typescript/control');
   await initializeCompiler();
 }

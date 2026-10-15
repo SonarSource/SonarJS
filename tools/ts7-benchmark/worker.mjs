@@ -8,10 +8,6 @@ import { attachNativeProfiler } from '../../packages/analysis/src/jsts/native/pr
 import { createPerformanceProfiler, startCpuProfile, summarizeCpuProfile } from './profiling.mjs';
 import ts from 'typescript';
 import classicParser from '@typescript-eslint/parser';
-import {
-  createNativePrograms,
-  compilerOptionsToJson,
-} from '../../packages/analysis/src/jsts/native/session.mjs';
 import { build } from '../../packages/analysis/src/jsts/builders/build.ts';
 import { sampleNativeMemory } from './memory.mjs';
 import { Linter } from '../../packages/analysis/src/jsts/linter/linter.ts';
@@ -52,13 +48,24 @@ const report = {
   instrumentation: { metrics: !!config.profile, cpu: !!config.cpuProfile },
   unsupported: {},
   compilerVersion: config.backend === 'classic' ? ts.version : getCompilerInfo().version,
+  compilerBackend: getCompilerInfo().backend,
+  transport:
+    getCompilerInfo().backend === 'wasm'
+      ? 'in-process-wasm'
+      : config.backend === 'classic'
+        ? 'local-js'
+        : 'ipc',
 };
 let api;
 let adapter;
 let nativeSession;
 let filesystemSession;
 try {
+  const initializationStart = performance.now();
   await initializeCompiler();
+  report.timings.compilerInitializationMs = performance.now() - initializationStart;
+  const { createNativePrograms, compilerOptionsToJson } =
+    await import('../../packages/analysis/src/jsts/native/session.mjs');
   const require = createRequire(import.meta.url);
   if (profiler && config.backend !== 'classic')
     [detachTiming, detachClient] = await attachNativeProfiler(profiler);

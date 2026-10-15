@@ -26,8 +26,8 @@ const redirects = new Map(
 // resolve to this SDK. Bare TypeScript imports remain classic compatibility.
 registerHooks({
   resolve(specifier, context, nextResolve) {
-    if (specifier.startsWith('typescript/')) {
-      const resolved = redirects.get(specifier);
+    if (specifier.startsWith('typescript-native/')) {
+      const resolved = redirects.get(specifier.replace('typescript-native/', 'typescript/'));
       if (!resolved) throw new Error(`Source SDK does not export ${specifier}`);
       return { url: resolved, shortCircuit: true };
     }

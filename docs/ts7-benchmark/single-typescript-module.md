@@ -17,7 +17,7 @@ flowchart TD
     module --> provider[One immutable provider per worker]
     provider --> classic[TS6 JavaScript provider]
     provider --> native[Experimental TS7 IPC provider]
-    provider -. not implemented .-> wasm[Future WASM provider]
+    provider --> wasm[Experimental in-process WASM provider]
     classic --> sdk[Private TS6 compiler]
     native --> adapters[Private native AST and checker compatibility]
     adapters --> process[Long-lived Go API process]
@@ -101,8 +101,11 @@ than silently creating a classic semantic program. Unknown facade members and
 gateway failures remain fatal even if a dependency catches the immediate error.
 This remains a partial compatibility implementation, not a complete TS6 SDK clone.
 
-WASM is **not implemented**. A fake non-TS6 provider test proves routing, not WASM
-semantic conformance, performance or memory sharing.
+`SONARJS_TYPESCRIPT_BACKEND=wasm` selects an experimental in-process build of the
+Go API handlers. It reuses the native compatibility views and released parser,
+but replaces the SDK's pipe channel with direct synchronous JS/WASM calls.
+See the [WASM experiment](wasm.md) for build instructions, tested coverage,
+measurements and limitations. This is not zero-copy or an official Go/WASM API.
 
 ## Filesystems And Lifetimes
 
