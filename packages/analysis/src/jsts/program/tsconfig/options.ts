@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
-import { error, warn } from '../../../../../shared/src/helpers/logging.js';
+import { debug, error, warn } from '../../../../../shared/src/helpers/logging.js';
 import {
   getNodeVersionSignal,
   getTypeScriptVersionSignal,
@@ -40,7 +40,7 @@ import { intersects } from 'semver';
 const PROGRAM_OPTIONS_BRAND: unique symbol = Symbol('ProgramOptions');
 
 export const MISSING_EXTENDED_TSCONFIG =
-  "At least one referenced/extended tsconfig.json was not found in the project. Please run 'npm install' for a more complete analysis. Check analysis logs for more details.";
+  'At least one referenced/extended tsconfig.json was not found in the project. Please install project dependencies using your package manager for a more complete analysis. Check analysis logs for more details.';
 
 /**
  * Program options that must be created via createProgramOptions().
@@ -539,6 +539,7 @@ export function createProgramOptions(
     useCaseSensitiveFileNames: true,
     readDirectory: baseParseConfigHost.readDirectory,
     fileExists: file => {
+      debug(`TSConfig lookup while parsing ${tsConfig}: checking ${file}`);
       // When TypeScript checks for the very last tsconfig.json, we will always return true,
       // If the file does not exist in FS, we will return an empty configuration
       if (tsconfigContentCache.has(file) || isLastTsConfigCheck(file)) {
@@ -565,7 +566,9 @@ export function createProgramOptions(
       // 4. Handle missing extended tsconfig (return empty config)
       if (!fileContents && isLastTsConfigCheck(file)) {
         missingTsConfig = true;
-        warn(`Could not find tsconfig.json: ${file}; falling back to an empty configuration.`);
+        warn(
+          `Could not resolve an extended tsconfig while parsing ${tsConfig}. Multiple lookup paths were tried; the last was ${file}. Analysis will continue without the missing configuration. Check DEBUG logs for the other lookup paths.`,
+        );
         const emptyConfig = '{}';
         tsconfigContentCache.set(file, { contents: emptyConfig, missing: true });
         return emptyConfig;

@@ -365,7 +365,7 @@ async function analyzeFilesFromTsConfig(
   telemetry.recordCompilerOptions(programOptions.options);
 
   if (programOptions.missingTsConfig) {
-    const msg = `${tsconfig} extends a configuration that was not found. Please run 'npm install' for a more complete analysis.`;
+    const msg = `${tsconfig} extends a configuration that was not found. Please install project dependencies using your package manager for a more complete analysis.`;
     warn(msg);
   }
 

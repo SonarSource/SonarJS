@@ -61,7 +61,7 @@ class ExternalTSConfigDependencyTest {
       l
         .message()
         .contains(
-          "extends a configuration that was not found. Please run 'npm install' for a more complete analysis"
+          "extends a configuration that was not found. Please install project dependencies using your package manager for a more complete analysis"
         )
     );
 
@@ -82,10 +82,10 @@ class ExternalTSConfigDependencyTest {
         .filter(l ->
           l
             .message()
-            .equals(
-              "Could not find tsconfig.json: " +
+            .contains(
+              "Multiple lookup paths were tried; the last was " +
                 lastTsConfigPath.getAbsolutePath().replace('\\', '/') +
-                "; falling back to an empty configuration."
+                ". Analysis will continue without the missing configuration."
             )
         )
     ).hasSize(1);
