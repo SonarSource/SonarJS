@@ -331,13 +331,16 @@ export function getAngularOutputNames(node: TSESTree.Node): [string, string] | u
   if (text === undefined) {
     return undefined;
   }
-  const parent = mappingNode(node).parent;
-  if (parent?.type === 'ArrayExpression') {
-    const decorator = outputMetadataDecorator(node);
+  let alias = mappingNode(node);
+  while (alias.parent?.type === 'TSAsExpression' || alias.parent?.type === 'TSNonNullExpression') {
+    alias = alias.parent;
+  }
+  if (alias.parent?.type === 'ArrayExpression') {
+    const decorator = outputMetadataDecorator(alias);
     const name = decorator && ASTUtils.getDecoratorName(decorator);
     return name === 'Component' || name === 'Directive' ? parseOutputMapping(text) : undefined;
   }
-  if (!isCompleteOutputAlias(node)) {
+  if (!isCompleteOutputAlias(alias)) {
     return undefined;
   }
   const member = ASTUtils.getNearestNodeFrom(node, ASTUtils.isPropertyOrMethodDefinition);

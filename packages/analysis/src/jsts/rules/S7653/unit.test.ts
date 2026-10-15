@@ -502,6 +502,58 @@ describe('S7653', () => {
     ruleTester.run('no-output-rename', upstreamRule, { valid, invalid: [] });
   });
 
+  it('handles type-only wrappers around collision-avoiding aliases', () => {
+    const assertions = [
+      (text: string) => `${text} as const`,
+      (text: string) => `${text} as string`,
+      (text: string) => `${text}!`,
+      (text: string) => `(${text} as const)!`,
+    ];
+    const valid = assertions.flatMap(assertion =>
+      apis.flatMap(api =>
+        ["'", '"', '`'].map(quote => {
+          const text = `${quote}${api === 'metadata' ? 'change: ' : ''}valueChanged${quote}`;
+          return {
+            code: outputCode(api, 'change', 'valueChanged', quote).replace(text, assertion(text)),
+          };
+        }),
+      ),
+    );
+    const invalid = assertions.flatMap(assertion =>
+      apis.flatMap(api =>
+        [
+          ['change', 'click'],
+          ['valueChange', 'updated'],
+        ].map(([member, alias]) => {
+          const text = `'${api === 'metadata' ? `${member}: ` : ''}${alias}'`;
+          return {
+            code: outputCode(api, member, alias).replace(text, assertion(text)),
+            errors: 1,
+          };
+        }),
+      ),
+    );
+    invalid.push(
+      ...apis.flatMap(api => {
+        const alias = api === 'metadata' ? 'change: valueChanged' : 'valueChanged';
+        const nativeAlias = api === 'metadata' ? 'change: click' : 'click';
+        return [
+          { expression: `getAlias('${alias}') as string`, errors: 1 },
+          { expression: `(condition ? '${nativeAlias}' : '${alias}') as string`, errors: 2 },
+          { expression: `['${alias}'] as const`, errors: 1 },
+        ].map(({ expression, errors }) => ({
+          code: outputCode(api, 'change', 'valueChanged').replace(`'${alias}'`, expression),
+          errors,
+        }));
+      }),
+    );
+    ruleTester.run('S7653', rule, { valid, invalid });
+    ruleTester.run('no-output-rename', upstreamRule, {
+      valid: [],
+      invalid: [...valid.map(test => ({ ...test, errors: 1 })), ...invalid],
+    });
+  });
+
   it('allows getter and directive mappings with static, decoded names', () => {
     const valid = [
       {
