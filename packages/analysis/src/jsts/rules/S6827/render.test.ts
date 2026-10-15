@@ -332,6 +332,30 @@ for (const [language, Tester] of [
       });
     });
 
+    it('follows sole plain assignment writes while checking every consumer', () => {
+      const assigned = `${button}let link; link = <a />;`;
+      new Tester().run('anchor-has-content', rule, {
+        valid: [
+          `${assigned}<Button render={link}>Continue</Button>;`,
+          `${assigned}let alias; alias = link; <Button render={alias}>Continue</Button>;`,
+          `${assigned}<><Button render={link}>Home</Button><Button render={link}>Menu</Button></>;`,
+          `${button}let link; link = flag ? <a /> : <a />; <Button render={link}>Continue</Button>;`,
+        ].map(code => ({ code })),
+        invalid: [
+          `${assigned}<Button render={link} />;`,
+          `${assigned}let alias; alias = link; <Button render={alias} />;`,
+          `${assigned}<><Button render={link}>Home</Button><Button render={link} /></>;`,
+          `${assigned}<><Button render={link}>Home</Button><Other render={link}>Menu</Other></>;`,
+          `${assigned}useElsewhere(link); <Button render={link}>Continue</Button>;`,
+          `${assigned}link = <span />; <Button render={link}>Continue</Button>;`,
+          `${button}let link; link ||= <a />; <Button render={link}>Continue</Button>;`,
+          `${button}let [link] = []; link = <a />; <Button render={link}>Continue</Button>;`,
+          `${button}function Example(link) { link = <a />; return <Button render={link}>Continue</Button>; }`,
+          `${assigned}const alias = flag ? link : alias; <Button render={alias}>Continue</Button>;`,
+        ].map(code => ({ code, errors: 1 })),
+      });
+    });
+
     it('checks selected HTML branches for accessible content', () => {
       const code = (expression: string, declarations = '') =>
         `${button}${declarations}<Button render={<a />} dangerouslySetInnerHTML={{__html: ${expression}}} />;`;

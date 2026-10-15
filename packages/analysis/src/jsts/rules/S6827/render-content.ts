@@ -75,18 +75,29 @@ function hasRenderConsumer(
   ) {
     current = current.parent;
   }
-  const declaration = current.parent;
-  if (
-    declaration?.type === 'VariableDeclarator' &&
-    declaration.init === current &&
-    declaration.id.type === 'Identifier'
-  ) {
+  const write = current.parent;
+  const identifier =
+    write?.type === 'VariableDeclarator' && write.init === current && write.id.type === 'Identifier'
+      ? write.id
+      : write?.type === 'AssignmentExpression' &&
+          write.operator === '=' &&
+          write.right === current &&
+          write.left.type === 'Identifier'
+        ? write.left
+        : undefined;
+  if (identifier) {
     const variable = getVariableFromName(
       context,
-      declaration.id.name,
-      declaration.id as unknown as estree.Node,
+      identifier.name,
+      identifier as unknown as estree.Node,
     );
-    if (!variable || getUniqueWriteReference(variable) !== current) {
+    const definition = variable?.defs[0];
+    if (
+      variable?.defs.length !== 1 ||
+      definition?.type !== 'Variable' ||
+      definition.node.id.type !== 'Identifier' ||
+      getUniqueWriteReference(variable) !== current
+    ) {
       return false;
     }
     const reads = variable.references.filter(reference => reference.isRead());
