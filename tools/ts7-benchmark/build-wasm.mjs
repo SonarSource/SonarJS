@@ -22,6 +22,7 @@ if (run('git', ['status', '--porcelain'], { cwd: repository }).trim())
 fs.mkdirSync(output, { recursive: true });
 const source = path.join(root, 'packages/typescript/wasm');
 fs.copyFileSync(path.join(source, 'main.go'), path.join(output, 'main.go'));
+fs.copyFileSync(path.join(source, 'direct.go'), path.join(output, 'direct.go'));
 fs.writeFileSync(
   path.join(output, 'go.mod'),
   `module github.com/microsoft/TypeScript/tsc/sonarjswasm\n\ngo 1.27\n\nrequire github.com/microsoft/TypeScript/tsc v0.0.0\nreplace github.com/microsoft/TypeScript/tsc => ${JSON.stringify(path.join(repository, 'tsc'))}\n`,

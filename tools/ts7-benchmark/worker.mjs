@@ -49,6 +49,10 @@ const report = {
   unsupported: {},
   compilerVersion: config.backend === 'classic' ? ts.version : getCompilerInfo().version,
   compilerBackend: getCompilerInfo().backend,
+  wasmBridge:
+    getCompilerInfo().backend === 'wasm'
+      ? (process.env.SONARJS_WASM_BRIDGE ?? 'syscall')
+      : undefined,
   transport:
     getCompilerInfo().backend === 'wasm'
       ? 'in-process-wasm'

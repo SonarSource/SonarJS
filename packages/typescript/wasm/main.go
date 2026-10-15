@@ -15,6 +15,9 @@ import (
 
 type connection struct{ callback js.Value }
 
+var sessions = map[int]*api.Session{}
+var timings = map[int]*timing{}
+
 type timing struct {
 	Enabled bool `json:"enabled"`
 	Totals  struct {
@@ -47,8 +50,6 @@ func (c *connection) Call(_ context.Context, method string, params any) (result 
 }
 
 func main() {
-	sessions := map[int]*api.Session{}
-	timings := map[int]*timing{}
 	next := 0
 	wrap := func(fn func([]js.Value) any) js.Func {
 		return js.FuncOf(func(_ js.Value, args []js.Value) (result any) {
@@ -83,47 +84,13 @@ func main() {
 	})
 	request := wrap(func(args []js.Value) any {
 		id := args[0].Int()
-		session := sessions[id]
-		if session == nil {
-			return map[string]any{"error": "WASM session is closed"}
-		}
 		method := args[1].String()
-		stats := timings[id]
 		input := args[2]
 		payload := make([]byte, input.Length())
 		js.CopyBytesToGo(payload, input)
-		var value any
-		var err error
-		switch method {
-		case "getServerTiming":
-			value = stats
-		case "resetServerTiming":
-			timings[id] = &timing{Enabled: stats.Enabled, RecentRequests: []map[string]any{}}
-			value = api.RawBinary(nil)
-		default:
-			start := time.Now()
-			value, err = session.HandleRequest(context.Background(), method, json.Value(payload))
-			if stats.Enabled {
-				ms := float64(time.Since(start).Nanoseconds()) / 1e6
-				stats.Totals.RequestCount++
-				stats.Totals.TotalProcessingTimeMs += ms
-				stats.RecentRequests = append(stats.RecentRequests, map[string]any{"method": method, "processingTimeMs": ms})
-				if len(stats.RecentRequests) > 5 {
-					stats.RecentRequests = stats.RecentRequests[1:]
-				}
-			}
-		}
+		bytes, err := handleRequest(id, method, payload)
 		if err != nil {
 			return map[string]any{"error": err.Error()}
-		}
-		var bytes []byte
-		if raw, ok := value.(api.RawBinary); ok {
-			bytes = raw
-		} else {
-			bytes, err = json.Marshal(value)
-			if err != nil {
-				return map[string]any{"error": err.Error()}
-			}
 		}
 		output := js.Global().Get("Uint8Array").New(len(bytes))
 		js.CopyBytesToJS(output, bytes)
@@ -140,4 +107,46 @@ func main() {
 	})
 	js.Global().Set("__sonarjsWasm", map[string]any{"open": open, "request": request, "close": close})
 	select {}
+}
+
+func handleRequest(id int, method string, payload []byte) ([]byte, error) {
+	session := sessions[id]
+	if session == nil {
+		return nil, fmt.Errorf("WASM session is closed")
+	}
+	stats := timings[id]
+	var value any
+	var err error
+	switch method {
+	case "getServerTiming":
+		value = stats
+	case "resetServerTiming":
+		timings[id] = &timing{Enabled: stats.Enabled, RecentRequests: []map[string]any{}}
+		value = api.RawBinary(nil)
+	default:
+		start := time.Now()
+		value, err = session.HandleRequest(context.Background(), method, json.Value(payload))
+		if stats.Enabled {
+			ms := float64(time.Since(start).Nanoseconds()) / 1e6
+			stats.Totals.RequestCount++
+			stats.Totals.TotalProcessingTimeMs += ms
+			stats.RecentRequests = append(stats.RecentRequests, map[string]any{"method": method, "processingTimeMs": ms})
+			if len(stats.RecentRequests) > 5 {
+				stats.RecentRequests = stats.RecentRequests[1:]
+			}
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	var bytes []byte
+	if raw, ok := value.(api.RawBinary); ok {
+		bytes = raw
+	} else {
+		bytes, err = json.Marshal(value)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return bytes, nil
 }

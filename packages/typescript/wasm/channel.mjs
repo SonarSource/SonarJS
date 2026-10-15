@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { wasmArtifact, getWasmBridge } from './runtime.mjs';
+import { wasmArtifact, openWasm, requestWasm, closeWasm } from './runtime.mjs';
 
 // Same synchronous SDK channel contract, but no process, pipe or message framing.
 export class SyncRpcChannel {
@@ -18,7 +18,7 @@ export class SyncRpcChannel {
         .find(arg => arg.startsWith('--callbacks='))
         ?.slice('--callbacks='.length)
         .split(',') ?? [];
-    const result = getWasmBridge().open(
+    const result = openWasm(
       JSON.stringify({
         cwd: args[cwdIndex + 1].replaceAll('\\', '/'),
         library: path.join(wasmArtifact(), 'sdk/lib').replaceAll('\\', '/'),
@@ -46,20 +46,21 @@ export class SyncRpcChannel {
     this.callbacks.delete(name);
   }
   requestBinarySync(method, payload) {
-    if (this.closed) throw new Error('WASM channel is closed');
-    const input = typeof payload === 'string' ? Buffer.from(payload) : payload;
-    this.lastBytesSent = input.length;
-    const result = getWasmBridge().request(this.id, method, input);
-    if (result.error) throw new Error(result.error);
-    this.lastBytesReceived = result.value.length;
-    return Buffer.from(result.value.buffer, result.value.byteOffset, result.value.length);
+    return this.request(method, payload, true);
   }
   requestSync(method, payload) {
-    return this.requestBinarySync(method, payload).toString('utf8');
+    return this.request(method, payload, false);
+  }
+  request(method, payload, binary) {
+    if (this.closed) throw new Error('WASM channel is closed');
+    this.lastBytesSent = typeof payload === 'string' ? Buffer.byteLength(payload) : payload.length;
+    const result = requestWasm(this.id, method, payload, binary);
+    this.lastBytesReceived = result.length;
+    return result.value;
   }
   close() {
     if (this.closed) return;
-    const result = getWasmBridge().close(this.id);
+    const result = closeWasm(this.id);
     if (result?.error) throw new Error(result.error);
     this.closed = true;
     this.callbacks.clear();
