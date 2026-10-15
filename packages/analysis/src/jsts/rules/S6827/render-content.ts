@@ -80,6 +80,7 @@ function hasRenderConsumer(
     write?.type === 'VariableDeclarator' && write.init === current && write.id.type === 'Identifier'
       ? write.id
       : write?.type === 'AssignmentExpression' &&
+          write.parent?.type === 'ExpressionStatement' &&
           write.operator === '=' &&
           write.right === current &&
           write.left.type === 'Identifier'
