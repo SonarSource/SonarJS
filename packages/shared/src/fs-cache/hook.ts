@@ -18,28 +18,74 @@ import fs from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { getSystemErrorMap, promisify } from 'node:util';
+import { promisify } from 'node:util';
 import {
   type ArchiveOptions,
   type CachedDirectoryEntry,
-  type CachedName,
   type CachedStat,
-  DIRENT_TYPES,
-  type FsCacheErrorSnapshot,
   type FsCacheOutcome,
-  FS_TYPE_METHODS,
   FsCacheArchive,
   type PortablePath,
   type RealpathOperation,
 } from './archive.js';
+import { createDirectoryPatches } from './hook-directory.js';
+import { getActiveArchive, requireActiveArchive, setActiveArchive } from './hook-state.js';
+import { originalFs, originalPromises } from './hook-originals.js';
+import {
+  type CacheExecutor,
+  cacheMiss,
+  createExecutor,
+  failure,
+  makeCallback,
+  missingPath,
+  pathDisplay,
+  pathOperation,
+  requireCallback,
+  restoreError,
+  success,
+} from './hook-core.js';
+import {
+  readdirOperation,
+  restoreDirectoryResult,
+  restoreName,
+  restorePathResult,
+  restoreStat,
+  returnPathBuffer,
+  returnReadBuffer,
+  snapshotDirectoryResult,
+  snapshotName,
+  snapshotPathResult,
+  snapshotStat,
+  statOperation,
+  withBufferEncoding,
+  withoutEncoding,
+} from './hook-snapshots.js';
+import type {
+  ArchiveFacade,
+  BufferedRealpath,
+  Callable,
+  CachedDirectoryValue,
+  CachedPathResult,
+  CustomPromisifyFactory,
+  DirectoryValue,
+  ErrorCallback,
+  FileDescriptorMap,
+  FileHandleLike,
+  FileHandleTracker,
+  FsError,
+  FunctionWithNative,
+  OperationOptions,
+  OperationOptionsInput,
+  ReadArguments,
+  ReadOptions,
+  StatValue,
+  ValueCallback,
+} from './hook-types.js';
 
-const MISSING = Symbol('missing filesystem cache observation');
 export const FS_CACHE_INSTALLATION = Symbol.for('sonarjs.filesystemCache.installation');
 const CACHED_FILE_HANDLE = Symbol('cached filesystem file handle');
 const FS_PROMISES_MODULE = 'fs/promises';
 const REALPATH_NATIVE_OPERATION = 'realpath.native';
-const DEFAULT_ENOENT_ERRNO = -2;
-let activeArchive: FsCacheArchive | undefined;
 
 /**
  * Preserve analyzer-provided source content that bypasses the patched filesystem APIs.
@@ -47,102 +93,35 @@ let activeArchive: FsCacheArchive | undefined;
  * Files read through the filesystem hooks retain their original bytes instead.
  */
 export function captureProvidedFile(fileName: string, content: string): void {
-  if (activeArchive?.mode !== 'record') {
+  const active = getActiveArchive();
+  if (active?.mode !== 'record') {
     return;
   }
-  const key = activeArchive.keyFor(fileName);
+  const key = active.keyFor(fileName);
   if (key !== undefined) {
-    const existing = activeArchive.get<Buffer>(key, 'readFile');
+    const existing = active.get<Buffer>(key, 'readFile');
     if (existing?.ok && existing.value.toString('utf8') === content) {
       return;
     }
-    activeArchive.set(key, 'readFile', { ok: true, value: Buffer.from(content, 'utf8') });
+    active.set(key, 'readFile', { ok: true, value: Buffer.from(content, 'utf8') });
   }
 }
 
 /** A recorded read proves the file existed even when no stat call was observed. */
 export function hasArchivedFileContent(fileName: string): boolean {
-  if (activeArchive?.mode !== 'replay') {
+  const active = getActiveArchive();
+  if (active?.mode !== 'replay') {
     return false;
   }
-  const key = activeArchive.keyFor(fileName);
-  return key !== undefined && activeArchive.get(key, 'readFile')?.ok === true;
+  const key = active.keyFor(fileName);
+  return key !== undefined && active.get(key, 'readFile')?.ok === true;
 }
 
-type FsError = Error & {
-  code?: string;
-  errno?: number;
-  syscall?: string;
-  path?: string;
-};
-type Callable = (...args: never[]) => unknown;
-type FunctionWithNative = Callable & { native?: FunctionWithNative };
-type CustomPromisifyFactory = (selected: FunctionWithNative) => Callable;
-type EncodingOption = BufferEncoding | 'buffer' | null;
-type OperationOptions = {
-  encoding?: EncodingOption;
-  withFileTypes?: boolean;
-  recursive?: boolean;
-  bigint?: boolean;
-  throwIfNoEntry?: boolean;
-};
-type OperationOptionsInput = OperationOptions | BufferEncoding | 'buffer' | null | undefined;
-type ReadOptions = OperationOptions & {
-  buffer?: NodeJS.ArrayBufferView;
-  offset?: number;
-  length?: number;
-  position?: number | bigint | null;
-};
-type ReadArguments =
-  [ReadOptions] | [offset?: number, length?: number, position?: number | bigint | null];
-type CachedPathResult = { path: PortablePath };
-type DirectoryValue = string | Buffer | fs.Dirent<string | Buffer>;
-type CachedDirectoryValue = string | Buffer | fs.Dirent<string | Buffer>;
-type StatValue = fs.Stats | fs.BigIntStats;
-type ErrorCallback = (error: NodeJS.ErrnoException | null) => void;
-type ValueCallback<T> = (error: NodeJS.ErrnoException | null, value?: T) => void;
-type BufferedRealpath = (
-  input: fs.PathLike,
-  options: OperationOptions | 'buffer',
-  callback: ValueCallback<Buffer>,
-) => void;
-type TrackedDescriptor =
-  | { key?: string; passthrough: boolean; position: number; virtual: false }
-  | {
-      content?: Buffer;
-      input: string;
-      key: string;
-      position: number;
-      readError?: FsCacheErrorSnapshot;
-      virtual: true;
-    };
-type FileDescriptorMap = Map<number, TrackedDescriptor>;
-type FileHandleLike = { fd: number };
-type CacheInput = fs.PathLike | number | FileHandleLike;
-type FileHandleTracker = {
-  add(value: object, passthrough: boolean): void;
-  clear(): void;
-  has(value: object): boolean;
-  isPassthrough(value: object): boolean;
-};
-type CacheExecutor = ReturnType<typeof createExecutor>;
-type ArchiveFacade = Pick<
-  FsCacheArchive,
-  | 'decodePortablePath'
-  | 'encodePortablePath'
-  | 'get'
-  | 'getExists'
-  | 'isPassthrough'
-  | 'blocksNativeRead'
-  | 'keyFor'
-  | 'recordCacheHit'
-  | 'recordCacheMiss'
-  | 'set'
-> & { readonly mode: FsCacheArchive['mode'] | undefined };
 export type FsCacheSession = { end(): void; mode?: FsCacheArchive['mode'] };
 /** Filesystem capability, not product identity: absent without an active replay filesystem. */
 export function getFileSystemCaseSensitivity(): boolean | undefined {
-  return activeArchive?.mode === 'replay' ? activeArchive.caseSensitivePaths : undefined;
+  const active = getActiveArchive();
+  return active?.mode === 'replay' ? active.caseSensitivePaths : undefined;
 }
 export type FsCacheInstallation = {
   beginAnalysis(options: ArchiveOptions): FsCacheSession;
@@ -152,19 +131,12 @@ const installations = globalThis as typeof globalThis & {
   [FS_CACHE_INSTALLATION]?: FsCacheInstallation;
 };
 
-function requireActiveArchive() {
-  if (!activeArchive) {
-    throw new Error('No filesystem cache analysis is active');
-  }
-  return activeArchive;
-}
-
 const activeArchiveFacade: ArchiveFacade = {
   get mode() {
-    return activeArchive?.mode;
+    return getActiveArchive()?.mode;
   },
   keyFor(input: fs.PathLike) {
-    return activeArchive?.keyFor(input);
+    return getActiveArchive()?.keyFor(input);
   },
   get<T = unknown>(key: string, operation: string) {
     return requireActiveArchive().get<T>(key, operation);
@@ -194,9 +166,6 @@ const activeArchiveFacade: ArchiveFacade = {
     return requireActiveArchive().recordCacheMiss();
   },
 };
-const ENOENT_ERRNO =
-  [...getSystemErrorMap()].find(([, [code]]) => code === 'ENOENT')?.[0] ?? DEFAULT_ENOENT_ERRNO;
-
 /** Exports that are values or types rather than filesystem operations. */
 const FS_NON_OPERATION_EXPORTS = new Set([
   'F_OK',
@@ -219,412 +188,6 @@ const FS_NON_OPERATION_EXPORTS = new Set([
 
 /** fs/promises operations that synchronously return async iterables instead of promises. */
 const FS_PROMISE_ASYNC_ITERABLE_OPERATIONS = new Set(['glob', 'watch']);
-
-const originalFs = {
-  access: fs.access.bind(fs),
-  accessSync: fs.accessSync.bind(fs),
-  close: fs.close.bind(fs),
-  closeSync: fs.closeSync.bind(fs),
-  existsSync: fs.existsSync.bind(fs),
-  fstat: fs.fstat.bind(fs),
-  fstatSync: fs.fstatSync.bind(fs),
-  lstat: fs.lstat.bind(fs),
-  lstatSync: fs.lstatSync.bind(fs),
-  open: fs.open.bind(fs),
-  openSync: fs.openSync.bind(fs),
-  opendir: fs.opendir.bind(fs),
-  opendirSync: fs.opendirSync.bind(fs),
-  read: fs.read.bind(fs),
-  readFile: fs.readFile.bind(fs),
-  readFileSync: fs.readFileSync.bind(fs),
-  readSync: fs.readSync.bind(fs),
-  readdir: fs.readdir.bind(fs),
-  readdirSync: fs.readdirSync.bind(fs),
-  readlink: fs.readlink.bind(fs),
-  readlinkSync: fs.readlinkSync.bind(fs),
-  realpath: fs.realpath.bind(fs),
-  realpathNative: fs.realpath.native.bind(fs.realpath),
-  realpathSync: fs.realpathSync.bind(fs),
-  realpathSyncNative: fs.realpathSync.native.bind(fs.realpathSync),
-  stat: fs.stat.bind(fs),
-  statSync: fs.statSync.bind(fs),
-  writeSync: fs.writeSync.bind(fs),
-};
-
-const originalPromises = {
-  access: fs.promises.access.bind(fs.promises),
-  lstat: fs.promises.lstat.bind(fs.promises),
-  open: fs.promises.open.bind(fs.promises),
-  opendir: fs.promises.opendir.bind(fs.promises),
-  readFile: fs.promises.readFile.bind(fs.promises),
-  readdir: fs.promises.readdir.bind(fs.promises),
-  readlink: fs.promises.readlink.bind(fs.promises),
-  realpath: fs.promises.realpath.bind(fs.promises),
-  stat: fs.promises.stat.bind(fs.promises),
-};
-
-function pathDisplay(input: fs.PathLike | number): string {
-  if (Buffer.isBuffer(input)) {
-    return input.toString();
-  }
-  return String(input);
-}
-
-function snapshotError(error: unknown): FsCacheErrorSnapshot {
-  const filesystemError = error as FsError;
-  const errorPath =
-    filesystemError?.path === undefined ? undefined : pathDisplay(filesystemError.path);
-  return {
-    name: filesystemError?.name || 'Error',
-    message: String(filesystemError?.message || error).replaceAll(errorPath || '\0', '$PATH'),
-    code: filesystemError?.code,
-    errno: filesystemError?.errno,
-    syscall: filesystemError?.syscall,
-  };
-}
-
-function restoreError(snapshot: FsCacheErrorSnapshot, input: fs.PathLike | number): FsError {
-  const currentPath = pathDisplay(input);
-  const error = new Error(snapshot.message.replaceAll('$PATH', currentPath)) as FsError;
-  error.name = snapshot.name;
-  error.code = snapshot.code;
-  error.errno = snapshot.errno;
-  error.syscall = snapshot.syscall;
-  error.path = currentPath;
-  return error;
-}
-
-function cacheMiss(operation: string, input: fs.PathLike | number): FsError {
-  const error = new Error(
-    `Filesystem cache has no ${operation} observation for '${pathDisplay(input)}'`,
-  ) as FsError;
-  error.name = 'FsCacheMissError';
-  error.code = 'ERR_SONARJS_FS_CACHE_MISS';
-  error.path = pathDisplay(input);
-  error.syscall = operation.split(':', 1)[0];
-  return error;
-}
-
-function missingPath(operation: string, input: fs.PathLike | number): false | undefined | never {
-  if (operation === 'exists') {
-    return false;
-  }
-  if (
-    (operation.startsWith('stat:') || operation.startsWith('lstat:')) &&
-    operation.endsWith(':soft')
-  ) {
-    return undefined;
-  }
-  const currentPath = pathDisplay(input);
-  const name = operation.split(':', 1)[0];
-  const syscall =
-    {
-      readFile: 'open',
-      readdir: 'scandir',
-      realpath: 'lstat',
-      'realpath.native': 'realpath',
-    }[name] || name;
-  const error = new Error(
-    `ENOENT: no such file or directory, ${syscall} '${currentPath}'`,
-  ) as FsError;
-  error.code = 'ENOENT';
-  error.errno = ENOENT_ERRNO;
-  error.path = currentPath;
-  error.syscall = syscall;
-  throw error;
-}
-
-function success<T>(value: T): FsCacheOutcome<T> {
-  return { ok: true, value };
-}
-
-function failure(error: unknown): FsCacheOutcome<never> {
-  return { ok: false, error: snapshotError(error) };
-}
-
-function createExecutor(archive: ArchiveFacade) {
-  function replay<TStored, TResult = TStored>(
-    input: CacheInput,
-    operation: string,
-    decode: (value: TStored) => TResult = value => value as unknown as TResult,
-  ): TResult | typeof MISSING {
-    const key =
-      typeof input === 'number' || (typeof input === 'object' && 'fd' in input)
-        ? undefined
-        : archive.keyFor(input);
-    if (key === undefined) {
-      if (
-        typeof input !== 'number' &&
-        !(typeof input === 'object' && 'fd' in input) &&
-        archive.blocksNativeRead(input)
-      ) {
-        return missingPath(operation, input) as TResult;
-      }
-      return MISSING;
-    }
-    const outcome = archive.get<TStored>(key, operation);
-    if (outcome === undefined) {
-      if (archive.getExists(key, operation) === false) {
-        archive.recordCacheHit();
-        return missingPath(operation, input as fs.PathLike | number) as TResult;
-      }
-      archive.recordCacheMiss();
-      if (archive.mode === 'replay') {
-        throw cacheMiss(operation, input as fs.PathLike | number);
-      }
-      return MISSING;
-    }
-    archive.recordCacheHit();
-    if (!outcome.ok) {
-      throw restoreError(outcome.error, input as fs.PathLike | number);
-    }
-    return decode(outcome.value);
-  }
-
-  function runSync<TValue, TStored = TValue>(
-    input: CacheInput,
-    operation: string,
-    producer: () => TValue,
-    encode: (value: TValue) => TStored = value => value as unknown as TStored,
-    decode: (value: TStored) => TValue = value => value as unknown as TValue,
-  ): TValue {
-    const replayed = replay(input, operation, decode);
-    if (replayed !== MISSING) {
-      return replayed as TValue;
-    }
-
-    const key =
-      typeof input === 'number' || (typeof input === 'object' && 'fd' in input)
-        ? undefined
-        : archive.keyFor(input);
-    try {
-      const value = producer();
-      if (archive.mode === 'record' && key !== undefined) {
-        archive.set(key, operation, success(encode(value)));
-      }
-      return value;
-    } catch (error) {
-      if (archive.mode === 'record' && key !== undefined) {
-        archive.set(key, operation, failure(error));
-      }
-      throw error;
-    }
-  }
-
-  async function runAsync<TValue, TStored = TValue>(
-    input: CacheInput,
-    operation: string,
-    producer: () => Promise<TValue>,
-    encode: (value: TValue) => TStored = value => value as unknown as TStored,
-    decode: (value: TStored) => TValue = value => value as unknown as TValue,
-  ): Promise<TValue> {
-    const readingArchive = requireActiveArchive();
-    const replayed = replay(input, operation, decode);
-    if (replayed !== MISSING) {
-      return replayed as TValue;
-    }
-
-    const key =
-      typeof input === 'number' || (typeof input === 'object' && 'fd' in input)
-        ? undefined
-        : archive.keyFor(input);
-    try {
-      const value = await producer();
-      if (activeArchive === readingArchive && archive.mode === 'record' && key !== undefined) {
-        archive.set(key, operation, success(encode(value)));
-      }
-      return value;
-    } catch (error) {
-      if (activeArchive === readingArchive && archive.mode === 'record' && key !== undefined) {
-        archive.set(key, operation, failure(error));
-      }
-      throw error;
-    }
-  }
-
-  return { replay, runAsync, runSync };
-}
-
-function getEncoding(options: OperationOptionsInput): EncodingOption | undefined {
-  if (typeof options === 'string') {
-    return options;
-  }
-  return options?.encoding || undefined;
-}
-
-function withoutEncoding(options: OperationOptionsInput): OperationOptions | null | undefined {
-  if (typeof options === 'string') {
-    return null;
-  }
-  return options && typeof options === 'object' ? { ...options, encoding: null } : options;
-}
-
-function returnReadBuffer(buffer: Uint8Array, options: OperationOptionsInput): Buffer | string {
-  const encoding = getEncoding(options);
-  return encoding && encoding !== 'buffer'
-    ? Buffer.from(buffer).toString(encoding)
-    : Buffer.from(buffer);
-}
-
-function snapshotStat(stat: StatValue): CachedStat {
-  const indexedStat = stat as unknown as Record<string, number | bigint | undefined>;
-  const fields = [
-    'dev',
-    'ino',
-    'mode',
-    'nlink',
-    'uid',
-    'gid',
-    'rdev',
-    'size',
-    'blksize',
-    'blocks',
-    'atimeMs',
-    'mtimeMs',
-    'ctimeMs',
-    'birthtimeMs',
-    'atimeNs',
-    'mtimeNs',
-    'ctimeNs',
-    'birthtimeNs',
-  ] as const;
-  return {
-    fields: Object.fromEntries(
-      fields.map(field => [
-        field,
-        indexedStat[field] === undefined ? undefined : String(indexedStat[field]),
-      ]),
-    ),
-    types: Object.fromEntries(
-      Object.entries(FS_TYPE_METHODS).map(([type, method]) => [type, stat[method]()]),
-    ),
-  };
-}
-
-function restoreStat(snapshot: CachedStat, bigint = false): StatValue {
-  const stat = Object.create(fs.Stats.prototype) as Record<string, unknown>;
-  for (const [field, value] of Object.entries(snapshot.fields)) {
-    if (value !== undefined) {
-      stat[field] = restoreStatField(value, bigint);
-    }
-  }
-  for (const field of ['atime', 'mtime', 'ctime', 'birthtime']) {
-    const milliseconds = Number(snapshot.fields[`${field}Ms`]);
-    stat[field] = new Date(milliseconds);
-    if (bigint && stat[`${field}Ns`] === undefined) {
-      stat[`${field}Ns`] = BigInt(Math.trunc(milliseconds * 1_000_000));
-    }
-  }
-  for (const [type, method] of Object.entries(FS_TYPE_METHODS)) {
-    stat[method] = () => snapshot.types[type];
-  }
-  return stat as unknown as StatValue;
-}
-
-function restoreStatField(value: string, bigint: boolean): number | bigint {
-  if (!bigint) {
-    return Number(value);
-  }
-  return /^-?\d+$/.test(value) ? BigInt(value) : BigInt(Math.trunc(Number(value)));
-}
-
-function statOperation(name: string, options: { bigint?: boolean; throwIfNoEntry?: boolean } = {}) {
-  const result = options?.throwIfNoEntry === false ? 'soft' : 'throw';
-  return `${name}:${options?.bigint ? 'bigint' : 'number'}:${result}`;
-}
-
-function snapshotName(name: string | Buffer): CachedName {
-  return Buffer.isBuffer(name)
-    ? { kind: 'buffer', value: name.toString('base64') }
-    : { kind: 'string', value: name };
-}
-
-function restoreName(name: CachedName): string | Buffer {
-  return name.kind === 'buffer' ? Buffer.from(name.value, 'base64') : name.value;
-}
-
-function direntType(dirent: fs.Dirent<string | Buffer>): string {
-  return (
-    DIRENT_TYPES.slice(1).find(type => {
-      const method = FS_TYPE_METHODS[type as keyof typeof FS_TYPE_METHODS];
-      return method ? dirent[method]() : false;
-    }) || 'unknown'
-  );
-}
-
-function snapshotDirectoryResult(
-  result: DirectoryValue[],
-  archive: ArchiveFacade,
-): CachedDirectoryEntry[] {
-  return result.map((entry: DirectoryValue) => {
-    if (typeof entry === 'string' || Buffer.isBuffer(entry)) {
-      return { kind: 'name', name: snapshotName(entry) };
-    }
-    return {
-      kind: 'dirent',
-      name: snapshotName(entry.name),
-      type: direntType(entry),
-      parentPath: archive.encodePortablePath(
-        entry.parentPath || (entry as fs.Dirent<string | Buffer> & { path?: string }).path || '',
-      ),
-    };
-  });
-}
-
-function createDirent(
-  snapshot: Extract<CachedDirectoryEntry, { kind: 'dirent' }>,
-  archive: ArchiveFacade,
-) {
-  const dirent = Object.create(fs.Dirent.prototype) as fs.Dirent<string | Buffer> &
-    Record<string, unknown>;
-  dirent.name = restoreName(snapshot.name);
-  dirent.parentPath = archive.decodePortablePath(snapshot.parentPath);
-  dirent.path = dirent.parentPath;
-  for (const type of DIRENT_TYPES.slice(1)) {
-    const method = FS_TYPE_METHODS[type as keyof typeof FS_TYPE_METHODS];
-    if (method) {
-      dirent[method] = () => snapshot.type === type;
-    }
-  }
-  return dirent;
-}
-
-function restoreDirectoryResult(
-  result: CachedDirectoryEntry[],
-  archive: ArchiveFacade,
-): CachedDirectoryValue[] {
-  return result.map(entry =>
-    entry.kind === 'name' ? restoreName(entry.name) : createDirent(entry, archive),
-  );
-}
-
-function readdirOperation(options: OperationOptionsInput): string {
-  const normalized = typeof options === 'string' ? { encoding: options } : options || {};
-  return `readdir:${normalized.encoding || 'utf8'}:${Boolean(normalized.withFileTypes)}:${Boolean(normalized.recursive)}`;
-}
-
-function snapshotPathResult(value: string | Buffer, archive: ArchiveFacade): CachedPathResult {
-  return {
-    path: archive.encodePortablePath(value.toString()),
-  };
-}
-
-function restorePathResult(
-  value: CachedPathResult,
-  archive: ArchiveFacade,
-  operation: RealpathOperation,
-): Buffer {
-  return Buffer.from(archive.decodePortablePath(value.path, operation));
-}
-
-function withBufferEncoding(options: OperationOptionsInput): OperationOptions | 'buffer' {
-  return options && typeof options === 'object' ? { ...options, encoding: 'buffer' } : 'buffer';
-}
-
-function returnPathBuffer(value: Uint8Array, options: OperationOptionsInput): string | Buffer {
-  const encoding = getEncoding(options) || 'utf8';
-  return encoding === 'buffer' ? Buffer.from(value) : Buffer.from(value).toString(encoding);
-}
 
 function readonlyFlags(flags: fs.OpenMode | undefined): boolean {
   if (flags === undefined) {
@@ -668,33 +231,6 @@ function readArguments(buffer: NodeJS.ArrayBufferView, args: ReadArguments) {
   };
 }
 
-function makeCallback<T>(
-  promiseFunction: (input: fs.PathLike, options?: OperationOptions) => Promise<T>,
-) {
-  return (
-    input: fs.PathLike,
-    options: OperationOptions | ValueCallback<T> | undefined,
-    callback?: ValueCallback<T>,
-  ) => {
-    if (typeof options === 'function') {
-      callback = options;
-      options = undefined;
-    }
-    const done = requireCallback(callback, 'filesystem callback operation');
-    promiseFunction(input, options).then(
-      value => done(null, value),
-      error => done(error),
-    );
-  };
-}
-
-function requireCallback<T>(callback: T | undefined, operation: string): T {
-  if (!callback) {
-    throw new TypeError(`${operation} requires a callback`);
-  }
-  return callback;
-}
-
 function realpathAsPromise(
   original: BufferedRealpath,
   input: fs.PathLike,
@@ -714,21 +250,13 @@ function realpathAsPromise(
   );
 }
 
-function pathOperation(name: string, options: OperationOptionsInput): string {
-  return name.startsWith('realpath') ? name : `${name}:${getEncoding(options) || 'utf8'}`;
-}
-
-function opendirOperation(options: OperationOptions | undefined): string {
-  return `opendir:${getEncoding(options) || 'utf8'}:${Boolean(options?.recursive)}`;
-}
-
 function selectFilesystemImplementation(
   cachedValue: FunctionWithNative,
   nativeValue: FunctionWithNative,
   nativeThis: unknown,
 ): FunctionWithNative {
   const selected: FunctionWithNative = function (this: unknown, ...args: unknown[]) {
-    return activeArchive
+    return getActiveArchive()
       ? Reflect.apply(cachedValue, this, args)
       : Reflect.apply(nativeValue, nativeThis, args);
   };
@@ -1311,237 +839,6 @@ function createBasicPatches(archive: ArchiveFacade, executor: CacheExecutor) {
   };
 }
 
-class CachedDir {
-  declare readonly path: string;
-  entries: CachedDirectoryValue[];
-  index: number;
-  closed: boolean;
-
-  constructor(dirPath: fs.PathLike, entries: CachedDirectoryValue[]) {
-    Object.defineProperty(this, 'path', {
-      configurable: true,
-      enumerable: true,
-      value: pathDisplay(dirPath),
-    });
-    this.entries = entries;
-    this.index = 0;
-    this.closed = false;
-  }
-
-  read(callback?: ValueCallback<CachedDirectoryValue | null>) {
-    const operation = () => this.readSync();
-    if (callback) {
-      const entry = operation();
-      queueMicrotask(() => callback(null, entry));
-      return undefined;
-    }
-    return Promise.resolve().then(operation);
-  }
-
-  readSync(): CachedDirectoryValue | null {
-    if (this.closed) {
-      const error = new Error('Directory handle was closed') as FsError;
-      error.code = 'ERR_DIR_CLOSED';
-      throw error;
-    }
-    const entry = this.entries[this.index] || null;
-    this.index += 1;
-    return entry;
-  }
-
-  close(callback?: ErrorCallback) {
-    const operation = () => this.closeSync();
-    if (callback) {
-      try {
-        operation();
-        queueMicrotask(() => callback(null));
-      } catch (error) {
-        queueMicrotask(() => callback(error as NodeJS.ErrnoException));
-      }
-      return undefined;
-    }
-    return Promise.resolve().then(operation);
-  }
-
-  closeSync(): void {
-    if (this.closed) {
-      const error = new Error('Directory handle was closed') as FsError;
-      error.code = 'ERR_DIR_CLOSED';
-      throw error;
-    }
-    this.closed = true;
-  }
-
-  async *[Symbol.asyncIterator]() {
-    try {
-      let entry = this.readSync();
-      while (entry !== null) {
-        yield entry;
-        entry = this.readSync();
-      }
-    } finally {
-      if (!this.closed) {
-        this.closeSync();
-      }
-    }
-  }
-
-  async [Symbol.asyncDispose]() {
-    if (!this.closed) {
-      await this.close();
-    }
-  }
-
-  [Symbol.dispose]() {
-    if (!this.closed) {
-      this.closeSync();
-    }
-  }
-}
-Object.setPrototypeOf(CachedDir.prototype, fs.Dir.prototype);
-
-function readDirectoryWithOpendirSync(input: fs.PathLike, options?: OperationOptions): fs.Dirent[] {
-  const directory = (
-    originalFs.opendirSync as unknown as (input: fs.PathLike, options?: OperationOptions) => fs.Dir
-  )(input, options);
-  try {
-    const entries: fs.Dirent[] = [];
-    let entry: fs.Dirent | null;
-    while ((entry = directory.readSync()) !== null) {
-      entries.push(entry);
-    }
-    return entries;
-  } finally {
-    directory.closeSync();
-  }
-}
-
-async function closeDirectoryIfOpen(directory: fs.Dir): Promise<void> {
-  try {
-    await directory.close();
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== 'ERR_DIR_CLOSED') {
-      throw error;
-    }
-  }
-}
-
-async function readDirectoryWithOpendir(
-  input: fs.PathLike,
-  options?: OperationOptions,
-): Promise<fs.Dirent[]> {
-  const directory = await (
-    originalPromises.opendir as unknown as (
-      input: fs.PathLike,
-      options?: OperationOptions,
-    ) => Promise<fs.Dir>
-  )(input, options);
-  try {
-    const entries: fs.Dirent[] = [];
-    for await (const entry of directory) {
-      entries.push(entry);
-    }
-    return entries;
-  } finally {
-    await closeDirectoryIfOpen(directory);
-  }
-}
-
-function createDirectoryPatches(archive: ArchiveFacade, executor: CacheExecutor) {
-  function opendirSync(input: fs.PathLike, options?: OperationOptions): fs.Dir | CachedDir {
-    const operation = opendirOperation(options);
-    const replayed = executor.replay<CachedDirectoryEntry[], CachedDirectoryValue[]>(
-      input,
-      operation,
-      value => restoreDirectoryResult(value, archive),
-    );
-    if (replayed !== MISSING) {
-      return new CachedDir(input, replayed as CachedDirectoryValue[]);
-    }
-
-    const key = archive.keyFor(input);
-    try {
-      const directory = (
-        originalFs.opendirSync as unknown as (
-          input: fs.PathLike,
-          options?: OperationOptions,
-        ) => fs.Dir
-      )(input, options);
-      if (archive.mode === 'record' && key !== undefined) {
-        try {
-          const entries = readDirectoryWithOpendirSync(input, options);
-          archive.set(key, operation, success(snapshotDirectoryResult(entries, archive)));
-        } catch {
-          // Auxiliary capture must not alter a successful opendir call.
-        }
-      }
-      return directory;
-    } catch (error) {
-      if (archive.mode === 'record' && key !== undefined) {
-        archive.set(key, operation, failure(error));
-      }
-      throw error;
-    }
-  }
-
-  async function opendirPromise(
-    input: fs.PathLike,
-    options?: OperationOptions,
-  ): Promise<fs.Dir | CachedDir> {
-    const operation = opendirOperation(options);
-    const replayed = executor.replay<CachedDirectoryEntry[], CachedDirectoryValue[]>(
-      input,
-      operation,
-      value => restoreDirectoryResult(value, archive),
-    );
-    if (replayed !== MISSING) {
-      return new CachedDir(input, replayed as CachedDirectoryValue[]);
-    }
-
-    const key = archive.keyFor(input);
-    try {
-      const directory = await (
-        originalPromises.opendir as unknown as (
-          input: fs.PathLike,
-          options?: OperationOptions,
-        ) => Promise<fs.Dir>
-      )(input, options);
-      if (archive.mode === 'record' && key !== undefined) {
-        try {
-          const entries = await readDirectoryWithOpendir(input, options);
-          archive.set(key, operation, success(snapshotDirectoryResult(entries, archive)));
-        } catch {
-          // Auxiliary capture must not alter a successful opendir call.
-        }
-      }
-      return directory;
-    } catch (error) {
-      if (archive.mode === 'record' && key !== undefined) {
-        archive.set(key, operation, failure(error));
-      }
-      throw error;
-    }
-  }
-
-  function opendir(
-    input: fs.PathLike,
-    options: OperationOptions | ValueCallback<fs.Dir | CachedDir> | undefined,
-    callback?: ValueCallback<fs.Dir | CachedDir>,
-  ): void {
-    if (typeof options === 'function') {
-      callback = options;
-      options = undefined;
-    }
-    const done = requireCallback(callback, 'fs.opendir');
-    opendirPromise(input, options).then(
-      value => done(null, value),
-      error => done(error),
-    );
-  }
-
-  return { opendir, opendirPromise, opendirSync };
-}
-
 type ReplayOpenResult = { found: false } | { fd: number; found: true };
 
 function expiredOpenError(input: fs.PathLike): NodeJS.ErrnoException {
@@ -1704,7 +1001,7 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
     const key = openingArchive.keyFor(input);
     const passthrough = openingArchive.isPassthrough(input);
     const complete = (error: NodeJS.ErrnoException | null, fd?: number, virtual = false) => {
-      if (error || activeArchive === openingArchive) {
+      if (error || getActiveArchive() === openingArchive) {
         done(error, fd);
       } else if (fd !== undefined && !virtual) {
         // The request no longer owns this open. Close the native descriptor before reporting
@@ -1734,7 +1031,7 @@ function createOpenPatches(archive: ArchiveFacade, fileDescriptors: FileDescript
         callback: (error: NodeJS.ErrnoException | null, fd: number) => void,
       ) => void
     )(input, flags, mode, (error, fd) => {
-      if (activeArchive !== openingArchive) {
+      if (getActiveArchive() !== openingArchive) {
         complete(error, fd);
         return;
       }
@@ -1990,7 +1287,7 @@ function createOpenPromise(
       if (replayed.found) {
         // Match the asynchronous native open contract before exposing a virtual descriptor.
         await Promise.resolve();
-        if (activeArchive !== openingArchive) {
+        if (getActiveArchive() !== openingArchive) {
           throw expiredOpenError(input);
         }
         return new CachedFileHandle(replayed.fd);
@@ -2000,7 +1297,7 @@ function createOpenPromise(
     const passthrough = openingArchive.isPassthrough(input);
     try {
       const handle = await originalPromises.open(input, flags, mode);
-      if (activeArchive !== openingArchive) {
+      if (getActiveArchive() !== openingArchive) {
         await handle.close();
         throw expiredOpenError(input);
       }
@@ -2012,7 +1309,7 @@ function createOpenPromise(
       return handle;
     } catch (error) {
       if (
-        activeArchive === openingArchive &&
+        getActiveArchive() === openingArchive &&
         archive.mode === 'record' &&
         key !== undefined &&
         readonlyFlags(flags)
@@ -2160,27 +1457,28 @@ export function installFsCache(): FsCacheInstallation {
     );
   };
   const exitListener = () => {
-    if (!activeArchive) {
+    const active = getActiveArchive();
+    if (!active) {
       return;
     }
     try {
-      activeArchive.flush();
+      active.flush();
     } catch (error: unknown) {
-      reportFlushFailure(activeArchive, error);
+      reportFlushFailure(active, error);
     }
   };
   process.once('exit', exitListener);
 
   const installation: FsCacheInstallation = {
     beginAnalysis(analysisOptions: ArchiveOptions) {
-      if (activeArchive) {
+      if (getActiveArchive()) {
         throw new Error('A filesystem cache analysis is already active');
       }
       const archive = new FsCacheArchive(analysisOptions);
       if (archive.mode === 'replay') {
         archive.load();
       }
-      activeArchive = archive;
+      setActiveArchive(archive);
       let ended = false;
       return {
         mode: archive.mode,
@@ -2188,7 +1486,7 @@ export function installFsCache(): FsCacheInstallation {
           if (ended) {
             return;
           }
-          if (activeArchive !== archive) {
+          if (getActiveArchive() !== archive) {
             throw new Error('The active filesystem cache analysis changed unexpectedly');
           }
           try {
@@ -2199,7 +1497,7 @@ export function installFsCache(): FsCacheInstallation {
             }
           } finally {
             patches.reset();
-            activeArchive = undefined;
+            setActiveArchive(undefined);
             ended = true;
           }
         },
