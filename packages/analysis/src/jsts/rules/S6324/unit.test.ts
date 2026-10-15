@@ -21,6 +21,73 @@ import { describe, it } from 'node:test';
 const CONTROL_CHAR_MESSAGE = 'Remove this control character.';
 
 describe('S6324', () => {
+  it('requires documented complete commands for grouped and quantified delimiters', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run('Documented terminal commands', rule, {
+      valid: [
+        { code: String.raw`/\x1b(?:\[)31m/` },
+        { code: String.raw`/\x1b(\[){1}2J/` },
+        { code: String.raw`/\x1b(?:(?:\[))2;3H/` },
+        { code: String.raw`/\x1b\[{1}\d+A/` },
+        { code: String.raw`/\x1b(?:\[)(?:31|32);1m/` },
+        { code: String.raw`/\x1b(?:\[)[0-2]K/` },
+        { code: String.raw`/\x1b(?:\])0;title\x07/` },
+        { code: String.raw`/\x1b\]{1}2;[\x20-\x7e]*\x1b\\/` },
+        { code: String.raw`/\x1b(?:\])1;[a-z ]+\x9c/` },
+        { code: String.raw`/\x1b(?:\])0;[^\x00-\x1f\x7f-\uffff]*\x07/` },
+        { code: String.raw`/\x1b(?:\])2;(?:title|name)(?:\x07|\x1b\\)/` },
+        { code: String.raw`/(?:\x1b(?:\])2;title\x07)?/` },
+        { code: String.raw`/(?:\x1b(?:\[)31m){2}/` },
+        { code: String.raw`/\x1b(?:\[31m|\]0;title\x07)/` },
+        { code: String.raw`/\u001b(?:\u005b)31m/u` },
+        { code: String.raw`new RegExp('\\x1b(?:\\])0;title\\x07', 'u')` },
+      ],
+      invalid: [
+        { code: String.raw`/\x1b(?:\[|\])/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)123/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\])0;title/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)999m/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)\d+m/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)[0-9]{1,3}m/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)[^\x00-\x2f\x3a-\u{10ffff}]J/u`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)[^\x00-\x35\x37-\u{10ffff}]m/u`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)31;1m/i`, errors: 1 },
+        { code: String.raw`new RegExp('\\x1b(?:\\[)31;1m', 'i')`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)9J/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)1;2;3H/`, errors: 1 },
+        { code: String.raw`/\x1b\[{1,3}31m/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)?31m/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[31m|x)/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[31m|\[)/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\]0;title\x07|\]0;title)/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\]0;title|\[31m)\x07/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\])999;title\x07/`, errors: 2 },
+        { code: String.raw`/\x1b(?:\])0title\x07/`, errors: 2 },
+        { code: String.raw`/\x1b(?:\])0;.*?\x07/`, errors: 2 },
+        { code: String.raw`/\x1b(?:\])0;[^\x07\x1b\x9c\x9d]*\x07/`, errors: 4 },
+        { code: String.raw`/\x1b(?:\])0;[a-z\x18]*\x07/`, errors: 3 },
+        { code: String.raw`/\x1b(?:\])0;title(?:\x07|foo)/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\])0;title\x07?/`, errors: 2 },
+        { code: String.raw`/\x1b(?:\])0;title\x1b(?:\\|x)/`, errors: 2 },
+        { code: String.raw`/\x1b(?:\])0;title(?=\x07)\x07/`, errors: 3 },
+        { code: String.raw`/(?=\x1b(?:\[)31m)/`, errors: 1 },
+        { code: String.raw`/(\x1b)(?:\[)31m\1/`, errors: 1 },
+        { code: String.raw`/(?<escape>\x1b)(?:\[)31m\k<escape>/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[)31m\x07/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\])0;title\x07\x07/`, errors: 1 },
+        { code: String.raw`/\x1b(?:\[){1000000000}31m/`, errors: 1 },
+        {
+          code: String.raw`/\x1b(?:\])0;${'(?:a|b)'.repeat(7)}\x07/`,
+          errors: 2,
+        },
+        {
+          code: String.raw`/\x1b${'(?:'.repeat(20)}\[${')'.repeat(20)}31m/`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   describe('bounded OSC matchers', () => {
     // Bounded OSC matcher with both introducers, explicit payload exclusions, and all supported endings.
     const oscPattern = String.raw`(?:\x1b\]|\x9d)[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\|\x9c)`;
@@ -346,24 +413,6 @@ describe('S6324', () => {
           // ESC in non-capturing group followed by [ should be exempted
           code: String.raw`/(?:\u001b\[)(?:[?|#])?(?:(?:[0-9]{1,3})?(?:(?:;[0-9]{0,3})*)?[A-Z|a-z])/`,
         },
-        {
-          // A mandatory group can introduce either CSI or OSC.
-          code: String.raw`/\x1b(?:\[|\])/`,
-        },
-        {
-          // A mandatory quantified introducer still consumes [ before matching its suffix.
-          code: String.raw`/\x1b\[{1,3}\d+m/`,
-        },
-        {
-          // Grouping and quantifying a mandatory introducer is also compliant.
-          code: String.raw`/\x1b(?:\[){1}\d+m/`,
-        },
-        {
-          code: String.raw`/\x1b(\[)\d+m/`,
-        },
-        {
-          code: String.raw`/\x1b(?:(?:\[))\d+m/`,
-        },
       ],
       invalid: [
         {
@@ -520,16 +569,6 @@ describe('S6324', () => {
           errors: 1,
         },
         {
-          // Grouped OSC prefixes do not exempt BEL after a wildcard payload.
-          code: String.raw`/\x1b(?:\]).*?\x07/`,
-          errors: 1,
-        },
-        {
-          // Quantified OSC prefixes do not exempt BEL after a wildcard payload.
-          code: String.raw`/\x1b\]{1}.*?\x07/`,
-          errors: 1,
-        },
-        {
           code: String.raw`/\u001b\].*?\u0007/`,
           errors: 1,
         },
@@ -606,7 +645,7 @@ describe('S6324', () => {
         {
           // A mandatory nested BEL closes the OSC before the later string terminator.
           code: String.raw`/\x1b\]0;title(?:x\x07)\x1b\\/`,
-          errors: 2,
+          errors: 1,
         },
         {
           // An optional BEL does not prove that the OSC has already closed.
@@ -664,7 +703,7 @@ describe('S6324', () => {
           errors: 1,
         },
         {
-          // A grouped OSC introducer does not prove that a later ST belongs to it.
+          // C1 ST ends OSC before the final standalone ST.
           code: String.raw`/\x1b(?:\]0;title\x9c)\x1b\\/`,
           errors: 1,
         },
@@ -679,9 +718,9 @@ describe('S6324', () => {
           errors: 2,
         },
         {
-          // A terminator split across a group is outside the bounded matcher grammar.
+          // A grouped terminator leaves the final standalone ST reportable.
           code: String.raw`/\x1b\]0;title\x1b(?:\\)\x1b\\/`,
-          errors: 2,
+          errors: 1,
         },
         {
           // A quantified ESC can still form an earlier string terminator.
@@ -716,36 +755,12 @@ describe('S6324', () => {
         {
           // ST nested in groups also closes the OSC sequence.
           code: String.raw`/\x1b\]0;title(?:\x1b(?:\\))\x1b\\/`,
-          errors: 2,
+          errors: 1,
         },
         {
           // BEL inside a character class is not an OSC terminator.
           code: String.raw`/\x1b\][^\x07]*/`,
           errors: 1,
-        },
-        {
-          // Grouped CSI does not exempt BEL as an OSC terminator.
-          code: String.raw`/\x1b(?:\[).*?\x07/`,
-          errors: 1,
-        },
-        {
-          // Every introducer alternative must be OSC to exempt BEL.
-          code: String.raw`/\x1b(?:\[|\]).*?\x07/`,
-          errors: 1,
-        },
-        {
-          // Optional OSC prefixes leave both ESC and BEL reportable.
-          code: String.raw`/\x1b(?:\])?.*?\x07/`,
-          errors: 2,
-        },
-        {
-          code: String.raw`/\x1b\]{0,3}.*?\x07/`,
-          errors: 2,
-        },
-        {
-          // A non-OSC alternative leaves both ESC and BEL reportable.
-          code: String.raw`/\x1b(?:\]|x).*?\x07/`,
-          errors: 2,
         },
         {
           // Standalone ESC without sequence introducer
@@ -755,31 +770,6 @@ describe('S6324', () => {
         {
           // ESC followed by something other than [ or ]
           code: String.raw`/\x1b\(/`,
-          errors: 1,
-        },
-        {
-          // An optional grouped introducer does not prove an ANSI sequence.
-          code: String.raw`/\x1b(?:\[)?/`,
-          errors: 1,
-        },
-        {
-          // Every group alternative must introduce CSI or OSC.
-          code: String.raw`/\x1b(?:\[|x)/`,
-          errors: 1,
-        },
-        {
-          // An optional quantified introducer does not prove an ANSI sequence.
-          code: String.raw`/\x1b\[{0,3}/`,
-          errors: 1,
-        },
-        {
-          // An empty alternative can leave ESC without an introducer.
-          code: String.raw`/\x1b(?:\[|)/`,
-          errors: 1,
-        },
-        {
-          // A mandatory group can still have an optional introducer.
-          code: String.raw`/\x1b(?:\[?x)/`,
           errors: 1,
         },
       ],

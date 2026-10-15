@@ -21,6 +21,7 @@ import type { AST } from '@eslint-community/regexpp';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
+import { documentedTerminalControls } from './terminal.js';
 
 const EXCEPTIONS = new Set(['\t', '\n']);
 
@@ -60,7 +61,7 @@ function isInCharacterClassWithControlCharRange(character: AST.Character): boole
 }
 
 /**
- * Checks if ESC (0x1b) is followed by a mandatory [ or ] to form an ANSI CSI/OSC sequence start.
+ * Checks if ESC (0x1b) is followed by [ or ] to form ANSI CSI/OSC sequence start.
  * Per xterm spec, ESC + [ starts a CSI sequence, ESC + ] starts an OSC sequence.
  */
 function isAnsiSequenceStart(character: AST.Character): boolean {
@@ -76,27 +77,11 @@ function isAnsiSequenceStart(character: AST.Character): boolean {
   if (index === -1 || index >= elements.length - 1) {
     return false;
   }
-  return isMandatoryAnsiIntroducer(elements[index + 1]);
-}
-
-/**
- * Returns whether an element always starts by consuming a CSI or OSC introducer.
- * Optional or mixed alternatives are deliberately excluded.
- */
-function isMandatoryAnsiIntroducer(element: AST.Element): boolean {
-  if (element.type === 'Character') {
-    return element.value === LEFT_BRACKET || element.value === RIGHT_BRACKET;
+  const next = elements[index + 1];
+  if (next.type !== 'Character') {
+    return false;
   }
-  if (element.type === 'Quantifier') {
-    return element.min > 0 && isMandatoryAnsiIntroducer(element.element);
-  }
-  if (element.type === 'Group' || element.type === 'CapturingGroup') {
-    return element.alternatives.every(
-      alternative =>
-        alternative.elements.length > 0 && isMandatoryAnsiIntroducer(alternative.elements[0]),
-    );
-  }
-  return false;
+  return next.value === LEFT_BRACKET || next.value === RIGHT_BRACKET;
 }
 
 type OscMatcher = { start: number; end: number };
@@ -210,7 +195,11 @@ function isOscPayload(element: AST.Element): boolean {
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   const oscMatchers: OscMatcher[] = [];
+  let documentedControls = new Set<AST.Character>();
   return {
+    onPatternEnter: pattern => {
+      documentedControls = documentedTerminalControls(pattern);
+    },
     onAlternativeEnter: alternative => {
       oscMatchers.push(...findOscMatchers(alternative));
     },
@@ -226,6 +215,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
         !isCharacterClassRangeBoundary(character) &&
         !isInCharacterClassWithControlCharRange(character) &&
         !isAnsiSequenceStart(character) &&
+        !documentedControls.has(character) &&
         !(
           (value === BEL || value === ESC) &&
           oscMatchers.some(
