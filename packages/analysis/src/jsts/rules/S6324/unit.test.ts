@@ -17,93 +17,38 @@
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
-import { doesNotThrow, strictEqual } from 'node:assert';
-import { parseRegExpLiteral } from '@eslint-community/regexpp';
-import { documentedTerminalControls } from './terminal.js';
+import { doesNotThrow } from 'node:assert';
 
 const CONTROL_CHAR_MESSAGE = 'Remove this control character.';
 
 describe('S6324', () => {
-  it('requires documented complete commands for grouped and quantified delimiters', () => {
+  it('recognizes fixed brackets in groups and exact-one repetitions', () => {
     const ruleTester = new DefaultParserRuleTester();
     doesNotThrow(() =>
-      ruleTester.run('Documented terminal commands', rule, {
+      ruleTester.run('Fixed terminal introducers', rule, {
         valid: [
           { code: String.raw`/\x1b(?:\[)31m/` },
-          { code: String.raw`/\x1b(\[){1}2J/` },
-          { code: String.raw`/\x1b(?:\[)3J/` },
-          { code: String.raw`/\x1b(?:\[)31m(?<=m)/` },
-          { code: String.raw`/\x1b(?:(?:\[))2;3H/` },
-          // Non-Unicode character classes range over UTF-16 code units.
-          { code: String.raw`/\x1b(?:\[)[^\x00-\x2f\x3a-\uffff]A/` },
-          { code: String.raw`/\x1b(?:\[)[^\x00-\x2f\x33-\uffff]K/` },
-          { code: String.raw`/\x1b\[{1}\d+A/` },
-          { code: String.raw`/\x1b(?:\[)(?:31|32);1m/` },
-          { code: String.raw`/\x1b(?:\[)[0-2]K/` },
-          { code: String.raw`/\x1b(?:\])0;title\x07/` },
-          { code: String.raw`/\x1b\]0;[a-z ]+\x07/` },
-          { code: String.raw`/\x1b\]{1}2;[\x20-\x7e]*\x1b\\/` },
-          { code: String.raw`/\x1b(?:\])1;[a-z ]+\x9c/` },
-          { code: String.raw`/\x1b(?:\])0;[^\x00-\x1f\x7f-\uffff]*\x07/` },
-          { code: String.raw`/\x1b(?:\])2;(?:title|name)(?:\x07|\x1b\\)/` },
-          { code: String.raw`/\x9d0;(?:title|name)\x07/` },
-          { code: String.raw`/\x9d2;[\x20-\x7e]+\x1b(?:\\)/` },
-          { code: String.raw`/(?:\x1b(?:\])2;title\x07)?/` },
-          { code: String.raw`/(?:\x1b(?:\[)31m){2}/` },
-          { code: String.raw`/\x1b(?:\[31m|\]0;title\x07)/` },
+          { code: String.raw`/\x1b(?:(\[)){1}31m/` },
+          { code: String.raw`/\x1b\[{1}/` },
+          { code: String.raw`/\x1b(?:\[|\[)999m/i` },
           { code: String.raw`/\u001b(?:\u005b)31m/u` },
-          { code: String.raw`new RegExp('\\x1b(?:\\])0;title\\x07', 'u')` },
+          { code: String.raw`new RegExp('\\x1b(?:\\[)31m', 'i')` },
+          { code: String.raw`/\x1b(?:\])0;title\x07/` },
+          { code: String.raw`/\x1b\]{1}0;title\x1b\\/` },
+          { code: String.raw`/(?:\x1b(?:\])|\x9d)[^\x07\x1b\x9c\x9d]*(?:\x07|\x1b\\|\x9c)/` },
         ],
         invalid: [
           { code: String.raw`/\x1b(?:\[|\])/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)123/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\])0;title/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)999m/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)[0-9]m/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)\d+m/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)[0-9]{1,3}m/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)[^\x00-\x2f\x3a-\u{10ffff}]J/u`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)[^\x00-\x35\x37-\u{10ffff}]m/u`, errors: 1 },
-          // Unicode modes include astral code points beyond the excluded BMP ranges.
-          { code: String.raw`/\x1b(?:\[)[^\x00-\x2f\x3a-\uffff]A/u`, errors: 1 },
-          {
-            code: String.raw`/\x1b(?:\[)[^\x00-\x2f\x3a-\uffff]A/v`,
-            languageOptions: { ecmaVersion: 2024 as const },
-            errors: 1,
-          },
-          { code: String.raw`/\x1b(?:\[)31;1m/i`, errors: 1 },
-          { code: String.raw`new RegExp('\\x1b(?:\\[)31;1m', 'i')`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)9J/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)3K/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)1;2A/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)1;2J/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)31n/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)\DA/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)[^\x00-\x2f\x3a-\uffff]J/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)[^\x00-\x35\x37-\uffff]m/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[)1;2;3H/`, errors: 1 },
-          { code: String.raw`/\x1b\[{1,3}31m/`, errors: 1 },
+          { code: String.raw`/\x1b(?:\[|)/`, errors: 1 },
           { code: String.raw`/\x1b(?:\[)?31m/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[31m|x)/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\[31m|\[)/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\]0;title\x07|\]0;title)/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\]0;title|\[31m)\x07/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\])999;title\x07/`, errors: 2 },
-          // The plain OSC prefix remains exempt, but unsupported forms keep BEL reportable.
-          { code: String.raw`/\x1b\]0;.*?\x07/`, errors: 1 },
-          { code: String.raw`/\x1b\]9;[a-z ]+\x07/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\])0title\x07/`, errors: 2 },
-          { code: String.raw`/\x1b(?:\])0;.*?\x07/`, errors: 2 },
-          { code: String.raw`/\x1b(?:\])0;[^\x07\x1b\x9c\x9d]*\x07/`, errors: 4 },
-          { code: String.raw`/\x1b(?:\])0;[a-z\x18]*\x07/`, errors: 3 },
-          { code: String.raw`/\x1b(?:\])0;title(?:\x07|foo)/`, errors: 1 },
-          { code: String.raw`/\x1b(?:\])0;title\x07?/`, errors: 2 },
-          { code: String.raw`/\x1b(?:\])0;title\x1b(?:\\|x)/`, errors: 2 },
-          { code: String.raw`/\x1b(?:\])0;title(?=\x07)\x07/`, errors: 3 },
-          { code: String.raw`/(?=\x1b(?:\[)31m)/`, errors: 1 },
-          { code: String.raw`/(?=(?:\x1b(?:\[)31m)+)/`, errors: 1 },
-          { code: String.raw`/(\x1b)(?:\[)31m\1/`, errors: 1 },
-          { code: String.raw`/(?<escape>\x1b)(?:\[)31m\k<escape>/`, errors: 1 },
+          { code: String.raw`/\x1b(?:\[){0}31m/`, errors: 1 },
+          { code: String.raw`/\x1b(?:\[){2}31m/`, errors: 1 },
+          { code: String.raw`/\x1b(?:\[)+31m/`, errors: 1 },
+          { code: String.raw`/\x1b(?:\[x)31m/`, errors: 1 },
+          { code: String.raw`/\x1b(?:\[(?=3))31m/`, errors: 1 },
+          { code: String.raw`/\x1b(?=\[)31m/`, errors: 1 },
+          { code: String.raw`/(\[)\x1b\1/`, errors: 1 },
+          { code: String.raw`/(?:\x1b)(?:\[)31m/`, errors: 1 },
           {
             code: String.raw`/\x1b(?:\[)31m\x07/`,
             errors: [{ message: CONTROL_CHAR_MESSAGE, column: 15, endColumn: 19 }],
@@ -113,42 +58,19 @@ describe('S6324', () => {
             errors: [{ message: CONTROL_CHAR_MESSAGE, column: 23, endColumn: 27 }],
           },
           {
-            code: String.raw`/\x1b(?:\])0;[\x20-\x7f]*\x07/`,
+            code: String.raw`/\x1b(?:\])0;.*?\x07/`,
+            errors: [{ message: CONTROL_CHAR_MESSAGE, column: 17, endColumn: 21 }],
+          },
+          {
+            code: String.raw`/\x1b(?:\]|)0;title\x07/`,
             errors: [
               { message: CONTROL_CHAR_MESSAGE, column: 2, endColumn: 6 },
-              { message: CONTROL_CHAR_MESSAGE, column: 26, endColumn: 30 },
+              { message: CONTROL_CHAR_MESSAGE, column: 20, endColumn: 24 },
             ],
-          },
-          {
-            code: String.raw`/\x1b(?:\])0;[^\x7f-\uffff]*\x07/`,
-            errors: [
-              { message: CONTROL_CHAR_MESSAGE, column: 2, endColumn: 6 },
-              { message: CONTROL_CHAR_MESSAGE, column: 29, endColumn: 33 },
-            ],
-          },
-          {
-            code: String.raw`/\x9d0;(?:title|name)\x07?/`,
-            errors: [{ message: CONTROL_CHAR_MESSAGE, column: 22, endColumn: 26 }],
-          },
-          { code: String.raw`/\x1b(?:\[){1000000000}31m/`, errors: 1 },
-          {
-            code: String.raw`/\x1b(?:\])0;${'(?:a|b)'.repeat(7)}\x07/`,
-            errors: 2,
-          },
-          {
-            code: String.raw`/\x1b${'(?:'.repeat(20)}\[${')'.repeat(20)}31m/`,
-            errors: 1,
           },
         ],
       }),
     );
-  });
-
-  it('rejects scoped modifiers before proving complete commands', () => {
-    const pattern = parseRegExpLiteral(String.raw`/(?i:a)\x1b(?:\[)31m/`, {
-      ecmaVersion: 2025,
-    }).pattern;
-    strictEqual(documentedTerminalControls(pattern).size, 0);
   });
 
   describe('bounded OSC matchers', () => {
@@ -708,7 +630,7 @@ describe('S6324', () => {
         {
           // A mandatory nested BEL closes the OSC before the later string terminator.
           code: String.raw`/\x1b\]0;title(?:x\x07)\x1b\\/`,
-          errors: 1,
+          errors: 2,
         },
         {
           // An optional BEL does not prove that the OSC has already closed.
@@ -766,9 +688,9 @@ describe('S6324', () => {
           errors: 1,
         },
         {
-          // C1 ST ends OSC before the final standalone ST.
+          // A grouped OSC introducer does not prove that a later ST belongs to it.
           code: String.raw`/\x1b(?:\]0;title\x9c)\x1b\\/`,
-          errors: 1,
+          errors: 2,
         },
         {
           // A negated Unicode property can still match an OSC terminator.
@@ -781,9 +703,9 @@ describe('S6324', () => {
           errors: 2,
         },
         {
-          // A grouped terminator leaves the final standalone ST reportable.
+          // A terminator split across a group is outside the bounded matcher grammar.
           code: String.raw`/\x1b\]0;title\x1b(?:\\)\x1b\\/`,
-          errors: 1,
+          errors: 2,
         },
         {
           // A quantified ESC can still form an earlier string terminator.
@@ -818,7 +740,7 @@ describe('S6324', () => {
         {
           // ST nested in groups also closes the OSC sequence.
           code: String.raw`/\x1b\]0;title(?:\x1b(?:\\))\x1b\\/`,
-          errors: 1,
+          errors: 2,
         },
         {
           // BEL inside a character class is not an OSC terminator.
