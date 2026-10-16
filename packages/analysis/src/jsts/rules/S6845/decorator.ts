@@ -381,8 +381,10 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
   if (!attribute) {
     return false;
   }
+  const isReactContentEditable =
+    attribute.name.type === 'JSXIdentifier' && attribute.name.name === 'contentEditable';
   if (attribute.value === null) {
-    return true;
+    return isReactContentEditable;
   }
   const expression =
     attribute.value.type === 'JSXExpressionContainer'
@@ -396,7 +398,7 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
         ? expression.quasis[0].value.cooked
         : null;
   return (
-    value === true ||
+    (isReactContentEditable && value === true) ||
     (typeof value === 'string' && ['', 'true', 'plaintext-only'].includes(value.toLowerCase()))
   );
 }
