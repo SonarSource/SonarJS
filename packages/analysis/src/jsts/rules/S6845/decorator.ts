@@ -28,6 +28,7 @@ import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isJsxIdentifierNamed } from '../helpers/jsx.js';
 import { isHtmlElement } from '../helpers/isHtmlElement.js';
+import { isInHtmlNamespace, openingElementOf } from './helpers.js';
 import * as meta from './generated-meta.js';
 
 // These names can also identify SVG elements rendered through a component.
@@ -35,9 +36,13 @@ const SHARED_HTML_SVG_TAG_NAMES = new Set(['a', 'font', 'image', 'script', 'styl
 
 const ARIA_NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 /**
- * Allows intrinsic div separator widgets with a supplied current value.
- * @param rule the upstream accessibility rule
- * @return the rule with separator reports filtered
+ * Suppresses reports for proven editing hosts, focusable separators, and conditional values
+ * that cannot add an element to sequential keyboard navigation.
+ *
+ * @example Pseudocode
+ * report(<div contentEditable tabIndex={0} />.tabIndex) -> suppress
+ * report(<div tabIndex={disabled ? null : -1} />.tabIndex) -> suppress
+ * report(<div tabIndex={0} />.tabIndex) -> forward
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -46,12 +51,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       if (isTabIndexOutsideSequentialFocusOrder(descriptor)) {
         return;
       }
-      const node = 'node' in descriptor ? (descriptor.node as TSESTree.Node) : undefined;
-      const opening = node?.type === 'JSXAttribute' ? node.parent : undefined;
-      if (opening?.type === 'JSXOpeningElement') {
-        if (isEditableHtmlHost(opening) || isSeparatorWidget(context, opening)) {
-          return;
-        }
+      const opening = openingElementOf(descriptor);
+      if (opening && (isEditableHtmlHost(opening) || isSeparatorWidget(context, opening))) {
+        return;
       }
       context.report(descriptor);
     },
@@ -361,6 +363,14 @@ function isDefinitelyNonNumericExpression(
 /**
  * Accepts native HTML editing hosts with one direct, statically enabled contenteditable attribute.
  */
+/**
+ * Requires a proven HTML editing host with an exact JSX attribute name.
+ *
+ * @example Pseudocode
+ * <div contentEditable="plaintext-only" /> -> true
+ * <div contenteditable="true" />           -> false
+ * <svg><div contentEditable /></svg>        -> false
+ */
 function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
   const element = {
     type: 'JSXElement' as const,
@@ -403,31 +413,6 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
     value === true ||
     (typeof value === 'string' && ['', 'true', 'plaintext-only'].includes(value.toLowerCase()))
   );
-}
-
-function isInHtmlNamespace(opening: TSESTree.JSXOpeningElement): boolean {
-  const ancestors: TSESTree.JSXOpeningElement[] = [];
-  let ancestor: TSESTree.Node | undefined = opening.parent?.parent;
-  while (ancestor) {
-    if (ancestor.type === 'JSXElement') {
-      ancestors.push(ancestor.openingElement);
-    }
-    ancestor = ancestor.parent;
-  }
-
-  let namespace: 'html' | 'svg' | 'math' = 'html';
-  for (const element of ancestors.reverse()) {
-    if (element.name.type !== 'JSXIdentifier') {
-      continue;
-    }
-    const name = element.name.name;
-    if (namespace === 'html' && (name === 'svg' || name === 'math')) {
-      namespace = name;
-    } else if (namespace === 'svg' && name === 'foreignObject') {
-      namespace = 'html';
-    }
-  }
-  return namespace === 'html';
 }
 
 function directContentEditableAttribute(
