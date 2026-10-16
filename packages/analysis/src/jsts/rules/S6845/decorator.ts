@@ -366,7 +366,9 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
   if (
     !isHtmlElement(element) ||
     opening.name.type !== 'JSXIdentifier' ||
-    opening.name.name === 'svg'
+    opening.name.name === 'svg' ||
+    opening.name.name === 'math' ||
+    !isInHtmlNamespace(opening)
   ) {
     return false;
   }
@@ -395,6 +397,31 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
   );
 }
 
+function isInHtmlNamespace(opening: TSESTree.JSXOpeningElement): boolean {
+  const ancestors: TSESTree.JSXOpeningElement[] = [];
+  let ancestor: TSESTree.Node | undefined = opening.parent?.parent;
+  while (ancestor) {
+    if (ancestor.type === 'JSXElement') {
+      ancestors.push(ancestor.openingElement);
+    }
+    ancestor = ancestor.parent;
+  }
+
+  let namespace: 'html' | 'svg' | 'math' = 'html';
+  for (const element of ancestors.reverse()) {
+    if (element.name.type !== 'JSXIdentifier') {
+      continue;
+    }
+    const name = element.name.name;
+    if (namespace === 'html' && (name === 'svg' || name === 'math')) {
+      namespace = name;
+    } else if (namespace === 'svg' && name === 'foreignObject') {
+      namespace = 'html';
+    }
+  }
+  return namespace === 'html';
+}
+
 function directContentEditableAttribute(
   opening: TSESTree.JSXOpeningElement,
 ): JSXAttribute | undefined {
@@ -408,14 +435,10 @@ function directContentEditableAttribute(
   if (contentEditableAttributes.length !== 1) {
     return undefined;
   }
-  const attribute = contentEditableAttributes[0];
-  const index = attributes.indexOf(attribute);
-  // A later spread may override this attribute. An earlier spread is overwritten by it.
-  return attributes.some(
-    (candidate, position) => position > index && candidate.type === 'JSXSpreadAttribute',
-  )
+  // A spread can add a case variant or override the direct contenteditable attribute.
+  return attributes.some(candidate => candidate.type === 'JSXSpreadAttribute')
     ? undefined
-    : attribute;
+    : contentEditableAttributes[0];
 }
 
 function getSimpleBindingValue(
