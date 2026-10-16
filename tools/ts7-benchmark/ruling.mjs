@@ -13,7 +13,7 @@ const args = process.argv.slice(2);
 const command = args.shift() ?? 'run';
 if (command === '--help' || command === 'help') {
   console.log(
-    'Usage: npm run ts7:ruling -- run|list|report [--corpus PATH --sources PATH --projects a,b --backends ts6,ts7,wasm,wasm-direct --runs 3 --output PATH --resume --details --timeout-ms 600000 --heap-mb 8192]',
+    'Usage: npm run ts7:ruling -- run|list|report [--corpus PATH --sources PATH --projects a,b --backends ts6,ts7,wasm,wasm-direct --runs 3 --output PATH --resume --details --timeout-ms 600000 --heap-mb 8192 --runtimes FILE]',
   );
   console.log('Guide: tools/ts7-benchmark/README.md#complete-ruling-suite');
   process.exit(0);
@@ -28,6 +28,7 @@ const valued = new Set([
   '--output',
   '--timeout-ms',
   '--heap-mb',
+  '--runtimes',
 ]);
 for (let i = 0; i < args.length; i++) {
   if (valued.has(args[i])) {
@@ -40,7 +41,7 @@ const value = name => {
 };
 if (!['run', 'list', 'report'].includes(command))
   throw new Error(
-    'Usage: node tools/ts7-benchmark/ruling.mjs run|list|report [--corpus PATH --projects a,b --backends ts6,ts7,wasm,wasm-direct --runs 3 --output PATH --resume --timeout-ms 600000 --heap-mb 8192]',
+    'Usage: node tools/ts7-benchmark/ruling.mjs run|list|report [--corpus PATH --projects a,b --backends ts6,ts7,wasm,wasm-direct --runs 3 --output PATH --resume --timeout-ms 600000 --heap-mb 8192 --runtimes FILE]',
   );
 const output = path.resolve(
   value('--output') ??
@@ -125,14 +126,28 @@ const selected = value('--projects')?.split(',');
 if (selected?.some(n => !tests.has(n))) throw new Error('Unknown or inactive project selection');
 const selectedProjects = projects.filter(p => !selected || selected.includes(p.name));
 if (!selectedProjects.some(p => p.active)) throw new Error('No active projects selected');
-const providers = (value('--backends') ?? 'ts6,ts7,wasm,wasm-direct').split(',');
-if (
-  !providers.includes('ts6') ||
-  providers.length < 2 ||
-  new Set(providers).size !== providers.length ||
-  providers.some(b => !backends[b])
-)
-  throw new Error('Choose ts6 plus unique known backends');
+if (value('--runtimes') && value('--backends')) throw new Error('Choose runtimes or backends');
+const runtimes = value('--runtimes')
+  ? JSON.parse(fs.readFileSync(path.resolve(value('--runtimes'))))
+  : Object.fromEntries(
+      (value('--backends') ?? 'ts6,ts7,wasm,wasm-direct')
+        .split(',')
+        .map(name => [name, { ...backends[name], root: repository, kind: 'owned' }]),
+    );
+const providers = Object.keys(runtimes);
+if (!providers.includes('ts6') || providers.some(name => !/^[a-z][a-z0-9-]*$/.test(name)))
+  throw new Error('Runtime comparison requires a ts6 reference and safe unique labels');
+for (const [name, runtime] of Object.entries(runtimes)) {
+  runtime.root = path.resolve(runtime.root);
+  if (
+    !['direct', 'owned'].includes(runtime.kind) ||
+    !['ts6', 'ts7', 'wasm'].includes(runtime.provider) ||
+    (runtime.kind === 'direct' && runtime.provider !== 'ts6')
+  )
+    throw new Error(`Invalid runtime ${name}`);
+  if (!fs.existsSync(path.join(runtime.root, 'package.json')))
+    throw new Error(`Missing runtime ${name}`);
+}
 const runs = Number(value('--runs') ?? 3),
   timeoutMs = Number(value('--timeout-ms') ?? 600000),
   heapMb = Number(value('--heap-mb') ?? 8192);
@@ -143,7 +158,7 @@ for (const p of selectedProjects.filter(p => p.active)) {
   const directory = p.folder ? path.join(sources, p.folder) : path.join(corpus, p.name);
   if (!fs.existsSync(directory)) throw new Error(`Missing ruling project ${p.name}: ${directory}`);
 }
-if (providers.some(b => backends[b].provider === 'wasm') && !process.env.SONARJS_TS7_WASM)
+if (providers.some(b => runtimes[b].provider === 'wasm') && !process.env.SONARJS_TS7_WASM)
   throw new Error('SONARJS_TS7_WASM is required for WASM providers');
 const files = [
   ...new Set([
@@ -166,6 +181,26 @@ const sourceHashes = Object.fromEntries(
 );
 const identity = {
   sourceHashes,
+  runtimes: Object.fromEntries(
+    Object.entries(runtimes).map(([name, runtime]) => [
+      name,
+      {
+        ...runtime,
+        head: git(runtime.root, 'rev-parse', 'HEAD'),
+        status: git(runtime.root, 'status', '--short'),
+        sourceHashes: Object.fromEntries(
+          git(runtime.root, 'ls-files', '-z')
+            .split('\0')
+            .filter(
+              file =>
+                /^(?:packages\/|package(?:-lock)?\.json)/.test(file) &&
+                /\.(?:ts|mjs|cjs|cts|json)$/.test(file),
+            )
+            .map(file => [file, hash(fs.readFileSync(path.join(runtime.root, file)))]),
+        ),
+      },
+    ]),
+  ),
   corpus,
   sources,
   corpusHead: git(corpus, 'rev-parse', 'HEAD'),
@@ -196,7 +231,7 @@ const identity = {
   runs,
   timeoutMs,
   heapMb,
-  wasm: providers.some(b => backends[b].provider === 'wasm')
+  wasm: providers.some(b => runtimes[b].provider === 'wasm')
     ? {
         directory: process.env.SONARJS_TS7_WASM,
         hash: hash(fs.readFileSync(path.join(process.env.SONARJS_TS7_WASM, 'typescript.wasm'))),
@@ -277,34 +312,36 @@ for (let round = 0; round < runs && !stop; round++) {
     )
       continue;
     preserveAttempt(prefix);
-    const configuration = { name: project.name, backend, round: round + 1, corpus, sources };
+    const spec = runtimes[backend];
+    const configuration = {
+      name: project.name,
+      backend,
+      round: round + 1,
+      corpus,
+      sources,
+      runtime: spec,
+    };
     fs.writeFileSync(prefix + '.config.json', JSON.stringify(configuration, null, 2));
     const log = fs.openSync(prefix + '.log', 'w');
     const start = performance.now();
-    const spec = backends[backend];
     let timedOut = false,
       interrupted = false;
     const child = spawn(
       process.execPath,
       [
         `--max-old-space-size=${heapMb}`,
-        '--import',
-        './packages/analysis/src/jsts/native/compatibility.mjs',
-        '--import',
-        'typescript',
-        '--import',
-        'tsx',
-        'tools/ts7-benchmark/ruling-worker.mjs',
+        path.join(repository, 'tools/ts7-benchmark/ruling-worker.mjs'),
         prefix + '.config.json',
         prefix + '.json',
       ],
       {
-        cwd: repository,
+        cwd: spec.root,
         detached: process.platform !== 'win32',
         stdio: ['ignore', log, log],
         env: {
           ...process.env,
           SONARJS_TYPESCRIPT_SOURCE: '1',
+          TSX_TSCONFIG_PATH: path.join(spec.root, 'packages/tsconfig.test.json'),
           SONARJS_TYPESCRIPT_BACKEND: spec.provider,
           ...(spec.bridge ? { SONARJS_WASM_BRIDGE: spec.bridge } : {}),
         },

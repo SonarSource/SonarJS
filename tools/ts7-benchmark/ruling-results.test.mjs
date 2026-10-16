@@ -144,3 +144,14 @@ test('recovered pipeline errors stay visible without becoming valid performance 
   assert.equal(result.observedValidCohort.ts6.projects, 1);
   assert.deepEqual(result.providerCoverage.ts6.analysisMs.values, [302, 304]);
 });
+
+test('one runtime observation cannot claim cross-runtime parity', () => {
+  const single = { ...plan, backends: ['ts6'] };
+  const summary = summarizeRuling(
+    single,
+    reports().filter(r => r.backend === 'ts6'),
+  );
+  assert.equal(summary.allValid, true);
+  assert.equal(summary.parityPassed, false);
+  assert.equal(summary.parityProjects, 0);
+});

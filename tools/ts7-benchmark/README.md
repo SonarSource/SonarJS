@@ -396,3 +396,51 @@ The run found and fixed S125's syntax-only comment-fragment parsing path; it use
 a temporary native program/VFS and the existing ESTree converter, not a classic
 checker fallback. The all-rule archive integration test now exercises this path.
 The complete updated test suite has 28 passing tests.
+
+## Compiler removal and unmodified-master controls
+
+The current TS7 IPC provider **requires TS6 syntax/configuration/host utilities**.
+It replaces semantic programs/checkers with TS7; routing through the owned module
+does not mean that the module's native implementation has no TS6 dependency.
+The removal experiment temporarily moves every installed classic compiler package
+out of module resolution and preloads a guard against other classic compiler
+copies. It restores the packages afterwards, retaining per-project logs/audits:
+
+```sh
+node tools/ts7-benchmark/no-classic.mjs tools/ts7-benchmark/out/no-classic-new /absolute/path/to/jsts-test-sources
+```
+
+A startup failure is a dependency finding, never a zero-time successful analysis.
+This experiment intentionally does not substitute a vendored copy or another
+classic compiler version for the removed implementation.
+
+For an unmodified master checkout, the ruling runner accepts `--runtimes FILE`
+instead of `--backends`. Example JSON (absolute worktree paths):
+
+```json
+{
+  "ts6": { "root": "/path/to/pr", "kind": "owned", "provider": "ts6" },
+  "master-base": { "root": "/path/to/pr-branch-point", "kind": "direct", "provider": "ts6" }
+}
+```
+
+```sh
+npm run ts7:ruling -- run --runtimes /path/to/runtimes.json --corpus /absolute/path/to/jsts-test-sources --runs 3 --output tools/ts7-benchmark/out/overhead-new
+```
+
+The `ts6` key is the reference. Each runtime uses its own physical dependencies,
+source code and tsconfig. Direct workers load the original physical compiler,
+verify that typescript-eslint shares it, and reject a loaded owned compiler
+runtime. They use the same reporting and diagnostic normalization as the PR.
+Before timing, a benchmark-only loader reads master's own ruling setup and returns
+its prepared input before production execution. It changes only corpus placement
+and that final test execution; rule/configuration definitions remain in their
+original source. The source and transformed hashes are recorded. No checkout
+source or rules are edited. Compiler-option serialization is shared and runs
+outside the analysis timer.
+
+Use the PR's master branch point with identical dependencies/rules for the paired
+overhead control. A newer master can be measured separately, but its unrelated
+rule/dependency changes must not be attributed to the abstraction. A single-runtime
+observation cannot claim cross-runtime parity. Runtime revisions, status and
+source hashes are bound into the saved plan and resume identity.

@@ -83,7 +83,14 @@ export function writeRulingDifferences(output, plan) {
         if (report.compilerRouting?.sameFacade) routedWorkers++;
         if (report.valid) {
           validWorkers++;
-          if (!report.compilerRouting?.sameFacade)
+          if (
+            !report.compilerRouting?.sameFacade &&
+            !(
+              report.compilerRouting?.direct &&
+              report.compilerRouting.sameCompiler &&
+              !report.compilerRouting.ownedModuleLoaded
+            )
+          )
             throw new Error(`Valid worker lacks shared routing: ${file}`);
         }
         return report;

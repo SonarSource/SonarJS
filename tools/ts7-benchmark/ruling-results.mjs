@@ -130,7 +130,7 @@ export function summarizeRuling(plan, reports) {
         name: project.name,
         complete,
         valid,
-        parityPassed: valid && !mismatches.length,
+        parityPassed: plan.backends.length > 1 && valid && !mismatches.length,
         mismatches,
         backends: byBackend,
       };

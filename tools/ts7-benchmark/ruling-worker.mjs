@@ -1,19 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import ts from 'typescript';
-import {
-  initializeCompiler,
-  getCompilerGateway,
-  getCompilerInfo,
-  clearProgramCache,
-  compilerOptionsToJson,
-} from 'typescript/control';
-import { createRulingProject } from '../../packages/ruling/testProject.ts';
-import { initFileStores, sourceFileStore } from '../../packages/analysis/src/file-stores/index.ts';
-import { analyzeProject } from '../../packages/analysis/src/analyzeProject.ts';
-import { Linter } from '../../packages/analysis/src/jsts/linter/linter.ts';
-import { ProgramSelectionArchive } from '../../packages/analysis/src/program-selection/archive.ts';
+import { createRequire } from 'node:module';
+import { pathToFileURL, fileURLToPath } from 'node:url';
+import { compilerOptionsToJson as serializeCompilerOptions } from '../../packages/typescript/compiler-options.cjs';
+import { legacyRulingInputs } from './ruling-inputs.mjs';
 import { normalizeDiagnostics, canonical } from './results.mjs';
 import { assertCompilerRouting } from './routing.mjs';
 
@@ -36,21 +27,59 @@ const report = {
   programInputs: [],
 };
 const started = performance.now();
+const runtimeRoot = config.runtime?.root ?? fileURLToPath(new URL('../../', import.meta.url));
+const direct = config.runtime?.kind === 'direct';
+const require = createRequire(path.join(runtimeRoot, 'package.json'));
+const load = file => import(pathToFileURL(path.join(runtimeRoot, file)).href);
+let control;
 try {
   const before = performance.now();
-  await initializeCompiler();
+  if (!direct) {
+    if (['ts7', 'wasm'].includes(process.env.SONARJS_TYPESCRIPT_BACKEND))
+      await load('packages/analysis/src/jsts/native/compatibility.mjs');
+    control = require('typescript/control');
+    control.getCompilerGateway();
+  }
+  const ts = require('typescript');
+  await import(pathToFileURL(require.resolve('tsx')).href);
+  await control?.initializeCompiler();
   report.timings.compilerInitializationMs = performance.now() - before;
-  report.compiler = getCompilerInfo();
+  report.compiler = control
+    ? control.getCompilerInfo()
+    : {
+        backend: 'direct-ts6',
+        version: ts.version,
+        root: path.dirname(require.resolve('typescript/package.json')),
+      };
+  report.compiler.classicImplementationSha256 = hash(
+    fs.readFileSync(
+      direct
+        ? require.resolve('typescript')
+        : path.join(report.compiler.classicRoot, 'lib/typescript.js'),
+    ),
+  );
   report.versions = {
     node: process.version,
-    parser: JSON.parse(fs.readFileSync('node_modules/@typescript-eslint/parser/package.json'))
+    parser: JSON.parse(fs.readFileSync(require.resolve('@typescript-eslint/parser/package.json')))
       .version,
   };
-  const { baseDir, configuration, input } = createRulingProject(
-    config.name,
-    config.corpus,
-    config.sources,
+  const { initFileStores, sourceFileStore } = await load(
+    'packages/analysis/src/file-stores/index.ts',
   );
+  const { analyzeProject } = await load('packages/analysis/src/analyzeProject.ts');
+  const { Linter } = await load('packages/analysis/src/jsts/linter/linter.ts');
+  const { ProgramSelectionArchive } = await load(
+    'packages/analysis/src/program-selection/archive.ts',
+  );
+  const prepared = direct
+    ? await legacyRulingInputs(runtimeRoot, config.name, config.corpus, config.sources)
+    : (await load('packages/ruling/testProject.ts')).createRulingProject(
+        config.name,
+        config.corpus,
+        config.sources,
+      );
+  const { baseDir, configuration, input } = prepared;
+  report.workloadPreparation = prepared.preparation;
   report.configuration = configuration;
   report.ruleConfigurationHash = hash(JSON.stringify(canonical(input)));
   const archiveFile = outputPath + '.selection.pb.gz';
@@ -70,7 +99,20 @@ try {
   report.timings.projectMs = performance.now() - projectStart;
   report.timings.analysisMs = performance.now() - analysisStart;
   // Production analysis includes its normal cleanup. Everything below is reporting.
-  report.compilerRouting = assertCompilerRouting(getCompilerGateway(), ts);
+  report.compilerRouting = control
+    ? assertCompilerRouting(control.getCompilerGateway(), ts)
+    : {
+        direct: true,
+        sameCompiler:
+          createRequire(require.resolve('@typescript-eslint/typescript-estree/package.json'))(
+            'typescript',
+          ) === ts,
+        ownedModuleLoaded: Object.keys(require.cache).some(f =>
+          /\/packages\/typescript\/(?:index|control|gateway)\.(?:cjs|mjs)$/.test(f),
+        ),
+      };
+  if (direct && (!report.compilerRouting.sameCompiler || report.compilerRouting.ownedModuleLoaded))
+    throw new Error('Direct master must use one physical TS6 compiler without the owned facade');
   report.telemetry = result.meta.telemetry;
   report.warnings = result.meta.warnings;
   const sourceFiles = sourceFileStore.getFiles();
@@ -92,7 +134,7 @@ try {
     .map(selection => ({
       kind: selection.program.kind,
       tsconfig: selection.program.tsconfig ? relative(selection.program.tsconfig) : undefined,
-      compilerOptions: compilerOptionsToJson(selection.program.compilerOptions),
+      compilerOptions: serializeCompilerOptions(ts, selection.program.compilerOptions),
       files: selection.requestedFiles.map(relative).sort(),
     }))
     .sort((a, b) => JSON.stringify(canonical(a)).localeCompare(JSON.stringify(canonical(b))));
@@ -137,8 +179,8 @@ try {
   report.errors.push({ message: error.message, stack: error.stack });
 } finally {
   try {
-    clearProgramCache();
-    getCompilerGateway().assertHealthy();
+    control?.clearProgramCache();
+    control?.getCompilerGateway().assertHealthy();
   } catch (error) {
     report.errors.push({ message: error.message });
     report.valid = false;
