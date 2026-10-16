@@ -104,6 +104,67 @@ differences. It reads one project at a time outside the timing run. Aborted
 pipelines remain unavailable comparisons. Failed workers exit after saving their
 report and closing compiler resources, even if a production progress timer remains.
 
+## Direct master controls and classic compiler removal
+
+The [master/removal report](../../docs/ts7-benchmark/master-20261016.md) separates
+current-master observations from three matched rounds against the PR branch point.
+Use `--runtimes FILE` to compare installed worktrees through the same worker and
+shared corpus. Each runtime supplies `root`, `kind` (`owned` or `direct`) and
+`provider` (`ts6`, `ts7` or `wasm`). The `ts6` label is the comparison reference;
+additional labels identify candidates. Direct controls require a physical TS6
+installation. For example:
+
+```json
+{
+  "ts6": {
+    "root": "/absolute/path/to/owned-layer-worktree",
+    "kind": "owned",
+    "provider": "ts6"
+  },
+  "master-base": {
+    "root": "/absolute/path/to/direct-ts6-worktree",
+    "kind": "direct",
+    "provider": "ts6"
+  }
+}
+```
+
+```sh
+npm run ts7:ruling -- run --corpus /absolute/path/to/jsts-test-sources --runtimes /absolute/path/to/runtimes.json --runs 3 --output tools/ts7-benchmark/out/overhead-repeat
+```
+
+Install and prepare each worktree before measurement. For an overhead comparison,
+match rules, dependencies and the actual compiler implementation, then require full
+input/diagnostic parity. A newer master with changed rules is a separate observation.
+For one direct-master observation, use only a `ts6` entry with `kind: "direct"`.
+Single-runtime results deliberately cannot claim cross-runtime parity.
+
+Direct workers load the selected worktree's original analysis and ruling settings;
+a benchmark-only loader redirects corpus placement and returns legacy ruling inputs
+before test execution, without editing master's source. The original rule builders
+remain authoritative. Its preparation hashes are recorded. Preparation occurs before
+the analysis timer and uses TS6 to parse/transpile the legacy setup; this can warm
+compiler code differently and also contributes to worker wall time. Direct workers
+verify typescript-eslint uses the same physical compiler and the owned runtime is
+absent. Owned workers verify the shared facade. Plans bind every source/runtime root
+and revision so resumption cannot silently switch implementations.
+
+To test whether real IPC can start with every installed classic compiler unavailable:
+
+```sh
+node tools/ts7-benchmark/no-classic.mjs tools/ts7-benchmark/out/no-classic-new /absolute/path/to/jsts-test-sources
+```
+
+This diagnostic temporarily quarantines installed packages identified as TypeScript
+below version 7, clears inherited Node preload/search options, rejects other classic
+implementations through the shared boundary policy, and attempts every active ruling
+project with the real IPC worker. It retains logs, resolution/load audits and source
+identities, then restores the packages and verifies their manifest hashes. It currently
+expects every attempt to expose the explicit missing `typescript-classic` startup
+dependency; exit zero confirms that expected diagnostic outcome, not a successful
+TS6-free implementation. No analysis starts and no TS6-free duration is recorded.
+The current native provider still reuses classic syntax/configuration/host utilities.
+
 ## Single-project inputs and reports
 
 - `--project PATH`: project directory; defaults to the fixture.
