@@ -1,6 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+export const isFinalizedReport = report =>
+  !!report.exit && Number.isFinite(report.timings?.workerWallMs);
+
 /** Preserve interrupted attempts before opening their log/config paths again. */
 export function preserveAttempt(prefix) {
   const directory = path.dirname(prefix);

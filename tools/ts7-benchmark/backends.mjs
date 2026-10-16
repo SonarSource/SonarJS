@@ -12,3 +12,14 @@ export function backendOrder(selected, round) {
   if (selected.length > 2 && Math.floor(round / selected.length) % 2) order.reverse();
   return order;
 }
+
+/** Rotate project positions independently of each project's backend positions. */
+export function rulingOrder(projects, selected, round) {
+  const offset = round % projects.length;
+  return [...projects.slice(offset), ...projects.slice(0, offset)].flatMap(project =>
+    backendOrder(selected, round + projects.indexOf(project)).map(backend => ({
+      project,
+      backend,
+    })),
+  );
+}

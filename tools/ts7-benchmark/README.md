@@ -40,6 +40,9 @@ The worker always runs this worktree's SonarJS rule implementation.
 
 ## Complete ruling suite
 
+The [16 October full-corpus report](../../docs/ts7-benchmark/ruling-20261016.md)
+records all 59 active projects, overall/per-project times and compatibility gaps.
+
 Use the production project pipeline for every active ruling project, including
 CSS, Vue/HTML/YAML extraction, TEST files, exclusions and orphan programs. This
 is a different workload from the configured-root single-project benchmark above.
@@ -59,6 +62,7 @@ workers per project/backend. Use `--backends ts6,ts7` for a smaller comparison o
 `--projects ag-grid,vuetify` for a subset. Registry entries without an active
 ruling test are reported as inactive. Custom fixtures use `its/sources` by default;
 `--sources PATH` overrides that root. No rules or helpers are changed.
+For four backends, eight rounds balance both positions and reversed ordering.
 
 Workers run sequentially with rotating backend/project positions, an 8 GiB JS heap
 and a ten-minute per-worker timeout. Override these with `--heap-mb` and
@@ -81,13 +85,24 @@ Interrupted runs can resume with the **same options and unchanged inputs**:
 ```sh
 SONARJS_TS7_WASM=/absolute/path/to/matching/wasm npm run ts7:ruling -- run --corpus /absolute/path/to/jsts-test-sources --runs 3 --output tools/ts7-benchmark/out/ruling-all --resume
 npm run ts7:ruling -- report --output tools/ts7-benchmark/out/ruling-all
+npm run ts7:ruling -- report --output tools/ts7-benchmark/out/ruling-all --details
 ```
 
 Resume checks measured source hashes, corpus revision/status/patch, custom fixture
 hashes, provider artifacts and run settings. Existing reports, including failures,
-are kept; interrupted attempt artifacts are archived before rerunning that worker.
+are kept; interrupted or unfinalized attempt artifacts are archived before rerunning
+that worker. A worker body without a recorded process exit cannot pass the gates.
 Use a fresh output directory after changing sources or inputs. The saved plan
 includes machine/toolchain details and the measured patch/untracked sources.
+
+The report includes provider coverage, completed-pipeline times (including reported
+errors), valid common cohorts, strict parity cohorts and pairwise TS6/candidate
+cohorts. Pairwise cohorts retain an outlier even if a third provider fails.
+`report --details` writes `differences.json` with per-rule added/removed finding
+lines (including duplicates), changed diagnostic files and selected-program
+differences. It reads one project at a time outside the timing run. Aborted
+pipelines remain unavailable comparisons. Failed workers exit after saving their
+report and closing compiler resources, even if a production progress timer remains.
 
 ## Single-project inputs and reports
 

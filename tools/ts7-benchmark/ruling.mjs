@@ -4,21 +4,21 @@ import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { spawn, execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { backends, backendOrder } from './backends.mjs';
+import { backends, rulingOrder } from './backends.mjs';
 import { summarizeRuling, renderRuling, compactRulingReport } from './ruling-results.mjs';
-import { preserveAttempt, readWorkerReport } from './ruling-io.mjs';
+import { preserveAttempt, readWorkerReport, isFinalizedReport } from './ruling-io.mjs';
 
 const repository = fileURLToPath(new URL('../../', import.meta.url));
 const args = process.argv.slice(2);
 const command = args.shift() ?? 'run';
 if (command === '--help' || command === 'help') {
   console.log(
-    'Usage: npm run ts7:ruling -- run|list|report [--corpus PATH --sources PATH --projects a,b --backends ts6,ts7,wasm,wasm-direct --runs 3 --output PATH --resume --timeout-ms 600000 --heap-mb 8192]',
+    'Usage: npm run ts7:ruling -- run|list|report [--corpus PATH --sources PATH --projects a,b --backends ts6,ts7,wasm,wasm-direct --runs 3 --output PATH --resume --details --timeout-ms 600000 --heap-mb 8192]',
   );
   console.log('Guide: tools/ts7-benchmark/README.md#complete-ruling-suite');
   process.exit(0);
 }
-const flags = new Set(['--resume']);
+const flags = new Set(['--resume', '--details']);
 const valued = new Set([
   '--corpus',
   '--sources',
@@ -86,13 +86,19 @@ function readReports(plan) {
       const signature = `${stat.mtimeMs}:${stat.size}`;
       const cached = reportCache.get(file);
       if (cached?.signature === signature) return cached.report;
+      const worker = readWorkerReport(file, identity);
+      if (!isFinalizedReport(worker)) {
+        console.warn(`Unfinalized report ${file}; --resume preserves this attempt and reruns it`);
+        return undefined;
+      }
       const report = compactRulingReport({
-        ...readWorkerReport(file, identity),
+        ...worker,
         reportPath: path.relative(output, file).replaceAll('\\', '/'),
       });
       reportCache.set(file, { signature, report });
       return report;
-    });
+    })
+    .filter(Boolean);
 }
 function update(plan) {
   const summary = summarizeRuling(plan, readReports(plan));
@@ -103,6 +109,10 @@ function update(plan) {
 if (command === 'report') {
   const plan = JSON.parse(fs.readFileSync(path.join(output, 'plan.json')));
   update(plan);
+  if (args.includes('--details')) {
+    const { writeRulingDifferences } = await import('./ruling-diff.mjs');
+    writeRulingDifferences(output, plan);
+  }
   console.log(path.join(output, 'report.md'));
   process.exit(0);
 }
@@ -250,121 +260,127 @@ const total = plan.projects.filter(p => p.active).length * providers.length * ru
 let completed = readReports(plan).length;
 for (let round = 0; round < runs && !stop; round++) {
   const activeProjects = plan.projects.filter(p => p.active);
-  const offset = round % activeProjects.length;
-  const projectOrder = [...activeProjects.slice(offset), ...activeProjects.slice(0, offset)];
-  for (let index = 0; index < projectOrder.length && !stop; index++)
-    for (const backend of backendOrder(providers, round + index)) {
-      if (stop) break;
-      const project = projectOrder[index];
-      const dir = path.join(output, project.name);
-      fs.mkdirSync(dir, { recursive: true });
-      const prefix = path.join(dir, `${backend}-${round + 1}`);
-      if (fs.existsSync(prefix + '.json')) continue;
-      preserveAttempt(prefix);
-      const configuration = { name: project.name, backend, round: round + 1, corpus, sources };
-      fs.writeFileSync(prefix + '.config.json', JSON.stringify(configuration, null, 2));
-      const log = fs.openSync(prefix + '.log', 'w');
-      const start = performance.now();
-      const spec = backends[backend];
-      let timedOut = false,
-        interrupted = false;
-      const child = spawn(
-        process.execPath,
-        [
-          `--max-old-space-size=${heapMb}`,
-          '--import',
-          './packages/analysis/src/jsts/native/compatibility.mjs',
-          '--import',
-          'typescript',
-          '--import',
-          'tsx',
-          'tools/ts7-benchmark/ruling-worker.mjs',
-          prefix + '.config.json',
-          prefix + '.json',
-        ],
-        {
-          cwd: repository,
-          detached: process.platform !== 'win32',
-          stdio: ['ignore', log, log],
-          env: {
-            ...process.env,
-            SONARJS_TYPESCRIPT_SOURCE: '1',
-            SONARJS_TYPESCRIPT_BACKEND: spec.provider,
-            ...(spec.bridge ? { SONARJS_WASM_BRIDGE: spec.bridge } : {}),
-          },
-        },
-      );
-      const kill = signal => {
-        try {
-          if (process.platform === 'win32') child.kill(signal);
-          else process.kill(-child.pid, signal);
-        } catch (error) {
-          if (error.code !== 'ESRCH') throw error;
-        }
-      };
-      let force;
-      const terminate = () => {
-        kill('SIGTERM');
-        force = setTimeout(() => kill('SIGKILL'), 5000);
-      };
-      active = () => {
-        interrupted = true;
-        terminate();
-      };
-      const timer = setTimeout(() => {
-        timedOut = true;
-        terminate();
-      }, timeoutMs);
-      const exit = await new Promise(resolve => {
-        child.once('error', error => resolve({ error: error.message }));
-        child.once('close', (code, signal) => resolve({ code, signal }));
-      });
-      clearTimeout(timer);
-      clearTimeout(force);
-      active = undefined;
-      fs.closeSync(log);
-      if (interrupted) {
-        fs.writeFileSync(
-          prefix + '.interrupted.json',
-          JSON.stringify({ exit, at: new Date().toISOString() }),
-        );
-        if (fs.existsSync(prefix + '.json'))
-          fs.renameSync(prefix + '.json', prefix + '.interrupted-report.json');
-        break;
-      }
-      const report = readWorkerReport(prefix + '.json', {
-        project: project.name,
-        backend,
-        round: round + 1,
-      });
-      // Preserve malformed output before replacing it with the structured failure.
-      if (
-        report.errors.some(e => e.message.startsWith('Unreadable worker report:')) &&
-        fs.existsSync(prefix + '.json')
+  for (const { project, backend } of rulingOrder(activeProjects, providers, round)) {
+    if (stop) break;
+    const dir = path.join(output, project.name);
+    fs.mkdirSync(dir, { recursive: true });
+    const prefix = path.join(dir, `${backend}-${round + 1}`);
+    if (
+      fs.existsSync(prefix + '.json') &&
+      isFinalizedReport(
+        readWorkerReport(prefix + '.json', {
+          project: project.name,
+          backend,
+          round: round + 1,
+        }),
       )
-        fs.renameSync(prefix + '.json', prefix + '.unreadable.json');
-      report.timings.workerWallMs = performance.now() - start;
-      report.exit = exit;
-      report.timedOut = timedOut;
-      if (exit.code !== 0 || timedOut) {
-        report.valid = false;
-        report.errors.push({
-          message: timedOut
-            ? `Timed out after ${timeoutMs} ms`
-            : `Worker failed: ${JSON.stringify(exit)}`,
-        });
+    )
+      continue;
+    preserveAttempt(prefix);
+    const configuration = { name: project.name, backend, round: round + 1, corpus, sources };
+    fs.writeFileSync(prefix + '.config.json', JSON.stringify(configuration, null, 2));
+    const log = fs.openSync(prefix + '.log', 'w');
+    const start = performance.now();
+    const spec = backends[backend];
+    let timedOut = false,
+      interrupted = false;
+    const child = spawn(
+      process.execPath,
+      [
+        `--max-old-space-size=${heapMb}`,
+        '--import',
+        './packages/analysis/src/jsts/native/compatibility.mjs',
+        '--import',
+        'typescript',
+        '--import',
+        'tsx',
+        'tools/ts7-benchmark/ruling-worker.mjs',
+        prefix + '.config.json',
+        prefix + '.json',
+      ],
+      {
+        cwd: repository,
+        detached: process.platform !== 'win32',
+        stdio: ['ignore', log, log],
+        env: {
+          ...process.env,
+          SONARJS_TYPESCRIPT_SOURCE: '1',
+          SONARJS_TYPESCRIPT_BACKEND: spec.provider,
+          ...(spec.bridge ? { SONARJS_WASM_BRIDGE: spec.bridge } : {}),
+        },
+      },
+    );
+    const kill = signal => {
+      try {
+        if (process.platform === 'win32') child.kill(signal);
+        else process.kill(-child.pid, signal);
+      } catch (error) {
+        if (error.code !== 'ESRCH') throw error;
       }
-      fs.writeFileSync(prefix + '.json', JSON.stringify(report, null, 2));
-      completed++;
-      console.log(
-        `[${completed}/${total}] ${project.name} ${backend} ${round + 1}/${runs}: ${report.valid ? 'valid' : 'FAILED'}, ${report.files?.length ?? '?'} files, ${report.issueCount ?? '?'} findings, ${report.timings.analysisMs?.toFixed(0) ?? '?'} ms`,
+    };
+    let force;
+    const terminate = () => {
+      kill('SIGTERM');
+      force = setTimeout(() => kill('SIGKILL'), 5000);
+    };
+    active = () => {
+      interrupted = true;
+      terminate();
+    };
+    const timer = setTimeout(() => {
+      timedOut = true;
+      terminate();
+    }, timeoutMs);
+    const exit = await new Promise(resolve => {
+      child.once('error', error => resolve({ error: error.message }));
+      child.once('close', (code, signal) => resolve({ code, signal }));
+    });
+    clearTimeout(timer);
+    clearTimeout(force);
+    active = undefined;
+    fs.closeSync(log);
+    if (interrupted) {
+      fs.writeFileSync(
+        prefix + '.interrupted.json',
+        JSON.stringify({ exit, at: new Date().toISOString() }),
       );
-      update(plan);
+      if (fs.existsSync(prefix + '.json'))
+        fs.renameSync(prefix + '.json', prefix + '.interrupted-report.json');
+      break;
     }
+    const report = readWorkerReport(prefix + '.json', {
+      project: project.name,
+      backend,
+      round: round + 1,
+    });
+    // Preserve malformed output before replacing it with the structured failure.
+    if (
+      report.errors.some(e => e.message.startsWith('Unreadable worker report:')) &&
+      fs.existsSync(prefix + '.json')
+    )
+      fs.renameSync(prefix + '.json', prefix + '.unreadable.json');
+    report.timings.workerWallMs = performance.now() - start;
+    report.exit = exit;
+    report.timedOut = timedOut;
+    if (exit.code !== 0 || timedOut) {
+      report.valid = false;
+      report.errors.push({
+        message: timedOut
+          ? `Timed out after ${timeoutMs} ms`
+          : `Worker failed: ${JSON.stringify(exit)}`,
+      });
+    }
+    fs.writeFileSync(prefix + '.json', JSON.stringify(report, null, 2));
+    completed++;
+    console.log(
+      `[${completed}/${total}] ${project.name} ${backend} ${round + 1}/${runs}: ${report.valid ? 'valid' : 'FAILED'}, ${report.files?.length ?? '?'} files, ${report.issueCount ?? '?'} findings, ${report.timings.analysisMs?.toFixed(0) ?? '?'} ms`,
+    );
+    update(plan);
+  }
 }
 const summary = update(plan);
 if (summary.complete) {
-  plan.completed = new Date().toISOString();
+  plan.completed ??= new Date().toISOString();
   fs.writeFileSync(path.join(output, 'plan.json'), JSON.stringify(plan, null, 2));
 }
 console.log(

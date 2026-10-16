@@ -33,8 +33,18 @@ const fieldHashes = report =>
 
 /** Keep aggregate memory bounded; full diagnostics remain in each raw worker report. */
 export function compactRulingReport(report) {
-  const { project, backend, round, valid, errors, timings, issueCount, parsingErrors, reportPath } =
-    report;
+  const {
+    project,
+    backend,
+    round,
+    valid,
+    errors,
+    timings,
+    issueCount,
+    parsingErrors,
+    reportPath,
+    timedOut,
+  } = report;
   return {
     project,
     backend,
@@ -45,6 +55,7 @@ export function compactRulingReport(report) {
     issueCount,
     parsingErrors,
     reportPath,
+    timedOut,
     fileCount: report.fileCount ?? report.files?.length,
     fingerprintHashes: fieldHashes(report),
   };
@@ -79,6 +90,9 @@ export function summarizeRuling(plan, reports) {
             {
               completed: workers.length,
               valid: workers.length === plan.runs && workers.every(r => r.valid),
+              pipelineCompleted:
+                workers.length === plan.runs &&
+                workers.every(r => Number.isFinite(r.timings?.analysisMs)),
               files: workers[0]?.fileCount ?? workers[0]?.files?.length,
               issues: workers[0]?.issueCount,
               parsingErrors: workers[0]?.parsingErrors,
@@ -88,7 +102,13 @@ export function summarizeRuling(plan, reports) {
               workerWallMs: distribution(workers.map(r => r.timings?.workerWallMs)),
               failures: workers
                 .filter(r => !r.valid)
-                .map(r => ({ round: r.round, errors: r.errors, report: r.reportPath })),
+                .map(r => ({
+                  round: r.round,
+                  errors: r.errors,
+                  report: r.reportPath,
+                  timedOut: r.timedOut,
+                  workerWallMs: r.timings?.workerWallMs,
+                })),
             },
           ];
         }),
@@ -115,9 +135,9 @@ export function summarizeRuling(plan, reports) {
         backends: byBackend,
       };
     });
-  const cohortTotals = cohort =>
+  const cohortTotals = (cohort, selectedBackends = plan.backends) =>
     Object.fromEntries(
-      plan.backends.map(backend => [
+      selectedBackends.map(backend => [
         backend,
         {
           projects: cohort.length,
@@ -165,6 +185,35 @@ export function summarizeRuling(plan, reports) {
     parityProjects: rows.filter(p => p.parityPassed).length,
     observedValidCohort: cohortTotals(rows.filter(p => p.valid)),
     comparableCohort: cohortTotals(rows.filter(p => p.parityPassed)),
+    completedPipelineCohort: cohortTotals(
+      rows.filter(p => plan.backends.every(b => p.backends[b].pipelineCompleted)),
+    ),
+    providerCoverage: Object.fromEntries(
+      plan.backends.map(backend => [
+        backend,
+        cohortTotals(
+          rows.filter(p => p.backends[backend].pipelineCompleted),
+          [backend],
+        )[backend],
+      ]),
+    ),
+    pairwise: Object.fromEntries(
+      plan.backends
+        .filter(b => b !== 'ts6')
+        .map(backend => {
+          const valid = rows.filter(p => p.backends.ts6.valid && p.backends[backend].valid);
+          const comparable = valid.filter(
+            p => !p.mismatches.some(m => m.backend === 'ts6' || m.backend === backend),
+          );
+          return [
+            backend,
+            {
+              observed: cohortTotals(valid, ['ts6', backend]),
+              comparable: cohortTotals(comparable, ['ts6', backend]),
+            },
+          ];
+        }),
+    ),
     inactiveProjects: plan.projects.filter(p => !p.active).map(p => p.name),
     projects: rows,
   };
@@ -173,7 +222,7 @@ export function summarizeRuling(plan, reports) {
 export function renderRuling(summary, plan) {
   const fmt = d =>
     d
-      ? `${(d.median / 1000).toFixed(3)} [${(d.min / 1000).toFixed(3)}–${(d.max / 1000).toFixed(3)}]`
+      ? `${(d.median / 1000).toFixed(3)}${d.count > 1 ? ` [${(d.min / 1000).toFixed(3)}–${(d.max / 1000).toFixed(3)}]` : ''}`
       : '—';
   const table = (heads, rows) =>
     [heads, heads.map(() => '---'), ...rows].map(r => '| ' + r.join(' | ') + ' |').join('\n');
@@ -181,7 +230,7 @@ export function renderRuling(summary, plan) {
     '# Complete ruling benchmark',
     '',
     `Workers: ${summary.completedWorkers}/${summary.plannedWorkers}. Complete projects: ${summary.projects.filter(p => p.complete).length}/${summary.plannedProjects}; valid: ${summary.validProjects}; full parity: ${summary.parityProjects}.`,
-    `Full-suite parity: **${summary.parityPassed ? 'PASS' : 'NOT PASSED'}**. Times are seconds, median [min–max]; ${plan.runs} fresh-worker round(s).`,
+    `Full-suite parity: **${summary.parityPassed ? 'PASS' : 'NOT PASSED'}**. Times are seconds; ${plan.runs > 1 ? 'median [min–max]' : 'single observations'}; ${plan.runs} fresh-worker round(s).`,
     '',
     '## Overall timings',
     '',
@@ -210,6 +259,45 @@ export function renderRuling(summary, plan) {
     '',
     'Each total is the sum of project times within the same repetition, followed by a distribution across repetitions. It is not an average of project speed ratios or a sum of project medians. Worker wall time includes startup/reporting; analysis includes discovery and the production project pipeline, including its normal cleanup.',
     '',
+    '## Coverage and completed pipeline times',
+    '',
+    'The totals below include completed pipelines with reported file/linter errors or recovered configuration failures. Different project counts are not comparable performance totals; aborted pipelines have no invented analysis duration.',
+    '',
+    table(
+      [
+        'Backend',
+        'Completed projects',
+        'Completed analysis total',
+        'Common completed projects',
+        'Common completed analysis total',
+      ],
+      plan.backends.map(b => [
+        b,
+        String(summary.providerCoverage[b].projects),
+        fmt(summary.providerCoverage[b].analysisMs),
+        String(summary.completedPipelineCohort[b].projects),
+        fmt(summary.completedPipelineCohort[b].analysisMs),
+      ]),
+    ),
+    '',
+    '## Pairwise valid totals',
+    '',
+    'Each row uses all projects valid for that candidate and TS6, independently of other candidates. This prevents another provider failure from removing an outlier from the pair. Result/input mismatches remain visible; these observations do not establish equivalent output.',
+    '',
+    table(
+      ['Candidate', 'Valid projects', 'TS6 analysis', 'Candidate analysis', 'Ratio'],
+      Object.entries(summary.pairwise).map(([b, pair]) => [
+        b,
+        String(pair.observed[b].projects),
+        fmt(pair.observed.ts6.analysisMs),
+        fmt(pair.observed[b].analysisMs),
+        pair.observed.ts6.analysisMs
+          ? (pair.observed[b].analysisMs.median / pair.observed.ts6.analysisMs.median).toFixed(3) +
+            '×'
+          : '—',
+      ]),
+    ),
+    '',
     '## Per-project analysis timings',
     '',
     table(
@@ -219,11 +307,19 @@ export function renderRuling(summary, plan) {
         p.parityPassed
           ? 'parity'
           : p.valid
-            ? 'DIFFERENT RESULTS'
+            ? p.mismatches.some(
+                m => m.fields.includes('issues') || m.fields.includes('diagnostics'),
+              )
+              ? 'DIFFERENT RESULTS'
+              : 'DIFFERENT INPUTS'
             : p.complete
               ? 'FAILED'
               : 'incomplete',
-        ...plan.backends.map(b => fmt(p.backends[b].analysisMs)),
+        ...plan.backends.map(b =>
+          p.backends[b].failures.some(f => f.timedOut)
+            ? `${fmt(p.backends[b].analysisMs)}; TIMEOUT (worker wall)`
+            : fmt(p.backends[b].analysisMs),
+        ),
       ]),
     ),
     '',

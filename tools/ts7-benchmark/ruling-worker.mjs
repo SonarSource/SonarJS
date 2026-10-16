@@ -147,4 +147,6 @@ try {
   report.memory = process.resourceUsage();
   fs.writeFileSync(outputPath, JSON.stringify(report, null, 2) + '\n');
 }
-if (!report.valid) process.exitCode = 2;
+// An aborted production analysis can leave its progress interval active. The
+// diagnostic report and compiler cleanup are complete; do not wait for that timer.
+if (!report.valid) process.exit(2);
