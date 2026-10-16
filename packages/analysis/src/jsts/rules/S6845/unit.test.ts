@@ -194,3 +194,93 @@ describe('S6845', () => {
     });
   });
 });
+
+describe('S6845 editing host upstream sentinel', () => {
+  it('upstream no-noninteractive-tabindex reports editable hosts', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('no-noninteractive-tabindex', rules['no-noninteractive-tabindex'], {
+      valid: [],
+      invalid: [
+        { code: '<div contentEditable tabIndex={0} />', errors: 1 },
+        { code: '<span contentEditable="plaintext-only" tabIndex="0" />', errors: 1 },
+      ],
+    });
+  });
+});
+
+describe('S6845 editing hosts', () => {
+  it('allows tabIndex on statically editable HTML hosts only', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('no-noninteractive-tabindex', rule, {
+      valid: [
+        { code: '<div contentEditable tabIndex={0} />' },
+        { code: '<div contentEditable={true} tabIndex={0} />' },
+        { code: '<div contentEditable={""} tabIndex={0} />' },
+        { code: '<div contentEditable={`true`} tabIndex={0} />' },
+        { code: '<span contentEditable="true" tabIndex="0" />' },
+        { code: '<span contentEditable="plaintext-only" tabIndex="0" />' },
+        { code: '<svg><foreignObject><div contentEditable tabIndex={0} /></foreignObject></svg>' },
+      ],
+      invalid: [
+        { code: '<div tabIndex={0} />', errors: 1 },
+        { code: '<div contenteditable tabIndex={0} />', errors: 1 },
+        { code: '<div contenteditable={true} tabIndex={0} />', errors: 1 },
+        { code: '<span contenteditable="TRUE" tabIndex="0" />', errors: 1 },
+        { code: '<span contenteditable="plaintext-only" tabIndex="0" />', errors: 1 },
+        { code: '<div ContentEditable="true" tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable={false} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable="false" tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable={editable} tabIndex={0} />', errors: 1 },
+        {
+          code: 'const editable = false; <div contentEditable={!!editable} tabIndex={0} />',
+          errors: 1,
+        },
+        {
+          code: 'const tag = () => false; <div contentEditable={tag`true`} tabIndex={0} />',
+          errors: 1,
+        },
+        { code: '<div contentEditable={`true${false}`} tabIndex={0} />', errors: 1 },
+        { code: '<div contentEditable="inherit" tabIndex={0} />', errors: 1 },
+        { code: '<svg><title contentEditable tabIndex={0}>x</title></svg>', errors: 1 },
+        { code: '<svg><a contentEditable tabIndex={0} /></svg>', errors: 1 },
+        { code: '<title contentEditable tabIndex={0}>x</title>', errors: 1 },
+        { code: '<a contentEditable tabIndex={0}>edit</a>', errors: 1 },
+        {
+          code: 'function Svg({ children }) { return <svg>{children}</svg>; } <Svg><title contentEditable tabIndex={0}>x</title></Svg>',
+          errors: 1,
+        },
+        {
+          code: 'function Title() { return <title contentEditable tabIndex={0}>x</title>; } <svg><Title /></svg>',
+          errors: 1,
+        },
+        { code: '<math><a contentEditable tabIndex={0} /></math>', errors: 1 },
+        {
+          code: '<svg><foreignObject><svg><title contentEditable tabIndex={0} /></svg></foreignObject></svg>',
+          errors: 1,
+        },
+        { code: '<div contentEditable={`false`} tabIndex={0} />', errors: 1 },
+        { code: '<div {...{ contentEditable: true }} tabIndex={0} />', errors: 1 },
+        {
+          code: '<div {...{ contenteditable: "false" }} contentEditable tabIndex={0} />',
+          errors: 1,
+        },
+        { code: '<div {...{ id: "editor" }} contentEditable tabIndex={0} />', errors: 1 },
+        {
+          code: 'const props = { contentEditable: false }; <div {...props} contentEditable tabIndex={0} />',
+          errors: 1,
+        },
+        { code: '<div contentEditable {...props} tabIndex={0} />', errors: 1 },
+        {
+          code: 'const props = { contentEditable: false }; <div contentEditable {...props} tabIndex={0} />',
+          errors: 1,
+        },
+        { code: '<div contentEditable contentEditable={false} tabIndex={0} />', errors: 1 },
+        {
+          code: '<Editable contentEditable tabIndex={0} />',
+          settings: { 'jsx-a11y': { components: { Editable: 'div' } } },
+          errors: 1,
+        },
+      ],
+    });
+  });
+});

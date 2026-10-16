@@ -16,13 +16,19 @@
  */
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
+import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { isHtmlElement } from '../helpers/isHtmlElement.js';
+import { isInHtmlNamespace, openingElementOf } from './helpers.js';
 import * as meta from './generated-meta.js';
 
+// These tag names can also identify SVG elements when React renders through a component.
+const SHARED_HTML_SVG_TAG_NAMES = new Set(['a', 'font', 'image', 'script', 'style', 'title']);
+
 /**
- * Suppresses the upstream report only when every conditional branch either
- * removes tabIndex or gives it a statically negative integer value.
+ * Suppresses the upstream report for proven editing hosts or conditional values
+ * that cannot add an element to sequential keyboard navigation.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -34,10 +40,93 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       if (isTabIndexOutsideSequentialFocusOrder(reportDescriptor)) {
         return;
       }
-
+      const opening = openingElementOf(reportDescriptor);
+      if (opening !== undefined && isEditableHtmlHost(opening)) {
+        return;
+      }
       context.report(reportDescriptor);
     },
   );
+}
+
+/**
+ * Requires a proven HTML editing host with an exact JSX attribute name.
+ *
+ * @example
+ * <div contentEditable="plaintext-only" /> -> true
+ * <div contenteditable="true" />           -> false
+ * <svg><div contentEditable /></svg>        -> false
+ */
+function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
+  const element = {
+    type: 'JSXElement' as const,
+    openingElement: opening,
+  } as TSESTree.JSXElement;
+  if (!isHtmlElement(element)) {
+    return false;
+  }
+  // A shared tag name does not make an SVG or MathML element an HTML editing host.
+  if (
+    opening.name.type !== 'JSXIdentifier' ||
+    opening.name.name === 'svg' ||
+    opening.name.name === 'math' ||
+    SHARED_HTML_SVG_TAG_NAMES.has(opening.name.name) ||
+    !isInHtmlNamespace(opening)
+  ) {
+    return false;
+  }
+
+  const attribute = directContentEditableAttribute(opening);
+  if (attribute?.name.name !== 'contentEditable') {
+    return false;
+  }
+  if (attribute.value === null) {
+    return true;
+  }
+  const expression =
+    attribute.value.type === 'JSXExpressionContainer'
+      ? attribute.value.expression
+      : attribute.value;
+  // A template without expressions is a literal value. Other expressions may be dynamic.
+  let value: unknown;
+  if (expression.type === 'Literal') {
+    value = expression.value;
+  } else if (expression.type === 'TemplateLiteral' && expression.expressions.length === 0) {
+    value = expression.quasis[0].value.cooked;
+  } else {
+    return false;
+  }
+  return (
+    value === true ||
+    (typeof value === 'string' && ['', 'true', 'plaintext-only'].includes(value.toLowerCase()))
+  );
+}
+
+/**
+ * Finds one direct contentEditable attribute without a spread.
+ *
+ * @example
+ * <div contentEditable="true" />            -> attribute
+ * <div {...props} contentEditable="true" /> -> undefined
+ * <div contentEditable contenteditable />   -> undefined
+ */
+function directContentEditableAttribute(
+  opening: TSESTree.JSXOpeningElement,
+): JSXAttribute | undefined {
+  const attributes = (opening as unknown as JSXOpeningElement).attributes;
+  const contentEditableAttributes = attributes.filter(
+    (attribute): attribute is JSXAttribute =>
+      attribute.type === 'JSXAttribute' &&
+      attribute.name.type === 'JSXIdentifier' &&
+      attribute.name.name.toLowerCase() === 'contenteditable',
+  );
+  if (contentEditableAttributes.length !== 1) {
+    return undefined;
+  }
+  // An earlier spread can add a differently cased HTML attribute that a direct attribute does not override.
+  return attributes.some(candidate => candidate.type === 'JSXSpreadAttribute')
+    ? undefined
+    : contentEditableAttributes[0];
 }
 
 /**
