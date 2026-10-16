@@ -443,6 +443,16 @@ describe('S6845', () => {
         { code: '<div contentEditable={`false`} tabIndex={0} />', errors: 1 },
         { code: '<svg><title contentEditable tabIndex={0}>x</title></svg>', errors: 1 },
         { code: '<svg><a contentEditable tabIndex={0} /></svg>', errors: 1 },
+        { code: '<title contentEditable tabIndex={0}>x</title>', errors: 1 },
+        { code: '<a contentEditable tabIndex={0}>edit</a>', errors: 1 },
+        {
+          code: 'function Svg({ children }) { return <svg>{children}</svg>; } <Svg><title contentEditable tabIndex={0}>x</title></Svg>',
+          errors: 1,
+        },
+        {
+          code: 'function Title() { return <title contentEditable tabIndex={0}>x</title>; } <svg><Title /></svg>',
+          errors: 1,
+        },
         { code: '<math><a contentEditable tabIndex={0} /></math>', errors: 1 },
         {
           code: '<svg><foreignObject><svg><title contentEditable tabIndex={0} /></svg></foreignObject></svg>',

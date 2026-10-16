@@ -30,6 +30,9 @@ import { isJsxIdentifierNamed } from '../helpers/jsx.js';
 import { isHtmlElement } from '../helpers/isHtmlElement.js';
 import * as meta from './generated-meta.js';
 
+// These names can also identify SVG elements rendered through a component.
+const SHARED_HTML_SVG_TAG_NAMES = new Set(['a', 'font', 'image', 'script', 'style', 'title']);
+
 const ARIA_NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 /**
  * Allows intrinsic div separator widgets with a supplied current value.
@@ -368,6 +371,7 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
     opening.name.type !== 'JSXIdentifier' ||
     opening.name.name === 'svg' ||
     opening.name.name === 'math' ||
+    SHARED_HTML_SVG_TAG_NAMES.has(opening.name.name) ||
     !isInHtmlNamespace(opening)
   ) {
     return false;
