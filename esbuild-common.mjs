@@ -21,6 +21,7 @@ import { readFileSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname } from 'node:path';
+import { typescriptModulePlugin } from './tools/typescript-module-plugin.mjs';
 
 const stylelintPkgJson = readFileSync('node_modules/stylelint/package.json', 'utf8');
 const testingLibraryPkgJson = JSON.parse(
@@ -71,6 +72,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [], 
     platform: 'node',
     minify: true,
     plugins: [
+      typescriptModulePlugin(),
       {
         name: 'inline-package-imports',
         setup(build) {
@@ -268,7 +270,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [], 
           // We need to copy all typescript declaration files for type-checking, as typescript will
           // look for those in the filesystem
           {
-            from: ['./node_modules/typescript/lib/*.d.ts'],
+            from: ['./node_modules/typescript-classic/lib/*.d.ts'],
             to: ['./bin'],
           },
           ...additionalAssets,
