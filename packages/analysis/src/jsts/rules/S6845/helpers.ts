@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 /**
  * Gets the opening element for a report on a JSX attribute.
  *
- * @example Pseudocode
+ * @example
  * report(<div tabIndex={0} />.tabIndex) -> <div tabIndex={0} />
  * report(<div tabIndex={0} />)          -> undefined
  */
@@ -38,7 +38,7 @@ export function openingElementOf(
  * Tests the lexical namespace of the opening element.
  * A component can change the namespace when React renders the element.
  *
- * @example Pseudocode for the innermost div
+ * @example For the innermost div
  * <svg><foreignObject><div /></foreignObject></svg> -> true
  * <svg><div /></svg>                               -> false
  */

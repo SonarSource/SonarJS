@@ -48,7 +48,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 /**
  * Requires a proven HTML editing host with an exact JSX attribute name.
  *
- * @example Pseudocode
+ * @example
  * <div contentEditable="plaintext-only" /> -> true
  * <div contenteditable="true" />           -> false
  * <svg><div contentEditable /></svg>        -> false
@@ -101,7 +101,7 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
 /**
  * Finds one direct contentEditable attribute without a spread.
  *
- * @example Pseudocode
+ * @example
  * <div contentEditable="true" />            -> attribute
  * <div {...props} contentEditable="true" /> -> undefined
  * <div contentEditable contenteditable />   -> undefined
@@ -128,7 +128,7 @@ function directContentEditableAttribute(
 /**
  * Requires no spreads or later tabIndex attributes.
  *
- * @example Pseudocode
+ * @example
  * <div tabIndex={disabled ? null : -1} /> -> true
  * <div tabIndex={disabled ? null : 0} />  -> false
  */
@@ -151,7 +151,7 @@ function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDesc
 /**
  * Rejects any spread or later tabIndex attribute, including case variants.
  *
- * @example Pseudocode for the first tabIndex
+ * @example For the first tabIndex
  * <div tabIndex={value} title="Title" />   -> true
  * <div tabIndex={value} tabIndex={0} />    -> false
  * <div tabIndex={value} {...props} />      -> false
@@ -179,7 +179,7 @@ function hasNoTabIndexOverrides(node: TSESTree.JSXAttribute): boolean {
 /**
  * Every leaf must be null or a negative integer literal.
  *
- * @example Pseudocode
+ * @example
  * condition ? null : nested ? -1 : -2 -> true
  * condition ? null : 0                 -> false
  */
