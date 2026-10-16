@@ -76,11 +76,13 @@ function isEditableHtmlHost(opening: TSESTree.JSXOpeningElement): boolean {
     attribute.value.type === 'JSXExpressionContainer'
       ? attribute.value.expression
       : attribute.value;
-  // Only literal syntax proves enablement; expression extractors may guess dynamic values.
-  if (expression.type !== 'Literal') {
-    return false;
-  }
-  const value = expression.value;
+  // A template without expressions is a literal value. Other expressions may be dynamic.
+  const value =
+    expression.type === 'Literal'
+      ? expression.value
+      : expression.type === 'TemplateLiteral' && expression.expressions.length === 0
+        ? expression.quasis[0].value.cooked
+        : null;
   return (
     value === true ||
     (typeof value === 'string' && ['', 'true', 'plaintext-only'].includes(value.toLowerCase()))
@@ -91,16 +93,21 @@ function directContentEditableAttribute(
   opening: TSESTree.JSXOpeningElement,
 ): JSXAttribute | undefined {
   const attributes = (opening as unknown as JSXOpeningElement).attributes;
-  // A spread may override a direct attribute (or be overridden by it), so it cannot prove the
-  // host's final contenteditable value.
-  if (attributes.some(attribute => attribute.type === 'JSXSpreadAttribute')) {
-    return undefined;
-  }
   const contentEditableAttributes = attributes.filter(
     (attribute): attribute is JSXAttribute =>
       attribute.type === 'JSXAttribute' &&
       attribute.name.type === 'JSXIdentifier' &&
       attribute.name.name.toLowerCase() === 'contenteditable',
   );
-  return contentEditableAttributes.length === 1 ? contentEditableAttributes[0] : undefined;
+  if (contentEditableAttributes.length !== 1) {
+    return undefined;
+  }
+  const attribute = contentEditableAttributes[0];
+  const index = attributes.indexOf(attribute);
+  // A later spread may override this attribute. An earlier spread is overwritten by it.
+  return attributes.some(
+    (candidate, position) => position > index && candidate.type === 'JSXSpreadAttribute',
+  )
+    ? undefined
+    : attribute;
 }
