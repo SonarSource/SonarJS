@@ -20,6 +20,7 @@ import {
   type NormalizedAbsolutePath,
   isAbsolutePath,
   normalizeToAbsolutePath,
+  normalizePath,
 } from '../../../shared/src/helpers/files.js';
 import {
   sanitizePaths,
@@ -585,14 +586,19 @@ export function isAnalyzableFile(
 }
 
 function normalizeGlobs(globs: unknown, baseDir: NormalizedAbsolutePath) {
-  return (isStringArray(globs) ? globs : []).map(
-    pattern =>
-      new Minimatch(normalizeToAbsolutePath(pattern.trim(), baseDir), {
-        nocase: true,
-        matchBase: true,
-        dot: true,
-      }),
-  );
+  return (isStringArray(globs) ? globs : []).map(pattern => {
+    const trimmed = pattern.trim();
+    // Scanner PathPattern uses "file:" (case-insensitive) to match the absolute path.
+    // Its pattern may itself start with a wildcard, so do not resolve it against baseDir.
+    const normalized = /^file:/i.test(trimmed)
+      ? normalizePath(trimmed.slice('file:'.length))
+      : normalizeToAbsolutePath(trimmed, baseDir);
+    return new Minimatch(normalized, {
+      nocase: true,
+      matchBase: true,
+      dot: true,
+    });
+  });
 }
 
 /**

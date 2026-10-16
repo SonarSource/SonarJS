@@ -39,6 +39,7 @@ export class LinterWrapper {
    * Set by `initialize()` and consumed by `lint()` for files using MAIN rule selection.
    */
   private config: stylelint.Config | undefined;
+  private baseDir: NormalizedAbsolutePath | undefined;
 
   /**
    * Initializes the linter with a set of rules from the active quality profile.
@@ -49,9 +50,11 @@ export class LinterWrapper {
    * with an empty config.
    *
    * @param rules the CSS rules from the active quality profile
+   * @param baseDir the analysis root for resolving Stylelint's filesystem configuration
    */
-  initialize(rules: RuleConfig[]): void {
+  initialize(rules: RuleConfig[], baseDir?: NormalizedAbsolutePath): void {
     this.config = createStylelintConfig(rules);
+    this.baseDir = baseDir;
   }
 
   /**
@@ -92,6 +95,9 @@ export class LinterWrapper {
       code: fileContent,
       codeFilename: filePath,
       config,
+      // Worker process cwd is not necessarily the project root, especially in SQAA.
+      // Recording and replay must resolve .stylelintignore against the same portable root.
+      cwd: this.baseDir,
     };
 
     return stylelint

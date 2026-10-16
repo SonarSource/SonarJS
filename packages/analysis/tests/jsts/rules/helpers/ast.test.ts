@@ -50,6 +50,12 @@ describe('getProperty', () => {
       'baz',
       property => expect(property).toBeUndefined(),
     ],
+    [
+      'should return undefined for objects whose spread operators reference each other',
+      'objectWithMutualSpread.js',
+      'baz',
+      property => expect(property).toBeUndefined(),
+    ],
   ] as const;
   for (const [_, fixtureFile, key, verifier] of cases) {
     test(`it ${_}`, async () => {

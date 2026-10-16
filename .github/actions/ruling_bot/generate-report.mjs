@@ -20,17 +20,27 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { defaults } from './config.mjs';
 
 const actionDirectory = path.dirname(fileURLToPath(import.meta.url));
-const repositoryRoot = path.resolve(actionDirectory, '../../..');
+const repositoryRoot = path.resolve(
+  process.env.RULING_REPOSITORY_PATH ||
+    process.env.GITHUB_WORKSPACE ||
+    path.resolve(actionDirectory, '../../..'),
+);
 const oldResultsArgument = process.argv[2];
 const baseCommit = process.env.BASE_SHA || `origin/${process.env.BASE_REF ?? 'master'}`;
-const sourcesDirectory = resolveRepositoryPath(process.env.SOURCES_PATH ?? 'its/sources');
-const sourcesRepositoryUrl = trimTrailingSlash(process.env.SOURCES_REPO_URL ?? '');
-const rspecBaseUrl = trimTrailingSlash(
-  process.env.RSPEC_BASE_URL ?? 'https://sonarsource.github.io/rspec/#/rspec',
+const sourcesDirectory = resolveRepositoryPath(
+  process.env.SOURCES_PATH ?? defaults['sources-path'],
 );
-const maxInlineSnippets = parsePositiveInteger(process.env.MAX_INLINE_SNIPPETS, 10);
+const sourcesRepositoryUrl = trimTrailingSlash(
+  process.env.SOURCES_REPO_URL ?? defaults['sources-repo-url'],
+);
+const rspecBaseUrl = trimTrailingSlash(process.env.RSPEC_BASE_URL ?? defaults['rspec-base-url']);
+const maxInlineSnippets = parsePositiveInteger(
+  process.env.MAX_INLINE_SNIPPETS,
+  Number(defaults['max-inline-snippets']),
+);
 
 if (!oldResultsArgument) {
   throw new Error('Usage: node generate-report.mjs <old-results-path>');
@@ -57,22 +67,18 @@ if (markdown) {
 }
 
 function getChangedFiles(oldResultsPath) {
-  try {
-    const changedFiles = [
-      ...git(['diff', baseCommit, '--name-only', '-z', '--', oldResultsPath], false).split('\0'),
-      ...git(
-        ['ls-files', '--others', '--exclude-standard', '-z', '--', oldResultsPath],
-        false,
-      ).split('\0'),
-    ];
-    return [
-      ...new Set(
-        changedFiles.filter(Boolean).filter(filePath => filePath.endsWith('.json')),
-      ),
-    ].sort((left, right) => left.localeCompare(right));
-  } catch {
-    return [];
-  }
+  const changedFiles = [
+    ...git(
+      ['diff', '--no-renames', baseCommit, '--name-only', '-z', '--', oldResultsPath],
+      false,
+    ).split('\0'),
+    ...git(['ls-files', '--others', '--exclude-standard', '-z', '--', oldResultsPath], false).split(
+      '\0',
+    ),
+  ];
+  return [
+    ...new Set(changedFiles.filter(Boolean).filter(filePath => filePath.endsWith('.json'))),
+  ].sort((left, right) => left.localeCompare(right));
 }
 
 function getRulingChanges(filePath, oldResultsDir) {
@@ -209,19 +215,17 @@ function parseJsonFile(filePath) {
     return {};
   }
 
-  try {
-    return JSON.parse(readFileSync(filePath, 'utf-8'));
-  } catch {
-    return {};
-  }
+  return JSON.parse(readFileSync(filePath, 'utf-8'));
 }
 
 function parseJsonFromGit(filePath) {
-  try {
-    return JSON.parse(git(['show', `${baseCommit}:${toGitPath(filePath)}`]));
-  } catch {
+  const gitPath = toGitPath(filePath);
+  // A missing baseline file is a new expectation; Git and JSON errors must stay visible.
+  if (
+    !git(['--literal-pathspecs', 'ls-tree', '--name-only', '-z', baseCommit, '--', gitPath], false)
+  )
     return {};
-  }
+  return JSON.parse(git(['show', `${baseCommit}:${gitPath}`]));
 }
 
 function generateMarkdown(changes) {
@@ -523,6 +527,7 @@ function git(args, trimOutput = true) {
   const output = execFileSync('git', args, {
     cwd: repositoryRoot,
     encoding: 'utf-8',
+    maxBuffer: Infinity,
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   return trimOutput ? output.trim() : output;

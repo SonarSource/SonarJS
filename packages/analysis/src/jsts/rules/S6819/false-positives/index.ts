@@ -44,7 +44,7 @@ export function isFalsePositive(node: TSESTree.JSXOpeningElement): boolean {
 
   return (
     isDecorativeSvg(elementName, role, attributes) ||
-    isSemanticSvgImg(elementName, role, attributes, node) ||
+    isSemanticSvgImg(elementName, role, node) ||
     isLiveRegionStatus(role, attributes) ||
     isCustomSlider(role, attributes) ||
     isCustomRadio(role, attributes) ||

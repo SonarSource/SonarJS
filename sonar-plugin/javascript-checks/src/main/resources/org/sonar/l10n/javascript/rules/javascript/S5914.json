@@ -44,5 +44,10 @@
       "Sonar agentic AI"
     ],
     "ts": []
+  },
+  "sonarWayRemoval": {
+    "candidateProfiles": [
+      "strict-tests"
+    ]
   }
 }

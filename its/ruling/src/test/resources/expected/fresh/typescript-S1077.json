@@ -1,5 +1,32 @@
 {
 "fresh:packages/fresh/src/context_test.tsx": [
 36
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/overlay.tsx": [
+146
+],
+"fresh:packages/fresh/tests/partials_test.tsx": [
+1269,
+1353
+],
+"fresh:packages/plugin-vite/demo/routes/tests/jsx_namespace.tsx": [
+3
+],
+"fresh:www/components/Icons.tsx": [
+43,
+99
+],
+"fresh:www/islands/LemonDrop.tsx": [
+127
+],
+"fresh:www/islands/TableOfContents.tsx": [
+119
+],
+"fresh:www/islands/ThemeToggle.tsx": [
+24,
+34
+],
+"fresh:www/routes/docs/[...slug].tsx": [
+166
 ]
 }

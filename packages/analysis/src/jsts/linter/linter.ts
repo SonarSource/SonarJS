@@ -191,6 +191,15 @@ export class Linter {
     }
   }
 
+  /** Drop the last parsed file and its TypeScript parser services after a scanner analysis. */
+  static releaseAfterAnalysis(): void {
+    clearFileCaches();
+    Linter.linter = new ESLintLinter();
+    Linter.ruleConfigs = undefined;
+    Linter.dependencyIndependentRulesCache.clear();
+    Linter.dependencySensitiveRulesCache.clear();
+  }
+
   /** Resolve the module type for a file against the linter's base directory. */
   public static detectModuleType(filePath: NormalizedAbsolutePath): ModuleType | undefined {
     return getModuleType(normalizeToAbsolutePath(filePath), Linter.baseDir);

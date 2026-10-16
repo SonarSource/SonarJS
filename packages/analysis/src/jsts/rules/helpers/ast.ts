@@ -603,27 +603,36 @@ function getPropertyFromSpreadElement(
   spreadElement: estree.SpreadElement,
   key: string,
   ctx: Rule.RuleContext,
+  seen: Set<estree.Node> | undefined,
 ): estree.Property | null | undefined {
   const props = getValueOfExpression(ctx, spreadElement.argument, 'ObjectExpression');
   const recursiveDefinition = findFirstMatchingAncestor(
     spreadElement.argument as TSESTree.Node,
     node => node === props,
   );
-  if (recursiveDefinition || props === undefined) {
+  // `seen` additionally cuts mutually recursive definitions (`const a = {...b}; const b = {...a}`),
+  // which `recursiveDefinition` cannot see because neither object is an ancestor of the other.
+  if (recursiveDefinition || props === undefined || seen?.has(props)) {
     return undefined;
   }
-  return getProperty(props, key, ctx);
+  const chain = seen ?? new Set<estree.Node>();
+  chain.add(props);
+  const property = getProperty(props, key, ctx, chain);
+  chain.delete(props);
+  return property;
 }
 
 /**
  * Retrieves the property with the specified key from the given node.
  * @returns The property if found, or null if not found, or undefined if property not found and one of the properties
  * is an unresolved SpreadElement.
+ * @param seen objects already being traversed on the current spread chain; callers never pass it.
  */
 export function getProperty(
   expr: estree.Node | undefined | null,
   key: string,
   ctx: Rule.RuleContext,
+  seen?: Set<estree.Node>,
 ): estree.Property | null | undefined {
   if (expr?.type !== 'ObjectExpression') {
     return null;
@@ -635,7 +644,7 @@ export function getProperty(
       return property;
     }
     if (property.type === 'SpreadElement') {
-      const prop = getPropertyFromSpreadElement(property, key, ctx);
+      const prop = getPropertyFromSpreadElement(property, key, ctx, seen);
       if (prop === undefined) {
         unresolvedSpreadElement = true;
       } else if (prop !== null) {
@@ -784,6 +793,30 @@ export function isStaticTemplateLiteral(node: estree.Node): node is estree.Templ
   return (
     node.type === 'TemplateLiteral' && node.expressions.length === 0 && node.quasis.length === 1
   );
+}
+
+// undefined if the template literal has a ${...} part, e.g. `/posts/${id}`, we can't know its value.
+export function cookTemplateLiteral(node: estree.TemplateLiteral): string | undefined {
+  if (!isStaticTemplateLiteral(node)) {
+    return undefined;
+  }
+  return node.quasis[0].value.cooked ?? undefined;
+}
+
+// Resolves a literal or expression-free template literal to its static string; undefined when dynamic.
+export function getStaticExpressionValue(expression: estree.Expression): string | undefined {
+  if (expression.type === 'Literal') {
+    const { value } = expression;
+    if (typeof value === 'string') {
+      return value;
+    }
+    // Numbers render as visible text; null/booleans render nothing.
+    return typeof value === 'number' || typeof value === 'bigint' ? String(value) : '';
+  }
+  if (expression.type === 'TemplateLiteral') {
+    return cookTemplateLiteral(expression);
+  }
+  return undefined;
 }
 
 // Test for raw expressions like: String.raw`c:\foo\bar.txt` that corresponds to 'c:\\foo\\bar.txt'

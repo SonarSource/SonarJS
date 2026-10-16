@@ -31,5 +31,11 @@
     "requiredDependency": [
       "@playwright/test"
     ]
+  },
+  "sonarWayRemoval": {
+    "candidateProfiles": [
+      "performance",
+      "strict-tests"
+    ]
   }
 }

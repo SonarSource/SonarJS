@@ -20,6 +20,131 @@ import { describe, it } from 'node:test';
 import path from 'node:path';
 
 describe('S8754', () => {
+  it('preserves suite boundaries, recursion, and distinct helper duplicate locations', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run('helper expansion', rule, {
+      valid: [
+        {
+          code: `
+import { describe, test } from 'vitest';
+function makeTests() { test('same', () => {}); }
+describe('first', () => makeTests());
+describe('second', () => makeTests());
+          `,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+function makeTests() { describe('inner', () => test('same', () => {})); }
+describe('outer', () => { makeTests(); makeTests(); });
+          `,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+function makeTests() { test('same', () => {}); test('same', () => {}); }
+test('outer', () => { describe('inner', () => { makeTests(); makeTests(); }); });
+describe.skip('ignored', () => { makeTests(); makeTests(); });
+describe.each([1, 2])('parameterized', () => { makeTests(); makeTests(); });
+          `,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+function makeTests() { test('same', () => {}); makeTests(); }
+describe('outer', () => makeTests());
+          `,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+function makeTests() {
+  describe('inner', () => { test('same', () => {}); makeTests(); });
+}
+describe('outer', () => { makeTests(); makeTests(); });
+          `,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+import { describe, test } from 'vitest';
+function makeTests() { test('same', () => {}); test('same', () => {}); }
+test('outer', () => { describe('inner', () => { makeTests(); makeTests(); }); });
+describe('after', () => makeTests());
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+function first() {
+  describe('inner', () => { test('same', () => {}); second(); });
+}
+function second() { test('same', () => {}); first(); }
+describe('outer', () => { first(); second(); });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+function first() {
+  describe('inner', () => { test('same', () => {}); second(); });
+}
+function second() { test('same', () => {}); first(); }
+describe('outer', () => { second(); first(); });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+function makeTests() { test('same', () => {}); }
+describe('outer', () => { makeTests(); makeTests(); makeTests(); });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+function makeTests() { test('same', () => {}); test('same', () => {}); }
+describe('outer', () => { makeTests(); makeTests(); makeTests(); });
+          `,
+          errors: 2,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+function makeTests() { test('same', () => {}); }
+describe('first', () => { test('same', () => {}); makeTests(); makeTests(); });
+describe('second', () => { test('same', () => {}); makeTests(); makeTests(); });
+          `,
+          errors: 2,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+function first() { test('first', () => {}); second(); }
+function second() { test('second', () => {}); first(); }
+describe('outer', () => { first(); second(); });
+          `,
+          errors: 2,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+function makeTests() {
+  describe('inner', () => { test('same', () => {}); test('same', () => {}); });
+}
+describe('outer', () => { makeTests(); makeTests(); makeTests(); });
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('S8754', () => {
     const ruleTester = new DefaultParserRuleTester();
     const noFrameworkFixture = path.join(import.meta.dirname, 'fixtures', 'test.js');

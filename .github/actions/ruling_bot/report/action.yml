@@ -1,0 +1,187 @@
+name: Ruling report
+description: Report sonar-lits results from an exact tested tree
+
+inputs:
+  github-token:
+    description: Token for artifacts and PR comments
+    required: true
+  # BEGIN GENERATED PROVENANCE INPUTS
+  # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+  pr-number:
+    description: PR receiving the ruling report
+    required: true
+  base-sha:
+    description: First parent of the tested merge, or tested branch commit
+    required: false
+    default: ''
+  head-sha:
+    description: Exact tested commit; synthetic merge for a PR
+    required: true
+  run-id:
+    description: Originating Build run ID; empty for a raw PR event
+    required: false
+    default: ''
+  run-attempt:
+    description: Originating Build run attempt
+    required: false
+    default: '1'
+  ruling-failed:
+    description: Whether saved generated results must be applied
+    required: false
+    default: 'false'
+  is-pull-request:
+    description: Whether the tested commit is a synthetic PR merge
+    required: false
+    default: 'false'
+  fix-pr-url:
+    description: Fix PR link to show on the original PR
+    required: false
+    default: ''
+  target-ref:
+    description: Original branch tested by ruling
+    required: false
+    default: ''
+  # END GENERATED PROVENANCE INPUTS
+  repository-path:
+    description: Absolute path to the tested repository checkout
+    required: false
+    default: ''
+  # BEGIN GENERATED CONFIG INPUTS
+  # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+  config-file:
+    description: Optional configuration module in the tested checkout; empty uses generic defaults
+    required: false
+    default: inherit
+  new-results-path:
+    description: Generated-results path within the tested repository
+    required: false
+    default: inherit
+  old-results-path:
+    description: Expected-results path within the tested repository
+    required: false
+    default: inherit
+  sources-path:
+    description: Local source checkout used for snippets; empty disables snippets
+    required: false
+    default: inherit
+  sources-repo-url:
+    description: Remote source URL used for file links; empty disables links
+    required: false
+    default: inherit
+  rspec-base-url:
+    description: RSPEC URL used for rule links; empty disables links
+    required: false
+    default: inherit
+  max-inline-snippets:
+    description: Maximum detailed snippets per report section
+    required: false
+    default: inherit
+  results-artifact-name:
+    description: Exact saved generated-results artifact name
+    required: false
+    default: inherit
+  report-workflow:
+    description: Reporter workflow filename or ID
+    required: false
+    default: inherit
+  report-workflow-ref:
+    description: Reporter workflow ref; empty selects the tested target branch
+    required: false
+    default: inherit
+  build-workflow:
+    description: Build workflow filename or ID used to find authoritative dispatches
+    required: false
+    default: inherit
+  report-dispatch-step:
+    description: Build step recording a successful ruling report request
+    required: false
+    default: inherit
+  workflow-inputs:
+    description: Workflow inputs from toJSON(inputs); individual action inputs take precedence
+    required: false
+    default: '{}'
+  # END GENERATED CONFIG INPUTS
+
+runs:
+  using: composite
+  steps:
+    - name: Check report freshness before downloading results
+      id: fresh
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}/..
+        GH_TOKEN: ${{ inputs.github-token }}
+        RULING_REPOSITORY_PATH: ${{ inputs.repository-path || github.workspace }}
+        # BEGIN GENERATED PROVENANCE ENV
+        # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+        PR_NUMBER: ${{ inputs.pr-number }}
+        BASE_SHA: ${{ inputs.base-sha }}
+        HEAD_SHA: ${{ inputs.head-sha }}
+        BUILD_RUN_ID: ${{ inputs.run-id }}
+        BUILD_RUN_ATTEMPT: ${{ inputs.run-attempt }}
+        RULING_FAILED: ${{ inputs.ruling-failed }}
+        IS_PULL_REQUEST: ${{ inputs.is-pull-request }}
+        FIX_PR_URL: ${{ inputs.fix-pr-url }}
+        TARGET_REF: ${{ inputs.target-ref }}
+        # END GENERATED PROVENANCE ENV
+        # BEGIN GENERATED CONFIG ENV
+        # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+        CONFIG_FILE: ${{ inputs.config-file }}
+        NEW_RESULTS_PATH: ${{ inputs.new-results-path }}
+        OLD_RESULTS_PATH: ${{ inputs.old-results-path }}
+        SOURCES_PATH: ${{ inputs.sources-path }}
+        SOURCES_REPO_URL: ${{ inputs.sources-repo-url }}
+        RSPEC_BASE_URL: ${{ inputs.rspec-base-url }}
+        MAX_INLINE_SNIPPETS: ${{ inputs.max-inline-snippets }}
+        RESULTS_ARTIFACT_NAME: ${{ inputs.results-artifact-name }}
+        REPORT_WORKFLOW: ${{ inputs.report-workflow }}
+        REPORT_WORKFLOW_REF: ${{ inputs.report-workflow-ref }}
+        BUILD_WORKFLOW: ${{ inputs.build-workflow }}
+        REPORT_DISPATCH_STEP: ${{ inputs.report-dispatch-step }}
+        RULING_WORKFLOW_INPUTS: ${{ inputs.workflow-inputs }}
+        # END GENERATED CONFIG ENV
+      run: node "$ACTION_PATH/bot.mjs" check-report
+    - name: Download saved ruling results
+      if: inputs.ruling-failed == 'true' && steps.fresh.outputs.fresh == 'true'
+      uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+      with:
+        name: ${{ steps.fresh.outputs.results-artifact-name }}
+        path: ${{ steps.fresh.outputs.results-path }}
+        run-id: ${{ inputs.run-id }}
+        github-token: ${{ inputs.github-token }}
+    - name: Post ruling report
+      if: steps.fresh.outputs.fresh == 'true'
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}/..
+        GH_TOKEN: ${{ inputs.github-token }}
+        RULING_REPOSITORY_PATH: ${{ inputs.repository-path || github.workspace }}
+        # BEGIN GENERATED PROVENANCE ENV
+        # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+        PR_NUMBER: ${{ inputs.pr-number }}
+        BASE_SHA: ${{ inputs.base-sha }}
+        HEAD_SHA: ${{ inputs.head-sha }}
+        BUILD_RUN_ID: ${{ inputs.run-id }}
+        BUILD_RUN_ATTEMPT: ${{ inputs.run-attempt }}
+        RULING_FAILED: ${{ inputs.ruling-failed }}
+        IS_PULL_REQUEST: ${{ inputs.is-pull-request }}
+        FIX_PR_URL: ${{ inputs.fix-pr-url }}
+        TARGET_REF: ${{ inputs.target-ref }}
+        # END GENERATED PROVENANCE ENV
+        # BEGIN GENERATED CONFIG ENV
+        # Owned by config.mjs / provenance.mjs / .github/ruling-bot.config.mjs; run generate-config.mjs.
+        CONFIG_FILE: ${{ inputs.config-file }}
+        NEW_RESULTS_PATH: ${{ inputs.new-results-path }}
+        OLD_RESULTS_PATH: ${{ inputs.old-results-path }}
+        SOURCES_PATH: ${{ inputs.sources-path }}
+        SOURCES_REPO_URL: ${{ inputs.sources-repo-url }}
+        RSPEC_BASE_URL: ${{ inputs.rspec-base-url }}
+        MAX_INLINE_SNIPPETS: ${{ inputs.max-inline-snippets }}
+        RESULTS_ARTIFACT_NAME: ${{ inputs.results-artifact-name }}
+        REPORT_WORKFLOW: ${{ inputs.report-workflow }}
+        REPORT_WORKFLOW_REF: ${{ inputs.report-workflow-ref }}
+        BUILD_WORKFLOW: ${{ inputs.build-workflow }}
+        REPORT_DISPATCH_STEP: ${{ inputs.report-dispatch-step }}
+        RULING_WORKFLOW_INPUTS: ${{ inputs.workflow-inputs }}
+        # END GENERATED CONFIG ENV
+      run: node "$ACTION_PATH/bot.mjs" report

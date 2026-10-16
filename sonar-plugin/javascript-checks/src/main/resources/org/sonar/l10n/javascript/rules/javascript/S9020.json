@@ -40,5 +40,11 @@
       "Sonar way"
     ],
     "ts": []
+  },
+  "sonarWayRemoval": {
+    "candidateProfiles": [
+      "refactoring",
+      "strict-tests"
+    ]
   }
 }

@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package sonarjs.programselection;
+
+import "google/protobuf/struct.proto";
+
+message AnalysisMetadata {
+  ProgramSelection program_selection = 1;
+  // Shared context fields belong to the collector JSON metadata, not this Node-only artifact.
+  reserved 2, 3, 4;
+  reserved "configuration", "rule_file_types", "base_dir";
+}
+
+message ProgramSelection {
+  // Identifies this archive; artifact compatibility is checked by SQAA Hub.
+  string magic = 1;
+  reserved 2;
+  repeated Program programs = 3;
+  repeated FileSelection files = 4;
+  // Files intentionally analyzed by CI without a TypeScript program.
+  repeated string no_program_files = 5;
+}
+
+message Program {
+  uint32 id = 1;
+  oneof kind {
+    ConfiguredProgram configured = 2;
+    OrphanProgram orphan = 3;
+  }
+}
+
+message ConfiguredProgram {
+  string tsconfig_path = 1;
+  google.protobuf.Struct compiler_options = 2;
+}
+
+message OrphanProgram {
+  google.protobuf.Struct compiler_options = 1;
+}
+
+message FileSelection {
+  string file_path = 1;
+  uint32 program_id = 2;
+}

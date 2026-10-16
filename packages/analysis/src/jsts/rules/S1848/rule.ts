@@ -437,8 +437,11 @@ function isException(
 function isFqnException(fqn: string): boolean {
   const exactExceptions = ['vue', '@ag-grid-community.core.Grid'];
   const startsWithExceptions = ['aws-cdk-lib', 'cdk8s', '@pulumi', '@cdktf', 'obsidian'];
+  const cdkTerrainExceptions = ['cdktn', '@cdktn'];
   return (
-    exactExceptions.includes(fqn) || startsWithExceptions.some(prefix => fqn.startsWith(prefix))
+    exactExceptions.includes(fqn) ||
+    startsWithExceptions.some(prefix => fqn.startsWith(prefix)) ||
+    cdkTerrainExceptions.some(prefix => fqn === prefix || fqn.startsWith(`${prefix}.`))
   );
 }
 

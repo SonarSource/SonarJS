@@ -30,6 +30,9 @@
 174,
 191
 ],
+"desktop:app/src/ui/donut.tsx": [
+47
+],
 "desktop:app/src/ui/history/selected-commit.tsx": [
 303,
 428
@@ -41,6 +44,9 @@
 "desktop:app/src/ui/notifications/pull-request-checks-failed.tsx": [
 224,
 241
+],
+"desktop:app/src/ui/notifications/pull-request-review.tsx": [
+162
 ],
 "desktop:app/src/ui/release-notes/release-notes-dialog.tsx": [
 172,

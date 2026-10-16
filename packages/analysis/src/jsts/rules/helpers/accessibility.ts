@@ -18,6 +18,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import type { Rule } from 'eslint';
 import pkg from 'jsx-ast-utils-x';
+import { isJsxElementNamed } from './jsx.js';
 const { getProp, getLiteralPropValue, getPropValue, elementType } = pkg;
 
 export function isPresentationTable(context: Rule.RuleContext, node: TSESTree.JSXOpeningElement) {
@@ -98,6 +99,45 @@ function isPotentiallyNonEmptyTemplateLiteralAttribute(attribute: JSXAttribute):
   return (
     attribute.value.expression.expressions.length > 0 ||
     attribute.value.expression.quasis.some(quasi => quasi.value.cooked?.trim() !== '')
+  );
+}
+
+/**
+ * Checks whether an element has a direct-child <title> element with non-empty content.
+ * Independent of whitespace and of the title's position among its siblings. Not specific
+ * to SVG: the caller decides which elements this check applies to.
+ */
+function hasTitleChild(node: TSESTree.JSXOpeningElement): boolean {
+  const parent = node.parent;
+  if (parent?.type !== 'JSXElement') {
+    return false;
+  }
+  return parent.children.some(
+    child =>
+      isJsxElementNamed(child, 'title') &&
+      child.children.some(
+        c =>
+          (c.type === 'JSXText' && c.value.trim() !== '') ||
+          (c.type === 'JSXExpressionContainer' &&
+            c.expression.type !== 'JSXEmptyExpression' &&
+            !(c.expression.type === 'Literal' && !c.expression.value) &&
+            !(c.expression.type === 'Identifier' && c.expression.name === 'undefined')),
+      ),
+  );
+}
+
+/**
+ * Checks whether an element has an accessible name via aria-labelledby, aria-label, or a
+ * direct-child <title> element (in that precedence order). Id references in aria-labelledby
+ * are not resolved to their target's text, treated purely as a presence check like aria-label.
+ * Not specific to SVG: the caller decides which elements this check applies to.
+ */
+export function hasAccessibleName(node: TSESTree.JSXOpeningElement): boolean {
+  const attributes = (node as JSXOpeningElement).attributes;
+  return (
+    hasAccessibleNameAttribute(attributes, 'aria-labelledby') ||
+    hasAccessibleNameAttribute(attributes, 'aria-label') ||
+    hasTitleChild(node)
   );
 }
 

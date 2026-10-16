@@ -72,6 +72,9 @@ public class BridgeServerImpl implements BridgeServer {
   private static final Logger LOG = LoggerFactory.getLogger(BridgeServerImpl.class);
 
   private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
+  // An externally managed Node.js process should already be running. Do not wait for the full
+  // analyzer startup timeout when its port is unavailable (for example after a worker OOM).
+  private static final int EXTERNAL_NODE_CONNECTION_TIMEOUT_SECONDS = 5;
   private static final int TIME_AFTER_FAILURE_TO_RESTART_MS = 60 * 1000;
   private static final int MAX_INBOUND_GRPC_MESSAGE_SIZE = Integer.MAX_VALUE;
   private static final int STREAM_CANCELLATION_POLL_INTERVAL_MS = 100;
@@ -414,7 +417,13 @@ public class BridgeServerImpl implements BridgeServer {
       ownsNodeProcess = false;
       port = providedPort;
       openChannel();
-      if (!waitChannelReady(timeoutSeconds * 1000)) {
+      if (
+        !waitChannelReady(
+          (int) TimeUnit.SECONDS.toMillis(
+            Math.min(timeoutSeconds, EXTERNAL_NODE_CONNECTION_TIMEOUT_SECONDS)
+          )
+        )
+      ) {
         status = Status.FAILED;
         closeChannel();
         logExternalNodeProcessConnectionFailure();

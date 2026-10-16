@@ -1,0 +1,39 @@
+{
+"desktop:app/static/common/markdown.css": [
+34,
+38
+],
+"desktop:app/styles/_globals.scss": [
+163
+],
+"desktop:app/styles/ui/_avatar-stack.scss": [
+125,
+134
+],
+"desktop:app/styles/ui/_codemirror.scss": [
+15
+],
+"desktop:app/styles/ui/_dialog.scss": [
+64,
+65,
+68,
+71
+],
+"desktop:app/styles/ui/_diff.scss": [
+775,
+779
+],
+"desktop:app/styles/ui/_dropdown-select-button.scss": [
+45
+],
+"desktop:app/styles/ui/_side-by-side-diff.scss": [
+313
+],
+"desktop:app/styles/ui/check-runs/_ci-check-run-job-steps.scss": [
+25
+],
+"desktop:app/styles/ui/check-runs/_ci-check-run-list-item.scss": [
+29,
+36
+]
+}

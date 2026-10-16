@@ -23,8 +23,8 @@ import { isHtmlElement } from '../helpers/isHtmlElement.js';
 import * as meta from './generated-meta.js';
 
 /**
- * Suppresses the upstream report only for an intrinsic editing host with a statically enabled
- * contenteditable attribute. Such a host is keyboard-focusable, so its tabIndex is not redundant.
+ * Suppresses the upstream report for proven editing hosts or conditional values
+ * that cannot add an element to sequential keyboard navigation.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
@@ -33,6 +33,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
+      if (isTabIndexOutsideSequentialFocusOrder(reportDescriptor)) {
+        return;
+      }
       const opening = openingElementOf(reportDescriptor);
       if (opening !== undefined && isEditableHtmlHost(opening)) {
         return;
@@ -102,12 +105,81 @@ function directContentEditableAttribute(
   if (contentEditableAttributes.length !== 1) {
     return undefined;
   }
-  const attribute = contentEditableAttributes[0];
-  const index = attributes.indexOf(attribute);
-  // A later spread may override this attribute. An earlier spread is overwritten by it.
-  return attributes.some(
-    (candidate, position) => position > index && candidate.type === 'JSXSpreadAttribute',
-  )
+  // An earlier spread can add a differently cased HTML attribute that a direct attribute does not override.
+  return attributes.some(candidate => candidate.type === 'JSXSpreadAttribute')
     ? undefined
-    : attribute;
+    : contentEditableAttributes[0];
+}
+
+/**
+ * Matches: <div tabIndex={disabled ? null : -1} />
+ * Requires no spreads or later tabIndex attributes.
+ */
+function isTabIndexOutsideSequentialFocusOrder(reportDescriptor: Rule.ReportDescriptor): boolean {
+  if (!('node' in reportDescriptor) || reportDescriptor.node.type !== 'JSXAttribute') {
+    return false;
+  }
+
+  const node = reportDescriptor.node as TSESTree.JSXAttribute;
+  return (
+    node.name.type === 'JSXIdentifier' &&
+    node.name.name === 'tabIndex' &&
+    node.value?.type === 'JSXExpressionContainer' &&
+    node.value.expression.type === 'ConditionalExpression' &&
+    hasNoTabIndexOverrides(node) &&
+    isNonSequentialTabIndexValue(node.value.expression)
+  );
+}
+
+/**
+ * Matches: <div id="title" tabIndex={value} title="Title" />
+ * Rejects any spread or later tabIndex attribute, including case variants.
+ */
+function hasNoTabIndexOverrides(node: TSESTree.JSXAttribute): boolean {
+  const parent = node.parent;
+  if (parent?.type !== 'JSXOpeningElement') {
+    return false;
+  }
+
+  const index = parent.attributes.indexOf(node);
+  // Spreads can add a differently cased DOM attribute, even before tabIndex.
+  return (
+    index !== -1 &&
+    !parent.attributes.some(
+      (attribute, attributeIndex) =>
+        attribute.type === 'JSXSpreadAttribute' ||
+        (attributeIndex > index &&
+          attribute.name.type === 'JSXIdentifier' &&
+          attribute.name.name.toLowerCase() === 'tabindex'),
+    )
+  );
+}
+
+/**
+ * Matches:
+ *   null
+ *   -1
+ *   condition ? null : nested ? -1 : -2
+ * Every leaf must be null or a negative integer literal.
+ */
+function isNonSequentialTabIndexValue(expression: TSESTree.Expression): boolean {
+  if (expression.type === 'ConditionalExpression') {
+    return (
+      isNonSequentialTabIndexValue(expression.consequent) &&
+      isNonSequentialTabIndexValue(expression.alternate)
+    );
+  }
+
+  if (expression.type === 'Literal' && expression.value === null) {
+    return true;
+  }
+
+  return (
+    expression.type === 'UnaryExpression' &&
+    expression.operator === '-' &&
+    expression.argument.type === 'Literal' &&
+    typeof expression.argument.value === 'number' &&
+    Number.isInteger(expression.argument.value) &&
+    expression.argument.value > 0
+  );
 }

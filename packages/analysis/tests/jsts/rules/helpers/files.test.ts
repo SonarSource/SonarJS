@@ -83,6 +83,17 @@ describe('files', () => {
   });
 
   describe('normalizePath', () => {
+    test('preserves the UNC share prefix while normalizing to forward slashes', () => {
+      expect(normalizePath('\\\\server\\share\\project\\file.ts')).toBe(
+        '//server/share/project/file.ts',
+      );
+      expect(normalizeToAbsolutePath('//server/share/project/file.ts')).toBe(
+        '//server/share/project/file.ts',
+      );
+      expect(joinPaths('//server/share/project' as NormalizedAbsolutePath, 'src', 'file.ts')).toBe(
+        '//server/share/project/src/file.ts',
+      );
+    });
     test('should convert backslashes to forward slashes for relative paths', () => {
       expect(normalizePath('foo\\bar\\baz')).toEqual('foo/bar/baz');
     });

@@ -33,7 +33,10 @@ import {
 import { info, error } from '../../shared/src/helpers/logging.js';
 import { ProgressReport } from './common/progress-report.js';
 import type { WsIncrementalResult } from './incremental-result.js';
-import { setSourceFilesContext } from './jsts/program/cache/sourceFileCache.js';
+import {
+  clearSourceFileContentCache,
+  setSourceFilesContext,
+} from './jsts/program/cache/sourceFileCache.js';
 import { generatedSourceStore, sourceFileStore } from './file-stores/index.js';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import {
@@ -46,6 +49,9 @@ type AnalysisStatus = {
   cancelled: boolean;
 };
 
+// The analysis worker processes one project request at a time. The gRPC handler opens this
+// scope before normalization so cancellation also reaches preparation; standalone callers
+// get their own scope in analyzeProject().
 let analysisStatus: AnalysisStatus | undefined;
 
 /**
@@ -91,12 +97,23 @@ export async function analyzeProject(
   configuration: Configuration,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
-  if (!analysisStatus) {
-    return withAnalysisCancellation(() =>
-      analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel),
-    );
+  try {
+    if (!analysisStatus) {
+      // Keep the outer finally below pending until the nested analysis has settled.
+      return await withAnalysisCancellation(() =>
+        analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel),
+      );
+    }
+    return await analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel);
+  } finally {
+    // Scanner requests are independent. The last ESLint SourceCode retains its parser services,
+    // including the entire TypeScript Program; the parsed SourceFile cache also remains live.
+    // Release both before the next request loads another filesystem archive or TS program.
+    if (!configuration.sonarlint) {
+      Linter.releaseAfterAnalysis();
+      clearSourceFileContentCache();
+    }
   }
-  return analyzeProjectWithCancellation(input, configuration, incrementalResultsChannel);
 }
 
 async function analyzeProjectWithCancellation(
@@ -104,9 +121,8 @@ async function analyzeProjectWithCancellation(
   configuration: Configuration,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ): Promise<ProjectAnalysisOutput> {
-  const { rules, bundles, rulesWorkdir } = input;
+  const { rules, bundles, rulesWorkdir, programSelection } = input;
   const filesToAnalyze = sourceFileStore.getFiles();
-
   // All files go into pendingFiles - analyzeFile decides per-file whether to
   // run JS/TS analysis, CSS analysis, or both (for Vue/HTML files).
   const pendingFiles = new Set(Object.keys(filesToAnalyze) as NormalizedAbsolutePath[]);
@@ -140,7 +156,7 @@ async function analyzeProjectWithCancellation(
   // Initialize CSS linter with active CSS rules (mirrors Linter.initialize for JS/TS).
   // Always called to reset state between analysis runs: when cssRules is empty,
   // the linter is reset to uninitialized so CSS analysis is correctly skipped.
-  cssLinter.initialize(input.cssRules ?? []);
+  cssLinter.initialize(input.cssRules ?? [], baseDir);
 
   const progressReport = new ProgressReport(pendingFiles.size);
   if (pendingFiles.size) {
@@ -168,13 +184,15 @@ async function analyzeProjectWithCancellation(
         baseDir,
         canAccessFileSystem,
         jsTsConfigFields,
+        programSelection,
         incrementalResultsChannel,
       );
     }
     if (pendingFiles.size) {
-      const pendingJsTsCount = Array.from(pendingFiles).filter(filePath =>
+      const noProgramFiles = Array.from(pendingFiles).filter(filePath =>
         isJsTsFile(filePath, jsTsConfigFields.shouldIgnoreParams),
-      ).length;
+      );
+      const pendingJsTsCount = noProgramFiles.length;
       if (pendingJsTsCount > 0 && !jsTsConfigFields.disableTypeChecking) {
         info(
           `Found ${pendingJsTsCount} JS/TS file(s) not part of any tsconfig.json: they will be analyzed without type information`,
@@ -189,6 +207,7 @@ async function analyzeProjectWithCancellation(
         jsTsConfigFields,
         incrementalResultsChannel,
       );
+      recordNoProgramOutcomes(noProgramFiles, programSelection);
     }
   }
   progressReport.stop();
@@ -200,4 +219,18 @@ async function analyzeProjectWithCancellation(
     incrementalResultsChannel?.({ ...results.meta, messageType: 'meta' });
   }
   return results;
+}
+
+function recordNoProgramOutcomes(
+  files: NormalizedAbsolutePath[],
+  programSelection: ProjectAnalysisInput['programSelection'],
+): void {
+  // An orphan group records its program before analyzing its first file. On cancellation,
+  // unprocessed group members remain pending but must not acquire a second outcome.
+  if (isAnalysisCancelled()) {
+    return;
+  }
+  for (const file of files) {
+    programSelection?.recordNoProgram(file);
+  }
 }

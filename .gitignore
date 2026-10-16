@@ -15,6 +15,8 @@ packages/analysis/src/jsts/parsers/estree.js
 packages/analysis/src/jsts/parsers/estree.d.ts
 packages/shared/src/fs-cache/archive-proto.js
 packages/shared/src/fs-cache/archive-proto.d.ts
+packages/analysis/src/program-selection/*-proto.js
+packages/analysis/src/program-selection/*-proto.d.ts
 
 # Auto-generated RSPEC rule data (by npm run rspec:refresh)
 # Keep generated RSPEC JSON tracked; ignore rendered HTML.
@@ -66,6 +68,10 @@ Desktop.ini
 # ---- Sonar
 .sonar
 .scannerwork
+
+# Private local outputs from the standalone SQAA benchmark (runner lives in Drive).
+tmp/sqaa-benchmark/out/
+tmp/sqaa-benchmark/*.local.json
 
 # eslint-plugin-sonarjs
 eslint-plugin-sonarjs-*.tgz

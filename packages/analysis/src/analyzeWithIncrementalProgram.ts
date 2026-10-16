@@ -20,7 +20,8 @@ import { tsConfigStore } from './file-stores/index.js';
 import type { ProgressReport } from './common/progress-report.js';
 import type { WsIncrementalResult } from './incremental-result.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
-import { error, info, warn } from '../../shared/src/helpers/logging.js';
+import { error, info } from '../../shared/src/helpers/logging.js';
+import { reportMissingExtendedTsConfig } from './common/analysis-warnings.js';
 import { analyzeFile } from './analyzeFile.js';
 import { dirname } from 'node:path/posix';
 import { sanitizeReferences } from './jsts/program/tsconfig/utils.js';
@@ -32,7 +33,6 @@ import {
   defaultCompilerOptions,
   esLibToYear,
   groupFilesByResolvedLib,
-  MISSING_EXTENDED_TSCONFIG,
   tsTargetToEsYear,
   type ProgramOptions,
 } from './jsts/program/tsconfig/options.js';
@@ -121,9 +121,6 @@ export async function analyzeWithIncrementalProgram(
       break;
     }
   }
-  if (foundProgramOptions.some(options => options.missingTsConfig)) {
-    results.meta.warnings.push(MISSING_EXTENDED_TSCONFIG);
-  }
 }
 
 /**
@@ -164,10 +161,7 @@ function programOptionsFromClosestTsconfig(
         }
       }
       foundProgramOptions.push(programOptions);
-      if (programOptions.missingTsConfig) {
-        const msg = `${tsconfig} extends a configuration that was not found. Please run 'npm install' for a more complete analysis.`;
-        warn(msg);
-      }
+      reportMissingExtendedTsConfig(tsconfig, programOptions, results.meta);
       if (programOptions.rootNames.includes(file)) {
         info(
           `Using tsconfig ${tsconfig} for ${file} [lib: ${programOptions.options.lib?.join(', ')}]`,
